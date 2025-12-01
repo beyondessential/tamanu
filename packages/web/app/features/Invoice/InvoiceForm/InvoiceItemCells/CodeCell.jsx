@@ -2,8 +2,14 @@ import React from 'react';
 import { ViewOnlyCell } from './ViewOnlyCell';
 import { ItemCell } from './ItemCell';
 
-export const CodeCell = ({ item }) => (
-  <ItemCell width="10%">
-    <ViewOnlyCell>{item.product?.sourceRefDataRecord?.code}</ViewOnlyCell>
-  </ItemCell>
-);
+export const CodeCell = ({ item, isItemEditable }) => {
+  let productCode = item.productCodeFinal || item.productCode || null;
+  if (!isItemEditable && !productCode) {
+    productCode = 'N/A';
+  }
+  return (
+    <ItemCell width="15%">
+      <ViewOnlyCell>{productCode}</ViewOnlyCell>
+    </ItemCell>
+  );
+};

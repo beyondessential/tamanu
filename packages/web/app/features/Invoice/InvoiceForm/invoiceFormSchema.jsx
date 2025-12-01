@@ -54,7 +54,7 @@ export const invoiceFormSchema = yup.object({
               data-testid="translatedtext-029d"
             />,
           ),
-        productPrice: yup.number().nullable(),
+        manualEntryPrice: yup.number().nullable(),
       },
       [
         ['orderDate', 'productId'],

@@ -4,7 +4,6 @@ import { useSuggester } from '../../../api';
 import { Colors } from '../../../constants';
 import { IconButton } from '@material-ui/core';
 import { ChevronRight } from '@material-ui/icons';
-import { useTranslation } from '../../../contexts/Translation';
 import { useInvoicePriceListItemPriceQuery } from '../../../api/queries/useInvoicePriceListItemPriceQuery';
 import {
   PriceCell,
@@ -52,25 +51,15 @@ export const InvoiceItemRow = ({
   isDeleteDisabled,
   showActionMenu,
   formArrayMethods,
-  editable,
+  invoiceIsEditable,
   encounterId,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const isItemEditable = !item.product?.sourceRecordId && editable;
-  const { getTranslation } = useTranslation();
-  const nonDiscountableTranslation = getTranslation(
-    'invoice.table.details.nonDiscountable',
-    'Non-discountable',
-    {
-      casing: 'lower',
-    },
-  );
+  const isItemEditable = !item.product?.id && invoiceIsEditable;
 
   const invoiceProductsSuggester = useSuggester('invoiceProduct', {
-    formatter: ({ name, id, ...others }) => ({
-      ...others,
-      productName: name,
-      label: others.discountable ? name : `${name} (${nonDiscountableTranslation})`,
+    formatter: ({ name, id }) => ({
+      label: name,
       value: id,
     }),
   });
@@ -91,15 +80,6 @@ export const InvoiceItemRow = ({
     formArrayMethods.replace(index, {
       ...item,
       productId: value.value,
-      productName: value.productName,
-      productCode: value.code,
-      productDiscountable: value.discountable,
-      // Store nested product details so downstream logic can read price list info
-      product: {
-        name: value.productName,
-        code: value.code,
-        discountable: value.discountable,
-      },
     });
   };
 
@@ -138,7 +118,7 @@ export const InvoiceItemRow = ({
 
   const hidePriceInput =
     (priceListPrice !== null && priceListPrice !== undefined) ||
-    !editable ||
+    !invoiceIsEditable ||
     fetchedPriceData?.price;
 
   return (
@@ -155,10 +135,9 @@ export const InvoiceItemRow = ({
         isItemEditable={isItemEditable}
         invoiceProductsSuggester={invoiceProductsSuggester}
         handleChangeProduct={handleChangeProduct}
-        nonDiscountableTranslation={nonDiscountableTranslation}
-        editable={editable}
+        invoiceIsEditable={invoiceIsEditable}
       />
-      <CodeCell item={item} />
+      <CodeCell item={item} isItemEditable={isItemEditable} />
       <QuantityCell index={index} item={item} isItemEditable={isItemEditable} />
       <OrderedByCell
         index={index}
@@ -181,8 +160,7 @@ export const InvoiceItemRow = ({
         item={item}
         formArrayMethods={formArrayMethods}
         isDeleteDisabled={isDeleteDisabled}
-        showActionMenu={showActionMenu}
-        editable={editable}
+        showActionMenu={showActionMenu && invoiceIsEditable}
         hidePriceInput={hidePriceInput}
       />
     </StyledItemRow>

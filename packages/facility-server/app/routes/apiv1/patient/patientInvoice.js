@@ -4,7 +4,7 @@ import { NotFoundError } from '@tamanu/errors';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import Decimal from 'decimal.js';
-import { mapInsurancePlanItems } from '../invoice/mapInsurancePlanItems';
+import { invoiceForResponse } from '../invoice/invoiceForResponse';
 
 export const patientInvoiceRoutes = express.Router();
 
@@ -30,10 +30,7 @@ async function hydrateInvoices(invoiceRecords, models) {
       if (!hydratedInvoiceRecord) {
         throw new NotFoundError('Invoice not found');
       }
-
-      const invoice = hydratedInvoiceRecord.get({ plain: true });
-      const invoiceItemsResponse = invoice.items.map(mapInsurancePlanItems(invoice.insurancePlans));
-      return { ...invoice, items: invoiceItemsResponse };
+      return invoiceForResponse(hydratedInvoiceRecord);
     }),
   );
 }

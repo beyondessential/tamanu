@@ -35,8 +35,7 @@ export const getInvoiceSummaryDisplay = invoice => {
 };
 
 export const getInvoiceItemPriceDisplay = invoiceItem => {
-  const rawPriceValue =
-    invoiceItem.productPrice ?? invoiceItem?.product?.invoicePriceListItem?.price;
+  const rawPriceValue = getInvoiceItemTotalPrice(invoiceItem);
 
   const unformattedPrice = isNaN(parseFloat(rawPriceValue))
     ? undefined
