@@ -28,7 +28,9 @@ export const SurveyPaneHeading = styled(ProgramsPaneHeading)`
 
 const DirtyStateTracker = ({ dirty, setDirty }) => {
   useEffect(() => {
-    setDirty(dirty);
+    if (setDirty) {
+      setDirty(dirty);
+    }
   }, [dirty, setDirty]);
 
   return null;
@@ -43,7 +45,7 @@ export const SurveyViewForm = ({
   currentUser,
   patientProgramRegistration,
   showCancelButton,
-  setSurveyFormDirty = () => {},
+  setSurveyFormDirty,
 }) => {
   const { getTranslation } = useTranslation();
   const { encounter } = useEncounter();
