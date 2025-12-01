@@ -1,8 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
-import { DataFetchingTable } from '../../../components';
+
 import { getReferenceRange } from '@tamanu/utils/labTests';
 
+import { DataFetchingTable } from '../../../components';
 import { getCompletedDate, getMethod } from '../../../utils/lab';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 import { TranslatedOption } from '../../../components/Translation/TranslatedOptions';

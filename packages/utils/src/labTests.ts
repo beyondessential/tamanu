@@ -1,11 +1,17 @@
-import { SEX_VALUES } from "@tamanu/constants";
-import type { LabTestType } from "@tamanu/database/models/LabTestType";
+import { SEX_VALUES } from '@tamanu/constants';
+import type { LabTestType } from '@tamanu/database/models/LabTestType';
 
-export type Sex = 'male' | 'female' | null | undefined;
+
+type Sex = 'male' | 'female' | null | undefined;
 
 const hasValue = (value?: number | null) => value || value === 0;
 
-export const getReferenceRange = (labTestType?: LabTestType | null, sex?: Sex) => {
+interface GetReferenceRangeProps {
+  labTestType?: LabTestType;
+  sex?: Sex;
+  getTranslation: (stringId: string, fallback: string) => string;
+}
+export const getReferenceRange = ({ labTestType, sex, getTranslation }: GetReferenceRangeProps) => {
   if (!labTestType) return '';
 
   const max = sex === SEX_VALUES.MALE ? labTestType.maleMax : labTestType.femaleMax;
@@ -18,17 +24,17 @@ export const getReferenceRange = (labTestType?: LabTestType | null, sex?: Sex) =
   else if (hasMin) baseRange = `>${min}`;
   else if (hasMax) baseRange = `<${max}`;
   else if (labTestType.rangeText) baseRange = labTestType.rangeText;
-  else baseRange = 'n/a';
+  else baseRange = getTranslation('general.fallback.notApplicable', 'N/A');
 
   return baseRange;
 };
 
-export const getReferenceRangeWithUnit = (labTestType?: LabTestType | null, sex?: Sex) => {
+export const getReferenceRangeWithUnit = ({ labTestType, sex, getTranslation }: GetReferenceRangeProps) => {
   if (!labTestType) return '';
-  
-  const referenceRange = getReferenceRange(labTestType, sex);
+
+  const referenceRange = getReferenceRange({ labTestType, sex, getTranslation });
   const { unit } = labTestType;
   if (!unit) return referenceRange;
-  if (referenceRange === 'n/a') return referenceRange;
+  if (referenceRange === getTranslation('general.fallback.notApplicable', 'N/A')) return referenceRange;
   return `${referenceRange} ${unit}`;
 };

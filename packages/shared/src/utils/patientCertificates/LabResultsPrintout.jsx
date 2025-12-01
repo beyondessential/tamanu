@@ -56,37 +56,6 @@ const labDetailsSectionStyles = StyleSheet.create({
 
 const SectionContainer = props => <View style={generalStyles.container} {...props} />;
 
-const getLabResultsColumns = patientSex => [
-  {
-    key: 'labTestType.name',
-    title: 'Test',
-    accessor: ({ labTestType }) => labTestType?.name || '',
-  },
-  {
-    key: 'result',
-    title: 'Result',
-    accessor: ({ result, labTestType }) => {
-      if (result === undefined || result === null || result === '') return '';
-      const unit = labTestType?.unit;
-      return unit ? `${result} ${unit}` : result;
-    },
-  },
-  {
-    key: 'reference',
-    title: 'Reference',
-    accessor: ({ labTestType }) => getReferenceRangeWithUnit(labTestType, patientSex),
-  },
-];
-
-const InterimBanner = ({ getTranslation }) => (
-  <View style={generalStyles.interimBannerText} fontSize={14} bold>
-    {getTranslation(
-      'pdf.labResults.interimBanner',
-      'This report contains interim results that have not yet been published',
-    )}
-  </View>
-);
-
 const LabRequestDetailsSection = ({ labRequest }) => {
   return (
     <View style={labDetailsSectionStyles.detailsContainer}>
@@ -104,6 +73,18 @@ const LabRequestDetailsSection = ({ labRequest }) => {
   );
 };
 
+const InterimBanner = () => {
+  const { getTranslation } = useLanguageContext();
+  return (
+    <View style={generalStyles.interimBannerText} fontSize={14} bold>
+      {getTranslation(
+        'pdf.labResults.interimBanner',
+        'This report contains interim results that have not yet been published',
+      )}
+    </View>
+  );
+};
+
 const LabResultsPrintoutComponent = React.memo(
   ({ patientData, encounter, labRequest, certificateData, getLocalisation, getSetting }) => {
     const { getTranslation } = useLanguageContext();
@@ -111,7 +92,28 @@ const LabResultsPrintoutComponent = React.memo(
     const showInterimBanner = INTERIM_LAB_REQUEST_STATUSES.includes(labRequest.status);
     const tests = labRequest.tests || [];
     const panelName = labRequest.labTestPanelRequest?.labTestPanel?.name;
-    const labResultsColumns = getLabResultsColumns(patientData?.sex);
+    const labResultsColumns = [
+      {
+        key: 'labTestType.name',
+        title: getTranslation('lab.results.table.column.testType', 'Test'),
+        accessor: ({ labTestType }) => labTestType?.name || '',
+      },
+      {
+        key: 'result',
+        title: getTranslation('lab.results.table.column.result', 'Result'),
+        accessor: ({ result, labTestType }) => {
+          if (result === undefined || result === null || result === '') return '';
+          const unit = labTestType?.unit;
+          return unit ? `${result} ${unit}` : result;
+        },
+      },
+      {
+        key: 'reference',
+        title: getTranslation('lab.results.table.column.reference', 'Reference'),
+        accessor: ({ labTestType }) =>
+          getReferenceRangeWithUnit({ labTestType, sex: patientData?.sex, getTranslation }),
+      },
+    ];
 
     /**
      * Currently it is only possible for one panel request per results printout
@@ -128,7 +130,7 @@ const LabResultsPrintoutComponent = React.memo(
           {tests.length > 0 && (
             <MultiPageHeader
               documentName={getTranslation('pdf.labResults.documentName', 'Lab results')}
-              documentSubname={`Request ID: ${labRequest?.displayId || ''}`}
+              documentSubname={getTranslation('pdf.labResults.documentSubname', 'Request ID :requestId', { replacements: { requestId: labRequest?.displayId || '' } })}
               patientId={patientData?.displayId || ''}
               patientName={getName(patientData)}
             />
@@ -139,9 +141,7 @@ const LabResultsPrintoutComponent = React.memo(
               letterheadConfig={certificateData}
               certificateTitle={getTranslation('pdf.labResults.documentName', 'Lab results')}
             />
-            {showInterimBanner && (
-              <InterimBanner getTranslation={getTranslation} />
-            )}
+            {showInterimBanner && <InterimBanner />}
             <SectionContainer>
               <PatientDetailsWithBarcode
                 patient={patientData}
