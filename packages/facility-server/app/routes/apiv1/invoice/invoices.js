@@ -1,7 +1,11 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { ValidationError, NotFoundError, InvalidOperationError } from '@tamanu/errors';
-import { INVOICE_ITEMS_DISCOUNT_TYPES, INVOICE_STATUSES } from '@tamanu/constants';
+import {
+  INVOICE_ITEMS_DISCOUNT_TYPES,
+  INVOICE_STATUSES,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { Op } from 'sequelize';
@@ -38,6 +42,7 @@ invoiceRoute.get(
       where: {
         invoicePriceListId,
         invoiceProductId: productId,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
       attributes: ['price'],
     });
