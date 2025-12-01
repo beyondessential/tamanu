@@ -12,7 +12,11 @@ import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { Footer } from './printComponents/Footer';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
-import { MinimalLabRequestDetailsSection, SampleDetailsRow, PublishedDetailsRow } from './LabRequestDetailsSection';
+import {
+  MinimalLabRequestDetailsSection,
+  SampleDetailsRow,
+  PublishedDetailsRow,
+} from './LabRequestDetailsSection';
 import { Table } from './Table';
 import { P } from './Typography';
 import { getName } from '../patientAccessors';
@@ -97,7 +101,12 @@ const LabResultsPrintoutComponent = React.memo(
     const { logo } = certificateData;
     const showInterimBanner = INTERIM_LAB_REQUEST_STATUSES.includes(labRequest.status);
     const tests = labRequest.tests || [];
+    const panelName = labRequest.labTestPanelRequest?.labTestPanel?.name;
     const labResultsColumns = getLabResultsColumns(patientData?.sex);
+
+    // Currently only possible for one panel per request
+    const getRowSectionLabel = () => panelName
+
     return (
       <Document>
         <Page size="A4" style={[styles.page, { paddingBottom: 50 }]}>
@@ -117,7 +126,10 @@ const LabResultsPrintoutComponent = React.memo(
             />
             {showInterimBanner && (
               <P style={generalStyles.interimBannerText} fontSize={14} bold>
-                {getTranslation('pdf.labResults.interimBanner', 'This report contains interim results that have not yet been published')}
+                {getTranslation(
+                  'pdf.labResults.interimBanner',
+                  'This report contains interim results that have not yet been published',
+                )}
               </P>
             )}
             <SectionContainer>
@@ -132,9 +144,7 @@ const LabResultsPrintoutComponent = React.memo(
             </SectionContainer>
           </CertificateHeader>
           <SectionContainer>
-            <LabRequestDetailsSection
-              labRequest={labRequest}
-            />
+            <LabRequestDetailsSection labRequest={labRequest} />
           </SectionContainer>
           {tests.length > 0 && (
             <SectionContainer>
@@ -150,6 +160,7 @@ const LabResultsPrintoutComponent = React.memo(
                   hideRowDividers
                   headerStyleOverrides={generalStyles.tableHeaderStyles}
                   bodyStyleOverrides={generalStyles.tableBodyStyles}
+                  getRowSectionLabel={getRowSectionLabel}
                 />
               </View>
             </SectionContainer>

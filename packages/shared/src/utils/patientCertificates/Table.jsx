@@ -44,6 +44,30 @@ const getBodyRowStyle = (rowIndex, rowCount, hideRowDividers) => {
   return { borderTopWidth: 0, borderBottomWidth: 0 };
 };
 
+const getSectionInfo = (row, rowIndex, data, getRowSectionLabel, visibleColumnsLength) => {
+  if (typeof getRowSectionLabel !== 'function') {
+    return { sectionLabel: null, shouldRenderSection: false };
+  }
+  const label = getRowSectionLabel(row);
+  if (!label || !visibleColumnsLength) {
+    return { sectionLabel: null, shouldRenderSection: false };
+  }
+  if (rowIndex === 0) {
+    return { sectionLabel: label, shouldRenderSection: true };
+  }
+  const previousLabel = getRowSectionLabel(data[rowIndex - 1]);
+  return {
+    sectionLabel: label,
+    shouldRenderSection: label !== previousLabel,
+  };
+};
+
+const getIndentedValue = (value, sectionLabel, columnIndex) => {
+  if (!sectionLabel || columnIndex !== 0) return value;
+  if (typeof value !== 'string') return value;
+  return `\u00A0\u00A0\u00A0${value}`;
+};
+
 export const Table = ({
   data,
   columns,
@@ -53,6 +77,7 @@ export const Table = ({
   hideRowDividers = false,
   headerStyleOverrides,
   bodyStyleOverrides,
+  getRowSectionLabel,
 }) => {
   const leftColumnStyle = {
     ...columnStyle,
@@ -64,12 +89,7 @@ export const Table = ({
       <TR fixed>
         {visibleColumns.map(({ title, key, customStyles, headerStyles }, columnIndex) => {
           const baseStyle = columnIndex === 0 ? leftColumnStyle : columnStyle;
-          const headerCustomStyles = [
-            baseStyle,
-            customStyles,
-            headerStyles,
-            headerStyleOverrides,
-          ];
+          const headerCustomStyles = [baseStyle, customStyles, headerStyles, headerStyleOverrides];
           return (
             <TH key={key} customStyles={headerCustomStyles}>
               {title}
@@ -78,20 +98,58 @@ export const Table = ({
         })}
       </TR>
       {data.map((row, rowIndex) => {
+        const { sectionLabel, shouldRenderSection } = getSectionInfo(
+          row,
+          rowIndex,
+          data,
+          getRowSectionLabel,
+          visibleColumns.length,
+        );
+
         const bodyRowStyle = getBodyRowStyle(rowIndex, data.length, hideRowDividers);
 
         return (
-          <TR key={rowIndex} style={bodyRowStyle}>
-            {visibleColumns.map(({ accessor, key, customStyles }, columnIndex) => {
-              const baseStyle = columnIndex === 0 ? leftColumnStyle : columnStyle;
-              const cellStyles = [baseStyle, customStyles, bodyStyleOverrides];
-              return (
-                <TD key={key} customStyles={cellStyles}>
-                  {accessor ? accessor(row, getLocalisation, getSetting) : row[key]}
-                </TD>
-              );
-            })}
-          </TR>
+          <React.Fragment key={rowIndex}>
+            {shouldRenderSection && (
+              <TR style={{ borderTopWidth: 0 }}>
+                {visibleColumns.map((column, columnIndex) => {
+                  const { key, customStyles } = column;
+                  const baseStyle = columnIndex === 0 ? leftColumnStyle : columnStyle;
+                  const isLastColumn = columnIndex === visibleColumns.length - 1;
+                  const sectionCellStyles = [
+                    baseStyle,
+                    customStyles,
+                    bodyStyleOverrides,
+                    // Remove inner column dividers so the section label looks like a single row.
+                    isLastColumn ? { borderLeftWidth: 0 } : { borderRightWidth: 0 },
+                  ].filter(Boolean);
+
+                  return (
+                    <TD
+                      key={`${key}-section-${rowIndex}`}
+                      customStyles={sectionCellStyles}
+                      bold={columnIndex === 0}
+                    >
+                      {columnIndex === 0 ? sectionLabel : ''}
+                    </TD>
+                  );
+                })}
+              </TR>
+            )}
+            <TR style={bodyRowStyle}>
+              {visibleColumns.map((column, columnIndex) => {
+                const { accessor, key, customStyles } = column;
+                const baseStyle = columnIndex === 0 ? leftColumnStyle : columnStyle;
+                const cellStyles = [baseStyle, customStyles, bodyStyleOverrides].filter(Boolean);
+                const rawValue = accessor ? accessor(row, getLocalisation, getSetting) : row[key];
+                return (
+                  <TD key={key} customStyles={cellStyles}>
+                    {getIndentedValue(rawValue, sectionLabel, columnIndex)}
+                  </TD>
+                );
+              })}
+            </TR>
+          </React.Fragment>
         );
       })}
     </View>
