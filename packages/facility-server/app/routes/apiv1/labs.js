@@ -388,6 +388,8 @@ labRelations.get(
 
     // If this is a panel request, we need to order by the panel's test order
     if (labRequest?.labTestPanelRequest?.labTestPanelId) {
+      req.checkPermission('list', 'LabTest');
+
       const { rowsPerPage, page } = query;
 
       const baseQueryOptions = {
@@ -396,6 +398,8 @@ labRelations.get(
           ...(!canListSensitive && { '$labTestType.is_sensitive$': false }),
         },
         include: [
+          'category',
+          'labTestMethod',
           {
             model: LabTestType,
             as: 'labTestType',
