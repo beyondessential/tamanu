@@ -44,32 +44,22 @@ const getBodyRowStyle = (rowIndex, rowCount, hideRowDividers) => {
   return { borderTopWidth: 0, borderBottomWidth: 0 };
 };
 
-const getSectionInfo = (row, rowIndex, data, getRowSectionLabel, visibleColumnsLength) => {
-  const sectionLabel = getRowSectionLabel?.(row);
-  if (!sectionLabel || !visibleColumnsLength) {
-    return { sectionLabel: null, shouldRenderSection: false };
-  }
-  const previousLabel = rowIndex > 0 ? getRowSectionLabel(data[rowIndex - 1]) : null;
-  return {
-    sectionLabel,
-    shouldRenderSection: sectionLabel !== previousLabel,
-  };
-};
 
 const SectionRow = ({ label, columns, columnStyle }) => (
   <TR style={{ borderTopWidth: 0 }}>
-    {columns.map(({key, customStyles = {}}, columnIndex) => {
-      const isFirstColumn = columnIndex === 0;
-      const isLastColumn = columnIndex === columns.length - 1;
+    {columns.map(({key, customStyles = {}}, index) => {
+      const isFirst = index === 0;
+      const isLast = index === columns.length - 1;
       const sectionCellStyles = [
-        { ...columnStyle, borderLeft: isFirstColumn ? basicBorder : undefined },
+        columnStyle,
         customStyles,
+        isFirst ? { borderLeft: basicBorder } : {},
         // Remove inner column dividers so the section label looks like a single row.
-        isLastColumn ? { borderLeftWidth: 0 } : { borderRightWidth: 0 },
+        isLast ? { borderLeftWidth: 0 } : { borderRightWidth: 0 },
       ];
       return (
         <TD key={key} customStyles={sectionCellStyles} bold>
-          {isFirstColumn ? label : ''}
+          {isFirst ? label : ''}
         </TD>
       );
     })}
@@ -105,14 +95,9 @@ export const Table = ({
         })}
       </TR>
       {data.map((row, rowIndex) => {
-        const { sectionLabel, shouldRenderSection } = getSectionInfo(
-          row,
-          rowIndex,
-          data,
-          getRowSectionLabel,
-          visibleColumns.length,
-        );
-        const bodyRowStyle = getBodyRowStyle(rowIndex, data.length, hideRowDividers);
+        const sectionLabel = getRowSectionLabel?.(row);
+        const lastSectionLabel = rowIndex > 0 ? getRowSectionLabel(data[rowIndex - 1]) : null;
+        const shouldRenderSection = sectionLabel !== lastSectionLabel;
         return (
           <React.Fragment key={rowIndex}>
             {shouldRenderSection && (
@@ -122,7 +107,7 @@ export const Table = ({
                 columnStyle={columnStyle}
               />
             )}
-            <TR style={bodyRowStyle}>
+            <TR style={getBodyRowStyle(rowIndex, data.length, hideRowDividers)}>
               {visibleColumns.map(({ accessor, key, customStyles = {} }, columnIndex) => {
 
                 const baseStyle = columnIndex === 0 ? leftColumnStyle : columnStyle;
