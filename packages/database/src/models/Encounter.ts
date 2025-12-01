@@ -671,7 +671,11 @@ export class Encounter extends Model {
       if (this.encounterType === ENCOUNTER_TYPES.ADMISSION) {
         startDateLabel = 'Admission date';
       }
-      if (this.encounterType === ENCOUNTER_TYPES.TRIAGE) {
+      if (
+        [ENCOUNTER_TYPES.TRIAGE, ENCOUNTER_TYPES.OBSERVATION, ENCOUNTER_TYPES.EMERGENCY].includes(
+          this.encounterType as string,
+        )
+      ) {
         startDateLabel = 'Triage date';
       }
 
