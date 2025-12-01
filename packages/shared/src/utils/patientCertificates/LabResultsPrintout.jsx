@@ -12,10 +12,12 @@ import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { Footer } from './printComponents/Footer';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
-import { LabRequestDetailsView } from './LabRequestDetailsView';
+import { MinimalLabRequestDetailsSection, SampleDetailsRow, PublishedDetailsRow } from './LabRequestDetailsSection';
 import { Table } from './Table';
 import { P } from './Typography';
 import { getName } from '../patientAccessors';
+import { HorizontalRule } from './printComponents/HorizontalRule';
+import { DoubleHorizontalRule } from './printComponents/DoubleHorizontalRule';
 
 const generalStyles = StyleSheet.create({
   container: {
@@ -42,6 +44,12 @@ const generalStyles = StyleSheet.create({
   },
 });
 
+const labDetailsSectionStyles = StyleSheet.create({
+  detailsContainer: {
+    marginBottom: 5,
+  },
+});
+
 const SectionContainer = props => <View style={generalStyles.container} {...props} />;
 
 const getLabResultsColumns = patientSex => [
@@ -65,6 +73,23 @@ const getLabResultsColumns = patientSex => [
     accessor: ({ labTestType }) => getReferenceRangeWithUnit(labTestType, patientSex),
   },
 ];
+
+const LabRequestDetailsSection = ({ labRequest }) => {
+  return (
+    <View style={labDetailsSectionStyles.detailsContainer}>
+      <P bold fontSize={11} mb={3}>
+        Lab request details
+      </P>
+      <HorizontalRule />
+      <MinimalLabRequestDetailsSection request={labRequest} />
+      <HorizontalRule />
+      <SampleDetailsRow request={labRequest} />
+      <HorizontalRule />
+      <PublishedDetailsRow request={labRequest} />
+      <DoubleHorizontalRule />
+    </View>
+  );
+};
 
 const LabResultsPrintoutComponent = React.memo(
   ({ patientData, encounter, labRequest, certificateData, getLocalisation, getSetting }) => {
@@ -106,10 +131,8 @@ const LabResultsPrintoutComponent = React.memo(
             </SectionContainer>
           </CertificateHeader>
           <SectionContainer>
-            <LabRequestDetailsView
-              minimal
-              labRequests={[labRequest]}
-              showPublishedDetails
+            <LabRequestDetailsSection
+              labRequest={labRequest}
             />
           </SectionContainer>
           {tests.length > 0 && (

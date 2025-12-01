@@ -10,7 +10,9 @@ import { EncounterDetails } from './printComponents/EncounterDetails';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
-import { LabRequestDetailsView } from './LabRequestDetailsView';
+import { FullLabRequestDetailsSection, SampleDetailsRow } from './LabRequestDetailsSection';
+import { HorizontalRule } from './printComponents/HorizontalRule';
+import { DoubleHorizontalRule } from './printComponents/DoubleHorizontalRule';
 
 const textFontSize = 9;
 
@@ -27,6 +29,16 @@ const signingSectionStyles = StyleSheet.create({
   },
 });
 
+const labDetailsSectionStyles = StyleSheet.create({
+  divider: {
+    borderBottom: '2px solid black',
+    marginVertical: '10px',
+  },
+  detailsContainer: {
+    marginBottom: 5,
+  },
+});
+
 const generalStyles = StyleSheet.create({
   container: {
     marginVertical: 6,
@@ -34,6 +46,28 @@ const generalStyles = StyleSheet.create({
 });
 
 const SectionContainer = props => <View style={generalStyles.container} {...props} />;
+
+const LabRequestDetailsSection = ({ labRequests }) => {
+  return (
+    <View>
+      <P bold fontSize={11} mb={3}>
+        Lab request details
+      </P>
+      <HorizontalRule />
+      {labRequests.map((request, index) => {
+        return (
+          <View key={request.id} style={labDetailsSectionStyles.detailsContainer}>
+            <FullLabRequestDetailsSection request={request} />
+            <HorizontalRule />
+            <SampleDetailsRow request={request} />
+            {index < labRequests.length - 1 && <View style={labDetailsSectionStyles.divider} />}
+          </View>
+        );
+      })}
+      <DoubleHorizontalRule />
+    </View>
+  );
+};
 
 const LabRequestSigningSection = ({ getTranslation }) => {
   const BaseSigningSection = ({ title }) => (
@@ -68,7 +102,15 @@ const LabRequestSigningSection = ({ getTranslation }) => {
 };
 
 const MultipleLabRequestsPrintoutComponent = React.memo(
-  ({ patientData, labRequests, encounter, certificateData, getLocalisation, getTranslation, getSetting }) => {
+  ({
+    patientData,
+    labRequests,
+    encounter,
+    certificateData,
+    getLocalisation,
+    getTranslation,
+    getSetting,
+  }) => {
     const { logo } = certificateData;
     return (
       <Document>
@@ -80,7 +122,11 @@ const MultipleLabRequestsPrintoutComponent = React.memo(
               certificateTitle="Lab request"
             />
             <SectionContainer>
-              <PatientDetailsWithBarcode patient={patientData} getLocalisation={getLocalisation} getSetting={getSetting} />
+              <PatientDetailsWithBarcode
+                patient={patientData}
+                getLocalisation={getLocalisation}
+                getSetting={getSetting}
+              />
             </SectionContainer>
             <SectionContainer>
               <EncounterDetails encounter={encounter} />
@@ -88,7 +134,7 @@ const MultipleLabRequestsPrintoutComponent = React.memo(
           </CertificateHeader>
           <CertificateContent>
             <SectionContainer>
-              <LabRequestDetailsView labRequests={labRequests} />
+              <LabRequestDetailsSection labRequests={labRequests} />
             </SectionContainer>
             <SectionContainer>
               <LabRequestSigningSection getTranslation={getTranslation} labRequests={labRequests} />
