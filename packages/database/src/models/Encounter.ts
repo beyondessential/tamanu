@@ -483,17 +483,20 @@ export class Encounter extends Model {
     });
 
     await this.addSystemNote(systemNote || 'Discharged patient.', submittedTime, user);
-    await this.closeTriage(endDate);
+    await this.closeTriage(endDate, user);
   }
 
-  async closeTriage(endDate: string) {
+  async closeTriage(endDate: string, user: ModelProperties<User>) {
     const triage = await this.getLinkedTriage();
     if (!triage) return;
     if (triage.closedTime) return; // already closed
 
-    await triage.update({
-      closedTime: endDate,
-    });
+    await triage.update(
+      {
+        closedTime: endDate,
+      },
+      user,
+    );
   }
 
   async update(...args: any): Promise<any> {
@@ -599,7 +602,7 @@ export class Encounter extends Model {
         formatText: capitalize,
         changeType: EncounterChangeType.EncounterType,
         onChange: async () => {
-          await this.closeTriage(data.submittedTime);
+          await this.closeTriage(data.submittedTime, user);
         },
       });
       await recordForeignKeyChange({
