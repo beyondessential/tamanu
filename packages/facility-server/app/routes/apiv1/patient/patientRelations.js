@@ -15,6 +15,7 @@ import { patientDeath } from './patientDeath';
 import { patientProfilePicture } from './patientProfilePicture';
 import { deleteReferral, deleteSurveyResponse } from '../../../routeHandlers/deleteModel';
 import { getPermittedSurveyIds } from '../../../utils/getPermittedSurveyIds';
+import { makeFilter, getWhereClausesAndReplacementsFromFilters } from '../../../utils/query';
 
 export const patientRelations = permissionCheckingRouter('read', 'Patient');
 
@@ -29,7 +30,14 @@ patientRelations.get(
       query,
     } = req;
 
-    const { order = 'ASC', orderBy, open = false } = query;
+    const {
+      order = 'ASC',
+      orderBy,
+      open = false,
+      encounterType,
+      facilityId,
+      dischargingClinicianId,
+    } = query;
 
     const ENCOUNTER_SORT_KEYS = {
       startDate: 'start_date',
@@ -43,22 +51,67 @@ patientRelations.get(
       endDate: 'end_date',
       facilityName: 'facility_name',
       locationGroupName: 'location_group_name',
+      dischargingClinicianName: 'discharging_clinician_name',
     };
 
     const sortKey = orderBy && ENCOUNTER_SORT_KEYS[orderBy];
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+    const sortExpression =
+      sortKey &&
+      (orderBy === 'dischargingClinicianName'
+        ? `${sortKey} ${sortDirection} NULLS LAST`
+        : `${sortKey} ${sortDirection}`);
+
+    const searchFilters = [
+      makeFilter(encounterType, 'encounters.encounter_type = :encounterType'),
+      makeFilter(facilityId, 'locations.facility_id = :facilityId'),
+      makeFilter(dischargingClinicianId, 'dischargingClinician.id = :dischargingClinicianId'),
+    ];
+
+    const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(
+      searchFilters,
+      { encounterType, facilityId, dischargingClinicianId },
+    );
+    const searchWhereClause = whereClauses ? `AND ${whereClauses}` : '';
+
+    const fromClause = `
+      FROM
+        encounters
+        INNER JOIN locations
+          ON encounters.location_id = locations.id
+        INNER JOIN facilities
+          ON locations.facility_id = facilities.id
+        LEFT JOIN location_groups
+          ON location_groups.id = locations.location_group_id
+        LEFT JOIN (
+          SELECT DISTINCT ON (encounter_id)
+            encounter_id,
+            discharger_id
+          FROM discharges
+          WHERE deleted_at IS NULL
+          ORDER BY encounter_id, (discharger_id IS NULL), discharger_id
+        ) AS discharge
+          ON discharge.encounter_id = encounters.id
+        LEFT JOIN users AS dischargingClinician 
+          ON dischargingClinician.id = discharge.discharger_id`;
+
+    const whereClause = `
+      WHERE
+        patient_id = :patientId
+        AND encounters.deleted_at IS NULL
+        AND locations.deleted_at IS NULL
+        AND facilities.deleted_at IS NULL
+        AND location_groups.deleted_at IS NULL
+        ${open ? 'AND encounters.end_date IS NULL' : ''}
+        ${searchWhereClause}`;
 
     const { count, data } = await runPaginatedQuery(
       db,
       Encounter,
       `
         SELECT COUNT(1) as count
-        FROM
-          encounters
-        WHERE
-          patient_id = :patientId
-          AND deleted_at IS NULL
-          ${open ? 'AND end_date IS NULL' : ''}
+        ${fromClause}
+        ${whereClause}
       `,
       `
         SELECT
@@ -66,25 +119,13 @@ patientRelations.get(
           locations.facility_id AS facility_id,
           facilities.name AS facility_name,
           location_groups.name AS location_group_name,
-          location_groups.id AS location_group_id
-        FROM
-          encounters
-          INNER JOIN locations
-            ON encounters.location_id = locations.id
-          INNER JOIN facilities
-            ON locations.facility_id = facilities.id
-          LEFT JOIN location_groups
-            ON location_groups.id = locations.location_group_id
-        WHERE
-          patient_id = :patientId
-        AND encounters.deleted_at is null
-        AND locations.deleted_at is null
-        AND facilities.deleted_at is null
-        AND location_groups.deleted_at is null
-          ${open ? 'AND end_date IS NULL' : ''}
-        ${sortKey ? `ORDER BY ${sortKey} ${sortDirection}` : ''}
+          location_groups.id AS location_group_id,
+          dischargingClinician.display_name AS discharging_clinician_name
+        ${fromClause}
+        ${whereClause}
+        ${sortExpression ? `ORDER BY ${sortExpression}` : ''}
       `,
-      { patientId: params.id },
+      { patientId: params.id, ...filterReplacements },
       query,
     );
 
