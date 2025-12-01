@@ -1,5 +1,5 @@
 import { Op, DataTypes } from 'sequelize';
-import { isEqual } from 'lodash';
+import { capitalize, isEqual } from 'lodash';
 
 import {
   ENCOUNTER_TYPE_VALUES,
@@ -11,7 +11,7 @@ import {
 } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
 import { dischargeOutpatientEncounters } from '@tamanu/shared/utils/dischargeOutpatientEncounters';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { formatShort, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { Model } from './Model';
 import {
@@ -540,11 +540,13 @@ export class Encounter extends Model {
     const recordTextColumnChange = async ({
       columnName,
       fieldLabel,
+      formatText = (value: string) => value ?? '-',
       changeType,
       onChange,
     }: {
       columnName: keyof Encounter;
       fieldLabel: string;
+      formatText?: (value: string) => string;
       changeType?: EncounterChangeType;
       onChange?: () => Promise<void>;
     }) => {
@@ -553,8 +555,8 @@ export class Encounter extends Model {
 
       if (changeType) changeTypes.push(changeType);
 
-      const oldValue = this[columnName] ?? '-';
-      const newValue = data[columnName] ?? '-';
+      const oldValue = formatText(this[columnName]);
+      const newValue = formatText(data[columnName]);
       systemNoteRows.push(`Changed ${fieldLabel} from ‘${oldValue}’ to ‘${newValue}’`);
       await onChange?.();
     };
@@ -644,6 +646,7 @@ export class Encounter extends Model {
       await recordTextColumnChange({
         columnName: 'encounterType',
         fieldLabel: 'encounter type',
+        formatText: capitalize,
         changeType: EncounterChangeType.EncounterType,
         onChange: async () => {
           await this.closeTriage(data.submittedTime);
@@ -665,10 +668,12 @@ export class Encounter extends Model {
       await recordTextColumnChange({
         columnName: 'startDate',
         fieldLabel: 'start date',
+        formatText: formatShort,
       });
       await recordTextColumnChange({
         columnName: 'estimatedEndDate',
         fieldLabel: 'estimated discharge date',
+        formatText: formatShort,
       });
       await recordForeignKeyChange({
         columnName: 'patientBillingTypeId',
