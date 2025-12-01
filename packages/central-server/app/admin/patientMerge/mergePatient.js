@@ -238,6 +238,7 @@ export async function mergePatientProgramRegistrations(models, keepPatientId, un
 
   const existingKeepRegistrations = await models.PatientProgramRegistration.findAll({
     where: { patientId: keepPatientId },
+    paranoid: false, // Include soft deleted registrations, as we don't want to create new registrations if they've already been deleted on the keep
   });
   const keepRegistrationMap = new Map(existingKeepRegistrations.map(r => [r.programRegistryId, r]));
 

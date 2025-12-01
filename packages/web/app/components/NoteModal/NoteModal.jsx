@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
-import { useHistory, matchPath } from 'react-router-dom';
+import { matchPath, useBlocker } from 'react-router';
 import styled from 'styled-components';
 import MuiDialog from '@material-ui/core/Dialog';
 
@@ -57,7 +57,7 @@ const FloatingMuiDialog = withModalFloating(StyledMuiDialog);
 
 const getOnBehalfOfId = (noteFormMode, currentUserId, newData, note) => {
   // When editing non treatment plan notes, we just want to retain the previous onBehalfOfId;
-  if (noteFormMode === NOTE_FORM_MODES.EDIT_NOTE && note.noteType !== NOTE_TYPES.TREATMENT_PLAN) {
+  if (noteFormMode === NOTE_FORM_MODES.EDIT_NOTE && note.noteTypeId !== NOTE_TYPES.TREATMENT_PLAN) {
     return note.onBehalfOfId;
   }
 
@@ -175,7 +175,7 @@ export const MuiNoteModalComponent = ({
           ? {
               recordType: note.recordType,
               recordId: note.recordId,
-              noteType: note.noteType,
+              noteTypeId: note.noteTypeId,
               revisedById: note.revisedById || note.id,
             }
           : {
@@ -227,12 +227,19 @@ export const MuiNoteModalComponent = ({
   );
 };
 
-export const NoteModal = React.memo(() => {
+export const NoteModal = () => {
   const { isNoteModalOpen, noteModalProps, closeNoteModal } = useNoteModal();
   const handleBeforeUnloadRef = React.useRef(null);
-  const unblockRef = React.useRef(null);
-  const history = useHistory();
   const { getTranslation } = useTranslation();
+
+  const blocker = useBlocker(({ nextLocation }) => {
+    // Only block when the note modal is open and navigating outside the patient area
+    if (!isNoteModalOpen) {
+      return false;
+    }
+    const nextPath = nextLocation?.pathname || '';
+    return !matchPath({ path: PATIENT_PATHS.PATIENT, end: false }, nextPath);
+  }, isNoteModalOpen);
 
   useEffect(() => {
     handleBeforeUnloadRef.current = e => {
@@ -242,43 +249,47 @@ export const NoteModal = React.memo(() => {
 
     if (isNoteModalOpen) {
       window.addEventListener('beforeunload', handleBeforeUnloadRef.current);
-      unblockRef.current = history.block(location => {
-        if (matchPath(location.pathname, PATIENT_PATHS.PATIENT)) {
-          return true;
-        }
-
-        const confirmed = window.confirm(
-          getTranslation(
-            'note.modal.backBlock.confirm',
-            'You have a patient note in progress. If you leave this page, you will lose your changes.',
-          ),
-        );
-        if (confirmed) {
-          closeNoteModal();
-
-          setTimeout(() => {
-            unblockRef.current();
-            history.push(location.pathname);
-          }, 0);
-        }
-
-        return false;
-      });
     }
 
     return () => {
       if (handleBeforeUnloadRef.current) {
         window.removeEventListener('beforeunload', handleBeforeUnloadRef.current);
       }
-      if (unblockRef.current) {
-        unblockRef.current();
-      }
     };
-  }, [isNoteModalOpen, history, closeNoteModal, getTranslation]);
+  }, [isNoteModalOpen]);
+
+  useEffect(() => {
+    if (blocker.state === 'blocked') {
+      const nextPath = blocker.location?.pathname || '';
+
+      // Allow navigation within the patient area without confirmation
+      if (matchPath({ path: PATIENT_PATHS.PATIENT, end: false }, nextPath)) {
+        blocker.proceed();
+        return;
+      }
+
+      const confirmed = window.confirm(
+        getTranslation(
+          'note.modal.backBlock.confirm',
+          'You have a patient note in progress. If you leave this page, you will lose your changes.',
+        ),
+      );
+
+      if (confirmed) {
+        closeNoteModal();
+        // Proceed after closing modal to ensure state cleanup occurs first
+        setTimeout(() => {
+          blocker.proceed();
+        }, 0);
+      } else {
+        blocker.reset();
+      }
+    }
+  }, [blocker, closeNoteModal, getTranslation]);
 
   return (
     <>
       <MuiNoteModalComponent {...noteModalProps} open={isNoteModalOpen} onClose={closeNoteModal} />
     </>
   );
-});
+};

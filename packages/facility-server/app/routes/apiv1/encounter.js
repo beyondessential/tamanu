@@ -16,10 +16,11 @@ import {
   TASK_STATUSES,
   SURVEY_TYPES,
   DASHBOARD_ONLY_TASK_TYPES,
+  INVOICE_STATUSES,
+  ENCOUNTER_TYPES,
 } from '@tamanu/constants';
 import {
   simpleGet,
-  simpleGetHasOne,
   simpleGetList,
   permissionCheckingRouter,
   runPaginatedQuery,
@@ -29,12 +30,11 @@ import {
 import { add } from 'date-fns';
 import { z } from 'zod';
 import { keyBy } from 'lodash';
-
+import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
 import { createEncounterSchema } from '@tamanu/shared/schemas/facility/requests/createEncounter.schema';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
 import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
-
 import { getLabRequestList } from '../../routeHandlers/labs';
 import {
   deleteDocumentMetadata,
@@ -43,6 +43,7 @@ import {
 } from '../../routeHandlers/deleteModel';
 import { getPermittedSurveyIds } from '../../utils/getPermittedSurveyIds';
 import { validate } from '../../utils/validate';
+import { invoiceForResponse } from './invoice/invoiceForResponse';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
@@ -50,13 +51,29 @@ encounter.get('/:id', simpleGet('Encounter', { auditAccess: true }));
 encounter.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models, body, user } = req;
+    const {
+      models,
+      body: { facilityId, ...data },
+      user,
+    } = req;
     req.checkPermission('create', 'Encounter');
-    const validatedBody = validate(createEncounterSchema, body);
+    const validatedBody = validate(createEncounterSchema, data);
     const encounterObject = await models.Encounter.create({ ...validatedBody, actorId: user.id });
 
-    if (body.dietIds) {
-      const dietIds = JSON.parse(body.dietIds);
+    const isInvoicingEnabled = await req.settings[facilityId]?.get('features.enableInvoicing');
+    const excludedEncounterTypes = [ENCOUNTER_TYPES.SURVEY_RESPONSE, ENCOUNTER_TYPES.VACCINATION];
+    const shouldCreateInvoice = !excludedEncounterTypes.includes(data.encounterType);
+    if (isInvoicingEnabled && shouldCreateInvoice) {
+      await models.Invoice.create({
+        displayId: generateInvoiceDisplayId(),
+        status: INVOICE_STATUSES.IN_PROGRESS,
+        date: encounterObject.startDate,
+        encounterId: encounterObject.id,
+      });
+    }
+
+    if (data.dietIds) {
+      const dietIds = JSON.parse(data.dietIds);
       await encounterObject.addDiets(dietIds);
     }
     res.send(encounterObject);
@@ -394,8 +411,8 @@ encounterRelations.get(
       const prescriptionIds = responseData.map(p => p.id);
       const [pharmacyOrderPrescriptions] = await db.query(
         `
-        SELECT prescription_id, max(created_at) as last_ordered_at 
-        FROM pharmacy_order_prescriptions 
+        SELECT prescription_id, max(created_at) as last_ordered_at
+        FROM pharmacy_order_prescriptions
         WHERE prescription_id IN (:prescriptionIds) and deleted_at is null GROUP BY prescription_id
       `,
         { replacements: { prescriptionIds } },
@@ -497,12 +514,12 @@ encounterRelations.get(
     const { models, params } = req;
     const encounterId = params.id;
     const noteTypeCounts = await models.Note.count({
-      group: ['noteType'],
+      group: ['noteTypeId'],
       where: { recordId: encounterId, recordType: 'Encounter' },
     });
     const noteTypeToCount = {};
     noteTypeCounts.forEach(n => {
-      noteTypeToCount[n.noteType] = n.count;
+      noteTypeToCount[n.noteTypeId] = n.count;
     });
     res.send({ data: noteTypeToCount });
   }),
@@ -515,7 +532,31 @@ encounterRelations.get(
 
 encounterRelations.get(
   '/:id/invoice',
-  simpleGetHasOne('Invoice', 'encounterId', { auditAccess: true }),
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { Invoice, InvoicePriceList } = models;
+    req.checkPermission('read', 'Invoice');
+    const encounterId = params.id;
+    const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(encounterId);
+
+    const invoiceRecord = await Invoice.findOne({
+      where: { encounterId },
+      include: Invoice.getFullReferenceAssociations(invoicePriceListId),
+    });
+    if (!invoiceRecord) {
+      // Return null rather than a 404 as it is a valid scenario for there not to be an invoice
+      return res.send(null);
+    }
+
+    await req.audit.access({
+      recordId: invoiceRecord.id,
+      frontEndContext: params,
+      model: Invoice,
+    });
+
+    const responseRecord = invoiceForResponse(invoiceRecord);
+    res.send(responseRecord);
+  }),
 );
 
 const PROGRAM_RESPONSE_SORT_KEYS = {

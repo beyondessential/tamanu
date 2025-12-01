@@ -1,5 +1,6 @@
 import { addHours, formatISO9075, sub, subWeeks } from 'date-fns';
 import config from 'config';
+import { Chance } from 'chance';
 
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import {
@@ -9,6 +10,7 @@ import {
   NOTE_RECORD_TYPES,
   NOTE_TYPES,
   VITALS_DATA_ELEMENT_IDS,
+  ENCOUNTER_TYPES,
 } from '@tamanu/constants';
 import { setupSurveyFromObject } from '@tamanu/database/demoData/surveys';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
@@ -19,6 +21,8 @@ import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { uploadAttachment } from '../../dist/utils/uploadAttachment';
 import { createTestContext } from '../utilities';
 import { setupSurvey } from '../setupSurvey';
+
+const chance = new Chance();
 
 describe('Encounter', () => {
   const [facilityId] = selectFacilityIds(config);
@@ -134,7 +138,7 @@ describe('Encounter', () => {
         'Test 1',
       ),
       models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.TREATMENT_PLAN, 'Test 2'),
-      models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.MEDICAL, 'Test 3'),
+      models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.OTHER, 'Test 3'),
       models.Note.createForRecord(
         otherEncounter.id,
         'Encounter',
@@ -147,24 +151,27 @@ describe('Encounter', () => {
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(3);
     expect(result.body.data.every(x => x.content.match(/^Test \d$/))).toEqual(true);
-    expect(result.body.data[0].noteType).toEqual(NOTE_TYPES.TREATMENT_PLAN);
+    expect(result.body.data[0].noteTypeId).toEqual(NOTE_TYPES.TREATMENT_PLAN);
   });
 
-  it('should get a list of notes filtered by noteType', async () => {
+  it('should get a list of notes filtered by noteTypeId', async () => {
     const encounter = await models.Encounter.create({
       ...(await createDummyEncounter(models)),
       patientId: patient.id,
     });
+
     await Promise.all([
-      models.Note.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 4'),
-      models.Note.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 5'),
-      models.Note.createForRecord(encounter.id, 'Encounter', 'admission', 'Test 6'),
+      models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.TREATMENT_PLAN, 'Test 4'),
+      models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.TREATMENT_PLAN, 'Test 5'),
+      models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.OTHER, 'Test 6'),
     ]);
 
-    const result = await app.get(`/api/encounter/${encounter.id}/notes?noteType=treatmentPlan`);
+    const result = await app.get(
+      `/api/encounter/${encounter.id}/notes?noteTypeId=${NOTE_TYPES.TREATMENT_PLAN}`,
+    );
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(2);
-    expect(result.body.data.every(x => x.noteType === 'treatmentPlan')).toEqual(true);
+    expect(result.body.data.every(x => x.noteTypeId === NOTE_TYPES.TREATMENT_PLAN)).toEqual(true);
   });
 
   it('should get a list of changelog notes of a root note ordered DESC', async () => {
@@ -666,6 +673,77 @@ describe('Encounter', () => {
 
       test.todo('should not admit a patient who is already in an encounter');
       test.todo('should not admit a patient who is dead');
+    });
+
+    describe('automatic invoice creation', () => {
+      const excludedEncounterTypes = [ENCOUNTER_TYPES.SURVEY_RESPONSE, ENCOUNTER_TYPES.VACCINATION];
+      const validEncounterTypes = Object.values(ENCOUNTER_TYPES).filter(type => !excludedEncounterTypes.includes(type));
+
+      beforeAll(async () => {
+        await models.Setting.set('features.enableInvoicing', true);
+      });
+
+      afterAll(async () => {
+        await models.Setting.set('features.enableInvoicing', false);
+      });
+
+      it('should not automatically create an invoice for a new encounter if invoicing is disabled', async () => {
+        // Disable for this test
+        await models.Setting.set('features.enableInvoicing', false);
+        const result = await app.post('/api/encounter').send({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          facilityId,
+        });
+        expect(result).toHaveSucceeded();
+        expect(result.body.id).toBeTruthy();
+        const invoice = await models.Invoice.findOne({
+          where: {
+            encounterId: result.body.id,
+          },
+        });
+
+        // Enable for the next test
+        await models.Setting.set('features.enableInvoicing', true);
+        expect(invoice).toBeNull();
+      });
+
+      it('should not automatically create an invoice for a new encounter if encounter type is survey response or vaccination', async () => {
+        const encounterType = chance.pickone(excludedEncounterTypes);
+        const result = await app.post('/api/encounter').send({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          encounterType,
+          facilityId,
+        });
+        expect(result).toHaveSucceeded();
+        expect(result.body.id).toBeTruthy();
+        const invoice = await models.Invoice.findOne({
+          where: {
+            encounterId: result.body.id,
+          },
+        });
+        expect(invoice).toBeNull();
+      });
+
+      it('should automatically create an invoice for a new encounter with a valid encounter type', async () => {
+        const encounterType = chance.pickone(validEncounterTypes);
+        const result = await app.post('/api/encounter').send({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          encounterType,
+          facilityId,
+        });
+        expect(result).toHaveSucceeded();
+        expect(result.body.id).toBeTruthy();
+        const invoice = await models.Invoice.findOne({
+          where: {
+            encounterId: result.body.id,
+          },
+        });
+        expect(invoice).toBeTruthy();
+        expect(invoice.encounterId).toEqual(result.body.id);
+      });
     });
 
     describe('diagnoses', () => {

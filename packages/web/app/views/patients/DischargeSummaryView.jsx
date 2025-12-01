@@ -1,5 +1,5 @@
 import React from 'react';
-import { Redirect } from 'react-router-dom';
+import { Navigate } from 'react-router';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
@@ -40,18 +40,20 @@ export const DischargeSummaryView = React.memo(() => {
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const { encounter } = useEncounter();
-  const patient = useSelector((state) => state.patient);
+  const patient = useSelector(state => state.patient);
   const { data: additionalData, isFetching: isPADLoading } = usePatientAdditionalDataQuery(
     patient.id,
   );
   const { data: village } = useReferenceDataQuery(patient?.villageId);
   const { data: discharge, isFetching: isDischargeLoading } = useEncounterDischargeQuery(encounter);
 
-  const { data: patientConditions, isFetching: isLoadingPatientConditions } =
-    usePatientConditionsQuery(patient.id);
+  const {
+    data: patientConditions,
+    isFetching: isLoadingPatientConditions,
+  } = usePatientConditionsQuery(patient.id);
   // If there is no encounter loaded then this screen can't be displayed
   if (!encounter?.id) {
-    return <Redirect to="/patients/all" data-testid="redirect-imzj" />;
+    return <Navigate to="/patients/all" replace data-testid="redirect-imzj" />;
   }
 
   const isLoading =

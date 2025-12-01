@@ -10,7 +10,6 @@ sources:
           tags: []
           meta:
             triggers:
-              - fhir_refresh
               - notify_prescriptions_changed
               - record_prescriptions_changelog
               - set_prescriptions_updated_at

@@ -18,14 +18,14 @@ import { getImagingProvider } from '../../integrations/imaging';
 
 async function renderResults({ models, settings }, imagingRequest) {
   const results = imagingRequest.results
-    ?.filter((result) => !result.deletedAt)
-    .map((result) => result.get({ plain: true }));
+    ?.filter(result => !result.deletedAt)
+    .map(result => result.get({ plain: true }));
   if (!results || results.length === 0) return results;
 
   const imagingProvider = await getImagingProvider(models, settings);
   if (imagingProvider) {
     const urls = await Promise.all(
-      imagingRequest.results.map(async (result) => {
+      imagingRequest.results.map(async result => {
         // catch all errors so we never fail to show the request if the external provider errors
         try {
           const url = await imagingProvider.getUrlForResult(result);
@@ -39,7 +39,7 @@ async function renderResults({ models, settings }, imagingRequest) {
     );
 
     for (const result of results) {
-      const externalResult = urls.find((url) => url?.resultId === result.id);
+      const externalResult = urls.find(url => url?.resultId === result.id);
       if (!externalResult) continue;
 
       const { url, err } = externalResult;
@@ -130,9 +130,14 @@ imagingRequest.get(
         },
         {
           association: 'notes',
+          include: [
+            {
+              association: 'noteTypeReference',
+            },
+          ],
         },
       ],
-    }); 
+    });
     if (!imagingRequestObject) throw new NotFoundError();
 
     await req.audit.access({
@@ -200,7 +205,7 @@ imagingRequest.put(
         notes.note = otherNote.content;
       } else {
         const noteObject = await imagingRequestObject.createNote({
-          noteType: NOTE_TYPES.OTHER,
+          noteTypeId: NOTE_TYPES.OTHER,
           content: note,
           authorId: user.id,
         });
@@ -215,7 +220,7 @@ imagingRequest.put(
         notes.areaNote = areaNote.content || '';
       } else {
         const noteObject = await imagingRequestObject.createNote({
-          noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
+          noteTypeId: NOTE_TYPES.AREA_TO_BE_IMAGED,
           content: areaNote,
           authorId: user.id,
         });
@@ -254,7 +259,7 @@ imagingRequest.post(
   '/$',
   asyncHandler(async (req, res) => {
     const {
-      models: { ImagingRequest },
+      models: { ImagingRequest, ImagingRequestArea },
       user,
       body: { areas, note, areaNote, ...imagingRequestData },
     } = req;
@@ -270,12 +275,17 @@ imagingRequest.post(
 
       // Creates the reference data associations for the areas to be imaged
       if (areas) {
-        await newImagingRequest.setAreas(JSON.parse(areas));
+        for (const area of JSON.parse(areas)) {
+          await ImagingRequestArea.create({
+            areaId: area,
+            imagingRequestId: newImagingRequest.id,
+          });
+        }
       }
 
       if (note) {
         const noteObject = await newImagingRequest.createNote({
-          noteType: NOTE_TYPES.OTHER,
+          noteTypeId: NOTE_TYPES.OTHER,
           content: note,
           authorId: user.id,
         });
@@ -284,7 +294,7 @@ imagingRequest.post(
 
       if (areaNote) {
         const noteObject = await newImagingRequest.createNote({
-          noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
+          noteTypeId: NOTE_TYPES.AREA_TO_BE_IMAGED,
           content: areaNote,
           authorId: user.id,
         });
@@ -460,7 +470,7 @@ globalImagingRequests.get(
     const { count } = databaseResponse;
     const { rows } = databaseResponse;
 
-    const data = rows.map((row) => row.get({ plain: true }));
+    const data = rows.map(row => row.get({ plain: true }));
     res.send({
       count,
       data,
