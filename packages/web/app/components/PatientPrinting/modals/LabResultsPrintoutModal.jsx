@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-import { Modal } from '@tamanu/ui-components';
+import { Modal, TranslatedText } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { useApi } from '../../../api';
 import {
@@ -58,7 +58,13 @@ export const LabResultsPrintoutModal = React.memo(({ labRequest, patient, open, 
 
   return (
     <Modal
-      title="Lab results"
+      title={
+        <TranslatedText
+          stringId="lab.modal.results.title"
+          fallback="Lab results"
+          data-testid="translatedtext-lab-results-title"
+        />
+      }
       open={open}
       onClose={onClose}
       width="md"

@@ -10,7 +10,7 @@ import { LetterheadSection } from './LetterheadSection';
 import { EncounterDetails } from './printComponents/EncounterDetails';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { Footer } from './printComponents/Footer';
-import { withLanguageContext } from '../pdf/languageContext';
+import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { MinimalLabRequestDetailsSection, SampleDetailsRow, PublishedDetailsRow } from './LabRequestDetailsSection';
 import { Table } from './Table';
@@ -93,6 +93,7 @@ const LabRequestDetailsSection = ({ labRequest }) => {
 
 const LabResultsPrintoutComponent = React.memo(
   ({ patientData, encounter, labRequest, certificateData, getLocalisation, getSetting }) => {
+    const { getTranslation } = useLanguageContext();
     const { logo } = certificateData;
     const showInterimBanner = INTERIM_LAB_REQUEST_STATUSES.includes(labRequest.status);
     const tests = labRequest.tests || [];
@@ -112,11 +113,11 @@ const LabResultsPrintoutComponent = React.memo(
             <LetterheadSection
               logoSrc={logo}
               letterheadConfig={certificateData}
-              certificateTitle="Lab results"
+              certificateTitle={getTranslation('lab.modal.results.title', 'Lab results')}
             />
             {showInterimBanner && (
               <P style={generalStyles.interimBannerText} fontSize={14} bold>
-                This report contains interim results that have not yet been published
+                {getTranslation('pdf.labResults.interimBanner', 'This report contains interim results that have not yet been published')}
               </P>
             )}
             <SectionContainer>
@@ -138,7 +139,7 @@ const LabResultsPrintoutComponent = React.memo(
           {tests.length > 0 && (
             <SectionContainer>
               <P bold fontSize={11} mb={3}>
-                Test results
+                {getTranslation('pdf.labResults.testResultsTitle', 'Test results')}
               </P>
               <View style={generalStyles.tableContainer}>
                 <Table
