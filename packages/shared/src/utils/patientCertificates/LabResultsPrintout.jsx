@@ -89,9 +89,7 @@ const LabResultsPrintoutComponent = React.memo(
   ({ patientData, encounter, labRequest, certificateData, getLocalisation, getSetting }) => {
     const { getTranslation } = useLanguageContext();
     const { logo } = certificateData;
-    const showInterimBanner = INTERIM_LAB_REQUEST_STATUSES.includes(labRequest.status);
-    const tests = labRequest.tests || [];
-    const panelName = labRequest.labTestPanelRequest?.labTestPanel?.name;
+    const { tests, labTestPanelRequest } = labRequest;
     const labResultsColumns = [
       {
         key: 'labTestType.name',
@@ -122,7 +120,7 @@ const LabResultsPrintoutComponent = React.memo(
      * @example
      * getRowSectionLabel = (row) => row.panelName;
      */
-    const getRowSectionLabel = () => panelName;
+    const getRowSectionLabel = () => labTestPanelRequest?.labTestPanel?.name;
 
     return (
       <Document>
@@ -130,7 +128,11 @@ const LabResultsPrintoutComponent = React.memo(
           {tests.length > 0 && (
             <MultiPageHeader
               documentName={getTranslation('pdf.labResults.documentName', 'Lab results')}
-              documentSubname={getTranslation('pdf.labResults.documentSubname', 'Request ID :requestId', { replacements: { requestId: labRequest?.displayId || '' } })}
+              documentSubname={getTranslation(
+                'pdf.labResults.documentSubname',
+                'Request ID: :requestId',
+                { replacements: { requestId: labRequest?.displayId || '' } },
+              )}
               patientId={patientData?.displayId || ''}
               patientName={getName(patientData)}
             />
@@ -141,7 +143,7 @@ const LabResultsPrintoutComponent = React.memo(
               letterheadConfig={certificateData}
               certificateTitle={getTranslation('pdf.labResults.documentName', 'Lab results')}
             />
-            {showInterimBanner && <InterimBanner />}
+            {INTERIM_LAB_REQUEST_STATUSES.includes(labRequest.status) && <InterimBanner />}
             <SectionContainer>
               <PatientDetailsWithBarcode
                 patient={patientData}
