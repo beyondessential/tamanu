@@ -86,7 +86,7 @@ export const InvoiceItemCard = ({ item }) => {
               data-testid="translatedtext-9lm0"
             />
           }
-          value={item.productCode}
+          value={item.productCodeFinal ?? item.productCode}
           data-testid="carditem-fvcd"
         />
         <CardItem
@@ -110,7 +110,7 @@ export const InvoiceItemCard = ({ item }) => {
               data-testid="translatedtext-qh0h"
             />
           }
-          value={item.productName}
+          value={item.productNameFinal ?? item.productName}
           data-testid="carditem-pohl"
         />
         <CardItem

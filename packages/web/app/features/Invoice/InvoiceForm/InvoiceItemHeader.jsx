@@ -26,7 +26,7 @@ export const InvoiceItemHeader = () => {
       <ItemHeadCell width="28%">
         <TranslatedText stringId="invoice.modal.editInvoice.details.label" fallback="Details" />
       </ItemHeadCell>
-      <ItemHeadCell width="10%">
+      <ItemHeadCell width="15%">
         <TranslatedText stringId="invoice.table.column.code" fallback="Code" />
       </ItemHeadCell>
       <ItemHeadCell width="10%">

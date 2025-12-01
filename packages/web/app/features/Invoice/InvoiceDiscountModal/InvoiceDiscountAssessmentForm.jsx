@@ -15,12 +15,7 @@ const StyledDivider = styled(Divider)`
 
 const MAX_FAMILY_SIZE = 12;
 
-export const InvoiceDiscountAssessmentForm = ({
-  handleSubmit,
-  onClose,
-  handleBack,
-  isSubmitting,
-}) => {
+export const InvoiceDiscountAssessmentForm = ({ onClose }) => {
   const [familySize, setFamilySize] = useState();
   const [percentage, setPercentage] = useState();
 
@@ -51,6 +46,17 @@ export const InvoiceDiscountAssessmentForm = ({
     if (selectedOption) {
       setPercentage(selectedOption.percentage);
     }
+  };
+
+  // @ts-ignore todo in SAV-1054
+  const handleSubmit = () => {
+    // const discount = {
+    //   percentage: data.percentage,
+    //   reason: data.reason,
+    //   isManual: false,
+    //   appliedByUser: api?.user,
+    //   appliedTime: new Date(),
+    // };
   };
 
   return (
@@ -108,15 +114,6 @@ export const InvoiceDiscountAssessmentForm = ({
             <ConfirmCancelBackRow
               onConfirm={submitForm}
               onCancel={onClose}
-              onBack={handleBack}
-              confirmText={
-                <TranslatedText
-                  stringId="general.action.next"
-                  fallback="Next"
-                  data-testid="translatedtext-vz6y"
-                />
-              }
-              confirmDisabled={isSubmitting}
               data-testid="confirmcancelbackrow-f5b4"
             />
           </>

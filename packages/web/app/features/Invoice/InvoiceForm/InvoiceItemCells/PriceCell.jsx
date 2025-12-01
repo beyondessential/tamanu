@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import {
   getInvoiceItemTotalDiscountedPrice,
   getInvoiceItemTotalPrice,
+  getInvoiceItemCoverageValue,
 } from '@tamanu/shared/utils/invoice';
 import Decimal from 'decimal.js';
 import Collapse from '@material-ui/core/Collapse';
@@ -58,13 +59,14 @@ const InsuranceSection = ({ item, discountedPrice }) => {
 
   return (
     <Box mt={1}>
-      {item.insurancePlanItems.map(({ id, label, coverageValue }) => {
-        const coverage = calculateCoverageValue(discountedPrice, coverageValue);
+      {item.insurancePlanItems.map(insurancePlanItem => {
+        const appliedCoverage = getInvoiceItemCoverageValue(item, insurancePlanItem);
+        const coverageForRow = calculateCoverageValue(discountedPrice, appliedCoverage);
         return (
-          <Row key={id}>
-            <RowName>{label}</RowName>
+          <Row key={insurancePlanItem.id}>
+            <RowName>{insurancePlanItem.label}</RowName>
             <RowValue>
-              <Price price={coverage} />
+              <Price price={coverageForRow} />
             </RowValue>
           </Row>
         );
@@ -129,7 +131,7 @@ export const PriceCell = ({ index, item, isExpanded, hidePriceInput }) => {
             item.productId && (
               <NoteModalActionBlocker>
                 <Field
-                  name={`invoiceItems.${index}.productPrice`}
+                  name={`invoiceItems.${index}.manualEntryPrice`}
                   component={PriceField}
                   required
                   style={{ width: '100%' }}

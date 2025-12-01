@@ -5,12 +5,13 @@ import { INVOICE_ITEMS_DISCOUNT_TYPES, INVOICE_STATUSES } from '@tamanu/constant
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { Op } from 'sequelize';
+import { getInvoiceItemPrice } from '@tamanu/shared/utils';
+import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
 import { invoiceItemsRoute } from './invoiceItems';
 import { getCurrentCountryTimeZoneDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 import { patientPaymentRoute } from './patientPayment';
 import { insurancePlansRoute } from './insurancePlans';
 import { round } from 'lodash';
-import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
 
 const invoiceRoute = express.Router();
 export { invoiceRoute as invoices };
@@ -50,18 +51,6 @@ invoiceRoute.get(
 const createInvoiceSchema = z
   .object({
     encounterId: z.string().uuid(),
-    discount: z
-      .object({
-        percentage: z.coerce
-          .number()
-          .min(0)
-          .max(1)
-          .transform(amount => round(amount, 2)),
-        reason: z.string().nullish(),
-        isManual: z.boolean(),
-      })
-      .strip()
-      .nullish(),
     date: z.string(),
   })
   .strip()
@@ -71,11 +60,12 @@ const createInvoiceSchema = z
     displayId: generateInvoiceDisplayId(),
     status: INVOICE_STATUSES.IN_PROGRESS,
   }));
+
 invoiceRoute.post(
   '/',
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'Invoice');
-    const { body } = req;
+    const { body, models } = req;
 
     const { data, error } = await createInvoiceSchema.safeParseAsync(body);
     if (error) throw new ValidationError(error.message);
@@ -95,8 +85,7 @@ invoiceRoute.post(
     if (existingInvoice)
       throw new InvalidOperationError('An invoice already exists for this encounter');
 
-    // Handles invoice creation with default insurer and discount
-    const invoice = await req.models.Invoice.initializeInvoice(req.user.id, data);
+    const invoice = await models.Invoice.create(data);
     res.json(invoice);
   }),
 );
@@ -314,14 +303,7 @@ invoiceRoute.put(
           item.productNameFinal = item.product.name;
           item.productCodeFinal = item.product.getProductCode();
 
-          if (
-            item.product.invoicePriceListItem &&
-            item.product.invoicePriceListItem.price !== null
-          ) {
-            item.priceFinal = item.product.invoicePriceListItem.price;
-          } else {
-            item.priceFinal = item.manualEntryPrice;
-          }
+          item.priceFinal = getInvoiceItemPrice(item);
 
           // Save insurance plan coverage values
           if (item.product.invoiceInsurancePlanItems?.length > 0) {

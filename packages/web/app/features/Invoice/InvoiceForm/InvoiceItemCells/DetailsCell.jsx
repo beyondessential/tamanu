@@ -16,8 +16,7 @@ export const DetailsCell = ({
   isItemEditable,
   invoiceProductsSuggester,
   handleChangeProduct,
-  nonDiscountableTranslation,
-  editable,
+  invoiceIsEditable,
 }) => (
   <ItemCell width="28%">
     {isItemEditable ? (
@@ -32,15 +31,12 @@ export const DetailsCell = ({
         />
       </NoteModalActionBlocker>
     ) : (
-      <ViewOnlyCell>
-        {item.product?.name}
-        {item.productId && (item.productDiscountable ? '' : ` (${nonDiscountableTranslation})`)}
-      </ViewOnlyCell>
+      <ViewOnlyCell>{item.productNameFinal || item.product?.name}</ViewOnlyCell>
     )}
     {item.note && (
       <Box
-        paddingLeft={editable ? '15px' : 0}
-        marginTop={editable ? '4px' : '-8px'}
+        paddingLeft={invoiceIsEditable ? '15px' : 0}
+        marginTop={invoiceIsEditable ? '4px' : '-8px'}
         color={Colors.darkText}
         data-testid="box-dedu"
       >
