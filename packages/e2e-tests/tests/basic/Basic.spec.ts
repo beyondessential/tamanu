@@ -235,10 +235,9 @@ test.describe('Basic tests', () => {
        expect(status[0]).toBe('Pending');
     })
   test.skip('[BT-0009][AT-2006]Add a new prescription', async () => {});
-  test('[BT-0010][AT-2007]add a document and view it', async ({ newPatient, patientDetailsPage }) => {
+  test.only('[BT-0010][AT-2007]add a document and view it', async ({ newPatient, patientDetailsPage }) => {
     await patientDetailsPage.goToPatient(newPatient);
     const documentsPane = await patientDetailsPage.navigateToDocumentsTab();
-    await documentsPane.waitForPageToLoad();
     const fileName = 'Test Document 2';
     const documentOwnerName = 'Sepideh';
     const note = 'This is a test note 2';

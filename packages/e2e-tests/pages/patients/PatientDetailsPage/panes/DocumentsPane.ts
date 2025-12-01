@@ -1,4 +1,5 @@
 import { Locator, Page } from '@playwright/test';
+import { expect } from '../../../fixtures/baseFixture';
 import { AddDocumentModal } from '../modals/AddDocumentModal';
 
 export class DocumentsPane {
@@ -6,12 +7,14 @@ export class DocumentsPane {
 
   readonly addDocumentButton!: Locator;
   private _addDocumentModal?: AddDocumentModal;
-
+  readonly tableRows!: Locator;
+  readonly noteDataContainer!: Locator;
   constructor(page: Page) {
     this.page = page;
 
     const testIds = {
         addDocumentButton: 'component-enxe',
+        noteDataContainer: 'statustablecell-rwkq',
 
     } as const;
 
@@ -21,8 +24,8 @@ export class DocumentsPane {
 
   }
 
-  async waitForPageToLoad(): Promise<void> {
-    await this.addDocumentButton.waitFor({ state: 'visible' });
+  async waitForNoteDataContainerToDisappear(): Promise<void> {
+    await this.noteDataContainer.waitFor({ state: 'detached' });
     await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
@@ -39,7 +42,7 @@ export class DocumentsPane {
     await addDocumentModal.waitForModalToLoad();
     const formValues = await addDocumentModal.fillForm(values);
     await addDocumentModal.confirmButton.click();
-    await this.waitForPageToLoad();
+    await this.waitForNoteDataContainerToDisappear();
     return formValues;
   }
 }
