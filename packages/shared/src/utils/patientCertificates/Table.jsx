@@ -45,20 +45,15 @@ const getBodyRowStyle = (rowIndex, rowCount, hideRowDividers) => {
 };
 
 const getSectionInfo = (row, rowIndex, data, getRowSectionLabel, visibleColumnsLength) => {
-  if (typeof getRowSectionLabel !== 'function') {
+  const sectionLabel = getRowSectionLabel?.(row);
+  if (!sectionLabel || !visibleColumnsLength) {
     return { sectionLabel: null, shouldRenderSection: false };
   }
-  const label = getRowSectionLabel(row);
-  if (!label || !visibleColumnsLength) {
-    return { sectionLabel: null, shouldRenderSection: false };
-  }
-  if (rowIndex === 0) {
-    return { sectionLabel: label, shouldRenderSection: true };
-  }
-  const previousLabel = getRowSectionLabel(data[rowIndex - 1]);
+
+  const previousLabel = rowIndex > 0 ? getRowSectionLabel(data[rowIndex - 1]) : null;
   return {
-    sectionLabel: label,
-    shouldRenderSection: label !== previousLabel,
+    sectionLabel,
+    shouldRenderSection: sectionLabel !== previousLabel,
   };
 };
 
