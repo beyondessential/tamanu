@@ -49,7 +49,6 @@ const getSectionInfo = (row, rowIndex, data, getRowSectionLabel, visibleColumnsL
   if (!sectionLabel || !visibleColumnsLength) {
     return { sectionLabel: null, shouldRenderSection: false };
   }
-
   const previousLabel = rowIndex > 0 ? getRowSectionLabel(data[rowIndex - 1]) : null;
   return {
     sectionLabel,
@@ -59,20 +58,17 @@ const getSectionInfo = (row, rowIndex, data, getRowSectionLabel, visibleColumnsL
 
 const SectionRow = ({ label, columns, columnStyle }) => (
   <TR style={{ borderTopWidth: 0 }}>
-    {columns.map((column, columnIndex) => {
-      const { key, customStyles } = column;
+    {columns.map(({key, customStyles = {}}, columnIndex) => {
       const isFirstColumn = columnIndex === 0;
       const isLastColumn = columnIndex === columns.length - 1;
-      const baseStyle = isFirstColumn ? { ...columnStyle, borderLeft: basicBorder } : columnStyle;
       const sectionCellStyles = [
-        baseStyle,
+        { ...columnStyle, borderLeft: isFirstColumn ? basicBorder : undefined },
         customStyles,
         // Remove inner column dividers so the section label looks like a single row.
         isLastColumn ? { borderLeftWidth: 0 } : { borderRightWidth: 0 },
-      ].filter(Boolean);
-
+      ];
       return (
-        <TD key={key} customStyles={sectionCellStyles} bold={isFirstColumn}>
+        <TD key={key} customStyles={sectionCellStyles} bold>
           {isFirstColumn ? label : ''}
         </TD>
       );
@@ -88,7 +84,6 @@ export const Table = ({
   columnStyle,
   hideRowDividers = false,
   headerStyleOverrides,
-  bodyStyleOverrides,
   getRowSectionLabel,
 }) => {
   const leftColumnStyle = {
@@ -125,24 +120,16 @@ export const Table = ({
                 label={sectionLabel}
                 columns={visibleColumns}
                 columnStyle={columnStyle}
-                bodyStyleOverrides={bodyStyleOverrides}
               />
             )}
             <TR style={bodyRowStyle}>
-              {visibleColumns.map((column, columnIndex) => {
-                const { accessor, key, customStyles } = column;
+              {visibleColumns.map(({ accessor, key, customStyles = {} }, columnIndex) => {
+
                 const baseStyle = columnIndex === 0 ? leftColumnStyle : columnStyle;
                 // If this row belongs to a section, indent the first column using textIndent
                 // instead of padding, so the column width remains consistent.
-                const indentStyle =
-                  sectionLabel && columnIndex === 0 ? { textIndent: 6 } : null;
-                const cellStyles = [
-                  baseStyle,
-                  customStyles,
-                  bodyStyleOverrides,
-                  indentStyle,
-                ].filter(Boolean);
-
+                const indentStyle = sectionLabel && columnIndex === 0 ? { textIndent: 6 } : {};
+                const cellStyles = [baseStyle, customStyles, indentStyle];
                 return (
                   <TD key={key} customStyles={cellStyles}>
                     {accessor ? accessor(row, getLocalisation, getSetting) : row[key]}
