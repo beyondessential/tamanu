@@ -43,7 +43,7 @@ export const SurveyViewForm = ({
   currentUser,
   patientProgramRegistration,
   showCancelButton,
-  setSurveyFormDirty,
+  setSurveyFormDirty = () => {},
 }) => {
   const { getTranslation } = useTranslation();
   const { encounter } = useEncounter();
