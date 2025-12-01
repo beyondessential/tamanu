@@ -176,7 +176,7 @@ export class Triage extends Model {
       await recordTextColumnChange({
         columnName: 'closedTime',
         fieldLabel: 'closed time',
-        formatText: formatShort,
+        formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
       });
       await recordTextColumnChange({
         columnName: 'score',
