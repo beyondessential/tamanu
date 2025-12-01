@@ -1,21 +1,15 @@
-export type Sex = 'male' | 'female' | null | undefined;
+import { SEX_VALUES } from "@tamanu/constants";
+import type { LabTestType } from "@tamanu/database/models/LabTestType";
 
-type LabTestTypeLike = {
-  maleMin?: number | null;
-  maleMax?: number | null;
-  femaleMin?: number | null;
-  femaleMax?: number | null;
-  rangeText?: string | null;
-  unit?: string | null;
-};
+export type Sex = 'male' | 'female' | null | undefined;
 
 const hasValue = (value?: number | null) => value || value === 0;
 
-export const getReferenceRange = (labTestType?: LabTestTypeLike | null, sex?: Sex) => {
+export const getReferenceRange = (labTestType?: LabTestType | null, sex?: Sex) => {
   if (!labTestType) return '';
 
-  const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
-  const min = sex === 'male' ? labTestType.maleMin : labTestType.femaleMin;
+  const max = sex === SEX_VALUES.MALE ? labTestType.maleMax : labTestType.femaleMax;
+  const min = sex === SEX_VALUES.MALE ? labTestType.maleMin : labTestType.femaleMin;
   const hasMax = hasValue(max);
   const hasMin = hasValue(min);
 
@@ -29,7 +23,7 @@ export const getReferenceRange = (labTestType?: LabTestTypeLike | null, sex?: Se
   return baseRange;
 };
 
-export const getReferenceRangeWithUnit = (labTestType?: LabTestTypeLike | null, sex?: Sex) => {
+export const getReferenceRangeWithUnit = (labTestType?: LabTestType | null, sex?: Sex) => {
   if (!labTestType) return '';
   
   const referenceRange = getReferenceRange(labTestType, sex);
