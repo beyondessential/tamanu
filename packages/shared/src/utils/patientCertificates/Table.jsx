@@ -40,15 +40,11 @@ const TD = ({ customStyles, ...props }) => (
 const getBodyRowStyle = (rowIndex, rowCount, hideRowDividers) => {
   if (!hideRowDividers) return undefined;
   const isLastRow = rowIndex === rowCount - 1;
-  if (isLastRow) return { borderTopWidth: 0 };
-  return { borderTopWidth: 0, borderBottomWidth: 0 };
+  return { borderTopWidth: 0, borderBottomWidth: isLastRow ? 0 : 1 };
 };
 
 const getSectionInfo = (row, rowIndex, data, getRowSectionLabel, visibleColumnsLength) => {
-  if (typeof getRowSectionLabel !== 'function') {
-    return { sectionLabel: null, shouldRenderSection: false };
-  }
-  const label = getRowSectionLabel(row);
+  const label = getRowSectionLabel?.(row);
   if (!label || !visibleColumnsLength) {
     return { sectionLabel: null, shouldRenderSection: false };
   }
