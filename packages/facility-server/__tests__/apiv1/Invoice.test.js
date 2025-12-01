@@ -62,11 +62,11 @@ describe('Invoice API', () => {
       }),
     );
 
-  const createInvoiceItem = async (invoiceId, productId, sourceId, overrides = {}) =>
+  const createInvoiceItem = async (invoiceId, productId, sourceRecordId, overrides = {}) =>
     models.InvoiceItem.create({
       invoiceId,
       productId,
-      sourceId,
+      sourceRecordId,
       orderDate: new Date(),
       orderedByUserId: user.id,
       quantity: 1,
