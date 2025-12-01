@@ -16,7 +16,6 @@ export const getReferenceRange = (labTestType?: LabTestTypeLike | null, sex?: Se
 
   const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
   const min = sex === 'male' ? labTestType.maleMin : labTestType.femaleMin;
-
   const hasMax = hasValue(max);
   const hasMin = hasValue(min);
 
@@ -30,10 +29,11 @@ export const getReferenceRange = (labTestType?: LabTestTypeLike | null, sex?: Se
   return baseRange;
 };
 
-
 export const getReferenceRangeWithUnit = (labTestType?: LabTestTypeLike | null, sex?: Sex) => {
+  if (!labTestType) return '';
+  
   const referenceRange = getReferenceRange(labTestType, sex);
-  const unit = labTestType?.unit;
+  const { unit } = labTestType;
   if (!unit) return referenceRange;
   if (referenceRange === 'n/a') return referenceRange;
   return `${referenceRange} ${unit}`;
