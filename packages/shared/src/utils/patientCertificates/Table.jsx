@@ -88,7 +88,7 @@ export const Table = ({
       </TR>
       {data.map((row, rowIndex) => {
         const sectionLabel = getRowSectionLabel?.(row);
-        const lastSectionLabel = rowIndex > 0 ? getRowSectionLabel(data[rowIndex - 1]) : null;
+        const lastSectionLabel = rowIndex > 0 ? getRowSectionLabel?.(data[rowIndex - 1]) : null;
         const shouldRenderSection = sectionLabel && sectionLabel !== lastSectionLabel;
         return (
           <React.Fragment key={rowIndex}>
