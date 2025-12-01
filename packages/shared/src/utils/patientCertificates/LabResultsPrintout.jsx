@@ -103,7 +103,7 @@ const LabResultsPrintoutComponent = React.memo(
         <Page size="A4" style={[styles.page, { paddingBottom: 50 }]}>
           {tests.length > 0 && (
             <MultiPageHeader
-              documentName="Lab request"
+              documentName={getTranslation('pdf.labResults.documentName', 'Lab results')}
               documentSubname={`Request ID: ${labRequest?.displayId || ''}`}
               patientId={patientData?.displayId || ''}
               patientName={getName(patientData)}
@@ -113,7 +113,7 @@ const LabResultsPrintoutComponent = React.memo(
             <LetterheadSection
               logoSrc={logo}
               letterheadConfig={certificateData}
-              certificateTitle={getTranslation('lab.modal.results.title', 'Lab results')}
+              certificateTitle={getTranslation('pdf.labResults.documentName', 'Lab results')}
             />
             {showInterimBanner && (
               <P style={generalStyles.interimBannerText} fontSize={14} bold>
