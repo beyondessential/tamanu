@@ -62,12 +62,6 @@ const getSectionInfo = (row, rowIndex, data, getRowSectionLabel, visibleColumnsL
   };
 };
 
-const getIndentedValue = (value, sectionLabel, columnIndex) => {
-  if (!sectionLabel || columnIndex !== 0) return value;
-  if (typeof value !== 'string') return value;
-  return `\u00A0\u00A0\u00A0${value}`;
-};
-
 export const Table = ({
   data,
   columns,
@@ -105,9 +99,7 @@ export const Table = ({
           getRowSectionLabel,
           visibleColumns.length,
         );
-
         const bodyRowStyle = getBodyRowStyle(rowIndex, data.length, hideRowDividers);
-
         return (
           <React.Fragment key={rowIndex}>
             {shouldRenderSection && (
@@ -140,11 +132,20 @@ export const Table = ({
               {visibleColumns.map((column, columnIndex) => {
                 const { accessor, key, customStyles } = column;
                 const baseStyle = columnIndex === 0 ? leftColumnStyle : columnStyle;
-                const cellStyles = [baseStyle, customStyles, bodyStyleOverrides].filter(Boolean);
-                const rawValue = accessor ? accessor(row, getLocalisation, getSetting) : row[key];
+                // If this row belongs to a section, indent the first column using textIndent
+                // instead of padding, so the column width remains consistent.
+                const indentStyle =
+                  sectionLabel && columnIndex === 0 ? { textIndent: 6 } : null;
+                const cellStyles = [
+                  baseStyle,
+                  customStyles,
+                  bodyStyleOverrides,
+                  indentStyle,
+                ].filter(Boolean);
+
                 return (
                   <TD key={key} customStyles={cellStyles}>
-                    {getIndentedValue(rawValue, sectionLabel, columnIndex)}
+                    {accessor ? accessor(row, getLocalisation, getSetting) : row[key]}
                   </TD>
                 );
               })}
