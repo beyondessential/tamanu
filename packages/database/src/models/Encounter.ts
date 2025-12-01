@@ -620,7 +620,7 @@ export class Encounter extends Model {
       });
 
       let startDateLabel = 'Date';
-      switch (this.encounterType) {
+      switch (data.encounterType ?? this.encounterType) {
         case ENCOUNTER_TYPES.ADMISSION:
           startDateLabel = 'Admission date';
           break;
