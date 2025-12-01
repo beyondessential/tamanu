@@ -15,7 +15,7 @@ export class LabTestPanelExporter extends DefaultDataExporter {
       ],
       order: [
         [
-          { model: this.models.LabTestType, as: 'labTestTypes' },
+          'labTestTypes',
           this.models.LabTestPanelLabTestTypes,
           'order',
           'ASC',

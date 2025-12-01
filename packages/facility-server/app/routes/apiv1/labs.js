@@ -418,8 +418,8 @@ labRelations.get(
         ],
         order: [
           [
-            { model: LabTestType, as: 'labTestType' },
-            { model: LabTestPanelLabTestTypes, as: 'panelRelations' },
+            'labTestType',
+            'panelRelations',
             'order',
             'ASC',
           ],
