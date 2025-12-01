@@ -128,7 +128,12 @@ export async function importSheet(
         models,
         foreignKeySchemata: FOREIGN_KEY_SCHEMATA,
         header: sheetHeader,
-        pushError: message => errors.push(new ValidationError(sheetName, sheetRow, message)),
+        pushError: (message, errModel) => {
+          errors.push(new ValidationError(sheetName, sheetRow, message));
+          if (errModel) {
+            updateStat(stats, statkey(errModel, sheetName), 'errored');
+          }
+        },
       })) {
         if (!models[model]) throw new Error(`No such type of data: ${model}`);
 
