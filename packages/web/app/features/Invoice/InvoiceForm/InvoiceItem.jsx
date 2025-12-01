@@ -99,20 +99,19 @@ export const InvoiceItemRow = ({
       if (!data?.price) {
         return;
       }
-      // If there is a price list price, update the form data
       const { price } = data;
-      console.log('data', data);
-
-      const nextProduct = {
-        ...(item.product || {}),
-        invoicePriceListItem: {
-          ...(item.product?.invoicePriceListItem || {}),
-          price,
-        },
-      };
-      formArrayMethods.replace(index, {
-        ...item,
-        product: nextProduct,
+      formArrayMethods.update(index, currentItem => {
+        const nextProduct = {
+          ...(currentItem.product || {}),
+          invoicePriceListItem: {
+            ...(currentItem.product?.invoicePriceListItem || {}),
+            price,
+          },
+        };
+        return {
+          ...currentItem,
+          product: nextProduct,
+        };
       });
     },
   });
@@ -124,11 +123,10 @@ export const InvoiceItemRow = ({
     enabled: Boolean(item.productId),
     onSuccess: data => {
       if (!data || data.length === 0) return;
-
-      formArrayMethods.replace(index, {
-        ...item,
+      formArrayMethods.update(index, currentItem => ({
+        ...currentItem,
         insurancePlanItems: data,
-      });
+      }));
     },
   });
 
