@@ -104,8 +104,14 @@ const LabResultsPrintoutComponent = React.memo(
     const panelName = labRequest.labTestPanelRequest?.labTestPanel?.name;
     const labResultsColumns = getLabResultsColumns(patientData?.sex);
 
-    // Currently only possible for one panel per request
-    const getRowSectionLabel = () => panelName
+    /**
+     * Currently it is only possible for one panel request per results printout
+     * To support multiple panels, we can ensure that rows with the same panel name are ordered together
+     * and then use the following to get the groups section label:
+     * @example
+     * getRowSectionLabel = (row) => row.panelName;
+     */
+    const getRowSectionLabel = () => panelName;
 
     return (
       <Document>
