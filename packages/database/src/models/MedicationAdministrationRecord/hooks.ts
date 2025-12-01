@@ -47,37 +47,45 @@ const discontinuePrescriptionIfNeeded = async (instance: MedicationAdministratio
   }
 };
 
-const addToInvoice = async (instance: MedicationAdministrationRecord) => {
-  const prescription = await instance.sequelize.models.Prescription.findByPk(
-    instance.prescriptionId,
-  );
-  if (!prescription) {
-    return;
-  }
+const getInvoiceContext = async (instance: MedicationAdministrationRecord) => {
+  const { Prescription, EncounterPrescription, Encounter } = instance.sequelize.models;
 
-  const encounterPrescription = await instance.sequelize.models.EncounterPrescription.findOne({
-    where: {
-      prescriptionId: prescription.id,
-    },
+  const prescription = await Prescription.findByPk(instance.prescriptionId, {
+    include: [
+      {
+        model: EncounterPrescription,
+        as: 'encounterPrescription',
+        required: true,
+        include: [
+          {
+            model: Encounter,
+            as: 'encounter',
+            required: true,
+          },
+        ],
+      },
+    ],
   });
-  if (!encounterPrescription) {
-    return;
+
+  const encounter = prescription?.encounterPrescription?.encounter;
+
+  if (!encounter || !INVOICEABLE_MEDICATION_ENCOUNTER_TYPES.includes(encounter.encounterType || '')) {
+    return null;
   }
 
-  const encounter = await instance.sequelize.models.Encounter.findByPk(
-    encounterPrescription.encounterId,
-  );
-  if (!encounter) {
-    return;
-  }
+  return { prescription, encounter };
+};
 
-  if (!INVOICEABLE_MEDICATION_ENCOUNTER_TYPES.includes(encounter.encounterType || '')) {
-    return;
-  }
-
+const addToInvoice = async (instance: MedicationAdministrationRecord) => {
   if (instance.status !== ADMINISTRATION_STATUS.GIVEN) {
     return;
   }
+
+  const invoiceContext = await getInvoiceContext(instance);
+  if (!invoiceContext) {
+    return;
+  }
+  const { prescription, encounter } = invoiceContext;
 
   const invoiceProduct = await instance.sequelize.models.InvoiceProduct.findOne({
     where: {
@@ -98,32 +106,11 @@ const addToInvoice = async (instance: MedicationAdministrationRecord) => {
 };
 
 const removeFromInvoice = async (instance: MedicationAdministrationRecord) => {
-  const prescription = await instance.sequelize.models.Prescription.findByPk(
-    instance.prescriptionId,
-  );
-  if (!prescription) {
+  const invoiceContext = await getInvoiceContext(instance);
+  if (!invoiceContext) {
     return;
   }
-
-  const encounterPrescription = await instance.sequelize.models.EncounterPrescription.findOne({
-    where: {
-      prescriptionId: prescription.id,
-    },
-  });
-  if (!encounterPrescription) {
-    return;
-  }
-
-  const encounter = await instance.sequelize.models.Encounter.findByPk(
-    encounterPrescription.encounterId,
-  );
-  if (!encounter) {
-    return;
-  }
-
-  if (!INVOICEABLE_MEDICATION_ENCOUNTER_TYPES.includes(encounter.encounterType || '')) {
-    return;
-  }
+  const { prescription, encounter } = invoiceContext;
 
   const allMedicationAdministrationRecordsForPrescription =
     await instance.sequelize.models.MedicationAdministrationRecord.findAll({
