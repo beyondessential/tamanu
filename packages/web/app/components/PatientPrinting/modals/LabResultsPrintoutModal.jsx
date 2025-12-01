@@ -43,8 +43,8 @@ export const LabResultsPrintoutModal = React.memo(({ labRequest, patient, open, 
   );
 
   const { data: publishedLog, isLoading: isPublishedLogLoading } = useQuery(
-    ['labRequest', labRequest.id, 'latest-published'],
-    () => api.get(`labRequest/${labRequest.id}/latest-published`),
+    ['labRequestLog', labRequest.id, 'latest-published'],
+    () => api.get(`labRequestLog/labRequest/${labRequest.id}/latest-published`),
   );
 
   const isLoading =
