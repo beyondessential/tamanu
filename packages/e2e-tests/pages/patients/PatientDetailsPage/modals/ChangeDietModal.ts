@@ -31,7 +31,7 @@ export class ChangeDietModal {
 
   async changeDiet(diet: string): Promise<void> {
  await this.dietMultiSelectInput.click();
- await this.page.getByText(diet).click();
+ await this.dietMultiSelectInput.getByText(diet).click();
  await this.dietMultiSelectInput.click();
  await this.confirmButton.click();
   }

@@ -460,7 +460,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
                         value={checked}
                         onChange={(_, value) => handleSelectTimeSlot(value, slot, index)}
                         disabled={isDisabled}
-                        data-testid="medication-checkbox-asfd"
+                        data-testid={`medication-checkbox-asfd${index}`}
                         {...(isDisabled && { icon: <StyledIcon className="far fa-square" /> })}
                       />
                     </Box>
@@ -494,7 +494,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
                       timeSteps={{ minutes: 1 }}
                       minTime={startTime}
                       maxTime={subSeconds(endTime, 1)}
-                      data-testid="medication-time-picker-asfd"
+                      data-testid={`medication-time-picker-asfd${index}`}
                     />
                   </Box>
                 </Box>
