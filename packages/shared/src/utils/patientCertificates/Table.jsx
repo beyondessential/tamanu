@@ -104,7 +104,8 @@ export const Table = ({
                 >
                   {accessor ? accessor(row, getLocalisation, getSetting) : row[key]}
                 </TD>
-              ))}
+              );
+            })}
             </TR>
           </React.Fragment>
         );
