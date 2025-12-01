@@ -3,6 +3,7 @@ import { capitalize, isEqual } from 'lodash';
 
 import {
   ENCOUNTER_TYPE_VALUES,
+  ENCOUNTER_TYPES,
   EncounterChangeType,
   NOTE_TYPES,
   SYNC_DIRECTIONS,
@@ -665,9 +666,10 @@ export class Encounter extends Model {
         accessor: (record: any) => record?.displayName ?? '-',
         changeType: EncounterChangeType.Examiner,
       });
+
       await recordTextColumnChange({
         columnName: 'startDate',
-        fieldLabel: 'start date',
+        fieldLabel: this.encounterType === ENCOUNTER_TYPES.ADMISSION ? 'Admission date' : 'Date',
         formatText: formatShort,
       });
       await recordTextColumnChange({
