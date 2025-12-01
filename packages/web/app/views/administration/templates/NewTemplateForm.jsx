@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { Link } from '@material-ui/core';
@@ -6,16 +6,19 @@ import {
   Field,
   TallMultilineTextField,
   TextField,
-  TranslatedSelectField,
+  SelectField,
   Form,
   Button,
   FormGrid,
   ButtonRow,
   SmallGridSpacer,
   TranslatedText,
+  TranslatedEnum,
 } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { TEMPLATE_TYPE_LABELS } from '@tamanu/constants';
+import { TEMPLATE_TYPES, TEMPLATE_TYPE_LABELS, REFERENCE_TYPES, NOTE_TYPES } from '@tamanu/constants';
+import { useSuggestionsQuery } from '../../../api/queries/useSuggestionsQuery';
+import { TranslatedReferenceData } from '../../../components/Translation';
 import { Colors } from '../../../constants';
 
 const ConfirmButton = styled(Button)`
@@ -52,6 +55,45 @@ const ConfirmClearRow = React.memo(({ onClear, onConfirm }) => (
 ));
 
 export const NewTemplateForm = memo(({ onSubmit, allowInputTitleType }) => {
+  const { data: noteTypes = [] } = useSuggestionsQuery('noteType');
+
+  const templateTypeOptions = useMemo(() => {
+    const options = [];
+
+    options.push({
+      value: TEMPLATE_TYPES.PATIENT_LETTER,
+      label: (
+        <TranslatedEnum
+          value={TEMPLATE_TYPES.PATIENT_LETTER}
+          enumValues={TEMPLATE_TYPE_LABELS}
+          data-testid="translatedenum-kmfz"
+        />
+      ),
+    });
+
+    if (noteTypes.length > 0) {
+      noteTypes
+        .filter(
+          noteType =>
+            noteType.id !== NOTE_TYPES.CLINICAL_MOBILE && noteType.id !== NOTE_TYPES.SYSTEM,
+        )
+        .forEach(noteType => {
+          options.push({
+            value: noteType.id,
+            label: (
+              <TranslatedReferenceData
+                fallback={noteType.name}
+                value={noteType.id}
+                category={REFERENCE_TYPES.NOTE_TYPE}
+              />
+            ),
+          });
+        });
+    }
+
+    return options;
+  }, [noteTypes]);
+
   const renderForm = ({ submitForm, resetForm, values }) => {
     const disabledTitle = !values?.type || !allowInputTitleType.includes(values?.type);
 
@@ -67,8 +109,8 @@ export const NewTemplateForm = memo(({ onSubmit, allowInputTitleType }) => {
                 data-testid="translatedtext-aajp"
               />
             }
-            component={TranslatedSelectField}
-            enumValues={TEMPLATE_TYPE_LABELS}
+            component={SelectField}
+            options={templateTypeOptions}
             required
             onChange={() => resetForm({ values: {} })}
             data-testid="field-c9h8"

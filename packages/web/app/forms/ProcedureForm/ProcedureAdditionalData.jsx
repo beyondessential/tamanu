@@ -86,6 +86,7 @@ export const ProcedureAdditionalData = ({
         endTime: getCurrentDateTimeString(),
         answers: await getAnswersFromData(body, survey),
         procedureId,
+        procedureTypeId,
       });
     },
     {

@@ -71,6 +71,12 @@ export function getQueryOptions(models: Models) {
       {
         model: Note,
         as: 'notes',
+        include: [
+          {
+            model: models.ReferenceData,
+            as: 'noteTypeReference',
+          },
+        ],
       },
     ],
   };
@@ -124,6 +130,12 @@ export function getQueryOptions(models: Models) {
       {
         model: Note,
         as: 'notes',
+        include: [
+          {
+            model: models.ReferenceData,
+            as: 'noteTypeReference',
+          },
+        ],
       },
     ],
   };

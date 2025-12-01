@@ -53,7 +53,7 @@ export const CloseWithoutAdditionalDataModal = ({ open, onCancel, onConfirm }) =
     onCancel={onCancel}
     onConfirm={onConfirm}
     open={open}
-    width="md"
+    width="sm"
     cancelButtonText={
       <TranslatedText
         stringId="procedure.modal.closeWithoutAdditionalData.cancel"
