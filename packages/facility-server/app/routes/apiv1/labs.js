@@ -36,7 +36,7 @@ labRequest.get(
   '/:id',
   asyncHandler(async (req, res) => {
     const labRequestRecord = await findRouteObject(req, 'LabRequest');
-    const hasSensitiveTests = labRequestRecord.tests.some(test => test.labTestType.isSensitive);
+    const hasSensitiveTests = labRequestRecord.tests.some((test) => test.labTestType.isSensitive);
     if (hasSensitiveTests) {
       req.checkPermission('read', 'SensitiveLabRequest');
     }
@@ -50,7 +50,6 @@ labRequest.get(
     });
 
     const latestAttachment = await labRequestRecord.getLatestAttachment();
-
     res.send({
       ...labRequestRecord.forResponse(),
       latestAttachment,
@@ -74,7 +73,7 @@ labRequest.put(
       req.checkPermission('write', 'LabRequestStatus');
     }
 
-    const hasSensitiveTests = labRequestRecord.tests.some(test => test.labTestType.isSensitive);
+    const hasSensitiveTests = labRequestRecord.tests.some((test) => test.labTestType.isSensitive);
     if (hasSensitiveTests) {
       req.checkPermission('write', 'SensitiveLabRequest');
     }
@@ -213,7 +212,7 @@ labRequest.get(
       ),
       makeDeletedAtIsNullFilter('encounter'),
       makeFilter(!canListSensitive, 'sensitive_labs.is_sensitive IS NULL', () => {}),
-    ].filter(f => f);
+    ].filter((f) => f);
 
     const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(
       filters,
@@ -336,7 +335,7 @@ labRequest.get(
       },
     );
 
-    const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
+    const forResponse = result.map((x) => renameObjectKeys(x.forResponse()));
     res.send({
       data: forResponse,
       count,
@@ -357,7 +356,7 @@ labRequest.post(
       throw new NotFoundError();
     }
     req.checkPermission('write', lab);
-    const hasSensitiveTests = lab.tests.some(test => test.labTestType.isSensitive);
+    const hasSensitiveTests = lab.tests.some((test) => test.labTestType.isSensitive);
     if (hasSensitiveTests) {
       req.checkPermission('write', 'SensitiveLabRequest');
     }
@@ -400,7 +399,7 @@ labRelations.put(
     });
 
     // Reject all updates if it includes sensitive tests and user lacks permission
-    const areSensitiveTests = labTests.some(test => test.labTestType.isSensitive);
+    const areSensitiveTests = labTests.some((test) => test.labTestType.isSensitive);
     if (areSensitiveTests) {
       req.checkPermission('write', 'SensitiveLabRequest');
     }
@@ -423,7 +422,7 @@ labRelations.put(
     db.transaction(async () => {
       const promises = [];
 
-      labTests.forEach(labTest => {
+      labTests.forEach((labTest) => {
         req.checkPermission('write', labTest);
         const labTestBody = body[labTest.id];
         const updated = labTest.set(labTestBody);
@@ -569,7 +568,7 @@ async function createPanelLabRequests(models, body, note, user) {
   });
 
   const response = await Promise.all(
-    panels.map(async panel => {
+    panels.map(async (panel) => {
       const panelId = panel.id;
       const testPanelRequest = await models.LabTestPanelRequest.create({
         labTestPanelId: panelId,
@@ -578,7 +577,7 @@ async function createPanelLabRequests(models, body, note, user) {
       const innerLabRequestBody = { ...labRequestBody, labTestPanelRequestId: testPanelRequest.id };
 
       const requestSampleDetails = sampleDetails[panelId] || {};
-      const labTestTypeIds = panel.labTestTypes?.map(testType => testType.id) || [];
+      const labTestTypeIds = panel.labTestTypes?.map((testType) => testType.id) || [];
       const labTestCategoryId = panel.categoryId;
       const newLabRequest = await createLabRequest(
         innerLabRequestBody,
@@ -658,7 +657,7 @@ async function createIndividualLabRequests(models, body, note, user) {
   const { sampleDetails = {}, ...labRequestBody } = body;
 
   const response = await Promise.all(
-    categories.map(async category => {
+    categories.map(async (category) => {
       const categoryId = category.get('lab_test_category_id');
       const requestSampleDetails = sampleDetails[categoryId] || {};
       const newLabRequest = await createLabRequest(
