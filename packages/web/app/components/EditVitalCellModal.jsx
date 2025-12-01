@@ -13,6 +13,7 @@ export const EditVitalCellModal = ({
   programRegistryPatientId,
   programRegistrySurveyId,
   programRegistryInstanceId,
+  isPatientRemoved = false,
 }) => {
   const vitalLabel = (
     <TranslatedReferenceData
@@ -49,6 +50,7 @@ export const EditVitalCellModal = ({
         programRegistryPatientId={programRegistryPatientId}
         programRegistrySurveyId={programRegistrySurveyId}
         programRegistryInstanceId={programRegistryInstanceId}
+        isPatientRemoved={isPatientRemoved}
         data-testid="editvitalcellform-h4wy"
       />
     </FormModal>

@@ -123,6 +123,7 @@ export const EditVitalCellForm = ({
   programRegistryPatientId,
   programRegistrySurveyId,
   programRegistryInstanceId,
+  isPatientRemoved = false,
 }) => {
   const { getTranslation } = useTranslation();
   const [isDeleted, setIsDeleted] = useState(false);
@@ -140,7 +141,7 @@ export const EditVitalCellForm = ({
   const permissionSubject = isVital
     ? 'Vitals'
     : subject('Charting', { id: dataPoint.component.surveyId });
-  const hasPermission = ability.can(permissionVerb, permissionSubject);
+  const hasPermission = ability.can(permissionVerb, permissionSubject) && !isPatientRemoved;
 
   const initialValue = dataPoint.value;
   const showDeleteEntryButton = !['', undefined].includes(initialValue);

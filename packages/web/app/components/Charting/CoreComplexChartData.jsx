@@ -46,6 +46,7 @@ export const CoreComplexChartData = ({
   fieldVisibility,
   coreComplexDataElements,
   canDeleteInstance,
+  isPatientRemoved = false,
 }) => {
   const { ability } = useAuth();
   const [open, setModalOpen] = useState(false);
@@ -62,7 +63,7 @@ export const CoreComplexChartData = ({
       ),
       action: () => setModalOpen(true),
       permissionCheck: () => {
-        return ability?.can('delete', subject('Charting', { id: coreComplexChartSurveyId }));
+        return !isPatientRemoved && ability?.can('delete', subject('Charting', { id: coreComplexChartSurveyId }));
       },
     },
   ].filter(({ permissionCheck }) => {
