@@ -25,7 +25,6 @@ import { useEncounterInvoiceQuery } from '../../../api/queries/useInvoiceQuery';
 import { useAuth } from '../../../contexts/Auth';
 import { NoteModalActionBlocker } from '../../../components';
 import { usePatientDataQuery } from '../../../api/queries';
-import { InvoiceRecordModal } from '../../../components/PatientPrinting/modals/InvoiceRecordModal';
 import { useCreateInvoice } from '../../../api/mutations/useInvoiceMutation.js';
 
 const EmptyPane = styled(ContentPane)`
@@ -87,13 +86,10 @@ const PaymentsSection = styled.div`
 
 export const EncounterInvoicingPane = ({ encounter }) => {
   const { ability } = useAuth();
-  const [openInvoiceModal, setOpenInvoiceModal] = useState(false);
-  const [printModalOpen, setPrintModalOpen] = useState(false);
+  const [invoiceModalType, setInvoiceModalType] = useState(null);
   const { data: invoice, isLoading } = useEncounterInvoiceQuery(encounter.id);
   const { data: patient } = usePatientDataQuery(encounter.patientId);
   const { mutate: createInvoice, isLoading: isSubmitting } = useCreateInvoice();
-
-  const handleOpenInvoiceModal = type => setOpenInvoiceModal(type);
 
   const handleCreateInvoice = () => {
     createInvoice({
@@ -171,7 +167,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                             data-testid="translatedtext-n7tk"
                           />
                         ),
-                        onClick: () => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.CANCEL_INVOICE),
+                        onClick: () => setInvoiceModalType(INVOICE_MODAL_TYPES.CANCEL_INVOICE),
                         hidden: !cancelable,
                       },
                       {
@@ -182,7 +178,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                             data-testid="translatedtext-d2ou"
                           />
                         ),
-                        onClick: () => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.DELETE_INVOICE),
+                        onClick: () => setInvoiceModalType(INVOICE_MODAL_TYPES.DELETE_INVOICE),
                         hidden: !deletable,
                       },
                     ]}
@@ -191,7 +187,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                 </NoteModalActionBlocker>
                 <NoteModalActionBlocker>
                   <Button
-                    onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.INSURANCE)}
+                    onClick={() => setInvoiceModalType(INVOICE_MODAL_TYPES.INSURANCE)}
                     data-testid="button-insurance-2zyp"
                   >
                     <TranslatedText stringId="invoice.action.insurance" fallback="Insurance plan" />
@@ -200,7 +196,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                 {finalisable && (
                   <NoteModalActionBlocker>
                     <OutlinedButton
-                      onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.FINALISE_INVOICE)}
+                      onClick={() => setInvoiceModalType(INVOICE_MODAL_TYPES.FINALISE_INVOICE)}
                       style={{ marginRight: 10 }}
                       data-testid="button-yicz"
                     >
@@ -211,7 +207,10 @@ export const EncounterInvoicingPane = ({ encounter }) => {
               </ActionsPane>
             )}
             {!editable && (
-              <PrintButton onClick={() => setPrintModalOpen(true)} startIcon={<PrintIcon />}>
+              <PrintButton
+                onClick={() => setInvoiceModalType(INVOICE_MODAL_TYPES.PRINT)}
+                startIcon={<PrintIcon />}
+              >
                 <TranslatedText stringId="general.action.print" fallback="Print" />
               </PrintButton>
             )}
@@ -226,20 +225,11 @@ export const EncounterInvoicingPane = ({ encounter }) => {
           )}
         </InvoiceContainer>
       </TabPane>
-      {openInvoiceModal && (
-        <InvoiceModalGroup
-          initialModalType={openInvoiceModal}
-          initialInvoice={invoice}
-          encounterId={encounter.id}
-          onClose={() => setOpenInvoiceModal()}
-          data-testid="invoicemodalgroup-rx7c"
-        />
-      )}
-      <InvoiceRecordModal
-        open={printModalOpen}
-        onClose={() => setPrintModalOpen(false)}
+      <InvoiceModalGroup
+        invoiceModalType={invoiceModalType}
         invoice={invoice}
-        data-testid="invoicerecordmodal-ep8b"
+        setOpenInvoiceModal={setInvoiceModalType}
+        data-testid="invoicemodalgroup-rx7c"
       />
     </>
   );
