@@ -10,14 +10,14 @@ export const useInvoicePriceListItemPriceQuery = ({
   const api = useApi();
 
   return useQuery(
-    ['invoices/price-list-item', { encounterId, productId }],
+    ['invoices/price-list-item', encounterId, productId],
     () =>
       api.get('invoices/price-list-item', {
         encounterId,
         productId,
       }),
     {
-      enabled: Boolean(enabled && encounterId && productId),
+      enabled,
       onSuccess,
       keepPreviousData: true,
     },

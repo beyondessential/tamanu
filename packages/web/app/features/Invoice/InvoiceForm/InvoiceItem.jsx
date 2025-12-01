@@ -89,19 +89,19 @@ export const InvoiceItemRow = ({
   };
   // Todo: Determine input state based on productPriceManualEntry when it's implemented
   const priceListPrice = item.product?.invoicePriceListItem?.price;
-  const hasKnownPrice = Boolean(priceListPrice);
 
-  // Look up price list items
+  // Look up price list items for the selected product
   const { data: fetchedPriceData, isFetching } = useInvoicePriceListItemPriceQuery({
     encounterId,
     productId: item.productId,
-    enabled: !hasKnownPrice,
+    enabled: Boolean(item.productId),
     onSuccess: data => {
       if (!data?.price) {
         return;
       }
       // If there is a price list price, update the form data
       const { price } = data;
+      console.log('data', data);
 
       const nextProduct = {
         ...(item.product || {}),
@@ -121,7 +121,7 @@ export const InvoiceItemRow = ({
   useInvoiceInsurancePlanItemsQuery({
     encounterId,
     productId: item.productId,
-    enabled: Boolean(item.productId) && !(item.insurancePlanItems?.length > 0),
+    enabled: Boolean(item.productId),
     onSuccess: data => {
       if (!data || data.length === 0) return;
 

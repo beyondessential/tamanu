@@ -10,14 +10,14 @@ export const useInvoiceInsurancePlanItemsQuery = ({
   const api = useApi();
 
   return useQuery(
-    ['invoices/insurance-plan-items', { encounterId, productId }],
+    ['invoices/insurance-plan-items', encounterId, productId],
     () =>
       api.get('invoices/insurance-plan-items', {
         encounterId,
         productId,
       }),
     {
-      enabled: Boolean(enabled && encounterId && productId),
+      enabled,
       onSuccess,
       keepPreviousData: true,
     },
