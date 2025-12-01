@@ -78,6 +78,15 @@ const getLabResultsColumns = patientSex => [
   },
 ];
 
+const InterimBanner = ({ getTranslation }) => (
+  <View style={generalStyles.interimBannerText} fontSize={14} bold>
+    {getTranslation(
+      'pdf.labResults.interimBanner',
+      'This report contains interim results that have not yet been published',
+    )}
+  </View>
+);
+
 const LabRequestDetailsSection = ({ labRequest }) => {
   return (
     <View style={labDetailsSectionStyles.detailsContainer}>
@@ -131,12 +140,7 @@ const LabResultsPrintoutComponent = React.memo(
               certificateTitle={getTranslation('pdf.labResults.documentName', 'Lab results')}
             />
             {showInterimBanner && (
-              <P style={generalStyles.interimBannerText} fontSize={14} bold>
-                {getTranslation(
-                  'pdf.labResults.interimBanner',
-                  'This report contains interim results that have not yet been published',
-                )}
-              </P>
+              <InterimBanner getTranslation={getTranslation} />
             )}
             <SectionContainer>
               <PatientDetailsWithBarcode
@@ -163,9 +167,9 @@ const LabResultsPrintoutComponent = React.memo(
                   columns={labResultsColumns}
                   getLocalisation={getLocalisation}
                   getSetting={getSetting}
+                  headerStyle={generalStyles.tableHeaderStyles}
                   columnStyle={generalStyles.tableColumnStyles}
                   hideRowDividers
-                  headerStyleOverrides={generalStyles.tableHeaderStyles}
                   getRowSectionLabel={getRowSectionLabel}
                 />
               </View>

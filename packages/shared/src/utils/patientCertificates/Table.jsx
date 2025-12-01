@@ -37,17 +37,14 @@ const TD = ({ customStyles, ...props }) => (
   <Text wrap={false} {...props} style={[tableStyles.td, customStyles]} />
 );
 
-const getBodyRowStyle = (rowIndex, rowCount, hideRowDividers) => {
-  if (!hideRowDividers) return undefined;
-  const isLastRow = rowIndex === rowCount - 1;
-  if (isLastRow) return { borderTopWidth: 0 };
+const getHiddenRowDividerStyle = (index, rowCount) => {
+  if (index === rowCount - 1) return { borderTopWidth: 0 };
   return { borderTopWidth: 0, borderBottomWidth: 0 };
 };
 
-
 const SectionRow = ({ label, columns, columnStyle }) => (
   <TR style={{ borderTopWidth: 0 }}>
-    {columns.map(({key, customStyles = {}}, index) => {
+    {columns.map(({ key, customStyles = {} }, index) => {
       const isFirst = index === 0;
       const isLast = index === columns.length - 1;
       const sectionCellStyles = [
@@ -72,23 +69,18 @@ export const Table = ({
   getLocalisation,
   getSetting,
   columnStyle,
+  headerStyle,
   hideRowDividers = false,
-  headerStyleOverrides,
   getRowSectionLabel,
 }) => {
-  const leftColumnStyle = {
-    ...columnStyle,
-    borderLeft: basicBorder,
-  };
   const visibleColumns = columns.filter(({ key }) => getSetting(`fields.${key}.hidden`) !== true);
   return (
     <View style={tableStyles.table}>
       <TR fixed>
-        {visibleColumns.map(({ title, key, customStyles, headerStyles }, columnIndex) => {
-          const baseStyle = columnIndex === 0 ? leftColumnStyle : columnStyle;
-          const headerCustomStyles = [baseStyle, customStyles, headerStyles, headerStyleOverrides];
+        {visibleColumns.map(({ title, key, customStyles }, index) => {
+          const firstColumnStyle = index === 0 ? { borderLeft: basicBorder } : {};
           return (
-            <TH key={key} customStyles={headerCustomStyles}>
+            <TH key={key} customStyles={[columnStyle, customStyles, headerStyle, firstColumnStyle]}>
               {title}
             </TH>
           );
@@ -98,25 +90,20 @@ export const Table = ({
         const sectionLabel = getRowSectionLabel?.(row);
         const lastSectionLabel = rowIndex > 0 ? getRowSectionLabel(data[rowIndex - 1]) : null;
         const shouldRenderSection = sectionLabel !== lastSectionLabel;
+        const hiddenRowDividerStyle = hideRowDividers
+          ? getHiddenRowDividerStyle(rowIndex, data.length)
+          : undefined;
         return (
           <React.Fragment key={rowIndex}>
             {shouldRenderSection && (
-              <SectionRow
-                label={sectionLabel}
-                columns={visibleColumns}
-                columnStyle={columnStyle}
-              />
+              <SectionRow label={sectionLabel} columns={visibleColumns} columnStyle={columnStyle} />
             )}
-            <TR style={getBodyRowStyle(rowIndex, data.length, hideRowDividers)}>
-              {visibleColumns.map(({ accessor, key, customStyles = {} }, columnIndex) => {
-
-                const baseStyle = columnIndex === 0 ? leftColumnStyle : columnStyle;
-                // If this row belongs to a section, indent the first column using textIndent
-                // instead of padding, so the column width remains consistent.
-                const indentStyle = sectionLabel && columnIndex === 0 ? { textIndent: 6 } : {};
-                const cellStyles = [baseStyle, customStyles, indentStyle];
+            <TR style={hiddenRowDividerStyle}>
+              {visibleColumns.map(({ accessor, key, customStyles = {} }, index) => {
+                const firstColumnStyle =
+                  index === 0 ? { borderLeft: basicBorder, textIndent: sectionLabel ? 6 : 0 } : {};
                 return (
-                  <TD key={key} customStyles={cellStyles}>
+                  <TD key={key} customStyles={[columnStyle, customStyles, firstColumnStyle]}>
                     {accessor ? accessor(row, getLocalisation, getSetting) : row[key]}
                   </TD>
                 );
