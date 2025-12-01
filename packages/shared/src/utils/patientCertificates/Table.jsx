@@ -57,24 +57,23 @@ const getSectionInfo = (row, rowIndex, data, getRowSectionLabel, visibleColumnsL
   };
 };
 
-const SectionRow = ({ label, columns, columnStyle, bodyStyleOverrides }) => (
+const SectionRow = ({ label, columns, columnStyle }) => (
   <TR style={{ borderTopWidth: 0 }}>
     {columns.map((column, columnIndex) => {
       const { key, customStyles } = column;
-      const baseStyle =
-        columnIndex === 0 ? { ...columnStyle, borderLeft: basicBorder } : columnStyle;
+      const isFirstColumn = columnIndex === 0;
       const isLastColumn = columnIndex === columns.length - 1;
+      const baseStyle = isFirstColumn ? { ...columnStyle, borderLeft: basicBorder } : columnStyle;
       const sectionCellStyles = [
         baseStyle,
         customStyles,
-        bodyStyleOverrides,
         // Remove inner column dividers so the section label looks like a single row.
         isLastColumn ? { borderLeftWidth: 0 } : { borderRightWidth: 0 },
       ].filter(Boolean);
 
       return (
-        <TD key={key} customStyles={sectionCellStyles} bold={columnIndex === 0}>
-          {columnIndex === 0 ? label : ''}
+        <TD key={key} customStyles={sectionCellStyles} bold={isFirstColumn}>
+          {isFirstColumn ? label : ''}
         </TD>
       );
     })}

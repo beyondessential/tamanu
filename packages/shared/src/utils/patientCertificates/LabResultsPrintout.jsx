@@ -41,7 +41,7 @@ const generalStyles = StyleSheet.create({
     paddingVertical: 8,
     fontSize: 9,
   },
-  tableBodyStyles: {
+  tableColumnStyles: {
     paddingLeft: 6,
     paddingVertical: 4,
     fontSize: 9,
@@ -163,9 +163,9 @@ const LabResultsPrintoutComponent = React.memo(
                   columns={labResultsColumns}
                   getLocalisation={getLocalisation}
                   getSetting={getSetting}
+                  columnStyle={generalStyles.tableColumnStyles}
                   hideRowDividers
                   headerStyleOverrides={generalStyles.tableHeaderStyles}
-                  bodyStyleOverrides={generalStyles.tableBodyStyles}
                   getRowSectionLabel={getRowSectionLabel}
                 />
               </View>
