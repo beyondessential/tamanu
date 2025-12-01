@@ -51,18 +51,6 @@ invoiceRoute.get(
 const createInvoiceSchema = z
   .object({
     encounterId: z.string().uuid(),
-    discount: z
-      .object({
-        percentage: z.coerce
-          .number()
-          .min(0)
-          .max(1)
-          .transform(amount => round(amount, 2)),
-        reason: z.string().nullish(),
-        isManual: z.boolean(),
-      })
-      .strip()
-      .nullish(),
     date: z.string(),
   })
   .strip()
@@ -72,11 +60,12 @@ const createInvoiceSchema = z
     displayId: generateInvoiceDisplayId(),
     status: INVOICE_STATUSES.IN_PROGRESS,
   }));
+
 invoiceRoute.post(
   '/',
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'Invoice');
-    const { body } = req;
+    const { body, models } = req;
 
     const { data, error } = await createInvoiceSchema.safeParseAsync(body);
     if (error) throw new ValidationError(error.message);
@@ -96,8 +85,7 @@ invoiceRoute.post(
     if (existingInvoice)
       throw new InvalidOperationError('An invoice already exists for this encounter');
 
-    // Handles invoice creation with default insurer and discount
-    const invoice = await req.models.Invoice.initializeInvoice(req.user.id, data);
+    const invoice = await models.Invoice.create(data);
     res.json(invoice);
   }),
 );
