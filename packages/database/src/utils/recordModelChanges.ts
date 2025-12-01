@@ -7,7 +7,7 @@ import { Model } from '../models/Model';
  * @param modelInstance - The model instance being updated (this)
  * @param updateData - The data object containing the new values
  * @param systemNoteRows - Array to collect system note messages
- * @param changeTypes - Optional array to collect change types for history tracking
+ * @param changeTypes - Optional array to collect change types for history tracking (soon to be deprecated)
  * @returns Object containing recordForeignKeyChange and recordTextColumnChange functions
  */
 export function createChangeRecorders<T extends Model>(
