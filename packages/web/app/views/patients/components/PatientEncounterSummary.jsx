@@ -19,6 +19,7 @@ import {
 } from '../../../components/Translation';
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
+import { getEncounterStartDateLabel } from '../../../utils/getEncounterStartDateLabel';
 
 const Border = css`
   border: 1px solid ${Colors.outline};
@@ -381,12 +382,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
         )}
         <ContentItem data-testid="contentitem-o4pq">
           <ContentLabel data-testid="contentlabel-ws92">
-            <TranslatedText
-              stringId="patient.encounterSummary.arrivalDate"
-              fallback="Arrival date"
-              data-testid="translatedtext-dn4a"
-            />
-            :
+            {getEncounterStartDateLabel(encounterType)}:
           </ContentLabel>
           <ContentText data-testid="contenttext-nw17">
             <DateDisplay date={startDate} data-testid="datedisplay-5hsh" />
