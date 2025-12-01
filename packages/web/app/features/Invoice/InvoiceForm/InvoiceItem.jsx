@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { useFormikContext } from 'formik';
 import { useSuggester } from '../../../api';
 import { Colors } from '../../../constants';
 import { IconButton } from '@material-ui/core';
@@ -57,6 +58,7 @@ export const InvoiceItemRow = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const isItemEditable = !item.product?.id && invoiceIsEditable;
+  const { values } = useFormikContext();
 
   const invoiceProductsSuggester = useSuggester('invoiceProduct', {
     formatter: ({ name, id }) => ({
@@ -99,19 +101,21 @@ export const InvoiceItemRow = ({
       if (!data?.price) {
         return;
       }
+      // If there is a price list price, update the form data
       const { price } = data;
-      formArrayMethods.update(index, currentItem => {
-        const nextProduct = {
-          ...(currentItem.product || {}),
-          invoicePriceListItem: {
-            ...(currentItem.product?.invoicePriceListItem || {}),
-            price,
-          },
-        };
-        return {
-          ...currentItem,
-          product: nextProduct,
-        };
+
+      // Get the current item from form state to avoid stale closure values
+      const currentItem = values.invoiceItems[index];
+      const nextProduct = {
+        ...(currentItem.product || {}),
+        invoicePriceListItem: {
+          ...(currentItem.product?.invoicePriceListItem || {}),
+          price,
+        },
+      };
+      formArrayMethods.replace(index, {
+        ...currentItem,
+        product: nextProduct,
       });
     },
   });
@@ -123,10 +127,13 @@ export const InvoiceItemRow = ({
     enabled: Boolean(item.productId),
     onSuccess: data => {
       if (!data || data.length === 0) return;
-      formArrayMethods.update(index, currentItem => ({
+
+      // Get the current item from form state to avoid stale closure values
+      const currentItem = values.invoiceItems[index];
+      formArrayMethods.replace(index, {
         ...currentItem,
         insurancePlanItems: data,
-      }));
+      });
     },
   });
 
