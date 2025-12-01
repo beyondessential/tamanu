@@ -1,55 +1,25 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState } from 'react';
-import { cloneDeep } from 'lodash';
+import React from 'react';
 import { INVOICE_MODAL_TYPES } from '../../constants';
 import { CancelInvoiceModal } from './CancelInvoiceModal';
 import { FinaliseInvoiceModal } from './FinaliseInvoiceModal';
 import { DeleteInvoiceModal } from './DeleteInvoiceModal';
 import { InvoiceInsuranceModal } from './InvoiceInsuranceModal';
+import { InvoiceRecordModal } from '../../components/PatientPrinting/modals/InvoiceRecordModal';
 
-export const InvoiceModalGroup = ({
-  initialModalType,
-  initialInvoice,
-  encounterId,
-  onClose,
-  afterDeleteInvoice,
-}) => {
-  const [invoice, setInvoice] = useState();
-  const [invoiceModal, setInvoiceModal] = useState([]);
-
-  useEffect(() => {
-    if (initialModalType) {
-      handleOpenInvoiceModal(initialModalType);
-    }
-  }, [initialModalType]);
-
-  useEffect(() => {
-    setInvoice(cloneDeep(initialInvoice));
-  }, [initialInvoice]);
-
-  const handleCloseInvoiceModal = type => {
-    const isCloseAll = !type;
-    setInvoiceModal(isCloseAll ? [] : invoiceModal.filter(modal => modal !== type));
-    if (isCloseAll) {
-      onClose();
-    }
-  };
-
-  const handleOpenInvoiceModal = (type, keepPreviousModals = false) =>
-    setInvoiceModal(keepPreviousModals ? invoiceModal.concat(type) : [type]);
+export const InvoiceModalGroup = ({ invoice, invoiceModalType, setOpenInvoiceModal }) => {
+  const handleCloseInvoiceModal = () => setOpenInvoiceModal(null);
 
   return (
     <>
-      {invoiceModal.includes(INVOICE_MODAL_TYPES.INSURANCE) && (
+      {invoiceModalType === INVOICE_MODAL_TYPES.INSURANCE && (
         <InvoiceInsuranceModal
           open
-          encounterId={encounterId}
           invoice={invoice}
-          onClose={handleCloseInvoiceModal}
+          onClose={() => handleCloseInvoiceModal()}
           data-testid="upsertinvoicemodal-wt5z"
         />
       )}
-      {invoiceModal.includes(INVOICE_MODAL_TYPES.CANCEL_INVOICE) && invoice && (
+      {invoiceModalType === INVOICE_MODAL_TYPES.CANCEL_INVOICE && (
         <CancelInvoiceModal
           open
           onClose={() => handleCloseInvoiceModal()}
@@ -57,21 +27,28 @@ export const InvoiceModalGroup = ({
           data-testid="cancelinvoicemodal-zrjt"
         />
       )}
-      {invoiceModal.includes(INVOICE_MODAL_TYPES.DELETE_INVOICE) && invoice && (
+      {invoiceModalType === INVOICE_MODAL_TYPES.DELETE_INVOICE && (
         <DeleteInvoiceModal
           open
           onClose={() => handleCloseInvoiceModal()}
           invoice={invoice}
-          onDeleteSuccess={afterDeleteInvoice}
           data-testid="deleteinvoicemodal-s0jy"
         />
       )}
-      {invoiceModal.includes(INVOICE_MODAL_TYPES.FINALISE_INVOICE) && invoice && (
+      {invoiceModalType === INVOICE_MODAL_TYPES.FINALISE_INVOICE && (
         <FinaliseInvoiceModal
           open
           onClose={() => handleCloseInvoiceModal()}
           invoice={invoice}
           data-testid="finaliseinvoicemodal-d1cy"
+        />
+      )}
+      {invoiceModalType === INVOICE_MODAL_TYPES.PRINT && (
+        <InvoiceRecordModal
+          open
+          onClose={() => handleCloseInvoiceModal()}
+          invoice={invoice}
+          data-testid="invoicerecordmodal-ep8b"
         />
       )}
     </>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { useSuggester } from '@tamanu/ui-components';
@@ -18,9 +18,8 @@ const ModalBody = styled.div`
 `;
 
 export const InvoiceInsuranceModal = ({ open, onClose, invoice }) => {
-  const defaultValues =
-    invoice.invoiceInsurancePlans?.map(invoice => invoice.invoiceInsurancePlanId) || [];
-  const [selectedPlans, setSelectedPlans] = React.useState(defaultValues);
+  const defaultValues = invoice?.insurancePlans?.map(({ id }) => id) || [];
+  const [selectedPlans, setSelectedPlans] = useState(defaultValues);
   const insurancePlanSuggester = useSuggester('invoiceInsurancePlan');
 
   const { mutate } = useInvoiceInsurancePlansMutation(invoice.id, invoice.encounterId);

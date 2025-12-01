@@ -86,7 +86,7 @@ export const InvoiceForm = ({ invoice }) => {
           : [],
       }}
       validationSchema={invoiceFormSchema}
-      render={({ submitForm, values, resetForm }) => (
+      render={({ submitForm, values, resetForm, dirty }) => (
         <Box mb={1}>
           <FieldArray name="invoiceItems">
             {formArrayMethods => {
@@ -125,6 +125,7 @@ export const InvoiceForm = ({ invoice }) => {
                       </AddButton>
                       <FormCancelButton
                         style={{ marginLeft: 'auto' }}
+                        disabled={!dirty}
                         onClick={() => {
                           resetForm();
                         }}

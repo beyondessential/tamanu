@@ -11,7 +11,7 @@ const ContentText = styled.div`
   white-space: pre-wrap;
 `;
 
-export const DeleteInvoiceModal = ({ open, onClose, invoice, onDeleteSuccess }) => {
+export const DeleteInvoiceModal = ({ open, onClose, invoice }) => {
   const { mutate } = useDeleteInvoice(invoice);
 
   const deleteInvoice = async () => {
@@ -19,7 +19,6 @@ export const DeleteInvoiceModal = ({ open, onClose, invoice, onDeleteSuccess }) 
       {},
       {
         onSuccess: () => {
-          if (onDeleteSuccess) onDeleteSuccess();
           onClose();
         },
       },

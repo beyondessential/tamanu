@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { useFormikContext } from 'formik';
 import { useSuggester } from '../../../api';
 import { Colors } from '../../../constants';
 import { IconButton } from '@material-ui/core';
 import { ChevronRight } from '@material-ui/icons';
 import { useInvoicePriceListItemPriceQuery } from '../../../api/queries/useInvoicePriceListItemPriceQuery';
+import { useInvoiceInsurancePlanItemsQuery } from '../../../api/queries/useInvoiceInsurancePlanItemsQuery';
 import {
   PriceCell,
   DateCell,
@@ -56,6 +58,7 @@ export const InvoiceItemRow = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const isItemEditable = !item.product?.id && invoiceIsEditable;
+  const { values } = useFormikContext();
 
   const invoiceProductsSuggester = useSuggester('invoiceProduct', {
     formatter: ({ name, id }) => ({
@@ -88,13 +91,12 @@ export const InvoiceItemRow = ({
   };
   // Todo: Determine input state based on productPriceManualEntry when it's implemented
   const priceListPrice = item.product?.invoicePriceListItem?.price;
-  const hasKnownPrice = Boolean(priceListPrice);
 
-  // Todo: Also need to lookup the insurance plan for the product
+  // Look up price list items for the selected product
   const { data: fetchedPriceData, isFetching } = useInvoicePriceListItemPriceQuery({
     encounterId,
     productId: item.productId,
-    enabled: !hasKnownPrice,
+    enabled: Boolean(item.productId),
     onSuccess: data => {
       if (!data?.price) {
         return;
@@ -102,16 +104,35 @@ export const InvoiceItemRow = ({
       // If there is a price list price, update the form data
       const { price } = data;
 
+      // Get the current item from form state to avoid stale closure values
+      const currentItem = values.invoiceItems[index];
       const nextProduct = {
-        ...(item.product || {}),
+        ...(currentItem.product || {}),
         invoicePriceListItem: {
-          ...(item.product?.invoicePriceListItem || {}),
+          ...(currentItem.product?.invoicePriceListItem || {}),
           price,
         },
       };
       formArrayMethods.replace(index, {
-        ...item,
+        ...currentItem,
         product: nextProduct,
+      });
+    },
+  });
+
+  // Lookup insurance plan items for the selected product
+  useInvoiceInsurancePlanItemsQuery({
+    encounterId,
+    productId: item.productId,
+    enabled: Boolean(item.productId),
+    onSuccess: data => {
+      if (!data || data.length === 0) return;
+
+      // Get the current item from form state to avoid stale closure values
+      const currentItem = values.invoiceItems[index];
+      formArrayMethods.replace(index, {
+        ...currentItem,
+        insurancePlanItems: data,
       });
     },
   });
@@ -123,7 +144,7 @@ export const InvoiceItemRow = ({
 
   return (
     <StyledItemRow>
-      {item.insurancePlanItems?.length > 0 && (
+      {!isItemEditable && item.insurancePlanItems?.length > 0 && (
         <Button onClick={onClick} $isExpanded={isExpanded}>
           <ChevronRight />
         </Button>
