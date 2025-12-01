@@ -457,7 +457,6 @@ describe('Encounter', () => {
 
         const notes = await v.getNotes();
         expect(notes).toHaveLength(1);
-        console.log(notes);
         expect(
           notes[0].content.includes('Triage') && notes[0].content.includes('Admission'),
         ).toEqual(true);
