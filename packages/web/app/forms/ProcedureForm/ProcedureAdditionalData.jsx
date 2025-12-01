@@ -63,12 +63,13 @@ export const ProcedureAdditionalData = ({
   selectedSurveyId,
   setSelectedSurveyId,
   onSuccess,
+  surveyFormDirty,
+  setSurveyFormDirty,
 }) => {
   const api = useApi();
   const { currentUser, facilityId } = useAuth();
   const [cancelFormModalOpen, setCancelFormModalOpen] = useState(false);
   const [startTime] = useState(getCurrentDateTimeString());
-  const [surveyFormDirty, setSurveyFormDirty] = useState(false);
   const [pendingSelectedSurveyId, setPendingSelectedSurveyId] = useState(null);
 
   const surveys = useProcedureSurveys(procedureTypeId);
@@ -160,7 +161,7 @@ export const ProcedureAdditionalData = ({
               patientAdditionalData={patientAdditionalData}
               currentUser={currentUser}
               showCancelButton
-              onFormDirtyChange={setSurveyFormDirty}
+              setSurveyFormDirty={setSurveyFormDirty}
             />
           </SurveyBox>
         )}
