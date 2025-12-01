@@ -19,6 +19,7 @@ import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery'
 import { MarView } from '../views/patients/medication/MarView';
 import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
+import { PatientSearchParametersProvider } from '../contexts/PatientViewSearchParameters';
 import { NoteModal } from '../components/NoteModal/NoteModal';
 import {
   PatientNavigation,
@@ -145,7 +146,7 @@ export const PatientRoutes = () => {
   const backgroundColor = location.pathname?.endsWith('/mar/view') ? Colors.white : 'initial';
 
   return (
-    <>
+    <PatientSearchParametersProvider>
       <NoteModal />
       <TwoColumnDisplay>
         <PatientInfoPane />
@@ -166,6 +167,6 @@ export const PatientRoutes = () => {
           </PatientPaneInner>
         </PatientPane>
       </TwoColumnDisplay>
-    </>
+    </PatientSearchParametersProvider>
   );
 };
