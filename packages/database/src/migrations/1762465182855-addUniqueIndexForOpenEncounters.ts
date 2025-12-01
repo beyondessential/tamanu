@@ -28,8 +28,7 @@ export async function up(query: QueryInterface): Promise<void> {
       .map(d => `patient_id: ${d.patient_id} (${d.count} open encounters)`)
       .join(', ');
     throw new Error(
-      `Found patients with multiple open encounters. Please resolve these duplicates before proceeding.\n` +
-        `The affected patients are: ${patientIds}`,
+      `Found patients with multiple open encounters. Please resolve these duplicates before proceeding: ${patientIds}`,
     );
   }
 
