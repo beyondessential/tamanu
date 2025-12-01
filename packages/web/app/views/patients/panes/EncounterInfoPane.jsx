@@ -56,9 +56,13 @@ const DietCardValue = styled.div`
 
 const AddButton = styled(TextButton)`
   color: ${TAMANU_COLORS.darkestText};
-  text-decoration: underline;
   font-size: 14px;
   line-height: 18px;
+`;
+
+const AddButtonText = styled.span`
+  text-decoration: underline;
+  margin-left: 4px;
 `;
 
 const StyledModalFormActionRow = styled(ModalFormActionRow)`
@@ -311,11 +315,13 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
               ) : (
                 <>
                   <AddButton onClick={() => setIsEstimatedDischargeModalOpen(true)}>
-                    +{' '}
-                    <TranslatedText
-                      stringId="encounter.summary.addEstimatedDischargeDate"
-                      fallback="Add"
-                    />
+                    +
+                    <AddButtonText>
+                      <TranslatedText
+                        stringId="encounter.summary.addEstimatedDischargeDate"
+                        fallback="Add"
+                      />
+                    </AddButtonText>
                   </AddButton>
                   <SetDischargeDateModal
                     open={isEstimatedDischargeModalOpen}
