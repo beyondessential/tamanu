@@ -42,6 +42,7 @@ export const ProgramRegistryChartsTable = React.memo(({
   selectedChartSurveyName,
   noDataMessage,
   currentInstanceId,
+  isPatientRemoved = false,
 }) => {
   const { ability } = useAuth();
   const patient = useSelector((state) => state.patient);
@@ -70,7 +71,7 @@ export const ProgramRegistryChartsTable = React.memo(({
     patient,
     recordedDates,
     onCellClick,
-    isChartingEditEnabled && hasReadPermission,
+    isChartingEditEnabled && hasReadPermission && !isPatientRemoved,
   );
 
   // There is a bug in react-query that even if the query is not enabled, it will still return isLoading = true
@@ -98,6 +99,7 @@ export const ProgramRegistryChartsTable = React.memo(({
         programRegistryPatientId={patientId}
         programRegistrySurveyId={selectedSurveyId}
         programRegistryInstanceId={currentInstanceId}
+        isPatientRemoved={isPatientRemoved}
         data-testid="editvitalcellmodal-2jqx"
       />
       <StyledDynamicColumnTable
@@ -121,4 +123,5 @@ ProgramRegistryChartsTable.propTypes = {
   selectedChartSurveyName: PropTypes.string,
   noDataMessage: PropTypes.node,
   currentInstanceId: PropTypes.string,
+  isPatientRemoved: PropTypes.bool,
 };

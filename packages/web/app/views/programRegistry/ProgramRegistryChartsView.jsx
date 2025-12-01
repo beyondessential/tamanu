@@ -547,6 +547,7 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
               coreComplexDataElements={coreComplexDataElements}
               fieldVisibility={fieldVisibility}
               canDeleteInstance={canDeleteInstance}
+              isPatientRemoved={isPatientRemoved}
               data-testid="corecomplexchartdata-tepa"
             />
           ) : null}
@@ -556,6 +557,7 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
             selectedSurveyId={selectedChartTypeId}
             selectedChartSurveyName={selectedChartSurveyName}
             currentInstanceId={currentComplexChartInstance?.chartInstanceId}
+            isPatientRemoved={isPatientRemoved}
             noDataMessage={getNoDataMessage(
               isComplexChart,
               complexChartInstances,
