@@ -42,24 +42,11 @@ const getHiddenRowDividerStyle = (index, rowCount) => {
   return { borderTopWidth: 0, borderBottomWidth: 0 };
 };
 
-const SectionRow = ({ label, columns, columnStyle }) => (
+const SectionRow = ({ label, columnStyle }) => (
   <TR style={{ borderTopWidth: 0 }}>
-    {columns.map(({ key, customStyles = {} }, index) => {
-      const isFirst = index === 0;
-      const isLast = index === columns.length - 1;
-      const sectionCellStyles = [
-        columnStyle,
-        customStyles,
-        isFirst ? { borderLeft: basicBorder } : {},
-        // Remove inner column dividers so the section label looks like a single row.
-        isLast ? { borderLeftWidth: 0 } : { borderRightWidth: 0 },
-      ];
-      return (
-        <TD key={key} customStyles={sectionCellStyles} bold>
-          {isFirst ? label : ''}
-        </TD>
-      );
-    })}
+    <TD customStyles={[columnStyle, { borderLeft: basicBorder }]} bold>
+      {label}
+    </TD>
   </TR>
 );
 
@@ -93,7 +80,7 @@ export const Table = ({
         return (
           <React.Fragment key={rowIndex}>
             {shouldRenderSection && (
-              <SectionRow label={sectionLabel} columns={visibleColumns} columnStyle={columnStyle} />
+              <SectionRow label={sectionLabel} columnStyle={columnStyle} />
             )}
             <TR
               style={hideRowDividers ? getHiddenRowDividerStyle(rowIndex, data.length) : undefined}
