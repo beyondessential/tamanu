@@ -125,10 +125,6 @@ describe('Patient', () => {
       isSelectedForDischarge: false,
     });
 
-    // Edit encounterTwo to simulate a discharge
-    // (encounterTwo needs to have a 'greater' date to be the last)
-    // await encounterTwo.update({ endDate: new Date(endDate.getTime() + 1000) });
-
     // Expect encounter to be the second encounter discharged
     // and include discharged medication with reference associations
     const result = await app.get(`/api/patient/${patient.id}/last-inpatient-discharge-medications`);
