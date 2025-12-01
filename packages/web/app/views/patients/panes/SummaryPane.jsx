@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { useEncounter } from '../../../contexts/Encounter';
 import { Box } from '@material-ui/core';
@@ -59,6 +59,11 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
   const { getSetting } = useSettings();
   const queryClient = useQueryClient();
   const api = useApi();
+  const { refetch: refetchCurrentEncounter } = useQuery(
+    ['patientCurrentEncounter', patient.id],
+    () => api.get(`patient/${encodeURIComponent(patient.id)}/currentEncounter`, { facilityId }),
+    { enabled: false },
+  );
 
   const showLocationBookingsSetting = getSetting('layouts.patientView.showLocationBookings');
   const showOutpatientAppointmentsSetting = getSetting(
@@ -86,11 +91,9 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
   }, [queryClient, patient.id]);
 
   const checkForExistingEncounter = useCallback(async () => {
-    const encounter = await api.get(`patient/${encodeURIComponent(patient.id)}/currentEncounter`, {
-      facilityId,
-    });
+    const { data: encounter } = await refetchCurrentEncounter();
     return !!encounter;
-  }, [patient.id, api, facilityId]);
+  }, [refetchCurrentEncounter]);
 
   return (
     <>
