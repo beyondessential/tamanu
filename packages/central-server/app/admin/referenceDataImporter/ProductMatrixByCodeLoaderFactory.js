@@ -1,6 +1,12 @@
 import { Op } from 'sequelize';
 import { v4 as uuidv4 } from 'uuid';
 
+function defaultValueExtractor(value) {
+  const parsedValue = Number(value);
+  const isValidValue = !Number.isNaN(parsedValue);
+  return { parsedValue, isValidValue };
+}
+
 /**
  * Generic, stateful loader factory for product-by-code matrix imports.
  *
@@ -10,7 +16,14 @@ import { v4 as uuidv4 } from 'uuid';
  * - Each row provides numeric values for product/code pairs.
  */
 export function productMatrixByCodeLoaderFactory(config) {
-  const { parentModel, itemModel, parentIdField, valueField, messages } = config;
+  const {
+    parentModel,
+    itemModel,
+    parentIdField,
+    valueField,
+    valueExtractor = defaultValueExtractor,
+    messages,
+  } = config;
 
   const state = {
     initialized: false,
@@ -84,8 +97,8 @@ export function productMatrixByCodeLoaderFactory(config) {
       // Skip empties
       if (rawValue === undefined || rawValue === null || `${rawValue}`.trim() === '') continue;
 
-      const numericValue = Number(rawValue);
-      if (Number.isNaN(numericValue)) {
+      const { parsedValue, isValidValue, visibilityStatus } = valueExtractor(rawValue);
+      if (!isValidValue) {
         pushError(messages.invalidValue(rawValue, code, invoiceProductId));
         return [];
       }
@@ -105,7 +118,8 @@ export function productMatrixByCodeLoaderFactory(config) {
           id,
           [parentIdField]: parentId,
           invoiceProductId,
-          [valueField]: numericValue,
+          [valueField]: parsedValue,
+          ...(visibilityStatus ? { visibilityStatus } : {}),
         },
       });
     }
