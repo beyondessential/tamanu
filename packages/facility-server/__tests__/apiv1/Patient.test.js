@@ -96,14 +96,12 @@ describe('Patient', () => {
       encounterType: ENCOUNTER_TYPES.ADMISSION,
       endDate,
     });
-    console.log('about to create encounterTwo');
     const encounterTwo = await models.Encounter.create({
       ...(await createDummyEncounter(models)),
       patientId: patient.id,
       encounterType: ENCOUNTER_TYPES.ADMISSION,
       endDate: new Date(endDate.getTime() + 1000),
     });
-    console.log('successfully created encounterTwo', encounterTwo);
     await models.Encounter.create({
       ...(await createDummyEncounter(models, { current: true })),
       patientId: patient.id,
