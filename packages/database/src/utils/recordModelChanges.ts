@@ -49,7 +49,7 @@ export function createChangeRecorders<T extends Model>(
     const newRecord = await model.findByPk(updateData[columnName] as any, sequelizeOptions);
 
     systemNoteRows.push(
-      `Changed ${fieldLabel} from '${accessor(oldRecord)}' to '${accessor(newRecord)}'`,
+      `Changed ${fieldLabel} from ‘${accessor(oldRecord)}’ to ‘${accessor(newRecord)}’`,
     );
     await onChange?.();
   };
@@ -81,7 +81,7 @@ export function createChangeRecorders<T extends Model>(
 
     const oldValue = formatText(modelInstance[columnName]);
     const newValue = formatText(updateData[columnName]);
-    systemNoteRows.push(`Changed ${fieldLabel} from '${oldValue}' to '${newValue}'`);
+    systemNoteRows.push(`Changed ${fieldLabel} from ‘${oldValue}’ to ‘${newValue}’`);
     await onChange?.();
   };
 
