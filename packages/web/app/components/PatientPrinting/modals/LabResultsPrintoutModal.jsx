@@ -42,18 +42,25 @@ export const LabResultsPrintoutModal = React.memo(({ labRequest, patient, open, 
     { enabled: isVillageEnabled },
   );
 
+  const { data: publishedLog, isLoading: isPublishedLogLoading } = useQuery(
+    ['labRequest', labRequest.id, 'latest-published'],
+    () => api.get(`labRequest/${labRequest.id}/latest-published`),
+  );
+
   const isLoading =
     isEncounterLoading ||
     areTestsLoading ||
     areNotesLoading ||
     isAdditionalDataLoading ||
     (isVillageEnabled && isVillageLoading) ||
-    isCertificateFetching;
+    isCertificateFetching ||
+    isPublishedLogLoading;
 
   const labRequestWithDetails = {
     ...labRequest,
     tests: testsData?.data,
     notes: notes?.data || [],
+    publishedBy: publishedLog?.updatedBy,
   };
 
   return (

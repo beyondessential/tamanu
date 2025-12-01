@@ -41,7 +41,7 @@ labRequest.get(
       req.checkPermission('read', 'SensitiveLabRequest');
     }
 
-    const { LabRequest, LabRequestLog } = req.models;
+    const { LabRequest } = req.models;
 
     await req.audit.access({
       recordId: labRequestRecord.id,
@@ -51,20 +51,9 @@ labRequest.get(
 
     const latestAttachment = await labRequestRecord.getLatestAttachment();
 
-    // Get the latest published or verified log for the publishing user
-    const publishedLog = await LabRequestLog.findOne({
-      where: {
-        labRequestId: labRequestRecord.id,
-        status: { [Op.in]: [LAB_REQUEST_STATUSES.PUBLISHED, LAB_REQUEST_STATUSES.VERIFIED] },
-      },
-      order: [['createdAt', 'DESC']],
-      include: [{ association: 'updatedBy', attributes: ['displayName'] }],
-    });
-
     res.send({
       ...labRequestRecord.forResponse(),
       latestAttachment,
-      publishedBy: publishedLog?.updatedBy,
     });
   }),
 );
