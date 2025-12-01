@@ -36,6 +36,7 @@ import { ENCOUNTER_TYPE_LABELS, FORM_TYPES } from '@tamanu/constants';
 import { DateField, Field, Form, TAMANU_COLORS } from '@tamanu/ui-components';
 import { useEncounter } from '../../../contexts/Encounter.jsx';
 import { getEncounterStartDateLabel } from '../../../utils/getEncounterStartDateLabel.jsx';
+import { PlusIcon } from '../../../assets/icons/PlusIcon';
 
 const InfoCardFirstColumn = styled.div`
   display: flex;
@@ -315,7 +316,7 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
               ) : (
                 <>
                   <AddButton onClick={() => setIsEstimatedDischargeModalOpen(true)}>
-                    +
+                    <PlusIcon fill={TAMANU_COLORS.darkestText} />
                     <AddButtonText>
                       <TranslatedText
                         stringId="encounter.summary.addEstimatedDischargeDate"
