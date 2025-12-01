@@ -1,5 +1,4 @@
 import { Locator, Page } from '@playwright/test';
-import { selectAutocompleteFieldOption } from '@utils/fieldHelpers';
 
 export class MarkAsCompletedModal {
   readonly page: Page;
