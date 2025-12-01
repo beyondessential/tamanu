@@ -92,6 +92,65 @@ describe('Encounter', () => {
       });
       expect(result.body.data.find(x => x.id === c.id)).not.toHaveProperty('endDate');
     });
+    it('should get a list of notes and pin treatment plan notes to the top', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+      const otherEncounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+      await Promise.all([
+        models.Note.createForRecord(
+          encounter.id,
+          'Encounter',
+          NOTE_TYPES.AREA_TO_BE_IMAGED,
+          'Test 1',
+        ),
+        models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.TREATMENT_PLAN, 'Test 2'),
+        models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.OTHER, 'Test 3'),
+        models.Note.createForRecord(
+          otherEncounter.id,
+          'Encounter',
+          NOTE_TYPES.TREATMENT_PLAN,
+          'Fail',
+        ),
+      ]);
+
+      const result = await app.get(`/api/encounter/${encounter.id}/notes`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.count).toEqual(3);
+      expect(result.body.data.every(x => x.content.match(/^Test \d$/))).toEqual(true);
+      expect(result.body.data[0].noteTypeId).toEqual(NOTE_TYPES.TREATMENT_PLAN);
+    });
+  });
+
+  it('should get a list of notes filtered by noteTypeId', async () => {
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+    });
+
+    await Promise.all([
+      models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.TREATMENT_PLAN, 'Test 4'),
+      models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.TREATMENT_PLAN, 'Test 5'),
+      models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.OTHER, 'Test 6'),
+    ]);
+
+    const result = await app.get(
+      `/api/encounter/${encounter.id}/notes?noteTypeId=${NOTE_TYPES.TREATMENT_PLAN}`,
+    );
+    expect(result).toHaveSucceeded();
+    expect(result.body.count).toEqual(2);
+    expect(result.body.data.every(x => x.noteTypeId === NOTE_TYPES.TREATMENT_PLAN)).toEqual(true);
+  });
+
+  it('should get a list of changelog notes of a root note ordered DESC', async () => {
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+    });
 
     it('should fail to get an encounter that does not exist', async () => {
       const result = await app.get('/api/encounter/nonexistent');

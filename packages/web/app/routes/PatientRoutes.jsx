@@ -1,14 +1,8 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
-import { Route, Switch, useLocation, useParams, useRouteMatch } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router';
 import styled from 'styled-components';
 import { PatientInfoPane } from '../components/PatientInfoPane';
-import { getPatientNameAsString } from '../components/PatientNameDisplay';
-import { PatientNavigation } from '../components/PatientNavigation';
 import { TwoColumnDisplay } from '../components/TwoColumnDisplay';
-import { PATIENT_PATHS } from '../constants/patientPaths';
-import { useEncounter } from '../contexts/Encounter';
-import { usePatientNavigation } from '../utils/usePatientNavigation';
 import {
   DischargeSummaryView,
   EncounterView,
@@ -16,49 +10,26 @@ import {
   LabRequestView,
   PatientView,
 } from '../views';
-import { getEncounterType } from '../views/patients/panes/EncounterInfoPane';
 import { ProgramsView } from '../views/programs/ProgramsView';
 import { ReferralsView } from '../views/referrals/ReferralsView';
 import { PatientProgramRegistryView } from '../views/programRegistry/PatientProgramRegistryView';
 import { ProgramRegistrySurveyView } from '../views/programRegistry/ProgramRegistrySurveyView';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
-import { useProgramRegistryQuery } from '../api/queries/useProgramRegistryQuery';
-import { TranslatedReferenceData } from '../components';
 import { MarView } from '../views/patients/medication/MarView';
 import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
+import { PatientSearchParametersProvider } from '../contexts/PatientViewSearchParameters';
 import { NoteModal } from '../components/NoteModal/NoteModal';
-import { ENCOUNTER_TAB_NAMES } from '../constants/encounterTabNames';
-
-// This component gets the programRegistryId and uses it to render the title of the program registry
-// in the breadcrumbs. It is the only place where breadcrumbs use url params to render the title.
-const ProgramRegistryTitle = () => {
-  const params = useParams();
-  const { programRegistryId } = params;
-  const { data: programRegistry } = useProgramRegistryQuery(programRegistryId);
-
-  if (!programRegistry) {
-    return null;
-  }
-
-  return (
-    <TranslatedReferenceData
-      fallback={programRegistry.name}
-      value={programRegistry.id}
-      category="programRegistry"
-    />
-  );
-};
+import {
+  PatientNavigation,
+  Breadcrumb,
+  EncounterBreadcrumb,
+  MedicationBreadcrumb,
+  ProgramRegistryBreadcrumb,
+} from '../features/Breadcrumbs';
 
 export const usePatientRoutes = () => {
-  const {
-    navigateToEncounter,
-    navigateToPatient,
-    navigateToProgramRegistry,
-  } = usePatientNavigation();
-  const patient = useSelector(state => state.patient);
-  const { encounter } = useEncounter();
   // prefetch userPreferences
   useUserPreferencesQuery();
   const { ability } = useAuth();
@@ -66,111 +37,96 @@ export const usePatientRoutes = () => {
 
   return [
     {
-      path: PATIENT_PATHS.PATIENT,
+      index: true,
       component: PatientView,
-      navigateTo: () => navigateToPatient(patient.id),
-      title: getPatientNameAsString(patient || {}),
-      routes: [
-        {
-          path: `${PATIENT_PATHS.PATIENT}/programs/new`,
-          component: ProgramsView,
-          title: 'New Form',
-        },
-        {
-          path: `${PATIENT_PATHS.PATIENT}/referrals/new`,
-          component: ReferralsView,
-          title: 'New Referral',
-        },
-        {
-          path: `${PATIENT_PATHS.ENCOUNTER}/:modal?`,
-          component: EncounterView,
-          navigateTo: () => navigateToEncounter(encounter.id),
-          title: getEncounterType(encounter || {}),
-          routes: [
-            {
-              path: `${PATIENT_PATHS.SUMMARY}/view`,
-              component: DischargeSummaryView,
-              title: (
-                <TranslatedText
-                  stringId="encounter.dischargeSummary.title"
-                  fallback="Discharge Summary"
-                />
-              ),
-            },
-            ...(canAccessMar
-              ? [
-                  {
-                    path: `${PATIENT_PATHS.MAR}/view`,
-                    component: MarView,
-                    title: (
-                      <TranslatedText
-                        stringId="encounter.mar.title"
-                        fallback="Medication admin record"
-                      />
-                    ),
-                    subPaths: [
-                      {
-                        path: `${PATIENT_PATHS.ENCOUNTER}?tab=${ENCOUNTER_TAB_NAMES.MEDICATION}`,
-                        title: (
-                          <TranslatedText
-                            stringId="encounter.medication.title"
-                            fallback="Medication"
-                          />
-                        ),
-                        navigateTo: () =>
-                          navigateToEncounter(encounter.id, {
-                            tab: ENCOUNTER_TAB_NAMES.MEDICATION,
-                          }),
-                      },
-                    ],
-                  },
-                ]
-              : []),
-            {
-              path: `${PATIENT_PATHS.ENCOUNTER}/programs/new`,
-              component: ProgramsView,
-              title: 'New Form',
-            },
-            {
-              path: `${PATIENT_PATHS.LAB_REQUEST}/:modal?`,
-              component: LabRequestView,
-              title: 'Lab Request',
-            },
-            {
-              path: `${PATIENT_PATHS.IMAGING_REQUEST}/:modal?`,
-              component: ImagingRequestView,
-              title: 'Imaging Request',
-            },
-          ],
-        },
-        {
-          path: PATIENT_PATHS.PROGRAM_REGISTRY,
-          component: PatientProgramRegistryView,
-          navigateTo: () => navigateToProgramRegistry(),
-          title: <ProgramRegistryTitle />,
-          routes: [
-            {
-              path: PATIENT_PATHS.PROGRAM_REGISTRY_SURVEY,
-              component: ProgramRegistrySurveyView,
-              title: 'Survey',
-            },
-          ],
-        },
+    },
+    {
+      path: 'programs/new',
+      component: ProgramsView,
+      breadcrumbs: [<Breadcrumb key="new-form" title="New Form" />],
+    },
+    { path: 'referrals/new', component: ReferralsView, breadcrumbs: 'New Referral' },
+    {
+      path: 'encounter/:encounterId/:modal?',
+      component: EncounterView,
+      breadcrumbs: [<EncounterBreadcrumb key="encounter" />],
+    },
+    {
+      path: 'encounter/:encounterId/summary/view',
+      component: DischargeSummaryView,
+      breadcrumbs: [
+        <EncounterBreadcrumb key="encounter" />,
+        <Breadcrumb
+          key="discharge-summary"
+          title={
+            <TranslatedText
+              stringId="encounter.dischargeSummary.title"
+              fallback="Discharge Summary"
+            />
+          }
+        />,
+      ],
+    },
+    ...(canAccessMar
+      ? [
+          {
+            path: 'encounter/:encounterId/mar/view',
+            component: MarView,
+            breadcrumbs: [
+              <EncounterBreadcrumb key="encounter" />,
+              <MedicationBreadcrumb key="medication" />,
+              <Breadcrumb
+                key="marview"
+                title={
+                  <TranslatedText
+                    stringId="encounter.mar.title"
+                    fallback="Medication admin record"
+                  />
+                }
+              />,
+            ],
+          },
+        ]
+      : []),
+    {
+      path: 'encounter/:encounterId/programs/new',
+      component: ProgramsView,
+      breadcrumbs: [
+        <EncounterBreadcrumb key="encounter" />,
+        <Breadcrumb key="new-form" title="New Form" />,
+      ],
+    },
+    {
+      path: 'encounter/:encounterId/lab-request/:labRequestId/:modal?',
+      component: LabRequestView,
+      breadcrumbs: [
+        <EncounterBreadcrumb key="encounter" />,
+        <Breadcrumb key="lab-request" title="Lab Request" />,
+      ],
+    },
+    {
+      path: 'encounter/:encounterId/imaging-request/:imagingRequestId/:modal?',
+      component: ImagingRequestView,
+      breadcrumbs: [
+        <EncounterBreadcrumb key="encounter" />,
+        <Breadcrumb key="imaging-request" title="Imaging Request" />,
+      ],
+    },
+    {
+      path: 'program-registry/:programRegistryId',
+      component: PatientProgramRegistryView,
+      breadcrumbs: [<ProgramRegistryBreadcrumb key="program-registry" />],
+    },
+    {
+      path: 'program-registry/:programRegistryId/survey/:surveyId',
+      component: ProgramRegistrySurveyView,
+      breadcrumbs: [
+        <ProgramRegistryBreadcrumb key="program-registry" />,
+        <Breadcrumb key="new-form" title="New Form" />,
       ],
     },
   ];
 };
-
-const isPathUnchanged = (prevProps, nextProps) => prevProps.match.path === nextProps.match.path;
-
-const RouteWithSubRoutes = ({ path, component, routes }) => (
-  <>
-    <Route exact path={path} component={component} />
-    {routes?.map(subRoute => (
-      <RouteWithSubRoutes key={`route-${subRoute.path}`} {...subRoute} />
-    ))}
-  </>
-);
 
 const PatientPane = styled.div`
   overflow: auto;
@@ -184,40 +140,33 @@ const PatientPaneInner = styled.div`
   min-width: ${PATIENT_PANE_WIDTH};
 `;
 
-const PatientRoutesContent = () => {
+export const PatientRoutes = () => {
   const patientRoutes = usePatientRoutes();
   const location = useLocation();
   const backgroundColor = location.pathname?.endsWith('/mar/view') ? Colors.white : 'initial';
-  const isProgramRegistry = !!useRouteMatch(PATIENT_PATHS.PROGRAM_REGISTRY);
 
   return (
-    <>
+    <PatientSearchParametersProvider>
+      <NoteModal />
       <TwoColumnDisplay>
         <PatientInfoPane />
         {/* Using contain:size along with overflow: auto here allows sticky navigation section
     to have correct scrollable behavior in relation to the patient info pane and switch components */}
         <PatientPane $backgroundColor={backgroundColor}>
           <PatientPaneInner>
-            {/* The breadcrumbs for program registry need to be rendered inside the program registry view so
-         that they have access to the programRegistryId url param */}
-            {isProgramRegistry ? null : <PatientNavigation patientRoutes={patientRoutes} />}
-            <Switch>
-              {patientRoutes.map(route => (
-                <RouteWithSubRoutes key={`route-${route.path}`} {...route} />
-              ))}
-            </Switch>
+            <PatientNavigation patientRoutes={patientRoutes} />
+            <Routes>
+              {patientRoutes.map(route => {
+                const Element = route.component && React.createElement(route.component);
+                if (route.index) {
+                  return <Route key="route-index" index element={Element} />;
+                }
+                return <Route key={`route-${route.path}`} path={route.path} element={Element} />;
+              })}
+            </Routes>
           </PatientPaneInner>
         </PatientPane>
       </TwoColumnDisplay>
-    </>
+    </PatientSearchParametersProvider>
   );
 };
-
-export const PatientRoutes = React.memo(() => {
-  return (
-    <>
-      <NoteModal />
-      <PatientRoutesContent />
-    </>
-  );
-}, isPathUnchanged);

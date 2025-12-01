@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Redirect, useParams } from 'react-router-dom';
-import { Colors } from '../../constants/styles';
+import { Navigate, useParams } from 'react-router';
+import { Colors } from '../../constants';
 import { useListOfProgramRegistryQuery } from '../../api/queries/useProgramRegistryQuery';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
@@ -39,7 +39,7 @@ export const ProgramRegistryView = () => {
     isSuccess &&
     programRegistries?.data &&
     programRegistries.data.length > 0 &&
-    programRegistries.data.find((x) => x.id === programRegistryId)
+    programRegistries.data.find(x => x.id === programRegistryId)
   )
     return (
       <>
@@ -73,5 +73,5 @@ export const ProgramRegistryView = () => {
         </Container>
       </>
     );
-  return <Redirect to="/patients/all" data-testid="redirect-knps" />;
+  return <Navigate to="/patients/all" replace data-testid="redirect-knps" />;
 };

@@ -1,6 +1,7 @@
 import { Locator, Page, expect } from '@playwright/test';
 import { Patient } from '@tamanu/database';
 import { constructFacilityUrl } from '@utils/navigation';
+import { routes } from '@config/routes';
 import { BasePatientPage } from '../BasePatientPage';
 import { PatientVaccinePane } from './panes/PatientVaccinePane';
 import { CarePlanModal } from './modals/CarePlanModal';
@@ -9,7 +10,13 @@ import { ProcedurePane } from '../ProcedurePage/Panes/ProcedurePane';
 import { format } from 'date-fns';
 import { NotesPane } from '../NotesPage/panes/notesPane';
 import { PrepareDischargeModal } from './modals/PrepareDischargeModal';
-
+import { CreateEncounterModal } from './modals/CreateEncounterModal';
+import { EmergencyTriageModal } from './modals/EmergencyTriageModal';
+import { PatientDetailsTabPage } from './panes/PatientDetailsTabPage';
+import { AllPatientsPage } from '../AllPatientsPage';
+import { EncounterMedicationPane } from '../MedicationsPage/panes/EncounterMedicationPane';
+import { EncounterHistoryPane } from './panes/EncounterHistoryPane';
+import { ChangeEncounterDetailsMenu } from './ChangeEncounterDetailsMenu';
 
 export class PatientDetailsPage extends BasePatientPage {
   readonly prepareDischargeButton: Locator;
@@ -20,7 +27,16 @@ export class PatientDetailsPage extends BasePatientPage {
   patientProcedurePane?: ProcedurePane;
   carePlanModal?: CarePlanModal;
   prepareDischargeModal?: PrepareDischargeModal;
+  createEncounterModal?: CreateEncounterModal;
+  emergencyTriageModal?: EmergencyTriageModal;
   notesPane?: NotesPane;
+  patientDetailsTabPage?: PatientDetailsTabPage;
+  encounterMedicationPane?: EncounterMedicationPane;
+  arrowDownIconMenuButton: Locator;
+
+  private _encounterHistoryPane?: EncounterHistoryPane;
+  private _changeEncounterDetailsMenu?: ChangeEncounterDetailsMenu;
+  readonly encounterMedicationTab: Locator;
   readonly initiateNewOngoingConditionAddButton: Locator;
   readonly ongoingConditionNameField: Locator;
   readonly ongoingConditionNameWrapper: Locator;
@@ -72,12 +88,19 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly submitEditsButton: Locator;
   readonly labsTab: Locator;
   readonly notesTab: Locator;
-  readonly encountersList: Locator; 
+  readonly vitalsTab: Locator;
+  readonly imagingTab: Locator;
+  readonly encountersList: Locator;
   readonly departmentLabel: Locator;
+  readonly admitOrCheckinButton: Locator;
+  readonly patientDetailsTab: Locator;
+  readonly dietLabel: Locator;
+  readonly locationLabel: Locator;
+
   labRequestPane?: LabRequestPane;
   constructor(page: Page) {
     super(page);
-    this.prepareDischargeButton= this.page.getByTestId('mainbuttoncomponent-06gp');
+    this.prepareDischargeButton = this.page.getByTestId('mainbuttoncomponent-06gp');
     this.vaccineTab = this.page.getByTestId('tab-vaccines');
     this.procedureTab = this.page.getByTestId('styledtab-ccs8-procedures');
     this.healthIdText = this.page.getByTestId('healthidtext-fqvn');
@@ -109,7 +132,9 @@ export class PatientDetailsPage extends BasePatientPage {
     this.savedOnGoingConditionNote = this.page
       .getByTestId('collapse-0a33')
       .getByTestId('field-e52k-input');
-    this.ongoingConditionNameWrapper = this.page.getByTestId('field-j30y-input-outerlabelfieldwrapper');
+    this.ongoingConditionNameWrapper = this.page.getByTestId(
+      'field-j30y-input-outerlabelfieldwrapper',
+    );
     this.submitNewOngoingConditionAddButton = this.page
       .getByTestId('formsubmitcancelrow-2r80-confirmButton')
       .first();
@@ -215,8 +240,17 @@ export class PatientDetailsPage extends BasePatientPage {
       .first();
     this.labsTab = this.page.getByTestId('styledtab-ccs8-labs');
     this.notesTab = this.page.getByTestId('styledtab-ccs8-notes');
+    this.vitalsTab = this.page.getByTestId('styledtab-ccs8-vitals');
+    this.imagingTab = this.page.getByTestId('styledtab-ccs8-imaging');
+    this.encounterMedicationTab = this.page.getByTestId('styledtab-ccs8-medication');
     this.encountersList=this.page.getByTestId('styledtablebody-a0jz').locator('tr');
     this.departmentLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Department' }).locator('..').getByTestId('cardvalue-1v8z');
+    this.dietLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Diet' }).locator('..').getByTestId('cardvalue-1v8z');
+    this.locationLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Location' }).locator('..').getByTestId('cardvalue-1v8z');
+    this.admitOrCheckinButton=this.page.getByTestId('component-enxe').filter({ hasText: 'Admit or check-in' });
+    this.patientDetailsTab=this.page.getByTestId('tab-details');
+    this.arrowDownIconMenuButton=this.page.getByTestId('menubutton-dc8o');
+
   }
 
   async navigateToVaccineTab(): Promise<PatientVaccinePane> {
@@ -237,9 +271,7 @@ export class PatientDetailsPage extends BasePatientPage {
     return this.patientProcedurePane;
   }
 
- 
-
-    async navigateToLabsTab(): Promise<LabRequestPane> {
+  async navigateToLabsTab(): Promise<LabRequestPane> {
     // Navigate to the top encounter
     await this.encountersList.first().waitFor({ state: 'visible' });
     await this.encountersList.first().filter({ hasText: 'Hospital admission' }).click();
@@ -260,9 +292,42 @@ export class PatientDetailsPage extends BasePatientPage {
     return this.notesPane;
   }
 
+  async navigateToVitalsTab(): Promise<void> {
+    await this.vitalsTab.click();
+  }
+
+  async navigateToImagingRequestTab(): Promise<void> {
+    await this.encountersList.first().waitFor({ state: 'visible' });
+    await this.encountersList.first().click();
+    await this.imagingTab.click();
+  }
+
+  async navigateToPatientDetailsTab(): Promise<PatientDetailsTabPage> {
+    await this.patientDetailsTab.click();
+    if (!this.patientDetailsTabPage) {
+      this.patientDetailsTabPage = new PatientDetailsTabPage(this.page);
+    }
+    return this.patientDetailsTabPage;
+  }
+
+  async navigateToAllPatientsPage(): Promise<AllPatientsPage> {
+    await this.page.goto(constructFacilityUrl(`${routes.patients.all}`));
+    return new AllPatientsPage(this.page);
+  }
+
+  async navigateToMedicationTab(): Promise<EncounterMedicationPane> {
+    await this.encountersList.first().waitFor({ state: 'visible' });
+    await this.encountersList.first().click();
+    await this.encounterMedicationTab.click();
+    if (!this.encounterMedicationPane) {
+      this.encounterMedicationPane = new EncounterMedicationPane(this.page);
+    }
+    await this.encounterMedicationPane.waitForPaneToLoad();
+    return this.encounterMedicationPane;
+  }
 
   async goToPatient(patient: Patient) {
-    await this.page.goto(constructFacilityUrl(`/#/patients/all/${patient.id}`));
+    await this.page.goto(constructFacilityUrl(`/patients/all/${patient.id}`));
   }
 
   async addNewOngoingConditionWithJustRequiredFields(conditionName: string) {
@@ -442,5 +507,45 @@ export class PatientDetailsPage extends BasePatientPage {
       this.prepareDischargeModal = new PrepareDischargeModal(this.page);
     }
     return this.prepareDischargeModal;
+  }
+
+  getCreateEncounterModal(): CreateEncounterModal {
+    if (!this.createEncounterModal) {
+      this.createEncounterModal = new CreateEncounterModal(this.page);
+    }
+    return this.createEncounterModal;
+  }
+
+  getEmergencyTriageModal(): EmergencyTriageModal {
+    if (!this.emergencyTriageModal) {
+      this.emergencyTriageModal = new EmergencyTriageModal(this.page);
+    }
+    return this.emergencyTriageModal;
+  }
+
+  get encounterHistoryPane(): EncounterHistoryPane {
+    if (!this._encounterHistoryPane) {
+      this._encounterHistoryPane = new EncounterHistoryPane(this.page);
+    }
+    return this._encounterHistoryPane;
+  }
+
+  get changeEncounterDetailsMenu(): ChangeEncounterDetailsMenu {
+    if (!this._changeEncounterDetailsMenu) {
+      this._changeEncounterDetailsMenu = new ChangeEncounterDetailsMenu(this.page);
+    }
+    return this._changeEncounterDetailsMenu;
+  }
+
+  async admitToHospital(): Promise<Record<string, string>> {
+    await this.admitOrCheckinButton.click();
+    const createEncounterModal = this.getCreateEncounterModal();
+    await createEncounterModal.waitForModalToLoad();
+    await createEncounterModal.hospitalAdmissionButton.click();
+    const hospitalAdmissionModal = createEncounterModal.getHospitalAdmissionModal();
+    await hospitalAdmissionModal.waitForModalToLoad();
+    const formValues = await hospitalAdmissionModal.fillHospitalAdmissionForm();
+    await hospitalAdmissionModal.confirmButton.click();
+    return formValues;
   }
 }
