@@ -1,5 +1,4 @@
 import { Locator, Page } from '@playwright/test';
-import { expect } from '../../../fixtures/baseFixture';
 import { AddDocumentModal } from '../modals/AddDocumentModal';
 
 export class DocumentsPane {
