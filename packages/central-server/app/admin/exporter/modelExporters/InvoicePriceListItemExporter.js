@@ -14,6 +14,7 @@ export class InvoicePriceListItemExporter extends ProductMatrixByCodeExporter {
         if (price === null) return 'manual-entry';
         return price;
       },
+      itemModelAttributes: ['visibilityStatus'],
       tabName: 'Invoice Price List Items',
     });
   }
