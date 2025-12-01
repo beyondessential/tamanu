@@ -57,4 +57,5 @@ export class EncounterMedicationPane extends BasePatientPane {
   async waitForPaneToLoad(): Promise<void> {
     await this.medicationTable.waitFor({ state: 'visible' });
   }
-  }
+
+}

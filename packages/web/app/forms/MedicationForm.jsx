@@ -353,7 +353,10 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
   };
 
   return (
-    <StyledAccordion defaultExpanded={!isOneTimeFrequency(values.frequency)}>
+    <StyledAccordion
+      defaultExpanded={!isOneTimeFrequency(values.frequency)}
+      data-testid="medication-accordion-medicationAdministration-5m2w"
+    >
       <StyledAccordionSummary>
         <FieldLabel>
           <TranslatedText
@@ -381,7 +384,10 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
             </FieldLabel>
             <FieldContent>&nbsp;{firstAdministrationTime}</FieldContent>
           </Box>
-          <ResetToDefaultButton onClick={handleResetToDefault}>
+          <ResetToDefaultButton
+            onClick={handleResetToDefault}
+            data-testid="medication-button-resetToDefault-9h6k"
+          >
             <TranslatedText stringId="general.action.resetToDefault" fallback="Reset to default" />
           </ResetToDefaultButton>
         </Box>
@@ -462,6 +468,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
                         value={checked}
                         onChange={(_, value) => handleSelectTimeSlot(value, slot, index)}
                         disabled={isDisabled}
+                        data-testid={`medication-checkbox-asfd${index}`}
                         {...(isDisabled && { icon: <StyledIcon className="far fa-square" /> })}
                       />
                     </Box>
@@ -495,6 +502,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
                       timeSteps={{ minutes: 1 }}
                       minTime={startTime}
                       maxTime={subSeconds(endTime, 1)}
+                      data-testid={`medication-time-picker-asfd${index}`}
                     />
                   </Box>
                 </Box>
@@ -718,6 +726,7 @@ export const MedicationForm = ({
                       });
                       handleChangeMedication(e.target.value);
                     }}
+                    data-testid="medication-field-medicationId-8k3m"
                   />
                   {showExistingDrugWarning && (
                     <SmallBodyText mt="2px" color={Colors.midText}>
@@ -778,6 +787,7 @@ export const MedicationForm = ({
                   }
                 }}
                 checkedIcon={<StyledIcon className="far fa-check-square" $color={Colors.midText} />}
+                data-testid="medication-field-isOngoing-7j2p"
               />
               <Field
                 name="isPrn"
@@ -785,6 +795,7 @@ export const MedicationForm = ({
                   <TranslatedText stringId="medication.isPrn.label" fallback="PRN medication" />
                 }
                 component={CheckField}
+                data-testid="medication-field-isPrn-9n4q"
               />
             </CheckboxGroup>
             <div style={{ gridColumn: '1/-1', marginBottom: '-12px' }}>
@@ -805,6 +816,7 @@ export const MedicationForm = ({
                     setFieldError('doseAmount', null);
                   }
                 }}
+                data-testid="medication-field-isVariableDose-5h8x"
               />
             </div>
             <Field
@@ -817,6 +829,7 @@ export const MedicationForm = ({
               onInput={validateDecimalPlaces}
               required={!values.isVariableDose}
               disabled={values.isVariableDose}
+              data-testid="medication-field-doseAmount-3t6w"
             />
             <Field
               name="units"
@@ -824,6 +837,7 @@ export const MedicationForm = ({
               component={TranslatedSelectField}
               enumValues={DRUG_UNIT_LABELS}
               required
+              data-testid="medication-field-units-2r9v"
             />
             <Field
               name="frequency"
@@ -835,6 +849,7 @@ export const MedicationForm = ({
                 }
                 setFrequencyChanged(prev => prev + 1);
               }}
+              data-testid="medication-field-frequency-4c7z"
             />
             <Field
               name="route"
@@ -842,6 +857,7 @@ export const MedicationForm = ({
               component={TranslatedSelectField}
               enumValues={DRUG_ROUTE_LABELS}
               required
+              data-testid="medication-field-route-6d1b"
             />
             <Field
               name="date"
@@ -851,6 +867,7 @@ export const MedicationForm = ({
               saveDateAsString
               component={DateField}
               required
+              data-testid="medication-field-date-8m5k"
             />
             <Field
               name="startDate"
@@ -863,6 +880,7 @@ export const MedicationForm = ({
               saveDateAsString
               component={DateTimeField}
               required
+              data-testid="medication-field-startDate-1a9s"
             />
             <FormGrid nested>
               <StyledConditionalTooltip
@@ -885,6 +903,7 @@ export const MedicationForm = ({
                   disabled={
                     values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY || values.isOngoing
                   }
+                  data-testid="medication-field-durationValue-7p2n"
                 />
               </StyledConditionalTooltip>
               <Field
@@ -898,6 +917,7 @@ export const MedicationForm = ({
                 disabled={
                   values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY || values.isOngoing
                 }
+                data-testid="medication-field-durationUnit-4q8f"
               />
             </FormGrid>
             <div />
@@ -909,6 +929,7 @@ export const MedicationForm = ({
               component={AutocompleteField}
               suggester={practitionerSuggester}
               required
+              data-testid="medication-field-prescriberId-3x5h"
             />
             <Field
               name="indication"
@@ -916,6 +937,7 @@ export const MedicationForm = ({
                 <TranslatedText stringId="medication.indication.label" fallback="Indication" />
               }
               component={TextField}
+              data-testid="medication-field-indication-9w6y"
             />
             <div style={{ gridColumn: '1/-1' }}>
               <Field
@@ -926,6 +948,7 @@ export const MedicationForm = ({
                   </BodyText>
                 }
                 component={CheckField}
+                data-testid="medication-field-isPhoneOrder-2e4r"
               />
             </div>
             <Field
@@ -933,6 +956,7 @@ export const MedicationForm = ({
               label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
               component={TextField}
               style={{ gridColumn: '1/-1' }}
+              data-testid="medication-field-notes-5b3t"
             />
             <div style={{ gridColumn: '1 / -1' }}>
               <Divider />
@@ -971,6 +995,7 @@ export const MedicationForm = ({
                   min={0}
                   component={NumberField}
                   onInput={preventInvalidNumber}
+                  data-testid="medication-field-quantity-6j9m"
                 />
                 <Field
                   name="repeats"
@@ -999,7 +1024,7 @@ export const MedicationForm = ({
                   component={TextField}
                   placeholder={getTranslation('medication.patientWeight.placeholder', 'e.g 2.4')}
                   type="number"
-                  data-testid="field-2hh7"
+                  data-testid="medication-field-patientWeight-1k7c"
                 />
               </>
             )}
@@ -1017,6 +1042,7 @@ export const MedicationForm = ({
                   startIcon={<PrintIcon />}
                   disabled={isFinalizingMedication}
                   showLoadingIndicator={isFinalizingMedication}
+                  data-testid="medication-button-finaliseAndPrint-8v2q"
                 >
                   <TranslatedText
                     stringId="medication.action.finaliseAndPrint"
@@ -1026,7 +1052,10 @@ export const MedicationForm = ({
               )}
               <Box display="flex" ml="auto" sx={{ gap: '16px' }}>
                 {(!isEditing || dirty) && (
-                  <FormCancelButton onClick={onCancelEdit || onCancel}>
+                  <FormCancelButton
+                    onClick={onCancelEdit || onCancel}
+                    data-testid="medication-button-cancel-4n8p"
+                  >
                     {isEditing ? (
                       <TranslatedText
                         stringId="general.action.cancelChanges"
@@ -1042,6 +1071,7 @@ export const MedicationForm = ({
                   onClick={async data => onFinalise({ data, isPrinting: false, submitForm, dirty })}
                   disabled={isFinalizingMedication}
                   showLoadingIndicator={isFinalizingMedication}
+                  data-testid="medication-button-finalise-7x3d"
                 >
                   {isEditing ? (
                     <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
