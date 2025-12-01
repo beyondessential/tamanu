@@ -836,7 +836,7 @@ describe('Reference data exporter', () => {
         [
           {
             data: [
-              ['id', 'name', 'discountable', 'category', 'sourceRecordId', 'visibilityStatus'],
+              ['id', 'name', 'insurable', 'category', 'sourceRecordId', 'visibilityStatus'],
               ['invoiceProduct-0', 'Invoice Product Ad hoc', false, null, null, 'current'],
               ['invoiceProduct-1', 'Invoice Product 1', true, 'Drug', 'drug-1', 'current'],
               [
