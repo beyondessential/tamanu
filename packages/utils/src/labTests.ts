@@ -15,7 +15,7 @@ type  getTranslation = (
   fallback: string,
   translationOptions?: {
     casing?: 'lower' | 'upper' | 'sentence';
-    replacements?: Record<string, string | number | undefined>;
+    replacements?: Record<string, any>;
   },
 ) => string;
 
