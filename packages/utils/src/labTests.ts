@@ -7,6 +7,7 @@ type LabTestTypeLike = {
   maleMin?: number;
   femaleMin?: number;
   rangeText?: string;
+  unit?: string;
 };
 
 type  getTranslation = (
