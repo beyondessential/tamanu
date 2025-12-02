@@ -291,11 +291,6 @@ const AllergiesWarningHeader = styled(Box)`
   gap: 8px;
 `;
 
-const AllergiesWarningIcon = styled(WarningOutlineIcon)`
-  color: ${Colors.alert};
-  font-size: 20px;
-`;
-
 const AllergiesWarningTitle = styled(BodyText)`
   color: ${Colors.darkestText};
   font-weight: 500;
@@ -740,7 +735,7 @@ export const MedicationForm = ({
                 {!isLoadingAllergies && allergiesList.length > 0 && (
                   <AllergiesWarningBox>
                     <AllergiesWarningHeader>
-                      <AllergiesWarningIcon />
+                      <WarningOutlineIcon />
                       <AllergiesWarningTitle>
                         <TranslatedText
                           stringId="medication.allergies.title"
