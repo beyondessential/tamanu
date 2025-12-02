@@ -7,6 +7,8 @@ import {
   FORM_TYPES,
   SUBMIT_ATTEMPTED_STATUS,
   ENCOUNTER_TYPES,
+  MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
+  NOTE_TYPES
 } from '@tamanu/constants';
 import CloseIcon from '@material-ui/icons/Close';
 import { isFuture, parseISO, set } from 'date-fns';
@@ -53,6 +55,7 @@ import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOn
 import { useQueryClient } from '@tanstack/react-query';
 import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
 import { createPrescriptionHash } from '../utils/medications';
+import { singularize } from '../utils';
 
 const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
@@ -267,6 +270,17 @@ const NumberFieldWithoutLabel = ({ field, ...props }) => (
 
 const MedicationAccessor = ({ medication, getTranslation, getEnumTranslation }) => {
   const { medication: medicationReferenceData } = medication;
+  const translatedUnit = getEnumTranslation(
+    MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
+    medication.durationUnit,
+  );
+  const durationDisplay =
+    medication.durationValue && translatedUnit
+      ? `${medication.durationValue} ${singularize(
+          translatedUnit,
+          medication.durationValue,
+        ).toLowerCase()}`
+      : null;
   return (
     <Box>
       <DarkestText>
@@ -280,6 +294,7 @@ const MedicationAccessor = ({ medication, getTranslation, getEnumTranslation }) 
         {[
           getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation),
           getTranslatedFrequency(medication.frequency, getTranslation),
+          durationDisplay,
         ]
           .filter(Boolean)
           .join(', ')}
@@ -730,7 +745,7 @@ export const DischargeForm = ({
   useEffect(() => {
     (async () => {
       const { data: notes } = await api.get(`encounter/${encounter.id}/notes`);
-      setDischargeNotes(notes.filter(n => n.noteType === 'discharge').reverse()); // reverse order of array to sort by oldest first
+      setDischargeNotes(notes.filter(n => n.noteTypeId === NOTE_TYPES.DISCHARGE).reverse()); // reverse order of array to sort by oldest first
     })();
   }, [api, encounter.id]);
 
