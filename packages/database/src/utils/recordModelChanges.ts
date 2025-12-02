@@ -1,13 +1,5 @@
 import { Model } from '../models/Model';
 
-const detectColumnChange = (
-  modelInstance: Model,
-  updateData: Partial<Model>,
-  columnName: keyof Model,
-) => {
-  return columnName in updateData && updateData[columnName] !== modelInstance[columnName];
-};
-
 /**
  * Creates helper functions for recording model changes in update methods.
  * These functions track changes to model fields and generate system note messages.
