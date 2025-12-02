@@ -61,7 +61,7 @@ const useInvoiceItemPrice = ({
     productId,
     enabled: Boolean(productId) && !existingPrice,
     onSuccess: data => {
-      if (!data?.price) return;
+      if (data?.price === undefined || data?.price === null) return;
 
       const currentItem = values.invoiceItems[index];
       const nextProduct = {
