@@ -1,5 +1,7 @@
 import React, { useCallback, useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import styled from 'styled-components';
+
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { useEncounter } from '../../../contexts/Encounter';
 import { Box } from '@material-ui/core';
@@ -18,8 +20,7 @@ import { LocationBookingsTable } from '../../../components/Appointments/Location
 import { useAuth } from '../../../contexts/Auth';
 import { useSettings } from '../../../contexts/Settings';
 import { OutpatientAppointmentsTable } from '../../../components/Appointments/OutpatientAppointmentsTable';
-import { useApi } from '../../../api';
-import styled from 'styled-components';
+import { usePatientCurrentEncounterQuery } from '../../../api/queries/usePatientCurrentEncounterQuery';
 
 const StyledLargeBodyText = styled(LargeBodyText)`
   margin: 20px;
@@ -55,15 +56,10 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
   const [isWarningModalOpen, setIsWarningModalOpen] = useState(false);
   const { navigateToEncounter } = usePatientNavigation();
   const { loadEncounter } = useEncounter();
-  const { ability, facilityId } = useAuth();
+  const { ability } = useAuth();
   const { getSetting } = useSettings();
   const queryClient = useQueryClient();
-  const api = useApi();
-  const { refetch: refetchCurrentEncounter } = useQuery(
-    ['patientCurrentEncounter', patient.id],
-    () => api.get(`patient/${encodeURIComponent(patient.id)}/currentEncounter`, { facilityId }),
-    { enabled: false },
-  );
+  const { refetch: refetchCurrentEncounter } = usePatientCurrentEncounterQuery(patient.id);
 
   const showLocationBookingsSetting = getSetting('layouts.patientView.showLocationBookings');
   const showOutpatientAppointmentsSetting = getSetting(
