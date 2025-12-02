@@ -46,9 +46,6 @@ const generalStyles = StyleSheet.create({
     paddingVertical: 4,
     fontSize: 9,
   },
-});
-
-const labDetailsSectionStyles = StyleSheet.create({
   detailsContainer: {
     marginBottom: 5,
   },
@@ -57,10 +54,11 @@ const labDetailsSectionStyles = StyleSheet.create({
 const SectionContainer = props => <View style={generalStyles.container} {...props} />;
 
 const LabRequestDetailsSection = ({ labRequest }) => {
+  const { getTranslation } = useLanguageContext();
   return (
-    <View style={labDetailsSectionStyles.detailsContainer}>
+    <View style={generalStyles.detailsContainer}>
       <P bold fontSize={11} mb={3}>
-        Lab request details
+        {getTranslation('pdf.labResults.labRequestDetailsTitle', 'Lab request details')}
       </P>
       <HorizontalRule />
       <MinimalLabRequestDetailsSection request={labRequest} />
@@ -165,14 +163,14 @@ const LabResultsPrintoutComponent = React.memo(
               </P>
               <View style={generalStyles.tableContainer}>
                 <Table
+                  hideRowDividers
                   data={tests}
                   columns={labResultsColumns}
                   getLocalisation={getLocalisation}
                   getSetting={getSetting}
+                  getRowSectionLabel={getRowSectionLabel}
                   headerStyle={generalStyles.tableHeaderStyles}
                   columnStyle={generalStyles.tableColumnStyles}
-                  hideRowDividers
-                  getRowSectionLabel={getRowSectionLabel}
                 />
               </View>
             </SectionContainer>
