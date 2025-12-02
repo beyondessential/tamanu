@@ -32,6 +32,8 @@ const generalStyles = StyleSheet.create({
     textAlign: 'center',
     padding: '8px',
     marginHorizontal: '18px',
+    fontSize: 14,
+    fontWeight: 700,
   },
   tableContainer: {
     marginTop: 8,
@@ -74,7 +76,7 @@ const LabRequestDetailsSection = ({ labRequest }) => {
 const InterimBanner = () => {
   const { getTranslation } = useLanguageContext();
   return (
-    <View style={generalStyles.interimBannerText} fontSize={14} bold>
+    <View style={generalStyles.interimBannerText}>
       {getTranslation(
         'pdf.labResults.interimBanner',
         'This report contains interim results that have not yet been published',
