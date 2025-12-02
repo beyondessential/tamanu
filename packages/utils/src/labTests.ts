@@ -9,7 +9,7 @@ const hasValue = (value?: number | null) => value || value === 0;
 interface GetReferenceRangeProps {
   labTestType?: LabTestType;
   sex?: Sex;
-  getTranslation: (stringId: string, fallback: string) => string;
+  getTranslation: (stringId: string, fallback: string, translationOptions?: any)=> string;
 }
 export const getReferenceRange = ({ labTestType, sex, getTranslation }: GetReferenceRangeProps) => {
   if (!labTestType) return '';
@@ -20,9 +20,9 @@ export const getReferenceRange = ({ labTestType, sex, getTranslation }: GetRefer
   const hasMin = hasValue(min);
 
   let baseRange: string;
-  if (hasMin && hasMax) baseRange = `${min} – ${max}`;
-  else if (hasMin) baseRange = `>${min}`;
-  else if (hasMax) baseRange = `<${max}`;
+  if (hasMin && hasMax) baseRange = getTranslation('general.fallback.range', ':min – :max', { replacements: { min, max } });
+  else if (hasMin) baseRange = getTranslation('general.fallback.greaterThan', '>:min', { replacements: { min } });
+  else if (hasMax) baseRange = getTranslation('general.fallback.lessThan', '<:max', { replacements: { max } });
   else if (labTestType.rangeText) baseRange = labTestType.rangeText;
   else baseRange = getTranslation('general.fallback.notApplicable', 'N/A');
 
