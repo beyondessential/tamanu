@@ -191,7 +191,7 @@ describe('Encounter', () => {
         'Test 1',
       ),
       models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.TREATMENT_PLAN, 'Test 2'),
-      models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.MEDICAL, 'Test 3'),
+      models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.OTHER, 'Test 3'),
       models.Note.createForRecord(
         otherEncounter.id,
         'Encounter',
@@ -204,24 +204,7 @@ describe('Encounter', () => {
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(3);
     expect(result.body.data.every(x => x.content.match(/^Test \d$/))).toEqual(true);
-    expect(result.body.data[0].noteType).toEqual(NOTE_TYPES.TREATMENT_PLAN);
-  });
-
-  it('should get a list of notes filtered by noteType', async () => {
-    const encounter = await models.Encounter.create({
-      ...(await createDummyEncounter(models)),
-      patientId: patient.id,
-    });
-    await Promise.all([
-      models.Note.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 4'),
-      models.Note.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 5'),
-      models.Note.createForRecord(encounter.id, 'Encounter', 'admission', 'Test 6'),
-    ]);
-
-    const result = await app.get(`/api/encounter/${encounter.id}/notes?noteType=treatmentPlan`);
-    expect(result).toHaveSucceeded();
-    expect(result.body.count).toEqual(2);
-    expect(result.body.data.every(x => x.noteType === 'treatmentPlan')).toEqual(true);
+    expect(result.body.data[0].noteTypeId).toEqual(NOTE_TYPES.TREATMENT_PLAN);
   });
 
   it('should get a list of changelog notes of a root note ordered DESC', async () => {
