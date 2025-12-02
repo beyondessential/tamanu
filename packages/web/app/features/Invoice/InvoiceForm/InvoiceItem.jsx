@@ -47,6 +47,69 @@ const Button = styled(IconButton)`
   }
 `;
 
+const useInvoiceItemPrice = ({
+  encounterId,
+  productId,
+  existingPrice,
+  index,
+  formArrayMethods,
+}) => {
+  const { values } = useFormikContext();
+
+  const { data: fetchedPriceData, isFetching } = useInvoicePriceListItemPriceQuery({
+    encounterId,
+    productId,
+    enabled: Boolean(productId) && !existingPrice,
+    onSuccess: data => {
+      if (data?.price === undefined || data?.price === null) return;
+
+      const currentItem = values.invoiceItems[index];
+      const nextProduct = {
+        ...(currentItem.product || {}),
+        invoicePriceListItem: {
+          ...(currentItem.product?.invoicePriceListItem || {}),
+          price: data.price,
+        },
+      };
+
+      formArrayMethods.replace(index, {
+        ...currentItem,
+        product: nextProduct,
+      });
+    },
+  });
+
+  return {
+    isFetchingPrice: isFetching,
+    fetchedPrice: fetchedPriceData?.price,
+  };
+};
+
+const useInvoiceItemInsurance = ({
+  encounterId,
+  productId,
+  existingPrice,
+  index,
+  formArrayMethods,
+}) => {
+  const { values } = useFormikContext();
+
+  useInvoiceInsurancePlanItemsQuery({
+    encounterId,
+    productId,
+    enabled: Boolean(productId) && !existingPrice,
+    onSuccess: data => {
+      if (!data || data.length === 0) return;
+
+      const currentItem = values.invoiceItems[index];
+      formArrayMethods.replace(index, {
+        ...currentItem,
+        insurancePlanItems: data,
+      });
+    },
+  });
+};
+
 export const InvoiceItemRow = ({
   index,
   item,
@@ -58,7 +121,6 @@ export const InvoiceItemRow = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const isItemEditable = !item.product?.id && invoiceIsEditable;
-  const { values } = useFormikContext();
 
   const invoiceProductsSuggester = useSuggester('invoiceProduct', {
     formatter: ({ name, id }) => ({
@@ -83,64 +145,38 @@ export const InvoiceItemRow = ({
     formArrayMethods.replace(index, {
       ...item,
       productId: value.value,
+      product: null,
     });
   };
 
   const onClick = () => {
     setIsExpanded(!isExpanded);
   };
-  // Todo: Determine input state based on productPriceManualEntry when it's implemented
+
   const priceListPrice = item.product?.invoicePriceListItem?.price;
+  const { productId } = item;
 
-  // Look up price list items for the selected product
-  const { data: fetchedPriceData, isFetching } = useInvoicePriceListItemPriceQuery({
+  const { isFetchingPrice, fetchedPrice } = useInvoiceItemPrice({
     encounterId,
-    productId: item.productId,
-    enabled: Boolean(item.productId),
-    onSuccess: data => {
-      if (!data?.price) {
-        return;
-      }
-      // If there is a price list price, update the form data
-      const { price } = data;
-
-      // Get the current item from form state to avoid stale closure values
-      const currentItem = values.invoiceItems[index];
-      const nextProduct = {
-        ...(currentItem.product || {}),
-        invoicePriceListItem: {
-          ...(currentItem.product?.invoicePriceListItem || {}),
-          price,
-        },
-      };
-      formArrayMethods.replace(index, {
-        ...currentItem,
-        product: nextProduct,
-      });
-    },
+    productId,
+    existingPrice: priceListPrice,
+    index,
+    formArrayMethods,
   });
 
-  // Lookup insurance plan items for the selected product
-  useInvoiceInsurancePlanItemsQuery({
+  useInvoiceItemInsurance({
     encounterId,
-    productId: item.productId,
-    enabled: Boolean(item.productId),
-    onSuccess: data => {
-      if (!data || data.length === 0) return;
-
-      // Get the current item from form state to avoid stale closure values
-      const currentItem = values.invoiceItems[index];
-      formArrayMethods.replace(index, {
-        ...currentItem,
-        insurancePlanItems: data,
-      });
-    },
+    productId,
+    existingPrice: priceListPrice,
+    index,
+    formArrayMethods,
   });
 
   const hidePriceInput =
     (priceListPrice !== null && priceListPrice !== undefined) ||
     !invoiceIsEditable ||
-    fetchedPriceData?.price;
+    fetchedPrice ||
+    isFetchingPrice;
 
   return (
     <StyledItemRow>
@@ -167,15 +203,14 @@ export const InvoiceItemRow = ({
         practitionerSuggester={practitionerSuggester}
         handleChangeOrderedBy={handleChangeOrderedBy}
       />
-      {!isFetching && (
-        <PriceCell
-          index={index}
-          item={item}
-          isExpanded={isExpanded}
-          hidePriceInput={hidePriceInput}
-          priceListItemPrice={fetchedPriceData?.price}
-        />
-      )}
+      <PriceCell
+        index={index}
+        item={item}
+        isExpanded={isExpanded}
+        hidePriceInput={hidePriceInput}
+        priceListItemPrice={fetchedPrice}
+      />
+
       <InvoiceItemActionsMenu
         index={index}
         item={item}

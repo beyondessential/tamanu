@@ -555,7 +555,8 @@ encounterRelations.get(
     });
 
     const responseRecord = invoiceForResponse(invoiceRecord);
-    res.send(responseRecord);
+    const priceList = await InvoicePriceList.findByPk(invoicePriceListId, { raw: true });
+    res.send({ ...responseRecord, priceList });
   }),
 );
 

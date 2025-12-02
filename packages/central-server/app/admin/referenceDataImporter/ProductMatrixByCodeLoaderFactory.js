@@ -42,7 +42,7 @@ export function productMatrixByCodeLoaderFactory(config) {
       const headers = Object.keys(item);
       const invoiceProductKey = headers.find(h => h.toLowerCase() === 'invoiceproductid');
       if (!invoiceProductKey) {
-        pushError('Missing required column: invoiceProductId');
+        pushError('Missing required column: invoiceProductId', itemModel);
         return [];
       }
 
@@ -58,14 +58,14 @@ export function productMatrixByCodeLoaderFactory(config) {
       const seen = new Set();
       for (const code of codes) {
         if (seen.has(code)) {
-          pushError(messages.duplicateCode(code));
+          pushError(messages.duplicateCode(code), itemModel);
           continue;
         }
         seen.add(code);
 
         const parent = existingParents.find(p => p.code === code);
         if (!parent) {
-          pushError(messages.missingParentByCode(code));
+          pushError(messages.missingParentByCode(code), itemModel);
           continue;
         }
         state.parentIdCache.set(code, parent.id);
@@ -81,7 +81,7 @@ export function productMatrixByCodeLoaderFactory(config) {
     // Validate product exists
     const productExists = await models.InvoiceProduct.findByPk(invoiceProductId);
     if (!productExists) {
-      pushError(`Invoice product '${invoiceProductId}' does not exist`);
+      pushError(`Invoice product '${invoiceProductId}' does not exist`, itemModel);
       return [];
     }
 
@@ -99,13 +99,13 @@ export function productMatrixByCodeLoaderFactory(config) {
 
       const { parsedValue, isValidValue, visibilityStatus } = valueExtractor(rawValue);
       if (!isValidValue) {
-        pushError(messages.invalidValue(rawValue, code, invoiceProductId));
+        pushError(messages.invalidValue(rawValue, code, invoiceProductId), itemModel);
         return [];
       }
 
       const parentId = state.parentIdCache.get(code);
       if (!parentId) {
-        pushError(messages.couldNotFindParentId(code));
+        pushError(messages.couldNotFindParentId(code), itemModel);
         return [];
       }
 

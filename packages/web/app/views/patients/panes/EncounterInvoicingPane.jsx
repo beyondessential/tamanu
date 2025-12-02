@@ -105,7 +105,6 @@ export const EncounterInvoicingPane = ({ encounter }) => {
   const editable = invoice && isInvoiceEditable(invoice) && canWriteInvoice;
   const deletable = invoice && invoice.status !== INVOICE_STATUSES.FINALISED && canDeleteInvoice;
   const finalisable = invoice && isInvoiceEditable(invoice) && canCreateInvoice;
-  const insurancePlans = invoice?.insurancePlans.map(plan => plan.name).join(', ');
 
   if (isLoading) {
     return (
@@ -149,7 +148,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                   {invoice.displayId}
                 </InvoiceTitle>
                 <InvoiceSubTitle>
-                  {patient?.village?.name} {insurancePlans}
+                  {patient?.village?.name} {invoice.priceList?.name}
                 </InvoiceSubTitle>
               </Box>
               <InvoiceStatus status={invoice.status} data-testid="invoicestatus-qb63" />
