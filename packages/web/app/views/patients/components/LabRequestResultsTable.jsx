@@ -5,6 +5,7 @@ import { getReferenceRange } from '@tamanu/utils/labTests';
 
 import { DataFetchingTable } from '../../../components';
 import { getCompletedDate, getMethod } from '../../../utils/lab';
+import { useTranslation } from '../../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 import { TranslatedOption } from '../../../components/Translation/TranslatedOptions';
 
@@ -19,7 +20,7 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
   }
 `;
 
-const columns = sex => [
+const columns = (sex, getTranslation) => [
   {
     title: (
       <TranslatedText
@@ -72,7 +73,8 @@ const columns = sex => [
       />
     ),
     key: 'labTestType.unit',
-    accessor: ({ labTestType }) => labTestType?.unit || 'N/A',
+    accessor: ({ labTestType }) =>
+      labTestType?.unit || getTranslation('general.fallback.notApplicable', 'N/A'),
     sortable: false,
   },
   {
@@ -84,7 +86,7 @@ const columns = sex => [
       />
     ),
     key: 'reference',
-    accessor: ({ labTestType }) => getReferenceRange(labTestType, sex),
+    accessor: ({ labTestType }) => getReferenceRange({ labTestType, sex, getTranslation }),
     sortable: false,
   },
   {
@@ -136,7 +138,8 @@ const columns = sex => [
 ];
 
 export const LabRequestResultsTable = React.memo(({ labRequest, patient, refreshCount }) => {
-  const sexAppropriateColumns = columns(patient.sex);
+  const { getTranslation } = useTranslation();
+  const sexAppropriateColumns = columns(patient.sex, getTranslation);
 
   return (
     <StyledDataFetchingTable
