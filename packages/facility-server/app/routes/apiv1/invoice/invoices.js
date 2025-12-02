@@ -33,7 +33,8 @@ invoiceRoute.get(
 
     const { InvoicePriceList, InvoicePriceListItem } = req.models;
 
-    const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(encounterId);
+    const { id: invoicePriceListId } =
+      await InvoicePriceList.getPriceListForPatientEncounter(encounterId);
 
     if (!invoicePriceListId) {
       throw new NotFoundError('Invoice Price List not found');
@@ -353,7 +354,9 @@ invoiceRoute.put(
       throw new InvalidOperationError('Only in progress invoices can be finalised');
     }
 
-    const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(invoice.encounterId);
+    const { id: invoicePriceListId } = await InvoicePriceList.getPriceListForPatientEncounter(
+      invoice.encounterId,
+    );
 
     const associations = InvoiceItem.getListReferenceAssociations(models, invoicePriceListId);
     const invoiceItems = await InvoiceItem.findAll({

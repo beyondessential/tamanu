@@ -255,7 +255,7 @@ const buildMockEncounter = (
   },
 });
 
-describe('InvoicePriceList.getIdForPatientEncounter', () => {
+describe('InvoicePriceList.getPriceListForPatientEncounter', () => {
   beforeAll(() => {
     vi.useFakeTimers();
     vi.setSystemTime(FIXED_NOW);
@@ -308,7 +308,7 @@ describe('InvoicePriceList.getIdForPatientEncounter', () => {
       },
     ]);
 
-    const id = await InvoicePriceList.getIdForPatientEncounter('encounter-1');
+    const { id } = await InvoicePriceList.getPriceListForPatientEncounter('encounter-1');
     expect(spy).toHaveBeenCalled();
     expect(id).toBe('pl-1');
   });
@@ -335,7 +335,7 @@ describe('InvoicePriceList.getIdForPatientEncounter', () => {
       { id: 'pl-1', rules: { facilityId: 'facility-1', patientType: 'patientType-Private' } },
     ]);
 
-    const id = await InvoicePriceList.getIdForPatientEncounter('encounter-1');
+    const { id } = await InvoicePriceList.getPriceListForPatientEncounter('encounter-1');
     expect(id).toBeNull();
   });
 
@@ -359,7 +359,7 @@ describe('InvoicePriceList.getIdForPatientEncounter', () => {
       { id: 'pl-1', rules: { patientAge: 15 } },
     ]);
 
-    const id1 = await InvoicePriceList.getIdForPatientEncounter('encounter-1');
+    const { id: id1 } = await InvoicePriceList.getPriceListForPatientEncounter('encounter-1');
     expect(id1).toBe('pl-1');
   });
 
@@ -384,7 +384,7 @@ describe('InvoicePriceList.getIdForPatientEncounter', () => {
       configurable: true,
     });
 
-    const id1 = await InvoicePriceList.getIdForPatientEncounter('encounter-1');
+    const { id: id1 } = await InvoicePriceList.getPriceListForPatientEncounter('encounter-1');
     expect(id1).toBeNull();
 
     const mockFindByPk2 = vi.fn().mockResolvedValue(mockEncounterInvalidDob);
@@ -399,7 +399,7 @@ describe('InvoicePriceList.getIdForPatientEncounter', () => {
       configurable: true,
     });
 
-    const id2 = await InvoicePriceList.getIdForPatientEncounter('encounter-2');
+    const { id: id2 } = await InvoicePriceList.getPriceListForPatientEncounter('encounter-2');
     expect(id2).toBeNull();
   });
 
@@ -423,7 +423,7 @@ describe('InvoicePriceList.getIdForPatientEncounter', () => {
       { id: 'pl-2', code: 'code-2', name: 'Price List Two', rules: { facilityId: 'facility-1' } },
     ]);
 
-    await expect(InvoicePriceList.getIdForPatientEncounter('encounter-1')).rejects.toThrow(
+    await expect(InvoicePriceList.getPriceListForPatientEncounter('encounter-1')).rejects.toThrow(
       'Multiple price lists match the provided inputs: Price List One, Price List Two',
     );
   });
@@ -448,7 +448,7 @@ describe('InvoicePriceList.getIdForPatientEncounter', () => {
       { id: 'pl-2', rules: { facilityId: 'facility-2' } },
     ]);
 
-    const id = await InvoicePriceList.getIdForPatientEncounter('encounter-1');
+    const { id } = await InvoicePriceList.getPriceListForPatientEncounter('encounter-1');
     expect(id).toBe('pl-1');
   });
 
@@ -469,7 +469,7 @@ describe('InvoicePriceList.getIdForPatientEncounter', () => {
 
     vi.spyOn(InvoicePriceList as any, 'findAll').mockResolvedValue([{ id: 'pl-1', rules: {} }]);
 
-    const id = await InvoicePriceList.getIdForPatientEncounter('encounter-1');
+    const { id } = await InvoicePriceList.getPriceListForPatientEncounter('encounter-1');
     expect(id).toBe('pl-1');
   });
 
@@ -486,7 +486,7 @@ describe('InvoicePriceList.getIdForPatientEncounter', () => {
       configurable: true,
     });
 
-    await expect(InvoicePriceList.getIdForPatientEncounter('non-existent')).rejects.toThrow(
+    await expect(InvoicePriceList.getPriceListForPatientEncounter('non-existent')).rejects.toThrow(
       'Encounter not found: non-existent',
     );
   });

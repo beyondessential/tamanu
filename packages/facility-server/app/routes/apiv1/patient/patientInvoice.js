@@ -19,7 +19,8 @@ async function hydrateInvoices(invoiceRecords, models) {
       // Determine the price list for the invoice based on its encounter
       const invoiceId = invoiceRecord.id;
       const encounterId = invoiceRecord.encounterId;
-      const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(encounterId);
+      const { id: invoicePriceListId } =
+        await InvoicePriceList.getPriceListForPatientEncounter(encounterId);
 
       // Refetch the invoice with associations that depend on the price list
       const hydratedInvoiceRecord = await Invoice.findOne({

@@ -14,9 +14,8 @@ invoiceItemsRoute.get(
       throw new Error(`Invoice not found: ${invoiceId}`);
     }
 
-    const invoicePriceListId = await models.InvoicePriceList.getIdForPatientEncounter(
-      invoice.encounterId,
-    );
+    const { id: invoicePriceListId } =
+      await models.InvoicePriceList.getPriceListForPatientEncounter(invoice.encounterId);
 
     const associations = models.InvoiceItem.getListReferenceAssociations(
       models,

@@ -537,11 +537,11 @@ encounterRelations.get(
     const { Invoice, InvoicePriceList } = models;
     req.checkPermission('read', 'Invoice');
     const encounterId = params.id;
-    const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(encounterId);
+    const priceList = await InvoicePriceList.getPriceListForPatientEncounter(encounterId);
 
     const invoiceRecord = await Invoice.findOne({
       where: { encounterId },
-      include: Invoice.getFullReferenceAssociations(invoicePriceListId),
+      include: Invoice.getFullReferenceAssociations(priceList.id),
     });
     if (!invoiceRecord) {
       // Return null rather than a 404 as it is a valid scenario for there not to be an invoice
@@ -555,7 +555,7 @@ encounterRelations.get(
     });
 
     const responseRecord = invoiceForResponse(invoiceRecord);
-    res.send(responseRecord);
+    res.send({ ...responseRecord, priceList });
   }),
 );
 

@@ -58,7 +58,9 @@ export class InvoicePriceList extends Model {
 
   // Returns the id of the PriceList whose rules match the provided inputs
   // Throws an error if more than one match is found
-  static async getIdForPatientEncounter(encounterId: string): Promise<string | null> {
+  static async getPriceListForPatientEncounter(
+    encounterId: string,
+  ): Promise<InvoicePriceList | null> {
     const { models } = this.sequelize;
     const encounter = await models.Encounter.findByPk(encounterId, {
       include: [
@@ -88,7 +90,7 @@ export class InvoicePriceList extends Model {
       ],
     });
 
-    const matches: Array<{ id: string; name: string }> = [];
+    const matches: Array<InvoicePriceList> = [];
 
     for (const priceList of priceLists) {
       const rules = priceList.rules ?? {};
@@ -99,7 +101,7 @@ export class InvoicePriceList extends Model {
         matchesAgeIfPresent(rules.patientAge, patientDOB);
 
       if (match) {
-        matches.push({ id: priceList.id, name: priceList.name || priceList.code });
+        matches.push(priceList);
       }
     }
 
@@ -110,6 +112,6 @@ export class InvoicePriceList extends Model {
     }
 
     // Returns null if no matches are found
-    return matches[0] ? matches[0].id : null;
+    return matches[0] ? matches[0] : null;
   }
 }
