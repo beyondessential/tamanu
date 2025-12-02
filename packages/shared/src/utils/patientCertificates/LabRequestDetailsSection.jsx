@@ -16,7 +16,7 @@ export const SampleDetailsRow = ({ request }) => {
     <Row>
       <Col>
         <DataItem
-          label={getTranslation('lab.sampleAtTime.label', 'Sample date & time')}
+          label={getTranslation('lab.sampleTime.label', 'Sample date & time')}
           value={getDisplayDate(request.sampleTime, DATE_TIME_FORMAT)}
         />
         <DataItem
