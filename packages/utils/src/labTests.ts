@@ -1,6 +1,5 @@
 import { SEX_VALUES } from '@tamanu/constants';
-import type { LabTestType } from '@tamanu/database/models/LabTestType';
-import type { TranslationOptions } from '@tamanu/database/models/TranslatedString';
+import type { LabTestType, TranslationOptions } from '@tamanu/database';
 
 const hasValue = (value?: number | string) => value || value === 0;
 
