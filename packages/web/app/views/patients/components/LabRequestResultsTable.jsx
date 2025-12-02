@@ -22,7 +22,7 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
 
 export const LabRequestResultsTable = React.memo(({ labRequest, patient, refreshCount }) => {
   const { getTranslation } = useTranslation();
-  const sexAppropriateColumns =  useMemo(() => [
+  const columns =  useMemo(() => [
     {
       title: (
         <TranslatedText
@@ -141,7 +141,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
 
   return (
     <StyledDataFetchingTable
-      columns={sexAppropriateColumns}
+      columns={columns}
       endpoint={`labRequest/${labRequest.id}/tests`}
       initialSort={{ order: 'asc', orderBy: 'id' }}
       disablePagination

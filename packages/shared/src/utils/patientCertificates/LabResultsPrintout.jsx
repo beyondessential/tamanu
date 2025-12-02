@@ -4,7 +4,7 @@ import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import { INTERIM_LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { getReferenceRangeWithUnit } from '@tamanu/utils/labTests';
 
-import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithBarcode';
+import { PatientDetails } from './printComponents/PatientDetails';
 import { styles, CertificateHeader } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { EncounterDetails } from './printComponents/EncounterDetails';
@@ -146,7 +146,7 @@ const LabResultsPrintoutComponent = React.memo(
             />
             {INTERIM_LAB_REQUEST_STATUSES.includes(labRequest.status) && <InterimBanner />}
             <SectionContainer>
-              <PatientDetailsWithBarcode
+              <PatientDetails
                 patient={patientData}
                 getLocalisation={getLocalisation}
                 getSetting={getSetting}
