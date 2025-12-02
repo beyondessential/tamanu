@@ -44,7 +44,7 @@ export const PublishedDetailsRow = ({ request }) => {
     <Row>
       <Col>
         <DataItem
-          label={getTranslation('lab.publishedAtTime.label', 'Published date & time')}
+          label={getTranslation('lab.publishedDate.label', 'Published date & time')}
           value={
             request.publishedDate
               ? getDisplayDate(request.publishedDate, DATE_TIME_FORMAT)
@@ -82,7 +82,7 @@ export const MinimalLabRequestDetailsSection = ({ request }) => {
       </Col>
       <Col>
         <DataItem
-          label={getTranslation('general.requestedAtTime.label', 'Requested date & time')}
+          label={getTranslation('general.requestedDate.label', 'Requested date & time')}
           value={getDisplayDate(request.requestedDate, DATE_TIME_FORMAT)}
         />
       </Col>
@@ -125,7 +125,7 @@ export const FullLabRequestDetailsSection = ({ request }) => {
             value={request.priority?.name}
           />
           <DataItem
-            label={getTranslation('general.requestedAtTime.label', 'Requested date & time')}
+            label={getTranslation('general.requestedDate.label', 'Requested date & time')}
             value={getDisplayDate(request.requestedDate, DATE_TIME_FORMAT)}
           />
           <DataItem
