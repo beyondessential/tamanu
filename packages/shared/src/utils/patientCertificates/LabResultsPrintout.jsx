@@ -24,6 +24,9 @@ import { HorizontalRule } from './printComponents/HorizontalRule';
 import { DoubleHorizontalRule } from './printComponents/DoubleHorizontalRule';
 
 const generalStyles = StyleSheet.create({
+  page: {
+    paddingBottom: 50,
+  },
   container: {
     marginVertical: 6,
   },
@@ -122,7 +125,7 @@ const LabResultsPrintoutComponent = React.memo(
 
     return (
       <Document>
-        <Page size="A4" style={[styles.page, { paddingBottom: 50 }]}>
+        <Page size="A4" style={[styles.page, generalStyles.page]}>
           {tests.length > 0 && (
             <MultiPageHeader
               documentName={getTranslation('pdf.labResults.documentName', 'Lab results')}
@@ -150,7 +153,7 @@ const LabResultsPrintoutComponent = React.memo(
               />
             </SectionContainer>
             <SectionContainer>
-              <EncounterDetails encounter={encounter} hideLocation />
+              <EncounterDetails hideLocation encounter={encounter} />
             </SectionContainer>
           </CertificateHeader>
           <SectionContainer>
