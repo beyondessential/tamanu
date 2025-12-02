@@ -1,7 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
-import { DataFetchingTable } from '../../../components';
 
+import { getReferenceRange } from '@tamanu/utils/labTests';
+
+import { DataFetchingTable } from '../../../components';
 import { getCompletedDate, getMethod } from '../../../utils/lab';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 import { TranslatedOption } from '../../../components/Translation/TranslatedOptions';
@@ -17,21 +19,7 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
   }
 `;
 
-const makeRangeStringAccessor =
-  (sex) =>
-  ({ labTestType }) => {
-    const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
-    const min = sex === 'male' ? labTestType.maleMin : labTestType.femaleMin;
-    const hasMax = max || max === 0;
-    const hasMin = min || min === 0;
-
-    if (hasMin && hasMax) return `${min} – ${max}`;
-    if (hasMin) return `>${min}`;
-    if (hasMax) return `<${max}`;
-    return 'N/A';
-  };
-
-const columns = (sex) => [
+const columns = sex => [
   {
     title: (
       <TranslatedText
@@ -41,7 +29,7 @@ const columns = (sex) => [
       />
     ),
     key: 'labTestType.name',
-    accessor: (row) => (
+    accessor: row => (
       <TranslatedReferenceData
         fallback={row.labTestType.name}
         value={row.labTestType.id}
@@ -60,14 +48,16 @@ const columns = (sex) => [
       />
     ),
     key: 'result',
-    accessor: ({labTestType, result}) => {
+    accessor: ({ labTestType, result }) => {
       const { options, id: labTestTypeId } = labTestType;
       if (options && options.length > 0) {
-        return <TranslatedOption
-          value={result}
-          referenceDataId={labTestTypeId}
-          referenceDataCategory="labTestType"
-        />
+        return (
+          <TranslatedOption
+            value={result}
+            referenceDataId={labTestTypeId}
+            referenceDataCategory="labTestType"
+          />
+        );
       }
       return result ?? '';
     },
@@ -94,7 +84,7 @@ const columns = (sex) => [
       />
     ),
     key: 'reference',
-    accessor: makeRangeStringAccessor(sex),
+    accessor: ({ labTestType }) => getReferenceRange(labTestType, sex),
     sortable: false,
   },
   {
