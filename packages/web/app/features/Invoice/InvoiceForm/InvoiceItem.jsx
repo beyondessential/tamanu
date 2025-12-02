@@ -159,7 +159,7 @@ export const InvoiceItemRow = ({
   const { isFetchingPrice, fetchedPrice } = useInvoiceItemPrice({
     encounterId,
     productId,
-    priceListPrice,
+    existingPrice: priceListPrice,
     index,
     formArrayMethods,
   });
@@ -167,7 +167,7 @@ export const InvoiceItemRow = ({
   useInvoiceItemInsurance({
     encounterId,
     productId,
-    priceListPrice,
+    existingPrice: priceListPrice,
     index,
     formArrayMethods,
   });
