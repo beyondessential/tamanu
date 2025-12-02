@@ -47,27 +47,23 @@ const generalStyles = StyleSheet.create({
 
 const SectionContainer = props => <View style={generalStyles.container} {...props} />;
 
-const LabRequestDetailsSection = ({ labRequests }) => {
-  return (
-    <View>
-      <P bold fontSize={11} mb={3}>
-        Lab request details
-      </P>
-      <HorizontalRule />
-      {labRequests.map((request, index) => {
-        return (
-          <View key={request.id} style={labDetailsSectionStyles.detailsContainer}>
-            <FullLabRequestDetailsSection request={request} />
-            <HorizontalRule />
-            <SampleDetailsRow request={request} />
-            {index < labRequests.length - 1 && <View style={labDetailsSectionStyles.divider} />}
-          </View>
-        );
-      })}
-      <DoubleHorizontalRule />
-    </View>
-  );
-};
+const LabRequestDetailsSection = ({ labRequests }) => (
+  <View>
+    <P bold fontSize={11} mb={3}>
+      Lab request details
+    </P>
+    <HorizontalRule />
+      {labRequests.map((request, index) =>  (
+        <View key={request.id} style={labDetailsSectionStyles.detailsContainer}>
+          <FullLabRequestDetailsSection request={request} />
+          <HorizontalRule />
+          <SampleDetailsRow request={request} />
+          {index < labRequests.length - 1 && <View style={labDetailsSectionStyles.divider} />}
+        </View>
+      ))}
+    <DoubleHorizontalRule />
+  </View>
+);
 
 const LabRequestSigningSection = ({ getTranslation }) => {
   const BaseSigningSection = ({ title }) => (
