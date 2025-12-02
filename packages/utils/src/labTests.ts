@@ -1,7 +1,8 @@
 import { SEX_VALUES } from '@tamanu/constants';
 
-// TODO: Importing types from database package caused issues with builds
-type LabTestTypeLike = {
+// These types are structurally compatible with the Database models but defined here
+// to avoid circular dependencies between utils and database packages.
+export type LabTestTypeLike = {
   maleMax?: number;
   femaleMax?: number;
   maleMin?: number;
@@ -10,7 +11,7 @@ type LabTestTypeLike = {
   unit?: string;
 };
 
-type  getTranslation = (
+type getTranslation = (
   stringId: string,
   fallback: string,
   translationOptions?: {
@@ -21,11 +22,12 @@ type  getTranslation = (
 
 const hasValue = (value?: number | string) => value || value === 0;
 
-interface GetReferenceRangeProps {
-  labTestType?: LabTestTypeLike;
+interface GetReferenceRangeProps<T extends LabTestTypeLike = LabTestTypeLike> {
+  labTestType?: T;
   sex?: keyof typeof SEX_VALUES | null,
   getTranslation: getTranslation;
 }
+
 export const getReferenceRange = ({ labTestType, sex, getTranslation }: GetReferenceRangeProps) => {
   if (!labTestType) return '';
 

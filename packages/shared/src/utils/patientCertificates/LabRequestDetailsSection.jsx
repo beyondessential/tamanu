@@ -1,11 +1,12 @@
 import React from 'react';
 
+import { LAB_REQUEST_STATUS_LABELS } from '@tamanu/constants';
+
 import { Col, Row } from './Layout';
 import { P } from './Typography';
 import { DataItem } from './printComponents/DataItem';
 import { PrintableBarcode } from './printComponents/PrintableBarcode';
 import { getDisplayDate } from './getDisplayDate';
-import { LAB_REQUEST_STATUS_LABELS } from '@tamanu/constants';
 import { useLanguageContext } from '../pdf/languageContext';
 
 const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
