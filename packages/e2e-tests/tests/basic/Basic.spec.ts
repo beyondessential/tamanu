@@ -9,6 +9,7 @@ import { RecentlyViewedPatientsList } from '@pages/patients/RecentlyViewedPatien
 import { ImagingRequestPane } from '@pages/patients/ImagingRequestPage/panes/ImagingRequestPane';
 import { getUser } from '@utils/apiHelpers';
 import { format } from 'date-fns';
+import { SidebarPage } from '@pages/SidebarPage';
 
 test.setTimeout(100000);
 
@@ -219,5 +220,46 @@ test.setTimeout(100000);
        const status = await getTableItems(imagingRequestPane.page, 1, 'status');
        expect(status[0]).toBe('Pending');
     })
-
-    });
+  test.skip('[BT-0009][AT-2006]Add a new prescription', async () => {});
+  test.skip('[BT-0010][AT-2007]add a document and view it', async () => {});
+  test.skip('[BT-0010][AT-2008]add a document and download it', async () => {});
+  test.skip('[BT-0011][AT-2009]check result tab', async () => {});
+  test.skip('[BT-0015][AT-2010]add a new referral and view it', async () => {});
+  test.skip('[BT-0016][AT-2011]add a new program and view it', async () => {});
+  test('[BT-0018][AT-2012]admit the patient to hospital', async ({ newPatient, patientDetailsPage }) => {
+    await patientDetailsPage.goToPatient(newPatient);
+    const formValues = await patientDetailsPage.admitToHospital();
+    const encounterValues = await patientDetailsPage.encounterHistoryPane.getLatestEncounterValues();
+    const sidebarPage = new SidebarPage(patientDetailsPage.page);
+    expect(encounterValues.facilityName).toBe(await sidebarPage.getFacilityName());
+    expect(encounterValues.area).toBe(formValues.area);
+    expect(encounterValues.startDate).toBe(`${format(new Date(), 'MM/dd/yyyy')} – Current`);
+  });
+  test('[BT-0019][AT-2013]Change diet', async ({ newPatientWithHospitalAdmission, patientDetailsPage }) => { 
+    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
+    await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
+    await patientDetailsPage.encounterHistoryPane.getLatestEncounter().click();
+    await patientDetailsPage.arrowDownIconMenuButton.click();
+    await patientDetailsPage.changeEncounterDetailsMenu.changeDietMenuItem.click();
+    const changeDietModal = patientDetailsPage.changeEncounterDetailsMenu.getChangeDietModal();
+    await changeDietModal.waitForModalToLoad();
+    const expectedDiet = 'Clear fluids';
+    await changeDietModal.changeDiet(expectedDiet);
+    await expect(patientDetailsPage.dietLabel).toContainText(expectedDiet);
+  });
+  test('[BT-0020][AT-2014]Change Location', async ({ newPatientWithHospitalAdmission, patientDetailsPage }) => {
+    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
+    await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
+    await patientDetailsPage.encounterHistoryPane.getLatestEncounter().click();
+    await patientDetailsPage.arrowDownIconMenuButton.click();
+    await patientDetailsPage.changeEncounterDetailsMenu.changeLocationMenuItem.click();
+    const changeLocationModal = patientDetailsPage.changeEncounterDetailsMenu.getChangeLocationModal();
+    await changeLocationModal.waitForModalToLoad();
+    const expectedArea = 'Operating Theatre';
+    const expectedLocation = 'Theatre 1';
+    await changeLocationModal.changeArea(expectedArea);
+    await changeLocationModal.changeLocation(expectedLocation);
+    await changeLocationModal.confirmButton.click();
+    await expect(patientDetailsPage.locationLabel).toHaveText(`${expectedArea}, ${expectedLocation}`);
+  });
+});
