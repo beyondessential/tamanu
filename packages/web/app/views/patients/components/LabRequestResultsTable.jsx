@@ -37,6 +37,7 @@ const columns = sex => [
         data-testid="translatedreferencedata-kplb"
       />
     ),
+    sortable: false,
   },
   {
     title: (
@@ -60,6 +61,7 @@ const columns = sex => [
       }
       return result ?? '';
     },
+    sortable: false,
   },
   {
     title: (
@@ -71,6 +73,7 @@ const columns = sex => [
     ),
     key: 'labTestType.unit',
     accessor: ({ labTestType }) => labTestType?.unit || 'N/A',
+    sortable: false,
   },
   {
     title: (
@@ -105,6 +108,7 @@ const columns = sex => [
       />
     ),
     key: 'laboratoryOfficer',
+    sortable: false,
   },
   {
     title: (
@@ -115,6 +119,7 @@ const columns = sex => [
       />
     ),
     key: 'verification',
+    sortable: false,
   },
   {
     title: (
