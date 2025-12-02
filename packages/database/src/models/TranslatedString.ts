@@ -10,9 +10,9 @@ import { translationFactory } from '@tamanu/shared/utils/translation/translation
 import type { InitOptions } from '../types/model';
 import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
 
-type TranslationOptions = {
-  replacements?: Record<string, string>;
-  casing?: 'uppercase' | 'lowercase' | 'sentence';
+export type TranslationOptions = {
+  replacements?: Record<string, string | number | undefined>;
+  casing?: 'lower' | 'upper' | 'sentence';
 };
 
 export class TranslatedString extends Model {

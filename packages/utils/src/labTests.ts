@@ -1,5 +1,6 @@
 import { SEX_VALUES } from '@tamanu/constants';
 import type { LabTestType } from '@tamanu/database/models/LabTestType';
+import type { TranslationOptions } from '@tamanu/database/models/TranslatedString';
 
 const hasValue = (value?: number | string) => value || value === 0;
 
@@ -9,10 +10,7 @@ interface GetReferenceRangeProps {
   getTranslation: (
     stringId: string,
     fallback: string,
-    translationOptions?: {
-      casing?: 'lower' | 'upper' | 'sentence';
-      replacements?: Record<string, string | number | undefined>;
-    },
+    translationOptions?: TranslationOptions,
   ) => string;
 }
 export const getReferenceRange = ({ labTestType, sex, getTranslation }: GetReferenceRangeProps) => {
