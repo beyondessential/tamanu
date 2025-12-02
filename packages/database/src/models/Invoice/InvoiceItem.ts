@@ -149,14 +149,25 @@ export class InvoiceItem extends Model {
         as: 'invoiceInsurancePlanItems',
         required: false,
         where: {
-          invoiceInsurancePlanId: {
-            [Op.in]: literal(`(
-              SELECT iip."invoice_insurance_plan_id"
-              FROM "invoices_invoice_insurance_plans" iip
-              WHERE iip."invoice_id" = "${tableAlias}"."invoice_id"
-                AND iip."deleted_at" IS NULL
+          [Op.and]: [
+            {
+              invoiceInsurancePlanId: {
+                [Op.in]: literal(`(
+                  SELECT iip."invoice_insurance_plan_id"
+                  FROM "invoices_invoice_insurance_plans" iip
+                  WHERE iip."invoice_id" = "${tableAlias}"."invoice_id"
+                    AND iip."deleted_at" IS NULL
+                )`),
+              },
+            },
+            literal(`EXISTS (
+              SELECT 1
+              FROM "invoice_products" ip
+              WHERE ip."id" = "${tableAlias}"."product_id"
+                AND ip."insurable" = true
+                AND ip."deleted_at" IS NULL
             )`),
-          },
+          ],
         },
       },
     ];

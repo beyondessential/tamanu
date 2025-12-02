@@ -9,7 +9,7 @@ import { LabTestPanel } from '../LabTestPanel';
 export class InvoiceProduct extends Model {
   declare id: string;
   declare name: string;
-  declare discountable: boolean;
+  declare insurable: boolean;
   declare category?: string;
   declare sourceRecordType?: string;
   declare sourceRecordId?: string;
@@ -27,9 +27,10 @@ export class InvoiceProduct extends Model {
           type: DataTypes.TEXT,
           allowNull: false,
         },
-        discountable: {
+        insurable: {
           type: DataTypes.BOOLEAN,
           allowNull: false,
+          defaultValue: true,
         },
         category: {
           type: DataTypes.STRING,

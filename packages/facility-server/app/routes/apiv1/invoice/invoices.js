@@ -64,7 +64,13 @@ invoiceRoute.get(
       throw new ValidationError('encounterId and productId are required');
     }
 
-    const { Invoice, InvoiceInsurancePlanItem, InvoiceInsurancePlan } = req.models;
+    const { Invoice, InvoiceInsurancePlanItem, InvoiceInsurancePlan, InvoiceProduct } = req.models;
+
+    // If the product is not insurable, there are no insurance plan items to return
+    const product = await InvoiceProduct.findByPk(productId, { attributes: ['id', 'insurable'] });
+    if (!product || product.insurable !== true) {
+      return res.json([]);
+    }
 
     // Find the invoice for the encounter (there should be at most one per encounter)
     const invoice = await Invoice.findOne({
