@@ -422,6 +422,7 @@ patientRelations.get(
         'id', lab_tests.id
       )
     ) AS results
+    ${panelId ? ', panel_join."order" AS panel_order' : ''}
   FROM
     lab_tests
   INNER JOIN
@@ -436,6 +437,15 @@ patientRelations.get(
     reference_data
   ON
     lab_test_types.lab_test_category_id = reference_data.id
+  ${
+    panelId
+      ? `LEFT JOIN
+    lab_test_panel_lab_test_types AS panel_join
+  ON
+    panel_join.lab_test_type_id = lab_test_types.id
+    AND panel_join.lab_test_panel_id = :panelId`
+      : ''
+  }
   WHERE
   encounter_id IN (
       SELECT id
@@ -454,7 +464,7 @@ patientRelations.get(
   ${categoryId ? 'AND lab_requests.lab_test_category_id = :categoryId' : ''}
   ${
     panelId
-      ? `AND lab_test_type_id IN (
+      ? `AND lab_test_types.id IN (
          SELECT lab_test_type_id
          FROM
            lab_test_panel_lab_test_types
@@ -464,9 +474,9 @@ patientRelations.get(
       : ''
   }
   GROUP BY
-    test_category, test_type, test_options, test_type_id
+    test_category, test_type, test_options, test_type_id ${panelId ? ', panel_order' : ''}
   ORDER BY
-    test_category`,
+    ${panelId ? 'panel_order ASC,' : ''} test_category`,
       {
         replacements: { patientId: params.id, status, categoryId, panelId, canListSensitive },
         model: LabTest,
