@@ -1,16 +1,29 @@
 import { SEX_VALUES } from '@tamanu/constants';
-import type { LabTestType, TranslationOptions } from '@tamanu/database';
+
+// TODO: Importing types from database package caused issues with builds
+type LabTestTypeLike = {
+  maleMax?: number;
+  femaleMax?: number;
+  maleMin?: number;
+  femaleMin?: number;
+  rangeText?: string;
+};
+
+type  getTranslation = (
+  stringId: string,
+  fallback: string,
+  translationOptions?: {
+    casing?: 'lower' | 'upper' | 'sentence';
+    replacements?: Record<string, string | number | undefined>;
+  },
+) => string;
 
 const hasValue = (value?: number | string) => value || value === 0;
 
 interface GetReferenceRangeProps {
-  labTestType?: LabTestType;
+  labTestType?: LabTestTypeLike;
   sex?: keyof typeof SEX_VALUES | null,
-  getTranslation: (
-    stringId: string,
-    fallback: string,
-    translationOptions?: TranslationOptions,
-  ) => string;
+  getTranslation: getTranslation;
 }
 export const getReferenceRange = ({ labTestType, sex, getTranslation }: GetReferenceRangeProps) => {
   if (!labTestType) return '';
