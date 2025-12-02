@@ -20,11 +20,11 @@ export const getReferenceRange = ({ labTestType, sex, getTranslation }: GetRefer
   const hasMin = hasValue(min);
 
   let baseRange: string;
-  if (hasMin && hasMax) baseRange = getTranslation('general.fallback.range', ':min – :max', { replacements: { min, max } });
+  if (hasMin && hasMax) baseRange = getTranslation('general.fallback.range', ':min - :max', { replacements: { min, max } });
   else if (hasMin) baseRange = getTranslation('general.fallback.greaterThan', '>:min', { replacements: { min } });
   else if (hasMax) baseRange = getTranslation('general.fallback.lessThan', '<:max', { replacements: { max } });
   else if (labTestType.rangeText) baseRange = labTestType.rangeText;
-  else baseRange = getTranslation('general.fallback.notApplicable', 'N/A');
+  else baseRange = getTranslation('general.fallback.notApplicable', 'N/A', {casing: 'lower'});
 
   return baseRange;
 };
@@ -35,6 +35,6 @@ export const getReferenceRangeWithUnit = ({ labTestType, sex, getTranslation }: 
   const referenceRange = getReferenceRange({ labTestType, sex, getTranslation });
   const { unit } = labTestType;
   if (!unit) return referenceRange;
-  if (referenceRange === getTranslation('general.fallback.notApplicable', 'N/A')) return referenceRange;
+  if (referenceRange === getTranslation('general.fallback.notApplicable', 'N/A', {casing: 'lower'})) return referenceRange;
   return `${referenceRange} ${unit}`;
 };
