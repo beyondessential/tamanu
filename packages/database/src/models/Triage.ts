@@ -135,50 +135,50 @@ export class Triage extends Model {
     // To collect system note messages describing all changes in this triage update
     const systemNoteRows: string[] = [];
 
-    const { recordForeignKeyChange, recordTextColumnChange } = createChangeRecorders(
+    const { onChangeForeignKey, onChangeTextColumn } = createChangeRecorders(
       this,
       data,
       systemNoteRows,
     );
 
     const updateTriage = async () => {
-      await recordForeignKeyChange({
+      await onChangeForeignKey({
         columnName: 'practitionerId',
         fieldLabel: 'practitioner',
         model: User,
         accessor: (record: any) => record?.displayName ?? '-',
       });
-      await recordForeignKeyChange({
+      await onChangeForeignKey({
         columnName: 'chiefComplaintId',
         fieldLabel: 'chief complaint',
         model: ReferenceData,
       });
-      await recordForeignKeyChange({
+      await onChangeForeignKey({
         columnName: 'secondaryComplaintId',
         fieldLabel: 'secondary complaint',
         model: ReferenceData,
       });
-      await recordForeignKeyChange({
+      await onChangeForeignKey({
         columnName: 'arrivalModeId',
         fieldLabel: 'arrival mode',
         model: ReferenceData,
       });
-      await recordTextColumnChange({
+      await onChangeTextColumn({
         columnName: 'arrivalTime',
         fieldLabel: 'arrival time',
         formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
       });
-      await recordTextColumnChange({
+      await onChangeTextColumn({
         columnName: 'triageTime',
         fieldLabel: 'triage time',
         formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
       });
-      await recordTextColumnChange({
+      await onChangeTextColumn({
         columnName: 'closedTime',
         fieldLabel: 'closed time',
         formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
       });
-      await recordTextColumnChange({
+      await onChangeTextColumn({
         columnName: 'score',
         fieldLabel: 'triage score',
       });

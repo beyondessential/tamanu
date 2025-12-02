@@ -1,5 +1,13 @@
 import { Model } from '../models/Model';
 
+const detectColumnChange = (
+  modelInstance: Model,
+  updateData: Partial<Model>,
+  columnName: keyof Model,
+) => {
+  return columnName in updateData && updateData[columnName] !== modelInstance[columnName];
+};
+
 /**
  * Creates helper functions for recording model changes in update methods.
  * These functions track changes to model fields and generate system note messages.
@@ -20,7 +28,7 @@ export function createChangeRecorders<T extends Model>(
    * Records changes to foreign key columns (e.g., locationId, departmentId)
    * Fetches the related records to get human-readable names for the system note
    */
-  const recordForeignKeyChange = async ({
+  const onChangeForeignKey = async ({
     columnName,
     fieldLabel,
     model,
@@ -58,7 +66,7 @@ export function createChangeRecorders<T extends Model>(
    * Records changes to text/string columns (e.g., encounterType, reasonForEncounter)
    * Uses the raw values directly since there's no related record to fetch
    */
-  const recordTextColumnChange = async ({
+  const onChangeTextColumn = async ({
     columnName,
     fieldLabel,
     formatText = (value: any) => value ?? '-',
@@ -79,14 +87,16 @@ export function createChangeRecorders<T extends Model>(
       changeTypes.push(changeType);
     }
 
-    const oldValue = formatText(modelInstance[columnName]);
-    const newValue = formatText(updateData[columnName]);
-    systemNoteRows.push(`Changed ${fieldLabel} from ‘${oldValue}’ to ‘${newValue}’`);
+    const oldValue = modelInstance[columnName];
+    const newValue = updateData[columnName];
+    systemNoteRows.push(
+      `Changed ${fieldLabel} from ‘${formatText(oldValue)}’ to ‘${formatText(newValue)}’`,
+    );
     await onChange?.();
   };
 
   return {
-    recordForeignKeyChange,
-    recordTextColumnChange,
+    onChangeForeignKey,
+    onChangeTextColumn,
   };
 }

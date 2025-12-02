@@ -507,7 +507,7 @@ export class Encounter extends Model {
     // To collect system note messages describing all changes in this encounter update
     const systemNoteRows: string[] = [];
 
-    const { recordForeignKeyChange, recordTextColumnChange } = createChangeRecorders(
+    const { onChangeForeignKey, onChangeTextColumn } = createChangeRecorders(
       this,
       data,
       systemNoteRows,
@@ -581,7 +581,7 @@ export class Encounter extends Model {
         );
       }
 
-      await recordForeignKeyChange({
+      await onChangeForeignKey({
         columnName: 'locationId',
         fieldLabel: 'location',
         model: Location,
@@ -596,7 +596,7 @@ export class Encounter extends Model {
           additionalChanges.plannedLocationStartTime = null;
         },
       });
-      await recordTextColumnChange({
+      await onChangeTextColumn({
         columnName: 'encounterType',
         fieldLabel: 'encounter type',
         formatText: capitalize,
@@ -605,13 +605,13 @@ export class Encounter extends Model {
           await this.closeTriage(data.submittedTime, user);
         },
       });
-      await recordForeignKeyChange({
+      await onChangeForeignKey({
         columnName: 'departmentId',
         fieldLabel: 'department',
         model: Department,
         changeType: EncounterChangeType.Department,
       });
-      await recordForeignKeyChange({
+      await onChangeForeignKey({
         columnName: 'examinerId',
         fieldLabel: 'supervising clinician',
         model: User,
@@ -631,27 +631,27 @@ export class Encounter extends Model {
           break;
       }
 
-      await recordTextColumnChange({
+      await onChangeTextColumn({
         columnName: 'startDate',
         fieldLabel: startDateLabel,
         formatText: formatShort,
       });
-      await recordTextColumnChange({
+      await onChangeTextColumn({
         columnName: 'estimatedEndDate',
         fieldLabel: 'estimated discharge date',
         formatText: formatShort,
       });
-      await recordForeignKeyChange({
+      await onChangeForeignKey({
         columnName: 'patientBillingTypeId',
         fieldLabel: 'patient type',
         model: ReferenceData,
       });
-      await recordForeignKeyChange({
+      await onChangeForeignKey({
         columnName: 'referralSourceId',
         fieldLabel: 'referral source',
         model: ReferenceData,
       });
-      await recordTextColumnChange({
+      await onChangeTextColumn({
         columnName: 'reasonForEncounter',
         fieldLabel: 'reason for encounter',
       });
