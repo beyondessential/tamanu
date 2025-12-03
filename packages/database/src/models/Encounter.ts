@@ -416,21 +416,6 @@ export class Encounter extends Model {
     const [data, options] = args;
     const { actorId, ...encounterData } = data;
 
-    const existingOpenEncounterCount = await this.count({
-      where: {
-        patientId: encounterData.patientId,
-        endDate: null,
-        deletedAt: null,
-      },
-      transaction: options?.transaction,
-    });
-
-    if (existingOpenEncounterCount > 0) {
-      throw new InvalidOperationError(
-        'This patient already has an active encounter. The active encounter must be discharged before a new encounter can be created.',
-      );
-    }
-
     const encounter = (await super.create(encounterData, options)) as Encounter;
 
     const { EncounterHistory } = this.sequelize.models;
