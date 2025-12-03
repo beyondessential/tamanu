@@ -634,12 +634,12 @@ export class Encounter extends Model {
       await onChangeTextColumn({
         columnName: 'startDate',
         fieldLabel: startDateLabel,
-        formatText: formatShort,
+        formatText: date => (date ? formatShort(date) : '-'),
       });
       await onChangeTextColumn({
         columnName: 'estimatedEndDate',
         fieldLabel: 'estimated discharge date',
-        formatText: formatShort,
+        formatText: date => (date ? formatShort(date) : '-'),
       });
       await onChangeForeignKey({
         columnName: 'patientBillingTypeId',
