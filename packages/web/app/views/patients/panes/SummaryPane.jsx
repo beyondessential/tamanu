@@ -29,7 +29,7 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
   const showOutpatientAppointments = showOutpatientAppointmentsSetting && canViewAppointments;
 
   const onViewEncounter = useCallback(
-    (id) => {
+    id => {
       (async () => {
         await loadEncounter(id);
         navigateToEncounter(id);
@@ -46,7 +46,7 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
       <ContentPane data-testid="contentpane-3jxx">
         <PatientEncounterSummary
           viewEncounter={onViewEncounter}
-          openCheckin={() => setModalOpen(true)}
+          openCheckIn={() => setModalOpen(true)}
           patient={patient}
           disabled={disabled}
           data-testid="patientencountersummary-z703"
