@@ -24,6 +24,7 @@ import {
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useEncounter } from '../../../contexts/Encounter';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 const StyledFormGrid = styled(FormGrid)`
   margin-bottom: 20px;
@@ -335,6 +336,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
 
     if (triage) {
       await api.put(`triage/${triage.id}`, {
+        submittedTime: getCurrentDateTimeString(),
         encounterId: encounter.id,
         arrivalTime,
         triageTime: startDate,
