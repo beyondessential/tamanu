@@ -1,6 +1,8 @@
 import { setupSurveyFromObject } from '@tamanu/database/demoData/surveys';
+import { createDummyEncounter } from '@tamanu/database/demoData/patients';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { SURVEY_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { fake } from '@tamanu/fake-data/fake';
 
 import { createTestContext } from '../utilities';
 
@@ -106,8 +108,14 @@ describe('Survey', () => {
 
   describe('chart surveys', () => {
     let limitedPermsApp = null;
+    let fullPermsApp = null;
     let chartSurvey1 = null;
     let chartSurvey2 = null;
+    let patient;
+    let encounter;
+    let historicalSimpleChart;
+    let historicalComplexChart;
+    let historicalChartWithoutAnswers;
 
     disableHardcodedPermissionsForSuite();
 
@@ -152,6 +160,68 @@ describe('Survey', () => {
       // Create limited permissions app
       const permissions = [['list', 'Charting', chartSurvey1.id]];
       limitedPermsApp = await baseApp.asNewRole(permissions);
+
+      // Create full permissions app for tests to allow listing all charts
+      fullPermsApp = await baseApp.asNewRole([['list', 'Charting']]);
+
+      // Create patient and encounter for historical charts test
+      patient = await models.Patient.create(fake(models.Patient));
+      encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      // Create historical simple chart with answers
+      historicalSimpleChart = await models.Survey.create(
+        fake(models.Survey, {
+          surveyType: SURVEY_TYPES.SIMPLE_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'Historical Simple Chart With Answers',
+        }),
+      );
+
+      // Create historical complex chart with answers
+      historicalComplexChart = await models.Survey.create(
+        fake(models.Survey, {
+          surveyType: SURVEY_TYPES.COMPLEX_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'Historical Complex Chart With Answers',
+        }),
+      );
+
+      // Create survey responses with answers for the encounter
+      const response1 = await models.SurveyResponse.create(
+        fake(models.SurveyResponse, {
+          surveyId: historicalSimpleChart.id,
+          encounterId: encounter.id,
+        }),
+      );
+      await models.SurveyResponseAnswer.create(
+        fake(models.SurveyResponseAnswer, {
+          responseId: response1.id,
+        }),
+      );
+
+      const response2 = await models.SurveyResponse.create(
+        fake(models.SurveyResponse, {
+          surveyId: historicalComplexChart.id,
+          encounterId: encounter.id,
+        }),
+      );
+      await models.SurveyResponseAnswer.create(
+        fake(models.SurveyResponseAnswer, {
+          responseId: response2.id,
+        }),
+      );
+
+      // Create historical chart without answers (should not be included)
+      historicalChartWithoutAnswers = await models.Survey.create(
+        fake(models.Survey, {
+          surveyType: SURVEY_TYPES.SIMPLE_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'Historical Chart Without Answers',
+        }),
+      );
     });
 
     it('should return only permitted chart surveys when user has limited permissions', async () => {
@@ -163,6 +233,16 @@ describe('Survey', () => {
       expect(surveyIds).toContain(chartSurvey1.id);
       expect(surveyIds).not.toContain(chartSurvey2.id);
       expect(surveyIds).toHaveLength(1);
+    });
+
+    it('should return historical simple and complex charts with answers', async () => {
+      const result = await fullPermsApp.get(`/api/survey/charts?encounterId=${encounter.id}`);
+      expect(result).toHaveSucceeded();
+
+      const surveyIds = result.body.map(survey => survey.id);
+      expect(surveyIds).toContain(historicalSimpleChart.id);
+      expect(surveyIds).toContain(historicalComplexChart.id);
+      expect(surveyIds).not.toContain(historicalChartWithoutAnswers.id);
     });
   });
 
