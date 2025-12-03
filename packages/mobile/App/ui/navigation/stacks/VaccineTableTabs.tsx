@@ -1,5 +1,5 @@
 import React, { ReactElement, useEffect } from 'react';
-import { ScreenOrientation } from 'expo-screen-orientation';
+import Orientation from 'react-native-orientation-locker';
 import { Routes } from '/helpers/routes';
 import { VaccineHistoryTab } from '../screens/vaccine/tableTabs';
 import { createTopTabNavigator } from '/components/TopTabNavigator';
@@ -9,10 +9,10 @@ const Tabs = createTopTabNavigator();
 
 export const VaccineTableTabs = (): ReactElement => {
   useEffect(() => {
-    ScreenOrientation.unlockAsync();
+    Orientation.unlockAllOrientations();
 
     return (): void => {
-      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+      Orientation.lockToPortrait();
     };
   }, []);
 
