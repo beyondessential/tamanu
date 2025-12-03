@@ -126,7 +126,7 @@ const LabResultsPrintoutComponent = React.memo(
     return (
       <Document>
         <Page size="A4" style={[styles.page, generalStyles.page]}>
-          {tests.length > 0 && (
+          {tests?.length > 0 && (
             <MultiPageHeader
               documentName={getTranslation('pdf.labResults.documentName', 'Lab results')}
               documentSubname={getTranslation(
@@ -159,7 +159,7 @@ const LabResultsPrintoutComponent = React.memo(
           <SectionContainer>
             <LabRequestDetailsSection labRequest={labRequest} />
           </SectionContainer>
-          {tests.length > 0 && (
+          {tests?.length > 0 && (
             <SectionContainer>
               <P bold fontSize={11} mb={3}>
                 {getTranslation('pdf.labResults.testResultsTitle', 'Test results')}
