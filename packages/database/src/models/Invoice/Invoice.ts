@@ -222,7 +222,7 @@ export class Invoice extends Model {
     date: string,
     settings: ReadSettings,
   ) {
-    const isInvoicingEnabled = await settings.get('features.enableInvoicing');
+    const isInvoicingEnabled = await settings?.get('features.enableInvoicing');
     const excludedEncounterTypes = [ENCOUNTER_TYPES.SURVEY_RESPONSE, ENCOUNTER_TYPES.VACCINATION];
     const isValidEncounterType = !excludedEncounterTypes.includes(encounterType);
     if (!isInvoicingEnabled || !isValidEncounterType) {
