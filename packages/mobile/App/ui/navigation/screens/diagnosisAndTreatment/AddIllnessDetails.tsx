@@ -67,7 +67,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
         await models.Note.createForRecord({
           recordId: encounter.id,
           recordType: NOTE_RECORD_TYPES.ENCOUNTER,
-          noteType: NOTE_TYPES.CLINICAL_MOBILE,
+          noteTypeId: NOTE_TYPES.CLINICAL_MOBILE,
           content: clinicalNote,
           author: user.id,
         });

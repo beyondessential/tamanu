@@ -42,7 +42,7 @@ export class NotesPane {
     // TestId mapping for NotesPane elements
     const testIds = {
       notesTab: 'styledtab-ccs8-notes',
-      noteTypeSelect: 'styledtranslatedselectfield-oy9y-select',
+      noteTypeSelect: 'styledtranslatedselectfield-oy9y-input-outerlabelfieldwrapper',
       newNoteButton: 'component-enxe',
       readMoreButton: 'readmorespan-dpwv',
       showLessButton: 'showlessspan-7kuw',
@@ -50,7 +50,7 @@ export class NotesPane {
       editedButtons: 'editedbutton-jn5i',
       tooltips: 'tooltip-b4e8',
       notesTable: 'datafetchingtable-qdej',
-      noteTypeOptions: 'styledtranslatedselectfield-oy9y-optioncontainer',
+      noteTypeOptions: 'styledtranslatedselectfield-oy9y-suggestionslist',
       noDataMessage: 'nodatamessage-78ud',
     } as const;
 

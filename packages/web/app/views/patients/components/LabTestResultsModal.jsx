@@ -17,6 +17,7 @@ import { AccessorField, LabResultAccessorField } from './AccessorField';
 import { useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 const TableContainer = styled.div`
   overflow-y: auto;
@@ -242,23 +243,29 @@ const ResultsForm = ({
   const { count, data } = labTestResults;
   /**
    * On entering lab result field for a test some other fields are auto-filled optimistically
-   * This occurs in the case that:
+   * In the case of labTestMethod this occurs in the case that:
    * 1. The user has only entered a single unique value for this field across other rows
    * 2. The user has not already entered a value for this field in the current row
    */
   const onChangeResult = useCallback(
     (value, labTestId) => {
+      if (!value) return;
       const rowValues = values[labTestId];
-      if (rowValues?.result || !value) return;
+
       AUTOFILL_FIELD_NAMES.forEach(name => {
-        // Get unique values for this field across all rows
-        const unique = Object.values(values).reduce(
-          (acc, row) => (row[name] && !acc.includes(row[name]) ? [...acc, row[name]] : acc),
-          [],
-        );
-        if (unique.length !== 1 || rowValues?.[name]) return;
-        // Prefill the field with the unique value
-        setFieldValue(`${labTestId}.${name}`, unique[0]);
+        if (rowValues?.[name]) return;
+
+        const otherRowsValues = Object.entries(values)
+          .filter(([id, row]) => id !== labTestId && row[name])
+          .map(([, row]) => row[name]);
+
+        const uniqueValues = [...new Set(otherRowsValues)];
+        const fieldName = `${labTestId}.${name}`;
+        if (name === LAB_TEST_PROPERTIES.COMPLETED_DATE) {
+          setFieldValue(fieldName, getCurrentDateTimeString());
+        } else if (uniqueValues.length === 1) {
+          setFieldValue(fieldName, uniqueValues[0]);
+        }
       });
     },
     [values, setFieldValue],

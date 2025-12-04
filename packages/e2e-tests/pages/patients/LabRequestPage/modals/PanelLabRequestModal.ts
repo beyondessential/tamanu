@@ -1,5 +1,6 @@
 import { Locator, Page, expect } from '@playwright/test';
 import { LabRequestModalBase } from './LabRequestModalBase';
+import { selectFieldOption } from '../../../../utils/fieldHelpers';
 
 export class PanelLabRequestModal extends LabRequestModalBase {
   
@@ -50,5 +51,40 @@ export class PanelLabRequestModal extends LabRequestModalBase {
       const categoryElement = this.sampleDetailsCategories.filter({ hasText: expectedCategories[i] });
       await expect(categoryElement).toBeVisible();
     }
+  }
+
+  /**
+   * Create a panel lab request with all fields filled
+   * @param panelsToSelect - Array of panel names to select
+   * @returns Object containing requestedDateTime, priority, and panel categories
+   */
+  async createPanelLabRequestWithAllFields(panelsToSelect: string[]): Promise<{ requestedDateTime: string; priority: string | null; panelCategories: string[] }> {
+    await this.waitForModalToLoad();
+    const requestedDateTime = await this.validateRequestedDateTimeIsToday();
+    await selectFieldOption(this.page, this.prioritySelect, {
+      selectFirst: true,
+    });
+    const priority = await this.selectedPriority.textContent();
+    await this.nextButton.click();
+    const panelCategories = await this.selectItemsByText(panelsToSelect);
+    await this.validateSelectedItemsAndCategoriesInTable(
+      panelsToSelect,
+      panelCategories,
+    );
+    const noteToAdd = 'This is a test note';
+    await this.addNotes(noteToAdd);
+    await this.nextButton.click();
+    const currentDateTime = this.getCurrentDateTime();
+    await this.setDateTimeCollected(currentDateTime);
+    await this.selectFirstCollectedBy(0);
+    await this.selectFirstSpecimenType(0);
+    await this.selectFirstSite(0);
+    await this.validateSelectedPanelsAndCategoriesInSampleDetailsPage(
+      panelsToSelect,
+      panelCategories,
+    );
+    await this.finaliseButton.click();
+    await this.closeButton.click();
+    return { requestedDateTime, priority, panelCategories };
   }
 } 
