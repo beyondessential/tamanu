@@ -308,10 +308,12 @@ const ResultsForm = ({
         />
       </TableContainer>
       <Box margin="20px 30px">
-      <Field component={TextField} 
-        multiline
-        rows={6}
-        name="resultsInterpretation"
+        <Field
+          component={TextField}
+          multiline
+          disabled={areLabTestResultsReadOnly}
+          rows={6}
+          name="resultsInterpretation"
           label="Results Interpretation"
           data-testid="field-resultsinterpretation"
         />
@@ -369,12 +371,12 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
   // Select editable values to prefill the form on edit
   const initialData = useMemo(
     () => ({
-        ...keyBy(
-          labTestResults?.data.map(data => pick(data, Object.values(LAB_TEST_PROPERTIES))),
-          LAB_TEST_PROPERTIES.ID,
-        ),
-        resultsInterpretation: labRequest.resultsInterpretation,
-      }),
+      ...keyBy(
+        labTestResults?.data.map(data => pick(data, Object.values(LAB_TEST_PROPERTIES))),
+        LAB_TEST_PROPERTIES.ID,
+      ),
+      resultsInterpretation: labRequest.resultsInterpretation,
+    }),
     [labTestResults, labRequest.resultsInterpretation],
   );
 
