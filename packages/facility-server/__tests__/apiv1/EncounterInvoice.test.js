@@ -2,6 +2,7 @@ import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoD
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 import {
+  ENCOUNTER_TYPES,
   IMAGING_REQUEST_STATUS_TYPES,
   IMAGING_TYPES,
   INVOICE_ITEMS_CATEGORIES,
@@ -461,6 +462,50 @@ describe('Encounter invoice', () => {
           items: [],
         });
       });
+
+      it('should automatically add items to the invoice regardless of status when the clinicEncounterLabAndImagingRequests setting is enabled', async () => {
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          encounterType: ENCOUNTER_TYPES.CLINIC,
+          patientId: patient.id,
+        });
+        await models.Setting.set('features.invoicing.clinicEncounterLabAndImagingRequests', true);
+        await models.Invoice.create({
+          encounterId: encounter.id,
+          displayId: 'INV-123',
+          date: new Date(),
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+
+        const {
+          body: [labRequest],
+        } = await app.post(`/api/labRequest`).send({
+          encounterId: encounter.id,
+          panelIds: [labTestPanelGeneral.id],
+          requestedById: user.id,
+          date: new Date(),
+        });
+
+        const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result).toHaveSucceeded();
+        expect(result.body).toMatchObject({
+          displayId: 'INV-123',
+          encounterId: encounter.id,
+        });
+        expect(result.body.items).toHaveLength(1);
+        expect(result.body.items).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              sourceRecordId: labRequest.labTestPanelRequestId,
+              sourceRecordType: 'LabTestPanelRequest',
+              productId: labTestPanelGeneralProduct.id,
+              orderedByUserId: user.id,
+              quantity: 1,
+              insurancePlanItems: [],
+            }),
+          ]),
+        );
+      });
     });
 
     describe('Imaging request', () => {
@@ -714,6 +759,71 @@ describe('Encounter invoice', () => {
         });
         expect(result3.body.items).toHaveLength(2);
         expect(result3.body.items).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              sourceRecordId: imagingRequestAreaHead.id,
+              sourceRecordType: imagingRequestAreaHead.getModelName(),
+              productId: imagingAreaHeadProduct.id,
+              orderedByUserId: user.id,
+              quantity: 1,
+              insurancePlanItems: [],
+            }),
+            expect.objectContaining({
+              sourceRecordId: imagingRequestAreaFoot.id,
+              sourceRecordType: imagingRequestAreaFoot.getModelName(),
+              productId: imagingRequestProduct.id,
+              orderedByUserId: user.id,
+              quantity: 1,
+              insurancePlanItems: [],
+            }),
+          ]),
+        );
+      });
+
+      it('should automatically add items to the invoice regardless of status when the clinicEncounterLabAndImagingRequests setting is enabled', async () => {
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          encounterType: ENCOUNTER_TYPES.CLINIC,
+        });
+        await models.Setting.set('features.invoicing.clinicEncounterLabAndImagingRequests', true);
+        await models.Invoice.create({
+          encounterId: encounter.id,
+          displayId: 'INV-123',
+          date: new Date(),
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+
+        const { body: imagingRequest } = await app.post(`/api/imagingRequest`).send({
+          encounterId: encounter.id,
+          imagingType: IMAGING_TYPES.X_RAY,
+          date: new Date(),
+          requestedById: user.id,
+          areas: JSON.stringify([imagingAreaHead.id, imagingAreaFoot.id]),
+        });
+
+        const imagingRequestAreaHead = await models.ImagingRequestArea.findOne({
+          where: {
+            imagingRequestId: imagingRequest.id,
+            areaId: imagingAreaHead.id,
+          },
+        });
+        const imagingRequestAreaFoot = await models.ImagingRequestArea.findOne({
+          where: {
+            imagingRequestId: imagingRequest.id,
+            areaId: imagingAreaFoot.id,
+          },
+        });
+
+        const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result).toHaveSucceeded();
+        expect(result.body).toMatchObject({
+          displayId: 'INV-123',
+          encounterId: encounter.id,
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+        expect(result.body.items).toHaveLength(2);
+        expect(result.body.items).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
               sourceRecordId: imagingRequestAreaHead.id,
