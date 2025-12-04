@@ -540,7 +540,7 @@ labTest.get(
       ],
     });
 
-    if (response?.labTestType?.isSensitive === true) {
+    if (response.labTestType.isSensitive === true) {
       req.checkPermission('read', 'SensitiveLabRequest');
     }
 
