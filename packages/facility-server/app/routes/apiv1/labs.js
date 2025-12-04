@@ -450,11 +450,11 @@ labRelations.get(
 labRelations.put(
   '/:id/tests',
   asyncHandler(async (req, res) => {
-    const { models, params, body, db, user } = req;
+    const { models, params, body: { resultsInterpretation, ...labTestData }, db, user } = req;
     const { id } = params;
     req.checkPermission('write', 'LabTest');
 
-    const testIds = Object.keys(body);
+    const testIds = Object.keys(labTestData);
 
     const labRequest = await models.LabRequest.findByPk(id);
     const labTests = await labRequest.getTests({
@@ -480,7 +480,7 @@ labRelations.put(
     // If any of the tests have a different result, check for LabTestResult permission
     const labTestObj = keyBy(labTests, 'id');
     if (
-      Object.entries(body).some(
+      Object.entries(labTestData).some(
         ([testId, testBody]) => testBody.result && testBody.result !== labTestObj[testId].result,
       )
     ) {
@@ -496,12 +496,12 @@ labRelations.put(
       const promises = [];
 
       await labRequest.update({
-        resultsInterpretation: body.resultsInterpretation,
+        resultsInterpretation,
       });
 
       labTests.forEach((labTest) => {
         req.checkPermission('write', labTest);
-        const labTestBody = body[labTest.id];
+        const labTestBody = labTestData[labTest.id];
         const updated = labTest.set(labTestBody);
         if (updated.changed()) {
           // Temporary solution for lab test officer string field
@@ -540,7 +540,7 @@ labTest.get(
       ],
     });
 
-    if (response.labTestType.isSensitive === true) {
+    if (response?.labTestType?.isSensitive === true) {
       req.checkPermission('read', 'SensitiveLabRequest');
     }
 
