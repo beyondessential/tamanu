@@ -46,7 +46,7 @@ export const LabRequestsTable = React.memo(
         },
         {
           key: 'requestId',
-          title: <TranslatedText stringId="lab.requestId.label" fallback="Test ID" />,
+          title: <TranslatedText stringId="lab.requestId.label.short" fallback="Test ID" />,
           accessor: getRequestId,
           sortable: false,
         },
