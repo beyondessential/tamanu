@@ -127,15 +127,12 @@ export function extendExpect(expect) {
   });
 }
 
-export async function createTestContext({ enableReportInstances, databaseOverrides } = {}) {
+export async function createTestContext({ databaseOverrides } = {}) {
   const context = await new ApplicationContext().init({ databaseOverrides });
-  // create mock reporting schema + roles if test requires it
-  // init reporting instances for these roles
-  if (enableReportInstances) {
-    await createMockReportingSchemaAndRoles(context);
-    context.reportSchemaStores = await initReporting();
-  }
-
+  
+  await createMockReportingSchemaAndRoles(context);
+  context.reportSchemaStores = await initReporting();
+  
   const { models, sequelize } = context;
 
   // do NOT time out during create context

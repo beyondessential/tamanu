@@ -10,8 +10,9 @@ import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { buildToken } from '../dist/auth/utils';
 import { createApp } from '../dist/createApp';
-import { closeDatabase, initDatabase, initReporting } from '../dist/database';
+import { closeDatabase, initDatabase } from '../dist/database';
 import { initIntegrations } from '../dist/integrations';
+import { initReporting } from '../app/database';
 
 class MockApplicationContext {
   closeHooks = [];
@@ -21,10 +22,10 @@ class MockApplicationContext {
     this.settings = new ReadSettings(this.store.models);
     await seedSettings(this.store.models);
 
-    if (config.db.reportSchemas?.enabled) {
-      await createMockReportingSchemaAndRoles({ sequelize: this.store.sequelize });
-      this.reportSchemaStores = await initReporting();
-    }
+    await createMockReportingSchemaAndRoles({ sequelize: this.store.sequelize });
+    this.reportSchemaStores = await initReporting();
+  
+
     this.emailService = {
       sendEmail: jest.fn().mockImplementation(() =>
         Promise.resolve({

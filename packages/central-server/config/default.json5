@@ -19,7 +19,6 @@
       // "evict": 1000
     },
     "reportSchemas": {
-      "enabled": false,
       "connections": {
         "raw": {
           "pool": {
