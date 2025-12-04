@@ -458,7 +458,7 @@ describe('Encounter', () => {
         const notes = await v.getNotes();
         expect(notes).toHaveLength(1);
         expect(
-          notes[0].content.includes('triage') && notes[0].content.includes('admission'),
+          notes[0].content.includes('Triage') && notes[0].content.includes('Admission'),
         ).toEqual(true);
         expect(notes[0].authorId).toEqual(app.user.id);
       });

@@ -82,7 +82,6 @@ const EncounterTypeLabel = styled.b`
 
 const BasicMoveFields = () => {
   const { setFieldValue, values } = useFormikContext();
-
   const handleGroupChange = groupValue => {
     setFieldValue('locationGroupId', groupValue);
   };
@@ -160,7 +159,7 @@ const PlannedMoveFields = () => {
             label={
               <TranslatedText
                 stringId="encounter.modal.patientMove.action.label"
-                fallback="Would you like to finalise the patient location move now or plan change?"
+                fallback="Would you like to finalise the patient location move now or plan the move?"
                 data-testid="translatedtext-l7v1"
               />
             }
@@ -180,7 +179,7 @@ const PlannedMoveFields = () => {
                 label: (
                   <TranslatedText
                     stringId="encounter.modal.patientMove.action.plan"
-                    fallback="Plan change"
+                    fallback="Plan move"
                     data-testid="translatedtext-patient-move-action-plan"
                   />
                 ),

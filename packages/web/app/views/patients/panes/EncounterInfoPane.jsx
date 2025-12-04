@@ -36,6 +36,7 @@ import { ENCOUNTER_TYPE_LABELS, FORM_TYPES } from '@tamanu/constants';
 import { DateField, Field, Form, TAMANU_COLORS } from '@tamanu/ui-components';
 import { useEncounter } from '../../../contexts/Encounter.jsx';
 import { getEncounterStartDateLabel } from '../../../utils/getEncounterStartDateLabel.jsx';
+import { PlusIcon } from '../../../assets/icons/PlusIcon';
 
 const InfoCardFirstColumn = styled.div`
   display: flex;
@@ -56,9 +57,13 @@ const DietCardValue = styled.div`
 
 const AddButton = styled(TextButton)`
   color: ${TAMANU_COLORS.darkestText};
-  text-decoration: underline;
   font-size: 14px;
   line-height: 18px;
+`;
+
+const AddButtonText = styled.span`
+  text-decoration: underline;
+  margin-left: 4px;
 `;
 
 const StyledModalFormActionRow = styled(ModalFormActionRow)`
@@ -149,7 +154,7 @@ const SetDischargeDateModal = ({ encounter, open, onClose }) => {
                 saveDateAsString
               />
             </DischargeDateFieldContainer>
-            <StyledModalFormActionRow onConfirm={submitForm} />
+            <StyledModalFormActionRow onCancel={onClose} onConfirm={submitForm} />
           </>
         )}
       />
@@ -311,10 +316,13 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
               ) : (
                 <>
                   <AddButton onClick={() => setIsEstimatedDischargeModalOpen(true)}>
-                    <TranslatedText
-                      stringId="encounter.summary.addEstimatedDischargeDate"
-                      fallback="+ Add"
-                    />
+                    <PlusIcon fill={TAMANU_COLORS.darkestText} />
+                    <AddButtonText>
+                      <TranslatedText
+                        stringId="encounter.summary.addEstimatedDischargeDate"
+                        fallback="Add"
+                      />
+                    </AddButtonText>
                   </AddButton>
                   <SetDischargeDateModal
                     open={isEstimatedDischargeModalOpen}

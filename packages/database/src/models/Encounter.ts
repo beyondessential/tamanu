@@ -1,8 +1,9 @@
 import { Op, DataTypes } from 'sequelize';
-import { isEqual } from 'lodash';
+import { capitalize, isEqual } from 'lodash';
 
 import {
   ENCOUNTER_TYPE_VALUES,
+  ENCOUNTER_TYPES,
   EncounterChangeType,
   NOTE_TYPES,
   SYNC_DIRECTIONS,
@@ -11,7 +12,7 @@ import {
 } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
 import { dischargeOutpatientEncounters } from '@tamanu/shared/utils/dischargeOutpatientEncounters';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { formatShort, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { Model } from './Model';
 import {
@@ -27,6 +28,7 @@ import type { Discharge } from './Discharge';
 import type { ReferenceData } from './ReferenceData';
 
 import { onCreateEncounterMarkPatientForSync } from '../utils/onCreateEncounterMarkPatientForSync';
+import { createChangeRecorders } from '../utils/recordModelChanges';
 import type { SessionConfig } from '../types/sync';
 import type { User } from './User';
 import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
@@ -481,83 +483,35 @@ export class Encounter extends Model {
     });
 
     await this.addSystemNote(systemNote || 'Discharged patient.', submittedTime, user);
-    await this.closeTriage(endDate);
+    await this.closeTriage(endDate, user);
   }
 
-  async closeTriage(endDate: string) {
+  async closeTriage(endDate: string, user: ModelProperties<User>) {
     const triage = await this.getLinkedTriage();
     if (!triage) return;
     if (triage.closedTime) return; // already closed
 
-    await triage.update({
-      closedTime: endDate,
-    });
+    await triage.update(
+      {
+        closedTime: endDate,
+      },
+      user,
+    );
   }
 
-  async update(...args: any): Promise<any> {
-    const [data, user] = args;
+  async update(data: any, user: any): Promise<any> {
     const { Department, Location, EncounterHistory, ReferenceData, User } = this.sequelize.models;
     // Track change types for encounter history snapshot
     const changeTypes: string[] = [];
     // To collect system note messages describing all changes in this encounter update
     const systemNoteRows: string[] = [];
 
-    // Records changes to foreign key columns (e.g., locationId, departmentId)
-    // Fetches the related records to get human-readable names for the system note
-    const recordForeignKeyChange = async ({
-      columnName,
-      fieldLabel,
-      model,
-      sequelizeOptions = {},
-      accessor = (record: typeof Model) => record?.name ?? '-',
-      changeType,
-      onChange,
-    }: {
-      columnName: keyof Encounter;
-      fieldLabel: string;
-      model: typeof Model;
-      sequelizeOptions?: any;
-      accessor?: (record: any) => string;
-      changeType?: EncounterChangeType;
-      onChange?: () => Promise<void>;
-    }) => {
-      const isChanged = columnName in data && data[columnName] !== this[columnName];
-      if (!isChanged) return;
-
-      if (changeType) changeTypes.push(changeType);
-
-      const oldRecord = await model.findByPk(this[columnName], sequelizeOptions);
-      const newRecord = await model.findByPk(data[columnName], sequelizeOptions);
-
-      systemNoteRows.push(
-        `Changed ${fieldLabel} from ‘${accessor(oldRecord)}’ to ‘${accessor(newRecord)}’`,
-      );
-      await onChange?.();
-    };
-
-    // Records changes to text/string columns (e.g., encounterType, reasonForEncounter)
-    // Uses the raw values directly since there's no related record to fetch
-    const recordTextColumnChange = async ({
-      columnName,
-      fieldLabel,
-      changeType,
-      onChange,
-    }: {
-      columnName: keyof Encounter;
-      fieldLabel: string;
-      changeType?: EncounterChangeType;
-      onChange?: () => Promise<void>;
-    }) => {
-      const isChanged = columnName in data && data[columnName] !== this[columnName];
-      if (!isChanged) return;
-
-      if (changeType) changeTypes.push(changeType);
-
-      const oldValue = this[columnName] ?? '-';
-      const newValue = data[columnName] ?? '-';
-      systemNoteRows.push(`Changed ${fieldLabel} from ‘${oldValue}’ to ‘${newValue}’`);
-      await onChange?.();
-    };
+    const { onChangeForeignKey, onChangeTextColumn } = createChangeRecorders(
+      this,
+      data,
+      systemNoteRows,
+      changeTypes,
+    );
 
     const updateEncounter = async () => {
       const additionalChanges: {
@@ -626,7 +580,7 @@ export class Encounter extends Model {
         );
       }
 
-      await recordForeignKeyChange({
+      await onChangeForeignKey({
         columnName: 'locationId',
         fieldLabel: 'location',
         model: Location,
@@ -641,46 +595,62 @@ export class Encounter extends Model {
           additionalChanges.plannedLocationStartTime = null;
         },
       });
-      await recordTextColumnChange({
+      await onChangeTextColumn({
         columnName: 'encounterType',
         fieldLabel: 'encounter type',
+        formatText: capitalize,
         changeType: EncounterChangeType.EncounterType,
         onChange: async () => {
-          await this.closeTriage(data.submittedTime);
+          await this.closeTriage(data.submittedTime, user);
         },
       });
-      await recordForeignKeyChange({
+      await onChangeForeignKey({
         columnName: 'departmentId',
         fieldLabel: 'department',
         model: Department,
         changeType: EncounterChangeType.Department,
       });
-      await recordForeignKeyChange({
+      await onChangeForeignKey({
         columnName: 'examinerId',
         fieldLabel: 'supervising clinician',
         model: User,
         accessor: (record: any) => record?.displayName ?? '-',
         changeType: EncounterChangeType.Examiner,
       });
-      await recordTextColumnChange({
+
+      let startDateLabel = 'Date';
+      switch (data.encounterType ?? this.encounterType) {
+        case ENCOUNTER_TYPES.ADMISSION:
+          startDateLabel = 'Admission date';
+          break;
+        case ENCOUNTER_TYPES.TRIAGE:
+        case ENCOUNTER_TYPES.OBSERVATION:
+        case ENCOUNTER_TYPES.EMERGENCY:
+          startDateLabel = 'Triage date';
+          break;
+      }
+
+      await onChangeTextColumn({
         columnName: 'startDate',
-        fieldLabel: 'start date',
+        fieldLabel: startDateLabel,
+        formatText: date => (date ? formatShort(date) : '-'),
       });
-      await recordTextColumnChange({
+      await onChangeTextColumn({
         columnName: 'estimatedEndDate',
         fieldLabel: 'estimated discharge date',
+        formatText: date => (date ? formatShort(date) : '-'),
       });
-      await recordForeignKeyChange({
+      await onChangeForeignKey({
         columnName: 'patientBillingTypeId',
         fieldLabel: 'patient type',
         model: ReferenceData,
       });
-      await recordForeignKeyChange({
+      await onChangeForeignKey({
         columnName: 'referralSourceId',
         fieldLabel: 'referral source',
         model: ReferenceData,
       });
-      await recordTextColumnChange({
+      await onChangeTextColumn({
         columnName: 'reasonForEncounter',
         fieldLabel: 'reason for encounter',
       });

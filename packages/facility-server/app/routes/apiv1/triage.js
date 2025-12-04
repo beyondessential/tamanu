@@ -2,17 +2,28 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
-import { InvalidOperationError, InvalidParameterError } from '@tamanu/errors';
+import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@tamanu/errors';
 import { ENCOUNTER_TYPES, NOTE_TYPES } from '@tamanu/constants';
 
 import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 
-import { simpleGet, simplePut } from '@tamanu/shared/utils/crudHelpers';
+import { simpleGet } from '@tamanu/shared/utils/crudHelpers';
 
 export const triage = express.Router();
 
 triage.get('/:id', simpleGet('Triage', { auditAccess: true }));
-triage.put('/:id', simplePut('Triage'));
+triage.put(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params, user } = req;
+    req.checkPermission('read', 'Triage');
+    const triageObject = await models.Triage.findByPk(params.id);
+    if (!triageObject) throw new NotFoundError();
+    req.checkPermission('write', triageObject);
+    await triageObject.update(req.body, user);
+    res.send(triageObject);
+  }),
+);
 
 triage.post(
   '/$',

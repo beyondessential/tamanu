@@ -2,10 +2,12 @@ import { Op, DataTypes } from 'sequelize';
 
 import { ENCOUNTER_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
+import { formatShort, formatTime, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
+import { createChangeRecorders } from '../utils/recordModelChanges';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 export class Triage extends Model {
@@ -127,4 +129,85 @@ export class Triage extends Model {
     });
   }
 
+  async update(data: any, user: any): Promise<any> {
+    const { Encounter, ReferenceData, User } = this.sequelize.models;
+    // To collect system note messages describing all changes in this triage update
+    const systemNoteRows: string[] = [];
+
+    const { onChangeForeignKey, onChangeTextColumn } = createChangeRecorders(
+      this,
+      data,
+      systemNoteRows,
+    );
+
+    const updateTriage = async () => {
+      await onChangeForeignKey({
+        columnName: 'practitionerId',
+        fieldLabel: 'practitioner',
+        model: User,
+        accessor: (record: any) => record?.displayName ?? '-',
+      });
+      await onChangeForeignKey({
+        columnName: 'chiefComplaintId',
+        fieldLabel: 'chief complaint',
+        model: ReferenceData,
+      });
+      await onChangeForeignKey({
+        columnName: 'secondaryComplaintId',
+        fieldLabel: 'secondary complaint',
+        model: ReferenceData,
+      });
+      await onChangeForeignKey({
+        columnName: 'arrivalModeId',
+        fieldLabel: 'arrival mode',
+        model: ReferenceData,
+      });
+      await onChangeTextColumn({
+        columnName: 'arrivalTime',
+        fieldLabel: 'arrival time',
+        formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
+      });
+      await onChangeTextColumn({
+        columnName: 'triageTime',
+        fieldLabel: 'triage time',
+        formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
+      });
+      await onChangeTextColumn({
+        columnName: 'closedTime',
+        fieldLabel: 'closed time',
+        formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
+      });
+      await onChangeTextColumn({
+        columnName: 'score',
+        fieldLabel: 'triage score',
+      });
+
+      const { submittedTime, ...triageData } = data;
+      const updatedTriage = await super.update(triageData, user);
+
+      if (systemNoteRows.length > 0) {
+        const encounter = await Encounter.findByPk(this.encounterId);
+        if (encounter) {
+          const formattedSystemNote = systemNoteRows.map(row => `• ${row}`).join('\n');
+          await encounter.addSystemNote(
+            formattedSystemNote,
+            submittedTime || getCurrentDateTimeString(),
+            user,
+          );
+        }
+      }
+
+      return updatedTriage;
+    };
+
+    if (this.sequelize.isInsideTransaction()) {
+      return updateTriage();
+    }
+
+    // If the update is not already in a transaction, wrap it in one
+    // Having nested transactions can cause bugs in postgres so only conditionally wrap
+    return this.sequelize.transaction(async () => {
+      return await updateTriage();
+    });
+  }
 }
