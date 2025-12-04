@@ -499,8 +499,7 @@ export class Encounter extends Model {
     );
   }
 
-  async update(...args: any): Promise<any> {
-    const [data, user] = args;
+  async update(data: any, user: any): Promise<any> {
     const { Department, Location, EncounterHistory, ReferenceData, User } = this.sequelize.models;
     // Track change types for encounter history snapshot
     const changeTypes: string[] = [];

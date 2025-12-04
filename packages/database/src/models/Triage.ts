@@ -129,8 +129,7 @@ export class Triage extends Model {
     });
   }
 
-  async update(...args: any): Promise<any> {
-    const [data, user] = args;
+  async update(data: any, user: any): Promise<any> {
     const { Encounter, ReferenceData, User } = this.sequelize.models;
     // To collect system note messages describing all changes in this triage update
     const systemNoteRows: string[] = [];
