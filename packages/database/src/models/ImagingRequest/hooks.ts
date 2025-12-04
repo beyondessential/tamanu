@@ -3,11 +3,35 @@ import {
   NOTIFICATION_TYPES,
   INVOICE_ITEMS_CATEGORIES,
   INVOICEABLE_IMAGING_REQUEST_STATUSES,
+  ENCOUNTER_TYPES,
   REFERENCE_TYPES,
 } from '@tamanu/constants';
 import type { ImagingRequest } from './ImagingRequest';
 import type { InstanceUpdateOptions } from 'sequelize';
 import type { InvoiceProduct } from 'models/Invoice';
+
+export const shouldAddImagingRequestToInvoice = async (imagingRequest: ImagingRequest) => {
+  const encounter = await imagingRequest.sequelize.models.Encounter.findByPk(
+    imagingRequest.encounterId,
+  );
+  if (!encounter) {
+    return false;
+  }
+
+  const clinicEncounterLabAndImagingRequestsSetting =
+    await imagingRequest.sequelize.models.Setting.get(
+      'features.invoicing.clinicEncounterLabAndImagingRequests',
+    );
+
+  if (
+    clinicEncounterLabAndImagingRequestsSetting &&
+    encounter.encounterType === ENCOUNTER_TYPES.CLINIC
+  ) {
+    return true; // Invoiceable regardless of status
+  }
+
+  return INVOICEABLE_IMAGING_REQUEST_STATUSES.includes(imagingRequest.status);
+};
 
 export const pushNotificationAfterUpdateHook = async (
   imagingRequest: ImagingRequest,
@@ -128,22 +152,18 @@ const removeFromInvoice = async (instance: ImagingRequest) => {
   );
 };
 
-const addToInvoiceAfterCreateHook = async (instance: ImagingRequest) => {
-  if (INVOICEABLE_IMAGING_REQUEST_STATUSES.includes(instance.status)) {
-    await addToInvoice(instance);
-  }
-};
-
 const addOrRemoveFromInvoiceAfterUpdateHook = async (instance: ImagingRequest) => {
-  if (!INVOICEABLE_IMAGING_REQUEST_STATUSES.includes(instance.status) || instance.deletedAt) {
-    await removeFromInvoice(instance);
-  } else {
+  if (await shouldAddImagingRequestToInvoice(instance)) {
     await addToInvoice(instance);
+  } else {
+    await removeFromInvoice(instance);
   }
 };
 
 export const afterCreateHook = async (instance: ImagingRequest) => {
-  await addToInvoiceAfterCreateHook(instance);
+  if (await shouldAddImagingRequestToInvoice(instance)) {
+    await addToInvoice(instance);
+  }
 };
 
 export const afterUpdateHook = async (

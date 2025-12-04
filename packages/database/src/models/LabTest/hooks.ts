@@ -1,4 +1,5 @@
-import { INVOICE_ITEMS_CATEGORIES, INVOICEABLE_LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import { INVOICE_ITEMS_CATEGORIES } from '@tamanu/constants';
+import { shouldAddLabRequestToInvoice } from '../LabRequest/hooks';
 import type { LabTest } from './LabTest';
 
 const addToInvoiceAfterCreateHook = async (instance: LabTest) => {
@@ -7,7 +8,7 @@ const addToInvoiceAfterCreateHook = async (instance: LabTest) => {
     return;
   }
 
-  if (!INVOICEABLE_LAB_REQUEST_STATUSES.includes(labRequest.status)) {
+  if (!(await shouldAddLabRequestToInvoice(labRequest))) {
     return;
   }
 

@@ -2,10 +2,31 @@ import {
   INVOICE_ITEMS_CATEGORIES,
   LAB_REQUEST_STATUSES,
   NOTIFICATION_TYPES,
+  ENCOUNTER_TYPES,
   INVOICEABLE_LAB_REQUEST_STATUSES,
 } from '@tamanu/constants';
 import type { LabRequest } from './LabRequest';
 import type { InstanceUpdateOptions } from 'sequelize';
+
+export const shouldAddLabRequestToInvoice = async (labRequest: LabRequest) => {
+  const encounter = await labRequest.sequelize.models.Encounter.findByPk(labRequest.encounterId);
+  if (!encounter) {
+    return false;
+  }
+
+  const clinicEncounterLabAndImagingRequestsSetting = await labRequest.sequelize.models.Setting.get(
+    'features.invoicing.clinicEncounterLabAndImagingRequests',
+  );
+
+  if (
+    clinicEncounterLabAndImagingRequestsSetting &&
+    encounter.encounterType === ENCOUNTER_TYPES.CLINIC
+  ) {
+    return true; // Invoiceable regardless of status
+  }
+
+  return INVOICEABLE_LAB_REQUEST_STATUSES.includes(labRequest.status);
+};
 
 export const pushNotificationAfterUpdateHook = async (
   labRequest: LabRequest,
@@ -112,14 +133,8 @@ const removeFromInvoice = async (instance: LabRequest) => {
   );
 };
 
-const addToInvoiceAfterCreateHook = async (instance: LabRequest) => {
-  if (INVOICEABLE_LAB_REQUEST_STATUSES.includes(instance.status)) {
-    await addToInvoice(instance);
-  }
-};
-
 const addOrRemoveFromInvoiceAfterUpdateHook = async (instance: LabRequest) => {
-  if (INVOICEABLE_LAB_REQUEST_STATUSES.includes(instance.status)) {
+  if (await shouldAddLabRequestToInvoice(instance)) {
     await addToInvoice(instance);
   } else {
     await removeFromInvoice(instance);
@@ -131,7 +146,9 @@ const removeFromInvoiceAfterDestroyHook = async (instance: LabRequest) => {
 };
 
 export const afterCreateHook = async (instance: LabRequest) => {
-  await addToInvoiceAfterCreateHook(instance);
+  if (await shouldAddLabRequestToInvoice(instance)) {
+    await addToInvoice(instance);
+  }
 };
 
 export const afterUpdateHook = async (labRequest: LabRequest, options: InstanceUpdateOptions) => {

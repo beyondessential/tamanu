@@ -366,6 +366,22 @@ export const globalSettings = {
             },
           },
         },
+        invoicing: {
+          description: 'Invoicing module settings',
+          properties: {
+            enabled: {
+              description: 'Enable invoicing',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            clinicEncounterLabAndImagingRequests: {
+              description:
+                'This setting allows lab and imaging requests to be added to an invoice automatically, regardless of the request status',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+          },
+        },
       },
     },
     customisations: {
