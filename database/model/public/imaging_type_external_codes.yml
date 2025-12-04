@@ -10,6 +10,7 @@ sources:
           tags: []
           meta:
             triggers:
+              - fhir_refresh
               - notify_imaging_type_external_codes_changed
               - record_imaging_type_external_codes_changelog
               - set_imaging_type_external_codes_updated_at
@@ -36,8 +37,7 @@ sources:
             description: "{{ doc('generic__deleted_at') }} in imaging_type_external_codes."
           - name: visibility_status
             data_type: text
-            description: "{{ doc('generic__visibility_status') }} in
-              imaging_type_external_codes."
+            description: "{{ doc('generic__visibility_status') }} in imaging_type_external_codes."
             data_tests:
               - not_null
             config:
@@ -67,7 +67,6 @@ sources:
                 masking: text
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in
-              imaging_type_external_codes."
+            description: "{{ doc('generic__updated_at_sync_tick') }} in imaging_type_external_codes."
             data_tests:
               - not_null
