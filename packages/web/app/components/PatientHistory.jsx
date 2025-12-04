@@ -366,11 +366,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       />
       <StyledTable
         columns={columns}
-        onRowClick={row => {
-          if (canReadEncounter) {
-            onItemClick(row.id);
-          }
-        }}
+        onRowClick={canReadEncounter ? row => onItemClick(row.id) : null}
         noDataMessage={
           <Box mx="auto" p="40px" data-testid="box-t8fy">
             <TranslatedText
