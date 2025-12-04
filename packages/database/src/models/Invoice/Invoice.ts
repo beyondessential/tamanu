@@ -5,7 +5,7 @@ import {
   INVOICE_STATUSES,
   SYNC_DIRECTIONS,
   SYSTEM_USER_UUID,
-  ENCOUNTER_TYPES,
+  AUTOMATIC_INVOICE_CREATION_EXCLUDED_ENCOUNTER_TYPES,
 } from '@tamanu/constants';
 import { Model } from '../Model';
 import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter';
@@ -223,8 +223,7 @@ export class Invoice extends Model {
     settings: ReadSettings,
   ) {
     const isInvoicingEnabled = await settings?.get('features.enableInvoicing');
-    const excludedEncounterTypes = [ENCOUNTER_TYPES.SURVEY_RESPONSE, ENCOUNTER_TYPES.VACCINATION];
-    const isValidEncounterType = !excludedEncounterTypes.includes(encounterType);
+    const isValidEncounterType = !AUTOMATIC_INVOICE_CREATION_EXCLUDED_ENCOUNTER_TYPES.includes(encounterType);
     if (!isInvoicingEnabled || !isValidEncounterType) {
       return null;
     }
