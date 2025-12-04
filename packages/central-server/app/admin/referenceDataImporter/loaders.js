@@ -313,13 +313,14 @@ export function labTestPanelLoader(item) {
   (testTypesInPanel || '')
     .split(',')
     .map(t => t.trim())
-    .forEach(testType => {
+    .forEach((testType, index) => {
       rows.push({
         model: 'LabTestPanelLabTestTypes',
         values: {
           id: `${id};${testType}`,
           labTestPanelId: id,
           labTestTypeId: testType,
+          order: index,
         },
       });
     });

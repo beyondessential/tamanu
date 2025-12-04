@@ -302,7 +302,15 @@ export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMan
         case PROGRAM_DATA_ELEMENT_TYPES.DATE:
         case PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME:
         case PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE:
-          valueSchema = yup.date();
+          valueSchema = yup
+            .date()
+            .transform((value, originalValue) => {
+              // Convert empty strings to null/undefined to prevent validation errors
+              if (typeof originalValue === 'string' && originalValue.trim() === '') {
+                return null;
+              }
+              return value;
+            });
           break;
         default:
           valueSchema = yup.mixed();

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { isErrorUnknownAllow404s, useApi } from '../index';
 
-const transformVitalDataToChartData = (vitalQuery) => {
+const transformVitalDataToChartData = vitalQuery => {
   const { data: vitalDataAndCount = {} } = vitalQuery;
   const { data: vitalData = [] } = vitalDataAndCount;
 
@@ -19,12 +19,14 @@ export const useGraphDataQuery = (encounterId, vitalDataElementId, dateRange, is
   const directory = isVital ? 'vitals' : 'charts';
   const query = useQuery(
     ['encounter', encounterId, 'graphData', directory, vitalDataElementId, startDate, endDate, isVital],
-    () => {
-      return api.get(
+    () =>
+      api.get(
         `encounter/${encounterId}/graphData/${directory}/${vitalDataElementId}`,
         { startDate, endDate },
         { isErrorUnknown: isErrorUnknownAllow404s },
-      );
+      ),
+    {
+      enabled: Boolean(encounterId),
     },
   );
 
@@ -35,3 +37,5 @@ export const useGraphDataQuery = (encounterId, vitalDataElementId, dateRange, is
     data: graphData,
   };
 };
+
+export { transformVitalDataToChartData };
