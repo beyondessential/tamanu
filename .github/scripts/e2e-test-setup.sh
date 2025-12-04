@@ -57,7 +57,6 @@ EOF
                     deviceRegistrationQuota: {
                         enabled: false,
                     },
-                    enableTasking: true,
                 },
             },
         },
