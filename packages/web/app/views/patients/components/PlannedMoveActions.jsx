@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { TAMANU_COLORS, TextButton } from '@tamanu/ui-components';
 import { FinalisePatientMoveModal } from './FinalisePatientMoveModal';
 import { CancelPatientMoveModal } from './CancelPatientMoveModal';
+import { useAuth } from '../../../contexts/Auth';
 
 import { BedIcon } from '../../../assets/icons/BedIcon';
 
@@ -33,8 +34,14 @@ const CancelButton = styled(TextButton)`
 `;
 
 export const PlannedMoveActions = ({ encounter }) => {
+  const { ability } = useAuth();
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [finaliseModalOpen, setFinaliseModalOpen] = useState(false);
+
+  const canWriteEncounter = ability.can('write', 'Encounter');
+  if (!canWriteEncounter) {
+    return null;
+  }
 
   return (
     <>

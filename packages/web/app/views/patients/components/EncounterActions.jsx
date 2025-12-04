@@ -9,6 +9,7 @@ import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { NoteModalActionBlocker } from '../../../components';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
+import { useAuth } from '../../../contexts/Auth';
 
 const ENCOUNTER_MODALS = {
   NONE: 'none',
@@ -44,10 +45,13 @@ const isProgressionForward = (currentState, nextState) =>
 
 export const EncounterActions = React.memo(({ encounter }) => {
   const { navigateToSummary } = usePatientNavigation();
+  const { ability } = useAuth();
   const [openModal, setOpenModal] = useState(ENCOUNTER_MODALS.NONE);
   const [newEncounterType, setNewEncounterType] = useState();
   const onClose = () => setOpenModal(ENCOUNTER_MODALS.NONE);
   const onViewSummary = () => navigateToSummary();
+
+  const canWriteEncounter = ability.can('write', 'Encounter');
 
   if (encounter.endDate) {
     return (
@@ -90,6 +94,7 @@ export const EncounterActions = React.memo(({ encounter }) => {
     {
       label: <TranslatedText stringId="encounter.action.editEncounter" fallback="Edit encounter" />,
       onClick: () => setOpenModal(ENCOUNTER_MODALS.EDIT),
+      condition: () => canWriteEncounter,
     },
     {
       label: (
@@ -99,7 +104,9 @@ export const EncounterActions = React.memo(({ encounter }) => {
         />
       ),
       onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.OBSERVATION),
-      condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.OBSERVATION),
+      condition: () =>
+        canWriteEncounter &&
+        isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.OBSERVATION),
     },
     {
       label: (
@@ -109,7 +116,9 @@ export const EncounterActions = React.memo(({ encounter }) => {
         />
       ),
       onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.EMERGENCY),
-      condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.EMERGENCY),
+      condition: () =>
+        canWriteEncounter &&
+        isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.EMERGENCY),
     },
     {
       label: (
@@ -117,8 +126,9 @@ export const EncounterActions = React.memo(({ encounter }) => {
       ),
       onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.ADMISSION),
       condition: () =>
-        isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.ADMISSION) ||
-        encounter.encounterType === ENCOUNTER_TYPES.CLINIC,
+        canWriteEncounter &&
+        (isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.ADMISSION) ||
+          encounter.encounterType === ENCOUNTER_TYPES.CLINIC),
     },
     {
       label: (
@@ -128,7 +138,7 @@ export const EncounterActions = React.memo(({ encounter }) => {
         />
       ),
       onClick: () => setOpenModal(ENCOUNTER_MODALS.DISCHARGE),
-      condition: () => encounter.encounterType === ENCOUNTER_TYPES.TRIAGE,
+      condition: () => canWriteEncounter && encounter.encounterType === ENCOUNTER_TYPES.TRIAGE,
     },
     {
       label: (
@@ -176,16 +186,18 @@ export const EncounterActions = React.memo(({ encounter }) => {
                 fallback="Prepare discharge"
               />
             </StyledButton>
-            <MoveButton
-              size="small"
-              color="primary"
-              onClick={() => {
-                setNewEncounterType(null);
-                setOpenModal(ENCOUNTER_MODALS.MOVE);
-              }}
-            >
-              <TranslatedText stringId="encounter.action.movePatient" fallback="Move patient" />
-            </MoveButton>
+            {canWrite && (
+              <MoveButton
+                size="small"
+                color="primary"
+                onClick={() => {
+                  setNewEncounterType(null);
+                  setOpenModal(ENCOUNTER_MODALS.MOVE);
+                }}
+              >
+                <TranslatedText stringId="encounter.action.movePatient" fallback="Move patient" />
+              </MoveButton>
+            )}
           </>
         )}
         <ThreeDotMenu items={actions} data-testid="threedotmenu-5t9u" />

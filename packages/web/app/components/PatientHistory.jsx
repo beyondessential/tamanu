@@ -351,9 +351,12 @@ export const PatientHistory = ({ patient, onItemClick }) => {
     });
   }
 
+  const canReadEncounter = ability.can('read', 'Encounter');
+
   if (!patient.markedForSync) {
     return <MarkPatientForSync patient={patient} data-testid="markpatientforsync-t5tf" />;
   }
+
   return (
     <>
       <SyncWarningBanner
@@ -363,7 +366,11 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       />
       <StyledTable
         columns={columns}
-        onRowClick={row => onItemClick(row.id)}
+        onRowClick={row => {
+          if (canReadEncounter) {
+            onItemClick(row.id);
+          }
+        }}
         noDataMessage={
           <Box mx="auto" p="40px" data-testid="box-t8fy">
             <TranslatedText
