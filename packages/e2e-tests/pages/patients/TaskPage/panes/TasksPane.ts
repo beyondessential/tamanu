@@ -22,7 +22,7 @@ export class TasksPane {
   readonly markAsNotCompletedButton!: Locator;
   readonly showNotCompletedTasksCheck!: Locator;
   readonly deleteTaskButton!: Locator;
-  readonly noteDataContainer!: Locator;
+  readonly noDataContainer!: Locator;
   constructor(page: Page) {
     this.page = page;
 
@@ -36,7 +36,7 @@ export class TasksPane {
       markAsNotCompletedButton: 'styledcancelicon-nzdl',
       showNotCompletedTasksCheck: 'styledcheckinput-vgby-controlcheck',
       deleteTaskButton: 'styleddeleteoutlineicon-w3ya',
-      noteDataContainer: 'nodatacontainer-476e',
+      noDataContainer: 'nodatacontainer-476e',
     } as const;
 
     for (const [key, id] of Object.entries(testIds)) {
@@ -48,13 +48,19 @@ export class TasksPane {
     this.tableRows = this.tableBody.locator('tr');
   }
   async getRowCount(): Promise<number> {
-    return await this.tableBody.locator('tr').count();
+    return await this.tableRows.count();
   }
 
   async waitForPageToLoad(): Promise<void> {
     await this.addTaskButton.waitFor({ state: 'visible' });
     await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
+
+async waitForNoDataContainerToDisappear(): Promise<void> {
+  await this.noDataContainer.waitFor({ state: 'detached' });
+  await this.page.waitForLoadState('networkidle', { timeout: 10000 });
+}
+
 
   getAddTaskModal(): AddTaskModal {
     if (!this._addTaskModal) {

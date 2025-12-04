@@ -20,6 +20,7 @@ test.describe('Basic tests', () => {
   test.beforeAll(async ({ browser }) => {
     const context = await browser.newContext();
     const page = await context.newPage();
+    // Get current user info
     const api = await createApiContext({ page });
     const currentUser = await getUser(api);
     currentUserDisplayName = currentUser.displayName || '';
@@ -346,7 +347,7 @@ test.describe('Basic tests', () => {
       notes: notes,
     });
     await addTaskModal.confirmButton.click();
-    await tasksPane.waitForPageToLoad();
+    await tasksPane.waitForNoDataContainerToDisappear();
     const rowCount = await tasksPane.getRowCount();
     expect(rowCount).toBe(2);
     const note = await getTableItems(tasksPane.page, 2, 'note');
@@ -394,7 +395,7 @@ test.describe('Basic tests', () => {
       assignedTo: assignedTo,
     });
     await addTaskModal.confirmButton.click();
-    await tasksPane.waitForPageToLoad();
+    await tasksPane.waitForNoDataContainerToDisappear();
     const rowCount = await tasksPane.getRowCount();
     expect(rowCount).toBe(1);
     const note = await getTableItems(tasksPane.page, 1, 'note');
@@ -422,7 +423,7 @@ test.describe('Basic tests', () => {
       taskName: taskName,
     });
     await addTaskModal.confirmButton.click();
-    await tasksPane.waitForPageToLoad();
+    await tasksPane.waitForNoDataContainerToDisappear();
     const rowCount = await tasksPane.getRowCount();
     expect(rowCount).toBe(1);
     const taskNameValue = await getTableItems(tasksPane.page, 1, 'name');
@@ -453,7 +454,7 @@ test.describe('Basic tests', () => {
       taskName: taskName,
     });
     await addTaskModal.confirmButton.click();
-    await tasksPane.waitForPageToLoad();
+    await tasksPane.waitForNoDataContainerToDisappear();
     const rowCount = await tasksPane.getRowCount();
     expect(rowCount).toBe(1);
     const taskNameValue = await getTableItems(tasksPane.page, 1, 'name');
@@ -485,7 +486,7 @@ test.describe('Basic tests', () => {
       taskName: taskName,
     });
     await addTaskModal.confirmButton.click();
-    await tasksPane.waitForPageToLoad();
+    await tasksPane.waitForNoDataContainerToDisappear();
     const rowCount = await tasksPane.getRowCount();
     expect(rowCount).toBe(1);
     await tasksPane.tableRows.first().hover();
@@ -494,6 +495,6 @@ test.describe('Basic tests', () => {
     await deleteTaskModal.waitForModalToLoad();
     await deleteTaskModal.confirmButton.click();
     await tasksPane.waitForPageToLoad();
-    await expect( tasksPane.noteDataContainer).toHaveText('No patient tasks to display. Please try adjusting filters or click ‘+ New task’ to add a task to this patient.');
+    await expect( tasksPane.noDataContainer).toHaveText('No patient tasks to display. Please try adjusting filters or click ‘+ New task’ to add a task to this patient.');
   });
 });
