@@ -180,7 +180,7 @@ export const EncounterActions = React.memo(({ encounter }) => {
               size="small"
               variant="outlined"
               onClick={() => setOpenModal(ENCOUNTER_MODALS.DISCHARGE)}
-              disabled={canWriteEncounter}
+              disabled={!canWriteEncounter}
             >
               <TranslatedText
                 stringId="encounter.action.prepareDischarge"
