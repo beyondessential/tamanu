@@ -5,13 +5,15 @@ import { Box } from '@material-ui/core';
 import { formatShortest } from '@tamanu/utils/dateTime';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 
-import { TextInput } from '@tamanu/ui-components';
+import { TextInput, SelectField } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
-import { NumberInput, OuterLabelFieldWrapper, CheckInput } from '../Field';
+import { OuterLabelFieldWrapper, CheckInput } from '../Field';
 import { Table } from '../Table';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../Translation';
 import { format } from 'date-fns';
+import { MEDICATION_DURATION_DISPLAY_UNITS_LABELS, REPEATS_LABELS } from '@tamanu/constants';
+import { singularize } from '../../utils';
 
 const StyledTable = styled(Table)`
   .MuiTableCell-root {
@@ -86,9 +88,10 @@ export const COLUMN_KEYS = {
   MEDICATION: 'medication',
   DOSE: 'dose',
   FREQUENCY: 'frequency',
+  DURATION: 'duration',
   QUANTITY: 'quantity',
   REPEATS: 'repeats',
-  LAST_ORDERED: 'lastOrdered',
+  LAST_SENT: 'lastSent',
 };
 
 const getColumns = (
@@ -172,6 +175,29 @@ const getColumns = (
         frequency ? getTranslatedFrequency(frequency, getTranslation) : '',
     },
     {
+      key: COLUMN_KEYS.DURATION,
+      title: (
+        <TranslatedText
+          stringId="medication.details.duration"
+          fallback="Duration"
+          data-testid="translatedtext-duration"
+        />
+      ),
+      sortable: false,
+      accessor: ({ durationValue, durationUnit }) => {
+        if (!durationValue || !durationUnit) {
+          return '-';
+        }
+
+        const unitLabel = getEnumTranslation(
+          MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
+          durationUnit,
+        );
+
+        return `${durationValue} ${singularize(unitLabel, durationValue).toLowerCase()}`;
+      },
+    },
+    {
       key: COLUMN_KEYS.DATE,
       title: (
         <TranslatedText
@@ -184,10 +210,8 @@ const getColumns = (
       accessor: ({ date }) => formatShortest(date),
     },
     {
-      key: COLUMN_KEYS.LAST_ORDERED,
-      title: (
-        <TranslatedText stringId="medication.table.column.lastOrdered" fallback="Last ordered" />
-      ),
+      key: COLUMN_KEYS.LAST_SENT,
+      title: <TranslatedText stringId="medication.table.column.lastOrdered" fallback="Last sent" />,
       sortable: false,
       accessor: ({ lastOrderedAt }) => {
         if (!lastOrderedAt) {
@@ -261,15 +285,12 @@ const getColumns = (
       sortable: false,
       accessor: ({ repeats, onChange, selected }) => (
         <Box width="89px">
-          <NumberInput
-            value={repeats || ''}
+          <SelectField
+            value={repeats ?? 0}
             onChange={onChange}
-            InputProps={{
-              inputProps: {
-                min: 0,
-              },
-            }}
             disabled={!selected}
+            isClearable={false}
+            options={REPEATS_LABELS.map(val => ({ value: val, label: String(val) }))}
             data-testid="selectinput-ld3p"
           />
         </Box>

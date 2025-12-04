@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { Box, Divider } from '@material-ui/core';
+import { Box, Divider, FormControlLabel, Radio, RadioGroup } from '@material-ui/core';
 import { Colors } from '../../constants';
 import {
   TextField,
@@ -11,7 +11,10 @@ import {
   BaseModal,
   TranslatedText,
 } from '@tamanu/ui-components';
-import { AutocompleteInput, CheckInput } from '../Field';
+import { subHours } from 'date-fns';
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
+
+import { AutocompleteInput } from '../Field';
 import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 
@@ -20,8 +23,8 @@ import BasePharmacyIcon from '../../assets/images/pharmacy.svg?react';
 import { notifyError } from '../../utils';
 import { PharmacyOrderMedicationTable, COLUMN_KEYS } from './PharmacyOrderMedicationTable';
 import { useSettings } from '../../contexts/Settings';
-import { subHours } from 'date-fns';
 import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
+import { BodyText } from '../Typography';
 
 const StyledModal = styled(BaseModal)`
   .MuiPaper-root {
@@ -42,23 +45,13 @@ const PharmacyIcon = styled(BasePharmacyIcon)`
 `;
 
 const OrderingClinicianWrapper = styled.div`
-  width: 25%;
+  width: 35%;
   margin-bottom: 20px;
   margin-top: 20px;
 `;
 
-const HorizontalDivider = styled(Divider)`
-  margin: 15px 0;
-`;
-
 const CommentsWrapper = styled.div`
   margin-top: 20px;
-`;
-
-const DischargePrescriptionWrapper = styled.div`
-  margin-top: 20px;
-  margin-bottom: 40px;
-  font-size: 14px;
 `;
 
 const DialogPrimaryText = styled.div`
@@ -70,17 +63,6 @@ const DialogPrimaryText = styled.div`
 
 const AlreadyOrderedPrimaryText = styled(DialogPrimaryText)`
   text-align: left;
-`;
-
-const DischargePrescriptionMessage = styled.div`
-  font-weight: 500;
-  color: ${Colors.textSecondary};
-  margin-bottom: 6px;
-`;
-
-const DischargePrescriptionLabel = styled.div`
-  font-size: 14px;
-  color: ${Colors.textSecondary};
 `;
 
 const DialogSecondaryText = styled.div`
@@ -118,6 +100,43 @@ const AlreadyOrderedMedicationsWrapper = styled.div`
   padding-bottom: 10px;
 `;
 
+const PrescriptionTypeWrapper = styled.div`
+  margin-top: 20px;
+  margin-bottom: 20px;
+  font-size: 14px;
+`;
+
+const PrescriptionTypeLabel = styled.div`
+  font-weight: 500;
+  margin-bottom: 7px;
+  color: ${Colors.darkText};
+`;
+
+const StyledRadioGroup = styled(RadioGroup)`
+  flex-direction: row;
+  gap: 10px;
+`;
+
+const StyledFormControlLabel = styled(FormControlLabel)`
+  .MuiTypography-body1 {
+    font-size: 14px;
+  }
+  border: 1px solid ${Colors.outline};
+  border-radius: 3px;
+  background: ${Colors.white};
+  height: 44px;
+  width: 202px;
+  margin: 0;
+  .MuiSvgIcon-root {
+    font-size: 15px;
+  }
+`;
+
+const PHARMACY_PRESCRIPTION_TYPES = {
+  DISCHARGE_OR_OUTPATIENT: 'DISCHARGE_OR_OUTPATIENT',
+  INPATIENT: 'INPATIENT',
+};
+
 export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubmit }) => {
   const [orderingClinicianId, setOrderingClinicianId] = useState('');
   const [isDischargePrescription, setIsDischargePrescription] = useState(false);
@@ -133,6 +152,12 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
     'features.pharmacyOrder.medicationAlreadyOrderedConfirmationTimeout',
   );
 
+  const sendViaMSupply = getSetting('features.pharmacyOrder.sendViaMSupply');
+
+  const [prescriptionType, setPrescriptionType] = useState(
+    PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT,
+  );
+
   const {
     data,
     error,
@@ -146,9 +171,10 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
         .filter(p => !p.discontinued)
         .map(prescription => ({
           ...prescription,
-          quantity: 1,
-          repeats: undefined,
-          selected: true,
+          quantity: prescription.quantity ?? undefined,
+          repeats: prescription.repeats ?? 0,
+          // Medications are deselected by default; users choose what to send
+          selected: false,
         })) || [],
     [data],
   );
@@ -164,6 +190,30 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
   useEffect(() => {
     setOrderingClinicianId(currentUser.id);
   }, [currentUser]);
+
+  // Set default prescription type based on encounter type when the modal opens
+  useEffect(() => {
+    if (!open || !encounter?.encounterType) return;
+
+    if (encounter.encounterType === ENCOUNTER_TYPES.CLINIC) {
+      setPrescriptionType(PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT);
+      setIsDischargePrescription(true);
+      return;
+    }
+
+    if (
+      [
+        ENCOUNTER_TYPES.ADMISSION,
+        ENCOUNTER_TYPES.TRIAGE,
+        ENCOUNTER_TYPES.OBSERVATION,
+        ENCOUNTER_TYPES.EMERGENCY,
+      ].includes(encounter.encounterType)
+    ) {
+      setPrescriptionType(PHARMACY_PRESCRIPTION_TYPES.INPATIENT);
+      setIsDischargePrescription(false);
+      return;
+    }
+  }, [open, encounter?.encounterType]);
 
   const handleSelectAll = useCallback(event => {
     const checked = event.target.checked;
@@ -210,7 +260,11 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
     (event, key, rowIndex) => {
       if ([COLUMN_KEYS.QUANTITY, COLUMN_KEYS.REPEATS].includes(key)) {
         const newMedicationData = [...prescriptions];
-        const value = parseInt(event.target.value, 10) || undefined;
+        const rawValue = event.target.value;
+        const value =
+          rawValue === '' || rawValue === null || rawValue === undefined
+            ? undefined
+            : parseInt(rawValue, 10);
 
         newMedicationData[rowIndex] = {
           ...newMedicationData[rowIndex],
@@ -299,10 +353,41 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
     [prescriptions, handleSelectRow],
   );
 
+  const isDischargeOrOutpatient =
+    prescriptionType === PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT;
+
+  const mainTableColumns = useMemo(() => {
+    const baseColumns = [
+      COLUMN_KEYS.SELECT,
+      COLUMN_KEYS.MEDICATION,
+      COLUMN_KEYS.DOSE,
+      COLUMN_KEYS.FREQUENCY,
+      COLUMN_KEYS.DATE,
+      COLUMN_KEYS.LAST_SENT,
+      COLUMN_KEYS.QUANTITY,
+    ];
+
+    if (isDischargeOrOutpatient) {
+      return [
+        COLUMN_KEYS.SELECT,
+        COLUMN_KEYS.MEDICATION,
+        COLUMN_KEYS.DOSE,
+        COLUMN_KEYS.FREQUENCY,
+        COLUMN_KEYS.DURATION,
+        COLUMN_KEYS.DATE,
+        COLUMN_KEYS.LAST_SENT,
+        COLUMN_KEYS.QUANTITY,
+        COLUMN_KEYS.REPEATS,
+      ];
+    }
+
+    return baseColumns;
+  }, [isDischargeOrOutpatient]);
+
   if (showSuccess) {
     return (
       <StyledModal
-        title={<TranslatedText stringId="pharmacyOrder.success.title" fallback="Order requested" />}
+        title={<TranslatedText stringId="pharmacyOrder.success.title" fallback="Request sent" />}
         open={open}
         onClose={handleClose}
       >
@@ -345,7 +430,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
         title={
           <TranslatedText
             stringId="pharmacyOrder.orderConfirmation.title"
-            fallback="Order confirmation"
+            fallback="Request confirmation"
           />
         }
         open={open}
@@ -356,12 +441,12 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
             {medicationAlreadyOrderedConfirmationTimeout === 1 ? (
               <TranslatedText
                 stringId="pharmacyOrder.orderConfirmation.message.singleHour"
-                fallback="The below medications have already been ordered within the past hour"
+                fallback="The above medications have already been sent within the past hour"
               />
             ) : (
               <TranslatedText
                 stringId="pharmacyOrder.orderConfirmation.message.multipleHours"
-                fallback="The below medications have already been ordered within the past :medicationAlreadyOrderedConfirmationTimeout hours"
+                fallback="The above medications have already been sent within the past :medicationAlreadyOrderedConfirmationTimeout hours"
                 replacements={{ medicationAlreadyOrderedConfirmationTimeout }}
               />
             )}
@@ -382,7 +467,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
             cellOnChange={cellOnChange}
             handleSelectAll={handleSelectAll}
             selectAllChecked={selectAllChecked}
-            columnsToInclude={[COLUMN_KEYS.MEDICATION, COLUMN_KEYS.DATE, COLUMN_KEYS.LAST_ORDERED]}
+            columnsToInclude={[COLUMN_KEYS.MEDICATION, COLUMN_KEYS.DATE, COLUMN_KEYS.LAST_SENT]}
           />
         </AlreadyOrderedMedicationsWrapper>
 
@@ -400,42 +485,96 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
 
   return (
     <StyledModal
-      title={<TranslatedText stringId="pharmacyOrder.title" fallback="Pharmacy order" />}
+      title={<TranslatedText stringId="pharmacyOrder.title" fallback="Send to pharmacy" />}
       open={open}
       onClose={handleClose}
     >
-      <TranslatedText
-        stringId="pharmacyOrder.description"
-        fallback="Select the prescriptions you would like to send to pharmacy (via mSupply)"
-        data-testid="translatedtext-rnjt"
-      />
-      <OrderingClinicianWrapper data-testid="orderingclinicianwrapper-r57g">
-        <AutocompleteInput
-          infoTooltip={
-            <Box width="200px">
-              <TranslatedText
-                stringId="pharmacyOrder.orderingClinician.tooltip"
-                fallback="The clinician who is placing this pharmacy order"
-                data-testid="translatedtext-s7yn"
-              />
-            </Box>
-          }
-          name="orderingClinicianId"
-          label={
-            <TranslatedText
-              stringId="pharmacyOrder.orderingClinician.label"
-              fallback="Ordering Clinician"
-              data-testid="translatedtext-aemx"
-            />
-          }
-          suggester={practitionerSuggester}
-          onChange={event => setOrderingClinicianId(event.target.value)}
-          value={orderingClinicianId}
-          required
-          data-testid="autocompleteinput-ampt"
+      <BodyText color={Colors.darkText} fontWeight={500}>
+        <TranslatedText
+          stringId="pharmacyOrder.description.base"
+          fallback="Select the prescriptions you would like to send to the pharmacy"
+          data-testid="translatedtext-rnjt"
         />
-      </OrderingClinicianWrapper>
+        {sendViaMSupply && (
+          <>
+            {' '}
+            <TranslatedText
+              stringId="pharmacyOrder.description.viaMSupply"
+              fallback="(via mSupply)"
+              data-testid="translatedtext-qweq"
+            />
+          </>
+        )}
+      </BodyText>
+      <Box display="flex" justifyContent='space-between' alignItems='end'>
+        <OrderingClinicianWrapper data-testid="orderingclinicianwrapper-r57g">
+          <AutocompleteInput
+            infoTooltip={
+              <Box width="150px">
+                <TranslatedText
+                  stringId="pharmacyOrder.orderingClinician.tooltip"
+                  fallback="The clinician who is placing the pharmacy order."
+                  data-testid="translatedtext-s7yn"
+                />
+              </Box>
+            }
+            name="orderingClinicianId"
+            label={
+              <TranslatedText
+                stringId="pharmacyOrder.orderingClinician.label"
+                fallback="Ordering clinician"
+                data-testid="translatedtext-aemx"
+              />
+            }
+            suggester={practitionerSuggester}
+            onChange={event => setOrderingClinicianId(event.target.value)}
+            value={orderingClinicianId}
+            required
+            data-testid="autocompleteinput-ampt"
+          />
+        </OrderingClinicianWrapper>
 
+        <PrescriptionTypeWrapper>
+          <PrescriptionTypeLabel>
+            <TranslatedText
+              stringId="pharmacyOrder.prescriptionType.label"
+              fallback="Prescription type"
+            />
+          </PrescriptionTypeLabel>
+          <StyledRadioGroup
+            name="pharmacy-prescription-type"
+            value={prescriptionType}
+            onChange={event => {
+              const value = event.target.value;
+              setPrescriptionType(value);
+              setIsDischargePrescription(
+                value === PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT,
+              );
+            }}
+          >
+            <StyledFormControlLabel
+              value={PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT}
+              control={<Radio color="primary" size="small" />}
+              label={
+                <TranslatedText
+                  stringId="pharmacyOrder.prescriptionType.dischargeOrOutpatient"
+                  fallback="Discharge or Outpatient"
+                />
+              }
+            />
+            <StyledFormControlLabel
+              value={PHARMACY_PRESCRIPTION_TYPES.INPATIENT}
+              control={<Radio color="primary" size="small" />}
+              label={
+                <TranslatedText
+                  stringId="pharmacyOrder.prescriptionType.inpatient"
+                  fallback="Inpatient"
+                />
+              }
+            />
+          </StyledRadioGroup>
+        </PrescriptionTypeWrapper>
+      </Box>
       <PharmacyOrderMedicationTable
         data={tableData}
         error={error}
@@ -443,6 +582,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
         cellOnChange={cellOnChange}
         handleSelectAll={handleSelectAll}
         selectAllChecked={selectAllChecked}
+        columnsToInclude={mainTableColumns}
       />
 
       <CommentsWrapper>
@@ -464,30 +604,6 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
           data-testid="textfield-comments"
         />
       </CommentsWrapper>
-
-      <HorizontalDivider color={Colors.outline} />
-
-      <DischargePrescriptionWrapper>
-        <DischargePrescriptionMessage>
-          <TranslatedText
-            stringId="pharmacyOrder.dischargePrescription.message"
-            fallback="Check the box below if this is a discharge prescription"
-          />
-        </DischargePrescriptionMessage>
-        <CheckInput
-          name="isDischargePrescription"
-          value={isDischargePrescription}
-          onChange={e => setIsDischargePrescription(e.target.checked)}
-          label={
-            <DischargePrescriptionLabel>
-              <TranslatedText
-                stringId="pharmacyOrder.dischargePrescription.label"
-                fallback="Discharge prescription"
-              />
-            </DischargePrescriptionLabel>
-          }
-        />
-      </DischargePrescriptionWrapper>
 
       <SubmitButtonsWrapper>
         <ConfirmCancelRow
