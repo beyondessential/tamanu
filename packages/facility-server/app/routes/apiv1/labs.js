@@ -416,14 +416,7 @@ labRelations.get(
             ],
           },
         ],
-        order: [
-          [
-            'labTestType',
-            'panelRelations',
-            'order',
-            'ASC',
-          ],
-        ],
+        order: [['labTestType', 'panelRelations', 'order', 'ASC']],
       };
 
       const { count, rows: objects } = await LabTest.findAndCountAll({
@@ -450,26 +443,33 @@ labRelations.get(
 labRelations.put(
   '/:id/tests',
   asyncHandler(async (req, res) => {
-    const { models, params, body: { resultsInterpretation, ...labTestData }, db, user } = req;
+    const {
+      models,
+      params,
+      body: { resultsInterpretation, ...labTestData },
+      db,
+      user,
+    } = req;
     const { id } = params;
     req.checkPermission('write', 'LabTest');
 
     const testIds = Object.keys(labTestData);
 
-    const labRequest = await models.LabRequest.findByPk(id);
-    const labTests = await labRequest.getTests({
-      where: {
-        id: {
-          [Op.in]: testIds,
-        },
-      },
+    const labRequest = await models.LabRequest.findByPk(id, {
       include: [
         {
-          model: models.LabTestType,
-          as: 'labTestType',
+          model: models.LabTest,
+          as: 'tests',
+          include: [
+            {
+              model: models.LabTestType,
+              as: 'labTestType',
+            },
+          ],
         },
       ],
     });
+    const labTests = labRequest.tests;
 
     // Reject all updates if it includes sensitive tests and user lacks permission
     const areSensitiveTests = labTests.some(test => test.labTestType.isSensitive);
@@ -499,7 +499,7 @@ labRelations.put(
         resultsInterpretation,
       });
 
-      labTests.forEach((labTest) => {
+      labTests.forEach(labTest => {
         req.checkPermission('write', labTest);
         const labTestBody = labTestData[labTest.id];
         const updated = labTest.set(labTestBody);
