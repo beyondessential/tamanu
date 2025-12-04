@@ -13,6 +13,7 @@ import { Text } from '../pdf/Text';
 import { FullLabRequestDetailsSection, SampleDetailsRow } from './LabRequestDetailsSection';
 import { HorizontalRule } from './printComponents/HorizontalRule';
 import { DoubleHorizontalRule } from './printComponents/DoubleHorizontalRule';
+import { Footer } from './printComponents/Footer';
 
 const textFontSize = 9;
 
@@ -136,6 +137,7 @@ const MultipleLabRequestsPrintoutComponent = React.memo(
               <LabRequestSigningSection getTranslation={getTranslation} labRequests={labRequests} />
             </SectionContainer>
           </CertificateContent>
+        <Footer />
         </Page>
       </Document>
     );
