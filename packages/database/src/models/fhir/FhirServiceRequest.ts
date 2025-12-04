@@ -64,6 +64,7 @@ export class FhirServiceRequest extends FhirResource {
       models.ImagingRequest,
       models.ImagingRequestArea,
       models.ImagingAreaExternalCode,
+      models.ImagingTypeExternalCode,
       models.Encounter,
       models.Facility,
       models.Location,
