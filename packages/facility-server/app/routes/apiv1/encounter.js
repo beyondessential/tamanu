@@ -16,8 +16,6 @@ import {
   TASK_STATUSES,
   SURVEY_TYPES,
   DASHBOARD_ONLY_TASK_TYPES,
-  INVOICE_STATUSES,
-  ENCOUNTER_TYPES,
 } from '@tamanu/constants';
 import {
   simpleGet,
