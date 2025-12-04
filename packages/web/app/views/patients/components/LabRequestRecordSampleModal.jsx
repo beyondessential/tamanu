@@ -34,7 +34,7 @@ const validationSchema = yup.object().shape({
       schema
         .translatedLabel(
           <TranslatedText
-            stringId="lab.modal.recordSample.specimenType.label"
+            stringId="lab.specimenType.label"
             fallback="Specimen type"
             data-testid="translatedtext-nd1u"
           />,
