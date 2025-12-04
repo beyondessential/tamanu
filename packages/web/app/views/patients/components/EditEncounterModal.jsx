@@ -108,6 +108,10 @@ const HospitalAdmissionFields = () => {
   );
 };
 
+const PatientTypeField = styled(LocalisedField)`
+  grid-column-start: 1;
+`;
+
 const ClinicFields = () => {
   const referralSourceSuggester = useSuggester('referralSource');
 
@@ -125,8 +129,7 @@ const ClinicFields = () => {
         required
         data-testid="field-check-in-time"
       />
-      <div /> {/* Spacer for field position */}
-      <LocalisedField
+      <PatientTypeField
         name="patientBillingTypeId"
         label={
           <TranslatedText
