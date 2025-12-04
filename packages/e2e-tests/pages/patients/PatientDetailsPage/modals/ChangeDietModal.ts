@@ -6,7 +6,6 @@ export class ChangeDietModal {
   readonly dietMultiSelectInput!: Locator;
   readonly cancelButton!: Locator;
   readonly confirmButton!: Locator;
-  readonly formGrid!: Locator;
 
 
   constructor(page: Page) {
@@ -15,7 +14,6 @@ export class ChangeDietModal {
     const testIds = {
       confirmButton: 'confirmbutton-tok1',
       cancelButton: 'outlinedbutton-95wy',
-      formGrid: 'formgrid-r4hj',
     } as const;
 
     for (const [key, testId] of Object.entries(testIds)) {

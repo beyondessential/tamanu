@@ -56,12 +56,24 @@ export async function getTableItems(page: Page, tableRowCount: number, columnNam
   const items: string[] = [];
   for (let i = 0; i < tableRowCount; i++) {
     const itemLocator = page.getByTestId(`${STYLED_TABLE_CELL_PREFIX}${i}-${columnName}`);
-    const itemText = await itemLocator.textContent();
+    const itemText = await itemLocator.first().textContent();
     if (itemText) {
       items.push(itemText);
     }
   }
   return items;
+}
+
+/**
+ * Converts a dateTime string (format: "2025-12-01T06:11") to table format (format: "6:11 AM12/01/25")
+ * @param dateTimeString - ISO format dateTime string (e.g., "2025-12-01T06:11")
+ * @returns Formatted string matching table display format (e.g., "6:11 AM12/01/25")
+ */
+export function formatDateTimeForTable(dateTimeString: string): string {
+  const dateFromForm = new Date(dateTimeString);
+  const formattedTime = format(dateFromForm, 'h:mm a'); // "6:11 AM"
+  const formattedDate = format(dateFromForm, 'MM/dd/yy'); // "12/01/25"
+  return `${formattedTime}${formattedDate}`; // "6:11 AM12/01/25"
 }
 
 /**
