@@ -41,6 +41,9 @@ const labDetailsSectionStyles = StyleSheet.create({
 });
 
 const generalStyles = StyleSheet.create({
+  page: {
+    paddingBottom: 50,
+  },
   container: {
     marginVertical: 6,
   },
@@ -54,14 +57,14 @@ const LabRequestDetailsSection = ({ labRequests }) => (
       Lab request details
     </P>
     <HorizontalRule />
-      {labRequests.map((request, index) =>  (
-        <View key={request.id} style={labDetailsSectionStyles.detailsContainer}>
-          <FullLabRequestDetailsSection request={request} />
-          <HorizontalRule />
-          <SampleDetailsRow request={request} />
-          {index < labRequests.length - 1 && <View style={labDetailsSectionStyles.divider} />}
-        </View>
-      ))}
+    {labRequests.map((request, index) => (
+      <View key={request.id} style={labDetailsSectionStyles.detailsContainer}>
+        <FullLabRequestDetailsSection request={request} />
+        <HorizontalRule />
+        <SampleDetailsRow request={request} />
+        {index < labRequests.length - 1 && <View style={labDetailsSectionStyles.divider} />}
+      </View>
+    ))}
     <DoubleHorizontalRule />
   </View>
 );
@@ -111,11 +114,12 @@ const MultipleLabRequestsPrintoutComponent = React.memo(
     const { logo } = certificateData;
     return (
       <Document>
-        <Page size="A4" style={styles.page}>
+        <Page size="A4" style={[styles.page, generalStyles.page]}>
           <CertificateHeader>
             <LetterheadSection
               logoSrc={logo}
               letterheadConfig={certificateData}
+              lts
               certificateTitle="Lab request"
             />
             <SectionContainer>
@@ -137,7 +141,7 @@ const MultipleLabRequestsPrintoutComponent = React.memo(
               <LabRequestSigningSection getTranslation={getTranslation} labRequests={labRequests} />
             </SectionContainer>
           </CertificateContent>
-        <Footer />
+          <Footer />
         </Page>
       </Document>
     );
