@@ -451,10 +451,10 @@ labRelations.put(
       user,
     } = req;
     const { id } = params;
-    const { resultsInterpretation, ...labTestData } = body;
+    const { resultsInterpretation, ...labTestBody  } = body;
     req.checkPermission('write', 'LabTest');
 
-    const testIds = Object.keys(labTestData);
+    const testIds = Object.keys(labTestBody);
 
     const labRequest = await models.LabRequest.findByPk(id, {
       include: [
@@ -502,8 +502,8 @@ labRelations.put(
 
       labTests.forEach(labTest => {
         req.checkPermission('write', labTest);
-        const labTestBody = labTestData[labTest.id];
-        const updated = labTest.set(labTestBody);
+        const updateData = labTestBody[labTest.id];
+        const updated = labTest.set(updateData);
         if (updated.changed()) {
           // Temporary solution for lab test officer string field
           // using displayName of current user
