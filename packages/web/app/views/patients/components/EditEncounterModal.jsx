@@ -125,6 +125,7 @@ const ClinicFields = () => {
         required
         data-testid="field-check-in-time"
       />
+      <div /> {/* Spacer for field position */}
       <LocalisedField
         name="patientBillingTypeId"
         label={
