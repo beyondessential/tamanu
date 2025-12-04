@@ -307,15 +307,18 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
           )}
         </Title>
         <div style={{ flexGrow: 1 }} />
-        {canReadEncounter && (
-          <Button onClick={() => viewEncounter(id)} size="small" data-testid="button-t8zb">
-            <TranslatedText
-              stringId="patient.encounterSummary.viewEncounter"
-              fallback="View encounter"
-              data-testid="translatedtext-nqf5"
-            />
-          </Button>
-        )}
+        <Button
+          onClick={() => viewEncounter(id)}
+          size="small"
+          data-testid="button-t8zb"
+          disabled={!canReadEncounter}
+        >
+          <TranslatedText
+            stringId="patient.encounterSummary.viewEncounter"
+            fallback="View encounter"
+            data-testid="translatedtext-nqf5"
+          />
+        </Button>
       </Header>
       <Content data-testid="content-j9id">
         <ContentItem data-testid="contentitem-hcvt">

@@ -180,24 +180,24 @@ export const EncounterActions = React.memo(({ encounter }) => {
               size="small"
               variant="outlined"
               onClick={() => setOpenModal(ENCOUNTER_MODALS.DISCHARGE)}
+              disabled={canWriteEncounter}
             >
               <TranslatedText
                 stringId="encounter.action.prepareDischarge"
                 fallback="Prepare discharge"
               />
             </StyledButton>
-            {canWrite && (
-              <MoveButton
-                size="small"
-                color="primary"
-                onClick={() => {
-                  setNewEncounterType(null);
-                  setOpenModal(ENCOUNTER_MODALS.MOVE);
-                }}
-              >
-                <TranslatedText stringId="encounter.action.movePatient" fallback="Move patient" />
-              </MoveButton>
-            )}
+            <MoveButton
+              size="small"
+              color="primary"
+              disabled={!canWriteEncounter}
+              onClick={() => {
+                setNewEncounterType(null);
+                setOpenModal(ENCOUNTER_MODALS.MOVE);
+              }}
+            >
+              <TranslatedText stringId="encounter.action.movePatient" fallback="Move patient" />
+            </MoveButton>
           </>
         )}
         <ThreeDotMenu items={actions} data-testid="threedotmenu-5t9u" />
