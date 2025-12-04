@@ -36,6 +36,7 @@ export class LabRequest extends Model {
   declare sampleId?: string;
   declare displayId: string;
   declare publishedDate?: string;
+  declare resultsInterpretation?: string;
 
   declare encounterId?: string;
   declare departmentId?: string;
@@ -98,6 +99,10 @@ export class LabRequest extends Model {
         publishedDate: dateTimeType('publishedDate', {
           allowNull: true,
         }),
+        resultsInterpretation: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
       },
       {
         ...options,

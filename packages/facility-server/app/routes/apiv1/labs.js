@@ -416,14 +416,7 @@ labRelations.get(
             ],
           },
         ],
-        order: [
-          [
-            'labTestType',
-            'panelRelations',
-            'order',
-            'ASC',
-          ],
-        ],
+        order: [['labTestType', 'panelRelations', 'order', 'ASC']],
       };
 
       const { count, rows: objects } = await LabTest.findAndCountAll({
@@ -450,19 +443,34 @@ labRelations.get(
 labRelations.put(
   '/:id/tests',
   asyncHandler(async (req, res) => {
-    const { models, params, body, db, user } = req;
+    const {
+      models,
+      params,
+      body,
+      db,
+      user,
+    } = req;
     const { id } = params;
+     const { resultsInterpretation, ...labTestsBody  } = body;
     req.checkPermission('write', 'LabTest');
 
-    const testIds = Object.keys(body);
+    const testIds = Object.keys(labTestsBody);
 
-    const labTests = await models.LabTest.findAll({
-      where: {
-        labRequestId: id,
-        id: testIds,
-      },
-      include: ['labTestType'],
+    const labRequest = await models.LabRequest.findByPk(id, {
+      include: [
+        {
+          model: models.LabTest,
+          as: 'tests',
+          include: [
+            {
+              model: models.LabTestType,
+              as: 'labTestType',
+            },
+          ],
+        },
+      ],
     });
+    const labTests = labRequest.tests;
 
     // Reject all updates if it includes sensitive tests and user lacks permission
     const areSensitiveTests = labTests.some(test => test.labTestType.isSensitive);
@@ -473,7 +481,7 @@ labRelations.put(
     // If any of the tests have a different result, check for LabTestResult permission
     const labTestObj = keyBy(labTests, 'id');
     if (
-      Object.entries(body).some(
+      Object.entries(labTestsBody).some(
         ([testId, testBody]) => testBody.result && testBody.result !== labTestObj[testId].result,
       )
     ) {
@@ -488,10 +496,14 @@ labRelations.put(
     db.transaction(async () => {
       const promises = [];
 
+      await labRequest.updae({
+        resultsInterpretation,
+      });
+
       labTests.forEach(labTest => {
         req.checkPermission('write', labTest);
-        const labTestBody = body[labTest.id];
-        const updated = labTest.set(labTestBody);
+        const testData = labTestsBody[labTest.id];
+        const updated = labTest.set(testData);
         if (updated.changed()) {
           // Temporary solution for lab test officer string field
           // using displayName of current user
@@ -559,7 +571,7 @@ labTestType.get(
           as: 'category',
         },
       ],
-      // We dont include lab tests with a visibility status of panels only in this route as it is only used for the individual lab workflow
+      // We don't include lab tests with a visibility status of panels only in this route as it is only used for the individual lab workflow
       where: {
         visibilityStatus: {
           [Op.notIn]: [
