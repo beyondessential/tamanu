@@ -451,10 +451,10 @@ labRelations.put(
       user,
     } = req;
     const { id } = params;
-    const { resultsInterpretation, ...labTestBody  } = body;
+     const { resultsInterpretation, ...labTestsBody  } = body;
     req.checkPermission('write', 'LabTest');
 
-    const testIds = Object.keys(labTestBody);
+    const testIds = Object.keys(labTestsBody);
 
     const labRequest = await models.LabRequest.findByPk(id, {
       include: [
@@ -481,7 +481,7 @@ labRelations.put(
     // If any of the tests have a different result, check for LabTestResult permission
     const labTestObj = keyBy(labTests, 'id');
     if (
-      Object.entries(labTestData).some(
+      Object.entries(labTestsBody).some(
         ([testId, testBody]) => testBody.result && testBody.result !== labTestObj[testId].result,
       )
     ) {
@@ -496,14 +496,14 @@ labRelations.put(
     db.transaction(async () => {
       const promises = [];
 
-      await labRequest.update({
+      await labRequest.updae({
         resultsInterpretation,
       });
 
       labTests.forEach(labTest => {
         req.checkPermission('write', labTest);
-        const updateData = labTestBody[labTest.id];
-        const updated = labTest.set(updateData);
+        const testData = labTestsBody[labTest.id];
+        const updated = labTest.set(testData);
         if (updated.changed()) {
           // Temporary solution for lab test officer string field
           // using displayName of current user
