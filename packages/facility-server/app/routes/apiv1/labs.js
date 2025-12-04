@@ -446,11 +446,12 @@ labRelations.put(
     const {
       models,
       params,
-      body: { resultsInterpretation, ...labTestData },
+      body,
       db,
       user,
     } = req;
     const { id } = params;
+    const { resultsInterpretation, ...labTestData } = body;
     req.checkPermission('write', 'LabTest');
 
     const testIds = Object.keys(labTestData);
