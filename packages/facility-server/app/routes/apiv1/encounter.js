@@ -27,7 +27,12 @@ import {
 } from '@tamanu/shared/utils/crudHelpers';
 import { add } from 'date-fns';
 import { z } from 'zod';
-import { deleteChartInstance, fetchAnswersWithHistory, fetchGraphData, fetchChartInstances } from '../../routeHandlers/charts';
+import {
+  deleteChartInstance,
+  fetchAnswersWithHistory,
+  fetchGraphData,
+  fetchChartInstances,
+} from '../../routeHandlers/charts';
 import { keyBy } from 'lodash';
 
 import { createEncounterSchema } from '@tamanu/shared/schemas/facility/requests/createEncounter.schema';
@@ -53,6 +58,23 @@ encounter.post(
     const { models, body, user } = req;
     req.checkPermission('create', 'Encounter');
     const validatedBody = validate(createEncounterSchema, body);
+
+    if (!validatedBody.endDate) {
+      const existingOpenEncounterCount = await models.Encounter.count({
+        where: {
+          patientId: validatedBody.patientId,
+          endDate: null,
+          deletedAt: null,
+        },
+      });
+
+      if (existingOpenEncounterCount > 0) {
+        throw new InvalidOperationError(
+          'This patient already has an active encounter. The active encounter must be discharged before a new active encounter can be created.',
+        );
+      }
+    }
+
     const encounterObject = await models.Encounter.create({ ...validatedBody, actorId: user.id });
 
     if (body.dietIds) {
@@ -689,7 +711,7 @@ encounterRelations.get(
   fetchGraphData({
     permissionAction: 'read',
     permissionNoun: 'Charting',
-    dateDataElementId: CHARTING_DATA_ELEMENT_IDS.dateRecorded
+    dateDataElementId: CHARTING_DATA_ELEMENT_IDS.dateRecorded,
   }),
 );
 
@@ -777,9 +799,6 @@ encounterRelations.get(
   }),
 );
 
-encounterRelations.delete(
-  '/:id/chartInstances/:chartInstanceResponseId',
-  deleteChartInstance(),
-);
+encounterRelations.delete('/:id/chartInstances/:chartInstanceResponseId', deleteChartInstance());
 
 encounter.use(encounterRelations);
