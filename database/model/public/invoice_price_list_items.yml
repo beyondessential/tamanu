@@ -61,3 +61,11 @@ sources:
           - name: price
             data_type: numeric
             description: "{{ doc('invoice_price_list_items__price') }}"
+          - name: visibility_status
+            data_type: text
+            description: "{{ doc('generic__visibility_status') }} in invoice_price_list_items."
+            data_tests:
+              - not_null
+            config:
+              meta:
+                masking: text

@@ -108,6 +108,49 @@ describe('Invoice price list item import', () => {
     expect(itemsProd2[0].price).toEqual('300');
   });
 
+  it('should create price list items from sheet headers and rows with special values', async () => {
+    const { InvoiceProduct, InvoicePriceList, InvoicePriceListItem } = models;
+
+    // Create two products
+    await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-1' });
+    await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-2' });
+
+    // Create two price lists
+    await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'PL_A' });
+    await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'PL_B' });
+
+    const headers = ['invoiceProductId', 'PL_A', 'PL_B'];
+    const rows = [
+      { invoiceProductId: 'prod-1', PL_A: 'hidden', PL_B: '' }, // hidden should be set to historical
+      { invoiceProductId: 'prod-2', PL_A: '', PL_B: 'manual-entry' }, // manual-entry should be set to null
+    ];
+    const buffer = buildWorkbookBuffer(headers, rows);
+
+    const { errors, stats } = await doImport(ctx, { buffer });
+    expect(errors).toBeEmpty();
+
+    // Expect 2 items created
+    expect(stats).toMatchObject({
+      InvoicePriceListItem: { created: 2, updated: 0, errored: 0 },
+    });
+
+    // Verify DB state
+    const itemsProd1 = await InvoicePriceListItem.findAll({
+      where: { invoiceProductId: 'prod-1' },
+    });
+    const itemsProd2 = await InvoicePriceListItem.findAll({
+      where: { invoiceProductId: 'prod-2' },
+    });
+
+    expect(itemsProd1).toHaveLength(1);
+    expect(itemsProd1[0].price).toBeNull();
+    expect(itemsProd1[0].visibilityStatus).toEqual('historical');
+
+    expect(itemsProd2).toHaveLength(1);
+    expect(itemsProd2[0].price).toBeNull();
+    expect(itemsProd2[0].visibilityStatus).toEqual('current');
+  });
+
   it('should validate non-numeric price values', async () => {
     const { InvoiceProduct, InvoicePriceList } = models;
 
@@ -120,7 +163,16 @@ describe('Invoice price list item import', () => {
 
     const { didntSendReason, errors, stats } = await doImport(ctx, { buffer });
     expect(didntSendReason).toEqual('validationFailed');
-    expect(stats).toEqual({});
+    expect(stats).toEqual({
+      InvoicePriceListItem: {
+        created: 0,
+        deleted: 0,
+        errored: 1,
+        restored: 0,
+        skipped: 0,
+        updated: 0,
+      },
+    });
     expect(errors[0]).toHaveProperty(
       'message',
       "Invalid price value 'abc' for priceList 'PL_A' and invoiceProductId 'prod-3' on invoicePriceListItem at row 2",
@@ -138,7 +190,16 @@ describe('Invoice price list item import', () => {
 
     const { didntSendReason, errors, stats } = await doImport(ctx, { buffer });
     expect(didntSendReason).toEqual('validationFailed');
-    expect(stats).toEqual({});
+    expect(stats).toEqual({
+      InvoicePriceListItem: {
+        created: 0,
+        deleted: 0,
+        errored: 2,
+        restored: 0,
+        skipped: 0,
+        updated: 0,
+      },
+    });
     expect(errors[0]).toHaveProperty(
       'message',
       "InvoicePriceList with code 'NONEXISTENT_PL' does not exist on invoicePriceListItem at row 2",
@@ -156,7 +217,16 @@ describe('Invoice price list item import', () => {
 
     const { didntSendReason, errors, stats } = await doImport(ctx, { buffer });
     expect(didntSendReason).toEqual('validationFailed');
-    expect(stats).toEqual({});
+    expect(stats).toEqual({
+      InvoicePriceListItem: {
+        created: 0,
+        deleted: 0,
+        errored: 1,
+        restored: 0,
+        skipped: 0,
+        updated: 0,
+      },
+    });
     expect(errors[0]).toHaveProperty(
       'message',
       "Invoice product 'nonexistent-product' does not exist on invoicePriceListItem at row 2",
@@ -188,7 +258,16 @@ describe('Invoice price list item import', () => {
 
     const { didntSendReason, errors, stats } = await doImport(ctx, { buffer });
     expect(didntSendReason).toEqual('validationFailed');
-    expect(stats).toEqual({});
+    expect(stats).toEqual({
+      InvoicePriceListItem: {
+        created: 0,
+        deleted: 0,
+        errored: 1,
+        restored: 0,
+        skipped: 0,
+        updated: 0,
+      },
+    });
     expect(errors[0]).toHaveProperty(
       'message',
       'Missing required column: invoiceProductId on invoicePriceListItem at row 2',
