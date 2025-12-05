@@ -211,7 +211,7 @@ const getColumns = (
     },
     {
       key: COLUMN_KEYS.LAST_SENT,
-      title: <TranslatedText stringId="medication.table.column.lastOrdered" fallback="Last sent" />,
+      title: <TranslatedText stringId="medication.table.column.lastSent" fallback="Last sent" />,
       sortable: false,
       accessor: ({ lastOrderedAt }) => {
         if (!lastOrderedAt) {
