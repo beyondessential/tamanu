@@ -1,8 +1,9 @@
-import { Column, Entity, JoinColumn, OneToOne, RelationId } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, RelationId } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
 import { ReferenceData } from './ReferenceData';
 import { ID } from '~/types';
+import { ReferenceDrugFacility } from './ReferenceDrugFacility';
 
 @Entity('reference_drugs')
 export class ReferenceDrug extends BaseModel {
@@ -25,4 +26,10 @@ export class ReferenceDrug extends BaseModel {
   referenceData: ReferenceData;
   @RelationId((referenceDrug: ReferenceDrug) => referenceDrug.referenceData)
   referenceDataId: ID;
+
+  @OneToMany(
+    () => ReferenceDrugFacility,
+    (rdf: ReferenceDrugFacility) => rdf.referenceDrug,
+  )
+  facilities: ReferenceDrugFacility[];
 }

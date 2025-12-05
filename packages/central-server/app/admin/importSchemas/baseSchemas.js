@@ -22,6 +22,7 @@ import {
   INVOICE_ITEMS_CATEGORIES,
   LOCATION_BOOKABLE_VIEW_VALUES,
   LOCATION_BOOKABLE_VIEW,
+  FACILITY_DRUG_QUANTITY_STATUS,
 } from '@tamanu/constants';
 import config from 'config';
 import {
@@ -460,3 +461,23 @@ export const ReferenceMedicationTemplate = yup
       return true;
     },
   );
+
+export const ReferenceDrugFacility = yup
+  .object()
+  .shape({
+    referenceDrugId: yup.string().required(),
+    facilityId: yup.string().required(),
+    quantity: yup
+      .string()
+      .nullable()
+      .test(
+        'valid-quantity',
+        'quantity must be a non-negative integer, "unavailable", or null',
+        function (value) {
+          if (value == null || String(value).trim() === '') return true;
+          if (String(value).toLowerCase().trim() === FACILITY_DRUG_QUANTITY_STATUS.UNAVAILABLE) return true;
+          const num = Number(value);
+          return Number.isInteger(num) && num >= 0;
+        },
+      ),
+  });
