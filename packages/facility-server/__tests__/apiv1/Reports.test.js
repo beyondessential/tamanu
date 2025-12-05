@@ -114,7 +114,7 @@ describe('Reports', () => {
   describe('post permissions', () => {
     testReportPermissions(
       () => ctx,
-      (reportApp, reportId) => reportApp.post(`/api/reports/${reportId}`),
+      (reportApp, reportId, data = {}) => reportApp.post(`/api/reports/${reportId}`).send(data),
     );
   });
 

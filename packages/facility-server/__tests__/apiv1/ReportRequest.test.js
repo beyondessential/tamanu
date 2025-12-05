@@ -22,7 +22,7 @@ describe('ReportRequest', () => {
   describe('permissions', () => {
     testReportPermissions(
       () => ctx,
-      (reportApp, reportId) => reportApp.post('/api/reportRequest').send({ reportId }),
+      (reportApp, reportId, data = {}) => reportApp.post('/api/reportRequest').send({ reportId, ...data }),
     );
   });
 
