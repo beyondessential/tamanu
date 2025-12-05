@@ -7,12 +7,11 @@ export async function getReportModule(reportId, models) {
     return dbDefinedReportModule;
   }
 
-  switch (reportId) {
-    default:
-      return null;
-    case 'generic-survey-export-line-list':
-      return genericSurveyExportLineList;
+  if (reportId === 'generic-survey-export-line-list') {
+    return genericSurveyExportLineList;
   }
+
+  return null;
 }
 
 export { REPORT_DEFINITIONS, GENERIC_SURVEY_EXPORT_REPORT_ID } from './reportDefinitions';
