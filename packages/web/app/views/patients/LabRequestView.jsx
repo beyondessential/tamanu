@@ -218,8 +218,9 @@ export const LabRequestView = () => {
   const canWriteLabRequest = ability?.can('write', 'LabRequest');
   const canWriteLabRequestStatus = ability?.can('write', 'LabRequestStatus');
   const canWriteLabTest = ability?.can('write', 'LabTest');
-  const canReadLabTestResult = ability?.can('read', 'LabTestResult');
-
+  // const canReadLabTestResult = ability?.can('read', 'LabTestResult');
+  const canReadLabTestResult = false;
+   
   const isPublished = labRequest.status === LAB_REQUEST_STATUSES.PUBLISHED;
   const isVerified = labRequest.status === LAB_REQUEST_STATUSES.VERIFIED;
 
