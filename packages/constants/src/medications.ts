@@ -109,7 +109,7 @@ export const DRUG_UNIT_SHORT_LABELS = {
   [DRUG_UNITS.wafer]: 'Wafer',
 };
 
-const MAX_REPEATS = 12;
+export const MAX_REPEATS = 12;
 export const REPEATS_LABELS = Array.from({ length: MAX_REPEATS + 1 }, (_, i) => i);
 
 export const ADMINISTRATION_FREQUENCIES = {

@@ -14,6 +14,7 @@ import {
   ADMINISTRATION_STATUS,
   DRUG_ROUTES,
   DRUG_UNITS,
+  MAX_REPEATS,
   MEDICATION_DURATION_UNITS,
   MEDICATION_PAUSE_DURATION_UNITS_LABELS,
   NOTE_RECORD_TYPES,
@@ -86,6 +87,7 @@ const medicationInputSchema = z
     durationUnit: z.enum(Object.values(MEDICATION_DURATION_UNITS)).optional().nullable(),
     isPhoneOrder: z.boolean().optional(),
     idealTimes: z.array(z.string()).optional().nullable(),
+    repeats: z.coerce.number().int().min(0).max(MAX_REPEATS).optional().nullable(),
   })
   .strip()
   .superRefine((val, ctx) => {

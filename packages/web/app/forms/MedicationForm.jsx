@@ -12,6 +12,8 @@ import {
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
   ADMINISTRATION_FREQUENCIES,
   FORM_TYPES,
+  REPEATS_LABELS,
+  MAX_REPEATS,
 } from '@tamanu/constants';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import {
@@ -27,6 +29,8 @@ import {
 import { format, subSeconds } from 'date-fns';
 import { useFormikContext } from 'formik';
 import { toast } from 'react-toastify';
+
+import { WarningOutlineIcon } from '../assets/icons/WarningOutlineIcon';
 import { foreignKey } from '../utils/validation';
 import { PrintPrescriptionModal } from '../components/PatientPrinting';
 import {
@@ -124,6 +128,12 @@ const validationSchema = yup.object().shape({
   ),
   quantity: yup.number().integer(),
   patientWeight: yup.number().positive(),
+  repeats: yup
+    .number()
+    .integer()
+    .min(0)
+    .max(MAX_REPEATS)
+    .optional(),
 });
 
 const CheckboxGroup = styled.div`
@@ -258,6 +268,45 @@ const StyledTimePicker = styled(TimePicker)`
       border-color: ${Colors.softText};
     }
   }
+`;
+
+const AllergiesWarningBox = styled(Box)`
+  grid-column: 1 / -1;
+  border: 1px solid ${Colors.alert};
+  border-radius: 3px;
+  padding: 10px 26px;
+  background-color: oklch(from ${Colors.alert} l c h / 10%);
+  @supports not (color: oklch(from black l c h)) {
+    background-color: ${Colors.alert}1a;
+  }
+  margin-bottom: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const AllergiesWarningHeader = styled(Box)`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const AllergiesWarningTitle = styled(BodyText)`
+  color: ${Colors.darkestText};
+  font-weight: 500;
+  font-size: 14px;
+`;
+
+const AllergiesList = styled.ul`
+  margin: 0;
+  padding-left: 41px;
+  list-style-type: disc;
+`;
+
+const AllergyItem = styled.li`
+  color: ${Colors.darkestText};
+  font-size: 14px;
+  line-height: 20px;
 `;
 
 const isOneTimeFrequency = frequency =>
@@ -573,8 +622,7 @@ export const MedicationForm = ({
         getReferenceDataStringId(allergyDetail?.allergy.id, allergyDetail?.allergy.type),
         allergyDetail?.allergy.name,
       ),
-    )
-    .join(', ');
+    ) || [];
 
   // Transition to print page as soon as we have the generated id
   useEffect(() => {
@@ -652,6 +700,7 @@ export const MedicationForm = ({
       isVariableDose: false,
       startDate: getCurrentDateTimeString(),
       isOngoing: isOngoingPrescription,
+      repeats: editingMedication?.repeats ?? 0,
       timeSlots: defaultTimeSlots,
       ...editingMedication,
     };
@@ -683,18 +732,24 @@ export const MedicationForm = ({
           <StyledFormGrid>
             {!isEditing ? (
               <>
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <TranslatedText stringId="medication.allergies.title" fallback="Allergies" />:{' '}
-                  <span style={{ fontWeight: 500 }}>
-                    {!isLoadingAllergies &&
-                      (allergiesList || (
+                {!isLoadingAllergies && allergiesList.length > 0 && (
+                  <AllergiesWarningBox>
+                    <AllergiesWarningHeader>
+                      <WarningOutlineIcon />
+                      <AllergiesWarningTitle>
                         <TranslatedText
-                          stringId="medication.allergies.noRecord"
-                          fallback="None recorded"
+                          stringId="medication.allergies.title"
+                          fallback="Patient allergies"
                         />
+                      </AllergiesWarningTitle>
+                    </AllergiesWarningHeader>
+                    <AllergiesList>
+                      {allergiesList.map((allergy, index) => (
+                        <AllergyItem key={index}>{allergy}</AllergyItem>
                       ))}
-                  </span>
-                </div>
+                    </AllergiesList>
+                  </AllergiesWarningBox>
+                )}
                 <div style={{ gridColumn: '1 / -1' }}>
                   <Field
                     name="medicationId"
@@ -987,6 +1042,13 @@ export const MedicationForm = ({
                   component={NumberField}
                   onInput={preventInvalidNumber}
                   data-testid="medication-field-quantity-6j9m"
+                />
+                <Field
+                  name="repeats"
+                  label={<TranslatedText stringId="medication.repeats.label" fallback="Repeats" />}
+                  isClearable={false}
+                  component={TranslatedSelectField}
+                  enumValues={REPEATS_LABELS}
                 />
               </>
             )}
