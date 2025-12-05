@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-import { runCommand } from '../runCommand';
-
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const YAML = require('yaml');
@@ -654,16 +652,10 @@ async function run(opts) {
   try {
     console.log(' | connecting to database');
     console.log('Create new database', dbName);
-    const env = {
-      ...process.env,
-      PGUSER: dbConfig.username,
-      PGPASSWORD: dbConfig.password,
-    };
-    await runCommand('dropdb', ['--if-exists', dbName], env);
-    await runCommand('createdb', ['-O', dbConfig.username, dbName], env);
     const db = await initDatabase({
       ...dbConfig,
       testMode: true,
+      recreateDatabase: true,
       name: dbName,
     });
     await db.sequelize.drop({ cascade: true });
