@@ -36,14 +36,14 @@ const StyledModal = styled(BaseModal)`
   .MuiPaper-root {
     max-width: ${({ $modalType }) => {
       switch ($modalType) {
-      case MODAL_TYPES.REQUEST_CONFIRMATION:
-        return '670px';
-      case MODAL_TYPES.REQUEST_SENT:
-        return '580px';
-      case MODAL_TYPES.SEND_TO_PHARMACY:
-        return '1000px';
-      default:
-        return '1000px';
+        case MODAL_TYPES.REQUEST_CONFIRMATION:
+          return '670px';
+        case MODAL_TYPES.REQUEST_SENT:
+          return '580px';
+        case MODAL_TYPES.SEND_TO_PHARMACY:
+          return '1000px';
+        default:
+          return '1000px';
       }
     }};
   }
@@ -156,7 +156,6 @@ const PHARMACY_PRESCRIPTION_TYPES = {
 
 export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubmit }) => {
   const [orderingClinicianId, setOrderingClinicianId] = useState('');
-  const [isDischargePrescription, setIsDischargePrescription] = useState(false);
   const [comments, setComments] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
   const [showAlreadyOrderedConfirmation, setShowAlreadyOrderedConfirmation] = useState(false);
@@ -174,6 +173,8 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
   const [prescriptionType, setPrescriptionType] = useState(
     PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT,
   );
+  const isDischargePrescription =
+    prescriptionType === PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT;
 
   const {
     data,
@@ -214,7 +215,6 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
 
     if (encounter.encounterType === ENCOUNTER_TYPES.CLINIC) {
       setPrescriptionType(PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT);
-      setIsDischargePrescription(true);
       return;
     }
 
@@ -227,7 +227,6 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
       ].includes(encounter.encounterType)
     ) {
       setPrescriptionType(PHARMACY_PRESCRIPTION_TYPES.INPATIENT);
-      setIsDischargePrescription(false);
       return;
     }
   }, [open, encounter?.encounterType]);
@@ -374,31 +373,20 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
     prescriptionType === PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT;
 
   const mainTableColumns = useMemo(() => {
-    const baseColumns = [
+    const columns = [
       COLUMN_KEYS.SELECT,
       COLUMN_KEYS.MEDICATION,
       COLUMN_KEYS.DOSE,
       COLUMN_KEYS.FREQUENCY,
-      COLUMN_KEYS.DATE,
-      COLUMN_KEYS.LAST_SENT,
-      COLUMN_KEYS.QUANTITY,
     ];
-
     if (isDischargeOrOutpatient) {
-      return [
-        COLUMN_KEYS.SELECT,
-        COLUMN_KEYS.MEDICATION,
-        COLUMN_KEYS.DOSE,
-        COLUMN_KEYS.FREQUENCY,
-        COLUMN_KEYS.DURATION,
-        COLUMN_KEYS.DATE,
-        COLUMN_KEYS.LAST_SENT,
-        COLUMN_KEYS.QUANTITY,
-        COLUMN_KEYS.REPEATS,
-      ];
+      columns.push(COLUMN_KEYS.DURATION);
     }
-
-    return baseColumns;
+    columns.push(COLUMN_KEYS.DATE, COLUMN_KEYS.LAST_SENT, COLUMN_KEYS.QUANTITY);
+    if (isDischargeOrOutpatient) {
+      columns.push(COLUMN_KEYS.REPEATS);
+    }
+    return columns;
   }, [isDischargeOrOutpatient]);
 
   if (showSuccess) {
@@ -526,7 +514,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
           </>
         )}
       </BodyText>
-      <Box display="flex" justifyContent='space-between' alignItems='end'>
+      <Box display="flex" justifyContent="space-between" alignItems="end">
         <OrderingClinicianWrapper data-testid="orderingclinicianwrapper-r57g">
           <AutocompleteInput
             infoTooltip={
@@ -565,11 +553,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
             name="pharmacy-prescription-type"
             value={prescriptionType}
             onChange={event => {
-              const value = event.target.value;
-              setPrescriptionType(value);
-              setIsDischargePrescription(
-                value === PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT,
-              );
+              setPrescriptionType(event.target.value);
             }}
           >
             <StyledFormControlLabel
