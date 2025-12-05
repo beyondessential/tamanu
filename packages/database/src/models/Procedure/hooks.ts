@@ -32,12 +32,12 @@ const removeFromInvoice = async (instance: Procedure) => {
   await instance.sequelize.models.Invoice.removeItemFromInvoice(instance, instance.encounterId);
 };
 
-const addOrRemoveFromInvoiceAfterUpdateHook = async (instance: Procedure) => {
-  if (!instance.deletedAt) {
-    await addToInvoice(instance);
-  } else {
+const updateInvoiceProductAfterUpdateHook = async (instance: Procedure) => {
+  await instance.sequelize.transaction(async () => {
+    // Ensure we remove the item from the invoice first, in case the new procedure type is not configured with an invoice product
     await removeFromInvoice(instance);
-  }
+    await addToInvoice(instance);
+  });
 };
 
 export const afterCreateHook = async (instance: Procedure) => {
@@ -45,7 +45,7 @@ export const afterCreateHook = async (instance: Procedure) => {
 };
 
 export const afterUpdateHook = async (instance: Procedure) => {
-  await addOrRemoveFromInvoiceAfterUpdateHook(instance);
+  await updateInvoiceProductAfterUpdateHook(instance);
 };
 
 export const afterDestroyHook = async (instance: Procedure) => {
