@@ -20,7 +20,7 @@
 
 ### Infrastructure and maintenance 🛠
 
-- (left blank)
+- Disable all legacy code-based reports by default for new deployments. Existing deployments are unaffected. Legacy reports can be re-enabled by removing their IDs from `localisation.data.disabledReports` in the deployment config.
 
 ## v1.17.1
 
