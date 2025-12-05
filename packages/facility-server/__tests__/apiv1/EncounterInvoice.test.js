@@ -19,12 +19,14 @@ async function createPriceListItemForProduct(
   invoicePriceListId,
   price = 100,
 ) {
-  return await models.InvoicePriceListItem.create(fake(models.InvoicePriceListItem, {
-    invoiceProductId,
-    invoicePriceListId,
-    price,
-    isHidden: false,
-  }));
+  return await models.InvoicePriceListItem.create(
+    fake(models.InvoicePriceListItem, {
+      invoiceProductId,
+      invoicePriceListId,
+      price,
+      isHidden: false,
+    }),
+  );
 }
 
 describe('Encounter invoice', () => {
@@ -101,178 +103,234 @@ describe('Encounter invoice', () => {
   });
 
   describe('Automatically added items', () => {
-    // Although this test uses a procedure type, this same logic applies to all possible InvoiceItemSourceRecord
-    it('should NOT automatically add items to the invoice when a procedure is created if the price list item is hidden', async () => {
-      const encounter = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        locationId: location.id,
-        patientId: patient.id,
+    describe('Procedure', () => {
+      let procedureType1;
+      let procedureType2;
+      let procedureProduct1;
+      let procedureProduct2;
+      let priceListItem1;
+
+      beforeAll(async () => {
+        procedureType1 = await models.ReferenceData.create(
+          fake(models.ReferenceData, {
+            type: REFERENCE_TYPES.PROCEDURE_TYPE,
+            name: 'Procedure 1',
+            code: 'PROC-1',
+          }),
+        );
+        procedureType2 = await models.ReferenceData.create(
+          fake(models.ReferenceData, {
+            type: REFERENCE_TYPES.PROCEDURE_TYPE,
+            name: 'Procedure 2',
+            code: 'PROC-2',
+          }),
+        );
+        procedureProduct1 = await models.InvoiceProduct.create(
+          fake(models.InvoiceProduct, {
+            category: INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE,
+            sourceRecordType:
+              INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE],
+            sourceRecordId: procedureType1.id,
+          }),
+        );
+        procedureProduct2 = await models.InvoiceProduct.create(
+          fake(models.InvoiceProduct, {
+            category: INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE,
+            sourceRecordType:
+              INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE],
+            sourceRecordId: procedureType2.id,
+          }),
+        );
+        priceListItem1 = await createPriceListItemForProduct(
+          models,
+          procedureProduct1.id,
+          priceList.id,
+        );
+        await createPriceListItemForProduct(models, procedureProduct2.id, priceList.id);
       });
-      await models.Invoice.create({
-        encounterId: encounter.id,
-        displayId: 'INV-123',
-        date: new Date(),
-        status: INVOICE_STATUSES.IN_PROGRESS,
-      });
-      const procedureType = await models.ReferenceData.create(
-        fake(models.ReferenceData, {
-          type: REFERENCE_TYPES.PROCEDURE_TYPE,
-          name: 'Procedure 1',
-          code: 'PROC-1',
-        }),
-      );
-      const invoiceProduct = await models.InvoiceProduct.create(
-        fake(models.InvoiceProduct, {
-          category: INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE,
-          sourceRecordType:
-            INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE],
-          sourceRecordId: procedureType.id,
-        }),
-      );
-      const item = await createPriceListItemForProduct(models, invoiceProduct.id, priceList.id);
-      await item.update({ isHidden: true });
-      await models.Procedure.create(
-        fake(models.Procedure, {
+
+      // Although this test uses a procedure type, this same logic applies to all possible InvoiceItemSourceRecord
+      it('should NOT automatically add items to the invoice when a procedure is created if the price list item is hidden', async () => {
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          locationId: location.id,
+          patientId: patient.id,
+        });
+        await models.Invoice.create({
           encounterId: encounter.id,
-          procedureTypeId: procedureType.id,
+          displayId: 'INV-123',
+          date: new Date(),
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+
+        try {
+          await priceListItem1.update({ isHidden: true });
+
+          await app.post(`/api/procedure`).send({
+            encounterId: encounter.id,
+            procedureTypeId: procedureType1.id,
+            date: new Date(),
+            physicianId: user.id,
+          });
+
+          const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+          expect(result).toHaveSucceeded();
+          expect(result.body).toMatchObject({
+            displayId: 'INV-123',
+            encounterId: encounter.id,
+            status: INVOICE_STATUSES.IN_PROGRESS,
+            items: [],
+          });
+          expect(result.body.items).toHaveLength(0);
+        } finally {
+          await priceListItem1.update({ isHidden: false });
+        }
+      });
+
+      // Although this test uses a procedure type, this same logic applies to all possible InvoiceItemSourceRecord
+      it('should automatically add items to the invoice when a procedure is created even if the price list item has a null price', async () => {
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          locationId: location.id,
+          patientId: patient.id,
+        });
+        await models.Invoice.create({
+          encounterId: encounter.id,
+          displayId: 'INV-123',
+          date: new Date(),
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+
+        try {
+          await priceListItem1.update({ price: null });
+
+          const { body: procedure } = await app.post(`/api/procedure`).send({
+            encounterId: encounter.id,
+            procedureTypeId: procedureType1.id,
+            date: new Date(),
+            physicianId: user.id,
+          });
+
+          const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+          expect(result).toHaveSucceeded();
+          expect(result.body).toMatchObject({
+            displayId: 'INV-123',
+            encounterId: encounter.id,
+            status: INVOICE_STATUSES.IN_PROGRESS,
+            items: [
+              {
+                sourceRecordId: procedure.id,
+                sourceRecordType: 'Procedure',
+                productId: procedureProduct1.id,
+                orderedByUserId: user.id,
+                quantity: 1,
+                insurancePlanItems: [],
+              },
+            ],
+          });
+        } finally {
+          await priceListItem1.update({ price: 100 });
+        }
+      });
+
+      it('should automatically add items to the invoice when a procedure is created', async () => {
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          locationId: location.id,
+          patientId: patient.id,
+        });
+        await models.Invoice.create({
+          encounterId: encounter.id,
+          displayId: 'INV-123',
+          date: new Date(),
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+
+        const { body: procedure } = await app.post(`/api/procedure`).send({
+          encounterId: encounter.id,
+          procedureTypeId: procedureType1.id,
           date: new Date(),
           physicianId: user.id,
-        }),
-      );
+        });
 
-      const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
-      expect(result).toHaveSucceeded();
-      expect(result.body).toMatchObject({
-        displayId: 'INV-123',
-        encounterId: encounter.id,
-        status: INVOICE_STATUSES.IN_PROGRESS,
-        items: [],
-      });
-      expect(result.body.items).toHaveLength(0);
-    });
-
-    // Although this test uses a procedure type, this same logic applies to all possible InvoiceItemSourceRecord
-    it('should automatically add items to the invoice when a procedure is created even if the price list item has a null price', async () => {
-      const encounter = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        locationId: location.id,
-        patientId: patient.id,
-      });
-      await models.Invoice.create({
-        encounterId: encounter.id,
-        displayId: 'INV-123',
-        date: new Date(),
-        status: INVOICE_STATUSES.IN_PROGRESS,
-      });
-      const procedureType = await models.ReferenceData.create(
-        fake(models.ReferenceData, {
-          type: REFERENCE_TYPES.PROCEDURE_TYPE,
-          name: 'Procedure 1',
-          code: 'PROC-1',
-        }),
-      );
-      const invoiceProduct = await models.InvoiceProduct.create(
-        fake(models.InvoiceProduct, {
-          category: INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE,
-          sourceRecordType:
-            INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE],
-          sourceRecordId: procedureType.id,
-        }),
-      );
-      const item = await createPriceListItemForProduct(models, invoiceProduct.id, priceList.id);
-      await item.update({ price: null });
-      const procedure = await models.Procedure.create(
-        fake(models.Procedure, {
+        const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result).toHaveSucceeded();
+        expect(result.body).toMatchObject({
+          displayId: 'INV-123',
           encounterId: encounter.id,
-          procedureTypeId: procedureType.id,
+          status: INVOICE_STATUSES.IN_PROGRESS,
+          items: [
+            {
+              sourceRecordId: procedure.id,
+              sourceRecordType: 'Procedure',
+              productId: procedureProduct1.id,
+              orderedByUserId: user.id,
+              quantity: 1,
+              insurancePlanItems: [],
+            },
+          ],
+        });
+      });
+
+      it('should automatically update items on the invoice when a procedure type changes', async () => {
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          locationId: location.id,
+          patientId: patient.id,
+        });
+        await models.Invoice.create({
+          encounterId: encounter.id,
+          displayId: 'INV-123',
+          date: new Date(),
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+
+        const { body: procedure } = await app.post(`/api/procedure`).send({
+          encounterId: encounter.id,
+          procedureTypeId: procedureType1.id,
           date: new Date(),
           physicianId: user.id,
-        }),
-      );
+        });
 
-      const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
-      expect(result).toHaveSucceeded();
-      expect(result.body).toMatchObject({
-        displayId: 'INV-123',
-        encounterId: encounter.id,
-        status: INVOICE_STATUSES.IN_PROGRESS,
-        items: [
-          {
-            sourceRecordId: procedure.id,
-            sourceRecordType: procedure.getModelName(),
-            productId: invoiceProduct.id,
-            orderedByUserId: user.id,
-            quantity: 1,
-            insurancePlanItems: [],
-          },
-        ],
-      });
-    });
-
-    it('should automatically add/remove items to the invoice when a procedure is created/deleted', async () => {
-      const encounter = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        locationId: location.id,
-        patientId: patient.id,
-      });
-      await models.Invoice.create({
-        encounterId: encounter.id,
-        displayId: 'INV-123',
-        date: new Date(),
-        status: INVOICE_STATUSES.IN_PROGRESS,
-      });
-      const procedureType = await models.ReferenceData.create(
-        fake(models.ReferenceData, {
-          type: REFERENCE_TYPES.PROCEDURE_TYPE,
-          name: 'Procedure 1',
-          code: 'PROC-1',
-        }),
-      );
-      const invoiceProduct = await models.InvoiceProduct.create(
-        fake(models.InvoiceProduct, {
-          category: INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE,
-          sourceRecordType:
-            INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE],
-          sourceRecordId: procedureType.id,
-        }),
-      );
-      await createPriceListItemForProduct(models, invoiceProduct.id, priceList.id);
-      const procedure = await models.Procedure.create(
-        fake(models.Procedure, {
+        const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result).toHaveSucceeded();
+        expect(result.body).toMatchObject({
+          displayId: 'INV-123',
           encounterId: encounter.id,
-          procedureTypeId: procedureType.id,
-          date: new Date(),
-          physicianId: user.id,
-        }),
-      );
+          status: INVOICE_STATUSES.IN_PROGRESS,
+          items: [
+            {
+              sourceRecordId: procedure.id,
+              sourceRecordType: 'Procedure',
+              productId: procedureProduct1.id,
+              orderedByUserId: user.id,
+              quantity: 1,
+              insurancePlanItems: [],
+            },
+          ],
+        });
 
-      const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
-      expect(result).toHaveSucceeded();
-      expect(result.body).toMatchObject({
-        displayId: 'INV-123',
-        encounterId: encounter.id,
-        status: INVOICE_STATUSES.IN_PROGRESS,
-        items: [
-          {
-            sourceRecordId: procedure.id,
-            sourceRecordType: procedure.getModelName(),
-            productId: invoiceProduct.id,
-            orderedByUserId: user.id,
-            quantity: 1,
-            insurancePlanItems: [],
-          },
-        ],
-      });
+        await app.put(`/api/procedure/${procedure.id}`).send({
+          procedureTypeId: procedureType2.id,
+        });
 
-      await procedure.destroy();
-
-      const result2 = await app.get(`/api/encounter/${encounter.id}/invoice`);
-      expect(result2).toHaveSucceeded();
-      expect(result2.body).toMatchObject({
-        displayId: 'INV-123',
-        encounterId: encounter.id,
-        status: INVOICE_STATUSES.IN_PROGRESS,
-        items: [],
+        const result2 = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result2).toHaveSucceeded();
+        expect(result2.body).toMatchObject({
+          displayId: 'INV-123',
+          encounterId: encounter.id,
+          status: INVOICE_STATUSES.IN_PROGRESS,
+          items: [
+            {
+              sourceRecordId: procedure.id,
+              sourceRecordType: 'Procedure',
+              productId: procedureProduct2.id,
+              orderedByUserId: user.id,
+              quantity: 1,
+              insurancePlanItems: [],
+            },
+          ],
+        });
       });
     });
 
@@ -666,6 +724,7 @@ describe('Encounter invoice', () => {
       it('should automatically add reception_pending items to the invoice when the clinicEncounterLabAndImagingRequests setting is enabled', async () => {
         const encounter = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
+          locationId: location.id,
           encounterType: ENCOUNTER_TYPES.CLINIC,
           patientId: patient.id,
         });
@@ -1008,6 +1067,7 @@ describe('Encounter invoice', () => {
       it('should automatically add pending items to the invoice when the clinicEncounterLabAndImagingRequests setting is enabled', async () => {
         const encounter = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
+          locationId: location.id,
           patientId: patient.id,
           encounterType: ENCOUNTER_TYPES.CLINIC,
         });
