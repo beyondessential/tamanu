@@ -55,7 +55,7 @@ export function testReportPermissions(getCtx, makeRequest) {
     let app;
     beforeAll(async () => {
       app = await baseApp.asNewRole([
-        ['run', 'StaticReport', 'admissions'],
+        ['run', 'StaticReport', 'recent-diagnoses'],
         ['read', 'Referral'], // old legacy permissions for the incomplete-referrals report
       ]);
     });
@@ -70,7 +70,7 @@ export function testReportPermissions(getCtx, makeRequest) {
 
     it('should be able to run permitted static reports with "run" permissions', async () => {
       // Act
-      const res = await makeRequest(app, 'admissions');
+      const res = await makeRequest(app, 'recent-diagnoses');
 
       // Assert
       expect(res).toHaveSucceeded();
