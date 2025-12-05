@@ -122,7 +122,7 @@ describe('Reports', () => {
     disableHardcodedPermissionsForSuite();
     it('should reject reading a report with insufficient permissions', async () => {
       const app = await baseApp.asRole('base');
-      const result = await app.post('/api/reports/incomplete-referrals', {});
+      const result = await app.post('/api/reports/generic-survey-export-line-list', {});
       expect(result).toBeForbidden();
     });
 
@@ -135,8 +135,8 @@ describe('Reports', () => {
     });
 
     it('should fail with 400 and error message if dataGenerator encounters error', async () => {
-      const app = await baseApp.asNewRole([['run', 'StaticReport', 'incomplete-referrals']]);
-      const res = await app.post('/api/reports/incomplete-referrals').send({
+      const app = await baseApp.asNewRole([['run', 'StaticReport', 'generic-survey-export-line-list']]);
+      const res = await app.post('/api/reports/generic-survey-export-line-list').send({
         parameters: {
           fromDate: '2020-01-01',
           toDate: 'invalid-date',
