@@ -21,14 +21,17 @@ import React, { useEffect, useMemo, useState, useRef, useCallback, forwardRef } 
 import styled from 'styled-components';
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
+import { cloneDeep } from 'lodash';
+import { useDrop, useDrag } from 'react-dnd';
 
 import { toDateTimeString, toDateString } from '@tamanu/utils/dateTime';
+import { notifyError, notifySuccess } from '@tamanu/ui-components';
 
 import {
   useLocationBookingsQuery,
   useFacilityLocationAssignmentsQuery,
 } from '../../../api/queries';
-import { TranslatedText, TranslatedReferenceData } from '../../../components';
+import { FormModal, TranslatedText, TranslatedReferenceData } from '../../../components';
 import { APPOINTMENT_CALENDAR_CLASS } from '../../../components/Appointments/AppointmentDetailPopper';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { Colors } from '../../../constants';
@@ -38,10 +41,10 @@ import { useAuth } from '../../../contexts/Auth';
 import { useBookingSlots } from '../../../hooks/useBookingSlots';
 import useOverflow from '../../../hooks/useOverflow';
 import { ConditionalTooltip } from '../../../components/Tooltip';
-import { useDrop, useDrag } from 'react-dnd';
 import { useReorderLocationBookingMutation } from '../../../api/mutations/useReorderLocationBookingMutation';
-import { cloneDeep } from 'lodash';
 import { ClinicianAssignmentDiscrepancyModal } from './ClinicianAssignmentDiscrepancyModal';
+import { useSendAppointmentEmail } from '../../../api/mutations';
+import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
 
 const ScrollWrapper = styled.div`
   width: 100%;
@@ -428,6 +431,7 @@ export const LocationBookingsDailyCalendar = ({
   } = useLocationBookingsContext();
 
   const [selectedTimeCell, setSelectedTimeCell] = useState(null);
+  const [emailModalState, setEmailModalState] = useState(null);
 
   useEffect(() => {
     if (!selectedCell || (!selectedCell.locationId && !selectedCell.date)) {
@@ -499,6 +503,26 @@ export const LocationBookingsDailyCalendar = ({
 
   const { slots: bookingSlots, slotDuration, isPending: isBookingSlotsLoading } = useBookingSlots(
     selectedDate,
+  );
+
+  const { mutateAsync: sendAppointmentEmail } = useSendAppointmentEmail(
+    emailModalState?.appointmentId,
+    {
+      onSuccess: () =>
+        notifySuccess(
+          <TranslatedText
+            stringId="appointments.action.emailReminder.success"
+            fallback="Email successfully sent"
+          />,
+        ),
+      onError: () =>
+        notifyError(
+          <TranslatedText
+            stringId="appointments.action.emailReminder.error"
+            fallback="Error sending email"
+          />,
+        ),
+    },
   );
 
   // Generate hourly time slots based on booking slot time range
@@ -1090,6 +1114,26 @@ export const LocationBookingsDailyCalendar = ({
                               className="appointment-tile"
                               onEdit={() => openBookingForm(appointment)}
                               onCancel={() => openCancelModal(appointment)}
+                              actions={
+                                canCreateAppointment
+                                  ? [
+                                      {
+                                        label: (
+                                          <TranslatedText
+                                            stringId="locationBooking.action.emailBooking"
+                                            fallback="Email booking"
+                                            data-testid={`translatedtext-email-booking-${locationIndex}-${appointmentIndex}`}
+                                          />
+                                        ),
+                                        action: () =>
+                                          setEmailModalState({
+                                            appointmentId: appointment.id,
+                                            email: appointment.patient?.email,
+                                          }),
+                                      },
+                                    ]
+                                  : []
+                              }
                               testIdPrefix={`${locationIndex}-${appointmentIndex}`}
                               isDragging={isDragging}
                               isInDragDropProcess={isInDragDropProcess}
@@ -1112,6 +1156,25 @@ export const LocationBookingsDailyCalendar = ({
           />
         )}
       </ScrollWrapper>
+      <FormModal
+        title={
+          <TranslatedText
+            stringId="patient.email.title"
+            fallback="Enter email address"
+          />
+        }
+        open={!!emailModalState}
+        onClose={() => setEmailModalState(null)}
+      >
+        <EmailAddressConfirmationForm
+          onSubmit={async ({ email }) => {
+            await sendAppointmentEmail(email);
+            setEmailModalState(null);
+          }}
+          onCancel={() => setEmailModalState(null)}
+          emailOverride={emailModalState?.email}
+        />
+      </FormModal>
     </Box>
   );
 };

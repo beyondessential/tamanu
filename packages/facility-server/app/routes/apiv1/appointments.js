@@ -110,43 +110,72 @@ const buildTimeQuery = (intervalStart, intervalEnd) => {
   return [whereClause, bindParams];
 };
 
-const sendAppointmentReminder = async ({ appointmentId, email, facilityId, models, settings }) => {
+const sendAppointmentReminder = async ({
+  appointmentId,
+  email,
+  facilityId,
+  models,
+  settings,
+  transaction,
+}) => {
   const { Appointment, Facility, PatientCommunication } = models;
 
   // Fetch appointment relations
   const [appointment, facility] = await Promise.all([
     Appointment.findByPk(appointmentId, {
-      include: ['patient', 'clinician', 'locationGroup'],
+      include: [
+        'patient',
+        'clinician',
+        'locationGroup',
+        {
+          association: 'location',
+          include: ['locationGroup'],
+        },
+      ],
+      transaction,
     }),
-    Facility.findByPk(facilityId),
+    Facility.findByPk(facilityId, { transaction }),
   ]);
 
-  const { patient, locationGroup, clinician } = appointment;
+  const { patient, clinician, locationId } = appointment;
+  const isLocationBooking = !!locationId;
 
+  const templateKeySuffix = isLocationBooking ? 'locationBooking' : 'outpatientAppointment';
   const appointmentConfirmationTemplate = await settings[facilityId].get(
-    'templates.appointmentConfirmation',
+    `templates.appointmentConfirmation.${templateKeySuffix}`,
   );
 
   const start = new Date(appointment.startTime);
+  const locationName = isLocationBooking
+    ? appointment.location?.locationGroup?.name || ''
+    : appointment.locationGroup?.name || '';
+
   const content = replaceInTemplate(appointmentConfirmationTemplate.body, {
     firstName: patient.firstName,
     lastName: patient.lastName,
     facilityName: facility.name,
     startDate: format(start, 'PPPP'),
     startTime: format(start, 'p'),
-    locationName: locationGroup.name,
+    locationName,
     clinicianName: clinician?.displayName ? `\nClinician: ${clinician.displayName}` : '',
   });
 
-  return await PatientCommunication.create({
-    type: PATIENT_COMMUNICATION_TYPES.APPOINTMENT_CONFIRMATION,
-    channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
-    status: COMMUNICATION_STATUSES.QUEUED,
-    destination: email,
-    subject: appointmentConfirmationTemplate.subject,
-    content,
-    patientId: patient.id,
-  });
+  const communicationType = isLocationBooking
+    ? PATIENT_COMMUNICATION_TYPES.BOOKING_CONFIRMATION
+    : PATIENT_COMMUNICATION_TYPES.APPOINTMENT_CONFIRMATION;
+
+  return await PatientCommunication.create(
+    {
+      type: communicationType,
+      channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
+      status: COMMUNICATION_STATUSES.QUEUED,
+      destination: email,
+      subject: appointmentConfirmationTemplate.subject,
+      content,
+      patientId: patient.id,
+    },
+    { transaction },
+  );
 };
 
 appointments.post(
@@ -160,7 +189,7 @@ appointments.post(
       settings,
     } = req;
     const { Appointment, PatientFacility } = models;
-    const result = await db.transaction(async () => {
+    const result = await db.transaction(async transaction => {
       const appointment = scheduleData
         ? (
             await Appointment.createWithSchedule({
@@ -169,10 +198,11 @@ appointments.post(
               scheduleData,
             })
           ).firstAppointment
-        : await Appointment.create(appointmentData);
+        : await Appointment.create(appointmentData, { transaction });
 
       await PatientFacility.findOrCreate({
         where: { patientId: appointment.patientId, facilityId },
+        transaction,
       });
 
       const { email } = appointmentData;
@@ -183,6 +213,7 @@ appointments.post(
           facilityId,
           models,
           settings,
+          transaction,
         });
       }
 
@@ -443,8 +474,8 @@ appointments.post(
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'Appointment');
 
-    const { models, body } = req;
-    const { startTime, endTime, locationId, patientId, procedureTypeIds } = body;
+    const { models, body, settings } = req;
+    const { startTime, endTime, locationId, patientId, procedureTypeIds, email } = body;
     const { Appointment, PatientFacility, Location } = models;
 
     try {
@@ -478,6 +509,17 @@ appointments.post(
 
         if (procedureTypeIds) {
           await appointment.setProcedureTypes(procedureTypeIds);
+        }
+
+        if (email) {
+          await sendAppointmentReminder({
+            appointmentId: appointment.id,
+            email,
+            facilityId: location.facilityId,
+            models,
+            settings,
+            transaction,
+          });
         }
 
         return appointment;
@@ -615,7 +657,7 @@ appointments.get(
 
     const sortKey = sortKeys[orderBy] || 'startTime';
     const sortOrder = order.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
-    
+
     // Build order clause - handle nested associations
     const orderClause = Array.isArray(sortKey)
       ? [sortKey.concat([sortOrder])]
