@@ -613,6 +613,7 @@ export const MedicationForm = ({
   const practitionerSuggester = useSuggester('practitioner');
   const drugSuggester = useSuggester('drug', {
     formatter: ({ name, id, ...rest }) => ({ ...rest, label: name, value: id }),
+    baseQueryParameters: isOngoingPrescription ? { includeUnavailable: true } : {},
   });
 
   const { data: allergies, isLoading: isLoadingAllergies } = usePatientAllergiesQuery(patient?.id);

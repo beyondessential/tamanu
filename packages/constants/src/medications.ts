@@ -292,3 +292,8 @@ export const MEDICATION_ADMINISTRATION_TIME_SLOTS = [
   { startTime: '20:00', endTime: '22:00' },
   { startTime: '22:00', endTime: '24:00', periodLabel: 'night' },
 ];
+
+export const FACILITY_DRUG_QUANTITY_STATUS = {
+  UNAVAILABLE: 'unavailable',
+  UNKNOWN: 'unknown',
+};

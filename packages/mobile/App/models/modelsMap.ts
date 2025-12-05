@@ -53,10 +53,12 @@ import { PatientOngoingPrescription } from './PatientOngoingPrescription';
 import { MedicationAdministrationRecord } from './MedicationAdministrationRecord';
 import { Task } from './Task';
 import { TaskDesignation } from './TaskDesignation';
+import { ReferenceDrugFacility } from './ReferenceDrugFacility';
 
 export const MODELS_MAP = {
   ReferenceData,
   ReferenceDrug,
+  ReferenceDrugFacility,
   TranslatedString,
   Patient,
   PatientAdditionalData,

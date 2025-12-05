@@ -76,6 +76,16 @@ const FOREIGN_KEY_SCHEMATA = {
       types: REFERENCE_TYPE_VALUES,
     },
   ],
+  ReferenceDrugFacility: [
+    {
+      field: 'referenceDrug',
+      model: 'ReferenceDrug',
+    },
+    {
+      field: 'facility',
+      model: 'Facility',
+    },
+  ],
 };
 
 // https://github.com/SheetJS/sheetjs/issues/214#issuecomment-96843418

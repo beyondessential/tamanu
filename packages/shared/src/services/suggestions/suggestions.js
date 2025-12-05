@@ -19,6 +19,7 @@ import {
   LOCATION_BOOKABLE_VIEW,
   ENCOUNTER_TYPE_LABELS,
   NOTE_TYPES,
+  FACILITY_DRUG_QUANTITY_STATUS,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { customAlphabet } from 'nanoid';
@@ -424,6 +425,25 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
         baseWhere['$referenceDrug.is_sensitive$'] = false;
       }
 
+      if (typeName === REFERENCE_TYPES.DRUG) {
+        const facilityId = req.query.facilityId;
+        const includeUnavailable = req.query.includeUnavailable;
+        if (facilityId && !includeUnavailable) {
+          baseWhere.id = {
+            ...baseWhere.id,
+            [Op.notIn]: Sequelize.literal(`
+              (SELECT rd.reference_data_id
+              FROM reference_drugs rd
+              INNER JOIN reference_drug_facility rdf
+                ON rd.id = rdf.reference_drug_id
+              WHERE rdf.facility_id = ${req.db.escape(facilityId)}
+                AND rdf.quantity = '${FACILITY_DRUG_QUANTITY_STATUS.UNAVAILABLE}'
+                AND rdf.deleted_at IS NULL)
+            `),
+          };
+        }
+      }
+
       if (typeName === REFERENCE_TYPES.NOTE_TYPE) {
         baseWhere.id = {
           [Op.notIn]: [NOTE_TYPES.AREA_TO_BE_IMAGED, NOTE_TYPES.RESULT_DESCRIPTION],
@@ -435,7 +455,7 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
     {
       includeBuilder: req => {
         const {
-          models: { ReferenceData, ReferenceMedicationTemplate, ReferenceDrug },
+          models: { ReferenceData, ReferenceMedicationTemplate, ReferenceDrug, ReferenceDrugFacility },
           query: { parentId, relationType = DEFAULT_HIERARCHY_TYPE },
         } = req;
 
@@ -455,6 +475,14 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
           typeName === REFERENCE_TYPES.DRUG && {
             model: ReferenceDrug,
             as: 'referenceDrug',
+            include: [
+              {
+                model: ReferenceDrugFacility,
+                as: 'facilities',
+                attributes: ['referenceDrugId', 'facilityId', 'quantity'],
+                required: false,
+              },
+            ] 
           },
           typeName === REFERENCE_TYPES.MEDICATION_SET && {
             model: ReferenceData,
@@ -481,7 +509,7 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
 
         return result.length > 0 ? result : null;
       },
-      queryOptions: typeName === REFERENCE_TYPES.MEDICATION_SET ? { subQuery: false } : {},
+      queryOptions: (typeName === REFERENCE_TYPES.MEDICATION_SET || (typeName === REFERENCE_TYPES.DRUG)) ? { subQuery: false } : {},
       creatingBodyBuilder: req => referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
       afterCreated: afterCreatedReferenceData,
       mapper: item => item,

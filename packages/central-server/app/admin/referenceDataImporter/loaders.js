@@ -11,6 +11,7 @@ import {
   DEFAULT_LANGUAGE_CODE,
   INVOICE_ITEMS_CATEGORIES,
   INVOICE_ITEMS_CATEGORIES_MODELS,
+  FACILITY_DRUG_QUANTITY_STATUS,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { pluralize } from 'inflection';
@@ -504,8 +505,9 @@ export async function taskTemplateLoader(item, { models, pushError }) {
   return rows;
 }
 
-export async function drugLoader(item, { models }) {
-  const { id: drugId, route, units, notes, isSensitive = false } = item;
+export async function drugLoader(item, { models, pushError }) {
+  // eslint-disable-next-line no-unused-vars
+  const { id: drugId, route, units, notes, isSensitive = false, name, visibilityStatus, code, ...rest } = item;
   const rows = [];
 
   let existingDrug;
@@ -515,8 +517,10 @@ export async function drugLoader(item, { models }) {
     });
   }
 
+  const referenceDrugId = existingDrug?.id || uuidv4();
+
   const newDrug = {
-    id: existingDrug?.id || uuidv4(),
+    id: referenceDrugId,
     referenceDataId: drugId,
     route,
     units,
@@ -528,6 +532,36 @@ export async function drugLoader(item, { models }) {
     values: newDrug,
   });
 
+  const facilityIdsToImport = [... new Set( Object.keys(rest))];
+  const facilitiesToImport = await models.Facility.findAll({
+    attributes: ['id'],
+    where: { deletedAt: null, id: { [Op.in]: facilityIdsToImport } },
+  });
+  const facilityIds = new Set(facilitiesToImport.map(f => f.id));
+
+  for (const [key, value] of Object.entries(rest)) {
+    const facilityId = key.trim();
+    
+    if (!facilityIds.has(facilityId)) {
+      pushError(
+        `Drug "${drugId}": Facility "${facilityId}" does not exist or has been deleted. Column will be ignored.`,
+      );
+      continue;
+    }
+
+    if (String(value).toLowerCase() === FACILITY_DRUG_QUANTITY_STATUS.UNKNOWN) {
+      continue; // Do not import rows with 'unknown' quantity
+    }
+
+    rows.push({
+      model: 'ReferenceDrugFacility',
+      values: {
+        referenceDrugId,
+        facilityId,
+        quantity: value,
+      },
+    });
+  }
   return rows;
 }
 
