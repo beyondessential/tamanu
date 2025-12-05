@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { Box, Divider, FormControlLabel, Radio, RadioGroup } from '@material-ui/core';
+import { Box, FormControlLabel, Radio, RadioGroup } from '@material-ui/core';
 import { Colors } from '../../constants';
 import {
   TextField,
@@ -26,9 +26,26 @@ import { useSettings } from '../../contexts/Settings';
 import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
 import { BodyText } from '../Typography';
 
+const MODAL_TYPES = {
+  REQUEST_CONFIRMATION: 'request_confirmation',
+  REQUEST_SENT: 'request_sent',
+  SEND_TO_PHARMACY: 'send_to_pharmacy',
+};
+
 const StyledModal = styled(BaseModal)`
   .MuiPaper-root {
-    max-width: 1000px;
+    max-width: ${({ $modalType }) => {
+      switch ($modalType) {
+      case MODAL_TYPES.REQUEST_CONFIRMATION:
+        return '670px';
+      case MODAL_TYPES.REQUEST_SENT:
+        return '580px';
+      case MODAL_TYPES.SEND_TO_PHARMACY:
+        return '1000px';
+      default:
+        return '1000px';
+      }
+    }};
   }
 `;
 
@@ -390,6 +407,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
         title={<TranslatedText stringId="pharmacyOrder.success.title" fallback="Request sent" />}
         open={open}
         onClose={handleClose}
+        $modalType={MODAL_TYPES.REQUEST_SENT}
       >
         <DialogContent>
           <PharmacyIcon alt="Pharmacy" />
@@ -435,6 +453,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
         }
         open={open}
         onClose={handleClose}
+        $modalType={MODAL_TYPES.REQUEST_CONFIRMATION}
       >
         <AlreadyOrderedContent>
           <AlreadyOrderedPrimaryText>
@@ -488,6 +507,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
       title={<TranslatedText stringId="pharmacyOrder.title" fallback="Send to pharmacy" />}
       open={open}
       onClose={handleClose}
+      $modalType={MODAL_TYPES.SEND_TO_PHARMACY}
     >
       <BodyText color={Colors.darkText} fontWeight={500}>
         <TranslatedText
