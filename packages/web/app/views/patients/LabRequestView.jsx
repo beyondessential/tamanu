@@ -129,15 +129,11 @@ const MODALS = {
 };
 
 const Menu = ({ setModal, status, disabled, canReadLabTestResult, enableLabResultsPrintout }) => {
-  const shouldShowPrintInterimReport =
-    enableLabResultsPrintout &&
-    canReadLabTestResult &&
-    INTERIM_LAB_REQUEST_STATUSES.includes(status);
   const menuActions = [
     {
       label: (
         <TranslatedText
-          stringId="lab .action.printLabel"
+          stringId="lab.action.printLabel"
           fallback="Print label"
           data-testid="translatedtext-gntp"
         />
@@ -146,7 +142,11 @@ const Menu = ({ setModal, status, disabled, canReadLabTestResult, enableLabResul
     },
   ];
 
-  if (shouldShowPrintInterimReport) {
+  if (
+    enableLabResultsPrintout &&
+    canReadLabTestResult &&
+    INTERIM_LAB_REQUEST_STATUSES.includes(status)
+  ) {
     menuActions.push({
       label: (
         <TranslatedText
@@ -300,7 +300,7 @@ export const LabRequestView = () => {
           isReadOnly={areLabRequestsReadOnly}
           actions={
             <Box display="flex" alignItems="center" data-testid="box-qy3e">
-              {(isPublished || isVerified) ? (
+              {isPublished || isVerified ? (
                 canReadLabTestResult && (
                   <OutlinedButton
                     disabled={isHidden}
