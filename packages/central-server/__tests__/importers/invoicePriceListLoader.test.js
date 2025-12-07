@@ -122,7 +122,7 @@ describe('Invoice price list item import', () => {
     const headers = ['invoiceProductId', 'PL_A', 'PL_B'];
     const rows = [
       { invoiceProductId: 'prod-1', PL_A: 'hidden', PL_B: '' }, // hidden should be set to historical
-      { invoiceProductId: 'prod-2', PL_A: '', PL_B: 'manual-entry' }, // manual-entry should be set to null
+      { invoiceProductId: 'prod-2', PL_A: '', PL_B: null },
     ];
     const buffer = buildWorkbookBuffer(headers, rows);
 

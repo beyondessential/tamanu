@@ -746,7 +746,7 @@ describe('Reference data exporter', () => {
         {
           data: [
             ['invoiceProductId', 'A', 'B'],
-            ['prod-a', '100', 'manual-entry'],
+            ['prod-a', '100', null],
             ['prod-b', 'hidden', '50'],
           ],
           name: 'Invoice Price List Items',
