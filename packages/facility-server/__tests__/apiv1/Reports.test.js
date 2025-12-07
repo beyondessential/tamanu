@@ -135,9 +135,21 @@ describe('Reports', () => {
     });
 
     it('should fail with 400 and error message if dataGenerator encounters error', async () => {
-      const app = await baseApp.asNewRole([['run', 'StaticReport', 'generic-survey-export-line-list']]);
+      const { models } = ctx;
+      // Create a survey for the test
+      const program = await models.Program.create(fake(models.Program));
+      const survey = await models.Survey.create({
+        ...fake(models.Survey),
+        programId: program.id,
+      });
+
+      const app = await baseApp.asNewRole([
+        ['run', 'StaticReport', 'generic-survey-export-line-list'],
+        ['read', 'Survey', survey.id],
+      ]);
       const res = await app.post('/api/reports/generic-survey-export-line-list').send({
         parameters: {
+          surveyId: survey.id,
           fromDate: '2020-01-01',
           toDate: 'invalid-date',
         },
