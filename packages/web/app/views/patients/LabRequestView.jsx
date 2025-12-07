@@ -191,7 +191,7 @@ export const LabRequestView = () => {
   const [labTestTableRefreshCount, setLabTestTableRefreshCount] = useState(0);
   const { isLoading, labRequest, updateLabRequest } = useLabRequest();
 
-  const enableLabResultsPrintout = getSetting('features.enableLabResultsPrintout');
+  const enableLabResultsPrintout = getSetting('features.labRequest.enableLabResultsPrintout');
 
   const closeModal = () => {
     setModalOpen(false);
