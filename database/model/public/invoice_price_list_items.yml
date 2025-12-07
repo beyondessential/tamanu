@@ -61,11 +61,8 @@ sources:
           - name: price
             data_type: numeric
             description: "{{ doc('invoice_price_list_items__price') }}"
-          - name: visibility_status
-            data_type: text
-            description: "{{ doc('generic__visibility_status') }} in invoice_price_list_items."
+          - name: is_hidden
+            data_type: boolean
+            description: "{{ doc('invoice_price_list_items__is_hidden') }}"
             data_tests:
               - not_null
-            config:
-              meta:
-                masking: text
