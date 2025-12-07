@@ -37,6 +37,7 @@ import { DateField, Field, Form, TAMANU_COLORS } from '@tamanu/ui-components';
 import { useEncounter } from '../../../contexts/Encounter.jsx';
 import { getEncounterStartDateLabel } from '../../../utils/getEncounterStartDateLabel.jsx';
 import { PlusIcon } from '../../../assets/icons/PlusIcon';
+import { useAuth } from '../../../contexts/Auth';
 
 const InfoCardFirstColumn = styled.div`
   display: flex;
@@ -201,7 +202,9 @@ const LengthOfStayDisplay = ({ startDate, endDate }) => {
 };
 
 export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBillingType }) => {
+  const { ability } = useAuth();
   const [isEstimatedDischargeModalOpen, setIsEstimatedDischargeModalOpen] = useState(false);
+  const canWriteEncounter = ability.can('write', 'Encounter');
 
   return (
     <InfoCard inlineValues contentPadding={25} paddingTop={0} data-testid="infocard-o4i8">
@@ -314,22 +317,24 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
               encounter.estimatedEndDate ? (
                 <DateDisplay date={encounter.estimatedEndDate} data-testid="datedisplay-fa08" />
               ) : (
-                <>
-                  <AddButton onClick={() => setIsEstimatedDischargeModalOpen(true)}>
-                    <PlusIcon fill={TAMANU_COLORS.darkestText} />
-                    <AddButtonText>
-                      <TranslatedText
-                        stringId="encounter.summary.addEstimatedDischargeDate"
-                        fallback="Add"
-                      />
-                    </AddButtonText>
-                  </AddButton>
-                  <SetDischargeDateModal
-                    open={isEstimatedDischargeModalOpen}
-                    onClose={() => setIsEstimatedDischargeModalOpen(false)}
-                    encounter={encounter}
-                  />
-                </>
+                canWriteEncounter && (
+                  <>
+                    <AddButton onClick={() => setIsEstimatedDischargeModalOpen(true)}>
+                      <PlusIcon fill={TAMANU_COLORS.darkestText} />
+                      <AddButtonText>
+                        <TranslatedText
+                          stringId="encounter.summary.addEstimatedDischargeDate"
+                          fallback="Add"
+                        />
+                      </AddButtonText>
+                    </AddButton>
+                    <SetDischargeDateModal
+                      open={isEstimatedDischargeModalOpen}
+                      onClose={() => setIsEstimatedDischargeModalOpen(false)}
+                      encounter={encounter}
+                    />
+                  </>
+                )
               )
             }
             icon={dischargeDateIcon}

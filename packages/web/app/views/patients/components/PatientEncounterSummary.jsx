@@ -20,6 +20,7 @@ import {
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 import { getEncounterStartDateLabel } from '../../../utils/getEncounterStartDateLabel';
+import { useAuth } from '../../../contexts/Auth';
 
 const Border = css`
   border: 1px solid ${Colors.outline};
@@ -208,6 +209,7 @@ const PatientDeathSummary = React.memo(({ patient }) => {
 
 export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin }) => {
   const { getLocalisation } = useLocalisation();
+  const { ability } = useAuth();
   const { data: encounter, error, isLoading } = usePatientCurrentEncounterQuery(patient.id);
 
   if (patient.dateOfDeath) {
@@ -275,6 +277,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
   } = encounter;
 
   const patientStatus = getPatientStatus(encounterType);
+  const canReadEncounter = ability.can('read', 'Encounter');
 
   return (
     <Container patientStatus={patientStatus} data-testid="container-2i3h">
@@ -304,7 +307,12 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
           )}
         </Title>
         <div style={{ flexGrow: 1 }} />
-        <Button onClick={() => viewEncounter(id)} size="small" data-testid="button-t8zb">
+        <Button
+          onClick={() => viewEncounter(id)}
+          size="small"
+          data-testid="button-t8zb"
+          disabled={!canReadEncounter}
+        >
           <TranslatedText
             stringId="patient.encounterSummary.viewEncounter"
             fallback="View encounter"
