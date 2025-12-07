@@ -21,6 +21,7 @@ import { useAuth } from '../../contexts/Auth';
 import BeakerIcon from '../../assets/images/beaker.svg';
 import TestCategoryIcon from '../../assets/images/testCategory.svg';
 import { useLabRequest } from '../../contexts/LabRequest';
+import { useSettings } from '../../contexts/Settings';
 import {
   DateDisplay,
   Heading2,
@@ -127,7 +128,7 @@ const MODALS = {
   [MODAL_IDS.VIEW_REPORT]: LabAttachmentModal,
 };
 
-const Menu = ({ setModal, status, disabled, canReadLabTestResult }) => {
+const Menu = ({ setModal, status, disabled, canReadLabTestResult, enableLabResultsPrintout }) => {
   const menuActions = [
     {
       label: (
@@ -141,7 +142,11 @@ const Menu = ({ setModal, status, disabled, canReadLabTestResult }) => {
     },
   ];
 
-  if (canReadLabTestResult && INTERIM_LAB_REQUEST_STATUSES.includes(status)) {
+  if (
+    enableLabResultsPrintout &&
+    canReadLabTestResult &&
+    INTERIM_LAB_REQUEST_STATUSES.includes(status)
+  ) {
     menuActions.push({
       label: (
         <TranslatedText
@@ -180,10 +185,13 @@ const Menu = ({ setModal, status, disabled, canReadLabTestResult }) => {
 export const LabRequestView = () => {
   const query = useUrlSearchParams();
   const { ability } = useAuth();
+  const { getSetting } = useSettings();
   const [modalId, setModalId] = useState(query.get('modal'));
   const [modalOpen, setModalOpen] = useState(false);
   const [labTestTableRefreshCount, setLabTestTableRefreshCount] = useState(0);
   const { isLoading, labRequest, updateLabRequest } = useLabRequest();
+
+  const enableLabResultsPrintout = getSetting('features.labRequest.enableLabResultsPrintout');
 
   const closeModal = () => {
     setModalOpen(false);
@@ -292,7 +300,7 @@ export const LabRequestView = () => {
           isReadOnly={areLabRequestsReadOnly}
           actions={
             <Box display="flex" alignItems="center" data-testid="box-qy3e">
-              {(isPublished || isVerified) ? (
+              {enableLabResultsPrintout && (isPublished || isVerified) ? (
                 canReadLabTestResult && (
                   <OutlinedButton
                     disabled={isHidden}
@@ -328,6 +336,7 @@ export const LabRequestView = () => {
                 status={labRequest.status}
                 disabled={isHidden}
                 canReadLabTestResult={canReadLabTestResult}
+                enableLabResultsPrintout={enableLabResultsPrintout}
                 data-testid="menu-pub2"
               />
             </Box>
