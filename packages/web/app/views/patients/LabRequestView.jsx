@@ -300,7 +300,7 @@ export const LabRequestView = () => {
           isReadOnly={areLabRequestsReadOnly}
           actions={
             <Box display="flex" alignItems="center" data-testid="box-qy3e">
-              {isPublished || isVerified ? (
+              {enableLabResultsPrintout && (isPublished || isVerified) ? (
                 canReadLabTestResult && (
                   <OutlinedButton
                     disabled={isHidden}
