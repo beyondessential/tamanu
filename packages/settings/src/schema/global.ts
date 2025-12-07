@@ -366,6 +366,11 @@ export const globalSettings = {
             },
           },
         },
+        enableLabResultsPrintout: {
+          description: 'Enable lab results printouts (print results button and interim report option)',
+          type: yup.boolean(),
+          defaultValue: true,
+        },
       },
     },
     customisations: {
