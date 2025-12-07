@@ -118,6 +118,7 @@ export const InvoiceItemRow = ({
   formArrayMethods,
   invoiceIsEditable,
   encounterId,
+  priceListId,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const isItemEditable = !item.product?.id && invoiceIsEditable;
@@ -127,6 +128,7 @@ export const InvoiceItemRow = ({
       label: name,
       value: id,
     }),
+    baseQueryParameters: { priceListId },
   });
   const practitionerSuggester = useSuggester('practitioner');
 

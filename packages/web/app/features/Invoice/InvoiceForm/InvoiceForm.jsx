@@ -101,6 +101,7 @@ export const InvoiceForm = ({ invoice }) => {
                           index={index}
                           item={item}
                           encounterId={invoice.encounterId}
+                          priceListId={invoice.priceList?.id}
                           isDeleteDisabled={values.invoiceItems?.length === 1}
                           showActionMenu={item.productId || values.invoiceItems.length > 1}
                           formArrayMethods={formArrayMethods}
