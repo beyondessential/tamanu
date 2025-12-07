@@ -292,22 +292,23 @@ export const LabRequestView = () => {
           isReadOnly={areLabRequestsReadOnly}
           actions={
             <Box display="flex" alignItems="center" data-testid="box-qy3e">
-              {canReadLabTestResult && (isPublished || isVerified) && (
-                <OutlinedButton
-                  disabled={isHidden}
-                  onClick={() => {
-                    handleChangeModalId(MODAL_IDS.RESULTS_PRINT);
-                  }}
-                  data-testid="outlinedbutton-fdjm"
-                >
-                  <TranslatedText
-                    stringId="lab.action.printResults"
-                    fallback="Print results"
-                    data-testid="translatedtext-7zng"
-                  />
-                </OutlinedButton>
-              )}
-              {!(isPublished || isVerified) && (
+              {(isPublished || isVerified) ? (
+                canReadLabTestResult && (
+                  <OutlinedButton
+                    disabled={isHidden}
+                    onClick={() => {
+                      handleChangeModalId(MODAL_IDS.RESULTS_PRINT);
+                    }}
+                    data-testid="outlinedbutton-fdjm"
+                  >
+                    <TranslatedText
+                      stringId="lab.action.printResults"
+                      fallback="Print results"
+                      data-testid="translatedtext-7zng"
+                    />
+                  </OutlinedButton>
+                )
+              ) : (
                 <OutlinedButton
                   disabled={isHidden}
                   onClick={() => {
