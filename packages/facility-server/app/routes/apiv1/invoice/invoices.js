@@ -43,7 +43,7 @@ invoiceRoute.get(
       where: {
         invoicePriceListId,
         invoiceProductId: productId,
-        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        isHidden: false,
       },
       attributes: ['price'],
     });

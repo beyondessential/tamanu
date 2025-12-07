@@ -144,11 +144,11 @@ describe('Invoice price list item import', () => {
 
     expect(itemsProd1).toHaveLength(1);
     expect(itemsProd1[0].price).toBeNull();
-    expect(itemsProd1[0].visibilityStatus).toEqual('historical');
+    expect(itemsProd1[0].isHidden).toEqual(true);
 
     expect(itemsProd2).toHaveLength(1);
     expect(itemsProd2[0].price).toBeNull();
-    expect(itemsProd2[0].visibilityStatus).toEqual('current');
+    expect(itemsProd2[0].isHidden).toEqual(false);
   });
 
   it('should validate non-numeric price values', async () => {

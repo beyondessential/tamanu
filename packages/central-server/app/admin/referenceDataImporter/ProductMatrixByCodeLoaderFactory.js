@@ -95,11 +95,11 @@ export function productMatrixByCodeLoaderFactory(config) {
     const rows = [];
     for (const code of state.codes) {
       const rawValue = item[code];
-      // Skip empties
+
       const isEmpty = rawValue === undefined || rawValue === null || `${rawValue}`.trim() === '';
       if (!allowEmptyValues && isEmpty) continue;
 
-      const { parsedValue, isValidValue, visibilityStatus } = valueExtractor(rawValue, isEmpty);
+      const { parsedValue, isValidValue, ...otherColumns } = valueExtractor(rawValue, isEmpty);
       if (!isValidValue) {
         pushError(messages.invalidValue(rawValue, code, invoiceProductId), itemModel);
         return [];
@@ -121,7 +121,7 @@ export function productMatrixByCodeLoaderFactory(config) {
           [parentIdField]: parentId,
           invoiceProductId,
           [valueField]: parsedValue,
-          ...(visibilityStatus ? { visibilityStatus } : {}),
+          ...otherColumns,
         },
       });
     }
