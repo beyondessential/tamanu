@@ -129,6 +129,10 @@ const MODALS = {
 };
 
 const Menu = ({ setModal, status, disabled, canReadLabTestResult, enableLabResultsPrintout }) => {
+  const shouldShowPrintInterimReport =
+    enableLabResultsPrintout &&
+    canReadLabTestResult &&
+    INTERIM_LAB_REQUEST_STATUSES.includes(status);
   const menuActions = [
     {
       label: (
@@ -142,11 +146,11 @@ const Menu = ({ setModal, status, disabled, canReadLabTestResult, enableLabResul
     },
   ];
 
-  if (enableLabResultsPrintout && canReadLabTestResult && INTERIM_LAB_REQUEST_STATUSES.includes(status)) {
+  if (shouldShowPrintInterimReport) {
     menuActions.push({
       label: (
         <TranslatedText
-            stringId="lab.action.printInterimReport"
+          stringId="lab.action.printInterimReport"
           fallback="Print interim report"
           data-testid="translatedtext-print-interim-report"
         />
