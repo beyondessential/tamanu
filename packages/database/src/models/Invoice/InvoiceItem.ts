@@ -1,5 +1,5 @@
 import { DataTypes, literal, Op } from 'sequelize';
-import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from '../Model';
 import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter';
 import { dateType, type InitOptions, type Models } from '../../types/model';
@@ -164,7 +164,7 @@ export class InvoiceItem extends Model {
     if (invoicePriceListId) {
       productInclude.push({
         model: models.InvoicePriceListItem,
-        where: { invoicePriceListId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+        where: { invoicePriceListId },
         as: 'invoicePriceListItem',
         attributes: ['price', 'invoicePriceListId'],
         required: false,
