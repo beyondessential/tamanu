@@ -253,11 +253,16 @@ describe('Changelog Trigger Transactional Safety', () => {
         },
       );
 
-      expect(changes.length).toBe(2);
-      expect(changes.map(c => c.record_id)).toEqual(
-        expect.arrayContaining([result.p1Id, result.p3Id]),
-      );
-      expect(changes.map(c => c.record_id)).not.toContain(result.p2Id);
+      expect(changes).toEqual([
+        expect.objectContaining({
+          record_id: result.p1Id,
+          table_name: 'programs',
+        }),
+        expect.objectContaining({
+          record_id: result.p3Id,
+          table_name: 'programs',
+        }),
+      ]);
     });
   });
 
@@ -273,7 +278,7 @@ describe('Changelog Trigger Transactional Safety', () => {
         programId = program.id;
 
         const changesBeforeCommit = await sequelize.query(
-          'SELECT * as count FROM logs.changes WHERE record_id = :id',
+          'SELECT * FROM logs.changes WHERE record_id = :id',
           {
             type: sequelize.QueryTypes.SELECT,
             replacements: { id: program.id },
@@ -285,14 +290,19 @@ describe('Changelog Trigger Transactional Safety', () => {
       });
 
       const changesAfterCommit = await sequelize.query(
-        'SELECT * as count FROM logs.changes WHERE record_id = :id',
+        'SELECT * FROM logs.changes WHERE record_id = :id',
         {
           type: sequelize.QueryTypes.SELECT,
           replacements: { id: programId },
         },
       );
 
-      expect(changesAfterCommit.length).toBe(1);
+      expect(changesAfterCommit).toEqual([
+        expect.objectContaining({
+          record_id: programId,
+          table_name: 'programs',
+        }),
+      ]);
     });
   });
 });
