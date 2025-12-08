@@ -521,7 +521,7 @@
   "countryTimeZone": "Australia/Melbourne",
   "allowMismatchedTimeZones": false,
   "socket.io": {
-    enabled: true,
+    enabled: false,
   },
   "telegramBot": {
     apiToken: "",

@@ -33,8 +33,13 @@ export async function createApiApp({
     NOTIFY_CHANNELS.MATERIALIZED_VIEW_REFRESHED,
   ]);
 
-  const websocketService = defineWebsocketService({ httpServer: server, dbNotifier, models });
-  const websocketClientService = defineWebsocketClientService({ config, websocketService, models });
+  let websocketService = null;
+  let websocketClientService = null;
+
+  if (config['socket.io'].enabled) {
+    websocketService = defineWebsocketService({ httpServer: server, dbNotifier, models });
+    websocketClientService = defineWebsocketClientService({ config, websocketService, models });
+  }
 
   express.use(
     helmet({
