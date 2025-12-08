@@ -12,7 +12,7 @@ import {
   TranslatedText,
 } from '@tamanu/ui-components';
 import { subHours } from 'date-fns';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
+import { ENCOUNTER_TYPES, PHARMACY_PRESCRIPTION_TYPES } from '@tamanu/constants';
 
 import { AutocompleteInput } from '../Field';
 import { useApi, useSuggester } from '../../api';
@@ -149,11 +149,6 @@ const StyledFormControlLabel = styled(FormControlLabel)`
   }
 `;
 
-const PHARMACY_PRESCRIPTION_TYPES = {
-  DISCHARGE_OR_OUTPATIENT: 'DISCHARGE_OR_OUTPATIENT',
-  INPATIENT: 'INPATIENT',
-};
-
 export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubmit }) => {
   const [orderingClinicianId, setOrderingClinicianId] = useState('');
   const [comments, setComments] = useState('');
@@ -173,7 +168,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
   const [prescriptionType, setPrescriptionType] = useState(
     PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT,
   );
-  const isDischargePrescription =
+  const isDischargeOrOutpatient =
     prescriptionType === PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT;
 
   const {
@@ -215,19 +210,8 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
 
     if (encounter.encounterType === ENCOUNTER_TYPES.CLINIC) {
       setPrescriptionType(PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT);
-      return;
-    }
-
-    if (
-      [
-        ENCOUNTER_TYPES.ADMISSION,
-        ENCOUNTER_TYPES.TRIAGE,
-        ENCOUNTER_TYPES.OBSERVATION,
-        ENCOUNTER_TYPES.EMERGENCY,
-      ].includes(encounter.encounterType)
-    ) {
+    } else {
       setPrescriptionType(PHARMACY_PRESCRIPTION_TYPES.INPATIENT);
-      return;
     }
   }, [open, encounter?.encounterType]);
 
@@ -311,7 +295,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
         encounterId: encounter.id,
         orderingClinicianId,
         comments,
-        isDischargePrescription,
+        isDischargePrescription: isDischargeOrOutpatient,
         pharmacyOrderPrescriptions: selectedPrescriptions.map(prescription => ({
           prescriptionId: prescription.id,
           quantity: prescription.quantity,
@@ -333,7 +317,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
     encounter.id,
     orderingClinicianId,
     comments,
-    isDischargePrescription,
+    isDischargeOrOutpatient,
     prescriptions,
     api,
     refetchEncounterMedications,
@@ -368,9 +352,6 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
       })),
     [prescriptions, handleSelectRow],
   );
-
-  const isDischargeOrOutpatient =
-    prescriptionType === PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT;
 
   const mainTableColumns = useMemo(() => {
     const columns = [

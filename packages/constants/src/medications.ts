@@ -292,3 +292,8 @@ export const MEDICATION_ADMINISTRATION_TIME_SLOTS = [
   { startTime: '20:00', endTime: '22:00' },
   { startTime: '22:00', endTime: '24:00', periodLabel: 'night' },
 ];
+
+export const PHARMACY_PRESCRIPTION_TYPES = {
+  DISCHARGE_OR_OUTPATIENT: 'DISCHARGE_OR_OUTPATIENT',
+  INPATIENT: 'INPATIENT',
+};
