@@ -78,8 +78,7 @@ export class LabRequestModalBase {
       description: 'styledbodytext-8egc',
       requestingClinicianInput: 'field-z6gb-input',
       requestDateTimeInput: 'field-y6ku-input',
-      departmentInput: 'field-wobc-input',
-      prioritySelect: 'selectinput-phtg-select',
+      departmentInput: 'field-wobc-input', 
       panelRadioButton: 'radio-il3t-panel',
       individualRadioButton: 'radio-il3t-individual',
       backButton: 'styledbackbutton-016f',
@@ -128,6 +127,7 @@ export class LabRequestModalBase {
     this.requestingClinicianInput = page.getByTestId('field-z6gb-input').locator('input');
     this.requestDateTimeInput = page.getByTestId('field-y6ku-input').locator('input');
     this.departmentInput = page.getByTestId('field-wobc-input').locator('input');
+    this.prioritySelect = page.getByTestId('formgrid-wses').getByTestId('selectinput-phtg-select');
     this.selectedPriority = this.prioritySelect.locator('div').locator('div').first();
     this.cancelButton = page.getByTestId('formgrid-wses').getByTestId('outlinedbutton-8rnr');
     this.selectedItemsList = page.getByTestId('testitemwrapper-o7ha').getByTestId('labeltext-6stl');

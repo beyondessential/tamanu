@@ -44,6 +44,7 @@ export class RecordSampleModal {
     this.dateTimeCollectedInput = page.getByTestId('styledfield-dmjl-input').locator('input');
     this.collectedByInput = page.getByTestId('styledfield-v88m-input').locator('input');
     this.specimenTypeInput = page.getByTestId('styledfield-0950-input').locator('input');
+    this.siteInputDropdownIcon = page.getByRole('dialog').getByTestId('selectinput-phtg-expandmoreicon-h115');
   }
 
   async waitForModalToLoad() {
