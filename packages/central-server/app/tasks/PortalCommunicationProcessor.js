@@ -19,7 +19,7 @@ export class PortalCommunicationProcessor extends BaseCommunicationProcessor {
     }
 
     const portalUserId = portalUser.id;
-    const baseUrl = await this.context.settings.get('patientPortal.portalUrl');
+    const baseUrl = await this.context.settings.get('patientPortal.baseUrl');
 
     // Send form link and login code to a registered user
     if (type === PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_REGISTERED_FORM) {
