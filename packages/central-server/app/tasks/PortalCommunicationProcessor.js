@@ -10,7 +10,8 @@ export class PortalCommunicationProcessor extends BaseCommunicationProcessor {
   }
 
   async transformContent({ content, patientId, type }) {
-    const { models } = this.context.store;
+    const {store, settings} = this.context;
+    const { models } = store;
     const portalOneTimeTokenService = new PortalOneTimeTokenService(models);
     const portalUser = await models.PortalUser.findOne({ where: { patientId } });
 
@@ -19,7 +20,7 @@ export class PortalCommunicationProcessor extends BaseCommunicationProcessor {
     }
 
     const portalUserId = portalUser.id;
-    const baseUrl = await this.context.settings.get('patientPortal.baseUrl');
+    const baseUrl = await settings.get('patientPortal.baseUrl');
 
     // Send form link and login code to a registered user
     if (type === PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_REGISTERED_FORM) {
