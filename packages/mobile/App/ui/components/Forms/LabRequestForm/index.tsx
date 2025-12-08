@@ -89,7 +89,7 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
     <FormScreenView paddingRight={20} paddingLeft={20} paddingTop={20}>
       <Field
         component={ReadOnlyBanner}
-        label={<TranslatedText stringId="lab.requestId.label" fallback="Test ID" />}
+        label={<TranslatedText stringId="lab.requestId.label.short" fallback="Test ID" />}
         name="displayId"
         disabled
       />

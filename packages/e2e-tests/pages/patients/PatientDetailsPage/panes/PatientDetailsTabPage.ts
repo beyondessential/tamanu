@@ -151,6 +151,7 @@ export class PatientDetailsTabPage extends BasePatientPane {
       (this as any)[key] = page.getByTestId(testId);
     }
     this.divisionInput = page.getByTestId('autocompleteinput-input').locator('input[name="divisionId"]');
+    this.patientTypeSelect=page.getByTestId('secondarydetailsformgrid-qrkb').getByTestId('selectinput-phtg-select');
   }
 
   async updatePatientDetailsFields(patientDetails: Partial<PatientDetails>): Promise<{

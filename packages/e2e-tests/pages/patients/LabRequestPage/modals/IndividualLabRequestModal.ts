@@ -117,4 +117,24 @@ export class IndividualLabRequestModal extends LabRequestModalBase {
     }
   }
 
+  /**
+   * Helper method to create a basic individual lab request
+   * @param testsToSelect - Optional array of test names to select. Defaults to common AgRDT tests.
+   * @returns The array of selected test names
+   */
+  async createBasicIndividualLabRequest(testsToSelect?: string[]): Promise<string[]> {
+    const selectedTests = testsToSelect || [
+      'AgRDT Negative, no further testing needed',
+      'AgRDT Positive, no further testing needed',
+    ];
+    await this.waitForModalToLoad();
+    await this.individualRadioButton.click();
+    await this.nextButton.click();
+    await this.selectItemsByText(selectedTests);
+    await this.nextButton.click();
+    await this.finaliseButton.click();
+    await this.closeButton.click();
+    return selectedTests;
+  }
+
 } 
