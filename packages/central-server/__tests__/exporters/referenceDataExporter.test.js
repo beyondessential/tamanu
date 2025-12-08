@@ -28,7 +28,6 @@ import {
   INVOICE_ITEMS_CATEGORIES_MODELS,
   REFERENCE_DATA_TRANSLATION_PREFIX,
   REFERENCE_TYPES,
-  VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { exporter } from '../../dist/admin/exporter';
@@ -728,7 +727,7 @@ describe('Reference data exporter', () => {
       invoiceProductId: p2.id,
       invoicePriceListId: pl2.id, // code 'A'
       price: null,
-      visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+      isHidden: true,
     });
 
     await exporter(store, { 1: 'invoicePriceList', 2: 'invoicePriceListItem' });
