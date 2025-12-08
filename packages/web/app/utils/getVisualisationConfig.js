@@ -4,11 +4,11 @@ import { getConfigObject, getGraphRangeByAge, getNormalRangeByAge } from '@taman
 import { BLOOD_PRESSURE, bloodPressureChartKeys, LINE } from '../components/Charts/constants';
 
 const hasHistoricalData = (chartDataArray, dataElementId) => {
-  if (!chartDataArray || chartDataArray.length === 0) return false;
-  const answer = chartDataArray.find(item => item.dataElementId === dataElementId);
-  if (!answer) return false;
-  const { records } = answer;
-  return Object.values(records).some(record => record.body);
+  const answer = chartDataArray?.find(item => item.dataElementId === dataElementId);
+  if (!answer?.records) {
+    return false;
+  }
+  return Object.values(answer.records).some(record => record?.body);
 }
 
 export const getVisualisationConfig = (patientData, surveyData, restOfQuery, chartDataArray = []) => {
