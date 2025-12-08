@@ -1,12 +1,12 @@
 {
-  admin: {
-    allowAdminRoutes: false,
+  "admin": {
+    "allowAdminRoutes": false
   },
-  log: {
-    path: '',
-    consoleLevel: 'http',
-    color: true,
-    timeless: false,
+  "log": {
+    "path": "",
+    "consoleLevel": "http",
+    "color": true,
+    "timeless": false,
   },
   errors: {
     // enable to send errors to a bug tracking service
@@ -16,119 +16,121 @@
     // paste your bugsnag API key here
     apiKey: '',
   },
-  sync: {
-    schedule: '*/1 * * * *',
-    host: 'https://central.main.cd.tamanu.app',
-    email: '',
-    password: '',
-    timeout: 10000,
-    syncApiConnection: {
-      host: 'http://localhost',
-      port: 4100,
+  "sync": {
+    "schedule": "*/1 * * * *",
+    "host": "https://central.main.cd.tamanu.app",
+    "email": "",
+    "password": "",
+    "timeout": 10000,
+    "syncApiConnection": {
+      "host": "http://localhost",
+      "port": 4100,
     },
-    persistedCacheBatchSize: 10000,
-    pauseBetweenPersistedCacheBatchesInMilliseconds: 50,
-    pauseBetweenCacheBatchInMilliseconds: 50,
-    persistUpdateWorkerPoolSize: 5,
-    assertIfPulledRecordsUpdatedAfterPushSnapshot: true,
-    enabled: true,
-    jitterTime: '1s',
-    backoff: {
-      multiplierMs: 300,
-      maxAttempts: 15,
-      maxWaitMs: 10000,
+    "persistedCacheBatchSize": 10000,
+    "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
+    "pauseBetweenCacheBatchInMilliseconds": 50,
+    "persistUpdateWorkerPoolSize": 5,
+    "assertIfPulledRecordsUpdatedAfterPushSnapshot": true,
+    "enabled": true,
+    "jitterTime": "1s",
+    "backoff": {
+      "multiplierMs": 300,
+      "maxAttempts": 15,
+      "maxWaitMs": 10000
     },
-    dynamicLimiter: {
-      initialLimit: 10, // start relatively low then grow upward
-      minLimit: 1,
-      maxLimit: 10000,
-      optimalTimePerPageMs: 2000, // aim for 2 seconds per page
-      maxLimitChangePerPage: 0.2, // max 20% increase/decrease from page to page
-    },
+    "dynamicLimiter": {
+      "initialLimit": 10, // start relatively low then grow upward
+      "minLimit": 1,
+      "maxLimit": 10000,
+      "optimalTimePerPageMs": 2000, // aim for 2 seconds per page
+      "maxLimitChangePerPage": 0.2 // max 20% increase/decrease from page to page
+    }
   },
-  port: 4000,
-  deviceId: null,
-  db: {
-    name: 'tamanu-facility',
-    username: '',
-    password: '',
-    verbose: false,
-    migrateOnStartup: false,
-    reportSchemas: {
-      enabled: false,
-      connections: {
-        raw: {
-          pool: {
-            max: 5,
+  "port": 4000,
+  "deviceId": null,
+  "db": {
+    "name": "tamanu-facility",
+    "username": "",
+    "password": "",
+    "verbose": false,
+    "migrateOnStartup": false,
+    "reportSchemas": {
+      "enabled": false,
+      "connections": {
+        "raw": {
+          "pool": {
+            "max": 5
           },
-          username: '',
-          password: '',
+          "username": "",
+          "password": ""
         },
-        reporting: {
-          pool: {
-            max: 5,
+        "reporting": {
+          "pool": {
+            "max": 5
           },
-          username: '',
-          password: '',
-        },
-      },
-    },
+          "username": "",
+          "password": ""
+        }
+      }
+    }
   },
-  metaServer: {
-    hosts: ['https://meta.tamanu.app'],
-    serverId: null,
-    timeoutMs: 20000,
+  "metaServer": {
+    "hosts": [
+      "https://meta.tamanu.app",
+    ],
+    "serverId": null,
+    "timeoutMs": 20000,
   },
-  senaite: {
-    enabled: false,
-    server: 'https://192.168.33.100',
-    username: 'admin',
-    password: 'admin',
+  "senaite": {
+    "enabled": false,
+    "server": "https://192.168.33.100",
+    "username": "admin",
+    "password": "admin"
   },
-  auth: {
-    saltRounds: 12,
-    tokenDuration: '1h',
-    useHardcodedPermissions: true,
+  "auth": {
+    "saltRounds": 12,
+    "tokenDuration": "1h",
+    "useHardcodedPermissions": true,
 
     // Authentication "cookie" secret. Set to a random value so sessions don't
     // expire when the server restarts.
     // "secret": "some long secret value",
   },
-  serverFacilityId: null,
-  serverFacilityIds: null,
-  debugging: {
+  "serverFacilityId": null,
+  "serverFacilityIds": null,
+  "debugging": {
     // set a `tamanu-debug` header on a request with the value of this key
     // and the errors will get stack traces.
     apiErrorsToken: false,
-    requestFailureRate: 0,
+    "requestFailureRate": 0
   },
-  schedules: {
-    refreshMaterializedView: {
-      upcomingVaccinations: {
+  "schedules": {
+    "refreshMaterializedView": {
+      "upcomingVaccinations": {
         // every 10 mins
-        schedule: '*/10 * * * *',
+        "schedule": "*/10 * * * *"
       },
     },
-    sendStatusToMetaServer: {
-      enabled: true,
+    "sendStatusToMetaServer": {
+      "enabled": true,
       // every minute
-      schedule: '* * * * *',
-      jitterTime: '30s',
+      "schedule": "* * * * *",
+      jitterTime: "30s",
     },
-    timeSync: {
-      enabled: false,
+    "timeSync": {
+      "enabled": false,
       // every hour
-      schedule: '0 * * * *',
+      "schedule": "0 * * * *",
     },
   },
   // Note: this config should be duplicated on the central server if the same behavior is
   // desired for "this facility" and "all facilities"
-  reportConfig: {
-    'encounter-summary-line-list': {
-      includedPatientFieldIds: [],
-    },
+  "reportConfig": {
+    "encounter-summary-line-list": {
+      "includedPatientFieldIds": []
+    }
   },
-  proxy: {
+  "proxy": {
     // Possible values: https://expressjs.com/en/guide/behind-proxies.html
     //
     // This should only be set to servers we trust! `loopback` is a safe default
@@ -137,20 +139,17 @@
     //
     // As of 29/08/2022 all our deployments are behind a local nginx proxy and so
     // this shouldn't need to be changed.
-    trusted: ['loopback'],
+    "trusted": ["loopback"]
   },
   // this should be an IANA tzdata timezone
   // @see here for a list of available options https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-  countryTimeZone: 'Australia/Melbourne',
-  'socket.io': {
-    enabled: false,
+  "countryTimeZone": "Australia/Melbourne",
+  "allowMismatchedTimeZones": false,
+  "tasking": {
+    "upcomingTasksTimeFrame": 8, // hours,
+    "upcomingTasksShouldBeGeneratedTimeFrame": 72, // hours
   },
-  allowMismatchedTimeZones: false,
-  tasking: {
-    upcomingTasksTimeFrame: 8, // hours,
-    upcomingTasksShouldBeGeneratedTimeFrame: 72, // hours
-  },
-  medicationAdministrationRecord: {
-    upcomingRecordsShouldBeGeneratedTimeFrame: 72, // hours
+  "medicationAdministrationRecord": {
+    "upcomingRecordsShouldBeGeneratedTimeFrame": 72, // hours
   },
 }
