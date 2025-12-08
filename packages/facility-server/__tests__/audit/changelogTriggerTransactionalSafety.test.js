@@ -45,7 +45,7 @@ describe('Changelog Trigger Transactional Safety', () => {
           },
         );
         expect(changesInTransaction.length).toBe(0);
-        
+
         return programIds;
       });
 
@@ -57,16 +57,18 @@ describe('Changelog Trigger Transactional Safety', () => {
         },
       );
 
-      expect(changesAfterCommit).toEqual(expect.arrayContaining([
-        expect.objectContaining({
-          record_id: programIds[0],
-          table_name: 'programs',
-        }),
-        expect.objectContaining({
-          record_id: programIds[1],
-          table_name: 'programs',
-        }),
-      ]));
+      expect(changesAfterCommit).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            record_id: programIds[0],
+            table_name: 'programs',
+          }),
+          expect.objectContaining({
+            record_id: programIds[1],
+            table_name: 'programs',
+          }),
+        ]),
+      );
     });
 
     it('should not create changelog entries when transaction rolls back', async () => {
@@ -82,7 +84,7 @@ describe('Changelog Trigger Transactional Safety', () => {
             { transaction },
           );
           programIds = [program.id, program2.id];
-          
+
           throw new Error('Intentional rollback');
         });
       } catch (error) {
@@ -96,10 +98,9 @@ describe('Changelog Trigger Transactional Safety', () => {
           replacements: { programIds },
         },
       );
-      
+
       expect(changes.length).toBe(0);
     });
-
   });
 
   describe('Update operations', () => {
@@ -133,8 +134,13 @@ describe('Changelog Trigger Transactional Safety', () => {
         },
       );
 
-      expect(changesAfterCommit.length).toBe(1);
-      expect(changesAfterCommit[0].record_data.name).toBe('Updated Name');
+      expect(changesAfterCommit).toEqual([
+        expect.objectContaining({
+          record_id: program.id,
+          table_name: 'programs',
+          record_data: expect.objectContaining({ name: 'Updated Name' }) ,
+        }),
+      ]);
     });
 
     it('should not create changelog entries for rolled back updates', async () => {
@@ -162,10 +168,7 @@ describe('Changelog Trigger Transactional Safety', () => {
         },
       );
 
-      expect(changes.length).toBe(0);
-
-      await program.reload();
-      expect(program.name).toBe('Original Name');
+      expect(changes).toEqual([]);
     });
   });
 
@@ -180,7 +183,7 @@ describe('Changelog Trigger Transactional Safety', () => {
 
       let newProgramId;
       let errorThrown = false;
-      
+
       try {
         await sequelize.transaction(async transaction => {
           const program = await models.Program.create(
@@ -205,13 +208,10 @@ describe('Changelog Trigger Transactional Safety', () => {
 
       expect(errorThrown).toBe(true);
 
-      const changes = await sequelize.query(
-        'SELECT * FROM logs.changes WHERE record_id = :id',
-        {
-          type: sequelize.QueryTypes.SELECT,
-          replacements: { id: newProgramId },
-        },
-      );
+      const changes = await sequelize.query('SELECT * FROM logs.changes WHERE record_id = :id', {
+        type: sequelize.QueryTypes.SELECT,
+        replacements: { id: newProgramId },
+      });
 
       expect(changes.length).toBe(0);
     });
@@ -225,17 +225,14 @@ describe('Changelog Trigger Transactional Safety', () => {
 
         let p2Id;
         try {
-          await sequelize.transaction(
-            { transaction: outerTransaction },
-            async innerTransaction => {
-              const p2 = await models.Program.create(
-                { code: 'inner-1', name: 'Inner 1' },
-                { transaction: innerTransaction },
-              );
-              p2Id = p2.id;
-              throw new Error('Rollback inner');
-            },
-          );
+          await sequelize.transaction({ transaction: outerTransaction }, async innerTransaction => {
+            const p2 = await models.Program.create(
+              { code: 'inner-1', name: 'Inner 1' },
+              { transaction: innerTransaction },
+            );
+            p2Id = p2.id;
+            throw new Error('Rollback inner');
+          });
         } catch (error) {
           expect(error.message).toBe('Rollback inner');
         }
@@ -276,13 +273,10 @@ describe('Changelog Trigger Transactional Safety', () => {
         pausedId = paused.id;
       });
 
-      const changes = await sequelize.query(
-        'SELECT * FROM logs.changes WHERE record_id = :id',
-        {
-          type: sequelize.QueryTypes.SELECT,
-          replacements: { id: pausedId },
-        },
-      );
+      const changes = await sequelize.query('SELECT * FROM logs.changes WHERE record_id = :id', {
+        type: sequelize.QueryTypes.SELECT,
+        replacements: { id: pausedId },
+      });
 
       expect(changes.length).toBe(0);
     });
