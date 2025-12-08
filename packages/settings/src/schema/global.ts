@@ -1522,7 +1522,7 @@ export const globalSettings = {
     patientPortal: {
       description: 'Patient portal settings',
       properties: {
-        portalUrl: {
+        baseUrl: {
           description: 'The base URL of the patient portal',
           type: yup.string().trim().url(),
           defaultValue: 'http://localhost:5175',
