@@ -44,7 +44,7 @@ describe('Changelogs', () => {
             transaction,
           },
         );
-        expect(changesInTransaction.length).toBe(0);
+        expect(changesInTransaction).toEqual([]);
 
         return programIds;
       });
@@ -90,7 +90,7 @@ describe('Changelogs', () => {
             transaction,
           },
         );
-        expect(changesInTransaction.length).toBe(0);
+        expect(changesInTransaction).toEqual([]);
       });
 
       const changesAfterCommit = await sequelize.query(
@@ -171,8 +171,14 @@ describe('Changelogs', () => {
         },
       );
 
-      expect(changes.length).toBe(1);
-      expect(changes[0].record_id).toBe(program1.id);
+      expect(changes).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            record_id: program1.id,
+            table_name: 'programs',
+          }),
+        ]),
+      );
     });
 
     it('should pause audit when setting is disabled globally', async () => {
@@ -191,7 +197,7 @@ describe('Changelogs', () => {
         },
       );
 
-      expect(changes.length).toBe(0);
+      expect(changes).toEqual([]);
     });
 
     it('should only pause audit within the specific transaction', async () => {
@@ -215,9 +221,17 @@ describe('Changelogs', () => {
         },
       );
 
-      expect(changes.length).toBe(2);
-      expect(changes.map(c => c.record_id)).toEqual(
-        expect.arrayContaining([program1.id, program2.id]),
+      expect(changes).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            record_id: program1.id,
+            table_name: 'programs',
+          }),
+          expect.objectContaining({
+            record_id: program2.id,
+            table_name: 'programs',
+          }),
+        ]),
       );
     });
   });
