@@ -1,63 +1,61 @@
 {
-  "port": 3000,
-  "deviceId": null,
+  port: 3000,
+  deviceId: null,
   // this should be set to the external address of the server, e.g. "https://central.main.cd.tamanu.app"
-  "canonicalHostName": "http://localhost:3000",
-  "portalHostName": "http://localhost:5175",
-  "db": {
-    "name": "tamanu-central",
+  canonicalHostName: 'http://localhost:3000',
+  portalHostName: 'http://localhost:5175',
+  db: {
+    name: 'tamanu-central',
     // when verbose to true, log.consoleLevel must be set to "debug" to see any output
-    "verbose": false,
-    "username": "",
-    "password": "",
-    "migrateOnStartup": false,
-    "pool": {
-      "max": 10
+    verbose: false,
+    username: '',
+    password: '',
+    migrateOnStartup: false,
+    pool: {
+      max: 10,
       // "min": 5,
       // "idle": 10000,
       // "acquire": 60000,
       // "evict": 1000
     },
-    "reportSchemas": {
-      "enabled": false,
-      "connections": {
-        "raw": {
-          "pool": {
-            "max": 5
+    reportSchemas: {
+      enabled: false,
+      connections: {
+        raw: {
+          pool: {
+            max: 5,
           },
-          "username": "",
-          "password": ""
+          username: '',
+          password: '',
         },
-        "reporting": {
-          "pool": {
-            "max": 5
+        reporting: {
+          pool: {
+            max: 5,
           },
-          "username": "",
-          "password": ""
-        }
-      }
-    }
+          username: '',
+          password: '',
+        },
+      },
+    },
   },
   debugging: {
     // set a `tamanu-debug` header on a request with the value of this key
     // and the errors will get stack traces.
     apiErrorsToken: false,
   },
-  "metaServer": {
-    "hosts": [
-      "https://meta.tamanu.app",
-    ],
-    "serverId": null,
-    "timeoutMs": 20000,
+  metaServer: {
+    hosts: ['https://meta.tamanu.app'],
+    serverId: null,
+    timeoutMs: 20000,
   },
-  "updateUrls": {
-    "mobile": "https://meta.tamanu.app/versions/~{minVersion}/mobile",
+  updateUrls: {
+    mobile: 'https://meta.tamanu.app/versions/~{minVersion}/mobile',
   },
-  "log": {
-    "path": "",
-    "consoleLevel": "http",
-    "color": true,
-    "timeless": false,
+  log: {
+    path: '',
+    consoleLevel: 'http',
+    color: true,
+    timeless: false,
   },
   errors: {
     // enable to send errors to a bug tracking service
@@ -67,29 +65,29 @@
     // paste your bugsnag API key here
     apiKey: '',
   },
-  patientMerge:{
-    updateDependentRecordsForResyncEnabled: true
+  patientMerge: {
+    updateDependentRecordsForResyncEnabled: true,
   },
-  "sync": {
-    "maxConcurrentSessions": 4,
-    "persistedCacheBatchSize": 20000,
-    "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
-    "adjustDataBatchSize": 20000,
-    "incomingSyncHookBatchSize": 20000,
-    "numberConcurrentPullSnapshots": 4,
-    "persistUpdateWorkerPoolSize": 5,
+  sync: {
+    maxConcurrentSessions: 4,
+    persistedCacheBatchSize: 20000,
+    pauseBetweenPersistedCacheBatchesInMilliseconds: 50,
+    adjustDataBatchSize: 20000,
+    incomingSyncHookBatchSize: 20000,
+    numberConcurrentPullSnapshots: 4,
+    persistUpdateWorkerPoolSize: 5,
     // at its very large default, maxRecordsPerSnapshotChunk is essentially "off"
     // can be turned on by lowering to some amount that seems appropriate if snapshot performance is an issue
-    "maxRecordsPerSnapshotChunk": 1000000000,
-    "syncSessionTimeoutMs": null,
+    maxRecordsPerSnapshotChunk: 1000000000,
+    syncSessionTimeoutMs: null,
     snapshotTransactionTimeoutMs: null,
-    "lookupTable": {
-      "enabled": true,
-      "perModelUpdateTimeoutMs": null,
-      "avoidRepull": true
-    }
+    lookupTable: {
+      enabled: true,
+      perModelUpdateTimeoutMs: null,
+      avoidRepull: true,
+    },
   },
-  "loadshedder": {
+  loadshedder: {
     // paths are checked sequentially until a path matches a prefix
     // (e.g. the path `/api/sync/xxx/pull` would match the prefix `/api/sync/`)
     //
@@ -98,411 +96,411 @@
     //
     // if the path of a request matches nothing, the server never drops the
     // request
-    "queues": [
+    queues: [
       // sync queue
       // (defaults to shedding requests for sync or attachments earlier than other requests)
       {
-        "name": "low_priority",
-        "prefixes": ["/api/sync", "/api/attachment"],
-        "maxActiveRequests": 4,
-        "maxQueuedRequests": 8,
-        "queueTimeout": 7500
+        name: 'low_priority',
+        prefixes: ['/api/sync', '/api/attachment'],
+        maxActiveRequests: 4,
+        maxQueuedRequests: 8,
+        queueTimeout: 7500,
       },
       // global queue for non-sync non-attachment requests
       // (defaults to queueing more requests than sync/attachments and them shedding much later)
       {
-        "name": "high_priority",
-        "prefixes": ["/"],
-        "maxActiveRequests": 8,
-        "maxQueuedRequests": 32,
-        "queueTimeout": 7500
-      }
-    ]
+        name: 'high_priority',
+        prefixes: ['/'],
+        maxActiveRequests: 8,
+        maxQueuedRequests: 32,
+        queueTimeout: 7500,
+      },
+    ],
   },
-  "auth": {
+  auth: {
     // these secrets should be set if more than one process of the central-server is running
     // otherwise, each process will use a different key and tokens won't match
-    "secret": null,
-    "saltRounds": 12,
-    "tokenDuration": "1h",
-    "reportNoUserError": false,
-    "useHardcodedPermissions": true,
-    "refreshToken": {
-      "secret": null,
-      "tokenDuration": "30d",
-      "absoluteExpiration": false,
-      "refreshIdLength": 54
+    secret: null,
+    saltRounds: 12,
+    tokenDuration: '5h',
+    reportNoUserError: false,
+    useHardcodedPermissions: true,
+    refreshToken: {
+      secret: null,
+      tokenDuration: '30d',
+      absoluteExpiration: false,
+      refreshIdLength: 54,
     },
-    "resetPassword": {
-      "tokenLength": 6,
-      "tokenExpiry": 20
-    }
+    resetPassword: {
+      tokenLength: 6,
+      tokenExpiry: 20,
+    },
   },
-  "export": {
-    "maxFileSizeInMB": 50
+  export: {
+    maxFileSizeInMB: 50,
   },
-  "mailgun": {
-    "domain": "",
-    "apiKey": "",
-    "from": ""
+  mailgun: {
+    domain: '',
+    apiKey: '',
+    from: '',
   },
-  "cors": {
-    "allowedOrigin": ""
+  cors: {
+    allowedOrigin: '',
   },
-  "schedules": {
+  schedules: {
     // batchSize == run through them all in one run, in batches of N
     // limit == run through N per task run
     // schedule: 5 fields == first is minutes, 6 fields == first is SECONDS
-    "outpatientDischarger": {
+    outpatientDischarger: {
       // every day at 2 AM
-      "schedule": "0 2 * * *",
-      "batchSize": 1000,
-      "batchSleepAsyncDurationInMilliseconds": 50
+      schedule: '0 2 * * *',
+      batchSize: 1000,
+      batchSleepAsyncDurationInMilliseconds: 50,
     },
-    "surveyCompletionNotifierProcessor": {
-      "enabled": true,
+    surveyCompletionNotifierProcessor: {
+      enabled: true,
       // every 30seconds /!\
-      "schedule": "*/30 * * * * *",
-      "limit": 100
+      schedule: '*/30 * * * * *',
+      limit: 100,
     },
-    "patientEmailCommunicationProcessor": {
+    patientEmailCommunicationProcessor: {
       // every 30seconds /!\
-      "schedule": "*/30 * * * * *",
-      "limit": 10
+      schedule: '*/30 * * * * *',
+      limit: 10,
     },
-    "vaccinationReminderProcessor": {
-     // every day at 1 AM
-     "schedule": "0 1 * * *",
+    vaccinationReminderProcessor: {
+      // every day at 1 AM
+      schedule: '0 1 * * *',
     },
-    "patientTelegramCommunicationProcessor": {
+    patientTelegramCommunicationProcessor: {
       // every 30seconds /!\
-      "schedule": "*/30 * * * * *",
-      "batchSize": 100,
-      "batchSleepAsyncDurationInMilliseconds": 50
+      schedule: '*/30 * * * * *',
+      batchSize: 100,
+      batchSleepAsyncDurationInMilliseconds: 50,
     },
-    "portalCommunicationProcessor": {
+    portalCommunicationProcessor: {
       // every 30seconds /!\
-      "schedule": "*/30 * * * * *",
-      "batchSize": 100,
-      "batchSleepAsyncDurationInMilliseconds": 50
+      schedule: '*/30 * * * * *',
+      batchSize: 100,
+      batchSleepAsyncDurationInMilliseconds: 50,
     },
-    "deceasedPatientDischarger": {
+    deceasedPatientDischarger: {
       // once an hour
-      "schedule": "29 * * * *",
-      "batchSize": 100,
-      "batchSleepAsyncDurationInMilliseconds": 50
+      schedule: '29 * * * *',
+      batchSize: 100,
+      batchSleepAsyncDurationInMilliseconds: 50,
     },
-    "patientMergeMaintainer": {
+    patientMergeMaintainer: {
       // once an hour at minute 12
-      "schedule": "12 * * * *"
+      schedule: '12 * * * *',
     },
-    "certificateNotificationProcessor": {
+    certificateNotificationProcessor: {
       // every 30 seconds /!\
-      "schedule": "*/30 * * * * *",
-      "limit": 10
+      schedule: '*/30 * * * * *',
+      limit: 10,
     },
-    "IPSRequestProcessor": {
+    IPSRequestProcessor: {
       // every 30 seconds /!\
-      "schedule": "*/30 * * * * *",
-      "limit": 10
+      schedule: '*/30 * * * * *',
+      limit: 10,
     },
-    "reportRequestProcessor": {
+    reportRequestProcessor: {
       // every 30 seconds /!\
-      "schedule": "*/30 * * * * *",
-      "limit": 10
+      schedule: '*/30 * * * * *',
+      limit: 10,
     },
-    "signerRenewalChecker": {
-      "schedule": "0 0 * * *"
+    signerRenewalChecker: {
+      schedule: '0 0 * * *',
     },
-    "signerRenewalSender": {
+    signerRenewalSender: {
       // needs to happen after the Renewal Checker, and regularly thereafter as a retry mechanism
-      "schedule": "30 * * * *"
+      schedule: '30 * * * *',
     },
-    "signerWorkingPeriodChecker": {
-      "schedule": "0 1 * * *"
+    signerWorkingPeriodChecker: {
+      schedule: '0 1 * * *',
     },
-    "dhis2IntegrationProcessor": {
-      "enabled": false,
-      "schedule": "0 2 * * *"
+    dhis2IntegrationProcessor: {
+      enabled: false,
+      schedule: '0 2 * * *',
     },
-    "automaticLabTestResultPublisher": {
-      "enabled": false,
-      "schedule": "*/15 * * * *",
-      "limit": 300,
-      "results": {
-        "labTestType-RATPositive": {
-          "labTestMethodId": "labTestMethod-RAT",
-          "result": "Positive"
+    automaticLabTestResultPublisher: {
+      enabled: false,
+      schedule: '*/15 * * * *',
+      limit: 300,
+      results: {
+        'labTestType-RATPositive': {
+          labTestMethodId: 'labTestMethod-RAT',
+          result: 'Positive',
         },
-        "labTestType-RATNegative": {
-          "labTestMethodId": "labTestMethod-RAT",
-          "result": "Negative"
-        }
-      }
+        'labTestType-RATNegative': {
+          labTestMethodId: 'labTestMethod-RAT',
+          result: 'Negative',
+        },
+      },
     },
-    "covidClearanceCertificatePublisher": {
-      "enabled": false,
-      "schedule": "*/30 * * * *"
+    covidClearanceCertificatePublisher: {
+      enabled: false,
+      schedule: '*/30 * * * *',
     },
-    "fhirMissingResources": {
-      "enabled": true,
-      "schedule": "48 1 * * *" // once a day, time does not matter (better in off hours)
+    fhirMissingResources: {
+      enabled: true,
+      schedule: '48 1 * * *', // once a day, time does not matter (better in off hours)
     },
-    "plannedMoveTimeout": {
-      "enabled": true,
+    plannedMoveTimeout: {
+      enabled: true,
       // Once an hour
-      "schedule": "0 * * * *",
-      "timeoutHours": 24,
-      "batchSize": 100,
-      "batchSleepAsyncDurationInMilliseconds": 50
+      schedule: '0 * * * *',
+      timeoutHours: 24,
+      batchSize: 100,
+      batchSleepAsyncDurationInMilliseconds: 50,
     },
-    "staleSyncSessionCleaner": {
-      "enabled": true,
-      "schedule": "* * * * *",
-      "staleSessionSeconds": 3600
+    staleSyncSessionCleaner: {
+      enabled: true,
+      schedule: '* * * * *',
+      staleSessionSeconds: 3600,
     },
-    "processSyncQueue": {
-      "enabled": true,
-      "schedule": "* * * * *"
+    processSyncQueue: {
+      enabled: true,
+      schedule: '* * * * *',
     },
-    "syncLookupRefresher": {
-      "enabled": true,
-      "schedule": "*/20 * * * * *"
+    syncLookupRefresher: {
+      enabled: true,
+      schedule: '*/20 * * * * *',
     },
-    "generateRepeatingTasks": {
+    generateRepeatingTasks: {
       // every day at 1 AM
-      "schedule": "0 1 * * *",
-      "batchSize": 50,
-      "batchSleepAsyncDurationInMilliseconds": 50
+      schedule: '0 1 * * *',
+      batchSize: 50,
+      batchSleepAsyncDurationInMilliseconds: 50,
     },
-    "generateMedicationAdministrationRecords": {
+    generateMedicationAdministrationRecords: {
       // every day at 1 AM
-      "schedule": "0 1 * * *",
-      "batchSize": 50,
-      "batchSleepAsyncDurationInMilliseconds": 50
+      schedule: '0 1 * * *',
+      batchSize: 50,
+      batchSleepAsyncDurationInMilliseconds: 50,
     },
-    "generateRepeatingAppointments": {
+    generateRepeatingAppointments: {
       // every day at 1 AM
-      "schedule": "0 1 * * *",
-      "generateOffsetDays": 7,
+      schedule: '0 1 * * *',
+      generateOffsetDays: 7,
     },
-    "sendStatusToMetaServer": {
-      "enabled": true,
+    sendStatusToMetaServer: {
+      enabled: true,
       // every minute
-      "schedule": "* * * * *",
-      jitterTime: "30s",
+      schedule: '* * * * *',
+      jitterTime: '30s',
     },
-    "medicationDiscontinuer": {
+    medicationDiscontinuer: {
       // every hour
-      "schedule": "0 * * * *",
+      schedule: '0 * * * *',
     },
   },
-  "integrations": {
-    "fijiVrs": {
-      "enabled": false,
-      "host": "http://uat-vra.digitalfiji.gov.fj:8786",
-      "username": null,
-      "password": null,
+  integrations: {
+    fijiVrs: {
+      enabled: false,
+      host: 'http://uat-vra.digitalfiji.gov.fj:8786',
+      username: null,
+      password: null,
       // refresh the token if it's within tokenExpiryMarginMs milliseconds of expiry
-      "tokenExpiryMarginMs": 60000,
-      "flagInsteadOfDeleting": true,
-      "retrySchedule": "*/30 * * * * *",
+      tokenExpiryMarginMs: 60000,
+      flagInsteadOfDeleting: true,
+      retrySchedule: '*/30 * * * * *',
       // don't retry pending records unless they're retryMinAgeMs old
-      "retryMinAgeMs": 60000,
-      "requireClientHeaders": true
+      retryMinAgeMs: 60000,
+      requireClientHeaders: true,
     },
-    "fijiVps": {
-      "enabled": false,
-      "requireClientHeaders": true
+    fijiVps: {
+      enabled: false,
+      requireClientHeaders: true,
     },
-    "euDcc": {
-      "enabled": false,
-      "issuer": null // Responsible org for vax cert issuance, e.g. 'Ministry of Health of the Tamanu Republic'. If null defaults to the facility name.
+    euDcc: {
+      enabled: false,
+      issuer: null, // Responsible org for vax cert issuance, e.g. 'Ministry of Health of the Tamanu Republic'. If null defaults to the facility name.
     },
-    "ips": {
-      "attester": "Ministry of Health",
-      "author": "Tamanu is a free and open-source EHR for low resource and remote settings.",
-      "email": {
-        "subject": "Your International Patient Summary",
-        "bodyText": "Please scan the QR code attached to view your International Patient Summary"
-      }
+    ips: {
+      attester: 'Ministry of Health',
+      author: 'Tamanu is a free and open-source EHR for low resource and remote settings.',
+      email: {
+        subject: 'Your International Patient Summary',
+        bodyText: 'Please scan the QR code attached to view your International Patient Summary',
+      },
     },
-    "vdsNc": {
-      "enabled": false
+    vdsNc: {
+      enabled: false,
     },
-    "signer": {
-      "enabled": false,
+    signer: {
+      enabled: false,
       // Encryption key for ICAO Signer key material (stored in DB).
       // This must be unique per country/installation AND NEVER CHANGED.
       // It must be at least 32 bytes of random data in Base64.
       // $ openssl rand -base64 32
-      "keySecret": null,
+      keySecret: null,
       // For VDS-NC: exactly 2 uppercase letters/numbers, must be unique in country, ref 9303-13 §2.2.1(a)
       // For EU DCC: at least 1 character, must be unique in country, should be descriptive
-      "commonName": "TA",
+      commonName: 'TA',
       // For EU DCC only: the name of the issuing organisation (provider/O of the DSC)
       // "provider": "Tamanu",
       // Email address for CSCA signing contact
-      "sendRequestTo": "admin@tamanu.io"
+      sendRequestTo: 'admin@tamanu.io',
     },
-    "fijiAspenMediciReport": {
-      "enabled": false
+    fijiAspenMediciReport: {
+      enabled: false,
     },
-    "mSupply": {
-      "enabled": false,
-      "requireClientHeaders": true
+    mSupply: {
+      enabled: false,
+      requireClientHeaders: true,
     },
-    "fhir": {
+    fhir: {
       // Enabling the HTTP routes and enabling the worker are completely separate:
       // one may be enabled without the other and vice versa. The worker is on by
       // default so that FHIR resources can be used as a target for reports without
       // the FHIR API being exposed to the public in a deployment that doesn't need it.
-      "enabled": false, // the HTTP routes
-      "worker": {
-        "enabled": true, // the materialisation worker
-        "concurrency": 100,
-        "resourceMaterialisationEnabled": {
-          "Patient": true,
-          "Encounter": false,
-          "Immunization": false,
-          "MediciReport": false,
-          "Organization": false,
-          "Practitioner": false,
-          "ServiceRequest": false,
-          "Specimen": false,
-          "MedicationRequest": false
-        }
+      enabled: false, // the HTTP routes
+      worker: {
+        enabled: true, // the materialisation worker
+        concurrency: 100,
+        resourceMaterialisationEnabled: {
+          Patient: true,
+          Encounter: false,
+          Immunization: false,
+          MediciReport: false,
+          Organization: false,
+          Practitioner: false,
+          ServiceRequest: false,
+          Specimen: false,
+          MedicationRequest: false,
+        },
       },
-      "parameters": {
-        "_count": {
-          "default": 100,
-          "max": 1000
-        }
+      parameters: {
+        _count: {
+          default: 100,
+          max: 1000,
+        },
       },
-      "extensions": {
-        "Patient": {
-          "newZealandEthnicity": false
-        }
-      }
+      extensions: {
+        Patient: {
+          newZealandEthnicity: false,
+        },
+      },
     },
-    "omniLab": {
-      "enabled": false,
+    omniLab: {
+      enabled: false,
       // Must be set to a random value, and the value must be saved somewhere (at BES we use lastpass)
       // New keys may be issued by running `npx node dist apiKeys issue fhirIntegration <email> -e '100 years'`
       // If this is changed, all API keys using this secret will be revoked and must be reissued
-      "secret": null
+      secret: null,
     },
-    "dhis2": {
-      "enabled": false,
-      "username": "",
-      "password": ""
-    }
+    dhis2: {
+      enabled: false,
+      username: '',
+      password: '',
+    },
   },
   // on the central-server, don't read these values from config!
   // use the getLocalisation() helper in packages/central-server/app/localisation.js
   // this will ensure we can read these values from the database in the future
-  "localisation": {
-    "allowInvalid": false,
+  localisation: {
+    allowInvalid: false,
     // the labResultWidget and timeZone keys are here for legacy reasons
     // don't put anything else in the top level of localisation unless it relates to localisation itself
-    "labResultWidget": {
-      "categoryWhitelist": ["labTestCategory-COVID"],
-      "testTypeWhitelist": ["labTestType-COVID"]
+    labResultWidget: {
+      categoryWhitelist: ['labTestCategory-COVID'],
+      testTypeWhitelist: ['labTestType-COVID'],
     },
-    "data": {
+    data: {
       // To do: review this section when implementing the patient charts feature
-      "units": {
-        "temperature": "celsius"
+      units: {
+        temperature: 'celsius',
       },
-      "country": {
-        "name": "",
-        "alpha-2": "",
-        "alpha-3": ""
+      country: {
+        name: '',
+        'alpha-2': '',
+        'alpha-3': '',
       },
-      "imagingTypes": {
+      imagingTypes: {
         // keys are taken from IMAGING_TYPES in shared/constants/imaging
         // e.g.
         // "xRay": { "label": "X-Ray" }
       },
       // The time zone setting is currently only used for Vaccine Certificates
       // Todo: remove this timeZone once all date fields have been migrated to date_time_strings
-      "timeZone": null,
+      timeZone: null,
       // UVCI format for vaccine certificate *previews* on Web.
       // This should match whichever of integrations.euDcc or .vdsNc is enabled, and
       // does *not* affect which format is used for the actual PDF certificate when
       // generated in the central server. Can be `tamanu` or `icao` or `eudcc`.
       // `tamanu` implies that the signing integrations are not enabled.
-      "previewUvciFormat": "tamanu",
-      "disabledReports": [],
-      "supportDeskUrl": "https://bes-support.zendesk.com/hc/en-us"
-    }
-  },
-  "hl7": {
-    "nullLastNameValue": "NoLastName",
-    "assigners": {
-      "patientDisplayId": "Tamanu",
-      "patientDrivingLicense": "RTA",
-      "patientPassport": "Fiji Passport Office"
+      previewUvciFormat: 'tamanu',
+      disabledReports: [],
+      supportDeskUrl: 'https://bes-support.zendesk.com/hc/en-us',
     },
-    "dataDictionaries": {
-      "testMethod": "http://tamanu.io/data-dictionary/covid-test-methods",
-      "patientDisplayId": "http://tamanu.io/data-dictionary/application-reference-number.html",
-      "labRequestDisplayId": "http://tamanu.io/data-dictionary/labrequest-reference-number.html",
-      "areaExternalCode": "http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html",
-      "encounterClass": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
-      "pharmacyOrderPrescriptionId": "http://data-dictionary.tamanu.org/tamanu-mrid-pharmacyorderprescription.html",
-      "pharmacyOrderId": "http://data-dictionary.tamanu.org/tamanu-mrid-pharmacyorder.html",
-      "medicationCodeSystem": "http://data-dictionary.tamanu.org/tamanu-msupplyuniveralcodes.html",
-      "medicationRouteCodeSystem": "http://data-dictionary.tamanu.org/tamanu-medicationroutecodes.html",
-      "serviceRequestImagingDisplayId": "http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html",
-      "serviceRequestImagingId": "http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html",
-      "serviceRequestImagingTypeCodeSystem": "http://tamanu.io/data-dictionary/imaging-type-code.html",
-      "serviceRequestLabDisplayId": "http://data-dictionary.tamanu-fiji.org/tamanu-mrid-labrequest.html",
-      "serviceRequestLabId": "http://data-dictionary.tamanu-fiji.org/tamanu-id-labrequest.html",
-      "serviceRequestLabPanelCodeSystem": "https://www.senaite.com/profileCodes.html",
-      "serviceRequestLabPanelExternalCodeSystem": "http://loinc.org",
-      "serviceRequestLabTestCodeSystem": "https://www.senaite.com/testCodes.html",
-      "serviceRequestLabTestExternalCodeSystem": "http://loinc.org",
-      "imagingStudyAccessionId": "http://data-dictionary.tamanu-fiji.org/ris-accession-number.html",
-      "ethnicityId": "http://data-dictionary.tamanu-fiji.org/extensions/ethnic-group-code.html",
-      "locationPhysicalType": "http://terminology.hl7.org/CodeSystem/location-physical-type",
-      "ips": {
-        "medicationEncoding": "http://nzmt.org.nz",
-        "allergyIntoleranceEncoding": "http://snomed.info/sct",
-        "conditionEncoding": "http://snomed.info/sct",
-        "immunizationEncoding": "http://nzmt.org.nz",
-        "absentUnknown": "http://hl7.org/fhir/uv/ips/CodeSystem/absent-unknown-uv-ips",
+  },
+  hl7: {
+    nullLastNameValue: 'NoLastName',
+    assigners: {
+      patientDisplayId: 'Tamanu',
+      patientDrivingLicense: 'RTA',
+      patientPassport: 'Fiji Passport Office',
+    },
+    dataDictionaries: {
+      testMethod: 'http://tamanu.io/data-dictionary/covid-test-methods',
+      patientDisplayId: 'http://tamanu.io/data-dictionary/application-reference-number.html',
+      labRequestDisplayId: 'http://tamanu.io/data-dictionary/labrequest-reference-number.html',
+      areaExternalCode: 'http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html',
+      encounterClass: 'http://terminology.hl7.org/CodeSystem/v3-ActCode',
+      pharmacyOrderPrescriptionId: 'http://data-dictionary.tamanu.org/tamanu-mrid-pharmacyorderprescription.html',
+      pharmacyOrderId: 'http://data-dictionary.tamanu.org/tamanu-mrid-pharmacyorder.html',
+      medicationCodeSystem: 'http://data-dictionary.tamanu.org/tamanu-msupplyuniveralcodes.html',
+      medicationRouteCodeSystem: 'http://data-dictionary.tamanu.org/tamanu-medicationroutecodes.html',
+      serviceRequestImagingDisplayId: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
+      serviceRequestImagingId: 'http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html',
+      serviceRequestImagingTypeCodeSystem: 'http://tamanu.io/data-dictionary/imaging-type-code.html',
+      serviceRequestLabDisplayId: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-labrequest.html',
+      serviceRequestLabId: 'http://data-dictionary.tamanu-fiji.org/tamanu-id-labrequest.html',
+      serviceRequestLabPanelCodeSystem: 'https://www.senaite.com/profileCodes.html',
+      serviceRequestLabPanelExternalCodeSystem: 'http://loinc.org',
+      serviceRequestLabTestCodeSystem: 'https://www.senaite.com/testCodes.html',
+      serviceRequestLabTestExternalCodeSystem: 'http://loinc.org',
+      imagingStudyAccessionId: 'http://data-dictionary.tamanu-fiji.org/ris-accession-number.html',
+      ethnicityId: 'http://data-dictionary.tamanu-fiji.org/extensions/ethnic-group-code.html',
+      locationPhysicalType: 'http://terminology.hl7.org/CodeSystem/location-physical-type',
+      ips: {
+        medicationEncoding: 'http://nzmt.org.nz',
+        allergyIntoleranceEncoding: 'http://snomed.info/sct',
+        conditionEncoding: 'http://snomed.info/sct',
+        immunizationEncoding: 'http://nzmt.org.nz',
+        absentUnknown: 'http://hl7.org/fhir/uv/ips/CodeSystem/absent-unknown-uv-ips',
       },
-      "specimenType": "http://www.senaite.com/data/sample_types",
-      "sampleBodySite": "http://bodySITE.NEW"
-    }
+      specimenType: 'http://www.senaite.com/data/sample_types',
+      sampleBodySite: 'http://bodySITE.NEW',
+    },
   },
-  "s3": {
-    "ips": {
-      "region": "ap-southeast-2",
-      "bucketName": "bes-tamanu-ips-public",
-      "jsonBucketPath": "ips-demo",
-      "viewerBucketPath": "viewer",
-      "publicUrl": "https://public.tamanu.io"
-    }
+  s3: {
+    ips: {
+      region: 'ap-southeast-2',
+      bucketName: 'bes-tamanu-ips-public',
+      jsonBucketPath: 'ips-demo',
+      viewerBucketPath: 'viewer',
+      publicUrl: 'https://public.tamanu.io',
+    },
   },
-  "scheduledReports": [],
-  "disk": {
-    "diskPath": "C:/",
+  scheduledReports: [],
+  disk: {
+    diskPath: 'C:/',
   },
   // Note: this config should be duplicated on the facility server if the same behavior is
   // desired for "this facility" and "all facilities"
-  "reportConfig": {
-    "encounter-summary-line-list": {
-      "includedPatientFieldIds": []
-    }
+  reportConfig: {
+    'encounter-summary-line-list': {
+      includedPatientFieldIds: [],
+    },
   },
-  "notifications": {
-    "certificates": {
-      "labTestCategoryIds": []
-    }
+  notifications: {
+    certificates: {
+      labTestCategoryIds: [],
+    },
   },
-  "proxy": {
+  proxy: {
     // Possible values: https://expressjs.com/en/guide/behind-proxies.html
     //
     // This should only be set to servers we trust! `loopback` is a safe default
@@ -511,40 +509,40 @@
     //
     // As of 29/08/2022 all our deployments are behind a local nginx proxy and so
     // this shouldn't need to be changed.
-    "trusted": ["loopback"]
+    trusted: ['loopback'],
   },
-  "validateQuestionConfigs": {
-    "enabled": true
+  validateQuestionConfigs: {
+    enabled: true,
   },
   // this should be an IANA tzdata timezone
   // @see here for a list of available options https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-  "countryTimeZone": "Australia/Melbourne",
-  "allowMismatchedTimeZones": false,
-  "socket.io": {
+  countryTimeZone: 'Australia/Melbourne',
+  allowMismatchedTimeZones: false,
+  'socket.io': {
     enabled: true,
   },
-  "telegramBot": {
-    apiToken: "",
+  telegramBot: {
+    apiToken: '',
     webhook: {
       // this should be set to the external address of the server, e.g. "https://central.main.cd.tamanu.app/api/public/telegram-webhook"
-      url: "",
-      secret: ""
-    }
+      url: '',
+      secret: '',
+    },
   },
-  "patientCommunication": {
-    "retryThreshold": 20
+  patientCommunication: {
+    retryThreshold: 20,
   },
-  "language": "en",
-  "tasking": {
-    "upcomingTasksShouldBeGeneratedTimeFrame": 72, // hours
+  language: 'en',
+  tasking: {
+    upcomingTasksShouldBeGeneratedTimeFrame: 72, // hours
   },
-  "medicationAdministrationRecord": {
-    "upcomingRecordsShouldBeGeneratedTimeFrame": 72, // hours
+  medicationAdministrationRecord: {
+    upcomingRecordsShouldBeGeneratedTimeFrame: 72, // hours
   },
-  "patientPortal": {
-    "portalUrl": "http://localhost:5175",
-    "tokenDuration": "24h",
-    "loginTokenDurationMinutes": 20,
-    "registerTokenDurationMinutes": 43800 // 1 month
-  }
+  patientPortal: {
+    portalUrl: 'http://localhost:5175',
+    tokenDuration: '24h',
+    loginTokenDurationMinutes: 20,
+    registerTokenDurationMinutes: 43800, // 1 month
+  },
 }
