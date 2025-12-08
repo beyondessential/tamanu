@@ -16,8 +16,6 @@ import {
   TASK_STATUSES,
   SURVEY_TYPES,
   DASHBOARD_ONLY_TASK_TYPES,
-  INVOICE_STATUSES,
-  ENCOUNTER_TYPES,
 } from '@tamanu/constants';
 import {
   simpleGet,
@@ -30,7 +28,6 @@ import {
 import { add } from 'date-fns';
 import { z } from 'zod';
 import { keyBy } from 'lodash';
-import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
 import { createEncounterSchema } from '@tamanu/shared/schemas/facility/requests/createEncounter.schema';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
@@ -60,17 +57,12 @@ encounter.post(
     const validatedBody = validate(createEncounterSchema, data);
     const encounterObject = await models.Encounter.create({ ...validatedBody, actorId: user.id });
 
-    const isInvoicingEnabled = await req.settings[facilityId]?.get('features.enableInvoicing');
-    const excludedEncounterTypes = [ENCOUNTER_TYPES.SURVEY_RESPONSE, ENCOUNTER_TYPES.VACCINATION];
-    const shouldCreateInvoice = !excludedEncounterTypes.includes(data.encounterType);
-    if (isInvoicingEnabled && shouldCreateInvoice) {
-      await models.Invoice.create({
-        displayId: generateInvoiceDisplayId(),
-        status: INVOICE_STATUSES.IN_PROGRESS,
-        date: encounterObject.startDate,
-        encounterId: encounterObject.id,
-      });
-    }
+    await models.Invoice.automaticallyCreateForEncounter(
+      encounterObject.id,
+      encounterObject.encounterType,
+      encounterObject.startDate,
+      req.settings[facilityId],
+    );
 
     if (data.dietIds) {
       const dietIds = JSON.parse(data.dietIds);
