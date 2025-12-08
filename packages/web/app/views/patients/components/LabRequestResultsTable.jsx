@@ -76,7 +76,8 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
       ),
       key: 'labTestType.unit',
       accessor: ({ labTestType }) =>
-        labTestType?.unit || getTranslation('general.fallback.notApplicable', 'N/A', { casing: 'lower' }),
+        labTestType?.unit ||
+        getTranslation('general.fallback.notApplicable', 'N/A', { casing: 'lower' }),
       sortable: false,
     },
     {
