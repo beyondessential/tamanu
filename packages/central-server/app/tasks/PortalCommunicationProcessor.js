@@ -1,4 +1,3 @@
-import config from 'config';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
 import { NotFoundError } from '@tamanu/errors';
 import { PATIENT_COMMUNICATION_CHANNELS, PATIENT_COMMUNICATION_TYPES } from '@tamanu/constants';
@@ -20,7 +19,7 @@ export class PortalCommunicationProcessor extends BaseCommunicationProcessor {
     }
 
     const portalUserId = portalUser.id;
-    const baseUrl = config.patientPortal.portalUrl;
+    const baseUrl = await this.context.settings.get('patientPortal.portalUrl');
 
     // Send form link and login code to a registered user
     if (type === PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_REGISTERED_FORM) {
