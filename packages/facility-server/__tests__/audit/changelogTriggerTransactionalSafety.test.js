@@ -1,4 +1,3 @@
-import { pauseAudit } from '@tamanu/database/utils/audit';
 import { createTestContext } from '../utilities';
 
 describe('Changelog Trigger Transactional Safety', () => {
