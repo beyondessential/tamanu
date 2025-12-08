@@ -22,6 +22,10 @@ export class PortalCommunicationProcessor extends BaseCommunicationProcessor {
     const portalUserId = portalUser.id;
     const baseUrl = await settings.get('patientPortal.baseUrl');
 
+    if (!baseUrl) {
+      throw new Error('Patient portal base URL is not configured (patientPortal.baseUrl)');
+    }
+
     // Send form link and login code to a registered user
     if (type === PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_REGISTERED_FORM) {
       const loginLink = `${baseUrl}/login`;
