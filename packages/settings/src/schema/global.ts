@@ -366,6 +366,17 @@ export const globalSettings = {
             },
           },
         },
+        labRequest: {
+          description: 'Lab request settings',
+          properties: {
+            enableLabResultsPrintout: {
+              name: "Lab results printout",
+              description: 'Enable lab results printout (print results button and interim report option)',
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+          },
+        },
       },
     },
     customisations: {
