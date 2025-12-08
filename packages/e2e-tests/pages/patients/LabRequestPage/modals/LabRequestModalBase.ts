@@ -78,7 +78,7 @@ export class LabRequestModalBase {
       description: 'styledbodytext-8egc',
       requestingClinicianInput: 'field-z6gb-input',
       requestDateTimeInput: 'field-y6ku-input',
-      departmentInput: 'field-wobc-input', 
+      departmentInput: 'field-wobc-input',
       panelRadioButton: 'radio-il3t-panel',
       individualRadioButton: 'radio-il3t-individual',
       backButton: 'styledbackbutton-016f',
