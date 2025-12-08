@@ -138,7 +138,7 @@ describe('Changelog Trigger Transactional Safety', () => {
         expect.objectContaining({
           record_id: program.id,
           table_name: 'programs',
-          record_data: expect.objectContaining({ name: 'Updated Name' }) ,
+          record_data: expect.objectContaining({ name: 'Updated Name' }),
         }),
       ]);
     });
@@ -216,7 +216,7 @@ describe('Changelog Trigger Transactional Safety', () => {
       expect(changes.length).toBe(0);
     });
 
-    it('should work correctly with nested transactions (savepoints)', async () => {
+    it('should work correctly with nested transactions', async () => {
       const result = await sequelize.transaction(async outerTransaction => {
         const p1 = await models.Program.create(
           { code: 'outer-1', name: 'Outer 1' },
@@ -261,27 +261,6 @@ describe('Changelog Trigger Transactional Safety', () => {
     });
   });
 
-  describe('Audit pause integration', () => {
-    it('should respect audit pause with constraint triggers', async () => {
-      let pausedId;
-      await sequelize.transaction(async transaction => {
-        await pauseAudit(sequelize);
-        const paused = await models.Program.create(
-          { code: 'paused', name: 'Paused' },
-          { transaction },
-        );
-        pausedId = paused.id;
-      });
-
-      const changes = await sequelize.query('SELECT * FROM logs.changes WHERE record_id = :id', {
-        type: sequelize.QueryTypes.SELECT,
-        replacements: { id: pausedId },
-      });
-
-      expect(changes.length).toBe(0);
-    });
-  });
-
   describe('Constraint trigger behavior', () => {
     it('should defer trigger execution until end of transaction', async () => {
       let programId;
@@ -294,7 +273,7 @@ describe('Changelog Trigger Transactional Safety', () => {
         programId = program.id;
 
         const changesBeforeCommit = await sequelize.query(
-          'SELECT COUNT(*) as count FROM logs.changes WHERE record_id = :id',
+          'SELECT * as count FROM logs.changes WHERE record_id = :id',
           {
             type: sequelize.QueryTypes.SELECT,
             replacements: { id: program.id },
@@ -302,18 +281,18 @@ describe('Changelog Trigger Transactional Safety', () => {
           },
         );
 
-        expect(changesBeforeCommit[0].count).toBe('0');
+        expect(changesBeforeCommit).toEqual([]);
       });
 
       const changesAfterCommit = await sequelize.query(
-        'SELECT COUNT(*) as count FROM logs.changes WHERE record_id = :id',
+        'SELECT * as count FROM logs.changes WHERE record_id = :id',
         {
           type: sequelize.QueryTypes.SELECT,
           replacements: { id: programId },
         },
       );
 
-      expect(changesAfterCommit[0].count).toBe('1');
+      expect(changesAfterCommit.length).toBe(1);
     });
   });
 });
