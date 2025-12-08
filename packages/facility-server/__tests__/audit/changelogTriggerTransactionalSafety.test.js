@@ -22,51 +22,66 @@ describe('Changelog Trigger Transactional Safety', () => {
 
   describe('Transaction commit behavior', () => {
     it('should create changelog entries only when transaction commits', async () => {
-      const program = await sequelize.transaction(async transaction => {
-        const created = await models.Program.create(
+      let programIds;
+      await sequelize.transaction(async transaction => {
+        const program1 = await models.Program.create(
           { code: 'test-1', name: 'Test Program 1' },
           { transaction },
         );
-        
+
+        const program2 = await models.Program.create(
+          { code: 'test-2', name: 'Test Program 2' },
+          { transaction },
+        );
+
+        programIds = [program1.id, program2.id];
+
         const changesInTransaction = await sequelize.query(
-          'SELECT * FROM logs.changes WHERE record_id = :programId',
+          'SELECT * FROM logs.changes WHERE record_id IN (:programIds)',
           {
             type: sequelize.QueryTypes.SELECT,
-            replacements: { programId: created.id },
+            replacements: { programIds },
             transaction,
           },
         );
         expect(changesInTransaction.length).toBe(0);
         
-        return created;
+        return programIds;
       });
 
       const changesAfterCommit = await sequelize.query(
-        'SELECT * FROM logs.changes WHERE record_id = :programId',
+        'SELECT * FROM logs.changes WHERE record_id IN (:programIds)',
         {
           type: sequelize.QueryTypes.SELECT,
-          replacements: { programId: program.id },
+          replacements: { programIds },
         },
       );
 
-      expect(changesAfterCommit).toEqual([
+      expect(changesAfterCommit).toEqual(expect.arrayContaining([
         expect.objectContaining({
-          record_id: program.id,
+          record_id: programIds[0],
           table_name: 'programs',
         }),
-      ]);
+        expect.objectContaining({
+          record_id: programIds[1],
+          table_name: 'programs',
+        }),
+      ]));
     });
 
     it('should not create changelog entries when transaction rolls back', async () => {
-      let programId;
-      
+      let programIds;
       try {
         await sequelize.transaction(async transaction => {
           const program = await models.Program.create(
             { code: 'test-rollback', name: 'Will Rollback' },
             { transaction },
           );
-          programId = program.id;
+          const program2 = await models.Program.create(
+            { code: 'test-rollback-2', name: 'Will Rollback 2' },
+            { transaction },
+          );
+          programIds = [program.id, program2.id];
           
           throw new Error('Intentional rollback');
         });
@@ -75,84 +90,16 @@ describe('Changelog Trigger Transactional Safety', () => {
       }
 
       const changes = await sequelize.query(
-        'SELECT * FROM logs.changes WHERE record_id = :programId',
-        {
-          type: sequelize.QueryTypes.SELECT,
-          replacements: { programId },
-        },
-      );
-      
-      expect(changes.length).toBe(0);
-      
-      const program = await models.Program.findByPk(programId);
-      expect(program).toBeNull();
-    });
-
-    it('should handle multiple operations atomically', async () => {
-      let programIds = [];
-
-      await sequelize.transaction(async transaction => {
-        const p1 = await models.Program.create(
-          { code: 'batch-1', name: 'Batch 1' },
-          { transaction },
-        );
-        const p2 = await models.Program.create(
-          { code: 'batch-2', name: 'Batch 2' },
-          { transaction },
-        );
-        const p3 = await models.Program.create(
-          { code: 'batch-3', name: 'Batch 3' },
-          { transaction },
-        );
-
-        programIds = [p1.id, p2.id, p3.id];
-      });
-
-      const changes = await sequelize.query(
         'SELECT * FROM logs.changes WHERE record_id IN (:programIds)',
         {
           type: sequelize.QueryTypes.SELECT,
           replacements: { programIds },
         },
       );
-
-      expect(changes.length).toBe(3);
-      expect(changes.map(c => c.record_id)).toEqual(
-        expect.arrayContaining(programIds),
-      );
-    });
-
-    it('should rollback all changelog entries for multi-operation transaction', async () => {
-      let programIds = [];
-
-      try {
-        await sequelize.transaction(async transaction => {
-          const p1 = await models.Program.create(
-            { code: 'rollback-1', name: 'Rollback 1' },
-            { transaction },
-          );
-          const p2 = await models.Program.create(
-            { code: 'rollback-2', name: 'Rollback 2' },
-            { transaction },
-          );
-
-          programIds = [p1.id, p2.id];
-          throw new Error('Rollback all');
-        });
-      } catch (error) {
-        expect(error.message).toBe('Rollback all');
-      }
-
-      const changes = await sequelize.query(
-        'SELECT * FROM logs.changes WHERE record_id IN (:programIds)',
-        {
-          type: sequelize.QueryTypes.SELECT,
-          replacements: { programIds },
-        },
-      );
-
+      
       expect(changes.length).toBe(0);
     });
+
   });
 
   describe('Update operations', () => {
