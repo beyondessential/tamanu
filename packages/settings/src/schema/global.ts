@@ -1524,8 +1524,8 @@ export const globalSettings = {
       properties: {
         baseUrl: {
           description: 'The base URL of the patient portal',
-          type: yup.string().trim().url(),
-          defaultValue: 'http://localhost:5175',
+          type: yup.string().trim().url().nullable(),
+          defaultValue: null,
         },
       },
     },
