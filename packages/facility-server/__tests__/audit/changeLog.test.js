@@ -21,6 +21,22 @@ describe('Changelogs', () => {
   });
 
   describe('Changelog Trigger Transactional Safety', () => {
+    it('should not create changelog entries when transaction is rolled back', async () => {
+      try {
+        await sequelize.transaction(async transaction => {
+          await models.Program.create({ code: 'test-1', name: 'Test Program 1' }, { transaction });
+          throw new Error('Intentional rollback');
+        });
+      } catch (error) {
+        expect(error.message).toBe('Intentional rollback');
+      }
+
+      const changes = await sequelize.query('SELECT * FROM logs.changes', {
+        type: sequelize.QueryTypes.SELECT,
+      });
+      expect(changes).toEqual([]);
+    });
+
     it('should create changelog entries only when transaction commits', async () => {
       let programIds;
       await sequelize.transaction(async transaction => {
@@ -152,13 +168,10 @@ describe('Changelogs', () => {
   describe('Pause Audit', () => {
     it('should pause audit for a transaction when pause key is true', async () => {
       const program1 = await models.Program.create({ code: 'test-1', name: 'Test Program 1' });
-      
+
       const program2 = await sequelize.transaction(async transaction => {
         await pauseAudit(sequelize);
-        return models.Program.create(
-          { code: 'test-2', name: 'Test Program 2' },
-          { transaction },
-        );
+        return models.Program.create({ code: 'test-2', name: 'Test Program 2' }, { transaction });
       });
 
       const changes = await sequelize.query(
@@ -183,7 +196,7 @@ describe('Changelogs', () => {
 
     it('should pause audit when setting is disabled globally', async () => {
       await models.Setting.set('audit.changes.enabled', false);
-      
+
       const program1 = await models.Program.create({ code: 'test-1', name: 'Test Program 1' });
       const program2 = await models.Program.create({ code: 'test-2', name: 'Test Program 2' });
 
