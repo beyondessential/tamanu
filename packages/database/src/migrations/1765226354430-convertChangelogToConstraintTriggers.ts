@@ -32,7 +32,7 @@ export async function up(query: QueryInterface): Promise<void> {
       AFTER INSERT OR UPDATE ON "${schema}"."${table}"
       DEFERRABLE INITIALLY DEFERRED
       FOR EACH ROW
-      EXECUTE FUNCTION logs.record_change()
+      EXECUTE FUNCTION logs.record_change();
     `);
   }
 }
@@ -51,7 +51,7 @@ export async function down(query: QueryInterface): Promise<void> {
       CREATE TRIGGER record_${table}_changelog
       AFTER INSERT OR UPDATE ON "${schema}"."${table}"
       FOR EACH ROW
-      EXECUTE FUNCTION logs.record_change()
+      EXECUTE FUNCTION logs.record_change();
     `);
   }
 }

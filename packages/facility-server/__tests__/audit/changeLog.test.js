@@ -1,5 +1,8 @@
+import { QueryTypes } from 'sequelize';
+
 import { fake } from '@tamanu/fake-data/fake';
 import { pauseAudit } from '@tamanu/database/utils/audit';
+
 import { createTestContext } from '../utilities';
 
 describe('Changelogs', () => {
@@ -33,7 +36,7 @@ describe('Changelogs', () => {
       }
 
       const changes = await sequelize.query('SELECT * FROM logs.changes', {
-        type: sequelize.QueryTypes.SELECT,
+        type: QueryTypes.SELECT,
       });
       expect(changes).toEqual([]);
     });
@@ -49,7 +52,7 @@ describe('Changelogs', () => {
         const changesInTransaction = await sequelize.query(
           'SELECT * FROM logs.changes WHERE record_id IN (:programIds)',
           {
-            type: sequelize.QueryTypes.SELECT,
+            type: QueryTypes.SELECT,
             replacements: { programIds },
             transaction,
           },
@@ -62,7 +65,7 @@ describe('Changelogs', () => {
       const changesAfterCommit = await sequelize.query(
         'SELECT * FROM logs.changes WHERE record_id IN (:programIds)',
         {
-          type: sequelize.QueryTypes.SELECT,
+          type: QueryTypes.SELECT,
           replacements: { programIds },
         },
       );
@@ -88,7 +91,7 @@ describe('Changelogs', () => {
         const changesInTransaction = await sequelize.query(
           'SELECT * FROM logs.changes WHERE record_id = :programId',
           {
-            type: sequelize.QueryTypes.SELECT,
+            type: QueryTypes.SELECT,
             replacements: { programId: program.id },
             transaction,
           },
@@ -99,7 +102,7 @@ describe('Changelogs', () => {
       const changesAfterCommit = await sequelize.query(
         'SELECT * FROM logs.changes WHERE record_id = :programId',
         {
-          type: sequelize.QueryTypes.SELECT,
+          type: QueryTypes.SELECT,
           replacements: { programId: program.id },
         },
       );
@@ -123,7 +126,7 @@ describe('Changelogs', () => {
         const changesBeforeCommit = await sequelize.query(
           'SELECT * FROM logs.changes WHERE record_id = :id',
           {
-            type: sequelize.QueryTypes.SELECT,
+            type: QueryTypes.SELECT,
             replacements: { id: program.id },
             transaction,
           },
@@ -135,7 +138,7 @@ describe('Changelogs', () => {
       const changesAfterCommit = await sequelize.query(
         'SELECT * FROM logs.changes WHERE record_id = :id',
         {
-          type: sequelize.QueryTypes.SELECT,
+          type: QueryTypes.SELECT,
           replacements: { id: programId },
         },
       );
@@ -161,7 +164,7 @@ describe('Changelogs', () => {
       const changes = await sequelize.query(
         'SELECT * FROM logs.changes WHERE record_id IN (:programIds)',
         {
-          type: sequelize.QueryTypes.SELECT,
+          type: QueryTypes.SELECT,
           replacements: {
             programIds: [program1.id, program2.id],
           },
@@ -193,7 +196,7 @@ describe('Changelogs', () => {
       const changes = await sequelize.query(
         'SELECT * FROM logs.changes WHERE record_id IN (:ids)',
         {
-          type: sequelize.QueryTypes.SELECT,
+          type: QueryTypes.SELECT,
           replacements: { ids: [program1.id, program2.id, program3.id] },
         },
       );
