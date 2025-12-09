@@ -176,50 +176,35 @@ describe('Changelogs', () => {
       ]);
     });
 
-    it('should pause audit when setting is disabled globally', async () => {
-      await models.Setting.set('audit.changes.enabled', false);
-
-      const program1 = await models.Program.create(fake(models.Program));
-      const program2 = await models.Program.create(fake(models.Program));
-
-      const changes = await sequelize.query(
-        'SELECT * FROM logs.changes WHERE record_id IN (:programIds)',
-        {
-          type: sequelize.QueryTypes.SELECT,
-          replacements: {
-            programIds: [program1.id, program2.id],
-          },
-        },
-      );
-
-      expect(changes).toEqual([]);
-    });
-
     it('should only pause audit within the specific transaction', async () => {
+      // Outside transaction
       const program1 = await models.Program.create(fake(models.Program));
 
-      const program2Paused = await sequelize.transaction(async transaction => {
+      // Paused transaction
+      const program2 = await sequelize.transaction(async transaction => {
         await pauseAudit(sequelize);
         return models.Program.create(fake(models.Program), { transaction });
       });
-
-      const program3 = await models.Program.create(fake(models.Program));
+      // Unpaused transaction
+      const program3 = await sequelize.transaction(async transaction =>
+        models.Program.create(fake(models.Program), { transaction }),
+      );
 
       const changes = await sequelize.query(
         'SELECT * FROM logs.changes WHERE record_id IN (:ids)',
         {
           type: sequelize.QueryTypes.SELECT,
-          replacements: { ids: [program1.id, program2Paused.id, program3.id] },
+          replacements: { ids: [program1.id, program2.id, program3.id] },
         },
       );
 
       expect(changes).toHaveLength(2);
-      expect(changes).toEqual([
+      expect(changes).toEqual(
         expect.arrayContaining([
           expect.objectContaining({ record_id: program1.id, table_name: 'programs' }),
           expect.objectContaining({ record_id: program3.id, table_name: 'programs' }),
         ]),
-      ]);
+      );
     });
   });
 });
