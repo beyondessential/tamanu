@@ -204,18 +204,18 @@ describe('Changelogs', () => {
     it('should only pause audit within the specific transaction', async () => {
       const program1 = await models.Program.create(fake(models.Program));
 
-      const programPaused = await sequelize.transaction(async transaction => {
+      const program2Paused = await sequelize.transaction(async transaction => {
         await pauseAudit(sequelize);
         return models.Program.create(fake(models.Program), { transaction });
       });
 
-      const program2 = await models.Program.create(fake(models.Program));
+      const program3 = await models.Program.create(fake(models.Program));
 
       const changes = await sequelize.query(
         'SELECT * FROM logs.changes WHERE record_id IN (:ids)',
         {
           type: sequelize.QueryTypes.SELECT,
-          replacements: { ids: [program1.id, programPaused.id, program2.id] },
+          replacements: { ids: [program1.id, program2Paused.id, program3.id] },
         },
       );
 
@@ -226,7 +226,7 @@ describe('Changelogs', () => {
           table_name: 'programs',
         }),
         expect.objectContaining({
-          record_id: program2.id,
+          record_id: program3.id,
           table_name: 'programs',
         }),
       ]);
