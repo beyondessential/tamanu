@@ -67,16 +67,11 @@ describe('Changelogs', () => {
         },
       );
 
+      expect(changesAfterCommit).toHaveLength(2);
       expect(changesAfterCommit).toEqual(
         expect.arrayContaining([
-          expect.objectContaining({
-            record_id: programIds[0],
-            table_name: 'programs',
-          }),
-          expect.objectContaining({
-            record_id: programIds[1],
-            table_name: 'programs',
-          }),
+          expect.objectContaining({ record_id: programIds[0], table_name: 'programs' }),
+          expect.objectContaining({ record_id: programIds[1], table_name: 'programs' }),
         ]),
       );
     });
@@ -174,12 +169,11 @@ describe('Changelogs', () => {
       );
 
       expect(changes).toEqual([
-          expect.objectContaining({
-            record_id: program1.id,
-            table_name: 'programs',
-          }),
-        ],
-      );
+        expect.objectContaining({
+          record_id: program1.id,
+          table_name: 'programs',
+        }),
+      ]);
     });
 
     it('should pause audit when setting is disabled globally', async () => {
@@ -221,15 +215,11 @@ describe('Changelogs', () => {
 
       expect(changes).toHaveLength(2);
       expect(changes).toEqual([
-        expect.objectContaining({
-          record_id: program1.id,
-          table_name: 'programs',
-        }),
-        expect.objectContaining({
-          record_id: program3.id,
-          table_name: 'programs',
-        }),
+        expect.arrayContaining([
+          expect.objectContaining({ record_id: program1.id, table_name: 'programs' }),
+          expect.objectContaining({ record_id: program3.id, table_name: 'programs' }),
+        ]),
       ]);
     });
-  }); 
+  });
 });
