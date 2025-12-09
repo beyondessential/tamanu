@@ -74,6 +74,8 @@ EOF
         programs: [
             {
                 url: 'https://bes-tamanu-dev-referencedata.s3.ap-southeast-2.amazonaws.com/programs/vitals.xlsx',
+            },
+            {
                 url: 'https://bes-tamanu-dev-referencedata.s3.ap-southeast-2.amazonaws.com/programs/neurological-assessment.xlsx',
             },
         ],
