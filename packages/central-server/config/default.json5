@@ -124,7 +124,7 @@
     // otherwise, each process will use a different key and tokens won't match
     "secret": null,
     "saltRounds": 12,
-    "tokenDuration": "1h",
+    "tokenDuration": "5h",
     "reportNoUserError": false,
     "useHardcodedPermissions": true,
     "refreshToken": {
