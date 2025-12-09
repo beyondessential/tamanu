@@ -173,13 +173,12 @@ describe('Changelogs', () => {
         },
       );
 
-      expect(changes).toEqual(
-        expect.arrayContaining([
+      expect(changes).toEqual([
           expect.objectContaining({
             record_id: program1.id,
             table_name: 'programs',
           }),
-        ]),
+        ],
       );
     });
 
@@ -205,9 +204,9 @@ describe('Changelogs', () => {
     it('should only pause audit within the specific transaction', async () => {
       const program1 = await models.Program.create(fake(models.Program));
 
-      await sequelize.transaction(async transaction => {
+      const programPaused = await sequelize.transaction(async transaction => {
         await pauseAudit(sequelize);
-        await models.Program.create(fake(models.Program), { transaction });
+        return models.Program.create(fake(models.Program), { transaction });
       });
 
       const program2 = await models.Program.create(fake(models.Program));
@@ -216,22 +215,21 @@ describe('Changelogs', () => {
         'SELECT * FROM logs.changes WHERE record_id IN (:ids)',
         {
           type: sequelize.QueryTypes.SELECT,
-          replacements: { ids: [program1.id, program2.id] },
+          replacements: { ids: [program1.id, programPaused.id, program2.id] },
         },
       );
 
-      expect(changes).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            record_id: program1.id,
-            table_name: 'programs',
-          }),
-          expect.objectContaining({
-            record_id: program2.id,
-            table_name: 'programs',
-          }),
-        ]),
-      );
+      expect(changes).toHaveLength(2);
+      expect(changes).toEqual([
+        expect.objectContaining({
+          record_id: program1.id,
+          table_name: 'programs',
+        }),
+        expect.objectContaining({
+          record_id: program2.id,
+          table_name: 'programs',
+        }),
+      ]);
     });
-  });
+  }); 
 });
