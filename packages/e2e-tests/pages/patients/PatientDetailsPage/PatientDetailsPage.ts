@@ -20,6 +20,7 @@ import { ChangeEncounterDetailsMenu } from './ChangeEncounterDetailsMenu';
 import { AddDiagnosisModal } from './modals/AddDiagnosisModal';
 import { DocumentsPane } from './panes/DocumentsPane';
 import { TasksPane } from '../TaskPage/panes/TasksPane';
+import { ChartsPane } from '../ChartsPage/panes/ChartsPane';
 
 export class PatientDetailsPage extends BasePatientPage {
   readonly prepareDischargeButton: Locator;
@@ -37,6 +38,7 @@ export class PatientDetailsPage extends BasePatientPage {
   encounterMedicationPane?: EncounterMedicationPane;
   documentsPane?: DocumentsPane;
   tasksPane?: TasksPane;
+  chartsPane?: ChartsPane;
   arrowDownIconMenuButton: Locator;
 
   private _encounterHistoryPane?: EncounterHistoryPane;
@@ -98,6 +100,7 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly imagingTab: Locator;
   readonly documentsTab: Locator;
   readonly tasksTab: Locator;
+  readonly chartsTab: Locator;
   readonly encountersList: Locator;
   readonly departmentLabel: Locator;
   readonly admitOrCheckinButton: Locator;
@@ -255,6 +258,7 @@ export class PatientDetailsPage extends BasePatientPage {
     this.imagingTab = this.page.getByTestId('styledtab-ccs8-imaging');
     this.documentsTab = this.page.getByTestId('tab-documents');
     this.tasksTab = this.page.getByTestId('styledtab-ccs8-tasks');
+    this.chartsTab = this.page.getByTestId('styledtab-ccs8-charts');
     this.encounterMedicationTab = this.page.getByTestId('styledtab-ccs8-medication');
     this.encountersList=this.page.getByTestId('styledtablebody-a0jz').locator('tr');
     this.departmentLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Department' }).locator('..').getByTestId('cardvalue-1v8z');
@@ -327,6 +331,14 @@ export class PatientDetailsPage extends BasePatientPage {
     }
     return this.tasksPane;
   }
+
+  async navigateToChartsTab(): Promise<ChartsPane> {
+    await this.chartsTab.click();
+    if (!this.chartsPane) {
+      this.chartsPane = new ChartsPane(this.page);
+    }
+    return this.chartsPane;
+  } 
 
   async navigateToImagingRequestTab(): Promise<void> {
     await this.encountersList.first().waitFor({ state: 'visible' });

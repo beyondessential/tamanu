@@ -10,7 +10,8 @@ import { ImagingRequestPane } from '@pages/patients/ImagingRequestPage/panes/Ima
 import { getUser, createApiContext } from '@utils/apiHelpers';
 import { format } from 'date-fns';
 import path from 'path';
-import { SidebarPage } from '@pages/SidebarPage';
+import { SidebarPage } from '@pages/SidebarPage'; 
+import { CHARTING_FIELD_KEYS } from '@pages/patients/ChartsPage/types';
 
 
 
@@ -496,5 +497,39 @@ test.describe('Basic tests', () => {
     await deleteTaskModal.confirmButton.click();
     await tasksPane.waitForPageToLoad();
     await expect( tasksPane.noDataContainer).toHaveText('No patient tasks to display. Please try adjusting filters or click ‘+ New task’ to add a task to this patient.');
+  });
+  
+  test('[BT-0028][AT-2022] Record a simple chart and validate', async ({newPatientWithHospitalAdmission, patientDetailsPage}) => {
+    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
+    await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
+    await patientDetailsPage.encounterHistoryPane.getLatestEncounter().click();
+    const chartsPane = await patientDetailsPage.navigateToChartsTab();
+    await chartsPane.waitForPageToLoad();
+    await chartsPane.selectChartType('Neurological Assessment');
+    await chartsPane.recordChartButton.click();
+    const simpleChartModal = chartsPane.getSimpleChartModal();
+    await simpleChartModal.waitForModalToLoad();
+    const gcsTotalScore = '15';
+    const rightPupilsSize = '3';
+    const leftPupilsSize = '3';
+    const rightArmLimbMovement = ['Normal power'];
+    const rightLegLimbMovement = ['Mild weakness'];
+    const leftArmLimbMovement = ['Normal power'];
+    const leftLegLimbMovement = ['Mild weakness'];
+    const comments = 'This is a test comment';
+    const formValues = await simpleChartModal.fillForm({
+      gcsTotalScore: gcsTotalScore,
+      rightPupilsSize: rightPupilsSize,
+      leftPupilsSize: leftPupilsSize,
+      rightArmLimbMovement: rightArmLimbMovement,
+      rightLegLimbMovement: rightLegLimbMovement,
+      leftArmLimbMovement: leftArmLimbMovement,
+      leftLegLimbMovement: leftLegLimbMovement,
+      comments: comments,
+    });
+    await simpleChartModal.confirmButton.click();
+    await chartsPane.waitForPageToLoad();
+    const chartValues = await chartsPane.getLatestValuesFromChartsTable(chartsPane.page, CHARTING_FIELD_KEYS);
+    expect(chartValues).toEqual(formValues);
   });
 });
