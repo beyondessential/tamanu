@@ -1,3 +1,4 @@
+import { fake } from '@tamanu/fake-data/fake';
 import { pauseAudit } from '@tamanu/database/utils/audit';
 import { createTestContext } from '../utilities';
 
@@ -24,7 +25,7 @@ describe('Changelogs', () => {
     it('should not create changelog entries when transaction is rolled back', async () => {
       try {
         await sequelize.transaction(async transaction => {
-          await models.Program.create({ code: 'test-1', name: 'Test Program 1' }, { transaction });
+          await models.Program.create(fake(models.Program), { transaction });
           throw new Error('Intentional rollback');
         });
       } catch (error) {
@@ -40,15 +41,8 @@ describe('Changelogs', () => {
     it('should create changelog entries only when transaction commits', async () => {
       let programIds;
       await sequelize.transaction(async transaction => {
-        const program1 = await models.Program.create(
-          { code: 'test-1', name: 'Test Program 1' },
-          { transaction },
-        );
-
-        const program2 = await models.Program.create(
-          { code: 'test-2', name: 'Test Program 2' },
-          { transaction },
-        );
+        const program1 = await models.Program.create(fake(models.Program), { transaction });
+        const program2 = await models.Program.create(fake(models.Program), { transaction });
 
         programIds = [program1.id, program2.id];
 
@@ -88,15 +82,13 @@ describe('Changelogs', () => {
     });
 
     it('should create changelog entries for updates only on commit', async () => {
-      const program = await models.Program.create({
-        code: 'update-test',
-        name: 'Original Name',
-      });
+      const program = await models.Program.create(fake(models.Program));
 
       await sequelize.query('DELETE FROM logs.changes');
 
+      const updatedName = 'Updated Name';
       await sequelize.transaction(async transaction => {
-        await program.update({ name: 'Updated Name' }, { transaction });
+        await program.update({ name: updatedName }, { transaction });
 
         const changesInTransaction = await sequelize.query(
           'SELECT * FROM logs.changes WHERE record_id = :programId',
@@ -121,7 +113,7 @@ describe('Changelogs', () => {
         expect.objectContaining({
           record_id: program.id,
           table_name: 'programs',
-          record_data: expect.objectContaining({ name: 'Updated Name' }),
+          record_data: expect.objectContaining({ name: updatedName }),
         }),
       ]);
     });
@@ -130,10 +122,7 @@ describe('Changelogs', () => {
       let programId;
 
       await sequelize.transaction(async transaction => {
-        const program = await models.Program.create(
-          { code: 'timing-test', name: 'Timing Test' },
-          { transaction },
-        );
+        const program = await models.Program.create(fake(models.Program), { transaction });
         programId = program.id;
 
         const changesBeforeCommit = await sequelize.query(
@@ -167,11 +156,11 @@ describe('Changelogs', () => {
 
   describe('Pause Audit', () => {
     it('should pause audit for a transaction when pause key is true', async () => {
-      const program1 = await models.Program.create({ code: 'test-1', name: 'Test Program 1' });
+      const program1 = await models.Program.create(fake(models.Program));
 
       const program2 = await sequelize.transaction(async transaction => {
         await pauseAudit(sequelize);
-        return models.Program.create({ code: 'test-2', name: 'Test Program 2' }, { transaction });
+        return models.Program.create(fake(models.Program), { transaction });
       });
 
       const changes = await sequelize.query(
@@ -197,8 +186,8 @@ describe('Changelogs', () => {
     it('should pause audit when setting is disabled globally', async () => {
       await models.Setting.set('audit.changes.enabled', false);
 
-      const program1 = await models.Program.create({ code: 'test-1', name: 'Test Program 1' });
-      const program2 = await models.Program.create({ code: 'test-2', name: 'Test Program 2' });
+      const program1 = await models.Program.create(fake(models.Program));
+      const program2 = await models.Program.create(fake(models.Program));
 
       const changes = await sequelize.query(
         'SELECT * FROM logs.changes WHERE record_id IN (:programIds)',
@@ -214,17 +203,14 @@ describe('Changelogs', () => {
     });
 
     it('should only pause audit within the specific transaction', async () => {
-      const program1 = await models.Program.create({ code: 'outside-1', name: 'Outside 1' });
+      const program1 = await models.Program.create(fake(models.Program));
 
       await sequelize.transaction(async transaction => {
         await pauseAudit(sequelize);
-        await models.Program.create(
-          { code: 'inside-paused', name: 'Inside Paused' },
-          { transaction },
-        );
+        await models.Program.create(fake(models.Program), { transaction });
       });
 
-      const program2 = await models.Program.create({ code: 'outside-2', name: 'Outside 2' });
+      const program2 = await models.Program.create(fake(models.Program));
 
       const changes = await sequelize.query(
         'SELECT * FROM logs.changes WHERE record_id IN (:ids)',
