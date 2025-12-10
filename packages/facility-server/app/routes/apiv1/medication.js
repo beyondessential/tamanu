@@ -353,6 +353,7 @@ const updatePharmacyNotesInputSchema = z
       .nullable()
       .transform(v => (!v ? null : v)),
     displayPharmacyNotesInMar: z.boolean().optional(),
+    repeats: z.number().int().min(0).max(12).optional().nullable(),
   })
   .strip();
 medication.put(
@@ -361,7 +362,7 @@ medication.put(
     const { models, params } = req;
     const { Prescription } = models;
 
-    const { pharmacyNotes, displayPharmacyNotesInMar } =
+    const { pharmacyNotes, displayPharmacyNotesInMar, repeats } =
       await updatePharmacyNotesInputSchema.parseAsync(req.body);
 
     req.checkPermission('write', 'Medication');
@@ -380,6 +381,9 @@ medication.put(
 
     prescription.pharmacyNotes = pharmacyNotes;
     prescription.displayPharmacyNotesInMar = displayPharmacyNotesInMar;
+    if (repeats !== undefined) {
+      prescription.repeats = repeats;
+    }
     await prescription.save();
     res.send(prescription.forResponse());
   }),
