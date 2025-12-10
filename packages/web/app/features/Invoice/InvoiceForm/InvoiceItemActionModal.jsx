@@ -327,6 +327,20 @@ export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }
       form: <MarkupForm data-testid="markupform-ia46" />,
       schema: markupValidationSchema,
     },
+    [INVOICE_ITEM_ACTION_MODAL_TYPES.DELETE]: {
+      description: (
+        <TranslatedText
+          stringId="invoice.modal.deleteInvoice.description"
+          fallback="Are you sure you would like to delete the below item from the patient invoice?"
+        />
+      ),
+      confirmText: (
+        <TranslatedText
+          stringId="invoice.modal.deleteInvoice.action.delete"
+          fallback="Delete item"
+        />
+      ),
+    },
     [INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_NOTE]: {
       form: <AddNoteForm data-testid="addnoteform-ilq2" />,
       initialValues: { note: item.note },
@@ -340,6 +354,15 @@ export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }
 
   const handleSubmit = async submitData => {
     onAction(submitData);
+  };
+
+  const renderDescription = () => {
+    const description = formData[action]?.description;
+    return description ? (
+      <Box mb={3} mt={3} pr={3}>
+        {description}
+      </Box>
+    ) : null;
   };
 
   const renderForm = ({ submitForm }) => (
@@ -362,6 +385,7 @@ export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }
       onClose={onClose}
       data-testid="modal-bs2m"
     >
+      {renderDescription()}
       <InvoiceItemCard item={item} data-testid="invoiceitemcard-74ar" />
       <Form
         validationSchema={formData[action]?.schema}
