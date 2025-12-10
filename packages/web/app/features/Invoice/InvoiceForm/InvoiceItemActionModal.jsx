@@ -7,7 +7,6 @@ import { InvoiceItemCard } from './InvoiceItemCard';
 import { INVOICE_ITEM_ACTION_MODAL_TYPES, Colors } from '../../../constants';
 import { Field, NumberField } from '../../../components/Field';
 import { useTranslation } from '../../../contexts/Translation';
-import { ConfirmCancelRowField } from '../../../components/VaccineCommonFields';
 import {
   TextField,
   SelectField,
@@ -15,6 +14,7 @@ import {
   FormGrid,
   Modal,
   TranslatedText,
+  FormSubmitCancelRow,
 } from '@tamanu/ui-components';
 import { INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
 import { getInvoiceItemPriceDisplay } from '@tamanu/shared/utils/invoice';
@@ -330,6 +330,11 @@ export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }
     [INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_NOTE]: {
       form: <AddNoteForm data-testid="addnoteform-ilq2" />,
       initialValues: { note: item.note },
+      confirmText: item.note ? (
+        <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
+      ) : (
+        <TranslatedText stringId="invoice.modal.editInvoice.addNote" fallback="Add note" />
+      ),
     },
   };
 
@@ -340,11 +345,11 @@ export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }
   const renderForm = ({ submitForm }) => (
     <>
       {formData[action]?.form}
-      <StyledDivider data-testid="styleddivider-g7cs" />
-      <ConfirmCancelRowField
+      <StyledDivider />
+      <FormSubmitCancelRow
         onConfirm={submitForm}
         onCancel={onClose}
-        data-testid="confirmcancelrowfield-nhgq"
+        confirmText={formData[action]?.confirmText}
       />
     </>
   );
