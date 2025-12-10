@@ -160,6 +160,10 @@ export const SelectInput = ({
       boxShadow: 'none',
       border: `1px solid ${TAMANU_COLORS.outline}`,
     }),
+    menuPortal: provided => ({
+      ...provided,
+      zIndex: 10,
+    }),
     option: (provided, state) => {
       const fontSize = props.size === 'small' ? '11px' : '14px';
       return {
