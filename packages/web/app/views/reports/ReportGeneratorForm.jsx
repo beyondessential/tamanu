@@ -10,24 +10,22 @@ import {
   REPORT_DATA_SOURCE_VALUES,
   REPORT_DATA_SOURCES,
   REPORT_EXPORT_FORMATS,
+  FORM_TYPES,
 } from '@tamanu/constants';
+import { Form, FormGrid, TextButton, Button } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
+import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useApi } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import {
   AutocompleteField,
-  Button,
   DateDisplay,
   DateField,
-  Field,
-  Form,
-  FormGrid,
-  getReferenceDataStringId,
+  Field,  
   RadioField,
-  TextButton,
 } from '../../components';
 import { FormSubmitDropdownButton } from '../../components/DropdownButton';
-import { Colors, FORM_TYPES } from '../../constants';
 import { prepareExcelFile } from '../../utils/saveExcelFile';
 import { saveFile } from '../../utils/fileSystemAccess';
 import { EmailField, parseEmails } from './EmailField';
@@ -86,8 +84,8 @@ const ReportIdField = ({ onValueChange, ...props }) => {
   );
 };
 
-const buildParameterFieldValidation = ({ name, required }) => {
-  if (required) return Yup.mixed().required(`${name} is a required field`);
+const buildParameterFieldValidation = ({ required }) => {
+  if (required) return Yup.mixed().required();
 
   return Yup.mixed();
 };

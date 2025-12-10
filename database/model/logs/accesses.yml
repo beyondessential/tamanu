@@ -5,8 +5,14 @@ sources:
     description: "{{ doc('logs__generic__schema') }}"
     tables:
       - name: accesses
-        description: '{{ doc("logs__table__accesses") }}'
-        tags: []
+        description: "{{ doc('logs__table__accesses') }}"
+        config:
+          tags: []
+          meta:
+            triggers:
+              - notify_accesses_changed
+              - set_accesses_updated_at
+              - set_accesses_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid

@@ -1,216 +1,110 @@
-import fetch from 'node-fetch';
 import config from 'config';
 
-import {
-  BadAuthenticationError,
-  FacilityAndSyncVersionIncompatibleError,
-  RemoteCallFailedError,
-  RemoteTimeoutError,
-} from '@tamanu/shared/errors';
-import { SERVER_TYPES, VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
-import { getResponseJsonSafely } from '@tamanu/shared/utils';
+import { TamanuApi } from '@tamanu/api-client';
+import { SERVER_TYPES, SYNC_STREAM_MESSAGE_KIND, DEVICE_SCOPES } from '@tamanu/constants';
+
+import { ERROR_TYPE } from '@tamanu/errors';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { log } from '@tamanu/shared/services/logging';
-import { fetchWithTimeout } from '@tamanu/shared/utils/fetchWithTimeout';
-import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { version } from '../serverInfo';
-import { callWithBackoff } from './callWithBackoff';
 
-const getVersionIncompatibleMessage = (error, response) => {
-  if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
-    const minVersion = response.headers.get('X-Min-Client-Version');
-    return `Please upgrade to Tamanu Facility Server v${minVersion} or higher.`;
-  }
-
-  if (error.message === VERSION_COMPATIBILITY_ERRORS.HIGH) {
-    const maxVersion = response.headers.get('X-Max-Client-Version');
-    return `The Tamanu Central Server only supports up to v${maxVersion} of the Facility Server, and needs to be upgraded. Please contact your system administrator.`;
-  }
-
-  return null;
-};
-
-const objectToQueryString = obj =>
-  Object.entries(obj)
-    .filter(([k, v]) => k !== undefined && v !== undefined)
-    .map(kv => kv.map(str => encodeURIComponent(str)).join('='))
-    .join('&');
-
-export class CentralServerConnection {
-  connectionPromise = null;
-
-  // test mocks don't always apply properly - this ensures the mock will be used
-  fetchImplementation = fetch;
+export class CentralServerConnection extends TamanuApi {
+  #loginData;
 
   constructor({ deviceId }) {
-    this.host = config.sync.host.trim().replace(/\/*$/, '');
-    this.timeout = config.sync.timeout;
-    this.batchSize = config.sync.channelBatchSize;
-    this.deviceId = deviceId;
+    const url = new URL(config.sync.host.trim());
+    url.pathname = '/api';
+
+    super({
+      logger: log,
+      endpoint: url.toString(),
+      agentName: SERVER_TYPES.FACILITY,
+      agentVersion: version,
+      deviceId,
+      defaultRequestConfig: {
+        timeout: config.sync.timeout,
+        waitForAuth: true,
+        backoff: true,
+      },
+    });
   }
 
-  async fetch(endpoint, params = {}) {
-    const {
-      headers = {},
-      body,
-      method = 'GET',
-      retryAuth = true,
-      awaitConnection = true,
-      backoff,
-      ...otherParams
-    } = params;
-
-    // if there's an ongoing connection attempt, wait until it's finished
-    // if we don't have a token, connect
-    // allows deliberately skipping connect (so connect doesn't call itself)
-    if (awaitConnection) {
-      try {
-        if (!this.token) {
-          // Deliberately use same backoff policy to avoid retrying in some places
-          await this.connect(backoff, otherParams.timeout);
-        } else {
-          await this.connectionPromise;
-        }
-      } catch (e) {
-        // ignore
-      }
+  async fetch(endpoint, options = {}, upOptions = null) {
+    let retryAuth;
+    let query;
+    let config;
+    if (!upOptions || options.query || options.retryAuth || options.method) {
+      // this is a local style 2-argument call
+      retryAuth = options.retryAuth ?? true;
+      query = options.query ?? {};
+      delete options.retryAuth;
+      delete options.query;
+      config = options;
+    } else {
+      // this is an api-client style 3-argument call
+      retryAuth = upOptions.retryAuth ?? false;
+      delete upOptions.retryAuth;
+      query = options;
+      config = upOptions;
     }
 
-    const url = `${this.host}/api/${endpoint}`;
-    log.debug(`[sync] ${method} ${url}`);
+    if (['login', 'refresh'].includes(endpoint)) {
+      retryAuth = false;
+    }
 
-    return callWithBackoff(async () => {
-      if (config.debugging.requestFailureRate) {
-        if (Math.random() < config.debugging.requestFailureRate) {
-          // intended to cause some % of requests to fail, to simulate a flaky connection
-          throw new Error('Chaos: made your request fail');
-        }
+    if (retryAuth && !this.hasToken()) {
+      await this.connect();
+    }
+
+    try {
+      return await super.fetch(endpoint, query, config);
+    } catch (error) {
+      if (retryAuth && error.type?.startsWith(ERROR_TYPE.AUTH)) {
+        await this.connect();
+        return await super.fetch(endpoint, query, config);
       }
-      try {
-        const response = await fetchWithTimeout(
-          url,
-          {
-            method,
-            headers: {
-              Accept: 'application/json',
-              'X-Tamanu-Client': SERVER_TYPES.FACILITY,
-              'X-Version': version,
-              Authorization: this.token ? `Bearer ${this.token}` : undefined,
-              'Content-Type': body ? 'application/json' : undefined,
-              ...headers,
-            },
-            body: body && JSON.stringify(body),
-            timeout: this.timeout,
-            ...otherParams,
-          },
-          this.fetchImplementation,
-        );
-        const isInvalidToken = response?.status === 401;
-        if (isInvalidToken) {
-          if (retryAuth) {
-            log.warn('Token was invalid - reconnecting to central server');
-            await this.connect();
-            return this.fetch(endpoint, { ...params, retryAuth: false });
-          }
-          throw new BadAuthenticationError(`Invalid credentials`);
-        }
 
-        if (!response.ok) {
-          const responseBody = await getResponseJsonSafely(response);
-          const { error } = responseBody;
-
-          // handle version incompatibility
-          if (response.status === 400 && error) {
-            const versionIncompatibleMessage = getVersionIncompatibleMessage(error, response);
-            if (versionIncompatibleMessage) {
-              throw new FacilityAndSyncVersionIncompatibleError(versionIncompatibleMessage);
-            }
-          }
-
-          const errorMessage = error ? error.message : 'no error message given';
-          const err = new RemoteCallFailedError(
-            `Server responded with status code ${response.status} (${errorMessage})`,
-          );
-          // attach status and body from response
-          err.centralServerResponse = {
-            message: errorMessage,
-            status: response.status,
-            body: responseBody,
-          };
-          throw err;
-        }
-
-        return await response.json();
-      } catch (e) {
-        // TODO: import AbortError from node-fetch once we're on v3.0
-        if (e.name === 'AbortError') {
-          throw new RemoteTimeoutError(
-            `Server failed to respond within ${this.timeout}ms - ${url}`,
-          );
-        }
-        throw e;
-      }
-    }, backoff);
+      throw error;
+    }
   }
 
   async pollUntilTrue(endpoint) {
-    const waitTime = 1000; // retry once per second
-    const maxAttempts = 60 * 60 * 12; // for a maximum of 12 hours
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      const response = await this.fetch(endpoint);
-      if (response) {
-        return response;
-      }
-      await sleepAsync(waitTime);
-    }
-    throw new Error(`Did not get a truthy response after ${maxAttempts} attempts for ${endpoint}`);
+    return this.pollUntilOk(endpoint);
   }
 
-  async connect(backoff, timeout = this.timeout) {
-    // if there's an ongoing connect attempt, reuse it
-    if (this.connectionPromise) {
-      return this.connectionPromise;
-    }
-
-    // store a promise for other functions to await
-    this.connectionPromise = (async () => {
-      const { email, password } = config.sync;
-
-      log.info(`Logging in to ${this.host} as ${email}...`);
-
-      const facilityIds = selectFacilityIds(config);
-      const body = await this.fetch('login', {
-        method: 'POST',
-        body: {
-          email,
-          password,
-          facilityIds,
-          deviceId: this.deviceId,
-        },
-        awaitConnection: false,
-        retryAuth: false,
-        backoff,
-        timeout,
-      });
-
-      if (!body.token || !body.user) {
-        throw new BadAuthenticationError(`Encountered an unknown error while authenticating`);
-      }
-
-      log.info(`Received token for user ${body.user.displayName} (${body.user.email})`);
-      this.token = body.token;
-
-      return { ...body, serverFacilityIds: facilityIds };
-    })();
-
-    // await connection attempt, throwing an error if applicable, but always removing connectionPromise
+  async connect(backoff = config.sync.backoff, timeout = this.timeout) {
     try {
-      await this.connectionPromise;
-      return this.connectionPromise;
-    } finally {
-      this.connectionPromise = null;
+      await this.refreshToken({
+        retryAuth: false,
+      });
+      return;
+    } catch (_) {
+      // ignore error
     }
+
+    const { email, password } = config.sync;
+    log.info(`Logging in to ${this.host} as ${email}...`);
+
+    return await this.login(email, password, {
+      backoff,
+      timeout,
+      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
+    }).then(loginData => {
+      return (this.#loginData = loginData);
+    });
+  }
+
+  async loginData() {
+    if (!this.hasToken() || !this.#loginData) {
+      await this.connect();
+    }
+
+    return this.#loginData;
+  }
+
+  async streaming() {
+    return Boolean((await this.loginData())?.settings?.sync?.streaming?.enabled);
   }
 
   async startSyncSession({ urgent, lastSyncedTick }) {
@@ -230,15 +124,36 @@ export class CentralServerConnection {
       return { status };
     }
 
-    // then, poll the sync/:sessionId/ready endpoint until we get a valid response
+    // then, wait until the sync session is ready
     // this is because POST /sync (especially the tickTockGlobalClock action) might get blocked
-    // and take a while if the central server is concurrently persist records from another client
+    // and take a while if the central server is concurrently persisting records from another client
+
+    if (await this.streaming()) {
+      for await (const { kind, message } of this.stream(() => ({
+        endpoint: `sync/${sessionId}/ready/stream`,
+      }))) {
+        handler: switch (kind) {
+          case SYNC_STREAM_MESSAGE_KIND.SESSION_WAITING:
+            // still waiting
+            break handler;
+          case SYNC_STREAM_MESSAGE_KIND.END:
+            // includes the new tick from starting the session
+            return { sessionId, ...message };
+          default:
+            log.warn(`Unexpected message kind: ${kind}`);
+        }
+      }
+      throw new Error('Unexpected end of stream');
+    }
+
     await this.pollUntilTrue(`sync/${sessionId}/ready`);
-
-    // finally, fetch the new tick from starting the session
+    // when polling, we need to separately fetch the new tick from starting the session
     const { startedAtTick } = await this.fetch(`sync/${sessionId}/metadata`);
-
     return { sessionId, startedAtTick };
+  }
+
+  async markSessionErrored(sessionId, error) {
+    return this.fetch(`sync/${sessionId}/error`, { method: 'POST', body: { error } });
   }
 
   async endSyncSession(sessionId) {
@@ -246,17 +161,35 @@ export class CentralServerConnection {
   }
 
   async initiatePull(sessionId, since) {
-    // first, set the pull filter on the central server, which will kick of a snapshot of changes
-    // to pull
+    // first, set the pull filter on the central server,
+    // which will kick off a snapshot of changes to pull
     const facilityIds = selectFacilityIds(config);
     const body = { since, facilityIds, deviceId: this.deviceId };
     await this.fetch(`sync/${sessionId}/pull/initiate`, { method: 'POST', body });
 
-    // then, poll the pull/ready endpoint until we get a valid response - it takes a while for
-    // pull/initiate to finish populating the snapshot of changes
-    await this.pollUntilTrue(`sync/${sessionId}/pull/ready`);
+    // then, wait for the pull/ready endpoint until we get a valid response;
+    // it takes a while for pull/initiate to finish populating the snapshot of changes
 
-    // finally, fetch the metadata for the changes we're about to pull
+    if (await this.streaming()) {
+      for await (const { kind, message } of this.stream(() => ({
+        endpoint: `sync/${sessionId}/pull/ready/stream`,
+      }))) {
+        handler: switch (kind) {
+          case SYNC_STREAM_MESSAGE_KIND.PULL_WAITING:
+            // still waiting
+            break handler;
+          case SYNC_STREAM_MESSAGE_KIND.END:
+            // includes the metadata for the changes we're about to pull
+            return { sessionId, ...message };
+          default:
+            log.warn(`Unexpected message kind: ${kind}`);
+        }
+      }
+      throw new Error('Unexpected end of stream');
+    }
+
+    await this.pollUntilTrue(`sync/${sessionId}/pull/ready`);
+    // when polling, we need to separately fetch the metadata for the changes we're about to pull
     return this.fetch(`sync/${sessionId}/pull/metadata`);
   }
 
@@ -265,8 +198,7 @@ export class CentralServerConnection {
     if (fromId) {
       query.fromId = fromId;
     }
-    const path = `sync/${sessionId}/pull?${objectToQueryString(query)}`;
-    return this.fetch(path);
+    return this.fetch(`sync/${sessionId}/pull`, { query });
   }
 
   async push(sessionId, changes) {
@@ -291,24 +223,9 @@ export class CentralServerConnection {
   }
 
   async forwardRequest(req, endpoint) {
-    try {
-      const response = await this.fetch(endpoint, {
-        method: req.method,
-        body: req.body,
-      });
-
-      return response;
-    } catch (err) {
-      if (err.centralServerResponse) {
-        // pass central server response back
-        const centralServerErrorMsg = err.centralServerResponse.body.error?.message;
-        const passThroughError = new Error(centralServerErrorMsg ?? err);
-        passThroughError.status = err.centralServerResponse.status;
-        throw passThroughError;
-      } else {
-        // fallback
-        throw new Error(`Central server error: ${err}`);
-      }
-    }
+    return this.fetch(endpoint, {
+      method: req.method,
+      body: req.body,
+    });
   }
 }

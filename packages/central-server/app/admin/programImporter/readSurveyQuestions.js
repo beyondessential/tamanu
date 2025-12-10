@@ -1,4 +1,4 @@
-import { PROGRAM_DATA_ELEMENT_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { CHARTING_DATA_ELEMENT_IDS, PROGRAM_DATA_ELEMENT_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 
 export function yesOrNo(value) {
   return !!(value && value.toLowerCase() === 'yes');
@@ -21,20 +21,22 @@ function newlinesToArray(data) {
 }
 
 function makeMandatory(validationCriteria) {
-    const { validationCriteria: originalValidationCriteria } = validationCriteria;
-    return JSON.stringify({
-      ...(originalValidationCriteria ? JSON.parse(originalValidationCriteria) : {}),
-      mandatory: true,
-    });
+  const { validationCriteria: originalValidationCriteria } = validationCriteria;
+  return JSON.stringify({
+    ...(originalValidationCriteria ? JSON.parse(originalValidationCriteria) : {}),
+    mandatory: true,
+  });
 }
 
 function applyComponentTypeOverrides(type, surveyComponent) {
-  if (type === PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME) {
+  const { dataElementId } = surveyComponent;
+
+  if (type === PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME || dataElementId === CHARTING_DATA_ELEMENT_IDS.dateRecorded) {
     const { validationCriteria } = surveyComponent;
     return {
       ...surveyComponent,
       validationCriteria: makeMandatory(validationCriteria),
-    }
+    };
   }
   return surveyComponent;
 }

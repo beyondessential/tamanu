@@ -5,8 +5,15 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: tasks
-        description: '{{ doc("table__tasks") }}'
-        tags: []
+        description: "{{ doc('table__tasks') }}"
+        config:
+          tags: []
+          meta:
+            triggers:
+              - notify_tasks_changed
+              - record_tasks_changelog
+              - set_tasks_updated_at
+              - set_tasks_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid
@@ -50,6 +57,9 @@ sources:
           - name: note
             data_type: text
             description: "{{ doc('tasks__note') }}"
+            config:
+              meta:
+                masking: text
           - name: frequency_value
             data_type: numeric
             description: "{{ doc('tasks__frequency_value') }}"
@@ -71,6 +81,9 @@ sources:
           - name: completed_note
             data_type: text
             description: "{{ doc('tasks__completed_note') }}"
+            config:
+              meta:
+                masking: text
           - name: not_completed_by_user_id
             data_type: character varying(255)
             description: "{{ doc('tasks__not_completed_by_user_id') }}"
@@ -89,6 +102,9 @@ sources:
           - name: todo_note
             data_type: text
             description: "{{ doc('tasks__todo_note') }}"
+            config:
+              meta:
+                masking: text
           - name: deleted_by_user_id
             data_type: character varying(255)
             description: "{{ doc('tasks__deleted_by_user_id') }}"
@@ -125,3 +141,8 @@ sources:
           - name: duration_unit
             data_type: character varying(255)
             description: "{{ doc('tasks__duration_unit') }}"
+          - name: task_type
+            data_type: character varying(255)
+            description: "{{ doc('tasks__task_type') }}"
+            data_tests:
+              - not_null

@@ -68,6 +68,16 @@ import { removeIsMostRecentFromPatientProgramRegistrations1744754327000 } from '
 import { addPatientProgramRegistrationInactiveFields1744234389088 } from './1744234389088-addPatientProgramRegistrationInactiveFields';
 import { addProgramRegistryConditionCategories1749085185000 } from './1749085185000-addProgramRegistryConditionCategories';
 import { updateMedicationsDBSchema1750786972719 } from './1750786972719-updateMedicationsDBSchema';
+import { addPatientAllergiesTable1750787000000 } from './1750787000000-addPatientAllergiesTable';
+import { addMedicationAdministrationRecordTable1750787001000 } from './1750787001000-addMedicationAdministrationRecordTable';
+import { addFacilityIsSensitiveColumn1752187477000 } from './1752187477000-addFacilityIsSensitiveColumn';
+import { correctPrescriptionStartDates1753393877000 } from './1753393877000-correctPrescriptionStartDates';
+import { addIsSensitiveColumnToReferenceDrugsTable1753911142171 } from './1753911142171-addIsSensitiveColumnToReferenceDrugsTable';
+import { addTaskTables1754000000000 } from './1754000000000-addTaskTables';
+import { addMotherFatherIdToPatientAdditionalData1756663661549 } from './1756663661549-addMotherFatherIdToPatientAdditionalData';
+import { removeLocalPasswordAddPassword1760456312000 } from './1760456312000-removeLocalPasswordAddPassword';
+import { ensureSystemUserPresent1758183012000 } from './1758183012000-ensureSystemUserPresent';
+import { addNoteTypeIdColumn1761474536816 } from './1761474536816-addNoteTypeIdColumn';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -139,4 +149,14 @@ export const migrationList = [
   addPatientProgramRegistrationInactiveFields1744234389088,
   addProgramRegistryConditionCategories1749085185000,
   updateMedicationsDBSchema1750786972719,
+  addPatientAllergiesTable1750787000000,
+  addMedicationAdministrationRecordTable1750787001000,
+  addFacilityIsSensitiveColumn1752187477000,
+  correctPrescriptionStartDates1753393877000,
+  addIsSensitiveColumnToReferenceDrugsTable1753911142171,
+  addTaskTables1754000000000,
+  addMotherFatherIdToPatientAdditionalData1756663661549,
+  removeLocalPasswordAddPassword1760456312000,
+  ensureSystemUserPresent1758183012000,
+  addNoteTypeIdColumn1761474536816,
 ];

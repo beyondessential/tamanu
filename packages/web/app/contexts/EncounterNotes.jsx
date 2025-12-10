@@ -1,27 +1,27 @@
 import React, { createContext, useContext, useState } from 'react';
 
 const EncounterNotesContext = createContext({
-  noteType: '',
-  setNoteType: () => {},
+  noteTypeId: '',
+  setNoteTypeId: () => {},
   resetNoteContext: () => {},
 });
 
 export const useEncounterNotesQuery = () => {
-  const { noteType, setNoteType, resetNoteContext } = useContext(EncounterNotesContext);
-  return { noteType, setNoteType, resetNoteContext };
+  const { noteTypeId, setNoteTypeId, resetNoteContext } = useContext(EncounterNotesContext);
+  return { noteTypeId, setNoteTypeId, resetNoteContext };
 };
 
 export const EncounterNotesProvider = ({ children }) => {
-  const [noteType, setNoteType] = useState('');
+  const [noteTypeId, setNoteTypeId] = useState('');
   const resetNoteContext = () => {
-    setNoteType('');
+    setNoteTypeId('');
   };
 
   return (
     <EncounterNotesContext.Provider
       value={{
-        noteType,
-        setNoteType,
+        noteTypeId,
+        setNoteTypeId,
         resetNoteContext,
       }}
     >

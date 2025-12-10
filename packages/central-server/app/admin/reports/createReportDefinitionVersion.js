@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError } from '@tamanu/errors';
 import { verifyQuery } from './utils';
 
 export async function createReportDefinitionVersion(

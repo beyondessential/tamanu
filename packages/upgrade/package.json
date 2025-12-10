@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/upgrade",
-  "version": "2.36.0",
+  "version": "2.47.0",
   "private": true,
   "description": "Tamanu upgrade files",
   "main": "dist/cjs/index.js",
@@ -17,7 +17,7 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "GPL-3.0-or-later",
   "scripts": {
-    "build": "npm run clean && npm run build:esm && npm run build:cjs && npm run build:types",
+    "build": "npm run clean && npm run build:esm && npm run build:cjs && npm run build:types && npm run package-default-translations",
     "build:dev:watch": "npm run clean && concurrently \"npm run build:esm -- --watch\" \"npm run build:cjs -- --watch\" \"npm run build:types:esm -- --watch\" \"npm run build:types:cjs -- --watch\"",
     "build:esm": "swc --out-dir dist/esm --copy-files --source-maps true src",
     "build:cjs": "npm run build:esm -- --out-dir dist/cjs --config module.type=commonjs",
@@ -28,14 +28,16 @@
     "clean": "rimraf dist *.tsbuildInfo",
     "clean:deps": "rimraf node_modules",
     "test": "vitest run --no-file-parallelism",
+    "package-default-translations": "tsx scripts/scrapeTranslations.ts > dist/default-translations.json",
     "test:watch": "vitest watch"
   },
   "devDependencies": {
     "@types/node": "^20.9.0",
     "@types/toposort": "^2.0.7",
     "rimraf": "^6.0.1",
-    "vitest": "^2.1.9",
-    "type-fest": "^4.31.0"
+    "tsx": "^4.20.6",
+    "type-fest": "^4.31.0",
+    "vitest": "^2.1.9"
   },
   "dependencies": {
     "@tamanu/constants": "*",
@@ -43,7 +45,10 @@
     "@tamanu/settings": "*",
     "@tamanu/shared": "*",
     "config": "^3.3.9",
+    "csv-parse": "^5.6.0",
+    "lodash": "^4.17.21",
+    "sequelize": "^6.21.3",
     "toposort": "^2.0.2",
-    "sequelize": "^6.21.3"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   }
 }

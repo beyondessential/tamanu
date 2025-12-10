@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: imaging_requests
-        description: '{{ doc("table__imaging_requests") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__imaging_requests') }}"
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers:
+              - notify_imaging_requests_changed
+              - record_imaging_requests_changelog
+              - set_imaging_requests_updated_at
+              - set_imaging_requests_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying
@@ -33,73 +40,88 @@ sources:
             description: "{{ doc('imaging_requests__status') }}"
             data_tests:
               - accepted_values:
-                  values:
-                    - pending
-                    - in_progress
-                    - completed
-                    - cancelled
-                    - deleted
-                    - entered_in_error
+                  arguments:
+                    values:
+                      - pending
+                      - in_progress
+                      - completed
+                      - cancelled
+                      - deleted
+                      - entered_in_error
           - name: requested_date
             data_type: character(19)
             description: "{{ doc('imaging_requests__requested_date') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: datetime
           - name: encounter_id
             data_type: character varying(255)
             description: "{{ doc('imaging_requests__encounter_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'encounters')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'encounters')
+                    field: id
           - name: requested_by_id
             data_type: character varying(255)
             description: "{{ doc('imaging_requests__requested_by_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: legacy_results
             data_type: text
             description: "{{ doc('imaging_requests__legacy_results') }}"
+            config:
+              meta:
+                masking: text
           - name: completed_by_id
             data_type: character varying(255)
             description: "{{ doc('imaging_requests__completed_by_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: location_id
             data_type: character varying(255)
             description: "{{ doc('imaging_requests__location_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'locations')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'locations')
+                    field: id
           - name: imaging_type
             data_type: character varying(31)
             description: "{{ doc('imaging_requests__imaging_type') }}"
             data_tests:
               - accepted_values:
-                  values:
-                    - angiogram
-                    - colonoscopy
-                    - ctScan
-                    - ecg
-                    - echocardiogram
-                    - endoscopy
-                    - fluroscopy
-                    - holterMonitor
-                    - mammogram
-                    - orthopantomography
-                    - mri
-                    - stressTest
-                    - ultrasound
-                    - vascularStudy
-                    - xRay
+                  arguments:
+                    values:
+                      - angiogram
+                      - colonoscopy
+                      - ctScan
+                      - ecg
+                      - echocardiogram
+                      - endoscopy
+                      - fluroscopy
+                      - holterMonitor
+                      - mammogram
+                      - orthopantomography
+                      - mri
+                      - stressTest
+                      - ultrasound
+                      - vascularStudy
+                      - xRay
           - name: requested_date_legacy
             data_type: timestamp with time zone
             description: "{{ doc('imaging_requests__requested_date_legacy') }}"
+            config:
+              meta:
+                masking: datetime
           - name: priority
             data_type: character varying(255)
             description: "{{ doc('imaging_requests__priority') }}"
@@ -108,8 +130,9 @@ sources:
             description: "{{ doc('imaging_requests__location_group_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'location_groups')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'location_groups')
+                    field: id
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in imaging_requests."
@@ -118,6 +141,9 @@ sources:
           - name: reason_for_cancellation
             data_type: character varying(1024)
             description: "{{ doc('imaging_requests__reason_for_cancellation') }}"
+            config:
+              meta:
+                masking: text
           - name: display_id
             data_type: character varying(255)
             description: "{{ doc('imaging_requests__display_id') }}"

@@ -5,8 +5,13 @@ sources:
     description: "{{ doc('fhir__generic__schema') }}"
     tables:
       - name: practitioners
-        description: '{{ doc("fhir__table__practitioners") }}'
-        tags: []
+        description: "{{ doc('fhir__table__practitioners') }}"
+        config:
+          tags: []
+          meta:
+            masking: truncate
+            triggers:
+              - versioning
         columns:
           - name: id
             data_type: uuid

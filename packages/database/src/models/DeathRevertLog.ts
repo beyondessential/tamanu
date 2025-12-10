@@ -1,7 +1,7 @@
 import { DataTypes, Sequelize } from 'sequelize';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError } from '@tamanu/errors';
 
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
@@ -62,7 +62,7 @@ export class DeathRevertLog extends Model {
     return null; // syncs everywhere
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
 }

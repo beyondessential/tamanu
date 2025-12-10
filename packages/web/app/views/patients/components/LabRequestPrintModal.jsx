@@ -7,17 +7,19 @@ import {
   usePatientAdditionalDataQuery,
 } from '../../../api/queries';
 import { useCertificate } from '../../../utils/useCertificate';
+import { Modal } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 
-import { Modal } from '../../../components';
-import { Colors } from '../../../constants';
 import { PDFLoader, printPDF } from '../../../components/PatientPrinting/PDFLoader';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { useTranslation } from '../../../contexts/Translation';
+import { useSettings } from '../../../contexts/Settings';
 import { MultipleLabRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
 
 export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onClose }) => {
   const { getLocalisation } = useLocalisation();
   const { getTranslation } = useTranslation();
+  const { getSetting } = useSettings();
   const api = useApi();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
 
@@ -69,6 +71,7 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
           certificateData={certificateData}
           getLocalisation={getLocalisation}
           getTranslation={getTranslation}
+          getSetting={getSetting}
           data-testid="multiplelabrequestsprintout-ttpy"
         />
       </PDFLoader>

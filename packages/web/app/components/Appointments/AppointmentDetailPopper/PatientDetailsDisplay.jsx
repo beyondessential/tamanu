@@ -21,7 +21,10 @@ const Header = styled('header')`
   }
 `;
 
-const H2 = styled('h2')`
+const PatientNameHeader = styled('h2')`
+  max-width: 80%; /* This is to prevent the name from displaying over the edit menu */
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 0.875rem;
   font-weight: 500;
   margin-block: 0;
@@ -50,7 +53,7 @@ export const PatientDetailsDisplay = ({ patient, onClick, additionalData }) => {
   const { displayId, sex, dateOfBirth } = patient;
   return (
     <Header onClick={onClick} tabIndex={0} data-testid="header-p2x8">
-      <H2 data-testid="h2-9n82">{getPatientNameAsString(patient)}</H2>
+      <PatientNameHeader data-testid="h2-9n82">{getPatientNameAsString(patient)}</PatientNameHeader>
       <PrimaryDetails data-testid="primarydetails-5tdg">
         <InlineDetailsDisplay
           label={

@@ -1,10 +1,8 @@
 import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS, TEMPLATE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Model } from './Model';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { dateType, type InitOptions, type Models } from '../types/model';
-
-const TEMPLATE_TYPES_VALUES = Object.values(TEMPLATE_TYPES);
 
 export class Template extends Model {
   declare id: string;
@@ -12,7 +10,7 @@ export class Template extends Model {
   declare dateCreated: string;
   declare title?: string;
   declare body?: string;
-  declare type: (typeof TEMPLATE_TYPES_VALUES)[number];
+  declare type: string;
   declare visibilityStatus: string;
   declare createdById?: string;
 
@@ -34,7 +32,7 @@ export class Template extends Model {
           type: DataTypes.TEXT,
         },
         type: {
-          type: DataTypes.ENUM(...TEMPLATE_TYPES_VALUES),
+          type: DataTypes.TEXT,
           allowNull: false,
         },
         visibilityStatus: {
@@ -64,7 +62,7 @@ export class Template extends Model {
     return null; // syncs everywhere
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
 }

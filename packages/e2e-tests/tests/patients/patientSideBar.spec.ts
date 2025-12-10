@@ -6,8 +6,8 @@ test.describe('Patient Side Bar', () => {
     await patientDetailsPage.confirmPatientDetailsPageHasLoaded();
   });
 
-  test('Add ongoing condition with just the required fields', async ({ patientDetailsPage }) => {
-    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
+  test('[T-0040][AT-0096]Add ongoing condition with just the required fields', async ({ patientDetailsPage }) => {
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
 
     await patientDetailsPage.addNewOngoingConditionWithJustRequiredFields('Sleep apnea');
 
@@ -19,7 +19,7 @@ test.describe('Patient Side Bar', () => {
     await expect(patientDetailsPage.savedOnGoingConditionDate).toHaveValue(currentBrowserDate);
   });
 
-  test('Add ongoing condition with all fields', async ({ patientDetailsPage }) => {
+  test('[T-0040][AT-0097]Add ongoing condition with all fields', async ({ patientDetailsPage }) => {
     await patientDetailsPage.addNewOngoingConditionWithAllFields(
       'Jaw dislocation',
       '2024-06-20',
@@ -37,30 +37,21 @@ test.describe('Patient Side Bar', () => {
     await expect(patientDetailsPage.savedOnGoingConditionNote).toHaveValue('This is a note');
   });
 
-  test('Skipping mandatory field should throw error', async ({ patientDetailsPage }) => {
+  test('[T-0040][AT-0098]Skipping mandatory field should throw error', async ({ patientDetailsPage }) => {
     await patientDetailsPage.initiateNewOngoingConditionAddButton.click();
 
     await patientDetailsPage.clickAddButtonToConfirm(
       patientDetailsPage.submitNewOngoingConditionAddButton,
     );
 
-    await expect(patientDetailsPage.warningModalTitle).toContainText(
-      'Please fix below errors to continue',
-    );
-    await expect(patientDetailsPage.warningModalContent).toContainText(
-      'The Condition field is required',
-    );
-
-    await patientDetailsPage.warningModalDismissButton.click();
-
     await expect(
-      patientDetailsPage.onGoingConditionForm.filter({
-        hasText: 'The Condition field is required',
+      patientDetailsPage.ongoingConditionNameWrapper.filter({
+        hasText: 'Required',
       }),
     ).toBeVisible();
   });
 
-  test('Edit ongoing condition', async ({ patientDetailsPage }) => {
+  test('[AT-0099]Edit ongoing condition', async ({ patientDetailsPage }) => {
     await patientDetailsPage.addNewOngoingConditionWithAllFields(
       'Eating habits inadequate',
       '2024-07-13',
@@ -87,7 +78,7 @@ test.describe('Patient Side Bar', () => {
     await expect(patientDetailsPage.page.getByText('Temporary note')).toBeHidden();
   });
 
-  test('Mark ongoing condition as resolved', async ({ patientDetailsPage }) => {
+  test('[AT-0100]Mark ongoing condition as resolved', async ({ patientDetailsPage }) => {
     await patientDetailsPage.addNewOngoingConditionWithAllFields(
       'Pain in hand',
       '2024-08-14',
@@ -117,8 +108,8 @@ test.describe('Patient Side Bar', () => {
     await expect(patientDetailsPage.resolvedNote).toHaveValue('Resolved note');
   });
 
-  test('Add allergy with just the required fields', async ({ patientDetailsPage }) => {
-    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
+  test('[T-0042][AT-0101]Add allergy with just the required fields', async ({ patientDetailsPage }) => {
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
 
     await patientDetailsPage.addNewAllergyWithJustRequiredFields('Dust mites');
 
@@ -130,11 +121,11 @@ test.describe('Patient Side Bar', () => {
     await expect(patientDetailsPage.savedAllergyDate).toHaveValue(currentBrowserDate);
   });
 
-  test('Add allergy with all fields', async () => {
+  test('[T-0042][AT-0102]Add allergy with all fields', async () => {
     //TODO: can't do this until figured out how to import reference data for reaction
   });
 
-  test('Edit allergy', async ({ patientDetailsPage }) => {
+  test('[AT-0103]Edit allergy', async ({ patientDetailsPage }) => {
     await patientDetailsPage.addNewAllergyWithJustRequiredFields('Eggs');
 
     await patientDetailsPage.firstListItem.click();
@@ -157,7 +148,7 @@ test.describe('Patient Side Bar', () => {
     await expect(patientDetailsPage.page.getByText('Edited to add a note')).toBeHidden();
   });
 
-  test('Add allergy that is not in dropdown list', async ({
+  test('[T-0043][AT-0104]Add allergy that is not in dropdown list', async ({
     patientDetailsPage,
     newPatient,
   }) => {
@@ -176,8 +167,8 @@ test.describe('Patient Side Bar', () => {
     await expect(patientDetailsPage.savedAllergyName).toHaveValue(newAllergy);
   });
 
-  test('Add family history with just the required fields', async ({ patientDetailsPage }) => {
-    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
+  test('[T-0044][AT-0105]Add family history with just the required fields', async ({ patientDetailsPage }) => {
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
 
     await patientDetailsPage.addNewFamilyHistoryWithJustRequiredFields('Hair alopecia');
 
@@ -189,7 +180,7 @@ test.describe('Patient Side Bar', () => {
     await expect(patientDetailsPage.savedFamilyHistoryDateRecorded).toHaveValue(currentBrowserDate);
   });
 
-  test('Add family history with all fields', async ({ patientDetailsPage }) => {
+  test('[T-0044][AT-0106]Add family history with all fields', async ({ patientDetailsPage }) => {
     await patientDetailsPage.addNewFamilyHistoryWithAllFields(
       'Ear burn',
       '2025-05-26',
@@ -209,7 +200,7 @@ test.describe('Patient Side Bar', () => {
     await expect(patientDetailsPage.savedFamilyHistoryNote).toHaveValue('Family history note');
   });
 
-  test('Edit family history', async ({ patientDetailsPage }) => {
+  test('[AT-0107]Edit family history', async ({ patientDetailsPage }) => {
     await patientDetailsPage.addNewFamilyHistoryWithJustRequiredFields('Hair alopecia');
 
     await patientDetailsPage.firstListItem.click();
@@ -243,11 +234,11 @@ test.describe('Patient Side Bar', () => {
     await expect(patientDetailsPage.page.getByText('First edit to note')).toBeHidden();
   });
 
-  test('Add other patient issue with default issue and note', async ({ patientDetailsPage }) => {
+  test('[T-0045][AT-0108]Add other patient issue with default issue and note', async ({ patientDetailsPage }) => {
     await patientDetailsPage.initiateNewOtherPatientIssuesAddButton.click();
     await expect(patientDetailsPage.defaultNewIssue).toBeVisible();
 
-    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
 
     await patientDetailsPage.addNewOtherPatientIssueNote('New issue note');
 
@@ -260,7 +251,7 @@ test.describe('Patient Side Bar', () => {
     await expect(patientDetailsPage.savedOtherPatientIssueDate).toHaveValue(currentBrowserDate);
   });
 
-  test('Add other patient issue: warning', async ({ patientDetailsPage }) => {
+  test('[T-0045][AT-0109]Add other patient issue: warning', async ({ patientDetailsPage }) => {
     await patientDetailsPage.addNewOtherPatientIssueWarning('Test warning');
 
     await expect(
@@ -269,7 +260,7 @@ test.describe('Patient Side Bar', () => {
     await expect(patientDetailsPage.warningModalContent).toContainText('Test warning');
   });
 
-  test('Warning appears when navigating to patient with a warning', async ({
+  test('[AT-0110]Warning appears when navigating to patient with a warning', async ({
     patientDetailsPage,
     allPatientsPage,
     newPatient,
@@ -290,7 +281,7 @@ test.describe('Patient Side Bar', () => {
     );
   });
 
-  test('Edit patient warning', async ({ patientDetailsPage, allPatientsPage, newPatient }) => {
+  test('[AT-0111]Edit patient warning', async ({ patientDetailsPage, allPatientsPage, newPatient }) => {
     await patientDetailsPage.addNewOtherPatientIssueWarning('Test warning');
     await patientDetailsPage.warningModalOkayButton.click();
 
@@ -324,10 +315,10 @@ test.describe('Patient Side Bar', () => {
     await expect(patientDetailsPage.page.getByText('Test warning')).toBeHidden();
   });
 
-  test('Add care plans', async ({ patientDetailsPage }) => {
+  test('[T-0047][AT-0112]Add care plans', async ({ patientDetailsPage }) => {
     const newCarePlanModal = await patientDetailsPage.addNewCarePlan();
 
-    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
     const defaultDate = await newCarePlanModal.carePlanDate.inputValue();
     await expect(defaultDate).toContain(currentBrowserDate);
 
@@ -344,7 +335,7 @@ test.describe('Patient Side Bar', () => {
       /This is an example of main care plan details/,
     );
     await expect(completedCarePlanModal.completedMainCarePlan).toContainText(
-      'On behalf of Initial Admin',
+      'on behalf of Initial Admin',
     );
 
     await completedCarePlanModal.addAdditionalCarePlanNote(
@@ -360,7 +351,7 @@ test.describe('Patient Side Bar', () => {
     );
   });
 
-  test('Edit main care plan', async ({ patientDetailsPage }) => {
+  test('[AT-0113]Edit main care plan', async ({ patientDetailsPage }) => {
     const newCarePlanModal = await patientDetailsPage.addNewCarePlan();
 
     await newCarePlanModal.fillOutCarePlan(
@@ -382,7 +373,7 @@ test.describe('Patient Side Bar', () => {
     ).toBeHidden();
   });
 
-  test('Edit additional care plan note', async ({ patientDetailsPage }) => {
+  test('[AT-0114]Edit additional care plan note', async ({ patientDetailsPage }) => {
     const newCarePlanModal = await patientDetailsPage.addNewCarePlan();
 
     await newCarePlanModal.fillOutCarePlan(
@@ -422,7 +413,7 @@ test.describe('Patient Side Bar', () => {
     ).toBeHidden();
   });
 
-  test('Delete care plan note', async ({ patientDetailsPage }) => {
+  test('[T-0048][AT-0115]Delete care plan note', async ({ patientDetailsPage }) => {
     const newCarePlanModal = await patientDetailsPage.addNewCarePlan();
 
     await newCarePlanModal.fillOutCarePlan(

@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: invoice_products
-        description: '{{ doc("table__invoice_products") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__invoice_products') }}"
+        config:
+          tags:
+            - reference
+          meta:
+            triggers:
+              - notify_invoice_products_changed
+              - record_invoice_products_changelog
+              - set_invoice_products_updated_at
+              - set_invoice_products_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -20,9 +27,6 @@ sources:
             description: "{{ doc('invoice_products__name') }}"
             data_tests:
               - not_null
-          - name: price
-            data_type: numeric
-            description: "{{ doc('invoice_products__price') }}"
           - name: discountable
             data_type: boolean
             description: "{{ doc('invoice_products__discountable') }}"
@@ -49,3 +53,12 @@ sources:
             description: "{{ doc('generic__updated_at_sync_tick') }} in invoice_products."
             data_tests:
               - not_null
+          - name: category
+            data_type: character varying(255)
+            description: "{{ doc('invoice_products__category') }}"
+          - name: source_record_type
+            data_type: character varying(255)
+            description: "{{ doc('invoice_products__source_record_type') }}"
+          - name: source_record_id
+            data_type: character varying(255)
+            description: "{{ doc('invoice_products__source_record_id') }}"

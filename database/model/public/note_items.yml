@@ -5,10 +5,17 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: note_items
-        description: '{{ doc("table__note_items") }}'
-        tags:
-          - clinical
-          - deprecated
+        description: "{{ doc('table__note_items') }}"
+        config:
+          tags:
+            - clinical
+            - deprecated
+          meta:
+            triggers:
+              - notify_note_items_changed
+              - record_note_items_changelog
+              - set_note_items_updated_at
+              - set_note_items_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid
@@ -35,42 +42,55 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'note_pages')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'note_pages')
+                    field: id
           - name: revised_by_id
             data_type: character varying(255)
             description: "{{ doc('note_items__revised_by_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'note_items')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'note_items')
+                    field: id
           - name: author_id
             data_type: character varying(255)
             description: "{{ doc('note_items__author_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: on_behalf_of_id
             data_type: character varying(255)
             description: "{{ doc('note_items__on_behalf_of_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: content
             data_type: text
             description: "{{ doc('note_items__content') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: text
           - name: date
             data_type: character(19)
             description: "{{ doc('generic__date') }} in note_items."
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: datetime
           - name: date_legacy
             data_type: timestamp with time zone
             description: "{{ doc('generic__date_legacy') }} in note_items."
+            config:
+              meta:
+                masking: datetime
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in note_items."

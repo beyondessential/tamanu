@@ -5,10 +5,17 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: note_pages
-        description: '{{ doc("table__note_pages") }}'
-        tags:
-          - clinical
-          - deprecated
+        description: "{{ doc('table__note_pages') }}"
+        config:
+          tags:
+            - clinical
+            - deprecated
+          meta:
+            triggers:
+              - notify_note_pages_changed
+              - record_note_pages_changelog
+              - set_note_pages_updated_at
+              - set_note_pages_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid
@@ -49,9 +56,15 @@ sources:
             description: "{{ doc('generic__date') }} in note_pages."
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: datetime
           - name: date_legacy
             data_type: timestamp with time zone
             description: "{{ doc('generic__date_legacy') }} in note_pages."
+            config:
+              meta:
+                masking: datetime
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in note_pages."

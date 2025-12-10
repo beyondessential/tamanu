@@ -2,21 +2,26 @@ import React, { memo, useCallback, useMemo, useState } from 'react';
 import { startCase, sum } from 'lodash';
 import styled from 'styled-components';
 import * as yup from 'yup';
-
-import { useApi } from '../../../api';
-import { Field, Form } from '../../../components/Field';
-import { FileChooserField, FILTER_EXCEL } from '../../../components/Field/FileChooserField';
-import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMultiSelectField';
-import { FormGrid } from '../../../components/FormGrid';
-import { ButtonRow } from '../../../components/ButtonRow';
-import { Table } from '../../../components/Table';
-import { FormSubmitButton } from '../../../components/Button';
-import { FORM_TYPES } from '../../../constants';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useFormikContext } from 'formik';
 
+import { FORM_TYPES } from '@tamanu/constants/forms';
+import {
+  FileChooserField,
+  FILTER_EXCEL,
+  Form,
+  FormSubmitButton,
+  ButtonRow,
+  FormGrid,
+} from '@tamanu/ui-components';
+
+import { useApi } from '../../../api';
+import { Field } from '../../../components/Field';
+import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMultiSelectField';
+import { Table } from '../../../components/Table';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
+
 const ColorText = styled.span`
-  color: ${(props) => props.color};
+  color: ${props => props.color};
 `;
 
 const ContentRow = styled.div`
@@ -25,10 +30,10 @@ const ContentRow = styled.div`
   justify-content: space-between;
 `;
 
-const ContentColumn = (props) => <FormGrid columns={1} {...props} data-testid="formgrid-9c0n" />;
+const ContentColumn = props => <FormGrid columns={1} {...props} data-testid="formgrid-9c0n" />;
 
 const StyledButtonRow = styled(ButtonRow)`
-  ${(p) => (p.alignment === 'right' ? `width: 50%` : '')};
+  ${p => (p.alignment === 'right' ? `width: 50%` : '')};
 `;
 
 const ERROR_COLUMNS = [
@@ -38,7 +43,7 @@ const ERROR_COLUMNS = [
   {
     key: 'error',
     title: 'Message',
-    accessor: (data) => (
+    accessor: data => (
       <ColorText color="red" data-testid="colortext-xmxk">
         {data.message}
       </ColorText>
@@ -65,6 +70,7 @@ const STATS_COLUMNS = [
     ),
     sortable: false,
   },
+  { key: 'skipped', title: 'No change', sortable: false },
 ];
 
 const ImportStatsDisplay = ({ stats }) => (
@@ -113,7 +119,7 @@ const ImportForm = ({
             />
           }
           component={ExpandedMultiSelectField}
-          options={dataTypes.map((value) => ({ value, label: startCase(value) }))}
+          options={dataTypes.map(value => ({ value, label: startCase(value) }))}
           data-testid="field-3a98"
         />
       )}
@@ -148,8 +154,8 @@ const ImportForm = ({
   );
 };
 
-function sumStat(stats, fields = ['created', 'updated', 'errored']) {
-  return sum(Object.values(stats).map((stat) => sum(fields.map((f) => stat[f]))));
+function sumStat(stats, fields = ['created', 'updated', 'errored', 'skipped']) {
+  return sum(Object.values(stats).map(stat => sum(fields.map(f => stat[f]))));
 }
 
 const OutcomeHeader = ({ result }) => {
@@ -175,6 +181,7 @@ const OutcomeHeader = ({ result }) => {
             `${sumStat(result.stats, ['created'])} created, ` +
             `${sumStat(result.stats, ['updated'])} updated, ` +
             `${sumStat(result.stats, ['errored'])} errored, ` +
+            `${sumStat(result.stats, ['skipped'])} skipped, ` +
             `${sumStat(result.stats)} total`}
         </p>
       )}
@@ -238,7 +245,7 @@ export const ImporterView = memo(
     );
 
     const renderForm = useCallback(
-      (props) => (
+      props => (
         <ImportForm
           dataTypes={dataTypes}
           dataTypesSelectable={dataTypesSelectable}
@@ -260,7 +267,11 @@ export const ImporterView = memo(
           formType={FORM_TYPES.CREATE_FORM}
           validationSchema={yup.object().shape({
             includedDataTypes: dataTypesSelectable
-              ? yup.array().of(yup.string()).required().min(1)
+              ? yup
+                  .array()
+                  .of(yup.string())
+                  .required()
+                  .min(1)
               : undefined,
             file: yup
               .string()

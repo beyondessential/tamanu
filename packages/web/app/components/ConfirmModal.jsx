@@ -1,10 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Modal } from './Modal';
-import { OutlinedButton } from './Button';
-import { ButtonRow } from './ButtonRow';
-import { TranslatedText } from './Translation/TranslatedText';
+import { ButtonRow, OutlinedButton, Modal, TranslatedText } from '@tamanu/ui-components';
 import { ConfirmRowDivider } from './ConfirmRowDivider';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 

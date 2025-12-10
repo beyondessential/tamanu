@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { sortBy } from 'lodash';
 import { Divider, ButtonBase } from '@material-ui/core';
+import { TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
+import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
-import { getReferenceDataStringId, Heading5, TranslatedText } from '../../components';
+import { Heading5 } from '../../components';
 import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ConditionalTooltip } from '../../components/Tooltip';
-import { Colors } from '../../constants';
 import useOverflow from '../../hooks/useOverflow';
 import { useTranslation } from '../../contexts/Translation';
 import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
@@ -133,7 +135,7 @@ export const ConditionSection = ({ registrationId, isInactive }) => {
     <Container>
       <Heading5 mt={0} mb={1}>
         <TranslatedText
-          stringId="programRegistry.relatedConditions.title"
+          stringId="programRegistry.relatedConditions.label"
           fallback="Related conditions"
           data-testid="translatedtext-tezx"
         />

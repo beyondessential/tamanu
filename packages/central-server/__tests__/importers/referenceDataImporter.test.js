@@ -1,4 +1,5 @@
 import { Op } from 'sequelize';
+
 import { fake } from '@tamanu/fake-data/fake';
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
@@ -7,7 +8,9 @@ import {
 } from '@tamanu/constants/importable';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
+import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation';
 import { REFERENCE_TYPES, REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
+
 import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
 import { referenceDataImporter } from '../../dist/admin/referenceDataImporter';
 import { createTestContext } from '../utilities';
@@ -16,6 +19,7 @@ import { exporter } from '../../dist/admin/exporter/exporter';
 import { createAllergy, createDiagnosis } from '../exporters/referenceDataUtils';
 import { camelCase } from 'lodash';
 import { makeRoleWithPermissions } from '../permissions';
+import { normaliseOptions } from '../../app/admin/importer/translationHandler';
 
 // the importer can take a little while
 jest.setTimeout(30000);
@@ -349,38 +353,100 @@ describe('Data definition import', () => {
     });
   });
 
-  it('should create translations records for the translatable reference data types', async () => {
-    const { models } = ctx.store;
-    const { ReferenceData, TranslatedString } = models;
-    const { stats } = await doImport({ file: 'valid' });
+  describe('Translation', () => {
+    it('should create translations records for the translatable reference data types', async () => {
+      const { models } = ctx.store;
+      const { ReferenceData, TranslatedString } = models;
+      const { stats } = await doImport({ file: 'valid' });
 
-    // It should create a translation for each record in the reference data table
-    const refDataTableRecords = await ReferenceData.findAll({ raw: true });
-    const expectedStringIds = refDataTableRecords.map(
-      ({ type, id }) => `${REFERENCE_DATA_TRANSLATION_PREFIX}.${type}.${id}`,
-    );
+      // It should create a translation for each record in the reference data table
+      const refDataTableRecords = await ReferenceData.findAll({ raw: true });
+      const expectedStringIds = refDataTableRecords.map(
+        ({ type, id }) => `${REFERENCE_DATA_TRANSLATION_PREFIX}.${type}.${id}`,
+      );
 
-    // Filter out the clinical/patient record types as they dont get translated
-    const translatableNonRefDataTableImports = Object.keys(stats).filter((key) =>
-      OTHER_REFERENCE_TYPE_VALUES.includes(camelCase(key)),
-    );
-    await Promise.all(
-      translatableNonRefDataTableImports.map(async (type) => {
-        const recordsForDataType = await models[type].findAll({
-          attributes: ['id'],
-          raw: true,
-        });
-        const nonRefDataTableStringIds = recordsForDataType.map(
-          ({ id }) => `${REFERENCE_DATA_TRANSLATION_PREFIX}.${camelCase(type)}.${id}`,
-        );
-        expectedStringIds.push(...nonRefDataTableStringIds);
-      }),
-    );
+      // Filter out the clinical/patient record types as they dont get translated
+      const translatableNonRefDataTableImports = Object.keys(stats).filter(key =>
+        OTHER_REFERENCE_TYPE_VALUES.includes(camelCase(key)),
+      );
+      await Promise.all(
+        translatableNonRefDataTableImports.map(async type => {
+          const recordsForDataType = await models[type].findAll({
+            attributes: ['id'],
+            raw: true,
+          });
+          const nonRefDataTableStringIds = recordsForDataType.map(
+            ({ id }) => `${REFERENCE_DATA_TRANSLATION_PREFIX}.${camelCase(type)}.${id}`,
+          );
+          expectedStringIds.push(...nonRefDataTableStringIds);
+        }),
+      );
 
-    const createdTranslationCount = await TranslatedString.count({
-      where: { stringId: { [Op.in]: expectedStringIds } },
+      const createdTranslationCount = await TranslatedString.count({
+        where: { stringId: { [Op.in]: expectedStringIds } },
+      });
+      expect(expectedStringIds.length).toEqual(createdTranslationCount);
     });
-    expect(expectedStringIds.length).toEqual(createdTranslationCount);
+
+    it('should create nested translations for options', async () => {
+      const { models } = ctx.store;
+      await doImport({ file: 'valid' });
+
+      // find an element with options
+      const patientFieldDefinition = await models.PatientFieldDefinition.findOne({
+        where: {
+          options: {
+            [Op.ne]: null,
+          },
+        },
+      });
+
+      if (!patientFieldDefinition)
+        throw new Error('No patient field definition with options found in refdata-valid.xlsx');
+
+      const translations = await models.TranslatedString.findAll({
+        where: { stringId: { [Op.like]: 'refData.patientFieldDefinition%' } },
+      });
+      const stringIds = translations.map(translation => translation.stringId);
+
+      const expectedStringIds = normaliseOptions(patientFieldDefinition.options).map(option =>
+        getReferenceDataOptionStringId(patientFieldDefinition.id, 'patientFieldDefinition', option),
+      );
+
+      expect(stringIds).toEqual(expect.arrayContaining(expectedStringIds));
+    });
+  });
+
+  describe('ReferenceDataRelations', () => {
+    it('should allow deleting reference data relations', async () => {
+      const { errors: createErrors, stats: createStats } = await doImport({
+        file: 'valid-reference-data-relations',
+        dryRun: false,
+      });
+
+      expect(createErrors).toBeEmpty();
+      expect(createStats).toMatchObject({
+        'ReferenceData/division': { created: 2, updated: 0, errored: 0 },
+        'ReferenceData/subdivision': { created: 4, updated: 0, errored: 0 },
+        ReferenceDataRelation: { created: 4, updated: 0, errored: 0 },
+      });
+
+      const relationsAfterCreate = await models.ReferenceDataRelation.findAll();
+      expect(relationsAfterCreate).toHaveLength(4);
+
+      const { errors: deleteErrors, stats: deleteStats } = await doImport({
+        file: 'valid-reference-data-relations-deletes',
+        dryRun: false,
+      });
+
+      expect(deleteErrors).toBeEmpty();
+      expect(deleteStats).toMatchObject({
+        ReferenceDataRelation: { deleted: 2, updated: 2, errored: 0 },
+      });
+
+      const relationsAfterDelete = await models.ReferenceDataRelation.findAll();
+      expect(relationsAfterDelete).toHaveLength(2);
+    });
   });
 
   it('should allow importing sensitive lab test types within the same lab test category', async () => {
@@ -565,6 +631,98 @@ describe('Data definition import', () => {
       'Lab test panels cannot contain sensitive lab test types',
     );
   });
+
+  describe('Invoice Product', () => {
+    it('should import an invoice product', async () => {
+      const { errors, stats } = await doImport({ file: 'valid-invoice-product', dryRun: true });
+      expect(errors).toBeEmpty();
+      expect(stats).toMatchObject({
+        InvoiceProduct: { created: 1, updated: 0, errored: 0 },
+      });
+    });
+
+    it('should import an invoice product which has a source record', async () => {
+      const { errors, stats } = await doImport({
+        file: 'valid-invoice-product-and-sources',
+        dryRun: true,
+      });
+      expect(errors).toBeEmpty();
+      expect(stats).toMatchObject({
+        InvoiceProduct: { created: 6, updated: 0, errored: 0 },
+      });
+    });
+
+    it('should not import an invoice product when the source record does not exist', async () => {
+      const { didntSendReason, errors } = await doImport({
+        file: 'invalid-invoice-product-missing-source',
+        dryRun: true,
+      });
+      expect(didntSendReason).toEqual('validationFailed');
+      expect(errors).toContainValidationError(
+        'invoiceProduct',
+        2,
+        'Source record with ID "Drug-love" and category "Drug" does not exist.',
+      );
+    });
+  });
+
+  describe('Procedure Type Survey', () => {
+    let testSurvey1;
+    let testSurvey2;
+
+    beforeEach(async () => {
+      await models.ProcedureTypeSurvey.destroy({ where: {}, force: true });
+      await models.ReferenceData.destroy({ where: { type: 'procedureType' }, force: true });
+      await models.Survey.destroy({ where: {}, force: true });
+
+      testSurvey1 = await models.Survey.create({
+        ...fake(models.Survey),
+        id: 'test-survey-1', // id from the xlsx file
+      });
+      testSurvey2 = await models.Survey.create({
+        ...fake(models.Survey),
+        id: 'test-survey-2', // id from the xlsx file
+      });
+    });
+
+    it('should import procedure type with formLink survey', async () => {
+      const { errors } = await doImport({ file: 'procedure-type-form-link-add' });
+      expect(errors).toBeEmpty();
+
+      const procedureTypeSurveys = await models.ProcedureTypeSurvey.findAll();
+      expect(procedureTypeSurveys).toHaveLength(2);
+      expect(procedureTypeSurveys[0].surveyId).toEqual(testSurvey1.id);
+      expect(procedureTypeSurveys[1].surveyId).toEqual(testSurvey2.id);
+    });
+
+    it('should be able to delete a formLink survey', async () => {
+      // First, import to create the associations
+      await doImport({ file: 'procedure-type-form-link-add' });
+      let procedureTypeSurveys = await models.ProcedureTypeSurvey.findAll();
+      expect(procedureTypeSurveys).toHaveLength(2);
+
+      // Now, import a file that removes one of the associations
+      const { errors } = await doImport({ file: 'procedure-type-form-link-delete' });
+      expect(errors).toBeEmpty();
+
+      procedureTypeSurveys = await models.ProcedureTypeSurvey.findAll();
+      expect(procedureTypeSurveys).toHaveLength(1);
+      expect(procedureTypeSurveys[0].surveyId).toEqual(testSurvey1.id);
+    });
+
+    it('should validate if the survey does not exist', async () => {
+      const { didntSendReason, errors } = await doImport({
+        file: 'procedure-type-form-link-invalid',
+        dryRun: true,
+      });
+      expect(didntSendReason).toEqual('validationFailed');
+      expect(errors).toContainValidationError(
+        'procedureType',
+        2,
+        'Linked survey "test-survey-3" for procedure type "procedure-34830" not found.',
+      );
+    });
+  });
 });
 
 describe('Permissions import', () => {
@@ -669,36 +827,32 @@ describe('Permissions import', () => {
   it('should revoke (and reinstate) a permission', async () => {
     const { Permission } = ctx.store.models;
 
-    const beforeImport = await Permission.findOne({ where: { noun: 'RevokeTest' } });
+    const beforeImport = await Permission.findOne({ where: { noun: 'User' } });
     expect(beforeImport).toBeFalsy();
 
     await doImport({ file: 'revoke-a' });
 
     const initialPermissions = await getPermissionsForRoles(ctx.store.models, 'reception');
-    expect(initialPermissions).toEqual(
-      expect.arrayContaining([{ noun: 'RevokeTest', verb: 'read' }]),
-    );
+    expect(initialPermissions).toEqual(expect.arrayContaining([{ noun: 'User', verb: 'read' }]));
     expect(initialPermissions.length).toBe(1);
 
     await doImport({ file: 'revoke-b' });
 
     const afterImport = await Permission.findOne({
-      where: { noun: 'RevokeTest' },
+      where: { noun: 'User' },
       paranoid: false,
     });
     expect(afterImport).toBeTruthy();
     const revokedPermissions = await getPermissionsForRoles(ctx.store.models, 'reception');
     expect(revokedPermissions).toEqual(
-      expect.not.arrayContaining([{ noun: 'RevokeTest', verb: 'read' }]),
+      expect.not.arrayContaining([{ noun: 'User', verb: 'read' }]),
     );
     expect(revokedPermissions.length).toBe(0);
 
     await doImport({ file: 'revoke-a' });
 
     const reinstatedPermissions = await getPermissionsForRoles(ctx.store.models, 'reception');
-    expect(reinstatedPermissions).toEqual(
-      expect.arrayContaining([{ noun: 'RevokeTest', verb: 'read' }]),
-    );
+    expect(reinstatedPermissions).toEqual(expect.arrayContaining([{ noun: 'User', verb: 'read' }]));
     expect(reinstatedPermissions.length).toBe(1);
   });
 

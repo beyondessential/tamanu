@@ -2,8 +2,10 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 import { Box, Typography } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
-import { Colors, PATIENT_STATUS, PATIENT_STATUS_COLORS } from '../../../constants';
-import { Button, ButtonWithPermissionCheck, DateDisplay } from '../../../components';
+import { ButtonWithPermissionCheck, Button } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
+import { PATIENT_STATUS, PATIENT_STATUS_COLORS } from '../../../constants';
+import { DateDisplay } from '../../../components';
 import { DeathCertificateModal } from '../../../components/PatientPrinting';
 import { useApi } from '../../../api';
 import { getFullLocationName } from '../../../utils/location';
@@ -17,6 +19,7 @@ import {
 } from '../../../components/Translation';
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
+import { getEncounterStartDateLabel } from '../../../utils/getEncounterStartDateLabel';
 
 const Border = css`
   border: 1px solid ${Colors.outline};
@@ -217,7 +220,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
         message={
           <TranslatedText
             stringId="general.status.loading"
-            fallback="Loading..."
+            fallback="Loading…"
             data-testid="translatedtext-jp7h"
           />
         }
@@ -379,12 +382,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
         )}
         <ContentItem data-testid="contentitem-o4pq">
           <ContentLabel data-testid="contentlabel-ws92">
-            <TranslatedText
-              stringId="patient.encounterSummary.arrivalDate"
-              fallback="Arrival date"
-              data-testid="translatedtext-dn4a"
-            />
-            :
+            {getEncounterStartDateLabel(encounterType)}:
           </ContentLabel>
           <ContentText data-testid="contenttext-nw17">
             <DateDisplay date={startDate} data-testid="datedisplay-5hsh" />

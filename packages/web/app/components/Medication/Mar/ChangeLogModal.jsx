@@ -1,12 +1,14 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { ConfirmCancelRow, Modal, TranslatedText } from '../..';
+import { ConfirmCancelRow, TranslatedText, Modal } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import styled from 'styled-components';
-import { Colors } from '../../../constants';
 import { Divider } from '@material-ui/core';
 import { useMarChangelogQuery } from '../../../api/queries/useMarChangelogQuery';
 import { formatShortest } from '@tamanu/utils/dateTime';
 import { formatTimeSlot } from '../../../utils/medications';
 import { Box } from '@mui/material';
+import { useTranslation } from '../../../contexts/Translation';
+import { getMarDoseDisplay } from '@tamanu/shared/utils/medication';
 
 const LogContainer = styled.div`
   display: flex;
@@ -68,6 +70,7 @@ const LABELS = {
 
 export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
   const [changeLogList, setChangeLogList] = useState([]);
+  const { getEnumTranslation } = useTranslation();
 
   const { data } = useMarChangelogQuery(marId);
 
@@ -114,7 +117,13 @@ export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
         result.push([
           {
             changes: [
-              { label: LABELS.doseGiven, value: log.doseAmount },
+              {
+                label: LABELS.doseGiven,
+                value: getMarDoseDisplay(
+                  { doseAmount: log.doseAmount, units: medication.units },
+                  getEnumTranslation,
+                ),
+              },
               { label: LABELS.timeGiven, value: formatTimeSlot(log.doseGivenTime) },
               { label: LABELS.givenBy, value: log.doseGivenByUser.name },
               { label: LABELS.recordedBy, value: log.recordedByUser.name },
@@ -143,7 +152,13 @@ export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
           const previousLog = data.slice(log.index + 1).find(l => l.id === log.id);
           const changes = [];
           if (previousLog?.doseAmount !== log.doseAmount) {
-            changes.push({ label: LABELS.doseGiven, value: log.doseAmount });
+            changes.push({
+              label: LABELS.doseGiven,
+              value: getMarDoseDisplay(
+                { doseAmount: log.doseAmount, units: medication.units },
+                getEnumTranslation,
+              ),
+            });
           }
           if (previousLog?.doseGivenTime !== log.doseGivenTime) {
             changes.push({ label: LABELS.timeGiven, value: formatTimeSlot(log.doseGivenTime) });
@@ -239,7 +254,13 @@ export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
             {
               changes: [
                 { label: LABELS.status, value: LABELS.given },
-                { label: LABELS.doseGiven, value: logs[1].doseAmount },
+                {
+                  label: LABELS.doseGiven,
+                  value: getMarDoseDisplay(
+                    { doseAmount: logs[1].doseAmount, units: medication.units },
+                    getEnumTranslation,
+                  ),
+                },
                 {
                   label: LABELS.timeGiven,
                   value: logs[1].doseGivenTime && formatTimeSlot(logs[1].doseGivenTime),

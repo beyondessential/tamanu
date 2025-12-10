@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
-import { Exception, InvalidParameterError } from '@tamanu/shared/errors';
+import { BaseError, InvalidParameterError } from '@tamanu/errors';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 import { createTestContext } from '../utilities';
 
@@ -122,13 +122,13 @@ describe('HL7FHIR module utils', () => {
     it('Throws an exception when the format is not valid for FHIR', () => {
       const dateValue = new Date('2020-05-10 14:30:01');
       const faultyFormatted = () => formatFhirDate(dateValue, FHIR_DATETIME_PRECISION.MINUTES);
-      expect(faultyFormatted).toThrow(Exception);
+      expect(faultyFormatted).toThrow(BaseError);
     });
 
     it('Throws an exception when the specified format is not known', () => {
       const dateValue = new Date('2020-05-10 14:30:01');
       const faultyFormatted = () => formatFhirDate(dateValue, 'gibberish-format');
-      expect(faultyFormatted).toThrow(Exception);
+      expect(faultyFormatted).toThrow(BaseError);
     });
   });
 });

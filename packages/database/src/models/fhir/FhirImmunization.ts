@@ -58,6 +58,7 @@ export class FhirImmunization extends FhirResource {
       models.ScheduledVaccine,
       models.User,
     ];
+    this.referencedResources = [models.FhirPatient, models.FhirEncounter, models.FhirPractitioner];
   }
 
   static CAN_DO = new Set([

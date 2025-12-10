@@ -56,7 +56,7 @@ describe('PatientProgramRegistration', () => {
     const unknownConditionCategory = await models.ProgramRegistryConditionCategory.create(
       fake(models.ProgramRegistryConditionCategory, {
         programRegistryId,
-        code: categoryCode ||PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
+        code: categoryCode || PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
       }),
     );
     return models.PatientProgramRegistrationCondition.create(
@@ -176,7 +176,9 @@ describe('PatientProgramRegistration', () => {
 
       expect(result).toHaveSucceeded();
 
-      const createdRegistration = await models.PatientProgramRegistration.findByPk(result.body.id);
+      const createdRegistration = await models.PatientProgramRegistration.findOne({
+        where: { id: result.body.id },
+      });
 
       expect(createdRegistration).toMatchObject({
         programRegistryId: programRegistry1.id,
@@ -185,8 +187,11 @@ describe('PatientProgramRegistration', () => {
         date: '2023-09-02 08:00:00',
       });
 
-      const createdRegistrationCondition =
-        await models.PatientProgramRegistrationCondition.findByPk(result.body.conditions[0].id);
+      const createdRegistrationCondition = await models.PatientProgramRegistrationCondition.findOne(
+        {
+          where: { id: result.body.conditions[0].id },
+        },
+      );
 
       expect(createdRegistrationCondition).toMatchObject({
         clinicianId: clinician.id,
@@ -263,7 +268,9 @@ describe('PatientProgramRegistration', () => {
       expect(result.body.clinicalStatusId).toBe(status2.id);
 
       // Check that the updated status is reflected in the database
-      const updatedRegistration = await models.PatientProgramRegistration.findByPk(registration.id);
+      const updatedRegistration = await models.PatientProgramRegistration.findOne({
+        where: { id: registration.id },
+      });
       expect(updatedRegistration.clinicalStatusId).toBe(status2.id);
     });
 
@@ -343,7 +350,9 @@ describe('PatientProgramRegistration', () => {
       expect(result).toHaveSucceeded();
 
       // Check that the updated status is reflected in the database
-      const updatedRegistration = await models.PatientProgramRegistration.findByPk(registration.id);
+      const updatedRegistration = await models.PatientProgramRegistration.findOne({
+        where: { id: registration.id },
+      });
       expect(updatedRegistration.clinicalStatusId).toBe(status2.id);
 
       // Check that the new condition is reflected in the database
@@ -595,7 +604,7 @@ describe('PatientProgramRegistration', () => {
     });
 
     describe('DELETE /programRegistration/:id', () => {
-      it('should mark patient program registration as deleted and update status to recordedInError', async () => {
+      it('should update patient program registration status to recordedInError', async () => {
         // Create test data
         const patient = await models.Patient.create(fake(models.Patient));
         const programRegistry = await createProgramRegistry();
@@ -629,18 +638,15 @@ describe('PatientProgramRegistration', () => {
         expect(result.body).toHaveProperty('message', 'Registration successfully deleted');
 
         // Verify the registration is soft deleted and marked as recordedInError
-        const updatedRegistration = await models.PatientProgramRegistration.findByPk(
-          registration.id,
-          {
-            paranoid: false, // Include soft deleted records
-          },
-        );
+        const updatedRegistration = await models.PatientProgramRegistration.findOne({
+          where: { id: registration.id },
+          paranoid: false, // Include soft deleted records
+        });
 
         expect(updatedRegistration).toBeTruthy();
         expect(updatedRegistration.registrationStatus).toBe(
           REGISTRATION_STATUSES.RECORDED_IN_ERROR,
         );
-        expect(updatedRegistration.deletedAt).toBeTruthy();
 
         // Verify related conditions are also soft deleted
         const updatedCondition1 = await models.PatientProgramRegistrationCondition.findByPk(
@@ -734,7 +740,7 @@ describe('PatientProgramRegistration', () => {
         expect(conditions[1].id).toBe(condition1.id);
 
         // Verify each condition has the expected properties
-        conditions.forEach((condition) => {
+        conditions.forEach(condition => {
           expect(condition).toHaveProperty('id');
           expect(condition).toHaveProperty('patientProgramRegistrationId', registration.id);
           expect(condition).toHaveProperty('programRegistryConditionId');
@@ -767,7 +773,7 @@ describe('PatientProgramRegistration', () => {
         expect(result).toHaveSucceeded();
 
         const conditions = result.body.data;
-        const conditionWithHistory = conditions.find((c) => c.id === condition1.id);
+        const conditionWithHistory = conditions.find(c => c.id === condition1.id);
 
         // Verify history data
         expect(conditionWithHistory.history.length).toBe(2);

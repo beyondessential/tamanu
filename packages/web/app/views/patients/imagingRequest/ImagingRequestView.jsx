@@ -1,8 +1,7 @@
 import React, { useCallback } from 'react';
 import * as yup from 'yup';
-import { useDispatch, useSelector } from 'react-redux';
-import { push } from 'connected-react-router';
-import { useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { useParams, useNavigate } from 'react-router';
 import { pick } from 'lodash';
 import styled from 'styled-components';
 
@@ -10,35 +9,33 @@ import {
   IMAGING_REQUEST_STATUS_LABELS,
   IMAGING_REQUEST_STATUS_TYPES,
   NOTE_TYPES,
+  FORM_TYPES,
 } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
+import {
+  TextField,
+  TranslatedSelectField,
+  TextInput,
+  Form,
+  ButtonRow,
+  FormGrid,
+  Button,
+  FormSubmitButton,
+} from '@tamanu/ui-components';
 
-import { FORM_TYPES } from '../../../constants';
 import { ENCOUNTER_TAB_NAMES } from '../../../constants/encounterTabNames';
 
 import { useLocalisation } from '../../../contexts/Localisation';
 import { useApi, useSuggester } from '../../../api';
 
-import { Button, FormSubmitButton } from '../../../components/Button';
 import { ContentPane } from '../../../components/ContentPane';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
-import { ButtonRow } from '../../../components/ButtonRow';
-import { FormGrid } from '../../../components/FormGrid';
-import {
-  AutocompleteField,
-  DateTimeField,
-  DateTimeInput,
-  Field,
-  Form,
-  TextField,
-  TextInput,
-  TranslatedSelectField,
-} from '../../../components/Field';
+import { AutocompleteField, DateTimeField, DateTimeInput, Field } from '../../../components/Field';
 import { SimpleTopBar } from '../../../components';
-
 import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';
-import { getReferenceDataStringId, TranslatedText } from '../../../components/Translation';
+import { TranslatedText } from '../../../components/Translation';
 import { useTranslation } from '../../../contexts/Translation';
 import { useSettings } from '../../../contexts/Settings';
 import { useAuth } from '../../../contexts/Auth';
@@ -85,7 +82,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
         data-testid="textinput-wgcp"
       />
       <TextInput
-        value={imagingPriorities.find((p) => p.value === imagingRequest.priority)?.label || ''}
+        value={imagingPriorities.find(p => p.value === imagingRequest.priority)?.label || ''}
         label={
           <TranslatedText
             stringId="imaging.priority.label"
@@ -107,7 +104,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
         }
         component={TranslatedSelectField}
         enumValues={IMAGING_REQUEST_STATUS_LABELS}
-        transformOptions={(options) => {
+        transformOptions={options => {
           return isCancelled
             ? [
                 {
@@ -116,7 +113,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
                 },
               ]
             : options.filter(
-                (option) =>
+                option =>
                   ![
                     IMAGING_REQUEST_STATUS_TYPES.DELETED,
                     IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
@@ -162,7 +159,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
           // Either use free text area or multi-select areas data
           imagingRequest.areas?.length
             ? imagingRequest.areas
-                .map((area) =>
+                .map(area =>
                   getTranslation(getReferenceDataStringId(area.id, area.type), area.name),
                 )
                 .join(', ')
@@ -182,7 +179,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
       <TextInput
         multiline
         value={imagingRequest.notes
-          ?.filter((note) => note.noteType === NOTE_TYPES.OTHER)
+          ?.filter((note) => note.noteTypeId === NOTE_TYPES.OTHER)
           .map((note) => note.content)
           .join('\n')}
         label={
@@ -344,12 +341,12 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
   const { facilityId } = useAuth();
 
   const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
-  const getCanAddResult = (values) => values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
+  const getCanAddResult = values => values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
 
   return (
     <Form
       // Only submit specific fields for update
-      onSubmit={async (values) => {
+      onSubmit={async values => {
         const updatedValues = pick(values, 'status', 'completedById', 'locationGroupId');
         if (getCanAddResult(values)) {
           updatedValues.newResult = values.newResult;
@@ -433,16 +430,14 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
 });
 
 export const ImagingRequestView = () => {
-  const imagingRequest = useSelector((state) => state.imagingRequest);
-  const patient = useSelector((state) => state.patient);
+  const imagingRequest = useSelector(state => state.imagingRequest);
+  const patient = useSelector(state => state.patient);
 
-  const dispatch = useDispatch();
   const params = useParams();
+  const navigate = useNavigate();
   const onNavigateBackToImaging = () => {
-    dispatch(
-      push(
-        `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}?tab=${ENCOUNTER_TAB_NAMES.IMAGING}`,
-      ),
+    navigate(
+      `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}?tab=${ENCOUNTER_TAB_NAMES.IMAGING}`,
     );
   };
 

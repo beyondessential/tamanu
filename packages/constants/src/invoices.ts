@@ -1,4 +1,5 @@
-import { OTHER_REFERENCE_TYPES, REFERENCE_TYPES } from './importable.js';
+import { IMAGING_AREA_TYPES } from './imaging';
+import { REFERENCE_TYPES } from './importable';
 
 export const INVOICE_STATUSES = {
   CANCELLED: 'cancelled',
@@ -19,11 +20,43 @@ export const INVOICE_PAYMENT_STATUSES = {
   PAID_REJECTED: 'paid/rejected',
 };
 
+export const INVOICE_ITEMS_CATEGORIES = {
+  PROCEDURE_TYPE: 'ProcedureType',
+  IMAGING_TYPE: 'ImagingType',
+  IMAGING_AREA: 'ImagingArea',
+  DRUG: 'Drug',
+  LAB_TEST_TYPE: 'LabTestType',
+  LAB_TEST_PANEL: 'LabTestPanel',
+};
+
+export const INVOICE_PRODUCT_REFERENCE_DATA_TYPE_CATEGORIES = {
+  [REFERENCE_TYPES.PROCEDURE_TYPE]: INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE,
+  [REFERENCE_TYPES.IMAGING_TYPE]: INVOICE_ITEMS_CATEGORIES.IMAGING_TYPE,
+  [REFERENCE_TYPES.DRUG]: INVOICE_ITEMS_CATEGORIES.DRUG,
+};
+
+// All imaging area reference data types are mapped to the ImagingArea category
+for (const areaType of Object.values(IMAGING_AREA_TYPES)) {
+  INVOICE_PRODUCT_REFERENCE_DATA_TYPE_CATEGORIES[areaType] = INVOICE_ITEMS_CATEGORIES.IMAGING_AREA;
+}
+
+// A map from the item category and its underlying model name
+export const INVOICE_ITEMS_CATEGORIES_MODELS = {
+  [INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE]: 'ReferenceData',
+  [INVOICE_ITEMS_CATEGORIES.IMAGING_TYPE]: 'ReferenceData', // Note this reference data is not currently being used in the Imaging module (see TAMP-126)
+  [INVOICE_ITEMS_CATEGORIES.IMAGING_AREA]: 'ReferenceData',
+  [INVOICE_ITEMS_CATEGORIES.DRUG]: 'ReferenceData',
+  [INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE]: 'LabTestType',
+  [INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL]: 'LabTestPanel',
+};
+
 export const INVOICE_ITEMS_CATEGORY_LABELS = {
-  [REFERENCE_TYPES.PROCEDURE_TYPE]: 'Procedure',
-  [REFERENCE_TYPES.IMAGING_TYPE]: 'Imaging',
-  [OTHER_REFERENCE_TYPES.LAB_TEST_TYPE]: 'Lab test',
-  [REFERENCE_TYPES.ADDITIONAL_INVOICE_PRODUCT]: 'Additional',
+  [INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE]: 'Procedure type',
+  [INVOICE_ITEMS_CATEGORIES.IMAGING_TYPE]: 'Imaging type',
+  [INVOICE_ITEMS_CATEGORIES.IMAGING_AREA]: 'Imaging area',
+  [INVOICE_ITEMS_CATEGORIES.DRUG]: 'Drug',
+  [INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE]: 'Lab test type',
+  [INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL]: 'Lab test panel',
 };
 
 export const INVOICE_ITEMS_DISCOUNT_TYPES = {

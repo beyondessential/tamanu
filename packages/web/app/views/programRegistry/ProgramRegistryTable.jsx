@@ -1,17 +1,17 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { push } from 'connected-react-router';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
+import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { reloadPatient } from '../../store';
-import { DateDisplay, getReferenceDataStringId, MenuButton, SearchTable } from '../../components';
+import { DateDisplay, MenuButton, SearchTable } from '../../components';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
 import {
   DeleteProgramRegistryFormModal,
   PatientProgramRegistryUpdateModal,
   PatientProgramRegistryActivateModal,
 } from '../../features/ProgramRegistry';
-import { Colors } from '../../constants';
+import { Colors } from '../../constants/styles';
 import { LimitedLinesCell } from '../../components/FormattedTableCell';
 import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
@@ -20,8 +20,7 @@ import { TranslatedText } from '../../components/Translation';
 import { useTranslation } from '../../contexts/Translation.jsx';
 import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
 
-const ConditionsCell = ({ conditions }) => {
-  const { getTranslation } = useTranslation();
+const ConditionsCell = ({ conditions, getTranslation }) => {
   return conditions
     ?.map(condition => {
       const { id, name } = condition;
@@ -32,9 +31,11 @@ const ConditionsCell = ({ conditions }) => {
 };
 
 export const ProgramRegistryTable = ({ searchParameters }) => {
+  const { getTranslation, getEnumTranslation } = useTranslation();
   const params = useParams();
   const [openModal, setOpenModal] = useState();
   const [refreshCount, updateRefreshCount] = useRefreshCount();
+  const navigate = useNavigate();
   const columns = useMemo(() => {
     return [
       {
@@ -46,6 +47,9 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         accessor: data => (
           <RegistrationStatusIndicator patientProgramRegistration={data} hideText />
         ),
+        exportOverrides: {
+          accessor: data => getEnumTranslation(REGISTRATION_STATUSES, data.registrationStatus),
+        },
         sortable: false,
       },
       {
@@ -104,7 +108,9 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           />
         ),
         sortable: false,
-        accessor: ConditionsCell,
+        accessor: ({ conditions }) => (
+          <ConditionsCell conditions={conditions} getTranslation={getTranslation} />
+        ),
         CellComponent: LimitedLinesCell,
         maxWidth: 200,
         exportOverrides: {
@@ -142,27 +148,31 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       {
         key: 'clinicalStatus',
         title: <TranslatedText stringId="programRegistry.clinicalStatus.label" fallback="Status" />,
+        exportOverrides: {
+          accessor: data => {
+            const { id, name } = data.clinicalStatus || {};
+            return getTranslation(
+              getReferenceDataStringId(id, 'programRegistryClinicalStatus'),
+              name,
+            );
+          },
+        },
         accessor: row => {
           return <ClinicalStatusDisplay clinicalStatus={row.clinicalStatus} />;
-        },
-        exportOverrides: {
-          accessor: row => row.clinicalStatus?.name,
         },
         maxWidth: 200,
       },
       {
         key: 'actions',
         title: '',
-        isExportable: false,
+        allowExport: false,
         accessor: row => {
           const isRemoved = row.registrationStatus === REGISTRATION_STATUSES.INACTIVE;
           const isDeleted = row.registrationStatus === REGISTRATION_STATUSES.RECORDED_IN_ERROR;
 
           let actions = [
             {
-              label: (
-                <TranslatedText stringId="general.action.changeStatus" fallback="Change status" />
-              ),
+              label: <TranslatedText stringId="programRegistry.action.update" fallback="Update" />,
               action: () => setOpenModal({ action: 'ChangeStatus', data: row }),
               wrapper: children => <NoteModalActionBlocker>{children}</NoteModalActionBlocker>,
             },
@@ -217,10 +227,8 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
     if (patient.id) {
       await dispatch(reloadPatient(patient.id));
     }
-    dispatch(
-      push(
-        `/patients/all/${patient.id}/program-registry/${params.programRegistryId}?title=${programRegistry.name}`,
-      ),
+    navigate(
+      `/patients/all/${patient.id}/program-registry/${params.programRegistryId}?title=${programRegistry.name}`,
     );
   };
 

@@ -5,9 +5,12 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: local_system_facts
-        description: '{{ doc("table__local_system_facts") }}'
-        tags:
-          - system
+        description: "{{ doc('table__local_system_facts') }}"
+        config:
+          tags:
+            - system
+          meta:
+            triggers: []
         columns:
           - name: id
             data_type: character varying(255)

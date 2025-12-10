@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ButtonWithPermissionCheck, TableButtonRow } from '../../../components';
+import { ButtonWithPermissionCheck } from '@tamanu/ui-components';
+import { TableButtonRow } from '../../../components';
 import { ProcedureModal } from '../../../components/ProcedureModal';
 import { ProcedureTable } from '../../../components/ProcedureTable';
 import { useEncounter } from '../../../contexts/Encounter';
@@ -11,10 +12,16 @@ export const ProcedurePane = React.memo(({ encounter, readonly }) => {
   const [editedProcedure, setEditedProcedure] = useState(null);
   const { loadEncounter } = useEncounter();
 
+  const onCreateNewProcedure = () => {
+    setEditedProcedure({});
+  };
+
   return (
     <TabPane data-testid="tabpane-q1xp">
       <ProcedureModal
+        key={editedProcedure} /* Ensures that the modal is reset on close */
         editedProcedure={editedProcedure}
+        setEditedProcedure={setEditedProcedure}
         encounterId={encounter.id}
         onClose={() => setEditedProcedure(null)}
         onSaved={async () => {
@@ -26,7 +33,7 @@ export const ProcedurePane = React.memo(({ encounter, readonly }) => {
       <TableButtonRow variant="small" data-testid="tablebuttonrow-o76z">
         <NoteModalActionBlocker>
           <ButtonWithPermissionCheck
-            onClick={() => setEditedProcedure({})}
+            onClick={onCreateNewProcedure}
             disabled={readonly}
             verb="create"
             noun="Procedure"

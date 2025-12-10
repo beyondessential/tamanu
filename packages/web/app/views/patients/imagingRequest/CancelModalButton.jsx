@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 
 import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants';
+import { Button } from '@tamanu/ui-components';
 
 import { CancelModal } from '../../../components/CancelModal';
-import { Button } from '../../../components/Button';
 import { useApi } from '../../../api';
 import { useSettings } from '../../../contexts/Settings';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';

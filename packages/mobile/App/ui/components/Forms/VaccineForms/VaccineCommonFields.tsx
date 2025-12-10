@@ -19,7 +19,7 @@ import { useTranslation } from '~/ui/contexts/TranslationContext';
 const InjectionSiteDropdown = ({ value, label, onChange, selectPlaceholderText }): JSX.Element => (
   <Dropdown
     value={value}
-    options={INJECTION_SITE_OPTIONS.map((o) => ({ label: o, value: o }))}
+    options={INJECTION_SITE_OPTIONS}
     onChange={onChange}
     label={label}
     selectPlaceholderText={selectPlaceholderText}

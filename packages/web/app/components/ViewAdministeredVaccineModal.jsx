@@ -5,16 +5,12 @@ import { Box } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
 import { INJECTION_SITE_LABELS, VACCINE_STATUS, VACCINE_STATUS_LABELS } from '@tamanu/constants';
 import { ModalActionRow } from './ModalActionRow';
-import { Colors } from '../constants';
+import { Modal, TranslatedText, TranslatedReferenceData, TranslatedEnum } from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
 import { useApi } from '../api';
 import { DateDisplay } from './DateDisplay';
-import { Modal } from './Modal';
-import {
-  getReferenceDataStringId,
-  TranslatedEnum,
-  TranslatedReferenceData,
-  TranslatedText,
-} from './Translation';
+import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
+
 import { useTranslation } from '../contexts/Translation.jsx';
 
 const Container = styled.div`
@@ -69,7 +65,7 @@ const FieldsViewer = ({ labelValueFieldGroups, editMode }) => (
           <DisplayField
             key={label}
             $editMode={editMode}
-            data-testid={`displayfield-jkpx-${key}-${label}`}
+            data-testid={`displayfield-jkpx-${key}-${label.props['data-testid']}`}
           >
             <Label data-testid={`label-4tcx-${key}-${label}`}>{label}</Label>
             {value}
@@ -200,7 +196,13 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
       value: <DateDisplay date={date} data-testid="datedisplay-vjag" />,
     },
     injectionSite: {
-      label: <TranslatedText stringId="vaccine.injectionSite.label" fallback="Injection site" />,
+      label: (
+        <TranslatedText
+          stringId="vaccine.injectionSite.label"
+          fallback="Injection site"
+          data-testid="injectsite-m8uo"
+        />
+      ),
       value: (
         <TranslatedEnum value={injectionSite} enumValues={INJECTION_SITE_LABELS} enumFallback="-" />
       ),
@@ -363,7 +365,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
       label: (
         <TranslatedText
           stringId="vaccine.status.label"
-          fallback="Status"
+          fallback="Vaccine status"
           data-testid="translatedtext-qgo7"
         />
       ),
@@ -419,7 +421,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
         vaccineCircumstances?.length > 0
           ? vaccineCircumstances
               ?.map(
-                (circumstance) =>
+                circumstance =>
                   circumstance &&
                   getTranslation(
                     getReferenceDataStringId(circumstance.id, 'vaccineCircumstance'),
@@ -641,13 +643,13 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
     },
   ];
 
-  const modalVersion = modalVersions.find((modalType) => modalType.condition === true);
+  const modalVersion = modalVersions.find(modalType => modalType.condition === true);
   if (!modalVersion) return <ErrorMessage data-testid="errormessage-1gnb" />;
   const fieldGroups = modalVersion.fieldGroups
-    .map((group) => ({
+    .map(group => ({
       ...group,
       fields: group.fields
-        .filter((field) => {
+        .filter(field => {
           // filter out fields if they're conditional on the editMode, and the editMode doesn't match
           // this can be written more concisely but i want it explicit
           if (editMode && field.editMode === true) return true;
@@ -657,7 +659,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
         })
         .map(({ field }) => field),
     }))
-    .filter((group) => {
+    .filter(group => {
       // eliminate empty groups
       return group.fields.length > 0;
     });

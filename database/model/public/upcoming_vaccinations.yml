@@ -5,24 +5,29 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: upcoming_vaccinations
-        description: '{{ doc("table__upcoming_vaccinations") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__upcoming_vaccinations') }}"
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers: []
         columns:
           - name: patient_id
             data_type: character varying(255)
             description: "{{ doc('upcoming_vaccinations__patient_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'patients')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'patients')
+                    field: id
           - name: scheduled_vaccine_id
             data_type: character varying(255)
             description: "{{ doc('upcoming_vaccinations__scheduled_vaccine_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'scheduled_vaccines')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'scheduled_vaccines')
+                    field: id
           - name: vaccine_category
             data_type: character varying(255)
             description: "{{ doc('upcoming_vaccinations__vaccine_category') }}"

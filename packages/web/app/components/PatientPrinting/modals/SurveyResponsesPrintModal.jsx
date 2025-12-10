@@ -10,13 +10,15 @@ import { PDFLoader, printPDF } from '../PDFLoader';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { useTranslation } from '../../../contexts/Translation';
 import { SurveyResponsesPrintout } from '@tamanu/shared/utils/patientCertificates';
-import { useSurveyResponseQuery } from '../../../api/queries/useSurveyResponseQuery';
+import { useTransformedSurveyResponseQuery } from '../../../api/queries/useSurveyResponseQuery';
 import { useAuth } from '../../../contexts/Auth';
+import { useSettings } from '../../../contexts/Settings';
 
 export const SurveyResponsesPrintModal = React.memo(
   ({ patient, open, onClose, surveyResponseId, title, isReferral, submittedBy }) => {
     const { getLocalisation } = useLocalisation();
     const { getTranslation } = useTranslation();
+    const { getSetting } = useSettings();
     const api = useApi();
     const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
 
@@ -29,8 +31,10 @@ export const SurveyResponsesPrintModal = React.memo(
       },
     );
 
-    const { data: additionalData, isLoading: isAdditionalDataLoading } =
-      usePatientAdditionalDataQuery(patient.id);
+    const {
+      data: additionalData,
+      isLoading: isAdditionalDataLoading,
+    } = usePatientAdditionalDataQuery(patient.id);
 
     const { data: village = {}, isLoading: isVillageQueryLoading } = useQuery(
       ['village', patient.id],
@@ -40,15 +44,15 @@ export const SurveyResponsesPrintModal = React.memo(
       },
     );
 
-    const { data: surveyResponse, isLoading: surveyResponseLoading } = useSurveyResponseQuery(
+    const { data: transformedSurveyResponse, isLoading: surveyResponseLoading } = useTransformedSurveyResponseQuery(
       surveyResponseId,
     );
 
     const { data: user, isLoading: isUserLoading } = useQuery(
-      ['user', surveyResponse?.userId],
-      () => api.get(`user/${surveyResponse?.userId}`),
+      ['user', transformedSurveyResponse?.userId],
+      () => api.get(`user/${transformedSurveyResponse?.userId}`),
       {
-        enabled: !!surveyResponse?.userId,
+        enabled: !!transformedSurveyResponse?.userId,
       },
     );
 
@@ -57,7 +61,7 @@ export const SurveyResponsesPrintModal = React.memo(
       isCertificateFetching ||
       (isVillageQueryLoading && patient?.villageId) ||
       surveyResponseLoading ||
-      (isUserLoading && surveyResponse?.userId) ||
+      (isUserLoading && transformedSurveyResponse?.userId) ||
       (isFacilityLoading && facilityId);
 
     return (
@@ -85,13 +89,14 @@ export const SurveyResponsesPrintModal = React.memo(
           <SurveyResponsesPrintout
             patientData={{ ...patient, additionalData, village }}
             surveyResponse={{
-              ...surveyResponse,
+              ...transformedSurveyResponse,
               title,
               submittedBy: submittedBy || user?.displayName,
             }}
             certificateData={certificateData}
             getLocalisation={getLocalisation}
             getTranslation={getTranslation}
+            getSetting={getSetting}
             isReferral={isReferral}
             currentUser={currentUser}
             facility={facility}

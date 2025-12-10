@@ -114,7 +114,15 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
       {sortedProperties.map(([key, propertySchema]) => {
         const newPath = path ? `${path}.${key}` : key;
         const testIdSuffix = newPath.replace(/\./g, '-');
-        const { name, description, type, defaultValue, unit, highRisk } = propertySchema;
+        const {
+          name,
+          description,
+          type,
+          defaultValue,
+          unit,
+          highRisk,
+          suggesterEndpoint,
+        } = propertySchema;
 
         const isHighRisk = schema.highRisk || highRisk;
         const disabled = !canWriteHighRisk && isHighRisk;
@@ -130,6 +138,7 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
             />
             <SettingInput
               typeSchema={type}
+              suggesterEndpoint={suggesterEndpoint}
               value={getSettingValue(newPath)}
               defaultValue={defaultValue}
               path={newPath}

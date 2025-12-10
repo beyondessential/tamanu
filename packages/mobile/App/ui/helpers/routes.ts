@@ -13,6 +13,7 @@ export const Routes = {
     AutocompleteModal: '',
     MultiSelectModal: '',
     SelectModal: '',
+    FrequencySearchModal: '',
   },
   SignUpStack: {
     Index: '',

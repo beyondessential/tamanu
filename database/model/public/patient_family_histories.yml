@@ -5,11 +5,17 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: patient_family_histories
-        description: '{{ doc("table__patient_family_histories") }}'
-        __generator:
-          js_class: PatientFamilyHistory
-        tags:
-          - clinical
+        description: "{{ doc('table__patient_family_histories') }}"
+        config:
+          tags:
+            - clinical
+          meta:
+            js_class: PatientFamilyHistory
+            triggers:
+              - notify_patient_family_histories_changed
+              - record_patient_family_histories_changelog
+              - set_patient_family_histories_updated_at
+              - set_patient_family_histories_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -33,39 +39,54 @@ sources:
           - name: note
             data_type: character varying(255)
             description: "{{ doc('patient_family_histories__note') }}"
+            config:
+              meta:
+                masking: text
           - name: recorded_date
             data_type: character(19)
             description: "{{ doc('patient_family_histories__recorded_date') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: date
           - name: relationship
             data_type: character varying(255)
             description: "{{ doc('patient_family_histories__relationship') }}"
+            config:
+              meta:
+                masking: text
           - name: patient_id
             data_type: character varying(255)
             description: "{{ doc('patient_family_histories__patient_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'patients')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'patients')
+                    field: id
           - name: practitioner_id
             data_type: character varying(255)
             description: "{{ doc('patient_family_histories__practitioner_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: diagnosis_id
             data_type: character varying(255)
             description: "{{ doc('patient_family_histories__diagnosis_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'diagnosis'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'diagnosis'
           - name: recorded_date_legacy
             data_type: timestamp with time zone
             description: "{{ doc('patient_family_histories__recorded_date_legacy') }}"
+            config:
+              meta:
+                masking: date
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in patient_family_histories."

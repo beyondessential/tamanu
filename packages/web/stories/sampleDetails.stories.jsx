@@ -1,11 +1,11 @@
 import React from 'react';
 import Chance from 'chance';
 import { USERS } from '@tamanu/database/demoData/users';
+import { Form } from '@tamanu/ui-components';
 import { SPECIMEN_TYPES } from '@tamanu/database/demoData/specimenTypes';
 import { LAB_SAMPLE_SITES } from '@tamanu/database/demoData/labSampleSites';
 import { SampleDetailsField } from '../app/views/labRequest/SampleDetailsField';
 import { createDummySuggester, mapToSuggestions } from './utils';
-import { Form } from '../app/components';
 
 export default {
   title: 'SampleDetailsField',

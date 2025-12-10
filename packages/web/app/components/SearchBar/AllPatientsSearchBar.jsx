@@ -56,7 +56,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
             label={
               <TranslatedText
                 stringId="general.localisedField.culturalName.label.short"
-                fallback="Cultural name"
+                fallback="Cultural/traditional name"
                 data-testid="translatedtext-bcz1"
               />
             }
@@ -153,7 +153,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
         saveDateAsString
         label={
           <TranslatedText
-            stringId="general.dateOfBirth.label"
+            stringId="general.dateOfBirth.label.short"
             fallback="DOB"
             data-testid="translatedtext-99pk"
           />

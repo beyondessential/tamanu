@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
+import { ConfirmCancelBackRow, TranslatedText, Modal } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import { Box, Divider, IconButton } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import styled from 'styled-components';
 import { Print } from '@material-ui/icons';
-import { BodyText, ConfirmCancelBackRow, Heading5, Modal, TranslatedText } from '..';
-import { Colors } from '../../constants';
+import { BodyText, Heading5 } from '..';
 import { usePatientAllergiesQuery } from '../../api/queries/usePatientAllergiesQuery';
 import { useEncounter } from '../../contexts/Encounter';
 import { useSuggestionsQuery } from '../../api/queries/useSuggestionsQuery';
@@ -106,7 +107,7 @@ const SelectScreen = ({
         <Box flex={1}>
           <BodyText color={Colors.darkText}>
             <TranslatedText
-              stringId="medication.modal.medicationSet.description"
+              stringId="medication.modal.medicationSet.question"
               fallback="Select the medication set you would like to prescribe. You will be able to edit the prescription or remove any unneeded medications on the next screen."
             />
           </BodyText>
@@ -171,9 +172,7 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
   const { encounter } = useEncounter();
   const { ability, currentUser } = useAuth();
   const { data: allergies } = usePatientAllergiesQuery(encounter?.patientId);
-  const { data, isLoading: medicationSetsLoading } = useSuggestionsQuery(
-    'medicationSet',
-  );
+  const { data, isLoading: medicationSetsLoading } = useSuggestionsQuery('medicationSet');
   const medicationSets = data?.sort((a, b) => a.name.localeCompare(b.name));
   const [isDirty, setIsDirty] = useState(false);
 
@@ -314,6 +313,7 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
   const onConfirmEdit = data => {
     setEditingMedication(null);
     setScreen(MODAL_SCREENS.REVIEW_MEDICATION_SET);
+
     const medicationIndex = selectedMedicationSet.children.findIndex(
       child => child.id === editingMedication.id,
     );

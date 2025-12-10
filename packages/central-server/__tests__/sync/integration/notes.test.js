@@ -1,7 +1,6 @@
 import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { createDummyEncounter } from '@tamanu/database/demoData/patients';
-import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import {
   IMAGING_TYPES,
   LAB_REQUEST_STATUSES,
@@ -9,17 +8,9 @@ import {
   NOTE_TYPES,
 } from '@tamanu/constants';
 
-import { createTestContext } from '../../utilities';
+import { createTestContext, waitForSession } from '../../utilities';
 import { CentralSyncManager } from '../../../dist/sync/CentralSyncManager';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-
-const waitForSession = async (centralSyncManager, sessionId) => {
-  let ready = false;
-  while (!ready) {
-    ready = await centralSyncManager.checkSessionReady(sessionId);
-    await sleepAsync(100);
-  }
-};
 
 describe('CentralSyncManager', () => {
   let ctx;
@@ -34,8 +25,6 @@ describe('CentralSyncManager', () => {
   const OLD_SYNC_TICK = 10;
   const NEW_SYNC_TICK = 20;
 
-  const DEFAULT_CURRENT_SYNC_TIME_VALUE = 2;
-
   const createEncounters = async (patientId, numberOfEncounters) => {
     return Promise.all(
       [...Array(numberOfEncounters).keys()].map(async () =>
@@ -48,7 +37,7 @@ describe('CentralSyncManager', () => {
     );
   };
 
-  const createNotesOfRecordsWithPatientViaEncounter = async (encounters) => {
+  const createNotesOfRecordsWithPatientViaEncounter = async encounters => {
     const [encounter1, encounter2] = encounters;
 
     const triage = await models.Triage.create({
@@ -60,7 +49,7 @@ describe('CentralSyncManager', () => {
       triageTime: getCurrentDateTimeString(),
     });
     const triageNote = await triage.createNote({
-      noteType: NOTE_TYPES.OTHER,
+      noteTypeId: NOTE_TYPES.OTHER,
       content: 'triageNote',
       authorId: user.id,
     });
@@ -71,7 +60,7 @@ describe('CentralSyncManager', () => {
       status: LAB_REQUEST_STATUSES.PENDING,
     });
     const labRequestNote = await labRequest.createNote({
-      noteType: NOTE_TYPES.OTHER,
+      noteTypeId: NOTE_TYPES.OTHER,
       content: 'labRequestNote',
       authorId: user.id,
     });
@@ -82,7 +71,7 @@ describe('CentralSyncManager', () => {
       requestedById: user.id,
     });
     const imagingNote = await imagingRequest.createNote({
-      noteType: NOTE_TYPES.OTHER,
+      noteTypeId: NOTE_TYPES.OTHER,
       content: 'imagingNote',
       authorId: user.id,
     });
@@ -120,7 +109,7 @@ describe('CentralSyncManager', () => {
   });
 
   beforeEach(async () => {
-    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, DEFAULT_CURRENT_SYNC_TIME_VALUE);
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 2);
     await models.Note.truncate({ cascade: true, force: true });
     await models.PatientFacility.truncate({ force: true });
   });
@@ -154,17 +143,17 @@ describe('CentralSyncManager', () => {
     );
 
     const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-    const notes = outgoingChanges.filter((c) => c.recordType === 'notes');
+    const notes = outgoingChanges.filter(c => c.recordType === 'notes');
 
-    expect(notes.find((c) => c.data.recordType === NOTE_RECORD_TYPES.TRIAGE)?.recordId).toEqual(
+    expect(notes.find(c => c.data.recordType === NOTE_RECORD_TYPES.TRIAGE)?.recordId).toEqual(
       triageNote.id,
     );
     expect(
-      notes.find((c) => c.data.recordType === NOTE_RECORD_TYPES.IMAGING_REQUEST)?.recordId,
+      notes.find(c => c.data.recordType === NOTE_RECORD_TYPES.IMAGING_REQUEST)?.recordId,
     ).toEqual(imagingNote.id);
-    expect(
-      notes.find((c) => c.data.recordType === NOTE_RECORD_TYPES.LAB_REQUEST)?.recordId,
-    ).toEqual(labRequestNote.id);
+    expect(notes.find(c => c.data.recordType === NOTE_RECORD_TYPES.LAB_REQUEST)?.recordId).toEqual(
+      labRequestNote.id,
+    );
   });
 
   it('returns all notes of encounters of marked-for-sync patients', async () => {
@@ -175,17 +164,17 @@ describe('CentralSyncManager', () => {
     await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
 
     const encounter1Note = await encounter1.createNote({
-      noteType: NOTE_TYPES.OTHER,
+      noteTypeId: NOTE_TYPES.OTHER,
       content: 'encounter1Note',
       authorId: user.id,
     });
     const encounter2Note = await encounter2.createNote({
-      noteType: NOTE_TYPES.OTHER,
+      noteTypeId: NOTE_TYPES.OTHER,
       content: 'encounter2Note',
       authorId: user.id,
     });
     const encounter3Note = await encounter3.createNote({
-      noteType: NOTE_TYPES.OTHER,
+      noteTypeId: NOTE_TYPES.OTHER,
       content: 'encounter3Note',
       authorId: user.id,
     });
@@ -203,17 +192,17 @@ describe('CentralSyncManager', () => {
     );
 
     const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-    const notes = outgoingChanges.filter((c) => c.recordType === 'notes');
+    const notes = outgoingChanges.filter(c => c.recordType === 'notes');
 
-    expect(notes.find((c) => c.data.recordId === encounter1.id)).toHaveProperty(
+    expect(notes.find(c => c.data.recordId === encounter1.id)).toHaveProperty(
       'recordId',
       encounter1Note.id,
     );
-    expect(notes.find((c) => c.data.recordId === encounter2.id)).toHaveProperty(
+    expect(notes.find(c => c.data.recordId === encounter2.id)).toHaveProperty(
       'recordId',
       encounter2Note.id,
     );
-    expect(notes.find((c) => c.data.recordId === encounter3.id)).toHaveProperty(
+    expect(notes.find(c => c.data.recordId === encounter3.id)).toHaveProperty(
       'recordId',
       encounter3Note.id,
     );
@@ -226,7 +215,7 @@ describe('CentralSyncManager', () => {
     const [encounter1] = encounters;
 
     await encounter1.createNote({
-      noteType: NOTE_TYPES.OTHER,
+      noteTypeId: NOTE_TYPES.OTHER,
       content: 'encounter1Note',
       authorId: user.id,
     });
@@ -247,7 +236,7 @@ describe('CentralSyncManager', () => {
     );
 
     const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-    const notes = outgoingChanges.filter((c) => c.recordType === 'notes');
+    const notes = outgoingChanges.filter(c => c.recordType === 'notes');
 
     expect(notes).toHaveLength(0);
   });

@@ -1,10 +1,10 @@
+import { Colors } from '../../constants/styles';
 import { Typography } from '@material-ui/core';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Heading4 } from '../../components';
 import { AutocompleteField, DateTimeField, Field } from '../../components/Field';
-import { Colors } from '../../constants';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { SETTING_KEYS } from '@tamanu/constants';
 import { useSettings } from '../../contexts/Settings';

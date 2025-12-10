@@ -9,12 +9,14 @@ import { SYNC_DIRECTIONS } from './types';
 import { DateTimeStringColumn } from './DateColumns';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 
-export enum EncounterChangeType {
-  EncounterType = 'encounter_type',
-  Location = 'location',
-  Department = 'department',
-  Examiner = 'examiner',
-}
+export const EncounterChangeType = {
+  EncounterType: 'encounter_type',
+  Location: 'location',
+  Department: 'department',
+  Examiner: 'examiner',
+} as const;
+
+export type EncounterChangeType = (typeof EncounterChangeType)[keyof typeof EncounterChangeType];
 
 @Entity('encounter_history')
 export class EncounterHistory extends BaseModel {
@@ -23,7 +25,7 @@ export class EncounterHistory extends BaseModel {
   @DateTimeStringColumn({ nullable: false })
   date?: string;
 
-  @ManyToOne(() => Encounter, (encounter) => encounter.encounterHistory)
+  @ManyToOne(() => Encounter, encounter => encounter.encounterHistory)
   encounter: Encounter;
   @RelationId(({ encounter }) => encounter)
   encounterId: string;

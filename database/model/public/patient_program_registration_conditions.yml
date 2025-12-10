@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: patient_program_registration_conditions
-        description: '{{ doc("table__patient_program_registration_conditions") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__patient_program_registration_conditions') }}"
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers:
+              - notify_patient_program_registration_conditions_changed
+              - record_patient_program_registration_conditions_changelog
+              - set_patient_program_registration_conditions_updated_at
+              - set_patient_program_registration_conditions_updated_at_sync_tic
         columns:
           - name: id
             data_type: character varying(255)
@@ -33,30 +40,39 @@ sources:
             description: "{{ doc('generic__date') }} in patient_program_registration_conditions."
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: date
           - name: deletion_date
             data_type: character(19)
             description: "{{ doc('generic__deletion_date') }} in patient_program_registration_conditions."
+            config:
+              meta:
+                masking: date
           - name: program_registry_condition_id
             data_type: character varying(255)
             description: "{{ doc('patient_program_registration_conditions__program_registry_condition_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'program_registry_conditions')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'program_registry_conditions')
+                    field: id
           - name: clinician_id
             data_type: character varying(255)
             description: "{{ doc('patient_program_registration_conditions__clinician_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: deletion_clinician_id
             data_type: character varying(255)
             description: "{{ doc('patient_program_registration_conditions__deletion_clinician_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in patient_program_registration_conditions."
@@ -65,11 +81,12 @@ sources:
           - name: reason_for_change
             data_type: character varying(255)
             description: "{{ doc('patient_program_registration_conditions__reason_for_change') }}"
+            config:
+              meta:
+                masking: text
           - name: patient_program_registration_id
-            data_type: uuid
+            data_type: text
             description: "{{ doc('patient_program_registration_conditions__patient_program_registration_id') }}"
-            data_tests:
-              - not_null
           - name: program_registry_condition_category_id
             data_type: text
             description: "{{ doc('patient_program_registration_conditions__program_registry_condition_category_id') }}"

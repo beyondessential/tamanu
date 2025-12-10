@@ -1,13 +1,12 @@
 import React from 'react';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { FORM_TYPES } from '@tamanu/constants/forms';
+import { Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
 
 import * as yup from 'yup';
 
-import { AutocompleteField, Field, Form } from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
-import { FormSubmitCancelRow } from '../components/ButtonRow';
+import { AutocompleteField, Field } from '../components/Field';
 import { useEncounter } from '../contexts/Encounter';
-import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const ChangeDepartmentForm = ({ onCancel, departmentSuggester, onSubmit }) => {

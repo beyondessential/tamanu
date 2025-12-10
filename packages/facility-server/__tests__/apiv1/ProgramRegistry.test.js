@@ -1,10 +1,12 @@
 import {
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,
   REGISTRATION_STATUSES,
+  SURVEY_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { fake } from '@tamanu/fake-data/fake';
+import { createDummyEncounter } from '@tamanu/database/demoData/patients';
 
 import { createTestContext } from '../utilities';
 
@@ -19,12 +21,6 @@ describe('ProgramRegistry', () => {
     app = await ctx.baseApp.asRole('practitioner');
   });
   afterAll(() => ctx.close());
-  afterEach(async () => {
-    await models.PatientProgramRegistration.truncate();
-    await models.ProgramRegistry.truncate();
-    await models.Program.truncate();
-    await models.Patient.truncate({ cascade: true });
-  });
 
   const createProgramRegistry = async ({ ...params } = {}) => {
     const program = await models.Program.create(fake(models.Program));
@@ -34,6 +30,13 @@ describe('ProgramRegistry', () => {
   };
 
   describe('Getting (GET /api/programRegistry/:id)', () => {
+    afterEach(async () => {
+      await models.PatientProgramRegistration.truncate();
+      await models.ProgramRegistry.truncate();
+      await models.Program.truncate();
+      await models.Patient.truncate({ cascade: true });
+    });
+
     it('should fetch a program registry', async () => {
       const { id } = await createProgramRegistry({
         name: 'Hepatitis Registry',
@@ -70,6 +73,12 @@ describe('ProgramRegistry', () => {
   });
 
   describe('Listing (GET /api/programRegistry)', () => {
+    afterEach(async () => {
+      await models.PatientProgramRegistration.truncate();
+      await models.ProgramRegistry.truncate();
+      await models.Program.truncate();
+      await models.Patient.truncate({ cascade: true });
+    });
     it('should list available program registries', async () => {
       await createProgramRegistry();
       await createProgramRegistry({
@@ -109,7 +118,7 @@ describe('ProgramRegistry', () => {
 
       // Should show (patient already has registration but it's deleted):
       const { id: registryId2 } = await createProgramRegistry();
-      await models.PatientProgramRegistration.create(
+      const registrationOne = await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           date: '2023-09-04 08:00:00',
           patientId: testPatient.id,
@@ -118,19 +127,13 @@ describe('ProgramRegistry', () => {
           clinicianId: app.user.id,
         }),
       );
-      await models.PatientProgramRegistration.create(
-        fake(models.PatientProgramRegistration, {
-          date: '2023-09-04 09:00:00',
-          patientId: testPatient.id,
-          registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
-          programRegistryId: registryId2,
-          clinicianId: app.user.id,
-        }),
-      );
+      await registrationOne.update({
+        registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
+      })
 
       // Shouldn't show (patient has a registration but it's been deleted before):
       const { id: registryId3 } = await createProgramRegistry();
-      await models.PatientProgramRegistration.create(
+      const registrationTwo = await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           date: '2023-09-04 08:00:00',
           patientId: testPatient.id,
@@ -139,15 +142,9 @@ describe('ProgramRegistry', () => {
           clinicianId: app.user.id,
         }),
       );
-      await models.PatientProgramRegistration.create(
-        fake(models.PatientProgramRegistration, {
-          date: '2023-09-04 09:00:00',
-          patientId: testPatient.id,
-          registrationStatus: REGISTRATION_STATUSES.ACTIVE,
-          programRegistryId: registryId3,
-          clinicianId: app.user.id,
-        }),
-      );
+      await registrationTwo.update({
+        registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+      });
 
       const result = await app
         .get('/api/programRegistry')
@@ -206,6 +203,12 @@ describe('ProgramRegistry', () => {
   });
 
   describe('Listing conditions (GET /api/programRegistry/:id/conditions)', () => {
+    afterEach(async () => {
+      await models.PatientProgramRegistration.truncate();
+      await models.ProgramRegistry.truncate();
+      await models.Program.truncate();
+      await models.Patient.truncate({ cascade: true });
+    });
     it('should list available conditions', async () => {
       const { id: programRegistryId } = await createProgramRegistry();
       await models.ProgramRegistryCondition.create(
@@ -259,20 +262,16 @@ describe('ProgramRegistry', () => {
 
       // Patient 2: Should show most recent registration only
       const patient2 = await models.Patient.create(fake(models.Patient, { displayId: '2' }));
-      await models.PatientProgramRegistration.create(
+      const registration = await models.PatientProgramRegistration.create(
         fake(models.PatientProgramRegistration, {
           ...baseRegistrationData,
           patientId: patient2.id,
           date: '2023-09-04 08:00:00',
         }),
       );
-      await models.PatientProgramRegistration.create(
-        fake(models.PatientProgramRegistration, {
-          ...baseRegistrationData,
-          patientId: patient2.id,
-          date: '2023-09-05 08:00:00',
-        }),
-      );
+      await registration.update({
+        date: '2023-09-05 08:00:00',
+      });
 
       const result = await app
         .get(`/api/programRegistry/${programRegistryId}/registrations`)
@@ -309,6 +308,7 @@ describe('ProgramRegistry', () => {
           patient: {
             displayId: '2',
           },
+          date: '2023-09-05 08:00:00',
         },
       ]);
     });
@@ -640,6 +640,103 @@ describe('ProgramRegistry', () => {
         expect(body.count).toEqual(1);
         expect(body.data.length).toEqual(1);
       });
+    });
+  });
+
+  describe.only('Getting linked charts (GET /api/programRegistry/:id/linkedCharts)', () => {
+    let programRegistryId;
+    let patient;
+    let historicalSimpleChart;
+    let historicalComplexChart;
+    let historicalChartWithoutAnswers;
+
+    beforeAll(async () => {
+      // Create program registry and patient
+      const registry = await createProgramRegistry();
+      programRegistryId = registry.id;
+      patient = await models.Patient.create(fake(models.Patient));
+
+      // Create historical simple chart with answers
+      historicalSimpleChart = await models.Survey.create(
+        fake(models.Survey, {
+          programId: registry.programId,
+          surveyType: SURVEY_TYPES.SIMPLE_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'Historical Simple Chart With Answers',
+        }),
+      );
+
+      // Create historical complex chart with answers
+      historicalComplexChart = await models.Survey.create(
+        fake(models.Survey, {
+          programId: registry.programId,
+          surveyType: SURVEY_TYPES.COMPLEX_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'Historical Complex Chart With Answers',
+        }),
+      );
+
+      // Create encounters for the patient
+      const encounter1 = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      const encounter2 = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      // Create survey responses with answers
+      const response1 = await models.SurveyResponse.create(
+        fake(models.SurveyResponse, {
+          surveyId: historicalSimpleChart.id,
+          encounterId: encounter1.id,
+        }),
+      );
+      await models.SurveyResponseAnswer.create(
+        fake(models.SurveyResponseAnswer, {
+          responseId: response1.id,
+        }),
+      );
+
+      const response2 = await models.SurveyResponse.create(
+        fake(models.SurveyResponse, {
+          surveyId: historicalComplexChart.id,
+          encounterId: encounter2.id,
+        }),
+      );
+
+      await models.SurveyResponseAnswer.create(
+        fake(models.SurveyResponseAnswer, {
+          responseId: response2.id,
+        }),
+      );
+
+      // Create historical chart without answers (should not be included)
+      historicalChartWithoutAnswers = await models.Survey.create(
+        fake(models.Survey, {
+          programId: registry.programId,
+          surveyType: SURVEY_TYPES.SIMPLE_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'Historical Chart Without Answers',
+        }),
+      );
+    });
+
+    it('should return historical simple and complex charts with answers', async () => {
+      const result = await app.get(
+        `/api/programRegistry/${programRegistryId}/linkedCharts?patientId=${patient.id}`,
+      );
+      expect(result).toHaveSucceeded();
+
+      const { body } = result;
+      expect(body.count).toEqual(2);
+      expect(body.data.length).toEqual(2);
+      const chartIds = body.data.map((c) => c.id);
+      expect(chartIds).toContain(historicalSimpleChart.id);
+      expect(chartIds).toContain(historicalComplexChart.id);
+      expect(chartIds).not.toContain(historicalChartWithoutAnswers.id);
     });
   });
 });

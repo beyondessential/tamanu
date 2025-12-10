@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: invoices
-        description: '{{ doc("table__invoices") }}'
-        tags:
-          - administration
+        description: "{{ doc('table__invoices') }}"
+        config:
+          tags:
+            - administration
+          meta:
+            triggers:
+              - notify_invoices_changed
+              - record_invoices_changelog
+              - set_invoices_updated_at
+              - set_invoices_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid
@@ -25,24 +32,29 @@ sources:
             description: "{{ doc('generic__date') }} in invoices."
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: date
           - name: status
             data_type: character varying(255)
             description: "{{ doc('invoices__status') }}"
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - cancelled
-                    - in_progress
-                    - finalised
+                  arguments:
+                    values:
+                      - cancelled
+                      - in_progress
+                      - finalised
           - name: encounter_id
             data_type: character varying(255)
             description: "{{ doc('invoices__encounter_id') }}"
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'encounters')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'encounters')
+                    field: id
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in invoices."
@@ -60,21 +72,23 @@ sources:
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - unpaid
-                    - paid
-                    - partial
+                  arguments:
+                    values:
+                      - unpaid
+                      - paid
+                      - partial
           - name: insurer_payment_status
             data_type: character varying(255)
             description: "{{ doc('invoices__insurer_payment_status') }}"
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - unpaid
-                    - paid
-                    - partial
-                    - rejected
+                  arguments:
+                    values:
+                      - unpaid
+                      - paid
+                      - partial
+                      - rejected
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in invoices."

@@ -38,6 +38,7 @@ export interface DropdownProps extends BaseInputProps {
   clearable?: boolean;
   required?: boolean;
   error?: any;
+  allowResetSingleValue?: boolean;
 }
 
 const baseStyleDropdownMenuSubsection = {
@@ -98,6 +99,7 @@ export const Dropdown = React.memo(
     disabled,
     required = false,
     clearable = true,
+    allowResetSingleValue,
   }: DropdownProps) => {
     const [selectedItems, setSelectedItems] = useState(() => {
       if (!value) {
@@ -106,6 +108,14 @@ export const Dropdown = React.memo(
 
       return Array.isArray(value) ? value : [value];
     });
+
+    useEffect(() => {
+      if (!allowResetSingleValue || Array.isArray(value)) return;
+      if (value !== selectedItems[0]) {
+        setSelectedItems([value]);
+      }
+    }, [value, allowResetSingleValue]);
+
     const componentRef = useRef(null);
     const { getTranslation } = useTranslation();
     const onSelectedItemsChange = useCallback(
@@ -221,8 +231,8 @@ export const SuggesterDropdown = ({ referenceDataType, ...props }): ReactElement
       });
       setOptions(translatedResults);
     })();
-  // Only run once
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Only run once
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <Dropdown {...props} options={options} />;

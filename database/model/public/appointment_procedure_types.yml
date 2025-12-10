@@ -1,0 +1,51 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: appointment_procedure_types
+        description: "{{ doc('table__appointment_procedure_types') }}"
+        config:
+          tags: []
+          meta:
+            triggers:
+              - notify_appointment_procedure_types_changed
+              - record_appointment_procedure_types_changelog
+              - set_appointment_procedure_types_updated_at
+              - set_appointment_procedure_types_updated_at_sync_tick
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in appointment_procedure_types."
+            data_tests:
+              - unique
+              - not_null
+          - name: appointment_id
+            data_type: character varying(255)
+            description: "{{ doc('appointment_procedure_types__appointment_id') }}"
+            data_tests:
+              - not_null
+          - name: procedure_type_id
+            data_type: character varying(255)
+            description: "{{ doc('appointment_procedure_types__procedure_type_id') }}"
+            data_tests:
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in appointment_procedure_types."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in appointment_procedure_types."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in appointment_procedure_types."
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in appointment_procedure_types."
+            data_tests:
+              - not_null

@@ -5,11 +5,17 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: patient_secondary_ids
-        description: '{{ doc("table__patient_secondary_ids") }}'
-        __generator:
-          js_class: PatientSecondaryId
-        tags:
-          - patient
+        description: "{{ doc('table__patient_secondary_ids') }}"
+        config:
+          tags:
+            - patient
+          meta:
+            js_class: PatientSecondaryId
+            triggers:
+              - notify_patient_secondary_ids_changed
+              - record_patient_secondary_ids_changelog
+              - set_patient_secondary_ids_updated_at
+              - set_patient_secondary_ids_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -31,6 +37,9 @@ sources:
             description: "{{ doc('patient_secondary_ids__value') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: string
           - name: visibility_status
             data_type: text
             description: "{{ doc('generic__visibility_status') }} in patient_secondary_ids."

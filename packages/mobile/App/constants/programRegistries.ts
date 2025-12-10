@@ -4,16 +4,20 @@
  * ########################################################################################################
  */
 
-export enum CurrentlyAtType {
-  Village = 'village',
-  Facility = 'facility',
-}
+export const CurrentlyAtType = {
+  Village: 'village',
+  Facility: 'facility',
+} as const;
 
-export enum RegistrationStatus {
-  Active = 'active',
-  Inactive = 'inactive',
-  RecordedInError = 'recordedInError',
-}
+export type CurrentlyAtType = (typeof CurrentlyAtType)[keyof typeof CurrentlyAtType];
+
+export const RegistrationStatus = {
+  Active: 'active',
+  Inactive: 'inactive',
+  RecordedInError: 'recordedInError',
+} as const;
+
+export type RegistrationStatus = (typeof RegistrationStatus)[keyof typeof RegistrationStatus];
 
 export const PROGRAM_REGISTRATION_STATUS_LABELS = {
   [RegistrationStatus.Active]: 'Active',

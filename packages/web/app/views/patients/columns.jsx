@@ -79,7 +79,7 @@ export const culturalName = {
   title: (
     <TranslatedText
       stringId="general.localisedField.culturalName.label.short"
-      fallback="Cultural name"
+      fallback="Cultural/traditional name"
       data-testid="translatedtext-w6c0"
     />
   ),

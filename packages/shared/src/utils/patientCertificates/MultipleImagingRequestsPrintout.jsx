@@ -31,9 +31,7 @@ const labDetailsSectionStyles = StyleSheet.create({
     marginBottom: 5,
   },
   heading: {
-    fontFamily: 'Helvetica-Bold',
     fontSize: 11,
-    fontWeight: 500,
     marginVertical: 3,
   },
 });
@@ -56,8 +54,10 @@ const MultipleImagingRequestSigningSection = () => {
   );
 };
 
-const getImagingRequestType = imagingTypes => ({ imagingType }) =>
-  imagingTypes[imagingType]?.label || 'Unknown';
+const getImagingRequestType =
+  imagingTypes =>
+  ({ imagingType }) =>
+    imagingTypes[imagingType]?.label || 'Unknown';
 
 const getAreaNote = ({ areas, areaNote }) => {
   if (areas && areas.length > 0) {
@@ -74,7 +74,7 @@ const getAreaNote = ({ areas, areaNote }) => {
 const ImagingRequestDetailsView = ({ imagingRequests, getLocalisation }) => {
   const notesAccessor = ({ notes }) => {
     return notes
-      ?.filter(note => note.noteType === NOTE_TYPES.OTHER)
+      ?.filter(note => note.noteTypeId === NOTE_TYPES.OTHER)
       .map(note => note.content)
       .join(', ');
   };
@@ -83,7 +83,9 @@ const ImagingRequestDetailsView = ({ imagingRequests, getLocalisation }) => {
 
   return (
     <View>
-      <Text style={labDetailsSectionStyles.heading}>Imaging request details</Text>
+      <Text bold style={labDetailsSectionStyles.heading}>
+        Imaging request details
+      </Text>
       <HorizontalRule width="0.5px" />
       {imagingRequests.map((imagingRequest, index) => {
         return (
@@ -124,7 +126,7 @@ const ImagingRequestDetailsView = ({ imagingRequests, getLocalisation }) => {
 };
 
 const MultipleImagingRequestsPrintoutComponent = React.memo(
-  ({ patient, imagingRequests, encounter, certificateData, getLocalisation }) => {
+  ({ patient, imagingRequests, encounter, certificateData, getLocalisation, getSetting }) => {
     const { logo } = certificateData;
     return (
       <Document>
@@ -141,7 +143,7 @@ const MultipleImagingRequestsPrintoutComponent = React.memo(
               certificateTitle="Imaging Request"
             />
             <SectionContainer>
-              <PatientDetailsWithBarcode patient={patient} getLocalisation={getLocalisation} />
+              <PatientDetailsWithBarcode patient={patient} getLocalisation={getLocalisation} getSetting={getSetting} />
             </SectionContainer>
             <SectionContainer>
               <EncounterDetails encounter={encounter} />

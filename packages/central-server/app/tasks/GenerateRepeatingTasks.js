@@ -3,7 +3,7 @@ import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { Op } from 'sequelize';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
-import { InvalidConfigError } from '@tamanu/shared/errors';
+import { InvalidConfigError } from '.';
 import {
   SYSTEM_USER_UUID,
   TASK_NOTE_COMPLETE_OVERDUE_REASON_ID,

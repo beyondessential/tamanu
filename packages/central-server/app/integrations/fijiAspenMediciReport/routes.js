@@ -10,7 +10,7 @@ import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
 import { parseDateTime, formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 
 import { requireClientHeaders } from '../../middleware/requireClientHeaders';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError } from '@tamanu/errors';
 
 export const routes = express.Router();
 
@@ -28,7 +28,7 @@ function formatDate(date) {
 
 const reportQuery = `
 SELECT 
-  last_updated,
+  last_updated::timestamptz at time zone 'UTC' as last_updated,
   patient_id,
   first_name,
   last_name,
@@ -82,7 +82,7 @@ ORDER BY last_updated DESC
 LIMIT $limit OFFSET $offset;
 `;
 
-const parseDateParam = date => {
+const parseDateParam = (date) => {
   const { plain: parsedDate } = parseDateTime(date, { withTz: COUNTRY_TIMEZONE });
   return parsedDate || null;
 };
@@ -99,6 +99,7 @@ routes.get(
   '/',
   asyncHandler(async (req, res) => {
     const { sequelize } = req.store;
+
     const {
       'period.start': fromDate,
       'period.end': toDate,
@@ -145,48 +146,52 @@ routes.get(
       },
     });
 
-    const mapNotes = notes =>
-      notes?.map(note => ({
+    const mapNotes = (notes) =>
+      notes?.map((note) => ({
         ...note,
         noteDate: formatDate(note.noteDate),
       }));
-    const mappedData = data.map(encounterData => {
+    const mappedData = data.map((encounterData) => {
       const encounter = mapKeys(encounterData, (_v, k) => camelCase(k));
       return {
         ...encounter,
         weight: parseFloat(encounter.weight),
-        encounterStartDate: new Date(encounter.encounterStartDate).toISOString(),
-        encounterEndDate: new Date(encounter.encounterEndDate).toISOString(),
-        dischargeDate: new Date(encounter.dischargeDate).toISOString(),
+        encounterStartDate: formatDate(new Date(encounter.encounterStartDate)),
+        encounterEndDate: formatDate(new Date(encounter.encounterEndDate)),
+        dischargeDate: formatDate(new Date(encounter.dischargeDate)),
         sex: upperFirst(encounter.sex),
-        departments: encounter.departments?.map(department => ({
+        departments: encounter.departments?.map((department) => ({
           ...department,
           assignedTime: formatDate(department.assignedTime),
         })),
-        locations: encounter.locations?.map(location => ({
+        locations: encounter.locations?.map((location) => ({
           ...location,
           assignedTime: formatDate(location.assignedTime),
         })),
-        imagingRequests: encounter.imagingRequests?.map(ir => ({
+        imagingRequests: encounter.imagingRequests?.map((ir) => ({
           ...ir,
           notes: mapNotes(ir.notes),
         })),
-        labRequests: encounter.labRequests?.map(lr => ({
+        labRequests: encounter.labRequests?.map((lr) => ({
           ...lr,
           notes: mapNotes(lr.notes),
         })),
-        procedures: encounter.procedures?.map(procedure => ({
+        procedures: encounter.procedures?.map((procedure) => ({
           ...procedure,
           date: formatDate(procedure.date),
         })),
         notes: mapNotes(encounter.notes),
-        encounterType: encounter.encounterType?.map(encounterType => ({
+        encounterType: encounter.encounterType?.map((encounterType) => ({
           ...encounterType,
           startDate: formatDate(encounterType.startDate),
         })),
         hoursOfVentilation: 0,
         leaveDays: 0,
         lastUpdated: formatDate(encounter.lastUpdated),
+        medications: encounter.medications
+          ?.filter(medication => !medication.isSensitive)
+          // eslint-disable-next-line no-unused-vars
+          ?.map(({ isSensitive, ...medication }) => medication),
       };
     });
 

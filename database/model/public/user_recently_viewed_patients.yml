@@ -5,9 +5,12 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: user_recently_viewed_patients
-        description: '{{ doc("table__user_recently_viewed_patients") }}'
-        tags:
-          - system
+        description: "{{ doc('table__user_recently_viewed_patients') }}"
+        config:
+          tags:
+            - system
+          meta:
+            triggers: []
         columns:
           - name: id
             data_type: uuid

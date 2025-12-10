@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
-import { InvalidParameterError } from '@tamanu/shared/errors';
+import { InvalidParameterError } from '@tamanu/errors';
 import { ENCOUNTER_TYPES, NOTE_TYPES } from '@tamanu/constants';
 
 import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
@@ -70,7 +70,7 @@ triage.post(
     // so put it into a single note record
     if (notes) {
       await triageRecord.createNote({
-        noteType: NOTE_TYPES.OTHER,
+        noteTypeId: NOTE_TYPES.OTHER,
         content: notes,
       });
     }

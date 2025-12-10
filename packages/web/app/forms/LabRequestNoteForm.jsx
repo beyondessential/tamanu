@@ -3,20 +3,16 @@ import styled, { css } from 'styled-components';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import NotesIcon from '@material-ui/icons/Notes';
 import { Box } from '@material-ui/core';
-import { NOTE_TYPES } from '@tamanu/constants';
+
+import { NOTE_TYPES, FORM_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { TextField, Form, FormCancelButton, FormSubmitButton, Button } from '@tamanu/ui-components';
 
 import { useApi } from '../api';
 import {
-  Button,
   DateDisplay,
   Field,
-  Form,
-  FormCancelButton,
-  FormSubmitButton,
-  TextField,
 } from '../components';
-import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const Container = styled.div`
@@ -103,7 +99,7 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
       api.post(`labRequest/${labRequestId}/notes`, {
         content: values.content?.trim(),
         authorId: api.user.id,
-        noteType: NOTE_TYPES.OTHER,
+        noteTypeId: NOTE_TYPES.OTHER,
         date: getCurrentDateTimeString(),
       }),
     {

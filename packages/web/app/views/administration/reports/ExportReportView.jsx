@@ -3,17 +3,14 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { toast } from 'react-toastify';
 import { REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/constants/reports';
+import { FORM_TYPES } from '@tamanu/constants/forms';
+import { Form, FormGrid, ButtonRow, FormSubmitButton } from '@tamanu/ui-components';
 import {
-  ButtonRow,
   Field,
-  Form,
-  FormGrid,
-  FormSubmitButton,
   RadioField,
   TranslatedText,
 } from '../../../components';
 import { ReportSelectField, VersionSelectField } from './ReportsSelectFields';
-import { FORM_TYPES } from '../../../constants';
 import { notifySuccess, sanitizeFileName } from '../../../utils';
 import { saveFile } from '../../../utils/fileSystemAccess';
 import { useApi } from '../../../api/useApi';

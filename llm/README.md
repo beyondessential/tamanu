@@ -1,32 +1,55 @@
-# 🤖 LLM Agent Collaboration Guide
+# LLM Documentation and Rules
 
-Welcome to your AI-powered development workflow! This directory helps you work more effectively with AI agents and capture valuable insights for the team.
+This directory contains documentation and rules for LLM agents working on this project.
 
-## Quick Start
+## Structure
 
-Use AI agents to enhance your development process, then save the valuable stuff for everyone to benefit from.
+### `/common-rules` - Shared Generic Rules
 
-## 📋 Planning
+Contains generic LLM agent rules that can be shared across multiple projects. These rules are provided via git submodule from the [llm-rules repository](https://github.com/beyondessential/llm-rules).
 
-For any significant work, ask your agent to create a plan using `create-plan.md`. Review it, tweak as needed, and check in as you progress.
+### `/project-rules` - Project-Specific Rules
 
-## 📚 Code Documentation
+Contains rules that are specific to this project, including:
 
-Exploring a part of the codebase? After a good conversation with the AI:
+- `important-project-rules.md` - Essential project information and conventions
+- `translate-hardcoded-strings.md` - Project's TranslatedText system (if applicable)
+- `update-copy.md` - Project-specific copy update workflows
 
-- **New area**: Save a summary to `contexts/` using `create-context.md`
-- **Existing context**: Update it with new insights using `update-context.md`
+### `/docs` - Project Documentation
 
-## 🔄 Repeatable Tasks
+Contains documentation about the project's codebase for LLM context.
 
-Found a workflow someone else might need, or noticed something the AI regularly gets wrong and you want it to avoid? Save it as a rule using `create-rule.md` so the team can reuse it.
+## Usage
 
-## 🚨 Incident Response
+When an LLM agent needs to follow a rule:
 
-Working on a bug or outage? Chat with an agent about your debugging process and ask it to generate any SQL queries you need. When you're done, save valuable insights to `./incident-response` using `create-on-call-doc.md`.
+1. First check if there's a project-specific version in `/project-rules`
+2. If not, use the generic version from `/common-rules/`
+3. Always prioritise project-specific rules over generic ones
 
-## 💡 Pro Tips
+## Working with the Submodule
 
-- **Start conversations** by tagging relevant contexts
-- **Reference rules** when doing repeated tasks
-- **Actually use** the files people have generated - they're there to help!
+For detailed submodule usage instructions (setup, updating, contributing), see the [common-rules README](./common-rules/README.md).
+
+### Adding New Rules
+
+- **Generic/reusable rules** → Add to [llm-rules repository](https://github.com/beyondessential/llm-rules)
+- **Project-specific rules** → Add to `/project-rules`
+
+## Shared Rules Repository
+
+The shared repository contains these rules for use across Tamanu and Tupaia:
+
+- Agent onboarding: `onboard-agent.md` - standardized onboarding flow
+- Git workflows: `commit.md`, `create-branch.md`, `rebase-branch.md`
+- Documentation: `write-docs.md`, `write-card-description.md`, `create-rule.md`
+- Submodule management: `update-submodule.md`, `get-latest-rules.md`
+
+## Contributing
+
+When adding new rules:
+
+- **Generic/reusable rules** → Add to shared repository
+- **Project-specific rules** → Add to `/project-rules`
+- Always include Australian/NZ English spelling guidance in Notes sections

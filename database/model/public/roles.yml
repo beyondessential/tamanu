@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: roles
-        description: '{{ doc("table__roles") }}'
-        tags:
-          - administration
+        description: "{{ doc('table__roles') }}"
+        config:
+          tags:
+            - administration
+          meta:
+            triggers:
+              - notify_roles_changed
+              - record_roles_changelog
+              - set_roles_updated_at
+              - set_roles_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)

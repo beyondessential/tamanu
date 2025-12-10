@@ -1,4 +1,5 @@
 export * from './buildVersionCompatibilityCheck';
+export * from './getMetaServerHosts';
 export * from './getPatientAdditionalData';
 export * from './getPatientSurveyResponseAnswer';
 export * from './getResponseJsonSafely';
@@ -18,3 +19,5 @@ export * from './numeralTranslation';
 export * from './enumRegistry';
 export * from './invoice';
 export * from './medication';
+export * from './initDeviceId';
+export * from './errorHandlerProblem';

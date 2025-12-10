@@ -1,0 +1,53 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: portal_one_time_tokens
+        description: "{{ doc('table__portal_one_time_tokens') }}"
+        config:
+          tags: []
+          meta:
+            triggers:
+              - record_portal_one_time_tokens_changelog
+        columns:
+          - name: id
+            data_type: text
+            description: "{{ doc('generic__id') }} in portal_one_time_tokens."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in portal_one_time_tokens."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in portal_one_time_tokens."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in portal_one_time_tokens."
+          - name: portal_user_id
+            data_type: text
+            description: "{{ doc('portal_one_time_tokens__portal_user_id') }}"
+            data_tests:
+              - not_null
+          - name: type
+            data_type: character varying(255)
+            description: "{{ doc('portal_one_time_tokens__type') }}"
+            data_tests:
+              - not_null
+          - name: token
+            data_type: character varying(255)
+            description: "{{ doc('portal_one_time_tokens__token') }}"
+            data_tests:
+              - not_null
+          - name: expires_at
+            data_type: character(19)
+            description: "{{ doc('portal_one_time_tokens__expires_at') }}"
+            data_tests:
+              - not_null

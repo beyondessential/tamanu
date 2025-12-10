@@ -1,3 +1,5 @@
+import { LOCATION_BOOKABLE_VIEW } from "./importable";
+
 export const DAYS_OF_WEEK = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
 
 export const REPEAT_FREQUENCY = {
@@ -25,4 +27,9 @@ export const REPEAT_FREQUENCY_UNIT_PLURAL_LABELS = {
 export const MODIFY_REPEATING_APPOINTMENT_MODE = {
   THIS_APPOINTMENT: 'thisAppointment',
   THIS_AND_FUTURE_APPOINTMENTS: 'thisAndFutureAppointments',
+};
+
+export const VIEW_TYPES = {
+  WEEKLY: LOCATION_BOOKABLE_VIEW.WEEKLY,
+  DAILY: LOCATION_BOOKABLE_VIEW.DAILY,
 };

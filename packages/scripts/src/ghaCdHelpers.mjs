@@ -100,6 +100,8 @@ const OPTIONS = [
     parse: (input) => intBounds(input, [0, 5]),
   },
 
+  { key: 'patientportals', defaultValue: 1, parse: (input) => intBounds(input, [0, 5]) },
+
   { key: 'dbs', defaultValue: 2, parse: (input) => intBounds(input, [2, 3]) },
   {
     key: 'centraldbs',
@@ -227,6 +229,8 @@ export function configMap(deployName, imageTag, options) {
       facilityDbReplicas: options.facilitydbs,
       facilityTasksReplicas: options.facilitytasks,
       facilityWebReplicas: options.facilitydbs,
+
+      patientPortalReplicas: options.patientportals,
     }).map(([key, value]) => [`tamanu-on-k8s:${key}`, { value: value ?? null, secret: false }]),
   );
 }

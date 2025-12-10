@@ -5,8 +5,11 @@ sources:
     description: "{{ doc('logs__generic__schema') }}"
     tables:
       - name: fhir_writes
-        description: '{{ doc("logs__table__fhir_writes") }}'
-        tags: []
+        description: "{{ doc('logs__table__fhir_writes') }}"
+        config:
+          tags: []
+          meta:
+            triggers: []
         columns:
           - name: id
             data_type: uuid
@@ -34,11 +37,17 @@ sources:
             description: "{{ doc('logs__fhir_writes__body') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: empty
           - name: headers
             data_type: jsonb
             description: "{{ doc('logs__fhir_writes__headers') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: empty
           - name: user_id
             data_type: character varying(255)
             description: "{{ doc('logs__fhir_writes__user_id') }}"

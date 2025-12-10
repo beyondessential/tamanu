@@ -36,10 +36,8 @@ const pageStyles = StyleSheet.create({
 
 const textStyles = StyleSheet.create({
   sectionTitle: {
-    fontFamily: 'Helvetica-Bold',
     marginBottom: 3,
     fontSize: 11,
-    fontWeight: 600,
   },
 });
 
@@ -63,11 +61,9 @@ const tableStyles = StyleSheet.create({
     padding: 7,
   },
   p: {
-    fontFamily: 'Helvetica',
     fontSize: 9,
   },
   noteText: {
-    fontFamily: 'Helvetica',
     fontSize: 7,
     marginTop: 1,
   },
@@ -111,8 +107,10 @@ const HorizontalRule = ({ width = '1px' }) => {
 
 const Table = props => <View style={tableStyles.table} {...props} />;
 const Row = props => <View style={tableStyles.row} {...props} />;
-const P = ({ style = {}, children, isBold }) => (
-  <Text style={[tableStyles.p, isBold && { fontFamily: 'Helvetica-Bold' }, style]}>{children}</Text>
+const P = ({ style = {}, children, bold }) => (
+  <Text bold={bold} style={[tableStyles.p, style]}>
+    {children}
+  </Text>
 );
 
 const Cell = ({ children, style = {} }) => (
@@ -160,7 +158,7 @@ const getInvoiceItemDetails = item => {
 
 const HeaderCell = ({ children, style }) => (
   <View style={[tableStyles.baseCell, style]}>
-    <P style={{ fontFamily: 'Helvetica-Bold' }}>{children}</P>
+    <P bold>{children}</P>
   </View>
 );
 
@@ -296,6 +294,7 @@ const MultipageTableHeading = ({ title, style = textStyles.sectionTitle }) => {
   let firstPageOccurrence = Number.MAX_SAFE_INTEGER;
   return (
     <Text
+      bold
       fixed
       style={style}
       render={({ pageNumber, subPageNumber }) => {
@@ -385,14 +384,14 @@ const SummaryPane = ({ invoice }) => {
       </View>
       <HorizontalRule />
       <View style={summaryPaneStyles.item}>
-        <P isBold>Total</P>
-        <P isBold>{itemsSubtotal ?? '-'}</P>
+        <P bold>Total</P>
+        <P bold>{itemsSubtotal ?? '-'}</P>
       </View>
       <HorizontalRule />
       {invoice?.insurers?.length && (
         <>
           <View style={summaryPaneStyles.item}>
-            <P isBold>Insurer</P>
+            <P bold>Insurer</P>
           </View>
           {invoice?.insurers.map((insurer, index) => {
             return (
@@ -409,15 +408,15 @@ const SummaryPane = ({ invoice }) => {
         </>
       )}
       <View style={summaryPaneStyles.item}>
-        <P isBold>Patient subtotal</P>
+        <P bold>Patient subtotal</P>
         <P>{patientSubtotal}</P>
       </View>
       <View style={summaryPaneStyles.item}>
-        <P isBold>Discount</P>
+        <P bold>Discount</P>
         {!!invoice.discount && (
           <View style={summaryPaneStyles.subItem}>
             <P>{invoice.discount?.percentage * 100}%</P>
-            <P isBold>{typeof discountTotal === 'string' ? `-${discountTotal}` : '-'}</P>
+            <P bold>{typeof discountTotal === 'string' ? `-${discountTotal}` : '-'}</P>
           </View>
         )}
       </View>
@@ -436,8 +435,8 @@ const SummaryPane = ({ invoice }) => {
       )}
       <HorizontalRule />
       <View style={[summaryPaneStyles.item, { marginVertical: 7.5 }]}>
-        <P isBold>Patient total</P>
-        <P isBold>{patientTotal ?? '-'}</P>
+        <P bold>Patient total</P>
+        <P bold>{patientTotal ?? '-'}</P>
       </View>
     </View>
   );
@@ -449,6 +448,7 @@ const InvoiceRecordPrintoutComponent = ({
   certificateData,
   discharge,
   getLocalisation,
+  getSetting,
   clinicianText,
   invoice,
   enablePatientInsurer,
@@ -474,7 +474,7 @@ const InvoiceRecordPrintoutComponent = ({
           />
         </CertificateHeader>
         <SectionSpacing />
-        <PatientDetails getLocalisation={getLocalisation} patient={patientData} />
+        <PatientDetails getLocalisation={getLocalisation} getSetting={getSetting} patient={patientData} />
         <SectionSpacing />
         <InvoiceEncounterDetails
           encounter={encounter}

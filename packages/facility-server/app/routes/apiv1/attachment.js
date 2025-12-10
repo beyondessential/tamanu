@@ -37,6 +37,7 @@ attachment.get(
       `attachment/${encodeURIComponent(id)}?base64=${base64}`,
       {
         method: 'GET',
+        backoff: { maxAttempts: 5, maxWaitMs: 1000 },
       },
     );
     res.send(response);

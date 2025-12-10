@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { Box, CircularProgress, Divider, Typography } from '@material-ui/core';
+import { FormConfirmCancelBackRow } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 
-import { Colors } from '../../constants';
-import { FormConfirmCancelBackRow } from '../ButtonRow';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { useApi } from '../../api';
 import { ContactDetails } from './ContactDetails';

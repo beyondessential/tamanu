@@ -1,9 +1,13 @@
 import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { INVOICE_ITEMS_CATEGORIES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import type { Department } from './Department';
+import type { User } from './User';
+import type { Location } from './Location';
+import type { Encounter } from './Encounter';
 
 export class Procedure extends Model {
   declare id: string;
@@ -17,9 +21,19 @@ export class Procedure extends Model {
   declare locationId?: string;
   declare procedureTypeId?: string;
   declare physicianId?: string;
-  declare assistantId?: string;
   declare anaesthetistId?: string;
   declare anaestheticId?: string;
+  declare departmentId?: string;
+  declare assistantAnaesthetistId?: string;
+  declare timeIn?: string;
+  declare timeOut?: string;
+
+  declare encounter?: Encounter;
+  declare location?: Location;
+  declare department?: Department;
+  declare leadClinician?: User;
+  declare anaesthetist?: User;
+  declare assistantAnaesthetist?: User;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -34,13 +48,59 @@ export class Procedure extends Model {
         startTime: dateTimeType('startTime'),
         note: DataTypes.TEXT,
         completedNote: DataTypes.TEXT,
+        timeIn: dateTimeType('timeIn'),
+        timeOut: dateTimeType('timeOut'),
       },
-      { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
+      {
+        ...options,
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        hooks: {
+          afterCreate: async (instance: Procedure) => {
+            const invoiceProduct = await instance.sequelize.models.InvoiceProduct.findOne({
+              where: {
+                category: INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE,
+                sourceRecordId: instance.procedureTypeId,
+              },
+            });
+            if (!invoiceProduct) {
+              return; // No invoice product configured for this procedure type
+            }
+
+            if (!instance.encounterId) {
+              return; // No encounter for procedure, so no invoice to add to
+            }
+
+            await instance.sequelize.models.Invoice.addItemToInvoice(
+              instance,
+              instance.encounterId,
+              invoiceProduct,
+              instance.physicianId,
+            );
+          },
+          afterDestroy: async (instance: Procedure) => {
+            if (!instance.encounterId) {
+              return; // No encounter for procedure, so no invoice to remove from
+            }
+
+            await instance.sequelize.models.Invoice.removeItemFromInvoice(
+              instance,
+              instance.encounterId,
+            );
+          },
+        },
+      },
     );
   }
 
   static getListReferenceAssociations() {
-    return ['Location', 'ProcedureType', 'Anaesthetic'];
+    return [
+      'location',
+      'procedureType',
+      'anaesthetic',
+      'department',
+      'assistantClinicians',
+      'surveyResponses',
+    ];
   }
 
   static initRelations(models: Models) {
@@ -50,28 +110,61 @@ export class Procedure extends Model {
     });
     this.belongsTo(models.Location, {
       foreignKey: 'locationId',
-      as: 'Location',
+      as: 'location',
     });
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'procedureTypeId',
-      as: 'ProcedureType',
+      as: 'procedureType',
     });
     this.belongsTo(models.User, {
       foreignKey: 'physicianId',
-      as: 'Physician',
-    });
-    this.belongsTo(models.User, {
-      foreignKey: 'assistantId',
-      as: 'Assistant',
+      as: 'leadClinician',
     });
     this.belongsTo(models.User, {
       foreignKey: 'anaesthetistId',
-      as: 'Anaesthetist',
+      as: 'anaesthetist',
     });
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'anaestheticId',
-      as: 'Anaesthetic',
+      as: 'anaesthetic',
     });
+    this.belongsTo(models.Department, {
+      foreignKey: 'departmentId',
+      as: 'department',
+    });
+    this.belongsTo(models.User, {
+      foreignKey: 'assistantAnaesthetistId',
+      as: 'assistantAnaesthetist',
+    });
+
+    this.belongsToMany(models.User, {
+      through: 'ProcedureAssistantClinician',
+      as: 'assistantClinicians',
+      foreignKey: 'procedureId',
+    });
+    this.belongsToMany(models.SurveyResponse, {
+      through: 'ProcedureSurveyResponse',
+      as: 'surveyResponses',
+      foreignKey: 'procedureId',
+    });
+  }
+
+  forResponse() {
+    const procedureResponse = super.forResponse();
+    const assistantClinicians = this.dataValues?.AssistantClinicians;
+    if (!assistantClinicians) {
+      return procedureResponse;
+    }
+
+    // Parse the nested many to many data for assistantClinicians
+    const assistantCliniciansData = assistantClinicians.map(
+      (assistantClinician: { forResponse: () => any }) => assistantClinician.forResponse(),
+    );
+
+    return {
+      ...procedureResponse,
+      assistantClinicians: assistantCliniciansData,
+    };
   }
 
   static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {
@@ -84,7 +177,7 @@ export class Procedure extends Model {
     );
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return buildEncounterLinkedLookupFilter(this);
   }
 }

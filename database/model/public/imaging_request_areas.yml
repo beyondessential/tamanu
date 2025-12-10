@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: imaging_request_areas
-        description: '{{ doc("table__imaging_request_areas") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__imaging_request_areas') }}"
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers:
+              - notify_imaging_request_areas_changed
+              - record_imaging_request_areas_changelog
+              - set_imaging_request_areas_updated_at
+              - set_imaging_request_areas_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -34,16 +41,18 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'imaging_requests')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'imaging_requests')
+                    field: id
           - name: area_id
             data_type: character varying(255)
             description: "{{ doc('imaging_request_areas__area_id') }}"
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'reference_data')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in imaging_request_areas."

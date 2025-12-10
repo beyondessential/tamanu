@@ -25,7 +25,8 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
   const nationalitySuggester = useSuggester('nationality');
   const occupationSuggester = useSuggester('occupation');
   const religionSuggester = useSuggester('religion');
-  const patientSuggester = usePatientSuggester();
+  const motherSuggester = usePatientSuggester();
+  const fatherSuggester = usePatientSuggester();
 
   const PERSONAL_FIELDS = {
     title: {
@@ -165,7 +166,7 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
     },
     motherId: {
       component: AutocompleteField,
-      suggester: patientSuggester,
+      suggester: motherSuggester,
       label: (
         <TranslatedText
           stringId="general.localisedField.motherId.label"
@@ -176,7 +177,7 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
     },
     fatherId: {
       component: AutocompleteField,
-      suggester: patientSuggester,
+      suggester: fatherSuggester,
       label: (
         <TranslatedText
           stringId="general.localisedField.fatherId.label"

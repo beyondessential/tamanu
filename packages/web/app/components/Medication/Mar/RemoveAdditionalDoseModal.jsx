@@ -1,15 +1,21 @@
 import React from 'react';
 import { Box, Divider } from '@material-ui/core';
-import { getDose } from '@tamanu/shared/utils/medication';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { Field, Form, TextField } from '../../Field';
-import { FormGrid } from '../../FormGrid';
-import { ConfirmCancelRow, FormModal, TranslatedText } from '../..';
+import {
+  TextField,
+  Form,
+  FormGrid,
+  ConfirmCancelRow,
+  TranslatedText,
+} from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
+import { Field } from '../../Field';
+import { FormModal } from '../..';
 import { useDeleteDoseMutation } from '../../../api/mutations/useMarMutation';
-import { Colors } from '../../../constants';
 import { formatTimeSlot } from '../../../utils/medications';
 import { useTranslation } from '../../../contexts/Translation';
+import { getMarDoseDisplay } from '@tamanu/shared/utils/medication';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -50,7 +56,7 @@ const VerticalSeparator = styled.div`
 `;
 export const RemoveAdditionalDoseModal = ({ open, onClose, medication, dose }) => {
   const queryClient = useQueryClient();
-  const { getTranslation, getEnumTranslation } = useTranslation();
+  const { getEnumTranslation } = useTranslation();
 
   const { mutateAsync: deleteDose } = useDeleteDoseMutation(dose.id, {
     onSuccess: () => {
@@ -86,9 +92,8 @@ export const RemoveAdditionalDoseModal = ({ open, onClose, medication, dose }) =
             <TranslatedText stringId="medication.mar.doseGiven" fallback="Dose given" />
           </MidText>
           <DarkestText mt={'3px'}>
-            {getDose(
-              { ...medication, doseAmount: dose.doseAmount },
-              getTranslation,
+            {getMarDoseDisplay(
+              { doseAmount: dose.doseAmount, units: medication.units },
               getEnumTranslation,
             )}
           </DarkestText>

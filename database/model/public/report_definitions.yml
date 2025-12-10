@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: report_definitions
-        description: '{{ doc("table__report_definitions") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__report_definitions') }}"
+        config:
+          tags:
+            - reference
+          meta:
+            triggers:
+              - notify_report_definitions_changed
+              - record_report_definitions_changelog
+              - set_report_definitions_updated_at
+              - set_report_definitions_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)

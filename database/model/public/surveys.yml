@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: surveys
-        description: '{{ doc("table__surveys") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__surveys') }}"
+        config:
+          tags:
+            - reference
+          meta:
+            triggers:
+              - notify_surveys_changed
+              - record_surveys_changelog
+              - set_surveys_updated_at
+              - set_surveys_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -39,18 +46,20 @@ sources:
             description: "{{ doc('surveys__program_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'programs')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'programs')
+                    field: id
           - name: survey_type
             data_type: character varying(255)
             description: "{{ doc('surveys__survey_type') }}"
             data_tests:
               - accepted_values:
-                  values:
-                    - programs
-                    - referral
-                    - obsolete
-                    - vitals
+                  arguments:
+                    values:
+                      - programs
+                      - referral
+                      - obsolete
+                      - vitals
           - name: is_sensitive
             data_type: boolean
             description: "{{ doc('surveys__is_sensitive') }}"

@@ -1,13 +1,12 @@
 {
   "name": "scripts",
-  "version": "2.36.0",
+  "version": "2.47.0",
   "license": "GPL-3.0-or-later",
   "scripts": {
     "build": "swc --out-dir dist --copy-files --source-maps true src",
     "clean": "rimraf dist *.tsbuildInfo",
     "clean:deps": "rimraf node_modules",
     "test": "npm run build && tape 'tests/**/*.test.*js'",
-    "download-translations": "npm run build && node dist/downloadTranslations.js ../web/resources/strings",
     "test-determinism": "npm run build && node dist/testDeterminism.js"
   },
   "dependencies": {
@@ -15,9 +14,8 @@
     "@tamanu/fake-data": "*",
     "commander": "^9.0.0",
     "config": "^3.3.9",
-    "google-spreadsheet": "^2.0.7",
     "inflection": "^1.13.4",
-    "lodash": "^4.17.5",
+    "lodash": "^4.17.21",
     "pg": "^8.5.1",
     "pgsql-ast-parser": "^11.1.0",
     "rimraf": "^6.0.1",

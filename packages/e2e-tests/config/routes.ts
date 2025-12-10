@@ -1,9 +1,11 @@
 export const routes = {
   login: '/',
-  dashboard: '#/dashboard',
+  dashboard: '/dashboard',
   patients: {
-    all: '#/patients/all',
-    patientDetails: '#/patients/all/*',
+    all: '/patients/all',
+    inpatients: '/patients/inpatient',
+    patientDetails: '/patients/all/*',
+    outpatients: '/patients/outpatient',
   },
 };
 

@@ -5,7 +5,6 @@ export const REFERENCE_TYPES = {
   ALLERGY: 'allergy',
   APPOINTMENT_TYPE: 'appointmentType',
   BOOKING_TYPE: 'bookingType',
-  CONDITION: 'condition',
   CATCHMENT: 'catchment',
   DRUG: 'drug',
   DIET: 'diet',
@@ -18,7 +17,6 @@ export const REFERENCE_TYPES = {
   LAB_TEST_PRIORITY: 'labTestPriority',
   LAB_TEST_LABORATORY: 'labTestLaboratory',
   LAB_TEST_METHOD: 'labTestMethod',
-  VACCINE: 'vaccine',
   VILLAGE: 'village',
   CARE_PLAN: 'carePlan',
   ETHNICITY: 'ethnicity',
@@ -37,7 +35,6 @@ export const REFERENCE_TYPES = {
   RELIGION: 'religion',
   REACTION: 'reaction',
   FAMILY_RELATION: 'familyRelation',
-  PATIENT_TYPE: 'patientType',
   PATIENT_BILLING_TYPE: 'patientBillingType',
   MANUFACTURER: 'manufacturer',
   SECONDARY_ID_TYPE: 'secondaryIdType',
@@ -46,7 +43,6 @@ export const REFERENCE_TYPES = {
   ARRIVAL_MODE: 'arrivalMode',
   VACCINE_NOT_GIVEN_REASON: 'vaccineNotGivenReason',
   VACCINE_CIRCUMSTANCE: 'vaccineCircumstance',
-  ADDITIONAL_INVOICE_PRODUCT: 'additionalInvoiceProduct',
   SPECIMEN_TYPE: 'specimenType',
   INSURER: 'insurer',
   PAYMENT_METHOD: 'paymentMethod',
@@ -57,6 +53,7 @@ export const REFERENCE_TYPES = {
   MEDICATION_NOT_GIVEN_REASON: 'medicationNotGivenReason',
   MEDICATION_TEMPLATE: 'medicationTemplate',
   MEDICATION_SET: 'medicationSet',
+  NOTE_TYPE: 'noteType',
   ...IMAGING_AREA_TYPES,
 };
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
@@ -72,35 +69,43 @@ export const OTHER_REFERENCE_TYPES = {
   LOCATION: 'location',
   LOCATION_GROUP: 'locationGroup',
   PATIENT_FIELD_DEFINITION: 'patientFieldDefinition',
-  PATIENT_FIELD_DEFININION_CATEGORY: 'patientFieldDefinitionCategory',
+  PATIENT_FIELD_DEFINITION_CATEGORY: 'patientFieldDefinitionCategory',
+  INVOICE_PRICE_LIST: 'invoicePriceList',
+  INVOICE_PRICE_LIST_ITEM: 'invoicePriceListItem',
+  INVOICE_INSURANCE_PLAN: 'invoiceInsurancePlan',
+  INVOICE_INSURANCE_PLAN_ITEM: 'invoiceInsurancePlanItem',
   SCHEDULED_VACCINE: 'scheduledVaccine',
-  PROGRAM_REGISTRY: 'programRegistry',
 };
 
 export const OTHER_REFERENCE_TYPE_VALUES = Object.values(OTHER_REFERENCE_TYPES);
 
-// Reference data stored in its own table but are not general importable types
-export const PROGRAM_REGISTRY_REFERENCE_TYPES = {
+// Reference data imported through the program importer rather than the reference data importer
+export const PROGRAM_REFERENCE_TYPES = {
   PROGRAM_REGISTRY_CLINICAL_STATUS: 'programRegistryClinicalStatus',
   PROGRAM_REGISTRY_CONDITION_CATEGORY: 'programRegistryConditionCategory',
   PROGRAM_REGISTRY_CONDITION: 'programRegistryCondition',
+  PROGRAM_REGISTRY: 'programRegistry',
+  PROGRAM: 'program',
+  PROGRAM_DATA_ELEMENT: 'programDataElement',
+  SURVEY: 'survey',
+  SURVEY_SCREEN_COMPONENT: 'surveyScreenComponent',
 };
 
-const PROGRAM_REGISTRY_REFERENCE_TYPE_VALUES = Object.values(PROGRAM_REGISTRY_REFERENCE_TYPES);
+const PROGRAM_REFERENCE_TYPE_VALUES = Object.values(PROGRAM_REFERENCE_TYPES);
 
 export const TRANSLATABLE_REFERENCE_TYPES = [
   ...REFERENCE_TYPE_VALUES,
   ...OTHER_REFERENCE_TYPE_VALUES,
-  ...PROGRAM_REGISTRY_REFERENCE_TYPE_VALUES,
+  ...PROGRAM_REFERENCE_TYPE_VALUES,
 ];
 
 // Data types created through tamanu
-const CLINCAL_DATA_TYPES = {
+const CLINICAL_DATA_TYPES = {
   PATIENT: 'patient',
   ADMINISTERED_VACCINE: 'administeredVaccine',
   USER: 'user',
 };
-const CLINICAL_DATA_TYPES_VALUES = Object.values(CLINCAL_DATA_TYPES);
+const CLINICAL_DATA_TYPES_VALUES = Object.values(CLINICAL_DATA_TYPES);
 
 // System data used for configuration purposes
 export const SYSTEM_DATA_TYPES = {
@@ -165,3 +170,12 @@ export const ASSET_MIME_TYPES = {
   png: 'image/png',
   svg: 'image/svg',
 };
+
+export const LOCATION_BOOKABLE_VIEW = {
+  ALL: 'all',
+  NO: 'no',
+  DAILY: 'daily',
+  WEEKLY: 'weekly',
+};
+
+export const LOCATION_BOOKABLE_VIEW_VALUES = Object.values(LOCATION_BOOKABLE_VIEW);

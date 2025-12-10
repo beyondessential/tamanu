@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: departments
-        description: '{{ doc("table__departments") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__departments') }}"
+        config:
+          tags:
+            - reference
+          meta:
+            triggers:
+              - notify_departments_changed
+              - record_departments_changelog
+              - set_departments_updated_at
+              - set_departments_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -39,8 +46,9 @@ sources:
             description: "{{ doc('departments__facility_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'facilities')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'facilities')
+                    field: id
           - name: visibility_status
             data_type: text
             description: "{{ doc('generic__visibility_status') }} in departments."

@@ -1,7 +1,6 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
-import { useParams } from 'react-router-dom';
-import { push } from 'connected-react-router';
+import { useParams, useNavigate } from 'react-router';
 import { DataFetchingTable } from '../../components';
 import { reloadPatient } from '../../store/patient';
 import { useLabRequest } from '../../contexts/LabRequest';
@@ -38,6 +37,7 @@ const columns = [
       />
     ),
     accessor: getRequestType,
+    sortable: false,
   },
   {
     key: 'requestedDate',
@@ -49,6 +49,7 @@ const columns = [
       />
     ),
     accessor: getDateWithTimeTooltip,
+    sortable: false,
   },
   {
     key: 'displayName',
@@ -72,6 +73,7 @@ const columns = [
       />
     ),
     accessor: getPriority,
+    sortable: false,
   },
   {
     key: 'status',
@@ -84,20 +86,20 @@ const columns = [
     ),
     accessor: getStatus,
     maxWidth: 200,
+    sortable: false,
   },
 ];
 
 export const EncounterLabRequestsTable = React.memo(({ encounterId }) => {
   const { patientId, category } = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { loadLabRequest } = useLabRequest();
 
-  const selectLab = async (lab) => {
+  const selectLab = async lab => {
     if (lab.patientId) await dispatch(reloadPatient(lab.patientId));
     await loadLabRequest(lab.id);
-    dispatch(
-      push(`/patients/${category}/${patientId}/encounter/${encounterId}/lab-request/${lab.id}`),
-    );
+    navigate(`/patients/${category}/${patientId}/encounter/${encounterId}/lab-request/${lab.id}`);
   };
 
   return (

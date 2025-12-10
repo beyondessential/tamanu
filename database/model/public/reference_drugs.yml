@@ -5,8 +5,15 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: reference_drugs
-        description: '{{ doc("table__reference_drugs") }}'
-        tags: []
+        description: "{{ doc('table__reference_drugs') }}"
+        config:
+          tags: []
+          meta:
+            triggers:
+              - notify_reference_drugs_changed
+              - record_reference_drugs_changelog
+              - set_reference_drugs_updated_at
+              - set_reference_drugs_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid
@@ -29,6 +36,11 @@ sources:
           - name: notes
             data_type: character varying(255)
             description: "{{ doc('reference_drugs__notes') }}"
+          - name: is_sensitive
+            data_type: boolean
+            description: "{{ doc('reference_drugs__is_sensitive') }}"
+            data_tests:
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in reference_drugs."

@@ -35,7 +35,7 @@ async function getValuesFromPatient(upstream: Patient, models: Models) {
     gender: upstream.sex,
     birthDate: formatFhirDate(upstream.dateOfBirth, FHIR_DATETIME_PRECISION.DAYS),
     deceasedDateTime: formatFhirDate(upstream.dateOfDeath, FHIR_DATETIME_PRECISION.DAYS),
-    address: addresses(upstream),
+    address: await addresses(upstream, models),
     link: links,
     lastUpdated: new Date(),
     resolved: links.every(({ other }) => other.isResolved()),
@@ -116,17 +116,19 @@ function telecoms(patient: Patient) {
   );
 }
 
-function addresses(patient: Patient) {
+async function addresses(patient: Patient, models: Models) {
   const additionalData = patient?.additionalData?.[0];
 
   const { cityTown, streetVillage } = additionalData || {};
+  const patientVillage = await models.ReferenceData.findByPk(patient.villageId);
+  const village = patientVillage?.name || streetVillage;
 
   return [
     new FhirAddress({
       type: 'physical',
       use: 'home',
       city: cityTown,
-      line: [streetVillage],
+      line: [village],
     }),
   ];
 }

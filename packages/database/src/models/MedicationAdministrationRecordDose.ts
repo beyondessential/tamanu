@@ -2,6 +2,7 @@ import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class MedicationAdministrationRecordDose extends Model {
   declare id: string;
@@ -77,11 +78,37 @@ export class MedicationAdministrationRecordDose extends Model {
     });
   }
 
-  static buildSyncFilter() {
-    return null; // syncs everywhere
+  static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {
+    if (patientCount === 0) {
+      return null;
+    }
+    return `
+      LEFT JOIN medication_administration_records ON medication_administration_record_doses.mar_id = medication_administration_records.id
+      LEFT JOIN encounter_prescriptions ON medication_administration_records.prescription_id = encounter_prescriptions.prescription_id
+      LEFT JOIN encounters ON encounter_prescriptions.encounter_id = encounters.id
+      LEFT JOIN patient_ongoing_prescriptions ON medication_administration_records.prescription_id = patient_ongoing_prescriptions.prescription_id
+      WHERE (
+        (encounters.patient_id IS NOT NULL AND encounters.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}))
+        OR 
+        (patient_ongoing_prescriptions.patient_id IS NOT NULL AND patient_ongoing_prescriptions.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}))
+      )
+      AND medication_administration_record_doses.updated_at_sync_tick > :since
+    `;
   }
 
-  static buildSyncLookupQueryDetails() {
-    return null; // syncs everywhere
+  static async buildSyncLookupQueryDetails() {
+    return {
+      select: await buildEncounterLinkedLookupSelect(this, {
+        patientId: 'COALESCE(encounters.patient_id, patient_ongoing_prescriptions.patient_id)',
+      }),
+      joins: `
+        LEFT JOIN medication_administration_records ON medication_administration_record_doses.mar_id = medication_administration_records.id
+        LEFT JOIN encounter_prescriptions ON medication_administration_records.prescription_id = encounter_prescriptions.prescription_id
+        LEFT JOIN encounters ON encounter_prescriptions.encounter_id = encounters.id
+        LEFT JOIN patient_ongoing_prescriptions ON medication_administration_records.prescription_id = patient_ongoing_prescriptions.prescription_id
+        LEFT JOIN locations ON encounters.location_id = locations.id
+        LEFT JOIN facilities ON locations.facility_id = facilities.id
+      `,
+    };
   }
 }

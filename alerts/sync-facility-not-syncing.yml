@@ -3,7 +3,7 @@ sql: |
     select
         created_at,
         completed_at,
-        json_array_elements_text(parameters->'facilityIds') as facility_id
+        jsonb_array_elements_text(parameters->'facilityIds') as facility_id
     from sync_sessions
     where parameters->>'isMobile' <> 'true'
   )

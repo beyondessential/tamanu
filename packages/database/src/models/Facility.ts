@@ -14,6 +14,7 @@ export class Facility extends Model {
   declare division?: string;
   declare type?: string;
   declare visibilityStatus: string;
+  declare isSensitive: boolean;
   declare catchmentId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -37,6 +38,11 @@ export class Facility extends Model {
         visibilityStatus: {
           type: DataTypes.TEXT,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
+        },
+        isSensitive: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
         },
       },
       {
@@ -89,7 +95,7 @@ export class Facility extends Model {
     return null; // syncs everywhere
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
 }

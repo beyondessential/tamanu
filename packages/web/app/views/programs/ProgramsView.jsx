@@ -1,21 +1,19 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
+import { getAnswersFromData, SelectInput, FormGrid } from '@tamanu/ui-components';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { reloadPatient } from '../../store/patient';
 import { getCurrentUser } from '../../store/auth';
 import { SurveyView } from './SurveyView';
 import { SurveySelector } from './SurveySelector';
-import { FormGrid } from '../../components/FormGrid';
-import { SelectInput } from '../../components/Field/SelectField';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientListingView } from '..';
 import { usePatientAdditionalDataQuery } from '../../api/queries';
 import { ErrorMessage } from '../../components/ErrorMessage';
-import { getAnswersFromData } from '../../utils';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useEncounter } from '../../contexts/Encounter';
 import { PATIENT_TABS } from '../../constants/patientPaths';
@@ -24,6 +22,7 @@ import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useApi } from '../../api';
 import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
 import { useAuth } from '../../contexts/Auth';
+import { TranslatedReferenceData } from '../../components';
 
 const SurveyFlow = ({ patient, currentUser }) => {
   const api = useApi();
@@ -55,7 +54,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
   }, [api]);
 
   const setSelectedSurvey = useCallback(
-    async (id) => {
+    async id => {
       const response = await api.get(`survey/${encodeURIComponent(id)}`);
       setSurvey(response);
       setStartTime(getCurrentDateTimeString());
@@ -73,7 +72,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
   }, []);
 
   const selectProgram = useCallback(
-    async (event) => {
+    async event => {
       const programId = event.target.value;
       if (programId === selectedProgramId) {
         return;
@@ -89,20 +88,23 @@ const SurveyFlow = ({ patient, currentUser }) => {
       const { data } = await api.get(`program/${programId}/surveys`);
       setSurveys(
         data
-          .filter((s) => s.surveyType === SURVEY_TYPES.PROGRAMS)
-          .map((x) => ({ value: x.id, label: x.name })),
+          .filter(s => s.surveyType === SURVEY_TYPES.PROGRAMS)
+          .map(x => ({
+            value: x.id,
+            label: <TranslatedReferenceData category="survey" value={x.id} fallback={x.name} />,
+          })),
       );
     },
     [api, selectedProgramId, clearProgram, setProgramRegistryIdByProgramId],
   );
 
-  const submitSurveyResponse = async (data) => {
+  const submitSurveyResponse = async data => {
     await api.post('surveyResponse', {
       surveyId: survey.id,
       startTime,
       patientId: patient.id,
       endTime: getCurrentDateTimeString(),
-      answers: getAnswersFromData(data, survey),
+      answers: await getAnswersFromData(data, survey),
       facilityId,
     });
     dispatch(reloadPatient(patient.id));
@@ -115,12 +117,9 @@ const SurveyFlow = ({ patient, currentUser }) => {
     }
   };
 
-  const {
-    isLoading,
-    data: patientAdditionalData,
-    isError,
-    error,
-  } = usePatientAdditionalDataQuery(patient.id);
+  const { isLoading, data: patientAdditionalData, isError, error } = usePatientAdditionalDataQuery(
+    patient.id,
+  );
 
   if (isLoading || !programs) {
     return <LoadingIndicator data-testid="loadingindicator-43uf" />;
@@ -157,7 +156,10 @@ const SurveyFlow = ({ patient, currentUser }) => {
         <FormGrid columns={1} data-testid="formgrid-m7yd">
           <SelectInput
             name="program"
-            options={programs.map((p) => ({ value: p.id, label: p.name }))}
+            options={programs.map(p => ({
+              value: p.id,
+              label: <TranslatedReferenceData category="program" value={p.id} fallback={p.name} />,
+            }))}
             value={selectedProgramId}
             onChange={selectProgram}
             label={
@@ -203,12 +205,12 @@ const SurveyFlow = ({ patient, currentUser }) => {
 
 export const ProgramsView = () => {
   const dispatch = useDispatch();
-  const patient = useSelector((state) => state.patient);
+  const patient = useSelector(state => state.patient);
   const currentUser = useSelector(getCurrentUser);
   if (!patient.id) {
     return (
       <PatientListingView
-        onViewPatient={(id) => dispatch(reloadPatient(id))}
+        onViewPatient={id => dispatch(reloadPatient(id))}
         data-testid="patientlistingview-cqsa"
       />
     );

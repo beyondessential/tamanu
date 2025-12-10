@@ -12,8 +12,8 @@ import {
   mergePatientBirthData,
   mergePatientDeathData,
   mergePatientFieldValues,
-  mergePatientProgramRegistrationConditions,
   mergePatientProgramRegistrations,
+  mergePortalUser,
   refreshMultiChildRecordsForSync,
   reconcilePatientFacilities,
   simpleUpdateModels,
@@ -255,27 +255,6 @@ export class PatientMergeMaintainer extends ScheduledTask {
     return records;
   }
 
-  async specificUpdate_PatientProgramRegistrationCondition() {
-    const { PatientProgramRegistrationCondition } = this.models;
-    const patientProgramRegistrationConditionMerges = await this.findPendingMergePatients(
-      PatientProgramRegistrationCondition,
-    );
-
-    const records = [];
-    for (const { keepPatientId, mergedPatientId } of patientProgramRegistrationConditionMerges) {
-      const mergedPatientProgramRegistrationConditionData =
-        await mergePatientProgramRegistrationConditions(
-          this.models,
-          keepPatientId,
-          mergedPatientId,
-        );
-      if (mergedPatientProgramRegistrationConditionData) {
-        records.push(mergedPatientProgramRegistrationConditionData);
-      }
-    }
-    return records;
-  }
-
   async specificUpdate_Note() {
     // uses a different field + additional search criteria
     const noteRecords = await this.mergeAllRecordsForModel(
@@ -284,6 +263,24 @@ export class PatientMergeMaintainer extends ScheduledTask {
       `AND record_type = '${NOTE_RECORD_TYPES.PATIENT}'`,
     );
     return noteRecords;
+  }
+
+  async specificUpdate_PortalUser() {
+    const { PortalUser } = this.models;
+    const portalUserMerges = await this.findPendingMergePatients(PortalUser);
+
+    const records = [];
+    for (const { keepPatientId, mergedPatientId } of portalUserMerges) {
+      const mergedPortalUser = await mergePortalUser(
+        this.models,
+        keepPatientId,
+        mergedPatientId,
+      );
+      if (mergedPortalUser) {
+        records.push(mergedPortalUser);
+      }
+    }
+    return records;
   }
 
   async run() {

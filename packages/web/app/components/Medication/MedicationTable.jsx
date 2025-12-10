@@ -3,12 +3,13 @@ import styled from 'styled-components';
 import { format } from 'date-fns';
 import { Box } from '@material-ui/core';
 import { DRUG_ROUTE_LABELS, MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
-import { useLocation } from 'react-router-dom';
-import { getDose, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
+import { useLocation, useNavigate } from 'react-router';
+import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
+import { Button } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 
 import { DataFetchingTable } from '../Table';
 import { formatShortest } from '../DateDisplay';
-import { Colors } from '../../constants';
 import { TranslatedText, TranslatedReferenceData, TranslatedEnum } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';
 import { formatTimeSlot } from '../../utils/medications';
@@ -18,7 +19,6 @@ import { MedicationDetails } from './MedicationDetails';
 import { useApi } from '../../api';
 import { singularize } from '../../utils';
 import { useQueryClient } from '@tanstack/react-query';
-import { Button } from '../Button';
 import { AddMedicationIcon } from '../../assets/icons/AddMedicationIcon';
 import { useAuth } from '../../contexts/Auth';
 
@@ -147,117 +147,186 @@ const getFrequency = ({ frequency, encounterPrescription, discontinued }, getTra
   );
 };
 
-const MEDICATION_COLUMNS = (getTranslation, getEnumTranslation, disableTooltip) => [
-  {
-    key: 'medication.name',
-    title: <TranslatedText stringId="medication.table.column.medication" fallback="Medication" />,
-    accessor: data => getMedicationName(data, getEnumTranslation),
-    CellComponent: props => <LimitedLinesCell {...props} disableTooltip={disableTooltip} />,
-  },
-  {
-    key: 'dose',
-    title: <TranslatedText stringId="medication.table.column.dose" fallback="Dose" />,
-    accessor: data => {
-      const pauseData = data.encounterPrescription?.pausePrescriptions?.[0];
-      const isPausing = !!pauseData && !data.discontinued;
-      return (
-        <NoWrapCell
-          color={isPausing ? Colors.softText : 'inherit'}
-          fontStyle={isPausing ? 'italic' : 'normal'}
-        >
-          {getDose(data, getTranslation, getEnumTranslation)}
-          {data.isPrn && ` ${getTranslation('medication.table.prn', 'PRN')}`}
-        </NoWrapCell>
-      );
+const getMedicationColumns = (
+  getTranslation,
+  getEnumTranslation,
+  disableTooltip,
+  isPharmacyOrdersEnabled,
+) => {
+  const columns = [
+    {
+      key: 'medication.name',
+      title: <TranslatedText stringId="medication.table.column.medication" fallback="Medication" />,
+      accessor: data => getMedicationName(data, getEnumTranslation),
+      CellComponent: props => <LimitedLinesCell {...props} disableTooltip={disableTooltip} />,
     },
-    sortable: false,
-  },
-  {
-    key: 'frequency',
-    title: <TranslatedText stringId="medication.table.column.frequency" fallback="Frequency" />,
-    accessor: data => getFrequency(data, getTranslation),
-    sortable: false,
-    CellComponent: LimitedLinesCell,
-  },
-  {
-    key: 'route',
-    title: <TranslatedText stringId="medication.route.label" fallback="Route" />,
-    accessor: ({ route, encounterPrescription, discontinued }) => {
-      const pauseData = encounterPrescription?.pausePrescriptions?.[0];
-      const isPausing = !!pauseData && !discontinued;
-
-      return (
-        <NoWrapCell
-          color={isPausing ? Colors.softText : 'inherit'}
-          fontStyle={isPausing ? 'italic' : 'normal'}
-        >
-          <TranslatedEnum value={route} enumValues={DRUG_ROUTE_LABELS} />
-        </NoWrapCell>
-      );
-    },
-  },
-  {
-    key: 'date',
-    title: <TranslatedText stringId="general.date.label" fallback="Date" />,
-    accessor: ({ date, endDate, isOngoing, discontinued, encounterPrescription }) => {
-      const pauseData = encounterPrescription?.pausePrescriptions?.[0];
-      const isPausing = !!pauseData && !discontinued;
-
-      let tooltipTitle = '';
-      if (endDate) {
-        tooltipTitle = (
-          <>
-            <TranslatedText stringId="medication.table.endsOn.label" fallback="Ends on" />
-            <div>{format(new Date(endDate), 'dd/MM/yy h:mma').toLowerCase()}</div>
-          </>
-        );
-      } else if (isOngoing) {
-        tooltipTitle = (
-          <TranslatedText
-            stringId="medication.table.ongoingMedication.label"
-            fallback="Ongoing medication"
-          />
-        );
-      }
-      return (
-        <NoWrapCell
-          color={isPausing ? Colors.softText : 'inherit'}
-          fontStyle={isPausing ? 'italic' : 'normal'}
-        >
-          <ConditionalTooltip
-            visible={tooltipTitle}
-            title={<Box fontWeight={400}>{tooltipTitle}</Box>}
+    {
+      key: 'dose',
+      title: <TranslatedText stringId="medication.table.column.dose" fallback="Dose" />,
+      accessor: data => {
+        const pauseData = data.encounterPrescription?.pausePrescriptions?.[0];
+        const isPausing = !!pauseData && !data.discontinued;
+        return (
+          <NoWrapCell
+            color={isPausing ? Colors.softText : 'inherit'}
+            fontStyle={isPausing ? 'italic' : 'normal'}
           >
-            {formatShortest(date)}
-          </ConditionalTooltip>
-        </NoWrapCell>
-      );
+            {getMedicationDoseDisplay(data, getTranslation, getEnumTranslation)}
+            {data.isPrn && ` ${getTranslation('medication.table.prn', 'PRN')}`}
+          </NoWrapCell>
+        );
+      },
+      sortable: false,
     },
-  },
-  {
-    key: 'prescriber.displayName',
-    title: <TranslatedText stringId="medication.prescriber.label" fallback="Prescriber" />,
-    accessor: ({ prescriber, encounterPrescription, discontinued }) => {
-      const pauseData = encounterPrescription?.pausePrescriptions?.[0];
-      const isPausing = !!pauseData && !discontinued;
-      return (
-        <Box
-          color={isPausing ? Colors.softText : 'inherit'}
-          fontStyle={isPausing ? 'italic' : 'normal'}
-        >
-          {prescriber?.displayName ?? ''}
+    {
+      key: 'frequency',
+      title: <TranslatedText stringId="medication.table.column.frequency" fallback="Frequency" />,
+      accessor: data => getFrequency(data, getTranslation),
+      sortable: false,
+      CellComponent: LimitedLinesCell,
+    },
+    {
+      key: 'route',
+      title: <TranslatedText stringId="medication.route.label" fallback="Route" />,
+      accessor: ({ route, encounterPrescription, discontinued }) => {
+        const pauseData = encounterPrescription?.pausePrescriptions?.[0];
+        const isPausing = !!pauseData && !discontinued;
+
+        return (
+          <NoWrapCell
+            color={isPausing ? Colors.softText : 'inherit'}
+            fontStyle={isPausing ? 'italic' : 'normal'}
+          >
+            <TranslatedEnum value={route} enumValues={DRUG_ROUTE_LABELS} />
+          </NoWrapCell>
+        );
+      },
+    },
+    {
+      key: 'date',
+      tooltip: (
+        <Box width="60px" fontWeight={400}>
+          <TranslatedText stringId="medication.table.date.tooltip" fallback="Prescription date" />
         </Box>
-      );
+      ),
+      title: <TranslatedText stringId="general.date.label" fallback="Date" />,
+      accessor: ({ date, endDate, isOngoing, discontinued, encounterPrescription }) => {
+        const pauseData = encounterPrescription?.pausePrescriptions?.[0];
+        const isPausing = !!pauseData && !discontinued;
+
+        let tooltipTitle = '';
+        if (endDate) {
+          tooltipTitle = (
+            <>
+              <TranslatedText stringId="medication.table.endsOn.label" fallback="Ends on" />
+              <div>{format(new Date(endDate), 'dd/MM/yy h:mma').toLowerCase()}</div>
+            </>
+          );
+        } else if (isOngoing) {
+          tooltipTitle = (
+            <TranslatedText
+              stringId="medication.table.ongoingMedication.label"
+              fallback="Ongoing medication"
+            />
+          );
+        }
+        return (
+          <NoWrapCell
+            color={isPausing ? Colors.softText : 'inherit'}
+            fontStyle={isPausing ? 'italic' : 'normal'}
+          >
+            <ConditionalTooltip
+              visible={tooltipTitle}
+              title={<Box fontWeight={400}>{tooltipTitle}</Box>}
+            >
+              {formatShortest(date)}
+            </ConditionalTooltip>
+          </NoWrapCell>
+        );
+      },
     },
-    CellComponent: LimitedLinesCell,
-  },
-];
+    {
+      key: 'prescriber.displayName',
+      title: <TranslatedText stringId="medication.prescriber.label" fallback="Prescriber" />,
+      accessor: ({ prescriber, encounterPrescription, discontinued }) => {
+        const pauseData = encounterPrescription?.pausePrescriptions?.[0];
+        const isPausing = !!pauseData && !discontinued;
+        return (
+          <Box
+            color={isPausing ? Colors.softText : 'inherit'}
+            fontStyle={isPausing ? 'italic' : 'normal'}
+          >
+            {prescriber?.displayName ?? ''}
+          </Box>
+        );
+      },
+      CellComponent: LimitedLinesCell,
+    },
+  ];
+
+  if (isPharmacyOrdersEnabled) {
+    columns.push({
+      key: 'lastOrderedAt',
+      tooltip: (
+        <Box width="60px" fontWeight={400}>
+          <TranslatedText
+            stringId="medication.table.lastOrdered.tooltip"
+            fallback="Date item was last ordered from pharmacy"
+          />
+        </Box>
+      ),
+      title: (
+        <TranslatedText stringId="medication.table.column.lastOrdered" fallback="Last ordered" />
+      ),
+      sortable: false,
+      accessor: ({ lastOrderedAt, encounterPrescription, discontinued }) => {
+        const pauseData = encounterPrescription?.pausePrescriptions?.[0];
+        const isPausing = !!pauseData && !discontinued;
+
+        if (!lastOrderedAt) {
+          return (
+            <NoWrapCell
+              color={isPausing ? Colors.softText : 'inherit'}
+              fontStyle={isPausing ? 'italic' : 'normal'}
+            >
+              <TranslatedText
+                stringId="general.fallback.notApplicable"
+                fallback="N/A"
+                casing="lower"
+                data-testid="translatedtext-nc3a"
+              />
+            </NoWrapCell>
+          );
+        }
+
+        const orderDate = new Date(lastOrderedAt);
+        return (
+          <NoWrapCell
+            color={isPausing ? Colors.softText : 'inherit'}
+            fontStyle={isPausing ? 'italic' : 'normal'}
+          >
+            <Box>
+              {formatShortest(orderDate)}
+              <Box fontSize="12px" color={Colors.softText}>
+                {format(orderDate, 'h:mma').toLowerCase()}
+              </Box>
+            </Box>
+          </NoWrapCell>
+        );
+      },
+    });
+  }
+
+  return columns;
+};
 
 export const EncounterMedicationTable = ({
   encounter,
   canImportOngoingPrescriptions,
   onImportOngoingPrescriptions,
+  isPharmacyOrdersEnabled = false,
 }) => {
+  const navigate = useNavigate();
   const location = useLocation();
   const api = useApi();
   const { ability } = useAuth();
@@ -269,12 +338,14 @@ export const EncounterMedicationTable = ({
   const queryClient = useQueryClient();
 
   const canCreatePrescription = ability.can('create', 'Medication');
+  const canViewSensitiveMedications = ability.can('read', 'SensitiveMedication');
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const openMedicationId = searchParams.get('openMedicationId');
     if (openMedicationId) {
       handleInitialMedication(openMedicationId);
+      navigate(location.pathname, { replace: true });
     }
   }, []);
 
@@ -292,11 +363,22 @@ export const EncounterMedicationTable = ({
     setMedications(data);
   }, []);
 
-  const rowStyle = ({ discontinued }) =>
-    discontinued
-      ? `
-        text-decoration: line-through;`
-      : '';
+  const rowStyle = ({ discontinued, medication }) => `
+    ${discontinued ? 'text-decoration: line-through;' : ''}
+    ${
+      medication.referenceDrug.isSensitive && !canViewSensitiveMedications
+        ? 'pointer-events: none;'
+        : ''
+    }
+  `;
+
+  const handleRowClick = row => {
+    const isSensitive = row.medication.referenceDrug.isSensitive;
+    if (isSensitive && !canViewSensitiveMedications) {
+      return;
+    }
+    setSelectedMedication(row);
+  };
 
   return (
     <div>
@@ -308,14 +390,19 @@ export const EncounterMedicationTable = ({
         />
       )}
       <StyledDataFetchingTable
-        columns={MEDICATION_COLUMNS(getTranslation, getEnumTranslation, !!selectedMedication)}
+        columns={getMedicationColumns(
+          getTranslation,
+          getEnumTranslation,
+          !!selectedMedication,
+          isPharmacyOrdersEnabled,
+        )}
         endpoint={`encounter/${encounter.id}/medications`}
         initialSort={{ orderBy: 'date', order: 'asc' }}
         rowStyle={rowStyle}
         elevated={false}
         allowExport={false}
         disablePagination
-        onRowClick={row => setSelectedMedication(row)}
+        onRowClick={handleRowClick}
         refreshCount={refreshCount}
         onDataFetched={onMedicationsFetched}
         $noData={medications.length === 0}
@@ -330,7 +417,7 @@ export const EncounterMedicationTable = ({
                 alignItems="center"
               >
                 <TranslatedText
-                  stringId="medication.table.noMedications"
+                  stringId="medication.table.noMedicationsQuestion"
                   fallback="This patient has existing ongoing medications. Would you like to add these to this encounter?"
                 />
                 <StyledButton

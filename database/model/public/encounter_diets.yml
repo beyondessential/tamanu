@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: encounter_diets
-        description: '{{ doc("table__encounter_diets") }}'
-        tags:
-          - administration
+        description: "{{ doc('table__encounter_diets') }}"
+        config:
+          tags:
+            - administration
+          meta:
+            triggers:
+              - notify_encounter_diets_changed
+              - record_encounter_diets_changelog
+              - set_encounter_diets_updated_at
+              - set_encounter_diets_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid
@@ -21,17 +28,19 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'encounters')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'encounters')
+                    field: id
           - name: diet_id
             data_type: character varying(255)
             description: "{{ doc('encounter_diets__diet_id') }}"
             data_tests:
               - not_null
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'diet'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'diet'
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in encounter_diets."

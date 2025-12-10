@@ -2,7 +2,6 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Op, Sequelize } from 'sequelize';
 
-import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { getPermissions } from '@tamanu/shared/permissions/middleware';
 import {
   paginatedGetList,
@@ -15,11 +14,13 @@ import {
   makeFilter,
 } from '../../utils/query';
 import { z } from 'zod';
-import { TASK_STATUSES } from '@tamanu/constants';
+import { TASK_STATUSES, TASK_TYPES } from '@tamanu/constants';
 import config from 'config';
 import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 import { add } from 'date-fns';
 import { getOrderClause } from '../../database/utils';
+import { ForbiddenError } from '@tamanu/errors';
+import { dateCustomValidation } from '@tamanu/utils/dateTime';
 
 export const user = express.Router();
 
@@ -27,7 +28,7 @@ user.get(
   '/me',
   asyncHandler(async (req, res) => {
     if (!req.user) {
-      throw new BadAuthenticationError('Invalid token (LLh7)');
+      throw new ForbiddenError('authentication required');
     }
     req.checkPermission('read', req.user);
     res.send(req.user);
@@ -166,6 +167,41 @@ user.post(
   }),
 );
 
+const checkOnLeaveSchema = z.object({
+  startDate: dateCustomValidation,
+  endDate: dateCustomValidation,
+});
+
+user.post(
+  '/:userId/check-on-leave',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { UserLeave },
+      params,
+      body,
+    } = req;
+
+    const { userId } = params;
+    const { startDate, endDate } = await checkOnLeaveSchema.parseAsync(body);
+
+    req.checkPermission('read', 'User');
+
+    const leave = await UserLeave.findOne({
+      where: {
+        userId,
+        startDate: {
+          [Op.lte]: endDate,
+        },
+        endDate: {
+          [Op.gte]: startDate,
+        },
+      },
+    });
+
+    res.send({ isOnLeave: !!leave });
+  }),
+);
+
 const clinicianTasksQuerySchema = z.object({
   orderBy: z
     .enum(['dueTime', 'location', 'patientName', 'encounter.patient.displayId', 'name'])
@@ -177,9 +213,9 @@ const clinicianTasksQuerySchema = z.object({
   locationId: z.string().array().optional(),
   highPriority: z
     .enum(['true', 'false'])
-    .transform((value) => value === 'true')
     .optional()
-    .default('false'),
+    .default('false')
+    .transform(value => value === 'true'),
   page: z.coerce.number().optional().default(0),
   rowsPerPage: z.coerce.number().max(50).min(10).optional().default(25),
   facilityId: z.string(),
@@ -189,6 +225,8 @@ user.get(
   asyncHandler(async (req, res) => {
     const { models } = req;
     req.checkPermission('read', 'Tasking');
+
+    const hasMedicationPermission = req.ability.can('list', 'MedicationAdministration');
 
     const query = await clinicianTasksQuerySchema.parseAsync(req.query);
     const {
@@ -247,9 +285,53 @@ user.get(
           [Op.lte]: toCountryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
         },
         ...(highPriority && { highPriority }),
-        [Op.or]: [
-          { '$designations.designationUsers.id$': req.user.id }, // get tasks assigned to the current user
-          { '$designations.id$': { [Op.is]: null } }, // get tasks that are not assigned to anyone
+        [Op.and]: [
+          {
+            [Op.or]: [
+              { '$designations.designationUsers.id$': req.user.id }, // get tasks assigned to the current user
+              { '$designations.id$': { [Op.is]: null } }, // get tasks that are not assigned to anyone
+            ],
+          },
+          // Filter out medication_due_task where all related MARs are either recorded or paused
+          {
+            [Op.or]: [
+              // Include all non-medication tasks
+              { taskType: { [Op.ne]: TASK_TYPES.MEDICATION_DUE_TASK } },
+              // For medication_due_task, only include if user has medication permissions AND there's at least one MAR that is NOT recorded AND NOT paused
+              ...(hasMedicationPermission ? [{ 
+                [Op.and]: [
+                  { taskType: TASK_TYPES.MEDICATION_DUE_TASK },
+                  // Check if there exists at least one MAR at the same dueTime that is not recorded and not paused
+                  Sequelize.literal(`
+                    EXISTS (
+                      SELECT 1
+                      FROM medication_administration_records mar
+                      INNER JOIN prescriptions p ON p.id = mar.prescription_id
+                      INNER JOIN encounter_prescriptions ep ON ep.prescription_id = p.id
+                      CROSS JOIN LATERAL get_medication_time_slot(mar.due_at::timestamp) AS mar_time_slot
+                      WHERE ep.encounter_id = "Task"."encounter_id"
+                        AND mar.due_at = "Task"."due_time"
+                        AND mar.status IS NULL
+                        AND mar.deleted_at IS NULL
+
+                        -- Check if MAR is not currently paused
+                        AND NOT EXISTS (
+                          SELECT 1
+                          FROM encounter_pause_prescriptions epp
+                          WHERE epp.encounter_prescription_id = ep.id
+                            AND epp.deleted_at IS NULL
+                            -- Check if pause overlaps with the MAR's time slot
+                            -- A pause overlaps if: pause_start < slot_end AND pause_end >= slot_end
+                            -- This matches the frontend logic in MarStatus.jsx line 169
+                            AND epp.pause_start_date::timestamp < mar_time_slot.end_time
+                            AND epp.pause_end_date::timestamp >= mar_time_slot.end_time
+                        )
+                    )
+                  `),
+                ],
+              }] : []),
+            ],
+          },
         ],
       },
       include: [
@@ -295,7 +377,7 @@ user.get(
     const tasks = await models.Task.findAll({
       limit: rowsPerPage,
       offset: page * rowsPerPage,
-      attributes: ['id', 'dueTime', 'name', 'highPriority', 'status', 'requestTime'],
+      attributes: ['id', 'dueTime', 'name', 'highPriority', 'status', 'requestTime', 'taskType'],
       subQuery: false,
       ...baseQueryOptions,
     });

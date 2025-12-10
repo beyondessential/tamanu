@@ -23,7 +23,12 @@ e2e_test_setup_setup_central() {
             "verbose": true,
             "username": "tamanu",
             "password": "tamanu"
-        }
+        },
+        schedules: {
+            sendStatusToMetaServer: {
+                enabled: false,
+            },
+        },
     }
 EOF
 
@@ -46,9 +51,25 @@ EOF
             },
         },
 
+        settings: {
+            global: {
+                features: {
+                    deviceRegistrationQuota: {
+                        enabled: false,
+                    },
+                },
+            },
+        },
+
         referenceData: [
             {
                 url: 'https://bes-tamanu-dev-referencedata.s3.ap-southeast-2.amazonaws.com/referencedata/default.xlsx',
+            },
+        ],
+
+        programs: [
+            {
+                url: 'https://bes-tamanu-dev-referencedata.s3.ap-southeast-2.amazonaws.com/programs/vitals.xlsx',
             },
         ],
     }
@@ -75,8 +96,13 @@ e2e_test_setup_setup_facility() {
 	        "name": "facility",
 	        "username": "tamanu",
 	        "password": "tamanu"
-	    }
-	}
+        },
+        schedules: {
+            sendStatusToMetaServer: {
+                enabled: false,
+            },
+        },
+    }
 EOF
 
     npm run --workspace @tamanu/facility-server start upgrade

@@ -5,8 +5,14 @@ sources:
     description: "{{ doc('logs__generic__schema') }}"
     tables:
       - name: changes
-        description: '{{ doc("logs__table__changes") }}'
-        tags: []
+        description: "{{ doc('logs__table__changes') }}"
+        config:
+          tags: []
+          meta:
+            triggers:
+              - notify_changes_changed
+              - set_changes_updated_at
+              - set_changes_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid
@@ -45,8 +51,9 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: device_id
             data_type: text
             description: "{{ doc('logs__changes__device_id') }}"
@@ -80,8 +87,17 @@ sources:
             description: "{{ doc('logs__changes__record_data') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: empty
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('logs__generic__updated_at_sync_tick') }} in changes."
             data_tests:
               - not_null
+          - name: reason
+            data_type: text
+            description: "{{ doc('logs__changes__reason') }}"
+          - name: migration_context
+            data_type: text
+            description: "{{ doc('logs__changes__migration_context') }}"

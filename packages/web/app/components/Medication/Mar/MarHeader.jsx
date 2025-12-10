@@ -1,10 +1,11 @@
 import { addDays, subDays, format, isSameDay } from 'date-fns';
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight } from '@material-ui/icons';
-import { ButtonWithPermissionCheck, Heading3, TranslatedText } from '../..';
+import { ButtonWithPermissionCheck } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
+import { Heading3, TranslatedText } from '../..';
 import { IconButton } from '@material-ui/core';
 import styled from 'styled-components';
-import { Colors } from '../../../constants';
 import { useEncounter } from '../../../contexts/Encounter';
 import { ConditionalTooltip } from '../../Tooltip';
 import { MedicationModal } from '../MedicationModal';
@@ -61,6 +62,8 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
     isSameDay(addDays(new Date(), 2), selectedDate) ||
     isSameDay(new Date(encounter?.endDate), selectedDate);
 
+  const isEncounterDischarged = !!encounter?.endDate;
+
   return (
     <Wrapper>
       <MedicationModal
@@ -109,16 +112,27 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
       <ButtonWrapper>
         {canCreatePrescription && (
           <NoteModalActionBlocker>
-            <ButtonWithPermissionCheck
-              onClick={() => setCreateMedicationModalOpen(true)}
-              verb="create"
-              noun="Medication"
+            <ConditionalTooltip
+              visible={isEncounterDischarged}
+              title={
+                <TranslatedText
+                  stringId="medication.action.newPrescription.tooltip"
+                  fallback="A new prescription can't be created once an encounter has been discharged. Please add any ongoing medications via the patient-level Medications tab."
+                />
+              }
             >
-              <TranslatedText
-                stringId="medication.action.newPrescription"
-                fallback="New prescription"
-              />
-            </ButtonWithPermissionCheck>
+              <ButtonWithPermissionCheck
+                onClick={() => setCreateMedicationModalOpen(true)}
+                verb="create"
+                noun="Medication"
+                disabled={isEncounterDischarged}
+              >
+                <TranslatedText
+                  stringId="medication.action.newPrescription"
+                  fallback="New prescription"
+                />
+              </ButtonWithPermissionCheck>
+            </ConditionalTooltip>
           </NoteModalActionBlocker>
         )}
       </ButtonWrapper>

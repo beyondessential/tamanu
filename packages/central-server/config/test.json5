@@ -2,6 +2,9 @@
 {
   "db": {
     "name": "tamanu-central-test",
+    "pool": {
+      "acquire": 5000,
+    },
     "reportSchemas": {
       "enabled": false,
       "connections": {
@@ -108,7 +111,7 @@
           "Encounter": true,
           "Immunization": true,
           "Practitioner": true,
-          "MediciReport": false,
+          "MediciReport": true,
           "Specimen": true,
           "Organization": true
         }
@@ -117,6 +120,11 @@
     "omniLab": {
       "enabled": true,
       "secret": "YHNDrUGvl2A/QNxWvliek14B40DE9IF8VrdXV5x9kJE="
+    },
+    "dhis2": {
+      "enabled": true,
+      "username": "admin",
+      "password": "district"
     }
   },
   "notifications": {

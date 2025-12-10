@@ -1,25 +1,21 @@
 import React from 'react';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from '@tamanu/constants/labs';
 import * as yup from 'yup';
-
+import { TranslatedSelectField, Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
+import { FORM_TYPES } from '@tamanu/constants/forms';
 import {
   DateTimeField,
   Field,
-  Form,
-  FormGrid,
   FormModal,
-  FormSubmitCancelRow,
   SuggesterSelectField,
-  TranslatedSelectField,
 } from '../../../components';
-import { FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const validationSchema = yup.object().shape({
   status: yup
     .string()
     .oneOf(Object.values(LAB_REQUEST_STATUSES))
-    .required()
+    .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />)
     .translatedLabel(
       <TranslatedText
         stringId="general.status.label"
@@ -28,7 +24,7 @@ const validationSchema = yup.object().shape({
       />,
     ),
   sampleTime: yup.string().when('status', {
-    is: (status) => status !== LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
+    is: status => status !== LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
     then: yup
       .string()
       .translatedLabel(
@@ -46,7 +42,7 @@ const validationSchema = yup.object().shape({
 
 export const LabRequestChangeStatusModal = React.memo(
   ({ labRequest, updateLabReq, open, onClose }) => {
-    const updateLabStatus = async (formValues) => {
+    const updateLabStatus = async formValues => {
       await updateLabReq(formValues);
       onClose();
     };
@@ -65,7 +61,7 @@ export const LabRequestChangeStatusModal = React.memo(
           showInlineErrorsOnly
           formType={FORM_TYPES.EDIT_FORM}
           render={({ values, submitForm }) => {
-            const shouldIncludeOption = (option) =>
+            const shouldIncludeOption = option =>
               (![
                 LAB_REQUEST_STATUSES.DELETED,
                 LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
@@ -87,7 +83,7 @@ export const LabRequestChangeStatusModal = React.memo(
                   }
                   name="status"
                   enumValues={LAB_REQUEST_STATUS_LABELS}
-                  transformOptions={(options) => options.filter(shouldIncludeOption)}
+                  transformOptions={options => options.filter(shouldIncludeOption)}
                   component={TranslatedSelectField}
                   required
                   data-testid="field-ruix"

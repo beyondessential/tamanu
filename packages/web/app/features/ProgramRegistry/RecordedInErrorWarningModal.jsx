@@ -1,7 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Modal, ModalCancelRow, TranslatedText, getReferenceDataStringId } from '../../components';
+
+import { Modal, TranslatedText } from '@tamanu/ui-components';
+import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
+
+import { ModalCancelRow } from '../../components';
 import { useTranslation } from '../../contexts/Translation';
+
 
 const Text = styled.div`
   padding: 45px 0 60px;

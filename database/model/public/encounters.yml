@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: encounters
-        description: '{{ doc("table__encounters") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__encounters') }}"
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers:
+              - notify_encounters_changed
+              - record_encounters_changelog
+              - set_encounters_updated_at
+              - set_encounters_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -34,26 +41,36 @@ sources:
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - admission
-                    - clinic
-                    - imaging
-                    - emergency
-                    - observation
-                    - triage
-                    - surveyResponse
-                    - vaccination
+                  arguments:
+                    values:
+                      - admission
+                      - clinic
+                      - imaging
+                      - emergency
+                      - observation
+                      - triage
+                      - surveyResponse
+                      - vaccination
           - name: start_date
             data_type: character(19)
             description: "{{ doc('encounters__start_date') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: date
           - name: end_date
             data_type: character(19)
             description: "{{ doc('encounters__end_date') }}"
+            config:
+              meta:
+                masking: date
           - name: reason_for_encounter
             data_type: text
             description: "{{ doc('encounters__reason_for_encounter') }}"
+            config:
+              meta:
+                masking: text
           - name: device_id
             data_type: text
             description: "{{ doc('encounters__device_id') }}"
@@ -62,61 +79,77 @@ sources:
             description: "{{ doc('encounters__patient_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'patients')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'patients')
+                    field: id
           - name: examiner_id
             data_type: character varying(255)
             description: "{{ doc('encounters__examiner_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: location_id
             data_type: character varying(255)
             description: "{{ doc('encounters__location_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'locations')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'locations')
+                    field: id
           - name: department_id
             data_type: character varying(255)
             description: "{{ doc('encounters__department_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'departments')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'departments')
+                    field: id
           - name: patient_billing_type_id
             data_type: character varying(255)
             description: "{{ doc('encounters__patient_billing_type_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'patientBillingType'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'patientBillingType'
           - name: start_date_legacy
             data_type: timestamp with time zone
             description: "{{ doc('encounters__start_date_legacy') }}"
+            config:
+              meta:
+                masking: date
           - name: end_date_legacy
             data_type: timestamp with time zone
             description: "{{ doc('encounters__end_date_legacy') }}"
+            config:
+              meta:
+                masking: date
           - name: referral_source_id
             data_type: character varying(255)
             description: "{{ doc('encounters__referral_source_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'referralSource'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'referralSource'
           - name: planned_location_id
             data_type: character varying(255)
             description: "{{ doc('encounters__planned_location_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'locations')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'locations')
+                    field: id
           - name: planned_location_start_time
             data_type: character(19)
             description: "{{ doc('encounters__planned_location_start_time') }}"
+            config:
+              meta:
+                masking: datetime
           - name: discharge_draft
             data_type: jsonb
             description: "{{ doc('encounters__discharge_draft') }}"

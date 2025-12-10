@@ -2,13 +2,14 @@ import { DataTypes, Sequelize } from 'sequelize';
 import {
   IMAGING_REQUEST_STATUS_TYPES,
   IMAGING_TYPES_VALUES,
+  NOTE_RECORD_TYPES,
   NOTE_TYPES,
   NOTIFICATION_TYPES,
   SYNC_DIRECTIONS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { getNoteWithType } from '@tamanu/shared/utils/notes';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError } from '@tamanu/errors';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { Model } from './Model';
@@ -142,10 +143,29 @@ export class ImagingRequest extends Model {
     );
   }
 
+  async getNotes(options: any = {}) {
+    const { models } = this.sequelize;
+
+    return models.Note.findAll({
+      where: {
+        recordId: this.id,
+        recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
+        ...options.where,
+      },
+      include: [
+        {
+          model: models.ReferenceData,
+          as: 'noteTypeReference',
+        },
+        ...(options.include || []),
+      ],
+    });
+  }
+
   async extractNotes() {
     const notes =
       this.notes ||
-      (await (this as any).getNotes({
+      (await this.getNotes({
         where: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
       }));
     const extractWithType = async (type: string) => {
@@ -226,7 +246,7 @@ export class ImagingRequest extends Model {
     );
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return buildEncounterLinkedLookupFilter(this);
   }
 }

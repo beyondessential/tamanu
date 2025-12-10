@@ -4,20 +4,19 @@ import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 import { intersectionBy } from 'lodash';
-
-import { Table, useSelectableColumn } from '../../Table';
 import {
-  AutocompleteInput,
-  NumberInput,
   OuterLabelFieldWrapper,
   TextField,
   TextInput,
-} from '../../Field';
-import { ConfirmCancelRow } from '../../ButtonRow';
+  ConfirmCancelRow,
+} from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
+import { Table, useSelectableColumn } from '../../Table';
+import { AutocompleteInput, NumberInput } from '../../Field';
 import { DateDisplay } from '../../DateDisplay';
 import { useApi, useSuggester } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
-import { MAX_AGE_TO_RECORD_WEIGHT, Colors } from '../../../constants';
+import { MAX_AGE_TO_RECORD_WEIGHT } from '../../../constants';
 
 import { MultiplePrescriptionPrintoutModal } from './MultiplePrescriptionPrintoutModal';
 import { TranslatedText, TranslatedReferenceData } from '../../Translation';
@@ -103,12 +102,7 @@ const COLUMNS = [
     sortable: false,
     accessor: ({ repeats, onChange }) => (
       <Box width="89px">
-        <NumberInput
-          value={repeats}
-          onChange={onChange}
-          required
-          data-testid="selectinput-ld3p"
-        />
+        <NumberInput value={repeats} onChange={onChange} required data-testid="selectinput-ld3p" />
       </Box>
     ),
   },
@@ -148,6 +142,7 @@ const HorizontalDivider = styled(Divider)`
 `;
 
 export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onClose }) => {
+  const { ability, currentUser } = useAuth();
   const { getTranslation } = useTranslation();
   const weightUnit = getTranslation('general.localisedField.weightUnit.label', 'kg');
   const [openPrintoutModal, setOpenPrintoutModal] = useState(false);
@@ -160,23 +155,29 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
   const { data, error, isLoading } = useQuery(['encounterMedication', encounter.id], () =>
     api.get(`encounter/${encounter.id}/medications`),
   );
-  const defaultMedicationData = useMemo(() => data?.data.filter(m => !m.discontinued) || [], [
-    data,
-  ]);
+
+  const canWriteSensitiveMedication = ability.can('write', 'SensitiveMedication');
+  const defaultMedicationData = useMemo(
+    () =>
+      data?.data.filter(m => {
+        const isSensitive = m.medication?.referenceDrug?.isSensitive;
+        return !m.discontinued && (!isSensitive || canWriteSensitiveMedication);
+      }) || [],
+    [data, canWriteSensitiveMedication],
+  );
   const [medicationData, setMedicationData] = useState(defaultMedicationData);
 
   useEffect(() => {
     setMedicationData(defaultMedicationData);
   }, [defaultMedicationData]);
 
-  const { currentUser } = useAuth();
   const { selectedRows, selectableColumn } = useSelectableColumn(defaultMedicationData, {
     columnKey: COLUMN_KEYS.SELECTED,
     selectAllOnInit: true,
   });
 
   const patient = useSelector(state => state.patient);
-  const age = getAgeDurationFromDate(patient.dateOfBirth).years;
+  const age = getAgeDurationFromDate(patient.dateOfBirth)?.years ?? 0;
   const showPatientWeight = age < MAX_AGE_TO_RECORD_WEIGHT;
 
   useEffect(() => {

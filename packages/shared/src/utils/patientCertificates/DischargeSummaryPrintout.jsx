@@ -10,7 +10,7 @@ import { useLanguageContext, withLanguageContext } from '../pdf/languageContext'
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 import { Table } from './Table';
-import { getDose, getTranslatedFrequency } from '../medication';
+import { getMedicationDoseDisplay, getTranslatedFrequency } from '../medication';
 
 const borderStyle = '1 solid black';
 const tableLabelWidth = 150;
@@ -25,8 +25,8 @@ const generalStyles = StyleSheet.create({
   },
 });
 
-const TableContainer = (props) => <View style={generalStyles.tableContainer} {...props} />;
-const SectionContainer = (props) => <View style={generalStyles.sectionContainer} {...props} />;
+const TableContainer = props => <View style={generalStyles.tableContainer} {...props} />;
+const SectionContainer = props => <View style={generalStyles.sectionContainer} {...props} />;
 
 const infoBoxStyles = StyleSheet.create({
   row: {
@@ -43,20 +43,16 @@ const infoBoxStyles = StyleSheet.create({
     padding: tablePadding,
   },
   labelText: {
-    fontFamily: 'Helvetica-Bold',
     fontSize: 10,
-    fontWeight: 500,
   },
   infoText: {
-    fontFamily: 'Helvetica',
     fontSize: 10,
-    fontWeight: 400,
   },
 });
 
-const InfoBoxRow = (props) => <View style={infoBoxStyles.row} {...props} />;
-const InfoBoxLabelCol = (props) => <View style={infoBoxStyles.labelCol} {...props} />;
-const InfoBoxDataCol = (props) => <View style={infoBoxStyles.dataCol} {...props} />;
+const InfoBoxRow = props => <View style={infoBoxStyles.row} {...props} />;
+const InfoBoxLabelCol = props => <View style={infoBoxStyles.labelCol} {...props} />;
+const InfoBoxDataCol = props => <View style={infoBoxStyles.dataCol} {...props} />;
 
 const notesSectionStyles = StyleSheet.create({
   notesBox: {
@@ -64,39 +60,35 @@ const notesSectionStyles = StyleSheet.create({
     minHeight: 76,
     padding: 10,
   },
-  title: {
-    fontFamily: 'Helvetica-Bold',
-    marginBottom: 3,
-    fontSize: 11,
-    fontWeight: 500,
-  },
 });
 
-const extractOngoingConditions = (patientConditions) =>
-  patientConditions.map((item) => item?.diagnosis?.name);
+const extractOngoingConditions = patientConditions =>
+  patientConditions.map(item => item?.diagnosis?.name);
 
 const extractDiagnosesInfo = ({ diagnoses, getSetting }) => {
   const displayIcd10Codes = getSetting('features.displayIcd10CodesInDischargeSummary');
   if (!displayIcd10Codes) {
-    return diagnoses.map((item) => item?.diagnosis?.name);
+    return diagnoses.map(item => item?.diagnosis?.name);
   } else {
-    return diagnoses.map((item) => `${item?.diagnosis?.name} (${item?.diagnosis?.code})`);
+    return diagnoses.map(item => `${item?.diagnosis?.name} (${item?.diagnosis?.code})`);
   }
 };
 
 const extractProceduresInfo = ({ procedures, getSetting }) => {
   const displayProcedureCodes = getSetting('features.displayProcedureCodesInDischargeSummary');
   if (!displayProcedureCodes) {
-    return procedures.map((item) => item?.procedureType?.name);
+    return procedures.map(item => item?.procedureType?.name);
   } else {
-    return procedures.map((item) => `${item?.procedureType?.name} (${item?.procedureType?.code})`);
+    return procedures.map(item => `${item?.procedureType?.name} (${item?.procedureType?.code})`);
   }
 };
 
 const InfoBox = ({ label, info }) => (
   <InfoBoxRow>
     <InfoBoxLabelCol>
-      <Text style={infoBoxStyles.labelText}>{label}</Text>
+      <Text bold style={infoBoxStyles.labelText}>
+        {label}
+      </Text>
     </InfoBoxLabelCol>
     <InfoBoxDataCol>
       {info.map((item, index) => {
@@ -144,10 +136,10 @@ const columns = (getTranslation, getEnumTranslation) => [
   {
     key: 'dose',
     title: getTranslation('pdf.table.column.dose', 'Dose'),
-    accessor: (medication) => {
+    accessor: medication => {
       return (
         <Text>
-          {getDose(medication, getTranslation, getEnumTranslation)}
+          {getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation)}
           {medication?.isPrn && ` ${getTranslation('medication.table.prn', 'PRN')}`}
         </Text>
       );
@@ -190,15 +182,18 @@ const DischargeSummaryPrintoutComponent = ({
   const { diagnoses, procedures, medications } = encounter;
 
   const visibleMedications = medications
-    .filter((m) => m.encounterPrescription?.isSelectedForDischarge)
+    .filter(
+      m =>
+        m.encounterPrescription?.isSelectedForDischarge && !m.medication.referenceDrug.isSensitive,
+    )
     .sort((a, b) => a.medication.name.localeCompare(b.medication.name));
   const visibleDiagnoses = diagnoses.filter(
     ({ certainty }) => !DIAGNOSIS_CERTAINTIES_TO_HIDE.includes(certainty),
   );
-  const primaryDiagnoses = visibleDiagnoses.filter((d) => d.isPrimary);
-  const secondaryDiagnoses = visibleDiagnoses.filter((d) => !d.isPrimary);
+  const primaryDiagnoses = visibleDiagnoses.filter(d => d.isPrimary);
+  const secondaryDiagnoses = visibleDiagnoses.filter(d => !d.isPrimary);
   const notes = discharge?.note;
-  const { facilityName, facilityAddress, facilityTown } = discharge;
+  const { name: facilityName, address: facilityAddress, town: facilityTown } = discharge.address;
 
   // change header if facility details are present in discharge
   if (facilityName && facilityAddress && certificateData?.title) {
@@ -220,7 +215,11 @@ const DischargeSummaryPrintoutComponent = ({
           />
         </CertificateHeader>
         <SectionContainer>
-          <PatientDetailsWithAddress patient={patientData} getLocalisation={getLocalisation} />
+          <PatientDetailsWithAddress
+            patient={patientData}
+            getLocalisation={getLocalisation}
+            getSetting={getSetting}
+          />
         </SectionContainer>
         <SectionContainer>
           <EncounterDetailsExtended encounter={encounter} discharge={discharge} />

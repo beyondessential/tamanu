@@ -1,4 +1,5 @@
-import { settingsCache } from '@tamanu/settings';
+import { ReadSettings, settingsCache } from '@tamanu/settings';
+import { fake } from '@tamanu/fake-data/fake';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { createSetting } from './settingsUtils';
@@ -13,11 +14,6 @@ const mockCentralSettings = {
     to: {
       'central-file': 'file-central-value',
     },
-  },
-  honeycomb: {
-    enabled: true,
-    sampleRate: 100, // 100 = 1/100 = 1% of traces get sent to honeycomb
-    // in contrast, logs are always sent
   },
 };
 
@@ -76,8 +72,8 @@ describe('Read Settings', () => {
   });
 
   it('Should read value from central file', async () => {
-    const value = await settings.get('honeycomb.sampleRate');
-    expect(value).toEqual(100);
+    const value = await settings.get('log.consoleLevel');
+    expect(value).toEqual('http');
   });
 
   it('Should read value from global file', async () => {
@@ -105,5 +101,24 @@ describe('Read Settings', () => {
 
     const centralFileValue = await settings.get('specific.to.central-file');
     expect(centralFileValue).toEqual('file-central-value');
+  });
+
+  it('Get settings from the correct cache', async () => {
+    const { id: facilityA } = await models.Facility.create(fake(models.Facility));
+
+    await models.Setting.set(
+      'survey.defaultCodes.location',
+      'Facility1Clinic',
+      SETTINGS_SCOPES.FACILITY,
+      facilityA,
+    );
+
+    const settingsReaderA = new ReadSettings(models, facilityA);
+
+    const contextSettingValue = await settings.get('survey.defaultCodes.location');
+    const readerAValue = await settingsReaderA.get('survey.defaultCodes.location');
+
+    expect(contextSettingValue).toEqual('GeneralClinic');
+    expect(readerAValue).toEqual('Facility1Clinic');
   });
 });

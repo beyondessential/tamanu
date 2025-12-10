@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { format } from 'date-fns';
 import { log } from '@tamanu/shared/services/logging';
-import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
+import { ForbiddenError, NotFoundError } from '@tamanu/errors';
 import { loadCertificateIntoSigner } from './Crypto';
 
 export const routes = express.Router();

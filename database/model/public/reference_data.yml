@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: reference_data
-        description: '{{ doc("table__reference_data") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__reference_data') }}"
+        config:
+          tags:
+            - reference
+          meta:
+            triggers:
+              - notify_reference_data_changed
+              - record_reference_data_changelog
+              - set_reference_data_updated_at
+              - set_reference_data_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -49,5 +56,10 @@ sources:
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in reference_data."
+            data_tests:
+              - not_null
+          - name: system_required
+            data_type: boolean
+            description: "{{ doc('reference_data__system_required') }}"
             data_tests:
               - not_null

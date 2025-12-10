@@ -1,0 +1,36 @@
+{
+  "background_color": "#FFFFFF",
+  "description": "Tamanu is a free and open-source EHR for low resource and remote settings.",
+  "display": "standalone",
+  "icons": [
+    {
+      "purpose": "any",
+      "sizes": "192x192",
+      "src": "/shared/tamanu-icons/manifest-icon-192.maskable.png",
+      "type": "image/png"
+    },
+    {
+      "purpose": "maskable",
+      "sizes": "192x192",
+      "src": "/shared/tamanu-icons/manifest-icon-192.maskable.png",
+      "type": "image/png"
+    },
+    {
+      "purpose": "any",
+      "sizes": "512x512",
+      "src": "/shared/tamanu-icons/manifest-icon-512.maskable.png",
+      "type": "image/png"
+    },
+    {
+      "purpose": "maskable",
+      "sizes": "512x512",
+      "src": "/shared/tamanu-icons/manifest-icon-512.maskable.png",
+      "type": "image/png"
+    }
+  ],
+  "name": "Tamanu",
+  "scope": "/",
+  "short_name": "Tamanu",
+  "start_url": "/",
+  "theme_color": "#326699"
+}

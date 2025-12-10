@@ -18,6 +18,9 @@ export interface NumberFieldProps extends BaseInputProps {
   autoFocus?: boolean;
   onFocus?: () => void;
   onBlur?: () => void;
+  labelColor?: string;
+  labelFontSize?: string | number;
+  fieldFontSize?: string | number;
 }
 
 export const NumberField = (props: NumberFieldProps): JSX.Element => {
@@ -33,7 +36,10 @@ export const NumberField = (props: NumberFieldProps): JSX.Element => {
     onBlur,
     label,
     error,
-    required
+    required,
+    labelColor,
+    labelFontSize,
+    fieldFontSize,
   } = props;
   const [number, setNumber] = useState(undefined);
   const onChangeNumber = (newNumber: string): void => {
@@ -76,6 +82,9 @@ export const NumberField = (props: NumberFieldProps): JSX.Element => {
       value={number === undefined || number === null ? '' : number.toString()}
       onChange={onChangeNumber}
       keyboardType="numeric"
+      labelFontSize={labelFontSize}
+      labelColor={labelColor}
+      fieldFontSize={fieldFontSize}
     />
   );
 };

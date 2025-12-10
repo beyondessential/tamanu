@@ -2,14 +2,13 @@ import React from 'react';
 import styled from 'styled-components';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { Typography } from '@material-ui/core';
-import {
-  Modal,
-  ModalCancelRow,
-  TranslatedText,
-  getReferenceDataStringId,
-} from '../../components/index.js';
+
+import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
+
+import { ModalCancelRow } from '../../components/index.js';
 import { useApi } from '../../api/index.js';
-import { Colors } from '../../constants/index.js';
+import { Modal, TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections.jsx';
 import { useTranslation } from '../../contexts/Translation.jsx';
 

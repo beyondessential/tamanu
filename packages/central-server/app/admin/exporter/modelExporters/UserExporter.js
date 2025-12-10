@@ -7,14 +7,14 @@ export class UserExporter extends ModelExporter {
       include: this.models.User.getFullReferenceAssociations(),
     });
 
-    return users.map(user => ({
+    return users.map((user) => ({
       ...user.dataValues,
-      designations: user.designations.map(it => it.referenceData.id).join(', '),
+      designations: user.designations.map((it) => it.referenceData.id).join(', '),
       allowedFacilities: user.facilities.map(({ id }) => id).join(','),
     }));
   }
 
   customHiddenColumns() {
-    return ['type', 'allowedFacilities'];
+    return ['type', 'facilities'];
   }
 }

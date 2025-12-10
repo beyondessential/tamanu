@@ -2,9 +2,7 @@ import { DataTypes } from 'sequelize';
 
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
 import { FhirResource } from './Resource';
-import {
-  FhirReference,
-} from '@tamanu/shared/services/fhirTypes';
+import { FhirReference } from '@tamanu/shared/services/fhirTypes';
 import {
   getQueryOptions,
   getValues,
@@ -19,7 +17,7 @@ export class FhirEncounter extends FhirResource {
   declare class?: Record<string, any>;
   declare subject?: Record<string, any>;
   declare actualPeriod?: Record<string, any>;
-  declare ocation?: Record<string, any>;
+  declare location?: Record<string, any>;
   declare serviceProvider?: Record<string, any>;
 
   static initModel(options: InitOptions, models: Models) {
@@ -46,6 +44,7 @@ export class FhirEncounter extends FhirResource {
       models.Location,
       models.LocationGroup,
     ];
+    this.referencedResources = [models.FhirPatient, models.FhirOrganization];
   }
 
   static CAN_DO = new Set([

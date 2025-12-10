@@ -2,11 +2,7 @@ import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
 import { keyBy } from 'lodash';
 import { NON_ANSWERABLE_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
-import {
-  generateReportFromQueryData,
-  getAnswerBody,
-  getAutocompleteComponentMap,
-} from './utilities';
+import { generateReportFromQueryData, getAnswerBody } from './utilities';
 
 // This is a stable UUID that is used by test patients in production
 const TEST_PATIENT_UUID = 'h1627394-3778-4c31-a510-9fcb88efdbf3';
@@ -132,12 +128,7 @@ const getReportColumnTemplate = components => {
   ];
 };
 
-export const transformSingleResponse = async (
-  models,
-  result,
-  autocompleteComponentMap,
-  dataElementIdToComponent,
-) => {
+export const transformSingleResponse = async (models, result, dataElementIdToComponent) => {
   const answers = result.answers || {};
   const newAnswers = {};
 
@@ -147,12 +138,13 @@ export const transformSingleResponse = async (
         newAnswers[key] = body;
       } else {
         const dataElementId = key;
-        const type =
-          dataElementIdToComponent[dataElementId]?.dataElement?.dataValues?.type || 'unknown';
-        const componentConfig = autocompleteComponentMap.get(dataElementId);
-        newAnswers[key] = await getAnswerBody(models, componentConfig, type, body, {
+        const surveyComponent = dataElementIdToComponent[dataElementId];
+        const type = surveyComponent?.dataElement?.dataValues?.type;
+        const componentConfig = surveyComponent?.config;
+        const { body: answerBody } = await getAnswerBody(models, componentConfig, type, body, {
           dateFormat: 'yyyy-MM-dd',
         });
+        newAnswers[key] = answerBody;
       }
     }),
   );
@@ -164,7 +156,6 @@ export const transformSingleResponse = async (
 };
 
 export const transformAllResponses = async (models, results, surveyComponents) => {
-  const autocompleteComponentMap = await getAutocompleteComponentMap(models, surveyComponents);
   const dataElementIdToComponent = keyBy(surveyComponents, component => component.dataElementId);
 
   const transformedResults = [];
@@ -173,7 +164,6 @@ export const transformAllResponses = async (models, results, surveyComponents) =
     const transformedResult = await transformSingleResponse(
       models,
       result,
-      autocompleteComponentMap,
       dataElementIdToComponent,
     );
     transformedResults.push(transformedResult);

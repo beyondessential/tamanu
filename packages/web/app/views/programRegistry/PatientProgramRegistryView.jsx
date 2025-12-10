@@ -1,7 +1,9 @@
-import React, { Fragment } from 'react';
-import { useParams } from 'react-router-dom';
+import React from 'react';
+import { useParams } from 'react-router';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
+import { TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
 import { Colors } from '../../constants';
 import { DisplayPatientRegDetails } from './DisplayPatientRegDetails';
 import { ProgramRegistryStatusHistory } from './ProgramRegistryStatusHistory';
@@ -11,9 +13,7 @@ import { PatientProgramRegistrationSelectSurvey } from './PatientProgramRegistra
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ConditionSection } from './ConditionSection';
 import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
-import { TranslatedReferenceData, TranslatedText } from '../../components';
-import { PatientNavigation } from '../../components/PatientNavigation';
-import { usePatientRoutes } from '../../routes/PatientRoutes';
+import { ProgramRegistryChartsView } from './ProgramRegistryChartsView';
 
 const ViewHeader = styled.div`
   background-color: ${Colors.white};
@@ -65,12 +65,11 @@ const Grid = styled.div`
 
 export const PatientProgramRegistryView = () => {
   const { patientId, programRegistryId } = useParams();
+  const patient = useSelector(state => state.patient);
   const { data, isLoading, isError, isFetching } = usePatientProgramRegistrationQuery(
     patientId,
     programRegistryId,
   );
-
-  const patientRoutes = usePatientRoutes();
 
   if (isLoading || isFetching) {
     return <LoadingIndicator />;
@@ -89,7 +88,6 @@ export const PatientProgramRegistryView = () => {
 
   return (
     <>
-      <PatientNavigation patientRoutes={patientRoutes} />
       <ViewHeader>
         <h1>
           <TranslatedReferenceData
@@ -120,6 +118,15 @@ export const PatientProgramRegistryView = () => {
         <Row>
           <PatientProgramRegistryFormHistory patientProgramRegistration={data} />
         </Row>
+        {patient && (
+          <Row>
+            <ProgramRegistryChartsView
+              programRegistryId={programRegistryId}
+              patient={patient}
+              patientProgramRegistration={data}
+            />
+          </Row>
+        )}
       </Container>
     </>
   );

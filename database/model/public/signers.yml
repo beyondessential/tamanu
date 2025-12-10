@@ -5,9 +5,12 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: signers
-        description: '{{ doc("table__signers") }}'
-        tags:
-          - system
+        description: "{{ doc('table__signers') }}"
+        config:
+          tags:
+            - system
+          meta:
+            triggers: []
         columns:
           - name: id
             data_type: character varying(255)
@@ -36,19 +39,31 @@ sources:
           - name: private_key
             data_type: bytea
             description: "{{ doc('signers__private_key') }}"
+            config:
+              meta:
+                masking: zero
           - name: public_key
             data_type: bytea
             description: "{{ doc('signers__public_key') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: zero
           - name: request
             data_type: text
             description: "{{ doc('signers__request') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: empty
           - name: certificate
             data_type: text
             description: "{{ doc('signers__certificate') }}"
+            config:
+              meta:
+                masking: empty
           - name: validity_period_start
             data_type: timestamp with time zone
             description: "{{ doc('signers__validity_period_start') }}"

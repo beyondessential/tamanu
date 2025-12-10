@@ -2,8 +2,8 @@ import { startOfToday } from 'date-fns';
 import React from 'react';
 
 import { toDateString } from '@tamanu/utils/dateTime';
+import { Form } from '@tamanu/ui-components';
 
-import { Form } from '../../app/components';
 import { TimeSlotPicker } from '../../app/components/Appointments/LocationBookingForm/DateTimeRangeField/TimeSlotPicker';
 import { MockSettingsProvider } from '../utils/mockSettingsProvider';
 import { MockedApi } from '../utils/mockedApi';

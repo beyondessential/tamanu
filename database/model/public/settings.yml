@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: settings
-        description: '{{ doc("table__settings") }}'
-        tags:
-          - system
+        description: "{{ doc('table__settings') }}"
+        config:
+          tags:
+            - system
+          meta:
+            triggers:
+              - notify_settings_changed
+              - record_settings_changelog
+              - set_settings_updated_at
+              - set_settings_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid
@@ -41,8 +48,9 @@ sources:
             description: "{{ doc('settings__facility_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'facilities')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'facilities')
+                    field: id
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in settings."
@@ -54,7 +62,8 @@ sources:
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - global
-                    - central
-                    - facility
+                  arguments:
+                    values:
+                      - global
+                      - central
+                      - facility

@@ -9,6 +9,8 @@ import '../matchers';
 // the importer can take a little while
 jest.setTimeout(30000);
 
+const TEST_USER_ID = 'users-test';
+
 describe('User import', () => {
   let ctx;
   let models;
@@ -62,7 +64,7 @@ describe('User import', () => {
     it('succeeds with update an existing current user with valid historical visibility status', async () => {
       const { id: userId } = await models.User.create({
         ...fake(models.User),
-        id: 'users-test',
+        id: TEST_USER_ID,
         email: 'test@bes.au',
         displayName: 'Test Test',
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
@@ -94,6 +96,54 @@ describe('User import', () => {
         2,
         'visibilityStatus must be one of the following values: current, historical',
       );
+    });
+  });
+
+  describe('Device Registration Quota Import', () => {
+    beforeEach(async () => {
+      await models.User.destroy({ where: { id: TEST_USER_ID }, force: true });
+    });
+
+    it('succeeds creating a new user with valid device registration quota', async () => {
+      const { errors, stats } = await doImport({
+        file: 'user-device-registration-quota-create',
+        dryRun: false,
+      });
+
+      expect(errors).toBeEmpty();
+      expect(stats).toEqual({
+        User: { created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 },
+      });
+
+      const user = await models.User.findByPk(TEST_USER_ID);
+      expect(user.deviceRegistrationQuota).toEqual(1);
+    });
+
+    it('succeeds updating an existing user with valid device registration quota', async () => {
+      await models.User.create({
+        ...fake(models.User),
+        id: TEST_USER_ID,
+        email: 'test@bes.au',
+        displayName: 'Test Test',
+        deviceRegistrationQuota: 0,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      });
+
+      const user = await models.User.findByPk(TEST_USER_ID);
+      expect(user.deviceRegistrationQuota).toEqual(0);
+
+      const { errors, stats } = await doImport({
+        file: 'user-device-registration-quota-update',
+        dryRun: false,
+      });
+
+      expect(errors).toBeEmpty();
+      expect(stats).toEqual({
+        User: { created: 0, updated: 1, errored: 0, deleted: 0, restored: 0, skipped: 0 },
+      });
+
+      await user.reload();
+      expect(user.deviceRegistrationQuota).toEqual(2);
     });
   });
 });

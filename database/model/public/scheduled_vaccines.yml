@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: scheduled_vaccines
-        description: '{{ doc("table__scheduled_vaccines") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__scheduled_vaccines') }}"
+        config:
+          tags:
+            - reference
+          meta:
+            triggers:
+              - notify_scheduled_vaccines_changed
+              - record_scheduled_vaccines_changelog
+              - set_scheduled_vaccines_updated_at
+              - set_scheduled_vaccines_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -33,11 +40,12 @@ sources:
             description: "{{ doc('scheduled_vaccines__category') }}"
             data_tests:
               - accepted_values:
-                  values:
-                    - Campaign
-                    - Catchup
-                    - Other
-                    - Routine
+                  arguments:
+                    values:
+                      - Campaign
+                      - Catchup
+                      - Other
+                      - Routine
           - name: label
             data_type: character varying(255)
             description: "{{ doc('scheduled_vaccines__label') }}"

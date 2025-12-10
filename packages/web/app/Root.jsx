@@ -2,8 +2,6 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { ConnectedRouter } from 'connected-react-router';
-import PropTypes from 'prop-types';
 import { CssBaseline } from '@material-ui/core';
 import { ThemeProvider } from 'styled-components';
 import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
@@ -11,10 +9,12 @@ import MuiLatestThemeProvider from '@mui/material/styles/ThemeProvider';
 import { LocalizationProvider as MuiLocalisationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Slide } from 'react-toastify';
-import { ApiContext } from './api';
+import { ApiContext, CustomToastContainer } from '@tamanu/ui-components';
 import { RoutingApp } from './RoutingApp';
-import { theme, GlobalStyles } from './theme';
+import { theme } from './theme';
+import { GlobalStyles } from './constants';
 import { EncounterProvider } from './contexts/Encounter';
+import { AuthProvider } from './contexts/Auth';
 import { LabRequestProvider } from './contexts/LabRequest';
 import { ImagingRequestsProvider } from './contexts/ImagingRequests';
 import { PatientSearchProvider } from './contexts/PatientSearch';
@@ -24,9 +24,9 @@ import { ProgramRegistryProvider } from './contexts/ProgramRegistry';
 import { TranslationProvider } from './contexts/Translation';
 import { LocalisationProvider } from './contexts/Localisation';
 import { SettingsProvider } from './contexts/Settings';
-import { CustomToastContainer } from './customToastContainer';
 import { ClearIcon } from './components/Icons/ClearIcon';
 import { NoteModalProvider } from './contexts/NoteModal';
+import { createBrowserRouter, RouterProvider } from 'react-router';
 
 const StateContextProviders = ({ children, store }) => (
   <EncounterProvider store={store}>
@@ -39,7 +39,9 @@ const StateContextProviders = ({ children, store }) => (
                 <SyncStateProvider>
                   <TranslationProvider>
                     <LocalisationProvider store={store}>
-                      <NoteModalProvider>{children}</NoteModalProvider>
+                      <AuthProvider>
+                        <NoteModalProvider>{children}</NoteModalProvider>
+                      </AuthProvider>
                     </LocalisationProvider>
                   </TranslationProvider>
                 </SyncStateProvider>
@@ -61,51 +63,63 @@ const queryClient = new QueryClient({
   },
 });
 
-function Root({ api, store, history }) {
+function RootContent({ store }) {
+  return (
+    <StylesProvider injectFirst>
+      <MuiLatestThemeProvider theme={theme}>
+        <MuiThemeProvider theme={theme}>
+          <ThemeProvider theme={theme}>
+            <MuiLocalisationProvider dateAdapter={AdapterDateFns}>
+              <StateContextProviders store={store}>
+                <ReactQueryDevtools initialIsOpen={false} />
+                <GlobalStyles />
+                <CustomToastContainer
+                  hideProgressBar
+                  transition={Slide}
+                  closeOnClick
+                  pauseOnFocusLoss
+                  draggable
+                  pauseOnHover
+                  theme="colored"
+                  icon={false}
+                  limit={5}
+                  closeButton={<ClearIcon />}
+                />
+                <CssBaseline />
+                <RoutingApp />
+              </StateContextProviders>
+            </MuiLocalisationProvider>
+          </ThemeProvider>
+        </MuiThemeProvider>
+      </MuiLatestThemeProvider>
+    </StylesProvider>
+  );
+}
+
+function Root({ api, store }) {
+  // We need to use the createBrowserRouter function to create the router in data mode
+  // for the notes blocking feature @see https://reactrouter.com/start/modes
+  const router = React.useMemo(
+    () =>
+      createBrowserRouter([
+        {
+          path: '*',
+          element: <RootContent store={store} />,
+        },
+      ]),
+    [store],
+  );
+
   return (
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
         <ApiContext.Provider value={api}>
-          <ConnectedRouter history={history}>
-            <StylesProvider injectFirst>
-              <MuiLatestThemeProvider theme={theme}>
-                <MuiThemeProvider theme={theme}>
-                  <ThemeProvider theme={theme}>
-                    <MuiLocalisationProvider dateAdapter={AdapterDateFns}>
-                      <StateContextProviders store={store}>
-                        <ReactQueryDevtools initialIsOpen={false} />
-                        <GlobalStyles />
-                        <CustomToastContainer
-                          hideProgressBar
-                          transition={Slide}
-                          closeOnClick
-                          pauseOnFocusLoss
-                          draggable
-                          pauseOnHover
-                          theme="colored"
-                          icon={false}
-                          limit={5}
-                          closeButton={<ClearIcon />}
-                        />
-                        <CssBaseline />
-                        <RoutingApp />
-                      </StateContextProviders>
-                    </MuiLocalisationProvider>
-                  </ThemeProvider>
-                </MuiThemeProvider>
-              </MuiLatestThemeProvider>
-            </StylesProvider>
-          </ConnectedRouter>
+          <RouterProvider router={router} />
         </ApiContext.Provider>
       </Provider>
     </QueryClientProvider>
   );
 }
-
-Root.propTypes = {
-  store: PropTypes.instanceOf(Object).isRequired,
-  history: PropTypes.instanceOf(Object).isRequired,
-};
 
 export function renderRootInto(root, props) {
   root.render(<Root {...props} />);

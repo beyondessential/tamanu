@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { getNormalRangeByAge } from '@tamanu/ui-components';
 import {
   PROGRAM_DATA_ELEMENT_TYPES,
   VISIBILITY_STATUSES,
@@ -9,6 +10,7 @@ import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
 import { formatShortest, formatTimeWithSeconds } from '@tamanu/utils/dateTime';
 import { Box, CircularProgress, IconButton as IconButtonComponent } from '@material-ui/core';
 import {
+  DateBodyCell,
   DateHeadCell,
   LimitedLinesCell,
   RangeTooltipCell,
@@ -17,25 +19,36 @@ import {
 import { DateDisplay } from './DateDisplay';
 import { VitalVectorIcon } from './Icons/VitalVectorIcon';
 import { useVitalChartData } from '../contexts/VitalChartData';
-import { getNormalRangeByAge } from '../utils';
 import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useChartData } from '../contexts/ChartData';
+import { ViewPhotoLink } from './ViewPhotoLink';
 
-const getExportOverrideTitle = (date) => {
-  const shortestDate = DateDisplay.stringFormat(date, formatShortest);
-  const timeWithSeconds = DateDisplay.stringFormat(date, formatTimeWithSeconds);
-  return `${shortestDate} ${timeWithSeconds}`;
-};
 const IconButton = styled(IconButtonComponent)`
   padding: 9px 5px;
 `;
 
-const VitalsLimitedLinesCell = ({ value }) => (
+const getExportOverrideTitle = date => {
+  const shortestDate = DateDisplay.stringFormat(date, formatShortest);
+  const timeWithSeconds = DateDisplay.stringFormat(date, formatTimeWithSeconds);
+  return `${shortestDate} ${timeWithSeconds}`;
+};
+
+const parseMultiselectValue = value => {
+  if (!value) return;
+  try {
+    return JSON.parse(value).join(', ');
+  } catch (e) {
+    return value;
+  }
+};
+
+const VitalsLimitedLinesCell = ({ value, isEdited }) => (
   <LimitedLinesCell
     value={value}
     maxWidth="75px"
     maxLines={2}
+    isEdited={isEdited}
     data-testid="limitedlinescell-r6w3"
   />
 );
@@ -92,7 +105,7 @@ const MeasureCell = React.memo(({ value, data }) => {
   );
 });
 
-const TitleCell = React.memo(({ value }) => {
+const TitleCell = React.memo(({ value, selectedChartSurveyName }) => {
   const {
     allGraphedChartKeys,
     setChartKeys,
@@ -115,7 +128,7 @@ const TitleCell = React.memo(({ value }) => {
 
     chartKeys = ['select-all', ''].includes(graphFilter)
       ? allGraphedChartKeys
-      : graphFilter.split(',').filter((key) => allGraphedChartKeys.includes(key));
+      : graphFilter.split(',').filter(key => allGraphedChartKeys.includes(key));
   }
 
   return (
@@ -128,36 +141,85 @@ const TitleCell = React.memo(({ value }) => {
     >
       {value}
       {isSuccess && allGraphedChartKeys.length > 1 && (
-          <IconButton
-            size="small"
-            onClick={() => {
-              setChartKeys(chartKeys);
-              setIsInMultiChartsView(true);
-              setModalTitle('Vitals');
-              setVitalChartModalOpen(true);
-            }}
-            data-testid="iconbutton-u6iz"
-          >
-            <VitalVectorIcon data-testid="vitalvectoricon-qhwu"/>
-          </IconButton>
-        )}
+        <IconButton
+          size="small"
+          onClick={() => {
+            setChartKeys(chartKeys);
+            setIsInMultiChartsView(true);
+            setModalTitle(selectedChartSurveyName);
+            setVitalChartModalOpen(true);
+          }}
+          data-testid="iconbutton-u6iz"
+        >
+          <VitalVectorIcon data-testid="vitalvectoricon-qhwu" />
+        </IconButton>
+      )}
       {isLoading && <CircularProgress size={14} data-testid="circularprogress-wtcr" />}
     </Box>
   );
 });
 
+const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled, chartTitle) => {
+  return cells => {
+    const { answerId, value, config, validationCriteria, historyLogs, component } = cells[date];
+    const isCalculatedQuestion =
+      component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED;
+    const isMultiSelect = component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
+    const isPhoto = component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO;
+    const handleCellClick = () => {
+      onCellClick(cells[date]);
+    };
+    const isCurrent = component.visibilityStatus === VISIBILITY_STATUSES.CURRENT;
+    const isValid = isCurrent ? true : Boolean(value);
+    const shouldBeClickable = isEditEnabled && !isCalculatedQuestion && !isPhoto && isValid;
+
+    if (isPhoto && value) {
+      return (
+        <ViewPhotoLink
+          answerId={answerId}
+          surveyId={component.surveyId}
+          imageId={value}
+          data-testid="viewphotolink-chrt"
+          chartTitle={chartTitle}
+        />
+      );
+    }
+
+    if (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME && value) {
+      return <DateBodyCell value={value} onClick={shouldBeClickable ? handleCellClick : null} />;
+    }
+
+    return (
+      <RangeValidatedCell
+        value={isMultiSelect ? parseMultiselectValue(value) : value}
+        config={config}
+        validationCriteria={{ normalRange: getNormalRangeByAge(validationCriteria, patient) }}
+        isEdited={historyLogs.length > 1}
+        onClick={shouldBeClickable ? handleCellClick : null}
+        ValueWrapper={VitalsLimitedLinesCell}
+        data-testid={`rangevalidatedcell-${date}`}
+      />
+    );
+  };
+};
+
 export const getChartsTableColumns = (
-  firstColKey,
-  firstColTitle,
+  selectedChartSurveyName,
   patient,
   recordedDates,
   onCellClick,
-  isEditEnabled = true,
+  isEditEnabled = false,
 ) => {
   return [
     {
-      key: firstColKey,
-      title: firstColTitle,
+      key: 'measure',
+      title: (
+        <TranslatedText
+          stringId="general.table.column.measure"
+          fallback="Measure"
+          data-testid="translatedtext-l9f5"
+        />
+      ),
       sortable: false,
       accessor: ({ value, config, validationCriteria }) => (
         <RangeTooltipCell
@@ -168,37 +230,24 @@ export const getChartsTableColumns = (
         />
       ),
       CellComponent: MeasureCell,
-      TitleCellComponent: TitleCell,
+      TitleCellComponent: ({ value }) => (
+        <TitleCell value={value} selectedChartSurveyName={selectedChartSurveyName} />
+      ),
     },
     // create a column for each reading
     ...recordedDates
       .sort((a, b) => b.localeCompare(a))
-      .map((date) => ({
+      .map(date => ({
         title: <DateHeadCell value={date} data-testid={`dateheadcell-${date}`} />,
         sortable: false,
         key: date,
-        accessor: (cells) => {
-          const { value, config, validationCriteria, historyLogs, component } = cells[date];
-          const isCalculatedQuestion =
-            component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED;
-          const handleCellClick = () => {
-            onCellClick(cells[date]);
-          };
-          const isCurrent = component.visibilityStatus === VISIBILITY_STATUSES.CURRENT;
-          const isValid = isCurrent ? true : Boolean(value);
-          const shouldBeClickable = isEditEnabled && isCalculatedQuestion === false && isValid;
-          return (
-            <RangeValidatedCell
-              value={value}
-              config={config}
-              validationCriteria={{ normalRange: getNormalRangeByAge(validationCriteria, patient) }}
-              isEdited={historyLogs.length > 1}
-              onClick={shouldBeClickable ? handleCellClick : null}
-              ValueWrapper={VitalsLimitedLinesCell}
-              data-testid={`rangevalidatedcell-${date}`}
-            />
-          );
-        },
+        accessor: getRecordedDateAccessor(
+          date,
+          patient,
+          onCellClick,
+          isEditEnabled,
+          selectedChartSurveyName,
+        ),
         exportOverrides: {
           title: getExportOverrideTitle(date),
         },
@@ -208,12 +257,7 @@ export const getChartsTableColumns = (
 
 export const getVitalsTableColumns = (patient, recordedDates, onCellClick, isEditEnabled) => {
   return getChartsTableColumns(
-    'measure',
-    <TranslatedText
-      stringId="encounter.vitals.table.column.measure"
-      fallback="Measure"
-      data-testid="translatedtext-l9f5"
-    />,
+    <TranslatedText stringId="patient.vitals.title" fallback="Vitals" />,
     patient,
     recordedDates,
     onCellClick,

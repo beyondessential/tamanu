@@ -3,14 +3,15 @@ import styled from 'styled-components';
 import Collapse from '@material-ui/core/Collapse';
 import Button from '@material-ui/core/Button';
 
-import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
+import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES, FORM_TYPES } from '@tamanu/constants';
+import { Form } from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
 
-import { Field, Form } from '../components/Field';
+import { Field } from '../components/Field';
 import { IdField } from '../components/Field/IdField';
 import { ModalFormActionRow } from '../components/ModalActionRow';
 import { RadioField } from '../components';
 import { IdBanner } from '../components/IdBanner';
-import { Colors, FORM_TYPES } from '../constants';
 import { getPatientDetailsValidation } from '../validations';
 
 import { LoadingIndicator } from '../components/LoadingIndicator';
@@ -211,7 +212,7 @@ export const NewPatientForm = memo(
           confirmText={
             <TranslatedText
               stringId="patient.register.action.createNewPatient"
-              fallback="Add new patient"
+              fallback="Create new patient"
               data-testid="translatedtext-add-new-patient"
             />
           }

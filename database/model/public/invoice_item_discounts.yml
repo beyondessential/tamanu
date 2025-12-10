@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: invoice_item_discounts
-        description: '{{ doc("table__invoice_item_discounts") }}'
-        tags:
-          - administration
+        description: "{{ doc('table__invoice_item_discounts') }}"
+        config:
+          tags:
+            - administration
+          meta:
+            triggers:
+              - notify_invoice_item_discounts_changed
+              - record_invoice_item_discounts_changelog
+              - set_invoice_item_discounts_updated_at
+              - set_invoice_item_discounts_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid
@@ -21,16 +28,23 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'invoice_items')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'invoice_items')
+                    field: id
           - name: amount
             data_type: numeric
             description: "{{ doc('invoice_item_discounts__amount') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: money
           - name: reason
             data_type: character varying(255)
             description: "{{ doc('invoice_item_discounts__reason') }}"
+            config:
+              meta:
+                masking: text
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in invoice_item_discounts."

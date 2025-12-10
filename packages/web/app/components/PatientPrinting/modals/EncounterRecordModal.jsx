@@ -4,10 +4,8 @@ import { NOTE_TYPES } from '@tamanu/constants/notes';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants/labs';
 import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants/statuses';
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants/diagnoses';
-import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
-import { formatShortest, formatTime } from '@tamanu/utils/dateTime';
+import { ForbiddenError, NotFoundError } from '@tamanu/errors';
 
-import { EncounterRecordPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { Modal } from '../../Modal';
 import { useCertificate } from '../../../utils/useCertificate';
 import { usePatientDataQuery } from '../../../api/queries/usePatientDataQuery';
@@ -22,11 +20,13 @@ import { useLocalisation } from '../../../contexts/Localisation';
 import { Colors } from '../../../constants';
 import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { ModalActionRow } from '../../ModalActionRow';
-import { PDFLoader, printPDF } from '../PDFLoader';
+import { printPDF } from '../PDFLoader';
 import { TranslatedText } from '../../Translation/TranslatedText';
-import { DateDisplay } from '../../DateDisplay';
 import { useVitalsQuery } from '../../../api/queries/useVitalsQuery';
 import { useTranslation } from '../../../contexts/Translation';
+import { LoadingIndicator } from '../../LoadingIndicator';
+import { WorkerRenderedPDFViewer } from '../WorkerRenderedPDFViewer';
+import { useSettings } from '../../../contexts/Settings';
 
 // These below functions are used to extract the history of changes made to the encounter that are stored in notes.
 // obviously a better solution needs to be to properly implemented for storing and accessing this data, but this is an ok workaround for now.
@@ -100,24 +100,17 @@ const extractLocationHistory = (notes, encounterData) => {
   });
 };
 
-const getDateTitleArray = date => {
-  const shortestDate = DateDisplay.stringFormat(date, formatShortest);
-  const timeWithSeconds = DateDisplay.stringFormat(date, formatTime);
-
-  return [shortestDate, timeWithSeconds.toLowerCase()];
-};
-
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
-  const { translations, storedLanguage, getTranslation } = useTranslation();
+  const { translations, storedLanguage } = useTranslation();
+  const { settings } = useSettings();
+  const { localisation, getLocalisation } = useLocalisation();
   const { data: vitalsData, recordedDates } = useVitalsQuery(encounter.id);
 
-  const { getLocalisation } = useLocalisation();
   const certificateQuery = useCertificate();
   const { data: certificateData } = certificateQuery;
 
   const patientQuery = usePatientDataQuery(encounter.patientId);
   const patient = patientQuery.data;
-
   const padDataQuery = usePatientAdditionalDataQuery(patient?.id);
   const { data: additionalData } = padDataQuery;
 
@@ -269,19 +262,20 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
 
   // Remove discontinued medications and sort by medication name
   const medications = encounter.medications
-    .filter(medication =>
-      encounter.endDate
-        ? medication.encounterPrescription?.isSelectedForDischarge
-        : !medication.discontinued,
+    .filter(
+      medication =>
+        (encounter.endDate
+          ? medication.encounterPrescription?.isSelectedForDischarge
+          : !medication.discontinued) && !medication.medication.referenceDrug.isSensitive,
     )
     .sort((a, b) => a.medication.name.localeCompare(b.medication.name));
 
   const displayNotes = notes.filter(note => {
-    return note.noteType !== NOTE_TYPES.SYSTEM;
+    return note.noteTypeId !== NOTE_TYPES.SYSTEM;
   });
 
   const systemNotes = notes.filter(note => {
-    return note.noteType === NOTE_TYPES.SYSTEM;
+    return note.noteTypeId === NOTE_TYPES.SYSTEM;
   });
 
   const locationSystemNotes = systemNotes.filter(note => {
@@ -298,57 +292,18 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     ? extractEncounterTypeHistory(encounterTypeSystemNotes, encounter, encounterTypeNoteMatcher)
     : [];
 
-  const formatValue = (value, config) => {
-    const { rounding = 0, unit = '' } = config || {};
-    const float = Number.parseFloat(value);
-
-    if (isNaN(float)) {
-      return value || '—'; // em dash
-    }
-
-    const unitSuffix = unit && unit.length <= 2 ? unit : '';
-    if (rounding > 0 || rounding === 0) {
-      return `${float.toFixed(rounding)}${unitSuffix}`;
-    }
-    return `${float}${unitSuffix}`;
-  };
-
-  const getVitalsColumn = startIndex => {
-    const dateArray = [...recordedDates].reverse().slice(startIndex, startIndex + 12);
-    return [
-      {
-        key: 'measure',
-        title: getTranslation('vitals.table.column.measure', 'Measure'),
-        accessor: ({ value }) => value,
-        style: { width: 140 },
-      },
-      ...dateArray
-        .sort((a, b) => b.localeCompare(a))
-        .map(date => ({
-          title: getDateTitleArray(date),
-          key: date,
-          accessor: cells => {
-            const { value, config } = cells[date];
-            return formatValue(value, config);
-          },
-          style: { width: 60 },
-        })),
-    ];
-  };
-
   return (
     <Modal {...modalProps} onPrint={() => printPDF('encounter-record')} data-testid="modal-fxo5">
-      <PDFLoader
-        isLoading={allQueries.isFetching}
-        id="encounter-record"
-        data-testid="pdfloader-d2ja"
-      >
-        <EncounterRecordPrintout
+      {allQueries.isFetching ? (
+        <LoadingIndicator height="500px" data-testid="loadingindicator-skvx" />
+      ) : (
+        <WorkerRenderedPDFViewer
+          id="encounter-record"
+          queryDeps={[encounter.id]}
           patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
           vitalsData={vitalsData}
           recordedDates={recordedDates}
-          getVitalsColumn={getVitalsColumn}
           certificateData={certificateData}
           encounterTypeHistory={encounterTypeHistory}
           locationHistory={locationHistory}
@@ -361,11 +316,12 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           discharge={discharge}
           village={village}
           medications={medications}
-          getLocalisation={getLocalisation}
+          localisation={localisation}
           translations={translations}
+          settings={settings}
           data-testid="encounterrecordprintout-yqe1"
         />
-      </PDFLoader>
+      )}
     </Modal>
   );
 };

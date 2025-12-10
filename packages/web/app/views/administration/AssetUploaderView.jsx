@@ -1,15 +1,21 @@
 import React, { memo, useCallback, useState } from 'react';
 import * as yup from 'yup';
 import { ASSET_NAME_LABELS } from '@tamanu/constants/importable';
+import { FORM_TYPES } from '@tamanu/constants/forms';
+import { convertToBase64 } from '@tamanu/utils/encodings';
 import { useApi } from '../../api';
-import { Field, Form, TranslatedSelectField } from '../../components/Field';
-import { FileChooserField, FILTER_IMAGES } from '../../components/Field/FileChooserField';
+import { Field } from '../../components/Field';
+import {
+  FileChooserField,
+  FILTER_IMAGES,
+  TranslatedSelectField,
+  Form,
+  LargeSubmitButton,
+  ButtonRow,
+  FormGrid,
+} from '@tamanu/ui-components';
 import { ContentPane } from '../../components/ContentPane';
-import { FormGrid } from '../../components/FormGrid';
-import { ButtonRow } from '../../components/ButtonRow';
-import { LargeSubmitButton } from '../../components/Button';
 import { AdminViewContainer } from './components/AdminViewContainer';
-import { FORM_TYPES } from '../../constants';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const ResultDisplay = ({ result }) => {
@@ -31,19 +37,6 @@ export const AssetUploaderView = memo(() => {
   const [result, setResult] = useState(null);
 
   const api = useApi();
-
-  const convertToBase64 = (file) =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        // Extract the base64 data from the data url for saving
-        // See note for more details https://developer.mozilla.org/en-US/docs/Web/API/FileReader/readAsDataURL
-        const base64Data = reader.result.split('base64,').pop();
-        return resolve(base64Data);
-      };
-      reader.onerror = (conversionError) => reject(conversionError);
-    });
 
   const onSubmitUpload = useCallback(
     async ({ file, name }) => {

@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: invoice_insurer_payments
-        description: '{{ doc("table__invoice_insurer_payments") }}'
-        tags:
-          - administration
+        description: "{{ doc('table__invoice_insurer_payments') }}"
+        config:
+          tags:
+            - administration
+          meta:
+            triggers:
+              - notify_invoice_insurer_payments_changed
+              - record_invoice_insurer_payments_changelog
+              - set_invoice_insurer_payments_updated_at
+              - set_invoice_insurer_payments_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid
@@ -22,31 +29,37 @@ sources:
               - unique
               - not_null
               - relationships:
-                  to: source('tamanu', 'invoice_payments')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'invoice_payments')
+                    field: id
           - name: insurer_id
             data_type: character varying(255)
             description: "{{ doc('invoice_insurer_payments__insurer_id') }}"
             data_tests:
               - not_null
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'insurer'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'insurer'
           - name: status
             data_type: character varying(255)
             description: "{{ doc('invoice_insurer_payments__status') }}"
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - unpaid
-                    - paid
-                    - partial
-                    - rejected
+                  arguments:
+                    values:
+                      - unpaid
+                      - paid
+                      - partial
+                      - rejected
           - name: reason
             data_type: character varying(255)
             description: "{{ doc('invoice_insurer_payments__reason') }}"
+            config:
+              meta:
+                masking: text
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in invoice_insurer_payments."

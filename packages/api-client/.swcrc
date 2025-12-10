@@ -6,10 +6,11 @@
   },
   "jsc": {
     "parser": {
-      "syntax": "ecmascript",
-      "jsx": true
+      "syntax": "typescript",
+      "tsx": true,
+      "dts": true
     },
-    "target": "esnext",
+    "target": "es2020",
     "keepClassNames": true
   }
 }

@@ -3,13 +3,14 @@ import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
-import { NOTE_TYPES } from '@tamanu/constants';
+import { NOTE_TYPES, FORM_TYPES } from '@tamanu/constants';
+import { Form } from '@tamanu/ui-components';
 import { useAuth } from '../contexts/Auth';
 import { foreignKey } from '../utils/validation';
-import { Form } from '../components/Field';
+
 import { EditTreatmentPlanNoteForm } from './EditTreatmentPlanNoteForm';
 import { CreateEditNoteForm } from './CreateEditNoteForm';
-import { FORM_TYPES, NOTE_FORM_MODES } from '../constants';
+import { NOTE_FORM_MODES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const NoteForm = ({
@@ -22,7 +23,9 @@ export const NoteForm = ({
   const { currentUser } = useAuth();
 
   const renderForm = ({ submitForm, values, setValues }) => {
-    if (noteFormMode === NOTE_FORM_MODES.EDIT_NOTE && note.noteType === NOTE_TYPES.TREATMENT_PLAN) {
+    const isTreatmentPlan = note?.noteTypeId === NOTE_TYPES.TREATMENT_PLAN;
+
+    if (noteFormMode === NOTE_FORM_MODES.EDIT_NOTE && isTreatmentPlan) {
       return (
         <EditTreatmentPlanNoteForm
           note={note}
@@ -53,7 +56,7 @@ export const NoteForm = ({
       showInlineErrorsOnly
       initialValues={{
         date: getCurrentDateTimeString(),
-        noteType: note?.noteType,
+        noteTypeId: note?.noteTypeId,
         writtenById: currentUser.id,
         content: note?.content,
       }}
@@ -61,9 +64,7 @@ export const NoteForm = ({
         noteFormMode === NOTE_FORM_MODES.EDIT_NOTE ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM
       }
       validationSchema={yup.object().shape({
-        noteType: yup
-          .string()
-          .oneOf(Object.values(NOTE_TYPES))
+        noteTypeId: foreignKey()
           .required()
           .translatedLabel(<TranslatedText stringId="note.noteType.label" fallback="Note type" />),
         date: yup
@@ -78,7 +79,7 @@ export const NoteForm = ({
           ),
         writtenById: foreignKey().translatedLabel(
           noteFormMode === NOTE_FORM_MODES.EDIT_NOTE &&
-            note?.noteType === NOTE_TYPES.TREATMENT_PLAN ? (
+            note?.noteTypeId === NOTE_TYPES.TREATMENT_PLAN ? (
             <TranslatedText
               stringId="validation.rule.updatedByOnBehalfOf"
               fallback="Updated by (or on behalf of)"

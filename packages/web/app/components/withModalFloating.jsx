@@ -1,4 +1,4 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
 import { Resizable } from 're-resizable';
@@ -17,8 +17,14 @@ export const withModalFloating = ModalComponent => {
       pointer-events: none;
     }
 
+    & .MuiDialog-container {
+      align-items: flex-start;
+      justify-content: flex-start;
+    }
+
     & .MuiDialog-paper {
       pointer-events: auto;
+      margin: 0;
     }
 
     & ${props => props.draggableHandle} {
@@ -46,6 +52,14 @@ export const withModalFloating = ModalComponent => {
     ...modalProps
   }) => {
     const positionRef = useRef({ x: 0, y: 0 });
+    const defaultPosition = useMemo(() => {
+      if (typeof window !== 'undefined') {
+        const x = Math.max(0, Math.round(window.innerWidth / 2 - Number(baseWidth) / 2));
+        const y = Math.max(0, Math.round(window.innerHeight / 2 - Number(baseHeight) / 2));
+        return { x, y };
+      }
+      return { x: 0, y: 0 };
+    }, [baseWidth, baseHeight]);
 
     const PaperComponent = useCallback(
       paperProps => {
@@ -54,7 +68,7 @@ export const withModalFloating = ModalComponent => {
           <Draggable
             handle={draggableHandle}
             bounds={draggableBounds}
-            defaultPosition={positionRef.current}
+            defaultPosition={defaultPosition}
             cancel=".MuiDialogTitle-root button, .MuiDialogActions-root button"
             onStop={(e, data) => {
               positionRef.current = { x: data.x, y: data.y };
@@ -156,7 +170,7 @@ export const withModalFloating = ModalComponent => {
     draggableBounds: 'body',
     hideBackdrop: true,
     BackdropProps: { invisible: true, style: { pointerEvents: 'none' } },
-    resizeRatio: 2,
+    resizeRatio: 1,
   };
 
   return FloatingModal;

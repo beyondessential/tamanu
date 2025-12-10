@@ -78,6 +78,12 @@ export class FhirServiceRequest extends FhirResource {
       models.LabTestPanel,
       models.Note,
     ];
+    this.referencedResources = [
+      models.FhirPatient,
+      models.FhirEncounter,
+      models.FhirPractitioner,
+      models.FhirSpecimen,
+    ];
   }
 
   static CAN_DO = new Set([

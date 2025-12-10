@@ -1,63 +1,25 @@
-import { AllPatientsPage } from "../pages/patients/AllPatientsPage";
-import { getItemFromLocalStorage, getCurrentUser } from "./generateNewPatient";
-import { constructFacilityUrl } from "./navigation";
-import { Locator } from '@playwright/test';
+import { Locator, Page, expect } from '@playwright/test';
+import { subYears, addYears, format, parse } from 'date-fns';
+
+export const STYLED_TABLE_CELL_PREFIX = 'styledtablecell-2gyy-';
 
 // Utility method to convert YYYY-MM-DD to MM/DD/YYYY format
-export const convertDateFormat = (dateString: string): string => {
+export const convertDateFormat = (dateInput: string | Date | undefined): string => {
+  if (!dateInput) return '';
+  
+  let dateString: string;
+  
+  if (dateInput instanceof Date) {
+    dateString = dateInput.toISOString().split('T')[0]; // Convert to YYYY-MM-DD format
+  } else {
+    dateString = dateInput;
+  }
+  
   if (!dateString) return '';
+  
   const [year, month, day] = dateString.split('-');
   return `${month}/${day}/${year}`;
 };
-
-export async function recordPatientDeathViaApi(allPatientsPage: AllPatientsPage) {
-  const token = await getItemFromLocalStorage(allPatientsPage, 'apiToken');
-  const userData = await getCurrentUser(token);
-  const currentFacilityId = await getItemFromLocalStorage(allPatientsPage, 'facilityId');
-  const patientData = allPatientsPage.getPatientData();
-
-  // Verify patient exists first
-  const verifyPatientUrl = constructFacilityUrl(`/api/patient/${patientData.id}`);
-  console.log('Verifying patient at URL:', verifyPatientUrl);
-  
-  const verifyResponse = await fetch(verifyPatientUrl, {
-    method: 'GET',
-    headers: {
-      authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-  });
-
-  if (!verifyResponse.ok) {
-    throw new Error(`Patient ${patientData.id} not found. Please ensure patient is created first.`);
-  }
-
-  const apiDeathUrl = constructFacilityUrl(`/api/patient/${patientData.id}/death`);
-  console.log('Recording death at URL:', apiDeathUrl);
-  
-  const response = await fetch(apiDeathUrl, {
-    method: 'POST',
-    headers: {
-      authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      clinicianId: userData.id,
-      facilityId: currentFacilityId,
-      timeOfDeath: new Date().toISOString(),
-      causeOfDeath: null,
-      mannerOfDeath: 'Disease',
-      outsideHealthFacility: false,
-      isPartialWorkflow: true
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to record patient death: ${response.statusText}`);
-  }
-
-  return response.json();
-}
 
 /**
  * Utility method to handle search box suggestions
@@ -71,7 +33,7 @@ export async function SelectingFromSearchBox(
   searchBox: Locator,
   suggestionList: Locator,
   searchText: string,
-  timeout: number = 10000
+  timeout: number = 10000,
 ): Promise<void> {
   try {
     await searchBox.fill(searchText);
@@ -80,6 +42,96 @@ export async function SelectingFromSearchBox(
     await suggestionOption.waitFor({ state: 'visible', timeout });
     await suggestionOption.click();
   } catch (error) {
-    throw new Error(`Failed to handle search box suggestion: ${error.message}`);
+    throw new Error(`Failed to handle search box suggestion: ${error instanceof Error ? error.message : String(error)}`);
   }
+}
+/**
+ * Utility method to get table items
+ * @param page 
+ * @param tableRowCount 
+ * @param columnName 
+ * @returns An array of table items
+ */
+export async function getTableItems(page: Page, tableRowCount: number, columnName: string) {
+  const items: string[] = [];
+  for (let i = 0; i < tableRowCount; i++) {
+    const itemLocator = page.getByTestId(`${STYLED_TABLE_CELL_PREFIX}${i}-${columnName}`);
+    const itemText = await itemLocator.textContent();
+    if (itemText) {
+      items.push(itemText);
+    }
+  }
+  return items;
+}
+
+/**
+ * Utility function for sorting alphabetically
+ * @param order - The order to sort by, e.g. "asc" or "desc"
+ * @returns A function that compares two strings alphabetically
+ */
+export function compareAlphabetically(order: 'asc' | 'desc') {
+  return (a: string, b: string) =>
+    order === 'asc' ? a.localeCompare(b) : b.localeCompare(a);
+}
+
+/**
+ * Utility function for sorting by date
+ * @param order - The order to sort by, e.g. "asc" or "desc"
+ * @returns A function that compares two dates
+ */
+export function compareByDate(order: 'asc' | 'desc') {
+  return (a: { dateGiven: string }, b: { dateGiven: string }) => {
+    const dateA = new Date(a.dateGiven).getTime();
+    const dateB = new Date(b.dateGiven).getTime();
+    return order === 'asc' ? dateA - dateB : dateB - dateA;
+  };
+}
+
+/**
+ * Utility method to offset a date by a given amount of years and return in YYYY-MM-DD format
+ * @param dateToOffset - The date to offset
+ * @param offset - The offset to apply ('increase' or 'decrease')
+ * @param amountToOffset - The amount of years to offset
+ * @returns The date with the offset applied in YYYY-MM-DD format
+ */
+export function offsetYear(
+  dateToOffset: string,
+  offset: 'increase' | 'decrease',
+  amountToOffset: number
+): string {
+  //Convert to date format so utility functions can be used
+  const formattedDateToOffset = new Date(dateToOffset);
+  let newDate = undefined;
+
+  if (offset === 'increase') newDate = addYears(formattedDateToOffset, amountToOffset);
+  else if (offset === 'decrease') newDate = subYears(formattedDateToOffset, amountToOffset);
+  else throw new Error('Invalid offset');
+
+  return format(newDate, 'yyyy-MM-dd');
+}
+
+// Reusable function to select first option from any dropdown
+export const selectFirstFromDropdown = async (page: Page, input: Locator): Promise<string> => {
+  await input.click();
+  const firstOption = page.locator('[role="listbox"] li').first();
+  await firstOption.click();
+  return await firstOption.textContent() || '';
+};
+
+/**
+ * Asserts that a datetime input field contains a recent datetime value
+ * @param inputLocator - The locator for the datetime input field
+ * @param dateFormat - The format string for parsing the date (e.g., 'yyyy-MM-dd\'T\'HH:mm')
+ * @param thresholdMinutes - Optional threshold in minutes for what is considered "recent" (default: 2)
+ */
+export async function assertRecentDateTime(
+  inputLocator: Locator,
+  dateFormat: string,
+  thresholdMinutes: number = 2,
+): Promise<void> {
+  const inputDateTimeValue = await inputLocator.inputValue();
+  const parsedInputDate = parse(inputDateTimeValue, dateFormat, new Date());
+  const now = new Date();
+  const timeDifferenceMinutes = Math.abs((now.getTime() - parsedInputDate.getTime()) / (1000 * 60));
+  expect(timeDifferenceMinutes).toBeLessThan(thresholdMinutes);
 }

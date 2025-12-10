@@ -11,25 +11,29 @@ export const PATIENT_DATA_FIELDS = {
   MIDDLE_NAME: 'middleName',
 };
 
-export enum VaccineStatus {
-  UNKNOWN = 'UNKNOWN',
-  GIVEN = 'GIVEN',
-  NOT_GIVEN = 'NOT_GIVEN',
-  SCHEDULED = 'SCHEDULED',
-  MISSED = 'MISSED',
-  DUE = 'DUE',
-  UPCOMING = 'UPCOMING',
-  OVERDUE = 'OVERDUE',
-  RECORDED_IN_ERROR = 'RECORDED_IN_ERROR',
-  HISTORICAL = 'HISTORICAL',
-}
+export const VaccineStatus = {
+  UNKNOWN: 'UNKNOWN',
+  GIVEN: 'GIVEN',
+  NOT_GIVEN: 'NOT_GIVEN',
+  SCHEDULED: 'SCHEDULED',
+  MISSED: 'MISSED',
+  DUE: 'DUE',
+  UPCOMING: 'UPCOMING',
+  OVERDUE: 'OVERDUE',
+  RECORDED_IN_ERROR: 'RECORDED_IN_ERROR',
+  HISTORICAL: 'HISTORICAL',
+} as const;
 
-export enum VaccineCategory {
-  CAMPAIGN = 'Campaign',
-  CATCHUP = 'Catchup',
-  ROUTINE = 'Routine',
-  OTHER = 'Other',
-}
+export type VaccineStatus = (typeof VaccineStatus)[keyof typeof VaccineStatus];
+
+export const VaccineCategory = {
+  CAMPAIGN: 'Campaign',
+  CATCHUP: 'Catchup',
+  ROUTINE: 'Routine',
+  OTHER: 'Other',
+} as const;
+
+export type VaccineCategory = (typeof VaccineCategory)[keyof typeof VaccineCategory];
 
 const generators = {
   A: (): string => String.fromCharCode(65 + Math.floor(Math.random() * 26)),
@@ -72,3 +76,11 @@ export const getConfiguredPatientAdditionalDataFields = (
     return true;
   });
 };
+
+export const getPatientNameAsString = ({
+  firstName,
+  lastName,
+}: {
+  firstName: string;
+  lastName: string;
+}) => [firstName, lastName].filter(Boolean).join(' ');

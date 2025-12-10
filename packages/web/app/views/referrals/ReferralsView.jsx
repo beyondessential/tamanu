@@ -2,19 +2,18 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { SURVEY_TYPES } from '@tamanu/constants';
+import { getAnswersFromData, FormGrid } from '@tamanu/ui-components';
 
 import { useApi } from '../../api';
 import { reloadPatient } from '../../store/patient';
 import { SurveyView } from '../programs/SurveyView';
 import { PatientListingView } from '..';
-import { FormGrid } from '../../components/FormGrid';
 import { usePatientAdditionalDataQuery } from '../../api/queries';
 import { ErrorMessage } from '../../components/ErrorMessage';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { SurveySelector } from '../programs/SurveySelector';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from '../programs/ProgramsPane';
 import { getCurrentUser } from '../../store';
-import { getAnswersFromData } from '../../utils';
 import { PATIENT_TABS } from '../../constants/patientPaths';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useAuth } from '../../contexts/Auth';
@@ -32,12 +31,12 @@ const ReferralFlow = ({ patient, currentUser }) => {
   useEffect(() => {
     (async () => {
       const response = await api.get(`survey`, { type: SURVEY_TYPES.REFERRAL });
-      setReferralSurveys(response.surveys.map((x) => ({ value: x.id, label: x.name })));
+      setReferralSurveys(response.surveys.map(x => ({ value: x.id, label: x.name })));
     })();
   }, [api]);
 
   const setSelectedReferral = useCallback(
-    async (id) => {
+    async id => {
       const response = await api.get(`survey/${encodeURIComponent(id)}`);
       setReferralSurvey(response);
       setStartTime(getCurrentDateTimeString());
@@ -49,25 +48,22 @@ const ReferralFlow = ({ patient, currentUser }) => {
     setReferralSurvey(null);
   }, []);
 
-  const submitReferral = async (data) => {
+  const submitReferral = async data => {
     await api.post('referral', {
       surveyId: referralSurvey.id,
       startTime,
       patientId: patient.id,
       endTime: getCurrentDateTimeString(),
-      answers: getAnswersFromData(data, referralSurvey),
+      answers: await getAnswersFromData(data, referralSurvey),
       facilityId,
     });
 
     navigateToPatient(patient.id, { tab: PATIENT_TABS.REFERRALS });
   };
 
-  const {
-    isLoading,
-    data: patientAdditionalData,
-    isError,
-    error,
-  } = usePatientAdditionalDataQuery(patient.id);
+  const { isLoading, data: patientAdditionalData, isError, error } = usePatientAdditionalDataQuery(
+    patient.id,
+  );
 
   if (isLoading) {
     return <LoadingIndicator data-testid="loadingindicator-uqkf" />;
@@ -122,13 +118,13 @@ const ReferralFlow = ({ patient, currentUser }) => {
 };
 
 export const ReferralsView = () => {
-  const patient = useSelector((state) => state.patient);
+  const patient = useSelector(state => state.patient);
   const currentUser = useSelector(getCurrentUser);
   const dispatch = useDispatch();
   if (!patient.id) {
     return (
       <PatientListingView
-        onViewPatient={(id) => {
+        onViewPatient={id => {
           dispatch(reloadPatient(id));
         }}
         data-testid="patientlistingview-o7jr"

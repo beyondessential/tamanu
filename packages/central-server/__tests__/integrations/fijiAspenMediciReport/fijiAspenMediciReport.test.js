@@ -13,7 +13,7 @@ import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { fake } from '@tamanu/fake-data/fake';
 import { log } from '@tamanu/shared/services/logging';
 
-import { createTestContext } from '@tamanu/central-server/__tests__/utilities';
+import { createTestContext } from '../../utilities';
 import { allFromUpstream } from '../../../dist/tasks/fhir/refresh/allFromUpstream';
 
 const COUNTRY_TIMEZONE = config?.countryTimeZone;
@@ -270,7 +270,7 @@ const fakeAllData = async (models, ctx) => {
   const imagingRequestNote = await models.Note.create(
     fake(models.Note, {
       recordId: imagingRequestId,
-      noteType: NOTE_TYPES.OTHER,
+      noteTypeId: NOTE_TYPES.OTHER,
       recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
       content: 'Check for fractured knees please',
       date: createLocalDateTimeStringFromUTC(2022, 6 - 1, 10, 6, 4, 54),
@@ -284,7 +284,7 @@ const fakeAllData = async (models, ctx) => {
   const labRequestNote = await models.Note.create(
     fake(models.Note, {
       recordId: labRequestId,
-      noteType: NOTE_TYPES.OTHER,
+      noteTypeId: NOTE_TYPES.OTHER,
       recordType: NOTE_RECORD_TYPES.LAB_REQUEST,
       content: 'Please perform this lab test very carefully',
       date: createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 2, 4, 54),
@@ -302,7 +302,7 @@ const fakeAllData = async (models, ctx) => {
   const encounterNote = await models.Note.create(
     fake(models.Note, {
       recordId: encounterId,
-      noteType: NOTE_TYPES.NURSING,
+      noteTypeId: NOTE_TYPES.OTHER,
       recordType: NOTE_RECORD_TYPES.ENCOUNTER,
       content: 'A\nB\nC\nD\nE\nF\nG\n',
       date: createLocalDateTimeStringFromUTC(2022, 6 - 1, 10, 3, 39, 57),
@@ -499,9 +499,9 @@ describe('fijiAspenMediciReport', () => {
         encounterId,
         patientBillingType: 'Public',
         // Note that seconds is the highest level of precision - so the milliseconds are truncated
-        encounterStartDate: '2022-06-09T00:02:54.000Z',
-        encounterEndDate: '2022-06-12T00:02:54.000Z',
-        dischargeDate: '2022-06-12T00:02:54.000Z',
+        encounterStartDate: '2022-06-09T00:02:54+00:00',
+        encounterEndDate: '2022-06-12T00:02:54+00:00',
+        dischargeDate: '2022-06-12T00:02:54+00:00',
         encounterType: [
           {
             startDate: expect.stringMatching(isoStringRegex),
@@ -609,7 +609,7 @@ describe('fijiAspenMediciReport', () => {
             ],
             notes: [
               {
-                noteType: NOTE_TYPES.OTHER,
+                noteTypeId: NOTE_TYPES.OTHER,
                 content: 'Please perform this lab test very carefully',
                 noteDate: '2022-06-09T02:04:54+00:00',
                 revisedById: fakedata.labRequestNote.id,
@@ -623,7 +623,7 @@ describe('fijiAspenMediciReport', () => {
             areasToBeImaged: ['Left Leg', 'Right Leg'],
             notes: [
               {
-                noteType: 'other',
+                noteTypeId: NOTE_TYPES.OTHER,
                 content: 'Check for fractured knees please',
                 noteDate: '2022-06-10T06:04:54+00:00',
                 revisedById: fakedata.imagingRequestNote.id,
@@ -633,7 +633,7 @@ describe('fijiAspenMediciReport', () => {
         ],
         notes: [
           {
-            noteType: NOTE_TYPES.NURSING,
+            noteTypeId: NOTE_TYPES.OTHER,
             content: 'A\nB\nC\nD\nE\nF\nG\n',
             noteDate: '2022-06-10T03:39:57+00:00',
             revisedById: fakedata.encounterNote.id,

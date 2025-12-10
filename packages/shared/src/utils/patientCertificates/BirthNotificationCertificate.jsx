@@ -32,7 +32,6 @@ const topStyles = StyleSheet.create({
   },
   key: {
     fontSize: 9,
-    fontFamily: 'Helvetica-Bold',
     marginRight: 2,
   },
   value: {
@@ -49,7 +48,9 @@ const TopSection = ({ facilityName, childDisplayId }) => {
         <P style={topStyles.value}>{facilityName}</P>
       </View>
       <View style={topStyles.cell}>
-        <P style={topStyles.key}>Notification date:</P>
+        <P bold style={topStyles.key}>
+          Notification date:
+        </P>
         <P style={topStyles.value}>{getDisplayDate(date)}</P>
       </View>
       <View style={topStyles.cell}>
@@ -90,8 +91,8 @@ const tableStyles = StyleSheet.create({
   },
 });
 
-const Table = (props) => <View style={tableStyles.table} {...props} />;
-const Row = (props) => <View style={tableStyles.row} {...props} />;
+const Table = props => <View style={tableStyles.table} {...props} />;
+const Row = props => <View style={tableStyles.row} {...props} />;
 const P = ({ style = {}, bold, children }) => (
   <Text bold={bold} style={[tableStyles.p, style]}>
     {children}
@@ -117,11 +118,11 @@ const LeftCell = ({ children }) => (
 );
 
 const getLabelFromValue = (mapping, v) => {
-  const entry = mapping.find((e) => e.value === v);
+  const entry = mapping.find(e => e.value === v);
   return entry ? entry.label : '';
 };
 
-const getFullName = (patient) => `${patient?.firstName ?? ''} ${patient?.lastName ?? ''}`;
+const getFullName = patient => `${patient?.firstName ?? ''} ${patient?.lastName ?? ''}`;
 
 const ChildSection = ({ data }) => {
   const { getTranslation } = useLanguageContext();
@@ -314,12 +315,10 @@ const signatureStyles = StyleSheet.create({
   leftText: {
     width: 90,
     marginRight: 10,
-    fontFamily: 'Helvetica-Bold',
   },
   rightText: {
     width: 30,
     marginRight: 10,
-    fontFamily: 'Helvetica-Bold',
   },
   line: {
     flex: 1,
@@ -333,7 +332,7 @@ const SignatureSection = () => {
     <View style={signatureStyles.container}>
       <View style={{ flex: 1 }}>
         <View style={signatureStyles.leftCell}>
-          <P style={signatureStyles.leftText}>
+          <P bold style={signatureStyles.leftText}>
             {getTranslation(
               'pdf.birthNotification.signature.certifiedCorrectBy',
               'Certified correct by',
@@ -343,7 +342,7 @@ const SignatureSection = () => {
           <View style={signatureStyles.line} />
         </View>
         <View style={signatureStyles.leftCell}>
-          <P style={signatureStyles.leftText}>
+          <P bold style={signatureStyles.leftText}>
             {getTranslation(
               'pdf.birthNotification.signature.circleApplicable',
               'Circle applicable',
@@ -360,13 +359,13 @@ const SignatureSection = () => {
       </View>
       <View style={{ flex: 1 }}>
         <View style={signatureStyles.rightCell}>
-          <P style={signatureStyles.rightText}>
+          <P bold style={signatureStyles.rightText}>
             {getTranslation('pdf.birthNotification.signature.signed', 'Signed') + ':'}
           </P>
           <View style={signatureStyles.line} />
         </View>
         <View style={signatureStyles.rightCell}>
-          <P style={signatureStyles.rightText}>
+          <P bold style={signatureStyles.rightText}>
             {getTranslation('pdf.birthNotification.signature.date', 'Date')}:
           </P>
           <View style={signatureStyles.line} />

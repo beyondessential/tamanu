@@ -4,15 +4,18 @@ import CheckIcon from '@material-ui/icons/Check';
 import { Box, IconButton } from '@material-ui/core';
 import EditIcon from '@material-ui/icons/Edit';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
-import { BodyText, Heading4, TranslatedText } from '..';
-import { Colors } from '../../constants';
-import { getDose, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
+import { TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
+import { BodyText, Heading4, SmallBodyText } from '..';
+import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { useTranslation } from '../../contexts/Translation';
+import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
+import { useEncounter } from '../../contexts/Encounter';
 
 const ListContainer = styled(Box)`
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 10px;
   padding: 6px 0px;
   border-radius: 3px;
   background-color: ${Colors.white};
@@ -131,9 +134,15 @@ export const MedicationSetMedicationsList = ({
   onRemove,
 }) => {
   const { getTranslation, getEnumTranslation } = useTranslation();
+  const { encounter } = useEncounter();
+  const { data: { data: medications = [] } = {} } = useEncounterMedicationQuery(encounter?.id);
+  const existingDrugIds = medications
+    .filter(({ discontinued }) => !discontinued)
+    .map(({ medication }) => medication?.id);
+
   return (
     <ListContainer width="420px">
-      <Heading4 textAlign="center" mt="6px" mb="12px">
+      <Heading4 textAlign="center" mt="6px" mb="2px">
         {medicationSet.name}
       </Heading4>
       {medicationSet.children.map(medication => {
@@ -148,43 +157,58 @@ export const MedicationSetMedicationsList = ({
           isOngoing,
         } = medication;
         return (
-          <MedicationListItem key={medicationRef.id}>
-            <BodyText fontWeight="500">{medicationRef.name}</BodyText>
-            {isOngoing && (
-              <CheckedLabel>
-                <CheckIcon color="primary" />
+          <div key={medicationRef.id}>
+            <MedicationListItem>
+              <BodyText fontWeight="500">{medicationRef.name}</BodyText>
+              {isOngoing && (
+                <CheckedLabel>
+                  <CheckIcon color="primary" />
+                  <TranslatedText
+                    stringId="medication.model.ongoingMedication.label"
+                    fallback="Ongoing medication"
+                  />
+                </CheckedLabel>
+              )}
+              {isPrn && (
+                <CheckedLabel>
+                  <CheckIcon color="primary" />
+                  <TranslatedText
+                    stringId="medication.model.prnMedication.label"
+                    fallback="PRN medication"
+                  />
+                </CheckedLabel>
+              )}
+              <BodyText sx={{ paddingRight: '52px' }}>
+                {[
+                  getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation),
+                  getTranslatedFrequency(frequency, getTranslation),
+                  getEnumTranslation(DRUG_ROUTE_LABELS, route),
+                  durationUnit && durationValue && `${durationValue} ${durationUnit}`,
+                ]
+                  .filter(Boolean)
+                  .join(', ')}
+              </BodyText>
+              {notes && <BodyText color={Colors.midText}>{notes}</BodyText>}
+              {editable && (
+                <>
+                  <StyledIconButton onClick={() => onEdit(medication)}>
+                    <EditIcon />
+                  </StyledIconButton>
+                  <RemoveText onClick={() => onRemove(medication)}>
+                    <TranslatedText stringId="general.action.remove" fallback="Remove" />
+                  </RemoveText>
+                </>
+              )}
+            </MedicationListItem>
+            {existingDrugIds.includes(medicationRef.id) && editable && (
+              <SmallBodyText mx="16px" mt="2px" color={Colors.darkText}>
                 <TranslatedText
-                  stringId="medication.model.ongoingMedication.label"
-                  fallback="Ongoing medication"
+                  stringId="medication.warning.existingDrug"
+                  fallback="Please be aware that this medicine has already been prescribed for this encounter. Double check that this is clinically appropriate."
                 />
-              </CheckedLabel>
+              </SmallBodyText>
             )}
-            {isPrn && (
-              <CheckedLabel>
-                <CheckIcon color="primary" />
-                <TranslatedText
-                  stringId="medication.model.prnMedication.label"
-                  fallback="PRN medication"
-                />
-              </CheckedLabel>
-            )}
-            <BodyText>
-              {getDose(medication, getTranslation, getEnumTranslation)},{' '}
-              {getTranslatedFrequency(frequency, getTranslation)}, {DRUG_ROUTE_LABELS[route]}
-              {durationUnit && durationValue && `, ${durationValue} ${durationUnit}`}
-            </BodyText>
-            {notes && <BodyText color={Colors.midText}>{notes}</BodyText>}
-            {editable && (
-              <>
-                <StyledIconButton onClick={() => onEdit(medication)}>
-                  <EditIcon />
-                </StyledIconButton>
-                <RemoveText onClick={() => onRemove(medication)}>
-                  <TranslatedText stringId="general.action.remove" fallback="Remove" />
-                </RemoveText>
-              </>
-            )}
-          </MedicationListItem>
+          </div>
         );
       })}
     </ListContainer>

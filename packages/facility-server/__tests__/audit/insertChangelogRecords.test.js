@@ -40,6 +40,8 @@ describe('insertChangelogRecords', () => {
       updatedByUserId: SYSTEM_USER_UUID,
       recordId: '1',
       recordData: { first_name: 'Patient 1' },
+      deviceId: 'test-device-id',
+      version: '1.0.0',
     });
 
     const changelogRecords = [
@@ -55,6 +57,8 @@ describe('insertChangelogRecords', () => {
         tableSchema: 'public',
         recordId: '1',
         recordData: { first_name: 'Patient Updated' },
+        deviceId: 'test-device-id-1',
+        version: '1.0.1',
       },
       {
         // New record
@@ -68,6 +72,8 @@ describe('insertChangelogRecords', () => {
         tableSchema: 'public',
         recordId: '2',
         recordData: { first_name: 'Patient 2' },
+        deviceId: 'test-device-id-2',
+        version: '1.0.2',
       },
       {
         // New record
@@ -81,6 +87,8 @@ describe('insertChangelogRecords', () => {
         tableSchema: 'public',
         recordId: '3',
         recordData: { encounter_type: ENCOUNTER_TYPES.ADMISSION },
+        deviceId: 'test-device-id-3',
+        version: '1.0.3',
       },
     ];
 
@@ -95,10 +103,18 @@ describe('insertChangelogRecords', () => {
 
     // Should ignore the change to the existing record as changelog records are immutable
     expect(results[0].recordData).toEqual({ first_name: 'Patient 1' });
-    // Check the inserted records
-    expect(results[1].recordId).toBe('2');
-    expect(results[1].tableName).toBe('patients');
-    expect(results[2].recordId).toBe('3');
-    expect(results[2].tableName).toBe('encounters');
+    // Check the inserted records include device/version metadata
+    expect(results[1]).toMatchObject({
+      recordId: '2',
+      tableName: 'patients',
+      deviceId: 'test-device-id-2',
+      version: '1.0.2',
+    });
+    expect(results[2]).toMatchObject({
+      recordId: '3',
+      tableName: 'encounters',
+      deviceId: 'test-device-id-3',
+      version: '1.0.3',
+    });
   });
 });

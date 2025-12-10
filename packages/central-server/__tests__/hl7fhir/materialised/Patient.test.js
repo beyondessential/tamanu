@@ -23,16 +23,23 @@ describe(`Materialised FHIR - Patient`, () => {
 
   describe('full resource checks', () => {
     beforeEach(async () => {
-      const { FhirPatient, Patient, PatientAdditionalData } = ctx.store.models;
+      const { FhirPatient, Patient, PatientAdditionalData, ReferenceData } = ctx.store.models;
       await FhirPatient.truncate();
       await PatientAdditionalData.truncate();
       await Patient.truncate();
+      await ReferenceData.truncate();
     });
 
     it('fetches a patient by materialised ID', async () => {
       // arrange
-      const { FhirPatient, Patient, PatientAdditionalData } = ctx.store.models;
-      const patient = await Patient.create(fake(Patient, { dateOfDeath: getCurrentDateString() }));
+      const { FhirPatient, Patient, PatientAdditionalData, ReferenceData } = ctx.store.models;
+      const village = await ReferenceData.create({
+        ...fake(ReferenceData, { type: 'village' }),
+        id: fakeUUID(),
+      });
+      const patient = await Patient.create(
+        fake(Patient, { dateOfDeath: getCurrentDateString(), villageId: village.id }),
+      );
       const additionalData = await PatientAdditionalData.create({
         ...fake(PatientAdditionalData),
         patientId: patient.id,
@@ -58,7 +65,7 @@ describe(`Materialised FHIR - Patient`, () => {
         address: [
           {
             city: additionalData.cityTown,
-            line: [additionalData.streetVillage],
+            line: [village.name],
             type: 'physical',
             use: 'home',
           },

@@ -1,5 +1,10 @@
-import { DataTypes, Op } from 'sequelize';
-import { SURVEY_TYPES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { DataTypes } from 'sequelize';
+import {
+  CHARTING_SURVEY_TYPES,
+  SURVEY_TYPES,
+  SYNC_DIRECTIONS,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
@@ -62,6 +67,15 @@ export class Survey extends Model {
       as: 'components',
       foreignKey: 'surveyId',
     });
+    this.belongsToMany(models.ReferenceData, {
+      through: models.ProcedureTypeSurvey,
+      as: 'procedureTypes',
+      foreignKey: 'surveyId',
+    });
+    this.hasMany(models.PortalSurveyAssignment, {
+      as: 'portalSurveyAssignments',
+      foreignKey: 'surveyId',
+    });
   }
 
   static getAllReferrals() {
@@ -76,27 +90,20 @@ export class Survey extends Model {
     });
   }
 
-  static getChartSurveys() {
-    return this.findAll({
-      where: {
-        surveyType: {
-          [Op.in]: [
-            SURVEY_TYPES.SIMPLE_CHART,
-            SURVEY_TYPES.COMPLEX_CHART_CORE,
-            SURVEY_TYPES.COMPLEX_CHART,
-          ],
-        },
-        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-      },
-      order: [['name', 'ASC']],
-    });
-  }
-
   static async getResponsePermissionCheck(id: string) {
-    const vitalsSurvey = await this.getVitalsSurvey();
-    if (vitalsSurvey && id === vitalsSurvey.id) {
+    const survey = await this.findByPk(id);
+    if (!survey || survey.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
+      throw new Error('Survey not found');
+    }
+
+    if (survey.surveyType === SURVEY_TYPES.VITALS) {
       return 'Vitals';
     }
+
+    if (CHARTING_SURVEY_TYPES.includes(survey.surveyType)) {
+      return 'Charting';
+    }
+
     return 'SurveyResponse';
   }
 
@@ -104,7 +111,7 @@ export class Survey extends Model {
     return null; // syncs everywhere
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
 }

@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { Routes } from '/helpers/routes';
+import { Routes } from '/helpers/routes'; 
 import { VaccineHistoryTab } from '../screens/vaccine/tableTabs';
 import { createTopTabNavigator } from '/components/TopTabNavigator';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
@@ -7,8 +7,6 @@ import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 const Tabs = createTopTabNavigator();
 
 export const VaccineTableTabs = (): ReactElement => {
-
-
   return (
     <Tabs.Navigator
       tabBarOptions={{

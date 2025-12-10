@@ -1,16 +1,40 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import * as z from 'zod';
 
 import { Op } from 'sequelize';
 import { log } from '@tamanu/shared/services/logging';
-import { ForbiddenError } from '@tamanu/shared/errors';
+import { ForbiddenError, InvalidParameterError } from '@tamanu/errors';
 import { completeSyncSession } from '@tamanu/database/sync';
+import { DEVICE_SCOPES } from '@tamanu/constants';
 
 import { CentralSyncManager } from './CentralSyncManager';
+import { startStream, StreamMessage } from './StreamMessage';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
+/**
+ * @typedef {import('../ApplicationContext').ApplicationContext} ApplicationContext
+ */
+
+/** @param ctx {ApplicationContext} */
 export const buildSyncRoutes = ctx => {
   const syncManager = new CentralSyncManager(ctx);
   const syncRoutes = express.Router();
+  syncRoutes.use(({ device, body: { deviceId } }, _res, next) => {
+    if (!device) {
+      throw new ForbiddenError('Sync requires an authenticated device ID (ie provided at login)');
+    }
+    device.ensureHasScope(DEVICE_SCOPES.SYNC_CLIENT);
+
+    if (deviceId) {
+      log.warn('Providing deviceId in the request body is deprecated');
+      if (device.id !== deviceId) {
+        throw new ForbiddenError('Device ID mismatch');
+      }
+    }
+
+    next();
+  });
 
   // create new sync session or join/update the queue for one
   syncRoutes.post(
@@ -19,12 +43,17 @@ export const buildSyncRoutes = ctx => {
       const {
         store,
         user,
-        body: { facilityIds, deviceId, isMobile },
+        device,
+        body: { lastSyncedTick = 0, urgent = false, facilityIds, isMobile },
         models: { SyncQueuedDevice, SyncSession },
       } = req;
 
+      if (!facilityIds || facilityIds.length === 0) {
+        throw new InvalidParameterError('No facilities provided');
+      }
+
       const userInstance = await store.models.User.findByPk(user.id);
-      if (!await userInstance.canSync(facilityIds, req)) {
+      if (!(await userInstance.canSync(facilityIds, req))) {
         throw new ForbiddenError('User cannot sync');
       }
       if (facilityIds.some(id => !userInstance.canAccessFacility(id))) {
@@ -36,7 +65,7 @@ export const buildSyncRoutes = ctx => {
         where: {
           completedAt: { [Op.is]: null },
           parameters: {
-            deviceId,
+            deviceId: device.id,
           },
         },
       });
@@ -53,21 +82,22 @@ export const buildSyncRoutes = ctx => {
         log.info('StaleSyncSessionCleaner.closedReconnectedSession', {
           sessionId: session.id,
           durationMs,
-          facilityIds: session.parameters.facilityIds,
-          deviceId: session.parameters.deviceId,
+          facilityIds,
+          deviceId: device.id,
         });
       }
 
       // now update our position in the queue and check if we're at the front of it
-      const queueRecord = await SyncQueuedDevice.checkSyncRequest({
-        lastSyncedTick: 0,
-        urgent: false,
-        ...req.body,
+      const queueRecord = await SyncQueuedDevice.checkSyncRequest(device.id, {
+        lastSyncedTick,
+        urgent,
+        facilityIds,
       });
+      log.warn(`DEBUG device=${device.id} queueRecord=${queueRecord.id}`);
       log.info('Queue position', queueRecord.get({ plain: true }));
 
       // if we're not at the front of the queue, we're waiting
-      if (queueRecord.id !== req.body.deviceId) {
+      if (queueRecord.id !== device.id) {
         res.send({
           status: 'waitingInQueue',
           behind: queueRecord,
@@ -94,11 +124,11 @@ export const buildSyncRoutes = ctx => {
 
       const { sessionId, tick } = await syncManager.startSession({
         userId: user.id,
-        deviceId,
+        deviceId: device.id,
         facilityIds,
-        isMobile
+        isMobile,
       });
-      res.json({ sessionId, tick });
+      res.json({ status: 'goodToGo', sessionId, tick });
     }),
   );
 
@@ -123,18 +153,38 @@ export const buildSyncRoutes = ctx => {
     }),
   );
 
+  // wait until session is ready, as a stream
+  syncRoutes.get(
+    '/:sessionId/ready/stream',
+    asyncHandler(async (req, res) => {
+      const {
+        params: { sessionId },
+      } = req;
+
+      if (!(await syncManager.sessionExists(sessionId))) {
+        throw new Error('Session not found');
+      }
+
+      startStream(res);
+
+      const interval = await ctx.settings.get('sync.databasePollInterval');
+      while (!(await syncManager.checkSessionReady(sessionId))) {
+        res.write(StreamMessage.sessionWaiting());
+        await sleepAsync(interval);
+      }
+
+      const { startedAtTick } = await syncManager.fetchSyncMetadata(sessionId);
+      res.write(StreamMessage.end({ startedAtTick }));
+      res.end();
+    }),
+  );
+
   // set the since and facilityId for a pull session
   syncRoutes.post(
     '/:sessionId/pull/initiate',
     asyncHandler(async (req, res) => {
-      const { params, body } = req;
-      const {
-        since: sinceString,
-        facilityIds,
-        tablesToInclude,
-        tablesForFullResync,
-        deviceId,
-      } = body;
+      const { params, body, device } = req;
+      const { since: sinceString, facilityIds, tablesToInclude, tablesForFullResync } = body;
       const since = parseInt(sinceString, 10);
       if (isNaN(since)) {
         throw new Error('Must provide "since" when creating a pull filter, even if it is 0');
@@ -144,7 +194,7 @@ export const buildSyncRoutes = ctx => {
         facilityIds,
         tablesToInclude,
         tablesForFullResync,
-        deviceId,
+        deviceId: device.id,
       });
       res.json({});
     }),
@@ -159,6 +209,32 @@ export const buildSyncRoutes = ctx => {
       const { sessionId } = params;
       const ready = await syncManager.checkPullReady(sessionId);
       res.json(ready);
+    }),
+  );
+
+  // wait until pull snapshot is ready, as a stream
+  syncRoutes.get(
+    '/:sessionId/pull/ready/stream',
+    asyncHandler(async (req, res) => {
+      const {
+        params: { sessionId },
+      } = req;
+
+      if (!(await syncManager.sessionExists(sessionId))) {
+        throw new Error('Session not found');
+      }
+
+      startStream(res);
+
+      const interval = await ctx.settings.get('sync.databasePollInterval');
+      while (!(await syncManager.checkPullReady(sessionId))) {
+        res.write(StreamMessage.pullWaiting());
+        await sleepAsync(interval);
+      }
+
+      const { totalToPull, pullUntil } = await syncManager.fetchPullMetadata(sessionId);
+      res.write(StreamMessage.end({ totalToPull, pullUntil }));
+      res.end();
     }),
   );
 
@@ -188,6 +264,46 @@ export const buildSyncRoutes = ctx => {
     }),
   );
 
+  // stream changes down to facility
+  syncRoutes.get(
+    '/:sessionId/pull/stream',
+    asyncHandler(async (req, res) => {
+      const {
+        params: { sessionId },
+        query: { fromId = null },
+      } = req;
+
+      if (!(await syncManager.checkPullReady(sessionId))) {
+        throw new Error('Session not ready');
+      }
+
+      startStream(res);
+
+      let startId = fromId ? parseInt(fromId, 10) : 0;
+      const limit = await ctx.settings.get('sync.databasePollBatchSize');
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        // TODO: change this to a cursor
+        const changes = await syncManager.getOutgoingChanges(sessionId, {
+          fromId: startId,
+          limit,
+        });
+        if (changes.length === 0) {
+          break;
+        }
+        startId = changes[changes.length - 1].id;
+
+        log.info(`STREAM /pull : returning ${changes.length} changes`);
+        for (const change of changes) {
+          res.write(StreamMessage.pullChange(change));
+        }
+      }
+
+      res.write(StreamMessage.end());
+      res.end();
+    }),
+  );
+
   // push changes in from facility
   syncRoutes.post(
     '/:sessionId/push',
@@ -205,10 +321,10 @@ export const buildSyncRoutes = ctx => {
   syncRoutes.post(
     '/:sessionId/push/complete',
     asyncHandler(async (req, res) => {
-      const { params, body } = req;
+      const { params, body, device } = req;
       const { sessionId } = params;
-      const { tablesToInclude, deviceId } = body;
-      await syncManager.completePush(sessionId, deviceId, tablesToInclude);
+      const { tablesToInclude } = body;
+      await syncManager.completePush(sessionId, device.id, tablesToInclude);
       res.json({});
     }),
   );
@@ -221,6 +337,22 @@ export const buildSyncRoutes = ctx => {
       const { sessionId } = params;
       const isComplete = await syncManager.checkPushComplete(sessionId);
       res.json(isComplete);
+    }),
+  );
+
+  const postErrorBodySchema = z.object({
+    error: z.string(),
+  });
+  // mark session as errored, so server will record the error and cancel the sync
+  syncRoutes.post(
+    '/:sessionId/error',
+    asyncHandler(async (req, res) => {
+      const { params } = req;
+      const { sessionId } = params;
+      const { error } = await postErrorBodySchema.parseAsync(req.body);
+
+      await syncManager.endSession(sessionId, error);
+      res.json({});
     }),
   );
 

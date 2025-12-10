@@ -1,15 +1,33 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
-import { REPEATS_LABELS } from '@tamanu/constants';
+import {
+  REPEATS_LABELS,
+  FORM_TYPES,
+  SUBMIT_ATTEMPTED_STATUS,
+  ENCOUNTER_TYPES,
+  MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
+  NOTE_TYPES
+} from '@tamanu/constants';
 import CloseIcon from '@material-ui/icons/Close';
 import { isFuture, parseISO, set } from 'date-fns';
+import {
+  TextField,
+  StyledTextField,
+  TranslatedSelectField,
+  TextInput,
+  FormGrid,
+  FormConfirmCancelBackRow,
+  FormSubmitButton,
+  MODAL_PADDING_LEFT_AND_RIGHT,
+  MODAL_PADDING_TOP_AND_BOTTOM,
+} from '@tamanu/ui-components';
 import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { Divider as BaseDivider, Box, IconButton as BaseIconButton } from '@material-ui/core';
-import { Colors, FORM_STATUSES, FORM_TYPES } from '../constants';
 import { useApi } from '../api';
 import { foreignKey } from '../utils/validation';
-
+import { Colors } from '../constants';
 import {
   AutocompleteField,
   CheckField,
@@ -17,37 +35,27 @@ import {
   Field,
   LocalisedField,
   PaginatedForm,
-  StyledTextField,
-  TextField,
-  TranslatedSelectField,
   useLocalisedSchema,
 } from '../components/Field';
 import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
 import { DateTimeField, DateTimeInput } from '../components/Field/DateField';
-import { TextInput } from '../components/Field/TextField';
-import { FormGrid } from '../components/FormGrid';
 import { TableFormFields } from '../components/Table';
 
-import { FormConfirmCancelBackRow } from '../components/ButtonRow';
 import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
-import {
-  BodyText,
-  FormSubmitButton,
-  MODAL_PADDING_LEFT_AND_RIGHT,
-  MODAL_PADDING_TOP_AND_BOTTOM,
-  SmallBodyText,
-} from '../components';
+import { BodyText, SmallBodyText } from '../components';
 import { TranslatedText, TranslatedReferenceData } from '../components/Translation';
 import { useSettings } from '../contexts/Settings';
 import { ConditionalTooltip } from '../components/Tooltip';
 import { useAuth } from '../contexts/Auth';
 import { useTranslation } from '../contexts/Translation';
-import { getDose, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
+import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { MedicationDiscontinueModal } from '../components/Medication/MedicationDiscontinueModal';
 import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOngoingPrescriptionsQuery';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
+import { createPrescriptionHash } from '../utils/medications';
+import { singularize } from '../utils';
 
 const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
@@ -161,7 +169,12 @@ const dischargingClinicianLabel = (
   />
 );
 
-const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialValues) => {
+const getDischargeInitialValues = ({
+  encounter,
+  currentUser,
+  dischargeNotes,
+  medicationInitialValues,
+}) => {
   const dischargeDraft = encounter?.dischargeDraft?.discharge;
   const today = new Date();
   const encounterStartDate = parseISO(encounter.startDate);
@@ -187,9 +200,9 @@ const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialV
   return {
     endDate: getInitialEndDate(),
     discharge: {
-      dischargerId: dischargeDraft?.dischargerId,
+      dischargerId: dischargeDraft?.dischargerId || currentUser?.id,
       dispositionId: dischargeDraft?.dispositionId,
-      note: dischargeNotes.map(n => n.content).join('\n\n'),
+      note: dischargeNotes?.map(n => n.content).join('\n\n') || '',
     },
     medications: medicationInitialValues,
     // Used in creation of associated notes
@@ -257,6 +270,17 @@ const NumberFieldWithoutLabel = ({ field, ...props }) => (
 
 const MedicationAccessor = ({ medication, getTranslation, getEnumTranslation }) => {
   const { medication: medicationReferenceData } = medication;
+  const translatedUnit = getEnumTranslation(
+    MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
+    medication.durationUnit,
+  );
+  const durationDisplay =
+    medication.durationValue && translatedUnit
+      ? `${medication.durationValue} ${singularize(
+          translatedUnit,
+          medication.durationValue,
+        ).toLowerCase()}`
+      : null;
   return (
     <Box>
       <DarkestText>
@@ -267,8 +291,13 @@ const MedicationAccessor = ({ medication, getTranslation, getEnumTranslation }) 
         />
       </DarkestText>
       <Box fontSize={'14px'} color={Colors.midText}>
-        {getDose(medication, getTranslation, getEnumTranslation)},{' '}
-        {getTranslatedFrequency(medication.frequency, getTranslation)}
+        {[
+          getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation),
+          getTranslatedFrequency(medication.frequency, getTranslation),
+          durationDisplay,
+        ]
+          .filter(Boolean)
+          .join(', ')}
       </Box>
     </Box>
   );
@@ -296,6 +325,7 @@ const MEDICATION_COLUMNS = (
   getEnumTranslation,
   handleDiscontinueMedication,
   canUpdateMedication,
+  canWriteSensitiveMedication,
 ) => [
   {
     key: 'medication',
@@ -324,12 +354,15 @@ const MEDICATION_COLUMNS = (
         data-testid="translatedtext-8e5k"
       />
     ),
-    accessor: ({ id }) => (
+    accessor: ({ id, medication }) => (
       <Field
         name={`medications.${id}.quantity`}
         component={NumberFieldWithoutLabel}
         data-testid="field-ksmf"
-        disabled={!canUpdateMedication}
+        disabled={
+          !canUpdateMedication ||
+          (medication?.referenceDrug?.isSensitive && !canWriteSensitiveMedication)
+        }
       />
     ),
     width: '120px',
@@ -343,14 +376,17 @@ const MEDICATION_COLUMNS = (
         data-testid="translatedtext-opjr"
       />
     ),
-    accessor: ({ id }) => (
+    accessor: ({ id, medication }) => (
       <Field
         name={`medications.${id}.repeats`}
         isClearable={false}
         component={TranslatedSelectField}
         enumValues={REPEATS_LABELS}
         data-testid="field-ium3"
-        disabled={!canUpdateMedication}
+        disabled={
+          !canUpdateMedication ||
+          (medication?.referenceDrug?.isSensitive && !canWriteSensitiveMedication)
+        }
       />
     ),
     width: '120px',
@@ -366,12 +402,15 @@ const MEDICATION_COLUMNS = (
         {
           key: 'Discontinued',
           title: '',
-          accessor: medication => (
-            <DiscontinuedAccessor
-              medication={medication}
-              handleDiscontinueMedication={handleDiscontinueMedication}
-            />
-          ),
+          accessor: medication =>
+            medication?.medication?.referenceDrug?.isSensitive && !canWriteSensitiveMedication ? (
+              <div />
+            ) : (
+              <DiscontinuedAccessor
+                medication={medication}
+                handleDiscontinueMedication={handleDiscontinueMedication}
+              />
+            ),
           width: '75px',
         },
       ]
@@ -379,11 +418,13 @@ const MEDICATION_COLUMNS = (
 ];
 
 const EncounterOverview = ({
-  encounter: { procedures, startDate, examiner, reasonForEncounter },
+  encounter: { procedures, startDate, examiner, reasonForEncounter, encounterType },
   currentDiagnoses,
 }) => {
   const { getSetting } = useSettings();
-  const dischargeDiagnosisMandatory = getSetting('features.discharge.dischargeDiagnosisMandatory');
+  const dischargeDiagnosisMandatory =
+    getSetting('features.discharge.dischargeDiagnosisMandatory') &&
+    encounterType !== ENCOUNTER_TYPES.CLINIC;
 
   return (
     <>
@@ -486,8 +527,11 @@ const DischargeFormScreen = props => {
     onSubmit,
   } = props;
   const { getSetting } = useSettings();
+  const { encounter } = useEncounter();
 
-  const dischargeDiagnosisMandatory = getSetting('features.discharge.dischargeDiagnosisMandatory');
+  const dischargeDiagnosisMandatory =
+    getSetting('features.discharge.dischargeDiagnosisMandatory') &&
+    encounter.encounterType !== ENCOUNTER_TYPES.CLINIC;
   const isDiagnosisEmpty = !currentDiagnoses.length && dischargeDiagnosisMandatory;
 
   const handleStepForward = async isSavedForm => {
@@ -502,7 +546,7 @@ const DischargeFormScreen = props => {
       // Hacky, set to SUBMIT_ATTEMPTED status to view error before summary page
       // without hitting submit button, it works with one page only. Ideally we should
       // have Pagination form component to handle this.
-      setStatus({ ...status, submitStatus: FORM_STATUSES.SUBMIT_ATTEMPTED });
+      setStatus({ ...status, submitStatus: SUBMIT_ATTEMPTED_STATUS });
     } else {
       onStepForward();
     }
@@ -656,12 +700,14 @@ export const DischargeForm = ({
   const { encounter } = useEncounter();
   const { getSetting } = useSettings();
   const queryClient = useQueryClient();
-  const { ability } = useAuth();
+  const { ability, currentUser } = useAuth();
   const canUpdateMedication = ability.can('write', 'Medication');
+  const canWriteSensitiveMedication = ability.can('write', 'SensitiveMedication');
 
-  const [dischargeNotes, setDischargeNotes] = useState([]);
+  const [dischargeNotes, setDischargeNotes] = useState(null);
   const [showWarningScreen, setShowWarningScreen] = useState(false);
   const [discontinuedMedication, setDiscontinuedMedication] = useState(null);
+  const [enableReinitialize, setEnableReinitialize] = useState(true);
   const api = useApi();
   const { getLocalisedSchema } = useLocalisedSchema();
   const dischargeNoteMandatory = getSetting('features.discharge.dischargeNoteMandatory');
@@ -673,11 +719,16 @@ export const DischargeForm = ({
   const { data: encounterMedications } = useEncounterMedicationQuery(encounter.id);
   const { data: ongoingPrescriptions } = usePatientOngoingPrescriptionsQuery(encounter.patientId);
 
-  const activeMedications =
-    encounterMedications?.data?.filter(medication => !medication.discontinued) || [];
-  const onGoingMedications = ongoingPrescriptions?.data?.filter(p => !p.discontinued) || [];
+  const activeMedications = (encounterMedications?.data || []).filter(
+    medication => !medication.discontinued,
+  );
+
+  const activeMedicationHashes = new Set(activeMedications.map(createPrescriptionHash));
+  const ongoingMedications = (ongoingPrescriptions?.data || [])
+    .filter(p => !p.discontinued)
+    .filter(p => !activeMedicationHashes.has(createPrescriptionHash(p)));
   const medicationInitialValues = getMedicationsInitialValues(
-    [...activeMedications, ...onGoingMedications],
+    [...activeMedications, ...ongoingMedications],
     encounter,
   );
   const handleSubmit = useCallback(
@@ -694,7 +745,7 @@ export const DischargeForm = ({
   useEffect(() => {
     (async () => {
       const { data: notes } = await api.get(`encounter/${encounter.id}/notes`);
-      setDischargeNotes(notes.filter(n => n.noteType === 'discharge').reverse()); // reverse order of array to sort by oldest first
+      setDischargeNotes(notes.filter(n => n.noteTypeId === NOTE_TYPES.DISCHARGE).reverse()); // reverse order of array to sort by oldest first
     })();
   }, [api, encounter.id]);
 
@@ -718,6 +769,20 @@ export const DischargeForm = ({
     );
   }, [showWarningScreen, onTitleChange]);
 
+  useEffect(() => {
+    const hasEncounterMeds = Boolean(encounterMedications);
+    const hasOngoingMeds = Boolean(ongoingPrescriptions);
+    const hasNotes = Boolean(dischargeNotes);
+    if (enableReinitialize && hasEncounterMeds && hasOngoingMeds && hasNotes) {
+      setEnableReinitialize(false);
+    }
+  }, [
+    Boolean(encounterMedications),
+    Boolean(ongoingPrescriptions),
+    Boolean(dischargeNotes),
+    enableReinitialize,
+  ]);
+
   const handleDiscontinueMedication = medication => {
     setDiscontinuedMedication(medication);
   };
@@ -732,11 +797,12 @@ export const DischargeForm = ({
       <PaginatedForm
         onSubmit={handleSubmit}
         onCancel={onCancel}
-        initialValues={getDischargeInitialValues(
+        initialValues={getDischargeInitialValues({
           encounter,
+          currentUser,
           dischargeNotes,
           medicationInitialValues,
-        )}
+        })}
         FormScreen={props => (
           <DischargeFormScreen
             {...props}
@@ -797,7 +863,7 @@ export const DischargeForm = ({
             ),
         })}
         formProps={{
-          enableReinitialize: true,
+          enableReinitialize,
           showInlineErrorsOnly: true,
           validateOnChange: true,
         }}
@@ -871,6 +937,7 @@ export const DischargeForm = ({
                     getEnumTranslation,
                     handleDiscontinueMedication,
                     canUpdateMedication,
+                    canWriteSensitiveMedication,
                   )}
                   data={activeMedications}
                   data-testid="tableformfields-i8q7"
@@ -885,7 +952,7 @@ export const DischargeForm = ({
                   fallback="Other ongoing medication"
                 />
               </MedicationHeader>
-              <TableContainer $isEmpty={onGoingMedications.length === 0}>
+              <TableContainer $isEmpty={ongoingMedications.length === 0}>
                 <TableFormFields
                   columns={MEDICATION_COLUMNS(
                     getTranslation,
@@ -893,7 +960,7 @@ export const DischargeForm = ({
                     handleDiscontinueMedication,
                     canUpdateMedication,
                   )}
-                  data={onGoingMedications}
+                  data={ongoingMedications}
                   data-testid="tableformfields-i8q7"
                 />
               </TableContainer>

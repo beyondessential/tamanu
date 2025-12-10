@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: notes
-        description: '{{ doc("table__notes") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__notes') }}"
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers:
+              - notify_notes_changed
+              - record_notes_changelog
+              - set_notes_updated_at
+              - set_notes_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid
@@ -28,29 +35,6 @@ sources:
           - name: deleted_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__deleted_at') }} in notes."
-          - name: note_type
-            data_type: character varying(255)
-            description: "{{ doc('notes__note_type') }}"
-            data_tests:
-              - not_null
-              - accepted_values:
-                  values:
-                    - admission
-                    - areaToBeImaged
-                    - clinicalMobile
-                    - dietary
-                    - handover
-                    - discharge
-                    - medical
-                    - nursing
-                    - other
-                    - pharmacy
-                    - physiotherapy
-                    - resultDescription
-                    - social
-                    - surgical
-                    - system
-                    - treatmentPlan
           - name: record_id
             data_type: character varying(255)
             description: "{{ doc('notes__record_id') }}"
@@ -62,21 +46,28 @@ sources:
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - Encounter
-                    - ImagingRequest
-                    - LabRequest
-                    - Patient
-                    - PatientCarePlan
-                    - Triage
+                  arguments:
+                    values:
+                      - Encounter
+                      - ImagingRequest
+                      - LabRequest
+                      - Patient
+                      - PatientCarePlan
+                      - Triage
           - name: date
             data_type: character(19)
             description: "{{ doc('generic__date') }} in notes."
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: datetime
           - name: date_legacy
             data_type: timestamp with time zone
             description: "{{ doc('generic__date_legacy') }} in notes."
+            config:
+              meta:
+                masking: datetime
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in notes."
@@ -90,24 +81,35 @@ sources:
             description: "{{ doc('notes__author_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: on_behalf_of_id
             data_type: character varying(255)
             description: "{{ doc('notes__on_behalf_of_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: content
             data_type: text
             description: "{{ doc('notes__content') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: text
           - name: revised_by_id
             data_type: uuid
             description: "{{ doc('notes__revised_by_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'notes')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'notes')
+                    field: id
+          - name: note_type_id
+            data_type: character varying(255)
+            description: "{{ doc('notes__note_type_id') }}"
+            data_tests:
+              - not_null

@@ -1,8 +1,9 @@
 import React, { useCallback } from 'react';
 
+import { FORM_TYPES } from '@tamanu/constants/forms';
+
 import { FormModal } from '../../../components/FormModal';
 import { useApi } from '../../../api';
-import { FORM_TYPES } from '../../../constants';
 
 export const NewRecordModal = ({ endpoint, title, open, Form, onCancel }) => {
   const api = useApi();
