@@ -20,13 +20,7 @@ import {
 } from '@tamanu/shared/utils/medication';
 
 import { TranslatedText } from '../Translation/TranslatedText';
-import {
-  TextField,
-  Form,
-  Button,
-  OutlinedButton,
-  FormGrid,
-} from '@tamanu/ui-components';
+import { TextField, Form, Button, OutlinedButton, FormGrid } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { CheckField, Field, NumberField } from '../Field';
 import { FormModal } from '../FormModal';
@@ -142,19 +136,19 @@ export const MedicationDetails = ({
     ...(medication.isOngoing || medication.discontinued
       ? []
       : [
-        {
-          label: <TranslatedText stringId="medication.details.duration" fallback="Duration" />,
-          value: medication.durationValue
-            ? `${medication.durationValue} ${singularize(
-              getEnumTranslation(
-                MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
-                medication.durationUnit,
-              ),
-              medication.durationValue,
-            ).toLowerCase()}`
-            : '-',
-        },
-      ]),
+          {
+            label: <TranslatedText stringId="medication.details.duration" fallback="Duration" />,
+            value: medication.durationValue
+              ? `${medication.durationValue} ${singularize(
+                  getEnumTranslation(
+                    MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
+                    medication.durationUnit,
+                  ),
+                  medication.durationValue,
+                ).toLowerCase()}`
+              : '-',
+          },
+        ]),
     {
       label: <TranslatedText stringId="medication.details.indication" fallback="Indication" />,
       value: medication.indication || '-',
@@ -193,13 +187,13 @@ export const MedicationDetails = ({
     ...(medication.isOngoing || medication.discontinued || !medication.endDate
       ? []
       : [
-        {
-          label: (
-            <TranslatedText stringId="medication.details.endDate" fallback="End date & time" />
-          ),
-          value: `${formatShortest(medication.endDate)} ${formatTimeSlot(medication.endDate)}`,
-        },
-      ]),
+          {
+            label: (
+              <TranslatedText stringId="medication.details.endDate" fallback="End date & time" />
+            ),
+            value: `${formatShortest(medication.endDate)} ${formatTimeSlot(medication.endDate)}`,
+          },
+        ]),
     {
       label: <TranslatedText stringId="medication.details.prescriber" fallback="Prescriber" />,
       value: medication.prescriber?.displayName || '-',
@@ -222,8 +216,12 @@ export const MedicationDetails = ({
   ];
 
   const onSubmit = async data => {
+    const payload = { ...data };
+    if (payload.repeats === '') {
+      delete payload.repeats;
+    }
     await api.put(`medication/${medication.id}/pharmacy-notes`, {
-      ...data,
+      ...payload,
     });
     onReloadTable();
   };
@@ -470,31 +468,39 @@ export const MedicationDetails = ({
                   </DarkestText>
                   <DetailsContainer mt={0.5} display={'flex'}>
                     <Box display={'flex'} flexDirection={'column'} mr={2.5} style={{ gap: '16px' }}>
-                      {medication?.idealTimes?.slice().sort((a, b) => {
-                        const timeA = getDateFromTimeString(a);
-                        const timeB = getDateFromTimeString(b);
-                        return timeA - timeB;
-                      }).map(time => {
-                        const slot = findAdministrationTimeSlotFromIdealTime(time).timeSlot;
-                        return (
-                          <DarkestText key={time}>
-                            {`${formatTimeSlot(
-                              getDateFromTimeString(slot.startTime),
-                            )} - ${formatTimeSlot(getDateFromTimeString(slot.endTime))} `}
-                          </DarkestText>
-                        );
-                      })}
+                      {medication?.idealTimes
+                        ?.slice()
+                        .sort((a, b) => {
+                          const timeA = getDateFromTimeString(a);
+                          const timeB = getDateFromTimeString(b);
+                          return timeA - timeB;
+                        })
+                        .map(time => {
+                          const slot = findAdministrationTimeSlotFromIdealTime(time).timeSlot;
+                          return (
+                            <DarkestText key={time}>
+                              {`${formatTimeSlot(
+                                getDateFromTimeString(slot.startTime),
+                              )} - ${formatTimeSlot(getDateFromTimeString(slot.endTime))} `}
+                            </DarkestText>
+                          );
+                        })}
                     </Box>
                     <Box display={'flex'} flexDirection={'column'} style={{ gap: '16px' }}>
-                      {medication?.idealTimes?.slice().sort((a, b) => {
-                        const timeA = getDateFromTimeString(a);
-                        const timeB = getDateFromTimeString(b);
-                        return timeA - timeB;
-                      }).map(time => {
-                        return (
-                          <MidText key={time}>{formatTimeSlot(getDateFromTimeString(time))}</MidText>
-                        );
-                      })}
+                      {medication?.idealTimes
+                        ?.slice()
+                        .sort((a, b) => {
+                          const timeA = getDateFromTimeString(a);
+                          const timeB = getDateFromTimeString(b);
+                          return timeA - timeB;
+                        })
+                        .map(time => {
+                          return (
+                            <MidText key={time}>
+                              {formatTimeSlot(getDateFromTimeString(time))}
+                            </MidText>
+                          );
+                        })}
                     </Box>
                   </DetailsContainer>
                 </Box>
@@ -509,7 +515,9 @@ export const MedicationDetails = ({
                         component={NumberField}
                         min={0}
                         max={MAX_REPEATS}
-                        disabled={!canDiscontinueMedication || isSensitive && !canWriteSensitiveMedication}
+                        disabled={
+                          !canDiscontinueMedication || (isSensitive && !canWriteSensitiveMedication)
+                        }
                       />
                     </NoteModalActionBlocker>
                   </Box>
