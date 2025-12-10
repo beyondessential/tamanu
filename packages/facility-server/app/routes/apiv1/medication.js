@@ -353,7 +353,7 @@ const updatePharmacyNotesInputSchema = z
       .nullable()
       .transform(v => (!v ? null : v)),
     displayPharmacyNotesInMar: z.boolean().optional(),
-    repeats: z.number().int().min(0).max(12).optional().nullable(),
+    repeats: z.number().int().min(0).max(MAX_REPEATS).optional().nullable(),
   })
   .strip();
 medication.put(
