@@ -8,6 +8,13 @@ import { ModalActionRow } from '../../components/ModalActionRow';
 import { useInvoiceInsurancePlansMutation } from '../../api/mutations/useInvoiceMutation';
 import { MultiAutocompleteInput } from '../../components/Field';
 
+const StyledModal = styled(Modal)`
+  .MuiPaper-root,
+  .MuiPaper-root > div {
+    overflow: visible;
+  }
+`;
+
 const ModalBody = styled.div`
   margin: 20px 0 50px;
 
@@ -34,7 +41,7 @@ export const InvoiceInsuranceModal = ({ open, onClose, invoice }) => {
   };
 
   return (
-    <Modal
+    <StyledModal
       width="sm"
       title={
         <TranslatedText stringId="invoice.modal.insurancePlans.title" fallback="Insurance plans" />
@@ -63,6 +70,6 @@ export const InvoiceInsuranceModal = ({ open, onClose, invoice }) => {
         />
       </ModalBody>
       <ModalActionRow onConfirm={onConfirm} onCancel={onClose} />
-    </Modal>
+    </StyledModal>
   );
 };
