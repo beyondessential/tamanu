@@ -130,10 +130,13 @@ const getEncounterType = row => {
 
   return (
     <ThemedTooltip title={label} data-testid="themedtooltip-zxwp">
-      <TranslatedEnum
-        enumValues={ENCOUNTER_TYPE_ABBREVIATION_LABELS}
-        value={encounter.encounterType}
-      />
+      {/* span needed for the tooltip to work */}
+      <span>
+        <TranslatedEnum
+          enumValues={ENCOUNTER_TYPE_ABBREVIATION_LABELS}
+          value={encounter.encounterType}
+        />
+      </span>
     </ThemedTooltip>
   );
 };
