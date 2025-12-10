@@ -243,7 +243,7 @@ export const MedicationDetails = ({
       .number()
       .integer()
       .min(0)
-      .max()
+      .max(MAX_REPEATS)
       .nullable()
       .optional(),
   });
