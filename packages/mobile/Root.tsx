@@ -31,7 +31,7 @@ export const Root = (): any => {
   // Dynamically load Storybook only when needed
   useEffect(() => {
     if (storybookActive && !StorybookComponent) {
-      import('./storybook').then((module) => {
+      import('./storybook/index.js').then((module) => {
         setStorybookComponent(() => module.default);
       });
     }

@@ -5,6 +5,7 @@ import './__mocks__/react-native__Libraries__Utilities__DevSettings';
 import './__mocks__/react-native-device-infoMock';
 import './__mocks__/react-native-nitro-sqlite';
 
+import mockAsyncStorage from '@react-native-async-storage/async-storage/jest/async-storage-mock';
 import { LogBox } from 'react-native';
 
 jest.useFakeTimers();
@@ -12,3 +13,5 @@ jest.useFakeTimers();
 LogBox.ignoreLogs([
   'Expected style',
 ]);
+
+jest.mock('@react-native-async-storage/async-storage', () => mockAsyncStorage);
