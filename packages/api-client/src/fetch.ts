@@ -1,10 +1,10 @@
 import { RemoteUnreachableError } from '@tamanu/errors';
+import { fetch, FetchOptions } from '@passcod/faith';
 
 import type { LoggerType } from './TamanuApi';
 
-export interface BaseFetchOptions extends RequestInit {
+export interface BaseFetchOptions extends FetchOptions {
   fetch?: typeof fetch;
-  timeout?: number | false;
 }
 
 export interface ResponseError {
@@ -24,14 +24,8 @@ export async function fetchOrThrowIfUnavailable(
   const abort = new AbortController();
   let timer: NodeJS.Timeout | number | undefined;
 
-  if (timeout && Number.isFinite(timeout) && !config.signal) {
-    timer = setTimeout(() => abort.abort(), timeout);
-  }
-
   try {
-    return await fetchFn(url, { signal: abort.signal, ...config }).finally(() => {
-      clearTimeout(timer);
-    });
+    return await fetchFn(url, { signal: abort.signal, ...config });
   } catch (e) {
     if (e instanceof Error && e.message === 'Failed to fetch') {
       // apply more helpful message if the server is not available

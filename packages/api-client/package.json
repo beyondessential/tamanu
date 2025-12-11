@@ -33,6 +33,7 @@
     "rimraf": "^6.0.1"
   },
   "dependencies": {
+    "@passcod/faith": "^0.0.2",
     "@tamanu/constants": "*",
     "@tamanu/errors": "*",
     "@tamanu/shared": "*",
