@@ -80,16 +80,16 @@ describe('Invoice price list item import', () => {
     const headers = ['invoiceProductId', 'PL_A', 'PL_B'];
     const rows = [
       { invoiceProductId: 'prod-1', PL_A: 100, PL_B: 200 },
-      { invoiceProductId: 'prod-2', PL_A: '', PL_B: 300 }, // blank should be ignored
+      { invoiceProductId: 'prod-2', PL_A: 300, PL_B: 400 },
     ];
     const buffer = buildWorkbookBuffer(headers, rows);
 
     const { errors, stats } = await doImport(ctx, { buffer });
     expect(errors).toBeEmpty();
 
-    // Expect 3 items created
+    // Expect 4 items created
     expect(stats).toMatchObject({
-      InvoicePriceListItem: { created: 3, updated: 0, errored: 0 },
+      InvoicePriceListItem: { created: 4, updated: 0, errored: 0 },
     });
 
     // Verify DB state
@@ -104,8 +104,9 @@ describe('Invoice price list item import', () => {
     const pricesProd1 = itemsProd1.map(i => i.price).sort((a, b) => a - b);
     expect(pricesProd1).toEqual(['100', '200']);
 
-    expect(itemsProd2).toHaveLength(1);
-    expect(itemsProd2[0].price).toEqual('300');
+    expect(itemsProd2).toHaveLength(2);
+    const pricesProd2 = itemsProd2.map(i => i.price).sort((a, b) => a - b);
+    expect(pricesProd2).toEqual(['300', '400']);
   });
 
   it('should create price list items from sheet headers and rows with special values', async () => {
@@ -121,8 +122,7 @@ describe('Invoice price list item import', () => {
 
     const headers = ['invoiceProductId', 'PL_A', 'PL_B'];
     const rows = [
-      { invoiceProductId: 'prod-1', PL_A: 'hidden', PL_B: '' }, // hidden should be set to historical
-      { invoiceProductId: 'prod-2', PL_A: '', PL_B: 'manual-entry' }, // manual-entry should be set to null
+      { invoiceProductId: 'prod-1', PL_A: 'hidden', PL_B: '' },
     ];
     const buffer = buildWorkbookBuffer(headers, rows);
 
@@ -138,17 +138,14 @@ describe('Invoice price list item import', () => {
     const itemsProd1 = await InvoicePriceListItem.findAll({
       where: { invoiceProductId: 'prod-1' },
     });
-    const itemsProd2 = await InvoicePriceListItem.findAll({
-      where: { invoiceProductId: 'prod-2' },
-    });
 
-    expect(itemsProd1).toHaveLength(1);
-    expect(itemsProd1[0].price).toBeNull();
-    expect(itemsProd1[0].visibilityStatus).toEqual('historical');
-
-    expect(itemsProd2).toHaveLength(1);
-    expect(itemsProd2[0].price).toBeNull();
-    expect(itemsProd2[0].visibilityStatus).toEqual('current');
+    expect(itemsProd1).toHaveLength(2);
+    const hiddenItem = itemsProd1.find(i => i.isHidden);
+    expect(hiddenItem).toBeDefined();
+    expect(hiddenItem.price).toBeNull();
+    const visibleItem = itemsProd1.find(i => !i.isHidden);
+    expect(visibleItem).toBeDefined();
+    expect(visibleItem.price).toBeNull();
   });
 
   it('should validate non-numeric price values', async () => {

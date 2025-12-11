@@ -22,6 +22,7 @@ export function productMatrixByCodeLoaderFactory(config) {
     parentIdField,
     valueField,
     valueExtractor = defaultValueExtractor,
+    allowEmptyValues = false,
     messages,
   } = config;
 
@@ -94,10 +95,11 @@ export function productMatrixByCodeLoaderFactory(config) {
     const rows = [];
     for (const code of state.codes) {
       const rawValue = item[code];
-      // Skip empties
-      if (rawValue === undefined || rawValue === null || `${rawValue}`.trim() === '') continue;
 
-      const { parsedValue, isValidValue, visibilityStatus } = valueExtractor(rawValue);
+      const isEmpty = rawValue === undefined || rawValue === null || `${rawValue}`.trim() === '';
+      if (!allowEmptyValues && isEmpty) continue;
+
+      const { parsedValue, isValidValue, ...otherColumns } = valueExtractor(rawValue, isEmpty);
       if (!isValidValue) {
         pushError(messages.invalidValue(rawValue, code, invoiceProductId), itemModel);
         return [];
@@ -119,7 +121,7 @@ export function productMatrixByCodeLoaderFactory(config) {
           [parentIdField]: parentId,
           invoiceProductId,
           [valueField]: parsedValue,
-          ...(visibilityStatus ? { visibilityStatus } : {}),
+          ...otherColumns,
         },
       });
     }

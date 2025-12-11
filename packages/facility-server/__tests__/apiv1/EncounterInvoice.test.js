@@ -12,12 +12,29 @@ import {
 } from '@tamanu/constants';
 import { describe } from 'node:test';
 
+async function createPriceListItemForProduct(
+  models,
+  invoiceProductId,
+  invoicePriceListId,
+  price = 100,
+) {
+  return await models.InvoicePriceListItem.create(fake(models.InvoicePriceListItem, {
+    invoiceProductId,
+    invoicePriceListId,
+    price,
+    isHidden: false,
+  }));
+}
+
 describe('Encounter invoice', () => {
   let patient = null;
   let user = null;
   let app = null;
   let baseApp = null;
   let models = null;
+  let facility = null;
+  let location = null;
+  let priceList = null;
   let ctx;
 
   beforeAll(async () => {
@@ -27,6 +44,26 @@ describe('Encounter invoice', () => {
     patient = await models.Patient.create(await createDummyPatient(models));
     user = await models.User.create({ ...fakeUser(), role: 'practitioner' });
     app = await baseApp.asUser(user);
+
+    facility = await models.Facility.findOne({
+      order: [['createdAt', 'ASC']],
+    });
+    location = await models.Location.create(
+      fake(models.Location, {
+        facilityId: facility.id,
+        name: 'Location Invoice Test',
+        code: 'LOCATION-INVOICE-TEST',
+      }),
+    );
+    priceList = await models.InvoicePriceList.create(
+      fake(models.InvoicePriceList, {
+        name: 'Facility Price List',
+        code: 'FACILITY',
+        rules: {
+          facilityId: facility.id,
+        },
+      }),
+    );
   });
 
   beforeEach(async () => {
@@ -63,9 +100,11 @@ describe('Encounter invoice', () => {
   });
 
   describe('Automatically added items', () => {
-    it('should automatically add/remove items to the invoice when a procedure is created/deleted', async () => {
+    // Although this test uses a procedure type, this same logic applies to all possible InvoiceItemSourceRecord
+    it('should NOT automatically add items to the invoice when a procedure is created if the price list item is hidden', async () => {
       const encounter = await models.Encounter.create({
         ...(await createDummyEncounter(models)),
+        locationId: location.id,
         patientId: patient.id,
       });
       await models.Invoice.create({
@@ -89,6 +128,114 @@ describe('Encounter invoice', () => {
           sourceRecordId: procedureType.id,
         }),
       );
+      const item = await createPriceListItemForProduct(models, invoiceProduct.id, priceList.id);
+      await item.update({ isHidden: true });
+      await models.Procedure.create(
+        fake(models.Procedure, {
+          encounterId: encounter.id,
+          procedureTypeId: procedureType.id,
+          date: new Date(),
+          physicianId: user.id,
+        }),
+      );
+
+      const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+      expect(result).toHaveSucceeded();
+      expect(result.body).toMatchObject({
+        displayId: 'INV-123',
+        encounterId: encounter.id,
+        status: INVOICE_STATUSES.IN_PROGRESS,
+        items: [],
+      });
+      expect(result.body.items).toHaveLength(0);
+    });
+
+    // Although this test uses a procedure type, this same logic applies to all possible InvoiceItemSourceRecord
+    it('should automatically add items to the invoice when a procedure is created even if the price list item has a null price', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        locationId: location.id,
+        patientId: patient.id,
+      });
+      await models.Invoice.create({
+        encounterId: encounter.id,
+        displayId: 'INV-123',
+        date: new Date(),
+        status: INVOICE_STATUSES.IN_PROGRESS,
+      });
+      const procedureType = await models.ReferenceData.create(
+        fake(models.ReferenceData, {
+          type: REFERENCE_TYPES.PROCEDURE_TYPE,
+          name: 'Procedure 1',
+          code: 'PROC-1',
+        }),
+      );
+      const invoiceProduct = await models.InvoiceProduct.create(
+        fake(models.InvoiceProduct, {
+          category: INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE,
+          sourceRecordType:
+            INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE],
+          sourceRecordId: procedureType.id,
+        }),
+      );
+      const item = await createPriceListItemForProduct(models, invoiceProduct.id, priceList.id);
+      await item.update({ price: null });
+      const procedure = await models.Procedure.create(
+        fake(models.Procedure, {
+          encounterId: encounter.id,
+          procedureTypeId: procedureType.id,
+          date: new Date(),
+          physicianId: user.id,
+        }),
+      );
+
+      const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+      expect(result).toHaveSucceeded();
+      expect(result.body).toMatchObject({
+        displayId: 'INV-123',
+        encounterId: encounter.id,
+        status: INVOICE_STATUSES.IN_PROGRESS,
+        items: [
+          {
+            sourceRecordId: procedure.id,
+            sourceRecordType: procedure.getModelName(),
+            productId: invoiceProduct.id,
+            orderedByUserId: user.id,
+            quantity: 1,
+            insurancePlanItems: [],
+          },
+        ],
+      });
+    });
+
+    it('should automatically add/remove items to the invoice when a procedure is created/deleted', async () => {
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        locationId: location.id,
+        patientId: patient.id,
+      });
+      await models.Invoice.create({
+        encounterId: encounter.id,
+        displayId: 'INV-123',
+        date: new Date(),
+        status: INVOICE_STATUSES.IN_PROGRESS,
+      });
+      const procedureType = await models.ReferenceData.create(
+        fake(models.ReferenceData, {
+          type: REFERENCE_TYPES.PROCEDURE_TYPE,
+          name: 'Procedure 1',
+          code: 'PROC-1',
+        }),
+      );
+      const invoiceProduct = await models.InvoiceProduct.create(
+        fake(models.InvoiceProduct, {
+          category: INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE,
+          sourceRecordType:
+            INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE],
+          sourceRecordId: procedureType.id,
+        }),
+      );
+      await createPriceListItemForProduct(models, invoiceProduct.id, priceList.id);
       const procedure = await models.Procedure.create(
         fake(models.Procedure, {
           encounterId: encounter.id,
@@ -168,6 +315,7 @@ describe('Encounter invoice', () => {
             sourceRecordId: labTestBloodsType.id,
           }),
         );
+        await createPriceListItemForProduct(models, labTestBloodsProduct.id, priceList.id);
         labTestFluType = await models.LabTestType.create(
           fake(models.LabTestType, {
             name: 'Flu',
@@ -183,6 +331,7 @@ describe('Encounter invoice', () => {
             sourceRecordId: labTestFluType.id,
           }),
         );
+        await createPriceListItemForProduct(models, labTestFluProduct.id, priceList.id);
         labTestHeartType = await models.LabTestType.create(
           fake(models.LabTestType, {
             name: 'Heart',
@@ -198,6 +347,7 @@ describe('Encounter invoice', () => {
             sourceRecordId: labTestPanelGeneral.id,
           }),
         );
+        await createPriceListItemForProduct(models, labTestPanelGeneralProduct.id, priceList.id);
         labTestPanelAll = await models.LabTestPanel.create(
           fake(models.LabTestPanel, {
             name: 'All',
@@ -233,6 +383,7 @@ describe('Encounter invoice', () => {
       it('should automatically add/remove the panel product to the invoice when a lab request is created/deleted', async () => {
         const encounter = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
+          locationId: location.id,
           patientId: patient.id,
         });
         await models.Invoice.create({
@@ -296,6 +447,7 @@ describe('Encounter invoice', () => {
       it('should automatically add/remove the test products to the invoice when a lab request is created/deleted', async () => {
         const encounter = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
+          locationId: location.id,
           patientId: patient.id,
         });
         await models.Invoice.create({
@@ -380,6 +532,7 @@ describe('Encounter invoice', () => {
       it('should automatically add/remove the test products to the invoice when a product is not configured for the panel', async () => {
         const encounter = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
+          locationId: location.id,
           patientId: patient.id,
         });
         await models.Invoice.create({
@@ -499,6 +652,7 @@ describe('Encounter invoice', () => {
             sourceRecordId: imagingType.id,
           }),
         );
+        await createPriceListItemForProduct(models, imagingRequestProduct.id, priceList.id);
         imagingAreaHeadProduct = await models.InvoiceProduct.create(
           fake(models.InvoiceProduct, {
             category: INVOICE_ITEMS_CATEGORIES.IMAGING_AREA,
@@ -507,11 +661,13 @@ describe('Encounter invoice', () => {
             sourceRecordId: imagingAreaHead.id,
           }),
         );
+        await createPriceListItemForProduct(models, imagingAreaHeadProduct.id, priceList.id);
       });
 
       it('should automatically add/remove items to the invoice when an imaging request is created/deleted', async () => {
         const encounter = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
+          locationId: location.id,
           patientId: patient.id,
         });
         await models.Invoice.create({
@@ -590,6 +746,7 @@ describe('Encounter invoice', () => {
       it('should not automatically add/remove items to the invoice when the transaction is rolled back', async () => {
         const encounter = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
+          locationId: location.id,
           patientId: patient.id,
         });
         await models.Invoice.create({
@@ -741,6 +898,7 @@ describe('Encounter invoice', () => {
     it('should include insurance plan items with default coverage for invoice items', async () => {
       const encounter = await models.Encounter.create({
         ...(await createDummyEncounter(models)),
+        locationId: location.id,
         patientId: patient.id,
       });
 
@@ -781,6 +939,7 @@ describe('Encounter invoice', () => {
           sourceRecordId: procedureType.id,
         }),
       );
+      await createPriceListItemForProduct(models, invoiceProduct.id, priceList.id);
 
       const procedure = await models.Procedure.create(
         fake(models.Procedure, {
@@ -812,6 +971,7 @@ describe('Encounter invoice', () => {
     it('should include insurance plan items with custom coverage values', async () => {
       const encounter = await models.Encounter.create({
         ...(await createDummyEncounter(models)),
+        locationId: location.id,
         patientId: patient.id,
       });
 
@@ -852,6 +1012,7 @@ describe('Encounter invoice', () => {
           sourceRecordId: procedureType.id,
         }),
       );
+      await createPriceListItemForProduct(models, invoiceProduct.id, priceList.id);
 
       // Create custom coverage for this specific product
       await models.InvoiceInsurancePlanItem.create({
@@ -890,6 +1051,7 @@ describe('Encounter invoice', () => {
     it('should include multiple insurance plans for a single invoice', async () => {
       const encounter = await models.Encounter.create({
         ...(await createDummyEncounter(models)),
+        locationId: location.id,
         patientId: patient.id,
       });
 
@@ -941,6 +1103,7 @@ describe('Encounter invoice', () => {
           sourceRecordId: procedureType.id,
         }),
       );
+      await createPriceListItemForProduct(models, invoiceProduct.id, priceList.id);
 
       // Create custom coverage for second plan only
       await models.InvoiceInsurancePlanItem.create({

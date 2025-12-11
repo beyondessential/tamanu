@@ -92,7 +92,6 @@ export const INVOICE_INSURER_PAYMENT_STATUS_LABELS = {
 };
 
 export const INVOICE_PRICE_LIST_ITEM_IMPORT_VALUES = {
-  MANUAL_ENTRY: 'manual-entry',
   HIDDEN: 'hidden',
 };
 

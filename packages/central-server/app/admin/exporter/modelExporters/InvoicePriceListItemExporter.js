@@ -1,7 +1,7 @@
-import { INVOICE_PRICE_LIST_ITEM_IMPORT_VALUES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { INVOICE_PRICE_LIST_ITEM_IMPORT_VALUES } from '@tamanu/constants';
 import { ProductMatrixByCodeExporter } from './ProductMatrixByCodeExporter';
 
-const { MANUAL_ENTRY, HIDDEN } = INVOICE_PRICE_LIST_ITEM_IMPORT_VALUES;
+const { HIDDEN } = INVOICE_PRICE_LIST_ITEM_IMPORT_VALUES;
 
 export class InvoicePriceListItemExporter extends ProductMatrixByCodeExporter {
   constructor(context, dataType) {
@@ -11,12 +11,11 @@ export class InvoicePriceListItemExporter extends ProductMatrixByCodeExporter {
       parentIdField: 'invoicePriceListId',
       valueField: 'price',
       valueExtractor: item => {
-        const { price, visibilityStatus } = item;
-        if (visibilityStatus === VISIBILITY_STATUSES.HISTORICAL) return HIDDEN;
-        if (price === null) return MANUAL_ENTRY;
+        const { price, isHidden } = item;
+        if (isHidden) return HIDDEN;
         return price;
       },
-      itemModelAttributes: ['visibilityStatus'],
+      itemModelAttributes: ['isHidden'],
       tabName: 'Invoice Price List Items',
     });
   }
