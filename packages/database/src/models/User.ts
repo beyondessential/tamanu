@@ -500,7 +500,7 @@ export class User extends Model {
 
   static async loginFromToken(
     token: string,
-    { tokenSecret, tokenIssuer }: LoginContext,
+    { tokenSecret, tokenIssuer, log }: LoginContext,
   ): Promise<LoginReturn> {
     const { Device, Facility } = this.sequelize.models;
 
@@ -521,6 +521,25 @@ export class User extends Model {
         },
       )
       .catch(error => {
+        // Log the underlying JWT verification error for debugging
+        if (error.code) {
+          log.error('JWT verification failed', {
+            code: error.code,
+            claim: error.claim,
+            reason: error.reason,
+            message: error.message,
+            tokenIssuer,
+            expectedIssuer: tokenIssuer,
+            expectedAudience: JWT_TOKEN_TYPES.ACCESS,
+          });
+        } else {
+          log.error('JWT verification failed with unknown error', {
+            message: error.message,
+            name: error.name,
+            stack: error.stack,
+            tokenIssuer,
+          });
+        }
         throw new InvalidTokenError().withCause(error);
       });
 
