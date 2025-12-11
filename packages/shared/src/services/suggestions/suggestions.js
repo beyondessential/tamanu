@@ -600,7 +600,33 @@ createSuggester(
   },
 );
 
-createSuggester('invoiceProduct', 'InvoiceProduct', ({ endpoint, modelName }) =>
+createSuggester(
+  'invoiceProduct',
+  'InvoiceProduct',
+  ({ endpoint, modelName }) => DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
+  {
+    includeBuilder: req => {
+      const { priceListId } = req.query;
+
+      if (!priceListId) return [];
+
+      return [
+        {
+          model: req.models.InvoicePriceListItem,
+          as: 'invoicePriceListItems',
+          required: true,
+          where: {
+            invoicePriceListId: priceListId,
+            isHidden: false,
+          },
+        },
+      ];
+    },
+    queryOptions: { subQuery: false },
+  },
+);
+
+createSuggester('invoiceInsurancePlan', 'InvoiceInsurancePlan', ({ endpoint, modelName }) =>
   DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
 );
 

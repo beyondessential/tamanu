@@ -716,8 +716,21 @@ describe('Reference data exporter', () => {
       invoicePriceListId: pl1.id, // code 'B'
       price: 50,
     });
+    await models.InvoicePriceListItem.create({
+      id: 'item-3',
+      invoiceProductId: p1.id,
+      invoicePriceListId: pl1.id, // code 'B'
+      price: null,
+    });
+    await models.InvoicePriceListItem.create({
+      id: 'item-4',
+      invoiceProductId: p2.id,
+      invoicePriceListId: pl2.id, // code 'A'
+      price: null,
+      isHidden: true,
+    });
 
-    await exporter(store, { 1: 'invoicePriceList' });
+    await exporter(store, { 1: 'invoicePriceList', 2: 'invoicePriceListItem' });
 
     expect(writeExcelFile).toBeCalledWith(
       [
@@ -728,6 +741,14 @@ describe('Reference data exporter', () => {
             ['pl-2', 'A', null, null, 'current'],
           ],
           name: 'Invoice Price List',
+        },
+        {
+          data: [
+            ['invoiceProductId', 'A', 'B'],
+            ['prod-a', '100', null],
+            ['prod-b', 'hidden', '50'],
+          ],
+          name: 'Invoice Price List Items',
         },
       ],
       '',

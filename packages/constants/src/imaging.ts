@@ -79,7 +79,7 @@ export interface ImagingTableVersion {
   statuses: string[];
 }
 export const IMAGING_TABLE_VERSIONS: { [key: string]: ImagingTableVersion } = Object.fromEntries(
-  Object.keys(IMAGING_TABLE_STATUS_GROUPINGS).map((key) => {
+  Object.keys(IMAGING_TABLE_STATUS_GROUPINGS).map(key => {
     const statuses =
       IMAGING_TABLE_STATUS_GROUPINGS[key as keyof typeof IMAGING_TABLE_STATUS_GROUPINGS];
     return [
@@ -91,3 +91,9 @@ export const IMAGING_TABLE_VERSIONS: { [key: string]: ImagingTableVersion } = Ob
     ];
   }),
 );
+
+export const INVOICEABLE_IMAGING_REQUEST_STATUSES = [
+  IMAGING_REQUEST_STATUS_TYPES.PENDING,
+  IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS,
+  IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+];

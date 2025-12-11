@@ -29,12 +29,10 @@ import { add } from 'date-fns';
 import { z } from 'zod';
 import { deleteChartInstance, fetchAnswersWithHistory, fetchGraphData, fetchChartInstances } from '../../routeHandlers/charts';
 import { keyBy } from 'lodash';
-
 import { createEncounterSchema } from '@tamanu/shared/schemas/facility/requests/createEncounter.schema';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
 import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
-
 import { getLabRequestList } from '../../routeHandlers/labs';
 import {
   deleteDocumentMetadata,
@@ -43,6 +41,7 @@ import {
 } from '../../routeHandlers/deleteModel';
 import { getPermittedSurveyIds } from '../../utils/getPermittedSurveyIds';
 import { validate } from '../../utils/validate';
+import { invoiceForResponse } from './invoice/invoiceForResponse';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
@@ -50,13 +49,24 @@ encounter.get('/:id', simpleGet('Encounter', { auditAccess: true }));
 encounter.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models, body, user } = req;
+    const {
+      models,
+      body: { facilityId, ...data },
+      user,
+    } = req;
     req.checkPermission('create', 'Encounter');
-    const validatedBody = validate(createEncounterSchema, body);
+    const validatedBody = validate(createEncounterSchema, data);
     const encounterObject = await models.Encounter.create({ ...validatedBody, actorId: user.id });
 
-    if (body.dietIds) {
-      const dietIds = JSON.parse(body.dietIds);
+    await models.Invoice.automaticallyCreateForEncounter(
+      encounterObject.id,
+      encounterObject.encounterType,
+      encounterObject.startDate,
+      req.settings[facilityId],
+    );
+
+    if (data.dietIds) {
+      const dietIds = JSON.parse(data.dietIds);
       await encounterObject.addDiets(dietIds);
     }
     res.send(encounterObject);
@@ -527,7 +537,8 @@ encounterRelations.get(
       include: Invoice.getFullReferenceAssociations(invoicePriceListId),
     });
     if (!invoiceRecord) {
-      throw new NotFoundError('Invoice not found');
+      // Return null rather than a 404 as it is a valid scenario for there not to be an invoice
+      return res.send(null);
     }
 
     await req.audit.access({
@@ -536,7 +547,9 @@ encounterRelations.get(
       model: Invoice,
     });
 
-    res.send(invoiceRecord);
+    const responseRecord = invoiceForResponse(invoiceRecord);
+    const priceList = await InvoicePriceList.findByPk(invoicePriceListId, { raw: true });
+    res.send({ ...responseRecord, priceList });
   }),
 );
 
