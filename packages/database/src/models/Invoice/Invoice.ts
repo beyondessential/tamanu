@@ -5,6 +5,7 @@ import {
   INVOICE_STATUSES,
   SYNC_DIRECTIONS,
   SYSTEM_USER_UUID,
+  AUTOMATIC_INVOICE_CREATION_EXCLUDED_ENCOUNTER_TYPES,
 } from '@tamanu/constants';
 import { Model } from '../Model';
 import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter';
@@ -16,6 +17,8 @@ import type { ImagingRequest } from 'models/ImagingRequest';
 import type { LabTestPanelRequest } from 'models/LabTestPanelRequest';
 import type { LabTest } from 'models/LabTest';
 import type { ImagingRequestArea } from 'models/ImagingRequestArea';
+import type { ReadSettings } from '@tamanu/settings';
+import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
 
 type InvoiceItemSourceRecord =
   | Procedure
@@ -210,6 +213,27 @@ export class Invoice extends Model {
         sourceRecordType: removedItemSource.getModelName(),
         sourceRecordId: removedItemSource.id,
       },
+    });
+  }
+
+  static async automaticallyCreateForEncounter(
+    encounterId: string,
+    encounterType: string,
+    date: string,
+    settings: ReadSettings,
+  ) {
+    const isInvoicingEnabled = await settings?.get('features.invoicing.enabled');
+    const isValidEncounterType =
+      !AUTOMATIC_INVOICE_CREATION_EXCLUDED_ENCOUNTER_TYPES.includes(encounterType);
+    if (!isInvoicingEnabled || !isValidEncounterType) {
+      return null;
+    }
+
+    return await this.create({
+      displayId: generateInvoiceDisplayId(),
+      status: INVOICE_STATUSES.IN_PROGRESS,
+      date,
+      encounterId,
     });
   }
 }

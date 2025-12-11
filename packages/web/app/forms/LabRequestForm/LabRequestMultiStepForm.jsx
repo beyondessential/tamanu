@@ -121,7 +121,7 @@ export const LabRequestMultiStepForm = ({
                 .required()
                 .translatedLabel(
                   <TranslatedText
-                    stringId="lab.modal.recordSample.specimenType.label"
+                    stringId="lab.specimenType.label"
                     fallback="Specimen type"
                     data-testid="translatedtext-sj2g"
                   />,
