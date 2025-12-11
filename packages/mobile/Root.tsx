@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { DevSettings } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Storybook from './storybook';
 import { App } from './App';
 
 const setPersistedStorybookActive = async (storybookActive): Promise<void> => {
@@ -10,6 +9,7 @@ const setPersistedStorybookActive = async (storybookActive): Promise<void> => {
 
 export const Root = (): any => {
   const [storybookActive, setStorybookActive] = useState(false);
+  const [StorybookComponent, setStorybookComponent] = useState<any>(null);
 
   const toggleStorybook = useCallback(
     () => {
@@ -28,11 +28,24 @@ export const Root = (): any => {
     getPersistedStorybookActive();
   }, [storybookActive]);
 
+  // Dynamically load Storybook only when needed
+  useEffect(() => {
+    if (storybookActive && !StorybookComponent) {
+      import('./storybook').then((module) => {
+        setStorybookComponent(() => module.default);
+      });
+    }
+  }, [storybookActive, StorybookComponent]);
+
   useEffect(() => {
     if (__DEV__) {
       DevSettings.addMenuItem('Toggle Storybook', toggleStorybook);
     }
   }, [toggleStorybook]);
 
-  return storybookActive ? <Storybook /> : <App />;
+  if (storybookActive && StorybookComponent) {
+    return <StorybookComponent />;
+  }
+
+  return <App />;
 };

@@ -7,36 +7,46 @@ import { ErrorScreen } from '../components/ErrorScreen';
 
 export const BackendContext = React.createContext<BackendManager>(undefined);
 
-const backendManager = new BackendManager();
+let backendManager: BackendManager | null = null;
+
+const getBackendManager = (): BackendManager => {
+  if (!backendManager) {
+    backendManager = new BackendManager();
+  }
+  return backendManager;
+};
 
 export const BackendProvider = ({ Component }): ReactElement => {
   const [initialised, setInitialised] = useState(false);
 
   useEffect(() => {
     (async (): Promise<void> => {
-      backendManager.stopSyncService();
+      const manager = getBackendManager();
+      manager.stopSyncService();
       setInitialised(false);
 
    
-        await backendManager.initialise();
+        await manager.initialise();
         setInitialised(true);
       
     })();
     return () => {
-      backendManager.stopSyncService();
+      const manager = getBackendManager();
+      manager.stopSyncService();
     };
-  }, [backendManager]);
+  }, []);
 
   if (!initialised) {
     return <LoadingScreen />;
   }
 
-  if (backendManager.getSyncError()) {
-    return <ErrorScreen error={backendManager.getSyncError()} />;
+  const manager = getBackendManager();
+  if (manager.getSyncError()) {
+    return <ErrorScreen error={manager.getSyncError()} />;
   }
 
   return (
-    <BackendContext.Provider value={backendManager}>
+    <BackendContext.Provider value={manager}>
       <Component />
     </BackendContext.Provider>
   );
