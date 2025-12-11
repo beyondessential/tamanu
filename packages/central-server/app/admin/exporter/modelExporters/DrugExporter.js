@@ -7,19 +7,37 @@ export class DrugExporter extends ReferenceDataExporter {
       where: {
         type: REFERENCE_TYPES.DRUG,
       },
-      include: {
-        model: this.models.ReferenceDrug,
-        as: 'referenceDrug',
-      },
+      include: [
+        {
+          model: this.models.ReferenceDrug,
+          as: 'referenceDrug',
+          include: [
+            {
+              model: this.models.ReferenceDrugFacility,
+              as: 'facilities',
+            },
+          ],
+        },
+      ],
     });
 
-    return drugs.map((drug) => ({
-      ...drug.dataValues,
-      route: drug.referenceDrug?.route,
-      units: drug.referenceDrug?.units,
-      notes: drug.referenceDrug?.notes,
-      isSensitive: drug.referenceDrug?.isSensitive,
-    }));
+    return drugs.map((drug) => {
+      const baseData = {
+        ...drug.dataValues,
+        route: drug.referenceDrug?.route,
+        units: drug.referenceDrug?.units,
+        notes: drug.referenceDrug?.notes,
+        isSensitive: drug.referenceDrug?.isSensitive,
+      };
+      
+      if (drug.referenceDrug?.facilities) {
+        drug.referenceDrug.facilities.forEach((facility) => {
+          baseData[facility.facilityId] = facility.quantity;
+        });
+      }
+
+      return baseData;
+    });
   }
 
   customHiddenColumns() {
