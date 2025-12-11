@@ -2,7 +2,7 @@ import { QueryInterface } from 'sequelize';
 
 export async function up(query: QueryInterface): Promise<void> {
   await query.sequelize.query(
-    `UPDATE settings SET key = 'invoicing.enabled' WHERE key = 'features.enableInvoicing';`,
+    `UPDATE settings SET key = 'features.invoicing.enabled' WHERE key = 'features.enableInvoicing';`,
   );
 
   /**
@@ -14,7 +14,7 @@ export async function up(query: QueryInterface): Promise<void> {
 
 export async function down(query: QueryInterface): Promise<void> {
   await query.sequelize.query(
-    `UPDATE settings SET key = 'features.enableInvoicing' WHERE key = 'invoicing.enabled';`,
+    `UPDATE settings SET key = 'features.enableInvoicing' WHERE key = 'features.invoicing.enabled';`,
   );
 
   await query.sequelize.query(`SELECT flag_lookup_model_to_rebuild('settings');`);
