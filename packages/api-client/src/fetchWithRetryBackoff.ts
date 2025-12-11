@@ -1,5 +1,6 @@
+import type { Response } from '@passcod/faith';
 import { isRecoverable } from '@tamanu/errors';
-import { fetchOrThrowIfUnavailable } from './fetch';
+import { fetchOrThrowIfUnavailable, type BaseFetchOptions } from './fetch';
 import { type LoggerType } from './TamanuApi';
 
 export interface RetryBackoffOptions {
@@ -11,7 +12,7 @@ export interface RetryBackoffOptions {
 
 export async function fetchWithRetryBackoff(
   url: string,
-  config: RequestInit = {},
+  config: BaseFetchOptions = {},
   {
     log = console,
     maxAttempts = 15,
