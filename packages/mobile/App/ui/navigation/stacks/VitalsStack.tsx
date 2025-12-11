@@ -8,7 +8,7 @@ const Stack = createStackNavigator();
 
 export const VitalsStack = (): ReactElement => (
   <ErrorBoundary>
-    <Stack.Navigator headerMode="none">
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name={Routes.HomeStack.VitalsStack.Index} component={VitalsTabs} />
     </Stack.Navigator>
   </ErrorBoundary>

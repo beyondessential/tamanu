@@ -19,6 +19,7 @@ const config = {
     ]),
     extraNodeModules: {
       'react': path.join(projectRoot, 'node_modules', 'react'),
+      'react-native-quick-sqlite': path.join(projectRoot, 'node_modules', 'react-native-quick-sqlite'),
     },
     nodeModulesPaths: [
       path.resolve(projectRoot, 'node_modules'),

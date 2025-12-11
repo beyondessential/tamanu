@@ -11,7 +11,7 @@ const Stack = createStackNavigator();
 
 export const ProgramStack = (): ReactElement => (
   <ErrorBoundary>
-    <Stack.Navigator headerMode="none">
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen
         name={Routes.HomeStack.ProgramStack.ProgramTabs.Index}
         component={ProgramTabs}

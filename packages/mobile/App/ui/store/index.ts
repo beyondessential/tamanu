@@ -1,22 +1,14 @@
 import { compose, createStore } from 'redux';
 import { persistReducer, persistStore } from 'redux-persist';
-import createSensitiveStorage from 'redux-persist-sensitive-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Reactotron from '../reactotron';
 import rootReducer from './ducks';
-
-const storage = createSensitiveStorage({
-  keychainService: 'ios-data',
-  sharedPreferencesName: 'android-data',
-  accessible: 'WHEN_UNLOCKED',
-  kSecAttrAccessible: 'kSecAttrAccessibleAfterFirstUnlock',
-  touchID: false,
-});
 
 /*eslint-disable @typescript-eslint/no-non-null-assertion*/
 
 const persistConfig = {
   key: 'root',
-  storage,
+  storage: AsyncStorage,
 };
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
