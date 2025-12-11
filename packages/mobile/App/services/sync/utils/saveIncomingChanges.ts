@@ -119,5 +119,4 @@ export const saveChangesFromSnapshot = async (
       await saveChangesForModel(model, records, syncSettings, progressCallback);
     }
   }
-  await queryRunner.release();
 };
