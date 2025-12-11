@@ -1,5 +1,6 @@
 const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
 const path = require('path');
+const exclusionList = require('metro-config/src/defaults/exclusionList');
 
 const workspaceRoot = path.resolve(__dirname, '../..');
 const projectRoot = __dirname;
@@ -13,6 +14,12 @@ const projectRoot = __dirname;
 const config = {
   watchFolders: [workspaceRoot],
   resolver: {
+    blockList: exclusionList([
+      new RegExp(`^${path.join(workspaceRoot, 'node_modules', 'react').replace(/[/\\]/g, '\\/')}\\/.*$`),
+    ]),
+    extraNodeModules: {
+      'react': path.join(projectRoot, 'node_modules', 'react'),
+    },
     nodeModulesPaths: [
       path.resolve(projectRoot, 'node_modules'),
       path.resolve(workspaceRoot, 'node_modules'),
