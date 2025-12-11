@@ -3,6 +3,7 @@ export const typeORMDriver = {
   deleteDatabase: jest.fn(),
   DEBUG: jest.fn(),
   enablePromise: jest.fn(),
+  enableSimpleNullHandling: jest.fn(),
   disablePromise: jest.fn(),
 };
 
