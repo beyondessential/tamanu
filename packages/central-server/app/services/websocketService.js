@@ -9,6 +9,7 @@ import { log } from '@tamanu/shared/services/logging';
  */
 export const defineWebsocketService = async injector => {
   const socketServer = new Server(injector.httpServer, {
+    path: '/api/socket.io/',
     connectionStateRecovery: { skipMiddlewares: true, maxDisconnectionDuration: 120000 },
   });
   const getSocketServer = () => socketServer;
