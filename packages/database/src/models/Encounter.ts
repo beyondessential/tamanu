@@ -453,15 +453,6 @@ export class Encounter extends Model {
     });
   }
 
-  async getLinkedTriage() {
-    const { Triage } = this.sequelize.models;
-    return Triage.findOne({
-      where: {
-        encounterId: this.id,
-      },
-    });
-  }
-
   async onDischarge(
     {
       endDate,
@@ -483,20 +474,19 @@ export class Encounter extends Model {
     });
 
     await this.addSystemNote(systemNote || 'Discharged patient.', submittedTime, user);
-    await this.closeTriage(endDate, user);
+    await this.closeTriage(endDate);
   }
 
-  async closeTriage(endDate: string, user: ModelProperties<User>) {
-    const triage = await this.getLinkedTriage();
+  async closeTriage(endDate: string) {
+    const { Triage } = this.sequelize.models;
+    const triage = await Triage.findOne({
+      where: { encounterId: this.id },
+    });
+
     if (!triage) return;
     if (triage.closedTime) return; // already closed
 
-    await triage.update(
-      {
-        closedTime: endDate,
-      },
-      user,
-    );
+    await triage.update({ closedTime: endDate });
   }
 
   async update(data: any, user: any): Promise<any> {
@@ -601,7 +591,7 @@ export class Encounter extends Model {
         formatText: capitalize,
         changeType: EncounterChangeType.EncounterType,
         onChange: async () => {
-          await this.closeTriage(data.submittedTime, user);
+          await this.closeTriage(data.submittedTime);
         },
       });
       await onChangeForeignKey({
