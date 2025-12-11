@@ -1,4 +1,5 @@
 import React, { ReactElement, useEffect, useState } from 'react';
+import { InteractionManager } from 'react-native';
 
 import { BackendManager } from '../../services/BackendManager';
 
@@ -25,10 +26,10 @@ export const BackendProvider = ({ Component }): ReactElement => {
       manager.stopSyncService();
       setInitialised(false);
 
-   
+      InteractionManager.runAfterInteractions(async () => {
         await manager.initialise();
         setInitialised(true);
-      
+      });
     })();
     return () => {
       const manager = getBackendManager();
