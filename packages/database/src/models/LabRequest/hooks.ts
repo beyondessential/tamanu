@@ -20,9 +20,10 @@ export const shouldAddLabRequestToInvoice = async (labRequest: LabRequest) => {
 
   if (
     clinicEncounterLabAndImagingRequestsSetting &&
-    encounter.encounterType === ENCOUNTER_TYPES.CLINIC
+    encounter.encounterType === ENCOUNTER_TYPES.CLINIC &&
+    labRequest.status === LAB_REQUEST_STATUSES.RECEPTION_PENDING
   ) {
-    return true; // Invoiceable regardless of status
+    return true; // RECEPTION_PENDING requests are invoiceable for clinic encounters if setting is enabled
   }
 
   return INVOICEABLE_LAB_REQUEST_STATUSES.includes(labRequest.status);

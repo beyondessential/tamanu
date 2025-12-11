@@ -510,7 +510,7 @@ describe('Encounter invoice', () => {
         });
       });
 
-      it('should automatically add items to the invoice regardless of status when the clinicEncounterLabAndImagingRequests setting is enabled', async () => {
+      it('should automatically add reception_pending items to the invoice when the clinicEncounterLabAndImagingRequests setting is enabled', async () => {
         const encounter = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
           encounterType: ENCOUNTER_TYPES.CLINIC,
@@ -529,10 +529,16 @@ describe('Encounter invoice', () => {
         } = await app.post(`/api/labRequest`).send({
           encounterId: encounter.id,
           panelIds: [labTestPanelGeneral.id],
+          sampleDetails: {
+            [labTestPanelGeneral.id]: {
+              sampleTime: new Date(),
+            },
+          },
           requestedById: user.id,
           date: new Date(),
         });
 
+        expect(labRequest.status).toEqual(LAB_REQUEST_STATUSES.RECEPTION_PENDING);
         const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
         expect(result).toHaveSucceeded();
         expect(result.body).toMatchObject({
@@ -842,7 +848,7 @@ describe('Encounter invoice', () => {
         );
       });
 
-      it('should automatically add items to the invoice regardless of status when the clinicEncounterLabAndImagingRequests setting is enabled', async () => {
+      it('should automatically add pending items to the invoice when the clinicEncounterLabAndImagingRequests setting is enabled', async () => {
         const encounter = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
           patientId: patient.id,
@@ -877,6 +883,7 @@ describe('Encounter invoice', () => {
           },
         });
 
+        expect(imagingRequest.status).toEqual(IMAGING_REQUEST_STATUS_TYPES.PENDING);
         const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
         expect(result).toHaveSucceeded();
         expect(result.body).toMatchObject({

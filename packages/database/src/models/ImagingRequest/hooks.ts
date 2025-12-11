@@ -25,9 +25,10 @@ export const shouldAddImagingRequestToInvoice = async (imagingRequest: ImagingRe
 
   if (
     clinicEncounterLabAndImagingRequestsSetting &&
-    encounter.encounterType === ENCOUNTER_TYPES.CLINIC
+    encounter.encounterType === ENCOUNTER_TYPES.CLINIC &&
+    imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.PENDING
   ) {
-    return true; // Invoiceable regardless of status
+    return true; // PENDING requests are invoiceable for clinic encounters if setting is enabled
   }
 
   return INVOICEABLE_IMAGING_REQUEST_STATUSES.includes(imagingRequest.status);
