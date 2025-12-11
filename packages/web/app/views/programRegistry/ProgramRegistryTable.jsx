@@ -41,9 +41,6 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
       {
         key: 'registrationStatus',
         title: '',
-        exportOverrides: {
-          accessor: data => data.registrationStatus,
-        },
         accessor: data => (
           <RegistrationStatusIndicator patientProgramRegistration={data} hideText />
         ),
@@ -113,10 +110,6 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         ),
         CellComponent: LimitedLinesCell,
         maxWidth: 200,
-        exportOverrides: {
-          accessor: row => row.conditions?.map(condition => condition.name).join(', '),
-        },
-       
       },
       {
         key: 'registeringFacility',
