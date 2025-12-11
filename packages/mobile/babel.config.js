@@ -28,7 +28,7 @@ module.exports = {
           '/infra': './App/infra',
           '/presentation': './App/presentation',
           '/root': './',
-          'react-native-sqlite-storage': 'react-native-quick-sqlite',
+          'react-native-sqlite-storage': 'react-native-nitro-sqlite',
         },
       },
     ],

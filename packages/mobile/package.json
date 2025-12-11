@@ -77,6 +77,8 @@
     "react-native-masked-text": "^1.13.0",
     "react-native-mmkv-storage": "^12.0.1",
     "react-native-modal": "^13.0.1",
+    "react-native-nitro-modules": "^0.27.2",
+    "react-native-nitro-sqlite": "^9.2.2",
     "react-native-orientation-locker": "^1.7.0",
     "react-native-paper": "^5.12.5",
     "react-native-permissions": "^4.1.5",

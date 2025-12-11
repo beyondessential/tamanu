@@ -19,7 +19,7 @@ const config = {
     ]),
     extraNodeModules: {
       'react': path.join(projectRoot, 'node_modules', 'react'),
-      'react-native-quick-sqlite': path.join(projectRoot, 'node_modules', 'react-native-quick-sqlite'),
+      'react-native-nitro-sqlite': path.join(projectRoot, 'node_modules', 'react-native-nitro-sqlite'),
       'react-native-svg': path.join(projectRoot, 'node_modules', 'react-native-svg'),
     },
     nodeModulesPaths: [
