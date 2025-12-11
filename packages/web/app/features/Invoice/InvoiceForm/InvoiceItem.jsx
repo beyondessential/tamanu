@@ -28,6 +28,10 @@ const StyledItemRow = styled.div`
   flex-wrap: nowrap;
   align-items: flex-start;
 
+  .MuiInputBase-input {
+    font-size: 14px;
+  }
+
   &:last-child {
     border-bottom: 1px solid ${Colors.outline};
   }
