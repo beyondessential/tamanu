@@ -2,6 +2,7 @@ import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoD
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 import {
+  ENCOUNTER_TYPES,
   IMAGING_REQUEST_STATUS_TYPES,
   IMAGING_TYPES,
   INVOICE_ITEMS_CATEGORIES,
@@ -407,15 +408,30 @@ describe('Encounter invoice', () => {
           date: new Date(),
         });
 
+        // Not added initially as RECEPTION_PENDING status is not invoiceable
         const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
         expect(result).toHaveSucceeded();
         expect(result.body).toMatchObject({
           displayId: 'INV-123',
           encounterId: encounter.id,
           status: INVOICE_STATUSES.IN_PROGRESS,
+          items: [],
         });
-        expect(result.body.items).toHaveLength(1);
-        expect(result.body.items).toEqual(
+
+        // Setting status to an invoiceable status automatically adds it to the invoice
+        await app.put(`/api/labRequest/${labRequest.id}`).send({
+          status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+          userId: user.id,
+        });
+
+        const result2 = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result2.body).toMatchObject({
+          displayId: 'INV-123',
+          encounterId: encounter.id,
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+        expect(result2.body.items).toHaveLength(1);
+        expect(result2.body.items).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
               sourceRecordId: labRequest.labTestPanelRequestId,
@@ -434,9 +450,9 @@ describe('Encounter invoice', () => {
           userId: user.id,
         });
 
-        const result2 = await app.get(`/api/encounter/${encounter.id}/invoice`);
-        expect(result2).toHaveSucceeded();
-        expect(result2.body).toMatchObject({
+        const result3 = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result3).toHaveSucceeded();
+        expect(result3.body).toMatchObject({
           displayId: 'INV-123',
           encounterId: encounter.id,
           status: INVOICE_STATUSES.IN_PROGRESS,
@@ -484,15 +500,31 @@ describe('Encounter invoice', () => {
           },
         });
 
+        // Not added initially as RECEPTION_PENDING status is not invoiceable
         const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
         expect(result).toHaveSucceeded();
         expect(result.body).toMatchObject({
           displayId: 'INV-123',
           encounterId: encounter.id,
           status: INVOICE_STATUSES.IN_PROGRESS,
+          items: [],
         });
-        expect(result.body.items).toHaveLength(2);
-        expect(result.body.items).toEqual(
+
+        // Setting status to an invoiceable status automatically adds it to the invoice
+        await app.put(`/api/labRequest/${labRequest.id}`).send({
+          status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+          userId: user.id,
+        });
+
+        const result2 = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result2).toHaveSucceeded();
+        expect(result2.body).toMatchObject({
+          displayId: 'INV-123',
+          encounterId: encounter.id,
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+        expect(result2.body.items).toHaveLength(2);
+        expect(result2.body.items).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
               sourceRecordId: labTestBloods.id,
@@ -519,9 +551,9 @@ describe('Encounter invoice', () => {
           userId: user.id,
         });
 
-        const result2 = await app.get(`/api/encounter/${encounter.id}/invoice`);
-        expect(result2).toHaveSucceeded();
-        expect(result2.body).toMatchObject({
+        const result3 = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result3).toHaveSucceeded();
+        expect(result3.body).toMatchObject({
           displayId: 'INV-123',
           encounterId: encounter.id,
           status: INVOICE_STATUSES.IN_PROGRESS,
@@ -569,15 +601,31 @@ describe('Encounter invoice', () => {
           },
         });
 
+        // Not added initially as RECEPTION_PENDING status is not invoiceable
         const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
         expect(result).toHaveSucceeded();
         expect(result.body).toMatchObject({
           displayId: 'INV-123',
           encounterId: encounter.id,
           status: INVOICE_STATUSES.IN_PROGRESS,
+          items: [],
         });
-        expect(result.body.items).toHaveLength(2);
-        expect(result.body.items).toEqual(
+
+        // Setting status to an invoiceable status automatically adds it to the invoice
+        await app.put(`/api/labRequest/${labRequest.id}`).send({
+          status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+          userId: user.id,
+        });
+
+        const result2 = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result2).toHaveSucceeded();
+        expect(result2.body).toMatchObject({
+          displayId: 'INV-123',
+          encounterId: encounter.id,
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+        expect(result2.body.items).toHaveLength(2);
+        expect(result2.body.items).toEqual(
           expect.arrayContaining([
             // No product for Heart, so its not on the invoice
             expect.objectContaining({
@@ -605,14 +653,64 @@ describe('Encounter invoice', () => {
           userId: user.id,
         });
 
-        const result2 = await app.get(`/api/encounter/${encounter.id}/invoice`);
-        expect(result2).toHaveSucceeded();
-        expect(result2.body).toMatchObject({
+        const result3 = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result3).toHaveSucceeded();
+        expect(result3.body).toMatchObject({
           displayId: 'INV-123',
           encounterId: encounter.id,
           status: INVOICE_STATUSES.IN_PROGRESS,
           items: [],
         });
+      });
+
+      it('should automatically add reception_pending items to the invoice when the clinicEncounterLabAndImagingRequests setting is enabled', async () => {
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          encounterType: ENCOUNTER_TYPES.CLINIC,
+          patientId: patient.id,
+        });
+        await models.Setting.set('features.invoicing.clinicEncounterLabAndImagingRequests', true);
+        await models.Invoice.create({
+          encounterId: encounter.id,
+          displayId: 'INV-123',
+          date: new Date(),
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+
+        const {
+          body: [labRequest],
+        } = await app.post(`/api/labRequest`).send({
+          encounterId: encounter.id,
+          panelIds: [labTestPanelGeneral.id],
+          sampleDetails: {
+            [labTestPanelGeneral.id]: {
+              sampleTime: new Date(),
+            },
+          },
+          requestedById: user.id,
+          date: new Date(),
+        });
+
+        expect(labRequest.status).toEqual(LAB_REQUEST_STATUSES.RECEPTION_PENDING);
+        const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result).toHaveSucceeded();
+        expect(result.body).toMatchObject({
+          displayId: 'INV-123',
+          encounterId: encounter.id,
+        });
+        expect(result.body.items).toHaveLength(1);
+        expect(result.body.items).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              sourceRecordId: labRequest.labTestPanelRequestId,
+              sourceRecordType: 'LabTestPanelRequest',
+              productId: labTestPanelGeneralProduct.id,
+              orderedByUserId: user.id,
+              quantity: 1,
+              insurancePlanItems: [],
+            }),
+          ]),
+        );
       });
     });
 
@@ -699,15 +797,30 @@ describe('Encounter invoice', () => {
           },
         });
 
+        // Initially no items added as PENDING is not an invoiceable status
         const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
         expect(result).toHaveSucceeded();
         expect(result.body).toMatchObject({
           displayId: 'INV-123',
           encounterId: encounter.id,
           status: INVOICE_STATUSES.IN_PROGRESS,
+          items: [],
         });
-        expect(result.body.items).toHaveLength(2);
-        expect(result.body.items).toEqual(
+
+        // Setting the status to IN_PROGRESS should automatically add to the invoice
+        await app.put(`/api/imagingRequest/${imagingRequest.id}`).send({
+          status: IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS,
+        });
+
+        const result2 = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result2).toHaveSucceeded();
+        expect(result2.body).toMatchObject({
+          displayId: 'INV-123',
+          encounterId: encounter.id,
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+        expect(result2.body.items).toHaveLength(2);
+        expect(result2.body.items).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
               sourceRecordId: imagingRequestAreaHead.id,
@@ -733,9 +846,9 @@ describe('Encounter invoice', () => {
           status: IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
         });
 
-        const result2 = await app.get(`/api/encounter/${encounter.id}/invoice`);
-        expect(result2).toHaveSucceeded();
-        expect(result2.body).toMatchObject({
+        const result3 = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result3).toHaveSucceeded();
+        expect(result3.body).toMatchObject({
           displayId: 'INV-123',
           encounterId: encounter.id,
           status: INVOICE_STATUSES.IN_PROGRESS,
@@ -797,7 +910,7 @@ describe('Encounter invoice', () => {
         const { body: imagingRequest } = await app.post(`/api/imagingRequest`).send({
           encounterId: encounter.id,
           imagingType: IMAGING_TYPES.X_RAY,
-          status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
+          status: IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS,
           date: new Date(),
           requestedById: user.id,
           areas: JSON.stringify([imagingAreaHead.id, imagingAreaFoot.id]),
@@ -871,6 +984,72 @@ describe('Encounter invoice', () => {
         });
         expect(result3.body.items).toHaveLength(2);
         expect(result3.body.items).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              sourceRecordId: imagingRequestAreaHead.id,
+              sourceRecordType: imagingRequestAreaHead.getModelName(),
+              productId: imagingAreaHeadProduct.id,
+              orderedByUserId: user.id,
+              quantity: 1,
+              insurancePlanItems: [],
+            }),
+            expect.objectContaining({
+              sourceRecordId: imagingRequestAreaFoot.id,
+              sourceRecordType: imagingRequestAreaFoot.getModelName(),
+              productId: imagingRequestProduct.id,
+              orderedByUserId: user.id,
+              quantity: 1,
+              insurancePlanItems: [],
+            }),
+          ]),
+        );
+      });
+
+      it('should automatically add pending items to the invoice when the clinicEncounterLabAndImagingRequests setting is enabled', async () => {
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          encounterType: ENCOUNTER_TYPES.CLINIC,
+        });
+        await models.Setting.set('features.invoicing.clinicEncounterLabAndImagingRequests', true);
+        await models.Invoice.create({
+          encounterId: encounter.id,
+          displayId: 'INV-123',
+          date: new Date(),
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+
+        const { body: imagingRequest } = await app.post(`/api/imagingRequest`).send({
+          encounterId: encounter.id,
+          imagingType: IMAGING_TYPES.X_RAY,
+          date: new Date(),
+          requestedById: user.id,
+          areas: JSON.stringify([imagingAreaHead.id, imagingAreaFoot.id]),
+        });
+
+        const imagingRequestAreaHead = await models.ImagingRequestArea.findOne({
+          where: {
+            imagingRequestId: imagingRequest.id,
+            areaId: imagingAreaHead.id,
+          },
+        });
+        const imagingRequestAreaFoot = await models.ImagingRequestArea.findOne({
+          where: {
+            imagingRequestId: imagingRequest.id,
+            areaId: imagingAreaFoot.id,
+          },
+        });
+
+        expect(imagingRequest.status).toEqual(IMAGING_REQUEST_STATUS_TYPES.PENDING);
+        const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result).toHaveSucceeded();
+        expect(result.body).toMatchObject({
+          displayId: 'INV-123',
+          encounterId: encounter.id,
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+        expect(result.body.items).toHaveLength(2);
+        expect(result.body.items).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
               sourceRecordId: imagingRequestAreaHead.id,

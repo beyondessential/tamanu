@@ -27,7 +27,12 @@ import {
 } from '@tamanu/shared/utils/crudHelpers';
 import { add } from 'date-fns';
 import { z } from 'zod';
-import { deleteChartInstance, fetchAnswersWithHistory, fetchGraphData, fetchChartInstances } from '../../routeHandlers/charts';
+import {
+  deleteChartInstance,
+  fetchAnswersWithHistory,
+  fetchGraphData,
+  fetchChartInstances,
+} from '../../routeHandlers/charts';
 import { keyBy } from 'lodash';
 import { createEncounterSchema } from '@tamanu/shared/schemas/facility/requests/createEncounter.schema';
 import { uploadAttachment } from '../../utils/uploadAttachment';
@@ -702,7 +707,7 @@ encounterRelations.get(
   fetchGraphData({
     permissionAction: 'read',
     permissionNoun: 'Charting',
-    dateDataElementId: CHARTING_DATA_ELEMENT_IDS.dateRecorded
+    dateDataElementId: CHARTING_DATA_ELEMENT_IDS.dateRecorded,
   }),
 );
 
@@ -790,9 +795,6 @@ encounterRelations.get(
   }),
 );
 
-encounterRelations.delete(
-  '/:id/chartInstances/:chartInstanceResponseId',
-  deleteChartInstance(),
-);
+encounterRelations.delete('/:id/chartInstances/:chartInstanceResponseId', deleteChartInstance());
 
 encounter.use(encounterRelations);

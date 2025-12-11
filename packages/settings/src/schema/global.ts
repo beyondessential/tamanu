@@ -149,11 +149,6 @@ export const globalSettings = {
           type: yup.boolean(),
           defaultValue: false,
         },
-        enableInvoicing: {
-          description: 'Enable invoice tab/module on encounter view',
-          type: yup.boolean(),
-          defaultValue: false,
-        },
         enableTasking: {
           description: 'Enable tasking tab/module on encounter view',
           type: yup.boolean(),
@@ -363,6 +358,22 @@ export const globalSettings = {
               description: 'Enable device registration quota',
               type: yup.boolean(),
               defaultValue: true,
+            },
+          },
+        },
+        invoicing: {
+          description: 'Invoicing module settings',
+          properties: {
+            enabled: {
+              description: 'Enable invoicing',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            clinicEncounterLabAndImagingRequests: {
+              description:
+                'This setting allows lab and imaging requests to be added to an invoice automatically, regardless of the request status',
+              type: yup.boolean(),
+              defaultValue: false,
             },
           },
         },
