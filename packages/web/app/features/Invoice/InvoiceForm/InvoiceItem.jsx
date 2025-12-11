@@ -162,7 +162,7 @@ export const InvoiceItemRow = ({
   useInvoiceItemInsurance({
     encounterId,
     productId,
-    existingPrice: priceListPrice,
+    existingPrice: priceListPrice || item.manualEntryPrice,
     index,
     formArrayMethods,
   });
