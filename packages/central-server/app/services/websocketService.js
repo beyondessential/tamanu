@@ -1,6 +1,7 @@
 import { Server } from 'socket.io';
 import { createAdapter } from '@socket.io/postgres-adapter';
 import { log } from '@tamanu/shared/services/logging';
+import { WS_PATH } from '@tamanu/constants';
 
 /**
  *
@@ -9,7 +10,7 @@ import { log } from '@tamanu/shared/services/logging';
  */
 export const defineWebsocketService = async injector => {
   const socketServer = new Server(injector.httpServer, {
-    path: '/api/socket.io/',
+    path: WS_PATH,
     connectionStateRecovery: { skipMiddlewares: true, maxDisconnectionDuration: 120000 },
   });
   const getSocketServer = () => socketServer;

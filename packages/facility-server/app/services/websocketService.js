@@ -1,6 +1,6 @@
 import { Server } from 'socket.io';
 
-import { NOTIFY_CHANNELS, WS_EVENTS } from '@tamanu/constants';
+import { NOTIFY_CHANNELS, WS_EVENTS, WS_PATH } from '@tamanu/constants';
 
 /**
  *
@@ -9,7 +9,7 @@ import { NOTIFY_CHANNELS, WS_EVENTS } from '@tamanu/constants';
  */
 export const defineWebsocketService = injector => {
   const socketServer = new Server(injector.httpServer, {
-    path: '/api/socket.io/',
+    path: WS_PATH,
     connectionStateRecovery: { skipMiddlewares: true, maxDisconnectionDuration: 120000 },
     cors: {
       origin: '*',
