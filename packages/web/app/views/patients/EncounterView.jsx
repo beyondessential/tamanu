@@ -187,7 +187,7 @@ const TABS = [
         <EncounterInvoicingPane {...props} data-testid="encounterinvoicingpane-sci0" />
       </EncounterPaneWithPermissionCheck>
     ),
-    condition: getSetting => getSetting('features.enableInvoicing'),
+    condition: getSetting => getSetting('features.invoicing.enabled'),
   },
 ];
 

@@ -677,19 +677,21 @@ describe('Encounter', () => {
 
     describe('automatic invoice creation', () => {
       const excludedEncounterTypes = [ENCOUNTER_TYPES.SURVEY_RESPONSE, ENCOUNTER_TYPES.VACCINATION];
-      const validEncounterTypes = Object.values(ENCOUNTER_TYPES).filter(type => !excludedEncounterTypes.includes(type));
+      const validEncounterTypes = Object.values(ENCOUNTER_TYPES).filter(
+        type => !excludedEncounterTypes.includes(type),
+      );
 
       beforeAll(async () => {
-        await models.Setting.set('features.enableInvoicing', true);
+        await models.Setting.set('features.invoicing.enabled', true);
       });
 
       afterAll(async () => {
-        await models.Setting.set('features.enableInvoicing', false);
+        await models.Setting.set('features.invoicing.enabled', false);
       });
 
       it('should not automatically create an invoice for a new encounter if invoicing is disabled', async () => {
         // Disable for this test
-        await models.Setting.set('features.enableInvoicing', false);
+        await models.Setting.set('features.invoicing.enabled', false);
         const result = await app.post('/api/encounter').send({
           ...(await createDummyEncounter(models)),
           patientId: patient.id,
@@ -704,7 +706,7 @@ describe('Encounter', () => {
         });
 
         // Enable for the next test
-        await models.Setting.set('features.enableInvoicing', true);
+        await models.Setting.set('features.invoicing.enabled', true);
         expect(invoice).toBeNull();
       });
 
