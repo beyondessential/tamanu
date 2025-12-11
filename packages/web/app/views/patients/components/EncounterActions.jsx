@@ -99,8 +99,8 @@ export const EncounterActions = React.memo(({ encounter }) => {
     {
       label: (
         <TranslatedText
-          stringId="encounter.action.moveToActiveEDCare"
-          fallback="Transfer to active ED care"
+          stringId="encounter.action.transferToActiveEDCare"
+          fallback="Transfer to Active ED care"
         />
       ),
       onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.OBSERVATION),
@@ -111,7 +111,7 @@ export const EncounterActions = React.memo(({ encounter }) => {
     {
       label: (
         <TranslatedText
-          stringId="encounter.action.moveToEmergencyShortStay"
+          stringId="encounter.action.transferToEmergencyShortStay"
           fallback="Transfer to Emergency short stay"
         />
       ),
