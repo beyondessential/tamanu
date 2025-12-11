@@ -1,7 +1,12 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { keyBy, round } from 'lodash';
 import { ValidationError, NotFoundError, InvalidOperationError } from '@tamanu/errors';
-import { INVOICE_ITEMS_DISCOUNT_TYPES, INVOICE_STATUSES } from '@tamanu/constants';
+import {
+  INVOICE_ITEMS_DISCOUNT_TYPES,
+  INVOICE_STATUSES,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { Op } from 'sequelize';
@@ -11,7 +16,6 @@ import { invoiceItemsRoute } from './invoiceItems';
 import { getCurrentCountryTimeZoneDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 import { patientPaymentRoute } from './patientPayment';
 import { insurancePlansRoute } from './insurancePlans';
-import { round } from 'lodash';
 
 const invoiceRoute = express.Router();
 export { invoiceRoute as invoices };
@@ -66,6 +70,14 @@ invoiceRoute.get(
     const invoice = await Invoice.findOne({
       where: { encounterId },
       attributes: ['id'],
+      include: [
+        {
+          model: InvoiceInsurancePlan,
+          as: 'insurancePlans',
+          attributes: ['name', 'id', 'defaultCoverage'],
+          where: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+        },
+      ],
     });
 
     if (!invoice) {
@@ -85,26 +97,22 @@ invoiceRoute.get(
           as: 'invoiceInsurancePlan',
           required: true,
           attributes: ['name', 'id'],
-          include: [
-            {
-              model: Invoice,
-              as: 'relatedInvoices',
-              required: true,
-              where: { encounterId },
-              attributes: [],
-              through: { attributes: [] },
-            },
-          ],
         },
       ],
     });
 
+    const itemsById = keyBy(items, 'invoiceInsurancePlanId');
+
     // Normalise to the shape expected by the client UI
-    const response = items.map(item => ({
-      id: item.invoiceInsurancePlanId,
-      label: item.invoiceInsurancePlan?.name,
-      coverageValue: item.coverageValue,
-    }));
+    const response = invoice.insurancePlans.map(insurancePlan => {
+      const planItem = itemsById[insurancePlan.id];
+      const coverageValue = planItem?.coverageValue ?? insurancePlan.defaultCoverage;
+      return {
+        id: insurancePlan.id,
+        label: insurancePlan.name,
+        coverageValue,
+      };
+    });
 
     res.json(response);
   }),

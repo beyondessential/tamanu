@@ -13,7 +13,6 @@ import { useUpdateInvoice } from '../../../api/mutations/useInvoiceMutation';
 import { useAuth } from '../../../contexts/Auth';
 import { invoiceFormSchema } from './invoiceFormSchema';
 import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel';
-import { INVOICE_STATUSES } from '@tamanu/constants';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 
 const AddButton = styled(MuiButton)`
@@ -39,11 +38,9 @@ const SubmitButton = styled(FormSubmitButton)`
   }
 `;
 
-const ButtonRow = styled.div`
+const FormFooter = styled.div`
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 10px;
   margin: 10px 0;
 `;
 
@@ -112,38 +109,43 @@ export const InvoiceForm = ({ invoice }) => {
                     })}
                   </Box>
                   {editable && canWriteInvoice && (
-                    <ButtonRow>
-                      <AddButton
-                        variant="text"
-                        onClick={() => formArrayMethods.push(getDefaultRow())}
-                        startIcon={<Plus />}
-                      >
-                        <TranslatedText
-                          stringId="invoice.form.action.addItem"
-                          fallback="Add item"
-                          data-testid="translatedtext-9vs0"
-                        />
-                      </AddButton>
-                      <FormCancelButton
-                        style={{ marginLeft: 'auto' }}
-                        disabled={!dirty}
-                        onClick={() => {
-                          resetForm();
-                        }}
-                      >
-                        Cancel
-                      </FormCancelButton>
-                      <SubmitButton onSubmit={submitForm} disabled={isUpdatingInvoice}>
-                        <TranslatedText
-                          stringId="invoice.form.action.save"
-                          fallback="Save item/s"
-                          data-testid="translatedtext-26ji"
-                        />
-                      </SubmitButton>
-                    </ButtonRow>
-                  )}
-                  {invoice?.status === INVOICE_STATUSES.IN_PROGRESS && (
-                    <InvoiceSummaryPanel invoiceItems={values.invoiceItems} />
+                    <FormFooter>
+                      <Box>
+                        <AddButton
+                          variant="text"
+                          onClick={() => formArrayMethods.push(getDefaultRow())}
+                          startIcon={<Plus />}
+                        >
+                          <TranslatedText
+                            stringId="invoice.form.action.addItem"
+                            fallback="Add item"
+                            data-testid="translatedtext-9vs0"
+                          />
+                        </AddButton>
+                      </Box>
+                      <Box>
+                        {dirty && (
+                          <Box textAlign="right" mb={1}>
+                            <FormCancelButton
+                              style={{ marginRight: 8 }}
+                              onClick={() => {
+                                resetForm();
+                              }}
+                            >
+                              Cancel
+                            </FormCancelButton>
+                            <SubmitButton onSubmit={submitForm} disabled={isUpdatingInvoice}>
+                              <TranslatedText
+                                stringId="invoice.form.action.save"
+                                fallback="Save item/s"
+                                data-testid="translatedtext-26ji"
+                              />
+                            </SubmitButton>
+                          </Box>
+                        )}
+                        <InvoiceSummaryPanel invoiceItems={values.invoiceItems} />
+                      </Box>
+                    </FormFooter>
                   )}
                 </>
               );

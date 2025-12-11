@@ -4,7 +4,7 @@ import { useFormikContext } from 'formik';
 import { useSuggester } from '../../../api';
 import { Colors } from '../../../constants';
 import { IconButton } from '@material-ui/core';
-import { ChevronRight } from '@material-ui/icons';
+import { ArrowRight } from '../../../components/Icons';
 import { useInvoicePriceListItemPriceQuery } from '../../../api/queries/useInvoicePriceListItemPriceQuery';
 import { useInvoiceInsurancePlanItemsQuery } from '../../../api/queries/useInvoiceInsurancePlanItemsQuery';
 import {
@@ -28,6 +28,10 @@ const StyledItemRow = styled.div`
   flex-wrap: nowrap;
   align-items: flex-start;
 
+  .MuiInputBase-input {
+    font-size: 14px;
+  }
+
   &:last-child {
     border-bottom: 1px solid ${Colors.outline};
   }
@@ -36,15 +40,10 @@ const StyledItemRow = styled.div`
 const Button = styled(IconButton)`
   position: absolute;
   padding: 6px;
-  top: 0;
-  left: -15px;
+  top: 3px;
+  left: -12px;
   transform: rotate(${props => (props.$isExpanded ? '90deg' : '0')});
   transition: transform 0.2s ease-in-out;
-
-  .MuiSvgIcon-root {
-    font-size: 32px;
-    color: #b8b8b8;
-  }
 `;
 
 const useInvoiceItemPrice = ({
@@ -169,7 +168,7 @@ export const InvoiceItemRow = ({
   useInvoiceItemInsurance({
     encounterId,
     productId,
-    existingPrice: priceListPrice,
+    existingPrice: priceListPrice || item.manualEntryPrice,
     index,
     formArrayMethods,
   });
@@ -184,7 +183,7 @@ export const InvoiceItemRow = ({
     <StyledItemRow>
       {!isItemEditable && item.insurancePlanItems?.length > 0 && (
         <Button onClick={onClick} $isExpanded={isExpanded}>
-          <ChevronRight />
+          <ArrowRight htmlColor={Colors.softText} />
         </Button>
       )}
       <DateCell index={index} item={item} isItemEditable={isItemEditable} />
