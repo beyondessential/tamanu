@@ -7,6 +7,9 @@ import rootReducer from './ducks';
 const storage = createSensitiveStorage({
   keychainService: 'ios-data',
   sharedPreferencesName: 'android-data',
+  accessible: 'WHEN_UNLOCKED',
+  kSecAttrAccessible: 'kSecAttrAccessibleAfterFirstUnlock',
+  touchID: false,
 });
 
 /*eslint-disable @typescript-eslint/no-non-null-assertion*/
