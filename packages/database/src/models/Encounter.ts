@@ -489,7 +489,7 @@ export class Encounter extends Model {
     await triage.update({ closedTime: endDate });
   }
 
-  async update(data: any, user: any): Promise<any> {
+  async update(data: any, user?: any): Promise<any> {
     const { Department, Location, EncounterHistory, ReferenceData, User } = this.sequelize.models;
     // Track change types for encounter history snapshot
     const changeTypes: string[] = [];
