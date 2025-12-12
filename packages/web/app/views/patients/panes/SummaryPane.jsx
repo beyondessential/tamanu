@@ -87,6 +87,7 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
   const onCloseCheckInModal = useCallback(() => setIsCheckInModalOpen(false), []);
   const onCloseWarningModal = useCallback(async () => {
     setIsWarningModalOpen(false);
+    setIsCheckInModalOpen(false);
     await queryClient.invalidateQueries(['patientCurrentEncounter', patient.id]); // Refresh the current encounter data on close
   }, [queryClient, patient.id]);
 
