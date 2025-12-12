@@ -6,14 +6,15 @@
     "test": "playwright test",
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
-    "show-report": "playwright show-report"
+    "show-report": "playwright show-report",
+    "install-browsers": "playwright install --with-deps chromium"
   },
   "dependencies": {
     "date-fns": "^4.1.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.8.0",
-    "@playwright/test": "^1.42.1",
+    "@playwright/test": "^1.57.0",
     "@types/node": "^20.9.0"
   }
 }
