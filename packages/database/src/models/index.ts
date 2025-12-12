@@ -113,6 +113,7 @@ export * from './Role';
 export * from './Invoice';
 
 export * from './ReferenceDrug';
+export * from './ReferenceDrugFacility';
 export * from './MedicationAdministrationRecord';
 export * from './MedicationAdministrationRecordDose';
 export * from './ReferenceMedicationTemplate';
