@@ -54,6 +54,12 @@ export const createPatient = async (
     data: patientData,
   });
 
+  if (!response.ok()) {
+    const errorText = await response.text();
+    console.error('Failed to create patient:', response.status(), errorText);
+    throw new Error(`Failed to create patient: ${response.status()} ${errorText}`);
+  }
+
 
   return response.json();
 };
