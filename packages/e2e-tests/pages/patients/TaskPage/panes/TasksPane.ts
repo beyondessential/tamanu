@@ -35,8 +35,7 @@ export class TasksPane {
       showCompletedTasksCheck: 'styledcheckinput-kqdn-controlcheck',
       markAsNotCompletedButton: 'styledcancelicon-nzdl',
       showNotCompletedTasksCheck: 'styledcheckinput-vgby-controlcheck',
-      deleteTaskButton: 'styleddeleteoutlineicon-w3ya',
-      noDataContainer: 'nodatacontainer-476e',
+      deleteTaskButton: 'styleddeleteoutlineicon-w3ya'
     } as const;
 
     for (const [key, id] of Object.entries(testIds)) {
@@ -46,7 +45,9 @@ export class TasksPane {
     // Fields that need nested locators
     this.taskName = this.tasksTable.locator('[data-test-class*="name"]');
     this.tableRows = this.tableBody.locator('tr');
+    this.noDataContainer = this.tableBody.getByTestId('nodatacontainer-476e');
   }
+
   async getRowCount(): Promise<number> {
     return await this.tableRows.count();
   }
