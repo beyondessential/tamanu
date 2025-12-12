@@ -548,9 +548,9 @@ test.describe('Lab Request Tests', () => {
       const tableResultItems = await getTableItems(page, 1, 'result')
       await expect(tableResultItems[0]).toBe(result);  
       const tableUnitItems = await getTableItems(page, 1, 'labTestType.unit')
-      await expect(tableUnitItems[0]).toBe('N/A');  
+      await expect(tableUnitItems[0]).toBe('n/a');  
       const tableReferenceItems = await getTableItems(page, 1, 'reference')
-      await expect(tableReferenceItems[0]).toBe('N/A');  
+      await expect(tableReferenceItems[0]).toBe('n/a');  
       const tableLabTestMethodItems = await getTableItems(page, 1, 'labTestMethod')
       await expect(tableLabTestMethodItems[0]).toBe(labTestMethod); 
       const tableLaboratoryOfficerItems = await getTableItems(page, 1, 'laboratoryOfficer')

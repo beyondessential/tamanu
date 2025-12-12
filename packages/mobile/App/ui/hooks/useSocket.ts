@@ -1,6 +1,7 @@
 import io, { type Socket } from 'socket.io-client';
 import { useEffect, useState } from 'react';
 import { readConfig } from '~/services/config';
+import { WS_PATH } from '@tamanu/constants';
 
 let cachedSocket: undefined | Socket;
 
@@ -20,7 +21,7 @@ export const useSocket = () => {
     if (!connectionUrl) return;
     setSocket(
       (cachedSocket = io(connectionUrl, {
-        path: '/api/socket.io/',
+        path: WS_PATH,
         transports: ['websocket'],
       })),
     );
