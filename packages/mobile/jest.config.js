@@ -21,6 +21,8 @@ module.exports = {
   cacheDirectory: '.jest/cache',
   setupFiles: ['./jest.setup.ts'],
   moduleNameMapper: {
+    '^react$': '<rootDir>/../../node_modules/react',
+    '^react-native$': '<rootDir>/../../node_modules/react-native',
     '^~(.*)$': '<rootDir>/App$1',
     '^/root(.*)$': '<rootDir>$1',
     '^/helpers(.*)$': '<rootDir>/App/ui/helpers$1',
