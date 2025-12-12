@@ -1,4 +1,4 @@
-export const typeORMDriver = {
+const typeORMDriver = {
   openDatabase: jest.fn(),
   deleteDatabase: jest.fn(),
   DEBUG: jest.fn(),
@@ -7,7 +7,4 @@ export const typeORMDriver = {
   disablePromise: jest.fn(),
 };
 
-export default {
-  typeORMDriver,
-  ...typeORMDriver,
-}; 
+jest.mock('react-native-nitro-sqlite', () => ({...typeORMDriver, typeORMDriver}));
