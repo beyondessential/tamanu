@@ -116,7 +116,7 @@ export const TriageModal = React.memo(
           <DisplayIdLabel data-testid="displayidlabel-upiz">{displayId}</DisplayIdLabel>
         </PatientDetails>
         <TriageForm
-          onSubmitEncounter={withExistingEncounterCheck(onSubmitEncounter)}
+          onSubmitEncounter={async data => withExistingEncounterCheck(onSubmitEncounter(data))}
           noRedirectOnSubmit={noRedirectOnSubmit}
           onCancel={onClose}
           patient={patient}
