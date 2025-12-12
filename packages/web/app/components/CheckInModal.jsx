@@ -41,6 +41,7 @@ export const CheckInModal = React.memo(
     referral,
     patientBillingTypeId,
     initialValues,
+    withExistingEncounterCheck,
     ...props
   }) => {
     const { createEncounter } = useEncounter();
@@ -48,7 +49,7 @@ export const CheckInModal = React.memo(
     const dispatch = useDispatch();
 
     const onCreateEncounter = useCallback(
-      async (data) => {
+      async data => {
         const newEncounter = await createEncounter({
           patientId,
           referralId: referral?.id,
@@ -83,7 +84,7 @@ export const CheckInModal = React.memo(
         data-testid="formmodal-4oua"
       >
         <EncounterForm
-          onSubmit={onCreateEncounter}
+          onSubmit={withExistingEncounterCheck(onCreateEncounter)}
           onCancel={onClose}
           patientBillingTypeId={patientBillingTypeId}
           initialValues={initialValues}

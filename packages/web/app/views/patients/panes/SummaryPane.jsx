@@ -90,14 +90,17 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
     await queryClient.invalidateQueries(['patientCurrentEncounter', patient.id]); // Refresh the current encounter data on close
   }, [queryClient, patient.id]);
 
-  const handleOpenCheckIn = useCallback(async () => {
-    const hasExistingEncounter = await checkForExistingEncounter();
-    if (hasExistingEncounter) {
-      setIsWarningModalOpen(true);
-    } else {
-      setIsCheckInModalOpen(true);
-    }
-  }, [checkForExistingEncounter]);
+  const withEncounterExistingEncounterCheck = useCallback(
+    async onSuccess => {
+      const hasExistingEncounter = await checkForExistingEncounter();
+      if (hasExistingEncounter) {
+        setIsWarningModalOpen(true);
+      } else {
+        onSuccess();
+      }
+    },
+    [checkForExistingEncounter],
+  );
 
   return (
     <>
@@ -105,7 +108,7 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
       <ContentPane data-testid="contentpane-3jxx">
         <PatientEncounterSummary
           viewEncounter={onViewEncounter}
-          openCheckIn={handleOpenCheckIn}
+          openCheckIn={() => withEncounterExistingEncounterCheck(() => setIsCheckInModalOpen(true))}
           patient={patient}
           disabled={disabled}
           data-testid="patientencountersummary-z703"
@@ -137,6 +140,7 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
         patient={patient}
         patientBillingTypeId={additionalData?.patientBillingTypeId}
         data-testid="encountermodal-pnpe"
+        withExistingEncounterCheck={withEncounterExistingEncounterCheck}
       />
       <ExistingEncounterWarningModal open={isWarningModalOpen} onClose={onCloseWarningModal} />
     </>
