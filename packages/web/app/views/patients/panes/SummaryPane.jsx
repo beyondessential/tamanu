@@ -97,7 +97,7 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
       if (hasExistingEncounter) {
         setIsWarningModalOpen(true);
       } else {
-        onSuccess();
+        await onSuccess();
       }
     },
     [checkForExistingEncounter],

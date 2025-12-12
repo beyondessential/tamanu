@@ -84,7 +84,7 @@ export const CheckInModal = React.memo(
         data-testid="formmodal-4oua"
       >
         <EncounterForm
-          onSubmit={async data => withExistingEncounterCheck(onCreateEncounter(data))}
+          onSubmit={async data => withExistingEncounterCheck(async () => onCreateEncounter(data))}
           onCancel={onClose}
           patientBillingTypeId={patientBillingTypeId}
           initialValues={initialValues}
