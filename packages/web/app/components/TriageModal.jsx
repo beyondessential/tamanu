@@ -124,6 +124,7 @@ export const TriageModal = React.memo(
           patient={patient}
           initialValues={initialValues}
           data-testid="triageform-ldgl"
+          withExistingEncounterCheck={withExistingEncounterCheck}
         />
       </FormModal>
     );
