@@ -35,14 +35,15 @@ reportsRouter.get(
         max(rdv.updated_at) AS "lastUpdated",
         max(rdv.version_number) AS "versionCount"
     FROM report_definitions rd
-        LEFT JOIN report_definition_versions rdv ON rd.id = rdv.report_definition_id
+        LEFT JOIN report_definition_versions rdv ON rd.id = rdv.report_definition_id AND rdv.deleted_at IS NULL
+    WHERE rd.deleted_at IS NULL
     ${
       isReportingSchemaEnabled && !canEditSchema
-        ? `WHERE rd.db_schema = '${REPORT_DB_SCHEMAS.REPORTING}'`
+        ? `AND rd.db_schema = '${REPORT_DB_SCHEMAS.REPORTING}'`
         : ''
     }
     GROUP BY rd.id
-    HAVING max(rdv.version_number) > 0
+    HAVING max(rdv.version_number) > 0 AND rdv.deleted_at IS NULL
     ORDER BY rd.name
         `,
       {
