@@ -180,20 +180,21 @@ export class Invoice extends Model {
     }
 
     // Confirm price list exists
-    const invoicePriceListId = await this.sequelize.models.InvoicePriceList.getIdForPatientEncounter(encounterId);
+    const invoicePriceListId =
+      await this.sequelize.models.InvoicePriceList.getIdForPatientEncounter(encounterId);
     if (!invoicePriceListId) {
       return;
     }
 
     // Confirm invoice product is not configured to be hidden for this price list
-    const invoicePriceListItem = await this.sequelize.models.InvoicePriceListItem.findOne({
+    const hiddenInvoicePriceListItem = await this.sequelize.models.InvoicePriceListItem.findOne({
       where: {
         invoicePriceListId,
         invoiceProductId: invoiceProduct.id,
-        isHidden: false,
+        isHidden: true,
       },
     });
-    if (!invoicePriceListItem) {
+    if (hiddenInvoicePriceListItem) {
       return;
     }
 
