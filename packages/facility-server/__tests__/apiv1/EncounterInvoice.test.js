@@ -106,6 +106,7 @@ describe('Encounter invoice', () => {
     describe('Procedure', () => {
       let procedureType1;
       let procedureType2;
+      let procedureType3;
       let procedureProduct1;
       let procedureProduct2;
       let priceListItem1;
@@ -123,6 +124,13 @@ describe('Encounter invoice', () => {
             type: REFERENCE_TYPES.PROCEDURE_TYPE,
             name: 'Procedure 2',
             code: 'PROC-2',
+          }),
+        );
+        procedureType3 = await models.ReferenceData.create(
+          fake(models.ReferenceData, {
+            type: REFERENCE_TYPES.PROCEDURE_TYPE,
+            name: 'Procedure 3',
+            code: 'PROC-3',
           }),
         );
         procedureProduct1 = await models.InvoiceProduct.create(
@@ -330,6 +338,20 @@ describe('Encounter invoice', () => {
               insurancePlanItems: [],
             },
           ],
+        });
+
+        // Switching to a procedure type that does not have a price list item should remove the item from the invoice
+        await app.put(`/api/procedure/${procedure.id}`).send({
+          procedureTypeId: procedureType3.id,
+        });
+
+        const result3 = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result3).toHaveSucceeded();
+        expect(result3.body).toMatchObject({
+          displayId: 'INV-123',
+          encounterId: encounter.id,
+          status: INVOICE_STATUSES.IN_PROGRESS,
+          items: [],
         });
       });
     });
@@ -728,7 +750,6 @@ describe('Encounter invoice', () => {
           encounterType: ENCOUNTER_TYPES.CLINIC,
           patientId: patient.id,
         });
-        await models.Setting.set('features.invoicing.clinicEncounterLabAndImagingRequests', true);
         await models.Invoice.create({
           encounterId: encounter.id,
           displayId: 'INV-123',
@@ -736,40 +757,48 @@ describe('Encounter invoice', () => {
           status: INVOICE_STATUSES.IN_PROGRESS,
         });
 
-        const {
-          body: [labRequest],
-        } = await app.post(`/api/labRequest`).send({
-          encounterId: encounter.id,
-          panelIds: [labTestPanelGeneral.id],
-          sampleDetails: {
-            [labTestPanelGeneral.id]: {
-              sampleTime: new Date(),
+        try {
+          await models.Setting.set('features.invoicing.clinicEncounterLabAndImagingRequests', true);
+          const {
+            body: [labRequest],
+          } = await app.post(`/api/labRequest`).send({
+            encounterId: encounter.id,
+            panelIds: [labTestPanelGeneral.id],
+            sampleDetails: {
+              [labTestPanelGeneral.id]: {
+                sampleTime: new Date(),
+              },
             },
-          },
-          requestedById: user.id,
-          date: new Date(),
-        });
+            requestedById: user.id,
+            date: new Date(),
+          });
 
-        expect(labRequest.status).toEqual(LAB_REQUEST_STATUSES.RECEPTION_PENDING);
-        const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
-        expect(result).toHaveSucceeded();
-        expect(result.body).toMatchObject({
-          displayId: 'INV-123',
-          encounterId: encounter.id,
-        });
-        expect(result.body.items).toHaveLength(1);
-        expect(result.body.items).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({
-              sourceRecordId: labRequest.labTestPanelRequestId,
-              sourceRecordType: 'LabTestPanelRequest',
-              productId: labTestPanelGeneralProduct.id,
-              orderedByUserId: user.id,
-              quantity: 1,
-              insurancePlanItems: [],
-            }),
-          ]),
-        );
+          expect(labRequest.status).toEqual(LAB_REQUEST_STATUSES.RECEPTION_PENDING);
+          const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+          expect(result).toHaveSucceeded();
+          expect(result.body).toMatchObject({
+            displayId: 'INV-123',
+            encounterId: encounter.id,
+          });
+          expect(result.body.items).toHaveLength(1);
+          expect(result.body.items).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({
+                sourceRecordId: labRequest.labTestPanelRequestId,
+                sourceRecordType: 'LabTestPanelRequest',
+                productId: labTestPanelGeneralProduct.id,
+                orderedByUserId: user.id,
+                quantity: 1,
+                insurancePlanItems: [],
+              }),
+            ]),
+          );
+        } finally {
+          await models.Setting.set(
+            'features.invoicing.clinicEncounterLabAndImagingRequests',
+            false,
+          );
+        }
       });
     });
 
@@ -1071,7 +1100,6 @@ describe('Encounter invoice', () => {
           patientId: patient.id,
           encounterType: ENCOUNTER_TYPES.CLINIC,
         });
-        await models.Setting.set('features.invoicing.clinicEncounterLabAndImagingRequests', true);
         await models.Invoice.create({
           encounterId: encounter.id,
           displayId: 'INV-123',
@@ -1079,56 +1107,64 @@ describe('Encounter invoice', () => {
           status: INVOICE_STATUSES.IN_PROGRESS,
         });
 
-        const { body: imagingRequest } = await app.post(`/api/imagingRequest`).send({
-          encounterId: encounter.id,
-          imagingType: IMAGING_TYPES.X_RAY,
-          date: new Date(),
-          requestedById: user.id,
-          areas: JSON.stringify([imagingAreaHead.id, imagingAreaFoot.id]),
-        });
+        try {
+          await models.Setting.set('features.invoicing.clinicEncounterLabAndImagingRequests', true);
+          const { body: imagingRequest } = await app.post(`/api/imagingRequest`).send({
+            encounterId: encounter.id,
+            imagingType: IMAGING_TYPES.X_RAY,
+            date: new Date(),
+            requestedById: user.id,
+            areas: JSON.stringify([imagingAreaHead.id, imagingAreaFoot.id]),
+          });
 
-        const imagingRequestAreaHead = await models.ImagingRequestArea.findOne({
-          where: {
-            imagingRequestId: imagingRequest.id,
-            areaId: imagingAreaHead.id,
-          },
-        });
-        const imagingRequestAreaFoot = await models.ImagingRequestArea.findOne({
-          where: {
-            imagingRequestId: imagingRequest.id,
-            areaId: imagingAreaFoot.id,
-          },
-        });
+          const imagingRequestAreaHead = await models.ImagingRequestArea.findOne({
+            where: {
+              imagingRequestId: imagingRequest.id,
+              areaId: imagingAreaHead.id,
+            },
+          });
+          const imagingRequestAreaFoot = await models.ImagingRequestArea.findOne({
+            where: {
+              imagingRequestId: imagingRequest.id,
+              areaId: imagingAreaFoot.id,
+            },
+          });
 
-        expect(imagingRequest.status).toEqual(IMAGING_REQUEST_STATUS_TYPES.PENDING);
-        const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
-        expect(result).toHaveSucceeded();
-        expect(result.body).toMatchObject({
-          displayId: 'INV-123',
-          encounterId: encounter.id,
-          status: INVOICE_STATUSES.IN_PROGRESS,
-        });
-        expect(result.body.items).toHaveLength(2);
-        expect(result.body.items).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({
-              sourceRecordId: imagingRequestAreaHead.id,
-              sourceRecordType: imagingRequestAreaHead.getModelName(),
-              productId: imagingAreaHeadProduct.id,
-              orderedByUserId: user.id,
-              quantity: 1,
-              insurancePlanItems: [],
-            }),
-            expect.objectContaining({
-              sourceRecordId: imagingRequestAreaFoot.id,
-              sourceRecordType: imagingRequestAreaFoot.getModelName(),
-              productId: imagingRequestProduct.id,
-              orderedByUserId: user.id,
-              quantity: 1,
-              insurancePlanItems: [],
-            }),
-          ]),
-        );
+          expect(imagingRequest.status).toEqual(IMAGING_REQUEST_STATUS_TYPES.PENDING);
+          const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+          expect(result).toHaveSucceeded();
+          expect(result.body).toMatchObject({
+            displayId: 'INV-123',
+            encounterId: encounter.id,
+            status: INVOICE_STATUSES.IN_PROGRESS,
+          });
+          expect(result.body.items).toHaveLength(2);
+          expect(result.body.items).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({
+                sourceRecordId: imagingRequestAreaHead.id,
+                sourceRecordType: imagingRequestAreaHead.getModelName(),
+                productId: imagingAreaHeadProduct.id,
+                orderedByUserId: user.id,
+                quantity: 1,
+                insurancePlanItems: [],
+              }),
+              expect.objectContaining({
+                sourceRecordId: imagingRequestAreaFoot.id,
+                sourceRecordType: imagingRequestAreaFoot.getModelName(),
+                productId: imagingRequestProduct.id,
+                orderedByUserId: user.id,
+                quantity: 1,
+                insurancePlanItems: [],
+              }),
+            ]),
+          );
+        } finally {
+          await models.Setting.set(
+            'features.invoicing.clinicEncounterLabAndImagingRequests',
+            false,
+          );
+        }
       });
     });
   });
