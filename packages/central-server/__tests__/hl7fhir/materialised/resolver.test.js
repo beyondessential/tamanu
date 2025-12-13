@@ -4,13 +4,15 @@ import { createTestContext } from '../../utilities';
 import { fakeResourcesOfFhirServiceRequest } from '../../fake/fhir';
 import { sleepAsync } from '../../../../utils/dist/cjs/sleepAsync';
 
+import { mergePatient } from '../../../dist/admin/patientMerge/mergePatient';
+
 const INTEGRATION_ROUTE = 'fhir/mat';
 
 // Mock out sleepAsync so that we don't have to wait for the unresolved resource timeout
 const sleepAsyncMock = jest.fn();
 
 jest.mock('@tamanu/utils/sleepAsync', () => ({
-  sleepAsync: (ms) => sleepAsyncMock(ms),
+  sleepAsync: ms => sleepAsyncMock(ms),
 }));
 
 describe(`FHIR reference resolution`, () => {
@@ -163,6 +165,41 @@ describe(`FHIR reference resolution`, () => {
       });
 
       expect(mat.resolved).toBe(true);
+    });
+
+    it('can resolve a resource with a circular dependency', async () => {
+      // arrange
+      const { Patient, FhirPatient } = ctx.store.models;
+      const patient1 = await Patient.create(
+        fake(Patient, {
+          firstName: 'Patient 1',
+          lastName: 'Patient 1',
+        }),
+      );
+      const patient2 = await Patient.create(
+        fake(Patient, {
+          firstName: 'Patient 2',
+          lastName: 'Patient 2',
+        }),
+      );
+
+      // Merging patients creates a circular dependency
+      await mergePatient(ctx.store.models, patient1.id, patient2.id);
+
+      const matPatient1 = await FhirPatient.materialiseFromUpstream(patient1.id);
+      const matPatient2 = await FhirPatient.materialiseFromUpstream(patient2.id);
+
+      expect(matPatient1.resolved).toBe(false);
+      expect(matPatient2.resolved).toBe(true); // since patient1 is materialised already, patient2 is resolved automatically
+
+      // act
+      await FhirPatient.resolveUpstreams();
+      await matPatient1.reload();
+      await matPatient2.reload();
+
+      // assert
+      expect(matPatient1.resolved).toBe(true);
+      expect(matPatient2.resolved).toBe(true);
     });
 
     /**
