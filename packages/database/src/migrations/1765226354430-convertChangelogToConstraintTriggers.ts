@@ -55,7 +55,7 @@ export async function up(query: QueryInterface): Promise<void> {
   }
 }
 
-export async function down(): Promise<void> {
+export async function down(query: QueryInterface): Promise<void> {
   const tables = await getConstraintChangelogTriggers(query);
   if (!tables.length) return;
 
