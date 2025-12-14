@@ -34,7 +34,7 @@ export const ExistingEncounterWarningModal = React.memo(({ open, onClose }) => {
           fallback="Cannot create new encounter"
         />
       }
-      width="md"
+      width="sm"
       open={open}
       onClose={onClose}
       data-testid="formmodal-4oua"
