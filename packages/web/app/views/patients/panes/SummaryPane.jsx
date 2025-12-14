@@ -36,7 +36,7 @@ export const ExistingEncounterWarningModal = React.memo(({ open, onClose }) => {
         />
       }
       width="sm"
-      open={true}
+      open={open}
       onClose={onClose}
       data-testid="formmodal-4oua"
     >
