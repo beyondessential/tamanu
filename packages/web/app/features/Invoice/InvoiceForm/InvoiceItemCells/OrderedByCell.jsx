@@ -18,7 +18,6 @@ export const OrderedByCell = ({
           required
           component={AutocompleteField}
           suggester={practitionerSuggester}
-          size="small"
           onChange={handleChangeOrderedBy}
           data-testid="field-xin4"
         />

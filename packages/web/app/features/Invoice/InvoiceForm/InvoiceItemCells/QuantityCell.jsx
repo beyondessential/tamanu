@@ -17,7 +17,6 @@ export const QuantityCell = ({ index, item, isItemEditable }) => (
               event.target.value = '';
             }
           }}
-          size="small"
           required
           data-testid="field-6aku"
         />

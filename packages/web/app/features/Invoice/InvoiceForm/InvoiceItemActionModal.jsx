@@ -7,7 +7,6 @@ import { InvoiceItemCard } from './InvoiceItemCard';
 import { INVOICE_ITEM_ACTION_MODAL_TYPES, Colors } from '../../../constants';
 import { Field, NumberField } from '../../../components/Field';
 import { useTranslation } from '../../../contexts/Translation';
-import { ConfirmCancelRowField } from '../../../components/VaccineCommonFields';
 import {
   TextField,
   SelectField,
@@ -15,6 +14,7 @@ import {
   FormGrid,
   Modal,
   TranslatedText,
+  FormSubmitCancelRow,
 } from '@tamanu/ui-components';
 import { INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
 import { getInvoiceItemPriceDisplay } from '@tamanu/shared/utils/invoice';
@@ -327,9 +327,28 @@ export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }
       form: <MarkupForm data-testid="markupform-ia46" />,
       schema: markupValidationSchema,
     },
+    [INVOICE_ITEM_ACTION_MODAL_TYPES.DELETE]: {
+      description: (
+        <TranslatedText
+          stringId="invoice.modal.deleteInvoice.description"
+          fallback="Are you sure you would like to delete the below item from the patient invoice?"
+        />
+      ),
+      confirmText: (
+        <TranslatedText
+          stringId="invoice.modal.deleteInvoice.action.delete"
+          fallback="Delete item"
+        />
+      ),
+    },
     [INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_NOTE]: {
       form: <AddNoteForm data-testid="addnoteform-ilq2" />,
       initialValues: { note: item.note },
+      confirmText: item.note ? (
+        <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
+      ) : (
+        <TranslatedText stringId="invoice.modal.editInvoice.addNote" fallback="Add note" />
+      ),
     },
   };
 
@@ -337,14 +356,23 @@ export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }
     onAction(submitData);
   };
 
+  const renderDescription = () => {
+    const description = formData[action]?.description;
+    return description ? (
+      <Box mb={3} mt={3} pr={3}>
+        {description}
+      </Box>
+    ) : null;
+  };
+
   const renderForm = ({ submitForm }) => (
     <>
       {formData[action]?.form}
-      <StyledDivider data-testid="styleddivider-g7cs" />
-      <ConfirmCancelRowField
+      <StyledDivider />
+      <FormSubmitCancelRow
         onConfirm={submitForm}
         onCancel={onClose}
-        data-testid="confirmcancelrowfield-nhgq"
+        confirmText={formData[action]?.confirmText}
       />
     </>
   );
@@ -357,6 +385,7 @@ export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }
       onClose={onClose}
       data-testid="modal-bs2m"
     >
+      {renderDescription()}
       <InvoiceItemCard item={item} data-testid="invoiceitemcard-74ar" />
       <Form
         validationSchema={formData[action]?.schema}

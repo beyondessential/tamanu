@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from '../Model';
 import type { InitOptions, Models } from '../../types/model';
 
@@ -8,7 +8,7 @@ export class InvoicePriceListItem extends Model {
   declare invoicePriceListId: string;
   declare invoiceProductId: string;
   declare price: number | null;
-  declare visibilityStatus: string;
+  declare isHidden: boolean;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -26,9 +26,9 @@ export class InvoicePriceListItem extends Model {
           type: DataTypes.DECIMAL,
           allowNull: true,
         },
-        visibilityStatus: {
-          type: DataTypes.TEXT,
-          defaultValue: VISIBILITY_STATUSES.CURRENT,
+        isHidden: {
+          type: DataTypes.BOOLEAN,
+          defaultValue: false,
           allowNull: false,
         },
       },

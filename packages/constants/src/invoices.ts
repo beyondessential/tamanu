@@ -1,3 +1,4 @@
+import { ENCOUNTER_TYPES } from './encounters';
 import { IMAGING_AREA_TYPES } from './imaging';
 import { REFERENCE_TYPES } from './importable';
 
@@ -91,6 +92,10 @@ export const INVOICE_INSURER_PAYMENT_STATUS_LABELS = {
 };
 
 export const INVOICE_PRICE_LIST_ITEM_IMPORT_VALUES = {
-  MANUAL_ENTRY: 'manual-entry',
   HIDDEN: 'hidden',
 };
+
+export const AUTOMATIC_INVOICE_CREATION_EXCLUDED_ENCOUNTER_TYPES = [
+  ENCOUNTER_TYPES.SURVEY_RESPONSE,
+  ENCOUNTER_TYPES.VACCINATION,
+];

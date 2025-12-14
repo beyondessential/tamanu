@@ -1,10 +1,7 @@
-import {
-  INVOICE_ITEMS_CATEGORIES,
-  INVOICEABLE_IMAGING_REQUEST_STATUSES,
-  REFERENCE_TYPES,
-} from '@tamanu/constants';
+import { INVOICE_ITEMS_CATEGORIES, REFERENCE_TYPES } from '@tamanu/constants';
 import type { ImagingRequestArea } from './ImagingRequestArea';
 import type { ImagingRequest } from 'models/ImagingRequest';
+import { shouldAddImagingRequestToInvoice } from '../ImagingRequest/hooks';
 
 const addItemAsAreaProduct = async (
   instance: ImagingRequestArea,
@@ -85,7 +82,7 @@ const addToInvoice = async (instance: ImagingRequestArea) => {
     return;
   }
 
-  if (!INVOICEABLE_IMAGING_REQUEST_STATUSES.includes(imagingRequest.status)) {
+  if (!(await shouldAddImagingRequestToInvoice(imagingRequest))) {
     return;
   }
 

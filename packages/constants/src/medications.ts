@@ -1,5 +1,3 @@
-import { ENCOUNTER_TYPES } from './encounters';
-
 export const DRUG_ROUTES = {
   dermal: 'dermal',
   ear: 'ear',
@@ -293,11 +291,4 @@ export const MEDICATION_ADMINISTRATION_TIME_SLOTS = [
   { startTime: '18:00', endTime: '20:00', periodLabel: 'dinner' },
   { startTime: '20:00', endTime: '22:00' },
   { startTime: '22:00', endTime: '24:00', periodLabel: 'night' },
-];
-
-export const INVOICEABLE_MEDICATION_ENCOUNTER_TYPES = [
-  ENCOUNTER_TYPES.ADMISSION,
-  ENCOUNTER_TYPES.TRIAGE,
-  ENCOUNTER_TYPES.OBSERVATION,
-  ENCOUNTER_TYPES.EMERGENCY,
 ];
