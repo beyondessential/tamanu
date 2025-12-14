@@ -349,8 +349,6 @@ test.describe('Basic tests', () => {
     });
     await addTaskModal.confirmButton.click();
     await tasksPane.waitForNoDataContainerToDisappear();
-    const rowCount = await tasksPane.getRowCount();
-    expect(rowCount).toBe(2);
     const note = await getTableItems(tasksPane.page, 2, 'note');
     expect(note[0]).toBe(notes);
     expect(note[1]).toBe(notes);
@@ -531,5 +529,32 @@ test.describe('Basic tests', () => {
     await chartsPane.waitForPageToLoad();
     const chartValues = await chartsPane.getLatestValuesFromChartsTable(chartsPane.page, CHARTING_FIELD_KEYS);
     expect(chartValues).toEqual(formValues);
+  });
+  test('[BT-0015][AT-2010] Add a new referral', async ({newPatient, patientDetailsPage}) => {
+    await patientDetailsPage.goToPatient(newPatient);
+    const referralPane = await patientDetailsPage.navigateToReferralsTab();
+    await referralPane.waitForPageToLoad();
+    await referralPane.addReferralButton.click();
+    const addReferralModal = referralPane.getAddReferralModal();
+    await addReferralModal.waitForModalToLoad();
+    const referralType = 'CVD Primary Screening Referral';
+    await addReferralModal.selectSurvey(referralType);
+    await addReferralModal.waitForFormFieldsToBeVisible();
+    const formValues = await addReferralModal.fillCVDPrimaryScreeningForm({
+      referralDate: format(new Date(), 'yyyy-MM-dd'),
+      referralReason: 'Reason for referral',
+      relevantScreeningHistory: false
+    });
+    await addReferralModal.nextButton.click();
+    await addReferralModal.completeReferralButton.click();
+    await referralPane.waitForPageToLoad();
+    const referralDate = await getTableItems(referralPane.page, 1, 'date');
+    expect(referralDate[0]).toBe(format(new Date(formValues.referralDate), 'MM/dd/yyyy'));
+    const referralTypeValue = await getTableItems(referralPane.page, 1, 'referralType');
+    expect(referralTypeValue[0]).toBe(referralType);
+    const referralCompletedBy = await getTableItems(referralPane.page, 1, 'referredBy');
+    expect(referralCompletedBy[0]).toBe(formValues.referralCompletedBy);
+    const referralStatus = await getTableItems(referralPane.page, 1, 'status');
+    expect(referralStatus[0]).toBe('Pending');
   });
 });

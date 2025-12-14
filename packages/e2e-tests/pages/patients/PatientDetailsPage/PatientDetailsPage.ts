@@ -21,6 +21,7 @@ import { AddDiagnosisModal } from './modals/AddDiagnosisModal';
 import { DocumentsPane } from './panes/DocumentsPane';
 import { TasksPane } from '../TaskPage/panes/TasksPane';
 import { ChartsPane } from '../ChartsPage/panes/ChartsPane';
+import { ReferralPane } from './panes/ReferralPane';
 
 export class PatientDetailsPage extends BasePatientPage {
   readonly prepareDischargeButton: Locator;
@@ -39,6 +40,7 @@ export class PatientDetailsPage extends BasePatientPage {
   documentsPane?: DocumentsPane;
   tasksPane?: TasksPane;
   chartsPane?: ChartsPane;
+  referralPane?: ReferralPane;
   arrowDownIconMenuButton: Locator;
 
   private _encounterHistoryPane?: EncounterHistoryPane;
@@ -101,6 +103,7 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly documentsTab: Locator;
   readonly tasksTab: Locator;
   readonly chartsTab: Locator;
+  readonly referralsTab: Locator;
   readonly encountersList: Locator;
   readonly departmentLabel: Locator;
   readonly admitOrCheckinButton: Locator;
@@ -259,6 +262,7 @@ export class PatientDetailsPage extends BasePatientPage {
     this.documentsTab = this.page.getByTestId('tab-documents');
     this.tasksTab = this.page.getByTestId('styledtab-ccs8-tasks');
     this.chartsTab = this.page.getByTestId('styledtab-ccs8-charts');
+    this.referralsTab = this.page.getByTestId('tab-referrals');
     this.encounterMedicationTab = this.page.getByTestId('styledtab-ccs8-medication');
     this.encountersList=this.page.getByTestId('styledtablebody-a0jz').locator('tr');
     this.departmentLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Department' }).locator('..').getByTestId('cardvalue-1v8z');
@@ -338,7 +342,16 @@ export class PatientDetailsPage extends BasePatientPage {
       this.chartsPane = new ChartsPane(this.page);
     }
     return this.chartsPane;
-  } 
+  }
+
+  async navigateToReferralsTab(): Promise<ReferralPane> {
+    await this.referralsTab.click();
+    if (!this.referralPane) {
+      this.referralPane = new ReferralPane(this.page);
+    }
+    return this.referralPane;
+  }
+
 
   async navigateToImagingRequestTab(): Promise<void> {
     await this.encountersList.first().waitFor({ state: 'visible' });

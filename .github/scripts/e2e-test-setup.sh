@@ -78,6 +78,9 @@ EOF
             {
                 url: 'https://bes-tamanu-dev-referencedata.s3.ap-southeast-2.amazonaws.com/programs/neurological-assessment.xlsx',
             },
+            {
+                url: 'https://bes-tamanu-dev-referencedata.s3.ap-southeast-2.amazonaws.com/programs/ncd-primary-screening.xlsx',
+            },
         ],
     }
 EOF
