@@ -129,8 +129,8 @@ export class Triage extends Model {
     });
   }
 
-  async update(data: any, user: any): Promise<any> {
-    const { Encounter, ReferenceData, User } = this.sequelize.models;
+  async update(data: any, user?: any): Promise<any> {
+    const { Encounter, ReferenceData } = this.sequelize.models;
     // To collect system note messages describing all changes in this triage update
     const systemNoteRows: string[] = [];
 
@@ -141,12 +141,6 @@ export class Triage extends Model {
     );
 
     const updateTriage = async () => {
-      await onChangeForeignKey({
-        columnName: 'practitionerId',
-        fieldLabel: 'practitioner',
-        model: User,
-        accessor: (record: any) => record?.displayName ?? '-',
-      });
       await onChangeForeignKey({
         columnName: 'chiefComplaintId',
         fieldLabel: 'chief complaint',
@@ -170,11 +164,6 @@ export class Triage extends Model {
       await onChangeTextColumn({
         columnName: 'triageTime',
         fieldLabel: 'triage time',
-        formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
-      });
-      await onChangeTextColumn({
-        columnName: 'closedTime',
-        fieldLabel: 'closed time',
         formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
       });
       await onChangeTextColumn({
