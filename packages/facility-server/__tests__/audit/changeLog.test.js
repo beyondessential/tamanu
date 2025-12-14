@@ -79,6 +79,7 @@ describe('Changelogs', () => {
 
     it('should create changelog entries for updates only on commit', async () => {
       const program = await models.Program.create(fake(models.Program));
+      await sequelize.query('DELETE FROM logs.changes');
       const updatedName = 'Updated Name';
       await sequelize.transaction(async transaction => {
         await program.update({ name: updatedName }, { transaction });
