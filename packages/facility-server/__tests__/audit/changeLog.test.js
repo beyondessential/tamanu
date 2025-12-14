@@ -42,12 +42,9 @@ describe('Changelogs', () => {
     });
 
     it('should create changelog entries only when transaction commits', async () => {
-      let programIds;
-      await sequelize.transaction(async transaction => {
+      const programIds = await sequelize.transaction(async transaction => {
         const program1 = await models.Program.create(fake(models.Program), { transaction });
         const program2 = await models.Program.create(fake(models.Program), { transaction });
-
-        programIds = [program1.id, program2.id];
 
         const changesInTransaction = await sequelize.query(
           'SELECT * FROM logs.changes WHERE record_id IN (:programIds)',
@@ -59,7 +56,7 @@ describe('Changelogs', () => {
         );
         expect(changesInTransaction).toEqual([]);
 
-        return programIds;
+        return [program1.id, program2.id];
       });
 
       const changesAfterCommit = await sequelize.query(
@@ -81,9 +78,6 @@ describe('Changelogs', () => {
 
     it('should create changelog entries for updates only on commit', async () => {
       const program = await models.Program.create(fake(models.Program));
-
-      await sequelize.query('DELETE FROM logs.changes');
-
       const updatedName = 'Updated Name';
       await sequelize.transaction(async transaction => {
         await program.update({ name: updatedName }, { transaction });
@@ -117,11 +111,8 @@ describe('Changelogs', () => {
     });
 
     it('should defer trigger execution until end of transaction', async () => {
-      let programId;
-
-      await sequelize.transaction(async transaction => {
+      const programId = await sequelize.transaction(async transaction => {
         const program = await models.Program.create(fake(models.Program), { transaction });
-        programId = program.id;
 
         const changesBeforeCommit = await sequelize.query(
           'SELECT * FROM logs.changes WHERE record_id = :id',
@@ -155,7 +146,6 @@ describe('Changelogs', () => {
   describe('Pause Audit', () => {
     it('should pause audit for a transaction when pause key is true', async () => {
       const program1 = await models.Program.create(fake(models.Program));
-
       const program2 = await sequelize.transaction(async transaction => {
         await pauseAudit(sequelize);
         return models.Program.create(fake(models.Program), { transaction });
