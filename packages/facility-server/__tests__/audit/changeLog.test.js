@@ -46,7 +46,7 @@ describe('Changelogs', () => {
         const program1 = await models.Program.create(fake(models.Program), { transaction });
         const program2 = await models.Program.create(fake(models.Program), { transaction });
         const ids = [program1.id, program2.id];
-        
+
         const changesInTransaction = await sequelize.query(
           'SELECT * FROM logs.changes WHERE record_id IN (:programIds)',
           {
@@ -125,6 +125,7 @@ describe('Changelogs', () => {
         );
 
         expect(changesBeforeCommit).toEqual([]);
+        return program.id;
       });
 
       const changesAfterCommit = await sequelize.query(
