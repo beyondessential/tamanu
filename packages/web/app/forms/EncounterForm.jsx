@@ -27,14 +27,7 @@ import { useTranslation } from '../contexts/Translation';
 import { ENCOUNTER_TYPE_LABELS, FORM_TYPES } from '@tamanu/constants';
 
 export const EncounterForm = React.memo(
-  ({
-    editedObject,
-    onSubmit,
-    patientBillingTypeId,
-    encounterType,
-    initialValues,
-    withExistingEncounterCheck,
-  }) => {
+  ({ editedObject, onSubmit, patientBillingTypeId, encounterType, initialValues }) => {
     const practitionerSuggester = useSuggester('practitioner');
     const departmentSuggester = useSuggester('department', {
       baseQueryParameters: { filterByFacility: true },
