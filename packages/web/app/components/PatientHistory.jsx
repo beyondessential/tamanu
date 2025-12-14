@@ -24,6 +24,8 @@ import { Heading4 } from './Typography.js';
 import { getPatientStatus } from '../utils/getPatientStatus.js';
 import { ThemedTooltip } from './Tooltip.jsx';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker.jsx';
+import { PatientHistorySearch } from './PatientHistorySearch.jsx';
+import { usePatientSearchParameters } from '../contexts/PatientViewSearchParameters.jsx';
 
 const DateWrapper = styled.div`
   position: relative;
@@ -38,7 +40,7 @@ const FacilityWrapper = styled.div`
 `;
 
 const ReasonForEncounterWrapper = styled.div`
-  min-width: 325px;
+  min-width: 200px;
 `;
 
 const StyledTable = styled(DataFetchingTable)`
@@ -161,6 +163,12 @@ const StyledMenuButton = styled(MenuButton)`
   }
 `;
 
+const EncounterHistoryHeading = styled(Heading4)`
+  align-self: flex-end;
+  white-space: nowrap;
+  padding-right: 25px;
+`;
+
 const getDate = ({ startDate, endDate, encounterType }) => {
   const patientStatus = getPatientStatus(encounterType);
   return (
@@ -205,6 +213,14 @@ const getFacility = ({ facilityName, facilityId }) => (
   </FacilityWrapper>
 );
 
+const getClinician = ({ dischargingClinicianName }) => (
+  <FacilityWrapper data-testid="clinicianwrapper-8m5n">
+    {dischargingClinicianName || (
+      <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" casing="lower" />
+    )}
+  </FacilityWrapper>
+);
+
 const SyncWarning = styled.p`
   margin: 1rem;
 `;
@@ -234,6 +250,7 @@ const SyncWarningBanner = ({ patient, onRefresh }) => {
 };
 
 export const PatientHistory = ({ patient, onItemClick }) => {
+  const { patientHistoryParameters } = usePatientSearchParameters();
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const queryClient = useQueryClient();
   const { ability } = useAuth();
@@ -317,6 +334,18 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       CellComponent: LimitedLinesCell,
     },
     {
+      key: 'dischargingClinicianName',
+      title: (
+        <TranslatedText
+          stringId="general.localisedField.clinician.label.short"
+          fallback="Clinician"
+          data-testid="translatedtext-clinician"
+        />
+      ),
+      accessor: getClinician,
+      CellComponent: LimitedLinesCell,
+    },
+    {
       key: 'reasonForEncounter',
       title: (
         <TranslatedText
@@ -365,6 +394,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
         data-testid="syncwarningbanner-hi4l"
       />
       <StyledTable
+        fetchOptions={patientHistoryParameters}
         columns={columns}
         onRowClick={canReadEncounter ? row => onItemClick(row.id) : null}
         noDataMessage={
@@ -380,13 +410,16 @@ export const PatientHistory = ({ patient, onItemClick }) => {
         initialSort={{ orderBy: 'startDate', order: 'desc' }}
         refreshCount={refreshCount}
         TableHeader={
-          <Heading4 mt="15px" mb="15px" data-testid="heading4-ssa1">
-            <TranslatedText
-              stringId="patient.history.table.encounterHistory"
-              fallback="Encounter history"
-              data-testid="translatedtext-nmkf"
-            />
-          </Heading4>
+          <Box display="flex" alignItems="center" justifyContent="space-between">
+            <EncounterHistoryHeading data-testid="heading4-ssa1">
+              <TranslatedText
+                stringId="patient.history.table.encounterHistory"
+                fallback="Encounter history"
+                data-testid="translatedtext-nmkf"
+              />
+            </EncounterHistoryHeading>
+            <PatientHistorySearch />
+          </Box>
         }
         ExportButton={props => (
           <ThemedTooltip

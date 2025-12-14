@@ -89,11 +89,7 @@ const getReferralSource = ({ referralSource }) =>
       data-testid="translatedreferencedata-oxsl"
     />
   ) : (
-    <TranslatedText
-      stringId="general.fallback.unknown"
-      fallback="Unknown"
-      data-testid="translatedtext-k3sk"
-    />
+    '-'
   );
 
 const getDiet = ({ diets }) => {

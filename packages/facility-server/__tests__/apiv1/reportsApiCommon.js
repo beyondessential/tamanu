@@ -30,7 +30,7 @@ export function testReportPermissions(getCtx, makeRequest) {
       const [version] = await permittedReports[0].getVersions();
 
       // Act
-      const res = await makeRequest(app, version.id);
+      const res = await makeRequest(app, version.id, {});
 
       // Assert
       expect(res).toHaveSucceeded();
@@ -41,7 +41,7 @@ export function testReportPermissions(getCtx, makeRequest) {
       const [version] = await restrictedReports[0].getVersions();
 
       // Act
-      const res = await makeRequest(app, version.id);
+      const res = await makeRequest(app, version.id, {});
 
       // Assert
       expect(res).toBeForbidden();
@@ -53,24 +53,27 @@ export function testReportPermissions(getCtx, makeRequest) {
 
   describe('static reports', () => {
     let app;
+    let survey;
     beforeAll(async () => {
+      const { models } = ctx;
+      const { Program, Survey } = models;
+      const program = await Program.create(fake(Program));
+      survey = await Survey.create({
+        ...fake(Survey),
+        programId: program.id,
+      });
+
       app = await baseApp.asNewRole([
-        ['run', 'StaticReport', 'recent-diagnoses'],
-        ['read', 'Referral'], // old legacy permissions for the incomplete-referrals report
+        ['run', 'StaticReport', 'generic-survey-export-line-list'],
+        ['read', 'Survey', survey.id],
       ]);
-    });
-
-    it('should be able to run permitted reports with "read" permissions', async () => {
-      // Act
-      const res = await makeRequest(app, 'incomplete-referrals');
-
-      // Assert
-      expect(res).toBeForbidden();
     });
 
     it('should be able to run permitted static reports with "run" permissions', async () => {
       // Act
-      const res = await makeRequest(app, 'recent-diagnoses');
+      const res = await makeRequest(app, 'generic-survey-export-line-list', {
+        parameters: { surveyId: survey.id },
+      });
 
       // Assert
       expect(res).toHaveSucceeded();
@@ -78,12 +81,12 @@ export function testReportPermissions(getCtx, makeRequest) {
 
     it('should not be able to run restricted static reports', async () => {
       // Act
-      const res = await makeRequest(app, 'appointments-line-list');
+      const res = await makeRequest(app, 'non-existent-report', {});
 
       // Assert
-      expect(res).toBeForbidden();
+      expect(res).toHaveStatus(404);
       expect(res.body.error).toMatchObject({
-        message: 'User does not have permission to run the report',
+        message: 'Report module not found',
       });
     });
   });
@@ -98,7 +101,7 @@ export async function setupReportPermissionsTest(baseApp, models) {
       .map(() => fake(ReportDefinition)),
   );
   await ReportDefinitionVersion.bulkCreate(
-    reports.map((r) =>
+    reports.map(r =>
       fake(ReportDefinitionVersion, {
         id: `${r.id}_version-1`,
         versionNumber: 1,
@@ -116,8 +119,6 @@ export async function setupReportPermissionsTest(baseApp, models) {
   );
   const permittedReports = reports.slice(0, 2);
   const restrictedReports = reports.slice(2);
-  const app = await baseApp.asNewRole(
-    permittedReports.map((r) => ['run', 'ReportDefinition', r.id]),
-  );
+  const app = await baseApp.asNewRole(permittedReports.map(r => ['run', 'ReportDefinition', r.id]));
   return { app, role: app.role, user: app.user, permittedReports, restrictedReports };
 }

@@ -14,7 +14,7 @@ describe('ReportRequest', () => {
   it('should reject reading a patient with insufficient permissions', async () => {
     const noPermsApp = await baseApp.asRole('base');
     const result = await noPermsApp.post('/api/reportRequest/').send({
-      reportId: 'incomplete-referrals',
+      reportId: 'generic-survey-export-line-list',
     });
     expect(result).toBeForbidden();
   });
@@ -22,7 +22,7 @@ describe('ReportRequest', () => {
   describe('permissions', () => {
     testReportPermissions(
       () => ctx,
-      (reportApp, reportId) => reportApp.post('/api/reportRequest').send({ reportId }),
+      (reportApp, reportId, data = {}) => reportApp.post('/api/reportRequest').send({ reportId, ...data }),
     );
   });
 
@@ -43,13 +43,13 @@ describe('ReportRequest', () => {
 
     it('should create a new report request', async () => {
       const result = await app.post('/api/reportRequest').send({
-        reportId: 'incomplete-referrals',
+        reportId: 'generic-survey-export-line-list',
         emailList: ['example@gmail.com', 'other@gmail.com'],
       });
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('id');
 
-      expect(result.body).toHaveProperty('reportType', 'incomplete-referrals');
+      expect(result.body).toHaveProperty('reportType', 'generic-survey-export-line-list');
       expect(result.body).toHaveProperty(
         'recipients',
         JSON.stringify({ email: ['example@gmail.com', 'other@gmail.com'] }),
