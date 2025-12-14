@@ -22,7 +22,6 @@ const getNonConstraintChangelogTriggers = (query: QueryInterface) =>
     `,
     { type: QueryTypes.SELECT },
   );
-
 const getConstraintChangelogTriggers = (query: QueryInterface) =>
   query.sequelize.query<{ schema: string; table: string }>(
     `
