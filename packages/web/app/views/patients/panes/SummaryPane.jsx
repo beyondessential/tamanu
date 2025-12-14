@@ -5,8 +5,8 @@ import { useEncounter } from '../../../contexts/Encounter';
 import { Box } from '@material-ui/core';
 
 import {
+  BodyText,
   CompactContentPane as ContentPane,
-  LargeBodyText,
   Modal,
   ModalActionRow,
   TranslatedText,
@@ -21,8 +21,9 @@ import { OutpatientAppointmentsTable } from '../../../components/Appointments/Ou
 import { usePatientCurrentEncounterQuery } from '../../../api/queries/usePatientCurrentEncounterQuery';
 import { useQueryClient } from '@tanstack/react-query';
 
-const StyledLargeBodyText = styled(LargeBodyText)`
-  margin: 20px;
+const StyledBodyText = styled(BodyText)`
+  margin: 60px;
+  margin-bottom: 78px;
 `;
 
 export const ExistingEncounterWarningModal = React.memo(({ open, onClose }) => {
@@ -35,16 +36,16 @@ export const ExistingEncounterWarningModal = React.memo(({ open, onClose }) => {
         />
       }
       width="sm"
-      open={open}
+      open={true}
       onClose={onClose}
       data-testid="formmodal-4oua"
     >
-      <StyledLargeBodyText>
+      <StyledBodyText>
         <TranslatedText
           stringId="patient.encounterSummary.activeEncounterWarning"
           fallback="This patient has an active encounter. The active encounter must be discharged before a new encounter can be created."
         />
-      </StyledLargeBodyText>
+      </StyledBodyText>
       <ModalActionRow onConfirm={onClose} confirmText="Close" />
     </Modal>
   );
