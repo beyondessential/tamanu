@@ -45,18 +45,19 @@ describe('Changelogs', () => {
       const programIds = await sequelize.transaction(async transaction => {
         const program1 = await models.Program.create(fake(models.Program), { transaction });
         const program2 = await models.Program.create(fake(models.Program), { transaction });
-
+        const ids = [program1.id, program2.id];
+        
         const changesInTransaction = await sequelize.query(
           'SELECT * FROM logs.changes WHERE record_id IN (:programIds)',
           {
             type: QueryTypes.SELECT,
-            replacements: { programIds },
+            replacements: { programIds: ids },
             transaction,
           },
         );
         expect(changesInTransaction).toEqual([]);
 
-        return [program1.id, program2.id];
+        return ids;
       });
 
       const changesAfterCommit = await sequelize.query(
