@@ -201,6 +201,7 @@ const PlannedMoveFields = () => {
           <CancelMoveButton
             onClick={() => {
               setFieldValue('plannedLocationId', null);
+              setFieldValue('locationGroupId', null);
             }}
             variant="outlined"
             data-testid="button-cancel-patient-move"
