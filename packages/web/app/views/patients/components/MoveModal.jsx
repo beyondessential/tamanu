@@ -37,6 +37,12 @@ import { ENCOUNTER_TYPE_LABELS, ENCOUNTER_TYPES } from '@tamanu/constants';
 import { useFormikContext } from 'formik';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 
+const PATIENT_MOVE_ACTIONS = {
+  PLAN: 'plan',
+  FINALISE: 'finalise',
+};
+
+
 const SectionHeading = styled(Heading3)`
   color: ${TAMANU_COLORS.darkestText};
   margin: 10px 0;
@@ -80,7 +86,7 @@ const EncounterTypeLabel = styled.b`
   border-bottom: 2px solid ${({ $underlineColor }) => $underlineColor};
 `;
 
-const PlannedMoveLocationField = ({ name }) => {
+const MoveLocationField = ({ name }) => {
   const { values, setFieldValue } = useFormikContext();
   const handleGroupChange = groupValue => {
     setFieldValue('locationGroupId', groupValue);
@@ -105,15 +111,10 @@ const BasicMoveFields = () => (
       />
     </SectionDescription>
     <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
-      <PlannedMoveLocationField name="locationId" />
+      <MoveLocationField name="locationId" />
     </StyledFormGrid>
   </>
 );
-
-const PATIENT_MOVE_ACTIONS = {
-  PLAN: 'plan',
-  FINALISE: 'finalise',
-};
 
 const PlannedMoveFields = () => {
   const { getSetting } = useSettings();
@@ -144,7 +145,7 @@ const PlannedMoveFields = () => {
     <>
       <SectionDescription>{description}</SectionDescription>
       <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
-        <PlannedMoveLocationField name="plannedLocationId" />
+        <MoveLocationField name="plannedLocationId" />
         <LocationAvailabilityWarningMessage
           locationId={values.plannedLocationId}
           style={{ gridColumn: '2', fontSize: '12px', marginTop: '-15px' }}
