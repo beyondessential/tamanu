@@ -331,42 +331,6 @@ export class PatientDetailsPage extends BasePatientPage {
   async waitForEncounterToBeReady(): Promise<void> {
     // Wait for URL to contain encounter ID
     await this.page.waitForURL(/\/encounter\/[^/]+/, { timeout: 10000 });
-    
-    // Extract encounter ID from URL
-    const url = this.page.url();
-    const encounterIdMatch = url.match(/\/encounter\/([^/]+)/);
-    if (!encounterIdMatch) {
-      throw new Error('Could not extract encounter ID from URL');
-    }
-    const encounterId = encounterIdMatch[1];
-    
-    // Wait for the encounter API response to complete
-    // This ensures the encounter data is fetched before React updates the context
-    await Promise.all([
-      this.page.waitForResponse(
-        response => response.url().includes(`encounter/${encounterId}`) && response.status() === 200,
-        { timeout: 10000 }
-      ),
-      this.page.waitForLoadState('networkidle', { timeout: 10000 }),
-    ]);
-    
-    // Wait for the tasks tab to be visible, which indicates the encounter view has rendered
-    await this.tasksTab.waitFor({ state: 'visible', timeout: 10000 });
-    
-    // Wait for the tasks table to be visible, which requires encounter.id to be populated
-    // This ensures the encounter context is fully loaded before we try to create tasks
-    // In CI, React state updates can be slower, so waiting for the table ensures encounter.id is available
-    const tasksTable = this.page.getByTestId('styledtable-1dlu');
-    await tasksTable.waitFor({ state: 'visible', timeout: 10000 });
-    
-    // CRITICAL: Wait for the "Add task" button to be visible and enabled
-    // This button only renders when encounter.id is available in the context
-    // This is the most reliable way to ensure encounter context is ready in CI
-    const addTaskButton = this.page.getByTestId('button-a1te');
-    await addTaskButton.waitFor({ state: 'visible', timeout: 10000 });
-    
-    // Additional wait to ensure React has fully updated the encounter context
-    // This is critical in CI where timing can be tighter
     await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
