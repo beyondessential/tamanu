@@ -100,6 +100,7 @@ const BasicMoveFields = () => {
           component={LocalisedLocationField}
           groupValue={values.locationGroupId}
           onGroupChange={handleGroupChange}
+          hideLocationGroupError
           data-testid="field-tykg"
         />
       </StyledFormGrid>
@@ -150,6 +151,7 @@ const PlannedMoveFields = () => {
           component={LocalisedLocationField}
           groupValue={values.locationGroupId}
           onGroupChange={handleGroupChange}
+          hideLocationError
           data-testid="field-n625"
         />
         <LocationAvailabilityWarningMessage
