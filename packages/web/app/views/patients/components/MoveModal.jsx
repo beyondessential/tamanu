@@ -80,33 +80,35 @@ const EncounterTypeLabel = styled.b`
   border-bottom: 2px solid ${({ $underlineColor }) => $underlineColor};
 `;
 
-const BasicMoveFields = () => {
-  const { setFieldValue, values } = useFormikContext();
+const PlannedMoveLocationField = ({ name }) => {
+  const { values, setFieldValue } = useFormikContext();
   const handleGroupChange = groupValue => {
     setFieldValue('locationGroupId', groupValue);
   };
-
   return (
-    <>
-      <SectionDescription>
-        <TranslatedText
-          stringId="patient.encounter.movePatient.location.description"
-          fallback="Select new patient location."
-        />
-      </SectionDescription>
-      <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
-        <Field
-          name="locationId"
-          component={LocalisedLocationField}
-          groupValue={values.locationGroupId}
-          onGroupChange={handleGroupChange}
-          hideLocationGroupError
-          data-testid="field-tykg"
-        />
-      </StyledFormGrid>
-    </>
+    <Field
+      name={name}
+      component={LocalisedLocationField}
+      groupValue={values.locationGroupId}
+      onGroupChange={handleGroupChange}
+      hideLocationGroupError
+    />
   );
 };
+
+const BasicMoveFields = () => (
+  <>
+    <SectionDescription>
+      <TranslatedText
+        stringId="patient.encounter.movePatient.location.description"
+        fallback="Select new patient location."
+      />
+    </SectionDescription>
+    <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
+      <PlannedMoveLocationField name="locationId" />
+    </StyledFormGrid>
+  </>
+);
 
 const PATIENT_MOVE_ACTIONS = {
   PLAN: 'plan',
@@ -117,10 +119,6 @@ const PlannedMoveFields = () => {
   const { getSetting } = useSettings();
   const plannedMoveTimeoutHours = getSetting('templates.plannedMoveTimeoutHours');
   const { values, initialValues, setFieldValue } = useFormikContext();
-
-  const handleGroupChange = groupValue => {
-    setFieldValue('locationGroupId', groupValue);
-  };
 
   const isExistingPlannedMove =
     initialValues?.plannedLocationId &&
@@ -146,14 +144,7 @@ const PlannedMoveFields = () => {
     <>
       <SectionDescription>{description}</SectionDescription>
       <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
-        <Field
-          name="plannedLocationId"
-          component={LocalisedLocationField}
-          groupValue={values.locationGroupId}
-          onGroupChange={handleGroupChange}
-          hideLocationGroupError
-          data-testid="field-n625"
-        />
+        <PlannedMoveLocationField name="plannedLocationId" />
         <LocationAvailabilityWarningMessage
           locationId={values.plannedLocationId}
           style={{ gridColumn: '2', fontSize: '12px', marginTop: '-15px' }}
