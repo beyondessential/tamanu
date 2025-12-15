@@ -18,7 +18,7 @@ const MenuButtonContainer = styled(StyledView)`
   width: 33%;
   justify-content: center;
   align-items: center;
-  margin-bottom: ${screenPercentageToDP(2.64, Orientation.Width)};
+  margin-bottom: ${screenPercentageToDP(2.64, Orientation.Width)}px;
 `;
 
 export const VisitTypeButtonList = ({ list }: VisitTypeButtonsProps): ReactElement => {
@@ -30,11 +30,14 @@ export const VisitTypeButtonList = ({ list }: VisitTypeButtonsProps): ReactEleme
     >
       {
         <StyledRowView>
-          {list.map(buttonProps => (
-            <MenuButtonContainer key={buttonProps.key}>
-              <PatientMenuButton {...buttonProps} />
-            </MenuButtonContainer>
-          ))}
+          {list.map(buttonProps => {
+            const { key, ...props } = buttonProps;
+            return (
+              <MenuButtonContainer key={key}>
+                <PatientMenuButton key={key} {...props} />
+              </MenuButtonContainer>
+            );
+          })}
         </StyledRowView>
       }
     </StyledView>
