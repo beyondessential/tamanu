@@ -24,7 +24,7 @@ export class NewImagingRequestModal {
   readonly prioritySelect!: Locator;
   readonly encounterInput!: Locator;
   readonly imagingRequestTypeSelect!: Locator;
-  readonly areasToBeImagedTextarea!: Locator;
+  readonly areasToBeImagedSelect!: Locator;
   readonly notesTextarea!: Locator;
 
   readonly cancelButton!: Locator;
@@ -44,7 +44,6 @@ export class NewImagingRequestModal {
       prioritySelect: 'field-xemr-select',
       encounterInput: 'textinput-tyem-input',
       imagingRequestTypeSelect: 'field-khld-select',
-      areasToBeImagedTextarea: 'field-r8tf-input',
       notesTextarea: 'field-hhqc-input',
       cancelButton: 'outlinedbutton-8rnr',
       moreActionsButton: 'menubutton-dc8o',
@@ -57,6 +56,7 @@ export class NewImagingRequestModal {
     this.orderDateTimeInput = this.orderDateTimeField.locator('input');
     this.requestingClinicianInput = this.requestingClinicianField.locator('input');
     this.finaliseButton = this.page.getByTestId('formgrid-4uzw').getByTestId('mainbuttoncomponent-06gp');
+    this.areasToBeImagedSelect = this.page.getByText('Areas to be imaged').locator('..').getByTestId('multiselectinput-dvij');
   }
 
   async waitForModalToLoad(): Promise<void> {
@@ -71,8 +71,7 @@ export class NewImagingRequestModal {
       requestingClinician,
       priority,
       imagingRequestType,
-      areasToBeImaged,
-      notes,
+      notes
     } = values;
 
     if (orderDateTime) {
@@ -98,9 +97,8 @@ export class NewImagingRequestModal {
       returnOptionText: true,
     });
 
-    if (areasToBeImaged !== undefined) {
-      await this.areasToBeImagedTextarea.fill(areasToBeImaged);
-    }
+    await this.areasToBeImagedSelect.click();
+    await this.page.keyboard.press('Enter'); 
 
     if (notes !== undefined) {
       await this.notesTextarea.fill(notes);
@@ -109,7 +107,7 @@ export class NewImagingRequestModal {
     return {
       requestingClinician: selectedRequestingClinician,
       priority: selectedPriority,
-      imagingRequestType: selectedImagingRequestType,
+      imagingRequestType: selectedImagingRequestType
     };
   }
 }

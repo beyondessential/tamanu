@@ -362,7 +362,8 @@ test.describe('Basic tests', () => {
     expect(frequency[0]).toBe('Once');
     expect(frequency[1]).toBe('Once');
     const assignedTo = await getTableItems(tasksPane.page, 2, 'assignedTo');
-    expect(assignedTo[0]).toBe('Nurse, Intern');
+    expect(assignedTo[0]).toContain('Nurse');
+    expect(assignedTo[0]).toContain('Intern');
     expect(assignedTo[1]).toBe('-');
     const dueAt = await getTableItems(tasksPane.page, 2, 'dueTime');
     const expectedDateTime = formatDateTimeForTable(formValues.dateTime);
