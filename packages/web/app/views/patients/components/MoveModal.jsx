@@ -243,11 +243,14 @@ const getFormProps = ({ encounter, enablePatientMoveActions, isAdmittingToHospit
     departmentId: encounter.departmentId,
   };
 
-  const locationValidationSchema = yup.string().nullable().when('locationGroupId', {
-    is: value => !!value,
-    then: schema => schema.required(),
-    otherwise: schema => schema.nullable(),
-  });
+  const locationValidationSchema = yup
+    .string()
+    .nullable()
+    .when('locationGroupId', {
+      is: value => !!value,
+      then: schema => schema.required(),
+      otherwise: schema => schema.nullable(),
+    });
   if (enablePatientMoveActions) {
     validationObject.action = yup
       .string()
