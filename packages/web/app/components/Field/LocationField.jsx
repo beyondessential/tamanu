@@ -149,7 +149,7 @@ export const LocationInput = React.memo(
           // do not autofill if there is a pre-filled value
           autofill={!value && autofill}
           error={hideLocationGroupError ? false : error}
-          helperText={error && !hideLocationGroupError ? helperText : undefined}
+          helperText={hideLocationGroupError ? undefined : helperText}
           size={size}
           data-testid={`${dataTestId}-group`}
         />
