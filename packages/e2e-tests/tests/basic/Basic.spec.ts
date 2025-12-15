@@ -341,6 +341,7 @@ test.describe('Basic tests', () => {
     await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
     const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
     await latestEncounter.click();
+    await patientDetailsPage.waitForEncounterToBeReady();
     const tasksPane = await patientDetailsPage.navigateToTasksTab();
     await tasksPane.waitForPageToLoad();
     const notes = 'This is a test note';
@@ -376,6 +377,7 @@ test.describe('Basic tests', () => {
     await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
     const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
     await latestEncounter.click();
+    await patientDetailsPage.waitForEncounterToBeReady();
     const tasksPane = await patientDetailsPage.navigateToTasksTab();
     await tasksPane.waitForPageToLoad();
     const notes = 'This is a test note';
@@ -419,6 +421,7 @@ test.describe('Basic tests', () => {
     await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
     const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
     await latestEncounter.click();
+    await patientDetailsPage.waitForEncounterToBeReady();
     const tasksPane = await patientDetailsPage.navigateToTasksTab();
     await tasksPane.waitForPageToLoad();
     await tasksPane.addTaskButton.click();
@@ -451,6 +454,7 @@ test.describe('Basic tests', () => {
     await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
     const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
     await latestEncounter.click();
+    await patientDetailsPage.waitForEncounterToBeReady();
     const tasksPane = await patientDetailsPage.navigateToTasksTab();
     await tasksPane.waitForPageToLoad();
     await tasksPane.addTaskButton.click();
@@ -484,6 +488,7 @@ test.describe('Basic tests', () => {
     await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
     const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
     await latestEncounter.click();
+    await patientDetailsPage.waitForEncounterToBeReady();
     const tasksPane = await patientDetailsPage.navigateToTasksTab();
     await tasksPane.waitForPageToLoad();
     await tasksPane.addTaskButton.click();

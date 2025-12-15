@@ -328,6 +328,12 @@ export class PatientDetailsPage extends BasePatientPage {
     return this.documentsPane;
   }
 
+  async waitForEncounterToBeReady(): Promise<void> {
+    // Wait for URL to contain encounter ID and for encounter to load
+    await this.page.waitForURL(/\/encounter\/[^/]+/, { timeout: 10000 });
+    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
+  }
+
   async navigateToTasksTab(): Promise<TasksPane> {
     await this.tasksTab.click();
     if (!this.tasksPane) {
