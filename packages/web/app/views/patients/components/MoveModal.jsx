@@ -37,6 +37,12 @@ import { ENCOUNTER_TYPE_LABELS, ENCOUNTER_TYPES } from '@tamanu/constants';
 import { useFormikContext } from 'formik';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 
+const PATIENT_MOVE_ACTIONS = {
+  PLAN: 'plan',
+  FINALISE: 'finalise',
+};
+
+
 const SectionHeading = styled(Heading3)`
   color: ${TAMANU_COLORS.darkestText};
   margin: 10px 0;
@@ -80,37 +86,35 @@ const EncounterTypeLabel = styled.b`
   border-bottom: 2px solid ${({ $underlineColor }) => $underlineColor};
 `;
 
-const BasicMoveFields = () => {
-  const { setFieldValue, values } = useFormikContext();
+const MoveLocationField = ({ name }) => {
+  const { values, setFieldValue } = useFormikContext();
   const handleGroupChange = groupValue => {
     setFieldValue('locationGroupId', groupValue);
   };
-
   return (
-    <>
-      <SectionDescription>
-        <TranslatedText
-          stringId="patient.encounter.movePatient.location.description"
-          fallback="Select new patient location."
-        />
-      </SectionDescription>
-      <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
-        <Field
-          name="locationId"
-          component={LocalisedLocationField}
-          groupValue={values.locationGroupId}
-          onGroupChange={handleGroupChange}
-          data-testid="field-tykg"
-        />
-      </StyledFormGrid>
-    </>
+    <Field
+      name={name}
+      component={LocalisedLocationField}
+      groupValue={values.locationGroupId}
+      onGroupChange={handleGroupChange}
+      hideLocationGroupError
+    />
   );
 };
 
-const PATIENT_MOVE_ACTIONS = {
-  PLAN: 'plan',
-  FINALISE: 'finalise',
-};
+const BasicMoveFields = () => (
+  <>
+    <SectionDescription>
+      <TranslatedText
+        stringId="patient.encounter.movePatient.location.description"
+        fallback="Select new patient location."
+      />
+    </SectionDescription>
+    <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
+      <MoveLocationField name="locationId" />
+    </StyledFormGrid>
+  </>
+);
 
 const PlannedMoveFields = () => {
   const { getSetting } = useSettings();
@@ -141,11 +145,7 @@ const PlannedMoveFields = () => {
     <>
       <SectionDescription>{description}</SectionDescription>
       <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
-        <Field
-          name="plannedLocationId"
-          component={LocalisedLocationField}
-          data-testid="field-n625"
-        />
+        <MoveLocationField name="plannedLocationId" />
         <LocationAvailabilityWarningMessage
           locationId={values.plannedLocationId}
           style={{ gridColumn: '2', fontSize: '12px', marginTop: '-15px' }}
@@ -193,6 +193,7 @@ const PlannedMoveFields = () => {
           <CancelMoveButton
             onClick={() => {
               setFieldValue('plannedLocationId', null);
+              setFieldValue('locationGroupId', null);
             }}
             variant="outlined"
             data-testid="button-cancel-patient-move"
@@ -235,24 +236,24 @@ const getFormProps = ({ encounter, enablePatientMoveActions, isAdmittingToHospit
     departmentId: encounter.departmentId,
   };
 
+  const locationValidationSchema = yup
+    .string()
+    .nullable()
+    .when('locationGroupId', {
+      is: value => !!value,
+      then: schema => schema.required(),
+      otherwise: schema => schema.nullable(),
+    });
   if (enablePatientMoveActions) {
-    validationObject.plannedLocationId = yup.string().nullable();
     validationObject.action = yup
       .string()
       .oneOf([PATIENT_MOVE_ACTIONS.PLAN, PATIENT_MOVE_ACTIONS.FINALISE])
       .nullable();
-
+    validationObject.plannedLocationId = locationValidationSchema;
     initialValues.plannedLocationId = encounter.plannedLocationId;
     initialValues.action = PATIENT_MOVE_ACTIONS.PLAN;
   } else {
-    validationObject.locationId = yup
-      .string()
-      .nullable()
-      .when('locationGroupId', {
-        is: value => !!value,
-        then: schema => schema.required('Location is required when area is selected'),
-        otherwise: schema => schema.nullable(),
-      });
+    validationObject.locationId = locationValidationSchema;
   }
 
   if (isAdmittingToHospital) {

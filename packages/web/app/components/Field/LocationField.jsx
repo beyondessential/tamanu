@@ -37,6 +37,7 @@ export const LocationInput = React.memo(
     size = 'medium',
     form = {},
     enableLocationStatus = true,
+    hideLocationGroupError = false,
     locationGroupSuggesterType = 'facilityLocationGroup',
     autofill = true,
     isMulti = false,
@@ -147,9 +148,9 @@ export const LocationInput = React.memo(
           disabled={locationGroupSelectIsDisabled || disabled}
           // do not autofill if there is a pre-filled value
           autofill={!value && autofill}
+          error={hideLocationGroupError ? false : error}
+          helperText={hideLocationGroupError ? undefined : helperText}
           size={size}
-          helperText={helperText}
-          error={error}
           data-testid={`${dataTestId}-group`}
         />
         <LocationAutocompleteInput
@@ -179,6 +180,7 @@ LocationInput.propTypes = {
   required: PropTypes.bool,
   disabled: PropTypes.bool,
   error: PropTypes.bool,
+  hideLocationGroupError: PropTypes.bool,
   helperText: PropTypes.string,
   name: PropTypes.string,
   className: PropTypes.string,
