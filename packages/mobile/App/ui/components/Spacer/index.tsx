@@ -6,12 +6,8 @@ interface SpacerProps extends StyledViewProps {
 }
 
 export const Spacer = ({
-  height,
+  height = '32px',
   ...props
 }: SpacerProps): ReactElement => (
   <StyledView width="100%" background="transparent" height={height} {...props} />
 );
-
-Spacer.defaultProps = {
-  height: '32px',
-};
