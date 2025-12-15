@@ -117,6 +117,10 @@ const PlannedMoveFields = () => {
   const plannedMoveTimeoutHours = getSetting('templates.plannedMoveTimeoutHours');
   const { values, initialValues, setFieldValue } = useFormikContext();
 
+  const handleGroupChange = groupValue => {
+    setFieldValue('locationGroupId', groupValue);
+  };
+
   const isExistingPlannedMove =
     initialValues?.plannedLocationId &&
     initialValues?.plannedLocationId === values?.plannedLocationId;
@@ -144,6 +148,8 @@ const PlannedMoveFields = () => {
         <Field
           name="plannedLocationId"
           component={LocalisedLocationField}
+          groupValue={values.locationGroupId}
+          onGroupChange={handleGroupChange}
           data-testid="field-n625"
         />
         <LocationAvailabilityWarningMessage
@@ -236,12 +242,18 @@ const getFormProps = ({ encounter, enablePatientMoveActions, isAdmittingToHospit
   };
 
   if (enablePatientMoveActions) {
-    validationObject.plannedLocationId = yup.string().nullable();
     validationObject.action = yup
       .string()
       .oneOf([PATIENT_MOVE_ACTIONS.PLAN, PATIENT_MOVE_ACTIONS.FINALISE])
       .nullable();
-
+    validationObject.plannedLocationId = yup
+      .string()
+      .nullable()
+      .when('locationGroupId', {
+        is: value => !!value,
+        then: schema => schema.required(),
+        otherwise: schema => schema.nullable(),
+      });
     initialValues.plannedLocationId = encounter.plannedLocationId;
     initialValues.action = PATIENT_MOVE_ACTIONS.PLAN;
   } else {
@@ -250,7 +262,7 @@ const getFormProps = ({ encounter, enablePatientMoveActions, isAdmittingToHospit
       .nullable()
       .when('locationGroupId', {
         is: value => !!value,
-        then: schema => schema.required('Location is required when area is selected'),
+        then: schema => schema.required(),
         otherwise: schema => schema.nullable(),
       });
   }
