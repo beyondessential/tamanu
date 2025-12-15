@@ -479,7 +479,7 @@ test.describe('Basic tests', () => {
     expect(await tasksPane.tableRows.count()).toBe(1);
 
   });
-  test.only('[BT-0027][AT-2021] Delete a task', async ({newPatientWithHospitalAdmission, patientDetailsPage}) => {
+  test('[BT-0027][AT-2021] Delete a task', async ({newPatientWithHospitalAdmission, patientDetailsPage}) => {
     await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
     await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
     const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
