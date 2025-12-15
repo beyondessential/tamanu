@@ -13,7 +13,5 @@ export async function down(query: QueryInterface) {
   await query.removeColumn('invoice_products', 'insurable');
   await query.addColumn('invoice_products', 'discountable', {
     type: DataTypes.BOOLEAN,
-    allowNull: false,
-    defaultValue: true,
   });
 }
