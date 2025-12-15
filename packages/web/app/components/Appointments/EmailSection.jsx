@@ -6,7 +6,7 @@ import { Field, TranslatedText, TextField } from '@tamanu/ui-components';
 import { usePatientDataQuery } from '../../api/queries';
 import { CheckField } from '../Field';
 
-export const EmailSection = () => {
+export const EmailSection = ({ label }) => {
   const { setFieldValue, values } = useFormikContext();
   const { data: patient } = usePatientDataQuery(values.patientId);
 
@@ -26,13 +26,7 @@ export const EmailSection = () => {
     <>
       <Field
         name="shouldEmailAppointment"
-        label={
-          <TranslatedText
-            stringId="appointment.emailAppointment.label"
-            fallback="Email appointment"
-            data-testid="translatedtext-edpi"
-          />
-        }
+        label={label}
         component={CheckField}
         onChange={handleResetEmailFields}
         data-testid="field-160d"

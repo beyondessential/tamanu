@@ -29,22 +29,14 @@ import { useTranslation } from '../../../contexts/Translation';
 import { notifyError, notifySuccess } from '../../../utils';
 import { ConfirmModal } from '../../ConfirmModal';
 import { Drawer } from '../../Drawer';
-import {
-  AutocompleteField,
-  CheckField,
-  DynamicSelectField,
-  Field,
-  SwitchField,
-} from '../../Field';
+import { AutocompleteField, CheckField, DynamicSelectField, Field, SwitchField } from '../../Field';
 import { Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
 import { RepeatingFields } from '../RepeatingFields';
-import {
-  APPOINTMENT_SCHEDULE_INITIAL_VALUES,
-} from '../../../constants/locationAssignments';
+import { APPOINTMENT_SCHEDULE_INITIAL_VALUES } from '../../../constants/locationAssignments';
 import { EmailSection } from '../EmailSection';
 
 export const INITIAL_UNTIL_DATE_MONTHS_INCREMENT = 6;
@@ -460,7 +452,15 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
             component={CheckField}
             data-testid="field-vyk1"
           />
-          <EmailSection />
+          <EmailSection
+            label={
+              <TranslatedText
+                stringId="appointment.emailAppointment.label"
+                fallback="Email appointment"
+                data-testid="translatedtext-edpi"
+              />
+            }
+          />
           {!hideIsRepeatingToggle && (
             <Field
               name="isRepeatingAppointment"

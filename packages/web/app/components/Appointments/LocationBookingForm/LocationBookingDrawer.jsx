@@ -586,7 +586,11 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
             data-testid="field-encounter"
             disabled={!values.patientId}
           />
-          <EmailSection />
+          <EmailSection
+            label={
+              <TranslatedText stringId="appointment.emailBooking.label" fallback="Email booking" />
+            }
+          />
           <FormSubmitCancelRow onCancel={warnAndResetForm} data-testid="formsubmitcancelrow-bj5z" />
         </FormGrid>
       </Drawer>
