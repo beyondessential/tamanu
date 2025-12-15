@@ -19,12 +19,14 @@ async function createPriceListItemForProduct(
   invoicePriceListId,
   price = 100,
 ) {
-  return await models.InvoicePriceListItem.create(fake(models.InvoicePriceListItem, {
-    invoiceProductId,
-    invoicePriceListId,
-    price,
-    isHidden: false,
-  }));
+  return await models.InvoicePriceListItem.create(
+    fake(models.InvoicePriceListItem, {
+      invoiceProductId,
+      invoicePriceListId,
+      price,
+      isHidden: false,
+    }),
+  );
 }
 
 describe('Encounter invoice', () => {
