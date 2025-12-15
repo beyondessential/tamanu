@@ -690,13 +690,13 @@ describe('Reference data exporter', () => {
       id: 'prod-a',
       code: 'PROD-A',
       name: 'Product A',
-      discountable: false,
+      insurable: false,
     });
     const p2 = await models.InvoiceProduct.create({
       id: 'prod-b',
       code: 'PROD-B',
       name: 'Product B',
-      discountable: false,
+      insurable: false,
     });
 
     // Create price lists (codes will be sorted alphabetically by exporter)
@@ -760,7 +760,7 @@ describe('Reference data exporter', () => {
       await createInvoiceProduct(models, {
         id: 'invoiceProduct-0',
         name: 'Invoice Product Ad hoc',
-        discountable: false,
+        insurable: false,
       });
 
       const drug = await createDrug(models, {
@@ -771,7 +771,7 @@ describe('Reference data exporter', () => {
       await createInvoiceProduct(models, {
         id: 'invoiceProduct-1',
         name: 'Invoice Product 1',
-        discountable: true,
+        insurable: true,
         category: INVOICE_ITEMS_CATEGORIES.DRUG,
         sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.DRUG],
         sourceRecordId: drug.id,
@@ -785,7 +785,7 @@ describe('Reference data exporter', () => {
       await createInvoiceProduct(models, {
         id: 'invoiceProduct-2',
         name: 'Invoice Product 2',
-        discountable: false,
+        insurable: false,
         category: INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE,
         sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE],
         sourceRecordId: procedure.id,
@@ -811,7 +811,7 @@ describe('Reference data exporter', () => {
       await createInvoiceProduct(models, {
         id: 'invoiceProduct-3',
         name: 'Invoice Product 3',
-        discountable: true,
+        insurable: true,
         category: INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL,
         sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL],
         sourceRecordId: labTestPanel.id,
@@ -819,7 +819,7 @@ describe('Reference data exporter', () => {
       await createInvoiceProduct(models, {
         id: 'invoiceProduct-4',
         name: 'Invoice Product 4',
-        discountable: true,
+        insurable: true,
         category: INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE,
         sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE],
         sourceRecordId: labTestType.id,
@@ -839,7 +839,7 @@ describe('Reference data exporter', () => {
       await createInvoiceProduct(models, {
         id: 'invoiceProduct-5',
         name: 'Invoice Product 5',
-        discountable: true,
+        insurable: true,
         category: INVOICE_ITEMS_CATEGORIES.IMAGING_TYPE,
         sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.IMAGING_TYPE],
         sourceRecordId: imagingType.id,
@@ -847,7 +847,7 @@ describe('Reference data exporter', () => {
       await createInvoiceProduct(models, {
         id: 'invoiceProduct-6',
         name: 'Invoice Product 6',
-        discountable: true,
+        insurable: true,
         category: INVOICE_ITEMS_CATEGORIES.IMAGING_AREA,
         sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.IMAGING_AREA],
         sourceRecordId: imagingArea.id,

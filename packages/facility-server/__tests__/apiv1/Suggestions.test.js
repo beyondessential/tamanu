@@ -935,7 +935,6 @@ describe('Suggestions', () => {
       category: INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE,
       sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE],
       sourceRecordId: labTestType.id,
-      discountable: true,
       visibilityStatus: 'current',
     });
 
@@ -960,14 +959,12 @@ describe('Suggestions', () => {
     const visibleProduct = await InvoiceProduct.create({
       name: 'Test Invoice Product Visible',
       category: INVOICE_ITEMS_CATEGORIES.OTHER,
-      discountable: false,
       visibilityStatus: 'current',
     });
 
     const hiddenProduct = await InvoiceProduct.create({
       name: 'Test Invoice Product Hidden',
       category: INVOICE_ITEMS_CATEGORIES.OTHER,
-      discountable: false,
       visibilityStatus: 'current',
     });
 

@@ -6,10 +6,6 @@ Products which can be invoiced.
 Name of the product.
 {% enddocs %}
 
-{% docs invoice_products__discountable %}
-Whether the product can be discounted.
-{% enddocs %}
-
 {% docs invoice_products__category %}
 The category of the product.
 {% enddocs %}
