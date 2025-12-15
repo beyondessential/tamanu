@@ -329,9 +329,29 @@ export class PatientDetailsPage extends BasePatientPage {
   }
 
   async waitForEncounterToBeReady(): Promise<void> {
-    // Wait for URL to contain encounter ID and for encounter to load
+    // Wait for URL to contain encounter ID
     await this.page.waitForURL(/\/encounter\/[^/]+/, { timeout: 10000 });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
+    
+    // Extract encounter ID from URL
+    const url = this.page.url();
+    const encounterIdMatch = url.match(/\/encounter\/([^/]+)/);
+    if (!encounterIdMatch) {
+      throw new Error('Could not extract encounter ID from URL');
+    }
+    const encounterId = encounterIdMatch[1];
+    
+    // Wait for the encounter API response to complete
+    // This ensures the encounter context is loaded before we try to create tasks
+    await Promise.all([
+      this.page.waitForResponse(
+        response => response.url().includes(`encounter/${encounterId}`) && response.status() === 200,
+        { timeout: 10000 }
+      ),
+      this.page.waitForLoadState('networkidle', { timeout: 10000 }),
+    ]);
+    
+    // Wait for the tasks tab to be visible, which indicates the encounter view has fully rendered
+    await this.tasksTab.waitFor({ state: 'visible', timeout: 10000 });
   }
 
   async navigateToTasksTab(): Promise<TasksPane> {
