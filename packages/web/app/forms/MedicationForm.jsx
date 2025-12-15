@@ -275,10 +275,7 @@ const AllergiesWarningBox = styled(Box)`
   border: 1px solid ${Colors.alert};
   border-radius: 3px;
   padding: 10px 26px;
-  background-color: oklch(from ${Colors.alert} l c h / 10%);
-  @supports not (color: oklch(from black l c h)) {
-    background-color: ${Colors.alert}1a;
-  }
+  background-color: ${Colors.lightAlert};
   margin-bottom: 4px;
   display: flex;
   flex-direction: column;
