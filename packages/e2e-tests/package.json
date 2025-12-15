@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/e2e-tests",
-  "version": "2.38.13",
+  "version": "2.38.14",
   "private": true,
   "type": "module",
   "scripts": {
