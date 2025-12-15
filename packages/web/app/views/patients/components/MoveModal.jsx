@@ -151,7 +151,7 @@ const PlannedMoveFields = () => {
           component={LocalisedLocationField}
           groupValue={values.locationGroupId}
           onGroupChange={handleGroupChange}
-          hideLocationError
+          hideLocationGroupError
           data-testid="field-n625"
         />
         <LocationAvailabilityWarningMessage
