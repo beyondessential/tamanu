@@ -182,16 +182,18 @@ export class Invoice extends Model {
     const invoicePriceListId =
       await this.sequelize.models.InvoicePriceList.getIdForPatientEncounter(encounterId);
 
-    // Confirm invoice product is not configured to be hidden for this price list
-    const invoicePriceListItem = await this.sequelize.models.InvoicePriceListItem.findOne({
-      where: {
-        invoicePriceListId,
-        invoiceProductId: invoiceProduct.id,
-      },
-    });
-
-    if (invoicePriceListItem?.isHidden) {
-      return;
+    if (invoicePriceListId) {
+      // Confirm invoice product is not configured to be hidden for this price list
+      const hiddenInvoicePriceListItem = await this.sequelize.models.InvoicePriceListItem.findOne({
+        where: {
+          invoicePriceListId,
+          invoiceProductId: invoiceProduct.id,
+          isHidden: true,
+        },
+      });
+      if (hiddenInvoicePriceListItem) {
+        return;
+      }
     }
 
     await this.sequelize.models.InvoiceItem.upsert(

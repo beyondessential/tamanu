@@ -351,7 +351,7 @@ export const InvoiceProduct = yup.object().shape({
     .string()
     .oneOf(Array.from(new Set(Object.values(INVOICE_ITEMS_CATEGORIES_MODELS)))),
   sourceRecordId: yup.string(),
-  insurable: yup.boolean(),
+  insurable: yup.boolean().required(),
   visibilityStatus,
 });
 
