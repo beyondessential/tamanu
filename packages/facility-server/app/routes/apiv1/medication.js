@@ -380,6 +380,7 @@ medication.put(
     prescription.displayPharmacyNotesInMar = displayPharmacyNotesInMar;
     await prescription.save();
     res.send(prescription.forResponse());
+    
   }),
 );
 
