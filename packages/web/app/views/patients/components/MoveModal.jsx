@@ -243,30 +243,21 @@ const getFormProps = ({ encounter, enablePatientMoveActions, isAdmittingToHospit
     departmentId: encounter.departmentId,
   };
 
+  const locationValidationSchema = yup.string().nullable().when('locationGroupId', {
+    is: value => !!value,
+    then: schema => schema.required(),
+    otherwise: schema => schema.nullable(),
+  });
   if (enablePatientMoveActions) {
     validationObject.action = yup
       .string()
       .oneOf([PATIENT_MOVE_ACTIONS.PLAN, PATIENT_MOVE_ACTIONS.FINALISE])
       .nullable();
-    validationObject.plannedLocationId = yup
-      .string()
-      .nullable()
-      .when('locationGroupId', {
-        is: value => !!value,
-        then: schema => schema.required(),
-        otherwise: schema => schema.nullable(),
-      });
+    validationObject.plannedLocationId = locationValidationSchema;
     initialValues.plannedLocationId = encounter.plannedLocationId;
     initialValues.action = PATIENT_MOVE_ACTIONS.PLAN;
   } else {
-    validationObject.locationId = yup
-      .string()
-      .nullable()
-      .when('locationGroupId', {
-        is: value => !!value,
-        then: schema => schema.required(),
-        otherwise: schema => schema.nullable(),
-      });
+    validationObject.locationId = locationValidationSchema;
   }
 
   if (isAdmittingToHospital) {
