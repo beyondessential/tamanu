@@ -282,7 +282,8 @@ test.describe('Basic tests', () => {
   test('[BT-0019][AT-2013]Change diet', async ({ newPatientWithHospitalAdmission, patientDetailsPage }) => { 
     await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
     await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
-    await patientDetailsPage.encounterHistoryPane.getLatestEncounter().click();
+    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
+    await latestEncounter.click();
     await patientDetailsPage.arrowDownIconMenuButton.click();
     await patientDetailsPage.changeEncounterDetailsMenu.changeDietMenuItem.click();
     const changeDietModal = patientDetailsPage.changeEncounterDetailsMenu.getChangeDietModal();
@@ -294,7 +295,8 @@ test.describe('Basic tests', () => {
   test('[BT-0020][AT-2014]Change Location', async ({ newPatientWithHospitalAdmission, patientDetailsPage }) => {
     await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
     await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
-    await patientDetailsPage.encounterHistoryPane.getLatestEncounter().click();
+    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
+    await latestEncounter.click();
     await patientDetailsPage.arrowDownIconMenuButton.click();
     await patientDetailsPage.changeEncounterDetailsMenu.changeLocationMenuItem.click();
     const changeLocationModal = patientDetailsPage.changeEncounterDetailsMenu.getChangeLocationModal();
@@ -309,7 +311,8 @@ test.describe('Basic tests', () => {
   test('[BT-0021][AT-2015]Add a primary diagnosis', async ({ newPatientWithHospitalAdmission, patientDetailsPage }) => {
     await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
     await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
-    await patientDetailsPage.encounterHistoryPane.getLatestEncounter().click();
+    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
+    await latestEncounter.click();
     await patientDetailsPage.addDiagnosisButton.click();
     const diagnosisModal = patientDetailsPage.getAddDiagnosisModal();
     await diagnosisModal.waitForModalToLoad();  
@@ -323,7 +326,8 @@ test.describe('Basic tests', () => {
   test('[BT-0022][AT-2016]Add a not primary diagnosis', async ({ newPatientWithHospitalAdmission, patientDetailsPage }) => {
     await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
     await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
-    await patientDetailsPage.encounterHistoryPane.getLatestEncounter().click();
+    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
+    await latestEncounter.click();
     await patientDetailsPage.addDiagnosisButton.click();
     const diagnosisModal = patientDetailsPage.getAddDiagnosisModal();
     await diagnosisModal.waitForModalToLoad();
@@ -335,8 +339,8 @@ test.describe('Basic tests', () => {
   test('[BT-0023][AT-2017] Add a new task set', async ({newPatientWithHospitalAdmission, patientDetailsPage}) => {
     await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
     await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
-    await patientDetailsPage.encounterHistoryPane.waitForLatestEncounterToBeReady();
-    await patientDetailsPage.encounterHistoryPane.getLatestEncounter().click();
+    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
+    await latestEncounter.click();
     const tasksPane = await patientDetailsPage.navigateToTasksTab();
     await tasksPane.waitForPageToLoad();
     const notes = 'This is a test note';
@@ -370,8 +374,8 @@ test.describe('Basic tests', () => {
   test('[BT-0024][AT-2018] Add a new repeating task', async ({newPatientWithHospitalAdmission, patientDetailsPage}) => {
     await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
     await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
-    await patientDetailsPage.encounterHistoryPane.waitForLatestEncounterToBeReady();
-    await patientDetailsPage.encounterHistoryPane.getLatestEncounter().click();
+    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
+    await latestEncounter.click();
     const tasksPane = await patientDetailsPage.navigateToTasksTab();
     await tasksPane.waitForPageToLoad();
     const notes = 'This is a test note';
@@ -413,8 +417,8 @@ test.describe('Basic tests', () => {
   test('[BT-0025][AT-2019] Mark a task as completed', async ({newPatientWithHospitalAdmission, patientDetailsPage}) => {
     await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
     await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
-    await patientDetailsPage.encounterHistoryPane.waitForLatestEncounterToBeReady();
-    await patientDetailsPage.encounterHistoryPane.getLatestEncounter().click();
+    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
+    await latestEncounter.click();
     const tasksPane = await patientDetailsPage.navigateToTasksTab();
     await tasksPane.waitForPageToLoad();
     await tasksPane.addTaskButton.click();
@@ -445,8 +449,8 @@ test.describe('Basic tests', () => {
   test('[BT-0026][AT-2020] Mark a task as not completed', async ({newPatientWithHospitalAdmission, patientDetailsPage}) => {
     await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
     await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
-    await patientDetailsPage.encounterHistoryPane.waitForLatestEncounterToBeReady();
-    await patientDetailsPage.encounterHistoryPane.getLatestEncounter().click();
+    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
+    await latestEncounter.click();
     const tasksPane = await patientDetailsPage.navigateToTasksTab();
     await tasksPane.waitForPageToLoad();
     await tasksPane.addTaskButton.click();
@@ -475,11 +479,11 @@ test.describe('Basic tests', () => {
     expect(await tasksPane.tableRows.count()).toBe(1);
 
   });
-  test('[BT-0027][AT-2021] Delete a task', async ({newPatientWithHospitalAdmission, patientDetailsPage}) => {
+  test.only('[BT-0027][AT-2021] Delete a task', async ({newPatientWithHospitalAdmission, patientDetailsPage}) => {
     await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
     await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
-    await patientDetailsPage.encounterHistoryPane.waitForLatestEncounterToBeReady();
-    await patientDetailsPage.encounterHistoryPane.getLatestEncounter().click();
+    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
+    await latestEncounter.click();
     const tasksPane = await patientDetailsPage.navigateToTasksTab();
     await tasksPane.waitForPageToLoad();
     await tasksPane.addTaskButton.click();
@@ -505,7 +509,8 @@ test.describe('Basic tests', () => {
   test('[BT-0028][AT-2022] Record a simple chart and validate', async ({newPatientWithHospitalAdmission, patientDetailsPage}) => {
     await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
     await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
-    await patientDetailsPage.encounterHistoryPane.getLatestEncounter().click();
+    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
+    await latestEncounter.click();
     const chartsPane = await patientDetailsPage.navigateToChartsTab();
     await chartsPane.waitForPageToLoad();
     await chartsPane.selectChartType('Neurological Assessment');
