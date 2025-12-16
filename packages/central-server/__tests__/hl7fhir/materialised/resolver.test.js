@@ -1,4 +1,5 @@
 import { fake } from '@tamanu/fake-data/fake';
+import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 
 import { createTestContext } from '../../utilities';
 import { fakeResourcesOfFhirServiceRequest } from '../../fake/fhir';
@@ -32,6 +33,7 @@ describe(`FHIR reference resolution`, () => {
     beforeEach(async () => {
       const {
         FhirServiceRequest,
+        FhirSpecimen,
         ImagingRequest,
         ImagingRequestArea,
         LabRequest,
@@ -45,6 +47,7 @@ describe(`FHIR reference resolution`, () => {
       await FhirOrganization.destroy({ where: {} });
       await FhirPractitioner.destroy({ where: {} });
       await FhirServiceRequest.destroy({ where: {} });
+      await FhirSpecimen.destroy({ where: {} });
       await ImagingRequest.destroy({ where: {} });
       await ImagingRequestArea.destroy({ where: {} });
       await LabRequest.destroy({ where: {} });
@@ -167,41 +170,6 @@ describe(`FHIR reference resolution`, () => {
       expect(mat.resolved).toBe(true);
     });
 
-    it('can resolve a resource with a circular dependency', async () => {
-      // arrange
-      const { Patient, FhirPatient } = ctx.store.models;
-      const patient1 = await Patient.create(
-        fake(Patient, {
-          firstName: 'Patient 1',
-          lastName: 'Patient 1',
-        }),
-      );
-      const patient2 = await Patient.create(
-        fake(Patient, {
-          firstName: 'Patient 2',
-          lastName: 'Patient 2',
-        }),
-      );
-
-      // Merging patients creates a circular dependency
-      await mergePatient(ctx.store.models, patient1.id, patient2.id);
-
-      const matPatient1 = await FhirPatient.materialiseFromUpstream(patient1.id);
-      const matPatient2 = await FhirPatient.materialiseFromUpstream(patient2.id);
-
-      expect(matPatient1.resolved).toBe(false);
-      expect(matPatient2.resolved).toBe(true); // since patient1 is materialised already, patient2 is resolved automatically
-
-      // act
-      await FhirPatient.resolveUpstreams();
-      await matPatient1.reload();
-      await matPatient2.reload();
-
-      // assert
-      expect(matPatient1.resolved).toBe(true);
-      expect(matPatient2.resolved).toBe(true);
-    });
-
     /**
      * TODO: Rework bumping last updated when resolving references so that we don't bump if no real changes have occurred
      */
@@ -273,6 +241,81 @@ describe(`FHIR reference resolution`, () => {
       await expect(FhirServiceRequest.resolveUpstreams()).rejects.toThrow(
         `ServiceRequest/${mat.id}`,
       );
+    });
+
+    describe('circular dependencies', () => {
+      it('can resolve resources with a circular dependency for merged patients', async () => {
+        // arrange
+        const { Patient, FhirPatient } = ctx.store.models;
+        const patient1 = await Patient.create(
+          fake(Patient, {
+            firstName: 'Patient 1',
+            lastName: 'Patient 1',
+          }),
+        );
+        const patient2 = await Patient.create(
+          fake(Patient, {
+            firstName: 'Patient 2',
+            lastName: 'Patient 2',
+          }),
+        );
+
+        // Merging patients creates a circular dependency
+        await mergePatient(ctx.store.models, patient1.id, patient2.id);
+
+        const matPatient1 = await FhirPatient.materialiseFromUpstream(patient1.id);
+        const matPatient2 = await FhirPatient.materialiseFromUpstream(patient2.id);
+
+        expect(matPatient1.resolved).toBe(false);
+        expect(matPatient2.resolved).toBe(true); // since patient1 is materialised already, patient2 is resolved automatically
+
+        // act
+        await FhirPatient.resolveUpstreams();
+        await matPatient1.reload();
+        await matPatient2.reload();
+
+        // assert
+        expect(matPatient1.resolved).toBe(true);
+        expect(matPatient2.resolved).toBe(true);
+      });
+
+      it('can resolve resources with a circular dependency for lab requests', async () => {
+        // arrange
+        const {
+          LabRequest,
+          FhirServiceRequest,
+          FhirSpecimen,
+          FhirEncounter,
+          FhirPractitioner,
+          FhirOrganization,
+        } = ctx.store.models;
+        const labRequest = await LabRequest.create(
+          fake(LabRequest, {
+            requestedById: resources.practitioner.id,
+            encounterId: resources.encounter.id,
+            specimenAttached: true,
+            status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+          }),
+        );
+
+        await FhirOrganization.materialiseFromUpstream(resources.facility.id);
+        await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
+        await FhirPractitioner.materialiseFromUpstream(resources.practitioner.id);
+        const matServiceRequest = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+        const matSpecimen = await FhirSpecimen.materialiseFromUpstream(labRequest.id);
+
+        expect(matServiceRequest.resolved).toBe(false);
+        expect(matSpecimen.resolved).toBe(true); // since the serviceRequest is materialised already, specimen is resolved automatically
+
+        // act
+        await FhirServiceRequest.resolveUpstreams();
+        await matServiceRequest.reload();
+        await matSpecimen.reload();
+
+        // assert
+        expect(matServiceRequest.resolved).toBe(true);
+        expect(matSpecimen.resolved).toBe(true);
+      });
     });
 
     describe('FHIR API', () => {
