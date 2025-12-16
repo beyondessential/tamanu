@@ -1,4 +1,4 @@
-import React, { Children } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import { Button, FormCancelButton, FormSubmitButton, OutlinedButton } from './Button';
@@ -30,7 +30,7 @@ const ConfirmButton = styled(Button)`
 `;
 
 export const ButtonRow = React.memo(({ children, ButtonWrapper = React.Fragment, ...props }) => (
-  <Row items={Children.toArray(children).length || 1} {...props} data-testid="row-atzb">
+  <Row {...props} data-testid="row-atzb">
     <ButtonWrapper>
       {children}
     </ButtonWrapper>
