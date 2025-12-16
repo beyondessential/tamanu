@@ -381,6 +381,11 @@ export const globalSettings = {
               type: yup.boolean(),
               defaultValue: false,
             },
+            enableCovidVaccinationCertificateSigning: {
+              description: 'Enable signing of COVID vaccination certificate',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
           },
         },
       },
