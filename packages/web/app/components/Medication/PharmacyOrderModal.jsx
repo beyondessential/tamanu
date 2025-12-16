@@ -158,6 +158,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
   const queryClient = useQueryClient();
   const practitionerSuggester = useSuggester('practitioner');
   const { getSetting } = useSettings();
+  const { facilityId } = useAuth();
 
   const medicationAlreadyOrderedConfirmationTimeout = getSetting(
     'features.pharmacyOrder.medicationAlreadyOrderedConfirmationTimeout',
@@ -296,6 +297,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
         orderingClinicianId,
         comments,
         isDischargePrescription: isDischargeOrOutpatient,
+        facilityId,
         pharmacyOrderPrescriptions: selectedPrescriptions.map(prescription => ({
           prescriptionId: prescription.id,
           quantity: prescription.quantity,
