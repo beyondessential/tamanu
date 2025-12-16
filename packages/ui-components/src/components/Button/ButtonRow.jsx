@@ -29,9 +29,11 @@ const ConfirmButton = styled(Button)`
   min-width: 90px;
 `;
 
-export const ButtonRow = React.memo(({ children, ...props }) => (
+export const ButtonRow = React.memo(({ children, ButtonWrapper = React.Fragment, ...props }) => (
   <Row items={Children.toArray(children).length || 1} {...props} data-testid="row-atzb">
-    {children}
+    <ButtonWrapper>
+      {children}
+    </ButtonWrapper>
   </Row>
 ));
 
