@@ -166,14 +166,15 @@ const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled, char
       component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED;
     const isMultiSelect = component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
     const isPhoto = component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO;
+    const isSignature = component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE;
     const handleCellClick = () => {
       onCellClick(cells[date]);
     };
     const isCurrent = component.visibilityStatus === VISIBILITY_STATUSES.CURRENT;
     const isValid = isCurrent ? true : Boolean(value);
-    const shouldBeClickable = isEditEnabled && !isCalculatedQuestion && !isPhoto && isValid;
+    const shouldBeClickable = isEditEnabled && !isCalculatedQuestion && !isPhoto && !isSignature && isValid;
 
-    if (isPhoto && value) {
+    if ((isPhoto || isSignature) && value) {
       return (
         <ViewPhotoLink
           answerId={answerId}
