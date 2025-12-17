@@ -52,3 +52,9 @@ sources:
             description: "{{ doc('generic__updated_at_sync_tick') }} in reference_drug_facilities."
             data_tests:
               - not_null
+          - name: stock_status
+            data_type: text
+            description: "{{ doc('reference_drug_facilities__stock_status') }}"
+            config:
+              meta:
+                masking: text
