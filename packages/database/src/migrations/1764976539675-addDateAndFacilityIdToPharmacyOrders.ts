@@ -1,4 +1,3 @@
-import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { DataTypes, QueryInterface, QueryTypes } from 'sequelize';
 
 export async function up(query: QueryInterface): Promise<void> {
@@ -16,24 +15,33 @@ export async function up(query: QueryInterface): Promise<void> {
     },
   });
 
-  // Backfill date and facility_id columns
-  const pharmacyOrders: any = await query.sequelize.query(
+  // Backfill date and facility_id columns using a single bulk UPDATE query
+  await query.sequelize.query(
     `
-    SELECT p.id, p.encounter_id, p.created_at, l.facility_id FROM pharmacy_orders p
-    LEFT JOIN encounters e ON p.encounter_id = e.id
-		LEFT JOIN locations l ON l.id = e.location_id
-  `,
+    UPDATE pharmacy_orders
+    SET
+      date = SUBSTRING(pharmacy_orders.created_at::TEXT, 1, 19),
+      facility_id = locations.facility_id
+    FROM
+      encounters
+    INNER JOIN
+      locations ON locations.id = encounters.location_id
+    WHERE
+      pharmacy_orders.encounter_id = encounters.id;
+    `,
+  );
+
+  // Check if there are any rows with NULL facility_id before making the column non-nullable
+  const nullCountResult: any = await query.sequelize.query(
+    `SELECT COUNT(*) as count FROM pharmacy_orders WHERE facility_id IS NULL;`,
     { type: QueryTypes.SELECT },
   );
-  for (const pharmacyOrder of pharmacyOrders) {
-    const date = toDateTimeString(pharmacyOrder.created_at);
-    await query.sequelize.query(
-      `
-      UPDATE pharmacy_orders
-      SET date = :date, facility_id = :facility_id
-      WHERE id = :id
-      `,
-      { replacements: { date, facility_id: pharmacyOrder.facility_id, id: pharmacyOrder.id } },
+
+  const nullCount = parseInt(nullCountResult[0].count, 10);
+  if (nullCount > 0) {
+    throw new Error(
+      `Cannot make facility_id non-nullable: ${nullCount} pharmacy order(s) have NULL facility_id. ` +
+      `These orders may be missing encounters or encounters may be missing locations.`,
     );
   }
 

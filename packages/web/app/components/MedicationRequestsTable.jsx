@@ -132,16 +132,9 @@ const getDateSent = ({ pharmacyOrder }) => (
     </BodyText>
   </div>
 );
-const getStockStatusValue = ({ prescription }) => {
-  const facilityDrug = prescription.medication?.referenceDrug?.facilities?.[0];
-  const quantity = parseInt(facilityDrug?.quantity);
-  if (!facilityDrug || isNaN(quantity)) return STOCK_STATUSES.UNKNOWN;
-
-  if (quantity > 0) return STOCK_STATUSES.YES;
-  return STOCK_STATUSES.NO;
-};
 const getStockStatus = ({ prescription }) => {
-  const status = getStockStatusValue({ prescription });
+  const status =
+    prescription.medication?.referenceDrug?.facilities?.[0]?.stockStatus || STOCK_STATUSES.UNKNOWN;
   const color = STOCK_STATUS_COLORS[status];
   return (
     <StyledTag $color={color} noWrap>

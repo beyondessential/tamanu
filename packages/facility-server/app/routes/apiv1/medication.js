@@ -1443,8 +1443,7 @@ medication.get(
       ...filterParams
     } = query;
 
-    // TODO: Remove this once we have a proper permission system
-    req.flagPermissionChecked();
+    req.checkPermission('list', 'Medication');
 
     const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 
@@ -1494,8 +1493,11 @@ medication.get(
     const pharmacyOrderFilters = mapQueryFilters(filterParams, [
       {
         key: 'date',
-        mapFn: (fieldName, _operator, value) =>
-          Sequelize.where(Sequelize.fn('LEFT', Sequelize.col(fieldName), 10), value),
+        mapFn: (fieldName, _operator, value) => {
+          const startOfDay = `${value} 00:00:00`;
+          const endOfDay = `${value} 23:59:59`;
+          return { [fieldName]: { [Op.between]: [startOfDay, endOfDay] } };
+        },
       },
       {
         key: 'prescriptionType',
@@ -1512,43 +1514,34 @@ medication.get(
       { key: 'prescriberId', operator: Op.eq },
     ]);
 
-    // quantity is stored as string; derive a reusable numeric expression
-    const quantityExpr = `
-      NULLIF(
-        regexp_replace(
-          "prescription->medication->referenceDrug->facilities"."quantity",
-          '[^0-9]',
-          '',
-          'g'
-        ),
-        ''
-      )::integer
-    `;
-    // Derived stock status sub column based on quantity:
-    // - cannot cast to int -> UNKNOWN
-    // - castable and > 0   -> YES
-    // - otherwise          -> NO
-    const stockStatusExpr = `
-      CASE
-        WHEN ${quantityExpr} IS NULL THEN '${STOCK_STATUSES.UNKNOWN}'
-        WHEN ${quantityExpr} > 0 THEN '${STOCK_STATUSES.YES}'
-        ELSE '${STOCK_STATUSES.NO}'
-      END
-    `;
-
-    const stockStatusFilter = mapQueryFilters(filterParams, [
+    const rootFilter = mapQueryFilters(filterParams, [
       {
         key: 'stockStatus',
         mapFn: (_fieldName, _operator, value) =>
-          Sequelize.where(Sequelize.literal(stockStatusExpr), value),
+          Sequelize.where(
+            Sequelize.fn(
+              'COALESCE',
+              Sequelize.col('prescription.medication.referenceDrug.facilities.stock_status'),
+              STOCK_STATUSES.UNKNOWN,
+            ),
+            value,
+          ),
       },
     ]);
 
     const buildOrder = () => {
       if (orderBy === 'stockStatus') {
-        // Alphabetical ordering on derived stockStatus string (ASC/DESC)
+        // Use computed column for alphabetical ordering (ASC/DESC)
+        // COALESCE handles null (no facility record) as 'unknown'
         return [
-          Sequelize.literal(`${stockStatusExpr} ${orderDirection}`),
+          [
+            Sequelize.fn(
+              'COALESCE',
+              Sequelize.col('prescription.medication.referenceDrug.facilities.stock_status'),
+              STOCK_STATUSES.UNKNOWN,
+            ),
+            orderDirection,
+          ],
           // stable tiebreaker
           ['pharmacyOrder', 'date', 'DESC'],
         ];
@@ -1562,15 +1555,13 @@ medication.get(
 
     // Query PharmacyOrderPrescription with all associations
     const databaseResponse = await models.PharmacyOrderPrescription.findAndCountAll({
-      attributes: {
-        include: [[Sequelize.literal(stockStatusExpr), 'stockStatus']],
-      },
       include: [
         {
           association: 'pharmacyOrder',
-          where: pharmacyOrderFilters,
+          where: { ...pharmacyOrderFilters, facilityId },
           include: [encounter],
           required: true,
+          attributes: ['id', 'date', 'facilityId', 'encounterId', 'isDischargePrescription'],
         },
         {
           association: 'prescription',
@@ -1589,7 +1580,7 @@ medication.get(
                 include: {
                   model: models.ReferenceDrugFacility,
                   as: 'facilities',
-                  attributes: ['id', 'quantity', 'facilityId'],
+                  attributes: ['id', 'quantity', 'facilityId', 'stockStatus'],
                   where: {
                     facilityId,
                   },
@@ -1605,7 +1596,7 @@ medication.get(
           required: true,
         },
       ],
-      where: stockStatusFilter,
+      where: rootFilter,
       order: buildOrder(),
       limit: rowsPerPage,
       offset: page * rowsPerPage,
