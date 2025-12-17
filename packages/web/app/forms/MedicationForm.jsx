@@ -733,48 +733,48 @@ export const MedicationForm = ({
   };
 
   const getStockLevelIcon = () => {
-    if (isNaN(parseInt(drugQuantity))) return <CircleHelp size={20} color={Colors.blue} />;
-    if (parseInt(drugQuantity) === 0) return <CircleAlert size={20} color={Colors.alert} />;
+    const quantity = parseInt(drugQuantity, 10);
+    if (isNaN(quantity)) return <CircleHelp size={20} color={Colors.blue} />;
+    if (quantity === 0) return <CircleAlert size={20} color={Colors.alert} />;
     return <CircleCheck size={20} color={Colors.safe} />;
   };
 
   const getStockLevelContent = () => {
-    if (isNaN(parseInt(drugQuantity)))
+    const quantity = parseInt(drugQuantity, 10);
+    const MAX_DISPLAYABLE_STOCK_LEVEL = 1000000;
+
+    if (isNaN(quantity)) {
       return (
         <TranslatedText
           stringId="medication.stockLevel.unknown"
           fallback="The stock status of this medication is currently unknown."
         />
       );
-    if (parseInt(drugQuantity) === 0)
+    }
+
+    if (quantity === 0) {
       return (
         <TranslatedText
           stringId="medication.stockLevel.outOfStock"
           fallback="Medication is currently marked as out of stock."
         />
       );
-    if (parseInt(drugQuantity) <= 1000000)
-      return (
-        <Box>
-          <TranslatedText
-            stringId="medication.stockLevel.inStock"
-            fallback="Medication is currently in stock."
-          />
-          <Box>
-            <TranslatedText
-              stringId="medication.stockLevel.inStock.stockLevel"
-              fallback="Stock level: "
-            />
-            <Box component={'span'} fontWeight={500}>
-              <TranslatedText
-                stringId="medication.stockLevel.inStock.approxUnits"
-                fallback="Approx :quantity units"
-                replacements={{ quantity: Number(drugQuantity).toLocaleString() }}
-              />
-            </Box>
-          </Box>
-        </Box>
+    }
+
+    const stockLevelValue =
+      quantity <= MAX_DISPLAYABLE_STOCK_LEVEL ? (
+        <TranslatedText
+          stringId="medication.stockLevel.inStock.approxUnits"
+          fallback="Approx :quantity units"
+          replacements={{ quantity: Number(drugQuantity).toLocaleString() }}
+        />
+      ) : (
+        <TranslatedText
+          stringId="medication.stockLevel.inStock.moreThanOneMillionUnits"
+          fallback="More than 1 million units"
+        />
       );
+
     return (
       <Box>
         <TranslatedText
@@ -787,10 +787,7 @@ export const MedicationForm = ({
             fallback="Stock level: "
           />
           <Box component={'span'} fontWeight={500}>
-            <TranslatedText
-              stringId="medication.stockLevel.inStock.moreThanOneMillionUnits"
-              fallback="More than 1 million units"
-            />
+            {stockLevelValue}
           </Box>
         </Box>
       </Box>
