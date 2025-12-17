@@ -16,6 +16,7 @@ const config = {
   resolver: {
     blockList: exclusionList([
       new RegExp(`^${path.join(workspaceRoot, 'node_modules', 'react').replace(/[/\\]/g, '\\/')}\\/.*$`),
+      new RegExp(`^${path.join(workspaceRoot, 'node_modules', 'react-native-svg').replace(/[/\\]/g, '\\/')}\\/.*$`),
     ]),
     extraNodeModules: {
       'react': path.join(projectRoot, 'node_modules', 'react'),
@@ -24,7 +25,6 @@ const config = {
     },
     nodeModulesPaths: [
       path.resolve(projectRoot, 'node_modules'),
-      path.resolve(workspaceRoot, 'node_modules'),
     ],
   },
 };
