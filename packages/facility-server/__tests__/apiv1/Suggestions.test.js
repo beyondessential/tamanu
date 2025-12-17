@@ -948,6 +948,8 @@ describe('Suggestions', () => {
   });
 
   it('should only return non-hidden invoice products', async () => {
+    await models.InvoiceProduct.truncate({ cascade: true });
+
     const { InvoicePriceList, InvoiceProduct, InvoicePriceListItem } = models;
 
     const priceList = await InvoicePriceList.create({

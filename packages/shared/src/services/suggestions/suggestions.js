@@ -612,17 +612,9 @@ createSuggester(
 
     return {
       ...baseWhere,
-      [Op.and]: [
-        {
-          [Op.or]: [
-            {
-              '$invoicePriceListItems.id$': null,
-            },
-            {
-              '$invoicePriceListItems.is_hidden$': false,
-            },
-          ],
-        },
+      [Op.or]: [
+        Sequelize.where(Sequelize.col('invoicePriceListItems.id'), Op.is, null),
+        Sequelize.where(Sequelize.col('invoicePriceListItems.is_hidden'), Op.eq, false),
       ],
     };
   },
