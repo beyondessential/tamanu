@@ -74,6 +74,7 @@ import { useEncounter } from '../contexts/Encounter';
 import { usePatientAllergiesQuery } from '../api/queries/usePatientAllergiesQuery';
 import { useMedicationIdealTimes } from '../hooks/useMedicationIdealTimes';
 import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
+import { CircleAlert, CircleCheck, CircleHelp } from 'lucide-react';
 
 const validationSchema = yup.object().shape({
   medicationId: foreignKey(
@@ -147,7 +148,8 @@ const CheckboxGroup = styled.div`
   gap: 20px;
   padding-bottom: 1.2rem;
   border-bottom: 1px solid ${Colors.outline};
-  > div {
+  > div:nth-of-type(1),
+  > div:nth-of-type(2) {
     max-width: fit-content;
   }
 `;
@@ -304,6 +306,24 @@ const AllergyItem = styled.li`
   color: ${Colors.darkestText};
   font-size: 14px;
   line-height: 20px;
+`;
+
+const StockLevelContainer = styled(Box)`
+  padding: 12px 10px;
+  border: 1px solid ${Colors.outline};
+  border-radius: 3px;
+  background-color: ${Colors.white};
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: absolute;
+  right: 0;
+  top: 31px;
+  transform: translateY(-50%);
+  font-size: 14px;
+  line-height: 18px;
+  color: ${Colors.darkestText};
+  width: 285px;
 `;
 
 const isOneTimeFrequency = frequency =>
@@ -602,6 +622,8 @@ export const MedicationForm = ({
   const [showExistingDrugWarning, setShowExistingDrugWarning] = useState(false);
   const [isFinalizingMedication, setIsFinalizingMedication] = useState(false);
   const [frequencyChanged, setFrequencyChanged] = useState(0);
+  const [selectedDrug, setSelectedDrug] = useState(null);
+  const drugQuantity = selectedDrug?.facilities?.[0]?.quantity;
 
   const { defaultTimeSlots } = useMedicationIdealTimes({
     frequency: editingMedication?.frequency,
@@ -614,8 +636,8 @@ export const MedicationForm = ({
   });
 
   const { data: allergies, isLoading: isLoadingAllergies } = usePatientAllergiesQuery(patient?.id);
-  const allergiesList = allergies?.data
-    ?.map(allergyDetail =>
+  const allergiesList =
+    allergies?.data?.map(allergyDetail =>
       getTranslation(
         getReferenceDataStringId(allergyDetail?.allergy.id, allergyDetail?.allergy.type),
         allergyDetail?.allergy.name,
@@ -704,9 +726,75 @@ export const MedicationForm = ({
     };
   };
 
-  const handleChangeMedication = drugId => {
-    const isExistingDrug = existingDrugIds.includes(drugId);
+  const handleChangeMedication = e => {
+    const isExistingDrug = existingDrugIds.includes(e.target.value);
     setShowExistingDrugWarning(isExistingDrug);
+    setSelectedDrug(e.target?.referenceDrug);
+  };
+
+  const getStockLevelIcon = () => {
+    if (isNaN(parseInt(drugQuantity))) return <CircleHelp size={20} color={Colors.blue} />;
+    if (parseInt(drugQuantity) === 0) return <CircleAlert size={20} color={Colors.alert} />;
+    return <CircleCheck size={20} color={Colors.safe} />;
+  };
+
+  const getStockLevelContent = () => {
+    if (isNaN(parseInt(drugQuantity)))
+      return (
+        <TranslatedText
+          stringId="medication.stockLevel.unknown"
+          fallback="The stock status of this medication is currently unknown."
+        />
+      );
+    if (parseInt(drugQuantity) === 0)
+      return (
+        <TranslatedText
+          stringId="medication.stockLevel.outOfStock"
+          fallback="Medication is currently marked as out of stock."
+        />
+      );
+    if (parseInt(drugQuantity) <= 1000000)
+      return (
+        <Box>
+          <TranslatedText
+            stringId="medication.stockLevel.inStock"
+            fallback="Medication is currently in stock."
+          />
+          <Box>
+            <TranslatedText
+              stringId="medication.stockLevel.inStock.stockLevel"
+              fallback="Stock level: "
+            />
+            <Box component={'span'} fontWeight={500}>
+              <TranslatedText
+                stringId="medication.stockLevel.inStock.approxUnits"
+                fallback="Approx :quantity units"
+                replacements={{ quantity: Number(drugQuantity).toLocaleString() }}
+              />
+            </Box>
+          </Box>
+        </Box>
+      );
+    return (
+      <Box>
+        <TranslatedText
+          stringId="medication.stockLevel.inStock"
+          fallback="Medication is currently in stock."
+        />
+        <Box>
+          <TranslatedText
+            stringId="medication.stockLevel.inStock.stockLevel"
+            fallback="Stock level: "
+          />
+          <Box component={'span'} fontWeight={500}>
+            <TranslatedText
+              stringId="medication.stockLevel.inStock.moreThanOneMillionUnits"
+              fallback="More than 1 million units"
+            />
+          </Box>
+        </Box>
+      </Box>
+    );
   };
 
   return (
@@ -768,7 +856,7 @@ export const MedicationForm = ({
                         units: referenceDrug?.units || '',
                         notes: referenceDrug?.notes || '',
                       });
-                      handleChangeMedication(e.target.value);
+                      handleChangeMedication(e);
                     }}
                     data-testid="medication-field-medicationId-8k3m"
                   />
@@ -841,6 +929,14 @@ export const MedicationForm = ({
                 component={CheckField}
                 data-testid="medication-field-isPrn-9n4q"
               />
+              {!isOngoingPrescription && drugQuantity && (
+                <StockLevelContainer>
+                  <Box display="flex" flexShrink={0}>
+                    {getStockLevelIcon()}
+                  </Box>
+                  {getStockLevelContent()}
+                </StockLevelContainer>
+              )}
             </CheckboxGroup>
             <div style={{ gridColumn: '1/-1', marginBottom: '-12px' }}>
               <Field

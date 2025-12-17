@@ -434,12 +434,12 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
             {
               [Op.or]: [
                 {
-                 '$referenceDrug.id$': {
+                  '$referenceDrug.id$': {
                     [Op.notIn]: Sequelize.literal(`(
-                      SELECT reference_drug_id FROM reference_drug_facilities 
+                      SELECT reference_drug_id FROM reference_drug_facilities
                       WHERE facility_id = ${req.db.escape(facilityId)}
                       AND quantity = '${FACILITY_DRUG_QUANTITY_STATUSES.UNAVAILABLE}'
-                    )`)
+                    )`),
                   },
                 },
                 {
@@ -463,7 +463,12 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
     {
       includeBuilder: req => {
         const {
-          models: { ReferenceData, ReferenceMedicationTemplate, ReferenceDrug, ReferenceDrugFacility },
+          models: {
+            ReferenceData,
+            ReferenceMedicationTemplate,
+            ReferenceDrug,
+            ReferenceDrugFacility,
+          },
           query: { parentId, relationType = DEFAULT_HIERARCHY_TYPE },
         } = req;
 
@@ -486,11 +491,14 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
             include: [
               {
                 model: ReferenceDrugFacility,
+                where: {
+                  facilityId: req.query.facilityId,
+                },
                 as: 'facilities',
                 attributes: ['referenceDrugId', 'facilityId', 'quantity'],
                 required: false,
               },
-            ] 
+            ],
           },
           typeName === REFERENCE_TYPES.MEDICATION_SET && {
             model: ReferenceData,
@@ -517,7 +525,10 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
 
         return result.length > 0 ? result : null;
       },
-      queryOptions: (typeName === REFERENCE_TYPES.MEDICATION_SET || (typeName === REFERENCE_TYPES.DRUG)) ? { subQuery: false } : {},
+      queryOptions:
+        typeName === REFERENCE_TYPES.MEDICATION_SET || typeName === REFERENCE_TYPES.DRUG
+          ? { subQuery: false }
+          : {},
       creatingBodyBuilder: req => referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
       afterCreated: afterCreatedReferenceData,
       mapper: item => item,
