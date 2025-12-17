@@ -1,11 +1,12 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router';
 
-import { MedicationListingView } from '../views/MedicationListingView';
+import { MedicationRequestListingView } from '../views/MedicationRequestListingView';
 
 export const MedicationRoutes = React.memo(() => (
   <Routes>
-    <Route path="all" element={<MedicationListingView />} />
-    <Route path="*" element={<Navigate to="all" replace />} />
+    <Route path="active" element={<MedicationRequestListingView />} />
+    <Route path="dispensed" element={null} />
+    <Route path="*" element={<Navigate to="active" replace />} />
   </Routes>
 ));

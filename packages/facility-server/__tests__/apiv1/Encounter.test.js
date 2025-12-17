@@ -967,6 +967,8 @@ describe('Encounter', () => {
             orderingClinicianId: app.user.id,
             comments,
             isDischargePrescription: true,
+            date: getCurrentDateTimeString(),
+            facilityId: facilityId,
             pharmacyOrderPrescriptions: [
               {
                 prescriptionId: testPrescription.id,
@@ -997,6 +999,8 @@ describe('Encounter', () => {
           .send({
             orderingClinicianId: app.user.id,
             comments: 'comments',
+            date: getCurrentDateTimeString(),
+            facilityId: facilityId,
             pharmacyOrderPrescriptions: [
               {
                 prescriptionId: testPrescription.id,

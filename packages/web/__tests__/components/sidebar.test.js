@@ -95,7 +95,7 @@ describe('useFacilitySidebar', () => {
   it('should display the correct items', () => {
     vi.mocked(useSettings).mockReturnValue(settingsMock());
     const items = useFacilitySidebar();
-    expect(items.length).toBe(8);
+    expect(items.length).toBe(9);
     expect(items[0].key).toBe('patients');
     expect(items[0].children.length).toBe(4);
   });
@@ -103,7 +103,7 @@ describe('useFacilitySidebar', () => {
   it('should hide top level items', () => {
     vi.mocked(useSettings).mockReturnValue(settingsMock({ patients: { hidden: true } }));
     const items = useFacilitySidebar();
-    expect(items.length).toBe(7);
+    expect(items.length).toBe(8);
   });
 
   it('should hide secondary level items', () => {
@@ -120,6 +120,7 @@ describe('useFacilitySidebar', () => {
     expect(items.map((item) => item.key)).toStrictEqual([
       'dashboard',
       'scheduling',
+      'medication',
       'imaging',
       'labs',
       'immunisations',
