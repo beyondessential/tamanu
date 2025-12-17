@@ -217,7 +217,8 @@ test.describe('Basic tests', () => {
       expect(supervisingClinician).toBe(currentUserDisplayName);
 
       const formValues = await newImagingRequestModal.fillForm({
-        areasToBeImaged: 'Head',
+        imagingRequestType: 'Angiogram',
+        areasToBeImaged: 'Angiogram Imaging Area',
         notes: 'This is a test note',
       });
       await newImagingRequestModal.finaliseButton.click();

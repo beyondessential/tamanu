@@ -118,7 +118,7 @@ export class AddTaskModal {
       await this.highPriorityInput.check();
     }
     if (values.assignedTo) {
-    this.assignedToInput.click();
+    await this.assignedToInput.click();
     await this.assignedToInput.getByText(values.assignedTo).click();
     await this.assignedToInput.click();
     }

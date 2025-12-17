@@ -89,7 +89,7 @@
   },
   "auth": {
     "saltRounds": 12,
-    "tokenDuration": "5h",
+    "tokenDuration": "1h",
     "useHardcodedPermissions": true,
 
     // Authentication "cookie" secret. Set to a random value so sessions don't
