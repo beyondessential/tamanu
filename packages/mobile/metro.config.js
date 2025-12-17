@@ -20,11 +20,10 @@ const config = {
     ]),
     extraNodeModules: {
       'react': path.join(projectRoot, 'node_modules', 'react'),
-      'react-native-nitro-sqlite': path.join(projectRoot, 'node_modules', 'react-native-nitro-sqlite'),
-      'react-native-svg': path.join(projectRoot, 'node_modules', 'react-native-svg'),
     },
     nodeModulesPaths: [
       path.resolve(projectRoot, 'node_modules'),
+      path.resolve(workspaceRoot, 'node_modules'),
     ],
   },
 };
