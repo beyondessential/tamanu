@@ -1,45 +1,45 @@
 {
   "sheetName": "Care Plans",
+  "columns": [
+    "id",
+    "code",
+    "name"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name"
-    ],
-    [
-      "careplan-Diabetes",
-      "Diabetes",
-      "Diabetes"
-    ],
-    [
-      "careplan-Cardiovascular",
-      "Cardiovascular",
-      "Cardiovascular disease"
-    ],
-    [
-      "careplan-Mentalhealth",
-      "Mentalhealth",
-      "Mental health"
-    ],
-    [
-      "careplan-COVID19",
-      "COVID19",
-      "COVID-19"
-    ],
-    [
-      "careplan-Tuberculosis",
-      "Tuberculosis",
-      "Tuberculosis"
-    ],
-    [
-      "careplan-HIV",
-      "HIV",
-      "HIV"
-    ],
-    [
-      "careplan-HepatitisB",
-      "HepatitisB",
-      "Hepatitis B"
-    ]
+    {
+      "id": "careplan-Diabetes",
+      "code": "Diabetes",
+      "name": "Diabetes"
+    },
+    {
+      "id": "careplan-Cardiovascular",
+      "code": "Cardiovascular",
+      "name": "Cardiovascular disease"
+    },
+    {
+      "id": "careplan-Mentalhealth",
+      "code": "Mentalhealth",
+      "name": "Mental health"
+    },
+    {
+      "id": "careplan-COVID19",
+      "code": "COVID19",
+      "name": "COVID-19"
+    },
+    {
+      "id": "careplan-Tuberculosis",
+      "code": "Tuberculosis",
+      "name": "Tuberculosis"
+    },
+    {
+      "id": "careplan-HIV",
+      "code": "HIV",
+      "name": "HIV"
+    },
+    {
+      "id": "careplan-HepatitisB",
+      "code": "HepatitisB",
+      "name": "Hepatitis B"
+    }
   ]
 }

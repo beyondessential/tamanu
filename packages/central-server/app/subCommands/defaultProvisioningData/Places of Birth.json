@@ -1,100 +1,100 @@
 {
   "sheetName": "Places of Birth",
+  "columns": [
+    "id",
+    "code",
+    "name"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name"
-    ],
-    [
-      "placeOfBirth-fiji",
-      "Fiji",
-      "Fiji"
-    ],
-    [
-      "placeOfBirth-newzealand",
-      "NewZealand",
-      "New Zealand"
-    ],
-    [
-      "placeOfBirth-americansamoa",
-      "AmericanSamoa",
-      "American Samoa"
-    ],
-    [
-      "placeOfBirth-australia",
-      "Australia",
-      "Australia"
-    ],
-    [
-      "placeOfBirth-tuvalu",
-      "Tuvalu",
-      "Tuvalu"
-    ],
-    [
-      "placeOfBirth-northernmarianaislands",
-      "NorthernMarianaIslands",
-      "Northern Mariana Islands"
-    ],
-    [
-      "placeOfBirth-federatedstatesofmicronesia",
-      "FederatedStatesofMicronesia",
-      "Federated States of Micronesia"
-    ],
-    [
-      "placeOfBirth-frenchpolynesia",
-      "FrenchPolynesia",
-      "French Polynesia"
-    ],
-    [
-      "placeOfBirth-kiribati",
-      "Kiribati",
-      "Kiribati"
-    ],
-    [
-      "placeOfBirth-marshallislands",
-      "MarshallIslands",
-      "Marshall Islands"
-    ],
-    [
-      "placeOfBirth-nauru",
-      "Nauru",
-      "Nauru"
-    ],
-    [
-      "placeOfBirth-newcaledonia",
-      "NewCaledonia",
-      "New Caledonia"
-    ],
-    [
-      "placeOfBirth-palau",
-      "Palau",
-      "Palau"
-    ],
-    [
-      "placeOfBirth-solomonislands",
-      "SolomonIslands",
-      "Solomon Islands"
-    ],
-    [
-      "placeOfBirth-tonga",
-      "Tonga",
-      "Tonga"
-    ],
-    [
-      "placeOfBirth-vanuatu",
-      "Vanuatu",
-      "Vanuatu"
-    ],
-    [
-      "placeOfBirth-wallisandfutuna",
-      "WallisandFutuna",
-      "Wallis and Futuna"
-    ],
-    [
-      "placeOfBirth-other",
-      "Other",
-      "Other"
-    ]
+    {
+      "id": "placeOfBirth-fiji",
+      "code": "Fiji",
+      "name": "Fiji"
+    },
+    {
+      "id": "placeOfBirth-newzealand",
+      "code": "NewZealand",
+      "name": "New Zealand"
+    },
+    {
+      "id": "placeOfBirth-americansamoa",
+      "code": "AmericanSamoa",
+      "name": "American Samoa"
+    },
+    {
+      "id": "placeOfBirth-australia",
+      "code": "Australia",
+      "name": "Australia"
+    },
+    {
+      "id": "placeOfBirth-tuvalu",
+      "code": "Tuvalu",
+      "name": "Tuvalu"
+    },
+    {
+      "id": "placeOfBirth-northernmarianaislands",
+      "code": "NorthernMarianaIslands",
+      "name": "Northern Mariana Islands"
+    },
+    {
+      "id": "placeOfBirth-federatedstatesofmicronesia",
+      "code": "FederatedStatesofMicronesia",
+      "name": "Federated States of Micronesia"
+    },
+    {
+      "id": "placeOfBirth-frenchpolynesia",
+      "code": "FrenchPolynesia",
+      "name": "French Polynesia"
+    },
+    {
+      "id": "placeOfBirth-kiribati",
+      "code": "Kiribati",
+      "name": "Kiribati"
+    },
+    {
+      "id": "placeOfBirth-marshallislands",
+      "code": "MarshallIslands",
+      "name": "Marshall Islands"
+    },
+    {
+      "id": "placeOfBirth-nauru",
+      "code": "Nauru",
+      "name": "Nauru"
+    },
+    {
+      "id": "placeOfBirth-newcaledonia",
+      "code": "NewCaledonia",
+      "name": "New Caledonia"
+    },
+    {
+      "id": "placeOfBirth-palau",
+      "code": "Palau",
+      "name": "Palau"
+    },
+    {
+      "id": "placeOfBirth-solomonislands",
+      "code": "SolomonIslands",
+      "name": "Solomon Islands"
+    },
+    {
+      "id": "placeOfBirth-tonga",
+      "code": "Tonga",
+      "name": "Tonga"
+    },
+    {
+      "id": "placeOfBirth-vanuatu",
+      "code": "Vanuatu",
+      "name": "Vanuatu"
+    },
+    {
+      "id": "placeOfBirth-wallisandfutuna",
+      "code": "WallisandFutuna",
+      "name": "Wallis and Futuna"
+    },
+    {
+      "id": "placeOfBirth-other",
+      "code": "Other",
+      "name": "Other"
+    }
   ]
 }

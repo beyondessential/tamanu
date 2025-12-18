@@ -1,41 +1,41 @@
 {
   "sheetName": "Imaging Type",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name",
-      "visibilityStatus"
-    ],
-    [
-      "imagingType-XRay",
-      "XRay",
-      "X-Ray",
-      "current"
-    ],
-    [
-      "imagingType-CTScan",
-      "CTScan",
-      "CT Scan",
-      "current"
-    ],
-    [
-      "imagingType-Ultrasound",
-      "Ultrasound",
-      "Ultrasound",
-      "current"
-    ],
-    [
-      "imagingType-Echocardiogram",
-      "Echocardiogram",
-      "Echocardiogram",
-      "current"
-    ],
-    [
-      "imagingType-MRI",
-      "MRI",
-      "MRI",
-      "current"
-    ]
+    {
+      "id": "imagingType-XRay",
+      "code": "XRay",
+      "name": "X-Ray",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "imagingType-CTScan",
+      "code": "CTScan",
+      "name": "CT Scan",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "imagingType-Ultrasound",
+      "code": "Ultrasound",
+      "name": "Ultrasound",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "imagingType-Echocardiogram",
+      "code": "Echocardiogram",
+      "name": "Echocardiogram",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "imagingType-MRI",
+      "code": "MRI",
+      "name": "MRI",
+      "visibilityStatus": "current"
+    }
   ]
 }

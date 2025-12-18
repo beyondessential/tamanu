@@ -1,35 +1,35 @@
 {
   "sheetName": "Insurer",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name",
-      "visibilityStatus"
-    ],
-    [
-      "insurer-SouthernCrossHealthInsurance",
-      "SouthernCrossHealthInsurance",
-      "Southern Cross Health Insurance",
-      "current"
-    ],
-    [
-      "insurer-AAHealthInsurance",
-      "AAHealthInsurance",
-      "AA Health Insurance",
-      "current"
-    ],
-    [
-      "insurer-nibNZHealthInsurance",
-      "nibNZHealthInsurance",
-      "nib NZ Health Insurance",
-      "current"
-    ],
-    [
-      "insurer-AccuroHealthInsurance",
-      "AccuroHealthInsurance",
-      "Accuro Health Insurance",
-      "current"
-    ]
+    {
+      "id": "insurer-SouthernCrossHealthInsurance",
+      "code": "SouthernCrossHealthInsurance",
+      "name": "Southern Cross Health Insurance",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "insurer-AAHealthInsurance",
+      "code": "AAHealthInsurance",
+      "name": "AA Health Insurance",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "insurer-nibNZHealthInsurance",
+      "code": "nibNZHealthInsurance",
+      "name": "nib NZ Health Insurance",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "insurer-AccuroHealthInsurance",
+      "code": "AccuroHealthInsurance",
+      "name": "Accuro Health Insurance",
+      "visibilityStatus": "current"
+    }
   ]
 }

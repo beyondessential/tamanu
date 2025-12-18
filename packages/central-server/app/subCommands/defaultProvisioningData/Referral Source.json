@@ -1,23 +1,23 @@
 {
   "sheetName": "Referral Source",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name",
-      "visibilityStatus"
-    ],
-    [
-      "referralSource-overseas",
-      "overseas",
-      "Overseas",
-      "current"
-    ],
-    [
-      "referralSource-privateclinic",
-      "privateclinic",
-      "Private clinic",
-      "current"
-    ]
+    {
+      "id": "referralSource-overseas",
+      "code": "overseas",
+      "name": "Overseas",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "referralSource-privateclinic",
+      "code": "privateclinic",
+      "name": "Private clinic",
+      "visibilityStatus": "current"
+    }
   ]
 }

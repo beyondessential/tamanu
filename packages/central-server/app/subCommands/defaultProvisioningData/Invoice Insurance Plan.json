@@ -1,19 +1,19 @@
 {
   "sheetName": "Invoice Insurance Plan",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "defaultCoverage",
+    "visibilityStatus"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name",
-      "defaultCoverage",
-      "visibilityStatus"
-    ],
-    [
-      "insurance-plan-1",
-      "insurancePlan1",
-      "Insurance Plan 1",
-      100,
-      "current"
-    ]
+    {
+      "id": "insurance-plan-1",
+      "code": "insurancePlan1",
+      "name": "Insurance Plan 1",
+      "defaultCoverage": 100,
+      "visibilityStatus": "current"
+    }
   ]
 }

@@ -1,47 +1,47 @@
 {
   "sheetName": "Vaccine Circumstance",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name",
-      "visibilityStatus"
-    ],
-    [
-      "vaccineCircumstance-AntibodiesDetected",
-      "AntibodiesDetected",
-      "Antibodies detected",
-      "current"
-    ],
-    [
-      "vaccineCircumstance-CaregiverReported",
-      "CaregiverReported",
-      "Caregiver reported (no evidence)",
-      "current"
-    ],
-    [
-      "vaccineCircumstance-GivenInPrivateSector",
-      "GivenInPrivateSector",
-      "Given in private sector",
-      "current"
-    ],
-    [
-      "vaccineCircumstance-GivenOverseas",
-      "GivenOverseas",
-      "Given overseas",
-      "current"
-    ],
-    [
-      "vaccineCircumstance-PatientReported",
-      "PatientReported",
-      "Patient reported (no evidence)",
-      "current"
-    ],
-    [
-      "vaccineCircumstance-ScarSighted",
-      "ScarSighted",
-      "Scar sighted",
-      "current"
-    ]
+    {
+      "id": "vaccineCircumstance-AntibodiesDetected",
+      "code": "AntibodiesDetected",
+      "name": "Antibodies detected",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "vaccineCircumstance-CaregiverReported",
+      "code": "CaregiverReported",
+      "name": "Caregiver reported (no evidence)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "vaccineCircumstance-GivenInPrivateSector",
+      "code": "GivenInPrivateSector",
+      "name": "Given in private sector",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "vaccineCircumstance-GivenOverseas",
+      "code": "GivenOverseas",
+      "name": "Given overseas",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "vaccineCircumstance-PatientReported",
+      "code": "PatientReported",
+      "name": "Patient reported (no evidence)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "vaccineCircumstance-ScarSighted",
+      "code": "ScarSighted",
+      "name": "Scar sighted",
+      "visibilityStatus": "current"
+    }
   ]
 }

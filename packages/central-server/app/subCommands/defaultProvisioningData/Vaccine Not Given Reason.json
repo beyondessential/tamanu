@@ -1,40 +1,40 @@
 {
   "sheetName": "Vaccine Not Given Reason",
+  "columns": [
+    "id",
+    "code",
+    "name"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name"
-    ],
-    [
-      "vaccineNotGivenReason-Allergy",
-      "Allergy",
-      "Allergy"
-    ],
-    [
-      "vaccineNotGivenReason-Contraindication",
-      "Contraindication",
-      "Contraindication"
-    ],
-    [
-      "vaccineNotGivenReason-PersonUnavailable",
-      "PersonUnavailable",
-      "Person unavailable "
-    ],
-    [
-      "vaccineNotGivenReason-Refused",
-      "Refused",
-      "Refused "
-    ],
-    [
-      "vaccineNotGivenReason-VaccineUnavailable",
-      "VaccineUnavailable",
-      "Vaccine unavailable "
-    ],
-    [
-      "vaccineNotGivenReason-Other",
-      "Other",
-      "Other"
-    ]
+    {
+      "id": "vaccineNotGivenReason-Allergy",
+      "code": "Allergy",
+      "name": "Allergy"
+    },
+    {
+      "id": "vaccineNotGivenReason-Contraindication",
+      "code": "Contraindication",
+      "name": "Contraindication"
+    },
+    {
+      "id": "vaccineNotGivenReason-PersonUnavailable",
+      "code": "PersonUnavailable",
+      "name": "Person unavailable "
+    },
+    {
+      "id": "vaccineNotGivenReason-Refused",
+      "code": "Refused",
+      "name": "Refused "
+    },
+    {
+      "id": "vaccineNotGivenReason-VaccineUnavailable",
+      "code": "VaccineUnavailable",
+      "name": "Vaccine unavailable "
+    },
+    {
+      "id": "vaccineNotGivenReason-Other",
+      "code": "Other",
+      "name": "Other"
+    }
   ]
 }

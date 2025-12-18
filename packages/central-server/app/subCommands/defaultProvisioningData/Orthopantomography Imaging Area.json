@@ -1,47 +1,47 @@
 {
   "sheetName": "Orthopantomography Imaging Area",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name",
-      "visibilityStatus"
-    ],
-    [
-      "PXImagingArea-Caries",
-      "PXCaries",
-      "Caries",
-      null
-    ],
-    [
-      "PXImagingArea-Developmental",
-      "PXDevelopmental",
-      "Developmental",
-      null
-    ],
-    [
-      "PXImagingArea-LateralCephalometry",
-      "PXLateralCephalometry",
-      "Lateral Cephalometry",
-      null
-    ],
-    [
-      "PXImagingArea-Sinuses",
-      "PXSinuses",
-      "Sinuses",
-      null
-    ],
-    [
-      "PXImagingArea-TemperomandibularJoints",
-      "PXTemperomandibularJoints",
-      "Temperomandibular Joints",
-      null
-    ],
-    [
-      "PXImagingArea-Trauma",
-      "PXTrauma",
-      "Trauma",
-      null
-    ]
+    {
+      "id": "PXImagingArea-Caries",
+      "code": "PXCaries",
+      "name": "Caries",
+      "visibilityStatus": null
+    },
+    {
+      "id": "PXImagingArea-Developmental",
+      "code": "PXDevelopmental",
+      "name": "Developmental",
+      "visibilityStatus": null
+    },
+    {
+      "id": "PXImagingArea-LateralCephalometry",
+      "code": "PXLateralCephalometry",
+      "name": "Lateral Cephalometry",
+      "visibilityStatus": null
+    },
+    {
+      "id": "PXImagingArea-Sinuses",
+      "code": "PXSinuses",
+      "name": "Sinuses",
+      "visibilityStatus": null
+    },
+    {
+      "id": "PXImagingArea-TemperomandibularJoints",
+      "code": "PXTemperomandibularJoints",
+      "name": "Temperomandibular Joints",
+      "visibilityStatus": null
+    },
+    {
+      "id": "PXImagingArea-Trauma",
+      "code": "PXTrauma",
+      "name": "Trauma",
+      "visibilityStatus": null
+    }
   ]
 }

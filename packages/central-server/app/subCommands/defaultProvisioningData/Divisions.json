@@ -1,35 +1,35 @@
 {
   "sheetName": "Divisions",
+  "columns": [
+    "id",
+    "code",
+    "name"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name"
-    ],
-    [
-      "division-CentralEastern",
-      "CentralEastern",
-      "Central"
-    ],
-    [
-      "division-Eastern",
-      "Eastern",
-      "Eastern"
-    ],
-    [
-      "division-Western",
-      "Western",
-      "Western"
-    ],
-    [
-      "division-Northern",
-      "Northern",
-      "Northern"
-    ],
-    [
-      "division-Overseas",
-      "Overseas",
-      "Overseas"
-    ]
+    {
+      "id": "division-CentralEastern",
+      "code": "CentralEastern",
+      "name": "Central"
+    },
+    {
+      "id": "division-Eastern",
+      "code": "Eastern",
+      "name": "Eastern"
+    },
+    {
+      "id": "division-Western",
+      "code": "Western",
+      "name": "Western"
+    },
+    {
+      "id": "division-Northern",
+      "code": "Northern",
+      "name": "Northern"
+    },
+    {
+      "id": "division-Overseas",
+      "code": "Overseas",
+      "name": "Overseas"
+    }
   ]
 }

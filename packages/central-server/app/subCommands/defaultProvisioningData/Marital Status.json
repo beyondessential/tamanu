@@ -1,45 +1,45 @@
 {
   "sheetName": "Marital Status",
+  "columns": [
+    "id",
+    "code",
+    "name"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name"
-    ],
-    [
-      "maritalstatus-Defacto",
-      "Defacto",
-      "De facto"
-    ],
-    [
-      "maritalstatus-Married",
-      "Married",
-      "Married"
-    ],
-    [
-      "maritalstatus-Single",
-      "Single",
-      "Single"
-    ],
-    [
-      "maritalstatus-Widow",
-      "Widow",
-      "Widow"
-    ],
-    [
-      "maritalstatus-Divorced",
-      "Divorced",
-      "Divorced"
-    ],
-    [
-      "maritalstatus-Separated",
-      "Separated",
-      "Separated"
-    ],
-    [
-      "maritalstatus-Unknown",
-      "Unknown",
-      "Unknown"
-    ]
+    {
+      "id": "maritalstatus-Defacto",
+      "code": "Defacto",
+      "name": "De facto"
+    },
+    {
+      "id": "maritalstatus-Married",
+      "code": "Married",
+      "name": "Married"
+    },
+    {
+      "id": "maritalstatus-Single",
+      "code": "Single",
+      "name": "Single"
+    },
+    {
+      "id": "maritalstatus-Widow",
+      "code": "Widow",
+      "name": "Widow"
+    },
+    {
+      "id": "maritalstatus-Divorced",
+      "code": "Divorced",
+      "name": "Divorced"
+    },
+    {
+      "id": "maritalstatus-Separated",
+      "code": "Separated",
+      "name": "Separated"
+    },
+    {
+      "id": "maritalstatus-Unknown",
+      "code": "Unknown",
+      "name": "Unknown"
+    }
   ]
 }

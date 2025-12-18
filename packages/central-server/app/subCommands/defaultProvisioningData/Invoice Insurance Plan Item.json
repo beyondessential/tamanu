@@ -1,4329 +1,4329 @@
 {
   "sheetName": "Invoice Insurance Plan Item",
+  "columns": [
+    "invoiceProductId",
+    "insurancePlan1"
+  ],
   "data": [
-    [
-      "invoiceProductId",
-      "insurancePlan1"
-    ],
-    [
-      "invoiceProduct-accommodation",
-      50
-    ],
-    [
-      "invoiceProduct-bandage",
-      50
-    ],
-    [
-      "invoiceProduct-crutches",
-      50
-    ],
-    [
-      "invoiceProduct-dinner",
-      50
-    ],
-    [
-      "invoiceProduct-extendedconsult",
-      50
-    ],
-    [
-      "invoiceProduct-lunch",
-      50
-    ],
-    [
-      "invoiceProduct-standardconsult",
-      50
-    ],
-    [
-      "invoiceProduct-wheelchair",
-      50
-    ],
-    [
-      "invoiceProduct-angiogram",
-      50
-    ],
-    [
-      "invoiceProduct-colonoscopy",
-      50
-    ],
-    [
-      "invoiceProduct-ctScan",
-      50
-    ],
-    [
-      "invoiceProduct-drug-acetazolamide250",
-      50
-    ],
-    [
-      "invoiceProduct-ecg",
-      50
-    ],
-    [
-      "invoiceProduct-echocardiogram",
-      50
-    ],
-    [
-      "invoiceProduct-endoscopy",
-      50
-    ],
-    [
-      "invoiceProduct-fluroscopy",
-      50
-    ],
-    [
-      "invoiceProduct-holterMonitor",
-      50
-    ],
-    [
-      "invoiceProduct-imagingType-MRI",
-      50
-    ],
-    [
-      "invoiceProduct-imagingType-XRay",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-Albumin",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-ALP",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-ALT",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-AST",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-Basophils",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-Bicarbonate",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-Bilibubin",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-BloodGlucose",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-Calcium",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-CD4",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-Chloride",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-Cholesterol",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-COVID",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-COVID19NasalSwab",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-COVIDEndotrachealaspirate",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-COVIDNasalSwab",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-COVIDNasopharyngealSwab",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-COVIDOropharyngealSwab",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-Creatinine",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-eGFR",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-Eosinophils",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-GGT",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-HbA1C",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-HBsAG",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-HGB",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-HIV",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-HIVViralload",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-INR",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-Lymphocytes",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-Magnesium",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-Malariatype",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-MCH",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-MCHC",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-MCV",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-Monocytes",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-Neutrophils",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-Papsmear",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-Parasitecount",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-PCV",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-Phosphate",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-PLT",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-Potassium",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-Prothrombin",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-RapidHIVTest",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-RBC",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-RDTNegativenofurthertestingneeded",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-RDTPositive",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-RDWCV",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-Sodium",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-Urea",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-WBC",
-      50
-    ],
-    [
-      "invoiceProduct-labTestType-Woundswab",
-      50
-    ],
-    [
-      "invoiceProduct-mammogram",
-      50
-    ],
-    [
-      "invoiceProduct-mri",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-0202T",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-0219T",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-0220T",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-0221T",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-0375T",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-11008",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-11970",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19101",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19105",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19110",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19112",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19120",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19125",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19126",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19272",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19300",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19301",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19302",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19303",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19304",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19305",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19306",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19307",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19316",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19318",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19324",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19325",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19328",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19330",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19340",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19342",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19350",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19355",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19357",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19361",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19364",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19366",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19367",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19368",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19369",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19370",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19371",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-19380",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-20101",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-22220",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-22222",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-22224",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-22532",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-22533",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-22548",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-22551",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-22554",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-22556",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-22558",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-22586",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-22590",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-22595",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-22600",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-22610",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-22612",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-22630",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-22633",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-22800",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-22802",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-22804",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-22808",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-22810",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-22812",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-22856",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-22857",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-22861",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-22862",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-22867",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-23615",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-23616",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-23630",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-23670",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-23680",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-23900",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-23920",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-24515",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-24516",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-24545",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-24546",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-24575",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-24579",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-24586",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-24587",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-24635",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-24665",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-24666",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-24685",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-24900",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-24920",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-24930",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-24931",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-25337",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-25515",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-25525",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-25526",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-25545",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-25574",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-25575",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-25607",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-25608",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-25609",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-25652",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-25900",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-25905",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-25909",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-25920",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-25922",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-25924",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-25927",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-25929",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-25931",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-26235",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-26236",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-26551",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-26910",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-26951",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-26952",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27125",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27130",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27132",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27134",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27137",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27138",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27177",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27178",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27179",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27181",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27236",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27244",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27245",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27248",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27254",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27269",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27280",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27290",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27295",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27438",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27440",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27441",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27442",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27443",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27445",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27446",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27447",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27486",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27487",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27506",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27507",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27511",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27513",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27514",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27519",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27535",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27536",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27540",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27590",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27591",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27592",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27598",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27758",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27759",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27766",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27769",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27784",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27792",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27814",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27822",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27823",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27826",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27827",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27828",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27829",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27880",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27882",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27884",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27886",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27888",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-27889",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-28124",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-28126",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-28160",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-28800",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-28805",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-28810",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-28820",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-28825",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-31300",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-31360",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-31365",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-31367",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-31368",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-31370",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-31375",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-31380",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-31382",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-31390",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-31395",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-31400",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-31420",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-31551",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-31552",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-31553",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-31554",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-31560",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-31561",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-31580",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-31584",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-31587",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-31590",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-31591",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-31592",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-31599",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-31770",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-31775",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-32096",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-32097",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-32100",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-32110",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-32120",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-32124",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-32140",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-32141",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-32151",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-32200",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-32215",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-32220",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-32225",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-32310",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-32320",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-32440",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-32442",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-32445",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-32480",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-32482",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-32484",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-32486",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-32488",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-32491",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-32658",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-32659",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-32661",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33020",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33025",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33030",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33031",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33050",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33120",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33130",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33202",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33203",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33206",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33207",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33208",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33212",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33213",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33214",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33215",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33216",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33217",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33218",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33220",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33221",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33222",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33223",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33224",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33225",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33226",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33227",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33228",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33229",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33230",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33231",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33233",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33234",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33235",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33236",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33237",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33238",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33240",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33241",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33243",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33244",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33249",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33250",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33251",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33254",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33255",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33256",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33257",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33258",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33259",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33261",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33262",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33263",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33264",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33265",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33266",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33270",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33271",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33272",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33273",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33300",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33305",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33310",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33315",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33365",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33366",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33390",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33391",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33404",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33405",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33406",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33410",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33411",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33412",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33413",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33414",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33415",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33416",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33417",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33420",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33422",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33425",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33426",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33427",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33430",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33440",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33460",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33463",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33464",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33465",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33468",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33470",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33471",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33474",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33475",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33476",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33478",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33496",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33510",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33511",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33512",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33513",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33514",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33516",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33533",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33534",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33535",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33536",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33542",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33545",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33548",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33600",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33602",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33608",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33610",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33611",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33612",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33615",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33617",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33619",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33641",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33645",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33647",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33660",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33665",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33670",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33675",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33676",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33677",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33681",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33684",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33688",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33692",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33694",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33697",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33702",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33710",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33720",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33722",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33732",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33735",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33736",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33737",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33770",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33774",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33776",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33780",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33782",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33783",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33786",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33813",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33814",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33889",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33920",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33935",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-33945",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-34830",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-34831",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-34832",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35081",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35082",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35091",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35092",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35102",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35103",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35301",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35390",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35501",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35506",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35508",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35509",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35510",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35511",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35512",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35515",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35516",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35518",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35521",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35522",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35523",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35525",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35533",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35556",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35558",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35566",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35570",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35571",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35583",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35585",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35587",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35616",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35621",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35623",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35650",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35654",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35656",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35661",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35666",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35671",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-35686",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-36800",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-36810",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-36815",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-36818",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-36819",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-36820",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-36821",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-36825",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-36830",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-36832",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-36833",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-36838",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-38100",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-38101",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-38102",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-38115",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-38120",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-38308",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-38542",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-38720",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-38724",
-      50
-    ],
-    [
-      "invoiceProduct-procedure-41135",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-41140",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-41145",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-41155",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-42420",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-42425",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-42426",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43117",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43118",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43121",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43122",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43286",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43287",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43288",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43320",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43360",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43496",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43500",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43501",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43502",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43520",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43605",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43610",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43611",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43620",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43621",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43622",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43631",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43632",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43633",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43634",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43640",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43641",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43644",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43645",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43770",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43771",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43772",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43773",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43774",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43775",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43800",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43810",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43820",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43825",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43840",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43842",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43843",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43845",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43846",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43847",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43848",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43850",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43855",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43860",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43865",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43870",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43880",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43886",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43887",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-43888",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44010",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44020",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44021",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44025",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44110",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44111",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44120",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44125",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44126",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44127",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44130",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44137",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44140",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44141",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44143",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44144",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44145",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44146",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44147",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44150",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44151",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44155",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44156",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44157",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44158",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44160",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44186",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44187",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44188",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44202",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44204",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44205",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44206",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44207",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44208",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44210",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44211",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44212",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44213",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44227",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44300",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44310",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44312",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44314",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44316",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44320",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44322",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44340",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44345",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44346",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44602",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44603",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44604",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44605",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44615",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44620",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44625",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44626",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44640",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44650",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44800",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44900",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44950",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44955",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44960",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44970",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-44979",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-45110",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-45111",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-45112",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-45113",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-45114",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-45116",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-45119",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-45120",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-45121",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-45126",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-45136",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-45395",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-45397",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-45562",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-45563",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47010",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47015",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47100",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47120",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47122",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47125",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47130",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47135",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47140",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47141",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47142",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47300",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47350",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47360",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47361",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47362",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47370",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47371",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47379",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47380",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47381",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47399",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47400",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47420",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47425",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47460",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47480",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47562",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47563",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47564",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47570",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47600",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47605",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47610",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47612",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47620",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47700",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47701",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47711",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47712",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47715",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47720",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47721",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47740",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47741",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47760",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47765",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47780",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47785",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47800",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47802",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-47900",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-48000",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-48001",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-48020",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-48100",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-48105",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-48120",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-48140",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-48145",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-48146",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-48148",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-48150",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-48152",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-48153",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-48154",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-48155",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-48160",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-48500",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-48510",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-48520",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-48540",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-48545",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-48548",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49491",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49492",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49495",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49496",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49500",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49501",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49505",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49507",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49520",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49521",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49525",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49550",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49553",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49555",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49557",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49560",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49561",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49565",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49566",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49570",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49572",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49580",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49582",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49585",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49587",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49590",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49600",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49605",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49606",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49610",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49611",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49650",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49651",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49652",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49653",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49654",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49655",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49656",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49657",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-49659",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50010",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50020",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50040",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50045",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50060",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50065",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50070",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50075",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50120",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50125",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50130",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50135",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50205",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50220",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50225",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50230",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50234",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50236",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50240",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50250",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50280",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50290",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50320",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50340",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50360",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50365",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50380",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50400",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50405",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50541",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50542",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50543",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50545",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50546",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50547",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50548",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-50549",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-55705",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-55810",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-55812",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-55815",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-55821",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-55831",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-55840",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-55842",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-55845",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-55866",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-57307",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58150",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58152",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58180",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58200",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58210",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58240",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58541",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58542",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58543",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58544",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58548",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58550",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58552",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58553",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58554",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58570",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58571",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58572",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58573",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58575",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58660",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58661",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58662",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58679",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58720",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58740",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58800",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58805",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58820",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58822",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58825",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58900",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58920",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58925",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58940",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58943",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58950",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58951",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58952",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58953",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58954",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58956",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-58970",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-59100",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-59510",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-59514",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-59515",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-59525",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-59618",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-59620",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-59622",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-59857",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61105",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61107",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61108",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61120",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61140",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61150",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61151",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61154",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61156",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61210",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61250",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61253",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61304",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61305",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61312",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61313",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61314",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61315",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61320",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61321",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61322",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61323",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61330",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61333",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61340",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61343",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61345",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61458",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61460",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61510",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61512",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61514",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61516",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61518",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61519",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61520",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61521",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61522",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61524",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61526",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61530",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61531",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61533",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61534",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61535",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61536",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61537",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61538",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61539",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61540",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61541",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61543",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61544",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61545",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61546",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61548",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61566",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61567",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61570",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61571",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61575",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61576",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61580",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61581",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61582",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61583",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61584",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61585",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61586",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61590",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61591",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61592",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61595",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61598",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61600",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61601",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61605",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61606",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61607",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61608",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61615",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61616",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61618",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61619",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61680",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61682",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61684",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61686",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61690",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61692",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61697",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61698",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61700",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61702",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61703",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61705",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61708",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61710",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61711",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61720",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61735",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61750",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61751",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61760",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61770",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61850",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61860",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61863",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61867",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61870",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-61880",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-62000",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-62005",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-62010",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-62100",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-62120",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-62121",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-62161",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-62163",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-62164",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-62165",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-62287",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-62351",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-62380",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63001",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63003",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63005",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63011",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63012",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63015",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63016",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63017",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63020",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63030",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63035",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63040",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63042",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63045",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63046",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63047",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63048",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63050",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63051",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63055",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63056",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63064",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63075",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63077",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63081",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63082",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63085",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63086",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63087",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63088",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63090",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63091",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63101",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63102",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63103",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63170",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63172",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63173",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63180",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63182",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63185",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63190",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63191",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63194",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63195",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63196",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63197",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63198",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63199",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-63200",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-69150",
-      30
-    ],
-    [
-      "invoiceProduct-procedure-69155",
-      30
-    ],
-    [
-      "invoiceProduct-stressTest",
-      30
-    ],
-    [
-      "invoiceProduct-ultrasound",
-      null
-    ],
-    [
-      "invoiceProduct-vascularStudy",
-      418
-    ],
-    [
-      "invoiceProduct-xRay",
-      483
-    ],
-    [
-      "invoiceProduct-xRayImagingArea-AbdomenPlain",
-      null
-    ],
-    [
-      "invoiceProduct-xRayImagingArea-Chest",
-      null
-    ],
-    [
-      "invoiceProduct-xRayImagingArea-FacialBones",
-      98
-    ]
+    {
+      "invoiceProductId": "invoiceProduct-accommodation",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-bandage",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-crutches",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-dinner",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-extendedconsult",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-lunch",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-standardconsult",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-wheelchair",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-angiogram",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-colonoscopy",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-ctScan",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-drug-acetazolamide250",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-ecg",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-echocardiogram",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-endoscopy",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-fluroscopy",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-holterMonitor",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-imagingType-MRI",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-imagingType-XRay",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Albumin",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-ALP",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-ALT",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-AST",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Basophils",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Bicarbonate",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Bilibubin",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-BloodGlucose",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Calcium",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-CD4",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Chloride",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Cholesterol",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-COVID",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-COVID19NasalSwab",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-COVIDEndotrachealaspirate",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-COVIDNasalSwab",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-COVIDNasopharyngealSwab",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-COVIDOropharyngealSwab",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Creatinine",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-eGFR",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Eosinophils",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-GGT",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-HbA1C",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-HBsAG",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-HGB",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-HIV",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-HIVViralload",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-INR",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Lymphocytes",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Magnesium",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Malariatype",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-MCH",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-MCHC",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-MCV",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Monocytes",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Neutrophils",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Papsmear",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Parasitecount",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-PCV",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Phosphate",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-PLT",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Potassium",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Prothrombin",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-RapidHIVTest",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-RBC",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-RDTNegativenofurthertestingneeded",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-RDTPositive",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-RDWCV",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Sodium",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Urea",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-WBC",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Woundswab",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-mammogram",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-mri",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-0202T",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-0219T",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-0220T",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-0221T",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-0375T",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-11008",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-11970",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19101",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19105",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19110",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19112",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19120",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19125",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19126",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19272",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19300",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19301",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19302",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19303",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19304",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19305",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19306",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19307",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19316",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19318",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19324",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19325",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19328",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19330",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19340",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19342",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19350",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19355",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19357",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19361",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19364",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19366",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19367",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19368",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19369",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19370",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19371",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19380",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-20101",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22220",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22222",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22224",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22532",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22533",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22548",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22551",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22554",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22556",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22558",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22586",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22590",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22595",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22600",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22610",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22612",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22630",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22633",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22800",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22802",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22804",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22808",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22810",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22812",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22856",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22857",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22861",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22862",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22867",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-23615",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-23616",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-23630",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-23670",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-23680",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-23900",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-23920",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24515",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24516",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24545",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24546",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24575",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24579",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24586",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24587",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24635",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24665",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24666",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24685",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24900",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24920",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24930",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24931",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25337",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25515",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25525",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25526",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25545",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25574",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25575",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25607",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25608",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25609",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25652",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25900",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25905",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25909",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25920",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25922",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25924",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25927",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25929",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25931",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-26235",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-26236",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-26551",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-26910",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-26951",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-26952",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27125",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27130",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27132",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27134",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27137",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27138",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27177",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27178",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27179",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27181",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27236",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27244",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27245",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27248",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27254",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27269",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27280",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27290",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27295",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27438",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27440",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27441",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27442",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27443",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27445",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27446",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27447",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27486",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27487",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27506",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27507",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27511",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27513",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27514",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27519",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27535",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27536",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27540",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27590",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27591",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27592",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27598",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27758",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27759",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27766",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27769",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27784",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27792",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27814",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27822",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27823",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27826",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27827",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27828",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27829",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27880",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27882",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27884",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27886",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27888",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27889",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-28124",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-28126",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-28160",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-28800",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-28805",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-28810",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-28820",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-28825",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31300",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31360",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31365",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31367",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31368",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31370",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31375",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31380",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31382",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31390",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31395",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31400",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31420",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31551",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31552",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31553",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31554",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31560",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31561",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31580",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31584",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31587",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31590",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31591",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31592",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31599",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31770",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31775",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32096",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32097",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32100",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32110",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32120",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32124",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32140",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32141",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32151",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32200",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32215",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32220",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32225",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32310",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32320",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32440",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32442",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32445",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32480",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32482",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32484",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32486",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32488",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32491",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32658",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32659",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32661",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33020",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33025",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33030",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33031",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33050",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33120",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33130",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33202",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33203",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33206",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33207",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33208",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33212",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33213",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33214",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33215",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33216",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33217",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33218",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33220",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33221",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33222",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33223",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33224",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33225",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33226",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33227",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33228",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33229",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33230",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33231",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33233",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33234",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33235",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33236",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33237",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33238",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33240",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33241",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33243",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33244",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33249",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33250",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33251",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33254",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33255",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33256",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33257",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33258",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33259",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33261",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33262",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33263",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33264",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33265",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33266",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33270",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33271",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33272",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33273",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33300",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33305",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33310",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33315",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33365",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33366",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33390",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33391",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33404",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33405",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33406",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33410",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33411",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33412",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33413",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33414",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33415",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33416",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33417",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33420",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33422",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33425",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33426",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33427",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33430",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33440",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33460",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33463",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33464",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33465",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33468",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33470",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33471",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33474",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33475",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33476",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33478",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33496",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33510",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33511",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33512",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33513",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33514",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33516",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33533",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33534",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33535",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33536",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33542",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33545",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33548",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33600",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33602",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33608",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33610",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33611",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33612",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33615",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33617",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33619",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33641",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33645",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33647",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33660",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33665",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33670",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33675",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33676",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33677",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33681",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33684",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33688",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33692",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33694",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33697",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33702",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33710",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33720",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33722",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33732",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33735",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33736",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33737",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33770",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33774",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33776",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33780",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33782",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33783",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33786",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33813",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33814",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33889",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33920",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33935",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33945",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-34830",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-34831",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-34832",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35081",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35082",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35091",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35092",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35102",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35103",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35301",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35390",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35501",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35506",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35508",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35509",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35510",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35511",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35512",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35515",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35516",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35518",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35521",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35522",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35523",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35525",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35533",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35556",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35558",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35566",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35570",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35571",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35583",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35585",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35587",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35616",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35621",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35623",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35650",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35654",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35656",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35661",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35666",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35671",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35686",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-36800",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-36810",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-36815",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-36818",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-36819",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-36820",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-36821",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-36825",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-36830",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-36832",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-36833",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-36838",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-38100",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-38101",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-38102",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-38115",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-38120",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-38308",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-38542",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-38720",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-38724",
+      "insurancePlan1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-41135",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-41140",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-41145",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-41155",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-42420",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-42425",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-42426",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43117",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43118",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43121",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43122",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43286",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43287",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43288",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43320",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43360",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43496",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43500",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43501",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43502",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43520",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43605",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43610",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43611",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43620",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43621",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43622",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43631",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43632",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43633",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43634",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43640",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43641",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43644",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43645",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43770",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43771",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43772",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43773",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43774",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43775",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43800",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43810",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43820",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43825",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43840",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43842",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43843",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43845",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43846",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43847",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43848",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43850",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43855",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43860",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43865",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43870",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43880",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43886",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43887",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43888",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44010",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44020",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44021",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44025",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44110",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44111",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44120",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44125",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44126",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44127",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44130",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44137",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44140",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44141",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44143",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44144",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44145",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44146",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44147",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44150",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44151",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44155",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44156",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44157",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44158",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44160",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44186",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44187",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44188",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44202",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44204",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44205",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44206",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44207",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44208",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44210",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44211",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44212",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44213",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44227",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44300",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44310",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44312",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44314",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44316",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44320",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44322",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44340",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44345",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44346",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44602",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44603",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44604",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44605",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44615",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44620",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44625",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44626",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44640",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44650",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44800",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44900",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44950",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44955",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44960",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44970",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44979",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-45110",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-45111",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-45112",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-45113",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-45114",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-45116",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-45119",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-45120",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-45121",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-45126",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-45136",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-45395",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-45397",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-45562",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-45563",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47010",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47015",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47100",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47120",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47122",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47125",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47130",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47135",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47140",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47141",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47142",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47300",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47350",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47360",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47361",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47362",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47370",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47371",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47379",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47380",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47381",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47399",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47400",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47420",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47425",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47460",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47480",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47562",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47563",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47564",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47570",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47600",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47605",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47610",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47612",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47620",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47700",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47701",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47711",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47712",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47715",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47720",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47721",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47740",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47741",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47760",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47765",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47780",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47785",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47800",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47802",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47900",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48000",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48001",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48020",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48100",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48105",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48120",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48140",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48145",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48146",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48148",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48150",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48152",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48153",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48154",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48155",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48160",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48500",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48510",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48520",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48540",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48545",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48548",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49491",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49492",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49495",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49496",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49500",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49501",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49505",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49507",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49520",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49521",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49525",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49550",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49553",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49555",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49557",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49560",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49561",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49565",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49566",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49570",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49572",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49580",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49582",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49585",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49587",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49590",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49600",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49605",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49606",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49610",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49611",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49650",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49651",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49652",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49653",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49654",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49655",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49656",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49657",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49659",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50010",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50020",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50040",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50045",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50060",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50065",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50070",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50075",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50120",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50125",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50130",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50135",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50205",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50220",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50225",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50230",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50234",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50236",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50240",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50250",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50280",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50290",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50320",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50340",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50360",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50365",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50380",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50400",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50405",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50541",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50542",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50543",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50545",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50546",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50547",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50548",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50549",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-55705",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-55810",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-55812",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-55815",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-55821",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-55831",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-55840",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-55842",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-55845",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-55866",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-57307",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58150",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58152",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58180",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58200",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58210",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58240",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58541",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58542",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58543",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58544",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58548",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58550",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58552",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58553",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58554",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58570",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58571",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58572",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58573",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58575",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58660",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58661",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58662",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58679",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58720",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58740",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58800",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58805",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58820",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58822",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58825",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58900",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58920",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58925",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58940",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58943",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58950",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58951",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58952",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58953",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58954",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58956",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58970",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-59100",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-59510",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-59514",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-59515",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-59525",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-59618",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-59620",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-59622",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-59857",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61105",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61107",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61108",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61120",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61140",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61150",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61151",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61154",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61156",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61210",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61250",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61253",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61304",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61305",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61312",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61313",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61314",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61315",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61320",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61321",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61322",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61323",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61330",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61333",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61340",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61343",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61345",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61458",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61460",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61510",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61512",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61514",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61516",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61518",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61519",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61520",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61521",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61522",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61524",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61526",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61530",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61531",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61533",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61534",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61535",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61536",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61537",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61538",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61539",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61540",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61541",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61543",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61544",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61545",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61546",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61548",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61566",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61567",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61570",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61571",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61575",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61576",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61580",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61581",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61582",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61583",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61584",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61585",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61586",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61590",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61591",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61592",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61595",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61598",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61600",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61601",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61605",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61606",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61607",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61608",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61615",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61616",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61618",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61619",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61680",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61682",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61684",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61686",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61690",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61692",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61697",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61698",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61700",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61702",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61703",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61705",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61708",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61710",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61711",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61720",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61735",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61750",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61751",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61760",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61770",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61850",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61860",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61863",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61867",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61870",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61880",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-62000",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-62005",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-62010",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-62100",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-62120",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-62121",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-62161",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-62163",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-62164",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-62165",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-62287",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-62351",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-62380",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63001",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63003",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63005",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63011",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63012",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63015",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63016",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63017",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63020",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63030",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63035",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63040",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63042",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63045",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63046",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63047",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63048",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63050",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63051",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63055",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63056",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63064",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63075",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63077",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63081",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63082",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63085",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63086",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63087",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63088",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63090",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63091",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63101",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63102",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63103",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63170",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63172",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63173",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63180",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63182",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63185",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63190",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63191",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63194",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63195",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63196",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63197",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63198",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63199",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63200",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-69150",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-69155",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-stressTest",
+      "insurancePlan1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-ultrasound",
+      "insurancePlan1": null
+    },
+    {
+      "invoiceProductId": "invoiceProduct-vascularStudy",
+      "insurancePlan1": 418
+    },
+    {
+      "invoiceProductId": "invoiceProduct-xRay",
+      "insurancePlan1": 483
+    },
+    {
+      "invoiceProductId": "invoiceProduct-xRayImagingArea-AbdomenPlain",
+      "insurancePlan1": null
+    },
+    {
+      "invoiceProductId": "invoiceProduct-xRayImagingArea-Chest",
+      "insurancePlan1": null
+    },
+    {
+      "invoiceProductId": "invoiceProduct-xRayImagingArea-FacialBones",
+      "insurancePlan1": 98
+    }
   ]
 }

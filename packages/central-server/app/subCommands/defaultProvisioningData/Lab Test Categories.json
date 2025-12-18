@@ -1,83 +1,83 @@
 {
   "sheetName": "Lab Test Categories",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name",
-      "visibilityStatus"
-    ],
-    [
-      "labTestCategory-FBC",
-      "FBC",
-      "FBC",
-      "current"
-    ],
-    [
-      "labTestCategory-Other",
-      "Other",
-      "Other",
-      "current"
-    ],
-    [
-      "labTestCategory-LFT",
-      "LFT",
-      "LFT",
-      "current"
-    ],
-    [
-      "labTestCategory-UE",
-      "UE",
-      "U&E",
-      "current"
-    ],
-    [
-      "labTestCategory-Malaria",
-      "Malaria",
-      "Malaria microscopy",
-      "current"
-    ],
-    [
-      "labTestCategory-Microbiology",
-      "Microbiology",
-      "Microbiology",
-      "current"
-    ],
-    [
-      "labTestCategory-Serology",
-      "Serology",
-      "Serology",
-      "current"
-    ],
-    [
-      "labTestCategory-COVID",
-      "COVID",
-      "COVID-19 Swab",
-      "historical"
-    ],
-    [
-      "labTestCategory-COVIDRAT",
-      "COVIDRAT",
-      "Point-of-care",
-      "current"
-    ],
-    [
-      "labTestCategory-Malariamicroscopy",
-      "Malariamicroscopy",
-      "Malaria microscopy",
-      "current"
-    ],
-    [
-      "labTestCategory-POCT",
-      "POCT",
-      "POCT",
-      "current"
-    ],
-    [
-      "labTestCategory-Integration",
-      "Integration",
-      "Integration",
-      "current"
-    ]
+    {
+      "id": "labTestCategory-FBC",
+      "code": "FBC",
+      "name": "FBC",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "labTestCategory-Other",
+      "code": "Other",
+      "name": "Other",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "labTestCategory-LFT",
+      "code": "LFT",
+      "name": "LFT",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "labTestCategory-UE",
+      "code": "UE",
+      "name": "U&E",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "labTestCategory-Malaria",
+      "code": "Malaria",
+      "name": "Malaria microscopy",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "labTestCategory-Microbiology",
+      "code": "Microbiology",
+      "name": "Microbiology",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "labTestCategory-Serology",
+      "code": "Serology",
+      "name": "Serology",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "labTestCategory-COVID",
+      "code": "COVID",
+      "name": "COVID-19 Swab",
+      "visibilityStatus": "historical"
+    },
+    {
+      "id": "labTestCategory-COVIDRAT",
+      "code": "COVIDRAT",
+      "name": "Point-of-care",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "labTestCategory-Malariamicroscopy",
+      "code": "Malariamicroscopy",
+      "name": "Malaria microscopy",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "labTestCategory-POCT",
+      "code": "POCT",
+      "name": "POCT",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "labTestCategory-Integration",
+      "code": "Integration",
+      "name": "Integration",
+      "visibilityStatus": "current"
+    }
   ]
 }

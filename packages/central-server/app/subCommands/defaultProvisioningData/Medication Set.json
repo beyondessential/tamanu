@@ -1,21 +1,21 @@
 {
   "sheetName": "Medication Set",
+  "columns": [
+    "id",
+    "code",
+    "type",
+    "name",
+    "visibilityStatus",
+    "medicationTemplates"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "type",
-      "name",
-      "visibilityStatus",
-      "medicationTemplates"
-    ],
-    [
-      "medicationset-postsurgicalset",
-      "postsurgicalset",
-      "medicationSet",
-      "Post-surgical set",
-      "current",
-      "medicationtemplate-postsurgicalset-amoxicillin500,medicationtemplate-postsurgicalset-oxycodone10,medicationtemplate-postsurgicalset-paracetamol500"
-    ]
+    {
+      "id": "medicationset-postsurgicalset",
+      "code": "postsurgicalset",
+      "type": "medicationSet",
+      "name": "Post-surgical set",
+      "visibilityStatus": "current",
+      "medicationTemplates": "medicationtemplate-postsurgicalset-amoxicillin500,medicationtemplate-postsurgicalset-oxycodone10,medicationtemplate-postsurgicalset-paracetamol500"
+    }
   ]
 }

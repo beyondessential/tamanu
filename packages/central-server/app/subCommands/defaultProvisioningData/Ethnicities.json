@@ -1,100 +1,100 @@
 {
   "sheetName": "Ethnicities",
+  "columns": [
+    "id",
+    "code",
+    "name"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name"
-    ],
-    [
-      "ethnicity-Fiji",
-      "Fiji",
-      "Fiji"
-    ],
-    [
-      "ethnicity-NewZealand",
-      "NewZealand",
-      "New Zealand"
-    ],
-    [
-      "ethnicity-AmericanSamoa",
-      "AmericanSamoa",
-      "American Samoa"
-    ],
-    [
-      "ethnicity-Australia",
-      "Australia",
-      "Australia"
-    ],
-    [
-      "ethnicity-Tuvalu",
-      "Tuvalu",
-      "Tuvalu"
-    ],
-    [
-      "ethnicity-NorthernMarianaIslands",
-      "NorthernMarianaIslands",
-      "Northern Mariana Islands"
-    ],
-    [
-      "ethnicity-FederatedStatesofMicronesia",
-      "FederatedStatesofMicronesia",
-      "Federated States of Micronesia"
-    ],
-    [
-      "ethnicity-FrenchPolynesia",
-      "FrenchPolynesia",
-      "French Polynesia"
-    ],
-    [
-      "ethnicity-Kiribati",
-      "Kiribati",
-      "Kiribati"
-    ],
-    [
-      "ethnicity-MarshallIslands",
-      "MarshallIslands",
-      "Marshall Islands"
-    ],
-    [
-      "ethnicity-Nauru",
-      "Nauru",
-      "Nauru"
-    ],
-    [
-      "ethnicity-NewCaledonia",
-      "NewCaledonia",
-      "New Caledonia"
-    ],
-    [
-      "ethnicity-Palau",
-      "Palau",
-      "Palau"
-    ],
-    [
-      "ethnicity-SolomonIslands",
-      "SolomonIslands",
-      "Solomon Islands"
-    ],
-    [
-      "ethnicity-Tonga",
-      "Tonga",
-      "Tonga"
-    ],
-    [
-      "ethnicity-Vanuatu",
-      "Vanuatu",
-      "Vanuatu"
-    ],
-    [
-      "ethnicity-WallisandFutuna",
-      "WallisandFutuna",
-      "Wallis and Futuna"
-    ],
-    [
-      "ethnicity-Other",
-      "Other",
-      "Other"
-    ]
+    {
+      "id": "ethnicity-Fiji",
+      "code": "Fiji",
+      "name": "Fiji"
+    },
+    {
+      "id": "ethnicity-NewZealand",
+      "code": "NewZealand",
+      "name": "New Zealand"
+    },
+    {
+      "id": "ethnicity-AmericanSamoa",
+      "code": "AmericanSamoa",
+      "name": "American Samoa"
+    },
+    {
+      "id": "ethnicity-Australia",
+      "code": "Australia",
+      "name": "Australia"
+    },
+    {
+      "id": "ethnicity-Tuvalu",
+      "code": "Tuvalu",
+      "name": "Tuvalu"
+    },
+    {
+      "id": "ethnicity-NorthernMarianaIslands",
+      "code": "NorthernMarianaIslands",
+      "name": "Northern Mariana Islands"
+    },
+    {
+      "id": "ethnicity-FederatedStatesofMicronesia",
+      "code": "FederatedStatesofMicronesia",
+      "name": "Federated States of Micronesia"
+    },
+    {
+      "id": "ethnicity-FrenchPolynesia",
+      "code": "FrenchPolynesia",
+      "name": "French Polynesia"
+    },
+    {
+      "id": "ethnicity-Kiribati",
+      "code": "Kiribati",
+      "name": "Kiribati"
+    },
+    {
+      "id": "ethnicity-MarshallIslands",
+      "code": "MarshallIslands",
+      "name": "Marshall Islands"
+    },
+    {
+      "id": "ethnicity-Nauru",
+      "code": "Nauru",
+      "name": "Nauru"
+    },
+    {
+      "id": "ethnicity-NewCaledonia",
+      "code": "NewCaledonia",
+      "name": "New Caledonia"
+    },
+    {
+      "id": "ethnicity-Palau",
+      "code": "Palau",
+      "name": "Palau"
+    },
+    {
+      "id": "ethnicity-SolomonIslands",
+      "code": "SolomonIslands",
+      "name": "Solomon Islands"
+    },
+    {
+      "id": "ethnicity-Tonga",
+      "code": "Tonga",
+      "name": "Tonga"
+    },
+    {
+      "id": "ethnicity-Vanuatu",
+      "code": "Vanuatu",
+      "name": "Vanuatu"
+    },
+    {
+      "id": "ethnicity-WallisandFutuna",
+      "code": "WallisandFutuna",
+      "name": "Wallis and Futuna"
+    },
+    {
+      "id": "ethnicity-Other",
+      "code": "Other",
+      "name": "Other"
+    }
   ]
 }

@@ -1,20 +1,20 @@
 {
   "sheetName": "Religions",
+  "columns": [
+    "id",
+    "code",
+    "name"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name"
-    ],
-    [
-      "religion-Christian",
-      "Christian",
-      "Christian"
-    ],
-    [
-      "religion-Other",
-      "Other",
-      "Other"
-    ]
+    {
+      "id": "religion-Christian",
+      "code": "Christian",
+      "name": "Christian"
+    },
+    {
+      "id": "religion-Other",
+      "code": "Other",
+      "name": "Other"
+    }
   ]
 }

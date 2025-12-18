@@ -1,35 +1,35 @@
 {
   "sheetName": "Lab Test Priority",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name",
-      "visibilityStatus"
-    ],
-    [
-      "labTestPriority-STAT",
-      "stat",
-      "stat",
-      "current"
-    ],
-    [
-      "labTestPriority-Routine",
-      "routine",
-      "routine",
-      "current"
-    ],
-    [
-      "LabTestPriority-Urgent",
-      "Urgent",
-      "Urgent",
-      "current"
-    ],
-    [
-      "LabTestPriority-ASAP",
-      "asap",
-      "asap",
-      "current"
-    ]
+    {
+      "id": "labTestPriority-STAT",
+      "code": "stat",
+      "name": "stat",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "labTestPriority-Routine",
+      "code": "routine",
+      "name": "routine",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "LabTestPriority-Urgent",
+      "code": "Urgent",
+      "name": "Urgent",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "LabTestPriority-ASAP",
+      "code": "asap",
+      "name": "asap",
+      "visibilityStatus": "current"
+    }
   ]
 }

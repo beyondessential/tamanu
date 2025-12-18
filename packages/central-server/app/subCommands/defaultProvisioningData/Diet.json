@@ -1,233 +1,233 @@
 {
   "sheetName": "Diet",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name",
-      "visibilityStatus"
-    ],
-    [
-      "diet-Caffeinefree",
-      "Caffeinefree",
-      "Caffeine free",
-      "current"
-    ],
-    [
-      "diet-Carb-Controlled",
-      "CarbControlled",
-      "Carbohydrate controlled",
-      "current"
-    ],
-    [
-      "diet-CD",
-      "CD",
-      "Cardiac diet",
-      "current"
-    ],
-    [
-      "diet-Citrusfree",
-      "Citrusfree",
-      "Citrus free",
-      "current"
-    ],
-    [
-      "diet-Clear-Fluids",
-      "Clearfluiddiet",
-      "Clear fluids",
-      "current"
-    ],
-    [
-      "diet-DM",
-      "DM",
-      "Diabetic diet",
-      "current"
-    ],
-    [
-      "diet-Eggfree",
-      "Eggfree",
-      "Egg free",
-      "current"
-    ],
-    [
-      "diet-Gluten-Free",
-      "GF",
-      "Gluten Free",
-      "current"
-    ],
-    [
-      "diet-H-CHO",
-      "HC",
-      "H/CHO",
-      "current"
-    ],
-    [
-      "diet-H-Fe",
-      "Hfe",
-      "H/Fe",
-      "current"
-    ],
-    [
-      "diet-H-Fibre",
-      "Hfi",
-      "High fibre",
-      "current"
-    ],
-    [
-      "diet-H-K",
-      "HK",
-      "High potassium",
-      "current"
-    ],
-    [
-      "diet-H-Protein",
-      "HP",
-      "High protein",
-      "current"
-    ],
-    [
-      "diet-Keto",
-      "Keto",
-      "Keto",
-      "current"
-    ],
-    [
-      "diet-Lactose-Intolerant",
-      "Lfree",
-      "Lactose free",
-      "current"
-    ],
-    [
-      "diet-Lowadditive",
-      "Lowadditive",
-      "Low additive",
-      "current"
-    ],
-    [
-      "diet-Lowamine",
-      "Lowamine",
-      "Low amine",
-      "current"
-    ],
-    [
-      "diet-Low-Cholesterol",
-      "Lcholesterol",
-      "Low cholesterol",
-      "current"
-    ],
-    [
-      "diet-L-Fat",
-      "Lfat",
-      "Low fat",
-      "current"
-    ],
-    [
-      "diet-L-Fibre",
-      "Lfi",
-      "Low fibre (GI soft)",
-      "current"
-    ],
-    [
-      "diet-Fructose-low",
-      "Fructoselow",
-      "Low fructose",
-      "current"
-    ],
-    [
-      "diet-PKULow",
-      "PKULow",
-      "Low phenylalanine",
-      "current"
-    ],
-    [
-      "diet-L-K",
-      "L/K",
-      "Low potassium",
-      "current"
-    ],
-    [
-      "diet-L-Purine",
-      "LP",
-      "Low purine",
-      "current"
-    ],
-    [
-      "diet-L-Residue",
-      "LR",
-      "Low residue",
-      "current"
-    ],
-    [
-      "diet-L-Salt",
-      "Lsalt",
-      "Low salt",
-      "current"
-    ],
-    [
-      "diet-L-Sodium",
-      "Lsodium",
-      "Low sodium",
-      "current"
-    ],
-    [
-      "diet-Minceand-Moist",
-      "Minceandmoist",
-      "Minced and moist",
-      "current"
-    ],
-    [
-      "diet-NBM",
-      "NBM",
-      "Nil By Mouth",
-      "current"
-    ],
-    [
-      "diet-Regular",
-      "Regdiet",
-      "Regular diet",
-      "current"
-    ],
-    [
-      "diet-Renaldiet",
-      "Renaldiet",
-      "Renal diet",
-      "current"
-    ],
-    [
-      "diet-Softandbitesize",
-      "Softandbitesize",
-      "Soft and bite sized",
-      "current"
-    ],
-    [
-      "diet-Thickened-Fluids",
-      "Thickenedfluids",
-      "Thickened fluids",
-      "current"
-    ],
-    [
-      "diet-Vegan",
-      "Vegan",
-      "Vegan",
-      "current"
-    ],
-    [
-      "diet-L-Vitamin-K",
-      "LK",
-      "Vitamin K restricted",
-      "current"
-    ],
-    [
-      "diet-NoConcSweets",
-      "NCSDiet",
-      "No concentrated sweets",
-      "current"
-    ],
-    [
-      "diet-Tube-Feeding",
-      "Tubefeeding",
-      "Tube feeding ",
-      "current"
-    ]
+    {
+      "id": "diet-Caffeinefree",
+      "code": "Caffeinefree",
+      "name": "Caffeine free",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-Carb-Controlled",
+      "code": "CarbControlled",
+      "name": "Carbohydrate controlled",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-CD",
+      "code": "CD",
+      "name": "Cardiac diet",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-Citrusfree",
+      "code": "Citrusfree",
+      "name": "Citrus free",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-Clear-Fluids",
+      "code": "Clearfluiddiet",
+      "name": "Clear fluids",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-DM",
+      "code": "DM",
+      "name": "Diabetic diet",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-Eggfree",
+      "code": "Eggfree",
+      "name": "Egg free",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-Gluten-Free",
+      "code": "GF",
+      "name": "Gluten Free",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-H-CHO",
+      "code": "HC",
+      "name": "H/CHO",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-H-Fe",
+      "code": "Hfe",
+      "name": "H/Fe",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-H-Fibre",
+      "code": "Hfi",
+      "name": "High fibre",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-H-K",
+      "code": "HK",
+      "name": "High potassium",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-H-Protein",
+      "code": "HP",
+      "name": "High protein",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-Keto",
+      "code": "Keto",
+      "name": "Keto",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-Lactose-Intolerant",
+      "code": "Lfree",
+      "name": "Lactose free",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-Lowadditive",
+      "code": "Lowadditive",
+      "name": "Low additive",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-Lowamine",
+      "code": "Lowamine",
+      "name": "Low amine",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-Low-Cholesterol",
+      "code": "Lcholesterol",
+      "name": "Low cholesterol",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-L-Fat",
+      "code": "Lfat",
+      "name": "Low fat",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-L-Fibre",
+      "code": "Lfi",
+      "name": "Low fibre (GI soft)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-Fructose-low",
+      "code": "Fructoselow",
+      "name": "Low fructose",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-PKULow",
+      "code": "PKULow",
+      "name": "Low phenylalanine",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-L-K",
+      "code": "L/K",
+      "name": "Low potassium",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-L-Purine",
+      "code": "LP",
+      "name": "Low purine",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-L-Residue",
+      "code": "LR",
+      "name": "Low residue",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-L-Salt",
+      "code": "Lsalt",
+      "name": "Low salt",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-L-Sodium",
+      "code": "Lsodium",
+      "name": "Low sodium",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-Minceand-Moist",
+      "code": "Minceandmoist",
+      "name": "Minced and moist",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-NBM",
+      "code": "NBM",
+      "name": "Nil By Mouth",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-Regular",
+      "code": "Regdiet",
+      "name": "Regular diet",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-Renaldiet",
+      "code": "Renaldiet",
+      "name": "Renal diet",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-Softandbitesize",
+      "code": "Softandbitesize",
+      "name": "Soft and bite sized",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-Thickened-Fluids",
+      "code": "Thickenedfluids",
+      "name": "Thickened fluids",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-Vegan",
+      "code": "Vegan",
+      "name": "Vegan",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-L-Vitamin-K",
+      "code": "LK",
+      "name": "Vitamin K restricted",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-NoConcSweets",
+      "code": "NCSDiet",
+      "name": "No concentrated sweets",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "diet-Tube-Feeding",
+      "code": "Tubefeeding",
+      "name": "Tube feeding ",
+      "visibilityStatus": "current"
+    }
   ]
 }

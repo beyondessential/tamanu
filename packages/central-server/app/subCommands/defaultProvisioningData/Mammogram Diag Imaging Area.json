@@ -1,23 +1,23 @@
 {
   "sheetName": "Mammogram Diag Imaging Area",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name",
-      "visibilityStatus"
-    ],
-    [
-      "mammogramDiagImagingArea-HandLeft",
-      "HandLeft",
-      "Hand - Left",
-      "current"
-    ],
-    [
-      "mammogramDiagImagingArea-HandFingerAndOrThumbRight",
-      "HandFingerAndOrThumbRight",
-      "Hand - Finger And/Or Thumb - Right",
-      "current"
-    ]
+    {
+      "id": "mammogramDiagImagingArea-HandLeft",
+      "code": "HandLeft",
+      "name": "Hand - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "mammogramDiagImagingArea-HandFingerAndOrThumbRight",
+      "code": "HandFingerAndOrThumbRight",
+      "name": "Hand - Finger And/Or Thumb - Right",
+      "visibilityStatus": "current"
+    }
   ]
 }

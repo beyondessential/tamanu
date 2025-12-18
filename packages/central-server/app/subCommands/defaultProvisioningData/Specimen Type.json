@@ -1,113 +1,113 @@
 {
   "sheetName": "Specimen Type",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name",
-      "visibilityStatus"
-    ],
-    [
-      "specimenType-Aspirate",
-      "Aspirate",
-      "Aspirate",
-      "current"
-    ],
-    [
-      "specimenType-BloodCulture",
-      "BloodCulture",
-      "Blood culture ",
-      "current"
-    ],
-    [
-      "specimenType-CSF",
-      "CSF",
-      "CSF",
-      "current"
-    ],
-    [
-      "specimenType-Faeces",
-      "Faeces",
-      "Faeces",
-      "current"
-    ],
-    [
-      "specimenType-Fluid",
-      "Fluid",
-      "Fluid",
-      "current"
-    ],
-    [
-      "specimenType-Pericardial",
-      "Pericardial",
-      "Pericardial",
-      "current"
-    ],
-    [
-      "specimenType-PeritonealAscites",
-      "PeritonealAscites",
-      "Peritoneal/Ascites ",
-      "current"
-    ],
-    [
-      "specimenType-Plural",
-      "Plural",
-      "Plural",
-      "current"
-    ],
-    [
-      "specimenType-Serum",
-      "Serum",
-      "Serum ",
-      "current"
-    ],
-    [
-      "specimenType-Sputum",
-      "Sputum",
-      "Sputum ",
-      "current"
-    ],
-    [
-      "specimenType-Swab",
-      "Swab",
-      "Swab",
-      "current"
-    ],
-    [
-      "specimenType-UrineRandom",
-      "UrineRandom",
-      "Urine random",
-      "current"
-    ],
-    [
-      "specimenType-WholeBlood",
-      "WholeBlood",
-      "Whole blood ",
-      "current"
-    ],
-    [
-      "specimenType-Tissue",
-      "Tissue",
-      "Tissue",
-      "current"
-    ],
-    [
-      "specimenType-SynovialFluid",
-      "SynovialFluid",
-      "specimenType",
-      "current"
-    ],
-    [
-      "specimenType-EDTA",
-      "EDTA",
-      "EDTA",
-      "current"
-    ],
-    [
-      "specimenType-Citrate",
-      "Citrate",
-      "Citrate",
-      "current"
-    ]
+    {
+      "id": "specimenType-Aspirate",
+      "code": "Aspirate",
+      "name": "Aspirate",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "specimenType-BloodCulture",
+      "code": "BloodCulture",
+      "name": "Blood culture ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "specimenType-CSF",
+      "code": "CSF",
+      "name": "CSF",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "specimenType-Faeces",
+      "code": "Faeces",
+      "name": "Faeces",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "specimenType-Fluid",
+      "code": "Fluid",
+      "name": "Fluid",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "specimenType-Pericardial",
+      "code": "Pericardial",
+      "name": "Pericardial",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "specimenType-PeritonealAscites",
+      "code": "PeritonealAscites",
+      "name": "Peritoneal/Ascites ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "specimenType-Plural",
+      "code": "Plural",
+      "name": "Plural",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "specimenType-Serum",
+      "code": "Serum",
+      "name": "Serum ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "specimenType-Sputum",
+      "code": "Sputum",
+      "name": "Sputum ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "specimenType-Swab",
+      "code": "Swab",
+      "name": "Swab",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "specimenType-UrineRandom",
+      "code": "UrineRandom",
+      "name": "Urine random",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "specimenType-WholeBlood",
+      "code": "WholeBlood",
+      "name": "Whole blood ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "specimenType-Tissue",
+      "code": "Tissue",
+      "name": "Tissue",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "specimenType-SynovialFluid",
+      "code": "SynovialFluid",
+      "name": "specimenType",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "specimenType-EDTA",
+      "code": "EDTA",
+      "name": "EDTA",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "specimenType-Citrate",
+      "code": "Citrate",
+      "name": "Citrate",
+      "visibilityStatus": "current"
+    }
   ]
 }

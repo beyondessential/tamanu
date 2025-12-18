@@ -1,1840 +1,1840 @@
 {
   "sheetName": "Occupation",
+  "columns": [
+    "id",
+    "code",
+    "name"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name"
-    ],
-    [
-      "occupation-Accountant",
-      "Accountant",
-      "Accountant"
-    ],
-    [
-      "occupation-ActorDirector-FilmStage",
-      "ActorDirectorFilmStage",
-      "Actor/Director-Film/Stage"
-    ],
-    [
-      "occupation-Administrationandrelated",
-      "Administrationandrelated",
-      "Administration and related"
-    ],
-    [
-      "occupation-Agronomistandrelated",
-      "Agronomistandrelated",
-      "Agronomist and related"
-    ],
-    [
-      "occupation-AirTrafficController",
-      "AirTrafficController",
-      "Air Traffic Controller"
-    ],
-    [
-      "occupation-AirTrafficSafetyTechnician",
-      "AirTrafficSafetyTechnician",
-      "Air Traffic Safety Technician"
-    ],
-    [
-      "occupation-AirTravelStewardStewardess",
-      "AirTravelStewardStewardess",
-      "Air/Travel Steward/Stewardess"
-    ],
-    [
-      "occupation-AircraftEngineer",
-      "AircraftEngineer",
-      "Aircraft Engineer"
-    ],
-    [
-      "occupation-Announcer-RadioTelevision",
-      "Announcer-RadioTelevision",
-      "Announcer-Radio/Television"
-    ],
-    [
-      "occupation-ApiaristSericulturist",
-      "ApiaristSericulturist",
-      "Apiarist/Sericulturist"
-    ],
-    [
-      "occupation-AppraiserValuerAuctioneer",
-      "AppraiserValuerAuctioneer",
-      "Appraiser/Valuer/Auctioneer"
-    ],
-    [
-      "occupation-Architect",
-      "Architect",
-      "Architect"
-    ],
-    [
-      "occupation-ArchivistCurator",
-      "ArchivistCurator",
-      "Archivist/Curator"
-    ],
-    [
-      "occupation-ArmyOfficer",
-      "ArmyOfficer",
-      "Army Officer"
-    ],
-    [
-      "occupation-Assembler",
-      "Assembler",
-      "Assembler"
-    ],
-    [
-      "occupation-AssistantManager",
-      "AssistantManager",
-      "Assistant Manager"
-    ],
-    [
-      "occupation-AssistantTownRanger",
-      "AssistantTownRanger",
-      "Assistant Town Ranger"
-    ],
-    [
-      "occupation-Astrologerandrelated",
-      "Astrologerandrelated",
-      "Astrologer and related"
-    ],
-    [
-      "occupation-AthleteSportsperson",
-      "AthleteSportsperson",
-      "Athlete/Sportsperson"
-    ],
-    [
-      "occupation-Auditor",
-      "Auditor",
-      "Auditor"
-    ],
-    [
-      "occupation-BakerPastry-cook",
-      "BakerPastrycook",
-      "Baker/Pastry-cook"
-    ],
-    [
-      "occupation-BankOfficer",
-      "BankOfficer",
-      "Bank Officer"
-    ],
-    [
-      "occupation-BeautyTherapist",
-      "BeautyTherapist",
-      "Beauty Therapist"
-    ],
-    [
-      "occupation-BiologistBotanistZoologist",
-      "BiologistBotanistZoologist",
-      "Biologist/Botanist/Zoologist"
-    ],
-    [
-      "occupation-BlacksmithHammersmith",
-      "BlacksmithHammersmith",
-      "Blacksmith/Hammersmith"
-    ],
-    [
-      "occupation-BlasterShotfirer",
-      "BlasterShotfirer",
-      "Blaster/Shotfirer"
-    ],
-    [
-      "occupation-BookmakerCroupier",
-      "BookmakerCroupier",
-      "Bookmaker/Croupier"
-    ],
-    [
-      "occupation-BricklayerStonemason",
-      "BricklayerStonemason",
-      "Bricklayer/Stonemason"
-    ],
-    [
-      "occupation-BroadcastingTelecomEquipmentOperator",
-      "BroadcastingTelecomEquipmentOperator",
-      "Broadcasting/Telecom Equipment Operator"
-    ],
-    [
-      "occupation-BrokerFinanceDealer",
-      "BrokerFinanceDealer",
-      "Broker/Finance Dealer"
-    ],
-    [
-      "occupation-Builder-TraditionalMaterials",
-      "BuilderTraditionalMaterials",
-      "Builder-Traditional Materials"
-    ],
-    [
-      "occupation-BuildingCaretaker",
-      "BuildingCaretaker",
-      "Building Caretaker"
-    ],
-    [
-      "occupation-BuildingFrameandTradeWorker",
-      "BuildingFrameandTradeWorker",
-      "Building Frame and Trade Worker"
-    ],
-    [
-      "occupation-BuildingStructureCleaner",
-      "BuildingStructureCleaner",
-      "Building Structure Cleaner"
-    ],
-    [
-      "occupation-BusinessProfessional",
-      "BusinessProfessional",
-      "Business Professional"
-    ],
-    [
-      "occupation-BusinessServiceAgentBroker",
-      "BusinessServiceAgentBroker",
-      "Business Service Agent/Broker"
-    ],
-    [
-      "occupation-ButcherFishmongerrelatedfoodpreparer",
-      "ButcherFishmongerrelatedfoodpreparer",
-      "Butcher/Fishmonger/related food preparer"
-    ],
-    [
-      "occupation-Buyer",
-      "Buyer",
-      "Buyer"
-    ],
-    [
-      "occupation-CalculatingMachineOperator",
-      "CalculatingMachineOperator",
-      "Calculating Machine Operator"
-    ],
-    [
-      "occupation-CarpenterJoiner",
-      "CarpenterJoiner",
-      "Carpenter/Joiner"
-    ],
-    [
-      "occupation-Cartographer",
-      "Cartographer",
-      "Cartographer"
-    ],
-    [
-      "occupation-CarverCutterStoneSplitter",
-      "CarverCutterStoneSplitter",
-      "Carver/Cutter/Stone Splitter"
-    ],
-    [
-      "occupation-CashierTicketClerk",
-      "CashierTicketClerk",
-      "Cashier/Ticket Clerk"
-    ],
-    [
-      "occupation-CasualWorker",
-      "CasualWorker",
-      "Casual Worker"
-    ],
-    [
-      "occupation-Chemist",
-      "Chemist",
-      "Chemist"
-    ],
-    [
-      "occupation-Chief-TraditionalVillageHead",
-      "ChiefTraditionalVillageHead",
-      "Chief-Traditional / Village Head"
-    ],
-    [
-      "occupation-ChildcareWorker",
-      "ChildcareWorker",
-      "Childcare Worker"
-    ],
-    [
-      "occupation-Cleaner-General",
-      "CleanerGeneral",
-      "Cleaner-General"
-    ],
-    [
-      "occupation-Cleaner-Windows",
-      "CleanerWindows",
-      "Cleaner-Windows"
-    ],
-    [
-      "occupation-ClearingandForwardingAgent",
-      "ClearingandForwardingAgent",
-      "Clearing and Forwarding Agent"
-    ],
-    [
-      "occupation-Clerk-WeighBridge",
-      "ClerkWeighBridge",
-      "Clerk - Weigh Bridge"
-    ],
-    [
-      "occupation-Clerk-AccountingBookkeeping",
-      "ClerkAccountingBookkeeping",
-      "Clerk-Accounting/Bookkeeping"
-    ],
-    [
-      "occupation-Clerk-otherofficetype",
-      "Clerkotherofficetype",
-      "Clerk-other office type"
-    ],
-    [
-      "occupation-Clerk-production",
-      "Clerkproduction",
-      "Clerk-production"
-    ],
-    [
-      "occupation-Clerk-SortingandMailCarrying",
-      "ClerkSortingandMailCarrying",
-      "Clerk-Sorting and Mail Carrying"
-    ],
-    [
-      "occupation-Clerk-StatisticalFinance",
-      "ClerkStatisticalFinance",
-      "Clerk-Statistical/Finance"
-    ],
-    [
-      "occupation-Clerk-Stock",
-      "ClerkStock",
-      "Clerk-Stock"
-    ],
-    [
-      "occupation-Clerk-Transport",
-      "ClerkTransport",
-      "Clerk-Transport"
-    ],
-    [
-      "occupation-Clerk-TravelAgencyandrelated",
-      "ClerkTravelAgencyandrelated",
-      "Clerk-Travel Agency and related"
-    ],
-    [
-      "occupation-ClownMusicianAcrobat",
-      "ClownMusicianAcrobat",
-      "Clown/Musician/Acrobat"
-    ],
-    [
-      "occupation-CodingProofReadingandrelated",
-      "CodingProofReadingandrelated",
-      "Coding/Proof Reading and related"
-    ],
-    [
-      "occupation-ComputerAssistant",
-      "ComputerAssistant",
-      "Computer Assistant"
-    ],
-    [
-      "occupation-ComputerEquipmentOperator",
-      "ComputerEquipmentOperator",
-      "Computer Equipment Operator"
-    ],
-    [
-      "occupation-ComputerProgrammer",
-      "ComputerProgrammer",
-      "Computer Programmer"
-    ],
-    [
-      "occupation-ComputerSystemsDesignerAnalyst",
-      "ComputerSystemsDesignerAnalyst",
-      "Computer Systems Designer/Analyst"
-    ],
-    [
-      "occupation-ComputingProfessional",
-      "ComputingProfessional",
-      "Computing Professional"
-    ],
-    [
-      "occupation-ConcretePlacersFinishersandrelated",
-      "ConcretePlacersFinishersandrelated",
-      "Concrete Placers, Finishers and related"
-    ],
-    [
-      "occupation-CookChef",
-      "CookChef",
-      "Cook/Chef"
-    ],
-    [
-      "occupation-CraneHoistOperatorandrelated",
-      "CraneHoistOperatorandrelated",
-      "Crane/Hoist Operator and related"
-    ],
-    [
-      "occupation-CustomOfficers",
-      "CustomOfficers",
-      "Custom Officers"
-    ],
-    [
-      "occupation-CustomerInspector",
-      "CustomerInspector",
-      "Customer Inspector"
-    ],
-    [
-      "occupation-CustomsTaxandrelated",
-      "CustomsTaxandrelated",
-      "Customs/Tax and related"
-    ],
-    [
-      "occupation-Dairy-productsmaker",
-      "Dairyproductsmaker",
-      "Dairy-products maker"
-    ],
-    [
-      "occupation-DancerChoreographer",
-      "DancerChoreographer",
-      "Dancer/Choreographer"
-    ],
-    [
-      "occupation-Dataentryoperator",
-      "Dataentryoperator",
-      "Data entry operator"
-    ],
-    [
-      "occupation-Debt-collectorandrelated",
-      "Debtcollectorandrelated",
-      "Debt-collector and related"
-    ],
-    [
-      "occupation-DentalAssistant",
-      "DentalAssistant",
-      "Dental Assistant"
-    ],
-    [
-      "occupation-Dentalhygienist",
-      "Dentalhygienist",
-      "Dental hygienist"
-    ],
-    [
-      "occupation-DentalTherapist",
-      "DentalTherapist",
-      "Dental Therapist"
-    ],
-    [
-      "occupation-Dentist",
-      "Dentist",
-      "Dentist"
-    ],
-    [
-      "occupation-DesignerDecorator-commercial",
-      "DesignerDecorator-commercial",
-      "Designer/Decorator-commercial"
-    ],
-    [
-      "occupation-DietitianNutritionist",
-      "DietitianNutritionist",
-      "Dietitian/Nutritionist"
-    ],
-    [
-      "occupation-Director-Chiefexecutive",
-      "DirectorChiefexecutive",
-      "Director-Chief executive"
-    ],
-    [
-      "occupation-Diver-Free",
-      "DiverFree",
-      "Diver-Free"
-    ],
-    [
-      "occupation-Diver-ScubaAirApparatus",
-      "DiverScubaAirApparatus",
-      "Diver-Scuba/Air Apparatus"
-    ],
-    [
-      "occupation-Doctor-Medical",
-      "DoctorMedical",
-      "Doctor-Medical"
-    ],
-    [
-      "occupation-DomesticDuties",
-      "DomesticDuties",
-      "Domestic Duties"
-    ],
-    [
-      "occupation-DomesticHelper",
-      "DomesticHelper",
-      "Domestic Helper"
-    ],
-    [
-      "occupation-Draughtsperson",
-      "Draughtsperson",
-      "Draughtsperson"
-    ],
-    [
-      "occupation-Driver-animal-drawnvehiclemachinery",
-      "Driveranimaldrawnvehiclemachinery",
-      "Driver-animal-drawn vehicle/machinery"
-    ],
-    [
-      "occupation-Driver-bustram",
-      "Driverbustram",
-      "Driver-bus/tram"
-    ],
-    [
-      "occupation-Driver-handpedalvehicle",
-      "Driverhandpedalvehicle",
-      "Driver-hand/pedal vehicle"
-    ],
-    [
-      "occupation-Driver-motorcycle",
-      "Drivermotorcycle",
-      "Driver-motor cycle"
-    ],
-    [
-      "occupation-Driver-taxicarvan",
-      "Drivertaxicarvan",
-      "Driver-taxi/car/van"
-    ],
-    [
-      "occupation-Driver-truckandotherheavyvehicle",
-      "Drivertruckandotherheavyvehicle",
-      "Driver-truck and other heavy vehicle"
-    ],
-    [
-      "occupation-DrivingExaminer",
-      "DrivingExaminer",
-      "Driving Examiner"
-    ],
-    [
-      "occupation-Economist",
-      "Economist",
-      "Economist"
-    ],
-    [
-      "occupation-EducationMethodsSpecialist",
-      "EducationMethodsSpecialist",
-      "Education Methods Specialist"
-    ],
-    [
-      "occupation-ElectricalLineInstallerRepairer",
-      "ElectricalLineInstallerRepairer",
-      "Electrical Line Installer/Repairer"
-    ],
-    [
-      "occupation-Electrician-Building",
-      "ElectricianBuilding",
-      "Electrician-Building"
-    ],
-    [
-      "occupation-Electrician-Mechanical",
-      "ElectricianMechanical",
-      "Electrician-Mechanical"
-    ],
-    [
-      "occupation-ElectronicFitter",
-      "ElectronicFitter",
-      "Electronic Fitter"
-    ],
-    [
-      "occupation-ElectronicsMechanicServicer",
-      "ElectronicsMechanicServicer",
-      "Electronics Mechanic/Servicer"
-    ],
-    [
-      "occupation-EmploymentAgentLabourContractor",
-      "EmploymentAgentLabourContractor",
-      "Employment Agent/Labour Contractor"
-    ],
-    [
-      "occupation-Engineer-Chemical",
-      "EngineerChemical",
-      "Engineer-Chemical"
-    ],
-    [
-      "occupation-Engineer-Civil",
-      "EngineerCivil",
-      "Engineer-Civil"
-    ],
-    [
-      "occupation-Engineer-Electrical",
-      "EngineerElectrical",
-      "Engineer-Electrical"
-    ],
-    [
-      "occupation-Engineer-Mechanical",
-      "EngineerMechanical",
-      "Engineer-Mechanical"
-    ],
-    [
-      "occupation-Engineer-Mining",
-      "EngineerMining",
-      "Engineer-Mining"
-    ],
-    [
-      "occupation-Engineer-Ship",
-      "EngineerShip",
-      "Engineer-Ship"
-    ],
-    [
-      "occupation-Engineer-Telecommunicationselectronics",
-      "EngineerTelecommunicationselectronics",
-      "Engineer-Telecommunications/electronics"
-    ],
-    [
-      "occupation-EstateAgent",
-      "EstateAgent",
-      "Estate Agent"
-    ],
-    [
-      "occupation-FaithHealer",
-      "FaithHealer",
-      "Faith Healer"
-    ],
-    [
-      "occupation-FarmHandLabourer",
-      "FarmHandLabourer",
-      "Farm Hand/Labourer"
-    ],
-    [
-      "occupation-Farmer-Cane",
-      "FarmerCane",
-      "Farmer-Cane"
-    ],
-    [
-      "occupation-Farmer-Commercialgrowing",
-      "FarmerCommercialgrowing",
-      "Farmer-Commercial growing"
-    ],
-    [
-      "occupation-Farmer-Copra",
-      "FarmerCopra",
-      "Farmer-Copra"
-    ],
-    [
-      "occupation-Farmer-LivestockDairyProducer",
-      "FarmerLivestockDairyProducer",
-      "Farmer-Livestock/Dairy Producer"
-    ],
-    [
-      "occupation-Farmer-Rice",
-      "FarmerRice",
-      "Farmer-Rice"
-    ],
-    [
-      "occupation-Farmer-Subsistence",
-      "FarmerSubsistence",
-      "Farmer-Subsistence"
-    ],
-    [
-      "occupation-FarmerGrower-fieldcropandvegetables",
-      "FarmerGrowerfieldcropandvegetables",
-      "Farmer/Grower-field crop and vegetables"
-    ],
-    [
-      "occupation-FarmerGrower-mixedcrop",
-      "FarmerGrowermixedcrop",
-      "Farmer/Grower-mixed crop"
-    ],
-    [
-      "occupation-FarmerGrower-treesandshrubs",
-      "FarmerGrowertreesandshrubs",
-      "Farmer/Grower-trees and shrubs"
-    ],
-    [
-      "occupation-Farmingandforestryadvisor",
-      "Farmingandforestryadvisor",
-      "Farming and forestry advisor"
-    ],
-    [
-      "occupation-Fibrepreparer",
-      "Fibrepreparer",
-      "Fibre preparer"
-    ],
-    [
-      "occupation-FieldOfficer",
-      "FieldOfficer",
-      "Field Officer"
-    ],
-    [
-      "occupation-FinanceSalesassociatedprofessional",
-      "FinanceSalesassociatedprofessional",
-      "Finance/Sales associated professional"
-    ],
-    [
-      "occupation-FireFighter",
-      "FireFighter",
-      "Fire Fighter"
-    ],
-    [
-      "occupation-Fisherman",
-      "Fisherman",
-      "Fisherman"
-    ],
-    [
-      "occupation-Fisherman-Subsistence",
-      "FishermanSubsistence",
-      "Fisherman-Subsistence"
-    ],
-    [
-      "occupation-FisheryWorkerHunterTrapper",
-      "FisheryWorkerHunterTrapper",
-      "Fishery Worker/Hunter/Trapper"
-    ],
-    [
-      "occupation-FishingHuntingTrappingLabourer",
-      "FishingHuntingTrappingLabourer",
-      "Fishing/Hunting/Trapping Labourer"
-    ],
-    [
-      "occupation-FlightAttendant",
-      "FlightAttendant",
-      "Flight Attendant"
-    ],
-    [
-      "occupation-FloorLayerandTileSetter",
-      "FloorLayerandTileSetter",
-      "Floor Layer and Tile Setter"
-    ],
-    [
-      "occupation-ForestryLabourer",
-      "ForestryLabourer",
-      "Forestry Labourer"
-    ],
-    [
-      "occupation-ForestryWorkerandrelated",
-      "ForestryWorkerandrelated",
-      "Forestry Worker and related"
-    ],
-    [
-      "occupation-FortuneTellerPalmistandrelated",
-      "FortuneTellerPalmistandrelated",
-      "Fortune Teller/Palmist and related"
-    ],
-    [
-      "occupation-FreightHandler",
-      "FreightHandler",
-      "Freight Handler"
-    ],
-    [
-      "occupation-Furrier",
-      "Furrier",
-      "Furrier"
-    ],
-    [
-      "occupation-GardenersHorticulturalNurseryGrower",
-      "GardenersHorticulturalNurseryGrower",
-      "Gardeners/Horticultural/Nursery Grower"
-    ],
-    [
-      "occupation-GarmentWorker",
-      "GarmentWorker",
-      "Garment Worker"
-    ],
-    [
-      "occupation-GeologistGeophysicist",
-      "GeologistGeophysicist",
-      "Geologist/Geophysicist"
-    ],
-    [
-      "occupation-Glazier",
-      "Glazier",
-      "Glazier"
-    ],
-    [
-      "occupation-GraphicDesigner",
-      "GraphicDesigner",
-      "Graphic Designer"
-    ],
-    [
-      "occupation-HairdresserBarberBeautician",
-      "HairdresserBarberBeautician",
-      "Hairdresser/Barber/Beautician"
-    ],
-    [
-      "occupation-HandicraftWorker-TextileLeather",
-      "HandicraftWorker-TextileLeather",
-      "Handicraft Worker-Textile/Leather"
-    ],
-    [
-      "occupation-HandicraftWorker-Woodrelatedmaterial",
-      "HandicraftWorker-Woodrelatedmaterial",
-      "Handicraft Worker-Wood/related material"
-    ],
-    [
-      "occupation-HealthProfessional",
-      "HealthProfessional",
-      "Health Professional"
-    ],
-    [
-      "occupation-HistorianPhilosopher",
-      "HistorianPhilosopher",
-      "Historian/Philosopher"
-    ],
-    [
-      "occupation-Home-basedPersonalCareWorker",
-      "HomebasedPersonalCareWorker",
-      "Home-based Personal Care Worker"
-    ],
-    [
-      "occupation-HotelWorker",
-      "HotelWorker",
-      "Hotel Worker"
-    ],
-    [
-      "occupation-Housekeeperandrelated",
-      "Housekeeperandrelated",
-      "Housekeeper and related"
-    ],
-    [
-      "occupation-Housewife",
-      "Housewife",
-      "Housewife"
-    ],
-    [
-      "occupation-HROfficer",
-      "HROfficer",
-      "HR Officer"
-    ],
-    [
-      "occupation-IndustrialRobotController",
-      "IndustrialRobotController",
-      "Industrial Robot Controller"
-    ],
-    [
-      "occupation-Inspector-BuildingFire",
-      "InspectorBuildingFire",
-      "Inspector-Building/Fire"
-    ],
-    [
-      "occupation-Inspector-HealthSafetyQuality",
-      "InspectorHealthSafetyQuality",
-      "Inspector-Health/Safety/Quality"
-    ],
-    [
-      "occupation-InstitutionBasedPersonalCareWorker",
-      "InstitutionBasedPersonalCareWorker",
-      "Institution Based Personal Care Worker"
-    ],
-    [
-      "occupation-InsulationWorker",
-      "InsulationWorker",
-      "Insulation Worker"
-    ],
-    [
-      "occupation-InsuranceRepresentative",
-      "InsuranceRepresentative",
-      "Insurance Representative"
-    ],
-    [
-      "occupation-ITTechnician",
-      "ITTechnician",
-      "IT Technician"
-    ],
-    [
-      "occupation-JournalistAuthorWriter",
-      "JournalistAuthorWriter",
-      "Journalist/Author/Writer"
-    ],
-    [
-      "occupation-JudgeMagistrate",
-      "JudgeMagistrate",
-      "Judge/ Magistrate"
-    ],
-    [
-      "occupation-LaborOfficer",
-      "LaborOfficer",
-      "Labor Officer"
-    ],
-    [
-      "occupation-LaboratoryTechnician",
-      "LaboratoryTechnician",
-      "Laboratory Technician"
-    ],
-    [
-      "occupation-Labourer-Assembling",
-      "LabourerAssembling",
-      "Labourer-Assembling"
-    ],
-    [
-      "occupation-Labourer-ConstructionMaintenance",
-      "LabourerConstructionMaintenance",
-      "Labourer-Construction/Maintenance"
-    ],
-    [
-      "occupation-Labourer-QuarryMining",
-      "LabourerQuarryMining",
-      "Labourer-Quarry/Mining"
-    ],
-    [
-      "occupation-LaundererPresser",
-      "LaundererPresser",
-      "Launderer/Presser"
-    ],
-    [
-      "occupation-LawyerSolicitor",
-      "LawyerSolicitor",
-      "Lawyer/Solicitor"
-    ],
-    [
-      "occupation-Lecturer-UniversityHigherEducation",
-      "LecturerUniversityHigherEducation",
-      "Lecturer-University/Higher Education"
-    ],
-    [
-      "occupation-LegalProfessional",
-      "LegalProfessional",
-      "Legal Professional"
-    ],
-    [
-      "occupation-Legalrelatedbusinessprofessional",
-      "Legalrelatedbusinessprofessional",
-      "Legal/related business professional"
-    ],
-    [
-      "occupation-Legislator",
-      "Legislator",
-      "Legislator"
-    ],
-    [
-      "occupation-LibrarianrelatedInfoProfessional",
-      "LibrarianrelatedInfo.Professional",
-      "Librarian/related Info. Professional"
-    ],
-    [
-      "occupation-LibraryFilingClerk",
-      "LibraryFilingClerk",
-      "Library/Filing Clerk"
-    ],
-    [
-      "occupation-LifeScienceTechnician",
-      "LifeScienceTechnician",
-      "Life Science Technician"
-    ],
-    [
-      "occupation-LiveStockOfficer",
-      "LiveStockOfficer",
-      "Live Stock Officer"
-    ],
-    [
-      "occupation-LTAEnforcementOfficer",
-      "LTAEnforcementOfficer",
-      "LTA Enforcement Officer"
-    ],
-    [
-      "occupation-MachineOperatorsandAssemblersnec",
-      "MachineOperatorsandAssemblersnec",
-      "Machine Operators and Assemblers nec"
-    ],
-    [
-      "occupation-Machinetoolsetter",
-      "Machinetoolsetter",
-      "Machine tool setter"
-    ],
-    [
-      "occupation-Manager-General",
-      "ManagerGeneral",
-      "Manager-General"
-    ],
-    [
-      "occupation-Manager-OtherDepartment",
-      "ManagerOtherDepartment",
-      "Manager-Other Department"
-    ],
-    [
-      "occupation-Manager-ProdOperationsDepts",
-      "ManagerProdOperationsDepts",
-      "Manager-Prod. & Operations Dept's"
-    ],
-    [
-      "occupation-Mathematicianandrelated",
-      "Mathematicianandrelated",
-      "Mathematician and related"
-    ],
-    [
-      "occupation-Mechanic-agriculturalindustrialmachine",
-      "Mechanicagriculturalindustrialmachine",
-      "Mechanic-agricultural/industrial machine"
-    ],
-    [
-      "occupation-Mechanic-aircraftengine",
-      "Mechanicaircraftengine",
-      "Mechanic-aircraft engine"
-    ],
-    [
-      "occupation-Mechanic-motorvehicle",
-      "Mechanicmotorvehicle",
-      "Mechanic-motor vehicle"
-    ],
-    [
-      "occupation-Medicalassistant",
-      "Medicalassistant",
-      "Medical assistant"
-    ],
-    [
-      "occupation-Medicalequipmentoperator",
-      "Medicalequipmentoperator",
-      "Medical equipment operator"
-    ],
-    [
-      "occupation-Merchandiser",
-      "Merchandiser",
-      "Merchandiser"
-    ],
-    [
-      "occupation-Metalmouldercoremaker",
-      "Metalmouldercoremaker",
-      "Metal moulder/coremaker"
-    ],
-    [
-      "occupation-Metalwheel-grinderspolishersetc",
-      "Metalwheelgrinderspolishersetc",
-      "Metal wheel-grinders, polishers etc"
-    ],
-    [
-      "occupation-Meteorologist",
-      "Meteorologist",
-      "Meteorologist"
-    ],
-    [
-      "occupation-Meter-reader",
-      "Meterreader",
-      "Meter-reader"
-    ],
-    [
-      "occupation-Midwife-associate",
-      "Midwifeassociate",
-      "Midwife-associate"
-    ],
-    [
-      "occupation-Model-Fashionandotherwise",
-      "ModelFashionandotherwise",
-      "Model-Fashion and otherwise"
-    ],
-    [
-      "occupation-Modernhealthassocprofessional",
-      "Modernhealthassoc.professional",
-      "Modern health assoc. professional"
-    ],
-    [
-      "occupation-MonitoringOfficer",
-      "MonitoringOfficer",
-      "Monitoring Officer"
-    ],
-    [
-      "occupation-MusicianSingerComposer",
-      "MusicianSingerComposer",
-      "Musician/Singer/Composer"
-    ],
-    [
-      "occupation-Nightclubsingermusiciandancer",
-      "Nightclubsingermusiciandancer",
-      "Nightclub singer/musician/dancer"
-    ],
-    [
-      "occupation-NotApplicable",
-      "NotApplicable",
-      "Not Applicable"
-    ],
-    [
-      "occupation-Nun",
-      "Nun",
-      "Nun"
-    ],
-    [
-      "occupation-NurseMidwifeprofessionals",
-      "NurseMidwifeprofessionals",
-      "Nurse / Midwife professionals"
-    ],
-    [
-      "occupation-Nursing-enrolledassociate",
-      "Nursingenrolledassociate",
-      "Nursing-enrolled/associate"
-    ],
-    [
-      "occupation-Official-seniorgovernment",
-      "Officialseniorgovernment",
-      "Official-senior government"
-    ],
-    [
-      "occupation-Official-SeniorofeconInterestorg",
-      "OfficialSeniorofeco.Interestorg",
-      "Official-Senior of econ. Interest org."
-    ],
-    [
-      "occupation-Official-Seniorofpoliticalparty",
-      "OfficialSeniorofpoliticalparty",
-      "Official-Senior of political party"
-    ],
-    [
-      "occupation-Official-Seniorofspecialintorg",
-      "OfficialSeniorofspecialint.org.",
-      "Official-Senior of special int. org."
-    ],
-    [
-      "occupation-Operator-AutomatedAssemblyline",
-      "OperatorAutomatedAssemblyline",
-      "Operator-Automated Assembly line"
-    ],
-    [
-      "occupation-Operator-bookbindingmachine",
-      "Operatorbookbindingmachine",
-      "Operator-bookbinding machine"
-    ],
-    [
-      "occupation-Operator-CementMineralproductsmachine",
-      "OperatorCementMineralproductsmachine",
-      "Operator-Cement/Mineral products machine"
-    ],
-    [
-      "occupation-Operator-ChemicalProcessingPlant",
-      "OperatorChemicalProcessingPlant",
-      "Operator-Chemical Processing Plant"
-    ],
-    [
-      "occupation-Operator-ChemicalProductsmachine",
-      "OperatorChemicalProductsmachine",
-      "Operator-Chemical Products machine"
-    ],
-    [
-      "occupation-Operator-Earth-movingplant",
-      "OperatorEarthmovingplant",
-      "Operator-Earth-moving plant"
-    ],
-    [
-      "occupation-Operator-foodandrelatedproducts",
-      "Operatorfoodandrelatedproducts",
-      "Operator-food and related products"
-    ],
-    [
-      "occupation-Operator-Glassceramicsrelatedplant",
-      "OperatorGlassceramicsrelatedplant",
-      "Operator-Glass/ceramics/related plant"
-    ],
-    [
-      "occupation-Operator-Lifting-truck",
-      "OperatorLiftingtruck",
-      "Operator-Lifting-truck"
-    ],
-    [
-      "occupation-Operator-Machine-tool",
-      "OperatorMachinetool",
-      "Operator-Machine-tool"
-    ],
-    [
-      "occupation-Operator-Metal-processingplant",
-      "OperatorMetalprocessingplant",
-      "Operator-Metal-processing plant"
-    ],
-    [
-      "occupation-Operator-Miningmineralprocessingplant",
-      "OperatorMiningmineralprocessingplant",
-      "Operator-Mining/mineral processing plant"
-    ],
-    [
-      "occupation-Operator-Motorisedfarmforestryplant",
-      "OperatorMotorisedfarmforestryplant",
-      "Operator-Motorised farm/forestry plant"
-    ],
-    [
-      "occupation-Operator-paperproductsmachine",
-      "Operatorpaperproductsmachine",
-      "Operator-paper products machine"
-    ],
-    [
-      "occupation-Operator-Powerproductionrelated",
-      "OperatorPowerproductionrelated",
-      "Operator-Power production/related"
-    ],
-    [
-      "occupation-Operator-printingmachine",
-      "Operatorprintingmachine",
-      "Operator-printing machine"
-    ],
-    [
-      "occupation-Operator-rubberplasticproductmachine",
-      "Operatorrubberplasticproductmachine",
-      "Operator-rubber/plastic product machine"
-    ],
-    [
-      "occupation-Operator-textilefurleatherproducts",
-      "Operatortextilefurleatherproducts",
-      "Operator-textile/fur/leather products"
-    ],
-    [
-      "occupation-Operator-WoodprocessingPapermaking",
-      "OperatorWoodprocessingPapermaking",
-      "Operator-Wood processing/Papermaking"
-    ],
-    [
-      "occupation-Operator-woodproductsmachine",
-      "Operatorwoodproductsmachine",
-      "Operator-wood products machine"
-    ],
-    [
-      "occupation-OpticalElectronicequipoperator",
-      "OpticalElectronicequipoperator",
-      "Optical/Electronic equip. operator"
-    ],
-    [
-      "occupation-OptometristOptician",
-      "OptometristOptician",
-      "Optometrist/Optician"
-    ],
-    [
-      "occupation-OtherPersonalserviceworkersnec",
-      "OtherPersonalserviceworkersnec",
-      "Other Personal service workers nec"
-    ],
-    [
-      "occupation-OtherphysicalMathEngprofessional",
-      "OtherphysicalMathEngprofessional",
-      "Other physical, Math. & Eng professional"
-    ],
-    [
-      "occupation-Otherreligiousprofessionals",
-      "Otherreligiousprofessionals",
-      "Other religious professionals"
-    ],
-    [
-      "occupation-Painters-building",
-      "Paintersbuilding",
-      "Painters-building"
-    ],
-    [
-      "occupation-PanelBeater",
-      "PanelBeater",
-      "Panel Beater"
-    ],
-    [
-      "occupation-Parlimentarian",
-      "Parlimentarian",
-      "Parlimentarian"
-    ],
-    [
-      "occupation-Pastor",
-      "Pastor",
-      "Pastor"
-    ],
-    [
-      "occupation-Pathologistrelatedprofessional",
-      "Pathologistrelatedprofessional",
-      "Pathologist / related professional"
-    ],
-    [
-      "occupation-PawnbrokerMoneylender",
-      "PawnbrokerMoneylender",
-      "Pawnbroker/Money lender"
-    ],
-    [
-      "occupation-Peltdressertannerfellmonger",
-      "Peltdressertannerfellmonger",
-      "Pelt dresser/tanner/fellmonger"
-    ],
-    [
-      "occupation-Personalcareworkernec",
-      "Personalcareworkernec",
-      "Personal care worker nec"
-    ],
-    [
-      "occupation-PersonalCareerprofessionals",
-      "PersonalCareerprofessionals",
-      "Personal/Career professionals"
-    ],
-    [
-      "occupation-Pharmaceuticalassistant",
-      "Pharmaceuticalassistant",
-      "Pharmaceutical assistant"
-    ],
-    [
-      "occupation-Pharmacist",
-      "Pharmacist",
-      "Pharmacist"
-    ],
-    [
-      "occupation-Pharmacologist",
-      "Pharmacologist",
-      "Pharmacologist"
-    ],
-    [
-      "occupation-PharmacyTechnician",
-      "PharmacyTechnician",
-      "Pharmacy Technician"
-    ],
-    [
-      "occupation-PhotographerImage-Soundrecorder",
-      "PhotographerImage-Soundrecorder",
-      "Photographer/Image-Sound recorder"
-    ],
-    [
-      "occupation-PhysicalengSciencetechniciannec",
-      "PhysicalengSciencetechniciannec",
-      "Physical & eng. Science technician nec"
-    ],
-    [
-      "occupation-PhysicalEducationWorker",
-      "PhysicalEducationWorker",
-      "Physical Education Worker"
-    ],
-    [
-      "occupation-PhysicistAstronomer",
-      "PhysicistAstronomer",
-      "Physicist / Astronomer"
-    ],
-    [
-      "occupation-Physiotherapist",
-      "Physiotherapist",
-      "Physiotherapist"
-    ],
-    [
-      "occupation-Pilot-Aircraftandrelatedprofessionals",
-      "Pilot-Aircraftandrelatedprofessionals",
-      "Pilot-Aircraft and related professionals"
-    ],
-    [
-      "occupation-Plasterer",
-      "Plasterer",
-      "Plasterer"
-    ],
-    [
-      "occupation-Plumberpipefitter",
-      "Plumberpipefitter",
-      "Plumber/pipe fitter"
-    ],
-    [
-      "occupation-PoliceInspectorsDetectives",
-      "PoliceInspectorsDetectives",
-      "Police Inspectors/Detectives"
-    ],
-    [
-      "occupation-Policeofficer",
-      "Policeofficer",
-      "Police officer"
-    ],
-    [
-      "occupation-PorterMessengerLuggagedeliverer",
-      "PorterMessengerLuggagedeliverer",
-      "Porter/Messenger/Luggage deliverer"
-    ],
-    [
-      "occupation-PotterGlassmakerRelatedTrades",
-      "PotterGlassmakerRelatedTrades",
-      "Potter/Glassmaker/Related Trades"
-    ],
-    [
-      "occupation-Poultryproducer",
-      "Poultryproducer",
-      "Poultry producer"
-    ],
-    [
-      "occupation-Precisionworkersmetalrelatedtrades",
-      "Precisionworkersmetalrelatedtrades",
-      "Precision workers/metal & related trades"
-    ],
-    [
-      "occupation-Preserver-fruitsandvegetables",
-      "Preserverfruitsandvegetables",
-      "Preserver-fruits and vegetables"
-    ],
-    [
-      "occupation-Priest",
-      "Priest",
-      "Priest"
-    ],
-    [
-      "occupation-Printingandrelatedtradesworkers",
-      "Printingandrelatedtradesworkers",
-      "Printing and related trades workers"
-    ],
-    [
-      "occupation-Prisonguard",
-      "Prisonguard",
-      "Prison guard"
-    ],
-    [
-      "occupation-Producer-cropanimalnec",
-      "Producer-cropanimalnec",
-      "Producer-crop/animal nec"
-    ],
-    [
-      "occupation-Producer-cropanimal-marketoriented",
-      "Producercropanimalmarketoriented",
-      "Producer-crop/animal-market oriented"
-    ],
-    [
-      "occupation-Producer-mixedanimal",
-      "Producermixedanimal",
-      "Producer-mixed animal"
-    ],
-    [
-      "occupation-ProjectOfficer",
-      "ProjectOfficer",
-      "Project Officer"
-    ],
-    [
-      "occupation-Protectiveserviceworkernec",
-      "Protectiveserviceworkernec",
-      "Protective service worker nec"
-    ],
-    [
-      "occupation-Psychologist",
-      "Psychologist",
-      "Psychologist"
-    ],
-    [
-      "occupation-QualityController",
-      "QualityController",
-      "Quality Controller"
-    ],
-    [
-      "occupation-QuarryMineworkers",
-      "QuarryMineworkers",
-      "Quarry/Mine workers"
-    ],
-    [
-      "occupation-Radiographer",
-      "Radiographer",
-      "Radiographer"
-    ],
-    [
-      "occupation-Receptionist",
-      "Receptionist",
-      "Receptionist"
-    ],
-    [
-      "occupation-Religiousassociateprofessional",
-      "Religiousassociateprofessional",
-      "Religious associate professional"
-    ],
-    [
-      "occupation-Reverend",
-      "Reverend",
-      "Reverend"
-    ],
-    [
-      "occupation-RiggerCablesplicer",
-      "RiggerCablesplicer",
-      "Rigger / Cable splicer"
-    ],
-    [
-      "occupation-Roofers",
-      "Roofers",
-      "Roofers"
-    ],
-    [
-      "occupation-Rubbishcollector",
-      "Rubbishcollector",
-      "Rubbish collector"
-    ],
-    [
-      "occupation-RugbyPlayer",
-      "RugbyPlayer",
-      "Rugby Player"
-    ],
-    [
-      "occupation-Salesrepresentative",
-      "Salesrepresentative",
-      "Sales representative"
-    ],
-    [
-      "occupation-Salespersons-doortodoorandtelephone",
-      "Salespersonsdoortodoorandtelephone",
-      "Salespersons-door to door and telephone"
-    ],
-    [
-      "occupation-Salespersons-marketandstall",
-      "Salespersonsmarketandstall",
-      "Salespersons-market and stall"
-    ],
-    [
-      "occupation-SalespersonsDemonstrators-shop",
-      "SalespersonsDemonstrators-shop",
-      "Salespersons/Demonstrators-shop"
-    ],
-    [
-      "occupation-Sanitarian",
-      "Sanitarian",
-      "Sanitarian"
-    ],
-    [
-      "occupation-SchoolInspector",
-      "SchoolInspector",
-      "School Inspector"
-    ],
-    [
-      "occupation-Scribesandrelatedworkers",
-      "Scribesandrelatedworkers",
-      "Scribes and related workers"
-    ],
-    [
-      "occupation-SculptorPainterRelatedArtist",
-      "SculptorPainterRelatedArtist",
-      "Sculptor/Painter/Related Artist"
-    ],
-    [
-      "occupation-Secretary",
-      "Secretary",
-      "Secretary"
-    ],
-    [
-      "occupation-Secretary-administrativerelated",
-      "Secretaryadministrativerelated",
-      "Secretary-administrative & related"
-    ],
-    [
-      "occupation-SecurityOfficer",
-      "SecurityOfficer",
-      "Security Officer"
-    ],
-    [
-      "occupation-SelfEmployed",
-      "SelfEmployed",
-      "Self Employed"
-    ],
-    [
-      "occupation-SewerEmbroiderer",
-      "SewerEmbroiderer",
-      "Sewer/Embroiderer"
-    ],
-    [
-      "occupation-Sheetmetalworker",
-      "Sheetmetalworker",
-      "Sheetmetal worker"
-    ],
-    [
-      "occupation-ShipCaptain",
-      "ShipCaptain",
-      "Ship Captain"
-    ],
-    [
-      "occupation-ShipCrew",
-      "ShipCrew",
-      "Ship Crew"
-    ],
-    [
-      "occupation-Shipdeckofficerpilot",
-      "Shipdeckofficerpilot",
-      "Ship deck officer/pilot"
-    ],
-    [
-      "occupation-Shipsdeckcrewandrelatedworker",
-      "Shipsdeckcrewandrelatedworker",
-      "Ships deck crew and related worker"
-    ],
-    [
-      "occupation-Shoecleaningandotherstreetservice",
-      "Shoecleaningandotherstreetservice",
-      "Shoe cleaning and other street service"
-    ],
-    [
-      "occupation-shoe-maker",
-      "shoemaker",
-      "Shoe-maker"
-    ],
-    [
-      "occupation-SocialBenefitofficial",
-      "SocialBenefitofficial",
-      "Social Benefit official"
-    ],
-    [
-      "occupation-Socialworkassociateprofessional",
-      "Socialworkassociateprofessional",
-      "Social work associate professional"
-    ],
-    [
-      "occupation-SocialWorkprofessionals",
-      "SocialWorkprofessionals",
-      "Social Work professionals"
-    ],
-    [
-      "occupation-SociologistAnthropologist",
-      "SociologistAnthropologist",
-      "Sociologist/Anthropologist"
-    ],
-    [
-      "occupation-Soldier",
-      "Soldier",
-      "Soldier"
-    ],
-    [
-      "occupation-SpaTherapist",
-      "SpaTherapist",
-      "Spa Therapist"
-    ],
-    [
-      "occupation-Statisticians",
-      "Statisticians",
-      "Statisticians"
-    ],
-    [
-      "occupation-StockController",
-      "StockController",
-      "Stock Controller"
-    ],
-    [
-      "occupation-Streetfoodvendors",
-      "Streetfoodvendors",
-      "Street food vendors"
-    ],
-    [
-      "occupation-Streetvendorsnonfoodproducts",
-      "Streetvendorsnonfoodproducts",
-      "Street vendors/non food products"
-    ],
-    [
-      "occupation-Structural-metalprepareranderector",
-      "Structuralmetalprepareranderector",
-      "Structural-metal preparer and erector"
-    ],
-    [
-      "occupation-Student",
-      "Student",
-      "Student"
-    ],
-    [
-      "occupation-Supervisior",
-      "Supervisior",
-      "Supervisior"
-    ],
-    [
-      "occupation-Surveyor",
-      "Surveyor",
-      "Surveyor"
-    ],
-    [
-      "occupation-Sweepersandrelatedlabourer",
-      "Sweepersandrelatedlabourer",
-      "Sweepers and related labourer"
-    ],
-    [
-      "occupation-TailorDressmakerHatter",
-      "TailorDressmakerHatter",
-      "Tailor/Dressmaker/Hatter"
-    ],
-    [
-      "occupation-TasterGrader-FoodandBeverage",
-      "TasterGrader-FoodandBeverage",
-      "Taster/Grader-Food and Beverage"
-    ],
-    [
-      "occupation-TaxExciseofficial",
-      "TaxExciseofficial",
-      "Tax/Excise official"
-    ],
-    [
-      "occupation-Teacher-InfantPre-schoolEducation",
-      "TeacherInfantPre-schoolEducation",
-      "Teacher-Infant/Pre-school Education"
-    ],
-    [
-      "occupation-Teacher-PrimaryEducation",
-      "TeacherPrimaryEducation",
-      "Teacher-Primary Education"
-    ],
-    [
-      "occupation-Teacher-SecondaryEducation",
-      "TeacherSecondaryEducation",
-      "Teacher-Secondary Education"
-    ],
-    [
-      "occupation-Teacher-SpecialEducation",
-      "TeacherSpecialEducation",
-      "Teacher-Special Education"
-    ],
-    [
-      "occupation-TeachingAssistant-Other",
-      "TeachingAssistant-Other",
-      "Teaching Assistant-Other"
-    ],
-    [
-      "occupation-TeachingAssistant-Pre-primary",
-      "TeachingAssistant-Pre-primary",
-      "Teaching Assistant-Pre-primary"
-    ],
-    [
-      "occupation-TeachingAssistant-Primary",
-      "TeachingAssistant-Primary",
-      "Teaching Assistant-Primary"
-    ],
-    [
-      "occupation-TeachingAssistant-SpecialEducation",
-      "TeachingAssistant-SpecialEducation",
-      "Teaching Assistant-Special Education"
-    ],
-    [
-      "occupation-Teaching-Notelsewhereclassified",
-      "Teaching-Notelsewhereclassified",
-      "Teaching-Not elsewhere classified"
-    ],
-    [
-      "occupation-Technician-chemicalengineering",
-      "Technicianchemicalengineering",
-      "Technician-chemical engineering"
-    ],
-    [
-      "occupation-Technician-chemicalphysicalscience",
-      "Technicianchemicalphysicalscience",
-      "Technician-chemical/physical science"
-    ],
-    [
-      "occupation-Technician-civilengineering",
-      "Techniciancivilengineering",
-      "Technician-civil engineering"
-    ],
-    [
-      "occupation-Technician-electronicstelecom",
-      "Technicianelectronicstelecom",
-      "Technician-electronics/telecom"
-    ],
-    [
-      "occupation-Technician-ForestryAgronomy",
-      "TechnicianForestryAgronomy",
-      "Technician-Forestry/Agronomy"
-    ],
-    [
-      "occupation-Technician-mechanicalengineering",
-      "Technicianmechanicalengineering",
-      "Technician-mechanical engineering"
-    ],
-    [
-      "occupation-Technician-miningmetallurgical",
-      "Technicianminingmetallurgical",
-      "Technician-mining/metallurgical"
-    ],
-    [
-      "occupation-Telephoneswitchboardoperator",
-      "Telephoneswitchboardoperator",
-      "Telephone switchboard operator"
-    ],
-    [
-      "occupation-Telephonetelegraphinstallersservicers",
-      "Telephonetelegraphinstallersservicers",
-      "Telephone/telegraph installers/servicers"
-    ],
-    [
-      "occupation-Tellercounterclerk",
-      "Tellercounterclerk",
-      "Teller/counter clerk"
-    ],
-    [
-      "occupation-TextileLeatherpatternmakercutter",
-      "TextileLeatherpatternmakercutter",
-      "Textile/Leather pattern maker/cutter"
-    ],
-    [
-      "occupation-TobacooPreparersproductmaker",
-      "TobacooPreparersproductmaker",
-      "Tobacoo Preparers/product maker"
-    ],
-    [
-      "occupation-Toolmaker",
-      "Toolmaker",
-      "Tool maker"
-    ],
-    [
-      "occupation-TownPlanner",
-      "TownPlanner",
-      "Town Planner"
-    ],
-    [
-      "occupation-Tradebroker",
-      "Tradebroker",
-      "Trade broker"
-    ],
-    [
-      "occupation-TraditionalMedicinePractitioner",
-      "TraditionalMedicinePractitioner",
-      "Traditional Medicine Practitioner"
-    ],
-    [
-      "occupation-TrainingOfficer",
-      "TrainingOfficer",
-      "Training Officer"
-    ],
-    [
-      "occupation-TranslatorInterpretorPhilologist",
-      "TranslatorInterpretorPhilologist",
-      "Translator/Interpretor/Philologist"
-    ],
-    [
-      "occupation-Transportconductor",
-      "Transportconductor",
-      "Transport conductor"
-    ],
-    [
-      "occupation-Travelconsultantorganiser",
-      "Travelconsultantorganiser",
-      "Travel consultant/organiser"
-    ],
-    [
-      "occupation-TravelGuide",
-      "TravelGuide",
-      "Travel Guide"
-    ],
-    [
-      "occupation-TypistStenographer",
-      "TypistStenographer",
-      "Typist/Stenographer"
-    ],
-    [
-      "occupation-UndertakerEmbalmer",
-      "UndertakerEmbalmer",
-      "Undertaker/Embalmer"
-    ],
-    [
-      "occupation-UnderwaterWorker",
-      "UnderwaterWorker",
-      "Underwater Worker"
-    ],
-    [
-      "occupation-Unemployed",
-      "Unemployed",
-      "Unemployed"
-    ],
-    [
-      "occupation-Upholsterer",
-      "Upholsterer",
-      "Upholsterer"
-    ],
-    [
-      "occupation-ValetCompanion",
-      "ValetCompanion",
-      "Valet/Companion"
-    ],
-    [
-      "occupation-Varnisher",
-      "Varnisher",
-      "Varnisher"
-    ],
-    [
-      "occupation-Veterinarian",
-      "Veterinarian",
-      "Veterinarian"
-    ],
-    [
-      "occupation-VeterinaryAssistant",
-      "VeterinaryAssistant",
-      "Veterinary Assistant"
-    ],
-    [
-      "occupation-WaiterWaitressBartender",
-      "WaiterWaitressBartender",
-      "Waiter/Waitress/Bartender"
-    ],
-    [
-      "occupation-WardAttendant",
-      "WardAttendant",
-      "Ward Attendant"
-    ],
-    [
-      "occupation-WatchpersonDoorkeeper",
-      "WatchpersonDoorkeeper",
-      "Watchperson/Doorkeeper"
-    ],
-    [
-      "occupation-WeatherOfficer",
-      "WeatherOfficer",
-      "Weather Officer"
-    ],
-    [
-      "occupation-Weaverknitter",
-      "Weaverknitter",
-      "Weaver/knitter"
-    ],
-    [
-      "occupation-WelderFlamecutter",
-      "WelderFlamecutter",
-      "Welder/Flamecutter"
-    ],
-    [
-      "occupation-WoodtreaterCabinet-Maker",
-      "WoodtreaterCabinet-Maker",
-      "Wood treater/Cabinet-Maker"
-    ],
-    [
-      "occupation-Wordprocessorandrelated",
-      "Wordprocessorandrelated",
-      "Word processor and related"
-    ]
+    {
+      "id": "occupation-Accountant",
+      "code": "Accountant",
+      "name": "Accountant"
+    },
+    {
+      "id": "occupation-ActorDirector-FilmStage",
+      "code": "ActorDirectorFilmStage",
+      "name": "Actor/Director-Film/Stage"
+    },
+    {
+      "id": "occupation-Administrationandrelated",
+      "code": "Administrationandrelated",
+      "name": "Administration and related"
+    },
+    {
+      "id": "occupation-Agronomistandrelated",
+      "code": "Agronomistandrelated",
+      "name": "Agronomist and related"
+    },
+    {
+      "id": "occupation-AirTrafficController",
+      "code": "AirTrafficController",
+      "name": "Air Traffic Controller"
+    },
+    {
+      "id": "occupation-AirTrafficSafetyTechnician",
+      "code": "AirTrafficSafetyTechnician",
+      "name": "Air Traffic Safety Technician"
+    },
+    {
+      "id": "occupation-AirTravelStewardStewardess",
+      "code": "AirTravelStewardStewardess",
+      "name": "Air/Travel Steward/Stewardess"
+    },
+    {
+      "id": "occupation-AircraftEngineer",
+      "code": "AircraftEngineer",
+      "name": "Aircraft Engineer"
+    },
+    {
+      "id": "occupation-Announcer-RadioTelevision",
+      "code": "Announcer-RadioTelevision",
+      "name": "Announcer-Radio/Television"
+    },
+    {
+      "id": "occupation-ApiaristSericulturist",
+      "code": "ApiaristSericulturist",
+      "name": "Apiarist/Sericulturist"
+    },
+    {
+      "id": "occupation-AppraiserValuerAuctioneer",
+      "code": "AppraiserValuerAuctioneer",
+      "name": "Appraiser/Valuer/Auctioneer"
+    },
+    {
+      "id": "occupation-Architect",
+      "code": "Architect",
+      "name": "Architect"
+    },
+    {
+      "id": "occupation-ArchivistCurator",
+      "code": "ArchivistCurator",
+      "name": "Archivist/Curator"
+    },
+    {
+      "id": "occupation-ArmyOfficer",
+      "code": "ArmyOfficer",
+      "name": "Army Officer"
+    },
+    {
+      "id": "occupation-Assembler",
+      "code": "Assembler",
+      "name": "Assembler"
+    },
+    {
+      "id": "occupation-AssistantManager",
+      "code": "AssistantManager",
+      "name": "Assistant Manager"
+    },
+    {
+      "id": "occupation-AssistantTownRanger",
+      "code": "AssistantTownRanger",
+      "name": "Assistant Town Ranger"
+    },
+    {
+      "id": "occupation-Astrologerandrelated",
+      "code": "Astrologerandrelated",
+      "name": "Astrologer and related"
+    },
+    {
+      "id": "occupation-AthleteSportsperson",
+      "code": "AthleteSportsperson",
+      "name": "Athlete/Sportsperson"
+    },
+    {
+      "id": "occupation-Auditor",
+      "code": "Auditor",
+      "name": "Auditor"
+    },
+    {
+      "id": "occupation-BakerPastry-cook",
+      "code": "BakerPastrycook",
+      "name": "Baker/Pastry-cook"
+    },
+    {
+      "id": "occupation-BankOfficer",
+      "code": "BankOfficer",
+      "name": "Bank Officer"
+    },
+    {
+      "id": "occupation-BeautyTherapist",
+      "code": "BeautyTherapist",
+      "name": "Beauty Therapist"
+    },
+    {
+      "id": "occupation-BiologistBotanistZoologist",
+      "code": "BiologistBotanistZoologist",
+      "name": "Biologist/Botanist/Zoologist"
+    },
+    {
+      "id": "occupation-BlacksmithHammersmith",
+      "code": "BlacksmithHammersmith",
+      "name": "Blacksmith/Hammersmith"
+    },
+    {
+      "id": "occupation-BlasterShotfirer",
+      "code": "BlasterShotfirer",
+      "name": "Blaster/Shotfirer"
+    },
+    {
+      "id": "occupation-BookmakerCroupier",
+      "code": "BookmakerCroupier",
+      "name": "Bookmaker/Croupier"
+    },
+    {
+      "id": "occupation-BricklayerStonemason",
+      "code": "BricklayerStonemason",
+      "name": "Bricklayer/Stonemason"
+    },
+    {
+      "id": "occupation-BroadcastingTelecomEquipmentOperator",
+      "code": "BroadcastingTelecomEquipmentOperator",
+      "name": "Broadcasting/Telecom Equipment Operator"
+    },
+    {
+      "id": "occupation-BrokerFinanceDealer",
+      "code": "BrokerFinanceDealer",
+      "name": "Broker/Finance Dealer"
+    },
+    {
+      "id": "occupation-Builder-TraditionalMaterials",
+      "code": "BuilderTraditionalMaterials",
+      "name": "Builder-Traditional Materials"
+    },
+    {
+      "id": "occupation-BuildingCaretaker",
+      "code": "BuildingCaretaker",
+      "name": "Building Caretaker"
+    },
+    {
+      "id": "occupation-BuildingFrameandTradeWorker",
+      "code": "BuildingFrameandTradeWorker",
+      "name": "Building Frame and Trade Worker"
+    },
+    {
+      "id": "occupation-BuildingStructureCleaner",
+      "code": "BuildingStructureCleaner",
+      "name": "Building Structure Cleaner"
+    },
+    {
+      "id": "occupation-BusinessProfessional",
+      "code": "BusinessProfessional",
+      "name": "Business Professional"
+    },
+    {
+      "id": "occupation-BusinessServiceAgentBroker",
+      "code": "BusinessServiceAgentBroker",
+      "name": "Business Service Agent/Broker"
+    },
+    {
+      "id": "occupation-ButcherFishmongerrelatedfoodpreparer",
+      "code": "ButcherFishmongerrelatedfoodpreparer",
+      "name": "Butcher/Fishmonger/related food preparer"
+    },
+    {
+      "id": "occupation-Buyer",
+      "code": "Buyer",
+      "name": "Buyer"
+    },
+    {
+      "id": "occupation-CalculatingMachineOperator",
+      "code": "CalculatingMachineOperator",
+      "name": "Calculating Machine Operator"
+    },
+    {
+      "id": "occupation-CarpenterJoiner",
+      "code": "CarpenterJoiner",
+      "name": "Carpenter/Joiner"
+    },
+    {
+      "id": "occupation-Cartographer",
+      "code": "Cartographer",
+      "name": "Cartographer"
+    },
+    {
+      "id": "occupation-CarverCutterStoneSplitter",
+      "code": "CarverCutterStoneSplitter",
+      "name": "Carver/Cutter/Stone Splitter"
+    },
+    {
+      "id": "occupation-CashierTicketClerk",
+      "code": "CashierTicketClerk",
+      "name": "Cashier/Ticket Clerk"
+    },
+    {
+      "id": "occupation-CasualWorker",
+      "code": "CasualWorker",
+      "name": "Casual Worker"
+    },
+    {
+      "id": "occupation-Chemist",
+      "code": "Chemist",
+      "name": "Chemist"
+    },
+    {
+      "id": "occupation-Chief-TraditionalVillageHead",
+      "code": "ChiefTraditionalVillageHead",
+      "name": "Chief-Traditional / Village Head"
+    },
+    {
+      "id": "occupation-ChildcareWorker",
+      "code": "ChildcareWorker",
+      "name": "Childcare Worker"
+    },
+    {
+      "id": "occupation-Cleaner-General",
+      "code": "CleanerGeneral",
+      "name": "Cleaner-General"
+    },
+    {
+      "id": "occupation-Cleaner-Windows",
+      "code": "CleanerWindows",
+      "name": "Cleaner-Windows"
+    },
+    {
+      "id": "occupation-ClearingandForwardingAgent",
+      "code": "ClearingandForwardingAgent",
+      "name": "Clearing and Forwarding Agent"
+    },
+    {
+      "id": "occupation-Clerk-WeighBridge",
+      "code": "ClerkWeighBridge",
+      "name": "Clerk - Weigh Bridge"
+    },
+    {
+      "id": "occupation-Clerk-AccountingBookkeeping",
+      "code": "ClerkAccountingBookkeeping",
+      "name": "Clerk-Accounting/Bookkeeping"
+    },
+    {
+      "id": "occupation-Clerk-otherofficetype",
+      "code": "Clerkotherofficetype",
+      "name": "Clerk-other office type"
+    },
+    {
+      "id": "occupation-Clerk-production",
+      "code": "Clerkproduction",
+      "name": "Clerk-production"
+    },
+    {
+      "id": "occupation-Clerk-SortingandMailCarrying",
+      "code": "ClerkSortingandMailCarrying",
+      "name": "Clerk-Sorting and Mail Carrying"
+    },
+    {
+      "id": "occupation-Clerk-StatisticalFinance",
+      "code": "ClerkStatisticalFinance",
+      "name": "Clerk-Statistical/Finance"
+    },
+    {
+      "id": "occupation-Clerk-Stock",
+      "code": "ClerkStock",
+      "name": "Clerk-Stock"
+    },
+    {
+      "id": "occupation-Clerk-Transport",
+      "code": "ClerkTransport",
+      "name": "Clerk-Transport"
+    },
+    {
+      "id": "occupation-Clerk-TravelAgencyandrelated",
+      "code": "ClerkTravelAgencyandrelated",
+      "name": "Clerk-Travel Agency and related"
+    },
+    {
+      "id": "occupation-ClownMusicianAcrobat",
+      "code": "ClownMusicianAcrobat",
+      "name": "Clown/Musician/Acrobat"
+    },
+    {
+      "id": "occupation-CodingProofReadingandrelated",
+      "code": "CodingProofReadingandrelated",
+      "name": "Coding/Proof Reading and related"
+    },
+    {
+      "id": "occupation-ComputerAssistant",
+      "code": "ComputerAssistant",
+      "name": "Computer Assistant"
+    },
+    {
+      "id": "occupation-ComputerEquipmentOperator",
+      "code": "ComputerEquipmentOperator",
+      "name": "Computer Equipment Operator"
+    },
+    {
+      "id": "occupation-ComputerProgrammer",
+      "code": "ComputerProgrammer",
+      "name": "Computer Programmer"
+    },
+    {
+      "id": "occupation-ComputerSystemsDesignerAnalyst",
+      "code": "ComputerSystemsDesignerAnalyst",
+      "name": "Computer Systems Designer/Analyst"
+    },
+    {
+      "id": "occupation-ComputingProfessional",
+      "code": "ComputingProfessional",
+      "name": "Computing Professional"
+    },
+    {
+      "id": "occupation-ConcretePlacersFinishersandrelated",
+      "code": "ConcretePlacersFinishersandrelated",
+      "name": "Concrete Placers, Finishers and related"
+    },
+    {
+      "id": "occupation-CookChef",
+      "code": "CookChef",
+      "name": "Cook/Chef"
+    },
+    {
+      "id": "occupation-CraneHoistOperatorandrelated",
+      "code": "CraneHoistOperatorandrelated",
+      "name": "Crane/Hoist Operator and related"
+    },
+    {
+      "id": "occupation-CustomOfficers",
+      "code": "CustomOfficers",
+      "name": "Custom Officers"
+    },
+    {
+      "id": "occupation-CustomerInspector",
+      "code": "CustomerInspector",
+      "name": "Customer Inspector"
+    },
+    {
+      "id": "occupation-CustomsTaxandrelated",
+      "code": "CustomsTaxandrelated",
+      "name": "Customs/Tax and related"
+    },
+    {
+      "id": "occupation-Dairy-productsmaker",
+      "code": "Dairyproductsmaker",
+      "name": "Dairy-products maker"
+    },
+    {
+      "id": "occupation-DancerChoreographer",
+      "code": "DancerChoreographer",
+      "name": "Dancer/Choreographer"
+    },
+    {
+      "id": "occupation-Dataentryoperator",
+      "code": "Dataentryoperator",
+      "name": "Data entry operator"
+    },
+    {
+      "id": "occupation-Debt-collectorandrelated",
+      "code": "Debtcollectorandrelated",
+      "name": "Debt-collector and related"
+    },
+    {
+      "id": "occupation-DentalAssistant",
+      "code": "DentalAssistant",
+      "name": "Dental Assistant"
+    },
+    {
+      "id": "occupation-Dentalhygienist",
+      "code": "Dentalhygienist",
+      "name": "Dental hygienist"
+    },
+    {
+      "id": "occupation-DentalTherapist",
+      "code": "DentalTherapist",
+      "name": "Dental Therapist"
+    },
+    {
+      "id": "occupation-Dentist",
+      "code": "Dentist",
+      "name": "Dentist"
+    },
+    {
+      "id": "occupation-DesignerDecorator-commercial",
+      "code": "DesignerDecorator-commercial",
+      "name": "Designer/Decorator-commercial"
+    },
+    {
+      "id": "occupation-DietitianNutritionist",
+      "code": "DietitianNutritionist",
+      "name": "Dietitian/Nutritionist"
+    },
+    {
+      "id": "occupation-Director-Chiefexecutive",
+      "code": "DirectorChiefexecutive",
+      "name": "Director-Chief executive"
+    },
+    {
+      "id": "occupation-Diver-Free",
+      "code": "DiverFree",
+      "name": "Diver-Free"
+    },
+    {
+      "id": "occupation-Diver-ScubaAirApparatus",
+      "code": "DiverScubaAirApparatus",
+      "name": "Diver-Scuba/Air Apparatus"
+    },
+    {
+      "id": "occupation-Doctor-Medical",
+      "code": "DoctorMedical",
+      "name": "Doctor-Medical"
+    },
+    {
+      "id": "occupation-DomesticDuties",
+      "code": "DomesticDuties",
+      "name": "Domestic Duties"
+    },
+    {
+      "id": "occupation-DomesticHelper",
+      "code": "DomesticHelper",
+      "name": "Domestic Helper"
+    },
+    {
+      "id": "occupation-Draughtsperson",
+      "code": "Draughtsperson",
+      "name": "Draughtsperson"
+    },
+    {
+      "id": "occupation-Driver-animal-drawnvehiclemachinery",
+      "code": "Driveranimaldrawnvehiclemachinery",
+      "name": "Driver-animal-drawn vehicle/machinery"
+    },
+    {
+      "id": "occupation-Driver-bustram",
+      "code": "Driverbustram",
+      "name": "Driver-bus/tram"
+    },
+    {
+      "id": "occupation-Driver-handpedalvehicle",
+      "code": "Driverhandpedalvehicle",
+      "name": "Driver-hand/pedal vehicle"
+    },
+    {
+      "id": "occupation-Driver-motorcycle",
+      "code": "Drivermotorcycle",
+      "name": "Driver-motor cycle"
+    },
+    {
+      "id": "occupation-Driver-taxicarvan",
+      "code": "Drivertaxicarvan",
+      "name": "Driver-taxi/car/van"
+    },
+    {
+      "id": "occupation-Driver-truckandotherheavyvehicle",
+      "code": "Drivertruckandotherheavyvehicle",
+      "name": "Driver-truck and other heavy vehicle"
+    },
+    {
+      "id": "occupation-DrivingExaminer",
+      "code": "DrivingExaminer",
+      "name": "Driving Examiner"
+    },
+    {
+      "id": "occupation-Economist",
+      "code": "Economist",
+      "name": "Economist"
+    },
+    {
+      "id": "occupation-EducationMethodsSpecialist",
+      "code": "EducationMethodsSpecialist",
+      "name": "Education Methods Specialist"
+    },
+    {
+      "id": "occupation-ElectricalLineInstallerRepairer",
+      "code": "ElectricalLineInstallerRepairer",
+      "name": "Electrical Line Installer/Repairer"
+    },
+    {
+      "id": "occupation-Electrician-Building",
+      "code": "ElectricianBuilding",
+      "name": "Electrician-Building"
+    },
+    {
+      "id": "occupation-Electrician-Mechanical",
+      "code": "ElectricianMechanical",
+      "name": "Electrician-Mechanical"
+    },
+    {
+      "id": "occupation-ElectronicFitter",
+      "code": "ElectronicFitter",
+      "name": "Electronic Fitter"
+    },
+    {
+      "id": "occupation-ElectronicsMechanicServicer",
+      "code": "ElectronicsMechanicServicer",
+      "name": "Electronics Mechanic/Servicer"
+    },
+    {
+      "id": "occupation-EmploymentAgentLabourContractor",
+      "code": "EmploymentAgentLabourContractor",
+      "name": "Employment Agent/Labour Contractor"
+    },
+    {
+      "id": "occupation-Engineer-Chemical",
+      "code": "EngineerChemical",
+      "name": "Engineer-Chemical"
+    },
+    {
+      "id": "occupation-Engineer-Civil",
+      "code": "EngineerCivil",
+      "name": "Engineer-Civil"
+    },
+    {
+      "id": "occupation-Engineer-Electrical",
+      "code": "EngineerElectrical",
+      "name": "Engineer-Electrical"
+    },
+    {
+      "id": "occupation-Engineer-Mechanical",
+      "code": "EngineerMechanical",
+      "name": "Engineer-Mechanical"
+    },
+    {
+      "id": "occupation-Engineer-Mining",
+      "code": "EngineerMining",
+      "name": "Engineer-Mining"
+    },
+    {
+      "id": "occupation-Engineer-Ship",
+      "code": "EngineerShip",
+      "name": "Engineer-Ship"
+    },
+    {
+      "id": "occupation-Engineer-Telecommunicationselectronics",
+      "code": "EngineerTelecommunicationselectronics",
+      "name": "Engineer-Telecommunications/electronics"
+    },
+    {
+      "id": "occupation-EstateAgent",
+      "code": "EstateAgent",
+      "name": "Estate Agent"
+    },
+    {
+      "id": "occupation-FaithHealer",
+      "code": "FaithHealer",
+      "name": "Faith Healer"
+    },
+    {
+      "id": "occupation-FarmHandLabourer",
+      "code": "FarmHandLabourer",
+      "name": "Farm Hand/Labourer"
+    },
+    {
+      "id": "occupation-Farmer-Cane",
+      "code": "FarmerCane",
+      "name": "Farmer-Cane"
+    },
+    {
+      "id": "occupation-Farmer-Commercialgrowing",
+      "code": "FarmerCommercialgrowing",
+      "name": "Farmer-Commercial growing"
+    },
+    {
+      "id": "occupation-Farmer-Copra",
+      "code": "FarmerCopra",
+      "name": "Farmer-Copra"
+    },
+    {
+      "id": "occupation-Farmer-LivestockDairyProducer",
+      "code": "FarmerLivestockDairyProducer",
+      "name": "Farmer-Livestock/Dairy Producer"
+    },
+    {
+      "id": "occupation-Farmer-Rice",
+      "code": "FarmerRice",
+      "name": "Farmer-Rice"
+    },
+    {
+      "id": "occupation-Farmer-Subsistence",
+      "code": "FarmerSubsistence",
+      "name": "Farmer-Subsistence"
+    },
+    {
+      "id": "occupation-FarmerGrower-fieldcropandvegetables",
+      "code": "FarmerGrowerfieldcropandvegetables",
+      "name": "Farmer/Grower-field crop and vegetables"
+    },
+    {
+      "id": "occupation-FarmerGrower-mixedcrop",
+      "code": "FarmerGrowermixedcrop",
+      "name": "Farmer/Grower-mixed crop"
+    },
+    {
+      "id": "occupation-FarmerGrower-treesandshrubs",
+      "code": "FarmerGrowertreesandshrubs",
+      "name": "Farmer/Grower-trees and shrubs"
+    },
+    {
+      "id": "occupation-Farmingandforestryadvisor",
+      "code": "Farmingandforestryadvisor",
+      "name": "Farming and forestry advisor"
+    },
+    {
+      "id": "occupation-Fibrepreparer",
+      "code": "Fibrepreparer",
+      "name": "Fibre preparer"
+    },
+    {
+      "id": "occupation-FieldOfficer",
+      "code": "FieldOfficer",
+      "name": "Field Officer"
+    },
+    {
+      "id": "occupation-FinanceSalesassociatedprofessional",
+      "code": "FinanceSalesassociatedprofessional",
+      "name": "Finance/Sales associated professional"
+    },
+    {
+      "id": "occupation-FireFighter",
+      "code": "FireFighter",
+      "name": "Fire Fighter"
+    },
+    {
+      "id": "occupation-Fisherman",
+      "code": "Fisherman",
+      "name": "Fisherman"
+    },
+    {
+      "id": "occupation-Fisherman-Subsistence",
+      "code": "FishermanSubsistence",
+      "name": "Fisherman-Subsistence"
+    },
+    {
+      "id": "occupation-FisheryWorkerHunterTrapper",
+      "code": "FisheryWorkerHunterTrapper",
+      "name": "Fishery Worker/Hunter/Trapper"
+    },
+    {
+      "id": "occupation-FishingHuntingTrappingLabourer",
+      "code": "FishingHuntingTrappingLabourer",
+      "name": "Fishing/Hunting/Trapping Labourer"
+    },
+    {
+      "id": "occupation-FlightAttendant",
+      "code": "FlightAttendant",
+      "name": "Flight Attendant"
+    },
+    {
+      "id": "occupation-FloorLayerandTileSetter",
+      "code": "FloorLayerandTileSetter",
+      "name": "Floor Layer and Tile Setter"
+    },
+    {
+      "id": "occupation-ForestryLabourer",
+      "code": "ForestryLabourer",
+      "name": "Forestry Labourer"
+    },
+    {
+      "id": "occupation-ForestryWorkerandrelated",
+      "code": "ForestryWorkerandrelated",
+      "name": "Forestry Worker and related"
+    },
+    {
+      "id": "occupation-FortuneTellerPalmistandrelated",
+      "code": "FortuneTellerPalmistandrelated",
+      "name": "Fortune Teller/Palmist and related"
+    },
+    {
+      "id": "occupation-FreightHandler",
+      "code": "FreightHandler",
+      "name": "Freight Handler"
+    },
+    {
+      "id": "occupation-Furrier",
+      "code": "Furrier",
+      "name": "Furrier"
+    },
+    {
+      "id": "occupation-GardenersHorticulturalNurseryGrower",
+      "code": "GardenersHorticulturalNurseryGrower",
+      "name": "Gardeners/Horticultural/Nursery Grower"
+    },
+    {
+      "id": "occupation-GarmentWorker",
+      "code": "GarmentWorker",
+      "name": "Garment Worker"
+    },
+    {
+      "id": "occupation-GeologistGeophysicist",
+      "code": "GeologistGeophysicist",
+      "name": "Geologist/Geophysicist"
+    },
+    {
+      "id": "occupation-Glazier",
+      "code": "Glazier",
+      "name": "Glazier"
+    },
+    {
+      "id": "occupation-GraphicDesigner",
+      "code": "GraphicDesigner",
+      "name": "Graphic Designer"
+    },
+    {
+      "id": "occupation-HairdresserBarberBeautician",
+      "code": "HairdresserBarberBeautician",
+      "name": "Hairdresser/Barber/Beautician"
+    },
+    {
+      "id": "occupation-HandicraftWorker-TextileLeather",
+      "code": "HandicraftWorker-TextileLeather",
+      "name": "Handicraft Worker-Textile/Leather"
+    },
+    {
+      "id": "occupation-HandicraftWorker-Woodrelatedmaterial",
+      "code": "HandicraftWorker-Woodrelatedmaterial",
+      "name": "Handicraft Worker-Wood/related material"
+    },
+    {
+      "id": "occupation-HealthProfessional",
+      "code": "HealthProfessional",
+      "name": "Health Professional"
+    },
+    {
+      "id": "occupation-HistorianPhilosopher",
+      "code": "HistorianPhilosopher",
+      "name": "Historian/Philosopher"
+    },
+    {
+      "id": "occupation-Home-basedPersonalCareWorker",
+      "code": "HomebasedPersonalCareWorker",
+      "name": "Home-based Personal Care Worker"
+    },
+    {
+      "id": "occupation-HotelWorker",
+      "code": "HotelWorker",
+      "name": "Hotel Worker"
+    },
+    {
+      "id": "occupation-Housekeeperandrelated",
+      "code": "Housekeeperandrelated",
+      "name": "Housekeeper and related"
+    },
+    {
+      "id": "occupation-Housewife",
+      "code": "Housewife",
+      "name": "Housewife"
+    },
+    {
+      "id": "occupation-HROfficer",
+      "code": "HROfficer",
+      "name": "HR Officer"
+    },
+    {
+      "id": "occupation-IndustrialRobotController",
+      "code": "IndustrialRobotController",
+      "name": "Industrial Robot Controller"
+    },
+    {
+      "id": "occupation-Inspector-BuildingFire",
+      "code": "InspectorBuildingFire",
+      "name": "Inspector-Building/Fire"
+    },
+    {
+      "id": "occupation-Inspector-HealthSafetyQuality",
+      "code": "InspectorHealthSafetyQuality",
+      "name": "Inspector-Health/Safety/Quality"
+    },
+    {
+      "id": "occupation-InstitutionBasedPersonalCareWorker",
+      "code": "InstitutionBasedPersonalCareWorker",
+      "name": "Institution Based Personal Care Worker"
+    },
+    {
+      "id": "occupation-InsulationWorker",
+      "code": "InsulationWorker",
+      "name": "Insulation Worker"
+    },
+    {
+      "id": "occupation-InsuranceRepresentative",
+      "code": "InsuranceRepresentative",
+      "name": "Insurance Representative"
+    },
+    {
+      "id": "occupation-ITTechnician",
+      "code": "ITTechnician",
+      "name": "IT Technician"
+    },
+    {
+      "id": "occupation-JournalistAuthorWriter",
+      "code": "JournalistAuthorWriter",
+      "name": "Journalist/Author/Writer"
+    },
+    {
+      "id": "occupation-JudgeMagistrate",
+      "code": "JudgeMagistrate",
+      "name": "Judge/ Magistrate"
+    },
+    {
+      "id": "occupation-LaborOfficer",
+      "code": "LaborOfficer",
+      "name": "Labor Officer"
+    },
+    {
+      "id": "occupation-LaboratoryTechnician",
+      "code": "LaboratoryTechnician",
+      "name": "Laboratory Technician"
+    },
+    {
+      "id": "occupation-Labourer-Assembling",
+      "code": "LabourerAssembling",
+      "name": "Labourer-Assembling"
+    },
+    {
+      "id": "occupation-Labourer-ConstructionMaintenance",
+      "code": "LabourerConstructionMaintenance",
+      "name": "Labourer-Construction/Maintenance"
+    },
+    {
+      "id": "occupation-Labourer-QuarryMining",
+      "code": "LabourerQuarryMining",
+      "name": "Labourer-Quarry/Mining"
+    },
+    {
+      "id": "occupation-LaundererPresser",
+      "code": "LaundererPresser",
+      "name": "Launderer/Presser"
+    },
+    {
+      "id": "occupation-LawyerSolicitor",
+      "code": "LawyerSolicitor",
+      "name": "Lawyer/Solicitor"
+    },
+    {
+      "id": "occupation-Lecturer-UniversityHigherEducation",
+      "code": "LecturerUniversityHigherEducation",
+      "name": "Lecturer-University/Higher Education"
+    },
+    {
+      "id": "occupation-LegalProfessional",
+      "code": "LegalProfessional",
+      "name": "Legal Professional"
+    },
+    {
+      "id": "occupation-Legalrelatedbusinessprofessional",
+      "code": "Legalrelatedbusinessprofessional",
+      "name": "Legal/related business professional"
+    },
+    {
+      "id": "occupation-Legislator",
+      "code": "Legislator",
+      "name": "Legislator"
+    },
+    {
+      "id": "occupation-LibrarianrelatedInfoProfessional",
+      "code": "LibrarianrelatedInfo.Professional",
+      "name": "Librarian/related Info. Professional"
+    },
+    {
+      "id": "occupation-LibraryFilingClerk",
+      "code": "LibraryFilingClerk",
+      "name": "Library/Filing Clerk"
+    },
+    {
+      "id": "occupation-LifeScienceTechnician",
+      "code": "LifeScienceTechnician",
+      "name": "Life Science Technician"
+    },
+    {
+      "id": "occupation-LiveStockOfficer",
+      "code": "LiveStockOfficer",
+      "name": "Live Stock Officer"
+    },
+    {
+      "id": "occupation-LTAEnforcementOfficer",
+      "code": "LTAEnforcementOfficer",
+      "name": "LTA Enforcement Officer"
+    },
+    {
+      "id": "occupation-MachineOperatorsandAssemblersnec",
+      "code": "MachineOperatorsandAssemblersnec",
+      "name": "Machine Operators and Assemblers nec"
+    },
+    {
+      "id": "occupation-Machinetoolsetter",
+      "code": "Machinetoolsetter",
+      "name": "Machine tool setter"
+    },
+    {
+      "id": "occupation-Manager-General",
+      "code": "ManagerGeneral",
+      "name": "Manager-General"
+    },
+    {
+      "id": "occupation-Manager-OtherDepartment",
+      "code": "ManagerOtherDepartment",
+      "name": "Manager-Other Department"
+    },
+    {
+      "id": "occupation-Manager-ProdOperationsDepts",
+      "code": "ManagerProdOperationsDepts",
+      "name": "Manager-Prod. & Operations Dept's"
+    },
+    {
+      "id": "occupation-Mathematicianandrelated",
+      "code": "Mathematicianandrelated",
+      "name": "Mathematician and related"
+    },
+    {
+      "id": "occupation-Mechanic-agriculturalindustrialmachine",
+      "code": "Mechanicagriculturalindustrialmachine",
+      "name": "Mechanic-agricultural/industrial machine"
+    },
+    {
+      "id": "occupation-Mechanic-aircraftengine",
+      "code": "Mechanicaircraftengine",
+      "name": "Mechanic-aircraft engine"
+    },
+    {
+      "id": "occupation-Mechanic-motorvehicle",
+      "code": "Mechanicmotorvehicle",
+      "name": "Mechanic-motor vehicle"
+    },
+    {
+      "id": "occupation-Medicalassistant",
+      "code": "Medicalassistant",
+      "name": "Medical assistant"
+    },
+    {
+      "id": "occupation-Medicalequipmentoperator",
+      "code": "Medicalequipmentoperator",
+      "name": "Medical equipment operator"
+    },
+    {
+      "id": "occupation-Merchandiser",
+      "code": "Merchandiser",
+      "name": "Merchandiser"
+    },
+    {
+      "id": "occupation-Metalmouldercoremaker",
+      "code": "Metalmouldercoremaker",
+      "name": "Metal moulder/coremaker"
+    },
+    {
+      "id": "occupation-Metalwheel-grinderspolishersetc",
+      "code": "Metalwheelgrinderspolishersetc",
+      "name": "Metal wheel-grinders, polishers etc"
+    },
+    {
+      "id": "occupation-Meteorologist",
+      "code": "Meteorologist",
+      "name": "Meteorologist"
+    },
+    {
+      "id": "occupation-Meter-reader",
+      "code": "Meterreader",
+      "name": "Meter-reader"
+    },
+    {
+      "id": "occupation-Midwife-associate",
+      "code": "Midwifeassociate",
+      "name": "Midwife-associate"
+    },
+    {
+      "id": "occupation-Model-Fashionandotherwise",
+      "code": "ModelFashionandotherwise",
+      "name": "Model-Fashion and otherwise"
+    },
+    {
+      "id": "occupation-Modernhealthassocprofessional",
+      "code": "Modernhealthassoc.professional",
+      "name": "Modern health assoc. professional"
+    },
+    {
+      "id": "occupation-MonitoringOfficer",
+      "code": "MonitoringOfficer",
+      "name": "Monitoring Officer"
+    },
+    {
+      "id": "occupation-MusicianSingerComposer",
+      "code": "MusicianSingerComposer",
+      "name": "Musician/Singer/Composer"
+    },
+    {
+      "id": "occupation-Nightclubsingermusiciandancer",
+      "code": "Nightclubsingermusiciandancer",
+      "name": "Nightclub singer/musician/dancer"
+    },
+    {
+      "id": "occupation-NotApplicable",
+      "code": "NotApplicable",
+      "name": "Not Applicable"
+    },
+    {
+      "id": "occupation-Nun",
+      "code": "Nun",
+      "name": "Nun"
+    },
+    {
+      "id": "occupation-NurseMidwifeprofessionals",
+      "code": "NurseMidwifeprofessionals",
+      "name": "Nurse / Midwife professionals"
+    },
+    {
+      "id": "occupation-Nursing-enrolledassociate",
+      "code": "Nursingenrolledassociate",
+      "name": "Nursing-enrolled/associate"
+    },
+    {
+      "id": "occupation-Official-seniorgovernment",
+      "code": "Officialseniorgovernment",
+      "name": "Official-senior government"
+    },
+    {
+      "id": "occupation-Official-SeniorofeconInterestorg",
+      "code": "OfficialSeniorofeco.Interestorg",
+      "name": "Official-Senior of econ. Interest org."
+    },
+    {
+      "id": "occupation-Official-Seniorofpoliticalparty",
+      "code": "OfficialSeniorofpoliticalparty",
+      "name": "Official-Senior of political party"
+    },
+    {
+      "id": "occupation-Official-Seniorofspecialintorg",
+      "code": "OfficialSeniorofspecialint.org.",
+      "name": "Official-Senior of special int. org."
+    },
+    {
+      "id": "occupation-Operator-AutomatedAssemblyline",
+      "code": "OperatorAutomatedAssemblyline",
+      "name": "Operator-Automated Assembly line"
+    },
+    {
+      "id": "occupation-Operator-bookbindingmachine",
+      "code": "Operatorbookbindingmachine",
+      "name": "Operator-bookbinding machine"
+    },
+    {
+      "id": "occupation-Operator-CementMineralproductsmachine",
+      "code": "OperatorCementMineralproductsmachine",
+      "name": "Operator-Cement/Mineral products machine"
+    },
+    {
+      "id": "occupation-Operator-ChemicalProcessingPlant",
+      "code": "OperatorChemicalProcessingPlant",
+      "name": "Operator-Chemical Processing Plant"
+    },
+    {
+      "id": "occupation-Operator-ChemicalProductsmachine",
+      "code": "OperatorChemicalProductsmachine",
+      "name": "Operator-Chemical Products machine"
+    },
+    {
+      "id": "occupation-Operator-Earth-movingplant",
+      "code": "OperatorEarthmovingplant",
+      "name": "Operator-Earth-moving plant"
+    },
+    {
+      "id": "occupation-Operator-foodandrelatedproducts",
+      "code": "Operatorfoodandrelatedproducts",
+      "name": "Operator-food and related products"
+    },
+    {
+      "id": "occupation-Operator-Glassceramicsrelatedplant",
+      "code": "OperatorGlassceramicsrelatedplant",
+      "name": "Operator-Glass/ceramics/related plant"
+    },
+    {
+      "id": "occupation-Operator-Lifting-truck",
+      "code": "OperatorLiftingtruck",
+      "name": "Operator-Lifting-truck"
+    },
+    {
+      "id": "occupation-Operator-Machine-tool",
+      "code": "OperatorMachinetool",
+      "name": "Operator-Machine-tool"
+    },
+    {
+      "id": "occupation-Operator-Metal-processingplant",
+      "code": "OperatorMetalprocessingplant",
+      "name": "Operator-Metal-processing plant"
+    },
+    {
+      "id": "occupation-Operator-Miningmineralprocessingplant",
+      "code": "OperatorMiningmineralprocessingplant",
+      "name": "Operator-Mining/mineral processing plant"
+    },
+    {
+      "id": "occupation-Operator-Motorisedfarmforestryplant",
+      "code": "OperatorMotorisedfarmforestryplant",
+      "name": "Operator-Motorised farm/forestry plant"
+    },
+    {
+      "id": "occupation-Operator-paperproductsmachine",
+      "code": "Operatorpaperproductsmachine",
+      "name": "Operator-paper products machine"
+    },
+    {
+      "id": "occupation-Operator-Powerproductionrelated",
+      "code": "OperatorPowerproductionrelated",
+      "name": "Operator-Power production/related"
+    },
+    {
+      "id": "occupation-Operator-printingmachine",
+      "code": "Operatorprintingmachine",
+      "name": "Operator-printing machine"
+    },
+    {
+      "id": "occupation-Operator-rubberplasticproductmachine",
+      "code": "Operatorrubberplasticproductmachine",
+      "name": "Operator-rubber/plastic product machine"
+    },
+    {
+      "id": "occupation-Operator-textilefurleatherproducts",
+      "code": "Operatortextilefurleatherproducts",
+      "name": "Operator-textile/fur/leather products"
+    },
+    {
+      "id": "occupation-Operator-WoodprocessingPapermaking",
+      "code": "OperatorWoodprocessingPapermaking",
+      "name": "Operator-Wood processing/Papermaking"
+    },
+    {
+      "id": "occupation-Operator-woodproductsmachine",
+      "code": "Operatorwoodproductsmachine",
+      "name": "Operator-wood products machine"
+    },
+    {
+      "id": "occupation-OpticalElectronicequipoperator",
+      "code": "OpticalElectronicequipoperator",
+      "name": "Optical/Electronic equip. operator"
+    },
+    {
+      "id": "occupation-OptometristOptician",
+      "code": "OptometristOptician",
+      "name": "Optometrist/Optician"
+    },
+    {
+      "id": "occupation-OtherPersonalserviceworkersnec",
+      "code": "OtherPersonalserviceworkersnec",
+      "name": "Other Personal service workers nec"
+    },
+    {
+      "id": "occupation-OtherphysicalMathEngprofessional",
+      "code": "OtherphysicalMathEngprofessional",
+      "name": "Other physical, Math. & Eng professional"
+    },
+    {
+      "id": "occupation-Otherreligiousprofessionals",
+      "code": "Otherreligiousprofessionals",
+      "name": "Other religious professionals"
+    },
+    {
+      "id": "occupation-Painters-building",
+      "code": "Paintersbuilding",
+      "name": "Painters-building"
+    },
+    {
+      "id": "occupation-PanelBeater",
+      "code": "PanelBeater",
+      "name": "Panel Beater"
+    },
+    {
+      "id": "occupation-Parlimentarian",
+      "code": "Parlimentarian",
+      "name": "Parlimentarian"
+    },
+    {
+      "id": "occupation-Pastor",
+      "code": "Pastor",
+      "name": "Pastor"
+    },
+    {
+      "id": "occupation-Pathologistrelatedprofessional",
+      "code": "Pathologistrelatedprofessional",
+      "name": "Pathologist / related professional"
+    },
+    {
+      "id": "occupation-PawnbrokerMoneylender",
+      "code": "PawnbrokerMoneylender",
+      "name": "Pawnbroker/Money lender"
+    },
+    {
+      "id": "occupation-Peltdressertannerfellmonger",
+      "code": "Peltdressertannerfellmonger",
+      "name": "Pelt dresser/tanner/fellmonger"
+    },
+    {
+      "id": "occupation-Personalcareworkernec",
+      "code": "Personalcareworkernec",
+      "name": "Personal care worker nec"
+    },
+    {
+      "id": "occupation-PersonalCareerprofessionals",
+      "code": "PersonalCareerprofessionals",
+      "name": "Personal/Career professionals"
+    },
+    {
+      "id": "occupation-Pharmaceuticalassistant",
+      "code": "Pharmaceuticalassistant",
+      "name": "Pharmaceutical assistant"
+    },
+    {
+      "id": "occupation-Pharmacist",
+      "code": "Pharmacist",
+      "name": "Pharmacist"
+    },
+    {
+      "id": "occupation-Pharmacologist",
+      "code": "Pharmacologist",
+      "name": "Pharmacologist"
+    },
+    {
+      "id": "occupation-PharmacyTechnician",
+      "code": "PharmacyTechnician",
+      "name": "Pharmacy Technician"
+    },
+    {
+      "id": "occupation-PhotographerImage-Soundrecorder",
+      "code": "PhotographerImage-Soundrecorder",
+      "name": "Photographer/Image-Sound recorder"
+    },
+    {
+      "id": "occupation-PhysicalengSciencetechniciannec",
+      "code": "PhysicalengSciencetechniciannec",
+      "name": "Physical & eng. Science technician nec"
+    },
+    {
+      "id": "occupation-PhysicalEducationWorker",
+      "code": "PhysicalEducationWorker",
+      "name": "Physical Education Worker"
+    },
+    {
+      "id": "occupation-PhysicistAstronomer",
+      "code": "PhysicistAstronomer",
+      "name": "Physicist / Astronomer"
+    },
+    {
+      "id": "occupation-Physiotherapist",
+      "code": "Physiotherapist",
+      "name": "Physiotherapist"
+    },
+    {
+      "id": "occupation-Pilot-Aircraftandrelatedprofessionals",
+      "code": "Pilot-Aircraftandrelatedprofessionals",
+      "name": "Pilot-Aircraft and related professionals"
+    },
+    {
+      "id": "occupation-Plasterer",
+      "code": "Plasterer",
+      "name": "Plasterer"
+    },
+    {
+      "id": "occupation-Plumberpipefitter",
+      "code": "Plumberpipefitter",
+      "name": "Plumber/pipe fitter"
+    },
+    {
+      "id": "occupation-PoliceInspectorsDetectives",
+      "code": "PoliceInspectorsDetectives",
+      "name": "Police Inspectors/Detectives"
+    },
+    {
+      "id": "occupation-Policeofficer",
+      "code": "Policeofficer",
+      "name": "Police officer"
+    },
+    {
+      "id": "occupation-PorterMessengerLuggagedeliverer",
+      "code": "PorterMessengerLuggagedeliverer",
+      "name": "Porter/Messenger/Luggage deliverer"
+    },
+    {
+      "id": "occupation-PotterGlassmakerRelatedTrades",
+      "code": "PotterGlassmakerRelatedTrades",
+      "name": "Potter/Glassmaker/Related Trades"
+    },
+    {
+      "id": "occupation-Poultryproducer",
+      "code": "Poultryproducer",
+      "name": "Poultry producer"
+    },
+    {
+      "id": "occupation-Precisionworkersmetalrelatedtrades",
+      "code": "Precisionworkersmetalrelatedtrades",
+      "name": "Precision workers/metal & related trades"
+    },
+    {
+      "id": "occupation-Preserver-fruitsandvegetables",
+      "code": "Preserverfruitsandvegetables",
+      "name": "Preserver-fruits and vegetables"
+    },
+    {
+      "id": "occupation-Priest",
+      "code": "Priest",
+      "name": "Priest"
+    },
+    {
+      "id": "occupation-Printingandrelatedtradesworkers",
+      "code": "Printingandrelatedtradesworkers",
+      "name": "Printing and related trades workers"
+    },
+    {
+      "id": "occupation-Prisonguard",
+      "code": "Prisonguard",
+      "name": "Prison guard"
+    },
+    {
+      "id": "occupation-Producer-cropanimalnec",
+      "code": "Producer-cropanimalnec",
+      "name": "Producer-crop/animal nec"
+    },
+    {
+      "id": "occupation-Producer-cropanimal-marketoriented",
+      "code": "Producercropanimalmarketoriented",
+      "name": "Producer-crop/animal-market oriented"
+    },
+    {
+      "id": "occupation-Producer-mixedanimal",
+      "code": "Producermixedanimal",
+      "name": "Producer-mixed animal"
+    },
+    {
+      "id": "occupation-ProjectOfficer",
+      "code": "ProjectOfficer",
+      "name": "Project Officer"
+    },
+    {
+      "id": "occupation-Protectiveserviceworkernec",
+      "code": "Protectiveserviceworkernec",
+      "name": "Protective service worker nec"
+    },
+    {
+      "id": "occupation-Psychologist",
+      "code": "Psychologist",
+      "name": "Psychologist"
+    },
+    {
+      "id": "occupation-QualityController",
+      "code": "QualityController",
+      "name": "Quality Controller"
+    },
+    {
+      "id": "occupation-QuarryMineworkers",
+      "code": "QuarryMineworkers",
+      "name": "Quarry/Mine workers"
+    },
+    {
+      "id": "occupation-Radiographer",
+      "code": "Radiographer",
+      "name": "Radiographer"
+    },
+    {
+      "id": "occupation-Receptionist",
+      "code": "Receptionist",
+      "name": "Receptionist"
+    },
+    {
+      "id": "occupation-Religiousassociateprofessional",
+      "code": "Religiousassociateprofessional",
+      "name": "Religious associate professional"
+    },
+    {
+      "id": "occupation-Reverend",
+      "code": "Reverend",
+      "name": "Reverend"
+    },
+    {
+      "id": "occupation-RiggerCablesplicer",
+      "code": "RiggerCablesplicer",
+      "name": "Rigger / Cable splicer"
+    },
+    {
+      "id": "occupation-Roofers",
+      "code": "Roofers",
+      "name": "Roofers"
+    },
+    {
+      "id": "occupation-Rubbishcollector",
+      "code": "Rubbishcollector",
+      "name": "Rubbish collector"
+    },
+    {
+      "id": "occupation-RugbyPlayer",
+      "code": "RugbyPlayer",
+      "name": "Rugby Player"
+    },
+    {
+      "id": "occupation-Salesrepresentative",
+      "code": "Salesrepresentative",
+      "name": "Sales representative"
+    },
+    {
+      "id": "occupation-Salespersons-doortodoorandtelephone",
+      "code": "Salespersonsdoortodoorandtelephone",
+      "name": "Salespersons-door to door and telephone"
+    },
+    {
+      "id": "occupation-Salespersons-marketandstall",
+      "code": "Salespersonsmarketandstall",
+      "name": "Salespersons-market and stall"
+    },
+    {
+      "id": "occupation-SalespersonsDemonstrators-shop",
+      "code": "SalespersonsDemonstrators-shop",
+      "name": "Salespersons/Demonstrators-shop"
+    },
+    {
+      "id": "occupation-Sanitarian",
+      "code": "Sanitarian",
+      "name": "Sanitarian"
+    },
+    {
+      "id": "occupation-SchoolInspector",
+      "code": "SchoolInspector",
+      "name": "School Inspector"
+    },
+    {
+      "id": "occupation-Scribesandrelatedworkers",
+      "code": "Scribesandrelatedworkers",
+      "name": "Scribes and related workers"
+    },
+    {
+      "id": "occupation-SculptorPainterRelatedArtist",
+      "code": "SculptorPainterRelatedArtist",
+      "name": "Sculptor/Painter/Related Artist"
+    },
+    {
+      "id": "occupation-Secretary",
+      "code": "Secretary",
+      "name": "Secretary"
+    },
+    {
+      "id": "occupation-Secretary-administrativerelated",
+      "code": "Secretaryadministrativerelated",
+      "name": "Secretary-administrative & related"
+    },
+    {
+      "id": "occupation-SecurityOfficer",
+      "code": "SecurityOfficer",
+      "name": "Security Officer"
+    },
+    {
+      "id": "occupation-SelfEmployed",
+      "code": "SelfEmployed",
+      "name": "Self Employed"
+    },
+    {
+      "id": "occupation-SewerEmbroiderer",
+      "code": "SewerEmbroiderer",
+      "name": "Sewer/Embroiderer"
+    },
+    {
+      "id": "occupation-Sheetmetalworker",
+      "code": "Sheetmetalworker",
+      "name": "Sheetmetal worker"
+    },
+    {
+      "id": "occupation-ShipCaptain",
+      "code": "ShipCaptain",
+      "name": "Ship Captain"
+    },
+    {
+      "id": "occupation-ShipCrew",
+      "code": "ShipCrew",
+      "name": "Ship Crew"
+    },
+    {
+      "id": "occupation-Shipdeckofficerpilot",
+      "code": "Shipdeckofficerpilot",
+      "name": "Ship deck officer/pilot"
+    },
+    {
+      "id": "occupation-Shipsdeckcrewandrelatedworker",
+      "code": "Shipsdeckcrewandrelatedworker",
+      "name": "Ships deck crew and related worker"
+    },
+    {
+      "id": "occupation-Shoecleaningandotherstreetservice",
+      "code": "Shoecleaningandotherstreetservice",
+      "name": "Shoe cleaning and other street service"
+    },
+    {
+      "id": "occupation-shoe-maker",
+      "code": "shoemaker",
+      "name": "Shoe-maker"
+    },
+    {
+      "id": "occupation-SocialBenefitofficial",
+      "code": "SocialBenefitofficial",
+      "name": "Social Benefit official"
+    },
+    {
+      "id": "occupation-Socialworkassociateprofessional",
+      "code": "Socialworkassociateprofessional",
+      "name": "Social work associate professional"
+    },
+    {
+      "id": "occupation-SocialWorkprofessionals",
+      "code": "SocialWorkprofessionals",
+      "name": "Social Work professionals"
+    },
+    {
+      "id": "occupation-SociologistAnthropologist",
+      "code": "SociologistAnthropologist",
+      "name": "Sociologist/Anthropologist"
+    },
+    {
+      "id": "occupation-Soldier",
+      "code": "Soldier",
+      "name": "Soldier"
+    },
+    {
+      "id": "occupation-SpaTherapist",
+      "code": "SpaTherapist",
+      "name": "Spa Therapist"
+    },
+    {
+      "id": "occupation-Statisticians",
+      "code": "Statisticians",
+      "name": "Statisticians"
+    },
+    {
+      "id": "occupation-StockController",
+      "code": "StockController",
+      "name": "Stock Controller"
+    },
+    {
+      "id": "occupation-Streetfoodvendors",
+      "code": "Streetfoodvendors",
+      "name": "Street food vendors"
+    },
+    {
+      "id": "occupation-Streetvendorsnonfoodproducts",
+      "code": "Streetvendorsnonfoodproducts",
+      "name": "Street vendors/non food products"
+    },
+    {
+      "id": "occupation-Structural-metalprepareranderector",
+      "code": "Structuralmetalprepareranderector",
+      "name": "Structural-metal preparer and erector"
+    },
+    {
+      "id": "occupation-Student",
+      "code": "Student",
+      "name": "Student"
+    },
+    {
+      "id": "occupation-Supervisior",
+      "code": "Supervisior",
+      "name": "Supervisior"
+    },
+    {
+      "id": "occupation-Surveyor",
+      "code": "Surveyor",
+      "name": "Surveyor"
+    },
+    {
+      "id": "occupation-Sweepersandrelatedlabourer",
+      "code": "Sweepersandrelatedlabourer",
+      "name": "Sweepers and related labourer"
+    },
+    {
+      "id": "occupation-TailorDressmakerHatter",
+      "code": "TailorDressmakerHatter",
+      "name": "Tailor/Dressmaker/Hatter"
+    },
+    {
+      "id": "occupation-TasterGrader-FoodandBeverage",
+      "code": "TasterGrader-FoodandBeverage",
+      "name": "Taster/Grader-Food and Beverage"
+    },
+    {
+      "id": "occupation-TaxExciseofficial",
+      "code": "TaxExciseofficial",
+      "name": "Tax/Excise official"
+    },
+    {
+      "id": "occupation-Teacher-InfantPre-schoolEducation",
+      "code": "TeacherInfantPre-schoolEducation",
+      "name": "Teacher-Infant/Pre-school Education"
+    },
+    {
+      "id": "occupation-Teacher-PrimaryEducation",
+      "code": "TeacherPrimaryEducation",
+      "name": "Teacher-Primary Education"
+    },
+    {
+      "id": "occupation-Teacher-SecondaryEducation",
+      "code": "TeacherSecondaryEducation",
+      "name": "Teacher-Secondary Education"
+    },
+    {
+      "id": "occupation-Teacher-SpecialEducation",
+      "code": "TeacherSpecialEducation",
+      "name": "Teacher-Special Education"
+    },
+    {
+      "id": "occupation-TeachingAssistant-Other",
+      "code": "TeachingAssistant-Other",
+      "name": "Teaching Assistant-Other"
+    },
+    {
+      "id": "occupation-TeachingAssistant-Pre-primary",
+      "code": "TeachingAssistant-Pre-primary",
+      "name": "Teaching Assistant-Pre-primary"
+    },
+    {
+      "id": "occupation-TeachingAssistant-Primary",
+      "code": "TeachingAssistant-Primary",
+      "name": "Teaching Assistant-Primary"
+    },
+    {
+      "id": "occupation-TeachingAssistant-SpecialEducation",
+      "code": "TeachingAssistant-SpecialEducation",
+      "name": "Teaching Assistant-Special Education"
+    },
+    {
+      "id": "occupation-Teaching-Notelsewhereclassified",
+      "code": "Teaching-Notelsewhereclassified",
+      "name": "Teaching-Not elsewhere classified"
+    },
+    {
+      "id": "occupation-Technician-chemicalengineering",
+      "code": "Technicianchemicalengineering",
+      "name": "Technician-chemical engineering"
+    },
+    {
+      "id": "occupation-Technician-chemicalphysicalscience",
+      "code": "Technicianchemicalphysicalscience",
+      "name": "Technician-chemical/physical science"
+    },
+    {
+      "id": "occupation-Technician-civilengineering",
+      "code": "Techniciancivilengineering",
+      "name": "Technician-civil engineering"
+    },
+    {
+      "id": "occupation-Technician-electronicstelecom",
+      "code": "Technicianelectronicstelecom",
+      "name": "Technician-electronics/telecom"
+    },
+    {
+      "id": "occupation-Technician-ForestryAgronomy",
+      "code": "TechnicianForestryAgronomy",
+      "name": "Technician-Forestry/Agronomy"
+    },
+    {
+      "id": "occupation-Technician-mechanicalengineering",
+      "code": "Technicianmechanicalengineering",
+      "name": "Technician-mechanical engineering"
+    },
+    {
+      "id": "occupation-Technician-miningmetallurgical",
+      "code": "Technicianminingmetallurgical",
+      "name": "Technician-mining/metallurgical"
+    },
+    {
+      "id": "occupation-Telephoneswitchboardoperator",
+      "code": "Telephoneswitchboardoperator",
+      "name": "Telephone switchboard operator"
+    },
+    {
+      "id": "occupation-Telephonetelegraphinstallersservicers",
+      "code": "Telephonetelegraphinstallersservicers",
+      "name": "Telephone/telegraph installers/servicers"
+    },
+    {
+      "id": "occupation-Tellercounterclerk",
+      "code": "Tellercounterclerk",
+      "name": "Teller/counter clerk"
+    },
+    {
+      "id": "occupation-TextileLeatherpatternmakercutter",
+      "code": "TextileLeatherpatternmakercutter",
+      "name": "Textile/Leather pattern maker/cutter"
+    },
+    {
+      "id": "occupation-TobacooPreparersproductmaker",
+      "code": "TobacooPreparersproductmaker",
+      "name": "Tobacoo Preparers/product maker"
+    },
+    {
+      "id": "occupation-Toolmaker",
+      "code": "Toolmaker",
+      "name": "Tool maker"
+    },
+    {
+      "id": "occupation-TownPlanner",
+      "code": "TownPlanner",
+      "name": "Town Planner"
+    },
+    {
+      "id": "occupation-Tradebroker",
+      "code": "Tradebroker",
+      "name": "Trade broker"
+    },
+    {
+      "id": "occupation-TraditionalMedicinePractitioner",
+      "code": "TraditionalMedicinePractitioner",
+      "name": "Traditional Medicine Practitioner"
+    },
+    {
+      "id": "occupation-TrainingOfficer",
+      "code": "TrainingOfficer",
+      "name": "Training Officer"
+    },
+    {
+      "id": "occupation-TranslatorInterpretorPhilologist",
+      "code": "TranslatorInterpretorPhilologist",
+      "name": "Translator/Interpretor/Philologist"
+    },
+    {
+      "id": "occupation-Transportconductor",
+      "code": "Transportconductor",
+      "name": "Transport conductor"
+    },
+    {
+      "id": "occupation-Travelconsultantorganiser",
+      "code": "Travelconsultantorganiser",
+      "name": "Travel consultant/organiser"
+    },
+    {
+      "id": "occupation-TravelGuide",
+      "code": "TravelGuide",
+      "name": "Travel Guide"
+    },
+    {
+      "id": "occupation-TypistStenographer",
+      "code": "TypistStenographer",
+      "name": "Typist/Stenographer"
+    },
+    {
+      "id": "occupation-UndertakerEmbalmer",
+      "code": "UndertakerEmbalmer",
+      "name": "Undertaker/Embalmer"
+    },
+    {
+      "id": "occupation-UnderwaterWorker",
+      "code": "UnderwaterWorker",
+      "name": "Underwater Worker"
+    },
+    {
+      "id": "occupation-Unemployed",
+      "code": "Unemployed",
+      "name": "Unemployed"
+    },
+    {
+      "id": "occupation-Upholsterer",
+      "code": "Upholsterer",
+      "name": "Upholsterer"
+    },
+    {
+      "id": "occupation-ValetCompanion",
+      "code": "ValetCompanion",
+      "name": "Valet/Companion"
+    },
+    {
+      "id": "occupation-Varnisher",
+      "code": "Varnisher",
+      "name": "Varnisher"
+    },
+    {
+      "id": "occupation-Veterinarian",
+      "code": "Veterinarian",
+      "name": "Veterinarian"
+    },
+    {
+      "id": "occupation-VeterinaryAssistant",
+      "code": "VeterinaryAssistant",
+      "name": "Veterinary Assistant"
+    },
+    {
+      "id": "occupation-WaiterWaitressBartender",
+      "code": "WaiterWaitressBartender",
+      "name": "Waiter/Waitress/Bartender"
+    },
+    {
+      "id": "occupation-WardAttendant",
+      "code": "WardAttendant",
+      "name": "Ward Attendant"
+    },
+    {
+      "id": "occupation-WatchpersonDoorkeeper",
+      "code": "WatchpersonDoorkeeper",
+      "name": "Watchperson/Doorkeeper"
+    },
+    {
+      "id": "occupation-WeatherOfficer",
+      "code": "WeatherOfficer",
+      "name": "Weather Officer"
+    },
+    {
+      "id": "occupation-Weaverknitter",
+      "code": "Weaverknitter",
+      "name": "Weaver/knitter"
+    },
+    {
+      "id": "occupation-WelderFlamecutter",
+      "code": "WelderFlamecutter",
+      "name": "Welder/Flamecutter"
+    },
+    {
+      "id": "occupation-WoodtreaterCabinet-Maker",
+      "code": "WoodtreaterCabinet-Maker",
+      "name": "Wood treater/Cabinet-Maker"
+    },
+    {
+      "id": "occupation-Wordprocessorandrelated",
+      "code": "Wordprocessorandrelated",
+      "name": "Word processor and related"
+    }
   ]
 }

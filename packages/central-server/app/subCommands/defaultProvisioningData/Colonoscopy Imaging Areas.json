@@ -1,30 +1,30 @@
 {
   "sheetName": "Colonoscopy Imaging Areas",
+  "columns": [
+    "id",
+    "code",
+    "name"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name"
-    ],
-    [
-      "colonoscopyImagingArea-93001",
-      93001,
-      "Colonoscopy Imaging Area"
-    ],
-    [
-      "colonoscopyImagingArea-93002",
-      93002,
-      "Diagnostic Colonoscopy Area"
-    ],
-    [
-      "colonoscopyImagingArea-93003",
-      93003,
-      "Screening Colonoscopy Area"
-    ],
-    [
-      "colonoscopyImagingArea-93004",
-      93004,
-      "Therapeutic Colonoscopy Area"
-    ]
+    {
+      "id": "colonoscopyImagingArea-93001",
+      "code": 93001,
+      "name": "Colonoscopy Imaging Area"
+    },
+    {
+      "id": "colonoscopyImagingArea-93002",
+      "code": 93002,
+      "name": "Diagnostic Colonoscopy Area"
+    },
+    {
+      "id": "colonoscopyImagingArea-93003",
+      "code": 93003,
+      "name": "Screening Colonoscopy Area"
+    },
+    {
+      "id": "colonoscopyImagingArea-93004",
+      "code": 93004,
+      "name": "Therapeutic Colonoscopy Area"
+    }
   ]
 }

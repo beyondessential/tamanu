@@ -1,45 +1,45 @@
 {
   "sheetName": "Educational Attainment",
+  "columns": [
+    "id",
+    "code",
+    "name"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name"
-    ],
-    [
-      "educationalAttainment-Noformalschooling",
-      "Noformalschooling",
-      "No formal schooling"
-    ],
-    [
-      "educationalAttainment-Lessthanprimaryschool",
-      "Lessthanprimaryschool",
-      "Less than primary school"
-    ],
-    [
-      "educationalAttainment-Primaryschoolcompleted",
-      "Primaryschoolcompleted",
-      "Primary school completed"
-    ],
-    [
-      "educationalAttainment-Secondaryschoolcompleted",
-      "Secondaryschoolcompleted",
-      "Secondary school completed"
-    ],
-    [
-      "educationalAttainment-Highschoolcompleted",
-      "Highschoolcompleted",
-      "High school completed"
-    ],
-    [
-      "educationalAttainment-Universitycompleted",
-      "Universitycompleted",
-      "University completed"
-    ],
-    [
-      "educationalAttainment-Postgraduatedegreecompleted",
-      "Postgraduatedegreecompleted",
-      "Post graduate degree completed"
-    ]
+    {
+      "id": "educationalAttainment-Noformalschooling",
+      "code": "Noformalschooling",
+      "name": "No formal schooling"
+    },
+    {
+      "id": "educationalAttainment-Lessthanprimaryschool",
+      "code": "Lessthanprimaryschool",
+      "name": "Less than primary school"
+    },
+    {
+      "id": "educationalAttainment-Primaryschoolcompleted",
+      "code": "Primaryschoolcompleted",
+      "name": "Primary school completed"
+    },
+    {
+      "id": "educationalAttainment-Secondaryschoolcompleted",
+      "code": "Secondaryschoolcompleted",
+      "name": "Secondary school completed"
+    },
+    {
+      "id": "educationalAttainment-Highschoolcompleted",
+      "code": "Highschoolcompleted",
+      "name": "High school completed"
+    },
+    {
+      "id": "educationalAttainment-Universitycompleted",
+      "code": "Universitycompleted",
+      "name": "University completed"
+    },
+    {
+      "id": "educationalAttainment-Postgraduatedegreecompleted",
+      "code": "Postgraduatedegreecompleted",
+      "name": "Post graduate degree completed"
+    }
   ]
 }

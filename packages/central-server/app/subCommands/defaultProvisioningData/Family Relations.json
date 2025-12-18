@@ -1,103 +1,103 @@
 {
   "sheetName": "Family Relations",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "facility",
+    "contactNumber"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name",
-      "facility",
-      "contactNumber"
-    ],
-    [
-      "family-Maternalgrandmother",
-      "Maternalgrandmother",
-      "Maternal grandmother",
-      null,
-      null
-    ],
-    [
-      "family-Maternalgrandfather",
-      "Maternalgrandfather",
-      "Maternal grandfather",
-      null,
-      null
-    ],
-    [
-      "family-Paternalgrandmother",
-      "Paternalgrandmother",
-      "Paternal grandmother",
-      null,
-      null
-    ],
-    [
-      "family-Paternalgrandfather",
-      "Paternalgrandfather",
-      "Paternal grandfather",
-      null,
-      null
-    ],
-    [
-      "family-Mother",
-      "Mother",
-      "Mother",
-      null,
-      null
-    ],
-    [
-      "family-Father",
-      "Father",
-      "Father",
-      null,
-      null
-    ],
-    [
-      "family-Sister",
-      "Sister",
-      "Sister",
-      null,
-      null
-    ],
-    [
-      "family-Brother",
-      "Brother",
-      "Brother",
-      null,
-      null
-    ],
-    [
-      "family-Daughter",
-      "Daughter",
-      "Daughter",
-      null,
-      null
-    ],
-    [
-      "family-Son",
-      "Son",
-      "Son",
-      null,
-      null
-    ],
-    [
-      "family-Aunt",
-      "Aunt",
-      "Aunt",
-      null,
-      null
-    ],
-    [
-      "family-Uncle",
-      "Uncle",
-      "Uncle",
-      null,
-      null
-    ],
-    [
-      "family-Cousin",
-      "Cousin",
-      "Cousin",
-      null,
-      null
-    ]
+    {
+      "id": "family-Maternalgrandmother",
+      "code": "Maternalgrandmother",
+      "name": "Maternal grandmother",
+      "facility": null,
+      "contactNumber": null
+    },
+    {
+      "id": "family-Maternalgrandfather",
+      "code": "Maternalgrandfather",
+      "name": "Maternal grandfather",
+      "facility": null,
+      "contactNumber": null
+    },
+    {
+      "id": "family-Paternalgrandmother",
+      "code": "Paternalgrandmother",
+      "name": "Paternal grandmother",
+      "facility": null,
+      "contactNumber": null
+    },
+    {
+      "id": "family-Paternalgrandfather",
+      "code": "Paternalgrandfather",
+      "name": "Paternal grandfather",
+      "facility": null,
+      "contactNumber": null
+    },
+    {
+      "id": "family-Mother",
+      "code": "Mother",
+      "name": "Mother",
+      "facility": null,
+      "contactNumber": null
+    },
+    {
+      "id": "family-Father",
+      "code": "Father",
+      "name": "Father",
+      "facility": null,
+      "contactNumber": null
+    },
+    {
+      "id": "family-Sister",
+      "code": "Sister",
+      "name": "Sister",
+      "facility": null,
+      "contactNumber": null
+    },
+    {
+      "id": "family-Brother",
+      "code": "Brother",
+      "name": "Brother",
+      "facility": null,
+      "contactNumber": null
+    },
+    {
+      "id": "family-Daughter",
+      "code": "Daughter",
+      "name": "Daughter",
+      "facility": null,
+      "contactNumber": null
+    },
+    {
+      "id": "family-Son",
+      "code": "Son",
+      "name": "Son",
+      "facility": null,
+      "contactNumber": null
+    },
+    {
+      "id": "family-Aunt",
+      "code": "Aunt",
+      "name": "Aunt",
+      "facility": null,
+      "contactNumber": null
+    },
+    {
+      "id": "family-Uncle",
+      "code": "Uncle",
+      "name": "Uncle",
+      "facility": null,
+      "contactNumber": null
+    },
+    {
+      "id": "family-Cousin",
+      "code": "Cousin",
+      "name": "Cousin",
+      "facility": null,
+      "contactNumber": null
+    }
   ]
 }

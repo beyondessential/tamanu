@@ -1,35 +1,35 @@
 {
   "sheetName": "Appointment Type",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name",
-      "visibilityStatus"
-    ],
-    [
-      "appointmentType-other",
-      "appointmentTypeOther",
-      "Other",
-      "current"
-    ],
-    [
-      "appointmentType-specialist",
-      "appointmentTypeSpecialist",
-      "Specialist",
-      "current"
-    ],
-    [
-      "appointmentType-emergency",
-      "appointmentTypeEmergency",
-      "Emergency",
-      "current"
-    ],
-    [
-      "appointmentType-standard",
-      "appointmentTypeStandard",
-      "Standard",
-      "current"
-    ]
+    {
+      "id": "appointmentType-other",
+      "code": "appointmentTypeOther",
+      "name": "Other",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "appointmentType-specialist",
+      "code": "appointmentTypeSpecialist",
+      "name": "Specialist",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "appointmentType-emergency",
+      "code": "appointmentTypeEmergency",
+      "name": "Emergency",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "appointmentType-standard",
+      "code": "appointmentTypeStandard",
+      "name": "Standard",
+      "visibilityStatus": "current"
+    }
   ]
 }

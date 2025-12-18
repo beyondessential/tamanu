@@ -1,100 +1,100 @@
 {
   "sheetName": "Countries",
+  "columns": [
+    "id",
+    "code",
+    "name"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name"
-    ],
-    [
-      "country-AmericanSamoa",
-      "AmericanSamoa",
-      "American Samoa"
-    ],
-    [
-      "country-Australia",
-      "Australia",
-      "Australia"
-    ],
-    [
-      "country-FederatedStatesofMicronesia",
-      "FederatedStatesofMicronesia",
-      "Federated States of Micronesia"
-    ],
-    [
-      "country-Fiji",
-      "Fiji",
-      "Fiji"
-    ],
-    [
-      "country-FrenchPolynesia",
-      "FrenchPolynesia",
-      "French Polynesia"
-    ],
-    [
-      "country-Kiribati",
-      "Kiribati",
-      "Kiribati"
-    ],
-    [
-      "country-MarshallIslands",
-      "MarshallIslands",
-      "Marshall Islands"
-    ],
-    [
-      "country-Nauru",
-      "Nauru",
-      "Nauru"
-    ],
-    [
-      "country-NewCaledonia",
-      "NewCaledonia",
-      "New Caledonia"
-    ],
-    [
-      "country-NewZealand",
-      "NewZealand",
-      "New Zealand"
-    ],
-    [
-      "country-NorthernMarianaIslands",
-      "NorthernMarianaIslands",
-      "Northern Mariana Islands"
-    ],
-    [
-      "country-Other",
-      "Other",
-      "Other"
-    ],
-    [
-      "country-Palau",
-      "Palau",
-      "Palau"
-    ],
-    [
-      "country-SolomonIslands",
-      "SolomonIslands",
-      "Solomon Islands"
-    ],
-    [
-      "country-Tonga",
-      "Tonga",
-      "Tonga"
-    ],
-    [
-      "country-Tuvalu",
-      "Tuvalu",
-      "Tuvalu"
-    ],
-    [
-      "country-Vanuatu",
-      "Vanuatu",
-      "Vanuatu"
-    ],
-    [
-      "country-WallisandFutuna",
-      "WallisandFutuna",
-      "Wallis and Futuna"
-    ]
+    {
+      "id": "country-AmericanSamoa",
+      "code": "AmericanSamoa",
+      "name": "American Samoa"
+    },
+    {
+      "id": "country-Australia",
+      "code": "Australia",
+      "name": "Australia"
+    },
+    {
+      "id": "country-FederatedStatesofMicronesia",
+      "code": "FederatedStatesofMicronesia",
+      "name": "Federated States of Micronesia"
+    },
+    {
+      "id": "country-Fiji",
+      "code": "Fiji",
+      "name": "Fiji"
+    },
+    {
+      "id": "country-FrenchPolynesia",
+      "code": "FrenchPolynesia",
+      "name": "French Polynesia"
+    },
+    {
+      "id": "country-Kiribati",
+      "code": "Kiribati",
+      "name": "Kiribati"
+    },
+    {
+      "id": "country-MarshallIslands",
+      "code": "MarshallIslands",
+      "name": "Marshall Islands"
+    },
+    {
+      "id": "country-Nauru",
+      "code": "Nauru",
+      "name": "Nauru"
+    },
+    {
+      "id": "country-NewCaledonia",
+      "code": "NewCaledonia",
+      "name": "New Caledonia"
+    },
+    {
+      "id": "country-NewZealand",
+      "code": "NewZealand",
+      "name": "New Zealand"
+    },
+    {
+      "id": "country-NorthernMarianaIslands",
+      "code": "NorthernMarianaIslands",
+      "name": "Northern Mariana Islands"
+    },
+    {
+      "id": "country-Other",
+      "code": "Other",
+      "name": "Other"
+    },
+    {
+      "id": "country-Palau",
+      "code": "Palau",
+      "name": "Palau"
+    },
+    {
+      "id": "country-SolomonIslands",
+      "code": "SolomonIslands",
+      "name": "Solomon Islands"
+    },
+    {
+      "id": "country-Tonga",
+      "code": "Tonga",
+      "name": "Tonga"
+    },
+    {
+      "id": "country-Tuvalu",
+      "code": "Tuvalu",
+      "name": "Tuvalu"
+    },
+    {
+      "id": "country-Vanuatu",
+      "code": "Vanuatu",
+      "name": "Vanuatu"
+    },
+    {
+      "id": "country-WallisandFutuna",
+      "code": "WallisandFutuna",
+      "name": "Wallis and Futuna"
+    }
   ]
 }

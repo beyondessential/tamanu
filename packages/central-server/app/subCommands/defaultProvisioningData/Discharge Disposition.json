@@ -1,53 +1,53 @@
 {
   "sheetName": "Discharge Disposition",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name",
-      "visibilityStatus"
-    ],
-    [
-      "dischargedisp-home",
-      "HOME",
-      "Home",
-      "current"
-    ],
-    [
-      "dischargedisp-absconded",
-      "ABSC",
-      "Absconded",
-      "current"
-    ],
-    [
-      "dischargedisp-ama",
-      "AMA",
-      "Discharged against medical advice",
-      "current"
-    ],
-    [
-      "dischargedisp-taf",
-      "TAF",
-      "Transfer to another facility",
-      "current"
-    ],
-    [
-      "dischargedisp-dipmo",
-      "DIPMO",
-      "Discharge of involuntary patient by medical officer",
-      "current"
-    ],
-    [
-      "dischargedisp-tif",
-      "TIF",
-      "Transfer of an involuntary patient to another MH or health facility",
-      "current"
-    ],
-    [
-      "dischargedisp-dtocha",
-      "DTOHCA",
-      "Discharge/Transfer to other health care accommodation",
-      "current"
-    ]
+    {
+      "id": "dischargedisp-home",
+      "code": "HOME",
+      "name": "Home",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "dischargedisp-absconded",
+      "code": "ABSC",
+      "name": "Absconded",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "dischargedisp-ama",
+      "code": "AMA",
+      "name": "Discharged against medical advice",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "dischargedisp-taf",
+      "code": "TAF",
+      "name": "Transfer to another facility",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "dischargedisp-dipmo",
+      "code": "DIPMO",
+      "name": "Discharge of involuntary patient by medical officer",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "dischargedisp-tif",
+      "code": "TIF",
+      "name": "Transfer of an involuntary patient to another MH or health facility",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "dischargedisp-dtocha",
+      "code": "DTOHCA",
+      "name": "Discharge/Transfer to other health care accommodation",
+      "visibilityStatus": "current"
+    }
   ]
 }

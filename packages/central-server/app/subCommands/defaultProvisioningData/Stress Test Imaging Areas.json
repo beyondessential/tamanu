@@ -1,35 +1,35 @@
 {
   "sheetName": "Stress Test Imaging Areas",
+  "columns": [
+    "id",
+    "code",
+    "name"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name"
-    ],
-    [
-      "stressTestImagingArea-93001",
-      93001,
-      "Stress Test Imaging Area"
-    ],
-    [
-      "stressTestImagingArea-93002",
-      93002,
-      "Exercise Stress Test Area"
-    ],
-    [
-      "stressTestImagingArea-93003",
-      93003,
-      "Pharmacological Stress Test Area"
-    ],
-    [
-      "stressTestImagingArea-93004",
-      93004,
-      "Nuclear Stress Test Area"
-    ],
-    [
-      "stressTestImagingArea-93005",
-      93005,
-      "Echo Stress Test Area"
-    ]
+    {
+      "id": "stressTestImagingArea-93001",
+      "code": 93001,
+      "name": "Stress Test Imaging Area"
+    },
+    {
+      "id": "stressTestImagingArea-93002",
+      "code": 93002,
+      "name": "Exercise Stress Test Area"
+    },
+    {
+      "id": "stressTestImagingArea-93003",
+      "code": 93003,
+      "name": "Pharmacological Stress Test Area"
+    },
+    {
+      "id": "stressTestImagingArea-93004",
+      "code": 93004,
+      "name": "Nuclear Stress Test Area"
+    },
+    {
+      "id": "stressTestImagingArea-93005",
+      "code": 93005,
+      "name": "Echo Stress Test Area"
+    }
   ]
 }

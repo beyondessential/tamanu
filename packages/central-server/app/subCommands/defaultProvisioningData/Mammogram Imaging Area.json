@@ -1,71 +1,71 @@
 {
   "sheetName": "Mammogram Imaging Area",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name",
-      "visibilityStatus"
-    ],
-    [
-      "MGImagingArea-Breast-Both-Diagnostic",
-      "MGBreast-Both-Diagnostic",
-      "Breast - Both - Diagnostic",
-      null
-    ],
-    [
-      "MGImagingArea-Breast-Both-Hookwire",
-      "MGBreast-Both-Hookwire",
-      "Breast - Both - Hookwire",
-      null
-    ],
-    [
-      "MGImagingArea-Breast-ExcisedTissue",
-      "MGBreast-ExcisedTissue",
-      "Breast - Excised Tissue",
-      null
-    ],
-    [
-      "MGImagingArea-Breast-Left-Diagnostic",
-      "MGBreast-Left-Diagnostic",
-      "Breast - Left - Diagnostic",
-      null
-    ],
-    [
-      "MGImagingArea-Breast-Left-Hookwire",
-      "MGBreast-Left-Hookwire",
-      "Breast - Left - Hookwire",
-      null
-    ],
-    [
-      "MGImagingArea-Breast-MammowithTomosynthesis-Left",
-      "MGBreast-MammowithTomosynthesis-Left",
-      "Breast - Mammo with Tomosynthesis - Left",
-      null
-    ],
-    [
-      "MGImagingArea-Breast-MammowithTomosynthesis-Right",
-      "MGBreast-MammowithTomosynthesis-Right",
-      "Breast - Mammo with Tomosynthesis - Right",
-      null
-    ],
-    [
-      "MGImagingArea-Breast-Right-Diagnostic",
-      "MGBreast-Right-Diagnostic",
-      "Breast - Right - Diagnostic",
-      null
-    ],
-    [
-      "MGImagingArea-Breast-Right-Hookwire",
-      "MGBreast-Right-Hookwire",
-      "Breast - Right - Hookwire",
-      null
-    ],
-    [
-      "MGImagingArea-FluoroscopyWithGA",
-      "MGFluoroscopyWithGA",
-      "Fluoroscopy With G.A.",
-      null
-    ]
+    {
+      "id": "MGImagingArea-Breast-Both-Diagnostic",
+      "code": "MGBreast-Both-Diagnostic",
+      "name": "Breast - Both - Diagnostic",
+      "visibilityStatus": null
+    },
+    {
+      "id": "MGImagingArea-Breast-Both-Hookwire",
+      "code": "MGBreast-Both-Hookwire",
+      "name": "Breast - Both - Hookwire",
+      "visibilityStatus": null
+    },
+    {
+      "id": "MGImagingArea-Breast-ExcisedTissue",
+      "code": "MGBreast-ExcisedTissue",
+      "name": "Breast - Excised Tissue",
+      "visibilityStatus": null
+    },
+    {
+      "id": "MGImagingArea-Breast-Left-Diagnostic",
+      "code": "MGBreast-Left-Diagnostic",
+      "name": "Breast - Left - Diagnostic",
+      "visibilityStatus": null
+    },
+    {
+      "id": "MGImagingArea-Breast-Left-Hookwire",
+      "code": "MGBreast-Left-Hookwire",
+      "name": "Breast - Left - Hookwire",
+      "visibilityStatus": null
+    },
+    {
+      "id": "MGImagingArea-Breast-MammowithTomosynthesis-Left",
+      "code": "MGBreast-MammowithTomosynthesis-Left",
+      "name": "Breast - Mammo with Tomosynthesis - Left",
+      "visibilityStatus": null
+    },
+    {
+      "id": "MGImagingArea-Breast-MammowithTomosynthesis-Right",
+      "code": "MGBreast-MammowithTomosynthesis-Right",
+      "name": "Breast - Mammo with Tomosynthesis - Right",
+      "visibilityStatus": null
+    },
+    {
+      "id": "MGImagingArea-Breast-Right-Diagnostic",
+      "code": "MGBreast-Right-Diagnostic",
+      "name": "Breast - Right - Diagnostic",
+      "visibilityStatus": null
+    },
+    {
+      "id": "MGImagingArea-Breast-Right-Hookwire",
+      "code": "MGBreast-Right-Hookwire",
+      "name": "Breast - Right - Hookwire",
+      "visibilityStatus": null
+    },
+    {
+      "id": "MGImagingArea-FluoroscopyWithGA",
+      "code": "MGFluoroscopyWithGA",
+      "name": "Fluoroscopy With G.A.",
+      "visibilityStatus": null
+    }
   ]
 }

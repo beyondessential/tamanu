@@ -1,15 +1,15 @@
 {
   "sheetName": "Echocardiogram Imaging Areas",
+  "columns": [
+    "id",
+    "code",
+    "name"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name"
-    ],
-    [
-      "echocardiogramImagingArea-766401",
-      766041,
-      "Echocardiogram"
-    ]
+    {
+      "id": "echocardiogramImagingArea-766401",
+      "code": 766041,
+      "name": "Echocardiogram"
+    }
   ]
 }

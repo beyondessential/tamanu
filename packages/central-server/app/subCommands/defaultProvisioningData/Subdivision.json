@@ -1,173 +1,173 @@
 {
   "sheetName": "Subdivision",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name",
-      "visibilityStatus"
-    ],
-    [
-      "subdivision-Ba",
-      "Ba",
-      "Ba",
-      "current"
-    ],
-    [
-      "subdivision-Bua",
-      "Bua",
-      "Bua",
-      "current"
-    ],
-    [
-      "subdivision-Cakaudrove",
-      "Cakaudrove",
-      "Cakaudrove",
-      "current"
-    ],
-    [
-      "subdivision-Kadavu",
-      "Kadavu",
-      "Kadavu",
-      "current"
-    ],
-    [
-      "subdivision-Korovou",
-      "Korovou",
-      "Korovou",
-      "current"
-    ],
-    [
-      "subdivision-Lakeba",
-      "Lakeba",
-      "Lakeba",
-      "current"
-    ],
-    [
-      "subdivision-Lau",
-      "Lau",
-      "Lau",
-      "current"
-    ],
-    [
-      "subdivision-LautokaYasawa",
-      "LautokaYasawa",
-      "Lautoka/Yasawa",
-      "current"
-    ],
-    [
-      "subdivision-Lomaiviti",
-      "Lomaiviti",
-      "Lomaiviti",
-      "current"
-    ],
-    [
-      "subdivision-Lomaloma",
-      "Lomaloma",
-      "Lomaloma",
-      "current"
-    ],
-    [
-      "subdivision-Macuata",
-      "Macuata",
-      "Macuata",
-      "current"
-    ],
-    [
-      "subdivision-Nadi",
-      "Nadi",
-      "Nadi",
-      "current"
-    ],
-    [
-      "subdivision-NadrogaNavosa",
-      "NadrogaNavosa",
-      "Nadroga/Navosa",
-      "current"
-    ],
-    [
-      "subdivision-Naitasiri",
-      "Naitasiri",
-      "Naitasiri",
-      "current"
-    ],
-    [
-      "subdivision-Navua",
-      "Navua",
-      "Navua",
-      "current"
-    ],
-    [
-      "subdivision-Overseas",
-      "Overseas",
-      "Overseas",
-      "current"
-    ],
-    [
-      "subdivision-Ra",
-      "Ra",
-      "Ra",
-      "current"
-    ],
-    [
-      "subdivision-Rewa",
-      "Rewa",
-      "Rewa",
-      "current"
-    ],
-    [
-      "subdivision-Rotuma",
-      "Rotuma",
-      "Rotuma",
-      "current"
-    ],
-    [
-      "subdivision-Serua",
-      "Serua",
-      "Serua",
-      "current"
-    ],
-    [
-      "subdivision-SeruaIsland",
-      "SeruaIsland",
-      "Serua Island",
-      "current"
-    ],
-    [
-      "subdivision-SeruaNamosi",
-      "SeruaNamosi",
-      "Serua/Namosi",
-      "current"
-    ],
-    [
-      "subdivision-Sigatoka",
-      "Sigatoka",
-      "Sigatoka",
-      "current"
-    ],
-    [
-      "subdivision-Suva",
-      "Suva",
-      "Suva",
-      "current"
-    ],
-    [
-      "subdivision-Tailevu",
-      "Tailevu",
-      "Tailevu",
-      "current"
-    ],
-    [
-      "subdivision-Taveuni",
-      "Taveuni",
-      "Taveuni",
-      "current"
-    ],
-    [
-      "subdivision-Tabua",
-      "Tabua",
-      "Tabua",
-      "current"
-    ]
+    {
+      "id": "subdivision-Ba",
+      "code": "Ba",
+      "name": "Ba",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "subdivision-Bua",
+      "code": "Bua",
+      "name": "Bua",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "subdivision-Cakaudrove",
+      "code": "Cakaudrove",
+      "name": "Cakaudrove",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "subdivision-Kadavu",
+      "code": "Kadavu",
+      "name": "Kadavu",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "subdivision-Korovou",
+      "code": "Korovou",
+      "name": "Korovou",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "subdivision-Lakeba",
+      "code": "Lakeba",
+      "name": "Lakeba",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "subdivision-Lau",
+      "code": "Lau",
+      "name": "Lau",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "subdivision-LautokaYasawa",
+      "code": "LautokaYasawa",
+      "name": "Lautoka/Yasawa",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "subdivision-Lomaiviti",
+      "code": "Lomaiviti",
+      "name": "Lomaiviti",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "subdivision-Lomaloma",
+      "code": "Lomaloma",
+      "name": "Lomaloma",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "subdivision-Macuata",
+      "code": "Macuata",
+      "name": "Macuata",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "subdivision-Nadi",
+      "code": "Nadi",
+      "name": "Nadi",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "subdivision-NadrogaNavosa",
+      "code": "NadrogaNavosa",
+      "name": "Nadroga/Navosa",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "subdivision-Naitasiri",
+      "code": "Naitasiri",
+      "name": "Naitasiri",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "subdivision-Navua",
+      "code": "Navua",
+      "name": "Navua",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "subdivision-Overseas",
+      "code": "Overseas",
+      "name": "Overseas",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "subdivision-Ra",
+      "code": "Ra",
+      "name": "Ra",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "subdivision-Rewa",
+      "code": "Rewa",
+      "name": "Rewa",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "subdivision-Rotuma",
+      "code": "Rotuma",
+      "name": "Rotuma",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "subdivision-Serua",
+      "code": "Serua",
+      "name": "Serua",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "subdivision-SeruaIsland",
+      "code": "SeruaIsland",
+      "name": "Serua Island",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "subdivision-SeruaNamosi",
+      "code": "SeruaNamosi",
+      "name": "Serua/Namosi",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "subdivision-Sigatoka",
+      "code": "Sigatoka",
+      "name": "Sigatoka",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "subdivision-Suva",
+      "code": "Suva",
+      "name": "Suva",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "subdivision-Tailevu",
+      "code": "Tailevu",
+      "name": "Tailevu",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "subdivision-Taveuni",
+      "code": "Taveuni",
+      "name": "Taveuni",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "subdivision-Tabua",
+      "code": "Tabua",
+      "name": "Tabua",
+      "visibilityStatus": "current"
+    }
   ]
 }

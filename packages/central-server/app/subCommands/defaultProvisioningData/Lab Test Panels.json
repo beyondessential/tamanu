@@ -1,45 +1,45 @@
 {
   "sheetName": "Lab Test Panels",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityCriteria",
+    "categoryId",
+    "testTypesInPanel"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name",
-      "visibilityCriteria",
-      "categoryId",
-      "testTypesInPanel"
-    ],
-    [
-      "labTestPanel-bloods",
-      "bloods",
-      "Bloods",
-      "current",
-      "labTestCategory-Serology",
-      "labTestType-BloodGlucose, labTestType-Magnesium, labTestType-Cholesterol, labTestType-Potassium, labTestType-Sodium"
-    ],
-    [
-      "labTestPanel-cmp",
-      "cmp",
-      "Comprehensive Metabolic Panel (CMP)",
-      "current",
-      "labTestCategory-Other",
-      "labTestType-BloodGlucose, labTestType-Calcium, labTestType-Potassium, labTestType-Chloride, labTestType-Albumin, labTestType-ALP, labTestType-ALT, labTestType-AST, labTestType-Bilibubin, labTestType-Urea, labTestType-Creatinine"
-    ],
-    [
-      "labTestPanel-Cardiacenzymes",
-      "Cardiacenzymes",
-      "Cardiac enzymes",
-      "current",
-      "labTestCategory-Integration",
-      "labTestType-AST,labTestType-CK,labTestType-CKMB,labTestType-TroponinI,labTestType-LDH"
-    ],
-    [
-      "labTestPanel-Thyroidfunction",
-      "Thyroidfunction",
-      "Thyroid function",
-      "current",
-      "labTestCategory-Integration",
-      "labTestType-TSH,labTestType-T3,labTestType-T4"
-    ]
+    {
+      "id": "labTestPanel-bloods",
+      "code": "bloods",
+      "name": "Bloods",
+      "visibilityCriteria": "current",
+      "categoryId": "labTestCategory-Serology",
+      "testTypesInPanel": "labTestType-BloodGlucose, labTestType-Magnesium, labTestType-Cholesterol, labTestType-Potassium, labTestType-Sodium"
+    },
+    {
+      "id": "labTestPanel-cmp",
+      "code": "cmp",
+      "name": "Comprehensive Metabolic Panel (CMP)",
+      "visibilityCriteria": "current",
+      "categoryId": "labTestCategory-Other",
+      "testTypesInPanel": "labTestType-BloodGlucose, labTestType-Calcium, labTestType-Potassium, labTestType-Chloride, labTestType-Albumin, labTestType-ALP, labTestType-ALT, labTestType-AST, labTestType-Bilibubin, labTestType-Urea, labTestType-Creatinine"
+    },
+    {
+      "id": "labTestPanel-Cardiacenzymes",
+      "code": "Cardiacenzymes",
+      "name": "Cardiac enzymes",
+      "visibilityCriteria": "current",
+      "categoryId": "labTestCategory-Integration",
+      "testTypesInPanel": "labTestType-AST,labTestType-CK,labTestType-CKMB,labTestType-TroponinI,labTestType-LDH"
+    },
+    {
+      "id": "labTestPanel-Thyroidfunction",
+      "code": "Thyroidfunction",
+      "name": "Thyroid function",
+      "visibilityCriteria": "current",
+      "categoryId": "labTestCategory-Integration",
+      "testTypesInPanel": "labTestType-TSH,labTestType-T3,labTestType-T4"
+    }
   ]
 }

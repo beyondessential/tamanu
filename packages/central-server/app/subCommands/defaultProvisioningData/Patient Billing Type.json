@@ -1,20 +1,20 @@
 {
   "sheetName": "Patient Billing Type",
+  "columns": [
+    "id",
+    "code",
+    "name"
+  ],
   "data": [
-    [
-      "id",
-      "code",
-      "name"
-    ],
-    [
-      "patientType-Charity",
-      "Charity",
-      "Charity"
-    ],
-    [
-      "patientType-Private",
-      "Private",
-      "Private"
-    ]
+    {
+      "id": "patientType-Charity",
+      "code": "Charity",
+      "name": "Charity"
+    },
+    {
+      "id": "patientType-Private",
+      "code": "Private",
+      "name": "Private"
+    }
   ]
 }

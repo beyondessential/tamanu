@@ -40,8 +40,14 @@ const parseDefaultProvisioningJsonSheets = dir => {
   entries.forEach(({ sheetName, filePath }) => {
     const payload = JSON.parse(fs.readFileSync(filePath, 'utf8'));
     const name = payload.sheetName || sheetName;
-    const data = Array.isArray(payload.data) ? payload.data : [];
-    const ws = utils.aoa_to_sheet(data);
+    if (!Array.isArray(payload.columns) || payload.columns.length === 0) {
+      throw new Error(`Invalid sheet JSON (missing non-empty "columns") in ${filePath}`);
+    }
+    if (!Array.isArray(payload.data)) {
+      throw new Error(`Invalid sheet JSON (missing "data" array) in ${filePath}`);
+    }
+    const data = payload.data;
+    const ws = utils.json_to_sheet(data, { header: payload.columns });
 
     utils.book_append_sheet(wb, ws, name);
   });
