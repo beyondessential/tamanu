@@ -180,11 +180,6 @@ export const globalSettings = {
           type: yup.boolean(),
           defaultValue: true,
         },
-        enableCovidClearanceCertificate: {
-          description: 'Enable COVID certificate printout',
-          type: yup.boolean(),
-          defaultValue: false,
-        },
         editPatientDisplayId: {
           description: 'Allow the editing of an existing patients display id',
           type: yup.boolean(),
@@ -381,10 +376,26 @@ export const globalSettings = {
           description: 'Lab request settings',
           properties: {
             enableLabResultsPrintout: {
-              name: "Lab results printout",
-              description: 'Enable lab results printout (print results button and interim report option)',
+              name: 'Lab results printout',
+              description:
+                'Enable lab results printout (print results button and interim report option)',
               type: yup.boolean(),
               defaultValue: true,
+            },
+          },
+        },
+        covidCertificates: {
+          description: 'COVID certificate settings',
+          properties: {
+            enableCovidClearanceCertificate: {
+              description: 'Enable COVID certificate printout',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            enableCovidVaccinationCertificateSigning: {
+              description: 'Enable signing of COVID vaccination certificate',
+              type: yup.boolean(),
+              defaultValue: false,
             },
           },
         },
