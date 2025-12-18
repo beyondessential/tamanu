@@ -1,0 +1,53 @@
+{
+  "sheetName": "Task Deletion Reason",
+  "data": [
+    [
+      "id",
+      "code",
+      "name",
+      "visibilityStatus"
+    ],
+    [
+      "taskdeletionreason-incorrectpatient",
+      "incorrectpatient",
+      "Incorrect patient",
+      "current"
+    ],
+    [
+      "taskdeletionreason-nolongerrequired",
+      "nolongerrequired",
+      "No longer required",
+      "current"
+    ],
+    [
+      "taskdeletionreason-patientdischarged",
+      "patientdischarged",
+      "Patient discharged",
+      "current"
+    ],
+    [
+      "taskdeletionreason-other",
+      "other",
+      "Other",
+      "current"
+    ],
+    [
+      "taskdeletionreason-deletedbysystem",
+      "deletedbysystem",
+      "Deleted by system",
+      "current"
+    ],
+    [
+      "taskdeletionreason-recordedinerror",
+      "recordedinerror",
+      "Record in error",
+      "current"
+    ],
+    [
+      "taskdeletionreason-testreason",
+      "testreason",
+      "Test reason",
+      "current"
+    ]
+  ]
+}

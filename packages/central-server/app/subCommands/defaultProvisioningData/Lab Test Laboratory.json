@@ -1,0 +1,40 @@
+{
+  "sheetName": "Lab Test Laboratory",
+  "data": [
+    [
+      "id",
+      "code",
+      "name"
+    ],
+    [
+      "labTestLaboratory-FijiCDC",
+      "FijiCDC",
+      "Fiji CDC"
+    ],
+    [
+      "labTestLaboratory-CWMHospital",
+      "CWMHospital",
+      "CWM Hospital"
+    ],
+    [
+      "labTestLaboratory-TwomeyHospital",
+      "TwomeyHospital",
+      "Twomey Hospital"
+    ],
+    [
+      "labTestLaboratory-LautokaHospital",
+      "LautokaHospital",
+      "Lautoka Hospital"
+    ],
+    [
+      "labTestLaboratory-NadiHospital",
+      "NadiHospital",
+      "Nadi Hospital"
+    ],
+    [
+      "labTestLaboratory-LabasaHospital",
+      "LabasaHospital",
+      "Labasa Hospital"
+    ]
+  ]
+}

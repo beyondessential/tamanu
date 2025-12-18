@@ -1,0 +1,845 @@
+{
+  "sheetName": "Mri Imaging Area",
+  "data": [
+    [
+      "id",
+      "code",
+      "name",
+      "visibilityStatus"
+    ],
+    [
+      "MRIScanImagingArea-MRAbdomen",
+      "MRAbdomen",
+      "Abdomen",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MobileChest",
+      "MobileChest",
+      "Mobile - Chest",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRAbdomenadrenalmass",
+      "MRAbdomenadrenalmass",
+      "Abdomen (adrenal mass)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRAbdomenandPelviscervicalcancerstaging",
+      "MRAbdomenandPelviscervicalcancerstaging",
+      "Abdomen and Pelvis (cervical cancer staging)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRAnaesthetic",
+      "MRAnaesthetic",
+      "Anaesthetic",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRAngiogramiodineallergy",
+      "MRAngiogramiodineallergy",
+      "Angiogram (iodine allergy)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRAngiogramCardiaccongenitaldisease",
+      "MRAngiogramCardiaccongenitaldisease",
+      "Angiogram Cardiac (congenital disease)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRAngiogramCardiactumour",
+      "MRAngiogramCardiactumour",
+      "Angiogram Cardiac (tumour)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRAngiogramHeadandorNeckstroke",
+      "MRAngiogramHeadandorNeckstroke",
+      "Angiogram Head and/or Neck (stroke)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRAngiogramThoracicAorta",
+      "MRAngiogramThoracicAorta",
+      "Angiogram Thoracic Aorta",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRAnkleLeft",
+      "MRAnkleLeft",
+      "Ankle - Left",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRAnkleRight",
+      "MRAnkleRight",
+      "Ankle - Right",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRBrainacousticneuroma",
+      "MRBrainacousticneuroma",
+      "Brain (acoustic neuroma)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRBrainaneurysm",
+      "MRBrainaneurysm",
+      "Brain (aneurysm)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRBrainarteriovenousmalformation",
+      "MRBrainarteriovenousmalformation",
+      "Brain (arterio-venous malformation)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRBraincarotidvertebralarterydissection",
+      "MRBraincarotidvertebralarterydissection",
+      "Brain (carotid/vertebral artery dissection)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRBraincongenitalmalformation",
+      "MRBraincongenitalmalformation",
+      "Brain (congenital malformation)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRBraindemyelinatingdisease",
+      "MRBraindemyelinatingdisease",
+      "Brain (demyelinating disease)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRBrainepilepsy",
+      "MRBrainepilepsy",
+      "Brain (epilepsy)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRBrainheadtrauma",
+      "MRBrainheadtrauma",
+      "Brain (head trauma)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRBrainpituitarytumour",
+      "MRBrainpituitarytumour",
+      "Brain (pituitary tumour)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRBrainstroke",
+      "MRBrainstroke",
+      "Brain (stroke)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRBraintoxicmetabolicishaemicencephalopathy",
+      "MRBraintoxicmetabolicishaemicencephalopathy",
+      "Brain (toxic/metabolic/ishaemic encephalopathy)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRBrainvenoussinusthrombosis",
+      "MRBrainvenoussinusthrombosis",
+      "Brain (venous sinus thrombosis)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRBrainCervicalSpinecongenitalmalformation",
+      "MRBrainCervicalSpinecongenitalmalformation",
+      "Brain + Cervical Spine (congenital malformation)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRBrainCervicalSpinedemyelinatingdisease",
+      "MRBrainCervicalSpinedemyelinatingdisease",
+      "Brain + Cervical Spine (demyelinating disease)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRBrainCervicalSpineinflammation",
+      "MRBrainCervicalSpineinflammation",
+      "Brain + Cervical Spine (inflammation)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRBrainCervicalSpinesyrinx",
+      "MRBrainCervicalSpinesyrinx",
+      "Brain + Cervical Spine (syrinx)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRBrainCervicalSpinetumour",
+      "MRBrainCervicalSpinetumour",
+      "Brain + Cervical Spine (tumour)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRBreasts1ststudy",
+      "MRBreasts1ststudy",
+      "Breasts (1st study)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRBreasts2ndstudy",
+      "MRBreasts2ndstudy",
+      "Breasts (2nd study)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRCholangiogram",
+      "MRCholangiogram",
+      "Cholangiogram",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRConsultationbyRadiologist1stattendance",
+      "MRConsultationbyRadiologist1stattendance",
+      "Consultation by Radiologist - 1st attendance",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRConsultationbyRadiologistsubsequentattendance",
+      "MRConsultationbyRadiologistsubsequentattendance",
+      "Consultation by Radiologist - subsequent attendance",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRContrast",
+      "MRContrast",
+      "Contrast",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRElbowLeft",
+      "MRElbowLeft",
+      "Elbow - Left",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRElbowRight",
+      "MRElbowRight",
+      "Elbow - Right",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRExtremityLowergaucherdisease",
+      "MRExtremityLowergaucherdisease",
+      "Extremity Lower (gaucher disease)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRExtremityLowerinfection",
+      "MRExtremityLowerinfection",
+      "Extremity Lower (infection)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRExtremityLowerosteonecrosis",
+      "MRExtremityLowerosteonecrosis",
+      "Extremity Lower (osteonecrosis)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRExtremityLowertumour",
+      "MRExtremityLowertumour",
+      "Extremity Lower (tumour)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRExtremityUppergaucherdisease",
+      "MRExtremityUppergaucherdisease",
+      "Extremity Upper (gaucher disease)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRExtremityUpperinfection",
+      "MRExtremityUpperinfection",
+      "Extremity Upper (infection)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRExtremityUpperosteonecrosis",
+      "MRExtremityUpperosteonecrosis",
+      "Extremity Upper (osteonecrosis)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRExtremityUppertumour",
+      "MRExtremityUppertumour",
+      "Extremity Upper (tumour)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRFootLeft",
+      "MRFootLeft",
+      "Foot - Left",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRFootRight",
+      "MRFootRight",
+      "Foot - Right",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRHandLeft",
+      "MRHandLeft",
+      "Hand - Left",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRHandRight",
+      "MRHandRight",
+      "Hand - Right",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRHipLeft",
+      "MRHipLeft",
+      "Hip - Left",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRHipRight",
+      "MRHipRight",
+      "Hip - Right",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRKneeLeft",
+      "MRKneeLeft",
+      "Knee - Left",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRKneeRight",
+      "MRKneeRight",
+      "Knee - Right",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MROrbitstumouroforbit",
+      "MROrbitstumouroforbit",
+      "Orbits (tumour of orbit)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRPaediatricAngiogramLimbs",
+      "MRPaediatricAngiogramLimbs",
+      "Paediatric Angiogram Limbs",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRPaediatricExtremityLowergaucherdisease",
+      "MRPaediatricExtremityLowergaucherdisease",
+      "Paediatric Extremity Lower (gaucher disease)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRPaediatricExtremityLowerphysealfusion",
+      "MRPaediatricExtremityLowerphysealfusion",
+      "Paediatric Extremity Lower (physeal fusion)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRPaediatricExtremityUppergaucherdisease",
+      "MRPaediatricExtremityUppergaucherdisease",
+      "Paediatric Extremity Upper (gaucher disease)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRPaediatricExtremityUpperphysealfusion",
+      "MRPaediatricExtremityUpperphysealfusion",
+      "Paediatric Extremity Upper (physeal fusion)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRPaediatricMediastinum",
+      "MRPaediatricMediastinum",
+      "Paediatric Mediastinum",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRPeadiatricAbdomenPelvisabdominalorpelvicmass",
+      "MRPeadiatricAbdomenPelvisabdominalorpelvicmass",
+      "Peadiatric Abdomen/Pelvis (abdominal or pelvic mass)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRPeadiatricAbdomenPelviscongenitaluterineoranorectalabnormality",
+      "MRPeadiatricAbdomenPelviscongenitaluterineoranorectalabnormality",
+      "Peadiatric Abdomen/Pelvis (congenital uterine or anorectal abnormality)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRPelvis",
+      "MRPelvis",
+      "Pelvis",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRPelviscervicalcancerstaging",
+      "MRPelviscervicalcancerstaging",
+      "Pelvis (cervical cancer staging)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRPelvisrectalcancerstaging",
+      "MRPelvisrectalcancerstaging",
+      "Pelvis (rectal cancer staging)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSedation",
+      "MRSedation",
+      "Sedation",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRShoulderLeft",
+      "MRShoulderLeft",
+      "Shoulder - Left",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRShoulderRight",
+      "MRShoulderRight",
+      "Shoulder - Right",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalcervicalradiculopathy",
+      "MRSpineCervicalcervicalradiculopathy",
+      "Spine Cervical (cervical radiculopathy)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalcongenitalmalformation",
+      "MRSpineCervicalcongenitalmalformation",
+      "Spine Cervical (congenital malformation)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicaldemyelinatingdisease",
+      "MRSpineCervicaldemyelinatingdisease",
+      "Spine Cervical (demyelinating disease)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalinfection",
+      "MRSpineCervicalinfection",
+      "Spine Cervical (infection)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalmyelopathy",
+      "MRSpineCervicalmyelopathy",
+      "Spine Cervical (myelopathy)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalpreviousspinalsurgery",
+      "MRSpineCervicalpreviousspinalsurgery",
+      "Spine Cervical (previous spinal surgery)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalspinalcanalstenosis",
+      "MRSpineCervicalspinalcanalstenosis",
+      "Spine Cervical (spinal canal stenosis)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalsyrinx",
+      "MRSpineCervicalsyrinx",
+      "Spine Cervical (syrinx)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicaltrauma",
+      "MRSpineCervicaltrauma",
+      "Spine Cervical (trauma)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicaltumour",
+      "MRSpineCervicaltumour",
+      "Spine Cervical (tumour)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalBrachialPlexusprevioussurgery",
+      "MRSpineCervicalBrachialPlexusprevioussurgery",
+      "Spine Cervical + Brachial Plexus (previous surgery)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalBrachialPlexustrauma",
+      "MRSpineCervicalBrachialPlexustrauma",
+      "Spine Cervical + Brachial Plexus (trauma)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalBrachialPlexustumour",
+      "MRSpineCervicalBrachialPlexustumour",
+      "Spine Cervical + Brachial Plexus (tumour)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalLumbarcervicalradiculopathy",
+      "MRSpineCervicalLumbarcervicalradiculopathy",
+      "Spine Cervical Lumbar (cervical radiculopathy)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalLumbarcongenitalmalformation",
+      "MRSpineCervicalLumbarcongenitalmalformation",
+      "Spine Cervical Lumbar (congenital malformation)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalLumbardemyelinatingdisease",
+      "MRSpineCervicalLumbardemyelinatingdisease",
+      "Spine Cervical Lumbar (demyelinating disease)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalLumbarinfection",
+      "MRSpineCervicalLumbarinfection",
+      "Spine Cervical Lumbar (infection)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalLumbarmyelopathy",
+      "MRSpineCervicalLumbarmyelopathy",
+      "Spine Cervical Lumbar (myelopathy)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalLumbarpreviousspinalsurgery",
+      "MRSpineCervicalLumbarpreviousspinalsurgery",
+      "Spine Cervical Lumbar (previous spinal surgery)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalLumbarsciatica",
+      "MRSpineCervicalLumbarsciatica",
+      "Spine Cervical Lumbar (sciatica)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalLumbarspinalcanalstenosis",
+      "MRSpineCervicalLumbarspinalcanalstenosis",
+      "Spine Cervical Lumbar (spinal canal stenosis)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalLumbarsyrinx",
+      "MRSpineCervicalLumbarsyrinx",
+      "Spine Cervical Lumbar (syrinx)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalLumbartrauma",
+      "MRSpineCervicalLumbartrauma",
+      "Spine Cervical Lumbar (trauma)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalLumbartumour",
+      "MRSpineCervicalLumbartumour",
+      "Spine Cervical Lumbar (tumour)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalThoraciccervicalradiculopathy",
+      "MRSpineCervicalThoraciccervicalradiculopathy",
+      "Spine Cervical Thoracic (cervical radiculopathy)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalThoraciccongenitalmalformation",
+      "MRSpineCervicalThoraciccongenitalmalformation",
+      "Spine Cervical Thoracic (congenital malformation)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalThoracicdemyelinatingdisease",
+      "MRSpineCervicalThoracicdemyelinatingdisease",
+      "Spine Cervical Thoracic (demyelinating disease)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalThoracicinfection",
+      "MRSpineCervicalThoracicinfection",
+      "Spine Cervical Thoracic (infection)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalThoracicmyelopathy",
+      "MRSpineCervicalThoracicmyelopathy",
+      "Spine Cervical Thoracic (myelopathy)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalThoracicpreviousspinalsurgery",
+      "MRSpineCervicalThoracicpreviousspinalsurgery",
+      "Spine Cervical Thoracic (previous spinal surgery)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalThoracicspinalcanalstenosis",
+      "MRSpineCervicalThoracicspinalcanalstenosis",
+      "Spine Cervical Thoracic (spinal canal stenosis)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalThoracicsyrinx",
+      "MRSpineCervicalThoracicsyrinx",
+      "Spine Cervical Thoracic (syrinx)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalThoracictrauma",
+      "MRSpineCervicalThoracictrauma",
+      "Spine Cervical Thoracic (trauma)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalThoracictumour",
+      "MRSpineCervicalThoracictumour",
+      "Spine Cervical Thoracic (tumour)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalThoracicLumbarcervicalradiculopathy",
+      "MRSpineCervicalThoracicLumbarcervicalradiculopathy",
+      "Spine Cervical Thoracic Lumbar (cervical radiculopathy)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalThoracicLumbarcongenitalmalformation",
+      "MRSpineCervicalThoracicLumbarcongenitalmalformation",
+      "Spine Cervical Thoracic Lumbar (congenital malformation)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalThoracicLumbardemyelinatingdisease",
+      "MRSpineCervicalThoracicLumbardemyelinatingdisease",
+      "Spine Cervical Thoracic Lumbar (demyelinating disease)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalThoracicLumbarinfection",
+      "MRSpineCervicalThoracicLumbarinfection",
+      "Spine Cervical Thoracic Lumbar (infection)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalThoracicLumbarmyelopathy",
+      "MRSpineCervicalThoracicLumbarmyelopathy",
+      "Spine Cervical Thoracic Lumbar (myelopathy)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalThoracicLumbarpreviousspinalsurgery",
+      "MRSpineCervicalThoracicLumbarpreviousspinalsurgery",
+      "Spine Cervical Thoracic Lumbar (previous spinal surgery)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalThoracicLumbarsciatica",
+      "MRSpineCervicalThoracicLumbarsciatica",
+      "Spine Cervical Thoracic Lumbar (sciatica)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalThoracicLumbarspinalcanalstenosis",
+      "MRSpineCervicalThoracicLumbarspinalcanalstenosis",
+      "Spine Cervical Thoracic Lumbar (spinal canal stenosis)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalThoracicLumbarsyrinx",
+      "MRSpineCervicalThoracicLumbarsyrinx",
+      "Spine Cervical Thoracic Lumbar (syrinx)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalThoracicLumbartrauma",
+      "MRSpineCervicalThoracicLumbartrauma",
+      "Spine Cervical Thoracic Lumbar (trauma)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineCervicalThoracicLumbartumour",
+      "MRSpineCervicalThoracicLumbartumour",
+      "Spine Cervical Thoracic Lumbar (tumour)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineLumbarcongenitalmalformation",
+      "MRSpineLumbarcongenitalmalformation",
+      "Spine Lumbar (congenital malformation)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineLumbardemyelinatingdisease",
+      "MRSpineLumbardemyelinatingdisease",
+      "Spine Lumbar (demyelinating disease)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineLumbarinfection",
+      "MRSpineLumbarinfection",
+      "Spine Lumbar (infection)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineLumbarmyelopathy",
+      "MRSpineLumbarmyelopathy",
+      "Spine Lumbar (myelopathy)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineLumbarpreviousspinalsurgery",
+      "MRSpineLumbarpreviousspinalsurgery",
+      "Spine Lumbar (previous spinal surgery)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineLumbarsciatica",
+      "MRSpineLumbarsciatica",
+      "Spine Lumbar (sciatica)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineLumbarspinalcanalstenosis",
+      "MRSpineLumbarspinalcanalstenosis",
+      "Spine Lumbar (spinal canal stenosis)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineLumbarsyrinx",
+      "MRSpineLumbarsyrinx",
+      "Spine Lumbar (syrinx)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineLumbartrauma",
+      "MRSpineLumbartrauma",
+      "Spine Lumbar (trauma)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineLumbartumour",
+      "MRSpineLumbartumour",
+      "Spine Lumbar (tumour)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineThoraciccongenitalmalformation",
+      "MRSpineThoraciccongenitalmalformation",
+      "Spine Thoracic (congenital malformation)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineThoracictumour",
+      "MRSpineThoracictumour",
+      "Spine Thoracic (tumour)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineThoracicLumbarcongenitalmalformation",
+      "MRSpineThoracicLumbarcongenitalmalformation",
+      "Spine Thoracic Lumbar (congenital malformation)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineThoracicLumbardemyelinatingdisease",
+      "MRSpineThoracicLumbardemyelinatingdisease",
+      "Spine Thoracic Lumbar (demyelinating disease)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineThoracicLumbarmyelopathy",
+      "MRSpineThoracicLumbarmyelopathy",
+      "Spine Thoracic Lumbar (myelopathy)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineThoracicLumbarpreviousspinalsurgery",
+      "MRSpineThoracicLumbarpreviousspinalsurgery",
+      "Spine Thoracic Lumbar (previous spinal surgery)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineThoracicLumbarsciatica",
+      "MRSpineThoracicLumbarsciatica",
+      "Spine Thoracic Lumbar (sciatica)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineThoracicLumbarspinalcanalstenosis",
+      "MRSpineThoracicLumbarspinalcanalstenosis",
+      "Spine Thoracic Lumbar (spinal canal stenosis)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineThoracicLumbarsyrinx",
+      "MRSpineThoracicLumbarsyrinx",
+      "Spine Thoracic Lumbar (syrinx)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineThoracicLumbartrauma",
+      "MRSpineThoracicLumbartrauma",
+      "Spine Thoracic Lumbar (trauma)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRSpineThoracicLumbartumour",
+      "MRSpineThoracicLumbartumour",
+      "Spine Thoracic Lumbar (tumour)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRTestExamination",
+      "MRTestExamination",
+      "Test Examination",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRTMJsoneorboth",
+      "MRTMJsoneorboth",
+      "TMJs (one or both)",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRVenogramSVCIVCPelvicVein",
+      "MRVenogramSVCIVCPelvicVein",
+      "Venogram SVC/IVC/Pelvic Vein",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRWristLeft",
+      "MRWristLeft",
+      "Wrist - Left",
+      "current"
+    ],
+    [
+      "MRIScanImagingArea-MRWristRight",
+      "MRWristRight",
+      "Wrist - Right",
+      "current"
+    ]
+  ]
+}

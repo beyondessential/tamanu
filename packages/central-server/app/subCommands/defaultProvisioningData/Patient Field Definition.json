@@ -1,0 +1,59 @@
+{
+  "sheetName": "Patient Field Definition",
+  "data": [
+    [
+      "id",
+      "categoryId",
+      "name",
+      "visibilityStatus",
+      "fieldType",
+      "options",
+      "note"
+    ],
+    [
+      "fieldCategory-food-burger",
+      "fieldCategory-food",
+      "Favourite burger?",
+      "current",
+      "string",
+      null,
+      null
+    ],
+    [
+      "fieldCategory-food-lactose",
+      "fieldCategory-food",
+      "Lactose tolerance",
+      "current",
+      "string",
+      null,
+      null
+    ],
+    [
+      "fieldCategory-clothing-shoeSizeInCm",
+      "fieldCategory-clothing",
+      "Shoe size (cm)?",
+      "current",
+      "number",
+      null,
+      null
+    ],
+    [
+      "fieldCategory-clothing-shoeSizeInInches",
+      "fieldCategory-clothing",
+      "Shoe size (inches)?",
+      "historical",
+      "number",
+      null,
+      null
+    ],
+    [
+      "fieldCategory-clothing-tshirtSize",
+      "fieldCategory-clothing",
+      "T-shirt size?",
+      "current",
+      "select",
+      "s,m,l,xl,2xl",
+      null
+    ]
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "sheetName": "Note Type",
+  "data": [
+    [
+      "id",
+      "code",
+      "name",
+      "visibilityStatus"
+    ],
+    [
+      "notetype-admission",
+      "admission",
+      "Admission",
+      "current"
+    ],
+    [
+      "notetype-medical",
+      "medical",
+      "Medical",
+      "current"
+    ],
+    [
+      "notetype-surgical",
+      "surgical",
+      "Surgical",
+      "current"
+    ],
+    [
+      "notetype-nursing",
+      "nursing",
+      "Nursing",
+      "current"
+    ],
+    [
+      "notetype-dietary",
+      "dietary",
+      "Dietary",
+      "current"
+    ],
+    [
+      "notetype-pharmacy",
+      "pharmacy",
+      "Pharmacy",
+      "current"
+    ],
+    [
+      "notetype-physiotherapy",
+      "physiotherapy",
+      "Physiotherapy",
+      "current"
+    ],
+    [
+      "notetype-social",
+      "social",
+      "Social welfare",
+      "current"
+    ],
+    [
+      "notetype-clinicalMobile",
+      "clinicalMobile",
+      "Clinical note (mobile)",
+      "current"
+    ],
+    [
+      "notetype-handover",
+      "handover",
+      "Handover note",
+      "current"
+    ],
+    [
+      "notetype-areaToBeImaged",
+      "areaToBeImaged",
+      "Area to be imaged",
+      "current"
+    ],
+    [
+      "notetype-resultDescription",
+      "resultDescription",
+      "Result description",
+      "current"
+    ],
+    [
+      "notetype-other",
+      "other",
+      "Other",
+      "current"
+    ],
+    [
+      "notetype-system",
+      "system",
+      "System",
+      "current"
+    ],
+    [
+      "notetype-treatmentPlan",
+      "treatmentPlan",
+      "Treatment plan",
+      "current"
+    ],
+    [
+      "notetype-discharge",
+      "discharge",
+      "Discharge planning",
+      "current"
+    ]
+  ]
+}

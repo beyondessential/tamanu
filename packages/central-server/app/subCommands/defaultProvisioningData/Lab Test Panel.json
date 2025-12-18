@@ -1,0 +1,59 @@
+{
+  "sheetName": "Lab Test Panel",
+  "data": [
+    [
+      "id",
+      "code",
+      "name",
+      "visibilityStatus",
+      "externalCode",
+      "categoryId",
+      "testTypesInPanel"
+    ],
+    [
+      "labTestPanel-bloods",
+      "bloods",
+      "Bloods",
+      "current",
+      null,
+      "labTestCategory-Serology",
+      "labTestType-Sodium,labTestType-Potassium,labTestType-BloodGlucose,labTestType-Cholesterol,labTestType-Magnesium"
+    ],
+    [
+      "labTestPanel-cmp",
+      "cmp",
+      "Comprehensive Metabolic Panel (CMP)",
+      "current",
+      null,
+      "labTestCategory-Other",
+      "labTestType-Bilibubin,labTestType-ALP,labTestType-AST,labTestType-Potassium,labTestType-BloodGlucose,labTestType-Chloride,labTestType-Urea,labTestType-Calcium,labTestType-Creatinine,labTestType-ALT,labTestType-Albumin"
+    ],
+    [
+      "cfff2b48-45ca-4405-9ba5-10c180ff3307",
+      "bloods",
+      "Bloods",
+      "current",
+      "external-testPanel-Bloods",
+      "labTestCategory-LFT",
+      "labTestType-ALP,labTestType-AST"
+    ],
+    [
+      "b7a10af7-7b58-46a9-8282-5f5db9bf7478",
+      "Demo Test Panel",
+      "Demo Test Panel",
+      "current",
+      "external-Demo-Test-Panel",
+      "labTestCategory-UE",
+      "labTestType-Sodium,labTestType-Potassium"
+    ],
+    [
+      "8cb3dec3-c88f-4abf-a50e-314c1230cc6a",
+      "others",
+      "Others",
+      "current",
+      "external-testPanel-Others",
+      "labTestCategory-Other",
+      "labTestType-Woundswab,labTestType-INR"
+    ]
+  ]
+}

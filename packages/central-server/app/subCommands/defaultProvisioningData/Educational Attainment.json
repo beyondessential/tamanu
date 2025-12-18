@@ -1,0 +1,45 @@
+{
+  "sheetName": "Educational Attainment",
+  "data": [
+    [
+      "id",
+      "code",
+      "name"
+    ],
+    [
+      "educationalAttainment-Noformalschooling",
+      "Noformalschooling",
+      "No formal schooling"
+    ],
+    [
+      "educationalAttainment-Lessthanprimaryschool",
+      "Lessthanprimaryschool",
+      "Less than primary school"
+    ],
+    [
+      "educationalAttainment-Primaryschoolcompleted",
+      "Primaryschoolcompleted",
+      "Primary school completed"
+    ],
+    [
+      "educationalAttainment-Secondaryschoolcompleted",
+      "Secondaryschoolcompleted",
+      "Secondary school completed"
+    ],
+    [
+      "educationalAttainment-Highschoolcompleted",
+      "Highschoolcompleted",
+      "High school completed"
+    ],
+    [
+      "educationalAttainment-Universitycompleted",
+      "Universitycompleted",
+      "University completed"
+    ],
+    [
+      "educationalAttainment-Postgraduatedegreecompleted",
+      "Postgraduatedegreecompleted",
+      "Post graduate degree completed"
+    ]
+  ]
+}

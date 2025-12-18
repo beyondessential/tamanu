@@ -1,0 +1,100 @@
+{
+  "sheetName": "Countries",
+  "data": [
+    [
+      "id",
+      "code",
+      "name"
+    ],
+    [
+      "country-AmericanSamoa",
+      "AmericanSamoa",
+      "American Samoa"
+    ],
+    [
+      "country-Australia",
+      "Australia",
+      "Australia"
+    ],
+    [
+      "country-FederatedStatesofMicronesia",
+      "FederatedStatesofMicronesia",
+      "Federated States of Micronesia"
+    ],
+    [
+      "country-Fiji",
+      "Fiji",
+      "Fiji"
+    ],
+    [
+      "country-FrenchPolynesia",
+      "FrenchPolynesia",
+      "French Polynesia"
+    ],
+    [
+      "country-Kiribati",
+      "Kiribati",
+      "Kiribati"
+    ],
+    [
+      "country-MarshallIslands",
+      "MarshallIslands",
+      "Marshall Islands"
+    ],
+    [
+      "country-Nauru",
+      "Nauru",
+      "Nauru"
+    ],
+    [
+      "country-NewCaledonia",
+      "NewCaledonia",
+      "New Caledonia"
+    ],
+    [
+      "country-NewZealand",
+      "NewZealand",
+      "New Zealand"
+    ],
+    [
+      "country-NorthernMarianaIslands",
+      "NorthernMarianaIslands",
+      "Northern Mariana Islands"
+    ],
+    [
+      "country-Other",
+      "Other",
+      "Other"
+    ],
+    [
+      "country-Palau",
+      "Palau",
+      "Palau"
+    ],
+    [
+      "country-SolomonIslands",
+      "SolomonIslands",
+      "Solomon Islands"
+    ],
+    [
+      "country-Tonga",
+      "Tonga",
+      "Tonga"
+    ],
+    [
+      "country-Tuvalu",
+      "Tuvalu",
+      "Tuvalu"
+    ],
+    [
+      "country-Vanuatu",
+      "Vanuatu",
+      "Vanuatu"
+    ],
+    [
+      "country-WallisandFutuna",
+      "WallisandFutuna",
+      "Wallis and Futuna"
+    ]
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "sheetName": "Booking Type",
+  "data": [
+    [
+      "id",
+      "code",
+      "name",
+      "visibilityStatus"
+    ],
+    [
+      "bookingtype-Surgical",
+      "Surgical",
+      "Surgical",
+      "current"
+    ],
+    [
+      "bookingtype-Chemotherapy",
+      "Chemotherapy",
+      "Chemotherapy",
+      "current"
+    ],
+    [
+      "bookingtype-Dialysis",
+      "Dialysis",
+      "Dialysis",
+      "current"
+    ],
+    [
+      "Bookingtype-Inpatientstay",
+      "Inpatientstay",
+      "Inpatient stay",
+      "current"
+    ]
+  ]
+}

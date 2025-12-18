@@ -1,0 +1,47 @@
+{
+  "sheetName": "Vaccine Circumstance",
+  "data": [
+    [
+      "id",
+      "code",
+      "name",
+      "visibilityStatus"
+    ],
+    [
+      "vaccineCircumstance-AntibodiesDetected",
+      "AntibodiesDetected",
+      "Antibodies detected",
+      "current"
+    ],
+    [
+      "vaccineCircumstance-CaregiverReported",
+      "CaregiverReported",
+      "Caregiver reported (no evidence)",
+      "current"
+    ],
+    [
+      "vaccineCircumstance-GivenInPrivateSector",
+      "GivenInPrivateSector",
+      "Given in private sector",
+      "current"
+    ],
+    [
+      "vaccineCircumstance-GivenOverseas",
+      "GivenOverseas",
+      "Given overseas",
+      "current"
+    ],
+    [
+      "vaccineCircumstance-PatientReported",
+      "PatientReported",
+      "Patient reported (no evidence)",
+      "current"
+    ],
+    [
+      "vaccineCircumstance-ScarSighted",
+      "ScarSighted",
+      "Scar sighted",
+      "current"
+    ]
+  ]
+}

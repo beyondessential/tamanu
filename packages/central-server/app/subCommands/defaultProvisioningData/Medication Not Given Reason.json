@@ -1,0 +1,53 @@
+{
+  "sheetName": "Medication Not Given Reason",
+  "data": [
+    [
+      "id",
+      "code",
+      "name",
+      "visibilityStatus"
+    ],
+    [
+      "medicationnotgivenreason-outofstock",
+      "outofstock",
+      "Out of stock",
+      null
+    ],
+    [
+      "medicationnotgivenreason-patientrefused",
+      "patientrefused",
+      "Patient refused",
+      null
+    ],
+    [
+      "medicationnotgivenreason-patientnotavailable",
+      "patientnotavailable",
+      "Patient not available",
+      null
+    ],
+    [
+      "medicationnotgivenreason-clinicallyinappropriate",
+      "clinicallyinappropriate",
+      "Clinically inappropriate",
+      null
+    ],
+    [
+      "medicationnotgivenreason-forgot",
+      "forgot",
+      "Forgot",
+      null
+    ],
+    [
+      "medicationnotgivenreason-unabletoadminister",
+      "unabletoadminister",
+      "Unable to administer",
+      null
+    ],
+    [
+      "medicationnotgivenreason-other",
+      "other",
+      "Other",
+      null
+    ]
+  ]
+}

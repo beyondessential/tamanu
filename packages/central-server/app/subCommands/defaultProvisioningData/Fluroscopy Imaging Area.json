@@ -1,0 +1,305 @@
+{
+  "sheetName": "Fluroscopy Imaging Area",
+  "data": [
+    [
+      "id",
+      "code",
+      "name",
+      "visibilityStatus"
+    ],
+    [
+      "fluroscopyScanImagingArea-AbscessDrainageTubeChangeeximaging",
+      "AbscessDrainageTubeChangeeximaging",
+      "Abscess Drainage Tube Change (ex. imaging)",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-AbscessDrainageTubeInsertioneximaging",
+      "AbscessDrainageTubeInsertioneximaging",
+      "Abscess Drainage Tube Insertion (ex. imaging)",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-AnaesCervicalMyelogram",
+      "AnaesCervicalMyelogram",
+      "Anaes.Cervical Myelogram",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-AnaesHysterosalpingogram",
+      "AnaesHysterosalpingogram",
+      "Anaes. Hysterosalpingogram",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-AnaesThoracicorLumbarMyelogram",
+      "AnaesThoracicorLumbarMyelogram",
+      "Anaes.Thoracic or Lumbar Myelogram",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-AntegradePyelogramLeft",
+      "AntegradePyelogramLeft",
+      "Antegrade Pyelogram (Left)",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-AntegradePyelogramRight",
+      "AntegradePyelogramRight",
+      "Antegrade Pyelogram (Right)",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-AntegradeUretericStentInsertioneximaging",
+      "AntegradeUretericStentInsertioneximaging",
+      "Antegrade Ureteric Stent Insertion (ex imaging)",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-Arthrogram",
+      "Arthrogram",
+      "Arthrogram",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-BiopsyofDeepOrganeximaging",
+      "BiopsyofDeepOrganeximaging",
+      "Biopsy of Deep Organ (ex. imaging)",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-BiopsyofLungeximaging",
+      "BiopsyofLungeximaging",
+      "Biopsy of Lung (ex. imaging)",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-BiopsyThoracicMediastinumeximaging",
+      "BiopsyThoracicMediastinumeximaging",
+      "Biopsy Thoracic Mediastinum (ex. imaging)",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-ChestwithFluoroscopy",
+      "ChestwithFluoroscopy",
+      "Chest with Fluoroscopy",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-Cystogram",
+      "Cystogram",
+      "Cystogram",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-EmbolisationofArterovenousMalformation",
+      "EmbolisationofArterovenousMalformation",
+      "Embolisation of Arterovenous Malformation",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-EmbolisationofArtery",
+      "EmbolisationofArtery",
+      "Embolisation of Artery",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-EmbolisationofVein",
+      "EmbolisationofVein",
+      "Embolisation of Vein",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-ExcisedBreastTissue",
+      "ExcisedBreastTissue",
+      "Excised Breast Tissue",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-ExtractionBiliaryCalculuseximaging",
+      "ExtractionBiliaryCalculuseximaging",
+      "Extraction Biliary Calculus (ex. imaging)",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-ExtractionRenalCalculuseximaging",
+      "ExtractionRenalCalculuseximaging",
+      "Extraction Renal Calculus (ex. imaging)",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-FineNeedleBiopsyofVertebraeximaging",
+      "FineNeedleBiopsyofVertebraeximaging",
+      "Fine Needle Biopsy of Vertebra (ex. imaging)",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-Fistulogram",
+      "Fistulogram",
+      "Fistulogram",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-FluoroscopyforInterventionalProcedureinDSASuite",
+      "FluoroscopyforInterventionalProcedureinDSASuite",
+      "Fluoroscopy for Interventional Procedure in DSA Suite",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-FluoroscopyWithGA",
+      "FluoroscopyWithGA",
+      "Fluoroscopy With G.A.",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-FluoroscopywithInterventionalProceedure",
+      "FluoroscopywithInterventionalProceedure",
+      "Fluoroscopy with Interventional Proceedure",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-FluoroscopywithoutGA",
+      "FluoroscopywithoutGA",
+      "Fluoroscopy without G.A.",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-GastricBandAdjustmentexImaging",
+      "GastricBandAdjustmentexImaging",
+      "Gastric Band Adjustment (ex. Imaging)",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-Herniagram",
+      "Herniagram",
+      "Herniagram",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-InsertionBiliaryDrainageTubeeximaging",
+      "InsertionBiliaryDrainageTubeeximaging",
+      "Insertion - Biliary Drainage Tube (ex. imaging)",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-InsertionOesophagealStent",
+      "InsertionOesophagealStent",
+      "Insertion - Oesophageal Stent",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-JointInjectionaspirationeximaging",
+      "JointInjectionaspirationeximaging",
+      "Joint Injection / aspiration (ex. imaging)",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-LumbarPunctureeximaging",
+      "LumbarPunctureeximaging",
+      "Lumbar Puncture  (ex. imaging)",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-MicturatingCystoUrethrogram",
+      "MicturatingCystoUrethrogram",
+      "Micturating Cysto-Urethrogram",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-MRBraininflammation",
+      "MRBraininflammation",
+      "MR Brain (inflammation)",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-MRBraintumourofskullbaseorbit",
+      "MRBraintumourofskullbaseorbit",
+      "MR Brain (tumour of skull base/orbit)",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-Myelogramoneormoreregions",
+      "Myelogramoneormoreregions",
+      "Myelogram - one or more regions",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-NephrostogramLeft",
+      "NephrostogramLeft",
+      "Nephrostogram (Left)",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-NephrostogramRight",
+      "NephrostogramRight",
+      "Nephrostogram (Right)",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-NephrostomyTubeChangeeximaging",
+      "NephrostomyTubeChangeeximaging",
+      "Nephrostomy Tube Change  (ex. imaging)",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-NephrostomyTubeInsertioneximaging",
+      "NephrostomyTubeInsertioneximaging",
+      "Nephrostomy Tube Insertion (ex. imaging)",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-RetrogradeCystoUrethrogram",
+      "RetrogradeCystoUrethrogram",
+      "Retrograde Cysto-Urethrogram",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-Sinogram",
+      "Sinogram",
+      "Sinogram",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-SmallBowelIntubationeximaging",
+      "SmallBowelIntubationeximaging",
+      "Small Bowel Intubation (ex. imaging)",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-SniffTest",
+      "SniffTest",
+      "Sniff Test",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-TubeChangeBiliaryDrainageeximaging",
+      "TubeChangeBiliaryDrainageeximaging",
+      "Tube Change - Biliary Drainage (ex. imaging)",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-VenaCavaFilterInsertion",
+      "VenaCavaFilterInsertion",
+      "Vena Cava Filter Insertion",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-VenogramLeft",
+      "VenogramLeft",
+      "Venogram (Left)",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-VenogramRight",
+      "VenogramRight",
+      "Venogram (Right)",
+      "current"
+    ],
+    [
+      "fluroscopyScanImagingArea-ZygoapophysealJointInjectionincludesimaging",
+      "ZygoapophysealJointInjectionincludesimaging",
+      "Zygo-apophyseal Joint Injection (includes imaging)",
+      "current"
+    ]
+  ]
+}

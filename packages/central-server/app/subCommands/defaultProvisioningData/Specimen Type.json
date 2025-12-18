@@ -1,0 +1,113 @@
+{
+  "sheetName": "Specimen Type",
+  "data": [
+    [
+      "id",
+      "code",
+      "name",
+      "visibilityStatus"
+    ],
+    [
+      "specimenType-Aspirate",
+      "Aspirate",
+      "Aspirate",
+      "current"
+    ],
+    [
+      "specimenType-BloodCulture",
+      "BloodCulture",
+      "Blood culture ",
+      "current"
+    ],
+    [
+      "specimenType-CSF",
+      "CSF",
+      "CSF",
+      "current"
+    ],
+    [
+      "specimenType-Faeces",
+      "Faeces",
+      "Faeces",
+      "current"
+    ],
+    [
+      "specimenType-Fluid",
+      "Fluid",
+      "Fluid",
+      "current"
+    ],
+    [
+      "specimenType-Pericardial",
+      "Pericardial",
+      "Pericardial",
+      "current"
+    ],
+    [
+      "specimenType-PeritonealAscites",
+      "PeritonealAscites",
+      "Peritoneal/Ascites ",
+      "current"
+    ],
+    [
+      "specimenType-Plural",
+      "Plural",
+      "Plural",
+      "current"
+    ],
+    [
+      "specimenType-Serum",
+      "Serum",
+      "Serum ",
+      "current"
+    ],
+    [
+      "specimenType-Sputum",
+      "Sputum",
+      "Sputum ",
+      "current"
+    ],
+    [
+      "specimenType-Swab",
+      "Swab",
+      "Swab",
+      "current"
+    ],
+    [
+      "specimenType-UrineRandom",
+      "UrineRandom",
+      "Urine random",
+      "current"
+    ],
+    [
+      "specimenType-WholeBlood",
+      "WholeBlood",
+      "Whole blood ",
+      "current"
+    ],
+    [
+      "specimenType-Tissue",
+      "Tissue",
+      "Tissue",
+      "current"
+    ],
+    [
+      "specimenType-SynovialFluid",
+      "SynovialFluid",
+      "specimenType",
+      "current"
+    ],
+    [
+      "specimenType-EDTA",
+      "EDTA",
+      "EDTA",
+      "current"
+    ],
+    [
+      "specimenType-Citrate",
+      "Citrate",
+      "Citrate",
+      "current"
+    ]
+  ]
+}

@@ -1,0 +1,221 @@
+{
+  "sheetName": "Location Group",
+  "data": [
+    [
+      "id",
+      "code",
+      "name",
+      "visibilityStatus",
+      "isBookable",
+      "facilityId"
+    ],
+    [
+      "locationgroup-CarnationClinic",
+      "CarnationClinic",
+      "Carnation Clinic",
+      "current",
+      "all",
+      "facility-CarnationHealthCentre"
+    ],
+    [
+      "locationgroup-CarnationImmunisationClinic",
+      "CarnationImmunisationClinic",
+      "Immunisation Clinic",
+      "current",
+      "all",
+      "facility-CarnationHealthCentre"
+    ],
+    [
+      "locationgroup-Outpatient",
+      "Outpatient",
+      "Outpatient",
+      "current",
+      "all",
+      "facility-2"
+    ],
+    [
+      "locationgroup-Ward1",
+      "Ward1",
+      "Ward 1",
+      "current",
+      "all",
+      "facility-2"
+    ],
+    [
+      "locationgroup-Ward2",
+      "Ward2",
+      "Ward 2",
+      "current",
+      "all",
+      "facility-2"
+    ],
+    [
+      "locationgroup-EDBed",
+      "EDBed",
+      "Emergency Department",
+      "current",
+      "all",
+      "facility-2"
+    ],
+    [
+      "locationgroup-WaitingArea",
+      "WaitingArea",
+      "Waiting Area",
+      "historical",
+      "all",
+      "facility-2"
+    ],
+    [
+      "locationgroup-Theatre1",
+      "Theatre1",
+      "Operating Theatre",
+      "current",
+      "all",
+      "facility-2"
+    ],
+    [
+      "locationgroup-Theatre2",
+      "Theatre2",
+      "Theatre 2",
+      "historical",
+      "all",
+      "facility-2"
+    ],
+    [
+      "locationgroup-Home",
+      "Home",
+      "Home Visit",
+      "current",
+      "all",
+      "facility-2"
+    ],
+    [
+      "locationgroup-Outpatient-tamanu",
+      "Outpatient",
+      "Outpatient",
+      "current",
+      "all",
+      "facility-1"
+    ],
+    [
+      "locationgroup-Ward1-tamanu",
+      "Ward1",
+      "Ward 1",
+      "current",
+      "all",
+      "facility-1"
+    ],
+    [
+      "locationgroup-Ward2-tamanu",
+      "Ward2",
+      "Ward 2",
+      "current",
+      "no",
+      "facility-1"
+    ],
+    [
+      "locationgroup-EDBed-tamanu",
+      "EDBed",
+      "Emergency Department",
+      "current",
+      "no",
+      "facility-1"
+    ],
+    [
+      "locationgroup-WaitingArea-tamanu",
+      "WaitingArea",
+      "Waiting Area",
+      "historical",
+      "no",
+      "facility-1"
+    ],
+    [
+      "locationgroup-Theatre1-tamanu",
+      "Theatre1",
+      "Operating Theatre",
+      "current",
+      "no",
+      "facility-1"
+    ],
+    [
+      "locationgroup-Theatre2-tamanu",
+      "Theatre2",
+      "Theatre 2",
+      "historical",
+      "no",
+      "facility-1"
+    ],
+    [
+      "locationgroup-Home-tamanu",
+      "Home",
+      "Home Visit",
+      "current",
+      "no",
+      "facility-1"
+    ],
+    [
+      "locationgroup-Radiology-tamanu",
+      "Radiology",
+      "Radiology",
+      "current",
+      "no",
+      "facility-1"
+    ],
+    [
+      "locationgroup-OverseasMedicalReferral",
+      "OverseasMedicalReferral",
+      "Overseas Medical Referral",
+      "current",
+      "no",
+      "facility-1"
+    ],
+    [
+      "locationgroup-TamanuImmunisationClinic",
+      "TamanuImmunisationClinic",
+      "Immunisation Clinic",
+      "current",
+      "no",
+      "facility-1"
+    ],
+    [
+      "locationgroup-Radiology",
+      "Radiology",
+      "Radiology",
+      "current",
+      "no",
+      "facility-2"
+    ],
+    [
+      "locationgroup-LilyImmunisationClinic",
+      "LilyImmunisationClinic",
+      "Immunisation Clinic",
+      "current",
+      "no",
+      "facility-2"
+    ],
+    [
+      "locationgroup-Ward3-tamanu",
+      "Ward3",
+      "Ward 3",
+      "current",
+      "no",
+      "facility-1"
+    ],
+    [
+      "locationgroup-Ward4-tamanu",
+      "Ward4",
+      "Ward 4",
+      "current",
+      "no",
+      "facility-1"
+    ],
+    [
+      "locationgroup-Ward5-tamanu",
+      "Ward5",
+      "Ward 5",
+      "current",
+      "no",
+      "facility-1"
+    ]
+  ]
+}

@@ -1,0 +1,1181 @@
+{
+  "sheetName": "X Ray Imaging Area",
+  "data": [
+    [
+      "id",
+      "code",
+      "name",
+      "visibilityStatus"
+    ],
+    [
+      "xRayImagingArea-HandRight",
+      "HandRight",
+      "Hand - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-AbdomenErectandSupine",
+      "AbdomenErectandSupine",
+      "Abdomen Erect and Supine",
+      "current"
+    ],
+    [
+      "xRayImagingArea-AbdomenPlain",
+      "AbdomenPlain",
+      "Abdomen - Plain",
+      "current"
+    ],
+    [
+      "xRayImagingArea-AbdomenRenalKUB",
+      "AbdomenRenalKUB",
+      "Abdomen - Renal (KUB)",
+      "current"
+    ],
+    [
+      "xRayImagingArea-AnkleandLegLeft",
+      "AnkleandLegLeft",
+      "Ankle and Leg - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-AnkleandLegRight",
+      "AnkleandLegRight",
+      "Ankle and Leg - Right ",
+      "current"
+    ],
+    [
+      "xRayImagingArea-AnkleCalcaneumLeftHeelLeft",
+      "AnkleCalcaneumLeftHeelLeft",
+      "Ankle - Calcaneum Left / Heel - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-AnkleCalcaneumRightHeelRight",
+      "AnkleCalcaneumRightHeelRight",
+      "Ankle - Calcaneum Right / Heel - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-AnkleLeft",
+      "AnkleLeft",
+      "Ankle - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-AnkleRight",
+      "AnkleRight",
+      "Ankle - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-ArmElbowandHumerusLeft",
+      "ArmElbowandHumerusLeft",
+      "Arm - Elbow and Humerus - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-ArmElbowandHumerusRight",
+      "ArmElbowandHumerusRight",
+      "Arm - Elbow and Humerus - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-ArmElbowLeft",
+      "ArmElbowLeft",
+      "Arm - Elbow - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-ArmElbowRight",
+      "ArmElbowRight",
+      "Arm - Elbow - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-ArmForearmandElbowLeft",
+      "ArmForearmandElbowLeft",
+      "Arm - Forearm and Elbow - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-ArmForearmandElbowRight",
+      "ArmForearmandElbowRight",
+      "Arm - Forearm and Elbow - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-ArmForearmLeft",
+      "ArmForearmLeft",
+      "Arm - Forearm - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-ArmForearmRight",
+      "ArmForearmRight",
+      "Arm - Forearm - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-ArmHumerusLeft",
+      "ArmHumerusLeft",
+      "Arm - Humerus - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-ArmHumerusRight",
+      "ArmHumerusRight",
+      "Arm - Humerus - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-BoneAgeStudy",
+      "BoneAgeStudy",
+      "Bone Age Study",
+      "current"
+    ],
+    [
+      "xRayImagingArea-Chest",
+      "Chest",
+      "Chest",
+      "current"
+    ],
+    [
+      "xRayImagingArea-FacialBones",
+      "FacialBones",
+      "Facial Bones",
+      "current"
+    ],
+    [
+      "xRayImagingArea-FootandAnkleLeft",
+      "FootandAnkleLeft",
+      "Foot and Ankle - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileFacialBones",
+      "MobileFacialBones",
+      "Mobile - Facial Bones",
+      "current"
+    ],
+    [
+      "xRayImagingArea-FootandAnkleRight",
+      "FootandAnkleRight",
+      "Foot and Ankle - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-FootLeft",
+      "FootLeft",
+      "Foot - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-FootRight",
+      "FootRight",
+      "Foot - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-FootToesLeft",
+      "FootToesLeft",
+      "Foot - Toes - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-FootToesRight",
+      "FootToesRight",
+      "Foot - Toes - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-HandWristandForearmLeft",
+      "HandWristandForearmLeft",
+      "Hand, Wrist and Forearm - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-HandWristandForearmRight",
+      "HandWristandForearmRight",
+      "Hand, Wrist and Forearm - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-HandFingerandorThumbLeft",
+      "HandFingerandorThumbLeft",
+      "Hand - Finger and/or Thumb - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-HandFingerAndOrThumbRight",
+      "HandFingerAndOrThumbRight",
+      "Hand - Finger And/Or Thumb - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-HandLeft",
+      "HandLeft",
+      "Hand - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-IntravenousPyelogram",
+      "IntravenousPyelogram",
+      "Intravenous Pyelogram",
+      "current"
+    ],
+    [
+      "xRayImagingArea-Larynx",
+      "Larynx",
+      "Larynx",
+      "current"
+    ],
+    [
+      "xRayImagingArea-LegFemurLeft",
+      "LegFemurLeft",
+      "Leg - Femur - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-LegFemurRight",
+      "LegFemurRight",
+      "Leg - Femur - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-LegHipLeft",
+      "LegHipLeft",
+      "Leg - Hip - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-LegHipRight",
+      "LegHipRight",
+      "Leg - Hip - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-LegKneeandFemurLeft",
+      "LegKneeandFemurLeft",
+      "Leg - Knee and Femur - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-LegKneeandFemurRight",
+      "LegKneeandFemurRight",
+      "Leg - Knee and Femur - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-LegKneeandLegLeft",
+      "LegKneeandLegLeft",
+      "Leg - Knee and Leg - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-LegKneeandLegRight",
+      "LegKneeandLegRight",
+      "Leg - Knee and Leg - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-LegKneeLeft",
+      "LegKneeLeft",
+      "Leg - Knee - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-LegKneeRight",
+      "LegKneeRight",
+      "Leg - Knee - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-LegLength",
+      "LegLength",
+      "Leg Length",
+      "current"
+    ],
+    [
+      "xRayImagingArea-LegLowerLeftTibiaFibula",
+      "LegLowerLeftTibiaFibula",
+      "Leg - Lower - Left (Tibia & Fibula)",
+      "current"
+    ],
+    [
+      "xRayImagingArea-LegLowerRightTibiaFibula",
+      "LegLowerRightTibiaFibula",
+      "Leg - Lower - Right (Tibia & Fibula)",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MandibleCR",
+      "MandibleCR",
+      "Mandible - (CR)",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MastoidAirCells",
+      "MastoidAirCells",
+      "Mastoid Air Cells",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileAbdomenErectandSupine",
+      "MobileAbdomenErectandSupine",
+      "Mobile - Abdomen Erect and Supine",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileAbdomenPlain",
+      "MobileAbdomenPlain",
+      "Mobile - Abdomen - Plain",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileAbdomenRenal",
+      "MobileAbdomenRenal",
+      "Mobile - Abdomen - Renal",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileAnkleandLegLeft",
+      "MobileAnkleandLegLeft",
+      "Mobile - Ankle and Leg - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileAnkleandLegRight",
+      "MobileAnkleandLegRight",
+      "Mobile - Ankle and Leg - Right ",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileAnkleCalcaneumLeftHeel",
+      "MobileAnkleCalcaneumLeftHeel",
+      "Mobile - Ankle - Calcaneum - Left (Heel)",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileAnkleCalcaneumRightHeel",
+      "MobileAnkleCalcaneumRightHeel",
+      "Mobile - Ankle - Calcaneum - Right (Heel)",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileAnkleLeft",
+      "MobileAnkleLeft",
+      "Mobile - Ankle - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileAnkleRight",
+      "MobileAnkleRight",
+      "Mobile - Ankle - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileArmElbowandHumerusLeft",
+      "MobileArmElbowandHumerusLeft",
+      "Mobile - Arm - Elbow and Humerus - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileArmElbowandHumerusRight",
+      "MobileArmElbowandHumerusRight",
+      "Mobile - Arm - Elbow and Humerus - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileArmElbowLeft",
+      "MobileArmElbowLeft",
+      "Mobile - Arm - Elbow - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileArmElbowRight",
+      "MobileArmElbowRight",
+      "Mobile - Arm - Elbow - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileArmForearmandElbowLeft",
+      "MobileArmForearmandElbowLeft",
+      "Mobile - Arm - Forearm and Elbow - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileArmForearmandElbowRight",
+      "MobileArmForearmandElbowRight",
+      "Mobile - Arm - Forearm and Elbow - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileArmForearmLeft",
+      "MobileArmForearmLeft",
+      "Mobile - Arm - Forearm - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileArmForearmRight",
+      "MobileArmForearmRight",
+      "Mobile - Arm - Forearm - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileArmHumerusLeft",
+      "MobileArmHumerusLeft",
+      "Mobile - Arm - Humerus - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileArmHumerusRight",
+      "MobileArmHumerusRight",
+      "Mobile - Arm - Humerus - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileFootandAnkleLeft",
+      "MobileFootandAnkleLeft",
+      "Mobile - Foot and Ankle - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileFootandAnkleRight",
+      "MobileFootandAnkleRight",
+      "Mobile - Foot and Ankle - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileFootLeft",
+      "MobileFootLeft",
+      "Mobile - Foot - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileFootRight",
+      "MobileFootRight",
+      "Mobile - Foot - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileFootToesLeft",
+      "MobileFootToesLeft",
+      "Mobile - Foot - Toes - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileFootToesRight",
+      "MobileFootToesRight",
+      "Mobile - Foot - Toes - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileHandWristandForearmLeft",
+      "MobileHandWristandForearmLeft",
+      "Mobile - Hand, Wrist and Forearm - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileHandWristandForearmRight",
+      "MobileHandWristandForearmRight",
+      "Mobile - Hand, Wrist and Forearm - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileHandBoneAge",
+      "MobileHandBoneAge",
+      "Mobile - Hand - Bone Age",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileHandFingerandorThumbLeft",
+      "MobileHandFingerandorThumbLeft",
+      "Mobile - Hand - Finger and/or Thumb - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileHandFingerandorThumbRight",
+      "MobileHandFingerandorThumbRight",
+      "Mobile - Hand - Finger and/or Thumb - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileHandLeft",
+      "MobileHandLeft",
+      "Mobile - Hand - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileHandRight",
+      "MobileHandRight",
+      "Mobile - Hand - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileIntravenousPyelogram",
+      "MobileIntravenousPyelogram",
+      "Mobile - Intravenous Pyelogram",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileLarynx",
+      "MobileLarynx",
+      "Mobile - Larynx",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileLegFemurLeft",
+      "MobileLegFemurLeft",
+      "Mobile - Leg - Femur - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileLegFemurRight",
+      "MobileLegFemurRight",
+      "Mobile - Leg - Femur - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileLegHipLeft",
+      "MobileLegHipLeft",
+      "Mobile - Leg - Hip - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileLegHipRight",
+      "MobileLegHipRight",
+      "Mobile - Leg - Hip - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileLegKneeandFemurLeft",
+      "MobileLegKneeandFemurLeft",
+      "Mobile - Leg - Knee and Femur - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileLegKneeandFemurRight",
+      "MobileLegKneeandFemurRight",
+      "Mobile - Leg - Knee and Femur - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileLegKneeandLegLeft",
+      "MobileLegKneeandLegLeft",
+      "Mobile - Leg - Knee and Leg - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileLegKneeandLegRight",
+      "MobileLegKneeandLegRight",
+      "Mobile - Leg - Knee and Leg - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileLegKneeLeft",
+      "MobileLegKneeLeft",
+      "Mobile - Leg - Knee - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileLegKneeRight",
+      "MobileLegKneeRight",
+      "Mobile - Leg - Knee - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileLegLength",
+      "MobileLegLength",
+      "Mobile - Leg Length",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileLegLowerLeftTibiaFibula",
+      "MobileLegLowerLeftTibiaFibula",
+      "Mobile - Leg - Lower - Left (Tibia & Fibula)",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileLegLowerRightTibiaFibula",
+      "MobileLegLowerRightTibiaFibula",
+      "Mobile - Leg - Lower - Right (Tibia & Fibula)",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileMandible",
+      "MobileMandible",
+      "Mobile - Mandible ",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileMastoidAirCells",
+      "MobileMastoidAirCells",
+      "Mobile - Mastoid Air Cells",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileNasalBones",
+      "MobileNasalBones",
+      "Mobile - Nasal Bones",
+      "current"
+    ],
+    [
+      "xRayImagingArea-Mobileorbits",
+      "Mobileorbits",
+      "Mobile-orbits ",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileOrbitsBoney",
+      "MobileOrbitsBoney",
+      "Mobile - Orbits - Boney",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobilePelvis",
+      "MobilePelvis",
+      "Mobile - Pelvis",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobilePetrousTemporalBones",
+      "MobilePetrousTemporalBones",
+      "Mobile - Petrous Temporal Bones",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileRibsBothsides",
+      "MobileRibsBothsides",
+      "Mobile - Ribs - Both sides",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileRibsLeft",
+      "MobileRibsLeft",
+      "Mobile - Ribs - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileRibsRight",
+      "MobileRibsRight",
+      "Mobile - Ribs - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileSacroIliacJoints",
+      "MobileSacroIliacJoints",
+      "Mobile - Sacro-Iliac Joints",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileSalivaryGlandCalculus",
+      "MobileSalivaryGlandCalculus",
+      "Mobile - Salivary Gland - Calculus",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileShoulderAcromioclavicularJointsLeft",
+      "MobileShoulderAcromioclavicularJointsLeft",
+      "Mobile - Shoulder - Acromioclavicular Joints - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileShoulderAcromioclavicularJointsRight",
+      "MobileShoulderAcromioclavicularJointsRight",
+      "Mobile - Shoulder - Acromioclavicular Joints - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileShoulderClavicleLeft",
+      "MobileShoulderClavicleLeft",
+      "Mobile - Shoulder - Clavicle - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileShoulderClavicleRight",
+      "MobileShoulderClavicleRight",
+      "Mobile - Shoulder - Clavicle - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileShoulderLeft",
+      "MobileShoulderLeft",
+      "Mobile - Shoulder - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileShoulderRight",
+      "MobileShoulderRight",
+      "Mobile - Shoulder - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileShoulderScapulaLeft",
+      "MobileShoulderScapulaLeft",
+      "Mobile - Shoulder - Scapula - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileShoulderScapulaRight",
+      "MobileShoulderScapulaRight",
+      "Mobile - Shoulder - Scapula - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileSinusesParanasal",
+      "MobileSinusesParanasal",
+      "Mobile - Sinuses - Paranasal",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileSkeletalSurvey",
+      "MobileSkeletalSurvey",
+      "Mobile - Skeletal Survey",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileSkull",
+      "MobileSkull",
+      "Mobile - Skull",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileSpineCervical",
+      "MobileSpineCervical",
+      "Mobile - Spine - Cervical",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileSpineCervicalandLumbar",
+      "MobileSpineCervicalandLumbar",
+      "Mobile - Spine - Cervical and Lumbar ",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileSpineCervicalandThoracic",
+      "MobileSpineCervicalandThoracic",
+      "Mobile - Spine - Cervical and Thoracic ",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileSpineFull",
+      "MobileSpineFull",
+      "Mobile - Spine - Full ",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileSpineFullLongFilm",
+      "MobileSpineFullLongFilm",
+      "Mobile - Spine  - Full - Long Film",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileSpineLumbarandSacrum2Region",
+      "MobileSpineLumbarandSacrum2Region",
+      "Mobile - Spine - Lumbar and Sacrum - 2 Region",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileSpineLumbarSacral",
+      "MobileSpineLumbarSacral",
+      "Mobile - Spine - Lumbar Sacral ",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileSpineSacrococcygeal",
+      "MobileSpineSacrococcygeal",
+      "Mobile - Spine - Sacrococcygeal",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileSpineThoracic",
+      "MobileSpineThoracic",
+      "Mobile - Spine - Thoracic",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileSpineThoracicandLumbar",
+      "MobileSpineThoracicandLumbar",
+      "Mobile - Spine - Thoracic and Lumbar",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileSternoclavicularJoints",
+      "MobileSternoclavicularJoints",
+      "Mobile - Sternoclavicular Joints",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileSternumOnly",
+      "MobileSternumOnly",
+      "Mobile - Sternum Only",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileSternumRibsBothsides",
+      "MobileSternumRibsBothsides",
+      "Mobile - Sternum - Ribs - Both sides",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileSternumRibsLeft",
+      "MobileSternumRibsLeft",
+      "Mobile - Sternum - Ribs - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileSternumRibsRight",
+      "MobileSternumRibsRight",
+      "Mobile - Sternum - Ribs - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileThoracicInletTrachea",
+      "MobileThoracicInletTrachea",
+      "Mobile - Thoracic Inlet - Trachea",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileWristLeft",
+      "MobileWristLeft",
+      "Mobile - Wrist - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileWristRight",
+      "MobileWristRight",
+      "Mobile - Wrist - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileWristScaphoidLeft",
+      "MobileWristScaphoidLeft",
+      "Mobile - Wrist - Scaphoid - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-MobileWristScaphoidRight",
+      "MobileWristScaphoidRight",
+      "Mobile - Wrist - Scaphoid - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-NasalBones",
+      "NasalBones",
+      "Nasal Bones",
+      "current"
+    ],
+    [
+      "xRayImagingArea-OPGCaries",
+      "OPGCaries",
+      "OPG - Caries",
+      "current"
+    ],
+    [
+      "xRayImagingArea-OPGDevelopmental",
+      "OPGDevelopmental",
+      "OPG - Developmental",
+      "current"
+    ],
+    [
+      "xRayImagingArea-OPGLateralCephalometry",
+      "OPGLateralCephalometry",
+      "OPG - Lateral Cephalometry",
+      "current"
+    ],
+    [
+      "xRayImagingArea-OPGSinuses",
+      "OPGSinuses",
+      "OPG - Sinuses",
+      "current"
+    ],
+    [
+      "xRayImagingArea-OPGTemperomandibularJoints",
+      "OPGTemperomandibularJoints",
+      "OPG Temperomandibular Joints",
+      "current"
+    ],
+    [
+      "xRayImagingArea-OPGTrauma",
+      "OPGTrauma",
+      "OPG - Trauma",
+      "current"
+    ],
+    [
+      "xRayImagingArea-OrbitsBoney",
+      "OrbitsBoney",
+      "Orbits - Boney",
+      "current"
+    ],
+    [
+      "xRayImagingArea-OrbitsSoftTissues",
+      "OrbitsSoftTissues",
+      "Orbits - Soft Tissues",
+      "current"
+    ],
+    [
+      "xRayImagingArea-Pelvis",
+      "Pelvis",
+      "Pelvis",
+      "current"
+    ],
+    [
+      "xRayImagingArea-PetrousTemporalBones",
+      "PetrousTemporalBones",
+      "Petrous Temporal Bones",
+      "current"
+    ],
+    [
+      "xRayImagingArea-PostMortemExamination",
+      "PostMortemExamination",
+      "Post Mortem Examination",
+      "current"
+    ],
+    [
+      "xRayImagingArea-RibsBothsides",
+      "RibsBothsides",
+      "Ribs - Both sides",
+      "current"
+    ],
+    [
+      "xRayImagingArea-RibsLeft",
+      "RibsLeft",
+      "Ribs - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-RibsRight",
+      "RibsRight",
+      "Ribs - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-SacroIliacJoints",
+      "SacroIliacJoints",
+      "Sacro-Iliac Joints",
+      "current"
+    ],
+    [
+      "xRayImagingArea-SalivaryGlandCalculus",
+      "SalivaryGlandCalculus",
+      "Salivary Gland - Calculus",
+      "current"
+    ],
+    [
+      "xRayImagingArea-ShoulderAcromioclavicularJointsLeft",
+      "ShoulderAcromioclavicularJointsLeft",
+      "Shoulder - Acromioclavicular Joints - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-ShoulderAcromioclavicularJointsRight",
+      "ShoulderAcromioclavicularJointsRight",
+      "Shoulder - Acromioclavicular Joints - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-ShoulderClavicleLeft",
+      "ShoulderClavicleLeft",
+      "Shoulder - Clavicle - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-ShoulderClavicleRight",
+      "ShoulderClavicleRight",
+      "Shoulder - Clavicle - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-ShoulderLeft",
+      "ShoulderLeft",
+      "Shoulder - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-ShoulderRight",
+      "ShoulderRight",
+      "Shoulder - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-ShoulderScapulaLeft",
+      "ShoulderScapulaLeft",
+      "Shoulder - Scapula - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-ShoulderScapulaRight",
+      "ShoulderScapulaRight",
+      "Shoulder - Scapula - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-SinusesParanasal",
+      "SinusesParanasal",
+      "Sinuses - Paranasal",
+      "current"
+    ],
+    [
+      "xRayImagingArea-SkeletalSurvey",
+      "SkeletalSurvey",
+      "Skeletal Survey",
+      "current"
+    ],
+    [
+      "xRayImagingArea-Skull",
+      "Skull",
+      "Skull",
+      "current"
+    ],
+    [
+      "xRayImagingArea-SpineCervical",
+      "SpineCervical",
+      "Spine - Cervical",
+      "current"
+    ],
+    [
+      "xRayImagingArea-SpineCervicalandLumbosacral",
+      "SpineCervicalandLumbosacral",
+      "Spine - Cervical and Lumbosacral ",
+      "current"
+    ],
+    [
+      "xRayImagingArea-SpineCervicalandThoracic",
+      "SpineCervicalandThoracic",
+      "Spine - Cervical and Thoracic ",
+      "current"
+    ],
+    [
+      "xRayImagingArea-SpineFull",
+      "SpineFull",
+      "Spine - Full ",
+      "current"
+    ],
+    [
+      "xRayImagingArea-SpineFullLongFilm",
+      "SpineFullLongFilm",
+      "Spine  - Full - Long Film",
+      "current"
+    ],
+    [
+      "xRayImagingArea-SpineLumbarandSacrum2Region",
+      "SpineLumbarandSacrum2Region",
+      "Spine - Lumbar and Sacrum 2 Region",
+      "current"
+    ],
+    [
+      "xRayImagingArea-SpineLumbarSacral",
+      "SpineLumbarSacral",
+      "Spine - Lumbar Sacral",
+      "current"
+    ],
+    [
+      "xRayImagingArea-SpineSacrococcygeal",
+      "SpineSacrococcygeal",
+      "Spine - Sacrococcygeal",
+      "current"
+    ],
+    [
+      "xRayImagingArea-SpineThoracic",
+      "SpineThoracic",
+      "Spine - Thoracic",
+      "current"
+    ],
+    [
+      "xRayImagingArea-SpineThoracicandLumbosacral",
+      "SpineThoracicandLumbosacral",
+      "Spine - Thoracic and Lumbosacral",
+      "current"
+    ],
+    [
+      "xRayImagingArea-SternoclavicularJoints",
+      "SternoclavicularJoints",
+      "Sternoclavicular Joints",
+      "current"
+    ],
+    [
+      "xRayImagingArea-SternumOnly",
+      "SternumOnly",
+      "Sternum Only",
+      "current"
+    ],
+    [
+      "xRayImagingArea-SternumRibsBothsides",
+      "SternumRibsBothsides",
+      "Sternum - Ribs - Both sides",
+      "current"
+    ],
+    [
+      "xRayImagingArea-SternumRibsLeft",
+      "SternumRibsLeft",
+      "Sternum - Ribs - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-SternumRibsRight",
+      "SternumRibsRight",
+      "Sternum - Ribs - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-TemporoMandibularJoints",
+      "TemporoMandibularJoints",
+      "Temporo-Mandibular Joints",
+      "current"
+    ],
+    [
+      "xRayImagingArea-ThoracicInletTrachea",
+      "ThoracicInletTrachea",
+      "Thoracic Inlet - Trachea",
+      "current"
+    ],
+    [
+      "xRayImagingArea-Tomographyofanyregion",
+      "Tomographyofanyregion",
+      "Tomography of any region",
+      "current"
+    ],
+    [
+      "xRayImagingArea-WristLeft",
+      "WristLeft",
+      "Wrist - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-WristRight",
+      "WristRight",
+      "Wrist - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-WristScaphoidLeft",
+      "WristScaphoidLeft",
+      "Wrist - Scaphoid - Left",
+      "current"
+    ],
+    [
+      "xRayImagingArea-WristScaphoidRight",
+      "WristScaphoidRight",
+      "Wrist - Scaphoid - Right",
+      "current"
+    ],
+    [
+      "xRayImagingArea-TemperomandibularJointsCR",
+      "TemperomandibularJointsCR",
+      "Temperomandibular Joints - (CR)",
+      "current"
+    ],
+    [
+      "xRayImagingArea-TestingArea",
+      "TestingArea",
+      "Testing Area",
+      "current"
+    ],
+    [
+      "Xray-Testing-Area",
+      "XrayTestingArea",
+      "X Ray Testing Area",
+      "current"
+    ]
+  ]
+}

@@ -1,0 +1,785 @@
+{
+  "sheetName": "Ct Scan Imaging Area",
+  "data": [
+    [
+      "id",
+      "code",
+      "name",
+      "visibilityStatus"
+    ],
+    [
+      "ctScanImagingArea-CTAngiogramCarotid1stStudy",
+      "CTAngiogramCarotid1stStudy",
+      "Angiogram Carotid (1st Study)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTAbdomenandPelvisnonIVcontrast",
+      "CTAbdomenandPelvisnonIVcontrast",
+      "Abdomen and Pelvis non-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTAbdomenandPelvispostIVcontrastpre",
+      "CTAbdomenandPelvispostIVcontrastpre",
+      "Abdomen and Pelvis post-IV contrast +/- pre",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTAbdomenUppernonIVcontrast",
+      "CTAbdomenUppernonIVcontrast",
+      "Abdomen Upper non-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTAbdomenUpperpostIVcontrast",
+      "CTAbdomenUpperpostIVcontrast",
+      "Abdomen Upper post-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTAbdomenUpperpreandpostIVcontrast",
+      "CTAbdomenUpperpreandpostIVcontrast",
+      "Abdomen Upper pre and post IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTAngiogramAbdominalAorta1stStudy",
+      "CTAngiogramAbdominalAorta1stStudy",
+      "Angiogram Abdominal Aorta (1st Study)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTAngiogramAbdominalAorta2ndStudy",
+      "CTAngiogramAbdominalAorta2ndStudy",
+      "Angiogram Abdominal Aorta (2nd Study)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTAngiogramAorticRunoff1stStudy",
+      "CTAngiogramAorticRunoff1stStudy",
+      "Angiogram Aortic Run off (1st Study)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTAngiogramAorticRunoff2ndStudy",
+      "CTAngiogramAorticRunoff2ndStudy",
+      "Angiogram Aortic Run off (2nd Study)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTAngiogramCardiacGated",
+      "CTAngiogramCardiacGated",
+      "Angiogram Cardiac Gated",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTAngiogramCardiacGated2ndStudy",
+      "CTAngiogramCardiacGated2ndStudy",
+      "Angiogram Cardiac Gated (2nd Study)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTAngiogramCarotid2ndstudy",
+      "CTAngiogramCarotid2ndstudy",
+      "Angiogram Carotid (2nd study)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTAngiogramCircleOfWillis1stStudy",
+      "CTAngiogramCircleOfWillis1stStudy",
+      "Angiogram Circle Of Willis (1st Study)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTAngiogramCircleOfWillis2ndStudy",
+      "CTAngiogramCircleOfWillis2ndStudy",
+      "Angiogram Circle Of Willis (2nd Study)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTAngiogramMesenteric1stStudy",
+      "CTAngiogramMesenteric1stStudy",
+      "Angiogram Mesenteric (1st Study)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTAngiogramMesenteric2ndStudy",
+      "CTAngiogramMesenteric2ndStudy",
+      "Angiogram Mesenteric (2nd Study)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTAngiogramPulmonaryArtery1stStudy",
+      "CTAngiogramPulmonaryArtery1stStudy",
+      "Angiogram Pulmonary Artery (1st Study)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTAngiogramPulmonaryArtery2ndStudy",
+      "CTAngiogramPulmonaryArtery2ndStudy",
+      "Angiogram Pulmonary Artery (2nd Study)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTAngiogramPulmonaryVein1stStudy",
+      "CTAngiogramPulmonaryVein1stStudy",
+      "Angiogram Pulmonary Vein (1st Study)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTAngiogramPulmonaryVein2ndStudy",
+      "CTAngiogramPulmonaryVein2ndStudy",
+      "Angiogram Pulmonary Vein (2nd Study)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTAngiogramRenal1stStudy",
+      "CTAngiogramRenal1stStudy",
+      "Angiogram Renal (1st Study)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTAngiogramRenal2ndStudy",
+      "CTAngiogramRenal2ndStudy",
+      "Angiogram Renal (2nd Study)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTAngiogramSelectiveOther1stStudy",
+      "CTAngiogramSelectiveOther1stStudy",
+      "Angiogram Selective Other (1st Study)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTAngiogramSelectiveOther2ndStudy",
+      "CTAngiogramSelectiveOther2ndStudy",
+      "Angiogram Selective Other (2nd Study)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTAngiogramSubclavian1stStudy",
+      "CTAngiogramSubclavian1stStudy",
+      "Angiogram Subclavian (1st Study)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTAngiogramSubclavian2ndStudy",
+      "CTAngiogramSubclavian2ndStudy",
+      "Angiogram Subclavian (2nd Study)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTAngiogramThoracicAorta1stStudy",
+      "CTAngiogramThoracicAorta1stStudy",
+      "Angiogram Thoracic Aorta (1st Study)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTAngiogramThoracicAorta2ndStudy",
+      "CTAngiogramThoracicAorta2ndStudy",
+      "Angiogram Thoracic Aorta (2nd Study)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTArthrogramofJoint",
+      "CTArthrogramofJoint",
+      "Arthrogram of Joint",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTBiopsy-Adrenal",
+      "CTBiopsy-Adrenal",
+      "Biopsy - Adrenal ",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTBiopsy-DeepOrganother",
+      "CTBiopsy-DeepOrganother",
+      "Biopsy - Deep Organ (other)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTBiopsy-Liver",
+      "CTBiopsy-Liver",
+      "Biopsy- Liver",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTBiopsy-Lung",
+      "CTBiopsy-Lung",
+      "Biopsy - Lung",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTBiopsy-LymphNode",
+      "CTBiopsy-LymphNode",
+      "Biopsy - Lymph Node",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTBiopsy-Pancreas",
+      "CTBiopsy-Pancreas",
+      "Biopsy - Pancreas",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTBiopsy-Renal",
+      "CTBiopsy-Renal",
+      "Biopsy - Renal",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTBiopsy-Vertebra",
+      "CTBiopsy-Vertebra",
+      "Biopsy - Vertebra",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTBrainnonIVcontrast",
+      "CTBrainnonIVcontrast",
+      "Brain (non IV contrast)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTBrainChest-abdomennon-IVcontrast",
+      "CTBrainChest-abdomennon-IVcontrast",
+      "Brain+Chest (+/- abdomen) non-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTBrainandChest-abdomenpost-contrast",
+      "CTBrainandChest-abdomenpost-contrast",
+      "Brain and Chest  (+/- abdomen) post-contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTBrainandFacenonIVcontrast",
+      "CTBrainandFacenonIVcontrast",
+      "Brain and Face non IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTBrainandFacepostIVcontrast",
+      "CTBrainandFacepostIVcontrast",
+      "Brain and Face post IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTBrainPerfusion1stStudy",
+      "CTBrainPerfusion1stStudy",
+      "Brain Perfusion (1st Study)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTBrainPerfusion2ndStudy",
+      "CTBrainPerfusion2ndStudy",
+      "Brain Perfusion (2nd Study)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTBrainpost-IVcontrast",
+      "CTBrainpost-IVcontrast",
+      "Brain post - IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTBrainprepostIVcontrast",
+      "CTBrainprepostIVcontrast",
+      "Brain pre / post IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTChestAbdomenPelvisnon-IVcontrast",
+      "CTChestAbdomenPelvisnon-IVcontrast",
+      "Chest / Abdomen / Pelvis non-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTChestAbdomenPelvispost-IVcontrast",
+      "CTChestAbdomenPelvispost-IVcontrast",
+      "Chest / Abdomen / Pelvis post-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTChestUpperAbdomennon-IVcontrast",
+      "CTChestUpperAbdomennon-IVcontrast",
+      "Chest / Upper Abdomen non-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTChestUpperAbdomenpost-IVcontrast",
+      "CTChestUpperAbdomenpost-IVcontrast",
+      "Chest / Upper Abdomen post-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTChestnon-IVcontrast",
+      "CTChestnon-IVcontrast",
+      "Chest non- IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTChestpost-IVcontrast",
+      "CTChestpost-IVcontrast",
+      "Chest post- IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTChestpreandpostIVContrast",
+      "CTChestpreandpostIVContrast",
+      "Chest pre and post IV Contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTDrainAbscesscollection-TubeInsertion",
+      "CTDrainAbscesscollection-TubeInsertion",
+      "Drain Abscess/collection +/- Tube Insertion",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTDrainAbscesscollection-TubeChange",
+      "CTDrainAbscesscollection-TubeChange",
+      "Drain Abscess/collection - Tube Change",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTDrain-Intercostal-TubeInsertion",
+      "CTDrain-Intercostal-TubeInsertion",
+      "Drain - Intercostal - Tube Insertion",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTDrain-Intercostal-TubeInsertionPluerodesis",
+      "CTDrain-Intercostal-TubeInsertionPluerodesis",
+      "Drain - Intercostal - Tube Insertion+Pluerodesis",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTDrain-Pancreas-TubeInsertion",
+      "CTDrain-Pancreas-TubeInsertion",
+      "Drain - Pancreas +/- Tube Insertion",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTDrain-Pancreas-TubeChange",
+      "CTDrain-Pancreas-TubeChange",
+      "Drain - Pancreas - Tube Change",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTExtremitynon-IVcontrastexclKneeonlyscans",
+      "CTExtremitynon-IVcontrastexclKneeonlyscans",
+      "Extremity non-IV contrast (excl. Knee only scans)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTExtremitypost-IVcontrast-PreexclKneeonlyscans",
+      "CTExtremitypost-IVcontrast-PreexclKneeonlyscans",
+      "Extremity post-IV contrast +/- Pre (excl. Knee only scans)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTExtremitypreandpostIVcontrast",
+      "CTExtremitypreandpostIVcontrast",
+      "Extremity pre and post IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTFacialBonesnon-IVcontrast",
+      "CTFacialBonesnon-IVcontrast",
+      "Facial Bones non - IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTFacialBonespost-IVcontrast",
+      "CTFacialBonespost-IVcontrast",
+      "Facial Bones post - IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTIAMs-IVcontrast",
+      "CTIAMs-IVcontrast",
+      "IAMs+/ - IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTImagingguidanceforinterventionalprocedure",
+      "CTImagingguidanceforinterventionalprocedure",
+      "Imaging guidance for interventional procedure ",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTInjection-CoeliacPlexusBlock",
+      "CTInjection-CoeliacPlexusBlock",
+      "Injection - Coeliac Plexus Block",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTInjection-Epidural",
+      "CTInjection-Epidural",
+      "Injection - Epidural",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTInjection-FacetJoint",
+      "CTInjection-FacetJoint",
+      "Injection - Facet Joint",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTInjection-NerveRoot",
+      "CTInjection-NerveRoot",
+      "Injection - Nerve Root",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTInjection-OccipitalNerve",
+      "CTInjection-OccipitalNerve",
+      "Injection - Occipital Nerve",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTInjection-SynovialJoint",
+      "CTInjection-SynovialJoint",
+      "Injection - Synovial Joint",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTIntravenousCholangiogramAddCTANalso",
+      "CTIntravenousCholangiogramAddCTANalso",
+      "Intravenous Cholangiogram (Add CTAN also)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTKUBnon-IVcontrast",
+      "CTKUBnon-IVcontrast",
+      "KUB non-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTLegLengths",
+      "CTLegLengths",
+      "Leg Lengths",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTLumbarPuncture",
+      "CTLumbarPuncture",
+      "Lumbar Puncture",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTNecklarynxnon-IVcontrast",
+      "CTNecklarynxnon-IVcontrast",
+      "Neck / larynx non-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTNeckLarynxpost-IVcontrast",
+      "CTNeckLarynxpost-IVcontrast",
+      "Neck / Larynx post-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTNeckLarynxpreandpostIVcontrast",
+      "CTNeckLarynxpreandpostIVcontrast",
+      "Neck / Larynx pre and post IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTNeckChestAbdo-PelvisNon-IVcontrast",
+      "CTNeckChestAbdo-PelvisNon-IVcontrast",
+      "Neck+Chest+Abdo +/- Pelvis Non-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTNeckChestAbdo-Pelvispost-IVcontrast",
+      "CTNeckChestAbdo-Pelvispost-IVcontrast",
+      "Neck+Chest+Abdo +/- Pelvis post-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTNephrostomyTubeChange",
+      "CTNephrostomyTubeChange",
+      "Nephrostomy Tube Change",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTNephrostomyTubeInsertion",
+      "CTNephrostomyTubeInsertion",
+      "Nephrostomy Tube Insertion",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTOrbits-Brain-IVContrast",
+      "CTOrbits-Brain-IVContrast",
+      "Orbits +/- Brain +/- IV Contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTOrbitsnon-IVcontrast",
+      "CTOrbitsnon-IVcontrast",
+      "Orbits non-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTPelvimetry",
+      "CTPelvimetry",
+      "Pelvimetry",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTPelvisnon-IVcontrast",
+      "CTPelvisnon-IVcontrast",
+      "Pelvis non-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTPelvispost-IVcontrast",
+      "CTPelvispost-IVcontrast",
+      "Pelvis post-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTPelvispreandpostIVcontrast",
+      "CTPelvispreandpostIVcontrast",
+      "Pelvis pre and post IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTPituitaryFossa-Brain-IVcontrast",
+      "CTPituitaryFossa-Brain-IVcontrast",
+      "Pituitary Fossa +/- Brain +/- IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTPleuralEffusionAspiration-Diagnostic",
+      "CTPleuralEffusionAspiration-Diagnostic",
+      "Pleural Effusion Aspiration +/- Diagnostic",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTPleuralEffusion-Diagnosticonly",
+      "CTPleuralEffusion-Diagnosticonly",
+      "Pleural Effusion - Diagnostic only",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTPTBsIAMsBrain-IVcontrast",
+      "CTPTBsIAMsBrain-IVcontrast",
+      "PTBs / IAMs+Brain+/ - IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTRadiofrequencyAblation-Abdomen-Other",
+      "CTRadiofrequencyAblation-Abdomen-Other",
+      "Radiofrequency Ablation - Abdomen - Other",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTRadiofrequencyAblation-LiverIncludesimaging",
+      "CTRadiofrequencyAblation-LiverIncludesimaging",
+      "Radiofrequency Ablation - Liver (Includes imaging)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTRadiotherapyPlanning-AbdomenPelvisnon-IVcontrast",
+      "CTRadiotherapyPlanning-AbdomenPelvisnon-IVcontrast",
+      "Radiotherapy Planning -  Abdomen / Pelvis non-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTRadiotherapyPlanning-Chest-UpperAbdomennon-IVContrast",
+      "CTRadiotherapyPlanning-Chest-UpperAbdomennon-IVContrast",
+      "Radiotherapy Planning -  Chest +/- Upper Abdomen non-IV Contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTRadiotherapyPlanning-SoftTissuesnecknon-IVcontrast",
+      "CTRadiotherapyPlanning-SoftTissuesnecknon-IVcontrast",
+      "Radiotherapy Planning -  Soft Tissues neck non-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTRadiotherapyPlanning-UpperAbdomennon-IVcontrast",
+      "CTRadiotherapyPlanning-UpperAbdomennon-IVcontrast",
+      "Radiotherapy Planning -  Upper Abdomen non-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTSinusesBrainnon-IVcontrast",
+      "CTSinusesBrainnon-IVcontrast",
+      "Sinuses+Brain non-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTSinusesBrainpost-IVcontrast",
+      "CTSinusesBrainpost-IVcontrast",
+      "Sinuses+Brain post -IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTSinusesnon-IVcontrast",
+      "CTSinusesnon-IVcontrast",
+      "Sinuses non-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTSinusespost-IVcontrast",
+      "CTSinusespost-IVcontrast",
+      "Sinuses post-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTSpineCervicalLumbarnon-IVcontrast",
+      "CTSpineCervicalLumbarnon-IVcontrast",
+      "Spine Cervical Lumbar non-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTSpineCervicalLumbarpost-IVcontrast",
+      "CTSpineCervicalLumbarpost-IVcontrast",
+      "Spine Cervical Lumbar post-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTSpineCervical-Myelogram",
+      "CTSpineCervical-Myelogram",
+      "Spine Cervical - Myelogram",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTSpineCervicalnon-IVcontrast",
+      "CTSpineCervicalnon-IVcontrast",
+      "Spine Cervical non-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTSpineCervicalpost-IVcontrast",
+      "CTSpineCervicalpost-IVcontrast",
+      "Spine Cervical post-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTSpineCervicalThoracicLumbarnon-IVcontrast",
+      "CTSpineCervicalThoracicLumbarnon-IVcontrast",
+      "Spine Cervical Thoracic Lumbar non-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTSpineCervicalThoracicLumbarpost-IVcontrast",
+      "CTSpineCervicalThoracicLumbarpost-IVcontrast",
+      "Spine Cervical Thoracic Lumbar post-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTSpineCervicalThoracicnon-IVcontrast",
+      "CTSpineCervicalThoracicnon-IVcontrast",
+      "Spine Cervical Thoracic non-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTSpineCervicalThoracicpost-IVcontrast",
+      "CTSpineCervicalThoracicpost-IVcontrast",
+      "Spine Cervical Thoracic post-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTSpineLumbar-Myelogram",
+      "CTSpineLumbar-Myelogram",
+      "Spine Lumbar - Myelogram",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTSpineLumbarnon-IVcontrast",
+      "CTSpineLumbarnon-IVcontrast",
+      "Spine Lumbar non-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTSpineLumbarpost-IVcontrast",
+      "CTSpineLumbarpost-IVcontrast",
+      "Spine Lumbar post-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTSpine-Myelogram-MultipleRegion",
+      "CTSpine-Myelogram-MultipleRegion",
+      "Spine - Myelogram - Multiple Region",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTSpineThoracicLumbarnon-IVcontrast",
+      "CTSpineThoracicLumbarnon-IVcontrast",
+      "Spine Thoracic Lumbar non-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTSpineThoracicLumbarpost-IVcontrast",
+      "CTSpineThoracicLumbarpost-IVcontrast",
+      "Spine Thoracic Lumbar post-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTSpineThoracic-Myelogram",
+      "CTSpineThoracic-Myelogram",
+      "Spine Thoracic - Myelogram",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTSpineThoracicnon-IVcontrast",
+      "CTSpineThoracicnon-IVcontrast",
+      "Spine Thoracic non-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTSpineThoracicpost-IVcontrast",
+      "CTSpineThoracicpost-IVcontrast",
+      "Spine Thoracic post-IV contrast",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTVertebroplasty",
+      "CTVertebroplasty",
+      "Vertebroplasty",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTVirtualColonoscopy-ColonDiseasespecialistreferral",
+      "CTVirtualColonoscopy-ColonDiseasespecialistreferral",
+      "Virtual Colonoscopy - Colon Disease (specialist referral)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTVirtualColonoscopy-FailedColonoscopyspecialistreferral",
+      "CTVirtualColonoscopy-FailedColonoscopyspecialistreferral",
+      "Virtual Colonoscopy - Failed Colonoscopy (specialist referral)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTVirtualColonoscopy-non-IVcontrastGPReferral",
+      "CTVirtualColonoscopy-non-IVcontrastGPReferral",
+      "Virtual Colonoscopy - non-IV contrast (GP Referral)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-CTVirtualColonoscopy-post-IVcontrastGPReferral",
+      "CTVirtualColonoscopy-post-IVcontrastGPReferral",
+      "Virtual Colonoscopy - post-IV contrast (GP Referral)",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-IntravenousPyelogram",
+      "IntravenousPyelogram",
+      "Intravenous Pyelogram",
+      "current"
+    ],
+    [
+      "ctScanImagingArea-PercutaneousTranshepaticCholangiogram",
+      "PercutaneousTranshepaticCholangiogram",
+      "Percutaneous Transhepatic Cholangiogram",
+      "current"
+    ]
+  ]
+}

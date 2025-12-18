@@ -1,0 +1,179 @@
+{
+  "sheetName": "Manufacturer",
+  "data": [
+    [
+      "id",
+      "code",
+      "name",
+      "visibilityStatus"
+    ],
+    [
+      "manufacturer-AstraZeneca",
+      "ORG-100001699",
+      "AstraZeneca AB",
+      "current"
+    ],
+    [
+      "manufacturer-BioNTech",
+      "ORG-100030215",
+      "Biontech Manufacturing GmbH",
+      "current"
+    ],
+    [
+      "manufacturer-Janssen",
+      "ORG-100001417",
+      "Janssen-Cilag International",
+      "current"
+    ],
+    [
+      "manufacturer-ModernaSpain",
+      "ORG-100031184",
+      "Moderna Biotech Spain S.L.",
+      "current"
+    ],
+    [
+      "manufacturer-Curevac",
+      "ORG-100006270",
+      "Curevac AG",
+      "current"
+    ],
+    [
+      "manufacturer-CanSino",
+      "ORG-100013793",
+      "CanSino Biologics",
+      "current"
+    ],
+    [
+      "manufacturer-SinopharmBeijing",
+      "ORG-100020693",
+      "China Sinopharm International Corp. - Beijing location",
+      "current"
+    ],
+    [
+      "manufacturer-SinopharmPrague",
+      "ORG-100010771",
+      "Sinopharm Weiqida Europe Pharmaceutical s.r.o. - Prague location",
+      "current"
+    ],
+    [
+      "manufacturer-SinopharmShenzen",
+      "ORG-100024420",
+      "Sinopharm Zhijun (Shenzhen) Pharmaceutical Co. Ltd. - Shenzhen location",
+      "current"
+    ],
+    [
+      "manufacturer-SinopharmWuhan",
+      "Sinopharm-WIBP",
+      "Sinopharm - Wuhan Institute of Biological Products",
+      "current"
+    ],
+    [
+      "manufacturer-Novavax",
+      "ORG-100032020",
+      "Novavax CZ AS",
+      "current"
+    ],
+    [
+      "manufacturer-Gamaleya",
+      "Gamaleya-Research-Institute",
+      "Gamaleya Research Institute",
+      "current"
+    ],
+    [
+      "manufacturer-Vector",
+      "Vector-Institute",
+      "Vector Institute",
+      "current"
+    ],
+    [
+      "manufacturer-Sinovac",
+      "Sinovac-Biotech",
+      "Sinovac Biotech",
+      "current"
+    ],
+    [
+      "manufacturer-Bharat",
+      "Bharat-Biotech",
+      "Bharat Biotech",
+      "current"
+    ],
+    [
+      "manufacturer-SerumInstituteIndia",
+      "ORG-100001981",
+      "Serum Institute Of India Private Limited",
+      "current"
+    ],
+    [
+      "manufacturer-Fiocruz",
+      "Fiocruz",
+      "Fiocruz",
+      "current"
+    ],
+    [
+      "manufacturer-RPharm",
+      "ORG-100007893",
+      "R-Pharm CJSC",
+      "current"
+    ],
+    [
+      "manufacturer-Chumakov",
+      "Chumakov-Federal-Scientific-Center",
+      "Chumakov Federal Scientific Center for Research and Development of Immune and Biological Products",
+      "current"
+    ],
+    [
+      "manufacturer-GulfPharma",
+      "ORG-100023050",
+      "Gulf Pharmaceutical Industries",
+      "current"
+    ],
+    [
+      "manufacturer-CIGB",
+      "CIGB",
+      "Center for Genetic Engineering and Biotechnology (CIGB)",
+      "current"
+    ],
+    [
+      "manufacturer-Medigen",
+      "ORG-100033914",
+      "Medigen Vaccine Biologics Corporation",
+      "current"
+    ],
+    [
+      "manufacturer-Sanofi",
+      "ORG-100000788",
+      "Sanofi Pasteur",
+      "current"
+    ],
+    [
+      "manufacturer-Valneva",
+      "ORG-100036422",
+      "Valneva France",
+      "current"
+    ],
+    [
+      "manufacturer-Butantan",
+      "Instituto-Butantan",
+      "Instituto Butantan",
+      "current"
+    ],
+    [
+      "manufacturer-NVSI",
+      "NVSI",
+      "National Vaccine and Serum Institute, China",
+      "current"
+    ],
+    [
+      "manufacturer-YishengBiopharma",
+      "ORG-100026614",
+      "Yisheng Biopharma Sinocelltech Ltd",
+      "current"
+    ],
+    [
+      "manufacturer-Medicago",
+      "ORG-100008549",
+      "Medicago Inc",
+      "current"
+    ]
+  ]
+}

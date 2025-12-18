@@ -1,0 +1,25 @@
+{
+  "sheetName": "Lab Test Methods",
+  "data": [
+    [
+      "id",
+      "code",
+      "name"
+    ],
+    [
+      "labTestMethod-RTPCR",
+      "RTPCR",
+      "RT-PCR"
+    ],
+    [
+      "labTestMethod-GeneXpert",
+      "GeneXpert",
+      "GeneXpert"
+    ],
+    [
+      "labTestMethod-Other",
+      "Other",
+      "Other"
+    ]
+  ]
+}

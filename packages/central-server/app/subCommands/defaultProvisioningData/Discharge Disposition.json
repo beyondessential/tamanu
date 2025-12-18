@@ -1,0 +1,53 @@
+{
+  "sheetName": "Discharge Disposition",
+  "data": [
+    [
+      "id",
+      "code",
+      "name",
+      "visibilityStatus"
+    ],
+    [
+      "dischargedisp-home",
+      "HOME",
+      "Home",
+      "current"
+    ],
+    [
+      "dischargedisp-absconded",
+      "ABSC",
+      "Absconded",
+      "current"
+    ],
+    [
+      "dischargedisp-ama",
+      "AMA",
+      "Discharged against medical advice",
+      "current"
+    ],
+    [
+      "dischargedisp-taf",
+      "TAF",
+      "Transfer to another facility",
+      "current"
+    ],
+    [
+      "dischargedisp-dipmo",
+      "DIPMO",
+      "Discharge of involuntary patient by medical officer",
+      "current"
+    ],
+    [
+      "dischargedisp-tif",
+      "TIF",
+      "Transfer of an involuntary patient to another MH or health facility",
+      "current"
+    ],
+    [
+      "dischargedisp-dtocha",
+      "DTOHCA",
+      "Discharge/Transfer to other health care accommodation",
+      "current"
+    ]
+  ]
+}

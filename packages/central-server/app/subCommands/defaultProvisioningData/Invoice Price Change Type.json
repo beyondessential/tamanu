@@ -1,0 +1,40 @@
+{
+  "sheetName": "Invoice Price Change Type",
+  "data": [
+    [
+      "id",
+      "itemId",
+      "itemType",
+      "name",
+      "percentageChange"
+    ],
+    [
+      "5b02cd91-9785-46c3-aba9-bee485435c9c",
+      "patientBillingType-Charity",
+      "patientBIllingType",
+      "Charity",
+      "-1"
+    ],
+    [
+      "ty36eh8d-9785-46c3-aba9-bee485435c9c",
+      "patientBillingType-local",
+      "patientBIllingType",
+      "Local",
+      "0.25"
+    ],
+    [
+      "hd83ir9f-9785-46c3-aba9-bee485435c9c",
+      "patientBillingType-visitor",
+      "patientBIllingType",
+      "Visitor",
+      "0"
+    ],
+    [
+      "ye83or9e-9785-46c3-aba9-bee485435c9c",
+      "patientBillingType-welfare",
+      "patientBIllingType",
+      "Welfare",
+      "-0.5"
+    ]
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "sheetName": "Vascular Study Imaging Areas",
+  "data": [
+    [
+      "id",
+      "code",
+      "name"
+    ],
+    [
+      "vascularStudyImagingArea-93001",
+      93001,
+      "Vascular Study Imaging Area"
+    ],
+    [
+      "vascularStudyImagingArea-93002",
+      93002,
+      "Doppler Ultrasound Area"
+    ],
+    [
+      "vascularStudyImagingArea-93003",
+      93003,
+      "Arterial Study Area"
+    ],
+    [
+      "vascularStudyImagingArea-93004",
+      93004,
+      "Venous Study Area"
+    ],
+    [
+      "vascularStudyImagingArea-93005",
+      93005,
+      "Carotid Study Area"
+    ]
+  ]
+}

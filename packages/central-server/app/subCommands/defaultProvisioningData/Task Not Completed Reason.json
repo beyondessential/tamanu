@@ -1,0 +1,29 @@
+{
+  "sheetName": "Task Not Completed Reason",
+  "data": [
+    [
+      "id",
+      "code",
+      "name",
+      "visibilityStatus"
+    ],
+    [
+      "tasknotcompletedreason-patientunavailable",
+      "patientunavailable",
+      "Patient unavailable",
+      "current"
+    ],
+    [
+      "tasknotcompletedreason-refused",
+      "refused",
+      "Refused",
+      "current"
+    ],
+    [
+      "tasknotcompletedreason-other",
+      "other",
+      "Other",
+      "current"
+    ]
+  ]
+}

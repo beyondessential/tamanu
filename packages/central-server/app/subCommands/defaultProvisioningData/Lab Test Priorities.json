@@ -1,0 +1,60 @@
+{
+  "sheetName": "Lab Test Priorities",
+  "data": [
+    [
+      "id",
+      "code",
+      "name"
+    ],
+    [
+      "LabTestPriority-Symptomatic",
+      "Symptomatic",
+      "Symptomatic"
+    ],
+    [
+      "LabTestPriority-PrimaryContact",
+      "PrimaryContact",
+      "Primary contact"
+    ],
+    [
+      "LabTestPriority-SecondaryContact",
+      "SecondaryContact",
+      "Secondary contact"
+    ],
+    [
+      "LabTestPriority-HighRiskGroup",
+      "HighRiskGroup",
+      "High risk group"
+    ],
+    [
+      "LabTestPriority-Traveller",
+      "Traveller",
+      "Traveller"
+    ],
+    [
+      "LabTestPriority-Other",
+      "Other",
+      "Other"
+    ],
+    [
+      "LabTestPriority-RDTNegativefurthertestingrequired",
+      "RDTNegativefurthertestingrequired",
+      "AgRDT Negative, further testing needed"
+    ],
+    [
+      "LabTestPriority-AgRDTPositivefurthertestingrequired",
+      "AgRDTPositivefurthertestingrequired",
+      "AgRDT Positive, further testing needed"
+    ],
+    [
+      "LabTestPriority-AgRDTNegativenofurthertestingrequired",
+      "AgRDTNegativenofurthertestingrequired",
+      "AgRDT Negative, no further testing needed"
+    ],
+    [
+      "LabTestPriority-AgRDTPositivenofurthertestingrequired",
+      "AgRDTPositivenofurthertestingrequired",
+      "AgRDT Positive, no further testing needed"
+    ]
+  ]
+}

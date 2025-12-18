@@ -1,0 +1,1909 @@
+{
+  "sheetName": "Departments",
+  "data": [
+    [
+      "id",
+      "code",
+      "name",
+      "visibilityStatus",
+      "facilityId"
+    ],
+    [
+      "department-Anaesthesia",
+      "Anaesthesia",
+      "Anaesthesia",
+      "current",
+      "facility-ColonialWarMemorialDivisionalHospital"
+    ],
+    [
+      "department-GeneralOutpatient",
+      "GeneralOutpatient",
+      "General Outpatient",
+      "current",
+      "facility-ColonialWarMemorialDivisionalHospital"
+    ],
+    [
+      "department-Gynaecology",
+      "Gynaecology",
+      "Obstetric",
+      "current",
+      "facility-ColonialWarMemorialDivisionalHospital"
+    ],
+    [
+      "department-HealthCentre",
+      "HealthCentre",
+      "Health Centre",
+      "current",
+      "facility-ColonialWarMemorialDivisionalHospital"
+    ],
+    [
+      "department-Maternity",
+      "Maternity",
+      "Maternity",
+      "current",
+      "facility-ColonialWarMemorialDivisionalHospital"
+    ],
+    [
+      "department-Neurology",
+      "Neurology",
+      "Neurology",
+      "current",
+      "facility-ColonialWarMemorialDivisionalHospital"
+    ],
+    [
+      "department-NursingStation",
+      "NursingStation",
+      "Nursing Station",
+      "current",
+      "facility-ColonialWarMemorialDivisionalHospital"
+    ],
+    [
+      "department-Oncology",
+      "Oncology",
+      "Oncology",
+      "current",
+      "facility-ColonialWarMemorialDivisionalHospital"
+    ],
+    [
+      "department-Orthopaedics",
+      "Orthopaedics",
+      "Orthopaedics",
+      "current",
+      "facility-ColonialWarMemorialDivisionalHospital"
+    ],
+    [
+      "department-Pharmacy",
+      "Pharmacy",
+      "Pharmacy",
+      "current",
+      "facility-ColonialWarMemorialDivisionalHospital"
+    ],
+    [
+      "department-Respiratory",
+      "Respiratory",
+      "Respiratory",
+      "current",
+      "facility-ColonialWarMemorialDivisionalHospital"
+    ],
+    [
+      "department-SpecialOutpatient",
+      "SpecialOutpatient",
+      "Special Outpatient",
+      "current",
+      "facility-ColonialWarMemorialDivisionalHospital"
+    ],
+    [
+      "department-WellnessClinic",
+      "WellnessClinic",
+      "Wellness Clinic",
+      "current",
+      "facility-ColonialWarMemorialDivisionalHospital"
+    ],
+    [
+      "department-GeneralClinic",
+      "GeneralClinic",
+      "Clinic",
+      "current",
+      "facility-ColonialWarMemorialDivisionalHospital"
+    ],
+    [
+      "department-COVID19Team",
+      "COVID19Team",
+      "COVID-19 Team",
+      "current",
+      "facility-ColonialWarMemorialDivisionalHospital"
+    ],
+    [
+      "department-DemoLan",
+      "DemoLanGeneral",
+      "Demo Lan General",
+      "current",
+      "facility-DemoLan"
+    ],
+    [
+      "department-AlliedHealth",
+      "AlliedHealth",
+      "Allied Health",
+      "current",
+      "facility-BaHealthCentre"
+    ],
+    [
+      "department-GeneralMedicineBaHealthCentre",
+      "GeneralMedicineBaHealthCentre",
+      "General Medicine",
+      "current",
+      "facility-BaHealthCentre"
+    ],
+    [
+      "department-GeneralOutpatientBaHealthCentre",
+      "GeneralOutpatientBaHealthCentre",
+      "General Outpatient",
+      "current",
+      "facility-BaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicAdolescentHealthDevelopment",
+      "GeneralClinicAdolescentHealthDevelopment",
+      "Adolescent General Clinic",
+      "current",
+      "facility-AdolescentHealthDevelopment"
+    ],
+    [
+      "department-GeneralClinicBaHealthCentre",
+      "GeneralClinicBaHealthCentre",
+      "Ba Health Centre General Clinic",
+      "current",
+      "facility-BaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicBaMissionSub-divisionalHospital",
+      "GeneralClinicBaMissionSub-divisionalHospital",
+      "Ba Mission Sub-divisional Hospital Public",
+      "current",
+      "facility-BaMissionSub-divisionalHospital"
+    ],
+    [
+      "department-GeneralClinicBagasauNursingStation",
+      "GeneralClinicBagasauNursingStation",
+      "Bagasau Nursing Station Public",
+      "current",
+      "facility-BagasauNursingStation"
+    ],
+    [
+      "department-GeneralClinicBalevutoHealthCentre",
+      "GeneralClinicBalevutoHealthCentre",
+      "Balevuto Health Centre Public",
+      "current",
+      "facility-BalevutoHealthCentre"
+    ],
+    [
+      "department-GeneralClinicBatikiNursingStation",
+      "GeneralClinicBatikiNursingStation",
+      "Batiki Nursing Station Public",
+      "current",
+      "facility-BatikiNursingStation"
+    ],
+    [
+      "department-GeneralClinicBaulevuNursingStation",
+      "GeneralClinicBaulevuNursingStation",
+      "Baulevu Nursing Station Public",
+      "current",
+      "facility-BaulevuNursingStation"
+    ],
+    [
+      "department-GeneralClinicBeqaHealthCentre",
+      "GeneralClinicBeqaHealthCentre",
+      "Beqa Health Centre Public",
+      "current",
+      "facility-BeqaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicBoumaNursingStation",
+      "GeneralClinicBoumaNursingStation",
+      "Bouma Nursing Station Public",
+      "current",
+      "facility-BoumaNursingStation"
+    ],
+    [
+      "department-GeneralClinicBuaNursingStation",
+      "GeneralClinicBuaNursingStation",
+      "Bua Nursing Station Public",
+      "current",
+      "facility-BuaNursingStation"
+    ],
+    [
+      "department-GeneralClinicBukuyaHealthCentre",
+      "GeneralClinicBukuyaHealthCentre",
+      "Bukuya Health Centre Public",
+      "current",
+      "facility-BukuyaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicBuretaHealthCentre",
+      "GeneralClinicBuretaHealthCentre",
+      "Bureta Health Centre Public",
+      "current",
+      "facility-BuretaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicCakovaNursingStation",
+      "GeneralClinicCakovaNursingStation",
+      "Cakova Nursing Station Public",
+      "current",
+      "facility-CakovaNursingStation"
+    ],
+    [
+      "department-GeneralClinicCiciaHealthCentre",
+      "GeneralClinicCiciaHealthCentre",
+      "Cicia Health Centre Public",
+      "current",
+      "facility-CiciaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicCikobiaNursingStation",
+      "GeneralClinicCikobiaNursingStation",
+      "Cikobia Nursing Station Public",
+      "current",
+      "facility-CikobiaNursingStation"
+    ],
+    [
+      "department-GeneralClinicColonialWarMemorialDivisionalHospital",
+      "GeneralClinicColonialWarMemorialDivisionalHospital",
+      "Colonial War Memorial Divisional Hospital Public",
+      "current",
+      "facility-ColonialWarMemorialDivisionalHospital"
+    ],
+    [
+      "department-GeneralClinicColonialWarMemorialDivisionalHospital-BreastClinic",
+      "GeneralClinicColonialWarMemorialDivisionalHospital-BreastClinic",
+      "Colonial War Memorial Divisional Hospital - Breast Clinic Public",
+      "current",
+      "facility-ColonialWarMemorialDivisionalHospital-BreastClinic"
+    ],
+    [
+      "department-GeneralClinicColonialWarMemorialDivisionalHospital-GynaecologyClinic",
+      "GeneralClinicColonialWarMemorialDivisionalHospital-GynaecologyClinic",
+      "Colonial War Memorial Divisional Hospital - Gynaecology Clinic Public",
+      "current",
+      "facility-ColonialWarMemorialDivisionalHospital-GynaecologyClinic"
+    ],
+    [
+      "department-GeneralClinicCoqeloaNursingStation",
+      "GeneralClinicCoqeloaNursingStation",
+      "Coqeloa Nursing Station Public",
+      "current",
+      "facility-CoqeloaNursingStation"
+    ],
+    [
+      "department-GeneralClinicCuvuHealthCentre",
+      "GeneralClinicCuvuHealthCentre",
+      "Cuvu Health Centre Public",
+      "current",
+      "facility-CuvuHealthCentre"
+    ],
+    [
+      "department-GeneralClinicDaviqeleHealthCentre",
+      "GeneralClinicDaviqeleHealthCentre",
+      "Daviqele Health Centre Public",
+      "current",
+      "facility-DaviqeleHealthCentre"
+    ],
+    [
+      "department-GeneralClinicDawasamuNursingStation",
+      "GeneralClinicDawasamuNursingStation",
+      "Dawasamu Nursing Station Public",
+      "current",
+      "facility-DawasamuNursingStation"
+    ],
+    [
+      "department-GeneralClinicDogotukiNursingStation",
+      "GeneralClinicDogotukiNursingStation",
+      "Dogotuki Nursing Station Public",
+      "current",
+      "facility-DogotukiNursingStation"
+    ],
+    [
+      "department-GeneralClinicDravuwaluNursingStation",
+      "GeneralClinicDravuwaluNursingStation",
+      "Dravuwalu Nursing Station Public",
+      "current",
+      "facility-DravuwaluNursingStation"
+    ],
+    [
+      "department-GeneralClinicDreketiHealthCentre",
+      "GeneralClinicDreketiHealthCentre",
+      "Dreketi Health Centre Public",
+      "current",
+      "facility-DreketiHealthCentre"
+    ],
+    [
+      "department-GeneralClinicFulagaNursingStation",
+      "GeneralClinicFulagaNursingStation",
+      "Fulaga Nursing Station Public",
+      "current",
+      "facility-FulagaNursingStation"
+    ],
+    [
+      "department-GeneralClinicGaloaNursingStation",
+      "GeneralClinicGaloaNursingStation",
+      "Galoa Nursing Station Public",
+      "current",
+      "facility-GaloaNursingStation"
+    ],
+    [
+      "department-GeneralClinicGaseleNursingStation",
+      "GeneralClinicGaseleNursingStation",
+      "Gasele Nursing Station Public",
+      "current",
+      "facility-GaseleNursingStation"
+    ],
+    [
+      "department-GeneralClinicGauHealthCentre",
+      "GeneralClinicGauHealthCentre",
+      "Gau Health Centre Public",
+      "current",
+      "facility-GauHealthCentre"
+    ],
+    [
+      "department-GeneralClinicKabaraHealthCentre",
+      "GeneralClinicKabaraHealthCentre",
+      "Kabara Health Centre Public",
+      "current",
+      "facility-KabaraHealthCentre"
+    ],
+    [
+      "department-GeneralClinicKabaraNursingStation",
+      "GeneralClinicKabaraNursingStation",
+      "Kabara Nursing Station Public",
+      "current",
+      "facility-KabaraNursingStation"
+    ],
+    [
+      "department-GeneralClinicKamikamicaHealthCentre",
+      "GeneralClinicKamikamicaHealthCentre",
+      "Kamikamica Health Centre Public",
+      "current",
+      "facility-KamikamicaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicKavalaHealthCentre",
+      "GeneralClinicKavalaHealthCentre",
+      "Kavala Health Centre Public",
+      "current",
+      "facility-KavalaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicKeiyasiHealthCentre",
+      "GeneralClinicKeiyasiHealthCentre",
+      "Keiyasi Health Centre Public",
+      "current",
+      "facility-KeiyasiHealthCentre"
+    ],
+    [
+      "department-GeneralClinicKeseHealthCentre",
+      "GeneralClinicKeseHealthCentre",
+      "Kese Health Centre Public",
+      "current",
+      "facility-KeseHealthCentre"
+    ],
+    [
+      "department-GeneralClinicKiaNursingStation",
+      "GeneralClinicKiaNursingStation",
+      "Kia Nursing Station Public",
+      "current",
+      "facility-KiaNursingStation"
+    ],
+    [
+      "department-GeneralClinicKidneyDialysisCentre",
+      "GeneralClinicKidneyDialysisCentre",
+      "Kidney Dialysis Centre Public",
+      "current",
+      "facility-KidneyDialysisCentre"
+    ],
+    [
+      "department-GeneralClinicKioaNursingStation",
+      "GeneralClinicKioaNursingStation",
+      "Kioa Nursing Station Public",
+      "current",
+      "facility-KioaNursingStation"
+    ],
+    [
+      "department-GeneralClinicKomoNursingStation",
+      "GeneralClinicKomoNursingStation",
+      "Komo Nursing Station Public",
+      "current",
+      "facility-KomoNursingStation"
+    ],
+    [
+      "department-GeneralClinicKoroHealthCentre",
+      "GeneralClinicKoroHealthCentre",
+      "Koro Health Centre Public",
+      "current",
+      "facility-KoroHealthCentre"
+    ],
+    [
+      "department-GeneralClinicKorolevuHealthCentre",
+      "GeneralClinicKorolevuHealthCentre",
+      "Korolevu Health Centre Public",
+      "current",
+      "facility-KorolevuHealthCentre"
+    ],
+    [
+      "department-GeneralClinicKorotasereHealthCentre",
+      "GeneralClinicKorotasereHealthCentre",
+      "Korotasere Health Centre Public",
+      "current",
+      "facility-KorotasereHealthCentre"
+    ],
+    [
+      "department-GeneralClinicKorovisilouHealthCentre",
+      "GeneralClinicKorovisilouHealthCentre",
+      "Korovisilou Health Centre Public",
+      "current",
+      "facility-KorovisilouHealthCentre"
+    ],
+    [
+      "department-GeneralClinicKorovouHealthCentre",
+      "GeneralClinicKorovouHealthCentre",
+      "Korovou Health Centre Public",
+      "current",
+      "facility-KorovouHealthCentre"
+    ],
+    [
+      "department-GeneralClinicKorovouPrisonStation",
+      "GeneralClinicKorovouPrisonStation",
+      "Korovou Prison Station Public",
+      "current",
+      "facility-KorovouPrisonStation"
+    ],
+    [
+      "department-GeneralClinicKorovouSub-divisionalHospital",
+      "GeneralClinicKorovouSub-divisionalHospital",
+      "Korovou Sub-divisional Hospital Public",
+      "current",
+      "facility-KorovouSub-divisionalHospital"
+    ],
+    [
+      "department-GeneralClinicKubulauNursingStation",
+      "GeneralClinicKubulauNursingStation",
+      "Kubulau Nursing Station Public",
+      "current",
+      "facility-KubulauNursingStation"
+    ],
+    [
+      "department-GeneralClinicLabasaDivisionalHospital",
+      "GeneralClinicLabasaDivisionalHospital",
+      "Labasa Divisional Hospital Public",
+      "current",
+      "facility-LabasaDivisionalHospital"
+    ],
+    [
+      "department-GeneralClinicLabasaGoldenAgeHome",
+      "GeneralClinicLabasaGoldenAgeHome",
+      "Labasa Golden Age Home Public",
+      "current",
+      "facility-LabasaGoldenAgeHome"
+    ],
+    [
+      "department-GeneralClinicLabasaHealthCentre",
+      "GeneralClinicLabasaHealthCentre",
+      "Labasa Health Centre Public",
+      "current",
+      "facility-LabasaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicLabassHealthCentre",
+      "GeneralClinicLabassHealthCentre",
+      "Labass Health Centre Public",
+      "current",
+      "facility-LabassHealthCentre"
+    ],
+    [
+      "department-GeneralClinicLagiHealthCentre",
+      "GeneralClinicLagiHealthCentre",
+      "Lagi Health Centre Public",
+      "current",
+      "facility-LagiHealthCentre"
+    ],
+    [
+      "department-GeneralClinicLakebaHealthCentre",
+      "GeneralClinicLakebaHealthCentre",
+      "Lakeba Health Centre Public",
+      "current",
+      "facility-LakebaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicLakebaSub-divisionalHospital",
+      "GeneralClinicLakebaSub-divisionalHospital",
+      "Lakeba Sub-divisional Hospital Public",
+      "current",
+      "facility-LakebaSub-divisionalHospital"
+    ],
+    [
+      "department-GeneralClinicLamiHealthCentre",
+      "GeneralClinicLamiHealthCentre",
+      "Lami Health Centre Public",
+      "current",
+      "facility-LamiHealthCentre"
+    ],
+    [
+      "department-GeneralClinicLaselevuHealthCentre",
+      "GeneralClinicLaselevuHealthCentre",
+      "Laselevu Health Centre Public",
+      "current",
+      "facility-LaselevuHealthCentre"
+    ],
+    [
+      "department-GeneralClinicLautokaDivisionalHospital",
+      "GeneralClinicLautokaDivisionalHospital",
+      "Lautoka Divisional Hospital Public",
+      "current",
+      "facility-LautokaDivisionalHospital"
+    ],
+    [
+      "department-GeneralClinicLautokaHealthCentre",
+      "GeneralClinicLautokaHealthCentre",
+      "Lautoka Health Centre Public",
+      "current",
+      "facility-LautokaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicLautokaHubCentre",
+      "GeneralClinicLautokaHubCentre",
+      "Lautoka Hub Centre Public",
+      "current",
+      "facility-LautokaHubCentre"
+    ],
+    [
+      "department-GeneralClinicLekutuHealthCentre",
+      "GeneralClinicLekutuHealthCentre",
+      "Lekutu Health Centre Public",
+      "current",
+      "facility-LekutuHealthCentre"
+    ],
+    [
+      "department-GeneralClinicLevukaHealthCentre",
+      "GeneralClinicLevukaHealthCentre",
+      "Levuka Health Centre Public",
+      "current",
+      "facility-LevukaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicLevukaSub-divisionalHospital",
+      "GeneralClinicLevukaSub-divisionalHospital",
+      "Levuka Sub-divisional Hospital Public",
+      "current",
+      "facility-LevukaSub-divisionalHospital"
+    ],
+    [
+      "department-GeneralClinicLevuka-I-DakuNursingStation",
+      "GeneralClinicLevuka-I-DakuNursingStation",
+      "Levuka-I-Daku Nursing Station Public",
+      "current",
+      "facility-Levuka-I-DakuNursingStation"
+    ],
+    [
+      "department-GeneralClinicLodoniHealthCentre",
+      "GeneralClinicLodoniHealthCentre",
+      "Lodoni Health Centre Public",
+      "current",
+      "facility-LodoniHealthCentre"
+    ],
+    [
+      "department-GeneralClinicLomaNursingStation",
+      "GeneralClinicLomaNursingStation",
+      "Loma Nursing Station Public",
+      "current",
+      "facility-LomaNursingStation"
+    ],
+    [
+      "department-GeneralClinicLomaivunaNursingStation",
+      "GeneralClinicLomaivunaNursingStation",
+      "Lomaivuna Nursing Station Public",
+      "current",
+      "facility-LomaivunaNursingStation"
+    ],
+    [
+      "department-GeneralClinicLomalomaHealthCentre",
+      "GeneralClinicLomalomaHealthCentre",
+      "Lomaloma Health Centre Public",
+      "current",
+      "facility-LomalomaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicLomalomaSub-divisionalHospital",
+      "GeneralClinicLomalomaSub-divisionalHospital",
+      "Lomaloma Sub-divisional Hospital Public",
+      "current",
+      "facility-LomalomaSub-divisionalHospital"
+    ],
+    [
+      "department-GeneralClinicLomawaiHealthCentre",
+      "GeneralClinicLomawaiHealthCentre",
+      "Lomawai Health Centre Public",
+      "current",
+      "facility-LomawaiHealthCentre"
+    ],
+    [
+      "department-GeneralClinicMakoiBirthingUnit",
+      "GeneralClinicMakoiBirthingUnit",
+      "Makoi Birthing Unit Public",
+      "current",
+      "facility-MakoiBirthingUnit"
+    ],
+    [
+      "department-GeneralClinicMakoiHealthCentre",
+      "GeneralClinicMakoiHealthCentre",
+      "Makoi Health Centre Public",
+      "current",
+      "facility-MakoiHealthCentre"
+    ],
+    [
+      "department-GeneralClinicMaloloHealthCentre",
+      "GeneralClinicMaloloHealthCentre",
+      "Malolo Health Centre Public",
+      "current",
+      "facility-MaloloHealthCentre"
+    ],
+    [
+      "department-GeneralClinicMataikaHouse",
+      "GeneralClinicMataikaHouse",
+      "Mataika House Public",
+      "current",
+      "facility-MataikaHouse"
+    ],
+    [
+      "department-GeneralClinicMatukuHealthCentre",
+      "GeneralClinicMatukuHealthCentre",
+      "Matuku Health Centre Public",
+      "current",
+      "facility-MatukuHealthCentre"
+    ],
+    [
+      "department-GeneralClinicMoalaHealthCentre",
+      "GeneralClinicMoalaHealthCentre",
+      "Moala Health Centre Public",
+      "current",
+      "facility-MoalaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicMoceNursingStation",
+      "GeneralClinicMoceNursingStation",
+      "Moce Nursing Station Public",
+      "current",
+      "facility-MoceNursingStation"
+    ],
+    [
+      "department-GeneralClinicMokaniHealthCentre",
+      "GeneralClinicMokaniHealthCentre",
+      "Mokani Health Centre Public",
+      "current",
+      "facility-MokaniHealthCentre"
+    ],
+    [
+      "department-GeneralClinicMomiHealthCentre",
+      "GeneralClinicMomiHealthCentre",
+      "Momi Health Centre Public",
+      "current",
+      "facility-MomiHealthCentre"
+    ],
+    [
+      "department-GeneralClinicMoturikiNursingStation",
+      "GeneralClinicMoturikiNursingStation",
+      "Moturiki Nursing Station Public",
+      "current",
+      "facility-MoturikiNursingStation"
+    ],
+    [
+      "department-GeneralClinicMualevuNursingStation",
+      "GeneralClinicMualevuNursingStation",
+      "Mualevu Nursing Station Public",
+      "current",
+      "facility-MualevuNursingStation"
+    ],
+    [
+      "department-GeneralClinicMuanikauHealthCentre",
+      "GeneralClinicMuanikauHealthCentre",
+      "Muanikau Health Centre Public",
+      "current",
+      "facility-MuanikauHealthCentre"
+    ],
+    [
+      "department-GeneralClinicNabalebaleNursingStation",
+      "GeneralClinicNabalebaleNursingStation",
+      "Nabalebale Nursing Station Public",
+      "current",
+      "facility-NabalebaleNursingStation"
+    ],
+    [
+      "department-GeneralClinicNabasoviNursingStation",
+      "GeneralClinicNabasoviNursingStation",
+      "Nabasovi Nursing Station Public",
+      "current",
+      "facility-NabasoviNursingStation"
+    ],
+    [
+      "department-GeneralClinicNabobucoNursingStation",
+      "GeneralClinicNabobucoNursingStation",
+      "Nabobuco Nursing Station Public",
+      "current",
+      "facility-NabobucoNursingStation"
+    ],
+    [
+      "department-GeneralClinicNaboroNursingStation",
+      "GeneralClinicNaboroNursingStation",
+      "Naboro Nursing Station Public",
+      "current",
+      "facility-NaboroNursingStation"
+    ],
+    [
+      "department-GeneralClinicNabouNursingStation",
+      "GeneralClinicNabouNursingStation",
+      "Nabou Nursing Station Public",
+      "current",
+      "facility-NabouNursingStation"
+    ],
+    [
+      "department-GeneralClinicNaboubucoNursingStation",
+      "GeneralClinicNaboubucoNursingStation",
+      "Naboubuco Nursing Station Public",
+      "current",
+      "facility-NaboubucoNursingStation"
+    ],
+    [
+      "department-GeneralClinicNabouwaluHealthCentre",
+      "GeneralClinicNabouwaluHealthCentre",
+      "Nabouwalu Health Centre Public",
+      "current",
+      "facility-NabouwaluHealthCentre"
+    ],
+    [
+      "department-GeneralClinicNabouwaluSub-divisionalHospital",
+      "GeneralClinicNabouwaluSub-divisionalHospital",
+      "Nabouwalu Sub-divisional Hospital Public",
+      "current",
+      "facility-NabouwaluSub-divisionalHospital"
+    ],
+    [
+      "department-GeneralClinicNacamakiNursingStation",
+      "GeneralClinicNacamakiNursingStation",
+      "Nacamaki Nursing Station Public",
+      "current",
+      "facility-NacamakiNursingStation"
+    ],
+    [
+      "department-GeneralClinicNacavanadiNursingStation",
+      "GeneralClinicNacavanadiNursingStation",
+      "Nacavanadi Nursing Station Public",
+      "current",
+      "facility-NacavanadiNursingStation"
+    ],
+    [
+      "department-GeneralClinicNaculaHealthCentre",
+      "GeneralClinicNaculaHealthCentre",
+      "Nacula Health Centre Public",
+      "current",
+      "facility-NaculaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicNadarivatuHealthCentre",
+      "GeneralClinicNadarivatuHealthCentre",
+      "Nadarivatu Health Centre Public",
+      "current",
+      "facility-NadarivatuHealthCentre"
+    ],
+    [
+      "department-GeneralClinicNadiHealthCentre",
+      "GeneralClinicNadiHealthCentre",
+      "Nadi Health Centre Public",
+      "current",
+      "facility-NadiHealthCentre"
+    ],
+    [
+      "department-GeneralClinicNadiSub-divisionalHospital",
+      "GeneralClinicNadiSub-divisionalHospital",
+      "Nadi Sub-divisional Hospital Public",
+      "current",
+      "facility-NadiSub-divisionalHospital"
+    ],
+    [
+      "department-GeneralClinicNadrauNursingStation",
+      "GeneralClinicNadrauNursingStation",
+      "Nadrau Nursing Station Public",
+      "current",
+      "facility-NadrauNursingStation"
+    ],
+    [
+      "department-GeneralClinicNaduriHealthCentre",
+      "GeneralClinicNaduriHealthCentre",
+      "Naduri Health Centre Public",
+      "current",
+      "facility-NaduriHealthCentre"
+    ],
+    [
+      "department-GeneralClinicNagadoNursingStation",
+      "GeneralClinicNagadoNursingStation",
+      "Nagado Nursing Station Public",
+      "current",
+      "facility-NagadoNursingStation"
+    ],
+    [
+      "department-GeneralClinicNagatagataNursingStation",
+      "GeneralClinicNagatagataNursingStation",
+      "Nagatagata Nursing Station Public",
+      "current",
+      "facility-NagatagataNursingStation"
+    ],
+    [
+      "department-GeneralClinicNailagaHealthCentre",
+      "GeneralClinicNailagaHealthCentre",
+      "Nailaga Health Centre Public",
+      "current",
+      "facility-NailagaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicNailililiNursingStation",
+      "GeneralClinicNailililiNursingStation",
+      "Naililili Nursing Station Public",
+      "current",
+      "facility-NailililiNursingStation"
+    ],
+    [
+      "department-GeneralClinicNairaiNursingStation",
+      "GeneralClinicNairaiNursingStation",
+      "Nairai Nursing Station Public",
+      "current",
+      "facility-NairaiNursingStation"
+    ],
+    [
+      "department-GeneralClinicNakasiHealthCentre",
+      "GeneralClinicNakasiHealthCentre",
+      "Nakasi Health Centre Public",
+      "current",
+      "facility-NakasiHealthCentre"
+    ],
+    [
+      "department-GeneralClinicNakorosuleHealthCentre",
+      "GeneralClinicNakorosuleHealthCentre",
+      "Nakorosule Health Centre Public",
+      "current",
+      "facility-NakorosuleHealthCentre"
+    ],
+    [
+      "department-GeneralClinicNakorovatuHealthCentre",
+      "GeneralClinicNakorovatuHealthCentre",
+      "Nakorovatu Health Centre Public",
+      "current",
+      "facility-NakorovatuHealthCentre"
+    ],
+    [
+      "department-GeneralClinicNalotawaNursingStation",
+      "GeneralClinicNalotawaNursingStation",
+      "Nalotawa Nursing Station Public",
+      "current",
+      "facility-NalotawaNursingStation"
+    ],
+    [
+      "department-GeneralClinicNalotuNursingStation",
+      "GeneralClinicNalotuNursingStation",
+      "Nalotu Nursing Station Public",
+      "current",
+      "facility-NalotuNursingStation"
+    ],
+    [
+      "department-GeneralClinicNamakaHealthCentre",
+      "GeneralClinicNamakaHealthCentre",
+      "Namaka Health Centre Public",
+      "current",
+      "facility-NamakaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicNamakaReproductiveHealth",
+      "GeneralClinicNamakaReproductiveHealth",
+      "Namaka Reproductive Health Public",
+      "current",
+      "facility-NamakaReproductiveHealth"
+    ],
+    [
+      "department-GeneralClinicNamaraNursingStation",
+      "GeneralClinicNamaraNursingStation",
+      "Namara Nursing Station Public",
+      "current",
+      "facility-NamaraNursingStation"
+    ],
+    [
+      "department-GeneralClinicNamaraiHealthCentre",
+      "GeneralClinicNamaraiHealthCentre",
+      "Namarai Health Centre Public",
+      "current",
+      "facility-NamaraiHealthCentre"
+    ],
+    [
+      "department-GeneralClinicNamauNursingStation",
+      "GeneralClinicNamauNursingStation",
+      "Namau Nursing Station Public",
+      "current",
+      "facility-NamauNursingStation"
+    ],
+    [
+      "department-GeneralClinicNamuamuaHealthCentre",
+      "GeneralClinicNamuamuaHealthCentre",
+      "Namuamua Health Centre Public",
+      "current",
+      "facility-NamuamuaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicNamukaNursingStation",
+      "GeneralClinicNamukaNursingStation",
+      "Namuka Nursing Station Public",
+      "current",
+      "facility-NamukaNursingStation"
+    ],
+    [
+      "department-GeneralClinicNanokoNursingStation",
+      "GeneralClinicNanokoNursingStation",
+      "Nanoko Nursing Station Public",
+      "current",
+      "facility-NanokoNursingStation"
+    ],
+    [
+      "department-GeneralClinicNanukuloaHealthCentre",
+      "GeneralClinicNanukuloaHealthCentre",
+      "Nanukuloa Health Centre Public",
+      "current",
+      "facility-NanukuloaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicNaqaliHealthCentre",
+      "GeneralClinicNaqaliHealthCentre",
+      "Naqali Health Centre Public",
+      "current",
+      "facility-NaqaliHealthCentre"
+    ],
+    [
+      "department-GeneralClinicNaqalimareNursingStation",
+      "GeneralClinicNaqalimareNursingStation",
+      "Naqalimare Nursing Station Public",
+      "current",
+      "facility-NaqalimareNursingStation"
+    ],
+    [
+      "department-GeneralClinicNaqaraNursingStation",
+      "GeneralClinicNaqaraNursingStation",
+      "Naqara Nursing Station Public",
+      "current",
+      "facility-NaqaraNursingStation"
+    ],
+    [
+      "department-GeneralClinicNaqarawaiNursingStation",
+      "GeneralClinicNaqarawaiNursingStation",
+      "Naqarawai Nursing Station Public",
+      "current",
+      "facility-NaqarawaiNursingStation"
+    ],
+    [
+      "department-GeneralClinicNaqumuNursingStation",
+      "GeneralClinicNaqumuNursingStation",
+      "Naqumu Nursing Station Public",
+      "current",
+      "facility-NaqumuNursingStation"
+    ],
+    [
+      "department-GeneralClinicNarocakeNursingStation",
+      "GeneralClinicNarocakeNursingStation",
+      "Narocake Nursing Station Public",
+      "current",
+      "facility-NarocakeNursingStation"
+    ],
+    [
+      "department-GeneralClinicNarokorokoyawaNursingStation",
+      "GeneralClinicNarokorokoyawaNursingStation",
+      "Narokorokoyawa Nursing Station Public",
+      "current",
+      "facility-NarokorokoyawaNursingStation"
+    ],
+    [
+      "department-GeneralClinicNasauHealthCentre",
+      "GeneralClinicNasauHealthCentre",
+      "Nasau Health Centre Public",
+      "current",
+      "facility-NasauHealthCentre"
+    ],
+    [
+      "department-GeneralClinicNasavuNursingStation",
+      "GeneralClinicNasavuNursingStation",
+      "Nasavu Nursing Station Public",
+      "current",
+      "facility-NasavuNursingStation"
+    ],
+    [
+      "department-GeneralClinicNaseaHealthCentre",
+      "GeneralClinicNaseaHealthCentre",
+      "Nasea Health Centre Public",
+      "current",
+      "facility-NaseaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicNasokiNursingStation",
+      "GeneralClinicNasokiNursingStation",
+      "Nasoki Nursing Station Public",
+      "current",
+      "facility-NasokiNursingStation"
+    ],
+    [
+      "department-GeneralClinicNasoqoNursingStation",
+      "GeneralClinicNasoqoNursingStation",
+      "Nasoqo Nursing Station Public",
+      "current",
+      "facility-NasoqoNursingStation"
+    ],
+    [
+      "department-GeneralClinicNatabuaHealthCentre",
+      "GeneralClinicNatabuaHealthCentre",
+      "Natabua Health Centre Public",
+      "current",
+      "facility-NatabuaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicNatewaHealthCentre",
+      "GeneralClinicNatewaHealthCentre",
+      "Natewa Health Centre Public",
+      "current",
+      "facility-NatewaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicRoyalFijiPolice",
+      "GeneralClinicRoyalFijiPolice",
+      "Royal Fiji Police Public",
+      "current",
+      "facility-RoyalFijiPolice"
+    ],
+    [
+      "department-GeneralClinicNausoriHealthCentre",
+      "GeneralClinicNausoriHealthCentre",
+      "Nausori Health Centre Public",
+      "current",
+      "facility-NausoriHealthCentre"
+    ],
+    [
+      "department-GeneralClinicNausoriHighlandNursingStation",
+      "GeneralClinicNausoriHighlandNursingStation",
+      "Nausori Highland Nursing Station Public",
+      "current",
+      "facility-NausoriHighlandNursingStation"
+    ],
+    [
+      "department-GeneralClinicNausoriMaternityHospital",
+      "GeneralClinicNausoriMaternityHospital",
+      "Nausori Maternity Hospital Public",
+      "current",
+      "facility-NausoriMaternityHospital"
+    ],
+    [
+      "department-GeneralClinicNavakakaNursingStation",
+      "GeneralClinicNavakakaNursingStation",
+      "Navakaka Nursing Station Public",
+      "current",
+      "facility-NavakakaNursingStation"
+    ],
+    [
+      "department-GeneralClinicNavakasigaNursingStation",
+      "GeneralClinicNavakasigaNursingStation",
+      "Navakasiga Nursing Station Public",
+      "current",
+      "facility-NavakasigaNursingStation"
+    ],
+    [
+      "department-GeneralClinicNavuaHealthCentre",
+      "GeneralClinicNavuaHealthCentre",
+      "Navua Health Centre Public",
+      "current",
+      "facility-NavuaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicNavuaSub-divisionalHospital",
+      "GeneralClinicNavuaSub-divisionalHospital",
+      "Navua Sub-divisional Hospital Public",
+      "current",
+      "facility-NavuaSub-divisionalHospital"
+    ],
+    [
+      "department-GeneralClinicNavunikabiNursingStation",
+      "GeneralClinicNavunikabiNursingStation",
+      "Navunikabi Nursing Station Public",
+      "current",
+      "facility-NavunikabiNursingStation"
+    ],
+    [
+      "department-GeneralClinicNawaicobaNursingStation",
+      "GeneralClinicNawaicobaNursingStation",
+      "Nawaicoba Nursing Station Public",
+      "current",
+      "facility-NawaicobaNursingStation"
+    ],
+    [
+      "department-GeneralClinicNawaikamaNursingStation",
+      "GeneralClinicNawaikamaNursingStation",
+      "Nawaikama Nursing Station Public",
+      "current",
+      "facility-NawaikamaNursingStation"
+    ],
+    [
+      "department-GeneralClinicNaweniNursingStation",
+      "GeneralClinicNaweniNursingStation",
+      "Naweni Nursing Station Public",
+      "current",
+      "facility-NaweniNursingStation"
+    ],
+    [
+      "department-GeneralClinicNayauNursingStation",
+      "GeneralClinicNayauNursingStation",
+      "Nayau Nursing Station Public",
+      "current",
+      "facility-NayauNursingStation"
+    ],
+    [
+      "department-GeneralClinicNayavuHealthCentre",
+      "GeneralClinicNayavuHealthCentre",
+      "Nayavu Health Centre Public",
+      "current",
+      "facility-NayavuHealthCentre"
+    ],
+    [
+      "department-GeneralClinicNayavuiraNursingStation",
+      "GeneralClinicNayavuiraNursingStation",
+      "Nayavuira Nursing Station Public",
+      "current",
+      "facility-NayavuiraNursingStation"
+    ],
+    [
+      "department-GeneralClinicNuffieldHealthCentre",
+      "GeneralClinicNuffieldHealthCentre",
+      "Nuffield Health Centre Public",
+      "current",
+      "facility-NuffieldHealthCentre"
+    ],
+    [
+      "department-GeneralClinicNukuilauNursingStation",
+      "GeneralClinicNukuilauNursingStation",
+      "Nukuilau Nursing Station Public",
+      "current",
+      "facility-NukuilauNursingStation"
+    ],
+    [
+      "department-GeneralClinicOgeaNursingStation",
+      "GeneralClinicOgeaNursingStation",
+      "Ogea Nursing Station Public",
+      "current",
+      "facility-OgeaNursingStation"
+    ],
+    [
+      "department-GeneralClinicOneataNursingStation",
+      "GeneralClinicOneataNursingStation",
+      "Oneata Nursing Station Public",
+      "current",
+      "facility-OneataNursingStation"
+    ],
+    [
+      "department-GeneralClinicOno-i-LauHealthCentre",
+      "GeneralClinicOno-i-LauHealthCentre",
+      "Ono-i-Lau Health Centre Public",
+      "current",
+      "facility-Ono-i-LauHealthCentre"
+    ],
+    [
+      "department-GeneralClinicPunjasHealthCentre",
+      "GeneralClinicPunjasHealthCentre",
+      "Punjas Health Centre Public",
+      "current",
+      "facility-PunjasHealthCentre"
+    ],
+    [
+      "department-GeneralClinicQameaHealthCentre",
+      "GeneralClinicQameaHealthCentre",
+      "Qamea Health Centre Public",
+      "current",
+      "facility-QameaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicQaraniHealthCentre",
+      "GeneralClinicQaraniHealthCentre",
+      "Qarani Health Centre Public",
+      "current",
+      "facility-QaraniHealthCentre"
+    ],
+    [
+      "department-GeneralClinicQVSNursingStation",
+      "GeneralClinicQVSNursingStation",
+      "QVS Nursing Station Public",
+      "current",
+      "facility-QVSNursingStation"
+    ],
+    [
+      "department-GeneralClinicRaMaternityHospital",
+      "GeneralClinicRaMaternityHospital",
+      "Ra Maternity Hospital Public",
+      "current",
+      "facility-RaMaternityHospital"
+    ],
+    [
+      "department-GeneralClinicRabiHealthCentre",
+      "GeneralClinicRabiHealthCentre",
+      "Rabi Health Centre Public",
+      "current",
+      "facility-RabiHealthCentre"
+    ],
+    [
+      "department-GeneralClinicRaiwaqaHealthCentreCentral",
+      "GeneralClinicRaiwaqaHealthCentreCentral",
+      "Raiwaqa Health Centre Central Public",
+      "current",
+      "facility-RaiwaqaHealthCentreCentral"
+    ],
+    [
+      "department-GeneralClinicRaiwaqaHealthCentre",
+      "GeneralClinicRaiwaqaHealthCentre",
+      "Raiwaqa Health Centre Public",
+      "current",
+      "facility-RaiwaqaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicRakirakiHealthCentre",
+      "GeneralClinicRakirakiHealthCentre",
+      "Rakiraki Health Centre Public",
+      "current",
+      "facility-RakirakiHealthCentre"
+    ],
+    [
+      "department-GeneralClinicRakirakiSub-divisionalHospital",
+      "GeneralClinicRakirakiSub-divisionalHospital",
+      "Rakiraki Sub-divisional Hospital Public",
+      "current",
+      "facility-RakirakiSub-divisionalHospital"
+    ],
+    [
+      "department-GeneralClinicRaviraviNursingStation",
+      "GeneralClinicRaviraviNursingStation",
+      "Raviravi Nursing Station Public",
+      "current",
+      "facility-RaviraviNursingStation"
+    ],
+    [
+      "department-GeneralClinicRavitakiNursingStation",
+      "GeneralClinicRavitakiNursingStation",
+      "Ravitaki Nursing Station Public",
+      "current",
+      "facility-RavitakiNursingStation"
+    ],
+    [
+      "department-GeneralClinicReproductiveandFamilyHealthAssociationofFijiClinic",
+      "GeneralClinicReproductiveandFamilyHealthAssociationofFijiClinic",
+      "Reproductive and Family Health Association of Fiji Clinic Public",
+      "current",
+      "facility-ReproductiveandFamilyHealthAssociationofFijiClinic"
+    ],
+    [
+      "department-GeneralClinicRHHX",
+      "GeneralClinicRHHX",
+      "RHHX Public",
+      "current",
+      "facility-RHHX"
+    ],
+    [
+      "department-GeneralClinicRKSNursingStation",
+      "GeneralClinicRKSNursingStation",
+      "RKS Nursing Station Public",
+      "current",
+      "facility-RKSNursingStation"
+    ],
+    [
+      "department-GeneralClinicRotumaHealthCentre",
+      "GeneralClinicRotumaHealthCentre",
+      "Rotuma Health Centre Public",
+      "current",
+      "facility-RotumaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicRotumaSub-divisionalHospital",
+      "GeneralClinicRotumaSub-divisionalHospital",
+      "Rotuma Sub-divisional Hospital Public",
+      "current",
+      "facility-RotumaSub-divisionalHospital"
+    ],
+    [
+      "department-GeneralClinicRoyalFijiMilitaryForces",
+      "GeneralClinicRoyalFijiMilitaryForces",
+      "Royal Fiji Military Forces Public",
+      "current",
+      "facility-RoyalFijiMilitaryForces"
+    ],
+    [
+      "department-GeneralClinicSaiVeiseiseiHealthCentre",
+      "GeneralClinicSaiVeiseiseiHealthCentre",
+      "Sai Veiseisei Health Centre Public",
+      "current",
+      "facility-SaiVeiseiseiHealthCentre"
+    ],
+    [
+      "department-GeneralClinicSamabulaHealthCentre",
+      "GeneralClinicSamabulaHealthCentre",
+      "Samabula Health Centre Public",
+      "current",
+      "facility-SamabulaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicSaqaniHealthCentre",
+      "GeneralClinicSaqaniHealthCentre",
+      "Saqani Health Centre Public",
+      "current",
+      "facility-SaqaniHealthCentre"
+    ],
+    [
+      "department-GeneralClinicSaradaMedicalCentre",
+      "GeneralClinicSaradaMedicalCentre",
+      "Sarada Medical Centre Public",
+      "current",
+      "facility-SaradaMedicalCentre"
+    ],
+    [
+      "department-GeneralClinicSavusavuHealthCentre",
+      "GeneralClinicSavusavuHealthCentre",
+      "Savusavu Health Centre Public",
+      "current",
+      "facility-SavusavuHealthCentre"
+    ],
+    [
+      "department-GeneralClinicSavusavuSub-divisionalHospital",
+      "GeneralClinicSavusavuSub-divisionalHospital",
+      "Savusavu Sub-divisional Hospital Public",
+      "current",
+      "facility-SavusavuSub-divisionalHospital"
+    ],
+    [
+      "department-GeneralClinicSawakasaHealthCentre",
+      "GeneralClinicSawakasaHealthCentre",
+      "Sawakasa Health Centre Public",
+      "current",
+      "facility-SawakasaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicSeaqaqaHealthCentre",
+      "GeneralClinicSeaqaqaHealthCentre",
+      "Seaqaqa Health Centre Public",
+      "current",
+      "facility-SeaqaqaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicSigatokaHealthCentre",
+      "GeneralClinicSigatokaHealthCentre",
+      "Sigatoka Health Centre Public",
+      "current",
+      "facility-SigatokaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicSigatokaSub-divisionalHospital",
+      "GeneralClinicSigatokaSub-divisionalHospital",
+      "Sigatoka Sub-divisional Hospital Public",
+      "current",
+      "facility-SigatokaSub-divisionalHospital"
+    ],
+    [
+      "department-GeneralClinicSomosomoNursingStation",
+      "GeneralClinicSomosomoNursingStation",
+      "Somosomo Nursing Station Public",
+      "current",
+      "facility-SomosomoNursingStation"
+    ],
+    [
+      "department-GeneralClinicSosoNursingStation",
+      "GeneralClinicSosoNursingStation",
+      "Soso Nursing Station Public",
+      "current",
+      "facility-SosoNursingStation"
+    ],
+    [
+      "department-GeneralClinicStGilesHospital",
+      "GeneralClinicStGilesHospital",
+      "St. Giles Hospital Public",
+      "current",
+      "facility-StGilesHospital"
+    ],
+    [
+      "department-GeneralClinicSTIClinic",
+      "GeneralClinicSTIClinic",
+      "STI Clinic Public",
+      "current",
+      "facility-STIClinic"
+    ],
+    [
+      "department-GeneralClinicSuvaHealthCentre",
+      "GeneralClinicSuvaHealthCentre",
+      "Suva Health Centre Public",
+      "current",
+      "facility-SuvaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicSuvaHubCentre",
+      "GeneralClinicSuvaHubCentre",
+      "Suva Hub Centre Public",
+      "current",
+      "facility-SuvaHubCentre"
+    ],
+    [
+      "department-GeneralClinicTalauliaNursingStation",
+      "GeneralClinicTalauliaNursingStation",
+      "Talaulia Nursing Station Public",
+      "current",
+      "facility-TalauliaNursingStation"
+    ],
+    [
+      "department-GeneralClinicTamavuaSub-divisionalHospital",
+      "GeneralClinicTamavuaSub-divisionalHospital",
+      "Tamavua Sub-divisional Hospital Public",
+      "current",
+      "facility-TamavuaSub-divisionalHospital"
+    ],
+    [
+      "department-GeneralClinicTauNursingStation",
+      "GeneralClinicTauNursingStation",
+      "Tau Nursing Station Public",
+      "current",
+      "facility-TauNursingStation"
+    ],
+    [
+      "department-GeneralClinicTaveuniSub-divisionalhospital",
+      "GeneralClinicTaveuniSub-divisionalhospital",
+      "Taveuni Sub-divisional hospital Public",
+      "current",
+      "facility-TaveuniSub-divisionalhospital"
+    ],
+    [
+      "department-GeneralClinicTavuaHealthCentre",
+      "GeneralClinicTavuaHealthCentre",
+      "Tavua Health Centre Public",
+      "current",
+      "facility-TavuaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicTavuaMaternity",
+      "GeneralClinicTavuaMaternity",
+      "Tavua Maternity Public",
+      "current",
+      "facility-TavuaMaternity"
+    ],
+    [
+      "department-GeneralClinicTavuaSub-divisionalHospital",
+      "GeneralClinicTavuaSub-divisionalHospital",
+      "Tavua Sub-divisional Hospital Public",
+      "current",
+      "facility-TavuaSub-divisionalHospital"
+    ],
+    [
+      "department-GeneralClinicTawakeNursingStation",
+      "GeneralClinicTawakeNursingStation",
+      "Tawake Nursing Station Public",
+      "current",
+      "facility-TawakeNursingStation"
+    ],
+    [
+      "department-GeneralClinicTeciNursingStation",
+      "GeneralClinicTeciNursingStation",
+      "Teci Nursing Station Public",
+      "current",
+      "facility-TeciNursingStation"
+    ],
+    [
+      "department-GeneralClinicTokaimaloNursingStation",
+      "GeneralClinicTokaimaloNursingStation",
+      "Tokaimalo Nursing Station Public",
+      "current",
+      "facility-TokaimaloNursingStation"
+    ],
+    [
+      "department-GeneralClinicToniaNursingStation",
+      "GeneralClinicToniaNursingStation",
+      "Tonia Nursing Station Public",
+      "current",
+      "facility-ToniaNursingStation"
+    ],
+    [
+      "department-GeneralClinicTotoyaNursingStation",
+      "GeneralClinicTotoyaNursingStation",
+      "Totoya Nursing Station Public",
+      "current",
+      "facility-TotoyaNursingStation"
+    ],
+    [
+      "department-GeneralClinicTukavesiHealthCentre",
+      "GeneralClinicTukavesiHealthCentre",
+      "Tukavesi Health Centre Public",
+      "current",
+      "facility-TukavesiHealthCentre"
+    ],
+    [
+      "department-GeneralClinicTuvuNursingStation",
+      "GeneralClinicTuvuNursingStation",
+      "Tuvu Nursing Station Public",
+      "current",
+      "facility-TuvuNursingStation"
+    ],
+    [
+      "department-GeneralClinicTuvucaNursingStation",
+      "GeneralClinicTuvucaNursingStation",
+      "Tuvuca Nursing Station Public",
+      "current",
+      "facility-TuvucaNursingStation"
+    ],
+    [
+      "department-GeneralClinicUduNursingStation",
+      "GeneralClinicUduNursingStation",
+      "Udu Nursing Station Public",
+      "current",
+      "facility-UduNursingStation"
+    ],
+    [
+      "department-GeneralClinicVacaleaNursingStation",
+      "GeneralClinicVacaleaNursingStation",
+      "Vacalea Nursing Station Public",
+      "current",
+      "facility-VacaleaNursingStation"
+    ],
+    [
+      "department-GeneralClinicValelevuHealthCentre",
+      "GeneralClinicValelevuHealthCentre",
+      "Valelevu Health Centre Public",
+      "current",
+      "facility-ValelevuHealthCentre"
+    ],
+    [
+      "department-GeneralClinicVanuavatuNursingStation",
+      "GeneralClinicVanuavatuNursingStation",
+      "Vanuavatu Nursing Station Public",
+      "current",
+      "facility-VanuavatuNursingStation"
+    ],
+    [
+      "department-GeneralClinicVatoaNursingStation",
+      "GeneralClinicVatoaNursingStation",
+      "Vatoa Nursing Station Public",
+      "current",
+      "facility-VatoaNursingStation"
+    ],
+    [
+      "department-GeneralClinicVatukarasaHealthCentre",
+      "GeneralClinicVatukarasaHealthCentre",
+      "Vatukarasa Health Centre Public",
+      "current",
+      "facility-VatukarasaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicVatukarasaNursingStation",
+      "GeneralClinicVatukarasaNursingStation",
+      "Vatukarasa Nursing Station Public",
+      "current",
+      "facility-VatukarasaNursingStation"
+    ],
+    [
+      "department-GeneralClinicVatuleleHealthCentre",
+      "GeneralClinicVatuleleHealthCentre",
+      "Vatulele Health Centre Public",
+      "current",
+      "facility-VatuleleHealthCentre"
+    ],
+    [
+      "department-GeneralClinicVerataNursingStation",
+      "GeneralClinicVerataNursingStation",
+      "Verata Nursing Station Public",
+      "current",
+      "facility-VerataNursingStation"
+    ],
+    [
+      "department-GeneralClinicVisoqoNursingStation",
+      "GeneralClinicVisoqoNursingStation",
+      "Visoqo Nursing Station Public",
+      "current",
+      "facility-VisoqoNursingStation"
+    ],
+    [
+      "department-GeneralClinicViwaNursingStation",
+      "GeneralClinicViwaNursingStation",
+      "Viwa Nursing Station Public",
+      "current",
+      "facility-ViwaNursingStation"
+    ],
+    [
+      "department-GeneralClinicVunaHealthCentre",
+      "GeneralClinicVunaHealthCentre",
+      "Vuna Health Centre Public",
+      "current",
+      "facility-VunaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicVunaNursingStation",
+      "GeneralClinicVunaNursingStation",
+      "Vuna Nursing Station Public",
+      "current",
+      "facility-VunaNursingStation"
+    ],
+    [
+      "department-GeneralClinicVunidawaHealthCentre",
+      "GeneralClinicVunidawaHealthCentre",
+      "Vunidawa Health Centre Public",
+      "current",
+      "facility-VunidawaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicVunidawaSub-divisionalHospital",
+      "GeneralClinicVunidawaSub-divisionalHospital",
+      "Vunidawa Sub-divisional Hospital Public",
+      "current",
+      "facility-VunidawaSub-divisionalHospital"
+    ],
+    [
+      "department-GeneralClinicVuniseaHealthCentre",
+      "GeneralClinicVuniseaHealthCentre",
+      "Vunisea Health Centre Public",
+      "current",
+      "facility-VuniseaHealthCentre"
+    ],
+    [
+      "department-GeneralClinicVuniseaSub-divisionalHospital",
+      "GeneralClinicVuniseaSub-divisionalHospital",
+      "Vunisea Sub-divisional Hospital Public",
+      "current",
+      "facility-VuniseaSub-divisionalHospital"
+    ],
+    [
+      "department-GeneralClinicVunitogoloaNursingStation",
+      "GeneralClinicVunitogoloaNursingStation",
+      "Vunitogoloa Nursing Station Public",
+      "current",
+      "facility-VunitogoloaNursingStation"
+    ],
+    [
+      "department-GeneralClinicVunivutuNursingStation",
+      "GeneralClinicVunivutuNursingStation",
+      "Vunivutu Nursing Station Public",
+      "current",
+      "facility-VunivutuNursingStation"
+    ],
+    [
+      "department-GeneralClinicWaidinaNursingStation",
+      "GeneralClinicWaidinaNursingStation",
+      "Waidina Nursing Station Public",
+      "current",
+      "facility-WaidinaNursingStation"
+    ],
+    [
+      "department-GeneralClinicWaimaqeraHealthCentre",
+      "GeneralClinicWaimaqeraHealthCentre",
+      "Waimaqera Health Centre Public",
+      "current",
+      "facility-WaimaqeraHealthCentre"
+    ],
+    [
+      "department-GeneralClinicWaimaroHealthCentre",
+      "GeneralClinicWaimaroHealthCentre",
+      "Waimaro Health Centre Public",
+      "current",
+      "facility-WaimaroHealthCentre"
+    ],
+    [
+      "department-GeneralClinicWainibokasiHealthCentre",
+      "GeneralClinicWainibokasiHealthCentre",
+      "Wainibokasi Health Centre Public",
+      "current",
+      "facility-WainibokasiHealthCentre"
+    ],
+    [
+      "department-GeneralClinicWainibokasiSub-divisionalHospital",
+      "GeneralClinicWainibokasiSub-divisionalHospital",
+      "Wainibokasi Sub-divisional Hospital Public",
+      "current",
+      "facility-WainibokasiSub-divisionalHospital"
+    ],
+    [
+      "department-GeneralClinicWainikoroHealthCentre",
+      "GeneralClinicWainikoroHealthCentre",
+      "Wainikoro Health Centre Public",
+      "current",
+      "facility-WainikoroHealthCentre"
+    ],
+    [
+      "department-GeneralClinicWainunuHealthCentre",
+      "GeneralClinicWainunuHealthCentre",
+      "Wainunu Health Centre Public",
+      "current",
+      "facility-WainunuHealthCentre"
+    ],
+    [
+      "department-GeneralClinicWaivakaNursingStation",
+      "GeneralClinicWaivakaNursingStation",
+      "Waivaka Nursing Station Public",
+      "current",
+      "facility-WaivakaNursingStation"
+    ],
+    [
+      "department-GeneralClinicWaiyevoHealthCentre",
+      "GeneralClinicWaiyevoHealthCentre",
+      "Waiyevo Health Centre Public",
+      "current",
+      "facility-WaiyevoHealthCentre"
+    ],
+    [
+      "department-GeneralClinicWaiyevoSub-divisionalHospital",
+      "GeneralClinicWaiyevoSub-divisionalHospital",
+      "Waiyevo Sub-divisional Hospital Public",
+      "current",
+      "facility-WaiyevoSub-divisionalHospital"
+    ],
+    [
+      "department-GeneralClinicWauosiNursingStation",
+      "GeneralClinicWauosiNursingStation",
+      "Wauosi Nursing Station Public",
+      "current",
+      "facility-WauosiNursingStation"
+    ],
+    [
+      "department-GeneralClinicYacataNursingStation",
+      "GeneralClinicYacataNursingStation",
+      "Yacata Nursing Station Public",
+      "current",
+      "facility-YacataNursingStation"
+    ],
+    [
+      "department-GeneralClinicYaduaNursingStation",
+      "GeneralClinicYaduaNursingStation",
+      "Yadua Nursing Station Public",
+      "current",
+      "facility-YaduaNursingStation"
+    ],
+    [
+      "department-GeneralClinicYagetaNursingStation",
+      "GeneralClinicYagetaNursingStation",
+      "Yageta Nursing Station Public",
+      "current",
+      "facility-YagetaNursingStation"
+    ],
+    [
+      "department-GeneralClinicYalobiNursingStation",
+      "GeneralClinicYalobiNursingStation",
+      "Yalobi Nursing Station Public",
+      "current",
+      "facility-YalobiNursingStation"
+    ],
+    [
+      "department-GeneralClinicYanuyaNursingStation",
+      "GeneralClinicYanuyaNursingStation",
+      "Yanuya Nursing Station Public",
+      "current",
+      "facility-YanuyaNursingStation"
+    ],
+    [
+      "department-GeneralClinicYaqetaNursingStation",
+      "GeneralClinicYaqetaNursingStation",
+      "Yaqeta Nursing Station Public",
+      "current",
+      "facility-YaqetaNursingStation"
+    ],
+    [
+      "department-GeneralClinicYasawa-I-RaraNursingStation",
+      "GeneralClinicYasawa-I-RaraNursingStation",
+      "Yasawa-I-Rara Nursing Station Public",
+      "current",
+      "facility-Yasawa-I-RaraNursingStation"
+    ],
+    [
+      "department-CarnationGeneral",
+      "CarnationGeneral",
+      "Carnation General",
+      "current",
+      "facility-CarnationHealthCentre"
+    ],
+    [
+      "department-CarnationPublicHealth",
+      "CarnationPublicHealth",
+      "Public Health",
+      "current",
+      "facility-CarnationHealthCentre"
+    ],
+    [
+      "department-GeneralMedicine-tamanu",
+      "GeneralMedicine",
+      "General Medicine",
+      "current",
+      "facility-1"
+    ],
+    [
+      "department-Emergency-tamanu",
+      "Emergency",
+      "Emergency",
+      "current",
+      "facility-1"
+    ],
+    [
+      "department-InfectiousDisease-tamanu",
+      "InfectiousDisease",
+      "Infectious Disease",
+      "current",
+      "facility-1"
+    ],
+    [
+      "department-Cardiology-tamanu",
+      "Cardiology",
+      "Cardiology",
+      "current",
+      "facility-1"
+    ],
+    [
+      "department-Paediatrics-tamanu",
+      "Paediatrics",
+      "Paediatrics",
+      "current",
+      "facility-1"
+    ],
+    [
+      "department-ObstetricsandGynaecology-tamanu",
+      "ObstetricsandGynaecology",
+      "Obstetrics and Gynaecology",
+      "current",
+      "facility-1"
+    ],
+    [
+      "department-TamanuPublicHealth",
+      "TamanuPublicHealth",
+      "Public Health",
+      "current",
+      "facility-1"
+    ],
+    [
+      "department-GeneralMedicine",
+      "GeneralMedicine",
+      "General Medicine",
+      "current",
+      "facility-2"
+    ],
+    [
+      "department-Emergency",
+      "Emergency",
+      "Emergency",
+      "current",
+      "facility-2"
+    ],
+    [
+      "department-InfectiousDisease",
+      "InfectiousDisease",
+      "Infectious Disease",
+      "current",
+      "facility-2"
+    ],
+    [
+      "department-Cardiology",
+      "Cardiology",
+      "Cardiology",
+      "current",
+      "facility-2"
+    ],
+    [
+      "department-Paediatrics",
+      "Paediatrics",
+      "Paediatrics",
+      "current",
+      "facility-2"
+    ],
+    [
+      "department-ObstetricsandGynaecology",
+      "ObstetricsandGynaecology",
+      "Obstetrics and Gynaecology",
+      "current",
+      "facility-2"
+    ],
+    [
+      "department-LilyPublicHealth",
+      "LilyPublicHealth",
+      "Public Health",
+      "current",
+      "facility-2"
+    ]
+  ]
+}

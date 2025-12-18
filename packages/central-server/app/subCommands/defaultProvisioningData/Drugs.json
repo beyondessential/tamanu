@@ -1,0 +1,2175 @@
+{
+  "sheetName": "Drugs",
+  "data": [
+    [
+      "id",
+      "code",
+      "name"
+    ],
+    [
+      "drug-acetazolamide250",
+      "acetazolamide250",
+      "Acetazolamide 250mg Tablets"
+    ],
+    [
+      "drug-aciclovir345",
+      "aciclovir345",
+      "Aciclovir 3%w/w Eye Oint 4.5g"
+    ],
+    [
+      "drug-aciclovir400",
+      "aciclovir400",
+      "Aciclovir 400mg Tablets"
+    ],
+    [
+      "drug-aciclovir800",
+      "aciclovir800",
+      "Aciclovir 800mg Tablets"
+    ],
+    [
+      "drug-adapalene0130",
+      "adapalene0130",
+      "Adapalene 0.1% ww Gel 30g"
+    ],
+    [
+      "drug-adrenaline11000",
+      "adrenaline11000",
+      "Adrenaline 1/1000 Amps"
+    ],
+    [
+      "drug-adrenaline30003",
+      "adrenaline30003",
+      "Adrenaline 300mcg/0.3ml Autoinjector"
+    ],
+    [
+      "drug-alendronatesodium70",
+      "alendronatesodium70",
+      "Alendronate sodium 70mg Tablets"
+    ],
+    [
+      "drug-allopurinol100",
+      "allopurinol100",
+      "Allopurinol 100mg Tablets"
+    ],
+    [
+      "drug-allopurinol300",
+      "allopurinol300",
+      "Allopurinol 300mg Tablets"
+    ],
+    [
+      "drug-aluminium600",
+      "aluminium600",
+      "Aluminium 600mg Tablets"
+    ],
+    [
+      "drug-amiodaronehcl100",
+      "amiodaronehcl100",
+      "Amiodarone HCL 100mg Tablets"
+    ],
+    [
+      "drug-amiodaronehcl200",
+      "amiodaronehcl200",
+      "Amiodarone HCL 200mg Tablets"
+    ],
+    [
+      "drug-amitriptyline10",
+      "amitriptyline10",
+      "Amitriptyline 10mg Tablets"
+    ],
+    [
+      "drug-amitriptyline25",
+      "amitriptyline25",
+      "Amitriptyline 25mg Tablets"
+    ],
+    [
+      "drug-amlodipine10",
+      "amlodipine10",
+      "Amlodipine 10mg Tablets"
+    ],
+    [
+      "drug-amlodipine25",
+      "amlodipine25",
+      "Amlodipine 2.5mg Tablets"
+    ],
+    [
+      "drug-amlodipine5",
+      "amlodipine5",
+      "Amlodipine 5mg Tablets"
+    ],
+    [
+      "drug-amoxicillin1255",
+      "amoxicillin1255",
+      "Amoxicillin 125mg/5ml Suspension"
+    ],
+    [
+      "drug-amoxicillin250",
+      "amoxicillin250",
+      "Amoxicillin 250mg Capules"
+    ],
+    [
+      "drug-amoxicillin2505",
+      "amoxicillin2505",
+      "Amoxicillin 250mg/5ml Suspension"
+    ],
+    [
+      "drug-amoxicillin500",
+      "amoxicillin500",
+      "Amoxicillin 500mg Capsules"
+    ],
+    [
+      "drug-amoxicillinclavulanic2506255",
+      "drug-amoxicillinclavulanic2506255",
+      "Amoxicillin + clavulanic 250+62.5mg/5ml Suspension"
+    ],
+    [
+      "drug-amoxicillinclavulanic500125",
+      "amoxicillinclavulanic500125",
+      "Amoxicillin + clavulanic 500mg+125mg Tablets"
+    ],
+    [
+      "drug-anastrozole1",
+      "anastrozole1",
+      "Anastrozole 1mg Tablets"
+    ],
+    [
+      "drug-apixaban5",
+      "apixaban5",
+      "Apixaban 5mg Tablets"
+    ],
+    [
+      "drug-aqueouscream500",
+      "aqueouscream500",
+      "Aqueous Cream  500g"
+    ],
+    [
+      "drug-aripiprazole10",
+      "aripiprazole10",
+      "Aripiprazole 10mg Tablets"
+    ],
+    [
+      "drug-aspirin100",
+      "aspirin100",
+      "Aspirin 100mg EC Tablets"
+    ],
+    [
+      "drug-aspirin300",
+      "aspirin300",
+      "Aspirin 300mg Tablets"
+    ],
+    [
+      "drug-atenolol50",
+      "atenolol50",
+      "Atenolol 50mg Tablets"
+    ],
+    [
+      "drug-atorvastatin10",
+      "atorvastatin10",
+      "Atorvastatin 10mg Tablets"
+    ],
+    [
+      "drug-atorvastatin20",
+      "atorvastatin20",
+      "Atorvastatin 20mg Tablets"
+    ],
+    [
+      "drug-atorvastatin40",
+      "atorvastatin40",
+      "Atorvastatin 40mg Tablets"
+    ],
+    [
+      "drug-atorvastatin80",
+      "atorvastatin80",
+      "Atorvastatin 80mg Tablets"
+    ],
+    [
+      "drug-azathioprine50",
+      "azathioprine50",
+      "Azathioprine 50mg Tablets"
+    ],
+    [
+      "drug-azithromycin200515",
+      "azithromycin200515",
+      "Azithromycin 200mg/5ml Suspension 15ml"
+    ],
+    [
+      "drug-azithromycin250",
+      "azithromycin250",
+      "Azithromycin 250mg Tablets"
+    ],
+    [
+      "drug-baclofen10",
+      "baclofen10",
+      "Baclofen 10mg Tablets"
+    ],
+    [
+      "drug-beclomethasonediprop100200",
+      "beclomethasonediprop100200",
+      "Beclomethasone diprop 100mcg Inhaler 200"
+    ],
+    [
+      "drug-bendrofluazide25",
+      "bendrofluazide25",
+      "Bendrofluazide 2.5mg Tablets"
+    ],
+    [
+      "drug-betahistinehcl16",
+      "betahistinehcl16",
+      "Betahistine HCl 16mg Tablets"
+    ],
+    [
+      "drug-betamethasonevalerate0150",
+      "betamethasonevalerate0150",
+      "Betamethasone valerate 0.1% Cream 50g"
+    ],
+    [
+      "drug-betamethasonevalerate0150ointment",
+      "betamethasonevalerate0150ointment",
+      "Betamethasone valerate 0.1% Ointment 50g"
+    ],
+    [
+      "drug-betamethasonevaleratescalpapplication100ointment",
+      "betamethasonevaleratescalpapplication100",
+      "Betamethasone valerate Scalp Application 100ml"
+    ],
+    [
+      "drug-bezafibrate400",
+      "bezafibrate400",
+      "Bezafibrate 400mg LA Tablets"
+    ],
+    [
+      "drug-bicalutamide50",
+      "bicalutamide50",
+      "Bicalutamide 50mg Tablets"
+    ],
+    [
+      "drug-bimatoprost3003",
+      "bimatoprost3003",
+      "Bimatoprost 300ug Eye Drops 3ml"
+    ],
+    [
+      "drug-bismuthsubcitrate120",
+      "bismuthsubcitrate120",
+      "Bismuth subcitrate 120mg Tablet"
+    ],
+    [
+      "drug-bisoprolol10",
+      "bisoprolol10",
+      "Bisoprolol 10mg Tablets"
+    ],
+    [
+      "drug-bisoprolol25",
+      "bisoprolol25",
+      "Bisoprolol 2.5mg Tablets"
+    ],
+    [
+      "drug-bisoprolol5",
+      "bisoprolol5",
+      "Bisoprolol 5mg Tablets"
+    ],
+    [
+      "drug-budesonideformoterol2006120",
+      "budesonideformoterol2006120",
+      "Budesonide + formoterol 200/6 Inhaler 120"
+    ],
+    [
+      "drug-budesonideformoterol2006120turb",
+      "budesonideformoterol2006120turb",
+      "Budesonide + formoterol 200/6 Turbuhaler 120"
+    ],
+    [
+      "drug-bumetanide1",
+      "bumetanide1",
+      "Bumetanide 1mg Tablets"
+    ],
+    [
+      "drug-bupropionhcl150",
+      "bupropionhcl150",
+      "Bupropion HCL 150mg Tablets"
+    ],
+    [
+      "drug-calcipotriolbetamethasone5050030",
+      "calcipotriolbetamethasone5050030",
+      "Calcipotriol + Betamethasone 50mcg/500mcg Ointment 30g"
+    ],
+    [
+      "drug-calcitriol025",
+      "calcitriol025",
+      "Calcitriol 0.25mcg Capsule"
+    ],
+    [
+      "drug-calcitriol05",
+      "calcitriol05",
+      "Calcitriol 0.5mcg capsules"
+    ],
+    [
+      "drug-calcium1000",
+      "calcium1000",
+      "Calcium 1000mg Tablets"
+    ],
+    [
+      "drug-calcium500",
+      "calcium500",
+      "Calcium 500mg Tablets"
+    ],
+    [
+      "drug-candesartan16",
+      "candesartan16",
+      "Candesartan 16mg Tablets"
+    ],
+    [
+      "drug-candesartan8",
+      "candesartan8",
+      "Candesartan 8mg Tablets"
+    ],
+    [
+      "drug-capsaicin007545",
+      "capsaicin007545",
+      "Capsaicin 0.075%ww Cream 45g"
+    ],
+    [
+      "drug-carbamazepine1005",
+      "carbamazepine1005",
+      "Carbamazepine 100mg/5ml Syrup"
+    ],
+    [
+      "drug-carbamazepine200",
+      "carbamazepine200",
+      "Carbamazepine 200mg Tablets"
+    ],
+    [
+      "drug-carbimazole5",
+      "carbimazole5",
+      "Carbimazole 5mg Tablets"
+    ],
+    [
+      "drug-carvedilol125",
+      "carvedilol125",
+      "Carvedilol 12.5mg Tablets"
+    ],
+    [
+      "drug-carvedilol25",
+      "carvedilol25",
+      "Carvedilol 25mg Tablets"
+    ],
+    [
+      "drug-carvedilol625",
+      "carvedilol625",
+      "Carvedilol 6.25mg Tablets"
+    ],
+    [
+      "drug-cefaclor1255",
+      "cefaclor1255",
+      "Cefaclor 125mg/5ml Suspension"
+    ],
+    [
+      "drug-cefaclor250",
+      "cefaclor250",
+      "Cefaclor 250mg Capsules"
+    ],
+    [
+      "drug-cefalexin2505",
+      "cefalexin2505",
+      "Cefalexin 250mg/5ml Suspension"
+    ],
+    [
+      "drug-ceftriaxonesodium1",
+      "ceftriaxonesodium1",
+      "Ceftriaxone sodium 1g Inj"
+    ],
+    [
+      "drug-celecoxib100",
+      "celecoxib100",
+      "Celecoxib 100mg Capsules"
+    ],
+    [
+      "drug-celecoxib200",
+      "celecoxib200",
+      "Celecoxib 200mg Capsules"
+    ],
+    [
+      "drug-cetirizine10",
+      "cetirizine10",
+      "Cetirizine 10mg Tablet"
+    ],
+    [
+      "drug-cetirizine1",
+      "cetirizine1",
+      "Cetirizine 1mg/ml Solution"
+    ],
+    [
+      "drug-cetomacrogolglycerol10500",
+      "cetomacrogolglycerol10500",
+      "Cetomacrogol + glycerol 10% Cream 500ml"
+    ],
+    [
+      "drug-cetomacrogolbpcream500",
+      "cetomacrogolbpcream500",
+      "Cetomacrogol BP Cream 500g"
+    ],
+    [
+      "drug-chloramphenicol0510",
+      "chloramphenicol0510",
+      "Chloramphenicol 0.5% Eye Drop 10ml"
+    ],
+    [
+      "drug-chloramphenicol14",
+      "chloramphenicol14",
+      "Chloramphenicol 1% Eye Ointment 4g"
+    ],
+    [
+      "drug-chlorhexidinegluconatepump4500",
+      "chlorhexidinegluconatepump4500",
+      "Chlorhexidine gluconate Pump 4% Scrub 500ml "
+    ],
+    [
+      "drug-ciclopirox866",
+      "ciclopirox866",
+      "Ciclopirox 8% Nail Lacquer 6.6ml"
+    ],
+    [
+      "drug-cilazapril05",
+      "cilazapril05",
+      "Cilazapril 0.5mg Tablets"
+    ],
+    [
+      "drug-cilazapril25",
+      "cilazapril25",
+      "Cilazapril 2.5mg Tablets"
+    ],
+    [
+      "drug-cilazapril5",
+      "cilazapril5",
+      "Cilazapril 5mg Tablets"
+    ],
+    [
+      "drug-cilazaprilhydrochlorothiazide5125",
+      "cilazaprilhydrochlorothiazide5125",
+      "Cilazapril + hydrochlorothiazide 5/12.5mg Tablets"
+    ],
+    [
+      "drug-ciprofloxacinhydrocortisone210",
+      "ciprofloxacinhydrocortisone210",
+      "Ciprofloxacin + Hydrocortisone 2mg/ml Ear drops 10ml"
+    ],
+    [
+      "drug-ciprofloxacin500",
+      "ciprofloxacin500",
+      "Ciprofloxacin 500mg Tablets"
+    ],
+    [
+      "drug-citalopram20",
+      "citalopram20",
+      "Citalopram 20mg Tablets"
+    ],
+    [
+      "drug-clarithromycin500",
+      "clarithromycin500",
+      "Clarithromycin 500mg Tablets"
+    ],
+    [
+      "drug-clindamycin150",
+      "clindamycin150",
+      "Clindamycin 150mg Capsules"
+    ],
+    [
+      "drug-clobetasolpropionate00530",
+      "clobetasolpropionate00530",
+      "Clobetasol propionate 0.05% Cream 30g"
+    ],
+    [
+      "drug-clobetasolpropionate00530o",
+      "clobetasolpropionate00530o",
+      "Clobetasol propionate 0.05% Ointment 30g"
+    ],
+    [
+      "drug-clobetasolpropionate00530a",
+      "clobetasolpropionate00530a",
+      "Clobetasol propionate 0.05% Scalp Application 30ml"
+    ],
+    [
+      "drug-clomiphenecitrate50",
+      "clomiphenecitrate50",
+      "Clomiphene citrate 50mg Tablets"
+    ],
+    [
+      "drug-clonazepam05",
+      "clonazepam05",
+      "Clonazepam 0.5mg Tablets"
+    ],
+    [
+      "drug-clopidogrel75",
+      "clopidogrel75",
+      "Clopidogrel 75mg Tablets"
+    ],
+    [
+      "drug-clotrimazole1635",
+      "clotrimazole1635",
+      "Clotrimazole 1% Vaginal Cream 6 day 35g"
+    ],
+    [
+      "drug-clotrimazole220",
+      "clotrimazole220",
+      "Clotrimazole 2% Cream 20g"
+    ],
+    [
+      "drug-clotrimazole2320",
+      "clotrimazole2320",
+      "Clotrimazole 2% Vaginal Cream 3 day 20g"
+    ],
+    [
+      "drug-coaltarbpsolution",
+      "coaltarbpsolution",
+      "Coal tar BP Solution"
+    ],
+    [
+      "drug-codeinephosphate30",
+      "codeinephosphate30",
+      "Codeine phosphate 30mg Tablets"
+    ],
+    [
+      "drug-colchicine05",
+      "colchicine05",
+      "Colchicine 0.5mg tablets"
+    ],
+    [
+      "drug-colecalciferol125",
+      "colecalciferol125",
+      "Colecalciferol 1.25mg Capsules"
+    ],
+    [
+      "drug-colecalciferol1045",
+      "colecalciferol1045",
+      "Colecalciferol 10mcg/drop Drops 4.5g"
+    ],
+    [
+      "drug-cotrimoxazole2405",
+      "cotrimoxazole2405",
+      "Cotrimoxazole 240mg/5ml Suspension"
+    ],
+    [
+      "drug-cotrimoxazole40080",
+      "cotrimoxazole40080",
+      "Cotrimoxazole 400/80mg tablets"
+    ],
+    [
+      "drug-cyclizine50",
+      "cyclizine50",
+      "Cyclizine 50mg Tablets"
+    ],
+    [
+      "drug-cyproteroneethinyloestradiol235168",
+      "cyproteroneethinyloestradiol235168",
+      "Cyproterone + ethinyloestradiol 2mg/35mcg Tablets 168"
+    ],
+    [
+      "drug-dabigatran110",
+      "dabigatran110",
+      "Dabigatran 110mg Capsules"
+    ],
+    [
+      "drug-dabigatran150",
+      "dabigatran150",
+      "Dabigatran 150mg Capsules"
+    ],
+    [
+      "drug-dapagliflozin10",
+      "dapagliflozin10",
+      "Dapagliflozin 10mg "
+    ],
+    [
+      "drug-desmopressin01",
+      "desmopressin01",
+      "Desmopressin 0.1mg Tablets"
+    ],
+    [
+      "drug-dexamethasone4",
+      "dexamethasone4",
+      "Dexamethasone 4mg Tablets"
+    ],
+    [
+      "drug-dexamethasoneframycetingramicidineareyedrops8",
+      "dexamethasoneframycetingramicidineareyedrops8",
+      "Dexamethasone + framycetin+gramicidin Ear/Eye Drops 8ml"
+    ],
+    [
+      "drug-diazepam5",
+      "diazepam5",
+      "Diazepam 5mg Tablets"
+    ],
+    [
+      "drug-diazepam525",
+      "diazepam525",
+      "Diazepam 5mg/2.5ml Rectal Tubes"
+    ],
+    [
+      "drug-diclofenacsodium100",
+      "diclofenacsodium100",
+      "Diclofenac sodium 100mg SR Tablets"
+    ],
+    [
+      "drug-diclofenacsodium100s",
+      "diclofenacsodium100s",
+      "Diclofenac sodium 100mg Suppositories"
+    ],
+    [
+      "drug-diclofenacsodium75",
+      "diclofenacsodium75",
+      "Diclofenac sodium 75mg SR Tablets"
+    ],
+    [
+      "drug-digoxin250",
+      "digoxin250",
+      "Digoxin 250mcg Tablets"
+    ],
+    [
+      "drug-digoxin625",
+      "digoxin625",
+      "Digoxin 62.5mcg Tablets"
+    ],
+    [
+      "drug-diltiazem120",
+      "diltiazem120",
+      "Diltiazem 120mg Capsules"
+    ],
+    [
+      "drug-diltiazem180",
+      "diltiazem180",
+      "Diltiazem 180mg Capsules"
+    ],
+    [
+      "drug-disulfiram200",
+      "disulfiram200",
+      "Disulfiram 200mg Tablets"
+    ],
+    [
+      "drug-docusate120",
+      "docusate120",
+      "Docusate 120mg Tablets"
+    ],
+    [
+      "drug-docusate508",
+      "docusate508",
+      "Docusate 50mg + sennosides 8mg  Tablets"
+    ],
+    [
+      "drug-domperidone10",
+      "domperidone10",
+      "Domperidone 10mg Tablets"
+    ],
+    [
+      "drug-donepezil5",
+      "donepezil5",
+      "Donepezil 5mg Tablets"
+    ],
+    [
+      "drug-doxazosin2",
+      "doxazosin2",
+      "Doxazosin 2mg Tablets"
+    ],
+    [
+      "drug-doxycycline100",
+      "doxycycline100",
+      "Doxycycline 100mg Tablets"
+    ],
+    [
+      "drug-drospirenoneethinyloestradiol33084",
+      "drospirenoneethinyloestradiol33084",
+      "Drospirenone + ethinyloestradiol 3/30mcg Tablets 84"
+    ],
+    [
+      "drug-electrolytesachets20010",
+      "electrolytesachets20010",
+      "Electrolyte Sachets 200ml x 10"
+    ],
+    [
+      "drug-enalapril10",
+      "enalapril10",
+      "Enalapril 10mg Tablets"
+    ],
+    [
+      "drug-enalapril20",
+      "enalapril20",
+      "Enalapril 20mg Tablets"
+    ],
+    [
+      "drug-enalapril5",
+      "enalapril5",
+      "Enalapril 5mg Tablets"
+    ],
+    [
+      "drug-enoxaparinsodium4004",
+      "enoxaparinsodium4004",
+      "Enoxaparin Sodium 40mg/0.4ml Inj+Syr"
+    ],
+    [
+      "drug-enoxaparinsodium8008",
+      "enoxaparinsodium8008",
+      "Enoxaparin Sodium 80mg/0.8ml Inj+Syr"
+    ],
+    [
+      "drug-erythromycines400",
+      "erythromycines400",
+      "Erythromycin e.s. 400mg Tablets"
+    ],
+    [
+      "drug-erythromycines4005",
+      "erythromycines4005",
+      "Erythromycin e.s. 400mg/5ml Suspension"
+    ],
+    [
+      "drug-escitalopram10",
+      "escitalopram10",
+      "Escitalopram 10mg Tablets"
+    ],
+    [
+      "drug-escitalopram20",
+      "escitalopram20",
+      "Escitalopram 20mg Tablets"
+    ],
+    [
+      "drug-estrogenconjugequine062528",
+      "estrogenconjugequine062528",
+      "Estrogen conjug equine 0.625mg Tablets 28"
+    ],
+    [
+      "drug-ezetimibe10",
+      "ezetimibe10",
+      "Ezetimibe 10mg Tablets"
+    ],
+    [
+      "drug-fattyemulsionowcream500",
+      "fattyemulsionowcream500",
+      "Fatty Emulsion o/w  Cream 500g"
+    ],
+    [
+      "drug-felodipine10",
+      "felodipine10",
+      "Felodipine 10mg ER Tablets"
+    ],
+    [
+      "drug-felodipine25",
+      "felodipine25",
+      "Felodipine 2.5mg ER Tablets"
+    ],
+    [
+      "drug-felodipine5",
+      "felodipine5",
+      "Felodipine 5mg ER Tablets"
+    ],
+    [
+      "drug-ferrousfumarate200",
+      "ferrousfumarate200",
+      "Ferrous Fumarate 200mg Tablets"
+    ],
+    [
+      "drug-ferroussulphate325",
+      "ferroussulphate325",
+      "Ferrous Sulphate 325mg Tablets"
+    ],
+    [
+      "drug-ferroussulphate6",
+      "ferroussulphate6",
+      "Ferrous Sulphate 6mg/mL Liquid"
+    ],
+    [
+      "drug-finasteride5",
+      "finasteride5",
+      "Finasteride 5mg Tablets"
+    ],
+    [
+      "drug-flecainideacetate100",
+      "flecainideacetate100",
+      "Flecainide acetate 100mg CR Capsules"
+    ],
+    [
+      "drug-flucloxacillinsodium250",
+      "flucloxacillinsodium250",
+      "Flucloxacillin sodium 250mg Capsules"
+    ],
+    [
+      "drug-flucloxacillinsodium2505",
+      "flucloxacillinsodium2505",
+      "Flucloxacillin sodium 250mg/5ml Suspension"
+    ],
+    [
+      "drug-flucloxacillinsodium500",
+      "flucloxacillinsodium500",
+      "Flucloxacillin sodium 500mg Capsules"
+    ],
+    [
+      "drug-fluconazole50",
+      "fluconazole50",
+      "Fluconazole 50mg Capsule"
+    ],
+    [
+      "drug-fluoxetine20",
+      "fluoxetine20",
+      "Fluoxetine 20mg Capsules"
+    ],
+    [
+      "drug-flutamide250",
+      "flutamide250",
+      "Flutamide 250mg Tablets"
+    ],
+    [
+      "drug-fluticasonefuroatevilanterol1002530",
+      "fluticasonefuroatevilanterol1002530",
+      "Fluticasone furoate + Vilanterol 100/25 Turbuhaler 30"
+    ],
+    [
+      "drug-fluticasonepropionatesalmeterol12525120",
+      "fluticasonepropionatesalmeterol12525120",
+      "Fluticasone propionate + Salmeterol 125/25 Inhaler 120"
+    ],
+    [
+      "drug-fluticasonepropionatesalmeterol2505060",
+      "fluticasonepropionatesalmeterol2505060",
+      "Fluticasone propionate + Salmeterol 250/50 Accuhaler 60"
+    ],
+    [
+      "drug-fluticasonepropionatesalmeterol5025120",
+      "fluticasonepropionatesalmeterol5025120",
+      "Fluticasone propionate + Salmeterol 50/25 Inhaler 120"
+    ],
+    [
+      "drug-fluticasonepropionate125120",
+      "fluticasonepropionate125120",
+      "Fluticasone propionate 125mcg Inhaler 120"
+    ],
+    [
+      "drug-fluticasonepropionate50120",
+      "fluticasonepropionate50120",
+      "Fluticasone propionate 50mcg Inhaler 120"
+    ],
+    [
+      "drug-fluticasonepropionate50120n",
+      "fluticasonepropionate50120n",
+      "Fluticasone propionate 50mcg Nasal Spray 120"
+    ],
+    [
+      "drug-folicacid08",
+      "folicacid08",
+      "Folic acid 0.8mg Tablets"
+    ],
+    [
+      "drug-folicacid5",
+      "folicacid5",
+      "Folic acid 5mg Tablets"
+    ],
+    [
+      "drug-framycetinsulphate0508",
+      "framycetinsulphate0508",
+      "Framycetin sulphate 0.50% Drops 8ml"
+    ],
+    [
+      "drug-furosemide40",
+      "furosemide40",
+      "Furosemide 40mg Tablets"
+    ],
+    [
+      "drug-fusidicacid25",
+      "fusidicacid25",
+      "Fusidic acid 2% Ointment 5g"
+    ],
+    [
+      "drug-gabapentin100",
+      "gabapentin100",
+      "Gabapentin 100mg Capsules"
+    ],
+    [
+      "drug-gabapentin300",
+      "gabapentin300",
+      "Gabapentin 300mg Capsules"
+    ],
+    [
+      "drug-gliclazide80",
+      "gliclazide80",
+      "Gliclazide 80mg Tablets"
+    ],
+    [
+      "drug-glipizide5",
+      "glipizide5",
+      "Glipizide 5mg Tablets"
+    ],
+    [
+      "drug-glucagonhcl11",
+      "glucagonhcl11",
+      "Glucagon HCL 1mg/1ml Hypo Kit"
+    ],
+    [
+      "drug-glycerolliquid",
+      "glycerolliquid",
+      "Glycerol  Liquid"
+    ],
+    [
+      "drug-glyceryltrinitrate400250",
+      "glyceryltrinitrate400250",
+      "Glyceryl trinitrate 400mcg/dose Spray 250"
+    ],
+    [
+      "drug-haloperidol05",
+      "haloperidol05",
+      "Haloperidol 0.5mg Tablets"
+    ],
+    [
+      "drug-haloperidol15",
+      "haloperidol15",
+      "Haloperidol 1.5mg Tablets"
+    ],
+    [
+      "drug-haloperidol5",
+      "haloperidol5",
+      "Haloperidol 5mg Tablets"
+    ],
+    [
+      "drug-hydrochlorothiazide25",
+      "hydrochlorothiazide25",
+      "Hydrochlorothiazide 25mg tablets"
+    ],
+    [
+      "drug-hydrocortisonenatamycinneomycincream15",
+      "hydrocortisonenatamycinneomycincream15",
+      "Hydrocortisone+natamycin+neomycin  Cream 15g"
+    ],
+    [
+      "drug-hydrocortisone1",
+      "hydrocortisone1",
+      "Hydrocortisone 1% Cream"
+    ],
+    [
+      "drug-hydrocortisonebutyrate01100",
+      "hydrocortisonebutyrate01100",
+      "Hydrocortisone butyrate 0.1% Cream 100g "
+    ],
+    [
+      "drug-hydrocortisonebutyrate0130",
+      "hydrocortisonebutyrate0130",
+      "Hydrocortisone butyrate 0.1% Cream 30g"
+    ],
+    [
+      "drug-hydroxychloroquinesulphate200",
+      "hydroxychloroquinesulphate200",
+      "Hydroxychloroquine sulphate 200mg Tablets"
+    ],
+    [
+      "drug-hyoscinenbutylbromide10",
+      "hyoscinenbutylbromide10",
+      "Hyoscine-N-butylbromide 10mg Tablets"
+    ],
+    [
+      "drug-hyoscinenbutylbromide20",
+      "hyoscinenbutylbromide20",
+      "Hyoscine-N-butylbromide 20mg/ml Amps"
+    ],
+    [
+      "drug-ibuprofen1005",
+      "ibuprofen1005",
+      "Ibuprofen 100mg/5mL Suspension"
+    ],
+    [
+      "drug-ibuprofen200",
+      "ibuprofen200",
+      "Ibuprofen 200mg Tablets"
+    ],
+    [
+      "drug-ibuprofen800",
+      "ibuprofen800",
+      "Ibuprofen 800mg SR Tablets"
+    ],
+    [
+      "drug-imiquimod5250",
+      "imiquimod5250",
+      "Imiquimod 5% Cream 250mg Sachets"
+    ],
+    [
+      "drug-indacaterol15030",
+      "indacaterol15030",
+      "Indacaterol 150mcg Inhaler Caps 30"
+    ],
+    [
+      "drug-influenzavaccineinjection",
+      "influenzavaccineinjection",
+      "Influenza vaccine  Injection"
+    ],
+    [
+      "drug-insulinaspartaspartprotamine30701003",
+      "insulinaspartaspartprotamine30701003",
+      "Insulin aspart + aspart protamine 30/70 100iu/ml 3ml Flexpen"
+    ],
+    [
+      "drug-insulinaspart1003",
+      "insulinaspart1003",
+      "Insulin aspart 100iu/ml 3ml Penfill"
+    ],
+    [
+      "drug-insulinglargine1003",
+      "insulinglargine1003",
+      "Insulin glargine 100IU/ml 3ml Penfill"
+    ],
+    [
+      "drug-insulinglargine1003solostar",
+      "insulinglargine1003solostar",
+      "Insulin glargine 100IU/ml 3ml SoloStar Pen"
+    ],
+    [
+      "drug-insulinisophane10010",
+      "insulinisophane10010",
+      "Insulin isophane 100IU 10 ml Vial"
+    ],
+    [
+      "drug-insulinisophane1003",
+      "insulinisophane1003",
+      "Insulin isophane 100IU 3ml Penfill"
+    ],
+    [
+      "drug-insulinisophaneneutral703010",
+      "insulinisophaneneutral703010",
+      "Insulin isophane + neutral 70/30 10ml Vial"
+    ],
+    [
+      "drug-insulinisophaneneutral70303",
+      "insulinisophaneneutral70303",
+      "Insulin isophane + neutral 70/30 3ml Penfill"
+    ],
+    [
+      "drug-insulinlisproneutralprotamine1003",
+      "insulinlisproneutralprotamine1003",
+      "Insulin lispro + neutral protamine 100iu/ml 3ml Penfill"
+    ],
+    [
+      "drug-insulinneutral10",
+      "insulinneutral10",
+      "Insulin neutral 10ml Vial"
+    ],
+    [
+      "drug-iodine253",
+      "iodine253",
+      "Iodine 253mcg Tablets"
+    ],
+    [
+      "drug-irbesartan150",
+      "irbesartan150",
+      "Irbesartan 150mg Tablets"
+    ],
+    [
+      "drug-isosorbidemononitrate60",
+      "isosorbidemononitrate60",
+      "Isosorbide Mononitrate 60mg CR Tablets"
+    ],
+    [
+      "drug-isotretinoin10",
+      "isotretinoin10",
+      "Isotretinoin 10mg Capsules"
+    ],
+    [
+      "drug-isotretinoin20",
+      "isotretinoin20",
+      "Isotretinoin 20mg Capsules"
+    ],
+    [
+      "drug-itraconazole100",
+      "itraconazole100",
+      "Itraconazole 100mg Capsules"
+    ],
+    [
+      "drug-ketoconazole2100",
+      "ketoconazole2100",
+      "Ketoconazole 2% Shampoo 100ml"
+    ],
+    [
+      "drug-lactulosesyrup",
+      "lactulosesyrup",
+      "Lactulose  Syrup"
+    ],
+    [
+      "drug-lamotrigine100",
+      "lamotrigine100",
+      "Lamotrigine 100mg Tablets"
+    ],
+    [
+      "drug-levetiracetam100",
+      "levetiracetam100",
+      "Levetiracetam 100mg/ml Syrup"
+    ],
+    [
+      "drug-levetiracetam500",
+      "levetiracetam500",
+      "Levetiracetam 500mg Tablets"
+    ],
+    [
+      "drug-levodopacarbidopa10025",
+      "levodopacarbidopa10025",
+      "Levodopa + Carbidopa 100mg/25mg Tablets"
+    ],
+    [
+      "drug-levodopacarbidopa25025",
+      "levodopacarbidopa25025",
+      "Levodopa + Carbidopa 250mg/25mg Tablets"
+    ],
+    [
+      "drug-levonorgestrelethinyloestradiol10020",
+      "levonorgestrelethinyloestradiol10020",
+      "Levonorgestrel + Ethinyloestradiol 100/20mcg Tablets"
+    ],
+    [
+      "drug-levonorgestrelethinyloestradiol15030",
+      "levonorgestrelethinyloestradiol15030",
+      "Levonorgestrel + Ethinyloestradiol 150/30mcg Tablets"
+    ],
+    [
+      "drug-levonorgestrel15",
+      "levonorgestrel15",
+      "Levonorgestrel 1.5mg Tablets"
+    ],
+    [
+      "drug-levonorgestrel20",
+      "levonorgestrel20",
+      "Levonorgestrel 20mcg IUD"
+    ],
+    [
+      "drug-levothyroxine100",
+      "levothyroxine100",
+      "Levothyroxine 100mcg Tablets"
+    ],
+    [
+      "drug-levothyroxine25",
+      "levothyroxine25",
+      "Levothyroxine 25mcg Tablets"
+    ],
+    [
+      "drug-levothyroxine50",
+      "levothyroxine50",
+      "Levothyroxine 50mcg Tablets"
+    ],
+    [
+      "drug-lidocaine25",
+      "lidocaine25",
+      "Lidocaine 2% Injection 5ml"
+    ],
+    [
+      "drug-lisinopril10",
+      "lisinopril10",
+      "Lisinopril 10mg Tablets"
+    ],
+    [
+      "drug-lisinopril20",
+      "lisinopril20",
+      "Lisinopril 20mg Tablets"
+    ],
+    [
+      "drug-lisinopril5",
+      "lisinopril5",
+      "Lisinopril 5mg Tablets"
+    ],
+    [
+      "drug-lithiumcarbonate250",
+      "lithiumcarbonate250",
+      "Lithium carbonate 250mg Capsules"
+    ],
+    [
+      "drug-lithiumcarbonate400",
+      "lithiumcarbonate400",
+      "Lithium carbonate 400mg LA Tablets"
+    ],
+    [
+      "drug-loperamide2",
+      "loperamide2",
+      "Loperamide 2mg Capsules"
+    ],
+    [
+      "drug-loratadine10",
+      "loratadine10",
+      "Loratadine 10mg Tablets"
+    ],
+    [
+      "drug-loratadine1",
+      "loratadine1",
+      "Loratadine 1mg/ml Oral liquid"
+    ],
+    [
+      "drug-losartanhydrochlorothiazide50125",
+      "losartanhydrochlorothiazide50125",
+      "Losartan + Hydrochlorothiazide 50mg/12.5mg Tablets"
+    ],
+    [
+      "drug-losartanpotassium100",
+      "losartanpotassium100",
+      "Losartan potassium 100mg tablets"
+    ],
+    [
+      "drug-losartanpotassium25",
+      "losartanpotassium25",
+      "Losartan potassium 25mg Tablets"
+    ],
+    [
+      "drug-losartanpotassium50",
+      "losartanpotassium50",
+      "Losartan potassium 50mg tablets"
+    ],
+    [
+      "drug-macrogol3350",
+      "macrogol3350",
+      "Macrogol 3350  Sachets"
+    ],
+    [
+      "drug-mebeverinehcl135",
+      "mebeverinehcl135",
+      "Mebeverine HCL 135mg Tablets"
+    ],
+    [
+      "drug-medroxyprogesterone10",
+      "medroxyprogesterone10",
+      "Medroxyprogesterone 10mg Tablets"
+    ],
+    [
+      "drug-medroxyprogesterone1501",
+      "medroxyprogesterone1501",
+      "Medroxyprogesterone 150mg/ml 1ml Pre-f Syringe"
+    ],
+    [
+      "drug-medroxyprogesterone5",
+      "medroxyprogesterone5",
+      "Medroxyprogesterone 5mg Tablets"
+    ],
+    [
+      "drug-melatonin3",
+      "melatonin3",
+      "Melatonin 3mg Capsules"
+    ],
+    [
+      "drug-mentholcrystals",
+      "mentholcrystals",
+      "Menthol  Crystals"
+    ],
+    [
+      "drug-metformin500",
+      "metformin500",
+      "Metformin 500mg Tablets"
+    ],
+    [
+      "drug-metformin850",
+      "metformin850",
+      "Metformin 850mg Tablets"
+    ],
+    [
+      "drug-methotrexate10",
+      "methotrexate10",
+      "Methotrexate 10mg Tablets"
+    ],
+    [
+      "drug-methotrexate25",
+      "methotrexate25",
+      "Methotrexate 2.5mg Tablets"
+    ],
+    [
+      "drug-methylcellulosepowder",
+      "methylcellulosepowder",
+      "Methylcellulose  Powder"
+    ],
+    [
+      "drug-methylphenidate10",
+      "methylphenidate10",
+      "Methylphenidate 10mg Tablets"
+    ],
+    [
+      "drug-metoclopramidehydrochloride10",
+      "metoclopramidehydrochloride10",
+      "Metoclopramide Hydrochloride 10mg Tablets"
+    ],
+    [
+      "drug-metoprololsucc2375",
+      "metoprololsucc2375",
+      "Metoprolol succ. 23.75mg CR Tablets"
+    ],
+    [
+      "drug-metoprololsucc475",
+      "metoprololsucc475",
+      "Metoprolol succ. 47.5mg CR Tablets"
+    ],
+    [
+      "drug-metoprololsucc95",
+      "metoprololsucc95",
+      "Metoprolol succ. 95mg CR Tablets"
+    ],
+    [
+      "drug-metoprololtartrate50",
+      "metoprololtartrate50",
+      "Metoprolol tartrate 50mg Tablets"
+    ],
+    [
+      "drug-metronidazole2005",
+      "metronidazole2005",
+      "Metronidazole 200mg/5ml Susp"
+    ],
+    [
+      "drug-metronidazole400",
+      "metronidazole400",
+      "Metronidazole 400mg Tablets"
+    ],
+    [
+      "drug-miconazole2115",
+      "miconazole2115",
+      "Miconazole 2% + Hydrocortisone 1% Cream 15g"
+    ],
+    [
+      "drug-miconazole215",
+      "miconazole215",
+      "Miconazole 2% Cream 15g"
+    ],
+    [
+      "drug-miconazole240",
+      "miconazole240",
+      "Miconazole 2% Oral Gel 40g"
+    ],
+    [
+      "drug-midazolam75",
+      "midazolam75",
+      "Midazolam 7.5mg Tablets"
+    ],
+    [
+      "drug-mirtazapine30",
+      "mirtazapine30",
+      "Mirtazapine 30mg Tablets"
+    ],
+    [
+      "drug-mometasonefuroate0115",
+      "mometasonefuroate0115",
+      "Mometasone furoate 0.1% Cream 15g"
+    ],
+    [
+      "drug-mometasonefuroate0150",
+      "mometasonefuroate0150",
+      "Mometasone furoate 0.1% Cream 50g"
+    ],
+    [
+      "drug-morphinesulphate10",
+      "morphinesulphate10",
+      "Morphine sulphate 10mg SR Capsules"
+    ],
+    [
+      "drug-morphinesulphate10ta",
+      "morphinesulphate10tab",
+      "Morphine sulphate 10mg Tablets"
+    ],
+    [
+      "drug-morphinesulphate101",
+      "morphinesulphate101",
+      "Morphine sulphate 10mg/ml 1ml Inj"
+    ],
+    [
+      "drug-mucilaginouslaxativedrypowder",
+      "mucilaginouslaxativedrypowder",
+      "Mucilaginous laxative dry powder"
+    ],
+    [
+      "drug-multivitamintablets",
+      "multivitamintablets",
+      "Multivitamin  Tablets"
+    ],
+    [
+      "drug-mupirocin215",
+      "mupirocin215",
+      "Mupirocin 2% Ointment 15g"
+    ],
+    [
+      "drug-naloxonehcl402",
+      "naloxonehcl402",
+      "Naloxone HCL 40mcg/2ml Inj"
+    ],
+    [
+      "drug-naproxen1000",
+      "naproxen1000",
+      "Naproxen 1000mg SR Tablets"
+    ],
+    [
+      "drug-naproxen250",
+      "naproxen250",
+      "Naproxen 250mg Tab"
+    ],
+    [
+      "drug-nicotine1424",
+      "nicotine1424",
+      "Nicotine 14mg/24hr Patches"
+    ],
+    [
+      "drug-nicotine1",
+      "nicotine1",
+      "Nicotine 1mg Lozenge"
+    ],
+    [
+      "drug-nicotine2124",
+      "nicotine2124",
+      "Nicotine 21mg/24hr Patches"
+    ],
+    [
+      "drug-nicotine2gum",
+      "nicotine2gum",
+      "Nicotine 2mg Gum"
+    ],
+    [
+      "drug-nicotine2",
+      "nicotine2",
+      "Nicotine 2mg Lozenge"
+    ],
+    [
+      "drug-nicotine4",
+      "nicotine4",
+      "Nicotine 4mg Gum"
+    ],
+    [
+      "drug-nicotine724",
+      "nicotine724",
+      "Nicotine 7mg/24hr Patches"
+    ],
+    [
+      "drug-nifedipine20",
+      "nifedipine20",
+      "Nifedipine 20mg CR Tablets"
+    ],
+    [
+      "drug-nitrofurantoin100",
+      "nitrofurantoin100",
+      "Nitrofurantoin 100mg Tablets"
+    ],
+    [
+      "drug-nitrofurantoin50",
+      "nitrofurantoin50",
+      "Nitrofurantoin 50mg Tablets"
+    ],
+    [
+      "drug-norethisterone35084",
+      "norethisterone35084",
+      "Norethisterone 350mcg Tablets 84"
+    ],
+    [
+      "drug-norethisterone5",
+      "norethisterone5",
+      "Norethisterone 5mg Tab"
+    ],
+    [
+      "drug-norfloxacin400",
+      "norfloxacin400",
+      "Norfloxacin 400mg Tablets"
+    ],
+    [
+      "drug-nortriptyline25",
+      "nortriptyline25",
+      "Nortriptyline 25mg Tablets"
+    ],
+    [
+      "drug-nystatinoraldrops24",
+      "nystatinoraldrops24",
+      "Nystatin Oral Drops 24ml"
+    ],
+    [
+      "drug-oestriol115",
+      "oestriol115",
+      "Oestriol 1mg/g Cream 15g"
+    ],
+    [
+      "drug-olanzapine10",
+      "olanzapine10",
+      "Olanzapine 10mg Tablets"
+    ],
+    [
+      "drug-olanzapine25",
+      "olanzapine25",
+      "Olanzapine 2.5mg Tablets"
+    ],
+    [
+      "drug-olanzapine5",
+      "olanzapine5",
+      "Olanzapine 5mg Tablets"
+    ],
+    [
+      "drug-omeprazole20",
+      "omeprazole20",
+      "Omeprazole 20mg Capsules"
+    ],
+    [
+      "drug-ondansetron4",
+      "ondansetron4",
+      "Ondansetron 4mg Tablets"
+    ],
+    [
+      "drug-ondansetron8",
+      "ondansetron8",
+      "Ondansetron 8mg Tablets"
+    ],
+    [
+      "drug-ondansetronodt4",
+      "ondansetronodt4",
+      "Ondansetron ODT 4mg Tablets"
+    ],
+    [
+      "drug-ondansetronodt8",
+      "ondansetronodt8",
+      "Ondansetron ODT 8mg Tablets"
+    ],
+    [
+      "drug-oraplussuspension",
+      "oraplussuspension",
+      "Oraplus  Suspension"
+    ],
+    [
+      "drug-orasweetsuspension",
+      "orasweetsuspension",
+      "Orasweet Suspension"
+    ],
+    [
+      "drug-oxybutynin5",
+      "oxybutynin5",
+      "Oxybutynin 5mg Tablets"
+    ],
+    [
+      "drug-pantoprazole20",
+      "pantoprazole20",
+      "Pantoprazole 20mg Tablets"
+    ],
+    [
+      "drug-paracetamolcodeine5008",
+      "paracetamolcodeine5008",
+      "Paracetamol + codeine 500/8mg Tablets"
+    ],
+    [
+      "drug-paracetamol1205",
+      "paracetamol1205",
+      "Paracetamol 120mg/5ml Strawbery Suspension"
+    ],
+    [
+      "drug-paracetamol125",
+      "paracetamol125",
+      "Paracetamol 125mg Suppository"
+    ],
+    [
+      "drug-paracetamol250",
+      "paracetamol250",
+      "Paracetamol 250mg Suppository"
+    ],
+    [
+      "drug-paracetamol2505",
+      "paracetamol2505",
+      "Paracetamol 250mg/5ml Orange Suspension"
+    ],
+    [
+      "drug-paracetamol500",
+      "paracetamol500",
+      "Paracetamol 500mg Tablets"
+    ],
+    [
+      "drug-paroxetinehcl20",
+      "paroxetinehcl20",
+      "Paroxetine HCL 20mg Tablets"
+    ],
+    [
+      "drug-penicillinv1255",
+      "penicillinv1255",
+      "Penicillin V 125mg/5ml Syrup"
+    ],
+    [
+      "drug-penicillinv2505",
+      "penicillinv2505",
+      "Penicillin V 250mg/5ml Syrup"
+    ],
+    [
+      "drug-penicillinvk250",
+      "penicillinvk250",
+      "Penicillin VK 250mg Capsules"
+    ],
+    [
+      "drug-penicillinvk500",
+      "penicillinvk500",
+      "Penicillin VK 500mg Capsules"
+    ],
+    [
+      "drug-perindopril2",
+      "perindopril2",
+      "Perindopril 2mg Tablets"
+    ],
+    [
+      "drug-perindopril4",
+      "perindopril4",
+      "Perindopril 4mg Tablets"
+    ],
+    [
+      "drug-permethrin530",
+      "permethrin530",
+      "Permethrin 5% Lotion 30ml"
+    ],
+    [
+      "drug-phenytoin100",
+      "phenytoin100",
+      "Phenytoin 100mg Capsules"
+    ],
+    [
+      "drug-pholcodine55",
+      "pholcodine55",
+      "Pholcodine 5mg/5ml Linctus"
+    ],
+    [
+      "drug-pilocarpinehcl215",
+      "pilocarpinehcl215",
+      "Pilocarpine HCL 2% Eye drops 15ml"
+    ],
+    [
+      "drug-pioglitazone15",
+      "pioglitazone15",
+      "Pioglitazone 15mg Tablets"
+    ],
+    [
+      "drug-pioglitazone30",
+      "pioglitazone30",
+      "Pioglitazone 30mg Tablets"
+    ],
+    [
+      "drug-pioglitazone45",
+      "pioglitazone45",
+      "Pioglitazone 45mg Tablets"
+    ],
+    [
+      "drug-polyethyleneglycolelectrolytsachets",
+      "polyethyleneglycolelectrolytsachets",
+      "Polyethylene glycol+electrolyt  Sachets"
+    ],
+    [
+      "drug-potassiumchloride600",
+      "potassiumchloride600",
+      "Potassium chloride 600mg Tablets"
+    ],
+    [
+      "drug-potassiumpermanganatecrystals",
+      "potassiumpermanganatecrystals",
+      "Potassium permanganate  Crystals"
+    ],
+    [
+      "drug-pramipexole025",
+      "pramipexole025",
+      "Pramipexole 0.25mg Tablets"
+    ],
+    [
+      "drug-prazosin1",
+      "prazosin1",
+      "Prazosin 1mg Tablets"
+    ],
+    [
+      "drug-prazosin2",
+      "prazosin2",
+      "Prazosin 2mg Tablets"
+    ],
+    [
+      "drug-prednisolone5",
+      "prednisolone5",
+      "Prednisolone 5mg/ml Oral Liquid"
+    ],
+    [
+      "drug-prednisoloneacetate15",
+      "prednisoloneacetate15",
+      "Prednisolone acetate 1% Eye drops 5ml"
+    ],
+    [
+      "drug-prednisone20",
+      "prednisone20",
+      "Prednisone 20mg Tablets"
+    ],
+    [
+      "drug-prednisone5",
+      "prednisone5",
+      "Prednisone 5mg Tablets"
+    ],
+    [
+      "drug-pregabalin150",
+      "pregabalin150",
+      "Pregabalin 150mg Capsules"
+    ],
+    [
+      "drug-pregabalin25",
+      "pregabalin25",
+      "Pregabalin 25mg Capsules"
+    ],
+    [
+      "drug-pregabalin300",
+      "pregabalin300",
+      "Pregabalin 300mg Capsules"
+    ],
+    [
+      "drug-pregabalin75",
+      "pregabalin75",
+      "Pregabalin 75mg Capsules"
+    ],
+    [
+      "drug-probenecid500",
+      "probenecid500",
+      "Probenecid 500mg Tablets"
+    ],
+    [
+      "drug-prochlorperazine5",
+      "prochlorperazine5",
+      "Prochlorperazine 5mg Tablets"
+    ],
+    [
+      "drug-promethazine10",
+      "promethazine10",
+      "Promethazine 10mg Tablets"
+    ],
+    [
+      "drug-promethazine25",
+      "promethazine25",
+      "Promethazine 25mg Tablets"
+    ],
+    [
+      "drug-promethazinehcl502",
+      "promethazinehcl502",
+      "Promethazine HCL 50mg/2ml Inj"
+    ],
+    [
+      "drug-pyrantelembonate100",
+      "pyrantelembonate100",
+      "Pyrantel embonate 100mg Choc Tablets"
+    ],
+    [
+      "drug-quetiapine100",
+      "quetiapine100",
+      "Quetiapine 100mg Tablets"
+    ],
+    [
+      "drug-quetiapine200",
+      "quetiapine200",
+      "Quetiapine 200mg Tablets"
+    ],
+    [
+      "drug-quetiapine25",
+      "quetiapine25",
+      "Quetiapine 25mg Tablets"
+    ],
+    [
+      "drug-quetiapine300",
+      "quetiapine300",
+      "Quetiapine 300mg Tablets"
+    ],
+    [
+      "drug-quinaprilhct10125",
+      "quinaprilhct10125",
+      "Quinapril + HCT 10mg/12.5mg Tablets"
+    ],
+    [
+      "drug-quinaprilhct20125",
+      "quinaprilhct20125",
+      "Quinapril + HCT 20mg/12.5mg Tablets"
+    ],
+    [
+      "drug-quinapril10",
+      "quinapril10",
+      "Quinapril 10mg Tablets"
+    ],
+    [
+      "drug-quinapril20",
+      "quinapril20",
+      "Quinapril 20mg Tablets"
+    ],
+    [
+      "drug-quinapril5",
+      "quinapril5",
+      "Quinapril 5mg Tablets"
+    ],
+    [
+      "drug-quininesulphate300",
+      "quininesulphate300",
+      "Quinine sulphate 300mg Tablets"
+    ],
+    [
+      "drug-rifampicin300",
+      "rifampicin300",
+      "Rifampicin 300mg Capsules"
+    ],
+    [
+      "drug-risperidone05",
+      "risperidone05",
+      "Risperidone 0.5mg Tablets"
+    ],
+    [
+      "drug-risperidone2",
+      "risperidone2",
+      "Risperidone 2mg Tablets"
+    ],
+    [
+      "drug-rivaroxaban20",
+      "rivaroxaban20",
+      "Rivaroxaban 20mg Tablets"
+    ],
+    [
+      "drug-rosuvastatin10",
+      "rosuvastatin10",
+      "Rosuvastatin 10mg Tablets"
+    ],
+    [
+      "drug-rosuvastatin20",
+      "rosuvastatin20",
+      "Rosuvastatin 20mg Tablets"
+    ],
+    [
+      "drug-rosuvastatin40",
+      "rosuvastatin40",
+      "Rosuvastatin 40mg Tablets"
+    ],
+    [
+      "drug-rosuvastatin5",
+      "rosuvastatin5",
+      "Rosuvastatin 5mg Tablets"
+    ],
+    [
+      "drug-roxithromycin300",
+      "roxithromycin300",
+      "Roxithromycin 300mg tablet"
+    ],
+    [
+      "drug-salbutamolipratropium10020200",
+      "salbutamolipratropium10020200",
+      "Salbutamol + ipratropium 100/20mcg Inhaler 200"
+    ],
+    [
+      "drug-salbutamol100200",
+      "salbutamol100200",
+      "Salbutamol 100mcg Inhaler 200"
+    ],
+    [
+      "drug-salbutamol252520",
+      "salbutamol252520",
+      "Salbutamol 2.5mg/2.5ml Nebules 20"
+    ],
+    [
+      "drug-salbutamol52520",
+      "salbutamol52520",
+      "Salbutamol 5mg/2.5ml Nebules 20"
+    ],
+    [
+      "drug-salicylicacidpowder",
+      "salicylicacidpowder",
+      "Salicylic acid  Powder"
+    ],
+    [
+      "drug-salmeterolxinafoate25120",
+      "salmeterolxinafoate25120",
+      "Salmeterol xinafoate 25mcg Inhaler 120"
+    ],
+    [
+      "drug-sertraline100",
+      "sertraline100",
+      "Sertraline 100mg Tablets"
+    ],
+    [
+      "drug-sildenafil10012",
+      "sildenafil10012",
+      "Sildenafil 100mg Tablets 12"
+    ],
+    [
+      "drug-sildenafil1004",
+      "sildenafil1004",
+      "Sildenafil 100mg Tablets 4"
+    ],
+    [
+      "drug-sildenafil5012",
+      "sildenafil5012",
+      "Sildenafil 50mg Tablets 12"
+    ],
+    [
+      "drug-sildenafil504",
+      "sildenafil504",
+      "Sildenafil 50mg Tablets 4"
+    ],
+    [
+      "drug-simvastatin20",
+      "simvastatin20",
+      "Simvastatin 20mg tablets"
+    ],
+    [
+      "drug-simvastatin40",
+      "simvastatin40",
+      "Simvastatin 40mg tablets"
+    ],
+    [
+      "drug-sodiumbicarbonate840",
+      "sodiumbicarbonate840",
+      "Sodium Bicarbonate 840mg Tablets"
+    ],
+    [
+      "drug-sodiumcitratesodiumlauryl5",
+      "sodiumcitratesodiumlauryl5",
+      "Sodium citrate+sodium lauryl 5ml Enema"
+    ],
+    [
+      "drug-sodiumpolystyrenesulphonatepowder450",
+      "sodiumpolystyrenesulphonatepowder450",
+      "Sodium polystyrene sulphonate  Powder 450g"
+    ],
+    [
+      "drug-sodiumvalproate100",
+      "sodiumvalproate100",
+      "Sodium valproate 100mg Tablets"
+    ],
+    [
+      "drug-sodiumvalproate200",
+      "sodiumvalproate200",
+      "Sodium valproate 200mg EC Tablets"
+    ],
+    [
+      "drug-sodiumvalproate2005",
+      "sodiumvalproate2005",
+      "Sodium valproate 200mg/5ml SF Liquid"
+    ],
+    [
+      "drug-sodiumvalproate500",
+      "sodiumvalproate500",
+      "Sodium valproate 500mg EC Tablets"
+    ],
+    [
+      "drug-spironolactone100",
+      "spironolactone100",
+      "Spironolactone 100mg Tablets"
+    ],
+    [
+      "drug-spironolactone25",
+      "spironolactone25",
+      "Spironolactone 25mg Tablets"
+    ],
+    [
+      "drug-sulphasalazine500ec",
+      "sulphasalazine500ec",
+      "Sulphasalazine 500mg EC Tablets"
+    ],
+    [
+      "drug-sulphasalazine500",
+      "sulphasalazine500",
+      "Sulphasalazine 500mg Tablets"
+    ],
+    [
+      "drug-sumatriptan50",
+      "sumatriptan50",
+      "Sumatriptan 50mg Tablets"
+    ],
+    [
+      "drug-tamsulosinhcl04",
+      "tamsulosinhcl04",
+      "Tamsulosin HCl 0.4mg Caps"
+    ],
+    [
+      "drug-terazosin2",
+      "terazosin2",
+      "Terazosin 2mg Tablets"
+    ],
+    [
+      "drug-terbinafine250",
+      "terbinafine250",
+      "Terbinafine 250mg Tablets"
+    ],
+    [
+      "drug-terbutalinesulphate250200",
+      "terbutalinesulphate250200",
+      "Terbutaline sulphate 250mcg Turbuhaler 200"
+    ],
+    [
+      "drug-theophylline250",
+      "theophylline250",
+      "Theophylline 250mg SR Tablets"
+    ],
+    [
+      "drug-thiaminehcl50",
+      "thiaminehcl50",
+      "Thiamine HCL 50mg Tablets"
+    ],
+    [
+      "drug-ticagrelor90",
+      "ticagrelor90",
+      "Ticagrelor 90mg Tablets"
+    ],
+    [
+      "drug-tiotropiumolodaterol252560",
+      "tiotropiumolodaterol252560",
+      "Tiotropium + Olodaterol 2.5mg/2.5mg Inhaler Solution 60"
+    ],
+    [
+      "drug-tiotropium2560",
+      "tiotropium2560",
+      "Tiotropium 2.5mcg Inhaler Solution 60"
+    ],
+    [
+      "drug-tramadol50",
+      "tramadol50",
+      "Tramadol 50mg Capsules"
+    ],
+    [
+      "drug-tranexamicacid500",
+      "tranexamicacid500",
+      "Tranexamic acid 500mg Tablets"
+    ],
+    [
+      "drug-triamcinolonegramicidinnystatinneomycineardrops75",
+      "triamcinolonegramicidinnystatinneomycineardrops75",
+      "Triamcinolone + gramicidin + nystatin + neomycin  Ear drops 7.5ml"
+    ],
+    [
+      "drug-triamcinoloneacetonide002100",
+      "triamcinoloneacetonide002100",
+      "Triamcinolone acetonide 0.02% Cream 100g"
+    ],
+    [
+      "drug-trimethoprim300",
+      "trimethoprim300",
+      "Trimethoprim 300mg Tablets"
+    ],
+    [
+      "drug-umeclidinium62530",
+      "umeclidinium62530",
+      "Umeclidinium 62.5mcg Inhaler Powder 30"
+    ],
+    [
+      "drug-umeclidiniumvilanterol6252530",
+      "umeclidiniumvilanterol6252530",
+      "Umeclidinium + vilanterol 62.5/25mcg Inhaler Powder 30"
+    ],
+    [
+      "drug-valaciclovir500",
+      "valaciclovir500",
+      "Valaciclovir 500mg Tablets"
+    ],
+    [
+      "drug-venlafaxine150",
+      "venlafaxine150",
+      "Venlafaxine 150mg Capsules"
+    ],
+    [
+      "drug-venlafaxine75",
+      "venlafaxine75",
+      "Venlafaxine 75mg Capsules"
+    ],
+    [
+      "drug-vildagliptin50",
+      "vildagliptin50",
+      "Vildagliptin 50mg Tablets"
+    ],
+    [
+      "drug-vitaminb121",
+      "vitaminb121",
+      "Vitamin B12 1mg Injection"
+    ],
+    [
+      "drug-warfarinsod1",
+      "warfarinsod1",
+      "Warfarin sod. 1mg Tablets"
+    ],
+    [
+      "drug-warfarinsod5",
+      "warfarinsod5",
+      "Warfarin sod. 5mg Tablets"
+    ],
+    [
+      "drug-xylometazolinenasalspray10",
+      "xylometazolinenasalspray10",
+      "Xylometazoline  Nasal Spray 10ml"
+    ],
+    [
+      "drug-zincsulphate50",
+      "zincsulphate50",
+      "Zinc sulphate 50mg Capsules"
+    ],
+    [
+      "drug-zopiclone75",
+      "zopiclone75",
+      "Zopiclone 7.5mg Tablets"
+    ],
+    [
+      "drug-zuclopenthixol2001",
+      "zuclopenthixol2001",
+      "Zuclopenthixol 200mg/ml Amps 1ml"
+    ],
+    [
+      "drug-BCG",
+      "BCG",
+      "BCG"
+    ],
+    [
+      "drug-COVAX",
+      "COVAX",
+      "COVID-19 AZ"
+    ],
+    [
+      "drug-DTPBooster",
+      "DTPBooster",
+      "DTP Booster"
+    ],
+    [
+      "drug-HPV",
+      "HPV",
+      "HPV"
+    ],
+    [
+      "drug-HepB",
+      "HepB",
+      "Hep B"
+    ],
+    [
+      "drug-IPV",
+      "IPV",
+      "IPV"
+    ],
+    [
+      "drug-MMR",
+      "MMR",
+      "MMR"
+    ],
+    [
+      "drug-MR",
+      "MR",
+      "MR"
+    ],
+    [
+      "drug-OPV",
+      "OPV",
+      "OPV"
+    ],
+    [
+      "drug-PCV",
+      "PCV",
+      "PCV"
+    ],
+    [
+      "drug-Pentavalent",
+      "Pentavalent",
+      "Pentavalent"
+    ],
+    [
+      "drug-Rotavirus",
+      "Rotavirus",
+      "Rotavirus"
+    ],
+    [
+      "drug-TCVTyphoid",
+      "TCVTyphoid",
+      "TCV Typhoid"
+    ],
+    [
+      "drug-TdBooster",
+      "TdBooster",
+      "Td Booster"
+    ],
+    [
+      "drug-bOPV",
+      "bOPV",
+      "bOPV"
+    ],
+    [
+      "drug-COVID-19-Pfizer",
+      "COVID-19-Pfizer",
+      "COVID-19 Pfizer"
+    ],
+    [
+      "drug-other",
+      "other",
+      "Other"
+    ],
+    [
+      "drug-oxycodone10",
+      "drug-oxycodone10",
+      "drug-oxycodone10"
+    ]
+  ]
+}

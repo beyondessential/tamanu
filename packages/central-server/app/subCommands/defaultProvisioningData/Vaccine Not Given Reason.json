@@ -1,0 +1,40 @@
+{
+  "sheetName": "Vaccine Not Given Reason",
+  "data": [
+    [
+      "id",
+      "code",
+      "name"
+    ],
+    [
+      "vaccineNotGivenReason-Allergy",
+      "Allergy",
+      "Allergy"
+    ],
+    [
+      "vaccineNotGivenReason-Contraindication",
+      "Contraindication",
+      "Contraindication"
+    ],
+    [
+      "vaccineNotGivenReason-PersonUnavailable",
+      "PersonUnavailable",
+      "Person unavailable "
+    ],
+    [
+      "vaccineNotGivenReason-Refused",
+      "Refused",
+      "Refused "
+    ],
+    [
+      "vaccineNotGivenReason-VaccineUnavailable",
+      "VaccineUnavailable",
+      "Vaccine unavailable "
+    ],
+    [
+      "vaccineNotGivenReason-Other",
+      "Other",
+      "Other"
+    ]
+  ]
+}

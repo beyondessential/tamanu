@@ -1,0 +1,233 @@
+{
+  "sheetName": "Diet",
+  "data": [
+    [
+      "id",
+      "code",
+      "name",
+      "visibilityStatus"
+    ],
+    [
+      "diet-Caffeinefree",
+      "Caffeinefree",
+      "Caffeine free",
+      "current"
+    ],
+    [
+      "diet-Carb-Controlled",
+      "CarbControlled",
+      "Carbohydrate controlled",
+      "current"
+    ],
+    [
+      "diet-CD",
+      "CD",
+      "Cardiac diet",
+      "current"
+    ],
+    [
+      "diet-Citrusfree",
+      "Citrusfree",
+      "Citrus free",
+      "current"
+    ],
+    [
+      "diet-Clear-Fluids",
+      "Clearfluiddiet",
+      "Clear fluids",
+      "current"
+    ],
+    [
+      "diet-DM",
+      "DM",
+      "Diabetic diet",
+      "current"
+    ],
+    [
+      "diet-Eggfree",
+      "Eggfree",
+      "Egg free",
+      "current"
+    ],
+    [
+      "diet-Gluten-Free",
+      "GF",
+      "Gluten Free",
+      "current"
+    ],
+    [
+      "diet-H-CHO",
+      "HC",
+      "H/CHO",
+      "current"
+    ],
+    [
+      "diet-H-Fe",
+      "Hfe",
+      "H/Fe",
+      "current"
+    ],
+    [
+      "diet-H-Fibre",
+      "Hfi",
+      "High fibre",
+      "current"
+    ],
+    [
+      "diet-H-K",
+      "HK",
+      "High potassium",
+      "current"
+    ],
+    [
+      "diet-H-Protein",
+      "HP",
+      "High protein",
+      "current"
+    ],
+    [
+      "diet-Keto",
+      "Keto",
+      "Keto",
+      "current"
+    ],
+    [
+      "diet-Lactose-Intolerant",
+      "Lfree",
+      "Lactose free",
+      "current"
+    ],
+    [
+      "diet-Lowadditive",
+      "Lowadditive",
+      "Low additive",
+      "current"
+    ],
+    [
+      "diet-Lowamine",
+      "Lowamine",
+      "Low amine",
+      "current"
+    ],
+    [
+      "diet-Low-Cholesterol",
+      "Lcholesterol",
+      "Low cholesterol",
+      "current"
+    ],
+    [
+      "diet-L-Fat",
+      "Lfat",
+      "Low fat",
+      "current"
+    ],
+    [
+      "diet-L-Fibre",
+      "Lfi",
+      "Low fibre (GI soft)",
+      "current"
+    ],
+    [
+      "diet-Fructose-low",
+      "Fructoselow",
+      "Low fructose",
+      "current"
+    ],
+    [
+      "diet-PKULow",
+      "PKULow",
+      "Low phenylalanine",
+      "current"
+    ],
+    [
+      "diet-L-K",
+      "L/K",
+      "Low potassium",
+      "current"
+    ],
+    [
+      "diet-L-Purine",
+      "LP",
+      "Low purine",
+      "current"
+    ],
+    [
+      "diet-L-Residue",
+      "LR",
+      "Low residue",
+      "current"
+    ],
+    [
+      "diet-L-Salt",
+      "Lsalt",
+      "Low salt",
+      "current"
+    ],
+    [
+      "diet-L-Sodium",
+      "Lsodium",
+      "Low sodium",
+      "current"
+    ],
+    [
+      "diet-Minceand-Moist",
+      "Minceandmoist",
+      "Minced and moist",
+      "current"
+    ],
+    [
+      "diet-NBM",
+      "NBM",
+      "Nil By Mouth",
+      "current"
+    ],
+    [
+      "diet-Regular",
+      "Regdiet",
+      "Regular diet",
+      "current"
+    ],
+    [
+      "diet-Renaldiet",
+      "Renaldiet",
+      "Renal diet",
+      "current"
+    ],
+    [
+      "diet-Softandbitesize",
+      "Softandbitesize",
+      "Soft and bite sized",
+      "current"
+    ],
+    [
+      "diet-Thickened-Fluids",
+      "Thickenedfluids",
+      "Thickened fluids",
+      "current"
+    ],
+    [
+      "diet-Vegan",
+      "Vegan",
+      "Vegan",
+      "current"
+    ],
+    [
+      "diet-L-Vitamin-K",
+      "LK",
+      "Vitamin K restricted",
+      "current"
+    ],
+    [
+      "diet-NoConcSweets",
+      "NCSDiet",
+      "No concentrated sweets",
+      "current"
+    ],
+    [
+      "diet-Tube-Feeding",
+      "Tubefeeding",
+      "Tube feeding ",
+      "current"
+    ]
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "sheetName": "Orthopantomography Imaging Area",
+  "data": [
+    [
+      "id",
+      "code",
+      "name",
+      "visibilityStatus"
+    ],
+    [
+      "PXImagingArea-Caries",
+      "PXCaries",
+      "Caries",
+      null
+    ],
+    [
+      "PXImagingArea-Developmental",
+      "PXDevelopmental",
+      "Developmental",
+      null
+    ],
+    [
+      "PXImagingArea-LateralCephalometry",
+      "PXLateralCephalometry",
+      "Lateral Cephalometry",
+      null
+    ],
+    [
+      "PXImagingArea-Sinuses",
+      "PXSinuses",
+      "Sinuses",
+      null
+    ],
+    [
+      "PXImagingArea-TemperomandibularJoints",
+      "PXTemperomandibularJoints",
+      "Temperomandibular Joints",
+      null
+    ],
+    [
+      "PXImagingArea-Trauma",
+      "PXTrauma",
+      "Trauma",
+      null
+    ]
+  ]
+}

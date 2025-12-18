@@ -1,0 +1,35 @@
+{
+  "sheetName": "Lab Test Priority",
+  "data": [
+    [
+      "id",
+      "code",
+      "name",
+      "visibilityStatus"
+    ],
+    [
+      "labTestPriority-STAT",
+      "stat",
+      "stat",
+      "current"
+    ],
+    [
+      "labTestPriority-Routine",
+      "routine",
+      "routine",
+      "current"
+    ],
+    [
+      "LabTestPriority-Urgent",
+      "Urgent",
+      "Urgent",
+      "current"
+    ],
+    [
+      "LabTestPriority-ASAP",
+      "asap",
+      "asap",
+      "current"
+    ]
+  ]
+}

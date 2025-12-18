@@ -1,0 +1,40 @@
+{
+  "sheetName": "Social Media Platform",
+  "data": [
+    [
+      "id",
+      "code",
+      "name"
+    ],
+    [
+      "socialMedia-Facebook",
+      "Facebook",
+      "Facebook"
+    ],
+    [
+      "socialMedia-Instagram",
+      "Instagram",
+      "Instagram"
+    ],
+    [
+      "socialMedia-LinkedIn",
+      "LinkedIn",
+      "LinkedIn"
+    ],
+    [
+      "socialMedia-Twitter",
+      "Twitter",
+      "Twitter"
+    ],
+    [
+      "socialMedia-Viber",
+      "Viber",
+      "Viber"
+    ],
+    [
+      "socialMedia-WhatsApp",
+      "WhatsApp",
+      "WhatsApp"
+    ]
+  ]
+}

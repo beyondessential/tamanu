@@ -1,0 +1,4212 @@
+{
+  "sheetName": "Imaging Area External Code",
+  "data": [
+    [
+      "id",
+      "visibilityStatus",
+      "code",
+      "description",
+      "areaId"
+    ],
+    [
+      "imagingAreaExt-CTAPN",
+      "current",
+      "CTAPN",
+      "Abdomen and Pelvis non-IV contrast",
+      "ctScanImagingArea-CTAbdomenandPelvisnonIVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTAPC",
+      "current",
+      "CTAPC",
+      "Abdomen and Pelvis post-IV contrast +/- pre",
+      "ctScanImagingArea-CTAbdomenandPelvispostIVcontrastpre"
+    ],
+    [
+      "imagingAreaExt-CTAN",
+      "current",
+      "CTAN",
+      "Abdomen Upper non-IV contrast",
+      "ctScanImagingArea-CTAbdomenUppernonIVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTAC",
+      "current",
+      "CTAC",
+      "Abdomen Upper post-IV contrast",
+      "ctScanImagingArea-CTAbdomenUpperpostIVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTANC",
+      "current",
+      "CTANC",
+      "Abdomen Upper pre and post IV contrast",
+      "ctScanImagingArea-CTAbdomenUpperpreandpostIVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTAAA1",
+      "current",
+      "CTAAA1",
+      "Angiogram Abdominal Aorta (1st Study)",
+      "ctScanImagingArea-CTAngiogramAbdominalAorta1stStudy"
+    ],
+    [
+      "imagingAreaExt-CTAAA2",
+      "current",
+      "CTAAA2",
+      "Angiogram Abdominal Aorta (2nd Study)",
+      "ctScanImagingArea-CTAngiogramAbdominalAorta2ndStudy"
+    ],
+    [
+      "imagingAreaExt-CTAAR1",
+      "current",
+      "CTAAR1",
+      "Angiogram Aortic Run off (1st Study)",
+      "ctScanImagingArea-CTAngiogramAorticRunoff1stStudy"
+    ],
+    [
+      "imagingAreaExt-CTAAR2",
+      "current",
+      "CTAAR2",
+      "Angiogram Aortic Run off (2nd Study)",
+      "ctScanImagingArea-CTAngiogramAorticRunoff2ndStudy"
+    ],
+    [
+      "imagingAreaExt-CTACG1",
+      "current",
+      "CTACG1",
+      "Angiogram Cardiac Gated",
+      "ctScanImagingArea-CTAngiogramCardiacGated"
+    ],
+    [
+      "imagingAreaExt-CTACG2",
+      "current",
+      "CTACG2",
+      "Angiogram Cardiac Gated (2nd Study)",
+      "ctScanImagingArea-CTAngiogramCardiacGated2ndStudy"
+    ],
+    [
+      "imagingAreaExt-CTAC1",
+      "current",
+      "CTAC1",
+      "Angiogram Carotid (1st Study)",
+      "ctScanImagingArea-CTAngiogramCarotid1stStudy"
+    ],
+    [
+      "imagingAreaExt-CTAC2",
+      "current",
+      "CTAC2",
+      "Angiogram Carotid (2nd study)",
+      "ctScanImagingArea-CTAngiogramCarotid2ndstudy"
+    ],
+    [
+      "imagingAreaExt-CTACOW1",
+      "current",
+      "CTACOW1",
+      "Angiogram Circle Of Willis (1st Study)",
+      "ctScanImagingArea-CTAngiogramCircleOfWillis1stStudy"
+    ],
+    [
+      "imagingAreaExt-CTACOW2",
+      "current",
+      "CTACOW2",
+      "Angiogram Circle Of Willis (2nd Study)",
+      "ctScanImagingArea-CTAngiogramCircleOfWillis2ndStudy"
+    ],
+    [
+      "imagingAreaExt-CTAM1",
+      "current",
+      "CTAM1",
+      "Angiogram Mesenteric (1st Study)",
+      "ctScanImagingArea-CTAngiogramMesenteric1stStudy"
+    ],
+    [
+      "imagingAreaExt-CTAM2",
+      "current",
+      "CTAM2",
+      "Angiogram Mesenteric (2nd Study)",
+      "ctScanImagingArea-CTAngiogramMesenteric2ndStudy"
+    ],
+    [
+      "imagingAreaExt-CTAPA1",
+      "current",
+      "CTAPA1",
+      "Angiogram Pulmonary Artery (1st Study)",
+      "ctScanImagingArea-CTAngiogramPulmonaryArtery1stStudy"
+    ],
+    [
+      "imagingAreaExt-CTAPA2",
+      "current",
+      "CTAPA2",
+      "Angiogram Pulmonary Artery (2nd Study)",
+      "ctScanImagingArea-CTAngiogramPulmonaryArtery2ndStudy"
+    ],
+    [
+      "imagingAreaExt-CTAPV1",
+      "current",
+      "CTAPV1",
+      "Angiogram Pulmonary Vein (1st Study)",
+      "ctScanImagingArea-CTAngiogramPulmonaryVein1stStudy"
+    ],
+    [
+      "imagingAreaExt-CTAPV2",
+      "current",
+      "CTAPV2",
+      "Angiogram Pulmonary Vein (2nd Study)",
+      "ctScanImagingArea-CTAngiogramPulmonaryVein2ndStudy"
+    ],
+    [
+      "imagingAreaExt-CTAR1",
+      "current",
+      "CTAR1",
+      "Angiogram Renal (1st Study)",
+      "ctScanImagingArea-CTAngiogramRenal1stStudy"
+    ],
+    [
+      "imagingAreaExt-CTAR2",
+      "current",
+      "CTAR2",
+      "Angiogram Renal (2nd Study)",
+      "ctScanImagingArea-CTAngiogramRenal2ndStudy"
+    ],
+    [
+      "imagingAreaExt-CTASO1",
+      "current",
+      "CTASO1",
+      "Angiogram Selective Other (1st Study)",
+      "ctScanImagingArea-CTAngiogramSelectiveOther1stStudy"
+    ],
+    [
+      "imagingAreaExt-CTASO2",
+      "current",
+      "CTASO2",
+      "Angiogram Selective Other (2nd Study)",
+      "ctScanImagingArea-CTAngiogramSelectiveOther2ndStudy"
+    ],
+    [
+      "imagingAreaExt-CTAS1",
+      "current",
+      "CTAS1",
+      "Angiogram Subclavian (1st Study)",
+      "ctScanImagingArea-CTAngiogramSubclavian1stStudy"
+    ],
+    [
+      "imagingAreaExt-CTAS2",
+      "current",
+      "CTAS2",
+      "Angiogram Subclavian (2nd Study)",
+      "ctScanImagingArea-CTAngiogramSubclavian2ndStudy"
+    ],
+    [
+      "imagingAreaExt-CTATA1",
+      "current",
+      "CTATA1",
+      "Angiogram Thoracic Aorta (1st Study)",
+      "ctScanImagingArea-CTAngiogramThoracicAorta1stStudy"
+    ],
+    [
+      "imagingAreaExt-CTATA2",
+      "current",
+      "CTATA2",
+      "Angiogram Thoracic Aorta (2nd Study)",
+      "ctScanImagingArea-CTAngiogramThoracicAorta2ndStudy"
+    ],
+    [
+      "imagingAreaExt-CTAJ",
+      "current",
+      "CTAJ",
+      "Arthrogram of Joint",
+      "ctScanImagingArea-CTArthrogramofJoint"
+    ],
+    [
+      "imagingAreaExt-CTBA",
+      "current",
+      "CTBA",
+      "Biopsy - Adrenal ",
+      "ctScanImagingArea-CTBiopsy-Adrenal"
+    ],
+    [
+      "imagingAreaExt-CTBDO",
+      "current",
+      "CTBDO",
+      "Biopsy - Deep Organ (other)",
+      "ctScanImagingArea-CTBiopsy-DeepOrganother"
+    ],
+    [
+      "imagingAreaExt-CTBLIV",
+      "current",
+      "CTBLIV",
+      "Biopsy - Liver",
+      "ctScanImagingArea-CTBiopsy-Liver"
+    ],
+    [
+      "imagingAreaExt-CTBL",
+      "current",
+      "CTBL",
+      "Biopsy - Lung",
+      "ctScanImagingArea-CTBiopsy-Lung"
+    ],
+    [
+      "imagingAreaExt-CTBLN",
+      "current",
+      "CTBLN",
+      "Biopsy - Lymph Node",
+      "ctScanImagingArea-CTBiopsy-LymphNode"
+    ],
+    [
+      "imagingAreaExt-CTBP",
+      "current",
+      "CTBP",
+      "Biopsy - Pancreas",
+      "ctScanImagingArea-CTBiopsy-Pancreas"
+    ],
+    [
+      "imagingAreaExt-CTBR",
+      "current",
+      "CTBR",
+      "Biopsy - Renal",
+      "ctScanImagingArea-CTBiopsy-Renal"
+    ],
+    [
+      "imagingAreaExt-CTBV",
+      "current",
+      "CTBV",
+      "Biopsy - Vertebra",
+      "ctScanImagingArea-CTBiopsy-Vertebra"
+    ],
+    [
+      "imagingAreaExt-CTBN",
+      "current",
+      "CTBN",
+      "Brain (non IV contrast)",
+      "ctScanImagingArea-CTBrainnonIVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTBCN",
+      "current",
+      "CTBCN",
+      "Brain+Chest (+/- abdomen) non-IV contrast",
+      "ctScanImagingArea-CTBrainChest-abdomennon-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTBCC",
+      "current",
+      "CTBCC",
+      "Brain and Chest  (+/- abdomen) post-contrast",
+      "ctScanImagingArea-CTBrainandChest-abdomenpost-contrast"
+    ],
+    [
+      "imagingAreaExt-CTBFN",
+      "current",
+      "CTBFN",
+      "Brain and Face non IV contrast",
+      "ctScanImagingArea-CTBrainandFacenonIVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTBFC",
+      "current",
+      "CTBFC",
+      "Brain and Face post IV contrast",
+      "ctScanImagingArea-CTBrainandFacepostIVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTBP1",
+      "current",
+      "CTBP1",
+      "Brain Perfusion (1st Study)",
+      "ctScanImagingArea-CTBrainPerfusion1stStudy"
+    ],
+    [
+      "imagingAreaExt-CTBP2",
+      "current",
+      "CTBP2",
+      "Brain Perfusion (2nd Study)",
+      "ctScanImagingArea-CTBrainPerfusion2ndStudy"
+    ],
+    [
+      "imagingAreaExt-CTBC",
+      "current",
+      "CTBC",
+      "Brain post - IV contrast",
+      "ctScanImagingArea-CTBrainpost-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTBNC",
+      "current",
+      "CTBNC",
+      "Brain pre / post IV contrast",
+      "ctScanImagingArea-CTBrainprepostIVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTCAPN",
+      "current",
+      "CTCAPN",
+      "Chest / Abdomen / Pelvis non-IV contrast",
+      "ctScanImagingArea-CTChestAbdomenPelvisnon-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTCAPC",
+      "current",
+      "CTCAPC",
+      "Chest / Abdomen / Pelvis post-IV contrast",
+      "ctScanImagingArea-CTChestAbdomenPelvispost-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTCAN",
+      "current",
+      "CTCAN",
+      "Chest / Upper Abdomen non-IV contrast",
+      "ctScanImagingArea-CTChestUpperAbdomennon-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTCAC",
+      "current",
+      "CTCAC",
+      "Chest / Upper Abdomen post-IV contrast",
+      "ctScanImagingArea-CTChestUpperAbdomenpost-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTCN",
+      "current",
+      "CTCN",
+      "Chest non- IV contrast",
+      "ctScanImagingArea-CTChestnon-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTCC",
+      "current",
+      "CTCC",
+      "Chest post- IV contrast",
+      "ctScanImagingArea-CTChestpost-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTCNC",
+      "current",
+      "CTCNC",
+      "Chest pre and post IV Contrast",
+      "ctScanImagingArea-CTChestpreandpostIVContrast"
+    ],
+    [
+      "imagingAreaExt-CTDATI",
+      "current",
+      "CTDATI",
+      "Drain Abscess/collection +/- Tube Insertion",
+      "ctScanImagingArea-CTDrainAbscesscollection-TubeInsertion"
+    ],
+    [
+      "imagingAreaExt-CTDAC",
+      "current",
+      "CTDAC",
+      "Drain Abscess/collection - Tube Change",
+      "ctScanImagingArea-CTDrainAbscesscollection-TubeChange"
+    ],
+    [
+      "imagingAreaExt-CTDITI",
+      "current",
+      "CTDITI",
+      "Drain - Intercostal - Tube Insertion",
+      "ctScanImagingArea-CTDrain-Intercostal-TubeInsertion"
+    ],
+    [
+      "imagingAreaExt-CTDITP",
+      "current",
+      "CTDITP",
+      "Drain - Intercostal - Tube Insertion+Pluerodesis",
+      "ctScanImagingArea-CTDrain-Intercostal-TubeInsertionPluerodesis"
+    ],
+    [
+      "imagingAreaExt-CTDPTI",
+      "current",
+      "CTDPTI",
+      "Drain - Pancreas +/- Tube Insertion",
+      "ctScanImagingArea-CTDrain-Pancreas-TubeInsertion"
+    ],
+    [
+      "imagingAreaExt-CTDPTC",
+      "current",
+      "CTDPTC",
+      "Drain - Pancreas - Tube Change",
+      "ctScanImagingArea-CTDrain-Pancreas-TubeChange"
+    ],
+    [
+      "imagingAreaExt-CTEN",
+      "current",
+      "CTEN",
+      "Extremity non-IV contrast (excl. Knee only scans)",
+      "ctScanImagingArea-CTExtremitynon-IVcontrastexclKneeonlyscans"
+    ],
+    [
+      "imagingAreaExt-CTEC",
+      "current",
+      "CTEC",
+      "Extremity post-IV contrast +/- Pre (excl. Knee only scans)",
+      "ctScanImagingArea-CTExtremitypost-IVcontrast-PreexclKneeonlyscans"
+    ],
+    [
+      "imagingAreaExt-CTENC",
+      "current",
+      "CTENC",
+      "Extremity pre and post IV contrast",
+      "ctScanImagingArea-CTExtremitypreandpostIVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTFBN",
+      "current",
+      "CTFBN",
+      "Facial Bones non - IV contrast",
+      "ctScanImagingArea-CTFacialBonesnon-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTFBC",
+      "current",
+      "CTFBC",
+      "Facial Bones post - IV contrast",
+      "ctScanImagingArea-CTFacialBonespost-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTIAM",
+      "current",
+      "CTIAM",
+      "IAMs+/ - IV contrast",
+      "ctScanImagingArea-CTIAMs-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTI",
+      "current",
+      "CTI",
+      "Imaging guidance for interventional procedure ",
+      "ctScanImagingArea-CTImagingguidanceforinterventionalprocedure"
+    ],
+    [
+      "imagingAreaExt-CTICPB",
+      "current",
+      "CTICPB",
+      "Injection - Coeliac Plexus Block",
+      "ctScanImagingArea-CTInjection-CoeliacPlexusBlock"
+    ],
+    [
+      "imagingAreaExt-CTIE",
+      "current",
+      "CTIE",
+      "Injection - Epidural",
+      "ctScanImagingArea-CTInjection-Epidural"
+    ],
+    [
+      "imagingAreaExt-CTIFJ",
+      "current",
+      "CTIFJ",
+      "Injection - Facet Joint",
+      "ctScanImagingArea-CTInjection-FacetJoint"
+    ],
+    [
+      "imagingAreaExt-CTINR",
+      "current",
+      "CTINR",
+      "Injection - Nerve Root",
+      "ctScanImagingArea-CTInjection-NerveRoot"
+    ],
+    [
+      "imagingAreaExt-CTION",
+      "current",
+      "CTION",
+      "Injection - Occipital Nerve",
+      "ctScanImagingArea-CTInjection-OccipitalNerve"
+    ],
+    [
+      "imagingAreaExt-CTSJI",
+      "current",
+      "CTSJI",
+      "Injection - Synovial Joint",
+      "ctScanImagingArea-CTInjection-SynovialJoint"
+    ],
+    [
+      "imagingAreaExt-CTIVC",
+      "current",
+      "CTIVC",
+      "Intravenous Cholangiogram (Add CTAN also)",
+      "ctScanImagingArea-CTIntravenousCholangiogramAddCTANalso"
+    ],
+    [
+      "imagingAreaExt-CTKUB",
+      "current",
+      "CTKUB",
+      "KUB non-IV contrast",
+      "ctScanImagingArea-CTKUBnon-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTLL",
+      "current",
+      "CTLL",
+      "Leg Lengths",
+      "ctScanImagingArea-CTLegLengths"
+    ],
+    [
+      "imagingAreaExt-CTLP",
+      "current",
+      "CTLP",
+      "Lumbar Puncture",
+      "ctScanImagingArea-CTLumbarPuncture"
+    ],
+    [
+      "imagingAreaExt-CTNN",
+      "current",
+      "CTNN",
+      "Neck / larynx non-IV contrast",
+      "ctScanImagingArea-CTNecklarynxnon-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTNC",
+      "current",
+      "CTNC",
+      "Neck / Larynx post-IV contrast",
+      "ctScanImagingArea-CTNeckLarynxpost-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTNNC",
+      "current",
+      "CTNNC",
+      "Neck / Larynx pre and post IV contrast",
+      "ctScanImagingArea-CTNeckLarynxpreandpostIVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTNCAN",
+      "current",
+      "CTNCAN",
+      "Neck+Chest+Abdo +/- Pelvis Non-IV contrast",
+      "ctScanImagingArea-CTNeckChestAbdo-PelvisNon-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTNCAC",
+      "current",
+      "CTNCAC",
+      "Neck+Chest+Abdo +/- Pelvis post-IV contrast",
+      "ctScanImagingArea-CTNeckChestAbdo-Pelvispost-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTNTC",
+      "current",
+      "CTNTC",
+      "Nephrostomy Tube Change",
+      "ctScanImagingArea-CTNephrostomyTubeChange"
+    ],
+    [
+      "imagingAreaExt-CTNTI",
+      "current",
+      "CTNTI",
+      "Nephrostomy Tube Insertion",
+      "ctScanImagingArea-CTNephrostomyTubeInsertion"
+    ],
+    [
+      "imagingAreaExt-CTO",
+      "current",
+      "CTO",
+      "Orbits +/- Brain +/- IV Contrast",
+      "ctScanImagingArea-CTOrbits-Brain-IVContrast"
+    ],
+    [
+      "imagingAreaExt-CTON",
+      "current",
+      "CTON",
+      "Orbits non-IV contrast",
+      "ctScanImagingArea-CTOrbitsnon-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTP",
+      "current",
+      "CTP",
+      "Pelvimetry",
+      "ctScanImagingArea-CTPelvimetry"
+    ],
+    [
+      "imagingAreaExt-CTPN",
+      "current",
+      "CTPN",
+      "Pelvis non-IV contrast",
+      "ctScanImagingArea-CTPelvisnon-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTPC",
+      "current",
+      "CTPC",
+      "Pelvis post-IV contrast",
+      "ctScanImagingArea-CTPelvispost-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTPNC",
+      "current",
+      "CTPNC",
+      "Pelvis pre and post IV contrast",
+      "ctScanImagingArea-CTPelvispreandpostIVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTPF",
+      "current",
+      "CTPF",
+      "Pituitary Fossa +/- Brain +/- IV contrast",
+      "ctScanImagingArea-CTPituitaryFossa-Brain-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTPEA",
+      "current",
+      "CTPEA",
+      "Pleural Effusion Aspiration +/- Diagnostic",
+      "ctScanImagingArea-CTPleuralEffusionAspiration-Diagnostic"
+    ],
+    [
+      "imagingAreaExt-CTPED",
+      "current",
+      "CTPED",
+      "Pleural Effusion - Diagnostic only",
+      "ctScanImagingArea-CTPleuralEffusion-Diagnosticonly"
+    ],
+    [
+      "imagingAreaExt-CTPTB",
+      "current",
+      "CTPTB",
+      "PTBs / IAMs+Brain+/ - IV contrast",
+      "ctScanImagingArea-CTPTBsIAMsBrain-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTRFAO",
+      "current",
+      "CTRFAO",
+      "Radiofrequency Ablation - Abdomen - Other",
+      "ctScanImagingArea-CTRadiofrequencyAblation-Abdomen-Other"
+    ],
+    [
+      "imagingAreaExt-CTRFAL",
+      "current",
+      "CTRFAL",
+      "Radiofrequency Ablation - Liver (Includes imaging)",
+      "ctScanImagingArea-CTRadiofrequencyAblation-LiverIncludesimaging"
+    ],
+    [
+      "imagingAreaExt-CTRPAPN",
+      "current",
+      "CTRPAPN",
+      "Radiotherapy Planning -  Abdomen / Pelvis non-IV contrast",
+      "ctScanImagingArea-CTRadiotherapyPlanning-AbdomenPelvisnon-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTRPCAN",
+      "current",
+      "CTRPCAN",
+      "Radiotherapy Planning -  Chest +/- Upper Abdomen non-IV Contrast",
+      "ctScanImagingArea-CTRadiotherapyPlanning-Chest-UpperAbdomennon-IVContrast"
+    ],
+    [
+      "imagingAreaExt-CTRPNN",
+      "current",
+      "CTRPNN",
+      "Radiotherapy Planning -  Soft Tissues neck non-IV contrast",
+      "ctScanImagingArea-CTRadiotherapyPlanning-SoftTissuesnecknon-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTRPAN",
+      "current",
+      "CTRPAN",
+      "Radiotherapy Planning -  Upper Abdomen non-IV contrast",
+      "ctScanImagingArea-CTRadiotherapyPlanning-UpperAbdomennon-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTSBN",
+      "current",
+      "CTSBN",
+      "Sinuses+Brain non-IV contrast",
+      "ctScanImagingArea-CTSinusesBrainnon-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTSBC",
+      "current",
+      "CTSBC",
+      "Sinuses+Brain post -IV contrast",
+      "ctScanImagingArea-CTSinusesBrainpost-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTSN",
+      "current",
+      "CTSN",
+      "Sinuses non-IV contrast",
+      "ctScanImagingArea-CTSinusesnon-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTSC",
+      "current",
+      "CTSC",
+      "Sinuses post-IV contrast",
+      "ctScanImagingArea-CTSinusespost-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTSCLN",
+      "current",
+      "CTSCLN",
+      "Spine Cervical Lumbar non-IV contrast",
+      "ctScanImagingArea-CTSpineCervicalLumbarnon-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTSCLC",
+      "current",
+      "CTSCLC",
+      "Spine Cervical Lumbar post-IV contrast",
+      "ctScanImagingArea-CTSpineCervicalLumbarpost-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTSCM",
+      "current",
+      "CTSCM",
+      "Spine Cervical - Myelogram",
+      "ctScanImagingArea-CTSpineCervical-Myelogram"
+    ],
+    [
+      "imagingAreaExt-CTSCN",
+      "current",
+      "CTSCN",
+      "Spine Cervical non-IV contrast",
+      "ctScanImagingArea-CTSpineCervicalnon-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTSCC",
+      "current",
+      "CTSCC",
+      "Spine Cervical post-IV contrast",
+      "ctScanImagingArea-CTSpineCervicalpost-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTSCTLN",
+      "current",
+      "CTSCTLN",
+      "Spine Cervical Thoracic Lumbar non-IV contrast",
+      "ctScanImagingArea-CTSpineCervicalThoracicLumbarnon-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTSCTLC",
+      "current",
+      "CTSCTLC",
+      "Spine Cervical Thoracic Lumbar post-IV contrast",
+      "ctScanImagingArea-CTSpineCervicalThoracicLumbarpost-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTSCTN",
+      "current",
+      "CTSCTN",
+      "Spine Cervical Thoracic non-IV contrast",
+      "ctScanImagingArea-CTSpineCervicalThoracicnon-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTSCTC",
+      "current",
+      "CTSCTC",
+      "Spine Cervical Thoracic post-IV contrast",
+      "ctScanImagingArea-CTSpineCervicalThoracicpost-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTSLM",
+      "current",
+      "CTSLM",
+      "Spine Lumbar - Myelogram",
+      "ctScanImagingArea-CTSpineLumbar-Myelogram"
+    ],
+    [
+      "imagingAreaExt-CTSLN",
+      "current",
+      "CTSLN",
+      "Spine Lumbar non-IV contrast",
+      "ctScanImagingArea-CTSpineLumbarnon-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTSLC",
+      "current",
+      "CTSLC",
+      "Spine Lumbar post-IV contrast",
+      "ctScanImagingArea-CTSpineLumbarpost-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTSMMR",
+      "current",
+      "CTSMMR",
+      "Spine - Myelogram - Multiple Region",
+      "ctScanImagingArea-CTSpine-Myelogram-MultipleRegion"
+    ],
+    [
+      "imagingAreaExt-CTSTLN",
+      "current",
+      "CTSTLN",
+      "Spine Thoracic Lumbar non-IV contrast",
+      "ctScanImagingArea-CTSpineThoracicLumbarnon-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTSTLC",
+      "current",
+      "CTSTLC",
+      "Spine Thoracic Lumbar post-IV contrast",
+      "ctScanImagingArea-CTSpineThoracicLumbarpost-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTSTM",
+      "current",
+      "CTSTM",
+      "Spine Thoracic - Myelogram",
+      "ctScanImagingArea-CTSpineThoracic-Myelogram"
+    ],
+    [
+      "imagingAreaExt-CTSTN",
+      "current",
+      "CTSTN",
+      "Spine Thoracic non-IV contrast",
+      "ctScanImagingArea-CTSpineThoracicnon-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTSTC",
+      "current",
+      "CTSTC",
+      "Spine Thoracic post-IV contrast",
+      "ctScanImagingArea-CTSpineThoracicpost-IVcontrast"
+    ],
+    [
+      "imagingAreaExt-CTVP",
+      "current",
+      "CTVP",
+      "Vertebroplasty",
+      "ctScanImagingArea-CTVertebroplasty"
+    ],
+    [
+      "imagingAreaExt-CTVCCD",
+      "current",
+      "CTVCCD",
+      "Virtual Colonoscopy - Colon Disease (specialist referral)",
+      "ctScanImagingArea-CTVirtualColonoscopy-ColonDiseasespecialistreferral"
+    ],
+    [
+      "imagingAreaExt-CTVCFC",
+      "current",
+      "CTVCFC",
+      "Virtual Colonoscopy - Failed Colonoscopy (specialist referral)",
+      "ctScanImagingArea-CTVirtualColonoscopy-FailedColonoscopyspecialistreferral"
+    ],
+    [
+      "imagingAreaExt-CTVCN",
+      "current",
+      "CTVCN",
+      "Virtual Colonoscopy - non-IV contrast (GP Referral)",
+      "ctScanImagingArea-CTVirtualColonoscopy-non-IVcontrastGPReferral"
+    ],
+    [
+      "imagingAreaExt-CTVCC",
+      "current",
+      "CTVCC",
+      "Virtual Colonoscopy - post-IV contrast (GP Referral)",
+      "ctScanImagingArea-CTVirtualColonoscopy-post-IVcontrastGPReferral"
+    ],
+    [
+      "imagingAreaExt-CTIVP",
+      "current",
+      "CTIVP",
+      "Intravenous Pyelogram",
+      "ctScanImagingArea-IntravenousPyelogram"
+    ],
+    [
+      "imagingAreaExt-FPTC",
+      "current",
+      "FPTC",
+      "Percutaneous Transhepatic Cholangiogram",
+      "ctScanImagingArea-PercutaneousTranshepaticCholangiogram"
+    ],
+    [
+      "imagingAreaExt-MC",
+      "current",
+      "MC",
+      "Mobile - Chest",
+      "MRIScanImagingArea-MobileChest"
+    ],
+    [
+      "imagingAreaExt-MRAP",
+      "current",
+      "MRAP",
+      "Abdomen",
+      "MRIScanImagingArea-MRAbdomen"
+    ],
+    [
+      "imagingAreaExt-MRAPAM",
+      "current",
+      "MRAPAM",
+      "Abdomen (adrenal mass)",
+      "MRIScanImagingArea-MRAbdomenadrenalmass"
+    ],
+    [
+      "imagingAreaExt-MRAPCCS",
+      "current",
+      "MRAPCCS",
+      "Abdomen and Pelvis (cervical cancer staging)",
+      "MRIScanImagingArea-MRAbdomenandPelviscervicalcancerstaging"
+    ],
+    [
+      "imagingAreaExt-MRANAES",
+      "current",
+      "MRANAES",
+      "Anaesthetic",
+      "MRIScanImagingArea-MRAnaesthetic"
+    ],
+    [
+      "imagingAreaExt-MRAII",
+      "current",
+      "MRAII",
+      "Angiogram (iodine allergy)",
+      "MRIScanImagingArea-MRAngiogramiodineallergy"
+    ],
+    [
+      "imagingAreaExt-MRACCD",
+      "current",
+      "MRACCD",
+      "Angiogram Cardiac (congenital disease)",
+      "MRIScanImagingArea-MRAngiogramCardiaccongenitaldisease"
+    ],
+    [
+      "imagingAreaExt-MRACT",
+      "current",
+      "MRACT",
+      "Angiogram Cardiac (tumour)",
+      "MRIScanImagingArea-MRAngiogramCardiactumour"
+    ],
+    [
+      "imagingAreaExt-MRAHN",
+      "current",
+      "MRAHN",
+      "Angiogram Head and/or Neck (stroke)",
+      "MRIScanImagingArea-MRAngiogramHeadandorNeckstroke"
+    ],
+    [
+      "imagingAreaExt-MRATA",
+      "current",
+      "MRATA",
+      "Angiogram Thoracic Aorta",
+      "MRIScanImagingArea-MRAngiogramThoracicAorta"
+    ],
+    [
+      "imagingAreaExt-MRAL",
+      "current",
+      "MRAL",
+      "Ankle - Left",
+      "MRIScanImagingArea-MRAnkleLeft"
+    ],
+    [
+      "imagingAreaExt-MRAR",
+      "current",
+      "MRAR",
+      "Ankle - Right",
+      "MRIScanImagingArea-MRAnkleRight"
+    ],
+    [
+      "imagingAreaExt-MRBAN",
+      "current",
+      "MRBAN",
+      "Brain (acoustic neuroma)",
+      "MRIScanImagingArea-MRBrainacousticneuroma"
+    ],
+    [
+      "imagingAreaExt-MRBA",
+      "current",
+      "MRBA",
+      "Brain (aneurysm)",
+      "MRIScanImagingArea-MRBrainaneurysm"
+    ],
+    [
+      "imagingAreaExt-MRBAVM",
+      "current",
+      "MRBAVM",
+      "Brain (arterio-venous malformation)",
+      "MRIScanImagingArea-MRBrainarteriovenousmalformation"
+    ],
+    [
+      "imagingAreaExt-MRBCVAD",
+      "current",
+      "MRBCVAD",
+      "Brain (carotid/vertebral artery dissection)",
+      "MRIScanImagingArea-MRBraincarotidvertebralarterydissection"
+    ],
+    [
+      "imagingAreaExt-MRBCM",
+      "current",
+      "MRBCM",
+      "Brain (congenital malformation)",
+      "MRIScanImagingArea-MRBraincongenitalmalformation"
+    ],
+    [
+      "imagingAreaExt-MRBDD",
+      "current",
+      "MRBDD",
+      "Brain (demyelinating disease)",
+      "MRIScanImagingArea-MRBraindemyelinatingdisease"
+    ],
+    [
+      "imagingAreaExt-MRBE",
+      "current",
+      "MRBE",
+      "Brain (epilepsy)",
+      "MRIScanImagingArea-MRBrainepilepsy"
+    ],
+    [
+      "imagingAreaExt-MRBHT",
+      "current",
+      "MRBHT",
+      "Brain (head trauma)",
+      "MRIScanImagingArea-MRBrainheadtrauma"
+    ],
+    [
+      "imagingAreaExt-MRBPT",
+      "current",
+      "MRBPT",
+      "Brain (pituitary tumour)",
+      "MRIScanImagingArea-MRBrainpituitarytumour"
+    ],
+    [
+      "imagingAreaExt-MRBS",
+      "current",
+      "MRBS",
+      "Brain (stroke)",
+      "MRIScanImagingArea-MRBrainstroke"
+    ],
+    [
+      "imagingAreaExt-MRBTMIE",
+      "current",
+      "MRBTMIE",
+      "Brain (toxic/metabolic/ishaemic encephalopathy)",
+      "MRIScanImagingArea-MRBraintoxicmetabolicishaemicencephalopathy"
+    ],
+    [
+      "imagingAreaExt-MRBVST",
+      "current",
+      "MRBVST",
+      "Brain (venous sinus thrombosis)",
+      "MRIScanImagingArea-MRBrainvenoussinusthrombosis"
+    ],
+    [
+      "imagingAreaExt-MRBSCCM",
+      "current",
+      "MRBSCCM",
+      "Brain + Cervical Spine (congenital malformation)",
+      "MRIScanImagingArea-MRBrainCervicalSpinecongenitalmalformation"
+    ],
+    [
+      "imagingAreaExt-MRBSCDD",
+      "current",
+      "MRBSCDD",
+      "Brain + Cervical Spine (demyelinating disease)",
+      "MRIScanImagingArea-MRBrainCervicalSpinedemyelinatingdisease"
+    ],
+    [
+      "imagingAreaExt-MRBSCI",
+      "current",
+      "MRBSCI",
+      "Brain + Cervical Spine (inflammation)",
+      "MRIScanImagingArea-MRBrainCervicalSpineinflammation"
+    ],
+    [
+      "imagingAreaExt-MRBSCS",
+      "current",
+      "MRBSCS",
+      "Brain + Cervical Spine (syrinx)",
+      "MRIScanImagingArea-MRBrainCervicalSpinesyrinx"
+    ],
+    [
+      "imagingAreaExt-MRBSCT",
+      "current",
+      "MRBSCT",
+      "Brain + Cervical Spine (tumour)",
+      "MRIScanImagingArea-MRBrainCervicalSpinetumour"
+    ],
+    [
+      "imagingAreaExt-MRB1",
+      "current",
+      "MRB1",
+      "Breasts (1st study)",
+      "MRIScanImagingArea-MRBreasts1ststudy"
+    ],
+    [
+      "imagingAreaExt-MRB2",
+      "current",
+      "MRB2",
+      "Breasts (2nd study)",
+      "MRIScanImagingArea-MRBreasts2ndstudy"
+    ],
+    [
+      "imagingAreaExt-MRCP",
+      "current",
+      "MRCP",
+      "Cholangiogram",
+      "MRIScanImagingArea-MRCholangiogram"
+    ],
+    [
+      "imagingAreaExt-MRCON1",
+      "current",
+      "MRCON1",
+      "Consultation by Radiologist - 1st attendance",
+      "MRIScanImagingArea-MRConsultationbyRadiologist1stattendance"
+    ],
+    [
+      "imagingAreaExt-MRCON2",
+      "current",
+      "MRCON2",
+      "Consultation by Radiologist - subsequent attendance",
+      "MRIScanImagingArea-MRConsultationbyRadiologistsubsequentattendance"
+    ],
+    [
+      "imagingAreaExt-MRGAD",
+      "current",
+      "MRGAD",
+      "Contrast",
+      "MRIScanImagingArea-MRContrast"
+    ],
+    [
+      "imagingAreaExt-MREL",
+      "current",
+      "MREL",
+      "Elbow - Left",
+      "MRIScanImagingArea-MRElbowLeft"
+    ],
+    [
+      "imagingAreaExt-MRER",
+      "current",
+      "MRER",
+      "Elbow - Right",
+      "MRIScanImagingArea-MRElbowRight"
+    ],
+    [
+      "imagingAreaExt-MREXLGD",
+      "current",
+      "MREXLGD",
+      "Extremity Lower (gaucher disease)",
+      "MRIScanImagingArea-MRExtremityLowergaucherdisease"
+    ],
+    [
+      "imagingAreaExt-MREXLI",
+      "current",
+      "MREXLI",
+      "Extremity Lower (infection)",
+      "MRIScanImagingArea-MRExtremityLowerinfection"
+    ],
+    [
+      "imagingAreaExt-MREXLO",
+      "current",
+      "MREXLO",
+      "Extremity Lower (osteonecrosis)",
+      "MRIScanImagingArea-MRExtremityLowerosteonecrosis"
+    ],
+    [
+      "imagingAreaExt-MREXLT",
+      "current",
+      "MREXLT",
+      "Extremity Lower (tumour)",
+      "MRIScanImagingArea-MRExtremityLowertumour"
+    ],
+    [
+      "imagingAreaExt-MREXUGD",
+      "current",
+      "MREXUGD",
+      "Extremity Upper (gaucher disease)",
+      "MRIScanImagingArea-MRExtremityUppergaucherdisease"
+    ],
+    [
+      "imagingAreaExt-MREXUI",
+      "current",
+      "MREXUI",
+      "Extremity Upper (infection)",
+      "MRIScanImagingArea-MRExtremityUpperinfection"
+    ],
+    [
+      "imagingAreaExt-MREXUO",
+      "current",
+      "MREXUO",
+      "Extremity Upper (osteonecrosis)",
+      "MRIScanImagingArea-MRExtremityUpperosteonecrosis"
+    ],
+    [
+      "imagingAreaExt-MREXUT",
+      "current",
+      "MREXUT",
+      "Extremity Upper (tumour)",
+      "MRIScanImagingArea-MRExtremityUppertumour"
+    ],
+    [
+      "imagingAreaExt-MRFL",
+      "current",
+      "MRFL",
+      "Foot - Left",
+      "MRIScanImagingArea-MRFootLeft"
+    ],
+    [
+      "imagingAreaExt-MRFR",
+      "current",
+      "MRFR",
+      "Foot - Right",
+      "MRIScanImagingArea-MRFootRight"
+    ],
+    [
+      "imagingAreaExt-MRHAL",
+      "current",
+      "MRHAL",
+      "Hand - Left",
+      "MRIScanImagingArea-MRHandLeft"
+    ],
+    [
+      "imagingAreaExt-MRHAR",
+      "current",
+      "MRHAR",
+      "Hand - Right",
+      "MRIScanImagingArea-MRHandRight"
+    ],
+    [
+      "imagingAreaExt-MRHL",
+      "current",
+      "MRHL",
+      "Hip - Left",
+      "MRIScanImagingArea-MRHipLeft"
+    ],
+    [
+      "imagingAreaExt-MRHR",
+      "current",
+      "MRHR",
+      "Hip - Right",
+      "MRIScanImagingArea-MRHipRight"
+    ],
+    [
+      "imagingAreaExt-MRKL",
+      "current",
+      "MRKL",
+      "Knee - Left",
+      "MRIScanImagingArea-MRKneeLeft"
+    ],
+    [
+      "imagingAreaExt-MRKR",
+      "current",
+      "MRKR",
+      "Knee - Right",
+      "MRIScanImagingArea-MRKneeRight"
+    ],
+    [
+      "imagingAreaExt-MRBO",
+      "current",
+      "MRBO",
+      "Orbits (tumour of orbit)",
+      "MRIScanImagingArea-MROrbitstumouroforbit"
+    ],
+    [
+      "imagingAreaExt-MRPAL",
+      "current",
+      "MRPAL",
+      "Paediatric Angiogram Limbs",
+      "MRIScanImagingArea-MRPaediatricAngiogramLimbs"
+    ],
+    [
+      "imagingAreaExt-MRPEXLGD",
+      "current",
+      "MRPEXLGD",
+      "Paediatric Extremity Lower (gaucher disease)",
+      "MRIScanImagingArea-MRPaediatricExtremityLowergaucherdisease"
+    ],
+    [
+      "imagingAreaExt-MRPEXLPP",
+      "current",
+      "MRPEXLPP",
+      "Paediatric Extremity Lower (physeal fusion)",
+      "MRIScanImagingArea-MRPaediatricExtremityLowerphysealfusion"
+    ],
+    [
+      "imagingAreaExt-MRPEXUGD",
+      "current",
+      "MRPEXUGD",
+      "Paediatric Extremity Upper (gaucher disease)",
+      "MRIScanImagingArea-MRPaediatricExtremityUppergaucherdisease"
+    ],
+    [
+      "imagingAreaExt-MRPEXUPP",
+      "current",
+      "MRPEXUPP",
+      "Paediatric Extremity Upper (physeal fusion)",
+      "MRIScanImagingArea-MRPaediatricExtremityUpperphysealfusion"
+    ],
+    [
+      "imagingAreaExt-MRPM",
+      "current",
+      "MRPM",
+      "Paediatric Mediastinum",
+      "MRIScanImagingArea-MRPaediatricMediastinum"
+    ],
+    [
+      "imagingAreaExt-MRPAPM",
+      "current",
+      "MRPAPM",
+      "Peadiatric Abdomen/Pelvis (abdominal or pelvic mass)",
+      "MRIScanImagingArea-MRPeadiatricAbdomenPelvisabdominalorpelvicmass"
+    ],
+    [
+      "imagingAreaExt-MRPAPCA",
+      "current",
+      "MRPAPCA",
+      "Peadiatric Abdomen/Pelvis (congenital uterine or anorectal abnormality)",
+      "MRIScanImagingArea-MRPeadiatricAbdomenPelviscongenitaluterineoranorectalabnormality"
+    ],
+    [
+      "imagingAreaExt-MRP",
+      "current",
+      "MRP",
+      "Pelvis",
+      "MRIScanImagingArea-MRPelvis"
+    ],
+    [
+      "imagingAreaExt-MRPCCS",
+      "current",
+      "MRPCCS",
+      "Pelvis (cervical cancer staging)",
+      "MRIScanImagingArea-MRPelviscervicalcancerstaging"
+    ],
+    [
+      "imagingAreaExt-MRPRCS",
+      "current",
+      "MRPRCS",
+      "Pelvis (rectal cancer staging)",
+      "MRIScanImagingArea-MRPelvisrectalcancerstaging"
+    ],
+    [
+      "imagingAreaExt-MRSED",
+      "current",
+      "MRSED",
+      "Sedation",
+      "MRIScanImagingArea-MRSedation"
+    ],
+    [
+      "imagingAreaExt-MRSL",
+      "current",
+      "MRSL",
+      "Shoulder - Left",
+      "MRIScanImagingArea-MRShoulderLeft"
+    ],
+    [
+      "imagingAreaExt-MRSR",
+      "current",
+      "MRSR",
+      "Shoulder - Right",
+      "MRIScanImagingArea-MRShoulderRight"
+    ],
+    [
+      "imagingAreaExt-MRSCCR",
+      "current",
+      "MRSCCR",
+      "Spine Cervical (cervical radiculopathy)",
+      "MRIScanImagingArea-MRSpineCervicalcervicalradiculopathy"
+    ],
+    [
+      "imagingAreaExt-MRSCCM",
+      "current",
+      "MRSCCM",
+      "Spine Cervical (congenital malformation)",
+      "MRIScanImagingArea-MRSpineCervicalcongenitalmalformation"
+    ],
+    [
+      "imagingAreaExt-MRSCDD",
+      "current",
+      "MRSCDD",
+      "Spine Cervical (demyelinating disease)",
+      "MRIScanImagingArea-MRSpineCervicaldemyelinatingdisease"
+    ],
+    [
+      "imagingAreaExt-MRSCI",
+      "current",
+      "MRSCI",
+      "Spine Cervical (infection)",
+      "MRIScanImagingArea-MRSpineCervicalinfection"
+    ],
+    [
+      "imagingAreaExt-MRSCM",
+      "current",
+      "MRSCM",
+      "Spine Cervical (myelopathy)",
+      "MRIScanImagingArea-MRSpineCervicalmyelopathy"
+    ],
+    [
+      "imagingAreaExt-MRSCPSS",
+      "current",
+      "MRSCPSS",
+      "Spine Cervical (previous spinal surgery)",
+      "MRIScanImagingArea-MRSpineCervicalpreviousspinalsurgery"
+    ],
+    [
+      "imagingAreaExt-MRSCSCS",
+      "current",
+      "MRSCSCS",
+      "Spine Cervical (spinal canal stenosis)",
+      "MRIScanImagingArea-MRSpineCervicalspinalcanalstenosis"
+    ],
+    [
+      "imagingAreaExt-MRSCS",
+      "current",
+      "MRSCS",
+      "Spine Cervical (syrinx)",
+      "MRIScanImagingArea-MRSpineCervicalsyrinx"
+    ],
+    [
+      "imagingAreaExt-MRSCTR",
+      "current",
+      "MRSCTR",
+      "Spine Cervical (trauma)",
+      "MRIScanImagingArea-MRSpineCervicaltrauma"
+    ],
+    [
+      "imagingAreaExt-MRSCT",
+      "current",
+      "MRSCT",
+      "Spine Cervical (tumour)",
+      "MRIScanImagingArea-MRSpineCervicaltumour"
+    ],
+    [
+      "imagingAreaExt-MRSCBPPS",
+      "current",
+      "MRSCBPPS",
+      "Spine Cervical + Brachial Plexus (previous surgery)",
+      "MRIScanImagingArea-MRSpineCervicalBrachialPlexusprevioussurgery"
+    ],
+    [
+      "imagingAreaExt-MRSCBPTR",
+      "current",
+      "MRSCBPTR",
+      "Spine Cervical + Brachial Plexus (trauma)",
+      "MRIScanImagingArea-MRSpineCervicalBrachialPlexustrauma"
+    ],
+    [
+      "imagingAreaExt-MRSCBPT",
+      "current",
+      "MRSCBPT",
+      "Spine Cervical + Brachial Plexus (tumour)",
+      "MRIScanImagingArea-MRSpineCervicalBrachialPlexustumour"
+    ],
+    [
+      "imagingAreaExt-MRSCLCR",
+      "current",
+      "MRSCLCR",
+      "Spine Cervical Lumbar (cervical radiculopathy)",
+      "MRIScanImagingArea-MRSpineCervicalLumbarcervicalradiculopathy"
+    ],
+    [
+      "imagingAreaExt-MRSCLCM",
+      "current",
+      "MRSCLCM",
+      "Spine Cervical Lumbar (congenital malformation)",
+      "MRIScanImagingArea-MRSpineCervicalLumbarcongenitalmalformation"
+    ],
+    [
+      "imagingAreaExt-MRSCLDD",
+      "current",
+      "MRSCLDD",
+      "Spine Cervical Lumbar (demyelinating disease)",
+      "MRIScanImagingArea-MRSpineCervicalLumbardemyelinatingdisease"
+    ],
+    [
+      "imagingAreaExt-MRSCLI",
+      "current",
+      "MRSCLI",
+      "Spine Cervical Lumbar (infection)",
+      "MRIScanImagingArea-MRSpineCervicalLumbarinfection"
+    ],
+    [
+      "imagingAreaExt-MRSCLM",
+      "current",
+      "MRSCLM",
+      "Spine Cervical Lumbar (myelopathy)",
+      "MRIScanImagingArea-MRSpineCervicalLumbarmyelopathy"
+    ],
+    [
+      "imagingAreaExt-MRSCLPSS",
+      "current",
+      "MRSCLPSS",
+      "Spine Cervical Lumbar (previous spinal surgery)",
+      "MRIScanImagingArea-MRSpineCervicalLumbarpreviousspinalsurgery"
+    ],
+    [
+      "imagingAreaExt-MRSCLSC",
+      "current",
+      "MRSCLSC",
+      "Spine Cervical Lumbar (sciatica)",
+      "MRIScanImagingArea-MRSpineCervicalLumbarsciatica"
+    ],
+    [
+      "imagingAreaExt-MRSCLSCS",
+      "current",
+      "MRSCLSCS",
+      "Spine Cervical Lumbar (spinal canal stenosis)",
+      "MRIScanImagingArea-MRSpineCervicalLumbarspinalcanalstenosis"
+    ],
+    [
+      "imagingAreaExt-MRSCLS",
+      "current",
+      "MRSCLS",
+      "Spine Cervical Lumbar (syrinx)",
+      "MRIScanImagingArea-MRSpineCervicalLumbarsyrinx"
+    ],
+    [
+      "imagingAreaExt-MRSCLTR",
+      "current",
+      "MRSCLTR",
+      "Spine Cervical Lumbar (trauma)",
+      "MRIScanImagingArea-MRSpineCervicalLumbartrauma"
+    ],
+    [
+      "imagingAreaExt-MRSCLT",
+      "current",
+      "MRSCLT",
+      "Spine Cervical Lumbar (tumour)",
+      "MRIScanImagingArea-MRSpineCervicalLumbartumour"
+    ],
+    [
+      "imagingAreaExt-MRSCTCR",
+      "current",
+      "MRSCTCR",
+      "Spine Cervical Thoracic (cervical radiculopathy)",
+      "MRIScanImagingArea-MRSpineCervicalThoraciccervicalradiculopathy"
+    ],
+    [
+      "imagingAreaExt-MRSCTCM",
+      "current",
+      "MRSCTCM",
+      "Spine Cervical Thoracic (congenital malformation)",
+      "MRIScanImagingArea-MRSpineCervicalThoraciccongenitalmalformation"
+    ],
+    [
+      "imagingAreaExt-MRSCTDD",
+      "current",
+      "MRSCTDD",
+      "Spine Cervical Thoracic (demyelinating disease)",
+      "MRIScanImagingArea-MRSpineCervicalThoracicdemyelinatingdisease"
+    ],
+    [
+      "imagingAreaExt-MRSCTI",
+      "current",
+      "MRSCTI",
+      "Spine Cervical Thoracic (infection)",
+      "MRIScanImagingArea-MRSpineCervicalThoracicinfection"
+    ],
+    [
+      "imagingAreaExt-MRSCTM",
+      "current",
+      "MRSCTM",
+      "Spine Cervical Thoracic (myelopathy)",
+      "MRIScanImagingArea-MRSpineCervicalThoracicmyelopathy"
+    ],
+    [
+      "imagingAreaExt-MRSCTPSS",
+      "current",
+      "MRSCTPSS",
+      "Spine Cervical Thoracic (previous spinal surgery)",
+      "MRIScanImagingArea-MRSpineCervicalThoracicpreviousspinalsurgery"
+    ],
+    [
+      "imagingAreaExt-MRSCTSCS",
+      "current",
+      "MRSCTSCS",
+      "Spine Cervical Thoracic (spinal canal stenosis)",
+      "MRIScanImagingArea-MRSpineCervicalThoracicspinalcanalstenosis"
+    ],
+    [
+      "imagingAreaExt-MRSCTS",
+      "current",
+      "MRSCTS",
+      "Spine Cervical Thoracic (syrinx)",
+      "MRIScanImagingArea-MRSpineCervicalThoracicsyrinx"
+    ],
+    [
+      "imagingAreaExt-MRSCTTR",
+      "current",
+      "MRSCTTR",
+      "Spine Cervical Thoracic (trauma)",
+      "MRIScanImagingArea-MRSpineCervicalThoracictrauma"
+    ],
+    [
+      "imagingAreaExt-MRSCTT",
+      "current",
+      "MRSCTT",
+      "Spine Cervical Thoracic (tumour)",
+      "MRIScanImagingArea-MRSpineCervicalThoracictumour"
+    ],
+    [
+      "imagingAreaExt-MRSCTLCR",
+      "current",
+      "MRSCTLCR",
+      "Spine Cervical Thoracic Lumbar (cervical radiculopathy)",
+      "MRIScanImagingArea-MRSpineCervicalThoracicLumbarcervicalradiculopathy"
+    ],
+    [
+      "imagingAreaExt-MRSCTLCM",
+      "current",
+      "MRSCTLCM",
+      "Spine Cervical Thoracic Lumbar (congenital malformation)",
+      "MRIScanImagingArea-MRSpineCervicalThoracicLumbarcongenitalmalformation"
+    ],
+    [
+      "imagingAreaExt-MRSCTLDD",
+      "current",
+      "MRSCTLDD",
+      "Spine Cervical Thoracic Lumbar (demyelinating disease)",
+      "MRIScanImagingArea-MRSpineCervicalThoracicLumbardemyelinatingdisease"
+    ],
+    [
+      "imagingAreaExt-MRSCTLI",
+      "current",
+      "MRSCTLI",
+      "Spine Cervical Thoracic Lumbar (infection)",
+      "MRIScanImagingArea-MRSpineCervicalThoracicLumbarinfection"
+    ],
+    [
+      "imagingAreaExt-MRSCTLM",
+      "current",
+      "MRSCTLM",
+      "Spine Cervical Thoracic Lumbar (myelopathy)",
+      "MRIScanImagingArea-MRSpineCervicalThoracicLumbarmyelopathy"
+    ],
+    [
+      "imagingAreaExt-MRSCTLPSS",
+      "current",
+      "MRSCTLPSS",
+      "Spine Cervical Thoracic Lumbar (previous spinal surgery)",
+      "MRIScanImagingArea-MRSpineCervicalThoracicLumbarpreviousspinalsurgery"
+    ],
+    [
+      "imagingAreaExt-MRSCTLSC",
+      "current",
+      "MRSCTLSC",
+      "Spine Cervical Thoracic Lumbar (sciatica)",
+      "MRIScanImagingArea-MRSpineCervicalThoracicLumbarsciatica"
+    ],
+    [
+      "imagingAreaExt-MRSCTLSCS",
+      "current",
+      "MRSCTLSCS",
+      "Spine Cervical Thoracic Lumbar (spinal canal stenosis)",
+      "MRIScanImagingArea-MRSpineCervicalThoracicLumbarspinalcanalstenosis"
+    ],
+    [
+      "imagingAreaExt-MRSCTLS",
+      "current",
+      "MRSCTLS",
+      "Spine Cervical Thoracic Lumbar (syrinx)",
+      "MRIScanImagingArea-MRSpineCervicalThoracicLumbarsyrinx"
+    ],
+    [
+      "imagingAreaExt-MRSCTLTR",
+      "current",
+      "MRSCTLTR",
+      "Spine Cervical Thoracic Lumbar (trauma)",
+      "MRIScanImagingArea-MRSpineCervicalThoracicLumbartrauma"
+    ],
+    [
+      "imagingAreaExt-MRSCTLT",
+      "current",
+      "MRSCTLT",
+      "Spine Cervical Thoracic Lumbar (tumour)",
+      "MRIScanImagingArea-MRSpineCervicalThoracicLumbartumour"
+    ],
+    [
+      "imagingAreaExt-MRSLCM",
+      "current",
+      "MRSLCM",
+      "Spine Lumbar (congenital malformation)",
+      "MRIScanImagingArea-MRSpineLumbarcongenitalmalformation"
+    ],
+    [
+      "imagingAreaExt-MRSLDD",
+      "current",
+      "MRSLDD",
+      "Spine Lumbar (demyelinating disease)",
+      "MRIScanImagingArea-MRSpineLumbardemyelinatingdisease"
+    ],
+    [
+      "imagingAreaExt-MRSLI",
+      "current",
+      "MRSLI",
+      "Spine Lumbar (infection)",
+      "MRIScanImagingArea-MRSpineLumbarinfection"
+    ],
+    [
+      "imagingAreaExt-MRSLM",
+      "current",
+      "MRSLM",
+      "Spine Lumbar (myelopathy)",
+      "MRIScanImagingArea-MRSpineLumbarmyelopathy"
+    ],
+    [
+      "imagingAreaExt-MRSLPSS",
+      "current",
+      "MRSLPSS",
+      "Spine Lumbar (previous spinal surgery)",
+      "MRIScanImagingArea-MRSpineLumbarpreviousspinalsurgery"
+    ],
+    [
+      "imagingAreaExt-MRSLSC",
+      "current",
+      "MRSLSC",
+      "Spine Lumbar (sciatica)",
+      "MRIScanImagingArea-MRSpineLumbarsciatica"
+    ],
+    [
+      "imagingAreaExt-MRSLSCS",
+      "current",
+      "MRSLSCS",
+      "Spine Lumbar (spinal canal stenosis)",
+      "MRIScanImagingArea-MRSpineLumbarspinalcanalstenosis"
+    ],
+    [
+      "imagingAreaExt-MRSLS",
+      "current",
+      "MRSLS",
+      "Spine Lumbar (syrinx)",
+      "MRIScanImagingArea-MRSpineLumbarsyrinx"
+    ],
+    [
+      "imagingAreaExt-MRSLTR",
+      "current",
+      "MRSLTR",
+      "Spine Lumbar (trauma)",
+      "MRIScanImagingArea-MRSpineLumbartrauma"
+    ],
+    [
+      "imagingAreaExt-MRSLT",
+      "current",
+      "MRSLT",
+      "Spine Lumbar (tumour)",
+      "MRIScanImagingArea-MRSpineLumbartumour"
+    ],
+    [
+      "imagingAreaExt-MRSTCM",
+      "current",
+      "MRSTCM",
+      "Spine Thoracic (congenital malformation)",
+      "MRIScanImagingArea-MRSpineThoraciccongenitalmalformation"
+    ],
+    [
+      "imagingAreaExt-MRSTT",
+      "current",
+      "MRSTT",
+      "Spine Thoracic (tumour)",
+      "MRIScanImagingArea-MRSpineThoracictumour"
+    ],
+    [
+      "imagingAreaExt-MRSTLCM",
+      "current",
+      "MRSTLCM",
+      "Spine Thoracic Lumbar (congenital malformation)",
+      "MRIScanImagingArea-MRSpineThoracicLumbarcongenitalmalformation"
+    ],
+    [
+      "imagingAreaExt-MRSTLDD",
+      "current",
+      "MRSTLDD",
+      "Spine Thoracic Lumbar (demyelinating disease)",
+      "MRIScanImagingArea-MRSpineThoracicLumbardemyelinatingdisease"
+    ],
+    [
+      "imagingAreaExt-MRSTLM",
+      "current",
+      "MRSTLM",
+      "Spine Thoracic Lumbar (myelopathy)",
+      "MRIScanImagingArea-MRSpineThoracicLumbarmyelopathy"
+    ],
+    [
+      "imagingAreaExt-MRSTLPSS",
+      "current",
+      "MRSTLPSS",
+      "Spine Thoracic Lumbar (previous spinal surgery)",
+      "MRIScanImagingArea-MRSpineThoracicLumbarpreviousspinalsurgery"
+    ],
+    [
+      "imagingAreaExt-MRSTLSC",
+      "current",
+      "MRSTLSC",
+      "Spine Thoracic Lumbar (sciatica)",
+      "MRIScanImagingArea-MRSpineThoracicLumbarsciatica"
+    ],
+    [
+      "imagingAreaExt-MRSTLSCS",
+      "current",
+      "MRSTLSCS",
+      "Spine Thoracic Lumbar (spinal canal stenosis)",
+      "MRIScanImagingArea-MRSpineThoracicLumbarspinalcanalstenosis"
+    ],
+    [
+      "imagingAreaExt-MRSTLS",
+      "current",
+      "MRSTLS",
+      "Spine Thoracic Lumbar (syrinx)",
+      "MRIScanImagingArea-MRSpineThoracicLumbarsyrinx"
+    ],
+    [
+      "imagingAreaExt-MRSTLTR",
+      "current",
+      "MRSTLTR",
+      "Spine Thoracic Lumbar (trauma)",
+      "MRIScanImagingArea-MRSpineThoracicLumbartrauma"
+    ],
+    [
+      "imagingAreaExt-MRSTLT",
+      "current",
+      "MRSTLT",
+      "Spine Thoracic Lumbar (tumour)",
+      "MRIScanImagingArea-MRSpineThoracicLumbartumour"
+    ],
+    [
+      "imagingAreaExt-MRTE",
+      "current",
+      "MRTE",
+      "Test Examination",
+      "MRIScanImagingArea-MRTestExamination"
+    ],
+    [
+      "imagingAreaExt-MRTMJ",
+      "current",
+      "MRTMJ",
+      "TMJs (one or both)",
+      "MRIScanImagingArea-MRTMJsoneorboth"
+    ],
+    [
+      "imagingAreaExt-MRV",
+      "current",
+      "MRV",
+      "Venogram SVC/IVC/Pelvic Vein",
+      "MRIScanImagingArea-MRVenogramSVCIVCPelvicVein"
+    ],
+    [
+      "imagingAreaExt-MRWL",
+      "current",
+      "MRWL",
+      "Wrist - Left",
+      "MRIScanImagingArea-MRWristLeft"
+    ],
+    [
+      "imagingAreaExt-MRWR",
+      "current",
+      "MRWR",
+      "Wrist - Right",
+      "MRIScanImagingArea-MRWristRight"
+    ],
+    [
+      "imagingAreaExt-UAL",
+      "current",
+      "UAL",
+      "Ankle - Left",
+      "ultrasoundScanImagingArea-USAnkleLeft"
+    ],
+    [
+      "imagingAreaExt-UAR",
+      "current",
+      "UAR",
+      "Ankle - Right",
+      "ultrasoundScanImagingArea-USAnkleRight"
+    ],
+    [
+      "imagingAreaExt-UA",
+      "current",
+      "UA",
+      "Aorta",
+      "ultrasoundScanImagingArea-USAorta"
+    ],
+    [
+      "imagingAreaExt-UAAL",
+      "current",
+      "UAAL",
+      "Arterial Arm - Left",
+      "ultrasoundScanImagingArea-USArterialArmLeft"
+    ],
+    [
+      "imagingAreaExt-UAAR",
+      "current",
+      "UAAR",
+      "Arterial Arm - Right",
+      "ultrasoundScanImagingArea-USArterialArmRight"
+    ],
+    [
+      "imagingAreaExt-UALL",
+      "current",
+      "UALL",
+      "Arterial Leg - Left",
+      "ultrasoundScanImagingArea-USArterialLegLeft"
+    ],
+    [
+      "imagingAreaExt-UALR",
+      "current",
+      "UALR",
+      "Arterial Leg - Right",
+      "ultrasoundScanImagingArea-USArterialLegRight"
+    ],
+    [
+      "imagingAreaExt-UAT",
+      "current",
+      "UAT",
+      "Ascitic tap",
+      "ultrasoundScanImagingArea-USAscitictap"
+    ],
+    [
+      "imagingAreaExt-UABDO",
+      "current",
+      "UABDO",
+      "Aspiration biopsy of a deep organ",
+      "ultrasoundScanImagingArea-USAspirationbiopsyofadeeporgan"
+    ],
+    [
+      "imagingAreaExt-UAVF",
+      "current",
+      "UAVF",
+      "AV Fistula",
+      "ultrasoundScanImagingArea-USAVFistula"
+    ],
+    [
+      "imagingAreaExt-UBBC",
+      "current",
+      "UBBC",
+      "Biopsy - Breast core",
+      "ultrasoundScanImagingArea-USBiopsyBreastcore"
+    ],
+    [
+      "imagingAreaExt-UBBFNA",
+      "current",
+      "UBBFNA",
+      "Biopsy - Breast FNA",
+      "ultrasoundScanImagingArea-USBiopsyBreastFNA"
+    ],
+    [
+      "imagingAreaExt-UBL",
+      "current",
+      "UBL",
+      "Biopsy - Liver",
+      "ultrasoundScanImagingArea-USBiopsyLiver"
+    ],
+    [
+      "imagingAreaExt-UBLMO",
+      "current",
+      "UBLMO",
+      "Biopsy - Lymph, muscle,deep tissue or organ",
+      "ultrasoundScanImagingArea-USBiopsyLymphmuscledeeptissueororgan"
+    ],
+    [
+      "imagingAreaExt-UBP",
+      "current",
+      "UBP",
+      "Biopsy - Pleura",
+      "ultrasoundScanImagingArea-USBiopsyPleura"
+    ],
+    [
+      "imagingAreaExt-UBR",
+      "current",
+      "UBR",
+      "Biopsy - Renal ",
+      "ultrasoundScanImagingArea-USBiopsyRenal"
+    ],
+    [
+      "imagingAreaExt-UBRL",
+      "current",
+      "UBRL",
+      "Breast - Left",
+      "ultrasoundScanImagingArea-USBreastLeft"
+    ],
+    [
+      "imagingAreaExt-UBRR",
+      "current",
+      "UBRR",
+      "Breast - Right",
+      "ultrasoundScanImagingArea-USBreastRight"
+    ],
+    [
+      "imagingAreaExt-UBRB",
+      "current",
+      "UBRB",
+      "Breasts - Bilateral",
+      "ultrasoundScanImagingArea-USBreastsBilateral"
+    ],
+    [
+      "imagingAreaExt-UBTL",
+      "current",
+      "UBTL",
+      "Buttock or Thigh - Left",
+      "ultrasoundScanImagingArea-USButtockorThighLeft"
+    ],
+    [
+      "imagingAreaExt-UBTR",
+      "current",
+      "UBTR",
+      "Buttock or Thigh - Right",
+      "ultrasoundScanImagingArea-USButtockorThighRight"
+    ],
+    [
+      "imagingAreaExt-UCA",
+      "current",
+      "UCA",
+      "Carotid Arteries",
+      "ultrasoundScanImagingArea-USCarotidArteries"
+    ],
+    [
+      "imagingAreaExt-UCAW",
+      "current",
+      "UCAW",
+      "Chest or Abdominal Wall",
+      "ultrasoundScanImagingArea-USChestorAbdominalWall"
+    ],
+    [
+      "imagingAreaExt-UDDA",
+      "current",
+      "UDDA",
+      "Drainage of a deep abscess",
+      "ultrasoundScanImagingArea-USDrainageofadeepabscess"
+    ],
+    [
+      "imagingAreaExt-UE",
+      "current",
+      "UE",
+      "Eye",
+      "ultrasoundScanImagingArea-USEye"
+    ],
+    [
+      "imagingAreaExt-UFAF",
+      "current",
+      "UFAF",
+      "Fluid and Flows > 24 wks (AFI and umbilical artery doppler)",
+      "ultrasoundScanImagingArea-USFluidandFlows24wksAFIandumbilicalarterydoppler"
+    ],
+    [
+      "imagingAreaExt-UFL",
+      "current",
+      "UFL",
+      "Foot - Left",
+      "ultrasoundScanImagingArea-USFootLeft"
+    ],
+    [
+      "imagingAreaExt-UFR",
+      "current",
+      "UFR",
+      "Foot -Right",
+      "ultrasoundScanImagingArea-USFootRight"
+    ],
+    [
+      "imagingAreaExt-UFEL",
+      "current",
+      "UFEL",
+      "Forearm or Elbow - Left",
+      "ultrasoundScanImagingArea-USForearmorElbowLeft"
+    ],
+    [
+      "imagingAreaExt-UFER",
+      "current",
+      "UFER",
+      "Forearm or Elbow - Right",
+      "ultrasoundScanImagingArea-USForearmorElbowRight"
+    ],
+    [
+      "imagingAreaExt-UGL",
+      "current",
+      "UGL",
+      "Groin  - Left",
+      "ultrasoundScanImagingArea-USGroinLeft"
+    ],
+    [
+      "imagingAreaExt-UGR",
+      "current",
+      "UGR",
+      "Groin  - Right",
+      "ultrasoundScanImagingArea-USGroinRight"
+    ],
+    [
+      "imagingAreaExt-UI",
+      "current",
+      "UI",
+      "guided interventional procedure",
+      "ultrasoundScanImagingArea-USguidedinterventionalprocedure"
+    ],
+    [
+      "imagingAreaExt-UIM",
+      "current",
+      "UIM",
+      "guided interventional procedure (MSK)",
+      "ultrasoundScanImagingArea-USguidedinterventionalprocedureMSK"
+    ],
+    [
+      "imagingAreaExt-UHWL",
+      "current",
+      "UHWL",
+      "Hand or Wrist - Left",
+      "ultrasoundScanImagingArea-USHandorWristLeft"
+    ],
+    [
+      "imagingAreaExt-UHWR",
+      "current",
+      "UHWR",
+      "Hand or Wrist - Right",
+      "ultrasoundScanImagingArea-USHandorWristRight"
+    ],
+    [
+      "imagingAreaExt-UHL",
+      "current",
+      "UHL",
+      "Heel -Left",
+      "ultrasoundScanImagingArea-USHeelLeft"
+    ],
+    [
+      "imagingAreaExt-UHR",
+      "current",
+      "UHR",
+      "Heel - Right",
+      "ultrasoundScanImagingArea-USHeelRight"
+    ],
+    [
+      "imagingAreaExt-UHIPL",
+      "current",
+      "UHIPL",
+      "Hip - Left",
+      "ultrasoundScanImagingArea-USHipLeft"
+    ],
+    [
+      "imagingAreaExt-UHIPR",
+      "current",
+      "UHIPR",
+      "Hip - Right",
+      "ultrasoundScanImagingArea-USHipRight"
+    ],
+    [
+      "imagingAreaExt-UHLB",
+      "current",
+      "UHLB",
+      "Hookwire localisation breast",
+      "ultrasoundScanImagingArea-USHookwirelocalisationbreast"
+    ],
+    [
+      "imagingAreaExt-UIJS",
+      "current",
+      "UIJS",
+      "Injection - Joint or synovial",
+      "ultrasoundScanImagingArea-USInjectionJointorsynovial"
+    ],
+    [
+      "imagingAreaExt-UKL",
+      "current",
+      "UKL",
+      "Knee - Left",
+      "ultrasoundScanImagingArea-USKneeLeft"
+    ],
+    [
+      "imagingAreaExt-UKR",
+      "current",
+      "UKR",
+      "Knee - Right",
+      "ultrasoundScanImagingArea-USKneeRight"
+    ],
+    [
+      "imagingAreaExt-ULLL",
+      "current",
+      "ULLL",
+      "Lower Leg - Left",
+      "ultrasoundScanImagingArea-USLowerLegLeft"
+    ],
+    [
+      "imagingAreaExt-ULLR",
+      "current",
+      "ULLR",
+      "Lower Leg - Right",
+      "ultrasoundScanImagingArea-USLowerLegRight"
+    ],
+    [
+      "imagingAreaExt-UMAL",
+      "current",
+      "UMAL",
+      "Mapping Artery - Left Limb",
+      "ultrasoundScanImagingArea-USMappingArteryLeftLimb"
+    ],
+    [
+      "imagingAreaExt-UMAR",
+      "current",
+      "UMAR",
+      "Mapping Artery - Right Limb",
+      "ultrasoundScanImagingArea-USMappingArteryRightLimb"
+    ],
+    [
+      "imagingAreaExt-UMVL",
+      "current",
+      "UMVL",
+      "Mapping Venous - Left Limb",
+      "ultrasoundScanImagingArea-USMappingVenousLeftLimb"
+    ],
+    [
+      "imagingAreaExt-UMVR",
+      "current",
+      "UMVR",
+      "Mapping Venous - Right Limb",
+      "ultrasoundScanImagingArea-USMappingVenousRightLimb"
+    ],
+    [
+      "imagingAreaExt-UMAS",
+      "current",
+      "UMAS",
+      "Mass (Skin or Subcutaneous)",
+      "ultrasoundScanImagingArea-USMassSkinorSubcutaneous"
+    ],
+    [
+      "imagingAreaExt-UN",
+      "current",
+      "UN",
+      "Neck including glands",
+      "ultrasoundScanImagingArea-USNeckincludingglands"
+    ],
+    [
+      "imagingAreaExt-UNB",
+      "current",
+      "UNB",
+      "Neonatal brain",
+      "ultrasoundScanImagingArea-USNeonatalbrain"
+    ],
+    [
+      "imagingAreaExt-UNTI",
+      "current",
+      "UNTI",
+      "Nephrosotomy Tube Insertion",
+      "ultrasoundScanImagingArea-USNephrosotomyTubeInsertion"
+    ],
+    [
+      "imagingAreaExt-UNTC",
+      "current",
+      "UNTC",
+      "Nephrostomy  Tube Change",
+      "ultrasoundScanImagingArea-USNephrostomyTubeChange"
+    ],
+    [
+      "imagingAreaExt-UNT",
+      "current",
+      "UNT",
+      "Nuchal Translucency",
+      "ultrasoundScanImagingArea-USNuchalTranslucency"
+    ],
+    [
+      "imagingAreaExt-UO1",
+      "current",
+      "UO1",
+      "Obstetric (<12 weeks)",
+      "ultrasoundScanImagingArea-USObstetric12weeks"
+    ],
+    [
+      "imagingAreaExt-UO2",
+      "current",
+      "UO2",
+      "Obstetric (12-16 weeks)",
+      "ultrasoundScanImagingArea-USObstetric1216weeks"
+    ],
+    [
+      "imagingAreaExt-UOM4",
+      "current",
+      "UOM4",
+      "Obstetric - Multiple - (>22 weeks) MO",
+      "ultrasoundScanImagingArea-USObstetricMultiple22weeksMO"
+    ],
+    [
+      "imagingAreaExt-UOM4R",
+      "current",
+      "UOM4R",
+      "Obstetric - Multiple - (>22 weeks) Repeat/O&G",
+      "ultrasoundScanImagingArea-USObstetricMultiple22weeksRepeatOG"
+    ],
+    [
+      "imagingAreaExt-UOM3",
+      "current",
+      "UOM3",
+      "Obstetric - Multiple - (17-22 weeks) MO",
+      "ultrasoundScanImagingArea-USObstetricMultiple1722weeksMO"
+    ],
+    [
+      "imagingAreaExt-UOM3R",
+      "current",
+      "UOM3R",
+      "Obstetric - Multiple - (17-22 weeks) Repeat/O&G",
+      "ultrasoundScanImagingArea-USObstetricMultiple1722weeksRepeatOG"
+    ],
+    [
+      "imagingAreaExt-UOS4",
+      "current",
+      "UOS4",
+      "Obstetric - Singleton - (>22 weeks) MO",
+      "ultrasoundScanImagingArea-USObstetricSingleton22weeksMO"
+    ],
+    [
+      "imagingAreaExt-UOS4R",
+      "current",
+      "UOS4R",
+      "Obstetric - Singleton - (>22 weeks) Repeat/O&G",
+      "ultrasoundScanImagingArea-USObstetricSingleton22weeksRepeatOG"
+    ],
+    [
+      "imagingAreaExt-UOS3",
+      "current",
+      "UOS3",
+      "Obstetric - Singleton - (17-22 weeks) MO ",
+      "ultrasoundScanImagingArea-USObstetricSingleton1722weeksMO"
+    ],
+    [
+      "imagingAreaExt-UOS3R",
+      "current",
+      "UOS3R",
+      "Obstetric - Singleton - (17-22 weeks) Repeat/O&G",
+      "ultrasoundScanImagingArea-USObstetricSingleton1722weeksRepeatOG"
+    ],
+    [
+      "imagingAreaExt-UPH",
+      "current",
+      "UPH",
+      "Paediatric Hips for Dysplasia (Both) ",
+      "ultrasoundScanImagingArea-USPaediatricHipsforDysplasiaBoth"
+    ],
+    [
+      "imagingAreaExt-UPS",
+      "current",
+      "UPS",
+      "Paediatric Spine",
+      "ultrasoundScanImagingArea-USPaediatricSpine"
+    ],
+    [
+      "imagingAreaExt-UPTD",
+      "current",
+      "UPTD",
+      "Pleural tap - diagnostic",
+      "ultrasoundScanImagingArea-USPleuraltapdiagnostic"
+    ],
+    [
+      "imagingAreaExt-UPTT",
+      "current",
+      "UPTT",
+      "Pleural tap - therapeutic",
+      "ultrasoundScanImagingArea-USPleuraltaptherapeutic"
+    ],
+    [
+      "imagingAreaExt-UP",
+      "current",
+      "UP",
+      "Pleurodesis",
+      "ultrasoundScanImagingArea-USPleurodesis"
+    ],
+    [
+      "imagingAreaExt-URFBD",
+      "current",
+      "URFBD",
+      "Removal of Foreign Body - Deep ",
+      "ultrasoundScanImagingArea-USRemovalofForeignBodyDeep"
+    ],
+    [
+      "imagingAreaExt-URFBS",
+      "current",
+      "URFBS",
+      "Removal of Foreign Body - Subcutaneous ",
+      "ultrasoundScanImagingArea-USRemovalofForeignBodySubcutaneous"
+    ],
+    [
+      "imagingAreaExt-UR",
+      "current",
+      "UR",
+      "Renal",
+      "ultrasoundScanImagingArea-USRenal"
+    ],
+    [
+      "imagingAreaExt-URA",
+      "current",
+      "URA",
+      "Renal Arteries",
+      "ultrasoundScanImagingArea-USRenalArteries"
+    ],
+    [
+      "imagingAreaExt-USHL",
+      "current",
+      "USHL",
+      "Shoulder or Upper Arm -Left",
+      "ultrasoundScanImagingArea-USShoulderorUpperArmLeft"
+    ],
+    [
+      "imagingAreaExt-USHR",
+      "current",
+      "USHR",
+      "Shoulder or Upper Arm - Right",
+      "ultrasoundScanImagingArea-USShoulderorUpperArmRight"
+    ],
+    [
+      "imagingAreaExt-UTA",
+      "current",
+      "UTA",
+      "Temporal Arteries",
+      "ultrasoundScanImagingArea-USTemporalArteries"
+    ],
+    [
+      "imagingAreaExt-UTE",
+      "current",
+      "UTE",
+      "Testes",
+      "ultrasoundScanImagingArea-USTestes"
+    ],
+    [
+      "imagingAreaExt-UTH",
+      "current",
+      "UTH",
+      "Thyroid",
+      "ultrasoundScanImagingArea-USThyroid"
+    ],
+    [
+      "imagingAreaExt-UUA",
+      "current",
+      "UUA",
+      "Upper abdomen",
+      "ultrasoundScanImagingArea-USUpperabdomen"
+    ],
+    [
+      "imagingAreaExt-UUB",
+      "current",
+      "UUB",
+      "Urinary bladder only",
+      "ultrasoundScanImagingArea-USUrinarybladderonly"
+    ],
+    [
+      "imagingAreaExt-UVAL",
+      "current",
+      "UVAL",
+      "Venous Arm - Left",
+      "ultrasoundScanImagingArea-USVenousArmLeft"
+    ],
+    [
+      "imagingAreaExt-UVAR",
+      "current",
+      "UVAR",
+      "Venous Arm - Right",
+      "ultrasoundScanImagingArea-USVenousArmRight"
+    ],
+    [
+      "imagingAreaExt-UVILL",
+      "current",
+      "UVILL",
+      "Venous Incompetency Leg - Left",
+      "ultrasoundScanImagingArea-USVenousIncompetencyLegLeft"
+    ],
+    [
+      "imagingAreaExt-UVILR",
+      "current",
+      "UVILR",
+      "Venous Incompetency Leg - Right",
+      "ultrasoundScanImagingArea-USVenousIncompetencyLegRight"
+    ],
+    [
+      "imagingAreaExt-UVLL",
+      "current",
+      "UVLL",
+      "Venous Leg - Left",
+      "ultrasoundScanImagingArea-USVenousLegLeft"
+    ],
+    [
+      "imagingAreaExt-UVLR",
+      "current",
+      "UVLR",
+      "Venous leg - Right",
+      "ultrasoundScanImagingArea-USVenouslegRight"
+    ],
+    [
+      "imagingAreaExt-UVV",
+      "current",
+      "UVV",
+      "Visceral Vessels ",
+      "ultrasoundScanImagingArea-USVisceralVessels"
+    ],
+    [
+      "imagingAreaExt-XAES",
+      "current",
+      "XAES",
+      "Abdomen Erect and Supine",
+      "xRayImagingArea-AbdomenErectandSupine"
+    ],
+    [
+      "imagingAreaExt-XAP",
+      "current",
+      "XAP",
+      "Abdomen - Plain",
+      "xRayImagingArea-AbdomenPlain"
+    ],
+    [
+      "imagingAreaExt-XAKUB",
+      "current",
+      "XAKUB",
+      "Abdomen - Renal (KUB)",
+      "xRayImagingArea-AbdomenRenalKUB"
+    ],
+    [
+      "imagingAreaExt-XALL",
+      "current",
+      "XALL",
+      "Ankle and Leg - Left",
+      "xRayImagingArea-AnkleandLegLeft"
+    ],
+    [
+      "imagingAreaExt-XALR",
+      "current",
+      "XALR",
+      "Ankle and Leg - Right ",
+      "xRayImagingArea-AnkleandLegRight"
+    ],
+    [
+      "imagingAreaExt-XACL",
+      "current",
+      "XACL",
+      "Ankle - Calcaneum Left / Heel - Left",
+      "xRayImagingArea-AnkleCalcaneumLeftHeelLeft"
+    ],
+    [
+      "imagingAreaExt-XACR",
+      "current",
+      "XACR",
+      "Ankle - Calcaneum Right / Heel - Right",
+      "xRayImagingArea-AnkleCalcaneumRightHeelRight"
+    ],
+    [
+      "imagingAreaExt-XAL",
+      "current",
+      "XAL",
+      "Ankle - Left",
+      "xRayImagingArea-AnkleLeft"
+    ],
+    [
+      "imagingAreaExt-XAR",
+      "current",
+      "XAR",
+      "Ankle - Right",
+      "xRayImagingArea-AnkleRight"
+    ],
+    [
+      "imagingAreaExt-XAEHL",
+      "current",
+      "XAEHL",
+      "Arm - Elbow and Humerus - Left",
+      "xRayImagingArea-ArmElbowandHumerusLeft"
+    ],
+    [
+      "imagingAreaExt-XAEHR",
+      "current",
+      "XAEHR",
+      "Arm - Elbow and Humerus - Right",
+      "xRayImagingArea-ArmElbowandHumerusRight"
+    ],
+    [
+      "imagingAreaExt-XAEL",
+      "current",
+      "XAEL",
+      "Arm - Elbow - Left",
+      "xRayImagingArea-ArmElbowLeft"
+    ],
+    [
+      "imagingAreaExt-XAER",
+      "current",
+      "XAER",
+      "Arm - Elbow - Right",
+      "xRayImagingArea-ArmElbowRight"
+    ],
+    [
+      "imagingAreaExt-XAFEL",
+      "current",
+      "XAFEL",
+      "Arm - Forearm and Elbow - Left",
+      "xRayImagingArea-ArmForearmandElbowLeft"
+    ],
+    [
+      "imagingAreaExt-XAFER",
+      "current",
+      "XAFER",
+      "Arm - Forearm and Elbow - Right",
+      "xRayImagingArea-ArmForearmandElbowRight"
+    ],
+    [
+      "imagingAreaExt-XAFL",
+      "current",
+      "XAFL",
+      "Arm - Forearm - Left",
+      "xRayImagingArea-ArmForearmLeft"
+    ],
+    [
+      "imagingAreaExt-XAFR",
+      "current",
+      "XAFR",
+      "Arm - Forearm - Right",
+      "xRayImagingArea-ArmForearmRight"
+    ],
+    [
+      "imagingAreaExt-XAHL",
+      "current",
+      "XAHL",
+      "Arm - Humerus - Left",
+      "xRayImagingArea-ArmHumerusLeft"
+    ],
+    [
+      "imagingAreaExt-XAHR",
+      "current",
+      "XAHR",
+      "Arm - Humerus - Right",
+      "xRayImagingArea-ArmHumerusRight"
+    ],
+    [
+      "imagingAreaExt-XHBA",
+      "current",
+      "XHBA",
+      "Bone Age Study",
+      "xRayImagingArea-BoneAgeStudy"
+    ],
+    [
+      "imagingAreaExt-XC",
+      "current",
+      "XC",
+      "Chest",
+      "xRayImagingArea-Chest"
+    ],
+    [
+      "imagingAreaExt-XFB",
+      "current",
+      "XFB",
+      "Facial Bones",
+      "xRayImagingArea-FacialBones"
+    ],
+    [
+      "imagingAreaExt-XFAL",
+      "current",
+      "XFAL",
+      "Foot and Ankle - Left",
+      "xRayImagingArea-FootandAnkleLeft"
+    ],
+    [
+      "imagingAreaExt-XFAR",
+      "current",
+      "XFAR",
+      "Foot and Ankle - Right",
+      "xRayImagingArea-FootandAnkleRight"
+    ],
+    [
+      "imagingAreaExt-XFL",
+      "current",
+      "XFL",
+      "Foot - Left",
+      "xRayImagingArea-FootLeft"
+    ],
+    [
+      "imagingAreaExt-XFR",
+      "current",
+      "XFR",
+      "Foot - Right",
+      "xRayImagingArea-FootRight"
+    ],
+    [
+      "imagingAreaExt-XFTL",
+      "current",
+      "XFTL",
+      "Foot - Toes - Left",
+      "xRayImagingArea-FootToesLeft"
+    ],
+    [
+      "imagingAreaExt-XFTR",
+      "current",
+      "XFTR",
+      "Foot - Toes - Right",
+      "xRayImagingArea-FootToesRight"
+    ],
+    [
+      "imagingAreaExt-XHWFL",
+      "current",
+      "XHWFL",
+      "Hand, Wrist and Forearm - Left",
+      "xRayImagingArea-HandWristandForearmLeft"
+    ],
+    [
+      "imagingAreaExt-XHWFR",
+      "current",
+      "XHWFR",
+      "Hand, Wrist and Forearm - Right",
+      "xRayImagingArea-HandWristandForearmRight"
+    ],
+    [
+      "imagingAreaExt-XHFL",
+      "current",
+      "XHFL",
+      "Hand - Finger and/or Thumb - Left",
+      "xRayImagingArea-HandFingerandorThumbLeft"
+    ],
+    [
+      "imagingAreaExt-XHFR",
+      "current",
+      "XHFR",
+      "Hand - Finger And/Or Thumb - Right",
+      "xRayImagingArea-HandFingerAndOrThumbRight"
+    ],
+    [
+      "imagingAreaExt-XHL",
+      "current",
+      "XHL",
+      "Hand - Left",
+      "xRayImagingArea-HandLeft"
+    ],
+    [
+      "imagingAreaExt-XHR",
+      "current",
+      "XHR",
+      "Hand - Right",
+      "xRayImagingArea-HandRight"
+    ],
+    [
+      "imagingAreaExt-XIVP",
+      "current",
+      "XIVP",
+      "Intravenous Pyelogram",
+      "xRayImagingArea-IntravenousPyelogram"
+    ],
+    [
+      "imagingAreaExt-XL",
+      "current",
+      "XL",
+      "Larynx",
+      "xRayImagingArea-Larynx"
+    ],
+    [
+      "imagingAreaExt-XLFL",
+      "current",
+      "XLFL",
+      "Leg - Femur - Left",
+      "xRayImagingArea-LegFemurLeft"
+    ],
+    [
+      "imagingAreaExt-XLFR",
+      "current",
+      "XLFR",
+      "Leg - Femur - Right",
+      "xRayImagingArea-LegFemurRight"
+    ],
+    [
+      "imagingAreaExt-XLHL",
+      "current",
+      "XLHL",
+      "Leg - Hip - Left",
+      "xRayImagingArea-LegHipLeft"
+    ],
+    [
+      "imagingAreaExt-XLHR",
+      "current",
+      "XLHR",
+      "Leg - Hip - Right",
+      "xRayImagingArea-LegHipRight"
+    ],
+    [
+      "imagingAreaExt-XLKFL",
+      "current",
+      "XLKFL",
+      "Leg - Knee and Femur - Left",
+      "xRayImagingArea-LegKneeandFemurLeft"
+    ],
+    [
+      "imagingAreaExt-XLKFR",
+      "current",
+      "XLKFR",
+      "Leg - Knee and Femur - Right",
+      "xRayImagingArea-LegKneeandFemurRight"
+    ],
+    [
+      "imagingAreaExt-XLKLL",
+      "current",
+      "XLKLL",
+      "Leg - Knee and Leg - Left",
+      "xRayImagingArea-LegKneeandLegLeft"
+    ],
+    [
+      "imagingAreaExt-XLKLR",
+      "current",
+      "XLKLR",
+      "Leg - Knee and Leg - Right",
+      "xRayImagingArea-LegKneeandLegRight"
+    ],
+    [
+      "imagingAreaExt-XLKL",
+      "current",
+      "XLKL",
+      "Leg - Knee - Left",
+      "xRayImagingArea-LegKneeLeft"
+    ],
+    [
+      "imagingAreaExt-XLKR",
+      "current",
+      "XLKR",
+      "Leg - Knee - Right",
+      "xRayImagingArea-LegKneeRight"
+    ],
+    [
+      "imagingAreaExt-XLL",
+      "current",
+      "XLL",
+      "Leg Length",
+      "xRayImagingArea-LegLength"
+    ],
+    [
+      "imagingAreaExt-XLTFL",
+      "current",
+      "XLTFL",
+      "Leg - Lower - Left (Tibia & Fibula)",
+      "xRayImagingArea-LegLowerLeftTibiaFibula"
+    ],
+    [
+      "imagingAreaExt-XLTFR",
+      "current",
+      "XLTFR",
+      "Leg - Lower - Right (Tibia & Fibula)",
+      "xRayImagingArea-LegLowerRightTibiaFibula"
+    ],
+    [
+      "imagingAreaExt-XM",
+      "current",
+      "XM",
+      "Mandible - (CR)",
+      "xRayImagingArea-MandibleCR"
+    ],
+    [
+      "imagingAreaExt-XMAC",
+      "current",
+      "XMAC",
+      "Mastoid Air Cells",
+      "xRayImagingArea-MastoidAirCells"
+    ],
+    [
+      "imagingAreaExt-MAES",
+      "current",
+      "MAES",
+      "Mobile - Abdomen Erect and Supine",
+      "xRayImagingArea-MobileAbdomenErectandSupine"
+    ],
+    [
+      "imagingAreaExt-MAP",
+      "current",
+      "MAP",
+      "Mobile - Abdomen - Plain",
+      "xRayImagingArea-MobileAbdomenPlain"
+    ],
+    [
+      "imagingAreaExt-MAKUB",
+      "current",
+      "MAKUB",
+      "Mobile - Abdomen - Renal",
+      "xRayImagingArea-MobileAbdomenRenal"
+    ],
+    [
+      "imagingAreaExt-MALL",
+      "current",
+      "MALL",
+      "Mobile - Ankle and Leg - Left",
+      "xRayImagingArea-MobileAnkleandLegLeft"
+    ],
+    [
+      "imagingAreaExt-MALR",
+      "current",
+      "MALR",
+      "Mobile - Ankle and Leg - Right ",
+      "xRayImagingArea-MobileAnkleandLegRight"
+    ],
+    [
+      "imagingAreaExt-MACL",
+      "current",
+      "MACL",
+      "Mobile - Ankle - Calcaneum - Left (Heel)",
+      "xRayImagingArea-MobileAnkleCalcaneumLeftHeel"
+    ],
+    [
+      "imagingAreaExt-MACR",
+      "current",
+      "MACR",
+      "Mobile - Ankle - Calcaneum - Right (Heel)",
+      "xRayImagingArea-MobileAnkleCalcaneumRightHeel"
+    ],
+    [
+      "imagingAreaExt-MAL",
+      "current",
+      "MAL",
+      "Mobile - Ankle - Left",
+      "xRayImagingArea-MobileAnkleLeft"
+    ],
+    [
+      "imagingAreaExt-MAR",
+      "current",
+      "MAR",
+      "Mobile - Ankle - Right",
+      "xRayImagingArea-MobileAnkleRight"
+    ],
+    [
+      "imagingAreaExt-MAEHL",
+      "current",
+      "MAEHL",
+      "Mobile - Arm - Elbow and Humerus - Left",
+      "xRayImagingArea-MobileArmElbowandHumerusLeft"
+    ],
+    [
+      "imagingAreaExt-MAEHR",
+      "current",
+      "MAEHR",
+      "Mobile - Arm - Elbow and Humerus - Right",
+      "xRayImagingArea-MobileArmElbowandHumerusRight"
+    ],
+    [
+      "imagingAreaExt-MAEL",
+      "current",
+      "MAEL",
+      "Mobile - Arm - Elbow - Left",
+      "xRayImagingArea-MobileArmElbowLeft"
+    ],
+    [
+      "imagingAreaExt-MAER",
+      "current",
+      "MAER",
+      "Mobile - Arm - Elbow - Right",
+      "xRayImagingArea-MobileArmElbowRight"
+    ],
+    [
+      "imagingAreaExt-MAFEL",
+      "current",
+      "MAFEL",
+      "Mobile - Arm - Forearm and Elbow - Left",
+      "xRayImagingArea-MobileArmForearmandElbowLeft"
+    ],
+    [
+      "imagingAreaExt-MAFER",
+      "current",
+      "MAFER",
+      "Mobile - Arm - Forearm and Elbow - Right",
+      "xRayImagingArea-MobileArmForearmandElbowRight"
+    ],
+    [
+      "imagingAreaExt-MAFL",
+      "current",
+      "MAFL",
+      "Mobile - Arm - Forearm - Left",
+      "xRayImagingArea-MobileArmForearmLeft"
+    ],
+    [
+      "imagingAreaExt-MAFR",
+      "current",
+      "MAFR",
+      "Mobile - Arm - Forearm - Right",
+      "xRayImagingArea-MobileArmForearmRight"
+    ],
+    [
+      "imagingAreaExt-MAHL",
+      "current",
+      "MAHL",
+      "Mobile - Arm - Humerus - Left",
+      "xRayImagingArea-MobileArmHumerusLeft"
+    ],
+    [
+      "imagingAreaExt-MAHR",
+      "current",
+      "MAHR",
+      "Mobile - Arm - Humerus - Right",
+      "xRayImagingArea-MobileArmHumerusRight"
+    ],
+    [
+      "imagingAreaExt-MFB",
+      "current",
+      "MFB",
+      "Mobile - Facial Bones",
+      "xRayImagingArea-MobileFacialBones"
+    ],
+    [
+      "imagingAreaExt-MFAL",
+      "current",
+      "MFAL",
+      "Mobile - Foot and Ankle - Left",
+      "xRayImagingArea-MobileFootandAnkleLeft"
+    ],
+    [
+      "imagingAreaExt-MFAR",
+      "current",
+      "MFAR",
+      "Mobile - Foot and Ankle - Right",
+      "xRayImagingArea-MobileFootandAnkleRight"
+    ],
+    [
+      "imagingAreaExt-MFL",
+      "current",
+      "MFL",
+      "Mobile - Foot - Left",
+      "xRayImagingArea-MobileFootLeft"
+    ],
+    [
+      "imagingAreaExt-MFR",
+      "current",
+      "MFR",
+      "Mobile - Foot - Right",
+      "xRayImagingArea-MobileFootRight"
+    ],
+    [
+      "imagingAreaExt-MFTL",
+      "current",
+      "MFTL",
+      "Mobile - Foot - Toes - Left",
+      "xRayImagingArea-MobileFootToesLeft"
+    ],
+    [
+      "imagingAreaExt-MFTR",
+      "current",
+      "MFTR",
+      "Mobile - Foot - Toes - Right",
+      "xRayImagingArea-MobileFootToesRight"
+    ],
+    [
+      "imagingAreaExt-MHWFL",
+      "current",
+      "MHWFL",
+      "Mobile - Hand, Wrist and Forearm - Left",
+      "xRayImagingArea-MobileHandWristandForearmLeft"
+    ],
+    [
+      "imagingAreaExt-MHWFR",
+      "current",
+      "MHWFR",
+      "Mobile - Hand, Wrist and Forearm - Right",
+      "xRayImagingArea-MobileHandWristandForearmRight"
+    ],
+    [
+      "imagingAreaExt-MHBA",
+      "current",
+      "MHBA",
+      "Mobile - Hand - Bone Age",
+      "xRayImagingArea-MobileHandBoneAge"
+    ],
+    [
+      "imagingAreaExt-MHFL",
+      "current",
+      "MHFL",
+      "Mobile - Hand - Finger and/or Thumb - Left",
+      "xRayImagingArea-MobileHandFingerandorThumbLeft"
+    ],
+    [
+      "imagingAreaExt-MHFR",
+      "current",
+      "MHFR",
+      "Mobile - Hand - Finger and/or Thumb - Right",
+      "xRayImagingArea-MobileHandFingerandorThumbRight"
+    ],
+    [
+      "imagingAreaExt-MHL",
+      "current",
+      "MHL",
+      "Mobile - Hand - Left",
+      "xRayImagingArea-MobileHandLeft"
+    ],
+    [
+      "imagingAreaExt-MHR",
+      "current",
+      "MHR",
+      "Mobile - Hand - Right",
+      "xRayImagingArea-MobileHandRight"
+    ],
+    [
+      "imagingAreaExt-MIVP",
+      "current",
+      "MIVP",
+      "Mobile - Intravenous Pyelogram",
+      "xRayImagingArea-MobileIntravenousPyelogram"
+    ],
+    [
+      "imagingAreaExt-ML",
+      "current",
+      "ML",
+      "Mobile - Larynx",
+      "xRayImagingArea-MobileLarynx"
+    ],
+    [
+      "imagingAreaExt-MLFL",
+      "current",
+      "MLFL",
+      "Mobile - Leg - Femur - Left",
+      "xRayImagingArea-MobileLegFemurLeft"
+    ],
+    [
+      "imagingAreaExt-MLFR",
+      "current",
+      "MLFR",
+      "Mobile - Leg - Femur - Right",
+      "xRayImagingArea-MobileLegFemurRight"
+    ],
+    [
+      "imagingAreaExt-MLHL",
+      "current",
+      "MLHL",
+      "Mobile - Leg - Hip - Left",
+      "xRayImagingArea-MobileLegHipLeft"
+    ],
+    [
+      "imagingAreaExt-MLHR",
+      "current",
+      "MLHR",
+      "Mobile - Leg - Hip - Right",
+      "xRayImagingArea-MobileLegHipRight"
+    ],
+    [
+      "imagingAreaExt-MLKFL",
+      "current",
+      "MLKFL",
+      "Mobile - Leg - Knee and Femur - Left",
+      "xRayImagingArea-MobileLegKneeandFemurLeft"
+    ],
+    [
+      "imagingAreaExt-MLKFR",
+      "current",
+      "MLKFR",
+      "Mobile - Leg - Knee and Femur - Right",
+      "xRayImagingArea-MobileLegKneeandFemurRight"
+    ],
+    [
+      "imagingAreaExt-MLKLL",
+      "current",
+      "MLKLL",
+      "Mobile - Leg - Knee and Leg - Left",
+      "xRayImagingArea-MobileLegKneeandLegLeft"
+    ],
+    [
+      "imagingAreaExt-MLKLR",
+      "current",
+      "MLKLR",
+      "Mobile - Leg - Knee and Leg - Right",
+      "xRayImagingArea-MobileLegKneeandLegRight"
+    ],
+    [
+      "imagingAreaExt-MLKL",
+      "current",
+      "MLKL",
+      "Mobile - Leg - Knee - Left",
+      "xRayImagingArea-MobileLegKneeLeft"
+    ],
+    [
+      "imagingAreaExt-MLKR",
+      "current",
+      "MLKR",
+      "Mobile - Leg - Knee - Right",
+      "xRayImagingArea-MobileLegKneeRight"
+    ],
+    [
+      "imagingAreaExt-MLEGL",
+      "current",
+      "MLEGL",
+      "Mobile - Leg Length",
+      "xRayImagingArea-MobileLegLength"
+    ],
+    [
+      "imagingAreaExt-MLTFL",
+      "current",
+      "MLTFL",
+      "Mobile - Leg - Lower - Left (Tibia & Fibula)",
+      "xRayImagingArea-MobileLegLowerLeftTibiaFibula"
+    ],
+    [
+      "imagingAreaExt-MLTFR",
+      "current",
+      "MLTFR",
+      "Mobile - Leg - Lower - Right (Tibia & Fibula)",
+      "xRayImagingArea-MobileLegLowerRightTibiaFibula"
+    ],
+    [
+      "imagingAreaExt-MM",
+      "current",
+      "MM",
+      "Mobile - Mandible ",
+      "xRayImagingArea-MobileMandible"
+    ],
+    [
+      "imagingAreaExt-MMAC",
+      "current",
+      "MMAC",
+      "Mobile - Mastoid Air Cells",
+      "xRayImagingArea-MobileMastoidAirCells"
+    ],
+    [
+      "imagingAreaExt-MNB",
+      "current",
+      "MNB",
+      "Mobile - Nasal Bones",
+      "xRayImagingArea-MobileNasalBones"
+    ],
+    [
+      "imagingAreaExt-MOST",
+      "current",
+      "MOST",
+      "Mobile-orbits ",
+      "xRayImagingArea-Mobileorbits"
+    ],
+    [
+      "imagingAreaExt-MOB",
+      "current",
+      "MOB",
+      "Mobile - Orbits - Boney",
+      "xRayImagingArea-MobileOrbitsBoney"
+    ],
+    [
+      "imagingAreaExt-MP",
+      "current",
+      "MP",
+      "Mobile - Pelvis",
+      "xRayImagingArea-MobilePelvis"
+    ],
+    [
+      "imagingAreaExt-MPTB",
+      "current",
+      "MPTB",
+      "Mobile - Petrous Temporal Bones",
+      "xRayImagingArea-MobilePetrousTemporalBones"
+    ],
+    [
+      "imagingAreaExt-MRB",
+      "current",
+      "MRB",
+      "Mobile - Ribs - Both sides",
+      "xRayImagingArea-MobileRibsBothsides"
+    ],
+    [
+      "imagingAreaExt-MRL",
+      "current",
+      "MRL",
+      "Mobile - Ribs - Left",
+      "xRayImagingArea-MobileRibsLeft"
+    ],
+    [
+      "imagingAreaExt-MRR",
+      "current",
+      "MRR",
+      "Mobile - Ribs - Right",
+      "xRayImagingArea-MobileRibsRight"
+    ],
+    [
+      "imagingAreaExt-MSIJ",
+      "current",
+      "MSIJ",
+      "Mobile - Sacro-Iliac Joints",
+      "xRayImagingArea-MobileSacroIliacJoints"
+    ],
+    [
+      "imagingAreaExt-MSGC",
+      "current",
+      "MSGC",
+      "Mobile - Salivary Gland - Calculus",
+      "xRayImagingArea-MobileSalivaryGlandCalculus"
+    ],
+    [
+      "imagingAreaExt-MSACJL",
+      "current",
+      "MSACJL",
+      "Mobile - Shoulder - Acromioclavicular Joints - Left",
+      "xRayImagingArea-MobileShoulderAcromioclavicularJointsLeft"
+    ],
+    [
+      "imagingAreaExt-MSACJR",
+      "current",
+      "MSACJR",
+      "Mobile - Shoulder - Acromioclavicular Joints - Right",
+      "xRayImagingArea-MobileShoulderAcromioclavicularJointsRight"
+    ],
+    [
+      "imagingAreaExt-MSCL",
+      "current",
+      "MSCL",
+      "Mobile - Shoulder - Clavicle - Left",
+      "xRayImagingArea-MobileShoulderClavicleLeft"
+    ],
+    [
+      "imagingAreaExt-MSCR",
+      "current",
+      "MSCR",
+      "Mobile - Shoulder - Clavicle - Right",
+      "xRayImagingArea-MobileShoulderClavicleRight"
+    ],
+    [
+      "imagingAreaExt-MSL",
+      "current",
+      "MSL",
+      "Mobile - Shoulder - Left",
+      "xRayImagingArea-MobileShoulderLeft"
+    ],
+    [
+      "imagingAreaExt-MSR",
+      "current",
+      "MSR",
+      "Mobile - Shoulder - Right",
+      "xRayImagingArea-MobileShoulderRight"
+    ],
+    [
+      "imagingAreaExt-MSSL",
+      "current",
+      "MSSL",
+      "Mobile - Shoulder - Scapula - Left",
+      "xRayImagingArea-MobileShoulderScapulaLeft"
+    ],
+    [
+      "imagingAreaExt-MSSR",
+      "current",
+      "MSSR",
+      "Mobile - Shoulder - Scapula - Right",
+      "xRayImagingArea-MobileShoulderScapulaRight"
+    ],
+    [
+      "imagingAreaExt-MSP",
+      "current",
+      "MSP",
+      "Mobile - Sinuses - Paranasal",
+      "xRayImagingArea-MobileSinusesParanasal"
+    ],
+    [
+      "imagingAreaExt-MSS",
+      "current",
+      "MSS",
+      "Mobile - Skeletal Survey",
+      "xRayImagingArea-MobileSkeletalSurvey"
+    ],
+    [
+      "imagingAreaExt-MS",
+      "current",
+      "MS",
+      "Mobile - Skull",
+      "xRayImagingArea-MobileSkull"
+    ],
+    [
+      "imagingAreaExt-MSC",
+      "current",
+      "MSC",
+      "Mobile - Spine - Cervical",
+      "xRayImagingArea-MobileSpineCervical"
+    ],
+    [
+      "imagingAreaExt-MSCLS",
+      "current",
+      "MSCLS",
+      "Mobile - Spine - Cervical and Lumbar ",
+      "xRayImagingArea-MobileSpineCervicalandLumbar"
+    ],
+    [
+      "imagingAreaExt-MSCT",
+      "current",
+      "MSCT",
+      "Mobile - Spine - Cervical and Thoracic ",
+      "xRayImagingArea-MobileSpineCervicalandThoracic"
+    ],
+    [
+      "imagingAreaExt-MSF",
+      "current",
+      "MSF",
+      "Mobile - Spine - Full ",
+      "xRayImagingArea-MobileSpineFull"
+    ],
+    [
+      "imagingAreaExt-MSFLF",
+      "current",
+      "MSFLF",
+      "Mobile - Spine  - Full - Long Film",
+      "xRayImagingArea-MobileSpineFullLongFilm"
+    ],
+    [
+      "imagingAreaExt-MS2LS",
+      "current",
+      "MS2LS",
+      "Mobile - Spine - Lumbar and Sacrum - 2 Region",
+      "xRayImagingArea-MobileSpineLumbarandSacrum2Region"
+    ],
+    [
+      "imagingAreaExt-MSLS",
+      "current",
+      "MSLS",
+      "Mobile - Spine - Lumbar Sacral ",
+      "xRayImagingArea-MobileSpineLumbarSacral"
+    ],
+    [
+      "imagingAreaExt-MSSC",
+      "current",
+      "MSSC",
+      "Mobile - Spine - Sacrococcygeal",
+      "xRayImagingArea-MobileSpineSacrococcygeal"
+    ],
+    [
+      "imagingAreaExt-MST",
+      "current",
+      "MST",
+      "Mobile - Spine - Thoracic",
+      "xRayImagingArea-MobileSpineThoracic"
+    ],
+    [
+      "imagingAreaExt-MSTL",
+      "current",
+      "MSTL",
+      "Mobile - Spine - Thoracic and Lumbar",
+      "xRayImagingArea-MobileSpineThoracicandLumbar"
+    ],
+    [
+      "imagingAreaExt-MSCJ",
+      "current",
+      "MSCJ",
+      "Mobile - Sternoclavicular Joints",
+      "xRayImagingArea-MobileSternoclavicularJoints"
+    ],
+    [
+      "imagingAreaExt-MSO",
+      "current",
+      "MSO",
+      "Mobile - Sternum Only",
+      "xRayImagingArea-MobileSternumOnly"
+    ],
+    [
+      "imagingAreaExt-MSB",
+      "current",
+      "MSB",
+      "Mobile - Sternum - Ribs - Both sides",
+      "xRayImagingArea-MobileSternumRibsBothsides"
+    ],
+    [
+      "imagingAreaExt-MSRL",
+      "current",
+      "MSRL",
+      "Mobile - Sternum - Ribs - Left",
+      "xRayImagingArea-MobileSternumRibsLeft"
+    ],
+    [
+      "imagingAreaExt-MSRR",
+      "current",
+      "MSRR",
+      "Mobile - Sternum - Ribs - Right",
+      "xRayImagingArea-MobileSternumRibsRight"
+    ],
+    [
+      "imagingAreaExt-MTI",
+      "current",
+      "MTI",
+      "Mobile - Thoracic Inlet - Trachea",
+      "xRayImagingArea-MobileThoracicInletTrachea"
+    ],
+    [
+      "imagingAreaExt-MWL",
+      "current",
+      "MWL",
+      "Mobile - Wrist - Left",
+      "xRayImagingArea-MobileWristLeft"
+    ],
+    [
+      "imagingAreaExt-MWR",
+      "current",
+      "MWR",
+      "Mobile - Wrist - Right",
+      "xRayImagingArea-MobileWristRight"
+    ],
+    [
+      "imagingAreaExt-MWSL",
+      "current",
+      "MWSL",
+      "Mobile - Wrist - Scaphoid - Left",
+      "xRayImagingArea-MobileWristScaphoidLeft"
+    ],
+    [
+      "imagingAreaExt-MWSR",
+      "current",
+      "MWSR",
+      "Mobile - Wrist - Scaphoid - Right",
+      "xRayImagingArea-MobileWristScaphoidRight"
+    ],
+    [
+      "imagingAreaExt-XNB",
+      "current",
+      "XNB",
+      "Nasal Bones",
+      "xRayImagingArea-NasalBones"
+    ],
+    [
+      "imagingAreaExt-XOPGC",
+      "current",
+      "XOPGC",
+      "OPG - Caries",
+      "xRayImagingArea-OPGCaries"
+    ],
+    [
+      "imagingAreaExt-XOPGD",
+      "current",
+      "XOPGD",
+      "OPG - Developmental",
+      "xRayImagingArea-OPGDevelopmental"
+    ],
+    [
+      "imagingAreaExt-XOPGLC",
+      "current",
+      "XOPGLC",
+      "OPG - Lateral Cephalometry",
+      "xRayImagingArea-OPGLateralCephalometry"
+    ],
+    [
+      "imagingAreaExt-XOPGS",
+      "current",
+      "XOPGS",
+      "OPG - Sinuses",
+      "xRayImagingArea-OPGSinuses"
+    ],
+    [
+      "imagingAreaExt-XOPGTMJ",
+      "current",
+      "XOPGTMJ",
+      "OPG Temperomandibular Joints",
+      "xRayImagingArea-OPGTemperomandibularJoints"
+    ],
+    [
+      "imagingAreaExt-XOPGT",
+      "current",
+      "XOPGT",
+      "OPG - Trauma",
+      "xRayImagingArea-OPGTrauma"
+    ],
+    [
+      "imagingAreaExt-XOB",
+      "current",
+      "XOB",
+      "Orbits - Boney",
+      "xRayImagingArea-OrbitsBoney"
+    ],
+    [
+      "imagingAreaExt-XOST",
+      "current",
+      "XOST",
+      "Orbits - Soft Tissues",
+      "xRayImagingArea-OrbitsSoftTissues"
+    ],
+    [
+      "imagingAreaExt-XP",
+      "current",
+      "XP",
+      "Pelvis",
+      "xRayImagingArea-Pelvis"
+    ],
+    [
+      "imagingAreaExt-XPTB",
+      "current",
+      "XPTB",
+      "Petrous Temporal Bones",
+      "xRayImagingArea-PetrousTemporalBones"
+    ],
+    [
+      "imagingAreaExt-XPM",
+      "current",
+      "XPM",
+      "Post Mortem Examination",
+      "xRayImagingArea-PostMortemExamination"
+    ],
+    [
+      "imagingAreaExt-XRB",
+      "current",
+      "XRB",
+      "Ribs - Both sides",
+      "xRayImagingArea-RibsBothsides"
+    ],
+    [
+      "imagingAreaExt-XRL",
+      "current",
+      "XRL",
+      "Ribs - Left",
+      "xRayImagingArea-RibsLeft"
+    ],
+    [
+      "imagingAreaExt-XRR",
+      "current",
+      "XRR",
+      "Ribs - Right",
+      "xRayImagingArea-RibsRight"
+    ],
+    [
+      "imagingAreaExt-XSIJ",
+      "current",
+      "XSIJ",
+      "Sacro-Iliac Joints",
+      "xRayImagingArea-SacroIliacJoints"
+    ],
+    [
+      "imagingAreaExt-XSGC",
+      "current",
+      "XSGC",
+      "Salivary Gland - Calculus",
+      "xRayImagingArea-SalivaryGlandCalculus"
+    ],
+    [
+      "imagingAreaExt-XSACJL",
+      "current",
+      "XSACJL",
+      "Shoulder - Acromioclavicular Joints - Left",
+      "xRayImagingArea-ShoulderAcromioclavicularJointsLeft"
+    ],
+    [
+      "imagingAreaExt-XSACJR",
+      "current",
+      "XSACJR",
+      "Shoulder - Acromioclavicular Joints - Right",
+      "xRayImagingArea-ShoulderAcromioclavicularJointsRight"
+    ],
+    [
+      "imagingAreaExt-XSCL",
+      "current",
+      "XSCL",
+      "Shoulder - Clavicle - Left",
+      "xRayImagingArea-ShoulderClavicleLeft"
+    ],
+    [
+      "imagingAreaExt-XSCR",
+      "current",
+      "XSCR",
+      "Shoulder - Clavicle - Right",
+      "xRayImagingArea-ShoulderClavicleRight"
+    ],
+    [
+      "imagingAreaExt-XSL",
+      "current",
+      "XSL",
+      "Shoulder - Left",
+      "xRayImagingArea-ShoulderLeft"
+    ],
+    [
+      "imagingAreaExt-XSR",
+      "current",
+      "XSR",
+      "Shoulder - Right",
+      "xRayImagingArea-ShoulderRight"
+    ],
+    [
+      "imagingAreaExt-XSSL",
+      "current",
+      "XSSL",
+      "Shoulder - Scapula - Left",
+      "xRayImagingArea-ShoulderScapulaLeft"
+    ],
+    [
+      "imagingAreaExt-XSSR",
+      "current",
+      "XSSR",
+      "Shoulder - Scapula - Right",
+      "xRayImagingArea-ShoulderScapulaRight"
+    ],
+    [
+      "imagingAreaExt-XSP",
+      "current",
+      "XSP",
+      "Sinuses - Paranasal",
+      "xRayImagingArea-SinusesParanasal"
+    ],
+    [
+      "imagingAreaExt-XSS",
+      "current",
+      "XSS",
+      "Skeletal Survey",
+      "xRayImagingArea-SkeletalSurvey"
+    ],
+    [
+      "imagingAreaExt-XS",
+      "current",
+      "XS",
+      "Skull",
+      "xRayImagingArea-Skull"
+    ],
+    [
+      "imagingAreaExt-XSC",
+      "current",
+      "XSC",
+      "Spine - Cervical",
+      "xRayImagingArea-SpineCervical"
+    ],
+    [
+      "imagingAreaExt-XSCLS",
+      "current",
+      "XSCLS",
+      "Spine - Cervical and Lumbosacral ",
+      "xRayImagingArea-SpineCervicalandLumbosacral"
+    ],
+    [
+      "imagingAreaExt-XSCT",
+      "current",
+      "XSCT",
+      "Spine - Cervical and Thoracic ",
+      "xRayImagingArea-SpineCervicalandThoracic"
+    ],
+    [
+      "imagingAreaExt-XSF",
+      "current",
+      "XSF",
+      "Spine - Full ",
+      "xRayImagingArea-SpineFull"
+    ],
+    [
+      "imagingAreaExt-XSFLF",
+      "current",
+      "XSFLF",
+      "Spine  - Full - Long Film",
+      "xRayImagingArea-SpineFullLongFilm"
+    ],
+    [
+      "imagingAreaExt-XS2LS",
+      "current",
+      "XS2LS",
+      "Spine - Lumbar and Sacrum 2 Region",
+      "xRayImagingArea-SpineLumbarandSacrum2Region"
+    ],
+    [
+      "imagingAreaExt-XSLS",
+      "current",
+      "XSLS",
+      "Spine - Lumbar Sacral",
+      "xRayImagingArea-SpineLumbarSacral"
+    ],
+    [
+      "imagingAreaExt-XSSC",
+      "current",
+      "XSSC",
+      "Spine - Sacrococcygeal",
+      "xRayImagingArea-SpineSacrococcygeal"
+    ],
+    [
+      "imagingAreaExt-XST",
+      "current",
+      "XST",
+      "Spine - Thoracic",
+      "xRayImagingArea-SpineThoracic"
+    ],
+    [
+      "imagingAreaExt-XSTLS",
+      "current",
+      "XSTLS",
+      "Spine - Thoracic and Lumbosacral",
+      "xRayImagingArea-SpineThoracicandLumbosacral"
+    ],
+    [
+      "imagingAreaExt-XSCJ",
+      "current",
+      "XSCJ",
+      "Sternoclavicular Joints",
+      "xRayImagingArea-SternoclavicularJoints"
+    ],
+    [
+      "imagingAreaExt-XSO",
+      "current",
+      "XSO",
+      "Sternum Only",
+      "xRayImagingArea-SternumOnly"
+    ],
+    [
+      "imagingAreaExt-XSB",
+      "current",
+      "XSB",
+      "Sternum - Ribs - Both sides",
+      "xRayImagingArea-SternumRibsBothsides"
+    ],
+    [
+      "imagingAreaExt-XSRL",
+      "current",
+      "XSRL",
+      "Sternum - Ribs - Left",
+      "xRayImagingArea-SternumRibsLeft"
+    ],
+    [
+      "imagingAreaExt-XSRR",
+      "current",
+      "XSRR",
+      "Sternum - Ribs - Right",
+      "xRayImagingArea-SternumRibsRight"
+    ],
+    [
+      "imagingAreaExt-MTMJB",
+      "current",
+      "MTMJB",
+      "Temporo-Mandibular Joints",
+      "xRayImagingArea-TemporoMandibularJoints"
+    ],
+    [
+      "imagingAreaExt-XTI",
+      "current",
+      "XTI",
+      "Thoracic Inlet - Trachea",
+      "xRayImagingArea-ThoracicInletTrachea"
+    ],
+    [
+      "imagingAreaExt-XT",
+      "current",
+      "XT",
+      "Tomography of any region",
+      "xRayImagingArea-Tomographyofanyregion"
+    ],
+    [
+      "imagingAreaExt-XWL",
+      "current",
+      "XWL",
+      "Wrist - Left",
+      "xRayImagingArea-WristLeft"
+    ],
+    [
+      "imagingAreaExt-XWR",
+      "current",
+      "XWR",
+      "Wrist - Right",
+      "xRayImagingArea-WristRight"
+    ],
+    [
+      "imagingAreaExt-XWSL",
+      "current",
+      "XWSL",
+      "Wrist - Scaphoid - Left",
+      "xRayImagingArea-WristScaphoidLeft"
+    ],
+    [
+      "imagingAreaExt-XWSR",
+      "current",
+      "XWSR",
+      "Wrist - Scaphoid - Right",
+      "xRayImagingArea-WristScaphoidRight"
+    ],
+    [
+      "imagingAreaExt-XTMJ",
+      "current",
+      "XTMJ",
+      "Temperomandibular Joints - (CR)",
+      "xRayImagingArea-TemperomandibularJointsCR"
+    ],
+    [
+      "imagingAreaExt-FADTC",
+      "current",
+      "FADTC",
+      "Abscess Drainage Tube Change (ex. imaging)",
+      "fluroscopyScanImagingArea-AbscessDrainageTubeChangeeximaging"
+    ],
+    [
+      "imagingAreaExt-FADTI",
+      "current",
+      "FADTI",
+      "Abscess Drainage Tube Insertion (ex. imaging)",
+      "fluroscopyScanImagingArea-AbscessDrainageTubeInsertioneximaging"
+    ],
+    [
+      "imagingAreaExt-FAMC",
+      "current",
+      "FAMC",
+      "Anaes.Cervical Myelogram",
+      "fluroscopyScanImagingArea-AnaesCervicalMyelogram"
+    ],
+    [
+      "imagingAreaExt-FAHSG",
+      "current",
+      "FAHSG",
+      "Anaes. Hysterosalpingogram",
+      "fluroscopyScanImagingArea-AnaesHysterosalpingogram"
+    ],
+    [
+      "imagingAreaExt-FAMTL",
+      "current",
+      "FAMTL",
+      "Anaes.Thoracic or Lumbar Myelogram",
+      "fluroscopyScanImagingArea-AnaesThoracicorLumbarMyelogram"
+    ],
+    [
+      "imagingAreaExt-FAPL",
+      "current",
+      "FAPL",
+      "Antegrade Pyelogram (Left)",
+      "fluroscopyScanImagingArea-AntegradePyelogramLeft"
+    ],
+    [
+      "imagingAreaExt-FAPR",
+      "current",
+      "FAPR",
+      "Antegrade Pyelogram (Right)",
+      "fluroscopyScanImagingArea-AntegradePyelogramRight"
+    ],
+    [
+      "imagingAreaExt-FAUSI",
+      "current",
+      "FAUSI",
+      "Antegrade Ureteric Stent Insertion (ex imaging)",
+      "fluroscopyScanImagingArea-AntegradeUretericStentInsertioneximaging"
+    ],
+    [
+      "imagingAreaExt-FA",
+      "current",
+      "FA",
+      "Arthrogram",
+      "fluroscopyScanImagingArea-Arthrogram"
+    ],
+    [
+      "imagingAreaExt-FBDO",
+      "current",
+      "FBDO",
+      "Biopsy of Deep Organ (ex. imaging)",
+      "fluroscopyScanImagingArea-BiopsyofDeepOrganeximaging"
+    ],
+    [
+      "imagingAreaExt-FBL",
+      "current",
+      "FBL",
+      "Biopsy of Lung (ex. imaging)",
+      "fluroscopyScanImagingArea-BiopsyofLungeximaging"
+    ],
+    [
+      "imagingAreaExt-FBTM",
+      "current",
+      "FBTM",
+      "Biopsy Thoracic Mediastinum (ex. imaging)",
+      "fluroscopyScanImagingArea-BiopsyThoracicMediastinumeximaging"
+    ],
+    [
+      "imagingAreaExt-FCF",
+      "current",
+      "FCF",
+      "Chest with Fluoroscopy",
+      "fluroscopyScanImagingArea-ChestwithFluoroscopy"
+    ],
+    [
+      "imagingAreaExt-FC",
+      "current",
+      "FC",
+      "Cystogram",
+      "fluroscopyScanImagingArea-Cystogram"
+    ],
+    [
+      "imagingAreaExt-AEAVM",
+      "current",
+      "AEAVM",
+      "Embolisation of Arterovenous Malformation",
+      "fluroscopyScanImagingArea-EmbolisationofArterovenousMalformation"
+    ],
+    [
+      "imagingAreaExt-AEA",
+      "current",
+      "AEA",
+      "Embolisation of Artery",
+      "fluroscopyScanImagingArea-EmbolisationofArtery"
+    ],
+    [
+      "imagingAreaExt-AEV",
+      "current",
+      "AEV",
+      "Embolisation of Vein",
+      "fluroscopyScanImagingArea-EmbolisationofVein"
+    ],
+    [
+      "imagingAreaExt-FEBT",
+      "current",
+      "FEBT",
+      "Excised Breast Tissue",
+      "fluroscopyScanImagingArea-ExcisedBreastTissue"
+    ],
+    [
+      "imagingAreaExt-FEBC",
+      "current",
+      "FEBC",
+      "Extraction Biliary Calculus (ex. imaging)",
+      "fluroscopyScanImagingArea-ExtractionBiliaryCalculuseximaging"
+    ],
+    [
+      "imagingAreaExt-FERC",
+      "current",
+      "FERC",
+      "Extraction Renal Calculus (ex. imaging)",
+      "fluroscopyScanImagingArea-ExtractionRenalCalculuseximaging"
+    ],
+    [
+      "imagingAreaExt-FFNBV",
+      "current",
+      "FFNBV",
+      "Fine Needle Biopsy of Vertebra (ex. imaging)",
+      "fluroscopyScanImagingArea-FineNeedleBiopsyofVertebraeximaging"
+    ],
+    [
+      "imagingAreaExt-FF",
+      "current",
+      "FF",
+      "Fistulogram",
+      "fluroscopyScanImagingArea-Fistulogram"
+    ],
+    [
+      "imagingAreaExt-AFI",
+      "current",
+      "AFI",
+      "Fluoroscopy for Interventional Procedure in DSA Suite",
+      "fluroscopyScanImagingArea-FluoroscopyforInterventionalProcedureinDSASuite"
+    ],
+    [
+      "imagingAreaExt-FWGA",
+      "current",
+      "FWGA",
+      "Fluoroscopy With G.A.",
+      "fluroscopyScanImagingArea-FluoroscopyWithGA"
+    ],
+    [
+      "imagingAreaExt-FI",
+      "current",
+      "FI",
+      "Fluoroscopy with Interventional Proceedure",
+      "fluroscopyScanImagingArea-FluoroscopywithInterventionalProceedure"
+    ],
+    [
+      "imagingAreaExt-FWOGA",
+      "current",
+      "FWOGA",
+      "Fluoroscopy without G.A.",
+      "fluroscopyScanImagingArea-FluoroscopywithoutGA"
+    ],
+    [
+      "imagingAreaExt-FGB",
+      "current",
+      "FGB",
+      "Gastric Band Adjustment (ex. Imaging)",
+      "fluroscopyScanImagingArea-GastricBandAdjustmentexImaging"
+    ],
+    [
+      "imagingAreaExt-FH",
+      "current",
+      "FH",
+      "Herniagram",
+      "fluroscopyScanImagingArea-Herniagram"
+    ],
+    [
+      "imagingAreaExt-FIBDT",
+      "current",
+      "FIBDT",
+      "Insertion - Biliary Drainage Tube (ex. imaging)",
+      "fluroscopyScanImagingArea-InsertionBiliaryDrainageTubeeximaging"
+    ],
+    [
+      "imagingAreaExt-FIOS",
+      "current",
+      "FIOS",
+      "Insertion - Oesophageal Stent",
+      "fluroscopyScanImagingArea-InsertionOesophagealStent"
+    ],
+    [
+      "imagingAreaExt-FJI",
+      "current",
+      "FJI",
+      "Joint Injection / aspiration (ex. imaging)",
+      "fluroscopyScanImagingArea-JointInjectionaspirationeximaging"
+    ],
+    [
+      "imagingAreaExt-FLP",
+      "current",
+      "FLP",
+      "Lumbar Puncture  (ex. imaging)",
+      "fluroscopyScanImagingArea-LumbarPunctureeximaging"
+    ],
+    [
+      "imagingAreaExt-FMCU",
+      "current",
+      "FMCU",
+      "Micturating Cysto-Urethrogram",
+      "fluroscopyScanImagingArea-MicturatingCystoUrethrogram"
+    ],
+    [
+      "imagingAreaExt-MRBI",
+      "current",
+      "MRBI",
+      "MR Brain (inflammation)",
+      "fluroscopyScanImagingArea-MRBraininflammation"
+    ],
+    [
+      "imagingAreaExt-MRBTSBO",
+      "current",
+      "MRBTSBO",
+      "MR Brain (tumour of skull base/orbit)",
+      "fluroscopyScanImagingArea-MRBraintumourofskullbaseorbit"
+    ],
+    [
+      "imagingAreaExt-FM",
+      "current",
+      "FM",
+      "Myelogram - one or more regions",
+      "fluroscopyScanImagingArea-Myelogramoneormoreregions"
+    ],
+    [
+      "imagingAreaExt-FNL",
+      "current",
+      "FNL",
+      "Nephrostogram (Left)",
+      "fluroscopyScanImagingArea-NephrostogramLeft"
+    ],
+    [
+      "imagingAreaExt-FNR",
+      "current",
+      "FNR",
+      "Nephrostogram (Right)",
+      "fluroscopyScanImagingArea-NephrostogramRight"
+    ],
+    [
+      "imagingAreaExt-FNTC",
+      "current",
+      "FNTC",
+      "Nephrostomy Tube Change  (ex. imaging)",
+      "fluroscopyScanImagingArea-NephrostomyTubeChangeeximaging"
+    ],
+    [
+      "imagingAreaExt-FNTI",
+      "current",
+      "FNTI",
+      "Nephrostomy Tube Insertion (ex. imaging)",
+      "fluroscopyScanImagingArea-NephrostomyTubeInsertioneximaging"
+    ],
+    [
+      "imagingAreaExt-FRCUG",
+      "current",
+      "FRCUG",
+      "Retrograde Cysto-Urethrogram",
+      "fluroscopyScanImagingArea-RetrogradeCystoUrethrogram"
+    ],
+    [
+      "imagingAreaExt-FS",
+      "current",
+      "FS",
+      "Sinogram",
+      "fluroscopyScanImagingArea-Sinogram"
+    ],
+    [
+      "imagingAreaExt-FSBI",
+      "current",
+      "FSBI",
+      "Small Bowel Intubation (ex. imaging)",
+      "fluroscopyScanImagingArea-SmallBowelIntubationeximaging"
+    ],
+    [
+      "imagingAreaExt-FST",
+      "current",
+      "FST",
+      "Sniff Test",
+      "fluroscopyScanImagingArea-SniffTest"
+    ],
+    [
+      "imagingAreaExt-FTCBD",
+      "current",
+      "FTCBD",
+      "Tube Change - Biliary Drainage (ex. imaging)",
+      "fluroscopyScanImagingArea-TubeChangeBiliaryDrainageeximaging"
+    ],
+    [
+      "imagingAreaExt-AVCDFI",
+      "current",
+      "AVCDFI",
+      "Vena Cava Filter Insertion",
+      "fluroscopyScanImagingArea-VenaCavaFilterInsertion"
+    ],
+    [
+      "imagingAreaExt-FVL",
+      "current",
+      "FVL",
+      "Venogram (Left)",
+      "fluroscopyScanImagingArea-VenogramLeft"
+    ],
+    [
+      "imagingAreaExt-FVR",
+      "current",
+      "FVR",
+      "Venogram (Right)",
+      "fluroscopyScanImagingArea-VenogramRight"
+    ],
+    [
+      "imagingAreaExt-FZJI",
+      "current",
+      "FZJI",
+      "Zygo-apophyseal Joint Injection (includes imaging)",
+      "fluroscopyScanImagingArea-ZygoapophysealJointInjectionincludesimaging"
+    ],
+    [
+      "imagingAreaExt-testing-area",
+      "current",
+      "xRayImagingArea-TestingArea",
+      "TestingArea",
+      "Xray-Testing-Area"
+    ]
+  ]
+}

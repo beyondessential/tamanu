@@ -1,0 +1,190 @@
+{
+  "sheetName": "Reaction",
+  "data": [
+    [
+      "id",
+      "code",
+      "name"
+    ],
+    [
+      "allergicreaction-abdominalpain",
+      "abdominalpain",
+      "Abdominal pain"
+    ],
+    [
+      "allergicreaction-allergiccontactdermatitis",
+      "allergiccontactdermatitis",
+      "Allergic contact dermatitis"
+    ],
+    [
+      "allergicreaction-anaphylaxis",
+      "anaphylaxis",
+      "Anaphylaxis"
+    ],
+    [
+      "allergicreaction-angioedema",
+      "angioedema",
+      "Angioedema"
+    ],
+    [
+      "allergicreaction-bronchospasmandwheezing",
+      "bronchospasmandwheezing",
+      "Bronchospasm or wheezing"
+    ],
+    [
+      "allergicreaction-confusion",
+      "confusion",
+      "Confusion"
+    ],
+    [
+      "allergicreaction-diarrhea",
+      "diarrhea",
+      "Diarrhea"
+    ],
+    [
+      "allergicreaction-dizziness",
+      "dizziness",
+      "Dizziness"
+    ],
+    [
+      "allergicreaction-druginducedhypersensitivity",
+      "druginducedhypersensitivity",
+      "Drug induced hypersensitivity"
+    ],
+    [
+      "allergicreaction-erythemamultiforme",
+      "erythemamultiforme",
+      "Erythema multiforme"
+    ],
+    [
+      "allergicreaction-exanthematousdrugeruptions",
+      "exanthematousdrugeruptions",
+      "Exanthematous drug eruptions"
+    ],
+    [
+      "allergicreaction-faintingandlightheadedness",
+      "faintingandlightheadedness",
+      "Fainting / lightheadedness"
+    ],
+    [
+      "allergicreaction-fixeddrugeruption",
+      "fixeddrugeruption",
+      "Fixed drug eruption"
+    ],
+    [
+      "allergicreaction-gastrointestinalupset",
+      "gastrointestinalupset",
+      "Gastrointestinal upset "
+    ],
+    [
+      "allergicreaction-headache",
+      "headache",
+      "Headache"
+    ],
+    [
+      "allergicreaction-hypotension",
+      "hypotension",
+      "Hypotension"
+    ],
+    [
+      "allergicreaction-itch",
+      "itch",
+      "Itch"
+    ],
+    [
+      "allergicreaction-maculopapularrash",
+      "maculopapularrash",
+      "Maculopapular rash"
+    ],
+    [
+      "allergicreaction-myalgia",
+      "myalgia",
+      "Myalgia"
+    ],
+    [
+      "allergicreaction-nausea",
+      "nausea",
+      "Nausea"
+    ],
+    [
+      "allergicreaction-nephritis",
+      "nephritis",
+      "Nephritis"
+    ],
+    [
+      "allergicreaction-other",
+      "other",
+      "Other "
+    ],
+    [
+      "allergicreaction-palipitations",
+      "palipitations",
+      "Palipitations"
+    ],
+    [
+      "allergicreaction-photosensitivity",
+      "photosensitivity",
+      "Photosensitivity"
+    ],
+    [
+      "allergicreaction-seizures",
+      "seizures",
+      "Seizures"
+    ],
+    [
+      "allergicreaction-serumsicknesslikereaction",
+      "serumsicknesslikereaction",
+      "Serum sickness like reaction"
+    ],
+    [
+      "allergicreaction-shortnessofbreath",
+      "shortnessofbreath",
+      "Shortness of breath"
+    ],
+    [
+      "allergicreaction-stevensjohnsonsyndrome",
+      "stevensjohnsonsyndrome",
+      "Stevens-Johnson syndrome"
+    ],
+    [
+      "allergicreaction-swelling",
+      "swelling",
+      "Swelling"
+    ],
+    [
+      "allergicreaction-swellingofthetongue",
+      "swellingofthetongue",
+      "Swelling of the tongue"
+    ],
+    [
+      "allergicreaction-toxicepidermalnecrolyis",
+      "toxicepidermalnecrolyis",
+      "Toxic epidermal necrolyis"
+    ],
+    [
+      "allergicreaction-unknown",
+      "unknown",
+      "Unknown"
+    ],
+    [
+      "allergicreaction-urticariaskinrashhives",
+      "urticariaskinrashhives",
+      "Urticaria / skin rash / hives"
+    ],
+    [
+      "allergicreaction-vomiting",
+      "vomiting",
+      "Vomiting"
+    ],
+    [
+      "allergicreaction-wateryitchingeyes",
+      "wateryitchingeyes",
+      "Watery / itching eyes"
+    ],
+    [
+      "allergicreaction-wheezing",
+      "wheezing",
+      "Wheezing"
+    ]
+  ]
+}

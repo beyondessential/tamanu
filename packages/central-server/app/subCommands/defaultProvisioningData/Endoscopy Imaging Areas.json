@@ -1,0 +1,35 @@
+{
+  "sheetName": "Endoscopy Imaging Areas",
+  "data": [
+    [
+      "id",
+      "code",
+      "name"
+    ],
+    [
+      "endoscopyImagingArea-93001",
+      93001,
+      "Endoscopy Imaging Area"
+    ],
+    [
+      "endoscopyImagingArea-93002",
+      93002,
+      "Upper GI Endoscopy Area"
+    ],
+    [
+      "endoscopyImagingArea-93003",
+      93003,
+      "Bronchoscopy Area"
+    ],
+    [
+      "endoscopyImagingArea-93004",
+      93004,
+      "Cystoscopy Area"
+    ],
+    [
+      "endoscopyImagingArea-93005",
+      93005,
+      "Laparoscopy Area"
+    ]
+  ]
+}

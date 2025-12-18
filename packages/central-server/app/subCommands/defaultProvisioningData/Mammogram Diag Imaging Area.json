@@ -1,0 +1,23 @@
+{
+  "sheetName": "Mammogram Diag Imaging Area",
+  "data": [
+    [
+      "id",
+      "code",
+      "name",
+      "visibilityStatus"
+    ],
+    [
+      "mammogramDiagImagingArea-HandLeft",
+      "HandLeft",
+      "Hand - Left",
+      "current"
+    ],
+    [
+      "mammogramDiagImagingArea-HandFingerAndOrThumbRight",
+      "HandFingerAndOrThumbRight",
+      "Hand - Finger And/Or Thumb - Right",
+      "current"
+    ]
+  ]
+}

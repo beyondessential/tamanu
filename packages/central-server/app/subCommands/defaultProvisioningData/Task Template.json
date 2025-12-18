@@ -1,0 +1,482 @@
+{
+  "sheetName": "Task Template",
+  "data": [
+    [
+      "id",
+      "code",
+      "name",
+      "visibilityStatus",
+      "highPriority",
+      "assignedTo",
+      "taskFrequency"
+    ],
+    [
+      "58f20442-ac77-4754-ac21-5e83d6e91362",
+      "bedChange-7IV",
+      "Bed change",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-Assessment",
+      "Assessment",
+      "Assessment",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-AssessmentCognitive",
+      "AssessmentCognitive",
+      "Assessment: Cognitive",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-AssessmentDiet",
+      "AssessmentDiet",
+      "Assessment: Diet",
+      "current",
+      null,
+      "designation-Nutritionist",
+      null
+    ],
+    [
+      "task-AssessmentFunctional",
+      "AssessmentFunctional",
+      "Assessment: Functional",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-Headassessment",
+      "Headassessment",
+      "Assessment: Head",
+      "current",
+      true,
+      null,
+      "4 hours"
+    ],
+    [
+      "task-AssessmentIntake",
+      "AssessmentIntake",
+      "Assessment: Intake",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-Painassessment",
+      "Painassessment",
+      "Assessment: Pain",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-AssessmentSwallowing",
+      "AssessmentSwallowing",
+      "Assessment: Swallowing ",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-AssessmentWound",
+      "AssessmentWound",
+      "Assessment: Wound",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-Assistwithfeeding",
+      "Assistwithfeeding",
+      "Assist with feeding",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-Bookfollowupappointment",
+      "Bookfollowupappointment",
+      "Book follow up appointment",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-Catheterreview",
+      "Catheterreview",
+      "Catheter review",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-Changebed",
+      "Changebed",
+      "Change bed",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-Changebedpan",
+      "Changebedpan",
+      "Change bedpan",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-Changedressing",
+      "Changedressing",
+      "Change dressing",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-Checkoxygen",
+      "Checkoxygen",
+      "Check oxygen",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-Collectlabsample",
+      "Collectlabsample",
+      "Collect lab sample",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-Conductphysicalexam",
+      "Conductphysicalexam",
+      "Conduct physical exam",
+      "current",
+      null,
+      "designation-Nurse",
+      null
+    ],
+    [
+      "task-Consentform",
+      "Consentform",
+      "Consent form",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-Contactpatientfamilycaretaker",
+      "Contactpatientfamilycaretaker",
+      "Contact patient family/caretaker",
+      "current",
+      null,
+      "designation-Nurse, designation-Intern",
+      null
+    ],
+    [
+      "task-Medicationadministration",
+      "Medicationadministration",
+      "Medication administration",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-Obtainpatientsignature",
+      "Obtainpatientsignature",
+      "Obtain patient signature",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-Othertask",
+      "Othertask",
+      "Other task",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-Patienteducation",
+      "Patienteducation",
+      "Patient education",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-PatienteducationNewmedication",
+      "PatienteducationNewmedication",
+      "Patient education: New medication",
+      "current",
+      null,
+      "designation-Pharmacist",
+      null
+    ],
+    [
+      "task-PatienteducationNutrution",
+      "PatienteducationNutrition",
+      "Patient education: Nutrition",
+      "current",
+      null,
+      "designation-Nutritionist",
+      null
+    ],
+    [
+      "task-PatienteducationPostoperative",
+      "PatienteducationPostoperative",
+      "Patient education: Post operative",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-PatienteducationRehab",
+      "PatienteducationRehab",
+      "Patient education: Rehab",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-Dischargepreparation",
+      "Dischargepreparation",
+      "Patient preparation: Discharge",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-PatientpreparationFasting",
+      "PatientpreparationFasting",
+      "Patient preparation: Fasting",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-PatientpreparationProcedure",
+      "PatientpreparationProcedure",
+      "Patient preparation: Procedure",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-PatientpreparationSurgical",
+      "PatientpreparationSurgical",
+      "Patient preparation: Surgical",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-PatientupdateEmergencycontact",
+      "PatientupdateEmergencycontact",
+      "Patient update: Emergency contact",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-PatientupdateInsurancedetails",
+      "PatientupdateInsurancedetails",
+      "Patient update: Insurance details",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-PatientupdatePatientdetails",
+      "PatientupdatePatientdetails",
+      "Patient update: Patient details",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-Recordvitals",
+      "Recordvitals",
+      "Record vitals",
+      "current",
+      null,
+      null,
+      "4 hours"
+    ],
+    [
+      "task-Rehabilitationexercise",
+      "Rehabilitationexercise",
+      "Rehabilitation / exercise",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-Repositionpatientinbed",
+      "Repositionpatientinbed",
+      "Reposition patient in bed",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-Reviewimagingresults",
+      "Reviewimagingresults",
+      "Review imaging results",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-ReviewIVfluids",
+      "ReviewIVfluids",
+      "Review IV fluids",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-Reviewlabresults",
+      "Reviewlabresults",
+      "Review lab results",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-Reviewprnmedications",
+      "Reviewprnmedications",
+      "Review PRN medications",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-Showerpatient",
+      "Showerpatient",
+      "Shower patient",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-Surgicalsiteassessment",
+      "Surgicalsiteassessment",
+      "Surgical site assessment",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-Transferfrombedtochair",
+      "Transferfrombedtochair",
+      "Transfer from bed to chair",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "task-Transferpatient",
+      "Transferpatient",
+      "Transfer patient",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "c2bfae5e-c311-4bac-8018-405f25d8222a",
+      "commode-N70",
+      "Commode",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "0583e1df-00de-4fc4-9b34-424193880c0f",
+      "assessmentMobility-VKC",
+      "Assessment: Mobility",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "c2c8ec8c-348b-4dbd-9bf1-37028d31c78a",
+      "bloodSugarLevelCheck-LQB",
+      "Blood sugar level check",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "493b4d8f-fd1c-4b10-879c-dbd668ce4aa4",
+      "phoneOrderLabs-5X7",
+      "Phone order: Labs",
+      "current",
+      null,
+      null,
+      null
+    ],
+    [
+      "2e77661e-9033-4712-995b-dd1170022c1e",
+      "uvcInsertion-HVS",
+      "UVC insertion",
+      "current",
+      null,
+      null,
+      null
+    ]
+  ]
+}

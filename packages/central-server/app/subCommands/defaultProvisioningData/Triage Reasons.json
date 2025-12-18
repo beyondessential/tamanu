@@ -1,0 +1,285 @@
+{
+  "sheetName": "Triage Reasons",
+  "data": [
+    [
+      "id",
+      "code",
+      "name"
+    ],
+    [
+      "triage-Cardiorespiratoryarrest",
+      "Cardiorespiratoryarrest",
+      "Cardiorespiratory arrest"
+    ],
+    [
+      "triage-Abdominalpaindistension",
+      "Abdominalpaindistension",
+      "Abdominal pain/distension"
+    ],
+    [
+      "triage-Abnormalbehaviourmentalstate",
+      "Abnormalbehaviourmentalstate",
+      "Abnormal behaviour/mental state"
+    ],
+    [
+      "triage-Allergicreaction",
+      "Allergicreaction",
+      "Allergic reaction"
+    ],
+    [
+      "triage-Backpain",
+      "Backpain",
+      "Back pain"
+    ],
+    [
+      "triage-Bleeding-fromnose",
+      "Bleeding-fromnose",
+      "Bleeding - from nose"
+    ],
+    [
+      "triage-Bleeding-instool",
+      "Bleeding-instool",
+      "Bleeding - in stool"
+    ],
+    [
+      "triage-Bleeding-inurine",
+      "Bleeding-inurine",
+      "Bleeding - in urine"
+    ],
+    [
+      "triage-Bleeding-invomit",
+      "Bleeding-invomit",
+      "Bleeding - in vomit"
+    ],
+    [
+      "triage-Bleeding-other",
+      "Bleeding-other",
+      "Bleeding - other"
+    ],
+    [
+      "triage-Bleeding-vaginal",
+      "Bleeding-vaginal",
+      "Bleeding - vaginal"
+    ],
+    [
+      "triage-Bleeding-withcough",
+      "Bleeding-withcough",
+      "Bleeding - with cough"
+    ],
+    [
+      "triage-Cardiac-chestpain",
+      "Cardiac-chestpain",
+      "Cardiac - chest pain"
+    ],
+    [
+      "triage-Cardiac-other",
+      "Cardiac-other",
+      "Cardiac - other"
+    ],
+    [
+      "triage-Complicationofdiabetes",
+      "Complicationofdiabetes",
+      "Complication of diabetes"
+    ],
+    [
+      "triage-Confusion",
+      "Confusion",
+      "Confusion"
+    ],
+    [
+      "triage-Cough",
+      "Cough",
+      "Cough"
+    ],
+    [
+      "triage-Decreasedurineoutput",
+      "Decreasedurineoutput",
+      "Decreased urine output"
+    ],
+    [
+      "triage-Diarrhoea",
+      "Diarrhoea",
+      "Diarrhoea"
+    ],
+    [
+      "triage-Difficultybreathing",
+      "Difficultybreathing",
+      "Difficulty breathing"
+    ],
+    [
+      "triage-Difficultywalking",
+      "Difficultywalking",
+      "Difficulty walking"
+    ],
+    [
+      "triage-Dizzinessorgeneralweakness",
+      "Dizzinessorgeneralweakness",
+      "Dizziness or general weakness"
+    ],
+    [
+      "triage-Earproblem",
+      "Earproblem",
+      "Ear problem"
+    ],
+    [
+      "triage-Eyeproblem",
+      "Eyeproblem",
+      "Eye problem"
+    ],
+    [
+      "triage-Failuretothrive",
+      "Failuretothrive",
+      "Failure to thrive"
+    ],
+    [
+      "triage-FB-inhaledswallowed",
+      "FB-inhaledswallowed",
+      "FB - inhaled/swallowed"
+    ],
+    [
+      "triage-Feverorchills",
+      "Feverorchills",
+      "Fever or chills"
+    ],
+    [
+      "triage-Flankpain",
+      "Flankpain",
+      "Flank pain"
+    ],
+    [
+      "triage-Fluorcold-likesymptoms",
+      "Fluorcold-likesymptoms",
+      "Flu or cold-like symptoms"
+    ],
+    [
+      "triage-Focalweaknessornumbness",
+      "Focalweaknessornumbness",
+      "Focal weakness or numbness"
+    ],
+    [
+      "triage-ForeignbodyFB-inearnose",
+      "ForeignbodyFB-inearnose",
+      "Foreign body (FB) - in ear/nose"
+    ],
+    [
+      "triage-Genderbasedviolence",
+      "Genderbasedviolence",
+      "Gender based violence (GBV)"
+    ],
+    [
+      "triage-Genitourinarycomplaint",
+      "Genitourinarycomplaint",
+      "Genitourinary complaint"
+    ],
+    [
+      "triage-Headache",
+      "Headache",
+      "Headache"
+    ],
+    [
+      "triage-HIV",
+      "HIV",
+      "HIV - suspected/confirmed"
+    ],
+    [
+      "triage-Hypoorhyperglycaemia",
+      "Hypoorhyperglycaemia",
+      "Hypo- or hyperglycaemia"
+    ],
+    [
+      "triage-Injury",
+      "Injury",
+      "Injury"
+    ],
+    [
+      "triage-Intoxicationselfharm",
+      "Intoxicationselfharm",
+      "Intoxication - deliberate self harm"
+    ],
+    [
+      "triage-Intoxicationrecreational",
+      "Intoxicationrecreational",
+      "Intoxication - recreational"
+    ],
+    [
+      "triage-Jaundice",
+      "Jaundice",
+      "Jaundice"
+    ],
+    [
+      "triage-Limbpain",
+      "Limbpain",
+      "Limb pain"
+    ],
+    [
+      "triage-Lossofappetite",
+      "Lossofappetite",
+      "Loss of appetite/decreased intake"
+    ],
+    [
+      "triage-Lossofconsciousness",
+      "Lossofconsciousness",
+      "Loss of consciousness or faint"
+    ],
+    [
+      "triage-Malaria",
+      "Malaria",
+      "Malaria - suspected/confirmed"
+    ],
+    [
+      "triage-Mass",
+      "Mass",
+      "Mass"
+    ],
+    [
+      "triage-Nausea",
+      "Nausea",
+      "Nausea or vomiting"
+    ],
+    [
+      "triage-Nonacutewound",
+      "Nonacutewound",
+      "Non-acute wound or ulcer"
+    ],
+    [
+      "triage-Other",
+      "Other",
+      "Other"
+    ],
+    [
+      "triage-Pregnancyrelated",
+      "Pregnancyrelated",
+      "Pregnancy-related"
+    ],
+    [
+      "triage-Rash",
+      "Rash",
+      "Rash"
+    ],
+    [
+      "triage-Seizure",
+      "Seizure",
+      "Seizure or convulsion"
+    ],
+    [
+      "triage-Swelling",
+      "Swelling",
+      "Swelling"
+    ],
+    [
+      "triage-TB",
+      "TB",
+      "TB - suspected/confirmed"
+    ],
+    [
+      "triage-tooth",
+      "tooth",
+      "Tooth problem"
+    ],
+    [
+      "triage-Wheezing",
+      "Wheezing",
+      "Wheezing"
+    ]
+  ]
+}

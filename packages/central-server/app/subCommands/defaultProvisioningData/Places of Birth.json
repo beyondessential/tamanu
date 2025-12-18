@@ -1,0 +1,100 @@
+{
+  "sheetName": "Places of Birth",
+  "data": [
+    [
+      "id",
+      "code",
+      "name"
+    ],
+    [
+      "placeOfBirth-fiji",
+      "Fiji",
+      "Fiji"
+    ],
+    [
+      "placeOfBirth-newzealand",
+      "NewZealand",
+      "New Zealand"
+    ],
+    [
+      "placeOfBirth-americansamoa",
+      "AmericanSamoa",
+      "American Samoa"
+    ],
+    [
+      "placeOfBirth-australia",
+      "Australia",
+      "Australia"
+    ],
+    [
+      "placeOfBirth-tuvalu",
+      "Tuvalu",
+      "Tuvalu"
+    ],
+    [
+      "placeOfBirth-northernmarianaislands",
+      "NorthernMarianaIslands",
+      "Northern Mariana Islands"
+    ],
+    [
+      "placeOfBirth-federatedstatesofmicronesia",
+      "FederatedStatesofMicronesia",
+      "Federated States of Micronesia"
+    ],
+    [
+      "placeOfBirth-frenchpolynesia",
+      "FrenchPolynesia",
+      "French Polynesia"
+    ],
+    [
+      "placeOfBirth-kiribati",
+      "Kiribati",
+      "Kiribati"
+    ],
+    [
+      "placeOfBirth-marshallislands",
+      "MarshallIslands",
+      "Marshall Islands"
+    ],
+    [
+      "placeOfBirth-nauru",
+      "Nauru",
+      "Nauru"
+    ],
+    [
+      "placeOfBirth-newcaledonia",
+      "NewCaledonia",
+      "New Caledonia"
+    ],
+    [
+      "placeOfBirth-palau",
+      "Palau",
+      "Palau"
+    ],
+    [
+      "placeOfBirth-solomonislands",
+      "SolomonIslands",
+      "Solomon Islands"
+    ],
+    [
+      "placeOfBirth-tonga",
+      "Tonga",
+      "Tonga"
+    ],
+    [
+      "placeOfBirth-vanuatu",
+      "Vanuatu",
+      "Vanuatu"
+    ],
+    [
+      "placeOfBirth-wallisandfutuna",
+      "WallisandFutuna",
+      "Wallis and Futuna"
+    ],
+    [
+      "placeOfBirth-other",
+      "Other",
+      "Other"
+    ]
+  ]
+}

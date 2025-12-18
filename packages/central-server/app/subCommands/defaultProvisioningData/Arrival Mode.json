@@ -1,0 +1,71 @@
+{
+  "sheetName": "Arrival Mode",
+  "data": [
+    [
+      "id",
+      "code",
+      "name",
+      "visibilityStatus"
+    ],
+    [
+      "arrivalMode-ambulance",
+      "ambulance",
+      "Ambulance",
+      "current"
+    ],
+    [
+      "arrivalMode-walking",
+      "walking",
+      "Walking",
+      "current"
+    ],
+    [
+      "arrivalMode-wheelchair",
+      "wheelchair",
+      "Wheelchair",
+      "current"
+    ],
+    [
+      "arrivalMode-trolley",
+      "trolley",
+      "Trolley",
+      "current"
+    ],
+    [
+      "arrivalMode-crutches",
+      "crutches",
+      "Crutches",
+      "current"
+    ],
+    [
+      "arrivalMode-governmentvehicle",
+      "governmentvehicle",
+      "Government Vehicle",
+      "current"
+    ],
+    [
+      "arrivalMode-privatevehicle",
+      "privatevehicle",
+      "Private Vehicle",
+      "current"
+    ],
+    [
+      "arrivalMode-publictransport",
+      "publictransport",
+      "Public Transport",
+      "current"
+    ],
+    [
+      "arrivalMode-helicopter",
+      "helicopter",
+      "Helicopter",
+      "current"
+    ],
+    [
+      "arrivalMode-police",
+      "police",
+      "Police",
+      "current"
+    ]
+  ]
+}

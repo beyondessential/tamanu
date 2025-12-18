@@ -1,0 +1,45 @@
+{
+  "sheetName": "Marital Status",
+  "data": [
+    [
+      "id",
+      "code",
+      "name"
+    ],
+    [
+      "maritalstatus-Defacto",
+      "Defacto",
+      "De facto"
+    ],
+    [
+      "maritalstatus-Married",
+      "Married",
+      "Married"
+    ],
+    [
+      "maritalstatus-Single",
+      "Single",
+      "Single"
+    ],
+    [
+      "maritalstatus-Widow",
+      "Widow",
+      "Widow"
+    ],
+    [
+      "maritalstatus-Divorced",
+      "Divorced",
+      "Divorced"
+    ],
+    [
+      "maritalstatus-Separated",
+      "Separated",
+      "Separated"
+    ],
+    [
+      "maritalstatus-Unknown",
+      "Unknown",
+      "Unknown"
+    ]
+  ]
+}

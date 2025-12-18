@@ -1,0 +1,95 @@
+{
+  "sheetName": "Nationalities",
+  "data": [
+    [
+      "id",
+      "code",
+      "name"
+    ],
+    [
+      "nationality-Fiji",
+      "Fiji",
+      "Fiji"
+    ],
+    [
+      "nationality-NewZealand",
+      "NewZealand",
+      "New Zealand"
+    ],
+    [
+      "nationality-AmericanSamoa",
+      "AmericanSamoa",
+      "American Samoa"
+    ],
+    [
+      "nationality-Australia",
+      "Australia",
+      "Australia"
+    ],
+    [
+      "nationality-Tuvalu",
+      "Tuvalu",
+      "Tuvalu"
+    ],
+    [
+      "nationality-NorthernMarianaIslands",
+      "NorthernMarianaIslands",
+      "Northern Mariana Islands"
+    ],
+    [
+      "nationality-FederatedStatesofMicronesia",
+      "FederatedStatesofMicronesia",
+      "Federated States of Micronesia"
+    ],
+    [
+      "nationality-FrenchPolynesia",
+      "FrenchPolynesia",
+      "French Polynesia"
+    ],
+    [
+      "nationality-Kiribati",
+      "Kiribati",
+      "Kiribati"
+    ],
+    [
+      "nationality-MarshallIslands",
+      "MarshallIslands",
+      "Marshall Islands"
+    ],
+    [
+      "nationality-Nauru",
+      "Nauru",
+      "Nauru"
+    ],
+    [
+      "nationality-NewCaledonia",
+      "NewCaledonia",
+      "New Caledonia"
+    ],
+    [
+      "nationality-Palau",
+      "Palau",
+      "Palau"
+    ],
+    [
+      "nationality-SolomonIslands",
+      "SolomonIslands",
+      "Solomon Islands"
+    ],
+    [
+      "nationality-Tonga",
+      "Tonga",
+      "Tonga"
+    ],
+    [
+      "nationality-WallisandFutuna",
+      "WallisandFutuna",
+      "Wallis and Futuna"
+    ],
+    [
+      "nationality-Other",
+      "Other",
+      "Other"
+    ]
+  ]
+}

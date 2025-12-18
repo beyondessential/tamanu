@@ -1,0 +1,71 @@
+{
+  "sheetName": "Mammogram Imaging Area",
+  "data": [
+    [
+      "id",
+      "code",
+      "name",
+      "visibilityStatus"
+    ],
+    [
+      "MGImagingArea-Breast-Both-Diagnostic",
+      "MGBreast-Both-Diagnostic",
+      "Breast - Both - Diagnostic",
+      null
+    ],
+    [
+      "MGImagingArea-Breast-Both-Hookwire",
+      "MGBreast-Both-Hookwire",
+      "Breast - Both - Hookwire",
+      null
+    ],
+    [
+      "MGImagingArea-Breast-ExcisedTissue",
+      "MGBreast-ExcisedTissue",
+      "Breast - Excised Tissue",
+      null
+    ],
+    [
+      "MGImagingArea-Breast-Left-Diagnostic",
+      "MGBreast-Left-Diagnostic",
+      "Breast - Left - Diagnostic",
+      null
+    ],
+    [
+      "MGImagingArea-Breast-Left-Hookwire",
+      "MGBreast-Left-Hookwire",
+      "Breast - Left - Hookwire",
+      null
+    ],
+    [
+      "MGImagingArea-Breast-MammowithTomosynthesis-Left",
+      "MGBreast-MammowithTomosynthesis-Left",
+      "Breast - Mammo with Tomosynthesis - Left",
+      null
+    ],
+    [
+      "MGImagingArea-Breast-MammowithTomosynthesis-Right",
+      "MGBreast-MammowithTomosynthesis-Right",
+      "Breast - Mammo with Tomosynthesis - Right",
+      null
+    ],
+    [
+      "MGImagingArea-Breast-Right-Diagnostic",
+      "MGBreast-Right-Diagnostic",
+      "Breast - Right - Diagnostic",
+      null
+    ],
+    [
+      "MGImagingArea-Breast-Right-Hookwire",
+      "MGBreast-Right-Hookwire",
+      "Breast - Right - Hookwire",
+      null
+    ],
+    [
+      "MGImagingArea-FluoroscopyWithGA",
+      "MGFluoroscopyWithGA",
+      "Fluoroscopy With G.A.",
+      null
+    ]
+  ]
+}

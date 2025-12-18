@@ -1,0 +1,35 @@
+{
+  "sheetName": "Insurer",
+  "data": [
+    [
+      "id",
+      "code",
+      "name",
+      "visibilityStatus"
+    ],
+    [
+      "insurer-SouthernCrossHealthInsurance",
+      "SouthernCrossHealthInsurance",
+      "Southern Cross Health Insurance",
+      "current"
+    ],
+    [
+      "insurer-AAHealthInsurance",
+      "AAHealthInsurance",
+      "AA Health Insurance",
+      "current"
+    ],
+    [
+      "insurer-nibNZHealthInsurance",
+      "nibNZHealthInsurance",
+      "nib NZ Health Insurance",
+      "current"
+    ],
+    [
+      "insurer-AccuroHealthInsurance",
+      "AccuroHealthInsurance",
+      "Accuro Health Insurance",
+      "current"
+    ]
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "sheetName": "Payment Method",
+  "data": [
+    [
+      "id",
+      "code",
+      "name",
+      "visibilityStatus"
+    ],
+    [
+      "paymentmethod-cash",
+      "cash",
+      "Cash",
+      "current"
+    ],
+    [
+      "paymentmethod-cheque",
+      "cheque",
+      "Check",
+      "current"
+    ],
+    [
+      "paymentmethod-creditcard",
+      "creditcard",
+      "Credit Card",
+      "historical"
+    ],
+    [
+      "paymentmethod-allotmentcheque",
+      "allotmentcheque",
+      "Allotment Check",
+      "current"
+    ],
+    [
+      "paymentmethod-allotmentach",
+      "allotmentach",
+      "Allotment ACH",
+      "current"
+    ],
+    [
+      "paymentmethod-Visa",
+      "Visa",
+      "Visa",
+      "current"
+    ],
+    [
+      "paymentmethod-Mastercard",
+      "Mastercard",
+      "Mastercard",
+      "current"
+    ],
+    [
+      "paymentmethod-Discover",
+      "Discover",
+      "Discover",
+      "current"
+    ],
+    [
+      "paymentmethod-JCB",
+      "JCB",
+      "JCB",
+      "current"
+    ],
+    [
+      "paymentmethod-MedicalSavingsAccount",
+      "MSA",
+      "Medical Savings Account",
+      "current"
+    ]
+  ]
+}

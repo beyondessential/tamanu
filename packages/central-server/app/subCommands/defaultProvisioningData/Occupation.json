@@ -1,0 +1,1840 @@
+{
+  "sheetName": "Occupation",
+  "data": [
+    [
+      "id",
+      "code",
+      "name"
+    ],
+    [
+      "occupation-Accountant",
+      "Accountant",
+      "Accountant"
+    ],
+    [
+      "occupation-ActorDirector-FilmStage",
+      "ActorDirectorFilmStage",
+      "Actor/Director-Film/Stage"
+    ],
+    [
+      "occupation-Administrationandrelated",
+      "Administrationandrelated",
+      "Administration and related"
+    ],
+    [
+      "occupation-Agronomistandrelated",
+      "Agronomistandrelated",
+      "Agronomist and related"
+    ],
+    [
+      "occupation-AirTrafficController",
+      "AirTrafficController",
+      "Air Traffic Controller"
+    ],
+    [
+      "occupation-AirTrafficSafetyTechnician",
+      "AirTrafficSafetyTechnician",
+      "Air Traffic Safety Technician"
+    ],
+    [
+      "occupation-AirTravelStewardStewardess",
+      "AirTravelStewardStewardess",
+      "Air/Travel Steward/Stewardess"
+    ],
+    [
+      "occupation-AircraftEngineer",
+      "AircraftEngineer",
+      "Aircraft Engineer"
+    ],
+    [
+      "occupation-Announcer-RadioTelevision",
+      "Announcer-RadioTelevision",
+      "Announcer-Radio/Television"
+    ],
+    [
+      "occupation-ApiaristSericulturist",
+      "ApiaristSericulturist",
+      "Apiarist/Sericulturist"
+    ],
+    [
+      "occupation-AppraiserValuerAuctioneer",
+      "AppraiserValuerAuctioneer",
+      "Appraiser/Valuer/Auctioneer"
+    ],
+    [
+      "occupation-Architect",
+      "Architect",
+      "Architect"
+    ],
+    [
+      "occupation-ArchivistCurator",
+      "ArchivistCurator",
+      "Archivist/Curator"
+    ],
+    [
+      "occupation-ArmyOfficer",
+      "ArmyOfficer",
+      "Army Officer"
+    ],
+    [
+      "occupation-Assembler",
+      "Assembler",
+      "Assembler"
+    ],
+    [
+      "occupation-AssistantManager",
+      "AssistantManager",
+      "Assistant Manager"
+    ],
+    [
+      "occupation-AssistantTownRanger",
+      "AssistantTownRanger",
+      "Assistant Town Ranger"
+    ],
+    [
+      "occupation-Astrologerandrelated",
+      "Astrologerandrelated",
+      "Astrologer and related"
+    ],
+    [
+      "occupation-AthleteSportsperson",
+      "AthleteSportsperson",
+      "Athlete/Sportsperson"
+    ],
+    [
+      "occupation-Auditor",
+      "Auditor",
+      "Auditor"
+    ],
+    [
+      "occupation-BakerPastry-cook",
+      "BakerPastrycook",
+      "Baker/Pastry-cook"
+    ],
+    [
+      "occupation-BankOfficer",
+      "BankOfficer",
+      "Bank Officer"
+    ],
+    [
+      "occupation-BeautyTherapist",
+      "BeautyTherapist",
+      "Beauty Therapist"
+    ],
+    [
+      "occupation-BiologistBotanistZoologist",
+      "BiologistBotanistZoologist",
+      "Biologist/Botanist/Zoologist"
+    ],
+    [
+      "occupation-BlacksmithHammersmith",
+      "BlacksmithHammersmith",
+      "Blacksmith/Hammersmith"
+    ],
+    [
+      "occupation-BlasterShotfirer",
+      "BlasterShotfirer",
+      "Blaster/Shotfirer"
+    ],
+    [
+      "occupation-BookmakerCroupier",
+      "BookmakerCroupier",
+      "Bookmaker/Croupier"
+    ],
+    [
+      "occupation-BricklayerStonemason",
+      "BricklayerStonemason",
+      "Bricklayer/Stonemason"
+    ],
+    [
+      "occupation-BroadcastingTelecomEquipmentOperator",
+      "BroadcastingTelecomEquipmentOperator",
+      "Broadcasting/Telecom Equipment Operator"
+    ],
+    [
+      "occupation-BrokerFinanceDealer",
+      "BrokerFinanceDealer",
+      "Broker/Finance Dealer"
+    ],
+    [
+      "occupation-Builder-TraditionalMaterials",
+      "BuilderTraditionalMaterials",
+      "Builder-Traditional Materials"
+    ],
+    [
+      "occupation-BuildingCaretaker",
+      "BuildingCaretaker",
+      "Building Caretaker"
+    ],
+    [
+      "occupation-BuildingFrameandTradeWorker",
+      "BuildingFrameandTradeWorker",
+      "Building Frame and Trade Worker"
+    ],
+    [
+      "occupation-BuildingStructureCleaner",
+      "BuildingStructureCleaner",
+      "Building Structure Cleaner"
+    ],
+    [
+      "occupation-BusinessProfessional",
+      "BusinessProfessional",
+      "Business Professional"
+    ],
+    [
+      "occupation-BusinessServiceAgentBroker",
+      "BusinessServiceAgentBroker",
+      "Business Service Agent/Broker"
+    ],
+    [
+      "occupation-ButcherFishmongerrelatedfoodpreparer",
+      "ButcherFishmongerrelatedfoodpreparer",
+      "Butcher/Fishmonger/related food preparer"
+    ],
+    [
+      "occupation-Buyer",
+      "Buyer",
+      "Buyer"
+    ],
+    [
+      "occupation-CalculatingMachineOperator",
+      "CalculatingMachineOperator",
+      "Calculating Machine Operator"
+    ],
+    [
+      "occupation-CarpenterJoiner",
+      "CarpenterJoiner",
+      "Carpenter/Joiner"
+    ],
+    [
+      "occupation-Cartographer",
+      "Cartographer",
+      "Cartographer"
+    ],
+    [
+      "occupation-CarverCutterStoneSplitter",
+      "CarverCutterStoneSplitter",
+      "Carver/Cutter/Stone Splitter"
+    ],
+    [
+      "occupation-CashierTicketClerk",
+      "CashierTicketClerk",
+      "Cashier/Ticket Clerk"
+    ],
+    [
+      "occupation-CasualWorker",
+      "CasualWorker",
+      "Casual Worker"
+    ],
+    [
+      "occupation-Chemist",
+      "Chemist",
+      "Chemist"
+    ],
+    [
+      "occupation-Chief-TraditionalVillageHead",
+      "ChiefTraditionalVillageHead",
+      "Chief-Traditional / Village Head"
+    ],
+    [
+      "occupation-ChildcareWorker",
+      "ChildcareWorker",
+      "Childcare Worker"
+    ],
+    [
+      "occupation-Cleaner-General",
+      "CleanerGeneral",
+      "Cleaner-General"
+    ],
+    [
+      "occupation-Cleaner-Windows",
+      "CleanerWindows",
+      "Cleaner-Windows"
+    ],
+    [
+      "occupation-ClearingandForwardingAgent",
+      "ClearingandForwardingAgent",
+      "Clearing and Forwarding Agent"
+    ],
+    [
+      "occupation-Clerk-WeighBridge",
+      "ClerkWeighBridge",
+      "Clerk - Weigh Bridge"
+    ],
+    [
+      "occupation-Clerk-AccountingBookkeeping",
+      "ClerkAccountingBookkeeping",
+      "Clerk-Accounting/Bookkeeping"
+    ],
+    [
+      "occupation-Clerk-otherofficetype",
+      "Clerkotherofficetype",
+      "Clerk-other office type"
+    ],
+    [
+      "occupation-Clerk-production",
+      "Clerkproduction",
+      "Clerk-production"
+    ],
+    [
+      "occupation-Clerk-SortingandMailCarrying",
+      "ClerkSortingandMailCarrying",
+      "Clerk-Sorting and Mail Carrying"
+    ],
+    [
+      "occupation-Clerk-StatisticalFinance",
+      "ClerkStatisticalFinance",
+      "Clerk-Statistical/Finance"
+    ],
+    [
+      "occupation-Clerk-Stock",
+      "ClerkStock",
+      "Clerk-Stock"
+    ],
+    [
+      "occupation-Clerk-Transport",
+      "ClerkTransport",
+      "Clerk-Transport"
+    ],
+    [
+      "occupation-Clerk-TravelAgencyandrelated",
+      "ClerkTravelAgencyandrelated",
+      "Clerk-Travel Agency and related"
+    ],
+    [
+      "occupation-ClownMusicianAcrobat",
+      "ClownMusicianAcrobat",
+      "Clown/Musician/Acrobat"
+    ],
+    [
+      "occupation-CodingProofReadingandrelated",
+      "CodingProofReadingandrelated",
+      "Coding/Proof Reading and related"
+    ],
+    [
+      "occupation-ComputerAssistant",
+      "ComputerAssistant",
+      "Computer Assistant"
+    ],
+    [
+      "occupation-ComputerEquipmentOperator",
+      "ComputerEquipmentOperator",
+      "Computer Equipment Operator"
+    ],
+    [
+      "occupation-ComputerProgrammer",
+      "ComputerProgrammer",
+      "Computer Programmer"
+    ],
+    [
+      "occupation-ComputerSystemsDesignerAnalyst",
+      "ComputerSystemsDesignerAnalyst",
+      "Computer Systems Designer/Analyst"
+    ],
+    [
+      "occupation-ComputingProfessional",
+      "ComputingProfessional",
+      "Computing Professional"
+    ],
+    [
+      "occupation-ConcretePlacersFinishersandrelated",
+      "ConcretePlacersFinishersandrelated",
+      "Concrete Placers, Finishers and related"
+    ],
+    [
+      "occupation-CookChef",
+      "CookChef",
+      "Cook/Chef"
+    ],
+    [
+      "occupation-CraneHoistOperatorandrelated",
+      "CraneHoistOperatorandrelated",
+      "Crane/Hoist Operator and related"
+    ],
+    [
+      "occupation-CustomOfficers",
+      "CustomOfficers",
+      "Custom Officers"
+    ],
+    [
+      "occupation-CustomerInspector",
+      "CustomerInspector",
+      "Customer Inspector"
+    ],
+    [
+      "occupation-CustomsTaxandrelated",
+      "CustomsTaxandrelated",
+      "Customs/Tax and related"
+    ],
+    [
+      "occupation-Dairy-productsmaker",
+      "Dairyproductsmaker",
+      "Dairy-products maker"
+    ],
+    [
+      "occupation-DancerChoreographer",
+      "DancerChoreographer",
+      "Dancer/Choreographer"
+    ],
+    [
+      "occupation-Dataentryoperator",
+      "Dataentryoperator",
+      "Data entry operator"
+    ],
+    [
+      "occupation-Debt-collectorandrelated",
+      "Debtcollectorandrelated",
+      "Debt-collector and related"
+    ],
+    [
+      "occupation-DentalAssistant",
+      "DentalAssistant",
+      "Dental Assistant"
+    ],
+    [
+      "occupation-Dentalhygienist",
+      "Dentalhygienist",
+      "Dental hygienist"
+    ],
+    [
+      "occupation-DentalTherapist",
+      "DentalTherapist",
+      "Dental Therapist"
+    ],
+    [
+      "occupation-Dentist",
+      "Dentist",
+      "Dentist"
+    ],
+    [
+      "occupation-DesignerDecorator-commercial",
+      "DesignerDecorator-commercial",
+      "Designer/Decorator-commercial"
+    ],
+    [
+      "occupation-DietitianNutritionist",
+      "DietitianNutritionist",
+      "Dietitian/Nutritionist"
+    ],
+    [
+      "occupation-Director-Chiefexecutive",
+      "DirectorChiefexecutive",
+      "Director-Chief executive"
+    ],
+    [
+      "occupation-Diver-Free",
+      "DiverFree",
+      "Diver-Free"
+    ],
+    [
+      "occupation-Diver-ScubaAirApparatus",
+      "DiverScubaAirApparatus",
+      "Diver-Scuba/Air Apparatus"
+    ],
+    [
+      "occupation-Doctor-Medical",
+      "DoctorMedical",
+      "Doctor-Medical"
+    ],
+    [
+      "occupation-DomesticDuties",
+      "DomesticDuties",
+      "Domestic Duties"
+    ],
+    [
+      "occupation-DomesticHelper",
+      "DomesticHelper",
+      "Domestic Helper"
+    ],
+    [
+      "occupation-Draughtsperson",
+      "Draughtsperson",
+      "Draughtsperson"
+    ],
+    [
+      "occupation-Driver-animal-drawnvehiclemachinery",
+      "Driveranimaldrawnvehiclemachinery",
+      "Driver-animal-drawn vehicle/machinery"
+    ],
+    [
+      "occupation-Driver-bustram",
+      "Driverbustram",
+      "Driver-bus/tram"
+    ],
+    [
+      "occupation-Driver-handpedalvehicle",
+      "Driverhandpedalvehicle",
+      "Driver-hand/pedal vehicle"
+    ],
+    [
+      "occupation-Driver-motorcycle",
+      "Drivermotorcycle",
+      "Driver-motor cycle"
+    ],
+    [
+      "occupation-Driver-taxicarvan",
+      "Drivertaxicarvan",
+      "Driver-taxi/car/van"
+    ],
+    [
+      "occupation-Driver-truckandotherheavyvehicle",
+      "Drivertruckandotherheavyvehicle",
+      "Driver-truck and other heavy vehicle"
+    ],
+    [
+      "occupation-DrivingExaminer",
+      "DrivingExaminer",
+      "Driving Examiner"
+    ],
+    [
+      "occupation-Economist",
+      "Economist",
+      "Economist"
+    ],
+    [
+      "occupation-EducationMethodsSpecialist",
+      "EducationMethodsSpecialist",
+      "Education Methods Specialist"
+    ],
+    [
+      "occupation-ElectricalLineInstallerRepairer",
+      "ElectricalLineInstallerRepairer",
+      "Electrical Line Installer/Repairer"
+    ],
+    [
+      "occupation-Electrician-Building",
+      "ElectricianBuilding",
+      "Electrician-Building"
+    ],
+    [
+      "occupation-Electrician-Mechanical",
+      "ElectricianMechanical",
+      "Electrician-Mechanical"
+    ],
+    [
+      "occupation-ElectronicFitter",
+      "ElectronicFitter",
+      "Electronic Fitter"
+    ],
+    [
+      "occupation-ElectronicsMechanicServicer",
+      "ElectronicsMechanicServicer",
+      "Electronics Mechanic/Servicer"
+    ],
+    [
+      "occupation-EmploymentAgentLabourContractor",
+      "EmploymentAgentLabourContractor",
+      "Employment Agent/Labour Contractor"
+    ],
+    [
+      "occupation-Engineer-Chemical",
+      "EngineerChemical",
+      "Engineer-Chemical"
+    ],
+    [
+      "occupation-Engineer-Civil",
+      "EngineerCivil",
+      "Engineer-Civil"
+    ],
+    [
+      "occupation-Engineer-Electrical",
+      "EngineerElectrical",
+      "Engineer-Electrical"
+    ],
+    [
+      "occupation-Engineer-Mechanical",
+      "EngineerMechanical",
+      "Engineer-Mechanical"
+    ],
+    [
+      "occupation-Engineer-Mining",
+      "EngineerMining",
+      "Engineer-Mining"
+    ],
+    [
+      "occupation-Engineer-Ship",
+      "EngineerShip",
+      "Engineer-Ship"
+    ],
+    [
+      "occupation-Engineer-Telecommunicationselectronics",
+      "EngineerTelecommunicationselectronics",
+      "Engineer-Telecommunications/electronics"
+    ],
+    [
+      "occupation-EstateAgent",
+      "EstateAgent",
+      "Estate Agent"
+    ],
+    [
+      "occupation-FaithHealer",
+      "FaithHealer",
+      "Faith Healer"
+    ],
+    [
+      "occupation-FarmHandLabourer",
+      "FarmHandLabourer",
+      "Farm Hand/Labourer"
+    ],
+    [
+      "occupation-Farmer-Cane",
+      "FarmerCane",
+      "Farmer-Cane"
+    ],
+    [
+      "occupation-Farmer-Commercialgrowing",
+      "FarmerCommercialgrowing",
+      "Farmer-Commercial growing"
+    ],
+    [
+      "occupation-Farmer-Copra",
+      "FarmerCopra",
+      "Farmer-Copra"
+    ],
+    [
+      "occupation-Farmer-LivestockDairyProducer",
+      "FarmerLivestockDairyProducer",
+      "Farmer-Livestock/Dairy Producer"
+    ],
+    [
+      "occupation-Farmer-Rice",
+      "FarmerRice",
+      "Farmer-Rice"
+    ],
+    [
+      "occupation-Farmer-Subsistence",
+      "FarmerSubsistence",
+      "Farmer-Subsistence"
+    ],
+    [
+      "occupation-FarmerGrower-fieldcropandvegetables",
+      "FarmerGrowerfieldcropandvegetables",
+      "Farmer/Grower-field crop and vegetables"
+    ],
+    [
+      "occupation-FarmerGrower-mixedcrop",
+      "FarmerGrowermixedcrop",
+      "Farmer/Grower-mixed crop"
+    ],
+    [
+      "occupation-FarmerGrower-treesandshrubs",
+      "FarmerGrowertreesandshrubs",
+      "Farmer/Grower-trees and shrubs"
+    ],
+    [
+      "occupation-Farmingandforestryadvisor",
+      "Farmingandforestryadvisor",
+      "Farming and forestry advisor"
+    ],
+    [
+      "occupation-Fibrepreparer",
+      "Fibrepreparer",
+      "Fibre preparer"
+    ],
+    [
+      "occupation-FieldOfficer",
+      "FieldOfficer",
+      "Field Officer"
+    ],
+    [
+      "occupation-FinanceSalesassociatedprofessional",
+      "FinanceSalesassociatedprofessional",
+      "Finance/Sales associated professional"
+    ],
+    [
+      "occupation-FireFighter",
+      "FireFighter",
+      "Fire Fighter"
+    ],
+    [
+      "occupation-Fisherman",
+      "Fisherman",
+      "Fisherman"
+    ],
+    [
+      "occupation-Fisherman-Subsistence",
+      "FishermanSubsistence",
+      "Fisherman-Subsistence"
+    ],
+    [
+      "occupation-FisheryWorkerHunterTrapper",
+      "FisheryWorkerHunterTrapper",
+      "Fishery Worker/Hunter/Trapper"
+    ],
+    [
+      "occupation-FishingHuntingTrappingLabourer",
+      "FishingHuntingTrappingLabourer",
+      "Fishing/Hunting/Trapping Labourer"
+    ],
+    [
+      "occupation-FlightAttendant",
+      "FlightAttendant",
+      "Flight Attendant"
+    ],
+    [
+      "occupation-FloorLayerandTileSetter",
+      "FloorLayerandTileSetter",
+      "Floor Layer and Tile Setter"
+    ],
+    [
+      "occupation-ForestryLabourer",
+      "ForestryLabourer",
+      "Forestry Labourer"
+    ],
+    [
+      "occupation-ForestryWorkerandrelated",
+      "ForestryWorkerandrelated",
+      "Forestry Worker and related"
+    ],
+    [
+      "occupation-FortuneTellerPalmistandrelated",
+      "FortuneTellerPalmistandrelated",
+      "Fortune Teller/Palmist and related"
+    ],
+    [
+      "occupation-FreightHandler",
+      "FreightHandler",
+      "Freight Handler"
+    ],
+    [
+      "occupation-Furrier",
+      "Furrier",
+      "Furrier"
+    ],
+    [
+      "occupation-GardenersHorticulturalNurseryGrower",
+      "GardenersHorticulturalNurseryGrower",
+      "Gardeners/Horticultural/Nursery Grower"
+    ],
+    [
+      "occupation-GarmentWorker",
+      "GarmentWorker",
+      "Garment Worker"
+    ],
+    [
+      "occupation-GeologistGeophysicist",
+      "GeologistGeophysicist",
+      "Geologist/Geophysicist"
+    ],
+    [
+      "occupation-Glazier",
+      "Glazier",
+      "Glazier"
+    ],
+    [
+      "occupation-GraphicDesigner",
+      "GraphicDesigner",
+      "Graphic Designer"
+    ],
+    [
+      "occupation-HairdresserBarberBeautician",
+      "HairdresserBarberBeautician",
+      "Hairdresser/Barber/Beautician"
+    ],
+    [
+      "occupation-HandicraftWorker-TextileLeather",
+      "HandicraftWorker-TextileLeather",
+      "Handicraft Worker-Textile/Leather"
+    ],
+    [
+      "occupation-HandicraftWorker-Woodrelatedmaterial",
+      "HandicraftWorker-Woodrelatedmaterial",
+      "Handicraft Worker-Wood/related material"
+    ],
+    [
+      "occupation-HealthProfessional",
+      "HealthProfessional",
+      "Health Professional"
+    ],
+    [
+      "occupation-HistorianPhilosopher",
+      "HistorianPhilosopher",
+      "Historian/Philosopher"
+    ],
+    [
+      "occupation-Home-basedPersonalCareWorker",
+      "HomebasedPersonalCareWorker",
+      "Home-based Personal Care Worker"
+    ],
+    [
+      "occupation-HotelWorker",
+      "HotelWorker",
+      "Hotel Worker"
+    ],
+    [
+      "occupation-Housekeeperandrelated",
+      "Housekeeperandrelated",
+      "Housekeeper and related"
+    ],
+    [
+      "occupation-Housewife",
+      "Housewife",
+      "Housewife"
+    ],
+    [
+      "occupation-HROfficer",
+      "HROfficer",
+      "HR Officer"
+    ],
+    [
+      "occupation-IndustrialRobotController",
+      "IndustrialRobotController",
+      "Industrial Robot Controller"
+    ],
+    [
+      "occupation-Inspector-BuildingFire",
+      "InspectorBuildingFire",
+      "Inspector-Building/Fire"
+    ],
+    [
+      "occupation-Inspector-HealthSafetyQuality",
+      "InspectorHealthSafetyQuality",
+      "Inspector-Health/Safety/Quality"
+    ],
+    [
+      "occupation-InstitutionBasedPersonalCareWorker",
+      "InstitutionBasedPersonalCareWorker",
+      "Institution Based Personal Care Worker"
+    ],
+    [
+      "occupation-InsulationWorker",
+      "InsulationWorker",
+      "Insulation Worker"
+    ],
+    [
+      "occupation-InsuranceRepresentative",
+      "InsuranceRepresentative",
+      "Insurance Representative"
+    ],
+    [
+      "occupation-ITTechnician",
+      "ITTechnician",
+      "IT Technician"
+    ],
+    [
+      "occupation-JournalistAuthorWriter",
+      "JournalistAuthorWriter",
+      "Journalist/Author/Writer"
+    ],
+    [
+      "occupation-JudgeMagistrate",
+      "JudgeMagistrate",
+      "Judge/ Magistrate"
+    ],
+    [
+      "occupation-LaborOfficer",
+      "LaborOfficer",
+      "Labor Officer"
+    ],
+    [
+      "occupation-LaboratoryTechnician",
+      "LaboratoryTechnician",
+      "Laboratory Technician"
+    ],
+    [
+      "occupation-Labourer-Assembling",
+      "LabourerAssembling",
+      "Labourer-Assembling"
+    ],
+    [
+      "occupation-Labourer-ConstructionMaintenance",
+      "LabourerConstructionMaintenance",
+      "Labourer-Construction/Maintenance"
+    ],
+    [
+      "occupation-Labourer-QuarryMining",
+      "LabourerQuarryMining",
+      "Labourer-Quarry/Mining"
+    ],
+    [
+      "occupation-LaundererPresser",
+      "LaundererPresser",
+      "Launderer/Presser"
+    ],
+    [
+      "occupation-LawyerSolicitor",
+      "LawyerSolicitor",
+      "Lawyer/Solicitor"
+    ],
+    [
+      "occupation-Lecturer-UniversityHigherEducation",
+      "LecturerUniversityHigherEducation",
+      "Lecturer-University/Higher Education"
+    ],
+    [
+      "occupation-LegalProfessional",
+      "LegalProfessional",
+      "Legal Professional"
+    ],
+    [
+      "occupation-Legalrelatedbusinessprofessional",
+      "Legalrelatedbusinessprofessional",
+      "Legal/related business professional"
+    ],
+    [
+      "occupation-Legislator",
+      "Legislator",
+      "Legislator"
+    ],
+    [
+      "occupation-LibrarianrelatedInfoProfessional",
+      "LibrarianrelatedInfo.Professional",
+      "Librarian/related Info. Professional"
+    ],
+    [
+      "occupation-LibraryFilingClerk",
+      "LibraryFilingClerk",
+      "Library/Filing Clerk"
+    ],
+    [
+      "occupation-LifeScienceTechnician",
+      "LifeScienceTechnician",
+      "Life Science Technician"
+    ],
+    [
+      "occupation-LiveStockOfficer",
+      "LiveStockOfficer",
+      "Live Stock Officer"
+    ],
+    [
+      "occupation-LTAEnforcementOfficer",
+      "LTAEnforcementOfficer",
+      "LTA Enforcement Officer"
+    ],
+    [
+      "occupation-MachineOperatorsandAssemblersnec",
+      "MachineOperatorsandAssemblersnec",
+      "Machine Operators and Assemblers nec"
+    ],
+    [
+      "occupation-Machinetoolsetter",
+      "Machinetoolsetter",
+      "Machine tool setter"
+    ],
+    [
+      "occupation-Manager-General",
+      "ManagerGeneral",
+      "Manager-General"
+    ],
+    [
+      "occupation-Manager-OtherDepartment",
+      "ManagerOtherDepartment",
+      "Manager-Other Department"
+    ],
+    [
+      "occupation-Manager-ProdOperationsDepts",
+      "ManagerProdOperationsDepts",
+      "Manager-Prod. & Operations Dept's"
+    ],
+    [
+      "occupation-Mathematicianandrelated",
+      "Mathematicianandrelated",
+      "Mathematician and related"
+    ],
+    [
+      "occupation-Mechanic-agriculturalindustrialmachine",
+      "Mechanicagriculturalindustrialmachine",
+      "Mechanic-agricultural/industrial machine"
+    ],
+    [
+      "occupation-Mechanic-aircraftengine",
+      "Mechanicaircraftengine",
+      "Mechanic-aircraft engine"
+    ],
+    [
+      "occupation-Mechanic-motorvehicle",
+      "Mechanicmotorvehicle",
+      "Mechanic-motor vehicle"
+    ],
+    [
+      "occupation-Medicalassistant",
+      "Medicalassistant",
+      "Medical assistant"
+    ],
+    [
+      "occupation-Medicalequipmentoperator",
+      "Medicalequipmentoperator",
+      "Medical equipment operator"
+    ],
+    [
+      "occupation-Merchandiser",
+      "Merchandiser",
+      "Merchandiser"
+    ],
+    [
+      "occupation-Metalmouldercoremaker",
+      "Metalmouldercoremaker",
+      "Metal moulder/coremaker"
+    ],
+    [
+      "occupation-Metalwheel-grinderspolishersetc",
+      "Metalwheelgrinderspolishersetc",
+      "Metal wheel-grinders, polishers etc"
+    ],
+    [
+      "occupation-Meteorologist",
+      "Meteorologist",
+      "Meteorologist"
+    ],
+    [
+      "occupation-Meter-reader",
+      "Meterreader",
+      "Meter-reader"
+    ],
+    [
+      "occupation-Midwife-associate",
+      "Midwifeassociate",
+      "Midwife-associate"
+    ],
+    [
+      "occupation-Model-Fashionandotherwise",
+      "ModelFashionandotherwise",
+      "Model-Fashion and otherwise"
+    ],
+    [
+      "occupation-Modernhealthassocprofessional",
+      "Modernhealthassoc.professional",
+      "Modern health assoc. professional"
+    ],
+    [
+      "occupation-MonitoringOfficer",
+      "MonitoringOfficer",
+      "Monitoring Officer"
+    ],
+    [
+      "occupation-MusicianSingerComposer",
+      "MusicianSingerComposer",
+      "Musician/Singer/Composer"
+    ],
+    [
+      "occupation-Nightclubsingermusiciandancer",
+      "Nightclubsingermusiciandancer",
+      "Nightclub singer/musician/dancer"
+    ],
+    [
+      "occupation-NotApplicable",
+      "NotApplicable",
+      "Not Applicable"
+    ],
+    [
+      "occupation-Nun",
+      "Nun",
+      "Nun"
+    ],
+    [
+      "occupation-NurseMidwifeprofessionals",
+      "NurseMidwifeprofessionals",
+      "Nurse / Midwife professionals"
+    ],
+    [
+      "occupation-Nursing-enrolledassociate",
+      "Nursingenrolledassociate",
+      "Nursing-enrolled/associate"
+    ],
+    [
+      "occupation-Official-seniorgovernment",
+      "Officialseniorgovernment",
+      "Official-senior government"
+    ],
+    [
+      "occupation-Official-SeniorofeconInterestorg",
+      "OfficialSeniorofeco.Interestorg",
+      "Official-Senior of econ. Interest org."
+    ],
+    [
+      "occupation-Official-Seniorofpoliticalparty",
+      "OfficialSeniorofpoliticalparty",
+      "Official-Senior of political party"
+    ],
+    [
+      "occupation-Official-Seniorofspecialintorg",
+      "OfficialSeniorofspecialint.org.",
+      "Official-Senior of special int. org."
+    ],
+    [
+      "occupation-Operator-AutomatedAssemblyline",
+      "OperatorAutomatedAssemblyline",
+      "Operator-Automated Assembly line"
+    ],
+    [
+      "occupation-Operator-bookbindingmachine",
+      "Operatorbookbindingmachine",
+      "Operator-bookbinding machine"
+    ],
+    [
+      "occupation-Operator-CementMineralproductsmachine",
+      "OperatorCementMineralproductsmachine",
+      "Operator-Cement/Mineral products machine"
+    ],
+    [
+      "occupation-Operator-ChemicalProcessingPlant",
+      "OperatorChemicalProcessingPlant",
+      "Operator-Chemical Processing Plant"
+    ],
+    [
+      "occupation-Operator-ChemicalProductsmachine",
+      "OperatorChemicalProductsmachine",
+      "Operator-Chemical Products machine"
+    ],
+    [
+      "occupation-Operator-Earth-movingplant",
+      "OperatorEarthmovingplant",
+      "Operator-Earth-moving plant"
+    ],
+    [
+      "occupation-Operator-foodandrelatedproducts",
+      "Operatorfoodandrelatedproducts",
+      "Operator-food and related products"
+    ],
+    [
+      "occupation-Operator-Glassceramicsrelatedplant",
+      "OperatorGlassceramicsrelatedplant",
+      "Operator-Glass/ceramics/related plant"
+    ],
+    [
+      "occupation-Operator-Lifting-truck",
+      "OperatorLiftingtruck",
+      "Operator-Lifting-truck"
+    ],
+    [
+      "occupation-Operator-Machine-tool",
+      "OperatorMachinetool",
+      "Operator-Machine-tool"
+    ],
+    [
+      "occupation-Operator-Metal-processingplant",
+      "OperatorMetalprocessingplant",
+      "Operator-Metal-processing plant"
+    ],
+    [
+      "occupation-Operator-Miningmineralprocessingplant",
+      "OperatorMiningmineralprocessingplant",
+      "Operator-Mining/mineral processing plant"
+    ],
+    [
+      "occupation-Operator-Motorisedfarmforestryplant",
+      "OperatorMotorisedfarmforestryplant",
+      "Operator-Motorised farm/forestry plant"
+    ],
+    [
+      "occupation-Operator-paperproductsmachine",
+      "Operatorpaperproductsmachine",
+      "Operator-paper products machine"
+    ],
+    [
+      "occupation-Operator-Powerproductionrelated",
+      "OperatorPowerproductionrelated",
+      "Operator-Power production/related"
+    ],
+    [
+      "occupation-Operator-printingmachine",
+      "Operatorprintingmachine",
+      "Operator-printing machine"
+    ],
+    [
+      "occupation-Operator-rubberplasticproductmachine",
+      "Operatorrubberplasticproductmachine",
+      "Operator-rubber/plastic product machine"
+    ],
+    [
+      "occupation-Operator-textilefurleatherproducts",
+      "Operatortextilefurleatherproducts",
+      "Operator-textile/fur/leather products"
+    ],
+    [
+      "occupation-Operator-WoodprocessingPapermaking",
+      "OperatorWoodprocessingPapermaking",
+      "Operator-Wood processing/Papermaking"
+    ],
+    [
+      "occupation-Operator-woodproductsmachine",
+      "Operatorwoodproductsmachine",
+      "Operator-wood products machine"
+    ],
+    [
+      "occupation-OpticalElectronicequipoperator",
+      "OpticalElectronicequipoperator",
+      "Optical/Electronic equip. operator"
+    ],
+    [
+      "occupation-OptometristOptician",
+      "OptometristOptician",
+      "Optometrist/Optician"
+    ],
+    [
+      "occupation-OtherPersonalserviceworkersnec",
+      "OtherPersonalserviceworkersnec",
+      "Other Personal service workers nec"
+    ],
+    [
+      "occupation-OtherphysicalMathEngprofessional",
+      "OtherphysicalMathEngprofessional",
+      "Other physical, Math. & Eng professional"
+    ],
+    [
+      "occupation-Otherreligiousprofessionals",
+      "Otherreligiousprofessionals",
+      "Other religious professionals"
+    ],
+    [
+      "occupation-Painters-building",
+      "Paintersbuilding",
+      "Painters-building"
+    ],
+    [
+      "occupation-PanelBeater",
+      "PanelBeater",
+      "Panel Beater"
+    ],
+    [
+      "occupation-Parlimentarian",
+      "Parlimentarian",
+      "Parlimentarian"
+    ],
+    [
+      "occupation-Pastor",
+      "Pastor",
+      "Pastor"
+    ],
+    [
+      "occupation-Pathologistrelatedprofessional",
+      "Pathologistrelatedprofessional",
+      "Pathologist / related professional"
+    ],
+    [
+      "occupation-PawnbrokerMoneylender",
+      "PawnbrokerMoneylender",
+      "Pawnbroker/Money lender"
+    ],
+    [
+      "occupation-Peltdressertannerfellmonger",
+      "Peltdressertannerfellmonger",
+      "Pelt dresser/tanner/fellmonger"
+    ],
+    [
+      "occupation-Personalcareworkernec",
+      "Personalcareworkernec",
+      "Personal care worker nec"
+    ],
+    [
+      "occupation-PersonalCareerprofessionals",
+      "PersonalCareerprofessionals",
+      "Personal/Career professionals"
+    ],
+    [
+      "occupation-Pharmaceuticalassistant",
+      "Pharmaceuticalassistant",
+      "Pharmaceutical assistant"
+    ],
+    [
+      "occupation-Pharmacist",
+      "Pharmacist",
+      "Pharmacist"
+    ],
+    [
+      "occupation-Pharmacologist",
+      "Pharmacologist",
+      "Pharmacologist"
+    ],
+    [
+      "occupation-PharmacyTechnician",
+      "PharmacyTechnician",
+      "Pharmacy Technician"
+    ],
+    [
+      "occupation-PhotographerImage-Soundrecorder",
+      "PhotographerImage-Soundrecorder",
+      "Photographer/Image-Sound recorder"
+    ],
+    [
+      "occupation-PhysicalengSciencetechniciannec",
+      "PhysicalengSciencetechniciannec",
+      "Physical & eng. Science technician nec"
+    ],
+    [
+      "occupation-PhysicalEducationWorker",
+      "PhysicalEducationWorker",
+      "Physical Education Worker"
+    ],
+    [
+      "occupation-PhysicistAstronomer",
+      "PhysicistAstronomer",
+      "Physicist / Astronomer"
+    ],
+    [
+      "occupation-Physiotherapist",
+      "Physiotherapist",
+      "Physiotherapist"
+    ],
+    [
+      "occupation-Pilot-Aircraftandrelatedprofessionals",
+      "Pilot-Aircraftandrelatedprofessionals",
+      "Pilot-Aircraft and related professionals"
+    ],
+    [
+      "occupation-Plasterer",
+      "Plasterer",
+      "Plasterer"
+    ],
+    [
+      "occupation-Plumberpipefitter",
+      "Plumberpipefitter",
+      "Plumber/pipe fitter"
+    ],
+    [
+      "occupation-PoliceInspectorsDetectives",
+      "PoliceInspectorsDetectives",
+      "Police Inspectors/Detectives"
+    ],
+    [
+      "occupation-Policeofficer",
+      "Policeofficer",
+      "Police officer"
+    ],
+    [
+      "occupation-PorterMessengerLuggagedeliverer",
+      "PorterMessengerLuggagedeliverer",
+      "Porter/Messenger/Luggage deliverer"
+    ],
+    [
+      "occupation-PotterGlassmakerRelatedTrades",
+      "PotterGlassmakerRelatedTrades",
+      "Potter/Glassmaker/Related Trades"
+    ],
+    [
+      "occupation-Poultryproducer",
+      "Poultryproducer",
+      "Poultry producer"
+    ],
+    [
+      "occupation-Precisionworkersmetalrelatedtrades",
+      "Precisionworkersmetalrelatedtrades",
+      "Precision workers/metal & related trades"
+    ],
+    [
+      "occupation-Preserver-fruitsandvegetables",
+      "Preserverfruitsandvegetables",
+      "Preserver-fruits and vegetables"
+    ],
+    [
+      "occupation-Priest",
+      "Priest",
+      "Priest"
+    ],
+    [
+      "occupation-Printingandrelatedtradesworkers",
+      "Printingandrelatedtradesworkers",
+      "Printing and related trades workers"
+    ],
+    [
+      "occupation-Prisonguard",
+      "Prisonguard",
+      "Prison guard"
+    ],
+    [
+      "occupation-Producer-cropanimalnec",
+      "Producer-cropanimalnec",
+      "Producer-crop/animal nec"
+    ],
+    [
+      "occupation-Producer-cropanimal-marketoriented",
+      "Producercropanimalmarketoriented",
+      "Producer-crop/animal-market oriented"
+    ],
+    [
+      "occupation-Producer-mixedanimal",
+      "Producermixedanimal",
+      "Producer-mixed animal"
+    ],
+    [
+      "occupation-ProjectOfficer",
+      "ProjectOfficer",
+      "Project Officer"
+    ],
+    [
+      "occupation-Protectiveserviceworkernec",
+      "Protectiveserviceworkernec",
+      "Protective service worker nec"
+    ],
+    [
+      "occupation-Psychologist",
+      "Psychologist",
+      "Psychologist"
+    ],
+    [
+      "occupation-QualityController",
+      "QualityController",
+      "Quality Controller"
+    ],
+    [
+      "occupation-QuarryMineworkers",
+      "QuarryMineworkers",
+      "Quarry/Mine workers"
+    ],
+    [
+      "occupation-Radiographer",
+      "Radiographer",
+      "Radiographer"
+    ],
+    [
+      "occupation-Receptionist",
+      "Receptionist",
+      "Receptionist"
+    ],
+    [
+      "occupation-Religiousassociateprofessional",
+      "Religiousassociateprofessional",
+      "Religious associate professional"
+    ],
+    [
+      "occupation-Reverend",
+      "Reverend",
+      "Reverend"
+    ],
+    [
+      "occupation-RiggerCablesplicer",
+      "RiggerCablesplicer",
+      "Rigger / Cable splicer"
+    ],
+    [
+      "occupation-Roofers",
+      "Roofers",
+      "Roofers"
+    ],
+    [
+      "occupation-Rubbishcollector",
+      "Rubbishcollector",
+      "Rubbish collector"
+    ],
+    [
+      "occupation-RugbyPlayer",
+      "RugbyPlayer",
+      "Rugby Player"
+    ],
+    [
+      "occupation-Salesrepresentative",
+      "Salesrepresentative",
+      "Sales representative"
+    ],
+    [
+      "occupation-Salespersons-doortodoorandtelephone",
+      "Salespersonsdoortodoorandtelephone",
+      "Salespersons-door to door and telephone"
+    ],
+    [
+      "occupation-Salespersons-marketandstall",
+      "Salespersonsmarketandstall",
+      "Salespersons-market and stall"
+    ],
+    [
+      "occupation-SalespersonsDemonstrators-shop",
+      "SalespersonsDemonstrators-shop",
+      "Salespersons/Demonstrators-shop"
+    ],
+    [
+      "occupation-Sanitarian",
+      "Sanitarian",
+      "Sanitarian"
+    ],
+    [
+      "occupation-SchoolInspector",
+      "SchoolInspector",
+      "School Inspector"
+    ],
+    [
+      "occupation-Scribesandrelatedworkers",
+      "Scribesandrelatedworkers",
+      "Scribes and related workers"
+    ],
+    [
+      "occupation-SculptorPainterRelatedArtist",
+      "SculptorPainterRelatedArtist",
+      "Sculptor/Painter/Related Artist"
+    ],
+    [
+      "occupation-Secretary",
+      "Secretary",
+      "Secretary"
+    ],
+    [
+      "occupation-Secretary-administrativerelated",
+      "Secretaryadministrativerelated",
+      "Secretary-administrative & related"
+    ],
+    [
+      "occupation-SecurityOfficer",
+      "SecurityOfficer",
+      "Security Officer"
+    ],
+    [
+      "occupation-SelfEmployed",
+      "SelfEmployed",
+      "Self Employed"
+    ],
+    [
+      "occupation-SewerEmbroiderer",
+      "SewerEmbroiderer",
+      "Sewer/Embroiderer"
+    ],
+    [
+      "occupation-Sheetmetalworker",
+      "Sheetmetalworker",
+      "Sheetmetal worker"
+    ],
+    [
+      "occupation-ShipCaptain",
+      "ShipCaptain",
+      "Ship Captain"
+    ],
+    [
+      "occupation-ShipCrew",
+      "ShipCrew",
+      "Ship Crew"
+    ],
+    [
+      "occupation-Shipdeckofficerpilot",
+      "Shipdeckofficerpilot",
+      "Ship deck officer/pilot"
+    ],
+    [
+      "occupation-Shipsdeckcrewandrelatedworker",
+      "Shipsdeckcrewandrelatedworker",
+      "Ships deck crew and related worker"
+    ],
+    [
+      "occupation-Shoecleaningandotherstreetservice",
+      "Shoecleaningandotherstreetservice",
+      "Shoe cleaning and other street service"
+    ],
+    [
+      "occupation-shoe-maker",
+      "shoemaker",
+      "Shoe-maker"
+    ],
+    [
+      "occupation-SocialBenefitofficial",
+      "SocialBenefitofficial",
+      "Social Benefit official"
+    ],
+    [
+      "occupation-Socialworkassociateprofessional",
+      "Socialworkassociateprofessional",
+      "Social work associate professional"
+    ],
+    [
+      "occupation-SocialWorkprofessionals",
+      "SocialWorkprofessionals",
+      "Social Work professionals"
+    ],
+    [
+      "occupation-SociologistAnthropologist",
+      "SociologistAnthropologist",
+      "Sociologist/Anthropologist"
+    ],
+    [
+      "occupation-Soldier",
+      "Soldier",
+      "Soldier"
+    ],
+    [
+      "occupation-SpaTherapist",
+      "SpaTherapist",
+      "Spa Therapist"
+    ],
+    [
+      "occupation-Statisticians",
+      "Statisticians",
+      "Statisticians"
+    ],
+    [
+      "occupation-StockController",
+      "StockController",
+      "Stock Controller"
+    ],
+    [
+      "occupation-Streetfoodvendors",
+      "Streetfoodvendors",
+      "Street food vendors"
+    ],
+    [
+      "occupation-Streetvendorsnonfoodproducts",
+      "Streetvendorsnonfoodproducts",
+      "Street vendors/non food products"
+    ],
+    [
+      "occupation-Structural-metalprepareranderector",
+      "Structuralmetalprepareranderector",
+      "Structural-metal preparer and erector"
+    ],
+    [
+      "occupation-Student",
+      "Student",
+      "Student"
+    ],
+    [
+      "occupation-Supervisior",
+      "Supervisior",
+      "Supervisior"
+    ],
+    [
+      "occupation-Surveyor",
+      "Surveyor",
+      "Surveyor"
+    ],
+    [
+      "occupation-Sweepersandrelatedlabourer",
+      "Sweepersandrelatedlabourer",
+      "Sweepers and related labourer"
+    ],
+    [
+      "occupation-TailorDressmakerHatter",
+      "TailorDressmakerHatter",
+      "Tailor/Dressmaker/Hatter"
+    ],
+    [
+      "occupation-TasterGrader-FoodandBeverage",
+      "TasterGrader-FoodandBeverage",
+      "Taster/Grader-Food and Beverage"
+    ],
+    [
+      "occupation-TaxExciseofficial",
+      "TaxExciseofficial",
+      "Tax/Excise official"
+    ],
+    [
+      "occupation-Teacher-InfantPre-schoolEducation",
+      "TeacherInfantPre-schoolEducation",
+      "Teacher-Infant/Pre-school Education"
+    ],
+    [
+      "occupation-Teacher-PrimaryEducation",
+      "TeacherPrimaryEducation",
+      "Teacher-Primary Education"
+    ],
+    [
+      "occupation-Teacher-SecondaryEducation",
+      "TeacherSecondaryEducation",
+      "Teacher-Secondary Education"
+    ],
+    [
+      "occupation-Teacher-SpecialEducation",
+      "TeacherSpecialEducation",
+      "Teacher-Special Education"
+    ],
+    [
+      "occupation-TeachingAssistant-Other",
+      "TeachingAssistant-Other",
+      "Teaching Assistant-Other"
+    ],
+    [
+      "occupation-TeachingAssistant-Pre-primary",
+      "TeachingAssistant-Pre-primary",
+      "Teaching Assistant-Pre-primary"
+    ],
+    [
+      "occupation-TeachingAssistant-Primary",
+      "TeachingAssistant-Primary",
+      "Teaching Assistant-Primary"
+    ],
+    [
+      "occupation-TeachingAssistant-SpecialEducation",
+      "TeachingAssistant-SpecialEducation",
+      "Teaching Assistant-Special Education"
+    ],
+    [
+      "occupation-Teaching-Notelsewhereclassified",
+      "Teaching-Notelsewhereclassified",
+      "Teaching-Not elsewhere classified"
+    ],
+    [
+      "occupation-Technician-chemicalengineering",
+      "Technicianchemicalengineering",
+      "Technician-chemical engineering"
+    ],
+    [
+      "occupation-Technician-chemicalphysicalscience",
+      "Technicianchemicalphysicalscience",
+      "Technician-chemical/physical science"
+    ],
+    [
+      "occupation-Technician-civilengineering",
+      "Techniciancivilengineering",
+      "Technician-civil engineering"
+    ],
+    [
+      "occupation-Technician-electronicstelecom",
+      "Technicianelectronicstelecom",
+      "Technician-electronics/telecom"
+    ],
+    [
+      "occupation-Technician-ForestryAgronomy",
+      "TechnicianForestryAgronomy",
+      "Technician-Forestry/Agronomy"
+    ],
+    [
+      "occupation-Technician-mechanicalengineering",
+      "Technicianmechanicalengineering",
+      "Technician-mechanical engineering"
+    ],
+    [
+      "occupation-Technician-miningmetallurgical",
+      "Technicianminingmetallurgical",
+      "Technician-mining/metallurgical"
+    ],
+    [
+      "occupation-Telephoneswitchboardoperator",
+      "Telephoneswitchboardoperator",
+      "Telephone switchboard operator"
+    ],
+    [
+      "occupation-Telephonetelegraphinstallersservicers",
+      "Telephonetelegraphinstallersservicers",
+      "Telephone/telegraph installers/servicers"
+    ],
+    [
+      "occupation-Tellercounterclerk",
+      "Tellercounterclerk",
+      "Teller/counter clerk"
+    ],
+    [
+      "occupation-TextileLeatherpatternmakercutter",
+      "TextileLeatherpatternmakercutter",
+      "Textile/Leather pattern maker/cutter"
+    ],
+    [
+      "occupation-TobacooPreparersproductmaker",
+      "TobacooPreparersproductmaker",
+      "Tobacoo Preparers/product maker"
+    ],
+    [
+      "occupation-Toolmaker",
+      "Toolmaker",
+      "Tool maker"
+    ],
+    [
+      "occupation-TownPlanner",
+      "TownPlanner",
+      "Town Planner"
+    ],
+    [
+      "occupation-Tradebroker",
+      "Tradebroker",
+      "Trade broker"
+    ],
+    [
+      "occupation-TraditionalMedicinePractitioner",
+      "TraditionalMedicinePractitioner",
+      "Traditional Medicine Practitioner"
+    ],
+    [
+      "occupation-TrainingOfficer",
+      "TrainingOfficer",
+      "Training Officer"
+    ],
+    [
+      "occupation-TranslatorInterpretorPhilologist",
+      "TranslatorInterpretorPhilologist",
+      "Translator/Interpretor/Philologist"
+    ],
+    [
+      "occupation-Transportconductor",
+      "Transportconductor",
+      "Transport conductor"
+    ],
+    [
+      "occupation-Travelconsultantorganiser",
+      "Travelconsultantorganiser",
+      "Travel consultant/organiser"
+    ],
+    [
+      "occupation-TravelGuide",
+      "TravelGuide",
+      "Travel Guide"
+    ],
+    [
+      "occupation-TypistStenographer",
+      "TypistStenographer",
+      "Typist/Stenographer"
+    ],
+    [
+      "occupation-UndertakerEmbalmer",
+      "UndertakerEmbalmer",
+      "Undertaker/Embalmer"
+    ],
+    [
+      "occupation-UnderwaterWorker",
+      "UnderwaterWorker",
+      "Underwater Worker"
+    ],
+    [
+      "occupation-Unemployed",
+      "Unemployed",
+      "Unemployed"
+    ],
+    [
+      "occupation-Upholsterer",
+      "Upholsterer",
+      "Upholsterer"
+    ],
+    [
+      "occupation-ValetCompanion",
+      "ValetCompanion",
+      "Valet/Companion"
+    ],
+    [
+      "occupation-Varnisher",
+      "Varnisher",
+      "Varnisher"
+    ],
+    [
+      "occupation-Veterinarian",
+      "Veterinarian",
+      "Veterinarian"
+    ],
+    [
+      "occupation-VeterinaryAssistant",
+      "VeterinaryAssistant",
+      "Veterinary Assistant"
+    ],
+    [
+      "occupation-WaiterWaitressBartender",
+      "WaiterWaitressBartender",
+      "Waiter/Waitress/Bartender"
+    ],
+    [
+      "occupation-WardAttendant",
+      "WardAttendant",
+      "Ward Attendant"
+    ],
+    [
+      "occupation-WatchpersonDoorkeeper",
+      "WatchpersonDoorkeeper",
+      "Watchperson/Doorkeeper"
+    ],
+    [
+      "occupation-WeatherOfficer",
+      "WeatherOfficer",
+      "Weather Officer"
+    ],
+    [
+      "occupation-Weaverknitter",
+      "Weaverknitter",
+      "Weaver/knitter"
+    ],
+    [
+      "occupation-WelderFlamecutter",
+      "WelderFlamecutter",
+      "Welder/Flamecutter"
+    ],
+    [
+      "occupation-WoodtreaterCabinet-Maker",
+      "WoodtreaterCabinet-Maker",
+      "Wood treater/Cabinet-Maker"
+    ],
+    [
+      "occupation-Wordprocessorandrelated",
+      "Wordprocessorandrelated",
+      "Word processor and related"
+    ]
+  ]
+}

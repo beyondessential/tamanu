@@ -1,0 +1,30 @@
+{
+  "sheetName": "Holter Monitor Imaging Areas",
+  "data": [
+    [
+      "id",
+      "code",
+      "name"
+    ],
+    [
+      "holterMonitorImagingArea-93001",
+      93001,
+      "Holter Monitor Imaging Area"
+    ],
+    [
+      "holterMonitorImagingArea-93002",
+      93002,
+      "24-Hour Holter Monitor Area"
+    ],
+    [
+      "holterMonitorImagingArea-93003",
+      93003,
+      "48-Hour Holter Monitor Area"
+    ],
+    [
+      "holterMonitorImagingArea-93004",
+      93004,
+      "Event Monitor Area"
+    ]
+  ]
+}

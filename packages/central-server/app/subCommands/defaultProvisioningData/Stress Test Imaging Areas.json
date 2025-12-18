@@ -1,0 +1,35 @@
+{
+  "sheetName": "Stress Test Imaging Areas",
+  "data": [
+    [
+      "id",
+      "code",
+      "name"
+    ],
+    [
+      "stressTestImagingArea-93001",
+      93001,
+      "Stress Test Imaging Area"
+    ],
+    [
+      "stressTestImagingArea-93002",
+      93002,
+      "Exercise Stress Test Area"
+    ],
+    [
+      "stressTestImagingArea-93003",
+      93003,
+      "Pharmacological Stress Test Area"
+    ],
+    [
+      "stressTestImagingArea-93004",
+      93004,
+      "Nuclear Stress Test Area"
+    ],
+    [
+      "stressTestImagingArea-93005",
+      93005,
+      "Echo Stress Test Area"
+    ]
+  ]
+}

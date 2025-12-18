@@ -1,0 +1,83 @@
+{
+  "sheetName": "Lab Test Categories",
+  "data": [
+    [
+      "id",
+      "code",
+      "name",
+      "visibilityStatus"
+    ],
+    [
+      "labTestCategory-FBC",
+      "FBC",
+      "FBC",
+      "current"
+    ],
+    [
+      "labTestCategory-Other",
+      "Other",
+      "Other",
+      "current"
+    ],
+    [
+      "labTestCategory-LFT",
+      "LFT",
+      "LFT",
+      "current"
+    ],
+    [
+      "labTestCategory-UE",
+      "UE",
+      "U&E",
+      "current"
+    ],
+    [
+      "labTestCategory-Malaria",
+      "Malaria",
+      "Malaria microscopy",
+      "current"
+    ],
+    [
+      "labTestCategory-Microbiology",
+      "Microbiology",
+      "Microbiology",
+      "current"
+    ],
+    [
+      "labTestCategory-Serology",
+      "Serology",
+      "Serology",
+      "current"
+    ],
+    [
+      "labTestCategory-COVID",
+      "COVID",
+      "COVID-19 Swab",
+      "historical"
+    ],
+    [
+      "labTestCategory-COVIDRAT",
+      "COVIDRAT",
+      "Point-of-care",
+      "current"
+    ],
+    [
+      "labTestCategory-Malariamicroscopy",
+      "Malariamicroscopy",
+      "Malaria microscopy",
+      "current"
+    ],
+    [
+      "labTestCategory-POCT",
+      "POCT",
+      "POCT",
+      "current"
+    ],
+    [
+      "labTestCategory-Integration",
+      "Integration",
+      "Integration",
+      "current"
+    ]
+  ]
+}

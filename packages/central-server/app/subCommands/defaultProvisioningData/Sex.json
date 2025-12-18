@@ -1,0 +1,25 @@
+{
+  "sheetName": "Sex",
+  "data": [
+    [
+      "id",
+      "code",
+      "name"
+    ],
+    [
+      "sex-Female",
+      "Female",
+      "Female"
+    ],
+    [
+      "sex-Male",
+      "Male",
+      "Male"
+    ],
+    [
+      "sex-Other",
+      "Other",
+      "Other"
+    ]
+  ]
+}

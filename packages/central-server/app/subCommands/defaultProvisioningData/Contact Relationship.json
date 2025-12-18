@@ -1,0 +1,47 @@
+{
+  "sheetName": "Contact Relationship",
+  "data": [
+    [
+      "id",
+      "code",
+      "name",
+      "visibilityStatus"
+    ],
+    [
+      "cd925cbb-c721-46f6-99f7-d22251309c14",
+      "family-mom",
+      "Mother",
+      "current"
+    ],
+    [
+      "2845a801-f75f-4f5c-865e-740a3b6f50d4",
+      "family-dad",
+      "Father",
+      "current"
+    ],
+    [
+      "596b8552-31be-4df0-8613-6418e0c5bd70",
+      "family-sis",
+      "Sister",
+      "current"
+    ],
+    [
+      "fe8a9934-bcf8-41d0-be9a-b85034715540",
+      "family-bro",
+      "Brother",
+      "current"
+    ],
+    [
+      "f7fd0a45-4816-4c2f-8eb2-72c37eacdff5",
+      "social-custodian",
+      "Custodian",
+      "current"
+    ],
+    [
+      "52be6823-c147-4ae3-8a44-d10d9939fab4",
+      "social-friend",
+      "Friend",
+      "current"
+    ]
+  ]
+}

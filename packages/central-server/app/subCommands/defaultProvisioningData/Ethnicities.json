@@ -1,0 +1,100 @@
+{
+  "sheetName": "Ethnicities",
+  "data": [
+    [
+      "id",
+      "code",
+      "name"
+    ],
+    [
+      "ethnicity-Fiji",
+      "Fiji",
+      "Fiji"
+    ],
+    [
+      "ethnicity-NewZealand",
+      "NewZealand",
+      "New Zealand"
+    ],
+    [
+      "ethnicity-AmericanSamoa",
+      "AmericanSamoa",
+      "American Samoa"
+    ],
+    [
+      "ethnicity-Australia",
+      "Australia",
+      "Australia"
+    ],
+    [
+      "ethnicity-Tuvalu",
+      "Tuvalu",
+      "Tuvalu"
+    ],
+    [
+      "ethnicity-NorthernMarianaIslands",
+      "NorthernMarianaIslands",
+      "Northern Mariana Islands"
+    ],
+    [
+      "ethnicity-FederatedStatesofMicronesia",
+      "FederatedStatesofMicronesia",
+      "Federated States of Micronesia"
+    ],
+    [
+      "ethnicity-FrenchPolynesia",
+      "FrenchPolynesia",
+      "French Polynesia"
+    ],
+    [
+      "ethnicity-Kiribati",
+      "Kiribati",
+      "Kiribati"
+    ],
+    [
+      "ethnicity-MarshallIslands",
+      "MarshallIslands",
+      "Marshall Islands"
+    ],
+    [
+      "ethnicity-Nauru",
+      "Nauru",
+      "Nauru"
+    ],
+    [
+      "ethnicity-NewCaledonia",
+      "NewCaledonia",
+      "New Caledonia"
+    ],
+    [
+      "ethnicity-Palau",
+      "Palau",
+      "Palau"
+    ],
+    [
+      "ethnicity-SolomonIslands",
+      "SolomonIslands",
+      "Solomon Islands"
+    ],
+    [
+      "ethnicity-Tonga",
+      "Tonga",
+      "Tonga"
+    ],
+    [
+      "ethnicity-Vanuatu",
+      "Vanuatu",
+      "Vanuatu"
+    ],
+    [
+      "ethnicity-WallisandFutuna",
+      "WallisandFutuna",
+      "Wallis and Futuna"
+    ],
+    [
+      "ethnicity-Other",
+      "Other",
+      "Other"
+    ]
+  ]
+}

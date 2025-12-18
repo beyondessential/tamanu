@@ -1,0 +1,21 @@
+{
+  "sheetName": "Medication Set",
+  "data": [
+    [
+      "id",
+      "code",
+      "type",
+      "name",
+      "visibilityStatus",
+      "medicationTemplates"
+    ],
+    [
+      "medicationset-postsurgicalset",
+      "postsurgicalset",
+      "medicationSet",
+      "Post-surgical set",
+      "current",
+      "medicationtemplate-postsurgicalset-amoxicillin500,medicationtemplate-postsurgicalset-oxycodone10,medicationtemplate-postsurgicalset-paracetamol500"
+    ]
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "sheetName": "Angiogram Imaging Areas",
+  "data": [
+    [
+      "id",
+      "code",
+      "name"
+    ],
+    [
+      "angiogramImagingArea-93001",
+      93001,
+      "Angiogram Imaging Area"
+    ],
+    [
+      "angiogramImagingArea-93002",
+      93002,
+      "Cardiac Angiogram Area"
+    ],
+    [
+      "angiogramImagingArea-93003",
+      93003,
+      "Peripheral Angiogram Area"
+    ],
+    [
+      "angiogramImagingArea-93004",
+      93004,
+      "Cerebral Angiogram Area"
+    ]
+  ]
+}

@@ -1,0 +1,2723 @@
+{
+  "sheetName": "Locations",
+  "data": [
+    [
+      "id",
+      "code",
+      "name",
+      "visibilityStatus",
+      "maxOccupancy",
+      "facilityId",
+      "locationGroupId"
+    ],
+    [
+      "location-ClinicalTreatmentRoom",
+      "ClinicalTreatmentRoom",
+      "Clinical Treatment Room",
+      "current",
+      null,
+      "facility-ColonialWarMemorialDivisionalHospital",
+      null
+    ],
+    [
+      "location-ClinicalTreatmentRoom1",
+      "ClinicalTreatmentRoom1",
+      "Clinical Treatment Room 1",
+      "current",
+      null,
+      "facility-ColonialWarMemorialDivisionalHospital",
+      null
+    ],
+    [
+      "location-ClinicalTreatmentRoom2",
+      "ClinicalTreatmentRoom2",
+      "Clinical Treatment Room 2",
+      "current",
+      null,
+      "facility-ColonialWarMemorialDivisionalHospital",
+      null
+    ],
+    [
+      "location-ConsultingRoom",
+      "ConsultingRoom",
+      "Consulting Room",
+      "current",
+      null,
+      "facility-ColonialWarMemorialDivisionalHospital",
+      null
+    ],
+    [
+      "location-ConsultingRoom1",
+      "ConsultingRoom1",
+      "Consulting Room 1",
+      "current",
+      null,
+      "facility-ColonialWarMemorialDivisionalHospital",
+      null
+    ],
+    [
+      "location-ConsultingRoom2",
+      "ConsultingRoom2",
+      "Consulting Room 2",
+      "current",
+      null,
+      "facility-ColonialWarMemorialDivisionalHospital",
+      null
+    ],
+    [
+      "location-ShortStay",
+      "ShortStay",
+      "Short Stay",
+      "current",
+      null,
+      "facility-ColonialWarMemorialDivisionalHospital",
+      null
+    ],
+    [
+      "location-Resuscitation",
+      "Resuscitation",
+      "Resuscitation",
+      "current",
+      null,
+      "facility-ColonialWarMemorialDivisionalHospital",
+      null
+    ],
+    [
+      "location-Ward1",
+      "Ward1",
+      "Ward 1",
+      "current",
+      null,
+      "facility-ColonialWarMemorialDivisionalHospital",
+      null
+    ],
+    [
+      "location-Ward2",
+      "Ward2",
+      "Ward 2",
+      "current",
+      null,
+      "facility-ColonialWarMemorialDivisionalHospital",
+      null
+    ],
+    [
+      "location-GeneralClinic",
+      "GeneralClinic",
+      "Clinic",
+      "current",
+      null,
+      "facility-ColonialWarMemorialDivisionalHospital",
+      null
+    ],
+    [
+      "location-DemoLan",
+      "DemoLanPublic",
+      "Demo Lan Public",
+      "current",
+      null,
+      "facility-DemoLan",
+      null
+    ],
+    [
+      "location-GeneralClinicBaHealthCentre",
+      "GeneralClinicBaHealthCentre",
+      "General Clinic",
+      "current",
+      null,
+      "facility-BaHealthCentre",
+      null
+    ],
+    [
+      "location-Ward3Bed1",
+      "Ward3Bed1",
+      "Ward 3 Bed 1",
+      "current",
+      null,
+      "facility-BaHealthCentre",
+      null
+    ],
+    [
+      "location-Ward3Bed2",
+      "Ward3Bed2",
+      "Ward 3 Bed 2",
+      "current",
+      null,
+      "facility-BaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralMedicineBaHealthCentre",
+      "GeneralMedicineBaHealthCentre",
+      "General Medicine",
+      "current",
+      null,
+      "facility-BaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralOutpatientBaHealthCentre",
+      "GeneralOutpatientBaHealthCentre",
+      "General Outpatient",
+      "current",
+      null,
+      "facility-BaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicAdolescentHealthDevelopment",
+      "GeneralClinicAdolescentHealthDevelopment",
+      "Adolescent General Clinic",
+      "current",
+      null,
+      "facility-AdolescentHealthDevelopment",
+      null
+    ],
+    [
+      "location-GeneralClinicBaMissionSub-divisionalHospital",
+      "GeneralClinicBaMissionSub-divisionalHospital",
+      "Ba Mission Sub-divisional Hospital General Clinic",
+      "current",
+      null,
+      "facility-BaMissionSub-divisionalHospital",
+      null
+    ],
+    [
+      "location-GeneralClinicBagasauNursingStation",
+      "GeneralClinicBagasauNursingStation",
+      "Bagasau Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-BagasauNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicBalevutoHealthCentre",
+      "GeneralClinicBalevutoHealthCentre",
+      "Balevuto Health Centre General Clinic",
+      "current",
+      null,
+      "facility-BalevutoHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicBatikiNursingStation",
+      "GeneralClinicBatikiNursingStation",
+      "Batiki Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-BatikiNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicBaulevuNursingStation",
+      "GeneralClinicBaulevuNursingStation",
+      "Baulevu Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-BaulevuNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicBeqaHealthCentre",
+      "GeneralClinicBeqaHealthCentre",
+      "Beqa Health Centre General Clinic",
+      "current",
+      null,
+      "facility-BeqaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicBoumaNursingStation",
+      "GeneralClinicBoumaNursingStation",
+      "Bouma Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-BoumaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicBuaNursingStation",
+      "GeneralClinicBuaNursingStation",
+      "Bua Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-BuaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicBukuyaHealthCentre",
+      "GeneralClinicBukuyaHealthCentre",
+      "Bukuya Health Centre General Clinic",
+      "current",
+      null,
+      "facility-BukuyaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicBuretaHealthCentre",
+      "GeneralClinicBuretaHealthCentre",
+      "Bureta Health Centre General Clinic",
+      "current",
+      null,
+      "facility-BuretaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicCakovaNursingStation",
+      "GeneralClinicCakovaNursingStation",
+      "Cakova Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-CakovaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicCiciaHealthCentre",
+      "GeneralClinicCiciaHealthCentre",
+      "Cicia Health Centre General Clinic",
+      "current",
+      null,
+      "facility-CiciaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicCikobiaNursingStation",
+      "GeneralClinicCikobiaNursingStation",
+      "Cikobia Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-CikobiaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicColonialWarMemorialDivisionalHospital",
+      "GeneralClinicColonialWarMemorialDivisionalHospital",
+      "Colonial War Memorial Divisional Hospital General Clinic",
+      "current",
+      null,
+      "facility-ColonialWarMemorialDivisionalHospital",
+      null
+    ],
+    [
+      "location-GeneralClinicLakebaHealthCentre",
+      "GeneralClinicLakebaHealthCentre",
+      "Lakeba Health Centre General Clinic",
+      "current",
+      null,
+      "facility-LakebaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicColonialWarMemorialDivisionalHospital-BreastClinic",
+      "GeneralClinicColonialWarMemorialDivisionalHospital-BreastClinic",
+      "Colonial War Memorial Divisional Hospital - Breast Clinic General Clinic",
+      "current",
+      null,
+      "facility-ColonialWarMemorialDivisionalHospital-BreastClinic",
+      null
+    ],
+    [
+      "location-GeneralClinicColonialWarMemorialDivisionalHospital-GynaecologyClinic",
+      "GeneralClinicColonialWarMemorialDivisionalHospital-GynaecologyClinic",
+      "Colonial War Memorial Divisional Hospital - Gynaecology Clinic General Clinic",
+      "current",
+      null,
+      "facility-ColonialWarMemorialDivisionalHospital-GynaecologyClinic",
+      null
+    ],
+    [
+      "location-GeneralClinicCoqeloaNursingStation",
+      "GeneralClinicCoqeloaNursingStation",
+      "Coqeloa Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-CoqeloaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicCuvuHealthCentre",
+      "GeneralClinicCuvuHealthCentre",
+      "Cuvu Health Centre General Clinic",
+      "current",
+      null,
+      "facility-CuvuHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicDaviqeleHealthCentre",
+      "GeneralClinicDaviqeleHealthCentre",
+      "Daviqele Health Centre General Clinic",
+      "current",
+      null,
+      "facility-DaviqeleHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicDawasamuNursingStation",
+      "GeneralClinicDawasamuNursingStation",
+      "Dawasamu Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-DawasamuNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicDogotukiNursingStation",
+      "GeneralClinicDogotukiNursingStation",
+      "Dogotuki Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-DogotukiNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicDravuwaluNursingStation",
+      "GeneralClinicDravuwaluNursingStation",
+      "Dravuwalu Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-DravuwaluNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicDreketiHealthCentre",
+      "GeneralClinicDreketiHealthCentre",
+      "Dreketi Health Centre General Clinic",
+      "current",
+      null,
+      "facility-DreketiHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicFulagaNursingStation",
+      "GeneralClinicFulagaNursingStation",
+      "Fulaga Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-FulagaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicGaloaNursingStation",
+      "GeneralClinicGaloaNursingStation",
+      "Galoa Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-GaloaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicGaseleNursingStation",
+      "GeneralClinicGaseleNursingStation",
+      "Gasele Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-GaseleNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicGauHealthCentre",
+      "GeneralClinicGauHealthCentre",
+      "Gau Health Centre General Clinic",
+      "current",
+      null,
+      "facility-GauHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicKabaraHealthCentre",
+      "GeneralClinicKabaraHealthCentre",
+      "Kabara Health Centre General Clinic",
+      "current",
+      null,
+      "facility-KabaraHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicKabaraNursingStation",
+      "GeneralClinicKabaraNursingStation",
+      "Kabara Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-KabaraNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicKamikamicaHealthCentre",
+      "GeneralClinicKamikamicaHealthCentre",
+      "Kamikamica Health Centre General Clinic",
+      "current",
+      null,
+      "facility-KamikamicaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicKavalaHealthCentre",
+      "GeneralClinicKavalaHealthCentre",
+      "Kavala Health Centre General Clinic",
+      "current",
+      null,
+      "facility-KavalaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicKeiyasiHealthCentre",
+      "GeneralClinicKeiyasiHealthCentre",
+      "Keiyasi Health Centre General Clinic",
+      "current",
+      null,
+      "facility-KeiyasiHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicKeseHealthCentre",
+      "GeneralClinicKeseHealthCentre",
+      "Kese Health Centre General Clinic",
+      "current",
+      null,
+      "facility-KeseHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicKiaNursingStation",
+      "GeneralClinicKiaNursingStation",
+      "Kia Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-KiaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicKidneyDialysisCentre",
+      "GeneralClinicKidneyDialysisCentre",
+      "Kidney Dialysis Centre General Clinic",
+      "current",
+      null,
+      "facility-KidneyDialysisCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicKioaNursingStation",
+      "GeneralClinicKioaNursingStation",
+      "Kioa Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-KioaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicKomoNursingStation",
+      "GeneralClinicKomoNursingStation",
+      "Komo Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-KomoNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicKoroHealthCentre",
+      "GeneralClinicKoroHealthCentre",
+      "Koro Health Centre General Clinic",
+      "current",
+      null,
+      "facility-KoroHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicKorolevuHealthCentre",
+      "GeneralClinicKorolevuHealthCentre",
+      "Korolevu Health Centre General Clinic",
+      "current",
+      null,
+      "facility-KorolevuHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicKorotasereHealthCentre",
+      "GeneralClinicKorotasereHealthCentre",
+      "Korotasere Health Centre General Clinic",
+      "current",
+      null,
+      "facility-KorotasereHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicKorovisilouHealthCentre",
+      "GeneralClinicKorovisilouHealthCentre",
+      "Korovisilou Health Centre General Clinic",
+      "current",
+      null,
+      "facility-KorovisilouHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicKorovouHealthCentre",
+      "GeneralClinicKorovouHealthCentre",
+      "Korovou Health Centre General Clinic",
+      "current",
+      null,
+      "facility-KorovouHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicKorovouPrisonStation",
+      "GeneralClinicKorovouPrisonStation",
+      "Korovou Prison Station General Clinic",
+      "current",
+      null,
+      "facility-KorovouPrisonStation",
+      null
+    ],
+    [
+      "location-GeneralClinicKorovouSub-divisionalHospital",
+      "GeneralClinicKorovouSub-divisionalHospital",
+      "Korovou Sub-divisional Hospital General Clinic",
+      "current",
+      null,
+      "facility-KorovouSub-divisionalHospital",
+      null
+    ],
+    [
+      "location-GeneralClinicKubulauNursingStation",
+      "GeneralClinicKubulauNursingStation",
+      "Kubulau Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-KubulauNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicLabasaDivisionalHospital",
+      "GeneralClinicLabasaDivisionalHospital",
+      "Labasa Divisional Hospital General Clinic",
+      "current",
+      null,
+      "facility-LabasaDivisionalHospital",
+      null
+    ],
+    [
+      "location-GeneralClinicLabasaGoldenAgeHome",
+      "GeneralClinicLabasaGoldenAgeHome",
+      "Labasa Golden Age Home General Clinic",
+      "current",
+      null,
+      "facility-LabasaGoldenAgeHome",
+      null
+    ],
+    [
+      "location-GeneralClinicLabasaHealthCentre",
+      "GeneralClinicLabasaHealthCentre",
+      "Labasa Health Centre General Clinic",
+      "current",
+      null,
+      "facility-LabasaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicLabassHealthCentre",
+      "GeneralClinicLabassHealthCentre",
+      "Labass Health Centre General Clinic",
+      "current",
+      null,
+      "facility-LabassHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicLagiHealthCentre",
+      "GeneralClinicLagiHealthCentre",
+      "Lagi Health Centre General Clinic",
+      "current",
+      null,
+      "facility-LagiHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicLakebaSub-divisionalHospital",
+      "GeneralClinicLakebaSub-divisionalHospital",
+      "Lakeba Sub-divisional Hospital General Clinic",
+      "current",
+      null,
+      "facility-LakebaSub-divisionalHospital",
+      null
+    ],
+    [
+      "location-GeneralClinicLamiHealthCentre",
+      "GeneralClinicLamiHealthCentre",
+      "Lami Health Centre General Clinic",
+      "current",
+      null,
+      "facility-LamiHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicLaselevuHealthCentre",
+      "GeneralClinicLaselevuHealthCentre",
+      "Laselevu Health Centre General Clinic",
+      "current",
+      null,
+      "facility-LaselevuHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicLautokaDivisionalHospital",
+      "GeneralClinicLautokaDivisionalHospital",
+      "Lautoka Divisional Hospital General Clinic",
+      "current",
+      null,
+      "facility-LautokaDivisionalHospital",
+      null
+    ],
+    [
+      "location-GeneralClinicLautokaHealthCentre",
+      "GeneralClinicLautokaHealthCentre",
+      "Lautoka Health Centre General Clinic",
+      "current",
+      null,
+      "facility-LautokaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicLautokaHubCentre",
+      "GeneralClinicLautokaHubCentre",
+      "Lautoka Hub Centre General Clinic",
+      "current",
+      null,
+      "facility-LautokaHubCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicLekutuHealthCentre",
+      "GeneralClinicLekutuHealthCentre",
+      "Lekutu Health Centre General Clinic",
+      "current",
+      null,
+      "facility-LekutuHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicLevukaHealthCentre",
+      "GeneralClinicLevukaHealthCentre",
+      "Levuka Health Centre General Clinic",
+      "current",
+      null,
+      "facility-LevukaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicLevukaSub-divisionalHospital",
+      "GeneralClinicLevukaSub-divisionalHospital",
+      "Levuka Sub-divisional Hospital General Clinic",
+      "current",
+      null,
+      "facility-LevukaSub-divisionalHospital",
+      null
+    ],
+    [
+      "location-GeneralClinicLevuka-I-DakuNursingStation",
+      "GeneralClinicLevuka-I-DakuNursingStation",
+      "Levuka-I-Daku Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-Levuka-I-DakuNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicLodoniHealthCentre",
+      "GeneralClinicLodoniHealthCentre",
+      "Lodoni Health Centre General Clinic",
+      "current",
+      null,
+      "facility-LodoniHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicLomaNursingStation",
+      "GeneralClinicLomaNursingStation",
+      "Loma Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-LomaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicLomaivunaNursingStation",
+      "GeneralClinicLomaivunaNursingStation",
+      "Lomaivuna Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-LomaivunaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicLomalomaHealthCentre",
+      "GeneralClinicLomalomaHealthCentre",
+      "Lomaloma Health Centre General Clinic",
+      "current",
+      null,
+      "facility-LomalomaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicLomalomaSub-divisionalHospital",
+      "GeneralClinicLomalomaSub-divisionalHospital",
+      "Lomaloma Sub-divisional Hospital General Clinic",
+      "current",
+      null,
+      "facility-LomalomaSub-divisionalHospital",
+      null
+    ],
+    [
+      "location-GeneralClinicLomawaiHealthCentre",
+      "GeneralClinicLomawaiHealthCentre",
+      "Lomawai Health Centre General Clinic",
+      "current",
+      null,
+      "facility-LomawaiHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicMakoiBirthingUnit",
+      "GeneralClinicMakoiBirthingUnit",
+      "Makoi Birthing Unit General Clinic",
+      "current",
+      null,
+      "facility-MakoiBirthingUnit",
+      null
+    ],
+    [
+      "location-GeneralClinicMakoiHealthCentre",
+      "GeneralClinicMakoiHealthCentre",
+      "Makoi Health Centre General Clinic",
+      "current",
+      null,
+      "facility-MakoiHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicMaloloHealthCentre",
+      "GeneralClinicMaloloHealthCentre",
+      "Malolo Health Centre General Clinic",
+      "current",
+      null,
+      "facility-MaloloHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicMataikaHouse",
+      "GeneralClinicMataikaHouse",
+      "Mataika House General Clinic",
+      "current",
+      null,
+      "facility-MataikaHouse",
+      null
+    ],
+    [
+      "location-GeneralClinicMatukuHealthCentre",
+      "GeneralClinicMatukuHealthCentre",
+      "Matuku Health Centre General Clinic",
+      "current",
+      null,
+      "facility-MatukuHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicMoalaHealthCentre",
+      "GeneralClinicMoalaHealthCentre",
+      "Moala Health Centre General Clinic",
+      "current",
+      null,
+      "facility-MoalaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicMoceNursingStation",
+      "GeneralClinicMoceNursingStation",
+      "Moce Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-MoceNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicMokaniHealthCentre",
+      "GeneralClinicMokaniHealthCentre",
+      "Mokani Health Centre General Clinic",
+      "current",
+      null,
+      "facility-MokaniHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicMomiHealthCentre",
+      "GeneralClinicMomiHealthCentre",
+      "Momi Health Centre General Clinic",
+      "current",
+      null,
+      "facility-MomiHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicMoturikiNursingStation",
+      "GeneralClinicMoturikiNursingStation",
+      "Moturiki Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-MoturikiNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicMualevuNursingStation",
+      "GeneralClinicMualevuNursingStation",
+      "Mualevu Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-MualevuNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicMuanikauHealthCentre",
+      "GeneralClinicMuanikauHealthCentre",
+      "Muanikau Health Centre General Clinic",
+      "current",
+      null,
+      "facility-MuanikauHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicNabalebaleNursingStation",
+      "GeneralClinicNabalebaleNursingStation",
+      "Nabalebale Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NabalebaleNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNabasoviNursingStation",
+      "GeneralClinicNabasoviNursingStation",
+      "Nabasovi Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NabasoviNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNabobucoNursingStation",
+      "GeneralClinicNabobucoNursingStation",
+      "Nabobuco Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NabobucoNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNaboroNursingStation",
+      "GeneralClinicNaboroNursingStation",
+      "Naboro Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NaboroNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNabouNursingStation",
+      "GeneralClinicNabouNursingStation",
+      "Nabou Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NabouNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNaboubucoNursingStation",
+      "GeneralClinicNaboubucoNursingStation",
+      "Naboubuco Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NaboubucoNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNabouwaluHealthCentre",
+      "GeneralClinicNabouwaluHealthCentre",
+      "Nabouwalu Health Centre General Clinic",
+      "current",
+      null,
+      "facility-NabouwaluHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicNabouwaluSub-divisionalHospital",
+      "GeneralClinicNabouwaluSub-divisionalHospital",
+      "Nabouwalu Sub-divisional Hospital General Clinic",
+      "current",
+      null,
+      "facility-NabouwaluSub-divisionalHospital",
+      null
+    ],
+    [
+      "location-GeneralClinicNacamakiNursingStation",
+      "GeneralClinicNacamakiNursingStation",
+      "Nacamaki Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NacamakiNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNacavanadiNursingStation",
+      "GeneralClinicNacavanadiNursingStation",
+      "Nacavanadi Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NacavanadiNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNaculaHealthCentre",
+      "GeneralClinicNaculaHealthCentre",
+      "Nacula Health Centre General Clinic",
+      "current",
+      null,
+      "facility-NaculaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicNadarivatuHealthCentre",
+      "GeneralClinicNadarivatuHealthCentre",
+      "Nadarivatu Health Centre General Clinic",
+      "current",
+      null,
+      "facility-NadarivatuHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicNadiHealthCentre",
+      "GeneralClinicNadiHealthCentre",
+      "Nadi Health Centre General Clinic",
+      "current",
+      null,
+      "facility-NadiHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicNadiSub-divisionalHospital",
+      "GeneralClinicNadiSub-divisionalHospital",
+      "Nadi Sub-divisional Hospital General Clinic",
+      "current",
+      null,
+      "facility-NadiSub-divisionalHospital",
+      null
+    ],
+    [
+      "location-GeneralClinicNadrauNursingStation",
+      "GeneralClinicNadrauNursingStation",
+      "Nadrau Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NadrauNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNaduriHealthCentre",
+      "GeneralClinicNaduriHealthCentre",
+      "Naduri Health Centre General Clinic",
+      "current",
+      null,
+      "facility-NaduriHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicNagadoNursingStation",
+      "GeneralClinicNagadoNursingStation",
+      "Nagado Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NagadoNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNagatagataNursingStation",
+      "GeneralClinicNagatagataNursingStation",
+      "Nagatagata Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NagatagataNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNailagaHealthCentre",
+      "GeneralClinicNailagaHealthCentre",
+      "Nailaga Health Centre General Clinic",
+      "current",
+      null,
+      "facility-NailagaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicNailililiNursingStation",
+      "GeneralClinicNailililiNursingStation",
+      "Naililili Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NailililiNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNairaiNursingStation",
+      "GeneralClinicNairaiNursingStation",
+      "Nairai Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NairaiNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNakasiHealthCentre",
+      "GeneralClinicNakasiHealthCentre",
+      "Nakasi Health Centre General Clinic",
+      "current",
+      null,
+      "facility-NakasiHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicNakorosuleHealthCentre",
+      "GeneralClinicNakorosuleHealthCentre",
+      "Nakorosule Health Centre General Clinic",
+      "current",
+      null,
+      "facility-NakorosuleHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicNakorovatuHealthCentre",
+      "GeneralClinicNakorovatuHealthCentre",
+      "Nakorovatu Health Centre General Clinic",
+      "current",
+      null,
+      "facility-NakorovatuHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicNalotawaNursingStation",
+      "GeneralClinicNalotawaNursingStation",
+      "Nalotawa Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NalotawaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNalotuNursingStation",
+      "GeneralClinicNalotuNursingStation",
+      "Nalotu Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NalotuNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNamakaHealthCentre",
+      "GeneralClinicNamakaHealthCentre",
+      "Namaka Health Centre General Clinic",
+      "current",
+      null,
+      "facility-NamakaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicNamakaReproductiveHealth",
+      "GeneralClinicNamakaReproductiveHealth",
+      "Namaka Reproductive Health General Clinic",
+      "current",
+      null,
+      "facility-NamakaReproductiveHealth",
+      null
+    ],
+    [
+      "location-GeneralClinicNamaraNursingStation",
+      "GeneralClinicNamaraNursingStation",
+      "Namara Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NamaraNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNamaraiHealthCentre",
+      "GeneralClinicNamaraiHealthCentre",
+      "Namarai Health Centre General Clinic",
+      "current",
+      null,
+      "facility-NamaraiHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicNamauNursingStation",
+      "GeneralClinicNamauNursingStation",
+      "Namau Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NamauNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNamuamuaHealthCentre",
+      "GeneralClinicNamuamuaHealthCentre",
+      "Namuamua Health Centre General Clinic",
+      "current",
+      null,
+      "facility-NamuamuaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicNamukaNursingStation",
+      "GeneralClinicNamukaNursingStation",
+      "Namuka Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NamukaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNanokoNursingStation",
+      "GeneralClinicNanokoNursingStation",
+      "Nanoko Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NanokoNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNanukuloaHealthCentre",
+      "GeneralClinicNanukuloaHealthCentre",
+      "Nanukuloa Health Centre General Clinic",
+      "current",
+      null,
+      "facility-NanukuloaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicNaqaliHealthCentre",
+      "GeneralClinicNaqaliHealthCentre",
+      "Naqali Health Centre General Clinic",
+      "current",
+      null,
+      "facility-NaqaliHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicNaqalimareNursingStation",
+      "GeneralClinicNaqalimareNursingStation",
+      "Naqalimare Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NaqalimareNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNaqaraNursingStation",
+      "GeneralClinicNaqaraNursingStation",
+      "Naqara Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NaqaraNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNaqarawaiNursingStation",
+      "GeneralClinicNaqarawaiNursingStation",
+      "Naqarawai Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NaqarawaiNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNaqumuNursingStation",
+      "GeneralClinicNaqumuNursingStation",
+      "Naqumu Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NaqumuNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNarocakeNursingStation",
+      "GeneralClinicNarocakeNursingStation",
+      "Narocake Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NarocakeNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNarokorokoyawaNursingStation",
+      "GeneralClinicNarokorokoyawaNursingStation",
+      "Narokorokoyawa Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NarokorokoyawaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNasauHealthCentre",
+      "GeneralClinicNasauHealthCentre",
+      "Nasau Health Centre General Clinic",
+      "current",
+      null,
+      "facility-NasauHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicNasavuNursingStation",
+      "GeneralClinicNasavuNursingStation",
+      "Nasavu Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NasavuNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNaseaHealthCentre",
+      "GeneralClinicNaseaHealthCentre",
+      "Nasea Health Centre General Clinic",
+      "current",
+      null,
+      "facility-NaseaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicNasokiNursingStation",
+      "GeneralClinicNasokiNursingStation",
+      "Nasoki Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NasokiNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNasoqoNursingStation",
+      "GeneralClinicNasoqoNursingStation",
+      "Nasoqo Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NasoqoNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNatabuaHealthCentre",
+      "GeneralClinicNatabuaHealthCentre",
+      "Natabua Health Centre General Clinic",
+      "current",
+      null,
+      "facility-NatabuaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicNatewaHealthCentre",
+      "GeneralClinicNatewaHealthCentre",
+      "Natewa Health Centre General Clinic",
+      "current",
+      null,
+      "facility-NatewaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicNausoriHealthCentre",
+      "GeneralClinicNausoriHealthCentre",
+      "Nausori Health Centre General Clinic",
+      "current",
+      null,
+      "facility-NausoriHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicNausoriHighlandNursingStation",
+      "GeneralClinicNausoriHighlandNursingStation",
+      "Nausori Highland Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NausoriHighlandNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNausoriMaternityHospital",
+      "GeneralClinicNausoriMaternityHospital",
+      "Nausori Maternity Hospital General Clinic",
+      "current",
+      null,
+      "facility-NausoriMaternityHospital",
+      null
+    ],
+    [
+      "location-GeneralClinicNavakakaNursingStation",
+      "GeneralClinicNavakakaNursingStation",
+      "Navakaka Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NavakakaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNavakasigaNursingStation",
+      "GeneralClinicNavakasigaNursingStation",
+      "Navakasiga Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NavakasigaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNavuaHealthCentre",
+      "GeneralClinicNavuaHealthCentre",
+      "Navua Health Centre General Clinic",
+      "current",
+      null,
+      "facility-NavuaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicNavuaSub-divisionalHospital",
+      "GeneralClinicNavuaSub-divisionalHospital",
+      "Navua Sub-divisional Hospital General Clinic",
+      "current",
+      null,
+      "facility-NavuaSub-divisionalHospital",
+      null
+    ],
+    [
+      "location-GeneralClinicNavunikabiNursingStation",
+      "GeneralClinicNavunikabiNursingStation",
+      "Navunikabi Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NavunikabiNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNawaicobaNursingStation",
+      "GeneralClinicNawaicobaNursingStation",
+      "Nawaicoba Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NawaicobaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNawaikamaNursingStation",
+      "GeneralClinicNawaikamaNursingStation",
+      "Nawaikama Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NawaikamaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNaweniNursingStation",
+      "GeneralClinicNaweniNursingStation",
+      "Naweni Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NaweniNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNayauNursingStation",
+      "GeneralClinicNayauNursingStation",
+      "Nayau Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NayauNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNayavuHealthCentre",
+      "GeneralClinicNayavuHealthCentre",
+      "Nayavu Health Centre General Clinic",
+      "current",
+      null,
+      "facility-NayavuHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicNayavuiraNursingStation",
+      "GeneralClinicNayavuiraNursingStation",
+      "Nayavuira Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NayavuiraNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicNuffieldHealthCentre",
+      "GeneralClinicNuffieldHealthCentre",
+      "Nuffield Health Centre General Clinic",
+      "current",
+      null,
+      "facility-NuffieldHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicNukuilauNursingStation",
+      "GeneralClinicNukuilauNursingStation",
+      "Nukuilau Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-NukuilauNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicOgeaNursingStation",
+      "GeneralClinicOgeaNursingStation",
+      "Ogea Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-OgeaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicOneataNursingStation",
+      "GeneralClinicOneataNursingStation",
+      "Oneata Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-OneataNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicOno-i-LauHealthCentre",
+      "GeneralClinicOno-i-LauHealthCentre",
+      "Ono-i-Lau Health Centre General Clinic",
+      "current",
+      null,
+      "facility-Ono-i-LauHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicPunjasHealthCentre",
+      "GeneralClinicPunjasHealthCentre",
+      "Punjas Health Centre General Clinic",
+      "current",
+      null,
+      "facility-PunjasHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicQameaHealthCentre",
+      "GeneralClinicQameaHealthCentre",
+      "Qamea Health Centre General Clinic",
+      "current",
+      null,
+      "facility-QameaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicQaraniHealthCentre",
+      "GeneralClinicQaraniHealthCentre",
+      "Qarani Health Centre General Clinic",
+      "current",
+      null,
+      "facility-QaraniHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicQVSNursingStation",
+      "GeneralClinicQVSNursingStation",
+      "QVS Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-QVSNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicRaMaternityHospital",
+      "GeneralClinicRaMaternityHospital",
+      "Ra Maternity Hospital General Clinic",
+      "current",
+      null,
+      "facility-RaMaternityHospital",
+      null
+    ],
+    [
+      "location-GeneralClinicRabiHealthCentre",
+      "GeneralClinicRabiHealthCentre",
+      "Rabi Health Centre General Clinic",
+      "current",
+      null,
+      "facility-RabiHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicRaiwaqaHealthCentreCentral",
+      "GeneralClinicRaiwaqaHealthCentreCentral",
+      "Raiwaqa Health Centre Central General Clinic",
+      "current",
+      null,
+      "facility-RaiwaqaHealthCentreCentral",
+      null
+    ],
+    [
+      "location-GeneralClinicRaiwaqaHealthCentre",
+      "GeneralClinicRaiwaqaHealthCentre",
+      "Raiwaqa Health Centre General Clinic",
+      "current",
+      null,
+      "facility-RaiwaqaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicRakirakiHealthCentre",
+      "GeneralClinicRakirakiHealthCentre",
+      "Rakiraki Health Centre General Clinic",
+      "current",
+      null,
+      "facility-RakirakiHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicRakirakiSub-divisionalHospital",
+      "GeneralClinicRakirakiSub-divisionalHospital",
+      "Rakiraki Sub-divisional Hospital General Clinic",
+      "current",
+      null,
+      "facility-RakirakiSub-divisionalHospital",
+      null
+    ],
+    [
+      "location-GeneralClinicRaviraviNursingStation",
+      "GeneralClinicRaviraviNursingStation",
+      "Raviravi Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-RaviraviNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicRavitakiNursingStation",
+      "GeneralClinicRavitakiNursingStation",
+      "Ravitaki Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-RavitakiNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicReproductiveandFamilyHealthAssociationofFijiClinic",
+      "GeneralClinicReproductiveandFamilyHealthAssociationofFijiClinic",
+      "Reproductive and Family Health Association of Fiji Clinic General Clinic",
+      "current",
+      null,
+      "facility-ReproductiveandFamilyHealthAssociationofFijiClinic",
+      null
+    ],
+    [
+      "location-GeneralClinicRHHX",
+      "GeneralClinicRHHX",
+      "RHHX General Clinic",
+      "current",
+      null,
+      "facility-RHHX",
+      null
+    ],
+    [
+      "location-GeneralClinicRKSNursingStation",
+      "GeneralClinicRKSNursingStation",
+      "RKS Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-RKSNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicRotumaHealthCentre",
+      "GeneralClinicRotumaHealthCentre",
+      "Rotuma Health Centre General Clinic",
+      "current",
+      null,
+      "facility-RotumaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicRotumaSub-divisionalHospital",
+      "GeneralClinicRotumaSub-divisionalHospital",
+      "Rotuma Sub-divisional Hospital General Clinic",
+      "current",
+      null,
+      "facility-RotumaSub-divisionalHospital",
+      null
+    ],
+    [
+      "location-GeneralClinicRoyalFijiMilitaryForces",
+      "GeneralClinicRoyalFijiMilitaryForces",
+      "Royal Fiji Military Forces General Clinic",
+      "current",
+      null,
+      "facility-RoyalFijiMilitaryForces",
+      null
+    ],
+    [
+      "location-GeneralClinicRoyalFijiPolice",
+      "GeneralClinicRoyalFijiPolice",
+      "Royal Fiji Police General Clinic",
+      "current",
+      null,
+      "facility-RoyalFijiPolice",
+      null
+    ],
+    [
+      "location-GeneralClinicSaiVeiseiseiHealthCentre",
+      "GeneralClinicSaiVeiseiseiHealthCentre",
+      "Sai Veiseisei Health Centre General Clinic",
+      "current",
+      null,
+      "facility-SaiVeiseiseiHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicSamabulaHealthCentre",
+      "GeneralClinicSamabulaHealthCentre",
+      "Samabula Health Centre General Clinic",
+      "current",
+      null,
+      "facility-SamabulaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicSaqaniHealthCentre",
+      "GeneralClinicSaqaniHealthCentre",
+      "Saqani Health Centre General Clinic",
+      "current",
+      null,
+      "facility-SaqaniHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicSaradaMedicalCentre",
+      "GeneralClinicSaradaMedicalCentre",
+      "Sarada Medical Centre General Clinic",
+      "current",
+      null,
+      "facility-SaradaMedicalCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicSavusavuHealthCentre",
+      "GeneralClinicSavusavuHealthCentre",
+      "Savusavu Health Centre General Clinic",
+      "current",
+      null,
+      "facility-SavusavuHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicSavusavuSub-divisionalHospital",
+      "GeneralClinicSavusavuSub-divisionalHospital",
+      "Savusavu Sub-divisional Hospital General Clinic",
+      "current",
+      null,
+      "facility-SavusavuSub-divisionalHospital",
+      null
+    ],
+    [
+      "location-GeneralClinicSawakasaHealthCentre",
+      "GeneralClinicSawakasaHealthCentre",
+      "Sawakasa Health Centre General Clinic",
+      "current",
+      null,
+      "facility-SawakasaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicSeaqaqaHealthCentre",
+      "GeneralClinicSeaqaqaHealthCentre",
+      "Seaqaqa Health Centre General Clinic",
+      "current",
+      null,
+      "facility-SeaqaqaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicSigatokaHealthCentre",
+      "GeneralClinicSigatokaHealthCentre",
+      "Sigatoka Health Centre General Clinic",
+      "current",
+      null,
+      "facility-SigatokaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicSigatokaSub-divisionalHospital",
+      "GeneralClinicSigatokaSub-divisionalHospital",
+      "Sigatoka Sub-divisional Hospital General Clinic",
+      "current",
+      null,
+      "facility-SigatokaSub-divisionalHospital",
+      null
+    ],
+    [
+      "location-GeneralClinicSomosomoNursingStation",
+      "GeneralClinicSomosomoNursingStation",
+      "Somosomo Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-SomosomoNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicSosoNursingStation",
+      "GeneralClinicSosoNursingStation",
+      "Soso Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-SosoNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicStGilesHospital",
+      "GeneralClinicStGilesHospital",
+      "St. Giles Hospital General Clinic",
+      "current",
+      null,
+      "facility-StGilesHospital",
+      null
+    ],
+    [
+      "location-GeneralClinicSTIClinic",
+      "GeneralClinicSTIClinic",
+      "STI Clinic General Clinic",
+      "current",
+      null,
+      "facility-STIClinic",
+      null
+    ],
+    [
+      "location-GeneralClinicSuvaHealthCentre",
+      "GeneralClinicSuvaHealthCentre",
+      "Suva Health Centre General Clinic",
+      "current",
+      null,
+      "facility-SuvaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicSuvaHubCentre",
+      "GeneralClinicSuvaHubCentre",
+      "Suva Hub Centre General Clinic",
+      "current",
+      null,
+      "facility-SuvaHubCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicTalauliaNursingStation",
+      "GeneralClinicTalauliaNursingStation",
+      "Talaulia Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-TalauliaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicTamavuaSub-divisionalHospital",
+      "GeneralClinicTamavuaSub-divisionalHospital",
+      "Tamavua Sub-divisional Hospital General Clinic",
+      "current",
+      null,
+      "facility-TamavuaSub-divisionalHospital",
+      null
+    ],
+    [
+      "location-GeneralClinicTauNursingStation",
+      "GeneralClinicTauNursingStation",
+      "Tau Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-TauNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicTaveuniSub-divisionalhospital",
+      "GeneralClinicTaveuniSub-divisionalhospital",
+      "Taveuni Sub-divisional hospital General Clinic",
+      "current",
+      null,
+      "facility-TaveuniSub-divisionalhospital",
+      null
+    ],
+    [
+      "location-GeneralClinicTavuaHealthCentre",
+      "GeneralClinicTavuaHealthCentre",
+      "Tavua Health Centre General Clinic",
+      "current",
+      null,
+      "facility-TavuaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicTavuaMaternity",
+      "GeneralClinicTavuaMaternity",
+      "Tavua Maternity General Clinic",
+      "current",
+      null,
+      "facility-TavuaMaternity",
+      null
+    ],
+    [
+      "location-GeneralClinicTavuaSub-divisionalHospital",
+      "GeneralClinicTavuaSub-divisionalHospital",
+      "Tavua Sub-divisional Hospital General Clinic",
+      "current",
+      null,
+      "facility-TavuaSub-divisionalHospital",
+      null
+    ],
+    [
+      "location-GeneralClinicTawakeNursingStation",
+      "GeneralClinicTawakeNursingStation",
+      "Tawake Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-TawakeNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicTeciNursingStation",
+      "GeneralClinicTeciNursingStation",
+      "Teci Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-TeciNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicTokaimaloNursingStation",
+      "GeneralClinicTokaimaloNursingStation",
+      "Tokaimalo Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-TokaimaloNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicToniaNursingStation",
+      "GeneralClinicToniaNursingStation",
+      "Tonia Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-ToniaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicTotoyaNursingStation",
+      "GeneralClinicTotoyaNursingStation",
+      "Totoya Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-TotoyaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicTukavesiHealthCentre",
+      "GeneralClinicTukavesiHealthCentre",
+      "Tukavesi Health Centre General Clinic",
+      "current",
+      null,
+      "facility-TukavesiHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicTuvuNursingStation",
+      "GeneralClinicTuvuNursingStation",
+      "Tuvu Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-TuvuNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicTuvucaNursingStation",
+      "GeneralClinicTuvucaNursingStation",
+      "Tuvuca Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-TuvucaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicUduNursingStation",
+      "GeneralClinicUduNursingStation",
+      "Udu Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-UduNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicVacaleaNursingStation",
+      "GeneralClinicVacaleaNursingStation",
+      "Vacalea Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-VacaleaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicValelevuHealthCentre",
+      "GeneralClinicValelevuHealthCentre",
+      "Valelevu Health Centre General Clinic",
+      "current",
+      null,
+      "facility-ValelevuHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicVanuavatuNursingStation",
+      "GeneralClinicVanuavatuNursingStation",
+      "Vanuavatu Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-VanuavatuNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicVatoaNursingStation",
+      "GeneralClinicVatoaNursingStation",
+      "Vatoa Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-VatoaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicVatukarasaHealthCentre",
+      "GeneralClinicVatukarasaHealthCentre",
+      "Vatukarasa Health Centre General Clinic",
+      "current",
+      null,
+      "facility-VatukarasaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicVatukarasaNursingStation",
+      "GeneralClinicVatukarasaNursingStation",
+      "Vatukarasa Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-VatukarasaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicVatuleleHealthCentre",
+      "GeneralClinicVatuleleHealthCentre",
+      "Vatulele Health Centre General Clinic",
+      "current",
+      null,
+      "facility-VatuleleHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicVerataNursingStation",
+      "GeneralClinicVerataNursingStation",
+      "Verata Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-VerataNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicVisoqoNursingStation",
+      "GeneralClinicVisoqoNursingStation",
+      "Visoqo Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-VisoqoNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicViwaNursingStation",
+      "GeneralClinicViwaNursingStation",
+      "Viwa Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-ViwaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicVunaHealthCentre",
+      "GeneralClinicVunaHealthCentre",
+      "Vuna Health Centre General Clinic",
+      "current",
+      null,
+      "facility-VunaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicVunaNursingStation",
+      "GeneralClinicVunaNursingStation",
+      "Vuna Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-VunaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicVunidawaHealthCentre",
+      "GeneralClinicVunidawaHealthCentre",
+      "Vunidawa Health Centre General Clinic",
+      "current",
+      null,
+      "facility-VunidawaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicVunidawaSub-divisionalHospital",
+      "GeneralClinicVunidawaSub-divisionalHospital",
+      "Vunidawa Sub-divisional Hospital General Clinic",
+      "current",
+      null,
+      "facility-VunidawaSub-divisionalHospital",
+      null
+    ],
+    [
+      "location-GeneralClinicVuniseaHealthCentre",
+      "GeneralClinicVuniseaHealthCentre",
+      "Vunisea Health Centre General Clinic",
+      "current",
+      null,
+      "facility-VuniseaHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicVuniseaSub-divisionalHospital",
+      "GeneralClinicVuniseaSub-divisionalHospital",
+      "Vunisea Sub-divisional Hospital General Clinic",
+      "current",
+      null,
+      "facility-VuniseaSub-divisionalHospital",
+      null
+    ],
+    [
+      "location-GeneralClinicVunitogoloaNursingStation",
+      "GeneralClinicVunitogoloaNursingStation",
+      "Vunitogoloa Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-VunitogoloaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicVunivutuNursingStation",
+      "GeneralClinicVunivutuNursingStation",
+      "Vunivutu Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-VunivutuNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicWaidinaNursingStation",
+      "GeneralClinicWaidinaNursingStation",
+      "Waidina Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-WaidinaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicWaimaqeraHealthCentre",
+      "GeneralClinicWaimaqeraHealthCentre",
+      "Waimaqera Health Centre General Clinic",
+      "current",
+      null,
+      "facility-WaimaqeraHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicWaimaroHealthCentre",
+      "GeneralClinicWaimaroHealthCentre",
+      "Waimaro Health Centre General Clinic",
+      "current",
+      null,
+      "facility-WaimaroHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicWainibokasiHealthCentre",
+      "GeneralClinicWainibokasiHealthCentre",
+      "Wainibokasi Health Centre General Clinic",
+      "current",
+      null,
+      "facility-WainibokasiHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicWainibokasiSub-divisionalHospital",
+      "GeneralClinicWainibokasiSub-divisionalHospital",
+      "Wainibokasi Sub-divisional Hospital General Clinic",
+      "current",
+      null,
+      "facility-WainibokasiSub-divisionalHospital",
+      null
+    ],
+    [
+      "location-GeneralClinicWainikoroHealthCentre",
+      "GeneralClinicWainikoroHealthCentre",
+      "Wainikoro Health Centre General Clinic",
+      "current",
+      null,
+      "facility-WainikoroHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicWainunuHealthCentre",
+      "GeneralClinicWainunuHealthCentre",
+      "Wainunu Health Centre General Clinic",
+      "current",
+      null,
+      "facility-WainunuHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicWaivakaNursingStation",
+      "GeneralClinicWaivakaNursingStation",
+      "Waivaka Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-WaivakaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicWaiyevoHealthCentre",
+      "GeneralClinicWaiyevoHealthCentre",
+      "Waiyevo Health Centre General Clinic",
+      "current",
+      null,
+      "facility-WaiyevoHealthCentre",
+      null
+    ],
+    [
+      "location-GeneralClinicWaiyevoSub-divisionalHospital",
+      "GeneralClinicWaiyevoSub-divisionalHospital",
+      "Waiyevo Sub-divisional Hospital General Clinic",
+      "current",
+      null,
+      "facility-WaiyevoSub-divisionalHospital",
+      null
+    ],
+    [
+      "location-GeneralClinicWauosiNursingStation",
+      "GeneralClinicWauosiNursingStation",
+      "Wauosi Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-WauosiNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicYacataNursingStation",
+      "GeneralClinicYacataNursingStation",
+      "Yacata Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-YacataNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicYaduaNursingStation",
+      "GeneralClinicYaduaNursingStation",
+      "Yadua Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-YaduaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicYagetaNursingStation",
+      "GeneralClinicYagetaNursingStation",
+      "Yageta Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-YagetaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicYalobiNursingStation",
+      "GeneralClinicYalobiNursingStation",
+      "Yalobi Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-YalobiNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicYanuyaNursingStation",
+      "GeneralClinicYanuyaNursingStation",
+      "Yanuya Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-YanuyaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicYaqetaNursingStation",
+      "GeneralClinicYaqetaNursingStation",
+      "Yaqeta Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-YaqetaNursingStation",
+      null
+    ],
+    [
+      "location-GeneralClinicYasawa-I-RaraNursingStation",
+      "GeneralClinicYasawa-I-RaraNursingStation",
+      "Yasawa-I-Rara Nursing Station General Clinic",
+      "current",
+      null,
+      "facility-Yasawa-I-RaraNursingStation",
+      null
+    ],
+    [
+      "location-Outpatient",
+      "LHOutpatient",
+      "Consultation Room",
+      "current",
+      null,
+      "facility-2",
+      "locationgroup-Outpatient"
+    ],
+    [
+      "location-OutpatientWaitingArea",
+      "LHOutpatientWaitingArea",
+      "Waiting Area",
+      "current",
+      null,
+      "facility-2",
+      "locationgroup-Outpatient"
+    ],
+    [
+      "location-Ward1Bed1",
+      "LHWard1Bed1",
+      "Bed 1",
+      "current",
+      1,
+      "facility-2",
+      "locationgroup-Ward1"
+    ],
+    [
+      "location-Ward1Bed2",
+      "LHWard1Bed2",
+      "Bed 2",
+      "current",
+      1,
+      "facility-2",
+      "locationgroup-Ward1"
+    ],
+    [
+      "location-CarnationClinic",
+      "CarnationClinic",
+      "Carnation Clinic",
+      "current",
+      null,
+      "facility-CarnationHealthCentre",
+      "locationgroup-CarnationClinic"
+    ],
+    [
+      "location-CarnationICGeneral",
+      "CarnationICGeneral",
+      "General",
+      "current",
+      null,
+      "facility-CarnationHealthCentre",
+      "locationgroup-CarnationImmunisationClinic"
+    ],
+    [
+      "location-Ward1Bed3",
+      "LHWard1Bed3",
+      "Bed 3",
+      "current",
+      1,
+      "facility-2",
+      "locationgroup-Ward1"
+    ],
+    [
+      "location-Ward1Bed4",
+      "LHWard1Bed4",
+      "Bed 4",
+      "current",
+      1,
+      "facility-2",
+      "locationgroup-Ward1"
+    ],
+    [
+      "location-Ward2Bed1",
+      "LHWard2Bed1",
+      "Bed 1",
+      "current",
+      1,
+      "facility-2",
+      "locationgroup-Ward2"
+    ],
+    [
+      "location-Ward2Bed2",
+      "LHWard2Bed2",
+      "Bed 2",
+      "current",
+      1,
+      "facility-2",
+      "locationgroup-Ward2"
+    ],
+    [
+      "location-Ward2Bed3",
+      "LHWard2Bed3",
+      "Bed 3",
+      "current",
+      1,
+      "facility-2",
+      "locationgroup-Ward2"
+    ],
+    [
+      "location-Ward2Bed4",
+      "LHWard2Bed4",
+      "Bed 4",
+      "current",
+      1,
+      "facility-2",
+      "locationgroup-Ward2"
+    ],
+    [
+      "location-EDBed1",
+      "LHEDBed1",
+      "Bed 1",
+      "current",
+      1,
+      "facility-2",
+      "locationgroup-EDBed"
+    ],
+    [
+      "location-EDBed2",
+      "LHEDBed2",
+      "Bed 2",
+      "current",
+      1,
+      "facility-2",
+      "locationgroup-EDBed"
+    ],
+    [
+      "location-EDBed3",
+      "LHEDBed3",
+      "Bed 3",
+      "current",
+      1,
+      "facility-2",
+      "locationgroup-EDBed"
+    ],
+    [
+      "location-WaitingArea",
+      "LHWaitingArea",
+      "Waiting Area",
+      "current",
+      null,
+      "facility-2",
+      "locationgroup-EDBed"
+    ],
+    [
+      "location-Theatre1",
+      "LHTheatre1",
+      "Theatre 1",
+      "current",
+      1,
+      "facility-2",
+      "locationgroup-Theatre1"
+    ],
+    [
+      "location-Theatre2",
+      "LHTheatre2",
+      "Theatre 2",
+      "current",
+      1,
+      "facility-2",
+      "locationgroup-Theatre1"
+    ],
+    [
+      "location-Home",
+      "LHHome",
+      "Home",
+      "current",
+      null,
+      "facility-2",
+      "locationgroup-Home"
+    ],
+    [
+      "location-Radiology",
+      "LHRadiology",
+      "Radiology",
+      "current",
+      null,
+      "facility-2",
+      "locationgroup-Radiology"
+    ],
+    [
+      "location-LilyICGeneral",
+      "LilyICGeneral",
+      "General",
+      "current",
+      null,
+      "facility-2",
+      "locationgroup-LilyImmunisationClinic"
+    ],
+    [
+      "location-Outpatient-tamanu",
+      "THOutpatient",
+      "Outpatient",
+      "current",
+      null,
+      "facility-1",
+      "locationgroup-Outpatient-tamanu"
+    ],
+    [
+      "location-OutpatientWaitingAreaTH",
+      "OutpatientWaitingAreaTH",
+      "Waiting Area",
+      "current",
+      null,
+      "facility-1",
+      "locationgroup-Outpatient-tamanu"
+    ],
+    [
+      "location-Ward1Bed1-tamanu",
+      "THWard1Bed1",
+      "Bed 1",
+      "current",
+      1,
+      "facility-1",
+      "locationgroup-Ward1-tamanu"
+    ],
+    [
+      "location-Ward1Bed2-tamanu",
+      "THWard1Bed2",
+      "Bed 2",
+      "current",
+      1,
+      "facility-1",
+      "locationgroup-Ward1-tamanu"
+    ],
+    [
+      "location-Ward1Bed3-tamanu",
+      "THWard1Bed3",
+      "Bed 3",
+      "current",
+      1,
+      "facility-1",
+      "locationgroup-Ward1-tamanu"
+    ],
+    [
+      "location-Ward1Bed4-tamanu",
+      "THWard1Bed4",
+      "Bed 4",
+      "current",
+      1,
+      "facility-1",
+      "locationgroup-Ward1-tamanu"
+    ],
+    [
+      "location-Ward2Bed1-tamanu",
+      "THWard2Bed1",
+      "Bed 1",
+      "current",
+      1,
+      "facility-1",
+      "locationgroup-Ward2-tamanu"
+    ],
+    [
+      "location-Ward2Bed2-tamanu",
+      "THWard2Bed2",
+      "Bed 2",
+      "current",
+      1,
+      "facility-1",
+      "locationgroup-Ward2-tamanu"
+    ],
+    [
+      "location-Ward2Bed3-tamanu",
+      "THWard2Bed3",
+      "Bed 3",
+      "current",
+      1,
+      "facility-1",
+      "locationgroup-Ward2-tamanu"
+    ],
+    [
+      "location-Ward2Bed4-tamanu",
+      "THWard2Bed4",
+      "Bed 4",
+      "current",
+      1,
+      "facility-1",
+      "locationgroup-Ward2-tamanu"
+    ],
+    [
+      "location-EDBed1-tamanu",
+      "THEDBed1",
+      "Bed 1",
+      "current",
+      1,
+      "facility-1",
+      "locationgroup-EDBed-tamanu"
+    ],
+    [
+      "location-EDBed2-tamanu",
+      "THEDBed2",
+      "Bed 2",
+      "current",
+      1,
+      "facility-1",
+      "locationgroup-EDBed-tamanu"
+    ],
+    [
+      "location-EDBed3-tamanu",
+      "THEDBed3",
+      "Bed 3",
+      "current",
+      1,
+      "facility-1",
+      "locationgroup-EDBed-tamanu"
+    ],
+    [
+      "location-WaitingArea-tamanu",
+      "THWaitingArea",
+      "Waiting Area",
+      "current",
+      null,
+      "facility-1",
+      "locationgroup-EDBed-tamanu"
+    ],
+    [
+      "location-Theatre1-tamanu",
+      "THTheatre1",
+      "Theatre 1",
+      "current",
+      1,
+      "facility-1",
+      "locationgroup-Theatre1-tamanu"
+    ],
+    [
+      "location-Theatre2-tamanu",
+      "THTheatre2",
+      "Theatre 2",
+      "current",
+      1,
+      "facility-1",
+      "locationgroup-Theatre1-tamanu"
+    ],
+    [
+      "location-Home-tamanu",
+      "THHome",
+      "Home",
+      "current",
+      null,
+      "facility-1",
+      "locationgroup-Home-tamanu"
+    ],
+    [
+      "location-Radiology-tamanu",
+      "THRadiology",
+      "Radiology",
+      "current",
+      null,
+      "facility-1",
+      "locationgroup-Radiology-tamanu"
+    ],
+    [
+      "location-OverseasMedicalReferral",
+      "THOverseasMedicalReferral",
+      "Overseas Medical Referral",
+      "current",
+      null,
+      "facility-1",
+      "locationgroup-OverseasMedicalReferral"
+    ],
+    [
+      "location-TamanuICGeneral",
+      "TamanuICGeneral",
+      "General",
+      "current",
+      null,
+      "facility-1",
+      "locationgroup-TamanuImmunisationClinic"
+    ],
+    [
+      "location-Ward3Bed1-tamanu",
+      "THWard3Bed1",
+      "Bed 1",
+      "current",
+      1,
+      "facility-1",
+      "locationgroup-Ward3-tamanu"
+    ],
+    [
+      "location-Ward3Bed2-tamanu",
+      "THWard3Bed2",
+      "Bed 2",
+      "current",
+      1,
+      "facility-1",
+      "locationgroup-Ward3-tamanu"
+    ],
+    [
+      "location-Ward3Bed3-tamanu",
+      "THWard3Bed3",
+      "Bed 3",
+      "current",
+      1,
+      "facility-1",
+      "locationgroup-Ward3-tamanu"
+    ],
+    [
+      "location-Ward3Bed4-tamanu",
+      "THWard3Bed4",
+      "Bed 4",
+      "current",
+      1,
+      "facility-1",
+      "locationgroup-Ward3-tamanu"
+    ],
+    [
+      "location-Ward4Bed1-tamanu",
+      "THWard4Bed1",
+      "Bed 1",
+      "current",
+      1,
+      "facility-1",
+      "locationgroup-Ward4-tamanu"
+    ],
+    [
+      "location-Ward4Bed2-tamanu",
+      "THWard4Bed2",
+      "Bed 2",
+      "current",
+      1,
+      "facility-1",
+      "locationgroup-Ward4-tamanu"
+    ],
+    [
+      "location-Ward5Bed3-tamanu",
+      "THWard5Bed1",
+      "Bed 1",
+      "current",
+      1,
+      "facility-1",
+      "locationgroup-Ward5-tamanu"
+    ],
+    [
+      "location-Ward5Bed4-tamanu",
+      "THWard5Bed2",
+      "Bed 2",
+      "current",
+      1,
+      "facility-1",
+      "locationgroup-Ward5-tamanu"
+    ]
+  ]
+}

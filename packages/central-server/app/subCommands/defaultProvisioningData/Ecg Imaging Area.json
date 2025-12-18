@@ -1,0 +1,29 @@
+{
+  "sheetName": "Ecg Imaging Area",
+  "data": [
+    [
+      "id",
+      "code",
+      "name",
+      "visibilityStatus"
+    ],
+    [
+      "ecgImagingArea-93000",
+      93000,
+      "Electrocardiogram",
+      "current"
+    ],
+    [
+      "ecgImagingArea-93015",
+      93015,
+      "Stress test, treadmill",
+      "current"
+    ],
+    [
+      "ecgImagingArea-93224",
+      93224,
+      "Holter",
+      "current"
+    ]
+  ]
+}
