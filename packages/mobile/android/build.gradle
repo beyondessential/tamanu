@@ -5,10 +5,9 @@ buildscript {
         buildToolsVersion = "36.0.0"
         minSdkVersion = 31
         compileSdkVersion = 36
-
-        // We use NDK 23 which has both M1 support and is the side-by-side NDK version from AGP.
+        targetSdkVersion = 36
         ndkVersion = "27.1.12297006"
-        kotlinVersion = "2.1.20"
+        kotlinVersion = "2.0.21"
         REACT_NATIVE_NODE_MODULES_DIR = file("../../../node_modules/react-native")
     }
     repositories {
@@ -16,7 +15,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:8.3.0")
+        classpath("com.android.tools.build:gradle:8.7.2")
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
     }

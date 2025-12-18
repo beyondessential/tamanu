@@ -77,3 +77,4 @@ dockercfg
 metro-cache
 
 /android/app/.cxx
+.kotlin/

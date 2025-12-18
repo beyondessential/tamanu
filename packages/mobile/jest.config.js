@@ -36,7 +36,7 @@ module.exports = {
     '^/domain(.*)$': '<rootDir>/App/domain$1',
     '^/data(.*)$': '<rootDir>/App/data$1',
     '/infra(.*)$': '<rootDir>/App/infra$1',
-    'react-native-nitro-sqlite': '<rootDir>/__mocks__/react-native-nitro-sqlite.ts',
+    '@op-engineering/op-sqlite': '<rootDir>/__mocks__/op-sqlite.ts',
   },
   collectCoverageFrom: ['App/**/*.{js,ts,jsx,tsx}', '!**/*.spec.{js,ts,jsx,tsx}'],
 };

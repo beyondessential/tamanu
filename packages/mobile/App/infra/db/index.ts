@@ -1,5 +1,5 @@
 import { Connection, ConnectionOptions, createConnection, getConnectionManager } from 'typeorm';
-import { typeORMDriver, enableSimpleNullHandling } from 'react-native-nitro-sqlite'
+import { typeORMDriver, enableSimpleNullHandling } from './opSqliteDriver';
 import { DevSettings } from 'react-native';
 
 import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
