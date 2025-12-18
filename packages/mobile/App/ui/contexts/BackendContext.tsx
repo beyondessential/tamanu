@@ -1,6 +1,7 @@
 import React, { ReactElement, useEffect, useState } from 'react';
 
 import { BackendManager } from '../../services/BackendManager';
+import { runOnBackgroundThread } from '../../services/BackgroundThread';
 
 import { LoadingScreen } from '../components/LoadingScreen';
 import { ErrorScreen } from '../components/ErrorScreen';
@@ -22,15 +23,13 @@ export const BackendProvider = ({ Component }): ReactElement => {
   useEffect(() => {
     const manager = getBackendManager();
     
-    const initializeBackend = async (): Promise<void> => {
-      manager.stopSyncService();
-      setInitialised(false);
-      
+    manager.stopSyncService();
+    setInitialised(false);
+
+    runOnBackgroundThread(async () => {
       await manager.initialise();
       setInitialised(true);
-    };
-
-    initializeBackend();
+    });
 
     return () => {
       manager.stopSyncService();
