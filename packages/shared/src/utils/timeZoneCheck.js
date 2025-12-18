@@ -23,7 +23,13 @@ async function getDatabaseTimeZone(sequelize) {
 // otherwise ignore that one
 async function getRemoteTimeZone(remote) {
   try {
-    const health = await remote.fetch('health', { timeout: 2000, backoff: { maxAttempts: 1 }, preserveBackoffForAuthAttempt: true });
+    const health = await remote.fetch('health',
+      {
+        timeout: 2000,
+        backoff: { maxAttempts: 1 },
+        preserveBackoffForAuthAttempt: true,
+      },
+    );
     const { countryTimeZone } = health.config;
     return countryTimeZone;
   } catch (error) {
