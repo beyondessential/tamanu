@@ -1,6 +1,7 @@
 {
   "extends": "../../common.tsconfig.json",
   "compilerOptions": {
+    "types": ["jest"],
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
@@ -38,8 +39,9 @@
     "noImplicitThis": false,
     "target": "es2019"
   },
+  "include": ["**/*.ts", "**/*.tsx"],
   "exclude": [
-    "node_modules",
+    "**/node_modules",
     "babel.config.js",
     "metro.config.js",
     "jest.config.mjs"
