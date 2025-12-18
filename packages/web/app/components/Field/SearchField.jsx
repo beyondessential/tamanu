@@ -35,7 +35,7 @@ const StyledClearIcon = styled(ClearIcon)`
 
 // N.B. this is specifically for use within forms, you may also want to use the `SearchInput`
 // component for standalone search fields
-export const SearchField = (props) => {
+export const SearchField = props => {
   const {
     field: { value, name, onChange },
     form: { setFieldValue } = {},
@@ -43,14 +43,11 @@ export const SearchField = (props) => {
   const [searchValue, setSearchValue] = useState(value);
   const debouncedOnChangeRef = useRef(null);
 
-  // Create debounced onChange handler - 100ms delay helps with scanner input
   useEffect(() => {
-    debouncedOnChangeRef.current = debounce((event) => {
+    debouncedOnChangeRef.current = debounce(event => {
       onChange(event);
-    }, 100);
-
+    }, 50);
     return () => {
-      // Cleanup debounced function on unmount
       if (debouncedOnChangeRef.current) {
         debouncedOnChangeRef.current.cancel();
       }
@@ -61,23 +58,19 @@ export const SearchField = (props) => {
     setSearchValue(value);
   }, [value]);
 
-  const handleChange = useCallback(
-    (event) => {
-      // Update local state immediately for visual feedback
-      const newValue = event.target.value;
-      setSearchValue(newValue);
-
-      // Debounce the form field update to handle rapid scanner input
-      if (debouncedOnChangeRef.current) {
-        debouncedOnChangeRef.current(event);
-      }
-    },
-    [],
-  );
+  const handleChange = useCallback(event => {
+    // Update local state immediately for visual feedback
+    const newValue = event.target.value;
+    setSearchValue(newValue);
+    // Debounce the form field update to handle rapid scanner input
+    if (debouncedOnChangeRef.current) {
+      debouncedOnChangeRef.current(event);
+    }
+  }, []);
 
   const clearSearch = () => {
     setSearchValue('');
-    // Cancel any pending debounced updates
+    // Cancel pending debounced update to prevent it overwriting the cleared value
     if (debouncedOnChangeRef.current) {
       debouncedOnChangeRef.current.cancel();
     }
@@ -96,7 +89,7 @@ export const SearchField = (props) => {
 };
 
 // N.B. this is for standalone use, if you want a search field within a form, use SearchField.jsx
-export const SearchInput = (props) => {
+export const SearchInput = props => {
   const { getTranslation } = useTranslation();
 
   const { label, placeholder, value, onChange, onClear } = props;
