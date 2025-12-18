@@ -340,7 +340,7 @@ describe('Encounter invoice', () => {
           ],
         });
 
-        // Switching to a procedure type that does not have a price list item should remove the item from the invoice
+        // Switching to a procedure type that does not have an invoice product should remove the item from the invoice
         await app.put(`/api/procedure/${procedure.id}`).send({
           procedureTypeId: procedureType3.id,
         });
