@@ -9,6 +9,7 @@ export class ReferenceDrugFacility extends Model {
   declare referenceDrugId: string;
   declare facilityId: string;
   declare quantity: string | null;
+  declare stockStatus: string | null;
 
   static initModel(options: InitOptions) {
     super.init(
@@ -41,9 +42,13 @@ export class ReferenceDrugFacility extends Model {
           type: DataTypes.STRING,
           allowNull: true,
         },
+        stockStatus: {
+          type: DataTypes.STRING,
+          allowNull: true,
+        },
       },
-      { 
-        ...options, 
+      {
+        ...options,
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
       },
     );

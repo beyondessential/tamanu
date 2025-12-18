@@ -20,11 +20,14 @@ import {
   NOTE_RECORD_TYPES,
   NOTE_TYPES,
   REFERENCE_TYPES,
+  STOCK_STATUSES,
   SYSTEM_USER_UUID,
+  PHARMACY_PRESCRIPTION_TYPES,
 } from '@tamanu/constants';
 import { add, format, isAfter, isEqual } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 import { validate } from '../../utils/validate';
+import { mapQueryFilters } from '../../database/utils';
 
 // Active meditions are that have remaining repeats
 const buildActiveMedicationsCondition = () => Sequelize.literal(`(
@@ -275,34 +278,6 @@ const checkSensitiveMedicationPermission = async (medicationIds, req, action) =>
     req.checkPermission(action, 'SensitiveMedication');
   }
 };
-
-medication.get(
-  '/:id',
-  asyncHandler(async (req, res) => {
-    const { models, params, query } = req;
-    const { Prescription } = models;
-
-    req.checkPermission('read', 'Medication');
-    const object = await Prescription.findByPk(params.id, {
-      include: Prescription.getFullReferenceAssociations(),
-    });
-
-    await checkSensitiveMedicationPermission([object.medicationId], req, 'read');
-
-    if (!object) throw new NotFoundError();
-
-    if (object) {
-      await req.audit.access({
-        recordId: object.id,
-        frontEndContext: params,
-        model: Prescription,
-        facilityId: query.facilityId,
-      });
-    }
-
-    res.send(object);
-  }),
-);
 
 const medicationInputSchema = z
   .object({
@@ -1679,5 +1654,228 @@ medication.get(
     }));
 
     res.send(transformedResults);
+  }),
+);
+
+const caseInsensitiveStartsWithFilter = (fieldName, _operator, value) => ({
+  [fieldName]: {
+    [Op.iLike]: `${value}%`,
+  },
+});
+
+const caseInsensitiveFilter = (fieldName, _operator, value) => ({
+  [fieldName]: {
+    [Op.iLike]: `%${value}%`,
+  },
+});
+
+medication.get(
+  '/medication-requests',
+  asyncHandler(async (req, res) => {
+    const { models, query } = req;
+    const {
+      order = 'DESC',
+      orderBy = 'pharmacyOrder.date',
+      rowsPerPage = 10,
+      page = 0,
+      facilityId,
+      ...filterParams
+    } = query;
+
+    req.checkPermission('list', 'Medication');
+
+    const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+
+    // Patient filters
+    const patientFilters = mapQueryFilters(filterParams, [
+      { key: 'firstName', mapFn: caseInsensitiveStartsWithFilter },
+      { key: 'lastName', mapFn: caseInsensitiveStartsWithFilter },
+      { key: 'displayId', mapFn: caseInsensitiveFilter },
+    ]);
+    // Patient association
+    const patient = {
+      association: 'patient',
+      where: patientFilters,
+      attributes: ['displayId', 'firstName', 'lastName', 'id'],
+    };
+
+    const locationGroupFilters = mapQueryFilters(filterParams, [
+      { key: 'locationGroupId', alias: 'id', operator: Op.eq },
+    ]);
+    const locationGroup = {
+      association: 'locationGroup',
+      where: locationGroupFilters,
+      attributes: ['id', 'code', 'name'],
+    };
+
+    // Location filters
+    const locationFilters = mapQueryFilters(filterParams, [
+      { key: 'locationId', alias: 'id', operator: Op.eq },
+    ]);
+    const location = {
+      association: 'location',
+      where: locationFilters,
+      include: [locationGroup],
+      attributes: ['id', 'code', 'name', 'locationGroupId'],
+      required: true,
+    };
+
+    // Encounter association
+    const encounter = {
+      association: 'encounter',
+      include: [patient, location],
+      attributes: ['id', 'endDate'],
+      required: true,
+    };
+
+    // PharmacyOrder filters
+    const pharmacyOrderFilters = mapQueryFilters(filterParams, [
+      {
+        key: 'date',
+        mapFn: (fieldName, _operator, value) => {
+          const startOfDay = `${value} 00:00:00`;
+          const endOfDay = `${value} 23:59:59`;
+          return { [fieldName]: { [Op.between]: [startOfDay, endOfDay] } };
+        },
+      },
+      {
+        key: 'prescriptionType',
+        mapFn: (_fieldName, _operator, value) =>
+          value === PHARMACY_PRESCRIPTION_TYPES.INPATIENT
+            ? { isDischargePrescription: { [Op.ne]: true } }
+            : { isDischargePrescription: { [Op.eq]: true } },
+      },
+    ]);
+
+    // Prescription filters
+    const prescriptionFilters = mapQueryFilters(filterParams, [
+      { key: 'medicationId', operator: Op.eq },
+      { key: 'prescriberId', operator: Op.eq },
+    ]);
+
+    const rootFilter = mapQueryFilters(filterParams, [
+      {
+        key: 'stockStatus',
+        mapFn: (_fieldName, _operator, value) =>
+          Sequelize.where(
+            Sequelize.fn(
+              'COALESCE',
+              Sequelize.col('prescription.medication.referenceDrug.facilities.stock_status'),
+              STOCK_STATUSES.UNKNOWN,
+            ),
+            value,
+          ),
+      },
+    ]);
+
+    const buildOrder = () => {
+      if (orderBy === 'stockStatus') {
+        // Use computed column for alphabetical ordering (ASC/DESC)
+        // COALESCE handles null (no facility record) as 'unknown'
+        return [
+          [
+            Sequelize.fn(
+              'COALESCE',
+              Sequelize.col('prescription.medication.referenceDrug.facilities.stock_status'),
+              STOCK_STATUSES.UNKNOWN,
+            ),
+            orderDirection,
+          ],
+          // stable tiebreaker
+          ['pharmacyOrder', 'date', 'DESC'],
+        ];
+      }
+
+      return [
+        [...orderBy.split('.'), orderDirection],
+        ['pharmacyOrder', 'date', 'DESC'],
+      ];
+    };
+
+    // Query PharmacyOrderPrescription with all associations
+    const databaseResponse = await models.PharmacyOrderPrescription.findAndCountAll({
+      include: [
+        {
+          association: 'pharmacyOrder',
+          where: { ...pharmacyOrderFilters, facilityId },
+          include: [encounter],
+          required: true,
+          attributes: ['id', 'date', 'facilityId', 'encounterId', 'isDischargePrescription'],
+        },
+        {
+          association: 'prescription',
+          where: prescriptionFilters,
+          attributes: ['id'],
+          include: [
+            {
+              association: 'medication',
+              attributes: ['id', 'name'],
+              required: true,
+              include: {
+                model: models.ReferenceDrug,
+                as: 'referenceDrug',
+                attributes: ['id', 'isSensitive'],
+                required: true,
+                include: {
+                  model: models.ReferenceDrugFacility,
+                  as: 'facilities',
+                  attributes: ['id', 'quantity', 'facilityId', 'stockStatus'],
+                  where: {
+                    facilityId,
+                  },
+                  required: false,
+                },
+              },
+            },
+            {
+              association: 'prescriber',
+              attributes: ['id', 'displayName'],
+            },
+          ],
+          required: true,
+        },
+      ],
+      where: rootFilter,
+      order: buildOrder(),
+      limit: rowsPerPage,
+      offset: page * rowsPerPage,
+      distinct: true,
+      subQuery: false,
+    });
+
+    const { count, rows: data } = databaseResponse;
+
+    res.send({
+      count,
+      data,
+    });
+  }),
+);
+
+medication.get(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params, query } = req;
+    const { Prescription } = models;
+
+    req.checkPermission('read', 'Medication');
+    const object = await Prescription.findByPk(params.id, {
+      include: Prescription.getFullReferenceAssociations(),
+    });
+
+    await checkSensitiveMedicationPermission([object.medicationId], req, 'read');
+
+    if (!object) throw new NotFoundError();
+
+    if (object) {
+      await req.audit.access({
+        recordId: object.id,
+        frontEndContext: params,
+        model: Prescription,
+        facilityId: query.facilityId,
+      });
+    }
+
+    res.send(object);
   }),
 );

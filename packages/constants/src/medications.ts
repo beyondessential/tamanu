@@ -298,7 +298,24 @@ export const PHARMACY_PRESCRIPTION_TYPES = {
   INPATIENT: 'INPATIENT',
 };
 
+export const PHARMACY_PRESCRIPTION_TYPE_LABELS = {
+  [PHARMACY_PRESCRIPTION_TYPES.INPATIENT]: 'Inpatient',
+  [PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT]: 'Outpatient/Discharge',
+};
+
 export const FACILITY_DRUG_QUANTITY_STATUSES = {
   UNAVAILABLE: 'unavailable',
   UNKNOWN: 'unknown',
+};
+
+export const STOCK_STATUSES = {
+  YES: 'yes',
+  NO: 'no',
+  UNKNOWN: 'unknown',
+};
+
+export const STOCK_STATUS_LABELS = {
+  [STOCK_STATUSES.YES]: 'Yes',
+  [STOCK_STATUSES.NO]: 'No',
+  [STOCK_STATUSES.UNKNOWN]: 'Unknown',
 };

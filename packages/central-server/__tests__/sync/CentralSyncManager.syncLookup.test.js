@@ -26,6 +26,7 @@ import { createTestContext } from '../utilities';
 import { getPatientLinkedModels } from '../../dist/sync/getPatientLinkedModels';
 import { createMarkedForSyncPatientsTable } from '../../dist/sync/createMarkedForSyncPatientsTable';
 import { snapshotOutgoingChanges } from '../../dist/sync/snapshotOutgoingChanges';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 describe('Sync Lookup data', () => {
   let ctx;
@@ -348,6 +349,8 @@ describe('Sync Lookup data', () => {
       fake(PharmacyOrder, {
         encounterId: encounter1.id,
         orderingClinicianId: examiner.id,
+        facilityId: facility.id,
+        date: getCurrentDateTimeString(),
       }),
     );
 
