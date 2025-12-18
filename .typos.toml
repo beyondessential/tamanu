@@ -52,5 +52,5 @@ extend-exclude = [
   "scripts/csca.sh",
 
   # default provision files
-  "packages/central-server/app/subCommands/defaultProvisioningData/*.json",
+  "packages/central-server/app/subCommands/defaultProvisioningData/*.json5",
 ]
