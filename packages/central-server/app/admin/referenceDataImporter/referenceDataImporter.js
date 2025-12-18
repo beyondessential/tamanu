@@ -27,12 +27,12 @@ export async function referenceDataImporter({
   if (providedWorkbook) {
     workbook = providedWorkbook;
     log.info('Importing data definitions from workbook');
-  } else if (file) {
-    workbook = readFile(file);
-    log.info('Importing data definitions from file', { file });
   } else if (data) {
     workbook = read(data, { type: 'buffer' });
     log.info('Importing data definitions from data');
+  } else if (file) {
+    workbook = readFile(file);
+    log.info('Importing data definitions from file', { file });
   } else {
     throw new Error('Must provide either workbook, data, or file');
   }
