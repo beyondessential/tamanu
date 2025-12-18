@@ -1,21 +1,21 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
-import type { InitOptions, Models } from '../types/model';
-import type { MedicationDispense } from './MedicationDispense';
+import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   buildEncounterPatientIdSelect,
   buildEncounterLinkedSyncFilter,
   buildEncounterLinkedSyncFilterJoins,
 } from '../sync';
 
-export class PharmacyOrderPrescription extends Model {
+export class MedicationDispense extends Model {
   declare id: string;
-  declare pharmacyOrderId: string;
-  declare prescriptionId: string;
-  declare quantity?: number;
-  declare repeats?: number;
-  declare medicationDispenses?: MedicationDispense[];
+  declare pharmacyOrderPrescriptionId: string;
+  declare quantity: number;
+  declare instructions?: string;
+  declare dispensedByUserId: string;
+  declare dispensedAt: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -25,10 +25,14 @@ export class PharmacyOrderPrescription extends Model {
           type: DataTypes.INTEGER,
           allowNull: false,
         },
-        repeats: {
-          type: DataTypes.INTEGER,
+        instructions: {
+          type: DataTypes.TEXT,
           allowNull: true,
         },
+        dispensedAt: dateTimeType('dispensedAt', {
+          allowNull: false,
+          defaultValue: getCurrentDateTimeString,
+        }),
       },
       {
         ...options,
@@ -38,30 +42,19 @@ export class PharmacyOrderPrescription extends Model {
   }
 
   static initRelations(models: Models) {
-    this.belongsTo(models.PharmacyOrder, {
-      foreignKey: 'pharmacyOrderId',
-      as: 'pharmacyOrder',
-    });
-
-    this.belongsTo(models.Prescription, {
-      foreignKey: 'prescriptionId',
-      as: 'prescription',
-    });
-
-    this.hasMany(models.MedicationDispense, {
+    this.belongsTo(models.PharmacyOrderPrescription, {
       foreignKey: 'pharmacyOrderPrescriptionId',
-      as: 'medicationDispenses',
+      as: 'pharmacyOrderPrescription',
     });
-  }
 
-  get remainingRepeats(): number {
-    const repeats = this.repeats || 0;
-    const dispenseCount = (this.medicationDispenses || []).length;
-    return Math.max(0, repeats - Math.max(0, dispenseCount - 1));
+    this.belongsTo(models.User, {
+      foreignKey: 'dispensedByUserId',
+      as: 'dispensedBy',
+    });
   }
 
   static getListReferenceAssociations() {
-    return ['pharmacyOrder', 'prescription'];
+    return ['pharmacyOrderPrescription', 'dispensedBy'];
   }
 
   static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {
@@ -69,7 +62,7 @@ export class PharmacyOrderPrescription extends Model {
       return null;
     }
     return buildEncounterLinkedSyncFilter(
-      [this.tableName, 'pharmacy_orders', 'encounters'],
+      [this.tableName, 'pharmacy_order_prescriptions', 'pharmacy_orders', 'encounters'],
       markedForSyncPatientsTable,
     );
   }
@@ -77,7 +70,14 @@ export class PharmacyOrderPrescription extends Model {
   static async buildSyncLookupQueryDetails() {
     return {
       select: await buildEncounterPatientIdSelect(this),
-      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'pharmacy_orders', 'encounters']),
+      joins: buildEncounterLinkedSyncFilterJoins([
+        this.tableName,
+        'pharmacy_order_prescriptions',
+        'pharmacy_orders',
+        'encounters',
+      ]),
     };
   }
 }
+
+
