@@ -43,26 +43,19 @@ import { ConditionalTooltip } from '../../../components/Tooltip';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 import { useTranslation } from '../../../contexts/Translation';
 
-const StyledButtonGroup = styled(ButtonGroup)`
-  .MuiButtonGroup-groupedOutlinedHorizontal:not(:first-child) {
-    margin-top: 10px;
-    margin-left: 10px;
-  }
-`;
-
 const TableButtonRowWrapper = styled.div`
   margin-bottom: 15px;
   border-bottom: 1px solid ${Colors.outline};
   overflow-x: auto;
 `;
 
-const AddComplexChartButton = styled.span`
+const AddComplexChartButton = styled.div`
   color: ${Colors.primary};
   font-size: 15px;
   font-weight: 500;
   cursor: pointer;
-  margin-left: 10px;
-  margin-right: 20px;
+  margin: 10px 20px 0 10px;
+  white-space: nowrap;
 `;
 
 const StyledButtonWithPermissionCheck = styled(ButtonWithPermissionCheck)`
@@ -337,7 +330,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
             justifyContent="space-between"
             data-testid="tablebuttonrow-lwlu"
           >
-            <StyledButtonGroup data-testid="styledbuttongroup-z992">
+            <ButtonGroup data-testid="styledbuttongroup-z992">
               <ChartDropdown
                 selectedChartTypeId={selectedChartTypeId}
                 setSelectedChartTypeId={setSelectedChartTypeId}
@@ -345,17 +338,19 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
                 data-testid="chartdropdown-eox5"
               />
               {isComplexChart && canCreateCoreComplexInstance && isCurrentChart ? (
-                <AddComplexChartButton
-                  onClick={() => {
-                    setChartSurveyIdToSubmit(coreComplexChartSurveyId);
-                    setModalOpen(true);
-                  }}
-                  data-testid="addcomplexchartbutton-w4wk"
-                >
-                  + Add
-                </AddComplexChartButton>
+                <NoteModalActionBlocker>
+                  <AddComplexChartButton
+                    onClick={() => {
+                      setChartSurveyIdToSubmit(coreComplexChartSurveyId);
+                      setModalOpen(true);
+                    }}
+                    data-testid="addcomplexchartbutton-w4wk"
+                  >
+                    + Add
+                  </AddComplexChartButton>
+                </NoteModalActionBlocker>
               ) : null}
-            </StyledButtonGroup>
+            </ButtonGroup>
 
             {complexChartInstanceTabs.length && currentComplexChartTab ? (
               <ComplexChartInstancesTab
