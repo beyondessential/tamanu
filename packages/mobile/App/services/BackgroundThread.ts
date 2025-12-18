@@ -11,3 +11,4 @@ export const runOnBackgroundThread = (callback: () => void): void => {
   
   BackgroundThread.runOnBackgroundThread(callback);
 };
+

@@ -52,3 +52,4 @@ public class BackgroundThreadModule extends ReactContextBaseJavaModule {
         }
     }
 }
+
