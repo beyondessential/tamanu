@@ -45,7 +45,7 @@ export const Core: FunctionComponent<any> = () => {
   const initialRouteName = getSignInFlowRoute(signedIn, facilityId);
 
   return (
-    <Stack.Navigator headerMode="none" initialRouteName={initialRouteName}>
+    <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName={initialRouteName}>
       <Stack.Screen name={Routes.Forms.AutocompleteModal} component={AutocompleteModalScreen} />
       <Stack.Screen name={Routes.Forms.MultiSelectModal} component={MultiSelectModalScreen} />
       <Stack.Screen name={Routes.Forms.SelectModal} component={SelectModalScreen} />

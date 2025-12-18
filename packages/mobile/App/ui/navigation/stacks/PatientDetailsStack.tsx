@@ -16,7 +16,7 @@ const Stack = createStackNavigator();
 export const PatientDetailsStack = (): ReactElement => (
   <ErrorBoundary>
     <ReminderContactProvider>
-      <Stack.Navigator headerMode="none">
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen
           name={Routes.HomeStack.PatientDetailsStack.Index}
           component={PatientDetailsScreen}

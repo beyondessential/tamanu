@@ -54,8 +54,8 @@ jobs:
       - name: Install Java
         uses: actions/setup-java@v4
         with:
-          java-version: '11'
-          distribution: 'adopt'
+          java-version: '17'
+          distribution: 'temurin'
           cache: 'gradle'
 
       - name: Validate Gradle wrapper
