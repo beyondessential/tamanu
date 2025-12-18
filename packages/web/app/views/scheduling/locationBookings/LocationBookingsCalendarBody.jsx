@@ -9,7 +9,7 @@ import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { SkeletonRows } from './Skeletons';
 import { generateIdFromCell, partitionAppointmentsByDate } from './utils';
 import { useAuth } from '../../../contexts/Auth';
-import { TranslatedReferenceData } from '../../../components';
+import { TranslatedReferenceData, TranslatedText } from '../../../components';
 
 export const BookingsCell = ({
   appointments,
@@ -17,6 +17,7 @@ export const BookingsCell = ({
   location: { id: locationId },
   openBookingForm,
   openCancelModal,
+  onEmailBooking,
 }) => {
   const { ability } = useAuth();
   const { selectedCell, updateSelectedCell } = useLocationBookingsContext();
@@ -43,6 +44,22 @@ export const BookingsCell = ({
           key={a.id}
           onCancel={() => openCancelModal(a)}
           onEdit={() => openBookingForm(a)}
+          actions={
+            canCreateBooking && onEmailBooking
+              ? [
+                  {
+                    label: (
+                      <TranslatedText
+                        stringId="locationBooking.action.emailBooking"
+                        fallback="Email booking"
+                        data-testid={`translatedtext-email-booking-${locationId}-${index}`}
+                      />
+                    ),
+                    action: () => onEmailBooking(a),
+                  },
+                ]
+              : []
+          }
           data-testid={`appointmenttile-b6vn-${index}`}
         />
       ))}
@@ -56,6 +73,7 @@ export const BookingsRow = ({
   location,
   openBookingForm,
   openCancelModal,
+  onEmailBooking,
 }) => {
   const { locationGroup } = location;
   const appointmentsByDate = partitionAppointmentsByDate(appointments);
@@ -84,6 +102,7 @@ export const BookingsRow = ({
           location={location}
           openBookingForm={openBookingForm}
           openCancelModal={openCancelModal}
+          onEmailBooking={onEmailBooking}
           data-testid={`bookingscell-5t8x-${d.valueOf()}`}
         />
       ))}
@@ -98,6 +117,7 @@ export const LocationBookingsCalendarBody = ({
   locationsQuery,
   openBookingForm,
   openCancelModal,
+  onEmailBooking,
 }) => {
   if (locationsQuery.isLoading)
     return <SkeletonRows colCount={displayedDates.length} data-testid="skeletonrows-munx" />;
@@ -112,6 +132,7 @@ export const LocationBookingsCalendarBody = ({
       location={location}
       openBookingForm={openBookingForm}
       openCancelModal={openCancelModal}
+      onEmailBooking={onEmailBooking}
       data-testid={`bookingsrow-t3ka-${location.code}`}
     />
   ));
