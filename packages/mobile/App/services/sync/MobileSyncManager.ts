@@ -336,7 +336,7 @@ export class MobileSyncManager {
   async pullIncomingChanges(sessionId: string): Promise<void> {
     this.setSyncStage(2);
     const pullSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PULL);
-    
+
     console.log(
       `MobileSyncManager.syncIncomingChanges(): Begin sync incoming changes since ${pullSince}`,
     );
