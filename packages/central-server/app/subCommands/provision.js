@@ -4,6 +4,7 @@ import { defaultsDeep, keyBy } from 'lodash';
 import { Op } from 'sequelize';
 import { utils } from 'xlsx';
 import fs from 'node:fs';
+import JSON5 from 'json5';
 
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
@@ -28,7 +29,7 @@ import { programImporter } from '../admin/programImporter/programImporter';
 const parseDefaultProvisioningJsonSheets = dir => {
   const entries = fs
     .readdirSync(dir)
-    .filter(f => f.endsWith('.json') && f !== '_manifest.json')
+    .filter(f => f.endsWith('.json5'))
     .sort()
     .map(f => ({
       sheetName: parse(f).name,
@@ -38,7 +39,7 @@ const parseDefaultProvisioningJsonSheets = dir => {
   const wb = utils.book_new();
 
   entries.forEach(({ sheetName, filePath }) => {
-    const payload = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    const payload = JSON5.parse(fs.readFileSync(filePath, 'utf8'));
     const name = payload.sheetName || sheetName;
     if (!Array.isArray(payload.columns) || payload.columns.length === 0) {
       throw new Error(`Invalid sheet JSON (missing non-empty "columns") in ${filePath}`);
