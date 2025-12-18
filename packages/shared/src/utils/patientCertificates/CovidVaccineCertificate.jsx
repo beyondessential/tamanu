@@ -1,7 +1,6 @@
 import React from 'react';
 import { Document } from '@react-pdf/renderer';
 
-import { generateUVCI } from '../uvci';
 import { Table } from './Table';
 import { Box, Col, Row, styles, Watermark } from './Layout';
 import { CovidPatientDetailsSection } from './CovidPatientDetailsSection';
@@ -9,7 +8,6 @@ import { SigningSection } from './SigningSection';
 import { H3, P } from './Typography';
 import { CovidLetterheadSection } from './CovidLetterheadSection';
 import { getDisplayDate } from './getDisplayDate';
-import { compareDateStrings } from '@tamanu/utils/dateTime';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 
@@ -70,18 +68,16 @@ const CovidVaccineCertificateComponent = ({
   extraPatientFields,
   printedDate,
 }) => {
-  const { emailAddress: contactEmail, contactNumber, healthFacility } = getSetting(
-    'templates.vaccineCertificate',
-  );
-  const countryCode = getLocalisation('country.alpha-2');
+  const {
+    emailAddress: contactEmail,
+    contactNumber,
+    healthFacility,
+  } = getSetting('templates.vaccineCertificate');
   const countryName = getLocalisation('country.name');
-  const uvciFormat = getLocalisation('previewUvciFormat');
+
+  console.log('uvci', uvci);
 
   const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
-  const vaxes = vaccinations.filter(v => v.certifiable).sort(compareDateStrings('desc'));
-  const actualUvci = vaccinations.length
-    ? uvci || generateUVCI((vaxes[0] || {}).id, { format: uvciFormat, countryCode })
-    : null;
 
   return (
     <Document>
@@ -96,7 +92,7 @@ const CovidVaccineCertificateComponent = ({
           getSetting={getSetting}
           certificateId={certificateId}
           extraFields={extraPatientFields}
-          uvci={actualUvci}
+          uvci={uvci}
         />
         <Box mb={20}>
           <Table
