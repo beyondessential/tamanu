@@ -35,17 +35,14 @@ export interface StyledButtonProps extends ButtonContainerProps {
 
 const ButtonContainer = styled(RowView)<ButtonContainerProps>`
   ${styledSystem.flexbox};
-  height: ${(props): string =>
-    props.height ? (typeof props.height === 'number' ? `${props.height}px` : props.height) : `${screenPercentageToDP(6.07, Orientation.Height)}px`};
-  width: ${(props): string => {
-    if (!props.width) return '100%';
-    return typeof props.width === 'number' ? `${props.width}px` : props.width;
-  }};
+  height: ${(props): StrNumType =>
+    props.height ? props.height : screenPercentageToDP(6.07, Orientation.Height)};
+  width: ${(props): StrNumType => (props.width ? props.width : '100%')};
   border-width: ${(props): any => (props.outline ? '1px' : props.borderWidth)};
   border-color: ${(props): string => props.borderColor || 'transparent'};
   border-radius: ${(props): any => {
     if (props.borderRadius) {
-      return typeof props.borderRadius === 'number' ? `${props.borderRadius}px` : props.borderRadius;
+      return props.borderRadius;
     } else if (props.bordered) {
       return '50px;';
     }

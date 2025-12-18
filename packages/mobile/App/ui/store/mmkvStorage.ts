@@ -4,4 +4,3 @@ export const mmkvStorage = new MMKVLoader()
   .withInstanceID('tamanu-storage')
   .withEncryption()
   .initialize();
-  
