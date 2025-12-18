@@ -603,7 +603,21 @@ createSuggester(
 createSuggester(
   'invoiceProduct',
   'InvoiceProduct',
-  ({ endpoint, modelName }) => DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
+  ({ endpoint, modelName, query }) => {
+    const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
+
+    if (!query.priceListId) {
+      return baseWhere;
+    }
+
+    return {
+      ...baseWhere,
+      [Op.or]: [
+        Sequelize.where(Sequelize.col('invoicePriceListItems.id'), Op.is, null),
+        Sequelize.where(Sequelize.col('invoicePriceListItems.is_hidden'), Op.eq, false),
+      ],
+    };
+  },
   {
     includeBuilder: req => {
       const { priceListId } = req.query;
@@ -614,10 +628,9 @@ createSuggester(
         {
           model: req.models.InvoicePriceListItem,
           as: 'invoicePriceListItems',
-          required: true,
+          required: false,
           where: {
             invoicePriceListId: priceListId,
-            isHidden: false,
           },
         },
       ];

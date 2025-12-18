@@ -214,6 +214,9 @@ describe('Invoice Utils', () => {
               coverageValue: 50,
             },
           ],
+          product: {
+            insurable: true,
+          },
         },
       ];
       expect(getInsuranceCoverageTotal(invoiceItems).toNumber()).toEqual(50);
@@ -228,6 +231,9 @@ describe('Invoice Utils', () => {
             { id: 'plan-1', coverageValue: 30 },
             { id: 'plan-2', coverageValue: 20 },
           ],
+          product: {
+            insurable: true,
+          },
         },
       ];
       expect(getInsuranceCoverageTotal(invoiceItems).toNumber()).toEqual(50);
@@ -268,6 +274,9 @@ describe('Invoice Utils', () => {
             amount: 0.1,
           },
           insurancePlanItems: [{ id: 'plan-1', coverageValue: 50 }],
+          product: {
+            insurable: true,
+          },
         },
       ];
       // Price after discount: 90, insurance: 45
@@ -280,11 +289,17 @@ describe('Invoice Utils', () => {
           manualEntryPrice: 100,
           quantity: 1,
           insurancePlanItems: [{ id: 'plan-1', coverageValue: 50 }],
+          product: {
+            insurable: true,
+          },
         },
         {
           manualEntryPrice: 200,
           quantity: 1,
           insurancePlanItems: [{ id: 'plan-2', coverageValue: 30 }],
+          product: {
+            insurable: true,
+          },
         },
       ];
       // Item 1: 50, Item 2: 60, Total: 110
@@ -298,6 +313,9 @@ describe('Invoice Utils', () => {
           quantity: 1,
           finalisedInsurances: [{ invoiceInsurancePlanId: 'plan-1', coverageValueFinal: 60 }],
           insurancePlanItems: [{ id: 'plan-1', coverageValue: 50 }],
+          product: {
+            insurable: true,
+          },
         },
       ];
       // Should use 60% instead of 50%
@@ -351,6 +369,9 @@ describe('Invoice Utils', () => {
             manualEntryPrice: 100,
             quantity: 1,
             insurancePlanItems: [{ id: 'plan-1', coverageValue: 50 }],
+            product: {
+              insurable: true,
+            },
           },
         ],
         payments: [],
@@ -393,6 +414,9 @@ describe('Invoice Utils', () => {
             manualEntryPrice: 100,
             quantity: 1,
             insurancePlanItems: [{ id: 'plan-1', coverageValue: 50 }],
+            product: {
+              insurable: true,
+            },
           },
         ],
         payments: [
@@ -463,6 +487,9 @@ describe('Invoice Utils', () => {
             manualEntryPrice: 100,
             quantity: 1,
             insurancePlanItems: [{ id: 'plan-1', coverageValue: 60 }],
+            product: {
+              insurable: true,
+            },
           },
         ],
         payments: [
