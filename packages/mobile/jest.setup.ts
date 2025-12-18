@@ -11,7 +11,7 @@ import mockAsyncStorage from '@react-native-async-storage/async-storage/jest/asy
 jest.useFakeTimers();
 
 LogBox.ignoreLogs([
-  'Expected style',  // Expected style "fontSize: 26" to contain units
+  'Expected style', // Expected style "fontSize: 26" to contain units
 ]);
 
 jest.mock('@react-native-async-storage/async-storage', () => mockAsyncStorage);
