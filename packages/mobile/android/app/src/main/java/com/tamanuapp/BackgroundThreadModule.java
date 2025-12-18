@@ -45,10 +45,11 @@ public class BackgroundThreadModule extends ReactContextBaseJavaModule {
     }
 
     @Override
-    public void onCatalystInstanceDestroy() {
-        super.onCatalystInstanceDestroy();
+    public void invalidate() {
+        super.invalidate();
         if (backgroundThread != null) {
             backgroundThread.quit();
+            backgroundThread = null;
         }
     }
 }
