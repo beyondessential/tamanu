@@ -5,6 +5,11 @@ const exclusionList = require('metro-config/src/defaults/exclusionList');
 const workspaceRoot = path.resolve(__dirname, '../..');
 const projectRoot = __dirname;
 
+const blockWorkspaceRootPackages = [
+  'react',
+  'react-native-svg',
+];
+
 /**
  * Metro configuration
  * https://reactnative.dev/docs/metro
@@ -14,11 +19,9 @@ const projectRoot = __dirname;
 const config = {
   watchFolders: [workspaceRoot],
   resolver: {
-    blockList: exclusionList([
-      new RegExp(
-        `^${path.join(workspaceRoot, 'node_modules', 'react').replace(/[/\\]/g, '\\/')}\\/.*$`,
-      ),
-    ]),
+    blockList: exclusionList(blockWorkspaceRootPackages.map(packageName => new RegExp(
+      `^${path.join(workspaceRoot, 'node_modules', packageName).replace(/[/\\]/g, '\\/')}\\/.*$`,
+    ))),
     nodeModulesPaths: [
       path.resolve(projectRoot, 'node_modules'),
       path.resolve(workspaceRoot, 'node_modules'),
