@@ -2,6 +2,7 @@ import React, { ReactElement, useMemo } from 'react';
 import { ThemeProvider } from 'styled-components/native';
 import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 import './ui/reactotron';
+import './ui/helpers/yupMethods';
 import { BackendProvider } from './ui/contexts/BackendContext';
 import { RootStack } from './ui/navigation/stacks/Root';
 import { theme } from './ui/styled/theme';
