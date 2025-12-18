@@ -1,0 +1,23 @@
+{
+  "sheetName": "Mammogram Screen Imaging Area",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
+  "data": [
+    {
+      "id": "mammogramScreenImagingArea-HandLeft",
+      "code": "HandLeft",
+      "name": "Hand - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "mammogramScreenImagingArea-HandFingerAndOrThumbRight",
+      "code": "HandFingerAndOrThumbRight",
+      "name": "Hand - Finger And/Or Thumb - Right",
+      "visibilityStatus": "current"
+    }
+  ]
+}
