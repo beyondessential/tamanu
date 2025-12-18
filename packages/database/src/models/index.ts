@@ -120,6 +120,7 @@ export * from './ReferenceMedicationTemplate';
 
 export * from './PharmacyOrder';
 export * from './PharmacyOrderPrescription';
+export * from './MedicationDispense';
 
 export * from './Notification';
 

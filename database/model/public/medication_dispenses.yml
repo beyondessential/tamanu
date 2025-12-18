@@ -1,0 +1,67 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: medication_dispenses
+        description: "{{ doc('table__medication_dispenses') }}"
+        config:
+          tags: []
+          meta:
+            triggers:
+              - notify_medication_dispenses_changed
+              - record_medication_dispenses_changelog
+              - set_medication_dispenses_updated_at
+              - set_medication_dispenses_updated_at_sync_tick
+        columns:
+          - name: id
+            data_type: uuid
+            description: "{{ doc('generic__id') }} in medication_dispenses."
+            data_tests:
+              - unique
+              - not_null
+          - name: pharmacy_order_prescription_id
+            data_type: uuid
+            description: "{{ doc('medication_dispenses__pharmacy_order_prescription_id') }}"
+            data_tests:
+              - not_null
+          - name: quantity
+            data_type: integer
+            description: "{{ doc('medication_dispenses__quantity') }}"
+            data_tests:
+              - not_null
+          - name: instructions
+            data_type: text
+            description: "{{ doc('medication_dispenses__instructions') }}"
+            config:
+              meta:
+                masking: text
+          - name: dispensed_by_user_id
+            data_type: character varying(255)
+            description: "{{ doc('medication_dispenses__dispensed_by_user_id') }}"
+            data_tests:
+              - not_null
+          - name: dispensed_at
+            data_type: timestamp with time zone
+            description: "{{ doc('medication_dispenses__dispensed_at') }}"
+            data_tests:
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in medication_dispenses."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in medication_dispenses."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in medication_dispenses."
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in medication_dispenses."
+            data_tests:
+              - not_null

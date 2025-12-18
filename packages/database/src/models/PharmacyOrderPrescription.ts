@@ -2,6 +2,8 @@ import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
+import type { MedicationDispense } from './MedicationDispense';
+import type { PharmacyOrder } from './PharmacyOrder';
 import {
   buildEncounterPatientIdSelect,
   buildEncounterLinkedSyncFilter,
@@ -14,6 +16,8 @@ export class PharmacyOrderPrescription extends Model {
   declare prescriptionId: string;
   declare quantity?: number;
   declare repeats?: number;
+  declare medicationDispenses?: MedicationDispense[];
+  declare pharmacyOrder?: PharmacyOrder;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -45,6 +49,22 @@ export class PharmacyOrderPrescription extends Model {
       foreignKey: 'prescriptionId',
       as: 'prescription',
     });
+
+    this.hasMany(models.MedicationDispense, {
+      foreignKey: 'pharmacyOrderPrescriptionId',
+      as: 'medicationDispenses',
+    });
+  }
+
+  get remainingRepeats(): number {
+    // No repeats will be consumed by an INPATIENT medication request.
+    if (!this.pharmacyOrder?.isDischargePrescription) {
+      return 0;
+    }
+    // The remaining repeats for OUTPATIENT medication requests is the number of repeats minus the number of dispenses.
+    const repeats = this.repeats || 0;
+    const dispenseCount = (this.medicationDispenses || []).length;
+    return Math.max(0, repeats - Math.max(0, dispenseCount - 1));
   }
 
   static getListReferenceAssociations() {
