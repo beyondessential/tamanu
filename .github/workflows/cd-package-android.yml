@@ -66,21 +66,27 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
 
-      - name: Install ccache
+      - name: Install and configure ccache
         run: |
           sudo apt-get update
           sudo apt-get install -y ccache
           echo "/usr/lib/ccache" >> $GITHUB_PATH
           ccache --version
+          # Configure ccache for CI - use content-based hashing instead of timestamps
+          ccache --set-config=compiler_check=content
+          ccache --set-config=compression=true
+          ccache --set-config=compression_level=6
+          ccache --set-config=max_size=2G
           ccache --zero-stats
-          ccache --max-size=2G
+          ccache --show-config
 
       - name: Cache ccache
         uses: actions/cache@v4
         with:
           path: ~/.ccache
-          key: ccache-${{ runner.os }}-${{ hashFiles('**/package-lock.json', '**/CMakeLists.txt', '**/*.cpp', '**/*.c') }}
+          key: ccache-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}-${{ github.sha }}
           restore-keys: |
+            ccache-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}-
             ccache-${{ runner.os }}-
 
       - name: Cache Android NDK
@@ -93,17 +99,6 @@ jobs:
           restore-keys: |
             ndk-${{ runner.os }}-
 
-      - name: Cache native module builds
-        uses: actions/cache@v4
-        with:
-          path: |
-            packages/mobile/node_modules/react-native-nitro-sqlite/android/.cxx
-            packages/mobile/node_modules/react-native-nitro-modules/android/.cxx
-            packages/mobile/node_modules/react-native-mmkv-storage/android/.cxx
-            packages/mobile/node_modules/react-native-reanimated/android/.cxx
-          key: native-modules-${{ runner.os }}-${{ hashFiles('**/package-lock.json', '**/CMakeLists.txt') }}
-          restore-keys: |
-            native-modules-${{ runner.os }}-
 
       - name: Update branding app title
         if: ${{ inputs.branding != 'tamanu' }}
