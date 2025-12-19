@@ -1,5 +1,6 @@
 import React, { ReactElement, ReactNode, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import { generateId, generateIdFromPattern } from '@tamanu/utils/generateId';
 import { compose } from 'redux';
 import { Formik } from 'formik';
 import { KeyboardAvoidingView, StyleSheet } from 'react-native';
@@ -8,8 +9,6 @@ import { FullView } from '/styled/common';
 import { formatISO9075, parseISO } from 'date-fns';
 import { SubmitSection } from './SubmitSection';
 import {
-  generateId,
-  generateIdFromPattern,
   getConfiguredPatientAdditionalDataFields,
 } from '~/ui/helpers/patient';
 import { Patient } from '~/models/Patient';

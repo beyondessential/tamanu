@@ -35,27 +35,6 @@ export const VaccineCategory = {
 
 export type VaccineCategory = (typeof VaccineCategory)[keyof typeof VaccineCategory];
 
-const generators = {
-  A: (): string => String.fromCharCode(65 + Math.floor(Math.random() * 26)),
-  0: (): string => Math.floor(Math.random() * 10).toFixed(0),
-};
-
-const PATTERN_TOKEN_REGEX = /(\[.+?\])(?=\[|[A0]|$)|[A0]/g;
-
-export const generateIdFromPattern = (pattern: string): string =>
-  pattern.replace(PATTERN_TOKEN_REGEX, token => {
-    if (token.startsWith('[') && token.endsWith(']')) {
-      return token.slice(1, -1);
-    }
-    const generator = generators[token as keyof typeof generators];
-    if (!generator) {
-      throw new Error(`Invalid token: ${token} in pattern: ${pattern}`);
-    }
-    return generator();
-  });
-
-export const generateId = (): string => generateIdFromPattern('AAAA000000');
-
 export const getFieldData = (data: IPatientAdditionalData, fieldName: string): string => {
   // Field is reference data
   if (fieldName.slice(-2) === 'Id') {
