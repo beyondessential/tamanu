@@ -4,8 +4,13 @@
   "private": true,
   "scripts": {
     "android": "npx react-native start --reset-cache",
+    "android:run": "npx react-native run-android",
+    "android:fast": "npx react-native run-android --active-arch-only",
+    "android:device": "npx react-native run-android --deviceId",
     "build:android": "cd android && ./gradlew clean && ./gradlew app:assembleRelease && cd ..",
+    "build:android:fast": "cd android && ./build-debug-fast.sh && cd ..",
     "clean:deps": "rimraf node_modules",
+    "clean:android": "cd android && ./gradlew clean && rm -rf app/.cxx && cd ..",
     "start": "rnstl --silent && react-native start",
     "test": "jest",
     "test:coverage": "npm run test -- --coverage",

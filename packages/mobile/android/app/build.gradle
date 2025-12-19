@@ -139,6 +139,10 @@ android {
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
+            // Speed up debug builds
+            minifyEnabled false
+            shrinkResources false
+            crunchPngs false
         }
         release {
             // Caution! In production, you need to generate your own keystore file.
@@ -149,6 +153,11 @@ android {
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
+    }
+
+    // Speed up local builds
+    tasks.withType(JavaCompile) {
+        options.incremental = true
     }
 
 }

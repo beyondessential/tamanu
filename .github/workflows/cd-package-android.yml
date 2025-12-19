@@ -56,10 +56,54 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: 'gradle'
+
+      - name: Setup Gradle with caching
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
+          gradle-home-cache-cleanup: true
 
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
+
+      - name: Install ccache
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ccache
+          echo "/usr/lib/ccache" >> $GITHUB_PATH
+          ccache --version
+          ccache --zero-stats
+          ccache --max-size=2G
+
+      - name: Cache ccache
+        uses: actions/cache@v4
+        with:
+          path: ~/.ccache
+          key: ccache-${{ runner.os }}-${{ hashFiles('**/package-lock.json', '**/CMakeLists.txt', '**/*.cpp', '**/*.c') }}
+          restore-keys: |
+            ccache-${{ runner.os }}-
+
+      - name: Cache Android NDK
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ env.ANDROID_HOME }}/ndk
+            ${{ env.ANDROID_SDK_ROOT }}/ndk
+          key: ndk-${{ runner.os }}-${{ hashFiles('**/gradle.properties') }}
+          restore-keys: |
+            ndk-${{ runner.os }}-
+
+      - name: Cache native module builds
+        uses: actions/cache@v4
+        with:
+          path: |
+            packages/mobile/node_modules/react-native-nitro-sqlite/android/.cxx
+            packages/mobile/node_modules/react-native-nitro-modules/android/.cxx
+            packages/mobile/node_modules/react-native-mmkv-storage/android/.cxx
+            packages/mobile/node_modules/react-native-reanimated/android/.cxx
+          key: native-modules-${{ runner.os }}-${{ hashFiles('**/package-lock.json', '**/CMakeLists.txt') }}
+          restore-keys: |
+            native-modules-${{ runner.os }}-
 
       - name: Update branding app title
         if: ${{ inputs.branding != 'tamanu' }}
@@ -109,13 +153,37 @@ jobs:
         run: |
           npm run build-shared
 
+      - name: Cache Hermes build
+        uses: actions/cache@v4
+        with:
+          path: |
+            packages/mobile/node_modules/react-native/sdks/hermes
+            packages/mobile/android/app/build/generated/assets
+          key: hermes-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            hermes-${{ runner.os }}-
+
       - name: Build release
         working-directory: packages/mobile/android
         env:
           ANDROID_SIGNING_KEY_ALIAS: ${{ vars.ANDROID_SIGNING_KEY_ALIAS }}
           ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
           ANDROID_SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
-        run:  ./gradlew app:assembleRelease
+          USE_CCACHE: 1
+          NDK_CCACHE: ccache
+          ANDROID_NDK_CCACHE: ccache
+        run: |
+          echo "🚀 Starting optimized Android build..."
+          echo "📦 Parallel builds enabled, using Gradle cache and ccache"
+          ccache --show-stats
+          ./gradlew \
+            --build-cache \
+            --parallel \
+            --max-workers=4 \
+            app:assembleRelease
+          echo "✅ Build complete!"
+          echo "📊 ccache statistics:"
+          ccache --show-stats
 
       - name: Upload final build
         id: artifact-upload
