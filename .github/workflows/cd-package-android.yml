@@ -112,16 +112,6 @@ jobs:
         run: |
           npm run build-shared
 
-      - name: Cache Android NDK
-        uses: actions/cache@v4
-        with:
-          path: |
-            ${{ env.ANDROID_HOME }}/ndk
-            ${{ env.ANDROID_SDK_ROOT }}/ndk
-          key: android-ndk-${{ runner.os }}-${{ hashFiles('packages/mobile/android/gradle.properties') }}
-          restore-keys: |
-            android-ndk-${{ runner.os }}-
-
       - name: Build release for ${{ matrix.arch }}
         working-directory: packages/mobile/android
         env:
