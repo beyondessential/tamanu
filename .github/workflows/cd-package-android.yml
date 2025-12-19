@@ -46,6 +46,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [armeabi-v7a, arm64-v8a, x86, x86_64]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -119,16 +122,72 @@ jobs:
           restore-keys: |
             android-ndk-${{ runner.os }}-
 
-      - name: Build release
+      - name: Build release for ${{ matrix.arch }}
         working-directory: packages/mobile/android
         env:
           ANDROID_SIGNING_KEY_ALIAS: ${{ vars.ANDROID_SIGNING_KEY_ALIAS }}
           ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
           ANDROID_SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
         run: |
+          echo "🚀 Building for architecture: ${{ matrix.arch }}"
           ./gradlew app:assembleRelease \
-            --parallel \
+            -PreactNativeArchitectures=${{ matrix.arch }} \
             --build-cache
+
+      - name: Upload APK for ${{ matrix.arch }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk-${{ matrix.arch }}-${{github.run_number}}
+          path: packages/mobile/android/app/build/outputs/apk/release/app-release.apk
+          retention-days: 1
+
+  combine:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Download all APKs
+        uses: actions/download-artifact@v4
+        with:
+          path: apks
+          pattern: android-apk-*-${{github.run_number}}
+          merge-multiple: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+          cache: npm
+
+      - name: Run npm install
+        working-directory: packages/mobile
+        run: npm install
+
+      - name: Build shared packages
+        run: npm run build-shared
+
+      - name: Make branding available to app
+        working-directory: packages/mobile/android
+        run: echo "BRANDING=${{ inputs.branding }}" > .env
+
+      - name: Build universal APK
+        working-directory: packages/mobile/android
+        env:
+          ANDROID_SIGNING_KEY_ALIAS: ${{ vars.ANDROID_SIGNING_KEY_ALIAS }}
+          ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
+          ANDROID_SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
+        run: |
+          echo "📦 Building universal APK with all architectures"
+          ./gradlew app:assembleRelease --build-cache
 
       - name: Upload final build
         id: artifact-upload

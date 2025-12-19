@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "android": "npx react-native start --reset-cache",
+    "android:run": "npx react-native run-android --active-arch-only",
     "build:android": "cd android && ./gradlew clean && ./gradlew app:assembleRelease && cd ..",
     "clean:deps": "rimraf node_modules",
     "start": "rnstl --silent && react-native start",
