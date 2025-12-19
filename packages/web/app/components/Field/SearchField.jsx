@@ -33,6 +33,8 @@ const StyledClearIcon = styled(ClearIcon)`
   color: ${Colors.darkText};
 `;
 
+const DEBOUNCE_DELAY = 50;
+
 // N.B. this is specifically for use within forms, you may also want to use the `SearchInput`
 // component for standalone search fields
 export const SearchField = props => {
@@ -46,7 +48,7 @@ export const SearchField = props => {
   useEffect(() => {
     debouncedOnChangeRef.current = debounce(event => {
       onChange(event);
-    }, 50);
+    }, DEBOUNCE_DELAY);
     return () => {
       if (debouncedOnChangeRef.current) {
         debouncedOnChangeRef.current.cancel();
@@ -70,7 +72,6 @@ export const SearchField = props => {
 
   const clearSearch = () => {
     setSearchValue('');
-    // Cancel pending debounced update to prevent it overwriting the cleared value
     if (debouncedOnChangeRef.current) {
       debouncedOnChangeRef.current.cancel();
     }
