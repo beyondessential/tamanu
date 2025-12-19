@@ -100,7 +100,8 @@ export const getInsuranceCoverageTotal = invoiceItems => {
   return invoiceItems.reduce((sum, item) => {
     const discountedPrice = getInvoiceItemTotalDiscountedPrice(item) || 0;
 
-    if (!item.insurancePlanItems) {
+    // Apply insurance coverage only to items whose product is explicitly insurable
+    if (!item?.product?.insurable || !item.insurancePlanItems) {
       return sum;
     }
 

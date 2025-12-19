@@ -935,7 +935,6 @@ describe('Suggestions', () => {
       category: INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE,
       sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE],
       sourceRecordId: labTestType.id,
-      discountable: true,
       visibilityStatus: 'current',
     });
 
@@ -949,6 +948,8 @@ describe('Suggestions', () => {
   });
 
   it('should only return non-hidden invoice products', async () => {
+    await models.InvoiceProduct.truncate({ cascade: true });
+
     const { InvoicePriceList, InvoiceProduct, InvoicePriceListItem } = models;
 
     const priceList = await InvoicePriceList.create({
@@ -960,14 +961,12 @@ describe('Suggestions', () => {
     const visibleProduct = await InvoiceProduct.create({
       name: 'Test Invoice Product Visible',
       category: INVOICE_ITEMS_CATEGORIES.OTHER,
-      discountable: false,
       visibilityStatus: 'current',
     });
 
     const hiddenProduct = await InvoiceProduct.create({
       name: 'Test Invoice Product Hidden',
       category: INVOICE_ITEMS_CATEGORIES.OTHER,
-      discountable: false,
       visibilityStatus: 'current',
     });
 

@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeAll, afterAll, afterEach, vi } from 'vitest';
 import { InvoicePriceList } from '../../src';
-import { matchesAgeIfPresent } from '../../src/models/Invoice/invoicePriceListMatching';
+import {
+  matchesAgeIfPresent,
+  matchesFacilityWithExclusionaryLogic,
+} from '../../src/models/Invoice/invoicePriceListMatching';
 
 // Freeze time so age calculations are deterministic
 const FIXED_NOW = new Date('2025-10-14T00:00:00Z');
@@ -237,6 +240,135 @@ describe('matchesAgeIfPresent', () => {
     it('returns true when condition is undefined or null', () => {
       expect(matchesAgeIfPresent(undefined, '2010-10-14')).toBe(true);
       expect(matchesAgeIfPresent(null as any, '2010-10-14')).toBe(true);
+    });
+  });
+});
+
+describe('matchesFacilityWithExclusionaryLogic', () => {
+  describe('when input facility is not provided', () => {
+    it('returns true regardless of rule or other rules', () => {
+      const allRules = [{ facilityId: 'facility-1' }, { facilityId: 'facility-2' }];
+      expect(matchesFacilityWithExclusionaryLogic('facility-1', undefined, allRules)).toBe(true);
+      expect(matchesFacilityWithExclusionaryLogic(undefined, undefined, allRules)).toBe(true);
+    });
+  });
+
+  describe('when rule specifies a facility', () => {
+    it('returns true when rule facility matches input facility', () => {
+      const allRules = [{ facilityId: 'facility-1' }, { facilityId: 'facility-2' }];
+      expect(matchesFacilityWithExclusionaryLogic('facility-1', 'facility-1', allRules)).toBe(true);
+    });
+
+    it('returns false when rule facility does not match input facility', () => {
+      const allRules = [{ facilityId: 'facility-1' }, { facilityId: 'facility-2' }];
+      expect(matchesFacilityWithExclusionaryLogic('facility-1', 'facility-2', allRules)).toBe(
+        false,
+      );
+      expect(matchesFacilityWithExclusionaryLogic('facility-2', 'facility-3', allRules)).toBe(
+        false,
+      );
+    });
+  });
+
+  describe('when rule does not specify a facility (exclusionary logic)', () => {
+    describe('and no other rules specify facilities', () => {
+      it('returns true for any input facility', () => {
+        const allRules = [{ patientType: 'type-1' }, { patientAge: { min: 18 } }, {}];
+        expect(matchesFacilityWithExclusionaryLogic(undefined, 'facility-1', allRules)).toBe(true);
+        expect(matchesFacilityWithExclusionaryLogic(undefined, 'facility-2', allRules)).toBe(true);
+        expect(matchesFacilityWithExclusionaryLogic(undefined, 'any-facility', allRules)).toBe(
+          true,
+        );
+      });
+    });
+
+    describe('and some other rules specify facilities', () => {
+      it('returns false when input facility is explicitly specified by another rule', () => {
+        const allRules = [
+          { facilityId: 'facility-1' },
+          { facilityId: 'facility-2' },
+          { patientType: 'type-1' }, // no facilityId
+        ];
+        // Rule without facilityId should NOT match facilities that are explicitly specified
+        expect(matchesFacilityWithExclusionaryLogic(undefined, 'facility-1', allRules)).toBe(false);
+        expect(matchesFacilityWithExclusionaryLogic(undefined, 'facility-2', allRules)).toBe(false);
+      });
+
+      it('returns true when input facility is not explicitly specified by any rule', () => {
+        const allRules = [
+          { facilityId: 'facility-1' },
+          { facilityId: 'facility-2' },
+          { patientType: 'type-1' }, // no facilityId
+        ];
+        // Rule without facilityId should match all OTHER facilities
+        expect(matchesFacilityWithExclusionaryLogic(undefined, 'facility-3', allRules)).toBe(true);
+        expect(matchesFacilityWithExclusionaryLogic(undefined, 'facility-4', allRules)).toBe(true);
+        expect(matchesFacilityWithExclusionaryLogic(undefined, 'any-other', allRules)).toBe(true);
+      });
+    });
+  });
+
+  describe('complex scenarios', () => {
+    it('handles multiple rules with and without facility IDs correctly', () => {
+      const allRules = [
+        { facilityId: 'facility-A', patientType: 'type-1' },
+        { facilityId: 'facility-B', patientType: 'type-2' },
+        { patientType: 'type-3' }, // no facilityId - should match all except A and B
+        { patientAge: { min: 18 } }, // no facilityId - should match all except A and B
+      ];
+
+      // Rules with specific facility IDs
+      expect(matchesFacilityWithExclusionaryLogic('facility-A', 'facility-A', allRules)).toBe(true);
+      expect(matchesFacilityWithExclusionaryLogic('facility-A', 'facility-B', allRules)).toBe(
+        false,
+      );
+      expect(matchesFacilityWithExclusionaryLogic('facility-B', 'facility-B', allRules)).toBe(true);
+
+      // Rules without facility IDs (exclusionary logic)
+      expect(matchesFacilityWithExclusionaryLogic(undefined, 'facility-A', allRules)).toBe(false);
+      expect(matchesFacilityWithExclusionaryLogic(undefined, 'facility-B', allRules)).toBe(false);
+      expect(matchesFacilityWithExclusionaryLogic(undefined, 'facility-C', allRules)).toBe(true);
+      expect(matchesFacilityWithExclusionaryLogic(undefined, 'facility-D', allRules)).toBe(true);
+    });
+
+    it('handles single rule with facility ID', () => {
+      const allRules = [{ facilityId: 'facility-1' }];
+
+      expect(matchesFacilityWithExclusionaryLogic('facility-1', 'facility-1', allRules)).toBe(true);
+      expect(matchesFacilityWithExclusionaryLogic('facility-1', 'facility-2', allRules)).toBe(
+        false,
+      );
+    });
+
+    it('handles single rule without facility ID', () => {
+      const allRules = [{ patientType: 'type-1' }];
+
+      // No facilities specified, so matches any facility
+      expect(matchesFacilityWithExclusionaryLogic(undefined, 'facility-1', allRules)).toBe(true);
+      expect(matchesFacilityWithExclusionaryLogic(undefined, 'facility-2', allRules)).toBe(true);
+    });
+
+    it('handles empty rules array', () => {
+      const allRules: Array<Record<string, any>> = [];
+
+      expect(matchesFacilityWithExclusionaryLogic(undefined, 'facility-1', allRules)).toBe(true);
+      expect(matchesFacilityWithExclusionaryLogic('facility-1', 'facility-1', allRules)).toBe(true);
+      expect(matchesFacilityWithExclusionaryLogic('facility-1', 'facility-2', allRules)).toBe(
+        false,
+      );
+    });
+
+    it('handles null and undefined facility IDs in rules', () => {
+      const allRules = [
+        { facilityId: 'facility-1' },
+        { facilityId: null },
+        { facilityId: undefined },
+        {},
+      ];
+
+      // Only facility-1 is explicitly specified
+      expect(matchesFacilityWithExclusionaryLogic(undefined, 'facility-1', allRules)).toBe(false);
+      expect(matchesFacilityWithExclusionaryLogic(undefined, 'facility-2', allRules)).toBe(true);
     });
   });
 });
