@@ -63,6 +63,7 @@ export const TriageForm = ({
   noRedirectOnSubmit,
   patient,
   initialValues,
+  withExistingEncounterCheck,
 }) => {
   const api = useApi();
   const { facilityId, currentUser } = useAuth();
@@ -247,7 +248,7 @@ export const TriageForm = ({
 
   return (
     <Form
-      onSubmit={onSubmit}
+      onSubmit={async data => withExistingEncounterCheck(async () => await onSubmit(data))}
       render={renderForm}
       initialValues={{
         triageTime: getCurrentDateTimeString(),
