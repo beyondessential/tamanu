@@ -61,3 +61,8 @@ sources:
           - name: price
             data_type: numeric
             description: "{{ doc('invoice_price_list_items__price') }}"
+          - name: is_hidden
+            data_type: boolean
+            description: "{{ doc('invoice_price_list_items__is_hidden') }}"
+            data_tests:
+              - not_null

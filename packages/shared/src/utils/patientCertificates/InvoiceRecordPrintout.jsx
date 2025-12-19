@@ -10,7 +10,6 @@ import { Footer } from './printComponents/Footer';
 import { formatShort } from '@tamanu/utils/dateTime';
 import { InvoiceDetails } from './printComponents/InvoiceDetails';
 import {
-  getInsurerDiscountAmountDisplayList,
   getInvoiceItemDiscountPriceDisplay,
   getInvoiceItemPriceDisplay,
   getInvoiceSummaryDisplay,
@@ -142,10 +141,7 @@ const getInvoiceItemDetails = item => {
   return (
     <View>
       <View>
-        <P>
-          {name}
-          {!item.productDiscountable && ' (non-discountable)'}
-        </P>
+        <P>{name}</P>
       </View>
       {!!note && (
         <View>
@@ -358,55 +354,17 @@ const TableSection = ({ title, data, columns, type }) => {
 };
 
 const SummaryPane = ({ invoice }) => {
-  const {
-    discountableItemsSubtotal,
-    nonDiscountableItemsSubtotal,
-    itemsSubtotal,
-    patientSubtotal,
-    patientDiscountableSubtotal,
-    discountTotal,
-    patientTotal,
-  } = getInvoiceSummaryDisplay(invoice);
-  const insurerDiscountAmountDisplayList = getInsurerDiscountAmountDisplayList(
-    invoice?.insurers,
-    itemsSubtotal,
-  );
+  const { itemsSubtotal, patientSubtotal, discountTotal, patientTotal } =
+    getInvoiceSummaryDisplay(invoice);
 
   return (
     <View wrap={false} style={summaryPaneStyles.container}>
-      <View style={summaryPaneStyles.item}>
-        <P>Discountable items subtotal</P>
-        <P>{discountableItemsSubtotal ?? '-'}</P>
-      </View>
-      <View style={summaryPaneStyles.item}>
-        <P>Non-discountable items subtotal</P>
-        <P>{nonDiscountableItemsSubtotal ?? '-'}</P>
-      </View>
       <HorizontalRule />
       <View style={summaryPaneStyles.item}>
         <P bold>Total</P>
         <P bold>{itemsSubtotal ?? '-'}</P>
       </View>
       <HorizontalRule />
-      {invoice?.insurers?.length && (
-        <>
-          <View style={summaryPaneStyles.item}>
-            <P bold>Insurer</P>
-          </View>
-          {invoice?.insurers.map((insurer, index) => {
-            return (
-              <View key={insurer.id} style={summaryPaneStyles.item}>
-                <P>{insurer.insurer?.name}</P>
-                <View style={summaryPaneStyles.subItem}>
-                  <P>{insurer.percentage * 100}%</P>
-                  <P>{`-${insurerDiscountAmountDisplayList[index]}`}</P>
-                </View>
-              </View>
-            );
-          })}
-          <HorizontalRule />
-        </>
-      )}
       <View style={summaryPaneStyles.item}>
         <P bold>Patient subtotal</P>
         <P>{patientSubtotal}</P>
@@ -421,17 +379,9 @@ const SummaryPane = ({ invoice }) => {
         )}
       </View>
       {!!invoice.discount && (
-        <>
-          <View style={summaryPaneStyles.item}>
-            {invoice.discount?.isManual ? <P>Manual discount</P> : <P>Patient discount applied</P>}
-          </View>
-          <View style={summaryPaneStyles.item}>
-            <P>Applied to discountable balance</P>
-            <View style={summaryPaneStyles.subItem}>
-              <P>{patientDiscountableSubtotal ?? '-'}</P>
-            </View>
-          </View>
-        </>
+        <View style={summaryPaneStyles.item}>
+          {invoice.discount?.isManual ? <P>Manual discount</P> : <P>Patient discount applied</P>}
+        </View>
       )}
       <HorizontalRule />
       <View style={[summaryPaneStyles.item, { marginVertical: 7.5 }]}>
@@ -474,7 +424,11 @@ const InvoiceRecordPrintoutComponent = ({
           />
         </CertificateHeader>
         <SectionSpacing />
-        <PatientDetails getLocalisation={getLocalisation} getSetting={getSetting} patient={patientData} />
+        <PatientDetails
+          getLocalisation={getLocalisation}
+          getSetting={getSetting}
+          patient={patientData}
+        />
         <SectionSpacing />
         <InvoiceEncounterDetails
           encounter={encounter}

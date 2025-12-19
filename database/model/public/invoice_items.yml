@@ -57,12 +57,12 @@ sources:
                 masking:
                   kind: integer
                   range: 0-10
-          - name: product_name
+          - name: product_name_final
             data_type: character varying(255)
-            description: "{{ doc('invoice_items__product_name') }}"
-          - name: product_price
+            description: "{{ doc('invoice_items__product_name_final') }}"
+          - name: manual_entry_price
             data_type: numeric
-            description: "{{ doc('invoice_items__product_price') }}"
+            description: "{{ doc('invoice_items__manual_entry_price') }}"
           - name: ordered_by_user_id
             data_type: character varying(255)
             description: "{{ doc('invoice_items__ordered_by_user_id') }}"
@@ -83,20 +83,15 @@ sources:
           - name: deleted_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__deleted_at') }} in invoice_items."
-          - name: product_code
+          - name: product_code_final
             data_type: character varying(255)
-            description: "{{ doc('invoice_items__product_code') }}"
+            description: "{{ doc('invoice_items__product_code_final') }}"
           - name: note
             data_type: character varying(255)
             description: "{{ doc('invoice_items__note') }}"
             config:
               meta:
                 masking: text
-          - name: product_discountable
-            data_type: boolean
-            description: "{{ doc('invoice_items__product_discountable') }}"
-            data_tests:
-              - not_null
           - name: source_record_type
             data_type: character varying(255)
             description: "{{ doc('invoice_items__source_record_type') }}"
@@ -108,3 +103,6 @@ sources:
             description: "{{ doc('generic__updated_at_sync_tick') }} in invoice_items."
             data_tests:
               - not_null
+          - name: price_final
+            data_type: numeric
+            description: "{{ doc('invoice_items__price_final') }}"
