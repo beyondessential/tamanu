@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
-import { useSuggester } from '@tamanu/ui-components';
 import { Modal } from '../../components/Modal';
 import { TranslatedText } from '../../components/Translation';
 import { ModalActionRow } from '../../components/ModalActionRow';
 import { useInvoiceInsurancePlansMutation } from '../../api/mutations/useInvoiceMutation';
-import { MultiAutocompleteInput } from '../../components/Field';
+import { SuggesterSelectField } from '../../components/Field';
 
 const StyledModal = styled(Modal)`
   .MuiPaper-root,
@@ -27,8 +26,6 @@ const ModalBody = styled.div`
 export const InvoiceInsuranceModal = ({ open, onClose, invoice }) => {
   const defaultValues = invoice?.insurancePlans?.map(({ id }) => id) || [];
   const [selectedPlans, setSelectedPlans] = useState(defaultValues);
-  const insurancePlanSuggester = useSuggester('invoiceInsurancePlan');
-
   const { mutate } = useInvoiceInsurancePlansMutation(invoice.id, invoice.encounterId);
 
   const onConfirm = async () => {
@@ -56,17 +53,20 @@ export const InvoiceInsuranceModal = ({ open, onClose, invoice }) => {
             fallback="Select or remove the insurance plans you would like to apply to this patient invoice below."
           />
         </Typography>
-        <MultiAutocompleteInput
-          name="insurancePlans"
+        <SuggesterSelectField
           label={
             <TranslatedText
               stringId="invoice.modal.insurancePlans.label"
               fallback="Insurance plans"
             />
           }
-          value={selectedPlans}
-          onChange={({ target }) => setSelectedPlans(target.value)}
-          suggester={insurancePlanSuggester}
+          field={{
+            name: 'insurancePlans',
+            value: selectedPlans,
+            onChange: ({ target }) => setSelectedPlans(target.value),
+          }}
+          endpoint="invoiceInsurancePlan"
+          isMulti
         />
       </ModalBody>
       <ModalActionRow onConfirm={onConfirm} onCancel={onClose} />
