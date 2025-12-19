@@ -1,6 +1,7 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Box, IconButton } from '@material-ui/core';
+import { CameraAlt } from '@material-ui/icons';
 import { toast } from 'react-toastify';
 import { SETTING_KEYS } from '@tamanu/constants';
 import { TAMANU_COLORS } from '../../constants';
@@ -10,6 +11,7 @@ import { TranslatedText } from '../Translation/TranslatedText';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { ConditionalTooltip } from '../Tooltip';
 import { useSettings } from '../../contexts';
+import { FileUploadIcon as FileUpload } from '../Icons/FileUploadIcon';
 
 const StyledIconButton = styled(IconButton)`
   margin-left: 5px;
@@ -27,10 +29,15 @@ const FieldButtonRow = styled.div`
   margin-top: 0.5rem;
   grid-template-columns: max-content auto;
   grid-gap: 1rem;
+
+  &.has-camera {
+    grid-template-columns: max-content max-content auto;
+  }
 `;
 
 const HintText = styled.div`
-  font-size: 0.9em;
+  font-size: 11px;
+  color: ${TAMANU_COLORS.darkText};
 `;
 
 const ChangeSelectionButton = styled.a`
@@ -100,6 +107,7 @@ export const FileChooserInput = ({
   filters,
   onChange,
   smallDisplay = false,
+  WebcamCaptureModalComponent,
   buttonText = (
     <TranslatedText
       stringId="chooseFile.button.label"
@@ -112,6 +120,7 @@ export const FileChooserInput = ({
   const { getSetting } = useSettings();
   const maxFileSizeInMB = getSetting(SETTING_KEYS.FILE_CHOOSER_MB_SIZE_LIMIT) || 10;
   const maxFileSizeInBytes = maxFileSizeInMB * 1000 * 1000;
+  const [isWebcamModalOpen, setIsWebcamModalOpen] = useState(false);
 
   // Convert the given filters into string format for the accept attribute of file input
   const acceptString = filters.map(filter => `.${filter.extensions.join(', .')}`).join(', ');
@@ -123,10 +132,7 @@ export const FileChooserInput = ({
     inputRef.current.click();
   };
 
-  const selectFile = event => {
-    const file = event.target.files[0];
-    if (!file) return;
-
+  const validateFileSize = file => {
     const fileSize = file.size;
     if (fileSize > maxFileSizeInBytes) {
       toast.error(
@@ -137,6 +143,16 @@ export const FileChooserInput = ({
           data-testid="translatedtext-b4t3"
         />,
       );
+      return false;
+    }
+    return true;
+  };
+
+  const selectFile = event => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (!validateFileSize(file)) {
       return;
     }
 
@@ -151,6 +167,23 @@ export const FileChooserInput = ({
     }
   };
 
+  const openWebcamModal = () => {
+    setIsWebcamModalOpen(true);
+  };
+
+  const closeWebcamModal = () => {
+    setIsWebcamModalOpen(false);
+  };
+
+  const handleWebcamCapture = file => {
+    if (!validateFileSize(file)) {
+      return;
+    }
+
+    onChange({ target: { name, value: file } });
+    closeWebcamModal();
+  };
+
   return (
     <>
       <input
@@ -162,7 +195,10 @@ export const FileChooserInput = ({
         data-testid="input-q5no"
       />
       <OuterLabelFieldWrapper label={label} {...props} data-testid="outerlabelfieldwrapper-uc1o">
-        <FieldButtonRow className={value ? 'has-value' : ''} data-testid="fieldbuttonrow-snj9">
+        <FieldButtonRow
+          className={`${value ? 'has-value' : ''} ${WebcamCaptureModalComponent ? 'has-camera' : ''}`}
+          data-testid="fieldbuttonrow-snj9"
+        >
           {value ? (
             <ValueSection
               value={value}
@@ -172,21 +208,41 @@ export const FileChooserInput = ({
             />
           ) : (
             <>
+              {WebcamCaptureModalComponent && (
+                <Button
+                  onClick={openWebcamModal}
+                  variant="outlined"
+                  color="primary"
+                  data-testid="button-webcam"
+                >
+                  <CameraAlt />
+                  <TranslatedText
+                    stringId="general.questionComponent.photoField.takePhotoButtonText"
+                    fallback="Take photo with camera"
+                    data-testid="translatedtext-webcam"
+                  />
+                </Button>
+              )}
               <Button
                 onClick={showFileDialog}
                 variant="outlined"
                 color="primary"
                 data-testid="button-1mo9"
               >
+                <FileUpload />
+                <Box width="10px" />
                 {buttonText}
               </Button>
+
               <HintText data-testid="hinttext-oxv8">
-                <TranslatedText
-                  stringId="chooseFile.hint.maxSize.label"
-                  fallback="Max :maxFileSizeInMB MB"
-                  replacements={{ maxFileSizeInMB }}
-                  data-testid="translatedtext-u0s3"
-                />
+                <Box component="span" fontWeight="500">
+                  <TranslatedText
+                    stringId="chooseFile.hint.maxSize.label"
+                    fallback="Max :maxFileSizeInMB MB"
+                    replacements={{ maxFileSizeInMB }}
+                    data-testid="translatedtext-u0s3"
+                  />
+                </Box>
                 <br />
                 <TranslatedText
                   stringId="chooseFile.hint.supportedFileTypes.label"
@@ -199,6 +255,13 @@ export const FileChooserInput = ({
           )}
         </FieldButtonRow>
       </OuterLabelFieldWrapper>
+      {WebcamCaptureModalComponent && (
+        <WebcamCaptureModalComponent
+          open={isWebcamModalOpen}
+          onClose={closeWebcamModal}
+          onCapture={handleWebcamCapture}
+        />
+      )}
     </>
   );
 };

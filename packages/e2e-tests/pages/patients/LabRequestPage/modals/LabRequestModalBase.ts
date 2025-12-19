@@ -17,6 +17,7 @@ export class LabRequestModalBase {
   readonly requestDateTimeInput!: Locator;
   readonly departmentInput!: Locator;
   readonly prioritySelect!: Locator;
+  readonly selectedPriority!: Locator;
   readonly panelRadioButton!: Locator;
   readonly individualRadioButton!: Locator;
   
@@ -127,6 +128,7 @@ export class LabRequestModalBase {
     this.requestingClinicianInput = page.getByTestId('field-z6gb-input').locator('input');
     this.requestDateTimeInput = page.getByTestId('field-y6ku-input').locator('input');
     this.departmentInput = page.getByTestId('field-wobc-input').locator('input');
+    this.selectedPriority = this.prioritySelect.locator('div').locator('div').first();
     this.cancelButton = page.getByTestId('formgrid-wses').getByTestId('outlinedbutton-8rnr');
     this.selectedItemsList = page.getByTestId('testitemwrapper-o7ha').getByTestId('labeltext-6stl');
     this.listItems = page.getByTestId('selectortable-dwrp').getByTestId('labeltext-6stl');
