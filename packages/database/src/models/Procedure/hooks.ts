@@ -33,9 +33,16 @@ const removeFromInvoice = async (instance: Procedure) => {
 };
 
 const updateInvoiceProductAfterUpdateHook = async (instance: Procedure) => {
+  const previousValues = instance.previous() as Procedure;
   await instance.sequelize.transaction(async () => {
-    // Ensure we remove the item from the invoice first, in case the new procedure type is not configured with an invoice product
-    await removeFromInvoice(instance);
+    if (
+      previousValues.procedureTypeId &&
+      previousValues.procedureTypeId !== instance.procedureTypeId
+    ) {
+      // Ensure we remove the item from the invoice first, in case the new procedure type is not invoiceable
+      await removeFromInvoice(instance);
+    }
+
     await addToInvoice(instance);
   });
 };
