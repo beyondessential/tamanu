@@ -109,7 +109,7 @@ export const DRUG_UNIT_SHORT_LABELS = {
   [DRUG_UNITS.wafer]: 'Wafer',
 };
 
-const MAX_REPEATS = 12;
+export const MAX_REPEATS = 12;
 export const REPEATS_LABELS = Array.from({ length: MAX_REPEATS + 1 }, (_, i) => i);
 
 export const ADMINISTRATION_FREQUENCIES = {
@@ -292,3 +292,30 @@ export const MEDICATION_ADMINISTRATION_TIME_SLOTS = [
   { startTime: '20:00', endTime: '22:00' },
   { startTime: '22:00', endTime: '24:00', periodLabel: 'night' },
 ];
+
+export const PHARMACY_PRESCRIPTION_TYPES = {
+  DISCHARGE_OR_OUTPATIENT: 'DISCHARGE_OR_OUTPATIENT',
+  INPATIENT: 'INPATIENT',
+};
+
+export const PHARMACY_PRESCRIPTION_TYPE_LABELS = {
+  [PHARMACY_PRESCRIPTION_TYPES.INPATIENT]: 'Inpatient',
+  [PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT]: 'Outpatient/Discharge',
+};
+
+export const FACILITY_DRUG_QUANTITY_STATUSES = {
+  UNAVAILABLE: 'unavailable',
+  UNKNOWN: 'unknown',
+};
+
+export const STOCK_STATUSES = {
+  YES: 'yes',
+  NO: 'no',
+  UNKNOWN: 'unknown',
+};
+
+export const STOCK_STATUS_LABELS = {
+  [STOCK_STATUSES.YES]: 'Yes',
+  [STOCK_STATUSES.NO]: 'No',
+  [STOCK_STATUSES.UNKNOWN]: 'Unknown',
+};

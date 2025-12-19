@@ -45,6 +45,8 @@ const existingRecordLoaders = {
     UD.findOne({ where: { userId, designationId }, paranoid: false }),
   UserFacility: (UF, { userId, facilityId }) =>
     UF.findOne({ where: { userId, facilityId }, paranoid: false }),
+  ReferenceDrugFacility: (RDF, { referenceDrugId, facilityId }) =>
+    RDF.findOne({ where: { referenceDrugId, facilityId }, paranoid: false }),
   ProcedureTypeSurvey: async (Model, values) => {
     const { procedureTypeId, surveyId } = values;
     if (!procedureTypeId || !surveyId) {

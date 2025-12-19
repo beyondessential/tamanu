@@ -335,7 +335,7 @@ export const globalSettings = {
             enabled: {
               description: 'Enable pharmacy orders',
               type: yup.boolean(),
-              defaultValue: false,
+              defaultValue: true,
             },
             medicationAlreadyOrderedConfirmationTimeout: {
               description:
@@ -343,6 +343,11 @@ export const globalSettings = {
               type: yup.number().positive(),
               defaultValue: 24,
               unit: 'hours',
+            },
+            sendViaMSupply: {
+              description: 'Send pharmacy orders to mSupply (when an integration is configured)',
+              type: yup.boolean(),
+              defaultValue: false,
             },
           },
         },
@@ -1219,6 +1224,13 @@ export const globalSettings = {
               properties: {
                 schedulingOutpatients: { properties: layoutModuleProperties },
                 schedulingLocations: { properties: layoutModuleProperties },
+              },
+            },
+            medication: {
+              description: '_',
+              properties: {
+                medicationActive: { properties: layoutModuleProperties },
+                medicationDispensed: { properties: layoutModuleProperties },
               },
             },
             imaging: {

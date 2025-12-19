@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import * as yup from 'yup';
 
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
@@ -8,6 +9,7 @@ import {
   DRUG_ROUTE_LABELS,
   MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
   FORM_TYPES,
+  MAX_REPEATS,
 } from '@tamanu/constants';
 import { formatShortest } from '@tamanu/utils/dateTime';
 import {
@@ -18,15 +20,9 @@ import {
 } from '@tamanu/shared/utils/medication';
 
 import { TranslatedText } from '../Translation/TranslatedText';
-import {
-  TextField,
-  Form,
-  Button,
-  OutlinedButton,
-  FormGrid
-} from '@tamanu/ui-components';
+import { TextField, Form, Button, OutlinedButton, FormGrid } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
-import { CheckField, Field } from '../Field';
+import { CheckField, Field, NumberField } from '../Field';
 import { FormModal } from '../FormModal';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
@@ -166,6 +162,10 @@ export const MedicationDetails = ({
       ),
       value: medication.quantity ?? '-',
     },
+    {
+      label: <TranslatedText stringId="medication.details.repeats" fallback="Repeats" />,
+      value: medication.repeats ?? 0,
+    },
   ];
 
   const rightDetails = [
@@ -216,8 +216,12 @@ export const MedicationDetails = ({
   ];
 
   const onSubmit = async data => {
+    const payload = { ...data };
+    if (payload.repeats === '') {
+      delete payload.repeats;
+    }
     await api.put(`medication/${medication.id}/pharmacy-notes`, {
-      ...data,
+      ...payload,
     });
     onReloadTable();
   };
@@ -232,6 +236,16 @@ export const MedicationDetails = ({
     onReloadTable();
   };
 
+  const validationSchema = yup.object().shape({
+    repeats: yup
+      .number()
+      .integer()
+      .min(0)
+      .max(MAX_REPEATS)
+      .nullable()
+      .optional(),
+  });
+
   return (
     <StyledFormModal
       open
@@ -243,9 +257,11 @@ export const MedicationDetails = ({
         onSubmit={onSubmit}
         onSuccess={onClose}
         formType={FORM_TYPES.EDIT_FORM}
+        validationSchema={validationSchema}
         initialValues={{
           pharmacyNotes: medication.pharmacyNotes,
           displayPharmacyNotesInMar: medication.displayPharmacyNotesInMar,
+          repeats: medication.repeats ?? 0,
         }}
         render={values => (
           <>
@@ -442,42 +458,70 @@ export const MedicationDetails = ({
                   </div>
                 )}
               </FormGrid>
-              <Box mt={2.5}>
-                <DarkestText color={`${Colors.darkText} !important`}>
-                  <TranslatedText
-                    stringId="medication.details.medicationAdministrationSchedule"
-                    fallback="Medication administration schedule"
-                  />
-                </DarkestText>
-                <DetailsContainer mt={0.5} width={'50%'} display={'flex'}>
-                  <Box display={'flex'} flexDirection={'column'} mr={2.5} style={{ gap: '16px' }}>
-                    {medication?.idealTimes?.slice().sort((a, b) => {
-                      const timeA = getDateFromTimeString(a);
-                      const timeB = getDateFromTimeString(b);
-                      return timeA - timeB;
-                    }).map(time => {
-                      const slot = findAdministrationTimeSlotFromIdealTime(time).timeSlot;
-                      return (
-                        <DarkestText key={time}>
-                          {`${formatTimeSlot(
-                            getDateFromTimeString(slot.startTime),
-                          )} - ${formatTimeSlot(getDateFromTimeString(slot.endTime))} `}
-                        </DarkestText>
-                      );
-                    })}
+              <Box mt={2.5} display={'flex'} sx={{ gap: '20px' }}>
+                <Box flex={1}>
+                  <DarkestText color={`${Colors.darkText} !important`}>
+                    <TranslatedText
+                      stringId="medication.details.medicationAdministrationSchedule"
+                      fallback="Medication administration schedule"
+                    />
+                  </DarkestText>
+                  <DetailsContainer mt={0.5} display={'flex'}>
+                    <Box display={'flex'} flexDirection={'column'} mr={2.5} style={{ gap: '16px' }}>
+                      {medication?.idealTimes
+                        ?.slice()
+                        .sort((a, b) => {
+                          const timeA = getDateFromTimeString(a);
+                          const timeB = getDateFromTimeString(b);
+                          return timeA - timeB;
+                        })
+                        .map(time => {
+                          const slot = findAdministrationTimeSlotFromIdealTime(time).timeSlot;
+                          return (
+                            <DarkestText key={time}>
+                              {`${formatTimeSlot(
+                                getDateFromTimeString(slot.startTime),
+                              )} - ${formatTimeSlot(getDateFromTimeString(slot.endTime))} `}
+                            </DarkestText>
+                          );
+                        })}
+                    </Box>
+                    <Box display={'flex'} flexDirection={'column'} style={{ gap: '16px' }}>
+                      {medication?.idealTimes
+                        ?.slice()
+                        .sort((a, b) => {
+                          const timeA = getDateFromTimeString(a);
+                          const timeB = getDateFromTimeString(b);
+                          return timeA - timeB;
+                        })
+                        .map(time => {
+                          return (
+                            <MidText key={time}>
+                              {formatTimeSlot(getDateFromTimeString(time))}
+                            </MidText>
+                          );
+                        })}
+                    </Box>
+                  </DetailsContainer>
+                </Box>
+                {!medication.discontinued && !isPausing && !isOngoingPrescription && (
+                  <Box flex={1}>
+                    <DarkestText color={`${Colors.darkText} !important`} mb={0.5}>
+                      <TranslatedText stringId="medication.details.repeats" fallback="Repeats" />
+                    </DarkestText>
+                    <NoteModalActionBlocker>
+                      <Field
+                        name="repeats"
+                        component={NumberField}
+                        min={0}
+                        max={MAX_REPEATS}
+                        disabled={
+                          !canDiscontinueMedication || (isSensitive && !canWriteSensitiveMedication)
+                        }
+                      />
+                    </NoteModalActionBlocker>
                   </Box>
-                  <Box display={'flex'} flexDirection={'column'} style={{ gap: '16px' }}>
-                    {medication?.idealTimes?.slice().sort((a, b) => {
-                      const timeA = getDateFromTimeString(a);
-                      const timeB = getDateFromTimeString(b);
-                      return timeA - timeB;
-                    }).map(time => {
-                      return (
-                        <MidText key={time}>{formatTimeSlot(getDateFromTimeString(time))}</MidText>
-                      );
-                    })}
-                  </Box>
-                </DetailsContainer>
+                )}
               </Box>
             </Container>
 
