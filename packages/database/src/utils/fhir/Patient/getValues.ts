@@ -43,7 +43,7 @@ async function getValuesFromPatient(upstream: Patient, models: Models) {
 }
 
 // eslint-disable-next-line no-unused-vars
-function compactBy<T>(array: T[], access: (_value: T) => boolean = (value) => Boolean(value)) {
+function compactBy<T>(array: T[], access: (_value: T) => boolean = value => Boolean(value)) {
   return array.filter(access);
 }
 
@@ -79,8 +79,8 @@ function identifiers(patient: Patient) {
         value: additionalData?.drivingLicense,
       },
     ],
-    (x) => !!x.value,
-  ).map((i) => new FhirIdentifier(i));
+    x => !!x.value,
+  ).map(i => new FhirIdentifier(i));
 }
 
 function names(patient: Patient) {
@@ -97,7 +97,7 @@ function names(patient: Patient) {
       use: 'nickname',
       text: patient.culturalName,
     },
-  ]).map((i) => new FhirHumanName(i));
+  ]).map(i => new FhirHumanName(i));
 }
 
 function telecoms(patient: Patient) {
@@ -145,9 +145,7 @@ async function mergeLinks(patient: Patient, models: Models) {
       links.push(
         new FhirPatientLink({
           type: 'replaced-by',
-          other: await FhirReference.to(models.FhirPatient, mergeTarget.id, {
-            display: mergeTarget.displayId,
-          }),
+          other: await otherPatientReference(mergeTarget, models),
         }) as FhirPatientLink & { other: FhirReference }, // TODO: Convert fhirTypes to TS
       );
     }
@@ -160,22 +158,37 @@ async function mergeLinks(patient: Patient, models: Models) {
       links.push(
         new FhirPatientLink({
           type: 'replaces',
-          other: await FhirReference.to(models.FhirPatient, mergedPatient.id, {
-            display: mergedPatient.displayId,
-          }),
+          other: await otherPatientReference(mergedPatient, models),
         }) as FhirPatientLink & { other: FhirReference },
       );
     } else {
       links.push(
         new FhirPatientLink({
           type: 'seealso',
-          other: await FhirReference.to(models.FhirPatient, mergedPatient.id, {
-            display: mergedPatient.displayId,
-          }),
+          other: await otherPatientReference(mergedPatient, models),
         }) as FhirPatientLink & { other: FhirReference },
       );
     }
   }
 
   return links;
+}
+
+async function otherPatientReference(patient: Patient, models: Models) {
+  const fhirPatient = await models.FhirPatient.findOne({
+    where: {
+      upstreamId: patient.id,
+    },
+  });
+
+  // If the patient has been materialised, then we can use the resolved reference to avoid a circular dependency
+  if (fhirPatient) {
+    return FhirReference.resolved(models.FhirPatient, fhirPatient.id, {
+      display: patient.displayId,
+    });
+  }
+
+  return FhirReference.unresolved(models.FhirPatient, patient.id, {
+    display: patient.displayId,
+  });
 }

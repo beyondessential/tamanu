@@ -11,7 +11,8 @@ import {
   Modal,
   ModalLoader,
 } from '@tamanu/ui-components';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { VISIBILITY_STATUSES, CHARTING_DATA_ELEMENT_IDS } from '@tamanu/constants';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { ForbiddenErrorModalContents } from '../components/ForbiddenErrorModal';
 import { ErrorMessage } from '../components/ErrorMessage';
@@ -39,7 +40,7 @@ export const ChartForm = React.memo(
       />
     ),
   }) => {
-    const { currentUser } = useAuth();
+    const { currentUser, ability } = useAuth();
     const { encounter } = useEncounter();
     const { getTranslation } = useTranslation();
     const chartSurveyQuery = useSurveyQuery(chartSurveyId);
@@ -55,8 +56,7 @@ export const ChartForm = React.memo(
     const visibleComponents = components.filter(
       c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
     );
-
-    const { ability } = useAuth();
+      
     const canCreateChart = ability.can('create', subject('Charting', { id: chartSurveyId }));
 
     const initialValues = useMemo(() => {
@@ -66,7 +66,14 @@ export const ChartForm = React.memo(
         patientAdditionalData,
         currentUser,
       );
-      return { ...formInitialValues, ...editedObject };
+
+      const hasPatientChartingDate = visibleComponents.some(c => c.dataElement?.id === CHARTING_DATA_ELEMENT_IDS.dateRecorded);
+
+      return {
+        ...(hasPatientChartingDate && {[CHARTING_DATA_ELEMENT_IDS.dateRecorded]: getCurrentDateTimeString()} ),
+        ...formInitialValues,
+        ...editedObject,
+      };
     }, [visibleComponents, patient, patientAdditionalData, currentUser, editedObject]);
     const validationSchema = useMemo(() => getValidationSchema(chartSurveyData, getTranslation), [
       chartSurveyData,

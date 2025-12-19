@@ -54,7 +54,7 @@ export class CentralServerConnection extends TamanuApi {
     }
 
     if (retryAuth && !this.hasToken()) {
-      await this.connect();
+      await this.connect(options.preserveBackoffForAuthAttempt ? options.backoff : undefined);
     }
 
     try {
@@ -150,6 +150,10 @@ export class CentralServerConnection extends TamanuApi {
     // when polling, we need to separately fetch the new tick from starting the session
     const { startedAtTick } = await this.fetch(`sync/${sessionId}/metadata`);
     return { sessionId, startedAtTick };
+  }
+
+  async markSessionErrored(sessionId, error) {
+    return this.fetch(`sync/${sessionId}/error`, { method: 'POST', body: { error } });
   }
 
   async endSyncSession(sessionId) {
