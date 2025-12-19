@@ -1560,6 +1560,16 @@ export const globalSettings = {
         },
       },
     },
+    patientPortal: {
+      description: 'Patient portal settings',
+      properties: {
+        baseUrl: {
+          description: 'The base URL of the patient portal',
+          type: yup.string().trim().url().nullable(),
+          defaultValue: null,
+        },
+      },
+    },
     medications: {
       description: 'Medication settings',
       properties: {
