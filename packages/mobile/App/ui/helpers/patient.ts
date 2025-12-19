@@ -47,7 +47,11 @@ export const generateIdFromPattern = (pattern: string): string =>
     if (token.startsWith('[') && token.endsWith(']')) {
       return token.slice(1, -1);
     }
-    return generators[token as keyof typeof generators]?.() ?? '';
+    const generator = generators[token as keyof typeof generators];
+    if (!generator) {
+      throw new Error(`Invalid token: ${token} in pattern: ${pattern}`);
+    }
+    return generator();
   });
 
 export const generateId = (): string => generateIdFromPattern('AAAA000000');
