@@ -41,6 +41,7 @@
     "@tamanu/constants": "*",
     "@tamanu/errors": "*",
     "@tamanu/shared": "*",
+    "@tamanu/utils": "*",
     "@testing-library/react-native": "^12.5.3",
     "axios": "^1.11.0",
     "chance": "^1.1.4",
