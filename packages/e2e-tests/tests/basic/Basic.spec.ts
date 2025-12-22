@@ -1,21 +1,36 @@
 import { EmergencyPatientsPage } from '@pages/patients/EmergencyPatientsPage';
 import { test } from '../../fixtures/baseFixture';
 import { expect } from '@playwright/test';
-import { assertRecentDateTime, convertDateFormat, getTableItems } from '@utils/testHelper';
+import { assertRecentDateTime, convertDateFormat, getTableItems, formatDateTimeForTable } from '@utils/testHelper';
 import { VitalsPage } from '@pages/patients/VitalsPage/panes/VitalsPage';
 import { generateNHN } from '@utils/generateNewPatient';
 import type { PatientDetails } from '@pages/patients/PatientDetailsPage/panes/PatientDetailsTabPage';
 import { RecentlyViewedPatientsList } from '@pages/patients/RecentlyViewedPatientsList';
 import { ImagingRequestPane } from '@pages/patients/ImagingRequestPage/panes/ImagingRequestPane';
-import { getUser } from '@utils/apiHelpers';
+import { getUser, createApiContext } from '@utils/apiHelpers';
 import { format } from 'date-fns';
-import { SidebarPage } from '@pages/SidebarPage';
+import path from 'path';
+import { SidebarPage } from '@pages/SidebarPage'; 
+import { CHARTING_FIELD_KEYS } from '@pages/patients/ChartsPage/types';
 
-test.setTimeout(100000);
 
-    test.describe('Basic tests', () => {
 
-    test('[BT-0003][AT-2001]Admit the patient to Triage without adding vitals', async ({ newPatient, patientDetailsPage }) => {
+test.describe('Basic tests', () => {
+  let currentUserDisplayName: string;
+
+  test.beforeAll(async ({ browser }) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    // Get current user info
+    const api = await createApiContext({ page });
+    const currentUser = await getUser(api);
+    currentUserDisplayName = currentUser.displayName || '';
+    await api.dispose();
+    await context.close();
+  });
+
+  test('[BT-0003][AT-2001]Admit the patient to Triage without adding vitals', async ({ newPatient, patientDetailsPage }) => {
+      test.setTimeout(100000);
       await patientDetailsPage.goToPatient(newPatient);
       await patientDetailsPage.admitOrCheckinButton.click();
       const createEncounterModal = patientDetailsPage.getCreateEncounterModal();
@@ -53,6 +68,7 @@ test.setTimeout(100000);
       expect(parseInt(level1Value)).toBeGreaterThanOrEqual(1);
     });
     test('[BT-0003][AT-2002]Admit the patient to Triage with adding vitals', async ({ newPatient, patientDetailsPage }) => {
+      test.setTimeout(100000);
       await patientDetailsPage.goToPatient(newPatient);
       await patientDetailsPage.admitOrCheckinButton.click();
       const createEncounterModal = patientDetailsPage.getCreateEncounterModal();
@@ -111,6 +127,7 @@ test.setTimeout(100000);
      * @param patientDetailsPage - The patient details page object
      */
     test('[BT-0004][AT-2004]Edit patient details', async ({ newPatient, patientDetailsPage }) => {
+      test.setTimeout(100000);
       await patientDetailsPage.goToPatient(newPatient);
       const patientDetailsTabPage = await patientDetailsPage.navigateToPatientDetailsTab();
       const nhn = generateNHN();
@@ -181,7 +198,8 @@ test.setTimeout(100000);
      await expect(patientDetailsTabPage3.residentialLandmarkInput).toHaveValue(patientDetails.residentialLandmark as string);
     });
 
-    test('[BT-0008][AT-2005]Create and verify new imaging request in imaging request table', async ({ newPatientWithHospitalAdmission, patientDetailsPage, api }) => {
+    test('[BT-0008][AT-2005]Create and verify new imaging request in imaging request table', async ({ newPatientWithHospitalAdmission, patientDetailsPage }) => {
+      test.setTimeout(100000);
       await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
       await patientDetailsPage.navigateToImagingRequestTab();
       const imagingRequestPane = new ImagingRequestPane(patientDetailsPage.page);
@@ -194,14 +212,13 @@ test.setTimeout(100000);
       await assertRecentDateTime(newImagingRequestModal.orderDateTimeInput, 'yyyy-MM-dd\'T\'HH:mm');
 
       const defaultRequestingClinician = await newImagingRequestModal.requestingClinicianInput.inputValue();
-      const currentUser = await getUser(api);
-      const currentUserDisplayName = currentUser.displayName;
       expect(defaultRequestingClinician).toBe(currentUserDisplayName);
       const supervisingClinician = await newImagingRequestModal.supervisingClinicianInput.inputValue();
       expect(supervisingClinician).toBe(currentUserDisplayName);
 
       const formValues = await newImagingRequestModal.fillForm({
-        areasToBeImaged: 'Head',
+        imagingRequestType: 'Angiogram',
+        areasToBeImaged: 'Angiogram Imaging Area',
         notes: 'This is a test note',
       });
       await newImagingRequestModal.finaliseButton.click();
@@ -221,9 +238,37 @@ test.setTimeout(100000);
        expect(status[0]).toBe('Pending');
     })
   test.skip('[BT-0009][AT-2006]Add a new prescription', async () => {});
-  test.skip('[BT-0010][AT-2007]add a document and view it', async () => {});
-  test.skip('[BT-0010][AT-2008]add a document and download it', async () => {});
-  test.skip('[BT-0011][AT-2009]check result tab', async () => {});
+  test.skip('[BT-0010][AT-2007]add a document and view it', async ({ newPatient, patientDetailsPage }) => {
+    await patientDetailsPage.goToPatient(newPatient);
+    const documentsPane = await patientDetailsPage.navigateToDocumentsTab();
+    const fileName = 'Test Document 2';
+    const documentOwnerName = 'Sepideh';
+    const note = 'This is a test note 2';
+    const filePath = path.resolve(__dirname, '../../fixtures/files/test.pdf');
+    const formValues = await documentsPane.addDocument({
+      fileName: fileName,
+      documentOwner: documentOwnerName,
+      note: note,
+      filePath: filePath,
+    });  
+    expect(formValues.department).toBe('Cardiology');
+    const documentName = await getTableItems(documentsPane.page, 1, 'name');
+    expect(documentName[0]).toBe(fileName);
+    const documentOwnerValue = await getTableItems(documentsPane.page, 1, 'documentOwner');
+    expect(documentOwnerValue[0]).toBe(documentOwnerName);
+    const noteValue = await getTableItems(documentsPane.page, 1, 'note');
+    expect(noteValue[0]).toBe(note);
+    const department = await getTableItems(documentsPane.page, 1, 'department.name')
+    expect(department[0]).toBe(formValues.department);
+    const dateUploaded = await getTableItems(documentsPane.page, 1, 'documentUploadedAt');
+    expect(dateUploaded[0]).toBe(format(new Date(), 'MM/dd/yyyy'));
+  });
+  test.skip('[BT-0010][AT-2008]add a document and download it', async () => {
+    // we can't inspect the download document modal, a blocker to write this test
+  });
+  test.skip('[BT-0011][AT-2009]check result tab', async () => {
+
+  });
   test.skip('[BT-0015][AT-2010]add a new referral and view it', async () => {});
   test.skip('[BT-0016][AT-2011]add a new program and view it', async () => {});
   test('[BT-0018][AT-2012]admit the patient to hospital', async ({ newPatient, patientDetailsPage }) => {
@@ -238,7 +283,8 @@ test.setTimeout(100000);
   test('[BT-0019][AT-2013]Change diet', async ({ newPatientWithHospitalAdmission, patientDetailsPage }) => { 
     await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
     await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
-    await patientDetailsPage.encounterHistoryPane.getLatestEncounter().click();
+    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
+    await latestEncounter.click();
     await patientDetailsPage.arrowDownIconMenuButton.click();
     await patientDetailsPage.changeEncounterDetailsMenu.changeDietMenuItem.click();
     const changeDietModal = patientDetailsPage.changeEncounterDetailsMenu.getChangeDietModal();
@@ -250,7 +296,8 @@ test.setTimeout(100000);
   test('[BT-0020][AT-2014]Change Location', async ({ newPatientWithHospitalAdmission, patientDetailsPage }) => {
     await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
     await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
-    await patientDetailsPage.encounterHistoryPane.getLatestEncounter().click();
+    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
+    await latestEncounter.click();
     await patientDetailsPage.arrowDownIconMenuButton.click();
     await patientDetailsPage.changeEncounterDetailsMenu.changeLocationMenuItem.click();
     const changeLocationModal = patientDetailsPage.changeEncounterDetailsMenu.getChangeLocationModal();
@@ -261,5 +308,270 @@ test.setTimeout(100000);
     await changeLocationModal.changeLocation(expectedLocation);
     await changeLocationModal.confirmButton.click();
     await expect(patientDetailsPage.locationLabel).toHaveText(`${expectedArea}, ${expectedLocation}`);
+  });
+  test('[BT-0021][AT-2015]Add a primary diagnosis', async ({ newPatientWithHospitalAdmission, patientDetailsPage }) => {
+    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
+    await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
+    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
+    await latestEncounter.click();
+    await patientDetailsPage.addDiagnosisButton.click();
+    const diagnosisModal = patientDetailsPage.getAddDiagnosisModal();
+    await diagnosisModal.waitForModalToLoad();  
+    expect(await diagnosisModal.dateInput.inputValue()).toBe(format(new Date(), 'yyyy-MM-dd'));
+    expect(await diagnosisModal.clinicianInput.inputValue()).toBe(currentUserDisplayName);
+    const formValues = await diagnosisModal.fillForm(true);
+    await diagnosisModal.confirmButton.click();
+    await expect(patientDetailsPage.diagnosisCategory.first()).toHaveText('P');
+    await expect(patientDetailsPage.diagnosisName.first()).toHaveText(formValues.diagnosis);
+  });
+  test('[BT-0022][AT-2016]Add a not primary diagnosis', async ({ newPatientWithHospitalAdmission, patientDetailsPage }) => {
+    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
+    await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
+    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
+    await latestEncounter.click();
+    await patientDetailsPage.addDiagnosisButton.click();
+    const diagnosisModal = patientDetailsPage.getAddDiagnosisModal();
+    await diagnosisModal.waitForModalToLoad();
+    const formValues = await diagnosisModal.fillForm(false);
+    await diagnosisModal.confirmButton.click();
+    await expect(patientDetailsPage.diagnosisCategory.first()).toHaveText('S');
+    await expect(patientDetailsPage.diagnosisName.first()).toHaveText(formValues.diagnosis);
+  });
+  test('[BT-0023][AT-2017] Add a new task set', async ({newPatientWithHospitalAdmission, patientDetailsPage}) => {
+    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
+    await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
+    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
+    await latestEncounter.click();
+    await patientDetailsPage.waitForEncounterToBeReady();
+    const tasksPane = await patientDetailsPage.navigateToTasksTab();
+    await tasksPane.waitForPageToLoad();
+    const notes = 'This is a test note';
+    const taskName = 'Discharge preparation';
+    await tasksPane.addTaskButton.click();
+    const addTaskModal = tasksPane.getAddTaskModal();
+    await addTaskModal.waitForModalToLoad();
+    const formValues = await addTaskModal.fillForm({
+      taskName: taskName,
+      notes: notes,
+    });
+    await addTaskModal.confirmButton.click();
+    await tasksPane.waitForNoDataContainerToDisappear();
+    const note = await getTableItems(tasksPane.page, 2, 'note');
+    expect(note[0]).toBe(notes);
+    expect(note[1]).toBe(notes);
+    const frequency = await getTableItems(tasksPane.page, 2, 'frequency');
+    expect(frequency[0]).toBe('Once');
+    expect(frequency[1]).toBe('Once');
+    const assignedTo = await getTableItems(tasksPane.page, 2, 'assignedTo');
+    expect(assignedTo[0]).toContain('Nurse');
+    expect(assignedTo[0]).toContain('Intern');
+    expect(assignedTo[1]).toBe('-');
+    const dueAt = await getTableItems(tasksPane.page, 2, 'dueTime');
+    const expectedDateTime = formatDateTimeForTable(formValues.dateTime);
+    expect(dueAt[0]).toBe(expectedDateTime);
+    expect(dueAt[1]).toBe(expectedDateTime);
+    const taskNameValue = await getTableItems(tasksPane.page, 2, 'name');
+    expect(taskNameValue[0]).toBe('Contact patient family/caretaker');
+    expect(taskNameValue[1]).toBe('Patient preparation: Discharge');
+  }); 
+  test('[BT-0024][AT-2018] Add a new repeating task', async ({newPatientWithHospitalAdmission, patientDetailsPage}) => {
+    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
+    await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
+    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
+    await latestEncounter.click();
+    await patientDetailsPage.waitForEncounterToBeReady();
+    const tasksPane = await patientDetailsPage.navigateToTasksTab();
+    await tasksPane.waitForPageToLoad();
+    const notes = 'This is a test note';
+    const taskName = 'Phone order: Labs';
+    const frequencyValue = 1;
+    const frequencyUnit = 'day (s)';
+    const durationValue = 2;
+    const durationUnit = 'day (s)';
+    const highPriority = true;
+    const assignedTo = 'Doctor';
+    await tasksPane.addTaskButton.click();
+    const addTaskModal = tasksPane.getAddTaskModal();
+    await addTaskModal.waitForModalToLoad();
+    const formValues = await addTaskModal.fillForm({
+      taskName: taskName,
+      notes: notes,
+      frequencyValue: frequencyValue,
+      frequencyUnit: frequencyUnit,
+      durationValue: durationValue,
+      durationUnit: durationUnit,
+      highPriority: highPriority,
+      assignedTo: assignedTo,
+    });
+    await addTaskModal.confirmButton.click();
+    await tasksPane.waitForNoDataContainerToDisappear();
+    const rowCount = await tasksPane.getRowCount();
+    expect(rowCount).toBe(1);
+    const note = await getTableItems(tasksPane.page, 1, 'note');
+    expect(note[0]).toBe(notes);
+    const frequency = await getTableItems(tasksPane.page, 1, 'frequency');
+    expect(frequency[0]).toBe('1 day');
+    await expect(tasksPane.priorityIcon.first()).toBeVisible();
+    const assignedToValue = await getTableItems(tasksPane.page, 1, 'assignedTo');
+    expect(assignedToValue[0]).toBe(assignedTo);
+    const dueAt = await getTableItems(tasksPane.page, 1, 'dueTime');
+    const expectedDateTime = formatDateTimeForTable(formValues.dateTime);
+    expect(dueAt[0]).toBe(expectedDateTime);
+  });
+  test('[BT-0025][AT-2019] Mark a task as completed', async ({newPatientWithHospitalAdmission, patientDetailsPage}) => {
+    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
+    await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
+    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
+    await latestEncounter.click();
+    await patientDetailsPage.waitForEncounterToBeReady();
+    const tasksPane = await patientDetailsPage.navigateToTasksTab();
+    await tasksPane.waitForPageToLoad();
+    await tasksPane.addTaskButton.click();
+    const addTaskModal = tasksPane.getAddTaskModal();
+    await addTaskModal.waitForModalToLoad();
+    const taskName = 'Contact patient family/caretaker';
+    await addTaskModal.fillForm({
+      taskName: taskName,
+    });
+    await addTaskModal.confirmButton.click();
+    await tasksPane.waitForNoDataContainerToDisappear();
+    const rowCount = await tasksPane.getRowCount();
+    expect(rowCount).toBe(1);
+    const taskNameValue = await getTableItems(tasksPane.page, 1, 'name');
+    expect(taskNameValue[0]).toBe(taskName);
+    await tasksPane.tableRows.first().hover();
+    await tasksPane.markAsCompletedButton.click();
+    const markAsCompletedModal = tasksPane.getMarkAsCompletedModal();
+    await markAsCompletedModal.waitForModalToLoad();
+    const notes = 'Mark as completed test note';
+    await markAsCompletedModal.fillForm({
+      notes: notes,
+    });
+    await markAsCompletedModal.confirmButton.click();
+    await tasksPane.showCompletedTasksCheck.check();
+    expect(await tasksPane.tableRows.count()).toBe(1);
+  });
+  test('[BT-0026][AT-2020] Mark a task as not completed', async ({newPatientWithHospitalAdmission, patientDetailsPage}) => {
+    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
+    await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
+    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
+    await latestEncounter.click();
+    await patientDetailsPage.waitForEncounterToBeReady();
+    const tasksPane = await patientDetailsPage.navigateToTasksTab();
+    await tasksPane.waitForPageToLoad();
+    await tasksPane.addTaskButton.click();
+    const addTaskModal = tasksPane.getAddTaskModal();
+    await addTaskModal.waitForModalToLoad();
+    const taskName = 'Contact patient family/caretaker';
+    await addTaskModal.fillForm({
+      taskName: taskName,
+    });
+    await addTaskModal.confirmButton.click();
+    await tasksPane.waitForNoDataContainerToDisappear();
+    const rowCount = await tasksPane.getRowCount();
+    expect(rowCount).toBe(1);
+    const taskNameValue = await getTableItems(tasksPane.page, 1, 'name');
+    expect(taskNameValue[0]).toBe(taskName);
+    await tasksPane.tableRows.first().hover();
+    await tasksPane.markAsNotCompletedButton.click();
+    const markAsNotCompletedModal = tasksPane.getMarkAsNotCompletedModal();
+    await markAsNotCompletedModal.waitForModalToLoad();
+    const reasonNotCompleted = 'Other';
+    await markAsNotCompletedModal.fillForm({
+      reasonNotCompleted: reasonNotCompleted,
+    });
+    await markAsNotCompletedModal.confirmButton.click();
+    await tasksPane.showNotCompletedTasksCheck.check();
+    expect(await tasksPane.tableRows.count()).toBe(1);
+
+  });
+  test('[BT-0027][AT-2021] Delete a task', async ({newPatientWithHospitalAdmission, patientDetailsPage}) => {
+    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
+    await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
+    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
+    await latestEncounter.click();
+    await patientDetailsPage.waitForEncounterToBeReady();
+    const tasksPane = await patientDetailsPage.navigateToTasksTab();
+    await tasksPane.waitForPageToLoad();
+    await tasksPane.addTaskButton.click();
+    const addTaskModal = tasksPane.getAddTaskModal();
+    await addTaskModal.waitForModalToLoad();
+    const taskName = 'Contact patient family/caretaker';
+    await addTaskModal.fillForm({
+      taskName: taskName,
+    });
+    await addTaskModal.confirmButton.click();
+    await tasksPane.waitForNoDataContainerToDisappear();
+    const rowCount = await tasksPane.getRowCount();
+    expect(rowCount).toBe(1);
+    await tasksPane.tableRows.first().hover();
+    await tasksPane.deleteTaskButton.click();
+    const deleteTaskModal = tasksPane.getDeleteTaskModal();
+    await deleteTaskModal.waitForModalToLoad();
+    await deleteTaskModal.confirmButton.click();
+    await tasksPane.waitForPageToLoad();
+    await expect( tasksPane.noDataContainer).toHaveText('No patient tasks to display. Please try adjusting filters or click ‘+ New task’ to add a task to this patient.');
+  });
+  
+  test('[BT-0028][AT-2022] Record a simple chart and validate', async ({newPatientWithHospitalAdmission, patientDetailsPage}) => {
+    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
+    await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
+    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
+    await latestEncounter.click();
+    const chartsPane = await patientDetailsPage.navigateToChartsTab();
+    await chartsPane.waitForPageToLoad();
+    await chartsPane.selectChartType('Neurological Assessment');
+    await chartsPane.recordChartButton.click();
+    const simpleChartModal = chartsPane.getSimpleChartModal();
+    await simpleChartModal.waitForModalToLoad();
+    const gcsTotalScore = '15';
+    const rightPupilsSize = '3';
+    const leftPupilsSize = '3';
+    const rightArmLimbMovement = ['Normal power'];
+    const rightLegLimbMovement = ['Mild weakness'];
+    const leftArmLimbMovement = ['Normal power'];
+    const leftLegLimbMovement = ['Mild weakness'];
+    const comments = 'This is a test comment';
+    const formValues = await simpleChartModal.fillForm({
+      gcsTotalScore: gcsTotalScore,
+      rightPupilsSize: rightPupilsSize,
+      leftPupilsSize: leftPupilsSize,
+      rightArmLimbMovement: rightArmLimbMovement,
+      rightLegLimbMovement: rightLegLimbMovement,
+      leftArmLimbMovement: leftArmLimbMovement,
+      leftLegLimbMovement: leftLegLimbMovement,
+      comments: comments,
+    });
+    await simpleChartModal.confirmButton.click();
+    await chartsPane.waitForPageToLoad();
+    const chartValues = await chartsPane.getLatestValuesFromChartsTable(chartsPane.page, CHARTING_FIELD_KEYS);
+    expect(chartValues).toEqual(formValues);
+  });
+  test('[BT-0015][AT-2010] Add a new referral', async ({newPatient, patientDetailsPage}) => {
+    await patientDetailsPage.goToPatient(newPatient);
+    const referralPane = await patientDetailsPage.navigateToReferralsTab();
+    await referralPane.waitForPageToLoad();
+    await referralPane.addReferralButton.click();
+    const addReferralModal = referralPane.getAddReferralModal();
+    await addReferralModal.waitForModalToLoad();
+    const referralType = 'CVD Primary Screening Referral';
+    await addReferralModal.selectSurvey(referralType);
+    await addReferralModal.waitForFormFieldsToBeVisible();
+    const formValues = await addReferralModal.fillCVDPrimaryScreeningForm({
+      referralDate: format(new Date(), 'yyyy-MM-dd'),
+      referralReason: 'Reason for referral',
+      relevantScreeningHistory: false
+    });
+    await addReferralModal.nextButton.click();
+    await addReferralModal.completeReferralButton.click();
+    await referralPane.waitForPageToLoad();
+    const referralDate = await getTableItems(referralPane.page, 1, 'date');
+    expect(referralDate[0]).toBe(format(new Date(formValues.referralDate), 'MM/dd/yyyy'));
+    const referralTypeValue = await getTableItems(referralPane.page, 1, 'referralType');
+    expect(referralTypeValue[0]).toBe(referralType);
+    const referralCompletedBy = await getTableItems(referralPane.page, 1, 'referredBy');
+    expect(referralCompletedBy[0]).toBe(formValues.referralCompletedBy);
+    const referralStatus = await getTableItems(referralPane.page, 1, 'status');
+    expect(referralStatus[0]).toBe('Pending');
   });
 });
