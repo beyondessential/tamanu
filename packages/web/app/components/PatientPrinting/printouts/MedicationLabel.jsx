@@ -2,12 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { formatShortest } from '@tamanu/utils/dateTime';
+import { useSettings } from '@tamanu/ui-components';
 import { TranslatedText } from '../../Translation';
 import { Colors } from '../../../constants';
 
 const Label = styled.div`
-  width: 228px;
-  height: 113px;
+  width: ${props => props.$width}mm;
+  height: ${props => props.$height}mm;
   border: 1px solid ${Colors.black};
   border-radius: 3px;
   position: relative;
@@ -17,8 +18,8 @@ const Label = styled.div`
   break-inside: avoid;
 
   @media print {
-    width: 228px;
-    height: 113px;
+    width: ${props => props.$width}mm;
+    height: ${props => props.$height}mm;
   }
 `;
 
@@ -124,6 +125,10 @@ const LabelFooterText = styled.div`
 `;
 
 export const MedicationLabel = React.memo(({ data }) => {
+  const { getSetting } = useSettings();
+  const labelWidth = getSetting('medications.dispensing.prescriptionLabelSize.width') || 80;
+  const labelHeight = getSetting('medications.dispensing.prescriptionLabelSize.height') || 40;
+
   const {
     medicationName,
     instructions,
@@ -138,7 +143,7 @@ export const MedicationLabel = React.memo(({ data }) => {
   } = data;
 
   return (
-    <Label>
+    <Label $width={labelWidth} $height={labelHeight}>
       <LabelTitle>
         <TranslatedText
           stringId="modal.medication.dispense.label.title"
