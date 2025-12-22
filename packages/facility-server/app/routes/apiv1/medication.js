@@ -29,15 +29,6 @@ import { Op, QueryTypes, Sequelize } from 'sequelize';
 import { validate } from '../../utils/validate';
 import { mapQueryFilters } from '../../database/utils';
 
-// Active meditions are that have remaining repeats
-const buildActiveMedicationsCondition = () => Sequelize.literal(`(
-  COALESCE("PharmacyOrderPrescription".repeats, 0) >= (
-    SELECT COUNT(*) FROM medication_dispenses md
-    WHERE md.pharmacy_order_prescription_id = "PharmacyOrderPrescription".id
-    AND md.deleted_at IS NULL
-  )
-)`);
-
 export const medication = express.Router();
 
 const dispensableMedicationsQuerySchema = z
@@ -57,11 +48,6 @@ medication.get(
     const { patientId, facilityId } = await dispensableMedicationsQuerySchema.parseAsync(req.query);
 
     const { PharmacyOrderPrescription } = models;
-
-    const baseWhere = {
-      deletedAt: null,
-      [Op.and]: [buildActiveMedicationsCondition()],
-    };
 
     const pharmacyOrderPrescriptions = await PharmacyOrderPrescription.findAll({
       attributes: ['id', 'displayId', 'quantity', 'repeats', 'createdAt'],
@@ -131,7 +117,21 @@ medication.get(
           order: [['dispensedAt', 'DESC']],
         },
       ],
-      where: baseWhere,
+      where: {
+        deletedAt: null,
+        [Op.or]: [
+          Sequelize.literal(`(  
+            COALESCE("PharmacyOrderPrescription".repeats, 0) >= (
+              SELECT COUNT(*) FROM medication_dispenses md
+              WHERE md.pharmacy_order_prescription_id = "PharmacyOrderPrescription".id
+              AND md.deleted_at IS NULL
+            )
+          )`),
+          {
+            '$pharmacyOrder.is_discharge_prescription$': false, // INPATIENT medication requests
+          },
+        ],
+      },
       order: [['createdAt', 'DESC']],
       subQuery: false,
     });
@@ -155,8 +155,6 @@ medication.get(
         remainingRepeats,
         lastDispensedAt,
         stock,
-        requestNumber: pop.displayId, // Individual prescription request number
-        orderRequestNumber: pop.pharmacyOrder?.requestNumber, // Overall order request number
       };
     });
 
@@ -192,9 +190,9 @@ medication.post(
     const { User, MedicationDispense, PharmacyOrderPrescription } = models;
 
     const dispensedByUser = await User.findByPk(dispensedByUserId);
-      if (!dispensedByUser) {
-        throw new NotFoundError(`User with id ${dispensedByUserId} not found`);
-      }
+    if (!dispensedByUser) {
+      throw new NotFoundError(`User with id ${dispensedByUserId} not found`);
+    }
 
     const dispensedAt = getCurrentDateTimeString();
     const pharmacyOrderPrescriptionIds = items.map(item => item.pharmacyOrderPrescriptionId);
