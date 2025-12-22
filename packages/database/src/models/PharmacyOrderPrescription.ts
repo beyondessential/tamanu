@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { generateDisplayId } from '@tamanu/utils/generateDisplayId';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 import type { MedicationDispense } from './MedicationDispense';
@@ -13,6 +14,7 @@ export class PharmacyOrderPrescription extends Model {
   declare id: string;
   declare pharmacyOrderId: string;
   declare prescriptionId: string;
+  declare displayId: string;
   declare quantity?: number;
   declare repeats?: number;
   declare medicationDispenses?: MedicationDispense[];
@@ -21,6 +23,13 @@ export class PharmacyOrderPrescription extends Model {
     super.init(
       {
         id: primaryKey,
+        displayId: {
+          type: DataTypes.STRING,
+          allowNull: true,
+          defaultValue() {
+            return generateDisplayId();
+          },
+        },
         quantity: {
           type: DataTypes.INTEGER,
           allowNull: false,

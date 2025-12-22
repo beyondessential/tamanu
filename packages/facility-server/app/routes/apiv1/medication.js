@@ -64,7 +64,7 @@ medication.get(
     };
 
     const pharmacyOrderPrescriptions = await PharmacyOrderPrescription.findAll({
-      attributes: ['id', 'quantity', 'repeats', 'createdAt'],
+      attributes: ['id', 'displayId', 'quantity', 'repeats', 'createdAt'],
       include: [
         {
           association: 'pharmacyOrder',
@@ -148,12 +148,15 @@ medication.get(
 
       return {
         id: pop.id,
+        displayId: pop.displayId,
         prescriptionDate: pop.createdAt,
         prescription: pop.prescription,
         quantity: pop.quantity,
         remainingRepeats,
         lastDispensedAt,
         stock,
+        requestNumber: pop.displayId, // Individual prescription request number
+        orderRequestNumber: pop.pharmacyOrder?.requestNumber, // Overall order request number
       };
     });
 

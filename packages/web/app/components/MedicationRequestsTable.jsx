@@ -9,6 +9,7 @@ import { useAuth } from '../contexts/Auth';
 import { MEDICATIONS_SEARCH_KEYS, STOCK_STATUS_COLORS } from '../constants/medication';
 import { Colors } from '../constants';
 import { MenuButton } from './MenuButton';
+import { DispenseMedicationWorkflowModal } from './Medication/DispenseMedicationWorkflowModal';
 import {
   TableCellTag,
   ThemedTooltip,
@@ -148,6 +149,8 @@ export const MedicationRequestsTable = () => {
   const { searchParameters } = useMedicationsContext(MEDICATIONS_SEARCH_KEYS.ACTIVE);
 
   const [medicationRequests, setMedicationRequests] = useState([]);
+  const [isDispenseOpen, setIsDispenseOpen] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState(null);
 
   const onMedicationRequestsFetched = useCallback(({ data }) => {
     setMedicationRequests(data);
@@ -271,34 +274,47 @@ export const MedicationRequestsTable = () => {
   const fetchOptions = { ...searchParameters, facilityId };
 
   const handleRowClick = (_, data) => {
-    console.log(data);
+    const patient = data?.pharmacyOrder?.encounter?.patient;
+    if (!patient?.id) return;
+    setSelectedPatient(patient);
+    setIsDispenseOpen(true);
   };
 
   return (
-    <StyledSearchTableWithPermissionCheck
-      verb="list"
-      noun="Medication"
-      autoRefresh={true}
-      endpoint="medication/medication-requests"
-      columns={columns}
-      noDataMessage={
-        <NoDataContainer>
-          <TranslatedText
-            stringId="medication-requests.list.noData"
-            fallback="No active medication requests to display."
-          />
-        </NoDataContainer>
-      }
-      fetchOptions={fetchOptions}
-      elevated={false}
-      data-testid="searchtablewithpermissioncheck-medication"
-      $noData={medicationRequests.length === 0}
-      onDataFetched={onMedicationRequestsFetched}
-      onClickRow={handleRowClick}
-      allowExport={false}
-      initialSort={{
-        order: 'desc',
-      }}
-    />
+    <>
+      <DispenseMedicationWorkflowModal
+        open={isDispenseOpen}
+        onClose={() => {
+          setIsDispenseOpen(false);
+          setSelectedPatient(null);
+        }}
+        patient={selectedPatient}
+      />
+      <StyledSearchTableWithPermissionCheck
+        verb="list"
+        noun="Medication"
+        autoRefresh={true}
+        endpoint="medication/medication-requests"
+        columns={columns}
+        noDataMessage={
+          <NoDataContainer>
+            <TranslatedText
+              stringId="medication-requests.list.noData"
+              fallback="No active medication requests to display."
+            />
+          </NoDataContainer>
+        }
+        fetchOptions={fetchOptions}
+        elevated={false}
+        data-testid="searchtablewithpermissioncheck-medication"
+        $noData={medicationRequests.length === 0}
+        onDataFetched={onMedicationRequestsFetched}
+        onClickRow={handleRowClick}
+        allowExport={false}
+        initialSort={{
+          order: 'desc',
+        }}
+      />
+    </>
   );
 };
