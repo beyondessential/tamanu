@@ -145,35 +145,28 @@ const getStockStatus = stock => {
 
 const InstructionsInput = memo(({ value: defaultValue, onChange, ...props }) => {
   const [value, setValue] = useState(defaultValue);
-  const handleChange = useCallback(e => {
-    setValue(e.target.value);
-    onChange(e);
-  }, [onChange]);
-
-  return (
-    <TextInput
-      {...props}
-      value={value}
-      onChange={handleChange}
-    />
+  const handleChange = useCallback(
+    e => {
+      setValue(e.target.value);
+      onChange(e);
+    },
+    [onChange],
   );
+
+  return <TextInput {...props} value={value} onChange={handleChange} />;
 });
 
 const QuantityInput = memo(({ value: defaultValue, onChange, ...props }) => {
   const [value, setValue] = useState(defaultValue);
-  const handleChange = useCallback(e => {
-    setValue(e.target.value);
-    onChange(e);
-  }, [onChange]);
-
-  return (
-    <TextInput
-      {...props}
-      type="number"
-      value={value}
-      onChange={handleChange}
-    />
+  const handleChange = useCallback(
+    e => {
+      setValue(e.target.value);
+      onChange(e);
+    },
+    [onChange],
   );
+
+  return <TextInput {...props} type="number" value={value} onChange={handleChange} />;
 });
 
 export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient }) => {
@@ -328,7 +321,8 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
   }, [validateDispenseStep, selectedItems.length]);
 
   const prescriptionIdsForLabels = useMemo(
-    () => (step === MODAL_STEPS.REVIEW ? selectedItems.map(i => i.prescription?.id).filter(Boolean) : []),
+    () =>
+      step === MODAL_STEPS.REVIEW ? selectedItems.map(i => i.prescription?.id).filter(Boolean) : [],
     [selectedItems, step],
   );
 
@@ -372,6 +366,7 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
         patientName: patient ? getPatientNameAsString(patient) : '-',
         dispensedAt: new Date().toISOString(),
         quantity: item.quantity,
+        units: prescription?.units || '',
         repeatsRemaining: repeatsAfterDispense,
         prescriberName,
         requestNumber,
@@ -398,10 +393,10 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
     });
 
     await queryClient.invalidateQueries({ queryKey: ['dispensableMedications'] });
-    
+
     // Prepare labels for printing
     setLabelsForPrint(reviewLabels);
-    
+
     // Close dispense modal and open print modal
     setShowPrintModal(true);
     onClose();
@@ -555,7 +550,15 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
           const content = <TranslatedEnum value={status} enumValues={STOCK_STATUS_LABELS} />;
           if (status === STOCK_STATUSES.YES) {
             return (
-              <ThemedTooltip title={`Stock level: ${rowData.stock.quantity}`}>
+              <ThemedTooltip
+                title={
+                  <TranslatedText
+                    stringId="medication.stockLevel.tooltip"
+                    fallback="Stock level: :quantity units"
+                    replacements={{ quantity: rowData.stock.quantity }}
+                  />
+                }
+              >
                 <span>{content}</span>
               </ThemedTooltip>
             );
@@ -686,7 +689,7 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
           </>
         )}
       </StyledModal>
-      
+
       <MedicationLabelPrintModal
         open={showPrintModal}
         onClose={() => setShowPrintModal(false)}

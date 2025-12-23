@@ -2,9 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { formatShortest } from '@tamanu/utils/dateTime';
-import { useSettings } from '@tamanu/ui-components';
-import { TranslatedText } from '../../Translation';
+import { useSettings, useTranslation } from '@tamanu/ui-components';
+import { DRUG_UNIT_LABELS } from '@tamanu/constants';
+import { pluralize } from 'inflection';
 import { Colors } from '../../../constants';
+import { TranslatedText } from '../../Translation';
 
 const Label = styled.div`
   width: ${props => props.$width}mm;
@@ -124,7 +126,13 @@ const LabelFooterText = styled.div`
   text-align: center;
 `;
 
+export const getMedicationLabel = (quantity, units, getEnumTranslation) => {
+  const translatedUnit = quantity > 1 ? pluralize(getEnumTranslation(DRUG_UNIT_LABELS, units)) : getEnumTranslation(DRUG_UNIT_LABELS, units);
+  return `${quantity} ${translatedUnit.toLowerCase()}`;
+};
+
 export const MedicationLabel = React.memo(({ data }) => {
+  const { getEnumTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const labelWidth = getSetting('medications.dispensing.prescriptionLabelSize.width') || 80;
   const labelHeight = getSetting('medications.dispensing.prescriptionLabelSize.height') || 40;
@@ -135,6 +143,7 @@ export const MedicationLabel = React.memo(({ data }) => {
     patientName,
     dispensedAt,
     quantity,
+    units,
     repeatsRemaining,
     prescriberName,
     requestNumber,
@@ -159,7 +168,7 @@ export const MedicationLabel = React.memo(({ data }) => {
           <LabelLeftColumn>
             <LabelPatientName>{patientName}</LabelPatientName>
             <LabelRow>
-              {quantity} <TranslatedText stringId="medication.units.label" fallback="units" />
+              {getMedicationLabel(quantity, units, getEnumTranslation)}
             </LabelRow>
             <LabelRow>
               <TranslatedText
@@ -200,6 +209,7 @@ MedicationLabel.propTypes = {
     patientName: PropTypes.string.isRequired,
     dispensedAt: PropTypes.string.isRequired,
     quantity: PropTypes.number.isRequired,
+    units: PropTypes.string.isRequired,
     repeatsRemaining: PropTypes.number.isRequired,
     prescriberName: PropTypes.string.isRequired,
     requestNumber: PropTypes.string.isRequired,
