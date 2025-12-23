@@ -221,6 +221,10 @@ medication.post(
             where: { deletedAt: null },
             required: false,
           },
+          {
+            association: 'pharmacyOrder',
+            attributes: ['id', 'isDischargePrescription'],
+          }
         ],
         lock: {
           level: transaction.LOCK.UPDATE,

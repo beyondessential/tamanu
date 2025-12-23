@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, memo } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
@@ -26,7 +26,7 @@ import {
 import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { useTranslation } from '../../contexts/Translation';
-import { singularize, notifyError } from '../../utils';
+import { singularize } from '../../utils';
 import { AutocompleteInput, CheckInput } from '../Field';
 import { TableFormFields } from '../Table/TableFormFields';
 import { DateDisplay } from '../DateDisplay';
@@ -94,7 +94,7 @@ const StyledConfirmCancelBackRow = styled(ConfirmCancelBackRow)`
   }
 `;
 
-export const buildInstructionText = (prescription, getTranslation, getEnumTranslation) => {
+const buildInstructionText = (prescription, getTranslation, getEnumTranslation) => {
   if (!prescription) return '';
 
   const dose = getMedicationDoseDisplay(prescription, getTranslation, getEnumTranslation);
@@ -137,13 +137,46 @@ export const buildInstructionText = (prescription, getTranslation, getEnumTransl
   return out;
 };
 
-export const getStockStatus = stock => {
+const getStockStatus = stock => {
   const quantity = Number(stock?.quantity);
   if (!stock || isNaN(quantity)) return STOCK_STATUSES.UNKNOWN;
   return quantity > 0 ? STOCK_STATUSES.YES : STOCK_STATUSES.NO;
 };
 
-export const DispenseMedicationWorkflowModal = React.memo(({ open, onClose, patient }) => {
+const InstructionsInput = memo(({ value: defaultValue, onChange, ...props }) => {
+  const [value, setValue] = useState(defaultValue);
+  const handleChange = useCallback(e => {
+    setValue(e.target.value);
+    onChange(e);
+  }, [onChange]);
+
+  return (
+    <TextInput
+      {...props}
+      value={value}
+      onChange={handleChange}
+    />
+  );
+});
+
+const QuantityInput = memo(({ value: defaultValue, onChange, ...props }) => {
+  const [value, setValue] = useState(defaultValue);
+  const handleChange = useCallback(e => {
+    setValue(e.target.value);
+    onChange(e);
+  }, [onChange]);
+
+  return (
+    <TextInput
+      {...props}
+      type="number"
+      value={value}
+      onChange={handleChange}
+    />
+  );
+});
+
+export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient }) => {
   const api = useApi();
   const queryClient = useQueryClient();
   const { facilityId, currentUser } = useAuth();
@@ -201,7 +234,7 @@ export const DispenseMedicationWorkflowModal = React.memo(({ open, onClose, pati
       hasInstructionsError: false,
     }));
     setItems(nextItems);
-  }, [open, dispensableResponse, getTranslation, getEnumTranslation]);
+  }, [open, dispensableResponse]);
 
   const handleClose = useCallback(() => {
     setItems([]);
@@ -288,9 +321,6 @@ export const DispenseMedicationWorkflowModal = React.memo(({ open, onClose, pati
   const handleReview = useCallback(() => {
     if (!validateDispenseStep()) {
       setShowValidationErrors(true);
-      if (selectedItems.length === 0) {
-        notifyError('Please select at least one medication to dispense.');
-      }
       return;
     }
     setShowValidationErrors(false);
@@ -373,8 +403,8 @@ export const DispenseMedicationWorkflowModal = React.memo(({ open, onClose, pati
     setLabelsForPrint(reviewLabels);
     
     // Close dispense modal and open print modal
-    onClose();
     setShowPrintModal(true);
+    onClose();
   }, [
     api,
     dispensedByUserId,
@@ -437,8 +467,7 @@ export const DispenseMedicationWorkflowModal = React.memo(({ open, onClose, pati
           </>
         ),
         accessor: (rowData, rowIndex) => (
-          <TextInput
-            type="number"
+          <QuantityInput
             value={rowData.quantity}
             onChange={e => handleQuantityChange(rowIndex, e)}
             error={showValidationErrors && rowData.hasQuantityError}
@@ -472,16 +501,13 @@ export const DispenseMedicationWorkflowModal = React.memo(({ open, onClose, pati
           </>
         ),
         accessor: (rowData, rowIndex) => (
-          <TextInput
-            multiline
-            rowsMax={6}
-            rowsMin={1}
+          <InstructionsInput
             value={rowData.instructions}
             onChange={e => handleInstructionsChange(rowIndex, e)}
             error={showValidationErrors && rowData.hasInstructionsError}
             required={rowData.selected}
             disabled={!rowData.selected}
-            data-testid="dispense-instructions"
+            testId="dispense-instructions"
           />
         ),
       },
@@ -577,7 +603,7 @@ export const DispenseMedicationWorkflowModal = React.memo(({ open, onClose, pati
       <ConfirmCancelRow
         cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
         confirmText={<TranslatedText stringId="medication.action.review" fallback="Review" />}
-        confirmDisabled={isLoadingDispensables}
+        confirmDisabled={isLoadingDispensables || selectedItems.length === 0}
         onCancel={handleClose}
         onConfirm={handleReview}
       />
@@ -609,6 +635,11 @@ export const DispenseMedicationWorkflowModal = React.memo(({ open, onClose, pati
                   onChange={e => setDispensedByUserId(e.target.value)}
                   required
                   error={showValidationErrors && !dispensedByUserId}
+                  helperText={
+                    showValidationErrors && !dispensedByUserId
+                      ? getTranslation('validation.required.inline', '*Required')
+                      : ''
+                  }
                   data-testid="dispense-dispensed-by"
                 />
               </Box>

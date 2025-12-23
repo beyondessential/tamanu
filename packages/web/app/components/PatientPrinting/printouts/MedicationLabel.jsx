@@ -158,7 +158,9 @@ export const MedicationLabel = React.memo(({ data }) => {
         <LabelBottomSection>
           <LabelLeftColumn>
             <LabelPatientName>{patientName}</LabelPatientName>
-            <LabelRow>{quantity} tablets</LabelRow>
+            <LabelRow>
+              {quantity} <TranslatedText stringId="medication.units.label" fallback="units" />
+            </LabelRow>
             <LabelRow>
               <TranslatedText
                 stringId="medication.dispense.numberOfRepeats"
@@ -205,4 +207,3 @@ MedicationLabel.propTypes = {
     facilityContactNumber: PropTypes.string,
   }).isRequired,
 };
-

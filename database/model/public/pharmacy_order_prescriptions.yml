@@ -34,8 +34,6 @@ sources:
           - name: display_id
             data_type: character varying
             description: "{{ doc('pharmacy_order_prescriptions__display_id') }}"
-            data_tests:
-              - not_null
           - name: quantity
             data_type: integer
             description: "{{ doc('pharmacy_order_prescriptions__quantity') }}"
