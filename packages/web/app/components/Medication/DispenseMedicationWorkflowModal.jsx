@@ -97,23 +97,29 @@ const StyledConfirmCancelBackRow = styled(ConfirmCancelBackRow)`
 const buildInstructionText = (prescription, getTranslation, getEnumTranslation) => {
   if (!prescription) return '';
 
+  const {
+    frequency: prescriptionFrequency,
+    route: prescriptionRoute,
+    durationValue,
+    durationUnit,
+    indication,
+    notes,
+  } = prescription;
+
   const dose = getMedicationDoseDisplay(prescription, getTranslation, getEnumTranslation);
-  const frequency = prescription.frequency
-    ? getTranslatedFrequency(prescription.frequency, getTranslation)
+  const frequency = prescriptionFrequency
+    ? getTranslatedFrequency(prescriptionFrequency, getTranslation)
     : null;
-  const route = prescription.route
-    ? getEnumTranslation(DRUG_ROUTE_LABELS, prescription.route)
-    : null;
+  const route = prescriptionRoute ? getEnumTranslation(DRUG_ROUTE_LABELS, prescriptionRoute) : null;
 
   const duration =
-    prescription.durationValue && prescription.durationUnit
+    durationValue && durationUnit
       ? (() => {
           const unitLabel = getEnumTranslation(
             MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
-            prescription.durationUnit,
+            durationUnit,
           );
-          const value = prescription.durationValue;
-          return `${value} ${singularize(unitLabel, value).toLowerCase()}`;
+          return `${durationValue} ${singularize(unitLabel, durationValue).toLowerCase()}`;
         })()
       : null;
 
@@ -124,12 +130,12 @@ const buildInstructionText = (prescription, getTranslation, getEnumTranslation) 
 
   if (route) out += `${out ? ',' : ''} ${route}`;
   if (duration) out += `${out ? ' for ' : ''}${duration}`;
-  if (prescription.indication) out += `${out ? ', ' : ''}for ${prescription.indication}`;
+  if (indication) out += `${out ? ', ' : ''}for ${indication}`;
 
   out = out.trim();
-  if (prescription.notes) {
-    const notes = String(prescription.notes).trim();
-    out = `${out}${out ? '. ' : ''}${notes}`;
+  if (notes) {
+    const trimmedNotes = String(notes).trim();
+    out = `${out}${out ? '. ' : ''}${trimmedNotes}`;
   }
 
   out = out.trim();
@@ -192,8 +198,8 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
     { enabled: Boolean(open) && Boolean(facilityId) },
   );
 
-  const selectedItems = items.filter(i => i.selected);
-  const stockColumnEnabled = items.some(i => i.stock);
+  const selectedItems = items.filter(({ selected }) => selected);
+  const stockColumnEnabled = items.some(({ stock }) => stock);
 
   useEffect(() => {
     if (open) {
@@ -208,17 +214,21 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
 
   useEffect(() => {
     if (!open) return;
-    if (!dispensableResponse?.data) return;
+    const { data: dispensableData } = dispensableResponse || {};
+    if (!dispensableData) return;
 
-    const nextItems = (dispensableResponse.data || []).map(d => ({
-      ...d,
-      selected: true,
-      quantity: d.quantity ?? 1,
-      instructions:
-        buildInstructionText(d.prescription, getTranslation, getEnumTranslation) ||
-        d.instructions ||
-        '',
-    }));
+    const nextItems = dispensableData.map(d => {
+      const { quantity, prescription, instructions } = d;
+      return {
+        ...d,
+        selected: true,
+        quantity: quantity ?? 1,
+        instructions:
+          buildInstructionText(prescription, getTranslation, getEnumTranslation) ||
+          instructions ||
+          '',
+      };
+    });
     setItems(nextItems);
     setItemErrors({});
   }, [open, dispensableResponse]);
@@ -233,13 +243,11 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
     onClose();
   };
 
-  const handleSelectAll = event => {
-    const checked = event.target.checked;
+  const handleSelectAll = ({ target: { checked } }) => {
     setItems(prev => prev.map(i => ({ ...i, selected: checked })));
   };
 
-  const handleSelectRow = rowIndex => event => {
-    const checked = event.target.checked;
+  const handleSelectRow = rowIndex => ({ target: { checked } }) => {
     setItems(prev => {
       const next = [...prev];
       next[rowIndex] = { ...next[rowIndex], selected: checked };
@@ -247,16 +255,16 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
     });
   };
 
-  const selectAllChecked = items.length > 0 && items.every(i => i.selected);
+  const selectAllChecked = items.length > 0 && items.every(({ selected }) => selected);
 
-  const handleQuantityChange = (rowIndex, event) => {
+  const handleQuantityChange = (rowIndex, { target: { value: rawValue } }) => {
     setItems(prev => {
       const next = [...prev];
       const current = next[rowIndex];
       if (!current) return prev;
 
-      const raw = event.target.value;
-      const value = raw === '' ? '' : parseInt(raw, 10);
+      const value = rawValue === '' ? '' : parseInt(rawValue, 10);
+      const { id, selected } = current;
       next[rowIndex] = {
         ...current,
         quantity: value,
@@ -264,9 +272,9 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
 
       setItemErrors(prevErrors => ({
         ...prevErrors,
-        [current.id]: {
-          ...prevErrors[current.id],
-          hasQuantityError: current.selected && (!value || value <= 0),
+        [id]: {
+          ...prevErrors[id],
+          hasQuantityError: selected && (!value || value <= 0),
         },
       }));
 
@@ -274,13 +282,13 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
     });
   };
 
-  const handleInstructionsChange = (rowIndex, event) => {
+  const handleInstructionsChange = (rowIndex, { target: { value } }) => {
     setItems(prev => {
       const next = [...prev];
       const current = next[rowIndex];
       if (!current) return prev;
 
-      const value = event.target.value;
+      const { id, selected } = current;
       next[rowIndex] = {
         ...current,
         instructions: value,
@@ -288,9 +296,9 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
 
       setItemErrors(prevErrors => ({
         ...prevErrors,
-        [current.id]: {
-          ...prevErrors[current.id],
-          hasInstructionsError: current.selected && !String(value || '').trim(),
+        [id]: {
+          ...prevErrors[id],
+          hasInstructionsError: selected && !String(value || '').trim(),
         },
       }));
 
@@ -305,14 +313,14 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
     if (currentSelectedItems.length === 0) isValid = false;
 
     const newErrors = {};
-    currentItems.forEach(i => {
-      if (!i.selected) {
-        newErrors[i.id] = { hasQuantityError: false, hasInstructionsError: false };
+    currentItems.forEach(({ id, selected, quantity, instructions }) => {
+      if (!selected) {
+        newErrors[id] = { hasQuantityError: false, hasInstructionsError: false };
       } else {
-        const hasQuantityError = !i.quantity || i.quantity <= 0;
-        const hasInstructionsError = !String(i.instructions || '').trim();
+        const hasQuantityError = !quantity || quantity <= 0;
+        const hasInstructionsError = !String(instructions || '').trim();
         if (hasQuantityError || hasInstructionsError) isValid = false;
-        newErrors[i.id] = { hasQuantityError, hasInstructionsError };
+        newErrors[id] = { hasQuantityError, hasInstructionsError };
       }
     });
 
@@ -331,7 +339,9 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
   };
 
   const prescriptionIdsForLabels =
-    step === MODAL_STEPS.REVIEW ? selectedItems.map(i => i.prescription?.id).filter(Boolean) : [];
+    step === MODAL_STEPS.REVIEW
+      ? selectedItems.map(({ prescription }) => prescription?.id).filter(Boolean)
+      : [];
 
   const { data: prescriptionDetailsById, isLoading: isLoadingDetails } = useQuery(
     ['dispensePrescriptionDetails', prescriptionIdsForLabels, facilityId],
@@ -393,10 +403,10 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
 
     await api.post('medication/dispense', {
       dispensedByUserId,
-      items: selectedItems.map(i => ({
-        pharmacyOrderPrescriptionId: i.id,
-        quantity: i.quantity,
-        instructions: i.instructions,
+      items: selectedItems.map(({ id, quantity, instructions }) => ({
+        pharmacyOrderPrescriptionId: id,
+        quantity,
+        instructions,
       })),
     });
 
@@ -423,9 +433,9 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
             data-testid="dispense-select-all-checkbox"
           />
         ),
-        accessor: (rowData, rowIndex) => (
+        accessor: ({ selected }, rowIndex) => (
           <CheckInput
-            value={rowData.selected}
+            value={selected}
             onChange={handleSelectRow(rowIndex)}
             style={{ margin: 'auto' }}
             data-testid={`dispense-row-checkbox-${rowIndex}`}
@@ -441,13 +451,13 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
             fallback="Prescription date"
           />
         ),
-        accessor: rowData => <Box>{formatShort(rowData.prescriptionDate)}</Box>,
+        accessor: ({ prescriptionDate }) => <Box>{formatShort(prescriptionDate)}</Box>,
       },
       {
         key: 'medication',
         width: '250px',
         title: <TranslatedText stringId="medication.medication.label" fallback="Medication" />,
-        accessor: rowData => rowData.prescription?.medication?.name || '-',
+        accessor: ({ prescription }) => prescription?.medication?.name || '-',
       },
       {
         key: 'quantity',
@@ -461,17 +471,17 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
             </Box>
           </>
         ),
-        accessor: (rowData, rowIndex) => {
-          const hasQuantityError = itemErrors[rowData.id]?.hasQuantityError || false;
+        accessor: ({ id, quantity, selected }, rowIndex) => {
+          const hasQuantityError = itemErrors[id]?.hasQuantityError || false;
           return (
             <QuantityInput
-              value={rowData.quantity}
+              value={quantity}
               onChange={e => handleQuantityChange(rowIndex, e)}
               error={showValidationErrors && hasQuantityError}
-              disabled={!rowData.selected}
+              disabled={!selected}
               InputProps={{ inputProps: { min: 1 } }}
               data-testid="dispense-quantity"
-              required={rowData.selected}
+              required={selected}
               helperText={
                 showValidationErrors && hasQuantityError
                   ? getTranslation('validation.required.inline', '*Required')
@@ -490,7 +500,7 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
             fallback="Remaining repeats"
           />
         ),
-        accessor: rowData => rowData.remainingRepeats ?? 0,
+        accessor: ({ remainingRepeats }) => remainingRepeats ?? 0,
       },
       {
         key: 'instructions',
@@ -503,15 +513,15 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
             </Box>
           </>
         ),
-        accessor: (rowData, rowIndex) => {
-          const hasInstructionsError = itemErrors[rowData.id]?.hasInstructionsError || false;
+        accessor: ({ id, instructions, selected }, rowIndex) => {
+          const hasInstructionsError = itemErrors[id]?.hasInstructionsError || false;
           return (
             <InstructionsInput
-              value={rowData.instructions}
+              value={instructions}
               onChange={e => handleInstructionsChange(rowIndex, e)}
               error={showValidationErrors && hasInstructionsError}
-              required={rowData.selected}
-              disabled={!rowData.selected}
+              required={selected}
+              disabled={!selected}
               testId="dispense-instructions"
               helperText={
                 showValidationErrors && hasInstructionsError
@@ -528,9 +538,9 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
         title: (
           <TranslatedText stringId="medication.dispense.lastDispensed" fallback="Last dispensed" />
         ),
-        accessor: rowData =>
-          rowData.lastDispensedAt ? (
-            <DateDisplay date={rowData.lastDispensedAt} />
+        accessor: ({ lastDispensedAt }) =>
+          lastDispensedAt ? (
+            <DateDisplay date={lastDispensedAt} />
           ) : (
             <TranslatedText
               stringId="general.fallback.notApplicable"
@@ -551,17 +561,18 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
             fallback="Stock"
           />
         ),
-        accessor: rowData => {
-          const status = getStockStatus(rowData.stock);
+        accessor: ({ stock }) => {
+          const status = getStockStatus(stock);
           const content = <TranslatedEnum value={status} enumValues={STOCK_STATUS_LABELS} />;
           if (status === STOCK_STATUSES.YES) {
+            const { quantity: stockQuantity } = stock || {};
             return (
               <ThemedTooltip
                 title={
                   <TranslatedText
                     stringId="medication.stockLevel.tooltip"
                     fallback="Stock level: :quantity units"
-                    replacements={{ quantity: rowData.stock.quantity }}
+                    replacements={{ quantity: stockQuantity }}
                   />
                 }
               >
