@@ -475,6 +475,11 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
             InputProps={{ inputProps: { min: 1 } }}
             data-testid="dispense-quantity"
             required={rowData.selected}
+            helperText={
+              showValidationErrors && rowData.hasQuantityError
+                ? getTranslation('validation.required.inline', '*Required')
+                : ''
+            }
           />
         ),
       },
@@ -508,6 +513,11 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
             required={rowData.selected}
             disabled={!rowData.selected}
             testId="dispense-instructions"
+            helperText={
+              showValidationErrors && rowData.hasInstructionsError
+                ? getTranslation('validation.required.inline', '*Required')
+                : ''
+            }
           />
         ),
       },
@@ -564,6 +574,7 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
     handleQuantityChange,
     handleInstructionsChange,
     showValidationErrors,
+    getTranslation,
   ]);
 
   const isDispenseDisabled = useMemo(() => {
