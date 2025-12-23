@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState, memo } from 'react';
+import React, { useEffect, useState, memo } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
@@ -145,26 +145,20 @@ const getStockStatus = stock => {
 
 const InstructionsInput = memo(({ value: defaultValue, onChange, ...props }) => {
   const [value, setValue] = useState(defaultValue);
-  const handleChange = useCallback(
-    e => {
-      setValue(e.target.value);
-      onChange(e);
-    },
-    [onChange],
-  );
+  const handleChange = e => {
+    setValue(e.target.value);
+    onChange(e);
+  };
 
   return <TextInput {...props} value={value} onChange={handleChange} />;
 });
 
 const QuantityInput = memo(({ value: defaultValue, onChange, ...props }) => {
   const [value, setValue] = useState(defaultValue);
-  const handleChange = useCallback(
-    e => {
-      setValue(e.target.value);
-      onChange(e);
-    },
-    [onChange],
-  );
+  const handleChange = e => {
+    setValue(e.target.value);
+    onChange(e);
+  };
 
   return <TextInput {...props} type="number" value={value} onChange={handleChange} />;
 });
@@ -198,8 +192,8 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
     { enabled: Boolean(open) && Boolean(facilityId) },
   );
 
-  const selectedItems = useMemo(() => items.filter(i => i.selected), [items]);
-  const stockColumnEnabled = useMemo(() => items.some(i => i.stock), [items]);
+  const selectedItems = items.filter(i => i.selected);
+  const stockColumnEnabled = items.some(i => i.stock);
 
   useEffect(() => {
     if (open) {
@@ -229,7 +223,7 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
     setItemErrors({});
   }, [open, dispensableResponse]);
 
-  const handleClose = useCallback(() => {
+  const handleClose = () => {
     setItems([]);
     setItemErrors({});
     setStep(MODAL_STEPS.DISPENSE);
@@ -237,28 +231,25 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
     setShowPrintModal(false);
     setLabelsForPrint([]);
     onClose();
-  }, [onClose]);
+  };
 
-  const handleSelectAll = useCallback(event => {
+  const handleSelectAll = event => {
     const checked = event.target.checked;
     setItems(prev => prev.map(i => ({ ...i, selected: checked })));
-  }, []);
+  };
 
-  const handleSelectRow = useCallback(
-    rowIndex => event => {
-      const checked = event.target.checked;
-      setItems(prev => {
-        const next = [...prev];
-        next[rowIndex] = { ...next[rowIndex], selected: checked };
-        return next;
-      });
-    },
-    [],
-  );
+  const handleSelectRow = rowIndex => event => {
+    const checked = event.target.checked;
+    setItems(prev => {
+      const next = [...prev];
+      next[rowIndex] = { ...next[rowIndex], selected: checked };
+      return next;
+    });
+  };
 
-  const selectAllChecked = useMemo(() => items.length > 0 && items.every(i => i.selected), [items]);
+  const selectAllChecked = items.length > 0 && items.every(i => i.selected);
 
-  const handleQuantityChange = useCallback((rowIndex, event) => {
+  const handleQuantityChange = (rowIndex, event) => {
     setItems(prev => {
       const next = [...prev];
       const current = next[rowIndex];
@@ -281,9 +272,9 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
 
       return next;
     });
-  }, []);
+  };
 
-  const handleInstructionsChange = useCallback((rowIndex, event) => {
+  const handleInstructionsChange = (rowIndex, event) => {
     setItems(prev => {
       const next = [...prev];
       const current = next[rowIndex];
@@ -305,33 +296,30 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
 
       return next;
     });
-  }, []);
+  };
 
-  const validateDispenseStep = useCallback(
-    (currentItems, currentSelectedItems, currentDispensedByUserId) => {
-      let isValid = true;
+  const validateDispenseStep = (currentItems, currentSelectedItems, currentDispensedByUserId) => {
+    let isValid = true;
 
-      if (!currentDispensedByUserId) isValid = false;
-      if (currentSelectedItems.length === 0) isValid = false;
+    if (!currentDispensedByUserId) isValid = false;
+    if (currentSelectedItems.length === 0) isValid = false;
 
-      const newErrors = {};
-      currentItems.forEach(i => {
-        if (!i.selected) {
-          newErrors[i.id] = { hasQuantityError: false, hasInstructionsError: false };
-        } else {
-          const hasQuantityError = !i.quantity || i.quantity <= 0;
-          const hasInstructionsError = !String(i.instructions || '').trim();
-          if (hasQuantityError || hasInstructionsError) isValid = false;
-          newErrors[i.id] = { hasQuantityError, hasInstructionsError };
-        }
-      });
+    const newErrors = {};
+    currentItems.forEach(i => {
+      if (!i.selected) {
+        newErrors[i.id] = { hasQuantityError: false, hasInstructionsError: false };
+      } else {
+        const hasQuantityError = !i.quantity || i.quantity <= 0;
+        const hasInstructionsError = !String(i.instructions || '').trim();
+        if (hasQuantityError || hasInstructionsError) isValid = false;
+        newErrors[i.id] = { hasQuantityError, hasInstructionsError };
+      }
+    });
 
-      return { isValid, newErrors };
-    },
-    [],
-  );
+    return { isValid, newErrors };
+  };
 
-  const handleReview = useCallback(() => {
+  const handleReview = () => {
     const { isValid, newErrors } = validateDispenseStep(items, selectedItems, dispensedByUserId);
     setItemErrors(newErrors);
     if (!isValid) {
@@ -340,13 +328,10 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
     }
     setShowValidationErrors(false);
     setStep(MODAL_STEPS.REVIEW);
-  }, [validateDispenseStep, items, selectedItems, dispensedByUserId]);
+  };
 
-  const prescriptionIdsForLabels = useMemo(
-    () =>
-      step === MODAL_STEPS.REVIEW ? selectedItems.map(i => i.prescription?.id).filter(Boolean) : [],
-    [selectedItems, step],
-  );
+  const prescriptionIdsForLabels =
+    step === MODAL_STEPS.REVIEW ? selectedItems.map(i => i.prescription?.id).filter(Boolean) : [];
 
   const { data: prescriptionDetailsById, isLoading: isLoadingDetails } = useQuery(
     ['dispensePrescriptionDetails', prescriptionIdsForLabels, facilityId],
@@ -366,40 +351,38 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
     },
   );
 
-  const reviewLabels = useMemo(() => {
-    return selectedItems.map(item => {
-      const prescription = item.prescription;
-      const details = prescriptionDetailsById?.[prescription?.id];
-      const prescriberName = details?.prescriber?.displayName || details?.prescriber?.name || '-';
+  const reviewLabels = selectedItems.map(item => {
+    const prescription = item.prescription;
+    const details = prescriptionDetailsById?.[prescription?.id];
+    const prescriberName = details?.prescriber?.displayName || details?.prescriber?.name || '-';
 
-      const repeatsAfterDispense = item.lastDispensedAt
-        ? Math.max(0, (item.remainingRepeats ?? 0) - 1)
-        : item.remainingRepeats ?? 0;
+    const repeatsAfterDispense = item.lastDispensedAt
+      ? Math.max(0, (item.remainingRepeats ?? 0) - 1)
+      : item.remainingRepeats ?? 0;
 
-      const requestNumber = item.displayId || '-';
-      const facilityAddress = [facility?.streetAddress, facility?.cityTown]
-        .filter(Boolean)
-        .join(', ');
+    const requestNumber = item.displayId || '-';
+    const facilityAddress = [facility?.streetAddress, facility?.cityTown]
+      .filter(Boolean)
+      .join(', ');
 
-      return {
-        id: item.id,
-        medicationName: prescription?.medication?.name || '-',
-        instructions: item.instructions || '',
-        patientName: patient ? getPatientNameAsString(patient) : '-',
-        dispensedAt: new Date().toISOString(),
-        quantity: item.quantity,
-        units: prescription?.units || '',
-        repeatsRemaining: repeatsAfterDispense,
-        prescriberName,
-        requestNumber,
-        facilityName: facility?.name || '',
-        facilityAddress,
-        facilityContactNumber: facility?.contactNumber || '',
-      };
-    });
-  }, [selectedItems, prescriptionDetailsById, patient, facility]);
+    return {
+      id: item.id,
+      medicationName: prescription?.medication?.name || '-',
+      instructions: item.instructions || '',
+      patientName: patient ? getPatientNameAsString(patient) : '-',
+      dispensedAt: new Date().toISOString(),
+      quantity: item.quantity,
+      units: prescription?.units || '',
+      repeatsRemaining: repeatsAfterDispense,
+      prescriberName,
+      requestNumber,
+      facilityName: facility?.name || '',
+      facilityAddress,
+      facilityContactNumber: facility?.contactNumber || '',
+    };
+  });
 
-  const handleDispenseAndPrint = useCallback(async () => {
+  const handleDispenseAndPrint = async () => {
     const { isValid, newErrors } = validateDispenseStep(items, selectedItems, dispensedByUserId);
     setItemErrors(newErrors);
     if (!isValid) {
@@ -425,18 +408,9 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
     // Close dispense modal and open print modal
     setShowPrintModal(true);
     onClose();
-  }, [
-    api,
-    dispensedByUserId,
-    selectedItems,
-    items,
-    queryClient,
-    validateDispenseStep,
-    reviewLabels,
-    onClose,
-  ]);
+  };
 
-  const columns = useMemo(() => {
+  const columns = (() => {
     const base = [
       {
         key: 'select',
@@ -601,22 +575,9 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
     }
 
     return base;
-  }, [
-    handleSelectAll,
-    handleSelectRow,
-    selectAllChecked,
-    stockColumnEnabled,
-    handleQuantityChange,
-    handleInstructionsChange,
-    showValidationErrors,
-    getTranslation,
-    itemErrors,
-  ]);
+  })();
 
-  const isDispenseDisabled = useMemo(() => {
-    if (step !== MODAL_STEPS.REVIEW) return false;
-    return isLoadingDetails;
-  }, [step, isLoadingDetails]);
+  const isDispenseDisabled = step === MODAL_STEPS.REVIEW && isLoadingDetails;
 
   const title =
     step === MODAL_STEPS.REVIEW ? (
