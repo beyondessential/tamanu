@@ -179,6 +179,7 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
   const [step, setStep] = useState(MODAL_STEPS.DISPENSE);
   const [dispensedByUserId, setDispensedByUserId] = useState('');
   const [items, setItems] = useState([]);
+  const [itemErrors, setItemErrors] = useState({});
   const [showValidationErrors, setShowValidationErrors] = useState(false);
   const [showPrintModal, setShowPrintModal] = useState(false);
   const [labelsForPrint, setLabelsForPrint] = useState([]);
@@ -223,14 +224,14 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
         buildInstructionText(d.prescription, getTranslation, getEnumTranslation) ||
         d.instructions ||
         '',
-      hasQuantityError: false,
-      hasInstructionsError: false,
     }));
     setItems(nextItems);
+    setItemErrors({});
   }, [open, dispensableResponse]);
 
   const handleClose = useCallback(() => {
     setItems([]);
+    setItemErrors({});
     setStep(MODAL_STEPS.DISPENSE);
     setShowValidationErrors(false);
     setShowPrintModal(false);
@@ -268,8 +269,16 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
       next[rowIndex] = {
         ...current,
         quantity: value,
-        hasQuantityError: current.selected && (!value || value <= 0),
       };
+
+      setItemErrors(prevErrors => ({
+        ...prevErrors,
+        [current.id]: {
+          ...prevErrors[current.id],
+          hasQuantityError: current.selected && (!value || value <= 0),
+        },
+      }));
+
       return next;
     });
   }, []);
@@ -284,41 +293,54 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
       next[rowIndex] = {
         ...current,
         instructions: value,
-        hasInstructionsError: current.selected && !String(value || '').trim(),
       };
+
+      setItemErrors(prevErrors => ({
+        ...prevErrors,
+        [current.id]: {
+          ...prevErrors[current.id],
+          hasInstructionsError: current.selected && !String(value || '').trim(),
+        },
+      }));
+
       return next;
     });
   }, []);
 
-  const validateDispenseStep = useCallback(() => {
-    let valid = true;
+  const validateDispenseStep = useCallback(
+    (currentItems, currentSelectedItems, currentDispensedByUserId) => {
+      let isValid = true;
 
-    if (!dispensedByUserId) valid = false;
-    if (selectedItems.length === 0) valid = false;
+      if (!currentDispensedByUserId) isValid = false;
+      if (currentSelectedItems.length === 0) isValid = false;
 
-    setItems(prev =>
-      prev.map(i => {
+      const newErrors = {};
+      currentItems.forEach(i => {
         if (!i.selected) {
-          return { ...i, hasQuantityError: false, hasInstructionsError: false };
+          newErrors[i.id] = { hasQuantityError: false, hasInstructionsError: false };
+        } else {
+          const hasQuantityError = !i.quantity || i.quantity <= 0;
+          const hasInstructionsError = !String(i.instructions || '').trim();
+          if (hasQuantityError || hasInstructionsError) isValid = false;
+          newErrors[i.id] = { hasQuantityError, hasInstructionsError };
         }
-        const hasQuantityError = !i.quantity || i.quantity <= 0;
-        const hasInstructionsError = !String(i.instructions || '').trim();
-        if (hasQuantityError || hasInstructionsError) valid = false;
-        return { ...i, hasQuantityError, hasInstructionsError };
-      }),
-    );
+      });
 
-    return valid;
-  }, [dispensedByUserId, selectedItems.length]);
+      return { isValid, newErrors };
+    },
+    [],
+  );
 
   const handleReview = useCallback(() => {
-    if (!validateDispenseStep()) {
+    const { isValid, newErrors } = validateDispenseStep(items, selectedItems, dispensedByUserId);
+    setItemErrors(newErrors);
+    if (!isValid) {
       setShowValidationErrors(true);
       return;
     }
     setShowValidationErrors(false);
     setStep(MODAL_STEPS.REVIEW);
-  }, [validateDispenseStep, selectedItems.length]);
+  }, [validateDispenseStep, items, selectedItems, dispensedByUserId]);
 
   const prescriptionIdsForLabels = useMemo(
     () =>
@@ -378,8 +400,11 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
   }, [selectedItems, prescriptionDetailsById, patient, facility]);
 
   const handleDispenseAndPrint = useCallback(async () => {
-    if (!validateDispenseStep()) {
+    const { isValid, newErrors } = validateDispenseStep(items, selectedItems, dispensedByUserId);
+    setItemErrors(newErrors);
+    if (!isValid) {
       setStep(MODAL_STEPS.DISPENSE);
+      setShowValidationErrors(true);
       return;
     }
 
@@ -404,6 +429,7 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
     api,
     dispensedByUserId,
     selectedItems,
+    items,
     queryClient,
     validateDispenseStep,
     reviewLabels,
@@ -461,22 +487,25 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
             </Box>
           </>
         ),
-        accessor: (rowData, rowIndex) => (
-          <QuantityInput
-            value={rowData.quantity}
-            onChange={e => handleQuantityChange(rowIndex, e)}
-            error={showValidationErrors && rowData.hasQuantityError}
-            disabled={!rowData.selected}
-            InputProps={{ inputProps: { min: 1 } }}
-            data-testid="dispense-quantity"
-            required={rowData.selected}
-            helperText={
-              showValidationErrors && rowData.hasQuantityError
-                ? getTranslation('validation.required.inline', '*Required')
-                : ''
-            }
-          />
-        ),
+        accessor: (rowData, rowIndex) => {
+          const hasQuantityError = itemErrors[rowData.id]?.hasQuantityError || false;
+          return (
+            <QuantityInput
+              value={rowData.quantity}
+              onChange={e => handleQuantityChange(rowIndex, e)}
+              error={showValidationErrors && hasQuantityError}
+              disabled={!rowData.selected}
+              InputProps={{ inputProps: { min: 1 } }}
+              data-testid="dispense-quantity"
+              required={rowData.selected}
+              helperText={
+                showValidationErrors && hasQuantityError
+                  ? getTranslation('validation.required.inline', '*Required')
+                  : ''
+              }
+            />
+          );
+        },
       },
       {
         key: 'remainingRepeats',
@@ -500,21 +529,24 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
             </Box>
           </>
         ),
-        accessor: (rowData, rowIndex) => (
-          <InstructionsInput
-            value={rowData.instructions}
-            onChange={e => handleInstructionsChange(rowIndex, e)}
-            error={showValidationErrors && rowData.hasInstructionsError}
-            required={rowData.selected}
-            disabled={!rowData.selected}
-            testId="dispense-instructions"
-            helperText={
-              showValidationErrors && rowData.hasInstructionsError
-                ? getTranslation('validation.required.inline', '*Required')
-                : ''
-            }
-          />
-        ),
+        accessor: (rowData, rowIndex) => {
+          const hasInstructionsError = itemErrors[rowData.id]?.hasInstructionsError || false;
+          return (
+            <InstructionsInput
+              value={rowData.instructions}
+              onChange={e => handleInstructionsChange(rowIndex, e)}
+              error={showValidationErrors && hasInstructionsError}
+              required={rowData.selected}
+              disabled={!rowData.selected}
+              testId="dispense-instructions"
+              helperText={
+                showValidationErrors && hasInstructionsError
+                  ? getTranslation('validation.required.inline', '*Required')
+                  : ''
+              }
+            />
+          );
+        },
       },
       {
         key: 'lastDispensedAt',
@@ -578,6 +610,7 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
     handleInstructionsChange,
     showValidationErrors,
     getTranslation,
+    itemErrors,
   ]);
 
   const isDispenseDisabled = useMemo(() => {
