@@ -36,6 +36,7 @@ import { Colors } from '../../constants';
 import { BodyText } from '../Typography';
 import { MedicationLabelPrintModal } from '../PatientPrinting/modals/MedicationLabelPrintModal';
 import { MedicationLabel } from '../PatientPrinting/printouts/MedicationLabel';
+import { capitalize } from 'lodash';
 
 const MODAL_STEPS = {
   DISPENSE: 'dispense',
@@ -106,41 +107,35 @@ const buildInstructionText = (prescription, getTranslation, getEnumTranslation) 
     notes,
   } = prescription;
 
-  const dose = getMedicationDoseDisplay(prescription, getTranslation, getEnumTranslation);
+  const dose = getMedicationDoseDisplay(prescription, getTranslation, getEnumTranslation).toLowerCase();
   const frequency = prescriptionFrequency
     ? getTranslatedFrequency(prescriptionFrequency, getTranslation)
     : null;
   const route = prescriptionRoute ? getEnumTranslation(DRUG_ROUTE_LABELS, prescriptionRoute) : null;
 
-  const duration =
-    durationValue && durationUnit
-      ? (() => {
-          const unitLabel = getEnumTranslation(
-            MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
-            durationUnit,
-          );
-          return `${durationValue} ${singularize(unitLabel, durationValue).toLowerCase()}`;
-        })()
-      : null;
+  const unitLabel = getEnumTranslation(
+    MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
+    durationUnit,
+  );
+
+  const duration = durationValue && durationUnit ? `${durationValue} ${singularize(unitLabel, durationValue).toLowerCase()}` : null;
 
   const base = [];
   if (dose) base.push(dose);
   if (frequency) base.push(frequency);
-  let out = base.join(' ').trim();
+  let output = base.join(' ').trim();
 
-  if (route) out += `${out ? ',' : ''} ${route}`;
-  if (duration) out += `${out ? ' for ' : ''}${duration}`;
-  if (indication) out += `${out ? ', ' : ''}for ${indication}`;
+  const forText = getTranslation('medication.dispense.for', 'for');
 
-  out = out.trim();
+  if (route) output += `${output ? ',' : ''} ${route}`;
+  if (duration) output += `${output ? ` ${forText} ` : ''}${duration}`;
+  if (indication) output += `${output ? `, ${capitalize(forText)} ` : ''}${indication}`;
+  if (output && !output.endsWith('.')) output += '.';
+
   if (notes) {
-    const trimmedNotes = String(notes).trim();
-    out = `${out}${out ? '. ' : ''}${trimmedNotes}`;
+    output = `${output}${output ? ' ' : ''}${String(notes).trim()}`;
   }
-
-  out = out.trim();
-  if (out && !out.endsWith('.')) out += '.';
-  return out;
+  return output.trim();
 };
 
 const getStockStatus = stock => {
