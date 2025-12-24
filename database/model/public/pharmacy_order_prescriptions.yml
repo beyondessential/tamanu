@@ -32,7 +32,7 @@ sources:
             data_tests:
               - not_null
           - name: display_id
-            data_type: character varying
+            data_type: character varying(255)
             description: "{{ doc('pharmacy_order_prescriptions__display_id') }}"
           - name: quantity
             data_type: integer
