@@ -50,7 +50,7 @@ medication.get(
     const { PharmacyOrderPrescription } = models;
 
     const pharmacyOrderPrescriptions = await PharmacyOrderPrescription.findAll({
-      attributes: ['id', 'quantity', 'repeats', 'createdAt'],
+      attributes: ['id', 'displayId', 'quantity', 'repeats', 'createdAt'],
       include: [
         {
           association: 'pharmacyOrder',
@@ -148,6 +148,7 @@ medication.get(
 
       return {
         id: pop.id,
+        displayId: pop.displayId,
         prescriptionDate: pop.createdAt,
         prescription: pop.prescription,
         quantity: pop.quantity,
@@ -220,6 +221,10 @@ medication.post(
             where: { deletedAt: null },
             required: false,
           },
+          {
+            association: 'pharmacyOrder',
+            attributes: ['id', 'isDischargePrescription'],
+          }
         ],
         lock: {
           level: transaction.LOCK.UPDATE,
