@@ -144,6 +144,10 @@ const getStockStatus = stock => {
   return quantity > 0 ? STOCK_STATUSES.YES : STOCK_STATUSES.NO;
 };
 
+const isItemDisabled = item => {
+  return item.isDischargePrescription && (item.remainingRepeats ?? 0) === 0;
+};
+
 const InstructionsInput = memo(({ value: defaultValue, onChange, ...props }) => {
   const [value, setValue] = useState(defaultValue);
   const handleChange = e => {
@@ -216,7 +220,7 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
       const { quantity, prescription, instructions } = d;
       return {
         ...d,
-        selected: true,
+        selected: !isItemDisabled(d), // Don't auto-select disabled items
         quantity: quantity ?? 1,
         instructions:
           buildInstructionText(prescription, getTranslation, getEnumTranslation) ||
@@ -239,7 +243,7 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
   };
 
   const handleSelectAll = ({ target: { checked } }) => {
-    setItems(prev => prev.map(i => ({ ...i, selected: checked })));
+    setItems(prev => prev.map(i => ({ ...i, selected: !isItemDisabled(i) ? checked : false })));
   };
 
   const handleSelectRow = rowIndex => ({ target: { checked } }) => {
@@ -250,7 +254,8 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
     });
   };
 
-  const selectAllChecked = items.length > 0 && items.every(({ selected }) => selected);
+  const selectableItems = items.filter(i => !isItemDisabled(i));
+  const selectAllChecked = selectableItems.length > 0 && selectableItems.every(({ selected }) => selected);
 
   const handleQuantityChange = (rowIndex, { target: { value: rawValue } }) => {
     setItems(prev => {
@@ -322,17 +327,6 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
     return { isValid, newErrors };
   };
 
-  const handleReview = () => {
-    const { isValid, newErrors } = validateDispenseStep(items, selectedItems, dispensedByUserId);
-    setItemErrors(newErrors);
-    if (!isValid) {
-      setShowValidationErrors(true);
-      return;
-    }
-    setShowValidationErrors(false);
-    setStep(MODAL_STEPS.REVIEW);
-  };
-
   const prescriptionIdsForLabels =
     step === MODAL_STEPS.REVIEW
       ? selectedItems.map(({ prescription }) => prescription?.id).filter(Boolean)
@@ -356,36 +350,49 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
     },
   );
 
-  const reviewLabels = selectedItems.map(item => {
-    const prescription = item.prescription;
-    const details = prescriptionDetailsById?.[prescription?.id];
-    const prescriberName = details?.prescriber?.displayName || details?.prescriber?.name || '-';
+  const handleReview = () => {
+    const { isValid, newErrors } = validateDispenseStep(items, selectedItems, dispensedByUserId);
+    setItemErrors(newErrors);
+    if (!isValid) {
+      setShowValidationErrors(true);
+      return;
+    }
+    setShowValidationErrors(false);
+    setStep(MODAL_STEPS.REVIEW);
 
-    const repeatsAfterDispense = item.lastDispensedAt
-      ? Math.max(0, (item.remainingRepeats ?? 0) - 1)
-      : item.remainingRepeats ?? 0;
-
-    const requestNumber = item.displayId || '-';
-    const facilityAddress = [facility?.streetAddress, facility?.cityTown]
-      .filter(Boolean)
-      .join(', ');
-
-    return {
-      id: item.id,
-      medicationName: prescription?.medication?.name || '-',
-      instructions: item.instructions || '',
-      patientName: patient ? getPatientNameAsString(patient) : '-',
-      dispensedAt: new Date().toISOString(),
-      quantity: item.quantity,
-      units: prescription?.units || '',
-      repeatsRemaining: repeatsAfterDispense,
-      prescriberName,
-      requestNumber,
-      facilityName: facility?.name || '',
-      facilityAddress,
-      facilityContactNumber: facility?.contactNumber || '',
-    };
-  });
+    // Prepare labels for printing
+    const reviewLabels = selectedItems.map(item => {
+      const prescription = item.prescription;
+      const details = prescriptionDetailsById?.[prescription?.id];
+      const prescriberName = details?.prescriber?.displayName || details?.prescriber?.name || '-';
+  
+      const repeatsAfterDispense = item.lastDispensedAt
+        ? Math.max(0, (item.remainingRepeats ?? 0) - 1)
+        : item.remainingRepeats ?? 0;
+  
+      const requestNumber = item.displayId || '-';
+      const facilityAddress = [facility?.streetAddress, facility?.cityTown]
+        .filter(Boolean)
+        .join(', ');
+  
+      return {
+        id: item.id,
+        medicationName: prescription?.medication?.name || '-',
+        instructions: item.instructions || '',
+        patientName: patient ? getPatientNameAsString(patient) : '-',
+        dispensedAt: new Date().toISOString(),
+        quantity: item.quantity,
+        units: prescription?.units || '',
+        repeatsRemaining: repeatsAfterDispense,
+        prescriberName,
+        requestNumber,
+        facilityName: facility?.name || '',
+        facilityAddress,
+        facilityContactNumber: facility?.contactNumber || '',
+      };
+    });
+    setLabelsForPrint(reviewLabels);
+  };
 
   const handleDispenseAndPrint = async () => {
     const { isValid, newErrors } = validateDispenseStep(items, selectedItems, dispensedByUserId);
@@ -407,9 +414,6 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
 
     await queryClient.invalidateQueries({ queryKey: ['dispensableMedications'] });
 
-    // Prepare labels for printing
-    setLabelsForPrint(reviewLabels);
-
     // Close dispense modal and open print modal
     setShowPrintModal(true);
     onClose();
@@ -428,14 +432,17 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
             data-testid="dispense-select-all-checkbox"
           />
         ),
-        accessor: ({ selected }, rowIndex) => (
-          <CheckInput
-            value={selected}
-            onChange={handleSelectRow(rowIndex)}
-            style={{ margin: 'auto' }}
-            data-testid={`dispense-row-checkbox-${rowIndex}`}
-          />
-        ),
+        accessor: (item, rowIndex) => {
+          return (
+            <CheckInput
+              value={item.selected}
+              onChange={handleSelectRow(rowIndex)}
+              style={{ margin: 'auto' }}
+              data-testid={`dispense-row-checkbox-${rowIndex}`}
+              disabled={isItemDisabled(item)}
+            />
+          );
+        },
       },
       {
         key: 'prescriptionDate',
@@ -466,14 +473,16 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
             </Box>
           </>
         ),
-        accessor: ({ id, quantity, selected }, rowIndex) => {
+        accessor: (item, rowIndex) => {
+          const { id, quantity, selected } = item;
           const hasQuantityError = itemErrors[id]?.hasQuantityError || false;
+          const disabled = isItemDisabled(item) || !selected;
           return (
             <QuantityInput
               value={quantity}
               onChange={e => handleQuantityChange(rowIndex, e)}
               error={showValidationErrors && hasQuantityError}
-              disabled={!selected}
+              disabled={disabled}
               InputProps={{ inputProps: { min: 1 } }}
               data-testid="dispense-quantity"
               required={selected}
@@ -508,15 +517,17 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
             </Box>
           </>
         ),
-        accessor: ({ id, instructions, selected }, rowIndex) => {
+        accessor: (item, rowIndex) => {
+          const { id, instructions, selected } = item;
           const hasInstructionsError = itemErrors[id]?.hasInstructionsError || false;
+          const disabled = isItemDisabled(item) || !selected;
           return (
             <InstructionsInput
               value={instructions}
               onChange={e => handleInstructionsChange(rowIndex, e)}
               error={showValidationErrors && hasInstructionsError}
               required={selected}
-              disabled={!selected}
+              disabled={disabled}
               testId="dispense-instructions"
               helperText={
                 showValidationErrors && hasInstructionsError
@@ -682,7 +693,7 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
               />
             </Box>
             <PrintContainer>
-              {reviewLabels.map(label => (
+              {labelsForPrint.map(label => (
                 <MedicationLabel key={label.id} data={label} />
               ))}
             </PrintContainer>

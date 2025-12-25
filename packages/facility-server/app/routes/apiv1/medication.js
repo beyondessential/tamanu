@@ -155,6 +155,7 @@ medication.get(
         remainingRepeats,
         lastDispensedAt,
         stock,
+        isDischargePrescription: pop.pharmacyOrder?.isDischargePrescription,
       };
     });
 
