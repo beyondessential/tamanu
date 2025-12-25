@@ -115,7 +115,13 @@ medication.get(
           where: { deletedAt: null },
           required: false,
           order: [['dispensedAt', 'DESC']],
-        },
+        }, 
+        {
+          association: 'pharmacyOrder',
+          attributes: ['id', 'isDischargePrescription'],
+          required: false,
+          where: { deletedAt: null },
+        }
       ],
       where: {
         deletedAt: null,
@@ -138,7 +144,6 @@ medication.get(
 
     const dispensableMedications = pharmacyOrderPrescriptions.map(pop => {
       const dispenses = pop.medicationDispenses || [];
-      const remainingRepeats = pop.remainingRepeats;
 
       // dispenses are ordered by dispensedAt DESC, so first element is the latest
       const lastDispensedAt = dispenses[0]?.dispensedAt || null;
@@ -151,7 +156,7 @@ medication.get(
         prescriptionDate: pop.createdAt,
         prescription: pop.prescription,
         quantity: pop.quantity,
-        remainingRepeats,
+        remainingRepeats: pop.remainingRepeats,
         lastDispensedAt,
         stock,
       };
@@ -220,6 +225,12 @@ medication.post(
             where: { deletedAt: null },
             required: false,
           },
+          {
+            association: 'pharmacyOrder',
+            attributes: ['id', 'isDischargePrescription'],
+            required: false,
+            where: { deletedAt: null },
+          }
         ],
         lock: {
           level: transaction.LOCK.UPDATE,
