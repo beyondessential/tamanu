@@ -231,14 +231,12 @@ medication.post(
 const importOngoingMedicationsSchema = z
   .object({
     encounterId: z.uuid({ message: 'Valid encounter ID is required' }),
-    // Support both old format (prescriptionIds) and new format (medications)
-    prescriptionIds: z.array(z.uuid({ message: 'Valid prescription ID is required' })).optional(),
     medications: z
       .array(
         z.object({
           prescriptionId: z.uuid({ message: 'Valid prescription ID is required' }),
-          quantity: z.union([z.number(), z.string()]).optional(),
-          repeats: z.union([z.number(), z.string()]).optional(),
+          quantity: z.number(),
+          repeats: z.number().optional(),
         }),
       )
       .optional(),
@@ -252,20 +250,14 @@ medication.post(
     const { models, db } = req;
     const { Encounter, Prescription, PatientOngoingPrescription } = models;
 
-    const { prescriptionIds, medications, prescriberId, encounterId } = validate(
+    const { medications, prescriberId, encounterId } = validate(
       importOngoingMedicationsSchema,
       req.body,
     );
 
     req.checkPermission('create', 'Medication');
 
-    // Support both old format (prescriptionIds) and new format (medications)
-    const medicationsData = medications || prescriptionIds?.map(id => ({ prescriptionId: id }));
-    if (!medicationsData || medicationsData.length === 0) {
-      throw new InvalidOperationError('No medications provided');
-    }
-
-    const prescriptionIdsArray = medicationsData.map(m => m.prescriptionId);
+    const prescriptionIds = medications.map(m => m.prescriptionId);
 
     const encounter = await Encounter.findByPk(encounterId);
     if (!encounter) {
@@ -277,7 +269,7 @@ medication.post(
 
     const ongoingPrescriptions = await Prescription.findAll({
       where: {
-        id: { [Op.in]: prescriptionIdsArray },
+        id: { [Op.in]: prescriptionIds },
         discontinued: { [Op.not]: true },
       },
       include: [
@@ -291,9 +283,9 @@ medication.post(
       ],
     });
 
-    if (ongoingPrescriptions.length !== prescriptionIdsArray.length) {
+    if (ongoingPrescriptions.length !== prescriptionIds.length) {
       const foundIds = new Set(ongoingPrescriptions.map(p => p.id));
-      const missingIds = prescriptionIdsArray.filter(id => !foundIds.has(id));
+      const missingIds = prescriptionIds.filter(id => !foundIds.has(id));
       throw new InvalidOperationError(
         `Prescription(s) with id(s) ${missingIds.join(
           ', ',
@@ -313,17 +305,7 @@ medication.post(
 
       for (const prescription of importPrescriptions) {
         // Find the corresponding medication data with quantity and repeats
-        const medicationData = medicationsData.find(m => m.prescriptionId === prescription.id);
-
-        // Parse quantity and repeats, treating empty strings as null/undefined
-        const quantity =
-          medicationData?.quantity !== undefined && medicationData.quantity !== ''
-            ? Number(medicationData.quantity)
-            : undefined;
-        const repeats =
-          medicationData?.repeats !== undefined
-            ? Number(medicationData.repeats)
-            : undefined;
+        const { quantity, repeats } = medications.find(m => m.prescriptionId === prescription.id);
 
         const newPrescription = await createEncounterPrescription({
           encounter,
@@ -335,8 +317,8 @@ medication.post(
             date: getCurrentDateTimeString(),
             startDate: getCurrentDateTimeString(),
             // Override quantity and repeats if provided
-            ...(quantity !== undefined && { quantity }),
-            ...(repeats !== undefined && { repeats }),
+            quantity,
+            repeats,
           },
           models,
         });
