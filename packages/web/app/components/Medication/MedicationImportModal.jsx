@@ -26,6 +26,12 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
 import { createPrescriptionHash } from '../../utils/medications';
 
+const StyledModal = styled(Modal)`
+  .MuiDialog-paper {
+    max-width: 930px;
+  }
+`;
+
 const DarkestText = styled(Box)`
   color: ${Colors.darkestText};
   font-size: 14px;
@@ -50,13 +56,13 @@ const StyledTableFormFields = styled(TableFormFields)`
     font-weight: 400;
     color: ${Colors.midText};
     height: 44px;
-    padding: 0 15px;
+    padding: 0 10px;
   }
 
   tbody tr td {
     font-size: 14px;
     height: 44px;
-    padding: 0 15px;
+    padding: 0 10px;
     text-align: left;
   }
 
@@ -107,6 +113,7 @@ const getColumns = (getTranslation, getEnumTranslation, onFieldChange, showError
     title: (
       <TranslatedText stringId="patient.medication.table.column.medication" fallback="Medication" />
     ),
+    width: '212px',
     accessor: data => (
       <TranslatedReferenceData
         fallback={data?.medication?.name}
@@ -151,7 +158,7 @@ const getColumns = (getTranslation, getEnumTranslation, onFieldChange, showError
         </Box>
       </Box>
     ),
-    width: '130px',
+    width: '115px',
     accessor: data => {
       const selected = selectedRowIds.has(data.id);
       const value = !isEmptyNumber(data.quantity) ? String(data.quantity) : '';
@@ -181,7 +188,7 @@ const getColumns = (getTranslation, getEnumTranslation, onFieldChange, showError
   {
     key: 'repeats',
     title: <TranslatedText stringId="medication.repeats.label" fallback="Repeats" />,
-    width: '102px',
+    width: '100px',
     accessor: data => {
       const selected = selectedRowIds.has(data.id);
       const value = data.repeats !== undefined && data.repeats !== null ? String(data.repeats) : '0';
@@ -343,14 +350,14 @@ export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => 
   };
 
   return (
-    <Modal
+    <StyledModal
       title={
         <TranslatedText
           stringId="medication.modal.import.title"
           fallback="Add ongoing medications"
         />
       }
-      width="xl"
+      width="md"
       open={open}
       onClose={onClose}
     >
@@ -409,6 +416,6 @@ export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => 
           onCancel={onClose}
         />
       </Box>
-    </Modal>
+    </StyledModal>
   );
 };
