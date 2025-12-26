@@ -231,7 +231,15 @@ medication.post(
 const importOngoingMedicationsSchema = z
   .object({
     encounterId: z.uuid({ message: 'Valid encounter ID is required' }),
-    prescriptionIds: z.array(z.uuid({ message: 'Valid prescription ID is required' })),
+    medications: z
+      .array(
+        z.object({
+          prescriptionId: z.uuid({ message: 'Valid prescription ID is required' }),
+          quantity: z.number(),
+          repeats: z.number().optional(),
+        }),
+      )
+      .optional(),
     prescriberId: z.string(),
   })
   .strip();
@@ -242,12 +250,14 @@ medication.post(
     const { models, db } = req;
     const { Encounter, Prescription, PatientOngoingPrescription } = models;
 
-    const { prescriptionIds, prescriberId, encounterId } = validate(
+    const { medications, prescriberId, encounterId } = validate(
       importOngoingMedicationsSchema,
       req.body,
     );
 
     req.checkPermission('create', 'Medication');
+
+    const prescriptionIds = medications.map(m => m.prescriptionId);
 
     const encounter = await Encounter.findByPk(encounterId);
     if (!encounter) {
@@ -294,6 +304,9 @@ medication.post(
       const newPrescriptions = [];
 
       for (const prescription of importPrescriptions) {
+        // Find the corresponding medication data with quantity and repeats
+        const { quantity, repeats } = medications.find(m => m.prescriptionId === prescription.id);
+
         const newPrescription = await createEncounterPrescription({
           encounter,
           data: {
@@ -303,6 +316,9 @@ medication.post(
             prescriberId,
             date: getCurrentDateTimeString(),
             startDate: getCurrentDateTimeString(),
+            // Override quantity and repeats if provided
+            quantity,
+            repeats,
           },
           models,
         });
