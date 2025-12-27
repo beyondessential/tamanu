@@ -19,7 +19,7 @@ import {
   LOCATION_BOOKABLE_VIEW,
   ENCOUNTER_TYPE_LABELS,
   NOTE_TYPES,
-  FACILITY_DRUG_QUANTITY_STATUSES,
+  DRUG_STOCK_STATUSES,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { customAlphabet } from 'nanoid';
@@ -438,7 +438,7 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
                     [Op.notIn]: Sequelize.literal(`(
                       SELECT reference_drug_id FROM reference_drug_facilities
                       WHERE facility_id = ${req.db.escape(facilityId)}
-                      AND quantity = '${FACILITY_DRUG_QUANTITY_STATUSES.UNAVAILABLE}'
+                      AND stock_status = '${DRUG_STOCK_STATUSES.UNAVAILABLE}'
                     )`),
                   },
                 },
