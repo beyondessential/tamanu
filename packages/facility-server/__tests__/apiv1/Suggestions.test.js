@@ -490,7 +490,12 @@ describe('Suggestions', () => {
 
   describe('Other suggesters', () => {
     it('should get suggestions for a medication', async () => {
-      const result = await userApp.get('/api/suggestions/drug?q=a');
+      const facility = await models.Facility.create({
+        id: 'test-facility',
+        code: 'test-facility',
+        name: 'Test Facility',
+      });
+      const result = await userApp.get(`/api/suggestions/drug?q=a&facilityId=${facility.id}`);
       expect(result).toHaveSucceeded();
       const { body } = result;
       expect(body).toBeInstanceOf(Array);
@@ -660,7 +665,7 @@ describe('Suggestions', () => {
     });
 
     it('should return a translated label for a single record if it exists', async () => {
-      const { TranslatedString, ReferenceData } = models;
+      const { Facility, TranslatedString, ReferenceData } = models;
 
       await ReferenceData.create({
         id: 'test-drug',
@@ -675,19 +680,25 @@ describe('Suggestions', () => {
         language: 'en',
       });
 
-      const result = await userApp.get(`/api/suggestions/drug/test-drug?language=en`);
+      const facility = await Facility.create({
+        id: 'test-facility',
+        code: 'test-facility',
+        name: 'Test Facility',
+      });
+
+      const result = await userApp.get(`/api/suggestions/drug/test-drug?language=en&facilityId=${facility.id}`);
       expect(result).toHaveSucceeded();
       expect(result.body.name).toEqual('apple');
 
       await TranslatedString.truncate({ cascade: true, force: true });
 
-      const result2 = await userApp.get(`/api/suggestions/drug/test-drug?language=en`);
+      const result2 = await userApp.get(`/api/suggestions/drug/test-drug?language=en&facilityId=${facility.id}`);
       expect(result2).toHaveSucceeded();
       expect(result2.body.name).toEqual('banana');
     });
 
     it('should only search against translated names if they exist', async () => {
-      const { TranslatedString, ReferenceData } = models;
+      const { Facility, TranslatedString, ReferenceData } = models;
 
       await ReferenceData.create({
         id: 'test-drug',
@@ -702,24 +713,30 @@ describe('Suggestions', () => {
         language: 'en',
       });
 
+      const facility = await Facility.create({
+        id: 'test-facility',
+        code: 'test-facility',
+        name: 'Test Facility',
+      });
+
       // Check that the translated label can be matched through search
-      const result1 = await userApp.get(`/api/suggestions/drug?language=en&q=apple`);
+      const result1 = await userApp.get(`/api/suggestions/drug?language=en&q=apple&facilityId=${facility.id}`);
       expect(result1.body.length).toEqual(1);
       expect(result1.body[0].name).toEqual('apple');
 
       // Check that the original label is not matched since a translated label exists
-      const result2 = await userApp.get(`/api/suggestions/drug?language=en&q=banana`);
+      const result2 = await userApp.get(`/api/suggestions/drug?language=en&q=banana&facilityId=${facility.id}`);
       expect(result2.body.length).toEqual(0);
 
       // Drop the translation and check that the original label is matched
       await TranslatedString.truncate({ cascade: true, force: true });
-      const result3 = await userApp.get(`/api/suggestions/drug?language=en&q=banana`);
+      const result3 = await userApp.get(`/api/suggestions/drug?language=en&q=banana&facilityId=${facility.id}`);
       expect(result3.body.length).toEqual(1);
       expect(result3.body[0].name).toEqual('banana');
     });
 
     it('should order by translated name if it exists', async () => {
-      const { TranslatedString, ReferenceData } = models;
+      const { Facility, TranslatedString, ReferenceData } = models;
 
       // Create 10 reference data records with random names
       const testData = Array.from({ length: 10 }, (_, i) => ({
@@ -730,10 +747,16 @@ describe('Suggestions', () => {
       }));
       await ReferenceData.bulkCreate(testData);
 
+      const facility = await Facility.create({
+        id: 'test-facility',
+        code: 'test-facility',
+        name: 'Test Facility',
+      });
+
       const alphabeticalTestDataNames = sortBy(testData, 'name').map(({ name }) => name);
 
       // Check they order alphabetically
-      const result = await userApp.get('/api/suggestions/drug?q=drug');
+      const result = await userApp.get(`/api/suggestions/drug?q=drug&facilityId=${facility.id}`);
       expect(result).toHaveSucceeded();
       expect(result.body.map(({ name }) => name)).toEqual(alphabeticalTestDataNames);
 
@@ -748,7 +771,7 @@ describe('Suggestions', () => {
       const alphabeticalTranslationText = sortBy(translations, 'text').map(({ text }) => text);
 
       // Check they order by translated name
-      const result2 = await userApp.get('/api/suggestions/drug?q=drug&language=en');
+      const result2 = await userApp.get(`/api/suggestions/drug?q=drug&language=en&facilityId=${facility.id}`);
       expect(result2).toHaveSucceeded();
       expect(result2.body.map(({ name }) => name)).toEqual(alphabeticalTranslationText);
     });
