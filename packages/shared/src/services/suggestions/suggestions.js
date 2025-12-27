@@ -495,7 +495,7 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
                   facilityId: req.query.facilityId,
                 },
                 as: 'facilities',
-                attributes: ['referenceDrugId', 'facilityId', 'quantity'],
+                attributes: ['referenceDrugId', 'facilityId', 'quantity', 'stockStatus'],
                 required: false,
               },
             ],
