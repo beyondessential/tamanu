@@ -135,12 +135,34 @@ const getDateSent = ({ pharmacyOrder }) => (
 const getStockStatus = ({ prescription }) => {
   const status =
     prescription.medication?.referenceDrug?.facilities?.[0]?.stockStatus || STOCK_STATUSES.UNKNOWN;
+  const quantity = prescription.medication?.referenceDrug?.facilities?.[0]?.quantity || 0;
+
   const color = STOCK_STATUS_COLORS[status];
-  return (
+
+  const content = (
     <StyledTag $color={color} noWrap>
       <TranslatedEnum value={status} enumValues={STOCK_STATUS_LABELS} />
     </StyledTag>
   );
+
+  if (status === STOCK_STATUSES.YES) {
+    return (
+      <ThemedTooltip
+        title={
+          <Box maxWidth="75px">
+            <TranslatedText
+              stringId="medication.stockLevel.tooltip"
+              fallback="Stock level: :quantity units"
+              replacements={{ quantity }}
+            />
+          </Box>
+        }
+      >
+        <span>{content}</span>
+      </ThemedTooltip>
+    );
+  }
+  return content;
 };
 
 export const MedicationRequestsTable = () => {
