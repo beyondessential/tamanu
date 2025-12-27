@@ -310,14 +310,8 @@ export const DRUG_STOCK_STATUSES = {
   UNKNOWN: 'unknown',
 };
 
-export const STOCK_STATUSES = {
-  YES: 'yes',
-  NO: 'no',
-  UNKNOWN: 'unknown',
-};
-
-export const STOCK_STATUS_LABELS = {
-  [STOCK_STATUSES.YES]: 'Yes',
-  [STOCK_STATUSES.NO]: 'No',
-  [STOCK_STATUSES.UNKNOWN]: 'Unknown',
+export const DRUG_STOCK_STATUS_LABELS = {
+  [DRUG_STOCK_STATUSES.IN_STOCK]: 'Yes',
+  [DRUG_STOCK_STATUSES.OUT_OF_STOCK]: 'No',
+  [DRUG_STOCK_STATUSES.UNKNOWN]: 'Unknown',
 };
