@@ -518,7 +518,8 @@ export const MedicationDetails = ({
                         !canDiscontinueMedication ||
                         (isSensitive && !canWriteSensitiveMedication) ||
                         medication.discontinued ||
-                        isOngoingPrescription
+                        isOngoingPrescription ||
+                        isPausing
                       }
                     />
                   </NoteModalActionBlocker>
