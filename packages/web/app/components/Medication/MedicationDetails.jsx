@@ -504,24 +504,25 @@ export const MedicationDetails = ({
                     </Box>
                   </DetailsContainer>
                 </Box>
-                {!medication.discontinued && !isPausing && !isOngoingPrescription && (
-                  <Box flex={1}>
-                    <DarkestText color={`${Colors.darkText} !important`} mb={0.5}>
-                      <TranslatedText stringId="medication.details.repeats" fallback="Repeats" />
-                    </DarkestText>
-                    <NoteModalActionBlocker>
-                      <Field
-                        name="repeats"
-                        component={NumberField}
-                        min={0}
-                        max={MAX_REPEATS}
-                        disabled={
-                          !canDiscontinueMedication || (isSensitive && !canWriteSensitiveMedication)
-                        }
-                      />
-                    </NoteModalActionBlocker>
-                  </Box>
-                )}
+                <Box flex={1}>
+                  <DarkestText color={`${Colors.darkText} !important`} mb={0.5}>
+                    <TranslatedText stringId="medication.details.repeats" fallback="Repeats" />
+                  </DarkestText>
+                  <NoteModalActionBlocker>
+                    <Field
+                      name="repeats"
+                      component={NumberField}
+                      min={0}
+                      max={MAX_REPEATS}
+                      disabled={
+                        !canDiscontinueMedication ||
+                        (isSensitive && !canWriteSensitiveMedication) ||
+                        medication.discontinued ||
+                        isOngoingPrescription
+                      }
+                    />
+                  </NoteModalActionBlocker>
+                </Box>
               </Box>
             </Container>
 
