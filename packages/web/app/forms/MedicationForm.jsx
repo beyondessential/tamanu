@@ -624,6 +624,7 @@ export const MedicationForm = ({
   const [frequencyChanged, setFrequencyChanged] = useState(0);
   const [selectedDrug, setSelectedDrug] = useState(null);
   const drugQuantity = selectedDrug?.facilities?.[0]?.quantity;
+  const drugStockStatus = selectedDrug?.facilities?.[0]?.stockStatus;
 
   const { defaultTimeSlots } = useMedicationIdealTimes({
     frequency: editingMedication?.frequency,
@@ -733,17 +734,15 @@ export const MedicationForm = ({
   };
 
   const getStockLevelIcon = () => {
-    const quantity = parseInt(drugQuantity, 10);
-    if (isNaN(quantity)) return <CircleHelp size={20} color={Colors.blue} />;
-    if (quantity === 0) return <CircleAlert size={20} color={Colors.alert} />;
-    return <CircleCheck size={20} color={Colors.safe} />;
+    if (drugQuantity > 0) return <CircleHelp size={20} color={Colors.safe} />;
+    if (drugQuantity === 0) return <CircleAlert size={20} color={Colors.alert} />;
+    return <CircleCheck size={20} color={Colors.blue} />;
   };
 
   const getStockLevelContent = () => {
-    const quantity = parseInt(drugQuantity, 10);
     const MAX_DISPLAYABLE_STOCK_LEVEL = 1000000;
 
-    if (isNaN(quantity)) {
+    if (isNaN(parseInt(drugQuantity))) {
       return (
         <TranslatedText
           stringId="medication.stockLevel.unknown"
@@ -752,7 +751,7 @@ export const MedicationForm = ({
       );
     }
 
-    if (quantity === 0) {
+    if (drugQuantity === 0) {
       return (
         <TranslatedText
           stringId="medication.stockLevel.outOfStock"
@@ -762,7 +761,7 @@ export const MedicationForm = ({
     }
 
     const stockLevelValue =
-      quantity <= MAX_DISPLAYABLE_STOCK_LEVEL ? (
+      drugQuantity <= MAX_DISPLAYABLE_STOCK_LEVEL ? (
         <TranslatedText
           stringId="medication.stockLevel.inStock.approxUnits"
           fallback="Approx :quantity units"
@@ -926,7 +925,7 @@ export const MedicationForm = ({
                 component={CheckField}
                 data-testid="medication-field-isPrn-9n4q"
               />
-              {!isOngoingPrescription && drugQuantity && (
+              {!isOngoingPrescription && !!drugStockStatus && (
                 <StockLevelContainer>
                   <Box display="flex" flexShrink={0}>
                     {getStockLevelIcon()}

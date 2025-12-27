@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { DRUG_STOCK_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
@@ -8,8 +8,8 @@ export class ReferenceDrugFacility extends Model {
   declare id: string;
   declare referenceDrugId: string;
   declare facilityId: string;
-  declare quantity: string | null;
-  declare stockStatus: string | null;
+  declare quantity: number | null;
+  declare stockStatus: string;
 
   static initModel(options: InitOptions) {
     super.init(
@@ -39,12 +39,13 @@ export class ReferenceDrugFacility extends Model {
           },
         },
         quantity: {
-          type: DataTypes.STRING,
+          type: DataTypes.INTEGER,
           allowNull: true,
         },
         stockStatus: {
           type: DataTypes.STRING,
-          allowNull: true,
+          allowNull: false,
+          defaultValue: DRUG_STOCK_STATUSES.UNKNOWN,
         },
       },
       {

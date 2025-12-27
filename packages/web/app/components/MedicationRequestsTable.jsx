@@ -17,8 +17,8 @@ import {
 } from '@tamanu/ui-components';
 import { BodyText } from './Typography';
 import {
-  STOCK_STATUS_LABELS,
-  STOCK_STATUSES,
+  DRUG_STOCK_STATUS_LABELS,
+  DRUG_STOCK_STATUSES,
   PHARMACY_PRESCRIPTION_TYPE_LABELS,
   PHARMACY_PRESCRIPTION_TYPES,
 } from '@tamanu/constants';
@@ -134,11 +134,12 @@ const getDateSent = ({ pharmacyOrder }) => (
 );
 const getStockStatus = ({ prescription }) => {
   const status =
-    prescription.medication?.referenceDrug?.facilities?.[0]?.stockStatus || STOCK_STATUSES.UNKNOWN;
+    prescription.medication?.referenceDrug?.facilities?.[0]?.stockStatus ||
+    DRUG_STOCK_STATUSES.UNKNOWN;
   const color = STOCK_STATUS_COLORS[status];
   return (
     <StyledTag $color={color} noWrap>
-      <TranslatedEnum value={status} enumValues={STOCK_STATUS_LABELS} />
+      <TranslatedEnum value={status} enumValues={DRUG_STOCK_STATUS_LABELS} />
     </StyledTag>
   );
 };

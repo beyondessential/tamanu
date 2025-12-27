@@ -303,19 +303,15 @@ export const PHARMACY_PRESCRIPTION_TYPE_LABELS = {
   [PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT]: 'Outpatient/Discharge',
 };
 
-export const FACILITY_DRUG_QUANTITY_STATUSES = {
+export const DRUG_STOCK_STATUSES = {
+  IN_STOCK: 'in_stock',
+  OUT_OF_STOCK: 'out_of_stock',
   UNAVAILABLE: 'unavailable',
   UNKNOWN: 'unknown',
 };
 
-export const STOCK_STATUSES = {
-  YES: 'yes',
-  NO: 'no',
-  UNKNOWN: 'unknown',
-};
-
-export const STOCK_STATUS_LABELS = {
-  [STOCK_STATUSES.YES]: 'Yes',
-  [STOCK_STATUSES.NO]: 'No',
-  [STOCK_STATUSES.UNKNOWN]: 'Unknown',
+export const DRUG_STOCK_STATUS_LABELS = {
+  [DRUG_STOCK_STATUSES.IN_STOCK]: 'Yes',
+  [DRUG_STOCK_STATUSES.OUT_OF_STOCK]: 'No',
+  [DRUG_STOCK_STATUSES.UNKNOWN]: 'Unknown',
 };

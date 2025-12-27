@@ -3,7 +3,7 @@ import { getJsDateFromExcel } from 'excel-date-to-js';
 import { Op } from 'sequelize';
 import {
   ENCOUNTER_TYPES,
-  FACILITY_DRUG_QUANTITY_STATUSES,
+  DRUG_STOCK_STATUSES,
   VISIBILITY_STATUSES,
   PATIENT_FIELD_DEFINITION_TYPES,
   REFERENCE_DATA_RELATION_TYPES,
@@ -524,7 +524,7 @@ export async function drugLoader(item, { models, pushError }) {
     route,
     units,
     notes,
-    isSensitive: isSensitive || false,
+    isSensitive: !!isSensitive,
   };
   rows.push({
     model: 'ReferenceDrug',
@@ -532,20 +532,22 @@ export async function drugLoader(item, { models, pushError }) {
   });
 
   const facilitiesData = Object.fromEntries(
-    Object.entries(rest).map(([key, value]) => [key.trim(), value])
+    Object.entries(rest).map(([key, value]) => [key.trim(), value]),
   );
   const facilityIdsToImport = Object.keys(facilitiesData);
   const facilitiesToImport = await models.Facility.findAll({
     attributes: ['id'],
     where: { deletedAt: null, id: { [Op.in]: facilityIdsToImport } },
   });
-  
+
   if (!facilitiesToImport.length) {
     return rows;
   }
 
   if (facilitiesToImport.length !== facilityIdsToImport.length) {
-    const unavailableFacilityIds = facilityIdsToImport.filter(id => !facilitiesToImport.some(f => f.id === id));
+    const unavailableFacilityIds = facilityIdsToImport.filter(
+      id => !facilitiesToImport.some(f => f.id === id),
+    );
     pushError(
       `Drug "${drugId}": Some facilities do not exist or have been deleted: ${unavailableFacilityIds.join(', ')}.`,
     );
@@ -556,17 +558,27 @@ export async function drugLoader(item, { models, pushError }) {
 
   for (const facilityId of facilityIdsToImport) {
     if (!validFacilityIds.has(facilityId)) {
-      pushError(
-        `Drug "${drugId}": Facility "${facilityId}" does not exist or has been deleted.`,
-      );
+      pushError(`Drug "${drugId}": Facility "${facilityId}" does not exist or has been deleted.`);
       continue;
     }
   }
-  
+
+  const getStockStatus = value => {
+    if (isNaN(parseInt(value))) {
+      return value === DRUG_STOCK_STATUSES.UNAVAILABLE
+        ? DRUG_STOCK_STATUSES.UNAVAILABLE
+        : DRUG_STOCK_STATUSES.UNKNOWN;
+    }
+    return parseInt(value) > 0
+      ? DRUG_STOCK_STATUSES.IN_STOCK
+      : DRUG_STOCK_STATUSES.OUT_OF_STOCK;
+  };
+
   for (const [key, value] of Object.entries(facilitiesData)) {
     const facilityId = key;
 
-    const quantity = value === '' ? FACILITY_DRUG_QUANTITY_STATUSES.UNKNOWN : value;
+    const quantity = isNaN(parseInt(value)) ? null : parseInt(value);
+    const stockStatus = getStockStatus(value);
 
     rows.push({
       model: 'ReferenceDrugFacility',
@@ -574,6 +586,7 @@ export async function drugLoader(item, { models, pushError }) {
         referenceDrugId,
         facilityId,
         quantity,
+        stockStatus,
       },
     });
   }

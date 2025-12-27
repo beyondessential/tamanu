@@ -41,7 +41,7 @@ import {
   DRUG_UNIT_LABELS,
   DRUG_UNIT_SHORT_LABELS,
   REPEATS_LABELS,
-  STOCK_STATUS_LABELS,
+  DRUG_STOCK_STATUS_LABELS,
   PHARMACY_PRESCRIPTION_TYPE_LABELS,
 } from './medications.js';
 import { PLACE_OF_DEATHS, MANNER_OF_DEATHS } from './deaths';
@@ -112,7 +112,7 @@ export const registeredEnums = {
   TITLE_LABELS,
   VACCINE_CATEGORY_LABELS,
   VACCINE_STATUS_LABELS,
-  STOCK_STATUS_LABELS,
+  DRUG_STOCK_STATUS_LABELS,
   PHARMACY_PRESCRIPTION_TYPE_LABELS,
 };
 
@@ -170,7 +170,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   TITLE_LABELS: 'patient.property.title',
   VACCINE_CATEGORY_LABELS: 'vaccine.property.category',
   VACCINE_STATUS_LABELS: 'vaccine.property.status',
-  STOCK_STATUS_LABELS: 'medication.property.stockStatus',
+  DRUG_STOCK_STATUS_LABELS: 'medication.property.drugStockStatus',
   PHARMACY_PRESCRIPTION_TYPE_LABELS: 'medication.property.pharmacyPrescriptionType',
 };
 

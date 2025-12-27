@@ -29,10 +29,10 @@ export class DrugExporter extends ReferenceDataExporter {
         notes: drug.referenceDrug?.notes,
         isSensitive: drug.referenceDrug?.isSensitive,
       };
-      
+
       if (drug.referenceDrug?.facilities) {
         drug.referenceDrug.facilities.forEach((facility) => {
-          baseData[facility.facilityId] = facility.quantity;
+          baseData[facility.facilityId] = facility.quantity ?? facility.stockStatus;
         });
       }
 

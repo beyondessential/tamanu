@@ -1,4 +1,4 @@
-import { STOCK_STATUSES } from '@tamanu/constants';
+import { DRUG_STOCK_STATUSES } from '@tamanu/constants';
 import { Colors } from './styles';
 
 export const MAR_WARNING_MODAL = {
@@ -19,7 +19,7 @@ export const MEDICATIONS_SEARCH_KEYS = {
 };
 
 export const STOCK_STATUS_COLORS = {
-  [STOCK_STATUSES.YES]: Colors.green,
-  [STOCK_STATUSES.NO]: Colors.alert,
-  [STOCK_STATUSES.UNKNOWN]: Colors.darkestText,
+  [DRUG_STOCK_STATUSES.IN_STOCK]: Colors.green,
+  [DRUG_STOCK_STATUSES.OUT_OF_STOCK]: Colors.alert,
+  [DRUG_STOCK_STATUSES.UNKNOWN]: Colors.darkestText,
 };
