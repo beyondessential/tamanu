@@ -32,7 +32,7 @@ sources:
             data_tests:
               - not_null
           - name: quantity
-            data_type: character varying(255)
+            data_type: integer
             description: "{{ doc('reference_drug_facilities__quantity') }}"
           - name: created_at
             data_type: timestamp with time zone
@@ -53,8 +53,10 @@ sources:
             data_tests:
               - not_null
           - name: stock_status
-            data_type: text
+            data_type: character varying(255)
             description: "{{ doc('reference_drug_facilities__stock_status') }}"
             config:
               meta:
                 masking: text
+            data_tests:
+              - not_null

@@ -1,4 +1,4 @@
-import { FACILITY_DRUG_QUANTITY_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
+import { DRUG_STOCK_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
 import { ReferenceDataExporter } from './ReferenceDataExporter';
 
 export class DrugExporter extends ReferenceDataExporter {
@@ -35,12 +35,12 @@ export class DrugExporter extends ReferenceDataExporter {
       };
 
       for (const facilityId of allFacilityIds) {
-        baseData[facilityId] = FACILITY_DRUG_QUANTITY_STATUSES.UNKNOWN;
+        baseData[facilityId] = DRUG_STOCK_STATUSES.UNKNOWN;
       }
 
       if (drug.referenceDrug?.facilities) {
         drug.referenceDrug.facilities.forEach((facility) => {
-          baseData[facility.facilityId] = facility.quantity;
+          baseData[facility.facilityId] = facility.quantity ?? facility.stockStatus;
         });
       }
 
