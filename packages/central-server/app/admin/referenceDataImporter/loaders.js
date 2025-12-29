@@ -563,22 +563,23 @@ export async function drugLoader(item, { models, pushError }) {
     }
   }
 
-  const getStockStatus = value => {
-    if (isNaN(parseInt(value))) {
-      return value === DRUG_STOCK_STATUSES.UNAVAILABLE
-        ? DRUG_STOCK_STATUSES.UNAVAILABLE
-        : DRUG_STOCK_STATUSES.UNKNOWN;
-    }
-    return parseInt(value) > 0
-      ? DRUG_STOCK_STATUSES.IN_STOCK
-      : DRUG_STOCK_STATUSES.OUT_OF_STOCK;
-  };
-
   for (const [key, value] of Object.entries(facilitiesData)) {
     const facilityId = key;
+    const parsedQuantity = parseInt(value, 10);
 
-    const quantity = isNaN(parseInt(value)) ? null : parseInt(value);
-    const stockStatus = getStockStatus(value);
+    let quantity = null;
+    let stockStatus;
+
+    if (Number.isNaN(parsedQuantity)) {
+      stockStatus =
+        value === DRUG_STOCK_STATUSES.UNAVAILABLE
+          ? DRUG_STOCK_STATUSES.UNAVAILABLE
+          : DRUG_STOCK_STATUSES.UNKNOWN;
+    } else {
+      quantity = parsedQuantity;
+      stockStatus =
+        quantity > 0 ? DRUG_STOCK_STATUSES.IN_STOCK : DRUG_STOCK_STATUSES.OUT_OF_STOCK;
+    }
 
     rows.push({
       model: 'ReferenceDrugFacility',
