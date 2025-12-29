@@ -491,9 +491,11 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
             include: [
               {
                 model: ReferenceDrugFacility,
-                where: {
-                  facilityId: req.query.facilityId,
-                },
+                ...(req.query.facilityId && {
+                  where: {
+                    facilityId: req.query.facilityId,
+                  },
+                }),
                 as: 'facilities',
                 attributes: ['referenceDrugId', 'facilityId', 'quantity', 'stockStatus'],
                 required: false,
