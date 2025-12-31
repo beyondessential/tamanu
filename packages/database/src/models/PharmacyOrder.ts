@@ -3,6 +3,7 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import { buildEncounterLinkedLookupFilter, buildEncounterLinkedSyncFilter } from '../sync';
+import type { PharmacyOrderPrescription } from './PharmacyOrderPrescription';
 
 export class PharmacyOrder extends Model {
   declare id: string;
@@ -12,6 +13,7 @@ export class PharmacyOrder extends Model {
   declare isDischargePrescription: boolean;
   declare date: string;
   declare facilityId: string;
+  declare pharmacyOrderPrescriptions?: PharmacyOrderPrescription[];
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

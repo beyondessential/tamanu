@@ -21,7 +21,7 @@ export class PharmacyOrderPrescription extends Model {
   declare medicationDispenses?: MedicationDispense[];
   declare pharmacyOrder?: PharmacyOrder;
 
-  static initModel({ primaryKey, ...options }: InitOptions) {
+  static initModel({ primaryKey, ...options }: InitOptions, models: Models) {
     super.init(
       {
         id: primaryKey,
@@ -44,6 +44,28 @@ export class PharmacyOrderPrescription extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        hooks: {
+          async afterDestroy(pharmacyOrderPrescription: PharmacyOrderPrescription, opts) {
+            const pharmacyOrder = await models.PharmacyOrder.findByPk(
+              pharmacyOrderPrescription.pharmacyOrderId,
+              {
+                include: [
+                  {
+                    association: 'pharmacyOrderPrescriptions',
+                  },
+                ],
+                transaction: opts.transaction,
+              },
+            );
+            if (
+              pharmacyOrder &&
+              (!pharmacyOrder?.pharmacyOrderPrescriptions ||
+                !pharmacyOrder?.pharmacyOrderPrescriptions.length)
+            ) {
+              await pharmacyOrder.destroy();
+            }
+          },
+        },
       },
     );
   }

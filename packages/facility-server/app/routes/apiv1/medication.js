@@ -1865,6 +1865,34 @@ medication.get(
   }),
 );
 
+medication.delete(
+  '/medication-requests/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { PharmacyOrderPrescription } = models;
+
+    req.checkPermission('write', 'Medication');
+
+    const pharmacyOrderPrescription = await PharmacyOrderPrescription.findByPk(params.id, {
+      include: [
+        {
+          association: 'prescription',
+          attributes: ['medicationId'],
+          required: true,
+        },
+      ],
+    });
+
+    if (!pharmacyOrderPrescription) {
+      throw new NotFoundError(`Medication request with id ${params.id} not found`);
+    }
+
+    await pharmacyOrderPrescription.destroy();
+
+    res.send({ success: true });
+  }),
+);
+
 medication.get(
   '/medication-dispenses',
   asyncHandler(async (req, res) => {
