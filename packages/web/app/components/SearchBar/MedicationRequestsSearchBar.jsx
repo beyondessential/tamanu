@@ -11,6 +11,12 @@ import { MEDICATIONS_SEARCH_KEYS } from '../../constants/medication';
 import { Colors } from '../../constants';
 import { useFormikContext } from 'formik';
 
+const StyledCustomisableSearchBarWithPermissionCheck = styled(CustomisableSearchBarWithPermissionCheck)`
+  .actions-container {
+    justify-content: flex-end;
+  }
+`;
+
 const StyledAutocompleteField = styled(AutocompleteField)`
   .MuiInputBase-root.Mui-disabled {
     background-color: ${Colors.background};
@@ -170,7 +176,7 @@ export const MedicationRequestsSearchBar = () => {
   };
 
   return (
-    <CustomisableSearchBarWithPermissionCheck
+    <StyledCustomisableSearchBarWithPermissionCheck
       verb="list"
       noun="Medication"
       showExpandButton
@@ -213,6 +219,6 @@ export const MedicationRequestsSearchBar = () => {
       data-testid="customisablesearchbarwithpermissioncheck-medication"
     >
       <MedicationRequestsSearchBarMainFields />
-    </CustomisableSearchBarWithPermissionCheck>
+    </StyledCustomisableSearchBarWithPermissionCheck>
   );
 };
