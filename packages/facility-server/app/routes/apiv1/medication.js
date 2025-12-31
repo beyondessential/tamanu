@@ -1822,7 +1822,7 @@ medication.get(
           include: [
             {
               association: 'medication',
-              attributes: ['id', 'name'],
+              attributes: ['id', 'name', 'type'],
               required: true,
               include: {
                 model: models.ReferenceDrug,
@@ -1950,7 +1950,7 @@ medication.get(
               include: [
                 {
                   association: 'medication',
-                  attributes: ['id', 'name'],
+                  attributes: ['id', 'name', 'type'],
                   required: true,
                 },
               ],

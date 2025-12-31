@@ -48,17 +48,17 @@ const getPatientName = ({ pharmacyOrderPrescription }) => (
 );
 const getMedication = ({ pharmacyOrderPrescription }) => (
   <TranslatedReferenceData
-    fallback={pharmacyOrderPrescription.prescription.medication.name}
-    value={pharmacyOrderPrescription.prescription.medication.id}
-    category={pharmacyOrderPrescription.prescription.medication.type}
+    fallback={pharmacyOrderPrescription?.prescription?.medication?.name}
+    value={pharmacyOrderPrescription?.prescription?.medication?.id}
+    category={pharmacyOrderPrescription?.prescription?.medication?.type}
   />
 );
 const getDateDispensed = ({ dispensedAt }) => (
   <DateDisplay date={dispensedAt} timeOnlyTooltip shortYear data-testid="datedisplay-date-sent" />
 );
 const getQuantity = ({ quantity }) => quantity;
-const getDispensedById = ({ dispensedBy }) => dispensedBy.displayName;
-const getRequestNumber = ({ pharmacyOrderPrescription }) => pharmacyOrderPrescription.displayId;
+const getDispensedBy = ({ dispensedBy }) => dispensedBy?.displayName;
+const getRequestNumber = ({ pharmacyOrderPrescription }) => pharmacyOrderPrescription?.displayId;
 
 export const MedicationDispensesTable = () => {
   const { facilityId } = useAuth();
@@ -140,7 +140,7 @@ export const MedicationDispensesTable = () => {
           data-testid="translatedtext-dispensed-by-column-title"
         />
       ),
-      accessor: getDispensedById,
+      accessor: getDispensedBy,
       sortable: false,
     },
     {
@@ -198,7 +198,7 @@ export const MedicationDispensesTable = () => {
         <NoDataContainer>
           <TranslatedText
             stringId="medication-dispenses.list.noData"
-            fallback="No active medication requests to display."
+            fallback="No dispensed medications to display."
           />
         </NoDataContainer>
       }

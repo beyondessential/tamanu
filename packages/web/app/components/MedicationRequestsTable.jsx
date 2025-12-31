@@ -111,14 +111,14 @@ const getLocation = ({ pharmacyOrder }) => {
 const getMedication = ({ prescription }) => {
   return (
     <TranslatedReferenceData
-      fallback={prescription.medication.name}
-      value={prescription.medication.id}
-      category={prescription.medication.type}
+      fallback={prescription?.medication?.name}
+      value={prescription?.medication?.id}
+      category={prescription?.medication?.type}
     />
   );
 };
 const getPrescriber = ({ prescription }) => {
-  return prescription.prescriber.displayName;
+  return prescription?.prescriber?.displayName;
 };
 const getDateSent = ({ pharmacyOrder }) => (
   <div>
@@ -135,7 +135,7 @@ const getDateSent = ({ pharmacyOrder }) => (
 );
 const getStockStatus = ({ prescription }) => {
   const status =
-    prescription.medication?.referenceDrug?.facilities?.[0]?.stockStatus || STOCK_STATUSES.UNKNOWN;
+    prescription?.medication?.referenceDrug?.facilities?.[0]?.stockStatus || STOCK_STATUSES.UNKNOWN;
   const color = STOCK_STATUS_COLORS[status];
   return (
     <StyledTag $color={color} noWrap>
