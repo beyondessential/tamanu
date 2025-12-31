@@ -54,9 +54,8 @@ medication.get(
       include: [
         {
           association: 'pharmacyOrder',
-          attributes: ['id'],
+          attributes: ['id', 'isDischargePrescription', 'date'],
           required: true,
-          where: { deletedAt: null },
           include: [
             {
               association: 'encounter',
@@ -94,7 +93,7 @@ medication.get(
                   model: models.ReferenceDrug,
                   as: 'referenceDrug',
                   attributes: ['id'],
-                  required: false,
+                  required: true,
                   include: [
                     {
                       model: models.ReferenceDrugFacility,
@@ -112,16 +111,9 @@ medication.get(
         {
           association: 'medicationDispenses',
           attributes: ['dispensedAt'],
-          where: { deletedAt: null },
           required: false,
           order: [['dispensedAt', 'DESC']],
-        }, 
-        {
-          association: 'pharmacyOrder',
-          attributes: ['id', 'isDischargePrescription'],
-          required: false,
-          where: { deletedAt: null },
-        }
+        },
       ],
       where: {
         deletedAt: null,
@@ -138,33 +130,16 @@ medication.get(
           },
         ],
       },
-      order: [['createdAt', 'DESC']],
+      order: [[{ model: models.PharmacyOrder, as: 'pharmacyOrder' }, 'date', 'DESC']],
       subQuery: false,
     });
 
-    const dispensableMedications = pharmacyOrderPrescriptions.map(pop => {
-      const dispenses = pop.medicationDispenses || [];
-
-      // dispenses are ordered by dispensedAt DESC, so first element is the latest
-      const lastDispensedAt = dispenses[0]?.dispensedAt || null;
-
-      const referenceDrug = pop.prescription?.medication?.referenceDrug;
-      const stock = referenceDrug?.facilities?.find(f => f.facilityId === facilityId);
-
-      return {
-        id: pop.id,
-        prescriptionDate: pop.createdAt,
-        prescription: pop.prescription,
-        quantity: pop.quantity,
-        remainingRepeats: pop.remainingRepeats,
-        lastDispensedAt,
-        stock,
-      };
-    });
-
     res.send({
-      count: dispensableMedications.length,
-      data: dispensableMedications,
+      count: pharmacyOrderPrescriptions.length,
+      data: pharmacyOrderPrescriptions.map(pop => ({
+        ...pop.toJSON(),
+        remainingRepeats: pop.remainingRepeats,
+      })),
     });
   }),
 );
@@ -177,7 +152,7 @@ const dispenseItemSchema = z.object({
 
 const dispenseInputSchema = z
   .object({
-    dispensedByUserId: z.string().uuid(),
+    dispensedByUserId: z.string(),
     items: z.array(dispenseItemSchema).min(1),
   })
   .strip();
@@ -222,14 +197,12 @@ medication.post(
           {
             association: 'medicationDispenses',
             attributes: ['id'],
-            where: { deletedAt: null },
             required: false,
           },
           {
             association: 'pharmacyOrder',
             attributes: ['id', 'isDischargePrescription'],
             required: false,
-            where: { deletedAt: null },
           }
         ],
         lock: {
@@ -238,9 +211,6 @@ medication.post(
         },
         transaction,
       });
-
-      const medicationIds = prescriptionRecords.map(r => r.prescription.medicationId);
-      await checkSensitiveMedicationPermission(medicationIds, req, 'create');
 
       const foundIds = new Set(prescriptionRecords.map(r => r.id));
       const notFoundIds = pharmacyOrderPrescriptionIds.filter(id => !foundIds.has(id));
@@ -253,7 +223,8 @@ medication.post(
       const ineligibleRecords = prescriptionRecords.filter(record => {
         const dispenseCount = (record.medicationDispenses || []).length;
         const remainingRepeats = record.remainingRepeats;
-        return dispenseCount > 0 && remainingRepeats <= 0;
+        const isDischargePrescription = record.pharmacyOrder?.isDischargePrescription;
+        return dispenseCount > 0 && remainingRepeats <= 0 && !!isDischargePrescription;
       });
 
       if (ineligibleRecords.length > 0) {
@@ -273,6 +244,24 @@ medication.post(
         })),
         { transaction },
       );
+
+      // After dispensing, soft delete all ineligible pharmacy order prescriptions
+      const allIneligibleRecords = prescriptionRecords.filter(record => {
+        const dispenseCount = (record.medicationDispenses || []).length + 1;
+        const remainingRepeats = record.remainingRepeats;
+        return remainingRepeats < 1 && dispenseCount > 0;
+      });
+
+      if (allIneligibleRecords.length > 0) {
+        const ineligibleIds = allIneligibleRecords.map(r => r.id);
+        await PharmacyOrderPrescription.update(
+          { deletedAt: new Date() },
+          {
+            where: { id: ineligibleIds },
+            transaction,
+          },
+        );
+      }
 
       return dispenseRecords;
     });
