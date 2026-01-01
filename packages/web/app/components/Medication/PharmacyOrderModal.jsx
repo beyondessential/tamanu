@@ -149,7 +149,10 @@ const StyledFormControlLabel = styled(FormControlLabel)`
   }
 `;
 
-export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubmit }) => {
+export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPrescriptions, open, onClose, onSubmit }) => {
+  // Determine if this is ongoing medications mode (no encounter, has patient and ongoingPrescriptions)
+  const isOngoingMode = !encounter && !!patient && !!ongoingPrescriptions;
+
   const [orderingClinicianId, setOrderingClinicianId] = useState('');
   const [comments, setComments] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
@@ -158,7 +161,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
   const queryClient = useQueryClient();
   const practitionerSuggester = useSuggester('practitioner');
   const { getSetting } = useSettings();
-  const { facilityId } = useAuth();
+  const { facilityId, currentUser, ability } = useAuth();
 
   const medicationAlreadyOrderedConfirmationTimeout = getSetting(
     'features.pharmacyOrder.medicationAlreadyOrderedConfirmationTimeout',
@@ -166,32 +169,50 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
 
   const sendViaMSupply = getSetting('features.pharmacyOrder.sendViaMSupply');
 
+  // Permission to edit repeats (only relevant for ongoing mode)
+  const canEditRepeats = ability.can('write', 'MedicationRepeats');
+
   const [prescriptionType, setPrescriptionType] = useState(
     PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT,
   );
+  // In ongoing mode, always use discharge/outpatient
   const isDischargeOrOutpatient =
-    prescriptionType === PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT;
+    isOngoingMode || prescriptionType === PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT;
 
+  // Only fetch encounter medications if in encounter mode
   const {
     data,
     error,
     isLoading,
     refetch: refetchEncounterMedications,
-  } = useEncounterMedicationQuery(encounter.id);
+  } = useEncounterMedicationQuery(encounter?.id);
 
-  const initialPrescriptions = useMemo(
-    () =>
-      data?.data
+  const initialPrescriptions = useMemo(() => {
+    if (isOngoingMode) {
+      // Use ongoing prescriptions passed as prop
+      return (ongoingPrescriptions || [])
         .filter(p => !p.discontinued)
         .map(prescription => ({
           ...prescription,
           quantity: prescription.quantity ?? undefined,
           repeats: prescription.repeats ?? 0,
-          // Medications are deselected by default; users choose what to send
           selected: false,
-        })) || [],
-    [data],
-  );
+          // Disable selection if no repeats remaining and user can't edit repeats
+          isSelectionDisabled: !canEditRepeats && (prescription.repeats ?? 0) === 0,
+        }));
+    }
+    // Use encounter medications from query
+    return (
+      data?.data
+        ?.filter(p => !p.discontinued)
+        .map(prescription => ({
+          ...prescription,
+          quantity: prescription.quantity ?? undefined,
+          repeats: prescription.repeats ?? 0,
+          selected: false,
+        })) || []
+    );
+  }, [data, isOngoingMode, ongoingPrescriptions, canEditRepeats]);
 
   const [prescriptions, setPrescriptions] = useState(initialPrescriptions);
 
@@ -199,29 +220,29 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
     setPrescriptions(initialPrescriptions);
   }, [initialPrescriptions]);
 
-  const { currentUser } = useAuth();
-
   useEffect(() => {
     setOrderingClinicianId(currentUser.id);
   }, [currentUser]);
 
   // Set default prescription type based on encounter type when the modal opens
+  // Only applies in encounter mode
   useEffect(() => {
-    if (!open || !encounter?.encounterType) return;
+    if (!open || !encounter?.encounterType || isOngoingMode) return;
 
     if (encounter.encounterType === ENCOUNTER_TYPES.CLINIC) {
       setPrescriptionType(PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT);
     } else {
       setPrescriptionType(PHARMACY_PRESCRIPTION_TYPES.INPATIENT);
     }
-  }, [open, encounter?.encounterType]);
+  }, [open, encounter?.encounterType, isOngoingMode]);
 
   const handleSelectAll = useCallback(event => {
     const checked = event.target.checked;
     setPrescriptions(prev =>
       prev.map(prescription => ({
         ...prescription,
-        selected: checked,
+        // Only select if not disabled (for ongoing mode with no repeats)
+        selected: prescription.isSelectionDisabled ? false : checked,
       })),
     );
   }, []);
@@ -231,10 +252,13 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
       const checked = event.target.checked;
       setPrescriptions(prev => {
         const newPrescriptions = [...prev];
-        newPrescriptions[rowIndex] = {
-          ...newPrescriptions[rowIndex],
-          selected: checked,
-        };
+        // Only allow selection if not disabled
+        if (!newPrescriptions[rowIndex].isSelectionDisabled) {
+          newPrescriptions[rowIndex] = {
+            ...newPrescriptions[rowIndex],
+            selected: checked,
+          };
+        }
         return newPrescriptions;
       });
     },
@@ -254,12 +278,18 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
   );
 
   const selectAllChecked = useMemo(() => {
-    return prescriptions.length > 0 && prescriptions.every(p => p.selected);
+    const selectablePrescriptions = prescriptions.filter(p => !p.isSelectionDisabled);
+    return selectablePrescriptions.length > 0 && selectablePrescriptions.every(p => p.selected);
   }, [prescriptions]);
 
   const cellOnChange = useCallback(
     (event, key, rowIndex) => {
       if ([COLUMN_KEYS.QUANTITY, COLUMN_KEYS.REPEATS].includes(key)) {
+        // In ongoing mode, only allow repeats change if user has permission
+        if (isOngoingMode && key === COLUMN_KEYS.REPEATS && !canEditRepeats) {
+          return;
+        }
+
         const newMedicationData = [...prescriptions];
         const rawValue = event.target.value;
         const value =
@@ -275,7 +305,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
         setPrescriptions(newMedicationData);
       }
     },
-    [prescriptions],
+    [prescriptions, isOngoingMode, canEditRepeats],
   );
 
   const validateForm = useCallback(() => {
@@ -292,34 +322,58 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
 
     try {
       const selectedPrescriptions = prescriptions.filter(p => p.selected);
-      const orderData = {
-        encounterId: encounter.id,
-        orderingClinicianId,
-        comments,
-        isDischargePrescription: isDischargeOrOutpatient,
-        facilityId,
-        pharmacyOrderPrescriptions: selectedPrescriptions.map(prescription => ({
-          prescriptionId: prescription.id,
-          quantity: prescription.quantity,
-          repeats: prescription.repeats,
-        })),
-      };
 
-      await api.post(`encounter/${encounter.id}/pharmacyOrder`, orderData);
-      await queryClient.invalidateQueries(['encounterMedication', encounter.id]);
-      refetchEncounterMedications();
+      if (isOngoingMode) {
+        // Send ongoing medications to pharmacy (creates automatic encounter)
+        const orderData = {
+          patientId: patient.id,
+          orderingClinicianId,
+          comments,
+          facilityId,
+          prescriptions: selectedPrescriptions.map(prescription => ({
+            prescriptionId: prescription.id,
+            quantity: prescription.quantity,
+            repeats: prescription.repeats,
+          })),
+        };
+
+        await api.post('medication/send-ongoing-to-pharmacy', orderData);
+        await queryClient.invalidateQueries(['patient-ongoing-prescriptions', patient.id]);
+      } else {
+        // Standard encounter-based pharmacy order
+        const orderData = {
+          encounterId: encounter.id,
+          orderingClinicianId,
+          comments,
+          isDischargePrescription: isDischargeOrOutpatient,
+          facilityId,
+          pharmacyOrderPrescriptions: selectedPrescriptions.map(prescription => ({
+            prescriptionId: prescription.id,
+            quantity: prescription.quantity,
+            repeats: prescription.repeats,
+          })),
+        };
+
+        await api.post(`encounter/${encounter.id}/pharmacyOrder`, orderData);
+        await queryClient.invalidateQueries(['encounterMedication', encounter.id]);
+        refetchEncounterMedications();
+      }
+
       onSubmit();
       setShowSuccess(true);
-    } catch (error) {
-      notifyError(error.message);
+    } catch (err) {
+      notifyError(err.message);
     }
   }, [
     validateForm,
     queryClient,
-    encounter.id,
+    isOngoingMode,
+    patient?.id,
+    encounter?.id,
     orderingClinicianId,
     comments,
     isDischargeOrOutpatient,
+    facilityId,
     prescriptions,
     api,
     refetchEncounterMedications,
@@ -339,6 +393,9 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
 
   const handleClose = useCallback(() => {
     setTimeout(() => {
+      setShowSuccess(false);
+      setShowAlreadyOrderedConfirmation(false);
+      setComments('');
       onClose();
     }, 200);
   }, [onClose]);
@@ -362,15 +419,19 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
       COLUMN_KEYS.DOSE,
       COLUMN_KEYS.FREQUENCY,
     ];
-    if (isDischargeOrOutpatient) {
+    if (isDischargeOrOutpatient && !isOngoingMode) {
       columns.push(COLUMN_KEYS.DURATION);
     }
-    columns.push(COLUMN_KEYS.DATE, COLUMN_KEYS.LAST_SENT, COLUMN_KEYS.QUANTITY);
+    columns.push(COLUMN_KEYS.DATE);
+    if (!isOngoingMode) {
+      columns.push(COLUMN_KEYS.LAST_SENT);
+    }
+    columns.push(COLUMN_KEYS.QUANTITY);
     if (isDischargeOrOutpatient) {
       columns.push(COLUMN_KEYS.REPEATS);
     }
     return columns;
-  }, [isDischargeOrOutpatient]);
+  }, [isDischargeOrOutpatient, isOngoingMode]);
 
   if (showSuccess) {
     return (
@@ -482,8 +543,16 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
     >
       <BodyText color={Colors.darkText} fontWeight={500}>
         <TranslatedText
-          stringId="pharmacyOrder.description.base"
-          fallback="Select the prescriptions you would like to send to the pharmacy"
+          stringId={
+            isOngoingMode
+              ? 'pharmacyOrder.ongoing.description.base'
+              : 'pharmacyOrder.description.base'
+          }
+          fallback={
+            isOngoingMode
+              ? 'Select the ongoing medications you would like to send to the pharmacy'
+              : 'Select the prescriptions you would like to send to the pharmacy'
+          }
           data-testid="translatedtext-rnjt"
         />
         {sendViaMSupply && (
@@ -525,51 +594,56 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
           />
         </OrderingClinicianWrapper>
 
-        <PrescriptionTypeWrapper>
-          <PrescriptionTypeLabel>
-            <TranslatedText
-              stringId="pharmacyOrder.prescriptionType.label"
-              fallback="Prescription type"
-            />
-          </PrescriptionTypeLabel>
-          <StyledRadioGroup
-            name="pharmacy-prescription-type"
-            value={prescriptionType}
-            onChange={event => {
-              setPrescriptionType(event.target.value);
-            }}
-          >
-            <StyledFormControlLabel
-              value={PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT}
-              control={<Radio color="primary" size="small" />}
-              label={
-                <TranslatedText
-                  stringId="pharmacyOrder.prescriptionType.dischargeOrOutpatient"
-                  fallback="Discharge or Outpatient"
-                />
-              }
-            />
-            <StyledFormControlLabel
-              value={PHARMACY_PRESCRIPTION_TYPES.INPATIENT}
-              control={<Radio color="primary" size="small" />}
-              label={
-                <TranslatedText
-                  stringId="pharmacyOrder.prescriptionType.inpatient"
-                  fallback="Inpatient"
-                />
-              }
-            />
-          </StyledRadioGroup>
-        </PrescriptionTypeWrapper>
+        {!isOngoingMode && (
+          <PrescriptionTypeWrapper>
+            <PrescriptionTypeLabel>
+              <TranslatedText
+                stringId="pharmacyOrder.prescriptionType.label"
+                fallback="Prescription type"
+              />
+            </PrescriptionTypeLabel>
+            <StyledRadioGroup
+              name="pharmacy-prescription-type"
+              value={prescriptionType}
+              onChange={event => {
+                setPrescriptionType(event.target.value);
+              }}
+            >
+              <StyledFormControlLabel
+                value={PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT}
+                control={<Radio color="primary" size="small" />}
+                label={
+                  <TranslatedText
+                    stringId="pharmacyOrder.prescriptionType.dischargeOrOutpatient"
+                    fallback="Discharge or Outpatient"
+                  />
+                }
+              />
+              <StyledFormControlLabel
+                value={PHARMACY_PRESCRIPTION_TYPES.INPATIENT}
+                control={<Radio color="primary" size="small" />}
+                label={
+                  <TranslatedText
+                    stringId="pharmacyOrder.prescriptionType.inpatient"
+                    fallback="Inpatient"
+                  />
+                }
+              />
+            </StyledRadioGroup>
+          </PrescriptionTypeWrapper>
+        )}
       </Box>
       <PharmacyOrderMedicationTable
         data={tableData}
-        error={error}
-        isLoading={isLoading}
+        error={isOngoingMode ? null : error}
+        isLoading={isOngoingMode ? false : isLoading}
         cellOnChange={cellOnChange}
         handleSelectAll={handleSelectAll}
         selectAllChecked={selectAllChecked}
         columnsToInclude={mainTableColumns}
+        isOngoingMode={isOngoingMode}
+        canEditRepeats={canEditRepeats}
+        disabledPrescriptionIds={prescriptions.filter(p => p.isSelectionDisabled).map(p => p.id)}
       />
 
       <CommentsWrapper>
@@ -609,11 +683,20 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
       </SubmitButtonsWrapper>
     </StyledModal>
   );
-});
+},
+);
 
 PharmacyOrderModal.propTypes = {
-  encounter: PropTypes.object.isRequired,
+  encounter: PropTypes.object,
+  patient: PropTypes.object,
+  ongoingPrescriptions: PropTypes.array,
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
+};
+
+PharmacyOrderModal.defaultProps = {
+  encounter: null,
+  patient: null,
+  ongoingPrescriptions: null,
 };

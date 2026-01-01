@@ -2,7 +2,12 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@mui/material';
 
-import { Button, TranslatedText, TranslatedReferenceData, TranslatedEnum } from '@tamanu/ui-components';
+import {
+  Button,
+  TranslatedText,
+  TranslatedReferenceData,
+  TranslatedEnum,
+} from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { PATIENT_STATUS_COLORS } from '../../../constants';
 import { formatShortest } from '../../../components/DateDisplay';
@@ -11,14 +16,17 @@ import { DataFetchingTable } from '../../../components/Table';
 import { usePatientCurrentEncounterQuery } from '../../../api/queries';
 import { getPatientStatus } from '../../../utils/getPatientStatus';
 
-import { ConditionalTooltip } from '../../../components/Tooltip';
+import { ConditionalTooltip, ThemedTooltip } from '../../../components/Tooltip';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { useTranslation } from '../../../contexts/Translation';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import { MedicationModal } from '../../../components/Medication/MedicationModal';
 import { MedicationDetails } from '../../../components/Medication/MedicationDetails';
+import { PharmacyOrderModal } from '../../../components/Medication/PharmacyOrderModal';
 import { useAuth } from '../../../contexts/Auth';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
+import { SendToPharmacyIcon } from '../../../assets/icons/SendToPharmacyIcon';
+import { useSettings } from '../../../contexts/Settings';
 
 const NotifyBanner = styled(Box)`
   padding: 13px 22px;
@@ -92,6 +100,16 @@ const StyledConditionalTooltip = styled(ConditionalTooltip)`
     font-size: 11px;
     font-weight: 400;
   }
+`;
+
+const ButtonGroup = styled(Box)`
+  display: flex;
+  gap: 20px;
+  align-items: center;
+`;
+
+const SendToPharmacyButton = styled.div`
+  cursor: pointer;
 `;
 
 const NoDataContainer = styled.div`
@@ -298,6 +316,7 @@ const DISCHARGE_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
 
 export const PatientMedicationPane = ({ patient }) => {
   const { ability } = useAuth();
+  const { getSetting } = useSettings();
   const { data: currentEncounter } = usePatientCurrentEncounterQuery(patient.id);
   const patientStatus = getPatientStatus(currentEncounter?.encounterType);
 
@@ -308,11 +327,17 @@ export const PatientMedicationPane = ({ patient }) => {
   const [lastInpatientEncounter, setLastInpatientEncounter] = useState(null);
   const [refreshCount, setRefreshCount] = useState(0);
   const [createMedicationModalOpen, setCreateMedicationModalOpen] = useState(false);
+  const [sendToPharmacyModalOpen, setSendToPharmacyModalOpen] = useState(false);
   const [selectedMedication, setSelectedMedication] = useState(null);
   const [allowDiscontinue, setAllowDiscontinue] = useState(false);
 
   const canCreateOngoingPrescription = ability.can('create', 'Medication');
   const canViewSensitiveMedications = ability.can('read', 'SensitiveMedication');
+  const pharmacyOrderEnabled = getSetting('features.pharmacyOrder.enabled');
+
+  // Filter active (non-discontinued) ongoing prescriptions for send to pharmacy
+  const activeOngoingPrescriptions = ongoingPrescriptions.filter(p => !p.discontinued);
+  const hasActiveOngoingPrescriptions = activeOngoingPrescriptions.length > 0;
 
   const onOngoingPrescriptionsFetched = useCallback(({ data }) => {
     setOngoingPrescriptions(data);
@@ -331,6 +356,10 @@ export const PatientMedicationPane = ({ patient }) => {
   const handleReloadOngoingPrescriptions = () => {
     setRefreshCount(prev => prev + 1);
     setSelectedMedication(null);
+  };
+
+  const handleSendToPharmacySubmit = () => {
+    setRefreshCount(prev => prev + 1);
   };
 
   const handleOngoingPrescriptionClick = (_, data) => {
@@ -374,40 +403,105 @@ export const PatientMedicationPane = ({ patient }) => {
               fallback="Ongoing medications"
             />
           </TableTitleText>
-          {canCreateOngoingPrescription && (
-            <StyledConditionalTooltip
-              visible={!!currentEncounter}
-              title={
-                <TranslatedText
-                  stringId="patient.medication.ongoing.add.warning"
-                  fallback="Please add any medications via the patient active encounter."
-                />
-              }
-              PopperProps={{
-                popperOptions: {
-                  positionFixed: true,
-                  modifiers: {
-                    preventOverflow: {
-                      enabled: true,
-                      boundariesElement: 'window',
+          <ButtonGroup>
+            {pharmacyOrderEnabled && hasActiveOngoingPrescriptions && (
+              <StyledConditionalTooltip
+                visible={!!currentEncounter}
+                title={
+                  <TranslatedText
+                    stringId="patient.medication.ongoing.sendToPharmacy.activeEncounter.tooltip"
+                    fallback="Cannot send to pharmacy while patient has an active encounter. Please use the encounter medication workflow instead."
+                  />
+                }
+                PopperProps={{
+                  popperOptions: {
+                    positionFixed: true,
+                    modifiers: {
+                      flip: {
+                        enabled: false,
+                      },
+                      preventOverflow: {
+                        enabled: false,
+                      },
                     },
                   },
-                },
-              }}
-            >
-              <NoteModalActionBlocker>
-                <Button
-                  disabled={!!currentEncounter}
-                  onClick={() => setCreateMedicationModalOpen(true)}
-                >
+                }}
+              >
+                <NoteModalActionBlocker>
+                  <ThemedTooltip
+                    PopperProps={{
+                      popperOptions: {
+                        positionFixed: true,
+                        modifiers: {
+                          flip: {
+                            enabled: false,
+                          },
+                          preventOverflow: {
+                            enabled: false,
+                          },
+                        },
+                      },
+                    }}
+                    title={
+                      !currentEncounter ? (
+                        <Box width="120px" fontWeight={400}>
+                          <TranslatedText
+                            stringId="patient.medication.ongoing.sendToPharmacy.tooltip"
+                            fallback="Send to pharmacy"
+                          />
+                        </Box>
+                      ) : (
+                        ''
+                      )
+                    }
+                  >
+                    <SendToPharmacyButton
+                      disabled={!!currentEncounter}
+                      onClick={() => setSendToPharmacyModalOpen(true)}
+                    >
+                      <SendToPharmacyIcon />
+                    </SendToPharmacyButton>
+                  </ThemedTooltip>
+                </NoteModalActionBlocker>
+              </StyledConditionalTooltip>
+            )}
+            {canCreateOngoingPrescription && (
+              <StyledConditionalTooltip
+                visible={!!currentEncounter}
+                title={
                   <TranslatedText
-                    stringId="patient.medication.ongoing.add"
-                    fallback="Add ongoing medication"
+                    stringId="patient.medication.ongoing.add.warning"
+                    fallback="Please add any medications via the patient active encounter."
                   />
-                </Button>
-              </NoteModalActionBlocker>
-            </StyledConditionalTooltip>
-          )}
+                }
+                PopperProps={{
+                  popperOptions: {
+                    positionFixed: true,
+                    modifiers: {
+                      flip: {
+                        enabled: false,
+                      },
+                      preventOverflow: {
+                        enabled: false,
+                      },
+                    },
+                  },
+                }}
+              >
+                <NoteModalActionBlocker>
+                  <Button
+                    disabled={!!currentEncounter}
+                    onClick={() => setCreateMedicationModalOpen(true)}
+                  >
+                    <TranslatedText
+                      stringId="patient.medication.ongoing.add"
+                      fallback="Add ongoing medication"
+                    />
+                  </Button>
+                </NoteModalActionBlocker>
+              </StyledConditionalTooltip>
+            )}
+          </ButtonGroup>
         </TableTitle>
         <StyledDataFetchingTable
           endpoint={`/patient/${patient.id}/ongoing-prescriptions`}
@@ -492,6 +586,13 @@ export const PatientMedicationPane = ({ patient }) => {
         onClose={() => setCreateMedicationModalOpen(false)}
         onSaved={handleSavedOngoingPrescription}
         isOngoingPrescription
+      />
+      <PharmacyOrderModal
+        patient={patient}
+        ongoingPrescriptions={activeOngoingPrescriptions}
+        open={sendToPharmacyModalOpen}
+        onClose={() => setSendToPharmacyModalOpen(false)}
+        onSubmit={handleSendToPharmacySubmit}
       />
       {selectedMedication && (
         <MedicationDetails

@@ -5,7 +5,7 @@ import { Box } from '@material-ui/core';
 import { formatShortest } from '@tamanu/utils/dateTime';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 
-import { TextInput, SelectField } from '@tamanu/ui-components';
+import { TextInput, SelectField, ConditionalTooltip } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { OuterLabelFieldWrapper, CheckInput } from '../Field';
 import { Table } from '../Table';
@@ -100,6 +100,7 @@ const getColumns = (
   onSelectAll,
   selectAllChecked,
   columnsToInclude = Object.values(COLUMN_KEYS),
+  { isOngoingMode = false, canEditRepeats = true, disabledPrescriptionIds = [] } = {},
 ) => {
   const allColumns = [
     {
@@ -114,14 +115,30 @@ const getColumns = (
       ),
       sortable: false,
       maxWidth: 50,
-      accessor: ({ selected, onSelect }) => (
-        <CheckInput
-          value={selected}
-          onChange={onSelect}
-          style={{ margin: 'auto' }}
-          data-testid="prescription-checkbox"
-        />
-      ),
+      accessor: ({ selected, onSelect, id }) => {
+        const isDisabled = isOngoingMode && disabledPrescriptionIds.includes(id);
+        return (
+          <ConditionalTooltip
+            visible={isDisabled}
+            title={
+              <TranslatedText
+                stringId="medication.sendToPharmacy.noRepeatsRemaining"
+                fallback="No repeats remaining"
+              />
+            }
+          >
+            <span>
+              <CheckInput
+                value={selected}
+                onChange={onSelect}
+                disabled={isDisabled}
+                style={{ margin: 'auto' }}
+                data-testid="prescription-checkbox"
+              />
+            </span>
+          </ConditionalTooltip>
+        );
+      },
     },
 
     {
@@ -283,18 +300,24 @@ const getColumns = (
         />
       ),
       sortable: false,
-      accessor: ({ repeats, onChange, selected }) => (
-        <Box width="89px">
-          <SelectField
-            value={repeats ?? 0}
-            onChange={onChange}
-            disabled={!selected}
-            isClearable={false}
-            options={REPEATS_LABELS.map(val => ({ value: val, label: String(val) }))}
-            data-testid="selectinput-ld3p"
-          />
-        </Box>
-      ),
+      accessor: ({ repeats, onChange, selected }) => {
+        // In ongoing mode without edit permission, show read-only value
+        if (isOngoingMode && !canEditRepeats) {
+          return <Box width="89px">{repeats ?? 0}</Box>;
+        }
+        return (
+          <Box width="89px">
+            <SelectField
+              value={repeats ?? 0}
+              onChange={onChange}
+              disabled={!selected}
+              isClearable={false}
+              options={REPEATS_LABELS.map(val => ({ value: val, label: String(val) }))}
+              data-testid="selectinput-ld3p"
+            />
+          </Box>
+        );
+      },
     },
   ];
 
@@ -309,6 +332,9 @@ export const PharmacyOrderMedicationTable = ({
   handleSelectAll,
   selectAllChecked,
   columnsToInclude,
+  isOngoingMode = false,
+  canEditRepeats = true,
+  disabledPrescriptionIds = [],
 }) => {
   const { getTranslation, getEnumTranslation } = useTranslation();
   return (
@@ -320,6 +346,7 @@ export const PharmacyOrderMedicationTable = ({
         handleSelectAll,
         selectAllChecked,
         columnsToInclude,
+        { isOngoingMode, canEditRepeats, disabledPrescriptionIds },
       )}
       data={data || []}
       elevated={false}
