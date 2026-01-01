@@ -20,7 +20,7 @@ import {
   NOTE_RECORD_TYPES,
   NOTE_TYPES,
   REFERENCE_TYPES,
-  STOCK_STATUSES,
+  DRUG_STOCK_STATUSES,
   SYSTEM_USER_UUID,
   PHARMACY_PRESCRIPTION_TYPES,
 } from '@tamanu/constants';
@@ -1522,7 +1522,7 @@ medication.get(
             Sequelize.fn(
               'COALESCE',
               Sequelize.col('prescription.medication.referenceDrug.facilities.stock_status'),
-              STOCK_STATUSES.UNKNOWN,
+              DRUG_STOCK_STATUSES.UNKNOWN,
             ),
             value,
           ),
@@ -1531,14 +1531,12 @@ medication.get(
 
     const buildOrder = () => {
       if (orderBy === 'stockStatus') {
-        // Use computed column for alphabetical ordering (ASC/DESC)
-        // COALESCE handles null (no facility record) as 'unknown'
         return [
           [
             Sequelize.fn(
               'COALESCE',
               Sequelize.col('prescription.medication.referenceDrug.facilities.stock_status'),
-              STOCK_STATUSES.UNKNOWN,
+              DRUG_STOCK_STATUSES.UNKNOWN,
             ),
             orderDirection,
           ],
