@@ -145,7 +145,7 @@ const getStockStatus = ({ prescription }) => {
     </StyledTag>
   );
 
-  if (status === STOCK_STATUSES.YES) {
+  if (status === DRUG_STOCK_STATUSES.YES) {
     return (
       <ThemedTooltip
         title={
