@@ -1675,6 +1675,7 @@ medication.get(
             'indication',
             'notes',
             'isVariableDose',
+            'date'
           ],
           required: true,
           include: [

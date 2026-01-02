@@ -8,8 +8,6 @@ import { formatShort } from '@tamanu/utils/dateTime';
 import {
   DRUG_ROUTE_LABELS,
   MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
-  DRUG_STOCK_STATUS_LABELS,
-  DRUG_STOCK_STATUSES,
 } from '@tamanu/constants';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 
@@ -18,8 +16,6 @@ import {
   ConfirmCancelBackRow,
   ConfirmCancelRow,
   TextInput,
-  ThemedTooltip,
-  TranslatedEnum,
   TranslatedText,
 } from '@tamanu/ui-components';
 
@@ -37,6 +33,7 @@ import { BodyText } from '../Typography';
 import { MedicationLabelPrintModal } from '../PatientPrinting/modals/MedicationLabelPrintModal';
 import { MedicationLabel } from '../PatientPrinting/printouts/MedicationLabel';
 import { capitalize } from 'lodash';
+import { getStockStatus } from '../../utils/medications';
 
 const MODAL_STEPS = {
   DISPENSE: 'dispense',
@@ -138,12 +135,6 @@ const buildInstructionText = (prescription, getTranslation, getEnumTranslation) 
   return output.trim();
 };
 
-const getStockStatus = stock => {
-  const quantity = Number(stock?.quantity);
-  if (!stock || isNaN(quantity)) return DRUG_STOCK_STATUSES.UNKNOWN;
-  return quantity > 0 ? DRUG_STOCK_STATUSES.YES : DRUG_STOCK_STATUSES.NO;
-};
-
 const isItemDisabled = item => {
   return item.isDischargePrescription && (item.remainingRepeats ?? 0) === 0;
 };
@@ -198,7 +189,7 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
   );
 
   const selectedItems = items.filter(({ selected }) => selected);
-  const stockColumnEnabled = items.some(({ stock }) => stock);
+  const stockColumnEnabled = items.some(({ prescription }) => prescription?.medication?.referenceDrug?.facilities?.[0]?.stockStatus);
 
   useEffect(() => {
     if (open) {
@@ -453,7 +444,7 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
             fallback="Prescription date"
           />
         ),
-        accessor: ({ prescriptionDate }) => <Box>{formatShort(prescriptionDate)}</Box>,
+        accessor: ({ prescription }) => <Box>{formatShort(prescription?.date)}</Box>,
       },
       {
         key: 'medication',
@@ -544,9 +535,9 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
         title: (
           <TranslatedText stringId="medication.dispense.lastDispensed" fallback="Last dispensed" />
         ),
-        accessor: ({ lastDispensedAt }) =>
-          lastDispensedAt ? (
-            <DateDisplay date={lastDispensedAt} />
+        accessor: ({ medicationDispenses }) =>
+          medicationDispenses?.[0]?.dispensedAt ? (
+            <DateDisplay date={medicationDispenses[0].dispensedAt} />
           ) : (
             <TranslatedText
               stringId="general.fallback.notApplicable"
@@ -567,27 +558,7 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
             fallback="Stock"
           />
         ),
-        accessor: ({ stock }) => {
-          const status = getStockStatus(stock);
-          const content = <TranslatedEnum value={status} enumValues={DRUG_STOCK_STATUS_LABELS} />;
-          if (status === DRUG_STOCK_STATUSES.YES) {
-            const { quantity: stockQuantity } = stock || {};
-            return (
-              <ThemedTooltip
-                title={
-                  <TranslatedText
-                    stringId="medication.stockLevel.tooltip"
-                    fallback="Stock level: :quantity units"
-                    replacements={{ quantity: stockQuantity }}
-                  />
-                }
-              >
-                <span>{content}</span>
-              </ThemedTooltip>
-            );
-          }
-          return content;
-        },
+        accessor: row => getStockStatus(row, false),
       });
     }
 
