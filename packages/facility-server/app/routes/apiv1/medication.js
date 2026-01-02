@@ -20,7 +20,7 @@ import {
   NOTE_RECORD_TYPES,
   NOTE_TYPES,
   REFERENCE_TYPES,
-  STOCK_STATUSES,
+  DRUG_STOCK_STATUSES,
   SYSTEM_USER_UUID,
   PHARMACY_PRESCRIPTION_TYPES,
 } from '@tamanu/constants';
@@ -30,159 +30,6 @@ import { validate } from '../../utils/validate';
 import { mapQueryFilters } from '../../database/utils';
 
 export const medication = express.Router();
-
-const dispensableMedicationsQuerySchema = z
-  .object({
-    patientId: z.string().uuid(),
-    facilityId: z.string(),
-  })
-  .strip();
-
-medication.get(
-  '/dispensable-medications',
-  asyncHandler(async (req, res) => {
-    const { models } = req;
-
-    req.checkPermission('read', 'Medication');
-
-    const { patientId, facilityId } = await dispensableMedicationsQuerySchema.parseAsync(req.query);
-
-    const { PharmacyOrderPrescription } = models;
-
-    const pharmacyOrderPrescriptions = await PharmacyOrderPrescription.findAll({
-      attributes: ['id', 'displayId', 'quantity', 'repeats', 'createdAt'],
-      include: [
-        {
-          association: 'pharmacyOrder',
-          attributes: ['id'],
-          required: true,
-          where: { deletedAt: null },
-          include: [
-            {
-              association: 'encounter',
-              attributes: ['id'],
-              required: true,
-              where: { patientId },
-            },
-          ],
-        },
-        {
-          association: 'prescription',
-          attributes: [
-            'id',
-            'doseAmount',
-            'units',
-            'frequency',
-            'route',
-            'durationValue',
-            'durationUnit',
-            'indication',
-            'notes',
-            'isVariableDose',
-          ],
-          required: true,
-          where: {
-            deletedAt: null,
-            discontinued: { [Op.not]: true },
-          },
-          include: [
-            {
-              association: 'medication',
-              attributes: ['id', 'name'],
-              include:  [
-                {
-                  model: models.ReferenceDrug,
-                  as: 'referenceDrug',
-                  attributes: ['id'],
-                  required: false,
-                  include: [
-                    {
-                      model: models.ReferenceDrugFacility,
-                      as: 'facilities',
-                      attributes: ['facilityId', 'quantity'],
-                      where: { facilityId },
-                      required: false,
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-        {
-          association: 'medicationDispenses',
-          attributes: ['dispensedAt'],
-          where: { deletedAt: null },
-          required: false,
-          order: [['dispensedAt', 'DESC']],
-        }, 
-        {
-          association: 'pharmacyOrder',
-          attributes: ['id', 'isDischargePrescription'],
-          required: false,
-          where: { deletedAt: null },
-        }
-      ],
-      where: {
-        deletedAt: null,
-        [Op.or]: [
-          Sequelize.literal(`(  
-            COALESCE("PharmacyOrderPrescription".repeats, 0) >= (
-              SELECT COUNT(*) FROM medication_dispenses md
-              WHERE md.pharmacy_order_prescription_id = "PharmacyOrderPrescription".id
-              AND md.deleted_at IS NULL
-            )
-          )`),
-          {
-            '$pharmacyOrder.is_discharge_prescription$': false, // INPATIENT medication requests
-          },
-        ],
-      },
-      order: [['createdAt', 'DESC']],
-      subQuery: false,
-    });
-
-    const dispensableMedications = pharmacyOrderPrescriptions.map(pop => {
-      const dispenses = pop.medicationDispenses || [];
-
-      // dispenses are ordered by dispensedAt DESC, so first element is the latest
-      const lastDispensedAt = dispenses[0]?.dispensedAt || null;
-
-      const referenceDrug = pop.prescription?.medication?.referenceDrug;
-      const stock = referenceDrug?.facilities?.find(f => f.facilityId === facilityId);
-
-      return {
-        id: pop.id,
-        displayId: pop.displayId,
-        prescriptionDate: pop.createdAt,
-        prescription: pop.prescription,
-        quantity: pop.quantity,
-        remainingRepeats: pop.remainingRepeats,
-        lastDispensedAt,
-        stock,
-        isDischargePrescription: pop.pharmacyOrder?.isDischargePrescription,
-      };
-    });
-
-    res.send({
-      count: dispensableMedications.length,
-      data: dispensableMedications,
-    });
-  }),
-);
-
-const dispenseItemSchema = z.object({
-  pharmacyOrderPrescriptionId: z.string().uuid(),
-  quantity: z.coerce.number().int().positive(),
-  instructions: z.string().min(1),
-});
-
-const dispenseInputSchema = z
-  .object({
-    dispensedByUserId: z.string().uuid(),
-    items: z.array(dispenseItemSchema).min(1),
-  })
-  .strip();
 
 medication.post(
   '/dispense',
@@ -483,7 +330,15 @@ medication.post(
 const importOngoingMedicationsSchema = z
   .object({
     encounterId: z.uuid({ message: 'Valid encounter ID is required' }),
-    prescriptionIds: z.array(z.uuid({ message: 'Valid prescription ID is required' })),
+    medications: z
+      .array(
+        z.object({
+          prescriptionId: z.uuid({ message: 'Valid prescription ID is required' }),
+          quantity: z.number(),
+          repeats: z.number().optional(),
+        }),
+      )
+      .optional(),
     prescriberId: z.string(),
   })
   .strip();
@@ -494,12 +349,14 @@ medication.post(
     const { models, db } = req;
     const { Encounter, Prescription, PatientOngoingPrescription } = models;
 
-    const { prescriptionIds, prescriberId, encounterId } = validate(
+    const { medications, prescriberId, encounterId } = validate(
       importOngoingMedicationsSchema,
       req.body,
     );
 
     req.checkPermission('create', 'Medication');
+
+    const prescriptionIds = medications.map(m => m.prescriptionId);
 
     const encounter = await Encounter.findByPk(encounterId);
     if (!encounter) {
@@ -546,6 +403,9 @@ medication.post(
       const newPrescriptions = [];
 
       for (const prescription of importPrescriptions) {
+        // Find the corresponding medication data with quantity and repeats
+        const { quantity, repeats } = medications.find(m => m.prescriptionId === prescription.id);
+
         const newPrescription = await createEncounterPrescription({
           encounter,
           data: {
@@ -555,6 +415,9 @@ medication.post(
             prescriberId,
             date: getCurrentDateTimeString(),
             startDate: getCurrentDateTimeString(),
+            // Override quantity and repeats if provided
+            quantity,
+            repeats,
           },
           models,
         });
@@ -1774,7 +1637,7 @@ medication.get(
             Sequelize.fn(
               'COALESCE',
               Sequelize.col('prescription.medication.referenceDrug.facilities.stock_status'),
-              STOCK_STATUSES.UNKNOWN,
+              DRUG_STOCK_STATUSES.UNKNOWN,
             ),
             value,
           ),
@@ -1783,14 +1646,12 @@ medication.get(
 
     const buildOrder = () => {
       if (orderBy === 'stockStatus') {
-        // Use computed column for alphabetical ordering (ASC/DESC)
-        // COALESCE handles null (no facility record) as 'unknown'
         return [
           [
             Sequelize.fn(
               'COALESCE',
               Sequelize.col('prescription.medication.referenceDrug.facilities.stock_status'),
-              STOCK_STATUSES.UNKNOWN,
+              DRUG_STOCK_STATUSES.UNKNOWN,
             ),
             orderDirection,
           ],
@@ -2009,6 +1870,222 @@ medication.get(
       count,
       data,
     });
+  }),
+);
+
+const dispensableMedicationsQuerySchema = z
+  .object({
+    patientId: z.uuid(),
+    facilityId: z.string(),
+  })
+  .strip();
+
+medication.get(
+  '/dispensable-medications',
+  asyncHandler(async (req, res) => {
+    const { models } = req;
+
+    req.checkPermission('read', 'Medication');
+
+    const { patientId, facilityId } = await dispensableMedicationsQuerySchema.parseAsync(req.query);
+
+    const { PharmacyOrderPrescription } = models;
+
+    const pharmacyOrderPrescriptions = await PharmacyOrderPrescription.findAll({
+      attributes: ['id', 'quantity', 'repeats'],
+      include: [
+        {
+          association: 'pharmacyOrder',
+          attributes: ['id', 'isDischargePrescription', 'date'],
+          where: { facilityId },
+          required: true,
+          include: [
+            {
+              association: 'encounter',
+              attributes: ['id'],
+              required: true,
+              where: { patientId },
+            },
+          ],
+        },
+        {
+          association: 'prescription',
+          attributes: [
+            'id',
+            'doseAmount',
+            'units',
+            'frequency',
+            'route',
+            'durationValue',
+            'durationUnit',
+            'indication',
+            'notes',
+            'isVariableDose',
+          ],
+          required: true,
+          include: [
+            {
+              association: 'medication',
+              attributes: ['id', 'name'],
+              include: [
+                {
+                  model: models.ReferenceDrug,
+                  as: 'referenceDrug',
+                  attributes: ['id'],
+                  required: true,
+                  include: [
+                    {
+                      model: models.ReferenceDrugFacility,
+                      as: 'facilities',
+                      attributes: ['facilityId', 'quantity', 'stockStatus'],
+                      where: { facilityId },
+                      required: false,
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          association: 'medicationDispenses',
+          attributes: ['dispensedAt'],
+          required: false,
+        },
+      ],
+      order: [[{ model: models.PharmacyOrder, as: 'pharmacyOrder' }, 'date', 'DESC']],
+      subQuery: false,
+    });
+
+    res.send({
+      count: pharmacyOrderPrescriptions.length,
+      data: pharmacyOrderPrescriptions.map(pop => ({
+        ...pop.toJSON(),
+        remainingRepeats: pop.remainingRepeats,
+      })),
+    });
+  }),
+);
+
+const dispenseItemSchema = z.object({
+  pharmacyOrderPrescriptionId: z.uuid(),
+  quantity: z.coerce.number().int().positive(),
+  instructions: z.string().min(1),
+});
+
+const dispenseInputSchema = z
+  .object({
+    dispensedByUserId: z.string(),
+    items: z.array(dispenseItemSchema).min(1).max(100),
+  })
+  .strip();
+
+medication.post(
+  '/dispense',
+  asyncHandler(async (req, res) => {
+    const { models } = req;
+
+    req.checkPermission('create', 'MedicationDispense');
+
+    const { dispensedByUserId, items } = await dispenseInputSchema.parseAsync(req.body);
+
+    const { User, MedicationDispense, PharmacyOrderPrescription } = models;
+
+    const dispensedByUser = await User.findByPk(dispensedByUserId);
+    if (!dispensedByUser) {
+      throw new NotFoundError(`User with id ${dispensedByUserId} not found`);
+    }
+
+    const dispensedAt = getCurrentDateTimeString();
+    const pharmacyOrderPrescriptionIds = items.map(item => item.pharmacyOrderPrescriptionId);
+
+    const result = await PharmacyOrderPrescription.sequelize.transaction(async transaction => {
+      // Lock and fetch prescription records to prevent race conditions
+      const prescriptionRecords = await PharmacyOrderPrescription.findAll({
+        attributes: ['id', 'repeats', 'quantity'],
+        where: {
+          id: pharmacyOrderPrescriptionIds,
+        },
+        include: [
+          {
+            association: 'prescription',
+            attributes: ['id', 'medicationId'],
+            required: true,
+          },
+          {
+            association: 'medicationDispenses',
+            attributes: ['id'],
+            required: false,
+          },
+          {
+            association: 'pharmacyOrder',
+            attributes: ['id', 'isDischargePrescription'],
+            required: false,
+          },
+        ],
+        lock: {
+          level: transaction.LOCK.UPDATE,
+          of: PharmacyOrderPrescription,
+        },
+      });
+
+      const foundIds = new Set(prescriptionRecords.map(r => r.id));
+      const notFoundIds = pharmacyOrderPrescriptionIds.filter(id => !foundIds.has(id));
+      if (notFoundIds.length > 0) {
+        throw new NotFoundError(
+          `Pharmacy order prescription(s) not found or discontinued: ${notFoundIds.join(', ')}`,
+        );
+      }
+      const isSamePharmacyOrder = prescriptionRecords.every(
+        record => record.pharmacyOrder.id === prescriptionRecords[0].pharmacyOrder.id,
+      );
+      if (!isSamePharmacyOrder) {
+        throw new InvalidOperationError(
+          `All prescriptions must be part of the same pharmacy order`,
+        );
+      }
+
+      const ineligibleRecords = prescriptionRecords.filter(record => {
+        const remainingRepeats = record.remainingRepeats;
+        const isDischargePrescription = record.pharmacyOrder?.isDischargePrescription;
+        return remainingRepeats <= 0 && !!isDischargePrescription;
+      });
+
+      if (ineligibleRecords.length > 0) {
+        throw new InvalidOperationError(
+          `The following prescriptions have no remaining repeats and cannot be dispensed: ${ineligibleRecords.map(r => r.id).join(', ')}`,
+        );
+      }
+
+      // Create dispense records
+      const dispenseRecords = await MedicationDispense.bulkCreate(
+        items.map(item => ({
+          pharmacyOrderPrescriptionId: item.pharmacyOrderPrescriptionId,
+          quantity: item.quantity,
+          instructions: item.instructions,
+          dispensedByUserId,
+          dispensedAt,
+        })),
+      );
+
+      // After dispensing, soft delete all ineligible pharmacy order prescriptions
+      const allIneligibleRecords = prescriptionRecords.filter(record => {
+        const remainingRepeats = record.remainingRepeats - 1;
+        const isDischargePrescription = record.pharmacyOrder?.isDischargePrescription;
+        return remainingRepeats <= 0 && !!isDischargePrescription;
+      });
+
+      if (allIneligibleRecords.length > 0) {
+        const ineligibleIds = allIneligibleRecords.map(r => r.id);
+        await PharmacyOrderPrescription.destroy({
+          where: { id: ineligibleIds },
+        });
+      }
+
+      return dispenseRecords;
+    });
+
+    res.send(result);
   }),
 );
 

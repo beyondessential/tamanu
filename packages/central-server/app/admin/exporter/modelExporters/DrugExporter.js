@@ -1,4 +1,4 @@
-import { REFERENCE_TYPES } from '@tamanu/constants';
+import { DRUG_STOCK_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
 import { ReferenceDataExporter } from './ReferenceDataExporter';
 
 export class DrugExporter extends ReferenceDataExporter {
@@ -21,6 +21,10 @@ export class DrugExporter extends ReferenceDataExporter {
       ],
     });
 
+    const allFacilityIds = Array.from(
+      new Set(drugs.flatMap((drug) => (drug.referenceDrug?.facilities ?? []).map((facility) => facility.facilityId)).filter(Boolean))
+    ).sort();
+
     return drugs.map((drug) => {
       const baseData = {
         ...drug.dataValues,
@@ -29,10 +33,14 @@ export class DrugExporter extends ReferenceDataExporter {
         notes: drug.referenceDrug?.notes,
         isSensitive: drug.referenceDrug?.isSensitive,
       };
-      
+
+      for (const facilityId of allFacilityIds) {
+        baseData[facilityId] = DRUG_STOCK_STATUSES.UNKNOWN;
+      }
+
       if (drug.referenceDrug?.facilities) {
         drug.referenceDrug.facilities.forEach((facility) => {
-          baseData[facility.facilityId] = facility.quantity;
+          baseData[facility.facilityId] = facility.quantity ?? facility.stockStatus;
         });
       }
 
