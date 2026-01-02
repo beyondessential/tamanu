@@ -8,8 +8,8 @@ import { formatShort } from '@tamanu/utils/dateTime';
 import {
   DRUG_ROUTE_LABELS,
   MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
-  STOCK_STATUS_LABELS,
-  STOCK_STATUSES,
+  DRUG_STOCK_STATUS_LABELS,
+  DRUG_STOCK_STATUSES,
 } from '@tamanu/constants';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 
@@ -140,8 +140,8 @@ const buildInstructionText = (prescription, getTranslation, getEnumTranslation) 
 
 const getStockStatus = stock => {
   const quantity = Number(stock?.quantity);
-  if (!stock || isNaN(quantity)) return STOCK_STATUSES.UNKNOWN;
-  return quantity > 0 ? STOCK_STATUSES.YES : STOCK_STATUSES.NO;
+  if (!stock || isNaN(quantity)) return DRUG_STOCK_STATUSES.UNKNOWN;
+  return quantity > 0 ? DRUG_STOCK_STATUSES.YES : DRUG_STOCK_STATUSES.NO;
 };
 
 const isItemDisabled = item => {
@@ -569,8 +569,8 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
         ),
         accessor: ({ stock }) => {
           const status = getStockStatus(stock);
-          const content = <TranslatedEnum value={status} enumValues={STOCK_STATUS_LABELS} />;
-          if (status === STOCK_STATUSES.YES) {
+          const content = <TranslatedEnum value={status} enumValues={DRUG_STOCK_STATUS_LABELS} />;
+          if (status === DRUG_STOCK_STATUSES.YES) {
             const { quantity: stockQuantity } = stock || {};
             return (
               <ThemedTooltip
