@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client';
-import { WS_EVENTS } from '@tamanu/constants';
+import { WS_EVENTS, WS_PATH } from '@tamanu/constants';
 
 /**
  *
@@ -7,8 +7,7 @@ import { WS_EVENTS } from '@tamanu/constants';
  */
 export const defineWebsocketClientService = injector => {
   const url = new URL(injector.config.sync.host);
-  url.pathname = '/api';
-  const client = io(url.toString(), { transports: ['websocket', 'webtransport'] });
+  const client = io(url.toString(), { path: WS_PATH, transports: ['websocket', 'webtransport'] });
   const getClient = () => client;
 
   //forward event to facility client
