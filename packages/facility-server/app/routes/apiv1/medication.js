@@ -1629,7 +1629,7 @@ medication.get(
 
 const dispensableMedicationsQuerySchema = z
   .object({
-    patientId: z.string().uuid(),
+    patientId: z.uuid(),
     facilityId: z.string(),
   })
   .strip();
@@ -1790,12 +1790,19 @@ medication.post(
           `Pharmacy order prescription(s) not found or discontinued: ${notFoundIds.join(', ')}`,
         );
       }
+      const isSamePharmacyOrder = prescriptionRecords.every(
+        record => record.pharmacyOrder.id === prescriptionRecords[0].pharmacyOrder.id,
+      );
+      if (!isSamePharmacyOrder) {
+        throw new InvalidOperationError(
+          `All prescriptions must be part of the same pharmacy order`,
+        );
+      }
 
       const ineligibleRecords = prescriptionRecords.filter(record => {
-        const dispenseCount = (record.medicationDispenses || []).length;
         const remainingRepeats = record.remainingRepeats;
         const isDischargePrescription = record.pharmacyOrder?.isDischargePrescription;
-        return dispenseCount > 0 && remainingRepeats <= 0 && !!isDischargePrescription;
+        return remainingRepeats <= 0 && !!isDischargePrescription;
       });
 
       if (ineligibleRecords.length > 0) {
@@ -1817,9 +1824,9 @@ medication.post(
 
       // After dispensing, soft delete all ineligible pharmacy order prescriptions
       const allIneligibleRecords = prescriptionRecords.filter(record => {
-        // we don't need to check dispense count because we already checked it above
         const remainingRepeats = record.remainingRepeats - 1;
-        return remainingRepeats <= 0;
+        const isDischargePrescription = record.pharmacyOrder?.isDischargePrescription;
+        return remainingRepeats <= 0 && !!isDischargePrescription;
       });
 
       if (allIneligibleRecords.length > 0) {
