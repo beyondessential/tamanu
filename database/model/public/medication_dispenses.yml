@@ -43,7 +43,7 @@ sources:
             data_tests:
               - not_null
           - name: dispensed_at
-            data_type: timestamp with time zone
+            data_type: character(19)
             description: "{{ doc('medication_dispenses__dispensed_at') }}"
             data_tests:
               - not_null

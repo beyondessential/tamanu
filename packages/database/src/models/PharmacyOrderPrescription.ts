@@ -71,9 +71,10 @@ export class PharmacyOrderPrescription extends Model {
       return 0;
     }
     // The remaining repeats for OUTPATIENT medication requests is the number of repeats minus the number of dispenses.
-    const repeats = this.repeats || 0;
+    // we add 1 to the repeats because the first dispense is not counted as a repeat
+    const repeats = (this.repeats || 0) + 1;
     const dispenseCount = (this.medicationDispenses || []).length;
-    return Math.max(0, repeats - Math.max(0, dispenseCount - 1));
+    return Math.max(0, repeats - dispenseCount);
   }
 
   static getListReferenceAssociations() {

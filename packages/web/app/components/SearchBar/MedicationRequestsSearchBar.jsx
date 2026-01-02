@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
-import { STOCK_STATUS_LABELS, PHARMACY_PRESCRIPTION_TYPE_LABELS } from '@tamanu/constants';
+import { DRUG_STOCK_STATUS_LABELS, PHARMACY_PRESCRIPTION_TYPE_LABELS } from '@tamanu/constants';
 import { AutocompleteField, DateField, Field, SearchField, TranslatedSelectField } from '../Field';
 import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
 import { useSuggester } from '../../api';
@@ -168,7 +168,7 @@ export const MedicationRequestsSearchBar = () => {
     searchParameters,
   );
 
-  const handleSearch = (values) => {
+  const handleSearch = values => {
     setSearchParameters({
       ...values,
       date: values.date || undefined,
@@ -210,7 +210,7 @@ export const MedicationRequestsSearchBar = () => {
               />
             }
             component={TranslatedSelectField}
-            enumValues={STOCK_STATUS_LABELS}
+            enumValues={DRUG_STOCK_STATUS_LABELS}
             size="small"
             data-testid="field-stock"
           />
