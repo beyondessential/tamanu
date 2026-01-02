@@ -159,7 +159,7 @@ const QuantityInput = memo(({ value: defaultValue, onChange, ...props }) => {
   return <TextInput {...props} type="number" value={value} onChange={handleChange} />;
 });
 
-export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient }) => {
+export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient, onDispenseSuccess }) => {
   const api = useApi();
   const queryClient = useQueryClient();
   const { facilityId, currentUser } = useAuth();
@@ -404,6 +404,8 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
     });
 
     await queryClient.invalidateQueries({ queryKey: ['dispensableMedications'] });
+
+    if (onDispenseSuccess) onDispenseSuccess();
 
     // Close dispense modal and open print modal
     setShowPrintModal(true);
@@ -684,6 +686,7 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient })
 DispenseMedicationWorkflowModal.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
+  onDispenseSuccess: PropTypes.func,
   patient: PropTypes.shape({
     id: PropTypes.string,
     displayId: PropTypes.string,
@@ -694,4 +697,5 @@ DispenseMedicationWorkflowModal.propTypes = {
 
 DispenseMedicationWorkflowModal.defaultProps = {
   patient: null,
+  onDispenseSuccess: null,
 };

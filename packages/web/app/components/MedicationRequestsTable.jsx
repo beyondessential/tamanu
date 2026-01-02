@@ -125,9 +125,14 @@ export const MedicationRequestsTable = () => {
   const [medicationRequests, setMedicationRequests] = useState([]);
   const [isDispenseOpen, setIsDispenseOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
+  const [refreshCount, setRefreshCount] = useState(0);
 
   const onMedicationRequestsFetched = useCallback(({ data }) => {
     setMedicationRequests(data);
+  }, []);
+
+  const handleTableRefresh = useCallback(() => {
+    setRefreshCount(prev => prev + 1);
   }, []);
 
   const columns = [
@@ -263,8 +268,10 @@ export const MedicationRequestsTable = () => {
           setSelectedPatient(null);
         }}
         patient={selectedPatient}
+        onDispenseSuccess={handleTableRefresh}
       />
       <StyledSearchTableWithPermissionCheck
+        refreshCount={refreshCount}
         verb="list"
         noun="Medication"
         autoRefresh={true}
