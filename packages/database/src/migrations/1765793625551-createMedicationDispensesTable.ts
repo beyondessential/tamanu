@@ -62,10 +62,6 @@ export async function up(query: QueryInterface): Promise<void> {
   await query.addIndex(TABLE_NAME, ['pharmacy_order_prescription_id'], {
     name: 'idx_medication_dispenses_pharmacy_order_prescription_id',
   });
-
-  await query.addIndex(TABLE_NAME, ['dispensed_by_user_id'], {
-    name: 'idx_medication_dispenses_dispensed_by_user_id',
-  });
 }
 
 export async function down(query: QueryInterface): Promise<void> {
