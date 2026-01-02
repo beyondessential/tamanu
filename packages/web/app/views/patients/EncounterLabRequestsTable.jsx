@@ -37,7 +37,6 @@ const columns = [
       />
     ),
     accessor: getRequestType,
-    sortable: false,
   },
   {
     key: 'requestedDate',
@@ -49,7 +48,6 @@ const columns = [
       />
     ),
     accessor: getDateWithTimeTooltip,
-    sortable: false,
   },
   {
     key: 'displayName',
@@ -73,7 +71,6 @@ const columns = [
       />
     ),
     accessor: getPriority,
-    sortable: false,
   },
   {
     key: 'status',
@@ -86,7 +83,6 @@ const columns = [
     ),
     accessor: getStatus,
     maxWidth: 200,
-    sortable: false,
   },
 ];
 
