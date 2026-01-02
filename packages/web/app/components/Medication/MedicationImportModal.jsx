@@ -20,7 +20,7 @@ import {
 import { usePatientOngoingPrescriptionsQuery } from '../../api/queries/usePatientOngoingPrescriptionsQuery';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { useTranslation } from '../../contexts/Translation';
-import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
+import { DRUG_ROUTE_LABELS, DRUG_STOCK_STATUSES } from '@tamanu/constants';
 import { toast } from 'react-toastify';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
@@ -221,7 +221,7 @@ export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => 
   const api = useApi();
   const { getTranslation, getEnumTranslation } = useTranslation();
   const practitionerSuggester = useSuggester('practitioner');
-  const { currentUser } = useAuth();
+  const { currentUser, facilityId } = useAuth();
   const [prescriberId, setPrescriberId] = useState(() => currentUser?.id ?? null);
   const [medicationEdits, setMedicationEdits] = useState({});
   const [showValidationErrors, setShowValidationErrors] = useState(false);
@@ -232,7 +232,7 @@ export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => 
     data: patientOngoingPrescriptionsData,
     isLoading,
     error,
-  } = usePatientOngoingPrescriptionsQuery(encounter.patientId);
+  } = usePatientOngoingPrescriptionsQuery(encounter.patientId, facilityId);
 
   const medications = useMemo(() => {
     const encounterPrescriptions = encounterPrescriptionsData?.data || [];
@@ -242,7 +242,8 @@ export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => 
 
     return patientOngoingPrescriptions
       .filter(p => !p.discontinued)
-      .filter(p => !encounterPrescriptionHashes.has(createPrescriptionHash(p)));
+      .filter(p => !encounterPrescriptionHashes.has(createPrescriptionHash(p)))
+      .filter(p => p.medication?.referenceDrug?.facilities?.[0]?.stockStatus !== DRUG_STOCK_STATUSES.UNAVAILABLE);
   }, [encounterPrescriptionsData, patientOngoingPrescriptionsData]);
 
   // Initialize medication edits with default values from prescriptions

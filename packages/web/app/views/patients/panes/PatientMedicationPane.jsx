@@ -14,7 +14,7 @@ import { getPatientStatus } from '../../../utils/getPatientStatus';
 import { ConditionalTooltip } from '../../../components/Tooltip';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { useTranslation } from '../../../contexts/Translation';
-import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
+import { DRUG_ROUTE_LABELS, DRUG_STOCK_STATUSES } from '@tamanu/constants';
 import { MedicationModal } from '../../../components/Medication/MedicationModal';
 import { MedicationDetails } from '../../../components/Medication/MedicationDetails';
 import { useAuth } from '../../../contexts/Auth';
@@ -167,75 +167,110 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
   }
 `;
 
-const ONGOING_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
-  {
-    key: 'medication.name',
-    title: (
-      <TranslatedText stringId="patient.medication.table.column.medication" fallback="Medication" />
-    ),
-    sortable: true,
-    accessor: data => (
-      <CellText discontinued={data?.discontinued}>
-        <TranslatedReferenceData
-          fallback={data?.medication?.name}
-          value={data?.medication?.id}
-          category={data?.medication?.type}
-        />
-      </CellText>
-    ),
-  },
-  {
-    key: 'dose',
-    title: <TranslatedText stringId="patient.medication.table.column.dose" fallback="Dose" />,
-    accessor: data => (
-      <CellText discontinued={data?.discontinued}>
-        {getMedicationDoseDisplay(data, getTranslation, getEnumTranslation)}
-        {data.isPrn && ` ${getTranslation('patient.medication.table.prn', 'PRN')}`}
-      </CellText>
-    ),
-    sortable: false,
-  },
-  {
-    key: 'frequency',
-    title: (
-      <TranslatedText stringId="patient.medication.table.column.frequency" fallback="Frequency" />
-    ),
-    accessor: data => (
-      <CellText discontinued={data?.discontinued}>
-        {data.frequency ? getTranslatedFrequency(data.frequency, getTranslation) : ''}
-      </CellText>
-    ),
-    sortable: false,
-  },
-  {
-    key: 'route',
-    title: <TranslatedText stringId="patient.medication.table.column.route" fallback="Route" />,
-    accessor: data => (
-      <CellText discontinued={data?.discontinued}>
-        <TranslatedEnum value={data.route} enumValues={DRUG_ROUTE_LABELS} />
-      </CellText>
-    ),
-    sortable: true,
-  },
-  {
-    key: 'date',
-    title: <TranslatedText stringId="patient.medication.table.column.date" fallback="Date" />,
-    accessor: data => (
-      <CellText discontinued={data?.discontinued}>{`${formatShortest(data.date)}`}</CellText>
-    ),
-    sortable: true,
-  },
-  {
-    key: 'prescriber.displayName',
-    title: (
-      <TranslatedText stringId="patient.medication.table.column.prescriber" fallback="Prescriber" />
-    ),
-    accessor: data => (
-      <CellText discontinued={data?.discontinued}>{data?.prescriber?.displayName ?? ''}</CellText>
-    ),
-    sortable: true,
-  },
-];
+const isUnavailableAtFacility = medication =>
+  medication?.referenceDrug?.facilities?.[0]?.stockStatus === DRUG_STOCK_STATUSES.UNAVAILABLE;
+
+const ONGOING_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => {
+  const CellWrapper = ({ children, medication }) => {
+    const isUnavailable = isUnavailableAtFacility(medication);
+
+    return (
+      <StyledConditionalTooltip
+        visible={isUnavailable}
+        title={
+          <TranslatedText
+            stringId="patient.medication.unavailable.tooltip"
+            fallback="This medication is not available at this facility"
+          />
+        }
+      >
+        {children}
+      </StyledConditionalTooltip>
+    );
+  };
+
+  return [
+    {
+      key: 'medication.name',
+      title: (
+        <TranslatedText stringId="patient.medication.table.column.medication" fallback="Medication" />
+      ),
+      sortable: true,
+      accessor: data => (
+        <CellWrapper medication={data?.medication}>
+          <CellText discontinued={data?.discontinued}>
+            <TranslatedReferenceData
+              fallback={data?.medication?.name}
+              value={data?.medication?.id}
+              category={data?.medication?.type}
+            />
+          </CellText>
+        </CellWrapper>
+      ),
+    },
+    {
+      key: 'dose',
+      title: <TranslatedText stringId="patient.medication.table.column.dose" fallback="Dose" />,
+      accessor: data => (
+        <CellWrapper medication={data?.medication}>
+          <CellText discontinued={data?.discontinued}>
+            {getMedicationDoseDisplay(data, getTranslation, getEnumTranslation)}
+            {data.isPrn && ` ${getTranslation('patient.medication.table.prn', 'PRN')}`}
+          </CellText>
+        </CellWrapper>
+      ),
+      sortable: false,
+    },
+    {
+      key: 'frequency',
+      title: (
+        <TranslatedText stringId="patient.medication.table.column.frequency" fallback="Frequency" />
+      ),
+      accessor: data => (
+        <CellWrapper medication={data?.medication}>
+          <CellText discontinued={data?.discontinued}>
+            {data.frequency ? getTranslatedFrequency(data.frequency, getTranslation) : ''}
+          </CellText>
+        </CellWrapper>
+      ),
+      sortable: false,
+    },
+    {
+      key: 'route',
+      title: <TranslatedText stringId="patient.medication.table.column.route" fallback="Route" />,
+      accessor: data => (
+        <CellWrapper medication={data?.medication}>
+          <CellText discontinued={data?.discontinued}>
+            <TranslatedEnum value={data.route} enumValues={DRUG_ROUTE_LABELS} />
+          </CellText>
+        </CellWrapper>
+      ),
+      sortable: true,
+    },
+    {
+      key: 'date',
+      title: <TranslatedText stringId="patient.medication.table.column.date" fallback="Date" />,
+      accessor: data => (
+        <CellWrapper medication={data?.medication}>
+          <CellText discontinued={data?.discontinued}>{`${formatShortest(data.date)}`}</CellText>
+        </CellWrapper>
+      ),
+      sortable: true,
+    },
+    {
+      key: 'prescriber.displayName',
+      title: (
+        <TranslatedText stringId="patient.medication.table.column.prescriber" fallback="Prescriber" />
+      ),
+      accessor: data => (
+        <CellWrapper medication={data?.medication}>
+          <CellText discontinued={data?.discontinued}>{data?.prescriber?.displayName ?? ''}</CellText>
+        </CellWrapper>
+      ),
+      sortable: true,
+    },
+  ];
+};
 
 const DISCHARGE_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
   {
@@ -297,7 +332,7 @@ const DISCHARGE_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
 ];
 
 export const PatientMedicationPane = ({ patient }) => {
-  const { ability } = useAuth();
+  const { ability, facilityId } = useAuth();
   const { data: currentEncounter } = usePatientCurrentEncounterQuery(patient.id);
   const patientStatus = getPatientStatus(currentEncounter?.encounterType);
 
@@ -338,6 +373,9 @@ export const PatientMedicationPane = ({ patient }) => {
     if (isSensitive && !canViewSensitiveMedications) {
       return;
     }
+    if (isUnavailableAtFacility(data?.medication)) {
+      return;
+    }
     setSelectedMedication(data);
     setAllowDiscontinue(true);
   };
@@ -351,10 +389,14 @@ export const PatientMedicationPane = ({ patient }) => {
     setAllowDiscontinue(false);
   };
 
-  const rowStyle = ({ medication }) =>
-    medication.referenceDrug.isSensitive && !canViewSensitiveMedications
-      ? 'pointer-events: none;'
-      : '';
+  const rowStyle = ({ medication }) => `
+    ${
+      medication?.referenceDrug?.isSensitive && !canViewSensitiveMedications
+        ? 'pointer-events: none;'
+        : ''
+    }
+    ${isUnavailableAtFacility(medication) ? 'opacity: 0.5; cursor: not-allowed;' : ''}
+  `;
 
   return (
     <Box px={2.5} pb={2.5} overflow={'auto'}>
@@ -411,6 +453,7 @@ export const PatientMedicationPane = ({ patient }) => {
         </TableTitle>
         <StyledDataFetchingTable
           endpoint={`/patient/${patient.id}/ongoing-prescriptions`}
+          fetchOptions={{ facilityId }}
           columns={ONGOING_MEDICATION_COLUMNS(getTranslation, getEnumTranslation)}
           rowStyle={rowStyle}
           noDataMessage={
