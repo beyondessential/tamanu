@@ -521,26 +521,12 @@ medication.post(
         // Create a new prescription with the original details but updated quantity and repeats
         const newPrescription = await Prescription.create(
           {
-            isOngoing: originalPrescription.isOngoing,
-            isPrn: originalPrescription.isPrn,
-            isVariableDose: originalPrescription.isVariableDose,
-            doseAmount: originalPrescription.doseAmount,
-            units: originalPrescription.units,
-            frequency: originalPrescription.frequency,
-            idealTimes: originalPrescription.idealTimes,
-            route: originalPrescription.route,
+            ...originalPrescription.dataValues,
             date: currentDateTime,
             startDate: currentDateTime,
-            endDate: originalPrescription.endDate,
-            durationValue: originalPrescription.durationValue,
-            durationUnit: originalPrescription.durationUnit,
-            indication: originalPrescription.indication,
-            isPhoneOrder: originalPrescription.isPhoneOrder,
-            notes: originalPrescription.notes,
             quantity: requestData.quantity,
             repeats: requestData.repeats ?? originalPrescription.repeats ?? 0,
             prescriberId: orderingClinicianId,
-            medicationId: originalPrescription.medicationId,
           },
           { transaction },
         );
@@ -579,12 +565,16 @@ medication.post(
 
       // Create pharmacy order prescriptions
       await PharmacyOrderPrescription.bulkCreate(
-        newPrescriptions.map((prescription, index) => ({
-          pharmacyOrderId: pharmacyOrder.id,
-          prescriptionId: prescription.id,
-          quantity: prescriptions[index].quantity,
-          repeats: prescriptions[index].repeats ?? ongoingPrescriptions[index].repeats ?? 0,
-        })),
+        newPrescriptions.map((prescription, index) => {
+          const originalPrescription = ongoingPrescriptions[index];
+          const requestData = prescriptionMap.get(originalPrescription.id);
+          return {
+            pharmacyOrderId: pharmacyOrder.id,
+            prescriptionId: prescription.id,
+            quantity: requestData.quantity,
+            repeats: requestData.repeats ?? originalPrescription.repeats ?? 0,
+          };
+        }),
         { transaction },
       );
 
