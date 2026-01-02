@@ -1,6 +1,7 @@
 import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
 
 const TABLE_NAME = 'medication_dispenses';
+const ISO9075_DATE_TIME_FMT = 'YYYY-MM-DD HH24:MI:SS';
 
 export async function up(query: QueryInterface): Promise<void> {
   await query.createTable(TABLE_NAME, {
@@ -26,7 +27,7 @@ export async function up(query: QueryInterface): Promise<void> {
       allowNull: true,
     },
     dispensed_by_user_id: {
-      type: DataTypes.STRING(255),
+      type: DataTypes.STRING,
       allowNull: false,
       references: {
         model: 'users',
@@ -34,9 +35,13 @@ export async function up(query: QueryInterface): Promise<void> {
       },
     },
     dispensed_at: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATETIMESTRING,
       allowNull: false,
-      defaultValue: Sequelize.fn('now'),
+      defaultValue: Sequelize.fn(
+        'to_char',
+        Sequelize.fn('current_timestamp', 3),
+        ISO9075_DATE_TIME_FMT,
+      ),
     },
     created_at: {
       type: DataTypes.DATE,
@@ -56,10 +61,6 @@ export async function up(query: QueryInterface): Promise<void> {
 
   await query.addIndex(TABLE_NAME, ['pharmacy_order_prescription_id'], {
     name: 'idx_medication_dispenses_pharmacy_order_prescription_id',
-  });
-
-  await query.addIndex(TABLE_NAME, ['dispensed_by_user_id'], {
-    name: 'idx_medication_dispenses_dispensed_by_user_id',
   });
 }
 

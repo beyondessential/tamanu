@@ -114,7 +114,7 @@ describe('Fiji statistical report for phis summary', () => {
      *
      * 2019-05-02: Had a non-CVD survey response submitted
      *
-     * 2019-05-03: Had a CVD survey response submitted - marked 'ineligble' - SNAP councilling
+     * 2019-05-03: Had a CVD survey response submitted - marked 'ineligible' - SNAP councilling
      *
      * 1960-05-02: Diagnosed with diabetes - SHOULD count as <30
      *
@@ -142,7 +142,7 @@ describe('Fiji statistical report for phis summary', () => {
     // 2019-05-02: Had a non-CVD survey response submitted
     await createBreastCancerFormSurveyResponse(app, expectedPatient1, '2019-05-02 00:00:00');
 
-    // 2019-05-03: Had a CVD survey response submitted - marked 'ineligble' - no SNAP councilling
+    // 2019-05-03: Had a CVD survey response submitted - marked 'ineligible' - no SNAP councilling
     await createCVDFormSurveyResponse(app, expectedPatient1, '2019-05-03 00:00:00', {
       answerOverrides: {
         'pde-FijCVD021': 'Ineligible',
