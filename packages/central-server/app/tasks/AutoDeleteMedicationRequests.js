@@ -30,7 +30,6 @@ export class AutoDeleteMedicationRequests extends ScheduledTask {
     // Get the auto-delete timeframe setting (in hours)
     const autoDeleteTimeframeHours =
       (await this.settings.get('medications.dispensing.autoDeleteTimeframeHours')) ?? 72;
-    log.error(`autoDeleteTimeframeHours: ${autoDeleteTimeframeHours}`);
     const { batchSize, batchSleepAsyncDurationInMilliseconds } = this.config;
 
     if (!batchSize || !batchSleepAsyncDurationInMilliseconds) {
@@ -44,8 +43,7 @@ export class AutoDeleteMedicationRequests extends ScheduledTask {
     cutoffDate.setHours(cutoffDate.getHours() - autoDeleteTimeframeHours);
     const cutoffDateTime = toDateTimeString(cutoffDate);
 
-    // Count total records to process
-    const toProcess = await PharmacyOrderPrescription.count({
+    const query = {
       include: [
         {
           association: 'pharmacyOrder',
@@ -56,8 +54,21 @@ export class AutoDeleteMedicationRequests extends ScheduledTask {
           required: true,
         },
       ],
-    });
+      where: {
+        // Use a subquery to filter for prescriptions with no dispenses at the database level
+        [Op.and]: [
+          this.sequelize.literal(`(
+            SELECT COUNT(*)
+            FROM "medication_dispenses"
+            WHERE "medication_dispenses"."pharmacy_order_prescription_id" = "PharmacyOrderPrescription"."id"
+            AND "medication_dispenses"."deleted_at" IS NULL
+          ) = 0`),
+        ],
+      },
+    };
 
+    // Count total records to process
+    const toProcess = await PharmacyOrderPrescription.count(query);
     if (toProcess === 0) {
       log.info('No medication requests to auto-delete');
       return;
@@ -79,24 +90,12 @@ export class AutoDeleteMedicationRequests extends ScheduledTask {
       // 2. Were created before the cutoff date
       // 3. Have no dispenses
       const pharmacyOrderPrescriptionsToProcess = await PharmacyOrderPrescription.findAll({
+        ...query,
         attributes: ['id'],
-        include: [
-          {
-            association: 'pharmacyOrder',
-            attributes: ['id'],
-            where: {
-              date: { [Op.lt]: cutoffDateTime },
-            },
-          },
-          'medicationDispenses',
-        ],
         limit: batchSize,
       });
 
-      // Filter out those that have dispenses
-      const idsToDelete = pharmacyOrderPrescriptionsToProcess
-        .filter(p => !p.medicationDispenses || p.medicationDispenses.length === 0)
-        .map(p => p.id);
+      const idsToDelete = pharmacyOrderPrescriptionsToProcess.map(p => p.id);
 
       if (idsToDelete.length > 0) {
         // Soft delete the medication requests
