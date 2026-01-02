@@ -1781,7 +1781,6 @@ medication.post(
           level: transaction.LOCK.UPDATE,
           of: PharmacyOrderPrescription,
         },
-        transaction,
       });
 
       const foundIds = new Set(prescriptionRecords.map(r => r.id));
@@ -1814,21 +1813,19 @@ medication.post(
           dispensedByUserId,
           dispensedAt,
         })),
-        { transaction },
       );
 
       // After dispensing, soft delete all ineligible pharmacy order prescriptions
       const allIneligibleRecords = prescriptionRecords.filter(record => {
-        const dispenseCount = (record.medicationDispenses || []).length + 1;
-        const remainingRepeats = record.remainingRepeats;
-        return remainingRepeats < 1 && dispenseCount > 0;
+        // we don't need to check dispense count because we already checked it above
+        const remainingRepeats = record.remainingRepeats - 1;
+        return remainingRepeats <= 0;
       });
 
       if (allIneligibleRecords.length > 0) {
         const ineligibleIds = allIneligibleRecords.map(r => r.id);
         await PharmacyOrderPrescription.destroy({
           where: { id: ineligibleIds },
-          transaction,
         });
       }
 
