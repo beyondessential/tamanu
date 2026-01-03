@@ -2,7 +2,7 @@ import React, { useEffect, useState, memo } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { formatShort } from '@tamanu/utils/dateTime';
 import {
@@ -26,14 +26,14 @@ import { singularize } from '../../utils';
 import { AutocompleteInput, CheckInput } from '../Field';
 import { TableFormFields } from '../Table/TableFormFields';
 import { DateDisplay } from '../DateDisplay';
-import { getPatientNameAsString } from '../PatientNameDisplay';
 import { useDispensableMedicationsQuery } from '../../api/queries/useDispensableMedicationsQuery';
+import { useFacilityQuery } from '../../api/queries/useFacilityQuery';
 import { Colors } from '../../constants';
 import { BodyText } from '../Typography';
 import { MedicationLabelPrintModal } from '../PatientPrinting/modals/MedicationLabelPrintModal';
 import { MedicationLabel } from '../PatientPrinting/printouts/MedicationLabel';
 import { capitalize } from 'lodash';
-import { getStockStatus } from '../../utils/medications';
+import { getMedicationLabelData, getStockStatus } from '../../utils/medications';
 
 const MODAL_STEPS = {
   DISPENSE: 'dispense',
@@ -182,11 +182,9 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient, o
     error: dispensablesError,
   } = useDispensableMedicationsQuery(patientId, { enabled: open });
 
-  const { data: facility } = useQuery(
-    ['facility', facilityId],
-    () => api.get(`facility/${encodeURIComponent(facilityId)}`),
-    { enabled: Boolean(open) && Boolean(facilityId) },
-  );
+  const { data: facility, isLoading: isLoadingFacility } = useFacilityQuery(facilityId, {
+    enabled: open,
+  });
 
   const selectedItems = items.filter(({ selected }) => selected);
   const stockColumnEnabled = items.some(({ prescription }) => prescription?.medication?.referenceDrug?.facilities?.[0]?.stockStatus);
@@ -318,29 +316,6 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient, o
     return { isValid, newErrors };
   };
 
-  const prescriptionIdsForLabels =
-    step === MODAL_STEPS.REVIEW
-      ? selectedItems.map(({ prescription }) => prescription?.id).filter(Boolean)
-      : [];
-
-  const { data: prescriptionDetailsById, isLoading: isLoadingDetails } = useQuery(
-    ['dispensePrescriptionDetails', prescriptionIdsForLabels, facilityId],
-    async () => {
-      const results = await Promise.all(
-        prescriptionIdsForLabels.map(async prescriptionId => {
-          const prescription = await api.get(`medication/${encodeURIComponent(prescriptionId)}`, {
-            facilityId,
-          });
-          return [prescriptionId, prescription];
-        }),
-      );
-      return Object.fromEntries(results);
-    },
-    {
-      enabled: step === MODAL_STEPS.REVIEW && prescriptionIdsForLabels.length > 0,
-    },
-  );
-
   const handleReview = () => {
     const { isValid, newErrors } = validateDispenseStep(items, selectedItems, dispensedByUserId);
     setItemErrors(newErrors);
@@ -350,38 +325,8 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient, o
     }
     setShowValidationErrors(false);
     setStep(MODAL_STEPS.REVIEW);
-
     // Prepare labels for printing
-    const reviewLabels = selectedItems.map(item => {
-      const prescription = item.prescription;
-      const details = prescriptionDetailsById?.[prescription?.id];
-      const prescriberName = details?.prescriber?.displayName || details?.prescriber?.name || '-';
-  
-      const repeatsAfterDispense = item.lastDispensedAt
-        ? Math.max(0, (item.remainingRepeats ?? 0) - 1)
-        : item.remainingRepeats ?? 0;
-  
-      const requestNumber = item.displayId || '-';
-      const facilityAddress = [facility?.streetAddress, facility?.cityTown]
-        .filter(Boolean)
-        .join(', ');
-  
-      return {
-        id: item.id,
-        medicationName: prescription?.medication?.name || '-',
-        instructions: item.instructions || '',
-        patientName: patient ? getPatientNameAsString(patient) : '-',
-        dispensedAt: new Date().toISOString(),
-        quantity: item.quantity,
-        units: prescription?.units || '',
-        repeatsRemaining: repeatsAfterDispense,
-        prescriberName,
-        requestNumber,
-        facilityName: facility?.name || '',
-        facilityAddress,
-        facilityContactNumber: facility?.contactNumber || '',
-      };
-    });
+    const reviewLabels = getMedicationLabelData({ selectedItems, patient, facility });
     setLabelsForPrint(reviewLabels);
   };
 
@@ -567,8 +512,6 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient, o
     return base;
   })();
 
-  const isDispenseDisabled = step === MODAL_STEPS.REVIEW && isLoadingDetails;
-
   const title =
     step === MODAL_STEPS.REVIEW ? (
       <TranslatedText
@@ -589,7 +532,7 @@ export const DispenseMedicationWorkflowModal = memo(({ open, onClose, patient, o
             fallback="Dispense & print"
           />
         }
-        confirmDisabled={isDispenseDisabled}
+        confirmDisabled={isLoadingFacility || isLoadingDispensables}
         onBack={() => {
           setStep(MODAL_STEPS.DISPENSE);
           setShowValidationErrors(false);

@@ -1646,7 +1646,7 @@ medication.get(
     const { PharmacyOrderPrescription } = models;
 
     const pharmacyOrderPrescriptions = await PharmacyOrderPrescription.findAll({
-      attributes: ['id', 'quantity', 'repeats'],
+      attributes: ['id', 'displayId', 'quantity', 'repeats'],
       include: [
         {
           association: 'pharmacyOrder',
@@ -1699,6 +1699,10 @@ medication.get(
                   ],
                 },
               ],
+            },
+            {
+              association: 'prescriber',
+              attributes: ['id', 'displayName'],
             },
           ],
         },

@@ -7,10 +7,50 @@ import {
 } from '@tamanu/constants';
 import { camelCase } from 'lodash';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
-import { TableCellTag, ThemedTooltip, TranslatedText } from '@tamanu/ui-components';
+import { getPatientNameAsString, TableCellTag, ThemedTooltip, TranslatedText } from '@tamanu/ui-components';
 import styled from 'styled-components';
 import { formatTime, TranslatedEnum } from '../components';
 import { STOCK_STATUS_COLORS } from '../constants';
+
+/**
+ * Transforms selected dispensable medication items into label data for printing.
+ * @param {Object} params
+ * @param {Array} params.selectedItems - The selected medication items to dispense
+ * @param {Object} params.patient - The patient object
+ * @param {Object} params.facility - The facility object
+ * @returns {Array} Array of label data objects for printing
+ */
+export const getMedicationLabelData = ({ selectedItems, patient, facility }) => {
+  return selectedItems.map(item => {
+    const prescription = item.prescription;
+    const prescriberName = prescription?.prescriber?.displayName || '-';
+
+    const repeatsAfterDispense = item.lastDispensedAt
+      ? Math.max(0, (item.remainingRepeats ?? 0) - 1)
+      : item.remainingRepeats ?? 0;
+
+    const requestNumber = item.displayId || '-';
+    const facilityAddress = [facility?.streetAddress, facility?.cityTown]
+      .filter(Boolean)
+      .join(', ');
+
+    return {
+      id: item.id,
+      medicationName: prescription?.medication?.name || '-',
+      instructions: item.instructions || '',
+      patientName: patient ? getPatientNameAsString(patient) : '-',
+      dispensedAt: new Date().toISOString(),
+      quantity: item.quantity,
+      units: prescription?.units || '',
+      repeatsRemaining: repeatsAfterDispense,
+      prescriberName,
+      requestNumber,
+      facilityName: facility?.name || '',
+      facilityAddress,
+      facilityContactNumber: facility?.contactNumber || '',
+    };
+  });
+};
 
 export const getTranslatedFrequencySynonyms = (frequenciesEnabled, getTranslation) => {
   const result = {};
