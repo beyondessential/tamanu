@@ -94,7 +94,8 @@ const PRINT_OPTIONS = {
     ),
     icon: ClearanceCertificateCovid19Icon,
     component: CovidClearanceCertificateModal,
-    condition: getSetting => getSetting('features.enableCovidClearanceCertificate'),
+    condition: getSetting =>
+      getSetting('features.covidCertificates.enableCovidClearanceCertificate'),
   },
   birthNotification: {
     label: (

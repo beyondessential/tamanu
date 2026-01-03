@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-import { Modal, TranslatedText } from '@tamanu/ui-components';
+import { Modal, TranslatedText, useTranslation } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { useApi } from '../../../api';
 import {
@@ -16,6 +16,7 @@ import { useSettings } from '../../../contexts/Settings';
 import { LabResultsPrintout } from '@tamanu/shared/utils/patientCertificates';
 
 export const LabResultsPrintoutModal = React.memo(({ labRequest, patient, open, onClose }) => {
+  const { translations } = useTranslation();
   const { getLocalisation } = useLocalisation();
   const { getSetting } = useSettings();
   const api = useApi();
@@ -92,6 +93,7 @@ export const LabResultsPrintoutModal = React.memo(({ labRequest, patient, open, 
           labRequest={labRequestWithDetails}
           getLocalisation={getLocalisation}
           getSetting={getSetting}
+          translations={translations}
           data-testid="labresultsprintout-component"
         />
       </PDFLoader>
