@@ -31,105 +31,6 @@ import { mapQueryFilters } from '../../database/utils';
 
 export const medication = express.Router();
 
-medication.post(
-  '/dispense',
-  asyncHandler(async (req, res) => {
-    const { models } = req;
-
-    req.checkPermission('create', 'MedicationDispense');
-
-    const { dispensedByUserId, items } = await dispenseInputSchema.parseAsync(req.body);
-
-    const { User, MedicationDispense, PharmacyOrderPrescription } = models;
-
-    const dispensedByUser = await User.findByPk(dispensedByUserId);
-    if (!dispensedByUser) {
-      throw new NotFoundError(`User with id ${dispensedByUserId} not found`);
-    }
-
-    const dispensedAt = getCurrentDateTimeString();
-    const pharmacyOrderPrescriptionIds = items.map(item => item.pharmacyOrderPrescriptionId);
-
-    const result = await PharmacyOrderPrescription.sequelize.transaction(async transaction => {
-      // Lock and fetch prescription records to prevent race conditions
-      const prescriptionRecords = await PharmacyOrderPrescription.findAll({
-        attributes: ['id', 'repeats', 'quantity'],
-        where: {
-          id: pharmacyOrderPrescriptionIds,
-          deletedAt: null,
-        },
-        include: [
-          {
-            association: 'prescription',
-            attributes: ['id', 'medicationId'],
-            required: true,
-            where: {
-              deletedAt: null,
-              discontinued: { [Op.not]: true },
-            },
-          },
-          {
-            association: 'medicationDispenses',
-            attributes: ['id'],
-            where: { deletedAt: null },
-            required: false,
-          },
-          {
-            association: 'pharmacyOrder',
-            attributes: ['id', 'isDischargePrescription'],
-            required: false,
-            where: { deletedAt: null },
-          }
-        ],
-        lock: {
-          level: transaction.LOCK.UPDATE,
-          of: PharmacyOrderPrescription, 
-        },
-        transaction,
-      });
-
-      const medicationIds = prescriptionRecords.map(r => r.prescription.medicationId);
-      await checkSensitiveMedicationPermission(medicationIds, req, 'create');
-
-      const foundIds = new Set(prescriptionRecords.map(r => r.id));
-      const notFoundIds = pharmacyOrderPrescriptionIds.filter(id => !foundIds.has(id));
-      if (notFoundIds.length > 0) {
-        throw new NotFoundError(
-          `Pharmacy order prescription(s) not found or discontinued: ${notFoundIds.join(', ')}`,
-        );
-      }
-
-      const ineligibleRecords = prescriptionRecords.filter(record => {
-        const dispenseCount = (record.medicationDispenses || []).length;
-        const remainingRepeats = record.remainingRepeats;
-        return dispenseCount > 0 && remainingRepeats <= 0;
-      });
-
-      if (ineligibleRecords.length > 0) {
-        throw new InvalidOperationError(
-          `The following prescriptions have no remaining repeats and cannot be dispensed: ${ineligibleRecords.map(r => r.id).join(', ')}`,
-        );
-      }
-
-      // Create dispense records
-      const dispenseRecords = await MedicationDispense.bulkCreate(
-        items.map(item => ({
-          pharmacyOrderPrescriptionId: item.pharmacyOrderPrescriptionId,
-          quantity: item.quantity,
-          instructions: item.instructions,
-          dispensedByUserId,
-          dispensedAt,
-        })),
-        { transaction },
-      );
-
-      return dispenseRecords;
-    });
-
-    res.send(result);
-  }),
-);
-
 const checkSensitiveMedicationPermission = async (medicationIds, req, action) => {
   if (!medicationIds?.length) return true;
 
@@ -1892,7 +1793,7 @@ medication.get(
     const { PharmacyOrderPrescription } = models;
 
     const pharmacyOrderPrescriptions = await PharmacyOrderPrescription.findAll({
-      attributes: ['id', 'quantity', 'repeats'],
+      attributes: ['id', 'displayId', 'quantity', 'repeats'],
       include: [
         {
           association: 'pharmacyOrder',
@@ -1921,6 +1822,7 @@ medication.get(
             'indication',
             'notes',
             'isVariableDose',
+            'date',
           ],
           required: true,
           include: [
@@ -1944,6 +1846,10 @@ medication.get(
                   ],
                 },
               ],
+            },
+            {
+              association: 'prescriber',
+              attributes: ['id', 'displayName'],
             },
           ],
         },
@@ -2020,7 +1926,14 @@ medication.post(
           {
             association: 'pharmacyOrder',
             attributes: ['id', 'isDischargePrescription'],
-            required: false,
+            required: true,
+            include: [
+              {
+                association: 'encounter',
+                attributes: ['patientId'],
+                required: true,
+              },
+            ],
           },
         ],
         lock: {
@@ -2036,19 +1949,20 @@ medication.post(
           `Pharmacy order prescription(s) not found or discontinued: ${notFoundIds.join(', ')}`,
         );
       }
-      const isSamePharmacyOrder = prescriptionRecords.every(
-        record => record.pharmacyOrder.id === prescriptionRecords[0].pharmacyOrder.id,
+      const isSamePatient = prescriptionRecords.every(
+        record =>
+          record.pharmacyOrder?.encounter?.patientId ===
+          prescriptionRecords[0].pharmacyOrder?.encounter?.patientId,
       );
-      if (!isSamePharmacyOrder) {
-        throw new InvalidOperationError(
-          `All prescriptions must be part of the same pharmacy order`,
-        );
+      if (!isSamePatient) {
+        throw new InvalidOperationError(`All prescriptions must be part of the same patient`);
       }
 
       const ineligibleRecords = prescriptionRecords.filter(record => {
         const remainingRepeats = record.remainingRepeats;
+        const hasDispenses = record.medicationDispenses?.length > 0;
         const isDischargePrescription = record.pharmacyOrder?.isDischargePrescription;
-        return remainingRepeats <= 0 && !!isDischargePrescription;
+        return remainingRepeats <= 0 && hasDispenses && !!isDischargePrescription;
       });
 
       if (ineligibleRecords.length > 0) {
