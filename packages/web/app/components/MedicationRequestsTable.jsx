@@ -6,24 +6,15 @@ import { PatientNameDisplay } from './PatientNameDisplay';
 import { useMedicationsContext } from '../contexts/Medications';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
-import { MEDICATIONS_SEARCH_KEYS, STOCK_STATUS_COLORS } from '../constants/medication';
+import { MEDICATIONS_SEARCH_KEYS } from '../constants/medication';
 import { Colors } from '../constants';
 import { MenuButton } from './MenuButton';
 import { DispenseMedicationWorkflowModal } from './Medication/DispenseMedicationWorkflowModal';
-import {
-  TableCellTag,
-  ThemedTooltip,
-  TranslatedEnum,
-  TranslatedReferenceData,
-} from '@tamanu/ui-components';
+import { ThemedTooltip, TranslatedEnum, TranslatedReferenceData } from '@tamanu/ui-components';
 import { BodyText } from './Typography';
-import {
-  DRUG_STOCK_STATUS_LABELS,
-  DRUG_STOCK_STATUSES,
-  PHARMACY_PRESCRIPTION_TYPE_LABELS,
-  PHARMACY_PRESCRIPTION_TYPES,
-} from '@tamanu/constants';
+import { PHARMACY_PRESCRIPTION_TYPE_LABELS, PHARMACY_PRESCRIPTION_TYPES } from '@tamanu/constants';
 import { Box } from '@mui/material';
+import { getStockStatus } from '../utils/medications';
 
 const NoDataContainer = styled.div`
   height: 500px;
@@ -53,13 +44,6 @@ const StyledSearchTableWithPermissionCheck = styled(SearchTableWithPermissionChe
       background-color: ${Colors.veryLightBlue};
     }
   }
-`;
-
-const StyledTag = styled(TableCellTag)`
-  padding: 5px 12px;
-  border-radius: 999px;
-  font-size: 14px;
-  line-height: 18px;
 `;
 
 const getPatientDisplayId = ({ pharmacyOrder }) => pharmacyOrder?.encounter?.patient?.displayId;
@@ -133,38 +117,6 @@ const getDateSent = ({ pharmacyOrder }) => (
     </BodyText>
   </div>
 );
-const getStockStatus = ({ prescription }) => {
-  const status =
-    prescription.medication?.referenceDrug?.facilities?.[0]?.stockStatus || DRUG_STOCK_STATUSES.UNKNOWN;
-  const quantity = prescription.medication?.referenceDrug?.facilities?.[0]?.quantity || 0;
-
-  const color = STOCK_STATUS_COLORS[status];
-
-  const content = (
-    <StyledTag $color={color} noWrap>
-      <TranslatedEnum value={status} enumValues={DRUG_STOCK_STATUS_LABELS} />
-    </StyledTag>
-  );
-
-  if (status === DRUG_STOCK_STATUSES.YES) {
-    return (
-      <ThemedTooltip
-        title={
-          <Box maxWidth="75px">
-            <TranslatedText
-              stringId="medication.stockLevel.tooltip"
-              fallback="Stock level: :quantity units"
-              replacements={{ quantity }}
-            />
-          </Box>
-        }
-      >
-        <span>{content}</span>
-      </ThemedTooltip>
-    );
-  }
-  return content;
-};
 
 export const MedicationRequestsTable = () => {
   const { facilityId } = useAuth();
@@ -173,9 +125,14 @@ export const MedicationRequestsTable = () => {
   const [medicationRequests, setMedicationRequests] = useState([]);
   const [isDispenseOpen, setIsDispenseOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
+  const [refreshCount, setRefreshCount] = useState(0);
 
   const onMedicationRequestsFetched = useCallback(({ data }) => {
     setMedicationRequests(data);
+  }, []);
+
+  const handleTableRefresh = useCallback(() => {
+    setRefreshCount(prev => prev + 1);
   }, []);
 
   const columns = [
@@ -311,8 +268,10 @@ export const MedicationRequestsTable = () => {
           setSelectedPatient(null);
         }}
         patient={selectedPatient}
+        onDispenseSuccess={handleTableRefresh}
       />
       <StyledSearchTableWithPermissionCheck
+        refreshCount={refreshCount}
         verb="list"
         noun="Medication"
         autoRefresh={true}
