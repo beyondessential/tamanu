@@ -1575,6 +1575,28 @@ export const globalSettings = {
     medications: {
       description: 'Medication settings',
       properties: {
+        dispensing: {
+          description: 'Medication dispensing settings',
+          properties: {
+            prescriptionLabelSize: {
+              description: 'Prescription label size.',
+              properties: {
+                width: {
+                  description: 'Prescription label width.',
+                  type: yup.number().min(1),
+                  defaultValue: 80,
+                  unit: 'mm',
+                },
+                height: {
+                  description: 'Prescription label height.',
+                  type: yup.number().min(1),
+                  defaultValue: 40,
+                  unit: 'mm',
+                },
+              },
+            },
+          },
+        },
         frequenciesEnabled: {
           description: 'Enable medication frequencies',
           properties: {

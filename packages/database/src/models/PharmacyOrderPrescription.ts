@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { generateDisplayId } from '@tamanu/utils/generateDisplayId';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 import type { MedicationDispense } from './MedicationDispense';
@@ -14,6 +15,7 @@ export class PharmacyOrderPrescription extends Model {
   declare id: string;
   declare pharmacyOrderId: string;
   declare prescriptionId: string;
+  declare displayId: string;
   declare quantity?: number;
   declare repeats?: number;
   declare medicationDispenses?: MedicationDispense[];
@@ -23,6 +25,13 @@ export class PharmacyOrderPrescription extends Model {
     super.init(
       {
         id: primaryKey,
+        displayId: {
+          type: DataTypes.STRING,
+          allowNull: true,
+          defaultValue() {
+            return generateDisplayId();
+          },
+        },
         quantity: {
           type: DataTypes.INTEGER,
           allowNull: false,
@@ -62,10 +71,10 @@ export class PharmacyOrderPrescription extends Model {
       return 0;
     }
     // The remaining repeats for OUTPATIENT medication requests is the number of repeats minus the number of dispenses.
-    // we add 1 to the repeats because the first dispense is not counted as a repeat
-    const repeats = (this.repeats || 0) + 1;
+    const repeats = this.repeats || 0;
     const dispenseCount = (this.medicationDispenses || []).length;
-    return Math.max(0, repeats - dispenseCount);
+    // we subtract 1 from the dispense count because the first dispense is not counted as a repeat
+    return Math.max(0, repeats - Math.max(0, dispenseCount - 1));
   }
 
   static getListReferenceAssociations() {
