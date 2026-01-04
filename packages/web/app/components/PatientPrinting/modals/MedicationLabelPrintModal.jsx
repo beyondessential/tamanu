@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { Modal, TranslatedText, ConfirmCancelRow } from '@tamanu/ui-components';
 import { MedicationLabel } from '../printouts/MedicationLabel';
+import { Colors } from '../../../constants';
 
 const Container = styled.div`
   display: flex;
@@ -20,9 +21,14 @@ const Container = styled.div`
   }
 `;
 
-const StyledConfirmCancelRow = styled(ConfirmCancelRow)`
-  padding: 12px 32px;
-  padding-top: 0px;
+const StyledModal = styled(Modal)`
+  .MuiDialogActions-root {
+    position: sticky;
+    bottom: 0;
+    background: ${Colors.background};
+    border-top: 1px solid ${Colors.outline};
+    padding: 10px 40px 20px 40px;
+  }
 `;
 
 export const MedicationLabelPrintModal = ({ open, onClose, labels }) => {
@@ -31,13 +37,13 @@ export const MedicationLabelPrintModal = ({ open, onClose, labels }) => {
   };
 
   return (
-    <Modal
+    <StyledModal
       title={<TranslatedText stringId="medication.modal.printLabel.title" fallback="Print label" />}
       width="sm"
       open={open}
       onClose={onClose}
       actions={
-        <StyledConfirmCancelRow
+        <ConfirmCancelRow
           onCancel={onClose}
           onConfirm={handlePrint}
           cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
@@ -54,7 +60,7 @@ export const MedicationLabelPrintModal = ({ open, onClose, labels }) => {
           </Box>
         ))}
       </Container>
-    </Modal>
+    </StyledModal>
   );
 };
 
