@@ -25,10 +25,6 @@ export const getMedicationLabelData = ({ selectedItems, patient, facility }) => 
     const prescription = item.prescription;
     const prescriberName = prescription?.prescriber?.displayName || '-';
 
-    const repeatsAfterDispense = item.lastDispensedAt
-      ? Math.max(0, (item.remainingRepeats ?? 0) - 1)
-      : item.remainingRepeats ?? 0;
-
     const requestNumber = item.displayId || '-';
     const facilityAddress = [facility?.streetAddress, facility?.cityTown]
       .filter(Boolean)
@@ -42,7 +38,7 @@ export const getMedicationLabelData = ({ selectedItems, patient, facility }) => 
       dispensedAt: new Date().toISOString(),
       quantity: item.quantity,
       units: prescription?.units || '',
-      repeatsRemaining: repeatsAfterDispense,
+      remainingRepeats: item.remainingRepeats,
       prescriberName,
       requestNumber,
       facilityName: facility?.name || '',
