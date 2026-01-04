@@ -10,6 +10,9 @@ import { MEDICATIONS_SEARCH_KEYS } from '../constants/medication';
 import { Colors } from '../constants';
 import { MenuButton } from './MenuButton';
 import { TranslatedReferenceData } from '@tamanu/ui-components';
+import { MedicationLabelPrintModal } from './PatientPrinting/modals/MedicationLabelPrintModal';
+import { getMedicationLabelData } from '../utils/medications';
+import { useFacilityQuery } from '../api/queries/useFacilityQuery';
 
 const NoDataContainer = styled.div`
   height: 500px;
@@ -63,12 +66,39 @@ const getRequestNumber = ({ pharmacyOrderPrescription }) => pharmacyOrderPrescri
 export const MedicationDispensesTable = () => {
   const { facilityId } = useAuth();
   const { searchParameters } = useMedicationsContext(MEDICATIONS_SEARCH_KEYS.DISPENSED);
+  const { data: facility } = useFacilityQuery(facilityId);
 
   const [medicationDispenses, setMedicationDispenses] = useState([]);
+  const [printModalOpen, setPrintModalOpen] = useState(false);
+  const [selectedLabelData, setSelectedLabelData] = useState([]);
 
   const onMedicationDispensesFetched = useCallback(({ data }) => {
     setMedicationDispenses(data);
   }, []);
+
+  const handlePrintLabel = item => {
+    const { pharmacyOrderPrescription, quantity, dispensedAt, id, instructions = '' } = item;
+    const prescription = pharmacyOrderPrescription?.prescription;
+    const patient = pharmacyOrderPrescription?.pharmacyOrder?.encounter?.patient;
+
+    const labelItems = [
+      {
+        id,
+        medicationName: prescription?.medication?.name,
+        instructions,
+        quantity,
+        units: prescription?.units,
+        remainingRepeats: pharmacyOrderPrescription?.remainingRepeats,
+        prescriberName: prescription?.prescriber?.displayName,
+        requestNumber: pharmacyOrderPrescription?.displayId,
+        dispensedAt,
+      },
+    ];
+
+    const labelData = getMedicationLabelData({ items: labelItems, patient, facility });
+    setSelectedLabelData(labelData);
+    setPrintModalOpen(true);
+  };
 
   const columns = [
     {
@@ -159,11 +189,11 @@ export const MedicationDispensesTable = () => {
       key: 'actions',
       title: '',
       allowExport: false,
-      accessor: () => {
+      accessor: row => {
         const actions = [
           {
             label: <TranslatedText stringId="general.action.printLabel" fallback="Print label" />,
-            action: () => {},
+            action: () => handlePrintLabel(row),
           },
           {
             label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
@@ -188,30 +218,37 @@ export const MedicationDispensesTable = () => {
   };
 
   return (
-    <StyledSearchTableWithPermissionCheck
-      verb="list"
-      noun="Medication"
-      autoRefresh={true}
-      endpoint="medication/medication-dispenses"
-      columns={columns}
-      noDataMessage={
-        <NoDataContainer>
-          <TranslatedText
-            stringId="medication-dispenses.list.noData"
-            fallback="No dispensed medications to display."
-          />
-        </NoDataContainer>
-      }
-      fetchOptions={fetchOptions}
-      elevated={false}
-      data-testid="searchtablewithpermissioncheck-medication-dispenses"
-      $noData={medicationDispenses.length === 0}
-      onDataFetched={onMedicationDispensesFetched}
-      onClickRow={handleRowClick}
-      allowExport={false}
-      initialSort={{
-        order: 'desc',
-      }}
-    />
+    <>
+      <StyledSearchTableWithPermissionCheck
+        verb="list"
+        noun="Medication"
+        autoRefresh={true}
+        endpoint="medication/medication-dispenses"
+        columns={columns}
+        noDataMessage={
+          <NoDataContainer>
+            <TranslatedText
+              stringId="medication-dispenses.list.noData"
+              fallback="No dispensed medications to display."
+            />
+          </NoDataContainer>
+        }
+        fetchOptions={fetchOptions}
+        elevated={false}
+        data-testid="searchtablewithpermissioncheck-medication-dispenses"
+        $noData={medicationDispenses.length === 0}
+        onDataFetched={onMedicationDispensesFetched}
+        onClickRow={handleRowClick}
+        allowExport={false}
+        initialSort={{
+          order: 'desc',
+        }}
+      />
+      <MedicationLabelPrintModal
+        open={printModalOpen}
+        onClose={() => setPrintModalOpen(false)}
+        labels={selectedLabelData}
+      />
+    </>
   );
 };

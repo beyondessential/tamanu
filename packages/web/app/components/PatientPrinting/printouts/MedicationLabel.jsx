@@ -127,6 +127,7 @@ const LabelFooterText = styled.div`
 `;
 
 export const getMedicationLabel = (quantity, units, getEnumTranslation) => {
+  if (!quantity || !units) return;
   const translatedUnit = quantity > 1 ? pluralize(getEnumTranslation(DRUG_UNIT_LABELS, units)) : getEnumTranslation(DRUG_UNIT_LABELS, units);
   return `${quantity} ${translatedUnit.toLowerCase()}`;
 };
