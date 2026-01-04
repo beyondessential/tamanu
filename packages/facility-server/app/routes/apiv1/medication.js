@@ -1721,6 +1721,9 @@ medication.get(
       data: pharmacyOrderPrescriptions.map(pop => ({
         ...pop.toJSON(),
         remainingRepeats: pop.remainingRepeats,
+        lastDispensedAt: pop.medicationDispenses?.sort(
+          (a, b) => new Date(b.dispensedAt) - new Date(a.dispensedAt),
+        )[0]?.dispensedAt,
       })),
     });
   }),

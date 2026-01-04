@@ -497,9 +497,9 @@ export const DispenseMedicationWorkflowModal = memo(
               fallback="Last dispensed"
             />
           ),
-          accessor: ({ medicationDispenses }) =>
-            medicationDispenses?.[0]?.dispensedAt ? (
-              <DateDisplay date={medicationDispenses[0].dispensedAt} />
+          accessor: ({ lastDispensedAt }) =>
+            lastDispensedAt ? (
+              <DateDisplay date={lastDispensedAt} />
             ) : (
               <TranslatedText
                 stringId="general.fallback.notApplicable"
