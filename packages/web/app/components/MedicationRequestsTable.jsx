@@ -95,14 +95,14 @@ const getLocation = ({ pharmacyOrder }) => {
 const getMedication = ({ prescription }) => {
   return (
     <TranslatedReferenceData
-      fallback={prescription.medication.name}
-      value={prescription.medication.id}
-      category={prescription.medication.type}
+      fallback={prescription?.medication?.name}
+      value={prescription?.medication?.id}
+      category={prescription?.medication?.type}
     />
   );
 };
 const getPrescriber = ({ prescription }) => {
-  return prescription.prescriber.displayName;
+  return prescription?.prescriber?.displayName;
 };
 const getDateSent = ({ pharmacyOrder }) => (
   <div>
