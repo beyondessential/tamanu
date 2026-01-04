@@ -1971,9 +1971,29 @@ medication.get(
 
     const { count, rows: data } = databaseResponse;
 
+    // Temporary fix to get patient data due limit of column characters in postgres
+    const patientIds = [
+      ...new Set(
+        data.map(item => item.pharmacyOrderPrescription.pharmacyOrder.encounter.patient.id),
+      ),
+    ];
+
+    const patients = await models.Patient.findAll({
+      where: { id: patientIds },
+      attributes: ['id', 'firstName', 'lastName', 'displayId'],
+    });
+
+    const result = data.map(item => {
+      const patient = patients.find(
+        p => p.id === item.pharmacyOrderPrescription.pharmacyOrder.encounter.patient.id,
+      );
+      item.pharmacyOrderPrescription.pharmacyOrder.encounter.patient.set(patient.toJSON());
+      return item;
+    });
+
     res.send({
       count,
-      data,
+      data: result,
     });
   }),
 );
