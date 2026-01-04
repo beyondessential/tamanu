@@ -496,7 +496,7 @@ labRelations.put(
     db.transaction(async () => {
       const promises = [];
 
-      await labRequest.updae({
+      await labRequest.update({
         resultsInterpretation,
       });
 
