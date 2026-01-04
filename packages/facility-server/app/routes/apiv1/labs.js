@@ -493,7 +493,7 @@ labRelations.put(
       throw new NotFoundError();
     }
 
-    db.transaction(async () => {
+    await db.transaction(async () => {
       const promises = [];
 
       await labRequest.update({
