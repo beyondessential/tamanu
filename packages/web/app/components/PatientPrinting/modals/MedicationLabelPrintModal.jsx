@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { Modal, TranslatedText } from '@tamanu/ui-components';
+import { Modal, TranslatedText, ConfirmCancelRow } from '@tamanu/ui-components';
 import { MedicationLabel } from '../printouts/MedicationLabel';
 
 const Container = styled.div`
@@ -11,7 +11,6 @@ const Container = styled.div`
   align-items: center;
   gap: 14px;
   padding: 20px 0;
-  min-height: 250px;
 
   @media print {
     flex-direction: row;
@@ -21,19 +20,32 @@ const Container = styled.div`
   }
 `;
 
+const StyledConfirmCancelRow = styled(ConfirmCancelRow)`
+  padding: 12px 32px;
+  padding-top: 0px;
+`;
+
 export const MedicationLabelPrintModal = ({ open, onClose, labels }) => {
+  const handlePrint = () => {
+    print();
+  };
+
   return (
     <Modal
-      title={
-        <TranslatedText
-          stringId="medication.modal.printLabel.title"
-          fallback="Print medication labels"
-        />
-      }
-      width="md"
+      title={<TranslatedText stringId="medication.modal.printLabel.title" fallback="Print label" />}
+      width="sm"
       open={open}
       onClose={onClose}
-      printable
+      actions={
+        <StyledConfirmCancelRow
+          onCancel={onClose}
+          onConfirm={handlePrint}
+          cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
+          confirmText={
+            <TranslatedText stringId="medication.action.printLabel" fallback="Print label" />
+          }
+        />
+      }
     >
       <Container>
         {labels.map((label, index) => (
@@ -65,4 +77,3 @@ MedicationLabelPrintModal.propTypes = {
     }),
   ).isRequired,
 };
-
