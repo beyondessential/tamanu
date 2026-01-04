@@ -144,7 +144,7 @@ export const MedicationLabel = React.memo(({ data }) => {
     dispensedAt,
     quantity,
     units,
-    repeatsRemaining,
+    remainingRepeats,
     prescriberName,
     requestNumber,
     facilityAddress,
@@ -175,7 +175,7 @@ export const MedicationLabel = React.memo(({ data }) => {
                 stringId="medication.dispense.numberOfRepeats"
                 fallback="Number of repeats"
               />
-              : {repeatsRemaining}
+              : {remainingRepeats}
             </LabelRow>
           </LabelLeftColumn>
           <LabelRightColumn>
@@ -210,7 +210,7 @@ MedicationLabel.propTypes = {
     dispensedAt: PropTypes.string.isRequired,
     quantity: PropTypes.number.isRequired,
     units: PropTypes.string.isRequired,
-    repeatsRemaining: PropTypes.number.isRequired,
+    remainingRepeats: PropTypes.number.isRequired,
     prescriberName: PropTypes.string.isRequired,
     requestNumber: PropTypes.string.isRequired,
     facilityAddress: PropTypes.string,
