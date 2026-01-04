@@ -482,18 +482,17 @@ labRelations.put(
       req.checkPermission('write', 'LabTestResult');
     }
 
-    if (labTests.length !== testIds.length) {
+    if (testIds.length > 0 && labTests.length !== testIds.length) {
       // Not all lab tests exist on specified lab request
       throw new NotFoundError();
     }
 
     await db.transaction(async () => {
-      labRequest.set('resultsInterpretation', resultsInterpretation); 
+      if (resultsInterpretation && resultsInterpretation !== labRequest.resultsInterpretation) {
+          await labRequest.update({ resultsInterpretation });
+      }
 
-      const promises = [
-        labRequest.save(),
-    
-      ];
+      const promises = [];
 
       labTests.forEach(labTest => {
         req.checkPermission('write', labTest);
