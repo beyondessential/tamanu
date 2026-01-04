@@ -18,10 +18,11 @@ export class PharmacyOrderPrescription extends Model {
   declare displayId: string;
   declare quantity?: number;
   declare repeats?: number;
+  declare isCompleted: boolean;
   declare medicationDispenses?: MedicationDispense[];
   declare pharmacyOrder?: PharmacyOrder;
 
-  static initModel({ primaryKey, ...options }: InitOptions, models: Models) {
+  static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
@@ -40,32 +41,15 @@ export class PharmacyOrderPrescription extends Model {
           type: DataTypes.INTEGER,
           allowNull: true,
         },
+        isCompleted: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
       },
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
-        hooks: {
-          async afterDestroy(pharmacyOrderPrescription: PharmacyOrderPrescription, opts) {
-            const pharmacyOrder = await models.PharmacyOrder.findByPk(
-              pharmacyOrderPrescription.pharmacyOrderId,
-              {
-                include: [
-                  {
-                    association: 'pharmacyOrderPrescriptions',
-                  },
-                ],
-                transaction: opts.transaction,
-              },
-            );
-            if (
-              pharmacyOrder &&
-              (!pharmacyOrder?.pharmacyOrderPrescriptions ||
-                !pharmacyOrder?.pharmacyOrderPrescriptions.length)
-            ) {
-              await pharmacyOrder.destroy();
-            }
-          },
-        },
       },
     );
   }
@@ -87,14 +71,14 @@ export class PharmacyOrderPrescription extends Model {
     });
   }
 
-  get remainingRepeats(): number {
+  getRemainingRepeats(extraDispenses: number = 0): number {
     // No repeats will be consumed by an INPATIENT medication request.
     if (!this.pharmacyOrder?.isDischargePrescription) {
       return 0;
     }
     // The remaining repeats for OUTPATIENT medication requests is the number of repeats minus the number of dispenses.
     const repeats = this.repeats || 0;
-    const dispenseCount = (this.medicationDispenses || []).length;
+    const dispenseCount = (this.medicationDispenses || []).length + extraDispenses;
     // we subtract 1 from the dispense count because the first dispense is not counted as a repeat
     return Math.max(0, repeats - Math.max(0, dispenseCount - 1));
   }
