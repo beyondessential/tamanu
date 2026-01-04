@@ -13,6 +13,8 @@ import { DispenseMedicationWorkflowModal } from './Medication/DispenseMedication
 import { ThemedTooltip, TranslatedEnum, TranslatedReferenceData } from '@tamanu/ui-components';
 import { BodyText } from './Typography';
 import { PHARMACY_PRESCRIPTION_TYPE_LABELS, PHARMACY_PRESCRIPTION_TYPES } from '@tamanu/constants';
+import { useApi } from '../api';
+import { DeleteMedicationRequestModal } from './Medication/DeleteMedicationRequestModal';
 import { Box } from '@mui/material';
 import { getStockStatus } from '../utils/medications';
 
@@ -119,13 +121,17 @@ const getDateSent = ({ pharmacyOrder }) => (
 );
 
 export const MedicationRequestsTable = () => {
+  const api = useApi();
   const { facilityId } = useAuth();
   const { searchParameters } = useMedicationsContext(MEDICATIONS_SEARCH_KEYS.ACTIVE);
 
   const [medicationRequests, setMedicationRequests] = useState([]);
   const [isDispenseOpen, setIsDispenseOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedRequestId, setSelectedRequestId] = useState(null);
   const [refreshCount, setRefreshCount] = useState(0);
+  const [hoveredRow, setHoveredRow] = useState(null);
 
   const onMedicationRequestsFetched = useCallback(({ data }) => {
     setMedicationRequests(data);
@@ -134,6 +140,28 @@ export const MedicationRequestsTable = () => {
   const handleTableRefresh = useCallback(() => {
     setRefreshCount(prev => prev + 1);
   }, []);
+
+  const handleDeleteClick = requestId => {
+    setSelectedRequestId(requestId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      await api.delete(`medication/medication-requests/${selectedRequestId}`);
+      setIsDeleteModalOpen(false);
+      setSelectedRequestId(null);
+      // Trigger table refresh
+      setRefreshCount(prev => prev + 1);
+    } catch (error) {
+      console.error(error.message || 'Failed to delete medication request');
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteModalOpen(false);
+    setSelectedRequestId(null);
+  };
 
   const columns = [
     {
@@ -235,15 +263,18 @@ export const MedicationRequestsTable = () => {
     {
       key: 'actions',
       title: '',
-      allowExport: false,
-      accessor: () => {
+      accessor: row => {
         const actions = [
           {
             label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
-            action: () => {},
+            action: () => handleDeleteClick(row.id),
           },
         ];
-        return <MenuButton onClick={() => {}} actions={actions} />;
+        return (
+          <div onMouseEnter={() => hoveredRow !== row && setHoveredRow(row.id)}>
+            <MenuButton actions={actions} />
+          </div>
+        );
       },
       sortable: false,
       dontCallRowInput: true,
@@ -269,6 +300,11 @@ export const MedicationRequestsTable = () => {
         }}
         patient={selectedPatient}
         onDispenseSuccess={handleTableRefresh}
+      />
+      <DeleteMedicationRequestModal
+        open={isDeleteModalOpen}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
       />
       <StyledSearchTableWithPermissionCheck
         refreshCount={refreshCount}

@@ -71,6 +71,7 @@ export const MedicationDispensesTable = () => {
   const [medicationDispenses, setMedicationDispenses] = useState([]);
   const [printModalOpen, setPrintModalOpen] = useState(false);
   const [selectedLabelData, setSelectedLabelData] = useState([]);
+  const [hoveredRow, setHoveredRow] = useState(null);
 
   const onMedicationDispensesFetched = useCallback(({ data }) => {
     setMedicationDispenses(data);
@@ -204,7 +205,11 @@ export const MedicationDispensesTable = () => {
             action: () => {},
           },
         ];
-        return <MenuButton onClick={() => {}} actions={actions} />;
+        return (
+          <div onMouseEnter={() => hoveredRow !== row && setHoveredRow(row.id)}>
+            <MenuButton actions={actions} />
+          </div>
+        );
       },
       sortable: false,
       dontCallRowInput: true,

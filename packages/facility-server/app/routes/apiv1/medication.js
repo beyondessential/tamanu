@@ -1627,6 +1627,179 @@ medication.get(
   }),
 );
 
+medication.delete(
+  '/medication-requests/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { PharmacyOrderPrescription } = models;
+
+    req.checkPermission('write', 'Medication');
+
+    const pharmacyOrderPrescription = await PharmacyOrderPrescription.findByPk(params.id, {
+      include: [
+        {
+          association: 'prescription',
+          attributes: ['medicationId'],
+          required: true,
+        },
+      ],
+    });
+
+    if (!pharmacyOrderPrescription) {
+      throw new NotFoundError(`Medication request with id ${params.id} not found`);
+    }
+
+    await checkSensitiveMedicationPermission(
+      [pharmacyOrderPrescription.prescription.medicationId],
+      req,
+      'write',
+    );
+
+    await pharmacyOrderPrescription.destroy();
+
+    res.send({ success: true });
+  }),
+);
+
+medication.get(
+  '/medication-dispenses',
+  asyncHandler(async (req, res) => {
+    const { models, query } = req;
+    const {
+      order = 'DESC',
+      orderBy = 'dispensedAt',
+      rowsPerPage = 10,
+      page = 0,
+      facilityId,
+      ...filterParams
+    } = query;
+
+    req.checkPermission('list', 'Medication');
+
+    const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+
+    // Patient filters
+    const patientFilters = mapQueryFilters(filterParams, [
+      { key: 'firstName', mapFn: caseInsensitiveStartsWithFilter },
+      { key: 'lastName', mapFn: caseInsensitiveStartsWithFilter },
+      { key: 'displayId', mapFn: caseInsensitiveFilter },
+    ]);
+    // Patient association
+    const patient = {
+      association: 'patient',
+      where: patientFilters,
+      attributes: ['displayId', 'firstName', 'lastName', 'id'],
+    };
+
+    // Encounter association
+    const encounter = {
+      association: 'encounter',
+      include: [patient],
+      attributes: ['id', 'endDate'],
+      required: true,
+    };
+
+    // Prescription filters
+    const prescriptionFilters = mapQueryFilters(filterParams, [
+      { key: 'medicationId', operator: Op.eq },
+    ]);
+
+    const pharmacyOrderPrescriptionFilters = mapQueryFilters(filterParams, [
+      {
+        key: 'requestNumber',
+        mapFn: (_fieldName, operator, value) => caseInsensitiveFilter('displayId', operator, value),
+      },
+    ]);
+
+    const rootFilter = mapQueryFilters(filterParams, [
+      {
+        key: 'dispensedAt',
+        mapFn: (fieldName, _operator, value) => {
+          const startOfDay = `${value} 00:00:00`;
+          const endOfDay = `${value} 23:59:59`;
+          return { [fieldName]: { [Op.between]: [startOfDay, endOfDay] } };
+        },
+      },
+      { key: 'dispensedByUserId', operator: Op.eq },
+    ]);
+
+    // Query PharmacyOrderPrescription with all associations
+    const databaseResponse = await models.MedicationDispense.findAndCountAll({
+      include: [
+        {
+          association: 'pharmacyOrderPrescription',
+          where: pharmacyOrderPrescriptionFilters,
+          required: true,
+          attributes: ['id', 'prescriptionId', 'displayId'],
+          include: [
+            {
+              association: 'pharmacyOrder',
+              where: { facilityId },
+              include: [encounter],
+              required: true,
+              attributes: ['id', 'facilityId', 'encounterId'],
+            },
+            {
+              association: 'prescription',
+              where: prescriptionFilters,
+              attributes: ['id'],
+              include: [
+                {
+                  association: 'medication',
+                  attributes: ['id', 'name', 'type'],
+                  required: true,
+                },
+              ],
+              required: true,
+            },
+          ],
+        },
+        {
+          association: 'dispensedBy',
+          attributes: ['id', 'displayName'],
+        },
+      ],
+      attributes: ['id', 'quantity', 'dispensedAt', 'dispensedByUserId'],
+      where: rootFilter,
+      order: [
+        [...orderBy.split('.'), orderDirection],
+        ['dispensedAt', 'DESC'],
+      ],
+      limit: rowsPerPage,
+      offset: page * rowsPerPage,
+      distinct: true,
+      subQuery: false,
+    });
+
+    const { count, rows: data } = databaseResponse;
+
+    // Temporary fix to get patient data due limit of column characters in postgres
+    const patientIds = [
+      ...new Set(
+        data.map(item => item.pharmacyOrderPrescription.pharmacyOrder.encounter.patient.id),
+      ),
+    ];
+
+    const patients = await models.Patient.findAll({
+      where: { id: patientIds },
+      attributes: ['id', 'firstName', 'lastName', 'displayId'],
+    });
+
+    const result = data.map(item => {
+      const patient = patients.find(
+        p => p.id === item.pharmacyOrderPrescription.pharmacyOrder.encounter.patient.id,
+      );
+      item.pharmacyOrderPrescription.pharmacyOrder.encounter.patient.set(patient.toJSON());
+      return item;
+    });
+
+    res.send({
+      count,
+      data: result,
+    });
+  }),
+);
+
 const dispensableMedicationsQuerySchema = z
   .object({
     patientId: z.uuid(),

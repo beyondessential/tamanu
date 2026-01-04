@@ -1595,6 +1595,13 @@ export const globalSettings = {
                 },
               },
             },
+            autoDeleteTimeframeHours: {
+              name: 'Autodelete medication request timeframe in hours',
+              description: 'Medication requests not dispensed after this timeframe will be automatically deleted.',
+              type: yup.number().integer().positive(),
+              defaultValue: 72,
+              unit: 'hours',
+            },
           },
         },
         frequenciesEnabled: {
