@@ -131,6 +131,7 @@ export const MedicationRequestsTable = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedRequestId, setSelectedRequestId] = useState(null);
   const [refreshCount, setRefreshCount] = useState(0);
+  const [hoveredRow, setHoveredRow] = useState(null);
 
   const onMedicationRequestsFetched = useCallback(({ data }) => {
     setMedicationRequests(data);
@@ -262,7 +263,6 @@ export const MedicationRequestsTable = () => {
     {
       key: 'actions',
       title: '',
-      allowExport: false,
       accessor: row => {
         const actions = [
           {
@@ -270,7 +270,11 @@ export const MedicationRequestsTable = () => {
             action: () => handleDeleteClick(row.id),
           },
         ];
-        return <MenuButton onClick={e => e.stopPropagation()} actions={actions} />;
+        return (
+          <div onMouseEnter={() => hoveredRow !== row && setHoveredRow(row.id)}>
+            <MenuButton actions={actions} />
+          </div>
+        );
       },
       sortable: false,
       dontCallRowInput: true,
