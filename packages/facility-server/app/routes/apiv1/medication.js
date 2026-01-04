@@ -1675,7 +1675,7 @@ medication.get(
             'indication',
             'notes',
             'isVariableDose',
-            'date'
+            'date',
           ],
           required: true,
           include: [
@@ -1779,7 +1779,14 @@ medication.post(
           {
             association: 'pharmacyOrder',
             attributes: ['id', 'isDischargePrescription'],
-            required: false,
+            required: true,
+            include: [
+              {
+                association: 'encounter',
+                attributes: ['patientId'],
+                required: true,
+              },
+            ],
           },
         ],
         lock: {
@@ -1795,19 +1802,20 @@ medication.post(
           `Pharmacy order prescription(s) not found or discontinued: ${notFoundIds.join(', ')}`,
         );
       }
-      const isSamePharmacyOrder = prescriptionRecords.every(
-        record => record.pharmacyOrder.id === prescriptionRecords[0].pharmacyOrder.id,
+      const isSamePatient = prescriptionRecords.every(
+        record =>
+          record.pharmacyOrder?.encounter?.patientId ===
+          prescriptionRecords[0].pharmacyOrder?.encounter?.patientId,
       );
-      if (!isSamePharmacyOrder) {
-        throw new InvalidOperationError(
-          `All prescriptions must be part of the same pharmacy order`,
-        );
+      if (!isSamePatient) {
+        throw new InvalidOperationError(`All prescriptions must be part of the same patient`);
       }
 
       const ineligibleRecords = prescriptionRecords.filter(record => {
         const remainingRepeats = record.remainingRepeats;
+        const hasDispenses = record.medicationDispenses?.length > 0;
         const isDischargePrescription = record.pharmacyOrder?.isDischargePrescription;
-        return remainingRepeats <= 0 && !!isDischargePrescription;
+        return remainingRepeats <= 0 && hasDispenses && !!isDischargePrescription;
       });
 
       if (ineligibleRecords.length > 0) {
