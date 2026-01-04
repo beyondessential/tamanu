@@ -65,6 +65,7 @@ export const MedicationDispensesTable = () => {
   const { searchParameters } = useMedicationsContext(MEDICATIONS_SEARCH_KEYS.DISPENSED);
 
   const [medicationDispenses, setMedicationDispenses] = useState([]);
+  const [hoveredRow, setHoveredRow] = useState(null);
 
   const onMedicationDispensesFetched = useCallback(({ data }) => {
     setMedicationDispenses(data);
@@ -159,7 +160,7 @@ export const MedicationDispensesTable = () => {
       key: 'actions',
       title: '',
       allowExport: false,
-      accessor: () => {
+      accessor: row => {
         const actions = [
           {
             label: <TranslatedText stringId="general.action.printLabel" fallback="Print label" />,
@@ -174,7 +175,11 @@ export const MedicationDispensesTable = () => {
             action: () => {},
           },
         ];
-        return <MenuButton onClick={() => {}} actions={actions} />;
+        return (
+          <div onMouseEnter={() => hoveredRow !== row && setHoveredRow(row.id)}>
+            <MenuButton actions={actions} />
+          </div>
+        );
       },
       sortable: false,
       dontCallRowInput: true,

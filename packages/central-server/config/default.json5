@@ -295,6 +295,13 @@
       // every hour
       "schedule": "0 * * * *",
     },
+    "autoDeleteMedicationRequests": {
+      "enabled": true,
+      // every 6 hours
+      "schedule": "0 */6 * * *",
+      "batchSize": 100,
+      "batchSleepAsyncDurationInMilliseconds": 50
+    },
   },
   "integrations": {
     "fijiVrs": {
