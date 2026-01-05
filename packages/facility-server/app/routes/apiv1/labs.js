@@ -451,10 +451,10 @@ labRelations.put(
       user,
     } = req;
     const { id } = params;
-     const { resultsInterpretation, ...labTestsBody  } = body;
+     const { resultsInterpretation, labTests } = body;
     req.checkPermission('write', 'LabTest');
 
-    const testIds = Object.keys(labTestsBody);
+    const testIds = Object.keys(labTests);
 
     const labRequest = await models.LabRequest.findByPk(id, {
       include: [
@@ -470,10 +470,10 @@ labRelations.put(
         },
       ],
     });
-    const labTests = labRequest.tests;
+    const labTestRecords = labRequest.tests; // LabTest records
 
     // Reject all updates if it includes sensitive tests and user lacks permission
-    const areSensitiveTests = labTests.some(test => test.labTestType.isSensitive);
+    const areSensitiveTests = labTestRecords.some(test => test.labTestType.isSensitive);
     if (areSensitiveTests) {
       req.checkPermission('write', 'SensitiveLabRequest');
     }
@@ -481,7 +481,7 @@ labRelations.put(
     // If any of the tests have a different result, check for LabTestResult permission
     const labTestObj = keyBy(labTests, 'id');
     if (
-      Object.entries(labTestsBody).some(
+      Object.entries(labTests).some(
         ([testId, testBody]) => testBody.result && testBody.result !== labTestObj[testId].result,
       )
     ) {
@@ -503,14 +503,16 @@ labRelations.put(
       }
 
       labTests.forEach(labTest => {
-        req.checkPermission('write', labTest);
-        const testData = labTestsBody[labTest.id];
-        const updated = labTest.set(testData);
-        if (updated.changed()) {
-          // Temporary solution for lab test officer string field
-          // using displayName of current user
-          labTest.set('laboratoryOfficer', user.displayName);
-          promises.push(updated.save());
+        const testData = labTests[labTest.id];
+        if (testData) {
+          req.checkPermission('write', labTest);
+          const updated = labTest.set(testData);
+          if (updated.changed()) {
+            // Temporary solution for lab test officer string field
+            // using displayName of current user
+            labTest.set('laboratoryOfficer', user.displayName);
+            promises.push(updated.save());
+          }
         }
       });
 

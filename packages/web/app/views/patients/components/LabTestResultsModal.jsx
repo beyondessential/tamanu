@@ -371,7 +371,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
   // Select editable values to prefill the form on edit
   const initialData = useMemo(
     () => ({
-      ...keyBy(
+      labTests: keyBy(
         labTestResults?.data.map(data => pick(data, Object.values(LAB_TEST_PROPERTIES))),
         LAB_TEST_PROPERTIES.ID,
       ),
