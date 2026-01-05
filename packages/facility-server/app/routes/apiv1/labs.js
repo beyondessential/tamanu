@@ -489,7 +489,7 @@ labRelations.put(
 
     await db.transaction(async () => {
       if (resultsInterpretation && resultsInterpretation !== labRequest.resultsInterpretation) {
-          await labRequest.update({ resultsInterpretation });
+        await labRequest.update({ resultsInterpretation });
       }
 
       const promises = [];
