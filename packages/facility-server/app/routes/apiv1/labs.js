@@ -220,52 +220,52 @@ labRequest.get(
     );
 
     const from = `
-          FROM lab_requests
-            LEFT JOIN encounters AS encounter
-              ON (encounter.id = lab_requests.encounter_id)
-            LEFT JOIN locations AS location
-              ON (encounter.location_id = location.id)
-            LEFT JOIN reference_data AS category
-              ON (category.type = 'labTestCategory' AND lab_requests.lab_test_category_id = category.id)
-            LEFT JOIN reference_data AS priority
-              ON (priority.type = 'labTestPriority' AND lab_requests.lab_test_priority_id = priority.id)
-            LEFT JOIN reference_data AS laboratory
-              ON (laboratory.type = 'labTestLaboratory' AND lab_requests.lab_test_laboratory_id = laboratory.id)
-            LEFT JOIN reference_data AS site
-              ON (site.type = 'labSampleSite' AND lab_requests.lab_sample_site_id = site.id)
-            LEFT JOIN lab_test_panel_requests AS lab_test_panel_requests
-              ON (lab_test_panel_requests.id = lab_requests.lab_test_panel_request_id)
-            LEFT JOIN lab_test_panels AS lab_test_panel
-              ON (lab_test_panel.id = lab_test_panel_requests.lab_test_panel_id)
-            LEFT JOIN patients AS patient
-              ON (patient.id = encounter.patient_id)
-            LEFT JOIN users AS examiner
-              ON (examiner.id = encounter.examiner_id)
-            LEFT JOIN users AS requester
-              ON (requester.id = lab_requests.requested_by_id)
-            LEFT JOIN sensitive_labs
-              ON (sensitive_labs.id = lab_requests.id)
-            ${whereClauses && `WHERE ${whereClauses}`}
-        `;
+      FROM lab_requests
+        LEFT JOIN encounters AS encounter
+          ON (encounter.id = lab_requests.encounter_id)
+        LEFT JOIN locations AS location
+          ON (encounter.location_id = location.id)
+        LEFT JOIN reference_data AS category
+          ON (category.type = 'labTestCategory' AND lab_requests.lab_test_category_id = category.id)
+        LEFT JOIN reference_data AS priority
+          ON (priority.type = 'labTestPriority' AND lab_requests.lab_test_priority_id = priority.id)
+        LEFT JOIN reference_data AS laboratory
+          ON (laboratory.type = 'labTestLaboratory' AND lab_requests.lab_test_laboratory_id = laboratory.id)
+        LEFT JOIN reference_data AS site
+          ON (site.type = 'labSampleSite' AND lab_requests.lab_sample_site_id = site.id)
+        LEFT JOIN lab_test_panel_requests AS lab_test_panel_requests
+          ON (lab_test_panel_requests.id = lab_requests.lab_test_panel_request_id)
+        LEFT JOIN lab_test_panels AS lab_test_panel
+          ON (lab_test_panel.id = lab_test_panel_requests.lab_test_panel_id)
+        LEFT JOIN patients AS patient
+          ON (patient.id = encounter.patient_id)
+        LEFT JOIN users AS examiner
+          ON (examiner.id = encounter.examiner_id)
+        LEFT JOIN users AS requester
+          ON (requester.id = lab_requests.requested_by_id)
+        LEFT JOIN sensitive_labs
+          ON (sensitive_labs.id = lab_requests.id)
+        ${whereClauses && `WHERE ${whereClauses}`}
+    `;
 
     const queryCte = `
-          WITH sensitive_labs AS (
-            SELECT lab_requests.id as id, TRUE as is_sensitive
-            FROM lab_requests
-            INNER JOIN lab_tests
-              ON (lab_requests.id = lab_tests.lab_request_id)
-            INNER JOIN lab_test_types
-              ON (lab_test_types.id = lab_tests.lab_test_type_id)
-            WHERE lab_test_types.is_sensitive IS TRUE
-            GROUP BY lab_requests.id
-          )
-        `;
+      WITH sensitive_labs AS (
+        SELECT lab_requests.id as id, TRUE as is_sensitive
+        FROM lab_requests
+        INNER JOIN lab_tests
+          ON (lab_requests.id = lab_tests.lab_request_id)
+        INNER JOIN lab_test_types
+          ON (lab_test_types.id = lab_tests.lab_test_type_id)
+        WHERE lab_test_types.is_sensitive IS TRUE
+        GROUP BY lab_requests.id
+      )
+    `;
 
     const countResult = await req.db.query(
       `
-          ${queryCte}
-          SELECT COUNT(1) AS count ${from}
-          `,
+      ${queryCte}
+      SELECT COUNT(1) AS count ${from}
+      `,
       { replacements: filterReplacements, type: QueryTypes.SELECT },
     );
 
@@ -296,31 +296,31 @@ labRequest.get(
 
     const result = await req.db.query(
       `
-            ${queryCte}
-            SELECT
-              lab_requests.*,
-              patient.display_id AS patient_display_id,
-              patient.id AS patient_id,
-              patient.first_name AS first_name,
-              patient.last_name AS last_name,
-              examiner.display_name AS examiner,
-              requester.display_name AS requested_by,
-              encounter.id AS encounter_id,
-              category.id AS category_id,
-              category.name AS category_name,
-              priority.id AS priority_id,
-              priority.name AS priority_name,
-              lab_test_panel.name as lab_test_panel_name,
-              lab_test_panel.id as lab_test_panel_id,
-              laboratory.id AS laboratory_id,
-              laboratory.name AS laboratory_name,
-              location.facility_id AS facility_id
-            ${from}
+        ${queryCte}
+        SELECT
+          lab_requests.*,
+          patient.display_id AS patient_display_id,
+          patient.id AS patient_id,
+          patient.first_name AS first_name,
+          patient.last_name AS last_name,
+          examiner.display_name AS examiner,
+          requester.display_name AS requested_by,
+          encounter.id AS encounter_id,
+          category.id AS category_id,
+          category.name AS category_name,
+          priority.id AS priority_id,
+          priority.name AS priority_name,
+          lab_test_panel.name as lab_test_panel_name,
+          lab_test_panel.id as lab_test_panel_id,
+          laboratory.id AS laboratory_id,
+          laboratory.name AS laboratory_name,
+          location.facility_id AS facility_id
+        ${from}
 
-            ORDER BY ${sortKey} ${sortDirection}${nullPosition ? ` ${nullPosition}` : ''}
-            LIMIT :limit
-            OFFSET :offset
-          `,
+        ORDER BY ${sortKey} ${sortDirection}${nullPosition ? ` ${nullPosition}` : ''}
+        LIMIT :limit
+        OFFSET :offset
+      `,
       {
         replacements: {
           ...filterReplacements,
@@ -443,9 +443,15 @@ labRelations.get(
 labRelations.put(
   '/:id/tests',
   asyncHandler(async (req, res) => {
-    const { models, params, body, db, user } = req;
+    const {
+      models,
+      params,
+      body,
+      db,
+      user,
+    } = req;
     const { id } = params;
-    const { resultsInterpretation, ...labTestsBody } = body;
+     const { resultsInterpretation, ...labTestsBody  } = body;
     req.checkPermission('write', 'LabTest');
 
     const testIds = Object.keys(labTestsBody);
@@ -482,17 +488,19 @@ labRelations.put(
       req.checkPermission('write', 'LabTestResult');
     }
 
-    if (testIds.length > 0 && labTests.length !== testIds.length) {
+    if (labTests.length !== testIds.length) {
       // Not all lab tests exist on specified lab request
       throw new NotFoundError();
     }
 
-    await db.transaction(async () => {
-      if (resultsInterpretation && resultsInterpretation !== labRequest.resultsInterpretation) {
-        await labRequest.update({ resultsInterpretation });
-      }
-
+    db.transaction(async () => {
       const promises = [];
+
+      if (resultsInterpretation) {
+        promises.push(labRequest.update({
+          resultsInterpretation,
+        }));
+      }
 
       labTests.forEach(labTest => {
         req.checkPermission('write', labTest);
