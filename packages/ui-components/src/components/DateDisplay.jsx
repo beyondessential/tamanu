@@ -14,6 +14,7 @@ import {
 } from '@tamanu/utils/dateTime';
 import { TAMANU_COLORS } from '../constants';
 import { ThemedTooltip } from './Tooltip';
+import { useSettings } from '../contexts';
 
 const Text = styled(Typography)`
   font-size: inherit;
@@ -131,6 +132,9 @@ export const DateDisplay = React.memo(
     style,
     ...props
   }) => {
+    const { getSetting } = useSettings();
+    const timezone = getSetting('timezone');
+    console.log('timezone', timezone);
     const displayDateString = getDateDisplay(dateValue, { ...props });
 
     if (noTooltip) {
