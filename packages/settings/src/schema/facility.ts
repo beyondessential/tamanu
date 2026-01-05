@@ -86,7 +86,7 @@ export const facilitySettings = {
     dateTime: {
       description: 'Settings related to date and time',
       properties: {
-        facilityTimeZone: {
+        timeZone: {
           description: 'The timezone of the facility',
           type: yup.string().nullable(),
           defaultValue: null,
