@@ -83,6 +83,16 @@ export const facilitySettings = {
         },
       },
     },
+    dateTime: {
+      description: 'Settings related to date and time',
+      properties: {
+        facilityTimeZone: {
+          description: 'The timezone of the facility',
+          type: yup.string().nullable(),
+          defaultValue: null,
+        },
+      },
+    },
     questionCodeIds: {
       deprecated: true,
       description: questionCodeIdsDescription,
