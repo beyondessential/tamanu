@@ -512,13 +512,15 @@ describe('Labs', () => {
         const mockResult2 = 'Mock result2';
         const mockVerification2 = 'also verified';
         const response = await app.put(`/api/labRequest/${labRequest.id}/tests`).send({
-          [test1.id]: {
-            result: mockResult,
-            verification: mockVerification,
-          },
-          [test2.id]: {
-            result: mockResult2,
-            verification: mockVerification2,
+          labTests: {
+            [test1.id]: {
+              result: mockResult,
+              verification: mockVerification,
+            },
+            [test2.id]: {
+              result: mockResult2,
+              verification: mockVerification2,
+            },
           },
         });
         expect(response).toHaveSucceeded();
@@ -537,7 +539,7 @@ describe('Labs', () => {
         const mockVerification = 'verified';
         const response = await app.put(`/api/labRequest/${labRequest.id}/tests`).send({
           labTests: {
-          [test1.id]: {
+            [test1.id]: {
               result: mockResult,
               verification: mockVerification,
             },
