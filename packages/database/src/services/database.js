@@ -121,8 +121,6 @@ async function connectToDatabase(dbOptions) {
     port,
     logging,
     pool,
-    // A flag that defines if aliases should be minified (mostly useful to avoid Postgres alias character limit of 64)
-    minifyAliases: true,
   });
 
   sequelize.setSessionVar = (key, value) =>
