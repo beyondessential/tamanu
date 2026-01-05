@@ -250,17 +250,17 @@ const ResultsForm = ({
   const onChangeResult = useCallback(
     (value, labTestId) => {
       if (!value) return;
-      const rowValues = values[labTestId];
+      const rowValues = values.labTests?.[labTestId];
 
       AUTOFILL_FIELD_NAMES.forEach(name => {
         if (rowValues?.[name]) return;
 
-        const otherRowsValues = Object.entries(values)
+        const otherRowsValues = Object.entries(values.labTests || {})
           .filter(([id, row]) => id !== labTestId && row[name])
           .map(([, row]) => row[name]);
 
         const uniqueValues = [...new Set(otherRowsValues)];
-        const fieldName = `${labTestId}.${name}`;
+        const fieldName = `labTests.${labTestId}.${name}`;
         if (name === LAB_TEST_PROPERTIES.COMPLETED_DATE) {
           setFieldValue(fieldName, getCurrentDateTimeString());
         } else if (uniqueValues.length === 1) {
