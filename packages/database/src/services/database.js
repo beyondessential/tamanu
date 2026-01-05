@@ -75,13 +75,16 @@ async function connectToDatabase(dbOptions) {
     alwaysCreateConnection = true,
     loggingOverride = null, // used in tests for migration determinism
     disableChangesAudit = false,
+    recreateDatabase = false,
   } = dbOptions;
   let { name } = dbOptions;
 
   // configure one test db per jest worker
   const workerId = process.env.JEST_WORKER_ID;
-  if (testMode && workerId) {
-    name = `${name}-${workerId}`;
+  if (testMode && (workerId || recreateDatabase)) {
+    if (workerId) {
+      name = `${name}-${workerId}`;
+    }
     if (alwaysCreateConnection) {
       await unsafeRecreatePgDb({ ...dbOptions, name });
     }
