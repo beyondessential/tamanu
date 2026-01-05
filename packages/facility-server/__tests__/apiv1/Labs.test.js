@@ -49,7 +49,7 @@ describe('Labs', () => {
       where: { labRequestId: createdRequest.id },
     });
     expect(createdTests).toHaveLength(labRequest.labTestTypeIds.length);
-    expect(createdTests.every((x) => x.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED));
+    expect(createdTests.every(x => x.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED));
 
     const createdLogs = await models.LabRequestLog.findAll({
       where: { labRequestId: createdRequest.id },
@@ -91,7 +91,7 @@ describe('Labs', () => {
         where: { labRequestId: createdRequest.id },
       });
       expect(createdTests).toHaveLength(requests[i].labTestTypeIds.length);
-      expect(createdTests.every((x) => x.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED));
+      expect(createdTests.every(x => x.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED));
 
       const createdLogs = await models.LabRequestLog.findAll({
         where: { labRequestId: createdRequest.id },
@@ -207,7 +207,7 @@ describe('Labs', () => {
       where: { labRequestId: createdRequest.id },
     });
     expect(createdTests).toHaveLength(labTestTypes.length);
-    expect(createdTests.every((x) => x.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED));
+    expect(createdTests.every(x => x.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED));
 
     const createdLogs = await models.LabRequestLog.findAll({
       where: { labRequestId: createdRequest.id },
@@ -260,7 +260,7 @@ describe('Labs', () => {
     expect(createdTests).toHaveLength(labTestTypes.length);
     expect(
       createdTests.every(
-        (x) => x.status === LAB_REQUEST_STATUSES.RECEPTION_PENDING && x.sampleTime === sampleTime,
+        x => x.status === LAB_REQUEST_STATUSES.RECEPTION_PENDING && x.sampleTime === sampleTime,
       ),
     );
 
@@ -344,7 +344,7 @@ describe('Labs', () => {
   });
 
   it('should not fetch lab test types directly from general labTestType get route when visibilityStatus set to "panelsOnly" or "historical"', async () => {
-    const makeLabTestType = async (visibilityStatus) => {
+    const makeLabTestType = async visibilityStatus => {
       const category = await models.ReferenceData.create({
         ...fake(models.ReferenceData),
         type: 'labTestCategory',
@@ -373,7 +373,7 @@ describe('Labs', () => {
     expect(result).toHaveSucceeded();
     const { body } = result;
     expect(body.length).toBe(3);
-    body.forEach((labTestType) => {
+    body.forEach(labTestType => {
       expect(labTestType.visibilityStatus).toBe(LAB_TEST_TYPE_VISIBILITY_STATUSES.CURRENT);
     });
   });
@@ -417,7 +417,7 @@ describe('Labs', () => {
     expect(result).toHaveSucceeded();
     const { body } = result;
 
-    expect(body.every((panel) => panel.visibilityStatus === 'current')).toBeTruthy();
+    expect(body.every(panel => panel.visibilityStatus === 'current')).toBeTruthy();
   });
 
   describe('Lab test results', () => {
@@ -484,12 +484,14 @@ describe('Labs', () => {
         const mockResult = 'Mock result';
         const mockVerification = 'verified';
         const response = await app.put(`/api/labRequest/${labRequest.id}/tests`).send({
-          [test1.id]: {
-            result: mockResult,
-            verification: mockVerification,
-          },
-          [test2.id]: {
-            result: test2.result,
+          labTests: {
+            [test1.id]: {
+              result: mockResult,
+              verification: mockVerification,
+            },
+            [test2.id]: {
+              result: test2.result,
+            },
           },
         });
         expect(response).toHaveSucceeded();
@@ -534,13 +536,15 @@ describe('Labs', () => {
         const mockResult = 'Mock result';
         const mockVerification = 'verified';
         const response = await app.put(`/api/labRequest/${labRequest.id}/tests`).send({
+          labTests: {
           [test1.id]: {
-            result: mockResult,
-            verification: mockVerification,
-          },
-          invalidTestId: {
-            result: mockResult,
-            verification: mockVerification,
+              result: mockResult,
+              verification: mockVerification,
+            },
+            invalidTestId: {
+              result: mockResult,
+              verification: mockVerification,
+            },
           },
         });
         expect(response).toHaveRequestError(404);
@@ -556,9 +560,11 @@ describe('Labs', () => {
         const mockResult = 'Mock result';
         const mockVerification = 'verified';
         const response = await app.put(`/api/labRequest/${sensitiveLabRequest.id}/tests`).send({
-          [sensitiveTest.id]: {
-            result: mockResult,
-            verification: mockVerification,
+          labTests: {
+            [sensitiveTest.id]: {
+              result: mockResult,
+              verification: mockVerification,
+            },
           },
         });
         expect(response).toBeForbidden();
@@ -580,7 +586,7 @@ describe('Labs', () => {
       ];
       const [facilityId] = selectFacilityIds(config);
       const otherFacilityId = 'kerang';
-      const makeRequestAtFacility = async (facilityId) => {
+      const makeRequestAtFacility = async facilityId => {
         const location = await models.Location.create({
           ...fake(models.Location),
           facilityId,
@@ -617,7 +623,7 @@ describe('Labs', () => {
         );
         expect(result).toHaveSucceeded();
         expect(result.body.count).toBe(3);
-        result.body.data.forEach((lr) => {
+        result.body.data.forEach(lr => {
           expect(lr.facilityId).toBe(facilityId);
         });
       });
@@ -626,10 +632,10 @@ describe('Labs', () => {
         const result = await app.get(`/api/labRequest?allFacilities=true`);
         expect(result).toHaveSucceeded();
         expect(result.body.count).toBe(6);
-        const hasConfigFacility = result.body.data.some((lr) => lr.facilityId === facilityId);
+        const hasConfigFacility = result.body.data.some(lr => lr.facilityId === facilityId);
         expect(hasConfigFacility).toBe(true);
 
-        const hasOtherFacility = result.body.data.some((lr) => lr.facilityId === otherFacilityId);
+        const hasOtherFacility = result.body.data.some(lr => lr.facilityId === otherFacilityId);
         expect(hasOtherFacility).toBe(true);
       });
     });
@@ -657,7 +663,7 @@ describe('Labs', () => {
         expect(result).toHaveSucceeded();
         expect(result.body.count).toBe(3);
         expect(result.body.data.length).toBe(3);
-        const labIds = result.body.data.map((lab) => lab.id);
+        const labIds = result.body.data.map(lab => lab.id);
         const hasSensitiveRequest = labIds.includes(sensitiveLabRequestId);
         expect(hasSensitiveRequest).toBe(false);
       });
@@ -667,7 +673,7 @@ describe('Labs', () => {
 async function createTestTypesForPanel(models, labTestPanel) {
   const labTestTypes = await createLabTestTypes(models);
   await Promise.all(
-    labTestTypes.map((ltt) =>
+    labTestTypes.map(ltt =>
       models.LabTestPanelLabTestTypes.create({
         labTestPanelId: labTestPanel.id,
         labTestTypeId: ltt.id,
