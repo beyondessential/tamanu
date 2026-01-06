@@ -40,14 +40,14 @@ const formatShortestExplicit = (date, timeZone, countryTimeZone) =>
   }, 'Unknown', timeZone, countryTimeZone); // "4 Mar 19"
 
 // Diagnostic info for debugging
-const DiagnosticInfo = ({ date: rawDate, timeZone }) => {
-  const date = new Date(rawDate);
-  const displayDate = formatLong(date, timeZone);
+const DiagnosticInfo = ({ date: rawDate, timeZone, countryTimeZone }) => {
+  const rawDateString = typeof rawDate === 'string' ? rawDate : rawDate?.toISOString();
+  const displayDate = formatLong(rawDate, timeZone, countryTimeZone);
   
-  const getFormattedOffset = () => {
-    if (!timeZone) return format(date, 'XXX');
+  const getFormattedOffset = (tz, date) => {
+    if (!tz) return 'N/A';
     
-    const offsetMs = getTimezoneOffset(timeZone, date);
+    const offsetMs = getTimezoneOffset(tz, date);
     const offsetMinutes = Math.abs(offsetMs / 60000);
     const hours = Math.floor(offsetMinutes / 60);
     const minutes = offsetMinutes % 60;
@@ -55,15 +55,19 @@ const DiagnosticInfo = ({ date: rawDate, timeZone }) => {
     return `${sign}${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
   };
   
-  const timeZoneOffset = getFormattedOffset();
+  const now = new Date();
+  const displayOffset = getFormattedOffset(timeZone, now);
+  const sourceOffset = getFormattedOffset(countryTimeZone, now);
+  const deviceOffset = format(now, 'XXX');
   
   return (
     <div>
-      Display date: {displayDate} <br />
-      Raw date: {date.toString()} <br />
-      Time zone: {timeZone} <br />
-      Time zone offset: {timeZoneOffset} <br />
-      Locale: {locale}
+      <strong>Raw date string:</strong> {rawDateString} <br />
+      <strong>Source timezone:</strong> {countryTimeZone || 'N/A'} ({sourceOffset}) <br />
+      <strong>Display timezone:</strong> {timeZone || 'N/A'} ({displayOffset}) <br />
+      <strong>Device timezone:</strong> {Intl.DateTimeFormat().resolvedOptions().timeZone} ({deviceOffset}) <br />
+      <strong>Display date:</strong> {displayDate} <br />
+      <strong>Locale:</strong> {locale}
     </div>
   );
 };
@@ -89,7 +93,7 @@ const DateTooltip = ({ date, children, timeOnlyTooltip, timeZone, countryTimeZon
   const dateTooltip = timeOnlyTooltip ? formatTime(date, timeZone, countryTimeZone) : formatLong(date, timeZone, countryTimeZone);
 
   const tooltipTitle = debug ? (
-    <DiagnosticInfo date={date} timeZone={timeZone} data-testid="diagnosticinfo-adv2" />
+    <DiagnosticInfo date={date} timeZone={timeZone} countryTimeZone="Pacific/Auckland" data-testid="diagnosticinfo-adv2" />
   ) : (
     dateTooltip
   );
