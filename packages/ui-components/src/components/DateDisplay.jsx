@@ -40,9 +40,8 @@ const formatShortestExplicit = (date, timeZone, countryTimeZone) =>
   }, 'Unknown', timeZone, countryTimeZone); // "4 Mar 19"
 
 // Diagnostic info for debugging
-const DiagnosticInfo = ({ date: rawDate, timeZone, countryTimeZone }) => {
-  const rawDateString = typeof rawDate === 'string' ? rawDate : rawDate?.toISOString();
-  const displayDate = formatLong(rawDate, timeZone, countryTimeZone);
+const DiagnosticInfo = ({ date: parsedDate, rawDate, timeZone, countryTimeZone }) => {
+  const displayDate = formatLong(parsedDate, timeZone, countryTimeZone);
   
   const getFormattedOffset = (tz, date) => {
     if (!tz) return 'N/A';
@@ -62,7 +61,7 @@ const DiagnosticInfo = ({ date: rawDate, timeZone, countryTimeZone }) => {
   
   return (
     <div>
-      <strong>Raw date string:</strong> {rawDateString} <br />
+      <strong>Raw date string:</strong> {rawDate} <br />
       <strong>Source timezone:</strong> {countryTimeZone || 'N/A'} ({sourceOffset}) <br />
       <strong>Display timezone:</strong> {timeZone || 'N/A'} ({displayOffset}) <br />
       <strong>Device timezone:</strong> {Intl.DateTimeFormat().resolvedOptions().timeZone} ({deviceOffset}) <br />
@@ -74,7 +73,7 @@ const DiagnosticInfo = ({ date: rawDate, timeZone, countryTimeZone }) => {
 
 // Tooltip that shows the long date or full diagnostic date info if the shift key is held down
 // before mousing over the date display
-const DateTooltip = ({ date, children, timeOnlyTooltip, timeZone, countryTimeZone }) => {
+const DateTooltip = ({ date, rawDate, children, timeOnlyTooltip, timeZone, countryTimeZone }) => {
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const [debug, setDebug] = useState(false);
 
@@ -93,7 +92,7 @@ const DateTooltip = ({ date, children, timeOnlyTooltip, timeZone, countryTimeZon
   const dateTooltip = timeOnlyTooltip ? formatTime(date, timeZone, countryTimeZone) : formatLong(date, timeZone, countryTimeZone);
 
   const tooltipTitle = debug ? (
-    <DiagnosticInfo date={date} timeZone={timeZone} countryTimeZone="Pacific/Auckland" data-testid="diagnosticinfo-adv2" />
+    <DiagnosticInfo date={date} rawDate={rawDate} timeZone={timeZone} countryTimeZone="Pacific/Auckland" data-testid="diagnosticinfo-adv2" />
   ) : (
     dateTooltip
   );
@@ -150,7 +149,7 @@ export const DateDisplay = React.memo(
   }) => {
     const { getSetting } = useSettings();
     const timeZone = getSetting('timezone');
-    const countryTimeZone = getSetting('countryTimeZone');
+    const countryTimeZone = 'Pacific/Auckland';
     const displayDateString = getDateDisplay(dateValue, { timeZone, countryTimeZone, ...props });
 
     if (noTooltip) {
@@ -159,7 +158,7 @@ export const DateDisplay = React.memo(
 
     const dateObj = parseDate(dateValue);
     return (
-      <DateTooltip date={dateObj} timeOnlyTooltip={timeOnlyTooltip} timeZone={timeZone} countryTimeZone={countryTimeZone} data-testid="datetooltip-mhkq">
+      <DateTooltip date={dateObj} rawDate={dateValue} timeOnlyTooltip={timeOnlyTooltip} timeZone={timeZone} countryTimeZone={countryTimeZone} data-testid="datetooltip-mhkq">
         <span style={{ color, fontWeight, ...style }}>{displayDateString}</span>
       </DateTooltip>
     );
@@ -170,7 +169,7 @@ export const MultilineDatetimeDisplay = React.memo(
   ({ date, showExplicitDate, isTimeSoft = true }) => {
     const { getSetting } = useSettings();
     const timeZone = getSetting('timezone');
-    const countryTimeZone = getSetting('countryTimeZone');
+    const countryTimeZone = 'Pacific/Auckland';
     const TimeText = isTimeSoft ? SoftText : Text;
     return (
       <Box data-testid="box-ana9">
