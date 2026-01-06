@@ -23,7 +23,7 @@ import {
   type DurationUnit,
   type Interval,
 } from 'date-fns';
-import { toZonedTime } from 'date-fns-tz';
+import { fromZonedTime } from 'date-fns-tz';
 import { z } from 'zod';
 
 import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
@@ -245,7 +245,7 @@ export const intlFormatDate = (
   date: string | Date | null | undefined,
   formatOptions: Intl.DateTimeFormatOptions,
   fallback = 'Unknown',
-  timezone?: string | null,
+  timeZone?: string | null,
   countryTimeZone?: string | null,
 ) => {
   if (!date) return fallback;
@@ -253,10 +253,10 @@ export const intlFormatDate = (
   if (!dateObj) return fallback;
   
   if (countryTimeZone && typeof date === 'string') {
-    dateObj = toZonedTime(dateObj, countryTimeZone);
+    dateObj = fromZonedTime(dateObj, countryTimeZone);
   }
   
-  const options = timezone ? { ...formatOptions, timeZone: timezone } : formatOptions;
+  const options = timeZone ? { ...formatOptions, timeZone } : formatOptions;
   return dateObj.toLocaleString(locale, options);
 };
 
