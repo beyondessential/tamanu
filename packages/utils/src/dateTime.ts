@@ -244,20 +244,23 @@ export const intlFormatDate = (
   date: string | Date | null | undefined,
   formatOptions: Intl.DateTimeFormatOptions,
   fallback = 'Unknown',
+  timezone?: string | null,
 ) => {
   if (!date) return fallback;
   const dateObj = parseDate(date);
   if (!dateObj) return fallback;
-  return dateObj.toLocaleString(locale, formatOptions);
+  
+  const options = timezone ? { ...formatOptions, timeZone: timezone } : formatOptions;
+  return dateObj.toLocaleString(locale, options);
 };
 
-export const formatShortest = (date: string | null | undefined) =>
-  intlFormatDate(date, { month: '2-digit', day: '2-digit', year: '2-digit' }, '--/--'); // 12/04/20
+export const formatShortest = (date: string | null | undefined, timezone?: string | null) =>
+  intlFormatDate(date, { month: '2-digit', day: '2-digit', year: '2-digit' }, '--/--', timezone); // 12/04/20
 
-export const formatShort = (date: string | null | undefined) =>
-  intlFormatDate(date, { day: '2-digit', month: '2-digit', year: 'numeric' }, '--/--/----'); // 12/04/2020
+export const formatShort = (date: string | null | undefined, timezone?: string | null) =>
+  intlFormatDate(date, { day: '2-digit', month: '2-digit', year: 'numeric' }, '--/--/----', timezone); // 12/04/2020
 
-export const formatTime = (date: string | null | undefined) =>
+export const formatTime = (date: string | null | undefined, timezone?: string | null) =>
   intlFormatDate(
     date,
     {
@@ -265,9 +268,10 @@ export const formatTime = (date: string | null | undefined) =>
       hour12: true,
     },
     '__:__',
+    timezone,
   ); // 12:30 am
 
-export const formatTimeWithSeconds = (date: string | null | undefined) =>
+export const formatTimeWithSeconds = (date: string | null | undefined, timezone?: string | null) =>
   intlFormatDate(
     date,
     {
@@ -275,10 +279,11 @@ export const formatTimeWithSeconds = (date: string | null | undefined) =>
       hour12: true,
     },
     '__:__:__',
+    timezone,
   ); // 12:30:00 am
 
 // long format date is displayed on hover
-export const formatLong = (date: string | null | undefined) =>
+export const formatLong = (date: string | null | undefined, timezone?: string | null) =>
   intlFormatDate(
     date,
     {
@@ -287,6 +292,7 @@ export const formatLong = (date: string | null | undefined) =>
       hour12: true,
     },
     'Date information not available',
+    timezone,
   ); // "Thursday, 14 July 2022, 03:44 pm"
 
 /** "Thu" */

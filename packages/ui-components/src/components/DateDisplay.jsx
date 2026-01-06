@@ -26,17 +26,17 @@ const SoftText = styled(Text)`
   color: ${TAMANU_COLORS.midText};
 `;
 
-const formatShortExplicit = date =>
+const formatShortExplicit = (date, timezone) =>
   intlFormatDate(date, {
     dateStyle: 'medium',
-  }); // "4 Mar 2019"
+  }, 'Unknown', timezone); // "4 Mar 2019"
 
-const formatShortestExplicit = date =>
+const formatShortestExplicit = (date, timezone) =>
   intlFormatDate(date, {
     year: '2-digit',
     month: 'short',
     day: 'numeric',
-  }); // "4 Mar 19"
+  }, 'Unknown', timezone); // "4 Mar 19"
 
 // Diagnostic info for debugging
 const DiagnosticInfo = ({ date: rawDate }) => {
@@ -58,7 +58,7 @@ const DiagnosticInfo = ({ date: rawDate }) => {
 
 // Tooltip that shows the long date or full diagnostic date info if the shift key is held down
 // before mousing over the date display
-const DateTooltip = ({ date, children, timeOnlyTooltip }) => {
+const DateTooltip = ({ date, children, timeOnlyTooltip, timezone }) => {
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const [debug, setDebug] = useState(false);
 
@@ -74,7 +74,7 @@ const DateTooltip = ({ date, children, timeOnlyTooltip }) => {
     setDebug(false);
   };
 
-  const dateTooltip = timeOnlyTooltip ? formatTime(date) : formatLong(date);
+  const dateTooltip = timeOnlyTooltip ? formatTime(date, timezone) : formatLong(date, timezone);
 
   const tooltipTitle = debug ? (
     <DiagnosticInfo date={date} data-testid="diagnosticinfo-adv2" />
@@ -97,26 +97,26 @@ const DateTooltip = ({ date, children, timeOnlyTooltip }) => {
 
 export const getDateDisplay = (
   dateValue,
-  { showDate = true, showTime = false, showExplicitDate = false, shortYear = false } = {},
+  { showDate = true, showTime = false, showExplicitDate = false, shortYear = false, timezone = null } = {},
 ) => {
-  const dateObj = parseDate(dateValue);
+  const dateObj = parseDate(dateValue, timezone);
 
   const parts = [];
   if (showDate) {
     if (shortYear) {
-      parts.push(formatShortest(dateObj));
+      parts.push(formatShortest(dateObj, timezone));
     } else {
-      parts.push(formatShort(dateObj));
+      parts.push(formatShort(dateObj, timezone));
     }
   } else if (showExplicitDate) {
     if (shortYear) {
-      parts.push(formatShortestExplicit(dateObj));
+      parts.push(formatShortestExplicit(dateObj, timezone));
     } else {
-      parts.push(formatShortExplicit(dateObj));
+      parts.push(formatShortExplicit(dateObj, timezone));
     }
   }
   if (showTime) {
-    parts.push(formatTime(dateObj));
+    parts.push(formatTime(dateObj, timezone));
   }
 
   return parts.join(' ');
@@ -134,8 +134,7 @@ export const DateDisplay = React.memo(
   }) => {
     const { getSetting } = useSettings();
     const timezone = getSetting('timezone');
-    console.log('timezone', timezone);
-    const displayDateString = getDateDisplay(dateValue, { ...props });
+    const displayDateString = getDateDisplay(dateValue, { timezone,...props });
 
     if (noTooltip) {
       return <span style={{ color, fontWeight, ...style }}>{displayDateString}</span>;
@@ -143,7 +142,7 @@ export const DateDisplay = React.memo(
 
     const dateObj = parseDate(dateValue);
     return (
-      <DateTooltip date={dateObj} timeOnlyTooltip={timeOnlyTooltip} data-testid="datetooltip-mhkq">
+      <DateTooltip date={dateObj} timeOnlyTooltip={timeOnlyTooltip} timezone={timezone} data-testid="datetooltip-mhkq">
         <span style={{ color, fontWeight, ...style }}>{displayDateString}</span>
       </DateTooltip>
     );
@@ -152,6 +151,8 @@ export const DateDisplay = React.memo(
 
 export const MultilineDatetimeDisplay = React.memo(
   ({ date, showExplicitDate, isTimeSoft = true }) => {
+    const { getSetting } = useSettings();
+    const timezone = getSetting('timezone');
     const TimeText = isTimeSoft ? SoftText : Text;
     return (
       <Box data-testid="box-ana9">
@@ -160,7 +161,7 @@ export const MultilineDatetimeDisplay = React.memo(
           showExplicitDate={showExplicitDate}
           data-testid="datedisplay-qqlo"
         />
-        <TimeText data-testid="timetext-5t0o">{formatTime(date)}</TimeText>
+        <TimeText data-testid="timetext-5t0o">{formatTime(date, timezone)}</TimeText>
       </Box>
     );
   },
