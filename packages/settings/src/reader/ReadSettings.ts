@@ -51,7 +51,12 @@ export class ReadSettings<Path = SettingPath> {
   // the frontend so only what is needed is sent. No sensitive data is sent.
   async getFrontEndSettings() {
     const allSettings = await this.getAll();
-    return pick(allSettings, KEYS_EXPOSED_TO_FRONT_END);
+    const frontEndSettings = pick(allSettings, KEYS_EXPOSED_TO_FRONT_END);
+    return {
+      ...frontEndSettings,
+      // TODO: Hack
+      countryTimeZone: "Pacific/Auckland"
+    };
   }
 
   async getPatientPortalSettings() {
