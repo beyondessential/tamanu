@@ -39,18 +39,17 @@ const formatShortestExplicit = (date, timezone) =>
   }, 'Unknown', timezone); // "4 Mar 19"
 
 // Diagnostic info for debugging
-const DiagnosticInfo = ({ date: rawDate }) => {
+const DiagnosticInfo = ({ date: rawDate, timezone }) => {
   const date = new Date(rawDate);
-  const displayDate = formatLong(date);
-  const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
+  const displayDate = formatLong(date, timezone);
   const timeZoneOffset = format(date, 'XXX');
-
+  console.log(date, timezone, timeZoneOffset);
   return (
     <div>
       Display date: {displayDate} <br />
       Raw date: {date.toString()} <br />
-      Time zone: {timeZone} <br />
-      Time zone offset: {timeZoneOffset} <br />
+      Time zone: {timezone} <br />
+      Time zone offset: #TODO <br />
       Locale: {locale}
     </div>
   );
