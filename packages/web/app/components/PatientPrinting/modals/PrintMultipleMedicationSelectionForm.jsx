@@ -10,6 +10,7 @@ import {
   TextInput,
   ConfirmCancelRow,
 } from '@tamanu/ui-components';
+import { MAX_REPEATS } from '@tamanu/constants';
 import { Colors } from '../../../constants/styles';
 import { Table, useSelectableColumn } from '../../Table';
 import { AutocompleteInput, NumberInput } from '../../Field';
@@ -102,7 +103,14 @@ const COLUMNS = [
     sortable: false,
     accessor: ({ repeats, onChange }) => (
       <Box width="89px">
-        <NumberInput value={repeats} onChange={onChange} required data-testid="selectinput-ld3p" />
+        <NumberInput
+          value={repeats}
+          onChange={onChange}
+          min={0}
+          max={MAX_REPEATS}
+          required
+          data-testid="selectinput-ld3p"
+        />
       </Box>
     ),
   },

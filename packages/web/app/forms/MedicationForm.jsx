@@ -12,7 +12,6 @@ import {
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
   ADMINISTRATION_FREQUENCIES,
   FORM_TYPES,
-  REPEATS_LABELS,
   MAX_REPEATS,
 } from '@tamanu/constants';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
@@ -99,6 +98,13 @@ const validationSchema = yup.object().shape({
   units: foreignKey(
     <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
   ).oneOf(DRUG_UNIT_VALUES),
+  repeats: yup
+    .number()
+    .integer()
+    .min(0)
+    .max(MAX_REPEATS)
+    .nullable()
+    .optional(),
   frequency: foreignKey(
     <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
   ),
@@ -129,12 +135,6 @@ const validationSchema = yup.object().shape({
   ),
   quantity: yup.number().integer(),
   patientWeight: yup.number().positive(),
-  repeats: yup
-    .number()
-    .integer()
-    .min(0)
-    .max(MAX_REPEATS)
-    .optional(),
 });
 
 const CheckboxGroup = styled.div`
@@ -1136,9 +1136,9 @@ export const MedicationForm = ({
                 <Field
                   name="repeats"
                   label={<TranslatedText stringId="medication.repeats.label" fallback="Repeats" />}
-                  isClearable={false}
-                  component={TranslatedSelectField}
-                  enumValues={REPEATS_LABELS}
+                  component={NumberField}
+                  min={0}
+                  max={MAX_REPEATS}
                 />
               </>
             )}
