@@ -42,14 +42,13 @@ const formatShortestExplicit = (date, timezone) =>
 const DiagnosticInfo = ({ date: rawDate, timezone }) => {
   const date = new Date(rawDate);
   const displayDate = formatLong(date, timezone);
-  const timeZoneOffset = format(date, 'XXX');
-  console.log(date, timezone, timeZoneOffset);
+  const timeZoneOffset = format(date, 'XXX');  // TODO this shows local timezone offset, not the display timezone offset
   return (
     <div>
       Display date: {displayDate} <br />
       Raw date: {date.toString()} <br />
       Time zone: {timezone} <br />
-      Time zone offset: #TODO <br />
+      Time zone offset: {timeZoneOffset} <br />
       Locale: {locale}
     </div>
   );
@@ -76,7 +75,7 @@ const DateTooltip = ({ date, children, timeOnlyTooltip, timezone }) => {
   const dateTooltip = timeOnlyTooltip ? formatTime(date, timezone) : formatLong(date, timezone);
 
   const tooltipTitle = debug ? (
-    <DiagnosticInfo date={date} data-testid="diagnosticinfo-adv2" />
+    <DiagnosticInfo date={date} timezone={timezone} data-testid="diagnosticinfo-adv2" />
   ) : (
     dateTooltip
   );
