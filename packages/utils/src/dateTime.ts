@@ -36,11 +36,13 @@ export const isISOString = (dateString: string) =>
   isMatch(dateString, ISO9075_DATETIME_FORMAT) || isMatch(dateString, ISO9075_DATE_FORMAT);
 
 const makeDateObject = (date: string | Date, countryTimeZone: string, timeZone?: string | null) => {
+  if (timeZone) {
+    // If we are given a timeZone override we first have to convert the date to UTC
+    const dateObj = fromZonedTime(date, countryTimeZone);
+    console.log('dateObj fromZoned', dateObj);
+    return dateObj;
+  }
   if (typeof date === 'string') {
-    if (timeZone) {
-      // If we are given a timeZone override we first have to convert the date to UTC
-      return fromZonedTime(date, countryTimeZone);
-    }
     if (isISOString(date)) {
       return parseISO(date);
     }
@@ -64,6 +66,7 @@ export const parseDate = (date: string | Date | null | undefined, countryTimeZon
   if (typeof date === 'string' && date.trim() === '') return null;
 
   const dateObj = makeDateObject(date, countryTimeZone, timeZone);
+  console.log(date, dateObj, countryTimeZone, timeZone);
   if (!isValid(dateObj)) throw new Error('Not a valid date');
   return dateObj;
 };
@@ -258,6 +261,7 @@ export const intlFormatDate = (
 ) => {
   if (!date) return fallback;
   const dateObj = parseDate(date, countryTimeZone, timeZone);
+  console.log('dateObj', dateObj);
   if (!dateObj) return fallback;
   return dateObj.toLocaleString(locale, {
     ...formatOptions,

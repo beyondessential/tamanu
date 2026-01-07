@@ -89,10 +89,10 @@ const DateTooltip = ({ date, rawDate, children, timeOnlyTooltip, timeZone, count
     setDebug(false);
   };
 
-  const dateTooltip = timeOnlyTooltip ? formatTime(date, timeZone, countryTimeZone) : formatLong(date, timeZone, countryTimeZone);
+  const dateTooltip = timeOnlyTooltip ? formatTime(date, countryTimeZone, timeZone) : formatLong(date, countryTimeZone, timeZone);
 
   const tooltipTitle = debug ? (
-    <DiagnosticInfo date={date} rawDate={rawDate} timeZone={timeZone} countryTimeZone="Pacific/Auckland" data-testid="diagnosticinfo-adv2" />
+    <DiagnosticInfo date={date} rawDate={rawDate} countryTimeZone={countryTimeZone} timeZone={timeZone} data-testid="diagnosticinfo-adv2" />
   ) : (
     dateTooltip
   );
@@ -147,7 +147,7 @@ export const DateDisplay = React.memo(
     style,
     ...props
   }) => {
-    const { getSetting } = useSettings();
+    const { getSetting } =   useSettings();
     const timeZone = getSetting('timezone');
     const countryTimeZone = 'Pacific/Auckland';
     const displayDateString = getDateDisplay(dateValue, { timeZone, countryTimeZone, ...props });
@@ -156,7 +156,7 @@ export const DateDisplay = React.memo(
       return <span style={{ color, fontWeight, ...style }}>{displayDateString}</span>;
     }
 
-    const dateObj = parseDate(dateValue);
+    const dateObj = parseDate(dateValue, 'Pacific/Auckland', timeZone);
     return (
       <DateTooltip date={dateObj} rawDate={dateValue} timeOnlyTooltip={timeOnlyTooltip} timeZone={timeZone} countryTimeZone={countryTimeZone} data-testid="datetooltip-mhkq">
         <span style={{ color, fontWeight, ...style }}>{displayDateString}</span>
