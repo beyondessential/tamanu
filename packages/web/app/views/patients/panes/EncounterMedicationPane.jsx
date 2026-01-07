@@ -67,7 +67,7 @@ const TableContainer = styled.div`
 `;
 
 export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
-  const { ability } = useAuth();
+  const { ability, facilityId } = useAuth();
   const queryClient = useQueryClient();
   const { getSetting } = useSettings();
 
@@ -83,6 +83,9 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
 
   const { data: medicationSets, isLoading: medicationSetsLoading } = useSuggestionsQuery(
     'medicationSet',
+    {
+      queryParams: { facilityId },
+    },
   );
 
   const handleContinue = prescriptionType => {
