@@ -21,6 +21,7 @@ const Text = styled(Typography)`
   font-size: inherit;
   line-height: inherit;
   margin-top: -2px;
+  color: pink;
 `;
 
 const SoftText = styled(Text)`
@@ -148,7 +149,7 @@ export const DateDisplay = React.memo(
     ...props
   }) => {
     const { getSetting } =   useSettings();
-    const timeZone = getSetting('timezone');
+    const timeZone = getSetting('timeZone');
     const countryTimeZone = 'Pacific/Auckland';
     const displayDateString = getDateDisplay(dateValue, { timeZone, countryTimeZone, ...props });
 
@@ -159,7 +160,7 @@ export const DateDisplay = React.memo(
     const dateObj = parseDate(dateValue);
     return (
       <DateTooltip date={dateObj} rawDate={dateValue} timeOnlyTooltip={timeOnlyTooltip} timeZone={timeZone} countryTimeZone={countryTimeZone} data-testid="datetooltip-mhkq">
-        <span style={{ color, fontWeight, ...style }}>{displayDateString}</span>
+        <span style={{ color: 'pink', fontWeight, ...style }}>{displayDateString}</span>
       </DateTooltip>
     );
   },
@@ -168,7 +169,7 @@ export const DateDisplay = React.memo(
 export const MultilineDatetimeDisplay = React.memo(
   ({ date, showExplicitDate, isTimeSoft = true }) => {
     const { getSetting } = useSettings();
-    const timeZone = getSetting('timezone');
+    const timeZone = getSetting('timeZone');
     const countryTimeZone = 'Pacific/Auckland';
     const TimeText = isTimeSoft ? SoftText : Text;
     return (
