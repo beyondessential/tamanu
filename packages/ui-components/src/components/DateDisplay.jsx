@@ -119,19 +119,19 @@ export const getDateDisplay = (
   const parts = [];
   if (showDate) {
     if (shortYear) {
-      parts.push(formatShortest(dateObj, timeZone, countryTimeZone));
+      parts.push(formatShortest(dateObj, countryTimeZone, timeZone));
     } else {
-      parts.push(formatShort(dateObj, timeZone, countryTimeZone));
+      parts.push(formatShort(dateObj, countryTimeZone, timeZone));
     }
   } else if (showExplicitDate) {
     if (shortYear) {
-      parts.push(formatShortestExplicit(dateObj, timeZone, countryTimeZone));
+      parts.push(formatShortestExplicit(dateObj, countryTimeZone, timeZone));
     } else {
-      parts.push(formatShortExplicit(dateObj, timeZone, countryTimeZone));
+      parts.push(formatShortExplicit(dateObj, countryTimeZone, timeZone));
     }
   }
   if (showTime) {
-    parts.push(formatTime(dateObj, timeZone, countryTimeZone));
+    parts.push(formatTime(dateObj, countryTimeZone, timeZone));
   }
 
   return parts.join(' ');

@@ -35,35 +35,43 @@ export const ISO8061_WITH_TIMEZONE = "yyyy-MM-dd'T'HH:mm:ssXXX";
 export const isISOString = (dateString: string) =>
   isMatch(dateString, ISO9075_DATETIME_FORMAT) || isMatch(dateString, ISO9075_DATE_FORMAT);
 
+const makeDateObject = (date: string | Date, countryTimeZone: string, timeZone?: string | null) => {
+  if (typeof date === 'string') {
+    if (timeZone) {
+      // If we are given a timeZone override we first have to convert the date to UTC
+      return fromZonedTime(date, countryTimeZone);
+    }
+    if (isISOString(date)) {
+      return parseISO(date);
+    }
+    return new Date(date.replace(' ', 'T'));
+  }
+  return date;
+};
+
 /**
  *
  * @param date - usually we are working with a ISO9075 date_time_string or date_string but could
  * also be a ISO8061 date string or a date object so we need to gracefully handle all of them.
  * If you know you are working with an ISO9075 date_time_string or date_string, just use parseIso
  * from date-fns
+ * @param timeZone - optional timezone override to interpret the date in a specific timezone
  */
-export const parseDate = (date: string | Date | null | undefined) => {
+export const parseDate = (date: string | Date | null | undefined, countryTimeZone: string, timeZone?: string | null) => {
   if (date == null) return null;
 
   // Handle empty strings
   if (typeof date === 'string' && date.trim() === '') return null;
 
-  const dateObj =
-    typeof date === 'string'
-      ? isISOString(date)
-        ? parseISO(date)
-        : new Date(date.replace(' ', 'T'))
-      : date;
-
+  const dateObj = makeDateObject(date, countryTimeZone, timeZone);
   if (!isValid(dateObj)) throw new Error('Not a valid date');
-
   return dateObj;
 };
 
 export const toDateTimeString = (date: string | Date | null | undefined) => {
   if (date == null) return null;
 
-  const dateObj = parseDate(date);
+  const dateObj = parseDate(date, 'Pacific/Auckland');
   if (!dateObj) return null;
 
   return formatISO9075(dateObj, { representation: 'complete' });
@@ -72,7 +80,7 @@ export const toDateTimeString = (date: string | Date | null | undefined) => {
 export const toDateString = (date: string | Date | null | undefined) => {
   if (date == null) return null;
 
-  const dateObj = parseDate(date);
+  const dateObj = parseDate(date, 'Pacific/Auckland');
   if (!dateObj) return null;
 
   return formatISO9075(dateObj, { representation: 'date' });
@@ -134,7 +142,7 @@ export type AgeRange = {
 };
 
 const getAgeRangeInMinutes = ({ ageMin = -Infinity, ageMax = Infinity, ageUnit }: AgeRange) => {
-  const timeUnit = TIME_UNIT_OPTIONS.find((option) => option.unit === ageUnit);
+  const timeUnit = TIME_UNIT_OPTIONS.find(option => option.unit === ageUnit);
   if (!timeUnit) return null;
 
   const conversionValue = timeUnit.minutes;
@@ -180,7 +188,7 @@ export const doAgeRangesHaveGaps = (rangesArray: AgeRange[]) => {
   };
 
   // Get all values into same time unit and sort by ageMin low to high
-  const normalized = rangesArray.map(getAgeRangeInMinutes).filter((range) => range !== null);
+  const normalized = rangesArray.map(getAgeRangeInMinutes).filter(range => range !== null);
   normalized.sort((a, b) => a.ageMin - b.ageMin);
 
   return normalized.some((rangeA, i) => {
@@ -230,7 +238,7 @@ export const doAgeRangesOverlap = (rangesArray: AgeRange[]) => {
 
 export const format = (date: string | Date | null | undefined, format: string) => {
   if (date == null) return null;
-  const dateObj = parseDate(date);
+  const dateObj = parseDate(date, 'Pacific/Auckland');
   if (!dateObj) return null;
 
   return dateFnsFormat(dateObj, format);
@@ -245,37 +253,49 @@ export const intlFormatDate = (
   date: string | Date | null | undefined,
   formatOptions: Intl.DateTimeFormatOptions,
   fallback = 'Unknown',
+  countryTimeZone: string,
   timeZone?: string | null,
-  countryTimeZone?: string | null,
 ) => {
   if (!date) return fallback;
-  let dateObj = parseDate(date);
-  dateObj = fromZonedTime(date, countryTimeZone!);
-  // dateObj = toZonedTime(dateObj, timeZone ?? 'UTC');
+  const dateObj = parseDate(date, countryTimeZone, timeZone);
   if (!dateObj) return fallback;
-  
-  if (countryTimeZone && typeof date === 'string') {
-    console.log('in her')
-  }
-  console.log('dateObj', dateObj);
-  console.log('timeZone', timeZone);
-  console.log('countryTimeZone', countryTimeZone);
-  console.log('formatOptions', formatOptions);
-  console.log('locale', locale);
-  const options = timeZone ? { ...formatOptions, timeZone } : formatOptions;
-  console.log('dateObj.toLocaleString(locale, options)', dateObj.toLocaleString(locale, options));
-  
-  
-  return dateObj.toLocaleString(locale, options);
+  return dateObj.toLocaleString(locale, {
+    ...formatOptions,
+    timeZone: timeZone ?? countryTimeZone,
+  } as Intl.DateTimeFormatOptions);
 };
 
-export const formatShortest = (date: string | null | undefined, timeZone?: string | null, countryTimeZone?: string | null) =>
-  intlFormatDate(date, { month: '2-digit', day: '2-digit', year: '2-digit' }, '--/--', timeZone, countryTimeZone); // 12/04/20
+export const formatShortest = (
+  date: string | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) =>
+  intlFormatDate(
+    date,
+    { month: '2-digit', day: '2-digit', year: '2-digit' },
+    '--/--',
+    countryTimeZone,
+    timeZone,
+  ); // 12/04/20
 
-export const formatShort = (date: string | null | undefined, timeZone?: string | null, countryTimeZone?: string | null) =>
-  intlFormatDate(date, { day: '2-digit', month: '2-digit', year: 'numeric' }, '--/--/----', timeZone, countryTimeZone); // 12/04/2020
+export const formatShort = (
+  date: string | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) =>
+  intlFormatDate(
+    date,
+    { day: '2-digit', month: '2-digit', year: 'numeric' },
+    '--/--/----',
+    countryTimeZone,
+    timeZone,
+  ); // 12/04/2020
 
-export const formatTime = (date: string | null | undefined, timeZone?: string | null, countryTimeZone?: string | null) =>
+export const formatTime = (
+  date: string | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) =>
   intlFormatDate(
     date,
     {
@@ -283,11 +303,15 @@ export const formatTime = (date: string | null | undefined, timeZone?: string | 
       hour12: true,
     },
     '__:__',
-    timeZone,
     countryTimeZone,
+    timeZone,
   ); // 12:30 am
 
-export const formatTimeWithSeconds = (date: string | null | undefined, timeZone?: string | null, countryTimeZone?: string | null) =>
+export const formatTimeWithSeconds = (
+  date: string | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) =>
   intlFormatDate(
     date,
     {
@@ -295,12 +319,16 @@ export const formatTimeWithSeconds = (date: string | null | undefined, timeZone?
       hour12: true,
     },
     '__:__:__',
-    timeZone,
     countryTimeZone,
+    timeZone,
   ); // 12:30:00 am
 
 // long format date is displayed on hover
-export const formatLong = (date: string | null | undefined, timeZone?: string | null, countryTimeZone?: string | null) =>
+export const formatLong = (
+  date: string | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) =>
   intlFormatDate(
     date,
     {
@@ -309,13 +337,16 @@ export const formatLong = (date: string | null | undefined, timeZone?: string | 
       hour12: true,
     },
     'Date information not available',
-    timeZone,
     countryTimeZone,
+    timeZone,
   ); // "Thursday, 14 July 2022, 03:44 pm"
 
 /** "Thu" */
-export const formatWeekdayShort = (date: string | Date | null | undefined) =>
-  intlFormatDate(date, { weekday: 'short' });
+export const formatWeekdayShort = (
+  date: string | Date | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) => intlFormatDate(date, { weekday: 'short' }, 'Unknown', countryTimeZone, timeZone);
 
 export const isStartOfThisWeek = (date: Date | number) => {
   const startOfThisWeek = startOfWeek(new Date(), { weekStartsOn: 1 });
