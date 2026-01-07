@@ -35,13 +35,7 @@ export const ISO8061_WITH_TIMEZONE = "yyyy-MM-dd'T'HH:mm:ssXXX";
 export const isISOString = (dateString: string) =>
   isMatch(dateString, ISO9075_DATETIME_FORMAT) || isMatch(dateString, ISO9075_DATE_FORMAT);
 
-const makeDateObject = (date: string | Date, countryTimeZone: string, timeZone?: string | null) => {
-  if (timeZone) {
-    // If we are given a timeZone override we first have to convert the date to UTC
-    const dateObj = fromZonedTime(date, countryTimeZone);
-    console.log('dateObj fromZoned', dateObj);
-    return dateObj;
-  }
+const makeDateObject = (date: string | Date) => {
   if (typeof date === 'string') {
     if (isISOString(date)) {
       return parseISO(date);
@@ -59,14 +53,13 @@ const makeDateObject = (date: string | Date, countryTimeZone: string, timeZone?:
  * from date-fns
  * @param timeZone - optional timezone override to interpret the date in a specific timezone
  */
-export const parseDate = (date: string | Date | null | undefined, countryTimeZone: string, timeZone?: string | null) => {
+export const parseDate = (date: string | Date | null | undefined) => {
   if (date == null) return null;
 
   // Handle empty strings
   if (typeof date === 'string' && date.trim() === '') return null;
 
-  const dateObj = makeDateObject(date, countryTimeZone, timeZone);
-  console.log(date, dateObj, countryTimeZone, timeZone);
+  const dateObj = makeDateObject(date);
   if (!isValid(dateObj)) throw new Error('Not a valid date');
   return dateObj;
 };
@@ -74,7 +67,7 @@ export const parseDate = (date: string | Date | null | undefined, countryTimeZon
 export const toDateTimeString = (date: string | Date | null | undefined) => {
   if (date == null) return null;
 
-  const dateObj = parseDate(date, 'Pacific/Auckland');
+  const dateObj = parseDate(date);
   if (!dateObj) return null;
 
   return formatISO9075(dateObj, { representation: 'complete' });
@@ -83,7 +76,7 @@ export const toDateTimeString = (date: string | Date | null | undefined) => {
 export const toDateString = (date: string | Date | null | undefined) => {
   if (date == null) return null;
 
-  const dateObj = parseDate(date, 'Pacific/Auckland');
+  const dateObj = parseDate(date);
   if (!dateObj) return null;
 
   return formatISO9075(dateObj, { representation: 'date' });
@@ -241,7 +234,7 @@ export const doAgeRangesOverlap = (rangesArray: AgeRange[]) => {
 
 export const format = (date: string | Date | null | undefined, format: string) => {
   if (date == null) return null;
-  const dateObj = parseDate(date, 'Pacific/Auckland');
+  const dateObj = parseDate(date);
   if (!dateObj) return null;
 
   return dateFnsFormat(dateObj, format);
@@ -260,8 +253,7 @@ export const intlFormatDate = (
   timeZone?: string | null,
 ) => {
   if (!date) return fallback;
-  const dateObj = parseDate(date, countryTimeZone, timeZone);
-  console.log('dateObj', dateObj);
+  const dateObj = timeZone ? fromZonedTime(date, countryTimeZone) : parseDate(date);
   if (!dateObj) return fallback;
   return dateObj.toLocaleString(locale, {
     ...formatOptions,

@@ -41,7 +41,7 @@ const formatShortestExplicit = (date, timeZone, countryTimeZone) =>
 
 // Diagnostic info for debugging
 const DiagnosticInfo = ({ date: parsedDate, rawDate, timeZone, countryTimeZone }) => {
-  const displayDate = formatLong(parsedDate, timeZone, countryTimeZone);
+  const displayDate = formatLong(parsedDate, countryTimeZone, timeZone);
   
   const getFormattedOffset = (tz, date) => {
     if (!tz) return 'N/A';
@@ -156,7 +156,7 @@ export const DateDisplay = React.memo(
       return <span style={{ color, fontWeight, ...style }}>{displayDateString}</span>;
     }
 
-    const dateObj = parseDate(dateValue, 'Pacific/Auckland', timeZone);
+    const dateObj = parseDate(dateValue, countryTimeZone, timeZone);
     return (
       <DateTooltip date={dateObj} rawDate={dateValue} timeOnlyTooltip={timeOnlyTooltip} timeZone={timeZone} countryTimeZone={countryTimeZone} data-testid="datetooltip-mhkq">
         <span style={{ color, fontWeight, ...style }}>{displayDateString}</span>

@@ -12,7 +12,7 @@ import {
 import { isISOString, parseDate } from './dateTime';
 
 export const getAgeDurationFromDate = (date: string | Date | null | undefined) => {
-  const start = parseDate(date, 'Pacific/Auckland');
+  const start = parseDate(date);
   if (!start) return null;
   return intervalToDuration({ start, end: new Date() });
 };
@@ -93,7 +93,7 @@ export const getDisplayAge = (
 
   const ageDuration = getAgeDurationFromDate(dateOfBirth);
   if (!ageDuration) return '';
-  const birthDate = parseDate(dateOfBirth, 'Pacific/Auckland');
+  const birthDate = parseDate(dateOfBirth);
   if (!birthDate) return '';
   for (const displayFormat of ageDisplayFormat) {
     const { as, range } = displayFormat;
