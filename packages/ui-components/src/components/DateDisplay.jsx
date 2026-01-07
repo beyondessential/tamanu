@@ -113,7 +113,7 @@ const DateTooltip = ({ date, rawDate, children, timeOnlyTooltip, timeZone, count
 
 export const getDateDisplay = (
   dateValue,
-  { showDate = true, showTime = false, showExplicitDate = false, shortYear = false, timeZone = null, countryTimeZone = null } = {},
+  { showDate = true, showTime = false, showExplicitDate = false, shortYear = false, timeZone = null, countryTimeZone = null, removeWhitespace = false } = {},
 ) => {
   const dateObj = parseDate(dateValue);
 
@@ -132,7 +132,7 @@ export const getDateDisplay = (
     }
   }
   if (showTime) {
-    parts.push(formatTime(dateObj, countryTimeZone, timeZone));
+    parts.push(formatTime(dateObj, countryTimeZone, timeZone, removeWhitespace));
   }
 
   return parts.join(' ');

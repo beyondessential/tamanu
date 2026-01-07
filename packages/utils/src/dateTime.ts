@@ -282,12 +282,15 @@ export const formatShort = (
     timeZone,
   ); // 12/04/2020
 
-export const formatTime = (
-  date: string | null | undefined,
-  countryTimeZone: string,
-  timeZone?: string | null,
-) =>
-  intlFormatDate(
+
+  export const formatTime = (
+    date: string | null | undefined,
+    countryTimeZone: string,
+    timeZone?: string | null,
+    // TODO: could be better
+    removeWhitespace: boolean = false,
+) => {
+  const formatted = intlFormatDate(
     date,
     {
       timeStyle: 'short',
@@ -297,6 +300,8 @@ export const formatTime = (
     countryTimeZone,
     timeZone,
   ); // 12:30 am
+  return removeWhitespace ? formatted.replace(' ', '') : formatted;
+};
 
 export const formatTimeWithSeconds = (
   date: string | null | undefined,
