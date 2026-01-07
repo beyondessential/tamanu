@@ -8,7 +8,7 @@ import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 
-import { BodyText, SmallBodyText, formatShortest, formatTime, TranslatedText, Table } from '../.';
+import { BodyText, SmallBodyText, TranslatedText, Table, DateDisplay } from '../.';
 import { Colors, ROWS_PER_PAGE_OPTIONS } from '../../constants';
 import { ThemedTooltip } from '../Tooltip';
 import { useAuth } from '../../contexts/Auth';
@@ -182,9 +182,9 @@ const getStatus = row => {
 const getDueTime = ({ dueTime }) => {
   return (
     <DateWrapper data-testid="datewrapper-hd7h">
-      <BodyText data-testid="bodytext-fq9o">{formatTime(dueTime)}</BodyText>
+      <BodyText data-testid="bodytext-fq9o"><DateDisplay date={dueTime} showTime /></BodyText>
       <SmallBodyText color={Colors.midText} data-testid="smallbodytext-grca">
-        {formatShortest(dueTime)}
+        <DateDisplay date={dueTime} shortYear />
       </SmallBodyText>
     </DateWrapper>
   );
@@ -220,7 +220,7 @@ const getTaskName = ({ name, requestedBy, requestTime, highPriority, taskType })
           <div>{taskName()}</div>
           <div>{requestedBy?.displayName}</div>
           <Box sx={{ textTransform: 'lowercase' }} data-testid="box-mkj4">
-            {`${formatShortest(requestTime)} ${formatTime(requestTime)}`}
+            <DateDisplay date={requestTime} shortYear /> <DateDisplay date={requestTime} showTime />
           </Box>
         </TooltipContainer>
       }

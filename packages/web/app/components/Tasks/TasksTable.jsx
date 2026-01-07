@@ -15,6 +15,7 @@ import {
   TranslatedText,
   useSelectableColumn,
   DataFetchingTable,
+  DateDisplay,
 } from '../.';
 import { Colors } from '../../constants';
 import useOverflow from '../../hooks/useOverflow';
@@ -226,8 +227,8 @@ const getCompletedTooltipText = ({ completedBy, completedTime, completedNote }) 
     />
     <div>{completedBy.displayName}</div>
     <div>
-      <span color={Colors.midText}>{formatShortest(completedTime)} </span>
-      <LowercaseText data-testid="lowercasetext-5r41">{formatTime(completedTime)}</LowercaseText>
+      <span color={Colors.midText}><DateDisplay date={completedTime} shortYear /> </span>
+      <LowercaseText data-testid="lowercasetext-5r41"><DateDisplay date={completedTime} showTime /></LowercaseText>
     </div>
     <div>{completedNote}</div>
   </StatusTooltip>
@@ -242,8 +243,8 @@ const getNotCompletedTooltipText = ({ notCompletedBy, notCompletedTime, notCompl
     />
     <div>{notCompletedBy.displayName}</div>
     <div>
-      <span color={Colors.midText}>{formatShortest(notCompletedTime)} </span>
-      <LowercaseText data-testid="lowercasetext-w9wo">{formatTime(notCompletedTime)}</LowercaseText>
+      <span color={Colors.midText}><DateDisplay date={notCompletedTime} shortYear /> </span>
+      <LowercaseText data-testid="lowercasetext-w9wo"><DateDisplay date={notCompletedTime} showTime /></LowercaseText>
     </div>
     <div>{notCompletedReason?.name}</div>
   </StatusTooltip>
@@ -282,8 +283,7 @@ const getDueTime = ({ dueTime }) => {
         {formatTime(dueTime)}
       </BodyText>
       <SmallBodyText color={Colors.midText} data-testid="smallbodytext-7kv1">
-        <DateDisplay date={dueTime} shortDate />
-        {formatShortest(dueTime)} 
+        <DateDisplay date={dueTime} shortYear />
       </SmallBodyText>
     </div>
   );
@@ -506,7 +506,7 @@ const getTask = ({ name, requestedBy, requestTime, highPriority }) => (
         <div>{name}</div>
         <div>{requestedBy.displayName}</div>
         <Box sx={{ textTransform: 'lowercase' }} data-testid="box-fmnt">
-          {`${formatShortest(requestTime)} ${formatTime(requestTime)}`}
+          <DateDisplay date={requestTime} shortYear /> <DateDisplay date={requestTime} showTime />
         </Box>
       </TooltipContainer>
     }

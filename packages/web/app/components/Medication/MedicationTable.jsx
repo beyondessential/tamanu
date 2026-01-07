@@ -5,7 +5,7 @@ import { Box } from '@material-ui/core';
 import { DRUG_ROUTE_LABELS, MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
 import { useLocation, useNavigate } from 'react-router';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
-import { Button } from '@tamanu/ui-components';
+import { Button, DateDisplay } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 
 import { DataFetchingTable } from '../Table';
@@ -239,7 +239,7 @@ const getMedicationColumns = (
               visible={tooltipTitle}
               title={<Box fontWeight={400}>{tooltipTitle}</Box>}
             >
-              {formatShortest(date)}
+              <DateDisplay date={date} shortYear />
             </ConditionalTooltip>
           </NoWrapCell>
         );
@@ -306,7 +306,7 @@ const getMedicationColumns = (
             fontStyle={isPausing ? 'italic' : 'normal'}
           >
             <Box>
-              {formatShortest(orderDate)}
+              <DateDisplay date={orderDate} shortYear />
               <Box fontSize="12px" color={Colors.softText}>
                 {format(orderDate, 'h:mma').toLowerCase()}
               </Box>

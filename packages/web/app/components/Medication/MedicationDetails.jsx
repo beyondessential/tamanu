@@ -23,7 +23,8 @@ import {
   Form,
   Button,
   OutlinedButton,
-  FormGrid
+  FormGrid,
+  DateDisplay,
 } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { CheckField, Field } from '../Field';
@@ -182,7 +183,7 @@ export const MedicationDetails = ({
           fallback="Prescription date"
         />
       ),
-      value: `${formatShortest(medication.date)}`,
+      value: <DateDisplay date={medication.date} shortYear />,
     },
     ...(medication.isOngoing || medication.discontinued || !medication.endDate
       ? []
