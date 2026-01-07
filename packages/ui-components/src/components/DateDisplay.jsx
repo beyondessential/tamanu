@@ -156,7 +156,7 @@ export const DateDisplay = React.memo(
       return <span style={{ color, fontWeight, ...style }}>{displayDateString}</span>;
     }
 
-    const dateObj = parseDate(dateValue, countryTimeZone, timeZone);
+    const dateObj = parseDate(dateValue);
     return (
       <DateTooltip date={dateObj} rawDate={dateValue} timeOnlyTooltip={timeOnlyTooltip} timeZone={timeZone} countryTimeZone={countryTimeZone} data-testid="datetooltip-mhkq">
         <span style={{ color, fontWeight, ...style }}>{displayDateString}</span>
