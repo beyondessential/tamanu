@@ -285,9 +285,15 @@ export const MedicationDetails = ({
                           fallback="Discontinue date & time"
                         />
                       </MidText>
-                      <DarkestText mt={0.5}>{`${formatShortest(
-                        medication.discontinuedDate,
-                      )} ${formatTimeSlot(medication.discontinuedDate)}`}</DarkestText>
+                      <DarkestText mt={0.5}>
+                        <DateDisplay date={medication.discontinuedDate} shortYear />{' '}
+                        <DateDisplay
+                          date={medication.discontinuedDate}
+                          showTime
+                          removeWhitespace
+                          style={{ textTransform: 'lowercase' }}
+                        />
+                      </DarkestText>
                     </Box>
                   </DetailsContainer>
                   <Box my={2.5} height={'1px'} bgcolor={Colors.outline} />
@@ -452,31 +458,39 @@ export const MedicationDetails = ({
                 </DarkestText>
                 <DetailsContainer mt={0.5} width={'50%'} display={'flex'}>
                   <Box display={'flex'} flexDirection={'column'} mr={2.5} style={{ gap: '16px' }}>
-                    {medication?.idealTimes?.slice().sort((a, b) => {
-                      const timeA = getDateFromTimeString(a);
-                      const timeB = getDateFromTimeString(b);
-                      return timeA - timeB;
-                    }).map(time => {
-                      const slot = findAdministrationTimeSlotFromIdealTime(time).timeSlot;
-                      return (
-                        <DarkestText key={time}>
-                          {`${formatTimeSlot(
-                            getDateFromTimeString(slot.startTime),
-                          )} - ${formatTimeSlot(getDateFromTimeString(slot.endTime))} `}
-                        </DarkestText>
-                      );
-                    })}
+                    {medication?.idealTimes
+                      ?.slice()
+                      .sort((a, b) => {
+                        const timeA = getDateFromTimeString(a);
+                        const timeB = getDateFromTimeString(b);
+                        return timeA - timeB;
+                      })
+                      .map(time => {
+                        const slot = findAdministrationTimeSlotFromIdealTime(time).timeSlot;
+                        return (
+                          <DarkestText key={time}>
+                            {`${formatTimeSlot(
+                              getDateFromTimeString(slot.startTime),
+                            )} - ${formatTimeSlot(getDateFromTimeString(slot.endTime))} `}
+                          </DarkestText>
+                        );
+                      })}
                   </Box>
                   <Box display={'flex'} flexDirection={'column'} style={{ gap: '16px' }}>
-                    {medication?.idealTimes?.slice().sort((a, b) => {
-                      const timeA = getDateFromTimeString(a);
-                      const timeB = getDateFromTimeString(b);
-                      return timeA - timeB;
-                    }).map(time => {
-                      return (
-                        <MidText key={time}>{formatTimeSlot(getDateFromTimeString(time))}</MidText>
-                      );
-                    })}
+                    {medication?.idealTimes
+                      ?.slice()
+                      .sort((a, b) => {
+                        const timeA = getDateFromTimeString(a);
+                        const timeB = getDateFromTimeString(b);
+                        return timeA - timeB;
+                      })
+                      .map(time => {
+                        return (
+                          <MidText key={time}>
+                            {formatTimeSlot(getDateFromTimeString(time))}
+                          </MidText>
+                        );
+                      })}
                   </Box>
                 </DetailsContainer>
               </Box>
