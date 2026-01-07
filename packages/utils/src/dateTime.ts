@@ -250,13 +250,22 @@ export const intlFormatDate = (
 ) => {
   if (!date) return fallback;
   let dateObj = parseDate(date);
+  dateObj = fromZonedTime(date, countryTimeZone!);
+  // dateObj = toZonedTime(dateObj, timeZone ?? 'UTC');
   if (!dateObj) return fallback;
   
   if (countryTimeZone && typeof date === 'string') {
-    dateObj = fromZonedTime(dateObj, countryTimeZone);
+    console.log('in her')
   }
-  
+  console.log('dateObj', dateObj);
+  console.log('timeZone', timeZone);
+  console.log('countryTimeZone', countryTimeZone);
+  console.log('formatOptions', formatOptions);
+  console.log('locale', locale);
   const options = timeZone ? { ...formatOptions, timeZone } : formatOptions;
+  console.log('dateObj.toLocaleString(locale, options)', dateObj.toLocaleString(locale, options));
+  
+  
   return dateObj.toLocaleString(locale, options);
 };
 
