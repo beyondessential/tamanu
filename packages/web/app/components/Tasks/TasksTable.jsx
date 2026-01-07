@@ -282,7 +282,8 @@ const getDueTime = ({ dueTime }) => {
         {formatTime(dueTime)}
       </BodyText>
       <SmallBodyText color={Colors.midText} data-testid="smallbodytext-7kv1">
-        {formatShortest(dueTime)}
+        <DateDisplay date={dueTime} shortDate />
+        {formatShortest(dueTime)} 
       </SmallBodyText>
     </div>
   );
