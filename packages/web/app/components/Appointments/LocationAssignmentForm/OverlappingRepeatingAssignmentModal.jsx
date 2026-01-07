@@ -8,8 +8,9 @@ import { Button } from '../../Button';
 import { Modal } from '../../Modal';
 import { BodyText } from '../../Typography';
 import { Colors } from '../../../constants';
-import { formatShort, formatTime } from '@tamanu/utils/dateTime';
+import { formatTime } from '@tamanu/utils/dateTime';
 import { set } from 'date-fns';
+import { DateDisplay } from '@tamanu/ui-components';
 
 const StyledModal = styled(Modal)`
   & .MuiPaper-root {
@@ -96,7 +97,7 @@ const AssignmentDetails = ({ assignment }) => {
       ),
       value: (
         <>
-          {formatShort(assignment.date)}
+          <DateDisplay date={assignment.date} />
           {assignment.isRepeating && (
             <>
               {' '}

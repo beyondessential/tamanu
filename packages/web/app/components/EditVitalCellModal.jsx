@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 import { FormModal } from './FormModal';
-import { formatShortest, formatTime } from '@tamanu/utils/dateTime';
 import { EditVitalCellForm } from '../forms/EditVitalCellForm';
 import { TranslatedReferenceData } from './Translation';
+import { DateDisplay } from '@tamanu/ui-components';
 
 export const EditVitalCellModal = ({ 
   open, 
@@ -22,11 +22,9 @@ export const EditVitalCellModal = ({
       fallback={dataPoint?.component.dataElement.name}
     />
   );
-  const date = formatShortest(dataPoint?.recordedDate);
-  const time = formatTime(dataPoint?.recordedDate);
   const title = (
     <span>
-      {vitalLabel} | {date} | {time}
+      {vitalLabel} | <DateDisplay date={dataPoint?.recordedDate} shortYear /> | <DateDisplay date={dataPoint?.recordedDate} showTime />
     </span>
   );
 

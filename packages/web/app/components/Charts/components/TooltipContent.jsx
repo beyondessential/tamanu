@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import { formatShortest, formatTime } from '@tamanu/utils/dateTime';
 import { Colors } from '../../../constants';
 import { formatValue } from '../../FormattedTableCell';
 import { InwardArrowVectorIcon } from '../../Icons/VitalVectorIcon';
 import { CustomDot } from './CustomDot';
+import { DateDisplay } from '@tamanu/ui-components';
 
 const FlexColumn = styled.div`
   flex-direction: column;
@@ -38,7 +38,7 @@ const CustomDotWrapper = styled.div`
 const DateTimeHeader = ({ name }) => {
   return (
     <span>
-      {formatShortest(name)} <TimeText data-testid="timetext-356k">{formatTime(name)}</TimeText>
+      <DateDisplay date={name} shortYear /> <TimeText data-testid="timetext-356k"><DateDisplay date={name} showTime /></TimeText>
     </span>
   );
 };
