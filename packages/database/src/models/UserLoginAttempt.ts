@@ -4,6 +4,7 @@ import type { InitOptions, Models } from '../types/model';
 import { DataTypes, Sequelize, Op } from 'sequelize';
 import { ReadSettings } from '@tamanu/settings';
 import type { SettingPath } from '@tamanu/settings/types';
+import { log } from '@tamanu/shared/services/logging';
 
 interface UserLoginAttemptMethodParams {
   settings: ReadSettings;
@@ -110,11 +111,17 @@ export class UserLoginAttempt extends Model {
 
     // We need to add 1 to the failed attempts because the current attempt is not included in the count
     const outcome = failedAttempts + 1 >= lockoutThreshold ? LOGIN_ATTEMPT_OUTCOMES.LOCKED : LOGIN_ATTEMPT_OUTCOMES.FAILED;
-    const loginAttempt = await this.create({
-      userId,
-      deviceId,
-      outcome,
-    });
+
+    let loginAttempt = null;
+    try {
+      loginAttempt = await this.create({
+        userId,
+        deviceId,
+        outcome,
+      });
+    } catch (error) {
+      log.error(`Error creating login attempt: ${error}`);
+    }
 
     return {
       loginAttempt,
