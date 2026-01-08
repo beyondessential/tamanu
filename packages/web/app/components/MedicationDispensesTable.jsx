@@ -10,6 +10,8 @@ import { MEDICATIONS_SEARCH_KEYS } from '../constants/medication';
 import { Colors } from '../constants';
 import { MenuButton } from './MenuButton';
 import { TranslatedReferenceData } from '@tamanu/ui-components';
+import { useApi } from '../api';
+import { CancelDispensedMedicationModal } from './Medication/CancelDispensedMedicationModal';
 
 const NoDataContainer = styled.div`
   height: 500px;
@@ -61,15 +63,41 @@ const getDispensedBy = ({ dispensedBy }) => dispensedBy?.displayName;
 const getRequestNumber = ({ pharmacyOrderPrescription }) => pharmacyOrderPrescription?.displayId;
 
 export const MedicationDispensesTable = () => {
+  const api = useApi();
   const { facilityId } = useAuth();
   const { searchParameters } = useMedicationsContext(MEDICATIONS_SEARCH_KEYS.DISPENSED);
 
   const [medicationDispenses, setMedicationDispenses] = useState([]);
   const [hoveredRow, setHoveredRow] = useState(null);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [selectedDispenseId, setSelectedDispenseId] = useState(null);
+  const [refreshCount, setRefreshCount] = useState(0);
 
   const onMedicationDispensesFetched = useCallback(({ data }) => {
     setMedicationDispenses(data);
   }, []);
+
+  const handleTableRefresh = useCallback(() => {
+    setRefreshCount(prev => prev + 1);
+  }, []);
+
+  const handleCancelClick = dispenseId => {
+    setSelectedDispenseId(dispenseId);
+    setIsCancelModalOpen(true);
+  };
+
+  const handleCancelConfirm = async () => {
+    await api.delete(`medication/medication-dispenses/${selectedDispenseId}`);
+    setIsCancelModalOpen(false);
+    setSelectedDispenseId(null);
+    // Trigger table refresh
+    handleTableRefresh();
+  };
+
+  const handleCancelCancel = () => {
+    setIsCancelModalOpen(false);
+    setSelectedDispenseId(null);
+  };
 
   const columns = [
     {
@@ -172,7 +200,7 @@ export const MedicationDispensesTable = () => {
           },
           {
             label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
-            action: () => {},
+            action: () => handleCancelClick(row.id),
           },
         ];
         return (
@@ -193,30 +221,38 @@ export const MedicationDispensesTable = () => {
   };
 
   return (
-    <StyledSearchTableWithPermissionCheck
-      verb="list"
-      noun="Medication"
-      autoRefresh={true}
-      endpoint="medication/medication-dispenses"
-      columns={columns}
-      noDataMessage={
-        <NoDataContainer>
-          <TranslatedText
-            stringId="medication-dispenses.list.noData"
-            fallback="No dispensed medications to display."
-          />
-        </NoDataContainer>
-      }
-      fetchOptions={fetchOptions}
-      elevated={false}
-      data-testid="searchtablewithpermissioncheck-medication-dispenses"
-      $noData={medicationDispenses.length === 0}
-      onDataFetched={onMedicationDispensesFetched}
-      onClickRow={handleRowClick}
-      allowExport={false}
-      initialSort={{
-        order: 'desc',
-      }}
-    />
+    <>
+      <CancelDispensedMedicationModal
+        open={isCancelModalOpen}
+        onClose={handleCancelCancel}
+        onConfirm={handleCancelConfirm}
+      />
+      <StyledSearchTableWithPermissionCheck
+        refreshCount={refreshCount}
+        verb="list"
+        noun="Medication"
+        autoRefresh={true}
+        endpoint="medication/medication-dispenses"
+        columns={columns}
+        noDataMessage={
+          <NoDataContainer>
+            <TranslatedText
+              stringId="medication-dispenses.list.noData"
+              fallback="No dispensed medications to display."
+            />
+          </NoDataContainer>
+        }
+        fetchOptions={fetchOptions}
+        elevated={false}
+        data-testid="searchtablewithpermissioncheck-medication-dispenses"
+        $noData={medicationDispenses.length === 0}
+        onDataFetched={onMedicationDispensesFetched}
+        onClickRow={handleRowClick}
+        allowExport={false}
+        initialSort={{
+          order: 'desc',
+        }}
+      />
+    </>
   );
 };
