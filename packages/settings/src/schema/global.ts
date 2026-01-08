@@ -373,7 +373,7 @@ export const globalSettings = {
             slidingFeeScale: {
               description: 'This setting allows sliding fee scale to be applied to invoices.',
               type: yup.boolean(),
-              defaultValue: true,
+              defaultValue: false,
             },
           },
         },

@@ -109,7 +109,7 @@ export const InvoiceSummaryPanel = ({
   handleRemoveDiscount,
 }) => {
   const { getSetting } = useSettings();
-  const slidingFeeScaleEnabled = getSetting('features.slidingFeeScale');
+  const slidingFeeScaleEnabled = getSetting('features.invoicing.slidingFeeScale');
 
   const {
     invoiceItemsTotal,
