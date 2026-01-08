@@ -1830,10 +1830,7 @@ medication.delete(
       // Restore the PharmacyOrderPrescription if it was completed
       const pharmacyOrderPrescription = dispense.pharmacyOrderPrescription;
       if (pharmacyOrderPrescription.isCompleted) {
-        await pharmacyOrderPrescription.update(
-          { isCompleted: false },
-          { where: { id: pharmacyOrderPrescription.id } },
-        );
+        await pharmacyOrderPrescription.update({ isCompleted: false });
       }
     });
 

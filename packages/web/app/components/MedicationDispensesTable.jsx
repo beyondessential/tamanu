@@ -87,15 +87,11 @@ export const MedicationDispensesTable = () => {
   };
 
   const handleCancelConfirm = async () => {
-    try {
-      await api.delete(`medication/medication-dispenses/${selectedDispenseId}`);
-      setIsCancelModalOpen(false);
-      setSelectedDispenseId(null);
-      // Trigger table refresh
-      handleTableRefresh();
-    } catch (error) {
-      console.error(error.message || 'Failed to cancel dispensed medication');
-    }
+    await api.delete(`medication/medication-dispenses/${selectedDispenseId}`);
+    setIsCancelModalOpen(false);
+    setSelectedDispenseId(null);
+    // Trigger table refresh
+    handleTableRefresh();
   };
 
   const handleCancelCancel = () => {
