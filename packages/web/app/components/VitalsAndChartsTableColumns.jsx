@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import { getNormalRangeByAge, useFormatShortest, useFormatTimeWithSeconds } from '@tamanu/ui-components';
+import { getNormalRangeByAge } from '@tamanu/ui-components';
+import { useSettings } from '../contexts/Settings';
+import { formatShortest, formatTimeWithSeconds } from '@tamanu/utils/dateTime';
 import {
   PROGRAM_DATA_ELEMENT_TYPES,
   VISIBILITY_STATUSES,
@@ -26,10 +28,9 @@ const IconButton = styled(IconButtonComponent)`
   padding: 9px 5px;
 `;
 
-const ExportOverrideTitle = ({ date }) => {
-  const shortestDate = useFormatShortest(date);
-  const timeWithSeconds = useFormatTimeWithSeconds(date);
-  return `${shortestDate} ${timeWithSeconds}`;
+const getExportOverrideTitleDate = (date, countryTimeZone, timeZone) => {
+  return `${formatShortest(date, countryTimeZone, timeZone)} ${formatTimeWithSeconds(date, countryTimeZone, timeZone)}` ;
+
 };
 
 const parseMultiselectValue = value => {
@@ -201,13 +202,16 @@ const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled, char
   };
 };
 
-export const getChartsTableColumns = (
+export const useChartsTableColumns = (
   selectedChartSurveyName,
   patient,
   recordedDates,
   onCellClick,
   isEditEnabled = false,
 ) => {
+  const {getSetting} = useSettings();
+  const countryTimeZone = 'Pacific/Auckland';
+  const timeZone = getSetting('timeZone');
   return [
     {
       key: 'measure',
@@ -247,14 +251,14 @@ export const getChartsTableColumns = (
           selectedChartSurveyName,
         ),
         exportOverrides: {
-          title: <ExportOverrideTitle date={date} />,
+          title: getExportOverrideTitleDate(date, countryTimeZone, timeZone),
         },
       })),
   ];
 };
 
-export const getVitalsTableColumns = (patient, recordedDates, onCellClick, isEditEnabled) => {
-  return getChartsTableColumns(
+export const useVitalsTableColumns = (patient, recordedDates, onCellClick, isEditEnabled) => {
+  return useChartsTableColumns(
     <TranslatedText stringId="patient.vitals.title" fallback="Vitals" />,
     patient,
     recordedDates,
