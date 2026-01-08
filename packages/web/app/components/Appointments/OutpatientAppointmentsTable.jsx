@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { toDateString, formatShortest, formatTime } from '@tamanu/utils/dateTime';
-import { Button } from '@tamanu/ui-components';
+import { toDateString } from '@tamanu/utils/dateTime';
+import { Button, DateDisplay } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 
 import { Table } from '../Table';
@@ -234,9 +234,10 @@ const ActionRow = styled.div`
 `;
 
 const getDate = ({ startTime }) => (
-  <DateText data-testid="datetext-axl2">{`${formatShortest(startTime)} ${formatTime(
-    startTime,
-  ).replace(' ', '')}`}</DateText>
+  <DateText data-testid="datetext-axl2">
+    <DateDisplay date={startTime} shortYear />{' '}
+    <DateDisplay date={startTime} showTime showDate={false} removeWhitespace />
+  </DateText>
 );
 
 const CustomCellComponent = ({ value, $maxWidth }) => {

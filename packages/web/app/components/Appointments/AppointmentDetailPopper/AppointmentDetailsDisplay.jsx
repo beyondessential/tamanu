@@ -7,8 +7,7 @@ import { useDispatch } from 'react-redux';
 import { Link, generatePath, useNavigate } from 'react-router';
 import { Colors } from '../../../constants';
 import { PATIENT_PATHS, PATIENT_CATEGORIES } from '../../../constants/patientPaths';
-import { formatShort } from '../../../utils/dateTime';
-import { DateDisplay } from '@tamanu/ui-components';
+import { DateDisplay, useFormatShort } from '@tamanu/ui-components';
 import { TranslatedReferenceData, TranslatedText } from '../../Translation';
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 import { DetailsDisplay } from './SharedComponents';
@@ -58,6 +57,7 @@ const ClinicianContainer = styled('div')`
 `;
 
 const LinkedEncounter = ({ encounter, isOvernight }) => {
+  const startDateDisplay = useFormatShort(encounter.startDate);
   const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -69,7 +69,7 @@ const LinkedEncounter = ({ encounter, isOvernight }) => {
     encounterId: encounter.id,
   });
 
-  const encounterLabel = `${formatShort(encounter.startDate)}${
+  const encounterLabel = `${startDateDisplay}${
     encounter.endDate ? '' : ' - ' + getTranslation('general.date.current', 'Current').toLowerCase()
   } | ${getEnumTranslation(
     ENCOUNTER_TYPE_LABELS,
