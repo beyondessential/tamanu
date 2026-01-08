@@ -434,7 +434,7 @@ export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => 
               <Box fontWeight={500} component={'span'}>
                 <TranslatedText
                   stringId="medication.modal.import.description2"
-                  fallback="Please check carefully for clinical relevance and safety"
+                  fallback="Please check carefully for clinical relevance and safety."
                 />
               </Box>
             </DarkestText>
