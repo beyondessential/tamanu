@@ -1,11 +1,9 @@
 import React from 'react';
 import { InfoCard, InfoCardItem } from '../../../../components/InfoCard';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
-import { useFormatShortest, useFormatTime } from '@tamanu/ui-components';
+import { DateDisplay } from '@tamanu/ui-components';
 
 export const VersionInfo = ({ version }) => {
-  const createdAt = useFormatTime(version.createdAt);
-  const createdAtDate = useFormatShortest(version.createdAt);
   return (
   <InfoCard inlineValues data-testid="infocard-czs2">
     <InfoCardItem
@@ -49,7 +47,7 @@ export const VersionInfo = ({ version }) => {
           data-testid="translatedtext-zhty"
         />
       }
-      value={`${createdAtDate} ${createdAt}`}
+      value={<><DateDisplay date={version.createdAt} shortYear /> <DateDisplay date={version.createdAt} showTime /></>}
       data-testid="infocarditem-fr79"
     />
     <InfoCardItem

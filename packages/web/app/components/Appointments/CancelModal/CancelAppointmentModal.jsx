@@ -11,9 +11,8 @@ import {
 } from '@tamanu/constants';
 
 import { useAppointmentMutation } from '../../../api/mutations';
-import { formatDateTimeRange, formatShort } from '../../../utils/dateTime';
 import { PatientNameDisplay } from '../../PatientNameDisplay';
-import { TranslatedReferenceData, TranslatedText, BaseModal } from '@tamanu/ui-components';
+import { TranslatedReferenceData, TranslatedText, BaseModal, useFormatShortest, DateDisplay } from '@tamanu/ui-components';
 import {
   AppointmentDetailsColumn,
   AppointmentDetailsColumnLeft,
@@ -33,6 +32,9 @@ const StyledBodyText = styled(BodyText)`
 `;
 
 const AppointmentDetailsDisplay = ({ appointment }) => {
+  const startTimeDate = useFormatShortest(startTime);
+  const endTimeDate = useFormatShortest(endTime);
+  const repeatEndDate = useFormatShortest(schedule?.untilDate);
   const {
     patient,
     startTime,
@@ -65,7 +67,7 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
               data-testid="translatedtext-oej8"
             />
           }
-          value={formatDateTimeRange(startTime, endTime)}
+          value={<><DateDisplay date={startTimeDate} shortYear /> - <DateDisplay date={endTimeDate} shortYear /></>}
           data-testid="detaildisplay-l5s4"
         />
         <DetailDisplay
@@ -162,7 +164,7 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
                 <TranslatedText
                   stringId="appointment.duration.endsOnDate"
                   fallback="Ends on :date"
-                  replacements={{ date: formatShort(schedule.untilDate) }}
+                  replacements={{ date: repeatEndDate }}
                   data-testid="translatedtext-2xq6"
                 />
               ) : (
