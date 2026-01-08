@@ -91,7 +91,7 @@ export const DateHeadCell = React.memo(({ value }) => (
   <TableTooltip title={<DateDisplay date={value} showDate showTime />} data-testid="tabletooltip-5w9x">
     <HeadCellWrapper data-testid="headcellwrapper-jcsy">
       <div><DateDisplay date={value} shortYear /></div>
-      <div><DateDisplay date={value} showTime /></div>
+      <div><DateDisplay date={value} showDate={false} showTime /></div>
     </HeadCellWrapper>
   </TableTooltip>
 ));
@@ -105,7 +105,7 @@ export const DateBodyCell = React.memo(({ value, onClick }) => {
     >
       <CellContainer onClick={onClick} data-testid="cellcontainer-slh4">
         <div><DateDisplay date={value} shortYear /></div>
-        <div><DateDisplay date={value} showTime /></div>
+        <div><DateDisplay date={value} showDate={false} showTime /></div>
       </CellContainer>
     </TableTooltip>
   );
