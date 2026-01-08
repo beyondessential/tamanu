@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import * as yup from 'yup';
 import {
   ConfirmCancelRow,
   Modal,
@@ -6,25 +7,29 @@ import {
   TranslatedReferenceData,
   TranslatedEnum,
   TextInput,
+  Form,
 } from '@tamanu/ui-components';
 import { Colors } from '../../constants';
 import { Box, CircularProgress } from '@mui/material';
 import styled from 'styled-components';
-import { AutocompleteInput, CheckInput } from '../Field';
+import { AutocompleteField, CheckInput, Field } from '../Field';
 import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
-import {
-  formatShortest,
-  TableFormFields,
-} from '..';
+import { formatShortest, TableFormFields } from '..';
 import { usePatientOngoingPrescriptionsQuery } from '../../api/queries/usePatientOngoingPrescriptionsQuery';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { useTranslation } from '../../contexts/Translation';
-import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
+import {
+  DRUG_ROUTE_LABELS,
+  MAX_REPEATS,
+  FORM_TYPES,
+  SUBMIT_ATTEMPTED_STATUS,
+} from '@tamanu/constants';
 import { toast } from 'react-toastify';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
 import { createPrescriptionHash } from '../../utils/medications';
+import { foreignKey } from '../../utils/validation';
 
 const StyledModal = styled(Modal)`
   .MuiDialog-paper {
@@ -91,9 +96,78 @@ const ErrorWrapper = styled(Box)`
   color: ${Colors.alert};
 `;
 
-const isEmptyNumber = value => value === '' || value === null || value === undefined;
+const createValidationSchema = selectedRowIds =>
+  yup.object().shape({
+    prescriberId: foreignKey(
+      <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
+    ),
+    medications: yup.lazy(obj =>
+      yup.object(
+        Object.keys(obj || {}).reduce((acc, medicationId) => {
+          if (selectedRowIds.has(medicationId)) {
+            acc[medicationId] = yup.object().shape({
+              quantity: yup
+                .number()
+                .typeError(
+                  <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
+                )
+                .required(
+                  <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
+                )
+                .min(
+                  0,
+                  <TranslatedText stringId="validation.rule.min" fallback="Must be 0 or greater" />,
+                ),
+              repeats: yup
+                .number()
+                .typeError(
+                  <TranslatedText stringId="validation.mustBeNumber" fallback="Must be a number" />,
+                )
+                .integer(
+                  <TranslatedText
+                    stringId="validation.mustBeInteger"
+                    fallback="Must be a whole number"
+                  />,
+                )
+                .min(
+                  0,
+                  <TranslatedText stringId="validation.rule.min" fallback="Must be 0 or greater" />,
+                )
+                .max(
+                  MAX_REPEATS,
+                  <TranslatedText
+                    stringId="validation.rule.max"
+                    fallback={`Must be ${MAX_REPEATS} or less`}
+                    replacements={{ max: MAX_REPEATS }}
+                  />,
+                )
+                .nullable()
+                .optional(),
+            });
+          } else {
+            acc[medicationId] = yup.object().shape({
+              quantity: yup.mixed().optional(),
+              repeats: yup.mixed().optional(),
+            });
+          }
+          return acc;
+        }, {}),
+      ),
+    ),
+  });
 
-const getColumns = (getTranslation, getEnumTranslation, onFieldChange, showErrors, onSelectChange, selectedRowIds, onSelectAll, selectAllChecked) => [
+const getColumns = (
+  getTranslation,
+  getEnumTranslation,
+  selectedRowIds,
+  onSelectChange,
+  values,
+  setFieldValue,
+  errors,
+  status,
+  onSelectAll,
+  selectAllChecked
+) => [
   {
     key: 'selected',
     title: (
@@ -166,8 +240,10 @@ const getColumns = (getTranslation, getEnumTranslation, onFieldChange, showError
     width: '115px',
     accessor: data => {
       const selected = selectedRowIds.has(data.id);
-      const value = !isEmptyNumber(data.quantity) ? String(data.quantity) : '';
-      const hasError = Boolean(showErrors && selected && isEmptyNumber(value));
+      const fieldName = `medications.${data.id}.quantity`;
+      const value = values.medications?.[data.id]?.quantity ?? '';
+      const fieldError = errors?.medications?.[data.id]?.quantity;
+      const hasError = status?.submitStatus === SUBMIT_ATTEMPTED_STATUS && selected && !!fieldError;
       return (
         <TextInput
           type="number"
@@ -177,15 +253,11 @@ const getColumns = (getTranslation, getEnumTranslation, onFieldChange, showError
             },
           }}
           value={value}
-          onChange={e => onFieldChange(data.id, 'quantity', e.target.value)}
+          onChange={e => setFieldValue(fieldName, e.target.value)}
           disabled={!selected}
           error={hasError}
-          helperText={
-            hasError && (
-              <TranslatedText stringId="validation.required.inline" fallback="*Required" />
-            )
-          }
-          style={{ maxWidth: "72px" }}
+          helperText={hasError && fieldError}
+          style={{ maxWidth: '72px' }}
         />
       );
     },
@@ -196,7 +268,10 @@ const getColumns = (getTranslation, getEnumTranslation, onFieldChange, showError
     width: '100px',
     accessor: data => {
       const selected = selectedRowIds.has(data.id);
-      const value = data.repeats !== undefined && data.repeats !== null ? String(data.repeats) : '0';
+      const fieldName = `medications.${data.id}.repeats`;
+      const value = values.medications?.[data.id]?.repeats ?? 0;
+      const fieldError = errors?.medications?.[data.id]?.repeats;
+      const hasError = status?.submitStatus === SUBMIT_ATTEMPTED_STATUS && selected && !!fieldError;
       return (
         <Box mt="3px" mb="3px">
           <TextInput
@@ -204,12 +279,14 @@ const getColumns = (getTranslation, getEnumTranslation, onFieldChange, showError
             InputProps={{
               inputProps: {
                 min: 0,
-                max: 99,
+                max: MAX_REPEATS,
               },
             }}
             value={value}
-            onChange={e => onFieldChange(data.id, 'repeats', e.target.value)}
+            onChange={e => setFieldValue(fieldName, e.target.value)}
             disabled={!selected}
+            error={hasError}
+            helperText={hasError && fieldError}
           />
         </Box>
       );
@@ -227,9 +304,6 @@ export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => 
   const { getTranslation, getEnumTranslation } = useTranslation();
   const practitionerSuggester = useSuggester('practitioner');
   const { currentUser } = useAuth();
-  const [prescriberId, setPrescriberId] = useState(() => currentUser?.id ?? null);
-  const [medicationEdits, setMedicationEdits] = useState({});
-  const [showValidationErrors, setShowValidationErrors] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: encounterPrescriptionsData } = useEncounterMedicationQuery(encounter.id);
@@ -250,18 +324,6 @@ export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => 
       .filter(p => !encounterPrescriptionHashes.has(createPrescriptionHash(p)));
   }, [encounterPrescriptionsData, patientOngoingPrescriptionsData]);
 
-  // Initialize medication edits with default values from prescriptions
-  useEffect(() => {
-    const initialEdits = {};
-    medications.forEach(med => {
-      initialEdits[med.id] = {
-        quantity: med.quantity ?? '',
-        repeats: med.repeats ?? 0,
-      };
-    });
-    setMedicationEdits(initialEdits);
-  }, [medications]);
-
   const [selectedRowIds, setSelectedRowIds] = useState(new Set());
 
   // Initialize selection when medications change (select all on init)
@@ -270,18 +332,6 @@ export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => 
       setSelectedRowIds(new Set(medications.map(med => med.id)));
     }
   }, [medications]);
-
-  const medicationsWithEdits = useMemo(() => {
-    return medications.map(med => ({
-      ...med,
-      quantity: medicationEdits[med.id]?.quantity ?? med.quantity ?? '',
-      repeats: medicationEdits[med.id]?.repeats ?? med.repeats ?? 0,
-    }));
-  }, [medications, medicationEdits]);
-
-  const selectedRows = useMemo(() => {
-    return medicationsWithEdits.filter(med => selectedRowIds.has(med.id));
-  }, [medicationsWithEdits, selectedRowIds]);
 
   const handleSelectChange = (medicationId, isSelected) => {
     setSelectedRowIds(prev => {
@@ -305,39 +355,30 @@ export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => 
     }
   };
 
-  useEffect(() => {
-    setPrescriberId(currentUser.id);
-  }, [currentUser]);
+  const initialValues = useMemo(() => {
+    const medicationsValues = {};
+    medications.forEach(med => {
+      medicationsValues[med.id] = {
+        quantity: med.quantity ?? '',
+        repeats: med.repeats ?? 0,
+      };
+    });
+    return {
+      prescriberId: currentUser?.id ?? '',
+      medications: medicationsValues,
+    };
+  }, [medications, currentUser]);
 
-  useEffect(() => {
-    if (open) setShowValidationErrors(false);
-  }, [open]);
+  const validationSchema = useMemo(() => createValidationSchema(selectedRowIds), [selectedRowIds]);
 
-  const handleFieldChange = (medicationId, field, value) => {
-    setMedicationEdits(prev => ({
-      ...prev,
-      [medicationId]: {
-        ...prev[medicationId],
-        [field]: value,
-      },
-    }));
-  };
-
-  const handleImportMedications = async () => {
+  const handleImportMedications = async values => {
     try {
-      setShowValidationErrors(true);
-
-      const selectedMedications = medicationsWithEdits.filter(m => selectedRowIds.has(m.id));
-
-      const hasMissingQuantity = selectedMedications.some(m => isEmptyNumber(m.quantity));
-      if (!prescriberId || hasMissingQuantity) {
-        return;
-      }
+      const selectedMedications = medications.filter(m => selectedRowIds.has(m.id));
 
       // Prepare medications data with quantity and repeats
       const medicationsPayload = selectedMedications.map(row => {
-        const quantity = medicationEdits[row.id]?.quantity ?? row.quantity ?? '';
-        const repeats = medicationEdits[row.id]?.repeats ?? row.repeats ?? 0;
+        const quantity = values.medications[row.id]?.quantity ?? '';
+        const repeats = values.medications[row.id]?.repeats ?? 0;
 
         return {
           prescriptionId: row.id,
@@ -349,7 +390,7 @@ export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => 
       await api.post('/medication/import-ongoing', {
         encounterId: encounter.id,
         medications: medicationsPayload,
-        prescriberId,
+        prescriberId: values.prescriberId,
       });
       queryClient.invalidateQueries({
         queryKey: ['patient-ongoing-prescriptions', encounter.patientId],
@@ -359,8 +400,8 @@ export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => 
       });
       onSaved();
       onClose();
-    } catch (error) {
-      toast.error(error.message);
+    } catch (err) {
+      toast.error(err.message);
     }
   };
 
@@ -376,63 +417,70 @@ export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => 
       open={open}
       onClose={onClose}
     >
-      <Box pt={2} display={'flex'} flexDirection={'column'} gap={2.5}>
-        <DarkestText display={'inline-flex'} gap={0.5}>
-          <TranslatedText
-            stringId="medication.modal.import.description1"
-            fallback="Selected ongoing medications will be added to this encounter."
-          />
-          <Box fontWeight={500} component={'span'}>
-            <TranslatedText
-              stringId="medication.modal.import.description2"
-              fallback="Please check carefully for clinical relevance and safety."
+      <Form
+        suppressErrorDialog
+        onSubmit={handleImportMedications}
+        initialValues={initialValues}
+        validationSchema={validationSchema}
+        formType={FORM_TYPES.CREATE_FORM}
+        enableReinitialize
+        render={({ submitForm, values, setFieldValue, errors, status }) => (
+          <Box pt={2} display={'flex'} flexDirection={'column'} gap={2.5}>
+            <DarkestText display={'inline-flex'} gap={0.5}>
+              <TranslatedText
+                stringId="medication.modal.import.description1"
+                fallback="Selected ongoing medications will be added to this encounter."
+              />
+              <Box fontWeight={500} component={'span'}>
+                <TranslatedText
+                  stringId="medication.modal.import.description2"
+                  fallback="Please check carefully for clinical relevance and safety"
+                />
+              </Box>
+            </DarkestText>
+            <PrescriberWrapper>
+              <Field
+                name="prescriberId"
+                label={
+                  <TranslatedText stringId="medication.prescriber.label" fallback="Prescriber" />
+                }
+                component={AutocompleteField}
+                suggester={practitionerSuggester}
+                required
+              />
+            </PrescriberWrapper>
+            {isLoading ? (
+              <LoadingWrapper>
+                <CircularProgress />
+              </LoadingWrapper>
+            ) : error ? (
+              <ErrorWrapper>{error.message}</ErrorWrapper>
+            ) : (
+              <StyledTableFormFields
+                columns={getColumns(
+                  getTranslation,
+                  getEnumTranslation,
+                  selectedRowIds,
+                  handleSelectChange,
+                  values,
+                  setFieldValue,
+                  errors,
+                  status,
+                  handleSelectAll,
+                  selectAllChecked,
+                )}
+                data={medications}
+              />
+            )}
+            <Box height={'1px'} mx={-4} backgroundColor={Colors.outline} />
+            <ConfirmCancelRow
+              confirmDisabled={selectedRowIds.size === 0}
+              onConfirm={submitForm}
+              onCancel={onClose}
             />
           </Box>
-        </DarkestText>
-        <PrescriberWrapper>
-          <AutocompleteInput
-            name="prescriberId"
-            label={<TranslatedText stringId="medication.prescriber.label" fallback="Prescriber" />}
-            suggester={practitionerSuggester}
-            onChange={event => setPrescriberId(event.target.value)}
-            value={prescriberId}
-            required
-            error={showValidationErrors && !prescriberId}
-            helperText={
-              showValidationErrors && !prescriberId && (
-                <TranslatedText stringId="validation.required.inline" fallback="*Required" />
-              )
-            }
-          />
-        </PrescriberWrapper>
-        {isLoading ? (
-          <LoadingWrapper>
-            <CircularProgress />
-          </LoadingWrapper>
-        ) : error ? (
-          <ErrorWrapper>{error.message}</ErrorWrapper>
-        ) : (
-          <StyledTableFormFields
-            columns={getColumns(
-              getTranslation,
-              getEnumTranslation,
-              handleFieldChange,
-              showValidationErrors,
-              handleSelectChange,
-              selectedRowIds,
-              handleSelectAll,
-              selectAllChecked,
-            )}
-            data={medicationsWithEdits}
-          />
         )}
-        <Box height={'1px'} mx={-4} backgroundColor={Colors.outline} />
-        <ConfirmCancelRow
-          confirmDisabled={!selectedRows.length}
-          onConfirm={handleImportMedications}
-          onCancel={onClose}
-        />
-      </Box>
+      />
     </StyledModal>
   );
 };
