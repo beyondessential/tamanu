@@ -29,24 +29,36 @@ const SoftText = styled(Text)`
 `;
 
 const formatShortExplicit = (date, timeZone, countryTimeZone) =>
-  intlFormatDate(date, {
-    dateStyle: 'medium',
-  }, 'Unknown', timeZone, countryTimeZone); // "4 Mar 2019"
+  intlFormatDate(
+    date,
+    {
+      dateStyle: 'medium',
+    },
+    'Unknown',
+    timeZone,
+    countryTimeZone,
+  ); // "4 Mar 2019"
 
 const formatShortestExplicit = (date, timeZone, countryTimeZone) =>
-  intlFormatDate(date, {
-    year: '2-digit',
-    month: 'short',
-    day: 'numeric',
-  }, 'Unknown', timeZone, countryTimeZone); // "4 Mar 19"
+  intlFormatDate(
+    date,
+    {
+      year: '2-digit',
+      month: 'short',
+      day: 'numeric',
+    },
+    'Unknown',
+    timeZone,
+    countryTimeZone,
+  ); // "4 Mar 19"
 
 // Diagnostic info for debugging
 const DiagnosticInfo = ({ date: parsedDate, rawDate, timeZone, countryTimeZone }) => {
   const displayDate = formatLong(parsedDate, countryTimeZone, timeZone);
-  
+
   const getFormattedOffset = (tz, date) => {
     if (!tz) return 'N/A';
-    
+
     const offsetMs = getTimezoneOffset(tz, date);
     const offsetMinutes = Math.abs(offsetMs / 60000);
     const hours = Math.floor(offsetMinutes / 60);
@@ -54,18 +66,19 @@ const DiagnosticInfo = ({ date: parsedDate, rawDate, timeZone, countryTimeZone }
     const sign = offsetMs >= 0 ? '+' : '-';
     return `${sign}${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
   };
-  
+
   const now = new Date();
   const displayOffset = getFormattedOffset(timeZone, now);
   const sourceOffset = getFormattedOffset(countryTimeZone, now);
   const deviceOffset = format(now, 'XXX');
-  
+
   return (
     <div>
       <strong>Raw date string:</strong> {rawDate} <br />
       <strong>Source timezone:</strong> {countryTimeZone || 'N/A'} ({sourceOffset}) <br />
       <strong>Display timezone:</strong> {timeZone || 'N/A'} ({displayOffset}) <br />
-      <strong>Device timezone:</strong> {Intl.DateTimeFormat().resolvedOptions().timeZone} ({deviceOffset}) <br />
+      <strong>Device timezone:</strong> {Intl.DateTimeFormat().resolvedOptions().timeZone} (
+      {deviceOffset}) <br />
       <strong>Display date:</strong> {displayDate} <br />
       <strong>Locale:</strong> {locale}
     </div>
@@ -90,10 +103,18 @@ const DateTooltip = ({ date, rawDate, children, timeOnlyTooltip, timeZone, count
     setDebug(false);
   };
 
-  const dateTooltip = timeOnlyTooltip ? formatTime(date, countryTimeZone, timeZone) : formatLong(date, countryTimeZone, timeZone);
+  const dateTooltip = timeOnlyTooltip
+    ? formatTime(date, countryTimeZone, timeZone)
+    : formatLong(date, countryTimeZone, timeZone);
 
   const tooltipTitle = debug ? (
-    <DiagnosticInfo date={date} rawDate={rawDate} countryTimeZone={countryTimeZone} timeZone={timeZone} data-testid="diagnosticinfo-adv2" />
+    <DiagnosticInfo
+      date={date}
+      rawDate={rawDate}
+      countryTimeZone={countryTimeZone}
+      timeZone={timeZone}
+      data-testid="diagnosticinfo-adv2"
+    />
   ) : (
     dateTooltip
   );
@@ -111,10 +132,24 @@ const DateTooltip = ({ date, rawDate, children, timeOnlyTooltip, timeZone, count
   );
 };
 
-export const getDateDisplay = (
+const useTimeZone = () => {
+  const { getSetting } = useSettings();
+  const timeZone = getSetting('timeZone');
+  const countryTimeZone = 'Pacific/Auckland';
+  return { timeZone, countryTimeZone };
+};
+
+export const useDateDisplay = (
   dateValue,
-  { showDate = true, showTime = false, showExplicitDate = false, shortYear = false, timeZone = null, countryTimeZone = null, removeWhitespace = false } = {},
+  {
+    showDate = true,
+    showTime = false,
+    showExplicitDate = false,
+    shortYear = false,
+    removeWhitespace = false,
+  } = {},
 ) => {
+  const { timeZone, countryTimeZone } = useTimeZone();
   const dateObj = parseDate(dateValue);
 
   const parts = [];
@@ -132,7 +167,7 @@ export const getDateDisplay = (
     }
   }
   if (showTime) {
-    parts.push(formatTime(dateObj, countryTimeZone, timeZone, removeWhitespace));
+    parts.push(formatTime(dateObj, countryTimeZone, timeZone, { removeWhitespace }));
   }
 
   return parts.join(' ');
@@ -148,10 +183,7 @@ export const DateDisplay = React.memo(
     style,
     ...props
   }) => {
-    const { getSetting } =   useSettings();
-    const timeZone = getSetting('timeZone');
-    const countryTimeZone = 'Pacific/Auckland';
-    const displayDateString = getDateDisplay(dateValue, { timeZone, countryTimeZone, ...props });
+    const displayDateString = useDateDisplay(dateValue, props);
 
     if (noTooltip) {
       return <span style={{ color, fontWeight, ...style }}>{displayDateString}</span>;
@@ -159,7 +191,12 @@ export const DateDisplay = React.memo(
 
     const dateObj = parseDate(dateValue);
     return (
-      <DateTooltip date={dateObj} rawDate={dateValue} timeOnlyTooltip={timeOnlyTooltip} timeZone={timeZone} countryTimeZone={countryTimeZone} data-testid="datetooltip-mhkq">
+      <DateTooltip
+        date={dateObj}
+        rawDate={dateValue}
+        timeOnlyTooltip={timeOnlyTooltip}
+        data-testid="datetooltip-mhkq"
+      >
         <span style={{ color: 'pink', fontWeight, ...style }}>{displayDateString}</span>
       </DateTooltip>
     );
@@ -168,10 +205,8 @@ export const DateDisplay = React.memo(
 
 export const MultilineDatetimeDisplay = React.memo(
   ({ date, showExplicitDate, isTimeSoft = true }) => {
-    const { getSetting } = useSettings();
-    const timeZone = getSetting('timeZone');
-    const countryTimeZone = 'Pacific/Auckland';
     const TimeText = isTimeSoft ? SoftText : Text;
+    const timeString = useFormatTime(date);
     return (
       <Box data-testid="box-ana9">
         <DateDisplay
@@ -179,7 +214,7 @@ export const MultilineDatetimeDisplay = React.memo(
           showExplicitDate={showExplicitDate}
           data-testid="datedisplay-qqlo"
         />
-        <TimeText data-testid="timetext-5t0o">{formatTime(date, timeZone, countryTimeZone)}</TimeText>
+        <TimeText data-testid="timetext-5t0o">{timeString}</TimeText>
       </Box>
     );
   },
@@ -200,6 +235,42 @@ const VALID_FORMAT_FUNCTIONS = [
   formatShortestExplicit,
   formatLong,
 ];
+
+export const useFormatShortest = date => {
+  const { timeZone, countryTimeZone } = useTimeZone();
+  return formatShortest(date, countryTimeZone, timeZone);
+};
+
+export const useFormatShort = date => {
+  const { timeZone, countryTimeZone } = useTimeZone();
+  return formatShort(date, countryTimeZone, timeZone);
+};
+
+export const useFormatTime = (date, options) => {
+  const { timeZone, countryTimeZone } = useTimeZone();
+  return formatTime(date, countryTimeZone, timeZone, options);
+};
+
+export const useFormatTimeWithSeconds = date => {
+  const { timeZone, countryTimeZone } = useTimeZone();
+  return formatTimeWithSeconds(date, countryTimeZone, timeZone);
+};
+
+export const useFormatShortExplicit = date => {
+  const { timeZone, countryTimeZone } = useTimeZone();
+  return formatShortExplicit(date, countryTimeZone, timeZone);
+};
+
+export const useFormatShortestExplicit = date => {
+  const { timeZone, countryTimeZone } = useTimeZone();
+  return formatShortestExplicit(date, countryTimeZone, timeZone);
+};
+
+export const useFormatLong = date => {
+  const { timeZone, countryTimeZone } = useTimeZone();
+  return formatLong(date, countryTimeZone, timeZone);
+};
+
 
 DateDisplay.stringFormat = (dateValue, formatFn = formatShort) => {
   if (VALID_FORMAT_FUNCTIONS.includes(formatFn) === false) {

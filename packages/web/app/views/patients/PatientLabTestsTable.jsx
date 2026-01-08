@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Button } from '@material-ui/core';
-import { formatTimeWithSeconds } from '@tamanu/utils/dateTime';
 import { TranslatedText, TranslatedReferenceData, TranslatedOption } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { Table } from '../../components/Table';
@@ -105,11 +104,11 @@ const StyledButton = styled(Button)`
   }
 `;
 
-const getTitle = value => {
-  const date = DateDisplay.stringFormat(value);
-  const timeWithSeconds = DateDisplay.stringFormat(value, formatTimeWithSeconds);
-  return `${date} ${timeWithSeconds}`;
-};
+const getTitle = value => (
+  <>
+    <DateDisplay date={value} showDate /> <DateDisplay date={value} showTime />
+  </>
+);
 
 export const PatientLabTestsTable = React.memo(
   ({ patient, labTests = [], count, isLoading, searchParameters }) => {
@@ -157,12 +156,12 @@ export const PatientLabTestsTable = React.memo(
         ),
         accessor: row => (
           <CategoryCell data-testid="categorycell-7aet">
-         <TranslatedReferenceData
-        fallback={row.testType}
-        value={row.testTypeId}
-        category="labTestType"
-        data-testid="translatedreferencedata-kplb"
-      />
+            <TranslatedReferenceData
+              fallback={row.testType}
+              value={row.testTypeId}
+              category="labTestType"
+              data-testid="translatedreferencedata-kplb"
+            />
             <br />
             <BodyText color="textTertiary" data-testid="bodytext-zxuk">
               {row.unit ? `(${row.unit})` : null}

@@ -288,7 +288,7 @@ export const formatShort = (
     countryTimeZone: string,
     timeZone?: string | null,
     // TODO: could be better
-    removeWhitespace: boolean = false,
+   { removeWhitespace = false }: { removeWhitespace?: boolean } = {},
 ) => {
   const formatted = intlFormatDate(
     date,

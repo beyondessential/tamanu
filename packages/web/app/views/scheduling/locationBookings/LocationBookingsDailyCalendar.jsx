@@ -25,7 +25,7 @@ import { cloneDeep } from 'lodash';
 import { useDrop, useDrag } from 'react-dnd';
 
 import { toDateTimeString, toDateString } from '@tamanu/utils/dateTime';
-import { notifyError, notifySuccess } from '@tamanu/ui-components';
+import { DateDisplay, notifyError, notifySuccess } from '@tamanu/ui-components';
 
 import {
   useLocationBookingsQuery,
@@ -260,10 +260,6 @@ const LoadingSkeleton = styled(Skeleton).attrs({
 
 const pixelsPerMinute = 70 / 60; // 70px per hour
 
-const formatTime = time => {
-  return format(new Date(time), 'h:mma').toLowerCase();
-};
-
 const LocationHeaderContent = ({ location, assignments = [] }) => {
   const [locationGroupRef, isLocationGroupOverflowing] = useOverflow();
   const [locationRef, isLocationOverflowing] = useOverflow();
@@ -288,9 +284,9 @@ const LocationHeaderContent = ({ location, assignments = [] }) => {
           assignments.map((assignment, index) => (
             <AssignmentItem key={assignment.id || index} data-testid="assignment-item">
               <AssignmentTime data-testid="assignment-time">
-                {formatTime(assignment.startTime)}-
+                <DateDisplay date={assignment.startTime} showTime style={{ textTransform: 'lowercase' }} />-
                 <br />
-                {formatTime(assignment.endTime)}
+                <DateDisplay date={assignment.endTime} showTime style={{ textTransform: 'lowercase' }} />
               </AssignmentTime>
               <AssignmentDivider data-testid="assignment-divider" />
               <AssignmentName data-testid="assignment-name">
