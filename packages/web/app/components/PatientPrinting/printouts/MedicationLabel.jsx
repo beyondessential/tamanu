@@ -11,13 +11,17 @@ import { TranslatedText } from '../../Translation';
 const Label = styled.div`
   width: ${props => props.$width}mm;
   height: ${props => props.$height}mm;
-  border: 1px solid ${Colors.black};
-  border-radius: 3px;
+  font-size: ${props => props.$fontSize}mm;
+  line-height: ${props => props.$fontSize}mm;
+  border: 0.354mm solid ${Colors.black};
+  border-radius: 1.062mm;
   position: relative;
   overflow: hidden;
   background-color: ${Colors.white};
   page-break-inside: avoid;
   break-inside: avoid;
+  display: flex;
+  flex-direction: column;
 
   @media print {
     width: ${props => props.$width}mm;
@@ -27,93 +31,73 @@ const Label = styled.div`
 
 const LabelTitle = styled.div`
   font-weight: 700;
-  font-size: 8px;
-  line-height: 15px;
+  line-height: ${props => props.$fontSize*1.875}mm;
   text-align: center;
-  position: absolute;
-  top: 6.5px;
-  left: 47px;
-  right: 48px;
-  transform: translateY(-50%);
 `;
 
 const LabelContent = styled.div`
-  position: absolute;
-  top: 14px;
-  bottom: 18px;
-  left: 7px;
-  right: 7px;
+  padding-left: 4.25mm;
+  padding-right: 4.25mm;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  flex-grow: 1;
 `;
 
 const LabelTopSection = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 0.708mm;
 `;
 
 const LabelMedicationName = styled.div`
   font-weight: 500;
-  font-size: 8px;
-  line-height: 8px;
 `;
 
 const LabelInstructions = styled.div`
   font-weight: 400;
-  font-size: 8px;
-  line-height: 8px;
 `;
 
 const LabelBottomSection = styled.div`
   display: flex;
   justify-content: space-between;
+  line-height: ${props => props.$fontSize*1.125}mm;
 `;
 
 const LabelLeftColumn = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 0.708mm;
   flex: 1;
 `;
 
 const LabelRightColumn = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  width: 109px;
+  gap: 0.708mm;
+  width: ${props => props.$width*0.478}mm;
 `;
 
 const LabelPatientName = styled.div`
   font-weight: 700;
-  font-size: 8px;
-  line-height: 9px;
-  border-bottom: 1px solid ${Colors.black};
-  padding-bottom: 2px;
+  border-bottom: 0.354mm solid ${Colors.black};
+  padding-bottom: 0.708mm;
 `;
 
 const LabelDate = styled.div`
   font-weight: 400;
-  font-size: 8px;
-  line-height: 9px;
-  border-bottom: 1px solid ${Colors.black};
-  padding-bottom: 2px;
+  border-bottom: 0.354mm solid ${Colors.black};
+  padding-bottom: 0.708mm;
 `;
 
 const LabelRow = styled.div`
   font-weight: 400;
-  font-size: 8px;
-  line-height: 9px;
 `;
 
 const LabelFooter = styled.div`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  border-top: 0.5px solid ${Colors.black};
-  padding: 4px 0;
+  border-top: 0.177mm solid ${Colors.black};
+  padding: 1.416mm 0;
+  margin-top: 0.708mm;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -121,8 +105,6 @@ const LabelFooter = styled.div`
 
 const LabelFooterText = styled.div`
   font-weight: 400;
-  font-size: 8px;
-  line-height: 9px;
   text-align: center;
 `;
 
@@ -152,9 +134,11 @@ export const MedicationLabel = React.memo(({ data }) => {
     facilityContactNumber,
   } = data;
 
+  const fontSize = labelHeight*0.071;
+
   return (
-    <Label $width={labelWidth} $height={labelHeight}>
-      <LabelTitle>
+    <Label $width={labelWidth} $height={labelHeight} $fontSize={fontSize}>
+      <LabelTitle $fontSize={fontSize}>
         <TranslatedText
           stringId="modal.medication.dispense.label.title"
           fallback="Keep out of reach of children"
@@ -165,7 +149,7 @@ export const MedicationLabel = React.memo(({ data }) => {
           <LabelMedicationName>{medicationName}</LabelMedicationName>
           <LabelInstructions>{instructions}</LabelInstructions>
         </LabelTopSection>
-        <LabelBottomSection>
+        <LabelBottomSection $fontSize={fontSize}>
           <LabelLeftColumn>
             <LabelPatientName>{patientName}</LabelPatientName>
             <LabelRow>
@@ -179,7 +163,7 @@ export const MedicationLabel = React.memo(({ data }) => {
               : {remainingRepeats}
             </LabelRow>
           </LabelLeftColumn>
-          <LabelRightColumn>
+          <LabelRightColumn $width={labelWidth}>
             <LabelDate>{formatShortest(dispensedAt)}</LabelDate>
             <LabelRow>
               <TranslatedText stringId="medication.prescriber.label" fallback="Prescriber" />:{' '}
