@@ -28,7 +28,7 @@ export const getTranslatedFrequencySynonym = (synonyms, index, getTranslation) =
   return getTranslation(`medication.frequency.${camelCase(frequency)}.synonym.${index}`, frequency);
 };
 
-export const TimeSlotDisplay = ({ time }) => <DateDisplay date={time} showTime removeWhitespace style={{ textTransform: 'lowercase' }} />;
+export const TimeSlotDisplay = ({ time }) => <DateDisplay date={time} showTime showDate={false} removeWhitespace style={{ textTransform: 'lowercase' }} />;
 
 export const useTimeSlotDisplay = (time) => {
   const timeString = useFormatTime(time, { removeWhitespace: true });

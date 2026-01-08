@@ -290,7 +290,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
 
     const firstSlot = findAdministrationTimeSlotFromIdealTime(firstStartTime).timeSlot;
 
-    return <> <TimeSlotDisplay time={firstSlot.startTime} /> - <TimeSlotDisplay time={firstSlot.endTime} /> <DateDisplay date={firstStartTime} showDate /></>;
+    return <> <DateDisplay date={getDateFromTimeString(firstSlot.startTime)} showDate={false} showTime /> - <DateDisplay date={getDateFromTimeString(firstSlot.endTime)} showDate={false} showTime /> <DateDisplay date={ new Date(firstStartTime)} /></>;
   }, [values.startDate, selectedTimeSlots]);
 
   useEffect(() => {
