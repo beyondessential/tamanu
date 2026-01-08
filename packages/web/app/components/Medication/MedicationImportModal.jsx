@@ -49,6 +49,9 @@ const PrescriberWrapper = styled.div`
 `;
 
 const StyledTableFormFields = styled(TableFormFields)`
+  border-radius: 3px;
+  overflow: hidden;
+
   thead tr th {
     text-align: left;
     background: ${Colors.white};
@@ -64,10 +67,6 @@ const StyledTableFormFields = styled(TableFormFields)`
     height: 44px;
     padding: 0 10px;
     text-align: left;
-  }
-
-  tbody tr:last-child td {
-    border-bottom: none;
   }
 `;
 
@@ -94,10 +93,16 @@ const ErrorWrapper = styled(Box)`
 
 const isEmptyNumber = value => value === '' || value === null || value === undefined;
 
-const getColumns = (getTranslation, getEnumTranslation, onFieldChange, showErrors, onSelectChange, selectedRowIds) => [
+const getColumns = (getTranslation, getEnumTranslation, onFieldChange, showErrors, onSelectChange, selectedRowIds, onSelectAll, selectAllChecked) => [
   {
     key: 'selected',
-    title: '',
+    title: (
+      <CheckInput
+        value={selectAllChecked}
+        onChange={onSelectAll}
+        style={{ margin: '2px auto 0 auto' }}
+      />
+    ),
     width: '50px',
     accessor: data => (
       <CheckInput
@@ -126,7 +131,7 @@ const getColumns = (getTranslation, getEnumTranslation, onFieldChange, showError
     key: 'dose',
     title: <TranslatedText stringId="patient.medication.table.column.dose" fallback="Dose" />,
     accessor: data => (
-      <Box whiteSpace={'pre'}>
+      <Box>
         {getMedicationDoseDisplay(data, getTranslation, getEnumTranslation)}
         {data.isPrn && ` ${getTranslation('patient.medication.table.prn', 'PRN')}`}
       </Box>
@@ -290,6 +295,16 @@ export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => 
     });
   };
 
+  const selectAllChecked = medications.length > 0 && medications.every(med => selectedRowIds.has(med.id));
+
+  const handleSelectAll = e => {
+    if (e.target.checked) {
+      setSelectedRowIds(new Set(medications.map(med => med.id)));
+    } else {
+      setSelectedRowIds(new Set());
+    }
+  };
+
   useEffect(() => {
     setPrescriberId(currentUser.id);
   }, [currentUser]);
@@ -370,7 +385,7 @@ export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => 
           <Box fontWeight={500} component={'span'}>
             <TranslatedText
               stringId="medication.modal.import.description2"
-              fallback="Please check carefully for clinical relevance and safety"
+              fallback="Please check carefully for clinical relevance and safety."
             />
           </Box>
         </DarkestText>
@@ -405,6 +420,8 @@ export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => 
               showValidationErrors,
               handleSelectChange,
               selectedRowIds,
+              handleSelectAll,
+              selectAllChecked,
             )}
             data={medicationsWithEdits}
           />
