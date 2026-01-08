@@ -22,14 +22,14 @@ const columns = (getTranslation, getEnumTranslation) => [
     accessor: ({ medication, notes, indication }) => (
       <View>
         <Text>{medication?.name + `\n`}</Text>
-        {notes &&<Text style={{ fontFamily: 'Helvetica-Oblique' }}>{notes + `\n`}</Text>}
+        {notes && <Text style={{ fontFamily: 'Helvetica-Oblique' }}>{notes + `\n`}</Text>}
         {indication && (
-          <View>
+          <Text>
             <Text style={{ fontFamily: 'Helvetica-Bold' }}>
               {getTranslation('medication.indication.label', 'Indication')}:
             </Text>
-            <Text> {indication}</Text>
-          </View>
+            <Text>{` ${indication}`}</Text>
+          </Text>
         )}
       </View>
     ),
