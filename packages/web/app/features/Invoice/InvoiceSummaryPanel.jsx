@@ -5,6 +5,7 @@ import { getInvoiceSummary } from '@tamanu/shared/utils/invoice';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../../components/Translation';
 import { Price } from './Price';
+import { useSettings } from '@tamanu/ui-components';
 
 const Container = styled.div`
   align-self: start;
@@ -107,6 +108,9 @@ export const InvoiceSummaryPanel = ({
   invoiceDiscount,
   handleRemoveDiscount,
 }) => {
+  const { getSetting } = useSettings();
+  const slidingFeeScaleEnabled = getSetting('features.slidingFeeScale');
+
   const {
     invoiceItemsTotal,
     insuranceCoverageTotal,
@@ -115,7 +119,7 @@ export const InvoiceSummaryPanel = ({
     discountTotal,
   } = getInvoiceSummary({
     items: invoiceItems,
-    discount: invoiceDiscount,
+    discount: slidingFeeScaleEnabled ? invoiceDiscount : null,
   });
   const coverageDisplay = insuranceCoverageTotal > 0 ? insuranceCoverageTotal * -1 : 0;
 
@@ -130,13 +134,15 @@ export const InvoiceSummaryPanel = ({
         <Price price={coverageDisplay} data-testid="translatedtext-qedx" />
       </Row>
       <Divider />
-      <SlidingFeeScaleSection
-        openDiscountModal={openDiscountModal}
-        patientSubtotal={patientSubtotal}
-        discountTotal={discountTotal}
-        handleRemoveDiscount={handleRemoveDiscount}
-        discountPercentage={invoiceDiscount?.percentage}
-      />
+      {slidingFeeScaleEnabled && (
+        <SlidingFeeScaleSection
+          openDiscountModal={openDiscountModal}
+          patientSubtotal={patientSubtotal}
+          discountTotal={discountTotal}
+          handleRemoveDiscount={handleRemoveDiscount}
+          discountPercentage={invoiceDiscount?.percentage}
+        />
+      )}
       <TotalRow>
         <TranslatedText stringId="invoice.summary.patientTotal" fallback="Patient total due" />
         <Price price={patientTotal} data-testid="translatedtext-nst0" />
