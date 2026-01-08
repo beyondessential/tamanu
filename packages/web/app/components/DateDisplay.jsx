@@ -1,5 +1,4 @@
 export {
-  getDateDisplay,
   DateDisplay,
   MultilineDatetimeDisplay,
   TimeRangeDisplay,

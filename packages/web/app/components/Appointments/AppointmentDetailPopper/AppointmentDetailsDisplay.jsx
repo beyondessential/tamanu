@@ -1,12 +1,14 @@
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import Overnight from '@mui/icons-material/Brightness2';
+import { isSameDay, parseISO } from 'date-fns';
 import { styled } from '@mui/material/styles';
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import { Link, generatePath, useNavigate } from 'react-router';
 import { Colors } from '../../../constants';
 import { PATIENT_PATHS, PATIENT_CATEGORIES } from '../../../constants/patientPaths';
-import { formatDateTimeRange, formatShort } from '../../../utils/dateTime';
+import { formatShort } from '../../../utils/dateTime';
+import { DateDisplay } from '@tamanu/ui-components';
 import { TranslatedReferenceData, TranslatedText } from '../../Translation';
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 import { DetailsDisplay } from './SharedComponents';
@@ -284,7 +286,9 @@ export const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
     additionalClinician,
   } = appointment;
 
-  return (
+  const doesSpanMultipleDays = !isSameDay(parseISO(startTime), parseISO(endTime)); 
+
+    return (
     <AppointmentDetailsContainer data-testid="appointmentdetailscontainer-8rgc">
       <DetailsDisplay
         label={
@@ -294,7 +298,7 @@ export const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
             data-testid="translatedtext-cljh"
           />
         }
-        value={formatDateTimeRange(startTime, endTime)}
+        value={<><DateDisplay date={startTime} showDate showTime />{' '}–{' '}<DateDisplay date={endTime} showDate={doesSpanMultipleDays} showTime /></>}
         data-testid="detailsdisplay-diun"
       />
       <ClinicianContainer>
