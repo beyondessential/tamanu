@@ -20,7 +20,7 @@ import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { Box, IconButton } from '@mui/material';
 import { Edit, Add, Remove } from '@material-ui/icons';
 import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS, FORM_TYPES } from '@tamanu/constants';
-import { formatTimeSlot, isWithinTimeSlot } from '../../../utils/medications';
+import { TimeSlotDisplay, isWithinTimeSlot } from '../../../utils/medications';
 import { useTranslation } from '../../../contexts/Translation';
 import { ChangeStatusModal } from './ChangeStatusModal';
 import { useQueryClient } from '@tanstack/react-query';
@@ -531,7 +531,7 @@ export const MarDetails = ({
                               />
                             </MidText>
                             <DarkestText mt={'3px'}>
-                              {formatTimeSlot(new Date(dose.givenTime))}
+                              <TimeSlotDisplay time={dose.givenTime} />
                             </DarkestText>
                             <MidText mt={'15px'}>
                               <TranslatedText

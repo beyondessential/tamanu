@@ -1,7 +1,8 @@
-import { formatISO, isEqual, format } from 'date-fns';
+import { formatISO, isEqual } from 'date-fns';
 import React from 'react';
 import styled from 'styled-components';
 import { toDateString } from '@tamanu/utils/dateTime';
+import { DateDisplay } from '@tamanu/ui-components';
 
 import { useLocationAssignmentsContext } from '../../../contexts/LocationAssignments';
 import { CarouselComponents as CarouselGrid } from '../../scheduling/locationBookings/CarouselComponents';
@@ -37,10 +38,6 @@ const AssignmentUser = styled.div`
   opacity: 0.9;
 `;
 
-const formatTime = (time) => {
-  return format(new Date(time), 'h:mma').toLowerCase();
-};
-
 export const LocationAssignmentTile = ({ assignment, onClick }) => {
   const { user, startTime, endTime } = assignment;
   const { ability } = useAuth();
@@ -61,7 +58,8 @@ export const LocationAssignmentTile = ({ assignment, onClick }) => {
       data-testid="assignment-tile"
     >
       <AssignmentTimeRange data-testid="assignment-time">
-        {formatTime(startTime)} - {formatTime(endTime)}
+        <DateDisplay date={startTime} showTime style={{ textTransform: 'lowercase' }} /> -
+        <DateDisplay date={endTime} showTime style={{ textTransform: 'lowercase' }} />
       </AssignmentTimeRange>
       <AssignmentUser data-testid="assignment-user">
         {user?.displayName || 'Unknown User'}

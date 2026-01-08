@@ -9,7 +9,6 @@ import {
   MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
   FORM_TYPES,
 } from '@tamanu/constants';
-import { formatShortest } from '@tamanu/utils/dateTime';
 import {
   findAdministrationTimeSlotFromIdealTime,
   getDateFromTimeString,
@@ -34,7 +33,7 @@ import { useApi } from '../../api';
 import { MedicationDiscontinueModal } from './MedicationDiscontinueModal';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedEnum, TranslatedReferenceData } from '../Translation';
-import { formatTimeSlot } from '../../utils/medications';
+import { TimeSlotDisplay } from '../../utils/medications';
 import { MedicationPauseModal } from './MedicationPauseModal';
 import { usePausePrescriptionQuery } from '../../api/queries/usePausePrescriptionQuery';
 import { useEncounter } from '../../contexts/Encounter';
@@ -136,7 +135,7 @@ export const MedicationDetails = ({
       label: (
         <TranslatedText stringId="medication.details.startDate" fallback="Start date & time" />
       ),
-      value: `${formatShortest(medication.startDate)} ${formatTimeSlot(medication.startDate)}`,
+      value: <> <DateDisplay date={medication.startDate} shortYear /> <TimeSlotDisplay time={medication.startDate} /></>,
     },
     ...(medication.isOngoing || medication.discontinued
       ? []
@@ -192,7 +191,7 @@ export const MedicationDetails = ({
             label: (
               <TranslatedText stringId="medication.details.endDate" fallback="End date & time" />
             ),
-            value: `${formatShortest(medication.endDate)} ${formatTimeSlot(medication.endDate)}`,
+            value: <> <DateDisplay date={medication.endDate} shortYear /> <TimeSlotDisplay time={medication.endDate} /></>,
           },
         ]),
     {
@@ -325,9 +324,7 @@ export const MedicationDetails = ({
                           pauseData.pauseDuration,
                         ).toLowerCase()}{' '}
                         - {<TranslatedText stringId="medication.details.until" fallback="until" />}{' '}
-                        {`${formatShortest(pauseData.pauseEndDate)} ${formatTimeSlot(
-                          pauseData.pauseEndDate,
-                        )}`}
+                        <DateDisplay date={pauseData.pauseEndDate} shortYear /> <TimeSlotDisplay time={pauseData.pauseEndDate} />
                       </DarkestText>
                     </Box>
                     <Box flex={1} pl={2.5} borderLeft={`1px solid ${Colors.outline}`}>
@@ -469,9 +466,7 @@ export const MedicationDetails = ({
                         const slot = findAdministrationTimeSlotFromIdealTime(time).timeSlot;
                         return (
                           <DarkestText key={time}>
-                            {`${formatTimeSlot(
-                              getDateFromTimeString(slot.startTime),
-                            )} - ${formatTimeSlot(getDateFromTimeString(slot.endTime))} `}
+                            <TimeSlotDisplay time={slot.startTime} /> - <TimeSlotDisplay time={slot.endTime} />
                           </DarkestText>
                         );
                       })}
@@ -487,7 +482,7 @@ export const MedicationDetails = ({
                       .map(time => {
                         return (
                           <MidText key={time}>
-                            {formatTimeSlot(getDateFromTimeString(time))}
+                            <TimeSlotDisplay time={time} />
                           </MidText>
                         );
                       })}

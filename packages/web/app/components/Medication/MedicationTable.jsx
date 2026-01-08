@@ -9,10 +9,9 @@ import { Button, DateDisplay } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 
 import { DataFetchingTable } from '../Table';
-import { formatShortest } from '../DateDisplay';
 import { TranslatedText, TranslatedReferenceData, TranslatedEnum } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';
-import { formatTimeSlot } from '../../utils/medications';
+import { TimeSlotDisplay } from '../../utils/medications';
 import { LimitedLinesCell } from '../FormattedTableCell';
 import { ConditionalTooltip } from '../Tooltip';
 import { MedicationDetails } from './MedicationDetails';
@@ -126,7 +125,8 @@ const getMedicationName = (
             pauseData.pauseDuration,
           ).toLowerCase()}{' '}
           - <TranslatedText stringId="medication.table.until" fallback="until" />{' '}
-          {`${formatShortest(pauseData.pauseEndDate)} ${formatTimeSlot(pauseData.pauseEndDate)}`})
+          <DateDisplay date={pauseData.pauseEndDate} shortYear />{' '}
+          <TimeSlotDisplay time={pauseData.pauseEndDate} />
         </Box>
       )}
     </Box>

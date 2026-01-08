@@ -20,7 +20,6 @@ import {
   getFirstAdministrationDate,
 } from '@tamanu/shared/utils/medication';
 import {
-  formatShort,
   getCurrentDateString,
   getCurrentDateTimeString,
 } from '@tamanu/utils/dateTime';
@@ -49,6 +48,7 @@ import {
   FormGrid,
   FormSubmitButton,
   Dialog,
+  DateDisplay,
 } from '@tamanu/ui-components';
 import { Colors, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
@@ -65,7 +65,7 @@ import { ConditionalTooltip, ThemedTooltip } from '../components/Tooltip';
 import { capitalize } from 'lodash';
 import { preventInvalidNumber, validateDecimalPlaces } from '../utils/utils';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
-import { formatTimeSlot } from '../utils/medications';
+import { TimeSlotDisplay } from '../utils/medications';
 import { useEncounter } from '../contexts/Encounter';
 import { usePatientAllergiesQuery } from '../api/queries/usePatientAllergiesQuery';
 import { useMedicationIdealTimes } from '../hooks/useMedicationIdealTimes';
@@ -290,9 +290,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
 
     const firstSlot = findAdministrationTimeSlotFromIdealTime(firstStartTime).timeSlot;
 
-    return `${formatTimeSlot(getDateFromTimeString(firstSlot.startTime))} - ${formatTimeSlot(
-      getDateFromTimeString(firstSlot.endTime),
-    )} ${formatShort(new Date(firstStartTime))}`;
+    return <> <TimeSlotDisplay time={firstSlot.startTime} /> - <TimeSlotDisplay time={firstSlot.endTime} /> <DateDisplay date={firstStartTime} showDate /></>;
   }, [values.startDate, selectedTimeSlots]);
 
   useEffect(() => {
@@ -453,9 +451,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
                     >
                       <CheckInput
                         label={
-                          <FieldContent>{`${formatTimeSlot(startTime)} - ${formatTimeSlot(
-                            endTime,
-                          )}`}</FieldContent>
+                          <FieldContent><TimeSlotDisplay time={startTime} /> - <TimeSlotDisplay time={endTime} /></FieldContent>
                         }
                         value={checked}
                         onChange={(_, value) => handleSelectTimeSlot(value, slot, index)}
