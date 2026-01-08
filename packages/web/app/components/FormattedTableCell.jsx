@@ -1,6 +1,5 @@
 import { isNumber } from 'lodash';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { formatLong, formatShortest, formatTime } from '@tamanu/utils/dateTime';
 import styled from 'styled-components';
 import { Colors } from '../constants';
 import { DateDisplay } from './DateDisplay';
@@ -87,11 +86,12 @@ export const formatValue = (value, config) => {
   return `${float}${unitSuffix}`;
 };
 
+// TODO: check format long 
 export const DateHeadCell = React.memo(({ value }) => (
-  <TableTooltip title={DateDisplay.stringFormat(value, formatLong)} data-testid="tabletooltip-5w9x">
+  <TableTooltip title={<DateDisplay date={value} showDate showTime />} data-testid="tabletooltip-5w9x">
     <HeadCellWrapper data-testid="headcellwrapper-jcsy">
-      <div>{DateDisplay.stringFormat(value, formatShortest)}</div>
-      <div>{DateDisplay.stringFormat(value, formatTime)}</div>
+      <div><DateDisplay date={value} shortYear /></div>
+      <div><DateDisplay date={value} showTime /></div>
     </HeadCellWrapper>
   </TableTooltip>
 ));
@@ -100,12 +100,12 @@ export const DateBodyCell = React.memo(({ value, onClick }) => {
   const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
   return (
     <TableTooltip
-      title={DateDisplay.stringFormat(value, formatLong)}
+      title={<DateDisplay date={value} showDate showTime />}
       data-testid="tabletooltip-3knb"
     >
       <CellContainer onClick={onClick} data-testid="cellcontainer-slh4">
-        <div>{DateDisplay.stringFormat(value, formatShortest)}</div>
-        <div>{DateDisplay.stringFormat(value, formatTime)}</div>
+        <div><DateDisplay date={value} shortYear /></div>
+        <div><DateDisplay date={value} showTime /></div>
       </CellContainer>
     </TableTooltip>
   );
