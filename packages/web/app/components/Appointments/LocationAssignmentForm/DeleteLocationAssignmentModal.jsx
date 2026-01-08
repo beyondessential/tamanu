@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Radio, RadioGroup, FormControlLabel } from '@material-ui/core';
-import { formatTime, formatShortest } from '@tamanu/utils/dateTime';
-import { useSettings } from '@tamanu/ui-components';
+import { formatTime } from '@tamanu/utils/dateTime';
+import { useFormatShortest } from '@tamanu/ui-components';
 import { parseISO } from 'date-fns';
 
 import { ConfirmModal } from '../../ConfirmModal';
@@ -84,8 +84,7 @@ const DetailValue = styled.span`
 export const DeleteLocationAssignmentModal = ({ open, onClose, onConfirm, assignment }) => {
   const [deleteMode, setDeleteMode] = useState(MODIFY_REPEATING_ASSIGNMENT_MODE.THIS_ASSIGNMENT);
   const isRepeating = !!assignment?.templateId;
-  const { getSetting } = useSettings();
-  const timeZone = getSetting('timezone');
+  const repeatEndDate = useFormatShortest(assignment?.template?.repeatEndDate);
 
   const handleConfirm = () => {
     const deleteFuture =
@@ -159,7 +158,7 @@ export const DeleteLocationAssignmentModal = ({ open, onClose, onConfirm, assign
                 stringId="general.endOn"
                 fallback="End on :endDate"
                 replacements={{
-                  endDate: formatShortest(assignment.template.repeatEndDate, 'Pacific/Auckland', timeZone),
+                  endDate: repeatEndDate,
                 }}
               />
             </DetailValue>
