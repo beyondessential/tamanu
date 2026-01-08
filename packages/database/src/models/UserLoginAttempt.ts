@@ -120,7 +120,7 @@ export class UserLoginAttempt extends Model {
         outcome,
       });
     } catch (error) {
-      log.error(`Error creating login attempt: ${error}`);
+      log.error('Error creating failed login attempt', error);
     }
 
     return {
