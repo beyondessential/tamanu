@@ -31,7 +31,7 @@ const TotalRow = styled(Row)`
   font-weight: 500;
 `;
 
-const AddButton = styled(Button)`
+const AddDiscountButton = styled(Button)`
   padding-top: 0;
   padding-bottom: 0;
   margin-left: -8px;
@@ -41,7 +41,7 @@ const AddButton = styled(Button)`
   color: ${props => props.theme.palette.primary.main};
 `;
 
-const RemoveButton = styled(Button)`
+const RemoveDiscountButton = styled(Button)`
   padding-top: 0;
   padding-bottom: 0;
   margin-left: -8px;
@@ -54,10 +54,14 @@ const RemoveButton = styled(Button)`
   }
 `;
 
-const SlidingFeeScaleSection = ({ openDiscountModal }) => {
-  const feeScaleAdjustment = '-1.00';
-  const patientSubtotal = '10.00';
-
+const SlidingFeeScaleSection = ({
+  openDiscountModal,
+  handleRemoveDiscount,
+  discountTotal,
+  patientSubtotal,
+  discountPercentage,
+}) => {
+  const discountDisplay = discountTotal > 0 ? discountTotal * -1 : 0;
   return (
     <>
       <TotalRow $fontSize="14px">
@@ -66,30 +70,55 @@ const SlidingFeeScaleSection = ({ openDiscountModal }) => {
       </TotalRow>
       <Divider />
       <Row $indent>
-        <TranslatedText
-          stringId="invoice.summary.feeScaleAdjustment"
-          fallback="Fee scale adjustment"
-        />
-        <Price price={feeScaleAdjustment} data-testid="fee-scale-adjustment" />
+        <span>
+          <TranslatedText
+            stringId="invoice.summary.feeScaleAdjustment"
+            fallback="Fee scale adjustment"
+          />
+          {discountPercentage && <span> - {discountPercentage * 10}%</span>}
+        </span>
+        <Price price={discountDisplay} data-testid="fee-scale-adjustment" />
       </Row>
       <Row $indent>
-        <AddButton onClick={openDiscountModal}>
-          <TranslatedText
-            stringId="invoice.summary.removeSlidingFeeScale"
-            fallback="Remove sliding fee scale"
-          />
-        </AddButton>
+        {discountTotal ? (
+          <RemoveDiscountButton onClick={handleRemoveDiscount}>
+            <TranslatedText
+              stringId="invoice.summary.removeSlidingFeeScale"
+              fallback="Remove sliding fee scale"
+            />
+          </RemoveDiscountButton>
+        ) : (
+          <AddDiscountButton onClick={openDiscountModal}>
+            <TranslatedText
+              stringId="invoice.summary.applySlidingFeeScale"
+              fallback="Apply sliding fee scale"
+            />
+          </AddDiscountButton>
+        )}
       </Row>
       <Divider />
     </>
   );
 };
 
-export const InvoiceSummaryPanel = ({ invoiceItems, openDiscountModal }) => {
-  const { invoiceItemsTotal, insuranceCoverageTotal, patientTotal } = getInvoiceSummary({
+export const InvoiceSummaryPanel = ({
+  invoiceItems,
+  openDiscountModal,
+  invoiceDiscount,
+  handleRemoveDiscount,
+}) => {
+  const {
+    invoiceItemsTotal,
+    insuranceCoverageTotal,
+    patientTotal,
+    patientSubtotal,
+    discountTotal,
+  } = getInvoiceSummary({
     items: invoiceItems,
+    discount: invoiceDiscount,
   });
-  const coverageDisplay = insuranceCoverageTotal * -1;
+  const coverageDisplay = insuranceCoverageTotal > 0 ? insuranceCoverageTotal * -1 : 0;
+
   return (
     <Container>
       <Row>
@@ -101,7 +130,13 @@ export const InvoiceSummaryPanel = ({ invoiceItems, openDiscountModal }) => {
         <Price price={coverageDisplay} data-testid="translatedtext-qedx" />
       </Row>
       <Divider />
-      <SlidingFeeScaleSection openDiscountModal={openDiscountModal} />
+      <SlidingFeeScaleSection
+        openDiscountModal={openDiscountModal}
+        patientSubtotal={patientSubtotal}
+        discountTotal={discountTotal}
+        handleRemoveDiscount={handleRemoveDiscount}
+        discountPercentage={invoiceDiscount?.percentage}
+      />
       <TotalRow>
         <TranslatedText stringId="invoice.summary.patientTotal" fallback="Patient total due" />
         <Price price={patientTotal} data-testid="translatedtext-nst0" />

@@ -71,6 +71,10 @@ export const InvoiceForm = ({ invoice }) => {
     setDiscountModalOpen(false);
   };
 
+  const handleRemoveDiscount = () => {
+    updateInvoice({ ...invoice, discount: null });
+  };
+
   const handleShowErrorDialog = errors => {
     return Object.keys(errors).length === 1 && errors['totalInsurerPercentage'];
   };
@@ -152,7 +156,9 @@ export const InvoiceForm = ({ invoice }) => {
                         )}
                         <InvoiceSummaryPanel
                           invoiceItems={values.invoiceItems}
+                          invoiceDiscount={invoice.discount}
                           openDiscountModal={() => setDiscountModalOpen(true)}
+                          handleRemoveDiscount={handleRemoveDiscount}
                         />
                         <InvoiceDiscountModal
                           open={discountModalOpen}
