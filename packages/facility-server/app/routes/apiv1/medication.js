@@ -1730,27 +1730,36 @@ medication.get(
           association: 'pharmacyOrderPrescription',
           where: pharmacyOrderPrescriptionFilters,
           required: true,
-          attributes: ['id', 'prescriptionId', 'displayId'],
+          attributes: ['id', 'prescriptionId', 'displayId', 'quantity', 'repeats'],
           include: [
             {
               association: 'pharmacyOrder',
               where: { facilityId },
               include: [encounter],
               required: true,
-              attributes: ['id', 'facilityId', 'encounterId'],
+              attributes: ['id', 'facilityId', 'encounterId', 'isDischargePrescription'],
             },
             {
               association: 'prescription',
               where: prescriptionFilters,
-              attributes: ['id'],
+              attributes: ['id', 'units'],
               include: [
                 {
                   association: 'medication',
                   attributes: ['id', 'name', 'type'],
                   required: true,
                 },
+                {
+                  association: 'prescriber',
+                  attributes: ['id', 'displayName'],
+                },
               ],
               required: true,
+            },
+            {
+              association: 'medicationDispenses',
+              attributes: ['id'],
+              required: false,
             },
           ],
         },
@@ -1759,7 +1768,7 @@ medication.get(
           attributes: ['id', 'displayName'],
         },
       ],
-      attributes: ['id', 'quantity', 'dispensedAt', 'dispensedByUserId'],
+      attributes: ['id', 'quantity', 'dispensedAt', 'dispensedByUserId', 'instructions'],
       where: rootFilter,
       order: [
         [...orderBy.split('.'), orderDirection],
@@ -1790,7 +1799,13 @@ medication.get(
         p => p.id === item.pharmacyOrderPrescription.pharmacyOrder.encounter.patient.id,
       );
       item.pharmacyOrderPrescription.pharmacyOrder.encounter.patient.set(patient.toJSON());
-      return item;
+      return {
+        ...item.toJSON(),
+        pharmacyOrderPrescription: {
+          ...item.pharmacyOrderPrescription.toJSON(),
+          remainingRepeats: item.pharmacyOrderPrescription.remainingRepeats,
+        },
+      };
     });
 
     res.send({
