@@ -7,7 +7,6 @@ import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import { TASK_STATUSES, TASK_ACTIONS, TASK_DURATION_UNIT } from '@tamanu/constants';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { differenceInHours, parseISO, addMilliseconds, subMilliseconds } from 'date-fns';
-import { formatShortest, formatTime } from '@tamanu/utils/dateTime';
 
 import {
   BodyText,
@@ -24,6 +23,7 @@ import { TaskActionModal } from './TaskActionModal';
 import { useAuth } from '../../contexts/Auth';
 import ms from 'ms';
 import { useEncounter } from '../../contexts/Encounter';
+import { useFormatShortest, useFormatTime } from '@tamanu/ui-components';
 
 const StyledPriorityHighIcon = styled(PriorityHighIcon)`
   color: ${Colors.alert};
@@ -288,7 +288,7 @@ const getDueTime = ({ dueTime }) => {
   return (
     <div>
       <BodyText sx={{ textTransform: 'lowercase' }} data-testid="bodytext-24uw">
-        {formatTime(dueTime)}
+        <DateDisplay date={dueTime} showTime showDate={false} />
       </BodyText>
       <SmallBodyText color={Colors.midText} data-testid="smallbodytext-7kv1">
         <DateDisplay date={dueTime} shortYear />
@@ -320,59 +320,55 @@ const AssignedToCell = ({ designations }) => {
   );
 };
 
-const getFrequency = (task, isEncounterDischarged) => {
+const getEndDate = task => {
   const { frequencyValue, frequencyUnit, durationValue, durationUnit, parentTask } = task;
-  const isRepeatingTask = frequencyValue && frequencyUnit;
+  const firstTask = parentTask || task;
+  try {
+    const frequency = ms(`${frequencyValue} ${frequencyUnit}`);
+    let endDate = new Date(firstTask.dueTime);
 
-  const getDurationTooltip = () => {
-    // If no duration is set, task is ongoing
-    if (!durationValue || !durationUnit) {
-      return <TranslatedText stringId="encounter.tasks.table.ongoing" fallback="Ongoing" />;
-    }
-
-    // Calculate end date based on due time, frequency and duration
-    try {
-      const firstTask = parentTask || task;
-      const frequency = ms(`${frequencyValue} ${frequencyUnit}`);
-      let endDate = new Date(firstTask.dueTime);
-
-      switch (durationUnit) {
-        case TASK_DURATION_UNIT.OCCURRENCES:
-          endDate = addMilliseconds(endDate, frequency * (durationValue - 1));
-          break;
-        default: {
-          const duration = ms(`${durationValue} ${durationUnit}`);
-          endDate = addMilliseconds(endDate, duration);
-          let maxDate = new Date(firstTask.dueTime);
-          while (maxDate <= endDate) {
-            maxDate = addMilliseconds(maxDate, frequency);
-          }
-          endDate = subMilliseconds(maxDate, frequency);
-          break;
+    switch (durationUnit) {
+      case TASK_DURATION_UNIT.OCCURRENCES:
+        endDate = addMilliseconds(endDate, frequency * (durationValue - 1));
+        break;
+      default: {
+        const duration = ms(`${durationValue} ${durationUnit}`);
+        endDate = addMilliseconds(endDate, duration);
+        let maxDate = new Date(firstTask.dueTime);
+        while (maxDate <= endDate) {
+          maxDate = addMilliseconds(maxDate, frequency);
         }
+        endDate = subMilliseconds(maxDate, frequency);
+        break;
       }
-
-      return (
-        <TranslatedText
-          stringId="encounter.tasks.table.duration.endDate"
-          fallback={`Ends at :time on :date`}
-          replacements={{
-            time: formatTime(endDate)
-              .toLowerCase()
-              .replaceAll(' ', ''),
-            date: formatShortest(endDate),
-          }}
-        />
-      );
-    } catch (error) {
-      console.error('Error calculating task end date:', error);
-      return <TranslatedText stringId="encounter.tasks.table.ongoing" fallback="Ongoing" />;
     }
-  };
+    return endDate;
+  } catch (error) {
+    console.error('Error calculating task end date:', error);
+    return null;
+  }
+};
 
+const DurationTooltip = ({ endDate }) => {
+  const endDateDisplay = useFormatShortest(endDate);
+  const endTimeDisplay = useFormatTime(endDate, { removeWhitespace: true });
+  return (
+    <TranslatedText
+      stringId="encounter.tasks.table.duration.endDate"
+      fallback={`Ends at :time on :date`}
+      replacements={{ time: endTimeDisplay.toLowerCase(), date: endDateDisplay }}
+    />
+  );
+};
+
+const FrequencyCell = ({ task, isEncounterDischarged }) => {
+  const { frequencyValue, frequencyUnit } = task;
+  const isRepeatingTask = frequencyValue && frequencyUnit;
   if (isRepeatingTask) {
     return (
-      <TableTooltip title={isEncounterDischarged ? '' : getDurationTooltip()}>
+      <TableTooltip
+        title={isEncounterDischarged ? '' : <DurationTooltip endDate={getEndDate(task) || '-'} />}
+      >
         <span>{`${frequencyValue} ${frequencyUnit}${Number(frequencyValue) > 1 ? 's' : ''}`}</span>
       </TableTooltip>
     );
@@ -380,6 +376,7 @@ const getFrequency = (task, isEncounterDischarged) => {
 
   return <TranslatedText stringId="encounter.tasks.table.once" fallback="Once" />;
 };
+
 const getIsTaskOverdue = task => differenceInHours(new Date(), parseISO(task.dueTime)) >= 48;
 
 const ActionsRow = ({ row, rows, handleActionModalOpen }) => {
@@ -642,7 +639,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
         />
       ),
       maxWidth: 90,
-      accessor: task => getFrequency(task, !!encounter?.endDate),
+      accessor: task => <FrequencyCell task={task} isEncounterDischarged={!!encounter?.endDate} />,
       sortable: false,
     },
     {
