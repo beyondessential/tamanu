@@ -21,13 +21,13 @@ export const useAssetQuery = (assetName) => {
     isFetching: isAssetFetching,
     isFetched: assetFetched,
   } = useQuery({
-    queryKey: ['asset', assetName],
+    queryKey: ['asset', assetName, facilityId],
     queryFn: () => api.get(`asset/${assetName}`, { facilityId }),
     enabled: Boolean(assetName),
   });
 
   const { data: fallbackQueryData, isFetching: isFallbackFetching } = useQuery({
-    queryKey: ['asset', fallbackAssetName],
+    queryKey: ['asset', fallbackAssetName, facilityId],
     queryFn: () => api.get(`asset/${fallbackAssetName}`, { facilityId }),
     enabled: Boolean(fallbackAssetName) && assetFetched && !queryData?.data,
   });
