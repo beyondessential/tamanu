@@ -55,6 +55,8 @@ export class AutoDeleteMedicationRequests extends ScheduledTask {
         },
       ],
       where: {
+        // Only delete non-completed prescriptions with no dispenses
+        isCompleted: false,
         // Use a subquery to filter for prescriptions with no dispenses at the database level
         [Op.and]: [
           this.sequelize.literal(`(

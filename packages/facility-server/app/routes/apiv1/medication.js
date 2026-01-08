@@ -1610,7 +1610,7 @@ medication.get(
           required: true,
         },
       ],
-      where: rootFilter,
+      where: { ...rootFilter, isCompleted: false },
       order: buildOrder(),
       limit: rowsPerPage,
       offset: page * rowsPerPage,
@@ -1723,7 +1723,7 @@ medication.get(
       { key: 'dispensedByUserId', operator: Op.eq },
     ]);
 
-    // Query PharmacyOrderPrescription with all associations
+    // Query MedicationDispense with all associations
     const databaseResponse = await models.MedicationDispense.findAndCountAll({
       include: [
         {
@@ -1815,6 +1815,44 @@ medication.get(
   }),
 );
 
+medication.delete(
+  '/medication-dispenses/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { MedicationDispense } = models;
+
+    req.checkPermission('write', 'Medication');
+
+    const dispenseId = params.id;
+
+    const dispense = await MedicationDispense.findByPk(dispenseId, {
+      include: [
+        {
+          association: 'pharmacyOrderPrescription',
+          attributes: ['id', 'prescriptionId', 'isCompleted'],
+        },
+      ],
+    });
+
+    if (!dispense) {
+      throw new NotFoundError(`Medication dispense with id ${dispenseId} not found`);
+    }
+
+    await MedicationDispense.sequelize.transaction(async transaction => {
+      // Delete the dispense record
+      await dispense.destroy({ transaction });
+
+      // Restore the PharmacyOrderPrescription if it was completed
+      const pharmacyOrderPrescription = dispense.pharmacyOrderPrescription;
+      if (pharmacyOrderPrescription.isCompleted) {
+        await pharmacyOrderPrescription.update({ isCompleted: false });
+      }
+    });
+
+    res.send({ success: true });
+  }),
+);
+
 const dispensableMedicationsQuerySchema = z
   .object({
     patientId: z.uuid(),
@@ -1834,6 +1872,7 @@ medication.get(
     const { PharmacyOrderPrescription } = models;
 
     const pharmacyOrderPrescriptions = await PharmacyOrderPrescription.findAll({
+      where: { isCompleted: false },
       attributes: ['id', 'displayId', 'quantity', 'repeats'],
       include: [
         {
@@ -1908,7 +1947,7 @@ medication.get(
       count: pharmacyOrderPrescriptions.length,
       data: pharmacyOrderPrescriptions.map(pop => ({
         ...pop.toJSON(),
-        remainingRepeats: pop.remainingRepeats,
+        remainingRepeats: pop.getRemainingRepeats(),
         lastDispensedAt: pop.medicationDispenses?.sort(
           (a, b) => new Date(b.dispensedAt) - new Date(a.dispensedAt),
         )[0]?.dispensedAt,
@@ -2003,10 +2042,10 @@ medication.post(
       }
 
       const ineligibleRecords = prescriptionRecords.filter(record => {
-        const remainingRepeats = record.remainingRepeats;
+        const remainingRepeats = record.getRemainingRepeats();
         const hasDispenses = record.medicationDispenses?.length > 0;
         const isDischargePrescription = record.pharmacyOrder?.isDischargePrescription;
-        return remainingRepeats <= 0 && hasDispenses && !!isDischargePrescription;
+        return remainingRepeats === 0 && hasDispenses && !!isDischargePrescription;
       });
 
       if (ineligibleRecords.length > 0) {
@@ -2027,17 +2066,18 @@ medication.post(
       );
 
       // After dispensing, soft delete all ineligible pharmacy order prescriptions
-      const allIneligibleRecords = prescriptionRecords.filter(record => {
-        const remainingRepeats = record.remainingRepeats - 1;
+      const allCompletedRecords = prescriptionRecords.filter(record => {
+        const remainingRepeats = record.getRemainingRepeats(1);
         const isDischargePrescription = record.pharmacyOrder?.isDischargePrescription;
-        return remainingRepeats <= 0 && !!isDischargePrescription;
+        return remainingRepeats === 0 && !!isDischargePrescription;
       });
 
-      if (allIneligibleRecords.length > 0) {
-        const ineligibleIds = allIneligibleRecords.map(r => r.id);
-        await PharmacyOrderPrescription.destroy({
-          where: { id: ineligibleIds },
-        });
+      if (allCompletedRecords.length > 0) {
+        const completedIds = allCompletedRecords.map(r => r.id);
+        await PharmacyOrderPrescription.update(
+          { isCompleted: true },
+          { where: { id: { [Op.in]: completedIds } } },
+        );
       }
 
       return dispenseRecords;
