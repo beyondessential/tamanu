@@ -162,8 +162,8 @@ const Link = styled.div`
 
 const getFormattedBookingTime = ({ startTime, endTime }) =>
   <>
-    <DateDisplay date={startTime} showTime removeWhitespace /> -
-    <DateDisplay date={endTime} showTime removeWhitespace />
+    <DateDisplay date={startTime} showTime showDate={false} removeWhitespace /> -
+    <DateDisplay date={endTime} showTime showDate={false} removeWhitespace />
   </>;
 
 const BookingsTimelineItem = ({ appointment }) => {

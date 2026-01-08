@@ -19,10 +19,7 @@ import {
   getDateFromTimeString,
   getFirstAdministrationDate,
 } from '@tamanu/shared/utils/medication';
-import {
-  getCurrentDateString,
-  getCurrentDateTimeString,
-} from '@tamanu/utils/dateTime';
+import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { format, subSeconds } from 'date-fns';
 import { useFormikContext } from 'formik';
 import { toast } from 'react-toastify';
@@ -290,7 +287,13 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
 
     const firstSlot = findAdministrationTimeSlotFromIdealTime(firstStartTime).timeSlot;
 
-    return <> <DateDisplay date={getDateFromTimeString(firstSlot.startTime)} showDate={false} showTime /> - <DateDisplay date={getDateFromTimeString(firstSlot.endTime)} showDate={false} showTime /> <DateDisplay date={ new Date(firstStartTime)} /></>;
+    return (
+      <>
+        <DateDisplay date={getDateFromTimeString(firstSlot.startTime)} showDate={false} showTime />{' '}
+        - <DateDisplay date={getDateFromTimeString(firstSlot.endTime)} showDate={false} showTime />{' '}
+        <DateDisplay date={new Date(firstStartTime)} />
+      </>
+    );
   }, [values.startDate, selectedTimeSlots]);
 
   useEffect(() => {
@@ -451,7 +454,10 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
                     >
                       <CheckInput
                         label={
-                          <FieldContent><TimeSlotDisplay time={startTime} /> - <TimeSlotDisplay time={endTime} /></FieldContent>
+                          <FieldContent>
+                            <TimeSlotDisplay time={startTime} /> -{' '}
+                            <TimeSlotDisplay time={endTime} />
+                          </FieldContent>
                         }
                         value={checked}
                         onChange={(_, value) => handleSelectTimeSlot(value, slot, index)}

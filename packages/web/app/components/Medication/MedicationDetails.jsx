@@ -135,7 +135,12 @@ export const MedicationDetails = ({
       label: (
         <TranslatedText stringId="medication.details.startDate" fallback="Start date & time" />
       ),
-      value: <> <DateDisplay date={medication.startDate} shortYear /> <TimeSlotDisplay time={medication.startDate} /></>,
+      value: (
+        <>
+          <DateDisplay date={medication.startDate} shortYear />{' '}
+          <TimeSlotDisplay time={medication.startDate} />
+        </>
+      ),
     },
     ...(medication.isOngoing || medication.discontinued
       ? []
@@ -191,7 +196,13 @@ export const MedicationDetails = ({
             label: (
               <TranslatedText stringId="medication.details.endDate" fallback="End date & time" />
             ),
-            value: <> <DateDisplay date={medication.endDate} shortYear /> <TimeSlotDisplay time={medication.endDate} /></>,
+            value: (
+              <>
+                {' '}
+                <DateDisplay date={medication.endDate} shortYear />{' '}
+                <TimeSlotDisplay time={medication.endDate} />
+              </>
+            ),
           },
         ]),
     {
@@ -324,7 +335,8 @@ export const MedicationDetails = ({
                           pauseData.pauseDuration,
                         ).toLowerCase()}{' '}
                         - {<TranslatedText stringId="medication.details.until" fallback="until" />}{' '}
-                        <DateDisplay date={pauseData.pauseEndDate} shortYear /> <TimeSlotDisplay time={pauseData.pauseEndDate} />
+                        <DateDisplay date={pauseData.pauseEndDate} shortYear />{' '}
+                        <TimeSlotDisplay time={pauseData.pauseEndDate} />
                       </DarkestText>
                     </Box>
                     <Box flex={1} pl={2.5} borderLeft={`1px solid ${Colors.outline}`}>
@@ -466,7 +478,8 @@ export const MedicationDetails = ({
                         const slot = findAdministrationTimeSlotFromIdealTime(time).timeSlot;
                         return (
                           <DarkestText key={time}>
-                            <TimeSlotDisplay time={slot.startTime} /> - <TimeSlotDisplay time={slot.endTime} />
+                            <TimeSlotDisplay time={slot.startTime} /> -{' '}
+                            <TimeSlotDisplay time={slot.endTime} />
                           </DarkestText>
                         );
                       })}

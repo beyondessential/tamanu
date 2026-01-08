@@ -47,7 +47,7 @@ export const VersionInfo = ({ version }) => {
           data-testid="translatedtext-zhty"
         />
       }
-      value={<><DateDisplay date={version.createdAt} shortYear /> <DateDisplay date={version.createdAt} showTime /></>}
+      value={<><DateDisplay date={version.createdAt} shortYear /> <DateDisplay date={version.createdAt} showTime showDate={false} /></>}
       data-testid="infocarditem-fr79"
     />
     <InfoCardItem

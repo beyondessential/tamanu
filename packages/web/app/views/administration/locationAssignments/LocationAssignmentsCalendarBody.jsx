@@ -58,8 +58,8 @@ export const LocationAssignmentTile = ({ assignment, onClick }) => {
       data-testid="assignment-tile"
     >
       <AssignmentTimeRange data-testid="assignment-time">
-        <DateDisplay date={startTime} showTime style={{ textTransform: 'lowercase' }} /> -
-        <DateDisplay date={endTime} showTime style={{ textTransform: 'lowercase' }} />
+        <DateDisplay date={startTime} showTime showDate={false} style={{ textTransform: 'lowercase' }} /> -
+        <DateDisplay date={endTime} showTime showDate={false} style={{ textTransform: 'lowercase' }} />
       </AssignmentTimeRange>
       <AssignmentUser data-testid="assignment-user">
         {user?.displayName || 'Unknown User'}

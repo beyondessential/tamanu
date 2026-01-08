@@ -4,10 +4,10 @@ import { EditVitalCellForm } from '../forms/EditVitalCellForm';
 import { TranslatedReferenceData } from './Translation';
 import { DateDisplay } from '@tamanu/ui-components';
 
-export const EditVitalCellModal = ({ 
-  open, 
-  dataPoint, 
-  onClose, 
+export const EditVitalCellModal = ({
+  open,
+  dataPoint,
+  onClose,
   isVital = false,
   // Program registry context props (optional)
   programRegistryPatientId,
@@ -24,7 +24,8 @@ export const EditVitalCellModal = ({
   );
   const title = (
     <span>
-      {vitalLabel} | <DateDisplay date={dataPoint?.recordedDate} shortYear /> | <DateDisplay date={dataPoint?.recordedDate} showTime />
+      {vitalLabel} | <DateDisplay date={dataPoint?.recordedDate} shortYear /> |{' '}
+      <DateDisplay date={dataPoint?.recordedDate} showTime showDate={false} />
     </span>
   );
 

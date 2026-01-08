@@ -454,7 +454,7 @@ export const PatientMedicationPane = ({ patient }) => {
                   fallback="Discharged"
                 />
                 {': '}
-                <DateDisplay date={lastInpatientEncounter.endDate} />
+                <DateDisplay date={lastInpatientEncounter.endDate} shortYear />
               </DarkText>
             </Box>
           )}

@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { ConfirmCancelRow, TranslatedText, Modal } from '@tamanu/ui-components';
+import { ConfirmCancelRow, TranslatedText, Modal, DateDisplay } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
@@ -82,7 +82,7 @@ export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
   const getUserChanged = log => {
     return {
       name: log.changedByUser,
-      date: log.createdAt,
+      date: <><DateDisplay date={log.createdAt} shortYear /> <TimeSlotDisplay time={log.createdAt} /></>
     };
   };
 

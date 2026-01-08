@@ -182,7 +182,7 @@ const getStatus = row => {
 const getDueTime = ({ dueTime }) => {
   return (
     <DateWrapper data-testid="datewrapper-hd7h">
-      <BodyText data-testid="bodytext-fq9o"><DateDisplay date={dueTime} showTime /></BodyText>
+      <BodyText data-testid="bodytext-fq9o"><DateDisplay date={dueTime} showTime showDate={false} /></BodyText>
       <SmallBodyText color={Colors.midText} data-testid="smallbodytext-grca">
         <DateDisplay date={dueTime} shortYear />
       </SmallBodyText>
@@ -220,7 +220,7 @@ const getTaskName = ({ name, requestedBy, requestTime, highPriority, taskType })
           <div>{taskName()}</div>
           <div>{requestedBy?.displayName}</div>
           <Box sx={{ textTransform: 'lowercase' }} data-testid="box-mkj4">
-            <DateDisplay date={requestTime} shortYear /> <DateDisplay date={requestTime} showTime />
+            <DateDisplay date={requestTime} shortYear /> <DateDisplay date={requestTime} showTime showDate={false} />
           </Box>
         </TooltipContainer>
       }

@@ -203,7 +203,8 @@ const Card = ({ notification }) => {
           data-testid="bodytext-xa84"
         />
         <CardDatetime data-testid="carddatetime-vyqg">
-          <DateDisplay date={createdTime} showTime removeWhitespace /> <DateDisplay date={createdTime} shortYear />
+          <DateDisplay date={createdTime} showDate={false} showTime removeWhitespace />{' '}
+          <DateDisplay date={createdTime} shortYear />
         </CardDatetime>
       </Box>
     </CardContainer>

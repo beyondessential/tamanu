@@ -47,7 +47,7 @@ const ReportStatusTag = ({ status }) => {
 
 const getDateTime = (value) => {
   if (!value) return '-';
-  return <> <DateDisplay date={value} showDate /> <DateDisplay date={value} showTime /></>;
+  return <><DateDisplay date={value} showDate /> <DateDisplay date={value} showTime /></>;
 };
 
 export const ReportTable = React.memo(({ data, selected, onRowClick, loading, error }) => {

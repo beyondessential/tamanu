@@ -227,8 +227,12 @@ const getCompletedTooltipText = ({ completedBy, completedTime, completedNote }) 
     />
     <div>{completedBy.displayName}</div>
     <div>
-      <span color={Colors.midText}><DateDisplay date={completedTime} shortYear /> </span>
-      <LowercaseText data-testid="lowercasetext-5r41"><DateDisplay date={completedTime} showTime /></LowercaseText>
+      <span color={Colors.midText}>
+        <DateDisplay date={completedTime} shortYear />{' '}
+      </span>
+      <LowercaseText data-testid="lowercasetext-5r41">
+        <DateDisplay date={completedTime} showTime showDate={false} />
+      </LowercaseText>
     </div>
     <div>{completedNote}</div>
   </StatusTooltip>
@@ -243,8 +247,12 @@ const getNotCompletedTooltipText = ({ notCompletedBy, notCompletedTime, notCompl
     />
     <div>{notCompletedBy.displayName}</div>
     <div>
-      <span color={Colors.midText}><DateDisplay date={notCompletedTime} shortYear /> </span>
-      <LowercaseText data-testid="lowercasetext-w9wo"><DateDisplay date={notCompletedTime} showTime /></LowercaseText>
+      <span color={Colors.midText}>
+        <DateDisplay date={notCompletedTime} shortYear />{' '}
+      </span>
+      <LowercaseText data-testid="lowercasetext-w9wo">
+        <DateDisplay date={notCompletedTime} showTime showDate={false} />
+      </LowercaseText>
     </div>
     <div>{notCompletedReason?.name}</div>
   </StatusTooltip>
@@ -506,7 +514,8 @@ const getTask = ({ name, requestedBy, requestTime, highPriority }) => (
         <div>{name}</div>
         <div>{requestedBy.displayName}</div>
         <Box sx={{ textTransform: 'lowercase' }} data-testid="box-fmnt">
-          <DateDisplay date={requestTime} shortYear /> <DateDisplay date={requestTime} showTime />
+          <DateDisplay date={requestTime} shortYear />{' '}
+          <DateDisplay date={requestTime} showTime showDate={false} />
         </Box>
       </TooltipContainer>
     }

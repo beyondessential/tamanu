@@ -104,8 +104,8 @@ const DateTooltip = ({ date, rawDate, children, timeOnlyTooltip, timeZone, count
   };
 
   const dateTooltip = timeOnlyTooltip
-    ? formatTime(date, countryTimeZone, timeZone)
-    : formatLong(date, countryTimeZone, timeZone);
+    ? <DateDisplay date={date} showTime showDate={false} />
+    : <DateDisplay date={date} showDate showTime />;
 
   const tooltipTitle = debug ? (
     <DiagnosticInfo
@@ -147,6 +147,7 @@ export const useDateDisplay = (
     showExplicitDate = false,
     shortYear = false,
     removeWhitespace = false,
+    includeSeconds = false,
   } = {},
 ) => {
   const { timeZone, countryTimeZone } = useTimeZone();
@@ -167,7 +168,11 @@ export const useDateDisplay = (
     }
   }
   if (showTime) {
-    parts.push(formatTime(dateObj, countryTimeZone, timeZone, { removeWhitespace }));
+    if (includeSeconds) {
+      parts.push(formatTimeWithSeconds(dateObj, countryTimeZone, timeZone));
+    } else {
+      parts.push(formatTime(dateObj, countryTimeZone, timeZone, { removeWhitespace }));
+    }
   }
 
   return parts.join(' ');

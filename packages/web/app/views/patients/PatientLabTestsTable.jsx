@@ -106,7 +106,7 @@ const StyledButton = styled(Button)`
 
 const getTitle = value => (
   <>
-    <DateDisplay date={value} showDate /> <DateDisplay date={value} showTime />
+    <DateDisplay date={value} /> <DateDisplay date={value} showTime showDate={false} includeSeconds />
   </>
 );
 
