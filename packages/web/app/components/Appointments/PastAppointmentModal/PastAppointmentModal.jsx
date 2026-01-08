@@ -110,7 +110,7 @@ const StatusBadge = styled.div`
 
 const getDate = ({ startTime }) => (
   <LowercaseText data-testid="lowercasetext-gcnv">
-    <DateDisplay date={startTime} shortYear /> <DateDisplay date={startTime} showTime removeWhitespace />
+    <DateDisplay date={startTime} shortYear /> <DateDisplay date={startTime} showTime showDate={false} removeWhitespace />
   </LowercaseText>
 );
 

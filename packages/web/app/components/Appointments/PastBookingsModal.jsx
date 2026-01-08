@@ -134,7 +134,7 @@ const DateCell = ({ startTime, endTime }) => {
           ) : (
             <div>
               <div><DateDisplay date={startTime} shortYear /></div>
-              <div><DateDisplay date={startTime} showTime /> - <DateDisplay date={endTime} showTime /></div>
+              <div><DateDisplay date={startTime} showTime showDate={false} /> - <DateDisplay date={endTime} showTime showDate={false} /></div>
             </div>
           )}
         </Box>
@@ -143,7 +143,7 @@ const DateCell = ({ startTime, endTime }) => {
     >
       <DateText data-testid="datetext-z14b">
         {!isOvernight
-          ? <><DateDisplay date={startTime} shortYear /> <DateDisplay date={startTime} showTime /> - <DateDisplay date={endTime} showTime /></>
+          ? <><DateDisplay date={startTime} shortYear /> <DateDisplay date={startTime} showTime showDate={false} /> - <DateDisplay date={endTime} showTime showDate={false} /></>
           : <><DateDisplay date={startTime} shortYear /> - <DateDisplay date={endTime} shortYear /></>}
         {isOvernight && (
           <OvernightIcon data-testid="overnighticon-2qtt">
