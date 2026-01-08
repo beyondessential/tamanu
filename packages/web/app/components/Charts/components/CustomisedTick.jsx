@@ -29,7 +29,7 @@ export const CustomisedXAxisTick = (props) => {
         fill={Colors.midText}
         data-testid="text-cydx"
       >
-        <DateDisplay date={date} showTime removeWhitespace />
+        <DateDisplay date={date} showTime showDate={false} removeWhitespace />
       </Text>
     </g>
   );

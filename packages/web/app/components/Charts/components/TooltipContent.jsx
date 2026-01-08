@@ -38,7 +38,7 @@ const CustomDotWrapper = styled.div`
 const DateTimeHeader = ({ name }) => {
   return (
     <span>
-      <DateDisplay date={name} shortYear /> <TimeText data-testid="timetext-356k"><DateDisplay date={name} showTime /></TimeText>
+      <DateDisplay date={name} shortYear /> <TimeText data-testid="timetext-356k"><DateDisplay date={name} showTime showDate={false} /></TimeText>
     </span>
   );
 };
