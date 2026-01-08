@@ -92,10 +92,15 @@ export class UserLoginAttempt extends Model {
       SETTING_KEYS.SECURITY_LOGIN_ATTEMPTS as SettingPath,
     )) as { lockoutThreshold: number; observationWindow: number; lockoutDuration: number };
 
+    // If the deviceId is not found, we will use null for the deviceId to avoid
+    // credential stuffing from unregistered devices.
+    const device = await this.sequelize.models.Device.findByPk(deviceId);
+    const deviceIdToUse = device ? deviceId : null;
+
     const failedAttempts = (await this.count({
       where: {
         userId,
-        deviceId,
+        deviceId: deviceIdToUse,
         outcome: LOGIN_ATTEMPT_OUTCOMES.FAILED,
         createdAt: {
           [Op.gte]: Sequelize.literal(
@@ -116,7 +121,7 @@ export class UserLoginAttempt extends Model {
     try {
       loginAttempt = await this.create({
         userId,
-        deviceId,
+        deviceId: deviceIdToUse,
         outcome,
       });
     } catch (error) {
