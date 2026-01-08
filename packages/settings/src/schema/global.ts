@@ -370,6 +370,11 @@ export const globalSettings = {
               type: yup.boolean(),
               defaultValue: false,
             },
+            slidingFeeScale: {
+              description: 'This setting allows sliding fee scale to be applied to invoices.',
+              type: yup.boolean(),
+              defaultValue: true,
+            },
           },
         },
         labRequest: {

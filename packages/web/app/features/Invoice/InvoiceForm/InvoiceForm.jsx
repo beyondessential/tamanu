@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { Plus } from 'lucide-react';
@@ -14,6 +14,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { invoiceFormSchema } from './invoiceFormSchema';
 import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
+import { InvoiceDiscountModal } from '../InvoiceDiscountModal/InvoiceDiscountModal.jsx';
 
 const AddButton = styled(MuiButton)`
   font-size: 14px;
@@ -47,6 +48,7 @@ const FormFooter = styled.div`
 const getDefaultRow = () => ({ id: uuidv4(), quantity: 1, orderDate: getCurrentDateString() });
 
 export const InvoiceForm = ({ invoice }) => {
+  const [discountModalOpen, setDiscountModalOpen] = useState(false);
   const { ability } = useAuth();
   const canWriteInvoice = ability.can('write', 'Invoice');
   const editable = isInvoiceEditable(invoice) && canWriteInvoice;
@@ -62,6 +64,11 @@ export const InvoiceForm = ({ invoice }) => {
         percentage: insurer.percentage / 100,
       })),
     });
+  };
+
+  const handleUpdateDiscount = discountData => {
+    updateInvoice({ ...invoice, discount: discountData });
+    setDiscountModalOpen(false);
   };
 
   const handleShowErrorDialog = errors => {
@@ -143,7 +150,15 @@ export const InvoiceForm = ({ invoice }) => {
                             </SubmitButton>
                           </Box>
                         )}
-                        <InvoiceSummaryPanel invoiceItems={values.invoiceItems} />
+                        <InvoiceSummaryPanel
+                          invoiceItems={values.invoiceItems}
+                          openDiscountModal={() => setDiscountModalOpen(true)}
+                        />
+                        <InvoiceDiscountModal
+                          open={discountModalOpen}
+                          onClose={() => setDiscountModalOpen(false)}
+                          handleUpdateDiscount={handleUpdateDiscount}
+                        />
                       </Box>
                     </FormFooter>
                   )}
