@@ -2,7 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
-import { parseISO } from 'date-fns';
+import { isSameDay, parseISO } from 'date-fns';
 
 import {
   APPOINTMENT_STATUSES,
@@ -35,6 +35,7 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
   const startTimeDate = useFormatShortest(startTime);
   const endTimeDate = useFormatShortest(endTime);
   const repeatEndDate = useFormatShortest(schedule?.untilDate);
+  const doesSpanMultipleDays = !isSameDay(parseISO(startTime), parseISO(endTime));
   const {
     patient,
     startTime,
@@ -67,7 +68,7 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
               data-testid="translatedtext-oej8"
             />
           }
-          value={<><DateDisplay date={startTimeDate} shortYear /> - <DateDisplay date={endTimeDate} shortYear /></>}
+          value={<><DateDisplay date={startTimeDate} shortYear /> - <DateDisplay date={endTimeDate} showDate={doesSpanMultipleDays} shortYear /></>}
           data-testid="detaildisplay-l5s4"
         />
         <DetailDisplay
