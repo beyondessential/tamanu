@@ -46,7 +46,37 @@ const FormFooter = styled.div`
 
 const getDefaultRow = () => ({ id: uuidv4(), quantity: 1, orderDate: getCurrentDateString() });
 
-export const InvoiceForm = ({ invoice }) => {
+const EditItemsActions = ({ handleSubmit, handleCancel, isDisabled }) => (
+  <Box textAlign="right" mb={1}>
+    <FormCancelButton style={{ marginRight: 8 }} onClick={handleCancel}>
+      Cancel
+    </FormCancelButton>
+    <SubmitButton onSubmit={handleSubmit} disabled={isDisabled}>
+      <TranslatedText
+        stringId="invoice.form.action.save"
+        fallback="Save item/s"
+        data-testid="translatedtext-26ji"
+      />
+    </SubmitButton>
+  </Box>
+);
+
+const AddItemsActions = ({ handleSubmit, handleCancel, isDisabled }) => (
+  <Box textAlign="right" mb={1}>
+    <FormCancelButton style={{ marginRight: 8 }} onClick={handleCancel}>
+      Cancel
+    </FormCancelButton>
+    <SubmitButton onSubmit={handleSubmit} disabled={isDisabled}>
+      <TranslatedText
+        stringId="invoice.form.action.save"
+        fallback="Save item/s"
+        data-testid="translatedtext-26ji"
+      />
+    </SubmitButton>
+  </Box>
+);
+
+export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
   const { ability } = useAuth();
   const canWriteInvoice = ability.can('write', 'Invoice');
   const editable = isInvoiceEditable(invoice) && canWriteInvoice;
@@ -62,6 +92,7 @@ export const InvoiceForm = ({ invoice }) => {
         percentage: insurer.percentage / 100,
       })),
     });
+    setIsEditing(false);
   };
 
   const handleShowErrorDialog = errors => {
@@ -103,6 +134,7 @@ export const InvoiceForm = ({ invoice }) => {
                           showActionMenu={item.productId || values.invoiceItems.length > 1}
                           formArrayMethods={formArrayMethods}
                           invoiceIsEditable={editable && canWriteInvoice}
+                          isEditing={isEditing}
                           data-testid={`invoiceitemrow-ri5o-${index}`}
                         />
                       );
@@ -124,24 +156,19 @@ export const InvoiceForm = ({ invoice }) => {
                         </AddButton>
                       </Box>
                       <Box>
-                        {dirty && (
-                          <Box textAlign="right" mb={1}>
-                            <FormCancelButton
-                              style={{ marginRight: 8 }}
-                              onClick={() => {
-                                resetForm();
-                              }}
-                            >
-                              Cancel
-                            </FormCancelButton>
-                            <SubmitButton onSubmit={submitForm} disabled={isUpdatingInvoice}>
-                              <TranslatedText
-                                stringId="invoice.form.action.save"
-                                fallback="Save item/s"
-                                data-testid="translatedtext-26ji"
-                              />
-                            </SubmitButton>
-                          </Box>
+                        {!isEditing && dirty && (
+                          <AddItemsActions
+                            handleSubmit={submitForm}
+                            handleCancel={resetForm}
+                            isDisabled={isUpdatingInvoice}
+                          />
+                        )}
+                        {isEditing && (
+                          <EditItemsActions
+                            handleSubmit={submitForm}
+                            handleCancel={() => setIsEditing(false)}
+                            isDisabled={isUpdatingInvoice}
+                          />
                         )}
                         <InvoiceSummaryPanel invoiceItems={values.invoiceItems} />
                       </Box>

@@ -118,9 +118,10 @@ export const InvoiceItemRow = ({
   invoiceIsEditable,
   encounterId,
   priceListId,
+  isEditing,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const isItemEditable = !item.product?.id && invoiceIsEditable;
+  const isItemEditable = (!item.product?.id && invoiceIsEditable) || isEditing;
 
   const invoiceProductsSuggester = useSuggester('invoiceProduct', {
     formatter: ({ name, id }) => ({

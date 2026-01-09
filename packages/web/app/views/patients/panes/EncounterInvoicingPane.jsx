@@ -86,6 +86,7 @@ const PaymentsSection = styled.div`
 
 export const EncounterInvoicingPane = ({ encounter }) => {
   const { ability } = useAuth();
+  const [isEditing, setEditing] = useState(false);
   const [invoiceModalType, setInvoiceModalType] = useState(null);
   const { data: invoice, isLoading } = useEncounterInvoiceQuery(encounter.id);
   const { data: patient } = usePatientDataQuery(encounter.patientId);
@@ -161,6 +162,16 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                       {
                         label: (
                           <TranslatedText
+                            stringId="invoice.modal.editInvoice.editItems"
+                            fallback="Edit items"
+                            data-testid="edit-invoice-items-n7tk"
+                          />
+                        ),
+                        onClick: () => setEditing(true),
+                      },
+                      {
+                        label: (
+                          <TranslatedText
                             stringId="invoice.modal.editInvoice.cancelInvoice"
                             fallback="Cancel invoice"
                             data-testid="translatedtext-n7tk"
@@ -214,7 +225,12 @@ export const EncounterInvoicingPane = ({ encounter }) => {
               </PrintButton>
             )}
           </InvoiceTopBar>
-          <InvoiceForm invoice={invoice} isPatientView={false} />
+          <InvoiceForm
+            invoice={invoice}
+            isPatientView={false}
+            isEditing={isEditing}
+            setIsEditing={setEditing}
+          />
           {invoice.status !== INVOICE_STATUSES.IN_PROGRESS && (
             <PaymentsSection>
               <PatientPaymentsTable invoice={invoice} />
