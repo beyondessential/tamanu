@@ -518,7 +518,6 @@ export const MedicationDetails = ({
                         !canDiscontinueMedication ||
                         (isSensitive && !canWriteSensitiveMedication) ||
                         medication.discontinued ||
-                        isOngoingPrescription ||
                         isPausing
                       }
                     />
@@ -586,7 +585,7 @@ export const MedicationDetails = ({
                         ))}
                     </Box>
                   )}
-                  {isPausing || isOngoingPrescription || !canCreateMedicationPharmacyNote ? (
+                  {isPausing || !canCreateMedicationPharmacyNote ? (
                     <Button onClick={onClose}>
                       <TranslatedText stringId="general.action.close" fallback="Close" />
                     </Button>
