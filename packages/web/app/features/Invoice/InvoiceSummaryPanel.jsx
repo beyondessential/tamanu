@@ -2,10 +2,10 @@ import React from 'react';
 import styled from 'styled-components';
 import { Divider, Button } from '@material-ui/core';
 import { getInvoiceSummary } from '@tamanu/shared/utils/invoice';
+import { useSettings } from '@tamanu/ui-components';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../../components/Translation';
 import { Price } from './Price';
-import { useSettings } from '@tamanu/ui-components';
 
 const Container = styled.div`
   align-self: start;
@@ -76,7 +76,7 @@ const SlidingFeeScaleSection = ({
             stringId="invoice.summary.feeScaleAdjustment"
             fallback="Fee scale adjustment"
           />
-          {discountPercentage && <span> - {discountPercentage * 10}%</span>}
+          {discountPercentage && ` - ${discountPercentage * 100}%`}
         </span>
         <Price price={discountDisplay} data-testid="fee-scale-adjustment" />
       </Row>
