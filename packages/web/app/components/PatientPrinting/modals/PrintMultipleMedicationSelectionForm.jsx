@@ -24,11 +24,14 @@ import { TranslatedText, TranslatedReferenceData } from '../../Translation';
 import { useTranslation } from '../../../contexts/Translation';
 import { useSelector } from 'react-redux';
 import { getAgeDurationFromDate } from '@tamanu/utils/date';
+import { singularize } from '../../../utils';
+import { MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
 
 const COLUMN_KEYS = {
   SELECTED: 'selected',
   DATE: 'date',
   MEDICATION: 'medication',
+  DURATION: 'duration',
   QUANTITY: 'quantity',
   REPEATS: 'repeats',
 };
@@ -67,13 +70,28 @@ const COLUMNS = [
     ),
   },
   {
-    key: COLUMN_KEYS.QUANTITY,
+    key: COLUMN_KEYS.DURATION,
     title: (
       <TranslatedText
-        stringId="medication.modal.printMultiple.table.column.quantity"
-        fallback="Quantity"
-        data-testid="translatedtext-3j93"
+        stringId="medication.modal.printMultiple.table.column.duration"
+        fallback="Duration"
+        data-testid="translatedtext-duration"
       />
+    ),
+    sortable: false,
+    accessor: ({ durationDisplay }) => durationDisplay,
+  },
+  {
+    key: COLUMN_KEYS.QUANTITY,
+    title: (
+      <span>
+        <TranslatedText
+          stringId="medication.modal.printMultiple.table.column.quantity"
+          fallback="Quantity"
+          data-testid="translatedtext-3j93"
+        />
+        <span style={{ color: Colors.alert }}> *</span>
+      </span>
     ),
     sortable: false,
     maxWidth: 70,
@@ -82,11 +100,12 @@ const COLUMNS = [
         type="number"
         InputProps={{
           inputProps: {
-            min: 0,
+            min: 1,
           },
         }}
         value={quantity}
         onChange={onChange}
+        required
         data-testid="textinput-rxbh"
       />
     ),
@@ -151,7 +170,7 @@ const HorizontalDivider = styled(Divider)`
 
 export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onClose }) => {
   const { ability, currentUser } = useAuth();
-  const { getTranslation } = useTranslation();
+  const { getTranslation, getEnumTranslation } = useTranslation();
   const weightUnit = getTranslation('general.localisedField.weightUnit.label', 'kg');
   const [openPrintoutModal, setOpenPrintoutModal] = useState(false);
 
@@ -167,11 +186,35 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
   const canWriteSensitiveMedication = ability.can('write', 'SensitiveMedication');
   const defaultMedicationData = useMemo(
     () =>
-      data?.data.filter(m => {
-        const isSensitive = m.medication?.referenceDrug?.isSensitive;
-        return !m.discontinued && (!isSensitive || canWriteSensitiveMedication);
-      }) || [],
-    [data, canWriteSensitiveMedication],
+      data?.data
+        .filter(m => {
+          const isSensitive = m.medication?.referenceDrug?.isSensitive;
+          return !m.discontinued && (!isSensitive || canWriteSensitiveMedication);
+        })
+        .map(m => {
+          let durationDisplay = '-';
+          if (m.isOngoing) {
+            durationDisplay = (
+              <TranslatedText
+                stringId="medication.table.ongoing"
+                fallback="Ongoing"
+                data-testid="translatedtext-ongoing"
+              />
+            );
+          } else if (m.durationValue) {
+            durationDisplay = `${m.durationValue} ${singularize(
+              getEnumTranslation(MEDICATION_DURATION_DISPLAY_UNITS_LABELS, m.durationUnit),
+              m.durationValue,
+            ).toLowerCase()}`;
+          }
+          return {
+            ...m,
+            quantity: m.quantity ?? '',
+            repeats: m.repeats ?? 0,
+            durationDisplay,
+          };
+        }) || [],
+    [data, canWriteSensitiveMedication, getEnumTranslation],
   );
   const [medicationData, setMedicationData] = useState(defaultMedicationData);
 
@@ -206,11 +249,16 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
     [medicationData],
   );
 
+  const hasValidQuantity = useMemo(() => {
+    const selectedMedications = intersectionBy(medicationData, selectedRows, 'id');
+    return selectedMedications.every(m => m.quantity && Number(m.quantity) >= 1);
+  }, [medicationData, selectedRows]);
+
   const handlePrintConfirm = useCallback(() => {
-    if (selectedRows.length > 0 && prescriberSelected) {
+    if (selectedRows.length > 0 && prescriberSelected && hasValidQuantity) {
       setOpenPrintoutModal(true);
     }
-  }, [prescriberSelected, selectedRows]);
+  }, [prescriberSelected, selectedRows, hasValidQuantity]);
 
   return (
     <>
@@ -327,7 +375,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
             data-testid="translatedtext-ojsa"
           />
         }
-        confirmDisabled={!selectedRows.length}
+        confirmDisabled={!selectedRows.length || !prescriberSelected || !hasValidQuantity}
         onConfirm={handlePrintConfirm}
         onCancel={onClose}
         data-testid="confirmcancelrow-9lo1"
