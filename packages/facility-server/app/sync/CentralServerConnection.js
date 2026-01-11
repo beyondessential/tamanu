@@ -54,7 +54,7 @@ export class CentralServerConnection extends TamanuApi {
     }
 
     if (retryAuth && !this.hasToken()) {
-      await this.connect();
+      await this.connect(options.preserveBackoffForAuthAttempt ? options.backoff : undefined);
     }
 
     try {
