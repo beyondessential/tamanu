@@ -42,7 +42,6 @@ const PATIENT_MOVE_ACTIONS = {
   FINALISE: 'finalise',
 };
 
-
 const SectionHeading = styled(Heading3)`
   color: ${TAMANU_COLORS.darkestText};
   margin: 10px 0;
@@ -309,7 +308,7 @@ const HospitalAdmissionFields = () => {
       </SectionDescription>
       <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
         <Field
-          name="startTime"
+          name="startDate"
           component={DateTimeField}
           label={
             <TranslatedText
