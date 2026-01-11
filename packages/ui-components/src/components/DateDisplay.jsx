@@ -16,7 +16,7 @@ import {
 } from '@tamanu/utils/dateTime';
 import { TAMANU_COLORS } from '../constants';
 import { ThemedTooltip } from './Tooltip';
-import { useSettings } from '../contexts';
+import { useDateTimeFormat } from '../contexts';
 
 const Text = styled(Typography)`
   font-size: inherit;
@@ -104,9 +104,11 @@ const DateTooltip = ({ date, rawDate, children, timeOnlyTooltip, timeZone, count
     setDebug(false);
   };
 
-  const dateTooltip = timeOnlyTooltip
-    ? <DateDisplay date={date} showTime showDate={false} />
-    : <DateDisplay date={date} showDate showTime />;
+  const dateTooltip = timeOnlyTooltip ? (
+    <DateDisplay date={date} showTime showDate={false} />
+  ) : (
+    <DateDisplay date={date} showDate showTime />
+  );
 
   const tooltipTitle = debug ? (
     <DiagnosticInfo
@@ -133,12 +135,6 @@ const DateTooltip = ({ date, rawDate, children, timeOnlyTooltip, timeZone, count
   );
 };
 
-const useTimeZone = () => {
-  const { getSetting } = useSettings();
-  const timeZone = getSetting('timeZone');
-  const countryTimeZone = 'Pacific/Auckland';
-  return { timeZone, countryTimeZone };
-};
 
 export const useDateDisplay = (
   dateValue,
@@ -152,31 +148,39 @@ export const useDateDisplay = (
     includeSeconds = false,
   } = {},
 ) => {
-  const { timeZone, countryTimeZone } = useTimeZone();
+  const {
+    formatWeekdayShort,
+    formatShortest,
+    formatShort,
+    formatShortestExplicit,
+    formatShortExplicit,
+    formatTimeWithSeconds,
+    formatTime,
+  } = useDateTimeFormat();
   const dateObj = parseDate(dateValue);
 
   const parts = [];
   if (showWeekday) {
-    parts.push(formatWeekdayShort(dateObj, countryTimeZone, timeZone));
+    parts.push(formatWeekdayShort(dateObj));
   }
   if (showDate) {
     if (shortYear) {
-      parts.push(formatShortest(dateObj, countryTimeZone, timeZone));
+      parts.push(formatShortest(dateObj));
     } else {
-      parts.push(formatShort(dateObj, countryTimeZone, timeZone));
+      parts.push(formatShort(dateObj));
     }
   } else if (showExplicitDate) {
     if (shortYear) {
-      parts.push(formatShortestExplicit(dateObj, countryTimeZone, timeZone));
+      parts.push(formatShortestExplicit(dateObj));
     } else {
-      parts.push(formatShortExplicit(dateObj, countryTimeZone, timeZone));
+      parts.push(formatShortExplicit(dateObj));
     }
   }
   if (showTime) {
     if (includeSeconds) {
-      parts.push(formatTimeWithSeconds(dateObj, countryTimeZone, timeZone));
+      parts.push(formatTimeWithSeconds(dateObj));
     } else {
-      parts.push(formatTime(dateObj, countryTimeZone, timeZone, { removeWhitespace }));
+      parts.push(formatTime(dateObj, { removeWhitespace }));
     }
   }
 
@@ -246,46 +250,6 @@ const VALID_FORMAT_FUNCTIONS = [
   formatLong,
   formatWeekdayShort,
 ];
-
-export const useFormatShortest = date => {
-  const { timeZone, countryTimeZone } = useTimeZone();
-  return formatShortest(date, countryTimeZone, timeZone);
-};
-
-export const useFormatShort = date => {
-  const { timeZone, countryTimeZone } = useTimeZone();
-  return formatShort(date, countryTimeZone, timeZone);
-};
-
-export const useFormatTime = (date, options) => {
-  const { timeZone, countryTimeZone } = useTimeZone();
-  return formatTime(date, countryTimeZone, timeZone, options);
-};
-
-export const useFormatTimeWithSeconds = date => {
-  const { timeZone, countryTimeZone } = useTimeZone();
-  return formatTimeWithSeconds(date, countryTimeZone, timeZone);
-};
-
-export const useFormatShortExplicit = date => {
-  const { timeZone, countryTimeZone } = useTimeZone();
-  return formatShortExplicit(date, countryTimeZone, timeZone);
-};
-
-export const useFormatShortestExplicit = date => {
-  const { timeZone, countryTimeZone } = useTimeZone();
-  return formatShortestExplicit(date, countryTimeZone, timeZone);
-};
-
-export const useFormatLong = date => {
-  const { timeZone, countryTimeZone } = useTimeZone();
-  return formatLong(date, countryTimeZone, timeZone);
-};
-
-export const useFormatWeekdayShort = date => {
-  const { timeZone, countryTimeZone } = useTimeZone();
-  return formatWeekdayShort(date, countryTimeZone, timeZone);
-};
 
 DateDisplay.stringFormat = (dateValue, formatFn = formatShort) => {
   if (VALID_FORMAT_FUNCTIONS.includes(formatFn) === false) {

@@ -389,6 +389,7 @@ export const checkMandatory = (mandatory, values) => {
   }
 };
 
+/* TODO date display todo */
 export const getPatientDataDisplayValue = async ({
   api,
   getEnumTranslation,

@@ -9,7 +9,7 @@ import MuiLatestThemeProvider from '@mui/material/styles/ThemeProvider';
 import { LocalizationProvider as MuiLocalisationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Slide } from 'react-toastify';
-import { ApiContext, CustomToastContainer } from '@tamanu/ui-components';
+import { ApiContext, CustomToastContainer, DateTimeProvider } from '@tamanu/ui-components';
 import { RoutingApp } from './RoutingApp';
 import { theme } from './theme';
 import { GlobalStyles } from './constants';
@@ -36,15 +36,17 @@ const StateContextProviders = ({ children, store }) => (
           <LabRequestProvider store={store}>
             <PatientSearchProvider>
               <SettingsProvider>
-                <SyncStateProvider>
-                  <TranslationProvider>
-                    <LocalisationProvider store={store}>
-                      <AuthProvider>
-                        <NoteModalProvider>{children}</NoteModalProvider>
-                      </AuthProvider>
-                    </LocalisationProvider>
-                  </TranslationProvider>
-                </SyncStateProvider>
+                <DateTimeProvider>
+                  <SyncStateProvider>
+                    <TranslationProvider>
+                      <LocalisationProvider store={store}>
+                        <AuthProvider>
+                          <NoteModalProvider>{children}</NoteModalProvider>
+                        </AuthProvider>
+                      </LocalisationProvider>
+                    </TranslationProvider>
+                  </SyncStateProvider>
+                </DateTimeProvider>
               </SettingsProvider>
             </PatientSearchProvider>
           </LabRequestProvider>
