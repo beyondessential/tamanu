@@ -7,6 +7,7 @@ import {
   findAdministrationTimeSlotFromIdealTime,
 } from '@tamanu/shared/utils/medication';
 import { toDateString } from '@tamanu/utils/dateTime';
+import { DateDisplay } from '@tamanu/ui-components';
 
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../..';
@@ -151,10 +152,6 @@ const LoadingContainer = styled.div`
   height: 42px;
 `;
 
-const formatTime = time => {
-  return format(time, 'ha').toLowerCase();
-};
-
 const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate }) => {
   const startDate = getDateFromTimeString(startTime).getTime();
   const endDate = getDateFromTimeString(endTime).getTime();
@@ -165,7 +162,22 @@ const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate }) => {
     <TimeSlotHeaderContainer isCurrentTimeSlot={isCurrentTimeSlot}>
       <TimeSlotText>
         <TimeSlotLabel>{periodLabel || ''}</TimeSlotLabel>
-        <div>{`${formatTime(startDate)} - ${formatTime(endDate)}`}</div>
+        <div>
+          {/* TODO: Check format(date, 'ha') */}
+          <DateDisplay
+            date={startDate}
+            showTime
+            showDate={false}
+            style={{ textTransform: 'lowercase' }}
+          />{' '}
+          -{' '}
+          <DateDisplay
+            date={endDate}
+            showTime
+            showDate={false}
+            style={{ textTransform: 'lowercase' }}
+          />
+        </div>
       </TimeSlotText>
     </TimeSlotHeaderContainer>
   );

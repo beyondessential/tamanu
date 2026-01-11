@@ -7,7 +7,8 @@ import { useApi } from '../../api';
 
 const getDataLabel = (endTime, surveyName) => (
   <>
-    <DateDisplay date={endTime} /> <DateDisplay date={endTime} showTime showDate={false} />{surveyName}
+    <DateDisplay date={endTime} /> <DateDisplay date={endTime} showTime showDate={false} />{' '}
+    {surveyName}
   </>
 );
 
