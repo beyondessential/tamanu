@@ -28,6 +28,7 @@ import { useSuggestionsQuery } from '../../../api/queries/useSuggestionsQuery';
 import { useAuth } from '../../../contexts/Auth';
 import { ENCOUNTER_TAB_NAMES } from '../../../constants/encounterTabNames';
 import { useSettings } from '../../../contexts/Settings';
+import { createPrescriptionHash } from '../../../utils/medications';
 
 const TableButtonRow = styled.div`
   display: flex;
@@ -106,12 +107,16 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   );
 
   const isEncounterDischarged = !!encounter.endDate;
+  const encounterPrescriptions = encounterPrescriptionsData?.data;
+  const encounterPrescriptionHashes = new Set(
+    (encounterPrescriptions || []).map(createPrescriptionHash),
+  );
   const importableOngoingPrescriptions = patientOngoingPrescriptions?.data?.filter(
     p =>
       !p.discontinued &&
+      !encounterPrescriptionHashes.has(createPrescriptionHash(p)) &&
       p.medication?.referenceDrug?.facilities?.[0]?.stockStatus !== DRUG_STOCK_STATUSES.UNAVAILABLE,
   );
-  const encounterPrescriptions = encounterPrescriptionsData?.data;
   const canOrderPrescription = ability.can('read', 'Medication');
   const canCreatePrescription = ability.can('create', 'Medication');
   const canImportOngoingPrescriptions =

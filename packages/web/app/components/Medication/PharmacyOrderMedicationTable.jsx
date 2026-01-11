@@ -5,14 +5,14 @@ import { Box } from '@material-ui/core';
 import { formatShortest } from '@tamanu/utils/dateTime';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 
-import { TextInput, SelectField } from '@tamanu/ui-components';
+import { TextInput } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
-import { OuterLabelFieldWrapper, CheckInput } from '../Field';
+import { OuterLabelFieldWrapper, CheckInput, NumberInput } from '../Field';
 import { Table } from '../Table';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../Translation';
 import { format } from 'date-fns';
-import { MEDICATION_DURATION_DISPLAY_UNITS_LABELS, REPEATS_LABELS } from '@tamanu/constants';
+import { MEDICATION_DURATION_DISPLAY_UNITS_LABELS, MAX_REPEATS } from '@tamanu/constants';
 import { singularize } from '../../utils';
 
 const StyledTable = styled(Table)`
@@ -285,12 +285,12 @@ const getColumns = (
       sortable: false,
       accessor: ({ repeats, onChange, selected }) => (
         <Box width="89px">
-          <SelectField
+          <NumberInput
             value={repeats ?? 0}
             onChange={onChange}
             disabled={!selected}
-            isClearable={false}
-            options={REPEATS_LABELS.map(val => ({ value: val, label: String(val) }))}
+            min={0}
+            max={MAX_REPEATS}
             data-testid="selectinput-ld3p"
           />
         </Box>

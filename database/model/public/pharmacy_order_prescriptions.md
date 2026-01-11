@@ -21,3 +21,7 @@ Quantity of medication ordered.
 {% docs pharmacy_order_prescriptions__repeats %}
 Number of repeats for the prescription.
 {% enddocs %}
+
+{% docs pharmacy_order_prescriptions__is_completed %}
+Indicates whether this prescription has been fully completed. Set to `true` when all repeats have been dispensed for a discharge prescription (outpatient medication). Used to filter completed prescriptions from active medication request lists.
+{% enddocs %}
