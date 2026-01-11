@@ -12,7 +12,7 @@ import {
 
 import { useAppointmentMutation } from '../../../api/mutations';
 import { PatientNameDisplay } from '../../PatientNameDisplay';
-import { TranslatedReferenceData, TranslatedText, BaseModal, useFormatShortest, DateDisplay } from '@tamanu/ui-components';
+import { TranslatedReferenceData, TranslatedText, BaseModal, useDateTimeFormat, DateDisplay } from '@tamanu/ui-components';
 import {
   AppointmentDetailsColumn,
   AppointmentDetailsColumnLeft,
@@ -32,9 +32,7 @@ const StyledBodyText = styled(BodyText)`
 `;
 
 const AppointmentDetailsDisplay = ({ appointment }) => {
-  const startTimeDate = useFormatShortest(startTime);
-  const endTimeDate = useFormatShortest(endTime);
-  const repeatEndDate = useFormatShortest(schedule?.untilDate);
+  const { formatShortest } = useDateTimeFormat();
   const doesSpanMultipleDays = !isSameDay(parseISO(startTime), parseISO(endTime));
   const {
     patient,
@@ -68,7 +66,7 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
               data-testid="translatedtext-oej8"
             />
           }
-          value={<><DateDisplay date={startTimeDate} shortYear /> - <DateDisplay date={endTimeDate} showDate={doesSpanMultipleDays} shortYear /></>}
+          value={<><DateDisplay date={startTime} shortYear /> - <DateDisplay date={endTime} showDate={doesSpanMultipleDays} shortYear /></>}
           data-testid="detaildisplay-l5s4"
         />
         <DetailDisplay
@@ -165,7 +163,7 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
                 <TranslatedText
                   stringId="appointment.duration.endsOnDate"
                   fallback="Ends on :date"
-                  replacements={{ date: repeatEndDate }}
+                  replacements={{ date: formatShortest(schedule.untilDate) }}
                   data-testid="translatedtext-2xq6"
                 />
               ) : (
