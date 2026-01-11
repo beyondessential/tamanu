@@ -12,6 +12,7 @@ import {
   formatTimeWithSeconds,
   locale,
   formatLong,
+  formatWeekdayShort,
 } from '@tamanu/utils/dateTime';
 import { TAMANU_COLORS } from '../constants';
 import { ThemedTooltip } from './Tooltip';
@@ -145,6 +146,7 @@ export const useDateDisplay = (
     showDate = true,
     showTime = false,
     showExplicitDate = false,
+    showWeekday = false,
     shortYear = false,
     removeWhitespace = false,
     includeSeconds = false,
@@ -154,6 +156,9 @@ export const useDateDisplay = (
   const dateObj = parseDate(dateValue);
 
   const parts = [];
+  if (showWeekday) {
+    parts.push(formatWeekdayShort(dateObj, countryTimeZone, timeZone));
+  }
   if (showDate) {
     if (shortYear) {
       parts.push(formatShortest(dateObj, countryTimeZone, timeZone));
@@ -239,6 +244,7 @@ const VALID_FORMAT_FUNCTIONS = [
   formatShortExplicit,
   formatShortestExplicit,
   formatLong,
+  formatWeekdayShort,
 ];
 
 export const useFormatShortest = date => {
@@ -274,6 +280,11 @@ export const useFormatShortestExplicit = date => {
 export const useFormatLong = date => {
   const { timeZone, countryTimeZone } = useTimeZone();
   return formatLong(date, countryTimeZone, timeZone);
+};
+
+export const useFormatWeekdayShort = date => {
+  const { timeZone, countryTimeZone } = useTimeZone();
+  return formatWeekdayShort(date, countryTimeZone, timeZone);
 };
 
 

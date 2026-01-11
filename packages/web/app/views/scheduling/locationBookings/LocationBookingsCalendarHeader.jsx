@@ -4,7 +4,7 @@ import { useLocation } from 'react-router';
 import { formatISO, isSameDay, isSameMonth, isThisMonth, parseISO, startOfToday } from 'date-fns';
 import queryString from 'query-string';
 
-import { isStartOfThisWeek, formatWeekdayShort } from '@tamanu/utils/dateTime';
+import { isStartOfThisWeek } from '@tamanu/utils/dateTime';
 
 import { MonthPicker } from '../../../components';
 import { Button, DateDisplay } from '@tamanu/ui-components';
@@ -79,7 +79,7 @@ export const DayHeaderCell = ({ date, dim, ...props }) => {
       data-testid="headercell-dpnh"
     >
       <Weekday $isToday={isToday} data-testid="weekday-i79b">
-        {formatWeekdayShort(date)}
+        <DateDisplay date={date} showWeekday showDate={false} />
       </Weekday>
       <DateDisplay date={date} />
     </HeaderCell>
