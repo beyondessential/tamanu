@@ -12,7 +12,7 @@ import {
   REPORT_EXPORT_FORMATS,
   FORM_TYPES,
 } from '@tamanu/constants';
-import { Form, FormGrid, TextButton, Button, useFormatShort } from '@tamanu/ui-components';
+import { Form, FormGrid, TextButton, Button, useDateTimeFormat } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -128,6 +128,7 @@ const isJsonString = (str) => {
 export const ReportGeneratorForm = () => {
   const api = useApi();
   const { getTranslation } = useTranslation();
+  const { formatShort } = useDateTimeFormat();
   const getFileName = useFileName();
   const { currentUser, facilityId } = useAuth();
   const [successMessage, setSuccessMessage] = useState(null);
@@ -138,8 +139,6 @@ export const ReportGeneratorForm = () => {
   const [selectedReportId, setSelectedReportId] = useState(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [dataReadyForSaving, setDataReadyForSaving] = useState(null);
-
-  const currentDate = useFormatShort(new Date());
 
   const reportsById = useMemo(() => keyBy(availableReports, 'id'), [availableReports]);
   const reportOptions = useMemo(
@@ -219,7 +218,7 @@ export const ReportGeneratorForm = () => {
 
         const metadata = [
           ['Report Name:', reportName],
-          ['Date Generated:', currentDate],
+          ['Date Generated:', formatShort(new Date())],
           ['User:', currentUser.email],
           ['Filters:', filterString],
         ];
