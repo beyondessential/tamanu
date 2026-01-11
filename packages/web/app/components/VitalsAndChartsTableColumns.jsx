@@ -29,6 +29,7 @@ const IconButton = styled(IconButtonComponent)`
 `;
 
 const getExportOverrideTitleDate = (date, countryTimeZone, timeZone) => {
+  // TODO: If we can resolve this we can remove formatShortest and formatTimeWithSeconds from web 
   return `${formatShortest(date, countryTimeZone, timeZone)} ${formatTimeWithSeconds(
     date,
     countryTimeZone,
