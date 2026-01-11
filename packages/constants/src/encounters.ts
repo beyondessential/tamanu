@@ -15,7 +15,7 @@ export const ENCOUNTER_TYPE_LABELS = {
   [ENCOUNTER_TYPES.CLINIC]: 'Clinic',
   [ENCOUNTER_TYPES.IMAGING]: 'Imaging',
   [ENCOUNTER_TYPES.EMERGENCY]: 'Emergency short stay',
-  [ENCOUNTER_TYPES.OBSERVATION]: 'Active ED patient',
+  [ENCOUNTER_TYPES.OBSERVATION]: 'Active ED care',
   [ENCOUNTER_TYPES.SURVEY_RESPONSE]: 'Form response',
   [ENCOUNTER_TYPES.VACCINATION]: 'Vaccination record',
 };
