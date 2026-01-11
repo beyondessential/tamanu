@@ -1545,19 +1545,6 @@ medication.get(
       },
     ]);
 
-    const excludeUnavailableFilter = Sequelize.where(
-      Sequelize.fn(
-        'COALESCE',
-        Sequelize.col('prescription.medication.referenceDrug.facilities.stock_status'),
-        DRUG_STOCK_STATUSES.UNKNOWN,
-      ),
-      { [Op.ne]: DRUG_STOCK_STATUSES.UNAVAILABLE },
-    );
-
-    const combinedFilters = rootFilter.length > 0
-      ? { [Op.and]: [...rootFilter, excludeUnavailableFilter] }
-      : excludeUnavailableFilter;
-
     const buildOrder = () => {
       if (orderBy === 'stockStatus') {
         return [
@@ -1623,7 +1610,7 @@ medication.get(
           required: true,
         },
       ],
-      where: combinedFilters,
+      where: rootFilter,
       order: buildOrder(),
       limit: rowsPerPage,
       offset: page * rowsPerPage,
