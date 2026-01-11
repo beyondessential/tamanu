@@ -25,7 +25,7 @@ export const usePatientSuggester = () => {
       label: (
         <>
           {getPatientNameAsString(patient)}({patient.displayId}) - {patient.sex} -
-          <DateDisplay date={patient.dateOfBirth} />
+          <DateDisplay date={patient.dateOfBirth} noTooltip />
         </>
       ),
       value: id,
