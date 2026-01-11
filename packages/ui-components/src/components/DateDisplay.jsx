@@ -135,7 +135,6 @@ const DateTooltip = ({ date, rawDate, children, timeOnlyTooltip, timeZone, count
   );
 };
 
-
 export const useDateDisplay = (
   dateValue,
   {
@@ -220,7 +219,6 @@ export const DateDisplay = React.memo(
 export const MultilineDatetimeDisplay = React.memo(
   ({ date, showExplicitDate, isTimeSoft = true }) => {
     const TimeText = isTimeSoft ? SoftText : Text;
-    const timeString = useFormatTime(date);
     return (
       <Box data-testid="box-ana9">
         <DateDisplay
@@ -228,7 +226,9 @@ export const MultilineDatetimeDisplay = React.memo(
           showExplicitDate={showExplicitDate}
           data-testid="datedisplay-qqlo"
         />
-        <TimeText data-testid="timetext-5t0o">{timeString}</TimeText>
+        <TimeText data-testid="timetext-5t0o">
+          <DateDisplay date={date} showTime showDate={false} />
+        </TimeText>
       </Box>
     );
   },
