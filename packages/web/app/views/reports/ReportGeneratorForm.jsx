@@ -12,7 +12,7 @@ import {
   REPORT_EXPORT_FORMATS,
   FORM_TYPES,
 } from '@tamanu/constants';
-import { Form, FormGrid, TextButton, Button } from '@tamanu/ui-components';
+import { Form, FormGrid, TextButton, Button, useFormatShort } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -20,7 +20,6 @@ import { useApi } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import {
   AutocompleteField,
-  DateDisplay,
   DateField,
   Field,  
   RadioField,
@@ -140,6 +139,8 @@ export const ReportGeneratorForm = () => {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [dataReadyForSaving, setDataReadyForSaving] = useState(null);
 
+  const currentDate = useFormatShort(new Date());
+
   const reportsById = useMemo(() => keyBy(availableReports, 'id'), [availableReports]);
   const reportOptions = useMemo(
     () =>
@@ -216,11 +217,9 @@ export const ReportGeneratorForm = () => {
 
         const reportName = reportsById[reportId].name;
 
-        const date = DateDisplay.stringFormat(new Date());
-
         const metadata = [
           ['Report Name:', reportName],
-          ['Date Generated:', date],
+          ['Date Generated:', currentDate],
           ['User:', currentUser.email],
           ['Filters:', filterString],
         ];

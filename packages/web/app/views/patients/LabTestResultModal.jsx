@@ -114,7 +114,7 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
                 data-testid="translatedtext-pqqs"
               />
             }
-            value={DateDisplay.stringFormat(labTest?.completedDate)}
+            value={<DateDisplay date={labTest?.completedDate} />}
             data-testid="valuedisplay-9ppd"
           />
           <ValueDisplay
