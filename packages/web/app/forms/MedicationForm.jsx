@@ -46,6 +46,7 @@ import {
   FormSubmitButton,
   Dialog,
   DateDisplay,
+  TimeDisplay,
 } from '@tamanu/ui-components';
 import { Colors, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
@@ -289,8 +290,8 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
 
     return (
       <>
-        <DateDisplay date={getDateFromTimeString(firstSlot.startTime)} showDate={false} showTime />{' '}
-        - <DateDisplay date={getDateFromTimeString(firstSlot.endTime)} showDate={false} showTime />{' '}
+        <TimeDisplay date={getDateFromTimeString(firstSlot.startTime)} />{' '}
+        - <TimeDisplay date={getDateFromTimeString(firstSlot.endTime)} />{' '}
         <DateDisplay date={new Date(firstStartTime)} />
       </>
     );

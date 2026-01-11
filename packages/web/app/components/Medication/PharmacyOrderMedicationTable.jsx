@@ -4,7 +4,7 @@ import { Box } from '@material-ui/core';
 
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 
-import { TextInput, DateDisplay } from '@tamanu/ui-components';
+import { TextInput, DateDisplay, TimeDisplay } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { NumberInput, OuterLabelFieldWrapper, CheckInput } from '../Field';
 import { Table } from '../Table';
@@ -179,7 +179,7 @@ const getColumns = (
         />
       ),
       sortable: false,
-      accessor: ({ date }) => <DateDisplay date={date} shortYear />,
+      accessor: ({ date }) => <DateDisplay date={date} format="shortest" />,
     },
     {
       key: COLUMN_KEYS.LAST_ORDERED,
@@ -205,9 +205,9 @@ const getColumns = (
         return (
           <NoWrapCell color={'inherit'} fontStyle={'normal'}>
             <Box>
-              <DateDisplay date={orderDate} shortYear />
+              <DateDisplay date={orderDate} format="shortest" />
               <Box fontSize="12px" color={Colors.softText}>
-                <DateDisplay date={orderDate} showDate={false} showTime compactTime />
+                <TimeDisplay date={orderDate} format="compact" />
               </Box>
             </Box>
           </NoWrapCell>

@@ -148,7 +148,7 @@ export const MarInfoPane = ({ medication, marInfo }) => {
             <Label>
               <TranslatedText stringId="general.date.label" fallback="Date" />
             </Label>
-            <Value><DateDisplay date={dueAt} longDateFormat /></Value>
+            <Value><DateDisplay date={dueAt} format="long" /></Value>
           </Box>
           <VerticalDivider />
           <Box flex={1}>

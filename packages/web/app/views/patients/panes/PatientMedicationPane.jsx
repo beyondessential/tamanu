@@ -220,7 +220,7 @@ const ONGOING_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
     key: 'date',
     title: <TranslatedText stringId="patient.medication.table.column.date" fallback="Date" />,
     accessor: data => (
-      <CellText discontinued={data?.discontinued}><DateDisplay date={data.date} shortYear /></CellText>
+      <CellText discontinued={data?.discontinued}><DateDisplay date={data.date} format="shortest" /></CellText>
     ),
     sortable: true,
   },
@@ -454,7 +454,7 @@ export const PatientMedicationPane = ({ patient }) => {
                   fallback="Discharged"
                 />
                 {': '}
-                <DateDisplay date={lastInpatientEncounter.endDate} shortYear />
+                <DateDisplay date={lastInpatientEncounter.endDate} format="shortest" />
               </DarkText>
             </Box>
           )}

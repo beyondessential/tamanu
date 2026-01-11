@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { DateDisplay } from '@tamanu/ui-components';
+import { DateDisplay, TimeDisplay } from '@tamanu/ui-components';
 
 import { useOutpatientAppointmentsQuery } from '../../../api/queries';
 import { Colors } from '../../../constants';
@@ -110,7 +110,7 @@ const StatusBadge = styled.div`
 
 const getDate = ({ startTime }) => (
   <LowercaseText data-testid="lowercasetext-gcnv">
-    <DateDisplay date={startTime} shortYear /> <DateDisplay date={startTime} showTime showDate={false} removeWhitespace />
+    <DateDisplay date={startTime} format="shortest" /> <TimeDisplay date={startTime} noTooltip />
   </LowercaseText>
 );
 

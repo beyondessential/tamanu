@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { toDateString } from '@tamanu/utils/dateTime';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
-import { DateDisplay } from '@tamanu/ui-components';
+import { DateDisplay, TimeDisplay } from '@tamanu/ui-components';
   
 import { Table } from '../Table';
 import { Colors } from '../../constants';
@@ -257,9 +257,9 @@ const getDate = ({ startTime, endTime }) => {
   const isOvernight = startDate !== endDate;
 
   if (!isOvernight) {
-    dateTimeString = <><DateDisplay date={startTime} shortYear /> <DateDisplay date={startTime} showTime showDate={false} removeWhitespace /> - <DateDisplay date={endTime} showTime showDate={false} removeWhitespace /></>
+    dateTimeString = <><DateDisplay date={startTime} format="shortest" /> <TimeDisplay date={startTime} noTooltip /> - <TimeDisplay date={endTime} noTooltip /></>
   } else {
-    dateTimeString = <><DateDisplay date={startTime} shortYear /> - <DateDisplay date={endTime} shortYear /></>
+    dateTimeString = <><DateDisplay date={startTime} format="shortest" /> - <DateDisplay date={endTime} format="shortest" /></>
   }
   return (
     <DateText data-testid="datetext-jp36">

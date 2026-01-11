@@ -82,7 +82,7 @@ export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
   const getUserChanged = log => {
     return {
       name: log.changedByUser,
-      date: <><DateDisplay date={log.createdAt} shortYear /> <TimeSlotDisplay time={log.createdAt} /></>
+      date: <><DateDisplay date={log.createdAt} format="shortest" /> <TimeSlotDisplay time={log.createdAt} /></>
     };
   };
 

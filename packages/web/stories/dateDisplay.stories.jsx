@@ -1,32 +1,132 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import Box from '@material-ui/core/Box';
-import { DateDisplay } from '../app/components/DateDisplay';
+import { DateDisplay, TimeDisplay, MultilineDatetimeDisplay, TimeRangeDisplay } from '../app/components/DateDisplay';
 
 const testDate = new Date();
+const endDate = new Date(testDate.getTime() + 60 * 60 * 1000); // 1 hour later
+
+const Section = ({ title, children }) => (
+  <Box mb={4}>
+    <Box mb={1} fontWeight="bold" color="#666">
+      {title}
+    </Box>
+    {children}
+  </Box>
+);
+
+const Row = ({ label, children }) => (
+  <Box mb={1} display="flex" alignItems="center">
+    <Box width={200} color="#888" fontSize={14}>
+      {label}
+    </Box>
+    {children}
+  </Box>
+);
 
 storiesOf('DateDisplay', module)
   .addParameters({
-    note:
-      'Shows a JS date in a locale-appropriate format. User can hover to see a more verbose date.',
+    note: 'Displays dates and times in locale-appropriate formats. Hover for more details.',
   })
-  .add('Examples', () => (
+  .add('Date Formats', () => (
     <Box p={5}>
-      <Box mb={5}>
-        <span>Date: </span>
-        <DateDisplay date={testDate} />
-      </Box>
-      <Box mb={5}>
-        <span>Date & Time: </span>
-        <DateDisplay date={testDate} showTime />
-      </Box>
-      <Box mb={5}>
-        <span>Explicit Date: </span>
-        <DateDisplay date={testDate} showDate={false} showExplicitDate />
-      </Box>
-      <Box mb={5}>
-        <span>String Format: </span>
-        <span><DateDisplay date={testDate} /></span>
-      </Box>
+      <Section title="DateDisplay - Date Formats">
+        <Row label='format="short" (default)'>
+          <DateDisplay date={testDate} format="short" />
+        </Row>
+        <Row label='format="shortest"'>
+          <DateDisplay date={testDate} format="shortest" />
+        </Row>
+        <Row label='format="long"'>
+          <DateDisplay date={testDate} format="long" />
+        </Row>
+        <Row label='format="explicit"'>
+          <DateDisplay date={testDate} format="explicit" />
+        </Row>
+        <Row label='format="explicitShort"'>
+          <DateDisplay date={testDate} format="explicitShort" />
+        </Row>
+        <Row label="showWeekday">
+          <DateDisplay date={testDate} showWeekday />
+        </Row>
+      </Section>
+
+      <Section title="DateDisplay - With Time">
+        <Row label="showTime">
+          <DateDisplay date={testDate} showTime />
+        </Row>
+        <Row label='showTime timeFormat="compact"'>
+          <DateDisplay date={testDate} showTime timeFormat="compact" />
+        </Row>
+        <Row label='showTime timeFormat="withSeconds"'>
+          <DateDisplay date={testDate} showTime timeFormat="withSeconds" />
+        </Row>
+        <Row label='format="shortest" showTime timeFormat="compact"'>
+          <DateDisplay date={testDate} format="shortest" showTime timeFormat="compact" />
+        </Row>
+      </Section>
+    </Box>
+  ))
+  .add('TimeDisplay', () => (
+    <Box p={5}>
+      <Section title="TimeDisplay - Time Formats">
+        <Row label='format="default" (default)'>
+          <TimeDisplay date={testDate} />
+        </Row>
+        <Row label='format="compact"'>
+          <TimeDisplay date={testDate} format="compact" />
+        </Row>
+        <Row label='format="withSeconds"'>
+          <TimeDisplay date={testDate} format="withSeconds" />
+        </Row>
+        <Row label='format="slot"'>
+          <TimeDisplay date={testDate} format="slot" />
+        </Row>
+      </Section>
+    </Box>
+  ))
+  .add('Compound Components', () => (
+    <Box p={5}>
+      <Section title="MultilineDatetimeDisplay">
+        <Row label="default">
+          <MultilineDatetimeDisplay date={testDate} />
+        </Row>
+        <Row label="showExplicitDate">
+          <MultilineDatetimeDisplay date={testDate} showExplicitDate />
+        </Row>
+        <Row label="isTimeSoft={false}">
+          <MultilineDatetimeDisplay date={testDate} isTimeSoft={false} />
+        </Row>
+      </Section>
+
+      <Section title="TimeRangeDisplay">
+        <Row label="Time range">
+          <TimeRangeDisplay range={{ start: testDate, end: endDate }} />
+        </Row>
+      </Section>
+    </Box>
+  ))
+  .add('Legacy Props (backwards compat)', () => (
+    <Box p={5}>
+      <Section title="Legacy Props - Still Supported">
+        <Row label="shortYear">
+          <DateDisplay date={testDate} shortYear />
+        </Row>
+        <Row label="longDateFormat">
+          <DateDisplay date={testDate} longDateFormat />
+        </Row>
+        <Row label="showDate={false} showExplicitDate">
+          <DateDisplay date={testDate} showDate={false} showExplicitDate />
+        </Row>
+        <Row label="showDate={false} showTime">
+          <DateDisplay date={testDate} showDate={false} showTime />
+        </Row>
+        <Row label="showTime compactTime">
+          <DateDisplay date={testDate} showTime compactTime />
+        </Row>
+        <Row label="shortYear showTime compactTime">
+          <DateDisplay date={testDate} shortYear showTime compactTime />
+        </Row>
+      </Section>
     </Box>
   ));

@@ -113,7 +113,7 @@ const COLUMNS = (getTranslation, getEnumTranslation) => [
     key: 'date',
     title: <TranslatedText stringId="patient.medication.table.column.date" fallback="Date" />,
     sortable: false,
-    accessor: data => <DateDisplay date={data.date} shortYear />,
+    accessor: data => <DateDisplay date={data.date} format="shortest" />,
   },
   {
     key: 'prescriber',

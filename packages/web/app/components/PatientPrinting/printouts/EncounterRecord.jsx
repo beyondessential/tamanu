@@ -370,8 +370,7 @@ export const EncounterRecord = React.memo(
             <LocalisedDisplayValue name="dateOfBirth" data-testid="localiseddisplayvalue-268h">
               <DateDisplay
                 date={dateOfBirth}
-                showDate={false}
-                showExplicitDate
+                format="explicit"
                 data-testid="datedisplay-0c0e"
               />
             </LocalisedDisplayValue>
@@ -465,16 +464,14 @@ export const EncounterRecord = React.memo(
             <DisplayValue name="Date of admission" size="10px" data-testid="displayvalue-w117">
               <DateDisplay
                 date={startDate}
-                showDate={false}
-                showExplicitDate
+                format="explicit"
                 data-testid="datedisplay-rnzz"
               />
             </DisplayValue>
             <DisplayValue name="Date of discharge" size="10px" data-testid="displayvalue-k7iz">
               <DateDisplay
                 date={endDate}
-                showDate={false}
-                showExplicitDate
+                format="explicit"
                 data-testid="datedisplay-abwy"
               />
             </DisplayValue>

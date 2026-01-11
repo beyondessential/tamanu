@@ -6,7 +6,7 @@ import { Colors } from '../../constants/styles';
 import { Table } from '../../components/Table';
 import { DateHeadCell, RangeValidatedCell } from '../../components/FormattedTableCell';
 import { LabTestResultModal } from './LabTestResultModal';
-import { BodyText, DateDisplay } from '../../components';
+import { BodyText, DateDisplay, TimeDisplay } from '../../components';
 
 const COLUMN_WIDTHS = [150, 120, 120];
 
@@ -106,7 +106,7 @@ const StyledButton = styled(Button)`
 
 const getTitle = value => (
   <>
-    <DateDisplay date={value} /> <DateDisplay date={value} showTime showDate={false} includeSeconds />
+    <DateDisplay date={value} /> <TimeDisplay date={value} format="withSeconds" />
   </>
 );
 

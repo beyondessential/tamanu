@@ -106,7 +106,7 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
           </StepperButton>
         </ConditionalTooltip>
         <DateDisplay>
-          <DateDisplayComponent date={selectedDate} longDateFormat noTooltip />
+          <DateDisplayComponent date={selectedDate} format="long" noTooltip />
         </DateDisplay>
         {!isNextDayHidden && (
           <StepperButton onClick={goToNextDay}>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { InfoCard, InfoCardItem } from '../../../../components/InfoCard';
 import { TranslatedText } from '../../../../components/Translation/TranslatedText';
-import { DateDisplay } from '@tamanu/ui-components';
+import { DateDisplay, TimeDisplay } from '@tamanu/ui-components';
 
 export const VersionInfo = ({ version }) => {
   return (
@@ -47,7 +47,7 @@ export const VersionInfo = ({ version }) => {
           data-testid="translatedtext-zhty"
         />
       }
-      value={<><DateDisplay date={version.createdAt} shortYear /> <DateDisplay date={version.createdAt} showTime showDate={false} /></>}
+      value={<><DateDisplay date={version.createdAt} format="shortest" /> <TimeDisplay date={version.createdAt} /></>}
       data-testid="infocarditem-fr79"
     />
     <InfoCardItem

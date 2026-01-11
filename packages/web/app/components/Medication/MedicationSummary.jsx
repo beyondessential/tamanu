@@ -94,7 +94,7 @@ export const MedicationSummary = ({ medication }) => {
               <TranslatedText stringId="medication.details.endDate" fallback="End date & time" />
             </MidText>
             <DarkestText fontWeight={500} mt={0.5}>
-              <DateDisplay date={medication.endDate} shortYear />{' '}
+              <DateDisplay date={medication.endDate} format="shortest" />{' '}
               <TimeSlotDisplay time={medication.endDate} />
             </DarkestText>
           </Box>

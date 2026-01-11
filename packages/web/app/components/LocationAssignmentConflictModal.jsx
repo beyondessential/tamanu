@@ -96,7 +96,7 @@ export const LocationAssignmentConflictModal = ({
               />
             </ScheduledLeaveTitle>
             <ScheduledLeaveDates>
-             <DateDisplay date={startDate} shortYear /> - <DateDisplay date={endDate} shortYear />
+             <DateDisplay date={startDate} format="shortest" /> - <DateDisplay date={endDate} format="shortest" />
             </ScheduledLeaveDates>
           </ScheduledLeaveWrapper>
         </Container>

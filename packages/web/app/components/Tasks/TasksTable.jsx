@@ -15,6 +15,7 @@ import {
   useSelectableColumn,
   DataFetchingTable,
   DateDisplay,
+  TimeDisplay,
 } from '../.';
 import { Colors } from '../../constants';
 import useOverflow from '../../hooks/useOverflow';
@@ -228,10 +229,10 @@ const getCompletedTooltipText = ({ completedBy, completedTime, completedNote }) 
     <div>{completedBy.displayName}</div>
     <div>
       <span color={Colors.midText}>
-        <DateDisplay date={completedTime} shortYear />{' '}
+        <DateDisplay date={completedTime} format="shortest" />{' '}
       </span>
       <LowercaseText data-testid="lowercasetext-5r41">
-        <DateDisplay date={completedTime} showTime showDate={false} />
+        <TimeDisplay date={completedTime} />
       </LowercaseText>
     </div>
     <div>{completedNote}</div>
@@ -248,10 +249,10 @@ const getNotCompletedTooltipText = ({ notCompletedBy, notCompletedTime, notCompl
     <div>{notCompletedBy.displayName}</div>
     <div>
       <span color={Colors.midText}>
-        <DateDisplay date={notCompletedTime} shortYear />{' '}
+        <DateDisplay date={notCompletedTime} format="shortest" />{' '}
       </span>
       <LowercaseText data-testid="lowercasetext-w9wo">
-        <DateDisplay date={notCompletedTime} showTime showDate={false} />
+        <TimeDisplay date={notCompletedTime} />
       </LowercaseText>
     </div>
     <div>{notCompletedReason?.name}</div>
@@ -288,10 +289,10 @@ const getDueTime = ({ dueTime }) => {
   return (
     <div>
       <BodyText sx={{ textTransform: 'lowercase' }} data-testid="bodytext-24uw">
-        <DateDisplay date={dueTime} showTime showDate={false} />
+        <TimeDisplay date={dueTime} />
       </BodyText>
       <SmallBodyText color={Colors.midText} data-testid="smallbodytext-7kv1">
-        <DateDisplay date={dueTime} shortYear />
+        <DateDisplay date={dueTime} format="shortest" />
       </SmallBodyText>
     </div>
   );
@@ -513,8 +514,8 @@ const getTask = ({ name, requestedBy, requestTime, highPriority }) => (
         <div>{name}</div>
         <div>{requestedBy.displayName}</div>
         <Box sx={{ textTransform: 'lowercase' }} data-testid="box-fmnt">
-          <DateDisplay date={requestTime} shortYear />{' '}
-          <DateDisplay date={requestTime} showTime showDate={false} />
+          <DateDisplay date={requestTime} format="shortest" />{' '}
+          <TimeDisplay date={requestTime} />
         </Box>
       </TooltipContainer>
     }

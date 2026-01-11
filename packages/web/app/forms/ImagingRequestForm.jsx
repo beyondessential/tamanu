@@ -8,7 +8,7 @@ import * as yup from 'yup';
 import { IMAGING_TYPES, FORM_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
-import { DateDisplay, FormSeparatorLine } from '../components';
+import { DateDisplay, TimeDisplay, FormSeparatorLine } from '../components';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
 import {
   MultiselectField,
@@ -39,7 +39,7 @@ function getEncounterTypeLabel(type) {
 const EncounterLabel = ({encounter}) => (
   <>
     <DateDisplay date={encounter.startDate} />
-    <DateDisplay date={encounter.startDate} showTime showDate={false} />
+    <TimeDisplay date={encounter.startDate} />
     ({getEncounterTypeLabel(encounter.encounterType)})
   </>
 );

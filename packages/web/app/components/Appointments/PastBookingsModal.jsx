@@ -14,7 +14,7 @@ import { useTableSorting } from '../Table/useTableSorting';
 import { ThemedTooltip } from '../Tooltip';
 import { TranslatedText } from '../Translation';
 import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
-import { DateDisplay } from '@tamanu/ui-components';
+import { DateDisplay, TimeDisplay } from '@tamanu/ui-components';
 
 const StyledModal = styled(Modal)`
   .MuiDialog-paper {
@@ -130,11 +130,11 @@ const DateCell = ({ startTime, endTime }) => {
       title={
         <Box style={{ textTransform: 'lowercase', fontWeight: 400 }} data-testid="box-q74p">
           {isOvernight ? (
-            <><DateDisplay date={startTime} shortYear /> - <DateDisplay date={endTime} shortYear /></>
+            <><DateDisplay date={startTime} format="shortest" /> - <DateDisplay date={endTime} format="shortest" /></>
           ) : (
             <div>
-              <div><DateDisplay date={startTime} shortYear /></div>
-              <div><DateDisplay date={startTime} showTime showDate={false} /> - <DateDisplay date={endTime} showTime showDate={false} /></div>
+              <div><DateDisplay date={startTime} format="shortest" /></div>
+              <div><TimeDisplay date={startTime} /> - <TimeDisplay date={endTime} /></div>
             </div>
           )}
         </Box>
@@ -143,8 +143,8 @@ const DateCell = ({ startTime, endTime }) => {
     >
       <DateText data-testid="datetext-z14b">
         {!isOvernight
-          ? <><DateDisplay date={startTime} shortYear /> <DateDisplay date={startTime} showTime showDate={false} /> - <DateDisplay date={endTime} showTime showDate={false} /></>
-          : <><DateDisplay date={startTime} shortYear /> - <DateDisplay date={endTime} shortYear /></>}
+          ? <><DateDisplay date={startTime} format="shortest" /> <TimeDisplay date={startTime} /> - <TimeDisplay date={endTime} /></>
+          : <><DateDisplay date={startTime} format="shortest" /> - <DateDisplay date={endTime} format="shortest" /></>}
         {isOvernight && (
           <OvernightIcon data-testid="overnighticon-2qtt">
             <Brightness2Icon fontSize="inherit" data-testid="brightness2icon-gxv2" />

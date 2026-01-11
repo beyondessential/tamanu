@@ -2,7 +2,7 @@ import React from 'react';
 import { ADMINISTRATION_FREQUENCY_SYNONYMS } from '@tamanu/constants';
 import { camelCase } from 'lodash';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
-import { DateDisplay, useDateTimeFormat } from '@tamanu/ui-components';
+import { TimeDisplay, useDateTimeFormat } from '@tamanu/ui-components';
 
 export const getTranslatedFrequencySynonyms = (frequenciesEnabled, getTranslation) => {
   const result = {};
@@ -28,7 +28,7 @@ export const getTranslatedFrequencySynonym = (synonyms, index, getTranslation) =
   return getTranslation(`medication.frequency.${camelCase(frequency)}.synonym.${index}`, frequency);
 };
 
-export const TimeSlotDisplay = ({ time }) => <DateDisplay date={time} showTime showDate={false} removeWhitespace style={{ textTransform: 'lowercase' }} />;
+export const TimeSlotDisplay = ({ time }) => <TimeDisplay date={time} style={{ textTransform: 'lowercase' }} noTooltip />;
 
 export const useTimeSlotDisplay = (time) => {
   const { formatTime } = useDateTimeFormat();

@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { compareDesc } from 'date-fns';
 
-import { DateDisplay } from '../DateDisplay';
+import { DateDisplay, TimeDisplay } from '../DateDisplay';
 import { SelectInput } from '@tamanu/ui-components';
 import { useApi } from '../../api';
 
 const getDataLabel = (endTime, surveyName) => (
   <>
-    <DateDisplay date={endTime} /> <DateDisplay date={endTime} showTime showDate={false} />{' '}
+    <DateDisplay date={endTime} /> <TimeDisplay date={endTime} />{' '}
     {surveyName}
   </>
 );

@@ -4,7 +4,7 @@ import { Box } from '@material-ui/core';
 import { DRUG_ROUTE_LABELS, MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
 import { useLocation, useNavigate } from 'react-router';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
-import { Button, DateDisplay } from '@tamanu/ui-components';
+import { Button, DateDisplay, TimeDisplay } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 
 import { DataFetchingTable } from '../Table';
@@ -124,7 +124,7 @@ const getMedicationName = (
             pauseData.pauseDuration,
           ).toLowerCase()}{' '}
           - <TranslatedText stringId="medication.table.until" fallback="until" />{' '}
-          <DateDisplay date={pauseData.pauseEndDate} shortYear />{' '}
+          <DateDisplay date={pauseData.pauseEndDate} format="shortest" />{' '}
           <TimeSlotDisplay time={pauseData.pauseEndDate} />
         </Box>
       )}
@@ -218,7 +218,7 @@ const getMedicationColumns = (
           tooltipTitle = (
             <>
               <TranslatedText stringId="medication.table.endsOn.label" fallback="Ends on" />
-              <DateDisplay date={endDate} shortYear showTime compactTime noTooltip />
+              <DateDisplay date={endDate} format="shortest" showTime timeFormat="compact" noTooltip />
             </>
           );
         } else if (isOngoing) {
@@ -238,7 +238,7 @@ const getMedicationColumns = (
               visible={tooltipTitle}
               title={<Box fontWeight={400}>{tooltipTitle}</Box>}
             >
-              <DateDisplay date={date} shortYear />
+              <DateDisplay date={date} format="shortest" />
             </ConditionalTooltip>
           </NoWrapCell>
         );
@@ -305,9 +305,9 @@ const getMedicationColumns = (
             fontStyle={isPausing ? 'italic' : 'normal'}
           >
             <Box>
-              <DateDisplay date={orderDate} shortYear noTooltip />
+              <DateDisplay date={orderDate} format="shortest" noTooltip />
               <Box fontSize="12px" color={Colors.softText}>
-                <DateDisplay date={orderDate} showDate={false} showTime compactTime noTooltip />
+                <TimeDisplay date={orderDate} format="compact" noTooltip />
               </Box>
             </Box>
           </NoWrapCell>

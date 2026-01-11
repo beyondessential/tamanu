@@ -77,7 +77,7 @@ const Table = styled(DataFetchingTable)`
   }
 `;
 
-const getDate = ({ date }) => <DateDisplay date={date} shortYear />
+const getDate = ({ date }) => <DateDisplay date={date} format="shortest" />
 const getInvoiceTotal = row => {
   const { patientTotal } = getInvoiceSummaryDisplay(row);
   return patientTotal === undefined ? (

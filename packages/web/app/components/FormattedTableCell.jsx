@@ -2,7 +2,7 @@ import { isNumber } from 'lodash';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Colors } from '../constants';
-import { DateDisplay } from './DateDisplay';
+import { DateDisplay, TimeDisplay } from './DateDisplay';
 import { TableTooltip } from './Table/TableTooltip';
 
 // severity constants
@@ -86,12 +86,11 @@ export const formatValue = (value, config) => {
   return `${float}${unitSuffix}`;
 };
 
-// TODO: check format long 
 export const DateHeadCell = React.memo(({ value }) => (
-  <TableTooltip title={<DateDisplay date={value} showDate showTime />} data-testid="tabletooltip-5w9x">
+  <TableTooltip title={<DateDisplay date={value} showTime />} data-testid="tabletooltip-5w9x">
     <HeadCellWrapper data-testid="headcellwrapper-jcsy">
-      <div><DateDisplay date={value} shortYear /></div>
-      <div><DateDisplay date={value} showDate={false} showTime /></div>
+      <div><DateDisplay date={value} format="shortest" /></div>
+      <div><TimeDisplay date={value} /></div>
     </HeadCellWrapper>
   </TableTooltip>
 ));
@@ -100,12 +99,12 @@ export const DateBodyCell = React.memo(({ value, onClick }) => {
   const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
   return (
     <TableTooltip
-      title={<DateDisplay date={value} showDate showTime />}
+      title={<DateDisplay date={value} showTime />}
       data-testid="tabletooltip-3knb"
     >
       <CellContainer onClick={onClick} data-testid="cellcontainer-slh4">
-        <div><DateDisplay date={value} shortYear /></div>
-        <div><DateDisplay date={value} showDate={false} showTime /></div>
+        <div><DateDisplay date={value} format="shortest" /></div>
+        <div><TimeDisplay date={value} /></div>
       </CellContainer>
     </TableTooltip>
   );

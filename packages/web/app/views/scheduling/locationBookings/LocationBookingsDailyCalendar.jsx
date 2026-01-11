@@ -24,7 +24,7 @@ import { cloneDeep } from 'lodash';
 import { useDrop, useDrag } from 'react-dnd';
 
 import { toDateTimeString, toDateString } from '@tamanu/utils/dateTime';
-import { DateDisplay, notifyError, notifySuccess } from '@tamanu/ui-components';
+import { TimeDisplay, notifyError, notifySuccess } from '@tamanu/ui-components';
 
 import {
   useLocationBookingsQuery,
@@ -283,9 +283,9 @@ const LocationHeaderContent = ({ location, assignments = [] }) => {
           assignments.map((assignment, index) => (
             <AssignmentItem key={assignment.id || index} data-testid="assignment-item">
               <AssignmentTime data-testid="assignment-time">
-                <DateDisplay date={assignment.startTime} showTime showDate={false} style={{ textTransform: 'lowercase' }} />-
+                <TimeDisplay date={assignment.startTime} style={{ textTransform: 'lowercase' }} />-
                 <br />
-                <DateDisplay date={assignment.endTime} showTime showDate={false} style={{ textTransform: 'lowercase' }} />
+                <TimeDisplay date={assignment.endTime} style={{ textTransform: 'lowercase' }} />
               </AssignmentTime>
               <AssignmentDivider data-testid="assignment-divider" />
               <AssignmentName data-testid="assignment-name">
@@ -1028,7 +1028,7 @@ export const LocationBookingsDailyCalendar = ({
               const height = (durationMinutes / 60) * 70; // 70px per hour
               return (
                 <TimeSlot key={index} data-testid={`time-slot-${index}`} height={height}>
-                  <DateDisplay date={slot.start} showDate={false} showTime compactTime noTooltip />
+                  <TimeDisplay date={slot.start} format="compact" noTooltip />
                 </TimeSlot>
               );
             })}

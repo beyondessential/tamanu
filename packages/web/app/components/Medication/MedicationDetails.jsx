@@ -137,7 +137,7 @@ export const MedicationDetails = ({
       ),
       value: (
         <>
-          <DateDisplay date={medication.startDate} shortYear />{' '}
+          <DateDisplay date={medication.startDate} format="shortest" />{' '}
           <TimeSlotDisplay time={medication.startDate} />
         </>
       ),
@@ -187,7 +187,7 @@ export const MedicationDetails = ({
           fallback="Prescription date"
         />
       ),
-      value: <DateDisplay date={medication.date} shortYear />,
+      value: <DateDisplay date={medication.date} format="shortest" />,
     },
     ...(medication.isOngoing || medication.discontinued || !medication.endDate
       ? []
@@ -199,7 +199,7 @@ export const MedicationDetails = ({
             value: (
               <>
                 {' '}
-                <DateDisplay date={medication.endDate} shortYear />{' '}
+                <DateDisplay date={medication.endDate} format="shortest" />{' '}
                 <TimeSlotDisplay time={medication.endDate} />
               </>
             ),
@@ -296,7 +296,7 @@ export const MedicationDetails = ({
                         />
                       </MidText>
                       <DarkestText mt={0.5}>
-                        <DateDisplay date={medication.discontinuedDate} shortYear />{' '}
+                        <DateDisplay date={medication.discontinuedDate} format="shortest" />{' '}
                         <DateDisplay
                           date={medication.discontinuedDate}
                           showTime
@@ -335,7 +335,7 @@ export const MedicationDetails = ({
                           pauseData.pauseDuration,
                         ).toLowerCase()}{' '}
                         - {<TranslatedText stringId="medication.details.until" fallback="until" />}{' '}
-                        <DateDisplay date={pauseData.pauseEndDate} shortYear />{' '}
+                        <DateDisplay date={pauseData.pauseEndDate} format="shortest" />{' '}
                         <TimeSlotDisplay time={pauseData.pauseEndDate} />
                       </DarkestText>
                     </Box>

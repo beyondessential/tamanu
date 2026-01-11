@@ -7,7 +7,7 @@ import {
   findAdministrationTimeSlotFromIdealTime,
 } from '@tamanu/shared/utils/medication';
 import { toDateString } from '@tamanu/utils/dateTime';
-import { DateDisplay } from '@tamanu/ui-components';
+import { TimeDisplay } from '@tamanu/ui-components';
 
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../..';
@@ -163,17 +163,13 @@ const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate }) => {
       <TimeSlotText>
         <TimeSlotLabel>{periodLabel || ''}</TimeSlotLabel>
         <div>
-          <DateDisplay
+          <TimeDisplay
             date={startDate}
-            showTime
-            showDate={false}
             style={{ textTransform: 'lowercase' }}
           />{' '}
           -{' '}
-          <DateDisplay
+          <TimeDisplay
             date={endDate}
-            showTime
-            showDate={false}
             style={{ textTransform: 'lowercase' }}
           />
         </div>

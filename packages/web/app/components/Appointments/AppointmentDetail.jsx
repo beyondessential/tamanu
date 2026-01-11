@@ -15,6 +15,7 @@ import {
   TranslatedReferenceData,
   TranslatedSex,
   DateDisplay,
+  TimeDisplay,
 } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { PatientNameDisplay } from '../PatientNameDisplay';
@@ -156,11 +157,11 @@ const AppointmentTime = ({ startTime, endTime }) => (
   <span>
     <DateDisplay date={startTime} showWeekday noTooltip />
     {' - '}
-    <DateDisplay date={startTime} showDate={false} showTime compactTime noTooltip />
+    <TimeDisplay date={startTime} format="compact" noTooltip />
     {endTime && (
       <>
         {' '}
-        - <DateDisplay date={endTime} showDate={false} showTime compactTime noTooltip />
+        - <TimeDisplay date={endTime} format="compact" noTooltip />
       </>
     )}
   </span>

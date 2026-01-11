@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router';
 import { endOfDay, startOfDay } from 'date-fns';
 import { Box } from '@material-ui/core';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { DateDisplay, TranslatedText } from '@tamanu/ui-components';
+import { TimeDisplay, TranslatedText } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 
 import { Heading4 } from '../../../components';
@@ -162,8 +162,8 @@ const Link = styled.div`
 
 const getFormattedBookingTime = ({ startTime, endTime }) =>
   <>
-    <DateDisplay date={startTime} showTime showDate={false} removeWhitespace /> -
-    <DateDisplay date={endTime} showTime showDate={false} removeWhitespace />
+    <TimeDisplay date={startTime} noTooltip /> -
+    <TimeDisplay date={endTime} noTooltip />
   </>;
 
 const BookingsTimelineItem = ({ appointment }) => {

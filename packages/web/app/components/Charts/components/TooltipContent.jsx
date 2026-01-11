@@ -4,7 +4,7 @@ import { Colors } from '../../../constants';
 import { formatValue } from '../../FormattedTableCell';
 import { InwardArrowVectorIcon } from '../../Icons/VitalVectorIcon';
 import { CustomDot } from './CustomDot';
-import { DateDisplay } from '@tamanu/ui-components';
+import { DateDisplay, TimeDisplay } from '@tamanu/ui-components';
 
 const FlexColumn = styled.div`
   flex-direction: column;
@@ -38,7 +38,7 @@ const CustomDotWrapper = styled.div`
 const DateTimeHeader = ({ name }) => {
   return (
     <span>
-      <DateDisplay date={name} shortYear /> <TimeText data-testid="timetext-356k"><DateDisplay date={name} showTime showDate={false} /></TimeText>
+      <DateDisplay date={name} format="shortest" /> <TimeText data-testid="timetext-356k"><TimeDisplay date={name} /></TimeText>
     </span>
   );
 };
