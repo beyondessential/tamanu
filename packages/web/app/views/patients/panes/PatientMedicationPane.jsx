@@ -2,7 +2,12 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@mui/material';
 
-import { Button, TranslatedText, TranslatedReferenceData, TranslatedEnum } from '@tamanu/ui-components';
+import {
+  Button,
+  TranslatedText,
+  TranslatedReferenceData,
+  TranslatedEnum,
+} from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { PATIENT_STATUS_COLORS } from '../../../constants';
 import { formatShortest } from '../../../components/DateDisplay';
@@ -14,7 +19,7 @@ import { getPatientStatus } from '../../../utils/getPatientStatus';
 import { ConditionalTooltip } from '../../../components/Tooltip';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { useTranslation } from '../../../contexts/Translation';
-import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
+import { DRUG_ROUTE_LABELS, DRUG_STOCK_STATUSES } from '@tamanu/constants';
 import { MedicationModal } from '../../../components/Medication/MedicationModal';
 import { MedicationDetails } from '../../../components/Medication/MedicationDetails';
 import { useAuth } from '../../../contexts/Auth';
@@ -94,6 +99,16 @@ const StyledConditionalTooltip = styled(ConditionalTooltip)`
   }
 `;
 
+const NoMedicationTooltip = styled(ConditionalTooltip)`
+  width: fit-content;
+  .MuiTooltip-tooltip {
+    max-width: 150px;
+    padding: 8px 16px;
+    font-size: 11px;
+    font-weight: 400;
+  }
+`;
+
 const NoDataContainer = styled.div`
   height: 230px;
   font-size: 14px;
@@ -167,6 +182,9 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
   }
 `;
 
+const isUnavailableAtFacility = medication =>
+  medication?.referenceDrug?.facilities?.[0]?.stockStatus === DRUG_STOCK_STATUSES.UNAVAILABLE;
+
 const ONGOING_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
   {
     key: 'medication.name',
@@ -174,15 +192,27 @@ const ONGOING_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
       <TranslatedText stringId="patient.medication.table.column.medication" fallback="Medication" />
     ),
     sortable: true,
-    accessor: data => (
-      <CellText discontinued={data?.discontinued}>
-        <TranslatedReferenceData
-          fallback={data?.medication?.name}
-          value={data?.medication?.id}
-          category={data?.medication?.type}
-        />
-      </CellText>
-    ),
+    accessor: data => {
+      return (
+        <NoMedicationTooltip
+          visible={isUnavailableAtFacility(data?.medication)}
+          title={
+            <TranslatedText
+              stringId="patient.medication.unavailable.tooltip"
+              fallback="This medication is not available at this facility"
+            />
+          }
+        >
+          <CellText discontinued={data?.discontinued}>
+            <TranslatedReferenceData
+              fallback={data?.medication?.name}
+              value={data?.medication?.id}
+              category={data?.medication?.type}
+            />
+          </CellText>
+        </NoMedicationTooltip>
+      );
+    },
   },
   {
     key: 'dose',
@@ -297,7 +327,7 @@ const DISCHARGE_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
 ];
 
 export const PatientMedicationPane = ({ patient }) => {
-  const { ability } = useAuth();
+  const { ability, facilityId } = useAuth();
   const { data: currentEncounter } = usePatientCurrentEncounterQuery(patient.id);
   const patientStatus = getPatientStatus(currentEncounter?.encounterType);
 
@@ -338,6 +368,9 @@ export const PatientMedicationPane = ({ patient }) => {
     if (isSensitive && !canViewSensitiveMedications) {
       return;
     }
+    if (isUnavailableAtFacility(data?.medication)) {
+      return;
+    }
     setSelectedMedication(data);
     setAllowDiscontinue(true);
   };
@@ -351,10 +384,14 @@ export const PatientMedicationPane = ({ patient }) => {
     setAllowDiscontinue(false);
   };
 
-  const rowStyle = ({ medication }) =>
-    medication.referenceDrug.isSensitive && !canViewSensitiveMedications
-      ? 'pointer-events: none;'
-      : '';
+  const rowStyle = ({ medication }) => `
+    ${
+      medication?.referenceDrug?.isSensitive && !canViewSensitiveMedications
+        ? 'pointer-events: none;'
+        : ''
+    }
+    ${isUnavailableAtFacility(medication) ? 'opacity: 0.5; cursor: default !important;' : ''}
+  `;
 
   return (
     <Box px={2.5} pb={2.5} overflow={'auto'}>
@@ -411,6 +448,7 @@ export const PatientMedicationPane = ({ patient }) => {
         </TableTitle>
         <StyledDataFetchingTable
           endpoint={`/patient/${patient.id}/ongoing-prescriptions`}
+          fetchOptions={{ facilityId }}
           columns={ONGOING_MEDICATION_COLUMNS(getTranslation, getEnumTranslation)}
           rowStyle={rowStyle}
           noDataMessage={

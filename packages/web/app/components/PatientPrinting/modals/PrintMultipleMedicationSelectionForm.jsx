@@ -10,7 +10,7 @@ import {
   TextInput,
   ConfirmCancelRow,
 } from '@tamanu/ui-components';
-import { MAX_REPEATS } from '@tamanu/constants';
+import { MAX_REPEATS, MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
 import { Colors } from '../../../constants/styles';
 import { Table, useSelectableColumn } from '../../Table';
 import { AutocompleteInput, NumberInput } from '../../Field';
@@ -25,7 +25,6 @@ import { useTranslation } from '../../../contexts/Translation';
 import { useSelector } from 'react-redux';
 import { getAgeDurationFromDate } from '@tamanu/utils/date';
 import { singularize } from '../../../utils';
-import { MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
 
 const COLUMN_KEYS = {
   SELECTED: 'selected',
