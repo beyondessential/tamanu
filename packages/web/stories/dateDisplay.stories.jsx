@@ -26,7 +26,7 @@ storiesOf('DateDisplay', module)
       </Box>
       <Box mb={5}>
         <span>String Format: </span>
-        <span>{DateDisplay.stringFormat(testDate)}</span>
+        <span><DateDisplay date={testDate} /></span>
       </Box>
     </Box>
   ));
