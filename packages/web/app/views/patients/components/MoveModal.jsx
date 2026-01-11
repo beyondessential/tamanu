@@ -42,7 +42,6 @@ const PATIENT_MOVE_ACTIONS = {
   FINALISE: 'finalise',
 };
 
-
 const SectionHeading = styled(Heading3)`
   color: ${TAMANU_COLORS.darkestText};
   margin: 10px 0;
@@ -257,7 +256,7 @@ const getFormProps = ({ encounter, enablePatientMoveActions, isAdmittingToHospit
   }
 
   if (isAdmittingToHospital) {
-    validationObject.startTime = yup.string().required();
+    validationObject.startDate = yup.string().required();
     validationObject.estimatedEndDate = yup.string().nullable();
     validationObject.patientBillingTypeId = yup.string().nullable();
     validationObject.dietIds = yup
@@ -265,7 +264,7 @@ const getFormProps = ({ encounter, enablePatientMoveActions, isAdmittingToHospit
       .of(yup.string())
       .nullable();
 
-    initialValues.startTime = getCurrentDateTimeString();
+    initialValues.startDate = getCurrentDateTimeString();
   }
 
   return { initialValues, validationSchema: yup.object().shape(validationObject) };
@@ -309,7 +308,7 @@ const HospitalAdmissionFields = () => {
       </SectionDescription>
       <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
         <Field
-          name="startTime"
+          name="startDate"
           component={DateTimeField}
           label={
             <TranslatedText

@@ -92,7 +92,12 @@ export const EncounterActions = React.memo(({ encounter }) => {
 
   const actions = [
     {
-      label: <TranslatedText stringId="encounter.action.editEncounter" fallback="Edit encounter" />,
+      label: (
+        <TranslatedText
+          stringId="encounter.action.editEncounterDetails"
+          fallback="Edit encounter details"
+        />
+      ),
       onClick: () => setOpenModal(ENCOUNTER_MODALS.EDIT),
       condition: () => canWriteEncounter,
     },
