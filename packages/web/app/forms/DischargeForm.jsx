@@ -3,19 +3,18 @@ import React, { useCallback, useEffect, useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import {
-  REPEATS_LABELS,
   FORM_TYPES,
   SUBMIT_ATTEMPTED_STATUS,
   ENCOUNTER_TYPES,
   MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
-  NOTE_TYPES
+  NOTE_TYPES,
+  MAX_REPEATS,
 } from '@tamanu/constants';
 import CloseIcon from '@material-ui/icons/Close';
 import { isFuture, parseISO, set } from 'date-fns';
 import {
   TextField,
   StyledTextField,
-  TranslatedSelectField,
   TextInput,
   FormGrid,
   FormConfirmCancelBackRow,
@@ -379,9 +378,9 @@ const MEDICATION_COLUMNS = (
     accessor: ({ id, medication }) => (
       <Field
         name={`medications.${id}.repeats`}
-        isClearable={false}
-        component={TranslatedSelectField}
-        enumValues={REPEATS_LABELS}
+        component={NumberFieldWithoutLabel}
+        min={0}
+        max={MAX_REPEATS}
         data-testid="field-ium3"
         disabled={
           !canUpdateMedication ||
@@ -836,6 +835,22 @@ export const DischargeForm = ({
                 data-testid="translatedtext-542l"
               />,
             ),
+          medications: yup.lazy(obj =>
+            yup.object(
+              Object.keys(obj || {}).reduce((acc, key) => {
+                acc[key] = yup.object().shape({
+                  repeats: yup
+                    .number()
+                    .integer()
+                    .min(0)
+                    .max(MAX_REPEATS)
+                    .nullable()
+                    .optional(),
+                });
+                return acc;
+              }, {}),
+            ),
+          ),
           discharge: yup
             .object()
             .shape({

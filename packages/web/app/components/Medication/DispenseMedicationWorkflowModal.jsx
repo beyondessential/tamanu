@@ -338,7 +338,17 @@ export const DispenseMedicationWorkflowModal = memo(
       setShowValidationErrors(false);
       setStep(MODAL_STEPS.REVIEW);
       // Prepare labels for printing
-      const reviewLabels = getMedicationLabelData({ selectedItems, patient, facility });
+      const labelItems = selectedItems.map(item => ({
+        id: item.id,
+        medicationName: item.prescription?.medication?.name,
+        instructions: item.instructions,
+        quantity: item.quantity,
+        units: item.prescription?.units,
+        remainingRepeats: item.remainingRepeats,
+        prescriberName: item.prescription?.prescriber?.displayName,
+        requestNumber: item.displayId,
+      }));
+      const reviewLabels = getMedicationLabelData({ items: labelItems, patient, facility });
       setLabelsForPrint(reviewLabels);
     };
 

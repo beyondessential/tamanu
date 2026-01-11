@@ -55,6 +55,11 @@ sources:
           - name: deleted_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__deleted_at') }} in pharmacy_order_prescriptions."
+          - name: is_completed
+            data_type: boolean
+            description: "{{ doc('pharmacy_order_prescriptions__is_completed') }}"
+            data_tests:
+              - not_null
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in pharmacy_order_prescriptions."

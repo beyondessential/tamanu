@@ -2,8 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { Modal, TranslatedText } from '@tamanu/ui-components';
+import { Modal, TranslatedText, ConfirmCancelRow } from '@tamanu/ui-components';
 import { MedicationLabel } from '../printouts/MedicationLabel';
+import { Colors } from '../../../constants';
 
 const Container = styled.div`
   display: flex;
@@ -11,7 +12,6 @@ const Container = styled.div`
   align-items: center;
   gap: 14px;
   padding: 20px 0;
-  min-height: 250px;
 
   @media print {
     flex-direction: row;
@@ -21,19 +21,37 @@ const Container = styled.div`
   }
 `;
 
+const StyledModal = styled(Modal)`
+  .MuiDialogActions-root {
+    position: sticky;
+    bottom: 0;
+    background: ${Colors.background};
+    border-top: 1px solid ${Colors.outline};
+    padding: 10px 40px 20px 40px;
+  }
+`;
+
 export const MedicationLabelPrintModal = ({ open, onClose, labels }) => {
+  const handlePrint = () => {
+    print();
+  };
+
   return (
-    <Modal
-      title={
-        <TranslatedText
-          stringId="medication.modal.printLabel.title"
-          fallback="Print medication labels"
-        />
-      }
-      width="md"
+    <StyledModal
+      title={<TranslatedText stringId="medication.modal.printLabel.title" fallback="Print label" />}
+      width="sm"
       open={open}
       onClose={onClose}
-      printable
+      actions={
+        <ConfirmCancelRow
+          onCancel={onClose}
+          onConfirm={handlePrint}
+          cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
+          confirmText={
+            <TranslatedText stringId="medication.action.printLabel" fallback="Print label" />
+          }
+        />
+      }
     >
       <Container>
         {labels.map((label, index) => (
@@ -42,7 +60,7 @@ export const MedicationLabelPrintModal = ({ open, onClose, labels }) => {
           </Box>
         ))}
       </Container>
-    </Modal>
+    </StyledModal>
   );
 };
 
@@ -65,4 +83,3 @@ MedicationLabelPrintModal.propTypes = {
     }),
   ).isRequired,
 };
-

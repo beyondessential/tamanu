@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ConfirmCancelBackRow, TranslatedText, Modal } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { Box, Divider, IconButton } from '@material-ui/core';
@@ -33,6 +33,7 @@ const SetContainer = styled.div`
   display: flex;
   gap: 10px;
   align-items: flex-end;
+  height: calc(100vh - 370px);
 `;
 
 const AllergiesWarningBox = styled(Box)`
@@ -127,10 +128,25 @@ const SelectScreen = ({
   onSelect,
   selectedMedicationSet,
 }) => {
+  const medicationSetListRef = useRef(null);
+  const [listHeight, setListHeight] = useState(null);
+
+  useEffect(() => {
+    const updateHeight = () => {
+      if (medicationSetListRef.current) {
+        setListHeight(medicationSetListRef.current.offsetHeight);
+      }
+    };
+
+    updateHeight();
+    window.addEventListener('resize', updateHeight);
+    return () => window.removeEventListener('resize', updateHeight);
+  }, [medicationSets, medicationSetsLoading]);
+
   return (
     <>
       <SetContainer>
-        <Box flex={1}>
+        <Box flex={1} display='flex' flexDirection='column' height='100%'>
           {allergies?.data && allergies.data.length > 0 && (
             <AllergiesWarningBox>
               <AllergiesWarningHeader>
@@ -162,6 +178,7 @@ const SelectScreen = ({
             />
           </Heading5>
           <MedicationSetList
+            ref={medicationSetListRef}
             medicationSets={medicationSets}
             isLoading={medicationSetsLoading}
             onSelect={onSelect}
@@ -176,7 +193,7 @@ const SelectScreen = ({
                 fallback="Medication set medications"
               />
             </Heading5>
-            <MedicationSetMedicationsList medicationSet={selectedMedicationSet} />
+            <MedicationSetMedicationsList medicationSet={selectedMedicationSet} height={listHeight} />
           </Box>
         )}
       </SetContainer>
