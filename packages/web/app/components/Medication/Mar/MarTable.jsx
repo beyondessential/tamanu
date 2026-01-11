@@ -163,7 +163,6 @@ const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate }) => {
       <TimeSlotText>
         <TimeSlotLabel>{periodLabel || ''}</TimeSlotLabel>
         <div>
-          {/* TODO: Check format(date, 'ha') 9:25 am vs 9am */}
           <DateDisplay
             date={startDate}
             showTime

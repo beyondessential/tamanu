@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { keyBy, orderBy } from 'lodash';
-import { format } from 'date-fns';
+import { toDateString } from '@tamanu/utils/dateTime';
 import { Box, Typography } from '@material-ui/core';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import GetAppIcon from '@material-ui/icons/GetApp';
@@ -92,7 +92,7 @@ const buildParameterFieldValidation = ({ required }) => {
 const useFileName = () => {
   const { getLocalisation } = useLocalisation();
   const country = getLocalisation('country');
-  const date = format(new Date(), 'ddMMyyyy');
+  const date = toDateString(new Date());
   const { getTranslation } = useTranslation();
 
   const countryName = getTranslation(getReferenceDataStringId(country.id, 'country'), country.name);

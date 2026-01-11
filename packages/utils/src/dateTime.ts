@@ -90,6 +90,19 @@ export const toDateTimeLocalString = (date: string | Date | null | undefined) =>
   return dateFnsFormat(dateObj, "yyyy-MM-dd'T'HH:mm");
 };
 
+/**
+ * Extracts time from a date as "HH:mm" string (24-hour format).
+ * Useful for storing time values in forms/API.
+ */
+export const toTimeString = (date: string | Date | null | undefined) => {
+  if (date == null) return null;
+
+  const dateObj = parseDate(date);
+  if (!dateObj) return null;
+
+  return dateFnsFormat(dateObj, 'HH:mm');
+};
+
 export const getCurrentDateTimeString = () => formatISO9075(new Date());
 
 export const getDateTimeSubtractedFromNow = (daysToSubtract: number) => {
