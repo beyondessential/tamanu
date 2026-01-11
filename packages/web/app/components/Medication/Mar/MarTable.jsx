@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useRef, useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
-import { format, isSameDay } from 'date-fns';
+import { isSameDay } from 'date-fns';
 import {
   getDateFromTimeString,
   findAdministrationTimeSlotFromIdealTime,
