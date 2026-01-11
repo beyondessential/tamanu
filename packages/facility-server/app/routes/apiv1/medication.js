@@ -1659,12 +1659,6 @@ medication.delete(
       throw new NotFoundError(`Medication request with id ${params.id} not found`);
     }
 
-    await checkSensitiveMedicationPermission(
-      [pharmacyOrderPrescription.prescription.medicationId],
-      req,
-      'write',
-    );
-
     await pharmacyOrderPrescription.destroy();
 
     res.send({ success: true });
