@@ -349,7 +349,7 @@ const updatePharmacyNotesInputSchema = z
   })
   .strip();
 medication.put(
-  '/:id/pharmacy-notes',
+  '/:id/details',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const { Prescription } = models;
@@ -358,11 +358,14 @@ medication.put(
       await updatePharmacyNotesInputSchema.parseAsync(req.body);
 
     req.checkPermission('write', 'Medication');
-    req.checkPermission('create', 'MedicationPharmacyNote');
 
     const prescription = await Prescription.findByPk(params.id);
     if (!prescription) {
       throw new InvalidOperationError(`Prescription with id ${params.id} not found`);
+    }
+
+    if (pharmacyNotes && !prescription.pharmacyNotes) {
+      req.checkPermission('create', 'MedicationPharmacyNote');
     }
 
     if (prescription.pharmacyNotes && prescription.pharmacyNotes !== pharmacyNotes) {
