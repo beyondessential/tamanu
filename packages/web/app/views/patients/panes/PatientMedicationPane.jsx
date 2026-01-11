@@ -91,6 +91,15 @@ const DarkText = styled(Box)`
 `;
 
 const StyledConditionalTooltip = styled(ConditionalTooltip)`
+  .MuiTooltip-tooltip {
+    max-width: 180px;
+    padding: 8px 16px;
+    font-size: 11px;
+    font-weight: 400;
+  }
+`;
+
+const NoMedicationTooltip = styled(ConditionalTooltip)`
   width: fit-content;
   .MuiTooltip-tooltip {
     max-width: 150px;
@@ -185,7 +194,7 @@ const ONGOING_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
     sortable: true,
     accessor: data => {
       return (
-        <StyledConditionalTooltip
+        <NoMedicationTooltip
           visible={isUnavailableAtFacility(data?.medication)}
           title={
             <TranslatedText
@@ -201,7 +210,7 @@ const ONGOING_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
               category={data?.medication?.type}
             />
           </CellText>
-        </StyledConditionalTooltip>
+        </NoMedicationTooltip>
       );
     },
   },

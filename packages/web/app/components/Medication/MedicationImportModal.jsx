@@ -320,14 +320,13 @@ export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => 
 
     const encounterPrescriptionHashes = new Set(encounterPrescriptions.map(createPrescriptionHash));
 
-    return patientOngoingPrescriptions
-      .filter(p => !p.discontinued)
-      .filter(p => !encounterPrescriptionHashes.has(createPrescriptionHash(p)))
-      .filter(
-        p =>
-          p.medication?.referenceDrug?.facilities?.[0]?.stockStatus !==
+    return patientOngoingPrescriptions.filter(
+      p =>
+        !p.discontinued &&
+        !encounterPrescriptionHashes.has(createPrescriptionHash(p)) &&
+        p.medication?.referenceDrug?.facilities?.[0]?.stockStatus !==
           DRUG_STOCK_STATUSES.UNAVAILABLE,
-      );
+    );
   }, [encounterPrescriptionsData, patientOngoingPrescriptionsData]);
 
   const [selectedRowIds, setSelectedRowIds] = useState(new Set());
