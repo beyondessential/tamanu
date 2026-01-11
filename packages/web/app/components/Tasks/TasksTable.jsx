@@ -23,7 +23,7 @@ import { TaskActionModal } from './TaskActionModal';
 import { useAuth } from '../../contexts/Auth';
 import ms from 'ms';
 import { useEncounter } from '../../contexts/Encounter';
-import { useFormatShortest, useFormatTime } from '@tamanu/ui-components';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 
 const StyledPriorityHighIcon = styled(PriorityHighIcon)`
   color: ${Colors.alert};
@@ -350,13 +350,15 @@ const getEndDate = task => {
 };
 
 const DurationTooltip = ({ endDate }) => {
-  const endDateDisplay = useFormatShortest(endDate);
-  const endTimeDisplay = useFormatTime(endDate, { removeWhitespace: true });
+  const { formatShortest, formatTime } = useDateTimeFormat();
   return (
     <TranslatedText
       stringId="encounter.tasks.table.duration.endDate"
       fallback={`Ends at :time on :date`}
-      replacements={{ time: endTimeDisplay.toLowerCase(), date: endDateDisplay }}
+      replacements={{
+        time: formatTime(endDate, { removeWhitespace: true }).toLowerCase(),
+        date: formatShortest(endDate),
+      }}
     />
   );
 };
