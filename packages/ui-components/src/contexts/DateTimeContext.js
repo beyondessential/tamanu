@@ -54,4 +54,3 @@ export const DateTimeProvider = ({ children, countryTimeZone = 'Pacific/Auckland
 
   return <DateTimeContext.Provider value={value}>{children}</DateTimeContext.Provider>;
 };
-
