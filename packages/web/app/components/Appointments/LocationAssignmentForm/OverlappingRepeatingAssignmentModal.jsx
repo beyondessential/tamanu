@@ -1,5 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
+import { set } from 'date-fns';
+
+import { DateDisplay, useDateTimeFormat } from '@tamanu/ui-components';
 
 import { TranslatedText } from '../../Translation';
 import { ConfirmRowDivider } from '../../ConfirmRowDivider';
@@ -8,9 +11,6 @@ import { Button } from '../../Button';
 import { Modal } from '../../Modal';
 import { BodyText } from '../../Typography';
 import { Colors } from '../../../constants';
-import { formatTime } from '@tamanu/utils/dateTime';
-import { set } from 'date-fns';
-import { DateDisplay } from '@tamanu/ui-components';
 
 const StyledModal = styled(Modal)`
   & .MuiPaper-root {
@@ -57,13 +57,13 @@ const RightDetails = styled.div`
 `;
 
 const AssignmentDetails = ({ assignment }) => {
+  const { formatTime } = useDateTimeFormat();
+
   const getDisplayTime = time => {
     const parsedTime = time.split(':');
     const hour = parseInt(parsedTime[0]);
     const minute = parseInt(parsedTime[1]) || 0;
-    return formatTime(set(new Date(), { hours: hour, minutes: minute, seconds: 0 }))
-      .replace(' ', '')
-      .toLowerCase();
+    return formatTime(set(new Date(), { hours: hour, minutes: minute, seconds: 0 }), { removeWhitespace: true }).toLowerCase();
   };
 
   const leftDetails = [
