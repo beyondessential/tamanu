@@ -287,10 +287,6 @@ export const useFormatWeekdayShort = date => {
   return formatWeekdayShort(date, countryTimeZone, timeZone);
 };
 
-
-
-
-
 DateDisplay.stringFormat = (dateValue, formatFn = formatShort) => {
   if (VALID_FORMAT_FUNCTIONS.includes(formatFn) === false) {
     // If you're seeing this error, you probably need to move your format function to this file and add it to VALID_FORMAT_FUNCTIONS

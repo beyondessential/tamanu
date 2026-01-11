@@ -36,11 +36,13 @@ function getEncounterTypeLabel(type) {
   return ENCOUNTER_OPTIONS.find(x => x.value === type).label;
 }
 
-function getEncounterLabel(encounter) {
-  const encounterDate = DateDisplay.stringFormat(encounter.startDate);
-  const encounterTypeLabel = getEncounterTypeLabel(encounter.encounterType);
-  return `${encounterDate} (${encounterTypeLabel})`;
-}
+const EncounterLabel = ({encounter}) => (
+  <>
+    <DateDisplay date={encounter.startDate} />
+    <DateDisplay date={encounter.startDate} showTime showDate={false} />
+    ({getEncounterTypeLabel(encounter.encounterType)})
+  </>
+);
 
 const FormSubmitActionDropdown = React.memo(({ encounter, setOnSuccess, submitForm }) => {
   const { loadEncounter } = useEncounter();
@@ -104,7 +106,6 @@ export const ImagingRequestForm = React.memo(
 
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
-    const encounterLabel = getEncounterLabel(encounter);
     const { getAreasForImagingType } = useImagingRequestAreas();
     const requiredValidationMessage = getTranslation('validation.required.inline', '*Required');
     return (
@@ -233,7 +234,7 @@ export const ImagingRequestForm = React.memo(
                   />
                 }
                 disabled
-                value={encounterLabel}
+                value={<EncounterLabel encounter={encounter} />}
                 data-testid="textinput-tyem"
               />
               <Field
