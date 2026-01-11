@@ -220,7 +220,7 @@ export const MedicationDetails = ({
     if (payload.repeats === '') {
       delete payload.repeats;
     }
-    await api.put(`medication/${medication.id}/pharmacy-notes`, {
+    await api.put(`medication/${medication.id}/details`, {
       ...payload,
     });
     onReloadTable();
