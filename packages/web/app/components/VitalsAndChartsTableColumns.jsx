@@ -29,8 +29,11 @@ const IconButton = styled(IconButtonComponent)`
 `;
 
 const getExportOverrideTitleDate = (date, countryTimeZone, timeZone) => {
-  return `${formatShortest(date, countryTimeZone, timeZone)} ${formatTimeWithSeconds(date, countryTimeZone, timeZone)}` ;
-
+  return `${formatShortest(date, countryTimeZone, timeZone)} ${formatTimeWithSeconds(
+    date,
+    countryTimeZone,
+    timeZone,
+  )}`;
 };
 
 const parseMultiselectValue = value => {
@@ -209,7 +212,7 @@ export const useChartsTableColumns = (
   onCellClick,
   isEditEnabled = false,
 ) => {
-  const {getSetting} = useSettings();
+  const { getSetting } = useSettings();
   const countryTimeZone = 'Pacific/Auckland';
   const timeZone = getSetting('timeZone');
   return [
