@@ -23,7 +23,7 @@ import {
   MODAL_PADDING_LEFT_AND_RIGHT,
   MODAL_PADDING_TOP_AND_BOTTOM,
 } from '@tamanu/ui-components';
-import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
+import { getCurrentDateTimeString, toDateTimeString, toDateTimeLocalString } from '@tamanu/utils/dateTime';
 import { Divider as BaseDivider, Box, IconButton as BaseIconButton } from '@material-ui/core';
 import { useApi } from '../api';
 import { foreignKey } from '../utils/validation';
@@ -885,7 +885,7 @@ export const DischargeForm = ({
               />
             }
             component={DateTimeField}
-            min={format(encounter.startDate, "yyyy-MM-dd'T'HH:mm")}
+            min={toDateTimeLocalString(encounter.startDate)}
             required
             saveDateAsString
             data-testid="field-20tt"

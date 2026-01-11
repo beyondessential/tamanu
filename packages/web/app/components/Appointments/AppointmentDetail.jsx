@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import { format } from 'date-fns';
 import Select from 'react-select';
 import CloseIcon from '@material-ui/icons/Close';
 import { IconButton } from '@material-ui/core';
@@ -15,11 +14,11 @@ import {
   TranslatedText,
   TranslatedReferenceData,
   TranslatedSex,
+  DateDisplay,
 } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { TextDisplayIdLabel } from '../DisplayIdLabel';
-import { DateDisplay } from '../DateDisplay';
 import { useApi } from '../../api';
 import { reloadPatient } from '../../store/patient';
 import { AppointmentModal } from './AppointmentModal';
@@ -155,10 +154,15 @@ const PatientInfo = ({ patient }) => {
 
 const AppointmentTime = ({ startTime, endTime }) => (
   <span>
-    {format(new Date(startTime), 'ccc dd LLL')}
+    <DateDisplay date={startTime} showWeekday noTooltip />
     {' - '}
-    {format(new Date(startTime), 'h:mm aaa')}
-    {endTime && ` - ${format(new Date(endTime), 'h:mm aaa')}`}
+    <DateDisplay date={startTime} showDate={false} showTime compactTime noTooltip />
+    {endTime && (
+      <>
+        {' '}
+        - <DateDisplay date={endTime} showDate={false} showTime compactTime noTooltip />
+      </>
+    )}
   </span>
 );
 

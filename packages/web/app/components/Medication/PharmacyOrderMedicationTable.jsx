@@ -10,7 +10,6 @@ import { NumberInput, OuterLabelFieldWrapper, CheckInput } from '../Field';
 import { Table } from '../Table';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../Translation';
-import { format } from 'date-fns';
 
 const StyledTable = styled(Table)`
   .MuiTableCell-root {
@@ -208,7 +207,7 @@ const getColumns = (
             <Box>
               <DateDisplay date={orderDate} shortYear />
               <Box fontSize="12px" color={Colors.softText}>
-                {format(orderDate, 'h:mma').toLowerCase()}
+                <DateDisplay date={orderDate} showDate={false} showTime compactTime />
               </Box>
             </Box>
           </NoWrapCell>

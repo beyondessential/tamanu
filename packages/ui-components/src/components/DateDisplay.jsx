@@ -3,17 +3,7 @@ import { format } from 'date-fns';
 import { getTimezoneOffset } from 'date-fns-tz';
 import { Box, Typography } from '@material-ui/core';
 import styled from 'styled-components';
-import {
-  parseDate,
-  intlFormatDate,
-  formatShortest,
-  formatShort,
-  formatTime,
-  formatTimeWithSeconds,
-  locale,
-  formatLong,
-  formatWeekdayShort,
-} from '@tamanu/utils/dateTime';
+import { parseDate, locale } from '@tamanu/utils/dateTime';
 import { TAMANU_COLORS } from '../constants';
 import { ThemedTooltip } from './Tooltip';
 import { useDateTimeFormat } from '../contexts';
@@ -29,33 +19,10 @@ const SoftText = styled(Text)`
   color: ${TAMANU_COLORS.midText};
 `;
 
-const formatShortExplicit = (date, timeZone, countryTimeZone) =>
-  intlFormatDate(
-    date,
-    {
-      dateStyle: 'medium',
-    },
-    'Unknown',
-    timeZone,
-    countryTimeZone,
-  ); // "4 Mar 2019"
-
-const formatShortestExplicit = (date, timeZone, countryTimeZone) =>
-  intlFormatDate(
-    date,
-    {
-      year: '2-digit',
-      month: 'short',
-      day: 'numeric',
-    },
-    'Unknown',
-    timeZone,
-    countryTimeZone,
-  ); // "4 Mar 19"
-
 // Diagnostic info for debugging
 const DiagnosticInfo = ({ date: parsedDate, rawDate, timeZone, countryTimeZone }) => {
-  const displayDate = formatLong(parsedDate, countryTimeZone, timeZone);
+  const { formatLong } = useDateTimeFormat();
+  const displayDate = formatLong(parsedDate);
 
   const getFormattedOffset = (tz, date) => {
     if (!tz) return 'N/A';
@@ -143,7 +110,9 @@ export const useDateDisplay = (
     showExplicitDate = false,
     showWeekday = false,
     shortYear = false,
-    removeWhitespace = false,
+    longDateFormat = false,
+    compactTime = false,
+    timeOnly = false,
     includeSeconds = false,
   } = {},
 ) => {
@@ -155,15 +124,26 @@ export const useDateDisplay = (
     formatShortExplicit,
     formatTimeWithSeconds,
     formatTime,
+    formatFullDate,
+    formatTimeCompact,
+    formatTimeSlot,
   } = useDateTimeFormat();
   const dateObj = parseDate(dateValue);
 
   const parts = [];
+
+  if (timeOnly) {
+    parts.push(formatTimeSlot(dateObj));
+    return parts.join(' ');
+  }
+
   if (showWeekday) {
     parts.push(formatWeekdayShort(dateObj));
   }
   if (showDate) {
-    if (shortYear) {
+    if (longDateFormat) {
+      parts.push(formatFullDate(dateObj));
+    } else if (shortYear) {
       parts.push(formatShortest(dateObj));
     } else {
       parts.push(formatShort(dateObj));
@@ -178,8 +158,10 @@ export const useDateDisplay = (
   if (showTime) {
     if (includeSeconds) {
       parts.push(formatTimeWithSeconds(dateObj));
+    } else if (compactTime) {
+      parts.push(formatTimeCompact(dateObj));
     } else {
-      parts.push(formatTime(dateObj, { removeWhitespace }));
+      parts.push(formatTime(dateObj));
     }
   }
 
@@ -234,29 +216,11 @@ export const MultilineDatetimeDisplay = React.memo(
   },
 );
 
-export const TimeRangeDisplay = ({ range: { start, end } }) => (
-  <>
-    {format(start, 'h:mmaaa')}&nbsp;&ndash; {format(end, 'h:mmaaa')}
-  </>
-);
-
-const VALID_FORMAT_FUNCTIONS = [
-  formatShortest,
-  formatShort,
-  formatTime,
-  formatTimeWithSeconds,
-  formatShortExplicit,
-  formatShortestExplicit,
-  formatLong,
-  formatWeekdayShort,
-];
-
-DateDisplay.stringFormat = (dateValue, formatFn = formatShort) => {
-  if (VALID_FORMAT_FUNCTIONS.includes(formatFn) === false) {
-    // If you're seeing this error, you probably need to move your format function to this file and add it to VALID_FORMAT_FUNCTIONS
-    // This is done to ensure our date formats live in one central place in the code
-    throw new Error('Invalid format function used, check DateDisplay component for options');
-  }
-  const dateObj = parseDate(dateValue);
-  return formatFn(dateObj);
+export const TimeRangeDisplay = ({ range: { start, end } }) => {
+  const { formatTimeCompact } = useDateTimeFormat();
+  return (
+    <>
+      {formatTimeCompact(start)}&nbsp;&ndash; {formatTimeCompact(end)}
+    </>
+  );
 };

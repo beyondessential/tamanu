@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import { isNumber, omit, set } from 'lodash';
 import {
-  format,
+  format as dateFnsFormat,
   isAfter,
   parseISO,
   add,
@@ -302,7 +302,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
         frequency === REPEAT_FREQUENCY.MONTHLY ? getWeekdayOrdinalPosition(startTimeDate) : null,
       );
       // Note: currently supports a single day of the week
-      setFieldValue('schedule.daysOfWeek', [format(startTimeDate, 'iiiiii').toUpperCase()]);
+      setFieldValue('schedule.daysOfWeek', [dateFnsFormat(startTimeDate, 'iiiiii').toUpperCase()]);
 
       // Don't update the until date if occurrence count is set
       if (!values.schedule.occurrenceCount) {

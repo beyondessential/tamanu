@@ -36,7 +36,7 @@ import { TimeSlotPicker } from '../LocationBookingForm/DateTimeRangeField/TimeSl
 import { TIME_SLOT_PICKER_VARIANTS } from '../LocationBookingForm/DateTimeRangeField/constants';
 import { DeleteLocationAssignmentModal } from './DeleteLocationAssignmentModal';
 import { RepeatingFields } from '../RepeatingFields';
-import { add, format, parseISO } from 'date-fns';
+import { add, format as dateFnsFormat, parseISO } from 'date-fns';
 import {
   getLastFrequencyDate,
   getWeekdayOrdinalPosition,
@@ -398,7 +398,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
         frequency === REPEAT_FREQUENCY.MONTHLY ? getWeekdayOrdinalPosition(startTimeDate) : null,
       );
       // Note: currently supports a single day of the week
-      setFieldValue('schedule.daysOfWeek', [format(startTimeDate, 'iiiiii').toUpperCase()]);
+      setFieldValue('schedule.daysOfWeek', [dateFnsFormat(startTimeDate, 'iiiiii').toUpperCase()]);
 
       // Don't update the until date if occurrence count is set
       if (!values.schedule.occurrenceCount) {
@@ -519,7 +519,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
               />
             }
             component={DateField}
-            max={format(add(new Date(), { months: 24 }), 'yyyy-MM-dd')}
+            max={toDateString(add(new Date(), { months: 24 }))}
             onChange={handleUpdateDate}
             required
             saveDateAsString

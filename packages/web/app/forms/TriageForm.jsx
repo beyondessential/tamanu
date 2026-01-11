@@ -1,10 +1,10 @@
 import React from 'react';
 import * as yup from 'yup';
-import { endOfDay, format } from 'date-fns';
+import { endOfDay } from 'date-fns';
 import { ENCOUNTER_TYPES, FORM_TYPES } from '@tamanu/constants';
 import { useNavigate } from 'react-router';
 import { Box } from '@material-ui/core';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { getCurrentDateTimeString, toDateTimeLocalString } from '@tamanu/utils/dateTime';
 import { getAnswersFromData, Form, FormGrid } from '@tamanu/ui-components';
 import { foreignKey } from '../utils/validation';
 import {
@@ -87,7 +87,7 @@ export const TriageForm = ({
           }
           component={DateTimeField}
           // Weird time picker behaviour with date.now(), so using end of day. It will be also validated on submit.
-          max={format(endOfDay(new Date()), `yyyy-MM-dd'T'HH:mm`)}
+          max={toDateTimeLocalString(endOfDay(new Date()))}
           helperText="If different from triage time"
           saveDateAsString
           data-testid="field-mhav"
@@ -103,7 +103,7 @@ export const TriageForm = ({
           }
           required
           // Weird time picker behaviour with date.now(), so using end of day. It will be also validated on submit.
-          max={format(endOfDay(new Date()), `yyyy-MM-dd'T'HH:mm`)}
+          max={toDateTimeLocalString(endOfDay(new Date()))}
           component={DateTimeField}
           saveDateAsString
           data-testid="field-9hxy"

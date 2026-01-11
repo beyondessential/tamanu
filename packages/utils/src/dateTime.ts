@@ -77,6 +77,19 @@ export const toDateString = (date: string | Date | null | undefined) => {
   return formatISO9075(dateObj, { representation: 'date' });
 };
 
+/**
+ * Formats a date for use in HTML datetime-local input elements.
+ * Returns format: "yyyy-MM-dd'T'HH:mm"
+ */
+export const toDateTimeLocalString = (date: string | Date | null | undefined) => {
+  if (date == null) return null;
+
+  const dateObj = parseDate(date);
+  if (!dateObj) return null;
+
+  return dateFnsFormat(dateObj, "yyyy-MM-dd'T'HH:mm");
+};
+
 export const getCurrentDateTimeString = () => formatISO9075(new Date());
 
 export const getDateTimeSubtractedFromNow = (daysToSubtract: number) => {
@@ -343,6 +356,87 @@ export const formatWeekdayShort = (
   countryTimeZone: string,
   timeZone?: string | null,
 ) => intlFormatDate(date, { weekday: 'short' }, 'Unknown', countryTimeZone, timeZone);
+
+/** "Thursday" */
+export const formatWeekdayLong = (
+  date: string | Date | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) => intlFormatDate(date, { weekday: 'long' }, 'Unknown', countryTimeZone, timeZone);
+
+/** "M" - single letter weekday */
+export const formatWeekdayNarrow = (
+  date: string | Date | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) => intlFormatDate(date, { weekday: 'narrow' }, 'Unknown', countryTimeZone, timeZone);
+
+/** "15 January 2024" */
+export const formatFullDate = (
+  date: string | Date | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) =>
+  intlFormatDate(
+    date,
+    { day: 'numeric', month: 'long', year: 'numeric' },
+    'Unknown',
+    countryTimeZone,
+    timeZone,
+  );
+
+/** "3pm" - hour only, no minutes */
+export const formatTimeSlot = (
+  date: string | Date | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) => {
+  const result = intlFormatDate(
+    date,
+    { hour: 'numeric', hour12: true },
+    'Unknown',
+    countryTimeZone,
+    timeZone,
+  );
+  return result.replace(' ', '').toLowerCase();
+};
+
+/** "3:30pm" - time without space */
+export const formatTimeCompact = (
+  date: string | Date | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) => {
+  const result = intlFormatDate(
+    date,
+    { hour: 'numeric', minute: '2-digit', hour12: true },
+    'Unknown',
+    countryTimeZone,
+    timeZone,
+  );
+  return result.replace(' ', '').toLowerCase();
+};
+
+/** "Apr 12, 2024" - medium date style with explicit month name (unambiguous across locales) */
+export const formatShortExplicit = (
+  date: string | Date | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) => intlFormatDate(date, { dateStyle: 'medium' }, 'Unknown', countryTimeZone, timeZone);
+
+/** "12 Apr 24" - short date with explicit month name (unambiguous across locales) */
+export const formatShortestExplicit = (
+  date: string | Date | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) =>
+  intlFormatDate(
+    date,
+    { year: '2-digit', month: 'short', day: 'numeric' },
+    'Unknown',
+    countryTimeZone,
+    timeZone,
+  );
 
 export const isStartOfThisWeek = (date: Date | number) => {
   const startOfThisWeek = startOfWeek(new Date(), { weekStartsOn: 1 });

@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import styled from 'styled-components';
-import { format } from 'date-fns';
 import { Box } from '@material-ui/core';
 import { DRUG_ROUTE_LABELS, MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
 import { useLocation, useNavigate } from 'react-router';
@@ -219,7 +218,7 @@ const getMedicationColumns = (
           tooltipTitle = (
             <>
               <TranslatedText stringId="medication.table.endsOn.label" fallback="Ends on" />
-              <div>{format(new Date(endDate), 'dd/MM/yy h:mma').toLowerCase()}</div>
+              <DateDisplay date={endDate} shortYear showTime compactTime noTooltip />
             </>
           );
         } else if (isOngoing) {
@@ -306,9 +305,9 @@ const getMedicationColumns = (
             fontStyle={isPausing ? 'italic' : 'normal'}
           >
             <Box>
-              <DateDisplay date={orderDate} shortYear />
+              <DateDisplay date={orderDate} shortYear noTooltip />
               <Box fontSize="12px" color={Colors.softText}>
-                {format(orderDate, 'h:mma').toLowerCase()}
+                <DateDisplay date={orderDate} showDate={false} showTime compactTime noTooltip />
               </Box>
             </Box>
           </NoWrapCell>
