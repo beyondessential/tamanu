@@ -28,6 +28,11 @@ export const InvoiceInsuranceModal = ({ open, onClose, invoice }) => {
   const [selectedPlans, setSelectedPlans] = useState(defaultValues);
   const { mutate } = useInvoiceInsurancePlansMutation(invoice.id, invoice.encounterId);
 
+  const onChange = ({ target }) => {
+    const value = typeof target.value === 'string' ? JSON.parse(target.value) : target.value;
+    setSelectedPlans(value);
+  };
+
   const onConfirm = async () => {
     const data = { invoiceInsurancePlanIds: selectedPlans };
     mutate(data, {
@@ -63,7 +68,7 @@ export const InvoiceInsuranceModal = ({ open, onClose, invoice }) => {
           field={{
             name: 'insurancePlans',
             value: selectedPlans,
-            onChange: ({ target }) => setSelectedPlans(target.value),
+            onChange,
           }}
           endpoint="invoiceInsurancePlan"
           isMulti

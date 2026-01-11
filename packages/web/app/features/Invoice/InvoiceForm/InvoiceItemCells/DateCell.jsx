@@ -2,9 +2,10 @@ import React from 'react';
 import { Field, DateField, getDateDisplay, NoteModalActionBlocker } from '../../../../components';
 import { ViewOnlyCell } from './ViewOnlyCell';
 import { ItemCell } from './ItemCell';
+import { CELL_WIDTHS } from '../../constants';
 
 export const DateCell = ({ index, item, isItemEditable }) => (
-  <ItemCell width="14%">
+  <ItemCell $width={CELL_WIDTHS.DATE}>
     {isItemEditable ? (
       <NoteModalActionBlocker>
         <Field

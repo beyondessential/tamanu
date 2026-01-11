@@ -11,7 +11,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  width: 320px;
+  width: ${props => props.$width};
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
   padding: 10px 12px;
@@ -30,13 +30,13 @@ const TotalCardItem = styled(CardItem)`
   font-weight: 500;
 `;
 
-export const InvoiceSummaryPanel = ({ invoiceItems }) => {
+export const InvoiceSummaryPanel = ({ invoiceItems, patientPayments }) => {
   const { invoiceItemsTotal, insuranceCoverageTotal, patientTotal } = getInvoiceSummary({
     items: invoiceItems,
   });
   const coverageDisplay = insuranceCoverageTotal * -1;
   return (
-    <Container>
+    <Container $width={patientPayments.length > 0 ? '220px' : '320px'}>
       <CardItem>
         <TranslatedText stringId="invoice.summary.invoiceTotal" fallback="Invoice total" />
         <Price price={invoiceItemsTotal} data-testid="translatedtext-828s" />

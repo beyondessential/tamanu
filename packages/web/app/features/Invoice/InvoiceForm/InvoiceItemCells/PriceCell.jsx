@@ -13,19 +13,13 @@ import { ThemedTooltip } from '@tamanu/ui-components';
 import { PriceField } from '../../../../components/Field/PriceField';
 import { ItemCell as StyledItemCell } from './ItemCell';
 import { Price } from '../../Price';
-
-const ItemCell = styled(StyledItemCell)`
-  display: flex;
-  justify-content: flex-end;
-  align-items: flex-start;
-`;
+import { CELL_WIDTHS } from '../../constants';
 
 const Container = styled.div`
-  position: relative;
-  flex: 1;
-  flex-direction: column;
-  align-items: flex-end;
-  text-align: right;
+  //position: relative;
+  //flex: 1;
+  //flex-direction: column;
+  //align-items: flex-end;
 
   .MuiTextField-root {
     max-width: 80px;
@@ -114,7 +108,7 @@ export const PriceCell = ({ index, item, isExpanded, hidePriceInput }) => {
 
   return (
     <>
-      <ItemCell width="11%" sx={{ flexGrow: 1 }}>
+      <StyledItemCell $width={CELL_WIDTHS.PRICE}>
         <Container>
           {hidePriceInput ? (
             <>
@@ -144,7 +138,7 @@ export const PriceCell = ({ index, item, isExpanded, hidePriceInput }) => {
             <InsuranceSection item={item} discountedPrice={discountedPrice} />
           </Collapse>
         </Container>
-      </ItemCell>
+      </StyledItemCell>
     </>
   );
 };

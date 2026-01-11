@@ -2,9 +2,10 @@ import React from 'react';
 import { Field, NumberField, NoteModalActionBlocker } from '../../../../components';
 import { ViewOnlyCell } from './ViewOnlyCell';
 import { ItemCell } from './ItemCell';
+import { CELL_WIDTHS } from '../../constants';
 
 export const QuantityCell = ({ index, item, isItemEditable }) => (
-  <ItemCell width="10%" paddingLeft="24px">
+  <ItemCell $width={CELL_WIDTHS.QUANTITY}>
     {isItemEditable ? (
       <NoteModalActionBlocker>
         <Field

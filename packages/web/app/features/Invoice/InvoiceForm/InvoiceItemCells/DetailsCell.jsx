@@ -18,7 +18,7 @@ export const DetailsCell = ({
   handleChangeProduct,
   invoiceIsEditable,
 }) => (
-  <ItemCell width="28%">
+  <ItemCell style={{ flex: 1 }}>
     {isItemEditable ? (
       <NoteModalActionBlocker>
         <Field
@@ -31,7 +31,9 @@ export const DetailsCell = ({
         />
       </NoteModalActionBlocker>
     ) : (
-      <ViewOnlyCell>{item.productNameFinal || item.product?.name}</ViewOnlyCell>
+      <ViewOnlyCell style={{ paddingRight: 15 }}>
+        {item.productNameFinal || item.product?.name}
+      </ViewOnlyCell>
     )}
     {item.note && (
       <Box

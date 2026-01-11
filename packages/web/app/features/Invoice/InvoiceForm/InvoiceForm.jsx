@@ -15,6 +15,13 @@ import { invoiceFormSchema } from './invoiceFormSchema';
 import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 
+const StyledForm = styled(Form)`
+  overflow: auto;
+  > div {
+    min-width: 750px;
+  }
+`;
+
 const AddButton = styled(MuiButton)`
   font-size: 14px;
   text-transform: none;
@@ -100,7 +107,7 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
   };
 
   return (
-    <Form
+    <StyledForm
       suppressErrorDialogCondition={errors => !handleShowErrorDialog(errors)}
       onSubmit={handleSubmit}
       enableReinitialize
@@ -170,7 +177,10 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
                             isDisabled={isUpdatingInvoice}
                           />
                         )}
-                        <InvoiceSummaryPanel invoiceItems={values.invoiceItems} />
+                        <InvoiceSummaryPanel
+                          invoiceItems={values.invoiceItems}
+                          patientPayments={invoice.payments}
+                        />
                       </Box>
                     </FormFooter>
                   )}
