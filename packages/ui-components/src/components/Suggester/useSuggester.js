@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useAuth, useApi } from '../../contexts';
 import { Suggester } from './Suggester';
 import { getPatientNameAsString } from '../PatientNameDisplay';
@@ -22,9 +22,12 @@ export const usePatientSuggester = () => {
   const api = useApi();
   return new Suggester(api, 'patient', {
     formatter: ({ id, ...patient }) => ({
-      label: `${getPatientNameAsString(patient)} (${patient.displayId}) - ${
-        patient.sex
-      } - ${DateDisplay.stringFormat(patient.dateOfBirth)}`,
+      label: (
+        <>
+          {getPatientNameAsString(patient)}({patient.displayId}) - {patient.sex} -
+          <DateDisplay date={patient.dateOfBirth} />
+        </>
+      ),
       value: id,
     }),
   });
