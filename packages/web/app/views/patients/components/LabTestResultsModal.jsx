@@ -350,6 +350,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
           />,
         );
         // Force refresh of lab test data fetching table
+        queryClient.invalidateQueries(['labRequest', labRequest.id]);
         queryClient.invalidateQueries(['labTestResults', labRequest.id]);
 
         refreshLabTestTable();
