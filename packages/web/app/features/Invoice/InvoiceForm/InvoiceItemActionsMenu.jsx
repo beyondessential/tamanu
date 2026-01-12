@@ -159,8 +159,7 @@ const useInvoiceItemActionsMenu = ({
 
 const MenuButton = styled(ThreeDotMenu)`
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 2px;
   right: 0;
 `;
 

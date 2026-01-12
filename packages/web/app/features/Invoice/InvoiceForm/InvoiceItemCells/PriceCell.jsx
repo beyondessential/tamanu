@@ -16,14 +16,20 @@ import { Price } from '../../Price';
 import { CELL_WIDTHS } from '../../constants';
 
 const Container = styled.div`
-  //position: relative;
-  //flex: 1;
-  //flex-direction: column;
-  //align-items: flex-end;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  align-self: stretch;
 
   .MuiTextField-root {
     max-width: 80px;
   }
+`;
+
+const MainContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 `;
 
 const Row = styled.div`
@@ -39,7 +45,8 @@ const RowName = styled.div`
 `;
 
 const RowValue = styled.div`
-  min-width: 4em;
+  color: ${props => props.theme.palette.text.tertiary};
+  min-width: 50px;
 `;
 
 const calculateCoverageValue = (discountedPrice, coverageValue) => {
@@ -110,30 +117,32 @@ export const PriceCell = ({ index, item, isExpanded, hidePriceInput }) => {
     <>
       <StyledItemCell $width={CELL_WIDTHS.PRICE}>
         <Container>
-          {hidePriceInput ? (
-            <>
-              <Price $isCrossedOut={hasDiscount} price={price} data-testid="pricetext-is33" />
-              {hasDiscount && (
-                <DiscountSection
-                  discountReason={item.discount?.reason}
-                  discountedPrice={discountedPrice}
-                  price={price}
-                />
-              )}
-            </>
-          ) : (
-            item.productId && (
-              <NoteModalActionBlocker>
-                <Field
-                  name={`invoiceItems.${index}.manualEntryPrice`}
-                  component={PriceField}
-                  required
-                  style={{ width: '100%' }}
-                  data-testid="field-05x9"
-                />
-              </NoteModalActionBlocker>
-            )
-          )}
+          <MainContent>
+            {hidePriceInput ? (
+              <>
+                <Price $isCrossedOut={hasDiscount} price={price} data-testid="pricetext-is33" />
+                {hasDiscount && (
+                  <DiscountSection
+                    discountReason={item.discount?.reason}
+                    discountedPrice={discountedPrice}
+                    price={price}
+                  />
+                )}
+              </>
+            ) : (
+              item.productId && (
+                <NoteModalActionBlocker>
+                  <Field
+                    name={`invoiceItems.${index}.manualEntryPrice`}
+                    component={PriceField}
+                    required
+                    style={{ width: '100%' }}
+                    data-testid="field-05x9"
+                  />
+                </NoteModalActionBlocker>
+              )
+            )}
+          </MainContent>
           <Collapse in={isExpanded}>
             <InsuranceSection item={item} discountedPrice={discountedPrice} />
           </Collapse>

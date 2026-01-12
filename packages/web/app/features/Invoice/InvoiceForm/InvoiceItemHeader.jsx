@@ -42,7 +42,7 @@ export const InvoiceItemHeader = () => {
           data-testid="translatedtext-b5me"
         />
       </ItemHeadCell>
-      <ItemHeadCell $width={CELL_WIDTHS.PRICE}>
+      <ItemHeadCell $width={CELL_WIDTHS.PRICE} style={{ textAlign: 'right' }}>
         <TranslatedText stringId="invoice.modal.editInvoice.price.label" fallback="Price" />
       </ItemHeadCell>
     </StyledItemHeader>

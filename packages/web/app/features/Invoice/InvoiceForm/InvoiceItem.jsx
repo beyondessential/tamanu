@@ -25,7 +25,6 @@ const StyledItemRow = styled.div`
   padding: 12px 50px 12px 24px;
   background: ${Colors.white};
   border-top: 1px solid ${Colors.outline};
-  align-items: center;
 
   .MuiInputBase-input {
     font-size: 14px;
@@ -39,9 +38,9 @@ const StyledItemRow = styled.div`
 const Button = styled(IconButton)`
   position: absolute;
   padding: 6px;
-  top: 50%;
+  top: 4px;
   left: -12px;
-  transform: translateY(-50%) rotate(${props => (props.$isExpanded ? '90deg' : '0')});
+  transform: rotate(${props => (props.$isExpanded ? '90deg' : '0')});
   transition: transform 0.2s ease-in-out;
 `;
 

@@ -12,13 +12,14 @@ export const DateCell = ({ index, item, isItemEditable }) => (
           name={`invoiceItems.${index}.orderDate`}
           required
           component={DateField}
+          format="yy-MM-dd"
           saveDateAsString
           data-testid="field-e3dv"
         />
       </NoteModalActionBlocker>
     ) : (
       <ViewOnlyCell>
-        {item?.orderDate ? getDateDisplay(item?.orderDate, 'dd/MM/yyyy') : ''}
+        {item?.orderDate ? getDateDisplay(item?.orderDate, { shortYear: true }) : ''}
       </ViewOnlyCell>
     )}
   </ItemCell>
