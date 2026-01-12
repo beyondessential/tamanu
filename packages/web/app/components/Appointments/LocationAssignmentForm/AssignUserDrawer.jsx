@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { DeleteOutlined } from '@material-ui/icons';
-import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
+import { toDateString, toDateTimeString, toWeekdayCode } from '@tamanu/utils/dateTime';
 
 import { useSuggester } from '../../../api';
 import {
@@ -36,7 +36,7 @@ import { TimeSlotPicker } from '../LocationBookingForm/DateTimeRangeField/TimeSl
 import { TIME_SLOT_PICKER_VARIANTS } from '../LocationBookingForm/DateTimeRangeField/constants';
 import { DeleteLocationAssignmentModal } from './DeleteLocationAssignmentModal';
 import { RepeatingFields } from '../RepeatingFields';
-import { add, format as dateFnsFormat, parseISO } from 'date-fns';
+import { add, parseISO } from 'date-fns';
 import {
   getLastFrequencyDate,
   getWeekdayOrdinalPosition,
@@ -398,7 +398,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
         frequency === REPEAT_FREQUENCY.MONTHLY ? getWeekdayOrdinalPosition(startTimeDate) : null,
       );
       // Note: currently supports a single day of the week
-      setFieldValue('schedule.daysOfWeek', [dateFnsFormat(startTimeDate, 'iiiiii').toUpperCase()]);
+      setFieldValue('schedule.daysOfWeek', [toWeekdayCode(startTimeDate)]);
 
       // Don't update the until date if occurrence count is set
       if (!values.schedule.occurrenceCount) {

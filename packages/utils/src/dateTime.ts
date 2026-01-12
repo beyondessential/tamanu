@@ -103,6 +103,21 @@ export const toTimeString = (date: string | Date | null | undefined) => {
   return dateFnsFormat(dateObj, 'HH:mm');
 };
 
+
+/**
+ * Extracts weekday code from a date
+ * @example
+ * toWeekdayCode("2024-03-15 09:30:00") // "Mon"
+ */
+export const toWeekdayCode = (date: string | Date | null | undefined) => {  
+  if (date == null) return null;
+
+  const dateObj = parseDate(date);
+  if (!dateObj) return null;
+
+  return dateFnsFormat(dateObj, 'iiiiii');
+};
+
 export const getCurrentDateTimeString = () => formatISO9075(new Date());
 
 export const getDateTimeSubtractedFromNow = (daysToSubtract: number) => {

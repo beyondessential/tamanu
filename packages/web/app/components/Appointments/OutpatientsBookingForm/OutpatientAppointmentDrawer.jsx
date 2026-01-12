@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import { isNumber, omit, set } from 'lodash';
 import {
-  format as dateFnsFormat,
   isAfter,
   parseISO,
   add,
@@ -21,7 +20,7 @@ import {
   FORM_TYPES,
 } from '@tamanu/constants';
 import { getWeekdayOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
-import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
+import { toDateString, toDateTimeString, toWeekdayCode } from '@tamanu/utils/dateTime';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
@@ -302,7 +301,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
         frequency === REPEAT_FREQUENCY.MONTHLY ? getWeekdayOrdinalPosition(startTimeDate) : null,
       );
       // Note: currently supports a single day of the week
-      setFieldValue('schedule.daysOfWeek', [dateFnsFormat(startTimeDate, 'iiiiii').toUpperCase()]);
+      setFieldValue('schedule.daysOfWeek', [toWeekdayCode(startTimeDate)]);
 
       // Don't update the until date if occurrence count is set
       if (!values.schedule.occurrenceCount) {
