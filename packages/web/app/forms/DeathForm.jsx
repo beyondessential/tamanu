@@ -416,7 +416,7 @@ export const DeathForm = React.memo(
               label={
                 <TranslatedText
                   stringId="death.pregnant.label"
-                  fallback="Was the woman pregnant?"
+                  fallback="Was the woman pregnant or recently pregnant?"
                   data-testid="translatedtext-vvm2"
                 />
               }
