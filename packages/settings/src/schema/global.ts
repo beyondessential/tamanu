@@ -3,7 +3,6 @@ import { extractDefaults } from './utils';
 import {
   ageDisplayFormatDefault,
   ageDisplayFormatSchema,
-  displayIdFieldProperties,
   generateFieldSchema,
   imagingCancellationReasonsDefault,
   imagingCancellationReasonsSchema,
@@ -449,7 +448,10 @@ export const globalSettings = {
         displayId: {
           name: 'Display ID',
           description: '_',
-          properties: displayIdFieldProperties,
+          properties: generateFieldSchema({
+            hideable: false,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
         },
         firstName: {
           name: 'First name',

@@ -49,9 +49,3 @@ export const generateFieldSchema = ({ isPatientDetails = false, hideable = true,
 
   return schema;
 };
-
-// Special schemas
-export const displayIdFieldProperties = generateFieldSchema({
-  hideable: false,
-  type: LOCALISED_FIELD_TYPES.STRING,
-});
