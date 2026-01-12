@@ -2013,7 +2013,7 @@ medication.get(
             {
               association: 'prescription',
               where: prescriptionFilters,
-              attributes: ['id', 'units'],
+              attributes: ['id', 'date', 'units'],
               include: [
                 {
                   association: 'medication',

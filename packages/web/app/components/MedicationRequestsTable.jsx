@@ -321,7 +321,6 @@ export const MedicationRequestsTable = () => {
             />
           </NoDataContainer>
         }
-
         fetchOptions={fetchOptions}
         elevated={false}
         data-testid="searchtablewithpermissioncheck-medication"
