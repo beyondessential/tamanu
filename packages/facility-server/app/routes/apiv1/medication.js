@@ -28,6 +28,7 @@ import { add, format, isAfter, isEqual } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 import { validate } from '../../utils/validate';
 import { mapQueryFilters } from '../../database/utils';
+import { keyBy } from 'lodash';
 
 export const medication = express.Router();
 
@@ -348,7 +349,7 @@ const updatePharmacyNotesInputSchema = z
   })
   .strip();
 medication.put(
-  '/:id/pharmacy-notes',
+  '/:id/details',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const { Prescription } = models;
@@ -357,11 +358,14 @@ medication.put(
       await updatePharmacyNotesInputSchema.parseAsync(req.body);
 
     req.checkPermission('write', 'Medication');
-    req.checkPermission('create', 'MedicationPharmacyNote');
 
     const prescription = await Prescription.findByPk(params.id);
     if (!prescription) {
       throw new InvalidOperationError(`Prescription with id ${params.id} not found`);
+    }
+
+    if (pharmacyNotes && !prescription.pharmacyNotes) {
+      req.checkPermission('create', 'MedicationPharmacyNote');
     }
 
     if (prescription.pharmacyNotes && prescription.pharmacyNotes !== pharmacyNotes) {
@@ -1461,6 +1465,8 @@ medication.get(
 
     req.checkPermission('list', 'Medication');
 
+    const canViewSensitiveMedications = req.ability.can('read', 'SensitiveMedication');
+
     const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 
     // Patient filters
@@ -1610,7 +1616,19 @@ medication.get(
           required: true,
         },
       ],
-      where: rootFilter,
+      where: {
+        [Op.and]: [
+          ...(rootFilter[Op.and] || []),
+          ...(!canViewSensitiveMedications
+            ? [
+                {
+                  '$prescription.medication.referenceDrug.is_sensitive$': false,
+                },
+              ]
+            : []),
+          { isCompleted: false },
+        ],
+      },
       order: buildOrder(),
       limit: rowsPerPage,
       offset: page * rowsPerPage,
@@ -1649,12 +1667,6 @@ medication.delete(
       throw new NotFoundError(`Medication request with id ${params.id} not found`);
     }
 
-    await checkSensitiveMedicationPermission(
-      [pharmacyOrderPrescription.prescription.medicationId],
-      req,
-      'write',
-    );
-
     await pharmacyOrderPrescription.destroy();
 
     res.send({ success: true });
@@ -1675,6 +1687,8 @@ medication.get(
     } = query;
 
     req.checkPermission('list', 'Medication');
+
+    const canViewSensitiveMedications = req.ability.can('read', 'SensitiveMedication');
 
     const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 
@@ -1723,34 +1737,49 @@ medication.get(
       { key: 'dispensedByUserId', operator: Op.eq },
     ]);
 
-    // Query PharmacyOrderPrescription with all associations
+    // Query MedicationDispense with all associations
     const databaseResponse = await models.MedicationDispense.findAndCountAll({
       include: [
         {
           association: 'pharmacyOrderPrescription',
           where: pharmacyOrderPrescriptionFilters,
           required: true,
-          attributes: ['id', 'prescriptionId', 'displayId'],
+          attributes: ['id', 'prescriptionId', 'displayId', 'quantity', 'repeats'],
           include: [
             {
               association: 'pharmacyOrder',
               where: { facilityId },
               include: [encounter],
               required: true,
-              attributes: ['id', 'facilityId', 'encounterId'],
+              attributes: ['id', 'facilityId', 'encounterId', 'isDischargePrescription'],
             },
             {
               association: 'prescription',
               where: prescriptionFilters,
-              attributes: ['id'],
+              attributes: ['id', 'units'],
               include: [
                 {
                   association: 'medication',
                   attributes: ['id', 'name', 'type'],
                   required: true,
+                  include: {
+                    model: models.ReferenceDrug,
+                    as: 'referenceDrug',
+                    attributes: ['id', 'isSensitive'],
+                    required: true,
+                  },
+                },
+                {
+                  association: 'prescriber',
+                  attributes: ['id', 'displayName'],
                 },
               ],
               required: true,
+            },
+            {
+              association: 'medicationDispenses',
+              attributes: ['id'],
+              required: false,
             },
           ],
         },
@@ -1759,8 +1788,19 @@ medication.get(
           attributes: ['id', 'displayName'],
         },
       ],
-      attributes: ['id', 'quantity', 'dispensedAt', 'dispensedByUserId'],
-      where: rootFilter,
+      attributes: ['id', 'quantity', 'dispensedAt', 'dispensedByUserId', 'instructions'],
+      where: {
+        [Op.and]: [
+          ...(rootFilter[Op.and] || []),
+          ...(!canViewSensitiveMedications
+            ? [
+                {
+                  '$pharmacyOrderPrescription.prescription.medication.referenceDrug.is_sensitive$': false,
+                },
+              ]
+            : []),
+        ],
+      },
       order: [
         [...orderBy.split('.'), orderDirection],
         ['dispensedAt', 'DESC'],
@@ -1790,13 +1830,57 @@ medication.get(
         p => p.id === item.pharmacyOrderPrescription.pharmacyOrder.encounter.patient.id,
       );
       item.pharmacyOrderPrescription.pharmacyOrder.encounter.patient.set(patient.toJSON());
-      return item;
+      return {
+        ...item.toJSON(),
+        pharmacyOrderPrescription: {
+          ...item.pharmacyOrderPrescription.toJSON(),
+          remainingRepeats: item.pharmacyOrderPrescription.remainingRepeats,
+        },
+      };
     });
 
     res.send({
       count,
       data: result,
     });
+  }),
+);
+
+medication.delete(
+  '/medication-dispenses/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { MedicationDispense } = models;
+
+    req.checkPermission('write', 'Medication');
+
+    const dispenseId = params.id;
+
+    const dispense = await MedicationDispense.findByPk(dispenseId, {
+      include: [
+        {
+          association: 'pharmacyOrderPrescription',
+          attributes: ['id', 'prescriptionId', 'isCompleted'],
+        },
+      ],
+    });
+
+    if (!dispense) {
+      throw new NotFoundError(`Medication dispense with id ${dispenseId} not found`);
+    }
+
+    await MedicationDispense.sequelize.transaction(async transaction => {
+      // Delete the dispense record
+      await dispense.destroy({ transaction });
+
+      // Restore the PharmacyOrderPrescription if it was completed
+      const pharmacyOrderPrescription = dispense.pharmacyOrderPrescription;
+      if (pharmacyOrderPrescription.isCompleted) {
+        await pharmacyOrderPrescription.update({ isCompleted: false });
+      }
+    });
+
+    res.send({ success: true });
   }),
 );
 
@@ -1815,6 +1899,8 @@ medication.get(
     req.checkPermission('read', 'Medication');
 
     const { patientId, facilityId } = await dispensableMedicationsQuerySchema.parseAsync(req.query);
+
+    const canViewSensitiveMedications = req.ability.can('read', 'SensitiveMedication');
 
     const { PharmacyOrderPrescription } = models;
 
@@ -1859,7 +1945,7 @@ medication.get(
                 {
                   model: models.ReferenceDrug,
                   as: 'referenceDrug',
-                  attributes: ['id'],
+                  attributes: ['id', 'isSensitive'],
                   required: true,
                   include: [
                     {
@@ -1885,6 +1971,14 @@ medication.get(
           required: false,
         },
       ],
+      where: {
+        ...{ isCompleted: false },
+        ...(!canViewSensitiveMedications
+          ? {
+              '$prescription.medication.referenceDrug.is_sensitive$': false,
+            }
+          : {}),
+      },
       order: [[{ model: models.PharmacyOrder, as: 'pharmacyOrder' }, 'date', 'DESC']],
       subQuery: false,
     });
@@ -1893,7 +1987,7 @@ medication.get(
       count: pharmacyOrderPrescriptions.length,
       data: pharmacyOrderPrescriptions.map(pop => ({
         ...pop.toJSON(),
-        remainingRepeats: pop.remainingRepeats,
+        remainingRepeats: pop.getRemainingRepeats(),
         lastDispensedAt: pop.medicationDispenses?.sort(
           (a, b) => new Date(b.dispensedAt) - new Date(a.dispensedAt),
         )[0]?.dispensedAt,
@@ -1971,6 +2065,25 @@ medication.post(
         },
       });
 
+      const hasSensitive = await req.models.ReferenceDrug.hasSensitiveMedication(
+        prescriptionRecords.map(r => r.prescription.medicationId),
+      );
+
+      if (hasSensitive) {
+        req.checkPermission('read', 'SensitiveMedication');
+
+        const prescriptionRecordsById = keyBy(prescriptionRecords, 'id');
+
+        const isModifyingQuantity = items.some(item => {
+          const original = prescriptionRecordsById[item.pharmacyOrderPrescriptionId];
+          return !original || item.quantity !== original.quantity;
+        });
+
+        if (isModifyingQuantity) {
+          req.checkPermission('write', 'SensitiveMedication');
+        }
+      }
+
       const foundIds = new Set(prescriptionRecords.map(r => r.id));
       const notFoundIds = pharmacyOrderPrescriptionIds.filter(id => !foundIds.has(id));
       if (notFoundIds.length > 0) {
@@ -1988,10 +2101,10 @@ medication.post(
       }
 
       const ineligibleRecords = prescriptionRecords.filter(record => {
-        const remainingRepeats = record.remainingRepeats;
+        const remainingRepeats = record.getRemainingRepeats();
         const hasDispenses = record.medicationDispenses?.length > 0;
         const isDischargePrescription = record.pharmacyOrder?.isDischargePrescription;
-        return remainingRepeats <= 0 && hasDispenses && !!isDischargePrescription;
+        return remainingRepeats === 0 && hasDispenses && !!isDischargePrescription;
       });
 
       if (ineligibleRecords.length > 0) {
@@ -2012,17 +2125,18 @@ medication.post(
       );
 
       // After dispensing, soft delete all ineligible pharmacy order prescriptions
-      const allIneligibleRecords = prescriptionRecords.filter(record => {
-        const remainingRepeats = record.remainingRepeats - 1;
+      const allCompletedRecords = prescriptionRecords.filter(record => {
+        const remainingRepeats = record.getRemainingRepeats(1);
         const isDischargePrescription = record.pharmacyOrder?.isDischargePrescription;
-        return remainingRepeats <= 0 && !!isDischargePrescription;
+        return remainingRepeats === 0 && !!isDischargePrescription;
       });
 
-      if (allIneligibleRecords.length > 0) {
-        const ineligibleIds = allIneligibleRecords.map(r => r.id);
-        await PharmacyOrderPrescription.destroy({
-          where: { id: ineligibleIds },
-        });
+      if (allCompletedRecords.length > 0) {
+        const completedIds = allCompletedRecords.map(r => r.id);
+        await PharmacyOrderPrescription.update(
+          { isCompleted: true },
+          { where: { id: { [Op.in]: completedIds } } },
+        );
       }
 
       return dispenseRecords;

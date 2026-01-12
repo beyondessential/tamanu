@@ -544,8 +544,8 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
               control={<Radio color="primary" size="small" />}
               label={
                 <TranslatedText
-                  stringId="pharmacyOrder.prescriptionType.dischargeOrOutpatient"
-                  fallback="Discharge or Outpatient"
+                  stringId="pharmacyOrder.prescriptionType.outpatientDischarge"
+                  fallback="Outpatient/Discharge"
                 />
               }
             />

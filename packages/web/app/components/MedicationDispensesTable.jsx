@@ -10,6 +10,11 @@ import { MEDICATIONS_SEARCH_KEYS } from '../constants/medication';
 import { Colors } from '../constants';
 import { MenuButton } from './MenuButton';
 import { TranslatedReferenceData } from '@tamanu/ui-components';
+import { MedicationLabelPrintModal } from './PatientPrinting/modals/MedicationLabelPrintModal';
+import { getMedicationLabelData } from '../utils/medications';
+import { useFacilityQuery } from '../api/queries/useFacilityQuery';
+import { useApi } from '../api';
+import { CancelDispensedMedicationModal } from './Medication/CancelDispensedMedicationModal';
 
 const NoDataContainer = styled.div`
   height: 500px;
@@ -61,15 +66,68 @@ const getDispensedBy = ({ dispensedBy }) => dispensedBy?.displayName;
 const getRequestNumber = ({ pharmacyOrderPrescription }) => pharmacyOrderPrescription?.displayId;
 
 export const MedicationDispensesTable = () => {
+  const api = useApi();
   const { facilityId } = useAuth();
   const { searchParameters } = useMedicationsContext(MEDICATIONS_SEARCH_KEYS.DISPENSED);
+  const { data: facility } = useFacilityQuery(facilityId);
 
   const [medicationDispenses, setMedicationDispenses] = useState([]);
+  const [printModalOpen, setPrintModalOpen] = useState(false);
+  const [selectedLabelData, setSelectedLabelData] = useState([]);
   const [hoveredRow, setHoveredRow] = useState(null);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [selectedDispenseId, setSelectedDispenseId] = useState(null);
+  const [refreshCount, setRefreshCount] = useState(0);
 
   const onMedicationDispensesFetched = useCallback(({ data }) => {
     setMedicationDispenses(data);
   }, []);
+
+  const handlePrintLabel = item => {
+    const { pharmacyOrderPrescription, quantity, dispensedAt, id, instructions = '' } = item;
+    const prescription = pharmacyOrderPrescription?.prescription;
+    const patient = pharmacyOrderPrescription?.pharmacyOrder?.encounter?.patient;
+
+    const labelItems = [
+      {
+        id,
+        medicationName: prescription?.medication?.name,
+        instructions,
+        quantity,
+        units: prescription?.units,
+        remainingRepeats: pharmacyOrderPrescription?.remainingRepeats,
+        prescriberName: prescription?.prescriber?.displayName,
+        requestNumber: pharmacyOrderPrescription?.displayId,
+        dispensedAt,
+      },
+    ];
+
+    const labelData = getMedicationLabelData({ items: labelItems, patient, facility });
+    setSelectedLabelData(labelData);
+    setPrintModalOpen(true);
+  };
+
+  const handleTableRefresh = useCallback(() => {
+    setRefreshCount(prev => prev + 1);
+  }, []);
+
+  const handleCancelClick = dispenseId => {
+    setSelectedDispenseId(dispenseId);
+    setIsCancelModalOpen(true);
+  };
+
+  const handleCancelConfirm = async () => {
+    await api.delete(`medication/medication-dispenses/${selectedDispenseId}`);
+    setIsCancelModalOpen(false);
+    setSelectedDispenseId(null);
+    // Trigger table refresh
+    handleTableRefresh();
+  };
+
+  const handleCancelCancel = () => {
+    setIsCancelModalOpen(false);
+    setSelectedDispenseId(null);
+  };
 
   const columns = [
     {
@@ -164,7 +222,7 @@ export const MedicationDispensesTable = () => {
         const actions = [
           {
             label: <TranslatedText stringId="general.action.printLabel" fallback="Print label" />,
-            action: () => {},
+            action: () => handlePrintLabel(row),
           },
           {
             label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
@@ -172,7 +230,7 @@ export const MedicationDispensesTable = () => {
           },
           {
             label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
-            action: () => {},
+            action: () => handleCancelClick(row.id),
           },
         ];
         return (
@@ -193,30 +251,43 @@ export const MedicationDispensesTable = () => {
   };
 
   return (
-    <StyledSearchTableWithPermissionCheck
-      verb="list"
-      noun="Medication"
-      autoRefresh={true}
-      endpoint="medication/medication-dispenses"
-      columns={columns}
-      noDataMessage={
-        <NoDataContainer>
-          <TranslatedText
-            stringId="medication-dispenses.list.noData"
-            fallback="No dispensed medications to display."
-          />
-        </NoDataContainer>
-      }
-      fetchOptions={fetchOptions}
-      elevated={false}
-      data-testid="searchtablewithpermissioncheck-medication-dispenses"
-      $noData={medicationDispenses.length === 0}
-      onDataFetched={onMedicationDispensesFetched}
-      onClickRow={handleRowClick}
-      allowExport={false}
-      initialSort={{
-        order: 'desc',
-      }}
-    />
+    <>
+      <CancelDispensedMedicationModal
+        open={isCancelModalOpen}
+        onClose={handleCancelCancel}
+        onConfirm={handleCancelConfirm}
+      />
+      <StyledSearchTableWithPermissionCheck
+        refreshCount={refreshCount}
+        verb="list"
+        noun="Medication"
+        autoRefresh={true}
+        endpoint="medication/medication-dispenses"
+        columns={columns}
+        noDataMessage={
+          <NoDataContainer>
+            <TranslatedText
+              stringId="medication-dispenses.list.noData"
+              fallback="No dispensed medications to display."
+            />
+          </NoDataContainer>
+        }
+        fetchOptions={fetchOptions}
+        elevated={false}
+        data-testid="searchtablewithpermissioncheck-medication-dispenses"
+        $noData={medicationDispenses.length === 0}
+        onDataFetched={onMedicationDispensesFetched}
+        onClickRow={handleRowClick}
+        allowExport={false}
+        initialSort={{
+          order: 'desc',
+        }}
+      />
+      <MedicationLabelPrintModal
+        open={printModalOpen}
+        onClose={() => setPrintModalOpen(false)}
+        labels={selectedLabelData}
+      />
+    </>
   );
 };
