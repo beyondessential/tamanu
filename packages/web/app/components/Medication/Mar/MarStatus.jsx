@@ -11,7 +11,7 @@ import {
   DRUG_UNIT_SHORT_LABELS,
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
 } from '@tamanu/constants';
-import { TranslatedEnum, TranslatedText, DateDisplay, TimeDisplay, useDateTimeFormat } from '@tamanu/ui-components';
+import { TranslatedEnum, TranslatedText, DateDisplay, useDateTimeFormat } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { ConditionalTooltip } from '../../Tooltip';
