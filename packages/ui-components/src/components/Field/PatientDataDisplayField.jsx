@@ -14,6 +14,7 @@ const Container = styled.div`
 export const PatientDataDisplayField = ({ config, label, value }) => {
   const api = useApi();
   const { getEnumTranslation, getReferenceDataTranslation } = useTranslation();
+  
   const [displayValue, setDisplayValue] = useState('');
 
   useEffect(() => {

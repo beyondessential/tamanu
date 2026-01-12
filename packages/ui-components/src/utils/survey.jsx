@@ -17,8 +17,9 @@ import {
   ageInWeeks,
   ageInYears,
   getCurrentDateTimeString,
+  formatDateOnlyShort,
 } from '@tamanu/utils/dateTime';
-import { getPatientNameAsString, TranslatedText, DateDisplay } from '../components';
+import { getPatientNameAsString, TranslatedText } from '../components';
 import { notify } from './notify';
 
 const notifyError = (msg, props) => notify(msg, { ...props, type: 'error' });
@@ -430,7 +431,7 @@ export const getPatientDataDisplayValue = async ({
           return `${getPatientNameAsString(data)} (${data.displayId}) - ${getEnumTranslation(
             SEX_LABELS,
             data.sex,
-          )} - ${DateDisplay.stringFormat(data.dateOfBirth)}`;
+          )} - ${formatDateOnlyShort(data.dateOfBirth)}`;
         default: {
           const category = camelCase(model);
           return getReferenceDataTranslation({
