@@ -100,7 +100,7 @@ const getColumns = (
   onSelectAll,
   selectAllChecked,
   columnsToInclude = Object.values(COLUMN_KEYS),
-  { isOngoingMode = false, canEditRepeats = true } = {},
+  { isOngoingMode = false, canEditRepeats = true, disabledPrescriptionIds = [] } = {},
 ) => {
   const allColumns = [
     {
@@ -115,16 +115,18 @@ const getColumns = (
       ),
       sortable: false,
       maxWidth: 50,
-      accessor: ({ selected, onSelect }) => {
-        const isDisabled = isOngoingMode
+      accessor: ({ selected, onSelect, id }) => {
+        const isDisabled = isOngoingMode && disabledPrescriptionIds.includes(id);
         return (
           <ConditionalTooltip
             visible={isDisabled}
             title={
-              <TranslatedText
-                stringId="medication.sendToPharmacy.noRepeatsRemaining"
-                fallback="No repeats remaining"
-              />
+              <Box width="122px">
+                <TranslatedText
+                  stringId="medication.sendToPharmacy.noRepeatsRemaining"
+                  fallback="Only medications with repeats greater than 0 can be sent to pharmacy"
+                />
+              </Box>
             }
           >
             <span>
@@ -273,7 +275,7 @@ const getColumns = (
       ),
       sortable: false,
       maxWidth: 100,
-      accessor: ({ quantity, onChange, hasError, selected }) => (
+      accessor: ({ quantity, onChange, hasError }) => (
         <TextInput
           type="number"
           InputProps={{
@@ -285,7 +287,6 @@ const getColumns = (
           onChange={onChange}
           required
           error={hasError}
-          disabled={!selected}
           data-testid="textinput-rxbh"
         />
       ),
@@ -300,7 +301,7 @@ const getColumns = (
         />
       ),
       sortable: false,
-      accessor: ({ repeats, onChange, selected }) => {
+      accessor: ({ repeats, onChange }) => {
         // In ongoing mode without edit permission, show read-only value
         if (isOngoingMode && !canEditRepeats) {
           return <Box width="89px">{repeats ?? 0}</Box>;
@@ -310,7 +311,6 @@ const getColumns = (
             <NumberInput
               value={repeats ?? 0}
               onChange={onChange}
-              disabled={!selected}
               min={0}
               max={MAX_REPEATS}
               data-testid="selectinput-ld3p"
@@ -336,8 +336,11 @@ export const PharmacyOrderMedicationTable = ({
   columnsToInclude,
   isOngoingMode = false,
   canEditRepeats = true,
+  disabledPrescriptionIds = [],
 }) => {
   const { getTranslation, getEnumTranslation } = useTranslation();
+
+  const disabledIdsKey = disabledPrescriptionIds.join(',');
 
   const columns = useMemo(
     () =>
@@ -347,8 +350,9 @@ export const PharmacyOrderMedicationTable = ({
         handleSelectAll,
         selectAllChecked,
         columnsToInclude,
-        { isOngoingMode, canEditRepeats },
+        { isOngoingMode, canEditRepeats, disabledPrescriptionIds },
       ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       getTranslation,
       getEnumTranslation,
@@ -357,6 +361,7 @@ export const PharmacyOrderMedicationTable = ({
       columnsToInclude,
       isOngoingMode,
       canEditRepeats,
+      disabledIdsKey,
     ],
   );
 
