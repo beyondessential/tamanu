@@ -187,7 +187,7 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
                             handleCancel={() => setIsEditing(false)}
                             isDisabled={isUpdatingInvoice}
                           />
-                        )}>
+                        )}
                         <InvoiceSummaryPanel
                           patientPayments={invoice.payments}
                           invoiceItems={values.invoiceItems}

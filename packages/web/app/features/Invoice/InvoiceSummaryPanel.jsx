@@ -61,6 +61,7 @@ const SlidingFeeScaleSection = ({
   discountTotal,
   patientSubtotal,
   discountPercentage,
+  inProgress,
 }) => {
   const discountDisplay = discountTotal > 0 ? discountTotal * -1 : 0;
   return (
@@ -80,23 +81,25 @@ const SlidingFeeScaleSection = ({
         </span>
         <Price price={discountDisplay} data-testid="fee-scale-adjustment" />
       </Row>
-      <Row $indent>
-        {discountTotal ? (
-          <RemoveDiscountButton onClick={handleRemoveDiscount}>
-            <TranslatedText
-              stringId="invoice.summary.removeSlidingFeeScale"
-              fallback="Remove sliding fee scale"
-            />
-          </RemoveDiscountButton>
-        ) : (
-          <AddDiscountButton onClick={openDiscountModal}>
-            <TranslatedText
-              stringId="invoice.summary.applySlidingFeeScale"
-              fallback="Apply sliding fee scale"
-            />
-          </AddDiscountButton>
-        )}
-      </Row>
+      {inProgress && (
+        <Row $indent>
+          {discountTotal ? (
+            <RemoveDiscountButton onClick={handleRemoveDiscount}>
+              <TranslatedText
+                stringId="invoice.summary.removeSlidingFeeScale"
+                fallback="Remove sliding fee scale"
+              />
+            </RemoveDiscountButton>
+          ) : (
+            <AddDiscountButton onClick={openDiscountModal}>
+              <TranslatedText
+                stringId="invoice.summary.applySlidingFeeScale"
+                fallback="Apply sliding fee scale"
+              />
+            </AddDiscountButton>
+          )}
+        </Row>
+      )}
       <Divider />
     </>
   );
@@ -107,7 +110,8 @@ export const InvoiceSummaryPanel = ({
   openDiscountModal,
   invoiceDiscount,
   handleRemoveDiscount,
-                                      patientPayments
+  patientPayments,
+  inProgress = true,
 }) => {
   const { getSetting } = useSettings();
   const slidingFeeScaleEnabled = getSetting('features.invoicing.slidingFeeScale');
@@ -125,7 +129,7 @@ export const InvoiceSummaryPanel = ({
   const coverageDisplay = insuranceCoverageTotal > 0 ? insuranceCoverageTotal * -1 : 0;
 
   return (
-    <Container $width={patientPayments.length > 0 ? '220px' : '320px'}>
+    <Container $width={patientPayments?.length > 0 ? '220px' : '320px'}>
       <Row>
         <TranslatedText stringId="invoice.summary.invoiceTotal" fallback="Invoice total" />
         <Price price={invoiceItemsTotal} data-testid="translatedtext-828s" />
@@ -142,6 +146,7 @@ export const InvoiceSummaryPanel = ({
           discountTotal={discountTotal}
           handleRemoveDiscount={handleRemoveDiscount}
           discountPercentage={invoiceDiscount?.percentage}
+          inProgress={inProgress}
         />
       )}
       <TotalRow>
