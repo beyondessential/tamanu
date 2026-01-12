@@ -655,6 +655,93 @@ patientRoute.get(
   }),
 );
 
+patientRoute.get(
+  '/:id/dispensed-medications',
+  asyncHandler(async (req, res) => {
+    const { models, params, query } = req;
+    const patientId = params.id;
+
+    req.checkPermission('list', 'Medication');
+
+    const {
+      order = 'DESC',
+      orderBy = 'dispensedAt',
+      rowsPerPage = 10,
+      page = 0,
+    } = query;
+
+    const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+
+    // Build the query to get all dispensed medications for this patient across all facilities
+    const databaseResponse = await models.MedicationDispense.findAndCountAll({
+      include: [
+        {
+          association: 'pharmacyOrderPrescription',
+          required: true,
+          attributes: ['id', 'prescriptionId', 'displayId'],
+          include: [
+            {
+              association: 'pharmacyOrder',
+              required: true,
+              attributes: ['id', 'facilityId', 'encounterId'],
+              include: [
+                {
+                  association: 'encounter',
+                  required: true,
+                  attributes: ['id', 'patientId'],
+                  where: { patientId },
+                  include: [
+                    {
+                      association: 'patient',
+                      attributes: ['id', 'displayId'],
+                    },
+                  ],
+                },
+                {
+                  association: 'facility',
+                  attributes: ['id', 'name'],
+                },
+              ],
+            },
+            {
+              association: 'prescription',
+              attributes: ['id', 'doseAmount', 'units', 'frequency', 'isPrn', 'isVariableDose', 'route'],
+              required: true,
+              include: [
+                {
+                  association: 'medication',
+                  attributes: ['id', 'name', 'type'],
+                  required: true,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          association: 'dispensedBy',
+          attributes: ['id', 'displayName'],
+        },
+      ],
+      attributes: ['id', 'quantity', 'dispensedAt', 'dispensedByUserId'],
+      order: [
+        [...orderBy.split('.'), orderDirection],
+        ['dispensedAt', 'DESC'],
+      ],
+      limit: parseInt(rowsPerPage, 10),
+      offset: parseInt(page, 10) * parseInt(rowsPerPage, 10),
+      distinct: true,
+      subQuery: false,
+    });
+
+    const { count, rows: data } = databaseResponse;
+
+    res.send({
+      count,
+      data,
+    });
+  }),
+);
+
 patientRoute.use(patientRelations);
 patientRoute.use(patientVaccineRoutes);
 patientRoute.use(patientDocumentMetadataRoutes);
