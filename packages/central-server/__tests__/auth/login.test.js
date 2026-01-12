@@ -170,10 +170,7 @@ describe('Auth - Login', () => {
       });
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty(
-        'settings.fields.displayId',
-        expect.objectContaining({ pattern: '[\\s\\S]*' }),
-      );
+      expect(response.body).toHaveProperty('settings.fields.displayId');
     });
 
     it('Should reject an empty credential', async () => {
