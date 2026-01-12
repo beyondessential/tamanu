@@ -281,6 +281,7 @@ export const MedicationDispensesTable = () => {
         allowExport={false}
         initialSort={{
           order: 'desc',
+          orderBy: 'dispensedAt',
         }}
       />
       <MedicationLabelPrintModal
