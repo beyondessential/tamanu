@@ -1776,11 +1776,6 @@ medication.get(
               ],
               required: true,
             },
-            {
-              association: 'medicationDispenses',
-              attributes: ['id'],
-              required: false,
-            },
           ],
         },
         {
