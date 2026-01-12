@@ -1,6 +1,6 @@
 {
   "name": "tamanu",
-  "version": "2.47.0",
+  "version": "2.48.0",
   "description": "This repo contains all the packages for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -41,9 +41,9 @@
     "central-migrate": "npm run build-shared && npm run --workspace @tamanu/central-server start-watch upgrade",
     "central-migrate-down": "npm run build-shared && npm run --workspace @tamanu/central-server start-watch just-migrate down",
     "build-report": "npm run build-shared && npm run --workspace @tamanu/central-server build && npm run --workspace @tamanu/central-server start report",
-    "dbt-generate-model": "node packages/scripts/src/dbt/generateModel.js",
-    "dbt-generate-docs": "node packages/scripts/src/dbt/generateDocs.js",
-    "dbt-check-todos": "node packages/scripts/src/dbt/checkTodos.js",
+    "dbt-generate-model": "npm run --workspace scripts build && NODE_CONFIG_DIR=packages/central-server/config node packages/scripts/dist/dbt/generateModel.js",
+    "dbt-generate-docs": "npm run --workspace scripts build && NODE_CONFIG_DIR=packages/central-server/config node packages/scripts/dist/dbt/generateDocs.js",
+    "dbt-check-todos": "npm run --workspace scripts build && NODE_CONFIG_DIR=packages/central-server/config node packages/scripts/dist/dbt/checkTodos.js",
     "e2e-test": "npm run --workspace @tamanu/e2e-tests test",
     "e2e-show-report": "npm run --workspace @tamanu/e2e-tests show-report",
     "synthetic-test": "npm run build-shared && npm run --workspace @tamanu/synthetic-tests test"
