@@ -311,7 +311,7 @@ export const DeathForm = React.memo(
                   label={
                     <TranslatedText
                       stringId="death.otherContributionCondition.label"
-                      fallback="Other contributing condition"
+                      fallback="Other significant contributing condition"
                       data-testid="translatedtext-pjt7"
                     />
                   }
