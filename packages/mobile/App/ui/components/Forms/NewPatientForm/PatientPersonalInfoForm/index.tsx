@@ -1,6 +1,6 @@
 import React, { ReactElement, ReactNode, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { generateId, generateIdFromPattern } from '@tamanu/utils';
+import { generateId, generateIdFromPattern } from '@tamanu/utils/generateId';
 import { compose } from 'redux';
 import { Formik } from 'formik';
 import { KeyboardAvoidingView, StyleSheet } from 'react-native';
