@@ -82,7 +82,7 @@ export const DeathForm = React.memo(
               .translatedLabel(
                 <TranslatedText
                   stringId="death.causeOfDeath.label"
-                  fallback="Cause Of Death"
+                  fallback="Cause of death"
                   data-testid="translatedtext-jg7t"
                 />,
               ),
@@ -196,7 +196,7 @@ export const DeathForm = React.memo(
             label={
               <TranslatedText
                 stringId="death.causeOfDeath.label"
-                fallback="Cause Of Death"
+                fallback="Cause of death"
                 data-testid="translatedtext-x2zt"
               />
             }
