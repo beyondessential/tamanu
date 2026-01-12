@@ -34,7 +34,6 @@
       "culturalName": "Matthew",
       "dateOfBirth": 21600.5438078704,
       "sex": "male",
-      "bloodType": null,
       "village": "Matacula"
     },
     {
@@ -89,12 +88,9 @@
       "id": "92ab9f8c-e63f-4330-9c1c-53bf6a2334e0",
       "displayId": "RZAD194608",
       "firstName": "Michael",
-      "middleName": null,
       "lastName": "Nunan",
-      "culturalName": null,
       "dateOfBirth": 30382.4166666667,
       "sex": "male",
-      "bloodType": null,
       "village": "Nakorovou"
     },
     {
@@ -125,12 +121,9 @@
       "id": "50491476-b2cd-4bcc-b0f5-7d76b073b7cb",
       "displayId": "GXDG543212",
       "firstName": "Michael",
-      "middleName": null,
       "lastName": "Nunan",
-      "culturalName": null,
       "dateOfBirth": 30382.4166666667,
       "sex": "male",
-      "bloodType": null,
       "village": "Naraiyawa"
     },
     {
@@ -305,12 +298,9 @@
       "id": "44da8ebb-c0ac-4eb8-b30f-24da73f30d4b",
       "displayId": "PRJO604407",
       "firstName": "Melissa",
-      "middleName": null,
       "lastName": "Naicker",
-      "culturalName": null,
       "dateOfBirth": 34234.4166666667,
       "sex": "female",
-      "bloodType": null,
       "village": "Naraiyawa"
     },
     {
@@ -389,12 +379,9 @@
       "id": "0bd961b1-70c5-436a-a07f-1c00907943e9",
       "displayId": "OZDU124436",
       "firstName": "Megan",
-      "middleName": null,
       "lastName": "Lane",
-      "culturalName": null,
       "dateOfBirth": 44282.4583333333,
       "sex": "female",
-      "bloodType": null,
       "village": "Matacula"
     },
     {
@@ -545,12 +532,9 @@
       "id": "eb87e16a-4bce-431b-bc36-a3416ddc762d",
       "displayId": "UXDB491448",
       "firstName": "Caitie",
-      "middleName": null,
       "lastName": "Patten",
-      "culturalName": null,
       "dateOfBirth": 31842.4583333333,
       "sex": "female",
-      "bloodType": null,
       "village": "Natadradave"
     },
     {

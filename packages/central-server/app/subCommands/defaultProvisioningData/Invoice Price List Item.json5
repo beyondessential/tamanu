@@ -4302,8 +4302,7 @@
       "invoicePriceList-1": 38
     },
     {
-      "invoiceProductId": "invoiceProduct-ultrasound",
-      "invoicePriceList-1": null
+      "invoiceProductId": "invoiceProduct-ultrasound"
     },
     {
       "invoiceProductId": "invoiceProduct-vascularStudy",
@@ -4314,12 +4313,10 @@
       "invoicePriceList-1": 483
     },
     {
-      "invoiceProductId": "invoiceProduct-xRayImagingArea-AbdomenPlain",
-      "invoicePriceList-1": null
+      "invoiceProductId": "invoiceProduct-xRayImagingArea-AbdomenPlain"
     },
     {
-      "invoiceProductId": "invoiceProduct-xRayImagingArea-Chest",
-      "invoicePriceList-1": null
+      "invoiceProductId": "invoiceProduct-xRayImagingArea-Chest"
     },
     {
       "invoiceProductId": "invoiceProduct-xRayImagingArea-FacialBones",

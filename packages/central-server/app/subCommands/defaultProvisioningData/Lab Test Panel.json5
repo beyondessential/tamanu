@@ -15,7 +15,6 @@
       "code": "bloods",
       "name": "Bloods",
       "visibilityStatus": "current",
-      "externalCode": null,
       "categoryId": "labTestCategory-Serology",
       "testTypesInPanel": "labTestType-Sodium,labTestType-Potassium,labTestType-BloodGlucose,labTestType-Cholesterol,labTestType-Magnesium"
     },
@@ -24,7 +23,6 @@
       "code": "cmp",
       "name": "Comprehensive Metabolic Panel (CMP)",
       "visibilityStatus": "current",
-      "externalCode": null,
       "categoryId": "labTestCategory-Other",
       "testTypesInPanel": "labTestType-Bilibubin,labTestType-ALP,labTestType-AST,labTestType-Potassium,labTestType-BloodGlucose,labTestType-Chloride,labTestType-Urea,labTestType-Calcium,labTestType-Creatinine,labTestType-ALT,labTestType-Albumin"
     },

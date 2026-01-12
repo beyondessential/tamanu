@@ -28,8 +28,6 @@
       "frequency": "Daily in the morning",
       "route": "Oral",
       "duration": "14 days",
-      "notes": null,
-      "dischargeQuantity": null,
       "ongoingMedication": false,
       "visibilityStatus": "current"
     },
@@ -44,8 +42,6 @@
       "frequency": "Two times daily",
       "route": "Oral",
       "duration": "10 days",
-      "notes": null,
-      "dischargeQuantity": null,
       "ongoingMedication": false,
       "visibilityStatus": "current"
     },
@@ -60,8 +56,6 @@
       "frequency": "Two times daily",
       "route": "Oral",
       "duration": "10 days",
-      "notes": null,
-      "dischargeQuantity": null,
       "ongoingMedication": false,
       "visibilityStatus": "current"
     },
@@ -76,8 +70,6 @@
       "frequency": "Three times daily",
       "route": "Oral",
       "duration": "7 days",
-      "notes": null,
-      "dischargeQuantity": null,
       "ongoingMedication": false,
       "visibilityStatus": "current"
     },
@@ -92,8 +84,6 @@
       "frequency": "Two times daily",
       "route": "Oral",
       "duration": "2 days",
-      "notes": null,
-      "dischargeQuantity": null,
       "ongoingMedication": false,
       "visibilityStatus": "current"
     },
@@ -108,8 +98,6 @@
       "frequency": "Four times daily",
       "route": "Oral",
       "duration": "1 week",
-      "notes": null,
-      "dischargeQuantity": null,
       "ongoingMedication": false,
       "visibilityStatus": "current"
     }

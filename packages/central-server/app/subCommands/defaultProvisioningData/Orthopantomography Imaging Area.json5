@@ -10,38 +10,32 @@
     {
       "id": "PXImagingArea-Caries",
       "code": "PXCaries",
-      "name": "Caries",
-      "visibilityStatus": null
+      "name": "Caries"
     },
     {
       "id": "PXImagingArea-Developmental",
       "code": "PXDevelopmental",
-      "name": "Developmental",
-      "visibilityStatus": null
+      "name": "Developmental"
     },
     {
       "id": "PXImagingArea-LateralCephalometry",
       "code": "PXLateralCephalometry",
-      "name": "Lateral Cephalometry",
-      "visibilityStatus": null
+      "name": "Lateral Cephalometry"
     },
     {
       "id": "PXImagingArea-Sinuses",
       "code": "PXSinuses",
-      "name": "Sinuses",
-      "visibilityStatus": null
+      "name": "Sinuses"
     },
     {
       "id": "PXImagingArea-TemperomandibularJoints",
       "code": "PXTemperomandibularJoints",
-      "name": "Temperomandibular Joints",
-      "visibilityStatus": null
+      "name": "Temperomandibular Joints"
     },
     {
       "id": "PXImagingArea-Trauma",
       "code": "PXTrauma",
-      "name": "Trauma",
-      "visibilityStatus": null
+      "name": "Trauma"
     }
   ]
 }

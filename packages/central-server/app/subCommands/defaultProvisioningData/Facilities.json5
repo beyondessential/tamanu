@@ -18,3185 +18,1470 @@
       "id": "facility-DemoLan",
       "code": "DemoLan",
       "name": "Demo Lan",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-AdolescentHealthDevelopment",
       "code": "AdolescentHealthDevelopment",
       "name": "Adolescent Health Development",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-BaHealthCentre",
       "code": "BaHealthCentre",
       "name": "Ba Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-BaMissionSub-divisionalHospital",
       "code": "BaMissionSub-divisionalHospital",
       "name": "Ba Mission Sub-divisional Hospital",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-BagasauNursingStation",
       "code": "BagasauNursingStation",
       "name": "Bagasau Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-BalevutoHealthCentre",
       "code": "BalevutoHealthCentre",
       "name": "Balevuto Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-BatikiNursingStation",
       "code": "BatikiNursingStation",
       "name": "Batiki Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-BaulevuNursingStation",
       "code": "BaulevuNursingStation",
       "name": "Baulevu Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-BeqaHealthCentre",
       "code": "BeqaHealthCentre",
       "name": "Beqa Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-BoumaNursingStation",
       "code": "BoumaNursingStation",
       "name": "Bouma Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-BuaNursingStation",
       "code": "BuaNursingStation",
       "name": "Bua Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-BukuyaHealthCentre",
       "code": "BukuyaHealthCentre",
       "name": "Bukuya Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-BuretaHealthCentre",
       "code": "BuretaHealthCentre",
       "name": "Bureta Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-CakovaNursingStation",
       "code": "CakovaNursingStation",
       "name": "Cakova Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-CiciaHealthCentre",
       "code": "CiciaHealthCentre",
       "name": "Cicia Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-CikobiaNursingStation",
       "code": "CikobiaNursingStation",
       "name": "Cikobia Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-ColonialWarMemorialDivisionalHospital",
       "code": "ColonialWarMemorialDivisionalHospital",
       "name": "Colonial War Memorial Divisional Hospital",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-ColonialWarMemorialDivisionalHospital-BreastClinic",
       "code": "ColonialWarMemorialDivisionalHospital-BreastClinic",
       "name": "Colonial War Memorial Divisional Hospital - Breast Clinic",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-ColonialWarMemorialDivisionalHospital-GynaecologyClinic",
       "code": "ColonialWarMemorialDivisionalHospital-GynaecologyClinic",
       "name": "Colonial War Memorial Divisional Hospital - Gynaecology Clinic",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-CoqeloaNursingStation",
       "code": "CoqeloaNursingStation",
       "name": "Coqeloa Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-CuvuHealthCentre",
       "code": "CuvuHealthCentre",
       "name": "Cuvu Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-DaviqeleHealthCentre",
       "code": "DaviqeleHealthCentre",
       "name": "Daviqele Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-DawasamuNursingStation",
       "code": "DawasamuNursingStation",
       "name": "Dawasamu Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-DogotukiNursingStation",
       "code": "DogotukiNursingStation",
       "name": "Dogotuki Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-DravuwaluNursingStation",
       "code": "DravuwaluNursingStation",
       "name": "Dravuwalu Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-DreketiHealthCentre",
       "code": "DreketiHealthCentre",
       "name": "Dreketi Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-FulagaNursingStation",
       "code": "FulagaNursingStation",
       "name": "Fulaga Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-GaloaNursingStation",
       "code": "GaloaNursingStation",
       "name": "Galoa Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-GaseleNursingStation",
       "code": "GaseleNursingStation",
       "name": "Gasele Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-GauHealthCentre",
       "code": "GauHealthCentre",
       "name": "Gau Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-KabaraHealthCentre",
       "code": "KabaraHealthCentre",
       "name": "Kabara Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-KabaraNursingStation",
       "code": "KabaraNursingStation",
       "name": "Kabara Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-KamikamicaHealthCentre",
       "code": "KamikamicaHealthCentre",
       "name": "Kamikamica Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-KavalaHealthCentre",
       "code": "KavalaHealthCentre",
       "name": "Kavala Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-KeiyasiHealthCentre",
       "code": "KeiyasiHealthCentre",
       "name": "Keiyasi Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-KeseHealthCentre",
       "code": "KeseHealthCentre",
       "name": "Kese Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-KiaNursingStation",
       "code": "KiaNursingStation",
       "name": "Kia Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-KidneyDialysisCentre",
       "code": "KidneyDialysisCentre",
       "name": "Kidney Dialysis Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-KioaNursingStation",
       "code": "KioaNursingStation",
       "name": "Kioa Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-KomoNursingStation",
       "code": "KomoNursingStation",
       "name": "Komo Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-KoroHealthCentre",
       "code": "KoroHealthCentre",
       "name": "Koro Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-KorolevuHealthCentre",
       "code": "KorolevuHealthCentre",
       "name": "Korolevu Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-KorotasereHealthCentre",
       "code": "KorotasereHealthCentre",
       "name": "Korotasere Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-KorovisilouHealthCentre",
       "code": "KorovisilouHealthCentre",
       "name": "Korovisilou Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-KorovouHealthCentre",
       "code": "KorovouHealthCentre",
       "name": "Korovou Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-KorovouPrisonStation",
       "code": "KorovouPrisonStation",
       "name": "Korovou Prison Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-KorovouSub-divisionalHospital",
       "code": "KorovouSub-divisionalHospital",
       "name": "Korovou Sub-divisional Hospital",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-KubulauNursingStation",
       "code": "KubulauNursingStation",
       "name": "Kubulau Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-LabasaDivisionalHospital",
       "code": "LabasaDivisionalHospital",
       "name": "Labasa Divisional Hospital",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-LabasaGoldenAgeHome",
       "code": "LabasaGoldenAgeHome",
       "name": "Labasa Golden Age Home",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-LabasaHealthCentre",
       "code": "LabasaHealthCentre",
       "name": "Labasa Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-LabassHealthCentre",
       "code": "LabassHealthCentre",
       "name": "Labass Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-LagiHealthCentre",
       "code": "LagiHealthCentre",
       "name": "Lagi Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-LakebaHealthCentre",
       "code": "LakebaHealthCentre",
       "name": "Lakeba Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-LakebaSub-divisionalHospital",
       "code": "LakebaSub-divisionalHospital",
       "name": "Lakeba Sub-divisional Hospital",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-LamiHealthCentre",
       "code": "LamiHealthCentre",
       "name": "Lami Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-LaselevuHealthCentre",
       "code": "LaselevuHealthCentre",
       "name": "Laselevu Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-LautokaDivisionalHospital",
       "code": "LautokaDivisionalHospital",
       "name": "Lautoka Divisional Hospital",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-LautokaHealthCentre",
       "code": "LautokaHealthCentre",
       "name": "Lautoka Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-LautokaHubCentre",
       "code": "LautokaHubCentre",
       "name": "Lautoka Hub Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-LekutuHealthCentre",
       "code": "LekutuHealthCentre",
       "name": "Lekutu Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-LevukaHealthCentre",
       "code": "LevukaHealthCentre",
       "name": "Levuka Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-LevukaSub-divisionalHospital",
       "code": "LevukaSub-divisionalHospital",
       "name": "Levuka Sub-divisional Hospital",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-Levuka-I-DakuNursingStation",
       "code": "Levuka-I-DakuNursingStation",
       "name": "Levuka-I-Daku Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-LodoniHealthCentre",
       "code": "LodoniHealthCentre",
       "name": "Lodoni Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-LomaNursingStation",
       "code": "LomaNursingStation",
       "name": "Loma Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-LomaivunaNursingStation",
       "code": "LomaivunaNursingStation",
       "name": "Lomaivuna Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-LomalomaHealthCentre",
       "code": "LomalomaHealthCentre",
       "name": "Lomaloma Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-LomalomaSub-divisionalHospital",
       "code": "LomalomaSub-divisionalHospital",
       "name": "Lomaloma Sub-divisional Hospital",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-LomawaiHealthCentre",
       "code": "LomawaiHealthCentre",
       "name": "Lomawai Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-MakoiBirthingUnit",
       "code": "MakoiBirthingUnit",
       "name": "Makoi Birthing Unit",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-MakoiHealthCentre",
       "code": "MakoiHealthCentre",
       "name": "Makoi Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-MaloloHealthCentre",
       "code": "MaloloHealthCentre",
       "name": "Malolo Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-MataikaHouse",
       "code": "MataikaHouse",
       "name": "Mataika House",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-MatukuHealthCentre",
       "code": "MatukuHealthCentre",
       "name": "Matuku Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-MoalaHealthCentre",
       "code": "MoalaHealthCentre",
       "name": "Moala Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-MoceNursingStation",
       "code": "MoceNursingStation",
       "name": "Moce Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-MokaniHealthCentre",
       "code": "MokaniHealthCentre",
       "name": "Mokani Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-MomiHealthCentre",
       "code": "MomiHealthCentre",
       "name": "Momi Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-MoturikiNursingStation",
       "code": "MoturikiNursingStation",
       "name": "Moturiki Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-MualevuNursingStation",
       "code": "MualevuNursingStation",
       "name": "Mualevu Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-MuanikauHealthCentre",
       "code": "MuanikauHealthCentre",
       "name": "Muanikau Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NabalebaleNursingStation",
       "code": "NabalebaleNursingStation",
       "name": "Nabalebale Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NabasoviNursingStation",
       "code": "NabasoviNursingStation",
       "name": "Nabasovi Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NabobucoNursingStation",
       "code": "NabobucoNursingStation",
       "name": "Nabobuco Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NaboroNursingStation",
       "code": "NaboroNursingStation",
       "name": "Naboro Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NabouNursingStation",
       "code": "NabouNursingStation",
       "name": "Nabou Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NaboubucoNursingStation",
       "code": "NaboubucoNursingStation",
       "name": "Naboubuco Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NabouwaluHealthCentre",
       "code": "NabouwaluHealthCentre",
       "name": "Nabouwalu Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NabouwaluSub-divisionalHospital",
       "code": "NabouwaluSub-divisionalHospital",
       "name": "Nabouwalu Sub-divisional Hospital",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NacamakiNursingStation",
       "code": "NacamakiNursingStation",
       "name": "Nacamaki Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NacavanadiNursingStation",
       "code": "NacavanadiNursingStation",
       "name": "Nacavanadi Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NaculaHealthCentre",
       "code": "NaculaHealthCentre",
       "name": "Nacula Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NadarivatuHealthCentre",
       "code": "NadarivatuHealthCentre",
       "name": "Nadarivatu Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NadiHealthCentre",
       "code": "NadiHealthCentre",
       "name": "Nadi Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NadiSub-divisionalHospital",
       "code": "NadiSub-divisionalHospital",
       "name": "Nadi Sub-divisional Hospital",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NadrauNursingStation",
       "code": "NadrauNursingStation",
       "name": "Nadrau Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NaduriHealthCentre",
       "code": "NaduriHealthCentre",
       "name": "Naduri Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NagadoNursingStation",
       "code": "NagadoNursingStation",
       "name": "Nagado Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NagatagataNursingStation",
       "code": "NagatagataNursingStation",
       "name": "Nagatagata Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NailagaHealthCentre",
       "code": "NailagaHealthCentre",
       "name": "Nailaga Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NailililiNursingStation",
       "code": "NailililiNursingStation",
       "name": "Naililili Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NairaiNursingStation",
       "code": "NairaiNursingStation",
       "name": "Nairai Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NakasiHealthCentre",
       "code": "NakasiHealthCentre",
       "name": "Nakasi Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NakorosuleHealthCentre",
       "code": "NakorosuleHealthCentre",
       "name": "Nakorosule Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NakorovatuHealthCentre",
       "code": "NakorovatuHealthCentre",
       "name": "Nakorovatu Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NalotawaNursingStation",
       "code": "NalotawaNursingStation",
       "name": "Nalotawa Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NalotuNursingStation",
       "code": "NalotuNursingStation",
       "name": "Nalotu Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NamakaHealthCentre",
       "code": "NamakaHealthCentre",
       "name": "Namaka Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NamakaReproductiveHealth",
       "code": "NamakaReproductiveHealth",
       "name": "Namaka Reproductive Health",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NamaraNursingStation",
       "code": "NamaraNursingStation",
       "name": "Namara Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NamaraiHealthCentre",
       "code": "NamaraiHealthCentre",
       "name": "Namarai Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NamauNursingStation",
       "code": "NamauNursingStation",
       "name": "Namau Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NamuamuaHealthCentre",
       "code": "NamuamuaHealthCentre",
       "name": "Namuamua Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NamukaNursingStation",
       "code": "NamukaNursingStation",
       "name": "Namuka Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NanokoNursingStation",
       "code": "NanokoNursingStation",
       "name": "Nanoko Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NanukuloaHealthCentre",
       "code": "NanukuloaHealthCentre",
       "name": "Nanukuloa Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NaqaliHealthCentre",
       "code": "NaqaliHealthCentre",
       "name": "Naqali Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NaqalimareNursingStation",
       "code": "NaqalimareNursingStation",
       "name": "Naqalimare Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NaqaraNursingStation",
       "code": "NaqaraNursingStation",
       "name": "Naqara Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NaqarawaiNursingStation",
       "code": "NaqarawaiNursingStation",
       "name": "Naqarawai Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NaqumuNursingStation",
       "code": "NaqumuNursingStation",
       "name": "Naqumu Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NarocakeNursingStation",
       "code": "NarocakeNursingStation",
       "name": "Narocake Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NarokorokoyawaNursingStation",
       "code": "NarokorokoyawaNursingStation",
       "name": "Narokorokoyawa Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NasauHealthCentre",
       "code": "NasauHealthCentre",
       "name": "Nasau Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NasavuNursingStation",
       "code": "NasavuNursingStation",
       "name": "Nasavu Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NaseaHealthCentre",
       "code": "NaseaHealthCentre",
       "name": "Nasea Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NasokiNursingStation",
       "code": "NasokiNursingStation",
       "name": "Nasoki Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NasoqoNursingStation",
       "code": "NasoqoNursingStation",
       "name": "Nasoqo Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NatabuaHealthCentre",
       "code": "NatabuaHealthCentre",
       "name": "Natabua Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NatewaHealthCentre",
       "code": "NatewaHealthCentre",
       "name": "Natewa Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NausoriHealthCentre",
       "code": "NausoriHealthCentre",
       "name": "Nausori Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NausoriHighlandNursingStation",
       "code": "NausoriHighlandNursingStation",
       "name": "Nausori Highland Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NausoriMaternityHospital",
       "code": "NausoriMaternityHospital",
       "name": "Nausori Maternity Hospital",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NavakakaNursingStation",
       "code": "NavakakaNursingStation",
       "name": "Navakaka Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NavakasigaNursingStation",
       "code": "NavakasigaNursingStation",
       "name": "Navakasiga Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NavuaHealthCentre",
       "code": "NavuaHealthCentre",
       "name": "Navua Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NavuaSub-divisionalHospital",
       "code": "NavuaSub-divisionalHospital",
       "name": "Navua Sub-divisional Hospital",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NavunikabiNursingStation",
       "code": "NavunikabiNursingStation",
       "name": "Navunikabi Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NawaicobaNursingStation",
       "code": "NawaicobaNursingStation",
       "name": "Nawaicoba Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NawaikamaNursingStation",
       "code": "NawaikamaNursingStation",
       "name": "Nawaikama Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NaweniNursingStation",
       "code": "NaweniNursingStation",
       "name": "Naweni Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NayauNursingStation",
       "code": "NayauNursingStation",
       "name": "Nayau Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NayavuHealthCentre",
       "code": "NayavuHealthCentre",
       "name": "Nayavu Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NayavuiraNursingStation",
       "code": "NayavuiraNursingStation",
       "name": "Nayavuira Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NuffieldHealthCentre",
       "code": "NuffieldHealthCentre",
       "name": "Nuffield Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-NukuilauNursingStation",
       "code": "NukuilauNursingStation",
       "name": "Nukuilau Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-OgeaNursingStation",
       "code": "OgeaNursingStation",
       "name": "Ogea Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-OneataNursingStation",
       "code": "OneataNursingStation",
       "name": "Oneata Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-Ono-i-LauHealthCentre",
       "code": "Ono-i-LauHealthCentre",
       "name": "Ono-i-Lau Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-PunjasHealthCentre",
       "code": "PunjasHealthCentre",
       "name": "Punjas Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-QameaHealthCentre",
       "code": "QameaHealthCentre",
       "name": "Qamea Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-QaraniHealthCentre",
       "code": "QaraniHealthCentre",
       "name": "Qarani Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-QVSNursingStation",
       "code": "QVSNursingStation",
       "name": "QVS Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-RaMaternityHospital",
       "code": "RaMaternityHospital",
       "name": "Ra Maternity Hospital",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-RabiHealthCentre",
       "code": "RabiHealthCentre",
       "name": "Rabi Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-RaiwaqaHealthCentreCentral",
       "code": "RaiwaqaHealthCentreCentral",
       "name": "Raiwaqa Health Centre Central",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-RaiwaqaHealthCentre",
       "code": "RaiwaqaHealthCentre",
       "name": "Raiwaqa Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-RakirakiHealthCentre",
       "code": "RakirakiHealthCentre",
       "name": "Rakiraki Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-RakirakiSub-divisionalHospital",
       "code": "RakirakiSub-divisionalHospital",
       "name": "Rakiraki Sub-divisional Hospital",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-RaviraviNursingStation",
       "code": "RaviraviNursingStation",
       "name": "Raviravi Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-RavitakiNursingStation",
       "code": "RavitakiNursingStation",
       "name": "Ravitaki Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-ReproductiveandFamilyHealthAssociationofFijiClinic",
       "code": "ReproductiveandFamilyHealthAssociationofFijiClinic",
       "name": "Reproductive and Family Health Association of Fiji Clinic",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-RHHX",
       "code": "RHHX",
       "name": "RHHX",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-RKSNursingStation",
       "code": "RKSNursingStation",
       "name": "RKS Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-RotumaHealthCentre",
       "code": "RotumaHealthCentre",
       "name": "Rotuma Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-RotumaSub-divisionalHospital",
       "code": "RotumaSub-divisionalHospital",
       "name": "Rotuma Sub-divisional Hospital",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-RoyalFijiMilitaryForces",
       "code": "RoyalFijiMilitaryForces",
       "name": "Royal Fiji Military Forces",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-RoyalFijiPolice",
       "code": "RoyalFijiPolice",
       "name": "Royal Fiji Police",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-SaiVeiseiseiHealthCentre",
       "code": "SaiVeiseiseiHealthCentre",
       "name": "Sai Veiseisei Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-SamabulaHealthCentre",
       "code": "SamabulaHealthCentre",
       "name": "Samabula Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-SaqaniHealthCentre",
       "code": "SaqaniHealthCentre",
       "name": "Saqani Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-SaradaMedicalCentre",
       "code": "SaradaMedicalCentre",
       "name": "Sarada Medical Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-SavusavuHealthCentre",
       "code": "SavusavuHealthCentre",
       "name": "Savusavu Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-SavusavuSub-divisionalHospital",
       "code": "SavusavuSub-divisionalHospital",
       "name": "Savusavu Sub-divisional Hospital",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-SawakasaHealthCentre",
       "code": "SawakasaHealthCentre",
       "name": "Sawakasa Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-SeaqaqaHealthCentre",
       "code": "SeaqaqaHealthCentre",
       "name": "Seaqaqa Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-SigatokaHealthCentre",
       "code": "SigatokaHealthCentre",
       "name": "Sigatoka Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-SigatokaSub-divisionalHospital",
       "code": "SigatokaSub-divisionalHospital",
       "name": "Sigatoka Sub-divisional Hospital",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-SomosomoNursingStation",
       "code": "SomosomoNursingStation",
       "name": "Somosomo Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-SosoNursingStation",
       "code": "SosoNursingStation",
       "name": "Soso Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-StGilesHospital",
       "code": "StGilesHospital",
       "name": "St. Giles Hospital",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-STIClinic",
       "code": "STIClinic",
       "name": "STI Clinic",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-SuvaHealthCentre",
       "code": "SuvaHealthCentre",
       "name": "Suva Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-SuvaHubCentre",
       "code": "SuvaHubCentre",
       "name": "Suva Hub Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-TalauliaNursingStation",
       "code": "TalauliaNursingStation",
       "name": "Talaulia Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-TamavuaSub-divisionalHospital",
       "code": "TamavuaSub-divisionalHospital",
       "name": "Tamavua Sub-divisional Hospital",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-TauNursingStation",
       "code": "TauNursingStation",
       "name": "Tau Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-TaveuniSub-divisionalhospital",
       "code": "TaveuniSub-divisionalhospital",
       "name": "Taveuni Sub-divisional hospital",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-TavuaHealthCentre",
       "code": "TavuaHealthCentre",
       "name": "Tavua Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-TavuaMaternity",
       "code": "TavuaMaternity",
       "name": "Tavua Maternity",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-TavuaSub-divisionalHospital",
       "code": "TavuaSub-divisionalHospital",
       "name": "Tavua Sub-divisional Hospital",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-TawakeNursingStation",
       "code": "TawakeNursingStation",
       "name": "Tawake Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-TeciNursingStation",
       "code": "TeciNursingStation",
       "name": "Teci Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-TokaimaloNursingStation",
       "code": "TokaimaloNursingStation",
       "name": "Tokaimalo Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-ToniaNursingStation",
       "code": "ToniaNursingStation",
       "name": "Tonia Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-TotoyaNursingStation",
       "code": "TotoyaNursingStation",
       "name": "Totoya Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-TukavesiHealthCentre",
       "code": "TukavesiHealthCentre",
       "name": "Tukavesi Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-TuvuNursingStation",
       "code": "TuvuNursingStation",
       "name": "Tuvu Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-TuvucaNursingStation",
       "code": "TuvucaNursingStation",
       "name": "Tuvuca Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-UduNursingStation",
       "code": "UduNursingStation",
       "name": "Udu Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-VacaleaNursingStation",
       "code": "VacaleaNursingStation",
       "name": "Vacalea Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-ValelevuHealthCentre",
       "code": "ValelevuHealthCentre",
       "name": "Valelevu Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-VanuavatuNursingStation",
       "code": "VanuavatuNursingStation",
       "name": "Vanuavatu Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-VatoaNursingStation",
       "code": "VatoaNursingStation",
       "name": "Vatoa Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-VatukarasaHealthCentre",
       "code": "VatukarasaHealthCentre",
       "name": "Vatukarasa Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-VatukarasaNursingStation",
       "code": "VatukarasaNursingStation",
       "name": "Vatukarasa Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-VatuleleHealthCentre",
       "code": "VatuleleHealthCentre",
       "name": "Vatulele Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-VerataNursingStation",
       "code": "VerataNursingStation",
       "name": "Verata Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-VisoqoNursingStation",
       "code": "VisoqoNursingStation",
       "name": "Visoqo Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-ViwaNursingStation",
       "code": "ViwaNursingStation",
       "name": "Viwa Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-VunaHealthCentre",
       "code": "VunaHealthCentre",
       "name": "Vuna Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-VunaNursingStation",
       "code": "VunaNursingStation",
       "name": "Vuna Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-VunidawaHealthCentre",
       "code": "VunidawaHealthCentre",
       "name": "Vunidawa Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-VunidawaSub-divisionalHospital",
       "code": "VunidawaSub-divisionalHospital",
       "name": "Vunidawa Sub-divisional Hospital",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-VuniseaHealthCentre",
       "code": "VuniseaHealthCentre",
       "name": "Vunisea Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-VuniseaSub-divisionalHospital",
       "code": "VuniseaSub-divisionalHospital",
       "name": "Vunisea Sub-divisional Hospital",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-VunitogoloaNursingStation",
       "code": "VunitogoloaNursingStation",
       "name": "Vunitogoloa Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-VunivutuNursingStation",
       "code": "VunivutuNursingStation",
       "name": "Vunivutu Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-WaidinaNursingStation",
       "code": "WaidinaNursingStation",
       "name": "Waidina Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-WaimaqeraHealthCentre",
       "code": "WaimaqeraHealthCentre",
       "name": "Waimaqera Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-WaimaroHealthCentre",
       "code": "WaimaroHealthCentre",
       "name": "Waimaro Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-WainibokasiHealthCentre",
       "code": "WainibokasiHealthCentre",
       "name": "Wainibokasi Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-WainibokasiSub-divisionalHospital",
       "code": "WainibokasiSub-divisionalHospital",
       "name": "Wainibokasi Sub-divisional Hospital",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-WainikoroHealthCentre",
       "code": "WainikoroHealthCentre",
       "name": "Wainikoro Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-WainunuHealthCentre",
       "code": "WainunuHealthCentre",
       "name": "Wainunu Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-WaivakaNursingStation",
       "code": "WaivakaNursingStation",
       "name": "Waivaka Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-WaiyevoHealthCentre",
       "code": "WaiyevoHealthCentre",
       "name": "Waiyevo Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-WaiyevoSub-divisionalHospital",
       "code": "WaiyevoSub-divisionalHospital",
       "name": "Waiyevo Sub-divisional Hospital",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-WauosiNursingStation",
       "code": "WauosiNursingStation",
       "name": "Wauosi Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-YacataNursingStation",
       "code": "YacataNursingStation",
       "name": "Yacata Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-YaduaNursingStation",
       "code": "YaduaNursingStation",
       "name": "Yadua Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-YagetaNursingStation",
       "code": "YagetaNursingStation",
       "name": "Yageta Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-YalobiNursingStation",
       "code": "YalobiNursingStation",
       "name": "Yalobi Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-YanuyaNursingStation",
       "code": "YanuyaNursingStation",
       "name": "Yanuya Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-YaqetaNursingStation",
       "code": "YaqetaNursingStation",
       "name": "Yaqeta Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-Yasawa-I-RaraNursingStation",
       "code": "Yasawa-I-RaraNursingStation",
       "name": "Yasawa-I-Rara Nursing Station",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-1",
       "code": "facility-1",
       "name": "facility-1",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-2",
       "code": "facility-2",
       "name": "facility-2",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-CarnationHealthCentre",
       "code": "CarnationHealthCentre",
       "name": "Carnation Health Centre",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-LilyHospital",
       "code": "LilyHospital",
       "name": "Lily Hospital",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-TamanuHospital",
       "code": "TamanuHospital",
       "name": "Tamanu Hospital",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-Test",
       "code": "Test",
       "name": "Test Facility",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": "current",
-      "catchment_id": null
+      "visibilityStatus": "current"
     },
     {
       "id": "facility-healthCenter1",
       "code": "health-center-1",
       "name": "Health center 1",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": null,
       "catchment_id": "catchment-healthCenter1"
     },
     {
       "id": "facility-healthCenter2",
       "code": "health-center-2",
       "name": "Health center 2",
-      "email": null,
-      "contactNumber": null,
-      "streetAddress": null,
-      "cityTown": null,
-      "division": null,
-      "type": null,
-      "visibilityStatus": null,
       "catchment_id": "catchment-healthCenter2"
     }
   ]

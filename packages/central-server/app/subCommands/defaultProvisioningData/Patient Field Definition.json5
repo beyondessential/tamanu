@@ -15,36 +15,28 @@
       "categoryId": "fieldCategory-food",
       "name": "Favourite burger?",
       "visibilityStatus": "current",
-      "fieldType": "string",
-      "options": null,
-      "note": null
+      "fieldType": "string"
     },
     {
       "id": "fieldCategory-food-lactose",
       "categoryId": "fieldCategory-food",
       "name": "Lactose tolerance",
       "visibilityStatus": "current",
-      "fieldType": "string",
-      "options": null,
-      "note": null
+      "fieldType": "string"
     },
     {
       "id": "fieldCategory-clothing-shoeSizeInCm",
       "categoryId": "fieldCategory-clothing",
       "name": "Shoe size (cm)?",
       "visibilityStatus": "current",
-      "fieldType": "number",
-      "options": null,
-      "note": null
+      "fieldType": "number"
     },
     {
       "id": "fieldCategory-clothing-shoeSizeInInches",
       "categoryId": "fieldCategory-clothing",
       "name": "Shoe size (inches)?",
       "visibilityStatus": "historical",
-      "fieldType": "number",
-      "options": null,
-      "note": null
+      "fieldType": "number"
     },
     {
       "id": "fieldCategory-clothing-tshirtSize",
@@ -52,8 +44,7 @@
       "name": "T-shirt size?",
       "visibilityStatus": "current",
       "fieldType": "select",
-      "options": "s,m,l,xl,2xl",
-      "note": null
+      "options": "s,m,l,xl,2xl"
     }
   ]
 }

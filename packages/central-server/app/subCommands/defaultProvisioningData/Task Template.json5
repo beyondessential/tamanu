@@ -14,46 +14,32 @@
       "id": "58f20442-ac77-4754-ac21-5e83d6e91362",
       "code": "bedChange-7IV",
       "name": "Bed change",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-Assessment",
       "code": "Assessment",
       "name": "Assessment",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-AssessmentCognitive",
       "code": "AssessmentCognitive",
       "name": "Assessment: Cognitive",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-AssessmentDiet",
       "code": "AssessmentDiet",
       "name": "Assessment: Diet",
       "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": "designation-Nutritionist",
-      "taskFrequency": null
+      "assignedTo": "designation-Nutritionist"
     },
     {
       "id": "task-AssessmentFunctional",
       "code": "AssessmentFunctional",
       "name": "Assessment: Functional",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-Headassessment",
@@ -61,422 +47,288 @@
       "name": "Assessment: Head",
       "visibilityStatus": "current",
       "highPriority": true,
-      "assignedTo": null,
       "taskFrequency": "4 hours"
     },
     {
       "id": "task-AssessmentIntake",
       "code": "AssessmentIntake",
       "name": "Assessment: Intake",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-Painassessment",
       "code": "Painassessment",
       "name": "Assessment: Pain",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-AssessmentSwallowing",
       "code": "AssessmentSwallowing",
       "name": "Assessment: Swallowing ",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-AssessmentWound",
       "code": "AssessmentWound",
       "name": "Assessment: Wound",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-Assistwithfeeding",
       "code": "Assistwithfeeding",
       "name": "Assist with feeding",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-Bookfollowupappointment",
       "code": "Bookfollowupappointment",
       "name": "Book follow up appointment",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-Catheterreview",
       "code": "Catheterreview",
       "name": "Catheter review",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-Changebed",
       "code": "Changebed",
       "name": "Change bed",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-Changebedpan",
       "code": "Changebedpan",
       "name": "Change bedpan",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-Changedressing",
       "code": "Changedressing",
       "name": "Change dressing",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-Checkoxygen",
       "code": "Checkoxygen",
       "name": "Check oxygen",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-Collectlabsample",
       "code": "Collectlabsample",
       "name": "Collect lab sample",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-Conductphysicalexam",
       "code": "Conductphysicalexam",
       "name": "Conduct physical exam",
       "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": "designation-Nurse",
-      "taskFrequency": null
+      "assignedTo": "designation-Nurse"
     },
     {
       "id": "task-Consentform",
       "code": "Consentform",
       "name": "Consent form",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-Contactpatientfamilycaretaker",
       "code": "Contactpatientfamilycaretaker",
       "name": "Contact patient family/caretaker",
       "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": "designation-Nurse, designation-Intern",
-      "taskFrequency": null
+      "assignedTo": "designation-Nurse, designation-Intern"
     },
     {
       "id": "task-Medicationadministration",
       "code": "Medicationadministration",
       "name": "Medication administration",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-Obtainpatientsignature",
       "code": "Obtainpatientsignature",
       "name": "Obtain patient signature",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-Othertask",
       "code": "Othertask",
       "name": "Other task",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-Patienteducation",
       "code": "Patienteducation",
       "name": "Patient education",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-PatienteducationNewmedication",
       "code": "PatienteducationNewmedication",
       "name": "Patient education: New medication",
       "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": "designation-Pharmacist",
-      "taskFrequency": null
+      "assignedTo": "designation-Pharmacist"
     },
     {
       "id": "task-PatienteducationNutrution",
       "code": "PatienteducationNutrition",
       "name": "Patient education: Nutrition",
       "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": "designation-Nutritionist",
-      "taskFrequency": null
+      "assignedTo": "designation-Nutritionist"
     },
     {
       "id": "task-PatienteducationPostoperative",
       "code": "PatienteducationPostoperative",
       "name": "Patient education: Post operative",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-PatienteducationRehab",
       "code": "PatienteducationRehab",
       "name": "Patient education: Rehab",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-Dischargepreparation",
       "code": "Dischargepreparation",
       "name": "Patient preparation: Discharge",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-PatientpreparationFasting",
       "code": "PatientpreparationFasting",
       "name": "Patient preparation: Fasting",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-PatientpreparationProcedure",
       "code": "PatientpreparationProcedure",
       "name": "Patient preparation: Procedure",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-PatientpreparationSurgical",
       "code": "PatientpreparationSurgical",
       "name": "Patient preparation: Surgical",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-PatientupdateEmergencycontact",
       "code": "PatientupdateEmergencycontact",
       "name": "Patient update: Emergency contact",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-PatientupdateInsurancedetails",
       "code": "PatientupdateInsurancedetails",
       "name": "Patient update: Insurance details",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-PatientupdatePatientdetails",
       "code": "PatientupdatePatientdetails",
       "name": "Patient update: Patient details",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-Recordvitals",
       "code": "Recordvitals",
       "name": "Record vitals",
       "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
       "taskFrequency": "4 hours"
     },
     {
       "id": "task-Rehabilitationexercise",
       "code": "Rehabilitationexercise",
       "name": "Rehabilitation / exercise",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-Repositionpatientinbed",
       "code": "Repositionpatientinbed",
       "name": "Reposition patient in bed",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-Reviewimagingresults",
       "code": "Reviewimagingresults",
       "name": "Review imaging results",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-ReviewIVfluids",
       "code": "ReviewIVfluids",
       "name": "Review IV fluids",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-Reviewlabresults",
       "code": "Reviewlabresults",
       "name": "Review lab results",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-Reviewprnmedications",
       "code": "Reviewprnmedications",
       "name": "Review PRN medications",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-Showerpatient",
       "code": "Showerpatient",
       "name": "Shower patient",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-Surgicalsiteassessment",
       "code": "Surgicalsiteassessment",
       "name": "Surgical site assessment",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-Transferfrombedtochair",
       "code": "Transferfrombedtochair",
       "name": "Transfer from bed to chair",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "task-Transferpatient",
       "code": "Transferpatient",
       "name": "Transfer patient",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "c2bfae5e-c311-4bac-8018-405f25d8222a",
       "code": "commode-N70",
       "name": "Commode",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "0583e1df-00de-4fc4-9b34-424193880c0f",
       "code": "assessmentMobility-VKC",
       "name": "Assessment: Mobility",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "c2c8ec8c-348b-4dbd-9bf1-37028d31c78a",
       "code": "bloodSugarLevelCheck-LQB",
       "name": "Blood sugar level check",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "493b4d8f-fd1c-4b10-879c-dbd668ce4aa4",
       "code": "phoneOrderLabs-5X7",
       "name": "Phone order: Labs",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     },
     {
       "id": "2e77661e-9033-4712-995b-dd1170022c1e",
       "code": "uvcInsertion-HVS",
       "name": "UVC insertion",
-      "visibilityStatus": "current",
-      "highPriority": null,
-      "assignedTo": null,
-      "taskFrequency": null
+      "visibilityStatus": "current"
     }
   ]
 }

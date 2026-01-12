@@ -12,88 +12,66 @@
     {
       "id": "invoiceProduct-accommodation",
       "name": "Accommodation",
-      "category": null,
-      "sourceRecordId": null,
       "discountable": "FALSE",
       "visibilityStatus": "current"
     },
     {
       "id": "invoiceProduct-bandage",
       "name": "Bandage",
-      "category": null,
-      "sourceRecordId": null,
       "discountable": "TRUE",
       "visibilityStatus": "current"
     },
     {
       "id": "invoiceProduct-crutches",
       "name": "Crutches",
-      "category": null,
-      "sourceRecordId": null,
       "discountable": "TRUE",
       "visibilityStatus": "current"
     },
     {
       "id": "invoiceProduct-dinner",
       "name": "Dinner",
-      "category": null,
-      "sourceRecordId": null,
       "discountable": "FALSE",
       "visibilityStatus": "current"
     },
     {
       "id": "invoiceProduct-extendedconsult",
       "name": "Extended consultation",
-      "category": null,
-      "sourceRecordId": null,
       "discountable": "TRUE",
       "visibilityStatus": "current"
     },
     {
       "id": "invoiceProduct-lunch",
       "name": "Lunch",
-      "category": null,
-      "sourceRecordId": null,
       "discountable": "TRUE",
       "visibilityStatus": "current"
     },
     {
       "id": "invoiceProduct-standardconsult",
       "name": "Standard consultation",
-      "category": null,
-      "sourceRecordId": null,
       "discountable": "TRUE",
       "visibilityStatus": "current"
     },
     {
       "id": "invoiceProduct-wheelchair",
       "name": "Wheelchair hire",
-      "category": null,
-      "sourceRecordId": null,
       "discountable": true,
       "visibilityStatus": "current"
     },
     {
       "id": "invoiceProduct-angiogram",
       "name": "angiogram",
-      "category": null,
-      "sourceRecordId": null,
       "discountable": "TRUE",
       "visibilityStatus": "current"
     },
     {
       "id": "invoiceProduct-colonoscopy",
       "name": "colonoscopy",
-      "category": null,
-      "sourceRecordId": null,
       "discountable": "FALSE",
       "visibilityStatus": "current"
     },
     {
       "id": "invoiceProduct-ctScan",
       "name": "ctScan",
-      "category": null,
-      "sourceRecordId": null,
       "discountable": "TRUE",
       "visibilityStatus": "current"
     },
@@ -108,40 +86,30 @@
     {
       "id": "invoiceProduct-ecg",
       "name": "ecg",
-      "category": null,
-      "sourceRecordId": null,
       "discountable": "TRUE",
       "visibilityStatus": "current"
     },
     {
       "id": "invoiceProduct-echocardiogram",
       "name": "echocardiogram",
-      "category": null,
-      "sourceRecordId": null,
       "discountable": "TRUE",
       "visibilityStatus": "current"
     },
     {
       "id": "invoiceProduct-endoscopy",
       "name": "endoscopy",
-      "category": null,
-      "sourceRecordId": null,
       "discountable": "FALSE",
       "visibilityStatus": "current"
     },
     {
       "id": "invoiceProduct-fluroscopy",
       "name": "fluroscopy",
-      "category": null,
-      "sourceRecordId": null,
       "discountable": "TRUE",
       "visibilityStatus": "current"
     },
     {
       "id": "invoiceProduct-holterMonitor",
       "name": "holterMonitor",
-      "category": null,
-      "sourceRecordId": null,
       "discountable": "TRUE",
       "visibilityStatus": "current"
     },
@@ -580,16 +548,12 @@
     {
       "id": "invoiceProduct-mammogram",
       "name": "mammogram",
-      "category": null,
-      "sourceRecordId": null,
       "discountable": "TRUE",
       "visibilityStatus": "current"
     },
     {
       "id": "invoiceProduct-mri",
       "name": "mri",
-      "category": null,
-      "sourceRecordId": null,
       "discountable": "FALSE",
       "visibilityStatus": "current"
     },
@@ -8596,32 +8560,24 @@
     {
       "id": "invoiceProduct-stressTest",
       "name": "stressTest",
-      "category": null,
-      "sourceRecordId": null,
       "discountable": "TRUE",
       "visibilityStatus": "current"
     },
     {
       "id": "invoiceProduct-ultrasound",
       "name": "ultrasound",
-      "category": null,
-      "sourceRecordId": null,
       "discountable": "TRUE",
       "visibilityStatus": "current"
     },
     {
       "id": "invoiceProduct-vascularStudy",
       "name": "vascularStudy",
-      "category": null,
-      "sourceRecordId": null,
       "discountable": "TRUE",
       "visibilityStatus": "current"
     },
     {
       "id": "invoiceProduct-xRay",
       "name": "xRay",
-      "category": null,
-      "sourceRecordId": null,
       "discountable": "TRUE",
       "visibilityStatus": "current"
     },

@@ -11,93 +11,67 @@
     {
       "id": "family-Maternalgrandmother",
       "code": "Maternalgrandmother",
-      "name": "Maternal grandmother",
-      "facility": null,
-      "contactNumber": null
+      "name": "Maternal grandmother"
     },
     {
       "id": "family-Maternalgrandfather",
       "code": "Maternalgrandfather",
-      "name": "Maternal grandfather",
-      "facility": null,
-      "contactNumber": null
+      "name": "Maternal grandfather"
     },
     {
       "id": "family-Paternalgrandmother",
       "code": "Paternalgrandmother",
-      "name": "Paternal grandmother",
-      "facility": null,
-      "contactNumber": null
+      "name": "Paternal grandmother"
     },
     {
       "id": "family-Paternalgrandfather",
       "code": "Paternalgrandfather",
-      "name": "Paternal grandfather",
-      "facility": null,
-      "contactNumber": null
+      "name": "Paternal grandfather"
     },
     {
       "id": "family-Mother",
       "code": "Mother",
-      "name": "Mother",
-      "facility": null,
-      "contactNumber": null
+      "name": "Mother"
     },
     {
       "id": "family-Father",
       "code": "Father",
-      "name": "Father",
-      "facility": null,
-      "contactNumber": null
+      "name": "Father"
     },
     {
       "id": "family-Sister",
       "code": "Sister",
-      "name": "Sister",
-      "facility": null,
-      "contactNumber": null
+      "name": "Sister"
     },
     {
       "id": "family-Brother",
       "code": "Brother",
-      "name": "Brother",
-      "facility": null,
-      "contactNumber": null
+      "name": "Brother"
     },
     {
       "id": "family-Daughter",
       "code": "Daughter",
-      "name": "Daughter",
-      "facility": null,
-      "contactNumber": null
+      "name": "Daughter"
     },
     {
       "id": "family-Son",
       "code": "Son",
-      "name": "Son",
-      "facility": null,
-      "contactNumber": null
+      "name": "Son"
     },
     {
       "id": "family-Aunt",
       "code": "Aunt",
-      "name": "Aunt",
-      "facility": null,
-      "contactNumber": null
+      "name": "Aunt"
     },
     {
       "id": "family-Uncle",
       "code": "Uncle",
-      "name": "Uncle",
-      "facility": null,
-      "contactNumber": null
+      "name": "Uncle"
     },
     {
       "id": "family-Cousin",
       "code": "Cousin",
-      "name": "Cousin",
-      "facility": null,
-      "contactNumber": null
+      "name": "Cousin"
     }
   ]
 }

@@ -17,8 +17,6 @@
       "category": "Catchup",
       "label": "MR",
       "doseLabel": "Dose 2",
-      "weeksFromBirthDue": null,
-      "weeksFromLastVaccinationDue": null,
       "index": 2,
       "sortIndex": 0,
       "vaccine": "MR"
@@ -28,8 +26,6 @@
       "category": "Catchup",
       "label": "MR",
       "doseLabel": "Dose 1",
-      "weeksFromBirthDue": null,
-      "weeksFromLastVaccinationDue": null,
       "index": 1,
       "sortIndex": 0,
       "vaccine": "MR"
@@ -40,7 +36,6 @@
       "label": "BCG",
       "doseLabel": "Birth",
       "weeksFromBirthDue": 1,
-      "weeksFromLastVaccinationDue": null,
       "index": 1,
       "sortIndex": 0,
       "vaccine": "BCG"
@@ -50,8 +45,6 @@
       "category": "Catchup",
       "label": "BCG",
       "doseLabel": "Dose 1",
-      "weeksFromBirthDue": null,
-      "weeksFromLastVaccinationDue": null,
       "index": 1,
       "sortIndex": 0,
       "vaccine": "BCG"
@@ -62,7 +55,6 @@
       "label": "DTP Booster",
       "doseLabel": "15 months",
       "weeksFromBirthDue": 65,
-      "weeksFromLastVaccinationDue": null,
       "index": 6,
       "sortIndex": 0,
       "vaccine": "DTP Booster"
@@ -73,7 +65,6 @@
       "label": "bOPV",
       "doseLabel": "14 weeks",
       "weeksFromBirthDue": 14,
-      "weeksFromLastVaccinationDue": null,
       "index": 4,
       "sortIndex": 0,
       "vaccine": "bOPV"
@@ -84,7 +75,6 @@
       "label": "bOPV",
       "doseLabel": "10 weeks",
       "weeksFromBirthDue": 10,
-      "weeksFromLastVaccinationDue": null,
       "index": 3,
       "sortIndex": 0,
       "vaccine": "bOPV"
@@ -95,7 +85,6 @@
       "label": "bOPV",
       "doseLabel": "6 weeks",
       "weeksFromBirthDue": 6,
-      "weeksFromLastVaccinationDue": null,
       "index": 2,
       "sortIndex": 0,
       "vaccine": "bOPV"
@@ -106,7 +95,6 @@
       "label": "PCV13",
       "doseLabel": "6 weeks",
       "weeksFromBirthDue": 6,
-      "weeksFromLastVaccinationDue": null,
       "index": 2,
       "sortIndex": 0,
       "vaccine": "PCV"
@@ -116,8 +104,6 @@
       "category": "Catchup",
       "label": "PCV 2 - 5 years",
       "doseLabel": "Dose 1",
-      "weeksFromBirthDue": null,
-      "weeksFromLastVaccinationDue": null,
       "index": 1,
       "sortIndex": 0,
       "vaccine": "PCV"
@@ -128,7 +114,6 @@
       "label": "PCV13",
       "doseLabel": "10 weeks",
       "weeksFromBirthDue": 10,
-      "weeksFromLastVaccinationDue": null,
       "index": 3,
       "sortIndex": 0,
       "vaccine": "PCV"
@@ -138,8 +123,6 @@
       "category": "Catchup",
       "label": "PCV 12 - 23 Months",
       "doseLabel": "Dose 1",
-      "weeksFromBirthDue": null,
-      "weeksFromLastVaccinationDue": null,
       "index": 1,
       "sortIndex": 0,
       "vaccine": "PCV"
@@ -150,7 +133,6 @@
       "label": "PCV13",
       "doseLabel": "14 weeks",
       "weeksFromBirthDue": 14,
-      "weeksFromLastVaccinationDue": null,
       "index": 4,
       "sortIndex": 0,
       "vaccine": "PCV"
@@ -160,8 +142,6 @@
       "category": "Catchup",
       "label": "PCV 2 - 5 years",
       "doseLabel": "Dose 2",
-      "weeksFromBirthDue": null,
-      "weeksFromLastVaccinationDue": null,
       "index": 2,
       "sortIndex": 0,
       "vaccine": "PCV"
@@ -171,8 +151,6 @@
       "category": "Catchup",
       "label": "PCV 12 - 23 Months",
       "doseLabel": "Dose 2",
-      "weeksFromBirthDue": null,
-      "weeksFromLastVaccinationDue": null,
       "index": 2,
       "sortIndex": 0,
       "vaccine": "PCV"
@@ -183,7 +161,6 @@
       "label": "Rotavirus",
       "doseLabel": "10 weeks",
       "weeksFromBirthDue": 10,
-      "weeksFromLastVaccinationDue": null,
       "index": 3,
       "sortIndex": 0,
       "vaccine": "Rotavirus"
@@ -194,7 +171,6 @@
       "label": "Rotavirus",
       "doseLabel": "6 weeks",
       "weeksFromBirthDue": 6,
-      "weeksFromLastVaccinationDue": null,
       "index": 2,
       "sortIndex": 0,
       "vaccine": "Rotavirus"
@@ -204,8 +180,6 @@
       "category": "Catchup",
       "label": "Rotavirus",
       "doseLabel": "Dose 1",
-      "weeksFromBirthDue": null,
-      "weeksFromLastVaccinationDue": null,
       "index": 1,
       "sortIndex": 0,
       "vaccine": "Rotavirus"
@@ -215,8 +189,6 @@
       "category": "Catchup",
       "label": "Rotavirus",
       "doseLabel": "Dose 2",
-      "weeksFromBirthDue": null,
-      "weeksFromLastVaccinationDue": null,
       "index": 2,
       "sortIndex": 0,
       "vaccine": "Rotavirus"
@@ -226,8 +198,6 @@
       "category": "Catchup",
       "label": "HPV",
       "doseLabel": "Dose 1",
-      "weeksFromBirthDue": null,
-      "weeksFromLastVaccinationDue": null,
       "index": 1,
       "sortIndex": 0,
       "vaccine": "HPV"
@@ -237,8 +207,6 @@
       "category": "Catchup",
       "label": "HPV",
       "doseLabel": "Dose 2",
-      "weeksFromBirthDue": null,
-      "weeksFromLastVaccinationDue": null,
       "index": 2,
       "sortIndex": 0,
       "vaccine": "HPV"
@@ -248,8 +216,6 @@
       "category": "Catchup",
       "label": "HPV",
       "doseLabel": "Dose 3",
-      "weeksFromBirthDue": null,
-      "weeksFromLastVaccinationDue": null,
       "index": 3,
       "sortIndex": 0,
       "vaccine": "HPV"
@@ -260,7 +226,6 @@
       "label": "Td Booster",
       "doseLabel": "5 years",
       "weeksFromBirthDue": 260,
-      "weeksFromLastVaccinationDue": null,
       "index": 7,
       "sortIndex": 0,
       "vaccine": "Td Booster"
@@ -271,7 +236,6 @@
       "label": "Td Booster",
       "doseLabel": "10 years",
       "weeksFromBirthDue": 521,
-      "weeksFromLastVaccinationDue": null,
       "index": 8,
       "sortIndex": 0,
       "vaccine": "Td Booster"
@@ -282,7 +246,6 @@
       "label": "TCV Typhoid",
       "doseLabel": "9 months",
       "weeksFromBirthDue": 39,
-      "weeksFromLastVaccinationDue": null,
       "index": 5,
       "sortIndex": 0,
       "vaccine": "TCV Typhoid"
@@ -292,8 +255,6 @@
       "category": "Campaign",
       "label": "TCV Typhoid",
       "doseLabel": "Dose 1",
-      "weeksFromBirthDue": null,
-      "weeksFromLastVaccinationDue": null,
       "index": 1,
       "sortIndex": 0,
       "vaccine": "TCV Typhoid"
@@ -304,7 +265,6 @@
       "label": "MMR",
       "doseLabel": "9 months",
       "weeksFromBirthDue": 39,
-      "weeksFromLastVaccinationDue": null,
       "index": 5,
       "sortIndex": 0,
       "vaccine": "MMR"
@@ -315,7 +275,6 @@
       "label": "MMR",
       "doseLabel": "15 months",
       "weeksFromBirthDue": 65,
-      "weeksFromLastVaccinationDue": null,
       "index": 6,
       "sortIndex": 0,
       "vaccine": "MMR"
@@ -325,8 +284,6 @@
       "category": "Catchup",
       "label": "MMR",
       "doseLabel": "Dose 2",
-      "weeksFromBirthDue": null,
-      "weeksFromLastVaccinationDue": null,
       "index": 2,
       "sortIndex": 0,
       "vaccine": "MMR"
@@ -336,8 +293,6 @@
       "category": "Catchup",
       "label": "MMR",
       "doseLabel": "Dose 1",
-      "weeksFromBirthDue": null,
-      "weeksFromLastVaccinationDue": null,
       "index": 1,
       "sortIndex": 0,
       "vaccine": "MMR"
@@ -348,7 +303,6 @@
       "label": "Hep B",
       "doseLabel": "Birth",
       "weeksFromBirthDue": 1,
-      "weeksFromLastVaccinationDue": null,
       "index": 1,
       "sortIndex": 0,
       "vaccine": "Hep B"
@@ -359,7 +313,6 @@
       "label": "IPV",
       "doseLabel": "14 weeks",
       "weeksFromBirthDue": 14,
-      "weeksFromLastVaccinationDue": null,
       "index": 4,
       "sortIndex": 0,
       "vaccine": "IPV"
@@ -369,8 +322,6 @@
       "category": "Catchup",
       "label": "IPV",
       "doseLabel": "Dose 1",
-      "weeksFromBirthDue": null,
-      "weeksFromLastVaccinationDue": null,
       "index": 1,
       "sortIndex": 0,
       "vaccine": "IPV"
@@ -380,7 +331,6 @@
       "category": "Campaign",
       "label": "COVID-19 AZ",
       "doseLabel": "Dose 2",
-      "weeksFromBirthDue": null,
       "weeksFromLastVaccinationDue": 8,
       "index": 2,
       "sortIndex": 0,
@@ -391,8 +341,6 @@
       "category": "Campaign",
       "label": "COVID-19 AZ",
       "doseLabel": "Dose 1",
-      "weeksFromBirthDue": null,
-      "weeksFromLastVaccinationDue": null,
       "index": 1,
       "sortIndex": 0,
       "vaccine": "COVID-19 AZ"
@@ -403,7 +351,6 @@
       "label": "Pentavalent",
       "doseLabel": "6 weeks",
       "weeksFromBirthDue": 6,
-      "weeksFromLastVaccinationDue": null,
       "index": 2,
       "sortIndex": 0,
       "vaccine": "Pentavalent"
@@ -414,7 +361,6 @@
       "label": "Pentavalent",
       "doseLabel": "14 weeks",
       "weeksFromBirthDue": 14,
-      "weeksFromLastVaccinationDue": null,
       "index": 4,
       "sortIndex": 0,
       "vaccine": "Pentavalent"
@@ -425,7 +371,6 @@
       "label": "Pentavalent",
       "doseLabel": "10 weeks",
       "weeksFromBirthDue": 10,
-      "weeksFromLastVaccinationDue": null,
       "index": 3,
       "sortIndex": 0,
       "vaccine": "Pentavalent"
@@ -435,8 +380,6 @@
       "category": "Catchup",
       "label": "OPV",
       "doseLabel": "Dose 2",
-      "weeksFromBirthDue": null,
-      "weeksFromLastVaccinationDue": null,
       "index": 2,
       "sortIndex": 0,
       "vaccine": "OPV"
@@ -446,8 +389,6 @@
       "category": "Catchup",
       "label": "OPV",
       "doseLabel": "Dose 1",
-      "weeksFromBirthDue": null,
-      "weeksFromLastVaccinationDue": null,
       "index": 1,
       "sortIndex": 0,
       "vaccine": "OPV"
@@ -458,7 +399,6 @@
       "label": "OPV Booster",
       "doseLabel": "15 months",
       "weeksFromBirthDue": 65,
-      "weeksFromLastVaccinationDue": null,
       "index": 6,
       "sortIndex": 0,
       "vaccine": "OPV"
@@ -468,8 +408,6 @@
       "category": "Catchup",
       "label": "OPV",
       "doseLabel": "Dose 3",
-      "weeksFromBirthDue": null,
-      "weeksFromLastVaccinationDue": null,
       "index": 3,
       "sortIndex": 0,
       "vaccine": "OPV"
@@ -479,7 +417,6 @@
       "category": "Campaign",
       "label": "COVID-19 Pfizer",
       "doseLabel": "Dose 2",
-      "weeksFromBirthDue": null,
       "weeksFromLastVaccinationDue": 6,
       "index": 2,
       "sortIndex": 0,
@@ -490,8 +427,6 @@
       "category": "Other",
       "label": "Other",
       "doseLabel": "N/A",
-      "weeksFromBirthDue": null,
-      "weeksFromLastVaccinationDue": null,
       "index": 1,
       "sortIndex": 0,
       "vaccine": "drug-other"
@@ -501,8 +436,6 @@
       "category": "Campaign",
       "label": "COVID-19 Pfizer",
       "doseLabel": "Dose 1",
-      "weeksFromBirthDue": null,
-      "weeksFromLastVaccinationDue": null,
       "index": 1,
       "sortIndex": 0,
       "vaccine": "COVID-19 Pfizer"

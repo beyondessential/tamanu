@@ -4302,8 +4302,7 @@
       "insurancePlan1": 30
     },
     {
-      "invoiceProductId": "invoiceProduct-ultrasound",
-      "insurancePlan1": null
+      "invoiceProductId": "invoiceProduct-ultrasound"
     },
     {
       "invoiceProductId": "invoiceProduct-vascularStudy",
@@ -4314,12 +4313,10 @@
       "insurancePlan1": 483
     },
     {
-      "invoiceProductId": "invoiceProduct-xRayImagingArea-AbdomenPlain",
-      "insurancePlan1": null
+      "invoiceProductId": "invoiceProduct-xRayImagingArea-AbdomenPlain"
     },
     {
-      "invoiceProductId": "invoiceProduct-xRayImagingArea-Chest",
-      "insurancePlan1": null
+      "invoiceProductId": "invoiceProduct-xRayImagingArea-Chest"
     },
     {
       "invoiceProductId": "invoiceProduct-xRayImagingArea-FacialBones",

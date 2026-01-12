@@ -10,44 +10,37 @@
     {
       "id": "medicationnotgivenreason-outofstock",
       "code": "outofstock",
-      "name": "Out of stock",
-      "visibilityStatus": null
+      "name": "Out of stock"
     },
     {
       "id": "medicationnotgivenreason-patientrefused",
       "code": "patientrefused",
-      "name": "Patient refused",
-      "visibilityStatus": null
+      "name": "Patient refused"
     },
     {
       "id": "medicationnotgivenreason-patientnotavailable",
       "code": "patientnotavailable",
-      "name": "Patient not available",
-      "visibilityStatus": null
+      "name": "Patient not available"
     },
     {
       "id": "medicationnotgivenreason-clinicallyinappropriate",
       "code": "clinicallyinappropriate",
-      "name": "Clinically inappropriate",
-      "visibilityStatus": null
+      "name": "Clinically inappropriate"
     },
     {
       "id": "medicationnotgivenreason-forgot",
       "code": "forgot",
-      "name": "Forgot",
-      "visibilityStatus": null
+      "name": "Forgot"
     },
     {
       "id": "medicationnotgivenreason-unabletoadminister",
       "code": "unabletoadminister",
-      "name": "Unable to administer",
-      "visibilityStatus": null
+      "name": "Unable to administer"
     },
     {
       "id": "medicationnotgivenreason-other",
       "code": "other",
-      "name": "Other",
-      "visibilityStatus": null
+      "name": "Other"
     }
   ]
 }
