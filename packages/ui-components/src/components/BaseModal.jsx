@@ -135,6 +135,7 @@ export const BaseModal = memo(
         open={open}
         onClose={onDialogClose}
         transitionDuration={MODAL_TRANSITION_DURATION}
+        disableEnforceFocus
         {...props}
         data-testid="dialog-g9qi"
       >
