@@ -10,7 +10,6 @@ import {
 } from '../../../../components';
 import { Colors } from '../../../../constants';
 import { ItemCell } from './ItemCell';
-import { ViewOnlyCell } from './ViewOnlyCell';
 
 const Container = styled(ItemCell)`
   flex: 1;
