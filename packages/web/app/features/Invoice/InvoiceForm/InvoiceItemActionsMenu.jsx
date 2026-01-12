@@ -7,13 +7,7 @@ import { NoteModalActionBlocker } from '../../../components';
 import { InvoiceItemActionModal } from './InvoiceItemActionModal';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 
-const useInvoiceItemActionsMenu = ({
-  item,
-  index,
-  formArrayMethods,
-  isDeleteDisabled,
-  hidePriceInput,
-}) => {
+const useInvoiceItemActionsMenu = ({ item, index, formArrayMethods, hidePriceInput }) => {
   const [actionModal, setActionModal] = useState();
 
   const onCloseActionModal = () => {
@@ -144,7 +138,6 @@ const useInvoiceItemActionsMenu = ({
         />
       ),
       onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.DELETE),
-      disabled: isDeleteDisabled,
     },
   ];
 
@@ -167,7 +160,6 @@ export const InvoiceItemActionsMenu = ({
   item,
   index,
   formArrayMethods,
-  isDeleteDisabled,
   showActionMenu,
   hidePriceInput,
 }) => {
@@ -175,7 +167,6 @@ export const InvoiceItemActionsMenu = ({
     item,
     index,
     formArrayMethods,
-    isDeleteDisabled,
     hidePriceInput,
   });
   return (

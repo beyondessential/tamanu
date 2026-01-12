@@ -16,6 +16,10 @@ const Container = styled(ItemCell)`
   min-width: 0;
 `;
 
+const StyledField = styled(Field)`
+  max-width: 500px;
+`;
+
 const Cell = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
@@ -38,7 +42,7 @@ export const DetailsCell = ({
     <Container>
       {isItemEditable ? (
         <NoteModalActionBlocker>
-          <Field
+          <StyledField
             name={`invoiceItems.${index}.productId`}
             required
             component={AutocompleteField}

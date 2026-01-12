@@ -108,6 +108,12 @@ const DiscountSection = ({ price, discountReason, discountedPrice }) => {
   );
 };
 
+const StyledField = styled(Field)`
+  .MuiFormControl-root {
+    margin-left: 8px;
+  }
+`;
+
 export const PriceCell = ({ index, item, isExpanded, hidePriceInput }) => {
   const price = getInvoiceItemTotalPrice(item);
   const discountedPrice = getInvoiceItemTotalDiscountedPrice(item);
@@ -132,11 +138,10 @@ export const PriceCell = ({ index, item, isExpanded, hidePriceInput }) => {
             ) : (
               item.productId && (
                 <NoteModalActionBlocker>
-                  <Field
+                  <StyledField
                     name={`invoiceItems.${index}.manualEntryPrice`}
                     component={PriceField}
                     required
-                    style={{ width: '100%' }}
                     data-testid="field-05x9"
                   />
                 </NoteModalActionBlocker>

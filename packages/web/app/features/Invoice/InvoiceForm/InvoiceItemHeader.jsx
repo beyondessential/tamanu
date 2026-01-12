@@ -7,7 +7,7 @@ import { CELL_WIDTHS } from '../constants';
 const StyledItemHeader = styled.div`
   display: flex;
   gap: 10px;
-  padding: 12px 50px 12px 24px;
+  padding: 12px 50px 12px 30px;
   border-radius: 4px 4px 0 0;
   border-bottom: 0;
 `;
