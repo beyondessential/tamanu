@@ -95,7 +95,7 @@ export const DeathForm = React.memo(
               .translatedLabel(
                 <TranslatedText
                   stringId="death.timeBetweenOnsetAndDeath.label"
-                  fallback="Time between onset and death"
+                  fallback="Time interval from onset to death"
                   data-testid="translatedtext-ss0n"
                 />,
               ),
@@ -217,7 +217,7 @@ export const DeathForm = React.memo(
             label={
               <TranslatedText
                 stringId="death.timeBetweenOnsetAndDeath.label"
-                fallback="Time between onset and death"
+                fallback="Time interval from onset to death"
                 data-testid="translatedtext-k2wn"
               />
             }
@@ -243,7 +243,7 @@ export const DeathForm = React.memo(
             label={
               <TranslatedText
                 stringId="death.timeBetweenOnsetAndDeath.label"
-                fallback="Time between onset and death"
+                fallback="Time interval from onset to death"
                 data-testid="translatedtext-crsz"
               />
             }
@@ -268,7 +268,7 @@ export const DeathForm = React.memo(
             label={
               <TranslatedText
                 stringId="death.timeBetweenOnsetAndDeath.label"
-                fallback="Time between onset and death"
+                fallback="Time interval from onset to death"
                 data-testid="translatedtext-ypeg"
               />
             }
@@ -293,7 +293,7 @@ export const DeathForm = React.memo(
             label={
               <TranslatedText
                 stringId="death.timeBetweenOnsetAndDeath.label"
-                fallback="Time between onset and death"
+                fallback="Time interval from onset to death"
                 data-testid="translatedtext-23g8"
               />
             }
@@ -325,7 +325,7 @@ export const DeathForm = React.memo(
                     label={
                       <TranslatedText
                         stringId="death.timeBetweenOnsetAndDeath.label"
-                        fallback="Time between onset and death"
+                        fallback="Time interval from onset to death"
                         data-testid="translatedtext-kw9v"
                       />
                     }
