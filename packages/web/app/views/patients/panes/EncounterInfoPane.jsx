@@ -202,6 +202,8 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
   const [isEstimatedDischargeModalOpen, setIsEstimatedDischargeModalOpen] = useState(false);
   const canWriteEncounter = ability.can('write', 'Encounter');
 
+  const triage = triage;
+
   return (
     <InfoCard inlineValues contentPadding={25} paddingTop={0} data-testid="infocard-o4i8">
       <InfoCardFirstColumn data-testid="infocardfirstcolumn-u3u3">
@@ -383,15 +385,12 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
                 />
               }
               value={
-                encounter.triages?.[0]?.chiefComplaint ? (
-                  <TranslatedReferenceData
-                    category="triageReason"
-                    value={encounter.triages[0].chiefComplaint.id}
-                    fallback={encounter.triages[0].chiefComplaint.name}
-                  />
-                ) : (
-                  '—'
-                )
+                <TranslatedReferenceData
+                  category="triageReason"
+                  value={triage.chiefComplaint.id}
+                  fallback={triage.chiefComplaint.name}
+                  placeholder="—"
+                />
               }
               icon={reasonForEncounterIcon}
               data-testid="infocarditem-chiefComplaint"
@@ -405,15 +404,12 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
                 />
               }
               value={
-                encounter.triages?.[0]?.secondaryComplaint ? (
-                  <TranslatedReferenceData
-                    category="triageReason"
-                    value={encounter.triages[0].secondaryComplaint.id}
-                    fallback={encounter.triages[0].secondaryComplaint.name}
-                  />
-                ) : (
-                  '—'
-                )
+                <TranslatedReferenceData
+                  category="triageReason"
+                  value={triage.secondaryComplaint.id}
+                  fallback={triage.secondaryComplaint.name}
+                  placeholder="—"
+                />
               }
               icon={reasonForEncounterIcon}
               data-testid="infocarditem-secondaryComplaint"
