@@ -6,23 +6,17 @@ import { PatientNameDisplay } from './PatientNameDisplay';
 import { useMedicationsContext } from '../contexts/Medications';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
-import { MEDICATIONS_SEARCH_KEYS, STOCK_STATUS_COLORS } from '../constants/medication';
+import { MEDICATIONS_SEARCH_KEYS } from '../constants/medication';
 import { Colors } from '../constants';
 import { MenuButton } from './MenuButton';
-import {
-  TableCellTag,
-  ThemedTooltip,
-  TranslatedEnum,
-  TranslatedReferenceData,
-} from '@tamanu/ui-components';
+import { DispenseMedicationWorkflowModal } from './Medication/DispenseMedicationWorkflowModal';
+import { ThemedTooltip, TranslatedEnum, TranslatedReferenceData } from '@tamanu/ui-components';
 import { BodyText } from './Typography';
-import {
-  DRUG_STOCK_STATUS_LABELS,
-  DRUG_STOCK_STATUSES,
-  PHARMACY_PRESCRIPTION_TYPE_LABELS,
-  PHARMACY_PRESCRIPTION_TYPES,
-} from '@tamanu/constants';
+import { PHARMACY_PRESCRIPTION_TYPE_LABELS, PHARMACY_PRESCRIPTION_TYPES } from '@tamanu/constants';
+import { useApi } from '../api';
+import { DeleteMedicationRequestModal } from './Medication/DeleteMedicationRequestModal';
 import { Box } from '@mui/material';
+import { getStockStatus } from '../utils/medications';
 
 const NoDataContainer = styled.div`
   height: 500px;
@@ -52,13 +46,6 @@ const StyledSearchTableWithPermissionCheck = styled(SearchTableWithPermissionChe
       background-color: ${Colors.veryLightBlue};
     }
   }
-`;
-
-const StyledTag = styled(TableCellTag)`
-  padding: 5px 12px;
-  border-radius: 999px;
-  font-size: 14px;
-  line-height: 18px;
 `;
 
 const getPatientDisplayId = ({ pharmacyOrder }) => pharmacyOrder?.encounter?.patient?.displayId;
@@ -110,14 +97,14 @@ const getLocation = ({ pharmacyOrder }) => {
 const getMedication = ({ prescription }) => {
   return (
     <TranslatedReferenceData
-      fallback={prescription.medication.name}
-      value={prescription.medication.id}
-      category={prescription.medication.type}
+      fallback={prescription?.medication?.name}
+      value={prescription?.medication?.id}
+      category={prescription?.medication?.type}
     />
   );
 };
 const getPrescriber = ({ prescription }) => {
-  return prescription.prescriber.displayName;
+  return prescription?.prescriber?.displayName;
 };
 const getDateSent = ({ pharmacyOrder }) => (
   <div>
@@ -132,48 +119,49 @@ const getDateSent = ({ pharmacyOrder }) => (
     </BodyText>
   </div>
 );
-const getStockStatus = ({ prescription }) => {
-  const status =
-    prescription.medication?.referenceDrug?.facilities?.[0]?.stockStatus || DRUG_STOCK_STATUSES.UNKNOWN;
-  const quantity = prescription.medication?.referenceDrug?.facilities?.[0]?.quantity || 0;
-
-  const color = STOCK_STATUS_COLORS[status];
-
-  const content = (
-    <StyledTag $color={color} noWrap>
-      <TranslatedEnum value={status} enumValues={DRUG_STOCK_STATUS_LABELS} />
-    </StyledTag>
-  );
-
-  if (status === DRUG_STOCK_STATUSES.YES) {
-    return (
-      <ThemedTooltip
-        title={
-          <Box maxWidth="75px">
-            <TranslatedText
-              stringId="medication.stockLevel.tooltip"
-              fallback="Stock level: :quantity units"
-              replacements={{ quantity }}
-            />
-          </Box>
-        }
-      >
-        <span>{content}</span>
-      </ThemedTooltip>
-    );
-  }
-  return content;
-};
 
 export const MedicationRequestsTable = () => {
+  const api = useApi();
   const { facilityId } = useAuth();
   const { searchParameters } = useMedicationsContext(MEDICATIONS_SEARCH_KEYS.ACTIVE);
 
   const [medicationRequests, setMedicationRequests] = useState([]);
+  const [isDispenseOpen, setIsDispenseOpen] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedRequestId, setSelectedRequestId] = useState(null);
+  const [refreshCount, setRefreshCount] = useState(0);
+  const [hoveredRow, setHoveredRow] = useState(null);
 
   const onMedicationRequestsFetched = useCallback(({ data }) => {
     setMedicationRequests(data);
   }, []);
+
+  const handleTableRefresh = useCallback(() => {
+    setRefreshCount(prev => prev + 1);
+  }, []);
+
+  const handleDeleteClick = requestId => {
+    setSelectedRequestId(requestId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      await api.delete(`medication/medication-requests/${selectedRequestId}`);
+      setIsDeleteModalOpen(false);
+      setSelectedRequestId(null);
+      // Trigger table refresh
+      setRefreshCount(prev => prev + 1);
+    } catch (error) {
+      console.error(error.message || 'Failed to delete medication request');
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteModalOpen(false);
+    setSelectedRequestId(null);
+  };
 
   const columns = [
     {
@@ -275,15 +263,18 @@ export const MedicationRequestsTable = () => {
     {
       key: 'actions',
       title: '',
-      allowExport: false,
-      accessor: () => {
+      accessor: row => {
         const actions = [
           {
             label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
-            action: () => {},
+            action: () => handleDeleteClick(row.id),
           },
         ];
-        return <MenuButton onClick={() => {}} actions={actions} />;
+        return (
+          <div onMouseEnter={() => hoveredRow !== row && setHoveredRow(row.id)}>
+            <MenuButton actions={actions} />
+          </div>
+        );
       },
       sortable: false,
       dontCallRowInput: true,
@@ -293,34 +284,54 @@ export const MedicationRequestsTable = () => {
   const fetchOptions = { ...searchParameters, facilityId };
 
   const handleRowClick = (_, data) => {
-    console.log(data);
+    const patient = data?.pharmacyOrder?.encounter?.patient;
+    if (!patient?.id) return;
+    setSelectedPatient(patient);
+    setIsDispenseOpen(true);
   };
 
   return (
-    <StyledSearchTableWithPermissionCheck
-      verb="list"
-      noun="Medication"
-      autoRefresh={true}
-      endpoint="medication/medication-requests"
-      columns={columns}
-      noDataMessage={
-        <NoDataContainer>
-          <TranslatedText
-            stringId="medication-requests.list.noData"
-            fallback="No active medication requests to display."
-          />
-        </NoDataContainer>
-      }
-      fetchOptions={fetchOptions}
-      elevated={false}
-      data-testid="searchtablewithpermissioncheck-medication"
-      $noData={medicationRequests.length === 0}
-      onDataFetched={onMedicationRequestsFetched}
-      onClickRow={handleRowClick}
-      allowExport={false}
-      initialSort={{
-        order: 'desc',
-      }}
-    />
+    <>
+      <DispenseMedicationWorkflowModal
+        open={isDispenseOpen}
+        onClose={() => {
+          setIsDispenseOpen(false);
+          setSelectedPatient(null);
+        }}
+        patient={selectedPatient}
+        onDispenseSuccess={handleTableRefresh}
+      />
+      <DeleteMedicationRequestModal
+        open={isDeleteModalOpen}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+      />
+      <StyledSearchTableWithPermissionCheck
+        refreshCount={refreshCount}
+        verb="list"
+        noun="Medication"
+        autoRefresh={true}
+        endpoint="medication/medication-requests"
+        columns={columns}
+        noDataMessage={
+          <NoDataContainer>
+            <TranslatedText
+              stringId="medication-requests.list.noData"
+              fallback="No active medication requests to display."
+            />
+          </NoDataContainer>
+        }
+        fetchOptions={fetchOptions}
+        elevated={false}
+        data-testid="searchtablewithpermissioncheck-medication"
+        $noData={medicationRequests.length === 0}
+        onDataFetched={onMedicationRequestsFetched}
+        onClickRow={handleRowClick}
+        allowExport={false}
+        initialSort={{
+          order: 'desc',
+        }}
+      />
+    </>
   );
 };
