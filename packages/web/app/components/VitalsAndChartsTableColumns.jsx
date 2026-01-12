@@ -1,8 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { getNormalRangeByAge } from '@tamanu/ui-components';
-import { useSettings } from '../contexts/Settings';
-import { formatShortest, formatTimeWithSeconds } from '@tamanu/utils/dateTime';
+import { getNormalRangeByAge, useDateTimeFormat } from '@tamanu/ui-components';
 import {
   PROGRAM_DATA_ELEMENT_TYPES,
   VISIBILITY_STATUSES,
@@ -27,15 +25,6 @@ import { ViewPhotoLink } from './ViewPhotoLink';
 const IconButton = styled(IconButtonComponent)`
   padding: 9px 5px;
 `;
-
-const getExportOverrideTitleDate = (date, countryTimeZone, timeZone) => {
-  // TODO: If we can resolve this we can remove formatShortest and formatTimeWithSeconds from web 
-  return `${formatShortest(date, countryTimeZone, timeZone)} ${formatTimeWithSeconds(
-    date,
-    countryTimeZone,
-    timeZone,
-  )}`;
-};
 
 const parseMultiselectValue = value => {
   if (!value) return;
@@ -213,9 +202,7 @@ export const useChartsTableColumns = (
   onCellClick,
   isEditEnabled = false,
 ) => {
-  const { getSetting } = useSettings();
-  const countryTimeZone = 'Pacific/Auckland';
-  const timeZone = getSetting('timeZone');
+  const { formatShortest, formatTimeWithSeconds } = useDateTimeFormat();
   return [
     {
       key: 'measure',
@@ -255,7 +242,7 @@ export const useChartsTableColumns = (
           selectedChartSurveyName,
         ),
         exportOverrides: {
-          title: getExportOverrideTitleDate(date, countryTimeZone, timeZone),
+          title: `${formatShortest(date)} ${formatTimeWithSeconds(date)}`,
         },
       })),
   ];
