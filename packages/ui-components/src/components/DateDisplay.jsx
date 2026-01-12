@@ -107,7 +107,7 @@ const TIME_FORMATS = {
 };
 
 const useFormattedDate = (dateValue, { dateFormat, timeFormat, showWeekday }) => {
-  const formatters = useDateTimeFormat();
+  const { timeZone, countryTimeZone, ...formatters } = useDateTimeFormat();
   const dateObj = parseDate(dateValue);
   const parts = [];
 
@@ -125,7 +125,7 @@ const useFormattedDate = (dateValue, { dateFormat, timeFormat, showWeekday }) =>
     parts.push(formatters[formatterName](dateObj));
   }
 
-  return parts.join(' ');
+  return { displayString: parts.join(' '), timeZone, countryTimeZone };
 };
 
 /**
@@ -136,7 +136,7 @@ const useFormattedDate = (dateValue, { dateFormat, timeFormat, showWeekday }) =>
  */
 export const TimeDisplay = React.memo(
   ({ date: dateValue, format: timeFormat = 'default', noTooltip = false, style, ...props }) => {
-    const displayString = useFormattedDate(dateValue, { timeFormat });
+    const { displayString, timeZone, countryTimeZone } = useFormattedDate(dateValue, { timeFormat });
     const content = (
       <span style={style} {...props}>
         {displayString}
@@ -146,7 +146,13 @@ export const TimeDisplay = React.memo(
     if (noTooltip) return content;
 
     return (
-      <DateTooltip date={parseDate(dateValue)} rawDate={dateValue} timeOnlyTooltip>
+      <DateTooltip
+        date={parseDate(dateValue)}
+        rawDate={dateValue}
+        timeOnlyTooltip
+        timeZone={timeZone}
+        countryTimeZone={countryTimeZone}
+      >
         {content}
       </DateTooltip>
     );
@@ -179,7 +185,7 @@ export const DateDisplay = React.memo(
     const resolvedDateFormat = dateFormat === undefined ? 'short' : dateFormat;
     const resolvedTimeFormat = showTime ? timeFormat || 'default' : null;
 
-    const displayString = useFormattedDate(dateValue, {
+    const { displayString, timeZone, countryTimeZone } = useFormattedDate(dateValue, {
       dateFormat: resolvedDateFormat,
       timeFormat: resolvedTimeFormat,
       showWeekday,
@@ -194,7 +200,13 @@ export const DateDisplay = React.memo(
     if (noTooltip) return content;
 
     return (
-      <DateTooltip date={parseDate(dateValue)} rawDate={dateValue} timeOnlyTooltip={timeOnlyTooltip}>
+      <DateTooltip
+        date={parseDate(dateValue)}
+        rawDate={dateValue}
+        timeOnlyTooltip={timeOnlyTooltip}
+        timeZone={timeZone}
+        countryTimeZone={countryTimeZone}
+      >
         {content}
       </DateTooltip>
     );
