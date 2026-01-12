@@ -236,7 +236,7 @@ export const TriageForm = ({
     };
 
     if (typeof onSubmitEncounter === 'function') {
-      onSubmitEncounter(newTriage);
+      await onSubmitEncounter(newTriage);
     }
 
     await api.post('triage', newTriage);
