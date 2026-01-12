@@ -22,12 +22,19 @@ const StyledItemRow = styled.div`
   display: flex;
   gap: 10px;
   font-size: 14px;
-  padding: 12px 50px 12px 24px;
+  padding: 12px 50px 12px 30px;
   background: ${Colors.white};
   border-top: 1px solid ${Colors.outline};
 
   .MuiInputBase-input {
     font-size: 14px;
+  }
+
+  .MuiFormControl-root {
+    margin: -8px 0 -8px -10px;
+  }
+
+  .MuiInputBase-root {
   }
 
   &:last-child {
@@ -39,7 +46,7 @@ const Button = styled(IconButton)`
   position: absolute;
   padding: 6px;
   top: 4px;
-  left: -12px;
+  left: -4px;
   transform: rotate(${props => (props.$isExpanded ? '90deg' : '0')});
   transition: transform 0.2s ease-in-out;
 `;
@@ -110,8 +117,6 @@ const useInvoiceItemInsurance = ({
 export const InvoiceItemRow = ({
   index,
   item,
-  isDeleteDisabled,
-  showActionMenu,
   formArrayMethods,
   invoiceIsEditable,
   encounterId,
@@ -119,7 +124,8 @@ export const InvoiceItemRow = ({
   isEditing,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const isItemEditable = (!item.product?.id && invoiceIsEditable) || isEditing;
+  const isSaved = item.product?.id;
+  const isItemEditable = (!isSaved && invoiceIsEditable) || isEditing;
 
   const invoiceProductsSuggester = useSuggester('invoiceProduct', {
     formatter: ({ name, id }) => ({
@@ -215,8 +221,7 @@ export const InvoiceItemRow = ({
         index={index}
         item={item}
         formArrayMethods={formArrayMethods}
-        isDeleteDisabled={isDeleteDisabled}
-        showActionMenu={showActionMenu && invoiceIsEditable}
+        showActionMenu={isSaved && invoiceIsEditable}
         hidePriceInput={hidePriceInput}
       />
     </StyledItemRow>
