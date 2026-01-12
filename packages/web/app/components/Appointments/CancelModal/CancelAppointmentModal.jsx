@@ -66,7 +66,10 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
               data-testid="translatedtext-oej8"
             />
           }
-          value={<><DateDisplay date={startTime} format="shortest" /> - <DateDisplay date={endTime} showDate={doesSpanMultipleDays} format="shortest" /></>}
+          value={doesSpanMultipleDays
+            ? <><DateDisplay date={startTime} format="shortest" /> - <DateDisplay date={endTime} format="shortest" /></>
+            : <DateDisplay date={startTime} format="shortest" />
+          }
           data-testid="detaildisplay-l5s4"
         />
         <DetailDisplay

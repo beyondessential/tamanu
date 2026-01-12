@@ -91,26 +91,21 @@ const DateTooltip = ({ date, rawDate, children, timeOnlyTooltip, timeZone, count
   );
 };
 
-// Format options for dates
 const DATE_FORMATS = {
-  short: 'formatShort', // "01/12/2026"
-  shortest: 'formatShortest', // "01/12/26"
-  long: 'formatFullDate', // "Monday, 12 January 2026"
-  explicit: 'formatShortExplicit', // "Jan 12, 2026"
-  explicitShort: 'formatShortestExplicit', // "Jan 12, 24"
+  short: 'formatShort',
+  shortest: 'formatShortest',
+  long: 'formatFullDate',
+  explicit: 'formatShortExplicit',
+  explicitShort: 'formatShortestExplicit',
 };
 
-// Format options for times
 const TIME_FORMATS = {
-  default: 'formatTime', // "9:30 AM"
-  compact: 'formatTimeCompact', // "9:30am"
-  withSeconds: 'formatTimeWithSeconds', // "9:30:45 AM"
-  slot: 'formatTimeSlot', // time slot format
+  default: 'formatTime',
+  compact: 'formatTimeCompact',
+  withSeconds: 'formatTimeWithSeconds',
+  slot: 'formatTimeSlot',
 };
 
-/**
- * Formats a date value using the specified format options.
- */
 const useFormattedDate = (dateValue, { dateFormat, timeFormat, showWeekday }) => {
   const formatters = useDateTimeFormat();
   const dateObj = parseDate(dateValue);
@@ -135,9 +130,9 @@ const useFormattedDate = (dateValue, { dateFormat, timeFormat, showWeekday }) =>
 
 /**
  * TimeDisplay - Displays time only
- *
  * @param {string|Date} date - The date/time value
  * @param {string} format - "default" | "compact" | "withSeconds" | "slot"
+ * @param {boolean} noTooltip - Disable hover tooltip
  */
 export const TimeDisplay = React.memo(
   ({ date: dateValue, format: timeFormat = 'default', noTooltip = false, style, ...props }) => {
@@ -160,83 +155,34 @@ export const TimeDisplay = React.memo(
 
 /**
  * DateDisplay - Displays date with optional time
- *
- * Props (new API):
  * @param {string|Date} date - The date value
- * @param {string} format - "short" | "shortest" | "long" | "explicit" | "explicitShort"
- * @param {boolean} showWeekday - Prefix with weekday name
+ * @param {string} format - "short" (default) | "shortest" | "long" | "explicit" | "explicitShort" | null (for weekday-only)
+ * @param {boolean} showWeekday - Prefix with weekday name (or show alone if format is null)
  * @param {boolean} showTime - Include time
  * @param {string} timeFormat - "default" | "compact" | "withSeconds"
  * @param {boolean} noTooltip - Disable hover tooltip
- *
- * Legacy props (backwards compatible):
- * @param {boolean} showDate - Show date (default true)
- * @param {boolean} showExplicitDate - Use explicit month format
- * @param {boolean} shortYear - Use 2-digit year
- * @param {boolean} longDateFormat - Use full date format
- * @param {boolean} compactTime - Use compact time format
- * @param {boolean} includeSeconds - Include seconds in time
- * @param {boolean} timeOnly - Show only time slot
  */
 export const DateDisplay = React.memo(
   ({
     date: dateValue,
-    // New API
     format: dateFormat,
-    timeFormat: timeFormatProp,
-    // Styling
+    showWeekday = false,
+    showTime = false,
+    timeFormat,
     color,
     fontWeight,
     style,
-    // Tooltip
     noTooltip = false,
     timeOnlyTooltip = false,
-    // Legacy props for backwards compatibility
-    showDate = true,
-    showTime = false,
-    showExplicitDate = false,
-    showWeekday = false,
-    shortYear = false,
-    longDateFormat = false,
-    compactTime = false,
-    includeSeconds = false,
-    timeOnly = false,
     ...props
   }) => {
-    // Resolve date format from legacy props if not using new API
-    let resolvedDateFormat = dateFormat;
-    if (!resolvedDateFormat && !timeOnly) {
-      if (!showDate && showExplicitDate) {
-        resolvedDateFormat = shortYear ? 'explicitShort' : 'explicit';
-      } else if (showDate) {
-        if (longDateFormat) {
-          resolvedDateFormat = 'long';
-        } else if (shortYear) {
-          resolvedDateFormat = 'shortest';
-        } else {
-          resolvedDateFormat = 'short';
-        }
-      }
-    }
-
-    // Resolve time format
-    let resolvedTimeFormat = timeFormatProp;
-    if (timeOnly) {
-      resolvedTimeFormat = 'slot';
-    } else if (!resolvedTimeFormat && showTime) {
-      if (includeSeconds) {
-        resolvedTimeFormat = 'withSeconds';
-      } else if (compactTime) {
-        resolvedTimeFormat = 'compact';
-      } else {
-        resolvedTimeFormat = 'default';
-      }
-    }
+    const resolvedDateFormat = dateFormat === undefined ? 'short' : dateFormat;
+    const resolvedTimeFormat = showTime ? (timeFormat || 'default') : null;
 
     const displayString = useFormattedDate(dateValue, {
-      dateFormat: timeOnly ? null : resolvedDateFormat,
+      dateFormat: resolvedDateFormat,
       timeFormat: resolvedTimeFormat,
-      showWeekday: timeOnly ? false : showWeekday,
+      showWeekday,
     });
 
     const mergedStyle = { color, fontWeight, ...style };
@@ -251,7 +197,7 @@ export const DateDisplay = React.memo(
 
     const dateObj = parseDate(dateValue);
     return (
-      <DateTooltip date={dateObj} rawDate={dateValue} timeOnlyTooltip={timeOnlyTooltip || timeOnly}>
+      <DateTooltip date={dateObj} rawDate={dateValue} timeOnlyTooltip={timeOnlyTooltip}>
         <span style={mergedStyle} {...props}>
           {displayString}
         </span>
@@ -262,12 +208,13 @@ export const DateDisplay = React.memo(
 
 /**
  * MultilineDatetimeDisplay - Shows date on one line and time below
+ * @param {string|Date} date - The date value
+ * @param {string} format - Date format (defaults to "short")
+ * @param {boolean} isTimeSoft - Use soft/muted color for time (default true)
  */
 export const MultilineDatetimeDisplay = React.memo(
-  ({ date, showExplicitDate, isTimeSoft = true }) => {
-    const dateFormat = showExplicitDate ? 'explicit' : 'short';
+  ({ date, format: dateFormat = 'short', isTimeSoft = true }) => {
     const TimeText = isTimeSoft ? SoftText : Text;
-
     return (
       <Box>
         <DateDisplay date={date} format={dateFormat} />

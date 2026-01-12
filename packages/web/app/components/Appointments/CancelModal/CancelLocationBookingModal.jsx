@@ -7,7 +7,7 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { useLocationBookingMutation } from '../../../api/mutations';  
 import { PatientNameDisplay } from '../../PatientNameDisplay';
-import { TranslatedReferenceData, TranslatedText, BaseModal, DateDisplay } from '@tamanu/ui-components';
+import { TranslatedReferenceData, TranslatedText, BaseModal, DateDisplay, TimeDisplay } from '@tamanu/ui-components';
 import {
   AppointmentDetailsColumn,
   AppointmentDetailsColumnLeft,
@@ -70,7 +70,10 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
               data-testid="translatedtext-cis2"
             />
           }
-          value={<><DateDisplay date={startTime} showDate showTime />{' '}–{' '}<DateDisplay date={endTime} showDate={doesSpanMultipleDays} showTime /></>}
+          value={doesSpanMultipleDays
+            ? <><DateDisplay date={startTime} showTime />{' '}–{' '}<DateDisplay date={endTime} showTime /></>
+            : <><DateDisplay date={startTime} showTime />{' '}–{' '}<TimeDisplay date={endTime} /></>
+          }
           data-testid="detaildisplay-nwk8"
         />
       </AppointmentDetailsColumnLeft>

@@ -59,7 +59,7 @@ export const DayHeaderCell = ({ date, dim, ...props }) => {
       data-testid="headercell-dpnh"
     >
       <Weekday $isToday={isToday} data-testid="weekday-i79b">
-        <DateDisplay date={date} showWeekday showDate={false} />
+        <DateDisplay date={date} format={null} showWeekday />
       </Weekday>
       <DateDisplay date={date} />
     </HeaderCell>

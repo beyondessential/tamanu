@@ -4,7 +4,7 @@ import Box from '@material-ui/core/Box';
 import { DateDisplay, TimeDisplay, MultilineDatetimeDisplay, TimeRangeDisplay } from '../app/components/DateDisplay';
 
 const testDate = new Date();
-const endDate = new Date(testDate.getTime() + 60 * 60 * 1000); // 1 hour later
+const endDate = new Date(testDate.getTime() + 60 * 60 * 1000);
 
 const Section = ({ title, children }) => (
   <Box mb={4}>
@@ -17,7 +17,7 @@ const Section = ({ title, children }) => (
 
 const Row = ({ label, children }) => (
   <Box mb={1} display="flex" alignItems="center">
-    <Box width={200} color="#888" fontSize={14}>
+    <Box width={280} color="#888" fontSize={14}>
       {label}
     </Box>
     {children}
@@ -28,11 +28,11 @@ storiesOf('DateDisplay', module)
   .addParameters({
     note: 'Displays dates and times in locale-appropriate formats. Hover for more details.',
   })
-  .add('Date Formats', () => (
+  .add('DateDisplay', () => (
     <Box p={5}>
-      <Section title="DateDisplay - Date Formats">
+      <Section title="Date Formats">
         <Row label='format="short" (default)'>
-          <DateDisplay date={testDate} format="short" />
+          <DateDisplay date={testDate} />
         </Row>
         <Row label='format="shortest"'>
           <DateDisplay date={testDate} format="shortest" />
@@ -51,7 +51,7 @@ storiesOf('DateDisplay', module)
         </Row>
       </Section>
 
-      <Section title="DateDisplay - With Time">
+      <Section title="With Time">
         <Row label="showTime">
           <DateDisplay date={testDate} showTime />
         </Row>
@@ -69,7 +69,7 @@ storiesOf('DateDisplay', module)
   ))
   .add('TimeDisplay', () => (
     <Box p={5}>
-      <Section title="TimeDisplay - Time Formats">
+      <Section title="Time Formats">
         <Row label='format="default" (default)'>
           <TimeDisplay date={testDate} />
         </Row>
@@ -91,8 +91,8 @@ storiesOf('DateDisplay', module)
         <Row label="default">
           <MultilineDatetimeDisplay date={testDate} />
         </Row>
-        <Row label="showExplicitDate">
-          <MultilineDatetimeDisplay date={testDate} showExplicitDate />
+        <Row label='format="explicit"'>
+          <MultilineDatetimeDisplay date={testDate} format="explicit" />
         </Row>
         <Row label="isTimeSoft={false}">
           <MultilineDatetimeDisplay date={testDate} isTimeSoft={false} />
@@ -102,30 +102,6 @@ storiesOf('DateDisplay', module)
       <Section title="TimeRangeDisplay">
         <Row label="Time range">
           <TimeRangeDisplay range={{ start: testDate, end: endDate }} />
-        </Row>
-      </Section>
-    </Box>
-  ))
-  .add('Legacy Props (backwards compat)', () => (
-    <Box p={5}>
-      <Section title="Legacy Props - Still Supported">
-        <Row label="shortYear">
-          <DateDisplay date={testDate} shortYear />
-        </Row>
-        <Row label="longDateFormat">
-          <DateDisplay date={testDate} longDateFormat />
-        </Row>
-        <Row label="showDate={false} showExplicitDate">
-          <DateDisplay date={testDate} showDate={false} showExplicitDate />
-        </Row>
-        <Row label="showDate={false} showTime">
-          <DateDisplay date={testDate} showDate={false} showTime />
-        </Row>
-        <Row label="showTime compactTime">
-          <DateDisplay date={testDate} showTime compactTime />
-        </Row>
-        <Row label="shortYear showTime compactTime">
-          <DateDisplay date={testDate} shortYear showTime compactTime />
         </Row>
       </Section>
     </Box>

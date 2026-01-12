@@ -7,7 +7,7 @@ import { useDispatch } from 'react-redux';
 import { Link, generatePath, useNavigate } from 'react-router';
 import { Colors } from '../../../constants';
 import { PATIENT_PATHS, PATIENT_CATEGORIES } from '../../../constants/patientPaths';
-import { DateDisplay, useDateTimeFormat } from '@tamanu/ui-components';
+import { DateDisplay, TimeDisplay, useDateTimeFormat } from '@tamanu/ui-components';
 import { TranslatedReferenceData, TranslatedText } from '../../Translation';
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 import { DetailsDisplay } from './SharedComponents';
@@ -298,7 +298,10 @@ export const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
             data-testid="translatedtext-cljh"
           />
         }
-        value={<><DateDisplay date={startTime} showDate showTime />{' '}–{' '}<DateDisplay date={endTime} showDate={doesSpanMultipleDays} showTime /></>}
+        value={doesSpanMultipleDays
+          ? <><DateDisplay date={startTime} showTime />{' '}–{' '}<DateDisplay date={endTime} showTime /></>
+          : <><DateDisplay date={startTime} showTime />{' '}–{' '}<TimeDisplay date={endTime} /></>
+        }
         data-testid="detailsdisplay-diun"
       />
       <ClinicianContainer>
