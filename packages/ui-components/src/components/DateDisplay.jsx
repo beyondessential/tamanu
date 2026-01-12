@@ -138,6 +138,19 @@ const useFormattedDate = (dateValue, { dateFormat, timeFormat, showWeekday }) =>
  * @param {string|Date} date - The date/time value
  * @param {string} format - "default" | "compact" | "withSeconds" | "slot"
  * @param {boolean} noTooltip - Disable hover tooltip
+ *
+ * @example
+ * // format="default" → "9:30 AM"
+ * <TimeDisplay date="2024-03-15 09:30:00" />
+ *
+ * // format="compact" → "9:30am" (time with minutes, no space)
+ * <TimeDisplay date="2024-03-15 09:30:00" format="compact" />
+ *
+ * // format="withSeconds" → "9:30:45 AM"
+ * <TimeDisplay date="2024-03-15 09:30:45" format="withSeconds" />
+ *
+ * // format="slot" → "9am" (hour only, for calendar slots)
+ * <TimeDisplay date="2024-03-15 09:30:00" format="slot" />
  */
 export const TimeDisplay = React.memo(
   ({ date: dateValue, format, noTooltip = false, style, ...props }) => {
@@ -174,7 +187,41 @@ export const TimeDisplay = React.memo(
  * @param {boolean} showTime - Include time
  * @param {string} timeFormat - "default" | "compact" | "withSeconds"
  * @param {boolean} noTooltip - Disable hover tooltip
- */
+ *
+ * @example
+ * // format="short" (default) → "15/03/2024"
+ * <DateDisplay date="2024-03-15 09:30:00" />
+ *
+ * // format="shortest" → "15/03/24"
+ * <DateDisplay date="2024-03-15 09:30:00" format="shortest" />
+ *
+ * // format="long" → "15 March 2024"
+ * <DateDisplay date="2024-03-15 09:30:00" format="long" />
+ *
+ * // format="explicit" → "15 Mar 2024"
+ * <DateDisplay date="2024-03-15 09:30:00" format="explicit" />
+ *
+ * // format="explicitShort" → "15 Mar 24"
+ * <DateDisplay date="2024-03-15 09:30:00" format="explicitShort" />
+ *
+ * // format={null} with showWeekday → "Fri"
+ * <DateDisplay date="2024-03-15 09:30:00" format={null} showWeekday />
+ *
+ * // showWeekday with format → "Fri 15/03/2024"
+ * <DateDisplay date="2024-03-15 09:30:00" showWeekday />
+ *
+ * // showTime → "15/03/2024 9:30 AM"
+ * <DateDisplay date="2024-03-15 09:30:00" showTime />
+ *
+ * // showTime with timeFormat="compact" → "15/03/2024 9:30am"
+ * <DateDisplay date="2024-03-15 09:30:00" showTime timeFormat="compact" />
+ *
+ * // showTime with timeFormat="withSeconds" → "15/03/2024 9:30:45 AM"
+ * <DateDisplay date="2024-03-15 09:30:45" showTime timeFormat="withSeconds" />
+ *
+ * // Combined: showWeekday + format="long" + showTime → "Fri 15 March 2024 9:30 AM"
+ * <DateDisplay date="2024-03-15 09:30:00" format="long" showWeekday showTime />
+ */ 
 export const DateDisplay = React.memo(
   ({
     date: dateValue,
@@ -225,6 +272,11 @@ export const DateDisplay = React.memo(
  * @param {string|Date} date - The date value
  * @param {string} format - Date format (defaults to "short")
  * @param {boolean} isTimeSoft - Use soft/muted color for time (default true)
+ *
+ * @example
+ * // Default → "15/03/2024" on first line, "9:30 AM" below (muted)
+ * <MultilineDatetimeDisplay date="2024-03-15 09:30:00" />
+ *
  */
 export const MultilineDatetimeDisplay = React.memo(
   ({ date, format: dateFormat = 'short', isTimeSoft = true }) => {
@@ -242,6 +294,13 @@ export const MultilineDatetimeDisplay = React.memo(
 
 /**
  * TimeRangeDisplay - Shows a time range like "9:30am – 10:00am"
+ * @param {Object} range - Object with start and end date/time values
+ * @param {string|Date} range.start - The start time
+ * @param {string|Date} range.end - The end time
+ *
+ * @example
+ * // → "9:30am – 10:00am"
+ * <TimeRangeDisplay range={{ start: "2024-03-15 09:30:00", end: "2024-03-15 10:00:00" }} />
  */
 export const TimeRangeDisplay = ({ range: { start, end } }) => {
   const { formatTimeCompact } = useDateTimeFormat();
