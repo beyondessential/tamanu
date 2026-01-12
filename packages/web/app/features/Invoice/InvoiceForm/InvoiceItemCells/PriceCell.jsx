@@ -13,23 +13,23 @@ import { ThemedTooltip } from '@tamanu/ui-components';
 import { PriceField } from '../../../../components/Field/PriceField';
 import { ItemCell as StyledItemCell } from './ItemCell';
 import { Price } from '../../Price';
-
-const ItemCell = styled(StyledItemCell)`
-  display: flex;
-  justify-content: flex-end;
-  align-items: flex-start;
-`;
+import { CELL_WIDTHS } from '../../constants';
 
 const Container = styled.div`
-  position: relative;
-  flex: 1;
+  display: flex;
   flex-direction: column;
   align-items: flex-end;
-  text-align: right;
+  align-self: stretch;
 
   .MuiTextField-root {
     max-width: 80px;
   }
+`;
+
+const MainContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 `;
 
 const Row = styled.div`
@@ -45,7 +45,8 @@ const RowName = styled.div`
 `;
 
 const RowValue = styled.div`
-  min-width: 4em;
+  color: ${props => props.theme.palette.text.tertiary};
+  min-width: 50px;
 `;
 
 const calculateCoverageValue = (discountedPrice, coverageValue) => {
@@ -114,37 +115,39 @@ export const PriceCell = ({ index, item, isExpanded, hidePriceInput }) => {
 
   return (
     <>
-      <ItemCell width="11%" sx={{ flexGrow: 1 }}>
+      <StyledItemCell $width={CELL_WIDTHS.PRICE}>
         <Container>
-          {hidePriceInput ? (
-            <>
-              <Price $isCrossedOut={hasDiscount} price={price} data-testid="pricetext-is33" />
-              {hasDiscount && (
-                <DiscountSection
-                  discountReason={item.discount?.reason}
-                  discountedPrice={discountedPrice}
-                  price={price}
-                />
-              )}
-            </>
-          ) : (
-            item.productId && (
-              <NoteModalActionBlocker>
-                <Field
-                  name={`invoiceItems.${index}.manualEntryPrice`}
-                  component={PriceField}
-                  required
-                  style={{ width: '100%' }}
-                  data-testid="field-05x9"
-                />
-              </NoteModalActionBlocker>
-            )
-          )}
+          <MainContent>
+            {hidePriceInput ? (
+              <>
+                <Price $isCrossedOut={hasDiscount} price={price} data-testid="pricetext-is33" />
+                {hasDiscount && (
+                  <DiscountSection
+                    discountReason={item.discount?.reason}
+                    discountedPrice={discountedPrice}
+                    price={price}
+                  />
+                )}
+              </>
+            ) : (
+              item.productId && (
+                <NoteModalActionBlocker>
+                  <Field
+                    name={`invoiceItems.${index}.manualEntryPrice`}
+                    component={PriceField}
+                    required
+                    style={{ width: '100%' }}
+                    data-testid="field-05x9"
+                  />
+                </NoteModalActionBlocker>
+              )
+            )}
+          </MainContent>
           <Collapse in={isExpanded}>
             <InsuranceSection item={item} discountedPrice={discountedPrice} />
           </Collapse>
         </Container>
-      </ItemCell>
+      </StyledItemCell>
     </>
   );
 };

@@ -1,6 +1,7 @@
 import React from 'react';
 import { ViewOnlyCell } from './ViewOnlyCell';
 import { ItemCell } from './ItemCell';
+import { CELL_WIDTHS } from '../../constants';
 
 export const CodeCell = ({ item, isItemEditable }) => {
   let productCode = item.productCodeFinal || item.productCode || null;
@@ -8,7 +9,7 @@ export const CodeCell = ({ item, isItemEditable }) => {
     productCode = 'N/A';
   }
   return (
-    <ItemCell width="15%">
+    <ItemCell $width={CELL_WIDTHS.CODE}>
       <ViewOnlyCell>{productCode}</ViewOnlyCell>
     </ItemCell>
   );

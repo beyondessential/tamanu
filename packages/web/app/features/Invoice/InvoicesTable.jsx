@@ -29,8 +29,7 @@ import { PATIENT_TABS } from '../../constants/patientPaths';
 const TableTitle = styled(Typography)`
   font-size: 16px;
   font-weight: 500;
-  padding: 15px 20px;
-  border-bottom: 1px solid ${Colors.outline};
+  padding: 20px 30px 15px 25px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -38,10 +37,44 @@ const TableTitle = styled(Typography)`
 `;
 
 const Table = styled(DataFetchingTable)`
+  .MuiTableHead-root,
+  .MuiTableBody-root {
+    .MuiTableRow-root::before {
+      display: table-cell;
+      content: '';
+      width: 20px;
+      max-width: 20px;
+    }
+
+    .MuiTableRow-root::after {
+      display: table-cell;
+      content: '';
+      width: 20px;
+      max-width: 20px;
+    }
+
+    .MuiTableRow-root:last-child td {
+      border: none;
+    }
+  }
+
+  .MuiTableHead-root {
+    background: white;
+  }
+
+  .MuiTableFooter-root {
+    td {
+      border-top: 1px solid ${Colors.outline};
+    }
+  }
+
   .MuiTableCell-head {
+    position: relative;
     background-color: ${Colors.white};
     padding-top: 8px !important;
     padding-bottom: 8px !important;
+    border-top: 1px solid ${Colors.outline};
+
     span {
       font-weight: 400;
       color: ${Colors.midText} !important;
@@ -49,22 +82,23 @@ const Table = styled(DataFetchingTable)`
     padding-left: 11px;
     padding-right: 11px;
     &:last-child {
-      padding-right: 20px;
+      padding-right: 10px;
     }
     &:first-child {
-      padding-left: 20px;
+      padding-left: 10px;
     }
   }
   .MuiTableCell-body {
+    position: relative;
     padding-top: 6px !important;
     padding-bottom: 6px !important;
     padding-left: 11px;
     padding-right: 11px;
     &:last-child {
-      padding-right: 20px;
+      padding-right: 0;
     }
     &:first-child {
-      padding-left: 20px;
+      padding-left: 10px;
     }
   }
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
@@ -255,7 +289,6 @@ export const InvoicesTable = ({ patient }) => {
             data-testid="translatedtext-swy0"
           />
         }
-        allowExport={false}
         TableHeader={
           <TableTitle data-testid="tabletitle-xw5v">
             <span>

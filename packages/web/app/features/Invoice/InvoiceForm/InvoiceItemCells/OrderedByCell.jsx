@@ -2,6 +2,7 @@ import React from 'react';
 import { AutocompleteField, Field, NoteModalActionBlocker } from '../../../../components';
 import { ViewOnlyCell } from './ViewOnlyCell';
 import { ItemCell } from './ItemCell';
+import { CELL_WIDTHS } from '../../constants';
 
 export const OrderedByCell = ({
   index,
@@ -10,7 +11,7 @@ export const OrderedByCell = ({
   practitionerSuggester,
   handleChangeOrderedBy,
 }) => (
-  <ItemCell width="19%" data-testid="styleditemcell-tfvb">
+  <ItemCell $width={CELL_WIDTHS.ORDERED_BY}>
     {isItemEditable ? (
       <NoteModalActionBlocker>
         <Field

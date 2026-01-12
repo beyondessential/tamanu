@@ -84,8 +84,87 @@ const PaymentsSection = styled.div`
   gap: 8px;
 `;
 
+const InvoiceMenu = ({ invoice, setInvoiceModalType, setEditing, isEditing }) => {
+  const { ability } = useAuth();
+  const canCreateInvoice = ability.can('create', 'Invoice');
+  const canWriteInvoice = ability.can('write', 'Invoice');
+  const canDeleteInvoice = ability.can('delete', 'Invoice');
+  const cancelable = invoice && isInvoiceEditable(invoice) && canWriteInvoice;
+  const deletable = invoice && invoice.status !== INVOICE_STATUSES.FINALISED && canDeleteInvoice;
+  const finalisable = invoice && isInvoiceEditable(invoice) && canCreateInvoice;
+
+  if (!cancelable && !deletable && !finalisable) {
+    return null;
+  }
+
+  const ACTIONS = [
+    {
+      label: (
+        <TranslatedText
+          stringId="invoice.modal.editInvoice.cancelInvoice"
+          fallback="Cancel invoice"
+          data-testid="translatedtext-n7tk"
+        />
+      ),
+      onClick: () => setInvoiceModalType(INVOICE_MODAL_TYPES.CANCEL_INVOICE),
+      hidden: !cancelable,
+    },
+    {
+      label: (
+        <TranslatedText
+          stringId="invoice.modal.editInvoice.deleteInvoice"
+          fallback="Delete invoice"
+          data-testid="translatedtext-d2ou"
+        />
+      ),
+      onClick: () => setInvoiceModalType(INVOICE_MODAL_TYPES.DELETE_INVOICE),
+      hidden: !deletable,
+    },
+  ];
+
+  if (!isEditing) {
+    ACTIONS.unshift({
+      label: (
+        <TranslatedText
+          stringId="invoice.modal.editInvoice.editItems"
+          fallback="Edit items"
+          data-testid="edit-invoice-items-n7tk"
+        />
+      ),
+      onClick: () => setEditing(true),
+    });
+  }
+  return (
+    <ActionsPane data-testid="actionspane-l9ey">
+      <NoteModalActionBlocker>
+        <ThreeDotMenu items={ACTIONS} data-testid="threedotmenu-5t9u" />
+      </NoteModalActionBlocker>
+      <NoteModalActionBlocker>
+        <Button
+          onClick={() => setInvoiceModalType(INVOICE_MODAL_TYPES.INSURANCE)}
+          data-testid="button-insurance-2zyp"
+        >
+          <TranslatedText stringId="invoice.action.insurance" fallback="Insurance plan" />
+        </Button>
+      </NoteModalActionBlocker>
+      {finalisable && (
+        <NoteModalActionBlocker>
+          <OutlinedButton
+            onClick={() => setInvoiceModalType(INVOICE_MODAL_TYPES.FINALISE_INVOICE)}
+            style={{ marginRight: 10 }}
+            data-testid="button-yicz"
+          >
+            <TranslatedText stringId="invoice.action.finalise" fallback="Finalise" />
+          </OutlinedButton>
+        </NoteModalActionBlocker>
+      )}
+    </ActionsPane>
+  );
+};
+
 export const EncounterInvoicingPane = ({ encounter }) => {
   const { ability } = useAuth();
+  const [isEditing, setEditing] = useState(false);
   const [invoiceModalType, setInvoiceModalType] = useState(null);
   const { data: invoice, isLoading } = useEncounterInvoiceQuery(encounter.id);
   const { data: patient } = usePatientDataQuery(encounter.patientId);
@@ -97,14 +176,6 @@ export const EncounterInvoicingPane = ({ encounter }) => {
       date: getCurrentDateTimeString(),
     });
   };
-
-  const canCreateInvoice = ability.can('create', 'Invoice');
-  const canWriteInvoice = ability.can('write', 'Invoice');
-  const canDeleteInvoice = ability.can('delete', 'Invoice');
-  const cancelable = invoice && isInvoiceEditable(invoice) && canWriteInvoice;
-  const editable = invoice && isInvoiceEditable(invoice) && canWriteInvoice;
-  const deletable = invoice && invoice.status !== INVOICE_STATUSES.FINALISED && canDeleteInvoice;
-  const finalisable = invoice && isInvoiceEditable(invoice) && canCreateInvoice;
 
   if (isLoading) {
     return (
@@ -136,6 +207,8 @@ export const EncounterInvoicingPane = ({ encounter }) => {
     );
   }
 
+  const isFinalised = invoice.status === INVOICE_STATUSES.FINALISED;
+
   return (
     <>
       <TabPane>
@@ -153,59 +226,13 @@ export const EncounterInvoicingPane = ({ encounter }) => {
               </Box>
               <InvoiceStatus status={invoice.status} data-testid="invoicestatus-qb63" />
             </InvoiceHeading>
-            {(cancelable || deletable || finalisable) && (
-              <ActionsPane data-testid="actionspane-l9ey">
-                <NoteModalActionBlocker>
-                  <ThreeDotMenu
-                    items={[
-                      {
-                        label: (
-                          <TranslatedText
-                            stringId="invoice.modal.editInvoice.cancelInvoice"
-                            fallback="Cancel invoice"
-                            data-testid="translatedtext-n7tk"
-                          />
-                        ),
-                        onClick: () => setInvoiceModalType(INVOICE_MODAL_TYPES.CANCEL_INVOICE),
-                        hidden: !cancelable,
-                      },
-                      {
-                        label: (
-                          <TranslatedText
-                            stringId="invoice.modal.editInvoice.deleteInvoice"
-                            fallback="Delete invoice"
-                            data-testid="translatedtext-d2ou"
-                          />
-                        ),
-                        onClick: () => setInvoiceModalType(INVOICE_MODAL_TYPES.DELETE_INVOICE),
-                        hidden: !deletable,
-                      },
-                    ]}
-                    data-testid="threedotmenu-5t9u"
-                  />
-                </NoteModalActionBlocker>
-                <NoteModalActionBlocker>
-                  <Button
-                    onClick={() => setInvoiceModalType(INVOICE_MODAL_TYPES.INSURANCE)}
-                    data-testid="button-insurance-2zyp"
-                  >
-                    <TranslatedText stringId="invoice.action.insurance" fallback="Insurance plan" />
-                  </Button>
-                </NoteModalActionBlocker>
-                {finalisable && (
-                  <NoteModalActionBlocker>
-                    <OutlinedButton
-                      onClick={() => setInvoiceModalType(INVOICE_MODAL_TYPES.FINALISE_INVOICE)}
-                      style={{ marginRight: 10 }}
-                      data-testid="button-yicz"
-                    >
-                      <TranslatedText stringId="invoice.action.finalise" fallback="Finalise" />
-                    </OutlinedButton>
-                  </NoteModalActionBlocker>
-                )}
-              </ActionsPane>
-            )}
-            {!editable && (
+            <InvoiceMenu
+              invoice={invoice}
+              setInvoiceModalType={setInvoiceModalType}
+              setEditing={setEditing}
+              isEditing={isEditing}
+            />
+            {isFinalised && (
               <PrintButton
                 onClick={() => setInvoiceModalType(INVOICE_MODAL_TYPES.PRINT)}
                 startIcon={<PrintIcon />}
@@ -214,11 +241,16 @@ export const EncounterInvoicingPane = ({ encounter }) => {
               </PrintButton>
             )}
           </InvoiceTopBar>
-          <InvoiceForm invoice={invoice} isPatientView={false} />
+          <InvoiceForm
+            invoice={invoice}
+            isPatientView={false}
+            isEditing={isEditing}
+            setIsEditing={setEditing}
+          />
           {invoice.status !== INVOICE_STATUSES.IN_PROGRESS && (
             <PaymentsSection>
               <PatientPaymentsTable invoice={invoice} />
-              <InvoiceSummaryPanel invoiceItems={invoice?.items} />
+              <InvoiceSummaryPanel invoiceItems={invoice?.items} inProgress={false} />
               <InsurerPaymentsTable invoice={invoice} />
             </PaymentsSection>
           )}
@@ -228,7 +260,6 @@ export const EncounterInvoicingPane = ({ encounter }) => {
         invoiceModalType={invoiceModalType}
         invoice={invoice}
         setOpenInvoiceModal={setInvoiceModalType}
-        data-testid="invoicemodalgroup-rx7c"
       />
     </>
   );
