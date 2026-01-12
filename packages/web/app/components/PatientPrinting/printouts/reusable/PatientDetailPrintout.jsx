@@ -2,9 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-import { DateOnlyDisplay } from '../../../DateDisplay';
-import { capitaliseFirstLetter } from '../../../../utils/capitalise';
+import { DateOnlyDisplay } from '@tamanu/ui-components';
 
+import { capitaliseFirstLetter } from '../../../../utils/capitalise';
 import { LocalisedCertificateLabel } from './CertificateLabels';
 import { PatientBarcode } from './PatientBarcode';
 import { TranslatedText } from '../../../Translation/TranslatedText';

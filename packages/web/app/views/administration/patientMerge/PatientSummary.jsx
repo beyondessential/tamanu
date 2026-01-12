@@ -2,9 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { SEX_VALUE_INDEX } from '@tamanu/constants';
+import { DateOnlyDisplay } from '@tamanu/ui-components';
 
 import { theme } from '../../../theme';
-import { DateOnlyDisplay } from '../../../components/DateDisplay';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { TranslatedReferenceData } from '../../../components/Translation';
 

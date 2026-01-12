@@ -1,10 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { DateOnlyDisplay } from '@tamanu/ui-components';
+
 import { FormModal } from './FormModal';
 import { Colors } from '../constants';
 import { TriageForm } from '../forms/TriageForm';
-import { DateOnlyDisplay } from './DateDisplay';
 import { TranslatedSex, TranslatedText } from './Translation';
 import { useSettings } from '../contexts/Settings';
 

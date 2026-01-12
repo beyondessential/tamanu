@@ -3,9 +3,9 @@ import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 
 import { SEX_VALUE_INDEX } from '@tamanu/constants';
+import { DateOnlyDisplay } from '@tamanu/ui-components';
 
 import { Colors } from '../constants';
-import { DateOnlyDisplay } from '.';
 import { TranslatedText } from './Translation/TranslatedText';
 
 const Card = styled(Box)`

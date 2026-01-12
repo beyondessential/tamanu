@@ -1,8 +1,9 @@
 import { styled } from '@mui/material/styles';
 import React from 'react';
 
+import { DateOnlyDisplay } from '@tamanu/ui-components';
+
 import { Colors } from '../../../constants';
-import { DateOnlyDisplay } from '../../DateDisplay';
 import { getPatientNameAsString } from '../../PatientNameDisplay';
 import { TranslatedSex, TranslatedText } from '../../Translation';
 import { InlineDetailsDisplay } from './SharedComponents';
