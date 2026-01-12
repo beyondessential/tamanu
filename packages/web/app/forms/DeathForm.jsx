@@ -460,7 +460,7 @@ export const DeathForm = React.memo(
             label={
               <TranslatedText
                 stringId="death.mannerOfDeathDate.label"
-                fallback="What date did this external cause occur?"
+                fallback="Date of external cause"
                 data-testid="translatedtext-d3kf"
               />
             }
