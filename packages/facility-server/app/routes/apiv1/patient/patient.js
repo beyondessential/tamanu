@@ -658,7 +658,11 @@ patientRoute.get(
 patientRoute.get(
   '/:id/dispensed-medications',
   asyncHandler(async (req, res) => {
-    const { models, params, query } = req;
+    const {
+      models: { MedicationDispense, Facility },
+      params,
+      query,
+    } = req;
     const patientId = params.id;
 
     req.checkPermission('list', 'Medication');
@@ -666,52 +670,68 @@ patientRoute.get(
     const {
       order = 'DESC',
       orderBy = 'dispensedAt',
-      rowsPerPage = 10,
-      page = 0,
     } = query;
+
+    const page = parseInt(page) || 0;
+    const rowsPerPage = parseInt(rowsPerPage) || 10;
 
     const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 
-    // Build the query to get all dispensed medications for this patient across all facilities
-    const databaseResponse = await models.MedicationDispense.findAndCountAll({
+    const medicationFilter = {};
+    const canListSensitiveMedication = req.ability.can('list', 'SensitiveMedication');
+    if (!canListSensitiveMedication) {
+      medicationFilter['$pharmacyOrderPrescription.prescription.medication.referenceDrug.is_sensitive$'] = false;
+    }
+
+    const response = await MedicationDispense.findAndCountAll({
       include: [
         {
           association: 'pharmacyOrderPrescription',
+          attributes: ['id', 'displayId', 'quantity', 'repeats'],
           required: true,
-          attributes: ['id', 'prescriptionId', 'displayId'],
           include: [
             {
               association: 'pharmacyOrder',
-              required: true,
               attributes: ['id', 'facilityId', 'encounterId'],
+              required: true,
               include: [
                 {
                   association: 'encounter',
-                  required: true,
                   attributes: ['id', 'patientId'],
                   where: { patientId },
-                  include: [
-                    {
-                      association: 'patient',
-                      attributes: ['id', 'displayId'],
-                    },
-                  ],
+                  required: true,
                 },
                 {
-                  association: 'facility',
+                  model: Facility,
+                  as: 'facility',
                   attributes: ['id', 'name'],
+                  required: false,
                 },
               ],
             },
             {
               association: 'prescription',
-              attributes: ['id', 'doseAmount', 'units', 'frequency', 'isPrn', 'isVariableDose', 'route'],
+              attributes: [
+                'id',
+                'doseAmount',
+                'units',
+                'frequency',
+                'route',
+                'isVariableDose',
+                'isPrn',
+              ],
               required: true,
               include: [
                 {
                   association: 'medication',
                   attributes: ['id', 'name', 'type'],
                   required: true,
+                  include: {
+                    model: req.models.ReferenceDrug,
+                    as: 'referenceDrug',
+                    attributes: ['referenceDataId', 'isSensitive'],
+                    required: true,
+                  },
                 },
               ],
             },
@@ -720,22 +740,22 @@ patientRoute.get(
         {
           association: 'dispensedBy',
           attributes: ['id', 'displayName'],
+          required: true,
         },
       ],
-      attributes: ['id', 'quantity', 'dispensedAt', 'dispensedByUserId'],
+      attributes: ['id', 'quantity', 'instructions', 'dispensedAt', 'dispensedByUserId'],
+      where: medicationFilter,
       order: [
         [...orderBy.split('.'), orderDirection],
         ['dispensedAt', 'DESC'],
       ],
-      limit: parseInt(rowsPerPage, 10),
-      offset: parseInt(page, 10) * parseInt(rowsPerPage, 10),
-      distinct: true,
-      subQuery: false,
+      limit: rowsPerPage,
+      offset: page * rowsPerPage,
     });
 
-    const { count, rows: data } = databaseResponse;
+    const { count, rows: data } = response;
 
-    res.send({
+    res.json({
       count,
       data,
     });
