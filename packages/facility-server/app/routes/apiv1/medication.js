@@ -14,6 +14,7 @@ import {
   ADMINISTRATION_STATUS,
   DRUG_ROUTES,
   DRUG_UNITS,
+  ENCOUNTER_TYPES,
   MAX_REPEATS,
   MEDICATION_DURATION_UNITS,
   MEDICATION_PAUSE_DURATION_UNITS_LABELS,
@@ -333,6 +334,262 @@ medication.post(
     res.send({
       count: result.length,
       data: result.map(prescription => prescription.forResponse()),
+    });
+  }),
+);
+
+const sendOngoingToPharmacySchema = z
+  .object({
+    patientId: z.string().uuid({ message: 'Valid patient ID is required' }),
+    orderingClinicianId: z.string().uuid({ message: 'Valid ordering clinician ID is required' }),
+    comments: z.string().optional().nullable(),
+    facilityId: z.string({ message: 'Valid facility ID is required' }),
+    prescriptions: z.array(
+      z.object({
+        prescriptionId: z.string().uuid({ message: 'Valid prescription ID is required' }),
+        quantity: z.number().int().positive({ message: 'Quantity must be a positive integer' }),
+        repeats: z.number().int().min(0).max(MAX_REPEATS).optional().nullable(),
+      }),
+    ),
+  })
+  .strip();
+
+/**
+ * Send ongoing medications to pharmacy with automatic encounter creation.
+ * This endpoint creates a new encounter and pharmacy order for ongoing medications
+ * when the patient does not have an active encounter.
+ */
+medication.post(
+  '/send-ongoing-to-pharmacy',
+  asyncHandler(async (req, res) => {
+    const { models, db, settings } = req;
+    const {
+      Encounter,
+      Prescription,
+      PatientOngoingPrescription,
+      EncounterPrescription,
+      PharmacyOrder,
+      PharmacyOrderPrescription,
+      Location,
+      Department,
+    } = models;
+
+    const { patientId, orderingClinicianId, comments, facilityId, prescriptions } = validate(
+      sendOngoingToPharmacySchema,
+      req.body,
+    );
+
+    req.checkPermission('create', 'Encounter');
+    req.checkPermission('create', 'Medication');
+    req.checkPermission('read', 'Medication');
+
+    // Check if patient has an active encounter
+    const activeEncounter = await Encounter.findOne({
+      where: {
+        patientId,
+        endDate: null,
+      },
+    });
+
+    if (activeEncounter) {
+      throw new InvalidOperationError(
+        'Cannot send to pharmacy from ongoing medications while patient has an active encounter. Please use the encounter medication workflow instead.',
+      );
+    }
+
+    // Check if user can edit repeats (write MedicationRepeats permission)
+    const canEditRepeats = req.ability.can('write', 'MedicationRepeats');
+
+    const prescriptionIds = prescriptions.map(p => p.prescriptionId);
+
+    // Fetch the ongoing prescriptions
+    const ongoingPrescriptions = await Prescription.findAll({
+      where: {
+        id: { [Op.in]: prescriptionIds },
+        discontinued: { [Op.not]: true },
+      },
+      include: [
+        {
+          model: PatientOngoingPrescription,
+          as: 'patientOngoingPrescription',
+          where: { patientId },
+        },
+        ...Prescription.getListReferenceAssociations(),
+      ],
+    });
+
+    if (ongoingPrescriptions.length !== prescriptionIds.length) {
+      const foundIds = new Set(ongoingPrescriptions.map(p => p.id));
+      const missingIds = prescriptionIds.filter(id => !foundIds.has(id));
+      throw new InvalidOperationError(
+        `Prescription(s) with id(s) ${missingIds.join(
+          ', ',
+        )} not found, have been discontinued, or do not belong to this patient.`,
+      );
+    }
+
+    // Check sensitive medication permission
+    await checkSensitiveMedicationPermission(
+      ongoingPrescriptions.map(prescription => prescription.medicationId),
+      req,
+      'create',
+    );
+
+    // Validate repeats for each prescription
+    const prescriptionMap = new Map(prescriptions.map(p => [p.prescriptionId, p]));
+
+    for (const prescription of ongoingPrescriptions) {
+      const requestData = prescriptionMap.get(prescription.id);
+      const currentRepeats = prescription.repeats ?? 0;
+
+      // If user doesn't have write MedicationRepeats permission, they can't send medications with 0 repeats
+      if (!canEditRepeats && currentRepeats === 0) {
+        throw new InvalidOperationError(
+          `Cannot send medication "${prescription.medication?.name || prescription.id}" to pharmacy - no repeats remaining. You do not have permission to modify repeats.`,
+        );
+      }
+
+      // If user is trying to set repeats different from current and doesn't have permission
+      if (!canEditRepeats && requestData.repeats !== undefined && requestData.repeats !== currentRepeats) {
+        throw new InvalidOperationError(
+          'You do not have permission to modify medication repeats.',
+        );
+      }
+    }
+
+    // Get settings for automatic encounter location and department
+    const facilitySettings = settings[facilityId];
+    const automaticEncounterLocationId = await facilitySettings?.get(
+      'medications.medicationDispensing.automaticEncounterLocationId',
+    );
+    const automaticEncounterDepartmentId = await facilitySettings?.get(
+      'medications.medicationDispensing.automaticEncounterDepartmentId',
+    );
+
+    // Both location and department are required for creating an encounter
+    if (!automaticEncounterLocationId) {
+      throw new InvalidOperationError(
+        'Cannot send ongoing medications to pharmacy: No automatic encounter location has been configured. Please configure "medications.medicationDispensing.automaticEncounterLocationId" in facility settings.',
+      );
+    }
+
+    if (!automaticEncounterDepartmentId) {
+      throw new InvalidOperationError(
+        'Cannot send ongoing medications to pharmacy: No automatic encounter department has been configured. Please configure "medications.medicationDispensing.automaticEncounterDepartmentId" in facility settings.',
+      );
+    }
+
+    // Validate location exists
+    const location = await Location.findByPk(automaticEncounterLocationId);
+    if (!location) {
+      throw new InvalidOperationError(
+        `Configured automatic encounter location (${automaticEncounterLocationId}) not found. Please update the facility settings.`,
+      );
+    }
+
+    // Validate department exists
+    const department = await Department.findByPk(automaticEncounterDepartmentId);
+    if (!department) {
+      throw new InvalidOperationError(
+        `Configured automatic encounter department (${automaticEncounterDepartmentId}) not found. Please update the facility settings.`,
+      );
+    }
+
+    const currentDateTime = getCurrentDateTimeString();
+
+    const result = await db.transaction(async transaction => {
+      // Create the automatic encounter
+      const encounter = await Encounter.create(
+        {
+          patientId,
+          encounterType: ENCOUNTER_TYPES.CLINIC,
+          startDate: currentDateTime,
+          endDate: currentDateTime,
+          reasonForEncounter: 'Medication dispensing',
+          examinerId: orderingClinicianId,
+          dischargerId: orderingClinicianId,
+          locationId: automaticEncounterLocationId,
+          departmentId: automaticEncounterDepartmentId,
+        },
+        { transaction },
+      );
+
+      // Create new prescriptions for this encounter based on the original ongoing prescriptions
+      const newPrescriptions = [];
+      for (const originalPrescription of ongoingPrescriptions) {
+        const requestData = prescriptionMap.get(originalPrescription.id);
+
+        // Create a new prescription with the original details but updated quantity and repeats
+        const newPrescription = await Prescription.create(
+          {
+            ...originalPrescription.dataValues,
+            date: currentDateTime,
+            startDate: currentDateTime,
+            quantity: requestData.quantity,
+            repeats: requestData.repeats ?? originalPrescription.repeats ?? 0,
+            prescriberId: orderingClinicianId,
+          },
+          { transaction },
+        );
+
+        // Link prescription to encounter
+        await EncounterPrescription.create(
+          {
+            encounterId: encounter.id,
+            prescriptionId: newPrescription.id,
+            isSelectedForDischarge: true,
+          },
+          { transaction },
+        );
+
+        newPrescriptions.push(newPrescription);
+
+        // Update the original ongoing prescription's repeats if changed
+        const newRepeats = requestData.repeats ?? originalPrescription.repeats ?? 0;
+        if (newRepeats !== (originalPrescription.repeats ?? 0)) {
+          await originalPrescription.update({ repeats: newRepeats }, { transaction });
+        }
+      }
+
+      // Create pharmacy order
+      const pharmacyOrder = await PharmacyOrder.create(
+        {
+          orderingClinicianId,
+          encounterId: encounter.id,
+          comments,
+          isDischargePrescription: true, // Always outpatient/discharge for ongoing medications
+          date: currentDateTime,
+          facilityId,
+        },
+        { transaction },
+      );
+
+      // Create pharmacy order prescriptions
+      await PharmacyOrderPrescription.bulkCreate(
+        newPrescriptions.map((prescription, index) => {
+          const originalPrescription = ongoingPrescriptions[index];
+          const requestData = prescriptionMap.get(originalPrescription.id);
+          return {
+            pharmacyOrderId: pharmacyOrder.id,
+            prescriptionId: prescription.id,
+            quantity: requestData.quantity,
+            repeats: requestData.repeats ?? originalPrescription.repeats ?? 0,
+          };
+        }),
+        { transaction },
+      );
+
+      return {
+        encounter,
+        pharmacyOrder,
+        prescriptions: newPrescriptions,
+      };
+    });
+
+    res.send({
+      encounterId: result.encounter.id,
+      pharmacyOrderId: result.pharmacyOrder.id,
+      prescriptionCount: result.prescriptions.length,
     });
   }),
 );
