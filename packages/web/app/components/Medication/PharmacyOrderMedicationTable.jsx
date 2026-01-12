@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 
@@ -13,7 +13,7 @@ import { useTranslation } from '../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../Translation';
 import { format } from 'date-fns';
 import { MEDICATION_DURATION_DISPLAY_UNITS_LABELS, MAX_REPEATS } from '@tamanu/constants';
-import { singularize } from '../../utils';
+import { preventInvalidRepeatsInput, singularize } from '../../utils';
 
 const StyledTable = styled(Table)`
   .MuiTableCell-root {
@@ -100,7 +100,7 @@ const getColumns = (
   onSelectAll,
   selectAllChecked,
   columnsToInclude = Object.values(COLUMN_KEYS),
-  { isOngoingMode = false, canEditRepeats = true, disabledPrescriptionIds = [] } = {},
+  { isOngoingMode = false, canEditRepeats = true } = {},
 ) => {
   const allColumns = [
     {
@@ -115,8 +115,8 @@ const getColumns = (
       ),
       sortable: false,
       maxWidth: 50,
-      accessor: ({ selected, onSelect, id }) => {
-        const isDisabled = isOngoingMode && disabledPrescriptionIds.includes(id);
+      accessor: ({ selected, onSelect }) => {
+        const isDisabled = isOngoingMode
         return (
           <ConditionalTooltip
             visible={isDisabled}
@@ -314,6 +314,8 @@ const getColumns = (
               min={0}
               max={MAX_REPEATS}
               data-testid="selectinput-ld3p"
+              step={1}
+              onInput={preventInvalidRepeatsInput}
             />
           </Box>
         );
@@ -334,20 +336,34 @@ export const PharmacyOrderMedicationTable = ({
   columnsToInclude,
   isOngoingMode = false,
   canEditRepeats = true,
-  disabledPrescriptionIds = [],
 }) => {
   const { getTranslation, getEnumTranslation } = useTranslation();
-  return (
-    <StyledTable
-      headerColor={Colors.white}
-      columns={getColumns(
+
+  const columns = useMemo(
+    () =>
+      getColumns(
         getTranslation,
         getEnumTranslation,
         handleSelectAll,
         selectAllChecked,
         columnsToInclude,
-        { isOngoingMode, canEditRepeats, disabledPrescriptionIds },
-      )}
+        { isOngoingMode, canEditRepeats },
+      ),
+    [
+      getTranslation,
+      getEnumTranslation,
+      handleSelectAll,
+      selectAllChecked,
+      columnsToInclude,
+      isOngoingMode,
+      canEditRepeats,
+    ],
+  );
+
+  return (
+    <StyledTable
+      headerColor={Colors.white}
+      columns={columns}
       data={data || []}
       elevated={false}
       isLoading={isLoading}
