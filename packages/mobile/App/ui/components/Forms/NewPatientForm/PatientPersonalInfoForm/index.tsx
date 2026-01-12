@@ -130,7 +130,7 @@ const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit, children }
     async (values, { resetForm }) => {
       // submit form to server for new patient
       const { dateOfBirth, ...otherValues } = values;
-      const pattern = getSetting<string>('patientDisplayIdPattern');
+      const pattern = getSetting<string>('patientDisplayIdPattern');  
       const newPatient = await Patient.createAndSaveOne<Patient>({
         ...otherValues,
         dateOfBirth: formatISO9075(dateOfBirth, { representation: 'date' }),

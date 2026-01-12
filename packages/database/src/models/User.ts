@@ -27,7 +27,7 @@ import {
   MissingCredentialError,
   RateLimitedError,
 } from '@tamanu/errors';
-import { ReadSettings } from '@tamanu/settings';
+import type { ReadSettings } from '@tamanu/settings';
 import { getAbilityForUser } from '@tamanu/shared/permissions/rolesToPermissions';
 import { getSubjectName } from '@tamanu/shared/permissions/middleware';
 
@@ -489,15 +489,7 @@ export class User extends Model {
       ([SERVER_TYPES.WEBAPP, SERVER_TYPES.FACILITY, SERVER_TYPES.MOBILE] as string[]).includes(clientHeader) &&
       !facilityIds;
 
-    const isMobileWithFacility = clientHeader === SERVER_TYPES.MOBILE && facilityIds?.length;
-
-    let frontEndSettings: Awaited<ReturnType<ReadSettings['getFrontEndSettings']>> | undefined;
-    if (isMobileWithFacility) {
-      const facilitySettings = new ReadSettings(this.sequelize.models as any, facilityIds[0]);
-      frontEndSettings = await facilitySettings.getFrontEndSettings();
-    } else if (shouldReturnSettings) {
-      frontEndSettings = await settings.getFrontEndSettings();
-    }
+    const frontEndSettings = shouldReturnSettings ? await settings.getFrontEndSettings() : undefined;
 
     return {
       token,
