@@ -242,7 +242,7 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
                 data-testid="translatedtext-l4wd"
               />
             }
-            value={encounter.triages?.[0]?.score || '—'}
+            value={triage.score || '—'}
             icon={triageScoreIcon}
             data-testid="infocarditem-p5t5"
           />
