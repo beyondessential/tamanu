@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 
@@ -313,16 +313,23 @@ export const PharmacyOrderMedicationTable = ({
   columnsToInclude,
 }) => {
   const { getTranslation, getEnumTranslation } = useTranslation();
-  return (
-    <StyledTable
-      headerColor={Colors.white}
-      columns={getColumns(
+
+  const columns = useMemo(
+    () =>
+      getColumns(
         getTranslation,
         getEnumTranslation,
         handleSelectAll,
         selectAllChecked,
         columnsToInclude,
-      )}
+      ),
+    [getTranslation, getEnumTranslation, handleSelectAll, selectAllChecked, columnsToInclude],
+  );
+
+  return (
+    <StyledTable
+      headerColor={Colors.white}
+      columns={columns}
       data={data || []}
       elevated={false}
       isLoading={isLoading}
