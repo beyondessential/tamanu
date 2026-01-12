@@ -516,7 +516,7 @@ patientRoute.get(
     const { models, params, query } = req;
     const patientId = params.id;
     const { PatientOngoingPrescription, Prescription } = models;
-    const { order = 'ASC', orderBy = 'medication.name', page, rowsPerPage } = query;
+    const { order = 'ASC', orderBy = 'medication.name', page, rowsPerPage, facilityId } = query;
 
     const medicationFilter = {};
     const canListSensitiveMedication = req.ability.can('list', 'SensitiveMedication');
@@ -540,6 +540,16 @@ patientRoute.get(
             model: models.ReferenceDrug,
             as: 'referenceDrug',
             attributes: ['referenceDataId', 'isSensitive'],
+            include: facilityId
+              ? [
+                  {
+                    model: models.ReferenceDrugFacility,
+                    as: 'facilities',
+                    where: { facilityId },
+                    required: false,
+                  },
+                ]
+              : [],
           },
         },
       ],

@@ -21,6 +21,7 @@ import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared
 import { useTranslation } from '../../contexts/Translation';
 import {
   DRUG_ROUTE_LABELS,
+  DRUG_STOCK_STATUSES,
   MAX_REPEATS,
   FORM_TYPES,
   SUBMIT_ATTEMPTED_STATUS,
@@ -166,7 +167,7 @@ const getColumns = (
   errors,
   status,
   onSelectAll,
-  selectAllChecked
+  selectAllChecked,
 ) => [
   {
     key: 'selected',
@@ -303,7 +304,7 @@ export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => 
   const api = useApi();
   const { getTranslation, getEnumTranslation } = useTranslation();
   const practitionerSuggester = useSuggester('practitioner');
-  const { currentUser } = useAuth();
+  const { currentUser, facilityId } = useAuth();
   const queryClient = useQueryClient();
 
   const { data: encounterPrescriptionsData } = useEncounterMedicationQuery(encounter.id);
@@ -311,7 +312,7 @@ export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => 
     data: patientOngoingPrescriptionsData,
     isLoading,
     error,
-  } = usePatientOngoingPrescriptionsQuery(encounter.patientId);
+  } = usePatientOngoingPrescriptionsQuery(encounter.patientId, facilityId);
 
   const medications = useMemo(() => {
     const encounterPrescriptions = encounterPrescriptionsData?.data || [];
@@ -319,9 +320,13 @@ export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => 
 
     const encounterPrescriptionHashes = new Set(encounterPrescriptions.map(createPrescriptionHash));
 
-    return patientOngoingPrescriptions
-      .filter(p => !p.discontinued)
-      .filter(p => !encounterPrescriptionHashes.has(createPrescriptionHash(p)));
+    return patientOngoingPrescriptions.filter(
+      p =>
+        !p.discontinued &&
+        !encounterPrescriptionHashes.has(createPrescriptionHash(p)) &&
+        p.medication?.referenceDrug?.facilities?.[0]?.stockStatus !==
+          DRUG_STOCK_STATUSES.UNAVAILABLE,
+    );
   }, [encounterPrescriptionsData, patientOngoingPrescriptionsData]);
 
   const [selectedRowIds, setSelectedRowIds] = useState(new Set());
@@ -345,7 +350,8 @@ export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => 
     });
   };
 
-  const selectAllChecked = medications.length > 0 && medications.every(med => selectedRowIds.has(med.id));
+  const selectAllChecked =
+    medications.length > 0 && medications.every(med => selectedRowIds.has(med.id));
 
   const handleSelectAll = e => {
     if (e.target.checked) {

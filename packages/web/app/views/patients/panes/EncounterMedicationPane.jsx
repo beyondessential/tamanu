@@ -14,6 +14,7 @@ import { NoteModalActionBlocker } from '../../../components';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { PRESCRIPTION_TYPES } from '../../../constants';
+import { DRUG_STOCK_STATUSES } from '@tamanu/constants';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { PrescriptionTypeModal } from '../../../components/Medication/PrescriptionTypeModal';
 import { MedicationSetModal } from '../../../components/Medication/MedicationSetModal';
@@ -68,7 +69,7 @@ const TableContainer = styled.div`
 `;
 
 export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
-  const { ability } = useAuth();
+  const { ability, facilityId } = useAuth();
   const queryClient = useQueryClient();
   const { getSetting } = useSettings();
 
@@ -102,6 +103,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   const { data: encounterPrescriptionsData } = useEncounterMedicationQuery(encounter.id);
   const { data: patientOngoingPrescriptions } = usePatientOngoingPrescriptionsQuery(
     encounter.patientId,
+    facilityId,
   );
 
   const isEncounterDischarged = !!encounter.endDate;
@@ -110,7 +112,10 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
     (encounterPrescriptions || []).map(createPrescriptionHash),
   );
   const importableOngoingPrescriptions = patientOngoingPrescriptions?.data?.filter(
-    p => !p.discontinued && !encounterPrescriptionHashes.has(createPrescriptionHash(p)),
+    p =>
+      !p.discontinued &&
+      !encounterPrescriptionHashes.has(createPrescriptionHash(p)) &&
+      p.medication?.referenceDrug?.facilities?.[0]?.stockStatus !== DRUG_STOCK_STATUSES.UNAVAILABLE,
   );
   const canOrderPrescription = ability.can('read', 'Medication');
   const canCreatePrescription = ability.can('create', 'Medication');

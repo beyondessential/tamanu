@@ -222,6 +222,28 @@ encounter.post(
       facilityId,
     } = body;
 
+    const prescriptionRecords = await models.Prescription.findAll({
+      where: { id: pharmacyOrderPrescriptions.map(p => p.prescriptionId) },
+      attributes: ['id', 'medicationId', 'quantity'],
+    });
+
+    const hasSensitive = await models.ReferenceDrug.hasSensitiveMedication(prescriptionRecords.map(p => p.medicationId));
+
+    if (hasSensitive) {
+      req.checkPermission('read', 'SensitiveMedication');
+
+      const prescriptionRecordsById = keyBy(prescriptionRecords, 'id');
+      const isModifyingQuantity = pharmacyOrderPrescriptions.some(item => {
+        const original = prescriptionRecordsById[item.prescriptionId];
+        
+        return !original || item.quantity !== original.quantity;
+      });
+
+      if (isModifyingQuantity) {
+        req.checkPermission('write', 'SensitiveMedication');
+      }
+    }
+
     const result = await db.transaction(async () => {
       const pharmacyOrder = await models.PharmacyOrder.create({
         orderingClinicianId,
