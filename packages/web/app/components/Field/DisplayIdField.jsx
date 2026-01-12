@@ -1,6 +1,5 @@
 import React from 'react';
 import { useFormikContext } from 'formik';
-import { isGeneratedIdFromPattern } from '@tamanu/utils/generateId';
 import { TextField } from './TextField';
 import { LocalisedField } from './LocalisedField';
 import { useTranslation } from '../../contexts/Translation';
@@ -9,9 +8,10 @@ import { useSettings } from '../../contexts/Settings';
 const useDisplayIdValidation = (label, fieldName = 'displayId') => {
   const { initialValues } = useFormikContext();
   const { getSetting } = useSettings();
-  const pattern = getSetting('patientDisplayIdPattern');
+  const pattern = getSetting('fields.displayId.pattern');
+  const regex = pattern ? new RegExp(pattern) : null;
   return (value) =>
-    value !== initialValues[fieldName] && pattern && !isGeneratedIdFromPattern(value, pattern)
+    value !== initialValues[fieldName] && regex && !regex.test(value)
       ? `Invalid ${label}`
       : undefined;
 };
