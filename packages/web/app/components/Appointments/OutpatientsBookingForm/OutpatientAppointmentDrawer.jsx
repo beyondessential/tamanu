@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import { isNumber, omit, set } from 'lodash';
 import {
@@ -11,7 +11,6 @@ import {
   getDate,
   getMonth,
 } from 'date-fns';
-import { useFormikContext } from 'formik';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
@@ -26,27 +25,19 @@ import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
-import { usePatientDataQuery } from '../../../api/queries/usePatientDataQuery';
 import { useTranslation } from '../../../contexts/Translation';
 import { notifyError, notifySuccess } from '../../../utils';
 import { ConfirmModal } from '../../ConfirmModal';
 import { Drawer } from '../../Drawer';
-import {
-  AutocompleteField,
-  CheckField,
-  DynamicSelectField,
-  Field,
-  SwitchField,
-} from '../../Field';
-import { TextField, Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
+import { AutocompleteField, CheckField, DynamicSelectField, Field, SwitchField } from '../../Field';
+import { Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
 import { RepeatingFields } from '../RepeatingFields';
-import {
-  APPOINTMENT_SCHEDULE_INITIAL_VALUES,
-} from '../../../constants/locationAssignments';
+import { APPOINTMENT_SCHEDULE_INITIAL_VALUES } from '../../../constants/locationAssignments';
+import { EmailSection } from '../EmailSection';
 
 export const INITIAL_UNTIL_DATE_MONTHS_INCREMENT = 6;
 
@@ -171,48 +162,6 @@ const ErrorMessage = ({ isEdit = false, error }) => {
   );
 };
 
-const EmailFields = ({ patientId }) => {
-  const { setFieldValue } = useFormikContext();
-  const { data: patient } = usePatientDataQuery(patientId);
-
-  // Keep form state up to date with relevant selected patient email
-  useEffect(() => {
-    setFieldValue('email', patient?.email ?? '');
-    setFieldValue('confirmEmail', '');
-  }, [patient?.email, setFieldValue]);
-
-  return (
-    <>
-      <Field
-        name="email"
-        label={
-          <TranslatedText
-            stringId="appointment.emailAddress.label"
-            fallback="Email address"
-            data-testid="translatedtext-7bci"
-          />
-        }
-        required
-        component={TextField}
-        data-testid="field-bnf9"
-      />
-      <Field
-        name="confirmEmail"
-        label={
-          <TranslatedText
-            stringId="appointment.confirmEmailAddress.label"
-            fallback="Confirm email address"
-            data-testid="translatedtext-em08"
-          />
-        }
-        required
-        component={TextField}
-        data-testid="field-2bi5"
-      />
-    </>
-  );
-};
-
 export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {}, modifyMode }) => {
   const { getTranslation } = useTranslation();
   const patientSuggester = usePatientSuggester();
@@ -331,12 +280,6 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
         initialUntilDate ||
           toDateString(add(startTimeDate, { months: INITIAL_UNTIL_DATE_MONTHS_INCREMENT })),
       );
-    };
-
-    const handleResetEmailFields = e => {
-      if (e.target.checked) return;
-      setFieldValue('email', '');
-      setFieldValue('confirmEmail', '');
     };
 
     const handleChangeIsRepeatingAppointment = async e => {
@@ -509,8 +452,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
             component={CheckField}
             data-testid="field-vyk1"
           />
-          <Field
-            name="shouldEmailAppointment"
+          <EmailSection
             label={
               <TranslatedText
                 stringId="appointment.emailAppointment.label"
@@ -518,13 +460,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
                 data-testid="translatedtext-edpi"
               />
             }
-            component={CheckField}
-            onChange={handleResetEmailFields}
-            data-testid="field-160d"
           />
-          {values.shouldEmailAppointment && (
-            <EmailFields patientId={values.patientId} data-testid="emailfields-eexe" />
-          )}
           {!hideIsRepeatingToggle && (
             <Field
               name="isRepeatingAppointment"
