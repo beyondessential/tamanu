@@ -488,7 +488,7 @@ export const DeathForm = React.memo(
             label={
               <TranslatedText
                 stringId="general.other.label"
-                fallback="Other"
+                fallback="Please specify"
                 data-testid="translatedtext-4gij"
               />
             }
