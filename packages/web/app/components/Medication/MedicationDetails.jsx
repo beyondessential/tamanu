@@ -36,6 +36,7 @@ import { useEncounter } from '../../contexts/Encounter';
 import { MedicationResumeModal } from './MedicationResumeModal';
 import { singularize } from '../../utils';
 import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
+import { preventInvalidRepeatsInput } from '../../utils/utils';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -514,6 +515,8 @@ export const MedicationDetails = ({
                       component={NumberField}
                       min={0}
                       max={MAX_REPEATS}
+                      step={1}
+                      onInput={preventInvalidRepeatsInput}
                       disabled={
                         !canDiscontinueMedication ||
                         (isSensitive && !canWriteSensitiveMedication) ||

@@ -31,6 +31,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
 import { createPrescriptionHash } from '../../utils/medications';
 import { foreignKey } from '../../utils/validation';
+import { preventInvalidRepeatsInput } from '../../utils';
 
 const StyledModal = styled(Modal)`
   .MuiDialog-paper {
@@ -288,6 +289,8 @@ const getColumns = (
             disabled={!selected}
             error={hasError}
             helperText={hasError && fieldError}
+            step={1}
+            onInput={preventInvalidRepeatsInput}
           />
         </Box>
       );

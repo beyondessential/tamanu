@@ -13,7 +13,7 @@ import { useTranslation } from '../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../Translation';
 import { format } from 'date-fns';
 import { MEDICATION_DURATION_DISPLAY_UNITS_LABELS, MAX_REPEATS } from '@tamanu/constants';
-import { singularize } from '../../utils';
+import { preventInvalidRepeatsInput, singularize } from '../../utils';
 
 const StyledTable = styled(Table)`
   .MuiTableCell-root {
@@ -292,6 +292,8 @@ const getColumns = (
             min={0}
             max={MAX_REPEATS}
             data-testid="selectinput-ld3p"
+            step={1}
+            onInput={preventInvalidRepeatsInput}
           />
         </Box>
       ),

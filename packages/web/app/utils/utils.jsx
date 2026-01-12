@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import deepEqual from 'deep-equal';
 import shortid from 'shortid';
 import { singularize as singularizeFn } from 'inflection';
+import { MAX_REPEATS } from '@tamanu/constants';
 
 export const prepareToastMessage = (msg) => {
   const messages = isArray(msg) ? msg : [msg];
@@ -102,6 +103,26 @@ export const renderToText = (element) => {
 export const preventInvalidNumber = (event) => {
   if (!event.target.validity.valid) {
     event.target.value = '';
+  }
+};
+
+export const preventInvalidRepeatsInput = (event, { min = 0, max = MAX_REPEATS } = {}) => {
+  const input = event?.target;
+  const value = input.value;
+
+  // Allow empty values
+  if (!value) {
+    input.dataset.previousValue = '';
+    return;
+  }
+
+  // Valid if: digits only and within range
+  const isValid = /^\d+$/.test(value) && Number(value) >= min && Number(value) <= max;
+
+  if (isValid) {
+    input.dataset.previousValue = value;
+  } else {
+    input.value = input.dataset.previousValue || '';
   }
 };
 
