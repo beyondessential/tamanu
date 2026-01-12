@@ -16,6 +16,7 @@ import { useLabTestResultsQuery } from '../../../api/queries/useLabTestResultsQu
 import { AccessorField, LabResultAccessorField } from './AccessorField';
 import { useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
+import { useLabRequest } from '../../../contexts/LabRequest';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
@@ -326,6 +327,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
   const api = useApi();
   const queryClient = useQueryClient();
   const { ability } = useAuth();
+  const { loadLabRequest } = useLabRequest();
   const canWriteLabTestResult = ability?.can('write', 'LabTestResult');
   const areLabTestResultsReadOnly = !canWriteLabTestResult;
 
@@ -349,10 +351,8 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
             data-testid="translatedtext-h2yk"
           />,
         );
-        // Force refresh of lab test data fetching table
-        queryClient.invalidateQueries(['labRequest', labRequest.id]);
         queryClient.invalidateQueries(['labTestResults', labRequest.id]);
-
+        loadLabRequest(labRequest.id);
         refreshLabTestTable();
         onClose();
       },
