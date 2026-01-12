@@ -8,11 +8,11 @@ import shortid from 'shortid';
 import { singularize as singularizeFn } from 'inflection';
 import { MAX_REPEATS } from '@tamanu/constants';
 
-export const prepareToastMessage = (msg) => {
+export const prepareToastMessage = msg => {
   const messages = isArray(msg) ? msg : [msg];
   return (
     <>
-      {messages.map((text) => (
+      {messages.map(text => (
         <div key={`err-msg-${text}`}>{isValidElement(text) ? text : toString(text)}</div>
       ))}
     </>
@@ -43,7 +43,7 @@ export const notifyError = (msg, props) => notify(msg, { ...props, type: 'error'
 export const flattenRequest = (object, deep = true) => {
   try {
     const newObject = object;
-    if (isArray(object) && deep) return object.map((obj) => flattenRequest(obj, false));
+    if (isArray(object) && deep) return object.map(obj => flattenRequest(obj, false));
     each(newObject, (value, key) => {
       if (typeof value === 'object') {
         if (!deep) {
@@ -63,7 +63,7 @@ export const flattenRequest = (object, deep = true) => {
 
 export const getModifiedFieldNames = (objectA, objectB) => {
   const modifiedFields = [];
-  Object.keys(objectA).forEach((key) => {
+  Object.keys(objectA).forEach(key => {
     const valueA = objectA[key];
     const valueB = objectB[key];
     if (!deepEqual(valueA, valueB)) modifiedFields.push(key);
@@ -85,7 +85,7 @@ export const hexToRgba = (hex, opacity) => {
   return `rgba(${r},${g},${b},${opacity})`;
 };
 
-export const renderToText = (element) => {
+export const renderToText = element => {
   if (!isValidElement(element)) {
     throw new Error('`renderToText` has been called with an invalid element.');
   }
@@ -100,7 +100,7 @@ export const renderToText = (element) => {
   return renderedText;
 };
 
-export const preventInvalidNumber = (event) => {
+export const preventInvalidNumber = event => {
   if (!event.target.validity.valid) {
     event.target.value = '';
   }
@@ -108,16 +108,13 @@ export const preventInvalidNumber = (event) => {
 
 export const preventInvalidRepeatsInput = (event, { min = 0, max = MAX_REPEATS } = {}) => {
   const input = event?.target;
-  const value = input.value;
-
-  // Allow empty values
-  if (!value) {
-    input.dataset.previousValue = '';
+  if (!input) {
     return;
   }
 
-  // Valid if: digits only and within range
-  const isValid = /^\d+$/.test(value) && Number(value) >= min && Number(value) <= max;
+  const { value } = input;
+  const isValid =
+    value === '' || (/^\d+$/.test(value) && Number(value) >= min && Number(value) <= max);
 
   if (isValid) {
     input.dataset.previousValue = value;
