@@ -18,20 +18,20 @@ const SoftText = styled(Text)`
   color: ${TAMANU_COLORS.midText};
 `;
 
+const getFormattedOffset = (tz, date) => {
+  if (!tz) return 'N/A';
+
+  const offsetMs = getTimezoneOffset(tz, date);
+  const offsetMinutes = Math.abs(offsetMs / 60000);
+  const hours = Math.floor(offsetMinutes / 60);
+  const minutes = offsetMinutes % 60;
+  const sign = offsetMs >= 0 ? '+' : '-';
+  return `${sign}${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+};
+
 const DiagnosticInfo = ({ date: parsedDate, rawDate, timeZone, countryTimeZone }) => {
   const { formatLong } = useDateTimeFormat();
   const displayDate = formatLong(parsedDate);
-
-  const getFormattedOffset = (tz, date) => {
-    if (!tz) return 'N/A';
-
-    const offsetMs = getTimezoneOffset(tz, date);
-    const offsetMinutes = Math.abs(offsetMs / 60000);
-    const hours = Math.floor(offsetMinutes / 60);
-    const minutes = offsetMinutes % 60;
-    const sign = offsetMs >= 0 ? '+' : '-';
-    return `${sign}${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-  };
 
   const now = new Date();
   const displayOffset = getFormattedOffset(timeZone, now);
@@ -85,7 +85,12 @@ const DateTooltip = ({ date, rawDate, children, timeOnlyTooltip, timeZone, count
   );
 
   return (
-    <ThemedTooltip open={tooltipOpen} onClose={handleClose} onOpen={handleOpen} title={tooltipTitle}>
+    <ThemedTooltip
+      open={tooltipOpen}
+      onClose={handleClose}
+      onOpen={handleOpen}
+      title={tooltipTitle}
+    >
       {children}
     </ThemedTooltip>
   );
@@ -135,8 +140,10 @@ const useFormattedDate = (dateValue, { dateFormat, timeFormat, showWeekday }) =>
  * @param {boolean} noTooltip - Disable hover tooltip
  */
 export const TimeDisplay = React.memo(
-  ({ date: dateValue, format: timeFormat = 'default', noTooltip = false, style, ...props }) => {
-    const { displayString, timeZone, countryTimeZone } = useFormattedDate(dateValue, { timeFormat });
+  ({ date: dateValue, format, noTooltip = false, style, ...props }) => {
+    const { displayString, timeZone, countryTimeZone } = useFormattedDate(dateValue, {
+      timeFormat: format,
+    });
     const content = (
       <span style={style} {...props}>
         {displayString}
