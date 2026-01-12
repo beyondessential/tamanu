@@ -399,7 +399,7 @@ export const DeathForm = React.memo(
             label={
               <TranslatedText
                 stringId="death.lastSurgeryReason.label"
-                fallback="What was the reason for the surgery"
+                fallback="Please specify the reason for surgery (disease or condition)"
                 data-testid="translatedtext-g0fx"
               />
             }
