@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ButtonWithPermissionCheck, Button } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { PATIENT_STATUS, PATIENT_STATUS_COLORS } from '../../../constants';
-import { DateOnlyDisplay } from '../../../components';
+import { DateDisplay, DateOnlyDisplay } from '../../../components';
 import { DeathCertificateModal } from '../../../components/PatientPrinting';
 import { useApi } from '../../../api';
 import { getFullLocationName } from '../../../utils/location';
