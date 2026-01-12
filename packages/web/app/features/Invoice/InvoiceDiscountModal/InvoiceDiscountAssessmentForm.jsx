@@ -3,10 +3,8 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
 import { SETTING_KEYS } from '@tamanu/constants';
-import { SelectField, Form, FormGrid, ConfirmCancelBackRow } from '@tamanu/ui-components';
-import { TranslatedText } from '../../../components/Translation';
-import { BodyText, Heading3 } from '../../../components/Typography';
-import { Field } from '../../../components/Field';
+import { SelectField, Form, FormGrid, ConfirmCancelBackRow, useApi } from '@tamanu/ui-components';
+import { Field, TranslatedText, BodyText, Heading3 } from '../../../components';
 import { useSettings } from '../../../contexts/Settings';
 
 const StyledDivider = styled(Divider)`
@@ -15,7 +13,33 @@ const StyledDivider = styled(Divider)`
 
 const MAX_FAMILY_SIZE = 12;
 
-export const InvoiceDiscountAssessmentForm = ({ onClose }) => {
+const formatDisplayPrice = value => value.toLocaleString('en-US');
+
+const validationSchema = yup.object().shape({
+  familySize: yup
+    .string()
+    .required()
+    .translatedLabel(
+      <TranslatedText
+        stringId="invoice.validation.familySize.path"
+        fallback="Family size"
+        data-testid="translatedtext-z8qt"
+      />,
+    ),
+  annualIncome: yup
+    .string()
+    .required()
+    .translatedLabel(
+      <TranslatedText
+        stringId="invoice.validation.annualIncome.path"
+        fallback="Annual income"
+        data-testid="translatedtext-qqwm"
+      />,
+    ),
+});
+
+export const InvoiceDiscountAssessmentForm = ({ onClose, handleUpdateDiscount }) => {
+  const api = useApi();
   const [familySize, setFamilySize] = useState();
   const [percentage, setPercentage] = useState();
 
@@ -32,10 +56,12 @@ export const InvoiceDiscountAssessmentForm = ({ onClose }) => {
 
     return incomeArray.map((income, index) => {
       let range;
+      const incomeDisplay = formatDisplayPrice(income);
       if (index === incomeArray.length - 1) {
-        range = `> ${income}`;
+        range = `> ${incomeDisplay}`;
       } else {
-        range = `${income} - ${incomeArray[index + 1]}`;
+        const upperValueDisplay = formatDisplayPrice(incomeArray[index + 1]);
+        range = `${incomeDisplay} - ${upperValueDisplay}`;
       }
       return { value: range, label: range, percentage: (index + 2) / 10 };
     });
@@ -48,15 +74,14 @@ export const InvoiceDiscountAssessmentForm = ({ onClose }) => {
     }
   };
 
-  // @ts-ignore todo in SAV-1054
-  const handleSubmit = () => {
-    // const discount = {
-    //   percentage: data.percentage,
-    //   reason: data.reason,
-    //   isManual: false,
-    //   appliedByUser: api?.user,
-    //   appliedTime: new Date(),
-    // };
+  const handleSubmit = data => {
+    const discount = {
+      percentage: data.percentage,
+      isManual: true,
+      appliedByUser: api?.user,
+      appliedTime: new Date(),
+    };
+    handleUpdateDiscount(discount);
   };
 
   return (
@@ -118,28 +143,7 @@ export const InvoiceDiscountAssessmentForm = ({ onClose }) => {
             />
           </>
         )}
-        validationSchema={yup.object().shape({
-          familySize: yup
-            .string()
-            .required()
-            .translatedLabel(
-              <TranslatedText
-                stringId="invoice.validation.familySize.path"
-                fallback="Family size"
-                data-testid="translatedtext-z8qt"
-              />,
-            ),
-          annualIncome: yup
-            .string()
-            .required()
-            .translatedLabel(
-              <TranslatedText
-                stringId="invoice.validation.annualIncome.path"
-                fallback="Annual income"
-                data-testid="translatedtext-qqwm"
-              />,
-            ),
-        })}
+        validationSchema={validationSchema}
         data-testid="form-6cak"
       />
     </>

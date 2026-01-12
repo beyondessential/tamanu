@@ -118,6 +118,15 @@ export const getInsuranceCoverageTotal = invoiceItems => {
 };
 
 /**
+ * Get the discount amount of an invoice discount
+ * @param {InvoiceDiscount} discount
+ * @param {number} total
+ */
+const getInvoiceDiscountDiscountAmount = (discount, total) => {
+  return discountAmount(total || 0, discount?.percentage || 0);
+};
+
+/**
  * get invoice summary
  * @param {Invoice} invoice
  * @returns
@@ -131,7 +140,11 @@ export const getInvoiceSummary = invoice => {
   );
 
   const insuranceCoverageTotal = getInsuranceCoverageTotal(invoice.items);
-  const patientTotal = invoiceItemsTotal.minus(insuranceCoverageTotal);
+
+  const patientSubtotal = invoiceItemsTotal.minus(insuranceCoverageTotal);
+  const discountTotal = getInvoiceDiscountDiscountAmount(invoice.discount, patientSubtotal);
+
+  const patientTotal = patientSubtotal.minus(discountTotal);
 
   // Calculate payments as well
   const payments = invoice?.payments || [];
@@ -156,9 +169,10 @@ export const getInvoiceSummary = invoice => {
 
   return {
     invoiceItemsTotal: invoiceItemsTotal.toNumber(),
-    patientSubtotal: invoiceItemsTotal.toNumber(),
     insuranceCoverageTotal: insuranceCoverageTotal.toNumber(),
     patientTotal: patientTotal.toNumber(),
+    discountTotal: discountTotal,
+    patientSubtotal: patientSubtotal.toNumber(),
     patientPaymentsTotal,
     insurerPaymentsTotal,
     paymentsTotal,

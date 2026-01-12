@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { Plus } from 'lucide-react';
@@ -14,6 +14,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { invoiceFormSchema } from './invoiceFormSchema';
 import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
+import { InvoiceDiscountModal } from '../InvoiceDiscountModal/InvoiceDiscountModal.jsx';
 
 const StyledForm = styled(Form)`
   overflow: auto;
@@ -84,6 +85,7 @@ const AddItemsActions = ({ handleSubmit, handleCancel, isDisabled }) => (
 );
 
 export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
+  const [discountModalOpen, setDiscountModalOpen] = useState(false);
   const { ability } = useAuth();
   const canWriteInvoice = ability.can('write', 'Invoice');
   const editable = isInvoiceEditable(invoice) && canWriteInvoice;
@@ -100,6 +102,15 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
       })),
     });
     setIsEditing(false);
+  };
+
+  const handleUpdateDiscount = discountData => {
+    updateInvoice({ ...invoice, discount: discountData });
+    setDiscountModalOpen(false);
+  };
+
+  const handleRemoveDiscount = () => {
+    updateInvoice({ ...invoice, discount: null });
   };
 
   const handleShowErrorDialog = errors => {
@@ -176,10 +187,18 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
                             handleCancel={() => setIsEditing(false)}
                             isDisabled={isUpdatingInvoice}
                           />
-                        )}
+                        )}>
                         <InvoiceSummaryPanel
-                          invoiceItems={values.invoiceItems}
                           patientPayments={invoice.payments}
+                          invoiceItems={values.invoiceItems}
+                          invoiceDiscount={invoice.discount}
+                          openDiscountModal={() => setDiscountModalOpen(true)}
+                          handleRemoveDiscount={handleRemoveDiscount}
+                        />
+                        <InvoiceDiscountModal
+                          open={discountModalOpen}
+                          onClose={() => setDiscountModalOpen(false)}
+                          handleUpdateDiscount={handleUpdateDiscount}
                         />
                       </Box>
                     </FormFooter>
