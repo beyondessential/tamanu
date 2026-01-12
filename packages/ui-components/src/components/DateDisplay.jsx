@@ -20,7 +20,6 @@ const SoftText = styled(Text)`
 
 const getFormattedOffset = (tz, date) => {
   if (!tz) return 'N/A';
-
   const offsetMs = getTimezoneOffset(tz, date);
   const offsetMinutes = Math.abs(offsetMs / 60000);
   const hours = Math.floor(offsetMinutes / 60);
@@ -32,7 +31,6 @@ const getFormattedOffset = (tz, date) => {
 const DiagnosticInfo = ({ date: parsedDate, rawDate, timeZone, countryTimeZone }) => {
   const { formatLong } = useDateTimeFormat();
   const displayDate = formatLong(parsedDate);
-
   const now = new Date();
   const displayOffset = getFormattedOffset(timeZone, now);
   const sourceOffset = getFormattedOffset(countryTimeZone, now);
