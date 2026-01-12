@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Button, Typography } from '@material-ui/core';
 import { TranslatedSex, TranslatedText } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
-import { DateDisplay } from '../DateDisplay';
+import { DateOnlyDisplay } from '../DateDisplay';
 import { PatientInitialsIcon } from '../PatientInitialsIcon';
 import { useSettings } from '../../contexts/Settings';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
@@ -175,7 +175,7 @@ export const CoreInfoDisplay = memo(({ patient }) => {
           testId="core-info-patient-dob"
           data-testid="coreinfocell-0opr"
         >
-          <DateDisplay date={patient.dateOfBirth} data-testid="datedisplay-ez8y" />
+          <DateOnlyDisplay date={patient.dateOfBirth} data-testid="datedisplay-ez8y" />
           <AgeDisplay data-testid="agedisplay-gpl9">{` (${getDisplayAge(patient.dateOfBirth, ageDisplayFormat)})`}</AgeDisplay>
         </CoreInfoCell>
       </CoreInfoSection>

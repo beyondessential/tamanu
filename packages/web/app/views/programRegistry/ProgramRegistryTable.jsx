@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { reloadPatient } from '../../store';
-import { DateDisplay, MenuButton, SearchTable } from '../../components';
+import { DateOnlyDisplay, MenuButton, SearchTable } from '../../components';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
 import {
   DeleteProgramRegistryFormModal,
@@ -70,7 +70,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
             fallback="DOB"
           />
         ),
-        accessor: ({ patient }) => <DateDisplay date={patient.dateOfBirth} />,
+        accessor: ({ patient }) => <DateOnlyDisplay date={patient.dateOfBirth} />,
       },
       {
         key: 'sex',

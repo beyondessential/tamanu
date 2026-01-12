@@ -323,6 +323,19 @@ export const formatShort = (
     timeZone,
   ); // 12/04/2020
 
+const formatDateOnly = (
+  date: string | Date | null | undefined,
+  formatOptions: Intl.DateTimeFormatOptions,
+  fallback = 'Unknown',
+) => {
+  if (!date) return fallback;
+  const dateObj = parseDate(date);
+  if (!dateObj) return fallback;
+  return dateObj.toLocaleString(locale, formatOptions);
+};
+
+export const formatDateOnlyShort = (date: string | Date | null | undefined) =>
+  formatDateOnly(date, { day: '2-digit', month: '2-digit', year: 'numeric' }, '--/--/----');
 
   export const formatTime = (
     date: string | null | undefined,

@@ -2,7 +2,7 @@ import { styled } from '@mui/material/styles';
 import React from 'react';
 
 import { Colors } from '../../../constants';
-import { DateDisplay } from '../../DateDisplay';
+import { DateOnlyDisplay } from '../../DateDisplay';
 import { getPatientNameAsString } from '../../PatientNameDisplay';
 import { TranslatedSex, TranslatedText } from '../../Translation';
 import { InlineDetailsDisplay } from './SharedComponents';
@@ -74,7 +74,7 @@ export const PatientDetailsDisplay = ({ patient, onClick, additionalData }) => {
               data-testid="translatedtext-5omy"
             />
           }
-          value={<DateDisplay date={dateOfBirth} noTooltip data-testid="datedisplay-qnx5" />}
+          value={<DateOnlyDisplay date={dateOfBirth} data-testid="datedisplay-qnx5" />}
           data-testid="inlinedetailsdisplay-320k"
         />
       </PrimaryDetails>

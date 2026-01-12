@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 import { getTimezoneOffset } from 'date-fns-tz';
 import { Box, Typography } from '@material-ui/core';
 import styled from 'styled-components';
-import { parseDate, locale } from '@tamanu/utils/dateTime';
+import { parseDate, locale, formatDateOnlyShort } from '@tamanu/utils/dateTime';
 import { TAMANU_COLORS } from '../constants';
 import { ThemedTooltip } from './Tooltip';
 import { useDateTimeFormat } from '../contexts';
@@ -180,7 +180,7 @@ export const TimeDisplay = React.memo(
 );
 
 /**
- * DateDisplay - Displays date with optional time
+ * DateDisplay - Displays date with optional time (applies timezone conversion)
  * @param {string|Date} date - The date value
  * @param {string} format - "short" (default) | "shortest" | "long" | "explicit" | "explicitShort" | null (for weekday-only)
  * @param {boolean} showWeekday - Prefix with weekday name (or show alone if format is null)
@@ -204,23 +204,8 @@ export const TimeDisplay = React.memo(
  * // format="explicitShort" → "15 Mar 24"
  * <DateDisplay date="2024-03-15 09:30:00" format="explicitShort" />
  *
- * // format={null} with showWeekday → "Fri"
- * <DateDisplay date="2024-03-15 09:30:00" format={null} showWeekday />
- *
- * // showWeekday with format → "Fri 15/03/2024"
- * <DateDisplay date="2024-03-15 09:30:00" showWeekday />
- *
  * // showTime → "15/03/2024 9:30 AM"
  * <DateDisplay date="2024-03-15 09:30:00" showTime />
- *
- * // showTime with timeFormat="compact" → "15/03/2024 9:30am"
- * <DateDisplay date="2024-03-15 09:30:00" showTime timeFormat="compact" />
- *
- * // showTime with timeFormat="withSeconds" → "15/03/2024 9:30:45 AM"
- * <DateDisplay date="2024-03-15 09:30:45" showTime timeFormat="withSeconds" />
- *
- * // Combined: showWeekday + format="long" + showTime → "Fri 15 March 2024 9:30 AM"
- * <DateDisplay date="2024-03-15 09:30:00" format="long" showWeekday showTime />
  */ 
 export const DateDisplay = React.memo(
   ({
@@ -266,6 +251,21 @@ export const DateDisplay = React.memo(
     );
   },
 );
+
+/**
+ * DateOnlyDisplay - Displays a date-only value without timezone conversion
+ * Use for dates that don't have a time component (DOB, death date, etc.)
+ * @param {string|Date} date - The date value
+ *
+ * @example
+ * <DateOnlyDisplay date="1990-05-15" />
+ * <DateOnlyDisplay date={patient.dateOfBirth} />
+ */
+export const DateOnlyDisplay = React.memo(({ date, color, fontWeight, style, ...props }) => (
+  <span style={{ color, fontWeight, ...style }} {...props}>
+    {formatDateOnlyShort(date)}
+  </span>
+));
 
 /**
  * MultilineDatetimeDisplay - Shows date on one line and time below

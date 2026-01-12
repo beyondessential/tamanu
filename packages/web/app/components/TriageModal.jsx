@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { FormModal } from './FormModal';
 import { Colors } from '../constants';
 import { TriageForm } from '../forms/TriageForm';
-import { DateDisplay } from './DateDisplay';
+import { DateOnlyDisplay } from './DateDisplay';
 import { TranslatedSex, TranslatedText } from './Translation';
 import { useSettings } from '../contexts/Settings';
 
@@ -55,7 +55,7 @@ const DETAILS_FIELD_DEFINITIONS = [
   [
     'dateOfBirth',
     'Date of birth',
-    ({ dateOfBirth }) => <DateDisplay date={dateOfBirth} data-testid="datedisplay-78p2" />,
+    ({ dateOfBirth }) => <DateOnlyDisplay date={dateOfBirth} data-testid="datedisplay-78p2" />,
   ],
 ];
 

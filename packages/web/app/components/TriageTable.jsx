@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { useParams, useNavigate } from 'react-router';
 import { useEncounter } from '../contexts/Encounter';
 import { useAuth } from '../contexts/Auth';
-import { DateDisplay } from './DateDisplay';
+import { DateOnlyDisplay } from './DateDisplay';
 import { LocationCell, LocationGroupCell } from './LocationCell';
 import { TriageWaitTimeCell } from './TriageWaitTimeCell';
 import { reloadPatient } from '../store';
@@ -88,7 +88,7 @@ const useColumns = () => {
           data-testid="translatedtext-daoi"
         />
       ),
-      accessor: row => <DateDisplay date={row.dateOfBirth} data-testid="datedisplay-gy0v" />,
+      accessor: row => <DateOnlyDisplay date={row.dateOfBirth} data-testid="datedisplay-gy0v" />,
     },
     {
       key: 'sex',

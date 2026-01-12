@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { SEX_VALUE_INDEX } from '@tamanu/constants';
 
 import { theme } from '../../../theme';
-import { DateDisplay } from '../../../components/DateDisplay';
+import { DateOnlyDisplay } from '../../../components/DateDisplay';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { TranslatedReferenceData } from '../../../components/Translation';
 
@@ -155,7 +155,7 @@ export const PatientSummary = ({
               data-testid="translatedtext-gj0y"
             />
           }
-          value={<DateDisplay date={patient.dateOfBirth} data-testid="datedisplay-u395" />}
+          value={<DateOnlyDisplay date={patient.dateOfBirth} data-testid="datedisplay-u395" />}
           data-testid="labelledvalue-f6ji"
         />
       </div>

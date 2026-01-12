@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ButtonWithPermissionCheck, Button } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { PATIENT_STATUS, PATIENT_STATUS_COLORS } from '../../../constants';
-import { DateDisplay } from '../../../components';
+import { DateOnlyDisplay } from '../../../components';
 import { DeathCertificateModal } from '../../../components/PatientPrinting';
 import { useApi } from '../../../api';
 import { getFullLocationName } from '../../../utils/location';
@@ -198,7 +198,7 @@ const PatientDeathSummary = React.memo(({ patient }) => {
         <ContentItem data-testid="contentitem-ld97">
           <ContentLabel data-testid="contentlabel-yujn">Date of death:</ContentLabel>
           <ContentText data-testid="contenttext-08c1">
-            <DateDisplay date={deathData?.dateOfDeath} data-testid="datedisplay-55sx" />
+            <DateOnlyDisplay date={deathData?.dateOfDeath} data-testid="datedisplay-55sx" />
           </ContentText>
         </ContentItem>
       </Content>

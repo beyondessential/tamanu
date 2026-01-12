@@ -5,7 +5,7 @@ import { Box } from '@material-ui/core';
 import { SEX_VALUE_INDEX } from '@tamanu/constants';
 
 import { Colors } from '../constants';
-import { DateDisplay } from '.';
+import { DateOnlyDisplay } from '.';
 import { TranslatedText } from './Translation/TranslatedText';
 
 const Card = styled(Box)`
@@ -100,7 +100,7 @@ export const PatientDetailsCard = ({ patient }) => (
             data-testid="translatedtext-0qfs"
           />
         }
-        value={<DateDisplay date={patient?.dateOfBirth} data-testid="datedisplay-h1tz" />}
+        value={<DateOnlyDisplay date={patient?.dateOfBirth} data-testid="datedisplay-h1tz" />}
         data-testid="carditem-mm6v"
       />
       <CardItem
