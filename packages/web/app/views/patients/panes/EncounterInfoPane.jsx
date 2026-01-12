@@ -202,7 +202,7 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
   const [isEstimatedDischargeModalOpen, setIsEstimatedDischargeModalOpen] = useState(false);
   const canWriteEncounter = ability.can('write', 'Encounter');
 
-  const triage = triage;
+  const triage = encounter.triages?.[0];
 
   return (
     <InfoCard inlineValues contentPadding={25} paddingTop={0} data-testid="infocard-o4i8">
