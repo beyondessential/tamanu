@@ -48,10 +48,12 @@ export class Triage extends Model {
 
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'chiefComplaintId',
+      as: 'chiefComplaint',
     });
 
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'secondaryComplaintId',
+      as: 'secondaryComplaint',
     });
 
     this.belongsTo(models.ReferenceData, {
@@ -67,6 +69,10 @@ export class Triage extends Model {
         recordType: this.name,
       },
     });
+  }
+
+  static getListReferenceAssociations() {
+    return ['chiefComplaint', 'secondaryComplaint'];
   }
 
   static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {
