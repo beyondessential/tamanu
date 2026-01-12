@@ -137,17 +137,17 @@ const useFormattedDate = (dateValue, { dateFormat, timeFormat, showWeekday }) =>
 export const TimeDisplay = React.memo(
   ({ date: dateValue, format: timeFormat = 'default', noTooltip = false, style, ...props }) => {
     const displayString = useFormattedDate(dateValue, { timeFormat });
+    const content = (
+      <span style={style} {...props}>
+        {displayString}
+      </span>
+    );
 
-    if (noTooltip) {
-      return <span style={style}>{displayString}</span>;
-    }
+    if (noTooltip) return content;
 
-    const dateObj = parseDate(dateValue);
     return (
-      <DateTooltip date={dateObj} rawDate={dateValue} timeOnlyTooltip>
-        <span style={style} {...props}>
-          {displayString}
-        </span>
+      <DateTooltip date={parseDate(dateValue)} rawDate={dateValue} timeOnlyTooltip>
+        {content}
       </DateTooltip>
     );
   },
@@ -177,7 +177,7 @@ export const DateDisplay = React.memo(
     ...props
   }) => {
     const resolvedDateFormat = dateFormat === undefined ? 'short' : dateFormat;
-    const resolvedTimeFormat = showTime ? (timeFormat || 'default') : null;
+    const resolvedTimeFormat = showTime ? timeFormat || 'default' : null;
 
     const displayString = useFormattedDate(dateValue, {
       dateFormat: resolvedDateFormat,
@@ -185,22 +185,17 @@ export const DateDisplay = React.memo(
       showWeekday,
     });
 
-    const mergedStyle = { color, fontWeight, ...style };
+    const content = (
+      <span style={{ color, fontWeight, ...style }} {...props}>
+        {displayString}
+      </span>
+    );
 
-    if (noTooltip) {
-      return (
-        <span style={mergedStyle} {...props}>
-          {displayString}
-        </span>
-      );
-    }
+    if (noTooltip) return content;
 
-    const dateObj = parseDate(dateValue);
     return (
-      <DateTooltip date={dateObj} rawDate={dateValue} timeOnlyTooltip={timeOnlyTooltip}>
-        <span style={mergedStyle} {...props}>
-          {displayString}
-        </span>
+      <DateTooltip date={parseDate(dateValue)} rawDate={dateValue} timeOnlyTooltip={timeOnlyTooltip}>
+        {content}
       </DateTooltip>
     );
   },
