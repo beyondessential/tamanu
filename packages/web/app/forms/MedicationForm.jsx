@@ -66,7 +66,7 @@ import { useSettings } from '../contexts/Settings';
 import { ChevronIcon } from '../components/Icons/ChevronIcon';
 import { ConditionalTooltip, ThemedTooltip } from '../components/Tooltip';
 import { capitalize } from 'lodash';
-import { preventInvalidNumber, validateDecimalPlaces } from '../utils/utils';
+import { preventInvalidNumber, preventInvalidRepeatsInput, validateDecimalPlaces } from '../utils/utils';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { formatTimeSlot } from '../utils/medications';
 import { useEncounter } from '../contexts/Encounter';
@@ -1139,6 +1139,8 @@ export const MedicationForm = ({
                   component={NumberField}
                   min={0}
                   max={MAX_REPEATS}
+                  step={1}
+                  onInput={preventInvalidRepeatsInput}
                 />
               </>
             )}

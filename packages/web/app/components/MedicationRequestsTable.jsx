@@ -192,8 +192,8 @@ export const MedicationRequestsTable = () => {
       key: 'pharmacyOrder.isDischargePrescription',
       title: (
         <TranslatedText
-          stringId="medication-requests.table.column.prescriptionType"
-          fallback="Prescription type"
+          stringId="medication-requests.table.column.prescription"
+          fallback="Prescription"
           data-testid="translatedtext-prescription-type-column-title"
         />
       ),
@@ -331,6 +331,7 @@ export const MedicationRequestsTable = () => {
         allowExport={false}
         initialSort={{
           order: 'desc',
+          orderBy: 'pharmacyOrder.date',
         }}
       />
     </>
