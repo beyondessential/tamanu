@@ -19,7 +19,7 @@ const convertToDHIS2DataValueSets = (reportData, options = {}) => {
       row => `${row.period || ''}_${row.orgunit || ''}_${row.attributeoptioncombo || ''}`,
     ),
     rows => ({
-      dataSet,
+      dataSet, // TODO: this completed logic works if we can define the data set here
       completeDate,
       period: rows[0].period || '',
       orgUnit: rows[0].orgunit || '',
