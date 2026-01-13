@@ -394,23 +394,17 @@ export const formatLong = (
 /** "Thu" */
 export const formatWeekdayShort = (
   date: string | Date | null | undefined,
-  countryTimeZone: string,
-  timeZone?: string | null,
-) => intlFormatDate(date, { weekday: 'short' }, 'Unknown', countryTimeZone, timeZone);
+) => formatDateOnly(date, { weekday: 'short' }, 'Unknown');
 
 /** "Thursday" */
 export const formatWeekdayLong = (
   date: string | Date | null | undefined,
-  countryTimeZone: string,
-  timeZone?: string | null,
-) => intlFormatDate(date, { weekday: 'long' }, 'Unknown', countryTimeZone, timeZone);
+) => formatDateOnly(date, { weekday: 'long' }, 'Unknown');
 
 /** "M" - single letter weekday */
 export const formatWeekdayNarrow = (
   date: string | Date | null | undefined,
-  countryTimeZone: string,
-  timeZone?: string | null,
-) => intlFormatDate(date, { weekday: 'narrow' }, 'Unknown', countryTimeZone, timeZone);
+) => formatDateOnly(date, { weekday: 'narrow' }, 'Unknown');
 
 /** "15 January 2024" */
 export const formatFullDate = (
