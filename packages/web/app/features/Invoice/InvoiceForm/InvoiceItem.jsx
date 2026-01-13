@@ -122,6 +122,7 @@ export const InvoiceItemRow = ({
   encounterId,
   priceListId,
   isEditing,
+  onUpdateInvoice,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const isSaved = item.product?.id;
@@ -220,9 +221,9 @@ export const InvoiceItemRow = ({
       <InvoiceItemActionsMenu
         index={index}
         item={item}
-        formArrayMethods={formArrayMethods}
         showActionMenu={isSaved && invoiceIsEditable}
         hidePriceInput={hidePriceInput}
+        onUpdateInvoice={onUpdateInvoice}
       />
     </StyledItemRow>
   );
