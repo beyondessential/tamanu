@@ -28,6 +28,7 @@ import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlock
 import { MenuButton } from '../../../components/MenuButton';
 import { MedicationLabelPrintModal } from '../../../components/PatientPrinting/modals/MedicationLabelPrintModal';
 import { CancelDispensedMedicationModal } from '../../../components/Medication/CancelDispensedMedicationModal';
+import { EditMedicationDispenseModal } from '../../../components/Medication/EditMedicationDispenseModal';
 import { getMedicationLabelData } from '../../../utils/medications';
 import { useApi } from '../../../api';
 import { SendToPharmacyIcon } from '../../../assets/icons/SendToPharmacyIcon';
@@ -350,7 +351,7 @@ const DISPENSED_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation, hovere
         },
         {
           label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
-          action: () => handleEdit(),
+          action: () => handleEdit(row),
         },
         {
           label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
@@ -394,6 +395,10 @@ export const PatientMedicationPane = ({ patient }) => {
   // Cancel dispense modal state
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [selectedDispenseId, setSelectedDispenseId] = useState(null);
+
+  // Edit dispense modal state
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedDispense, setSelectedDispense] = useState(null);
 
   const canCreateOngoingPrescription = ability.can('create', 'Medication');
   const canViewSensitiveMedications = ability.can('read', 'SensitiveMedication');
@@ -461,7 +466,21 @@ export const PatientMedicationPane = ({ patient }) => {
     setPrintModalOpen(true);
   }, [patient, facility]);
 
-  const handleEdit = useCallback(() => {
+  const handleEdit = useCallback((dispense) => {
+    setSelectedDispense(dispense);
+    setIsEditModalOpen(true);
+  }, []);
+
+  const handleEditCancel = useCallback(() => {
+    setIsEditModalOpen(false);
+    setSelectedDispense(null);
+  }, []);
+
+  const handleEditConfirm = useCallback(() => {
+    setIsEditModalOpen(false);
+    setSelectedDispense(null);
+    // Trigger table refresh
+    setRefreshCount(prev => prev + 1);
   }, []);
 
   const handleCancelClick = useCallback((dispenseId) => {
@@ -701,6 +720,14 @@ export const PatientMedicationPane = ({ patient }) => {
         onClose={handleCancelCancel}
         onConfirm={handleCancelConfirm}
       />
+      {isEditModalOpen && (
+        <EditMedicationDispenseModal
+          open={isEditModalOpen}
+          medicationDispense={selectedDispense}
+          onClose={handleEditCancel}
+          onConfirm={handleEditConfirm}
+        />
+      )}
     </Box>
   );
 };
