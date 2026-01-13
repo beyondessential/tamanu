@@ -34,7 +34,7 @@ export class AddTaskModal {
       taskInput: 'field-hp09-input',
       frequencyValueField: 'field-7vdy',
       frequencyUnitSelect: 'field-tadr-select',
-      durationUnitSelect: 'undefined-select',
+      durationUnitSelect: 'field-qy5a-select',
       highPriorityInput: 'styledcheckfield-qicr-controlcheck',
       assignedToInput: 'multiselectinput-vf2i',
       confirmButton: 'formsubmitcancelrow-jcmz-confirmButton',
