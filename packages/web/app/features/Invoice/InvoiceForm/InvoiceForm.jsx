@@ -141,83 +141,81 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
           : [],
       }}
       validationSchema={invoiceFormSchema}
-      render={({ submitForm, values, resetForm, dirty }) => {
-        return (
-          <Box mb={1}>
-            <FieldArray name="invoiceItems">
-              {formArrayMethods => {
-                return (
-                  <>
-                    <InvoiceItemHeader />
-                    <Box>
-                      {values.invoiceItems?.map((item, index) => {
-                        return (
-                          <InvoiceItemRow
-                            key={item.id}
-                            index={index}
-                            item={item}
-                            encounterId={invoice.encounterId}
-                            priceListId={invoice.priceList?.id}
-                            formArrayMethods={formArrayMethods}
-                            invoiceIsEditable={editable && canWriteInvoice}
-                            isEditing={isEditing}
-                            onUpdateInvoice={handleSubmit}
+      render={({ submitForm, values, resetForm, dirty }) => (
+        <Box mb={1}>
+          <FieldArray name="invoiceItems">
+            {formArrayMethods => {
+              return (
+                <>
+                  <InvoiceItemHeader />
+                  <Box>
+                    {values.invoiceItems?.map((item, index) => {
+                      return (
+                        <InvoiceItemRow
+                          key={item.id}
+                          index={index}
+                          item={item}
+                          encounterId={invoice.encounterId}
+                          priceListId={invoice.priceList?.id}
+                          formArrayMethods={formArrayMethods}
+                          invoiceIsEditable={editable && canWriteInvoice}
+                          isEditing={isEditing}
+                          onUpdateInvoice={handleSubmit}
+                        />
+                      );
+                    })}
+                  </Box>
+                  {editable && canWriteInvoice && (
+                    <FormFooter>
+                      <Box>
+                        <AddButton
+                          variant="text"
+                          onClick={() => formArrayMethods.push(getDefaultRow())}
+                          startIcon={<Plus />}
+                        >
+                          <TranslatedText
+                            stringId="invoice.form.action.addItem"
+                            fallback="Add item"
+                            data-testid="translatedtext-9vs0"
                           />
-                        );
-                      })}
-                    </Box>
-                    {editable && canWriteInvoice && (
-                      <FormFooter>
-                        <Box>
-                          <AddButton
-                            variant="text"
-                            onClick={() => formArrayMethods.push(getDefaultRow())}
-                            startIcon={<Plus />}
-                          >
-                            <TranslatedText
-                              stringId="invoice.form.action.addItem"
-                              fallback="Add item"
-                              data-testid="translatedtext-9vs0"
-                            />
-                          </AddButton>
-                        </Box>
-                        <Box>
-                          {!isEditing && dirty && (
-                            <AddItemsActions
-                              handleSubmit={submitForm}
-                              handleCancel={resetForm}
-                              isDisabled={isUpdatingInvoice}
-                            />
-                          )}
-                          {isEditing && (
-                            <EditItemsActions
-                              handleSubmit={submitForm}
-                              handleCancel={() => setIsEditing(false)}
-                              isDisabled={isUpdatingInvoice}
-                            />
-                          )}
-                          <InvoiceSummaryPanel
-                            patientPayments={invoice.payments}
-                            invoiceItems={values.invoiceItems}
-                            invoiceDiscount={invoice.discount}
-                            openDiscountModal={() => setDiscountModalOpen(true)}
-                            handleRemoveDiscount={handleRemoveDiscount}
+                        </AddButton>
+                      </Box>
+                      <Box>
+                        {!isEditing && dirty && (
+                          <AddItemsActions
+                            handleSubmit={submitForm}
+                            handleCancel={resetForm}
+                            isDisabled={isUpdatingInvoice}
                           />
-                          <InvoiceDiscountModal
-                            open={discountModalOpen}
-                            onClose={() => setDiscountModalOpen(false)}
-                            handleUpdateDiscount={handleUpdateDiscount}
+                        )}
+                        {isEditing && (
+                          <EditItemsActions
+                            handleSubmit={submitForm}
+                            handleCancel={() => setIsEditing(false)}
+                            isDisabled={isUpdatingInvoice}
                           />
-                        </Box>
-                      </FormFooter>
-                    )}
-                  </>
-                );
-              }}
-            </FieldArray>
-          </Box>
-        );
-      }}
+                        )}
+                        <InvoiceSummaryPanel
+                          patientPayments={invoice.payments}
+                          invoiceItems={values.invoiceItems}
+                          invoiceDiscount={invoice.discount}
+                          openDiscountModal={() => setDiscountModalOpen(true)}
+                          handleRemoveDiscount={handleRemoveDiscount}
+                        />
+                        <InvoiceDiscountModal
+                          open={discountModalOpen}
+                          onClose={() => setDiscountModalOpen(false)}
+                          handleUpdateDiscount={handleUpdateDiscount}
+                        />
+                      </Box>
+                    </FormFooter>
+                  )}
+                </>
+              );
+            }}
+          </FieldArray>
+        </Box>
+      )}
     />
   );
 };
