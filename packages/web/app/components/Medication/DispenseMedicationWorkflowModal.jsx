@@ -1,6 +1,6 @@
 import React, { useEffect, useState, memo } from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
 import { Box } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -27,7 +27,6 @@ import { useDispensableMedicationsQuery } from '../../api/queries/useDispensable
 import { useFacilityQuery } from '../../api/queries/useFacilityQuery';
 import { Colors } from '../../constants';
 import { BodyText } from '../Typography';
-import { MedicationLabelPrintModal } from '../PatientPrinting/modals/MedicationLabelPrintModal';
 import { MedicationLabel } from '../PatientPrinting/printouts/MedicationLabel';
 import { capitalize } from 'lodash';
 import { getMedicationLabelData, getStockStatus } from '../../utils/medications';
@@ -79,6 +78,50 @@ const PrintContainer = styled.div`
   flex-direction: column;
   gap: 14px;
   align-items: center;
+`;
+
+const PrintDescription = styled(Box)`
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: #444;
+
+  @media print {
+    display: none;
+  }
+`;
+
+const PrintStyles = createGlobalStyle`
+  @media print {
+    @page {
+      margin: 3mm;
+      size: auto;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
+
+    .MuiDialogTitle-root,
+    .MuiDialogActions-root {
+      display: none;
+    }
+
+    .MuiDialog-container,
+    .MuiDialog-paper,
+    .MuiPaper-root,
+    .MuiDialogContent-root {
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Target ModalContainer and ModalContent BaseModal */
+    .MuiDialog-paper > div,
+    .MuiDialog-paper > div > div:first-child {
+      margin: 0;
+      padding: 0;
+    }
+  }
 `;
 
 const StyledConfirmCancelBackRow = styled(ConfirmCancelBackRow)`
@@ -173,7 +216,6 @@ export const DispenseMedicationWorkflowModal = memo(
     const [items, setItems] = useState([]);
     const [itemErrors, setItemErrors] = useState({});
     const [showValidationErrors, setShowValidationErrors] = useState(false);
-    const [showPrintModal, setShowPrintModal] = useState(false);
     const [labelsForPrint, setLabelsForPrint] = useState([]);
 
     const patientId = patient?.id;
@@ -237,7 +279,6 @@ export const DispenseMedicationWorkflowModal = memo(
       setItemErrors({});
       setStep(MODAL_STEPS.DISPENSE);
       setShowValidationErrors(false);
-      setShowPrintModal(false);
       setLabelsForPrint([]);
       onClose();
     };
@@ -374,8 +415,9 @@ export const DispenseMedicationWorkflowModal = memo(
 
       if (onDispenseSuccess) onDispenseSuccess();
 
-      // Close dispense modal and open print modal
-      setShowPrintModal(true);
+      print();
+      
+      // Close dispense modal
       onClose();
     };
 
@@ -627,12 +669,13 @@ export const DispenseMedicationWorkflowModal = memo(
 
           {step === MODAL_STEPS.REVIEW && (
             <>
-              <Box mb={2} fontSize="14px" color="#444">
+              <PrintStyles />
+              <PrintDescription>
                 <TranslatedText
                   stringId="medication.dispenseAndPrint.description"
                   fallback="Please review the medication label/s below. Select Back to make changes, or Dispense & print to complete."
                 />
-              </Box>
+              </PrintDescription>
               <PrintContainer>
                 {labelsForPrint.map(label => (
                   <MedicationLabel key={label.id} data={label} />
@@ -641,12 +684,6 @@ export const DispenseMedicationWorkflowModal = memo(
             </>
           )}
         </StyledModal>
-
-        <MedicationLabelPrintModal
-          open={showPrintModal}
-          onClose={() => setShowPrintModal(false)}
-          labels={labelsForPrint}
-        />
       </>
     );
   },
