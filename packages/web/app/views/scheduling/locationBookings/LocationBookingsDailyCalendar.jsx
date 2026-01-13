@@ -24,7 +24,7 @@ import { cloneDeep } from 'lodash';
 import { useDrop, useDrag } from 'react-dnd';
 
 import { toDateTimeString, toDateString } from '@tamanu/utils/dateTime';
-import { TimeDisplay, notifyError, notifySuccess } from '@tamanu/ui-components';
+import { TimeDisplay, TimeOnlyDisplay, notifyError, notifySuccess } from '@tamanu/ui-components';
 
 import {
   useLocationBookingsQuery,
@@ -1028,7 +1028,7 @@ export const LocationBookingsDailyCalendar = ({
               const height = (durationMinutes / 60) * 70; // 70px per hour
               return (
                 <TimeSlot key={index} data-testid={`time-slot-${index}`} height={height}>
-                  <TimeDisplay date={slot.start} format="compact" noTooltip />
+                  <TimeOnlyDisplay date={slot.start} />
                 </TimeSlot>
               );
             })}

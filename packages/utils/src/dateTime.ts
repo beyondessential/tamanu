@@ -323,7 +323,7 @@ export const formatShort = (
     timeZone,
   ); // 12/04/2020
 
-const formatDateOnly = (
+const formatWithoutTimezoneConversion = (
   date: string | Date | null | undefined,
   formatOptions: Intl.DateTimeFormatOptions,
   fallback = 'Unknown',
@@ -335,7 +335,7 @@ const formatDateOnly = (
 };
 
 export const formatDateOnlyShort = (date: string | Date | null | undefined) =>
-  formatDateOnly(date, { day: '2-digit', month: '2-digit', year: 'numeric' }, '--/--/----');
+  formatWithoutTimezoneConversion(date, { day: '2-digit', month: '2-digit', year: 'numeric' }, '--/--/----');
 
   export const formatTime = (
     date: string | null | undefined,
@@ -394,17 +394,17 @@ export const formatLong = (
 /** "Thu" */
 export const formatWeekdayShort = (
   date: string | Date | null | undefined,
-) => formatDateOnly(date, { weekday: 'short' }, 'Unknown');
+) => formatWithoutTimezoneConversion(date, { weekday: 'short' }, 'Unknown');
 
 /** "Thursday" */
 export const formatWeekdayLong = (
   date: string | Date | null | undefined,
-) => formatDateOnly(date, { weekday: 'long' }, 'Unknown');
+) => formatWithoutTimezoneConversion(date, { weekday: 'long' }, 'Unknown');
 
 /** "M" - single letter weekday */
 export const formatWeekdayNarrow = (
   date: string | Date | null | undefined,
-) => formatDateOnly(date, { weekday: 'narrow' }, 'Unknown');
+) => formatWithoutTimezoneConversion(date, { weekday: 'narrow' }, 'Unknown');
 
 /** "15 January 2024" */
 export const formatFullDate = (
@@ -448,6 +448,17 @@ export const formatTimeCompact = (
     'Unknown',
     countryTimeZone,
     timeZone,
+  );
+  return result.replace(' ', '').toLowerCase();
+};
+
+export const formatTimeOnlyCompact = (
+  date: string | Date | null | undefined,
+) => {
+  const result = formatWithoutTimezoneConversion(
+    date,
+    { hour: 'numeric', minute: '2-digit', hour12: true },
+    'Unknown',
   );
   return result.replace(' ', '').toLowerCase();
 };

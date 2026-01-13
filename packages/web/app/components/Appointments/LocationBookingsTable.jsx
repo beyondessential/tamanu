@@ -256,6 +256,7 @@ const getDate = ({ startTime, endTime }) => {
   let dateTimeString;
   const isOvernight = startDate !== endDate;
 
+  // TODO: datetime Look if can use range here
   if (!isOvernight) {
     dateTimeString = <><DateDisplay date={startTime} format="shortest" /> <TimeDisplay date={startTime} noTooltip /> - <TimeDisplay date={endTime} noTooltip /></>
   } else {

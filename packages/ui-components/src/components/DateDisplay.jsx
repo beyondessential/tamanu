@@ -3,7 +3,7 @@ import { format, isSameDay } from 'date-fns';
 import { getTimezoneOffset } from 'date-fns-tz';
 import { Box, Typography } from '@material-ui/core';
 import styled from 'styled-components';
-import { parseDate, locale, formatDateOnlyShort } from '@tamanu/utils/dateTime';
+import { parseDate, locale, formatDateOnlyShort, formatTimeOnlyCompact } from '@tamanu/utils/dateTime';
 import { TAMANU_COLORS } from '../constants';
 import { ThemedTooltip } from './Tooltip';
 import { useDateTimeFormat } from '../contexts';
@@ -264,6 +264,11 @@ export const DateOnlyDisplay = React.memo(({ date, color, fontWeight, style, ...
     {formatDateOnlyShort(date)}
   </span>
 ));
+
+export const TimeOnlyDisplay = React.memo(({ date, style, ...props }) => {
+
+  return <span style={style} {...props}>{formatTimeOnlyCompact(date)}</span>;
+});
 
 /**
  * MultilineDatetimeDisplay - Shows date on one line and time below
