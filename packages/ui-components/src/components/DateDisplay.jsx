@@ -315,8 +315,8 @@ export const MultilineDatetimeDisplay = React.memo(
  * <TimeRangeDisplay range={{ start: "2024-03-15 09:30:00", end: "2024-03-15 10:00:00" }} />
  */
 // TODO: plz remove this daniel
-export const TimeRangeDisplay = ({ range: { start, end } }) => `${formatTimeOnlyCompact(start)} &ndash; ${formatTimeOnlyCompact(end)}`;
-
+export const TimeRangeDisplay = ({ range: { start, end } }) =>
+  `${formatTimeOnlyCompact(start)} &ndash; ${formatTimeOnlyCompact(end)}`;
 
 /**
  * DateTimeRangeDisplay - Shows a date/time range, intelligently handling multi-day spans
