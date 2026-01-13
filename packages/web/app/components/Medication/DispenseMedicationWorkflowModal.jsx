@@ -170,7 +170,7 @@ const buildInstructionText = (prescription, getTranslation, getEnumTranslation) 
 
   if (route) output += `${output ? ',' : ''} ${route}`;
   if (duration) output += `${output ? ` ${forText} ` : ''}${duration}`;
-  if (indication) output += `${output ? `, ${capitalize(forText)} ` : ''}${indication}`;
+  if (indication) output += `${output ? `, ` : ''}${indication}`;
   if (output && !output.endsWith('.')) output += '.';
 
   if (notes) {
