@@ -31,7 +31,7 @@ const StyledItemRow = styled.div`
   }
 
   .MuiFormControl-root {
-    margin: -8px 0 -8px -10px;
+    margin: -8px 0 -8px -6px;
   }
 
   .MuiInputBase-root {
@@ -122,6 +122,7 @@ export const InvoiceItemRow = ({
   encounterId,
   priceListId,
   isEditing,
+  onUpdateInvoice,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const isSaved = item.product?.id;
@@ -199,6 +200,7 @@ export const InvoiceItemRow = ({
         invoiceProductsSuggester={invoiceProductsSuggester}
         handleChangeProduct={handleChangeProduct}
         invoiceIsEditable={invoiceIsEditable}
+        isEditing={isEditing}
       />
       <CodeCell item={item} isItemEditable={isItemEditable} />
       <QuantityCell index={index} item={item} isItemEditable={isItemEditable} />
@@ -215,14 +217,15 @@ export const InvoiceItemRow = ({
         isExpanded={isExpanded}
         hidePriceInput={hidePriceInput}
         priceListItemPrice={fetchedPrice}
+        isEditing={isEditing}
       />
 
       <InvoiceItemActionsMenu
         index={index}
         item={item}
-        formArrayMethods={formArrayMethods}
         showActionMenu={isSaved && invoiceIsEditable}
         hidePriceInput={hidePriceInput}
+        onUpdateInvoice={onUpdateInvoice}
       />
     </StyledItemRow>
   );

@@ -540,6 +540,7 @@ encounterRelations.get(
     const invoiceRecord = await Invoice.findOne({
       where: { encounterId },
       include: Invoice.getFullReferenceAssociations(invoicePriceListId),
+      order: [[{ model: models.InvoiceItem, as: 'items' }, 'orderDate', 'ASC']],
     });
     if (!invoiceRecord) {
       // Return null rather than a 404 as it is a valid scenario for there not to be an invoice

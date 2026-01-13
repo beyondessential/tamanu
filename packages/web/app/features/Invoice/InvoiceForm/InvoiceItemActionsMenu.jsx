@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { useFormikContext } from 'formik';
 import { INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
 import { TranslatedText } from '../../../components/Translation';
 import { INVOICE_ITEM_ACTION_MODAL_TYPES } from '../../../constants';
@@ -7,21 +8,24 @@ import { NoteModalActionBlocker } from '../../../components';
 import { InvoiceItemActionModal } from './InvoiceItemActionModal';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 
-const useInvoiceItemActionsMenu = ({ item, index, formArrayMethods, hidePriceInput }) => {
+const useInvoiceItemActionsMenu = ({ item, index, hidePriceInput, onUpdateInvoice }) => {
   const [actionModal, setActionModal] = useState();
+  const { values } = useFormikContext();
 
   const onCloseActionModal = () => {
     setActionModal(undefined);
   };
 
-  const handleAction = (data, type = actionModal) => {
+  const handleAction = async (data, type = actionModal) => {
+    const updatedInvoiceItems = [...values.invoiceItems];
+
     switch (type) {
       case INVOICE_ITEM_ACTION_MODAL_TYPES.DELETE: {
-        formArrayMethods.remove(index);
+        updatedInvoiceItems.splice(index, 1);
         break;
       }
       case INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_DISCOUNT: {
-        formArrayMethods.replace(index, {
+        updatedInvoiceItems[index] = {
           ...item,
           discount: {
             ...item.discount,
@@ -32,11 +36,11 @@ const useInvoiceItemActionsMenu = ({ item, index, formArrayMethods, hidePriceInp
             type: data.type,
             reason: data.reason,
           },
-        });
+        };
         break;
       }
       case INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_MARKUP: {
-        formArrayMethods.replace(index, {
+        updatedInvoiceItems[index] = {
           ...item,
           discount: {
             ...item.discount,
@@ -47,24 +51,26 @@ const useInvoiceItemActionsMenu = ({ item, index, formArrayMethods, hidePriceInp
             type: data.type,
             reason: data.reason,
           },
-        });
+        };
         break;
       }
       case INVOICE_ITEM_ACTION_MODAL_TYPES.REMOVE_DISCOUNT_MARKUP: {
-        formArrayMethods.replace(index, {
+        updatedInvoiceItems[index] = {
           ...item,
           discount: undefined,
-        });
+        };
         break;
       }
       case INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_NOTE: {
-        formArrayMethods.replace(index, {
+        updatedInvoiceItems[index] = {
           ...item,
           note: data.note,
-        });
+        };
         break;
       }
     }
+
+    onUpdateInvoice({ ...values, invoiceItems: updatedInvoiceItems });
     onCloseActionModal();
   };
 
@@ -159,14 +165,14 @@ const MenuButton = styled(ThreeDotMenu)`
 export const InvoiceItemActionsMenu = ({
   item,
   index,
-  formArrayMethods,
   showActionMenu,
   hidePriceInput,
+  onUpdateInvoice,
 }) => {
   const { actionModal, onCloseActionModal, handleAction, menuItems } = useInvoiceItemActionsMenu({
     item,
+    onUpdateInvoice,
     index,
-    formArrayMethods,
     hidePriceInput,
   });
   return (

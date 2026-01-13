@@ -604,15 +604,17 @@ createSuggester(
   'invoiceProduct',
   'InvoiceProduct',
   ({ endpoint, modelName, query }) => {
-    const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
-
     if (!query.priceListId) {
-      return baseWhere;
+      return DEFAULT_WHERE_BUILDER({ endpoint, modelName });
     }
 
     return {
-      ...baseWhere,
-      [Op.and]: [Sequelize.where(Sequelize.col('invoicePriceListItems.is_hidden'), Op.eq, false)],
+      [Op.and]: [getTranslationWhereLiteral(endpoint, modelName, 'name')],
+      [Op.or]: [
+        Sequelize.where(Sequelize.col('invoicePriceListItems.is_hidden'), Op.eq, false),
+        Sequelize.where(Sequelize.col('invoicePriceListItems.id'), Op.is, null),
+      ],
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     };
   },
   {

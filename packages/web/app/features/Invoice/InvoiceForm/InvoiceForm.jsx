@@ -85,14 +85,19 @@ const AddItemsActions = ({ handleSubmit, handleCancel, isDisabled }) => (
 );
 
 export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
-  const [discountModalOpen, setDiscountModalOpen] = useState(false);
   const { ability } = useAuth();
+
+  // inProgressItems is used to re-populate the form with in progress items after the form is updated
+  const [inProgressItems, setInProgressItems] = useState([]);
+  const [discountModalOpen, setDiscountModalOpen] = useState(false);
   const canWriteInvoice = ability.can('write', 'Invoice');
   const editable = isInvoiceEditable(invoice) && canWriteInvoice;
   const { mutate: updateInvoice, isLoading: isUpdatingInvoice } = useUpdateInvoice(invoice);
 
+  // Main submit action for the invoice
   const handleSubmit = async data => {
     const invoiceItems = data.invoiceItems.filter(item => !!item.productId);
+
     updateInvoice({
       ...invoice,
       items: invoiceItems,
@@ -100,6 +105,21 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
         ...insurer,
         percentage: insurer.percentage / 100,
       })),
+    });
+    setInProgressItems([]);
+    setIsEditing(false);
+  };
+
+  // Used for invoice item actions
+  const handleUpdateItem = async data => {
+    const itemsToSave = data.invoiceItems.filter(item => !!item.product?.id);
+    const inProgressItems = data.invoiceItems.filter(item => !item.product?.id);
+
+    setInProgressItems(inProgressItems);
+
+    updateInvoice({
+      ...invoice,
+      items: itemsToSave,
     });
     setIsEditing(false);
   };
@@ -123,7 +143,9 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
       onSubmit={handleSubmit}
       enableReinitialize
       initialValues={{
-        invoiceItems: invoice.items?.length ? invoice.items : [editable ? getDefaultRow() : {}],
+        invoiceItems: invoice.items?.length
+          ? [...invoice.items, ...inProgressItems]
+          : [editable ? getDefaultRow() : {}],
         insurers: invoice.insurers?.length
           ? invoice.insurers.map(insurer => ({
               ...insurer,
@@ -151,7 +173,7 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
                           formArrayMethods={formArrayMethods}
                           invoiceIsEditable={editable && canWriteInvoice}
                           isEditing={isEditing}
-                          data-testid={`invoiceitemrow-ri5o-${index}`}
+                          onUpdateInvoice={handleUpdateItem}
                         />
                       );
                     })}
@@ -172,7 +194,7 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
                         </AddButton>
                       </Box>
                       <Box>
-                        {!isEditing && dirty && (
+                        {!isEditing && (dirty || inProgressItems.length > 0) && (
                           <AddItemsActions
                             handleSubmit={submitForm}
                             handleCancel={resetForm}
