@@ -316,7 +316,7 @@ export const MultilineDatetimeDisplay = React.memo(
  */
 // TODO: plz remove this daniel
 export const TimeRangeDisplay = ({ range: { start, end } }) =>
-  `${formatTimeOnlyCompact(start)} &ndash; ${formatTimeOnlyCompact(end)}`;
+  `${formatTimeOnlyCompact(start)} – ${formatTimeOnlyCompact(end)}`;
 
 /**
  * DateTimeRangeDisplay - Shows a date/time range, intelligently handling multi-day spans
