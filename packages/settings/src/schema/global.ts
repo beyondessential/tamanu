@@ -351,11 +351,11 @@ export const globalSettings = {
           type: yup.boolean(),
           defaultValue: false,
         },
-        deviceRegistrationQuota: {
-          description: 'Device registration quota settings',
+        deviceRegistration: {
+          description: 'Device registration settings',
           properties: {
             enabled: {
-              description: 'Enable device registration quota',
+              description: 'Enable device registration permission checks',
               type: yup.boolean(),
               defaultValue: true,
             },

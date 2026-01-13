@@ -54,7 +54,7 @@ EOF
         settings: {
             global: {
                 features: {
-                    deviceRegistrationQuota: {
+                    deviceRegistration: {
                         enabled: false,
                     },
                 },

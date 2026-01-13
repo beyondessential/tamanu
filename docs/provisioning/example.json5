@@ -19,7 +19,7 @@
   settings: {
     global: {
       features: {
-        deviceRegistrationQuota: {
+        deviceRegistration: {
           enabled: false, // for dev/testing this is annoying
         },
       },

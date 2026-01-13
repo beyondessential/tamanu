@@ -43,8 +43,13 @@ The role of the user, which sets their permission level.
 The special values `admin` and `system` indicate a superadmin and a system user respectively.
 {% enddocs %}
 
-{% docs users__device_registration_quota %}
-How many devices this user can register (when `features.deviceRegistrationQuota` is enabled).
+{% docs users__device_registration_permission %}
+The device registration permission level for this user (when `features.deviceRegistration` is enabled).
+
+Valid values are:
+- `none`: User cannot register any devices
+- `single`: User can register one device
+- `unlimited`: User can register unlimited devices
 
 See [`devices`](#!/source/source.tamanu.tamanu.devices) for more.
 {% enddocs %}
