@@ -14,6 +14,7 @@ export async function up(query: QueryInterface): Promise<void> {
 }
 
 export async function down(query: QueryInterface): Promise<void> {
+  // DESTRUCTIVE: This will not restore the original quota values - all users will get default 0
   await query.addColumn('users', 'device_registration_quota', {
     type: DataTypes.INTEGER,
     allowNull: false,
