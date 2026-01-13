@@ -31,7 +31,7 @@ const StyledItemRow = styled.div`
   }
 
   .MuiFormControl-root {
-    margin: -8px 0 -8px -10px;
+    margin: -8px 0 -8px -6px;
   }
 
   .MuiInputBase-root {
