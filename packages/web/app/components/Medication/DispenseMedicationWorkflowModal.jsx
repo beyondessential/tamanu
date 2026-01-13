@@ -28,7 +28,6 @@ import { useFacilityQuery } from '../../api/queries/useFacilityQuery';
 import { Colors } from '../../constants';
 import { BodyText } from '../Typography';
 import { MedicationLabel } from '../PatientPrinting/printouts/MedicationLabel';
-import { capitalize } from 'lodash';
 import { getMedicationLabelData, getStockStatus } from '../../utils/medications';
 
 const MODAL_STEPS = {
@@ -416,7 +415,7 @@ export const DispenseMedicationWorkflowModal = memo(
       if (onDispenseSuccess) onDispenseSuccess();
 
       print();
-      
+
       // Close dispense modal
       onClose();
     };
