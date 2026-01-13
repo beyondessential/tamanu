@@ -8,7 +8,7 @@ import {
   Unsupported,
 } from '@tamanu/shared/utils/fhir';
 
-import { Bundle } from '../bundle';
+import { BundleResponse } from '../BundleResponse';
 import { pushToQuery } from './common';
 import { resolveIncludes, retrieveIncludes } from './include';
 import { buildSearchQuery } from './query';
@@ -33,7 +33,7 @@ export function searchHandler(FhirResource) {
       FhirResource,
     );
 
-    const bundle = new Bundle(FHIR_BUNDLE_TYPES.SEARCHSET, records, {
+    const bundle = new BundleResponse(FHIR_BUNDLE_TYPES.SEARCHSET, records, {
       total,
     });
 

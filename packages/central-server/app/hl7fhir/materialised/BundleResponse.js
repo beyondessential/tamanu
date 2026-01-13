@@ -4,7 +4,7 @@ import crypto from 'crypto';
 
 import { getBaseUrl, getHL7Link } from '../utils';
 
-export class Bundle {
+export class BundleResponse {
   included = [];
 
   issues = [];
