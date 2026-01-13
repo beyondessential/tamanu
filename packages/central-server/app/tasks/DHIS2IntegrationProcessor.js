@@ -104,14 +104,13 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     const params = new URLSearchParams({ ...idSchemes, importStrategy: 'CREATE_AND_UPDATE' });
 
     try {
-      // TODO: why is this 504
       const response = await fetchWithRetryBackoff(
         `${host}/api/dataValueSets?${params.toString()}`,
         {
           fetch,
           method: 'POST',
           headers: {
-            'Content-Type': 'application/csv',
+            'Content-Type': 'application/json',
             Accept: 'application/json',
             Authorization: `Basic ${authHeader}`,
           },
