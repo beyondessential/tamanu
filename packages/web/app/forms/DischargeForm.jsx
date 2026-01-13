@@ -54,7 +54,7 @@ import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOn
 import { useQueryClient } from '@tanstack/react-query';
 import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
 import { createPrescriptionHash } from '../utils/medications';
-import { singularize } from '../utils';
+import { preventInvalidRepeatsInput, singularize } from '../utils';
 
 const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
@@ -386,6 +386,8 @@ const MEDICATION_COLUMNS = (
           !canUpdateMedication ||
           (medication?.referenceDrug?.isSensitive && !canWriteSensitiveMedication)
         }
+        step={1}
+        onInput={preventInvalidRepeatsInput}
       />
     ),
     width: '120px',

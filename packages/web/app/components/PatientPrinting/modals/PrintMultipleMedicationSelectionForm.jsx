@@ -24,7 +24,7 @@ import { TranslatedText, TranslatedReferenceData } from '../../Translation';
 import { useTranslation } from '../../../contexts/Translation';
 import { useSelector } from 'react-redux';
 import { getAgeDurationFromDate } from '@tamanu/utils/date';
-import { singularize } from '../../../utils';
+import { preventInvalidRepeatsInput, singularize } from '../../../utils';
 
 const COLUMN_KEYS = {
   SELECTED: 'selected',
@@ -128,6 +128,8 @@ const COLUMNS = [
           max={MAX_REPEATS}
           required
           data-testid="selectinput-ld3p"
+          step={1}
+          onInput={preventInvalidRepeatsInput}
         />
       </Box>
     ),

@@ -105,7 +105,7 @@ const MedicationDispensesSearchBarMainFields = () => {
         label={
           <TranslatedText
             stringId="medication-dispenses.search.request-number.label"
-            fallback="Request no"
+            fallback="Request no."
             data-testid="translatedtext-request-number"
           />
         }
