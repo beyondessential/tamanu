@@ -100,6 +100,7 @@ export const UserDevicesSection = ({ user, canUpdateUser }) => {
       },
       onError: error => {
         toast.error(error.message || 'Failed to unregister device');
+        setDeviceToDelete(null);
       },
     });
   };

@@ -155,17 +155,17 @@ export class Device extends Model {
         if (deviceRegistrationEnabled && device.requiresQuota()) {
           const permission = user.deviceRegistrationPermission;
 
-          if (permission === DEVICE_REGISTRATION_PERMISSION.NONE) {
-            throw new QuotaExceededError();
-          }
-
-          if (permission === DEVICE_REGISTRATION_PERMISSION.SINGLE) {
+          if (permission === DEVICE_REGISTRATION_PERMISSION.UNLIMITED) {
+            // Unlimited permission: allow registration
+          } else if (permission === DEVICE_REGISTRATION_PERMISSION.SINGLE) {
             const currentCount = await Device.getQuotaByUserId(user.id);
             if (currentCount >= 1) {
               throw new QuotaExceededError();
             }
+          } else {
+            // NONE or any unrecognized value: fail closed
+            throw new QuotaExceededError();
           }
-          // UNLIMITED permission: no check needed
         }
 
         await device.save();
