@@ -14,6 +14,7 @@ import {
   Field,
 } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { NoteModalActionBlocker } from '../components/NoteModalActionBlocker';
 
 const Container = styled.div`
   display: flex;
@@ -75,6 +76,10 @@ const buttonStyle = css`
 
 const SubmitNoteButton = styled(FormSubmitButton)`
   ${buttonStyle}
+`;
+
+const ShowAddNoteFormButtonContainer = styled.div`
+  display: inline-block;
 `;
 
 const ShowAddNoteFormButton = styled(Button)`
@@ -162,17 +167,21 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
                   />
                 </Box>
               ) : (
-                <ShowAddNoteFormButton
-                  $underline
-                  onClick={() => setActive(true)}
-                  data-testid="showaddnoteformbutton-thpi"
-                >
-                  <TranslatedText
-                    stringId="general.action.addNote"
-                    fallback="Add note"
-                    data-testid="translatedtext-6ric"
-                  />
-                </ShowAddNoteFormButton>
+                <ShowAddNoteFormButtonContainer>
+                  <NoteModalActionBlocker>
+                    <ShowAddNoteFormButton
+                      $underline
+                      onClick={() => setActive(true)}
+                      data-testid="showaddnoteformbutton-thpi"
+                    >
+                      <TranslatedText
+                        stringId="general.action.addNote"
+                        fallback="Add note"
+                        data-testid="translatedtext-6ric"
+                      />
+                    </ShowAddNoteFormButton>
+                  </NoteModalActionBlocker>
+                </ShowAddNoteFormButtonContainer>
               );
             }}
             data-testid="form-7jdi"

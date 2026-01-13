@@ -50,6 +50,7 @@ import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetai
 import { LabAttachmentModal } from '../../components/LabAttachmentModal';
 import { ConditionalTooltip } from '../../components/Tooltip';
 import { Colors } from '../../constants';
+import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
 
 const Container = styled.div`
   display: flex;
@@ -169,6 +170,7 @@ const Menu = ({ setModal, status, disabled, canReadLabTestResult, enableLabResul
         />
       ),
       action: () => setModal(MODAL_IDS.CANCEL),
+      wrapper: action => <NoteModalActionBlocker>{action}</NoteModalActionBlocker>,
     });
   }
 
@@ -255,6 +257,7 @@ export const LabRequestView = () => {
               />
             ),
             action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
+            wrapper: action => <NoteModalActionBlocker>{action}</NoteModalActionBlocker>,
           },
         ]
       : [
@@ -267,6 +270,7 @@ export const LabRequestView = () => {
               />
             ),
             action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
+            wrapper: action => <NoteModalActionBlocker>{action}</NoteModalActionBlocker>,
           },
           {
             label: (
@@ -424,6 +428,7 @@ export const LabRequestView = () => {
                     </ConditionalTooltip>
                   ),
                   action: handleChangeStatus,
+                  wrapper: action => <NoteModalActionBlocker>{action}</NoteModalActionBlocker>,
                 },
               {
                 label: (
@@ -493,6 +498,7 @@ export const LabRequestView = () => {
                   />
                 ),
                 action: () => handleChangeModalId(MODAL_IDS.CHANGE_LABORATORY),
+                wrapper: action => <NoteModalActionBlocker>{action}</NoteModalActionBlocker>,
               },
             ]}
             data-testid="tile-eeus"
@@ -529,6 +535,7 @@ export const LabRequestView = () => {
                   />
                 ),
                 action: () => handleChangeModalId(MODAL_IDS.CHANGE_PRIORITY),
+                wrapper: action => <NoteModalActionBlocker>{action}</NoteModalActionBlocker>,
               },
             ]}
             data-testid="tile-phsp"
@@ -550,16 +557,18 @@ export const LabRequestView = () => {
             </Button>
           )}
           {canEnterResults && (
-            <Button
-              onClick={() => handleChangeModalId(MODAL_IDS.ENTER_RESULTS)}
-              data-testid="button-oep6"
-            >
-              <TranslatedText
-                stringId="lab.action.enterResults"
-                fallback="Enter results"
-                data-testid="translatedtext-veq6"
-              />
-            </Button>
+            <NoteModalActionBlocker>
+              <Button
+                onClick={() => handleChangeModalId(MODAL_IDS.ENTER_RESULTS)}
+                data-testid="button-oep6"
+              >
+                <TranslatedText
+                  stringId="lab.action.enterResults"
+                  fallback="Enter results"
+                  data-testid="translatedtext-veq6"
+                />
+              </Button>
+            </NoteModalActionBlocker>
           )}
         </TableButtonRow>
         <LabRequestResultsTable
