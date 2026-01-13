@@ -142,8 +142,6 @@ export const MedicationDispensesTable = () => {
   };
 
   const handleEditConfirm = async () => {
-    setIsEditModalOpen(false);
-    setSelectedDispense(null);
     // Trigger table refresh
     handleTableRefresh();
   };
@@ -276,14 +274,12 @@ export const MedicationDispensesTable = () => {
         onClose={handleCancelCancel}
         onConfirm={handleCancelConfirm}
       />
-      {isEditModalOpen && (
-        <EditMedicationDispenseModal
-          open={isEditModalOpen}
-          medicationDispense={selectedDispense}
-          onClose={handleEditCancel}
-          onConfirm={handleEditConfirm}
-        />
-      )}
+      <EditMedicationDispenseModal
+        open={isEditModalOpen}
+        medicationDispense={selectedDispense}
+        onClose={handleEditCancel}
+        onConfirm={handleEditConfirm}
+      />
       <StyledSearchTableWithPermissionCheck
         refreshCount={refreshCount}
         verb="list"

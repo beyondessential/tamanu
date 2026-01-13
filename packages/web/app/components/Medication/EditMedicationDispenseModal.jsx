@@ -110,10 +110,8 @@ export const EditMedicationDispenseModal = memo(
     const practitionerSuggester = useSuggester('practitioner');
 
     const [step, setStep] = useState(MODAL_STEPS.DISPENSE);
-    const [dispensedByUserId, setDispensedByUserId] = useState(
-      medicationDispense?.dispensedByUserId,
-    );
-    const [item, setItem] = useState(medicationDispense);
+    const [dispensedByUserId, setDispensedByUserId] = useState(null);
+    const [item, setItem] = useState(null);
     const [errors, setErrors] = useState({});
     const [showValidationErrors, setShowValidationErrors] = useState(false);
     const [showPrintModal, setShowPrintModal] = useState(false);
@@ -128,6 +126,13 @@ export const EditMedicationDispenseModal = memo(
         ?.facilities?.[0]?.stockStatus;
 
     useEffect(() => {
+      if (medicationDispense) {
+        setItem(medicationDispense);
+        setDispensedByUserId(medicationDispense.dispensedByUserId);
+      }
+    }, [medicationDispense]);
+
+    useEffect(() => {
       if (open) {
         setStep(MODAL_STEPS.DISPENSE);
         setShowValidationErrors(false);
@@ -136,7 +141,6 @@ export const EditMedicationDispenseModal = memo(
 
     const handleClose = () => {
       setErrors({});
-      setStep(MODAL_STEPS.DISPENSE);
       setShowValidationErrors(false);
       setShowPrintModal(false);
       setLabelForPrint(null);
@@ -234,6 +238,8 @@ export const EditMedicationDispenseModal = memo(
     };
 
     const columns = (() => {
+      if (!item) return [];
+
       const base = [
         {
           key: 'prescriptionDate',

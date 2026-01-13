@@ -450,10 +450,12 @@ medication.post(
       }
 
       // If user is trying to set repeats different from current and doesn't have permission
-      if (!canEditRepeats && requestData.repeats !== undefined && requestData.repeats !== currentRepeats) {
-        throw new InvalidOperationError(
-          'You do not have permission to modify medication repeats.',
-        );
+      if (
+        !canEditRepeats &&
+        requestData.repeats !== undefined &&
+        requestData.repeats !== currentRepeats
+      ) {
+        throw new InvalidOperationError('You do not have permission to modify medication repeats.');
       }
     }
 
@@ -2392,6 +2394,88 @@ medication.post(
       }
 
       return dispenseRecords;
+    });
+
+    res.send(result);
+  }),
+);
+
+const editDispenseInputSchema = z
+  .object({
+    dispensedByUserId: z.string(),
+    quantity: z.coerce.number().int().positive(),
+    instructions: z.string().min(1),
+  })
+  .strip();
+
+medication.put(
+  '/dispense/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { id } = params;
+
+    req.checkPermission('write', 'MedicationDispense');
+
+    const { dispensedByUserId, quantity, instructions } = await editDispenseInputSchema.parseAsync(
+      req.body,
+    );
+
+    const { User, MedicationDispense } = models;
+
+    const dispensedByUser = await User.findByPk(dispensedByUserId);
+    if (!dispensedByUser) {
+      throw new NotFoundError(`User with id ${dispensedByUserId} not found`);
+    }
+
+    const dispensedAt = getCurrentDateTimeString();
+
+    const result = await MedicationDispense.sequelize.transaction(async () => {
+      const medicationDispense = await MedicationDispense.findByPk(id, {
+        attributes: ['id', 'quantity', 'instructions'],
+        include: [
+          {
+            association: 'pharmacyOrderPrescription',
+            required: true,
+            attributes: ['id'],
+            include: [
+              {
+                association: 'prescription',
+                attributes: ['id'],
+                include: [
+                  {
+                    association: 'medication',
+                    attributes: ['id'],
+                    required: true,
+                    include: {
+                      model: models.ReferenceDrug,
+                      as: 'referenceDrug',
+                      attributes: ['id', 'isSensitive'],
+                      required: true,
+                    },
+                  },
+                ],
+                required: true,
+              },
+            ],
+          },
+        ],
+      });
+
+      if (!medicationDispense) {
+        throw new NotFoundError(`Medication dispense with id ${id} not found`);
+      }
+
+      const isSensitiveMedication =
+        medicationDispense.pharmacyOrderPrescription.prescription.medication.referenceDrug
+          .isSensitive;
+
+      if (isSensitiveMedication && medicationDispense.quantity !== quantity) {
+        req.checkPermission('write', 'SensitiveMedication');
+      }
+
+      await medicationDispense.update({ quantity, instructions, dispensedByUserId, dispensedAt });
+
+      return medicationDispense;
     });
 
     res.send(result);
