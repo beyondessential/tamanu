@@ -83,7 +83,7 @@ const PrintContainer = styled.div`
 const PrintDescription = styled(Box)`
   margin-bottom: 16px;
   font-size: 14px;
-  color: #444;
+  color: Colors.midText;
 
   @media print {
     display: none;
