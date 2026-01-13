@@ -270,7 +270,7 @@ export const DateOnlyDisplay = React.memo(({ date, color, fontWeight, style, ...
   </span>
 ));
 
-/** TODO: these are stupid, need to think of better strat for these timezone conversionless dates */
+/** TODO: these are stupid, need to think of better strategy for these dates without timezone conversion */
 export const TimeOnlyDisplay = React.memo(({ date, color, fontWeight, style, ...props }) => {
   return (
     <span style={{ color, fontWeight, ...style }} {...props}>
