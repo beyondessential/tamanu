@@ -1,4 +1,4 @@
-import { DEVICE_REGISTRATION_PERMISSION, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 
 import { importerTransaction } from '../../../dist/admin/importer/importerEndpoint';
@@ -96,50 +96,6 @@ describe('User import', () => {
         2,
         'visibilityStatus must be one of the following values: current, historical',
       );
-    });
-  });
-
-  describe('Device Registration Permission', () => {
-    beforeEach(async () => {
-      await models.User.destroy({ where: { id: TEST_USER_ID }, force: true });
-    });
-
-    it('creates a user with default none permission', async () => {
-      const user = await models.User.create({
-        ...fake(models.User),
-        id: TEST_USER_ID,
-        email: 'test@bes.au',
-        displayName: 'Test Test',
-        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-      });
-
-      expect(user.deviceRegistrationPermission).toEqual(DEVICE_REGISTRATION_PERMISSION.NONE);
-    });
-
-    it('can set user permission to single', async () => {
-      const user = await models.User.create({
-        ...fake(models.User),
-        id: TEST_USER_ID,
-        email: 'test@bes.au',
-        displayName: 'Test Test',
-        deviceRegistrationPermission: DEVICE_REGISTRATION_PERMISSION.SINGLE,
-        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-      });
-
-      expect(user.deviceRegistrationPermission).toEqual(DEVICE_REGISTRATION_PERMISSION.SINGLE);
-    });
-
-    it('can set user permission to unlimited', async () => {
-      const user = await models.User.create({
-        ...fake(models.User),
-        id: TEST_USER_ID,
-        email: 'test@bes.au',
-        displayName: 'Test Test',
-        deviceRegistrationPermission: DEVICE_REGISTRATION_PERMISSION.UNLIMITED,
-        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-      });
-
-      expect(user.deviceRegistrationPermission).toEqual(DEVICE_REGISTRATION_PERMISSION.UNLIMITED);
     });
   });
 });

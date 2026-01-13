@@ -5,7 +5,6 @@ import { dateCustomValidation, getCurrentDateString } from '@tamanu/utils/dateTi
 import { pick } from 'lodash';
 import * as yup from 'yup';
 import {
-  DEVICE_REGISTRATION_PERMISSION,
   REFERENCE_TYPES,
   VISIBILITY_STATUSES,
   SYSTEM_USER_UUID,
@@ -173,7 +172,6 @@ usersRouter.get(
               'role',
               'visibilityStatus',
               'facilities',
-              'deviceRegistrationPermission',
             ]),
             roleName,
             allowedFacilities,
@@ -373,10 +371,6 @@ const UPDATE_VALIDATION = yup
     newPassword: yup.string().nullable().optional(),
     confirmPassword: yup.string().nullable().optional(),
     allowedFacilityIds: yup.array().of(yup.string()).nullable().optional(),
-    deviceRegistrationPermission: yup
-      .string()
-      .optional()
-      .oneOf(Object.values(DEVICE_REGISTRATION_PERMISSION)),
   })
   .test('passwords-match', 'Passwords must match', function (value) {
     const { newPassword, confirmPassword } = value;
@@ -464,9 +458,6 @@ usersRouter.put(
       visibilityStatus: fields.visibilityStatus,
       displayId: fields.displayId,
       phoneNumber: fields.phoneNumber,
-      ...(fields.deviceRegistrationPermission && {
-        deviceRegistrationPermission: fields.deviceRegistrationPermission,
-      }),
     };
 
     // Add password to update fields if provided

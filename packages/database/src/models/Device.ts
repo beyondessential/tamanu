@@ -1,7 +1,6 @@
 import { difference } from 'lodash';
 import { DataTypes, Op, Sequelize, Transaction } from 'sequelize';
 import {
-  DEVICE_REGISTRATION_PERMISSION,
   DEVICE_SCOPES,
   DEVICE_SCOPES_SUBJECT_TO_QUOTA,
   SETTING_KEYS,
@@ -153,19 +152,24 @@ export class Device extends Model {
         );
 
         if (deviceRegistrationEnabled && device.requiresQuota()) {
-          const permission = user.deviceRegistrationPermission;
+          // Check role-based permissions:
+          // - 'create' on 'UnlimitedSingleDeviceRegistration' = can register unlimited devices
+          // - 'create' on 'SingleDeviceRegistration' = can register single device
+          const canRegisterUnlimited = await user.hasPermission('create', 'UnlimitedSingleDeviceRegistration');
+          if (canRegisterUnlimited) {
+            // Unlimited permission: no check needed
+          } else {
+            const canRegisterSingle = await user.hasPermission('create', 'SingleDeviceRegistration');
+            if (!canRegisterSingle) {
+              throw new QuotaExceededError();
+            }
 
-          if (permission === DEVICE_REGISTRATION_PERMISSION.NONE) {
-            throw new QuotaExceededError();
-          }
-
-          if (permission === DEVICE_REGISTRATION_PERMISSION.SINGLE) {
+            // Single device permission: check if user already has a device
             const currentCount = await Device.getQuotaByUserId(user.id);
             if (currentCount >= 1) {
               throw new QuotaExceededError();
             }
           }
-          // UNLIMITED permission: no check needed
         }
 
         await device.save();

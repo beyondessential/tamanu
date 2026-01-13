@@ -8,7 +8,6 @@ import * as z from 'zod';
 import type { Subject } from '@casl/ability';
 import {
   CAN_ACCESS_ALL_FACILITIES,
-  DEVICE_REGISTRATION_PERMISSION,
   DEVICE_SCOPES,
   JWT_KEY_ALG,
   JWT_KEY_ID,
@@ -19,7 +18,6 @@ import {
   SYNC_DIRECTIONS,
   SYSTEM_USER_UUID,
   VISIBILITY_STATUSES,
-  type DeviceRegistrationPermission,
 } from '@tamanu/constants';
 import {
   AuthPermissionError,
@@ -51,7 +49,6 @@ export class User extends Model {
   declare phoneNumber?: string;
   declare visibilityStatus: string;
   declare facilities: Facility[];
-  declare deviceRegistrationPermission: DeviceRegistrationPermission;
 
   static SALT_ROUNDS = DEFAULT_SALT_ROUNDS;
 
@@ -150,11 +147,6 @@ export class User extends Model {
         },
         phoneNumber: {
           type: DataTypes.STRING,
-        },
-        deviceRegistrationPermission: {
-          type: DataTypes.TEXT,
-          allowNull: false,
-          defaultValue: DEVICE_REGISTRATION_PERMISSION.NONE,
         },
         visibilityStatus: {
           type: DataTypes.STRING,

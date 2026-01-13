@@ -1,6 +1,5 @@
 import * as yup from 'yup';
 import {
-  DEVICE_REGISTRATION_PERMISSION,
   ENCOUNTER_TYPES,
   LAB_TEST_RESULT_TYPES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
@@ -100,10 +99,6 @@ export const User = Base.shape({
     .string()
     .default(VISIBILITY_STATUSES.CURRENT)
     .oneOf([VISIBILITY_STATUSES.CURRENT, VISIBILITY_STATUSES.HISTORICAL]),
-  deviceRegistrationPermission: yup
-    .string()
-    .default(DEVICE_REGISTRATION_PERMISSION.NONE)
-    .oneOf(Object.values(DEVICE_REGISTRATION_PERMISSION)),
 });
 
 export const Facility = Base.shape({

@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { subject } from '@casl/ability';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import { DEVICE_REGISTRATION_PERMISSION, FORM_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { FORM_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import {
   Field,
   TextField,
@@ -220,21 +220,6 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
     setShowRoleChangeConfirmation({ open: false, onConfirm: () => {} });
   };
 
-  const deviceRegistrationPermissionOptions = [
-    {
-      value: DEVICE_REGISTRATION_PERMISSION.NONE,
-      label: <TranslatedText stringId="admin.users.devicePermission.none" fallback="None" />,
-    },
-    {
-      value: DEVICE_REGISTRATION_PERMISSION.SINGLE,
-      label: <TranslatedText stringId="admin.users.devicePermission.single" fallback="Single device" />,
-    },
-    {
-      value: DEVICE_REGISTRATION_PERMISSION.UNLIMITED,
-      label: <TranslatedText stringId="admin.users.devicePermission.unlimited" fallback="Unlimited" />,
-    },
-  ];
-
   const initialValues = useMemo(() => {
     return {
       visibilityStatus: user?.visibilityStatus,
@@ -247,7 +232,6 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
       newPassword: '',
       confirmPassword: '',
       allowedFacilityIds: user?.facilities?.map(f => f.id) || [],
-      deviceRegistrationPermission: user?.deviceRegistrationPermission || DEVICE_REGISTRATION_PERMISSION.NONE,
     };
   }, [user]);
 
@@ -364,19 +348,6 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
                       allowSelectAll
                       suggester={facilitySuggester}
                       style={{ gridColumn: 'span 2' }}
-                      disabled={!canUpdateUser}
-                    />
-                    <Field
-                      name="deviceRegistrationPermission"
-                      label={
-                        <TranslatedText
-                          stringId="admin.users.deviceRegistrationPermission.label"
-                          fallback="Device registration"
-                        />
-                      }
-                      component={SelectField}
-                      options={deviceRegistrationPermissionOptions}
-                      isClearable={false}
                       disabled={!canUpdateUser}
                     />
                   </FormGrid>
