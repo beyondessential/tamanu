@@ -94,7 +94,24 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
   const editable = isInvoiceEditable(invoice) && canWriteInvoice;
   const { mutate: updateInvoice, isLoading: isUpdatingInvoice } = useUpdateInvoice(invoice);
 
+  // Main submit action for the invoice
   const handleSubmit = async data => {
+    const invoiceItems = data.invoiceItems.filter(item => !!item.productId);
+
+    updateInvoice({
+      ...invoice,
+      items: invoiceItems,
+      insurers: data.insurers.map(insurer => ({
+        ...insurer,
+        percentage: insurer.percentage / 100,
+      })),
+    });
+    setInProgressItems([]);
+    setIsEditing(false);
+  };
+
+  // Used for invoice item actions
+  const handleUpdateItem = async data => {
     const itemsToSave = data.invoiceItems.filter(item => !!item.product?.id);
     const inProgressItems = data.invoiceItems.filter(item => !item.product?.id);
 
@@ -103,10 +120,6 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
     updateInvoice({
       ...invoice,
       items: itemsToSave,
-      insurers: data.insurers.map(insurer => ({
-        ...insurer,
-        percentage: insurer.percentage / 100,
-      })),
     });
     setIsEditing(false);
   };
@@ -160,7 +173,7 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
                           formArrayMethods={formArrayMethods}
                           invoiceIsEditable={editable && canWriteInvoice}
                           isEditing={isEditing}
-                          onUpdateInvoice={handleSubmit}
+                          onUpdateInvoice={handleUpdateItem}
                         />
                       );
                     })}
@@ -181,7 +194,7 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
                         </AddButton>
                       </Box>
                       <Box>
-                        {!isEditing && dirty && (
+                        {!isEditing && (dirty || inProgressItems.length > 0) && (
                           <AddItemsActions
                             handleSubmit={submitForm}
                             handleCancel={resetForm}

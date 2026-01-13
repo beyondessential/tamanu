@@ -200,6 +200,7 @@ export const InvoiceItemRow = ({
         invoiceProductsSuggester={invoiceProductsSuggester}
         handleChangeProduct={handleChangeProduct}
         invoiceIsEditable={invoiceIsEditable}
+        isEditing={isEditing}
       />
       <CodeCell item={item} isItemEditable={isItemEditable} />
       <QuantityCell index={index} item={item} isItemEditable={isItemEditable} />
@@ -216,6 +217,7 @@ export const InvoiceItemRow = ({
         isExpanded={isExpanded}
         hidePriceInput={hidePriceInput}
         priceListItemPrice={fetchedPrice}
+        isEditing={isEditing}
       />
 
       <InvoiceItemActionsMenu

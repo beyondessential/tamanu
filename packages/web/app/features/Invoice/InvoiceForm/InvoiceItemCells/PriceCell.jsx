@@ -45,8 +45,7 @@ const RowName = styled.div`
 `;
 
 const RowValue = styled.div`
-  color: ${props => props.theme.palette.text.tertiary};
-  min-width: 50px;
+  min-width: 60px;
 `;
 
 const calculateCoverageValue = (discountedPrice, coverageValue) => {
@@ -109,12 +108,12 @@ const DiscountSection = ({ price, discountReason, discountedPrice }) => {
 };
 
 const StyledField = styled(Field)`
-  .MuiFormControl-root {
-    margin-left: 8px;
+  .MuiFormControl-root.MuiTextField-root {
+    margin-left: 12px;
   }
 `;
 
-export const PriceCell = ({ index, item, isExpanded, hidePriceInput }) => {
+export const PriceCell = ({ index, item, isExpanded, hidePriceInput, isEditing }) => {
   const price = getInvoiceItemTotalPrice(item);
   const discountedPrice = getInvoiceItemTotalDiscountedPrice(item);
   const hasDiscount = price !== discountedPrice;
@@ -127,7 +126,7 @@ export const PriceCell = ({ index, item, isExpanded, hidePriceInput }) => {
             {hidePriceInput ? (
               <>
                 <Price $isCrossedOut={hasDiscount} price={price} data-testid="pricetext-is33" />
-                {hasDiscount && (
+                {hasDiscount && !isEditing && (
                   <DiscountSection
                     discountReason={item.discount?.reason}
                     discountedPrice={discountedPrice}
@@ -148,9 +147,11 @@ export const PriceCell = ({ index, item, isExpanded, hidePriceInput }) => {
               )
             )}
           </MainContent>
-          <Collapse in={isExpanded}>
-            <InsuranceSection item={item} discountedPrice={discountedPrice} />
-          </Collapse>
+          {!isEditing && (
+            <Collapse in={isExpanded}>
+              <InsuranceSection item={item} discountedPrice={discountedPrice} />
+            </Collapse>
+          )}
         </Container>
       </StyledItemCell>
     </>

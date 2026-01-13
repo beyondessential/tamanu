@@ -46,7 +46,7 @@ export const getInvoiceItemPrice = invoiceItem => {
  * @param {InvoiceItem} invoiceItem
  */
 export const getInvoiceItemTotalPrice = invoiceItem => {
-  const price = getInvoiceItemPrice(invoiceItem);
+  const price = getInvoiceItemPrice(invoiceItem) || 0;
   const quantity = invoiceItem.quantity || 0;
   return new Decimal(price).times(quantity).toNumber();
 };
