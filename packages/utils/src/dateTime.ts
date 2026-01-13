@@ -107,7 +107,7 @@ export const toTimeString = (date: string | Date | null | undefined) => {
 /**
  * Extracts weekday code from a date
  * @example
- * toWeekdayCode("2024-03-15 09:30:00") // "Mon"
+ * toWeekdayCode("2024-03-15 09:30:00") // "MO"
  */
 export const toWeekdayCode = (date: string | Date | null | undefined) => {  
   if (date == null) return null;
@@ -115,7 +115,7 @@ export const toWeekdayCode = (date: string | Date | null | undefined) => {
   const dateObj = parseDate(date);
   if (!dateObj) return null;
 
-  return dateFnsFormat(dateObj, 'iiiiii');
+  return dateFnsFormat(dateObj, 'iiiiii').toUpperCase();
 };
 
 export const getCurrentDateTimeString = () => formatISO9075(new Date());
