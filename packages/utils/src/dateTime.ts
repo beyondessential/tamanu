@@ -289,7 +289,7 @@ export const intlFormatDate = (
   timeZone?: string | null,
 ) => {
   if (!date) return fallback;
-  // TODO: yeah we probably want somthing like this tbh
+  // TODO: yeah we probably want something like this tbh - but don't know if it doing what we want right now
   // Only apply fromZonedTime for strings (server timestamps assumed to be in countryTimeZone).
   // Date objects already represent a specific instant and shouldn't be re-interpreted.
   const dateObj =
