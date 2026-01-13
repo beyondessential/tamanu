@@ -55,3 +55,20 @@ export async function up(query: QueryInterface): Promise<void> {
   await query.removeColumn('users', 'old_column');
 }
 ```
+
+### Mark Destructive Down Functions
+
+When a migration's `down` function cannot fully restore the original state (e.g., data loss), add a `// DESTRUCTIVE:` comment explaining what won't be restored:
+
+```typescript
+export async function down(query: QueryInterface): Promise<void> {
+  // DESTRUCTIVE: This will not restore the original values - all rows will get default 0
+  await query.addColumn('users', 'some_column', {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0,
+  });
+}
+```
+
+This helps developers understand the consequences of rolling back a migration.
