@@ -734,9 +734,15 @@ export class CentralSyncManager {
       SYNC_DIRECTIONS.BIDIRECTIONAL,
     ];
 
+    const tableNameToModelMap = Object.fromEntries(
+      Object.values(models)
+        .filter(m => m.tableName)
+        .map(m => [m.tableName, m])
+    );
+
     const invalidRecords = [];
     for (const change of changes) {
-      const model = Object.values(models).find(m => m.tableName === change.recordType);
+      const model = tableNameToModelMap[change.recordType];
       if (!model) {
         invalidRecords.push({
           recordType: change.recordType,
