@@ -1,0 +1,50 @@
+{
+  "sheetName": "Blood Type",
+  "columns": [
+    "id",
+    "code",
+    "name"
+  ],
+  "data": [
+    {
+      "id": "bloodType-Apos",
+      "code": "Apos",
+      "name": "A+"
+    },
+    {
+      "id": "bloodType-A-",
+      "code": "A-",
+      "name": "A-"
+    },
+    {
+      "id": "bloodType-AB-",
+      "code": "AB-",
+      "name": "AB-"
+    },
+    {
+      "id": "bloodType-ABpos",
+      "code": "ABpos",
+      "name": "AB+"
+    },
+    {
+      "id": "bloodType-Bpos",
+      "code": "Bpos",
+      "name": "B+"
+    },
+    {
+      "id": "bloodType-B-",
+      "code": "B-",
+      "name": "B-"
+    },
+    {
+      "id": "bloodType-Opos",
+      "code": "Opos",
+      "name": "O+"
+    },
+    {
+      "id": "bloodType-O-",
+      "code": "O-",
+      "name": "O-"
+    }
+  ]
+}
