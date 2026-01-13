@@ -446,7 +446,7 @@ export const EditMedicationDispenseModal = memo(
                 </Box>
               </HeaderRow>
 
-              <StyledTableFormFields columns={columns} data={[item]} />
+              <StyledTableFormFields columns={columns} data={item ? [item] : []} />
             </>
           )}
 
