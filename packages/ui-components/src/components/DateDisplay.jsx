@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { format } from 'date-fns';
+import { format, isSameDay } from 'date-fns';
 import { getTimezoneOffset } from 'date-fns-tz';
 import { Box, Typography } from '@material-ui/core';
 import styled from 'styled-components';
@@ -308,3 +308,58 @@ export const TimeRangeDisplay = ({ range: { start, end } }) => {
     </>
   );
 };
+
+/**
+ * DateTimeRangeDisplay - Shows a date/time range, intelligently handling multi-day spans
+ * @param {string|Date} start - The start date/time
+ * @param {string|Date} end - The end date/time (optional)
+ * @param {boolean} showWeekday - Show weekday for start date (default true)
+ * @param {string} dateFormat - Date format (default "short")
+ * @param {string} timeFormat - Time format (default "compact")
+ *
+ * @example
+ * // Same day → "Mon 15/03/2024 9:30am – 10:00am"
+ * <DateTimeRangeDisplay start="2024-03-15 09:30:00" end="2024-03-15 10:00:00" />
+ *
+ * // Multi-day → "Mon 15/03/2024 9:30am – 16/03/2024 10:00am"
+ * <DateTimeRangeDisplay start="2024-03-15 09:30:00" end="2024-03-16 10:00:00" />
+ *
+ * // No end → "Mon 15/03/2024 9:30am"
+ * <DateTimeRangeDisplay start="2024-03-15 09:30:00" />
+ */
+export const DateTimeRangeDisplay = React.memo(
+  ({ start, end, showWeekday = true, dateFormat = 'short', timeFormat = 'compact' }) => {
+    const startDate = parseDate(start);
+    const endDate = end ? parseDate(end) : null;
+    const spansMultipleDays = endDate && !isSameDay(startDate, endDate);
+
+    return (
+      <span>
+        <DateDisplay
+          date={start}
+          format={dateFormat}
+          showWeekday={showWeekday}
+          showTime
+          timeFormat={timeFormat}
+          noTooltip
+        />
+        {endDate && (
+          <>
+            &nbsp;&ndash;{' '}
+            {spansMultipleDays ? (
+              <DateDisplay
+                date={end}
+                format={dateFormat}
+                showTime
+                timeFormat={timeFormat}
+                noTooltip
+              />
+            ) : (
+              <TimeDisplay date={end} format={timeFormat} noTooltip />
+            )}
+          </>
+        )}
+      </span>
+    );
+  },
+);
