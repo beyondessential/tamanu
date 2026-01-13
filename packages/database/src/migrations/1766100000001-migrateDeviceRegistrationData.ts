@@ -18,6 +18,7 @@ export async function up(query: QueryInterface): Promise<void> {
 }
 
 export async function down(query: QueryInterface): Promise<void> {
+  // DESTRUCTIVE: Original quota values > 1 are lost - 'unlimited' becomes 999
   await query.sequelize.query(`
     UPDATE users
     SET device_registration_quota = CASE
