@@ -298,7 +298,7 @@ export const intlFormatDate = (
 };
 
 export const formatShortest = (
-  date: string | null | undefined,
+  date: string | Date | null | undefined,
   countryTimeZone: string,
   timeZone?: string | null,
 ) =>
@@ -311,7 +311,7 @@ export const formatShortest = (
   ); // 12/04/20
 
 export const formatShort = (
-  date: string | null | undefined,
+  date: string | Date | null | undefined,
   countryTimeZone: string,
   timeZone?: string | null,
 ) =>
@@ -338,7 +338,7 @@ export const formatDateOnlyShort = (date: string | Date | null | undefined) =>
   formatWithoutTimezoneConversion(date, { day: '2-digit', month: '2-digit', year: 'numeric' }, '--/--/----');
 
   export const formatTime = (
-    date: string | null | undefined,
+    date: string | Date | null | undefined,
     countryTimeZone: string,
     timeZone?: string | null,
     // TODO: could be better
@@ -358,7 +358,7 @@ export const formatDateOnlyShort = (date: string | Date | null | undefined) =>
 };
 
 export const formatTimeWithSeconds = (
-  date: string | null | undefined,
+  date: string | Date | null | undefined,
   countryTimeZone: string,
   timeZone?: string | null,
 ) =>
@@ -375,7 +375,7 @@ export const formatTimeWithSeconds = (
 
 // long format date is displayed on hover
 export const formatLong = (
-  date: string | null | undefined,
+  date: string | Date | null | undefined,
   countryTimeZone: string,
   timeZone?: string | null,
 ) =>

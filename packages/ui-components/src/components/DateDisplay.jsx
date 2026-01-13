@@ -271,9 +271,9 @@ export const DateOnlyDisplay = React.memo(({ date, color, fontWeight, style, ...
 ));
 
 /** TODO: these are stupid, need to think of better strat for these timezone conversionless dates */
-export const TimeOnlyDisplay = React.memo(({ date, style, ...props }) => {
+export const TimeOnlyDisplay = React.memo(({ date, color, fontWeight, style, ...props }) => {
   return (
-    <span style={style} {...props}>
+    <span style={{ color, fontWeight, ...style }} {...props}>
       {formatTimeOnlyCompact(date)}
     </span>
   );
