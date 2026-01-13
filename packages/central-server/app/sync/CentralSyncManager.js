@@ -3,7 +3,7 @@ import { Op, QueryTypes } from 'sequelize';
 import _config from 'config';
 import { isNil } from 'lodash';
 
-import { DEBUG_LOG_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
+import { DEBUG_LOG_TYPES, SETTINGS_SCOPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { log } from '@tamanu/shared/services/logging';
 import {
@@ -724,8 +724,51 @@ export class CentralSyncManager {
   }
 
   async addIncomingChanges(sessionId, changes) {
-    const { sequelize } = this.store;
+    const { sequelize, models } = this.store;
     await this.connectToSession(sessionId);
+
+    // Validate that all records being pushed have an allowed syncDirection
+    const allowedPushDirections = [
+      SYNC_DIRECTIONS.PUSH_TO_CENTRAL,
+      SYNC_DIRECTIONS.PUSH_TO_CENTRAL_THEN_DELETE,
+      SYNC_DIRECTIONS.BIDIRECTIONAL,
+    ];
+
+    const invalidRecords = [];
+    for (const change of changes) {
+      const model = Object.values(models).find(m => m.tableName === change.recordType);
+      if (!model) {
+        invalidRecords.push({
+          recordType: change.recordType,
+          recordId: change.recordId,
+          reason: 'Model not found',
+        });
+        continue;
+      }
+
+      if (!allowedPushDirections.includes(model.syncDirection)) {
+        invalidRecords.push({
+          recordType: change.recordType,
+          recordId: change.recordId,
+          syncDirection: model.syncDirection,
+          reason: `Model has syncDirection '${model.syncDirection}' which is not allowed for push operations`,
+        });
+      }
+    }
+
+    if (invalidRecords.length > 0) {
+      const errorMessage = `Sync security violation: Attempted to push ${invalidRecords.length} record(s) that are not allowed to be pushed`;
+      log.error(errorMessage, { invalidRecords, sessionId });
+
+      await models.SyncSession.addDebugInfo(sessionId, {
+        rejectedModels: [...new Set(invalidRecords.map(r => r.recordType))],
+        rejectedRecordIds: invalidRecords.map(r => r.recordId),
+      });
+
+      await models.SyncSession.markSessionErrored(sessionId, errorMessage);
+      throw new Error(errorMessage);
+    }
+
     const incomingSnapshotRecords = changes.map(c => ({
       ...c,
       direction: SYNC_SESSION_DIRECTION.INCOMING,
