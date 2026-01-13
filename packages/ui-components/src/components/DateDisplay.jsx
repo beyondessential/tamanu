@@ -3,7 +3,12 @@ import { format, isSameDay } from 'date-fns';
 import { getTimezoneOffset } from 'date-fns-tz';
 import { Box, Typography } from '@material-ui/core';
 import styled from 'styled-components';
-import { parseDate, locale, formatDateOnlyShort, formatTimeOnlyCompact } from '@tamanu/utils/dateTime';
+import {
+  parseDate,
+  locale,
+  formatDateOnlyShort,
+  formatTimeOnlyCompact,
+} from '@tamanu/utils/dateTime';
 import { TAMANU_COLORS } from '../constants';
 import { ThemedTooltip } from './Tooltip';
 import { useDateTimeFormat } from '../contexts';
@@ -204,7 +209,7 @@ export const TimeDisplay = React.memo(
  *
  * // showTime → "15/03/2024 9:30 AM"
  * <DateDisplay date="2024-03-15 09:30:00" showTime />
- */ 
+ */
 export const DateDisplay = React.memo(
   ({
     date: dateValue,
@@ -267,7 +272,11 @@ export const DateOnlyDisplay = React.memo(({ date, color, fontWeight, style, ...
 
 /** TODO: these are stupid, need to think of better strat for these timezone conversionless dates */
 export const TimeOnlyDisplay = React.memo(({ date, style, ...props }) => {
-  return <span style={style} {...props}>{formatTimeOnlyCompact(date)}</span>;
+  return (
+    <span style={style} {...props}>
+      {formatTimeOnlyCompact(date)}
+    </span>
+  );
 });
 
 /**
@@ -305,11 +314,11 @@ export const MultilineDatetimeDisplay = React.memo(
  * // → "9:30am – 10:00am"
  * <TimeRangeDisplay range={{ start: "2024-03-15 09:30:00", end: "2024-03-15 10:00:00" }} />
  */
+// TODO: plz remove this daniel
 export const TimeRangeDisplay = ({ range: { start, end } }) => {
-  const { formatTimeCompact } = useDateTimeFormat();
   return (
     <>
-      {formatTimeCompact(start)}&nbsp;&ndash; {formatTimeCompact(end)}
+      {formatTimeOnlyCompact(start)}&nbsp;&ndash; {formatTimeOnlyCompact(end)}
     </>
   );
 };
