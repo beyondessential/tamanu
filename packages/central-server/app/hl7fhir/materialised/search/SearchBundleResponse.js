@@ -1,25 +1,18 @@
 import { FHIR_BUNDLE_TYPES } from '@tamanu/constants';
+import { FhirSearchSetBundle } from '@tamanu/shared/services/fhirTypes';
 import { formatFhirDate, OperationOutcome } from '@tamanu/shared/utils/fhir';
 import crypto from 'crypto';
 
-import { getBaseUrl, getHL7Link } from '../utils';
+import { getBaseUrl, getHL7Link } from '../../utils';
 
-export class BundleResponse {
+export class SearchBundleResponse {
   included = [];
 
   issues = [];
 
-  /** Will be set to true if this is a search result bundle. */
-  isSearchResult = false;
-
-  constructor(type, resources, options = {}) {
-    this.type = type;
+  constructor(resources, options = {}) {
     this.resources = resources;
     this.options = options;
-
-    if (type === FHIR_BUNDLE_TYPES.SEARCHSET) {
-      this.isSearchResult = true;
-    }
   }
 
   addSelfUrl(req) {
@@ -40,40 +33,40 @@ export class BundleResponse {
   }
 
   asFhir() {
-    const fields = {
+    const bundleData = {
       resourceType: 'Bundle',
       id: crypto.randomUUID(),
-      type: this.type,
+      type: FHIR_BUNDLE_TYPES.SEARCHSET,
       timestamp: formatFhirDate(new Date()),
     };
 
     if (typeof this.options.total === 'number') {
-      fields.total = this.options.total;
+      bundleData.total = this.options.total;
     }
 
     if (this.options.link) {
-      fields.link = this.options.link;
+      bundleData.link = this.options.link;
     }
 
     if (this.options.selfurl) {
-      fields.link ||= [];
-      fields.link.push({
+      bundleData.link ||= [];
+      bundleData.link.push({
         relation: 'self',
         url: this.options.selfurl,
       });
     }
 
-    fields.entry = this.resources
+    bundleData.entry = this.resources
       .map(r => resourceToEntry(r, this.isSearchResult ? 'match' : null))
       .concat(this.included.map(r => resourceToEntry(r, this.isSearchResult ? 'include' : null)));
 
     if (this.issues.length > 0) {
       const oo = new OperationOutcome(this.issues);
       oo.downgradeErrorsToWarnings();
-      fields.issues = oo.asFhir();
+      bundleData.issues = oo.asFhir();
     }
 
-    return fields;
+    return new FhirSearchSetBundle(bundleData);
   }
 }
 
