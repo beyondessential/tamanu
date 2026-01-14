@@ -42,7 +42,7 @@ import {
   DRUG_UNIT_SHORT_LABELS,
   REPEATS_LABELS,
 } from './medications.js';
-import { PLACE_OF_DEATHS, MANNER_OF_DEATHS } from './deaths';
+import { PLACE_OF_DEATHS, MANNER_OF_DEATHS, PREGNANCY_MOMENTS } from './deaths';
 import { LOCATION_AVAILABILITY_STATUS_LABELS } from './locations';
 import { TASK_FREQUENCY_UNIT_LABELS, TASK_DURATION_UNIT_LABELS } from './tasks';
 import { IMAGING_TYPES } from './imaging';
@@ -94,6 +94,7 @@ export const registeredEnums = {
   PATIENT_ISSUE_LABELS,
   PLACE_OF_BIRTH_LABELS,
   PLACE_OF_DEATHS,
+  PREGNANCY_MOMENTS,
   PROGRAM_REGISTRATION_STATUS_LABELS,
   DEPRECATED_PRCC_LABELS,
   REFERRAL_STATUS_LABELS,
@@ -150,6 +151,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   PATIENT_ISSUE_LABELS: 'patient.property.issue',
   PLACE_OF_BIRTH_LABELS: 'birth.property.placeOfBirth',
   PLACE_OF_DEATHS: 'death.property.placeOfDeath',
+  PREGNANCY_MOMENTS: 'death.property.pregnancyMoment',
   PROGRAM_REGISTRATION_STATUS_LABELS: 'programRegistry.property.registrationStatus',
   DEPRECATED_PRCC_LABELS: 'programRegistry.property.conditionCategory',
   REFERRAL_STATUS_LABELS: 'referral.property.status',
