@@ -69,7 +69,7 @@ const getRequestNumber = ({ pharmacyOrderPrescription }) => pharmacyOrderPrescri
 
 export const MedicationDispensesTable = () => {
   const api = useApi();
-  const { facilityId } = useAuth();
+  const { ability, facilityId } = useAuth();
   const { searchParameters } = useMedicationsContext(MEDICATIONS_SEARCH_KEYS.DISPENSED);
   const { data: facility } = useFacilityQuery(facilityId);
 
@@ -83,6 +83,8 @@ export const MedicationDispensesTable = () => {
   const [refreshCount, setRefreshCount] = useState(0);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedDetailItem, setSelectedDetailItem] = useState(null);
+
+  const canWriteMedicationDispense = ability.can('write', 'MedicationDispense');
 
   const onMedicationDispensesFetched = useCallback(({ data }) => {
     setMedicationDispenses(data);
@@ -234,34 +236,40 @@ export const MedicationDispensesTable = () => {
       accessor: getRequestNumber,
       sortable: false,
     },
-    {
-      key: 'actions',
-      title: '',
-      allowExport: false,
-      accessor: row => {
-        const actions = [
+    ...(canWriteMedicationDispense
+      ? [
           {
-            label: <TranslatedText stringId="general.action.printLabel" fallback="Print label" />,
-            action: () => handlePrintLabel(row),
+            key: 'actions',
+            title: '',
+            allowExport: false,
+            accessor: row => {
+              const actions = [
+                {
+                  label: (
+                    <TranslatedText stringId="general.action.printLabel" fallback="Print label" />
+                  ),
+                  action: () => handlePrintLabel(row),
+                },
+                {
+                  label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
+                  action: () => handleEditClick(row),
+                },
+                {
+                  label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
+                  action: () => handleCancelClick(row),
+                },
+              ];
+              return (
+                <div onMouseEnter={() => hoveredRow !== row && setHoveredRow(row.id)}>
+                  <MenuButton actions={actions} />
+                </div>
+              );
+            },
+            sortable: false,
+            dontCallRowInput: true,
           },
-          {
-            label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
-            action: () => handleEditClick(row),
-          },
-          {
-            label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
-            action: () => handleCancelClick(row),
-          },
-        ];
-        return (
-          <div onMouseEnter={() => hoveredRow !== row && setHoveredRow(row.id)}>
-            <MenuButton actions={actions} />
-          </div>
-        );
-      },
-      sortable: false,
-      dontCallRowInput: true,
-    },
+        ]
+      : []),
   ];
 
   const fetchOptions = { ...searchParameters, facilityId };
@@ -307,8 +315,8 @@ export const MedicationDispensesTable = () => {
       />
       <StyledSearchTableWithPermissionCheck
         refreshCount={refreshCount}
-        verb="list"
-        noun="Medication"
+        verb="read"
+        noun="MedicationDispense"
         autoRefresh={true}
         endpoint="medication/medication-dispenses"
         columns={columns}

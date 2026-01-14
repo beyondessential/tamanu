@@ -210,6 +210,7 @@ encounter.post(
     const { db, models, params, body } = req;
     const { id } = params;
     req.checkPermission('write', 'Encounter');
+    req.checkPermission('read', 'Medication');
     req.checkPermission('create', 'MedicationRequest');
     const encounterObject = await models.Encounter.findByPk(id);
     if (!encounterObject) throw new NotFoundError();
@@ -235,7 +236,7 @@ encounter.post(
       const prescriptionRecordsById = keyBy(prescriptionRecords, 'id');
       const isModifyingQuantity = pharmacyOrderPrescriptions.some(item => {
         const original = prescriptionRecordsById[item.prescriptionId];
-        
+
         return !original || item.quantity !== original.quantity;
       });
 

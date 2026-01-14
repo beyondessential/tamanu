@@ -1911,6 +1911,7 @@ medication.delete(
     const { PharmacyOrderPrescription } = models;
 
     req.checkPermission('delete', 'MedicationRequest');
+    req.checkPermission('delete', 'MedicationDispense');
 
     const pharmacyOrderPrescription = await PharmacyOrderPrescription.findByPk(params.id, {
       include: [
@@ -2127,7 +2128,7 @@ medication.delete(
     const { models, params } = req;
     const { MedicationDispense } = models;
 
-    req.checkPermission('delete', 'MedicationDispense');
+    req.checkPermission('write', 'MedicationDispense');
 
     const dispenseId = params.id;
 
