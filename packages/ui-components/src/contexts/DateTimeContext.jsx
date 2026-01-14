@@ -14,44 +14,26 @@ import {
   formatShortExplicit as baseShortExplicit,
   formatShortestExplicit as baseShortestExplicit,
   formatDateTimeLocal as baseDateTimeLocal,
-  intlFormatDate as baseIntlFormatDate,
 } from '@tamanu/utils/dateTime';
 import { useSettings } from './SettingsContext';
 
-const DateTimeContext = React.createContext({
-  timeZone: null,
-  countryTimeZone: 'Pacific/Auckland',
-  formatShortest: () => null,
-  formatShort: () => null,
-  formatTime: () => null,
-  formatTimeWithSeconds: () => null,
-  formatTimeCompact: () => null,
-  formatTimeSlot: () => null,
-  formatLong: () => null,
-  formatFullDate: () => null,
-  formatShortExplicit: () => null,
-  formatShortestExplicit: () => null,
-  formatWeekdayShort: () => null,
-  formatWeekdayLong: () => null,
-  formatWeekdayNarrow: () => null,
-  formatDateTimeLocal: () => null,
-  intlFormatDate: () => null,
-});
+const DateTimeContext = React.createContext(null);
 
-export const useDateTimeFormat = () => useContext(DateTimeContext);
-
+export const useDateTimeFormat = () => {
+  const context = useContext(DateTimeContext);
+  if (!context) {
+    throw new Error('useDateTimeFormat must be used within a DateTimeProvider');
+  }
+  return context;
+};
 
 export const DateTimeProvider = ({ children, countryTimeZone = 'Pacific/Auckland' }) => {
   const { getSetting } = useSettings();
   const timeZone = getSetting('timeZone');
-  
-  const getDateFormatter = useCallback(
-    (formatFunc) => (date, isDateOnly) => {
-      if (isDateOnly) {
-        return formatFunc(date);
-      }
-      return formatFunc(date, countryTimeZone, timeZone);
-    },
+
+  const wrap = useCallback(
+    fn => (date, skipTimezoneConversion) =>
+      skipTimezoneConversion ? fn(date, countryTimeZone) : fn(date, countryTimeZone, timeZone),
     [countryTimeZone, timeZone],
   );
 
@@ -59,25 +41,23 @@ export const DateTimeProvider = ({ children, countryTimeZone = 'Pacific/Auckland
     () => ({
       timeZone,
       countryTimeZone,
-      formatShortest: getDateFormatter(baseShortest),
-      formatShort: getDateFormatter(baseShort),
-      formatTime: getDateFormatter(baseTime),
-      formatTimeWithSeconds: getDateFormatter(baseTimeWithSeconds),
-      formatTimeCompact: getDateFormatter(baseTimeCompact),
-      formatTimeSlot: getDateFormatter(baseTimeSlot),
-      formatLong: getDateFormatter(baseLong),
-      formatFullDate: getDateFormatter(baseFullDate),
-      formatShortExplicit: getDateFormatter(baseShortExplicit),
-      formatShortestExplicit: getDateFormatter(baseShortestExplicit),
-      formatDateTimeLocal: getDateFormatter(baseDateTimeLocal),
-      formatWeekdayShort: getDateFormatter(baseWeekdayShort),
-      formatWeekdayLong: getDateFormatter(baseWeekdayLong),
-      formatWeekdayNarrow: getDateFormatter(baseWeekdayNarrow),
-      intlFormatDate: getDateFormatter(baseIntlFormatDate),
+      formatShortest: wrap(baseShortest),
+      formatShort: wrap(baseShort),
+      formatTime: wrap(baseTime),
+      formatTimeWithSeconds: wrap(baseTimeWithSeconds),
+      formatTimeCompact: wrap(baseTimeCompact),
+      formatTimeSlot: wrap(baseTimeSlot),
+      formatLong: wrap(baseLong),
+      formatFullDate: wrap(baseFullDate),
+      formatShortExplicit: wrap(baseShortExplicit),
+      formatShortestExplicit: wrap(baseShortestExplicit),
+      formatDateTimeLocal: wrap(baseDateTimeLocal),
+      formatWeekdayShort: wrap(baseWeekdayShort),
+      formatWeekdayLong: wrap(baseWeekdayLong),
+      formatWeekdayNarrow: wrap(baseWeekdayNarrow),
     }),
-    [timeZone, countryTimeZone, getDateFormatter],
+    [timeZone, countryTimeZone, wrap],
   );
 
   return <DateTimeContext.Provider value={value}>{children}</DateTimeContext.Provider>;
 };
-
