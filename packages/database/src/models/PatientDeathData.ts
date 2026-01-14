@@ -38,11 +38,11 @@ export class PatientDeathData extends Model {
   declare antecedentCause2ConditionId?: string;
   declare antecedentCause3ConditionId?: string;
   declare lastSurgeryReasonId?: string;
-  declare autopsyRequested?: boolean;
-  declare autopsyFindingsUsed?: boolean;
+  declare autopsyRequested?: string;
+  declare autopsyFindingsUsed?: string;
   declare mannerOfDeathDescription?: string;
   declare pregnancyMoment?: string;
-  declare multiplePregnancy?: boolean;
+  declare multiplePregnancy?: string;
   declare motherConditionDescription?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -69,11 +69,11 @@ export class PatientDeathData extends Model {
         antecedentCause1TimeAfterOnset: DataTypes.INTEGER, // minutes
         antecedentCause2TimeAfterOnset: DataTypes.INTEGER, // minutes
         antecedentCause3TimeAfterOnset: DataTypes.INTEGER, // minutes
-        autopsyRequested: DataTypes.BOOLEAN,
-        autopsyFindingsUsed: DataTypes.BOOLEAN,
+        autopsyRequested: DataTypes.TEXT,
+        autopsyFindingsUsed: DataTypes.TEXT,
         mannerOfDeathDescription: DataTypes.TEXT,
         pregnancyMoment: DataTypes.TEXT,
-        multiplePregnancy: DataTypes.BOOLEAN,
+        multiplePregnancy: DataTypes.TEXT,
         motherConditionDescription: DataTypes.TEXT,
         isFinal: DataTypes.BOOLEAN,
         visibilityStatus: {
