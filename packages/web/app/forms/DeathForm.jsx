@@ -645,6 +645,31 @@ export const DeathForm = React.memo(
               data-testid="field-yol7"
             />
             <Field
+              name="deathWithin24HoursOfBirth"
+              label={
+                <TranslatedText
+                  stringId="death.deathWithin24HoursOfBirth.label"
+                  fallback="Was the death within 24 hours of birth?"
+                  data-testid="translatedtext-s42j"
+                />
+              }
+              component={RadioField}
+              options={BINARY_OPTIONS}
+              data-testid="field-z06p"
+            />
+            <Field
+              name="numberOfHoursSurvivedSinceBirth"
+              label={
+                <TranslatedText
+                  stringId="death.numberOfHoursSurvived.label"
+                  fallback="If yes, number of hours survived"
+                  data-testid="translatedtext-ubzt"
+                />
+              }
+              component={NumberField}
+              data-testid="field-fhz5"
+            />
+            <Field
               name="birthWeight"
               label={
                 <TranslatedText
@@ -692,31 +717,6 @@ export const DeathForm = React.memo(
               component={AutocompleteField}
               suggester={diagnosisSuggester}
               data-testid="field-s4dn"
-            />
-            <Field
-              name="deathWithin24HoursOfBirth"
-              label={
-                <TranslatedText
-                  stringId="death.deathWithin24HoursOfBirth.label"
-                  fallback="Was the death within 24 hours of birth?"
-                  data-testid="translatedtext-s42j"
-                />
-              }
-              component={RadioField}
-              options={BINARY_OPTIONS}
-              data-testid="field-z06p"
-            />
-            <Field
-              name="numberOfHoursSurvivedSinceBirth"
-              label={
-                <TranslatedText
-                  stringId="death.numberOfHoursSurvived.label"
-                  fallback="If yes, number of hours survived"
-                  data-testid="translatedtext-ubzt"
-                />
-              }
-              component={NumberField}
-              data-testid="field-fhz5"
             />
           </StyledFormGrid>
         ) : null}
