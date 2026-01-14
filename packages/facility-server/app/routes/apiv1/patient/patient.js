@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, QueryTypes, Op } from 'sequelize';
-import { keyBy, snakeCase } from 'lodash';
+import { snakeCase, keyBy } from 'lodash';
 
 import {
   createPatientSchema,
@@ -513,7 +513,7 @@ patientRoute.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Medication');
 
-    const { models, params, query } = req;
+    const { models, params, query, db } = req;
     const patientId = params.id;
     const { PatientOngoingPrescription, Prescription } = models;
     const { order = 'ASC', orderBy = 'medication.name', page, rowsPerPage, facilityId } = query;
@@ -585,17 +585,15 @@ patientRoute.get(
       ...baseQuery,
     });
 
-    // Add "lastOrderedAt" so the pharmacy order modal can show "already ordered within X hours"
-    let responseData = ongoingPrescriptions.map(p => p.toJSON());
+    let responseData = ongoingPrescriptions.map(p => p.forResponse());
     if (responseData.length > 0) {
       const prescriptionIds = responseData.map(p => p.id);
-      const [pharmacyOrderPrescriptions] = await req.db.query(
+      const [pharmacyOrderPrescriptions] = await db.query(
         `
-          SELECT prescription_id, max(created_at) as last_ordered_at
-          FROM pharmacy_order_prescriptions
-          WHERE prescription_id IN (:prescriptionIds) and deleted_at is null
-          GROUP BY prescription_id
-        `,
+        SELECT prescription_id, max(created_at) as last_ordered_at
+        FROM pharmacy_order_prescriptions
+        WHERE prescription_id IN (:prescriptionIds) and deleted_at is null GROUP BY prescription_id
+      `,
         { replacements: { prescriptionIds } },
       );
       const lastOrderedAts = keyBy(pharmacyOrderPrescriptions, 'prescription_id');
