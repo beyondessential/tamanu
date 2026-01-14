@@ -619,6 +619,19 @@ export const DeathForm = React.memo(
               data-testid="field-z69r"
             />
             <Field
+              name="multiplePregnancy"
+              label={
+                <TranslatedText
+                  stringId="death.multiplePregnancy.label"
+                  fallback="Multiple pregnancy"
+                  data-testid="translatedtext-9c6g"
+                />
+              }
+              component={RadioField}
+              options={BINARY_OPTIONS}
+              data-testid="field-y4u7"
+            />
+            <Field
               name="stillborn"
               label={
                 <TranslatedText
