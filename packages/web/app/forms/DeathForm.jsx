@@ -45,6 +45,12 @@ const AutocompleteFieldWithPrefix = ({ prefix, ...props }) => (
   </PrefixWrapper>
 );
 
+const StyledCheckField = styled(CheckField)`
+  .MuiFormControlLabel-label {
+    font-size: 14px;
+  }
+`;
+
 const StyledFormGrid = styled(FormGrid)`
   min-height: 200px;
   padding-left: 10px;
@@ -402,8 +408,8 @@ export const DeathForm = React.memo(
                 data-testid="translatedtext-cfqq"
               />
             }
-            component={CheckField}
-            style={{ gridColumn: '1/-1', marginBottom: '10px', marginTop: '5px', fontSize: '14px' }}
+            component={StyledCheckField}
+            style={{ gridColumn: '1/-1', marginBottom: '10px', marginTop: '5px' }}
             data-testid="field-oj7z"
           />
         </StyledFormGrid>
