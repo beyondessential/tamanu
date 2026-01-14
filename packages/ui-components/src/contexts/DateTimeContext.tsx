@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useMemo, ReactNode } from 'react';
+import React, { useCallback, useContext, useMemo } from 'react';
 import * as formatFunctions from './dateTimeFormatters';
 import { SettingsContext } from './SettingsContext';
 import { mapValues } from 'lodash';
@@ -9,7 +9,7 @@ type FormatFunction = (date: DateInput, skipTimezoneConversion?: boolean) => str
 type DateTimeContextValue = Record<string, FormatFunction>;
 
 interface DateTimeProviderProps {
-  children: ReactNode;
+  children: JSX.Element;
   countryTimeZone?: string;
   timeZone?: string;
 }
@@ -28,7 +28,7 @@ export const DateTimeProvider = ({
   children,
   countryTimeZone: countryTimeZoneProp,
   timeZone: timeZoneProp,
-}: DateTimeProviderProps) => {
+}: DateTimeProviderProps): JSX.Element => {
   const settingsContext = useContext(SettingsContext);
   const usePropsMode = countryTimeZoneProp !== undefined;
 
@@ -58,8 +58,12 @@ export const DateTimeProvider = ({
   );
 
   if (!isSettingsLoaded || !countryTimeZone) {
-    return null;
+    return children;
   }
 
-  return <DateTimeProviderContext.Provider value={value}>{children}</DateTimeProviderContext.Provider>;
+  return (
+    <DateTimeProviderContext.Provider value={value}>
+      {children}
+    </DateTimeProviderContext.Provider>
+  )
 };
