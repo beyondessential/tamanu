@@ -483,37 +483,6 @@ export const DeathForm = React.memo(
             data-testid="field-333j"
           />
         </StyledFormGrid>
-        {canBePregnant ? (
-          <StyledFormGrid columns={1} data-testid="styledformgrid-gkfk">
-            <Field
-              name="pregnant"
-              label={
-                <TranslatedText
-                  stringId="death.pregnant.label"
-                  fallback="Was the woman pregnant or recently pregnant?"
-                  data-testid="translatedtext-vvm2"
-                />
-              }
-              component={RadioField}
-              options={BINARY_UNKNOWN_OPTIONS}
-              data-testid="field-swkw"
-            />
-            <Field
-              name="pregnancyContribute"
-              label={
-                <TranslatedText
-                  stringId="death.pregnancyContribute.label"
-                  fallback="Did the pregnancy contribute to the death?"
-                  data-testid="translatedtext-1mbh"
-                />
-              }
-              component={RadioField}
-              options={BINARY_UNKNOWN_OPTIONS}
-              visibilityCriteria={{ pregnant: 'yes' }}
-              data-testid="field-bt6f"
-            />
-          </StyledFormGrid>
-        ) : null}
         <StyledFormGrid columns={1} data-testid="styledformgrid-e4ss">
           <Field
             name="mannerOfDeath"
@@ -584,6 +553,37 @@ export const DeathForm = React.memo(
             data-testid="field-u4jw"
           />
         </StyledFormGrid>
+        {canBePregnant ? (
+          <StyledFormGrid columns={1} data-testid="styledformgrid-gkfk">
+            <Field
+              name="pregnant"
+              label={
+                <TranslatedText
+                  stringId="death.pregnant.label"
+                  fallback="Was the woman pregnant or recently pregnant?"
+                  data-testid="translatedtext-vvm2"
+                />
+              }
+              component={RadioField}
+              options={BINARY_UNKNOWN_OPTIONS}
+              data-testid="field-swkw"
+            />
+            <Field
+              name="pregnancyContribute"
+              label={
+                <TranslatedText
+                  stringId="death.pregnancyContribute.label"
+                  fallback="Did the pregnancy contribute to the death?"
+                  data-testid="translatedtext-1mbh"
+                />
+              }
+              component={RadioField}
+              options={BINARY_UNKNOWN_OPTIONS}
+              visibilityCriteria={{ pregnant: 'yes' }}
+              data-testid="field-bt6f"
+            />
+          </StyledFormGrid>
+        ) : null}
         {isInfant ? (
           <StyledFormGrid columns={1} data-testid="styledformgrid-7x1s">
             <Field
