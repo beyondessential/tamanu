@@ -239,7 +239,7 @@ export const DeathForm = React.memo(
             component={AutocompleteFieldWithPrefix}
             prefix="a."
             suggester={diagnosisSuggester}
-            tooltipText={
+            $tooltipText={
               <TranslatedText
                 stringId="death.causeOfDeath.tooltip"
                 fallback="This does not mean the mode of dying (e.g heart failure, respiratory failure). It means the disease, injury or complication that caused the death."
