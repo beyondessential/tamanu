@@ -147,7 +147,7 @@ const PatientDeathSummary = React.memo(({ patient }) => {
       </Header>
       <Content data-testid="content-y0fh">
         <ContentItem data-testid="contentitem-xxod">
-          <ContentLabel data-testid="contentlabel-nvid">Place of death:</ContentLabel>
+          <ContentLabel data-testid="contentlabel-nvid">Location of death:</ContentLabel>
           <ContentText data-testid="contenttext-genv">
             {(deathData?.outsideHealthFacility && 'Died outside health facility') ||
               (deathData?.facility?.name && (
