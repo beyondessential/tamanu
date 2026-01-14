@@ -536,7 +536,7 @@ export const DeathForm = React.memo(
               label={
                 <TranslatedText
                   stringId="death.birthWeight.label"
-                  fallback="Birth Weight (grams):"
+                  fallback="Birth weight (grams):"
                   data-testid="translatedtext-mkew"
                 />
               }
