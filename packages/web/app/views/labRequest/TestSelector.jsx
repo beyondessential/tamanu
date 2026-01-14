@@ -227,7 +227,6 @@ export const TestSelectorInput = ({
                 field={{
                   value: searchQuery.labTestCategoryId,
                   onChange: handleChangeSearchQuery,
-                  onClear: () => setSearchQuery({ ...searchQuery, search: '' }),
                 }}
                 label={
                   <TranslatedText
