@@ -27,22 +27,22 @@ export const useDateTimeFormat = () => {
   return context;
 };
 
-export const DateTimeProvider = ({ children, countryTimeZone }) => {
-  const { getSetting } = useSettings();
-  const configuredCountryTimeZone = countryTimeZone ?? getSetting('countryTimeZone');
+export const DateTimeProvider = ({ children }) => {
+  const { getSetting, isSettingsLoaded } = useSettings();
+  const countryTimeZone = getSetting('countryTimeZone');
   const timeZone = getSetting('timeZone');
 
   const wrap = useCallback(
     fn =>
       (date, skipTimezoneConversion = false) =>
-        fn(date, configuredCountryTimeZone, !skipTimezoneConversion && timeZone),
-    [configuredCountryTimeZone, timeZone],
+        fn(date, countryTimeZone, skipTimezoneConversion ? undefined : timeZone),
+    [countryTimeZone, timeZone],
   );
 
   const value = useMemo(
     () => ({
       timeZone,
-      countryTimeZone: configuredCountryTimeZone,
+      countryTimeZone,
       formatShortest: wrap(baseShortest),
       formatShort: wrap(baseShort),
       formatTime: wrap(baseTime),
@@ -58,8 +58,12 @@ export const DateTimeProvider = ({ children, countryTimeZone }) => {
       formatWeekdayLong: wrap(baseWeekdayLong),
       formatWeekdayNarrow: wrap(baseWeekdayNarrow),
     }),
-    [timeZone, configuredCountryTimeZone, wrap],
+    [timeZone, countryTimeZone, wrap],
   );
+
+  if (!isSettingsLoaded || !countryTimeZone) {
+    return null;
+  }
 
   return <DateTimeContext.Provider value={value}>{children}</DateTimeContext.Provider>;
 };
