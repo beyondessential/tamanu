@@ -422,6 +422,7 @@ export const PatientMedicationPane = ({ patient }) => {
   const canViewSensitiveMedications = ability.can('read', 'SensitiveMedication');
   const pharmacyOrderEnabled = getSetting('features.pharmacyOrder.enabled');
   const canRequestPharmacyOrder = ability.can('create', 'MedicationRequest');
+  const canReadDispensedMedications = ability.can('read', 'MedicationDispense');
 
   // Filter active (non-discontinued) ongoing prescriptions for send to pharmacy
   const activeOngoingPrescriptions = ongoingPrescriptions.filter(p => !p.discontinued);
@@ -715,36 +716,38 @@ export const PatientMedicationPane = ({ patient }) => {
             />
           </TableTitleText>
         </TableTitle>
-        <StyledDataFetchingTable
-          endpoint={`/patient/${patient.id}/dispensed-medications`}
-          columns={DISPENSED_MEDICATION_COLUMNS(
-            getTranslation,
-            getEnumTranslation,
-            hoveredRow,
-            setHoveredRow,
-            handlePrintLabel,
-            handleEdit,
-            handleCancelClick,
-          )}
-          noDataMessage={
-            <NoDataContainer>
-              <TranslatedText
-                stringId="patient.medication.dispensed.table.noData"
-                fallback="No dispensed medications to display."
-              />
-            </NoDataContainer>
-          }
-          allowExport={false}
-          onDataFetched={onDispensedMedicationsFetched}
-          $noData={dispensedMedications.length === 0}
-          refreshCount={refreshCount}
-          initialSort={{
-            orderBy: 'dispensedAt',
-            order: 'desc',
-          }}
-          onClickRow={handleDispensedMedicationClick}
-          $maxHeight={'320px'}
-        />
+        {canReadDispensedMedications && (
+          <StyledDataFetchingTable
+            endpoint={`/patient/${patient.id}/dispensed-medications`}
+            columns={DISPENSED_MEDICATION_COLUMNS(
+              getTranslation,
+              getEnumTranslation,
+              hoveredRow,
+              setHoveredRow,
+              handlePrintLabel,
+              handleEdit,
+              handleCancelClick,
+            )}
+            noDataMessage={
+              <NoDataContainer>
+                <TranslatedText
+                  stringId="patient.medication.dispensed.table.noData"
+                  fallback="No dispensed medications to display."
+                />
+              </NoDataContainer>
+            }
+            allowExport={false}
+            onDataFetched={onDispensedMedicationsFetched}
+            $noData={dispensedMedications.length === 0}
+            refreshCount={refreshCount}
+            initialSort={{
+              orderBy: 'dispensedAt',
+              order: 'desc',
+            }}
+            onClickRow={handleDispensedMedicationClick}
+            $maxHeight={'320px'}
+          />
+        )}
       </TableContainer>
       <MedicationModal
         open={createMedicationModalOpen}
