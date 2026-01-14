@@ -238,6 +238,7 @@ export const DeathForm = React.memo(
           outsideHealthFacility: false,
           timeOfDeath: patient?.dateOfDeath || getCurrentDateTimeString(),
           clinicianId: deathData?.clinicianId || currentUser.id,
+          fetalOrInfant: isInfant ? 'yes' : 'no',
         }}
         formType={FORM_TYPES.CREATE_FORM}
         data-testid="paginatedform-9jrc"
