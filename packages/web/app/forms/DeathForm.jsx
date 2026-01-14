@@ -195,7 +195,7 @@ export const DeathForm = React.memo(
         formType={FORM_TYPES.CREATE_FORM}
         data-testid="paginatedform-9jrc"
       >
-        <PartialWorkflowPage practitionerSuggester={practitionerSuggester} />
+        {!deathData ? <PartialWorkflowPage practitionerSuggester={practitionerSuggester} /> : null}
         <StyledFormGrid columns={2} data-testid="styledformgrid-5gyh">
           <FieldWithTooltip
             name="causeOfDeath"
