@@ -264,7 +264,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
     },
     [],
   );
-
+  
   const getAlreadyOrderedPrescriptions = useCallback(
     () =>
       prescriptions.filter(
@@ -428,11 +428,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
     if (isDischargeOrOutpatient && !isOngoingMode) {
       columns.push(COLUMN_KEYS.DURATION);
     }
-    columns.push(COLUMN_KEYS.DATE);
-    if (!isOngoingMode) {
-      columns.push(COLUMN_KEYS.LAST_SENT);
-    }
-    columns.push(COLUMN_KEYS.QUANTITY);
+    columns.push(COLUMN_KEYS.DATE, COLUMN_KEYS.LAST_SENT, COLUMN_KEYS.QUANTITY);
     if (isDischargeOrOutpatient) {
       columns.push(COLUMN_KEYS.REPEATS);
     }
@@ -519,8 +515,8 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
         <AlreadyOrderedMedicationsWrapper>
           <PharmacyOrderMedicationTable
             data={getAlreadyOrderedPrescriptions()}
-            error={error}
-            isLoading={isLoading}
+            error={ isOngoingMode ? null : error}
+            isLoading={ isOngoingMode ? false : isLoading}
             cellOnChange={cellOnChange}
             handleSelectAll={handleSelectAll}
             selectAllChecked={selectAllChecked}

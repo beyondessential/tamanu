@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, QueryTypes, Op } from 'sequelize';
-import { snakeCase } from 'lodash';
+import { snakeCase, keyBy } from 'lodash';
 
 import {
   createPatientSchema,
@@ -35,6 +35,7 @@ import { getWhereClausesAndReplacementsFromFilters } from '../../../utils/query'
 import { validate } from '../../../utils/validate';
 import { patientContact } from './patientContact';
 import { patientPortal } from './patientPortal';
+import { isBefore } from 'date-fns';
 
 const patientRoute = express.Router();
 
@@ -513,7 +514,7 @@ patientRoute.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Medication');
 
-    const { models, params, query } = req;
+    const { models, params, query, db } = req;
     const patientId = params.id;
     const { PatientOngoingPrescription, Prescription } = models;
     const { order = 'ASC', orderBy = 'medication.name', page, rowsPerPage, facilityId } = query;
@@ -585,7 +586,44 @@ patientRoute.get(
       ...baseQuery,
     });
 
-    res.json({ data: ongoingPrescriptions, count });
+    let responseData = ongoingPrescriptions.map(p => p.forResponse());
+    if (responseData.length > 0) {
+      const ongoingPrescriptionIds = responseData.map(p => p.id);
+
+      // Find the latest pharmacy_order_prescriptions for prescriptions that were cloned from ongoing prescriptions.
+      const [pharmacyOrderPrescriptions] = await db.query(
+        `
+        SELECT
+          p_ongoing.id as ongoing_prescription_id,
+          MAX(pop.created_at) as last_ordered_at
+        FROM prescriptions p_ongoing
+        INNER JOIN prescriptions p_cloned ON p_cloned.medication_id = p_ongoing.medication_id
+          AND p_cloned.deleted_at IS NULL
+        INNER JOIN encounter_prescriptions ep_cloned ON ep_cloned.prescription_id = p_cloned.id
+        INNER JOIN encounters e ON e.id = ep_cloned.encounter_id
+          AND e.patient_id = :patientId
+          AND e.reason_for_encounter = 'Medication dispensing'
+        INNER JOIN pharmacy_order_prescriptions pop ON pop.prescription_id = p_cloned.id
+          AND pop.deleted_at IS NULL
+        WHERE p_ongoing.id IN (:ongoingPrescriptionIds)
+        GROUP BY p_ongoing.id
+      `,
+        {
+          replacements: {
+            patientId,
+            ongoingPrescriptionIds,
+          },
+        },
+      );
+      const lastOrderedAts = keyBy(pharmacyOrderPrescriptions, 'ongoing_prescription_id');
+
+      responseData = responseData.map(p => ({
+        ...p,
+        lastOrderedAt: lastOrderedAts[p.id]?.last_ordered_at?.toISOString(),
+      }));
+    }
+
+    res.json({ data: responseData, count });
   }),
 );
 
@@ -701,7 +739,7 @@ patientRoute.get(
           include: [
             {
               association: 'pharmacyOrder',
-              attributes: ['id', 'facilityId', 'encounterId'],
+              attributes: ['id', 'facilityId', 'encounterId', 'isDischargePrescription'],
               required: true,
               include: [
                 {
@@ -765,9 +803,42 @@ patientRoute.get(
 
     const { count, rows: data } = response;
 
+    // Fetch all dispenses for the pharmacy order prescriptions to calculate remaining repeats
+    const pharmacyOrderPrescriptionIds = [
+      ...new Set(data.map(item => item.pharmacyOrderPrescription.id)),
+    ];
+
+    const allDispenses = await MedicationDispense.findAll({
+      where: { pharmacyOrderPrescriptionId: { [Op.in]: pharmacyOrderPrescriptionIds } },
+      attributes: ['id', 'pharmacyOrderPrescriptionId', 'dispensedAt'],
+    });
+
+    const dispensesByPrescriptionId = allDispenses.reduce((acc, dispense) => {
+      const id = dispense.pharmacyOrderPrescriptionId;
+      if (!acc[id]) acc[id] = [];
+      acc[id].push(dispense);
+      return acc;
+    }, {});
+
+    const result = data.map(item => {
+      // Manually set medicationDispenses for getRemainingRepeats calculation
+      // We only want to include dispenses that were dispensed before the current dispense to get remaining repeats at the time of the dispense
+      item.pharmacyOrderPrescription.medicationDispenses = (
+        dispensesByPrescriptionId[item.pharmacyOrderPrescription.id] || []
+      ).filter(d => isBefore(new Date(d.dispensedAt), new Date(item.dispensedAt)));
+
+      return {
+        ...item.toJSON(),
+        pharmacyOrderPrescription: {
+          ...item.pharmacyOrderPrescription.toJSON(),
+          remainingRepeats: item.pharmacyOrderPrescription.getRemainingRepeats(),
+        },
+      };
+    });
+
     res.json({
       count,
-      data,
+      data: result,
     });
   }),
 );

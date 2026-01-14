@@ -96,6 +96,7 @@ const ButtonGroup = styled(Box)`
 
 const SendToPharmacyButton = styled.div`
   cursor: pointer;
+  ${props => props.disabled && 'opacity: 0.3; cursor: default;'}
 `;
 const NoMedicationTooltip = styled(ConditionalTooltip)`
   width: fit-content;
@@ -426,7 +427,6 @@ export const PatientMedicationPane = ({ patient }) => {
 
   // Filter active (non-discontinued) ongoing prescriptions for send to pharmacy
   const activeOngoingPrescriptions = ongoingPrescriptions.filter(p => !p.discontinued);
-  const hasActiveOngoingPrescriptions = activeOngoingPrescriptions.length > 0;
 
   const onOngoingPrescriptionsFetched = useCallback(({ data }) => {
     setOngoingPrescriptions(data);
@@ -568,6 +568,13 @@ export const PatientMedicationPane = ({ patient }) => {
     ${isUnavailableAtFacility(medication) ? 'opacity: 0.5; cursor: default !important;' : ''}
   `;
 
+  const handleSendToPharmacyClick = () => {
+    if (currentEncounter) {
+      return;
+    }
+    setSendToPharmacyModalOpen(true);
+  };
+
   return (
     <Box px={2.5} pb={2.5} overflow={'auto'}>
       {currentEncounter && (
@@ -587,15 +594,8 @@ export const PatientMedicationPane = ({ patient }) => {
             />
           </TableTitleText>
           <ButtonGroup>
-            {pharmacyOrderEnabled && canRequestPharmacyOrder && hasActiveOngoingPrescriptions && (
-              <StyledConditionalTooltip
-                visible={!!currentEncounter}
-                title={
-                  <TranslatedText
-                    stringId="patient.medication.ongoing.sendToPharmacy.activeEncounter.tooltip"
-                    fallback="Cannot send to pharmacy while patient has an active encounter. Please use the encounter medication workflow instead."
-                  />
-                }
+            {pharmacyOrderEnabled && canRequestPharmacyOrder && (
+              <ThemedTooltip
                 PopperProps={{
                   popperOptions: {
                     positionFixed: true,
@@ -609,52 +609,39 @@ export const PatientMedicationPane = ({ patient }) => {
                     },
                   },
                 }}
+                title={
+                  !currentEncounter ? (
+                    <Box width="120px" fontWeight={400}>
+                      <TranslatedText
+                        stringId="patient.medication.ongoing.sendToPharmacy.tooltip"
+                        fallback="Send to pharmacy"
+                      />
+                    </Box>
+                  ) : (
+                    <Box width="150px" fontWeight={400}>
+                      <TranslatedText
+                        stringId="patient.medication.ongoing.sendToPharmacy.activeEncounter.tooltip"
+                        fallback="Please send to pharmacy via the patient active encounter"
+                      />
+                    </Box>
+                  )
+                }
               >
-                <NoteModalActionBlocker>
-                  <ThemedTooltip
-                    PopperProps={{
-                      popperOptions: {
-                        positionFixed: true,
-                        modifiers: {
-                          flip: {
-                            enabled: false,
-                          },
-                          preventOverflow: {
-                            enabled: false,
-                          },
-                        },
-                      },
-                    }}
-                    title={
-                      !currentEncounter ? (
-                        <Box width="120px" fontWeight={400}>
-                          <TranslatedText
-                            stringId="patient.medication.ongoing.sendToPharmacy.tooltip"
-                            fallback="Send to pharmacy"
-                          />
-                        </Box>
-                      ) : (
-                        ''
-                      )
-                    }
-                  >
-                    <SendToPharmacyButton
-                      disabled={!!currentEncounter}
-                      onClick={() => setSendToPharmacyModalOpen(true)}
-                    >
-                      <SendToPharmacyIcon />
-                    </SendToPharmacyButton>
-                  </ThemedTooltip>
-                </NoteModalActionBlocker>
-              </StyledConditionalTooltip>
+                <SendToPharmacyButton
+                  disabled={!!currentEncounter}
+                  onClick={handleSendToPharmacyClick}
+                >
+                  <SendToPharmacyIcon />
+                </SendToPharmacyButton>
+              </ThemedTooltip>
             )}
             {canCreateOngoingPrescription && (
               <StyledConditionalTooltip
                 visible={!!currentEncounter}
                 title={
                   <TranslatedText
-                    stringId="patient.medication.ongoing.add.warning"
-                    fallback="Please add any medications via the patient active encounter."
+                    stringId="patient.medication.ongoing.add"
+                    fallback="Add ongoing medication"
                   />
                 }
                 PopperProps={{

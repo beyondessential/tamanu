@@ -25,7 +25,7 @@ import {
   SYSTEM_USER_UUID,
   PHARMACY_PRESCRIPTION_TYPES,
 } from '@tamanu/constants';
-import { add, format, isAfter, isEqual } from 'date-fns';
+import { add, format, isAfter, isBefore, isEqual } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 import { validate } from '../../utils/validate';
 import { mapQueryFilters } from '../../database/utils';
@@ -546,12 +546,6 @@ medication.post(
         );
 
         newPrescriptions.push(newPrescription);
-
-        // Update the original ongoing prescription's repeats if changed
-        const newRepeats = requestData.repeats ?? originalPrescription.repeats ?? 0;
-        if (newRepeats !== (originalPrescription.repeats ?? 0)) {
-          await originalPrescription.update({ repeats: newRepeats }, { transaction });
-        }
       }
 
       // Create pharmacy order
@@ -2088,7 +2082,7 @@ medication.get(
 
     const allDispenses = await models.MedicationDispense.findAll({
       where: { pharmacyOrderPrescriptionId: { [Op.in]: pharmacyOrderPrescriptionIds } },
-      attributes: ['id', 'pharmacyOrderPrescriptionId'],
+      attributes: ['id', 'pharmacyOrderPrescriptionId', 'dispensedAt'],
     });
 
     // Group dispenses by pharmacyOrderPrescriptionId
@@ -2098,6 +2092,7 @@ medication.get(
       acc[id].push(dispense);
       return acc;
     }, {});
+
     const result = data.map(item => {
       const patient = patients.find(
         p => p.id === item.pharmacyOrderPrescription.pharmacyOrder.encounter.patient.id,
@@ -2105,8 +2100,11 @@ medication.get(
       item.pharmacyOrderPrescription.pharmacyOrder.encounter.patient.set(patient.toJSON());
 
       // Manually set medicationDispenses for getRemainingRepeats calculation
-      item.pharmacyOrderPrescription.medicationDispenses =
-        dispensesByPrescriptionId[item.pharmacyOrderPrescription.id] || [];
+      // We only want to include dispenses that were dispensed before the current dispense to get remaining repeats at the time of the dispense
+      item.pharmacyOrderPrescription.medicationDispenses = (
+        dispensesByPrescriptionId[item.pharmacyOrderPrescription.id] || []
+      ).filter(d => isBefore(new Date(d.dispensedAt), new Date(item.dispensedAt)));
+
       return {
         ...item.toJSON(),
         pharmacyOrderPrescription: {

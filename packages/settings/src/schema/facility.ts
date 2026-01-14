@@ -124,7 +124,7 @@ export const facilitySettings = {
     },
     vaccinations: vaccinationsSchema,
     medications: {
-      name: 'Medication settings',
+      name: 'Medication',
       description: 'Settings related to medication management and dispensing',
       properties: {
         medicationDispensing: {

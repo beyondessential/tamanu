@@ -1,6 +1,7 @@
 import { describe, expect, afterEach, it, vi } from 'vitest';
 import { useFacilitySidebar } from '../../app/components/Sidebar/index.js';
 import { useSettings } from '../../app/contexts/Settings.jsx';
+import { useAuth } from '@tamanu/ui-components';
 
 const defaultSettings = {
   dashboard: {
@@ -82,10 +83,23 @@ const defaultSettings = {
 };
 
 vi.mock('../../app/contexts/Settings');
+vi.mock('@tamanu/ui-components', async importOriginal => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    useAuth: vi.fn(),
+  };
+});
 
-const settingsMock = (settings) => ({
+const settingsMock = settings => ({
   getSetting: () => ({ ...defaultSettings, ...settings }),
 });
+
+const authMock = {
+  ability: {
+    can: () => true,
+  },
+};
 
 describe('useFacilitySidebar', () => {
   afterEach(() => {
@@ -94,6 +108,7 @@ describe('useFacilitySidebar', () => {
 
   it('should display the correct items', () => {
     vi.mocked(useSettings).mockReturnValue(settingsMock());
+    vi.mocked(useAuth).mockReturnValue(authMock);
     const items = useFacilitySidebar();
     expect(items.length).toBe(9);
     expect(items[0].key).toBe('patients');
@@ -102,6 +117,7 @@ describe('useFacilitySidebar', () => {
 
   it('should hide top level items', () => {
     vi.mocked(useSettings).mockReturnValue(settingsMock({ patients: { hidden: true } }));
+    vi.mocked(useAuth).mockReturnValue(authMock);
     const items = useFacilitySidebar();
     expect(items.length).toBe(8);
   });
@@ -110,12 +126,14 @@ describe('useFacilitySidebar', () => {
     vi.mocked(useSettings).mockReturnValue(
       settingsMock({ patients: { patientsEmergency: { hidden: true } } }),
     );
+    vi.mocked(useAuth).mockReturnValue(authMock);
     const items = useFacilitySidebar();
     expect(items[1].children.length).toBe(3);
   });
 
   it('should sort top level items', () => {
     vi.mocked(useSettings).mockReturnValue(settingsMock({ patients: { sortPriority: 10 } }));
+    vi.mocked(useAuth).mockReturnValue(authMock);
     const items = useFacilitySidebar();
     expect(items.map((item) => item.key)).toStrictEqual([
       'dashboard',
@@ -149,6 +167,7 @@ describe('useFacilitySidebar', () => {
         },
       }),
     );
+    vi.mocked(useAuth).mockReturnValue(authMock);
     const items = useFacilitySidebar();
     expect(items[1].children.map((item) => item.key)).toStrictEqual([
       'patientsOutpatients',
