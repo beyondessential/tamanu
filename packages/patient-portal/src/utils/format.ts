@@ -9,14 +9,8 @@ import type {
   AdministeredVaccine,
 } from '@tamanu/shared/schemas/patientPortal';
 
-export const formatDate = (dateString: string | null | undefined) => {
-  if (!dateString) return '--/--/----';
-  try {
-    return formatShort(dateString) || '--/--/----';
-  } catch {
-    return '--/--/----';
-  }
-};
+export const formatDate = (dateString: string | null | undefined) =>
+  formatShort(dateString, Intl.DateTimeFormat().resolvedOptions().timeZone);
 
 export const formatSex = (sex: Patient['sex'] | undefined) => {
   if (!sex) return '--';
