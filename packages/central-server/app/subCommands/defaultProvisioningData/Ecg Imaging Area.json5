@@ -1,0 +1,29 @@
+{
+  "sheetName": "Ecg Imaging Area",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
+  "data": [
+    {
+      "id": "ecgImagingArea-93000",
+      "code": 93000,
+      "name": "Electrocardiogram",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ecgImagingArea-93015",
+      "code": 93015,
+      "name": "Stress test, treadmill",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ecgImagingArea-93224",
+      "code": 93224,
+      "name": "Holter",
+      "visibilityStatus": "current"
+    }
+  ]
+}

@@ -1,0 +1,119 @@
+{
+  "sheetName": "Lab Sample Site",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
+  "data": [
+    {
+      "id": "labSampleSite-Abdomen",
+      "code": "Abdomen",
+      "name": "Abdomen",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "labSampleSite-Left-breast",
+      "code": "Leftbreast",
+      "name": "Left breast ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "labSampleSite-Left-calf",
+      "code": "Leftcalf",
+      "name": "Left calf",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "labSampleSite-Left-foot",
+      "code": "Leftfoot",
+      "name": "Left foot",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "labSampleSite-Left-forearm",
+      "code": "Leftforearm",
+      "name": "Left forearm ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "labSampleSite-Left-hand",
+      "code": "Lefthand",
+      "name": "Left hand",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "labSampleSite-Left-shin",
+      "code": "Leftshin",
+      "name": "Left shin ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "labSampleSite-Left-thigh",
+      "code": "Leftthigh",
+      "name": "Left thigh",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "labSampleSite-Left-upper-arm",
+      "code": "Leftupperarm",
+      "name": "Left upper arm ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "labSampleSite-Mouth",
+      "code": "Mouth",
+      "name": "Mouth",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "labSampleSite-Right-breast",
+      "code": "Rightbreast",
+      "name": "Right breast ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "labSampleSite-Right-calf",
+      "code": "Rightcalf",
+      "name": "Right calf",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "labSampleSite-Right-foot",
+      "code": "Rightfoot",
+      "name": "Right foot",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "labSampleSite-Right-forearm",
+      "code": "Rightforearm",
+      "name": "Right forearm ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "labSampleSite-Right-hand",
+      "code": "Righthand",
+      "name": "Right hand",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "labSampleSite-Right-shin",
+      "code": "Rightshin",
+      "name": "Right shin",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "labSampleSite-Right-thigh",
+      "code": "Right-thigh",
+      "name": "Right thigh",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "labSampleSite-Right-upper-arm",
+      "code": "Rightupperarm",
+      "name": "Right upper arm ",
+      "visibilityStatus": "current"
+    }
+  ]
+}
