@@ -10,20 +10,29 @@ import {
 } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { PATIENT_STATUS_COLORS } from '../../../constants';
-import { formatShortest } from '../../../components/DateDisplay';
+import { DateDisplay, formatShortest } from '../../../components/DateDisplay';
 import { DataFetchingTable } from '../../../components/Table';
 
-import { usePatientCurrentEncounterQuery } from '../../../api/queries';
+import { usePatientCurrentEncounterQuery, useFacilityQuery } from '../../../api/queries';
 import { getPatientStatus } from '../../../utils/getPatientStatus';
 
-import { ConditionalTooltip } from '../../../components/Tooltip';
+import { ConditionalTooltip, ThemedTooltip } from '../../../components/Tooltip';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { useTranslation } from '../../../contexts/Translation';
 import { DRUG_ROUTE_LABELS, DRUG_STOCK_STATUSES } from '@tamanu/constants';
 import { MedicationModal } from '../../../components/Medication/MedicationModal';
 import { MedicationDetails } from '../../../components/Medication/MedicationDetails';
+import { PharmacyOrderModal } from '../../../components/Medication/PharmacyOrderModal';
 import { useAuth } from '../../../contexts/Auth';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
+import { MenuButton } from '../../../components/MenuButton';
+import { MedicationLabelPrintModal } from '../../../components/PatientPrinting/modals/MedicationLabelPrintModal';
+import { CancelDispensedMedicationModal } from '../../../components/Medication/CancelDispensedMedicationModal';
+import { EditMedicationDispenseModal } from '../../../components/Medication/EditMedicationDispenseModal';
+import { getMedicationLabelData } from '../../../utils/medications';
+import { useApi } from '../../../api';
+import { SendToPharmacyIcon } from '../../../assets/icons/SendToPharmacyIcon';
+import { useSettings } from '../../../contexts/Settings';
 
 const NotifyBanner = styled(Box)`
   padding: 13px 22px;
@@ -69,27 +78,6 @@ const TableTitleText = styled(Box)`
   color: ${Colors.darkestText};
 `;
 
-const TableTitleNote = styled(Box)`
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 21px;
-  color: ${Colors.midText};
-`;
-
-const DarkestText = styled(Box)`
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 18px;
-  color: ${Colors.darkestText};
-`;
-
-const DarkText = styled(Box)`
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 18px;
-  color: ${Colors.darkText};
-`;
-
 const StyledConditionalTooltip = styled(ConditionalTooltip)`
   .MuiTooltip-tooltip {
     max-width: 180px;
@@ -99,6 +87,15 @@ const StyledConditionalTooltip = styled(ConditionalTooltip)`
   }
 `;
 
+const ButtonGroup = styled(Box)`
+  display: flex;
+  gap: 20px;
+  align-items: center;
+`;
+
+const SendToPharmacyButton = styled.div`
+  cursor: pointer;
+`;
 const NoMedicationTooltip = styled(ConditionalTooltip)`
   width: fit-content;
   .MuiTooltip-tooltip {
@@ -267,44 +264,34 @@ const ONGOING_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
   },
 ];
 
-const DISCHARGE_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
+const DISPENSED_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation, hoveredRow, setHoveredRow, handlePrintLabel, handleEdit, handleCancelClick) => [
   {
-    key: 'medication.name',
+    key: 'pharmacyOrderPrescription.prescription.medication.name',
     title: (
       <TranslatedText stringId="patient.medication.table.column.medication" fallback="Medication" />
     ),
     sortable: true,
     accessor: data => (
       <TranslatedReferenceData
-        fallback={data?.medication?.name}
-        value={data?.medication?.id}
-        category={data?.medication?.type}
+        fallback={data?.pharmacyOrderPrescription?.prescription?.medication?.name}
+        value={data?.pharmacyOrderPrescription?.prescription?.medication?.id}
+        category={data?.pharmacyOrderPrescription?.prescription?.medication?.type}
       />
     ),
   },
   {
-    key: 'quantity',
-    title: (
-      <TranslatedText stringId="patient.medication.table.column.quantity" fallback="Quantity" />
-    ),
-    sortable: false,
-    accessor: data => data?.quantity,
-  },
-  {
-    key: 'repeats',
-    title: <TranslatedText stringId="patient.medication.table.column.repeats" fallback="Repeats" />,
-    sortable: false,
-    accessor: data => data?.repeats,
-  },
-  {
     key: 'dose',
     title: <TranslatedText stringId="patient.medication.table.column.dose" fallback="Dose" />,
-    accessor: data => (
-      <>
-        {getMedicationDoseDisplay(data, getTranslation, getEnumTranslation)}
-        {data.isPrn && ` ${getTranslation('patient.medication.table.prn', 'PRN')}`}
-      </>
-    ),
+    accessor: data => {
+      const prescription = data?.pharmacyOrderPrescription?.prescription;
+      if (!prescription) return '';
+      return (
+        <>
+          {getMedicationDoseDisplay(prescription, getTranslation, getEnumTranslation)}
+          {prescription.isPrn && ` ${getTranslation('patient.medication.table.prn', 'PRN')}`}
+        </>
+      );
+    },
     sortable: false,
   },
   {
@@ -312,45 +299,121 @@ const DISCHARGE_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
     title: (
       <TranslatedText stringId="patient.medication.table.column.frequency" fallback="Frequency" />
     ),
-    accessor: data =>
-      data.frequency ? getTranslatedFrequency(data.frequency, getTranslation) : '',
+    accessor: data => {
+      const frequency = data?.pharmacyOrderPrescription?.prescription?.frequency;
+      return frequency ? getTranslatedFrequency(frequency, getTranslation) : '';
+    },
     sortable: false,
   },
   {
-    key: 'prescriber.displayName',
+    key: 'pharmacyOrderPrescription.pharmacyOrder.facility.name',
     title: (
-      <TranslatedText stringId="patient.medication.table.column.prescriber" fallback="Prescriber" />
+      <TranslatedText stringId="patient.medication.table.column.facility" fallback="Facility" />
     ),
-    accessor: data => data?.prescriber?.displayName ?? '',
+    accessor: data => data?.pharmacyOrderPrescription?.pharmacyOrder?.facility?.name ?? '',
+    sortable: false,
+  },
+  {
+    key: 'dispensedAt',
+    title: (
+      <TranslatedText stringId="patient.medication.table.column.dateDispensed" fallback="Date dispensed" />
+    ),
+    accessor: data => (
+      <DateDisplay date={data?.dispensedAt} timeOnlyTooltip shortYear />
+    ),
     sortable: true,
+  },
+  {
+    key: 'quantity',
+    title: (
+      <TranslatedText stringId="patient.medication.table.column.qtyDispensed" fallback="Qty dispensed" />
+    ),
+    sortable: false,
+    accessor: data => data?.quantity,
+  },
+  {
+    key: 'dispensedBy.displayName',
+    title: (
+      <TranslatedText stringId="patient.medication.table.column.dispensed" fallback="Dispensed" />
+    ),
+    accessor: data => data?.dispensedBy?.displayName ?? '',
+    sortable: true,
+  },
+  {
+    key: 'actions',
+    title: '',
+    allowExport: false,
+    accessor: row => {
+      const actions = [
+        {
+          label: <TranslatedText stringId="general.action.printLabel" fallback="Print label" />,
+          action: () => handlePrintLabel(row),
+        },
+        {
+          label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
+          action: () => handleEdit(row),
+        },
+        {
+          label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
+          action: () => handleCancelClick(row.id),
+        },
+      ];
+      return (
+        <div onMouseEnter={() => hoveredRow !== row && setHoveredRow(row.id)}>
+          <MenuButton actions={actions} />
+        </div>
+      );
+    },
+    sortable: false,
+    dontCallRowInput: true,
   },
 ];
 
 export const PatientMedicationPane = ({ patient }) => {
+  const api = useApi();
   const { ability, facilityId } = useAuth();
+  const { getSetting } = useSettings();
   const { data: currentEncounter } = usePatientCurrentEncounterQuery(patient.id);
+  const { data: facility } = useFacilityQuery(facilityId);
   const patientStatus = getPatientStatus(currentEncounter?.encounterType);
 
   const { getTranslation, getEnumTranslation } = useTranslation();
 
   const [ongoingPrescriptions, setOngoingPrescriptions] = useState([]);
-  const [dischargeMedications, setDischargeMedications] = useState([]);
-  const [lastInpatientEncounter, setLastInpatientEncounter] = useState(null);
+  const [dispensedMedications, setDispensedMedications] = useState([]);
   const [refreshCount, setRefreshCount] = useState(0);
   const [createMedicationModalOpen, setCreateMedicationModalOpen] = useState(false);
+  const [sendToPharmacyModalOpen, setSendToPharmacyModalOpen] = useState(false);
   const [selectedMedication, setSelectedMedication] = useState(null);
   const [allowDiscontinue, setAllowDiscontinue] = useState(false);
+  const [hoveredRow, setHoveredRow] = useState(null);
+
+  // Print label modal state
+  const [printModalOpen, setPrintModalOpen] = useState(false);
+  const [selectedLabelData, setSelectedLabelData] = useState([]);
+
+  // Cancel dispense modal state
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [selectedDispenseId, setSelectedDispenseId] = useState(null);
+
+  // Edit dispense modal state
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedDispense, setSelectedDispense] = useState(null);
 
   const canCreateOngoingPrescription = ability.can('create', 'Medication');
   const canViewSensitiveMedications = ability.can('read', 'SensitiveMedication');
+  const pharmacyOrderEnabled = getSetting('features.pharmacyOrder.enabled');
+
+  // Filter active (non-discontinued) ongoing prescriptions for send to pharmacy
+  const activeOngoingPrescriptions = ongoingPrescriptions.filter(p => !p.discontinued);
+  const hasActiveOngoingPrescriptions = activeOngoingPrescriptions.length > 0;
 
   const onOngoingPrescriptionsFetched = useCallback(({ data }) => {
     setOngoingPrescriptions(data);
   }, []);
 
-  const onDischargeMedicationsFetched = useCallback(({ data, otherData }) => {
-    setDischargeMedications(data);
-    setLastInpatientEncounter(otherData?.lastInpatientEncounter);
+  const onDispensedMedicationsFetched = useCallback(({ data }) => {
+    setDispensedMedications(data);
   }, []);
 
   const handleSavedOngoingPrescription = () => {
@@ -361,6 +424,10 @@ export const PatientMedicationPane = ({ patient }) => {
   const handleReloadOngoingPrescriptions = () => {
     setRefreshCount(prev => prev + 1);
     setSelectedMedication(null);
+  };
+
+  const handleSendToPharmacySubmit = () => {
+    setRefreshCount(prev => prev + 1);
   };
 
   const handleOngoingPrescriptionClick = (_, data) => {
@@ -375,14 +442,64 @@ export const PatientMedicationPane = ({ patient }) => {
     setAllowDiscontinue(true);
   };
 
-  const handleDischargeMedicationClick = (_, data) => {
-    const isSensitive = data?.medication?.referenceDrug?.isSensitive;
-    if (isSensitive && !canViewSensitiveMedications) {
-      return;
-    }
-    setSelectedMedication(data);
-    setAllowDiscontinue(false);
-  };
+  // Dispensed medication actions
+  const handlePrintLabel = useCallback((item) => {
+    const { pharmacyOrderPrescription, quantity, dispensedAt, id, instructions = '' } = item;
+    const prescription = pharmacyOrderPrescription?.prescription;
+
+    const labelItems = [
+      {
+        id,
+        medicationName: prescription?.medication?.name,
+        instructions,
+        quantity,
+        units: prescription?.units,
+        remainingRepeats: pharmacyOrderPrescription?.remainingRepeats,
+        prescriberName: prescription?.prescriber?.displayName,
+        requestNumber: pharmacyOrderPrescription?.displayId,
+        dispensedAt,
+      },
+    ];
+
+    const labelData = getMedicationLabelData({ items: labelItems, patient, facility });
+    setSelectedLabelData(labelData);
+    setPrintModalOpen(true);
+  }, [patient, facility]);
+
+  const handleEdit = useCallback((dispense) => {
+    setSelectedDispense(dispense);
+    setIsEditModalOpen(true);
+  }, []);
+
+  const handleEditCancel = useCallback(() => {
+    setIsEditModalOpen(false);
+    setSelectedDispense(null);
+  }, []);
+
+  const handleEditConfirm = useCallback(() => {
+    setIsEditModalOpen(false);
+    setSelectedDispense(null);
+    // Trigger table refresh
+    setRefreshCount(prev => prev + 1);
+  }, []);
+
+  const handleCancelClick = useCallback((dispenseId) => {
+    setSelectedDispenseId(dispenseId);
+    setIsCancelModalOpen(true);
+  }, []);
+
+  const handleCancelConfirm = useCallback(async () => {
+    await api.delete(`medication/medication-dispenses/${selectedDispenseId}`);
+    setIsCancelModalOpen(false);
+    setSelectedDispenseId(null);
+    // Trigger table refresh
+    setRefreshCount(prev => prev + 1);
+  }, [api, selectedDispenseId]);
+
+  const handleCancelCancel = useCallback(() => {
+    setIsCancelModalOpen(false);
+    setSelectedDispenseId(null);
+  }, []);
 
   const rowStyle = ({ medication }) => `
     ${
@@ -411,40 +528,105 @@ export const PatientMedicationPane = ({ patient }) => {
               fallback="Ongoing medications"
             />
           </TableTitleText>
-          {canCreateOngoingPrescription && (
-            <StyledConditionalTooltip
-              visible={!!currentEncounter}
-              title={
-                <TranslatedText
-                  stringId="patient.medication.ongoing.add.warning"
-                  fallback="Please add any medications via the patient active encounter."
-                />
-              }
-              PopperProps={{
-                popperOptions: {
-                  positionFixed: true,
-                  modifiers: {
-                    preventOverflow: {
-                      enabled: true,
-                      boundariesElement: 'window',
+          <ButtonGroup>
+            {pharmacyOrderEnabled && hasActiveOngoingPrescriptions && (
+              <StyledConditionalTooltip
+                visible={!!currentEncounter}
+                title={
+                  <TranslatedText
+                    stringId="patient.medication.ongoing.sendToPharmacy.activeEncounter.tooltip"
+                    fallback="Cannot send to pharmacy while patient has an active encounter. Please use the encounter medication workflow instead."
+                  />
+                }
+                PopperProps={{
+                  popperOptions: {
+                    positionFixed: true,
+                    modifiers: {
+                      flip: {
+                        enabled: false,
+                      },
+                      preventOverflow: {
+                        enabled: false,
+                      },
                     },
                   },
-                },
-              }}
-            >
-              <NoteModalActionBlocker>
-                <Button
-                  disabled={!!currentEncounter}
-                  onClick={() => setCreateMedicationModalOpen(true)}
-                >
+                }}
+              >
+                <NoteModalActionBlocker>
+                  <ThemedTooltip
+                    PopperProps={{
+                      popperOptions: {
+                        positionFixed: true,
+                        modifiers: {
+                          flip: {
+                            enabled: false,
+                          },
+                          preventOverflow: {
+                            enabled: false,
+                          },
+                        },
+                      },
+                    }}
+                    title={
+                      !currentEncounter ? (
+                        <Box width="120px" fontWeight={400}>
+                          <TranslatedText
+                            stringId="patient.medication.ongoing.sendToPharmacy.tooltip"
+                            fallback="Send to pharmacy"
+                          />
+                        </Box>
+                      ) : (
+                        ''
+                      )
+                    }
+                  >
+                    <SendToPharmacyButton
+                      disabled={!!currentEncounter}
+                      onClick={() => setSendToPharmacyModalOpen(true)}
+                    >
+                      <SendToPharmacyIcon />
+                    </SendToPharmacyButton>
+                  </ThemedTooltip>
+                </NoteModalActionBlocker>
+              </StyledConditionalTooltip>
+            )}
+            {canCreateOngoingPrescription && (
+              <StyledConditionalTooltip
+                visible={!!currentEncounter}
+                title={
                   <TranslatedText
-                    stringId="patient.medication.ongoing.add"
-                    fallback="Add ongoing medication"
+                    stringId="patient.medication.ongoing.add.warning"
+                    fallback="Please add any medications via the patient active encounter."
                   />
-                </Button>
-              </NoteModalActionBlocker>
-            </StyledConditionalTooltip>
-          )}
+                }
+                PopperProps={{
+                  popperOptions: {
+                    positionFixed: true,
+                    modifiers: {
+                      flip: {
+                        enabled: false,
+                      },
+                      preventOverflow: {
+                        enabled: false,
+                      },
+                    },
+                  },
+                }}
+              >
+                <NoteModalActionBlocker>
+                  <Button
+                    disabled={!!currentEncounter}
+                    onClick={() => setCreateMedicationModalOpen(true)}
+                  >
+                    <TranslatedText
+                      stringId="patient.medication.ongoing.add"
+                      fallback="Add ongoing medication"
+                    />
+                  </Button>
+                </NoteModalActionBlocker>
+              </StyledConditionalTooltip>
+            )}
+          </ButtonGroup>
         </TableTitle>
         <StyledDataFetchingTable
           endpoint={`/patient/${patient.id}/ongoing-prescriptions`}
@@ -469,60 +651,41 @@ export const PatientMedicationPane = ({ patient }) => {
       </TableContainer>
       <TableContainer>
         <TableTitle py={2} mx={2.5}>
-          <Box display={'flex'} alignItems={'center'} gap={0.5}>
-            <TableTitleText>
-              <TranslatedText
-                stringId="patient.medication.discharge.title"
-                fallback="Discharge medications"
-              />
-              {' | '}
-            </TableTitleText>
-            <TableTitleNote>
-              <TranslatedText
-                stringId="patient.medication.discharge.lastInpatientEncounter"
-                fallback="Last inpatient encounter"
-              />
-            </TableTitleNote>
-          </Box>
-          {lastInpatientEncounter && (
-            <Box display={'flex'} alignItems={'center'} gap={0.25}>
-              <DarkestText>{lastInpatientEncounter.discharge.facilityName} |</DarkestText>
-              <DarkText>
-                <TranslatedText
-                  stringId="patient.medication.discharge.discharged"
-                  fallback="Discharged"
-                />
-                {': '}
-                {formatShortest(lastInpatientEncounter.endDate)}
-              </DarkText>
-            </Box>
-          )}
+          <TableTitleText>
+            <TranslatedText
+              stringId="patient.medication.dispensed.title"
+              fallback="Dispensed medications"
+            />
+          </TableTitleText>
         </TableTitle>
         <StyledDataFetchingTable
-          endpoint={`/patient/${patient.id}/last-inpatient-discharge-medications`}
-          columns={DISCHARGE_MEDICATION_COLUMNS(getTranslation, getEnumTranslation)}
-          rowStyle={rowStyle}
+          endpoint={`/patient/${patient.id}/dispensed-medications`}
+          columns={DISPENSED_MEDICATION_COLUMNS(
+            getTranslation,
+            getEnumTranslation,
+            hoveredRow,
+            setHoveredRow,
+            handlePrintLabel,
+            handleEdit,
+            handleCancelClick
+          )}
           noDataMessage={
             <NoDataContainer>
-              {lastInpatientEncounter ? (
-                <TranslatedText
-                  stringId="patient.medication.discharge.table.noDischargeMedications"
-                  fallback="No last inpatient encounter discharge medications to display."
-                />
-              ) : (
-                <TranslatedText
-                  stringId="patient.medication.discharge.table.noLastInpatientEncounter"
-                  fallback="This patient has had no inpatient encounters."
-                />
-              )}
+              <TranslatedText
+                stringId="patient.medication.dispensed.table.noData"
+                fallback="No dispensed medications to display."
+              />
             </NoDataContainer>
           }
-          disablePagination
           allowExport={false}
-          onDataFetched={onDischargeMedicationsFetched}
-          $noData={dischargeMedications.length === 0}
-          onClickRow={handleDischargeMedicationClick}
-          $maxHeight={'270px'}
+          onDataFetched={onDispensedMedicationsFetched}
+          $noData={dispensedMedications.length === 0}
+          refreshCount={refreshCount}
+          initialSort={{
+            orderBy: 'dispensedAt',
+            order: 'desc',
+          }}
+          $maxHeight={'320px'}
         />
       </TableContainer>
       <MedicationModal
@@ -531,6 +694,13 @@ export const PatientMedicationPane = ({ patient }) => {
         onSaved={handleSavedOngoingPrescription}
         isOngoingPrescription
       />
+      <PharmacyOrderModal
+        patient={patient}
+        ongoingPrescriptions={activeOngoingPrescriptions}
+        open={sendToPharmacyModalOpen}
+        onClose={() => setSendToPharmacyModalOpen(false)}
+        onSubmit={handleSendToPharmacySubmit}
+      />
       {selectedMedication && (
         <MedicationDetails
           initialMedication={selectedMedication}
@@ -538,6 +708,24 @@ export const PatientMedicationPane = ({ patient }) => {
           isOngoingPrescription
           onReloadTable={handleReloadOngoingPrescriptions}
           allowDiscontinue={allowDiscontinue}
+        />
+      )}
+      <MedicationLabelPrintModal
+        open={printModalOpen}
+        onClose={() => setPrintModalOpen(false)}
+        labels={selectedLabelData}
+      />
+      <CancelDispensedMedicationModal
+        open={isCancelModalOpen}
+        onClose={handleCancelCancel}
+        onConfirm={handleCancelConfirm}
+      />
+      {isEditModalOpen && (
+        <EditMedicationDispenseModal
+          open={isEditModalOpen}
+          medicationDispense={selectedDispense}
+          onClose={handleEditCancel}
+          onConfirm={handleEditConfirm}
         />
       )}
     </Box>

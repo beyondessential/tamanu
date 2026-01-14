@@ -680,10 +680,12 @@ patientRoute.get(
     const {
       order = 'DESC',
       orderBy = 'dispensedAt',
+      page,
+      rowsPerPage,
     } = query;
 
-    const page = parseInt(page) || 0;
-    const rowsPerPage = parseInt(rowsPerPage) || 10;
+    const parsedPage = parseInt(page) || 0;
+    const parsedRowsPerPage = parseInt(rowsPerPage) || 10;
 
     const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 
@@ -759,8 +761,8 @@ patientRoute.get(
         [...orderBy.split('.'), orderDirection],
         ['dispensedAt', 'DESC'],
       ],
-      limit: rowsPerPage,
-      offset: page * rowsPerPage,
+      limit: parsedRowsPerPage,
+      offset: parsedPage * parsedRowsPerPage,
     });
 
     const { count, rows: data } = response;
