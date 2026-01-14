@@ -355,6 +355,7 @@ export const DeathForm = React.memo(
             data-testid="field-psio"
           />
           <FormSeparatorLine data-testid="formseparatorline-ejds" />
+          <PrimaryFields practitionerSuggester={practitionerSuggester} />
           <Field
             name="facilityId"
             label={
