@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Search from '@material-ui/icons/Search';
 import { IconButton, InputAdornment } from '@material-ui/core';
 import styled from 'styled-components';
@@ -37,28 +37,14 @@ const StyledClearIcon = styled(ClearIcon)`
 export const SearchField = props => {
   const {
     field: { value, name, onChange },
-    form: { setFieldValue } = {},
   } = props;
-  const [searchValue, setSearchValue] = useState(value);
-
-  useEffect(() => {
-    setSearchValue(value);
-  }, [value]);
 
   const clearSearch = () => {
-    setSearchValue('');
     onChange?.({ target: { value: '', name } });
-    setFieldValue?.(name, '');
   };
 
   return (
-    <SearchInput
-      {...props}
-      name={name}
-      value={searchValue}
-      onChange={onChange}
-      onClear={clearSearch}
-    />
+    <SearchInput {...props} name={name} value={value} onChange={onChange} onClear={clearSearch} />
   );
 };
 
