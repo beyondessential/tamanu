@@ -47,6 +47,7 @@ const AutocompleteFieldWithPrefix = ({ prefix, ...props }) => (
 
 const StyledFormGrid = styled(FormGrid)`
   min-height: 200px;
+  padding-left: 10px;
 `;
 
 const attendingClinicianLabel = (
