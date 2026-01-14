@@ -52,9 +52,11 @@ const mannerOfDeathVisibilityCriteria = {
   mannerOfDeath: Object.values(MANNER_OF_DEATHS).filter(x => x !== 'Disease'),
 };
 
-const PartialWorkflowPage = ({ practitionerSuggester }) => {
+// These fields are both on page 1 and page 2. This allows
+// partial workflow and is intended by design.
+const PrimaryFields = ({ practitionerSuggester }) => {
   return (
-    <StyledFormGrid columns={1} data-testid="styledformgrid-o83r">
+    <>
       <Field
         name="timeOfDeath"
         label={
@@ -95,6 +97,14 @@ const PartialWorkflowPage = ({ practitionerSuggester }) => {
         required
         data-testid="field-j9h1"
       />
+    </>
+  );
+};
+
+const PartialWorkflowPage = ({ practitionerSuggester }) => {
+  return (
+    <StyledFormGrid columns={1} data-testid="styledformgrid-o83r">
+      <PrimaryFields practitionerSuggester={practitionerSuggester} />
     </StyledFormGrid>
   );
 };
