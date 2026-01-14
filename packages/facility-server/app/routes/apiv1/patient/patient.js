@@ -587,16 +587,38 @@ patientRoute.get(
 
     let responseData = ongoingPrescriptions.map(p => p.forResponse());
     if (responseData.length > 0) {
-      const prescriptionIds = responseData.map(p => p.id);
+      const ongoingPrescriptionIds = responseData.map(p => p.id);
+      
+      // Find the latest pharmacy_order_prescriptions for prescriptions that were cloned from ongoing prescriptions.
+      // We do this by:
+      // 1. Finding prescriptions linked to encounters created by send-ongoing-to-pharmacy (reasonForEncounter = 'Medication dispensing')
+      // 2. That have the same medicationId as the ongoing prescription
+      // 3. Then finding pharmacy_order_prescriptions for those cloned prescriptions
       const [pharmacyOrderPrescriptions] = await db.query(
         `
-        SELECT prescription_id, max(created_at) as last_ordered_at
-        FROM pharmacy_order_prescriptions
-        WHERE prescription_id IN (:prescriptionIds) and deleted_at is null GROUP BY prescription_id
+        SELECT 
+          p_ongoing.id as ongoing_prescription_id,
+          MAX(pop.created_at) as last_ordered_at
+        FROM prescriptions p_ongoing
+        INNER JOIN prescriptions p_cloned ON p_cloned.medication_id = p_ongoing.medication_id
+          AND p_cloned.deleted_at IS NULL
+        INNER JOIN encounter_prescriptions ep_cloned ON ep_cloned.prescription_id = p_cloned.id
+        INNER JOIN encounters e ON e.id = ep_cloned.encounter_id
+          AND e.patient_id = :patientId
+          AND e.reason_for_encounter = 'Medication dispensing'
+        INNER JOIN pharmacy_order_prescriptions pop ON pop.prescription_id = p_cloned.id
+          AND pop.deleted_at IS NULL
+        WHERE p_ongoing.id IN (:ongoingPrescriptionIds)
+        GROUP BY p_ongoing.id
       `,
-        { replacements: { prescriptionIds } },
+        { 
+          replacements: { 
+            patientId,
+            ongoingPrescriptionIds,
+          } 
+        },
       );
-      const lastOrderedAts = keyBy(pharmacyOrderPrescriptions, 'prescription_id');
+      const lastOrderedAts = keyBy(pharmacyOrderPrescriptions, 'ongoing_prescription_id');
 
       responseData = responseData.map(p => ({
         ...p,

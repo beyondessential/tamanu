@@ -516,25 +516,35 @@ medication.post(
         { transaction },
       );
 
-      // Link the existing ongoing prescriptions to the automatic encounter.
+      // Create new prescriptions for this encounter based on the original ongoing prescriptions
+      const newPrescriptions = [];
       for (const originalPrescription of ongoingPrescriptions) {
         const requestData = prescriptionMap.get(originalPrescription.id);
+
+        // Create a new prescription with the original details but updated quantity and repeats
+        const newPrescription = await Prescription.create(
+          {
+            ...originalPrescription.dataValues,
+            date: currentDateTime,
+            startDate: currentDateTime,
+            quantity: requestData.quantity,
+            repeats: requestData.repeats ?? originalPrescription.repeats ?? 0,
+            prescriberId: orderingClinicianId,
+          },
+          { transaction },
+        );
 
         // Link prescription to encounter
         await EncounterPrescription.create(
           {
             encounterId: encounter.id,
-            prescriptionId: originalPrescription.id,
+            prescriptionId: newPrescription.id,
             isSelectedForDischarge: true,
           },
           { transaction },
         );
 
-        // Update the original ongoing prescription's repeats if changed
-        const newRepeats = requestData.repeats ?? originalPrescription.repeats ?? 0;
-        if (newRepeats !== (originalPrescription.repeats ?? 0)) {
-          await originalPrescription.update({ repeats: newRepeats }, { transaction });
-        }
+        newPrescriptions.push(newPrescription);
       }
 
       // Create pharmacy order
@@ -552,11 +562,12 @@ medication.post(
 
       // Create pharmacy order prescriptions
       await PharmacyOrderPrescription.bulkCreate(
-        ongoingPrescriptions.map(originalPrescription => {
+        newPrescriptions.map((prescription, index) => {
+          const originalPrescription = ongoingPrescriptions[index];
           const requestData = prescriptionMap.get(originalPrescription.id);
           return {
             pharmacyOrderId: pharmacyOrder.id,
-            prescriptionId: originalPrescription.id,
+            prescriptionId: prescription.id,
             quantity: requestData.quantity,
             repeats: requestData.repeats ?? originalPrescription.repeats ?? 0,
           };
@@ -567,7 +578,7 @@ medication.post(
       return {
         encounter,
         pharmacyOrder,
-        prescriptions: ongoingPrescriptions,
+        prescriptions: newPrescriptions,
       };
     });
 
