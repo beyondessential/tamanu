@@ -10,6 +10,7 @@ import {
   ConfirmCancelRow,
   TextInput,
   TranslatedText,
+  TranslatedReferenceData,
 } from '@tamanu/ui-components';
 
 import { useApi, useSuggester } from '../../api';
@@ -110,7 +111,7 @@ export const EditMedicationDispenseModal = memo(
     const practitionerSuggester = useSuggester('practitioner');
 
     const [step, setStep] = useState(MODAL_STEPS.DISPENSE);
-    const [dispensedByUserId, setDispensedByUserId] = useState(null);
+    const [dispensedByUserId, setDispensedByUserId] = useState('');
     const [item, setItem] = useState(null);
     const [errors, setErrors] = useState({});
     const [showValidationErrors, setShowValidationErrors] = useState(false);
@@ -258,8 +259,13 @@ export const EditMedicationDispenseModal = memo(
           key: 'medication',
           width: '250px',
           title: <TranslatedText stringId="medication.medication.label" fallback="Medication" />,
-          accessor: ({ pharmacyOrderPrescription }) =>
-            pharmacyOrderPrescription?.prescription?.medication?.name || '-',
+          accessor: ({ pharmacyOrderPrescription }) => (
+            <TranslatedReferenceData
+              fallback={pharmacyOrderPrescription?.prescription?.medication?.name}
+              value={pharmacyOrderPrescription?.prescription?.medication?.id}
+              category={pharmacyOrderPrescription?.prescription?.medication?.type}
+            />
+          ),
         },
         {
           key: 'quantity',

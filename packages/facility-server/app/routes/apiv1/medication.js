@@ -2448,8 +2448,6 @@ medication.put(
       throw new NotFoundError(`User with id ${dispensedByUserId} not found`);
     }
 
-    const dispensedAt = getCurrentDateTimeString();
-
     const result = await MedicationDispense.sequelize.transaction(async () => {
       const medicationDispense = await MedicationDispense.findByPk(id, {
         attributes: ['id', 'quantity', 'instructions'],
@@ -2494,7 +2492,7 @@ medication.put(
         req.checkPermission('write', 'SensitiveMedication');
       }
 
-      await medicationDispense.update({ quantity, instructions, dispensedByUserId, dispensedAt });
+      await medicationDispense.update({ quantity, instructions, dispensedByUserId });
 
       return medicationDispense;
     });

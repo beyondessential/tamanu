@@ -13,6 +13,7 @@ import {
   ConfirmCancelBackRow,
   ConfirmCancelRow,
   TextInput,
+  TranslatedReferenceData,
   TranslatedText,
 } from '@tamanu/ui-components';
 
@@ -460,7 +461,13 @@ export const DispenseMedicationWorkflowModal = memo(
           key: 'medication',
           width: '250px',
           title: <TranslatedText stringId="medication.medication.label" fallback="Medication" />,
-          accessor: ({ prescription }) => prescription?.medication?.name || '-',
+          accessor: ({ prescription }) => (
+            <TranslatedReferenceData
+              fallback={prescription?.medication?.name}
+              value={prescription?.medication?.id}
+              category={prescription?.medication?.type}
+            />
+          ),
         },
         {
           key: 'quantity',
