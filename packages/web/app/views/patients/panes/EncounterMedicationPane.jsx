@@ -74,6 +74,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   const { getSetting } = useSettings();
 
   const pharmacyOrderEnabled = getSetting('features.pharmacyOrder.enabled');
+  const canRequestPharmacyOrder = ability.can('create', 'MedicationRequest');
 
   const [printMedicationModalOpen, setPrintMedicationModalOpen] = useState(false);
   const [pharmacyOrderModalOpen, setPharmacyOrderModalOpen] = useState(false);
@@ -236,7 +237,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
                         </ThemedTooltip>
                       </StyledTextButton>
                     </NoteModalActionBlocker>
-                    {pharmacyOrderEnabled && (
+                    {pharmacyOrderEnabled && canRequestPharmacyOrder && (
                       <NoteModalActionBlocker>
                         <StyledTextButton
                           onClick={() => setPharmacyOrderModalOpen(true)}

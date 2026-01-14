@@ -380,7 +380,7 @@ medication.post(
     );
 
     req.checkPermission('create', 'Encounter');
-    req.checkPermission('create', 'Medication');
+    req.checkPermission('create', 'MedicationRequest');
     req.checkPermission('read', 'Medication');
 
     // Check if patient has an active encounter
@@ -1722,7 +1722,7 @@ medication.get(
       ...filterParams
     } = query;
 
-    req.checkPermission('list', 'Medication');
+    req.checkPermission('read', 'MedicationRequest');
 
     const canViewSensitiveMedications = req.ability.can('read', 'SensitiveMedication');
 
@@ -1910,7 +1910,8 @@ medication.delete(
     const { models, params } = req;
     const { PharmacyOrderPrescription } = models;
 
-    req.checkPermission('write', 'Medication');
+    req.checkPermission('delete', 'MedicationRequest');
+    req.checkPermission('delete', 'MedicationDispense');
 
     const pharmacyOrderPrescription = await PharmacyOrderPrescription.findByPk(params.id, {
       include: [
@@ -1945,7 +1946,7 @@ medication.get(
       ...filterParams
     } = query;
 
-    req.checkPermission('list', 'Medication');
+    req.checkPermission('read', 'MedicationDispense');
 
     const canViewSensitiveMedications = req.ability.can('read', 'SensitiveMedication');
 
@@ -2127,7 +2128,7 @@ medication.delete(
     const { models, params } = req;
     const { MedicationDispense } = models;
 
-    req.checkPermission('write', 'Medication');
+    req.checkPermission('write', 'MedicationDispense');
 
     const dispenseId = params.id;
 
@@ -2171,7 +2172,7 @@ medication.get(
   asyncHandler(async (req, res) => {
     const { models } = req;
 
-    req.checkPermission('read', 'Medication');
+    req.checkPermission('read', 'MedicationRequest');
 
     const { patientId, facilityId } = await dispensableMedicationsQuerySchema.parseAsync(req.query);
 

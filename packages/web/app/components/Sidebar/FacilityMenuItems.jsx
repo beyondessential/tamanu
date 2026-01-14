@@ -7,7 +7,7 @@ import {
   scheduleIcon,
   vaccineIcon,
   dashboardIcon,
-  medicationIcon
+  medicationIcon,
 } from '../../constants/images';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation/TranslatedText';
@@ -144,7 +144,10 @@ export const FACILITY_MENU_ITEMS = [
     ),
     path: '/medication',
     icon: medicationIcon,
-    ability: { subject: 'Medication' },
+    abilities: [
+      { subject: 'MedicationRequest', action: 'read' },
+      { subject: 'MedicationDispense', action: 'read' },
+    ],
     children: [
       {
         label: (
@@ -156,7 +159,7 @@ export const FACILITY_MENU_ITEMS = [
         ),
         path: '/medication/active',
         key: 'medicationActive',
-        ability: { action: 'read' },
+        abilities: [{ subject: 'MedicationRequest', action: 'read' }],
       },
       {
         label: (
@@ -168,7 +171,7 @@ export const FACILITY_MENU_ITEMS = [
         ),
         path: '/medication/dispensed',
         key: 'medicationDispensed',
-        ability: { action: 'read' },
+        abilities: [{ subject: 'MedicationDispense', action: 'read' }],
       },
     ],
   },
