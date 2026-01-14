@@ -1,0 +1,35 @@
+{
+  "sheetName": "Reference Data Relation",
+  "columns": [
+    "referenceDataId",
+    "referenceDataParentId",
+    "type"
+  ],
+  "data": [
+    {
+      "referenceDataId": "village-tenAlders",
+      "referenceDataParentId": "catchment-healthCenter1",
+      "type": "facility_catchment"
+    },
+    {
+      "referenceDataId": "village-essary",
+      "referenceDataParentId": "catchment-healthCenter1",
+      "type": "facility_catchment"
+    },
+    {
+      "referenceDataId": "village-oskres",
+      "referenceDataParentId": "catchment-healthCenter2",
+      "type": "facility_catchment"
+    },
+    {
+      "referenceDataId": "village-tenacbah",
+      "referenceDataParentId": "catchment-healthCenter2",
+      "type": "facility_catchment"
+    },
+    {
+      "referenceDataId": "village-gar",
+      "referenceDataParentId": "catchment-healthCenter2",
+      "type": "facility_catchment"
+    }
+  ]
+}

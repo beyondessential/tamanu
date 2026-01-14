@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import InfoIcon from '@material-ui/icons/HelpOutline';
+import InfoIcon from '@material-ui/icons/Info';
 import { TAMANU_COLORS } from '../../constants';
 import { ThemedTooltip } from '../Tooltip';
 

@@ -15,6 +15,8 @@ import { getMedicationLabelData } from '../utils/medications';
 import { useFacilityQuery } from '../api/queries/useFacilityQuery';
 import { useApi } from '../api';
 import { CancelDispensedMedicationModal } from './Medication/CancelDispensedMedicationModal';
+import { EditMedicationDispenseModal } from './Medication/EditMedicationDispenseModal';
+import { DispensedMedicationDetailsModal } from './Medication/DispensedMedicationDetailsModal';
 
 const NoDataContainer = styled.div`
   height: 500px;
@@ -76,8 +78,11 @@ export const MedicationDispensesTable = () => {
   const [selectedLabelData, setSelectedLabelData] = useState([]);
   const [hoveredRow, setHoveredRow] = useState(null);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
-  const [selectedDispenseId, setSelectedDispenseId] = useState(null);
+  const [selectedDispense, setSelectedDispense] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [refreshCount, setRefreshCount] = useState(0);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [selectedDetailItem, setSelectedDetailItem] = useState(null);
 
   const onMedicationDispensesFetched = useCallback(({ data }) => {
     setMedicationDispenses(data);
@@ -111,22 +116,37 @@ export const MedicationDispensesTable = () => {
     setRefreshCount(prev => prev + 1);
   }, []);
 
-  const handleCancelClick = dispenseId => {
-    setSelectedDispenseId(dispenseId);
+  const handleCancelClick = dispense => {
+    setSelectedDispense(dispense);
     setIsCancelModalOpen(true);
   };
 
   const handleCancelConfirm = async () => {
-    await api.delete(`medication/medication-dispenses/${selectedDispenseId}`);
+    await api.delete(`medication/medication-dispenses/${selectedDispense.id}`);
     setIsCancelModalOpen(false);
-    setSelectedDispenseId(null);
+    setSelectedDispense(null);
     // Trigger table refresh
     handleTableRefresh();
   };
 
   const handleCancelCancel = () => {
     setIsCancelModalOpen(false);
-    setSelectedDispenseId(null);
+    setSelectedDispense(null);
+  };
+
+  const handleEditClick = dispense => {
+    setSelectedDispense(dispense);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditCancel = () => {
+    setIsEditModalOpen(false);
+    setSelectedDispense(null);
+  };
+
+  const handleEditConfirm = async () => {
+    // Trigger table refresh
+    handleTableRefresh();
   };
 
   const columns = [
@@ -226,11 +246,11 @@ export const MedicationDispensesTable = () => {
           },
           {
             label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
-            action: () => {},
+            action: () => handleEditClick(row),
           },
           {
             label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
-            action: () => handleCancelClick(row.id),
+            action: () => handleCancelClick(row),
           },
         ];
         return (
@@ -246,8 +266,30 @@ export const MedicationDispensesTable = () => {
 
   const fetchOptions = { ...searchParameters, facilityId };
 
-  const handleRowClick = (_, data) => {
-    console.log(data);
+  const handleRowClick = (_, dispenseData) => {
+    // Map the dispense data to the format expected by the detail modal
+    const patient = dispenseData.pharmacyOrderPrescription?.pharmacyOrder?.encounter?.patient;
+    const mappedItem = {
+      id: dispenseData.id,
+      displayId: dispenseData.pharmacyOrderPrescription?.displayId,
+      quantity: dispenseData.quantity,
+      instructions: dispenseData.instructions,
+      remainingRepeats: dispenseData.pharmacyOrderPrescription?.remainingRepeats,
+      dispensedAt: dispenseData.dispensedAt,
+      dispensedBy: dispenseData.dispensedBy,
+      prescription: {
+        date: dispenseData.pharmacyOrderPrescription?.prescription?.date,
+        medication: dispenseData.pharmacyOrderPrescription?.prescription?.medication,
+      },
+      patient,
+    };
+    setSelectedDetailItem(mappedItem);
+    setIsDetailModalOpen(true);
+  };
+
+  const handleCloseDetailModal = () => {
+    setIsDetailModalOpen(false);
+    setSelectedDetailItem(null);
   };
 
   return (
@@ -256,6 +298,12 @@ export const MedicationDispensesTable = () => {
         open={isCancelModalOpen}
         onClose={handleCancelCancel}
         onConfirm={handleCancelConfirm}
+      />
+      <EditMedicationDispenseModal
+        open={isEditModalOpen}
+        medicationDispense={selectedDispense}
+        onClose={handleEditCancel}
+        onConfirm={handleEditConfirm}
       />
       <StyledSearchTableWithPermissionCheck
         refreshCount={refreshCount}
@@ -288,6 +336,11 @@ export const MedicationDispensesTable = () => {
         open={printModalOpen}
         onClose={() => setPrintModalOpen(false)}
         labels={selectedLabelData}
+      />
+      <DispensedMedicationDetailsModal
+        open={isDetailModalOpen}
+        onClose={handleCloseDetailModal}
+        item={selectedDetailItem}
       />
     </>
   );

@@ -1,0 +1,35 @@
+{
+  "sheetName": "Vascular Study Imaging Areas",
+  "columns": [
+    "id",
+    "code",
+    "name"
+  ],
+  "data": [
+    {
+      "id": "vascularStudyImagingArea-93001",
+      "code": 93001,
+      "name": "Vascular Study Imaging Area"
+    },
+    {
+      "id": "vascularStudyImagingArea-93002",
+      "code": 93002,
+      "name": "Doppler Ultrasound Area"
+    },
+    {
+      "id": "vascularStudyImagingArea-93003",
+      "code": 93003,
+      "name": "Arterial Study Area"
+    },
+    {
+      "id": "vascularStudyImagingArea-93004",
+      "code": 93004,
+      "name": "Venous Study Area"
+    },
+    {
+      "id": "vascularStudyImagingArea-93005",
+      "code": 93005,
+      "name": "Carotid Study Area"
+    }
+  ]
+}

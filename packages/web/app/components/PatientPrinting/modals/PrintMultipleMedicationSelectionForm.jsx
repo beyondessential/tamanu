@@ -278,7 +278,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
             <Box width="147px">
               <TranslatedText
                 stringId="medication.modal.printMultiple.prescriber.tooltip"
-                fallback="The prescriber will appear on the printed prescription"
+                fallback="This prescriber will appear on the printed prescription"
                 data-testid="translatedtext-s7yn"
               />
             </Box>
