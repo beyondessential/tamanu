@@ -380,6 +380,7 @@ medication.post(
     );
 
     req.checkPermission('create', 'Encounter');
+    req.checkPermission('create', 'Medication');
     req.checkPermission('create', 'MedicationRequest');
     req.checkPermission('read', 'Medication');
 
