@@ -29,6 +29,7 @@ import { MenuButton } from '../../../components/MenuButton';
 import { MedicationLabelPrintModal } from '../../../components/PatientPrinting/modals/MedicationLabelPrintModal';
 import { CancelDispensedMedicationModal } from '../../../components/Medication/CancelDispensedMedicationModal';
 import { EditMedicationDispenseModal } from '../../../components/Medication/EditMedicationDispenseModal';
+import { DispensedMedicationDetailsModal } from '../../../components/Medication/DispensedMedicationDetailsModal';
 import { getMedicationLabelData } from '../../../utils/medications';
 import { useApi } from '../../../api';
 import { SendToPharmacyIcon } from '../../../assets/icons/SendToPharmacyIcon';
@@ -265,7 +266,15 @@ const ONGOING_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
   },
 ];
 
-const DISPENSED_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation, hoveredRow, setHoveredRow, handlePrintLabel, handleEdit, handleCancelClick) => [
+const DISPENSED_MEDICATION_COLUMNS = (
+  getTranslation,
+  getEnumTranslation,
+  hoveredRow,
+  setHoveredRow,
+  handlePrintLabel,
+  handleEdit,
+  handleCancelClick,
+) => [
   {
     key: 'pharmacyOrderPrescription.prescription.medication.name',
     title: (
@@ -317,17 +326,21 @@ const DISPENSED_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation, hovere
   {
     key: 'dispensedAt',
     title: (
-      <TranslatedText stringId="patient.medication.table.column.dateDispensed" fallback="Date dispensed" />
+      <TranslatedText
+        stringId="patient.medication.table.column.dateDispensed"
+        fallback="Date dispensed"
+      />
     ),
-    accessor: data => (
-      <DateDisplay date={data?.dispensedAt} timeOnlyTooltip shortYear />
-    ),
+    accessor: data => <DateDisplay date={data?.dispensedAt} timeOnlyTooltip shortYear />,
     sortable: true,
   },
   {
     key: 'quantity',
     title: (
-      <TranslatedText stringId="patient.medication.table.column.qtyDispensed" fallback="Qty dispensed" />
+      <TranslatedText
+        stringId="patient.medication.table.column.qtyDispensed"
+        fallback="Qty dispensed"
+      />
     ),
     sortable: false,
     accessor: data => data?.quantity,
@@ -401,6 +414,10 @@ export const PatientMedicationPane = ({ patient }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedDispense, setSelectedDispense] = useState(null);
 
+  // Detail modal state
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [selectedDetailItem, setSelectedDetailItem] = useState(null);
+
   const canCreateOngoingPrescription = ability.can('create', 'Medication');
   const canViewSensitiveMedications = ability.can('read', 'SensitiveMedication');
   const pharmacyOrderEnabled = getSetting('features.pharmacyOrder.enabled');
@@ -445,30 +462,33 @@ export const PatientMedicationPane = ({ patient }) => {
   };
 
   // Dispensed medication actions
-  const handlePrintLabel = useCallback((item) => {
-    const { pharmacyOrderPrescription, quantity, dispensedAt, id, instructions = '' } = item;
-    const prescription = pharmacyOrderPrescription?.prescription;
+  const handlePrintLabel = useCallback(
+    item => {
+      const { pharmacyOrderPrescription, quantity, dispensedAt, id, instructions = '' } = item;
+      const prescription = pharmacyOrderPrescription?.prescription;
 
-    const labelItems = [
-      {
-        id,
-        medicationName: prescription?.medication?.name,
-        instructions,
-        quantity,
-        units: prescription?.units,
-        remainingRepeats: pharmacyOrderPrescription?.remainingRepeats,
-        prescriberName: prescription?.prescriber?.displayName,
-        requestNumber: pharmacyOrderPrescription?.displayId,
-        dispensedAt,
-      },
-    ];
+      const labelItems = [
+        {
+          id,
+          medicationName: prescription?.medication?.name,
+          instructions,
+          quantity,
+          units: prescription?.units,
+          remainingRepeats: pharmacyOrderPrescription?.remainingRepeats,
+          prescriberName: prescription?.prescriber?.displayName,
+          requestNumber: pharmacyOrderPrescription?.displayId,
+          dispensedAt,
+        },
+      ];
 
-    const labelData = getMedicationLabelData({ items: labelItems, patient, facility });
-    setSelectedLabelData(labelData);
-    setPrintModalOpen(true);
-  }, [patient, facility]);
+      const labelData = getMedicationLabelData({ items: labelItems, patient, facility });
+      setSelectedLabelData(labelData);
+      setPrintModalOpen(true);
+    },
+    [patient, facility],
+  );
 
-  const handleEdit = useCallback((dispense) => {
+  const handleEdit = useCallback(dispense => {
     setSelectedDispense(dispense);
     setIsEditModalOpen(true);
   }, []);
@@ -485,7 +505,7 @@ export const PatientMedicationPane = ({ patient }) => {
     setRefreshCount(prev => prev + 1);
   }, []);
 
-  const handleCancelClick = useCallback((dispenseId) => {
+  const handleCancelClick = useCallback(dispenseId => {
     setSelectedDispenseId(dispenseId);
     setIsCancelModalOpen(true);
   }, []);
@@ -501,6 +521,41 @@ export const PatientMedicationPane = ({ patient }) => {
   const handleCancelCancel = useCallback(() => {
     setIsCancelModalOpen(false);
     setSelectedDispenseId(null);
+  }, []);
+
+  const handleDispensedMedicationClick = useCallback(
+    (_, dispenseData) => {
+      const {
+        id,
+        pharmacyOrderPrescription,
+        quantity,
+        instructions,
+        dispensedAt,
+        dispensedBy,
+      } = dispenseData;
+      const mappedItem = {
+        id,
+        displayId: pharmacyOrderPrescription?.displayId,
+        quantity,
+        instructions,
+        remainingRepeats: pharmacyOrderPrescription?.remainingRepeats,
+        dispensedAt,
+        dispensedBy,
+        prescription: {
+          date: pharmacyOrderPrescription?.prescription?.date,
+          medication: pharmacyOrderPrescription?.prescription?.medication,
+        },
+        patient,
+      };
+      setSelectedDetailItem(mappedItem);
+      setIsDetailModalOpen(true);
+    },
+    [patient],
+  );
+
+  const handleCloseDetailModal = useCallback(() => {
+    setIsDetailModalOpen(false);
+    setSelectedDetailItem(null);
   }, []);
 
   const rowStyle = ({ medication }) => `
@@ -669,7 +724,7 @@ export const PatientMedicationPane = ({ patient }) => {
             setHoveredRow,
             handlePrintLabel,
             handleEdit,
-            handleCancelClick
+            handleCancelClick,
           )}
           noDataMessage={
             <NoDataContainer>
@@ -687,6 +742,7 @@ export const PatientMedicationPane = ({ patient }) => {
             orderBy: 'dispensedAt',
             order: 'desc',
           }}
+          onClickRow={handleDispensedMedicationClick}
           $maxHeight={'320px'}
         />
       </TableContainer>
@@ -727,6 +783,11 @@ export const PatientMedicationPane = ({ patient }) => {
         medicationDispense={selectedDispense}
         onClose={handleEditCancel}
         onConfirm={handleEditConfirm}
+      />
+      <DispensedMedicationDetailsModal
+        open={isDetailModalOpen}
+        onClose={handleCloseDetailModal}
+        item={selectedDetailItem}
       />
     </Box>
   );
