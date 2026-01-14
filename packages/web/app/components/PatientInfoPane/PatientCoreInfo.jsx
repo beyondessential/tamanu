@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
 import { Button, Typography } from '@material-ui/core';
-import { TranslatedSex, TranslatedText } from '@tamanu/ui-components';
+import { TranslatedSex, TranslatedText, useTranslation } from '@tamanu/ui-components';
 import { DateDisplay } from '../DateDisplay';
 import { PatientInitialsIcon } from '../PatientInitialsIcon';
 import { useSettings } from '../../contexts/Settings';
@@ -128,7 +128,11 @@ const HealthIdDisplay = ({ displayId, isDeceased }) => (
 export const CoreInfoDisplay = memo(({ patient }) => {
   const { navigateToPatient } = usePatientNavigation();
   const { getSetting } = useSettings();
+  const { getTranslation } = useTranslation();
   const ageDisplayFormat = getSetting('ageDisplayFormat');
+  const ageText = patient.dateOfDeath
+    ? getTranslation('patient.detailsSidebar.deceased', 'deceased')
+    : getDisplayAge(patient.dateOfBirth, ageDisplayFormat);
 
   return (
     <>
@@ -178,7 +182,7 @@ export const CoreInfoDisplay = memo(({ patient }) => {
           data-testid="coreinfocell-0opr"
         >
           <DateDisplay date={patient.dateOfBirth} data-testid="datedisplay-ez8y" />
-          <AgeDisplay data-testid="agedisplay-gpl9">{` (${getDisplayAge(patient.dateOfBirth, ageDisplayFormat)})`}</AgeDisplay>
+          <AgeDisplay data-testid="agedisplay-gpl9">{` (${ageText})`}</AgeDisplay>
         </CoreInfoCell>
       </CoreInfoSection>
       <HealthIdDisplay
