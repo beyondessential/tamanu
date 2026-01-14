@@ -5,7 +5,7 @@ import { CssBaseline } from '@material-ui/core';
 import MuiLatestThemeProvider from '@mui/material/styles/ThemeProvider';
 import { ThemeProvider } from 'styled-components';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ApiContext, CustomToastContainer } from '@tamanu/ui-components';
+import { ApiContext, CustomToastContainer, DateTimeProvider } from '@tamanu/ui-components';
 import '@fontsource/roboto';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/600.css';
@@ -14,7 +14,7 @@ import { App } from './App';
 import { theme } from './theme/theme';
 import { TamanuApi } from '@api/TamanuApi';
 import { useConfigQuery } from '@api/queries/useConfigQuery';
-import { TranslationProvider, DateTimeProvider } from './contexts';
+import { TranslationProvider } from './contexts';
 import { StyledCircularProgress } from '@components/StyledCircularProgress';
 
 const queryClient = new QueryClient({

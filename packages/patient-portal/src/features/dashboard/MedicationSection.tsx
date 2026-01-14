@@ -11,7 +11,7 @@ import {
   formatRoute,
   formatPrescriber,
 } from '@utils/format';
-import { useDateTimeFormat } from '../../contexts';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 
 const MedicationContainer = styled(Box)(({ theme }) => ({
   display: 'flex',

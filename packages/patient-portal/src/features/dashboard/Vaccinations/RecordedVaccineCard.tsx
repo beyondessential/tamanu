@@ -3,7 +3,7 @@ import { Typography, Card, CardContent } from '@mui/material';
 
 import type { AdministeredVaccine } from '@tamanu/shared/schemas/patientPortal';
 import { formatVaccineGivenBy, formatVaccineFacilityOrCountry } from '@utils/format';
-import { useDateTimeFormat } from '../../../contexts/DateTimeContext';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 
 interface RecordedVaccineCardProps {
   vaccine: AdministeredVaccine;

@@ -4,7 +4,7 @@ import { User } from 'lucide-react';
 import { useCurrentUser } from '@routes/PrivateRoute';
 import { LabelValueList } from '../../components/LabelValueList';
 import { formatSex, formatDisplayId, formatName, formatVillage } from '@utils/format';
-import { useDateTimeFormat } from '../../contexts/DateTimeContext';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 
 export const PatientDetailsSection = () => {
   const { formatShort } = useDateTimeFormat();
