@@ -189,6 +189,9 @@ DispensedMedicationDetailsModal.propTypes = {
       firstName: PropTypes.string,
       lastName: PropTypes.string,
     }),
+    dispensedBy: PropTypes.shape({
+      displayName: PropTypes.string,
+    }),
   }),
 };
 
