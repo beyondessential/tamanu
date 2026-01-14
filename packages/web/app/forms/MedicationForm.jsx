@@ -19,7 +19,7 @@ import {
   getDateFromTimeString,
   getFirstAdministrationDate,
 } from '@tamanu/shared/utils/medication';
-import { getCurrentDateString, getCurrentDateTimeString, toTimeString } from '@tamanu/utils/dateTime';
+import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { subSeconds } from 'date-fns';
 import { useFormikContext } from 'formik';
 import { toast } from 'react-toastify';
@@ -47,6 +47,7 @@ import {
   Dialog,
   DateDisplay,
   TimeDisplay,
+  useDateTimeFormat,
 } from '@tamanu/ui-components';
 import { Colors, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
@@ -265,6 +266,7 @@ const isOneTimeFrequency = frequency =>
 
 const MedicationAdministrationForm = ({ frequencyChanged }) => {
   const { getSetting } = useSettings();
+  const {formatTimeCompact} = useDateTimeFormat();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
 
   const { values, setValues } = useFormikContext();
@@ -333,7 +335,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
     setValues({
       ...values,
       timeSlots: selectedTimeSlots.map(s =>
-        s.index === index ? { ...s, value: toTimeString(value) } : s,
+        s.index === index ? { ...s, value: formatTimeCompact(value) } : s,
       ),
     });
   };

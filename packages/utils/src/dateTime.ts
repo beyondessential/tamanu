@@ -93,19 +93,6 @@ export const toDateTimeLocalString = (date: string | Date | null | undefined) =>
 };
 
 /**
- * Extracts time from a date as "HH:mm" string (24-hour format).
- * Useful for storing time values in forms/API.
- */
-export const toTimeString = (date: string | Date | null | undefined) => {
-  if (date == null) return null;
-
-  const dateObj = parseDate(date);
-  if (!dateObj) return null;
-
-  return dateFnsFormat(dateObj, 'HH:mm');
-};
-
-/**
  * Extracts weekday code from a date
  * @example
  * toWeekdayCode("2024-03-15 09:30:00") // "MO"
