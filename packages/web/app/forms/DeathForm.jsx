@@ -65,7 +65,7 @@ const PartialWorkflowPage = ({ practitionerSuggester }) => {
           />
         }
         component={props => (
-          <DateTimeField {...props} InputProps={{}} data-testid="datetimefield-8fsq" />
+          <DateTimeField {...props} data-testid="datetimefield-8fsq" />
         )}
         saveDateAsString
         required
