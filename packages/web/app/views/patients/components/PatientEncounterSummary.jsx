@@ -2,7 +2,7 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 import { Box, Typography } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
-import { ButtonWithPermissionCheck, Button, DateDisplay, DateOnlyDisplay } from '@tamanu/ui-components';
+import { ButtonWithPermissionCheck, Button, DateDisplay } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { PATIENT_STATUS, PATIENT_STATUS_COLORS } from '../../../constants';
 import { DeathCertificateModal } from '../../../components/PatientPrinting';
@@ -197,7 +197,7 @@ const PatientDeathSummary = React.memo(({ patient }) => {
         <ContentItem data-testid="contentitem-ld97">
           <ContentLabel data-testid="contentlabel-yujn">Date of death:</ContentLabel>
           <ContentText data-testid="contenttext-08c1">
-            <DateOnlyDisplay date={deathData?.dateOfDeath} data-testid="datedisplay-55sx" />
+            <DateDisplay date={deathData?.dateOfDeath} data-testid="datedisplay-55sx" />
           </ContentText>
         </ContentItem>
       </Content>

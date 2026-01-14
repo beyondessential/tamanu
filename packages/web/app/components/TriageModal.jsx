@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { DateOnlyDisplay } from '@tamanu/ui-components';
+import { DateDisplay } from '@tamanu/ui-components';
 
 import { FormModal } from './FormModal';
 import { Colors } from '../constants';
@@ -56,7 +56,7 @@ const DETAILS_FIELD_DEFINITIONS = [
   [
     'dateOfBirth',
     'Date of birth',
-    ({ dateOfBirth }) => <DateOnlyDisplay date={dateOfBirth} data-testid="datedisplay-78p2" />,
+    ({ dateOfBirth }) => <DateDisplay date={dateOfBirth} data-testid="datedisplay-78p2" />,
   ],
 ];
 

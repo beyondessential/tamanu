@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { SEX_VALUE_INDEX } from '@tamanu/constants';
-import { DateOnlyDisplay } from '@tamanu/ui-components';
+import { DateDisplay } from '@tamanu/ui-components';
 
 import { theme } from '../../../theme';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
@@ -155,7 +155,7 @@ export const PatientSummary = ({
               data-testid="translatedtext-gj0y"
             />
           }
-          value={<DateOnlyDisplay date={patient.dateOfBirth} data-testid="datedisplay-u395" />}
+          value={<DateDisplay date={patient.dateOfBirth} data-testid="datedisplay-u395" />}
           data-testid="labelledvalue-f6ji"
         />
       </div>

@@ -119,20 +119,20 @@ const useFormattedDate = (dateValue, { dateFormat, timeFormat, showWeekday }) =>
   const { timeZone, countryTimeZone, ...formatters } = useDateTimeFormat();
   const parts = [];
 
-  const isDateOnly = isISO9075DateString (dateValue);
+  const isDateOnly = isISO9075DateString(dateValue);
 
   if (showWeekday) {
-    parts.push(formatters.formatWeekdayShort(dateValue));
+    parts.push(formatters.formatWeekdayShort(dateValue, isDateOnly));
   }
 
   if (dateFormat) {
     const formatterName = DATE_FORMATS[dateFormat] || DATE_FORMATS.short;
-    parts.push(formatters[formatterName](dateValue));
+    parts.push(formatters[formatterName](dateValue, isDateOnly));
   }
 
   if (timeFormat) {
     const formatterName = TIME_FORMATS[timeFormat] || TIME_FORMATS.default;
-    parts.push(formatters[formatterName](dateValue));
+    parts.push(formatters[formatterName](dateValue, isDateOnly));
   }
 
   return { displayString: parts.join(' '), timeZone, countryTimeZone };
@@ -256,21 +256,6 @@ export const DateDisplay = React.memo(
     );
   },
 );
-
-/**
- * DateOnlyDisplay - Displays a date-only value without timezone conversion
- * Use for dates that don't have a time component (DOB, death date, etc.)
- * @param {string|Date} date - The date value
- *
- * @example
- * <DateOnlyDisplay date="1990-05-15" />
- * <DateOnlyDisplay date={patient.dateOfBirth} />
- */
-export const DateOnlyDisplay = React.memo(({ date, color, fontWeight, style, ...props }) => (
-  <span style={{ color, fontWeight, ...style }} {...props}>
-    {formatDateOnlyShort(date)}
-  </span>
-));
 
 /** TODO: these feel unnecessary, need to think of better strategy for these dates without timezone conversion */
 export const TimeOnlyDisplay = React.memo(({ date, color, fontWeight, style, ...props }) => {

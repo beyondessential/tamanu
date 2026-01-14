@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { useParams, useNavigate } from 'react-router';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
-import { DateOnlyDisplay } from '@tamanu/ui-components';
+import { DateDisplay } from '@tamanu/ui-components';
 import { reloadPatient } from '../../store';
 import { MenuButton, SearchTable } from '../../components';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
@@ -71,7 +71,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
             fallback="DOB"
           />
         ),
-        accessor: ({ patient }) => <DateOnlyDisplay date={patient.dateOfBirth} />,
+        accessor: ({ patient }) => <DateDisplay date={patient.dateOfBirth} />,
       },
       {
         key: 'sex',

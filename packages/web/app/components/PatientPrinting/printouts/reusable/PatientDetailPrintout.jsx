@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-import { DateOnlyDisplay } from '@tamanu/ui-components';
+import { DateDisplay } from '@tamanu/ui-components';
 
 import { capitaliseFirstLetter } from '../../../../utils/capitalise';
 import { LocalisedCertificateLabel } from './CertificateLabels';
@@ -72,7 +72,7 @@ export const PatientDetailPrintout = React.memo(
             }
             data-testid="localisedlabel-w9cr"
           >
-            <DateOnlyDisplay date={dateOfBirth} data-testid="datedisplay-rkgk" />
+            <DateDisplay date={dateOfBirth} data-testid="datedisplay-rkgk" />
           </LocalisedLabel>
           <LocalisedLabel
             label={

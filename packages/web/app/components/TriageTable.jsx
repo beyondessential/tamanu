@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams, useNavigate } from 'react-router';
-import { DateOnlyDisplay } from '@tamanu/ui-components';
+import { DateDisplay } from '@tamanu/ui-components';
 import { useEncounter } from '../contexts/Encounter';
 import { useAuth } from '../contexts/Auth';
 import { LocationCell, LocationGroupCell } from './LocationCell';
@@ -88,7 +88,7 @@ const useColumns = () => {
           data-testid="translatedtext-daoi"
         />
       ),
-      accessor: row => <DateOnlyDisplay date={row.dateOfBirth} data-testid="datedisplay-gy0v" />,
+      accessor: row => <DateDisplay date={row.dateOfBirth} data-testid="datedisplay-gy0v" />,
     },
     {
       key: 'sex',

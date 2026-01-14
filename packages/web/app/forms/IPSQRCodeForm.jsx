@@ -8,7 +8,7 @@ import {
   Form,
   FormGrid,
   FormSubmitCancelRow,
-  DateOnlyDisplay,
+  DateDisplay,
   TranslatedText,
 } from '@tamanu/ui-components';
 import { Field } from '../components/Field';
@@ -65,7 +65,7 @@ const IPSQRCodeFormComponent = ({ patient, onSubmit, confirmDisabled, onCancel }
           <StyledDateOfBirthText data-testid="styleddateofbirthtext-smlj">
             Date of birth:{' '}
           </StyledDateOfBirthText>
-          <DateOnlyDisplay date={patient.dateOfBirth} fontWeight={500} data-testid="datedisplay-bo0s" />
+          <DateDisplay date={patient.dateOfBirth} fontWeight={500} data-testid="datedisplay-bo0s" />
         </StyledDateOfBirthContainer>
       </StyledDateOfBirthWrapper>
       <p>Enter the email address you would like the patient IPS QR code sent to.</p>

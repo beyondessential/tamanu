@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 
 import { SEX_VALUE_INDEX } from '@tamanu/constants';
-import { DateOnlyDisplay } from '@tamanu/ui-components';
+import { DateDisplay } from '@tamanu/ui-components';
 
 import { Colors } from '../constants';
 import { TranslatedText } from './Translation/TranslatedText';
@@ -100,7 +100,7 @@ export const PatientDetailsCard = ({ patient }) => (
             data-testid="translatedtext-0qfs"
           />
         }
-        value={<DateOnlyDisplay date={patient?.dateOfBirth} data-testid="datedisplay-h1tz" />}
+        value={<DateDisplay date={patient?.dateOfBirth} data-testid="datedisplay-h1tz" />}
         data-testid="carditem-mm6v"
       />
       <CardItem

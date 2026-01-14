@@ -14,7 +14,7 @@ import {
   TranslatedText,
   TranslatedReferenceData,
   TranslatedSex,
-  DateOnlyDisplay,
+  DateDisplay,
   DateTimeRangeDisplay,
 } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
@@ -111,7 +111,7 @@ const PatientInfo = ({ patient }) => {
               />
             </PatientInfoLabel>
             <PatientInfoValue data-testid="patientinfovalue-5sc3">
-              <DateOnlyDisplay date={dateOfBirth} data-testid="datedisplay-j9tl" />
+              <DateDisplay date={dateOfBirth} data-testid="datedisplay-j9tl" />
             </PatientInfoValue>
           </tr>
           {additionalData && additionalData.primaryContactNumber && (

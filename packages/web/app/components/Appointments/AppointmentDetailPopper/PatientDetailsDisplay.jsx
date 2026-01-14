@@ -1,7 +1,7 @@
 import { styled } from '@mui/material/styles';
 import React from 'react';
 
-import { DateOnlyDisplay } from '@tamanu/ui-components';
+import { DateDisplay } from '@tamanu/ui-components';
 
 import { Colors } from '../../../constants';
 import { getPatientNameAsString } from '../../PatientNameDisplay';
@@ -75,7 +75,7 @@ export const PatientDetailsDisplay = ({ patient, onClick, additionalData }) => {
               data-testid="translatedtext-5omy"
             />
           }
-          value={<DateOnlyDisplay date={dateOfBirth} data-testid="datedisplay-qnx5" />}
+          value={<DateDisplay date={dateOfBirth} data-testid="datedisplay-qnx5" />}
           data-testid="inlinedetailsdisplay-320k"
         />
       </PrimaryDetails>
