@@ -128,14 +128,14 @@ export const DeathForm = React.memo(
               patient.dateOfBirth,
               getTranslation(
                 'death.validation.rule.timeOfDeathNotBeforeDateOfBirth',
-                "Time of death can't be before date of birth",
+                "Date & time of death can't be before date of birth",
               ),
             )
             .required()
             .translatedLabel(
               <TranslatedText
                 stringId="death.validation.timeOfDeath.path"
-                fallback="Time of death"
+                fallback="Date & time of death"
                 data-testid="translatedtext-ubdv"
               />,
             ),
@@ -154,7 +154,7 @@ export const DeathForm = React.memo(
             label={
               <TranslatedText
                 stringId="death.timeOfDeath.label"
-                fallback="Time of death"
+                fallback="Date & time of death"
                 data-testid="translatedtext-x1yy"
               />
             }
