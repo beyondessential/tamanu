@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, QueryTypes, Op } from 'sequelize';
-import { snakeCase } from 'lodash';
+import { keyBy, snakeCase } from 'lodash';
 
 import {
   createPatientSchema,
@@ -585,7 +585,28 @@ patientRoute.get(
       ...baseQuery,
     });
 
-    res.json({ data: ongoingPrescriptions, count });
+    // Add "lastOrderedAt" so the pharmacy order modal can show "already ordered within X hours"
+    let responseData = ongoingPrescriptions.map(p => p.toJSON());
+    if (responseData.length > 0) {
+      const prescriptionIds = responseData.map(p => p.id);
+      const [pharmacyOrderPrescriptions] = await req.db.query(
+        `
+          SELECT prescription_id, max(created_at) as last_ordered_at
+          FROM pharmacy_order_prescriptions
+          WHERE prescription_id IN (:prescriptionIds) and deleted_at is null
+          GROUP BY prescription_id
+        `,
+        { replacements: { prescriptionIds } },
+      );
+      const lastOrderedAts = keyBy(pharmacyOrderPrescriptions, 'prescription_id');
+
+      responseData = responseData.map(p => ({
+        ...p,
+        lastOrderedAt: lastOrderedAts[p.id]?.last_ordered_at?.toISOString(),
+      }));
+    }
+
+    res.json({ data: responseData, count });
   }),
 );
 
