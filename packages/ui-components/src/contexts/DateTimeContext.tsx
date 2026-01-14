@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useMemo } from 'react';
+import React, { useCallback, useContext, useMemo, createContext } from 'react';
 import * as formatFunctions from './dateTimeFormatters';
 import { SettingsContext } from './SettingsContext';
 import { mapValues } from 'lodash';
@@ -9,12 +9,12 @@ type FormatFunction = (date: DateInput, skipTimezoneConversion?: boolean) => str
 type DateTimeContextValue = Record<string, FormatFunction>;
 
 interface DateTimeProviderProps {
-  children: JSX.Element;
+  children: React.ReactNode;
   countryTimeZone?: string;
   timeZone?: string;
 }
 
-const DateTimeProviderContext = React.createContext<DateTimeContextValue | null>(null);
+const DateTimeProviderContext = createContext<DateTimeContextValue | null>(null);
 
 export const useDateTimeFormat = (): DateTimeContextValue => {
   const context = useContext(DateTimeProviderContext);
@@ -28,12 +28,14 @@ export const DateTimeProvider = ({
   children,
   countryTimeZone: countryTimeZoneProp,
   timeZone: timeZoneProp,
-}: DateTimeProviderProps): JSX.Element => {
+}: DateTimeProviderProps) => {
   const settingsContext = useContext(SettingsContext);
   const usePropsMode = countryTimeZoneProp !== undefined;
 
   if (!usePropsMode && !settingsContext) {
-    throw new Error('DateTimeProvider requires either a SettingsProvider ancestor or countryTimeZone prop');
+    throw new Error(
+      'DateTimeProvider requires either a SettingsProvider ancestor or countryTimeZone prop',
+    );
   }
 
   const countryTimeZone = usePropsMode
@@ -52,18 +54,15 @@ export const DateTimeProvider = ({
   );
 
   const value = useMemo(
-    () =>
-      (mapValues(formatFunctions, fn => wrap(fn))) as DateTimeContextValue,
+    () => mapValues(formatFunctions, fn => wrap(fn)) as DateTimeContextValue,
     [wrap],
   );
 
   if (!isSettingsLoaded || !countryTimeZone) {
-    return children;
+    return null;
   }
 
   return (
-    <DateTimeProviderContext.Provider value={value}>
-      {children}
-    </DateTimeProviderContext.Provider>
-  )
+    <DateTimeProviderContext.Provider value={value}>{children}</DateTimeProviderContext.Provider>
+  );
 };
