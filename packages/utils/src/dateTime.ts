@@ -264,9 +264,22 @@ export const intlFormatDate = (
   timeZone?: string | null,
 ) => {
   if (!date) return fallback;
-  // TODO: Date objects passing thru here
-  // TODO: whats all this bowt date object here
-  //ai say: semantically misinterprets Date objects. When given a Date object, it takes the date's local representation and treats it as if it were in countryTimeZone
+
+  // Date objects: display in local time (no timezone conversion)
+  if (date instanceof Date) {
+    if (!isValid(date)) return fallback;
+    return date.toLocaleString(locale, formatOptions);
+  }
+
+  // Date-only strings (e.g. DOB): display as-is, no timezone shift 
+  // We use UTC here because the date-only string is not timezone aware and we want to display it with no offset
+  if (isISO9075DateString(date)) {
+    const dateObj = new Date(date);
+    if (!isValid(dateObj)) return fallback;
+    return dateObj.toLocaleString(locale, { ...formatOptions, timeZone: 'UTC' });
+  }
+
+  // Datetime strings: apply timezone conversion
   const dateObj = timeZone ? fromZonedTime(date, countryTimeZone) : parseDate(date);
   if (!dateObj) return fallback;
   return dateObj.toLocaleString(locale, {
