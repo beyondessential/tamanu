@@ -662,11 +662,12 @@ export const DeathForm = React.memo(
               label={
                 <TranslatedText
                   stringId="death.numberOfHoursSurvived.label"
-                  fallback="If yes, number of hours survived"
+                  fallback="Number of hours survived"
                   data-testid="translatedtext-ubzt"
                 />
               }
               component={NumberField}
+              visibilityCriteria={{ deathWithin24HoursOfBirth: 'yes' }}
               data-testid="field-fhz5"
             />
             <Field
