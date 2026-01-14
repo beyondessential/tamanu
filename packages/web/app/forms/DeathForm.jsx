@@ -159,7 +159,7 @@ export const DeathForm = React.memo(
     const { getTranslation } = useTranslation();
     const { currentUser } = useAuth();
     const canBePregnant = patient.sex === 'female' && ageInYears(patient.dateOfBirth) >= 12;
-    const isInfant = ageInMonths(patient.dateOfBirth) <= 2;
+    const isInfant = ageInMonths(patient.dateOfBirth) <= 12;
 
     return (
       <PaginatedForm
