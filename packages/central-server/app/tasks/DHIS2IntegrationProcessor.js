@@ -8,30 +8,50 @@ import { log } from '@tamanu/shared/services/logging';
 import { REPORT_STATUSES } from '@tamanu/constants';
 import { fetchWithRetryBackoff } from '@tamanu/api-client/fetchWithRetryBackoff';
 
-const convertToDHIS2DataValueSets = (reportData, options = {}) => {
-  const { dataSet = '', completeDate = new Date().toISOString().split('T')[0] } = options;
+const findMatchingDataSet = (rows, dataSets) => {
+  return dataSets[0];
+};
 
+const convertToDHIS2DataValueSets = (reportData, dataSets) => {
+  // Convert 2D array report data to JSON format
   const reportJSON = utils.sheet_to_json(utils.aoa_to_sheet(reportData));
 
-  return map(
-    groupBy(
-      reportJSON,
-      row => `${row.period || ''}_${row.orgunit || ''}_${row.attributeoptioncombo || ''}`,
-    ),
-    rows => ({
-      dataSet, // TODO: this completed logic works if we can define the data set here
-      completeDate,
-      period: rows[0].period || '',
-      orgUnit: rows[0].orgunit || '',
-      attributeOptionCombo: rows[0].attributeoptioncombo || '',
-      dataValues: rows.map(row => ({
-        dataElement: row.dataelement || '',
-        categoryOptionCombo: row.categoryoptioncombo || '',
-        value: row.value || '',
-        comment: row.comment || '',
-      })),
-    }),
-  );
+  // Create a grouping key function that combines period, orgunit, and attributeoptioncombo
+  // This groups rows that belong to the same DHIS2 data value set
+  const createGroupingKey = row =>
+    `${row.period || ''}_${row.orgunit || ''}_${row.attributeoptioncombo || ''}`;
+
+  // Group rows by their composite key (period + orgunit + attributeoptioncombo)
+  const groupedRows = groupBy(reportJSON, createGroupingKey);
+
+  // Transform each group of rows into a DHIS2 data value set object
+  return map(groupedRows, rows => {
+    const matchingDataSet = findMatchingDataSet(rows, dataSets);
+    const firstRow = rows[0];
+
+    // Extract common metadata from the first row (all rows in a group share these values)
+    const period = firstRow.period || '';
+    const orgUnit = firstRow.orgunit || '';
+    const attributeOptionCombo = firstRow.attributeoptioncombo || '';
+
+    // Map each row to a data value object containing the actual data element values
+    const dataValues = rows.map(row => ({
+      dataElement: row.dataelement || '',
+      categoryOptionCombo: row.categoryoptioncombo || '',
+      value: row.value || '',
+      comment: row.comment || '',
+    }));
+
+    // Construct the DHIS2 data value set object
+    return {
+      dataSet: matchingDataSet.id,
+      completeDate: new Date().toISOString().split('T')[0],
+      period,
+      orgUnit,
+      attributeOptionCombo,
+      dataValues,
+    };
+  });
 };
 
 export const INFO_LOGS = {
@@ -130,6 +150,43 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     }
   }
 
+  async fetchDataSets(options = {}) {
+    const { host, backoff } = await this.context.settings.get('integrations.dhis2');
+    const { username, password } = config.integrations.dhis2;
+    const authHeader = Buffer.from(`${username}:${password}`).toString('base64');
+
+    const params = new URLSearchParams({
+      fields: options.fields || '*',
+      filter: options.filter,
+    });
+
+    try {
+      const response = await fetchWithRetryBackoff(
+        `${host}/api/dataSets?${params.toString()}`,
+        {
+          fetch,
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Basic ${authHeader}`,
+          },
+        },
+        { ...backoff, log },
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch datasets: ${response.status} ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      log.error('DHIS2IntegrationProcessor: Error fetching datasets from DHIS2', {
+        error: error.message,
+      });
+      throw error;
+    }
+  }
+
   async processReport(reportId) {
     const {
       store: { models, sequelize },
@@ -164,9 +221,13 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
 
     log.info(INFO_LOGS.PROCESSING_REPORT, { report: reportString });
 
+    const { dataSets } = await this.fetchDataSets({ filter: 'organisationUnits.id:eq:facility-1' });
+
+    console.log('dataSets', dataSets);
+
     const latestVersion = report.versions[0];
     const reportData = await latestVersion.dataGenerator({ ...this.context, sequelize }, {}); // We don't support parameters in this task
-    const dhis2DataValueSets = convertToDHIS2DataValueSets(reportData);
+    const dhis2DataValueSets = convertToDHIS2DataValueSets(reportData, dataSets);
 
     for (const dataValueSet of dhis2DataValueSets) {
       const {
