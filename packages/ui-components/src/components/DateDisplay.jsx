@@ -68,6 +68,7 @@ const DiagnosticInfo = ({ date, timeZone, countryTimeZone }) => {
 };
 
 const DateTooltip = ({ date, children, timeOnlyTooltip, timeZone, countryTimeZone }) => {
+  const isDateOnly = isISO9075DateString(date);
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const [debug, setDebug] = useState(false);
 
@@ -86,7 +87,7 @@ const DateTooltip = ({ date, children, timeOnlyTooltip, timeZone, countryTimeZon
   const dateTooltip = timeOnlyTooltip ? (
     <TimeDisplay date={date} />
   ) : (
-    <DateDisplay date={date} showTime />
+    <DateDisplay date={date} showTime={!isDateOnly} />
   );
 
   const tooltipTitle = debug ? (
@@ -262,7 +263,6 @@ export const DateDisplay = React.memo(
     return (
       <DateTooltip
         date={dateValue}
-        rawDate={dateValue}
         timeOnlyTooltip={timeOnlyTooltip}
         timeZone={timeZone}
         countryTimeZone={countryTimeZone}
