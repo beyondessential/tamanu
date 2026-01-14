@@ -675,14 +675,9 @@ patientRoute.get(
     } = req;
     const patientId = params.id;
 
-    req.checkPermission('list', 'Medication');
+    req.checkPermission('read', 'MedicationDispense');
 
-    const {
-      order = 'DESC',
-      orderBy = 'dispensedAt',
-      page,
-      rowsPerPage,
-    } = query;
+    const { order = 'DESC', orderBy = 'dispensedAt', page, rowsPerPage } = query;
 
     const parsedPage = parseInt(page) || 0;
     const parsedRowsPerPage = parseInt(rowsPerPage) || 10;
@@ -692,7 +687,9 @@ patientRoute.get(
     const medicationFilter = {};
     const canListSensitiveMedication = req.ability.can('list', 'SensitiveMedication');
     if (!canListSensitiveMedication) {
-      medicationFilter['$pharmacyOrderPrescription.prescription.medication.referenceDrug.is_sensitive$'] = false;
+      medicationFilter[
+        '$pharmacyOrderPrescription.prescription.medication.referenceDrug.is_sensitive$'
+      ] = false;
     }
 
     const response = await MedicationDispense.findAndCountAll({
