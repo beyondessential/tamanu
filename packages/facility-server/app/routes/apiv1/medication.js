@@ -381,6 +381,7 @@ medication.post(
 
     req.checkPermission('create', 'Encounter');
     req.checkPermission('create', 'Medication');
+    req.checkPermission('create', 'MedicationRequest');
     req.checkPermission('read', 'Medication');
 
     // Check if patient has an active encounter
@@ -450,10 +451,12 @@ medication.post(
       }
 
       // If user is trying to set repeats different from current and doesn't have permission
-      if (!canEditRepeats && requestData.repeats !== undefined && requestData.repeats !== currentRepeats) {
-        throw new InvalidOperationError(
-          'You do not have permission to modify medication repeats.',
-        );
+      if (
+        !canEditRepeats &&
+        requestData.repeats !== undefined &&
+        requestData.repeats !== currentRepeats
+      ) {
+        throw new InvalidOperationError('You do not have permission to modify medication repeats.');
       }
     }
 
@@ -1720,7 +1723,7 @@ medication.get(
       ...filterParams
     } = query;
 
-    req.checkPermission('list', 'Medication');
+    req.checkPermission('read', 'MedicationRequest');
 
     const canViewSensitiveMedications = req.ability.can('read', 'SensitiveMedication');
 
@@ -1908,7 +1911,8 @@ medication.delete(
     const { models, params } = req;
     const { PharmacyOrderPrescription } = models;
 
-    req.checkPermission('write', 'Medication');
+    req.checkPermission('delete', 'MedicationRequest');
+    req.checkPermission('delete', 'MedicationDispense');
 
     const pharmacyOrderPrescription = await PharmacyOrderPrescription.findByPk(params.id, {
       include: [
@@ -1943,7 +1947,7 @@ medication.get(
       ...filterParams
     } = query;
 
-    req.checkPermission('list', 'Medication');
+    req.checkPermission('read', 'MedicationDispense');
 
     const canViewSensitiveMedications = req.ability.can('read', 'SensitiveMedication');
 
@@ -2077,16 +2081,37 @@ medication.get(
       attributes: ['id', 'firstName', 'lastName', 'displayId'],
     });
 
+    // Fetch all dispenses for the pharmacy order prescriptions to calculate remaining repeats
+    const pharmacyOrderPrescriptionIds = [
+      ...new Set(data.map(item => item.pharmacyOrderPrescription.id)),
+    ];
+
+    const allDispenses = await models.MedicationDispense.findAll({
+      where: { pharmacyOrderPrescriptionId: { [Op.in]: pharmacyOrderPrescriptionIds } },
+      attributes: ['id', 'pharmacyOrderPrescriptionId'],
+    });
+
+    // Group dispenses by pharmacyOrderPrescriptionId
+    const dispensesByPrescriptionId = allDispenses.reduce((acc, dispense) => {
+      const id = dispense.pharmacyOrderPrescriptionId;
+      if (!acc[id]) acc[id] = [];
+      acc[id].push(dispense);
+      return acc;
+    }, {});
     const result = data.map(item => {
       const patient = patients.find(
         p => p.id === item.pharmacyOrderPrescription.pharmacyOrder.encounter.patient.id,
       );
       item.pharmacyOrderPrescription.pharmacyOrder.encounter.patient.set(patient.toJSON());
+
+      // Manually set medicationDispenses for getRemainingRepeats calculation
+      item.pharmacyOrderPrescription.medicationDispenses =
+        dispensesByPrescriptionId[item.pharmacyOrderPrescription.id] || [];
       return {
         ...item.toJSON(),
         pharmacyOrderPrescription: {
           ...item.pharmacyOrderPrescription.toJSON(),
-          remainingRepeats: item.pharmacyOrderPrescription.remainingRepeats,
+          remainingRepeats: item.pharmacyOrderPrescription.getRemainingRepeats(),
         },
       };
     });
@@ -2104,7 +2129,7 @@ medication.delete(
     const { models, params } = req;
     const { MedicationDispense } = models;
 
-    req.checkPermission('write', 'Medication');
+    req.checkPermission('write', 'MedicationDispense');
 
     const dispenseId = params.id;
 
@@ -2148,7 +2173,7 @@ medication.get(
   asyncHandler(async (req, res) => {
     const { models } = req;
 
-    req.checkPermission('read', 'Medication');
+    req.checkPermission('read', 'MedicationRequest');
 
     const { patientId, facilityId } = await dispensableMedicationsQuerySchema.parseAsync(req.query);
 
@@ -2392,6 +2417,86 @@ medication.post(
       }
 
       return dispenseRecords;
+    });
+
+    res.send(result);
+  }),
+);
+
+const editDispenseInputSchema = z
+  .object({
+    dispensedByUserId: z.string(),
+    quantity: z.coerce.number().int().positive(),
+    instructions: z.string().min(1),
+  })
+  .strip();
+
+medication.put(
+  '/dispense/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { id } = params;
+
+    req.checkPermission('write', 'MedicationDispense');
+
+    const { dispensedByUserId, quantity, instructions } = await editDispenseInputSchema.parseAsync(
+      req.body,
+    );
+
+    const { User, MedicationDispense } = models;
+
+    const dispensedByUser = await User.findByPk(dispensedByUserId);
+    if (!dispensedByUser) {
+      throw new NotFoundError(`User with id ${dispensedByUserId} not found`);
+    }
+
+    const result = await MedicationDispense.sequelize.transaction(async () => {
+      const medicationDispense = await MedicationDispense.findByPk(id, {
+        attributes: ['id', 'quantity', 'instructions'],
+        include: [
+          {
+            association: 'pharmacyOrderPrescription',
+            required: true,
+            attributes: ['id'],
+            include: [
+              {
+                association: 'prescription',
+                attributes: ['id'],
+                include: [
+                  {
+                    association: 'medication',
+                    attributes: ['id'],
+                    required: true,
+                    include: {
+                      model: models.ReferenceDrug,
+                      as: 'referenceDrug',
+                      attributes: ['id', 'isSensitive'],
+                      required: true,
+                    },
+                  },
+                ],
+                required: true,
+              },
+            ],
+          },
+        ],
+      });
+
+      if (!medicationDispense) {
+        throw new NotFoundError(`Medication dispense with id ${id} not found`);
+      }
+
+      const isSensitiveMedication =
+        medicationDispense.pharmacyOrderPrescription.prescription.medication.referenceDrug
+          .isSensitive;
+
+      if (isSensitiveMedication && medicationDispense.quantity !== quantity) {
+        req.checkPermission('write', 'SensitiveMedication');
+      }
+
+      await medicationDispense.update({ quantity, instructions, dispensedByUserId });
+
+      return medicationDispense;
     });
 
     res.send(result);

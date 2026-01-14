@@ -1,0 +1,17 @@
+{
+  "sheetName": "Invoice Price List",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
+  "data": [
+    {
+      "id": "invoicePriceList-1",
+      "code": "invoicePriceList-1",
+      "name": "Price List 1",
+      "visibilityStatus": "current"
+    }
+  ]
+}

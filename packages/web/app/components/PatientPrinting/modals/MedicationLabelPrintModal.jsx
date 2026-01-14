@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
 import { Box } from '@material-ui/core';
 import { Modal, TranslatedText, ConfirmCancelRow } from '@tamanu/ui-components';
 import { MedicationLabel } from '../printouts/MedicationLabel';
@@ -18,6 +18,7 @@ const Container = styled.div`
     flex-wrap: wrap;
     justify-content: flex-start;
     gap: 15px;
+    padding: 0;
   }
 `;
 
@@ -28,6 +29,25 @@ const StyledModal = styled(Modal)`
     background: ${Colors.background};
     border-top: 1px solid ${Colors.outline};
     padding: 10px 40px 20px 40px;
+  }
+`;
+
+const PrintStyles = createGlobalStyle`
+  @media print {
+    @page {
+      margin: 0;
+      size: auto;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
+
+    .MuiDialogTitle-root,
+    .MuiDialogActions-root {
+      display: none;
+    }
   }
 `;
 
@@ -53,6 +73,7 @@ export const MedicationLabelPrintModal = ({ open, onClose, labels }) => {
         />
       }
     >
+      <PrintStyles />
       <Container>
         {labels.map((label, index) => (
           <Box key={label.id || index} mb={0}>

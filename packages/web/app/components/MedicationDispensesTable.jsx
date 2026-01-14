@@ -16,6 +16,7 @@ import { useFacilityQuery } from '../api/queries/useFacilityQuery';
 import { useApi } from '../api';
 import { CancelDispensedMedicationModal } from './Medication/CancelDispensedMedicationModal';
 import { EditMedicationDispenseModal } from './Medication/EditMedicationDispenseModal';
+import { DispensedMedicationDetailsModal } from './Medication/DispensedMedicationDetailsModal';
 
 const NoDataContainer = styled.div`
   height: 500px;
@@ -68,7 +69,7 @@ const getRequestNumber = ({ pharmacyOrderPrescription }) => pharmacyOrderPrescri
 
 export const MedicationDispensesTable = () => {
   const api = useApi();
-  const { facilityId } = useAuth();
+  const { ability, facilityId } = useAuth();
   const { searchParameters } = useMedicationsContext(MEDICATIONS_SEARCH_KEYS.DISPENSED);
   const { data: facility } = useFacilityQuery(facilityId);
 
@@ -80,6 +81,10 @@ export const MedicationDispensesTable = () => {
   const [selectedDispense, setSelectedDispense] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [refreshCount, setRefreshCount] = useState(0);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [selectedDetailItem, setSelectedDetailItem] = useState(null);
+
+  const canWriteMedicationDispense = ability.can('write', 'MedicationDispense');
 
   const onMedicationDispensesFetched = useCallback(({ data }) => {
     setMedicationDispenses(data);
@@ -142,8 +147,6 @@ export const MedicationDispensesTable = () => {
   };
 
   const handleEditConfirm = async () => {
-    setIsEditModalOpen(false);
-    setSelectedDispense(null);
     // Trigger table refresh
     handleTableRefresh();
   };
@@ -233,40 +236,68 @@ export const MedicationDispensesTable = () => {
       accessor: getRequestNumber,
       sortable: false,
     },
-    {
-      key: 'actions',
-      title: '',
-      allowExport: false,
-      accessor: row => {
-        const actions = [
+    ...(canWriteMedicationDispense
+      ? [
           {
-            label: <TranslatedText stringId="general.action.printLabel" fallback="Print label" />,
-            action: () => handlePrintLabel(row),
+            key: 'actions',
+            title: '',
+            allowExport: false,
+            accessor: row => {
+              const actions = [
+                {
+                  label: (
+                    <TranslatedText stringId="general.action.printLabel" fallback="Print label" />
+                  ),
+                  action: () => handlePrintLabel(row),
+                },
+                {
+                  label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
+                  action: () => handleEditClick(row),
+                },
+                {
+                  label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
+                  action: () => handleCancelClick(row),
+                },
+              ];
+              return (
+                <div onMouseEnter={() => hoveredRow !== row && setHoveredRow(row.id)}>
+                  <MenuButton actions={actions} />
+                </div>
+              );
+            },
+            sortable: false,
+            dontCallRowInput: true,
           },
-          {
-            label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
-            action: () => handleEditClick(row),
-          },
-          {
-            label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
-            action: () => handleCancelClick(row),
-          },
-        ];
-        return (
-          <div onMouseEnter={() => hoveredRow !== row && setHoveredRow(row.id)}>
-            <MenuButton actions={actions} />
-          </div>
-        );
-      },
-      sortable: false,
-      dontCallRowInput: true,
-    },
+        ]
+      : []),
   ];
 
   const fetchOptions = { ...searchParameters, facilityId };
 
-  const handleRowClick = (_, data) => {
-    console.log(data);
+  const handleRowClick = (_, dispenseData) => {
+    // Map the dispense data to the format expected by the detail modal
+    const patient = dispenseData.pharmacyOrderPrescription?.pharmacyOrder?.encounter?.patient;
+    const mappedItem = {
+      id: dispenseData.id,
+      displayId: dispenseData.pharmacyOrderPrescription?.displayId,
+      quantity: dispenseData.quantity,
+      instructions: dispenseData.instructions,
+      remainingRepeats: dispenseData.pharmacyOrderPrescription?.remainingRepeats,
+      dispensedAt: dispenseData.dispensedAt,
+      dispensedBy: dispenseData.dispensedBy,
+      prescription: {
+        date: dispenseData.pharmacyOrderPrescription?.prescription?.date,
+        medication: dispenseData.pharmacyOrderPrescription?.prescription?.medication,
+      },
+      patient,
+    };
+    setSelectedDetailItem(mappedItem);
+    setIsDetailModalOpen(true);
+  };
+
+  const handleCloseDetailModal = () => {
+    setIsDetailModalOpen(false);
+    setSelectedDetailItem(null);
   };
 
   return (
@@ -276,18 +307,16 @@ export const MedicationDispensesTable = () => {
         onClose={handleCancelCancel}
         onConfirm={handleCancelConfirm}
       />
-      {isEditModalOpen && (
-        <EditMedicationDispenseModal
-          open={isEditModalOpen}
-          medicationDispense={selectedDispense}
-          onClose={handleEditCancel}
-          onConfirm={handleEditConfirm}
-        />
-      )}
+      <EditMedicationDispenseModal
+        open={isEditModalOpen}
+        medicationDispense={selectedDispense}
+        onClose={handleEditCancel}
+        onConfirm={handleEditConfirm}
+      />
       <StyledSearchTableWithPermissionCheck
         refreshCount={refreshCount}
-        verb="list"
-        noun="Medication"
+        verb="read"
+        noun="MedicationDispense"
         autoRefresh={true}
         endpoint="medication/medication-dispenses"
         columns={columns}
@@ -315,6 +344,11 @@ export const MedicationDispensesTable = () => {
         open={printModalOpen}
         onClose={() => setPrintModalOpen(false)}
         labels={selectedLabelData}
+      />
+      <DispensedMedicationDetailsModal
+        open={isDetailModalOpen}
+        onClose={handleCloseDetailModal}
+        item={selectedDetailItem}
       />
     </>
   );

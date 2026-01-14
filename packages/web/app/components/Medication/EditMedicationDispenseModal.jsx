@@ -10,6 +10,7 @@ import {
   ConfirmCancelRow,
   TextInput,
   TranslatedText,
+  TranslatedReferenceData,
 } from '@tamanu/ui-components';
 
 import { useApi, useSuggester } from '../../api';
@@ -110,10 +111,8 @@ export const EditMedicationDispenseModal = memo(
     const practitionerSuggester = useSuggester('practitioner');
 
     const [step, setStep] = useState(MODAL_STEPS.DISPENSE);
-    const [dispensedByUserId, setDispensedByUserId] = useState(
-      medicationDispense?.dispensedByUserId,
-    );
-    const [item, setItem] = useState(medicationDispense);
+    const [dispensedByUserId, setDispensedByUserId] = useState('');
+    const [item, setItem] = useState(null);
     const [errors, setErrors] = useState({});
     const [showValidationErrors, setShowValidationErrors] = useState(false);
     const [showPrintModal, setShowPrintModal] = useState(false);
@@ -128,6 +127,13 @@ export const EditMedicationDispenseModal = memo(
         ?.facilities?.[0]?.stockStatus;
 
     useEffect(() => {
+      if (medicationDispense) {
+        setItem(medicationDispense);
+        setDispensedByUserId(medicationDispense.dispensedByUserId);
+      }
+    }, [medicationDispense]);
+
+    useEffect(() => {
       if (open) {
         setStep(MODAL_STEPS.DISPENSE);
         setShowValidationErrors(false);
@@ -136,7 +142,6 @@ export const EditMedicationDispenseModal = memo(
 
     const handleClose = () => {
       setErrors({});
-      setStep(MODAL_STEPS.DISPENSE);
       setShowValidationErrors(false);
       setShowPrintModal(false);
       setLabelForPrint(null);
@@ -234,6 +239,8 @@ export const EditMedicationDispenseModal = memo(
     };
 
     const columns = (() => {
+      if (!item) return [];
+
       const base = [
         {
           key: 'prescriptionDate',
@@ -252,8 +259,13 @@ export const EditMedicationDispenseModal = memo(
           key: 'medication',
           width: '250px',
           title: <TranslatedText stringId="medication.medication.label" fallback="Medication" />,
-          accessor: ({ pharmacyOrderPrescription }) =>
-            pharmacyOrderPrescription?.prescription?.medication?.name || '-',
+          accessor: ({ pharmacyOrderPrescription }) => (
+            <TranslatedReferenceData
+              fallback={pharmacyOrderPrescription?.prescription?.medication?.name}
+              value={pharmacyOrderPrescription?.prescription?.medication?.id}
+              category={pharmacyOrderPrescription?.prescription?.medication?.type}
+            />
+          ),
         },
         {
           key: 'quantity',
@@ -440,7 +452,7 @@ export const EditMedicationDispenseModal = memo(
                 </Box>
               </HeaderRow>
 
-              <StyledTableFormFields columns={columns} data={[item]} />
+              <StyledTableFormFields columns={columns} data={item ? [item] : []} />
             </>
           )}
 

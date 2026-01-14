@@ -403,6 +403,7 @@ export const PatientMedicationPane = ({ patient }) => {
   const canCreateOngoingPrescription = ability.can('create', 'Medication');
   const canViewSensitiveMedications = ability.can('read', 'SensitiveMedication');
   const pharmacyOrderEnabled = getSetting('features.pharmacyOrder.enabled');
+  const canRequestPharmacyOrder = ability.can('create', 'MedicationRequest');
 
   // Filter active (non-discontinued) ongoing prescriptions for send to pharmacy
   const activeOngoingPrescriptions = ongoingPrescriptions.filter(p => !p.discontinued);
@@ -529,7 +530,7 @@ export const PatientMedicationPane = ({ patient }) => {
             />
           </TableTitleText>
           <ButtonGroup>
-            {pharmacyOrderEnabled && hasActiveOngoingPrescriptions && (
+            {pharmacyOrderEnabled && canRequestPharmacyOrder && hasActiveOngoingPrescriptions && (
               <StyledConditionalTooltip
                 visible={!!currentEncounter}
                 title={

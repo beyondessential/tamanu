@@ -41,7 +41,7 @@ const StyledSearchTableWithPermissionCheck = styled(SearchTableWithPermissionChe
     }
   }
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
-    cursor: pointer;
+    cursor: ${props => (props.onClickRow ? 'pointer' : 'default')};
     &:hover {
       background-color: ${Colors.veryLightBlue};
     }
@@ -122,7 +122,7 @@ const getDateSent = ({ pharmacyOrder }) => (
 
 export const MedicationRequestsTable = () => {
   const api = useApi();
-  const { facilityId } = useAuth();
+  const { ability, facilityId } = useAuth();
   const { searchParameters } = useMedicationsContext(MEDICATIONS_SEARCH_KEYS.ACTIVE);
 
   const [medicationRequests, setMedicationRequests] = useState([]);
@@ -132,6 +132,10 @@ export const MedicationRequestsTable = () => {
   const [selectedRequestId, setSelectedRequestId] = useState(null);
   const [refreshCount, setRefreshCount] = useState(0);
   const [hoveredRow, setHoveredRow] = useState(null);
+
+  const canDeleteMedicationRequest = ability.can('delete', 'MedicationRequest');
+  const canDispenseMedication = ability.can('create', 'MedicationDispense');
+  const canDeleteMedicationDispense = ability.can('delete', 'MedicationDispense');
 
   const onMedicationRequestsFetched = useCallback(({ data }) => {
     setMedicationRequests(data);
@@ -260,25 +264,29 @@ export const MedicationRequestsTable = () => {
       accessor: getStockStatus,
       sortable: true,
     },
-    {
-      key: 'actions',
-      title: '',
-      accessor: row => {
-        const actions = [
+    ...(canDeleteMedicationRequest && canDeleteMedicationDispense
+      ? [
           {
-            label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
-            action: () => handleDeleteClick(row.id),
+            key: 'actions',
+            title: '',
+            accessor: row => {
+              const actions = [
+                {
+                  label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
+                  action: () => handleDeleteClick(row.id),
+                },
+              ];
+              return (
+                <div onMouseEnter={() => hoveredRow !== row && setHoveredRow(row.id)}>
+                  <MenuButton actions={actions} />
+                </div>
+              );
+            },
+            sortable: false,
+            dontCallRowInput: true,
           },
-        ];
-        return (
-          <div onMouseEnter={() => hoveredRow !== row && setHoveredRow(row.id)}>
-            <MenuButton actions={actions} />
-          </div>
-        );
-      },
-      sortable: false,
-      dontCallRowInput: true,
-    },
+        ]
+      : []),
   ];
 
   const fetchOptions = { ...searchParameters, facilityId };
@@ -308,8 +316,8 @@ export const MedicationRequestsTable = () => {
       />
       <StyledSearchTableWithPermissionCheck
         refreshCount={refreshCount}
-        verb="list"
-        noun="Medication"
+        verb="read"
+        noun="MedicationRequest"
         autoRefresh={true}
         endpoint="medication/medication-requests"
         columns={columns}
@@ -326,7 +334,7 @@ export const MedicationRequestsTable = () => {
         data-testid="searchtablewithpermissioncheck-medication"
         $noData={medicationRequests.length === 0}
         onDataFetched={onMedicationRequestsFetched}
-        onClickRow={handleRowClick}
+        onClickRow={canDispenseMedication ? handleRowClick : undefined}
         allowExport={false}
         initialSort={{
           order: 'desc',
