@@ -239,8 +239,7 @@ const ListsSection = styled.div`
 const Buttons = styled.div`
   display: flex;
   flex-direction: column;
-  margin-top: 20px;
-  gap: 5px;
+  gap: 16px;
 `;
 
 export const PatientInfoPane = () => {
