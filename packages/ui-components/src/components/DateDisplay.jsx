@@ -34,6 +34,7 @@ const getFormattedOffset = (tz, date) => {
 
 const getFormattedOffsetDifference = (date, timeZone, countryTimeZone) => {
   if (!timeZone || !countryTimeZone) return 'N/A';
+  if (isISO9075DateString(date)) return '00:00 (Date only)';
   const dateObj = parseDate(date);
   const timeZoneOffset = getTimezoneOffset(timeZone, dateObj);
   const countryTimeZoneOffset = getTimezoneOffset(countryTimeZone, dateObj);
