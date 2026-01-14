@@ -590,10 +590,6 @@ patientRoute.get(
       const ongoingPrescriptionIds = responseData.map(p => p.id);
       
       // Find the latest pharmacy_order_prescriptions for prescriptions that were cloned from ongoing prescriptions.
-      // We do this by:
-      // 1. Finding prescriptions linked to encounters created by send-ongoing-to-pharmacy (reasonForEncounter = 'Medication dispensing')
-      // 2. That have the same medicationId as the ongoing prescription
-      // 3. Then finding pharmacy_order_prescriptions for those cloned prescriptions
       const [pharmacyOrderPrescriptions] = await db.query(
         `
         SELECT 
