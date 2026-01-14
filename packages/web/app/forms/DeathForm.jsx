@@ -61,6 +61,12 @@ const StyledFormGrid = styled(FormGrid)`
   padding-left: 10px;
 `;
 
+const Subheading = styled.div`
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 21px;
+`;
+
 const attendingClinicianLabel = (
   <TranslatedText
     stringId="general.attendingClinician.label"
@@ -605,6 +611,13 @@ export const DeathForm = React.memo(
         ) : null}
         {isInfant ? (
           <StyledFormGrid columns={1} data-testid="styledformgrid-7x1s">
+            <Subheading>
+              <TranslatedText
+                stringId="death.fetalOrInfantDeathDetails.label"
+                fallback="Details on fetal or infant death"
+                data-testid="translatedtext-fetal-infant-death-details"
+              />
+            </Subheading>
             <Field
               name="multiplePregnancy"
               label={
