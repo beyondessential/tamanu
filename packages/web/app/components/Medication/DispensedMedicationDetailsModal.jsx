@@ -61,11 +61,11 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
 
   const leftDetails = [
     {
-      label: <TranslatedText stringId="medication.details.patientId" fallback="Patient ID" />,
+      label: <TranslatedText stringId="medication.dispenseDetails.patientId" fallback="Patient ID" />,
       value: patient?.displayId || '-',
     },
     {
-      label: <TranslatedText stringId="medication.details.medication" fallback="Medication" />,
+      label: <TranslatedText stringId="medication.dispenseDetails.medication" fallback="Medication" />,
       value: (
         <TranslatedReferenceData
           fallback={prescription?.medication?.name}
@@ -76,29 +76,29 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
     },
     {
       label: (
-        <TranslatedText stringId="medication.dispense.dateDispensed" fallback="Date dispensed" />
+        <TranslatedText stringId="medication.dispenseDetails.dateDispensed" fallback="Date dispensed" />
       ),
       value: dispensedAt ? formatShortest(dispensedAt) : '-',
     },
     {
-      label: <TranslatedText stringId="medication.dispense.dispensedBy" fallback="Dispensed by" />,
+      label: <TranslatedText stringId="medication.dispenseDetails.dispensedBy" fallback="Dispensed by" />,
       value: dispensedBy?.displayName || '-',
     },
     {
-      label: <TranslatedText stringId="medication.details.instructions" fallback="Instructions" />,
+      label: <TranslatedText stringId="medication.dispenseDetails.instructions" fallback="Instructions" />,
       value: instructions || '-',
     },
   ];
 
   const rightDetails = [
     {
-      label: <TranslatedText stringId="medication.details.patientName" fallback="Patient name" />,
+      label: <TranslatedText stringId="medication.dispenseDetails.patientName" fallback="Patient name" />,
       value: patient ? <PatientNameDisplay patient={patient} /> : '-',
     },
     {
       label: (
         <TranslatedText
-          stringId="medication.details.prescriptionDate"
+          stringId="medication.dispenseDetails.prescriptionDate"
           fallback="Prescription date"
         />
       ),
@@ -106,18 +106,18 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
     },
     {
       label: (
-        <TranslatedText stringId="medication.dispense.qtyDispensed" fallback="Qty dispensed" />
+        <TranslatedText stringId="medication.dispenseDetails.qtyDispensed" fallback="Qty dispensed" />
       ),
       value: quantity ?? '-',
     },
     {
-      label: <TranslatedText stringId="medication.dispense.requestNo" fallback="Request no." />,
+      label: <TranslatedText stringId="medication.dispenseDetails.requestNo" fallback="Request no." />,
       value: displayId || '-',
     },
     {
       label: (
         <TranslatedText
-          stringId="medication.dispense.remainingRepeats"
+          stringId="medication.dispenseDetails.remainingRepeats"
           fallback="Remaining repeats"
         />
       ),
@@ -129,7 +129,7 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
     <StyledModal
       open={open}
       title={
-        <TranslatedText stringId="medication.dispense.title" fallback="Dispensed medication" />
+        <TranslatedText stringId="medication.dispenseDetails.title" fallback="Dispensed medication" />
       }
       onClose={onClose}
     >
