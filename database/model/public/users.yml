@@ -85,11 +85,10 @@ sources:
             config:
               meta:
                 masking: phone
-          - name: device_registration_quota
-            data_type: integer
-            description: "{{ doc('users__device_registration_quota') }}"
+          - name: device_registration_permission
+            data_type: text
+            description: "{{ doc('users__device_registration_permission') }}"
             data_tests:
               - not_null
-              - dbt_utils.accepted_range:
-                  arguments:
-                    min_value: 0
+              - accepted_values:
+                  values: ['none', 'single', 'unlimited']
