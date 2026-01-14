@@ -22,8 +22,9 @@ import {
   FormSubmitButton,
   MODAL_PADDING_LEFT_AND_RIGHT,
   MODAL_PADDING_TOP_AND_BOTTOM,
+  useDateTimeFormat,
 } from '@tamanu/ui-components';
-import { getCurrentDateTimeString, toDateTimeString, toDateTimeLocalString } from '@tamanu/utils/dateTime';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { Divider as BaseDivider, Box, IconButton as BaseIconButton } from '@material-ui/core';
 import { useApi } from '../api';
 import { foreignKey } from '../utils/validation';
@@ -699,6 +700,7 @@ export const DischargeForm = ({
   const { getTranslation, getEnumTranslation } = useTranslation();
   const { encounter } = useEncounter();
   const { getSetting } = useSettings();
+  const { formatDateTimeLocal } = useDateTimeFormat();
   const queryClient = useQueryClient();
   const { ability, currentUser } = useAuth();
   const canUpdateMedication = ability.can('write', 'Medication');
@@ -885,7 +887,7 @@ export const DischargeForm = ({
               />
             }
             component={DateTimeField}
-            min={toDateTimeLocalString(encounter.startDate)}
+            min={formatDateTimeLocal(encounter.startDate)}
             required
             saveDateAsString
             data-testid="field-20tt"

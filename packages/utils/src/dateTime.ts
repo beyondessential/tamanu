@@ -23,7 +23,7 @@ import {
   type DurationUnit,
   type Interval,
 } from 'date-fns';
-import { fromZonedTime } from 'date-fns-tz';
+import { fromZonedTime, formatInTimeZone } from 'date-fns-tz';
 import { z } from 'zod';
 
 import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
@@ -77,19 +77,6 @@ export const toDateString = (date: string | Date | null | undefined) => {
   if (!dateObj) return null;
 
   return formatISO9075(dateObj, { representation: 'date' });
-};
-
-/**
- * Formats a date for use in HTML datetime-local input elements.
- * Returns format: "yyyy-MM-dd'T'HH:mm"
- */
-export const toDateTimeLocalString = (date: string | Date | null | undefined) => {
-  if (date == null) return null;
-
-  const dateObj = parseDate(date);
-  if (!dateObj) return null;
-
-  return dateFnsFormat(dateObj, "yyyy-MM-dd'T'HH:mm");
 };
 
 /**
@@ -313,17 +300,6 @@ export const formatShort = (
     timeZone,
   ); // 12/04/2020
 
-const formatWithoutTimezoneConversion = (
-  date: string | Date | null | undefined,
-  formatOptions: Intl.DateTimeFormatOptions,
-  fallback = 'Unknown',
-) => {
-  if (!date) return fallback;
-  const dateObj = parseDate(date);
-  if (!dateObj) return fallback;
-  return dateObj.toLocaleString(locale, formatOptions);
-};
-
 export const formatTime = (
   date: string | Date | null | undefined,
   countryTimeZone: string,
@@ -379,16 +355,25 @@ export const formatLong = (
   ); // "Thursday, 14 July 2022, 03:44 pm"
 
 /** "Thu" */
-export const formatWeekdayShort = (date: string | Date | null | undefined) =>
-  formatWithoutTimezoneConversion(date, { weekday: 'short' }, 'Unknown');
+export const formatWeekdayShort = (
+  date: string | Date | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) => intlFormatDate(date, { weekday: 'short' }, 'Unknown', countryTimeZone, timeZone);
 
 /** "Thursday" */
-export const formatWeekdayLong = (date: string | Date | null | undefined) =>
-  formatWithoutTimezoneConversion(date, { weekday: 'long' }, 'Unknown');
+export const formatWeekdayLong = (
+  date: string | Date | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) => intlFormatDate(date, { weekday: 'long' }, 'Unknown', countryTimeZone, timeZone);
 
 /** "M" - single letter weekday */
-export const formatWeekdayNarrow = (date: string | Date | null | undefined) =>
-  formatWithoutTimezoneConversion(date, { weekday: 'narrow' }, 'Unknown');
+export const formatWeekdayNarrow = (
+  date: string | Date | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) => intlFormatDate(date, { weekday: 'narrow' }, 'Unknown', countryTimeZone, timeZone);
 
 /** "15 January 2024" */
 export const formatFullDate = (
@@ -456,6 +441,20 @@ export const formatShortestExplicit = (
     countryTimeZone,
     timeZone,
   );
+
+/** "2024-01-15T14:30" - for HTML datetime-local input elements */
+export const formatDateTimeLocal = (
+  date: string | Date | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) => {
+  if (date == null) return null;
+  const dateObj = timeZone ? fromZonedTime(date, countryTimeZone) : parseDate(date);
+  if (!dateObj) return null;
+  // TODO: should this format to timezone? Or just local
+  return formatInTimeZone(dateObj, timeZone ?? countryTimeZone, "yyyy-MM-dd'T'HH:mm");
+};
+
 
 export const isStartOfThisWeek = (date: Date | number) => {
   const startOfThisWeek = startOfWeek(new Date(), { weekStartsOn: 1 });
