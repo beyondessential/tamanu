@@ -202,6 +202,8 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
   const [isEstimatedDischargeModalOpen, setIsEstimatedDischargeModalOpen] = useState(false);
   const canWriteEncounter = ability.can('write', 'Encounter');
 
+  const triage = encounter.triages?.[0];
+
   return (
     <InfoCard inlineValues contentPadding={25} paddingTop={0} data-testid="infocard-o4i8">
       <InfoCardFirstColumn data-testid="infocardfirstcolumn-u3u3">
@@ -240,7 +242,7 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
                 data-testid="translatedtext-l4wd"
               />
             }
-            value={encounter.triages?.[0]?.score || '—'}
+            value={triage?.score || '—'}
             icon={triageScoreIcon}
             data-testid="infocarditem-p5t5"
           />
@@ -372,19 +374,62 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
             data-testid="infocarditem-n7q6"
           />
         )}
-        <InfoCardItem
-          label={
-            <TranslatedText
-              stringId="encounter.reasonForEncounter.label"
-              fallback="Reason for encounter"
-              data-testid="translatedtext-3602"
+        {isEmergencyPatient(encounter.encounterType) ? (
+          <>
+            <InfoCardItem
+              label={
+                <TranslatedText
+                  stringId="triage.chiefComplaint.label"
+                  fallback="Chief complaint"
+                  data-testid="translatedtext-3602"
+                />
+              }
+              value={
+                <TranslatedReferenceData
+                  category="triageReason"
+                  value={triage?.chiefComplaint.id}
+                  fallback={triage?.chiefComplaint.name}
+                  placeholder="—"
+                />
+              }
+              icon={reasonForEncounterIcon}
+              data-testid="infocarditem-chiefComplaint"
             />
-          }
-          value={encounter.reasonForEncounter}
-          icon={reasonForEncounterIcon}
-          $whiteSpace="normal"
-          data-testid="infocarditem-axjq"
-        />
+            <InfoCardItem
+              label={
+                <TranslatedText
+                  stringId="triage.secondaryComplaint.label"
+                  fallback="Secondary complaint"
+                  data-testid="translatedtext-3602"
+                />
+              }
+              value={
+                <TranslatedReferenceData
+                  category="triageReason"
+                  value={triage?.secondaryComplaint.id}
+                  fallback={triage?.secondaryComplaint.name}
+                  placeholder="—"
+                />
+              }
+              icon={reasonForEncounterIcon}
+              data-testid="infocarditem-secondaryComplaint"
+            />
+          </>
+        ) : (
+          <InfoCardItem
+            label={
+              <TranslatedText
+                stringId="encounter.reasonForEncounter.label"
+                fallback="Reason for encounter"
+                data-testid="translatedtext-3602"
+              />
+            }
+            value={encounter.reasonForEncounter}
+            icon={reasonForEncounterIcon}
+            $whiteSpace="normal"
+            data-testid="infocarditem-axjq"
+          />
+        )}
       </InfoCardSecondColumn>
     </InfoCard>
   );
