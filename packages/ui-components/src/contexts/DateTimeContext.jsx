@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useCallback, useContext, useMemo } from 'react';
 import {
   formatShortest as baseShortest,
   formatShort as baseShort,
@@ -40,32 +40,43 @@ const DateTimeContext = React.createContext({
 
 export const useDateTimeFormat = () => useContext(DateTimeContext);
 
+
 export const DateTimeProvider = ({ children, countryTimeZone = 'Pacific/Auckland' }) => {
   const { getSetting } = useSettings();
   const timeZone = getSetting('timeZone');
+  
+  const getDateFormatter = useCallback(
+    (formatFunc) => (date, isDateOnly) => {
+      if (isDateOnly) {
+        return formatFunc(date);
+      }
+      return formatFunc(date, countryTimeZone, timeZone);
+    },
+    [countryTimeZone, timeZone],
+  );
+
   const value = useMemo(
     () => ({
       timeZone,
       countryTimeZone,
-      formatShortest: date => baseShortest(date, countryTimeZone, timeZone),
-      formatShort: date => baseShort(date, countryTimeZone, timeZone),
-      formatTime: (date, options) => baseTime(date, countryTimeZone, timeZone, options),
-      formatTimeWithSeconds: date => baseTimeWithSeconds(date, countryTimeZone, timeZone),
-      formatTimeCompact: date => baseTimeCompact(date, countryTimeZone, timeZone),
-      formatTimeSlot: date => baseTimeSlot(date, countryTimeZone, timeZone),
-      formatLong: date => baseLong(date, countryTimeZone, timeZone),
-      formatFullDate: date => baseFullDate(date, countryTimeZone, timeZone),
-      formatShortExplicit: date => baseShortExplicit(date, countryTimeZone, timeZone),
-      formatShortestExplicit: date => baseShortestExplicit(date, countryTimeZone, timeZone),
+      formatShortest: getDateFormatter(baseShortest),
+      formatShort: getDateFormatter(baseShort),
+      formatTime: getDateFormatter(baseTime),
+      formatTimeWithSeconds: getDateFormatter(baseTimeWithSeconds),
+      formatTimeCompact: getDateFormatter(baseTimeCompact),
+      formatTimeSlot: getDateFormatter(baseTimeSlot),
+      formatLong: getDateFormatter(baseLong),
+      formatFullDate: getDateFormatter(baseFullDate),
+      formatShortExplicit: getDateFormatter(baseShortExplicit),
+      formatShortestExplicit: getDateFormatter(baseShortestExplicit),
       // No timezone conversion needed for these
-      formatWeekdayShort: date => baseWeekdayShort(date),
-      formatWeekdayLong: date => baseWeekdayLong(date),
-      formatWeekdayNarrow: date => baseWeekdayNarrow(date),
-      formatDateOnlyShort: date => baseDateOnlyShort(date),
-      intlFormatDate: (date, formatOptions, fallback = 'Unknown') =>
-        baseIntlFormatDate(date, formatOptions, fallback, countryTimeZone, timeZone),
+      formatWeekdayShort: getDateFormatter(baseWeekdayShort),
+      formatWeekdayLong: getDateFormatter(baseWeekdayLong),
+      formatWeekdayNarrow: getDateFormatter(baseWeekdayNarrow),
+      formatDateOnlyShort: getDateFormatter(baseDateOnlyShort),
+      intlFormatDate: getDateFormatter(baseIntlFormatDate),
     }),
-    [timeZone, countryTimeZone],
+    [timeZone, countryTimeZone, getDateFormatter],
   );
 
   return <DateTimeContext.Provider value={value}>{children}</DateTimeContext.Provider>;
