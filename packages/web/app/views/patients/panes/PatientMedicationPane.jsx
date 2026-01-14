@@ -707,16 +707,16 @@ export const PatientMedicationPane = ({ patient }) => {
           $maxHeight={'320px'}
         />
       </TableContainer>
-      <TableContainer>
-        <TableTitle py={2} mx={2.5}>
-          <TableTitleText>
-            <TranslatedText
-              stringId="patient.medication.dispensed.title"
-              fallback="Dispensed medications"
-            />
-          </TableTitleText>
-        </TableTitle>
-        {canReadDispensedMedications && (
+      {canReadDispensedMedications && (
+        <TableContainer>
+          <TableTitle py={2} mx={2.5}>
+            <TableTitleText>
+              <TranslatedText
+                stringId="patient.medication.dispensed.title"
+                fallback="Dispensed medications"
+              />
+            </TableTitleText>
+          </TableTitle>
           <StyledDataFetchingTable
             endpoint={`/patient/${patient.id}/dispensed-medications`}
             columns={DISPENSED_MEDICATION_COLUMNS(
@@ -747,8 +747,8 @@ export const PatientMedicationPane = ({ patient }) => {
             onClickRow={handleDispensedMedicationClick}
             $maxHeight={'320px'}
           />
-        )}
-      </TableContainer>
+        </TableContainer>
+      )}
       <MedicationModal
         open={createMedicationModalOpen}
         onClose={() => setCreateMedicationModalOpen(false)}
