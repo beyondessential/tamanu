@@ -10,7 +10,7 @@ import {
 } from '@tamanu/utils/dateTime';
 import { TAMANU_COLORS } from '../constants';
 import { ThemedTooltip } from './Tooltip';
-import { useDateTimeFormat } from '../contexts';
+import { useDateTimeFormat, useSettings } from '../contexts';
 
 const Text = styled(Typography)`
   font-size: inherit;
@@ -32,9 +32,22 @@ const getFormattedOffset = (tz, date) => {
   return `${sign}${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
 };
 
-const DiagnosticInfo = ({ date: parsedDate, rawDate, timeZone, countryTimeZone }) => {
+const getFormattedOffsetDifference = (date, timeZone, countryTimeZone) => {
+  if (!timeZone || !countryTimeZone) return 'N/A';
+  const dateObj = parseDate(date);
+  const timeZoneOffset = getTimezoneOffset(timeZone, dateObj);
+  const countryTimeZoneOffset = getTimezoneOffset(countryTimeZone, dateObj);
+  const diffMs = timeZoneOffset - countryTimeZoneOffset;
+  const diffMinutes = Math.abs(diffMs / 60000);
+  const hours = Math.floor(diffMinutes / 60);
+  const minutes = diffMinutes % 60;
+  const sign = diffMs >= 0 ? '+' : '-';
+  return `${sign}${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+};
+
+const DiagnosticInfo = ({ date, timeZone, countryTimeZone }) => {
   const { formatLong } = useDateTimeFormat();
-  const displayDate = formatLong(parsedDate);
+  const displayDate = formatLong(date);
   const now = new Date();
   const displayOffset = getFormattedOffset(timeZone, now);
   const sourceOffset = getFormattedOffset(countryTimeZone, now);
@@ -42,18 +55,19 @@ const DiagnosticInfo = ({ date: parsedDate, rawDate, timeZone, countryTimeZone }
 
   return (
     <div>
-      <strong>Raw date string:</strong> {rawDate} <br />
+      <strong>Raw date string:</strong> {date} <br />
       <strong>Source timezone:</strong> {countryTimeZone || 'N/A'} ({sourceOffset}) <br />
       <strong>Display timezone:</strong> {timeZone || 'N/A'} ({displayOffset}) <br />
       <strong>Device timezone:</strong> {Intl.DateTimeFormat().resolvedOptions().timeZone} (
       {deviceOffset}) <br />
+      <strong>Offset applied to date:</strong> {getFormattedOffsetDifference(date, timeZone, countryTimeZone)} <br />
       <strong>Display date:</strong> {displayDate} <br />
       <strong>Locale:</strong> {locale}
     </div>
   );
 };
 
-const DateTooltip = ({ date, rawDate, children, timeOnlyTooltip, timeZone, countryTimeZone }) => {
+const DateTooltip = ({ date, children, timeOnlyTooltip, timeZone, countryTimeZone }) => {
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const [debug, setDebug] = useState(false);
 
@@ -78,7 +92,6 @@ const DateTooltip = ({ date, rawDate, children, timeOnlyTooltip, timeZone, count
   const tooltipTitle = debug ? (
     <DiagnosticInfo
       date={date}
-      rawDate={rawDate}
       countryTimeZone={countryTimeZone}
       timeZone={timeZone}
     />
@@ -114,7 +127,7 @@ const TIME_FORMATS = {
 };
 
 const useFormattedDate = (dateValue, { dateFormat, timeFormat, showWeekday }) => {
-  const { timeZone, countryTimeZone, ...formatters } = useDateTimeFormat();
+  const formatters = useDateTimeFormat();
   const parts = [];
 
   const skipTimezoneConversion = isDate(dateValue) || isISO9075DateString(dateValue);
@@ -133,7 +146,7 @@ const useFormattedDate = (dateValue, { dateFormat, timeFormat, showWeekday }) =>
     parts.push(formatters[formatterName](dateValue, skipTimezoneConversion));
   }
 
-  return { displayString: parts.join(' '), timeZone, countryTimeZone };
+  return parts.join(' ');
 };
 
 /**
@@ -157,12 +170,15 @@ const useFormattedDate = (dateValue, { dateFormat, timeFormat, showWeekday }) =>
  */
 export const TimeDisplay = React.memo(
   ({ date: dateValue, format, noTooltip = false, style, ...props }) => {
-    const { displayString, timeZone, countryTimeZone } = useFormattedDate(dateValue, {
+    const { getSetting } = useSettings();
+    const countryTimeZone = getSetting('countryTimeZone');
+    const timeZone = getSetting('timeZone');
+    const displayTime = useFormattedDate(dateValue, {
       timeFormat: format,
     });
     const content = (
       <span style={style} {...props}>
-        {displayString}
+        {displayTime}
       </span>
     );
 
@@ -171,7 +187,6 @@ export const TimeDisplay = React.memo(
     return (
       <DateTooltip
         date={dateValue} 
-        rawDate={dateValue}
         timeOnlyTooltip
         timeZone={timeZone}
         countryTimeZone={countryTimeZone}
@@ -224,10 +239,13 @@ export const DateDisplay = React.memo(
     timeOnlyTooltip = false,
     ...props
   }) => {
+    const { getSetting } = useSettings();
+    const countryTimeZone = getSetting('countryTimeZone');
+    const timeZone = getSetting('timeZone');
     const resolvedDateFormat = dateFormat === undefined ? 'short' : dateFormat;
     const resolvedTimeFormat = showTime ? timeFormat || 'default' : null;
 
-    const { displayString, timeZone, countryTimeZone } = useFormattedDate(dateValue, {
+    const displayDate = useFormattedDate(dateValue, {
       dateFormat: resolvedDateFormat,
       timeFormat: resolvedTimeFormat,
       showWeekday,
@@ -235,7 +253,7 @@ export const DateDisplay = React.memo(
 
     const content = (
       <span style={{ color, fontWeight, ...style }} {...props}>
-        {displayString}
+        {displayDate}
       </span>
     );
 

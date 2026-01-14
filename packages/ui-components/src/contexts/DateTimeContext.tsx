@@ -6,11 +6,7 @@ import { mapValues } from 'lodash';
 type DateInput = string | Date | null | undefined;
 type FormatFunction = (date: DateInput, skipTimezoneConversion?: boolean) => string | null;
 
-interface DateTimeContextValue {
-  timeZone?: string;
-  countryTimeZone: string;
-  [key: string]: FormatFunction | string | undefined;
-}
+type DateTimeContextValue = Record<string, FormatFunction>;
 
 interface DateTimeProviderProps {
   children: ReactNode;
@@ -57,12 +53,8 @@ export const DateTimeProvider = ({
 
   const value = useMemo(
     () =>
-      ({
-        timeZone,
-        countryTimeZone,
-        ...mapValues(formatFunctions, fn => wrap(fn)),
-      }) as DateTimeContextValue,
-    [timeZone, countryTimeZone, wrap],
+      (mapValues(formatFunctions, fn => wrap(fn))) as DateTimeContextValue,
+    [wrap],
   );
 
   if (!isSettingsLoaded || !countryTimeZone) {
