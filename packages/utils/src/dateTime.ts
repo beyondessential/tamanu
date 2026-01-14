@@ -449,15 +449,6 @@ export const formatTimeCompact = (
   return result.replace(' ', '').toLowerCase();
 };
 
-export const formatTimeOnlyCompact = (date: string | Date | null | undefined) => {
-  const result = formatWithoutTimezoneConversion(
-    date,
-    { hour: 'numeric', minute: '2-digit', hour12: true },
-    'Unknown',
-  );
-  return result.replace(' ', '').toLowerCase();
-};
-
 /** "Apr 12, 2024" - medium date style with explicit month name (unambiguous across locales) */
 export const formatShortExplicit = (
   date: string | Date | null | undefined,

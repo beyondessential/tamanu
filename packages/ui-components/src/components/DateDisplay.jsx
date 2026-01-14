@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { format, isSameDay } from 'date-fns';
+import { format, isDate, isSameDay } from 'date-fns';
 import { getTimezoneOffset } from 'date-fns-tz';
 import { Box, Typography } from '@material-ui/core';
 import styled from 'styled-components';
 import {
   parseDate,
   locale, 
-  formatTimeOnlyCompact,
   isISO9075DateString
 } from '@tamanu/utils/dateTime';
 import { TAMANU_COLORS } from '../constants';
@@ -118,20 +117,20 @@ const useFormattedDate = (dateValue, { dateFormat, timeFormat, showWeekday }) =>
   const { timeZone, countryTimeZone, ...formatters } = useDateTimeFormat();
   const parts = [];
 
-  const isDateOnly = isISO9075DateString(dateValue);
+  const skipTimezoneConversion = isDate(dateValue) || isISO9075DateString(dateValue);
 
   if (showWeekday) {
-    parts.push(formatters.formatWeekdayShort(dateValue, isDateOnly));
+    parts.push(formatters.formatWeekdayShort(dateValue, skipTimezoneConversion));
   }
 
   if (dateFormat) {
     const formatterName = DATE_FORMATS[dateFormat] || DATE_FORMATS.short;
-    parts.push(formatters[formatterName](dateValue, isDateOnly));
+    parts.push(formatters[formatterName](dateValue, skipTimezoneConversion));
   }
 
   if (timeFormat) {
     const formatterName = TIME_FORMATS[timeFormat] || TIME_FORMATS.default;
-    parts.push(formatters[formatterName](dateValue, isDateOnly));
+    parts.push(formatters[formatterName](dateValue, skipTimezoneConversion));
   }
 
   return { displayString: parts.join(' '), timeZone, countryTimeZone };
@@ -171,7 +170,7 @@ export const TimeDisplay = React.memo(
 
     return (
       <DateTooltip
-        date={parseDate(dateValue)}
+        date={dateValue} 
         rawDate={dateValue}
         timeOnlyTooltip
         timeZone={timeZone}
@@ -256,15 +255,6 @@ export const DateDisplay = React.memo(
   },
 );
 
-/** TODO: these feel unnecessary, need to think of better strategy for these dates without timezone conversion */
-export const TimeOnlyDisplay = React.memo(({ date, color, fontWeight, style, ...props }) => {
-  return (
-    <span style={{ color, fontWeight, ...style }} {...props}>
-      {formatTimeOnlyCompact(date)}
-    </span>
-  );
-});
-
 /**
  * MultilineDatetimeDisplay - Shows date on one line and time below
  * @param {string|Date} date - The date value
@@ -301,8 +291,9 @@ export const MultilineDatetimeDisplay = React.memo(
  * <TimeRangeDisplay range={{ start: "2024-03-15 09:30:00", end: "2024-03-15 10:00:00" }} />
  */
 // TODO: plz remove this daniel
-export const TimeRangeDisplay = ({ range: { start, end } }) =>
-  `${formatTimeOnlyCompact(start)} – ${formatTimeOnlyCompact(end)}`;
+export const TimeRangeDisplay = ({ range: { start, end } }) => <>
+  <TimeDisplay date={start} format="compact" /> – <TimeDisplay date={end} format="compact" />;
+</>
 
 /**
  * DateTimeRangeDisplay - Shows a date/time range, intelligently handling multi-day spans
