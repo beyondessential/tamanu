@@ -606,19 +606,6 @@ export const DeathForm = React.memo(
         {isInfant ? (
           <StyledFormGrid columns={1} data-testid="styledformgrid-7x1s">
             <Field
-              name="fetalOrInfant"
-              label={
-                <TranslatedText
-                  stringId="death.fetalOrInfant.label"
-                  fallback="Was the death fetal or infant?"
-                  data-testid="translatedtext-vmk6"
-                />
-              }
-              component={RadioField}
-              options={BINARY_OPTIONS}
-              data-testid="field-z69r"
-            />
-            <Field
               name="multiplePregnancy"
               label={
                 <TranslatedText
@@ -717,19 +704,6 @@ export const DeathForm = React.memo(
               }
               component={TextField}
               data-testid="field-p0rp"
-            />
-            <Field
-              name="motherExistingCondition"
-              label={
-                <TranslatedText
-                  stringId="death.motherExistingCondition.label"
-                  fallback="Any condition in mother affecting the fetus or newborn?"
-                  data-testid="translatedtext-zqxc"
-                />
-              }
-              component={AutocompleteField}
-              suggester={diagnosisSuggester}
-              data-testid="field-s4dn"
             />
           </StyledFormGrid>
         ) : null}
