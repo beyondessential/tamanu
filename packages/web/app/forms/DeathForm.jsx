@@ -544,6 +544,19 @@ export const DeathForm = React.memo(
             data-testid="field-ezni"
           />
           <Field
+            name="mannerOfDeathDescription"
+            label={
+              <TranslatedText
+                stringId="death.mannerOfDeathDescription.label"
+                fallback="Describe how the external cause occurred. Specify poisoning agent if applicable"
+                data-testid="translatedtext-4s7r"
+              />
+            }
+            component={TextField}
+            visibilityCriteria={mannerOfDeathVisibilityCriteria}
+            data-testid="field-c5l7"
+          />
+          <Field
             name="mannerOfDeathLocation"
             label={
               <TranslatedText
