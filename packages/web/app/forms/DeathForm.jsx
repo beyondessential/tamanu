@@ -667,6 +667,7 @@ export const DeathForm = React.memo(
                 />
               }
               component={NumberField}
+              min={0}
               visibilityCriteria={{ deathWithin24HoursOfBirth: 'yes' }}
               data-testid="field-fhz5"
             />
@@ -680,6 +681,7 @@ export const DeathForm = React.memo(
                 />
               }
               component={NumberField}
+              min={0}
               data-testid="field-k1l7"
             />
             <Field
@@ -692,6 +694,7 @@ export const DeathForm = React.memo(
                 />
               }
               component={NumberField}
+              min={0}
               data-testid="field-urj7"
             />
             <Field
@@ -704,6 +707,7 @@ export const DeathForm = React.memo(
                 />
               }
               component={NumberField}
+              min={0}
               data-testid="field-k593"
             />
             <Field
