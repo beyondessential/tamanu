@@ -707,6 +707,18 @@ export const DeathForm = React.memo(
               data-testid="field-k593"
             />
             <Field
+              name="motherConditionDescription"
+              label={
+                <TranslatedText
+                  stringId="death.motherConditionDescription.label"
+                  fallback="If the death was perinatal, state conditions of mother that affected the fetus/newborn"
+                  data-testid="translatedtext-2c2y"
+                />
+              }
+              component={TextField}
+              data-testid="field-p0rp"
+            />
+            <Field
               name="motherExistingCondition"
               label={
                 <TranslatedText
