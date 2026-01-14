@@ -35,6 +35,9 @@ export const ISO8061_WITH_TIMEZONE = "yyyy-MM-dd'T'HH:mm:ssXXX";
 export const isISOString = (dateString: string) =>
   isMatch(dateString, ISO9075_DATETIME_FORMAT) || isMatch(dateString, ISO9075_DATE_FORMAT);
 
+export const isISO9075DateString = (dateString: string) =>
+  isMatch(dateString, ISO9075_DATE_FORMAT);
+
 const makeDateObject = (date: string | Date) => {
   if (typeof date !== 'string') return date;
   return isISOString(date) ? parseISO(date) : new Date(date.replace(' ', 'T'));

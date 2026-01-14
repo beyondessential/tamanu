@@ -8,6 +8,7 @@ import {
   locale,
   formatDateOnlyShort,
   formatTimeOnlyCompact,
+  isISO9075DateString
 } from '@tamanu/utils/dateTime';
 import { TAMANU_COLORS } from '../constants';
 import { ThemedTooltip } from './Tooltip';
@@ -116,21 +117,22 @@ const TIME_FORMATS = {
 
 const useFormattedDate = (dateValue, { dateFormat, timeFormat, showWeekday }) => {
   const { timeZone, countryTimeZone, ...formatters } = useDateTimeFormat();
-  const dateObj = parseDate(dateValue);
   const parts = [];
 
+  const isDateOnly = isISO9075DateString (dateValue);
+
   if (showWeekday) {
-    parts.push(formatters.formatWeekdayShort(dateObj));
+    parts.push(formatters.formatWeekdayShort(dateValue));
   }
 
   if (dateFormat) {
     const formatterName = DATE_FORMATS[dateFormat] || DATE_FORMATS.short;
-    parts.push(formatters[formatterName](dateObj));
+    parts.push(formatters[formatterName](dateValue));
   }
 
   if (timeFormat) {
     const formatterName = TIME_FORMATS[timeFormat] || TIME_FORMATS.default;
-    parts.push(formatters[formatterName](dateObj));
+    parts.push(formatters[formatterName](dateValue));
   }
 
   return { displayString: parts.join(' '), timeZone, countryTimeZone };
@@ -243,7 +245,7 @@ export const DateDisplay = React.memo(
 
     return (
       <DateTooltip
-        date={parseDate(dateValue)}
+        date={dateValue}
         rawDate={dateValue}
         timeOnlyTooltip={timeOnlyTooltip}
         timeZone={timeZone}
@@ -270,7 +272,7 @@ export const DateOnlyDisplay = React.memo(({ date, color, fontWeight, style, ...
   </span>
 ));
 
-/** TODO: these are stupid, need to think of better strategy for these dates without timezone conversion */
+/** TODO: these feel unnecessary, need to think of better strategy for these dates without timezone conversion */
 export const TimeOnlyDisplay = React.memo(({ date, color, fontWeight, style, ...props }) => {
   return (
     <span style={{ color, fontWeight, ...style }} {...props}>
