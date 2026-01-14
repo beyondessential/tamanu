@@ -34,7 +34,7 @@ const StyledClearIcon = styled(ClearIcon)`
 
 // N.B. this is specifically for use within forms, you may also want to use the `SearchInput`
 // component for standalone search fields
-export const SearchField = (props) => {
+export const SearchField = props => {
   const {
     field: { value, name, onChange },
     form: { setFieldValue } = {},
@@ -47,6 +47,7 @@ export const SearchField = (props) => {
 
   const clearSearch = () => {
     setSearchValue('');
+    onChange?.({ target: { value: '', name } });
     setFieldValue?.(name, '');
   };
 
@@ -62,7 +63,7 @@ export const SearchField = (props) => {
 };
 
 // N.B. this is for standalone use, if you want a search field within a form, use SearchField.jsx
-export const SearchInput = (props) => {
+export const SearchInput = props => {
   const { getTranslation } = useTranslation();
 
   const { label, placeholder, value, onChange, onClear } = props;
