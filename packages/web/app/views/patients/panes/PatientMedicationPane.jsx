@@ -143,6 +143,7 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
       color: ${Colors.midText};
       position: sticky;
       top: 0;
+      z-index: 1;
       & .MuiTableSortLabel-root {
         color: ${Colors.midText};
       }
@@ -721,14 +722,12 @@ export const PatientMedicationPane = ({ patient }) => {
         onClose={handleCancelCancel}
         onConfirm={handleCancelConfirm}
       />
-      {isEditModalOpen && (
-        <EditMedicationDispenseModal
-          open={isEditModalOpen}
-          medicationDispense={selectedDispense}
-          onClose={handleEditCancel}
-          onConfirm={handleEditConfirm}
-        />
-      )}
+      <EditMedicationDispenseModal
+        open={isEditModalOpen}
+        medicationDispense={selectedDispense}
+        onClose={handleEditCancel}
+        onConfirm={handleEditConfirm}
+      />
     </Box>
   );
 };

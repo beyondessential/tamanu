@@ -725,6 +725,7 @@ patientRoute.get(
               association: 'prescription',
               attributes: [
                 'id',
+                'date',
                 'doseAmount',
                 'units',
                 'frequency',
