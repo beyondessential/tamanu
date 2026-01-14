@@ -276,12 +276,10 @@ export const MedicationDispensesTable = () => {
       instructions: dispenseData.instructions,
       remainingRepeats: dispenseData.pharmacyOrderPrescription?.remainingRepeats,
       dispensedAt: dispenseData.dispensedAt,
+      dispensedBy: dispenseData.dispensedBy,
       prescription: {
         date: dispenseData.pharmacyOrderPrescription?.prescription?.date,
         medication: dispenseData.pharmacyOrderPrescription?.prescription?.medication,
-        prescriber: {
-          displayName: dispenseData.dispensedBy?.displayName,
-        },
       },
       patient,
     };

@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 
@@ -56,6 +55,7 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
     remainingRepeats,
     displayId,
     dispensedAt,
+    dispensedBy,
     patient,
   } = item;
 
@@ -82,7 +82,7 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
     },
     {
       label: <TranslatedText stringId="medication.dispense.dispensedBy" fallback="Dispensed by" />,
-      value: prescription?.prescriber?.displayName || '-',
+      value: dispensedBy?.displayName || '-',
     },
     {
       label: <TranslatedText stringId="medication.details.instructions" fallback="Instructions" />,
@@ -161,40 +161,4 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
       </ActionRow>
     </StyledModal>
   );
-};
-
-DispensedMedicationDetailsModal.propTypes = {
-  open: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
-  item: PropTypes.shape({
-    id: PropTypes.string,
-    displayId: PropTypes.string,
-    quantity: PropTypes.number,
-    instructions: PropTypes.string,
-    remainingRepeats: PropTypes.number,
-    lastDispensedAt: PropTypes.string,
-    prescription: PropTypes.shape({
-      date: PropTypes.string,
-      medication: PropTypes.shape({
-        name: PropTypes.string,
-        id: PropTypes.string,
-        type: PropTypes.string,
-      }),
-      prescriber: PropTypes.shape({
-        displayName: PropTypes.string,
-      }),
-    }),
-    patient: PropTypes.shape({
-      displayId: PropTypes.string,
-      firstName: PropTypes.string,
-      lastName: PropTypes.string,
-    }),
-    dispensedBy: PropTypes.shape({
-      displayName: PropTypes.string,
-    }),
-  }),
-};
-
-DispensedMedicationDetailsModal.defaultProps = {
-  item: null,
 };
