@@ -52,6 +52,53 @@ const mannerOfDeathVisibilityCriteria = {
   mannerOfDeath: Object.values(MANNER_OF_DEATHS).filter(x => x !== 'Disease'),
 };
 
+const PartialWorkflowPage = ({ practitionerSuggester }) => {
+  return (
+    <StyledFormGrid columns={1} data-testid="styledformgrid-o83r">
+      <Field
+        name="timeOfDeath"
+        label={
+          <TranslatedText
+            stringId="death.timeOfDeath.label"
+            fallback="Date & time of death"
+            data-testid="translatedtext-x1yy"
+          />
+        }
+        component={props => (
+          <DateTimeField {...props} InputProps={{}} data-testid="datetimefield-8fsq" />
+        )}
+        saveDateAsString
+        required
+        data-testid="field-o3sc"
+      />
+      <Field
+        name="clinicianId"
+        label={
+          <TranslatedText
+            stringId="general.attendingClinician.label"
+            fallback="Attending :clinician"
+            replacements={{
+              clinician: (
+                <TranslatedText
+                  stringId="general.localisedField.clinician.label.short"
+                  fallback="Clinician"
+                  casing="lower"
+                  data-testid="translatedtext-2e0w"
+                />
+              ),
+            }}
+            data-testid="translatedtext-w8w6"
+          />
+        }
+        component={AutocompleteField}
+        suggester={practitionerSuggester}
+        required
+        data-testid="field-j9h1"
+      />
+    </StyledFormGrid>
+  );
+};
+
 export const DeathForm = React.memo(
   ({
     onCancel,
@@ -148,48 +195,7 @@ export const DeathForm = React.memo(
         formType={FORM_TYPES.CREATE_FORM}
         data-testid="paginatedform-9jrc"
       >
-        <StyledFormGrid columns={1} data-testid="styledformgrid-o83r">
-          <Field
-            name="timeOfDeath"
-            label={
-              <TranslatedText
-                stringId="death.timeOfDeath.label"
-                fallback="Date & time of death"
-                data-testid="translatedtext-x1yy"
-              />
-            }
-            component={props => (
-              <DateTimeField {...props} InputProps={{}} data-testid="datetimefield-8fsq" />
-            )}
-            saveDateAsString
-            required
-            data-testid="field-o3sc"
-          />
-          <Field
-            name="clinicianId"
-            label={
-              <TranslatedText
-                stringId="general.attendingClinician.label"
-                fallback="Attending :clinician"
-                replacements={{
-                  clinician: (
-                    <TranslatedText
-                      stringId="general.localisedField.clinician.label.short"
-                      fallback="Clinician"
-                      casing="lower"
-                      data-testid="translatedtext-2e0w"
-                    />
-                  ),
-                }}
-                data-testid="translatedtext-w8w6"
-              />
-            }
-            component={AutocompleteField}
-            suggester={practitionerSuggester}
-            required
-            data-testid="field-j9h1"
-          />
-        </StyledFormGrid>
+        <PartialWorkflowPage practitionerSuggester={practitionerSuggester} />
         <StyledFormGrid columns={2} data-testid="styledformgrid-5gyh">
           <FieldWithTooltip
             name="causeOfDeath"
