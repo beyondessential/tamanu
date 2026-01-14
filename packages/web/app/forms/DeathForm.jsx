@@ -455,6 +455,33 @@ export const DeathForm = React.memo(
             visibilityCriteria={{ surgeryInLast4Weeks: 'yes' }}
             data-testid="field-qrk8"
           />
+          <Field
+            name="autopsyRequested"
+            label={
+              <TranslatedText
+                stringId="death.autopsyRequested.label"
+                fallback="Was an autopsy requested?"
+                data-testid="translatedtext-l4gw"
+              />
+            }
+            component={RadioField}
+            options={BINARY_UNKNOWN_OPTIONS}
+            data-testid="field-13rp"
+          />
+          <Field
+            name="autopsyFindingsUsed"
+            label={
+              <TranslatedText
+                stringId="death.autopsyFindingsUsed.label"
+                fallback="Were the findings used in the certification?"
+                data-testid="translatedtext-2u2y"
+              />
+            }
+            component={RadioField}
+            options={BINARY_UNKNOWN_OPTIONS}
+            visibilityCriteria={{ autopsyRequested: 'yes' }}
+            data-testid="field-333j"
+          />
         </StyledFormGrid>
         {canBePregnant ? (
           <StyledFormGrid columns={1} data-testid="styledformgrid-gkfk">
