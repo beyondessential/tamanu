@@ -26,6 +26,25 @@ import { BINARY_OPTIONS, BINARY_UNKNOWN_OPTIONS } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 
+const PrefixWrapper = styled.div`
+  position: relative;
+  width: 100%;
+`;
+
+const Prefix = styled.span`
+  position: absolute;
+  left: -20px;
+  top: 32px;
+  font-weight: 500;
+`;
+
+const AutocompleteFieldWithPrefix = ({ prefix, ...props }) => (
+  <PrefixWrapper>
+    <Prefix>{prefix}</Prefix>
+    <AutocompleteField {...props} style={{ width: '100%' }} />
+  </PrefixWrapper>
+);
+
 const StyledFormGrid = styled(FormGrid)`
   min-height: 200px;
 `;
@@ -216,7 +235,8 @@ export const DeathForm = React.memo(
                 data-testid="translatedtext-x2zt"
               />
             }
-            component={AutocompleteField}
+            component={AutocompleteFieldWithPrefix}
+            prefix="a."
             suggester={diagnosisSuggester}
             tooltipText={
               <TranslatedText
@@ -250,7 +270,8 @@ export const DeathForm = React.memo(
                 data-testid="translatedtext-0bm8"
               />
             }
-            component={AutocompleteField}
+            component={AutocompleteFieldWithPrefix}
+            prefix="b."
             suggester={diagnosisSuggester}
             data-testid="field-jbod"
           />
@@ -275,7 +296,8 @@ export const DeathForm = React.memo(
                 data-testid="translatedtext-y3mg"
               />
             }
-            component={AutocompleteField}
+            component={AutocompleteFieldWithPrefix}
+            prefix="c."
             suggester={diagnosisSuggester}
             data-testid="field-ypmx"
           />
@@ -300,7 +322,8 @@ export const DeathForm = React.memo(
                 data-testid="translatedtext-ufzf"
               />
             }
-            component={AutocompleteField}
+            component={AutocompleteFieldWithPrefix}
+            prefix="d."
             suggester={diagnosisSuggester}
             data-testid="field-g6oi"
           />
