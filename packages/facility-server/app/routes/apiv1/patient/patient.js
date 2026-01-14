@@ -684,6 +684,113 @@ patientRoute.get(
   }),
 );
 
+patientRoute.get(
+  '/:id/dispensed-medications',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { MedicationDispense, Facility },
+      params,
+      query,
+    } = req;
+    const patientId = params.id;
+
+    req.checkPermission('read', 'MedicationDispense');
+
+    const { order = 'DESC', orderBy = 'dispensedAt', page, rowsPerPage } = query;
+
+    const parsedPage = parseInt(page) || 0;
+    const parsedRowsPerPage = parseInt(rowsPerPage) || 10;
+
+    const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+
+    const medicationFilter = {};
+    const canListSensitiveMedication = req.ability.can('list', 'SensitiveMedication');
+    if (!canListSensitiveMedication) {
+      medicationFilter[
+        '$pharmacyOrderPrescription.prescription.medication.referenceDrug.is_sensitive$'
+      ] = false;
+    }
+
+    const response = await MedicationDispense.findAndCountAll({
+      include: [
+        {
+          association: 'pharmacyOrderPrescription',
+          attributes: ['id', 'displayId', 'quantity', 'repeats'],
+          required: true,
+          include: [
+            {
+              association: 'pharmacyOrder',
+              attributes: ['id', 'facilityId', 'encounterId'],
+              required: true,
+              include: [
+                {
+                  association: 'encounter',
+                  attributes: ['id', 'patientId'],
+                  where: { patientId },
+                  required: true,
+                },
+                {
+                  model: Facility,
+                  as: 'facility',
+                  attributes: ['id', 'name'],
+                  required: false,
+                },
+              ],
+            },
+            {
+              association: 'prescription',
+              attributes: [
+                'id',
+                'date',
+                'doseAmount',
+                'units',
+                'frequency',
+                'route',
+                'isVariableDose',
+                'isPrn',
+              ],
+              required: true,
+              include: [
+                {
+                  association: 'medication',
+                  attributes: ['id', 'name', 'type'],
+                  required: true,
+                  include: {
+                    model: req.models.ReferenceDrug,
+                    as: 'referenceDrug',
+                    attributes: ['referenceDataId', 'isSensitive'],
+                    required: true,
+                  },
+                },
+              ],
+            },
+          ],
+        },
+        {
+          association: 'dispensedBy',
+          attributes: ['id', 'displayName'],
+          required: true,
+        },
+      ],
+      attributes: ['id', 'quantity', 'instructions', 'dispensedAt', 'dispensedByUserId'],
+      where: medicationFilter,
+      order: [
+        [...orderBy.split('.'), orderDirection],
+        ['dispensedAt', 'DESC'],
+      ],
+      limit: parsedRowsPerPage,
+      offset: parsedPage * parsedRowsPerPage,
+    });
+
+    const { count, rows: data } = response;
+
+    res.json({
+      count,
+      data,
+    });
+  }),
+);
+
 patientRoute.use(patientRelations);
 patientRoute.use(patientVaccineRoutes);
 patientRoute.use(patientDocumentMetadataRoutes);

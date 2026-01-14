@@ -1,5 +1,5 @@
 import React, { useEffect, useState, memo } from 'react';
-import styled from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
 import { Box } from '@material-ui/core';
 
 import { formatShort } from '@tamanu/utils/dateTime';
@@ -22,7 +22,6 @@ import { DateDisplay } from '../DateDisplay';
 import { useFacilityQuery } from '../../api/queries/useFacilityQuery';
 import { Colors } from '../../constants';
 import { BodyText } from '../Typography';
-import { MedicationLabelPrintModal } from '../PatientPrinting/modals/MedicationLabelPrintModal';
 import { MedicationLabel } from '../PatientPrinting/printouts/MedicationLabel';
 import { getMedicationLabelData, getStockStatus } from '../../utils/medications';
 
@@ -75,6 +74,49 @@ const PrintContainer = styled.div`
   align-items: center;
 `;
 
+const PrintDescription = styled(Box)`
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: Colors.midText;
+
+  @media print {
+    display: none;
+  }
+`;
+
+const PrintStyles = createGlobalStyle`
+  @media print {
+    @page {
+      margin: 3mm;
+      size: auto;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
+
+    .MuiDialogTitle-root,
+    .MuiDialogActions-root {
+      display: none;
+    }
+
+    .MuiDialog-container,
+    .MuiDialog-paper,
+    .MuiPaper-root,
+    .MuiDialogContent-root {
+      width: fit-content;
+      max-width: none;
+      height: fit-content;
+      max-height: none;
+      margin: 0;
+      padding: 0;
+      overflow: visible;
+      box-shadow: none;
+    }
+  }
+`;
+
 const StyledConfirmCancelBackRow = styled(ConfirmCancelBackRow)`
   width: 100%;
   position: relative;
@@ -115,7 +157,6 @@ export const EditMedicationDispenseModal = memo(
     const [item, setItem] = useState(null);
     const [errors, setErrors] = useState({});
     const [showValidationErrors, setShowValidationErrors] = useState(false);
-    const [showPrintModal, setShowPrintModal] = useState(false);
     const [labelForPrint, setLabelForPrint] = useState(null);
 
     const { data: facility, isLoading: isLoadingFacility } = useFacilityQuery(facilityId, {
@@ -143,7 +184,6 @@ export const EditMedicationDispenseModal = memo(
     const handleClose = () => {
       setErrors({});
       setShowValidationErrors(false);
-      setShowPrintModal(false);
       setLabelForPrint(null);
       onClose();
     };
@@ -233,8 +273,9 @@ export const EditMedicationDispenseModal = memo(
 
       if (onConfirm) onConfirm();
 
-      // Close dispense modal and open print modal
-      setShowPrintModal(true);
+      print();
+
+      // Close dispense modal
       onClose();
     };
 
@@ -458,24 +499,19 @@ export const EditMedicationDispenseModal = memo(
 
           {step === MODAL_STEPS.REVIEW && (
             <>
-              <Box mb={2} fontSize="14px" color="#444">
+              <PrintStyles />
+              <PrintDescription>
                 <TranslatedText
                   stringId="medication.editDispensedMedicationAndPrint.description"
                   fallback="Please review the medication label/s below. Select Back to make changes, or Dispense & print to complete."
                 />
-              </Box>
+              </PrintDescription>
               <PrintContainer>
                 {labelForPrint && <MedicationLabel data={labelForPrint} />}
               </PrintContainer>
             </>
           )}
         </StyledModal>
-
-        <MedicationLabelPrintModal
-          open={showPrintModal}
-          onClose={() => setShowPrintModal(false)}
-          labels={labelForPrint ? [labelForPrint] : []}
-        />
       </>
     );
   },
