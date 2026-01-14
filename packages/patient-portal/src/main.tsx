@@ -13,7 +13,9 @@ import './fonts.css';
 import { App } from './App';
 import { theme } from './theme/theme';
 import { TamanuApi } from '@api/TamanuApi';
-import { TranslationProvider } from './contexts';
+import { useConfigQuery } from '@api/queries/useConfigQuery';
+import { TranslationProvider, DateTimeProvider } from './contexts';
+import { StyledCircularProgress } from '@components/StyledCircularProgress';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,23 +26,39 @@ const queryClient = new QueryClient({
   },
 });
 
+const DateTimeProviderWithConfig = ({ children }: { children: React.ReactNode }) => {
+  const { data: config, isPending } = useConfigQuery();
+
+  if (isPending || !config?.countryTimeZone) {
+    return <StyledCircularProgress />;
+  }
+
+  return (
+    <DateTimeProvider countryTimeZone={config.countryTimeZone}>
+      {children}
+    </DateTimeProvider>
+  );
+};
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <ApiContext.Provider value={new TamanuApi(__VERSION__)}>
-        <TranslationProvider>
-          <StylesProvider injectFirst>
-            <MuiLatestThemeProvider theme={theme}>
-              <MuiThemeProvider theme={theme}>
-                <ThemeProvider theme={theme}>
-                  <CustomToastContainer />
-                  <CssBaseline />
-                  <App />
-                </ThemeProvider>
-              </MuiThemeProvider>
-            </MuiLatestThemeProvider>
-          </StylesProvider>
-        </TranslationProvider>
+        <DateTimeProviderWithConfig>
+          <TranslationProvider>
+            <StylesProvider injectFirst>
+              <MuiLatestThemeProvider theme={theme}>
+                <MuiThemeProvider theme={theme}>
+                  <ThemeProvider theme={theme}>
+                    <CustomToastContainer />
+                    <CssBaseline />
+                    <App />
+                  </ThemeProvider>
+                </MuiThemeProvider>
+              </MuiLatestThemeProvider>
+            </StylesProvider>
+          </TranslationProvider>
+        </DateTimeProviderWithConfig>
       </ApiContext.Provider>
     </QueryClientProvider>
   </StrictMode>,
