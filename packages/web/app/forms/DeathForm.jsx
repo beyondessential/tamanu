@@ -378,7 +378,7 @@ export const DeathForm = React.memo(
               />
             }
             component={CheckField}
-            style={{ gridColumn: '1/-1', marginBottom: '10px', marginTop: '5px' }}
+            style={{ gridColumn: '1/-1', marginBottom: '10px', marginTop: '5px', fontSize: '14px' }}
             data-testid="field-oj7z"
           />
         </StyledFormGrid>
