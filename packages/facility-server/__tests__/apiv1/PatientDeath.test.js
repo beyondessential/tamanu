@@ -113,6 +113,11 @@ describe('PatientDeath', () => {
       motherExistingCondition: cond1Id,
       deathWithin24HoursOfBirth: 'yes',
       numberOfHoursSurvivedSinceBirth: 12,
+      autopsyRequested: 'yes',
+      autopsyFindingsUsed: 'no',
+      mannerOfDeathDescription: 'A test description',
+      multiplePregnancy: 'no',
+      motherConditionDescription: 'A test description as well',
     });
     expect(result).toHaveSucceeded();
 
@@ -281,7 +286,6 @@ describe('PatientDeath', () => {
         birthWeight: 120,
         carrier: {
           age: 21,
-          existingConditionId: cond1Id,
           weeksPregnant: 30,
         },
         hoursSurvivedSinceBirth: 12,
