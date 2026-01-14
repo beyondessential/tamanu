@@ -183,7 +183,7 @@ const COLUMNS = {
       key: 'orderDate',
       title: 'Date',
       style: { width: '12%' },
-      accessor: ({ orderDate }) => (orderDate ? formatShort(orderDate) : '--/--/----'),
+      accessor: ({ orderDate }) => formatShort(orderDate),
     },
     {
       key: 'productName',
@@ -223,7 +223,7 @@ const COLUMNS = {
       key: 'date',
       title: 'Date',
       style: { width: '15%' },
-      accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
+      accessor: ({ date }) => formatShort(date),
     },
     {
       key: 'methodName',
@@ -255,7 +255,7 @@ const COLUMNS = {
       key: 'date',
       title: 'Date',
       style: { width: '15%' },
-      accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
+      accessor: ({ date }) => formatShort(date),
     },
     {
       key: 'insurerName',

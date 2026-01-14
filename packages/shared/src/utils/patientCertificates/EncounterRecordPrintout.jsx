@@ -379,8 +379,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'dateMoved',
         title: getTranslation('pdf.encounterRecord.dateAndTimeMoved', 'Date & time moved'),
-        accessor: ({ date }) =>
-          date ? `${formatShort(date)} ${formatTime(date)}` : '--/--/---- --:----',
+        accessor: ({ date }) => `${formatShort(date)} ${formatTime(date)}`,
         style: { width: '35%' },
       },
     ],
@@ -400,8 +399,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'dateMoved',
         title: getTranslation('pdf.encounterRecord.dateAndTimeMoved', 'Date & time moved'),
-        accessor: ({ date }) =>
-          date ? `${formatShort(date)} ${formatTime(date)}` : '--/--/---- --:----',
+        accessor: ({ date }) => `${formatShort(date)} ${formatTime(date)}`,
         style: { width: '35%' },
       },
     ],
@@ -421,7 +419,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'date',
         title: getTranslation('general.date.label', 'Date'),
-        accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
+        accessor: ({ date }) => formatShort(date),
         style: { width: '25%' },
       },
     ],
@@ -435,7 +433,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'procedureDate',
         title: getTranslation('procedure.date.label', 'Procedure date'),
-        accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
+        accessor: ({ date }) => formatShort(date),
         style: { width: '25%' },
       },
     ],
@@ -458,14 +456,14 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'requestDate',
         title: getTranslation('general.requestDate.label', 'Request date'),
-        accessor: ({ requestDate }) => (requestDate ? formatShort(requestDate) : '--/--/----'),
+        accessor: ({ requestDate }) => formatShort(requestDate),
         style: { width: '17.5%' },
       },
       {
         key: 'publishedDate',
         title: getTranslation('pdf.encounterRecord.publishedDate', 'Published date'),
         accessor: ({ publishedDate }) =>
-          publishedDate ? formatShort(publishedDate) : '--/--/----',
+          formatShort(publishedDate),
         style: { width: '17.5%' },
       },
     ],
@@ -495,16 +493,14 @@ const EncounterRecordPrintoutComponent = ({
         key: 'requestDate',
         title: getTranslation('general.requestDate.label', 'Request date'),
         accessor: ({ requestedDate }) =>
-          requestedDate ? formatShort(requestedDate) : '--/--/----',
+          formatShort(requestedDate),
         style: { width: '20%' },
       },
       {
         key: 'completedDate',
         title: getTranslation('pdf.encounterRecord.completedDate', 'Completed date'),
         accessor: imagingRequest =>
-          imagingRequest?.results[0]?.completedAt
-            ? formatShort(imagingRequest?.results[0]?.completedAt)
-            : '--/--/----',
+          formatShort(imagingRequest?.results[0]?.completedAt),
         style: { width: '20%' },
       },
     ],
@@ -549,7 +545,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'prescriptionDate',
         title: getTranslation('medication.date.label', 'Prescription date'),
-        accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
+        accessor: ({ date }) => formatShort(date),
         style: { width: '23%' },
       },
     ],
