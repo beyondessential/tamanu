@@ -48,10 +48,15 @@ export class ApplicationContext {
     this.models = database.models;
 
     this.settings = facilityIds.reduce((acc, facilityId) => {
-      acc[facilityId] = new ReadSettings(this.models, facilityId);
+      acc[facilityId] = new ReadSettings(this.models, {
+        facilityId,
+        countryTimeZone: config.countryTimeZone,
+      });
       return acc;
     }, {});
-    this.settings.global = new ReadSettings(this.models);
+    this.settings.global = new ReadSettings(this.models, {
+      countryTimeZone: config.countryTimeZone,
+    });
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting();
     }

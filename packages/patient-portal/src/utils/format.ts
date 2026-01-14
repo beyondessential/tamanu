@@ -1,5 +1,4 @@
 import { SEX_LABELS } from '@tamanu/constants';
-import { formatShort } from '@tamanu/utils/dateTime';
 import { format, startOfWeek, parseISO } from 'date-fns';
 import type {
   Location,
@@ -8,9 +7,6 @@ import type {
   Patient,
   AdministeredVaccine,
 } from '@tamanu/shared/schemas/patientPortal';
-
-export const formatDate = (dateString: string | null | undefined) =>
-  formatShort(dateString, Intl.DateTimeFormat().resolvedOptions().timeZone);
 
 export const formatSex = (sex: Patient['sex'] | undefined) => {
   if (!sex) return '--';

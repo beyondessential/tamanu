@@ -1,3 +1,4 @@
+import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { log } from '@tamanu/shared/services/logging/index';
 import { CreateSurveyResponseRequestSchema } from '@tamanu/shared/schemas/patientPortal/requests/createSurveyResponse.schema';
@@ -28,7 +29,7 @@ export const createSurveyResponse = asyncHandler(async (req, res) => {
   }
 
   const { facilityId } = assignedSurvey;
-  const settingsReader = new ReadSettings(models, facilityId);
+  const settingsReader = new ReadSettings(models, { facilityId, countryTimeZone: config.countryTimeZone });
   const getDefaultId = async resource =>
     models.SurveyResponseAnswer.getDefaultId(resource, settingsReader);
 

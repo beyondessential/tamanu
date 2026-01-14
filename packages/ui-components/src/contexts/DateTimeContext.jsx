@@ -27,20 +27,22 @@ export const useDateTimeFormat = () => {
   return context;
 };
 
-export const DateTimeProvider = ({ children, countryTimeZone = 'Pacific/Auckland' }) => {
+export const DateTimeProvider = ({ children, countryTimeZone }) => {
   const { getSetting } = useSettings();
+  const configuredCountryTimeZone = countryTimeZone ?? getSetting('countryTimeZone');
   const timeZone = getSetting('timeZone');
 
   const wrap = useCallback(
-    fn => (date, skipTimezoneConversion) =>
-      skipTimezoneConversion ? fn(date, countryTimeZone) : fn(date, countryTimeZone, timeZone),
-    [countryTimeZone, timeZone],
+    fn =>
+      (date, skipTimezoneConversion = false) =>
+        fn(date, configuredCountryTimeZone, !skipTimezoneConversion && timeZone),
+    [configuredCountryTimeZone, timeZone],
   );
 
   const value = useMemo(
     () => ({
       timeZone,
-      countryTimeZone,
+      countryTimeZone: configuredCountryTimeZone,
       formatShortest: wrap(baseShortest),
       formatShort: wrap(baseShort),
       formatTime: wrap(baseTime),
@@ -56,7 +58,7 @@ export const DateTimeProvider = ({ children, countryTimeZone = 'Pacific/Auckland
       formatWeekdayLong: wrap(baseWeekdayLong),
       formatWeekdayNarrow: wrap(baseWeekdayNarrow),
     }),
-    [timeZone, countryTimeZone, wrap],
+    [timeZone, configuredCountryTimeZone, wrap],
   );
 
   return <DateTimeContext.Provider value={value}>{children}</DateTimeContext.Provider>;
