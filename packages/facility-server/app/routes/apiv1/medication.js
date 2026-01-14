@@ -2079,16 +2079,37 @@ medication.get(
       attributes: ['id', 'firstName', 'lastName', 'displayId'],
     });
 
+    // Fetch all dispenses for the pharmacy order prescriptions to calculate remaining repeats
+    const pharmacyOrderPrescriptionIds = [
+      ...new Set(data.map(item => item.pharmacyOrderPrescription.id)),
+    ];
+
+    const allDispenses = await models.MedicationDispense.findAll({
+      where: { pharmacyOrderPrescriptionId: { [Op.in]: pharmacyOrderPrescriptionIds } },
+      attributes: ['id', 'pharmacyOrderPrescriptionId'],
+    });
+
+    // Group dispenses by pharmacyOrderPrescriptionId
+    const dispensesByPrescriptionId = allDispenses.reduce((acc, dispense) => {
+      const id = dispense.pharmacyOrderPrescriptionId;
+      if (!acc[id]) acc[id] = [];
+      acc[id].push(dispense);
+      return acc;
+    }, {});
     const result = data.map(item => {
       const patient = patients.find(
         p => p.id === item.pharmacyOrderPrescription.pharmacyOrder.encounter.patient.id,
       );
       item.pharmacyOrderPrescription.pharmacyOrder.encounter.patient.set(patient.toJSON());
+
+      // Manually set medicationDispenses for getRemainingRepeats calculation
+      item.pharmacyOrderPrescription.medicationDispenses =
+        dispensesByPrescriptionId[item.pharmacyOrderPrescription.id] || [];
       return {
         ...item.toJSON(),
         pharmacyOrderPrescription: {
           ...item.pharmacyOrderPrescription.toJSON(),
-          remainingRepeats: item.pharmacyOrderPrescription.remainingRepeats,
+          remainingRepeats: item.pharmacyOrderPrescription.getRemainingRepeats(),
         },
       };
     });
