@@ -2,7 +2,7 @@ import React, { memo, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { OutlinedButton } from '@tamanu/ui-components';
+import { Button } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { InfoPaneList } from './InfoPaneList';
 import { CoreInfoDisplay } from './PatientCoreInfo';
@@ -209,9 +209,9 @@ const ProgramRegistryDisplay = memo(({ patient, readonly }) => (
 ));
 const CauseOfDeathButton = memo(({ openModal }) => {
   return (
-    <OutlinedButton size="small" onClick={openModal} data-testid="outlinedbutton-m6uu">
+    <Button size="small" onClick={openModal} data-testid="outlinedbutton-m6uu">
       Cause of death
-    </OutlinedButton>
+    </Button>
   );
 });
 
