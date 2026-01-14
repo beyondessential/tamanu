@@ -2,7 +2,12 @@ import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import MuiBox from '@material-ui/core/Box';
-import { MANNER_OF_DEATHS, PLACE_OF_DEATHS, FORM_TYPES } from '@tamanu/constants';
+import {
+  MANNER_OF_DEATHS,
+  PLACE_OF_DEATHS,
+  FORM_TYPES,
+  PREGNANCY_MOMENTS,
+} from '@tamanu/constants';
 import { ageInMonths, ageInYears, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   ArrayField,
@@ -567,6 +572,20 @@ export const DeathForm = React.memo(
               component={RadioField}
               options={BINARY_UNKNOWN_OPTIONS}
               data-testid="field-swkw"
+            />
+            <Field
+              name="pregnancyMoment"
+              label={
+                <TranslatedText
+                  stringId="death.pregnancyMoment.label"
+                  fallback="When was the woman pregnant?"
+                  data-testid="translatedtext-o06d"
+                />
+              }
+              component={TranslatedSelectField}
+              enumValues={PREGNANCY_MOMENTS}
+              visibilityCriteria={{ pregnant: 'yes' }}
+              data-testid="field-9j31"
             />
             <Field
               name="pregnancyContribute"
