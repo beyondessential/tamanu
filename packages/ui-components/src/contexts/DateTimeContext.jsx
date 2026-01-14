@@ -14,7 +14,6 @@ import {
   formatShortExplicit as baseShortExplicit,
   formatShortestExplicit as baseShortestExplicit,
   intlFormatDate as baseIntlFormatDate,
-  formatDateOnlyShort as baseDateOnlyShort,
 } from '@tamanu/utils/dateTime';
 import { useSettings } from './SettingsContext';
 
@@ -34,7 +33,6 @@ const DateTimeContext = React.createContext({
   formatWeekdayShort: () => null,
   formatWeekdayLong: () => null,
   formatWeekdayNarrow: () => null,
-  formatDateOnlyShort: () => null,
   intlFormatDate: () => null,
 });
 
@@ -73,7 +71,6 @@ export const DateTimeProvider = ({ children, countryTimeZone = 'Pacific/Auckland
       formatWeekdayShort: getDateFormatter(baseWeekdayShort),
       formatWeekdayLong: getDateFormatter(baseWeekdayLong),
       formatWeekdayNarrow: getDateFormatter(baseWeekdayNarrow),
-      formatDateOnlyShort: getDateFormatter(baseDateOnlyShort),
       intlFormatDate: getDateFormatter(baseIntlFormatDate),
     }),
     [timeZone, countryTimeZone, getDateFormatter],

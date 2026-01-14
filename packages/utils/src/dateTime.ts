@@ -35,8 +35,7 @@ export const ISO8061_WITH_TIMEZONE = "yyyy-MM-dd'T'HH:mm:ssXXX";
 export const isISOString = (dateString: string) =>
   isMatch(dateString, ISO9075_DATETIME_FORMAT) || isMatch(dateString, ISO9075_DATE_FORMAT);
 
-export const isISO9075DateString = (dateString: string) =>
-  isMatch(dateString, ISO9075_DATE_FORMAT);
+export const isISO9075DateString = (dateString: string) => isMatch(dateString, ISO9075_DATE_FORMAT);
 
 const makeDateObject = (date: string | Date) => {
   if (typeof date !== 'string') return date;
@@ -106,13 +105,12 @@ export const toTimeString = (date: string | Date | null | undefined) => {
   return dateFnsFormat(dateObj, 'HH:mm');
 };
 
-
 /**
  * Extracts weekday code from a date
  * @example
  * toWeekdayCode("2024-03-15 09:30:00") // "MO"
  */
-export const toWeekdayCode = (date: string | Date | null | undefined) => {  
+export const toWeekdayCode = (date: string | Date | null | undefined) => {
   if (date == null) return null;
 
   const dateObj = parseDate(date);
@@ -292,7 +290,7 @@ export const intlFormatDate = (
   timeZone?: string | null,
 ) => {
   if (!date) return fallback;
-  // TODO: whats all this bowt date object here 
+  // TODO: whats all this bowt date object here
   //ai say: semantically misinterprets Date objects. When given a Date object, it takes the date's local representation and treats it as if it were in countryTimeZone
   const dateObj = timeZone ? fromZonedTime(date, countryTimeZone) : parseDate(date);
   if (!dateObj) return fallback;
@@ -339,15 +337,12 @@ const formatWithoutTimezoneConversion = (
   return dateObj.toLocaleString(locale, formatOptions);
 };
 
-export const formatDateOnlyShort = (date: string | Date | null | undefined) =>
-  formatWithoutTimezoneConversion(date, { day: '2-digit', month: '2-digit', year: 'numeric' }, '--/--/----');
-
-  export const formatTime = (
-    date: string | Date | null | undefined,
-    countryTimeZone: string,
-    timeZone?: string | null,
-    // TODO: could be better
-   { removeWhitespace = false }: { removeWhitespace?: boolean } = {},
+export const formatTime = (
+  date: string | Date | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+  // TODO: could be better
+  { removeWhitespace = false }: { removeWhitespace?: boolean } = {},
 ) => {
   const formatted = intlFormatDate(
     date,
@@ -397,19 +392,16 @@ export const formatLong = (
   ); // "Thursday, 14 July 2022, 03:44 pm"
 
 /** "Thu" */
-export const formatWeekdayShort = (
-  date: string | Date | null | undefined,
-) => formatWithoutTimezoneConversion(date, { weekday: 'short' }, 'Unknown');
+export const formatWeekdayShort = (date: string | Date | null | undefined) =>
+  formatWithoutTimezoneConversion(date, { weekday: 'short' }, 'Unknown');
 
 /** "Thursday" */
-export const formatWeekdayLong = (
-  date: string | Date | null | undefined,
-) => formatWithoutTimezoneConversion(date, { weekday: 'long' }, 'Unknown');
+export const formatWeekdayLong = (date: string | Date | null | undefined) =>
+  formatWithoutTimezoneConversion(date, { weekday: 'long' }, 'Unknown');
 
 /** "M" - single letter weekday */
-export const formatWeekdayNarrow = (
-  date: string | Date | null | undefined,
-) => formatWithoutTimezoneConversion(date, { weekday: 'narrow' }, 'Unknown');
+export const formatWeekdayNarrow = (date: string | Date | null | undefined) =>
+  formatWithoutTimezoneConversion(date, { weekday: 'narrow' }, 'Unknown');
 
 /** "15 January 2024" */
 export const formatFullDate = (
@@ -457,9 +449,7 @@ export const formatTimeCompact = (
   return result.replace(' ', '').toLowerCase();
 };
 
-export const formatTimeOnlyCompact = (
-  date: string | Date | null | undefined,
-) => {
+export const formatTimeOnlyCompact = (date: string | Date | null | undefined) => {
   const result = formatWithoutTimezoneConversion(
     date,
     { hour: 'numeric', minute: '2-digit', hour12: true },
