@@ -2,10 +2,10 @@ import { DataSection } from './DataSection';
 import { Col } from '../Layout';
 import { DataItem } from './DataItem';
 import React from 'react';
-import { formatShort } from '@tamanu/utils/dateTime';
+import { formatShort as baseFormatShort } from '@tamanu/utils/dateTime';
 import { useLanguageContext } from '../../pdf/languageContext';
 
-export const EncounterDetailsExtended = ({ encounter, discharge }) => {
+export const EncounterDetailsExtended = ({ encounter, discharge, formatShort = baseFormatShort }) => {
   const { location, examiner, department, startDate, endDate, reasonForEncounter } = encounter;
   const { getTranslation } = useLanguageContext();
 

@@ -7,10 +7,10 @@ import { getLocationName } from '../../patientAccessors';
 import { Col, Row } from '../Layout';
 import { HorizontalRule } from './HorizontalRule';
 import { useLanguageContext } from '../../pdf/languageContext';
-import { formatShort } from '@tamanu/utils/dateTime';
+import { formatShort as baseFormatShort } from '@tamanu/utils/dateTime';
 import { P } from '../Typography';
 
-export const InvoiceEncounterDetails = ({ encounter }) => {
+export const InvoiceEncounterDetails = ({ encounter, formatShort = baseFormatShort }) => {
   const { location, department, startDate, endDate, diagnoses } = encounter || {};
   const { getTranslation } = useLanguageContext();
 

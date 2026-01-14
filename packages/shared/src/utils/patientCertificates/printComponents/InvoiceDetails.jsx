@@ -10,10 +10,10 @@ import {
 import { DataSection } from './DataSection';
 import { DataItem } from './DataItem';
 import { Col } from '../Layout';
-import { formatShort } from '@tamanu/utils/dateTime';
+import { formatShort as baseFormatShort } from '@tamanu/utils/dateTime';
 import { useLanguageContext } from '../../pdf/languageContext';
 
-export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsurer }) => {
+export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsurer, formatShort = baseFormatShort }) => {
   const { getTranslation } = useLanguageContext();
   const {
     additionalData: { insurer, insurerPolicyNumber },

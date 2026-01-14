@@ -2,10 +2,10 @@ import React from 'react';
 import { DataSection } from './DataSection';
 import { DataItem } from './DataItem';
 import { Col } from '../Layout';
-import { formatShort } from '@tamanu/utils/dateTime';
+import { formatShort as baseFormatShort } from '@tamanu/utils/dateTime';
 import { useLanguageContext } from '../../pdf/languageContext';
 
-export const SurveyResponseDetails = ({ surveyResponse }) => {
+export const SurveyResponseDetails = ({ surveyResponse, formatShort = baseFormatShort }) => {
   const { getTranslation } = useLanguageContext();
   return (
     <DataSection hideTopRule hideBottomRule>

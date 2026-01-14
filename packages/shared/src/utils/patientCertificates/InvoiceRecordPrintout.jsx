@@ -7,7 +7,7 @@ import { LetterheadSection } from './LetterheadSection';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
 import { Footer } from './printComponents/Footer';
-import { formatShort } from '@tamanu/utils/dateTime';
+import { formatShort as baseFormatShort, formatTime as baseFormatTime } from '@tamanu/utils/dateTime';
 import { InvoiceDetails } from './printComponents/InvoiceDetails';
 import {
   getInsurerDiscountAmountDisplayList,
@@ -177,7 +177,7 @@ const getInsurerPaymentStatus = insurerPayment => {
   return capitalize(insurerPayment?.status);
 };
 
-const COLUMNS = {
+const getColumns = formatShort => ({
   invoiceItems: [
     {
       key: 'orderDate',
@@ -288,7 +288,7 @@ const COLUMNS = {
       style: { width: '30%' },
     },
   ],
-};
+});
 
 const MultipageTableHeading = ({ title, style = textStyles.sectionTitle }) => {
   let firstPageOccurrence = Number.MAX_SAFE_INTEGER;
@@ -457,6 +457,12 @@ const InvoiceRecordPrintoutComponent = ({
   const patientPayments = getPatientPaymentsWithRemainingBalanceDisplay(invoice);
   const insurerPayments = getInsurerPaymentsWithRemainingBalanceDisplay(invoice);
 
+  const countryTimeZone = getSetting('countryTimeZone');
+  const timeZone = getSetting('timeZone');
+  const formatShort = date => baseFormatShort(date, countryTimeZone, timeZone);
+  const formatTime = date => baseFormatTime(date, countryTimeZone, timeZone);
+  const COLUMNS = getColumns(formatShort);
+
   return (
     <Document>
       <Page size="A4" style={pageStyles.body} wrap>
@@ -480,6 +486,7 @@ const InvoiceRecordPrintoutComponent = ({
           encounter={encounter}
           discharge={discharge}
           clinicianText={clinicianText}
+          formatShort={formatShort}
         />
         <SectionSpacing />
         <InvoiceDetails
@@ -487,6 +494,7 @@ const InvoiceRecordPrintoutComponent = ({
           invoice={invoice}
           patient={patientData}
           enablePatientInsurer={enablePatientInsurer}
+          formatShort={formatShort}
         />
         <SectionSpacing />
         {invoice?.items?.length > 0 && (
@@ -508,7 +516,7 @@ const InvoiceRecordPrintoutComponent = ({
             columns={COLUMNS.insurerPayments}
           />
         )}
-        <Footer />
+        <Footer formatShort={formatShort} formatTime={formatTime} />
       </Page>
     </Document>
   );

@@ -1,6 +1,10 @@
 import { StyleSheet, View } from '@react-pdf/renderer';
 import React from 'react';
-import { formatShort, formatTime, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import {
+  formatShort as baseFormatShort,
+  formatTime as baseFormatTime,
+  getCurrentDateTimeString,
+} from '@tamanu/utils/dateTime';
 import { Text } from '../../pdf/Text';
 import { useLanguageContext } from '../../pdf/languageContext';
 
@@ -50,7 +54,14 @@ const ValueText = ({ children, ...props }) => (
   </Text>
 );
 
-export const Footer = ({ printDate, printFacility, printedBy, style }) => {
+export const Footer = ({
+  printDate,
+  printFacility,
+  printedBy,
+  style,
+  formatShort = baseFormatShort,
+  formatTime = baseFormatTime,
+}) => {
   const { getTranslation } = useLanguageContext();
   return (
     <View style={[styles.footer, style]} fixed>

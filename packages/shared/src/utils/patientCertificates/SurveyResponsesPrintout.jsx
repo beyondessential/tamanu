@@ -13,7 +13,10 @@ import { Text } from '../pdf/Text';
 import { PatientDetails } from './printComponents/PatientDetails';
 import { getResultName, getSurveyAnswerRows, separateColorText } from './surveyAnswers';
 import { SurveyResponseDetails } from './printComponents/SurveyResponseDetails';
-import { formatShort } from '@tamanu/utils/dateTime';
+import {
+  formatShort as baseFormatShort,
+  formatTime as baseFormatTime,
+} from '@tamanu/utils/dateTime';
 import { getReferenceDataCategoryFromRowConfig } from '../translation/getReferenceDataCategoryFromRowConfig';
 import { getReferenceDataOptionStringId, getReferenceDataStringId } from '../translation';
 
@@ -72,7 +75,7 @@ const ResultBox = ({ resultText, resultName }) => (
   </View>
 );
 
-const getAnswers = ({ answer, type, getTranslation, dataElementId, config, originalBody }) => {
+const getAnswers = ({ answer, type, getTranslation, dataElementId, config, originalBody, formatShort }) => {
   const translateOption = option => {
     return getTranslation(
       getReferenceDataOptionStringId(dataElementId, 'programDataElement', option),
@@ -111,7 +114,7 @@ const getAnswers = ({ answer, type, getTranslation, dataElementId, config, origi
   }
 };
 
-const ResponseItem = ({ row, getTranslation }) => {
+const ResponseItem = ({ row, getTranslation, formatShort }) => {
   const { name, answer, type, dataElementId, config, originalBody } = row;
   return (
     <View style={pageStyles.item} wrap={false}>
@@ -126,17 +129,18 @@ const ResponseItem = ({ row, getTranslation }) => {
           dataElementId,
           config,
           originalBody,
+          formatShort,
         })}
       </Text>
     </View>
   );
 };
 
-const ResponsesGroup = ({ rows, getTranslation }) => {
+const ResponsesGroup = ({ rows, getTranslation, formatShort }) => {
   return (
     <View style={pageStyles.groupContainer}>
       {rows.map(row => (
-        <ResponseItem getTranslation={getTranslation} key={row.id} row={row} />
+        <ResponseItem getTranslation={getTranslation} formatShort={formatShort} key={row.id} row={row} />
       ))}
       <View style={pageStyles.boldDivider} />
     </View>
@@ -155,6 +159,11 @@ const SurveyResponsesPrintoutComponent = ({
   getSetting,
 }) => {
   const { watermark, logo } = certificateData;
+
+  const countryTimeZone = getSetting('countryTimeZone');
+  const timeZone = getSetting('timeZone');
+  const formatShort = date => baseFormatShort(date, countryTimeZone, timeZone);
+  const formatTime = date => baseFormatTime(date, countryTimeZone, timeZone);
 
   const surveyAnswerRows = getSurveyAnswerRows(surveyResponse).filter(({ answer }) => answer);
 
@@ -200,7 +209,7 @@ const SurveyResponsesPrintoutComponent = ({
           getSetting={getSetting}
         />
 
-        <SurveyResponseDetails surveyResponse={surveyResponse} />
+        <SurveyResponseDetails surveyResponse={surveyResponse} formatShort={formatShort} />
         <SectionSpacing height={16} />
 
         {strippedResultText && (
@@ -211,10 +220,10 @@ const SurveyResponsesPrintoutComponent = ({
         )}
 
         {groupedAnswerRows.map((group, index) => (
-          <ResponsesGroup getTranslation={getTranslation} key={index} rows={group} />
+          <ResponsesGroup getTranslation={getTranslation} formatShort={formatShort} key={index} rows={group} />
         ))}
 
-        <Footer printFacility={facility?.name} printedBy={currentUser?.displayName} />
+        <Footer printFacility={facility?.name} printedBy={currentUser?.displayName} formatShort={formatShort} formatTime={formatTime} />
       </Page>
     </Document>
   );

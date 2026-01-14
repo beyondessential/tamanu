@@ -8,7 +8,12 @@ import {
   NOTE_TYPES,
   REFERENCE_TYPES,
 } from '@tamanu/constants';
-import { formatShort, formatShortest, formatTime, parseDate } from '@tamanu/utils/dateTime';
+import {
+  formatShort as baseFormatShort,
+  formatShortest as baseFormatShortest,
+  formatTime as baseFormatTime,
+  parseDate,
+} from '@tamanu/utils/dateTime';
 
 import { CertificateHeader, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
@@ -96,7 +101,7 @@ const tableStyles = StyleSheet.create({
   },
 });
 
-const getDateTitleArray = date => {
+const getDateTitleArray = (date, formatShortest, formatTime) => {
   const parsedDate = parseDate(date);
   const shortestDate = formatShortest(parsedDate);
   const timeWithSeconds = formatTime(parsedDate);
@@ -119,7 +124,7 @@ const formatValue = (value, config) => {
   return `${float}${unitSuffix}`;
 };
 
-const getVitalsColumn = (startIndex, getTranslation, recordedDates) => {
+const getVitalsColumn = (startIndex, getTranslation, recordedDates, formatShortest, formatTime) => {
   const dateArray = [...recordedDates].reverse().slice(startIndex, startIndex + 12);
   return [
     {
@@ -131,7 +136,7 @@ const getVitalsColumn = (startIndex, getTranslation, recordedDates) => {
     ...dateArray
       .sort((a, b) => b.localeCompare(a))
       .map(date => ({
-        title: getDateTitleArray(date),
+        title: getDateTitleArray(date, formatShortest, formatTime),
         key: date,
         accessor: cells => {
           const { value, config } = cells[date];
@@ -254,7 +259,7 @@ const TableSection = ({ title, data, columns, type }) => {
   );
 };
 
-const NoteFooter = ({ note }) => {
+const NoteFooter = ({ note, formatShort }) => {
   const { getTranslation } = useLanguageContext();
   return (
     <Text style={textStyles.tableCellFooter}>
@@ -291,7 +296,7 @@ const NotesMultipageCellPadding = () => {
   );
 };
 
-const NotesSection = ({ notes }) => {
+const NotesSection = ({ notes, formatShort }) => {
   const { getTranslation } = useLanguageContext();
   return (
     <>
@@ -323,7 +328,7 @@ const NotesSection = ({ notes }) => {
                     style={textStyles.tableColumnHeader}
                   />
                   <Text style={textStyles.tableCellContent}>{`${note.content}\n`}</Text>
-                  <NoteFooter note={note} />
+                  <NoteFooter note={note} formatShort={formatShort} />
                   <View
                     style={{
                       borderBottom: borderStyle,
@@ -365,6 +370,12 @@ const EncounterRecordPrintoutComponent = ({
   const getLocalisation = (key) => get(localisation, key);
   const getSetting = (key) => get(settings, key);
   const { getTranslation, getEnumTranslation } = useLanguageContext();
+
+  const countryTimeZone = getSetting('countryTimeZone');
+  const timeZone = getSetting('timeZone');
+  const formatShort = date => baseFormatShort(date, countryTimeZone, timeZone);
+  const formatShortest = date => baseFormatShortest(date, countryTimeZone, timeZone);
+  const formatTime = date => baseFormatTime(date, countryTimeZone, timeZone);
   const { watermark, logo } = certificateData;
 
   const COLUMNS = {
@@ -584,7 +595,7 @@ const EncounterRecordPrintoutComponent = ({
         <SectionSpacing />
         <PatientDetailsWithAddress getLocalisation={getLocalisation} patient={patientData} getSetting={getSetting} />
         <SectionSpacing />
-        <EncounterDetailsExtended encounter={encounter} discharge={discharge} />
+        <EncounterDetailsExtended encounter={encounter} discharge={discharge} formatShort={formatShort} />
         <SectionSpacing />
         {encounterTypeHistory.length > 0 && (
           <TableSection
@@ -638,8 +649,8 @@ const EncounterRecordPrintoutComponent = ({
             columns={COLUMNS.medications}
           />
         )}
-        {notes.length > 0 && <NotesSection notes={notes} />}
-        <Footer />
+        {notes.length > 0 && <NotesSection notes={notes} formatShort={formatShort} />}
+        <Footer formatShort={formatShort} formatTime={formatTime} />
       </Page>
       {vitalsData.length > 0 && recordedDates.length > 0 ? (
         <>
@@ -661,10 +672,10 @@ const EncounterRecordPrintoutComponent = ({
                 <TableSection
                   title={getTranslation('pdf.encounterRecord.section.vitals', 'Vitals')}
                   data={vitalsData}
-                  columns={getVitalsColumn(start, getTranslation, recordedDates)}
+                  columns={getVitalsColumn(start, getTranslation, recordedDates, formatShortest, formatTime)}
                   type="vitals"
                 />
-                <Footer />
+                <Footer formatShort={formatShort} formatTime={formatTime} />
               </Page>
             ) : null;
           })}
