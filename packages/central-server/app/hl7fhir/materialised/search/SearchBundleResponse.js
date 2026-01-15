@@ -57,8 +57,8 @@ export class SearchBundleResponse {
     }
 
     bundleData.entry = this.resources
-      .map(r => resourceToEntry(r, this.isSearchResult ? 'match' : null))
-      .concat(this.included.map(r => resourceToEntry(r, this.isSearchResult ? 'include' : null)));
+      .map(r => resourceToEntry(r, 'match'))
+      .concat(this.included.map(r => resourceToEntry(r, 'include')));
 
     if (this.issues.length > 0) {
       const oo = new OperationOutcome(this.issues);
@@ -70,14 +70,12 @@ export class SearchBundleResponse {
   }
 }
 
-function resourceToEntry(resource, searchMode = null) {
+function resourceToEntry(resource, searchMode) {
   const entry = { resource: resource.asFhir() };
 
-  if (searchMode) {
-    entry.search = {
-      mode: searchMode,
-    };
-  }
+  entry.search = {
+    mode: searchMode,
+  };
 
   return entry;
 }
