@@ -4,7 +4,7 @@ import { SettingsContext } from './SettingsContext';
 import { mapValues } from 'lodash';
 
 type DateInput = string | Date | null | undefined;
-type FormatFunction = (date?: string | Date | null, skipTimezoneConversion?: boolean) => string | null;
+type FormatFunction = (date?: DateInput, skipTimezoneConversion?: boolean) => string | null;
 
 type DateTimeContextValue = Record<string, FormatFunction>;
 
@@ -62,7 +62,6 @@ export const DateTimeProvider = ({
     return null;
   }
 
-  return (
-    <DateTimeProviderContext.Provider value={value}>{children}</DateTimeProviderContext.Provider>
-  );
+  // Using React.createElement to avoid JSX type conflicts between different @types/react versions
+  return React.createElement(DateTimeProviderContext.Provider, { value }, children);
 };
