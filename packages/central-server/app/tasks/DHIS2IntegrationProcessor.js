@@ -89,22 +89,20 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     return pick(logEntry.get({ plain: true }), LOG_FIELDS);
   }
 
-  extractDataSetRegistrations(reportData) {
-    // Parse CSV data to extract unique dataset/period/orgUnit combinations
+  extractDataSetRegistrations(reportData, dataSetId) {
+    // Parse CSV data to extract unique period/orgUnit combinations for the given dataset
     // CSV format: dataElement, period, orgUnit, categoryOptionCombo, attributeOptionCombo, value, ...
-    // We need to find the dataSet column (if it exists) or use a configuration
     
-    if (!reportData || reportData.length < 2) {
+    if (!reportData || reportData.length < 2 || !dataSetId) {
       return [];
     }
 
     const headers = reportData[0].map(h => h?.toLowerCase?.() || '');
-    const dataSetIndex = headers.indexOf('dataset');
     const periodIndex = headers.indexOf('period');
     const orgUnitIndex = headers.indexOf('orgunit');
 
     // If we don't have the required columns, we can't complete datasets
-    if (dataSetIndex === -1 || periodIndex === -1 || orgUnitIndex === -1) {
+    if (periodIndex === -1 || orgUnitIndex === -1) {
       return [];
     }
 
@@ -113,14 +111,13 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     // Start from index 1 to skip the header row
     for (let i = 1; i < reportData.length; i++) {
       const row = reportData[i];
-      const dataSet = row[dataSetIndex];
       const period = row[periodIndex];
       const orgUnit = row[orgUnitIndex];
 
-      if (dataSet && period && orgUnit) {
-        const key = `${dataSet}|${period}|${orgUnit}`;
+      if (period && orgUnit) {
+        const key = `${period}|${orgUnit}`;
         if (!registrations.has(key)) {
-          registrations.set(key, { dataSet, period, orgUnit });
+          registrations.set(key, { dataSet: dataSetId, period, orgUnit });
         }
       }
     }
@@ -133,54 +130,58 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     const { username, password } = config.integrations.dhis2;
     const authHeader = Buffer.from(`${username}:${password}`).toString('base64');
 
-    const errors = [];
-    let completedCount = 0;
+    // Batch all registrations into a single API call for better performance
+    const completeDataSetRegistrations = registrations.map(registration => ({
+      dataSet: registration.dataSet,
+      period: registration.period,
+      organisationUnit: registration.orgUnit,
+      completed: true,
+    }));
 
-    for (const registration of registrations) {
-      try {
-        const response = await fetchWithRetryBackoff(
-          `${host}/api/completeDataSetRegistrations`,
-          {
-            fetch,
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Accept: 'application/json',
-              Authorization: `Basic ${authHeader}`,
-            },
-            body: JSON.stringify({
-              completeDataSetRegistrations: [
-                {
-                  dataSet: registration.dataSet,
-                  period: registration.period,
-                  organisationUnit: registration.orgUnit,
-                  completed: true,
-                },
-              ],
-            }),
+    try {
+      const response = await fetchWithRetryBackoff(
+        `${host}/api/completeDataSetRegistrations`,
+        {
+          fetch,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            Authorization: `Basic ${authHeader}`,
           },
-          { ...backoff, log },
-        );
+          body: JSON.stringify({ completeDataSetRegistrations }),
+        },
+        { ...backoff, log },
+      );
 
-        const result = await response.json();
-        
-        if (result.status === 'SUCCESS' || response.status === 200) {
-          completedCount++;
-        } else {
-          errors.push({
-            registration,
-            error: result.message || 'Unknown error',
-          });
-        }
-      } catch (error) {
-        errors.push({
-          registration,
-          error: error.message,
-        });
+      const result = await response.json();
+
+      // Check for success based on the response body status
+      if (result.status === 'SUCCESS') {
+        return { completedCount: registrations.length, errors: [] };
       }
-    }
 
-    return { completedCount, errors };
+      // If not successful, treat as an error
+      return {
+        completedCount: 0,
+        errors: [
+          {
+            message: result.message || 'Unknown error',
+            response: result,
+          },
+        ],
+      };
+    } catch (error) {
+      return {
+        completedCount: 0,
+        errors: [
+          {
+            message: error.message,
+            error: error.toString(),
+          },
+        ],
+      };
+    }
   }
 
   async postToDHIS2({ reportId, reportCSV }) {
@@ -265,37 +266,50 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
       let dataSetCompletionErrors;
 
       // Try to complete datasets if auto-completion is enabled
-      const { autoCompleteDataSets } = await this.context.settings.get('integrations.dhis2');
+      const { autoCompleteDataSets, dataSetMappings = {} } =
+        await this.context.settings.get('integrations.dhis2');
+      
       if (autoCompleteDataSets) {
-        const registrations = this.extractDataSetRegistrations(reportData);
+        const dataSetId = dataSetMappings[reportId];
         
-        if (registrations.length > 0) {
-          log.info(INFO_LOGS.COMPLETING_DATA_SETS, {
-            count: registrations.length,
-            report: reportString,
-          });
-
-          const { completedCount, errors } = await this.completeDataSetsInDHIS2(registrations);
-          dataSetsCompleted = completedCount;
-          
-          if (errors.length > 0) {
-            dataSetCompletionErrors = errors;
-            log.warn(WARNING_LOGS.FAILED_TO_COMPLETE_DATA_SETS, {
-              report: reportString,
-              completed: completedCount,
-              failed: errors.length,
-              errors,
-            });
-          } else {
-            log.info(INFO_LOGS.SUCCESSFULLY_COMPLETED_DATA_SETS, {
-              report: reportString,
-              count: completedCount,
-            });
-          }
-        } else {
+        if (!dataSetId) {
           log.warn(WARNING_LOGS.NO_DATA_SETS_TO_COMPLETE, {
             report: reportString,
+            reason: 'No dataset mapping configured for this report',
           });
+        } else {
+          const registrations = this.extractDataSetRegistrations(reportData, dataSetId);
+
+          if (registrations.length > 0) {
+            log.info(INFO_LOGS.COMPLETING_DATA_SETS, {
+              count: registrations.length,
+              report: reportString,
+              dataSetId,
+            });
+
+            const { completedCount, errors } = await this.completeDataSetsInDHIS2(registrations);
+            dataSetsCompleted = completedCount;
+
+            if (errors.length > 0) {
+              dataSetCompletionErrors = errors;
+              log.warn(WARNING_LOGS.FAILED_TO_COMPLETE_DATA_SETS, {
+                report: reportString,
+                completed: completedCount,
+                failed: errors.length,
+                errors,
+              });
+            } else {
+              log.info(INFO_LOGS.SUCCESSFULLY_COMPLETED_DATA_SETS, {
+                report: reportString,
+                count: completedCount,
+              });
+            }
+          } else {
+            log.warn(WARNING_LOGS.NO_DATA_SETS_TO_COMPLETE, {
+              report: reportString,
+              reason: 'No period/orgUnit combinations found in report data',
+            });
+          }
         }
       }
 

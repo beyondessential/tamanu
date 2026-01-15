@@ -92,11 +92,20 @@ describe('DHIS2 integration processor', () => {
     );
   };
 
+  const setDataSetMappings = async mappings => {
+    await models.Setting.set(
+      'integrations.dhis2.dataSetMappings',
+      mappings,
+      SETTINGS_SCOPES.CENTRAL,
+    );
+  };
+
   beforeEach(async () => {
     await setHost('test host');
     await setReportIds([report.id]);
     await setBackoff({ multiplierMs: 50, maxAttempts: 2, maxWaitMs: 10000 });
     await setAutoCompleteDataSets(true);
+    await setDataSetMappings({});
     await reportVersion.update({ status: REPORT_STATUSES.PUBLISHED });
     await models.DHIS2PushLog.truncate();
     dhis2IntegrationProcessor = new DHIS2IntegrationProcessor(ctx);
@@ -278,42 +287,55 @@ describe('DHIS2 integration processor', () => {
   });
 
   describe('dataset completion', () => {
-    const mockReportDataWithDataSet = [
-      ['dataElement', 'period', 'orgUnit', 'dataSet', 'value'],
-      ['DE1', '202501', 'OU1', 'DS1', '10'],
-      ['DE2', '202501', 'OU1', 'DS1', '20'],
-      ['DE3', '202501', 'OU2', 'DS1', '30'],
-      ['DE4', '202502', 'OU1', 'DS2', '40'],
+    const mockReportData = [
+      ['dataElement', 'period', 'orgUnit', 'value'],
+      ['DE1', '202501', 'OU1', '10'],
+      ['DE2', '202501', 'OU1', '20'],
+      ['DE3', '202501', 'OU2', '30'],
+      ['DE4', '202502', 'OU1', '40'],
     ];
 
-    it('should extract unique dataset registrations from report data', () => {
-      const registrations =
-        dhis2IntegrationProcessor.extractDataSetRegistrations(mockReportDataWithDataSet);
+    it('should extract unique period/orgUnit registrations with configured dataset', () => {
+      const registrations = dhis2IntegrationProcessor.extractDataSetRegistrations(
+        mockReportData,
+        'DS1',
+      );
 
       expect(registrations).toHaveLength(3);
       expect(registrations).toEqual(
         expect.arrayContaining([
           { dataSet: 'DS1', period: '202501', orgUnit: 'OU1' },
           { dataSet: 'DS1', period: '202501', orgUnit: 'OU2' },
-          { dataSet: 'DS2', period: '202502', orgUnit: 'OU1' },
+          { dataSet: 'DS1', period: '202502', orgUnit: 'OU1' },
         ]),
       );
     });
 
-    it('should return empty array when report has no dataset column', () => {
-      const reportDataWithoutDataSet = [
-        ['dataElement', 'period', 'orgUnit', 'value'],
-        ['DE1', '202501', 'OU1', '10'],
-      ];
-
-      const registrations =
-        dhis2IntegrationProcessor.extractDataSetRegistrations(reportDataWithoutDataSet);
+    it('should return empty array when no dataSetId is provided', () => {
+      const registrations = dhis2IntegrationProcessor.extractDataSetRegistrations(
+        mockReportData,
+        null,
+      );
 
       expect(registrations).toHaveLength(0);
     });
 
-    it('should complete datasets after successful data push when enabled', async () => {
-      const mockCompleteResponse = { status: 'SUCCESS' };
+    it('should return empty array when report has no period/orgUnit columns', () => {
+      const reportDataWithoutColumns = [
+        ['dataElement', 'value'],
+        ['DE1', '10'],
+      ];
+
+      const registrations = dhis2IntegrationProcessor.extractDataSetRegistrations(
+        reportDataWithoutColumns,
+        'DS1',
+      );
+
+      expect(registrations).toHaveLength(0);
+    });
+
+    it('should complete datasets after successful data push when enabled and configured', async () => {
+      await setDataSetMappings({ [report.id]: 'DS1' });
 
       dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue(mockSuccessResponse);
       dhis2IntegrationProcessor.extractDataSetRegistrations = jest.fn().mockReturnValue([
@@ -325,6 +347,10 @@ describe('DHIS2 integration processor', () => {
 
       await dhis2IntegrationProcessor.run();
 
+      expect(dhis2IntegrationProcessor.extractDataSetRegistrations).toHaveBeenCalledWith(
+        expect.any(Array),
+        'DS1',
+      );
       expect(dhis2IntegrationProcessor.completeDataSetsInDHIS2).toHaveBeenCalledWith([
         { dataSet: 'DS1', period: '202501', orgUnit: 'OU1' },
       ]);
@@ -339,6 +365,7 @@ describe('DHIS2 integration processor', () => {
 
     it('should not complete datasets when autoCompleteDataSets is disabled', async () => {
       await setAutoCompleteDataSets(false);
+      await setDataSetMappings({ [report.id]: 'DS1' });
 
       dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue(mockSuccessResponse);
       dhis2IntegrationProcessor.completeDataSetsInDHIS2 = jest.fn();
@@ -348,11 +375,30 @@ describe('DHIS2 integration processor', () => {
       expect(dhis2IntegrationProcessor.completeDataSetsInDHIS2).not.toHaveBeenCalled();
     });
 
+    it('should not complete datasets when no mapping is configured for the report', async () => {
+      await setDataSetMappings({});
+
+      dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue(mockSuccessResponse);
+      dhis2IntegrationProcessor.completeDataSetsInDHIS2 = jest.fn();
+
+      await dhis2IntegrationProcessor.run();
+
+      expect(dhis2IntegrationProcessor.completeDataSetsInDHIS2).not.toHaveBeenCalled();
+      expect(logSpy.warn).toHaveBeenCalledWith(
+        WARNING_LOGS.NO_DATA_SETS_TO_COMPLETE,
+        expect.objectContaining({
+          report: expect.any(String),
+          reason: 'No dataset mapping configured for this report',
+        }),
+      );
+    });
+
     it('should log errors when dataset completion fails', async () => {
+      await setDataSetMappings({ [report.id]: 'DS1' });
+
       const completionErrors = [
         {
-          registration: { dataSet: 'DS1', period: '202501', orgUnit: 'OU1' },
-          error: 'Dataset not found',
+          message: 'Dataset not found',
         },
       ];
 
@@ -383,7 +429,9 @@ describe('DHIS2 integration processor', () => {
       );
     });
 
-    it('should warn when report has no datasets to complete', async () => {
+    it('should warn when report has no period/orgUnit combinations', async () => {
+      await setDataSetMappings({ [report.id]: 'DS1' });
+
       dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue(mockSuccessResponse);
       dhis2IntegrationProcessor.extractDataSetRegistrations = jest.fn().mockReturnValue([]);
 
@@ -393,6 +441,7 @@ describe('DHIS2 integration processor', () => {
         WARNING_LOGS.NO_DATA_SETS_TO_COMPLETE,
         expect.objectContaining({
           report: expect.any(String),
+          reason: 'No period/orgUnit combinations found in report data',
         }),
       );
     });

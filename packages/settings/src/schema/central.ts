@@ -238,6 +238,13 @@ export const centralSettings = {
               defaultValue: [],
               suggesterEndpoint: 'reportDefinition',
             },
+            dataSetMappings: {
+              name: 'Dataset mappings',
+              description:
+                'Maps report IDs to their corresponding DHIS2 dataset IDs for dataset completion. Format: { "reportId": "dataSetId" }',
+              type: yup.object().nullable(),
+              defaultValue: {},
+            },
             // Descriptions and allowed values taken from https://docs.dhis2.org/en/develop/using-the-api/dhis-core-version-239/data.html#webapi_data_values_import_parameters
             idSchemes: {
               description: 'The ID schemes to use for the reports',
