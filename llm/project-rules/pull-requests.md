@@ -7,17 +7,18 @@ See also: @llm/project-rules/git-workflow.md for complete git conventions includ
 PR titles must follow this format:
 
 ```
-type(scope): TICKET-123 description
+type(scope): TICKET-123: description
 ```
 
 Or if there's no ticket:
 
 ```
-type(scope): no-issue description
+type(scope): no-issue: description
 ```
 
 **Required**: type, ticket number (or "no-issue"), description
 **Optional**: scope
+**Note**: Two colons total - one after type(scope), one after ticket/no-issue
 
 ### Allowed Types
 
@@ -28,18 +29,21 @@ type(scope): no-issue description
 **Examples**:
 ```bash
 # Correct - with ticket
-gh pr create --title "feat(invoicing): SAV-1234 add sliding fee scale" --fill
-gh pr create --title "fix(labs): COOL-567 correct status transition" --fill
+gh pr create --title "feat(invoicing): SAV-1234: add sliding fee scale" --fill
+gh pr create --title "fix(labs): COOL-567: correct status transition" --fill
 
 # Correct - without ticket
-gh pr create --title "chore: no-issue update llm documentation" --fill
-gh pr create --title "refactor(auth): no-issue simplify token validation" --fill
+gh pr create --title "chore: no-issue: update llm documentation" --fill
+gh pr create --title "refactor(auth): no-issue: simplify token validation" --fill
 
 # Wrong - missing ticket/no-issue
 gh pr create --title "feat(invoicing): add sliding fee scale" --fill
 
+# Wrong - missing second colon
+gh pr create --title "feat(invoicing): SAV-1234 add sliding fee scale" --fill
+
 # Wrong - docs not allowed
-gh pr create --title "docs: no-issue update README" --fill
+gh pr create --title "docs: no-issue: update README" --fill
 ```
 
 ## Always Use the PR Template

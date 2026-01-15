@@ -10,17 +10,18 @@ This file contains Tamanu-specific git conventions. For general git rules, also 
 Tamanu enforces a specific format for PR titles via CI checks:
 
 ```
-type(scope): TICKET-123 description
+type(scope): TICKET-123: description
 ```
 
 Or if there's no ticket:
 
 ```
-type(scope): no-issue description
+type(scope): no-issue: description
 ```
 
 **Required**: type, ticket number (or "no-issue"), description
 **Optional**: scope
+**Note**: Two colons total - one after type(scope), one after ticket/no-issue
 
 ### Allowed Types
 
@@ -31,17 +32,18 @@ type(scope): no-issue description
 **Examples**:
 ```bash
 # Correct - with ticket
-git commit -m "feat(invoicing): SAV-1234 add sliding fee scale"
-git commit -m "fix(labs): COOL-567 correct status transition"
-git commit -m "db: SAV-1234 add invoice_products.insurable column"
+git commit -m "feat(invoicing): SAV-1234: add sliding fee scale"
+git commit -m "fix(labs): COOL-567: correct status transition"
+git commit -m "db: SAV-1234: add invoice_products.insurable column"
 
 # Correct - without ticket
-git commit -m "chore: no-issue update llm documentation"
-git commit -m "refactor(auth): no-issue simplify token validation"
+git commit -m "chore: no-issue: update llm documentation"
+git commit -m "refactor(auth): no-issue: simplify token validation"
 
 # Wrong - will fail CI on PR
-git commit -m "docs: update README"  # Use 'chore' instead
+git commit -m "docs: no-issue: update README"  # Use 'chore' instead
 git commit -m "feat(invoicing): add sliding fee scale"  # Missing ticket/no-issue
+git commit -m "feat(invoicing): SAV-1234 add sliding fee scale"  # Missing second colon
 ```
 
 ### Scope Conventions
