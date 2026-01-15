@@ -611,15 +611,16 @@ labTest.get(
     let lastResult = null;
 
     for (const change of changes) {
-      const { result } = change.recordData;
+      const { id, loggedAt, updatedByUserId, updatedByUser, recordData } = change;
+      const { result } = recordData;
 
       if (result !== lastResult) {
         distinctChanges.push({
-          id: change.id,
-          loggedAt: change.loggedAt,
+          id,
+          loggedAt,
           result,
-          updatedByUserId: change.updatedByUserId,
-          updatedByDisplayName: change.updatedByUser?.displayName,
+          updatedByUserId,
+          updatedByDisplayName: updatedByUser?.displayName,
         });
         lastResult = result;
       }

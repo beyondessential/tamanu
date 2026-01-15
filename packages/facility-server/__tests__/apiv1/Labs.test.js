@@ -450,6 +450,10 @@ describe('Labs', () => {
     });
 
     describe('GET history', () => {
+      beforeEach(async () => {
+        await models.Setting.set('audit.changes.enabled', true);
+      });
+
       it('should get lab test result history, filtering consecutive duplicates', async () => {
         const [labTest] = await labRequest.getTests();
 
