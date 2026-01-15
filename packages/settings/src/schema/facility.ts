@@ -81,7 +81,7 @@ export const facilitySettings = {
       },
     },
     timeZone: {
-      description: 'Time zone in IANA format',    
+      description: 'Time zone in IANA format',
       type: yup.string().nullable(),
       defaultValue: null,
     },
