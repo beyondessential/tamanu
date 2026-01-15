@@ -1,17 +1,16 @@
 import { capitalize } from 'lodash';
-import { getDisplayDate } from './patientCertificates/getDisplayDate';
-import { ageInYears, formatShort } from '@tamanu/utils/dateTime';
+import { ageInYears } from '@tamanu/utils/dateTime';
 import { getDisplayAge } from '@tamanu/utils/date';
 
 export const getName = ({ firstName, lastName }) => `${firstName} ${lastName}`;
 export const getSex = ({ sex }) => `${capitalize(sex)}`;
 
-export const getDob = ({ dateOfBirth }, { getLocalisation, getTranslation }) =>
-  dateOfBirth
-    ? getDisplayDate(dateOfBirth, 'dd/MM/yyyy', getLocalisation)
+export const getDob = ({ dateOfBirth }, { getTranslation, formatShort }) =>
+  dateOfBirth && formatShort
+    ? formatShort(dateOfBirth)
     : getTranslation('general.fallback.unknown', 'Unknown');
 
-export const getDobWithAge = ({ dateOfBirth }, { getTranslation, getSetting }) => {
+export const getDobWithAge = ({ dateOfBirth }, { getTranslation, getSetting, formatShort }) => {
   if (!dateOfBirth) return getTranslation('general.fallback.unknown', 'Unknown');
 
   const dob = formatShort(dateOfBirth);
@@ -21,14 +20,14 @@ export const getDobWithAge = ({ dateOfBirth }, { getTranslation, getSetting }) =
   return `${dob} (${age})`;
 };
 
-export const getDateOfDeath = ({ dateOfDeath }, { getLocalisation, getTranslation }) => {
+export const getDateOfDeath = ({ dateOfDeath }, { getTranslation, formatCustom }) => {
   if (!dateOfDeath) return getTranslation('general.fallback.unknown', 'Unknown');
-  return getDisplayDate(dateOfDeath, 'd MMM yyyy', getLocalisation);
+  return formatCustom ? formatCustom(dateOfDeath, 'd MMM yyyy') : dateOfDeath;
 };
 
-export const getTimeOfDeath = ({ dateOfDeath }, { getLocalisation, getTranslation }) => {
+export const getTimeOfDeath = ({ dateOfDeath }, { getTranslation, formatTime }) => {
   if (!dateOfDeath) return getTranslation('general.fallback.unknown', 'Unknown');
-  return getDisplayDate(dateOfDeath, 'hh:mma', getLocalisation).toLowerCase();
+  return formatTime ? formatTime(dateOfDeath) : dateOfDeath;
 };
 
 export const getPlaceOfBirth = ({ additionalData }) => (additionalData || {}).placeOfBirth;

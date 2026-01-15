@@ -8,17 +8,17 @@ import {
   NOTE_TYPES,
   REFERENCE_TYPES,
 } from '@tamanu/constants';
-import { formatShort, formatShortest, formatTime, parseDate } from '@tamanu/utils/dateTime';
+import { parseDate } from '@tamanu/utils/dateTime';
 
 import { CertificateHeader, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
-import { getDisplayDate } from './getDisplayDate';
 import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExtended';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
 import { Footer } from './printComponents/Footer';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
+import { withDateTimeContext, useDateTimeFormat } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '../medication';
@@ -96,12 +96,12 @@ const tableStyles = StyleSheet.create({
   },
 });
 
-const getDateTitleArray = date => {
+const getDateTitleArray = (date, formatShortest, formatTime) => {
   const parsedDate = parseDate(date);
   const shortestDate = formatShortest(parsedDate);
   const timeWithSeconds = formatTime(parsedDate);
 
-  return [shortestDate, timeWithSeconds.toLowerCase()];
+  return [shortestDate, timeWithSeconds?.toLowerCase()];
 };
 
 const formatValue = (value, config) => {
@@ -119,7 +119,8 @@ const formatValue = (value, config) => {
   return `${float}${unitSuffix}`;
 };
 
-const getVitalsColumn = (startIndex, getTranslation, recordedDates) => {
+const getVitalsColumn = (startIndex, getTranslation, recordedDates, formatters) => {
+  const { formatShortest, formatTime } = formatters;
   const dateArray = [...recordedDates].reverse().slice(startIndex, startIndex + 12);
   return [
     {
@@ -131,7 +132,7 @@ const getVitalsColumn = (startIndex, getTranslation, recordedDates) => {
     ...dateArray
       .sort((a, b) => b.localeCompare(a))
       .map(date => ({
-        title: getDateTitleArray(date),
+        title: getDateTitleArray(date, formatShortest, formatTime),
         key: date,
         accessor: cells => {
           const { value, config } = cells[date];
@@ -256,6 +257,7 @@ const TableSection = ({ title, data, columns, type }) => {
 
 const NoteFooter = ({ note }) => {
   const { getTranslation } = useLanguageContext();
+  const { formatShort, formatTime } = useDateTimeFormat();
   return (
     <Text style={textStyles.tableCellFooter}>
       {[
@@ -269,7 +271,7 @@ const NoteFooter = ({ note }) => {
             },
           }),
         formatShort(note.date),
-        getDisplayDate(note.date, 'h:mma'),
+        formatTime(note.date),
       ]
         .filter(Boolean)
         .join(' ')}
@@ -365,6 +367,7 @@ const EncounterRecordPrintoutComponent = ({
   const getLocalisation = (key) => get(localisation, key);
   const getSetting = (key) => get(settings, key);
   const { getTranslation, getEnumTranslation } = useLanguageContext();
+  const { formatShort, formatShortest, formatTime } = useDateTimeFormat();
   const { watermark, logo } = certificateData;
 
   const COLUMNS = {
@@ -665,7 +668,7 @@ const EncounterRecordPrintoutComponent = ({
                 <TableSection
                   title={getTranslation('pdf.encounterRecord.section.vitals', 'Vitals')}
                   data={vitalsData}
-                  columns={getVitalsColumn(start, getTranslation, recordedDates)}
+                  columns={getVitalsColumn(start, getTranslation, recordedDates, { formatShortest, formatTime })}
                   type="vitals"
                 />
                 <Footer />
@@ -678,4 +681,6 @@ const EncounterRecordPrintoutComponent = ({
   );
 };
 
-export const EncounterRecordPrintout = withLanguageContext(EncounterRecordPrintoutComponent);
+export const EncounterRecordPrintout = withLanguageContext(
+  withDateTimeContext(EncounterRecordPrintoutComponent),
+);

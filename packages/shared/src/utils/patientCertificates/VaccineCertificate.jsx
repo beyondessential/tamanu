@@ -14,20 +14,19 @@ import {
 import { PatientDetailsSection } from './PatientDetailsSection';
 import { H3 } from './Typography';
 import { LetterheadSection } from './LetterheadSection';
-import { getDisplayDate } from './getDisplayDate';
 import { SigningSection } from './SigningSection';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
+import { withDateTimeContext, useDateTimeFormat } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 import { Text, TextWithoutContext } from '../pdf/Text';
 import { get } from 'lodash';
 import { useTextStyles } from './printComponents/MultiPageHeader';
 
-const columns = getTranslation => [
+const getColumns = (getTranslation, formatShort) => [
   {
     key: 'date',
     title: getTranslation('pdf.table.column.dateGiven', 'Date given'),
-    accessor: ({ date }, getLocalisation) =>
-      date ? getDisplayDate(date, undefined, getLocalisation) : 'Unknown',
+    accessor: ({ date }) => date ? formatShort(date) : 'Unknown',
   },
   {
     key: 'schedule',
@@ -146,10 +145,12 @@ const VaccineCertificateComponent = ({
   healthFacility,
 }) => {
   const { getTranslation } = useLanguageContext();
+  const { formatShort } = useDateTimeFormat();
   const getLocalisation = key => get(localisation, key);
   const countryName = getLocalisation('country.name');
 
   const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
+  const columns = getColumns(getTranslation, formatShort);
 
   const VaccineCertificateFooter = () => (
     <View style={vaccineCertificateStyles.footerContent}>
@@ -158,7 +159,7 @@ const VaccineCertificateComponent = ({
           {getTranslation('pdf.vaccineCertificate.printDate', 'Print date')}:{' '}
         </Text>
         <Text bold style={vaccineCertificateStyles.valueText}>
-          {getDisplayDate(printedDate)} |{' '}
+          {formatShort(printedDate)} |{' '}
         </Text>
         <Text bold style={vaccineCertificateStyles.labelText}>
           {getTranslation('pdf.vaccineCertificate.printingFacility', 'Printing facility')}:{' '}
@@ -223,7 +224,7 @@ const VaccineCertificateComponent = ({
           </H3>
           <Table
             data={data}
-            columns={columns(getTranslation)}
+            columns={columns}
             getLocalisation={getLocalisation}
             getSetting={getSetting}
             columnStyle={{ padding: '10px 5px' }}
@@ -243,4 +244,6 @@ const VaccineCertificateComponent = ({
   );
 };
 
-export const VaccineCertificate = withLanguageContext(VaccineCertificateComponent);
+export const VaccineCertificate = withLanguageContext(
+  withDateTimeContext(VaccineCertificateComponent),
+);

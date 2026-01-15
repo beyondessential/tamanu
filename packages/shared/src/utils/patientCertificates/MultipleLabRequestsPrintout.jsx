@@ -8,6 +8,7 @@ import { LetterheadSection } from './LetterheadSection';
 import { P } from './Typography';
 import { EncounterDetails } from './printComponents/EncounterDetails';
 import { withLanguageContext } from '../pdf/languageContext';
+import { withDateTimeContext } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 import { FullLabRequestDetailsSection, SampleDetailsRow } from './LabRequestDetailsSection';
@@ -149,7 +150,7 @@ const MultipleLabRequestsPrintoutComponent = React.memo(
 );
 
 export const MultipleLabRequestsPrintout = withLanguageContext(
-  MultipleLabRequestsPrintoutComponent,
+  withDateTimeContext(MultipleLabRequestsPrintoutComponent),
 );
 
 MultipleLabRequestsPrintout.propTypes = {

@@ -19,9 +19,9 @@ import { Footer } from './printComponents/Footer';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { renderDataItems } from './printComponents/renderDataItems';
 import { P } from './Typography';
-import { getDisplayDate } from './getDisplayDate';
 import { DataSection } from './printComponents/DataSection';
 import { withLanguageContext, useLanguageContext } from '../pdf/languageContext';
+import { withDateTimeContext, useDateTimeFormat } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 import { formatDistanceStrict, milliseconds } from 'date-fns';
@@ -201,9 +201,9 @@ const causeOfDeathAccessor = ({ causes }) => {
 };
 
 // Death certificate has a slightly different DOB format to other certificates so needs its own accessor
-const getDob = ({ dateOfBirth }, getLocalisation, getTranslation) =>
+const getDob = ({ dateOfBirth }, { getTranslation, formatCustom }) =>
   dateOfBirth
-    ? getDisplayDate(dateOfBirth, 'd MMM yyyy', getLocalisation)
+    ? formatCustom(dateOfBirth, 'd MMM yyyy')
     : getTranslation('general.fallback.unknown', 'Unknown');
 
 const getDateAndTimeOfDeath = (patientData, getLocalisation, getTranslation) => {
@@ -244,6 +244,7 @@ const SectionContainer = props => <View style={generalStyles.sectionContainer} {
 const DeathCertificatePrintoutComponent = React.memo(
   ({ patientData, certificateData, getLocalisation }) => {
     const { getTranslation } = useLanguageContext();
+    const { formatShort, formatCustom, formatTime } = useDateTimeFormat();
     const { logo, deathCertFooterImg } = certificateData;
 
     const { causes } = patientData;
@@ -283,8 +284,7 @@ const DeathCertificatePrintoutComponent = React.memo(
                   {renderDataItems(
                     PATIENT_DETAIL_FIELDS.leftCol,
                     patientData,
-                    getLocalisation,
-                    getTranslation,
+                    { getLocalisation, getTranslation, formatShort, formatCustom, formatTime },
                     12,
                   )}
                 </Col>
@@ -292,8 +292,7 @@ const DeathCertificatePrintoutComponent = React.memo(
                   {renderDataItems(
                     PATIENT_DETAIL_FIELDS.rightCol,
                     patientData,
-                    getLocalisation,
-                    getTranslation,
+                    { getLocalisation, getTranslation, formatShort, formatCustom, formatTime },
                     12,
                   )}
                 </Col>
@@ -303,8 +302,7 @@ const DeathCertificatePrintoutComponent = React.memo(
                   {renderDataItems(
                     PATIENT_DEATH_DETAILS.leftCol,
                     patientData,
-                    getLocalisation,
-                    getTranslation,
+                    { getLocalisation, getTranslation, formatShort, formatCustom, formatTime },
                     12,
                   )}
                 </Col>
@@ -312,8 +310,7 @@ const DeathCertificatePrintoutComponent = React.memo(
                   {renderDataItems(
                     PATIENT_DEATH_DETAILS.rightCol,
                     patientData,
-                    getLocalisation,
-                    getTranslation,
+                    { getLocalisation, getTranslation, formatShort, formatCustom, formatTime },
                     12,
                   )}
                 </Col>
@@ -461,7 +458,9 @@ const DeathCertificatePrintoutComponent = React.memo(
   },
 );
 
-export const DeathCertificatePrintout = withLanguageContext(DeathCertificatePrintoutComponent);
+export const DeathCertificatePrintout = withLanguageContext(
+  withDateTimeContext(DeathCertificatePrintoutComponent),
+);
 
 DeathCertificatePrintout.propTypes = {
   patientData: PropTypes.object.isRequired,

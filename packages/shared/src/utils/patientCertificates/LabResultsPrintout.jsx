@@ -11,6 +11,7 @@ import { EncounterDetails } from './printComponents/EncounterDetails';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { Footer } from './printComponents/Footer';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
+import { withDateTimeContext } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 import {
   MinimalLabRequestDetailsSection,
@@ -203,4 +204,6 @@ const LabResultsPrintoutComponent = React.memo(
   },
 );
 
-export const LabResultsPrintout = withLanguageContext(LabResultsPrintoutComponent);
+export const LabResultsPrintout = withLanguageContext(
+  withDateTimeContext(LabResultsPrintoutComponent),
+);

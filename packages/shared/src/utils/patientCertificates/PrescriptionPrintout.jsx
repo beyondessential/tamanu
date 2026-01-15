@@ -7,10 +7,9 @@ import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithB
 import { Table } from './Table';
 import { DataSection } from './printComponents/DataSection';
 import { DataItem } from './printComponents/DataItem';
-import { getDisplayDate } from './getDisplayDate';
-import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { LetterheadSection } from './LetterheadSection';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
+import { withDateTimeContext, useDateTimeFormat } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '../medication';
 import { Footer } from './printComponents/Footer';
@@ -90,11 +89,12 @@ const PrescriptionsSection = ({
   getSetting,
 }) => {
   const { getTranslation, getEnumTranslation } = useLanguageContext();
+  const { formatShort } = useDateTimeFormat();
   return (
     <View>
       <DataSection hideBottomRule title="Prescription details">
         <Col>
-          <DataItem label="Date" value={getDisplayDate(getCurrentDateString())} />
+          <DataItem label="Date" value={formatShort(new Date())} />
           <DataItem label="Prescriber" value={prescriber?.displayName} />
         </Col>
         <Col>
@@ -164,4 +164,6 @@ const PrescriptionPrintoutComponent = ({
   );
 };
 
-export const PrescriptionPrintout = withLanguageContext(PrescriptionPrintoutComponent);
+export const PrescriptionPrintout = withLanguageContext(
+  withDateTimeContext(PrescriptionPrintoutComponent),
+);

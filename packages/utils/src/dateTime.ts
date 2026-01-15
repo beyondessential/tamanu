@@ -251,6 +251,20 @@ export const format = (date: string | Date | null | undefined, format: string) =
   return dateFnsFormat(dateObj, format);
 };
 
+export const formatInTz = (
+  date: string | Date | null | undefined,
+  formatStr: string,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) => {
+  if (date == null) return null;
+  const dateObj = parseDate(date);
+  if (!dateObj) return null;
+
+  const tz = timeZone || countryTimeZone;
+  return formatInTimeZone(dateObj, tz, formatStr);
+};
+
 export const differenceInMilliseconds = (a: number | string | Date, b: number | string | Date) =>
   dateFnsDifferenceInMilliseconds(new Date(a), new Date(b));
 

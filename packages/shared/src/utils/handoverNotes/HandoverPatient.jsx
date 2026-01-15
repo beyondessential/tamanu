@@ -1,6 +1,6 @@
 import React from 'react';
-import { getDisplayDate } from '../patientCertificates/getDisplayDate';
 import { useLanguageContext } from '../pdf/languageContext';
+import { useDateTimeFormat } from '../pdf/withDateTimeContext';
 import { Divider } from './Divider';
 import { Col, Row } from '../patientCertificates/Layout';
 import { P } from '../patientCertificates/Typography';
@@ -41,6 +41,7 @@ export const HandoverPatient = ({
   isEdited,
 }) => {
   const { getTranslation } = useLanguageContext();
+  const { formatShort, formatCustom } = useDateTimeFormat();
   const detailsToDisplay = PATIENT_FIELDS.filter(({ key }) => !getSetting(`fields.${key}.hidden`));
   return (
     <>
@@ -51,7 +52,7 @@ export const HandoverPatient = ({
               ({ key, label: defaultLabel, accessor, percentageWidth = 33 }) => {
                 const value =
                   (accessor
-                    ? accessor(patient, { getLocalisation, getTranslation })
+                    ? accessor(patient, { getLocalisation, getTranslation, formatShort })
                     : patient[key]) || '';
                 const label =
                   defaultLabel ||
@@ -72,7 +73,7 @@ export const HandoverPatient = ({
             <ValueDisplay
               width="20%"
               title="Arrival date"
-              value={getDisplayDate(arrivalDate, 'dd/MM/yy')}
+              value={formatCustom(arrivalDate, 'dd/MM/yy')}
             />
           </Row>
           {diagnosis && <ValueDisplay width="100%" title="Diagnosis" value={diagnosis} />}
@@ -81,7 +82,7 @@ export const HandoverPatient = ({
             {!!notes && !!createdAt && (
               <Col style={{ width: '100%' }}>
                 <P style={{ fontSize: 8 }}>
-                  {`${getDisplayDate(createdAt, 'dd/MM/yyyy hh:mm a')}${
+                  {`${formatCustom(createdAt, 'dd/MM/yyyy hh:mm a')}${
                     isEdited ? ' (edited)' : ''
                   }`}
                 </P>

@@ -63,6 +63,7 @@ export const Table = ({
   columns,
   getLocalisation,
   getSetting,
+  formatters = {},
   columnStyle,
   headerStyle,
   hideRowDividers = false,
@@ -107,7 +108,7 @@ export const Table = ({
                       isFirstColumn && sectionLabel && { textIndent: 6 },
                     ]}
                   >
-                    {accessor ? accessor(row, getLocalisation, getSetting) : row[key]}
+                    {accessor ? accessor(row, getLocalisation, getSetting, formatters) : row[key]}
                   </TD>
                 );
               })}
