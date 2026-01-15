@@ -1,12 +1,14 @@
 # Pull Requests - Tamanu
 
+See also: @llm/project-rules/git-workflow.md for complete git conventions including branch naming and commit format.
+
 ## Conventional Commit Types
 
 PR titles must use one of the allowed conventional commit types. The allowed types are:
 
 **Allowed**: `chore`, `ci`, `config`, `db`, `feat`, `fix`, `fmt`, `merge`, `refactor`, `release`, `repo`, `revert`, `style`, `test`, `tweak`, `perf`
 
-**NOT allowed**: `docs` (use `chore` instead for documentation changes)
+**NOT allowed**: `docs`, `doc`, `deps` (use `chore` instead for documentation and dependency changes)
 
 Examples:
 ```bash
