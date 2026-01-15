@@ -452,24 +452,24 @@ describe('Labs', () => {
     describe('GET history', () => {
       it('should get lab test result history, filtering consecutive duplicates', async () => {
         const [labTest] = await labRequest.getTests();
-        
+
         // Update the lab test to create some history, including a consecutive duplicate
         await labTest.update({ result: 'First result' });
         await labTest.update({ result: 'Second result' });
         await labTest.update({ result: 'Second result' }); // Duplicate
         await labTest.update({ result: 'Third result' });
-        
+
         const response = await app.get(`/api/labTest/${labTest.id}/history`);
         expect(response).toHaveSucceeded();
         expect(response.body).toBeInstanceOf(Array);
-        
+
         // Should have distinct results in descending order (most recent first)
         expect(response.body.map(h => h.result)).toEqual([
           'Third result',
           'Second result',
           'First result',
         ]);
-        
+
         if (response.body.length > 0) {
           expect(response.body[0]).toMatchObject({
             result: 'Third result',

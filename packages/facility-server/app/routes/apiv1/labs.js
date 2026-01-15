@@ -443,13 +443,7 @@ labRelations.get(
 labRelations.put(
   '/:id/tests',
   asyncHandler(async (req, res) => {
-    const {
-      models,
-      params,
-      body,
-      db,
-      user,
-    } = req;
+    const { models, params, body, db, user } = req;
     const { id } = params;
     const { resultsInterpretation, labTests = {} } = body;
     req.checkPermission('write', 'LabTest');
@@ -482,7 +476,8 @@ labRelations.put(
     const labTestObj = keyBy(labTestRecords, 'id');
     if (
       Object.entries(labTests).some(
-        ([testId, testBody]) => testBody.result && labTestObj[testId] && testBody.result !== labTestObj[testId].result,
+        ([testId, testBody]) =>
+          testBody.result && labTestObj[testId] && testBody.result !== labTestObj[testId].result,
       )
     ) {
       req.checkPermission('write', 'LabTestResult');
@@ -497,7 +492,10 @@ labRelations.put(
     }
 
     await db.transaction(async () => {
-      if (resultsInterpretation !== undefined && resultsInterpretation !== labRequest.resultsInterpretation) {
+      if (
+        resultsInterpretation !== undefined &&
+        resultsInterpretation !== labRequest.resultsInterpretation
+      ) {
         await labRequest.update({ resultsInterpretation });
       }
 
@@ -575,9 +573,7 @@ labTest.get(
 
     // First, check if this lab test exists and get its info
     const labTest = await models.LabTest.findByPk(labTestId, {
-      include: [
-        { model: models.LabTestType, as: 'labTestType' },
-      ],
+      include: [{ model: models.LabTestType, as: 'labTestType' }],
     });
 
     if (!labTest) {
@@ -595,21 +591,10 @@ labTest.get(
       facilityId,
     });
 
-    // Query the changelog to get all historical changes for this lab test
     const changes = await models.ChangeLog.findAll({
       where: {
         tableName: 'lab_tests',
         recordId: labTestId,
-        [Op.and]: [
-          Sequelize.where(
-            Sequelize.cast(Sequelize.json('record_data.result'), 'text'),
-            { [Op.ne]: null }
-          ),
-          Sequelize.where(
-            Sequelize.cast(Sequelize.json('record_data.result'), 'text'),
-            { [Op.ne]: '' }
-          ),
-        ],
       },
       include: [
         {
@@ -622,13 +607,13 @@ labTest.get(
       raw: false,
     });
 
-    // Filter out consecutive duplicate results (keep only when result value changes)
     const distinctChanges = [];
     let lastResult = null;
-    
+
     for (const change of changes) {
-      const result = change.recordData?.result;
-      if (result && result !== '' && result !== lastResult) {
+      const { result } = change.recordData;
+
+      if (result !== lastResult) {
         distinctChanges.push({
           id: change.id,
           loggedAt: change.loggedAt,
