@@ -611,13 +611,8 @@ labTest.get(
     let lastResult;
 
     for (const changeLog of changeLogs) {
-      const {
-        id,
-        loggedAt,
-        updatedByUserId,
-        updatedByUser: { displayName },
-        recordData: { result },
-      } = changeLog;
+      const { id, loggedAt, updatedByUserId, updatedByUser, recordData } = changeLog;
+      const { result } = recordData;
 
       if (result !== lastResult) {
         distinctChanges.push({
@@ -625,7 +620,7 @@ labTest.get(
           loggedAt,
           result,
           updatedByUserId,
-          updatedByDisplayName: displayName,
+          updatedByDisplayName: updatedByUser?.displayName,
         });
         lastResult = result;
       }
