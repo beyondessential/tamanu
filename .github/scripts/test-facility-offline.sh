@@ -50,6 +50,7 @@ EOF
                 role: "admin",
                 password: "admin",
                 displayName: "Initial Admin",
+                deviceRegistrationPermission: "unlimited",
             },
         },
 
