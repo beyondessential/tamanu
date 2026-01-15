@@ -27,10 +27,14 @@ const queryClient = new QueryClient({
 });
 
 const DateTimeProviderWithConfig = ({ children }: { children: React.ReactNode }) => {
-  const { data: config, isPending } = useConfigQuery();
+  const { data: config, isPending, isError } = useConfigQuery();
 
-  if (isPending || !config?.countryTimeZone) {
+  if (isPending) {
     return <StyledCircularProgress />;
+  }
+
+  if (isError || !config?.countryTimeZone) {
+    return <div>There was an error loading application configuration. Please try again later.</div>;
   }
 
   return (
