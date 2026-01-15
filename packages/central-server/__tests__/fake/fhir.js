@@ -1,4 +1,4 @@
-import { fake, fakeReferenceData } from '@tamanu/fake-data/fake';
+import { fake, fakeReferenceData, fakeString } from '@tamanu/fake-data/fake';
 import { randomLabRequest } from '@tamanu/database/demoData';
 import {
   IMAGING_REQUEST_STATUS_TYPES,
@@ -6,7 +6,7 @@ import {
   FHIR_REQUEST_PRIORITY,
 } from '@tamanu/constants';
 
-export const fakeResourcesOfFhirServiceRequest = async (models) => {
+export const fakeResourcesOfFhirServiceRequest = async models => {
   const {
     Department,
     Encounter,
@@ -120,7 +120,7 @@ export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (
     });
     const testTypes = await fakeTestTypes(10, LabTestType, category.id);
     await Promise.all(
-      testTypes.map((testType) =>
+      testTypes.map(testType =>
         LabTestPanelLabTestTypes.create({
           labTestPanelId: labTestPanel.id,
           labTestTypeId: testType.id,
@@ -154,7 +154,7 @@ export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (
   labRequest = await LabRequest.create(labRequestData);
   const testTypes = await fakeTestTypes(10, LabTestType, category.id);
   await Promise.all(
-    testTypes.map((testType) =>
+    testTypes.map(testType =>
       LabTest.create({
         labRequestId: labRequest.id,
         labTestTypeId: testType.id,
@@ -175,6 +175,9 @@ export const fakeTestTypes = async function (numberOfTests, LabTestType, categor
     const currentLabTest = await LabTestType.create({
       ...fake(LabTestType),
       labTestCategoryId: categoryId,
+    });
+    await currentLabTest.update({
+      externalCode: fakeString(LabTestType, { fieldName: 'externalCode' }, currentLabTest.id),
     });
     testTypes.push(currentLabTest);
   }
