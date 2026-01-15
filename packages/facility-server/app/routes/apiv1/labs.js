@@ -567,7 +567,6 @@ labTest.get(
     const {
       models,
       params,
-      db,
       query: { facilityId },
     } = req;
     const labTestId = params.id;
@@ -597,42 +596,47 @@ labTest.get(
     });
 
     // Query the changelog to get all historical changes for this lab test
-    const changes = await db.query(
-      `
-      SELECT 
-        c.id,
-        c.logged_at,
-        c.record_data->>'result' as result,
-        c.updated_by_user_id,
-        u.display_name as updated_by_display_name
-      FROM logs.changes c
-      LEFT JOIN users u ON u.id = c.updated_by_user_id
-      WHERE c.table_name = 'lab_tests'
-        AND c.record_id = :labTestId
-        AND c.record_data->>'result' IS NOT NULL
-        AND c.record_data->>'result' != ''
-      ORDER BY c.logged_at DESC
-      `,
-      {
-        replacements: { labTestId },
-        type: QueryTypes.SELECT,
+    const changes = await models.ChangeLog.findAll({
+      where: {
+        tableName: 'lab_tests',
+        recordId: labTestId,
+        [Op.and]: [
+          Sequelize.where(
+            Sequelize.cast(Sequelize.json('record_data.result'), 'text'),
+            { [Op.ne]: null }
+          ),
+          Sequelize.where(
+            Sequelize.cast(Sequelize.json('record_data.result'), 'text'),
+            { [Op.ne]: '' }
+          ),
+        ],
       },
-    );
+      include: [
+        {
+          model: models.User,
+          as: 'updatedByUser',
+          attributes: ['id', 'displayName'],
+        },
+      ],
+      order: [['loggedAt', 'DESC']],
+      raw: false,
+    });
 
     // Filter out consecutive duplicate results (keep only when result value changes)
     const distinctChanges = [];
     let lastResult = null;
     
     for (const change of changes) {
-      if (change.result !== lastResult) {
+      const result = change.recordData?.result;
+      if (result && result !== '' && result !== lastResult) {
         distinctChanges.push({
           id: change.id,
-          loggedAt: change.logged_at,
-          result: change.result,
-          updatedByUserId: change.updated_by_user_id,
-          updatedByDisplayName: change.updated_by_display_name,
+          loggedAt: change.loggedAt,
+          result,
+          updatedByUserId: change.updatedByUserId,
+          updatedByDisplayName: change.updatedByUser?.displayName,
         });
-        lastResult = change.result;
+        lastResult = result;
       }
     }
 

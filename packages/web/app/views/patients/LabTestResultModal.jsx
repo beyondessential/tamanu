@@ -196,7 +196,18 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
                   {item.result}
                 </HistoryItemValue>
                 <HistoryItemLabel data-testid="historyitemlabel-user">
-                  Updated by: {item.updatedByDisplayName || 'Unknown'}
+                  <TranslatedText
+                    stringId="lab.modal.testResult.history.updatedByPrefix"
+                    fallback="Updated by: "
+                    data-testid="translatedtext-updated-by"
+                  />
+                  {item.updatedByDisplayName || (
+                    <TranslatedText
+                      stringId="general.unknown"
+                      fallback="Unknown"
+                      data-testid="translatedtext-unknown"
+                    />
+                  )}
                 </HistoryItemLabel>
                 <HistoryItemLabel data-testid="historyitemlabel-time">
                   {DateDisplay.stringFormat(item.loggedAt)}
