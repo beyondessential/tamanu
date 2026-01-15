@@ -608,7 +608,7 @@ labTest.get(
     });
 
     const distinctChanges = [];
-    let lastResult = null;
+    let lastResult;
 
     for (const changeLog of changeLogs) {
       const {
