@@ -1,9 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useDispatch } from 'react-redux';
-import { useNavigate, useParams } from 'react-router';
 
-import { Modal, TranslatedText, TranslatedReferenceData, Button } from '@tamanu/ui-components';
+import { Modal, TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 
 import { useLabTestQuery } from '../../api/queries/useLabTestQuery';
@@ -11,9 +9,6 @@ import { useLabTestResultHistoryQuery } from '../../api/queries';
 import { DateDisplay } from '../../components/DateDisplay';
 import { ModalActionRow } from '../../components/ModalActionRow';
 import { BodyText } from '../../components/Typography';
-import { useLabRequest } from '../../contexts/LabRequest';
-import { useEncounter } from '../../contexts/Encounter';
-import { reloadPatient } from '../../store/patient';
 
 const ModalBody = styled.div`
   display: grid;
@@ -88,35 +83,9 @@ const HistoryItemValue = styled(BodyText)`
   font-size: 14px;
 `;
 
-const ButtonContainer = styled.div`
-  display: flex;
-  justify-content: flex-start;
-  margin-bottom: 20px;
-`;
-
 export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
   const { data: labTest } = useLabTestQuery(labTestId);
   const { data: history = [] } = useLabTestResultHistoryQuery(labTestId);
-  const { loadLabRequest } = useLabRequest();
-  const { loadEncounter } = useEncounter();
-  const navigate = useNavigate();
-  const { category } = useParams();
-
-  const handleViewLabRequest = async () => {
-    const { labRequest } = labTest;
-    const {
-      encounter: { id: encounterId, patientId },
-    } = labRequest;
-
-    await loadEncounter(encounterId);
-    await loadLabRequest(labRequest.id);
-    navigate(
-      `/patients/${category || 'all'}/${patientId}/encounter/${encounterId}/lab-request/${
-        labRequest.id
-      }`,
-    );
-    onClose();
-  };
 
   return (
     <Modal
@@ -137,22 +106,6 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
       onClose={onClose}
       data-testid="modal-zwic"
     >
-      {labTest?.labRequest?.id && (
-        <ButtonContainer data-testid="buttoncontainer-viewlabrequest">
-          <Button
-            variant="outlined"
-            color="primary"
-            onClick={handleViewLabRequest}
-            data-testid="button-viewlabrequest"
-          >
-            <TranslatedText
-              stringId="lab.modal.testResult.viewLabRequest"
-              fallback="View Lab Request"
-              data-testid="translatedtext-viewlabrequest"
-            />
-          </Button>
-        </ButtonContainer>
-      )}
       <ModalBody data-testid="modalbody-bzy6">
         <div>
           <ValueDisplay
