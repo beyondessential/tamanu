@@ -16,13 +16,13 @@ export const transactionBundleHandler = () => {
       return res.status(400).send(OperationOutcome.fromYupError(err));
     }
 
-    const createableResources = resourcesThatCanDo(store.models, FHIR_INTERACTIONS.TYPE.CREATE);
+    const creatableResources = resourcesThatCanDo(store.models, FHIR_INTERACTIONS.TYPE.CREATE);
 
     // Run all operations in a database transaction to ensure atomicity
     try {
       await store.sequelize.transaction(async () => {
         for (const { resource: rawResource } of validatedBundle.entry) {
-          const FhirResource = createableResources.find(
+          const FhirResource = creatableResources.find(
             r => r.fhirName === rawResource.resourceType,
           );
           if (!FhirResource) {
