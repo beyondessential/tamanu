@@ -127,6 +127,12 @@ just because a lot of handlers expect things in that format. For a custom contro
 it's safe to create a dummy event value; the only required attributes on `e.target`
 for successful Formik interaction are `name` and `value`.
 
+#### Date, Time, and DateTime Fields
+
+Date and time input fields support a keyboard shortcut for quickly populating the current date/time:
+- Pressing **'c'** (or 'C') when focused on a date, time, or datetime field will automatically populate it with the current date, time, or datetime respectively
+- This works in all contexts where these fields are used: program forms, referrals, charts, etc.
+
 ```javascript
 export const MyCustomField = ({ name, value, onChange }) => (
   <div>
