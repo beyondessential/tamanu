@@ -48,42 +48,39 @@ const ValueDisplay = ({ title, value }) => (
   </ValueContainer>
 );
 
-const HistorySection = styled.div`
-  margin-top: 30px;
-  padding-top: 20px;
-  border-top: 1px solid ${Colors.outline};
-`;
-
 const HistoryTitle = styled(BodyText)`
   font-weight: 500;
-  margin-bottom: 15px;
+  margin-bottom: 5px;
+  margin-top: 20px;
+  font-size: 14px;
+  color: ${Colors.darkText};
+`;
+
+const HistorySection = styled.div`
+  background-color: ${Colors.white};
+  border: 1px solid ${Colors.outline};
+  border-radius: 5px;
+  padding: 12px 20px;
+  margin: 0px 0px 40px;
 `;
 
 const HistoryList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 10px;
 `;
 
 const HistoryItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
   padding: 10px;
-  background-color: ${Colors.background};
-  border-radius: 4px;
 `;
 
-const HistoryItemText = styled(BodyText)`
-  font-size: 14px;
-`;
-
-const HistoryItemLabel = styled(HistoryItemText)`
+const HistoryItemLabel = styled(BodyText)`
   color: ${Colors.midText};
+  font-size: 12px;
 `;
 
-const HistoryItemValue = styled(HistoryItemText)`
+const HistoryItemValue = styled(BodyText)`
   font-weight: 500;
+  font-size: 14px;
 `;
 
 export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
@@ -181,41 +178,41 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
         </div>
       </ModalBody>
       {history.length > 0 && (
-        <HistorySection data-testid="historysection-hist">
+        <>
           <HistoryTitle data-testid="historytitle-hist">
             <TranslatedText
-              stringId="lab.modal.testResult.history.title"
-              fallback="Result History"
+              stringId="general.history"
+              fallback="History"
               data-testid="translatedtext-hist"
             />
           </HistoryTitle>
-          <HistoryList data-testid="historylist-hist">
-            {history.map((item) => (
-              <HistoryItem key={item.id} data-testid="historyitem-hist">
-                <HistoryItemValue data-testid="historyitemvalue-result">
-                  {item.result}
-                </HistoryItemValue>
-                <HistoryItemLabel data-testid="historyitemlabel-user">
-                  <TranslatedText
-                    stringId="lab.modal.testResult.history.updatedByPrefix"
-                    fallback="Updated by: "
-                    data-testid="translatedtext-updated-by"
-                  />
-                  {item.updatedByDisplayName || (
+          <HistorySection data-testid="historysection-hist">
+            <HistoryList data-testid="historylist-hist">
+              {history.map(item => (
+                <HistoryItem key={item.id} data-testid="historyitem-hist">
+                  <HistoryItemValue data-testid="historyitemvalue-result">
                     <TranslatedText
-                      stringId="general.unknown"
-                      fallback="Unknown"
-                      data-testid="translatedtext-unknown"
+                      stringId="lab.modal.testResult.history.result"
+                      fallback="Result: "
+                      data-testid="translatedtext-result"
                     />
-                  )}
-                </HistoryItemLabel>
-                <HistoryItemLabel data-testid="historyitemlabel-time">
-                  {DateDisplay.stringFormat(item.loggedAt)}
-                </HistoryItemLabel>
-              </HistoryItem>
-            ))}
-          </HistoryList>
-        </HistorySection>
+                    {item.result || '-'}
+                  </HistoryItemValue>
+                  <HistoryItemLabel data-testid="historyitemlabel-time">
+                    {item.updatedByDisplayName || (
+                      <TranslatedText
+                        stringId="general.unknown"
+                        fallback="Unknown"
+                        data-testid="translatedtext-unknown"
+                      />
+                    )}{' '}
+                    <DateDisplay date={item.loggedAt} showTime data-testid="datedisplay-loggedat" />
+                  </HistoryItemLabel>
+                </HistoryItem>
+              ))}
+            </HistoryList>
+          </HistorySection>
+        </>
       )}
       <ModalActionRow
         confirmText={
