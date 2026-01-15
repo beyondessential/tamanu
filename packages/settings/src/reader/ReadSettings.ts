@@ -29,16 +29,27 @@ export const KEYS_EXPOSED_TO_FRONT_END = [
   'medications',
   'sync',
   'mobileSync',
+  'timeZone',
 ] as const;
 
 export const KEYS_EXPOSED_TO_PATIENT_PORTAL = ['features', 'fileChooserMbSizeLimit'] as const;
 
+export interface ReadSettingsOptions {
+  facilityId?: string;
+  countryTimeZone?: string;
+}
+
 export class ReadSettings<Path = SettingPath> {
   models: Models;
   facilityId?: string;
-  constructor(models: Models, facilityId?: string) {
+  countryTimeZone?: string;
+
+  constructor(models: Models, options?: ReadSettingsOptions) {
     this.models = models;
-    this.facilityId = facilityId;
+    if (options) {
+      this.facilityId = options.facilityId;
+      this.countryTimeZone = options.countryTimeZone;
+    }
   }
 
   async get<T extends string | number | object>(key: Path): Promise<T> {
@@ -46,11 +57,13 @@ export class ReadSettings<Path = SettingPath> {
     return lodashGet(settings, key as string) as T;
   }
 
-  // This is what is called on tamanu-web login. This gets only settings relevant to
-  // the frontend so only what is needed is sent. No sensitive data is sent.
   async getFrontEndSettings() {
     const allSettings = await this.getAll();
-    return pick(allSettings, KEYS_EXPOSED_TO_FRONT_END);
+    const frontEndSettings = pick(allSettings, KEYS_EXPOSED_TO_FRONT_END);
+    return {
+      ...frontEndSettings,
+      countryTimeZone: this.countryTimeZone,
+    };
   }
 
   async getPatientPortalSettings() {

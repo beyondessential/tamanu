@@ -23,6 +23,7 @@ import {
   type DurationUnit,
   type Interval,
 } from 'date-fns';
+import { fromZonedTime, formatInTimeZone } from 'date-fns-tz';
 import { z } from 'zod';
 
 import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
@@ -34,12 +35,20 @@ export const ISO8061_WITH_TIMEZONE = "yyyy-MM-dd'T'HH:mm:ssXXX";
 export const isISOString = (dateString: string) =>
   isMatch(dateString, ISO9075_DATETIME_FORMAT) || isMatch(dateString, ISO9075_DATE_FORMAT);
 
+export const isISO9075DateString = (dateString: string) => isMatch(dateString, ISO9075_DATE_FORMAT);
+
+const makeDateObject = (date: string | Date) => {
+  if (typeof date !== 'string') return date;
+  return isISOString(date) ? parseISO(date) : new Date(date.replace(' ', 'T'));
+};
+
 /**
  *
  * @param date - usually we are working with a ISO9075 date_time_string or date_string but could
  * also be a ISO8061 date string or a date object so we need to gracefully handle all of them.
  * If you know you are working with an ISO9075 date_time_string or date_string, just use parseIso
  * from date-fns
+ * @param timeZone - optional timezone override to interpret the date in a specific timezone
  */
 export const parseDate = (date: string | Date | null | undefined) => {
   if (date == null) return null;
@@ -47,15 +56,8 @@ export const parseDate = (date: string | Date | null | undefined) => {
   // Handle empty strings
   if (typeof date === 'string' && date.trim() === '') return null;
 
-  const dateObj =
-    typeof date === 'string'
-      ? isISOString(date)
-        ? parseISO(date)
-        : new Date(date.replace(' ', 'T'))
-      : date;
-
+  const dateObj = makeDateObject(date);
   if (!isValid(dateObj)) throw new Error('Not a valid date');
-
   return dateObj;
 };
 
@@ -75,6 +77,20 @@ export const toDateString = (date: string | Date | null | undefined) => {
   if (!dateObj) return null;
 
   return formatISO9075(dateObj, { representation: 'date' });
+};
+
+/**
+ * Extracts weekday code from a date
+ * @example
+ * toWeekdayCode("2024-03-15 09:30:00") // "MO"
+ */
+export const toWeekdayCode = (date: string | Date | null | undefined) => {
+  if (date == null) return null;
+
+  const dateObj = parseDate(date);
+  if (!dateObj) return null;
+
+  return dateFnsFormat(dateObj, 'iiiiii').toUpperCase();
 };
 
 export const getCurrentDateTimeString = () => formatISO9075(new Date());
@@ -133,7 +149,7 @@ export type AgeRange = {
 };
 
 const getAgeRangeInMinutes = ({ ageMin = -Infinity, ageMax = Infinity, ageUnit }: AgeRange) => {
-  const timeUnit = TIME_UNIT_OPTIONS.find((option) => option.unit === ageUnit);
+  const timeUnit = TIME_UNIT_OPTIONS.find(option => option.unit === ageUnit);
   if (!timeUnit) return null;
 
   const conversionValue = timeUnit.minutes;
@@ -179,7 +195,7 @@ export const doAgeRangesHaveGaps = (rangesArray: AgeRange[]) => {
   };
 
   // Get all values into same time unit and sort by ageMin low to high
-  const normalized = rangesArray.map(getAgeRangeInMinutes).filter((range) => range !== null);
+  const normalized = rangesArray.map(getAgeRangeInMinutes).filter(range => range !== null);
   normalized.sort((a, b) => a.ageMin - b.ageMin);
 
   return normalized.some((rangeA, i) => {
@@ -244,30 +260,85 @@ export const intlFormatDate = (
   date: string | Date | null | undefined,
   formatOptions: Intl.DateTimeFormatOptions,
   fallback = 'Unknown',
+  countryTimeZone: string,
+  timeZone?: string | null,
 ) => {
   if (!date) return fallback;
-  const dateObj = parseDate(date);
+
+  // Date objects: display in local time (no timezone conversion)
+  if (date instanceof Date) {
+    if (!isValid(date)) return fallback;
+    return date.toLocaleString(locale, formatOptions);
+  }
+
+  // Date-only strings (e.g. DOB): display as-is, no timezone shift 
+  // We use UTC here because the date-only string is not timezone aware and we want to display it with no offset
+  if (isISO9075DateString(date)) {
+    const dateObj = new Date(date);
+    if (!isValid(dateObj)) return fallback;
+    return dateObj.toLocaleString(locale, { ...formatOptions, timeZone: 'UTC' });
+  }
+
+  // Datetime strings: apply timezone conversion
+  const dateObj = timeZone ? fromZonedTime(date, countryTimeZone) : parseDate(date);
   if (!dateObj) return fallback;
-  return dateObj.toLocaleString(locale, formatOptions);
+  return dateObj.toLocaleString(locale, {
+    ...formatOptions,
+    timeZone: timeZone ?? countryTimeZone,
+  } as Intl.DateTimeFormatOptions);
 };
 
-export const formatShortest = (date: string | null | undefined) =>
-  intlFormatDate(date, { month: '2-digit', day: '2-digit', year: '2-digit' }, '--/--'); // 12/04/20
-
-export const formatShort = (date: string | null | undefined) =>
-  intlFormatDate(date, { day: '2-digit', month: '2-digit', year: 'numeric' }, '--/--/----'); // 12/04/2020
-
-export const formatTime = (date: string | null | undefined) =>
+export const formatShortest = (
+  date: string | Date | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) =>
   intlFormatDate(
+    date,
+    { month: '2-digit', day: '2-digit', year: '2-digit' },
+    '--/--',
+    countryTimeZone,
+    timeZone,
+  ); // 12/04/20
+
+export const formatShort = (
+  date: string | Date | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) =>
+  intlFormatDate(
+    date,
+    { day: '2-digit', month: '2-digit', year: 'numeric' },
+    '--/--/----',
+    countryTimeZone,
+    timeZone,
+  ); // 12/04/2020
+
+export const formatTime = (
+  date: string | Date | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+  // TODO: could be better
+  { removeWhitespace = false }: { removeWhitespace?: boolean } = {},
+) => {
+  const formatted = intlFormatDate(
     date,
     {
       timeStyle: 'short',
       hour12: true,
     },
     '__:__',
+    countryTimeZone,
+    timeZone,
   ); // 12:30 am
+  return removeWhitespace ? formatted.replace(' ', '') : formatted;
+};
 
-export const formatTimeWithSeconds = (date: string | null | undefined) =>
+export const formatTimeWithSeconds = (
+  date: string | Date | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) =>
   intlFormatDate(
     date,
     {
@@ -275,10 +346,16 @@ export const formatTimeWithSeconds = (date: string | null | undefined) =>
       hour12: true,
     },
     '__:__:__',
+    countryTimeZone,
+    timeZone,
   ); // 12:30:00 am
 
 // long format date is displayed on hover
-export const formatLong = (date: string | null | undefined) =>
+export const formatLong = (
+  date: string | Date | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) =>
   intlFormatDate(
     date,
     {
@@ -287,11 +364,111 @@ export const formatLong = (date: string | null | undefined) =>
       hour12: true,
     },
     'Date information not available',
+    countryTimeZone,
+    timeZone,
   ); // "Thursday, 14 July 2022, 03:44 pm"
 
 /** "Thu" */
-export const formatWeekdayShort = (date: string | Date | null | undefined) =>
-  intlFormatDate(date, { weekday: 'short' });
+export const formatWeekdayShort = (
+  date: string | Date | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) => intlFormatDate(date, { weekday: 'short' }, 'Unknown', countryTimeZone, timeZone);
+
+/** "Thursday" */
+export const formatWeekdayLong = (
+  date: string | Date | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) => intlFormatDate(date, { weekday: 'long' }, 'Unknown', countryTimeZone, timeZone);
+
+/** "M" - single letter weekday */
+export const formatWeekdayNarrow = (
+  date: string | Date | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) => intlFormatDate(date, { weekday: 'narrow' }, 'Unknown', countryTimeZone, timeZone);
+
+/** "15 January 2024" */
+export const formatFullDate = (
+  date: string | Date | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) =>
+  intlFormatDate(
+    date,
+    { day: 'numeric', month: 'long', year: 'numeric' },
+    'Unknown',
+    countryTimeZone,
+    timeZone,
+  );
+
+/** "3pm" - hour only, no minutes */
+export const formatTimeSlot = (
+  date: string | Date | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) => {
+  const result = intlFormatDate(
+    date,
+    { hour: 'numeric', hour12: true },
+    'Unknown',
+    countryTimeZone,
+    timeZone,
+  );
+  return result.replace(' ', '').toLowerCase();
+};
+
+/** "3:30pm" - time without space */
+export const formatTimeCompact = (
+  date: string | Date | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) => {
+  const result = intlFormatDate(
+    date,
+    { hour: 'numeric', minute: '2-digit', hour12: true },
+    'Unknown',
+    countryTimeZone,
+    timeZone,
+  );
+  return result.replace(' ', '').toLowerCase();
+};
+
+/** "Apr 12, 2024" - medium date style with explicit month name (unambiguous across locales) */
+export const formatShortExplicit = (
+  date: string | Date | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) => intlFormatDate(date, { dateStyle: 'medium' }, 'Unknown', countryTimeZone, timeZone);
+
+/** "12 Apr 24" - short date with explicit month name (unambiguous across locales) */
+export const formatShortestExplicit = (
+  date: string | Date | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) =>
+  intlFormatDate(
+    date,
+    { year: '2-digit', month: 'short', day: 'numeric' },
+    'Unknown',
+    countryTimeZone,
+    timeZone,
+  );
+
+/** "2024-01-15T14:30" - for HTML datetime-local input elements */
+export const formatDateTimeLocal = (
+  date: string | Date | null | undefined,
+  countryTimeZone: string,
+  timeZone?: string | null,
+) => {
+  if (date == null) return null;
+  const dateObj = timeZone ? fromZonedTime(date, countryTimeZone) : parseDate(date);
+  if (!dateObj) return null;
+  // TODO: should this format to timezone? Or just local
+  return formatInTimeZone(dateObj, timeZone ?? countryTimeZone, "yyyy-MM-dd'T'HH:mm");
+};
+
 
 export const isStartOfThisWeek = (date: Date | number) => {
   const startOfThisWeek = startOfWeek(new Date(), { weekStartsOn: 1 });

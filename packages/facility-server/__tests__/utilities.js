@@ -235,11 +235,11 @@ export async function createTestContext({ enableReportInstances, databaseOverrid
   const settings = facilityIds.reduce(
     (acc, facilityId) => ({
       ...acc,
-      [facilityId]: new ReadSettings(models, facilityId),
+      [facilityId]: new ReadSettings(models, { facilityId, countryTimeZone: config.countryTimeZone }),
     }),
     {},
   );
-  settings.global = new ReadSettings(models);
+  settings.global = new ReadSettings(models, { countryTimeZone: config.countryTimeZone });
   const centralServer = new CentralServerConnection({ deviceId: 'test' });
 
   context.onClose(async () => {

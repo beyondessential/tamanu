@@ -4,7 +4,7 @@ import { ReadSettings } from '../reader';
 
 export const settingsReaderMiddleware = (req, _res, next) => {
   const { models } = req;
-  const { serverFacilityId, serverFacilityIds } = config as any;
+  const { serverFacilityId, serverFacilityIds, countryTimeZone } = config as any;
   const isFacility = serverFacilityId || serverFacilityIds;
   const facilityIds = isFacility && (serverFacilityId ? [serverFacilityId] : serverFacilityIds);
   try {
@@ -16,12 +16,12 @@ export const settingsReaderMiddleware = (req, _res, next) => {
       req.settings = facilityIds.reduce(
         (acc, facilityId) => ({
           ...acc,
-          [facilityId]: new ReadSettings(models, facilityId),
+          [facilityId]: new ReadSettings(models, { facilityId, countryTimeZone }),
         }),
         {},
       );
     } else {
-      req.settings = new ReadSettings(models);
+      req.settings = new ReadSettings(models, { countryTimeZone });
     }
     next();
   } catch (e) {
