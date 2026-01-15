@@ -526,6 +526,7 @@ medication.post(
         const newPrescription = await Prescription.create(
           {
             ...originalPrescription.dataValues,
+            id: undefined, // Generate a new ID to avoid duplicate key constraint violation
             date: currentDateTime,
             startDate: currentDateTime,
             quantity: requestData.quantity,
