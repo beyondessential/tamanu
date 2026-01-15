@@ -57,3 +57,13 @@ JSON array of conflict details encountered during the push operation.
 {% docs logs__dhis2_pushes__message %}
 Human-readable message describing the result of the push operation.
 {% enddocs %}
+
+{% docs logs__dhis2_pushes__data_sets_completed %}
+Number of data sets that were successfully marked as complete in DHIS2 after the data push.
+This is only populated when the autoCompleteDataSets setting is enabled.
+{% enddocs %}
+
+{% docs logs__dhis2_pushes__data_set_completion_errors %}
+JSON array of errors encountered while attempting to mark data sets as complete in DHIS2.
+Each error includes the dataset registration details (dataSet, period, orgUnit) and the error message.
+{% enddocs %}

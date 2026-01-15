@@ -15,6 +15,8 @@ export class DHIS2PushLog extends Model {
   declare ignored?: number;
   declare deleted?: number;
   declare conflicts?: JSON;
+  declare dataSetsCompleted?: number;
+  declare dataSetCompletionErrors?: JSON;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -49,6 +51,14 @@ export class DHIS2PushLog extends Model {
           allowNull: true,
         },
         conflicts: {
+          type: DataTypes.JSON,
+          allowNull: true,
+        },
+        dataSetsCompleted: {
+          type: DataTypes.INTEGER,
+          allowNull: true,
+        },
+        dataSetCompletionErrors: {
           type: DataTypes.JSON,
           allowNull: true,
         },

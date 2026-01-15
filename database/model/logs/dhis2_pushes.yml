@@ -70,3 +70,12 @@ sources:
             config:
               meta:
                 masking: text
+          - name: data_sets_completed
+            data_type: integer
+            description: "{{ doc('logs__dhis2_pushes__data_sets_completed') }}"
+          - name: data_set_completion_errors
+            data_type: json
+            description: "{{ doc('logs__dhis2_pushes__data_set_completion_errors') }}"
+            config:
+              meta:
+                masking: text

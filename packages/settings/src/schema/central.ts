@@ -301,6 +301,13 @@ export const centralSettings = {
                 },
               },
             },
+            autoCompleteDataSets: {
+              name: 'Auto-complete data sets',
+              description:
+                'Automatically mark data sets as "complete" in DHIS2 after successfully pushing data. This creates an audit trail showing when data was imported via the integration.',
+              type: yup.boolean(),
+              defaultValue: true,
+            },
           },
         },
       },

@@ -84,10 +84,19 @@ describe('DHIS2 integration processor', () => {
     await models.Setting.set('integrations.dhis2.backoff', backoff, SETTINGS_SCOPES.CENTRAL);
   };
 
+  const setAutoCompleteDataSets = async autoComplete => {
+    await models.Setting.set(
+      'integrations.dhis2.autoCompleteDataSets',
+      autoComplete,
+      SETTINGS_SCOPES.CENTRAL,
+    );
+  };
+
   beforeEach(async () => {
     await setHost('test host');
     await setReportIds([report.id]);
     await setBackoff({ multiplierMs: 50, maxAttempts: 2, maxWaitMs: 10000 });
+    await setAutoCompleteDataSets(true);
     await reportVersion.update({ status: REPORT_STATUSES.PUBLISHED });
     await models.DHIS2PushLog.truncate();
     dhis2IntegrationProcessor = new DHIS2IntegrationProcessor(ctx);
@@ -265,6 +274,127 @@ describe('DHIS2 integration processor', () => {
         status: AUDIT_STATUSES.SUCCESS,
         ...importCount,
       });
+    });
+  });
+
+  describe('dataset completion', () => {
+    const mockReportDataWithDataSet = [
+      ['dataElement', 'period', 'orgUnit', 'dataSet', 'value'],
+      ['DE1', '202501', 'OU1', 'DS1', '10'],
+      ['DE2', '202501', 'OU1', 'DS1', '20'],
+      ['DE3', '202501', 'OU2', 'DS1', '30'],
+      ['DE4', '202502', 'OU1', 'DS2', '40'],
+    ];
+
+    it('should extract unique dataset registrations from report data', () => {
+      const registrations =
+        dhis2IntegrationProcessor.extractDataSetRegistrations(mockReportDataWithDataSet);
+
+      expect(registrations).toHaveLength(3);
+      expect(registrations).toEqual(
+        expect.arrayContaining([
+          { dataSet: 'DS1', period: '202501', orgUnit: 'OU1' },
+          { dataSet: 'DS1', period: '202501', orgUnit: 'OU2' },
+          { dataSet: 'DS2', period: '202502', orgUnit: 'OU1' },
+        ]),
+      );
+    });
+
+    it('should return empty array when report has no dataset column', () => {
+      const reportDataWithoutDataSet = [
+        ['dataElement', 'period', 'orgUnit', 'value'],
+        ['DE1', '202501', 'OU1', '10'],
+      ];
+
+      const registrations =
+        dhis2IntegrationProcessor.extractDataSetRegistrations(reportDataWithoutDataSet);
+
+      expect(registrations).toHaveLength(0);
+    });
+
+    it('should complete datasets after successful data push when enabled', async () => {
+      const mockCompleteResponse = { status: 'SUCCESS' };
+
+      dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue(mockSuccessResponse);
+      dhis2IntegrationProcessor.extractDataSetRegistrations = jest.fn().mockReturnValue([
+        { dataSet: 'DS1', period: '202501', orgUnit: 'OU1' },
+      ]);
+      dhis2IntegrationProcessor.completeDataSetsInDHIS2 = jest
+        .fn()
+        .mockResolvedValue({ completedCount: 1, errors: [] });
+
+      await dhis2IntegrationProcessor.run();
+
+      expect(dhis2IntegrationProcessor.completeDataSetsInDHIS2).toHaveBeenCalledWith([
+        { dataSet: 'DS1', period: '202501', orgUnit: 'OU1' },
+      ]);
+
+      const pushLogs = await models.DHIS2PushLog.findAll({ raw: true });
+      expect(pushLogs).toHaveLength(1);
+      expect(pushLogs[0]).toMatchObject({
+        status: AUDIT_STATUSES.SUCCESS,
+        dataSetsCompleted: 1,
+      });
+    });
+
+    it('should not complete datasets when autoCompleteDataSets is disabled', async () => {
+      await setAutoCompleteDataSets(false);
+
+      dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue(mockSuccessResponse);
+      dhis2IntegrationProcessor.completeDataSetsInDHIS2 = jest.fn();
+
+      await dhis2IntegrationProcessor.run();
+
+      expect(dhis2IntegrationProcessor.completeDataSetsInDHIS2).not.toHaveBeenCalled();
+    });
+
+    it('should log errors when dataset completion fails', async () => {
+      const completionErrors = [
+        {
+          registration: { dataSet: 'DS1', period: '202501', orgUnit: 'OU1' },
+          error: 'Dataset not found',
+        },
+      ];
+
+      dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue(mockSuccessResponse);
+      dhis2IntegrationProcessor.extractDataSetRegistrations = jest.fn().mockReturnValue([
+        { dataSet: 'DS1', period: '202501', orgUnit: 'OU1' },
+      ]);
+      dhis2IntegrationProcessor.completeDataSetsInDHIS2 = jest
+        .fn()
+        .mockResolvedValue({ completedCount: 0, errors: completionErrors });
+
+      await dhis2IntegrationProcessor.run();
+
+      const pushLogs = await models.DHIS2PushLog.findAll({ raw: true });
+      expect(pushLogs).toHaveLength(1);
+      expect(pushLogs[0]).toMatchObject({
+        status: AUDIT_STATUSES.SUCCESS,
+        dataSetsCompleted: 0,
+        dataSetCompletionErrors: completionErrors,
+      });
+
+      expect(logSpy.warn).toHaveBeenCalledWith(
+        WARNING_LOGS.FAILED_TO_COMPLETE_DATA_SETS,
+        expect.objectContaining({
+          completed: 0,
+          failed: 1,
+        }),
+      );
+    });
+
+    it('should warn when report has no datasets to complete', async () => {
+      dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue(mockSuccessResponse);
+      dhis2IntegrationProcessor.extractDataSetRegistrations = jest.fn().mockReturnValue([]);
+
+      await dhis2IntegrationProcessor.run();
+
+      expect(logSpy.warn).toHaveBeenCalledWith(
+        WARNING_LOGS.NO_DATA_SETS_TO_COMPLETE,
+        expect.objectContaining({
+          report: expect.any(String),
+        }),
+      );
     });
   });
 });
