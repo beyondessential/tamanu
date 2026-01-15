@@ -26,7 +26,8 @@ const useSidebarFactory = (ITEMS, configKey) => {
   const { ability } = useAuth();
 
   const checkAbility = ({ action, subject }) => {
-    return ability.can(action, subject);
+    console.log('ability', ability)
+    return ability?.can?.(action, subject);
   };
 
   const sidebarConfig = getSetting(configKey);

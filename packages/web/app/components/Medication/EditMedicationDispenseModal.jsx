@@ -182,6 +182,7 @@ export const EditMedicationDispenseModal = memo(
     }, [open]);
 
     const handleClose = () => {
+      setItem(null);
       setErrors({});
       setShowValidationErrors(false);
       setLabelForPrint(null);
