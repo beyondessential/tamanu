@@ -159,7 +159,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     formatter: encounter => ({
       value: encounter.id,
       // should display encounter current if the encounter is active
-      label: `${formatShortest(initialValues?.encounter?.startDate)}${
+      label: `${formatShortest(encounter.startDate)}${
         encounter.endDate
           ? ''
           : ' - ' + getTranslation('general.date.current', 'Current').toLowerCase()
