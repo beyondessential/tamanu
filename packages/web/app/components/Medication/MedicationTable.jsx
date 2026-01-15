@@ -1,18 +1,16 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import styled from 'styled-components';
-import { format } from 'date-fns';
 import { Box } from '@material-ui/core';
 import { DRUG_ROUTE_LABELS, MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
 import { useLocation, useNavigate } from 'react-router';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
-import { Button } from '@tamanu/ui-components';
+import { Button, DateDisplay, TimeDisplay } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 
 import { DataFetchingTable } from '../Table';
-import { formatShortest } from '../DateDisplay';
 import { TranslatedText, TranslatedReferenceData, TranslatedEnum } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';
-import { formatTimeSlot } from '../../utils/medications';
+import { TimeSlotDisplay } from '../../utils/medications';
 import { LimitedLinesCell } from '../FormattedTableCell';
 import { ConditionalTooltip } from '../Tooltip';
 import { MedicationDetails } from './MedicationDetails';
@@ -126,7 +124,8 @@ const getMedicationName = (
             pauseData.pauseDuration,
           ).toLowerCase()}{' '}
           - <TranslatedText stringId="medication.table.until" fallback="until" />{' '}
-          {`${formatShortest(pauseData.pauseEndDate)} ${formatTimeSlot(pauseData.pauseEndDate)}`})
+          <DateDisplay date={pauseData.pauseEndDate} format="shortest" />{' '}
+          <TimeSlotDisplay time={pauseData.pauseEndDate} />
         </Box>
       )}
     </Box>
@@ -219,7 +218,7 @@ const getMedicationColumns = (
           tooltipTitle = (
             <>
               <TranslatedText stringId="medication.table.endsOn.label" fallback="Ends on" />
-              <div>{format(new Date(endDate), 'dd/MM/yy h:mma').toLowerCase()}</div>
+              <DateDisplay date={endDate} format="shortest" showTime timeFormat="compact" noTooltip />
             </>
           );
         } else if (isOngoing) {
@@ -239,7 +238,7 @@ const getMedicationColumns = (
               visible={tooltipTitle}
               title={<Box fontWeight={400}>{tooltipTitle}</Box>}
             >
-              {formatShortest(date)}
+              <DateDisplay date={date} format="shortest" />
             </ConditionalTooltip>
           </NoWrapCell>
         );
@@ -306,9 +305,9 @@ const getMedicationColumns = (
             fontStyle={isPausing ? 'italic' : 'normal'}
           >
             <Box>
-              {formatShortest(orderDate)}
+              <DateDisplay date={orderDate} format="shortest" noTooltip />
               <Box fontSize="12px" color={Colors.softText}>
-                {format(orderDate, 'h:mma').toLowerCase()}
+                <TimeDisplay date={orderDate} format="compact" noTooltip />
               </Box>
             </Box>
           </NoWrapCell>

@@ -35,7 +35,7 @@ export const AccessorField = ({ id, name, tabIndex, ...props }) => (
   <StyledField
     {...props}
     inputProps={{ tabIndex }}
-    name={`labTests.${id}.${name}`}
+    name={`${id}.${name}`}
     data-testid="styledfield-h653"
   />
 );

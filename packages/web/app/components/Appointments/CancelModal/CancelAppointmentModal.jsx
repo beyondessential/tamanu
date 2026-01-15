@@ -2,7 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
-import { parseISO } from 'date-fns';
+import { isSameDay, parseISO } from 'date-fns';
 
 import {
   APPOINTMENT_STATUSES,
@@ -11,9 +11,8 @@ import {
 } from '@tamanu/constants';
 
 import { useAppointmentMutation } from '../../../api/mutations';
-import { formatDateTimeRange, formatShort } from '../../../utils/dateTime';
 import { PatientNameDisplay } from '../../PatientNameDisplay';
-import { TranslatedReferenceData, TranslatedText, BaseModal } from '@tamanu/ui-components';
+import { TranslatedReferenceData, TranslatedText, BaseModal, useDateTimeFormat, DateDisplay } from '@tamanu/ui-components';
 import {
   AppointmentDetailsColumn,
   AppointmentDetailsColumnLeft,
@@ -33,6 +32,8 @@ const StyledBodyText = styled(BodyText)`
 `;
 
 const AppointmentDetailsDisplay = ({ appointment }) => {
+  const { formatShortest } = useDateTimeFormat();
+  const doesSpanMultipleDays = !isSameDay(parseISO(startTime), parseISO(endTime));
   const {
     patient,
     startTime,
@@ -65,7 +66,10 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
               data-testid="translatedtext-oej8"
             />
           }
-          value={formatDateTimeRange(startTime, endTime)}
+          value={doesSpanMultipleDays
+            ? <><DateDisplay date={startTime} format="shortest" /> - <DateDisplay date={endTime} format="shortest" /></>
+            : <DateDisplay date={startTime} format="shortest" />
+          }
           data-testid="detaildisplay-l5s4"
         />
         <DetailDisplay
@@ -162,7 +166,7 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
                 <TranslatedText
                   stringId="appointment.duration.endsOnDate"
                   fallback="Ends on :date"
-                  replacements={{ date: formatShort(schedule.untilDate) }}
+                  replacements={{ date: formatShortest(schedule.untilDate) }}
                   data-testid="translatedtext-2xq6"
                 />
               ) : (

@@ -1,7 +1,10 @@
-import { addDays, subDays, format, isSameDay } from 'date-fns';
+import { addDays, subDays, isSameDay } from 'date-fns';
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight } from '@material-ui/icons';
-import { ButtonWithPermissionCheck } from '@tamanu/ui-components';
+import {
+  ButtonWithPermissionCheck,
+  DateDisplay as DateDisplayComponent,
+} from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { Heading3, TranslatedText } from '../..';
 import { IconButton } from '@material-ui/core';
@@ -102,7 +105,9 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
             <ChevronLeft />
           </StepperButton>
         </ConditionalTooltip>
-        <DateDisplay>{format(selectedDate, 'd MMMM yyyy')}</DateDisplay>
+        <DateDisplay>
+          <DateDisplayComponent date={selectedDate} format="long" noTooltip />
+        </DateDisplay>
         {!isNextDayHidden && (
           <StepperButton onClick={goToNextDay}>
             <ChevronRight />

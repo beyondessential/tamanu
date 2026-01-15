@@ -13,7 +13,7 @@ import { Colors } from '../../../constants/styles';
 import { Field } from '../../Field';
 import { FormModal } from '../..';
 import { useDeleteDoseMutation } from '../../../api/mutations/useMarMutation';
-import { formatTimeSlot } from '../../../utils/medications';
+import { TimeSlotDisplay } from '../../../utils/medications';
 import { useTranslation } from '../../../contexts/Translation';
 import { getMarDoseDisplay } from '@tamanu/shared/utils/medication';
 
@@ -107,7 +107,7 @@ export const RemoveAdditionalDoseModal = ({ open, onClose, medication, dose }) =
           <MidText>
             <TranslatedText stringId="medication.mar.timeGiven" fallback="Time given" />
           </MidText>
-          <DarkestText mt={'3px'}>{formatTimeSlot(new Date(dose.givenTime))}</DarkestText>
+          <DarkestText mt={'3px'}><TimeSlotDisplay time={dose.givenTime} /></DarkestText>
           <MidText mt={'15px'}>
             <TranslatedText stringId="medication.mar.recordedBy" fallback="Recorded by" />
           </MidText>

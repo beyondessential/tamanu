@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { keyBy, orderBy } from 'lodash';
-import { format } from 'date-fns';
+import { toDateString } from '@tamanu/utils/dateTime';
 import { Box, Typography } from '@material-ui/core';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import GetAppIcon from '@material-ui/icons/GetApp';
@@ -12,7 +12,7 @@ import {
   REPORT_EXPORT_FORMATS,
   FORM_TYPES,
 } from '@tamanu/constants';
-import { Form, FormGrid, TextButton, Button } from '@tamanu/ui-components';
+import { Form, FormGrid, TextButton, Button, useDateTimeFormat } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -20,7 +20,6 @@ import { useApi } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import {
   AutocompleteField,
-  DateDisplay,
   DateField,
   Field,  
   RadioField,
@@ -93,7 +92,7 @@ const buildParameterFieldValidation = ({ required }) => {
 const useFileName = () => {
   const { getLocalisation } = useLocalisation();
   const country = getLocalisation('country');
-  const date = format(new Date(), 'ddMMyyyy');
+  const date = toDateString(new Date());
   const { getTranslation } = useTranslation();
 
   const countryName = getTranslation(getReferenceDataStringId(country.id, 'country'), country.name);
@@ -129,6 +128,7 @@ const isJsonString = (str) => {
 export const ReportGeneratorForm = () => {
   const api = useApi();
   const { getTranslation } = useTranslation();
+  const { formatShort } = useDateTimeFormat();
   const getFileName = useFileName();
   const { currentUser, facilityId } = useAuth();
   const [successMessage, setSuccessMessage] = useState(null);
@@ -216,11 +216,9 @@ export const ReportGeneratorForm = () => {
 
         const reportName = reportsById[reportId].name;
 
-        const date = DateDisplay.stringFormat(new Date());
-
         const metadata = [
           ['Report Name:', reportName],
-          ['Date Generated:', date],
+          ['Date Generated:', formatShort(new Date())],
           ['User:', currentUser.email],
           ['Filters:', filterString],
         ];

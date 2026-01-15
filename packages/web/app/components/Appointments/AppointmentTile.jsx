@@ -1,13 +1,13 @@
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import OvernightIcon from '@material-ui/icons/Brightness2';
-import { format, isSameDay, parseISO } from 'date-fns';
+import { isSameDay, parseISO } from 'date-fns';
 import queryString from 'query-string';
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router';
 import styled, { css } from 'styled-components';
 
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
-import { UnstyledHtmlButton } from '@tamanu/ui-components';
+import { UnstyledHtmlButton, TimeDisplay } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 
 import { getPatientNameAsString } from '../PatientNameDisplay';
@@ -68,7 +68,7 @@ const Time = styled.time`
 
 const Timestamp = ({ date }) => (
   <Time dateTime={date.toISOString()} data-testid="time-no0k">
-    {format(date, 'h:mmaaa')}
+    <TimeDisplay date={date} format="compact" noTooltip />
   </Time>
 );
 
