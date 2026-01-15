@@ -36,7 +36,7 @@ export const transactionBundleHandler = () => {
         }
       });
     } catch (err) {
-      return res.status(400).send(new OperationOutcome([err]));
+      return res.status(400).send(new OperationOutcome([err]).asFhir());
     }
 
     const responseBundle = new FhirTransactionResponseBundle({
