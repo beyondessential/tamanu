@@ -15,11 +15,11 @@ Reference to the [facility](#!/source/source.tamanu.tamanu.facilities) where thi
 {% enddocs %}
 
 {% docs patient_death_data__manner %}
-Free-form description of the manner of death.
+A descriptive text specifying the manner of death.
 {% enddocs %}
 
 {% docs patient_death_data__recent_surgery %}
-Free-form description of the most recent surgery the patient received, if any.
+Whether the deceased patient had a recent surgery, if any.
 {% enddocs %}
 
 {% docs patient_death_data__last_surgery_date %}
@@ -40,7 +40,7 @@ Physical location of external cause of death, if applicable.
 {% enddocs %}
 
 {% docs patient_death_data__external_cause_notes %}
-Free-form description of external cause of death, if applicable.
+Free-form description of the location of external cause of death, if applicable.
 {% enddocs %}
 
 {% docs patient_death_data__was_pregnant %}
@@ -143,7 +143,7 @@ If an autopsy was requested, whether the findings were used in the death certifi
 {% enddocs %}
 
 {% docs patient_death_data__manner_of_death_description %}
-A text description on how the external cause occurred and if applicable, notes of poisoning agent.
+If an external cause occurred, a text description on how and if applicable, notes of poisoning agent.
 {% enddocs %}
 
 {% docs patient_death_data__pregnancy_moment %}
