@@ -5,6 +5,7 @@ import { Modal, TranslatedText, TranslatedReferenceData } from '@tamanu/ui-compo
 import { Colors } from '../../constants/styles';
 
 import { useLabTestQuery } from '../../api/queries/useLabTestQuery';
+import { useLabTestResultHistoryQuery } from '../../api/queries';
 import { DateDisplay } from '../../components/DateDisplay';
 import { ModalActionRow } from '../../components/ModalActionRow';
 import { BodyText } from '../../components/Typography';
@@ -47,8 +48,48 @@ const ValueDisplay = ({ title, value }) => (
   </ValueContainer>
 );
 
+const HistorySection = styled.div`
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid ${Colors.outline};
+`;
+
+const HistoryTitle = styled(BodyText)`
+  font-weight: 500;
+  margin-bottom: 15px;
+`;
+
+const HistoryList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+const HistoryItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px;
+  background-color: ${Colors.background};
+  border-radius: 4px;
+`;
+
+const HistoryItemText = styled(BodyText)`
+  font-size: 14px;
+`;
+
+const HistoryItemLabel = styled(HistoryItemText)`
+  color: ${Colors.midText};
+`;
+
+const HistoryItemValue = styled(HistoryItemText)`
+  font-weight: 500;
+`;
+
 export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
   const { data: labTest } = useLabTestQuery(labTestId);
+  const { data: history = [] } = useLabTestResultHistoryQuery(labTestId);
+
   return (
     <Modal
       title={
@@ -139,6 +180,32 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
           />
         </div>
       </ModalBody>
+      {history.length > 0 && (
+        <HistorySection data-testid="historysection-hist">
+          <HistoryTitle data-testid="historytitle-hist">
+            <TranslatedText
+              stringId="lab.modal.testResult.history.title"
+              fallback="Result History"
+              data-testid="translatedtext-hist"
+            />
+          </HistoryTitle>
+          <HistoryList data-testid="historylist-hist">
+            {history.map((item) => (
+              <HistoryItem key={item.id} data-testid="historyitem-hist">
+                <HistoryItemValue data-testid="historyitemvalue-result">
+                  {item.result}
+                </HistoryItemValue>
+                <HistoryItemLabel data-testid="historyitemlabel-user">
+                  Updated by: {item.updatedByDisplayName || 'Unknown'}
+                </HistoryItemLabel>
+                <HistoryItemLabel data-testid="historyitemlabel-time">
+                  {DateDisplay.stringFormat(item.loggedAt)}
+                </HistoryItemLabel>
+              </HistoryItem>
+            ))}
+          </HistoryList>
+        </HistorySection>
+      )}
       <ModalActionRow
         confirmText={
           <TranslatedText
