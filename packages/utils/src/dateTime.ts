@@ -260,7 +260,7 @@ export const intlFormatDate = (
   date: string | Date | null | undefined,
   formatOptions: Intl.DateTimeFormatOptions,
   fallback = 'Unknown',
-  countryTimeZone: string,
+  countryTimeZone?: string,
   timeZone?: string | null,
 ) => {
   if (!date) return fallback;
@@ -279,18 +279,21 @@ export const intlFormatDate = (
     return dateObj.toLocaleString(locale, { ...formatOptions, timeZone: 'UTC' });
   }
 
-  // Datetime strings: apply timezone conversion
-  const dateObj = timeZone ? fromZonedTime(date, countryTimeZone) : parseDate(date);
+  // Datetime strings: apply timezone conversion if timezone provided
+  const dateObj = timeZone && countryTimeZone ? fromZonedTime(date, countryTimeZone) : parseDate(date);
   if (!dateObj) return fallback;
+  
+  // If no timezone provided, use local browser timezone
+  const tzOptions = timeZone ?? countryTimeZone;
   return dateObj.toLocaleString(locale, {
     ...formatOptions,
-    timeZone: timeZone ?? countryTimeZone,
+    ...(tzOptions ? { timeZone: tzOptions } : {}),
   } as Intl.DateTimeFormatOptions);
 };
 
 export const formatShortest = (
   date: string | Date | null | undefined,
-  countryTimeZone: string,
+  countryTimeZone?: string,
   timeZone?: string | null,
 ) =>
   intlFormatDate(
@@ -303,7 +306,7 @@ export const formatShortest = (
 
 export const formatShort = (
   date: string | Date | null | undefined,
-  countryTimeZone: string,
+  countryTimeZone?: string,
   timeZone?: string | null,
 ) =>
   intlFormatDate(
@@ -316,7 +319,7 @@ export const formatShort = (
 
 export const formatTime = (
   date: string | Date | null | undefined,
-  countryTimeZone: string,
+  countryTimeZone?: string,
   timeZone?: string | null,
   // TODO: could be better
   { removeWhitespace = false }: { removeWhitespace?: boolean } = {},
@@ -336,7 +339,7 @@ export const formatTime = (
 
 export const formatTimeWithSeconds = (
   date: string | Date | null | undefined,
-  countryTimeZone: string,
+  countryTimeZone?: string,
   timeZone?: string | null,
 ) =>
   intlFormatDate(
@@ -353,7 +356,7 @@ export const formatTimeWithSeconds = (
 // long format date is displayed on hover
 export const formatLong = (
   date: string | Date | null | undefined,
-  countryTimeZone: string,
+  countryTimeZone?: string,
   timeZone?: string | null,
 ) =>
   intlFormatDate(
@@ -371,28 +374,28 @@ export const formatLong = (
 /** "Thu" */
 export const formatWeekdayShort = (
   date: string | Date | null | undefined,
-  countryTimeZone: string,
+  countryTimeZone?: string,
   timeZone?: string | null,
 ) => intlFormatDate(date, { weekday: 'short' }, 'Unknown', countryTimeZone, timeZone);
 
 /** "Thursday" */
 export const formatWeekdayLong = (
   date: string | Date | null | undefined,
-  countryTimeZone: string,
+  countryTimeZone?: string,
   timeZone?: string | null,
 ) => intlFormatDate(date, { weekday: 'long' }, 'Unknown', countryTimeZone, timeZone);
 
 /** "M" - single letter weekday */
 export const formatWeekdayNarrow = (
   date: string | Date | null | undefined,
-  countryTimeZone: string,
+  countryTimeZone?: string,
   timeZone?: string | null,
 ) => intlFormatDate(date, { weekday: 'narrow' }, 'Unknown', countryTimeZone, timeZone);
 
 /** "15 January 2024" */
 export const formatFullDate = (
   date: string | Date | null | undefined,
-  countryTimeZone: string,
+  countryTimeZone?: string,
   timeZone?: string | null,
 ) =>
   intlFormatDate(
@@ -406,7 +409,7 @@ export const formatFullDate = (
 /** "3pm" - hour only, no minutes */
 export const formatTimeSlot = (
   date: string | Date | null | undefined,
-  countryTimeZone: string,
+  countryTimeZone?: string,
   timeZone?: string | null,
 ) => {
   const result = intlFormatDate(
@@ -422,7 +425,7 @@ export const formatTimeSlot = (
 /** "3:30pm" - time without space */
 export const formatTimeCompact = (
   date: string | Date | null | undefined,
-  countryTimeZone: string,
+  countryTimeZone?: string,
   timeZone?: string | null,
 ) => {
   const result = intlFormatDate(
@@ -438,14 +441,14 @@ export const formatTimeCompact = (
 /** "Apr 12, 2024" - medium date style with explicit month name (unambiguous across locales) */
 export const formatShortExplicit = (
   date: string | Date | null | undefined,
-  countryTimeZone: string,
+  countryTimeZone?: string,
   timeZone?: string | null,
 ) => intlFormatDate(date, { dateStyle: 'medium' }, 'Unknown', countryTimeZone, timeZone);
 
 /** "12 Apr 24" - short date with explicit month name (unambiguous across locales) */
 export const formatShortestExplicit = (
   date: string | Date | null | undefined,
-  countryTimeZone: string,
+  countryTimeZone?: string,
   timeZone?: string | null,
 ) =>
   intlFormatDate(
@@ -459,14 +462,15 @@ export const formatShortestExplicit = (
 /** "2024-01-15T14:30" - for HTML datetime-local input elements */
 export const formatDateTimeLocal = (
   date: string | Date | null | undefined,
-  countryTimeZone: string,
+  countryTimeZone?: string,
   timeZone?: string | null,
 ) => {
   if (date == null) return null;
-  const dateObj = timeZone ? fromZonedTime(date, countryTimeZone) : parseDate(date);
+  const tz = timeZone ?? countryTimeZone;
+  const dateObj = timeZone && countryTimeZone ? fromZonedTime(date, countryTimeZone) : parseDate(date);
   if (!dateObj) return null;
-  // TODO: should this format to timezone? Or just local
-  return formatInTimeZone(dateObj, timeZone ?? countryTimeZone, "yyyy-MM-dd'T'HH:mm");
+  if (!tz) return dateFnsFormat(dateObj, "yyyy-MM-dd'T'HH:mm");
+  return formatInTimeZone(dateObj, tz, "yyyy-MM-dd'T'HH:mm");
 };
 
 
