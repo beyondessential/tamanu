@@ -707,7 +707,7 @@ patientRoute.get(
   '/:id/dispensed-medications',
   asyncHandler(async (req, res) => {
     const {
-      models: { MedicationDispense, Facility },
+      models: { MedicationDispense, Facility, ReferenceDrug, ReferenceDrugFacility },
       params,
       query,
     } = req;
@@ -807,6 +807,22 @@ patientRoute.get(
 
     const { count, rows: data } = response;
 
+    // Temporary fix to get reference drug data due limit of column characters in postgres
+    const medicationIds = [
+      ...new Set(data.map(item => item.pharmacyOrderPrescription.prescription.medication.id)),
+    ];
+
+    const referenceDrugs = await ReferenceDrug.findAll({
+      where: { referenceDataId: { [Op.in]: medicationIds } },
+      attributes: ['id', 'isSensitive', 'referenceDataId'],
+      include: {
+        model: ReferenceDrugFacility,
+        as: 'facilities',
+        attributes: ['id', 'quantity', 'facilityId', 'stockStatus'],
+        required: false,
+      },
+    });
+
     // Fetch all dispenses for the pharmacy order prescriptions to calculate remaining repeats
     const pharmacyOrderPrescriptionIds = [
       ...new Set(data.map(item => item.pharmacyOrderPrescription.id)),
@@ -825,6 +841,10 @@ patientRoute.get(
     }, {});
 
     const result = data.map(item => {
+      const referenceDrug = referenceDrugs.find(
+        r => r.referenceDataId === item.pharmacyOrderPrescription.prescription.medication.id,
+      );
+
       // Manually set medicationDispenses for getRemainingRepeats calculation
       // We only want to include dispenses that were dispensed before the current dispense to get remaining repeats at the time of the dispense
       item.pharmacyOrderPrescription.medicationDispenses = (
@@ -835,6 +855,20 @@ patientRoute.get(
         ...item.toJSON(),
         pharmacyOrderPrescription: {
           ...item.pharmacyOrderPrescription.toJSON(),
+          prescription: {
+            ...item.pharmacyOrderPrescription.prescription.toJSON(),
+            medication: {
+              ...item.pharmacyOrderPrescription.prescription.medication.toJSON(),
+              referenceDrug: {
+                ...referenceDrug.toJSON(),
+                facilities: referenceDrug.facilities
+                  .map(f => f.toJSON())
+                  .filter(
+                    f => f.facilityId === item.pharmacyOrderPrescription.pharmacyOrder.facilityId,
+                  ),
+              },
+            },
+          },
           remainingRepeats: item.pharmacyOrderPrescription.getRemainingRepeats(),
         },
       };
