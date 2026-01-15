@@ -103,6 +103,7 @@
     "re-resizable": "^6.11.2"
   },
   "overrides": {
+    "date-fns": "^4.1.0",
     "axios": "^1.8.2",
     "ms": "^2.1.3",
     "react": "18.2.0",
