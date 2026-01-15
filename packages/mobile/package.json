@@ -109,6 +109,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "reflect-metadata": "^0.2.2",
     "@babel/plugin-proposal-decorators": "^7.8.3",
     "@babel/plugin-transform-export-namespace-from": "^7.27.1",
     "@babel/plugin-transform-modules-commonjs": "^7.7.0",
