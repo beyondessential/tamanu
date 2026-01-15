@@ -271,92 +271,12 @@ describe('CentralSyncManager.addIncomingChanges', () => {
     expect(session.errors).toHaveLength(1);
     expect(session.errors[0]).toContain('Sync security violation');
 
-    // Debug info should contain rejected models and record IDs
-    expect(session.debugInfo).toHaveProperty('rejectedModels');
-    expect(session.debugInfo).toHaveProperty('rejectedRecordIds');
-    expect(session.debugInfo.rejectedModels).toEqual(['facilities']);
-    expect(session.debugInfo.rejectedRecordIds).toEqual([facilityData.id]);
-  });
-
-  it('rejects multiple incoming changes with different invalid syncDirections', async () => {
-    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '20');
-    const facility = await models.Facility.create(fake(models.Facility));
-
-    // Create multiple invalid records with different sync directions
-    const facilityData = fake(models.Facility); // PULL_FROM_CENTRAL
-    const departmentData = fake(models.Department, { facilityId: facility.id }); // PULL_FROM_CENTRAL
-    const locationData = fake(models.Location, { facilityId: facility.id }); // PULL_FROM_CENTRAL
-
-    const changes = [
-      {
-        direction: SYNC_SESSION_DIRECTION.OUTGOING,
-        isDeleted: false,
-        recordType: 'facilities',
-        recordId: facilityData.id,
-        data: facilityData,
-      },
-      {
-        direction: SYNC_SESSION_DIRECTION.OUTGOING,
-        isDeleted: false,
-        recordType: 'departments',
-        recordId: departmentData.id,
-        data: departmentData,
-      },
-      {
-        direction: SYNC_SESSION_DIRECTION.OUTGOING,
-        isDeleted: false,
-        recordType: 'locations',
-        recordId: locationData.id,
-        data: locationData,
-      },
-    ];
-
-    const centralSyncManager = initializeCentralSyncManager({
-      sync: {
-        lookupTable: {
-          enabled: true,
-        },
-        maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
-      },
+    // Debug info should contain rejected record
+    expect(session.debugInfo).toHaveProperty('rejectedRecord');
+    expect(session.debugInfo.rejectedRecord).toEqual({
+      type: 'facilities',
+      id: facilityData.id,
     });
-    await centralSyncManager.updateLookupTable();
-    const { sessionId } = await centralSyncManager.startSession();
-    await waitForSession(centralSyncManager, sessionId);
-
-    await centralSyncManager.setupSnapshotForPull(
-      sessionId,
-      {
-        since: 1,
-        facilityIds: [facility.id],
-      },
-      () => true,
-    );
-
-    // Should throw an error
-    await expect(centralSyncManager.addIncomingChanges(sessionId, changes)).rejects.toThrow(
-      'Sync security violation: Attempted to push 3 record(s)',
-    );
-
-    // Session should be marked as errored with all invalid records in debug info
-    const session = await models.SyncSession.findByPk(sessionId);
-    expect(session.errors).toHaveLength(1);
-    expect(session.errors[0]).toContain('3 record(s)');
-
-    // Debug info should contain rejected models and record IDs
-    expect(session.debugInfo).toHaveProperty('rejectedModels');
-    expect(session.debugInfo).toHaveProperty('rejectedRecordIds');
-    expect(session.debugInfo.rejectedModels).toHaveLength(3);
-    expect(session.debugInfo.rejectedRecordIds).toHaveLength(3);
-
-    // Verify all three invalid models are recorded
-    expect(session.debugInfo.rejectedModels).toContain('facilities');
-    expect(session.debugInfo.rejectedModels).toContain('departments');
-    expect(session.debugInfo.rejectedModels).toContain('locations');
-
-    // Verify all three record IDs are recorded
-    expect(session.debugInfo.rejectedRecordIds).toContain(facilityData.id);
-    expect(session.debugInfo.rejectedRecordIds).toContain(departmentData.id);
-    expect(session.debugInfo.rejectedRecordIds).toContain(locationData.id);
   });
 
   it('allows incoming changes with valid syncDirection', async () => {

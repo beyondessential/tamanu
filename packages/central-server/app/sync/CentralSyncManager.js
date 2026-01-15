@@ -740,39 +740,42 @@ export class CentralSyncManager {
         .map(m => [m.tableName, m])
     );
 
-    const invalidRecords = [];
     for (const change of changes) {
       const model = tableNameToModelMap[change.recordType];
       if (!model) {
-        invalidRecords.push({
+        const errorMessage = `Sync security violation: Attempted to push record with unknown model`;
+        log.error(errorMessage, {
           recordType: change.recordType,
           recordId: change.recordId,
           reason: 'Model not found',
+          sessionId,
         });
-        continue;
+
+        await models.SyncSession.addDebugInfo(sessionId, {
+          rejectedRecord: { type: change.recordType, id: change.recordId },
+        });
+
+        await models.SyncSession.markSessionErrored(sessionId, errorMessage);
+        throw new Error(errorMessage);
       }
 
       if (!allowedPushDirections.includes(model.syncDirection)) {
-        invalidRecords.push({
+        const errorMessage = `Sync security violation: Attempted to push record that is not allowed to be pushed`;
+        log.error(errorMessage, {
           recordType: change.recordType,
           recordId: change.recordId,
           syncDirection: model.syncDirection,
           reason: `Model has syncDirection '${model.syncDirection}' which is not allowed for push operations`,
+          sessionId,
         });
+
+        await models.SyncSession.addDebugInfo(sessionId, {
+          rejectedRecord: { type: change.recordType, id: change.recordId },
+        });
+
+        await models.SyncSession.markSessionErrored(sessionId, errorMessage);
+        throw new Error(errorMessage);
       }
-    }
-
-    if (invalidRecords.length > 0) {
-      const errorMessage = `Sync security violation: Attempted to push ${invalidRecords.length} record(s) that are not allowed to be pushed`;
-      log.error(errorMessage, { invalidRecords, sessionId });
-
-      await models.SyncSession.addDebugInfo(sessionId, {
-        rejectedModels: [...new Set(invalidRecords.map(r => r.recordType))],
-        rejectedRecordIds: invalidRecords.map(r => r.recordId),
-      });
-
-      await models.SyncSession.markSessionErrored(sessionId, errorMessage);
-      throw new Error(errorMessage);
     }
 
     const incomingSnapshotRecords = changes.map(c => ({
