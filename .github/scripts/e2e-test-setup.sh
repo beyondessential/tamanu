@@ -24,11 +24,47 @@ e2e_test_setup_setup_central() {
             "username": "tamanu",
             "password": "tamanu"
         },
-        schedules: {
-            sendStatusToMetaServer: {
-                enabled: false,
-            },
+        "schedules": {
+            "sendStatusToMetaServer": {
+                "enabled": false
+            }
         },
+        "localisation": {
+            "data": {
+                "country": {
+                    "name": "Utopia",
+                    "alpha-2": "UT",
+                    "alpha-3": "UTO"
+                },
+                "timeZone": "UTC",
+                "imagingTypes": {
+                    "orthopantomography": { "label": "Orthopantomography" },
+                    "xRay": { "label": "X-Ray" },
+                    "ctScan": { "label": "CT Scan" },
+                    "ultrasound": { "label": "Ultrasound" },
+                    "mri": { "label": "MRI" },
+                    "ecg": { "label": "Electrocardiogram (ECG)" },
+                    "holterMonitor": { "label": "Holter Monitor" },
+                    "echocardiogram": { "label": "Echocardiogram" },
+                    "mammogram": { "label": "Mammogram" },
+                    "mammogramScreen": { "label": "Mammogram Screening" },
+                    "mammogramDiag": { "label": "Mammogram Diagnostic" },
+                    "endoscopy": { "label": "Endoscopy" },
+                    "fluroscopy": { "label": "Fluroscopy" },
+                    "angiogram": { "label": "Angiogram" },
+                    "colonoscopy": { "label": "Colonoscopy" },
+                    "vascularStudy": { "label": "Vascular Study" },
+                    "stressTest": { "label": "Treadmill" }
+                },
+                "previewUvciFormat": "tamanu",
+                "disabledReports": [
+                    "aefi",
+                    "india-assistive-technology-device-line-list",
+                    "iraq-assistive-technology-device-line-list"
+                ],
+                "supportDeskUrl": "https://bes-support.zendesk.com/hc/en-us"
+            }
+        }
     }
 EOF
 
@@ -58,6 +94,10 @@ EOF
                     deviceRegistration: {
                         enabled: false,
                     },
+                    desktopCharting: {
+                        enabled: true,
+                    },
+                    enableTasking: true,
                 },
             },
         },
@@ -71,6 +111,12 @@ EOF
         programs: [
             {
                 url: 'https://bes-tamanu-dev-referencedata.s3.ap-southeast-2.amazonaws.com/programs/vitals.xlsx',
+            },
+            {
+                url: 'https://bes-tamanu-dev-referencedata.s3.ap-southeast-2.amazonaws.com/programs/neurological-assessment.xlsx',
+            },
+            {
+                url: 'https://bes-tamanu-dev-referencedata.s3.ap-southeast-2.amazonaws.com/programs/ncd-primary-screening.xlsx',
             },
         ],
     }
