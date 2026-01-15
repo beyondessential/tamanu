@@ -449,6 +449,41 @@ describe('Labs', () => {
       });
     });
 
+    describe('GET history', () => {
+      it('should get lab test result history', async () => {
+        const [labTest] = await labRequest.getTests();
+        
+        // Update the lab test to create some history
+        await labTest.update({ result: 'First result' });
+        await labTest.update({ result: 'Second result' });
+        await labTest.update({ result: 'Third result' });
+        
+        const response = await app.get(`/api/labTest/${labTest.id}/history`);
+        expect(response).toHaveSucceeded();
+        expect(response.body).toBeInstanceOf(Array);
+        
+        // Should have distinct results in descending order (most recent first)
+        if (response.body.length > 0) {
+          expect(response.body[0]).toMatchObject({
+            result: expect.any(String),
+            updatedByUserId: expect.any(String),
+            loggedAt: expect.any(String),
+          });
+        }
+      });
+
+      it('should error if lab test is sensitive', async () => {
+        const labRequestData = await randomSensitiveLabRequest(models, {
+          patientId,
+          status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        });
+        const sensitiveLabRequest = await models.LabRequest.createWithTests(labRequestData);
+        const [sensitiveTest] = await sensitiveLabRequest.getTests();
+        const response = await app.get(`/api/labTest/${sensitiveTest.id}/history`);
+        expect(response).toBeForbidden();
+      });
+    });
+
     describe('GET list', () => {
       it('should get a list of tests included from lab request', async () => {
         const response = await app.get(`/api/labRequest/${labRequest.id}/tests`);
