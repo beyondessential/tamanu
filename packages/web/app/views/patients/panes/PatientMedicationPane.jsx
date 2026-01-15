@@ -594,7 +594,7 @@ export const PatientMedicationPane = ({ patient }) => {
             />
           </TableTitleText>
           <ButtonGroup>
-            {pharmacyOrderEnabled && canRequestPharmacyOrder && (
+            {pharmacyOrderEnabled && canRequestPharmacyOrder && activeOngoingPrescriptions.length > 0 && (
               <ThemedTooltip
                 PopperProps={{
                   popperOptions: {
