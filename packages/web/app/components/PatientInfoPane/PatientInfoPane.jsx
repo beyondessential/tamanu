@@ -210,7 +210,11 @@ const ProgramRegistryDisplay = memo(({ patient, readonly }) => (
 const CauseOfDeathButton = memo(({ openModal }) => {
   return (
     <Button size="small" onClick={openModal} data-testid="cause-of-death-button">
-      Cause of death
+      <TranslatedText
+        stringId="death.causeOfDeath.label"
+        fallback="Cause of death"
+        data-testid="translatedtext-h80z"
+      />
     </Button>
   );
 });
