@@ -4,7 +4,7 @@ import { SettingsContext } from './SettingsContext';
 import { mapValues } from 'lodash';
 
 type DateInput = string | Date | null | undefined;
-type FormatFunction = (date: DateInput, skipTimezoneConversion?: boolean) => string | null;
+type FormatFunction = (date?: string | Date | null, skipTimezoneConversion?: boolean) => string | null;
 
 type DateTimeContextValue = Record<string, FormatFunction>;
 
