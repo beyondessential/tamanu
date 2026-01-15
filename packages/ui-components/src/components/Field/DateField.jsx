@@ -124,6 +124,14 @@ export const DateInput = ({
     if (event.key === 'Backspace') {
       clearValue();
     }
+    // Handle 'c' key to populate current date/time
+    if (event.key === 'c' || event.key === 'C') {
+      event.preventDefault();
+      const now = new Date();
+      const formattedValue = formatDate(now, format);
+      onValueChange({ target: { value: formattedValue, name } });
+      return;
+    }
     // if the user has started typing a date, turn off placeholder styling
     if (event.key.length === 1 && isPlaceholder) {
       setIsPlaceholder(false);
