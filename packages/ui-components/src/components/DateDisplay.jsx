@@ -1,16 +1,12 @@
 import React, { useState } from 'react';
-import { format, isDate, isSameDay } from 'date-fns';
+import { format, isSameDay } from 'date-fns';
 import { getTimezoneOffset } from 'date-fns-tz';
 import { Box, Typography } from '@material-ui/core';
 import styled from 'styled-components';
-import {
-  parseDate,
-  locale, 
-  isISO9075DateString
-} from '@tamanu/utils/dateTime';
+import { parseDate, locale, isISO9075DateString } from '@tamanu/utils/dateTime';
 import { TAMANU_COLORS } from '../constants';
 import { ThemedTooltip } from './Tooltip';
-import { useDateTimeFormat, useSettings } from '../contexts';
+import { useDateTimeFormat } from '../contexts';
 
 const Text = styled(Typography)`
   font-size: inherit;
@@ -61,7 +57,8 @@ const DiagnosticInfo = ({ date, timeZone, countryTimeZone }) => {
       <strong>Display timezone:</strong> {timeZone || 'N/A'} ({displayOffset}) <br />
       <strong>Device timezone:</strong> {Intl.DateTimeFormat().resolvedOptions().timeZone} (
       {deviceOffset}) <br />
-      <strong>Offset applied to date:</strong> {getFormattedOffsetDifference(date, timeZone, countryTimeZone)} <br />
+      <strong>Offset applied to date:</strong>{' '}
+      {getFormattedOffsetDifference(date, timeZone, countryTimeZone)} <br />
       <strong>Display date:</strong> {displayDate} <br />
       <strong>Locale:</strong> {locale}
     </div>
@@ -92,22 +89,13 @@ const DateTooltip = ({ date, children, timeOnlyTooltip, timeZone, countryTimeZon
   );
 
   const tooltipTitle = debug ? (
-    <DiagnosticInfo
-      date={date}
-      countryTimeZone={countryTimeZone}
-      timeZone={timeZone}
-    />
+    <DiagnosticInfo date={date} countryTimeZone={countryTimeZone} timeZone={timeZone} />
   ) : (
     dateTooltip
   );
 
   return (
-    <ThemedTooltip
-      open={tooltipOpen}
-      onClose={handleClose}
-      onOpen={handleOpen}
-      title={tooltipTitle}
-    >
+    <ThemedTooltip open={tooltipOpen} onClose={handleClose} onOpen={handleOpen} title={tooltipTitle}>
       {children}
     </ThemedTooltip>
   );
@@ -132,20 +120,18 @@ const useFormattedDate = (dateValue, { dateFormat, timeFormat, showWeekday }) =>
   const formatters = useDateTimeFormat();
   const parts = [];
 
-  const skipTimezoneConversion = isDate(dateValue) || isISO9075DateString(dateValue);
-
   if (showWeekday) {
-    parts.push(formatters.formatWeekdayShort(dateValue, skipTimezoneConversion));
+    parts.push(formatters.formatWeekdayShort(dateValue));
   }
 
   if (dateFormat) {
     const formatterName = DATE_FORMATS[dateFormat] || DATE_FORMATS.short;
-    parts.push(formatters[formatterName](dateValue, skipTimezoneConversion));
+    parts.push(formatters[formatterName](dateValue));
   }
 
   if (timeFormat) {
     const formatterName = TIME_FORMATS[timeFormat] || TIME_FORMATS.default;
-    parts.push(formatters[formatterName](dateValue, skipTimezoneConversion));
+    parts.push(formatters[formatterName](dateValue));
   }
 
   return parts.join(' ');
@@ -171,13 +157,10 @@ const useFormattedDate = (dateValue, { dateFormat, timeFormat, showWeekday }) =>
  * <TimeDisplay date="2024-03-15 09:30:00" format="slot" />
  */
 export const TimeDisplay = React.memo(
-  ({ date: dateValue, format, noTooltip = false, style, ...props }) => {
-    const { getSetting } = useSettings();
-    const countryTimeZone = getSetting('countryTimeZone');
-    const timeZone = getSetting('timeZone');
-    const displayTime = useFormattedDate(dateValue, {
-      timeFormat: format,
-    });
+  ({ date: dateValue, format: timeFormat, noTooltip = false, style, ...props }) => {
+    const { countryTimeZone, timeZone } = useDateTimeFormat();
+    const displayTime = useFormattedDate(dateValue, { timeFormat: timeFormat || 'default' });
+
     const content = (
       <span style={style} {...props}>
         {displayTime}
@@ -188,7 +171,7 @@ export const TimeDisplay = React.memo(
 
     return (
       <DateTooltip
-        date={dateValue} 
+        date={dateValue}
         timeOnlyTooltip
         timeZone={timeZone}
         countryTimeZone={countryTimeZone}
@@ -241,9 +224,7 @@ export const DateDisplay = React.memo(
     timeOnlyTooltip = false,
     ...props
   }) => {
-    const { getSetting } = useSettings();
-    const countryTimeZone = getSetting('countryTimeZone');
-    const timeZone = getSetting('timeZone');
+    const { countryTimeZone, timeZone } = useDateTimeFormat();
     const resolvedDateFormat = dateFormat === undefined ? 'short' : dateFormat;
     const resolvedTimeFormat = showTime ? timeFormat || 'default' : null;
 
@@ -283,7 +264,6 @@ export const DateDisplay = React.memo(
  * @example
  * // Default → "15/03/2024" on first line, "9:30 AM" below (muted)
  * <MultilineDatetimeDisplay date="2024-03-15 09:30:00" />
- *
  */
 export const MultilineDatetimeDisplay = React.memo(
   ({ date, format: dateFormat = 'short', isTimeSoft = true }) => {
@@ -309,10 +289,11 @@ export const MultilineDatetimeDisplay = React.memo(
  * // → "9:30am – 10:00am"
  * <TimeRangeDisplay range={{ start: "2024-03-15 09:30:00", end: "2024-03-15 10:00:00" }} />
  */
-// TODO: plz remove this daniel
-export const TimeRangeDisplay = ({ range: { start, end } }) => <>
-  <TimeDisplay date={start} format="compact" /> – <TimeDisplay date={end} format="compact" />;
-</>
+export const TimeRangeDisplay = ({ range: { start, end } }) => (
+  <>
+    <TimeDisplay date={start} format="compact" /> – <TimeDisplay date={end} format="compact" />
+  </>
+);
 
 /**
  * DateTimeRangeDisplay - Shows a date/time range, intelligently handling multi-day spans

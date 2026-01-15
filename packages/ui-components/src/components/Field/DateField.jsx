@@ -41,11 +41,6 @@ const CustomIconTextInput = styled(TextInput)`
   }
 `;
 
-// function fromRFC3339(rfc3339Date, format) {
-//   if (!rfc3339Date) return '';
-//   return formatDate(rfc3339Date, format);
-// }
-
 export const DateInput = ({
   type = 'date',
   value,
@@ -68,10 +63,14 @@ export const DateInput = ({
   const formatInitialValue = useCallback(
     val => {
       if (!val) return '';
-      if (type === 'datetime-local') {
-        return formatDateTimeLocal(val) || '';
+      switch (type) {
+        case 'datetime-local':
+          return formatDateTimeLocal(val) || '';
+        case 'date':
+          return formatDate(val, format);
+        default:
+          return formatDate(val, format);
       }
-      return formatDate(val, format);
     },
     [type, format, formatDateTimeLocal],
   );
