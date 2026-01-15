@@ -369,7 +369,11 @@ invoiceRoute.put(
       attributes: ['endDate'],
     });
 
-    if (!encounter?.endDate) {
+    if (!encounter) {
+      throw new NotFoundError('Encounter not found for this invoice.');
+    }
+
+    if (!encounter.endDate) {
       throw new InvalidOperationError(
         'Invoice cannot be finalised until the encounter has been discharged',
       );
