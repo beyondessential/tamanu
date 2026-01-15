@@ -49,8 +49,7 @@ function round(float, { rounding } = {}) {
 function getTooltip(float, config = {}, visibilityCriteria = {}) {
   const { unit = '' } = config;
   const { normalRange } = visibilityCriteria;
-  // Only validate against normal range if the value is a valid number
-  const isValidNumber = !isNaN(float) && float !== null && float !== undefined;
+  const isValidNumber = isFinite(float);
   if (normalRange && isValidNumber && float < normalRange.min) {
     return {
       tooltip: `Outside normal range\n <${normalRange.min}${unit}`,
