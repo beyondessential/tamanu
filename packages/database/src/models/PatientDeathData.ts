@@ -69,11 +69,11 @@ export class PatientDeathData extends Model {
         antecedentCause1TimeAfterOnset: DataTypes.INTEGER, // minutes
         antecedentCause2TimeAfterOnset: DataTypes.INTEGER, // minutes
         antecedentCause3TimeAfterOnset: DataTypes.INTEGER, // minutes
-        autopsyRequested: DataTypes.TEXT,
-        autopsyFindingsUsed: DataTypes.TEXT,
+        autopsyRequested: DataTypes.STRING, // yes/no/unknown/null
+        autopsyFindingsUsed: DataTypes.STRING, // yes/no/unknown/null
         mannerOfDeathDescription: DataTypes.TEXT,
-        pregnancyMoment: DataTypes.TEXT,
-        multiplePregnancy: DataTypes.TEXT,
+        pregnancyMoment: DataTypes.STRING,
+        multiplePregnancy: DataTypes.STRING, // yes/no/unknown/null
         motherConditionDescription: DataTypes.TEXT,
         isFinal: DataTypes.BOOLEAN,
         visibilityStatus: {
