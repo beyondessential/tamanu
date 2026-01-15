@@ -350,7 +350,10 @@ const DISPENSED_MEDICATION_COLUMNS = (
   {
     key: 'dispensedBy.displayName',
     title: (
-      <TranslatedText stringId="patient.medication.table.column.dispensed" fallback="Dispensed" />
+      <TranslatedText
+        stringId="patient.medication.table.column.dispensedBy"
+        fallback="Dispensed by"
+      />
     ),
     accessor: data => data?.dispensedBy?.displayName ?? '',
     sortable: true,
@@ -723,7 +726,7 @@ export const PatientMedicationPane = ({ patient }) => {
               <NoDataContainer>
                 <TranslatedText
                   stringId="patient.medication.dispensed.table.noData"
-                  fallback="No dispensed medications to display."
+                  fallback="This patient has no dispensed medications to display."
                 />
               </NoDataContainer>
             }
@@ -772,12 +775,14 @@ export const PatientMedicationPane = ({ patient }) => {
         onClose={handleCancelCancel}
         onConfirm={handleCancelConfirm}
       />
-      <EditMedicationDispenseModal
-        open={isEditModalOpen}
-        medicationDispense={selectedDispense}
-        onClose={handleEditCancel}
-        onConfirm={handleEditConfirm}
-      />
+      {isEditModalOpen && (
+        <EditMedicationDispenseModal
+          open
+          medicationDispense={selectedDispense}
+          onClose={handleEditCancel}
+          onConfirm={handleEditConfirm}
+        />
+      )}
       <DispensedMedicationDetailsModal
         open={isDetailModalOpen}
         onClose={handleCloseDetailModal}
