@@ -462,7 +462,7 @@ export const formatShortestExplicit = (
 /** "2024-01-15T14:30" - for HTML datetime-local input elements */
 export const formatDateTimeLocal = (
   date: string | Date | null | undefined,
-  countryTimeZone: string,
+  countryTimeZone?: string,
   timeZone?: string | null,
 ) => {
   if (date == null) return null;
