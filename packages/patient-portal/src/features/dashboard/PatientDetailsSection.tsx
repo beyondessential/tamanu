@@ -3,9 +3,11 @@ import { AccordionSection } from '../../components/AccordionSection';
 import { User } from 'lucide-react';
 import { useCurrentUser } from '@routes/PrivateRoute';
 import { LabelValueList } from '../../components/LabelValueList';
-import { formatDate, formatSex, formatDisplayId, formatName, formatVillage } from '@utils/format';
+import { formatSex, formatDisplayId, formatName, formatVillage } from '@utils/format';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 
 export const PatientDetailsSection = () => {
+  const { formatShort } = useDateTimeFormat();
   const patient = useCurrentUser();
 
   return (
@@ -13,7 +15,7 @@ export const PatientDetailsSection = () => {
       <LabelValueList>
         <LabelValueList.ListItem label="First Name" value={formatName(patient.firstName)} />
         <LabelValueList.ListItem label="Last Name" value={formatName(patient.lastName)} />
-        <LabelValueList.ListItem label="Date of Birth" value={formatDate(patient.dateOfBirth)} />
+        <LabelValueList.ListItem label="Date of Birth" value={formatShort(patient.dateOfBirth)} />
         <LabelValueList.ListItem label="Sex" value={formatSex(patient.sex)} />
         <LabelValueList.ListItem label="Village" value={formatVillage(patient.village)} />
         <LabelValueList.ListItem label="Patient ID" value={formatDisplayId(patient.displayId)} />
