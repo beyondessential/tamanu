@@ -50,7 +50,11 @@ function getValidationState(float, config = {}, visibilityCriteria = {}) {
   const { unit = '' } = config;
   const { normalRange } = visibilityCriteria;
 
-  if (float == null || float === '') return { severity: INFO };
+  if (!float && float !== 0) {
+    return {
+      severity: INFO,
+    };
+  }
 
   if (normalRange && float < normalRange.min) {
     return {
