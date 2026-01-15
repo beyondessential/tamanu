@@ -79,11 +79,6 @@ If the deceased was a foetus, stillborn, or infant, the age of the carrier.
 If the deceased was a foetus, stillborn, or infant, how many weeks pregnant their carrier was.
 {% enddocs %}
 
-{% docs patient_death_data__carrier_existing_condition_id %}
-If the deceased was a foetus, stillborn, or infant, any relevant existing condition
-([Reference Data](#!/source/source.tamanu.tamanu.reference_data)) of the carrier.
-{% enddocs %}
-
 {% docs patient_death_data__outside_health_facility %}
 Whether the death occurred outside of the facility.
 {% enddocs %}
@@ -137,4 +132,28 @@ The time in minutes after onset of an antecedent (3) cause of death, if applicab
 {% docs patient_death_data__antecedent_cause3_condition_id %}
 Reference to an antecedent (3) cause of death
 ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)), if applicable.
+{% enddocs %}
+
+{% docs patient_death_data__autopsy_requested %}
+Whether an autopsy was requested.
+{% enddocs %}
+
+{% docs patient_death_data__autopsy_findings_used %}
+If an autopsy was requested, whether the findings were used in the death certification.
+{% enddocs %}
+
+{% docs patient_death_data__manner_of_death_description %}
+A text description on how the external cause occurred and if applicable, notes of poisoning agent.
+{% enddocs %}
+
+{% docs patient_death_data__pregnancy_moment %}
+The status of the pregnancy of the deceased, if applicable.
+{% enddocs %}
+
+{% docs patient_death_data__multiple_pregnancy %}
+Whether the deceased infant happened in a multiple pregnancy.
+{% enddocs %}
+
+{% docs patient_death_data__mother_condition_description %}
+A text description stating the conditions of mother that affected the fetus/newborn, if the death was perinatal.
 {% enddocs %}
