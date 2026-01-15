@@ -561,6 +561,85 @@ labTest.get(
   }),
 );
 
+labTest.get(
+  '/:id/history',
+  asyncHandler(async (req, res) => {
+    const {
+      models,
+      params,
+      db,
+      query: { facilityId },
+    } = req;
+    const labTestId = params.id;
+
+    req.checkPermission('read', 'LabTest');
+
+    // First, check if this lab test exists and get its info
+    const labTest = await models.LabTest.findByPk(labTestId, {
+      include: [
+        { model: models.LabTestType, as: 'labTestType' },
+      ],
+    });
+
+    if (!labTest) {
+      throw new NotFoundError();
+    }
+
+    if (labTest.labTestType.isSensitive === true) {
+      req.checkPermission('read', 'SensitiveLabRequest');
+    }
+
+    await req.audit.access({
+      recordId: labTest.id,
+      frontEndContext: req.params,
+      model: models.LabTest,
+      facilityId,
+    });
+
+    // Query the changelog to get all historical changes for this lab test
+    const changes = await db.query(
+      `
+      SELECT 
+        c.id,
+        c.logged_at,
+        c.record_data->>'result' as result,
+        c.updated_by_user_id,
+        u.display_name as updated_by_display_name
+      FROM logs.changes c
+      LEFT JOIN users u ON u.id = c.updated_by_user_id
+      WHERE c.table_name = 'lab_tests'
+        AND c.record_id = :labTestId
+        AND c.record_data->>'result' IS NOT NULL
+        AND c.record_data->>'result' != ''
+      ORDER BY c.logged_at DESC
+      `,
+      {
+        replacements: { labTestId },
+        type: QueryTypes.SELECT,
+      },
+    );
+
+    // Filter out consecutive duplicate results (keep only when result value changes)
+    const distinctChanges = [];
+    let lastResult = null;
+    
+    for (const change of changes) {
+      if (change.result !== lastResult) {
+        distinctChanges.push({
+          id: change.id,
+          loggedAt: change.logged_at,
+          result: change.result,
+          updatedByUserId: change.updated_by_user_id,
+          updatedByDisplayName: change.updated_by_display_name,
+        });
+        lastResult = change.result;
+      }
+    }
+
+    res.send(distinctChanges);
+  }),
+);
+
 export const labTestType = express.Router();
 labTestType.get('/:id', simpleGetList('LabTestType', 'labTestCategoryId'));
 labTestType.get(
