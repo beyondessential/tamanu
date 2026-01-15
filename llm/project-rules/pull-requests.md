@@ -2,22 +2,44 @@
 
 See also: @llm/project-rules/git-workflow.md for complete git conventions including branch naming and commit format.
 
-## Conventional Commit Types
+## PR Title Format
 
-PR titles must use one of the allowed conventional commit types. The allowed types are:
+PR titles must follow this format:
 
-**Allowed**: `chore`, `ci`, `config`, `db`, `feat`, `fix`, `fmt`, `merge`, `refactor`, `release`, `repo`, `revert`, `style`, `test`, `tweak`, `perf`
+```
+type(scope): TICKET-123 description
+```
 
-**NOT allowed**: `docs`, `doc`, `deps` (use `chore` instead for documentation and dependency changes)
+Or if there's no ticket:
 
-Examples:
+```
+type(scope): no-issue description
+```
+
+**Required**: type, ticket number (or "no-issue"), description
+**Optional**: scope
+
+### Allowed Types
+
+`chore`, `ci`, `config`, `db`, `feat`, `fix`, `fmt`, `merge`, `refactor`, `release`, `repo`, `revert`, `style`, `test`, `tweak`, `perf`
+
+**NOT allowed in Tamanu**: `docs`, `doc`, `deps` (use `chore` instead)
+
+**Examples**:
 ```bash
-# Correct
-gh pr create --title "chore: update CLAUDE.md with new guidelines" --fill
+# Correct - with ticket
+gh pr create --title "feat(invoicing): SAV-1234 add sliding fee scale" --fill
+gh pr create --title "fix(labs): COOL-567 correct status transition" --fill
+
+# Correct - without ticket
+gh pr create --title "chore: no-issue update llm documentation" --fill
+gh pr create --title "refactor(auth): no-issue simplify token validation" --fill
+
+# Wrong - missing ticket/no-issue
 gh pr create --title "feat(invoicing): add sliding fee scale" --fill
 
-# Wrong - "docs" is not in the allow-list
-gh pr create --title "docs: update README" --fill
+# Wrong - docs not allowed
+gh pr create --title "docs: no-issue update README" --fill
 ```
 
 ## Always Use the PR Template

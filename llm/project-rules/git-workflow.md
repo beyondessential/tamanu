@@ -5,26 +5,50 @@ This file contains Tamanu-specific git conventions. For general git rules, also 
 - @llm/common-rules/create-branch.md - General branch creation
 - @llm/common-rules/rebase-branch.md - Rebasing guidelines
 
-## Conventional Commit Types (Tamanu-Specific)
+## Conventional Commit Format (Tamanu-Specific)
 
-Tamanu enforces specific conventional commit types in PR titles via CI checks.
+Tamanu enforces a specific format for PR titles via CI checks:
 
-**Allowed types**: `chore`, `ci`, `config`, `db`, `feat`, `fix`, `fmt`, `merge`, `refactor`, `release`, `repo`, `revert`, `style`, `test`, `tweak`, `perf`
+```
+type(scope): TICKET-123 description
+```
 
-**NOT allowed**: `docs`, `doc`, `deps` (use `chore` instead)
+Or if there's no ticket:
+
+```
+type(scope): no-issue description
+```
+
+**Required**: type, ticket number (or "no-issue"), description
+**Optional**: scope
+
+### Allowed Types
+
+`chore`, `ci`, `config`, `db`, `feat`, `fix`, `fmt`, `merge`, `refactor`, `release`, `repo`, `revert`, `style`, `test`, `tweak`, `perf`
+
+**NOT allowed in Tamanu**: `docs`, `doc`, `deps` (use `chore` instead for documentation and dependency changes)
 
 **Examples**:
 ```bash
-# Correct
-git commit -m "chore: update documentation"
-git commit -m "feat(invoicing): add sliding fee scale"
-git commit -m "fix(labs): correct status transition"
-git commit -m "db: add invoice_products.insurable column"
+# Correct - with ticket
+git commit -m "feat(invoicing): SAV-1234 add sliding fee scale"
+git commit -m "fix(labs): COOL-567 correct status transition"
+git commit -m "db: SAV-1234 add invoice_products.insurable column"
+
+# Correct - without ticket
+git commit -m "chore: no-issue update llm documentation"
+git commit -m "refactor(auth): no-issue simplify token validation"
 
 # Wrong - will fail CI on PR
 git commit -m "docs: update README"  # Use 'chore' instead
-git commit -m "deps: upgrade react"  # Use 'chore' instead
+git commit -m "feat(invoicing): add sliding fee scale"  # Missing ticket/no-issue
 ```
+
+### Scope Conventions
+
+- Use camelCase for scope (e.g., `invoicing`, `patientPortal`, `centralServer`)
+- Common scopes: package names (`mobile`, `central`, `web`) or feature areas
+- Check recent PRs to see established scopes for your team
 
 ## Branch Naming
 
