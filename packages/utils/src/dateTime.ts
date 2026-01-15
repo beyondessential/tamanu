@@ -466,10 +466,11 @@ export const formatDateTimeLocal = (
   timeZone?: string | null,
 ) => {
   if (date == null) return null;
-  const dateObj = timeZone ? fromZonedTime(date, countryTimeZone) : parseDate(date);
+  const tz = timeZone ?? countryTimeZone;
+  const dateObj = timeZone && countryTimeZone ? fromZonedTime(date, countryTimeZone) : parseDate(date);
   if (!dateObj) return null;
-  // TODO: should this format to timezone? Or just local
-  return formatInTimeZone(dateObj, timeZone ?? countryTimeZone, "yyyy-MM-dd'T'HH:mm");
+  if (!tz) return dateFnsFormat(dateObj, "yyyy-MM-dd'T'HH:mm");
+  return formatInTimeZone(dateObj, tz, "yyyy-MM-dd'T'HH:mm");
 };
 
 
