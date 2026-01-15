@@ -3,7 +3,16 @@ import { format, isSameDay } from 'date-fns';
 import { getTimezoneOffset } from 'date-fns-tz';
 import { Box, Typography } from '@material-ui/core';
 import styled from 'styled-components';
-import { parseDate, locale, isISO9075DateString } from '@tamanu/utils/dateTime';
+import {
+  parseDate,
+  locale,
+  isISO9075DateString,
+  formatShortest,
+  formatShort,
+  formatShortestExplicit,
+  formatShortExplicit,
+  formatTime,
+} from '@tamanu/utils/dateTime';
 import { TAMANU_COLORS } from '../constants';
 import { ThemedTooltip } from './Tooltip';
 import { useDateTimeFormat } from '../contexts';
@@ -156,6 +165,33 @@ const useFormattedDate = (dateValue, { dateFormat, timeFormat, showWeekday }) =>
  * // format="slot" → "9am" (hour only, for calendar slots)
  * <TimeDisplay date="2024-03-15 09:30:00" format="slot" />
  */
+export const getDateDisplay = (
+  dateValue,
+  { showDate = true, showTime = false, showExplicitDate = false, shortYear = false } = {},
+) => {
+  const dateObj = parseDate(dateValue);
+
+  const parts = [];
+  if (showDate) {
+    if (shortYear) {
+      parts.push(formatShortest(dateObj));
+    } else {
+      parts.push(formatShort(dateObj));
+    }
+  } else if (showExplicitDate) {
+    if (shortYear) {
+      parts.push(formatShortestExplicit(dateObj));
+    } else {
+      parts.push(formatShortExplicit(dateObj));
+    }
+  }
+  if (showTime) {
+    parts.push(formatTime(dateObj));
+  }
+
+  return parts.join(' ');
+};
+
 export const TimeDisplay = React.memo(
   ({ date: dateValue, format: timeFormat, noTooltip = false, style, ...props }) => {
     const { countryTimeZone, timeZone } = useDateTimeFormat();
