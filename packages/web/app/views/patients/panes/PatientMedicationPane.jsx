@@ -156,6 +156,7 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
       &:first-child {
         padding-left: ${props => (props.$noData ? '0' : '10px')};
       }
+      ${props => props.$compact && 'padding-top: 11px; padding-bottom: 11px;'}
       ${props => props.$noData && 'padding: 0;'}
     }
     .MuiTableRow-root:last-child .MuiTableCell-body {
@@ -594,47 +595,49 @@ export const PatientMedicationPane = ({ patient }) => {
             />
           </TableTitleText>
           <ButtonGroup>
-            {pharmacyOrderEnabled && canRequestPharmacyOrder && activeOngoingPrescriptions.length > 0 && (
-              <ThemedTooltip
-                PopperProps={{
-                  popperOptions: {
-                    positionFixed: true,
-                    modifiers: {
-                      flip: {
-                        enabled: false,
-                      },
-                      preventOverflow: {
-                        enabled: false,
+            {pharmacyOrderEnabled &&
+              canRequestPharmacyOrder &&
+              activeOngoingPrescriptions.length > 0 && (
+                <ThemedTooltip
+                  PopperProps={{
+                    popperOptions: {
+                      positionFixed: true,
+                      modifiers: {
+                        flip: {
+                          enabled: false,
+                        },
+                        preventOverflow: {
+                          enabled: false,
+                        },
                       },
                     },
-                  },
-                }}
-                title={
-                  !currentEncounter ? (
-                    <Box width="120px" fontWeight={400}>
-                      <TranslatedText
-                        stringId="patient.medication.ongoing.sendToPharmacy.tooltip"
-                        fallback="Send to pharmacy"
-                      />
-                    </Box>
-                  ) : (
-                    <Box width="150px" fontWeight={400}>
-                      <TranslatedText
-                        stringId="patient.medication.ongoing.sendToPharmacy.activeEncounter.tooltip"
-                        fallback="Please send to pharmacy via the patient active encounter"
-                      />
-                    </Box>
-                  )
-                }
-              >
-                <SendToPharmacyButton
-                  disabled={!!currentEncounter}
-                  onClick={handleSendToPharmacyClick}
+                  }}
+                  title={
+                    !currentEncounter ? (
+                      <Box width="120px" fontWeight={400}>
+                        <TranslatedText
+                          stringId="patient.medication.ongoing.sendToPharmacy.tooltip"
+                          fallback="Send to pharmacy"
+                        />
+                      </Box>
+                    ) : (
+                      <Box width="150px" fontWeight={400}>
+                        <TranslatedText
+                          stringId="patient.medication.ongoing.sendToPharmacy.activeEncounter.tooltip"
+                          fallback="Please send to pharmacy via the patient active encounter"
+                        />
+                      </Box>
+                    )
+                  }
                 >
-                  <SendToPharmacyIcon />
-                </SendToPharmacyButton>
-              </ThemedTooltip>
-            )}
+                  <SendToPharmacyButton
+                    disabled={!!currentEncounter}
+                    onClick={handleSendToPharmacyClick}
+                  >
+                    <SendToPharmacyIcon />
+                  </SendToPharmacyButton>
+                </ThemedTooltip>
+              )}
             {canCreateOngoingPrescription && (
               <StyledConditionalTooltip
                 visible={!!currentEncounter}
@@ -705,6 +708,7 @@ export const PatientMedicationPane = ({ patient }) => {
             </TableTitleText>
           </TableTitle>
           <StyledDataFetchingTable
+            $compact
             endpoint={`/patient/${patient.id}/dispensed-medications`}
             columns={DISPENSED_MEDICATION_COLUMNS(
               getTranslation,

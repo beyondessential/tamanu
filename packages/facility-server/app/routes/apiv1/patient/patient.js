@@ -781,6 +781,10 @@ patientRoute.get(
                     required: true,
                   },
                 },
+                {
+                  association: 'prescriber',
+                  attributes: ['id', 'displayName'],
+                },
               ],
             },
           ],
