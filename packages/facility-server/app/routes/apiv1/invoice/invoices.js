@@ -340,6 +340,7 @@ invoiceRoute.put(
 
 /**
  * Finalise invoice
+ * - An invoice cannot be finalised until the encounter has been discharged
  * - Only in progress invoices can be finalised
  * - Invoice items data will be frozen
  */
@@ -361,6 +362,17 @@ invoiceRoute.put(
 
     if (invoice.status !== INVOICE_STATUSES.IN_PROGRESS) {
       throw new InvalidOperationError('Only in progress invoices can be finalised');
+    }
+
+    // An encounter is considered closed if it has an end date
+    const encounter = await req.models.Encounter.findByPk(invoice.encounterId, {
+      attributes: ['endDate'],
+    });
+
+    if (!encounter?.endDate) {
+      throw new InvalidOperationError(
+        'Invoice cannot be finalised until the encounter has been discharged',
+      );
     }
 
     const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(invoice.encounterId);
