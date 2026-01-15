@@ -591,7 +591,7 @@ labTest.get(
       facilityId,
     });
 
-    const changes = await models.ChangeLog.findAll({
+    const changeLogs = await models.ChangeLog.findAll({
       where: {
         tableName: 'lab_tests',
         recordId: labTestId,
@@ -610,9 +610,14 @@ labTest.get(
     const distinctChanges = [];
     let lastResult = null;
 
-    for (const change of changes) {
-      const { id, loggedAt, updatedByUserId, updatedByUser, recordData } = change;
-      const { result } = recordData;
+    for (const changeLog of changeLogs) {
+      const {
+        id,
+        loggedAt,
+        updatedByUserId,
+        updatedByUser: { displayName },
+        recordData: { result },
+      } = changeLog;
 
       if (result !== lastResult) {
         distinctChanges.push({
@@ -620,7 +625,7 @@ labTest.get(
           loggedAt,
           result,
           updatedByUserId,
-          updatedByDisplayName: updatedByUser?.displayName,
+          updatedByDisplayName: displayName,
         });
         lastResult = result;
       }
