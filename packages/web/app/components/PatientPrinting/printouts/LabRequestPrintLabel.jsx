@@ -93,7 +93,7 @@ export const LabRequestPrintLabel = React.memo(({ data, printWidth }) => {
               x="0"
               y="45"
               label="DOB"
-              value={DateDisplay.stringFormat(patientDateOfBirth)}
+              value={<DateDisplay date={patientDateOfBirth} />}
               data-testid="item-krnm"
             />
             <Item x="0" y="60" label="Test ID" value={testId} data-testid="item-vcco" />
@@ -101,7 +101,7 @@ export const LabRequestPrintLabel = React.memo(({ data, printWidth }) => {
               x="0"
               y="75"
               label="Date collected"
-              value={DateDisplay.stringFormat(date)}
+              value={<DateDisplay date={date} />}
               data-testid="item-nxfc"
             />
             <Item x="0" y="90" label="Lab category" value={labCategory} data-testid="item-l6d8" />

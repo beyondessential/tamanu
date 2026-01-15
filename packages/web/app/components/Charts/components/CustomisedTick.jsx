@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { formatShortest, formatTime } from '@tamanu/utils/dateTime';
 import { Colors } from '../../../constants';
+import { DateDisplay, TimeDisplay } from '@tamanu/ui-components';
 
 const TextFontSize = 11;
 const xAxisTickTimeY = 23;
@@ -20,7 +20,7 @@ export const CustomisedXAxisTick = (props) => {
   return (
     <g transform={`translate(${x},${y})`}>
       <Text x={0} y={9} textAnchor="middle" fill={Colors.darkText} data-testid="text-ch4x">
-        {formatShortest(date)}
+        <DateDisplay date={date} format="shortest" />
       </Text>
       <Text
         x={0}
@@ -29,7 +29,7 @@ export const CustomisedXAxisTick = (props) => {
         fill={Colors.midText}
         data-testid="text-cydx"
       >
-        {formatTime(date)}
+        <TimeDisplay date={date} noTooltip />
       </Text>
     </g>
   );

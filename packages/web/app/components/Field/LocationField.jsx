@@ -10,7 +10,6 @@ import { BodyText } from '../Typography';
 import { useAuth } from '../../contexts/Auth';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { MultiAutocompleteInput } from './MultiAutocompleteField';
-import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 
 const useLocationSuggestion = locationId => {
   const api = useApi();
@@ -43,7 +42,6 @@ export const LocationInput = React.memo(
     showAllLocations = false,
     locationGroupBaseQueryParameters = {},
     facilityId: facilityIdOverride,
-    wrapInNoteModalActionBlocker = false,
   }) => {
     const { facilityId: currentFacilityId } = useAuth();
     const facilityId = (facilityIdOverride ?? currentFacilityId) || '';
@@ -123,10 +121,9 @@ export const LocationInput = React.memo(
     const locationGroupSelectIsDisabled = !existingLocationHasSameFacility;
 
     const LocationAutocompleteInput = isMulti ? MultiAutocompleteInput : AutocompleteInput;
-    const Wrapper = wrapInNoteModalActionBlocker ? NoteModalActionBlocker : React.Fragment;
 
     return (
-      <Wrapper>
+      <>
         {/* Show required asterisk but the field is not actually required */}
         <AutocompleteInput
           label={locationGroupLabel}
@@ -159,7 +156,7 @@ export const LocationInput = React.memo(
           size={size}
           data-testid={`${dataTestId}-location`}
         />
-      </Wrapper>
+      </>
     );
   },
 );

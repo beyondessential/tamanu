@@ -3,7 +3,7 @@ import Brightness2Icon from '@material-ui/icons/Brightness2';
 import React from 'react';
 import styled from 'styled-components';
 
-import { getCurrentDateTimeString, formatShortest, formatTime } from '@tamanu/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { useLocationBookingsQuery } from '../../api/queries';
 import { Colors } from '../../constants';
@@ -14,6 +14,7 @@ import { useTableSorting } from '../Table/useTableSorting';
 import { ThemedTooltip } from '../Tooltip';
 import { TranslatedText } from '../Translation';
 import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
+import { DateDisplay, TimeDisplay } from '@tamanu/ui-components';
 
 const StyledModal = styled(Modal)`
   .MuiDialog-paper {
@@ -121,24 +122,19 @@ const OvernightIcon = styled.span`
   color: ${Colors.primary};
 `;
 
-const getDate = ({ startTime, endTime }) => {
-  const formatShortestStartTime = formatShortest(startTime);
-  const formatShortestEndTime = formatShortest(endTime);
-  const formatTimeStartTime = formatTime(startTime).replace(' ', '');
-  const formatTimeEndTime = formatTime(endTime).replace(' ', '');
-
-  const isOvernight = formatShortestStartTime !== formatShortestEndTime;
+const DateCell = ({ startTime, endTime }) => {
+  const isOvernight = startTime !== endTime;
 
   return (
     <ThemedTooltip
       title={
         <Box style={{ textTransform: 'lowercase', fontWeight: 400 }} data-testid="box-q74p">
           {isOvernight ? (
-            `${formatShortestStartTime} - ${formatShortestEndTime}`
+            <><DateDisplay date={startTime} format="shortest" /> - <DateDisplay date={endTime} format="shortest" /></>
           ) : (
             <div>
-              <div>{formatShortestStartTime}</div>
-              <div>{`${formatTimeStartTime} - ${formatTimeEndTime}`}</div>
+              <div><DateDisplay date={startTime} format="shortest" /></div>
+              <div><TimeDisplay date={startTime} /> - <TimeDisplay date={endTime} /></div>
             </div>
           )}
         </Box>
@@ -147,8 +143,8 @@ const getDate = ({ startTime, endTime }) => {
     >
       <DateText data-testid="datetext-z14b">
         {!isOvernight
-          ? `${formatShortestStartTime} ${formatTimeStartTime} - ${formatTimeEndTime}`
-          : `${formatShortestStartTime} - ${formatShortestEndTime}`}
+          ? <><DateDisplay date={startTime} format="shortest" /> <TimeDisplay date={startTime} /> - <TimeDisplay date={endTime} /></>
+          : <><DateDisplay date={startTime} format="shortest" /> - <DateDisplay date={endTime} format="shortest" /></>}
         {isOvernight && (
           <OvernightIcon data-testid="overnighticon-2qtt">
             <Brightness2Icon fontSize="inherit" data-testid="brightness2icon-gxv2" />
@@ -175,7 +171,7 @@ const COLUMNS = [
         data-testid="translatedtext-okjz"
       />
     ),
-    accessor: getDate,
+    accessor: DateCell,
   },
   {
     key: 'bookingArea',

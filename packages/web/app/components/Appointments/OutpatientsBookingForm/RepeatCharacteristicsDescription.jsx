@@ -1,5 +1,4 @@
 import React from 'react';
-import { format } from 'date-fns';
 
 import {
   REPEAT_FREQUENCY,
@@ -10,6 +9,7 @@ import {
   TranslatedEnum,
   TranslatedText,
   useTranslation,
+  useDateTimeFormat,
 } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 
@@ -77,7 +77,8 @@ const WeeklyFrequencyText = ({ weekday, interval }) =>
   );
 
 const FrequencyText = ({ frequency, interval, startTimeDate }) => {
-  const weekday = format(startTimeDate, 'EEEE');
+  const { formatWeekdayLong } = useDateTimeFormat();
+  const weekday = formatWeekdayLong(startTimeDate);
   const ordinalText = useOrdinalText(startTimeDate, frequency);
   return frequency === REPEAT_FREQUENCY.WEEKLY ? (
     <WeeklyFrequencyText

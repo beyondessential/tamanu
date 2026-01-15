@@ -2,10 +2,9 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@mui/material';
 
-import { Button, TranslatedText, TranslatedReferenceData, TranslatedEnum } from '@tamanu/ui-components';
+import { Button, TranslatedText, TranslatedReferenceData, TranslatedEnum, DateDisplay } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { PATIENT_STATUS_COLORS } from '../../../constants';
-import { formatShortest } from '../../../components/DateDisplay';
 import { DataFetchingTable } from '../../../components/Table';
 
 import { usePatientCurrentEncounterQuery } from '../../../api/queries';
@@ -221,7 +220,7 @@ const ONGOING_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
     key: 'date',
     title: <TranslatedText stringId="patient.medication.table.column.date" fallback="Date" />,
     accessor: data => (
-      <CellText discontinued={data?.discontinued}>{`${formatShortest(data.date)}`}</CellText>
+      <CellText discontinued={data?.discontinued}><DateDisplay date={data.date} format="shortest" /></CellText>
     ),
     sortable: true,
   },
@@ -455,7 +454,7 @@ export const PatientMedicationPane = ({ patient }) => {
                   fallback="Discharged"
                 />
                 {': '}
-                {formatShortest(lastInpatientEncounter.endDate)}
+                <DateDisplay date={lastInpatientEncounter.endDate} format="shortest" />
               </DarkText>
             </Box>
           )}

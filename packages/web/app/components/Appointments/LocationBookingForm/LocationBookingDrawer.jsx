@@ -4,8 +4,8 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 import { sub } from 'date-fns';
 
-import { formatShort, toDateTimeString } from '@tamanu/utils/dateTime';
-import { Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { Form, FormGrid, FormSubmitCancelRow, useDateTimeFormat } from '@tamanu/ui-components';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useCheckOnLeaveMutation, useLocationBookingMutation } from '../../../api/mutations';
@@ -127,6 +127,7 @@ const ErrorMessage = ({ isEdit = false, error }) => {
 export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
   const { updateSelectedCell, viewType } = useLocationBookingsContext();
+  const { formatShortest } = useDateTimeFormat();
   const isEdit = !!initialValues.id;
 
   const { mutateAsync: checkOnLeave } = useCheckOnLeaveMutation();
@@ -158,7 +159,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     formatter: encounter => ({
       value: encounter.id,
       // should display encounter current if the encounter is active
-      label: `${formatShort(encounter.startDate)}${
+      label: `${formatShortest(initialValues?.encounter?.startDate)}${
         encounter.endDate
           ? ''
           : ' - ' + getTranslation('general.date.current', 'Current').toLowerCase()

@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import { storiesOf } from '@storybook/react';
-import { addHours, format } from 'date-fns';
+import { addHours } from 'date-fns';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { VitalsTable } from '../app/components/VitalsTable';
 import { MockedApi } from './utils/mockedApi';
 import { EncounterContext } from '../app/contexts/Encounter';
@@ -13,7 +14,7 @@ const Container = styled.div`
   padding: 2rem;
 `;
 
-const getDate = amount => format(addHours(new Date(), amount), 'yyyy-MM-dd HH:mm:ss');
+const getDate = amount => toDateTimeString(addHours(new Date(), amount));
 const dateOne = getDate(-1);
 const dateTwo = getDate(-2);
 const dateThree = getDate(-4);

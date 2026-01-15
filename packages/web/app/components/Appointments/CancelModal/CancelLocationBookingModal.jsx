@@ -1,13 +1,13 @@
 import React from 'react';
 import { toast } from 'react-toastify';
+import { isSameDay, parseISO } from 'date-fns';
 
 import { APPOINTMENT_STATUSES, OTHER_REFERENCE_TYPES } from '@tamanu/constants';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { useLocationBookingMutation } from '../../../api/mutations';
-import { formatDateTimeRange } from '../../../utils/dateTime';
+import { useLocationBookingMutation } from '../../../api/mutations';  
 import { PatientNameDisplay } from '../../PatientNameDisplay';
-import { TranslatedReferenceData, TranslatedText, BaseModal } from '@tamanu/ui-components';
+import { TranslatedReferenceData, TranslatedText, BaseModal, DateDisplay, TimeDisplay } from '@tamanu/ui-components';
 import {
   AppointmentDetailsColumn,
   AppointmentDetailsColumnLeft,
@@ -21,6 +21,7 @@ import {
 const AppointmentDetailsDisplay = ({ appointment }) => {
   const { locationGroup, location, patient, bookingType, clinician, startTime, endTime } =
     appointment;
+  const doesSpanMultipleDays = !isSameDay(parseISO(startTime), parseISO(endTime));
   return (
     <AppointmentDetailsContainer data-testid="appointmentdetailscontainer-1t7p">
       <AppointmentDetailsColumnLeft data-testid="appointmentdetailscolumnleft-9zxe">
@@ -69,7 +70,10 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
               data-testid="translatedtext-cis2"
             />
           }
-          value={formatDateTimeRange(startTime, endTime)}
+          value={doesSpanMultipleDays
+            ? <><DateDisplay date={startTime} showTime />{' '}–{' '}<DateDisplay date={endTime} showTime /></>
+            : <><DateDisplay date={startTime} showTime />{' '}–{' '}<TimeDisplay date={endTime} /></>
+          }
           data-testid="detaildisplay-nwk8"
         />
       </AppointmentDetailsColumnLeft>

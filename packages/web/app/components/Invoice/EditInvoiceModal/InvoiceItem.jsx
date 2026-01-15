@@ -12,7 +12,7 @@ import {
   getInvoiceItemDiscountPriceDisplay,
   getInvoiceItemPriceDisplay,
 } from '@tamanu/shared/utils/invoice';
-import { getDateDisplay } from '../../DateDisplay';
+import { DateDisplay } from '../../DateDisplay';
 import { useTranslation } from '../../../contexts/Translation';
 import { INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
 import { PriceField } from '../../Field/PriceField';
@@ -307,7 +307,7 @@ export const InvoiceItemRow = ({
             </NoteModalActionBlocker>
           ) : (
             <ViewOnlyCell>
-              {item?.orderDate ? getDateDisplay(item?.orderDate, 'dd/MM/yyyy') : ''}
+              {item?.orderDate ? <DateDisplay date={item?.orderDate} /> : ''}
             </ViewOnlyCell>
           )}
         </StyledItemCell>

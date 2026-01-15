@@ -1,12 +1,13 @@
 import React, { useLayoutEffect, useRef, useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
-import { format, isSameDay } from 'date-fns';
+import { isSameDay } from 'date-fns';
 import {
   getDateFromTimeString,
   findAdministrationTimeSlotFromIdealTime,
 } from '@tamanu/shared/utils/medication';
 import { toDateString } from '@tamanu/utils/dateTime';
+import { TimeDisplay } from '@tamanu/ui-components';
 
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../..';
@@ -151,10 +152,6 @@ const LoadingContainer = styled.div`
   height: 42px;
 `;
 
-const formatTime = time => {
-  return format(time, 'ha').toLowerCase();
-};
-
 const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate }) => {
   const startDate = getDateFromTimeString(startTime).getTime();
   const endDate = getDateFromTimeString(endTime).getTime();
@@ -165,7 +162,17 @@ const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate }) => {
     <TimeSlotHeaderContainer isCurrentTimeSlot={isCurrentTimeSlot}>
       <TimeSlotText>
         <TimeSlotLabel>{periodLabel || ''}</TimeSlotLabel>
-        <div>{`${formatTime(startDate)} - ${formatTime(endDate)}`}</div>
+        <div>
+          <TimeDisplay
+            date={startDate}
+            style={{ textTransform: 'lowercase' }}
+          />{' '}
+          -{' '}
+          <TimeDisplay
+            date={endDate}
+            style={{ textTransform: 'lowercase' }}
+          />
+        </div>
       </TimeSlotText>
     </TimeSlotHeaderContainer>
   );
