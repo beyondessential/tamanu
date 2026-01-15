@@ -4,12 +4,10 @@ import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import { Box } from '@material-ui/core';
 import { addDays, isAfter, isBefore, parse } from 'date-fns';
-import { toZonedTime } from 'date-fns-tz';
-import { format as formatDate, toDateString, toDateTimeString, formatDateTimeLocal } from '@tamanu/utils/dateTime';
+import { format as formatDate, toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { TextInput } from './TextField';
 import { TAMANU_COLORS } from '../../constants';
 import { DefaultIconButton } from '../Button';
-import { useSettings } from '../../contexts';
 
 // This component is pretty tricky! It has to keep track of two layers of state:
 //
@@ -42,11 +40,8 @@ const CustomIconTextInput = styled(TextInput)`
   }
 `;
 
-function fromRFC3339(rfc3339Date, format, countryTimeZone, timeZone) {
+function fromRFC3339(rfc3339Date, format) {
   if (!rfc3339Date) return '';
-  if (countryTimeZone && timeZone && format.includes('HH')) {
-    return formatDateTimeLocal(rfc3339Date, countryTimeZone, timeZone) ?? '';
-  }
   return formatDate(rfc3339Date, format);
 }
 
@@ -67,13 +62,7 @@ export const DateInput = ({
 }) => {
   delete props.placeholder;
 
-  const {getSetting} = useSettings();
-
-  //TODO: look over
-  const countryTimeZone = getSetting('countryTimeZone');
-  const timeZone = getSetting('timeZone');
-
-  const [currentText, setCurrentText] = useState(fromRFC3339(value, format, countryTimeZone ?? undefined, timeZone ?? undefined));
+  const [currentText, setCurrentText] = useState(fromRFC3339(value, format));
   const [isPlaceholder, setIsPlaceholder] = useState(!value);
 
   // Weird thing alert:
@@ -107,12 +96,7 @@ export const DateInput = ({
         clearValue();
         return;
       }
-      let date = parse(formattedValue, format, new Date());
-
-      // If we have timezone settings and this is a datetime input, convert from display timezone to country timezone
-      if (countryTimeZone && timeZone && type === 'datetime-local') {
-        date = toZonedTime(date, timeZone);
-      }
+      const date = parse(formattedValue, format, new Date());
 
       let outputValue;
       if (saveDateAsString) {
@@ -133,7 +117,7 @@ export const DateInput = ({
 
       onChange({ target: { value: outputValue, name } });
     },
-    [onChange, format, name, saveDateAsString, type, clearValue, countryTimeZone, timeZone],
+    [onChange, format, name, saveDateAsString, type, clearValue],
   );
 
   const onKeyDown = event => {
@@ -181,7 +165,7 @@ export const DateInput = ({
   };
 
   useEffect(() => {
-    const formattedValue = fromRFC3339(value, format, countryTimeZone, timeZone);
+    const formattedValue = fromRFC3339(value, format);
     if (value && formattedValue) {
       setCurrentText(formattedValue);
       setIsPlaceholder(false);
@@ -190,7 +174,7 @@ export const DateInput = ({
       setCurrentText('');
       setIsPlaceholder(true);
     };
-  }, [value, format, countryTimeZone, timeZone]);
+  }, [value, format]);
 
   // We create two copies of the DateField component, so that we can have a temporary one visible
   // during remount (for more on that, see the remounting description at the top of this component)
