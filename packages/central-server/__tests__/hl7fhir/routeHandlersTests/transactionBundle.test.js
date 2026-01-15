@@ -346,5 +346,104 @@ describe(`FHIR API - Transaction Bundle`, () => {
       await labRequest.reload();
       expect(labRequest.status).toBe(LAB_REQUEST_STATUSES.RESULTS_PENDING); // the lab request should not be updated because the diagnostic report is invalid
     });
+
+    it('will throw an error if the method is not POST', async () => {
+      // act
+      const body = {
+        resourceType: 'Bundle',
+        type: 'transaction',
+        entry: [
+          {
+            resource: {
+              resourceType: 'ImagingStudy',
+              status: 'final',
+              identifier: [
+                {
+                  system: 'http://data-dictionary.tamanu-fiji.org/ris-accession-number.html',
+                  value: 'ACCESSION',
+                },
+              ],
+              basedOn: [
+                {
+                  type: 'ServiceRequest',
+                  reference: `ServiceRequest/1234`,
+                },
+              ],
+              note: [{ text: 'This is an okay note' }, { text: 'This is another note' }],
+            },
+            request: {
+              method: 'PUT',
+              url: `/api/integration/fhir/mat/ImagingStudy`,
+            },
+          },
+        ],
+      };
+      const response = await app.post(PATH).send(body);
+
+      // assert
+      expect(response).not.toHaveSucceeded();
+      expect(response.status).toBe(400); // the request should be rejected because the method is not POST
+    });
+
+    it('will throw an error if the resource type is not found', async () => {
+      // act
+      const body = {
+        resourceType: 'Bundle',
+        type: 'transaction',
+        entry: [
+          {
+            resource: {
+              resourceType: 'Banana',
+            },
+            request: {
+              method: 'POST',
+              url: `/api/integration/fhir/mat/Banana`,
+            },
+          },
+        ],
+      };
+      const response = await app.post(PATH).send(body);
+
+      // assert
+      expect(response).not.toHaveSucceeded();
+      expect(response.status).toBe(400); // the request should be rejected because the method is not POST
+    });
+
+    it('will throw an error if the resource type is not creatable', async () => {
+      // act
+      const body = {
+        resourceType: 'Bundle',
+        type: 'transaction',
+        entry: [
+          {
+            resource: {
+              resourceType: 'Patient',
+            },
+            request: {
+              method: 'POST',
+              url: `/api/integration/fhir/mat/Patient`,
+            },
+          },
+        ],
+      };
+      const response = await app.post(PATH).send(body);
+
+      // assert
+      expect(response).not.toHaveSucceeded();
+      expect(response.status).toBe(400); // the request should be rejected because the method is not POST
+    });
+
+    it('will throw an error if not a transaction bundle', async () => {
+      // act
+      const body = {
+        resourceType: 'Bundle',
+        type: 'message',
+      };
+      const response = await app.post(PATH).send(body);
+
+      // assert
+      expect(response).not.toHaveSucceeded();
+      expect(response.status).toBe(400); // the request should be rejected because the method is not POST
+    });
   });
 });
