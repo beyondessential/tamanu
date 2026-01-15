@@ -6,6 +6,7 @@ import { FHIR_BUNDLE_TYPES } from '@tamanu/constants';
 export class FhirBundle extends FhirBaseType {
   static SCHEMA() {
     return yup.object({
+      resourceType: yup.string().oneOf(['Bundle']).required(),
       type: yup.string().oneOf(Object.values(FHIR_BUNDLE_TYPES)).required(),
     });
   }
@@ -14,6 +15,7 @@ export class FhirBundle extends FhirBaseType {
 export class FhirTransactionBundle extends FhirBundle {
   static SCHEMA() {
     return yup.object({
+      resourceType: yup.string().oneOf(['Bundle']).required(),
       type: yup.string().oneOf([FHIR_BUNDLE_TYPES.TRANSACTION]).required(),
       entry: yup
         .array()
@@ -34,9 +36,24 @@ export class FhirTransactionBundle extends FhirBundle {
   }
 }
 
+export class FhirTransactionResponseBundle extends FhirBundle {
+  static SCHEMA() {
+    return yup.object({
+      resourceType: yup.string().oneOf(['Bundle']).required(),
+      type: yup.string().oneOf([FHIR_BUNDLE_TYPES.TRANSACTION_RESPONSE]).required(),
+      response: yup
+        .object({
+          status: yup.string().required(),
+        })
+        .required(),
+    });
+  }
+}
+
 export class FhirSearchSetBundle extends FhirBundle {
   static SCHEMA() {
     return yup.object({
+      resourceType: yup.string().oneOf(['Bundle']).required(),
       type: yup.string().oneOf([FHIR_BUNDLE_TYPES.SEARCHSET]).required(),
       total: yup.number(),
       timestamp: yup.string().required(),

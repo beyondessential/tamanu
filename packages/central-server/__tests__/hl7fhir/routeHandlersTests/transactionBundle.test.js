@@ -201,7 +201,10 @@ describe(`FHIR API - Transaction Bundle`, () => {
 
       // assert
       expect(response).toHaveSucceeded();
-      expect(response.status).toBe(201);
+      expect(response.status).toBe(200);
+      expect(response.body.resourceType).toBe('Bundle');
+      expect(response.body.type).toBe('transaction-response');
+      expect(response.body.response.status).toBe('201');
       const ires = await ImagingResult.findOne({
         where: { externalCode: 'ACCESSION' },
       });

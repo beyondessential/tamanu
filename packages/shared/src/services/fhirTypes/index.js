@@ -1,6 +1,11 @@
 export { FhirAddress } from './address';
 export { FhirAnnotation } from './annotation';
-export { FhirBundle, FhirTransactionBundle, FhirSearchSetBundle } from './bundle';
+export {
+  FhirBundle,
+  FhirTransactionBundle,
+  FhirTransactionResponseBundle,
+  FhirSearchSetBundle,
+} from './bundle';
 export { FhirCoding } from './coding';
 export { FhirCodeableConcept } from './codeableConcept';
 export { FhirContactPoint } from './contactPoint';

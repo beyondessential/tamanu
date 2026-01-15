@@ -1,6 +1,9 @@
 import asyncHandler from 'express-async-handler';
-import { FHIR_INTERACTIONS } from '@tamanu/constants';
-import { FhirTransactionBundle } from '@tamanu/shared/services/fhirTypes';
+import { FHIR_BUNDLE_TYPES, FHIR_INTERACTIONS } from '@tamanu/constants';
+import {
+  FhirTransactionBundle,
+  FhirTransactionResponseBundle,
+} from '@tamanu/shared/services/fhirTypes';
 import { OperationOutcome } from '@tamanu/shared/utils/fhir';
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
 import { createResource } from '../create';
@@ -36,7 +39,13 @@ export const transactionBundleHandler = () => {
       return res.status(400).send(new OperationOutcome([err]));
     }
 
-    // TODO: generate ID here, and return it (if resource can be materialised)
-    res.status(201).send();
+    const responseBundle = new FhirTransactionResponseBundle({
+      resourceType: 'Bundle',
+      type: FHIR_BUNDLE_TYPES.TRANSACTION_RESPONSE,
+      response: {
+        status: '201',
+      },
+    });
+    res.status(200).send(responseBundle);
   });
 };
