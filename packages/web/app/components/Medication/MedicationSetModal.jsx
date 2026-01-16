@@ -231,9 +231,11 @@ const StyledIconButton = styled(IconButton)`
 
 export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, onReloadTable }) => {
   const { encounter } = useEncounter();
-  const { ability, currentUser } = useAuth();
+  const { ability, currentUser, facilityId } = useAuth();
   const { data: allergies } = usePatientAllergiesQuery(encounter?.patientId);
-  const { data, isLoading: medicationSetsLoading } = useSuggestionsQuery('medicationSet');
+  const { data, isLoading: medicationSetsLoading } = useSuggestionsQuery('medicationSet', {
+    queryParams: { facilityId },
+  });
   const medicationSets = data?.sort((a, b) => a.name.localeCompare(b.name));
   const [isDirty, setIsDirty] = useState(false);
 

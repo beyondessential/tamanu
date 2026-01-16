@@ -86,6 +86,9 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
 
   const { data: medicationSets, isLoading: medicationSetsLoading } = useSuggestionsQuery(
     'medicationSet',
+    {
+      queryParams: { facilityId },
+    },
   );
 
   const handleContinue = prescriptionType => {

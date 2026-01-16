@@ -32,6 +32,7 @@ const NoDataContainer = styled.div`
 
 const StyledSearchTableWithPermissionCheck = styled(SearchTableWithPermissionCheck)`
   .MuiTableCell-body {
+    height: 57px;
     padding: ${props => (props.$noData ? '20px 25px' : '10px 15px')};
     &:last-child {
       padding-right: 20px;
