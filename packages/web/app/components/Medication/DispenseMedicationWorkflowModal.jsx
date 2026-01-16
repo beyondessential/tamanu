@@ -404,6 +404,7 @@ export const DispenseMedicationWorkflowModal = memo(
 
       await api.post('medication/dispense', {
         dispensedByUserId,
+        facilityId,
         items: selectedItems.map(({ id, quantity, instructions }) => ({
           pharmacyOrderPrescriptionId: id,
           quantity,

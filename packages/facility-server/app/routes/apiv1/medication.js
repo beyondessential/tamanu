@@ -1882,6 +1882,17 @@ medication.get(
               ]
             : []),
           { isCompleted: false },
+          Sequelize.where(
+            Sequelize.col('prescription.medication.referenceDrug.id'),
+            {
+              [Op.notIn]: Sequelize.literal(`(
+                SELECT reference_drug_id
+                FROM reference_drug_facilities
+                WHERE facility_id = :facilityId
+                AND stock_status = :stockStatus
+              )`),
+            },
+          ),
         ],
       },
       order: buildOrder(),
@@ -1889,6 +1900,10 @@ medication.get(
       offset: page * rowsPerPage,
       distinct: true,
       subQuery: false,
+      replacements: {
+        facilityId,
+        stockStatus: DRUG_STOCK_STATUSES.UNAVAILABLE,
+      },
     });
 
     const { count, rows: data } = databaseResponse;
@@ -2276,15 +2291,34 @@ medication.get(
         },
       ],
       where: {
-        ...{ isCompleted: false },
-        ...(!canViewSensitiveMedications
-          ? {
-              '$prescription.medication.referenceDrug.is_sensitive$': false,
-            }
-          : {}),
+        [Op.and]: [
+          { isCompleted: false },
+          ...(!canViewSensitiveMedications
+            ? [
+                {
+                  '$prescription.medication.referenceDrug.is_sensitive$': false,
+                },
+              ]
+            : []),
+          Sequelize.where(
+            Sequelize.col('prescription.medication.referenceDrug.id'),
+            {
+              [Op.notIn]: Sequelize.literal(`(
+                SELECT reference_drug_id
+                FROM reference_drug_facilities
+                WHERE facility_id = :facilityId
+                AND stock_status = :stockStatus
+              )`),
+            },
+          ),
+        ],
       },
       order: [[{ model: models.PharmacyOrder, as: 'pharmacyOrder' }, 'date', 'DESC']],
       subQuery: false,
+      replacements: {
+        facilityId,
+        stockStatus: DRUG_STOCK_STATUSES.UNAVAILABLE,
+      },
     });
 
     res.send({
@@ -2309,6 +2343,7 @@ const dispenseItemSchema = z.object({
 const dispenseInputSchema = z
   .object({
     dispensedByUserId: z.string(),
+    facilityId: z.string(),
     items: z.array(dispenseItemSchema).min(1).max(100),
   })
   .strip();
@@ -2320,7 +2355,7 @@ medication.post(
 
     req.checkPermission('create', 'MedicationDispense');
 
-    const { dispensedByUserId, items } = await dispenseInputSchema.parseAsync(req.body);
+    const { dispensedByUserId, facilityId, items } = await dispenseInputSchema.parseAsync(req.body);
 
     const { User, MedicationDispense, PharmacyOrderPrescription } = models;
 
@@ -2402,6 +2437,40 @@ medication.post(
       );
       if (!isSamePatient) {
         throw new InvalidOperationError(`All prescriptions must be part of the same patient`);
+      }
+
+      const medicationIds = prescriptionRecords.map(r => r.prescription.medicationId);
+
+      const unavailableMedications = await models.ReferenceDrugFacility.findAll({
+        attributes: ['referenceDrugId'],
+        where: {
+          facilityId,
+          stockStatus: DRUG_STOCK_STATUSES.UNAVAILABLE,
+        },
+        include: {
+          model: models.ReferenceDrug,
+          as: 'referenceDrug',
+          attributes: ['id'],
+          required: true,
+          where: {
+            referenceDataId: { [Op.in]: medicationIds },
+          },
+          include: {
+            model: models.ReferenceData,
+            as: 'referenceData',
+            attributes: ['id', 'name'],
+            required: true,
+          },
+        },
+      });
+
+      if (unavailableMedications.length > 0) {
+        const unavailableNames = unavailableMedications
+          .map(um => um.referenceDrug.referenceData.name)
+          .join(', ');
+        throw new InvalidOperationError(
+          `Cannot dispense unavailable medications: ${unavailableNames}`,
+        );
       }
 
       const ineligibleRecords = prescriptionRecords.filter(record => {
