@@ -187,6 +187,7 @@ describe('CentralSyncManager.addIncomingChanges', () => {
   });
 
   it('inserts incoming changes into snapshots', async () => {
+    const facility = await models.Facility.create(fake(models.Facility));
     const patient1 = await models.Patient.create(fake(models.Patient));
     const patient2 = await models.Patient.create(fake(models.Patient));
     const changes = [patient1, patient2].map(r => ({
@@ -201,9 +202,30 @@ describe('CentralSyncManager.addIncomingChanges', () => {
     const { sessionId } = await centralSyncManager.startSession();
     await waitForSession(centralSyncManager, sessionId);
 
+    // Setup snapshot table
+    await centralSyncManager.setupSnapshotForPull(
+      sessionId,
+      {
+        since: 1,
+        facilityIds: [facility.id],
+      },
+      () => true,
+    );
+
     // Should successfully add incoming changes for models with allowed syncDirection
     // Patient has BIDIRECTIONAL syncDirection so this should not throw
     await expect(centralSyncManager.addIncomingChanges(sessionId, changes)).resolves.not.toThrow();
+
+    // Verify the changes were persisted by checking the snapshot table
+    const snapshotRecords = await sequelize.query(
+      `SELECT * FROM "sync_snapshot_${sessionId}" WHERE record_type = 'patients' ORDER BY record_id`,
+      { type: sequelize.QueryTypes.SELECT },
+    );
+
+    expect(snapshotRecords).toHaveLength(2);
+    expect(snapshotRecords.map(r => r.record_id)).toEqual(
+      expect.arrayContaining([patient1.id, patient2.id]),
+    );
   });
 
   it('rejects incoming changes with invalid syncDirection', async () => {
