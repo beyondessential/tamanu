@@ -8,7 +8,6 @@ import {
   formatLong,
   formatFullDate,
   formatInTz,
-  format as dateFnsFormat,
 } from '@tamanu/utils/dateTime';
 
 const formatters = {
@@ -40,10 +39,10 @@ export const withDateTimeContext = Component => props => {
   const value = useMemo(() => ({
     countryTimeZone,
     timeZone,
-    formatCustom: (date, formatStr) => 
-      countryTimeZone 
-        ? formatInTz(date, formatStr, countryTimeZone, timeZone) 
-        : dateFnsFormat(date, formatStr),
+    formatCustom: (date, formatStr, fallback = 'N/A') => {
+      if (!date) return fallback;
+      return formatInTz(date, formatStr, countryTimeZone, timeZone) || fallback;
+    },
     ...mapValues(formatters, fn => date => fn(date, countryTimeZone, timeZone)),
   }), [countryTimeZone, timeZone]);
 
