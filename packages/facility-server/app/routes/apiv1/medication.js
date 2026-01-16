@@ -29,7 +29,6 @@ import { add, format, isAfter, isBefore, isEqual } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 import { validate } from '../../utils/validate';
 import { mapQueryFilters } from '../../database/utils';
-import { keyBy } from 'lodash';
 
 export const medication = express.Router();
 
@@ -433,7 +432,7 @@ medication.post(
     await checkSensitiveMedicationPermission(
       ongoingPrescriptions.map(prescription => prescription.medicationId),
       req,
-      'create',
+      'read',
     );
 
     // Validate repeats for each prescription
@@ -2404,24 +2403,11 @@ medication.post(
         },
       });
 
-      const hasSensitive = await req.models.ReferenceDrug.hasSensitiveMedication(
+      await checkSensitiveMedicationPermission(
         prescriptionRecords.map(r => r.prescription.medicationId),
+        req,
+        'read',
       );
-
-      if (hasSensitive) {
-        req.checkPermission('read', 'SensitiveMedication');
-
-        const prescriptionRecordsById = keyBy(prescriptionRecords, 'id');
-
-        const isModifyingQuantity = items.some(item => {
-          const original = prescriptionRecordsById[item.pharmacyOrderPrescriptionId];
-          return !original || item.quantity !== original.quantity;
-        });
-
-        if (isModifyingQuantity) {
-          req.checkPermission('write', 'SensitiveMedication');
-        }
-      }
 
       const foundIds = new Set(prescriptionRecords.map(r => r.id));
       const notFoundIds = pharmacyOrderPrescriptionIds.filter(id => !foundIds.has(id));
@@ -2547,47 +2533,10 @@ medication.put(
     }
 
     const result = await MedicationDispense.sequelize.transaction(async () => {
-      const medicationDispense = await MedicationDispense.findByPk(id, {
-        attributes: ['id', 'quantity', 'instructions'],
-        include: [
-          {
-            association: 'pharmacyOrderPrescription',
-            required: true,
-            attributes: ['id'],
-            include: [
-              {
-                association: 'prescription',
-                attributes: ['id'],
-                include: [
-                  {
-                    association: 'medication',
-                    attributes: ['id'],
-                    required: true,
-                    include: {
-                      model: models.ReferenceDrug,
-                      as: 'referenceDrug',
-                      attributes: ['id', 'isSensitive'],
-                      required: true,
-                    },
-                  },
-                ],
-                required: true,
-              },
-            ],
-          },
-        ],
-      });
+      const medicationDispense = await MedicationDispense.findByPk(id);
 
       if (!medicationDispense) {
         throw new NotFoundError(`Medication dispense with id ${id} not found`);
-      }
-
-      const isSensitiveMedication =
-        medicationDispense.pharmacyOrderPrescription.prescription.medication.referenceDrug
-          .isSensitive;
-
-      if (isSensitiveMedication && medicationDispense.quantity !== quantity) {
-        req.checkPermission('write', 'SensitiveMedication');
       }
 
       await medicationDispense.update({ quantity, instructions, dispensedByUserId });
