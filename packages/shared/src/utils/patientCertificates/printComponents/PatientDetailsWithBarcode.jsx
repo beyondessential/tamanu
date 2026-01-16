@@ -7,9 +7,11 @@ import { getDobWithAge, getPatientWeight, getSex, getVillageName } from '../../p
 import { useLanguageContext } from '../../pdf/languageContext';
 import { PrintableBarcode } from './PrintableBarcode';
 import { renderDataItems } from './renderDataItems';
+import { useDateTimeFormat } from '../../pdf/withDateTimeContext';
 
 export const PatientDetailsWithBarcode = ({ patient, getLocalisation, getSetting }) => {
   const { getTranslation } = useLanguageContext();
+  const { formatShort } = useDateTimeFormat();
   const PATIENT_FIELDS = {
     leftCol: [
       { key: 'firstName', label: 'First name' },
@@ -34,9 +36,9 @@ export const PatientDetailsWithBarcode = ({ patient, getLocalisation, getSetting
 
   return (
     <DataSection title="Patient details">
-      <Col>{renderDataItems(PATIENT_FIELDS.leftCol, patient, getLocalisation, getTranslation, getSetting)}</Col>
+      <Col>{renderDataItems(PATIENT_FIELDS.leftCol, patient, { getLocalisation, getTranslation, getSetting, formatShort })}</Col>
       <Col>
-        {renderDataItems(PATIENT_FIELDS.rightCol, patient, getLocalisation, getTranslation, getSetting)}
+        {renderDataItems(PATIENT_FIELDS.rightCol, patient, { getLocalisation, getTranslation, getSetting, formatShort })}
         <View style={{ flexDirection: 'row' }}>
           <P style={{ marginTop: 9 }} fontSize={9} bold>
             Patient ID barcode:

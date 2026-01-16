@@ -5,13 +5,12 @@ import { CertificateHeader, Col, Row, Signature, styles } from '../patientCertif
 import { H3, P } from '../patientCertificates/Typography';
 import { LetterheadSection } from '../patientCertificates/LetterheadSection';
 import { getDob, getName, getSex } from '../patientAccessors';
-import { format as formatDate } from '@tamanu/utils/dateTime';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
-import { withDateTimeContext } from '../pdf/withDateTimeContext';
+import { useDateTimeFormat, withDateTimeContext } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 
-export const getCreatedAtDate = ({ documentCreatedAt }) =>
-  documentCreatedAt ? formatDate(documentCreatedAt, 'dd/MM/yyyy') : 'Unknown';
+export const getCreatedAtDate = ({ documentCreatedAt }, { formatCustom }) =>
+  documentCreatedAt ? formatCustom(documentCreatedAt, 'dd/MM/yyyy') : 'Unknown';
 
 const DETAIL_FIELDS = [
   { key: 'Patient name', label: 'Patient name', accessor: getName },
@@ -36,6 +35,7 @@ const detailsSectionStyle = {
 
 const DetailsSection = ({ getLocalisation, data }) => {
   const { getTranslation } = useLanguageContext();
+  const { formatCustom, formatShort } = useDateTimeFormat();
   return (
     <View style={{ marginTop: 10 }}>
       <H3 style={{ marginBottom: 5 }}>Details</H3>
@@ -44,7 +44,9 @@ const DetailsSection = ({ getLocalisation, data }) => {
           <Row>
             {DETAIL_FIELDS.map(({ key, label: defaultLabel, accessor }) => {
               const value =
-                (accessor ? accessor(data, { getLocalisation, getTranslation }) : data[key]) || '';
+                (accessor
+                  ? accessor(data, { getLocalisation, getTranslation, formatCustom, formatShort })
+                  : data[key]) || '';
               const label =
                 getTranslation(`general.localisedField.${key}.label.short`) ||
                 getTranslation(`general.localisedField.${key}.label`) ||
@@ -94,6 +96,4 @@ const PatientLetterComponent = ({ getLocalisation, data, logoSrc, letterheadConf
   );
 };
 
-export const PatientLetter = withLanguageContext(
-  withDateTimeContext(PatientLetterComponent),
-);
+export const PatientLetter = withLanguageContext(withDateTimeContext(PatientLetterComponent));
