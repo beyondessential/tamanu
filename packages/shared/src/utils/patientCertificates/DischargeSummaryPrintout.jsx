@@ -7,6 +7,7 @@ import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExte
 import { P } from './Typography';
 import { LetterheadSection } from './LetterheadSection';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
+import { withDateTimeContext } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 import { Table } from './Table';
@@ -276,4 +277,6 @@ const DischargeSummaryPrintoutComponent = ({
   );
 };
 
-export const DischargeSummaryPrintout = withLanguageContext(DischargeSummaryPrintoutComponent);
+export const DischargeSummaryPrintout = withLanguageContext(
+  withDateTimeContext(DischargeSummaryPrintoutComponent),
+);

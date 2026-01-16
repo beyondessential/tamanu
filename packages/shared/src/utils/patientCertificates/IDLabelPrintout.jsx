@@ -4,6 +4,7 @@ import { getDob, getName, getSex } from '../patientAccessors';
 import { PrintableBarcode } from './printComponents/PrintableBarcode';
 import { P } from './Typography';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
+import { withDateTimeContext } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 
 const fontSize = 11;
@@ -123,4 +124,6 @@ const IDLabelPrintoutComponent = ({ patient, measures }) => {
   );
 };
 
-export const IDLabelPrintout = withLanguageContext(IDLabelPrintoutComponent);
+export const IDLabelPrintout = withLanguageContext(
+  withDateTimeContext(IDLabelPrintoutComponent),
+);

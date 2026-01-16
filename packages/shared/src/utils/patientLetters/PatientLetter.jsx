@@ -7,6 +7,7 @@ import { LetterheadSection } from '../patientCertificates/LetterheadSection';
 import { getDob, getName, getSex } from '../patientAccessors';
 import { format as formatDate } from '@tamanu/utils/dateTime';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
+import { withDateTimeContext } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 
 export const getCreatedAtDate = ({ documentCreatedAt }) =>
@@ -93,4 +94,6 @@ const PatientLetterComponent = ({ getLocalisation, data, logoSrc, letterheadConf
   );
 };
 
-export const PatientLetter = withLanguageContext(PatientLetterComponent);
+export const PatientLetter = withLanguageContext(
+  withDateTimeContext(PatientLetterComponent),
+);

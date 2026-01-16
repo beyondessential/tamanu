@@ -3,6 +3,7 @@ import { Document, Image, StyleSheet, View } from '@react-pdf/renderer';
 import { getDob, getSex } from '../patientAccessors';
 import JsBarcode from 'jsbarcode';
 import { withLanguageContext } from '../pdf/languageContext';
+import { withDateTimeContext } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 
@@ -152,4 +153,6 @@ const IDCardPrintoutComponent = ({
   );
 };
 
-export const IDCardPrintout = withLanguageContext(IDCardPrintoutComponent);
+export const IDCardPrintout = withLanguageContext(
+  withDateTimeContext(IDCardPrintoutComponent),
+);
