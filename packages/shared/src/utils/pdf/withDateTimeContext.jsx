@@ -42,7 +42,8 @@ export const withDateTimeContext = Component => props => {
     // TODO remove DEBUG
     // eslint-disable-next-line no-irregular-whitespace
     formatCustom: (date, format) => `ʕ·͡ᴥ·ʔ﻿:${formatInTz(date, format, countryTimeZone, timeZone)}`,
-    ...mapValues(formatters, fn => date => fn(date, countryTimeZone, timeZone)),
+    // eslint-disable-next-line no-irregular-whitespace
+    ...mapValues(formatters, fn => (date) => `ʕ·͡ᴥ·ʔ﻿:${fn(date, countryTimeZone, timeZone)}`),
   }), [countryTimeZone, timeZone]);
 
   return (
