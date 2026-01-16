@@ -318,14 +318,6 @@ const DISPENSED_MEDICATION_COLUMNS = (
     sortable: false,
   },
   {
-    key: 'pharmacyOrderPrescription.pharmacyOrder.facility.name',
-    title: (
-      <TranslatedText stringId="patient.medication.table.column.facility" fallback="Facility" />
-    ),
-    accessor: data => data?.pharmacyOrderPrescription?.pharmacyOrder?.facility?.name ?? '',
-    sortable: false,
-  },
-  {
     key: 'dispensedAt',
     title: (
       <TranslatedText
@@ -779,6 +771,7 @@ export const PatientMedicationPane = ({ patient }) => {
         <EditMedicationDispenseModal
           open
           medicationDispense={selectedDispense}
+          patient={patient}
           onClose={handleEditCancel}
           onConfirm={handleEditConfirm}
         />
