@@ -198,29 +198,22 @@ describe('CentralSyncManager.addIncomingChanges', () => {
       data: r.dataValues,
     }));
 
-    jest.doMock('@tamanu/database/sync', () => ({
-      ...jest.requireActual('@tamanu/database/sync'),
-      insertSnapshotRecords: jest.fn(),
-    }));
-
     const centralSyncManager = initializeCentralSyncManager();
-
-    const { insertSnapshotRecords } = require('@tamanu/database/sync');
     const { sessionId } = await centralSyncManager.startSession();
     await waitForSession(centralSyncManager, sessionId);
 
-    await centralSyncManager.addIncomingChanges(sessionId, changes);
-    const incomingChanges = changes.map(c => ({
-      ...c,
-      direction: SYNC_SESSION_DIRECTION.INCOMING,
-      updatedAtByFieldSum: null,
-    }));
+    // Should successfully add incoming changes for models with allowed syncDirection
+    await expect(centralSyncManager.addIncomingChanges(sessionId, changes)).resolves.not.toThrow();
 
-    expect(insertSnapshotRecords).toBeCalledTimes(1);
-    expect(insertSnapshotRecords).toBeCalledWith(
-      ctx.store.sequelize,
-      sessionId,
-      expect.arrayContaining(incomingChanges),
+    // Verify the changes were persisted by checking the snapshot table
+    const snapshotRecords = await sequelize.query(
+      `SELECT * FROM sync_snapshot_${sessionId} WHERE record_type = 'patients' ORDER BY record_id`,
+      { type: sequelize.QueryTypes.SELECT },
+    );
+
+    expect(snapshotRecords).toHaveLength(2);
+    expect(snapshotRecords.map(r => r.record_id)).toEqual(
+      expect.arrayContaining([patient1.id, patient2.id]),
     );
   });
 
