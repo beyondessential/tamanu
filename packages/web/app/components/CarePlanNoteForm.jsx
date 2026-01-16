@@ -14,7 +14,6 @@ import { Colors } from '../constants/styles';
 import { AutocompleteField, DateTimeField, Field } from './Field';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
-import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 
 const SubmitError = styled.div`
   color: ${Colors.alert};
@@ -72,47 +71,43 @@ export function CarePlanNoteForm({
       render={() => (
         <>
           <FormGrid columns={2} data-testid="formgrid-fndf">
-            <NoteModalActionBlocker>
-              <Field
-                name="onBehalfOfId"
-                label={
-                  <TranslatedText
-                    stringId="carePlan.noteOnBehalfOf.label"
-                    fallback="On behalf of"
-                    data-testid="translatedtext-dyao"
-                  />
-                }
-                component={AutocompleteField}
-                suggester={practitionerSuggester}
-                data-testid="field-hh8q"
-              />
-              <Field
-                name="date"
-                label={
-                  <TranslatedText
-                    stringId="carePlan.noteDateRecorded.label"
-                    fallback="Date Recorded"
-                    data-testid="translatedtext-7ylt"
-                  />
-                }
-                component={DateTimeField}
-                saveDateAsString
-                data-testid="field-qouz"
-              />
-            </NoteModalActionBlocker>
+            <Field
+              name="onBehalfOfId"
+              label={
+                <TranslatedText
+                  stringId="carePlan.noteOnBehalfOf.label"
+                  fallback="On behalf of"
+                  data-testid="translatedtext-dyao"
+                />
+              }
+              component={AutocompleteField}
+              suggester={practitionerSuggester}
+              data-testid="field-hh8q"
+            />
+            <Field
+              name="date"
+              label={
+                <TranslatedText
+                  stringId="carePlan.noteDateRecorded.label"
+                  fallback="Date Recorded"
+                  data-testid="translatedtext-7ylt"
+                />
+              }
+              component={DateTimeField}
+              saveDateAsString
+              data-testid="field-qouz"
+            />
           </FormGrid>
           <FormGrid columns={1} data-testid="formgrid-fw7y">
-            <NoteModalActionBlocker>
-              <Field
-                name="content"
-                placeholder={getTranslation('carePlan.note.placeholder.writeNote', 'Write a note...')}
-                component={TextField}
-                required
-                multiline
-                minRows={4}
-                data-testid="field-e8ln"
-              />
-            </NoteModalActionBlocker>
+            <Field
+              name="content"
+              placeholder={getTranslation('carePlan.note.placeholder.writeNote', 'Write a note...')}
+              component={TextField}
+              required
+              multiline
+              minRows={4}
+              data-testid="field-e8ln"
+            />
           </FormGrid>
           <SubmitError data-testid="submiterror-89ce">{submitError}</SubmitError>
           <FormSubmitCancelRow
@@ -132,7 +127,6 @@ export function CarePlanNoteForm({
                 />
               )
             }
-            ButtonWrapper={NoteModalActionBlocker}
             data-testid="formsubmitcancelrow-2egx"
           />
         </>

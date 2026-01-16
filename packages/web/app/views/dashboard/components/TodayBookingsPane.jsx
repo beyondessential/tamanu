@@ -11,8 +11,8 @@ import { USER_PREFERENCES_KEYS, WS_EVENTS } from '@tamanu/constants';
 import { useNavigate } from 'react-router';
 import { endOfDay, startOfDay } from 'date-fns';
 import { Box } from '@material-ui/core';
-import { formatTime, toDateTimeString } from '@tamanu/utils/dateTime';
-import { TranslatedText } from '@tamanu/ui-components';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { TimeDisplay, TranslatedText } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 
 import { Heading4 } from '../../../components';
@@ -161,7 +161,10 @@ const Link = styled.div`
 `;
 
 const getFormattedBookingTime = ({ startTime, endTime }) =>
-  `${formatTime(startTime).replace(' ', '')} - ${formatTime(endTime).replace(' ', '')}`;
+  <>
+    <TimeDisplay date={startTime} noTooltip /> -
+    <TimeDisplay date={endTime} noTooltip />
+  </>;
 
 const BookingsTimelineItem = ({ appointment }) => {
   const { startTime, endTime, location, patient, status } = appointment;

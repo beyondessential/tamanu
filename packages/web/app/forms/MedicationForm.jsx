@@ -19,12 +19,8 @@ import {
   getDateFromTimeString,
   getFirstAdministrationDate,
 } from '@tamanu/shared/utils/medication';
-import {
-  formatShort,
-  getCurrentDateString,
-  getCurrentDateTimeString,
-} from '@tamanu/utils/dateTime';
-import { format, subSeconds } from 'date-fns';
+import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { subSeconds } from 'date-fns';
 import { useFormikContext } from 'formik';
 import { toast } from 'react-toastify';
 import { foreignKey } from '../utils/validation';
@@ -49,6 +45,9 @@ import {
   FormGrid,
   FormSubmitButton,
   Dialog,
+  DateDisplay,
+  TimeDisplay,
+  useDateTimeFormat,
 } from '@tamanu/ui-components';
 import { Colors, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
@@ -65,7 +64,7 @@ import { ConditionalTooltip, ThemedTooltip } from '../components/Tooltip';
 import { capitalize } from 'lodash';
 import { preventInvalidNumber, validateDecimalPlaces } from '../utils/utils';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
-import { formatTimeSlot } from '../utils/medications';
+import { TimeSlotDisplay } from '../utils/medications';
 import { useEncounter } from '../contexts/Encounter';
 import { usePatientAllergiesQuery } from '../api/queries/usePatientAllergiesQuery';
 import { useMedicationIdealTimes } from '../hooks/useMedicationIdealTimes';
@@ -267,6 +266,7 @@ const isOneTimeFrequency = frequency =>
 
 const MedicationAdministrationForm = ({ frequencyChanged }) => {
   const { getSetting } = useSettings();
+  const {formatTimeCompact} = useDateTimeFormat();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
 
   const { values, setValues } = useFormikContext();
@@ -290,9 +290,13 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
 
     const firstSlot = findAdministrationTimeSlotFromIdealTime(firstStartTime).timeSlot;
 
-    return `${formatTimeSlot(getDateFromTimeString(firstSlot.startTime))} - ${formatTimeSlot(
-      getDateFromTimeString(firstSlot.endTime),
-    )} ${formatShort(new Date(firstStartTime))}`;
+    return (
+      <>
+        <TimeDisplay date={getDateFromTimeString(firstSlot.startTime)} />{' '}
+        - <TimeDisplay date={getDateFromTimeString(firstSlot.endTime)} />{' '}
+        <DateDisplay date={new Date(firstStartTime)} />
+      </>
+    );
   }, [values.startDate, selectedTimeSlots]);
 
   useEffect(() => {
@@ -331,7 +335,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
     setValues({
       ...values,
       timeSlots: selectedTimeSlots.map(s =>
-        s.index === index ? { ...s, value: format(value, 'HH:mm') } : s,
+        s.index === index ? { ...s, value: formatTimeCompact(value) } : s,
       ),
     });
   };
@@ -453,9 +457,10 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
                     >
                       <CheckInput
                         label={
-                          <FieldContent>{`${formatTimeSlot(startTime)} - ${formatTimeSlot(
-                            endTime,
-                          )}`}</FieldContent>
+                          <FieldContent>
+                            <TimeSlotDisplay time={startTime} /> -{' '}
+                            <TimeSlotDisplay time={endTime} />
+                          </FieldContent>
                         }
                         value={checked}
                         onChange={(_, value) => handleSelectTimeSlot(value, slot, index)}

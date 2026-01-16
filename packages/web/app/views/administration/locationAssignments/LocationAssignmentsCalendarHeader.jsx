@@ -4,9 +4,9 @@ import { useLocation } from 'react-router';
 import { formatISO, isSameDay, isSameMonth, parseISO, startOfToday } from 'date-fns';
 import queryString from 'query-string';
 
-import { isStartOfThisWeek, formatShort, formatWeekdayShort } from '@tamanu/utils/dateTime';
+import { isStartOfThisWeek } from '@tamanu/utils/dateTime';
 
-import { MonthPicker } from '../../../components';
+import { DateDisplay, MonthPicker } from '../../../components';
 import { Colors } from '../../../constants';
 import { CarouselComponents as CarouselGrid } from '../../scheduling/locationBookings/CarouselComponents';
 import { FIRST_DISPLAYED_DAY_ID, THIS_WEEK_ID } from '../../../constants/locationAssignments';
@@ -59,9 +59,9 @@ export const DayHeaderCell = ({ date, dim, ...props }) => {
       data-testid="headercell-dpnh"
     >
       <Weekday $isToday={isToday} data-testid="weekday-i79b">
-        {formatWeekdayShort(date)}
+        <DateDisplay date={date} format={null} showWeekday />
       </Weekday>
-      {formatShort(date)}
+      <DateDisplay date={date} />
     </HeaderCell>
   );
 };

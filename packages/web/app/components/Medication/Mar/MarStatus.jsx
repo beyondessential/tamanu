@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import { addHours, format } from 'date-fns';
+import { addHours } from 'date-fns';
 import CancelIcon from '@material-ui/icons/Cancel';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
@@ -11,7 +11,7 @@ import {
   DRUG_UNIT_SHORT_LABELS,
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
 } from '@tamanu/constants';
-import { TranslatedEnum, TranslatedText } from '@tamanu/ui-components';
+import { TranslatedEnum, TranslatedText, DateDisplay, useDateTimeFormat } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { ConditionalTooltip } from '../../Tooltip';
@@ -194,6 +194,7 @@ export const MarStatus = ({
 }) => {
   const { data: { data: marDoses = [] } = {} } = useMarDoses(marInfo?.id);
   const { getEnumTranslation } = useTranslation();
+  const { formatTimeCompact } = useDateTimeFormat();
   const { ability } = useAuth();
   const canViewMar = ability.can('read', 'MedicationAdministration');
   const canCreateMar = ability.can('create', 'MedicationAdministration');
@@ -393,7 +394,7 @@ export const MarStatus = ({
       return (
         <Box maxWidth={105}>
           <TranslatedText stringId="medication.mar.endsOn.tooltip" fallback="Ends on" />
-          <div>{format(new Date(endDate), 'dd/MM/yyyy hh:mma').toLowerCase()}</div>
+          <DateDisplay date={endDate} showTime timeFormat="compact" noTooltip />
         </Box>
       );
     }
@@ -440,7 +441,7 @@ export const MarStatus = ({
                         stringId="medication.mar.givenAt.tooltip"
                         fallback="given at :time"
                         replacements={{
-                          time: format(new Date(dose?.givenTime), 'hh:mma').toLowerCase(),
+                          time: formatTimeCompact(dose?.givenTime),
                         }}
                       />
                     </div>
@@ -457,7 +458,7 @@ export const MarStatus = ({
                   stringId="medication.mar.future.tooltip"
                   fallback="Cannot record future dose. Due at :dueAt."
                   replacements={{
-                    dueAt: format(new Date(dueAt), 'h:mma').toLowerCase(),
+                    dueAt: formatTimeCompact(dueAt),
                   }}
                 />
               </Box>
@@ -470,7 +471,7 @@ export const MarStatus = ({
                   stringId="medication.mar.missed.tooltip"
                   fallback="Missed. Due at :dueAt"
                   replacements={{
-                    dueAt: format(new Date(dueAt), 'hh:mma').toLowerCase(),
+                    dueAt: formatTimeCompact(dueAt),
                   }}
                 />
               </Box>
@@ -482,7 +483,7 @@ export const MarStatus = ({
                 stringId="medication.mar.dueAt.tooltip"
                 fallback="Due at :dueAt"
                 replacements={{
-                  dueAt: format(new Date(dueAt), 'hh:mma').toLowerCase(),
+                  dueAt: formatTimeCompact(dueAt),
                 }}
               />
             </Box>

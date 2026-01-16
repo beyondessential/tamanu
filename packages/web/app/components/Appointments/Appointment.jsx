@@ -8,7 +8,7 @@ import { Box } from '@material-ui/core';
 import { Colors } from '../../constants';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { AppointmentDetail } from './AppointmentDetail';
-import { DateDisplay } from '../DateDisplay';
+import { TimeDisplay } from '../DateDisplay';
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
 const StyledTooltip = styled(({ className, ...props }) => (
@@ -72,7 +72,7 @@ export const Appointment = ({ appointment, onUpdated }) => {
           <Box paddingTop="2px" data-testid="box-yclc">
             <PatientNameDisplay patient={patient} data-testid="patientnamedisplay-stqd" />
           </Box>
-          <DateDisplay date={startTime} showDate={false} showTime data-testid="datedisplay-klcg" />
+          <TimeDisplay date={startTime} data-testid="timedisplay-klcg" />
         </div>
         <div className="icon">{statusIcons[status]}</div>
       </StyledAppointment>

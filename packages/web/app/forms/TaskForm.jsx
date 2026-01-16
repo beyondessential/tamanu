@@ -331,7 +331,6 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                       component={NumberField}
                       onInput={preventInvalidNumber}
                       disabled={!values.frequencyUnit || !values.frequencyValue}
-                      data-testid="field-0n8f"
                     />
                     <Field
                       name="durationUnit"
@@ -339,7 +338,6 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                       component={TranslatedSelectField}
                       enumValues={TASK_DURATION_UNIT_LABELS}
                       disabled={!values.frequencyUnit || !values.frequencyValue}
-                      data-testid="field-qy5a"
                     />
                   </NestedFormGrid>
                 </ConditionalTooltip>

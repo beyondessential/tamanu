@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { formatShort } from '@tamanu/utils/dateTime';
 import { Box } from '@mui/material';
+import { DateDisplay } from '@tamanu/ui-components';
 
 import { ConfirmModal } from './ConfirmModal';
 import { TranslatedText } from './Translation';
@@ -96,7 +96,7 @@ export const LocationAssignmentConflictModal = ({
               />
             </ScheduledLeaveTitle>
             <ScheduledLeaveDates>
-              {formatShort(startDate)} - {formatShort(endDate)}
+             <DateDisplay date={startDate} format="shortest" /> - <DateDisplay date={endDate} format="shortest" />
             </ScheduledLeaveDates>
           </ScheduledLeaveWrapper>
         </Container>

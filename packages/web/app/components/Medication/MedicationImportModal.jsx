@@ -5,6 +5,7 @@ import {
   TranslatedText,
   TranslatedReferenceData,
   TranslatedEnum,
+  DateDisplay,
 } from '@tamanu/ui-components';
 import { Colors } from '../../constants';
 import { Box } from '@mui/material';
@@ -13,7 +14,6 @@ import { AutocompleteInput } from '../Field';
 import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import {
-  formatShortest,
   Table,
   useSelectableColumn,
 } from '..';
@@ -113,7 +113,7 @@ const COLUMNS = (getTranslation, getEnumTranslation) => [
     key: 'date',
     title: <TranslatedText stringId="patient.medication.table.column.date" fallback="Date" />,
     sortable: false,
-    accessor: data => formatShortest(data.date),
+    accessor: data => <DateDisplay date={data.date} format="shortest" />,
   },
   {
     key: 'prescriber',
