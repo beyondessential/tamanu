@@ -75,6 +75,7 @@ import { correctPrescriptionStartDates1753393877000 } from './1753393877000-corr
 import { addIsSensitiveColumnToReferenceDrugsTable1753911142171 } from './1753911142171-addIsSensitiveColumnToReferenceDrugsTable';
 import { addTaskTables1754000000000 } from './1754000000000-addTaskTables';
 import { addMotherFatherIdToPatientAdditionalData1756663661549 } from './1756663661549-addMotherFatherIdToPatientAdditionalData';
+import { addAndSyncProcedureTables1759957009000 } from './1759957009000-addAndSyncProcedureTables';
 import { removeLocalPasswordAddPassword1760456312000 } from './1760456312000-removeLocalPasswordAddPassword';
 import { ensureSystemUserPresent1758183012000 } from './1758183012000-ensureSystemUserPresent';
 import { addNoteTypeIdColumn1761474536816 } from './1761474536816-addNoteTypeIdColumn';
@@ -157,6 +158,7 @@ export const migrationList = [
   addIsSensitiveColumnToReferenceDrugsTable1753911142171,
   addTaskTables1754000000000,
   addMotherFatherIdToPatientAdditionalData1756663661549,
+  addAndSyncProcedureTables1759957009000,
   removeLocalPasswordAddPassword1760456312000,
   ensureSystemUserPresent1758183012000,
   addNoteTypeIdColumn1761474536816,
