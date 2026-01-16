@@ -18,6 +18,7 @@ import { useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
 import { useLabRequest } from '../../../contexts/LabRequest';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
+import { ConditionalTooltip } from '../../../components/Tooltip';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 const TableContainer = styled.div`
@@ -127,18 +128,27 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
       ),
       accessor: (row, i) => {
         const { supportsSecondaryResults } = row.labTestType;
-        if (!supportsSecondaryResults) {
-          return <BodyText color="textTertiary" data-testid="bodytext-na">N/A</BodyText>;
-        }
         return (
-          <AccessorField
-            id={row.id}
-            component={TextField}
-            name={LAB_TEST_PROPERTIES.SECONDARY_RESULT}
-            disabled={areLabTestResultsReadOnly}
-            tabIndex={tabIndex(1, i)}
-            data-testid="accessorfield-secondary-result"
-          />
+          <ConditionalTooltip
+            visible={!supportsSecondaryResults}
+            maxWidth="140px"
+            title={
+              <TranslatedText
+                stringId="lab.results.tooltip.secondaryResultNotSupported"
+                fallback="Secondary result is not supported for this test."
+                data-testid="translatedtext-secondary-not-supported"
+              />
+            }
+          >
+            <AccessorField
+              id={row.id}
+              component={TextField}
+              name={LAB_TEST_PROPERTIES.SECONDARY_RESULT}
+              disabled={areLabTestResultsReadOnly || !supportsSecondaryResults}
+              tabIndex={tabIndex(1, i)}
+              data-testid="accessorfield-secondary-result"
+            />
+          </ConditionalTooltip>
         );
       },
     },
