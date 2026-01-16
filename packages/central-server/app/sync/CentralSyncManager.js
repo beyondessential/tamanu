@@ -723,27 +723,21 @@ export class CentralSyncManager {
     }
   }
 
+  #modelMap = null;
   async addIncomingChanges(sessionId, changes) {
     const { sequelize, models } = this.store;
     await this.connectToSession(sessionId);
 
-    // Validate that all records being pushed have an allowed syncDirection
-    const allowedPushDirections = [
-      SYNC_DIRECTIONS.PUSH_TO_CENTRAL,
-      SYNC_DIRECTIONS.PUSH_TO_CENTRAL_THEN_DELETE,
-      SYNC_DIRECTIONS.BIDIRECTIONAL,
-    ];
-
-    // Build map of tableName to model, only including public schema models
-    // This excludes FHIR models and other non-public schema models that may have duplicate table names
-    const tableNameToModelMap = Object.fromEntries(
-      Object.values(models)
-        .filter(m => m.tableName && m.usesPublicSchema)
-        .map(m => [m.tableName, m])
-    );
+    if (!this.#modelMap) {
+      this.#modelMap = new Map(
+        Object.values(models)
+          .filter(m => m.tableName && m.usesPublicSchema)
+          .map(m => [m.tableName, m])
+      );
+    }
 
     for (const change of changes) {
-      const model = tableNameToModelMap[change.recordType];
+      const model = this.#modelMap.get(change.recordType);
       if (!model) {
         const errorMessage = `Sync security violation: Attempted to push record with unknown model`;
         log.error(errorMessage, {
@@ -761,7 +755,13 @@ export class CentralSyncManager {
         throw new Error(errorMessage);
       }
 
-      if (!allowedPushDirections.includes(model.syncDirection)) {
+      if (
+        ![
+          SYNC_DIRECTIONS.PUSH_TO_CENTRAL,
+          SYNC_DIRECTIONS.PUSH_TO_CENTRAL_THEN_DELETE,
+          SYNC_DIRECTIONS.BIDIRECTIONAL,
+        ].includes(model.syncDirection)
+      ) {
         const errorMessage = `Sync security violation: Attempted to push record that is not allowed to be pushed`;
         log.error(errorMessage, {
           recordType: change.recordType,
