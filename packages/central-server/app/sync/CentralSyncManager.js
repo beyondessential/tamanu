@@ -734,9 +734,11 @@ export class CentralSyncManager {
       SYNC_DIRECTIONS.BIDIRECTIONAL,
     ];
 
+    // Build map of tableName to model, only including public schema models
+    // This excludes FHIR models and other non-public schema models that may have duplicate table names
     const tableNameToModelMap = Object.fromEntries(
       Object.values(models)
-        .filter(m => m.tableName)
+        .filter(m => m.tableName && m.usesPublicSchema)
         .map(m => [m.tableName, m])
     );
 
