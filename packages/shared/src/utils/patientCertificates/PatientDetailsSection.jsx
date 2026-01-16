@@ -3,6 +3,7 @@ import { Col, LightDivider, Row } from './Layout';
 import { H3, P } from './Typography';
 import { getDobWithAge, getSex, getVillageName } from '../patientAccessors';
 import { useLanguageContext } from '../pdf/languageContext';
+import { useDateTimeFormat } from '../pdf/withDateTimeContext';
 
 const patientFields = getTranslation => [
   {
@@ -41,6 +42,7 @@ export const PatientDetailsSection = ({
   extraFields = [],
 }) => {
   const { getTranslation } = useLanguageContext();
+  const { formatShort } = useDateTimeFormat();
 
   const detailsToDisplay = [...patientFields(getTranslation), ...extraFields].filter(
     ({ key }) => !getSetting(`fields.${key}.hidden`),
@@ -57,7 +59,7 @@ export const PatientDetailsSection = ({
             {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
               const value =
                 (accessor
-                  ? accessor(patient, { getLocalisation, getTranslation, getSetting })
+                  ? accessor(patient, { getLocalisation, getTranslation, getSetting, formatShort })
                   : patient[key]) || '';
               const label =
                 getTranslation(`general.localisedField.${key}.label.short`) ||
