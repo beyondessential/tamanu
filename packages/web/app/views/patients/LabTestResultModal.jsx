@@ -25,9 +25,10 @@ const ModalHeader = styled.div`
   min-height: 55px;
 `;
 
+// TODO: sort this out
 const VerticalDivider = styled.div`
   border-left: 1px solid ${Colors.outline};
-  height: 60%;
+  height: 90%;
 `;
 
 const ValueContainer = styled.div`
@@ -81,19 +82,6 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
             value={labTest?.result}
             data-testid="valuedisplay-upbf"
           />
-          {labTest?.labTestType?.supportsSecondaryResults && (
-            <ValueDisplay
-              title={
-                <TranslatedText
-                  stringId="lab.modal.testResult.value.secondaryResult"
-                  fallback="Secondary result"
-                  data-testid="translatedtext-secondary-result"
-                />
-              }
-              value={labTest?.secondaryResult}
-              data-testid="valuedisplay-secondary-result"
-            />
-          )}
           <ValueDisplay
             title={
               <TranslatedText
@@ -119,6 +107,19 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
         </div>
         <VerticalDivider data-testid="verticaldivider-n6md" />
         <div>
+          {labTest?.labTestType?.supportsSecondaryResults && (
+            <ValueDisplay
+              title={
+                <TranslatedText
+                  stringId="lab.modal.testResult.value.secondaryResult"
+                  fallback="Secondary result"
+                  data-testid="translatedtext-secondary-result"
+                />
+              }
+              value={labTest?.secondaryResult}
+              data-testid="valuedisplay-secondary-result"
+            />
+          )}
           <ValueDisplay
             title={
               <TranslatedText
