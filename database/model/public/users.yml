@@ -91,4 +91,7 @@ sources:
             data_tests:
               - not_null
               - accepted_values:
-                  values: ['none', 'single', 'unlimited']
+                  values:
+                    - none
+                    - single
+                    - unlimited
