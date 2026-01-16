@@ -206,11 +206,10 @@ const getDob = ({ dateOfBirth }, { getTranslation, formatCustom }) =>
     ? formatCustom(dateOfBirth, 'd MMM yyyy')
     : getTranslation('general.fallback.unknown', 'Unknown');
 
-const getDateAndTimeOfDeath = (patientData, getLocalisation, getTranslation) => {
-  return `${getDateOfDeath(patientData, {
-    getLocalisation,
-    getTranslation,
-  })} ${getTimeOfDeath(patientData, { getLocalisation, getTranslation })}`;
+const getDateAndTimeOfDeath = (patientData, { getTranslation, formatCustom, formatTime }) => {
+  const date = getDateOfDeath(patientData, { getTranslation, formatCustom });
+  const time = getTimeOfDeath(patientData, { getTranslation, formatTime });
+  return `${date} ${time}`.trim();
 };
 
 const PATIENT_DETAIL_FIELDS = {
