@@ -59,7 +59,7 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
   const { data: labTest } = useLabTestQuery(labTestId);
   const { loadLabRequest } = useLabRequest();
   const navigate = useNavigate();
-  const { category } = useParams();
+  const { category = 'all' } = useParams();
 
   const handleViewLabRequest = async () => {
     const { labRequest } = labTest;
@@ -69,9 +69,7 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
 
     await loadLabRequest(labRequest.id);
     navigate(
-      `/patients/${category || 'all'}/${patientId}/encounter/${encounterId}/lab-request/${
-        labRequest.id
-      }`,
+      `/patients/${category}/${patientId}/encounter/${encounterId}/lab-request/${labRequest.id}`,
     );
     onClose();
   };
