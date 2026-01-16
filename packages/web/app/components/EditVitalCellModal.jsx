@@ -4,7 +4,17 @@ import { formatShortest, formatTime } from '@tamanu/utils/dateTime';
 import { EditVitalCellForm } from '../forms/EditVitalCellForm';
 import { TranslatedReferenceData } from './Translation';
 
-export const EditVitalCellModal = ({ open, dataPoint, onClose, isVital = false }) => {
+export const EditVitalCellModal = ({ 
+  open, 
+  dataPoint, 
+  onClose, 
+  isVital = false,
+  // Program registry context props (optional)
+  programRegistryPatientId,
+  programRegistrySurveyId,
+  programRegistryInstanceId,
+  isPatientRemoved = false,
+}) => {
   const vitalLabel = (
     <TranslatedReferenceData
       category="programDataElement"
@@ -37,6 +47,10 @@ export const EditVitalCellModal = ({ open, dataPoint, onClose, isVital = false }
         vitalLabel={vitalLabel}
         dataPoint={dataPoint}
         handleClose={handleClose}
+        programRegistryPatientId={programRegistryPatientId}
+        programRegistrySurveyId={programRegistrySurveyId}
+        programRegistryInstanceId={programRegistryInstanceId}
+        isPatientRemoved={isPatientRemoved}
         data-testid="editvitalcellform-h4wy"
       />
     </FormModal>

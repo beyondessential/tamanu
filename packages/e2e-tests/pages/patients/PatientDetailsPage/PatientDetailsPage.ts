@@ -15,6 +15,13 @@ import { EmergencyTriageModal } from './modals/EmergencyTriageModal';
 import { PatientDetailsTabPage } from './panes/PatientDetailsTabPage';
 import { AllPatientsPage } from '../AllPatientsPage';
 import { EncounterMedicationPane } from '../MedicationsPage/panes/EncounterMedicationPane';
+import { EncounterHistoryPane } from './panes/EncounterHistoryPane';
+import { ChangeEncounterDetailsMenu } from './ChangeEncounterDetailsMenu';
+import { AddDiagnosisModal } from './modals/AddDiagnosisModal';
+import { DocumentsPane } from './panes/DocumentsPane';
+import { TasksPane } from '../TaskPage/panes/TasksPane';
+import { ChartsPane } from '../ChartsPage/panes/ChartsPane';
+import { ReferralPane } from './panes/ReferralPane';
 
 export class PatientDetailsPage extends BasePatientPage {
   readonly prepareDischargeButton: Locator;
@@ -30,6 +37,15 @@ export class PatientDetailsPage extends BasePatientPage {
   notesPane?: NotesPane;
   patientDetailsTabPage?: PatientDetailsTabPage;
   encounterMedicationPane?: EncounterMedicationPane;
+  documentsPane?: DocumentsPane;
+  tasksPane?: TasksPane;
+  chartsPane?: ChartsPane;
+  referralPane?: ReferralPane;
+  arrowDownIconMenuButton: Locator;
+
+  private _encounterHistoryPane?: EncounterHistoryPane;
+  private _changeEncounterDetailsMenu?: ChangeEncounterDetailsMenu;
+  private _addDiagnosisModal?: AddDiagnosisModal;
   readonly encounterMedicationTab: Locator;
   readonly initiateNewOngoingConditionAddButton: Locator;
   readonly ongoingConditionNameField: Locator;
@@ -84,11 +100,20 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly notesTab: Locator;
   readonly vitalsTab: Locator;
   readonly imagingTab: Locator;
+  readonly documentsTab: Locator;
+  readonly tasksTab: Locator;
+  readonly chartsTab: Locator;
+  readonly referralsTab: Locator;
   readonly encountersList: Locator;
   readonly departmentLabel: Locator;
   readonly admitOrCheckinButton: Locator;
   readonly patientDetailsTab: Locator;
-
+  readonly dietLabel: Locator;
+  readonly locationLabel: Locator;
+  readonly addDiagnosisButton: Locator;
+  readonly diagnosisContainer: Locator;
+  readonly diagnosisCategory: Locator;
+  readonly diagnosisName: Locator;
   labRequestPane?: LabRequestPane;
   constructor(page: Page) {
     super(page);
@@ -234,12 +259,22 @@ export class PatientDetailsPage extends BasePatientPage {
     this.notesTab = this.page.getByTestId('styledtab-ccs8-notes');
     this.vitalsTab = this.page.getByTestId('styledtab-ccs8-vitals');
     this.imagingTab = this.page.getByTestId('styledtab-ccs8-imaging');
+    this.documentsTab = this.page.getByTestId('tab-documents');
+    this.tasksTab = this.page.getByTestId('styledtab-ccs8-tasks');
+    this.chartsTab = this.page.getByTestId('styledtab-ccs8-charts');
+    this.referralsTab = this.page.getByTestId('tab-referrals');
     this.encounterMedicationTab = this.page.getByTestId('styledtab-ccs8-medication');
     this.encountersList=this.page.getByTestId('styledtablebody-a0jz').locator('tr');
     this.departmentLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Department' }).locator('..').getByTestId('cardvalue-1v8z');
+    this.dietLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Diet' }).locator('..').getByTestId('cardvalue-1v8z');
+    this.locationLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Location' }).locator('..').getByTestId('cardvalue-1v8z');
     this.admitOrCheckinButton=this.page.getByTestId('component-enxe').filter({ hasText: 'Admit or check-in' });
     this.patientDetailsTab=this.page.getByTestId('tab-details');
-
+    this.arrowDownIconMenuButton=this.page.getByTestId('menubutton-dc8o');
+    this.addDiagnosisButton=this.page.getByTestId('adddiagnosisbutton-2ij9');
+    this.diagnosisContainer=this.page.getByTestId('diagnosislistcontainer-dqkk');
+    this.diagnosisCategory=this.page.getByTestId('category-vwwx');
+    this.diagnosisName=this.page.getByTestId('diagnosisname-vvn4');
   }
 
   async navigateToVaccineTab(): Promise<PatientVaccinePane> {
@@ -284,6 +319,45 @@ export class PatientDetailsPage extends BasePatientPage {
   async navigateToVitalsTab(): Promise<void> {
     await this.vitalsTab.click();
   }
+
+  async navigateToDocumentsTab(): Promise<DocumentsPane> {
+    await this.documentsTab.click();
+    if (!this.documentsPane) {
+      this.documentsPane = new DocumentsPane(this.page);
+    }
+    return this.documentsPane;
+  }
+
+  async waitForEncounterToBeReady(): Promise<void> {
+    // Wait for URL to contain encounter ID
+    await this.page.waitForURL(/\/encounter\/[^/]+/, { timeout: 10000 });
+    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
+  }
+
+  async navigateToTasksTab(): Promise<TasksPane> {
+    await this.tasksTab.click();
+    if (!this.tasksPane) {
+      this.tasksPane = new TasksPane(this.page);
+    }
+    return this.tasksPane;
+  }
+
+  async navigateToChartsTab(): Promise<ChartsPane> {
+    await this.chartsTab.click();
+    if (!this.chartsPane) {
+      this.chartsPane = new ChartsPane(this.page);
+    }
+    return this.chartsPane;
+  }
+
+  async navigateToReferralsTab(): Promise<ReferralPane> {
+    await this.referralsTab.click();
+    if (!this.referralPane) {
+      this.referralPane = new ReferralPane(this.page);
+    }
+    return this.referralPane;
+  }
+
 
   async navigateToImagingRequestTab(): Promise<void> {
     await this.encountersList.first().waitFor({ state: 'visible' });
@@ -510,5 +584,38 @@ export class PatientDetailsPage extends BasePatientPage {
       this.emergencyTriageModal = new EmergencyTriageModal(this.page);
     }
     return this.emergencyTriageModal;
+  }
+
+  getAddDiagnosisModal(): AddDiagnosisModal {
+    if (!this._addDiagnosisModal) {
+      this._addDiagnosisModal = new AddDiagnosisModal(this.page);
+    }
+    return this._addDiagnosisModal;
+  }
+
+  get encounterHistoryPane(): EncounterHistoryPane {
+    if (!this._encounterHistoryPane) {
+      this._encounterHistoryPane = new EncounterHistoryPane(this.page);
+    }
+    return this._encounterHistoryPane;
+  }
+
+  get changeEncounterDetailsMenu(): ChangeEncounterDetailsMenu {
+    if (!this._changeEncounterDetailsMenu) {
+      this._changeEncounterDetailsMenu = new ChangeEncounterDetailsMenu(this.page);
+    }
+    return this._changeEncounterDetailsMenu;
+  }
+
+  async admitToHospital(): Promise<Record<string, string>> {
+    await this.admitOrCheckinButton.click();
+    const createEncounterModal = this.getCreateEncounterModal();
+    await createEncounterModal.waitForModalToLoad();
+    await createEncounterModal.hospitalAdmissionButton.click();
+    const hospitalAdmissionModal = createEncounterModal.getHospitalAdmissionModal();
+    await hospitalAdmissionModal.waitForModalToLoad();
+    const formValues = await hospitalAdmissionModal.fillHospitalAdmissionForm();
+    await hospitalAdmissionModal.confirmButton.click();
+    return formValues;
   }
 }

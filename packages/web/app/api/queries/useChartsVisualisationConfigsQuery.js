@@ -9,7 +9,7 @@ export const useChartsVisualisationConfigsQuery = () => {
   const encounterQuery = useEncounter();
   const { encounter } = encounterQuery;
 
-  const patientQuery = usePatientDataQuery(encounter.patientId);
+  const patientQuery = usePatientDataQuery(encounter?.patientId);
   const { selectedChartTypeId } = useChartData();
   const chartSurveyQuery = useSurveyQuery(selectedChartTypeId);
 

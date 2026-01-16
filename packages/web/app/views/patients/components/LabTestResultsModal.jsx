@@ -7,7 +7,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { FormModal } from '../../../components/FormModal';
 import { BodyText, Heading4, SmallBodyText } from '../../../components/Typography';
-import { TextField, Form, ConfirmCancelRow } from '@tamanu/ui-components';
+import { TextField, Form, ConfirmCancelRow, Field } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { DateTimeField, SuggesterSelectField } from '../../../components/Field';
@@ -16,7 +16,9 @@ import { useLabTestResultsQuery } from '../../../api/queries/useLabTestResultsQu
 import { AccessorField, LabResultAccessorField } from './AccessorField';
 import { useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
+import { useLabRequest } from '../../../contexts/LabRequest';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 const TableContainer = styled.div`
   overflow-y: auto;
@@ -242,23 +244,29 @@ const ResultsForm = ({
   const { count, data } = labTestResults;
   /**
    * On entering lab result field for a test some other fields are auto-filled optimistically
-   * This occurs in the case that:
+   * In the case of labTestMethod this occurs in the case that:
    * 1. The user has only entered a single unique value for this field across other rows
    * 2. The user has not already entered a value for this field in the current row
    */
   const onChangeResult = useCallback(
     (value, labTestId) => {
-      const rowValues = values[labTestId];
-      if (rowValues?.result || !value) return;
+      if (!value) return;
+      const rowValues = values.labTests?.[labTestId];
+
       AUTOFILL_FIELD_NAMES.forEach(name => {
-        // Get unique values for this field across all rows
-        const unique = Object.values(values).reduce(
-          (acc, row) => (row[name] && !acc.includes(row[name]) ? [...acc, row[name]] : acc),
-          [],
-        );
-        if (unique.length !== 1 || rowValues?.[name]) return;
-        // Prefill the field with the unique value
-        setFieldValue(`${labTestId}.${name}`, unique[0]);
+        if (rowValues?.[name]) return;
+
+        const otherRowsValues = Object.entries(values.labTests || {})
+          .filter(([id, row]) => id !== labTestId && row[name])
+          .map(([, row]) => row[name]);
+
+        const uniqueValues = [...new Set(otherRowsValues)];
+        const fieldName = `labTests.${labTestId}.${name}`;
+        if (name === LAB_TEST_PROPERTIES.COMPLETED_DATE) {
+          setFieldValue(fieldName, getCurrentDateTimeString());
+        } else if (uniqueValues.length === 1) {
+          setFieldValue(fieldName, uniqueValues[0]);
+        }
       });
     },
     [values, setFieldValue],
@@ -300,6 +308,17 @@ const ResultsForm = ({
           data-testid="styledtableformfields-5s0u"
         />
       </TableContainer>
+      <Box margin="20px 30px">
+        <Field
+          component={TextField}
+          multiline
+          disabled={areLabTestResultsReadOnly}
+          rows={6}
+          name="resultsInterpretation"
+          label="Results Interpretation"
+          data-testid="field-resultsinterpretation"
+        />
+      </Box>
     </Box>
   );
 };
@@ -308,6 +327,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
   const api = useApi();
   const queryClient = useQueryClient();
   const { ability } = useAuth();
+  const { loadLabRequest } = useLabRequest();
   const canWriteLabTestResult = ability?.can('write', 'LabTestResult');
   const areLabTestResultsReadOnly = !canWriteLabTestResult;
 
@@ -331,9 +351,8 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
             data-testid="translatedtext-h2yk"
           />,
         );
-        // Force refresh of lab test data fetching table
         queryClient.invalidateQueries(['labTestResults', labRequest.id]);
-
+        loadLabRequest(labRequest.id);
         refreshLabTestTable();
         onClose();
       },
@@ -352,12 +371,14 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
 
   // Select editable values to prefill the form on edit
   const initialData = useMemo(
-    () =>
-      keyBy(
+    () => ({
+      labTests: keyBy(
         labTestResults?.data.map(data => pick(data, Object.values(LAB_TEST_PROPERTIES))),
         LAB_TEST_PROPERTIES.ID,
       ),
-    [labTestResults],
+      resultsInterpretation: labRequest.resultsInterpretation,
+    }),
+    [labTestResults, labRequest.resultsInterpretation],
   );
 
   return (

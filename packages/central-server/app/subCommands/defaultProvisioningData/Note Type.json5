@@ -1,0 +1,107 @@
+{
+  "sheetName": "Note Type",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
+  "data": [
+    {
+      "id": "notetype-admission",
+      "code": "admission",
+      "name": "Admission",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "notetype-medical",
+      "code": "medical",
+      "name": "Medical",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "notetype-surgical",
+      "code": "surgical",
+      "name": "Surgical",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "notetype-nursing",
+      "code": "nursing",
+      "name": "Nursing",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "notetype-dietary",
+      "code": "dietary",
+      "name": "Dietary",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "notetype-pharmacy",
+      "code": "pharmacy",
+      "name": "Pharmacy",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "notetype-physiotherapy",
+      "code": "physiotherapy",
+      "name": "Physiotherapy",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "notetype-social",
+      "code": "social",
+      "name": "Social welfare",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "notetype-clinicalMobile",
+      "code": "clinicalMobile",
+      "name": "Clinical note (mobile)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "notetype-handover",
+      "code": "handover",
+      "name": "Handover note",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "notetype-areaToBeImaged",
+      "code": "areaToBeImaged",
+      "name": "Area to be imaged",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "notetype-resultDescription",
+      "code": "resultDescription",
+      "name": "Result description",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "notetype-other",
+      "code": "other",
+      "name": "Other",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "notetype-system",
+      "code": "system",
+      "name": "System",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "notetype-treatmentPlan",
+      "code": "treatmentPlan",
+      "name": "Treatment plan",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "notetype-discharge",
+      "code": "discharge",
+      "name": "Discharge planning",
+      "visibilityStatus": "current"
+    }
+  ]
+}

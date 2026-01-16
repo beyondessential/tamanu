@@ -79,6 +79,7 @@ import { addAndSyncProcedureTables1759957009000 } from './1759957009000-addAndSy
 import { removeLocalPasswordAddPassword1760456312000 } from './1760456312000-removeLocalPasswordAddPassword';
 import { ensureSystemUserPresent1758183012000 } from './1758183012000-ensureSystemUserPresent';
 import { addNoteTypeIdColumn1761474536816 } from './1761474536816-addNoteTypeIdColumn';
+import { addLabRequestResultsInterpretation1763435712934 } from './1763435712934-addLabRequestResultsInterpretation';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -161,4 +162,5 @@ export const migrationList = [
   removeLocalPasswordAddPassword1760456312000,
   ensureSystemUserPresent1758183012000,
   addNoteTypeIdColumn1761474536816,
+  addLabRequestResultsInterpretation1763435712934,
 ];

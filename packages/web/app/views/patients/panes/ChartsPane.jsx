@@ -32,17 +32,16 @@ import { useSurveyQuery } from '../../../api/queries/useSurveyQuery';
 import { SimpleChartModal } from '../../../components/SimpleChartModal';
 import { ComplexChartModal } from '../../../components/ComplexChartModal';
 import { COMPLEX_CHART_FORM_MODES } from '../../../components/Charting/constants';
-import { getComplexChartFormMode } from '../../../utils/chart/chartUtils';
+import {
+  getComplexChartFormMode,
+  findChartSurvey,
+  getNoDataMessage,
+  getTooltipMessage,
+  getNoSelectableChartsMessage,
+} from '../../../utils/chart/chartUtils';
 import { ConditionalTooltip } from '../../../components/Tooltip';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 import { useTranslation } from '../../../contexts/Translation';
-
-const StyledButtonGroup = styled(ButtonGroup)`
-  .MuiButtonGroup-groupedOutlinedHorizontal:not(:first-child) {
-    margin-top: 10px;
-    margin-left: 10px;
-  }
-`;
 
 const TableButtonRowWrapper = styled.div`
   margin-bottom: 15px;
@@ -50,13 +49,13 @@ const TableButtonRowWrapper = styled.div`
   overflow-x: auto;
 `;
 
-const AddComplexChartButton = styled.span`
+const AddComplexChartButton = styled.div`
   color: ${Colors.primary};
   font-size: 15px;
   font-weight: 500;
   cursor: pointer;
-  margin-left: 10px;
-  margin-right: 20px;
+  margin: 10px 20px 0 10px;
+  white-space: nowrap;
 `;
 
 const StyledButtonWithPermissionCheck = styled(ButtonWithPermissionCheck)`
@@ -88,57 +87,11 @@ const ComplexChartInstancesTab = styled(TabDisplay)`
   }
 `;
 
-const findChartSurvey = (chartSurveys, chartId) => chartSurveys.find(({ id }) => id === chartId);
-
-const getNoDataMessage = (isComplexChart, complexChartInstances, selectedSurveyId) => {
-  if (!selectedSurveyId) {
-    return (
-      <TranslatedText
-        stringId="chart.table.simple.noChart"
-        fallback="This patient has no recorded charts to display. Select the required chart to document a chart."
-        data-testid="translatedtext-h93c"
-      />
-    );
+const StyledConditionalTooltip = styled(ConditionalTooltip)`
+  .MuiTooltip-tooltip {
+    left: 5px;
   }
-
-  if (isComplexChart && !complexChartInstances?.length) {
-    return (
-      <TranslatedText
-        stringId="chart.table.complex.noChart"
-        fallback="This patient has no chart information to display. Click '+ Add' to add information to this chart."
-        data-testid="translatedtext-1n1o"
-      />
-    );
-  }
-
-  return (
-    <TranslatedText
-      stringId="chart.table.noData"
-      fallback="This patient has no chart information to display. Click ‘Record’ to add information to this chart."
-      data-testid="translatedtext-jwyi"
-    />
-  );
-};
-
-const getTooltipMessage = selectedSurveyId => {
-  if (!selectedSurveyId) {
-    return (
-      <TranslatedText
-        stringId="chart.action.record.disabledTooltip.noChartType"
-        fallback="Please select a chart type to record an entry"
-        data-testid="translatedtext-arpn"
-      />
-    );
-  }
-
-  return (
-    <TranslatedText
-      stringId="chart.action.record.disabledTooltip"
-      fallback="'Add' an item first to record against"
-      data-testid="translatedtext-zbwx"
-    />
-  );
-};
+`;
 
 export const ChartsPane = React.memo(({ patient, encounter }) => {
   const api = useApi();
@@ -153,7 +106,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
   const {
     data: { chartSurveys = [], complexToCoreSurveysMap = {} } = {},
     isLoading: isLoadingChartSurveys,
-  } = useChartSurveysQuery();
+  } = useChartSurveysQuery(encounter?.id);
   const { getTranslation } = useTranslation();
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -346,13 +299,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
       <TabPane data-testid="tabpane-prxb">
         <EmptyChartsTable
           isLoading={isLoadingChartData || isLoadingChartSurveys || isWaitingForInstances}
-          noDataMessage={
-            <TranslatedText
-              stringId="chart.table.noSelectableCharts"
-              fallback="There are currently no charts available to record. Please speak to your System Administrator if you think this is incorrect."
-              data-testid="translatedtext-a37q"
-            />
-          }
+          noDataMessage={getNoSelectableChartsMessage()}
           data-testid="emptychartstable-o5hh"
         />
       </TabPane>
@@ -383,7 +330,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
             justifyContent="space-between"
             data-testid="tablebuttonrow-lwlu"
           >
-            <StyledButtonGroup data-testid="styledbuttongroup-z992">
+            <ButtonGroup data-testid="styledbuttongroup-z992">
               <ChartDropdown
                 selectedChartTypeId={selectedChartTypeId}
                 setSelectedChartTypeId={setSelectedChartTypeId}
@@ -391,17 +338,19 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
                 data-testid="chartdropdown-eox5"
               />
               {isComplexChart && canCreateCoreComplexInstance && isCurrentChart ? (
-                <AddComplexChartButton
-                  onClick={() => {
-                    setChartSurveyIdToSubmit(coreComplexChartSurveyId);
-                    setModalOpen(true);
-                  }}
-                  data-testid="addcomplexchartbutton-w4wk"
-                >
-                  + Add
-                </AddComplexChartButton>
+                <NoteModalActionBlocker>
+                  <AddComplexChartButton
+                    onClick={() => {
+                      setChartSurveyIdToSubmit(coreComplexChartSurveyId);
+                      setModalOpen(true);
+                    }}
+                    data-testid="addcomplexchartbutton-w4wk"
+                  >
+                    + Add
+                  </AddComplexChartButton>
+                </NoteModalActionBlocker>
               ) : null}
-            </StyledButtonGroup>
+            </ButtonGroup>
 
             {complexChartInstanceTabs.length && currentComplexChartTab ? (
               <ComplexChartInstancesTab
@@ -412,9 +361,14 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
               />
             ) : null}
 
-            <ConditionalTooltip
+            <StyledConditionalTooltip
               visible={!recordButtonEnabled}
               maxWidth="8rem"
+              PopperProps={{
+                popperOptions: {
+                  positionFixed: true,
+                },
+              }}
               title={getTooltipMessage(selectedChartTypeId)}
               data-testid="conditionaltooltip-uafz"
             >
@@ -437,7 +391,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
                   />
                 </StyledButtonWithPermissionCheck>
               </NoteModalActionBlocker>
-            </ConditionalTooltip>
+            </StyledConditionalTooltip>
           </TableButtonRow>
         </TableButtonRowWrapper>
 

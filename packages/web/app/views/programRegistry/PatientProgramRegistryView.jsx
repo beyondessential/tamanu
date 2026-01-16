@@ -1,5 +1,6 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { useParams } from 'react-router';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
@@ -12,6 +13,7 @@ import { PatientProgramRegistrationSelectSurvey } from './PatientProgramRegistra
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ConditionSection } from './ConditionSection';
 import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
+import { ProgramRegistryChartsView } from './ProgramRegistryChartsView';
 
 const ViewHeader = styled.div`
   background-color: ${Colors.white};
@@ -63,6 +65,7 @@ const Grid = styled.div`
 
 export const PatientProgramRegistryView = () => {
   const { patientId, programRegistryId } = useParams();
+  const patient = useSelector(state => state.patient);
   const { data, isLoading, isError, isFetching } = usePatientProgramRegistrationQuery(
     patientId,
     programRegistryId,
@@ -115,6 +118,15 @@ export const PatientProgramRegistryView = () => {
         <Row>
           <PatientProgramRegistryFormHistory patientProgramRegistration={data} />
         </Row>
+        {patient && (
+          <Row>
+            <ProgramRegistryChartsView
+              programRegistryId={programRegistryId}
+              patient={patient}
+              patientProgramRegistration={data}
+            />
+          </Row>
+        )}
       </Container>
     </>
   );

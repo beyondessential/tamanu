@@ -1,0 +1,105 @@
+{
+  "sheetName": "Allergies",
+  "columns": [
+    "id",
+    "code",
+    "name"
+  ],
+  "data": [
+    {
+      "id": "allergy-NSAIDS",
+      "code": "NSAIDS",
+      "name": "NSAIDS"
+    },
+    {
+      "id": "allergy-Peanuts",
+      "code": "Peanuts",
+      "name": "Peanuts"
+    },
+    {
+      "id": "allergy-Penicillins",
+      "code": "Penicillins",
+      "name": "Penicillins"
+    },
+    {
+      "id": "allergy-Sulfonamides",
+      "code": "Sulfonamides",
+      "name": "Sulfonamides"
+    },
+    {
+      "id": "allergy-Tetracycline",
+      "code": "Tetracycline",
+      "name": "Tetracycline"
+    },
+    {
+      "id": "allergy-Macrolides",
+      "code": "Macrolides",
+      "name": "Macrolides"
+    },
+    {
+      "id": "allergy-Treenuts",
+      "code": "Treenuts",
+      "name": "Tree nuts"
+    },
+    {
+      "id": "allergy-Milk",
+      "code": "Milk",
+      "name": "Milk"
+    },
+    {
+      "id": "allergy-Eggs",
+      "code": "Eggs",
+      "name": "Eggs"
+    },
+    {
+      "id": "allergy-Sesame",
+      "code": "Sesame",
+      "name": "Sesame"
+    },
+    {
+      "id": "allergy-Fish",
+      "code": "Fish",
+      "name": "Fish"
+    },
+    {
+      "id": "allergy-Shellfish",
+      "code": "Shellfish",
+      "name": "Shellfish"
+    },
+    {
+      "id": "allergy-Soy",
+      "code": "Soy",
+      "name": "Soy"
+    },
+    {
+      "id": "allergy-Wheat",
+      "code": "Wheat",
+      "name": "Wheat"
+    },
+    {
+      "id": "allergy-Lupin",
+      "code": "Lupin",
+      "name": "Lupin"
+    },
+    {
+      "id": "allergy-Dustmites",
+      "code": "Dustmites",
+      "name": "Dust mites"
+    },
+    {
+      "id": "allergy-Latex",
+      "code": "Latex",
+      "name": "Latex"
+    },
+    {
+      "id": "allergy-Animaldander",
+      "code": "Animaldander",
+      "name": "Animal dander"
+    },
+    {
+      "id": "allergy-Pollen",
+      "code": "Pollen",
+      "name": "Pollen"
+    }
+  ]
+}
