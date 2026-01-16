@@ -4,14 +4,13 @@ import { useApi } from "../useApi";
 
 export const useSuggestionsQuery = (endpoint, options = {}) => {
   const api = useApi();
-  const { queryParams = {}, ...queryOptions } = options;
 
   return useQuery(
-    ['suggestions', endpoint, queryParams],
-    () => api.get(`suggestions/${endpoint}`, { noLimit: 'true', ...queryParams }),
+    ['suggestions', endpoint],
+    () => api.get(`suggestions/${endpoint}`, { noLimit: 'true' }),
     {
       enabled: !!endpoint,
-      ...queryOptions,
+      ...options,
     },
   );
 };
