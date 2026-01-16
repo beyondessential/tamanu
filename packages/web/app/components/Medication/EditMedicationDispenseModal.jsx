@@ -77,7 +77,7 @@ const PrintContainer = styled.div`
 const PrintDescription = styled(Box)`
   margin-bottom: 16px;
   font-size: 14px;
-  color: Colors.midText;
+  color: ${Colors.midText};
 
   @media print {
     display: none;
@@ -146,7 +146,7 @@ const QuantityInput = memo(({ value: defaultValue, onChange, ...props }) => {
 });
 
 export const EditMedicationDispenseModal = memo(
-  ({ open, medicationDispense, onClose, onConfirm }) => {
+  ({ open, medicationDispense, onClose, onConfirm, patient }) => {
     const api = useApi();
     const { facilityId } = useAuth();
     const { getTranslation } = useTranslation();
@@ -251,7 +251,7 @@ export const EditMedicationDispenseModal = memo(
       };
       const reviewLabels = getMedicationLabelData({
         items: [labelItem],
-        patient: item.pharmacyOrderPrescription.pharmacyOrder.encounter.patient,
+        patient: patient || item.pharmacyOrderPrescription.pharmacyOrder.encounter.patient,
         facility,
       });
       setLabelForPrint(reviewLabels[0]);

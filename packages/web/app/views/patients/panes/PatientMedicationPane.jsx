@@ -771,6 +771,7 @@ export const PatientMedicationPane = ({ patient }) => {
         <EditMedicationDispenseModal
           open
           medicationDispense={selectedDispense}
+          patient={patient}
           onClose={handleEditCancel}
           onConfirm={handleEditConfirm}
         />
