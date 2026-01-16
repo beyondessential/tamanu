@@ -4,7 +4,7 @@ import { getDob, getName, getSex } from '../patientAccessors';
 import { PrintableBarcode } from './printComponents/PrintableBarcode';
 import { P } from './Typography';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
-import { withDateTimeContext } from '../pdf/withDateTimeContext';
+import { useDateTimeFormat, withDateTimeContext } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 
 const fontSize = 11;
@@ -51,6 +51,7 @@ const Col = props => <View style={styles.col} {...props} />;
 const BarcodeContainer = props => <View style={styles.barcodeContainer} {...props} />;
 
 const IDLabel = ({ patient, getTranslation }) => {
+  const { formatShort } = useDateTimeFormat();
   return (
     <View style={styles.idLabel}>
       <Row>
@@ -71,7 +72,7 @@ const IDLabel = ({ patient, getTranslation }) => {
             {getSex(patient)}
           </P>
           <P mb={0} fontSize={fontSize} style={styles.text}>
-            {getDob(patient, { getTranslation })}
+            {getDob(patient, { getTranslation, formatShort })}
           </P>
         </Col>
       </Row>
