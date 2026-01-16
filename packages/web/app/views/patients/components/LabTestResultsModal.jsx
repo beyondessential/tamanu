@@ -5,6 +5,7 @@ import { keyBy, pick } from 'lodash';
 import { Alert, AlertTitle, Skeleton } from '@material-ui/lab';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
+import * as yup from 'yup';
 import { FormModal } from '../../../components/FormModal';
 import { BodyText, Heading4, SmallBodyText } from '../../../components/Typography';
 import { TextField, Form, ConfirmCancelRow, Field } from '@tamanu/ui-components';
@@ -44,6 +45,7 @@ const StyledTableFormFields = styled(TableFormFields)`
 
   tbody tr td {
     font-size: 14px;
+    vertical-align: top;
   }
 `;
 
@@ -68,7 +70,39 @@ const AUTOFILL_FIELD_NAMES = [
   LAB_TEST_PROPERTIES.LAB_TEST_METHOD_ID,
 ];
 
-const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
+const getValidationSchema = () =>
+  yup.object().shape({
+    labTests: yup.lazy(labTestsObj => {
+      if (!labTestsObj) return yup.object();
+      const shape = {};
+      Object.keys(labTestsObj).forEach(testId => {
+        shape[testId] = yup.object().shape({
+          result: yup.string().when('secondaryResult', {
+            is: secondaryResult => secondaryResult && secondaryResult.trim() !== '',
+            then: yup
+              .string()
+              .required(
+                <TranslatedText
+                  stringId="lab.validation.resultRequiredWhenSecondaryResultEntered"
+                  fallback="Result required when secondary result entered"
+                />,
+              ),
+            otherwise: yup.string().nullable(),
+          }),
+          secondaryResult: yup.string().nullable(),
+        });
+      });
+      return yup.object().shape(shape);
+    }),
+    resultsInterpretation: yup.string().nullable(),
+  });
+
+const getColumns = (
+  count,
+  onChangeResult,
+  areLabTestResultsReadOnly,
+  showSecondaryResultColumn,
+) => {
   // Generate tab index for vertical tabbing through the table
   const tabIndex = (col, row) => count * col + row + 1;
   return [
@@ -117,41 +151,45 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
         );
       },
     },
-    {
-      key: LAB_TEST_PROPERTIES.SECONDARY_RESULT,
-      title: (
-        <TranslatedText
-          stringId="lab.results.table.column.secondaryResult"
-          fallback="Secondary result"
-          data-testid="translatedtext-secondary-result"
-        />
-      ),
-      accessor: (row, i) => {
-        const { supportsSecondaryResults } = row.labTestType;
-        return (
-          <ConditionalTooltip
-            visible={!supportsSecondaryResults}
-            maxWidth="140px"
-            title={
+    ...(showSecondaryResultColumn
+      ? [
+          {
+            key: LAB_TEST_PROPERTIES.SECONDARY_RESULT,
+            title: (
               <TranslatedText
-                stringId="lab.results.tooltip.secondaryResultNotSupported"
-                fallback="Secondary result is not supported for this test."
-                data-testid="translatedtext-secondary-not-supported"
+                stringId="lab.results.table.column.secondaryResult"
+                fallback="Secondary result"
+                data-testid="translatedtext-secondary-result"
               />
-            }
-          >
-            <AccessorField
-              id={row.id}
-              component={TextField}
-              name={LAB_TEST_PROPERTIES.SECONDARY_RESULT}
-              disabled={areLabTestResultsReadOnly || !supportsSecondaryResults}
-              tabIndex={tabIndex(1, i)}
-              data-testid="accessorfield-secondary-result"
-            />
-          </ConditionalTooltip>
-        );
-      },
-    },
+            ),
+            accessor: (row, i) => {
+              const { supportsSecondaryResults } = row.labTestType;
+              return (
+                <ConditionalTooltip
+                  visible={!supportsSecondaryResults}
+                  maxWidth="140px"
+                  title={
+                    <TranslatedText
+                      stringId="lab.results.tooltip.secondaryResultNotSupported"
+                      fallback="Secondary result is not supported for this test."
+                      data-testid="translatedtext-secondary-not-supported"
+                    />
+                  }
+                >
+                  <AccessorField
+                    id={row.id}
+                    component={TextField}
+                    name={LAB_TEST_PROPERTIES.SECONDARY_RESULT}
+                    disabled={areLabTestResultsReadOnly || !supportsSecondaryResults}
+                    tabIndex={tabIndex(1, i)}
+                    data-testid="accessorfield-secondary-result"
+                  />
+                </ConditionalTooltip>
+              );
+            },
+          },
+        ]
+      : []),
     {
       key: 'unit',
       title: (
@@ -309,11 +347,12 @@ const ResultsForm = ({
     [values, setFieldValue],
   );
 
-  const columns = useMemo(() => getColumns(count, onChangeResult, areLabTestResultsReadOnly), [
-    count,
-    onChangeResult,
-    areLabTestResultsReadOnly,
-  ]);
+  const showSecondaryResultColumn = data?.some(row => row.labTestType?.supportsSecondaryResults);
+
+  const columns = useMemo(
+    () => getColumns(count, onChangeResult, areLabTestResultsReadOnly, showSecondaryResultColumn),
+    [count, onChangeResult, areLabTestResultsReadOnly, showSecondaryResultColumn],
+  );
 
   if (isLoading) return <ResultsFormSkeleton data-testid="resultsformskeleton-ibqy" />;
   if (isError) return <ResultsFormError error={error} data-testid="resultsformerror-se9z" />;
@@ -438,6 +477,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
         initialValues={initialData}
         formType={labTestResults ? FORM_TYPES.EDIT : FORM_TYPES.CREATE}
         enableReinitialize
+        validationSchema={getValidationSchema()}
         onSubmit={updateTests}
         render={({ submitForm, isSubmitting, dirty, ...props }) => {
           const confirmDisabled = isLoading || isError || isSavingTests || isSubmitting || !dirty;
