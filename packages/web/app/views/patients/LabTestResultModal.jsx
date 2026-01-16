@@ -10,7 +10,6 @@ import { DateDisplay } from '../../components/DateDisplay';
 import { ModalActionRow } from '../../components/ModalActionRow';
 import { BodyText } from '../../components/Typography';
 import { useLabRequest } from '../../contexts/LabRequest';
-import { useEncounter } from '../../contexts/Encounter';
 
 const ModalBody = styled.div`
   display: grid;
@@ -59,7 +58,6 @@ const ButtonContainer = styled.div`
 export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
   const { data: labTest } = useLabTestQuery(labTestId);
   const { loadLabRequest } = useLabRequest();
-  const { loadEncounter } = useEncounter();
   const navigate = useNavigate();
   const { category } = useParams();
 
@@ -69,7 +67,6 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
       encounter: { id: encounterId, patientId },
     } = labRequest;
 
-    await loadEncounter(encounterId);
     await loadLabRequest(labRequest.id);
     navigate(
       `/patients/${category || 'all'}/${patientId}/encounter/${encounterId}/lab-request/${
