@@ -63,7 +63,7 @@ export const PatientDetailsSection = ({
                   : patient[key]) || '';
               const label =
                 getTranslation(`general.localisedField.${key}.label.short`) ||
-                getTranslation(`general.localisedField.${key}.label`) ||
+                getTranslation(`general.localisedField.${key}.label`) ||  
                 defaultLabel;
 
               return (
