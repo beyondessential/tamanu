@@ -516,10 +516,29 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
             include: {
               model: ReferenceMedicationTemplate,
               as: 'medicationTemplate',
+              required: true,
               include: {
                 model: ReferenceData,
                 as: 'medication',
                 where: VISIBILITY_CRITERIA,
+                required: true,
+                include: {
+                  model: ReferenceDrug,
+                  as: 'referenceDrug',
+                  required: true,
+                  ...(req.query.facilityId ? {
+                    where: {
+                      id: {
+                        [Op.notIn]: Sequelize.literal(`(
+                          SELECT reference_drug_id
+                          FROM reference_drug_facilities
+                          WHERE facility_id = $facilityId
+                          AND stock_status = $unavailableStatus
+                        )`),
+                      },
+                    },
+                  } : {}),
+                }
               },
             },
           },
@@ -534,6 +553,15 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
       creatingBodyBuilder: req => referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
       afterCreated: afterCreatedReferenceData,
       mapper: item => item,
+      extraReplacementsBuilder: query => {
+        if (typeName === REFERENCE_TYPES.MEDICATION_SET && query.facilityId) {
+          return {
+            facilityId: query.facilityId,
+            unavailableStatus: DRUG_STOCK_STATUSES.UNAVAILABLE,
+          };
+        }
+        return {};
+      },
       orderBuilder: () => {
         if (typeName === REFERENCE_TYPES.NOTE_TYPE) {
           return [
