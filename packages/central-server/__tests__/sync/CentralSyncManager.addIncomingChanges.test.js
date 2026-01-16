@@ -25,6 +25,7 @@ describe('CentralSyncManager.addIncomingChanges', () => {
   });
 
   beforeEach(async () => {
+    jest.resetModules();
     await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 2);
     await models.SyncLookupTick.truncate({ force: true });
     await models.SyncDeviceTick.truncate({ force: true });
