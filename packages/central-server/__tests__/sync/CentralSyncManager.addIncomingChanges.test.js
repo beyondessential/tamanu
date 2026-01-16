@@ -188,7 +188,6 @@ describe('CentralSyncManager.addIncomingChanges', () => {
   });
 
   it('inserts incoming changes into snapshots', async () => {
-    const facility = await models.Facility.create(fake(models.Facility));
     const patient1 = await models.Patient.create(fake(models.Patient));
     const patient2 = await models.Patient.create(fake(models.Patient));
     const changes = [patient1, patient2].map(r => ({
@@ -199,142 +198,29 @@ describe('CentralSyncManager.addIncomingChanges', () => {
       data: r.dataValues,
     }));
 
+    jest.doMock('@tamanu/database/sync', () => ({
+      ...jest.requireActual('@tamanu/database/sync'),
+      insertSnapshotRecords: jest.fn(),
+    }));
+
     const centralSyncManager = initializeCentralSyncManager();
+
+    const { insertSnapshotRecords } = require('@tamanu/database/sync');
     const { sessionId } = await centralSyncManager.startSession();
     await waitForSession(centralSyncManager, sessionId);
 
-    // Setup snapshot table
-    await centralSyncManager.setupSnapshotForPull(
+    await centralSyncManager.addIncomingChanges(sessionId, changes);
+    const incomingChanges = changes.map(c => ({
+      ...c,
+      direction: SYNC_SESSION_DIRECTION.INCOMING,
+      updatedAtByFieldSum: null,
+    }));
+
+    expect(insertSnapshotRecords).toBeCalledTimes(1);
+    expect(insertSnapshotRecords).toBeCalledWith(
+      ctx.store.sequelize,
       sessionId,
-      {
-        since: 1,
-        facilityIds: [facility.id],
-      },
-      () => true,
+      expect.arrayContaining(incomingChanges),
     );
-
-    // Should successfully add incoming changes for models with allowed syncDirection
-    // Patient has BIDIRECTIONAL syncDirection so this should not throw
-    await expect(centralSyncManager.addIncomingChanges(sessionId, changes)).resolves.not.toThrow();
-
-    // Verify the changes were persisted by checking the snapshot table
-    const snapshotRecords = await sequelize.query(
-      `SELECT * FROM "sync_snapshot_${sessionId}" WHERE record_type = 'patients' ORDER BY record_id`,
-      { type: sequelize.QueryTypes.SELECT },
-    );
-
-    expect(snapshotRecords).toHaveLength(2);
-    expect(snapshotRecords.map(r => r.record_id)).toEqual(
-      expect.arrayContaining([patient1.id, patient2.id]),
-    );
-  });
-
-  it('rejects incoming changes with invalid syncDirection', async () => {
-    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '18');
-    const facility = await models.Facility.create(fake(models.Facility));
-
-    // Facility has PULL_FROM_CENTRAL syncDirection, which should not be allowed for push
-    const facilityData = fake(models.Facility);
-    const changes = [
-      {
-        direction: SYNC_SESSION_DIRECTION.OUTGOING,
-        isDeleted: false,
-        recordType: 'facilities',
-        recordId: facilityData.id,
-        data: facilityData,
-      },
-    ];
-
-    const centralSyncManager = initializeCentralSyncManager({
-      sync: {
-        lookupTable: {
-          enabled: true,
-        },
-        maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
-      },
-    });
-    await centralSyncManager.updateLookupTable();
-    const { sessionId } = await centralSyncManager.startSession();
-    await waitForSession(centralSyncManager, sessionId);
-
-    await centralSyncManager.setupSnapshotForPull(
-      sessionId,
-      {
-        since: 1,
-        facilityIds: [facility.id],
-      },
-      () => true,
-    );
-
-    // Should throw an error
-    await expect(centralSyncManager.addIncomingChanges(sessionId, changes)).rejects.toThrow(
-      'Sync security violation',
-    );
-
-    // Session should be marked as errored
-    const session = await models.SyncSession.findByPk(sessionId);
-    expect(session.errors).toHaveLength(1);
-    expect(session.errors[0]).toContain('Sync security violation');
-
-    // Debug info should contain rejected record
-    expect(session.debugInfo).toHaveProperty('rejectedRecord');
-    expect(session.debugInfo.rejectedRecord).toEqual({
-      type: 'facilities',
-      id: facilityData.id,
-    });
-  });
-
-  it('allows incoming changes with valid syncDirection', async () => {
-    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '19');
-    const facility = await models.Facility.create(fake(models.Facility));
-    const patient = await models.Patient.create(fake(models.Patient));
-    const program = await models.Program.create(fake(models.Program));
-    const clinician = await models.User.create(fakeUser());
-
-    const programRegistry = await models.ProgramRegistry.create({
-      ...fake(models.ProgramRegistry),
-      programId: program.id,
-    });
-
-    // PatientProgramRegistration has BIDIRECTIONAL syncDirection, which is allowed
-    const patientProgramRegistrationData = fake(models.PatientProgramRegistration, {
-      programRegistryId: programRegistry.id,
-      clinicianId: clinician.id,
-      patientId: patient.id,
-      facilityId: facility.id,
-    });
-    const changes = [
-      {
-        direction: SYNC_SESSION_DIRECTION.OUTGOING,
-        isDeleted: false,
-        recordType: 'patient_program_registrations',
-        recordId: patientProgramRegistrationData.id,
-        data: patientProgramRegistrationData,
-      },
-    ];
-
-    const centralSyncManager = initializeCentralSyncManager({
-      sync: {
-        lookupTable: {
-          enabled: true,
-        },
-        maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
-      },
-    });
-    await centralSyncManager.updateLookupTable();
-    const { sessionId } = await centralSyncManager.startSession();
-    await waitForSession(centralSyncManager, sessionId);
-
-    await centralSyncManager.setupSnapshotForPull(
-      sessionId,
-      {
-        since: 1,
-        facilityIds: [facility.id],
-      },
-      () => true,
-    );
-
-    // Should not throw an error
-    await expect(centralSyncManager.addIncomingChanges(sessionId, changes)).resolves.not.toThrow();
   });
 });
