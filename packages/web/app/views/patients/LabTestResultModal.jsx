@@ -81,6 +81,19 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
             value={labTest?.result}
             data-testid="valuedisplay-upbf"
           />
+          {labTest?.labTestType?.supportsSecondaryResults && (
+            <ValueDisplay
+              title={
+                <TranslatedText
+                  stringId="lab.modal.testResult.value.secondaryResult"
+                  fallback="Secondary result"
+                  data-testid="translatedtext-secondary-result"
+                />
+              }
+              value={labTest?.secondaryResult}
+              data-testid="valuedisplay-secondary-result"
+            />
+          )}
           <ValueDisplay
             title={
               <TranslatedText

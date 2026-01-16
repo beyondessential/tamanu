@@ -105,10 +105,16 @@ const LabResultsPrintoutComponent = React.memo(
       {
         key: 'result',
         title: getTranslation('lab.results.table.column.result', 'Result'),
-        accessor: ({ result, labTestType }) => {
+        accessor: ({ result, secondaryResult, labTestType }) => {
           if (result === undefined || result === null || result === '') return '';
           const unit = labTestType?.unit;
-          return unit ? `${result} ${unit}` : result;
+          const resultWithUnit = unit ? `${result} ${unit}` : result;
+          
+          // Add secondary result in brackets if present
+          if (secondaryResult && labTestType?.supportsSecondaryResults) {
+            return `${resultWithUnit} (${secondaryResult})`;
+          }
+          return resultWithUnit;
         },
       },
       {

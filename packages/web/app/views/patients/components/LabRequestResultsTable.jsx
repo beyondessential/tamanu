@@ -8,6 +8,7 @@ import { getCompletedDate, getMethod } from '../../../utils/lab';
 import { useTranslation } from '../../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 import { TranslatedOption } from '../../../components/Translation/TranslatedOptions';
+import { ConditionalTooltip } from '../../../components/Tooltip';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
   table tbody tr:last-child td {
@@ -51,18 +52,36 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
         />
       ),
       key: 'result',
-      accessor: ({ labTestType, result }) => {
-        const { options, id: labTestTypeId } = labTestType;
+      accessor: ({ labTestType, result, secondaryResult }) => {
+        const { options, id: labTestTypeId, supportsSecondaryResults } = labTestType;
+        
+        let displayResult;
         if (options && options.length > 0) {
-          return (
+          displayResult = (
             <TranslatedOption
               value={result}
               referenceDataId={labTestTypeId}
               referenceDataCategory="labTestType"
             />
           );
+        } else {
+          displayResult = result ?? '';
         }
-        return result ?? '';
+        
+        // Show tooltip with secondary result if present
+        const hasSecondaryResult = supportsSecondaryResults && secondaryResult;
+        return (
+          <ConditionalTooltip
+            visible={hasSecondaryResult}
+            title={getTranslation(
+              'lab.results.tooltip.secondaryResult',
+              'Secondary result: :secondaryResult',
+              { replacements: { secondaryResult } }
+            )}
+          >
+            {displayResult}
+          </ConditionalTooltip>
+        );
       },
       sortable: false,
     },

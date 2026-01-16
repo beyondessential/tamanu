@@ -58,6 +58,7 @@ const LAB_TEST_PROPERTIES = {
   ID: 'id',
   LAB_TEST_METHOD_ID: 'labTestMethodId',
   RESULT: 'result',
+  SECONDARY_RESULT: 'secondaryResult',
   VERIFICATION: 'verification',
 };
 
@@ -116,6 +117,32 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
       },
     },
     {
+      key: LAB_TEST_PROPERTIES.SECONDARY_RESULT,
+      title: (
+        <TranslatedText
+          stringId="lab.results.table.column.secondaryResult"
+          fallback="Secondary result"
+          data-testid="translatedtext-secondary-result"
+        />
+      ),
+      accessor: (row, i) => {
+        const { supportsSecondaryResults } = row.labTestType;
+        if (!supportsSecondaryResults) {
+          return <BodyText color="textTertiary" data-testid="bodytext-na">N/A</BodyText>;
+        }
+        return (
+          <AccessorField
+            id={row.id}
+            component={TextField}
+            name={LAB_TEST_PROPERTIES.SECONDARY_RESULT}
+            disabled={areLabTestResultsReadOnly}
+            tabIndex={tabIndex(1, i)}
+            data-testid="accessorfield-secondary-result"
+          />
+        );
+      },
+    },
+    {
       key: 'unit',
       title: (
         <TranslatedText
@@ -146,7 +173,7 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
           endpoint="labTestMethod"
           name={LAB_TEST_PROPERTIES.LAB_TEST_METHOD_ID}
           component={SuggesterSelectField}
-          tabIndex={tabIndex(1, i)}
+          tabIndex={tabIndex(2, i)}
           data-testid="accessorfield-ik1h"
         />
       ),
@@ -165,7 +192,7 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
           id={row.id}
           component={TextField}
           name={LAB_TEST_PROPERTIES.VERIFICATION}
-          tabIndex={tabIndex(2, i)}
+          tabIndex={tabIndex(3, i)}
           data-testid="accessorfield-jhrr"
         />
       ),
@@ -185,7 +212,7 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
           id={row.id}
           component={DateTimeField}
           name={LAB_TEST_PROPERTIES.COMPLETED_DATE}
-          tabIndex={tabIndex(3, i)}
+          tabIndex={tabIndex(4, i)}
           saveDateAsString
           data-testid="accessorfield-k5ef"
         />
