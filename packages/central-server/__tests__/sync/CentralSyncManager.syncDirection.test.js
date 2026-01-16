@@ -6,14 +6,12 @@ import { SYSTEM_USER_UUID } from '@tamanu/constants';
 import {
   createTestContext,
   waitForSession,
-  waitForPushCompleted,
   initializeCentralSyncManagerWithContext,
 } from '../utilities';
 
-describe('CentralSyncManager.addIncomingChanges', () => {
+describe('CentralSyncManager.addIncomingChanges syncDirection validation', () => {
   let ctx;
   let models;
-  let sequelize;
 
   const DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS = 100000000;
   const initializeCentralSyncManager = config =>
@@ -21,7 +19,7 @@ describe('CentralSyncManager.addIncomingChanges', () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    ({ models, sequelize } = ctx.store);
+    ({ models } = ctx.store);
   });
 
   beforeEach(async () => {
