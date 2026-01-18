@@ -12,10 +12,10 @@ import {
   formatTime,
 } from '@tamanu/utils/dateTime';
 
-import { TAMANU_COLORS } from '../constants';
-import { ThemedTooltip } from './Tooltip';
-import { useDateTimeFormat } from '../contexts';
-import { DiagnosticInfo } from './DiagnosticInfo';
+import { TAMANU_COLORS } from '../../constants';
+import { ThemedTooltip } from '../Tooltip';
+import { useDateTimeFormat } from '../../contexts';
+import { DiagnosticInfo } from '../DiagnosticInfo';
 
 
 const Text = styled(Typography)`
