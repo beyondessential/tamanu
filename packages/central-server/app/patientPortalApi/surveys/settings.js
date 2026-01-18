@@ -1,6 +1,6 @@
+import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { ReadSettings } from '@tamanu/settings';
-import config from 'config';
 
 export const getSettings = asyncHandler(async (req, res) => {
   const {
@@ -8,9 +8,10 @@ export const getSettings = asyncHandler(async (req, res) => {
     store: { models },
   } = req;
 
+  const { countryTimeZone } = config;
   const settingsReader = new ReadSettings(models, {
     facilityId,
-    countryTimeZone: config.countryTimeZone,
+    countryTimeZone,
   });
   const settings = await settingsReader.getPatientPortalSettings();
 

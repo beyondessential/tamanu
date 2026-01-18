@@ -114,7 +114,11 @@ describe('Read Settings', () => {
       facilityA,
     );
 
-    const settingsReaderA = new ReadSettings(models, { facilityId: facilityA, countryTimeZone: config.countryTimeZone });
+    const { countryTimeZone } = config;
+    const settingsReaderA = new ReadSettings(models, {
+      facilityId: facilityA,
+      countryTimeZone,
+    });
 
     const contextSettingValue = await settings.get('survey.defaultCodes.location');
     const readerAValue = await settingsReaderA.get('survey.defaultCodes.location');
