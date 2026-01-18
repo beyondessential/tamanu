@@ -98,9 +98,11 @@ const getValidationSchema = () =>
   });
 
 const getColumns = (
-  labTestResults,
-  onChangeResult,
-  areLabTestResultsReadOnly,
+  {
+    labTestResults,
+    onChangeResult,
+    areLabTestResultsReadOnly
+  }
 ) => {
   const { count, data } = labTestResults || {};
   // Generate tab index for vertical tabbing through the table
@@ -350,7 +352,7 @@ const ResultsForm = ({
   );
 
   const columns = useMemo(
-    () => getColumns(labTestResults, onChangeResult, areLabTestResultsReadOnly),
+    () => getColumns({labTestResults, onChangeResult, areLabTestResultsReadOnly}),
     [labTestResults, onChangeResult, areLabTestResultsReadOnly],
   );
 
