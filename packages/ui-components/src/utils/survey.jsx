@@ -17,7 +17,6 @@ import {
   ageInWeeks,
   ageInYears,
   getCurrentDateTimeString,
-  formatShort,
 } from '@tamanu/utils/dateTime';
 import { getPatientNameAsString, TranslatedText } from '../components';
 import { notify } from './notify';
@@ -390,11 +389,11 @@ export const checkMandatory = (mandatory, values) => {
   }
 };
 
-/* TODO date display todo */
 export const getPatientDataDisplayValue = async ({
   api,
   getEnumTranslation,
   getReferenceDataTranslation,
+  formatShort,
   value,
   config,
 }) => {
