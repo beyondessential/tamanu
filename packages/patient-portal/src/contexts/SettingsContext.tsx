@@ -47,7 +47,6 @@ export const SettingsProvider = ({ facilityId, children }: SettingsProviderProps
       value={{
         getSetting: (path: string) => get(settings, path),
         settings,
-        isSettingsLoaded: true,
       }}
     >
       <DateTimeProvider>
