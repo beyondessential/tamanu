@@ -98,13 +98,16 @@ const getValidationSchema = () =>
   });
 
 const getColumns = (
-  count,
+  labTestResults,
   onChangeResult,
   areLabTestResultsReadOnly,
-  showSecondaryResultColumn,
 ) => {
+  const { count, data } = labTestResults || {};
   // Generate tab index for vertical tabbing through the table
   const tabIndex = (col, row) => count * col + row + 1;
+  const showSecondaryResultColumn = data?.some(
+    row => row.labTestType?.supportsSecondaryResults || row.secondaryResult,
+  );
   return [
     {
       key: 'labTestType',
@@ -316,7 +319,6 @@ const ResultsForm = ({
   setFieldValue,
   areLabTestResultsReadOnly,
 }) => {
-  const { count, data } = labTestResults;
   /**
    * On entering lab result field for a test some other fields are auto-filled optimistically
    * In the case of labTestMethod this occurs in the case that:
@@ -347,13 +349,9 @@ const ResultsForm = ({
     [values, setFieldValue],
   );
 
-  const showSecondaryResultColumn = data?.some(
-    row => row.labTestType?.supportsSecondaryResults || row.secondaryResult,
-  );
-
   const columns = useMemo(
-    () => getColumns(count, onChangeResult, areLabTestResultsReadOnly, showSecondaryResultColumn),
-    [count, onChangeResult, areLabTestResultsReadOnly, showSecondaryResultColumn],
+    () => getColumns(labTestResults, onChangeResult, areLabTestResultsReadOnly),
+    [labTestResults, onChangeResult, areLabTestResultsReadOnly],
   );
 
   if (isLoading) return <ResultsFormSkeleton data-testid="resultsformskeleton-ibqy" />;
@@ -382,7 +380,7 @@ const ResultsForm = ({
       <TableContainer data-testid="tablecontainer-dyto">
         <StyledTableFormFields
           columns={columns}
-          data={data}
+          data={labTestResults?.data}
           data-testid="styledtableformfields-5s0u"
         />
       </TableContainer>
