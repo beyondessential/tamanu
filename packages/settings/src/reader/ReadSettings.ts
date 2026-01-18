@@ -32,7 +32,11 @@ export const KEYS_EXPOSED_TO_FRONT_END = [
   'timeZone',
 ] as const;
 
-export const KEYS_EXPOSED_TO_PATIENT_PORTAL = ['features', 'fileChooserMbSizeLimit'] as const;
+export const KEYS_EXPOSED_TO_PATIENT_PORTAL = [
+  'features',
+  'fileChooserMbSizeLimit',
+  'timeZone',
+] as const;
 
 export interface ReadSettingsOptions {
   facilityId?: string;
@@ -68,7 +72,11 @@ export class ReadSettings<Path = SettingPath> {
 
   async getPatientPortalSettings() {
     const allSettings = await this.getAll();
-    return pick(allSettings, KEYS_EXPOSED_TO_PATIENT_PORTAL);
+    const portalSettings = pick(allSettings, KEYS_EXPOSED_TO_PATIENT_PORTAL);
+    return {
+      ...portalSettings,
+      countryTimeZone: this.countryTimeZone,
+    };
   }
 
   async getAll() {

@@ -3,7 +3,7 @@ import { get } from 'lodash';
 import { styled } from '@mui/material';
 import { Alert } from '@material-ui/lab';
 import { useQuery } from '@tanstack/react-query';
-import { SettingsContext, useApi } from '@tamanu/ui-components';
+import { DateTimeProvider, SettingsContext, useApi } from '@tamanu/ui-components';
 import { StyledCircularProgress } from '@components/StyledCircularProgress';
 
 const ErrorAlert = styled(Alert)(() => ({
@@ -47,9 +47,12 @@ export const SettingsProvider = ({ facilityId, children }: SettingsProviderProps
       value={{
         getSetting: (path: string) => get(settings, path),
         settings,
+        isSettingsLoaded: true,
       }}
     >
-      {children}
+      <DateTimeProvider>
+        {children}
+      </DateTimeProvider>
     </SettingsContext.Provider>
   );
 };
