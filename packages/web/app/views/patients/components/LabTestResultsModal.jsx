@@ -347,7 +347,9 @@ const ResultsForm = ({
     [values, setFieldValue],
   );
 
-  const showSecondaryResultColumn = data?.some(row => row.labTestType?.supportsSecondaryResults);
+  const showSecondaryResultColumn = data?.some(
+    row => row.labTestType?.supportsSecondaryResults || row.secondaryResult,
+  );
 
   const columns = useMemo(
     () => getColumns(count, onChangeResult, areLabTestResultsReadOnly, showSecondaryResultColumn),
