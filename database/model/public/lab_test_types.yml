@@ -99,6 +99,11 @@ sources:
           - name: external_code
             data_type: text
             description: "{{ doc('lab_test_types__external_code') }}"
+          - name: supports_secondary_results
+            data_type: boolean
+            description: "{{ doc('lab_test_types__supports_secondary_results') }}"
+            data_tests:
+              - not_null
           - name: is_sensitive
             data_type: boolean
             description: "{{ doc('lab_test_types__is_sensitive') }}"

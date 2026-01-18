@@ -39,3 +39,9 @@ May be a verifying or supervising officer's name, a department, lab notes...
 {% docs lab_tests__completed_date_legacy %}
 [Deprecated] Timestamp at which the test was completed.
 {% enddocs %}
+
+{% docs lab_tests__secondary_result %}
+Optional secondary result value for the test.
+
+Only applicable when the test type has `supports_secondary_results` enabled. Used to record an additional result value alongside the primary result, typically for tests that require multiple measurements or interpretations.
+{% enddocs %}
