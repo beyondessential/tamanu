@@ -67,8 +67,9 @@ export class ApplicationContext {
       this.onClose(resolve);
     });
 
+    const { countryTimeZone } = config;
     this.settings = new ReadSettings(this.store.models, {
-      countryTimeZone: config.countryTimeZone,
+      countryTimeZone,
     });
 
     // no need to set up services, integrations, etc. for migrations
