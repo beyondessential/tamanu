@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useAuth, useApi } from '../../contexts';
 import { Suggester } from './Suggester';
 import { getPatientNameAsString } from '../PatientNameDisplay';
-import { DateDisplay } from '../DateDisplay';
+import { useDateTimeFormat } from '../../contexts/DateTimeContext';
 
 export const useSuggester = (type, options) => {
   const api = useApi();
@@ -20,12 +20,15 @@ export const useSuggester = (type, options) => {
 
 export const usePatientSuggester = () => {
   const api = useApi();
-  return new Suggester(api, 'patient', {
-    formatter: ({ id, ...patient }) => ({
-      label: `${getPatientNameAsString(patient)} (${patient.displayId}) - ${
-        patient.sex
-      } - ${DateDisplay.stringFormat(patient.dateOfBirth)}`,
-      value: id,
-    }),
-  });
+  const { formatShort } = useDateTimeFormat();
+  return useMemo(
+    () =>
+      new Suggester(api, 'patient', {
+        formatter: ({ id, ...patient }) => ({
+          label: `${getPatientNameAsString(patient)}(${patient.displayId}) - ${patient.sex} - ${formatShort(patient.dateOfBirth)}`,
+          value: id,
+        }),
+      }),
+    [api, formatShort],
+  );
 };
