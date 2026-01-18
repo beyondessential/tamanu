@@ -17,8 +17,9 @@ class MockApplicationContext {
   closeHooks = [];
 
   async init() {
-    const { countryTimeZone } = config;
     this.store = await initDatabase({ testMode: true });
+    
+    const { countryTimeZone } = config;
     this.settings = new ReadSettings(this.store.models, {
       countryTimeZone,
     });

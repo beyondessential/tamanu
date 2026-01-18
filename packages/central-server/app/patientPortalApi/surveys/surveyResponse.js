@@ -1,5 +1,6 @@
 import config from 'config';
 import asyncHandler from 'express-async-handler';
+
 import { log } from '@tamanu/shared/services/logging/index';
 import { CreateSurveyResponseRequestSchema } from '@tamanu/shared/schemas/patientPortal/requests/createSurveyResponse.schema';
 import { PORTAL_SURVEY_ASSIGNMENTS_STATUSES, SYSTEM_USER_UUID } from '@tamanu/constants';
@@ -28,10 +29,11 @@ export const createSurveyResponse = asyncHandler(async (req, res) => {
     throw new NotFoundError('Survey was not assigned to the patient');
   }
 
+  const { countryTimeZone } = config;
   const { facilityId } = assignedSurvey;
   const settingsReader = new ReadSettings(models, {
     facilityId,
-    countryTimeZone: config.countryTimeZone,
+    countryTimeZone,
   });
   const getDefaultId = async resource =>
     models.SurveyResponseAnswer.getDefaultId(resource, settingsReader);
