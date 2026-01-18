@@ -1,7 +1,7 @@
 import React from 'react';
-import { useDateTimeFormat } from '../../contexts';
 import { getTimezoneOffset } from 'date-fns-tz';
 import { locale } from '@tamanu/utils/dateTime';
+import { useDateTimeFormat } from '../../contexts/DateTimeContext';
 
 const getFormattedOffset = (tz, date) => {
   if (!tz) return 'N/A';
