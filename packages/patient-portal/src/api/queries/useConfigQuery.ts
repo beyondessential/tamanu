@@ -11,6 +11,7 @@ export const useConfigQuery = () => {
   return useQuery<PortalConfig>({
     queryKey: ['config'],
     queryFn: () => api.get('config'),
+    // Not likely to change in a users session
     staleTime: Infinity,
   });
 };
