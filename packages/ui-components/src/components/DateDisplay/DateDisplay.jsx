@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import { isSameDay } from 'date-fns';
-import { getTimezoneOffset } from 'date-fns-tz';
 import { Box, Typography } from '@material-ui/core';
 import styled from 'styled-components';
 import {
   parseDate,
-  locale,
   isISO9075DateString,
   formatShortest,
   formatShort,
@@ -13,9 +11,12 @@ import {
   formatShortExplicit,
   formatTime,
 } from '@tamanu/utils/dateTime';
+
 import { TAMANU_COLORS } from '../constants';
 import { ThemedTooltip } from './Tooltip';
 import { useDateTimeFormat } from '../contexts';
+import { DiagnosticInfo } from './DiagnosticInfo';
+
 
 const Text = styled(Typography)`
   font-size: inherit;
@@ -26,33 +27,6 @@ const Text = styled(Typography)`
 const SoftText = styled(Text)`
   color: ${TAMANU_COLORS.midText};
 `;
-
-const getFormattedOffset = (tz, date) => {
-  if (!tz) return 'N/A';
-  const offsetMs = getTimezoneOffset(tz, date);
-  const offsetMinutes = Math.abs(offsetMs / 60000);
-  const hours = Math.floor(offsetMinutes / 60);
-  const minutes = offsetMinutes % 60;
-  const sign = offsetMs >= 0 ? '+' : '-';
-  return `${sign}${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-};
-
-const DiagnosticInfo = ({ date, timeZone, countryTimeZone }) => {
-  const { formatLong } = useDateTimeFormat();
-  const displayDate = formatLong(date);
-  const now = new Date();
-  const displayOffset = getFormattedOffset(timeZone, now);
-  return (
-    <div>
-      <strong>Raw date string:</strong> {date} <br />
-      <strong>Source timezone:</strong> {countryTimeZone || 'N/A'} <br />
-      <strong>Display timezone:</strong> {timeZone || 'N/A'} <br />
-      <strong>Display offset:</strong> {displayOffset} <br />
-      <strong>Display date:</strong> {displayDate} <br />
-      <strong>Locale:</strong> {locale}
-    </div>
-  );
-};
 
 const DateTooltip = ({ date, children, timeOnlyTooltip, timeZone, countryTimeZone }) => {
   const isDateOnly = isISO9075DateString(date);
