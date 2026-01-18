@@ -37,37 +37,17 @@ const getFormattedOffset = (tz, date) => {
   return `${sign}${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
 };
 
-const getFormattedOffsetDifference = (date, timeZone, countryTimeZone) => {
-  if (!timeZone || !countryTimeZone) return 'N/A';
-  if (isISO9075DateString(date)) return '00:00 (Date only)';
-  const dateObj = parseDate(date);
-  const timeZoneOffset = getTimezoneOffset(timeZone, dateObj);
-  const countryTimeZoneOffset = getTimezoneOffset(countryTimeZone, dateObj);
-  const diffMs = timeZoneOffset - countryTimeZoneOffset;
-  const diffMinutes = Math.abs(diffMs / 60000);
-  const hours = Math.floor(diffMinutes / 60);
-  const minutes = diffMinutes % 60;
-  const sign = diffMs >= 0 ? '+' : '-';
-  return `${sign}${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-};
-
 const DiagnosticInfo = ({ date, timeZone, countryTimeZone }) => {
   const { formatLong } = useDateTimeFormat();
   const displayDate = formatLong(date);
   const now = new Date();
   const displayOffset = getFormattedOffset(timeZone, now);
-  const sourceOffset = getFormattedOffset(countryTimeZone, now);
-  const deviceOffset = format(now, 'XXX');
-
   return (
     <div>
       <strong>Raw date string:</strong> {date} <br />
-      <strong>Source timezone:</strong> {countryTimeZone || 'N/A'} ({sourceOffset}) <br />
-      <strong>Display timezone:</strong> {timeZone || 'N/A'} ({displayOffset}) <br />
-      <strong>Device timezone:</strong> {Intl.DateTimeFormat().resolvedOptions().timeZone} (
-      {deviceOffset}) <br />
-      <strong>Offset applied to date:</strong>{' '}
-      {getFormattedOffsetDifference(date, timeZone, countryTimeZone)} <br />
+      <strong>Source timezone:</strong> {countryTimeZone || 'N/A'} <br />
+      <strong>Display timezone:</strong> {timeZone || 'N/A'} <br />
+      <strong>Display offset:</strong> {displayOffset} <br />
       <strong>Display date:</strong> {displayDate} <br />
       <strong>Locale:</strong> {locale}
     </div>
@@ -104,7 +84,12 @@ const DateTooltip = ({ date, children, timeOnlyTooltip, timeZone, countryTimeZon
   );
 
   return (
-    <ThemedTooltip open={tooltipOpen} onClose={handleClose} onOpen={handleOpen} title={tooltipTitle}>
+    <ThemedTooltip
+      open={tooltipOpen}
+      onClose={handleClose}
+      onOpen={handleOpen}
+      title={tooltipTitle}
+    >
       {children}
     </ThemedTooltip>
   );
