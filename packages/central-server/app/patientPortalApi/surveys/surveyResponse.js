@@ -29,7 +29,10 @@ export const createSurveyResponse = asyncHandler(async (req, res) => {
   }
 
   const { facilityId } = assignedSurvey;
-  const settingsReader = new ReadSettings(models, { facilityId, countryTimeZone: config.countryTimeZone });
+  const settingsReader = new ReadSettings(models, {
+    facilityId,
+    countryTimeZone: config.countryTimeZone,
+  });
   const getDefaultId = async resource =>
     models.SurveyResponseAnswer.getDefaultId(resource, settingsReader);
 
