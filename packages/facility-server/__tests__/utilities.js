@@ -232,14 +232,15 @@ export async function createTestContext({ enableReportInstances, databaseOverrid
 
   jest.setTimeout(30 * 1000); // more generous than the default 5s but not crazy
 
+  const { countryTimeZone } = config;
   const settings = facilityIds.reduce(
     (acc, facilityId) => ({
       ...acc,
-      [facilityId]: new ReadSettings(models, { facilityId, countryTimeZone: config.countryTimeZone }),
+      [facilityId]: new ReadSettings(models, { facilityId, countryTimeZone }),
     }),
     {},
   );
-  settings.global = new ReadSettings(models, { countryTimeZone: config.countryTimeZone });
+  settings.global = new ReadSettings(models, { countryTimeZone });
   const centralServer = new CentralServerConnection({ deviceId: 'test' });
 
   context.onClose(async () => {
