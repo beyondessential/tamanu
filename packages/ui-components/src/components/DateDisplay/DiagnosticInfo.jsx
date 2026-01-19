@@ -15,16 +15,17 @@ const getFormattedOffset = (tz, date) => {
   return `${sign}${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
 };
 
-export const DiagnosticInfo = ({ date, timeZone, countryTimeZone }) => {
+export const DiagnosticInfo = ({ date, facilityTimeZone, countryTimeZone }) => {
   const { formatLong } = useDateTimeFormat();
   const displayDate = formatLong(date);
   const now = new Date();
-  const displayOffset = getFormattedOffset(timeZone, now);
-  return (
+  const displayTimeZone = facilityTimeZone || countryTimeZone;
+  const displayOffset = getFormattedOffset(displayTimeZone, now);
+  return (  
     <div>
       <strong>Raw date string:</strong> {date} <br />
-      <strong>Source timezone:</strong> {countryTimeZone || 'N/A'} <br />
-      <strong>Display timezone:</strong> {timeZone || 'N/A'} <br />
+      <strong>Source timezone:</strong> {countryTimeZone} <br />
+      <strong>Display timezone:</strong> {displayTimeZone} <br />
       <strong>Display offset:</strong> {displayOffset} <br />
       <strong>Display date:</strong> {displayDate} <br />
       <strong>Locale:</strong> {locale}
