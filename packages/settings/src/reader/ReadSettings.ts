@@ -37,7 +37,6 @@ export const KEYS_EXPOSED_TO_PATIENT_PORTAL = ['features', 'fileChooserMbSizeLim
 export class ReadSettings<Path = SettingPath> {
   models: Models;
   facilityId?: string;
-
   constructor(models: Models, facilityId?: string) {
     this.models = models;
     this.facilityId = facilityId;
