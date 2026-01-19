@@ -108,12 +108,12 @@ const LabResultsPrintoutComponent = React.memo(
         accessor: ({ result, secondaryResult, labTestType }) => {
           if (result === undefined || result === null || result === '') return '';
           const unit = labTestType?.unit;
-          const formattedResult = unit ? `${result} ${unit}` : result;
+          const resultWithUnit = unit ? `${result} ${unit}` : result;
           
           if (secondaryResult) {
-            return `${formattedResult} (${secondaryResult})`;
+            return `${resultWithUnit} (${secondaryResult})`;
           }
-          return formattedResult;
+          return resultWithUnit;
         },
       },
       {
