@@ -6,6 +6,7 @@ import { AppointmentSchema } from '@tamanu/shared/schemas/patientPortal/response
 import { LocationGroupSchema } from '@tamanu/shared/schemas/patientPortal/responses/locationGroup.schema';
 import { FacilitySchema } from '@tamanu/shared/schemas/patientPortal/responses/facility.schema';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { ReadSettings } from '@tamanu/settings';
 
 const APPOINTMENT_ATTRIBUTES = {
   appointment: getAttributesFromSchema(AppointmentSchema),
@@ -62,5 +63,24 @@ export const getUpcomingAppointments = asyncHandler(async (req, res) => {
     include: appointmentIncludes,
     order: [['startTime', 'ASC']],
   });
-  res.send(appointments.map(appointment => AppointmentSchema.parse(appointment.forResponse())));
+
+  // TODO: kinda horrible
+  const settingReaders = {};
+  res.send(
+    await Promise.all(
+      appointments.map(async appointment => {
+        const facilityId = appointment.locationGroup.facilityId;
+        if (!settingReaders[facilityId]) {
+          settingReaders[facilityId] = new ReadSettings(models, {
+            facilityId,
+          });
+        }
+        const facilityTimeZone = await settingReaders[facilityId].get('facilityTimeZone');
+        return AppointmentSchema.parse({
+          ...appointment.forResponse(),
+          facilityTimeZone,
+        });
+      }),
+    ),
+  );
 });
