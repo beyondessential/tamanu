@@ -159,42 +159,42 @@ const getColumns = (
     },
     ...(showSecondaryResultColumn
       ? [
-          {
-            key: LAB_TEST_PROPERTIES.SECONDARY_RESULT,
-            title: (
-              <TranslatedText
-                stringId="lab.results.table.column.secondaryResult"
-                fallback="Secondary result"
-                data-testid="translatedtext-secondary-result"
-              />
-            ),
-            accessor: (row, i) => {
-              const { supportsSecondaryResults } = row.labTestType;
-              return (
-                <ConditionalTooltip
-                  visible={!supportsSecondaryResults}
-                  maxWidth="140px"
-                  title={
-                    <TranslatedText
-                      stringId="lab.results.tooltip.secondaryResultNotSupported"
-                      fallback="Secondary result is not supported for this test."
-                      data-testid="translatedtext-secondary-not-supported"
-                    />
-                  }
-                >
-                  <AccessorField
-                    id={row.id}
-                    component={TextField}
-                    name={LAB_TEST_PROPERTIES.SECONDARY_RESULT}
-                    disabled={areLabTestResultsReadOnly || !supportsSecondaryResults}
-                    tabIndex={tabIndex(1, i)}
-                    data-testid="accessorfield-secondary-result"
+        {
+          key: LAB_TEST_PROPERTIES.SECONDARY_RESULT,
+          title: (
+            <TranslatedText
+              stringId="lab.results.table.column.secondaryResult"
+              fallback="Secondary result"
+              data-testid="translatedtext-secondary-result"
+            />
+          ),
+          accessor: (row, i) => {
+            const { supportsSecondaryResults } = row.labTestType;
+            return (
+              <ConditionalTooltip
+                visible={!supportsSecondaryResults}
+                maxWidth="140px"
+                title={
+                  <TranslatedText
+                    stringId="lab.results.tooltip.secondaryResultNotSupported"
+                    fallback="Secondary result is not supported for this test."
+                    data-testid="translatedtext-secondary-not-supported"
                   />
-                </ConditionalTooltip>
-              );
-            },
+                }
+              >
+                <AccessorField
+                  id={row.id}
+                  component={TextField}
+                  name={LAB_TEST_PROPERTIES.SECONDARY_RESULT}
+                  disabled={areLabTestResultsReadOnly || !supportsSecondaryResults}
+                  tabIndex={tabIndex(1, i)}
+                  data-testid="accessorfield-secondary-result"
+                />
+              </ConditionalTooltip>
+            );
           },
-        ]
+        },
+      ]
       : []),
     {
       key: 'unit',
