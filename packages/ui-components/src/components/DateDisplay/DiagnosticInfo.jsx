@@ -1,0 +1,34 @@
+import React from 'react';
+import { getTimezoneOffset } from 'date-fns-tz';
+
+import { locale } from '@tamanu/utils/dateTime';
+
+import { useDateTimeFormat } from '../../contexts/DateTimeContext';
+
+const getFormattedOffset = (tz, date) => {
+  if (!tz) return 'N/A';
+  const offsetMs = getTimezoneOffset(tz, date);
+  const offsetMinutes = Math.abs(offsetMs / 60000);
+  const hours = Math.floor(offsetMinutes / 60);
+  const minutes = offsetMinutes % 60;
+  const sign = offsetMs >= 0 ? '+' : '-';
+  return `${sign}${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+};
+
+export const DiagnosticInfo = ({ date, facilityTimeZone, countryTimeZone }) => {
+  const { formatLong } = useDateTimeFormat();
+  const displayDate = formatLong(date);
+  const now = new Date();
+  const displayTimeZone = facilityTimeZone || countryTimeZone;
+  const displayOffset = getFormattedOffset(displayTimeZone, now);
+  return (  
+    <div>
+      <strong>Raw date string:</strong> {date} <br />
+      <strong>Source timezone:</strong> {countryTimeZone} <br />
+      <strong>Display timezone:</strong> {displayTimeZone} <br />
+      <strong>Display offset:</strong> {displayOffset} <br />
+      <strong>Display date:</strong> {displayDate} <br />
+      <strong>Locale:</strong> {locale}
+    </div>
+  );
+};

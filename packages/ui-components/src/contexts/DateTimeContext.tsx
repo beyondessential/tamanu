@@ -18,15 +18,6 @@ import {
   formatDateTimeLocal,
 } from '@tamanu/utils/dateTime';
 
-/**
- * Timezone terminology:
- * - countryTimeZone (source): Where data is stored/recorded (e.g., facility's country)
- * - timeZone (display): Where user is viewing from (may differ for remote users)
- *
- * When timeZone differs from countryTimeZone, datetimes are converted for display.
- * Date-only values (e.g., DOB) are never converted.
- */
-
 const formatters = {
   formatShortest,
   formatShort,
@@ -52,17 +43,17 @@ type Formatters = {
 
 export interface DateTimeContextValue extends Formatters {
   /** Display timezone - where the user is viewing from */
-  timeZone: string | undefined;
+  facilityTimeZone: string | undefined;
   /** Source timezone - where data is stored (facility's country) */
   countryTimeZone: string;
 }
 
 interface DateTimeProviderProps {
   children: React.ReactNode;
-  /** Source timezone - where data is stored. If provided, skips SettingsContext. */
+  /** Global timezone - where data is stored. If provided, skips SettingsContext. */
   countryTimeZone?: string;
   /** Facility timezone - where data is stored (facility's country) */
-  timeZone?: string;
+  facilityTimeZone?: string;
 }
 
 const DateTimeProviderContext = createContext<DateTimeContextValue | null>(null);
@@ -78,38 +69,38 @@ export const useDateTimeFormat = (): DateTimeContextValue => {
 export const DateTimeProvider = ({
   children,
   countryTimeZone: countryTimeZoneProp,
-  timeZone: timeZoneProp,
+  facilityTimeZone: facilityTimeZoneProp,
 }: DateTimeProviderProps) => {
   const settingsContext = useContext(SettingsContext);
   const usePropsMode = countryTimeZoneProp !== undefined;
 
   if (!usePropsMode && !settingsContext) {
     throw new Error(
-      'DateTimeProvider requires either a SettingsProvider ancestor or countryTimeZone prop',
+      'DateTimeProvider requires either a SettingsProvider ancestor or countryTimeZone and facilityTimeZone props',
     );
   }
 
   const countryTimeZone = usePropsMode
     ? countryTimeZoneProp!
     : (settingsContext?.getSetting('countryTimeZone') as string);
-  const timeZone = usePropsMode
-    ? timeZoneProp
-    : (settingsContext?.getSetting('timeZone') as string | undefined);
+  const facilityTimeZone = usePropsMode
+    ? facilityTimeZoneProp
+    : (settingsContext?.getSetting('facilityTimeZone') as string | undefined);
   const isSettingsLoaded = usePropsMode || settingsContext?.isSettingsLoaded;
 
   const wrapFormatter = useCallback(
     (fn: (date: DateInput, countryTz: string, tz?: string | null) => string | null) =>
-      (date?: DateInput) => fn(date, countryTimeZone, timeZone),
-    [countryTimeZone, timeZone],
+      (date?: DateInput) => fn(date, countryTimeZone, facilityTimeZone),
+    [countryTimeZone, facilityTimeZone],
   );
 
   const value = useMemo(
     (): DateTimeContextValue => ({
       countryTimeZone,
-      timeZone,
+      facilityTimeZone,
       ...(mapValues(formatters, wrapFormatter) as Formatters),
     }),
-    [countryTimeZone, timeZone, wrapFormatter],
+    [countryTimeZone, facilityTimeZone, wrapFormatter],
   );
 
   if (!isSettingsLoaded || !countryTimeZone) {

@@ -8,7 +8,6 @@ import { format as formatDate, toDateString, toDateTimeString } from '@tamanu/ut
 import { TextInput } from './TextField';
 import { TAMANU_COLORS } from '../../constants';
 import { DefaultIconButton } from '../Button';
-import { useDateTimeFormat } from '../../contexts';
 
 // This component is pretty tricky! It has to keep track of two layers of state:
 //
@@ -41,6 +40,11 @@ const CustomIconTextInput = styled(TextInput)`
   }
 `;
 
+function fromRFC3339(rfc3339Date, format) {
+  if (!rfc3339Date) return '';
+  return formatDate(rfc3339Date, format);
+}
+
 export const DateInput = ({
   type = 'date',
   value,
@@ -58,24 +62,7 @@ export const DateInput = ({
 }) => {
   delete props.placeholder;
 
-  const { formatDateTimeLocal } = useDateTimeFormat();
-
-  const formatInitialValue = useCallback(
-    val => {
-      if (!val) return '';
-      switch (type) {
-        case 'datetime-local':
-          return formatDateTimeLocal(val) || '';
-        case 'date':
-          return formatDate(val, format);
-        default:
-          return formatDate(val, format);
-      }
-    },
-    [type, format, formatDateTimeLocal],
-  );
-
-  const [currentText, setCurrentText] = useState(() => formatInitialValue(value));
+  const [currentText, setCurrentText] = useState(fromRFC3339(value, format));
   const [isPlaceholder, setIsPlaceholder] = useState(!value);
 
   // Weird thing alert:
@@ -178,7 +165,7 @@ export const DateInput = ({
   };
 
   useEffect(() => {
-    const formattedValue = formatInitialValue(value);
+    const formattedValue = fromRFC3339(value, format);
     if (value && formattedValue) {
       setCurrentText(formattedValue);
       setIsPlaceholder(false);
@@ -187,7 +174,7 @@ export const DateInput = ({
       setCurrentText('');
       setIsPlaceholder(true);
     };
-  }, [value, formatInitialValue]);
+  }, [value, format]);
 
   // We create two copies of the DateField component, so that we can have a temporary one visible
   // during remount (for more on that, see the remounting description at the top of this component)

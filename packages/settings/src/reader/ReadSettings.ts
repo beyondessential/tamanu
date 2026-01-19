@@ -29,7 +29,7 @@ export const KEYS_EXPOSED_TO_FRONT_END = [
   'medications',
   'sync',
   'mobileSync',
-  'timeZone',
+  'facilityTimeZone',
 ] as const;
 
 export const KEYS_EXPOSED_TO_PATIENT_PORTAL = [

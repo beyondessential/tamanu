@@ -16,11 +16,6 @@ import { register, login, requestLoginToken, patientPortalMiddleware } from './a
 
 export const patientPortalApi = express.Router();
 
-// Public config endpoint (before auth middleware)
-patientPortalApi.get('/config', (req, res) => {
-  res.json({ countryTimeZone: config.countryTimeZone });
-});
-
 // Auth routes
 patientPortalApi.post('/login', login({ secret: config.auth.secret }));
 patientPortalApi.post('/request-login-token', requestLoginToken);
