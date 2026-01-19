@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { Modal } from '../../components/Modal';
 import { TranslatedText } from '../../components/Translation';
@@ -18,7 +18,6 @@ import {
   TextField,
   useSuggester,
 } from '@tamanu/ui-components';
-import { ConfirmPaidModal } from './InvoiceForm/ConfirmPaidModal';
 import { useCreatePatientPayment, useUpdatePatientPayment } from '../../api/mutations';
 import { CHEQUE_PAYMENT_METHOD_ID } from '../../constants';
 
@@ -105,8 +104,6 @@ export const PatientPaymentModal = ({
 }) => {
   const paymentRecord = selectedPaymentRecord ?? {};
   const selectedPaymentMethodId = paymentRecord.paymentMethod?.value;
-  const [openConfirmPaidModal, setOpenConfirmPaidModal] = useState(false);
-
   const paymentMethodSuggester = useSuggester('paymentMethod');
 
   const { mutate: createPatientPayment } = useCreatePatientPayment(invoice);
@@ -122,7 +119,7 @@ export const PatientPaymentModal = ({
     }
   };
 
-  const onRecord = data => {
+  const handleSubmit = data => {
     const { amount, ...others } = data;
     const chequeNumber =
       selectedPaymentMethodId === CHEQUE_PAYMENT_METHOD_ID ? data.chequeNumber : '';
@@ -159,20 +156,6 @@ export const PatientPaymentModal = ({
     }
   };
 
-  const handleSubmit = data => {
-    const editingAmount = Number(paymentRecord.amount) ? Number(paymentRecord.amount) : 0;
-    const showConfirmModal =
-      Number(data?.amount) >=
-        round(new Decimal(patientPaymentRemainingBalance).add(editingAmount).toNumber(), 2) &&
-      !openConfirmPaidModal;
-    if (showConfirmModal) {
-      setOpenConfirmPaidModal(true);
-      return;
-    }
-    setOpenConfirmPaidModal(false);
-    onRecord(data);
-  };
-
   const validationSchema = getValidationSchema(paymentRecord, patientPaymentRemainingBalance);
 
   return (
@@ -189,7 +172,7 @@ export const PatientPaymentModal = ({
         enableReinitialize
         suppressErrorDialog
         onSubmit={handleSubmit}
-        render={({ submitForm }) => (
+        render={() => (
           <>
             <FormBody>
               <Field
@@ -229,14 +212,6 @@ export const PatientPaymentModal = ({
               }
               data-testid="modalactionrow-r8rf"
             />
-            {openConfirmPaidModal && (
-              <ConfirmPaidModal
-                open
-                onClose={() => setOpenConfirmPaidModal(false)}
-                onConfirm={submitForm}
-                data-testid="confirmpaidmodal-b7z6"
-              />
-            )}
           </>
         )}
         validationSchema={validationSchema}
