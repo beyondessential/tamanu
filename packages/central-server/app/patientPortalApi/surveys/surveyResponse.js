@@ -1,5 +1,4 @@
 import asyncHandler from 'express-async-handler';
-
 import { log } from '@tamanu/shared/services/logging/index';
 import { CreateSurveyResponseRequestSchema } from '@tamanu/shared/schemas/patientPortal/requests/createSurveyResponse.schema';
 import { PORTAL_SURVEY_ASSIGNMENTS_STATUSES, SYSTEM_USER_UUID } from '@tamanu/constants';
@@ -29,9 +28,7 @@ export const createSurveyResponse = asyncHandler(async (req, res) => {
   }
 
   const { facilityId } = assignedSurvey;
-  const settingsReader = new ReadSettings(models, {
-    facilityId,
-  });
+  const settingsReader = new ReadSettings(models, facilityId);
   const getDefaultId = async resource =>
     models.SurveyResponseAnswer.getDefaultId(resource, settingsReader);
 

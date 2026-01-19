@@ -78,11 +78,7 @@ export const toDateString = (date: string | Date | null | undefined) => {
   return formatISO9075(dateObj, { representation: 'date' });
 };
 
-/**
- * Extracts weekday code from a date
- * @example
- * toWeekdayCode("2024-03-15 09:30:00") // "MO"
- */
+/** "MO" - Uppercase 2 letter weekday representation for scheduling */
 export const toWeekdayCode = (date: string | Date | null | undefined) => {
   if (date == null) return null;
 
@@ -241,7 +237,6 @@ export const doAgeRangesOverlap = (rangesArray: AgeRange[]) => {
  * Wrapper functions around date-fns functions that parse date_string and date_time_string types
  * For date-fns docs @see https://date-fns.org
  */
-
 export const format = (date: string | Date | null | undefined, format: string) => {
   if (date == null) return null;
   const dateObj = parseDate(date);
@@ -270,7 +265,7 @@ export const intlFormatDate = (
     return date.toLocaleString(locale, formatOptions);
   }
 
-  // Date-only strings (e.g. DOB): display as-is, no timezone shift 
+  // Date-only strings (e.g. DOB): display as-is, no timezone shift
   // We use UTC here because the date-only string is not timezone aware and we want to display it with no offset
   if (isISO9075DateString(date)) {
     const dateObj = new Date(date);
@@ -279,10 +274,10 @@ export const intlFormatDate = (
   }
 
   // Datetime strings: apply timezone conversion if timezone provided
-  const dateObj = facilityTimeZone && countryTimeZone ? fromZonedTime(date, countryTimeZone) : parseDate(date);
+  const dateObj =
+    facilityTimeZone && countryTimeZone ? fromZonedTime(date, countryTimeZone) : parseDate(date);
   if (!dateObj) return fallback;
-  
-  // If no timezone provided, use local browser timezone
+
   const tzOptions = facilityTimeZone ?? countryTimeZone;
   return dateObj.toLocaleString(locale, {
     ...formatOptions,
@@ -323,7 +318,8 @@ export const formatTime = (
   date: string | Date | null | undefined,
   countryTimeZone?: string,
   facilityTimeZone?: string | null,
-) =>  intlFormatDate(
+) =>
+  intlFormatDate(
     date,
     {
       timeStyle: 'short',
@@ -465,12 +461,12 @@ export const formatDateTimeLocal = (
 ) => {
   if (date == null) return null;
   const tz = facilityTimeZone ?? countryTimeZone;
-  const dateObj = facilityTimeZone && countryTimeZone ? fromZonedTime(date, countryTimeZone) : parseDate(date);
+  const dateObj =
+    facilityTimeZone && countryTimeZone ? fromZonedTime(date, countryTimeZone) : parseDate(date);
   if (!dateObj) return null;
   if (!tz) return dateFnsFormat(dateObj, "yyyy-MM-dd'T'HH:mm");
   return formatInTimeZone(dateObj, tz, "yyyy-MM-dd'T'HH:mm");
 };
-
 
 export const isStartOfThisWeek = (date: Date | number) => {
   const startOfThisWeek = startOfWeek(new Date(), { weekStartsOn: 1 });
