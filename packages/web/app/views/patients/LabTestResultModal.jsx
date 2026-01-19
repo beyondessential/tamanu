@@ -25,7 +25,6 @@ const ModalHeader = styled.div`
   min-height: 55px;
 `;
 
-// TODO: sort this out
 const VerticalDivider = styled.div`
   border-left: 1px solid ${Colors.outline};
 `;
