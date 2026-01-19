@@ -85,6 +85,7 @@ export class GenerateMedicationAdministrationRecords extends ScheduledTask {
     for (let i = 0; i < batchCount; i++) {
       const prescriptions = await Prescription.findAll({
         ...baseQueryOptions,
+        offset: i * batchSize,
         limit: batchSize,
       });
 
