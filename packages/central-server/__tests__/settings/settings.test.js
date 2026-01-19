@@ -1,4 +1,4 @@
-  import { ReadSettings, settingsCache } from '@tamanu/settings';
+import { ReadSettings, settingsCache } from '@tamanu/settings';
 import { fake } from '@tamanu/fake-data/fake';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
@@ -113,9 +113,7 @@ describe('Read Settings', () => {
       facilityA,
     );
 
-    const settingsReaderA = new ReadSettings(models, {
-      facilityId: facilityA,
-    });
+    const settingsReaderA = new ReadSettings(models, facilityA);
 
     const contextSettingValue = await settings.get('survey.defaultCodes.location');
     const readerAValue = await settingsReaderA.get('survey.defaultCodes.location');

@@ -195,12 +195,9 @@ export async function loginHandler(req, res, next) {
   try {
     // For facility servers, settings is a map of facilityId -> ReadSettings
     // For login, we need global settings since there's no facility context yet
-    const { countryTimeZone } = config;
+
     const globalSettings =
-      settings.global ??
-      (typeof settings.get === 'function'
-        ? settings
-        : new ReadSettings(models, { countryTimeZone }));
+      settings.global ?? (typeof settings.get === 'function' ? settings : new ReadSettings(models));
 
     const { central, user, localisation, allowedFacilities } =
       await centralServerLoginWithLocalFallback({

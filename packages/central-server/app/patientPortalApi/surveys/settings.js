@@ -7,9 +7,7 @@ export const getSettings = asyncHandler(async (req, res) => {
     store: { models },
   } = req;
 
-  const settingsReader = new ReadSettings(models, {
-    facilityId,
-  });
+  const settingsReader = new ReadSettings(models, facilityId)
   const settings = await settingsReader.getPatientPortalSettings();
 
   return res.send(settings);

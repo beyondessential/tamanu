@@ -34,21 +34,14 @@ export const KEYS_EXPOSED_TO_FRONT_END = [
 
 export const KEYS_EXPOSED_TO_PATIENT_PORTAL = ['features', 'fileChooserMbSizeLimit'] as const;
 
-export interface ReadSettingsOptions {
-  facilityId?: string;
-  countryTimeZone?: string;
-}
-
 export class ReadSettings<Path = SettingPath> {
   models: Models;
   facilityId?: string;
-  countryTimeZone?: string;
 
-  constructor(models: Models, options?: ReadSettingsOptions) {
+  constructor(models: Models, facilityId?: string) {
     this.models = models;
-    if (options) {
-      this.facilityId = options.facilityId;
-      this.countryTimeZone = options.countryTimeZone;
+    if (facilityId) {
+      this.facilityId = facilityId;
     }
   }
 
@@ -59,11 +52,7 @@ export class ReadSettings<Path = SettingPath> {
 
   async getFrontEndSettings() {
     const allSettings = await this.getAll();
-    const frontEndSettings = pick(allSettings, KEYS_EXPOSED_TO_FRONT_END);
-    return {
-      ...frontEndSettings,
-      countryTimeZone: this.countryTimeZone,
-    };
+    return pick(allSettings, KEYS_EXPOSED_TO_FRONT_END);
   }
 
   async getPatientPortalSettings() {

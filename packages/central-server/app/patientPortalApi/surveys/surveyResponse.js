@@ -29,9 +29,7 @@ export const createSurveyResponse = asyncHandler(async (req, res) => {
   }
 
   const { facilityId } = assignedSurvey;
-  const settingsReader = new ReadSettings(models, {
-    facilityId,
-  });
+  const settingsReader = new ReadSettings(models, facilityId);
   const getDefaultId = async resource =>
     models.SurveyResponseAnswer.getDefaultId(resource, settingsReader);
 

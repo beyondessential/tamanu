@@ -235,7 +235,7 @@ export async function createTestContext({ enableReportInstances, databaseOverrid
   const settings = facilityIds.reduce(
     (acc, facilityId) => ({
       ...acc,
-      [facilityId]: new ReadSettings(models, { facilityId }),
+      [facilityId]: new ReadSettings(models, facilityId),
     }),
     {},
   );
