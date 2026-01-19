@@ -136,32 +136,38 @@ const SlidingFeeScaleSection = ({
 export const InvoiceSummaryPanel = ({ invoice }) => {
   const { getSetting } = useSettings();
   const slidingFeeScaleEnabled = getSetting('features.invoicing.slidingFeeScale');
-  const invoiceItems = invoice.items;
   const invoiceDiscount = invoice.discount;
 
   const {
     invoiceItemsTotal,
     insuranceCoverageTotal,
-    patientTotal,
     patientSubtotal,
     discountTotal,
+    patientPaymentsTotal,
+    patientPaymentRemainingBalance,
   } = getInvoiceSummary({
-    items: invoiceItems,
+    ...invoice,
     discount: slidingFeeScaleEnabled ? invoiceDiscount : null,
   });
   const coverageDisplay = insuranceCoverageTotal > 0 ? insuranceCoverageTotal * -1 : 0;
+  const patientPaymentsTotalDisplay = patientPaymentsTotal > 0 ? patientPaymentsTotal * -1 : 0;
 
   return (
     <Container>
       <Row>
         <TranslatedText stringId="invoice.summary.invoiceTotal" fallback="Invoice total" />
-        <Price price={invoiceItemsTotal} data-testid="translatedtext-828s" />
+        <Price price={invoiceItemsTotal} data-testid="invoice-summary-invoiceTotal" />
       </Row>
       <Row>
         <TranslatedText stringId="invoice.summary.insuranceTotal" fallback="Insurance coverage" />
-        <Price price={coverageDisplay} data-testid="translatedtext-qedx" />
+        <Price price={coverageDisplay} data-testid="invoice-summary-insuranceTotal" />
+      </Row>
+      <Row>
+        <TranslatedText stringId="invoice.summary.patientPayments" fallback="Patient payments" />
+        <Price price={patientPaymentsTotalDisplay} data-testid="invoice-summary-patientPayments" />
       </Row>
       <Divider />
+      {/* Todo: Include payments total in sliding fee scale section*/}
       {slidingFeeScaleEnabled && (
         <SlidingFeeScaleSection
           patientSubtotal={patientSubtotal}
@@ -172,7 +178,7 @@ export const InvoiceSummaryPanel = ({ invoice }) => {
       )}
       <TotalRow>
         <TranslatedText stringId="invoice.summary.patientTotal" fallback="Patient total due" />
-        <Price price={patientTotal} data-testid="translatedtext-nst0" />
+        <Price price={patientPaymentRemainingBalance} data-testid="translatedtext-nst0" />
       </TotalRow>
     </Container>
   );

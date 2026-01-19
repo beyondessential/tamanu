@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import Decimal from 'decimal.js';
 import { Box } from '@material-ui/core';
 import { INVOICE_STATUSES } from '@tamanu/constants';
-import { getInvoiceSummary, formatDisplayPrice, round } from '@tamanu/shared/utils/invoice';
+import { getInvoiceSummary, round } from '@tamanu/shared/utils/invoice';
 import { TranslatedText } from '../../components/Translation';
 import { Table } from '../../components/Table';
 import { Colors, denseTableStyle } from '../../constants';
@@ -16,6 +16,7 @@ import { PatientPaymentModal } from './PatientPaymentModal.jsx';
 import { NoteModalActionBlocker } from '../../components/index.js';
 import { Button } from '@tamanu/ui-components';
 import { ThreeDotMenu } from '../../components/ThreeDotMenu.jsx';
+import { Price } from './Price';
 
 const TableContainer = styled.div`
   padding-left: 16px;
@@ -129,8 +130,6 @@ export const PatientPaymentsTable = ({ invoice }) => {
 
   const { patientPaymentRemainingBalance } = getInvoiceSummary(invoice);
 
-  console.log('patientPaymentRemainingBalance', patientPaymentRemainingBalance);
-
   const showChequeNumberColumn = patientPayments.some(
     payment => !!payment.patientPayment?.chequeNumber,
   );
@@ -215,7 +214,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
         />
       ),
       sortable: false,
-      accessor: ({ amount }) => formatDisplayPrice(amount),
+      accessor: ({ amount }) => <Price price={amount} />,
     },
     {
       key: 'receiptNumber',
