@@ -42,18 +42,14 @@ type Formatters = {
 };
 
 export interface DateTimeContextValue extends Formatters {
-  /** Display timezone - where the user is viewing from */
-  facilityTimeZone: string | undefined;
-  /** Source timezone - where data is stored (facility's country) */
   countryTimeZone: string;
+  facilityTimeZone?: string | null;
 }
 
 interface DateTimeProviderProps {
   children: React.ReactNode;
-  /** Global timezone - where data is stored. If provided, skips SettingsContext. */
   countryTimeZone?: string;
-  /** Facility timezone - where data is stored (facility's country) */
-  facilityTimeZone?: string;
+  facilityTimeZone?: string | null;
 }
 
 const DateTimeProviderContext = createContext<DateTimeContextValue | null>(null);
@@ -81,9 +77,12 @@ export const DateTimeProvider = ({
     );
   }
 
-  const { getSetting } = settingsContext ?? {};
-  const countryTimeZone = usePropsMode ? countryTimeZoneProp! : getSetting('countryTimeZone');
-  const facilityTimeZone = usePropsMode ? facilityTimeZoneProp : getSetting('facilityTimeZone');
+  const countryTimeZone = usePropsMode
+    ? countryTimeZoneProp!
+    : (settingsContext?.getSetting?.('countryTimeZone') as string);
+  const facilityTimeZone = usePropsMode
+    ? facilityTimeZoneProp
+    : (settingsContext?.getSetting?.('facilityTimeZone') as string | undefined);
   
 
   const wrapFormatter = useCallback(
