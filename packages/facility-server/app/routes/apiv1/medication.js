@@ -1881,17 +1881,14 @@ medication.get(
               ]
             : []),
           { isCompleted: false },
-          Sequelize.where(
-            Sequelize.col('prescription.medication.referenceDrug.id'),
-            {
-              [Op.notIn]: Sequelize.literal(`(
+          Sequelize.where(Sequelize.col('prescription.medication.referenceDrug.id'), {
+            [Op.notIn]: Sequelize.literal(`(
                 SELECT reference_drug_id
                 FROM reference_drug_facilities
                 WHERE facility_id = :facilityId
                 AND stock_status = :stockStatus
               )`),
-            },
-          ),
+          }),
         ],
       },
       order: buildOrder(),
@@ -2194,7 +2191,7 @@ medication.delete(
       // Restore the PharmacyOrderPrescription if it was completed
       const pharmacyOrderPrescription = dispense.pharmacyOrderPrescription;
       if (pharmacyOrderPrescription.isCompleted) {
-        await pharmacyOrderPrescription.update({ isCompleted: false });
+        await pharmacyOrderPrescription.update({ isCompleted: false }, { transaction });
       }
     });
 
@@ -2299,17 +2296,14 @@ medication.get(
                 },
               ]
             : []),
-          Sequelize.where(
-            Sequelize.col('prescription.medication.referenceDrug.id'),
-            {
-              [Op.notIn]: Sequelize.literal(`(
+          Sequelize.where(Sequelize.col('prescription.medication.referenceDrug.id'), {
+            [Op.notIn]: Sequelize.literal(`(
                 SELECT reference_drug_id
                 FROM reference_drug_facilities
                 WHERE facility_id = :facilityId
                 AND stock_status = :stockStatus
               )`),
-            },
-          ),
+          }),
         ],
       },
       order: [[{ model: models.PharmacyOrder, as: 'pharmacyOrder' }, 'date', 'DESC']],
@@ -2494,7 +2488,7 @@ medication.post(
         const completedIds = allCompletedRecords.map(r => r.id);
         await PharmacyOrderPrescription.update(
           { isCompleted: true },
-          { where: { id: { [Op.in]: completedIds } } },
+          { where: { id: { [Op.in]: completedIds } }, transaction },
         );
       }
 
@@ -2559,9 +2553,9 @@ medication.get(
       include: Prescription.getFullReferenceAssociations(),
     });
 
-    await checkSensitiveMedicationPermission([object.medicationId], req, 'read');
-
     if (!object) throw new NotFoundError();
+
+    await checkSensitiveMedicationPermission([object.medicationId], req, 'read');
 
     if (object) {
       await req.audit.access({

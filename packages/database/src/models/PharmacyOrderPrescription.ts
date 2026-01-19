@@ -68,7 +68,7 @@ export class PharmacyOrderPrescription extends Model {
               (!pharmacyOrder?.pharmacyOrderPrescriptions ||
                 !pharmacyOrder?.pharmacyOrderPrescriptions.length)
             ) {
-              await pharmacyOrder.destroy();
+              await pharmacyOrder.destroy({ transaction: opts.transaction });
             }
           },
         },
