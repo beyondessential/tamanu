@@ -485,8 +485,8 @@ labRelations.put(
         ([testId, testBody]) => {
           const existingTest = labTestObj[testId];
           if (!existingTest) return false;
-          const resultChanged = testBody.result !== undefined && testBody.result !== existingTest.result;
-          const secondaryResultChanged = testBody.secondaryResult !== undefined && testBody.secondaryResult !== existingTest.secondaryResult;
+          const resultChanged = testBody.result && testBody.result !== existingTest.result;
+          const secondaryResultChanged = testBody.secondaryResult && testBody.secondaryResult !== existingTest.secondaryResult;
           return resultChanged || secondaryResultChanged;
         },
       )
