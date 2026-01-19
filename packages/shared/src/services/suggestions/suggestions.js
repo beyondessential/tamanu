@@ -101,6 +101,7 @@ function createSuggesterRoute(
       delete query.language;
       const model = models[modelName];
       const noLimit = query.noLimit === 'true';
+      delete query.noLimit;
 
       const searchQuery = (query.q || '').trim().toLowerCase();
       const positionQuery = literal(
