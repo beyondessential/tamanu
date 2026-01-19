@@ -56,18 +56,14 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
         accessor: ({ labTestType, result, secondaryResult }) => {
           const { options, id: labTestTypeId } = labTestType;
 
-          let displayResult;
-          if (options && options.length > 0) {
-            displayResult = (
+          const resultText =
+            options && options.length > 0 ? (
               <TranslatedOption
                 value={result}
                 referenceDataId={labTestTypeId}
                 referenceDataCategory="labTestType"
               />
-            );
-          } else {
-            displayResult = result ?? '';
-          }
+            ) : result;
 
           return (
             <ConditionalTooltip
@@ -78,7 +74,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
                 { replacements: { secondaryResult } },
               )}
             >
-              {displayResult}
+              {resultText}
             </ConditionalTooltip>
           );
         },
