@@ -353,7 +353,7 @@ const ResultsForm = ({
   );
 
   const columns = useMemo(
-    () => getColumns({labTestResults, onChangeResult, areLabTestResultsReadOnly}),
+    () => getColumns({ labTestResults, onChangeResult, areLabTestResultsReadOnly }),
     [labTestResults, onChangeResult, areLabTestResultsReadOnly],
   );
 
