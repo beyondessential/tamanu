@@ -109,16 +109,22 @@ export class LabRequest extends Model {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         hooks: {
           afterUpdate: async (labRequest: LabRequest, options) => {
-            const shouldPushNotification = [
+            const previousStatus = labRequest.previous('status');
+            const currentStatus = labRequest.status;
+
+            const isChangingFromPublished = previousStatus === LAB_REQUEST_STATUSES.PUBLISHED && currentStatus !== previousStatus;
+            const NOTIFICATION_STATUSES = [
               LAB_REQUEST_STATUSES.INTERIM_RESULTS,
               LAB_REQUEST_STATUSES.PUBLISHED,
               LAB_REQUEST_STATUSES.INVALIDATED,
-            ].includes(labRequest.status);
+            ];
 
-            if (shouldPushNotification && labRequest.status !== labRequest.previous('status')) {
+            const shouldPushNotification = NOTIFICATION_STATUSES.includes(currentStatus) || isChangingFromPublished;
+
+            if (shouldPushNotification) {
               await models.Notification.pushNotification(
                 NOTIFICATION_TYPES.LAB_REQUEST,
-                labRequest.dataValues,
+                { ...labRequest.dataValues, previousStatus },
                 { transaction: options.transaction },
               );
             }
