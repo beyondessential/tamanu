@@ -278,11 +278,11 @@ export const intlFormatDate = (
     facilityTimeZone && countryTimeZone ? fromZonedTime(date, countryTimeZone) : parseDate(date);
   if (!dateObj) return fallback;
 
-  const tzOptions = facilityTimeZone ?? countryTimeZone;
-  return dateObj.toLocaleString(locale, {
-    ...formatOptions,
-    ...(tzOptions ? { timeZone: tzOptions } : {}),
-  } as Intl.DateTimeFormatOptions);
+  const timeZone = facilityTimeZone ?? countryTimeZone;
+  if (timeZone) {
+    formatOptions.timeZone = timeZone;
+  }
+  return dateObj.toLocaleString(locale, formatOptions);
 };
 
 /** "12/04/20" */
