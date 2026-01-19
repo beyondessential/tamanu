@@ -28,7 +28,7 @@ const SoftText = styled(Text)`
   color: ${TAMANU_COLORS.midText};
 `;
 
-const DateTooltip = ({ date, children, timeOnlyTooltip, timeZone, countryTimeZone }) => {
+const DateTooltip = ({ date, children, timeOnlyTooltip, facilityTimeZone, countryTimeZone }) => {
   const isDateOnly = isISO9075DateString(date);
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const [debug, setDebug] = useState(false);
@@ -52,7 +52,7 @@ const DateTooltip = ({ date, children, timeOnlyTooltip, timeZone, countryTimeZon
   );
 
   const tooltipTitle = debug ? (
-    <DiagnosticInfo date={date} countryTimeZone={countryTimeZone} timeZone={timeZone} />
+    <DiagnosticInfo date={date} countryTimeZone={countryTimeZone} facilityTimeZone={facilityTimeZone} />
   ) : (
     dateTooltip
   );
@@ -153,7 +153,7 @@ export const getDateDisplay = (
 
 export const TimeDisplay = React.memo(
   ({ date: dateValue, format: timeFormat, noTooltip = false, style, ...props }) => {
-    const { countryTimeZone, timeZone } = useDateTimeFormat();
+    const { countryTimeZone, facilityTimeZone } = useDateTimeFormat();
     const displayTime = useFormattedDate(dateValue, { timeFormat: timeFormat || 'default' });
 
     const content = (
@@ -168,7 +168,7 @@ export const TimeDisplay = React.memo(
       <DateTooltip
         date={dateValue}
         timeOnlyTooltip
-        timeZone={timeZone}
+        facilityTimeZone={facilityTimeZone}
         countryTimeZone={countryTimeZone}
       >
         {content}
@@ -219,7 +219,7 @@ export const DateDisplay = React.memo(
     timeOnlyTooltip = false,
     ...props
   }) => {
-    const { countryTimeZone, timeZone } = useDateTimeFormat();
+    const { countryTimeZone, facilityTimeZone } = useDateTimeFormat();
     const resolvedDateFormat = dateFormat === undefined ? 'short' : dateFormat;
     const resolvedTimeFormat = showTime ? timeFormat || 'default' : null;
 
@@ -241,7 +241,7 @@ export const DateDisplay = React.memo(
       <DateTooltip
         date={dateValue}
         timeOnlyTooltip={timeOnlyTooltip}
-        timeZone={timeZone}
+        facilityTimeZone={facilityTimeZone}
         countryTimeZone={countryTimeZone}
       >
         {content}
