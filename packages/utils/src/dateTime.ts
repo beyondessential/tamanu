@@ -281,10 +281,10 @@ export const intlFormatDate = (
   if (!dateObj) return fallback;
 
   const timeZone = facilityTimeZone ?? countryTimeZone;
-  return dateObj.toLocaleString(locale, {
-    ...formatOptions,
-    ...(timeZone ? { timeZone } : {}),
-  } as Intl.DateTimeFormatOptions);
+  if (timeZone) {
+    formatOptions.timeZone = timeZone;
+  }
+  return dateObj.toLocaleString(locale, formatOptions);
 };
 
 /** "12/04/24" */
