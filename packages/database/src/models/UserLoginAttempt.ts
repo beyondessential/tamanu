@@ -50,6 +50,13 @@ export class UserLoginAttempt extends Model {
     });
   }
 
+  // If the deviceId is not found in the devices table, we will use null
+  // for the deviceId to avoid credential stuffing from unregistered devices.
+  static async getDeviceIdToUse(deviceId: string) {
+    const device = await this.sequelize.models.Device.findByPk(deviceId);
+    return device ? deviceId : null;
+  }
+
   static async checkIsUserLockedOut({
     settings,
     userId,
@@ -59,10 +66,12 @@ export class UserLoginAttempt extends Model {
       SETTING_KEYS.SECURITY_LOGIN_ATTEMPTS as SettingPath,
     )) as { lockoutDuration: number };
 
+    const deviceIdToUse = await this.getDeviceIdToUse(deviceId);
+
     const lockedAttempt = await this.findOne({
       where: {
         userId,
-        deviceId,
+        deviceId: deviceIdToUse,
         outcome: LOGIN_ATTEMPT_OUTCOMES.LOCKED,
         createdAt: {
           [Op.gte]: Sequelize.literal("CURRENT_TIMESTAMP - $lockoutDuration * interval '1 minute'"),
@@ -92,10 +101,7 @@ export class UserLoginAttempt extends Model {
       SETTING_KEYS.SECURITY_LOGIN_ATTEMPTS as SettingPath,
     )) as { lockoutThreshold: number; observationWindow: number; lockoutDuration: number };
 
-    // If the deviceId is not found, we will use null for the deviceId to avoid
-    // credential stuffing from unregistered devices.
-    const device = await this.sequelize.models.Device.findByPk(deviceId);
-    const deviceIdToUse = device ? deviceId : null;
+    const deviceIdToUse = await this.getDeviceIdToUse(deviceId);
 
     const failedAttempts = (await this.count({
       where: {
