@@ -73,6 +73,7 @@ export const DateTimeProvider = ({
 }: DateTimeProviderProps) => {
   const settingsContext = useContext(SettingsContext);
   const usePropsMode = countryTimeZoneProp !== undefined;
+  const isSettingsLoaded = usePropsMode || settingsContext?.isSettingsLoaded;
 
   if (!usePropsMode && !settingsContext) {
     throw new Error(
@@ -80,17 +81,15 @@ export const DateTimeProvider = ({
     );
   }
 
-  const countryTimeZone = usePropsMode
-    ? countryTimeZoneProp!
-    : (settingsContext?.getSetting('countryTimeZone') as string);
-  const facilityTimeZone = usePropsMode
-    ? facilityTimeZoneProp
-    : (settingsContext?.getSetting('facilityTimeZone') as string | undefined);
-  const isSettingsLoaded = usePropsMode || settingsContext?.isSettingsLoaded;
+  const { getSetting } = settingsContext ?? {};
+  const countryTimeZone = usePropsMode ? countryTimeZoneProp! : getSetting('countryTimeZone');
+  const facilityTimeZone = usePropsMode ? facilityTimeZoneProp : getSetting('facilityTimeZone');
+  
 
   const wrapFormatter = useCallback(
     (fn: (date: DateInput, countryTz: string, tz?: string | null) => string | null) =>
-      (date?: DateInput) => fn(date, countryTimeZone, facilityTimeZone),
+      (date?: DateInput) =>
+        fn(date, countryTimeZone, facilityTimeZone),
     [countryTimeZone, facilityTimeZone],
   );
 
@@ -103,6 +102,7 @@ export const DateTimeProvider = ({
     [countryTimeZone, facilityTimeZone, wrapFormatter],
   );
 
+  // TODO: do we need this
   if (!isSettingsLoaded || !countryTimeZone) {
     return null;
   }
