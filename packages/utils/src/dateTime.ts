@@ -271,7 +271,7 @@ export const intlFormatDate = (
     return date.toLocaleString(locale, formatOptions);
   }
 
-  // Date-only strings (e.g. DOB): display as-is, no timezone shift 
+  // Date-only strings (e.g. DOB): display as-is, no timezone shift
   // We use UTC here because the date-only string is not timezone aware and we want to display it with no offset
   if (isISO9075DateString(date)) {
     const dateObj = new Date(date);
@@ -280,10 +280,12 @@ export const intlFormatDate = (
   }
 
   // Datetime strings: apply timezone conversion if timezone provided
-  const dateObj = timeZone && countryTimeZone ? fromZonedTime(date, countryTimeZone) : parseDate(date);
+  const shouldApplyTimezoneConversion = timeZone && countryTimeZone;
+  const dateObj = shouldApplyTimezoneConversion
+    ? fromZonedTime(date, countryTimeZone)
+    : parseDate(date);
   if (!dateObj) return fallback;
-  
-  // If no timezone provided, use local browser timezone
+
   const tzOptions = timeZone ?? countryTimeZone;
   return dateObj.toLocaleString(locale, {
     ...formatOptions,
@@ -291,6 +293,7 @@ export const intlFormatDate = (
   } as Intl.DateTimeFormatOptions);
 };
 
+/** "12/04/24" */
 export const formatShortest = (
   date: string | Date | null | undefined,
   countryTimeZone?: string,
@@ -302,8 +305,9 @@ export const formatShortest = (
     '--/--',
     countryTimeZone,
     timeZone,
-  ); // 12/04/20
+  );
 
+/** "12/04/2020" */
 export const formatShort = (
   date: string | Date | null | undefined,
   countryTimeZone?: string,
@@ -315,16 +319,15 @@ export const formatShort = (
     '--/--/----',
     countryTimeZone,
     timeZone,
-  ); // 12/04/2020
+  );
 
+/** "12:30 am" */
 export const formatTime = (
   date: string | Date | null | undefined,
   countryTimeZone?: string,
   timeZone?: string | null,
-  // TODO: could be better
-  { removeWhitespace = false }: { removeWhitespace?: boolean } = {},
-) => {
-  const formatted = intlFormatDate(
+) =>
+  intlFormatDate(
     date,
     {
       timeStyle: 'short',
@@ -333,10 +336,9 @@ export const formatTime = (
     '__:__',
     countryTimeZone,
     timeZone,
-  ); // 12:30 am
-  return removeWhitespace ? formatted.replace(' ', '') : formatted;
-};
+  );
 
+/** "12:30:00 am"  */
 export const formatTimeWithSeconds = (
   date: string | Date | null | undefined,
   countryTimeZone?: string,
@@ -351,9 +353,9 @@ export const formatTimeWithSeconds = (
     '__:__:__',
     countryTimeZone,
     timeZone,
-  ); // 12:30:00 am
+  );
 
-// long format date is displayed on hover
+/** "Thursday, 14 July 2022, 03:44 pm" */
 export const formatLong = (
   date: string | Date | null | undefined,
   countryTimeZone?: string,
@@ -369,7 +371,7 @@ export const formatLong = (
     'Date information not available',
     countryTimeZone,
     timeZone,
-  ); // "Thursday, 14 July 2022, 03:44 pm"
+  );
 
 /** "Thu" */
 export const formatWeekdayShort = (
@@ -406,7 +408,7 @@ export const formatFullDate = (
     timeZone,
   );
 
-/** "3pm" - hour only, no minutes */
+/** "3pm" */
 export const formatTimeSlot = (
   date: string | Date | null | undefined,
   countryTimeZone?: string,
@@ -467,12 +469,12 @@ export const formatDateTimeLocal = (
 ) => {
   if (date == null) return null;
   const tz = timeZone ?? countryTimeZone;
-  const dateObj = timeZone && countryTimeZone ? fromZonedTime(date, countryTimeZone) : parseDate(date);
+  const dateObj =
+    timeZone && countryTimeZone ? fromZonedTime(date, countryTimeZone) : parseDate(date);
   if (!dateObj) return null;
   if (!tz) return dateFnsFormat(dateObj, "yyyy-MM-dd'T'HH:mm");
   return formatInTimeZone(dateObj, tz, "yyyy-MM-dd'T'HH:mm");
 };
-
 
 export const isStartOfThisWeek = (date: Date | number) => {
   const startOfThisWeek = startOfWeek(new Date(), { weekStartsOn: 1 });

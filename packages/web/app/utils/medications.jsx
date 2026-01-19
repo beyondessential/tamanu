@@ -31,8 +31,8 @@ export const getTranslatedFrequencySynonym = (synonyms, index, getTranslation) =
 export const TimeSlotDisplay = ({ time }) => <TimeDisplay date={time} style={{ textTransform: 'lowercase' }} noTooltip />;
 
 export const useTimeSlotDisplay = (time) => {
-  const { formatTime } = useDateTimeFormat();
-  return formatTime(time, { removeWhitespace: true }).toLowerCase();
+  const { formatTimeCompact } = useDateTimeFormat();
+  return formatTimeCompact(time);
 };
 
 export const isWithinTimeSlot = (timeSlot, time, isFuture = false) => {

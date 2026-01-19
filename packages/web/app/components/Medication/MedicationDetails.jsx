@@ -24,6 +24,7 @@ import {
   OutlinedButton,
   FormGrid,
   DateDisplay,
+  TimeDisplay,
 } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { CheckField, Field } from '../Field';
@@ -297,11 +298,10 @@ export const MedicationDetails = ({
                       </MidText>
                       <DarkestText mt={0.5}>
                         <DateDisplay date={medication.discontinuedDate} format="shortest" />{' '}
-                        <DateDisplay
+                        <TimeDisplay
                           date={medication.discontinuedDate}
-                          showTime
-                          removeWhitespace
-                          style={{ textTransform: 'lowercase' }}
+                          timeFormat="compact"
+                          noTooltip
                         />
                       </DarkestText>
                     </Box>

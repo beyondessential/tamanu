@@ -57,13 +57,13 @@ const RightDetails = styled.div`
 `;
 
 const AssignmentDetails = ({ assignment }) => {
-  const { formatTime } = useDateTimeFormat();
+  const { formatTimeCompact } = useDateTimeFormat();
 
   const getDisplayTime = time => {
     const parsedTime = time.split(':');
     const hour = parseInt(parsedTime[0]);
     const minute = parseInt(parsedTime[1]) || 0;
-    return formatTime(set(new Date(), { hours: hour, minutes: minute, seconds: 0 }), { removeWhitespace: true }).toLowerCase();
+    return formatTimeCompact(set(new Date(), { hours: hour, minutes: minute, seconds: 0 }));
   };
 
   const leftDetails = [
