@@ -91,7 +91,8 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEd
   const canDeleteInvoice = ability.can('delete', 'Invoice');
   const cancelable = invoice && isInvoiceEditable(invoice) && canWriteInvoice;
   const deletable = invoice && invoice.status !== INVOICE_STATUSES.FINALISED && canDeleteInvoice;
-  const finalisable = invoice && isInvoiceEditable(invoice) && canCreateInvoice && encounter.endDate;
+  const finalisable =
+    invoice && isInvoiceEditable(invoice) && canCreateInvoice && encounter.endDate;
 
   if (!cancelable && !deletable && !finalisable) {
     return null;
@@ -207,7 +208,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
     );
   }
 
-  const isFinalised = invoice.status === INVOICE_STATUSES.FINALISED;
+  const isInProgress = invoice.status === INVOICE_STATUSES.IN_PROGRESS;
 
   return (
     <>
@@ -233,7 +234,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
               setEditing={setEditing}
               isEditing={isEditing}
             />
-            {isFinalised && (
+            {!isInProgress && (
               <PrintButton
                 onClick={() => setInvoiceModalType(INVOICE_MODAL_TYPES.PRINT)}
                 startIcon={<PrintIcon />}
@@ -248,13 +249,11 @@ export const EncounterInvoicingPane = ({ encounter }) => {
             isEditing={isEditing}
             setIsEditing={setEditing}
           />
-          {invoice.status !== INVOICE_STATUSES.IN_PROGRESS && (
-            <PaymentsSection>
-              <PatientPaymentsTable invoice={invoice} />
-              <InvoiceSummaryPanel invoiceItems={invoice?.items} inProgress={false} />
-              <InsurerPaymentsTable invoice={invoice} />
-            </PaymentsSection>
-          )}
+          <PaymentsSection>
+            <PatientPaymentsTable invoice={invoice} />
+            <InvoiceSummaryPanel invoice={invoice} />
+            {!isInProgress && <InsurerPaymentsTable invoice={invoice} />}
+          </PaymentsSection>
         </InvoiceContainer>
       </TabPane>
       <InvoiceModalGroup

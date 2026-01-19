@@ -2,7 +2,7 @@ import React from 'react';
 import { Modal, TranslatedText } from '@tamanu/ui-components';
 import { InvoiceDiscountAssessmentForm } from './InvoiceDiscountAssessmentForm';
 
-export const InvoiceDiscountModal = ({ open, onClose, handleUpdateDiscount }) => {
+export const InvoiceDiscountModal = ({ open, onClose, onSubmit }) => {
   return (
     <Modal
       width="sm"
@@ -15,10 +15,7 @@ export const InvoiceDiscountModal = ({ open, onClose, handleUpdateDiscount }) =>
       open={open}
       onClose={onClose}
     >
-      <InvoiceDiscountAssessmentForm
-        onClose={onClose}
-        handleUpdateDiscount={handleUpdateDiscount}
-      />
+      <InvoiceDiscountAssessmentForm onClose={onClose} onSubmit={onSubmit} />
     </Modal>
   );
 };

@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Plus } from 'lucide-react';
 import { Box, Button as MuiButton } from '@material-ui/core';
 import { Form, TranslatedText, FormSubmitButton, FormCancelButton } from '@tamanu/ui-components';
+import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { Colors } from '../../../constants/styles';
 import { FieldArray } from 'formik';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
@@ -12,9 +13,6 @@ import { InvoiceItemHeader } from './InvoiceItemHeader';
 import { useUpdateInvoice } from '../../../api/mutations/useInvoiceMutation';
 import { useAuth } from '../../../contexts/Auth';
 import { invoiceFormSchema } from './invoiceFormSchema';
-import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel';
-import { getCurrentDateString } from '@tamanu/utils/dateTime';
-import { InvoiceDiscountModal } from '../InvoiceDiscountModal/InvoiceDiscountModal.jsx';
 
 const StyledForm = styled(Form)`
   overflow: auto;
@@ -89,7 +87,6 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
 
   // inProgressItems is used to re-populate the form with in progress items after the form is updated
   const [inProgressItems, setInProgressItems] = useState([]);
-  const [discountModalOpen, setDiscountModalOpen] = useState(false);
   const canWriteInvoice = ability.can('write', 'Invoice');
   const editable = isInvoiceEditable(invoice) && canWriteInvoice;
   const { mutate: updateInvoice, isLoading: isUpdatingInvoice } = useUpdateInvoice(invoice);
@@ -122,15 +119,6 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
       items: itemsToSave,
     });
     setIsEditing(false);
-  };
-
-  const handleUpdateDiscount = discountData => {
-    updateInvoice({ ...invoice, discount: discountData });
-    setDiscountModalOpen(false);
-  };
-
-  const handleRemoveDiscount = () => {
-    updateInvoice({ ...invoice, discount: null });
   };
 
   const handleShowErrorDialog = errors => {
@@ -208,18 +196,6 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
                             isDisabled={isUpdatingInvoice}
                           />
                         )}
-                        <InvoiceSummaryPanel
-                          patientPayments={invoice.payments}
-                          invoiceItems={values.invoiceItems}
-                          invoiceDiscount={invoice.discount}
-                          openDiscountModal={() => setDiscountModalOpen(true)}
-                          handleRemoveDiscount={handleRemoveDiscount}
-                        />
-                        <InvoiceDiscountModal
-                          open={discountModalOpen}
-                          onClose={() => setDiscountModalOpen(false)}
-                          handleUpdateDiscount={handleUpdateDiscount}
-                        />
                       </Box>
                     </FormFooter>
                   )}

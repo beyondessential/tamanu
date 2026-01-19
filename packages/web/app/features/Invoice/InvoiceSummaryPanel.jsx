@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Divider, Button } from '@material-ui/core';
 import { getInvoiceSummary } from '@tamanu/shared/utils/invoice';
 import { useSettings } from '@tamanu/ui-components';
+import { INVOICE_STATUSES } from '@tamanu/constants';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../../components/Translation';
 import { Price } from './Price';
+import { InvoiceDiscountModal } from './InvoiceDiscountModal/InvoiceDiscountModal';
+import { useUpdateInvoice } from '../../api/mutations/useInvoiceMutation';
 
 const Container = styled.div`
   align-self: start;
@@ -56,14 +59,35 @@ const RemoveDiscountButton = styled(Button)`
 `;
 
 const SlidingFeeScaleSection = ({
-  openDiscountModal,
-  handleRemoveDiscount,
+  invoice,
   discountTotal,
   patientSubtotal,
   discountPercentage,
-  inProgress,
 }) => {
+  const [discountModalOpen, setDiscountModalOpen] = useState(false);
+  const { mutate: updateInvoice } = useUpdateInvoice(invoice);
+
+  const onClose = () => {
+    setDiscountModalOpen(false);
+  };
+
+  const onOpen = () => {
+    setDiscountModalOpen(true);
+  };
+
+  const handleUpdateDiscount = discountData => {
+    updateInvoice({ ...invoice, discount: discountData });
+    onClose();
+  };
+
+  const handleRemoveDiscount = () => {
+    updateInvoice({ ...invoice, discount: null });
+    onClose();
+  };
+
+  const inProgress = invoice.status === INVOICE_STATUSES.IN_PROGRESS;
   const discountDisplay = discountTotal > 0 ? discountTotal * -1 : 0;
+
   return (
     <>
       <TotalRow $fontSize="14px">
@@ -91,7 +115,7 @@ const SlidingFeeScaleSection = ({
               />
             </RemoveDiscountButton>
           ) : (
-            <AddDiscountButton onClick={openDiscountModal}>
+            <AddDiscountButton onClick={onOpen}>
               <TranslatedText
                 stringId="invoice.summary.applySlidingFeeScale"
                 fallback="Apply sliding fee scale"
@@ -101,20 +125,21 @@ const SlidingFeeScaleSection = ({
         </Row>
       )}
       <Divider />
+      <InvoiceDiscountModal
+        open={discountModalOpen}
+        onClose={onClose}
+        onSubmit={handleUpdateDiscount}
+      />
     </>
   );
 };
 
-export const InvoiceSummaryPanel = ({
-  invoiceItems,
-  openDiscountModal,
-  invoiceDiscount,
-  handleRemoveDiscount,
-  patientPayments,
-  inProgress = true,
-}) => {
+export const InvoiceSummaryPanel = ({ invoice }) => {
   const { getSetting } = useSettings();
   const slidingFeeScaleEnabled = getSetting('features.invoicing.slidingFeeScale');
+  const invoiceItems = invoice.items;
+  const invoiceDiscount = invoice.discount;
+  const patientPayments = invoice.payments;
 
   const {
     invoiceItemsTotal,
@@ -141,12 +166,10 @@ export const InvoiceSummaryPanel = ({
       <Divider />
       {slidingFeeScaleEnabled && (
         <SlidingFeeScaleSection
-          openDiscountModal={openDiscountModal}
           patientSubtotal={patientSubtotal}
           discountTotal={discountTotal}
-          handleRemoveDiscount={handleRemoveDiscount}
           discountPercentage={invoiceDiscount?.percentage}
-          inProgress={inProgress}
+          invoice={invoice}
         />
       )}
       <TotalRow>
