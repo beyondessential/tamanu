@@ -18,6 +18,7 @@ import { AccessorField, LabResultAccessorField } from './AccessorField';
 import { useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
 import { useLabRequest } from '../../../contexts/LabRequest';
+import { useTranslation } from '../../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 import { ConditionalTooltip } from '../../../components/Tooltip';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
@@ -70,7 +71,7 @@ const AUTOFILL_FIELD_NAMES = [
   LAB_TEST_PROPERTIES.LAB_TEST_METHOD_ID,
 ];
 
-const getValidationSchema = () =>
+const getValidationSchema = getTranslation =>
   yup.object().shape({
     labTests: yup.lazy(labTestsObj => {
       if (!labTestsObj) return yup.object();
@@ -82,10 +83,10 @@ const getValidationSchema = () =>
             then: yup
               .string()
               .required(
-                <TranslatedText
-                  stringId="lab.validation.resultRequiredWhenSecondaryResultEntered"
-                  fallback="Result required when secondary result entered"
-                />,
+                getTranslation(
+                  'lab.validation.resultRequiredWhenSecondaryResultEntered',
+                  'Result required when secondary result entered',
+                ),
               ),
             otherwise: yup.string().nullable(),
           }),
@@ -406,6 +407,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
   const queryClient = useQueryClient();
   const { ability } = useAuth();
   const { loadLabRequest } = useLabRequest();
+  const { getTranslation } = useTranslation();
   const canWriteLabTestResult = ability?.can('write', 'LabTestResult');
   const areLabTestResultsReadOnly = !canWriteLabTestResult;
 
@@ -479,7 +481,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
         initialValues={initialData}
         formType={labTestResults ? FORM_TYPES.EDIT : FORM_TYPES.CREATE}
         enableReinitialize
-        validationSchema={getValidationSchema()}
+        validationSchema={getValidationSchema(getTranslation)}
         onSubmit={updateTests}
         render={({ submitForm, isSubmitting, dirty, ...props }) => {
           const confirmDisabled = isLoading || isError || isSavingTests || isSubmitting || !dirty;
