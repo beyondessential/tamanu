@@ -34,8 +34,7 @@ export const KEYS_EXPOSED_TO_FRONT_END = [
 
 export const KEYS_EXPOSED_TO_PATIENT_PORTAL = [
   'features',
-  'fileChooserMbSizeLimit',
-  'timeZone',
+  'fileChooserMbSizeLimit'
 ] as const;
 
 export interface ReadSettingsOptions {
