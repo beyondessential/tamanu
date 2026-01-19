@@ -373,14 +373,14 @@ export const formatLong = (
     timeZone,
   );
 
-/** "Thu" */
+/** "Thu" 3 letter weekday abbreviation */
 export const formatWeekdayShort = (
   date: string | Date | null | undefined,
   countryTimeZone?: string,
   timeZone?: string | null,
 ) => intlFormatDate(date, { weekday: 'short' }, 'Unknown', countryTimeZone, timeZone);
 
-/** "Thursday" */
+/** "Thursday" - full weekday name */
 export const formatWeekdayLong = (
   date: string | Date | null | undefined,
   countryTimeZone?: string,
@@ -394,7 +394,7 @@ export const formatWeekdayNarrow = (
   timeZone?: string | null,
 ) => intlFormatDate(date, { weekday: 'narrow' }, 'Unknown', countryTimeZone, timeZone);
 
-/** "15 January 2024" */
+/** "15 January 2024" - date with month and year */
 export const formatFullDate = (
   date: string | Date | null | undefined,
   countryTimeZone?: string,
@@ -408,7 +408,7 @@ export const formatFullDate = (
     timeZone,
   );
 
-/** "3pm" */
+/** "3pm" - time without seconds */
 export const formatTimeSlot = (
   date: string | Date | null | undefined,
   countryTimeZone?: string,
