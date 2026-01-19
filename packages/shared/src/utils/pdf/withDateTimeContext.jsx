@@ -34,17 +34,20 @@ export const withDateTimeContext = Component => props => {
   const getSetting = getSettingProp ?? (key => get(settings, key));
 
   const countryTimeZone = getSetting('countryTimeZone');
-  const timeZone = getSetting('timeZone');
+  const facilityTimeZone = getSetting('facilityTimeZone');
 
-  const value = useMemo(() => ({
-    countryTimeZone,
-    timeZone,
-    formatCustom: (date, formatStr, fallback = 'N/A') => {
-      if (!date) return fallback;
-      return formatInTz(date, formatStr, countryTimeZone, timeZone) || fallback;
-    },
-    ...mapValues(formatters, fn => date => fn(date, countryTimeZone, timeZone)),
-  }), [countryTimeZone, timeZone]);
+  const value = useMemo(
+    () => ({
+      countryTimeZone,
+      facilityTimeZone,
+      formatCustom: (date, formatStr, fallback = 'N/A') => {
+        if (!date) return fallback;
+        return formatInTz(date, formatStr, countryTimeZone, facilityTimeZone) || fallback;
+      },
+      ...mapValues(formatters, fn => date => fn(date, countryTimeZone, facilityTimeZone)),
+    }),
+    [countryTimeZone, facilityTimeZone],
+  );
 
   return (
     <DateTimeContext.Provider value={value}>
