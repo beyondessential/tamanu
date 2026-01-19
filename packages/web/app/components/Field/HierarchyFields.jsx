@@ -24,11 +24,20 @@ export const HierarchyFields = ({ fields, leafNodeType, relationType }) => {
     return null;
   }
 
+  // Filter hierarchy types to only include ones we have fields for
+  const matchedHierarchyTypes = hierarchyTypes.filter((type) =>
+    fieldsToShow.some((f) => f.referenceType === type)
+  );
+
+  if (matchedHierarchyTypes.length === 0) {
+    return null;
+  }
+
   return (
     <Container data-testid="container-bmjc">
-      {hierarchyTypes.map((type, index) => {
+      {matchedHierarchyTypes.map((type, index) => {
         const fieldData = fieldsToShow.find((f) => f.referenceType === type);
-        const parentFieldData = fieldsToShow.find((f) => f.referenceType === hierarchyTypes[index - 1]);
+        const parentFieldData = fieldsToShow.find((f) => f.referenceType === matchedHierarchyTypes[index - 1]);
         const parentId = get(values, parentFieldData?.name);
 
         return (
