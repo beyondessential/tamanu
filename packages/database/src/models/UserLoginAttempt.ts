@@ -44,10 +44,6 @@ export class UserLoginAttempt extends Model {
       foreignKey: 'userId',
       as: 'user',
     });
-    this.belongsTo(models.Device, {
-      foreignKey: 'deviceId',
-      as: 'device',
-    });
   }
 
   // If the deviceId is not found in the devices table, we will use null
