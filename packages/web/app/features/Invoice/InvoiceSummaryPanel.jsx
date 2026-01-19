@@ -19,7 +19,6 @@ const Container = styled.div`
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
   padding: 10px 12px;
-  margin-left: auto;
 `;
 
 const Row = styled.div`
@@ -139,7 +138,6 @@ export const InvoiceSummaryPanel = ({ invoice }) => {
   const slidingFeeScaleEnabled = getSetting('features.invoicing.slidingFeeScale');
   const invoiceItems = invoice.items;
   const invoiceDiscount = invoice.discount;
-  const patientPayments = invoice.payments;
 
   const {
     invoiceItemsTotal,
@@ -154,7 +152,7 @@ export const InvoiceSummaryPanel = ({ invoice }) => {
   const coverageDisplay = insuranceCoverageTotal > 0 ? insuranceCoverageTotal * -1 : 0;
 
   return (
-    <Container $width={patientPayments?.length > 0 ? '220px' : '320px'}>
+    <Container>
       <Row>
         <TranslatedText stringId="invoice.summary.invoiceTotal" fallback="Invoice total" />
         <Price price={invoiceItemsTotal} data-testid="translatedtext-828s" />

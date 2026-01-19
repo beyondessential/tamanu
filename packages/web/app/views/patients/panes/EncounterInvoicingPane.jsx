@@ -80,7 +80,7 @@ const PrintButton = styled(OutlinedButton)`
 
 const PaymentsSection = styled.div`
   display: grid;
-  grid-template-columns: 1fr 320px;
+  grid-template-columns: 1fr 240px;
   gap: 8px;
 `;
 

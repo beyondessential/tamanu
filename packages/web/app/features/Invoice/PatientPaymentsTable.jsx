@@ -10,12 +10,12 @@ import { Colors, denseTableStyle } from '../../constants';
 import { Heading4 } from '../../components/Typography';
 import { DateDisplay } from '../../components/DateDisplay';
 import { useAuth } from '../../contexts/Auth';
-import { PencilIcon } from '../../assets/icons/PencilIcon';
 import useOverflow from '../../hooks/useOverflow';
 import { ThemedTooltip } from '../../components/Tooltip';
 import { PatientPaymentModal } from './PatientPaymentModal.jsx';
 import { NoteModalActionBlocker } from '../../components/index.js';
 import { Button } from '@tamanu/ui-components';
+import { ThreeDotMenu } from '../../components/ThreeDotMenu.jsx';
 
 const TableContainer = styled.div`
   padding-left: 16px;
@@ -23,12 +23,51 @@ const TableContainer = styled.div`
   background-color: ${Colors.white};
   border-radius: 4px;
   border: 1px solid ${Colors.outline};
+
+  table {
+    table-layout: fixed;
+
+    .MuiTableCell-root {
+      padding: 12px 0;
+    }
+
+    th {
+      &:nth-child(1) {
+        width: 120px;
+      }
+
+      &:nth-child(2) {
+        // intentionally empty to take up remaining space
+      }
+
+      &:nth-child(3) {
+        width ${props => (props.showChequeNumberColumn ? '100px' : '100px')};
+      }
+
+      &:nth-child(4) {
+        width ${props => (props.showChequeNumberColumn ? '120px' : '120px')};
+      }
+
+      &:nth-child(5) {
+        width ${props => (props.showChequeNumberColumn ? '80px' : '80px')};
+      }
+
+      &:nth-child(6) {
+        width: 30px;
+      }
+    }
+  }
 `;
 
 const Title = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: center;
   border-bottom: 1px solid ${Colors.outline};
+
+  h4 {
+    margin: 15px 0;
+  }
 `;
 
 const TooltipContainer = styled.div`
@@ -81,7 +120,7 @@ const getRowTooltipText = updatedByUser =>
 
 export const PatientPaymentsTable = ({ invoice }) => {
   const [paymentModalIsOpen, setPaymentModalIsOpen] = useState(false);
-  const [selectedPaymentRecord, setSelectedPaymentRecord] = useState({});
+  const [selectedPaymentRecord, setSelectedPaymentRecord] = useState(null);
   const [showRowTooltip, setShowRowTooltip] = useState(false);
 
   const patientPayments = invoice.payments
@@ -89,6 +128,9 @@ export const PatientPaymentsTable = ({ invoice }) => {
     .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
   const { patientPaymentRemainingBalance } = getInvoiceSummary(invoice);
+
+  console.log('patientPaymentRemainingBalance', patientPaymentRemainingBalance);
+
   const showChequeNumberColumn = patientPayments.some(
     payment => !!payment.patientPayment?.chequeNumber,
   );
@@ -100,6 +142,21 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const hideRecordPaymentForm =
     round(new Decimal(patientPaymentRemainingBalance).toNumber(), 2) <= 0 ||
     invoice.status === INVOICE_STATUSES.CANCELLED;
+
+  const onEditPaymentRecord = row => {
+    setSelectedPaymentRecord(row);
+    setPaymentModalIsOpen(true);
+  };
+
+  const onRecordPayment = () => {
+    setSelectedPaymentRecord(null);
+    setPaymentModalIsOpen(true);
+  };
+
+  const onClosePaymentModal = () => {
+    setSelectedPaymentRecord(null);
+    setPaymentModalIsOpen(false);
+  };
 
   const COLUMNS = [
     {
@@ -183,71 +240,45 @@ export const PatientPaymentsTable = ({ invoice }) => {
       accessor: row =>
         !hideRecordPaymentForm &&
         canEditPayment && (
-          <Box display="flex" justifyContent="flex-end" data-testid="box-nleu">
-            <Box
-              sx={{ cursor: 'pointer' }}
-              onClick={() => {
-                setSelectedPaymentRecord(row);
-                setPaymentModalIsOpen(true);
-              }}
-              data-testid="box-n25g"
-            >
-              <PencilIcon data-testid="pencilicon-c4w2" />
-            </Box>
-          </Box>
+          <>
+            <NoteModalActionBlocker>
+              <ThreeDotMenu
+                items={[
+                  {
+                    label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
+                    onClick: () => onEditPaymentRecord(row),
+                  },
+                ]}
+                data-testid="invoice-payment-menu-c4w2"
+              />
+            </NoteModalActionBlocker>
+          </>
         ),
     },
   ];
-
-  const cellsWidthString = `
-    &:nth-child(1) {
-      width 19%;
-    }
-    &:nth-child(2) {
-      width 19%;
-    }
-    &:nth-child(3) {
-      width ${showChequeNumberColumn ? '15%' : '13%'};
-    }
-    &:nth-child(4) {
-      width ${showChequeNumberColumn ? '18%' : '25%'};
-    }
-    ${showChequeNumberColumn ? `&:nth-child(5) { width 18%; }` : ''}
-
-    &.MuiTableCell-root {
-      padding: 12px 0;
-    }
-
-    &.MuiTableCell-body:last-child {
-        padding-right: 5px;
-    }
-  `;
 
   const getRowTooltip = ({ updatedByUser }) => getRowTooltipText(updatedByUser);
 
   return (
     <>
-      <TableContainer>
-        <Title data-testid="title-jb7x">
-          <Heading4 sx={{ margin: '15px 0 15px 0' }} data-testid="heading4-rklc">
+      <TableContainer showChequeNumberColumn={showChequeNumberColumn}>
+        <Title>
+          <Heading4>
             <TranslatedText
               stringId="invoice.modal.payment.patientPayments"
               fallback="Patient payments"
-              data-testid="translatedtext-ujwm"
             />
           </Heading4>
-          <NoteModalActionBlocker>
-            <Button
-              size="small"
-              data-testid="button-dre1"
-              onClick={() => setPaymentModalIsOpen(true)}
-            >
-              <TranslatedText
-                stringId="invoice.modal.payment.action.recordPayment"
-                fallback="Record payment"
-              />
-            </Button>
-          </NoteModalActionBlocker>
+          <Box>
+            <NoteModalActionBlocker>
+              <Button size="small" data-testid="button-dre1" onClick={onRecordPayment}>
+                <TranslatedText
+                  stringId="invoice.modal.payment.action.recordPayment"
+                  fallback="Record payment"
+                />
+              </Button>
+            </NoteModalActionBlocker>
+          </Box>
         </Title>
         <Table
           columns={COLUMNS}
@@ -256,8 +287,8 @@ export const PatientPaymentsTable = ({ invoice }) => {
           fetchOptions={{ page: undefined }}
           elevated={false}
           containerStyle={denseTableStyle.container}
-          cellStyle={denseTableStyle.cell + cellsWidthString}
-          headStyle={denseTableStyle.head + `.MuiTableCell-head {${cellsWidthString}}`}
+          cellStyle={denseTableStyle.cell}
+          headStyle={denseTableStyle.head}
           statusCellStyle={denseTableStyle.statusCell}
           disablePagination={true}
           noDataMessage={'No patient payments to display'}
@@ -272,9 +303,9 @@ export const PatientPaymentsTable = ({ invoice }) => {
           invoice={invoice}
           patientPaymentRemainingBalance={patientPaymentRemainingBalance}
           showChequeNumberColumn={showChequeNumberColumn}
-          paymentRecord={selectedPaymentRecord}
+          selectedPaymentRecord={selectedPaymentRecord}
           isOpen={paymentModalIsOpen}
-          onClose={() => setPaymentModalIsOpen(false)}
+          onClose={onClosePaymentModal}
         />
       )}
     </>

@@ -101,8 +101,9 @@ export const PatientPaymentModal = ({
   invoice,
   patientPaymentRemainingBalance,
   showChequeNumberColumn,
-  paymentRecord = {},
+  selectedPaymentRecord,
 }) => {
+  const paymentRecord = selectedPaymentRecord ?? {};
   const selectedPaymentMethodId = paymentRecord.paymentMethod?.value;
   const [openConfirmPaidModal, setOpenConfirmPaidModal] = useState(false);
 
