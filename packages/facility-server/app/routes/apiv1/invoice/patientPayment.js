@@ -43,8 +43,6 @@ const handleCreatePatientPayment = asyncHandler(async (req, res) => {
   const invoice = await getInvoiceWithDetails(req, invoiceId);
 
   if (!invoice) throw new NotFoundError('Invoice not found');
-  if (invoice.status !== INVOICE_STATUSES.FINALISED)
-    throw new ForbiddenError('Invoice is not finalised');
 
   const { data, error } = await createPatientPaymentSchema.safeParseAsync(req.body);
   if (error) throw new ValidationError(error.message);
@@ -108,8 +106,7 @@ const handleUpdatePatientPayment = asyncHandler(async (req, res) => {
   const payment = await req.models.InvoicePayment.findByPk(paymentId);
 
   if (!invoice) throw new NotFoundError('Invoice not found');
-  if (invoice.status !== INVOICE_STATUSES.FINALISED)
-    throw new ForbiddenError('Invoice is not finalised');
+
   if (!payment) throw new NotFoundError('Payment not found');
 
   const { data, error } = await updatePatientPaymentSchema.safeParseAsync(req.body);

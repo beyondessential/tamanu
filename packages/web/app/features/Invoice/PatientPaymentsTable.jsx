@@ -1,19 +1,21 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import Decimal from 'decimal.js';
-import { Box, Divider } from '@material-ui/core';
+import { Box } from '@material-ui/core';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { getInvoiceSummary, formatDisplayPrice, round } from '@tamanu/shared/utils/invoice';
 import { TranslatedText } from '../../components/Translation';
 import { Table } from '../../components/Table';
-import { Colors, denseTableStyle, CHEQUE_PAYMENT_METHOD_ID } from '../../constants';
+import { Colors, denseTableStyle } from '../../constants';
 import { Heading4 } from '../../components/Typography';
 import { DateDisplay } from '../../components/DateDisplay';
 import { useAuth } from '../../contexts/Auth';
-import { PatientPaymentForm } from '../../forms/PatientPaymentForm';
 import { PencilIcon } from '../../assets/icons/PencilIcon';
 import useOverflow from '../../hooks/useOverflow';
 import { ThemedTooltip } from '../../components/Tooltip';
+import { PatientPaymentModal } from './PatientPaymentModal.jsx';
+import { NoteModalActionBlocker } from '../../components/index.js';
+import { Button } from '@tamanu/ui-components';
 
 const TableContainer = styled.div`
   padding-left: 16px;
@@ -78,38 +80,27 @@ const getRowTooltipText = updatedByUser =>
   ) : null;
 
 export const PatientPaymentsTable = ({ invoice }) => {
+  const [paymentModalIsOpen, setPaymentModalIsOpen] = useState(false);
+  const [selectedPaymentRecord, setSelectedPaymentRecord] = useState({});
+  const [showRowTooltip, setShowRowTooltip] = useState(false);
+
   const patientPayments = invoice.payments
     .filter(payment => !!payment?.patientPayment)
     .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
-  const [refreshCount, setRefreshCount] = useState(0);
   const { patientPaymentRemainingBalance } = getInvoiceSummary(invoice);
-  const [editingPayment, setEditingPayment] = useState({});
-
-  const [selectedCreatePayment, setSelectedCreatePayment] = useState({});
-  const [selectedEditPayment, setSelectedEditPayment] = useState({});
-
-  const [showRowTooltip, setShowRowTooltip] = useState(false);
-
-  const hasChequePaymentMethod = patientPayments.some(
+  const showChequeNumberColumn = patientPayments.some(
     payment => !!payment.patientPayment?.chequeNumber,
   );
-  const showChequeNumberColumn =
-    [
-      selectedCreatePayment?.paymentMethod?.value,
-      selectedEditPayment?.paymentMethod?.value,
-    ].includes(CHEQUE_PAYMENT_METHOD_ID) || hasChequePaymentMethod;
 
   const { ability } = useAuth();
   const canCreatePayment = ability.can('create', 'InvoicePayment');
   const canEditPayment = ability.can('write', 'InvoicePayment');
 
-  const updateRefreshCount = useCallback(() => setRefreshCount(prev => prev + 1), []);
-  const updateEditingPayment = useCallback(editingPayment => setEditingPayment(editingPayment), []);
-
   const hideRecordPaymentForm =
     round(new Decimal(patientPaymentRemainingBalance).toNumber(), 2) <= 0 ||
     invoice.status === INVOICE_STATUSES.CANCELLED;
+
   const COLUMNS = [
     {
       key: 'date',
@@ -174,7 +165,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
       title: (
         <TranslatedText
           stringId="invoice.table.payment.column.receiptNumber"
-          fallback="Receipt number"
+          fallback="Receipt no."
           data-testid="translatedtext-v87s"
         />
       ),
@@ -195,7 +186,10 @@ export const PatientPaymentsTable = ({ invoice }) => {
           <Box display="flex" justifyContent="flex-end" data-testid="box-nleu">
             <Box
               sx={{ cursor: 'pointer' }}
-              onClick={() => setEditingPayment(row)}
+              onClick={() => {
+                setSelectedPaymentRecord(row);
+                setPaymentModalIsOpen(true);
+              }}
               data-testid="box-n25g"
             >
               <PencilIcon data-testid="pencilicon-c4w2" />
@@ -204,8 +198,6 @@ export const PatientPaymentsTable = ({ invoice }) => {
         ),
     },
   ];
-
-  const sliceIndex = patientPayments.findIndex(payment => payment.id === editingPayment.id);
 
   const cellsWidthString = `
     &:nth-child(1) {
@@ -231,96 +223,60 @@ export const PatientPaymentsTable = ({ invoice }) => {
     }
   `;
 
-  const tableProps = {
-    columns: COLUMNS,
-    allowExport: false,
-    headerColor: Colors.white,
-    fetchOptions: { page: undefined },
-    elevated: false,
-    containerStyle: denseTableStyle.container,
-    cellStyle: denseTableStyle.cell + cellsWidthString,
-    headStyle: denseTableStyle.head + `.MuiTableCell-head {${cellsWidthString}}`,
-    statusCellStyle: denseTableStyle.statusCell,
-    disablePagination: true,
-    refreshCount: refreshCount,
-    noDataMessage: '',
-    rowIdKey: 'id',
-  };
-
-  const onCreateDataChange = data => {
-    setSelectedCreatePayment(data);
-  };
-  const onEditDataChange = data => {
-    setSelectedEditPayment(data);
-  };
   const getRowTooltip = ({ updatedByUser }) => getRowTooltipText(updatedByUser);
 
   return (
-    <TableContainer data-testid="tablecontainer-g8kz">
-      <Title data-testid="title-jb7x">
-        <Heading4 sx={{ margin: '15px 0 15px 0' }} data-testid="heading4-rklc">
-          <TranslatedText
-            stringId="invoice.modal.payment.patientPayments"
-            fallback="Patient payments"
-            data-testid="translatedtext-ujwm"
-          />
-        </Heading4>
-        <Heading4 sx={{ margin: '15px 0 15px 0' }} data-testid="heading4-0rcp">
-          <TranslatedText
-            stringId="invoice.modal.payment.remainingBalance"
-            fallback="Remaining balance: :remainingBalance"
-            replacements={{
-              remainingBalance: formatDisplayPrice(Math.max(0, patientPaymentRemainingBalance)),
-            }}
-            data-testid="translatedtext-e38g"
-          />
-        </Heading4>
-      </Title>
-      <Table
-        {...tableProps}
-        data={editingPayment?.id ? patientPayments.slice(0, sliceIndex) : []}
-        {...(showRowTooltip && { getRowTooltip })}
-        data-testid="table-so8f"
-      />
-      {editingPayment?.id && (
-        <>
-          <PatientPaymentForm
-            patientPaymentRemainingBalance={patientPaymentRemainingBalance}
-            editingPayment={editingPayment}
-            invoice={invoice}
-            updateRefreshCount={updateRefreshCount}
-            updateEditingPayment={updateEditingPayment}
-            onDataChange={onEditDataChange}
-            selectedPayment={selectedEditPayment}
-            showChequeNumberColumn={showChequeNumberColumn}
-            data-testid="patientpaymentform-cvbk"
-          />
-          <Divider data-testid="divider-uc00" />
-        </>
-      )}
-      <Table
-        {...tableProps}
-        data={
-          editingPayment?.id
-            ? patientPayments.slice(sliceIndex + 1, patientPayments.length)
-            : patientPayments
-        }
-        hideHeader
-        {...(showRowTooltip && { getRowTooltip })}
-        data-testid="table-no3s"
-      />
+    <>
+      <TableContainer>
+        <Title data-testid="title-jb7x">
+          <Heading4 sx={{ margin: '15px 0 15px 0' }} data-testid="heading4-rklc">
+            <TranslatedText
+              stringId="invoice.modal.payment.patientPayments"
+              fallback="Patient payments"
+              data-testid="translatedtext-ujwm"
+            />
+          </Heading4>
+          <NoteModalActionBlocker>
+            <Button
+              size="small"
+              data-testid="button-dre1"
+              onClick={() => setPaymentModalIsOpen(true)}
+            >
+              <TranslatedText
+                stringId="invoice.modal.payment.action.recordPayment"
+                fallback="Record payment"
+              />
+            </Button>
+          </NoteModalActionBlocker>
+        </Title>
+        <Table
+          columns={COLUMNS}
+          allowExport={false}
+          headerColor={Colors.white}
+          fetchOptions={{ page: undefined }}
+          elevated={false}
+          containerStyle={denseTableStyle.container}
+          cellStyle={denseTableStyle.cell + cellsWidthString}
+          headStyle={denseTableStyle.head + `.MuiTableCell-head {${cellsWidthString}}`}
+          statusCellStyle={denseTableStyle.statusCell}
+          disablePagination={true}
+          noDataMessage={'No patient payments to display'}
+          rowIdKey={'id'}
+          data={patientPayments}
+          {...(showRowTooltip && { getRowTooltip })}
+          data-testid="table-so8f"
+        />
+      </TableContainer>
       {!hideRecordPaymentForm && canCreatePayment && (
-        <PatientPaymentForm
+        <PatientPaymentModal
           invoice={invoice}
           patientPaymentRemainingBalance={patientPaymentRemainingBalance}
-          updateRefreshCount={updateRefreshCount}
-          updateEditingPayment={updateEditingPayment}
-          onDataChange={onCreateDataChange}
-          selectedPayment={selectedCreatePayment}
           showChequeNumberColumn={showChequeNumberColumn}
-          data-testid="patientpaymentform-ib6a"
+          paymentRecord={selectedPaymentRecord}
+          isOpen={paymentModalIsOpen}
+          onClose={() => setPaymentModalIsOpen(false)}
         />
       )}
-    </TableContainer>
+    </>
   );
 };
