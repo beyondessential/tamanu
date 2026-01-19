@@ -33,7 +33,7 @@ const VerticalDivider = styled.div`
 const Column = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 15px;
 `;
 const TitleLabel = styled(BodyText)`
   color: ${Colors.midText};
