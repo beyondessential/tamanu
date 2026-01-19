@@ -283,7 +283,6 @@ export const intlFormatDate = (
     facilityTimeZone && countryTimeZone ? fromZonedTime(date, countryTimeZone) : parseDate(date);
   if (!dateObj) return fallback;
 
-  // If no timezone provided, use local browser timezone
   const tzOptions = facilityTimeZone ?? countryTimeZone;
   return dateObj.toLocaleString(locale, {
     ...formatOptions,
