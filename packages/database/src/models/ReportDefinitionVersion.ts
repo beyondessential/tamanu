@@ -23,6 +23,7 @@ const optionsValidator = yup.object({
   dataSources: yup.array(),
   dateRangeLabel: yup.string(),
   defaultDateRange: yup.string().oneOf(REPORT_DEFAULT_DATE_RANGES_VALUES).required(),
+  dataSetId: yup.string(),
 });
 
 const generateReportFromQueryData = (queryData: any[]) => {
@@ -82,6 +83,7 @@ export class ReportDefinitionVersion extends Model {
            *     }
            *   ],
            *   "dataSources": [],
+           *   "dataSetId": "optional-data-set-id-for-dhis2-integration"
            * }
            */
           type: DataTypes.JSON,

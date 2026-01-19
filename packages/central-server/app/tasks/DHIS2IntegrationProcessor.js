@@ -8,11 +8,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { REPORT_STATUSES } from '@tamanu/constants';
 import { fetchWithRetryBackoff } from '@tamanu/api-client/fetchWithRetryBackoff';
 
-const findMatchingDataSet = (rows, dataSets) => {
-  return dataSets[0];
-};
-
-const convertToDHIS2DataValueSets = (reportData, dataSets) => {
+const convertToDHIS2DataValueSets = (reportData, dataSet) => {
   // Convert 2D array report data to JSON format
   const reportJSON = utils.sheet_to_json(utils.aoa_to_sheet(reportData));
 
@@ -26,7 +22,6 @@ const convertToDHIS2DataValueSets = (reportData, dataSets) => {
 
   // Transform each group of rows into a DHIS2 data value set object
   return map(groupedRows, rows => {
-    const matchingDataSet = findMatchingDataSet(rows, dataSets);
     const firstRow = rows[0];
 
     // Extract common metadata from the first row (all rows in a group share these values)
@@ -44,7 +39,7 @@ const convertToDHIS2DataValueSets = (reportData, dataSets) => {
 
     // Construct the DHIS2 data value set object
     return {
-      dataSet: matchingDataSet.id,
+      dataSet,
       completeDate: new Date().toISOString().split('T')[0],
       period,
       orgUnit,
@@ -150,43 +145,6 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     }
   }
 
-  async fetchDataSets(options = {}) {
-    const { host, backoff } = await this.context.settings.get('integrations.dhis2');
-    const { username, password } = config.integrations.dhis2;
-    const authHeader = Buffer.from(`${username}:${password}`).toString('base64');
-
-    const params = new URLSearchParams({
-      fields: options.fields || '*',
-      filter: options.filter,
-    });
-
-    try {
-      const response = await fetchWithRetryBackoff(
-        `${host}/api/dataSets?${params.toString()}`,
-        {
-          fetch,
-          method: 'GET',
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Basic ${authHeader}`,
-          },
-        },
-        { ...backoff, log },
-      );
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch datasets: ${response.status} ${response.statusText}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      log.error('DHIS2IntegrationProcessor: Error fetching datasets from DHIS2', {
-        error: error.message,
-      });
-      throw error;
-    }
-  }
-
   async processReport(reportId) {
     const {
       store: { models, sequelize },
@@ -221,13 +179,12 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
 
     log.info(INFO_LOGS.PROCESSING_REPORT, { report: reportString });
 
-    const { dataSets } = await this.fetchDataSets({ filter: 'organisationUnits.id:eq:facility-1' });
-
-    console.log('dataSets', dataSets);
-
     const latestVersion = report.versions[0];
+    const queryOptions = latestVersion.getQueryOptions();
+    const dataSet = queryOptions?.dhis2DataSet;
+
     const reportData = await latestVersion.dataGenerator({ ...this.context, sequelize }, {}); // We don't support parameters in this task
-    const dhis2DataValueSets = convertToDHIS2DataValueSets(reportData, dataSets);
+    const dhis2DataValueSets = convertToDHIS2DataValueSets(reportData, dataSet);
 
     for (const dataValueSet of dhis2DataValueSets) {
       const {
