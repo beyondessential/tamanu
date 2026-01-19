@@ -101,7 +101,6 @@ export const DateTimeProvider = ({
     [countryTimeZone, facilityTimeZone, wrapFormatter],
   );
 
-  // TODO: do we need this
   if (!isSettingsLoaded || !countryTimeZone) {
     return null;
   }
