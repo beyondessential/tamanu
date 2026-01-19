@@ -1,10 +1,15 @@
 import React from 'react';
-import { getTimezoneOffset } from 'date-fns-tz';
 
 import { locale } from '@tamanu/utils/dateTime';
 
 import { useDateTimeFormat } from '../../contexts/DateTimeContext';
+import { getTimezoneOffset } from 'date-fns-tz';
 
+/**
+ * Get the formatted offset for a given timezone.
+ * @example
+ * getFormattedOffset('Australia/Sydney', new Date()) // '+11:00'
+ */
 const getFormattedOffset = (tz, date) => {
   if (!tz) return 'N/A';
   const offsetMs = getTimezoneOffset(tz, date);
