@@ -55,9 +55,7 @@ export class ApplicationContext {
       });
       return acc;
     }, {});
-    this.settings.global = new ReadSettings(this.models, {
-      countryTimeZone,
-    });
+    this.settings.global = new ReadSettings(this.models);
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting();
     }

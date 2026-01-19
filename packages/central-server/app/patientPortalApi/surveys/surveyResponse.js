@@ -1,4 +1,3 @@
-import config from 'config';
 import asyncHandler from 'express-async-handler';
 
 import { log } from '@tamanu/shared/services/logging/index';
@@ -29,11 +28,9 @@ export const createSurveyResponse = asyncHandler(async (req, res) => {
     throw new NotFoundError('Survey was not assigned to the patient');
   }
 
-  const { countryTimeZone } = config;
   const { facilityId } = assignedSurvey;
   const settingsReader = new ReadSettings(models, {
     facilityId,
-    countryTimeZone,
   });
   const getDefaultId = async resource =>
     models.SurveyResponseAnswer.getDefaultId(resource, settingsReader);

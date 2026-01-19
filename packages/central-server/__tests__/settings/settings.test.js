@@ -1,5 +1,4 @@
-import config from 'config';
-import { ReadSettings, settingsCache } from '@tamanu/settings';
+  import { ReadSettings, settingsCache } from '@tamanu/settings';
 import { fake } from '@tamanu/fake-data/fake';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
@@ -114,10 +113,8 @@ describe('Read Settings', () => {
       facilityA,
     );
 
-    const { countryTimeZone } = config;
     const settingsReaderA = new ReadSettings(models, {
       facilityId: facilityA,
-      countryTimeZone,
     });
 
     const contextSettingValue = await settings.get('survey.defaultCodes.location');
