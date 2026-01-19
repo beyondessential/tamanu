@@ -69,10 +69,7 @@ export class ReadSettings<Path = SettingPath> {
   async getPatientPortalSettings() {
     const allSettings = await this.getAll();
     const portalSettings = pick(allSettings, KEYS_EXPOSED_TO_PATIENT_PORTAL);
-    return {
-      ...portalSettings,
-      countryTimeZone: this.countryTimeZone,
-    };
+    return portalSettings;
   }
 
   async getAll() {
