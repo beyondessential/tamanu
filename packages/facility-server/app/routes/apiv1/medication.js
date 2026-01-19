@@ -2526,14 +2526,17 @@ medication.put(
       throw new NotFoundError(`User with id ${dispensedByUserId} not found`);
     }
 
-    const result = await MedicationDispense.sequelize.transaction(async () => {
-      const medicationDispense = await MedicationDispense.findByPk(id);
+    const result = await MedicationDispense.sequelize.transaction(async transaction => {
+      const medicationDispense = await MedicationDispense.findByPk(id, { transaction });
 
       if (!medicationDispense) {
         throw new NotFoundError(`Medication dispense with id ${id} not found`);
       }
 
-      await medicationDispense.update({ quantity, instructions, dispensedByUserId });
+      await medicationDispense.update(
+        { quantity, instructions, dispensedByUserId },
+        { transaction },
+      );
 
       return medicationDispense;
     });
