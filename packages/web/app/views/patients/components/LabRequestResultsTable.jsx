@@ -54,7 +54,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
         ),
         key: 'result',
         accessor: ({ labTestType, result, secondaryResult }) => {
-          const { options, id: labTestTypeId } = labTestType;
+          const { options, id: labTestTypeId, supportsSecondaryResults } = labTestType;
 
           const resultText =
             options && options.length > 0 ? (
@@ -67,7 +67,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
 
           return (
             <ConditionalTooltip
-              visible={!!secondaryResult}
+              visible={supportsSecondaryResults && !!secondaryResult}
               title={getTranslation(
                 'lab.results.tooltip.secondaryResult',
                 'Secondary result: :secondaryResult',

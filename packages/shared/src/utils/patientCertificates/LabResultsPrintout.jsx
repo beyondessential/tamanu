@@ -110,7 +110,7 @@ const LabResultsPrintoutComponent = React.memo(
           const unit = labTestType?.unit;
           const resultWithUnit = unit ? `${result} ${unit}` : result;
           
-          if (secondaryResult) {
+          if (labTestType?.supportsSecondaryResults && secondaryResult) {
             return `${resultWithUnit} (${secondaryResult})`;
           }
           return resultWithUnit;

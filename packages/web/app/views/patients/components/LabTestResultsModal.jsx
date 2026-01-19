@@ -108,7 +108,7 @@ const getColumns = (
   // Generate tab index for vertical tabbing through the table
   const tabIndex = (col, row) => count * col + row + 1;
   const showSecondaryResultColumn = data?.some(
-    row => row.labTestType?.supportsSecondaryResults || row.secondaryResult,
+    row => row.labTestType?.supportsSecondaryResults,
   );
   return [
     {
