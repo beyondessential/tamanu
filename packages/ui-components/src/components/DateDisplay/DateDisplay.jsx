@@ -17,7 +17,6 @@ import { ThemedTooltip } from '../Tooltip';
 import { useDateTimeFormat } from '../../contexts';
 import { DiagnosticInfo } from './DiagnosticInfo';
 
-
 const Text = styled(Typography)`
   font-size: inherit;
   line-height: inherit;
@@ -52,7 +51,11 @@ const DateTooltip = ({ date, children, timeOnlyTooltip, facilityTimeZone, countr
   );
 
   const tooltipTitle = debug ? (
-    <DiagnosticInfo date={date} countryTimeZone={countryTimeZone} facilityTimeZone={facilityTimeZone} />
+    <DiagnosticInfo
+      date={date}
+      countryTimeZone={countryTimeZone}
+      facilityTimeZone={facilityTimeZone}
+    />
   ) : (
     dateTooltip
   );
@@ -152,9 +155,9 @@ export const getDateDisplay = (
 };
 
 export const TimeDisplay = React.memo(
-  ({ date: dateValue, format: timeFormat, noTooltip = false, style, ...props }) => {
+  ({ date: dateValue, format: timeFormat = 'default', noTooltip = false, style, ...props }) => {
     const { countryTimeZone, facilityTimeZone } = useDateTimeFormat();
-    const displayTime = useFormattedDate(dateValue, { timeFormat: timeFormat || 'default' });
+    const displayTime = useFormattedDate(dateValue, { timeFormat });
 
     const content = (
       <span style={style} {...props}>
@@ -208,7 +211,7 @@ export const TimeDisplay = React.memo(
 export const DateDisplay = React.memo(
   ({
     date: dateValue,
-    format: dateFormat,
+    format: dateFormat = 'short',
     showWeekday = false,
     showTime = false,
     timeFormat,
@@ -220,13 +223,13 @@ export const DateDisplay = React.memo(
     ...props
   }) => {
     const { countryTimeZone, facilityTimeZone } = useDateTimeFormat();
-    const resolvedDateFormat = dateFormat === undefined ? 'short' : dateFormat;
+
     const resolvedTimeFormat = showTime ? timeFormat || 'default' : null;
 
     const displayDate = useFormattedDate(dateValue, {
-      dateFormat: resolvedDateFormat,
-      timeFormat: resolvedTimeFormat,
+      dateFormat,
       showWeekday,
+      timeFormat: resolvedTimeFormat,
     });
 
     const content = (
@@ -286,7 +289,7 @@ export const MultilineDatetimeDisplay = React.memo(
  */
 export const TimeRangeDisplay = ({ range: { start, end } }) => (
   <>
-    <TimeDisplay date={start} format="compact" /> – <TimeDisplay date={end} format="compact" />
+    <TimeDisplay date={start} format="compact" /> &ndash; <TimeDisplay date={end} format="compact" />
   </>
 );
 
