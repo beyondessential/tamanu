@@ -18,7 +18,6 @@ class MockApplicationContext {
 
   async init() {
     this.store = await initDatabase({ testMode: true });
-    
     this.settings = new ReadSettings(this.store.models);
     await seedSettings(this.store.models);
 

@@ -67,7 +67,8 @@ export class ApplicationContext {
       this.onClose(resolve);
     });
 
-    this.settings = new ReadSettings(this.store.models)
+    this.settings = new ReadSettings(this.store.models);
+
     // no need to set up services, integrations, etc. for migrations
     if (appType === CENTRAL_SERVER_APP_TYPES.MIGRATE) {
       return this;
