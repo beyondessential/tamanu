@@ -47,15 +47,16 @@ export class ApplicationContext {
     this.sequelize = database.sequelize;
     this.models = database.models;
 
+    const { countryTimeZone } = config;
     this.settings = facilityIds.reduce((acc, facilityId) => {
       acc[facilityId] = new ReadSettings(this.models, {
         facilityId,
-        countryTimeZone: config.countryTimeZone,
+        countryTimeZone,
       });
       return acc;
     }, {});
     this.settings.global = new ReadSettings(this.models, {
-      countryTimeZone: config.countryTimeZone,
+      countryTimeZone,
     });
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting();

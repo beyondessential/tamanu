@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
-import { format, isSameDay } from 'date-fns';
-import { getTimezoneOffset } from 'date-fns-tz';
+import { isSameDay } from 'date-fns';
 import { Box, Typography } from '@material-ui/core';
 import styled from 'styled-components';
 import {
   parseDate,
-  locale,
   isISO9075DateString,
   formatShortest,
   formatShort,
@@ -13,9 +11,12 @@ import {
   formatShortExplicit,
   formatTime,
 } from '@tamanu/utils/dateTime';
-import { TAMANU_COLORS } from '../constants';
-import { ThemedTooltip } from './Tooltip';
-import { useDateTimeFormat } from '../contexts';
+
+import { TAMANU_COLORS } from '../../constants';
+import { ThemedTooltip } from '../Tooltip';
+import { useDateTimeFormat } from '../../contexts';
+import { DiagnosticInfo } from './DiagnosticInfo';
+
 
 const Text = styled(Typography)`
   font-size: inherit;
@@ -27,54 +28,7 @@ const SoftText = styled(Text)`
   color: ${TAMANU_COLORS.midText};
 `;
 
-const getFormattedOffset = (tz, date) => {
-  if (!tz) return 'N/A';
-  const offsetMs = getTimezoneOffset(tz, date);
-  const offsetMinutes = Math.abs(offsetMs / 60000);
-  const hours = Math.floor(offsetMinutes / 60);
-  const minutes = offsetMinutes % 60;
-  const sign = offsetMs >= 0 ? '+' : '-';
-  return `${sign}${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-};
-
-const getFormattedOffsetDifference = (date, timeZone, countryTimeZone) => {
-  if (!timeZone || !countryTimeZone) return 'N/A';
-  if (isISO9075DateString(date)) return '00:00 (Date only)';
-  const dateObj = parseDate(date);
-  const timeZoneOffset = getTimezoneOffset(timeZone, dateObj);
-  const countryTimeZoneOffset = getTimezoneOffset(countryTimeZone, dateObj);
-  const diffMs = timeZoneOffset - countryTimeZoneOffset;
-  const diffMinutes = Math.abs(diffMs / 60000);
-  const hours = Math.floor(diffMinutes / 60);
-  const minutes = diffMinutes % 60;
-  const sign = diffMs >= 0 ? '+' : '-';
-  return `${sign}${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-};
-
-const DiagnosticInfo = ({ date, timeZone, countryTimeZone }) => {
-  const { formatLong } = useDateTimeFormat();
-  const displayDate = formatLong(date);
-  const now = new Date();
-  const displayOffset = getFormattedOffset(timeZone, now);
-  const sourceOffset = getFormattedOffset(countryTimeZone, now);
-  const deviceOffset = format(now, 'XXX');
-
-  return (
-    <div>
-      <strong>Raw date string:</strong> {date} <br />
-      <strong>Source timezone:</strong> {countryTimeZone || 'N/A'} ({sourceOffset}) <br />
-      <strong>Display timezone:</strong> {timeZone || 'N/A'} ({displayOffset}) <br />
-      <strong>Device timezone:</strong> {Intl.DateTimeFormat().resolvedOptions().timeZone} (
-      {deviceOffset}) <br />
-      <strong>Offset applied to date:</strong>{' '}
-      {getFormattedOffsetDifference(date, timeZone, countryTimeZone)} <br />
-      <strong>Display date:</strong> {displayDate} <br />
-      <strong>Locale:</strong> {locale}
-    </div>
-  );
-};
-
-const DateTooltip = ({ date, children, timeOnlyTooltip, timeZone, countryTimeZone }) => {
+const DateTooltip = ({ date, children, timeOnlyTooltip, facilityTimeZone, countryTimeZone }) => {
   const isDateOnly = isISO9075DateString(date);
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const [debug, setDebug] = useState(false);
@@ -98,13 +52,18 @@ const DateTooltip = ({ date, children, timeOnlyTooltip, timeZone, countryTimeZon
   );
 
   const tooltipTitle = debug ? (
-    <DiagnosticInfo date={date} countryTimeZone={countryTimeZone} timeZone={timeZone} />
+    <DiagnosticInfo date={date} countryTimeZone={countryTimeZone} facilityTimeZone={facilityTimeZone} />
   ) : (
     dateTooltip
   );
 
   return (
-    <ThemedTooltip open={tooltipOpen} onClose={handleClose} onOpen={handleOpen} title={tooltipTitle}>
+    <ThemedTooltip
+      open={tooltipOpen}
+      onClose={handleClose}
+      onOpen={handleOpen}
+      title={tooltipTitle}
+    >
       {children}
     </ThemedTooltip>
   );
@@ -194,7 +153,7 @@ export const getDateDisplay = (
 
 export const TimeDisplay = React.memo(
   ({ date: dateValue, format: timeFormat, noTooltip = false, style, ...props }) => {
-    const { countryTimeZone, timeZone } = useDateTimeFormat();
+    const { countryTimeZone, facilityTimeZone } = useDateTimeFormat();
     const displayTime = useFormattedDate(dateValue, { timeFormat: timeFormat || 'default' });
 
     const content = (
@@ -209,7 +168,7 @@ export const TimeDisplay = React.memo(
       <DateTooltip
         date={dateValue}
         timeOnlyTooltip
-        timeZone={timeZone}
+        facilityTimeZone={facilityTimeZone}
         countryTimeZone={countryTimeZone}
       >
         {content}
@@ -260,7 +219,7 @@ export const DateDisplay = React.memo(
     timeOnlyTooltip = false,
     ...props
   }) => {
-    const { countryTimeZone, timeZone } = useDateTimeFormat();
+    const { countryTimeZone, facilityTimeZone } = useDateTimeFormat();
     const resolvedDateFormat = dateFormat === undefined ? 'short' : dateFormat;
     const resolvedTimeFormat = showTime ? timeFormat || 'default' : null;
 
@@ -282,7 +241,7 @@ export const DateDisplay = React.memo(
       <DateTooltip
         date={dateValue}
         timeOnlyTooltip={timeOnlyTooltip}
-        timeZone={timeZone}
+        facilityTimeZone={facilityTimeZone}
         countryTimeZone={countryTimeZone}
       >
         {content}

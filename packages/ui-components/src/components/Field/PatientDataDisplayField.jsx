@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { getPatientDataDisplayValue } from '../../utils';
 import { useTranslation, useApi } from '../../contexts';
+import { useDateTimeFormat } from '../../contexts/DateTimeContext';
 
 const Container = styled.div`
   display: flex;
@@ -13,6 +14,7 @@ const Container = styled.div`
 
 export const PatientDataDisplayField = ({ config, label, value }) => {
   const api = useApi();
+  const { formatShort } = useDateTimeFormat();
   const { getEnumTranslation, getReferenceDataTranslation } = useTranslation();
   const [displayValue, setDisplayValue] = useState('');
 
@@ -21,6 +23,7 @@ export const PatientDataDisplayField = ({ config, label, value }) => {
       api,
       getEnumTranslation,
       getReferenceDataTranslation,
+      formatShort,
       value,
       config,
     }).then(setDisplayValue);

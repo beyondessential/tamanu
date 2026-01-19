@@ -166,7 +166,11 @@ async function centralServerLoginWithLocalFallback({
   } catch (e) {
     // if we get an authentication or forbidden error when login to central server,
     // throw the error instead of proceeding to local login
-    if (e.type && (e.type.startsWith(ERROR_TYPE.AUTH) || [ERROR_TYPE.FORBIDDEN, ERROR_TYPE.RATE_LIMITED].includes(e.type))) {
+    if (
+      e.type &&
+      (e.type.startsWith(ERROR_TYPE.AUTH) ||
+        [ERROR_TYPE.FORBIDDEN, ERROR_TYPE.RATE_LIMITED].includes(e.type))
+    ) {
       throw e;
     }
 
@@ -191,8 +195,12 @@ export async function loginHandler(req, res, next) {
   try {
     // For facility servers, settings is a map of facilityId -> ReadSettings
     // For login, we need global settings since there's no facility context yet
+    const { countryTimeZone } = config;
     const globalSettings =
-      settings.global ?? (typeof settings.get === 'function' ? settings : new ReadSettings(models, { countryTimeZone: config.countryTimeZone }));
+      settings.global ??
+      (typeof settings.get === 'function'
+        ? settings
+        : new ReadSettings(models, { countryTimeZone }));
 
     const { central, user, localisation, allowedFacilities } =
       await centralServerLoginWithLocalFallback({
