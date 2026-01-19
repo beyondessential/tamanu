@@ -102,7 +102,10 @@ export class GenerateMedicationAdministrationRecords extends ScheduledTask {
         }
       }
 
-      await sleepAsync(batchSleepAsyncDurationInMilliseconds);
+      if (i < batchCount - 1) {
+        // only sleep if not the last batch
+        await sleepAsync(batchSleepAsyncDurationInMilliseconds);
+      }
     }
   }
 }
