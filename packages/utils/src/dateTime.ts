@@ -291,6 +291,7 @@ export const intlFormatDate = (
   } as Intl.DateTimeFormatOptions);
 };
 
+/** "12/04/20" */
 export const formatShortest = (
   date: string | Date | null | undefined,
   countryTimeZone?: string,
@@ -302,8 +303,9 @@ export const formatShortest = (
     '--/--',
     countryTimeZone,
     timeZone,
-  ); // 12/04/20
+  );
 
+/** "12/04/2020" */
 export const formatShort = (
   date: string | Date | null | undefined,
   countryTimeZone?: string,
@@ -315,16 +317,14 @@ export const formatShort = (
     '--/--/----',
     countryTimeZone,
     timeZone,
-  ); // 12/04/2020
+  );
 
+/** "12:30 am" */
 export const formatTime = (
   date: string | Date | null | undefined,
   countryTimeZone?: string,
   timeZone?: string | null,
-  // TODO: could be better
-  { removeWhitespace = false }: { removeWhitespace?: boolean } = {},
-) => {
-  const formatted = intlFormatDate(
+) =>  intlFormatDate(
     date,
     {
       timeStyle: 'short',
@@ -333,10 +333,9 @@ export const formatTime = (
     '__:__',
     countryTimeZone,
     timeZone,
-  ); // 12:30 am
-  return removeWhitespace ? formatted.replace(' ', '') : formatted;
-};
+  );
 
+/** "12:30:00 am" */
 export const formatTimeWithSeconds = (
   date: string | Date | null | undefined,
   countryTimeZone?: string,
@@ -351,9 +350,9 @@ export const formatTimeWithSeconds = (
     '__:__:__',
     countryTimeZone,
     timeZone,
-  ); // 12:30:00 am
+  );
 
-// long format date is displayed on hover
+/** "Thursday, 14 July 2022, 03:44 pm" */
 export const formatLong = (
   date: string | Date | null | undefined,
   countryTimeZone?: string,
@@ -369,16 +368,16 @@ export const formatLong = (
     'Date information not available',
     countryTimeZone,
     timeZone,
-  ); // "Thursday, 14 July 2022, 03:44 pm"
+  );
 
-/** "Thu" */
+/** "Thu" - 3 letter weekday abbreviation */
 export const formatWeekdayShort = (
   date: string | Date | null | undefined,
   countryTimeZone?: string,
   timeZone?: string | null,
 ) => intlFormatDate(date, { weekday: 'short' }, 'Unknown', countryTimeZone, timeZone);
 
-/** "Thursday" */
+/** "Thursday" - full weekday name */
 export const formatWeekdayLong = (
   date: string | Date | null | undefined,
   countryTimeZone?: string,
@@ -392,7 +391,7 @@ export const formatWeekdayNarrow = (
   timeZone?: string | null,
 ) => intlFormatDate(date, { weekday: 'narrow' }, 'Unknown', countryTimeZone, timeZone);
 
-/** "15 January 2024" */
+/** "15 January 2024" - date with month and year */
 export const formatFullDate = (
   date: string | Date | null | undefined,
   countryTimeZone?: string,
@@ -406,7 +405,7 @@ export const formatFullDate = (
     timeZone,
   );
 
-/** "3pm" - hour only, no minutes */
+/** "3pm" - hour only, no minutes or seconds */
 export const formatTimeSlot = (
   date: string | Date | null | undefined,
   countryTimeZone?: string,
@@ -422,7 +421,7 @@ export const formatTimeSlot = (
   return result.replace(' ', '').toLowerCase();
 };
 
-/** "3:30pm" - time without space */
+/** "3:30pm" - time with minutes and seconds, no space */
 export const formatTimeCompact = (
   date: string | Date | null | undefined,
   countryTimeZone?: string,
