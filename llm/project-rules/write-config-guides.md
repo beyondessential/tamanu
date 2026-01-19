@@ -108,3 +108,20 @@ When there are multiple ways to do something, clearly explain the differences an
 - Cancel = voids but keeps for audit, blocks new invoice creation
 - Delete = removes entirely, allows starting fresh
 - Cancelled invoices CAN be deleted to recover from mistakes
+
+## 11. Formatting for Readability
+
+Config guides are long and dense. Use formatting to help readers navigate:
+
+**Heading levels (for Slab):**
+
+- Start with regular paragraphs (no H1 title - Slab displays this separately)
+- Use `#` for main sections (1. Enable the Module, 2. Configure Reference Data, 3. Workflows)
+- Use `##` for numbered subsections (2.1 Invoice Products, 3.4 Editing Items)
+- Use `###` for named subsections (Configuring Price Lists, Available Actions)
+
+**White space:**
+
+- Add horizontal rules (`---`) between major sections to create visual breaks
+- Use horizontal rules to separate related subsections within a section
+- Don't overuse - only where it genuinely helps readability

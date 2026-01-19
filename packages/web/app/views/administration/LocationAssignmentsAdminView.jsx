@@ -106,7 +106,7 @@ export const LocationAssignmentsAdminView = () => {
     });
   };
 
-  const { data: locations, isLoading: isLocationsLoading } = useSuggestionsQuery('location/all', {
+  const { data: locations, isLoading: isLocationsLoading } = useSuggestionsQuery('location', {
     // Filter and sort locations to only show those that have a location group (bookable locations)
     select: data => {
       const filtered = data
