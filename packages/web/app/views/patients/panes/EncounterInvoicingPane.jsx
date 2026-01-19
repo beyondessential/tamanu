@@ -82,6 +82,14 @@ const PaymentsSection = styled.div`
   display: grid;
   grid-template-columns: 1fr 240px;
   gap: 8px;
+
+  @media (min-width: 1600px) {
+    grid-template-columns: 1fr 320px;
+  }
+
+  @media (min-width: 2000px) {
+    grid-template-columns: 1fr 420px;
+  }
 `;
 
 const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEditing }) => {
