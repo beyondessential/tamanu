@@ -228,13 +228,13 @@ export const PatientLabTestsTable = React.memo(
 
             return (
               <StyledButton disabled data-testid={`styledbutton-l8dl-${index}`}>
-                &mdash;
+                N/A
               </StyledButton>
             );
           },
           exportOverrides: {
             title: `${getTitle(date)}`,
-            accessor: row => row.results[date]?.result || '—', // em dash
+            accessor: row => row.results[date]?.result || 'N/A',
           },
         })),
     ];
