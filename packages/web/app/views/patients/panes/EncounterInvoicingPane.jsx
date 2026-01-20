@@ -133,7 +133,7 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEd
         <TranslatedText
           stringId="invoice.editInvoice.removeAllApprovals"
           fallback="Remove all approvals"
-          data-testid="translatedtext-y43b"
+          data-testid="translatedtext-k3ds"
         />
       ),
       onClick: () => handleAllApprovals(false),
@@ -142,7 +142,7 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEd
         <TranslatedText
           stringId="invoice.editInvoice.markAllAsApproved"
           fallback="Mark all as approved"
-          data-testid="translatedtext-y43b"
+          data-testid="translatedtext-95jh"
         />
       ),
       onClick: () => handleAllApprovals(true),

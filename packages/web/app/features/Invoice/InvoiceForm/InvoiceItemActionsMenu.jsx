@@ -148,7 +148,7 @@ const useInvoiceItemActionsMenu = ({ item, index, hidePriceInput, onUpdateInvoic
     ...item.approved ? [{
       label: (
         <TranslatedText
-          stringId="invoice.modal.editInvoice.removeApproval"
+          stringId="invoice.editInvoice.removeApproval"
           fallback="Remove approval"
           data-testid="translatedtext-y43b"
         />
@@ -159,7 +159,7 @@ const useInvoiceItemActionsMenu = ({ item, index, hidePriceInput, onUpdateInvoic
       {
         label: (
           <TranslatedText
-            stringId="invoice.modal.editInvoice.markAsApproved"
+            stringId="invoice.editInvoice.markAsApproved"
             fallback="Mark as approved"
             data-testid="translatedtext-y43b"
           />
