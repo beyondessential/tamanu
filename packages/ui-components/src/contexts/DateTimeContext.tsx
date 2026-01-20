@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useMemo, createContext } from 'react';
-import { SettingsContext } from './SettingsContext';
+import { useSettings } from './SettingsContext';
 import { mapValues } from 'lodash';
 import {
   formatShortest,
@@ -17,6 +17,7 @@ import {
   formatShortestExplicit,
   formatDateTimeLocal,
 } from '@tamanu/utils/dateTime';
+import { useAuth } from './AuthContext';
 
 const formatters = {
   formatShortest,
@@ -37,11 +38,17 @@ const formatters = {
 
 type DateInput = string | Date | null | undefined;
 
-type Formatters = {
+type RawFormatter = (
+  date?: DateInput,
+  countryTimeZone?: string,
+  facilityTimeZone?: string | null,
+) => string | null;
+
+type WrappedFormatters = {
   [K in keyof typeof formatters]: (date?: DateInput) => string | null;
 };
 
-export interface DateTimeContextValue extends Formatters {
+export interface DateTimeContextValue extends WrappedFormatters {
   countryTimeZone: string;
   facilityTimeZone?: string | null;
 }
@@ -67,28 +74,18 @@ export const DateTimeProvider = ({
   countryTimeZone: countryTimeZoneProp,
   facilityTimeZone: facilityTimeZoneProp,
 }: DateTimeProviderProps) => {
-  const settingsContext = useContext(SettingsContext);
+  const { countryTimeZone: authCountryTimeZone } = useAuth();
+  const { getSetting } = useSettings();
   const usePropsMode = countryTimeZoneProp !== undefined;
-  const isSettingsLoaded = usePropsMode || settingsContext?.isSettingsLoaded;
 
-  if (!usePropsMode && !settingsContext) {
-    throw new Error(
-      'DateTimeProvider requires either a SettingsProvider ancestor or countryTimeZone and facilityTimeZone props',
-    );
-  }
-
-  // TODO: Currently countryTimeZone is not available here
-  const countryTimeZone = usePropsMode
-    ? countryTimeZoneProp!
-    : (settingsContext?.getSetting?.('countryTimeZone') as string);
+  const countryTimeZone = usePropsMode ? countryTimeZoneProp : authCountryTimeZone;
   const facilityTimeZone = usePropsMode
     ? facilityTimeZoneProp
-    : (settingsContext?.getSetting?.('facilityTimeZone') as string | undefined);
-  
+    : (getSetting('facilityTimeZone') as string | undefined);
 
   const wrapFormatter = useCallback(
-    (fn: (date: DateInput, countryTz: string, tz?: string | null) => string | null) =>
-      (date?: DateInput) =>
+    (fn: RawFormatter) =>
+      (date?: DateInput): string | null =>
         fn(date, countryTimeZone, facilityTimeZone),
     [countryTimeZone, facilityTimeZone],
   );
@@ -97,12 +94,12 @@ export const DateTimeProvider = ({
     (): DateTimeContextValue => ({
       countryTimeZone,
       facilityTimeZone,
-      ...(mapValues(formatters, wrapFormatter) as Formatters),
+      ...(mapValues(formatters, wrapFormatter) as WrappedFormatters),
     }),
     [countryTimeZone, facilityTimeZone, wrapFormatter],
   );
 
-  if (!isSettingsLoaded || !countryTimeZone) {
+  if (!countryTimeZone) {
     return null;
   }
 
