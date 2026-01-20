@@ -17,6 +17,7 @@ import {
   formatShortestExplicit,
   formatDateTimeLocal,
   parseInTimeZone,
+  toDateTimeStringInTimeZone,
 } from '@tamanu/utils/dateTime';
 import { useAuth } from './AuthContext';
 
@@ -36,6 +37,7 @@ const utils = {
   formatShortestExplicit,
   formatDateTimeLocal,
   parseInTimeZone,
+  toDateTimeStringInTimeZone,
 };
 
 type DateInput = string | Date | null | undefined;
