@@ -36,17 +36,17 @@ const StateContextProviders = ({ children, store }) => (
           <LabRequestProvider store={store}>
             <PatientSearchProvider>
               <SettingsProvider>
-                <DateTimeProvider>
-                  <SyncStateProvider>
-                    <TranslationProvider>
-                      <LocalisationProvider store={store}>
-                        <AuthProvider>
+                <SyncStateProvider>
+                  <TranslationProvider>
+                    <LocalisationProvider store={store}>
+                      <AuthProvider>
+                        <DateTimeProvider>
                           <NoteModalProvider>{children}</NoteModalProvider>
-                        </AuthProvider>
-                      </LocalisationProvider>
-                    </TranslationProvider>
-                  </SyncStateProvider>
-                </DateTimeProvider>
+                        </DateTimeProvider>
+                      </AuthProvider>
+                    </LocalisationProvider>
+                  </TranslationProvider>
+                </SyncStateProvider>
               </SettingsProvider>
             </PatientSearchProvider>
           </LabRequestProvider>

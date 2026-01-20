@@ -18,11 +18,7 @@ class MockApplicationContext {
 
   async init() {
     this.store = await initDatabase({ testMode: true });
-    
-    const { countryTimeZone } = config;
-    this.settings = new ReadSettings(this.store.models, {
-      countryTimeZone,
-    });
+    this.settings = new ReadSettings(this.store.models);
     await seedSettings(this.store.models);
 
     if (config.db.reportSchemas?.enabled) {

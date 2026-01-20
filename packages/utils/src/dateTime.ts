@@ -78,11 +78,7 @@ export const toDateString = (date: string | Date | null | undefined) => {
   return formatISO9075(dateObj, { representation: 'date' });
 };
 
-/**
- * Extracts weekday code from a date
- * @example
- * toWeekdayCode("2024-03-15 09:30:00") // "MO"
- */
+/** "MO" - Uppercase 2 letter weekday representation for scheduling */
 export const toWeekdayCode = (date: string | Date | null | undefined) => {
   if (date == null) return null;
 
@@ -241,7 +237,6 @@ export const doAgeRangesOverlap = (rangesArray: AgeRange[]) => {
  * Wrapper functions around date-fns functions that parse date_string and date_time_string types
  * For date-fns docs @see https://date-fns.org
  */
-
 export const format = (date: string | Date | null | undefined, format: string) => {
   if (date == null) return null;
   const dateObj = parseDate(date);
@@ -300,10 +295,10 @@ export const intlFormatDate = (
   if (!dateObj) return fallback;
 
   const timeZone = facilityTimeZone ?? countryTimeZone;
-  return dateObj.toLocaleString(locale, {
-    ...formatOptions,
-    ...(timeZone ? { timeZone } : {}),
-  } as Intl.DateTimeFormatOptions);
+  if (timeZone) {
+    formatOptions.timeZone = timeZone;
+  }
+  return dateObj.toLocaleString(locale, formatOptions);
 };
 
 /** "12/04/24" */

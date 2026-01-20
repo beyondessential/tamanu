@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { getPatientDataDisplayValue } from '../../utils';
-import { useTranslation, useApi } from '../../contexts';
-import { useDateTimeFormat } from '../../contexts/DateTimeContext';
+import { useTranslation, useApi, useDateTimeFormat } from '../../contexts';
 
 const Container = styled.div`
   display: flex;

@@ -90,7 +90,7 @@ export async function centralServerLogin({
   });
 
   // we've logged in as a valid central user - update local database to match
-  const { user, localisation, allowedFacilities } = response;
+  const { user, localisation, allowedFacilities, countryTimeZone } = response;
   const { id, ...userDetails } = user;
 
   const userModel = await models.User.sequelize.transaction(async () => {
@@ -109,7 +109,7 @@ export async function centralServerLogin({
 
   await models.Device.ensureRegistration({ settings, user: userModel, deviceId, scopes: [] });
 
-  return { central: true, user, localisation, allowedFacilities };
+  return { central: true, user, localisation, allowedFacilities, countryTimeZone };
 }
 
 async function localLogin({ models, settings, email, password, deviceId }) {
@@ -195,14 +195,10 @@ export async function loginHandler(req, res, next) {
   try {
     // For facility servers, settings is a map of facilityId -> ReadSettings
     // For login, we need global settings since there's no facility context yet
-    const { countryTimeZone } = config;
     const globalSettings =
-      settings.global ??
-      (typeof settings.get === 'function'
-        ? settings
-        : new ReadSettings(models, { countryTimeZone }));
+      settings.global ?? (typeof settings.get === 'function' ? settings : new ReadSettings(models));
 
-    const { central, user, localisation, allowedFacilities } =
+    const { central, user, localisation, allowedFacilities, countryTimeZone } =
       await centralServerLoginWithLocalFallback({
         models,
         settings: globalSettings,
@@ -234,6 +230,7 @@ export async function loginHandler(req, res, next) {
       permissions,
       role: role?.forResponse() ?? null,
       serverType: SERVER_TYPES.FACILITY,
+      countryTimeZone,
       availableFacilities,
     });
   } catch (e) {
