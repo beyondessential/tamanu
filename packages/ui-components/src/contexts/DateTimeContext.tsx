@@ -72,7 +72,7 @@ export const DateTimeProvider = ({
   const { getSetting } = useSettings();
   const usePropsMode = countryTimeZoneProp !== undefined;
 
-  const countryTimeZone = usePropsMode ? countryTimeZoneProp! : authCountryTimeZone;
+  const countryTimeZone = usePropsMode ? countryTimeZoneProp : authCountryTimeZone;
   const facilityTimeZone = usePropsMode
     ? facilityTimeZoneProp
     : (getSetting('facilityTimeZone') as string | undefined);
