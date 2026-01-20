@@ -40,7 +40,6 @@ export const login = (email, password) => async (dispatch, getState, { api }) =>
 };
 
 const handleLoginSuccess = async (dispatch, loginInfo) => {
-  console.log(loginInfo)
   const {
     user,
     token,
