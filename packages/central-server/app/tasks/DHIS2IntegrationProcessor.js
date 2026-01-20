@@ -181,10 +181,9 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
 
     const latestVersion = report.versions[0];
     const queryOptions = latestVersion.getQueryOptions();
-    const dataSet = queryOptions?.dhis2DataSet;
 
     const reportData = await latestVersion.dataGenerator({ ...this.context, sequelize }, {}); // We don't support parameters in this task
-    const dhis2DataValueSets = convertToDHIS2DataValueSets(reportData, dataSet);
+    const dhis2DataValueSets = convertToDHIS2DataValueSets(reportData, queryOptions.dhis2DataSet);
 
     for (const dataValueSet of dhis2DataValueSets) {
       const {
