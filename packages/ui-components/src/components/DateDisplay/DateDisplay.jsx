@@ -27,8 +27,15 @@ const SoftText = styled(Text)`
   color: ${TAMANU_COLORS.midText};
 `;
 
-const DateTooltip = ({ date, children, timeOnlyTooltip, facilityTimeZone, countryTimeZone }) => {
-  const isDateOnly = isISO9075DateString(date);
+const DateTooltip = ({
+  rawDate,
+  displayDate,
+  timeOnlyTooltip,
+  facilityTimeZone,
+  countryTimeZone,
+  children,
+}) => {
+  const isDateOnly = isISO9075DateString(rawDate);
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const [debug, setDebug] = useState(false);
 
@@ -45,14 +52,15 @@ const DateTooltip = ({ date, children, timeOnlyTooltip, facilityTimeZone, countr
   };
 
   const dateTooltip = timeOnlyTooltip ? (
-    <TimeDisplay date={date} />
+    <TimeDisplay date={rawDate} />
   ) : (
-    <DateDisplay date={date} showTime={!isDateOnly} />
+    <DateDisplay date={rawDate} showTime={!isDateOnly} />
   );
 
   const tooltipTitle = debug ? (
     <DiagnosticInfo
-      date={date}
+      rawDate={rawDate}
+      displayDate={displayDate}
       countryTimeZone={countryTimeZone}
       facilityTimeZone={facilityTimeZone}
     />
@@ -169,7 +177,8 @@ export const TimeDisplay = React.memo(
 
     return (
       <DateTooltip
-        date={dateValue}
+        rawDate={dateValue}
+        displayDate={displayTime}
         timeOnlyTooltip
         facilityTimeZone={facilityTimeZone}
         countryTimeZone={countryTimeZone}
@@ -242,7 +251,8 @@ export const DateDisplay = React.memo(
 
     return (
       <DateTooltip
-        date={dateValue}
+        rawDate={dateValue}
+        displayDate={displayDate}
         timeOnlyTooltip={timeOnlyTooltip}
         facilityTimeZone={facilityTimeZone}
         countryTimeZone={countryTimeZone}
