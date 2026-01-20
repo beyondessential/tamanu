@@ -1,8 +1,6 @@
 import React from 'react';
 
-import { locale } from '@tamanu/utils/dateTime';
-
-import { useDateTimeFormat } from '../../contexts/DateTimeContext';
+import { locale } from '@tamanu/utils/dateTime'; 
 import { getTimezoneOffset } from 'date-fns-tz';
 
 /**
@@ -20,17 +18,16 @@ const getFormattedOffset = (tz) => {
   return `${sign}${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
 };
 
-export const DiagnosticInfo = ({ date, facilityTimeZone, countryTimeZone }) => {
-  const { formatLong } = useDateTimeFormat();
-  const displayDate = formatLong(date);
+export const DiagnosticInfo = ({ rawDate, displayDate, facilityTimeZone, countryTimeZone }) => {
   const displayTimeZone = facilityTimeZone || countryTimeZone;
   const displayOffset = getFormattedOffset(displayTimeZone);
+  const parsedRawDate = typeof rawDate === 'string' ? rawDate : rawDate.toISOString();
   return (  
     <div>
-      <strong>Raw date string:</strong> {date} <br />
-      <strong>Source timezone:</strong> {countryTimeZone} <br />
-      <strong>Display timezone:</strong> {displayTimeZone} <br />
-      <strong>Display offset:</strong> {displayOffset} <br />
+      <strong>Raw date:</strong> {parsedRawDate} <br />
+      <strong>Country timezone:</strong> {countryTimeZone} <br />
+      <strong>Displayed timezone:</strong> {displayTimeZone} <br />
+      <strong>Displayed offset:</strong> {displayOffset} <br />
       <strong>Display date:</strong> {displayDate} <br />
       <strong>Locale:</strong> {locale}
     </div>
