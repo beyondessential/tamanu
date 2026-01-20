@@ -170,7 +170,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
   const sendViaMSupply = getSetting('features.pharmacyOrder.sendViaMSupply');
 
   // Permission to edit repeats (only relevant for ongoing mode)
-  const canEditRepeats = ability.can('write', 'MedicationRepeats');
+  const canEditRepeats = ability.can('write', 'Medication');
 
   const [prescriptionType, setPrescriptionType] = useState(
     PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT,
@@ -264,7 +264,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
     },
     [],
   );
-  
+
   const getAlreadyOrderedPrescriptions = useCallback(
     () =>
       prescriptions.filter(

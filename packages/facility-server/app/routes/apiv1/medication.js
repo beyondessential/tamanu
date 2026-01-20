@@ -397,8 +397,8 @@ medication.post(
       );
     }
 
-    // Check if user can edit repeats (write MedicationRepeats permission)
-    const canEditRepeats = req.ability.can('write', 'MedicationRepeats');
+    // Check if user can edit repeats (write Medication permission)
+    const canEditRepeats = req.ability.can('write', 'Medication');
 
     const prescriptionIds = prescriptions.map(p => p.prescriptionId);
 
@@ -442,7 +442,7 @@ medication.post(
       const requestData = prescriptionMap.get(prescription.id);
       const currentRepeats = prescription.repeats ?? 0;
 
-      // If user doesn't have write MedicationRepeats permission, they can't send medications with 0 repeats
+      // If user doesn't have write Medication permission, they can't send medications with 0 repeats
       if (!canEditRepeats && currentRepeats === 0) {
         throw new InvalidOperationError(
           `Cannot send medication "${prescription.medication?.name || prescription.id}" to pharmacy - no repeats remaining. You do not have permission to modify repeats.`,

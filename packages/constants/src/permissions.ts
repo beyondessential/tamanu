@@ -39,7 +39,6 @@ export const PERMISSION_NOUNS = [
   'Medication',
   'MedicationAdministration',
   'MedicationPharmacyNote',
-  'MedicationRepeats',
   'MedicationRequest',
   'MedicationDispense',
   'OtherPractitionerEncounterNote',
