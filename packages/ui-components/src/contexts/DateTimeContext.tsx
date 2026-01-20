@@ -99,9 +99,5 @@ export const DateTimeProvider = ({
     [countryTimeZone, facilityTimeZone, wrapFormatter],
   );
 
-  if (!countryTimeZone) {
-    return null;
-  }
-
   return React.createElement(DateTimeProviderContext.Provider, { value }, children);
 };
