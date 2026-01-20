@@ -38,11 +38,17 @@ const formatters = {
 
 type DateInput = string | Date | null | undefined;
 
-type Formatters = {
+type RawFormatter = (
+  date?: DateInput,
+  countryTimeZone?: string,
+  facilityTimeZone?: string | null,
+) => string | null;
+
+type WrappedFormatters = {
   [K in keyof typeof formatters]: (date?: DateInput) => string | null;
 };
 
-export interface DateTimeContextValue extends Formatters {
+export interface DateTimeContextValue extends WrappedFormatters {
   countryTimeZone: string;
   facilityTimeZone?: string | null;
 }
@@ -78,14 +84,8 @@ export const DateTimeProvider = ({
     : (getSetting('facilityTimeZone') as string | undefined);
 
   const wrapFormatter = useCallback(
-    (
-      fn: (
-        date: DateInput,
-        countryTimeZone?: string,
-        facilityTimeZone?: string | null,
-      ) => string | null,
-    ) =>
-      (date?: DateInput) =>
+    (fn: RawFormatter) =>
+      (date?: DateInput): string | null =>
         fn(date, countryTimeZone, facilityTimeZone),
     [countryTimeZone, facilityTimeZone],
   );
@@ -94,7 +94,7 @@ export const DateTimeProvider = ({
     (): DateTimeContextValue => ({
       countryTimeZone,
       facilityTimeZone,
-      ...(mapValues(formatters, wrapFormatter) as Formatters),
+      ...(mapValues(formatters, wrapFormatter) as WrappedFormatters),
     }),
     [countryTimeZone, facilityTimeZone, wrapFormatter],
   );
