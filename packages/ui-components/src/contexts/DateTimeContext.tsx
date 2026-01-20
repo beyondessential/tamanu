@@ -16,10 +16,11 @@ import {
   formatShortExplicit,
   formatShortestExplicit,
   formatDateTimeLocal,
+  parseInTimeZone,
 } from '@tamanu/utils/dateTime';
 import { useAuth } from './AuthContext';
 
-const formatters = {
+const utils = {
   formatShortest,
   formatShort,
   formatTime,
@@ -34,6 +35,7 @@ const formatters = {
   formatShortExplicit,
   formatShortestExplicit,
   formatDateTimeLocal,
+  parseInTimeZone,
 };
 
 type DateInput = string | Date | null | undefined;
@@ -44,11 +46,20 @@ type RawFormatter = (
   facilityTimeZone?: string | null,
 ) => string | null;
 
-type WrappedFormatters = {
-  [K in keyof typeof formatters]: (date?: DateInput) => string | null;
+type RawParser = (
+  date?: DateInput,
+  countryTimeZone?: string,
+  facilityTimeZone?: string | null,
+) => Date | null;
+
+type WrappedFormatter = (date?: DateInput) => string | null;
+type WrappedParser = (date?: DateInput) => Date | null;
+
+type WrappedUtils = {
+  [K in keyof typeof utils]: K extends 'parseInTimeZone' ? WrappedParser : WrappedFormatter;
 };
 
-export interface DateTimeContextValue extends WrappedFormatters {
+export interface DateTimeContextValue extends WrappedUtils {
   countryTimeZone: string;
   facilityTimeZone?: string | null;
 }
@@ -83,9 +94,9 @@ export const DateTimeProvider = ({
     ? facilityTimeZoneProp
     : (getSetting('facilityTimeZone') as string | undefined);
 
-  const wrapFormatter = useCallback(
-    (fn: RawFormatter) =>
-      (date?: DateInput): string | null =>
+  const wrapFunction = useCallback(
+    (fn: RawFormatter | RawParser) =>
+      (date?: DateInput): string | Date | null =>
         fn(date, countryTimeZone, facilityTimeZone),
     [countryTimeZone, facilityTimeZone],
   );
@@ -94,9 +105,9 @@ export const DateTimeProvider = ({
     (): DateTimeContextValue => ({
       countryTimeZone,
       facilityTimeZone,
-      ...(mapValues(formatters, wrapFormatter) as WrappedFormatters),
+      ...(mapValues(utils, wrapFunction) as WrappedUtils),
     }),
-    [countryTimeZone, facilityTimeZone, wrapFormatter],
+    [countryTimeZone, facilityTimeZone, wrapFunction],
   );
 
   return React.createElement(DateTimeProviderContext.Provider, { value }, children);

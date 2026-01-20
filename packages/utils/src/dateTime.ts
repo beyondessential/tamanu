@@ -470,6 +470,27 @@ export const formatDateTimeLocal = (
   return formatInTimeZone(dateObj, tz, "yyyy-MM-dd'T'HH:mm");
 };
 
+/**
+ * Parse a date string or Date object with timezone conversion applied.
+ * This is similar to parseISO but handles timezone conversion like other format functions.
+ * For date-only strings (e.g. DOB), no timezone conversion is applied.
+ * For datetime strings, applies timezone conversion if both countryTimeZone and facilityTimeZone are provided.
+ */
+export const parseInTimeZone = (
+  date?: string,
+  countryTimeZone?: string,
+  facilityTimeZone?: string | null,
+): Date | null => {
+  if (!date) return null;
+  const isDateOnly = isISO9075DateString(date);
+  const shouldApplyTimezoneConversion = !isDateOnly && countryTimeZone && facilityTimeZone;
+  const dateObj = shouldApplyTimezoneConversion
+    ? fromZonedTime(date, countryTimeZone)
+    : parseDate(date);
+
+  return dateObj;
+};
+
 export const isStartOfThisWeek = (date: Date | number) => {
   const startOfThisWeek = startOfWeek(new Date(), { weekStartsOn: 1 });
   return isSameDay(date, startOfThisWeek);

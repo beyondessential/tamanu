@@ -24,7 +24,7 @@ import { cloneDeep } from 'lodash';
 import { useDrop, useDrag } from 'react-dnd';
 
 import { toDateTimeString, toDateString } from '@tamanu/utils/dateTime';
-import { TimeDisplay, notifyError, notifySuccess } from '@tamanu/ui-components';
+import { TimeDisplay, notifyError, notifySuccess, useDateTimeFormat } from '@tamanu/ui-components';
 
 import {
   useLocationBookingsQuery,
@@ -424,6 +424,7 @@ export const LocationBookingsDailyCalendar = ({
     updateSelectedCell,
     viewType,
   } = useLocationBookingsContext();
+  const { parseInTimeZone } = useDateTimeFormat();
 
   const [selectedTimeCell, setSelectedTimeCell] = useState(null);
   const [emailModalState, setEmailModalState] = useState(null);
@@ -592,11 +593,11 @@ export const LocationBookingsDailyCalendar = ({
   };
 
   // Helper function to calculate appointment position and height
-  const getAppointmentStyle = appointment => {
+  const getAppointmentStyle = (appointment) => {
     if (!timeSlots || timeSlots.length === 0) return { top: 0, height: 70 };
 
-    const startTime = parseISO(appointment.startTime);
-    const endTime = appointment.endTime ? parseISO(appointment.endTime) : addHours(startTime, 1);
+    const startTime = parseInTimeZone(appointment.startTime);
+    const endTime = appointment.endTime ? parseInTimeZone(appointment.endTime) : addHours(startTime, 1);
 
     // Visible window of the daily grid based on generated time slots
     const visibleStart = timeSlots[0].start;
@@ -1090,7 +1091,7 @@ export const LocationBookingsDailyCalendar = ({
 
                   {/* Appointments positioned by time */}
                   {locationAppointments.map((appointment, appointmentIndex) => {
-                    const style = getAppointmentStyle(appointment);
+                    const style = getAppointmentStyle(appointment, parseInTimeZone);
                     if (!style) return null;
                     return (
                       <AppointmentWrapper
