@@ -38,7 +38,9 @@ const getNotificationText = ({ getTranslation, type, patient, metadata }) => {
       'Imaging results for :patientName (:displayId) are <strong>now available</strong>',
       { replacements: { displayId, patientName } },
     );
-  } else if (type === NOTIFICATION_TYPES.LAB_REQUEST) {
+  }
+
+  if (type === NOTIFICATION_TYPES.LAB_REQUEST) {
     const labRequestStatus = metadata.status;
     const previousStatus = metadata.previousStatus;
 
@@ -71,7 +73,9 @@ const getNotificationText = ({ getTranslation, type, patient, metadata }) => {
           { replacements: { displayId, patientName } },
         );
     }
-  } else if (type === NOTIFICATION_TYPES.PHARMACY_NOTE) {
+  }
+
+  if (type === NOTIFICATION_TYPES.PHARMACY_NOTE) {
     return getTranslation(
       'notification.content.pharmacyNote',
       'Pharmacy note for :patientName (:displayId)',
