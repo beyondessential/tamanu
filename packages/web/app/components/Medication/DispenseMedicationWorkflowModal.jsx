@@ -180,7 +180,7 @@ const buildInstructionText = (prescription, getTranslation, getEnumTranslation) 
 };
 
 const isItemDisabled = item => {
-  return item.isDischargePrescription && (item.remainingRepeats ?? 0) === 0;
+  return item.pharmacyOrder?.isDischargePrescription && (item.remainingRepeats ?? 0) === 0;
 };
 
 const InstructionsInput = memo(({ value: defaultValue, onChange, ...props }) => {
