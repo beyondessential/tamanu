@@ -112,6 +112,7 @@ export const login = asyncHandler(async (req, res) => {
     allowedFacilities,
     localisation,
     centralHost: config.canonicalHostName,
+    countryTimeZone: config.countryTimeZone,
     settings: userSettings,
   });
 });
