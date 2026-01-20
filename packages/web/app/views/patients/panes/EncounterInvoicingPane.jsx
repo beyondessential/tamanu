@@ -98,7 +98,7 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEd
     return null;
   }
 
-  const isAllItemsApproved = invoice.items.every(item => item.approved);
+  const allItemsAreApproved = invoice.items.every(item => item.approved);
 
   const handleAllApprovals = (approved) => {
     const updatedInvoiceItems = [...invoice.items].map(item => ({ ...item, approved }));
@@ -128,7 +128,7 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEd
       onClick: () => setInvoiceModalType(INVOICE_MODAL_TYPES.DELETE_INVOICE),
       hidden: !deletable,
     },
-    ...isAllItemsApproved ? [{
+    ...allItemsAreApproved ? [{
       label: (
         <TranslatedText
           stringId="invoice.editInvoice.removeAllApprovals"
