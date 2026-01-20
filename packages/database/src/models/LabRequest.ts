@@ -111,8 +111,31 @@ export class LabRequest extends Model {
           afterUpdate: async (labRequest: LabRequest, options) => {
             const previousStatus = labRequest.previous('status');
             const currentStatus = labRequest.status;
+            const isStatusChanging = currentStatus !== previousStatus;
 
-            const isChangingFromPublished = previousStatus === LAB_REQUEST_STATUSES.PUBLISHED && currentStatus !== previousStatus;
+            if (!isStatusChanging) return;
+
+            // Handle deletion first - if changing to DELETED or ENTERED_IN_ERROR,
+            // delete all notifications and don't create new ones
+            const shouldDeleteNotification = [
+              LAB_REQUEST_STATUSES.DELETED,
+              LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
+            ].includes(currentStatus);
+
+            if (shouldDeleteNotification) {
+              await models.Notification.destroy({
+                where: {
+                  metadata: {
+                    id: labRequest.id,
+                  },
+                },
+                transaction: options.transaction,
+              });
+              return;
+            }
+
+            // Handle notification creation for status changes
+            const isChangingFromPublished = previousStatus === LAB_REQUEST_STATUSES.PUBLISHED;
             const NOTIFICATION_STATUSES = [
               LAB_REQUEST_STATUSES.INTERIM_RESULTS,
               LAB_REQUEST_STATUSES.PUBLISHED,
@@ -127,22 +150,6 @@ export class LabRequest extends Model {
                 { ...labRequest.dataValues, previousStatus },
                 { transaction: options.transaction },
               );
-            }
-
-            const shouldDeleteNotification = [
-              LAB_REQUEST_STATUSES.DELETED,
-              LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
-            ].includes(labRequest.status);
-
-            if (shouldDeleteNotification && labRequest.status !== labRequest.previous('status')) {
-              await models.Notification.destroy({
-                where: {
-                  metadata: {
-                    id: labRequest.id,
-                  },
-                },
-                transaction: options.transaction,
-              });
             }
           },
         },
