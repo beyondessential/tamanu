@@ -2,7 +2,6 @@ import {
   endOfDay,
   startOfDay,
   addHours,
-  parseISO,
   setHours,
   setMinutes,
   differenceInMilliseconds,
@@ -559,8 +558,8 @@ export const LocationBookingsDailyCalendar = ({
     const slot = timeSlots[slotIndex];
 
     const assignment = locationAssignments.find(assignment => {
-      const assignmentStart = parseISO(assignment.startTime);
-      const assignmentEnd = parseISO(assignment.endTime);
+      const assignmentStart = parseInTimeZone(assignment.startTime);
+      const assignmentEnd = parseInTimeZone(assignment.endTime);
 
       // Check if assignment overlaps with this slot
       return assignmentStart < slot.end && assignmentEnd > slot.start;
