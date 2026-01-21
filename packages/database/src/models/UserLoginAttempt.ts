@@ -31,6 +31,10 @@ export class UserLoginAttempt extends Model {
           type: DataTypes.TEXT,
           allowNull: false,
         },
+        deviceId: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
       },
       {
         ...options,
