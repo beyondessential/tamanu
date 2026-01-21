@@ -44,11 +44,12 @@ jobs:
         id: check
         continue-on-error: true # so a false check doesn't make the workflow fail
         run: |
-          if kubectl get namespace tamanu-${{ inputs.deploy-name }} 2>/dev/null; then
+          NS_NAME="tamanu-${{ inputs.deploy-name }}"
+          if kubectl -n tamanu-super get subnamespaceanchor "$NS_NAME" 2>/dev/null; then
             echo "Namespace exists"
             if ${{ inputs.check-branch }}; then
               echo "Checking it's matched to this branch"
-              if kubectl -n tamanu-${{ inputs.deploy-name }} \
+              if kubectl -n "$NS_NAME" \
                 get configmap auto-deploy -o json \
                 | tee -a /dev/stderr \
                 | jq -e '.data | [.repo == "${{ github.repository }}", .ref == "${{ inputs.ref }}"] | all | not'
@@ -89,9 +90,10 @@ jobs:
         id: hard-delete
         name: Delete namespace outright
         run: |
-          if kubectl get namespace tamanu-${{ inputs.deploy-name }} 2>/dev/null; then
+          NS_NAME="tamanu-${{ inputs.deploy-name }}"
+          if kubectl -n tamanu-super get subnamespaceanchor "$NS_NAME" 2>/dev/null; then
             echo "Deleting namespace hard"
-            kubectl delete namespace tamanu-${{ inputs.deploy-name }}
+            kubectl -n tamanu-super delete subnamespaceanchor "$NS_NAME" --wait=true
           fi
       - # run pulumi destroy again to clean up any resources that might have been left behind
         if: always() && steps.hard-delete.outcome == 'success'
