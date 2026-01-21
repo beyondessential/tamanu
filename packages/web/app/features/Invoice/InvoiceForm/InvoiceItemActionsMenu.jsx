@@ -161,7 +161,7 @@ const useInvoiceItemActionsMenu = ({ item, index, hidePriceInput, onUpdateInvoic
           <TranslatedText
             stringId="invoice.editInvoice.markAsApproved"
             fallback="Mark as approved"
-            data-testid="translatedtext-y43b"
+            data-testid="translatedtext-c3a4"
           />
         ),
         onClick: () => handleApproval(true),
