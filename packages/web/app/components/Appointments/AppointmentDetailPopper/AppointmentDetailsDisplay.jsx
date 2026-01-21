@@ -300,6 +300,7 @@ export const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
             start={startTime}
             end={endTime}
             showWeekday={false}
+            dateFormat="dayMonth"
             data-testid="datetimerangedisplay-diun"
           />
         }

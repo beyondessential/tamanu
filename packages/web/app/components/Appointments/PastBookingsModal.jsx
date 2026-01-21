@@ -11,10 +11,10 @@ import { LimitedLinesCell } from '../FormattedTableCell';
 import { Modal } from '../Modal';
 import { Table } from '../Table';
 import { useTableSorting } from '../Table/useTableSorting';
+import { DateTimeRangeDisplay, DateDisplay, TimeDisplay } from '@tamanu/ui-components';
 import { ThemedTooltip } from '../Tooltip';
 import { TranslatedText } from '../Translation';
 import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
-import { DateDisplay, TimeDisplay } from '@tamanu/ui-components';
 
 const StyledModal = styled(Modal)`
   .MuiDialog-paper {
@@ -111,8 +111,8 @@ const StatusBadge = styled.div`
   justify-content: center;
   align-items: center;
   font-size: 11px;
-  color: ${(p) => APPOINTMENT_STATUS_COLORS[p.$status]};
-  background-color: ${(p) => APPOINTMENT_STATUS_COLORS[p.$status]}1a;
+  color: ${p => APPOINTMENT_STATUS_COLORS[p.$status]};
+  background-color: ${p => APPOINTMENT_STATUS_COLORS[p.$status]}1a;
 `;
 
 const OvernightIcon = styled.span`
@@ -130,11 +130,19 @@ const DateCell = ({ startTime, endTime }) => {
       title={
         <Box style={{ textTransform: 'lowercase', fontWeight: 400 }} data-testid="box-q74p">
           {isOvernight ? (
-            <><DateDisplay date={startTime} format="shortest" /> - <DateDisplay date={endTime} format="shortest" /></>
+            <>
+              <DateDisplay date={startTime} noTooltip format="shortest" /> -{' '}
+              <DateDisplay date={endTime} noTooltip format="shortest" />
+            </>
           ) : (
             <div>
-              <div><DateDisplay date={startTime} format="shortest" /></div>
-              <div><TimeDisplay date={startTime} /> - <TimeDisplay date={endTime} /></div>
+              <div>
+                <DateDisplay date={startTime} noTooltip format="shortest" />
+              </div>
+              <div>
+                <TimeDisplay date={startTime} noTooltip format="compact" /> -{' '}
+                <TimeDisplay date={endTime} noTooltip format="compact" />
+              </div>
             </div>
           )}
         </Box>
@@ -142,9 +150,18 @@ const DateCell = ({ startTime, endTime }) => {
       data-testid="themedtooltip-euoy"
     >
       <DateText data-testid="datetext-z14b">
-        {!isOvernight
-          ? <><DateDisplay date={startTime} format="shortest" /> <TimeDisplay date={startTime} /> - <TimeDisplay date={endTime} /></>
-          : <><DateDisplay date={startTime} format="shortest" /> - <DateDisplay date={endTime} format="shortest" /></>}
+        {!isOvernight ? (
+          <>
+            <DateDisplay date={startTime} noTooltip format="shortest" />{' '}
+            <TimeDisplay date={startTime} noTooltip format="compact" /> -{' '}
+            <TimeDisplay date={endTime} noTooltip format="compact" />
+          </>
+        ) : (
+          <>
+            <DateDisplay date={startTime} noTooltip format="shortest" /> -{' '}
+            <DateDisplay date={endTime} noTooltip format="shortest" />
+          </>
+        )}
         {isOvernight && (
           <OvernightIcon data-testid="overnighticon-2qtt">
             <Brightness2Icon fontSize="inherit" data-testid="brightness2icon-gxv2" />
@@ -183,7 +200,7 @@ const COLUMNS = [
       />
     ),
     accessor: ({ location }) => location?.locationGroup?.name,
-    CellComponent: (props) => (
+    CellComponent: props => (
       <LimitedLinesCell {...props} isOneLine data-testid="limitedlinescell-1mrf" />
     ),
   },
@@ -198,7 +215,7 @@ const COLUMNS = [
     ),
     accessor: ({ location }) => location?.name || '-',
     sortable: false,
-    CellComponent: (props) => (
+    CellComponent: props => (
       <LimitedLinesCell {...props} isOneLine data-testid="limitedlinescell-bdup" />
     ),
   },
@@ -212,7 +229,7 @@ const COLUMNS = [
       />
     ),
     accessor: ({ clinician }) => clinician?.displayName || '-',
-    CellComponent: (props) => (
+    CellComponent: props => (
       <LimitedLinesCell {...props} isOneLine data-testid="limitedlinescell-f99y" />
     ),
   },
@@ -226,7 +243,7 @@ const COLUMNS = [
       />
     ),
     accessor: ({ bookingType }) => bookingType?.name,
-    CellComponent: (props) => (
+    CellComponent: props => (
       <LimitedLinesCell {...props} isOneLine data-testid="limitedlinescell-hk2s" />
     ),
   },

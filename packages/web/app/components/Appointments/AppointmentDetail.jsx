@@ -199,6 +199,7 @@ const CancelAppointmentModal = ({ open, onClose, onConfirm, appointment }) => {
         <DateTimeRangeDisplay
           start={appointment.startTime}
           end={appointment.endTime}
+          dateFormat="dayMonth"
           data-testid="datetimerangedisplay-e45m"
         />
       </Details>
@@ -338,6 +339,7 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
             <DateTimeRangeDisplay
               start={appointment.startTime}
               end={appointment.endTime}
+              dateFormat="dayMonth"
               data-testid="datetimerangedisplay-qco2"
             />
           </div>

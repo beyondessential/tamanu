@@ -15,6 +15,7 @@ import {
   formatWeekdayNarrow,
   formatShortExplicit,
   formatShortestExplicit,
+  formatDayMonth,
   formatDateTimeLocal,
 } from '@tamanu/utils/dateTime';
 import { useAuth } from './AuthContext';
@@ -33,6 +34,7 @@ const utils = {
   formatWeekdayNarrow,
   formatShortExplicit,
   formatShortestExplicit,
+  formatDayMonth,
   formatDateTimeLocal,
 };
 

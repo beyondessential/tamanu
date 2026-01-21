@@ -86,6 +86,7 @@ const DATE_FORMATS = {
   long: 'formatFullDate',
   explicit: 'formatShortExplicit',
   explicitShort: 'formatShortestExplicit',
+  dayMonth: 'formatDayMonth',
 };
 
 const TIME_FORMATS = {

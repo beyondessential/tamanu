@@ -69,7 +69,6 @@ export const toDateTimeString = (date: string | Date | null | undefined) => {
   return formatISO9075(dateObj, { representation: 'complete' });
 };
 
-
 export const toDateString = (date: string | Date | null | undefined) => {
   if (date == null) return null;
 
@@ -456,6 +455,20 @@ export const formatShortestExplicit = (
     facilityTimeZone,
   );
 
+/** "15 Mar" - day and short month name (no year) */
+export const formatDayMonth = (
+  date: string | Date | null | undefined,
+  countryTimeZone?: string,
+  facilityTimeZone?: string | null,
+) =>
+  intlFormatDate(
+    date,
+    { month: 'short', day: 'numeric' },
+    'Unknown',
+    countryTimeZone,
+    facilityTimeZone,
+  );
+
 /** "2024-01-15T14:30" - for HTML datetime-local input elements */
 export const formatDateTimeLocal = (
   date: string | Date | null | undefined,
@@ -469,27 +482,6 @@ export const formatDateTimeLocal = (
   if (!dateObj) return null;
   if (!tz) return dateFnsFormat(dateObj, "yyyy-MM-dd'T'HH:mm");
   return formatInTimeZone(dateObj, tz, "yyyy-MM-dd'T'HH:mm");
-};
-
-/**
- * Parse a date string or Date object with timezone conversion applied.
- * This is similar to parseISO but handles timezone conversion like other format functions.
- * For date-only strings (e.g. DOB), no timezone conversion is applied.
- * For datetime strings, applies timezone conversion if both countryTimeZone and facilityTimeZone are provided.
- */
-export const parseInTimeZone = (
-  date?: string,
-  countryTimeZone?: string,
-  facilityTimeZone?: string | null,
-): Date | null => {
-  if (!date) return null;
-  const isDateOnly = isISO9075DateString(date);
-  const shouldApplyTimezoneConversion = !isDateOnly && countryTimeZone && facilityTimeZone;
-  const dateObj = shouldApplyTimezoneConversion
-    ? fromZonedTime(date, countryTimeZone)
-    : parseDate(date);
-
-  return dateObj;
 };
 
 export const isStartOfThisWeek = (date: Date | number) => {
