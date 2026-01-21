@@ -2,16 +2,16 @@ import { endOfDay, startOfDay } from 'date-fns';
 import { groupBy as lodashGroupBy } from 'lodash';
 import { useMemo } from 'react';
 
+import { toDateTimeString } from '@tamanu/utils/dateTime';
+
 import { combineQueries } from '../../../api';
 import { useOutpatientAppointmentsQuery } from '../../../api/queries/useAppointmentsQuery';
 import { useLocationGroupsQuery } from '../../../api/queries/useLocationGroupsQuery';
 import { useUsersQuery } from '../../../api/queries/useUsersQuery';
 import { useOutpatientAppointmentsContext } from '../../../contexts/OutpatientAppointments';
 import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
-import { useDateTimeFormat } from '@tamanu/ui-components';
 
 export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate }) => {
-  const { toDateTimeStringInTimeZone } = useDateTimeFormat();
   const locationGroupsQuery = useLocationGroupsQuery(null, { keepPreviousData: true });
   const { data: locationGroupData } = locationGroupsQuery;
 
@@ -28,11 +28,11 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
   const { filters } = useOutpatientAppointmentsContext();
   const appointmentsQuery = useOutpatientAppointmentsQuery(
     {
-      after: toDateTimeStringInTimeZone(startOfDay(selectedDate)),
-      before: toDateTimeStringInTimeZone(endOfDay(selectedDate)),
+      after: toDateTimeString(startOfDay(selectedDate)),
+      before: toDateTimeString(endOfDay(selectedDate)),
       all: true,
       ...filters,
-    },  
+    },
     {
       /** A null `filters` is valid (i.e. when a user has never used this filter before) */
       enabled: filters !== undefined,

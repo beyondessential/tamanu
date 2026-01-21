@@ -16,8 +16,6 @@ import {
   formatShortExplicit,
   formatShortestExplicit,
   formatDateTimeLocal,
-  parseInTimeZone,
-  toDateTimeStringInTimeZone,
 } from '@tamanu/utils/dateTime';
 import { useAuth } from './AuthContext';
 
@@ -36,8 +34,6 @@ const utils = {
   formatShortExplicit,
   formatShortestExplicit,
   formatDateTimeLocal,
-  parseInTimeZone,
-  toDateTimeStringInTimeZone,
 };
 
 type DateInput = string | Date | null | undefined;
@@ -48,17 +44,10 @@ type RawFormatter = (
   facilityTimeZone?: string | null,
 ) => string | null;
 
-type RawParser = (
-  date?: DateInput,
-  countryTimeZone?: string,
-  facilityTimeZone?: string | null,
-) => Date | null;
-
 type WrappedFormatter = (date?: DateInput) => string | null;
-type WrappedParser = (date?: DateInput) => Date | null;
 
 type WrappedUtils = {
-  [K in keyof typeof utils]: K extends 'parseInTimeZone' ? WrappedParser : WrappedFormatter;
+  [K in keyof typeof utils]: WrappedFormatter;
 };
 
 export interface DateTimeContextValue extends WrappedUtils {
@@ -97,7 +86,7 @@ export const DateTimeProvider = ({
     : (getSetting('facilityTimeZone') as string | undefined);
 
   const wrapFunction = useCallback(
-    (fn: RawFormatter | RawParser) =>
+    (fn: RawFormatter) =>
       (date?: DateInput): string | Date | null =>
         fn(date, countryTimeZone, facilityTimeZone),
     [countryTimeZone, facilityTimeZone],

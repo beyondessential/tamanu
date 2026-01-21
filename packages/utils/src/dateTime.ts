@@ -23,7 +23,7 @@ import {
   type DurationUnit,
   type Interval,
 } from 'date-fns';
-import { formatInTimeZone, fromZonedTime, toZonedTime } from 'date-fns-tz';
+import { formatInTimeZone, fromZonedTime } from 'date-fns-tz';
 import { z } from 'zod';
 
 import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
@@ -69,17 +69,6 @@ export const toDateTimeString = (date: string | Date | null | undefined) => {
   return formatISO9075(dateObj, { representation: 'complete' });
 };
 
-/** ISO */
-export const toDateTimeStringInTimeZone = (
-  date: Date | null | undefined,
-  countryTimeZone?: string,
-  facilityTimeZone?: string,
-) => {
-  if (date == null || !countryTimeZone || !facilityTimeZone) return null;
-  const dateObj = toZonedTime(date, countryTimeZone ?? facilityTimeZone);
-  if (!dateObj) return null;
-  return formatISO9075(dateObj, { representation: 'complete' });
-};
 
 export const toDateString = (date: string | Date | null | undefined) => {
   if (date == null) return null;
