@@ -12,6 +12,11 @@ export async function up(query: QueryInterface): Promise<void> {
 
 export async function down(query: QueryInterface): Promise<void> {
   await query.removeIndex('user_login_attempts', ['device_id']);
+  await query.sequelize.query(`
+    DELETE FROM user_login_attempts
+    WHERE device_id IS NOT NULL
+    AND NOT EXISTS (SELECT 1 FROM devices WHERE devices.id = user_login_attempts.device_id);
+  `);
   await query.addConstraint('user_login_attempts', {
     fields: ['device_id'],
     type: 'foreign key',
