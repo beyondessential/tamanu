@@ -15,20 +15,19 @@ const quote = (identifier: string): string => `"${identifier}"`;
  * Orders task rows so that parent tasks appear before their children, satisfying foreign key constraints.
  *
  * Uses a multi-pass topological sort algorithm:
- * - Pass 1: Inserts tasks with no parent or whose parent is already available
+ * - Pass 1: Inserts tasks with no parent
  * - Pass 2: Inserts tasks whose parents were inserted in Pass 1
  * - Pass N: Continues until all tasks are ordered or a circular dependency is detected
  *
  * @param rows - Array of task records to order
- * @param initiallyAvailableParentIds - Set of parent task IDs that already exist (e.g., from previous batches or DB)
  * @returns Ordered array where each task appears after its parent
  * @throws Error if circular dependencies or missing parent references are detected
  */
-const orderTasksByParent = (rows: DataToPersist[], initiallyAvailableParentIds: Set<string>) => {
+const orderTasksByParent = (rows: DataToPersist[]) => {
   if (rows.length === 0) return rows;
 
   const ordered: DataToPersist[] = [];
-  const availableIds = new Set<string>(initiallyAvailableParentIds);
+  const availableIds = new Set<string>();
 
   let pending = rows;
   while (pending.length > 0) {
@@ -94,7 +93,7 @@ export const executePreparedInsert = async (
   // Assumption: All referenced parent tasks are included in the current batch being inserted.
   // This is true for sync operations where the central server sends complete dependency trees.
   if (isTasksWithParentFk) {
-    rows = orderTasksByParent(rows, new Set<string>());
+    rows = orderTasksByParent(rows);
   }
 
   for (const chunkRows of chunk(rows, chunkSize)) {
