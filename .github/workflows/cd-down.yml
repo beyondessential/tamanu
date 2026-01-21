@@ -99,6 +99,7 @@ jobs:
       - # if the pulumi destroy had failed, then the namespace delete will have deleted the
         # actual resources, but we run pulumi destroy again to clean up the pulumi state
         if: always() && steps.down.outcome != 'success'
+        continue-on-error: true
         name: Down again!
         uses: pulumi/actions@v5
         with:
