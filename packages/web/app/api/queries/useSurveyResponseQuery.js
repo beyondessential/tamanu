@@ -1,9 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { cloneDeep } from 'lodash';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
-import { getPatientDataDisplayValue, useDateTimeFormat } from '@tamanu/ui-components';
+import { usePatientDataDisplayValue } from '@tamanu/ui-components';
 import { useApi } from '../useApi';
-import { useTranslation } from '../../contexts/Translation';
 
 export const useSurveyResponseQuery = surveyResponseId => {
   const api = useApi();
@@ -15,9 +14,7 @@ export const useSurveyResponseQuery = surveyResponseId => {
 };
 
 export const useTransformedSurveyResponseQuery = surveyResponseId => {
-  const api = useApi();
-  const { getEnumTranslation, getReferenceDataTranslation } = useTranslation();
-  const { formatShort } = useDateTimeFormat();
+  const { getDisplayValue } = usePatientDataDisplayValue();
 
   const { data: surveyResponse, ...queryResult } = useSurveyResponseQuery(surveyResponseId);
 
@@ -53,11 +50,7 @@ export const useTransformedSurveyResponseQuery = surveyResponseId => {
               ? sourceConfig
               : originalConfig;
 
-          const displayValue = await getPatientDataDisplayValue({
-            api,
-            getEnumTranslation,
-            getReferenceDataTranslation,
-            formatShort,
+          const displayValue = await getDisplayValue({
             value: answer.originalBody,
             config: config ? JSON.parse(config) : {},
           });
