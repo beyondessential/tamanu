@@ -174,8 +174,28 @@ jobs:
 
           # Get changed files based on event type
           if [ "${{ github.event_name }}" == "pull_request" ]; then
-            git fetch origin ${{ github.base_ref }} --depth=100
-            CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+            # Fetch the base branch with enough history to find merge base
+            # Use --deepen to extend the shallow clone
+            git fetch origin ${{ github.base_ref }}:refs/remotes/origin/${{ github.base_ref }} --deepen=100 || \
+              git fetch origin ${{ github.base_ref }}:refs/remotes/origin/${{ github.base_ref }}
+
+            # Find the merge base between HEAD and the base branch
+            MERGE_BASE=$(git merge-base origin/${{ github.base_ref }} HEAD 2>/dev/null || echo "")
+
+            if [ -z "$MERGE_BASE" ]; then
+              # If we can't find merge base, try fetching more history
+              git fetch --deepen=200
+              MERGE_BASE=$(git merge-base origin/${{ github.base_ref }} HEAD 2>/dev/null || echo "")
+            fi
+
+            if [ -z "$MERGE_BASE" ]; then
+              echo "Could not find merge base, forcing build"
+              CHANGED_FILES="FORCE_BUILD"
+            else
+              echo "Merge base: $MERGE_BASE"
+              # Use two-dot diff from merge base to HEAD
+              CHANGED_FILES=$(git diff --name-only "$MERGE_BASE"..HEAD)
+            fi
           else
             # For push events, compare to parent commit
             CHANGED_FILES=$(git diff --name-only HEAD^..HEAD 2>/dev/null || echo "FORCE_BUILD")
@@ -214,9 +234,20 @@ jobs:
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
 
+          # Ensure we have enough commit history for rev-list
+          # The previous step may have already deepened, but ensure we have parent commits
+          git fetch --deepen=50 2>/dev/null || true
+
           # Walk back through recent commits to find one with existing images
           # Limit to 50 commits to avoid excessive API calls
-          for sha in $(git rev-list --max-count=50 HEAD^); do
+          COMMITS=$(git rev-list --max-count=50 HEAD^ 2>/dev/null || echo "")
+          if [ -z "$COMMITS" ]; then
+            echo "No parent commits available (shallow clone), cannot find existing images"
+            echo "existing-sha=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          for sha in $COMMITS; do
             echo "Checking for images at sha-$sha..."
             if skopeo inspect docker://ghcr.io/beyondessential/tamanu-central:sha-$sha 2>&1 >/dev/null; then
               echo "Found existing image at sha-$sha"
