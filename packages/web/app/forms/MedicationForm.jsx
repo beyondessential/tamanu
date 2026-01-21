@@ -265,7 +265,7 @@ const isOneTimeFrequency = frequency =>
 
 const MedicationAdministrationForm = ({ frequencyChanged }) => {
   const { getSetting } = useSettings();
-  const {formatTimeCompact} = useDateTimeFormat();
+  const { formatTimeCompact, formatShort } = useDateTimeFormat();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
 
   const { values, setValues } = useFormikContext();
@@ -291,9 +291,9 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
 
     return (
       <>
-        <TimeDisplay date={getDateFromTimeString(firstSlot.startTime)} />{' '}
-        - <TimeDisplay date={getDateFromTimeString(firstSlot.endTime)} />{' '}
-        <DateDisplay date={new Date(firstStartTime)} />
+        {formatTimeCompact(getDateFromTimeString(firstSlot.startTime))} {' '}
+        - {formatTimeCompact(getDateFromTimeString(firstSlot.endTime))} {' '}
+        {formatShort(new Date(firstStartTime))}
       </>
     );
   }, [values.startDate, selectedTimeSlots]);
