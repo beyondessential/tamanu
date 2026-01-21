@@ -165,12 +165,12 @@ const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate }) => {
         <div>
           <TimeDisplay
             date={startDate}
-            style={{ textTransform: 'lowercase' }}
+            format="slot"
           />{' '}
           -{' '}
           <TimeDisplay
             date={endDate}
-            style={{ textTransform: 'lowercase' }}
+            format="slot"
           />
         </div>
       </TimeSlotText>
