@@ -4,11 +4,16 @@ import { toast } from 'react-toastify';
 import { APPOINTMENT_STATUSES, OTHER_REFERENCE_TYPES } from '@tamanu/constants';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { useLocationBookingMutation } from '../../../api/mutations';  
+import { useLocationBookingMutation } from '../../../api/mutations';
 import { PatientNameDisplay } from '../../PatientNameDisplay';
-import { TranslatedReferenceData, TranslatedText, BaseModal, DateTimeRangeDisplay } from '@tamanu/ui-components';
 import {
-  AppointmentDetailsColumn, 
+  TranslatedReferenceData,
+  TranslatedText,
+  BaseModal,
+  DateTimeRangeDisplay,
+} from '@tamanu/ui-components';
+import {
+  AppointmentDetailsColumn,
   AppointmentDetailsColumnLeft,
   AppointmentDetailsContainer,
   BodyContainer,
@@ -18,8 +23,15 @@ import {
 } from './BaseModalComponents';
 
 const AppointmentDetailsDisplay = ({ appointment }) => {
-  const { locationGroup, location, patient, bookingType, clinician, startTime, endTime } =
-    appointment;
+  const {
+    locationGroup,
+    location,
+    patient,
+    bookingType,
+    clinician,
+    startTime,
+    endTime,
+  } = appointment;
   return (
     <AppointmentDetailsContainer data-testid="appointmentdetailscontainer-1t7p">
       <AppointmentDetailsColumnLeft data-testid="appointmentdetailscolumnleft-9zxe">
@@ -68,9 +80,7 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
               data-testid="translatedtext-cis2"
             />
           }
-          value={
-            <DateTimeRangeDisplay dateFormat="shortest" range={{ start: startTime, end: endTime }} />
-          }
+          value={<DateTimeRangeDisplay start={startTime} end={endTime} showWeekday={false} />}
           data-testid="detaildisplay-nwk8"
         />
       </AppointmentDetailsColumnLeft>

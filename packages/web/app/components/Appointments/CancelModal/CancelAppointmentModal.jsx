@@ -73,7 +73,10 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
           }
           value={
             <DateTimeRangeDisplay
-              range={{ start: startTime, end: endTime }}
+              start={startTime}
+              end={endTime}
+              showWeekday={false}
+              dateFormat="shortest"
             />
           }
           data-testid="detaildisplay-l5s4"

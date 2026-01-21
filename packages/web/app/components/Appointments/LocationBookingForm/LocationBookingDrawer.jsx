@@ -127,7 +127,7 @@ const ErrorMessage = ({ isEdit = false, error }) => {
 export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
   const { updateSelectedCell, viewType } = useLocationBookingsContext();
-  const { formatShortest } = useDateTimeFormat();
+  const { formatShort } = useDateTimeFormat();
   const isEdit = !!initialValues.id;
 
   const { mutateAsync: checkOnLeave } = useCheckOnLeaveMutation();
@@ -159,7 +159,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     formatter: encounter => ({
       value: encounter.id,
       // should display encounter current if the encounter is active
-      label: `${formatShortest(encounter.startDate)}${
+      label: `${formatShort(encounter.startDate)}${
         encounter.endDate
           ? ''
           : ' - ' + getTranslation('general.date.current', 'Current').toLowerCase()
