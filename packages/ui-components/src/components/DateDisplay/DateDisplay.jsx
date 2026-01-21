@@ -35,7 +35,7 @@ const DateTooltip = ({
   countryTimeZone,
   children,
 }) => {
-  const isDateOnly = isISO9075DateString(rawDate);
+  const isDateOnly = typeof rawDate === 'string' && isISO9075DateString(rawDate);
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const [debug, setDebug] = useState(false);
 
