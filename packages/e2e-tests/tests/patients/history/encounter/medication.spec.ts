@@ -247,7 +247,7 @@ test('should prescribe medication with required fields only', async ({ patientDe
 
       await medicationPane.waitForPaneToLoad();
       await medicationPane.waitForMedicationToAppearInTable();
-
+   
       await medicationPane.sortByMedication();
       await medicationPane.waitForPaneToLoad();
 
@@ -323,7 +323,7 @@ test('should prescribe medication with required fields only', async ({ patientDe
           prescriberName: 'Initial Admin',
         },  
       ];
-
+     
       for (const med of medications) {
         await medicationPane.prescribeMedication({
           ...med,
@@ -334,8 +334,8 @@ test('should prescribe medication with required fields only', async ({ patientDe
         await medicationPane.waitForPaneToLoad();
       }
       await medicationPane.waitForMedicationToAppearInTable();
-      await medicationPane.page.waitForTimeout(5000);
 
+      await expect.poll(async () => await medicationPane.getMedicationCount()).toBe(medications.length)
       const finalCount = await medicationPane.getMedicationCount();
       expect(finalCount).toBe(medications.length);
 
@@ -348,19 +348,19 @@ test('should prescribe medication with required fields only', async ({ patientDe
   test.describe('Medication Action Buttons', () => {
     test('should display all medication action buttons', async ({ patientDetailsPage }) => {
       const medicationPane = await patientDetailsPage.navigateToMedicationTab();
-
-      const medicationData: MedicationFormData = {
-        medicationName: 'Aciclovir 800mg Tablets',
-        doseAmount: '500',
-        units: 'g',
-        frequency: 'Daily (D)',
-        route: 'Oral',
-        date: format(new Date(), 'yyyy-MM-dd'),
-        startDate: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
-        prescriberName: 'Initial Admin',
-      };
-      await medicationPane.prescribeMedication(medicationData);
-
+      
+        const medicationData: MedicationFormData = {
+          medicationName: 'Aciclovir 800mg Tablets',
+          doseAmount: '500',
+          units: 'g',
+          frequency: 'Daily (D)',
+          route: 'Oral',
+          date: format(new Date(), 'yyyy-MM-dd'),
+          startDate: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+          prescriberName: 'Initial Admin',
+        };
+        await medicationPane.prescribeMedication(medicationData);
+ 
       await medicationPane.waitForMedicationToAppearInTable();
 
       await expect(medicationPane.shoppingCartButton).toBeVisible();
@@ -387,7 +387,10 @@ test('should prescribe medication with required fields only', async ({ patientDe
         { locator: modal.routeSelect, name: 'route' },
         { locator: modal.dateInput, name: 'date' },
         { locator: modal.startDateInput, name: 'start date' },
+        { locator: modal.durationValueInput, name: 'duration value' },
+        { locator: modal.durationUnitSelect, name: 'duration unit' },
         { locator: modal.prescriberInput, name: 'prescriber' },
+        { locator: modal.quantityInput, name: 'quantity' },
         { locator: modal.indicationInput, name: 'indication' },
         { locator: modal.notesTextarea, name: 'notes' },
         { locator: modal.isOngoingCheckbox, name: 'ongoing checkbox' },

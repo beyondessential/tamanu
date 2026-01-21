@@ -329,7 +329,9 @@ export class PatientDetailsPage extends BasePatientPage {
   }
 
   async waitForEncounterToBeReady(): Promise<void> {
+     await this.page.waitForURL(/^\/patients\/all\/[^/]+\/encounter\/[^/]+/, { timeout: 10000 });
     await this.page.waitForLoadState('networkidle', { timeout: 10000 });
+   
   }
 
   async navigateToTasksTab(): Promise<TasksPane> {

@@ -168,7 +168,6 @@ export class MedicationModal {
         const clearButtonVisible = await this.prescriberClearButton.isVisible().catch(() => false);
         if (clearButtonVisible) {
           await this.prescriberClearButton.click();
-          await this.page.waitForTimeout(300);
         }
       }
       
@@ -223,26 +222,7 @@ export class MedicationModal {
   }
 
   async cancel(): Promise<void> {
-    const modalContent = this.page.getByTestId('modalcontent-bk4w');
-    await modalContent.getByTestId('outlinedbutton-8rnr').click();
+    await this.cancelButton.click();
     await this.modalTitleText.waitFor({ state: 'hidden' });
-  }
-
-  async validateFormField(fieldName: string, expectedValue: string): Promise<void> {
-    const fieldMap: Record<string, Locator> = {
-      medication: this.medicationInput,
-      doseAmount: this.doseAmountInput,
-      frequency: this.frequencyInput,
-      route: this.routeSelect,
-      date: this.dateInput,
-      startDate: this.startDateInput,
-      indication: this.indicationInput,
-      notes: this.notesTextarea,
-    };
-
-    const field = fieldMap[fieldName];
-    if (field) {
-      await expect(field).toHaveValue(expectedValue);
-    }
   }
 }

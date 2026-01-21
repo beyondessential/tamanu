@@ -66,7 +66,6 @@ export class EncounterMedicationPane extends BasePatientPane {
 
   async clickNewPrescription(): Promise<MedicationModal> {
     await this.newPrescriptionButton.click();
-    await this.page.waitForTimeout(500);
     const medicationModal = new MedicationModal(this.page);
     await medicationModal.waitForModalToLoad();
     return medicationModal;

@@ -2,6 +2,7 @@ import { Locator, Page, expect } from '@playwright/test';
 
 export class PrintPrescriptionModal {
   readonly page: Page;
+  readonly prescriptionModal!: Locator;
   readonly modalTitle!: Locator;
   readonly modalTitleText!: Locator;
   readonly closeButton!: Locator;
@@ -9,13 +10,17 @@ export class PrintPrescriptionModal {
   constructor(page: Page) {
     this.page = page;
 
-    const prescriptionModal = page.getByRole('dialog').filter({
-      has: page.getByTestId('verticalcenteredtext-ni4s').filter({ hasText: 'Prescription' }),
-    });
+    const prescriptionTextElement = page
+      .getByTestId('verticalcenteredtext-ni4s')
+      .filter({ hasText: 'Prescription' });
 
-    this.modalTitle = prescriptionModal.getByTestId('modaltitle-ojhf');
-    this.modalTitleText = prescriptionModal.getByTestId('verticalcenteredtext-ni4s');
-    this.closeButton = prescriptionModal.getByTestId('iconbutton-eull');
+    this.prescriptionModal = page
+      .getByRole('dialog')
+      .filter({ has: prescriptionTextElement });
+
+    this.modalTitle = this.prescriptionModal.getByTestId('modaltitle-ojhf');
+    this.modalTitleText = prescriptionTextElement;
+    this.closeButton = this.prescriptionModal.getByTestId('iconbutton-eull');
   }
 
   async waitForModalToLoad(): Promise<void> {
