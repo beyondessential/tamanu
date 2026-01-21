@@ -11,7 +11,7 @@ import { LimitedLinesCell } from '../FormattedTableCell';
 import { Modal } from '../Modal';
 import { Table } from '../Table';
 import { useTableSorting } from '../Table/useTableSorting';
-import { DateDisplay, TimeDisplay } from '@tamanu/ui-components';
+import { DateTimeRangeDisplay } from '@tamanu/ui-components';
 import { ThemedTooltip } from '../Tooltip';
 import { TranslatedText } from '../Translation';
 import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
@@ -129,39 +129,23 @@ const DateCell = ({ startTime, endTime }) => {
     <ThemedTooltip
       title={
         <Box style={{ textTransform: 'lowercase', fontWeight: 400 }} data-testid="box-q74p">
-          {isOvernight ? (
-            <>
-              <DateDisplay date={startTime} noTooltip format="shortest" /> -{' '}
-              <DateDisplay date={endTime} noTooltip format="shortest" />
-            </>
-          ) : (
-            <div>
-              <div>
-                <DateDisplay date={startTime} noTooltip format="shortest" />
-              </div>
-              <div>
-                <TimeDisplay date={startTime} noTooltip format="compact" /> -{' '}
-                <TimeDisplay date={endTime} noTooltip format="compact" />
-              </div>
-            </div>
-          )}
+          <DateTimeRangeDisplay 
+            start={startTime} 
+            end={endTime} 
+            showWeekday={false}
+            dateFormat="shortest"
+          />
         </Box>
       }
       data-testid="themedtooltip-euoy"
     >
       <DateText data-testid="datetext-z14b">
-        {!isOvernight ? (
-          <>
-            <DateDisplay date={startTime} noTooltip format="shortest" />{' '}
-            <TimeDisplay date={startTime} noTooltip format="compact" /> -{' '}
-            <TimeDisplay date={endTime} noTooltip format="compact" />
-          </>
-        ) : (
-          <>
-            <DateDisplay date={startTime} noTooltip format="shortest" /> -{' '}
-            <DateDisplay date={endTime} noTooltip format="shortest" />
-          </>
-        )}
+        <DateTimeRangeDisplay 
+          start={startTime} 
+          end={endTime} 
+          showWeekday={false}
+          dateFormat="shortest"
+        />
         {isOvernight && (
           <OvernightIcon data-testid="overnighticon-2qtt">
             <Brightness2Icon fontSize="inherit" data-testid="brightness2icon-gxv2" />
