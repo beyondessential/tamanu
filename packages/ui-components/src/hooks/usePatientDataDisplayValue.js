@@ -10,7 +10,7 @@ export const usePatientDataDisplayValue = () => {
   const { getEnumTranslation, getReferenceDataTranslation } = useTranslation();
 
   const getDisplayValue = useCallback(
-    async ({ value, config }) => {
+    async (value, config = {}) => {
       const [modelName, , options] = PATIENT_DATA_FIELD_LOCATIONS[config.column] || [];
       if (!modelName) {
         return value;

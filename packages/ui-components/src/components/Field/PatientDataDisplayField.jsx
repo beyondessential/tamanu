@@ -15,8 +15,9 @@ export const PatientDataDisplayField = ({ config, label, value }) => {
   const [displayValue, setDisplayValue] = useState('');
 
   useEffect(() => {
-    getDisplayValue({ value, config }).then(setDisplayValue);
-  }, [getDisplayValue, value, config]);
+    getDisplayValue(value, config).then(setDisplayValue);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Container $marginBottom={label ? '10px' : '0px'}>
