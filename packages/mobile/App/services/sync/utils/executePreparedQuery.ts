@@ -12,6 +12,64 @@ const getValuePlaceholdersForRows = (rowCount: number, columnsCount: number): st
 const quote = (identifier: string): string => `"${identifier}"`;
 
 /**
+ * Orders task rows so that parent tasks appear before their children, satisfying foreign key constraints.
+ *
+ * Uses a multi-pass topological sort algorithm:
+ * - Pass 1: Inserts tasks with no parent or whose parent is already available
+ * - Pass 2: Inserts tasks whose parents were inserted in Pass 1
+ * - Pass N: Continues until all tasks are ordered or a circular dependency is detected
+ *
+ * @param rows - Array of task records to order
+ * @param initiallyAvailableParentIds - Set of parent task IDs that already exist (e.g., from previous batches or DB)
+ * @returns Ordered array where each task appears after its parent
+ * @throws Error if circular dependencies or missing parent references are detected
+ */
+const orderTasksByParent = (rows: DataToPersist[], initiallyAvailableParentIds: Set<string>) => {
+  if (rows.length === 0) return rows;
+
+  const ordered: DataToPersist[] = [];
+  const availableIds = new Set<string>(initiallyAvailableParentIds);
+
+  let pending = rows;
+  while (pending.length > 0) {
+    const ready: DataToPersist[] = [];
+    const blocked: DataToPersist[] = [];
+
+    for (const row of pending) {
+      const parentTaskId = (row as any).parentTaskId as string | null | undefined;
+      if (!parentTaskId || availableIds.has(parentTaskId)) {
+        ready.push(row);
+      } else {
+        blocked.push(row);
+      }
+    }
+
+    if (ready.length === 0) {
+      const missingParents = Array.from(
+        new Set(
+          blocked
+            .map(r => (r as any).parentTaskId as string | null | undefined)
+            .filter((v): v is string => !!v),
+        ),
+      );
+      throw new Error(
+        `Cannot insert tasks: missing parentTaskId references: ${missingParents.join(', ')}`,
+      );
+    }
+
+    for (const row of ready) {
+      const id = (row as any).id as string | undefined;
+      if (id) availableIds.add(id);
+    }
+
+    ordered.push(...ready);
+    pending = blocked;
+  }
+
+  return ordered;
+};
+
+/**
  * Much faster than typeorm bulk insert or save
  * Prepare a raw query and execute it with the values
  */
@@ -33,74 +91,10 @@ export const executePreparedInsert = async (
   const isTasksWithParentFk = tableName === 'tasks' && columns.includes('parentTaskId');
 
   // Ensure parent tasks are inserted before child tasks to satisfy tasks.parentTaskId FK
+  // Assumption: All referenced parent tasks are included in the current batch being inserted.
+  // This is true for sync operations where the central server sends complete dependency trees.
   if (isTasksWithParentFk) {
-    const pending = [...rows];
-
-    // Gather all parentTaskIds referenced by these rows
-    const referencedParentIds = Array.from(
-      new Set(
-        pending
-          .map(r => (r as any).parentTaskId as string | null | undefined)
-          .filter((v): v is string => !!v),
-      ),
-    );
-
-    // Determine which parent ids already exist in DB (handles incremental sync)
-    const existingParentIds = new Set<string>();
-    for (const parentIdChunk of chunk(referencedParentIds, 900)) {
-      const placeholders = parentIdChunk.map(() => '?').join(', ');
-      const existing = await repository.query(
-        `SELECT id FROM tasks WHERE id IN (${placeholders})`,
-        parentIdChunk,
-      );
-      for (const row of existing || []) {
-        if (row?.id) existingParentIds.add(row.id);
-      }
-    }
-
-    // Iteratively select rows that are "ready" (no parent, or parent already known)
-    const ordered: DataToPersist[] = [];
-    const availableIds = new Set<string>(existingParentIds);
-
-    // Note: duplicates can exist; we only use ids for dependency resolution.
-    while (pending.length > 0) {
-      const ready: DataToPersist[] = [];
-      const stillPending: DataToPersist[] = [];
-
-      for (const row of pending) {
-        const parentTaskId = (row as any).parentTaskId as string | null | undefined;
-        if (!parentTaskId || availableIds.has(parentTaskId)) {
-          ready.push(row);
-        } else {
-          stillPending.push(row);
-        }
-      }
-
-      if (ready.length === 0) {
-        const missingParents = Array.from(
-          new Set(
-            stillPending
-              .map(r => (r as any).parentTaskId as string | null | undefined)
-              .filter((v): v is string => !!v),
-          ),
-        );
-
-        throw new Error(
-          `Cannot insert tasks: missing parentTaskId references: ${missingParents.join(', ')}`,
-        );
-      }
-
-      for (const r of ready) {
-        const id = (r as any).id as string | undefined;
-        if (id) availableIds.add(id);
-      }
-
-      ordered.push(...ready);
-      pending.splice(0, pending.length, ...stillPending);
-    }
-
-    // Replace rows with the correctly ordered list
-    rows = ordered;
+    rows = orderTasksByParent(rows, new Set<string>());
   }
 
   for (const chunkRows of chunk(rows, chunkSize)) {
