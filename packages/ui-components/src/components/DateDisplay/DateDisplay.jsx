@@ -52,9 +52,9 @@ const DateTooltip = ({
   };
 
   const dateTooltip = timeOnlyTooltip ? (
-    <TimeDisplay date={rawDate} />
+    <TimeDisplay date={rawDate} noTooltip />
   ) : (
-    <DateDisplay date={rawDate} showTime={!isDateOnly} />
+    <DateDisplay date={rawDate} showTime={!isDateOnly} noTooltip />
   );
 
   const tooltipTitle = debug ? (
