@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { ConfirmCancelRow, TranslatedText, Modal, useDateTimeFormat } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import styled from 'styled-components';
-import { Divider } from '@material-ui/core';  
+import { Divider } from '@material-ui/core';
 import { useMarChangelogQuery } from '../../../api/queries/useMarChangelogQuery';
 import { Box } from '@mui/material';
 import { useTranslation } from '../../../contexts/Translation';
@@ -67,8 +67,8 @@ const LABELS = {
 };
 
 export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
-  const {formatTimeSlot, formatShortest} = useDateTimeFormat();
   const [changeLogList, setChangeLogList] = useState([]);
+  const { formatTimeSlot, formatShortest } = useDateTimeFormat();
   const { getEnumTranslation } = useTranslation();
 
   const { data } = useMarChangelogQuery(marId);
@@ -82,7 +82,7 @@ export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
   const getUserChanged = log => {
     return {
       name: log.changedByUser,
-      date: `${formatShortest(log.createdAt)} ${formatTimeSlot(log.createdAt)}`
+      date: `${formatShortest(log.createdAt)} ${formatTimeSlot(log.createdAt)}`,
     };
   };
 
@@ -332,8 +332,8 @@ export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
                     </Box>
                   ))}
                   <NoteText>
-                  {log.userChanged.name} 
-                  {log.userChanged.date}
+                    {log.userChanged.name}
+                    {log.userChanged.date}
                   </NoteText>
                   {log.doseIndex && (
                     <DoseLabel>

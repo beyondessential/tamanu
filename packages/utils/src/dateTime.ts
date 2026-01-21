@@ -274,9 +274,7 @@ export const intlFormatDate = (
   }
 
   // Datetime strings: apply timezone conversion if timezone provided
-  const shouldApplyTimezoneConversion = countryTimeZone && facilityTimeZone;
-  const dateObj = shouldApplyTimezoneConversion
-    ? fromZonedTime(date, countryTimeZone)
+  const dateObj = countryTimeZone && facilityTimeZone ? fromZonedTime(date, countryTimeZone)
     : parseDate(date);
   if (!dateObj) return fallback;
 
