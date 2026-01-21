@@ -10,7 +10,6 @@ import { Colors } from '../../constants/styles';
 import { DataFetchingTable } from '../Table';
 import { TranslatedText, TranslatedReferenceData, TranslatedEnum } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';
-import { TimeSlotDisplay } from '../../utils/medications';
 import { LimitedLinesCell } from '../FormattedTableCell';
 import { ConditionalTooltip } from '../Tooltip';
 import { MedicationDetails } from './MedicationDetails';
@@ -125,7 +124,7 @@ const getMedicationName = (
           ).toLowerCase()}{' '}
           - <TranslatedText stringId="medication.table.until" fallback="until" />{' '}
           <DateDisplay date={pauseData.pauseEndDate} format="shortest" />{' '}
-          <TimeSlotDisplay time={pauseData.pauseEndDate} />
+          <TimeDisplay date={pauseData.pauseEndDate} format="compact" noTooltip />
         </Box>
       )}
     </Box>

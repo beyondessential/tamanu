@@ -3,12 +3,11 @@ import React from 'react';
 import { Box } from '@mui/material';
 import styled from 'styled-components';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
-import { DateDisplay, TranslatedReferenceData, TranslatedText } from '@tamanu/ui-components';
+import { DateDisplay, TranslatedReferenceData, TranslatedText, TimeDisplay } from '@tamanu/ui-components';
 import { CheckSharp } from '@material-ui/icons';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { Colors } from '../../constants';
 import { useTranslation } from '../../contexts/Translation';
-import { TimeSlotDisplay } from '../../utils/medications';
 
 const MidText = styled(Box)`
   font-size: 14px;
@@ -95,7 +94,7 @@ export const MedicationSummary = ({ medication }) => {
             </MidText>
             <DarkestText fontWeight={500} mt={0.5}>
               <DateDisplay date={medication.endDate} format="shortest" />{' '}
-              <TimeSlotDisplay time={medication.endDate} />
+              <TimeDisplay date={medication.endDate} format="compact" noTooltip />
             </DarkestText>
           </Box>
         )}

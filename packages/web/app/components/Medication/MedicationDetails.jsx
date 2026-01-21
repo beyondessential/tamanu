@@ -34,7 +34,6 @@ import { useApi } from '../../api';
 import { MedicationDiscontinueModal } from './MedicationDiscontinueModal';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedEnum, TranslatedReferenceData } from '../Translation';
-import { TimeSlotDisplay } from '../../utils/medications';
 import { MedicationPauseModal } from './MedicationPauseModal';
 import { usePausePrescriptionQuery } from '../../api/queries/usePausePrescriptionQuery';
 import { useEncounter } from '../../contexts/Encounter';
@@ -139,7 +138,7 @@ export const MedicationDetails = ({
       value: (
         <>
           <DateDisplay date={medication.startDate} format="shortest" />{' '}
-          <TimeSlotDisplay time={medication.startDate} />
+          <TimeDisplay date={medication.startDate} format="compact" noTooltip />
         </>
       ),
     },
@@ -201,7 +200,7 @@ export const MedicationDetails = ({
               <>
                 {' '}
                 <DateDisplay date={medication.endDate} format="shortest" />{' '}
-                <TimeSlotDisplay time={medication.endDate} />
+                <TimeDisplay date={medication.endDate} format="compact" noTooltip />
               </>
             ),
           },
@@ -336,7 +335,7 @@ export const MedicationDetails = ({
                         ).toLowerCase()}{' '}
                         - {<TranslatedText stringId="medication.details.until" fallback="until" />}{' '}
                         <DateDisplay date={pauseData.pauseEndDate} format="shortest" />{' '}
-                        <TimeSlotDisplay time={pauseData.pauseEndDate} />
+                        <TimeDisplay date={pauseData.pauseEndDate} format="compact" noTooltip />
                       </DarkestText>
                     </Box>
                     <Box flex={1} pl={2.5} borderLeft={`1px solid ${Colors.outline}`}>
@@ -478,8 +477,8 @@ export const MedicationDetails = ({
                         const slot = findAdministrationTimeSlotFromIdealTime(time).timeSlot;
                         return (
                           <DarkestText key={time}>
-                            <TimeSlotDisplay time={slot.startTime} /> -{' '}
-                            <TimeSlotDisplay time={slot.endTime} />
+                            <TimeDisplay date={slot.startTime} format="compact" noTooltip /> -{' '}
+                            <TimeDisplay date={slot.endTime} format="compact" noTooltip />
                           </DarkestText>
                         );
                       })}
@@ -495,7 +494,7 @@ export const MedicationDetails = ({
                       .map(time => {
                         return (
                           <MidText key={time}>
-                            <TimeSlotDisplay time={time} />
+                            <TimeDisplay date={time} format="compact" noTooltip />
                           </MidText>
                         );
                       })}

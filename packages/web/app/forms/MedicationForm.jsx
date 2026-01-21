@@ -64,7 +64,6 @@ import { ConditionalTooltip, ThemedTooltip } from '../components/Tooltip';
 import { capitalize } from 'lodash';
 import { preventInvalidNumber, validateDecimalPlaces } from '../utils/utils';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
-import { TimeSlotDisplay } from '../utils/medications';
 import { useEncounter } from '../contexts/Encounter';
 import { usePatientAllergiesQuery } from '../api/queries/usePatientAllergiesQuery';
 import { useMedicationIdealTimes } from '../hooks/useMedicationIdealTimes';
@@ -458,8 +457,8 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
                       <CheckInput
                         label={
                           <FieldContent>
-                            <TimeSlotDisplay time={startTime} /> -{' '}
-                            <TimeSlotDisplay time={endTime} />
+                            <TimeDisplay date={startTime} format="compact" noTooltip /> -{' '}
+                            <TimeDisplay date={endTime} format="compact" noTooltip />
                           </FieldContent>
                         }
                         value={checked}
