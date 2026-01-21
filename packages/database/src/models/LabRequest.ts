@@ -134,7 +134,6 @@ export class LabRequest extends Model {
               return;
             }
 
-            // Handle notification creation for status changes
             const isChangingFromPublished = previousStatus === LAB_REQUEST_STATUSES.PUBLISHED;
             const NOTIFICATION_STATUSES = [
               LAB_REQUEST_STATUSES.INTERIM_RESULTS,
