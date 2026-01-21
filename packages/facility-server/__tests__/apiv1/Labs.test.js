@@ -474,13 +474,11 @@ describe('Labs', () => {
           'First result',
         ]);
 
-        if (response.body.length > 0) {
-          expect(response.body[0]).toMatchObject({
-            result: 'Third result',
-            updatedByUserId: expect.any(String),
-            loggedAt: expect.any(String),
-          });
-        }
+        expect(response.body[0]).toMatchObject({
+          result: 'Third result',
+          updatedByUserId: expect.any(String),
+          loggedAt: expect.any(String),
+        });
       });
 
       it('should error if lab test is sensitive', async () => {
