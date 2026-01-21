@@ -93,8 +93,7 @@ export const MedicationSummary = ({ medication }) => {
               <TranslatedText stringId="medication.details.endDate" fallback="End date & time" />
             </MidText>
             <DarkestText fontWeight={500} mt={0.5}>
-              <DateDisplay date={medication.endDate} format="shortest" />{' '}
-              <TimeDisplay date={medication.endDate} format="compact" noTooltip />
+              <DateDisplay date={medication.endDate} format="shortest" showTime timeFormat="compact" />
             </DarkestText>
           </Box>
         )}

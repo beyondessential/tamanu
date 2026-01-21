@@ -123,8 +123,7 @@ const getMedicationName = (
             pauseData.pauseDuration,
           ).toLowerCase()}{' '}
           - <TranslatedText stringId="medication.table.until" fallback="until" />{' '}
-          <DateDisplay date={pauseData.pauseEndDate} format="shortest" />{' '}
-          <TimeDisplay date={pauseData.pauseEndDate} format="compact" noTooltip />
+          <DateDisplay date={pauseData.pauseEndDate} format="shortest" showTime timeFormat="compact" />
         </Box>
       )}
     </Box>

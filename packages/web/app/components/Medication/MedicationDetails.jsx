@@ -136,10 +136,7 @@ export const MedicationDetails = ({
         <TranslatedText stringId="medication.details.startDate" fallback="Start date & time" />
       ),
       value: (
-        <>
-          <DateDisplay date={medication.startDate} format="shortest" />{' '}
-          <TimeDisplay date={medication.startDate} format="compact" noTooltip />
-        </>
+        <DateDisplay date={medication.startDate} format="shortest" showTime timeFormat="compact" />
       ),
     },
     ...(medication.isOngoing || medication.discontinued
@@ -199,8 +196,7 @@ export const MedicationDetails = ({
             value: (
               <>
                 {' '}
-                <DateDisplay date={medication.endDate} format="shortest" />{' '}
-                <TimeDisplay date={medication.endDate} format="compact" noTooltip />
+                <DateDisplay date={medication.endDate} format="shortest" showTime timeFormat="compact" />
               </>
             ),
           },
@@ -334,8 +330,7 @@ export const MedicationDetails = ({
                           pauseData.pauseDuration,
                         ).toLowerCase()}{' '}
                         - {<TranslatedText stringId="medication.details.until" fallback="until" />}{' '}
-                        <DateDisplay date={pauseData.pauseEndDate} format="shortest" />{' '}
-                        <TimeDisplay date={pauseData.pauseEndDate} format="compact" noTooltip />
+                        <DateDisplay date={pauseData.pauseEndDate} format="shortest" showTime timeFormat="compact" />
                       </DarkestText>
                     </Box>
                     <Box flex={1} pl={2.5} borderLeft={`1px solid ${Colors.outline}`}>
