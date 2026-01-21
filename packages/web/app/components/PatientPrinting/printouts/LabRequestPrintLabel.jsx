@@ -73,6 +73,7 @@ const BarcodeContainer = styled.div`
  * why the whole component is made with svgs
  */
 export const LabRequestPrintLabel = React.memo(({ data, printWidth }) => {
+  const { formatShort, formatTime } = useDateTimeFormat();
   const {
     patientId,
     patientName,
@@ -93,7 +94,7 @@ export const LabRequestPrintLabel = React.memo(({ data, printWidth }) => {
               x="0"
               y="45"
               label="DOB"
-              value={<DateDisplay date={patientDateOfBirth} />}
+              value={formatShort(patientDateOfBirth)}
               data-testid="item-krnm"
             />
             <Item x="0" y="60" label="Test ID" value={testId} data-testid="item-vcco" />
@@ -101,7 +102,7 @@ export const LabRequestPrintLabel = React.memo(({ data, printWidth }) => {
               x="0"
               y="75"
               label="Date collected"
-              value={<DateDisplay date={date} />}
+              value={formatShort(date)}
               data-testid="item-nxfc"
             />
             <Item x="0" y="90" label="Lab category" value={labCategory} data-testid="item-l6d8" />

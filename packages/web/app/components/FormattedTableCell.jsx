@@ -87,7 +87,7 @@ export const formatValue = (value, config) => {
 };
 
 export const DateHeadCell = React.memo(({ value }) => (
-  <TableTooltip title={<DateDisplay date={value} showTime />} data-testid="tabletooltip-5w9x">
+  <TableTooltip title={<DateDisplay date={value} format="long" />} data-testid="tabletooltip-5w9x">
     <HeadCellWrapper data-testid="headcellwrapper-jcsy">
       <div><DateDisplay date={value} format="shortest" /></div>
       <div><TimeDisplay date={value} /></div>
