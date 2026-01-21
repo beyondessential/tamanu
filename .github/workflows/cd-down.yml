@@ -85,18 +85,20 @@ jobs:
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
 
-      - # if down fails but namespace existed, try to hard-delete the namespace
-        if: failure() && steps.down.outcome != 'success'
-        id: hard-delete
-        name: Delete namespace outright
+      - # we always need to delete the namespace anchor as pulumi is configured not to manage it
+        # additionally, if the pulumi destroy failed, this will hard-delete all the resources
+        if: always()
+        name: Delete namespace
         run: |
           NS_NAME="tamanu-${{ inputs.deploy-name }}"
           if kubectl -n tamanu-super get subnamespaceanchor "$NS_NAME" 2>/dev/null; then
-            echo "Deleting namespace hard"
+            echo "Deleting namespace"
             kubectl -n tamanu-super delete subnamespaceanchor "$NS_NAME" --wait=true
           fi
-      - # run pulumi destroy again to clean up any resources that might have been left behind
-        if: always() && steps.hard-delete.outcome == 'success'
+
+      - # if the pulumi destroy had failed, then the namespace delete will have deleted the
+        # actual resources, but we run pulumi destroy again to clean up the pulumi state
+        if: always() && steps.down.outcome != 'success'
         name: Down again!
         uses: pulumi/actions@v5
         with:
