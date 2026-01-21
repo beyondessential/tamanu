@@ -2475,6 +2475,7 @@ medication.post(
           dispensedByUserId,
           dispensedAt,
         })),
+        { transaction },
       );
 
       // After dispensing, soft delete all ineligible pharmacy order prescriptions
