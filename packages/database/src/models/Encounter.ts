@@ -1,5 +1,5 @@
 import { Op, DataTypes } from 'sequelize';
-import { capitalize, isEqual } from 'lodash';
+import { capitalize, isEqual, lowerCase } from 'lodash';
 
 import {
   ENCOUNTER_TYPE_VALUES,
@@ -622,7 +622,7 @@ export class Encounter extends Model {
 
       await onChangeTextColumn({
         columnName: 'startDate',
-        fieldLabel: startDateLabel,
+        fieldLabel: lowerCase(startDateLabel), 
         formatText: date => (date ? formatShort(date) : '-'),
       });
       await onChangeTextColumn({
