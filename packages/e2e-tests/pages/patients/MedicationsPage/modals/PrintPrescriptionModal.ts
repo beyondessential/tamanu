@@ -12,7 +12,7 @@ export class PrintPrescriptionModal {
 
     const prescriptionTextElement = page
       .getByTestId('verticalcenteredtext-ni4s')
-      .filter({ hasText: 'Prescription' });
+      .filter({ hasText: /^Prescription$/ });
 
     this.prescriptionModal = page
       .getByRole('dialog')
