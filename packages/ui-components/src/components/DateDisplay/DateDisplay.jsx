@@ -5,11 +5,6 @@ import styled from 'styled-components';
 import {
   parseDate,
   isISO9075DateString,
-  formatShortest,
-  formatShort,
-  formatShortestExplicit,
-  formatShortExplicit,
-  formatTime,
 } from '@tamanu/utils/dateTime';
 
 import { TAMANU_COLORS } from '../../constants';
@@ -112,52 +107,6 @@ const useFormattedDate = (dateValue, { dateFormat, timeFormat, showWeekday }) =>
   if (timeFormat) {
     const formatterName = TIME_FORMATS[timeFormat] || TIME_FORMATS.default;
     parts.push(formatters[formatterName](dateValue));
-  }
-
-  return parts.join(' ');
-};
-
-/**
- * TimeDisplay - Displays time only
- * @param {string|Date} date - The date/time value
- * @param {string} format - "default" | "compact" | "withSeconds" | "slot"
- * @param {boolean} noTooltip - Disable hover tooltip
- *
- * @example
- * // format="default" → "9:30 AM"
- * <TimeDisplay date="2024-03-15 09:30:00" />
- *
- * // format="compact" → "9:30am" (time with minutes, no space)
- * <TimeDisplay date="2024-03-15 09:30:00" format="compact" />
- *
- * // format="withSeconds" → "9:30:45 AM"
- * <TimeDisplay date="2024-03-15 09:30:45" format="withSeconds" />
- *
- * // format="slot" → "9am" (hour only, for calendar slots)
- * <TimeDisplay date="2024-03-15 09:30:00" format="slot" />
- */
-export const getDateDisplay = (
-  dateValue,
-  { showDate = true, showTime = false, showExplicitDate = false, shortYear = false } = {},
-) => {
-  const dateObj = parseDate(dateValue);
-
-  const parts = [];
-  if (showDate) {
-    if (shortYear) {
-      parts.push(formatShortest(dateObj));
-    } else {
-      parts.push(formatShort(dateObj));
-    }
-  } else if (showExplicitDate) {
-    if (shortYear) {
-      parts.push(formatShortestExplicit(dateObj));
-    } else {
-      parts.push(formatShortExplicit(dateObj));
-    }
-  }
-  if (showTime) {
-    parts.push(formatTime(dateObj));
   }
 
   return parts.join(' ');

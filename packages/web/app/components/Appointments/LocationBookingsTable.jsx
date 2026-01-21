@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { toDateString } from '@tamanu/utils/dateTime';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
-import { DateDisplay, TimeDisplay } from '@tamanu/ui-components';
+import { DateTimeRangeDisplay } from '@tamanu/ui-components';
   
 import { Table } from '../Table';
 import { Colors } from '../../constants';
@@ -253,18 +253,16 @@ const TableHeader = ({ title, openPastBookingsModal }) => (
 const getDate = ({ startTime, endTime }) => {
   const startDate = toDateString(startTime);
   const endDate = toDateString(endTime);
-  let dateTimeString;
   const isOvernight = startDate !== endDate;
 
-  // TODO: datetime Look if can use range here
-  if (!isOvernight) {
-    dateTimeString = <><DateDisplay date={startTime} format="shortest" /> <TimeDisplay date={startTime} noTooltip /> - <TimeDisplay date={endTime} noTooltip /></>
-  } else {
-    dateTimeString = <><DateDisplay date={startTime} format="shortest" /> - <DateDisplay date={endTime} format="shortest" /></>
-  }
   return (
     <DateText data-testid="datetext-jp36">
-      <div>{dateTimeString}</div>
+      <DateTimeRangeDisplay 
+        start={startTime} 
+        end={endTime} 
+        showWeekday={false} 
+        dateFormat="shortest"
+      />
       {isOvernight && <OvernightIcon data-testid="overnighticon-qh8z" />}
     </DateText>
   );

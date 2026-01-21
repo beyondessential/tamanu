@@ -55,7 +55,7 @@ export const useTransformedSurveyResponseQuery = surveyResponseId => {
 
           const displayValue = await getDisplayValue(
             answer.originalBody,
-            config && safeJsonParse(config),
+            safeJsonParse(config),
           );
           return {
             dataElementId: answer.dataElementId,

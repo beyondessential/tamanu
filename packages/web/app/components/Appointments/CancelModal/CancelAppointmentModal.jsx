@@ -73,7 +73,6 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
           }
           value={
             <DateTimeRangeDisplay
-              dateFormat="shortest"
               range={{ start: startTime, end: endTime }}
             />
           }
