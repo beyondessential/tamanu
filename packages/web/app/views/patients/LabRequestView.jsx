@@ -16,6 +16,7 @@ import {
   TranslatedText,
   TranslatedReferenceData,
   TranslatedEnum,
+  ReadOnlyTextField,
 } from '@tamanu/ui-components';
 import { useAuth } from '../../contexts/Auth';
 import BeakerIcon from '../../assets/images/beaker.svg';
@@ -577,6 +578,23 @@ export const LabRequestView = () => {
           refreshCount={labTestTableRefreshCount}
           data-testid="labrequestresultstable-66qv"
         />
+        {labRequest.resultsInterpretation && (
+          <Box mt={4}>
+            <ReadOnlyTextField
+              label={
+                <TranslatedText
+                  stringId="lab.resultsInterpretation.label"
+                  fallback="Results Interpretation"
+                  data-testid="translatedtext-resultsinterpretation"
+                />
+              }
+              field={{ name: 'resultsInterpretation', value: labRequest.resultsInterpretation }}
+              multiline
+              rows={6}
+              data-testid="readonlytextfield-resultsinterpretation"
+            />
+          </Box>
+        )}
       </BottomContainer>
       {modalId && (
         <ActiveModal

@@ -1,0 +1,40 @@
+{
+  "sheetName": "Lab Test Laboratory",
+  "columns": [
+    "id",
+    "code",
+    "name"
+  ],
+  "data": [
+    {
+      "id": "labTestLaboratory-FijiCDC",
+      "code": "FijiCDC",
+      "name": "Fiji CDC"
+    },
+    {
+      "id": "labTestLaboratory-CWMHospital",
+      "code": "CWMHospital",
+      "name": "CWM Hospital"
+    },
+    {
+      "id": "labTestLaboratory-TwomeyHospital",
+      "code": "TwomeyHospital",
+      "name": "Twomey Hospital"
+    },
+    {
+      "id": "labTestLaboratory-LautokaHospital",
+      "code": "LautokaHospital",
+      "name": "Lautoka Hospital"
+    },
+    {
+      "id": "labTestLaboratory-NadiHospital",
+      "code": "NadiHospital",
+      "name": "Nadi Hospital"
+    },
+    {
+      "id": "labTestLaboratory-LabasaHospital",
+      "code": "LabasaHospital",
+      "name": "Labasa Hospital"
+    }
+  ]
+}

@@ -1,0 +1,845 @@
+{
+  "sheetName": "Mri Imaging Area",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
+  "data": [
+    {
+      "id": "MRIScanImagingArea-MRAbdomen",
+      "code": "MRAbdomen",
+      "name": "Abdomen",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MobileChest",
+      "code": "MobileChest",
+      "name": "Mobile - Chest",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRAbdomenadrenalmass",
+      "code": "MRAbdomenadrenalmass",
+      "name": "Abdomen (adrenal mass)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRAbdomenandPelviscervicalcancerstaging",
+      "code": "MRAbdomenandPelviscervicalcancerstaging",
+      "name": "Abdomen and Pelvis (cervical cancer staging)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRAnaesthetic",
+      "code": "MRAnaesthetic",
+      "name": "Anaesthetic",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRAngiogramiodineallergy",
+      "code": "MRAngiogramiodineallergy",
+      "name": "Angiogram (iodine allergy)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRAngiogramCardiaccongenitaldisease",
+      "code": "MRAngiogramCardiaccongenitaldisease",
+      "name": "Angiogram Cardiac (congenital disease)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRAngiogramCardiactumour",
+      "code": "MRAngiogramCardiactumour",
+      "name": "Angiogram Cardiac (tumour)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRAngiogramHeadandorNeckstroke",
+      "code": "MRAngiogramHeadandorNeckstroke",
+      "name": "Angiogram Head and/or Neck (stroke)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRAngiogramThoracicAorta",
+      "code": "MRAngiogramThoracicAorta",
+      "name": "Angiogram Thoracic Aorta",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRAnkleLeft",
+      "code": "MRAnkleLeft",
+      "name": "Ankle - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRAnkleRight",
+      "code": "MRAnkleRight",
+      "name": "Ankle - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRBrainacousticneuroma",
+      "code": "MRBrainacousticneuroma",
+      "name": "Brain (acoustic neuroma)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRBrainaneurysm",
+      "code": "MRBrainaneurysm",
+      "name": "Brain (aneurysm)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRBrainarteriovenousmalformation",
+      "code": "MRBrainarteriovenousmalformation",
+      "name": "Brain (arterio-venous malformation)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRBraincarotidvertebralarterydissection",
+      "code": "MRBraincarotidvertebralarterydissection",
+      "name": "Brain (carotid/vertebral artery dissection)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRBraincongenitalmalformation",
+      "code": "MRBraincongenitalmalformation",
+      "name": "Brain (congenital malformation)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRBraindemyelinatingdisease",
+      "code": "MRBraindemyelinatingdisease",
+      "name": "Brain (demyelinating disease)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRBrainepilepsy",
+      "code": "MRBrainepilepsy",
+      "name": "Brain (epilepsy)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRBrainheadtrauma",
+      "code": "MRBrainheadtrauma",
+      "name": "Brain (head trauma)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRBrainpituitarytumour",
+      "code": "MRBrainpituitarytumour",
+      "name": "Brain (pituitary tumour)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRBrainstroke",
+      "code": "MRBrainstroke",
+      "name": "Brain (stroke)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRBraintoxicmetabolicishaemicencephalopathy",
+      "code": "MRBraintoxicmetabolicishaemicencephalopathy",
+      "name": "Brain (toxic/metabolic/ishaemic encephalopathy)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRBrainvenoussinusthrombosis",
+      "code": "MRBrainvenoussinusthrombosis",
+      "name": "Brain (venous sinus thrombosis)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRBrainCervicalSpinecongenitalmalformation",
+      "code": "MRBrainCervicalSpinecongenitalmalformation",
+      "name": "Brain + Cervical Spine (congenital malformation)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRBrainCervicalSpinedemyelinatingdisease",
+      "code": "MRBrainCervicalSpinedemyelinatingdisease",
+      "name": "Brain + Cervical Spine (demyelinating disease)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRBrainCervicalSpineinflammation",
+      "code": "MRBrainCervicalSpineinflammation",
+      "name": "Brain + Cervical Spine (inflammation)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRBrainCervicalSpinesyrinx",
+      "code": "MRBrainCervicalSpinesyrinx",
+      "name": "Brain + Cervical Spine (syrinx)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRBrainCervicalSpinetumour",
+      "code": "MRBrainCervicalSpinetumour",
+      "name": "Brain + Cervical Spine (tumour)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRBreasts1ststudy",
+      "code": "MRBreasts1ststudy",
+      "name": "Breasts (1st study)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRBreasts2ndstudy",
+      "code": "MRBreasts2ndstudy",
+      "name": "Breasts (2nd study)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRCholangiogram",
+      "code": "MRCholangiogram",
+      "name": "Cholangiogram",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRConsultationbyRadiologist1stattendance",
+      "code": "MRConsultationbyRadiologist1stattendance",
+      "name": "Consultation by Radiologist - 1st attendance",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRConsultationbyRadiologistsubsequentattendance",
+      "code": "MRConsultationbyRadiologistsubsequentattendance",
+      "name": "Consultation by Radiologist - subsequent attendance",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRContrast",
+      "code": "MRContrast",
+      "name": "Contrast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRElbowLeft",
+      "code": "MRElbowLeft",
+      "name": "Elbow - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRElbowRight",
+      "code": "MRElbowRight",
+      "name": "Elbow - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRExtremityLowergaucherdisease",
+      "code": "MRExtremityLowergaucherdisease",
+      "name": "Extremity Lower (gaucher disease)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRExtremityLowerinfection",
+      "code": "MRExtremityLowerinfection",
+      "name": "Extremity Lower (infection)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRExtremityLowerosteonecrosis",
+      "code": "MRExtremityLowerosteonecrosis",
+      "name": "Extremity Lower (osteonecrosis)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRExtremityLowertumour",
+      "code": "MRExtremityLowertumour",
+      "name": "Extremity Lower (tumour)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRExtremityUppergaucherdisease",
+      "code": "MRExtremityUppergaucherdisease",
+      "name": "Extremity Upper (gaucher disease)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRExtremityUpperinfection",
+      "code": "MRExtremityUpperinfection",
+      "name": "Extremity Upper (infection)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRExtremityUpperosteonecrosis",
+      "code": "MRExtremityUpperosteonecrosis",
+      "name": "Extremity Upper (osteonecrosis)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRExtremityUppertumour",
+      "code": "MRExtremityUppertumour",
+      "name": "Extremity Upper (tumour)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRFootLeft",
+      "code": "MRFootLeft",
+      "name": "Foot - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRFootRight",
+      "code": "MRFootRight",
+      "name": "Foot - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRHandLeft",
+      "code": "MRHandLeft",
+      "name": "Hand - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRHandRight",
+      "code": "MRHandRight",
+      "name": "Hand - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRHipLeft",
+      "code": "MRHipLeft",
+      "name": "Hip - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRHipRight",
+      "code": "MRHipRight",
+      "name": "Hip - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRKneeLeft",
+      "code": "MRKneeLeft",
+      "name": "Knee - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRKneeRight",
+      "code": "MRKneeRight",
+      "name": "Knee - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MROrbitstumouroforbit",
+      "code": "MROrbitstumouroforbit",
+      "name": "Orbits (tumour of orbit)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRPaediatricAngiogramLimbs",
+      "code": "MRPaediatricAngiogramLimbs",
+      "name": "Paediatric Angiogram Limbs",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRPaediatricExtremityLowergaucherdisease",
+      "code": "MRPaediatricExtremityLowergaucherdisease",
+      "name": "Paediatric Extremity Lower (gaucher disease)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRPaediatricExtremityLowerphysealfusion",
+      "code": "MRPaediatricExtremityLowerphysealfusion",
+      "name": "Paediatric Extremity Lower (physeal fusion)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRPaediatricExtremityUppergaucherdisease",
+      "code": "MRPaediatricExtremityUppergaucherdisease",
+      "name": "Paediatric Extremity Upper (gaucher disease)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRPaediatricExtremityUpperphysealfusion",
+      "code": "MRPaediatricExtremityUpperphysealfusion",
+      "name": "Paediatric Extremity Upper (physeal fusion)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRPaediatricMediastinum",
+      "code": "MRPaediatricMediastinum",
+      "name": "Paediatric Mediastinum",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRPeadiatricAbdomenPelvisabdominalorpelvicmass",
+      "code": "MRPeadiatricAbdomenPelvisabdominalorpelvicmass",
+      "name": "Peadiatric Abdomen/Pelvis (abdominal or pelvic mass)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRPeadiatricAbdomenPelviscongenitaluterineoranorectalabnormality",
+      "code": "MRPeadiatricAbdomenPelviscongenitaluterineoranorectalabnormality",
+      "name": "Peadiatric Abdomen/Pelvis (congenital uterine or anorectal abnormality)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRPelvis",
+      "code": "MRPelvis",
+      "name": "Pelvis",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRPelviscervicalcancerstaging",
+      "code": "MRPelviscervicalcancerstaging",
+      "name": "Pelvis (cervical cancer staging)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRPelvisrectalcancerstaging",
+      "code": "MRPelvisrectalcancerstaging",
+      "name": "Pelvis (rectal cancer staging)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSedation",
+      "code": "MRSedation",
+      "name": "Sedation",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRShoulderLeft",
+      "code": "MRShoulderLeft",
+      "name": "Shoulder - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRShoulderRight",
+      "code": "MRShoulderRight",
+      "name": "Shoulder - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalcervicalradiculopathy",
+      "code": "MRSpineCervicalcervicalradiculopathy",
+      "name": "Spine Cervical (cervical radiculopathy)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalcongenitalmalformation",
+      "code": "MRSpineCervicalcongenitalmalformation",
+      "name": "Spine Cervical (congenital malformation)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicaldemyelinatingdisease",
+      "code": "MRSpineCervicaldemyelinatingdisease",
+      "name": "Spine Cervical (demyelinating disease)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalinfection",
+      "code": "MRSpineCervicalinfection",
+      "name": "Spine Cervical (infection)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalmyelopathy",
+      "code": "MRSpineCervicalmyelopathy",
+      "name": "Spine Cervical (myelopathy)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalpreviousspinalsurgery",
+      "code": "MRSpineCervicalpreviousspinalsurgery",
+      "name": "Spine Cervical (previous spinal surgery)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalspinalcanalstenosis",
+      "code": "MRSpineCervicalspinalcanalstenosis",
+      "name": "Spine Cervical (spinal canal stenosis)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalsyrinx",
+      "code": "MRSpineCervicalsyrinx",
+      "name": "Spine Cervical (syrinx)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicaltrauma",
+      "code": "MRSpineCervicaltrauma",
+      "name": "Spine Cervical (trauma)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicaltumour",
+      "code": "MRSpineCervicaltumour",
+      "name": "Spine Cervical (tumour)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalBrachialPlexusprevioussurgery",
+      "code": "MRSpineCervicalBrachialPlexusprevioussurgery",
+      "name": "Spine Cervical + Brachial Plexus (previous surgery)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalBrachialPlexustrauma",
+      "code": "MRSpineCervicalBrachialPlexustrauma",
+      "name": "Spine Cervical + Brachial Plexus (trauma)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalBrachialPlexustumour",
+      "code": "MRSpineCervicalBrachialPlexustumour",
+      "name": "Spine Cervical + Brachial Plexus (tumour)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalLumbarcervicalradiculopathy",
+      "code": "MRSpineCervicalLumbarcervicalradiculopathy",
+      "name": "Spine Cervical Lumbar (cervical radiculopathy)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalLumbarcongenitalmalformation",
+      "code": "MRSpineCervicalLumbarcongenitalmalformation",
+      "name": "Spine Cervical Lumbar (congenital malformation)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalLumbardemyelinatingdisease",
+      "code": "MRSpineCervicalLumbardemyelinatingdisease",
+      "name": "Spine Cervical Lumbar (demyelinating disease)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalLumbarinfection",
+      "code": "MRSpineCervicalLumbarinfection",
+      "name": "Spine Cervical Lumbar (infection)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalLumbarmyelopathy",
+      "code": "MRSpineCervicalLumbarmyelopathy",
+      "name": "Spine Cervical Lumbar (myelopathy)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalLumbarpreviousspinalsurgery",
+      "code": "MRSpineCervicalLumbarpreviousspinalsurgery",
+      "name": "Spine Cervical Lumbar (previous spinal surgery)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalLumbarsciatica",
+      "code": "MRSpineCervicalLumbarsciatica",
+      "name": "Spine Cervical Lumbar (sciatica)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalLumbarspinalcanalstenosis",
+      "code": "MRSpineCervicalLumbarspinalcanalstenosis",
+      "name": "Spine Cervical Lumbar (spinal canal stenosis)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalLumbarsyrinx",
+      "code": "MRSpineCervicalLumbarsyrinx",
+      "name": "Spine Cervical Lumbar (syrinx)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalLumbartrauma",
+      "code": "MRSpineCervicalLumbartrauma",
+      "name": "Spine Cervical Lumbar (trauma)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalLumbartumour",
+      "code": "MRSpineCervicalLumbartumour",
+      "name": "Spine Cervical Lumbar (tumour)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalThoraciccervicalradiculopathy",
+      "code": "MRSpineCervicalThoraciccervicalradiculopathy",
+      "name": "Spine Cervical Thoracic (cervical radiculopathy)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalThoraciccongenitalmalformation",
+      "code": "MRSpineCervicalThoraciccongenitalmalformation",
+      "name": "Spine Cervical Thoracic (congenital malformation)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalThoracicdemyelinatingdisease",
+      "code": "MRSpineCervicalThoracicdemyelinatingdisease",
+      "name": "Spine Cervical Thoracic (demyelinating disease)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalThoracicinfection",
+      "code": "MRSpineCervicalThoracicinfection",
+      "name": "Spine Cervical Thoracic (infection)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalThoracicmyelopathy",
+      "code": "MRSpineCervicalThoracicmyelopathy",
+      "name": "Spine Cervical Thoracic (myelopathy)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalThoracicpreviousspinalsurgery",
+      "code": "MRSpineCervicalThoracicpreviousspinalsurgery",
+      "name": "Spine Cervical Thoracic (previous spinal surgery)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalThoracicspinalcanalstenosis",
+      "code": "MRSpineCervicalThoracicspinalcanalstenosis",
+      "name": "Spine Cervical Thoracic (spinal canal stenosis)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalThoracicsyrinx",
+      "code": "MRSpineCervicalThoracicsyrinx",
+      "name": "Spine Cervical Thoracic (syrinx)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalThoracictrauma",
+      "code": "MRSpineCervicalThoracictrauma",
+      "name": "Spine Cervical Thoracic (trauma)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalThoracictumour",
+      "code": "MRSpineCervicalThoracictumour",
+      "name": "Spine Cervical Thoracic (tumour)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalThoracicLumbarcervicalradiculopathy",
+      "code": "MRSpineCervicalThoracicLumbarcervicalradiculopathy",
+      "name": "Spine Cervical Thoracic Lumbar (cervical radiculopathy)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalThoracicLumbarcongenitalmalformation",
+      "code": "MRSpineCervicalThoracicLumbarcongenitalmalformation",
+      "name": "Spine Cervical Thoracic Lumbar (congenital malformation)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalThoracicLumbardemyelinatingdisease",
+      "code": "MRSpineCervicalThoracicLumbardemyelinatingdisease",
+      "name": "Spine Cervical Thoracic Lumbar (demyelinating disease)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalThoracicLumbarinfection",
+      "code": "MRSpineCervicalThoracicLumbarinfection",
+      "name": "Spine Cervical Thoracic Lumbar (infection)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalThoracicLumbarmyelopathy",
+      "code": "MRSpineCervicalThoracicLumbarmyelopathy",
+      "name": "Spine Cervical Thoracic Lumbar (myelopathy)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalThoracicLumbarpreviousspinalsurgery",
+      "code": "MRSpineCervicalThoracicLumbarpreviousspinalsurgery",
+      "name": "Spine Cervical Thoracic Lumbar (previous spinal surgery)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalThoracicLumbarsciatica",
+      "code": "MRSpineCervicalThoracicLumbarsciatica",
+      "name": "Spine Cervical Thoracic Lumbar (sciatica)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalThoracicLumbarspinalcanalstenosis",
+      "code": "MRSpineCervicalThoracicLumbarspinalcanalstenosis",
+      "name": "Spine Cervical Thoracic Lumbar (spinal canal stenosis)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalThoracicLumbarsyrinx",
+      "code": "MRSpineCervicalThoracicLumbarsyrinx",
+      "name": "Spine Cervical Thoracic Lumbar (syrinx)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalThoracicLumbartrauma",
+      "code": "MRSpineCervicalThoracicLumbartrauma",
+      "name": "Spine Cervical Thoracic Lumbar (trauma)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineCervicalThoracicLumbartumour",
+      "code": "MRSpineCervicalThoracicLumbartumour",
+      "name": "Spine Cervical Thoracic Lumbar (tumour)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineLumbarcongenitalmalformation",
+      "code": "MRSpineLumbarcongenitalmalformation",
+      "name": "Spine Lumbar (congenital malformation)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineLumbardemyelinatingdisease",
+      "code": "MRSpineLumbardemyelinatingdisease",
+      "name": "Spine Lumbar (demyelinating disease)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineLumbarinfection",
+      "code": "MRSpineLumbarinfection",
+      "name": "Spine Lumbar (infection)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineLumbarmyelopathy",
+      "code": "MRSpineLumbarmyelopathy",
+      "name": "Spine Lumbar (myelopathy)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineLumbarpreviousspinalsurgery",
+      "code": "MRSpineLumbarpreviousspinalsurgery",
+      "name": "Spine Lumbar (previous spinal surgery)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineLumbarsciatica",
+      "code": "MRSpineLumbarsciatica",
+      "name": "Spine Lumbar (sciatica)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineLumbarspinalcanalstenosis",
+      "code": "MRSpineLumbarspinalcanalstenosis",
+      "name": "Spine Lumbar (spinal canal stenosis)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineLumbarsyrinx",
+      "code": "MRSpineLumbarsyrinx",
+      "name": "Spine Lumbar (syrinx)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineLumbartrauma",
+      "code": "MRSpineLumbartrauma",
+      "name": "Spine Lumbar (trauma)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineLumbartumour",
+      "code": "MRSpineLumbartumour",
+      "name": "Spine Lumbar (tumour)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineThoraciccongenitalmalformation",
+      "code": "MRSpineThoraciccongenitalmalformation",
+      "name": "Spine Thoracic (congenital malformation)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineThoracictumour",
+      "code": "MRSpineThoracictumour",
+      "name": "Spine Thoracic (tumour)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineThoracicLumbarcongenitalmalformation",
+      "code": "MRSpineThoracicLumbarcongenitalmalformation",
+      "name": "Spine Thoracic Lumbar (congenital malformation)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineThoracicLumbardemyelinatingdisease",
+      "code": "MRSpineThoracicLumbardemyelinatingdisease",
+      "name": "Spine Thoracic Lumbar (demyelinating disease)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineThoracicLumbarmyelopathy",
+      "code": "MRSpineThoracicLumbarmyelopathy",
+      "name": "Spine Thoracic Lumbar (myelopathy)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineThoracicLumbarpreviousspinalsurgery",
+      "code": "MRSpineThoracicLumbarpreviousspinalsurgery",
+      "name": "Spine Thoracic Lumbar (previous spinal surgery)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineThoracicLumbarsciatica",
+      "code": "MRSpineThoracicLumbarsciatica",
+      "name": "Spine Thoracic Lumbar (sciatica)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineThoracicLumbarspinalcanalstenosis",
+      "code": "MRSpineThoracicLumbarspinalcanalstenosis",
+      "name": "Spine Thoracic Lumbar (spinal canal stenosis)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineThoracicLumbarsyrinx",
+      "code": "MRSpineThoracicLumbarsyrinx",
+      "name": "Spine Thoracic Lumbar (syrinx)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineThoracicLumbartrauma",
+      "code": "MRSpineThoracicLumbartrauma",
+      "name": "Spine Thoracic Lumbar (trauma)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRSpineThoracicLumbartumour",
+      "code": "MRSpineThoracicLumbartumour",
+      "name": "Spine Thoracic Lumbar (tumour)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRTestExamination",
+      "code": "MRTestExamination",
+      "name": "Test Examination",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRTMJsoneorboth",
+      "code": "MRTMJsoneorboth",
+      "name": "TMJs (one or both)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRVenogramSVCIVCPelvicVein",
+      "code": "MRVenogramSVCIVCPelvicVein",
+      "name": "Venogram SVC/IVC/Pelvic Vein",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRWristLeft",
+      "code": "MRWristLeft",
+      "name": "Wrist - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "MRIScanImagingArea-MRWristRight",
+      "code": "MRWristRight",
+      "name": "Wrist - Right",
+      "visibilityStatus": "current"
+    }
+  ]
+}
