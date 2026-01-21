@@ -205,6 +205,7 @@ const updateInvoiceSchema = z
           })
           .strip()
           .nullish(),
+        approved: z.boolean().default(false),
       })
       .strip()
       .refine(item => {
