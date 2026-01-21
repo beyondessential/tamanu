@@ -1,0 +1,179 @@
+{
+  "sheetName": "Manufacturer",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
+  "data": [
+    {
+      "id": "manufacturer-AstraZeneca",
+      "code": "ORG-100001699",
+      "name": "AstraZeneca AB",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "manufacturer-BioNTech",
+      "code": "ORG-100030215",
+      "name": "Biontech Manufacturing GmbH",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "manufacturer-Janssen",
+      "code": "ORG-100001417",
+      "name": "Janssen-Cilag International",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "manufacturer-ModernaSpain",
+      "code": "ORG-100031184",
+      "name": "Moderna Biotech Spain S.L.",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "manufacturer-Curevac",
+      "code": "ORG-100006270",
+      "name": "Curevac AG",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "manufacturer-CanSino",
+      "code": "ORG-100013793",
+      "name": "CanSino Biologics",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "manufacturer-SinopharmBeijing",
+      "code": "ORG-100020693",
+      "name": "China Sinopharm International Corp. - Beijing location",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "manufacturer-SinopharmPrague",
+      "code": "ORG-100010771",
+      "name": "Sinopharm Weiqida Europe Pharmaceutical s.r.o. - Prague location",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "manufacturer-SinopharmShenzen",
+      "code": "ORG-100024420",
+      "name": "Sinopharm Zhijun (Shenzhen) Pharmaceutical Co. Ltd. - Shenzhen location",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "manufacturer-SinopharmWuhan",
+      "code": "Sinopharm-WIBP",
+      "name": "Sinopharm - Wuhan Institute of Biological Products",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "manufacturer-Novavax",
+      "code": "ORG-100032020",
+      "name": "Novavax CZ AS",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "manufacturer-Gamaleya",
+      "code": "Gamaleya-Research-Institute",
+      "name": "Gamaleya Research Institute",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "manufacturer-Vector",
+      "code": "Vector-Institute",
+      "name": "Vector Institute",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "manufacturer-Sinovac",
+      "code": "Sinovac-Biotech",
+      "name": "Sinovac Biotech",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "manufacturer-Bharat",
+      "code": "Bharat-Biotech",
+      "name": "Bharat Biotech",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "manufacturer-SerumInstituteIndia",
+      "code": "ORG-100001981",
+      "name": "Serum Institute Of India Private Limited",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "manufacturer-Fiocruz",
+      "code": "Fiocruz",
+      "name": "Fiocruz",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "manufacturer-RPharm",
+      "code": "ORG-100007893",
+      "name": "R-Pharm CJSC",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "manufacturer-Chumakov",
+      "code": "Chumakov-Federal-Scientific-Center",
+      "name": "Chumakov Federal Scientific Center for Research and Development of Immune and Biological Products",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "manufacturer-GulfPharma",
+      "code": "ORG-100023050",
+      "name": "Gulf Pharmaceutical Industries",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "manufacturer-CIGB",
+      "code": "CIGB",
+      "name": "Center for Genetic Engineering and Biotechnology (CIGB)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "manufacturer-Medigen",
+      "code": "ORG-100033914",
+      "name": "Medigen Vaccine Biologics Corporation",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "manufacturer-Sanofi",
+      "code": "ORG-100000788",
+      "name": "Sanofi Pasteur",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "manufacturer-Valneva",
+      "code": "ORG-100036422",
+      "name": "Valneva France",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "manufacturer-Butantan",
+      "code": "Instituto-Butantan",
+      "name": "Instituto Butantan",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "manufacturer-NVSI",
+      "code": "NVSI",
+      "name": "National Vaccine and Serum Institute, China",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "manufacturer-YishengBiopharma",
+      "code": "ORG-100026614",
+      "name": "Yisheng Biopharma Sinocelltech Ltd",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "manufacturer-Medicago",
+      "code": "ORG-100008549",
+      "name": "Medicago Inc",
+      "visibilityStatus": "current"
+    }
+  ]
+}

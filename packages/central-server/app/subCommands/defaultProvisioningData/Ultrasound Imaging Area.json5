@@ -1,0 +1,1085 @@
+{
+  "sheetName": "Ultrasound Imaging Area",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
+  "data": [
+    {
+      "id": "ultrasoundScanImagingArea-USBreastLeft",
+      "code": "USBreastLeft",
+      "name": "Breast - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USAnkleLeft",
+      "code": "USAnkleLeft",
+      "name": "Ankle - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USAnkleRight",
+      "code": "USAnkleRight",
+      "name": "Ankle - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USAorta",
+      "code": "USAorta",
+      "name": "Aorta",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USArterialArmLeft",
+      "code": "USArterialArmLeft",
+      "name": "Arterial Arm - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USArterialArmRight",
+      "code": "USArterialArmRight",
+      "name": "Arterial Arm - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USArterialLegLeft",
+      "code": "USArterialLegLeft",
+      "name": "Arterial Leg - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USArterialLegRight",
+      "code": "USArterialLegRight",
+      "name": "Arterial Leg - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USAscitictap",
+      "code": "USAscitictap",
+      "name": "Ascitic tap",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USAspirationbiopsyofadeeporgan",
+      "code": "USAspirationbiopsyofadeeporgan",
+      "name": "Aspiration biopsy of a deep organ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USAVFistula",
+      "code": "USAVFistula",
+      "name": "AV Fistula",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USBiopsyBreastcore",
+      "code": "USBiopsyBreastcore",
+      "name": "Biopsy - Breast core",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USBiopsyBreastFNA",
+      "code": "USBiopsyBreastFNA",
+      "name": "Biopsy - Breast FNA",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USBiopsyLiver",
+      "code": "USBiopsyLiver",
+      "name": "Biopsy - Liver",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USBiopsyLymphmuscledeeptissueororgan",
+      "code": "USBiopsyLymphmuscledeeptissueororgan",
+      "name": "Biopsy - Lymph, muscle,deep tissue or organ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USBiopsyPleura",
+      "code": "USBiopsyPleura",
+      "name": "Biopsy - Pleura",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USBiopsyRenal",
+      "code": "USBiopsyRenal",
+      "name": "Biopsy - Renal ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USBreastRight",
+      "code": "USBreastRight",
+      "name": "Breast - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USBreastsBilateral",
+      "code": "USBreastsBilateral",
+      "name": "Breasts - Bilateral",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USButtockorThighLeft",
+      "code": "USButtockorThighLeft",
+      "name": "Buttock or Thigh - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USButtockorThighRight",
+      "code": "USButtockorThighRight",
+      "name": "Buttock or Thigh - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USCarotidArteries",
+      "code": "USCarotidArteries",
+      "name": "Carotid Arteries",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USChestorAbdominalWall",
+      "code": "USChestorAbdominalWall",
+      "name": "Chest or Abdominal Wall",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USDrainageofadeepabscess",
+      "code": "USDrainageofadeepabscess",
+      "name": "Drainage of a deep abscess",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USEye",
+      "code": "USEye",
+      "name": "Eye",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USFluidandFlows24wksAFIandumbilicalarterydoppler",
+      "code": "USFluidandFlows24wksAFIandumbilicalarterydoppler",
+      "name": "Fluid and Flows > 24 wks (AFI and umbilical artery doppler)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USFootLeft",
+      "code": "USFootLeft",
+      "name": "Foot - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USFootRight",
+      "code": "USFootRight",
+      "name": "Foot -Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USForearmorElbowLeft",
+      "code": "USForearmorElbowLeft",
+      "name": "Forearm or Elbow - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USForearmorElbowRight",
+      "code": "USForearmorElbowRight",
+      "name": "Forearm or Elbow - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USGroinLeft",
+      "code": "USGroinLeft",
+      "name": "Groin  - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USGroinRight",
+      "code": "USGroinRight",
+      "name": "Groin  - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USguidedinterventionalprocedure",
+      "code": "USguidedinterventionalprocedure",
+      "name": "guided interventional procedure",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USguidedinterventionalprocedureMSK",
+      "code": "USguidedinterventionalprocedureMSK",
+      "name": "guided interventional procedure (MSK)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USHandorWristLeft",
+      "code": "USHandorWristLeft",
+      "name": "Hand or Wrist - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USHandorWristRight",
+      "code": "USHandorWristRight",
+      "name": "Hand or Wrist - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USHeelLeft",
+      "code": "USHeelLeft",
+      "name": "Heel -Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USHeelRight",
+      "code": "USHeelRight",
+      "name": "Heel - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USHipLeft",
+      "code": "USHipLeft",
+      "name": "Hip - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USHipRight",
+      "code": "USHipRight",
+      "name": "Hip - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USHookwirelocalisationbreast",
+      "code": "USHookwirelocalisationbreast",
+      "name": "Hookwire localisation breast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USInjectionJointorsynovial",
+      "code": "USInjectionJointorsynovial",
+      "name": "Injection - Joint or synovial",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USKneeLeft",
+      "code": "USKneeLeft",
+      "name": "Knee - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USKneeRight",
+      "code": "USKneeRight",
+      "name": "Knee - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USLowerLegLeft",
+      "code": "USLowerLegLeft",
+      "name": "Lower Leg - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USLowerLegRight",
+      "code": "USLowerLegRight",
+      "name": "Lower Leg - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USMappingArteryLeftLimb",
+      "code": "USMappingArteryLeftLimb",
+      "name": "Mapping Artery - Left Limb",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USMappingArteryRightLimb",
+      "code": "USMappingArteryRightLimb",
+      "name": "Mapping Artery - Right Limb",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USMappingVenousLeftLimb",
+      "code": "USMappingVenousLeftLimb",
+      "name": "Mapping Venous - Left Limb",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USMappingVenousRightLimb",
+      "code": "USMappingVenousRightLimb",
+      "name": "Mapping Venous - Right Limb",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USMassSkinorSubcutaneous",
+      "code": "USMassSkinorSubcutaneous",
+      "name": "Mass (Skin or Subcutaneous)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USNeckincludingglands",
+      "code": "USNeckincludingglands",
+      "name": "Neck including glands",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USNeonatalbrain",
+      "code": "USNeonatalbrain",
+      "name": "Neonatal brain",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USNephrosotomyTubeInsertion",
+      "code": "USNephrosotomyTubeInsertion",
+      "name": "Nephrosotomy Tube Insertion",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USNephrostomyTubeChange",
+      "code": "USNephrostomyTubeChange",
+      "name": "Nephrostomy  Tube Change",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USNuchalTranslucency",
+      "code": "USNuchalTranslucency",
+      "name": "Nuchal Translucency",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USObstetric12weeks",
+      "code": "USObstetric12weeks",
+      "name": "Obstetric (<12 weeks)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USObstetric1216weeks",
+      "code": "USObstetric1216weeks",
+      "name": "Obstetric (12-16 weeks)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USObstetricMultiple22weeksMO",
+      "code": "USObstetricMultiple22weeksMO",
+      "name": "Obstetric - Multiple - (>22 weeks) MO",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USObstetricMultiple22weeksRepeatOG",
+      "code": "USObstetricMultiple22weeksRepeatOG",
+      "name": "Obstetric - Multiple - (>22 weeks) Repeat/O&G",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-LowerLeg",
+      "code": "LowerLeg",
+      "name": "Lower Leg",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USObstetricMultiple1722weeksMO",
+      "code": "USObstetricMultiple1722weeksMO",
+      "name": "Obstetric - Multiple - (17-22 weeks) MO",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USObstetricMultiple1722weeksRepeatOG",
+      "code": "USObstetricMultiple1722weeksRepeatOG",
+      "name": "Obstetric - Multiple - (17-22 weeks) Repeat/O&G",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USObstetricSingleton22weeksMO",
+      "code": "USObstetricSingleton22weeksMO",
+      "name": "Obstetric - Singleton - (>22 weeks) MO",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USObstetricSingleton22weeksRepeatOG",
+      "code": "USObstetricSingleton22weeksRepeatOG",
+      "name": "Obstetric - Singleton - (>22 weeks) Repeat/O&G",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USObstetricSingleton1722weeksMO",
+      "code": "USObstetricSingleton1722weeksMO",
+      "name": "Obstetric - Singleton - (17-22 weeks) MO ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USObstetricSingleton1722weeksRepeatOG",
+      "code": "USObstetricSingleton1722weeksRepeatOG",
+      "name": "Obstetric - Singleton - (17-22 weeks) Repeat/O&G",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USPaediatricHipsforDysplasiaBoth",
+      "code": "USPaediatricHipsforDysplasiaBoth",
+      "name": "Paediatric Hips for Dysplasia (Both) ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USPaediatricSpine",
+      "code": "USPaediatricSpine",
+      "name": "Paediatric Spine",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USPleuraltapdiagnostic",
+      "code": "USPleuraltapdiagnostic",
+      "name": "Pleural tap - diagnostic",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USPleuraltaptherapeutic",
+      "code": "USPleuraltaptherapeutic",
+      "name": "Pleural tap - therapeutic",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USPleurodesis",
+      "code": "USPleurodesis",
+      "name": "Pleurodesis",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USRemovalofForeignBodyDeep",
+      "code": "USRemovalofForeignBodyDeep",
+      "name": "Removal of Foreign Body - Deep ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USRemovalofForeignBodySubcutaneous",
+      "code": "USRemovalofForeignBodySubcutaneous",
+      "name": "Removal of Foreign Body - Subcutaneous ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USRenal",
+      "code": "USRenal",
+      "name": "Renal",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USRenalArteries",
+      "code": "USRenalArteries",
+      "name": "Renal Arteries",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USShoulderorUpperArmLeft",
+      "code": "USShoulderorUpperArmLeft",
+      "name": "Shoulder or Upper Arm -Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USShoulderorUpperArmRight",
+      "code": "USShoulderorUpperArmRight",
+      "name": "Shoulder or Upper Arm - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USTemporalArteries",
+      "code": "USTemporalArteries",
+      "name": "Temporal Arteries",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USTestes",
+      "code": "USTestes",
+      "name": "Testes",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USThyroid",
+      "code": "USThyroid",
+      "name": "Thyroid",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USUpperabdomen",
+      "code": "USUpperabdomen",
+      "name": "Upper abdomen",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USUrinarybladderonly",
+      "code": "USUrinarybladderonly",
+      "name": "Urinary bladder only",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USVenousArmLeft",
+      "code": "USVenousArmLeft",
+      "name": "Venous Arm - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USVenousArmRight",
+      "code": "USVenousArmRight",
+      "name": "Venous Arm - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USVenousIncompetencyLegLeft",
+      "code": "USVenousIncompetencyLegLeft",
+      "name": "Venous Incompetency Leg - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USVenousIncompetencyLegRight",
+      "code": "USVenousIncompetencyLegRight",
+      "name": "Venous Incompetency Leg - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USVenousLegLeft",
+      "code": "USVenousLegLeft",
+      "name": "Venous Leg - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USVenouslegRight",
+      "code": "USVenouslegRight",
+      "name": "Venous leg - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USVisceralVessels",
+      "code": "USVisceralVessels",
+      "name": "Visceral Vessels ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-Abdomen",
+      "code": "Abdomen",
+      "name": "Abdomen",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-AnkleorHindFoot",
+      "code": "AnkleorHindFoot",
+      "name": "Ankle or Hind Foot",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-AspirationBiopsyofDeepOrgan",
+      "code": "AspirationBiopsyofDeepOrgan",
+      "name": "Aspiration Biopsy of Deep Organ",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-BladderOnly",
+      "code": "BladderOnly",
+      "name": "Bladder Only",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-DigitisedPreviousUSFilms",
+      "code": "DigitisedPreviousUSFilms",
+      "name": "Digitised Previous US Films",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-DrainageofDeepAbscess",
+      "code": "DrainageofDeepAbscess",
+      "name": "Drainage of Deep Abscess",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-DrainageShallowHaematomaAbscessorLesion",
+      "code": "DrainageShallowHaematomaAbscessorLesion",
+      "name": "Drainage Shallow Haematoma Abscess or Lesion",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-ForearmorElbow",
+      "code": "ForearmorElbow",
+      "name": "Forearm or Elbow",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-HaematomaAbscessorLesionDrainageInpatientunderFluoroscopy",
+      "code": "HaematomaAbscessorLesionDrainageInpatientunderFluoroscopy",
+      "name": "Haematoma, Abscess or Lesion Drainage (Inpatient) under Fluoroscopy",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-HandorWrist",
+      "code": "HandorWrist",
+      "name": "Hand or Wrist",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-Head",
+      "code": "Head",
+      "name": "Head",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-HookwireLocalisationBreast",
+      "code": "HookwireLocalisationBreast",
+      "name": "Hookwire Localisation Breast",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-Knee",
+      "code": "Knee",
+      "name": "Knee",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-LowerLimbAeterial",
+      "code": "LowerLimbAeterial",
+      "name": "Lower Limb Aeterial",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-LowerLimbVenous",
+      "code": "LowerLimbVenous",
+      "name": "Lower Limb Venous",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-MassSkinorSubcutaneous",
+      "code": "MassSkinorSubcutaneous",
+      "name": "Mass, Skin or Subcutaneous",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-MidFootorForefoot",
+      "code": "MidFootorForefoot",
+      "name": "Mid Foot or Forefoot",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-NeckIncludingGlands",
+      "code": "NeckIncludingGlands",
+      "name": "Neck - Including Glands",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-Nephrostomy",
+      "code": "Nephrostomy",
+      "name": "Nephrostomy",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-NephrostomyDrainageTubeExchange",
+      "code": "NephrostomyDrainageTubeExchange",
+      "name": "Nephrostomy Drainage Tube Exchange",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-NuchalTranslucency",
+      "code": "NuchalTranslucency",
+      "name": "Nuchal Translucency",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-Obstetric22weeksSpecialist",
+      "code": "Obstetric22weeksSpecialist",
+      "name": "Obstetric ( > 22 weeks) Specialist",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-Obstetric12weeks",
+      "code": "Obstetric12weeks",
+      "name": "Obstetric (<12 weeks)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-Obstetric22weeksMO",
+      "code": "Obstetric22weeksMO",
+      "name": "Obstetric (> 22 weeks) MO",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-Obstetric22weeksSPECIALIST",
+      "code": "Obstetric22weeksSPECIALIST",
+      "name": "Obstetric (>22 weeks) SPECIALIST",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-Obstetric1216weeks",
+      "code": "Obstetric1216weeks",
+      "name": "Obstetric (12-16 weeks)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-Obstetric1722weeksMO",
+      "code": "Obstetric1722weeksMO",
+      "name": "Obstetric (17-22 weeks) MO",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-Obstetric1722weeksSPECIALIST",
+      "code": "Obstetric1722weeksSPECIALIST",
+      "name": "Obstetric (17-22 weeks) SPECIALIST",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-Orbit",
+      "code": "Orbit",
+      "name": "Orbit",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-PaediatricHipsforDysplasiaBoth",
+      "code": "PaediatricHipsforDysplasiaBoth",
+      "name": "Paediatric Hips for Dysplasia (Both)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-PelvicFemale",
+      "code": "PelvicFemale",
+      "name": "Pelvic - Female",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-PelvicMale",
+      "code": "PelvicMale",
+      "name": "Pelvic - Male",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-Renal",
+      "code": "Renal",
+      "name": "Renal",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-RenalArteries",
+      "code": "RenalArteries",
+      "name": "Renal Arteries",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-ShoulderorUpperArm",
+      "code": "ShoulderorUpperArm",
+      "name": "Shoulder or Upper Arm",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-Softtissue",
+      "code": "Softtissue",
+      "name": "Soft tissue",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-TherapeuticDrainageofThoraxBiopsy",
+      "code": "TherapeuticDrainageofThoraxBiopsy",
+      "name": "Therapeutic Drainage of Thorax+/-Biopsy",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-Thyroid",
+      "code": "Thyroid",
+      "name": "Thyroid",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-UltrasoundIntercostalTubeInsertion",
+      "code": "UltrasoundIntercostalTubeInsertion",
+      "name": "Ultrasound - Intercostal Tube Insertion",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-UltrasoundAbscessTubeChange",
+      "code": "UltrasoundAbscessTubeChange",
+      "name": "Ultrasound Abscess Tube Change",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-UltrasoundAnkleBrachialIndicesandWaveform",
+      "code": "UltrasoundAnkleBrachialIndicesandWaveform",
+      "name": "Ultrasound Ankle Brachial Indices and Waveform",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-UltrasoundDrainPancreasTubeChange",
+      "code": "UltrasoundDrainPancreasTubeChange",
+      "name": "Ultrasound Drain - Pancreas Tube Change",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-UltrasoundDrainPancreasTubeInsertion",
+      "code": "UltrasoundDrainPancreasTubeInsertion",
+      "name": "Ultrasound Drain - Pancreas Tube Insertion",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-UltrasoundExerciseStudyLowerArterial",
+      "code": "UltrasoundExerciseStudyLowerArterial",
+      "name": "Ultrasound Exercise Study Lower Arterial",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-UltrasoundGuidedPleurodesis",
+      "code": "UltrasoundGuidedPleurodesis",
+      "name": "Ultrasound Guided Pleurodesis",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-UltrasoundHaematomaAspiration",
+      "code": "UltrasoundHaematomaAspiration",
+      "name": "Ultrasound Haematoma Aspiration",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-UltrasoundPenileDoppler",
+      "code": "UltrasoundPenileDoppler",
+      "name": "Ultrasound Penile Doppler",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-UltrasoundWristBrachialIndicesandWaveform",
+      "code": "UltrasoundWristBrachialIndicesandWaveform",
+      "name": "Ultrasound Wrist Brachial Indices and Waveform",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-UmbilicalBloodFlow",
+      "code": "UmbilicalBloodFlow",
+      "name": "Umbilical Blood Flow",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USAnkleandorHeelBilateral",
+      "code": "USAnkleandorHeelBilateral",
+      "name": "US Ankle and/or Heel - Bilateral",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USAnkleandorHeelLeft",
+      "code": "USAnkleandorHeelLeft",
+      "name": "US Ankle and/or Heel - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USAnkleandorHeelRight",
+      "code": "USAnkleandorHeelRight",
+      "name": "US Ankle and/or Heel - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USBreastswithInterventionBilateral",
+      "code": "USBreastswithInterventionBilateral",
+      "name": "US Breasts with Intervention - Bilateral",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USBreastswithInterventionLeft",
+      "code": "USBreastswithInterventionLeft",
+      "name": "US Breasts with Intervention - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USBreastswithInterventionRight",
+      "code": "USBreastswithInterventionRight",
+      "name": "US Breasts with Intervention - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USButtockandorThighBilateral",
+      "code": "USButtockandorThighBilateral",
+      "name": "US Buttock and/or Thigh - Bilateral",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USConsultationbyRadiologist1stattendance",
+      "code": "USConsultationbyRadiologist1stattendance",
+      "name": "US Consultation by Radiologist - 1st attendance",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USConsultationbyRadiologistsubsequentattendance",
+      "code": "USConsultationbyRadiologistsubsequentattendance",
+      "name": "US Consultation by Radiologist - subsequent attendance",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USFacialNerveInjection",
+      "code": "USFacialNerveInjection",
+      "name": "US Facial Nerve Injection",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USFootBilateral",
+      "code": "USFootBilateral",
+      "name": "US Foot - Bilateral",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USForearmandorElbowBilateral",
+      "code": "USForearmandorElbowBilateral",
+      "name": "US Forearm and/or Elbow - Bilateral",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USGuidedNeedlingInjectionEctopicPregnancyincImaging",
+      "code": "USGuidedNeedlingInjectionEctopicPregnancyincImaging",
+      "name": "US Guided Needling/Injection Ectopic Pregnancy (inc. Imaging)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USguidedVAE",
+      "code": "USguidedVAE",
+      "name": "US guided VAE",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USHaematomaAbscessorLesionDrainageInpatient",
+      "code": "USHaematomaAbscessorLesionDrainageInpatient",
+      "name": "US Haematoma, Abscess or Lesion Drainage (Inpatient)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USHandandorWristBilateral",
+      "code": "USHandandorWristBilateral",
+      "name": "US Hand and/or Wrist - Bilateral",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USHipandorGroinBilateral",
+      "code": "USHipandorGroinBilateral",
+      "name": "US Hip and/or Groin - Bilateral",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USHipandorGroinLeft",
+      "code": "USHipandorGroinLeft",
+      "name": "US Hip and/or Groin - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USHipandorGroinRight",
+      "code": "USHipandorGroinRight",
+      "name": "US Hip and/or Groin - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USInjectionSynovialJointNotBillable",
+      "code": "USInjectionSynovialJointNotBillable",
+      "name": "US Injection - Synovial Joint (Not Billable)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USIntercostalNerveInjectionMultiple",
+      "code": "USIntercostalNerveInjectionMultiple",
+      "name": "US Intercostal Nerve Injection - Multiple",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USIntercostalNerveInjectionSingle",
+      "code": "USIntercostalNerveInjectionSingle",
+      "name": "US Intercostal Nerve Injection - Single",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USKneeBilateral",
+      "code": "USKneeBilateral",
+      "name": "US Knee - Bilateral",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USLowerLegBilateral",
+      "code": "USLowerLegBilateral",
+      "name": "US Lower Leg - Bilateral",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USMSKwithInterventionifclinicallyindicated",
+      "code": "USMSKwithInterventionifclinicallyindicated",
+      "name": "US MSK with Intervention if clinically indicated",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USOccipitalNerveInjection",
+      "code": "USOccipitalNerveInjection",
+      "name": "US Occipital Nerve Injection",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USPaediatricHipsforDysplasiaBilateral",
+      "code": "USPaediatricHipsforDysplasiaBilateral",
+      "name": "US Paediatric Hips for Dysplasia - Bilateral",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USPaediatricHipsforDysplasiaLeft",
+      "code": "USPaediatricHipsforDysplasiaLeft",
+      "name": "US Paediatric Hips for Dysplasia - Left",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USPaediatricHipsforDysplasiaRight",
+      "code": "USPaediatricHipsforDysplasiaRight",
+      "name": "US Paediatric Hips for Dysplasia - Right",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USPelvic",
+      "code": "USPelvic",
+      "name": "US Pelvic",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USPelvicFemale",
+      "code": "USPelvicFemale",
+      "name": "US Pelvic - Female",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USPelvicMale",
+      "code": "USPelvicMale",
+      "name": "US Pelvic - Male",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USSciaticNerveInjection",
+      "code": "USSciaticNerveInjection",
+      "name": "US Sciatic Nerve Injection",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USShoulderandorUpperArmBilateral",
+      "code": "USShoulderandorUpperArmBilateral",
+      "name": "US Shoulder and/or Upper Arm - Bilateral",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USTrigeminalNerveInjection",
+      "code": "USTrigeminalNerveInjection",
+      "name": "US Trigeminal Nerve Injection",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-USUlnarRadialorMedianNerveInjection",
+      "code": "USUlnarRadialorMedianNerveInjection",
+      "name": "US Ulnar/Radial or Median Nerve Injection",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-SoftTissue",
+      "code": "SoftTissue",
+      "name": "Soft Tissue",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-AFI",
+      "code": "AFI",
+      "name": "AFI",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-UmblicalArteryDoppler",
+      "code": "UmblicalArteryDoppler",
+      "name": "Umblical Artery Doppler",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "ultrasoundScanImagingArea-BioPhysicalProfileBPP",
+      "code": "BioPhysicalProfileBPP",
+      "name": "Bio Physical Profile(BPP)",
+      "visibilityStatus": "current"
+    }
+  ]
+}
