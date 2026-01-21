@@ -387,8 +387,8 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
               value={
                 <TranslatedReferenceData
                   category="triageReason"
-                  value={triage?.chiefComplaint.id}
-                  fallback={triage?.chiefComplaint.name}
+                  value={triage?.chiefComplaint?.id}
+                  fallback={triage?.chiefComplaint?.name}
                   placeholder="—"
                 />
               }
@@ -406,8 +406,8 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
               value={
                 <TranslatedReferenceData
                   category="triageReason"
-                  value={triage?.secondaryComplaint.id}
-                  fallback={triage?.secondaryComplaint.name}
+                  value={triage?.secondaryComplaint?.id}
+                  fallback={triage?.secondaryComplaint?.name}
                   placeholder="—"
                 />
               }
