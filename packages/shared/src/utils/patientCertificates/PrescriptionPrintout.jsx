@@ -85,7 +85,6 @@ const PrescriptionsSection = ({
   prescriptions,
   prescriber,
   facility,
-  getLocalisation,
   getSetting,
 }) => {
   const { getTranslation, getEnumTranslation } = useLanguageContext();
@@ -106,7 +105,6 @@ const PrescriptionsSection = ({
         <Table
           columns={columns(getTranslation, getEnumTranslation)}
           data={prescriptions}
-          getLocalisation={getLocalisation}
           getSetting={getSetting}
           columnStyle={{ padding: '8px 7px' }}
         />
@@ -128,7 +126,6 @@ const PrescriptionPrintoutComponent = ({
   prescriber,
   certificateData,
   facility,
-  getLocalisation,
   getSetting,
 }) => {
   return (
@@ -141,7 +138,7 @@ const PrescriptionPrintoutComponent = ({
             certificateTitle="Prescription"
           />
           <SectionContainer>
-            <PatientDetailsWithBarcode patient={patientData} getLocalisation={getLocalisation} getSetting={getSetting} />
+            <PatientDetailsWithBarcode patient={patientData} getSetting={getSetting} />
           </SectionContainer>
         </CertificateHeader>
         <CertificateContent style={{ margin: 0 }}>
@@ -150,7 +147,6 @@ const PrescriptionPrintoutComponent = ({
               prescriptions={prescriptions}
               prescriber={prescriber}
               facility={facility}
-              getLocalisation={getLocalisation}
               getSetting={getSetting}
             />
           </SectionContainer>

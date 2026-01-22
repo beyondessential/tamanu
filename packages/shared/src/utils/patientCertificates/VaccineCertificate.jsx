@@ -138,7 +138,7 @@ const VaccineCertificateComponent = ({
   watermarkSrc,
   signingSrc,
   logoSrc,
-  localisation,
+  getLocalisation,
   getSetting,
   extraPatientFields,
   certificateData,
@@ -146,7 +146,6 @@ const VaccineCertificateComponent = ({
 }) => {
   const { getTranslation } = useLanguageContext();
   const { formatShort } = useDateTimeFormat();
-  const getLocalisation = key => get(localisation, key);
   const countryName = getLocalisation('country.name');
 
   const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
@@ -210,7 +209,6 @@ const VaccineCertificateComponent = ({
           />
           <PatientDetailsSection
             patient={patient}
-            getLocalisation={getLocalisation}
             getSetting={getSetting}
             certificateId={certificateId}
             extraFields={extraPatientFields}
@@ -225,7 +223,6 @@ const VaccineCertificateComponent = ({
           <Table
             data={data}
             columns={columns}
-            getLocalisation={getLocalisation}
             getSetting={getSetting}
             columnStyle={{ padding: '10px 5px' }}
           />

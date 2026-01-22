@@ -87,7 +87,6 @@ const CovidLabCertificateComponent = ({
   watermarkSrc,
   vdsSrc,
   logoSrc,
-  getLocalisation,
   getSetting,
   printedBy,
   certType,
@@ -103,7 +102,6 @@ const CovidLabCertificateComponent = ({
           <CovidPatientDetailsSection
             patient={patient}
             vdsSrc={vdsSrc}
-            getLocalisation={getLocalisation}
             getSetting={getSetting}
           />
         </Box>
@@ -111,7 +109,6 @@ const CovidLabCertificateComponent = ({
           <Table
             data={labs}
             columns={columns}
-            getLocalisation={getLocalisation}
             getSetting={getSetting}
             formatters={{ formatShort, formatShortExplicit, formatTime }}
           />

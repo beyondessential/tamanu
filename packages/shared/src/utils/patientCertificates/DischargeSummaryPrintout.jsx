@@ -175,7 +175,6 @@ const DischargeSummaryPrintoutComponent = ({
   discharge,
   patientConditions,
   certificateData,
-  getLocalisation,
   getSetting,
 }) => {
   const { getTranslation, getEnumTranslation } = useLanguageContext();
@@ -218,7 +217,6 @@ const DischargeSummaryPrintoutComponent = ({
         <SectionContainer>
           <PatientDetailsWithAddress
             patient={patientData}
-            getLocalisation={getLocalisation}
             getSetting={getSetting}
           />
         </SectionContainer>
@@ -262,7 +260,6 @@ const DischargeSummaryPrintoutComponent = ({
               <Table
                 data={visibleMedications}
                 columns={columns(getTranslation, getEnumTranslation)}
-                getLocalisation={getLocalisation}
                 getSetting={getSetting}
                 columnStyle={{ padding: '10px 5px' }}
               />

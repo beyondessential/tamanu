@@ -35,7 +35,6 @@ export const HandoverPatient = ({
   arrivalDate,
   diagnosis,
   notes,
-  getLocalisation,
   getSetting,
   createdAt,
   isEdited,
@@ -52,7 +51,7 @@ export const HandoverPatient = ({
               ({ key, label: defaultLabel, accessor, percentageWidth = 33 }) => {
                 const value =
                   (accessor
-                    ? accessor(patient, { getLocalisation, getTranslation, formatShort })
+                    ? accessor(patient, { getTranslation, formatShort })
                     : patient[key]) || '';
                 const label =
                   defaultLabel ||

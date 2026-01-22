@@ -89,7 +89,6 @@ const CovidVaccineCertificateComponent = ({
         <CovidPatientDetailsSection
           patient={patient}
           vdsSrc={vdsSrc}
-          getLocalisation={getLocalisation}
           getSetting={getSetting}
           certificateId={certificateId}
           extraFields={extraPatientFields}
@@ -99,7 +98,6 @@ const CovidVaccineCertificateComponent = ({
           <Table
             data={data}
             columns={columns}
-            getLocalisation={getLocalisation}
             getSetting={getSetting}
           />
         </Box>

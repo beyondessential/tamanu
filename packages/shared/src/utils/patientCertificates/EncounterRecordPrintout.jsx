@@ -421,7 +421,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'date',
         title: getTranslation('general.date.label', 'Date'),
-        accessor: ({ date }) => formatShortest(date),
+        accessor: ({ date }) => formatShort(date),
         style: { width: '25%' },
       },
     ],
@@ -581,7 +581,7 @@ const EncounterRecordPrintoutComponent = ({
           />
         </CertificateHeader>
         <SectionSpacing />
-        <PatientDetailsWithAddress getLocalisation={getLocalisation} patient={patientData} getSetting={getSetting} />
+        <PatientDetailsWithAddress patient={patientData} getSetting={getSetting} />
         <SectionSpacing />
         <EncounterDetailsExtended encounter={encounter} discharge={discharge} />
         <SectionSpacing />

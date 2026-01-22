@@ -118,6 +118,7 @@ export const makeVaccineCertificate = async ({
   translations,
 }) => {
   const [localisation, settingsObj] = await Promise.all([getLocalisation(), settings.getAll()]);
+  const getLocalisationData = key => get(localisation, key);
   const getSettingData = key => get(settingsObj, key);
 
   const { title, subTitle } = await settings.get('templates.letterhead');
@@ -141,7 +142,7 @@ export const makeVaccineCertificate = async ({
       watermarkSrc={watermark}
       logoSrc={logo}
       translations={translations}
-      localisation={localisation}
+      getLocalisation={getLocalisationData}
       language={language}
       certificateData={{ title, subTitle }}
       healthFacility={healthFacility}

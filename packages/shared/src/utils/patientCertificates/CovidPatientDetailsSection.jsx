@@ -21,7 +21,6 @@ const PATIENT_FIELDS = [
 
 export const CovidPatientDetailsSection = ({
   patient,
-  getLocalisation,
   getSetting,
   vdsSrc,
   extraFields = [],
@@ -42,7 +41,7 @@ export const CovidPatientDetailsSection = ({
         <Row>
           {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
             const value =
-              accessor?.(patient, { getLocalisation, getTranslation, getSetting, formatShort }) ?? (patient[key] || '');
+              accessor?.(patient, {  getTranslation, getSetting, formatShort }) ?? (patient[key] || '');
             const label =
               getTranslation(`general.localisedField.${key}.label.short`) ||
               getTranslation(`general.localisedField.${key}.label`) ||

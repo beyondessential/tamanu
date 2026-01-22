@@ -1,10 +1,10 @@
 import React from 'react';
 import { DataItem } from './DataItem';
 
-export const renderDataItems = (fields, patient, {getLocalisation, getTranslation, getSetting, formatShort, formatShortExplicit, formatTime}, fontSize = 9) => {
+export const renderDataItems = (fields, patient, {getTranslation, getSetting, formatShort, formatShortExplicit, formatTime}, fontSize = 9) => {
   return fields.map(({ key, label: defaultLabel, accessor }) => {
     const value =
-      (accessor ? accessor(patient, { getLocalisation, getTranslation, getSetting, formatShort, formatShortExplicit, formatTime }) : patient[key]) || '';
+      (accessor ? accessor(patient, { getTranslation, getSetting, formatShort, formatShortExplicit, formatTime }) : patient[key]) || '';
     const label =
       getTranslation(`general.localisedField.${key}.label.short`) ||
       getTranslation(`general.localisedField.${key}.label`) ||

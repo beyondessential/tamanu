@@ -239,10 +239,10 @@ const PATIENT_DEATH_DETAILS = {
 const SectionContainer = props => <View style={generalStyles.sectionContainer} {...props} />;
 
 const DeathCertificatePrintoutComponent = React.memo(
-  ({ patientData, certificateData, getLocalisation }) => {
+  ({ patientData, certificateData }) => {
     const { getTranslation } = useLanguageContext();
     const { formatShort, formatShortExplicit, formatTime } = useDateTimeFormat();
-    const renderDataOptions = { getLocalisation, getTranslation, formatShort, formatShortExplicit, formatTime }; 
+    const renderDataOptions = { getTranslation, formatShort, formatShortExplicit, formatTime }; 
     const { logo, deathCertFooterImg } = certificateData;
 
     const { causes } = patientData;

@@ -11,7 +11,6 @@ const HandoverNotesPDFComponent = ({
   handoverNotes = [],
   locationGroupName,
   logoSrc,
-  getLocalisation,
   getSetting,
   letterheadConfig,
 }) => (
@@ -34,7 +33,6 @@ const HandoverNotesPDFComponent = ({
               arrivalDate={arrivalDate}
               notes={notes}
               isEdited={isEdited}
-              getLocalisation={getLocalisation}
               getSetting={getSetting}
             />
           ),

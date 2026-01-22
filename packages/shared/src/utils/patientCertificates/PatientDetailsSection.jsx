@@ -37,7 +37,6 @@ const patientFields = getTranslation => [
 
 export const PatientDetailsSection = ({
   patient,
-  getLocalisation,
   getSetting,
   extraFields = [],
 }) => {
@@ -59,7 +58,7 @@ export const PatientDetailsSection = ({
             {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
               const value =
                 (accessor
-                  ? accessor(patient, { getLocalisation, getTranslation, getSetting, formatShort })
+                  ? accessor(patient, { getTranslation, getSetting, formatShort })
                   : patient[key]) || '';
               const label =
                 getTranslation(`general.localisedField.${key}.label.short`) ||

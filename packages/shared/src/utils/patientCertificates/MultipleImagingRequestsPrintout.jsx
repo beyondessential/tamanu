@@ -143,7 +143,7 @@ const MultipleImagingRequestsPrintoutComponent = React.memo(
               certificateTitle="Imaging Request"
             />
             <SectionContainer>
-              <PatientDetailsWithBarcode patient={patient} getLocalisation={getLocalisation} getSetting={getSetting} />
+              <PatientDetailsWithBarcode patient={patient} getSetting={getSetting} />
             </SectionContainer>
             <SectionContainer>
               <EncounterDetails encounter={encounter} />
