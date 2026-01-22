@@ -12,4 +12,3 @@ export * from './CustomToastContainer';
 export * from './Suggester';
 export * from './DateDisplay';
 export * from './PatientNameDisplay';
-export * from './DateDisplay'
