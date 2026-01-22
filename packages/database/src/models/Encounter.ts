@@ -608,23 +608,16 @@ export class Encounter extends Model {
         changeType: EncounterChangeType.Examiner,
       });
 
-      let startDateLabel = 'date & time';
-      switch (data.encounterType ?? this.encounterType) {
-        case ENCOUNTER_TYPES.ADMISSION:
-          startDateLabel = 'admission date & time';
-          break;
-        case ENCOUNTER_TYPES.TRIAGE:
-        case ENCOUNTER_TYPES.OBSERVATION:
-        case ENCOUNTER_TYPES.EMERGENCY:
-          startDateLabel = 'triage date & time';
-          break;
+      const encounterType = data.encounterType ?? this.encounterType;
+      const isEmergencyEncounter = [ENCOUNTER_TYPES.TRIAGE, ENCOUNTER_TYPES.OBSERVATION, ENCOUNTER_TYPES.EMERGENCY].includes(encounterType);
+      if (!isEmergencyEncounter) {
+        await onChangeTextColumn({
+          columnName: 'startDate',
+          fieldLabel: 'date & time', 
+          formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
+        });
       }
-
-      await onChangeTextColumn({
-        columnName: 'startDate',
-        fieldLabel: startDateLabel, 
-        formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
-      });
+      
       await onChangeTextColumn({
         columnName: 'estimatedEndDate',
         fieldLabel: 'estimated discharge date',
