@@ -1,46 +1,8 @@
 import React, { useCallback, useContext, useMemo, createContext } from 'react';
 import { useSettings } from './SettingsContext';
 import { mapValues } from 'lodash';
-import {
-  formatShortest,
-  formatShort,
-  formatTime,
-  formatTimeWithSeconds,
-  formatTimeCompact,
-  formatTimeSlot,
-  formatLong,
-  formatFullDate,
-  formatWeekdayShort,
-  formatWeekdayLong,
-  formatWeekdayNarrow,
-  formatShortExplicit,
-  formatShortestExplicit,
-  formatDayMonth,
-  formatShortDateTime,
-  formatShortestDateTime,
-  formatDateTimeLocal,
-} from '@tamanu/utils/dateTime';
+import { dateTimeFormatters } from '@tamanu/utils/dateTime';
 import { useAuth } from './AuthContext';
-
-const utils = {
-  formatShortest,
-  formatShort,
-  formatTime,
-  formatTimeWithSeconds,
-  formatTimeCompact,
-  formatTimeSlot,
-  formatLong,
-  formatFullDate,
-  formatWeekdayShort,
-  formatWeekdayLong,
-  formatWeekdayNarrow,
-  formatShortExplicit,
-  formatShortestExplicit,
-  formatDayMonth,
-  formatShortDateTime,
-  formatShortestDateTime,
-  formatDateTimeLocal,
-};
 
 type DateInput = string | Date | null | undefined;
 
@@ -52,11 +14,11 @@ type RawFormatter = (
 
 type WrappedFormatter = (date?: DateInput) => string | null;
 
-type WrappedUtils = {
-  [K in keyof typeof utils]: WrappedFormatter;
+type WrappedFormatters = {
+  [K in keyof typeof dateTimeFormatters]: WrappedFormatter;
 };
 
-export interface DateTimeContextValue extends WrappedUtils {
+export interface DateTimeContextValue extends WrappedFormatters {
   countryTimeZone: string;
   facilityTimeZone?: string | null;
 }
@@ -102,7 +64,7 @@ export const DateTimeProvider = ({
     (): DateTimeContextValue => ({
       countryTimeZone,
       facilityTimeZone,
-      ...(mapValues(utils, wrapFunction) as WrappedUtils),
+      ...(mapValues(dateTimeFormatters, wrapFunction) as WrappedFormatters),
     }),
     [countryTimeZone, facilityTimeZone, wrapFunction],
   );

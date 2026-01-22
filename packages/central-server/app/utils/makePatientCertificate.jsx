@@ -3,6 +3,7 @@ import ReactPDF from '@react-pdf/renderer';
 import path from 'path';
 import QRCode from 'qrcode';
 import { get } from 'lodash';
+import config from 'config';
 import { ASSET_FALLBACK_NAMES, ASSET_NAMES } from '@tamanu/constants';
 
 import {
@@ -99,6 +100,7 @@ export const makeCovidVaccineCertificate = async ({
       vdsSrc={vds}
       getLocalisation={getLocalisationData}
       getSetting={getSettingData}
+      countryTimeZone={config.countryTimeZone}
       language={language}
     />,
     fileName,
@@ -144,6 +146,7 @@ export const makeVaccineCertificate = async ({
       certificateData={{ title, subTitle }}
       healthFacility={healthFacility}
       getSetting={getSettingData}
+      countryTimeZone={config.countryTimeZone}
     />,
     fileName,
   );
@@ -215,6 +218,7 @@ export const makeCovidCertificate = async ({
       vdsSrc={vds}
       getLocalisation={getLocalisationData}
       getSetting={getSettingData}
+      countryTimeZone={config.countryTimeZone}
       certType={certType}
       language={language}
     />,

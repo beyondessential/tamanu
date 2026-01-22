@@ -245,20 +245,6 @@ export const format = (date: string | Date | null | undefined, format: string) =
   return dateFnsFormat(dateObj, format);
 };
 
-export const formatInTz = (
-  date: string | Date | null | undefined,
-  formatStr: string,
-  countryTimeZone: string,
-  timeZone?: string | null,
-) => {
-  if (date == null) return null;
-  const dateObj = parseDate(date);
-  if (!dateObj) return null;
-
-  const tz = timeZone || countryTimeZone;
-  return formatInTimeZone(dateObj, tz, formatStr);
-};
-
 export const differenceInMilliseconds = (a: number | string | Date, b: number | string | Date) =>
   dateFnsDifferenceInMilliseconds(new Date(a), new Date(b));
 
@@ -595,3 +581,27 @@ export const eachDayInMonth = (date: Date) =>
     start: startOfMonth(date),
     end: endOfMonth(date),
   });
+
+/**
+ * All date/time formatters as a single object.
+ * Use this in context providers to avoid duplicating the formatter list.
+ */
+export const dateTimeFormatters = {
+  formatShortest,
+  formatShort,
+  formatTime,
+  formatTimeWithSeconds,
+  formatTimeCompact,
+  formatTimeSlot,
+  formatLong,
+  formatFullDate,
+  formatShortExplicit,
+  formatShortestExplicit,
+  formatDayMonth,
+  formatShortDateTime,
+  formatShortestDateTime,
+  formatWeekdayShort,
+  formatWeekdayLong,
+  formatWeekdayNarrow,
+  formatDateTimeLocal,
+};

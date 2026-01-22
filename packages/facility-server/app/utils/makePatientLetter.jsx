@@ -2,6 +2,7 @@ import React from 'react';
 import ReactPDF from '@react-pdf/renderer';
 import path from 'path';
 import { get } from 'lodash';
+import config from 'config';
 import { PatientLetter, tmpdir } from '@tamanu/shared/utils';
 import crypto from 'crypto';
 import { SETTING_KEYS } from '@tamanu/constants';
@@ -34,6 +35,7 @@ export const makePatientLetter = async (req, { id, facilityId, ...data }) => {
       letterheadConfig={letterheadConfig}
       language={language}
       settings={settings}
+      countryTimeZone={config.countryTimeZone}
     />,
     filePath,
   );
