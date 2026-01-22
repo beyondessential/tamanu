@@ -3,7 +3,7 @@ import config from 'config';
 import { closeAllDatabases, openDatabase } from '@tamanu/database/services/database';
 import { fakeUUID } from '@tamanu/utils/generateId';
 import { log } from '@tamanu/shared/services/logging';
-import { REPORT_DB_SCHEMAS } from '@tamanu/constants';
+import { REPORT_DB_CONNECTIONS } from '@tamanu/constants';
 
  const getOrCreateConnection = async (configOverrides, key = 'main') => {
   const testMode = process.env.NODE_ENV === 'test';
@@ -32,7 +32,7 @@ async function initReportStore(schemaName, credentials) {
     username,
     password,
   };
-  if (!Object.values(REPORT_DB_SCHEMAS).includes(schemaName)) {
+  if (!Object.values(REPORT_DB_CONNECTIONS).includes(schemaName)) {
     log.warn(`Unknown reporting schema ${schemaName}, skipping...`);
     return null;
   }
@@ -52,10 +52,10 @@ async function initReportStore(schemaName, credentials) {
   }
 }
 
-export async function initReporting() {
+export async function initReporting(existingStore) {
   const { connections } = config.db.reportSchemas;
   return Object.entries(connections).reduce(async (acc, [schemaName, { username, password }]) => {
-    const instance = await initReportStore(schemaName, {
+    const instance = await initReportStore(existingStore, schemaName, {
       username,
       password,
     });

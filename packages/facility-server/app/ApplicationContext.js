@@ -53,7 +53,7 @@ export class ApplicationContext {
     }, {});
     this.settings.global = new ReadSettings(this.models);
     if (config.db.reportSchemas?.enabled) {
-      this.reportSchemaStores = await initReporting();
+      this.reportSchemaStores = await initReporting(database);
     }
     return this;
   }

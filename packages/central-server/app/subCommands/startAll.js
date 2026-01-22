@@ -37,7 +37,7 @@ export const serveAll = async ({ skipMigrationCheck }) => {
       skipMigrationCheck,
       topics: JOB_TOPICS.FHIR.RESOLVER,
     }),
-    startTasks({ skipMigrationCheck }),
+    // startTasks({ skipMigrationCheck }),
   ]);
 };
 
