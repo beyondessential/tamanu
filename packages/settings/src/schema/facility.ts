@@ -123,6 +123,35 @@ export const facilitySettings = {
       },
     },
     vaccinations: vaccinationsSchema,
+    medications: {
+      name: 'Medication',
+      description: 'Settings related to medication management and dispensing',
+      properties: {
+        medicationDispensing: {
+          name: 'Medication dispensing',
+          description:
+            'Settings for automatic encounter generation when sending medication requests to pharmacy from ongoing medications table',
+          properties: {
+            automaticEncounterLocationId: {
+              name: 'Automatic encounter location',
+              description:
+                'Set the default location for the automatic encounter generated when sending a medication request to pharmacy from the ongoing medications table',
+              type: yup.string().nullable(),
+              defaultValue: null,
+              suggesterEndpoint: 'location',
+            },
+            automaticEncounterDepartmentId: {
+              name: 'Automatic encounter department',
+              description:
+                'Set the default department for the automatic encounter generated when sending a medication request to pharmacy from the ongoing medications table',
+              type: yup.string().nullable(),
+              defaultValue: null,
+              suggesterEndpoint: 'department',
+            },
+          },
+        },
+      },
+    },
     survey: {
       name: 'Survey settings',
       description: '_',

@@ -34,3 +34,4 @@ export * from './usePatientPortalSurveyAssignments';
 export * from './usePatientDataQuery.js';
 export { useSurveyQuery } from './useSurveyQuery';
 export { useLabTestResultHistoryQuery } from './useLabTestResultHistoryQuery';
+export { useFacilityQuery } from './useFacilityQuery';
