@@ -134,6 +134,8 @@ export class AutocompleteInput extends Component {
     super();
     this.anchorEl = React.createRef();
     this.debouncedFetchOptions = debounce(this.fetchOptions, 200);
+    this.inputElementNode = null;
+    this.observer = null;
 
     this.state = {
       suggestions: [],
@@ -144,6 +146,19 @@ export class AutocompleteInput extends Component {
   async componentDidMount() {
     const { allowFreeTextForExistingValue } = this.props;
     await this.updateValue(allowFreeTextForExistingValue);
+    this.observer = new IntersectionObserver(
+      ([entry]) => {
+        const hasSuggestions = this.state.suggestions.length > 0;
+        if (!entry.isIntersecting && hasSuggestions) {
+          this.clearOptions();
+        }
+      },
+      { threshold: 0 },
+    );
+
+    if (this.inputElementNode) {
+      this.observer.observe(this.inputElementNode);
+    }
   }
 
   async componentDidUpdate(prevProps) {
@@ -154,6 +169,13 @@ export class AutocompleteInput extends Component {
     if (value === '') {
       await this.attemptAutoFill();
     }
+  }
+
+  componentWillUnmount() {
+    if (this.observer) {
+      this.observer.disconnect();
+    }
+    this.debouncedFetchOptions.cancel();
   }
 
   updateValue = async (allowFreeTextForExistingValue = false) => {
@@ -292,6 +314,21 @@ export class AutocompleteInput extends Component {
     // prevent enter button submitting the whole form
     if (event.keyCode === 13) {
       event.preventDefault();
+    }
+  };
+
+  // This is used to get the input element node so we can observe if it is
+  // out of view and also pass it to the parent component if it is provided
+  handleInputRef = node => {
+    const { inputRef } = this.props;
+
+    this.inputElementNode = node;
+
+    // Ensure we respect the inputRef prop if it is provided by the parent component
+    if (typeof inputRef === 'function') {
+      inputRef(node);
+    } else if (inputRef) {
+      inputRef.current = node;
     }
   };
 
@@ -463,7 +500,6 @@ export class AutocompleteInput extends Component {
       error,
       helperText,
       placeholder = this.context.getTranslation('general.placeholder.search...', 'Search...'),
-      inputRef,
       multiSection,
       'data-testid': dataTestId = 'autocompleteinput',
     } = this.props;
@@ -498,7 +534,7 @@ export class AutocompleteInput extends Component {
             onKeyDown: this.onKeyDown,
             onChange: this.handleInputChange,
             'data-testid': `${dataTestId}-input`,
-            inputRef,
+            inputRef: this.handleInputRef,
           }}
         />
       </>
