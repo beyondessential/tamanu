@@ -33,7 +33,7 @@ const detailsSectionStyle = {
   marginBottom: 10,
 };
 
-const DetailsSection = ({ getLocalisation, data }) => {
+const DetailsSection = ({  data }) => {
   const { getTranslation } = useLanguageContext();
   const { formatShort } = useDateTimeFormat();
   return (
@@ -45,7 +45,7 @@ const DetailsSection = ({ getLocalisation, data }) => {
             {DETAIL_FIELDS.map(({ key, label: defaultLabel, accessor }) => {
               const value =
                 (accessor
-                  ? accessor(data, { getLocalisation, getTranslation, formatShort })
+                  ? accessor(data, {  getTranslation, formatShort })
                   : data[key]) || '';
               const label =
                 getTranslation(`general.localisedField.${key}.label.short`) ||
@@ -67,7 +67,7 @@ const DetailsSection = ({ getLocalisation, data }) => {
   );
 };
 
-const PatientLetterComponent = ({ getLocalisation, data, logoSrc, letterheadConfig }) => {
+const PatientLetterComponent = ({  data, logoSrc, letterheadConfig }) => {
   const { title: certificateTitle, body, patient = {}, clinician, documentCreatedAt } = data;
 
   return (
@@ -81,7 +81,6 @@ const PatientLetterComponent = ({ getLocalisation, data, logoSrc, letterheadConf
           />
           <DetailsSection
             data={{ ...patient, clinicianName: clinician.displayName, documentCreatedAt }}
-            getLocalisation={getLocalisation}
           />
         </CertificateHeader>
         <View style={{ margin: '18px' }}>

@@ -358,12 +358,10 @@ const EncounterRecordPrintoutComponent = ({
   notes,
   discharge,
   medications,
-  localisation,
   vitalsData,
   recordedDates,
   settings,
 }) => {
-  const getLocalisation = (key) => get(localisation, key);
   const getSetting = (key) => get(settings, key);
   const { getTranslation, getEnumTranslation } = useLanguageContext();
   const { formatShort, formatShortest, formatTime, formatShortDateTime } = useDateTimeFormat();

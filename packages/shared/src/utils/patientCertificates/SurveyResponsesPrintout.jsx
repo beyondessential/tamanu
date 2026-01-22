@@ -147,7 +147,6 @@ const ResponsesGroup = ({ rows, getTranslation, formatShort }) => {
 const SurveyResponsesPrintoutComponent = ({
   patientData,
   certificateData,
-  getLocalisation,
   getTranslation,
   surveyResponse,
   isReferral,
@@ -188,7 +187,6 @@ const SurveyResponsesPrintoutComponent = ({
         />
         <CertificateHeader>
           <LetterheadSection
-            getLocalisation={getLocalisation}
             logoSrc={logo}
             certificateTitle={title}
             certificateSubtitle={surveyResponse.title}
@@ -197,7 +195,6 @@ const SurveyResponsesPrintoutComponent = ({
         </CertificateHeader>
         <SectionSpacing />
         <PatientDetails
-          getLocalisation={getLocalisation}
           patient={patientData}
           getSetting={getSetting}
         />

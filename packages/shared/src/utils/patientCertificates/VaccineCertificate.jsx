@@ -19,7 +19,6 @@ import { useLanguageContext, withLanguageContext } from '../pdf/languageContext'
 import { withDateTimeContext, useDateTimeFormat } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 import { Text, TextWithoutContext } from '../pdf/Text';
-import { get } from 'lodash';
 import { useTextStyles } from './printComponents/MultiPageHeader';
 
 const getColumns = (getTranslation, formatShort) => [
