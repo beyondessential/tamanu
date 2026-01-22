@@ -2,7 +2,7 @@ import { Op, DataTypes } from 'sequelize';
 
 import { ENCOUNTER_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
-import { format, formatShort, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { formatShort, formatTime, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
@@ -165,12 +165,12 @@ export class Triage extends Model {
       await onChangeTextColumn({
         columnName: 'arrivalTime',
         noteLabel: 'arrival date & time',
-        formatText: date => (date ? `${formatShort(date)} ${format(date, 'h:mmaaa')}` : '-'),
+        formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
       });
       await onChangeTextColumn({
         columnName: 'triageTime',
         noteLabel: 'triage date & time',
-        formatText: date => (date ? `${formatShort(date)} ${format(date, 'h:mmaaa')}` : '-'),
+        formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
       });
       await onChangeTextColumn({
         columnName: 'score',

@@ -12,7 +12,7 @@ import {
 } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
 import { dischargeOutpatientEncounters } from '@tamanu/shared/utils/dischargeOutpatientEncounters';
-import { format, formatShort, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { formatShort, formatTime, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { Model } from './Model';
 import {
@@ -614,7 +614,7 @@ export class Encounter extends Model {
         columnName: 'startDate',
         noteLabel:
           encounterType === ENCOUNTER_TYPES.ADMISSION ? 'admission date & time' : 'date & time',
-        formatText: date => (date ? `${formatShort(date)} ${format(date, 'h:mmaaa')}` : '-'),
+        formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
       });
 
       await onChangeTextColumn({
