@@ -181,7 +181,7 @@ const MEDICATION_COLUMNS = (getTranslation, getEnumTranslation, disableTooltip) 
   },
   {
     key: 'route',
-          title: <TranslatedText stringId="medication.route.label" fallback="Route" />,
+    title: <TranslatedText stringId="medication.route.label" fallback="Route" />,
     accessor: ({ route, encounterPrescription, discontinued }) => {
       const pauseData = encounterPrescription?.pausePrescriptions?.[0];
       const isPausing = !!pauseData && !discontinued;
