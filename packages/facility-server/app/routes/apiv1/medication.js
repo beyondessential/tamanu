@@ -2189,8 +2189,9 @@ medication.delete(
       await dispense.destroy({ transaction });
 
       // Restore the PharmacyOrderPrescription if it was completed
+      // (check existence defensively in case the request was deleted and orphaned the dispense)
       const pharmacyOrderPrescription = dispense.pharmacyOrderPrescription;
-      if (pharmacyOrderPrescription.isCompleted) {
+      if (pharmacyOrderPrescription?.isCompleted) {
         await pharmacyOrderPrescription.update({ isCompleted: false }, { transaction });
       }
     });
