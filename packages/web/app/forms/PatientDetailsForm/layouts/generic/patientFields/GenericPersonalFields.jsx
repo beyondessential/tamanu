@@ -14,7 +14,6 @@ import {
   AutocompleteField,
   SuggesterSelectField,
   TranslatedSelectField,
-  SelectField,
 } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { usePatientSuggester, useSuggester } from '../../../../../api';
