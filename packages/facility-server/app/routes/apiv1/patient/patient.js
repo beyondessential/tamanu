@@ -173,11 +173,19 @@ patientRoute.post(
   asyncHandler(async (req, res) => {
     const { db, models, body } = req;
     const { Patient, PatientAdditionalData, PatientBirthData, PatientFacility, PatientInvoiceInsurancePlan } = models;
+
     req.checkPermission('create', 'Patient');
+
+    let invoiceInsurancePlanId;
+    try {
+      invoiceInsurancePlanId = body.invoiceInsurancePlanId ? JSON.parse(body.invoiceInsurancePlanId) : undefined;
+    } catch (error) {
+      throw new InvalidParameterError('Invalid invoice insurance plan id');
+    }
 
     const createPatientBody = {
       ...body,
-      invoiceInsurancePlanId: body.invoiceInsurancePlanId ? JSON.parse(body.invoiceInsurancePlanId) : undefined,
+      invoiceInsurancePlanId,
     };
     const validatedBody = validate(createPatientSchema, createPatientBody);
 
