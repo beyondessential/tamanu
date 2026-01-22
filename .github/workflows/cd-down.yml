@@ -24,6 +24,7 @@ on:
 permissions:
   contents: write # to update the release notes
   pull-requests: write
+  id-token: write # for Tailscale OIDC authentication
 
 jobs:
   down:
