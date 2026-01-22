@@ -366,10 +366,11 @@ export class Encounter extends Model {
           FROM encounters e
           INNER JOIN lab_requests lr ON lr.encounter_id = e.id
           WHERE (e.updated_at_sync_tick > :since OR lr.updated_at_sync_tick > :since)
-          ${patientCount > 0
-          ? `AND e.patient_id NOT IN (SELECT patient_id FROM ${markedForSyncPatientsTable}) -- no need to sync if it would be synced anyway`
-          : ''
-        }
+          ${
+            patientCount > 0
+              ? `AND e.patient_id NOT IN (SELECT patient_id FROM ${markedForSyncPatientsTable}) -- no need to sync if it would be synced anyway`
+              : ''
+          }
           GROUP BY e.id
         ) AS encounters_with_labs ON encounters_with_labs.id = encounters.id
       `);
@@ -609,7 +610,8 @@ export class Encounter extends Model {
 
       // Start date is referred to differently in the UI based on the encounter type
       const encounterType = data.encounterType ?? this.encounterType;
-      const noteLabel = encounterType === ENCOUNTER_TYPES.ADMISSION ? 'admission date & time' : 'date & time';
+      const noteLabel =
+        encounterType === ENCOUNTER_TYPES.ADMISSION ? 'admission date & time' : 'date & time';
       await onChangeTextColumn({
         columnName: 'startDate',
         noteLabel,
