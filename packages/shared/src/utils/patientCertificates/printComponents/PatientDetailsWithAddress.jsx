@@ -32,4 +32,3 @@ export const PatientDetailsWithAddress = ({ patient, getSetting }) => {
     </DataSection>
   );
 };
- 
