@@ -46,6 +46,9 @@ export function createMigrationInterface(log, sequelize) {
     throw new Error('Could not find migrations');
   }
 
+  // Duration stats for each migration
+  const durationStats = {};
+
   // Closure context to store migration name and direction
   const wrapContext = {};
 
@@ -104,17 +107,26 @@ export function createMigrationInterface(log, sequelize) {
     storageOptions: {
       sequelize,
     },
+    durationStats,
   });
 
   umzug.on('migrating', (name) => {
     wrapContext.direction = 'up';
     wrapContext.migrationName = name;
     log.info(`Applying migration: ${name}`);
+    durationStats[name] = Date.now();
+  });
+  umzug.on('migrated', (name) => {
+    durationStats[name] = Date.now() - durationStats[name];
   });
   umzug.on('reverting', (name) => {
     wrapContext.direction = 'down';
     wrapContext.migrationName = name;
     log.info(`Reverting migration: ${name}`);
+    durationStats[name] = Date.now();
+  });
+  umzug.on('reverted', (name) => {
+    durationStats[name] = Date.now() - durationStats[name];
   });
 
   return umzug;
@@ -127,6 +139,7 @@ export async function migrateUpTo({ log, sequelize, pending, migrations, upOpts 
 
   log.info(`Applying ${pending.length} migration${pending.length > 1 ? 's' : ''}...`);
   const applied = await migrations.up(upOpts);
+  console.log(migrations.options.durationStats);
   await createMigrationAuditLog(sequelize, applied, 'up');
 
   log.info('Applied migrations successfully');
