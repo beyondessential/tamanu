@@ -11,7 +11,6 @@ import {
 } from '../../../api/queries';
 import { useCertificate } from '../../../utils/useCertificate';
 import { PDFLoader, printPDF } from '../PDFLoader';
-import { useLocalisation } from '../../../contexts/Localisation';
 import { useSettings } from '../../../contexts/Settings';
 import { LabResultsPrintout } from '@tamanu/shared/utils/patientCertificates';
 
