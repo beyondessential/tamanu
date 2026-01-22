@@ -318,7 +318,6 @@ const getFormInitialValues = ({ encounter, triage = {} }) => {
         arrivalTime,
         arrivalModeId,
         score,
-        triageTime,
       };
     default:
       return {};
