@@ -24,7 +24,7 @@ export class NewImagingRequestModal {
   readonly prioritySelect!: Locator;
   readonly encounterInput!: Locator;
   readonly imagingRequestTypeSelect!: Locator;
-  readonly areasToBeImagedTextarea!: Locator;
+  readonly areasToBeImagedSelect!: Locator;
   readonly notesTextarea!: Locator;
 
   readonly cancelButton!: Locator;
@@ -44,7 +44,6 @@ export class NewImagingRequestModal {
       prioritySelect: 'field-xemr-select',
       encounterInput: 'textinput-tyem-input',
       imagingRequestTypeSelect: 'field-khld-select',
-      areasToBeImagedTextarea: 'field-r8tf-input',
       notesTextarea: 'field-hhqc-input',
       cancelButton: 'outlinedbutton-8rnr',
       moreActionsButton: 'menubutton-dc8o',
@@ -57,6 +56,7 @@ export class NewImagingRequestModal {
     this.orderDateTimeInput = this.orderDateTimeField.locator('input');
     this.requestingClinicianInput = this.requestingClinicianField.locator('input');
     this.finaliseButton = this.page.getByTestId('formgrid-4uzw').getByTestId('mainbuttoncomponent-06gp');
+    this.areasToBeImagedSelect = this.page.getByText('Areas to be imaged').locator('..').getByTestId('multiselectinput-dvij');
   }
 
   async waitForModalToLoad(): Promise<void> {
@@ -72,34 +72,67 @@ export class NewImagingRequestModal {
       priority,
       imagingRequestType,
       areasToBeImaged,
-      notes,
+      notes
     } = values;
 
     if (orderDateTime) {
       await this.orderDateTimeInput.fill(orderDateTime);
     }
 
-    const selectedRequestingClinician = await selectAutocompleteFieldOption(this.page, this.requestingClinicianField, {
-      optionToSelect: requestingClinician ?? null,
-      selectFirst: !requestingClinician,
-      returnOptionText: true,
-    });
-   
+    let selectedRequestingClinician: string | undefined;
+    if (requestingClinician) {
+      selectedRequestingClinician = await selectAutocompleteFieldOption(this.page, this.requestingClinicianField, {
+        optionToSelect: requestingClinician,
+        returnOptionText: true,
+      });
+    } else {
+      selectedRequestingClinician = await selectAutocompleteFieldOption(this.page, this.requestingClinicianField, {
+        selectFirst: true,
+        returnOptionText: true,
+      });
+    }
 
-    const selectedPriority = await selectFieldOption(this.page, this.prioritySelect, {
-      optionToSelect: priority ?? null,
-      selectFirst: !priority,
-      returnOptionText: true,
-    });
 
-    const selectedImagingRequestType = await selectFieldOption(this.page, this.imagingRequestTypeSelect, {
-      optionToSelect: imagingRequestType ?? null,
-      selectFirst: !imagingRequestType,
-      returnOptionText: true,
-    });
+    let selectedPriority: string | undefined;
+    if (priority) {
+      selectedPriority = await selectFieldOption(this.page, this.prioritySelect, {
+        optionToSelect: priority,
+        returnOptionText: true,
+      });
+    } else {
+      selectedPriority = await selectFieldOption(this.page, this.prioritySelect, {
+        selectFirst: true,
+        returnOptionText: true,
+      });
+    }
 
-    if (areasToBeImaged !== undefined) {
-      await this.areasToBeImagedTextarea.fill(areasToBeImaged);
+    let selectedImagingRequestType: string | undefined;
+    if (imagingRequestType) {
+      selectedImagingRequestType = await selectFieldOption(this.page, this.imagingRequestTypeSelect, {
+        optionToSelect: imagingRequestType,
+        returnOptionText: true,
+      });
+    } else {
+      selectedImagingRequestType = await selectFieldOption(this.page, this.imagingRequestTypeSelect, {
+        selectFirst: true,
+        returnOptionText: true,
+      });
+    }
+
+    let selectedAreasToBeImaged: string | undefined;
+    if (areasToBeImaged) {
+      await this.areasToBeImagedSelect.click();
+      const option = this.areasToBeImagedSelect.getByText(areasToBeImaged, { exact: true });
+      await option.waitFor({ state: 'visible', timeout: 5000 });
+      await option.click();
+      await this.areasToBeImagedSelect.click(); // Close the multiselect
+      selectedAreasToBeImaged = areasToBeImaged;
+    }
+    else {
+      await this.areasToBeImagedSelect.click();
+      await this.page.keyboard.press('Enter');
+      const textContent = await this.areasToBeImagedSelect.textContent();
+      selectedAreasToBeImaged = textContent?.trim() || undefined;
     }
 
     if (notes !== undefined) {
@@ -110,6 +143,7 @@ export class NewImagingRequestModal {
       requestingClinician: selectedRequestingClinician,
       priority: selectedPriority,
       imagingRequestType: selectedImagingRequestType,
+      areasToBeImaged: selectedAreasToBeImaged
     };
   }
 }

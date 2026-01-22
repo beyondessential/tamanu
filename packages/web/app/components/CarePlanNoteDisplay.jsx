@@ -6,6 +6,7 @@ import { MenuButton } from './MenuButton';
 import { useApi } from '../api';
 import { DateDisplay } from './DateDisplay';
 import { TranslatedText } from './Translation/TranslatedText';
+import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 
 const NoteContainer = styled.div`
   border: 1px solid ${Colors.outline};
@@ -103,6 +104,7 @@ export const CarePlanNoteDisplay = ({ note, isMainCarePlan, onEditClicked, onNot
                 action: () => {
                   onEditClicked();
                 },
+                wrapper: action => <NoteModalActionBlocker>{action}</NoteModalActionBlocker>,
               },
               ...(isMainCarePlan
                 ? []
@@ -119,6 +121,7 @@ export const CarePlanNoteDisplay = ({ note, isMainCarePlan, onEditClicked, onNot
                         await deleteNote(note.id);
                         onNoteDeleted();
                       },
+                      wrapper: action => <NoteModalActionBlocker>{action}</NoteModalActionBlocker>,
                     },
                   ]),
             ]}
