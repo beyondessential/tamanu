@@ -2,7 +2,6 @@ import { formatISO, isEqual } from 'date-fns';
 import React from 'react';
 import styled from 'styled-components';
 import { toDateString } from '@tamanu/utils/dateTime';
-import { TimeDisplay } from '@tamanu/ui-components';
 
 import { useLocationAssignmentsContext } from '../../../contexts/LocationAssignments';
 import { CarouselComponents as CarouselGrid } from '../../scheduling/locationBookings/CarouselComponents';
@@ -11,6 +10,7 @@ import { generateIdFromCell } from './utils';
 import { TranslatedReferenceData } from '../../../components';
 import { Colors } from '../../../constants';
 import { useAuth } from '../../../contexts/Auth';
+import { useDateTimeFormat } from '../../../contexts/DateTimeContext';
 
 const AssignmentTile = styled.div`
   background: ${Colors.white};
@@ -39,6 +39,7 @@ const AssignmentUser = styled.div`
 `;
 
 export const LocationAssignmentTile = ({ assignment, onClick }) => {
+  const { formatTimeCompact } = useDateTimeFormat();
   const { user, startTime, endTime } = assignment;
   const { ability } = useAuth();
   const hasReadPermission = ability?.can?.('read', 'LocationSchedule');
@@ -58,8 +59,7 @@ export const LocationAssignmentTile = ({ assignment, onClick }) => {
       data-testid="assignment-tile"
     >
       <AssignmentTimeRange data-testid="assignment-time">
-        <TimeDisplay date={startTime} style={{ textTransform: 'lowercase' }} /> -
-        <TimeDisplay date={endTime} style={{ textTransform: 'lowercase' }} />
+        {`${formatTimeCompact(startTime)} - ${formatTimeCompact(endTime)}`}
       </AssignmentTimeRange>
       <AssignmentUser data-testid="assignment-user">
         {user?.displayName || 'Unknown User'}

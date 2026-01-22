@@ -16,6 +16,7 @@ import {
   TranslatedText,
   TranslatedReferenceData,
   TranslatedEnum,
+  ReadOnlyTextField,
 } from '@tamanu/ui-components';
 import { useAuth } from '../../contexts/Auth';
 import BeakerIcon from '../../assets/images/beaker.svg';
@@ -50,6 +51,7 @@ import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetai
 import { LabAttachmentModal } from '../../components/LabAttachmentModal';
 import { ConditionalTooltip } from '../../components/Tooltip';
 import { Colors } from '../../constants';
+import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
 
 const Container = styled.div`
   display: flex;
@@ -169,6 +171,7 @@ const Menu = ({ setModal, status, disabled, canReadLabTestResult, enableLabResul
         />
       ),
       action: () => setModal(MODAL_IDS.CANCEL),
+      wrapper: action => <NoteModalActionBlocker>{action}</NoteModalActionBlocker>,
     });
   }
 
@@ -255,6 +258,7 @@ export const LabRequestView = () => {
               />
             ),
             action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
+            wrapper: action => <NoteModalActionBlocker>{action}</NoteModalActionBlocker>,
           },
         ]
       : [
@@ -267,6 +271,7 @@ export const LabRequestView = () => {
               />
             ),
             action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
+            wrapper: action => <NoteModalActionBlocker>{action}</NoteModalActionBlocker>,
           },
           {
             label: (
@@ -424,6 +429,7 @@ export const LabRequestView = () => {
                     </ConditionalTooltip>
                   ),
                   action: handleChangeStatus,
+                  wrapper: action => <NoteModalActionBlocker>{action}</NoteModalActionBlocker>,
                 },
               {
                 label: (
@@ -493,6 +499,7 @@ export const LabRequestView = () => {
                   />
                 ),
                 action: () => handleChangeModalId(MODAL_IDS.CHANGE_LABORATORY),
+                wrapper: action => <NoteModalActionBlocker>{action}</NoteModalActionBlocker>,
               },
             ]}
             data-testid="tile-eeus"
@@ -529,6 +536,7 @@ export const LabRequestView = () => {
                   />
                 ),
                 action: () => handleChangeModalId(MODAL_IDS.CHANGE_PRIORITY),
+                wrapper: action => <NoteModalActionBlocker>{action}</NoteModalActionBlocker>,
               },
             ]}
             data-testid="tile-phsp"
@@ -550,16 +558,18 @@ export const LabRequestView = () => {
             </Button>
           )}
           {canEnterResults && (
-            <Button
-              onClick={() => handleChangeModalId(MODAL_IDS.ENTER_RESULTS)}
-              data-testid="button-oep6"
-            >
-              <TranslatedText
-                stringId="lab.action.enterResults"
-                fallback="Enter results"
-                data-testid="translatedtext-veq6"
-              />
-            </Button>
+            <NoteModalActionBlocker>
+              <Button
+                onClick={() => handleChangeModalId(MODAL_IDS.ENTER_RESULTS)}
+                data-testid="button-oep6"
+              >
+                <TranslatedText
+                  stringId="lab.action.enterResults"
+                  fallback="Enter results"
+                  data-testid="translatedtext-veq6"
+                />
+              </Button>
+            </NoteModalActionBlocker>
           )}
         </TableButtonRow>
         <LabRequestResultsTable
@@ -568,6 +578,23 @@ export const LabRequestView = () => {
           refreshCount={labTestTableRefreshCount}
           data-testid="labrequestresultstable-66qv"
         />
+        {labRequest.resultsInterpretation && (
+          <Box mt={4}>
+            <ReadOnlyTextField
+              label={
+                <TranslatedText
+                  stringId="lab.resultsInterpretation.label"
+                  fallback="Results Interpretation"
+                  data-testid="translatedtext-resultsinterpretation"
+                />
+              }
+              field={{ name: 'resultsInterpretation', value: labRequest.resultsInterpretation }}
+              multiline
+              rows={6}
+              data-testid="readonlytextfield-resultsinterpretation"
+            />
+          </Box>
+        )}
       </BottomContainer>
       {modalId && (
         <ActiveModal
