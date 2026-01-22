@@ -17,7 +17,7 @@ export class PrepareDischargeModal {
     this.dischargeNoteTextarea = dialog.getByTestId('field-0uma-input');
     this.finaliseDischargeButton = dialog.getByTestId('box-p5wr');
     this.confirmButton = dialog.getByTestId('formsubmitcancelrow-il44-confirmButton');
-    this.cancelButton = this.dischargeForm.getByTestId('formconfirmcancelbackrow-xkrs').getByTestId('outlinedbutton-8rnr');
+    this.cancelButton =dialog.getByTestId('outlinedbutton-8rnr');
   }
 
   async waitForModalToLoad(): Promise<void> {

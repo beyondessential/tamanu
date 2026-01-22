@@ -726,7 +726,7 @@ import { DeleteProgramResponseModal } from '@pages/patients/PatientDetailsPage/m
     await programPane.newFormButton.click();
     const selectFormPage = new SelectFormPage(patientDetailsPage.page);
     await selectFormPage.waitForPageToLoad();
-    await selectFormPage.selectProgram('CVD Primary Screening');
+    await selectFormPage.selectProgram('NCD Primary Screening');
     await selectFormPage.selectSurvey('CVD Primary Screening Form');
     await selectFormPage.clickBeginSurvey();
     const formPage = new FormPage(patientDetailsPage.page);
