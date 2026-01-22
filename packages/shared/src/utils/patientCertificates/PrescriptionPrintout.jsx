@@ -1,18 +1,20 @@
-import { Document, StyleSheet, Text, View } from '@react-pdf/renderer';
 import React from 'react';
+
+import { Document, StyleSheet, Text, View } from '@react-pdf/renderer';
+
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 
 import { CertificateContent, CertificateHeader, Col, Signature, styles } from './Layout';
-import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithBarcode';
-import { Table } from './Table';
-import { DataSection } from './printComponents/DataSection';
-import { DataItem } from './printComponents/DataItem';
 import { LetterheadSection } from './LetterheadSection';
-import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
-import { withDateTimeContext, useDateTimeFormat } from '../pdf/withDateTimeContext';
-import { Page } from '../pdf/Page';
-import { getMedicationDoseDisplay, getTranslatedFrequency } from '../medication';
+import { Table } from './Table';
+import { DataItem } from './printComponents/DataItem';
+import { DataSection } from './printComponents/DataSection';
 import { Footer } from './printComponents/Footer';
+import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithBarcode';
+import { Page } from '../pdf/Page';
+import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
+import { useDateTimeFormat, withDateTimeContext } from '../pdf/withDateTimeContext';
+import { getMedicationDoseDisplay, getTranslatedFrequency } from '../medication';
 
 const columns = (getTranslation, getEnumTranslation) => [
   {

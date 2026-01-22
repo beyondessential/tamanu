@@ -1,26 +1,26 @@
 import React from 'react';
-import { Document, View, StyleSheet } from '@react-pdf/renderer';
+import { Document, StyleSheet, View } from '@react-pdf/renderer';
+import { get } from 'lodash';
 
-import { Table } from './Table';
 import {
-  styles,
   Box,
-  Watermark,
   CertificateHeader,
-  PageBreakPadding,
   FixedFooter,
   FixedHeader,
+  PageBreakPadding,
+  Watermark,
+  styles,
 } from './Layout';
-import { PatientDetailsSection } from './PatientDetailsSection';
-import { H3 } from './Typography';
 import { LetterheadSection } from './LetterheadSection';
+import { PatientDetailsSection } from './PatientDetailsSection';
 import { SigningSection } from './SigningSection';
-import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
-import { withDateTimeContext, useDateTimeFormat } from '../pdf/withDateTimeContext';
+import { Table } from './Table';
+import { H3 } from './Typography';
+import { useTextStyles } from './printComponents/MultiPageHeader';
 import { Page } from '../pdf/Page';
 import { Text, TextWithoutContext } from '../pdf/Text';
-import { useTextStyles } from './printComponents/MultiPageHeader';
-import { get } from 'lodash';
+import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
+import { useDateTimeFormat, withDateTimeContext } from '../pdf/withDateTimeContext';
 
 const getColumns = (getTranslation, formatShort) => [
   {

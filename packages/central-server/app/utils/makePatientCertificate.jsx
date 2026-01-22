@@ -1,9 +1,10 @@
 import React from 'react';
-import ReactPDF from '@react-pdf/renderer';
 import path from 'path';
 import QRCode from 'qrcode';
-import { get } from 'lodash';
 import config from 'config';
+import { get } from 'lodash';
+import ReactPDF from '@react-pdf/renderer';
+
 import { ASSET_FALLBACK_NAMES, ASSET_NAMES } from '@tamanu/constants';
 
 import {

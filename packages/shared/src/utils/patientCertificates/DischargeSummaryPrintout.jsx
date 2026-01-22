@@ -1,16 +1,19 @@
-import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import React from 'react';
-import { CertificateHeader, styles } from './Layout';
-import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
+import { Document, StyleSheet, View } from '@react-pdf/renderer';
+
+
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE, DRUG_ROUTE_LABELS } from '@tamanu/constants';
-import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExtended';
-import { P } from './Typography';
+
+import { CertificateHeader, styles } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
-import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
-import { withDateTimeContext } from '../pdf/withDateTimeContext';
+import { P } from './Typography';
+import { Table } from './Table';
+import { EncounterDetailsExtended } from './printComponents/EncounterDetailsExtended';
+import { PatientDetailsWithAddress } from './printComponents/PatientDetailsWithAddress';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
-import { Table } from './Table';
+import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
+import { withDateTimeContext } from '../pdf/withDateTimeContext';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '../medication';
 
 const borderStyle = '1 solid black';

@@ -1,30 +1,30 @@
-import PropTypes from 'prop-types';
 import React from 'react';
-
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
-import {
-  getName,
-  getTimeOfDeath,
-  getDateOfDeath,
-  getSex,
-  getAddress,
-  getNationality,
-  getEthnicity,
-  getClinician,
-  getVillage,
-} from '../patientAccessors';
-import { CertificateHeader, Col, Row, styles, SigningImage } from './Layout';
+import { formatDistanceStrict, milliseconds } from 'date-fns';
+import PropTypes from 'prop-types';
+
+import { CertificateHeader, Col, Row, SigningImage, styles } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
+import { P } from './Typography';
+import { DataSection } from './printComponents/DataSection';
 import { Footer } from './printComponents/Footer';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { renderDataItems } from './printComponents/renderDataItems';
-import { P } from './Typography';
-import { DataSection } from './printComponents/DataSection';
-import { withLanguageContext, useLanguageContext } from '../pdf/languageContext';
-import { withDateTimeContext, useDateTimeFormat } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
-import { formatDistanceStrict, milliseconds } from 'date-fns';
+import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
+import { useDateTimeFormat, withDateTimeContext } from '../pdf/withDateTimeContext';
+import {
+  getAddress,
+  getClinician,
+  getDateOfDeath,
+  getEthnicity,
+  getName,
+  getNationality,
+  getSex,
+  getTimeOfDeath,
+  getVillage,
+} from '../patientAccessors';
 
 const borderStyle = '1 solid black';
 const tableLabelWidth = 200;
