@@ -106,10 +106,17 @@ patientRoute.put(
 
     req.checkPermission('write', patient);
 
+    let invoiceInsurancePlanId;
+    try {
+      invoiceInsurancePlanId = body.invoiceInsurancePlanId ? JSON.parse(body.invoiceInsurancePlanId) : undefined;
+    } catch (error) {
+      throw new InvalidParameterError('Invalid invoice insurance plan id');
+    }
+
     const updatePatientBody = {
       ...body,
       facilityId,
-      invoiceInsurancePlanId: body.invoiceInsurancePlanId ? JSON.parse(body.invoiceInsurancePlanId) : undefined,
+      invoiceInsurancePlanId,
     };
     const validatedBody = validate(updatePatientSchema, updatePatientBody);
 

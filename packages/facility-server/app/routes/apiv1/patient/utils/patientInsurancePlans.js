@@ -1,49 +1,49 @@
 import { Op } from 'sequelize';
 
 export const savePatientInsurancePlans = async (PatientInvoiceInsurancePlanModel, patientId, invoiceInsurancePlanIds) => {
-  // Do not check if array is empty because user can remove all insurance plans by passing an empty array.
-  if (!invoiceInsurancePlanIds) {
+  if (invoiceInsurancePlanIds == null) {
     return;
   }
 
-  const existingInsurancePlans = await PatientInvoiceInsurancePlanModel.findAll({
+  const existingPlans = await PatientInvoiceInsurancePlanModel.findAll({
     where: { patientId },
     paranoid: false,
   });
 
-  const activeInsurancePlanIds = existingInsurancePlans.filter(plan => !plan.deletedAt).map(plan => plan.invoiceInsurancePlanId);
-  const deletedInsurancePlanIds = existingInsurancePlans.filter(plan => Boolean(plan.deletedAt)).map(plan => plan.invoiceInsurancePlanId);
+  const desiredPlanIds = new Set(invoiceInsurancePlanIds);
+  const activePlanIds = new Set();
+  const deletedPlanIds = new Set();
 
-  const insurancePlanIdsToCreate = [];
-  const insurancePlanIdsToRestore = [];
-  for (const id of invoiceInsurancePlanIds) {
-    if (!activeInsurancePlanIds.includes(id) && !deletedInsurancePlanIds.includes(id)) {
-      // If the insurance plan is not active and not deleted, it is a completely new insurance plan that should be created.
-      insurancePlanIdsToCreate.push(id);
-    } else if (deletedInsurancePlanIds.includes(id)) {
-      // If the insurance plan is deleted, it is a previously deleted insurance plan that should be restored.
-      insurancePlanIdsToRestore.push(id);
+  for (const plan of existingPlans) {
+    if (plan.deletedAt) {
+      deletedPlanIds.add(plan.invoiceInsurancePlanId);
+    } else {
+      activePlanIds.add(plan.invoiceInsurancePlanId);
     }
   }
 
-  // If the insurance plan is active and not in the list of insurance plans to create or restore, it is a previously active insurance plan that should be deleted.
-  const insurancePlanIdsToDelete = activeInsurancePlanIds.filter(id => !invoiceInsurancePlanIds.includes(id));
+  const toCreate = invoiceInsurancePlanIds.filter(id => !activePlanIds.has(id) && !deletedPlanIds.has(id));
+  const toRestore = invoiceInsurancePlanIds.filter(id => deletedPlanIds.has(id));
+  const toDelete = [...activePlanIds].filter(id => !desiredPlanIds.has(id));
 
-  if (insurancePlanIdsToCreate.length > 0) {
-    await PatientInvoiceInsurancePlanModel.bulkCreate(
-      insurancePlanIdsToCreate.map(id => ({ patientId, invoiceInsurancePlanId: id })),
-    );
+  const promises = [];
+  if (toCreate.length > 0) {
+    promises.push(PatientInvoiceInsurancePlanModel.bulkCreate(
+      toCreate.map(id => ({ patientId, invoiceInsurancePlanId: id }))
+    ));
   }
 
-  if (insurancePlanIdsToDelete.length > 0) {
-    await PatientInvoiceInsurancePlanModel.destroy({
-      where: { patientId, invoiceInsurancePlanId: { [Op.in]: insurancePlanIdsToDelete } },
-    });
+  if (toDelete.length > 0) {
+    promises.push(PatientInvoiceInsurancePlanModel.destroy({
+      where: { patientId, invoiceInsurancePlanId: { [Op.in]: toDelete } },
+    }));
   }
 
-  if (insurancePlanIdsToRestore.length > 0) {
-    await PatientInvoiceInsurancePlanModel.restore({
-      where: { patientId, invoiceInsurancePlanId: { [Op.in]: insurancePlanIdsToRestore } },
-    });
+  if (toRestore.length > 0) {
+    promises.push(PatientInvoiceInsurancePlanModel.restore({
+      where: { patientId, invoiceInsurancePlanId: { [Op.in]: toRestore } },
+    }));
   }
+
+  await Promise.all(promises);
 };
