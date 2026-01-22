@@ -12,10 +12,14 @@ import { format } from 'date-fns';
 import path from 'path';
 import { SidebarPage } from '@pages/SidebarPage'; 
 import { CHARTING_FIELD_KEYS } from '@pages/patients/ChartsPage/types';
+import { SelectFormPage } from '@pages/patients/PatientDetailsPage/pages/SelectFormPage';
+import { FormPage } from '@pages/patients/PatientDetailsPage/pages/FormPage';
+import { FormResponseModal } from '@pages/patients/PatientDetailsPage/modals/FormResponseModal';
+import { DeleteProgramResponseModal } from '@pages/patients/PatientDetailsPage/modals/DeleteProgramResponseModal';
 
 
 
-test.describe('Basic tests', () => {
+    test.describe('Basic tests', () => {
   let currentUserDisplayName: string;
 
   test.beforeAll(async ({ browser }) => {
@@ -29,7 +33,7 @@ test.describe('Basic tests', () => {
     await context.close();
   });
 
-  test('[BT-0003][AT-2001]Admit the patient to Triage without adding vitals', async ({ newPatient, patientDetailsPage }) => {
+    test('[BT-0003][AT-2001]Admit the patient to Triage without adding vitals', async ({ newPatient, patientDetailsPage }) => {
       test.setTimeout(100000);
       await patientDetailsPage.goToPatient(newPatient);
       await patientDetailsPage.admitOrCheckinButton.click();
@@ -269,8 +273,84 @@ test.describe('Basic tests', () => {
   test.skip('[BT-0011][AT-2009]check result tab', async () => {
 
   });
-  test.skip('[BT-0015][AT-2010]add a new referral and view it', async () => {});
-  test.skip('[BT-0016][AT-2011]add a new program and view it', async () => {});
+  test('[BT-0016][AT-2011]add a new program and view it', async ({ newPatient, patientDetailsPage }) => {
+    await patientDetailsPage.goToPatient(newPatient);
+    const formPane = await patientDetailsPage.navigateToFormsTab();
+    await formPane.waitForPageToLoad();
+    await formPane.newFormButton.click();
+    // Wait for navigation to select form page
+    await patientDetailsPage.page.waitForLoadState('networkidle');
+    
+    // Get the select form page and wait for it to load
+    const selectFormPage = new SelectFormPage(patientDetailsPage.page);
+    await selectFormPage.waitForPageToLoad();
+    
+    // Select program and survey
+    await selectFormPage.selectProgram('NCD Primary Screening');
+    await selectFormPage.selectSurvey('CVD Primary Screening Form');
+    await selectFormPage.clickBeginSurvey();
+    
+    // Wait for the form to load after beginning survey
+    await patientDetailsPage.page.waitForLoadState('networkidle');
+    
+    // Fill the form by selecting first option for all questions and navigating through screens
+    // Save the values that were entered
+    const formPage = new FormPage(patientDetailsPage.page);
+    const enteredValues = await formPage.fillFormWithFirstOptions();
+    
+    // Verify the form was submitted and we're back to the forms tab
+    await patientDetailsPage.page.waitForLoadState('networkidle');
+    await formPane.waitForPageToLoad();
+    
+    // Verify the form appears in the forms list
+    const formsList = await getTableItems(formPane.page, 1, 'programName');
+    expect(formsList[0]).toBe('NCD Primary Screening');
+    
+    // Click on the submitted form to view its response
+    await formPane.tableRows.first().click();
+    
+    // Wait for the form response modal to open
+    const formResponseModal = new FormResponseModal(patientDetailsPage.page);
+    await formResponseModal.waitForModalToLoad();
+    
+    // Get the form response values from the modal
+    const formResponseValues = await formResponseModal.getFormResponseValues();
+    
+    // Verify that the modal contains form response data
+    expect(formResponseValues.length).toBeGreaterThan(0);
+    
+    // Validate entered values against form response values
+    // Strategy 3: Match by answer value only (question labels may differ)
+    const responseValues = new Set<string>();
+    
+    for (const row of formResponseValues) {
+      if (row.value) {
+        responseValues.add(row.value.trim().toLowerCase());
+      }
+    }
+    
+    // Check that entered answer values appear in the response
+    let matchedCount = 0;
+    for (const entered of enteredValues) {
+      if (entered.answer) {
+        const answerKey = entered.answer.trim().toLowerCase();
+        
+        // Match by answer value only - check if answer exists in response values
+        const found = Array.from(responseValues).some(v => v.includes(answerKey) || answerKey.includes(v));
+        if (found) {
+          matchedCount++;
+        }
+      }
+    }
+    
+    // Verify that at least some of our entered values were found in the response
+    expect(enteredValues.length).toBeGreaterThan(0);
+    expect(formResponseValues.length).toBeGreaterThan(0);
+    expect(matchedCount).toBe(enteredValues.length);
+    
+    // Close the modal
+    await formResponseModal.close();
+  });
   test('[BT-0018][AT-2012]admit the patient to hospital', async ({ newPatient, patientDetailsPage }) => {
     await patientDetailsPage.goToPatient(newPatient);
     const formValues = await patientDetailsPage.admitToHospital();
@@ -486,7 +566,7 @@ test.describe('Basic tests', () => {
 
   });
   test('[BT-0027][AT-2021] Delete a task', async ({newPatientWithHospitalAdmission, patientDetailsPage}) => {
-    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
+      await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
     await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
     const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
     await latestEncounter.click();
@@ -547,6 +627,71 @@ test.describe('Basic tests', () => {
     const chartValues = await chartsPane.getLatestValuesFromChartsTable(chartsPane.page, CHARTING_FIELD_KEYS);
     expect(chartValues).toEqual(formValues);
   });
+  test('[BT-0030][AT-2023] Record death on patient via UI', async ({
+    newPatient,
+    patientDetailsPage,
+  }) => {
+    await patientDetailsPage.goToPatient(newPatient);
+    await patientDetailsPage.page.waitForLoadState('networkidle');
+
+    // Step 1: Click "Record death" link
+    await patientDetailsPage.clickRecordDeath();
+
+    // Step 2: Get death modal page object and wait for it to load
+    const deathModal = patientDetailsPage.getDeathModal();
+    await deathModal.waitForModalToLoad();
+    await expect(deathModal.deathForm).toBeVisible();
+
+    // Step 3: Use "Save and close" for partial workflow (only requires timeOfDeath and clinicianId)
+    // These fields are typically pre-filled, so we can proceed directly
+    await deathModal.clickSaveAndClose();
+    await deathModal.confirmOnSummaryScreen();
+
+    // Step 5: Wait for modal to close and page to reload
+    await deathModal.waitForModalToClose();
+    await expect(deathModal.deathForm).not.toBeVisible();
+    await patientDetailsPage.page.waitForLoadState('networkidle');
+
+    // Step 6: Verify "Revert death record" link appears
+    await patientDetailsPage.waitForRevertDeathLink();
+    await expect(patientDetailsPage.revertDeathLink).toBeVisible();
+  });
+  test('[BT-0026][AT-2024] Discharge a patient', async ({
+    newPatientWithHospitalAdmission,
+    patientDetailsPage,
+  }) => {
+    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
+    await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
+    const latestEncounter = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
+    await latestEncounter.click();
+
+    // Step 1: Click "Prepare discharge" button
+    await expect(patientDetailsPage.prepareDischargeButton).toBeVisible();
+    await patientDetailsPage.prepareDischargeButton.click();
+
+    // Step 2: Get prepare discharge modal and wait for it to load
+    const prepareDischargeModal = patientDetailsPage.getPrepareDischargeModal();
+    await prepareDischargeModal.waitForModalToLoad();
+
+    // Step 3: Fill discharge note
+    const dischargeNote = 'Patient discharged after successful treatment. Follow-up appointment scheduled.';
+    await prepareDischargeModal.dischargeNoteTextarea.fill(dischargeNote);
+
+    // Step 4: Confirm discharge
+    await prepareDischargeModal.finaliseDischargeButton.click();
+    prepareDischargeModal.confirmButton.click();
+
+
+    // Step 5: Wait for modal to close and page to reload
+    await prepareDischargeModal.waitForModalToClose();
+    
+    const encounterValues = await patientDetailsPage.encounterHistoryPane.getLatestEncounterValues();
+    expect(encounterValues.startDate).not.toContain('Current');
+    expect(encounterValues.startDate).toMatch(/\d{2}\/\d{2}\/\d{4} – \d{2}\/\d{2}\/\d{4}/);
+    const latestEncounter2 = await patientDetailsPage.encounterHistoryPane.getLatestEncounter();
+    await latestEncounter2.click();
+    await expect(patientDetailsPage.prepareDischargeButton).not.toBeVisible();
+  });
   test('[BT-0015][AT-2010] Add a new referral', async ({newPatient, patientDetailsPage}) => {
     await patientDetailsPage.goToPatient(newPatient);
     const referralPane = await patientDetailsPage.navigateToReferralsTab();
@@ -574,4 +719,30 @@ test.describe('Basic tests', () => {
     const referralStatus = await getTableItems(referralPane.page, 1, 'status');
     expect(referralStatus[0]).toBe('Pending');
   });
-});
+  test('[BT-0034][AT-2025] delete a added program response', async ({newPatient, patientDetailsPage}) => {
+    await patientDetailsPage.goToPatient(newPatient);
+    const programPane = await patientDetailsPage.navigateToFormsTab();
+    await programPane.waitForPageToLoad();
+    await programPane.newFormButton.click();
+    const selectFormPage = new SelectFormPage(patientDetailsPage.page);
+    await selectFormPage.waitForPageToLoad();
+    await selectFormPage.selectProgram('CVD Primary Screening');
+    await selectFormPage.selectSurvey('CVD Primary Screening Form');
+    await selectFormPage.clickBeginSurvey();
+    const formPage = new FormPage(patientDetailsPage.page);
+   await formPage.fillFormWithFirstOptions();
+    await formPage.submitButton.click();
+    await programPane.waitForPageToLoad();
+    const programList = await getTableItems(programPane.page, 1, 'programName');
+    expect(programList[0]).toBe('NCD Primary Screening');
+    const formList = await getTableItems(programPane.page, 1, 'surveyName');
+    expect(formList[0]).toBe('CVD Primary Screening Form'); 
+    await programPane.actionMenuButton.click();
+    await programPane.deleteButton.click();
+    const deleteProgramResponseModal = new DeleteProgramResponseModal(patientDetailsPage.page);
+    await deleteProgramResponseModal.waitForModalToLoad();
+    await deleteProgramResponseModal.confirmButton.click();
+    await programPane.waitForPageToLoad();
+    await expect(programPane.tableRows.first()).toHaveText('No program responses found');
+  });
+    });

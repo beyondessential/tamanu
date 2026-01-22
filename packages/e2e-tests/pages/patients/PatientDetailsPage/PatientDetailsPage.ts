@@ -22,6 +22,8 @@ import { DocumentsPane } from './panes/DocumentsPane';
 import { TasksPane } from '../TaskPage/panes/TasksPane';
 import { ChartsPane } from '../ChartsPage/panes/ChartsPane';
 import { ReferralPane } from './panes/ReferralPane';
+import { FormPane } from './panes/FormPane';
+import { DeathModal } from './modals/DeathModal';
 
 export class PatientDetailsPage extends BasePatientPage {
   readonly prepareDischargeButton: Locator;
@@ -41,6 +43,7 @@ export class PatientDetailsPage extends BasePatientPage {
   tasksPane?: TasksPane;
   chartsPane?: ChartsPane;
   referralPane?: ReferralPane;
+  formPane?: FormPane;
   arrowDownIconMenuButton: Locator;
 
   private _encounterHistoryPane?: EncounterHistoryPane;
@@ -104,6 +107,7 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly tasksTab: Locator;
   readonly chartsTab: Locator;
   readonly referralsTab: Locator;
+  readonly formsTab: Locator;
   readonly encountersList: Locator;
   readonly departmentLabel: Locator;
   readonly admitOrCheckinButton: Locator;
@@ -114,7 +118,10 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly diagnosisContainer: Locator;
   readonly diagnosisCategory: Locator;
   readonly diagnosisName: Locator;
+  readonly recordDeathLink: Locator;
+  readonly revertDeathLink: Locator;
   labRequestPane?: LabRequestPane;
+  private _deathModal?: DeathModal;
   constructor(page: Page) {
     super(page);
     this.prepareDischargeButton = this.page.getByTestId('mainbuttoncomponent-06gp');
@@ -263,6 +270,7 @@ export class PatientDetailsPage extends BasePatientPage {
     this.tasksTab = this.page.getByTestId('styledtab-ccs8-tasks');
     this.chartsTab = this.page.getByTestId('styledtab-ccs8-charts');
     this.referralsTab = this.page.getByTestId('tab-referrals');
+    this.formsTab = this.page.getByTestId('tab-programs');
     this.encounterMedicationTab = this.page.getByTestId('styledtab-ccs8-medication');
     this.encountersList=this.page.getByTestId('styledtablebody-a0jz').locator('tr');
     this.departmentLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Department' }).locator('..').getByTestId('cardvalue-1v8z');
@@ -275,6 +283,8 @@ export class PatientDetailsPage extends BasePatientPage {
     this.diagnosisContainer=this.page.getByTestId('diagnosislistcontainer-dqkk');
     this.diagnosisCategory=this.page.getByTestId('category-vwwx');
     this.diagnosisName=this.page.getByTestId('diagnosisname-vvn4');
+    this.recordDeathLink=this.page.getByTestId('typographylink-6nzn');
+    this.revertDeathLink=this.page.getByTestId('typographylink-6nzn');
   }
 
   async navigateToVaccineTab(): Promise<PatientVaccinePane> {
@@ -358,6 +368,13 @@ export class PatientDetailsPage extends BasePatientPage {
     return this.referralPane;
   }
 
+  async navigateToFormsTab(): Promise<FormPane> {
+    await this.formsTab.click();
+    if (!this.formPane) {
+      this.formPane = new FormPane(this.page);
+    }
+    return this.formPane;
+  }
 
   async navigateToImagingRequestTab(): Promise<void> {
     await this.encountersList.first().waitFor({ state: 'visible' });
@@ -617,5 +634,21 @@ export class PatientDetailsPage extends BasePatientPage {
     const formValues = await hospitalAdmissionModal.fillHospitalAdmissionForm();
     await hospitalAdmissionModal.confirmButton.click();
     return formValues;
+  }
+
+  async clickRecordDeath(): Promise<void> {
+    await this.recordDeathLink.waitFor({ state: 'visible' });
+    await this.recordDeathLink.click();
+  }
+
+  getDeathModal(): DeathModal {
+    if (!this._deathModal) {
+      this._deathModal = new DeathModal(this.page);
+    }
+    return this._deathModal;
+  }
+
+  async waitForRevertDeathLink(): Promise<void> {
+    await this.revertDeathLink.waitFor({ state: 'visible'});
   }
 }
