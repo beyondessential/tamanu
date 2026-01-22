@@ -14,16 +14,21 @@ import {
   ADMINISTRATION_STATUS,
   DRUG_ROUTES,
   DRUG_UNITS,
+  ENCOUNTER_TYPES,
+  MAX_REPEATS,
   MEDICATION_DURATION_UNITS,
   MEDICATION_PAUSE_DURATION_UNITS_LABELS,
   NOTE_RECORD_TYPES,
   NOTE_TYPES,
   REFERENCE_TYPES,
+  DRUG_STOCK_STATUSES,
   SYSTEM_USER_UUID,
+  PHARMACY_PRESCRIPTION_TYPES,
 } from '@tamanu/constants';
-import { add, format, isAfter, isEqual } from 'date-fns';
-import { Op, QueryTypes } from 'sequelize';
+import { add, format, isAfter, isBefore, isEqual } from 'date-fns';
+import { Op, QueryTypes, Sequelize } from 'sequelize';
 import { validate } from '../../utils/validate';
+import { mapQueryFilters } from '../../database/utils';
 
 export const medication = express.Router();
 
@@ -35,34 +40,6 @@ const checkSensitiveMedicationPermission = async (medicationIds, req, action) =>
     req.checkPermission(action, 'SensitiveMedication');
   }
 };
-
-medication.get(
-  '/:id',
-  asyncHandler(async (req, res) => {
-    const { models, params, query } = req;
-    const { Prescription } = models;
-
-    req.checkPermission('read', 'Medication');
-    const object = await Prescription.findByPk(params.id, {
-      include: Prescription.getFullReferenceAssociations(),
-    });
-
-    await checkSensitiveMedicationPermission([object.medicationId], req, 'read');
-
-    if (!object) throw new NotFoundError();
-
-    if (object) {
-      await req.audit.access({
-        recordId: object.id,
-        frontEndContext: params,
-        model: Prescription,
-        facilityId: query.facilityId,
-      });
-    }
-
-    res.send(object);
-  }),
-);
 
 const medicationInputSchema = z
   .object({
@@ -86,6 +63,7 @@ const medicationInputSchema = z
     durationUnit: z.enum(Object.values(MEDICATION_DURATION_UNITS)).optional().nullable(),
     isPhoneOrder: z.boolean().optional(),
     idealTimes: z.array(z.string()).optional().nullable(),
+    repeats: z.coerce.number().int().min(0).max(MAX_REPEATS).optional().nullable(),
   })
   .strip()
   .superRefine((val, ctx) => {
@@ -254,7 +232,15 @@ medication.post(
 const importOngoingMedicationsSchema = z
   .object({
     encounterId: z.uuid({ message: 'Valid encounter ID is required' }),
-    prescriptionIds: z.array(z.uuid({ message: 'Valid prescription ID is required' })),
+    medications: z
+      .array(
+        z.object({
+          prescriptionId: z.uuid({ message: 'Valid prescription ID is required' }),
+          quantity: z.number(),
+          repeats: z.number().optional(),
+        }),
+      )
+      .optional(),
     prescriberId: z.string(),
   })
   .strip();
@@ -265,12 +251,14 @@ medication.post(
     const { models, db } = req;
     const { Encounter, Prescription, PatientOngoingPrescription } = models;
 
-    const { prescriptionIds, prescriberId, encounterId } = validate(
+    const { medications, prescriberId, encounterId } = validate(
       importOngoingMedicationsSchema,
       req.body,
     );
 
     req.checkPermission('create', 'Medication');
+
+    const prescriptionIds = medications.map(m => m.prescriptionId);
 
     const encounter = await Encounter.findByPk(encounterId);
     if (!encounter) {
@@ -317,6 +305,9 @@ medication.post(
       const newPrescriptions = [];
 
       for (const prescription of importPrescriptions) {
+        // Find the corresponding medication data with quantity and repeats
+        const { quantity, repeats } = medications.find(m => m.prescriptionId === prescription.id);
+
         const newPrescription = await createEncounterPrescription({
           encounter,
           data: {
@@ -326,6 +317,9 @@ medication.post(
             prescriberId,
             date: getCurrentDateTimeString(),
             startDate: getCurrentDateTimeString(),
+            // Override quantity and repeats if provided
+            quantity,
+            repeats,
           },
           models,
         });
@@ -343,6 +337,260 @@ medication.post(
   }),
 );
 
+const sendOngoingToPharmacySchema = z
+  .object({
+    patientId: z.string().uuid({ message: 'Valid patient ID is required' }),
+    orderingClinicianId: z.string().uuid({ message: 'Valid ordering clinician ID is required' }),
+    comments: z.string().optional().nullable(),
+    facilityId: z.string({ message: 'Valid facility ID is required' }),
+    prescriptions: z.array(
+      z.object({
+        prescriptionId: z.string().uuid({ message: 'Valid prescription ID is required' }),
+        quantity: z.number().int().positive({ message: 'Quantity must be a positive integer' }),
+        repeats: z.number().int().min(0).max(MAX_REPEATS).optional().nullable(),
+      }),
+    ),
+  })
+  .strip();
+
+/**
+ * Send ongoing medications to pharmacy with automatic encounter creation.
+ * This endpoint creates a new encounter and pharmacy order for ongoing medications
+ * when the patient does not have an active encounter.
+ */
+medication.post(
+  '/send-ongoing-to-pharmacy',
+  asyncHandler(async (req, res) => {
+    const { models, db, settings } = req;
+    const {
+      Encounter,
+      Prescription,
+      PatientOngoingPrescription,
+      EncounterPrescription,
+      PharmacyOrder,
+      PharmacyOrderPrescription,
+      Location,
+      Department,
+    } = models;
+
+    const { patientId, orderingClinicianId, comments, facilityId, prescriptions } = validate(
+      sendOngoingToPharmacySchema,
+      req.body,
+    );
+
+    req.checkPermission('create', 'Encounter');
+    req.checkPermission('create', 'Medication');
+    req.checkPermission('create', 'MedicationRequest');
+    req.checkPermission('read', 'Medication');
+
+    // Check if patient has an active encounter
+    const activeEncounter = await Encounter.findOne({
+      where: {
+        patientId,
+        endDate: null,
+      },
+    });
+
+    if (activeEncounter) {
+      throw new InvalidOperationError(
+        'Cannot send to pharmacy from ongoing medications while patient has an active encounter. Please use the encounter medication workflow instead.',
+      );
+    }
+
+    // Check if user can edit repeats (write Medication permission)
+    const canEditRepeats = req.ability.can('write', 'Medication');
+
+    const prescriptionIds = prescriptions.map(p => p.prescriptionId);
+
+    // Fetch the ongoing prescriptions
+    const ongoingPrescriptions = await Prescription.findAll({
+      where: {
+        id: { [Op.in]: prescriptionIds },
+        discontinued: { [Op.not]: true },
+      },
+      include: [
+        {
+          model: PatientOngoingPrescription,
+          as: 'patientOngoingPrescription',
+          where: { patientId },
+        },
+        ...Prescription.getListReferenceAssociations(),
+      ],
+    });
+
+    if (ongoingPrescriptions.length !== prescriptionIds.length) {
+      const foundIds = new Set(ongoingPrescriptions.map(p => p.id));
+      const missingIds = prescriptionIds.filter(id => !foundIds.has(id));
+      throw new InvalidOperationError(
+        `Prescription(s) with id(s) ${missingIds.join(
+          ', ',
+        )} not found, have been discontinued, or do not belong to this patient.`,
+      );
+    }
+
+    // Check sensitive medication permission
+    await checkSensitiveMedicationPermission(
+      ongoingPrescriptions.map(prescription => prescription.medicationId),
+      req,
+      'read',
+    );
+
+    // Validate repeats for each prescription
+    const prescriptionMap = new Map(prescriptions.map(p => [p.prescriptionId, p]));
+
+    for (const prescription of ongoingPrescriptions) {
+      const requestData = prescriptionMap.get(prescription.id);
+      const currentRepeats = prescription.repeats ?? 0;
+
+      // If user doesn't have write Medication permission, they can't send medications with 0 repeats
+      if (!canEditRepeats && currentRepeats === 0) {
+        throw new InvalidOperationError(
+          `Cannot send medication "${prescription.medication?.name || prescription.id}" to pharmacy - no repeats remaining. You do not have permission to modify repeats.`,
+        );
+      }
+
+      // If user is trying to set repeats different from current and doesn't have permission
+      if (
+        !canEditRepeats &&
+        requestData.repeats !== undefined &&
+        requestData.repeats !== currentRepeats
+      ) {
+        throw new InvalidOperationError('You do not have permission to modify medication repeats.');
+      }
+    }
+
+    // Get settings for automatic encounter location and department
+    const facilitySettings = settings[facilityId];
+    const automaticEncounterLocationId = await facilitySettings?.get(
+      'medications.medicationDispensing.automaticEncounterLocationId',
+    );
+    const automaticEncounterDepartmentId = await facilitySettings?.get(
+      'medications.medicationDispensing.automaticEncounterDepartmentId',
+    );
+
+    // Both location and department are required for creating an encounter
+    if (!automaticEncounterLocationId) {
+      throw new InvalidOperationError(
+        'Cannot send ongoing medications to pharmacy: No automatic encounter location has been configured. Please configure "medications.medicationDispensing.automaticEncounterLocationId" in facility settings.',
+      );
+    }
+
+    if (!automaticEncounterDepartmentId) {
+      throw new InvalidOperationError(
+        'Cannot send ongoing medications to pharmacy: No automatic encounter department has been configured. Please configure "medications.medicationDispensing.automaticEncounterDepartmentId" in facility settings.',
+      );
+    }
+
+    // Validate location exists
+    const location = await Location.findByPk(automaticEncounterLocationId);
+    if (!location) {
+      throw new InvalidOperationError(
+        `Configured automatic encounter location (${automaticEncounterLocationId}) not found. Please update the facility settings.`,
+      );
+    }
+
+    // Validate department exists
+    const department = await Department.findByPk(automaticEncounterDepartmentId);
+    if (!department) {
+      throw new InvalidOperationError(
+        `Configured automatic encounter department (${automaticEncounterDepartmentId}) not found. Please update the facility settings.`,
+      );
+    }
+
+    const currentDateTime = getCurrentDateTimeString();
+
+    const result = await db.transaction(async transaction => {
+      // Create the automatic encounter
+      const encounter = await Encounter.create(
+        {
+          patientId,
+          encounterType: ENCOUNTER_TYPES.CLINIC,
+          startDate: currentDateTime,
+          endDate: currentDateTime,
+          reasonForEncounter: 'Medication dispensing',
+          examinerId: orderingClinicianId,
+          dischargerId: orderingClinicianId,
+          locationId: automaticEncounterLocationId,
+          departmentId: automaticEncounterDepartmentId,
+        },
+        { transaction },
+      );
+
+      // Create new prescriptions for this encounter based on the original ongoing prescriptions
+      const newPrescriptions = [];
+      for (const originalPrescription of ongoingPrescriptions) {
+        const requestData = prescriptionMap.get(originalPrescription.id);
+
+        // Create a new prescription with the original details but updated quantity and repeats
+        const newPrescription = await Prescription.create(
+          {
+            ...originalPrescription.dataValues,
+            id: undefined, // Generate a new ID to avoid duplicate key constraint violation
+            date: currentDateTime,
+            startDate: currentDateTime,
+            quantity: requestData.quantity,
+            repeats: requestData.repeats ?? originalPrescription.repeats ?? 0,
+            prescriberId: orderingClinicianId,
+          },
+          { transaction },
+        );
+
+        // Link prescription to encounter
+        await EncounterPrescription.create(
+          {
+            encounterId: encounter.id,
+            prescriptionId: newPrescription.id,
+            isSelectedForDischarge: true,
+          },
+          { transaction },
+        );
+
+        newPrescriptions.push(newPrescription);
+      }
+
+      // Create pharmacy order
+      const pharmacyOrder = await PharmacyOrder.create(
+        {
+          orderingClinicianId,
+          encounterId: encounter.id,
+          comments,
+          isDischargePrescription: true, // Always outpatient/discharge for ongoing medications
+          date: currentDateTime,
+          facilityId,
+        },
+        { transaction },
+      );
+
+      // Create pharmacy order prescriptions
+      await PharmacyOrderPrescription.bulkCreate(
+        newPrescriptions.map((prescription, index) => {
+          const originalPrescription = ongoingPrescriptions[index];
+          const requestData = prescriptionMap.get(originalPrescription.id);
+          return {
+            pharmacyOrderId: pharmacyOrder.id,
+            prescriptionId: prescription.id,
+            quantity: requestData.quantity,
+            repeats: requestData.repeats ?? originalPrescription.repeats ?? 0,
+          };
+        }),
+        { transaction },
+      );
+
+      return {
+        encounter,
+        pharmacyOrder,
+        prescriptions: newPrescriptions,
+      };
+    });
+
+    res.send({
+      encounterId: result.encounter.id,
+      pharmacyOrderId: result.pharmacyOrder.id,
+      prescriptionCount: result.prescriptions.length,
+    });
+  }),
+);
+
 const updatePharmacyNotesInputSchema = z
   .object({
     pharmacyNotes: z
@@ -351,23 +599,27 @@ const updatePharmacyNotesInputSchema = z
       .nullable()
       .transform(v => (!v ? null : v)),
     displayPharmacyNotesInMar: z.boolean().optional(),
+    repeats: z.number().int().min(0).max(MAX_REPEATS).optional().nullable(),
   })
   .strip();
 medication.put(
-  '/:id/pharmacy-notes',
+  '/:id/details',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const { Prescription } = models;
 
-    const { pharmacyNotes, displayPharmacyNotesInMar } =
+    const { pharmacyNotes, displayPharmacyNotesInMar, repeats } =
       await updatePharmacyNotesInputSchema.parseAsync(req.body);
 
     req.checkPermission('write', 'Medication');
-    req.checkPermission('create', 'MedicationPharmacyNote');
 
     const prescription = await Prescription.findByPk(params.id);
     if (!prescription) {
       throw new InvalidOperationError(`Prescription with id ${params.id} not found`);
+    }
+
+    if (pharmacyNotes && !prescription.pharmacyNotes) {
+      req.checkPermission('create', 'MedicationPharmacyNote');
     }
 
     if (prescription.pharmacyNotes && prescription.pharmacyNotes !== pharmacyNotes) {
@@ -378,6 +630,9 @@ medication.put(
 
     prescription.pharmacyNotes = pharmacyNotes;
     prescription.displayPharmacyNotesInMar = displayPharmacyNotesInMar;
+    if (repeats !== undefined) {
+      prescription.repeats = repeats;
+    }
     await prescription.save();
     res.send(prescription.forResponse());
   }),
@@ -1434,5 +1689,888 @@ medication.get(
     }));
 
     res.send(transformedResults);
+  }),
+);
+
+const caseInsensitiveStartsWithFilter = (fieldName, _operator, value) => ({
+  [fieldName]: {
+    [Op.iLike]: `${value}%`,
+  },
+});
+
+const caseInsensitiveFilter = (fieldName, _operator, value) => ({
+  [fieldName]: {
+    [Op.iLike]: `%${value}%`,
+  },
+});
+
+medication.get(
+  '/medication-requests',
+  asyncHandler(async (req, res) => {
+    const { models, query } = req;
+    const {
+      order = 'DESC',
+      orderBy = 'pharmacyOrder.date',
+      rowsPerPage = 10,
+      page = 0,
+      facilityId,
+      ...filterParams
+    } = query;
+
+    req.checkPermission('read', 'MedicationRequest');
+
+    const canViewSensitiveMedications = req.ability.can('read', 'SensitiveMedication');
+
+    const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+
+    // Patient filters
+    const patientFilters = mapQueryFilters(filterParams, [
+      { key: 'firstName', mapFn: caseInsensitiveStartsWithFilter },
+      { key: 'lastName', mapFn: caseInsensitiveStartsWithFilter },
+      { key: 'displayId', mapFn: caseInsensitiveFilter },
+    ]);
+    // Patient association
+    const patient = {
+      association: 'patient',
+      where: patientFilters,
+      attributes: ['displayId', 'firstName', 'lastName', 'id'],
+    };
+
+    const locationGroupFilters = mapQueryFilters(filterParams, [
+      { key: 'locationGroupId', alias: 'id', operator: Op.eq },
+    ]);
+    const locationGroup = {
+      association: 'locationGroup',
+      where: locationGroupFilters,
+      attributes: ['id', 'code', 'name'],
+    };
+
+    // Location filters
+    const locationFilters = mapQueryFilters(filterParams, [
+      { key: 'locationId', alias: 'id', operator: Op.eq },
+    ]);
+    const location = {
+      association: 'location',
+      where: locationFilters,
+      include: [locationGroup],
+      attributes: ['id', 'code', 'name', 'locationGroupId'],
+      required: true,
+    };
+
+    // Encounter association
+    const encounter = {
+      association: 'encounter',
+      include: [patient, location],
+      attributes: ['id', 'endDate'],
+      required: true,
+    };
+
+    // PharmacyOrder filters
+    const pharmacyOrderFilters = mapQueryFilters(filterParams, [
+      {
+        key: 'date',
+        mapFn: (fieldName, _operator, value) => {
+          const startOfDay = `${value} 00:00:00`;
+          const endOfDay = `${value} 23:59:59`;
+          return { [fieldName]: { [Op.between]: [startOfDay, endOfDay] } };
+        },
+      },
+      {
+        key: 'prescriptionType',
+        mapFn: (_fieldName, _operator, value) =>
+          value === PHARMACY_PRESCRIPTION_TYPES.INPATIENT
+            ? { isDischargePrescription: { [Op.ne]: true } }
+            : { isDischargePrescription: { [Op.eq]: true } },
+      },
+    ]);
+
+    // Prescription filters
+    const prescriptionFilters = mapQueryFilters(filterParams, [
+      { key: 'medicationId', operator: Op.eq },
+      { key: 'prescriberId', operator: Op.eq },
+    ]);
+
+    const rootFilter = mapQueryFilters(filterParams, [
+      {
+        key: 'stockStatus',
+        mapFn: (_fieldName, _operator, value) =>
+          Sequelize.where(
+            Sequelize.fn(
+              'COALESCE',
+              Sequelize.col('prescription.medication.referenceDrug.facilities.stock_status'),
+              DRUG_STOCK_STATUSES.UNKNOWN,
+            ),
+            value,
+          ),
+      },
+    ]);
+
+    const buildOrder = () => {
+      if (orderBy === 'stockStatus') {
+        return [
+          [
+            Sequelize.fn(
+              'COALESCE',
+              Sequelize.col('prescription.medication.referenceDrug.facilities.stock_status'),
+              DRUG_STOCK_STATUSES.UNKNOWN,
+            ),
+            orderDirection,
+          ],
+          // stable tiebreaker
+          ['pharmacyOrder', 'date', 'DESC'],
+        ];
+      }
+
+      return [
+        [...orderBy.split('.'), orderDirection],
+        ['pharmacyOrder', 'date', 'DESC'],
+      ];
+    };
+
+    // Query PharmacyOrderPrescription with all associations
+    const databaseResponse = await models.PharmacyOrderPrescription.findAndCountAll({
+      include: [
+        {
+          association: 'pharmacyOrder',
+          where: { ...pharmacyOrderFilters, facilityId },
+          include: [encounter],
+          required: true,
+          attributes: ['id', 'date', 'facilityId', 'encounterId', 'isDischargePrescription'],
+        },
+        {
+          association: 'prescription',
+          where: prescriptionFilters,
+          attributes: ['id'],
+          include: [
+            {
+              association: 'medication',
+              attributes: ['id', 'name', 'type'],
+              required: true,
+              include: {
+                model: models.ReferenceDrug,
+                as: 'referenceDrug',
+                attributes: ['id', 'isSensitive'],
+                required: true,
+                include: {
+                  model: models.ReferenceDrugFacility,
+                  as: 'facilities',
+                  attributes: ['id', 'quantity', 'facilityId', 'stockStatus'],
+                  where: {
+                    facilityId,
+                  },
+                  required: false,
+                },
+              },
+            },
+            {
+              association: 'prescriber',
+              attributes: ['id', 'displayName'],
+            },
+          ],
+          required: true,
+        },
+      ],
+      where: {
+        [Op.and]: [
+          ...(rootFilter[Op.and] || []),
+          ...(!canViewSensitiveMedications
+            ? [
+                {
+                  '$prescription.medication.referenceDrug.is_sensitive$': false,
+                },
+              ]
+            : []),
+          { isCompleted: false },
+          Sequelize.where(Sequelize.col('prescription.medication.referenceDrug.id'), {
+            [Op.notIn]: Sequelize.literal(`(
+                SELECT reference_drug_id
+                FROM reference_drug_facilities
+                WHERE facility_id = :facilityId
+                AND stock_status = :stockStatus
+              )`),
+          }),
+        ],
+      },
+      order: buildOrder(),
+      limit: rowsPerPage,
+      offset: page * rowsPerPage,
+      distinct: true,
+      subQuery: false,
+      replacements: {
+        facilityId,
+        stockStatus: DRUG_STOCK_STATUSES.UNAVAILABLE,
+      },
+    });
+
+    const { count, rows: data } = databaseResponse;
+
+    res.send({
+      count,
+      data,
+    });
+  }),
+);
+
+medication.delete(
+  '/medication-requests/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { PharmacyOrderPrescription } = models;
+
+    req.checkPermission('delete', 'MedicationRequest');
+    req.checkPermission('delete', 'MedicationDispense');
+
+    const pharmacyOrderPrescription = await PharmacyOrderPrescription.findByPk(params.id, {
+      include: [
+        {
+          association: 'prescription',
+          attributes: ['medicationId'],
+          required: true,
+        },
+      ],
+    });
+
+    if (!pharmacyOrderPrescription) {
+      throw new NotFoundError(`Medication request with id ${params.id} not found`);
+    }
+
+    await pharmacyOrderPrescription.destroy();
+
+    res.send({ success: true });
+  }),
+);
+
+medication.get(
+  '/medication-dispenses',
+  asyncHandler(async (req, res) => {
+    const { models, query } = req;
+    const {
+      order = 'DESC',
+      orderBy = 'dispensedAt',
+      rowsPerPage = 10,
+      page = 0,
+      facilityId,
+      ...filterParams
+    } = query;
+
+    req.checkPermission('read', 'MedicationDispense');
+
+    const canViewSensitiveMedications = req.ability.can('read', 'SensitiveMedication');
+
+    const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+
+    // Patient filters
+    const patientFilters = mapQueryFilters(filterParams, [
+      { key: 'firstName', mapFn: caseInsensitiveStartsWithFilter },
+      { key: 'lastName', mapFn: caseInsensitiveStartsWithFilter },
+      { key: 'displayId', mapFn: caseInsensitiveFilter },
+    ]);
+    // Patient association
+    const patient = {
+      association: 'patient',
+      where: patientFilters,
+      attributes: ['displayId', 'firstName', 'lastName', 'id'],
+    };
+
+    // Encounter association
+    const encounter = {
+      association: 'encounter',
+      include: [patient],
+      attributes: ['id', 'endDate'],
+      required: true,
+    };
+
+    // Prescription filters
+    const prescriptionFilters = mapQueryFilters(filterParams, [
+      { key: 'medicationId', operator: Op.eq },
+    ]);
+
+    const pharmacyOrderPrescriptionFilters = mapQueryFilters(filterParams, [
+      {
+        key: 'requestNumber',
+        mapFn: (_fieldName, operator, value) => caseInsensitiveFilter('displayId', operator, value),
+      },
+    ]);
+
+    const rootFilter = mapQueryFilters(filterParams, [
+      {
+        key: 'dispensedAt',
+        mapFn: (fieldName, _operator, value) => {
+          const startOfDay = `${value} 00:00:00`;
+          const endOfDay = `${value} 23:59:59`;
+          return { [fieldName]: { [Op.between]: [startOfDay, endOfDay] } };
+        },
+      },
+      { key: 'dispensedByUserId', operator: Op.eq },
+    ]);
+
+    // Query MedicationDispense with all associations
+    const databaseResponse = await models.MedicationDispense.findAndCountAll({
+      include: [
+        {
+          association: 'pharmacyOrderPrescription',
+          where: pharmacyOrderPrescriptionFilters,
+          required: true,
+          attributes: ['id', 'prescriptionId', 'displayId', 'quantity', 'repeats'],
+          include: [
+            {
+              association: 'pharmacyOrder',
+              where: { facilityId },
+              include: [encounter],
+              required: true,
+              attributes: ['id', 'facilityId', 'encounterId', 'isDischargePrescription'],
+            },
+            {
+              association: 'prescription',
+              where: prescriptionFilters,
+              attributes: ['id', 'date', 'units'],
+              include: [
+                {
+                  association: 'medication',
+                  attributes: ['id', 'name', 'type'],
+                  required: true,
+                  include: {
+                    model: models.ReferenceDrug,
+                    as: 'referenceDrug',
+                    attributes: ['id', 'isSensitive'],
+                    required: true,
+                  },
+                },
+                {
+                  association: 'prescriber',
+                  attributes: ['id', 'displayName'],
+                },
+              ],
+              required: true,
+            },
+          ],
+        },
+        {
+          association: 'dispensedBy',
+          attributes: ['id', 'displayName'],
+        },
+      ],
+      attributes: ['id', 'quantity', 'dispensedAt', 'dispensedByUserId', 'instructions'],
+      where: {
+        [Op.and]: [
+          ...(rootFilter[Op.and] || []),
+          ...(!canViewSensitiveMedications
+            ? [
+                {
+                  '$pharmacyOrderPrescription.prescription.medication.referenceDrug.is_sensitive$': false,
+                },
+              ]
+            : []),
+        ],
+      },
+      order: [
+        [...orderBy.split('.'), orderDirection],
+        ['dispensedAt', 'DESC'],
+      ],
+      limit: rowsPerPage,
+      offset: page * rowsPerPage,
+      distinct: true,
+      subQuery: false,
+    });
+
+    const { count, rows: data } = databaseResponse;
+
+    // Temporary fix to get patient data due limit of column characters in postgres
+    const patientIds = [
+      ...new Set(
+        data.map(item => item.pharmacyOrderPrescription.pharmacyOrder.encounter.patient.id),
+      ),
+    ];
+
+    const patients = await models.Patient.findAll({
+      where: { id: patientIds },
+      attributes: ['id', 'firstName', 'lastName', 'displayId'],
+    });
+
+    // Temporary fix to get reference drug data due limit of column characters in postgres
+    const medicationIds = [
+      ...new Set(data.map(item => item.pharmacyOrderPrescription.prescription.medication.id)),
+    ];
+
+    const referenceDrugs = await models.ReferenceDrug.findAll({
+      where: { referenceDataId: { [Op.in]: medicationIds } },
+      attributes: ['id', 'isSensitive', 'referenceDataId'],
+      include: {
+        model: models.ReferenceDrugFacility,
+        as: 'facilities',
+        attributes: ['id', 'quantity', 'facilityId', 'stockStatus'],
+        where: { facilityId },
+        required: false,
+      },
+    });
+
+    // Fetch all dispenses for the pharmacy order prescriptions to calculate remaining repeats
+    const pharmacyOrderPrescriptionIds = [
+      ...new Set(data.map(item => item.pharmacyOrderPrescription.id)),
+    ];
+
+    const allDispenses = await models.MedicationDispense.findAll({
+      where: { pharmacyOrderPrescriptionId: { [Op.in]: pharmacyOrderPrescriptionIds } },
+      attributes: ['id', 'pharmacyOrderPrescriptionId', 'dispensedAt'],
+    });
+
+    // Group dispenses by pharmacyOrderPrescriptionId
+    const dispensesByPrescriptionId = allDispenses.reduce((acc, dispense) => {
+      const id = dispense.pharmacyOrderPrescriptionId;
+      if (!acc[id]) acc[id] = [];
+      acc[id].push(dispense);
+      return acc;
+    }, {});
+
+    const result = data.map(item => {
+      const patient = patients.find(
+        p => p.id === item.pharmacyOrderPrescription.pharmacyOrder.encounter.patient.id,
+      );
+      item.pharmacyOrderPrescription.pharmacyOrder.encounter.patient.set(patient.toJSON());
+
+      const referenceDrug = referenceDrugs.find(
+        r => r.referenceDataId === item.pharmacyOrderPrescription.prescription.medication.id,
+      );
+
+      // Manually set medicationDispenses for getRemainingRepeats calculation
+      // We only want to include dispenses that were dispensed before the current dispense to get remaining repeats at the time of the dispense
+      item.pharmacyOrderPrescription.medicationDispenses = (
+        dispensesByPrescriptionId[item.pharmacyOrderPrescription.id] || []
+      ).filter(d => isBefore(new Date(d.dispensedAt), new Date(item.dispensedAt)));
+
+      return {
+        ...item.toJSON(),
+        pharmacyOrderPrescription: {
+          ...item.pharmacyOrderPrescription.toJSON(),
+          prescription: {
+            ...item.pharmacyOrderPrescription.prescription.toJSON(),
+            medication: {
+              ...item.pharmacyOrderPrescription.prescription.medication.toJSON(),
+              referenceDrug: referenceDrug,
+            },
+          },
+          remainingRepeats: item.pharmacyOrderPrescription.getRemainingRepeats(),
+        },
+      };
+    });
+
+    res.send({
+      count,
+      data: result,
+    });
+  }),
+);
+
+medication.delete(
+  '/medication-dispenses/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { MedicationDispense } = models;
+
+    req.checkPermission('write', 'MedicationDispense');
+
+    const dispenseId = params.id;
+
+    const dispense = await MedicationDispense.findByPk(dispenseId, {
+      include: [
+        {
+          association: 'pharmacyOrderPrescription',
+          attributes: ['id', 'prescriptionId', 'isCompleted'],
+        },
+      ],
+    });
+
+    if (!dispense) {
+      throw new NotFoundError(`Medication dispense with id ${dispenseId} not found`);
+    }
+
+    await MedicationDispense.sequelize.transaction(async transaction => {
+      // Delete the dispense record
+      await dispense.destroy({ transaction });
+
+      // Restore the PharmacyOrderPrescription if it was completed
+      // (check existence defensively in case the request was deleted and orphaned the dispense)
+      const pharmacyOrderPrescription = dispense.pharmacyOrderPrescription;
+      if (pharmacyOrderPrescription?.isCompleted) {
+        await pharmacyOrderPrescription.update({ isCompleted: false }, { transaction });
+      }
+    });
+
+    res.send({ success: true });
+  }),
+);
+
+const dispensableMedicationsQuerySchema = z
+  .object({
+    patientId: z.uuid(),
+    facilityId: z.string(),
+  })
+  .strip();
+
+medication.get(
+  '/dispensable-medications',
+  asyncHandler(async (req, res) => {
+    const { models } = req;
+
+    req.checkPermission('read', 'MedicationRequest');
+
+    const { patientId, facilityId } = await dispensableMedicationsQuerySchema.parseAsync(req.query);
+
+    const canViewSensitiveMedications = req.ability.can('read', 'SensitiveMedication');
+
+    const { PharmacyOrderPrescription } = models;
+
+    const pharmacyOrderPrescriptions = await PharmacyOrderPrescription.findAll({
+      attributes: ['id', 'displayId', 'quantity', 'repeats'],
+      include: [
+        {
+          association: 'pharmacyOrder',
+          attributes: ['id', 'isDischargePrescription', 'date'],
+          where: { facilityId },
+          required: true,
+          include: [
+            {
+              association: 'encounter',
+              attributes: ['id'],
+              required: true,
+              where: { patientId },
+            },
+          ],
+        },
+        {
+          association: 'prescription',
+          attributes: [
+            'id',
+            'doseAmount',
+            'units',
+            'frequency',
+            'route',
+            'durationValue',
+            'durationUnit',
+            'indication',
+            'notes',
+            'isVariableDose',
+            'date',
+          ],
+          required: true,
+          include: [
+            {
+              association: 'medication',
+              attributes: ['id', 'name'],
+              include: [
+                {
+                  model: models.ReferenceDrug,
+                  as: 'referenceDrug',
+                  attributes: ['id', 'isSensitive'],
+                  required: true,
+                  include: [
+                    {
+                      model: models.ReferenceDrugFacility,
+                      as: 'facilities',
+                      attributes: ['facilityId', 'quantity', 'stockStatus'],
+                      where: { facilityId },
+                      required: false,
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              association: 'prescriber',
+              attributes: ['id', 'displayName'],
+            },
+          ],
+        },
+        {
+          association: 'medicationDispenses',
+          attributes: ['dispensedAt'],
+          required: false,
+        },
+      ],
+      where: {
+        [Op.and]: [
+          { isCompleted: false },
+          ...(!canViewSensitiveMedications
+            ? [
+                {
+                  '$prescription.medication.referenceDrug.is_sensitive$': false,
+                },
+              ]
+            : []),
+          Sequelize.where(Sequelize.col('prescription.medication.referenceDrug.id'), {
+            [Op.notIn]: Sequelize.literal(`(
+                SELECT reference_drug_id
+                FROM reference_drug_facilities
+                WHERE facility_id = :facilityId
+                AND stock_status = :stockStatus
+              )`),
+          }),
+        ],
+      },
+      order: [[{ model: models.PharmacyOrder, as: 'pharmacyOrder' }, 'date', 'DESC']],
+      subQuery: false,
+      replacements: {
+        facilityId,
+        stockStatus: DRUG_STOCK_STATUSES.UNAVAILABLE,
+      },
+    });
+
+    res.send({
+      count: pharmacyOrderPrescriptions.length,
+      data: pharmacyOrderPrescriptions.map(pop => ({
+        ...pop.toJSON(),
+        remainingRepeats: pop.getRemainingRepeats(),
+        lastDispensedAt: pop.medicationDispenses?.sort(
+          (a, b) => new Date(b.dispensedAt) - new Date(a.dispensedAt),
+        )[0]?.dispensedAt,
+      })),
+    });
+  }),
+);
+
+const dispenseItemSchema = z.object({
+  pharmacyOrderPrescriptionId: z.uuid(),
+  quantity: z.coerce.number().int().positive(),
+  instructions: z.string().min(1),
+});
+
+const dispenseInputSchema = z
+  .object({
+    dispensedByUserId: z.string(),
+    facilityId: z.string(),
+    items: z.array(dispenseItemSchema).min(1).max(100),
+  })
+  .strip();
+
+medication.post(
+  '/dispense',
+  asyncHandler(async (req, res) => {
+    const { models } = req;
+
+    req.checkPermission('create', 'MedicationDispense');
+
+    const { dispensedByUserId, facilityId, items } = await dispenseInputSchema.parseAsync(req.body);
+
+    const { User, MedicationDispense, PharmacyOrderPrescription } = models;
+
+    const dispensedByUser = await User.findByPk(dispensedByUserId);
+    if (!dispensedByUser) {
+      throw new NotFoundError(`User with id ${dispensedByUserId} not found`);
+    }
+
+    const dispensedAt = getCurrentDateTimeString();
+    const pharmacyOrderPrescriptionIds = items.map(item => item.pharmacyOrderPrescriptionId);
+
+    const result = await PharmacyOrderPrescription.sequelize.transaction(async transaction => {
+      // Lock and fetch prescription records to prevent race conditions
+      const prescriptionRecords = await PharmacyOrderPrescription.findAll({
+        attributes: ['id', 'repeats', 'quantity'],
+        where: {
+          id: pharmacyOrderPrescriptionIds,
+        },
+        include: [
+          {
+            association: 'prescription',
+            attributes: ['id', 'medicationId'],
+            required: true,
+          },
+          {
+            association: 'medicationDispenses',
+            attributes: ['id'],
+            required: false,
+          },
+          {
+            association: 'pharmacyOrder',
+            attributes: ['id', 'isDischargePrescription'],
+            required: true,
+            include: [
+              {
+                association: 'encounter',
+                attributes: ['patientId'],
+                required: true,
+              },
+            ],
+          },
+        ],
+        lock: {
+          level: transaction.LOCK.UPDATE,
+          of: PharmacyOrderPrescription,
+        },
+      });
+
+      await checkSensitiveMedicationPermission(
+        prescriptionRecords.map(r => r.prescription.medicationId),
+        req,
+        'read',
+      );
+
+      const foundIds = new Set(prescriptionRecords.map(r => r.id));
+      const notFoundIds = pharmacyOrderPrescriptionIds.filter(id => !foundIds.has(id));
+      if (notFoundIds.length > 0) {
+        throw new NotFoundError(
+          `Pharmacy order prescription(s) not found or discontinued: ${notFoundIds.join(', ')}`,
+        );
+      }
+      const isSamePatient = prescriptionRecords.every(
+        record =>
+          record.pharmacyOrder?.encounter?.patientId ===
+          prescriptionRecords[0].pharmacyOrder?.encounter?.patientId,
+      );
+      if (!isSamePatient) {
+        throw new InvalidOperationError(`All prescriptions must be part of the same patient`);
+      }
+
+      const medicationIds = prescriptionRecords.map(r => r.prescription.medicationId);
+
+      const unavailableMedications = await models.ReferenceDrugFacility.findAll({
+        attributes: ['referenceDrugId'],
+        where: {
+          facilityId,
+          stockStatus: DRUG_STOCK_STATUSES.UNAVAILABLE,
+        },
+        include: {
+          model: models.ReferenceDrug,
+          as: 'referenceDrug',
+          attributes: ['id'],
+          required: true,
+          where: {
+            referenceDataId: { [Op.in]: medicationIds },
+          },
+          include: {
+            model: models.ReferenceData,
+            as: 'referenceData',
+            attributes: ['id', 'name'],
+            required: true,
+          },
+        },
+      });
+
+      if (unavailableMedications.length > 0) {
+        const unavailableNames = unavailableMedications
+          .map(um => um.referenceDrug.referenceData.name)
+          .join(', ');
+        throw new InvalidOperationError(
+          `Cannot dispense unavailable medications: ${unavailableNames}`,
+        );
+      }
+
+      const ineligibleRecords = prescriptionRecords.filter(record => {
+        const remainingRepeats = record.getRemainingRepeats();
+        const hasDispenses = record.medicationDispenses?.length > 0;
+        const isDischargePrescription = record.pharmacyOrder?.isDischargePrescription;
+        return remainingRepeats === 0 && hasDispenses && !!isDischargePrescription;
+      });
+
+      if (ineligibleRecords.length > 0) {
+        throw new InvalidOperationError(
+          `The following prescriptions have no remaining repeats and cannot be dispensed: ${ineligibleRecords.map(r => r.id).join(', ')}`,
+        );
+      }
+
+      // Create dispense records
+      const dispenseRecords = await MedicationDispense.bulkCreate(
+        items.map(item => ({
+          pharmacyOrderPrescriptionId: item.pharmacyOrderPrescriptionId,
+          quantity: item.quantity,
+          instructions: item.instructions,
+          dispensedByUserId,
+          dispensedAt,
+        })),
+        { transaction },
+      );
+
+      // After dispensing, soft delete all ineligible pharmacy order prescriptions
+      const allCompletedRecords = prescriptionRecords.filter(record => {
+        const remainingRepeats = record.getRemainingRepeats(1);
+        const isDischargePrescription = record.pharmacyOrder?.isDischargePrescription;
+        return remainingRepeats === 0 && !!isDischargePrescription;
+      });
+
+      if (allCompletedRecords.length > 0) {
+        const completedIds = allCompletedRecords.map(r => r.id);
+        await PharmacyOrderPrescription.update(
+          { isCompleted: true },
+          { where: { id: { [Op.in]: completedIds } }, transaction },
+        );
+      }
+
+      return dispenseRecords;
+    });
+
+    res.send(result);
+  }),
+);
+
+const editDispenseInputSchema = z
+  .object({
+    dispensedByUserId: z.string(),
+    quantity: z.coerce.number().int().positive(),
+    instructions: z.string().min(1),
+  })
+  .strip();
+
+medication.put(
+  '/dispense/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { id } = params;
+
+    req.checkPermission('write', 'MedicationDispense');
+
+    const { dispensedByUserId, quantity, instructions } = await editDispenseInputSchema.parseAsync(
+      req.body,
+    );
+
+    const { User, MedicationDispense } = models;
+
+    const dispensedByUser = await User.findByPk(dispensedByUserId);
+    if (!dispensedByUser) {
+      throw new NotFoundError(`User with id ${dispensedByUserId} not found`);
+    }
+
+    const result = await MedicationDispense.sequelize.transaction(async transaction => {
+      const medicationDispense = await MedicationDispense.findByPk(id, { transaction });
+
+      if (!medicationDispense) {
+        throw new NotFoundError(`Medication dispense with id ${id} not found`);
+      }
+
+      await medicationDispense.update(
+        { quantity, instructions, dispensedByUserId },
+        { transaction },
+      );
+
+      return medicationDispense;
+    });
+
+    res.send(result);
+  }),
+);
+
+medication.get(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const { models, params, query } = req;
+    const { Prescription } = models;
+
+    req.checkPermission('read', 'Medication');
+    const object = await Prescription.findByPk(params.id, {
+      include: Prescription.getFullReferenceAssociations(),
+    });
+
+    if (!object) throw new NotFoundError();
+
+    await checkSensitiveMedicationPermission([object.medicationId], req, 'read');
+
+    if (object) {
+      await req.audit.access({
+        recordId: object.id,
+        frontEndContext: params,
+        model: Prescription,
+        facilityId: query.facilityId,
+      });
+    }
+
+    res.send(object);
   }),
 );

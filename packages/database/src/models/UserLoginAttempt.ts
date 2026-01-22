@@ -4,6 +4,7 @@ import type { InitOptions, Models } from '../types/model';
 import { DataTypes, Sequelize, Op } from 'sequelize';
 import { ReadSettings } from '@tamanu/settings';
 import type { SettingPath } from '@tamanu/settings/types';
+import { log } from '@tamanu/shared/services/logging';
 
 interface UserLoginAttemptMethodParams {
   settings: ReadSettings;
@@ -49,6 +50,13 @@ export class UserLoginAttempt extends Model {
     });
   }
 
+  // If the deviceId is not found in the devices table, we will use null
+  // for the deviceId to avoid credential stuffing from unregistered devices.
+  static async getDeviceIdToUse(deviceId: string) {
+    const device = await this.sequelize.models.Device.findByPk(deviceId);
+    return device ? deviceId : null;
+  }
+
   static async checkIsUserLockedOut({
     settings,
     userId,
@@ -58,10 +66,12 @@ export class UserLoginAttempt extends Model {
       SETTING_KEYS.SECURITY_LOGIN_ATTEMPTS as SettingPath,
     )) as { lockoutDuration: number };
 
+    const deviceIdToUse = await this.getDeviceIdToUse(deviceId);
+
     const lockedAttempt = await this.findOne({
       where: {
         userId,
-        deviceId,
+        deviceId: deviceIdToUse,
         outcome: LOGIN_ATTEMPT_OUTCOMES.LOCKED,
         createdAt: {
           [Op.gte]: Sequelize.literal("CURRENT_TIMESTAMP - $lockoutDuration * interval '1 minute'"),
@@ -91,10 +101,12 @@ export class UserLoginAttempt extends Model {
       SETTING_KEYS.SECURITY_LOGIN_ATTEMPTS as SettingPath,
     )) as { lockoutThreshold: number; observationWindow: number; lockoutDuration: number };
 
+    const deviceIdToUse = await this.getDeviceIdToUse(deviceId);
+
     const failedAttempts = (await this.count({
       where: {
         userId,
-        deviceId,
+        deviceId: deviceIdToUse,
         outcome: LOGIN_ATTEMPT_OUTCOMES.FAILED,
         createdAt: {
           [Op.gte]: Sequelize.literal(
@@ -110,11 +122,17 @@ export class UserLoginAttempt extends Model {
 
     // We need to add 1 to the failed attempts because the current attempt is not included in the count
     const outcome = failedAttempts + 1 >= lockoutThreshold ? LOGIN_ATTEMPT_OUTCOMES.LOCKED : LOGIN_ATTEMPT_OUTCOMES.FAILED;
-    const loginAttempt = await this.create({
-      userId,
-      deviceId,
-      outcome,
-    });
+
+    let loginAttempt = null;
+    try {
+      loginAttempt = await this.create({
+        userId,
+        deviceId: deviceIdToUse,
+        outcome,
+      });
+    } catch (error) {
+      log.error('Error creating failed login attempt', error);
+    }
 
     return {
       loginAttempt,
