@@ -80,7 +80,7 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
               data-testid="translatedtext-cis2"
             />
           }
-          value={<DateTimeRangeDisplay start={startTime} end={endTime} showWeekday={false} />}
+          value={<DateTimeRangeDisplay start={startTime} end={endTime} />}
           data-testid="detaildisplay-nwk8"
         />
       </AppointmentDetailsColumnLeft>

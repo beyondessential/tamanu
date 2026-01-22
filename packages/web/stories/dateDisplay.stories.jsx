@@ -1,7 +1,13 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import Box from '@material-ui/core/Box';
-import { DateDisplay, TimeDisplay, MultilineDatetimeDisplay, TimeRangeDisplay, DateTimeRangeDisplay } from '../app/components/DateDisplay';
+import {
+  DateDisplay,
+  TimeDisplay,
+  MultilineDatetimeDisplay,
+  TimeRangeDisplay,
+  DateTimeRangeDisplay,
+} from '../app/components/DateDisplay';
 
 const testDate = new Date();
 const endDate = new Date(testDate.getTime() + 60 * 60 * 1000);
@@ -123,19 +129,19 @@ storiesOf('DateDisplay', module)
 
       <Section title="DateTimeRangeDisplay">
         <Row label="Same day range">
-          <DateTimeRangeDisplay start={testDate} end={endDate} />
+          <DateTimeRangeDisplay start={testDate} end={endDate} weekdayFormat="short" />
         </Row>
         <Row label="Multi-day range">
-          <DateTimeRangeDisplay start={testDate} end={multiDayEndDate} />
+          <DateTimeRangeDisplay start={testDate} end={multiDayEndDate} weekdayFormat="short" />
         </Row>
         <Row label="Single date (no end)">
-          <DateTimeRangeDisplay start={testDate} />
+          <DateTimeRangeDisplay start={testDate} weekdayFormat="short" />
         </Row>
         <Row label='Same day, format="shortest"'>
-          <DateTimeRangeDisplay start={testDate} end={endDate} dateFormat="shortest" />
+          <DateTimeRangeDisplay start={testDate} end={endDate} weekdayFormat="short" dateFormat="shortest" />
         </Row>
-        <Row label="showWeekday={false}">
-          <DateTimeRangeDisplay start={testDate} end={endDate} showWeekday={false} />
+        <Row label="No weekday (default)">
+          <DateTimeRangeDisplay start={testDate} end={endDate} />
         </Row>
       </Section>
     </Box>
