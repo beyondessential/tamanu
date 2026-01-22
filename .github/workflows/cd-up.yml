@@ -21,8 +21,6 @@ on:
     secrets:
       PULUMI_ACCESS_TOKEN:
         required: true
-      TAILSCALE_OAUTH:
-        required: true
       TAMANU_OPS_SSH:
         required: true
 
@@ -41,8 +39,6 @@ jobs:
         with:
           ops-ssh-key: ${{ secrets.TAMANU_OPS_SSH }}
           ops-ref: ${{ fromJson(inputs.options).opsref }}
-          tailscale-oauth: ${{ secrets.TAILSCALE_OAUTH }}
-          k8s-core: ${{ fromJson(inputs.options).k8score }}
 
       - name: Create or check namespace
         run: |

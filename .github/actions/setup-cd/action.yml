@@ -7,17 +7,12 @@ inputs:
   ops-ref:
     description: Ref to checkout in ops repo
     default: main
-  tailscale-oauth:
-    description: Tailscale OAuth key
-    required: true
-  k8s-core:
-    description: K8S core name
 runs:
   using: composite
   steps:
     - if: inputs.ops-ssh-key
       name: Checkout ops
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         repository: beyondessential/ops
         ssh-key: ${{ inputs.ops-ssh-key }}
@@ -30,7 +25,7 @@ runs:
 
     - name: Install Node.js for ops
       if: inputs.ops-ssh-key
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v5
       with:
         node-version-file: ops/.node-version
         cache: npm
@@ -55,15 +50,14 @@ runs:
     - name: Connect to Tailscale
       uses: tailscale/github-action@v2
       with:
-        oauth-secret: ${{ inputs.tailscale-oauth }}
-        tags: tag:infra,tag:infra-gha-deploy
+        oauth-client-id: ${{ vars.TS_OAUTH_CLIENT_ID }}
+        audience: api.tailscale.com/${{ vars.TS_OAUTH_CLIENT_ID }}
+        tags: ${{ vars.TS_TAGS }} # must be synced to actual OIDC trust in Tailscale
 
     - name: Configure kubeconfig
-      if: inputs.k8s-core
       shell: bash
-      run: tailscale configure kubeconfig k8s-operator-${{ inputs.k8s-core }}
+      run: tailscale configure kubeconfig ${{ vars.TS_K8S_OPERATOR_HOSTNAME }}
 
     - name: Test kubernetes cluster for readiness
-      if: inputs.k8s-core
       shell: bash
       run: kubectl get namespace/tamanu-system

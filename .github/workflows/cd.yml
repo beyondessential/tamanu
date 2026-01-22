@@ -317,7 +317,6 @@ jobs:
       ref: ${{ needs.config.outputs.ref }}
     secrets:
       PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-      TAILSCALE_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
       TAMANU_OPS_SSH: ${{ secrets.TAMANU_OPS_SSH }}
 
   deploy-down:
@@ -335,7 +334,6 @@ jobs:
       options: ${{ matrix.options }}
     secrets:
       PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-      TAILSCALE_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
       TAMANU_OPS_SSH: ${{ secrets.TAMANU_OPS_SSH }}
 
   fake-data:
@@ -351,8 +349,6 @@ jobs:
     with:
       deploy-name: ${{ matrix.name }}
       options: ${{ matrix.options }}
-    secrets:
-      TAILSCALE_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
 
   package-android-test:
     needs: config

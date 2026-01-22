@@ -9,9 +9,6 @@ on:
       options:
         type: string
         required: true
-    secrets:
-      TAILSCALE_OAUTH:
-        required: true
 
 permissions:
   contents: read
@@ -25,9 +22,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-cd
-        with:
-          tailscale-oauth: ${{ secrets.TAILSCALE_OAUTH }}
-          k8s-core: ${{ fromJson(inputs.options).k8score }}
 
       - run: npm ci
       - run: npm run build-shared

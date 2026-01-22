@@ -34,7 +34,6 @@ jobs:
         uses: ./.github/actions/setup-cd
         with:
           ops-ssh-key: ${{ secrets.TAMANU_OPS_SSH }}
-          tailscale-oauth: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
 
       - name: List all controlled deploys from K8s
         id: list
@@ -82,5 +81,4 @@ jobs:
       ref: not needed as check branch is false
     secrets:
       PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-      TAILSCALE_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
       TAMANU_OPS_SSH: ${{ secrets.TAMANU_OPS_SSH }}
