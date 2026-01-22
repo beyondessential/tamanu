@@ -202,7 +202,12 @@ export class TamanuApi extends ApiClient {
   }
 
   async setFacility(facilityId) {
-    const { settings } = await this.post('setFacility', { facilityId });
+    // The setFacility endpoint returns an updated token with facilityId embedded in the JWT claims.
+    // This new token is stored and used for subsequent authenticated requests to facility-scoped endpoints.
+    const { settings, token } = await this.post('setFacility', { facilityId });
+
+    this.setToken(token);
+
     saveToLocalStorage({
       facilityId,
       settings,
