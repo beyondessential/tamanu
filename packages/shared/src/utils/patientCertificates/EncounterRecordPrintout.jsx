@@ -257,7 +257,7 @@ const TableSection = ({ title, data, columns, type }) => {
 
 const NoteFooter = ({ note }) => {
   const { getTranslation } = useLanguageContext();
-  const { formatShort, formatTime } = useDateTimeFormat();
+  const { formatShortDateTime } = useDateTimeFormat();
   return (
     <Text style={textStyles.tableCellFooter}>
       {[
@@ -270,8 +270,7 @@ const NoteFooter = ({ note }) => {
               changeOnBehalfOfName: note.onBehalfOf.displayName,
             },
           }),
-        formatShort(note.date),
-        formatTime(note.date),
+        formatShortDateTime(note.date),
       ]
         .filter(Boolean)
         .join(' ')}
@@ -367,7 +366,7 @@ const EncounterRecordPrintoutComponent = ({
   const getLocalisation = (key) => get(localisation, key);
   const getSetting = (key) => get(settings, key);
   const { getTranslation, getEnumTranslation } = useLanguageContext();
-  const { formatShort, formatShortest, formatTime } = useDateTimeFormat();
+  const { formatShort, formatShortest, formatTime, formatShortDateTime } = useDateTimeFormat();
   const { watermark, logo } = certificateData;
 
   const COLUMNS = {
@@ -382,8 +381,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'dateMoved',
         title: getTranslation('pdf.encounterRecord.dateAndTimeMoved', 'Date & time moved'),
-        accessor: ({ date }) =>
-          date ? `${formatShort(date)} ${formatTime(date)}` : '--/--/---- --:----',
+        accessor: ({ date }) => formatShortDateTime(date),
         style: { width: '35%' },
       },
     ],
@@ -403,8 +401,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'dateMoved',
         title: getTranslation('pdf.encounterRecord.dateAndTimeMoved', 'Date & time moved'),
-        accessor: ({ date }) =>
-          date ? `${formatShort(date)} ${formatTime(date)}` : '--/--/---- --:----',
+        accessor: ({ date }) => formatShortDateTime(date),
         style: { width: '35%' },
       },
     ],
@@ -424,7 +421,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'date',
         title: getTranslation('general.date.label', 'Date'),
-        accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
+        accessor: ({ date }) => formatShortest(date),
         style: { width: '25%' },
       },
     ],
@@ -438,7 +435,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'procedureDate',
         title: getTranslation('procedure.date.label', 'Procedure date'),
-        accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
+        accessor: ({ date }) => formatShort(date),
         style: { width: '25%' },
       },
     ],
@@ -461,14 +458,13 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'requestDate',
         title: getTranslation('general.requestDate.label', 'Request date'),
-        accessor: ({ requestDate }) => (requestDate ? formatShort(requestDate) : '--/--/----'),
+        accessor: ({ requestDate }) => formatShort(requestDate),
         style: { width: '17.5%' },
       },
       {
         key: 'publishedDate',
         title: getTranslation('pdf.encounterRecord.publishedDate', 'Published date'),
-        accessor: ({ publishedDate }) =>
-          publishedDate ? formatShort(publishedDate) : '--/--/----',
+        accessor: ({ publishedDate }) => formatShort(publishedDate),
         style: { width: '17.5%' },
       },
     ],
@@ -497,17 +493,13 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'requestDate',
         title: getTranslation('general.requestDate.label', 'Request date'),
-        accessor: ({ requestedDate }) =>
-          requestedDate ? formatShort(requestedDate) : '--/--/----',
+        accessor: ({ requestedDate }) => formatShort(requestedDate),
         style: { width: '20%' },
       },
       {
         key: 'completedDate',
         title: getTranslation('pdf.encounterRecord.completedDate', 'Completed date'),
-        accessor: imagingRequest =>
-          imagingRequest?.results[0]?.completedAt
-            ? formatShort(imagingRequest?.results[0]?.completedAt)
-            : '--/--/----',
+        accessor: imagingRequest => formatShort(imagingRequest?.results[0]?.completedAt),
         style: { width: '20%' },
       },
     ],
@@ -552,7 +544,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'prescriptionDate',
         title: getTranslation('medication.date.label', 'Prescription date'),
-        accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
+        accessor: ({ date }) => formatShort(date),
         style: { width: '23%' },
       },
     ],

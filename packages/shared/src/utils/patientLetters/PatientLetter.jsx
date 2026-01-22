@@ -9,8 +9,8 @@ import { useLanguageContext, withLanguageContext } from '../pdf/languageContext'
 import { useDateTimeFormat, withDateTimeContext } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 
-export const getCreatedAtDate = ({ documentCreatedAt }, { formatCustom }) =>
-  documentCreatedAt ? formatCustom(documentCreatedAt, 'dd/MM/yyyy') : 'Unknown';
+export const getCreatedAtDate = ({ documentCreatedAt }, { formatShort }) =>
+  documentCreatedAt ? formatShort(documentCreatedAt) : 'Unknown';
 
 const DETAIL_FIELDS = [
   { key: 'Patient name', label: 'Patient name', accessor: getName },
@@ -35,7 +35,7 @@ const detailsSectionStyle = {
 
 const DetailsSection = ({ getLocalisation, data }) => {
   const { getTranslation } = useLanguageContext();
-  const { formatCustom, formatShort } = useDateTimeFormat();
+  const { formatShort } = useDateTimeFormat();
   return (
     <View style={{ marginTop: 10 }}>
       <H3 style={{ marginBottom: 5 }}>Details</H3>
@@ -45,7 +45,7 @@ const DetailsSection = ({ getLocalisation, data }) => {
             {DETAIL_FIELDS.map(({ key, label: defaultLabel, accessor }) => {
               const value =
                 (accessor
-                  ? accessor(data, { getLocalisation, getTranslation, formatCustom, formatShort })
+                  ? accessor(data, { getLocalisation, getTranslation, formatShort })
                   : data[key]) || '';
               const label =
                 getTranslation(`general.localisedField.${key}.label.short`) ||

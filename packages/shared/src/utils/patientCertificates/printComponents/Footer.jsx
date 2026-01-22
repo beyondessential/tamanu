@@ -53,7 +53,7 @@ const ValueText = ({ children, ...props }) => (
 
 export const Footer = ({ printDate, printFacility, printedBy, style }) => {
   const { getTranslation } = useLanguageContext();
-  const { formatShort, formatTime } = useDateTimeFormat();
+  const { formatShortDateTime } = useDateTimeFormat();
   const dateToFormat = printDate || getCurrentDateTimeString();
   return (
     <View style={[styles.footer, style]} fixed>
@@ -61,9 +61,7 @@ export const Footer = ({ printDate, printFacility, printedBy, style }) => {
         <LabelText>
           {getTranslation('pdf.footer.printDateAndTime.label', 'Print date & time')}:{' '}
         </LabelText>
-        <ValueText>
-          {formatShort(dateToFormat)} {formatTime(dateToFormat)}
-        </ValueText>
+        <ValueText>{formatShortDateTime(dateToFormat)}</ValueText>
         {printFacility && (
           <>
             <ValueText> |</ValueText>

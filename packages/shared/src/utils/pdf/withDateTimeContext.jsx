@@ -5,8 +5,18 @@ import {
   formatShort,
   formatTime,
   formatTimeWithSeconds,
+  formatTimeCompact,
+  formatTimeSlot,
   formatLong,
   formatFullDate,
+  formatShortExplicit,
+  formatShortestExplicit,
+  formatDayMonth,
+  formatShortDateTime,
+  formatShortestDateTime,
+  formatWeekdayShort,
+  formatWeekdayLong,
+  formatWeekdayNarrow,
   formatInTz,
 } from '@tamanu/utils/dateTime';
 
@@ -15,8 +25,18 @@ const formatters = {
   formatShort,
   formatTime,
   formatTimeWithSeconds,
+  formatTimeCompact,
+  formatTimeSlot,
   formatLong,
   formatFullDate,
+  formatShortExplicit,
+  formatShortestExplicit,
+  formatDayMonth,
+  formatShortDateTime,
+  formatShortestDateTime,
+  formatWeekdayShort,
+  formatWeekdayLong,
+  formatWeekdayNarrow,
 };
 
 const DateTimeContext = createContext(null);

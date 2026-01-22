@@ -92,7 +92,7 @@ const CovidLabCertificateComponent = ({
   printedBy,
   certType,
 }) => {
-  const { formatShort, formatCustom, formatTime } = useDateTimeFormat();
+  const { formatShort, formatShortExplicit, formatTime } = useDateTimeFormat();
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -113,7 +113,7 @@ const CovidLabCertificateComponent = ({
             columns={columns}
             getLocalisation={getLocalisation}
             getSetting={getSetting}
-            formatters={{ formatShort, formatCustom, formatTime }}
+            formatters={{ formatShort, formatShortExplicit, formatTime }}
           />
         </Box>
         <P>{getCertificateRemark(patient, getSetting)[certType] || ''}</P>

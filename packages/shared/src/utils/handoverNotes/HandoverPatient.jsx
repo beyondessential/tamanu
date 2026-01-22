@@ -41,7 +41,7 @@ export const HandoverPatient = ({
   isEdited,
 }) => {
   const { getTranslation } = useLanguageContext();
-  const { formatShort, formatCustom } = useDateTimeFormat();
+  const { formatShort, formatShortest, formatShortDateTime } = useDateTimeFormat();
   const detailsToDisplay = PATIENT_FIELDS.filter(({ key }) => !getSetting(`fields.${key}.hidden`));
   return (
     <>
@@ -73,7 +73,7 @@ export const HandoverPatient = ({
             <ValueDisplay
               width="20%"
               title="Arrival date"
-              value={formatCustom(arrivalDate, 'dd/MM/yy')}
+              value={formatShortest(arrivalDate)}
             />
           </Row>
           {diagnosis && <ValueDisplay width="100%" title="Diagnosis" value={diagnosis} />}
@@ -82,9 +82,7 @@ export const HandoverPatient = ({
             {!!notes && !!createdAt && (
               <Col style={{ width: '100%' }}>
                 <P style={{ fontSize: 8 }}>
-                  {`${formatCustom(createdAt, 'dd/MM/yyyy hh:mm a')}${
-                    isEdited ? ' (edited)' : ''
-                  }`}
+                  {`${formatShortDateTime(createdAt)}${isEdited ? ' (edited)' : ''}`}
                 </P>
               </Col>
             )}

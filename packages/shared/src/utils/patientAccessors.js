@@ -6,7 +6,7 @@ export const getName = ({ firstName, lastName }) => `${firstName} ${lastName}`;
 export const getSex = ({ sex }) => `${capitalize(sex)}`;
 
 export const getDob = ({ dateOfBirth }, { getTranslation, formatShort }) =>
-  dateOfBirth && formatShort
+  dateOfBirth
     ? formatShort(dateOfBirth)
     : getTranslation('general.fallback.unknown', 'Unknown');
 
@@ -14,20 +14,22 @@ export const getDobWithAge = ({ dateOfBirth }, { getTranslation, getSetting, for
   if (!dateOfBirth) return getTranslation('general.fallback.unknown', 'Unknown');
 
   const dob = formatShort(dateOfBirth);
-  const ageDisplayFormat = getSetting ? getSetting('ageDisplayFormat') : null;
-  const age = ageDisplayFormat ? getDisplayAge(dateOfBirth, ageDisplayFormat) : `${ageInYears(dateOfBirth)} ${getTranslation('dateTime.unit.years', 'years')}`;
+  const ageDisplayFormat = getSetting?.('ageDisplayFormat');
+  const age = ageDisplayFormat
+    ? getDisplayAge(dateOfBirth, ageDisplayFormat)
+    : `${ageInYears(dateOfBirth)} ${getTranslation('dateTime.unit.years', 'years')}`;
 
   return `${dob} (${age})`;
 };
 
-export const getDateOfDeath = ({ dateOfDeath }, { getTranslation, formatCustom }) => {
+export const getDateOfDeath = ({ dateOfDeath }, { getTranslation, formatShortExplicit }) => {
   if (!dateOfDeath) return getTranslation('general.fallback.unknown', 'Unknown');
-  return formatCustom ? formatCustom(dateOfDeath, 'd MMM yyyy') : dateOfDeath;
+  return formatShortExplicit(dateOfDeath);
 };
 
 export const getTimeOfDeath = ({ dateOfDeath }, { getTranslation, formatTime }) => {
   if (!dateOfDeath) return getTranslation('general.fallback.unknown', 'Unknown');
-  return formatTime ? formatTime(dateOfDeath) : dateOfDeath;
+  return formatTime(dateOfDeath);
 };
 
 export const getPlaceOfBirth = ({ additionalData }) => (additionalData || {}).placeOfBirth;

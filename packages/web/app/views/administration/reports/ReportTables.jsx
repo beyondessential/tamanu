@@ -46,7 +46,7 @@ const ReportStatusTag = ({ status }) => {
 };
 
 export const ReportTable = React.memo(({ data, selected, onRowClick, loading, error }) => {
-  const { formatShort, formatTime } = useDateTimeFormat();
+  const { formatShortDateTime } = useDateTimeFormat();
   const { orderBy, order, onChangeOrderBy, customSort } = useTableSorting({
     initialSortKey: 'name',
     initialSortDirection: 'asc',
@@ -78,7 +78,7 @@ export const ReportTable = React.memo(({ data, selected, onRowClick, loading, er
             />
           ),
           key: 'lastUpdated',
-          accessor: ({ lastUpdated }) => `${formatShort(lastUpdated)} ${formatTime(lastUpdated)}`,
+          accessor: ({ lastUpdated }) => formatShortDateTime(lastUpdated),
         },
         {
           title: (
@@ -107,7 +107,7 @@ export const ReportTable = React.memo(({ data, selected, onRowClick, loading, er
 });
 
 export const VersionTable = React.memo(({ data, onRowClick, loading, error }) => {
-  const { formatShort, formatTime } = useDateTimeFormat();
+  const { formatShortDateTime } = useDateTimeFormat();
   const { orderBy, order, onChangeOrderBy, customSort } = useTableSorting({
     initialSortKey: 'createdAt',
     initialSortDirection: 'desc',
@@ -137,7 +137,7 @@ export const VersionTable = React.memo(({ data, onRowClick, loading, error }) =>
             />
           ),
           key: 'createdAt',
-          accessor: ({ updatedAt }) => `${formatShort(updatedAt)} ${formatTime(updatedAt)}`,
+          accessor: ({ updatedAt }) => formatShortDateTime(updatedAt),
         },
         {
           title: (

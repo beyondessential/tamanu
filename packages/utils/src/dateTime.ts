@@ -400,7 +400,7 @@ export const formatWeekdayNarrow = (
   facilityTimeZone?: string | null,
 ) => intlFormatDate(date, { weekday: 'narrow' }, 'Unknown', countryTimeZone, facilityTimeZone);
 
-/** "15 January 2024" - date with month and year */
+/** "15 January 2024" - date with full month and year */
 export const formatFullDate = (
   date: string | Date | null | undefined,
   countryTimeZone?: string,
@@ -446,7 +446,7 @@ export const formatTimeCompact = (
   return result.replace(' ', '').toLowerCase();
 };
 
-/** "Apr 12, 2024" - medium date style with explicit month name (unambiguous across locales) */
+/** "Jan 15, 2024" - medium date style with explicit month name (unambiguous across locales) */
 export const formatShortExplicit = (
   date: string | Date | null | undefined,
   countryTimeZone?: string,
@@ -480,6 +480,28 @@ export const formatDayMonth = (
     countryTimeZone,
     facilityTimeZone,
   );
+
+/** "12/04/2024 12:30 am" - short date with time */
+export const formatShortDateTime = (
+  date: string | Date | null | undefined,
+  countryTimeZone?: string,
+  facilityTimeZone?: string | null,
+) => {
+  const dateStr = formatShort(date, countryTimeZone, facilityTimeZone);
+  const timeStr = formatTime(date, countryTimeZone, facilityTimeZone);
+  return `${dateStr} ${timeStr}`;
+};
+
+/** "12/04/24 12:30 am" - shortest date with time */
+export const formatShortestDateTime = (
+  date: string | Date | null | undefined,
+  countryTimeZone?: string,
+  facilityTimeZone?: string | null,
+) => {
+  const dateStr = formatShortest(date, countryTimeZone, facilityTimeZone);
+  const timeStr = formatTime(date, countryTimeZone, facilityTimeZone);
+  return `${dateStr} ${timeStr}`;
+};
 
 /** "2024-01-15T14:30" - for HTML datetime-local input elements */
 export const formatDateTimeLocal = (

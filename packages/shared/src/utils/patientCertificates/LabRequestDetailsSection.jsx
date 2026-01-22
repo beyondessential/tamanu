@@ -9,17 +9,15 @@ import { PrintableBarcode } from './printComponents/PrintableBarcode';
 import { useLanguageContext } from '../pdf/languageContext';
 import { useDateTimeFormat } from '../pdf/withDateTimeContext';
 
-const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
-
 export const SampleDetailsRow = ({ request }) => {
   const { getTranslation } = useLanguageContext();
-  const { formatCustom } = useDateTimeFormat();
+  const { formatShortDateTime } = useDateTimeFormat();
   return (
     <Row>
       <Col>
         <DataItem
           label={getTranslation('lab.sampleDateTime.label', 'Sample date & time')}
-          value={formatCustom(request.sampleTime, DATE_TIME_FORMAT)}
+          value={formatShortDateTime(request.sampleTime)}
         />
         <DataItem
           label={getTranslation('lab.collectedBy.label', 'Collected by')}
@@ -39,7 +37,7 @@ export const SampleDetailsRow = ({ request }) => {
 
 export const PublishedDetailsRow = ({ request }) => {
   const { getEnumTranslation, getTranslation } = useLanguageContext();
-  const { formatCustom } = useDateTimeFormat();
+  const { formatShortDateTime } = useDateTimeFormat();
   const notApplicable = getTranslation('general.fallback.notApplicable', 'N/A', {
     casing: 'lower',
   });
@@ -48,11 +46,7 @@ export const PublishedDetailsRow = ({ request }) => {
       <Col>
         <DataItem
           label={getTranslation('lab.publishedDate.label', 'Published date & time')}
-          value={
-            request.publishedDate
-              ? formatCustom(request.publishedDate, DATE_TIME_FORMAT)
-              : notApplicable
-          }
+          value={request.publishedDate ? formatShortDateTime(request.publishedDate) : notApplicable}
         />
         <DataItem
           label={getTranslation('lab.publishedBy.label', 'Published by')}
@@ -71,7 +65,7 @@ export const PublishedDetailsRow = ({ request }) => {
 
 export const MinimalLabRequestDetailsSection = ({ request }) => {
   const { getTranslation } = useLanguageContext();
-  const { formatCustom } = useDateTimeFormat();
+  const { formatShortDateTime } = useDateTimeFormat();
   return (
     <Row>
       <Col>
@@ -87,7 +81,7 @@ export const MinimalLabRequestDetailsSection = ({ request }) => {
       <Col>
         <DataItem
           label={getTranslation('general.requestedDate.label', 'Requested date & time')}
-          value={formatCustom(request.requestedDate, DATE_TIME_FORMAT)}
+          value={formatShortDateTime(request.requestedDate)}
         />
       </Col>
     </Row>
@@ -96,7 +90,7 @@ export const MinimalLabRequestDetailsSection = ({ request }) => {
 
 export const FullLabRequestDetailsSection = ({ request }) => {
   const { getTranslation } = useLanguageContext();
-  const { formatCustom } = useDateTimeFormat();
+  const { formatShortDateTime } = useDateTimeFormat();
   const labTestTypeAccessor = ({ labTestPanelRequest, tests }) => {
     if (labTestPanelRequest) {
       return labTestPanelRequest.labTestPanel.name;
@@ -131,7 +125,7 @@ export const FullLabRequestDetailsSection = ({ request }) => {
           />
           <DataItem
             label={getTranslation('general.requestedDate.label', 'Requested date & time')}
-            value={formatCustom(request.requestedDate, DATE_TIME_FORMAT)}
+            value={formatShortDateTime(request.requestedDate)}
           />
           <DataItem
             label={getTranslation('lab.testCategory.label', 'Test category')}

@@ -18,7 +18,6 @@ import { withDateTimeContext, useDateTimeFormat } from '../pdf/withDateTimeConte
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 
-const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
 const labDetailsSectionStyles = StyleSheet.create({
   barcodeLabelText: {
     marginTop: 9,
@@ -72,7 +71,7 @@ const getAreaNote = ({ areas, areaNote }) => {
 };
 
 const ImagingRequestDetailsView = ({ imagingRequests, getLocalisation }) => {
-  const { formatCustom } = useDateTimeFormat();
+  const { formatShortDateTime } = useDateTimeFormat();
   const notesAccessor = ({ notes }) => {
     return notes
       ?.filter(note => note.noteTypeId === NOTE_TYPES.OTHER)
@@ -106,7 +105,7 @@ const ImagingRequestDetailsView = ({ imagingRequests, getLocalisation }) => {
                 <Row>
                   <DataItem
                     label="Requested date & time"
-                    value={formatCustom(imagingRequest.requestedDate, DATE_TIME_FORMAT)}
+                    value={formatShortDateTime(imagingRequest.requestedDate)}
                   />
                   <DataItem label="Requested by" value={imagingRequest.requestedBy?.displayName} />
                 </Row>

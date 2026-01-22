@@ -16,6 +16,8 @@ import {
   formatShortExplicit,
   formatShortestExplicit,
   formatDayMonth,
+  formatShortDateTime,
+  formatShortestDateTime,
   formatDateTimeLocal,
 } from '@tamanu/utils/dateTime';
 import { useAuth } from './AuthContext';
@@ -35,6 +37,8 @@ const utils = {
   formatShortExplicit,
   formatShortestExplicit,
   formatDayMonth,
+  formatShortDateTime,
+  formatShortestDateTime,
   formatDateTimeLocal,
 };
 

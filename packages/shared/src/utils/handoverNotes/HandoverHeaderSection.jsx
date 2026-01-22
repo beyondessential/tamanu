@@ -6,7 +6,7 @@ import { useDateTimeFormat } from '../pdf/withDateTimeContext';
 
 export const HandoverHeaderSection = ({ letterheadConfig, logoSrc, locationGroupName }) => {
   const { title, subTitle } = letterheadConfig;
-  const { formatCustom } = useDateTimeFormat();
+  const { formatShortestDateTime } = useDateTimeFormat();
   return (
     <>
       {logoSrc && <Logo logoSrc={logoSrc} />}
@@ -52,7 +52,7 @@ export const HandoverHeaderSection = ({ letterheadConfig, logoSrc, locationGroup
             marginTop: 0,
           }}
         >
-          {locationGroupName} | {formatCustom(new Date(), 'dd/MM/yy hh:mm a')}
+          {locationGroupName} | {formatShortestDateTime(new Date())}
         </H1>
       </Box>
       <Divider />
