@@ -22,7 +22,7 @@ export function createChangeRecorders<T extends Model>(
    */
   const onChangeForeignKey = async ({
     columnName,
-    fieldLabel,
+    noteLabel,
     model,
     sequelizeOptions = {},
     accessor = (record: typeof Model) => record?.name ?? '-',
@@ -30,7 +30,7 @@ export function createChangeRecorders<T extends Model>(
     onChange,
   }: {
     columnName: keyof T;
-    fieldLabel: string;
+    noteLabel: string;
     model: typeof Model;
     sequelizeOptions?: any;
     accessor?: (record: any) => string;
@@ -49,7 +49,7 @@ export function createChangeRecorders<T extends Model>(
     const newRecord = await model.findByPk(updateData[columnName] as any, sequelizeOptions);
 
     systemNoteRows.push(
-      `Changed ${fieldLabel} from ‘${accessor(oldRecord)}’ to ‘${accessor(newRecord)}’`,
+      `Changed ${noteLabel} from ‘${accessor(oldRecord)}’ to ‘${accessor(newRecord)}’`,
     );
     await onChange?.();
   };
@@ -60,13 +60,13 @@ export function createChangeRecorders<T extends Model>(
    */
   const onChangeTextColumn = async ({
     columnName,
-    fieldLabel,
+    noteLabel,
     formatText = (value: any) => value ?? '-',
     changeType,
     onChange,
   }: {
     columnName: keyof T;
-    fieldLabel: string;
+    noteLabel: string;
     formatText?: (value: any) => string;
     changeType?: string;
     onChange?: () => Promise<void>;
@@ -82,7 +82,7 @@ export function createChangeRecorders<T extends Model>(
     const oldValue = modelInstance[columnName];
     const newValue = updateData[columnName];
     systemNoteRows.push(
-      `Changed ${fieldLabel} from ‘${formatText(oldValue)}’ to ‘${formatText(newValue)}’`,
+      `Changed ${noteLabel} from ‘${formatText(oldValue)}’ to ‘${formatText(newValue)}’`,
     );
     await onChange?.();
   };

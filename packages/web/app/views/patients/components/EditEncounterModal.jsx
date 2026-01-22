@@ -25,6 +25,7 @@ import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useEncounter } from '../../../contexts/Encounter';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { isEmergencyPatient } from '../../../utils/isEmergencyPatient';
 
 const StyledFormGrid = styled(FormGrid)`
   margin-bottom: 20px;
@@ -323,35 +324,39 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
 
   const triage = encounter.triages?.[0];
 
-  const onSubmit = async values => {
-    const {
-      startDate,
+  const onSubmitTriageForm = async ({
+    startDate,
+    arrivalTime,
+    arrivalModeId,
+    score,
+    chiefComplaintId,
+    secondaryComplaintId,
+  }) => {
+    await api.put(`triage/${triage?.id}`, {
+      submittedTime: getCurrentDateTimeString(),
+      encounterId: encounter.id,
       arrivalTime,
+      triageTime: startDate,
       arrivalModeId,
       score,
       chiefComplaintId,
       secondaryComplaintId,
-      referralSourceId,
-      patientBillingTypeId,
-      dietIds,
-      reasonForEncounter,
-      estimatedEndDate,
-    } = values;
+    });
 
-    if (triage) {
-      await api.put(`triage/${triage.id}`, {
-        submittedTime: getCurrentDateTimeString(),
-        encounterId: encounter.id,
-        arrivalTime,
-        triageTime: startDate,
-        arrivalModeId,
-        score,
-        chiefComplaintId,
-        secondaryComplaintId,
-      });
-    }
+    // Keep the encounter start date in sync with the triage start date when using this form
+    await writeAndViewEncounter(encounter.id, { startDate, skipSystemNotes: true });
+  };
 
+  const onSubmitEncounterForm = async ({
+    startDate,
+    referralSourceId,
+    patientBillingTypeId,
+    dietIds,
+    reasonForEncounter,
+    estimatedEndDate,
+  }) => {
     await writeAndViewEncounter(encounter.id, {
+      submittedTime: getCurrentDateTimeString(),
       startDate,
       referralSourceId,
       patientBillingTypeId,
@@ -372,7 +377,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
       <Form
         initialValues={getFormInitialValues({ encounter, triage })}
         formType={FORM_TYPES.EDIT_FORM}
-        onSubmit={onSubmit}
+        onSubmit={isEmergencyPatient(encounter.encounterType) ? onSubmitTriageForm : onSubmitEncounterForm}
         render={({ submitForm }) => (
           <>
             <StyledFormGrid>

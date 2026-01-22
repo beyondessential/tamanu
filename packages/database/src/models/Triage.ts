@@ -149,27 +149,32 @@ export class Triage extends Model {
     const updateTriage = async () => {
       await onChangeForeignKey({
         columnName: 'chiefComplaintId',
-        fieldLabel: 'chief complaint',
+        noteLabel: 'chief complaint',
         model: ReferenceData,
       });
       await onChangeForeignKey({
         columnName: 'secondaryComplaintId',
-        fieldLabel: 'secondary complaint',
+        noteLabel: 'secondary complaint',
         model: ReferenceData,
       });
       await onChangeForeignKey({
         columnName: 'arrivalModeId',
-        fieldLabel: 'arrival mode',
+        noteLabel: 'arrival mode',
         model: ReferenceData,
       });
       await onChangeTextColumn({
         columnName: 'arrivalTime',
-        fieldLabel: 'arrival time',
+        noteLabel: 'arrival time',
+        formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
+      });
+      await onChangeTextColumn({
+        columnName: 'triageTime',
+        noteLabel: 'triage date & time',
         formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
       });
       await onChangeTextColumn({
         columnName: 'score',
-        fieldLabel: 'triage score',
+        noteLabel: 'triage score',
       });
 
       const { submittedTime, ...triageData } = data;

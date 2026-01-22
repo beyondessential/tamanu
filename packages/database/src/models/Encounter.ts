@@ -12,7 +12,7 @@ import {
 } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
 import { dischargeOutpatientEncounters } from '@tamanu/shared/utils/dischargeOutpatientEncounters';
-import { formatShort, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { formatShort, formatTime, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { Model } from './Model';
 import {
@@ -572,7 +572,7 @@ export class Encounter extends Model {
 
       await onChangeForeignKey({
         columnName: 'locationId',
-        fieldLabel: 'location',
+        noteLabel: 'location',
         model: Location,
         sequelizeOptions: {
           include: ['locationGroup'],
@@ -587,7 +587,7 @@ export class Encounter extends Model {
       });
       await onChangeTextColumn({
         columnName: 'encounterType',
-        fieldLabel: 'encounter type',
+        noteLabel: 'encounter type',
         formatText: capitalize,
         changeType: EncounterChangeType.EncounterType,
         onChange: async () => {
@@ -596,56 +596,48 @@ export class Encounter extends Model {
       });
       await onChangeForeignKey({
         columnName: 'departmentId',
-        fieldLabel: 'department',
+        noteLabel: 'department',
         model: Department,
         changeType: EncounterChangeType.Department,
       });
       await onChangeForeignKey({
         columnName: 'examinerId',
-        fieldLabel: 'supervising clinician',
+        noteLabel: 'supervising clinician',
         model: User,
         accessor: (record: any) => record?.displayName ?? '-',
         changeType: EncounterChangeType.Examiner,
       });
 
-      let startDateLabel = 'Date';
-      switch (data.encounterType ?? this.encounterType) {
-        case ENCOUNTER_TYPES.ADMISSION:
-          startDateLabel = 'Admission date';
-          break;
-        case ENCOUNTER_TYPES.TRIAGE:
-        case ENCOUNTER_TYPES.OBSERVATION:
-        case ENCOUNTER_TYPES.EMERGENCY:
-          startDateLabel = 'Triage date';
-          break;
-      }
-
+      // Start date is referred to differently in the UI based on the encounter type
+      const encounterType = data.encounterType ?? this.encounterType;
       await onChangeTextColumn({
         columnName: 'startDate',
-        fieldLabel: startDateLabel,
-        formatText: date => (date ? formatShort(date) : '-'),
+        noteLabel:
+          encounterType === ENCOUNTER_TYPES.ADMISSION ? 'admission date & time' : 'date & time',
+        formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
       });
+
       await onChangeTextColumn({
         columnName: 'estimatedEndDate',
-        fieldLabel: 'estimated discharge date',
+        noteLabel: 'estimated discharge date',
         formatText: date => (date ? formatShort(date) : '-'),
       });
       await onChangeForeignKey({
         columnName: 'patientBillingTypeId',
-        fieldLabel: 'patient type',
+        noteLabel: 'patient type',
         model: ReferenceData,
       });
       await onChangeForeignKey({
         columnName: 'referralSourceId',
-        fieldLabel: 'referral source',
+        noteLabel: 'referral source',
         model: ReferenceData,
       });
       await onChangeTextColumn({
         columnName: 'reasonForEncounter',
-        fieldLabel: 'reason for encounter',
+        noteLabel: 'reason for encounter',
       });
 
-      const { submittedTime, ...encounterData } = data;
+      const { submittedTime, skipSystemNotes, ...encounterData } = data;
       const updatedEncounter = await super.update({ ...encounterData, ...additionalChanges }, user);
 
       // Create snapshot with array of change types
@@ -657,7 +649,7 @@ export class Encounter extends Model {
         });
       }
 
-      if (systemNoteRows.length > 0) {
+      if (!skipSystemNotes && systemNoteRows.length > 0) {
         const formattedSystemNote = systemNoteRows.map(row => `• ${row}`).join('\n');
         await this.addSystemNote(
           formattedSystemNote,
