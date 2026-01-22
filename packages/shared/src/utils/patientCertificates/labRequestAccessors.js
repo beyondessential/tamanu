@@ -1,13 +1,13 @@
-export const getCompletedDate = ({ completedDate }, _getLocalisation, _getSetting, { formatShortExplicit }) =>
+export const getCompletedDate = ({ completedDate }, _, __, { formatShortExplicit }) =>
   completedDate ? formatShortExplicit(completedDate) : 'Unknown';
 
-export const getDateOfSwab = ({ sampleTime }, _getLocalisation, _getSetting, { formatShortExplicit }) =>
+export const getDateOfSwab = ({ sampleTime }, _, __, { formatShortExplicit }) =>
   sampleTime ? formatShortExplicit(sampleTime) : 'Unknown';
 
-export const getTimeOfSwab = ({ sampleTime }, _getLocalisation, _getSetting, { formatTime }) =>
+export const getTimeOfSwab = ({ sampleTime }, _, __, { formatTime }) =>
   sampleTime ? formatTime(sampleTime) : 'Unknown';
 
-export const getLaboratory = ({ laboratory }, _getLocalisation, getSetting) =>
+export const getLaboratory = ({ laboratory }, _, getSetting) =>
   laboratory?.name || getSetting('templates.covidTestCertificate.laboratoryName');
 
 export const getLabMethod = ({ labTestMethod }) => (labTestMethod || {}).name || 'Unknown';
