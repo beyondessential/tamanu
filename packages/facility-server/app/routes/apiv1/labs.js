@@ -626,6 +626,8 @@ labTest.get(
       }
     }
 
+    // Remove the last entry, which is the initial empty result
+    distinctChanges.pop();
     res.send(distinctChanges);
   }),
 );
