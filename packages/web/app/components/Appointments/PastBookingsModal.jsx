@@ -2,6 +2,7 @@ import { Box } from '@material-ui/core';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
 import React from 'react';
 import styled from 'styled-components';
+import { isSameDay, parseISO } from 'date-fns';
 
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
@@ -123,7 +124,7 @@ const OvernightIcon = styled.span`
 `;
 
 const DateCell = ({ startTime, endTime }) => {
-  const isOvernight = startTime !== endTime;
+  const isOvernight = !isSameDay(parseISO(startTime), parseISO(endTime));
 
   return (
     <ThemedTooltip
