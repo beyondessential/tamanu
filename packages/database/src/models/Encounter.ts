@@ -1,5 +1,5 @@
 import { Op, DataTypes } from 'sequelize';
-import { capitalize, isEqual, lowerCase } from 'lodash';
+import { capitalize, isEqual } from 'lodash';
 
 import {
   ENCOUNTER_TYPE_VALUES,
@@ -12,7 +12,7 @@ import {
 } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
 import { dischargeOutpatientEncounters } from '@tamanu/shared/utils/dischargeOutpatientEncounters';
-import { formatShort, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { formatShort, formatTime, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { Model } from './Model';
 import {
@@ -608,22 +608,22 @@ export class Encounter extends Model {
         changeType: EncounterChangeType.Examiner,
       });
 
-      let startDateLabel = 'Date';
+      let startDateLabel = 'date & time';
       switch (data.encounterType ?? this.encounterType) {
         case ENCOUNTER_TYPES.ADMISSION:
-          startDateLabel = 'Admission date';
+          startDateLabel = 'admission date & time';
           break;
         case ENCOUNTER_TYPES.TRIAGE:
         case ENCOUNTER_TYPES.OBSERVATION:
         case ENCOUNTER_TYPES.EMERGENCY:
-          startDateLabel = 'Triage date';
+          startDateLabel = 'triage date & time';
           break;
       }
 
       await onChangeTextColumn({
         columnName: 'startDate',
-        fieldLabel: lowerCase(startDateLabel), 
-        formatText: date => (date ? formatShort(date) : '-'),
+        fieldLabel: startDateLabel, 
+        formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
       });
       await onChangeTextColumn({
         columnName: 'estimatedEndDate',
