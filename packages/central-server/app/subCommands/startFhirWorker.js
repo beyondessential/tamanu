@@ -1,4 +1,5 @@
 import { Command } from 'commander';
+import config from 'config';
 
 import { log } from '@tamanu/shared/services/logging';
 
@@ -7,6 +8,12 @@ import { startFhirWorkerTasks } from '../tasks';
 import pkg from '../../package.json';
 
 export const startFhirWorker = async ({ name, skipMigrationCheck, topics }) => {
+
+  if (!config.integrations.fhir.enabled) {
+    log.info('FHIR integration is disabled, skipping FHIR worker');
+    return;
+  }
+
   log.info(`Starting Central FHIR worker version ${pkg.version}`);
 
   const appType = CENTRAL_SERVER_APP_TYPES.FHIR_WORKER;

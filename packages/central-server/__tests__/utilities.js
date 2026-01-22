@@ -23,7 +23,7 @@ class MockApplicationContext {
 
     if (config.db.reportSchemas?.enabled) {
       await createMockReportingSchemaAndRoles({ sequelize: this.store.sequelize });
-      this.reportSchemaStores = await initReporting();
+      this.reportSchemaStores = await initReporting(this.store);
     }
     this.emailService = {
       sendEmail: jest.fn().mockImplementation(() =>
