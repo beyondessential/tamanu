@@ -6,7 +6,8 @@ import { Colors } from '../../constants/styles';
 import { Table } from '../../components/Table';
 import { DateHeadCell, RangeValidatedCell } from '../../components/FormattedTableCell';
 import { LabTestResultModal } from './LabTestResultModal';
-import { BodyText, DateDisplay, TimeDisplay } from '../../components';
+import { BodyText } from '../../components';
+import { useDateTimeFormat } from '../../contexts/DateTimeContext';
 
 const COLUMN_WIDTHS = [150, 120, 120];
 
@@ -104,14 +105,9 @@ const StyledButton = styled(Button)`
   }
 `;
 
-const getTitle = value => (
-  <>
-    <DateDisplay date={value} /> <TimeDisplay date={value} format="withSeconds" />
-  </>
-);
-
 export const PatientLabTestsTable = React.memo(
   ({ patient, labTests = [], count, isLoading, searchParameters }) => {
+    const { formatShort, formatTimeWithSeconds } = useDateTimeFormat();
     const [modalLabTestId, setModalLabTestId] = useState();
     const [modalOpen, setModalOpen] = useState(false);
     const openModal = id => {
@@ -232,7 +228,7 @@ export const PatientLabTestsTable = React.memo(
             );
           },
           exportOverrides: {
-            title: `${getTitle(date)}`,
+            title: `${formatShort(date)} ${formatTimeWithSeconds(date)}`,
             accessor: row => row.results[date]?.result || '—', // em dash
           },
         })),

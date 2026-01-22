@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Barcode from 'react-barcode';
-import { DateDisplay } from '../../DateDisplay';
+import { useDateTimeFormat } from '../../../contexts/DateTimeContext';
 
 const Container = styled.div`
   position: relative;
@@ -73,7 +73,7 @@ const BarcodeContainer = styled.div`
  * why the whole component is made with svgs
  */
 export const LabRequestPrintLabel = React.memo(({ data, printWidth }) => {
-  const { formatShort, formatTime } = useDateTimeFormat();
+  const { formatShort } = useDateTimeFormat();
   const {
     patientId,
     patientName,
