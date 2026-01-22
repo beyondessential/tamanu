@@ -332,7 +332,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
     chiefComplaintId,
     secondaryComplaintId,
   }) => {
-    await api.put(`triage/${triage.id}`, {
+    await api.put(`triage/${triage?.id}`, {
       submittedTime: getCurrentDateTimeString(),
       encounterId: encounter.id,
       arrivalTime,
@@ -342,8 +342,9 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
       chiefComplaintId,
       secondaryComplaintId,
     });
-    await writeAndViewEncounter(encounter.id, { startDate, skipSystemNotes: true });
 
+    // Keep the encounter start date in sync with the triage start date when using this form
+    await writeAndViewEncounter(encounter.id, { startDate, skipSystemNotes: true });
   };
 
   const onSubmitEncounterForm = async ({
