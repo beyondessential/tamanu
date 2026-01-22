@@ -25,6 +25,7 @@ import {
   FormGrid,
   DateDisplay,
   TimeDisplay,
+  TimeRangeDisplay,
 } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { CheckField, Field } from '../Field';
@@ -472,8 +473,10 @@ export const MedicationDetails = ({
                         const slot = findAdministrationTimeSlotFromIdealTime(time).timeSlot;
                         return (
                           <DarkestText key={time}>
-                            <TimeDisplay date={slot.startTime} format="compact" noTooltip /> -{' '}
-                            <TimeDisplay date={slot.endTime} format="compact" noTooltip />
+                            <TimeRangeDisplay range={{ 
+                              start: getDateFromTimeString(slot.startTime), 
+                              end: getDateFromTimeString(slot.endTime) 
+                            }} />
                           </DarkestText>
                         );
                       })}
@@ -489,7 +492,7 @@ export const MedicationDetails = ({
                       .map(time => {
                         return (
                           <MidText key={time}>
-                            <TimeDisplay date={time} format="compact" noTooltip />
+                            <TimeDisplay date={getDateFromTimeString(time)} format="compact" noTooltip />
                           </MidText>
                         );
                       })}

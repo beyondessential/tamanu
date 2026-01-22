@@ -24,7 +24,7 @@ export const usePatientSuggester = () => {
     () =>
       new Suggester(api, 'patient', {
         formatter: ({ id, ...patient }) => ({
-          label: `${getPatientNameAsString(patient)}(${patient.displayId}) - ${patient.sex} - ${formatShort(patient.dateOfBirth)}`,
+          label: `${getPatientNameAsString(patient)} (${patient.displayId}) - ${patient.sex} - ${formatShort(patient.dateOfBirth)}`,
           value: id,
         }),
       }),

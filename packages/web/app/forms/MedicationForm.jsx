@@ -20,7 +20,7 @@ import {
   getFirstAdministrationDate,
 } from '@tamanu/shared/utils/medication';
 import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { subSeconds } from 'date-fns';
+import { format, subSeconds } from 'date-fns';
 import { useFormikContext } from 'formik';
 import { toast } from 'react-toastify';
 import { foreignKey } from '../utils/validation';
@@ -328,7 +328,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
     setValues({
       ...values,
       timeSlots: selectedTimeSlots.map(s =>
-        s.index === index ? { ...s, value: formatTimeCompact(value) } : s,
+        s.index === index ? { ...s, value: format(value, 'HH:mm') } : s,
       ),
     });
   };

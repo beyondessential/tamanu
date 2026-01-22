@@ -3,4 +3,5 @@ export {
   TimeDisplay,
   MultilineDatetimeDisplay,
   TimeRangeDisplay,
+  DateTimeRangeDisplay,
 } from '@tamanu/ui-components';
