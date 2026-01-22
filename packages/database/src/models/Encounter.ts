@@ -610,11 +610,10 @@ export class Encounter extends Model {
 
       // Start date is referred to differently in the UI based on the encounter type
       const encounterType = data.encounterType ?? this.encounterType;
-      const noteLabel =
-        encounterType === ENCOUNTER_TYPES.ADMISSION ? 'admission date & time' : 'date & time';
       await onChangeTextColumn({
         columnName: 'startDate',
-        noteLabel,
+        noteLabel:
+          encounterType === ENCOUNTER_TYPES.ADMISSION ? 'admission date & time' : 'date & time',
         formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
       });
 
