@@ -450,8 +450,9 @@ patientRoute.get(
         ${select}
         ${from}
 
-        ORDER BY  ${filterSort && `${filterSort},`
-      } ${sortKey} ${sortDirection}, ${secondarySearchTerm} NULLS LAST
+        ORDER BY  ${
+          filterSort && `${filterSort},`
+        } ${sortKey} ${sortDirection}, ${secondarySearchTerm} NULLS LAST
         LIMIT :limit
         OFFSET :offset
       `,
@@ -567,20 +568,20 @@ patientRoute.get(
         ],
         orderBy === 'route'
           ? [
-            literal(
-              `CASE "Prescription"."route" ${Object.entries(DRUG_ROUTE_LABELS)
-                .map(([value, label]) => `WHEN '${value}' THEN '${label.replace(/'/g, "''")}'`)
-                .join(' ')} ELSE "Prescription"."route" END`,
-            ),
-            order.toUpperCase(),
-          ]
+              literal(
+                `CASE "Prescription"."route" ${Object.entries(DRUG_ROUTE_LABELS)
+                  .map(([value, label]) => `WHEN '${value}' THEN '${label.replace(/'/g, "''")}'`)
+                  .join(' ')} ELSE "Prescription"."route" END`,
+              ),
+              order.toUpperCase(),
+            ]
           : [...orderBy.split('.'), order.toUpperCase()],
       ],
       ...(page && rowsPerPage
         ? {
-          limit: rowsPerPage,
-          offset: page * rowsPerPage,
-        }
+            limit: rowsPerPage,
+            offset: page * rowsPerPage,
+          }
         : {}),
     });
 
