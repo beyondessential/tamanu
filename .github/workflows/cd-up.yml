@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     name: ${{ inputs.deploy-name }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - id: setup
         uses: ./.github/actions/setup-cd
         with:

@@ -12,7 +12,7 @@ runs:
   steps:
     - if: inputs.ops-ssh-key
       name: Checkout ops
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         repository: beyondessential/ops
         ssh-key: ${{ inputs.ops-ssh-key }}
@@ -25,14 +25,14 @@ runs:
 
     - name: Install Node.js for ops
       if: inputs.ops-ssh-key
-      uses: actions/setup-node@v5
+      uses: actions/setup-node@v6
       with:
         node-version-file: ops/.node-version
         cache: npm
 
     - name: Install Node.js for us
       if: '!inputs.ops-ssh-key'
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version-file: .node-version
         cache: npm
