@@ -308,6 +308,9 @@ export class AutocompleteInput extends Component {
 
   clearOptions = () => {
     this.setState({ suggestions: [] });
+    if (this.inputElementNode) {
+      this.inputElementNode.blur();
+    }
   };
 
   onKeyDown = event => {
