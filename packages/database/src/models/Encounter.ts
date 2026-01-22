@@ -366,11 +366,10 @@ export class Encounter extends Model {
           FROM encounters e
           INNER JOIN lab_requests lr ON lr.encounter_id = e.id
           WHERE (e.updated_at_sync_tick > :since OR lr.updated_at_sync_tick > :since)
-          ${
-            patientCount > 0
-              ? `AND e.patient_id NOT IN (SELECT patient_id FROM ${markedForSyncPatientsTable}) -- no need to sync if it would be synced anyway`
-              : ''
-          }
+          ${patientCount > 0
+          ? `AND e.patient_id NOT IN (SELECT patient_id FROM ${markedForSyncPatientsTable}) -- no need to sync if it would be synced anyway`
+          : ''
+        }
           GROUP BY e.id
         ) AS encounters_with_labs ON encounters_with_labs.id = encounters.id
       `);
@@ -613,11 +612,11 @@ export class Encounter extends Model {
       if (!isEmergencyEncounter) {
         await onChangeTextColumn({
           columnName: 'startDate',
-          fieldLabel: 'date & time', 
+          fieldLabel: ENCOUNTER_TYPES.ADMISSION ? 'admission date & time' : 'date & time',
           formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
         });
       }
-      
+
       await onChangeTextColumn({
         columnName: 'estimatedEndDate',
         fieldLabel: 'estimated discharge date',
