@@ -122,4 +122,32 @@ describe('PatientInvoiceInsurancePlan', () => {
     expect(thirdPatientInvoiceInsurancePlans.filter(p => p.deletedAt).map(p => p.invoiceInsurancePlanId)).toEqual([]);
     expect(thirdPatientInvoiceInsurancePlans.filter(p => !p.deletedAt).map(p => p.invoiceInsurancePlanId)).toEqual([insurancePlan1.id, insurancePlan2.id, insurancePlan3.id]);
   });
+
+  it('should delete all patient invoice insurance plans if the list of insurance plans is empty', async () => {
+    // Create the patient invoice insurance plan
+    const firstUpdateResult = await app.put(`/api/patient/${patient.id}`).send({
+      invoiceInsurancePlanId: JSON.stringify([insurancePlan1.id, insurancePlan2.id, insurancePlan3.id]),
+    });
+    expect(firstUpdateResult).toHaveSucceeded();
+
+    const firstPatientInvoiceInsurancePlans = await models.PatientInvoiceInsurancePlan.findAll({
+      where: { patientId: patient.id },
+    });
+    expect(firstPatientInvoiceInsurancePlans).toHaveLength(3);
+    expect(firstPatientInvoiceInsurancePlans.map(p => p.invoiceInsurancePlanId)).toEqual([insurancePlan1.id, insurancePlan2.id, insurancePlan3.id]);
+
+    // Delete all patient invoice insurance plans
+    const secondUpdateResult = await app.put(`/api/patient/${patient.id}`).send({
+      invoiceInsurancePlanId: JSON.stringify([]),
+    });
+    expect(secondUpdateResult).toHaveSucceeded();
+
+    const secondPatientInvoiceInsurancePlans = await models.PatientInvoiceInsurancePlan.findAll({
+      where: { patientId: patient.id },
+      paranoid: false,
+    });
+    expect(secondPatientInvoiceInsurancePlans).toHaveLength(3);
+    expect(secondPatientInvoiceInsurancePlans.filter(p => !p.deletedAt).map(p => p.invoiceInsurancePlanId)).toEqual([]);
+    expect(secondPatientInvoiceInsurancePlans.filter(p => p.deletedAt).map(p => p.invoiceInsurancePlanId)).toEqual([insurancePlan1.id, insurancePlan2.id, insurancePlan3.id]);
+  });
 });

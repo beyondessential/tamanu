@@ -16,7 +16,6 @@ export class PatientInvoiceInsurancePlan extends Model {
         id: primaryKey,
         patientId: {
           type: DataTypes.STRING,
-          primaryKey: true,
           references: {
             model: 'patients',
             key: 'id',
@@ -24,7 +23,6 @@ export class PatientInvoiceInsurancePlan extends Model {
         },
         invoiceInsurancePlanId: {
           type: DataTypes.STRING,
-          primaryKey: true,
           references: {
             model: 'invoice_insurance_plans',
             key: 'id',

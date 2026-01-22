@@ -106,7 +106,12 @@ patientRoute.put(
 
     req.checkPermission('write', patient);
 
-    const validatedBody = validate(updatePatientSchema, { ...body, facilityId });
+    const updatePatientBody = {
+      ...body,
+      facilityId,
+      invoiceInsurancePlanId: body.invoiceInsurancePlanId ? JSON.parse(body.invoiceInsurancePlanId) : undefined,
+    };
+    const validatedBody = validate(updatePatientSchema, updatePatientBody);
 
     await db.transaction(async () => {
       // First check if displayId changed to create a secondaryId record
@@ -149,9 +154,7 @@ patientRoute.put(
 
       await patient.writeFieldValues(validatedBody.patientFields);
 
-      if (validatedBody.invoiceInsurancePlanId) {
-        await savePatientInsurancePlans(PatientInvoiceInsurancePlan, patient.id, validatedBody.invoiceInsurancePlanId);
-      }
+      await savePatientInsurancePlans(PatientInvoiceInsurancePlan, patient.id, validatedBody.invoiceInsurancePlanId);
     });
 
     res.send(dbRecordToResponse(patient, facilityId));
@@ -165,7 +168,11 @@ patientRoute.post(
     const { Patient, PatientAdditionalData, PatientBirthData, PatientFacility, PatientInvoiceInsurancePlan } = models;
     req.checkPermission('create', 'Patient');
 
-    const validatedBody = validate(createPatientSchema, body);
+    const createPatientBody = {
+      ...body,
+      invoiceInsurancePlanId: body.invoiceInsurancePlanId ? JSON.parse(body.invoiceInsurancePlanId) : undefined,
+    };
+    const validatedBody = validate(createPatientSchema, createPatientBody);
 
     const requestData = requestBodyToRecord(validatedBody);
     const { patientRegistryType, facilityId, ...patientData } = requestData;
@@ -194,9 +201,7 @@ patientRoute.post(
       // mark for sync in this facility
       await PatientFacility.create({ facilityId, patientId: createdPatient.id });
 
-      if (validatedBody.invoiceInsurancePlanId) {
-        await savePatientInsurancePlans(PatientInvoiceInsurancePlan, createdPatient.id, validatedBody.invoiceInsurancePlanId);
-      }
+      await savePatientInsurancePlans(PatientInvoiceInsurancePlan, createdPatient.id, validatedBody.invoiceInsurancePlanId);
 
       return createdPatient;
     });
