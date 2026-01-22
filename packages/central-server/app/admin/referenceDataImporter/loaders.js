@@ -506,7 +506,7 @@ export async function taskTemplateLoader(item, { models, pushError }) {
 }
 
 export async function drugLoader(item, { models, pushError }) {
-  // eslint-disable-next-line no-unused-vars
+  /* eslint-disable no-unused-vars */
   const {
     id: drugId,
     route,
@@ -519,6 +519,7 @@ export async function drugLoader(item, { models, pushError }) {
     systemRequired,
     ...rest
   } = item;
+  /* eslint-enable no-unused-vars */
   const rows = [];
 
   let existingDrug;
