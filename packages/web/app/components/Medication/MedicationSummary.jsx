@@ -3,7 +3,7 @@ import React from 'react';
 import { Box } from '@mui/material';
 import styled from 'styled-components';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
-import { DateDisplay, TranslatedReferenceData, TranslatedText, TimeDisplay } from '@tamanu/ui-components';
+import { DateDisplay, TranslatedReferenceData, TranslatedText } from '@tamanu/ui-components';
 import { CheckSharp } from '@material-ui/icons';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { Colors } from '../../constants';

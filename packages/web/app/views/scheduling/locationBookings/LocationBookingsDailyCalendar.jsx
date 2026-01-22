@@ -1028,7 +1028,7 @@ export const LocationBookingsDailyCalendar = ({
               const height = (durationMinutes / 60) * 70; // 70px per hour
               return (
                 <TimeSlot key={index} data-testid={`time-slot-${index}`} height={height}>
-                  <TimeDisplay date={slot.start} format="compact" />
+                  <TimeDisplay date={slot.start}/>
                 </TimeSlot>
               );
             })}

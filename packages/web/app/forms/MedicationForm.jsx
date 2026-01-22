@@ -45,8 +45,6 @@ import {
   FormGrid,
   FormSubmitButton,
   Dialog,
-  DateDisplay,
-  TimeDisplay,
   useDateTimeFormat,
 } from '@tamanu/ui-components';
 import { Colors, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
@@ -289,14 +287,10 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
 
     const firstSlot = findAdministrationTimeSlotFromIdealTime(firstStartTime).timeSlot;
 
-    return (
-      <>
-        {formatTimeCompact(getDateFromTimeString(firstSlot.startTime))} {' '}
-        - {formatTimeCompact(getDateFromTimeString(firstSlot.endTime))} {' '}
-        {formatShort(new Date(firstStartTime))}
-      </>
-    );
-  }, [values.startDate, selectedTimeSlots]);
+    return `${formatTimeCompact(getDateFromTimeString(firstSlot.startTime))} - ${formatTimeCompact(
+      getDateFromTimeString(firstSlot.endTime),
+    )} ${formatShort(new Date(firstStartTime))}`;
+  }, [values.startDate, values.frequency, selectedTimeSlots, formatTimeCompact, formatShort]);
 
   useEffect(() => {
     if (frequencyChanged) {
@@ -457,8 +451,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
                       <CheckInput
                         label={
                           <FieldContent>
-                            <TimeDisplay date={startTime} format="compact" noTooltip /> -{' '}
-                            <TimeDisplay date={endTime} format="compact" noTooltip />
+                            {`${formatTimeCompact(startTime)} - ${formatTimeCompact(endTime)}`}
                           </FieldContent>
                         }
                         value={checked}
