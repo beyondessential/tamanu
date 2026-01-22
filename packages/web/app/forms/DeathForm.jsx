@@ -629,7 +629,7 @@ export const DeathForm = React.memo(
                 />
               }
               component={RadioField}
-              options={BINARY_OPTIONS}
+              options={BINARY_UNKNOWN_OPTIONS}
               data-testid="field-y4u7"
             />
             <Field
