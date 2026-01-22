@@ -329,6 +329,7 @@ export class PatientDetailsPage extends BasePatientPage {
   }
 
   async waitForEncounterToBeReady(): Promise<void> {
+    await this.page.waitForURL(/\/encounter\/[^/]+/, { timeout: 30000 });
     await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 

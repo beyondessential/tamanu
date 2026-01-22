@@ -1,6 +1,7 @@
 import { Locator, Page, expect } from '@playwright/test';
 import { BasePatientPane } from '../../PatientDetailsPage/panes/BasePatientPane';
 import { MedicationModal, MedicationFormData } from '../modals/MedicationModal';
+import { MedicationDetailsModal } from '../modals/MedicationDetailsModal';
 
 export class EncounterMedicationPane extends BasePatientPane {
   readonly contentPane!: Locator;
@@ -49,15 +50,17 @@ export class EncounterMedicationPane extends BasePatientPane {
     this.newPrescriptionButton = page
       .getByTestId('component-enxe')
       .filter({ hasText: 'New prescription' });
-    this.medicationAdminRecordButton = page.getByRole('button', {
-      name: 'Medication admin record',
-      exact: true,
-    });
+    this.medicationAdminRecordButton = page.getByRole('button', { name: 'Medication admin record', exact: true });
   }
+  
+  // Helper method to get cells for a specific row
+  private getRowCells(row: Locator): Locator {
+    return row.locator('td');
+  } 
 
   async waitForPaneToLoad(): Promise<void> {
     await this.medicationTable.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
+    await this.page.waitForLoadState('networkidle');
   }
   async waitForMedicationToAppearInTable(): Promise<void> {
     await this.medicationTable.waitFor({ state: 'visible' });
@@ -121,7 +124,7 @@ export class EncounterMedicationPane extends BasePatientPane {
 
     for (let i = 0; i < count; i++) {
       const row = rows.nth(i);
-      const cells = row.locator('td');
+      const cells = this.getRowCells(row);
       const medicationCell = cells.nth(0);
       const text = await medicationCell.textContent();
 
@@ -162,7 +165,9 @@ export class EncounterMedicationPane extends BasePatientPane {
   }
 
   async clickMedicationAdminRecord(): Promise<void> {
+    await this.waitForPaneToLoad();
     await this.medicationAdminRecordButton.click();
+    await this.page.waitForLoadState('networkidle');
   }
 
   async sortByMedication(): Promise<void> {
@@ -179,5 +184,46 @@ export class EncounterMedicationPane extends BasePatientPane {
 
   async sortByPrescriber(): Promise<void> {
     await this.prescriberSortHeader.click();
+  }
+
+  getFirstMedicationCell(row: Locator): Locator {
+    return row.getByTestId('styledtablecell-2gyy').first();
+  }
+
+  async getFirstMedicationText(row: Locator): Promise<string | null> {
+    const cell = this.getFirstMedicationCell(row);
+    return await cell.textContent();
+  }
+
+  async clickFirstMedicationRow(): Promise<MedicationDetailsModal> {
+    const rows = await this.getMedicationTableRows();
+    const firstRow = rows.first();
+    await firstRow.waitFor({ state: 'visible' });
+    await firstRow.click();
+    await this.page.waitForLoadState('networkidle');
+    const medicationDetailsModal = new MedicationDetailsModal(this.page);
+    await medicationDetailsModal.waitForModalToLoad();
+    return medicationDetailsModal;
+  }
+
+  async clickMedicationRowByName(medicationName: string): Promise<MedicationDetailsModal> {
+    const rows = await this.getMedicationTableRows();
+    const count = await rows.count();
+    
+    for (let i = 0; i < count; i++) {
+      const row = rows.nth(i);
+      const medicationCell = this.getRowCells(row).first();
+      const text = await medicationCell.textContent();
+      if (text?.includes(medicationName)) {
+        await row.waitFor({ state: 'visible' });
+        await row.click();
+        await this.page.waitForLoadState('networkidle');
+        const medicationDetailsModal = new MedicationDetailsModal(this.page);
+        await medicationDetailsModal.waitForModalToLoad();
+        return medicationDetailsModal;
+      }
+    }
+    
+    throw new Error(`Medication "${medicationName}" not found in table`);
   }
 }

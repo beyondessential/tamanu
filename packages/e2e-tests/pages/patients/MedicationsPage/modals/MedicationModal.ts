@@ -47,6 +47,7 @@ export class MedicationModal {
   readonly finaliseAndPrintButton!: Locator;
   readonly cancelButton!: Locator;
   readonly continueButton!: Locator;
+  readonly prescriberInputField!: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -81,7 +82,10 @@ export class MedicationModal {
     this.notesTextarea = page.getByTestId('medication-field-notes-5b3t-input');
 
     this.modalTitleText = page.getByTestId('modaltitle-ojhf');
-    this.cancelButton= page.getByTestId('modalcontent-bk4w').getByTestId('outlinedbutton-8rnr'); 
+    this.cancelButton= page.getByTestId('modalcontent-bk4w').getByTestId('outlinedbutton-8rnr');
+    
+    
+    this.prescriberInputField = this.prescriberInput.locator('input');
   }
 
   async waitForModalToLoad(): Promise<void> {
@@ -162,7 +166,7 @@ export class MedicationModal {
     }
 
     if (data.prescriberName) {
-      const currentPrescriberValue = await this.prescriberInput.locator('input').inputValue().catch(() => '');
+      const currentPrescriberValue = await this.prescriberInputField.inputValue().catch(() => '');
       
       if (currentPrescriberValue && currentPrescriberValue !== data.prescriberName) {
         const clearButtonVisible = await this.prescriberClearButton.isVisible().catch(() => false);
@@ -206,13 +210,13 @@ export class MedicationModal {
     }
   }
 
-  async submitForm(print: boolean = false): Promise<void> {
+  async submitForm(print: boolean = false): Promise<void> {s
     await this.page.waitForLoadState('networkidle');
     
     const submitButton = print ? this.finaliseAndPrintButton : this.finaliseButton;
-    await expect(submitButton).toBeEnabled({ timeout: 5000 });
+    await expect(submitButton).toBeEnabled( );
     await submitButton.click();
-    await this.page.waitForLoadState('networkidle', { timeout: 15000 });
+    await this.page.waitForLoadState('networkidle');
     
     if (print) {
       const printModal = new PrintPrescriptionModal(this.page);
@@ -224,5 +228,10 @@ export class MedicationModal {
   async cancel(): Promise<void> {
     await this.cancelButton.click();
     await this.modalTitleText.waitFor({ state: 'hidden' });
+  }
+
+  async waitForModalToClose(): Promise<void> {
+    await this.modalTitleText.waitFor({ state: 'detached'});  
+    await this.page.waitForLoadState('networkidle');
   }
 }
