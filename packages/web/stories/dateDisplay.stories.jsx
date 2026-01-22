@@ -56,35 +56,35 @@ storiesOf('DateDisplay', module)
         <Row label='format="dayMonth"'>
           <DateDisplay date={testDate} format="dayMonth" />
         </Row>
-        <Row label="showWeekday">
-          <DateDisplay date={testDate} showWeekday />
+        <Row label='weekdayFormat="short"'>
+          <DateDisplay date={testDate} weekdayFormat="short" />
         </Row>
-        <Row label='showWeekday format="long"'>
-          <DateDisplay date={testDate} showWeekday format="long" />
+        <Row label='weekdayFormat="short" format="long"'>
+          <DateDisplay date={testDate} weekdayFormat="short" format="long" />
         </Row>
       </Section>
 
       <Section title="With Time">
-        <Row label="showTime (default time format)">
-          <DateDisplay date={testDate} showTime />
+        <Row label='timeFormat="default"'>
+          <DateDisplay date={testDate} timeFormat="default" />
         </Row>
-        <Row label='showTime timeFormat="compact"'>
-          <DateDisplay date={testDate} showTime timeFormat="compact" />
+        <Row label='timeFormat="compact"'>
+          <DateDisplay date={testDate} timeFormat="compact" />
         </Row>
-        <Row label='showTime timeFormat="withSeconds"'>
-          <DateDisplay date={testDate} showTime timeFormat="withSeconds" />
+        <Row label='timeFormat="withSeconds"'>
+          <DateDisplay date={testDate} timeFormat="withSeconds" />
         </Row>
-        <Row label='format="shortest" showTime timeFormat="compact"'>
-          <DateDisplay date={testDate} format="shortest" showTime timeFormat="compact" />
+        <Row label='format="shortest" timeFormat="compact"'>
+          <DateDisplay date={testDate} format="shortest" timeFormat="compact" />
         </Row>
-        <Row label='showWeekday showTime timeFormat="compact"'>
-          <DateDisplay date={testDate} showWeekday showTime timeFormat="compact" />
+        <Row label='weekdayFormat="short" timeFormat="compact"'>
+          <DateDisplay date={testDate} weekdayFormat="short" timeFormat="compact" />
         </Row>
       </Section>
 
       <Section title="Options">
         <Row label="noTooltip">
-          <DateDisplay date={testDate} showTime noTooltip />
+          <DateDisplay date={testDate} timeFormat="default" noTooltip />
         </Row>
       </Section>
     </Box>
