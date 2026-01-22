@@ -185,7 +185,7 @@ const TriageFields = () => {
         data-testid="field-admission-time"
       />
       <Field
-        name="triageTime"
+        name="startDate"
         component={DateTimeField}
         label={
           <TranslatedText stringId="triage.triageDateTime.label" fallback="Triage date & time" />
@@ -335,7 +335,6 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
     const {
       startDate,
       arrivalTime,
-      triageTime,
       arrivalModeId,
       score,
       chiefComplaintId,
@@ -352,7 +351,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
         submittedTime: getCurrentDateTimeString(),
         encounterId: encounter.id,
         arrivalTime,
-        triageTime,
+        triageTime: startDate,
         arrivalModeId,
         score,
         chiefComplaintId,
@@ -361,7 +360,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
     }
 
     await writeAndViewEncounter(encounter.id, {
-      startDate: triageTime || startDate,
+      startDate,
       referralSourceId,
       patientBillingTypeId,
       dietIds,
