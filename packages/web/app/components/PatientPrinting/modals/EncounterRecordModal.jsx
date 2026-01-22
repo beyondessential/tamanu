@@ -104,7 +104,7 @@ const extractLocationHistory = (notes, encounterData) => {
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const { translations, storedLanguage } = useTranslation();
   const { settings } = useSettings();
-  const { localisation, getLocalisation } = useLocalisation();
+  const { getLocalisation } = useLocalisation();
   const { countryTimeZone } = useAuth();
   const { data: vitalsData, recordedDates } = useVitalsQuery(encounter.id);
 
@@ -318,7 +318,6 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           discharge={discharge}
           village={village}
           medications={medications}
-          localisation={localisation}
           translations={translations}
           settings={settings}
           countryTimeZone={countryTimeZone}

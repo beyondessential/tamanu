@@ -20,6 +20,7 @@ import { withDateTimeContext, useDateTimeFormat } from '../pdf/withDateTimeConte
 import { Page } from '../pdf/Page';
 import { Text, TextWithoutContext } from '../pdf/Text';
 import { useTextStyles } from './printComponents/MultiPageHeader';
+import { get } from 'lodash';
 
 const getColumns = (getTranslation, formatShort) => [
   {
@@ -137,7 +138,7 @@ const VaccineCertificateComponent = ({
   watermarkSrc,
   signingSrc,
   logoSrc,
-  getLocalisation,
+  localisation,
   getSetting,
   extraPatientFields,
   certificateData,
@@ -145,6 +146,7 @@ const VaccineCertificateComponent = ({
 }) => {
   const { getTranslation } = useLanguageContext();
   const { formatShort } = useDateTimeFormat();
+  const getLocalisation = key => get(localisation, key);
   const countryName = getLocalisation('country.name');
 
   const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
