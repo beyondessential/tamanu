@@ -5,10 +5,10 @@ import { formatISO, isSameDay, isSameMonth, parseISO, startOfToday } from 'date-
 import queryString from 'query-string';
 
 import { isStartOfThisWeek } from '@tamanu/utils/dateTime';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 
 import { MonthPicker } from '../../../components';
 import { Colors } from '../../../constants';
-import { useDateTimeFormat } from '../../../contexts/DateTimeContext';
 import { CarouselComponents as CarouselGrid } from '../../scheduling/locationBookings/CarouselComponents';
 import { FIRST_DISPLAYED_DAY_ID, THIS_WEEK_ID } from '../../../constants/locationAssignments';
 

@@ -7,10 +7,9 @@ import { useLocationAssignmentsContext } from '../../../contexts/LocationAssignm
 import { CarouselComponents as CarouselGrid } from '../../scheduling/locationBookings/CarouselComponents';
 import { SkeletonRows } from '../../scheduling/locationBookings/Skeletons';
 import { generateIdFromCell } from './utils';
-import { TranslatedReferenceData } from '../../../components';
 import { Colors } from '../../../constants';
 import { useAuth } from '../../../contexts/Auth';
-import { useDateTimeFormat } from '../../../contexts/DateTimeContext';
+import { useDateTimeFormat, TranslatedReferenceData } from '@tamanu/ui-components';
 
 const AssignmentTile = styled.div`
   background: ${Colors.white};

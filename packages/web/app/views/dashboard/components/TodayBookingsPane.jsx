@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router';
 import { endOfDay, startOfDay } from 'date-fns';
 import { Box } from '@material-ui/core';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { TranslatedText } from '@tamanu/ui-components';
+import { TranslatedText, useDateTimeFormat } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 
 import { Heading4 } from '../../../components';
@@ -26,7 +26,6 @@ import { useAutoUpdatingQuery } from '../../../api/queries/useAutoUpdatingQuery'
 import { useAuth } from '../../../contexts/Auth';
 import { useUserPreferencesMutation } from '../../../api/mutations';
 import { LOCATION_BOOKINGS_EMPTY_FILTER_STATE } from '../../../contexts/LocationBookings';
-import { useDateTimeFormat } from '../../../contexts/DateTimeContext';
 
 const Container = styled.div`
   ${({ showTasks }) => showTasks && 'flex-grow: 1; width: 100%;'}

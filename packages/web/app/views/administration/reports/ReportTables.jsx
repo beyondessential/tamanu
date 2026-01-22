@@ -1,12 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 import { REPORT_STATUSES } from '@tamanu/constants';
-import { TranslatedText } from '@tamanu/ui-components';
+import { TranslatedText, useDateTimeFormat } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { Table } from '../../../components/Table';
 import { StatusTag } from '../../../components/Tag';
 import { useTableSorting } from '../../../components/Table/useTableSorting';
-import { useDateTimeFormat } from '../../../contexts/DateTimeContext';
 
 const STATUS_CONFIG = {
   [REPORT_STATUSES.DRAFT]: {

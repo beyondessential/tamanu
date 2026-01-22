@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Barcode from 'react-barcode';
-import { useDateTimeFormat } from '../../../contexts/DateTimeContext';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 
 const Container = styled.div`
   position: relative;

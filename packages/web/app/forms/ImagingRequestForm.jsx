@@ -19,6 +19,7 @@ import {
   FormCancelButton,
   ButtonRow,
   FormGrid,
+  useDateTimeFormat,
 } from '@tamanu/ui-components';
 import { AutocompleteField, DateTimeField, Field, ImagingPriorityField } from '../components/Field';
 import { TranslatedReferenceData, TranslatedText } from '../components/Translation';
@@ -31,7 +32,6 @@ import { useImagingRequestAreas } from '../utils/useImagingRequestAreas';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { foreignKey } from '../utils/validation';
 import { useAuth } from '../contexts/Auth';
-import { useDateTimeFormat } from '../contexts/DateTimeContext';
 
 function getEncounterTypeLabel(type) {
   return ENCOUNTER_OPTIONS.find(x => x.value === type).label;

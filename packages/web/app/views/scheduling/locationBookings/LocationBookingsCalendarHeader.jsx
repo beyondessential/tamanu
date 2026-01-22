@@ -7,9 +7,8 @@ import queryString from 'query-string';
 import { isStartOfThisWeek } from '@tamanu/utils/dateTime';
 
 import { MonthPicker } from '../../../components';
-import { Button } from '@tamanu/ui-components';
+import { Button, useDateTimeFormat } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
-import { useDateTimeFormat } from '../../../contexts/DateTimeContext';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { scrollToThisWeek } from './utils';
 

@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { compareDesc } from 'date-fns';
 
-import { SelectInput } from '@tamanu/ui-components';
+import { SelectInput, useDateTimeFormat } from '@tamanu/ui-components';
 
 import { useApi } from '../../api';
-import { useDateTimeFormat } from '../../contexts';
 
 export const SurveyResponseSelectField = ({ field, patient, config, ...props }) => {
   delete props.options;

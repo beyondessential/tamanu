@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 import { Colors } from '../../../constants';
-import { useDateTimeFormat } from '../../../contexts';
 
 const TextFontSize = 11;
 const xAxisTickTimeY = 23;
