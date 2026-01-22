@@ -131,18 +131,17 @@ export class TamanuApi extends ApiClient {
     });
   }
 
-  setToken(token, refreshToken) {
+  setToken(token) {
     if (token) {
       localStorage.setItem(TOKEN, token);
     } else {
       localStorage.removeItem(TOKEN);
     }
-    return super.setToken(token, refreshToken);
+    return super.setToken(token);
   }
 
   // Overwrite base method to integrate with the facility-server refresh endpoint which just
-  // checks for an apiToken and returns a new one. This should be removed when refresh tokens are
-  // set up in facility-server
+  // checks for an apiToken and returns a new one.
   async refreshToken(config = {}) {
     const response = await this.post(
       'refresh',
@@ -151,8 +150,8 @@ export class TamanuApi extends ApiClient {
       },
       config,
     );
-    const { token, refreshToken: newRefreshToken } = response;
-    this.setToken(token, newRefreshToken);
+    const { token } = response;
+    this.setToken(token);
   }
 
   async restoreSession() {
