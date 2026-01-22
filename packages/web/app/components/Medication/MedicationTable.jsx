@@ -123,7 +123,7 @@ const getMedicationName = (
             pauseData.pauseDuration,
           ).toLowerCase()}{' '}
           - <TranslatedText stringId="medication.table.until" fallback="until" />{' '}
-          <DateDisplay date={pauseData.pauseEndDate} format="shortest" showTime timeFormat="compact" />
+          <DateDisplay date={pauseData.pauseEndDate} format="shortest" timeFormat="compact" />
         </Box>
       )}
     </Box>
@@ -216,7 +216,7 @@ const getMedicationColumns = (
           tooltipTitle = (
             <>
               <TranslatedText stringId="medication.table.endsOn.label" fallback="Ends on" />
-              <DateDisplay date={endDate} format="shortest" showTime timeFormat="compact" noTooltip />
+              <DateDisplay date={endDate} format="shortest" timeFormat="compact" noTooltip />
             </>
           );
         } else if (isOngoing) {

@@ -394,7 +394,7 @@ export const MarStatus = ({
       return (
         <Box maxWidth={105}>
           <TranslatedText stringId="medication.mar.endsOn.tooltip" fallback="Ends on" />
-          <DateDisplay date={endDate} showTime timeFormat="compact" noTooltip />
+          <DateDisplay date={endDate} timeFormat="compact" noTooltip />
         </Box>
       );
     }

@@ -99,7 +99,7 @@ export const DateBodyCell = React.memo(({ value, onClick }) => {
   const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
   return (
     <TableTooltip
-      title={<DateDisplay date={value} showTime />}
+      title={<DateDisplay date={value} timeFormat="default" />}
       data-testid="tabletooltip-3knb"
     >
       <CellContainer onClick={onClick} data-testid="cellcontainer-slh4">

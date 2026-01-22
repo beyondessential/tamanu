@@ -51,7 +51,7 @@ const LastSyncs = React.memo(props => (
           />
         ),
         accessor: ({ completedAt }) => (
-          <DateDisplay date={completedAt} showTime data-testid="datedisplay-fz4d" />
+          <DateDisplay date={completedAt} timeFormat="default" data-testid="datedisplay-fz4d" />
         ),
       },
       {
