@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { keyBy, orderBy } from 'lodash';
+import { format } from 'date-fns';
 import { toDateString } from '@tamanu/utils/dateTime';
 import { Box, Typography } from '@material-ui/core';
 import { Alert, AlertTitle } from '@material-ui/lab';
@@ -12,7 +13,7 @@ import {
   REPORT_EXPORT_FORMATS,
   FORM_TYPES,
 } from '@tamanu/constants';
-import { Form, FormGrid, TextButton, Button, useDateTimeFormat } from '@tamanu/ui-components';
+import { Form, FormGrid, TextButton, Button } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -128,7 +129,6 @@ const isJsonString = (str) => {
 export const ReportGeneratorForm = () => {
   const api = useApi();
   const { getTranslation } = useTranslation();
-  const { formatShort } = useDateTimeFormat();
   const getFileName = useFileName();
   const { currentUser, facilityId } = useAuth();
   const [successMessage, setSuccessMessage] = useState(null);
@@ -218,7 +218,7 @@ export const ReportGeneratorForm = () => {
 
         const metadata = [
           ['Report Name:', reportName],
-          ['Date Generated:', formatShort(new Date())],
+          ['Date Generated:', format(new Date(), 'ddMMyyyy')],
           ['User:', currentUser.email],
           ['Filters:', filterString],
         ];
