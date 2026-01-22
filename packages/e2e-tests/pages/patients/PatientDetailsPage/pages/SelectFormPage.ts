@@ -31,13 +31,14 @@ export class SelectFormPage {
     return result;
   }
 
-  async selectSurvey(surveyName: string): Promise<void> {
+  async selectSurvey(surveyName: string): Promise<string | undefined> {
     await this.surveySelect.waitFor({ state: 'visible' });
-    await selectFieldOption(this.page, this.surveySelect, {
+    const result = await selectFieldOption(this.page, this.surveySelect, {
       optionToSelect: surveyName,
       returnOptionText: true,
     });
     await this.page.waitForLoadState('networkidle');
+    return result;
   }
 
   async clickBeginSurvey(): Promise<void> {

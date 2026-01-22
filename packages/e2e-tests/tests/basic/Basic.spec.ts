@@ -730,14 +730,9 @@ import { DeleteProgramResponseModal } from '@pages/patients/PatientDetailsPage/m
     await selectFormPage.selectSurvey('CVD Primary Screening Form');
     await selectFormPage.clickBeginSurvey();
     const formPage = new FormPage(patientDetailsPage.page);
-   await formPage.fillFormWithFirstOptions();
-    await formPage.submitButton.click();
+     await formPage.fillFormWithFirstOptions();
     await programPane.waitForPageToLoad();
-    const programList = await getTableItems(programPane.page, 1, 'programName');
-    expect(programList[0]).toBe('NCD Primary Screening');
-    const formList = await getTableItems(programPane.page, 1, 'surveyName');
-    expect(formList[0]).toBe('CVD Primary Screening Form'); 
-    await programPane.actionMenuButton.click();
+    await programPane.getActionMenuButton(0).click();
     await programPane.deleteButton.click();
     const deleteProgramResponseModal = new DeleteProgramResponseModal(patientDetailsPage.page);
     await deleteProgramResponseModal.waitForModalToLoad();

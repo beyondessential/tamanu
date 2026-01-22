@@ -24,21 +24,16 @@ export class FormResponseModal {
    * Get the form response values from the modal
    * @returns An array of objects with the indicator and value of the form response
    */
-
   async getFormResponseValues(): Promise<Array<{ indicator: string; value: string }>> {
     await this.waitForModalToLoad();
-    const rows = this.tableRows;
-    const rowCount = await rows.count();
-    const values: Array<{ indicator: string; value: string }> = [];
-
-    for (let i = 0; i < rowCount; i++) {
-      const row = rows.nth(i);
-      const indicator = await row.locator('td').nth(0).textContent() || '';
-      const value = await row.locator('td').nth(1).textContent() || '';
-      values.push({ indicator: indicator.trim(), value: value.trim() });
-    }
-
-    return values;
+    const rows = await this.tableRows.all();
+    return Promise.all(
+      rows.map(async row => {
+        const indicator = (await row.locator('td').nth(0).textContent()) || '';
+        const value = (await row.locator('td').nth(1).textContent()) || '';
+        return { indicator: indicator.trim(), value: value.trim() };
+      }),
+    );
   }
 
   async close(): Promise<void> {

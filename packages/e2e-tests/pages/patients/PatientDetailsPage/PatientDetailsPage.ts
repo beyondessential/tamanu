@@ -283,8 +283,8 @@ export class PatientDetailsPage extends BasePatientPage {
     this.diagnosisContainer=this.page.getByTestId('diagnosislistcontainer-dqkk');
     this.diagnosisCategory=this.page.getByTestId('category-vwwx');
     this.diagnosisName=this.page.getByTestId('diagnosisname-vvn4');
-    this.recordDeathLink=this.page.getByTestId('typographylink-6nzn');
-    this.revertDeathLink=this.page.getByTestId('typographylink-6nzn');
+    this.recordDeathLink=this.page.getByTestId('typographylink-6nzn').getByText('Record death');
+    this.revertDeathLink=this.page.getByTestId('typographylink-6nzn').getByText('Revert death record');
   }
 
   async navigateToVaccineTab(): Promise<PatientVaccinePane> {

@@ -6,7 +6,6 @@ export class FormPane extends BasePatientPane {
   readonly newFormButton!: Locator;
   readonly formsList!: Locator;
   readonly tableRows!: Locator;
-  readonly actionMenuButton!: Locator;
   readonly deleteButton!: Locator;
   private _deleteProgramResponseModal?: DeleteProgramResponseModal;
 
@@ -16,10 +15,12 @@ export class FormPane extends BasePatientPane {
     // Forms list table body
     this.formsList = this.page.getByTestId('styledtablebody-a0jz');
     this.tableRows = this.formsList.locator('tr');
-    // Action menu button appears when hovering over a table row
-    this.actionMenuButton = this.tableRows.first().getByTestId('openbutton-d1ec');
     // Delete button in the menu (after menu is opened) - find by text content
     this.deleteButton = this.page.getByTestId('item-8ybn-1');
+  }
+
+  getActionMenuButton(rowIndex: number = 0): Locator {
+    return this.tableRows.nth(rowIndex).getByTestId('openbutton-d1ec');
   }
 
   async waitForPageToLoad(): Promise<void> {

@@ -64,29 +64,27 @@ export class DeathModal {
     await this.confirmButton.click();
   }
 
-  async fillClinician(clinicianName?: string): Promise<string | undefined> {
-    if (clinicianName) {
-      return await selectAutocompleteFieldOption(this.page, this.clinicianInput, {
-        optionToSelect: clinicianName,
+  private async fillAutocompleteField(
+    field: Locator,
+    value?: string,
+  ): Promise<string | undefined> {
+    if (value) {
+      return await selectAutocompleteFieldOption(this.page, field, {
+        optionToSelect: value,
         returnOptionText: true,
       });
     }
-    return await selectAutocompleteFieldOption(this.page, this.clinicianInput, {
+    return await selectAutocompleteFieldOption(this.page, field, {
       selectFirst: true,
       returnOptionText: true,
     });
   }
 
+  async fillClinician(clinicianName?: string): Promise<string | undefined> {
+    return await this.fillAutocompleteField(this.clinicianInput, clinicianName);
+  }
+
   async fillCauseOfDeath(causeName?: string): Promise<string | undefined> {
-    if (causeName) {
-      return await selectAutocompleteFieldOption(this.page, this.causeOfDeathInput, {
-        optionToSelect: causeName,
-        returnOptionText: true,
-      });
-    }
-    return await selectAutocompleteFieldOption(this.page, this.causeOfDeathInput, {
-      selectFirst: true,
-      returnOptionText: true,
-    });
+    return await this.fillAutocompleteField(this.causeOfDeathInput, causeName);
   }
 }

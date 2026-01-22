@@ -69,7 +69,6 @@ export class FormPage {
   async fillCurrentScreenWithFirstOptions(): Promise<Array<{ question: string; answer: string }>> {
     const selectedValues: Array<{ question: string; answer: string }> = [];
 
-    // Fill select fields (dropdowns)
     const selectFields = this.page.locator('[data-testid$="-select"]');
     const selectCount = await selectFields.count();
     for (let i = 0; i < selectCount; i++) {
@@ -80,11 +79,10 @@ export class FormPage {
         if (answer) {
           selectedValues.push({ question, answer });
         }
-        await this.page.waitForTimeout(300);
+        await this.page.waitForLoadState('networkidle', { timeout: 500 }).catch(() => {});
       }
     }
 
-    // Fill autocomplete fields
     const autocompleteFields = this.page.locator('[data-testid*="autocompletefield"][data-testid$="-input"]');
     const autocompleteCount = await autocompleteFields.count();
     for (let i = 0; i < autocompleteCount; i++) {
@@ -95,11 +93,10 @@ export class FormPage {
         if (answer) {
           selectedValues.push({ question, answer });
         }
-        await this.page.waitForTimeout(300);
+        await this.page.waitForLoadState('networkidle', { timeout: 500 }).catch(() => {});
       }
     }
 
-    // Fill radio button groups (select first radio in each group)
     const radioButtons = this.page.locator('[data-testid^="radio-"]');
     const radioCount = await radioButtons.count();
     const processedGroups = new Set<string>();
@@ -110,21 +107,19 @@ export class FormPage {
       if (testId) {
         const groupId = testId.substring(0, testId.lastIndexOf('-'));
         if (!processedGroups.has(groupId) && await radio.isVisible({ timeout: 1000 }).catch(() => false)) {
-          // Get question label before clicking
           const question = await this.getFieldLabel(radio);
-          // Get the radio button label text (the option text)
           const radioLabel = radio.locator('xpath=following-sibling::label[1] | xpath=preceding-sibling::label[1] | xpath=ancestor::label[1]');
           let answer = '';
           if (await radioLabel.isVisible({ timeout: 500 }).catch(() => false)) {
             answer = (await radioLabel.textContent() || '').trim();
           } else {
-            // Fallback: get text from the radio button itself or nearby text
             answer = (await radio.textContent() || '').trim();
           }
           await radio.click();
+          await radio.waitFor({ state: 'attached' });
+          await this.page.waitForLoadState('networkidle', { timeout: 500 }).catch(() => {});
           selectedValues.push({ question, answer });
           processedGroups.add(groupId);
-          await this.page.waitForTimeout(200);
         }
       }
     }
