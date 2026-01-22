@@ -559,3 +559,82 @@ export const eachDayInMonth = (date: Date) =>
     start: startOfMonth(date),
     end: endOfMonth(date),
   });
+
+/**
+ * Get current datetime string in a specific timezone
+ * Used for default "today" values in facility timezone
+ */
+export const getCurrentDateTimeStringInTimezone = (timezone: string) =>
+  formatInTimeZone(new Date(), timezone, ISO9075_DATETIME_FORMAT);
+
+/**
+ * Get current date string in a specific timezone
+ */
+export const getCurrentDateStringInTimezone = (timezone: string) =>
+  formatInTimeZone(new Date(), timezone, ISO9075_DATE_FORMAT);
+
+/**
+ * Convert a datetime-local input value (displayed in facility timezone) to a datetime string
+ * in the country timezone for persistence.
+ *
+ * @param inputValue - Value from datetime-local input (format: yyyy-MM-dd'T'HH:mm)
+ * @param countryTimeZone - The timezone to persist the date in
+ * @param facilityTimeZone - The timezone the input is displayed in (optional)
+ * @returns ISO9075 datetime string in country timezone, or null if invalid
+ */
+export const toDateTimeStringForPersistence = (
+  inputValue: string | null | undefined,
+  countryTimeZone?: string,
+  facilityTimeZone?: string | null,
+): string | null => {
+  if (!inputValue) return null;
+
+  // If no timezones configured, just parse and format directly
+  if (!countryTimeZone) {
+    const date = parseDate(inputValue);
+    return date ? formatISO9075(date, { representation: 'complete' }) : null;
+  }
+
+  // The input value represents a time in the display timezone (facility or country)
+  const displayTimezone = facilityTimeZone ?? countryTimeZone;
+
+  // Convert the input (which is in displayTimezone) to a UTC Date
+  const utcDate = fromZonedTime(inputValue, displayTimezone);
+  if (!isValid(utcDate)) return null;
+
+  // Format the date in country timezone for persistence
+  return formatInTimeZone(utcDate, countryTimeZone, ISO9075_DATETIME_FORMAT);
+};
+
+/**
+ * Format a datetime-local input value for display in facility timezone
+ * Used when populating inputs with existing values from the database
+ *
+ * @param value - Stored datetime value (in country timezone)
+ * @param countryTimeZone - The timezone the value is stored in
+ * @param facilityTimeZone - The timezone to display in (optional)
+ * @returns Formatted string for datetime-local input, or null if invalid
+ */
+export const formatForDateTimeInput = (
+  value: string | Date | null | undefined,
+  countryTimeZone?: string,
+  facilityTimeZone?: string | null,
+): string | null => {
+  if (value == null) return null;
+
+  const displayTimezone = facilityTimeZone ?? countryTimeZone;
+
+  // If no timezone configured, format directly
+  if (!displayTimezone) {
+    const dateObj = parseDate(value);
+    if (!dateObj) return null;
+    return dateFnsFormat(dateObj, "yyyy-MM-dd'T'HH:mm");
+  }
+
+  // Parse the stored value (in country timezone) to UTC
+  const dateObj = countryTimeZone ? fromZonedTime(value, countryTimeZone) : parseDate(value);
+  if (!dateObj || !isValid(dateObj)) return null;
+
+  // Format in display timezone for the input
+  return formatInTimeZone(dateObj, displayTimezone, "yyyy-MM-dd'T'HH:mm");
+};

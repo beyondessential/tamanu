@@ -8,6 +8,7 @@ import { format as formatDate, toDateString, toDateTimeString } from '@tamanu/ut
 import { TextInput } from './TextField';
 import { TAMANU_COLORS } from '../../constants';
 import { DefaultIconButton } from '../Button';
+import { useDateTimeFormat } from '../../contexts';
 
 // This component is pretty tricky! It has to keep track of two layers of state:
 //
@@ -57,12 +58,23 @@ export const DateInput = ({
   arrows = false,
   inputProps = {},
   keepIncorrectValue,
+  useTimezone = false,
   ['data-testid']: dataTestId,
   ...props
 }) => {
   delete props.placeholder;
 
-  const [currentText, setCurrentText] = useState(fromRFC3339(value, format));
+  const { formatForDateTimeInput, toDateTimeStringForPersistence } = useDateTimeFormat();
+  const shouldUseTimezone = useTimezone && type === 'datetime-local';
+
+  const getDisplayValue = val => {
+    if (shouldUseTimezone) {
+      return formatForDateTimeInput(val) || '';
+    }
+    return fromRFC3339(val, format);
+  };
+
+  const [currentText, setCurrentText] = useState(getDisplayValue(value));
   const [isPlaceholder, setIsPlaceholder] = useState(!value);
 
   // Weird thing alert:
@@ -96,28 +108,36 @@ export const DateInput = ({
         clearValue();
         return;
       }
-      const date = parse(formattedValue, format, new Date());
 
       let outputValue;
-      if (saveDateAsString) {
-        if (type === 'date') {
-          outputValue = toDateString(date);
-        } else if (['time', 'datetime-local'].includes(type)) {
-          outputValue = toDateTimeString(date);
-        }
+
+      // Use timezone conversion for datetime-local inputs
+      if (shouldUseTimezone) {
+        outputValue = toDateTimeStringForPersistence(formattedValue);
       } else {
-        outputValue = date.toISOString();
+        const date = parse(formattedValue, format, new Date());
+
+        if (saveDateAsString) {
+          if (type === 'date') {
+            outputValue = toDateString(date);
+          } else if (['time', 'datetime-local'].includes(type)) {
+            outputValue = toDateTimeString(date);
+          }
+        } else {
+          outputValue = date.toISOString();
+        }
       }
+
       setIsPlaceholder(false);
       setCurrentText(formattedValue);
-      if (outputValue === 'Invalid date') {
+      if (outputValue === 'Invalid date' || outputValue === null) {
         clearValue();
         return;
       }
 
       onChange({ target: { value: outputValue, name } });
     },
-    [onChange, format, name, saveDateAsString, type, clearValue],
+    [onChange, format, name, saveDateAsString, type, clearValue, shouldUseTimezone, toDateTimeStringForPersistence],
   );
 
   const onKeyDown = event => {
@@ -165,7 +185,7 @@ export const DateInput = ({
   };
 
   useEffect(() => {
-    const formattedValue = fromRFC3339(value, format);
+    const formattedValue = getDisplayValue(value);
     if (value && formattedValue) {
       setCurrentText(formattedValue);
       setIsPlaceholder(false);
@@ -174,7 +194,8 @@ export const DateInput = ({
       setCurrentText('');
       setIsPlaceholder(true);
     };
-  }, [value, format]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value, format, shouldUseTimezone]);
 
   // We create two copies of the DateField component, so that we can have a temporary one visible
   // during remount (for more on that, see the remounting description at the top of this component)
@@ -234,8 +255,15 @@ export const DateInput = ({
 
 export const TimeInput = props => <DateInput type="time" format="HH:mm" {...props} />;
 
-export const DateTimeInput = props => (
-  <DateInput type="datetime-local" format="yyyy-MM-dd'T'HH:mm" max="9999-12-31T00:00" {...props} />
+export const DateTimeInput = ({ useTimezone = true, ...props }) => (
+  <DateInput
+    type="datetime-local"
+    format="yyyy-MM-dd'T'HH:mm"
+    max="9999-12-31T00:00"
+    useTimezone={useTimezone}
+    saveDateAsString
+    {...props}
+  />
 );
 
 export const DateField = ({ field, ...props }) => (
