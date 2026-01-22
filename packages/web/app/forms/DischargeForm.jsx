@@ -24,7 +24,7 @@ import {
   MODAL_PADDING_TOP_AND_BOTTOM,
   useDateTimeFormat,
 } from '@tamanu/ui-components';
-import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { Divider as BaseDivider, Box, IconButton as BaseIconButton } from '@material-ui/core';
 import { useApi } from '../api';
 import { foreignKey } from '../utils/validation';
@@ -175,6 +175,7 @@ const getDischargeInitialValues = ({
   currentUser,
   dischargeNotes,
   medicationInitialValues,
+  getCurrentDateTimeString,
 }) => {
   const dischargeDraft = encounter?.dischargeDraft?.discharge;
   const today = new Date();
@@ -206,7 +207,6 @@ const getDischargeInitialValues = ({
       note: dischargeNotes?.map(n => n.content).join('\n\n') || '',
     },
     medications: medicationInitialValues,
-    // Used in creation of associated notes
     submittedTime: getCurrentDateTimeString(),
   };
 };
@@ -700,7 +700,7 @@ export const DischargeForm = ({
   const { getTranslation, getEnumTranslation } = useTranslation();
   const { encounter } = useEncounter();
   const { getSetting } = useSettings();
-  const { formatDateTimeLocal } = useDateTimeFormat();
+  const { formatDateTimeLocal, getCurrentDateTimeString } = useDateTimeFormat();
   const queryClient = useQueryClient();
   const { ability, currentUser } = useAuth();
   const canUpdateMedication = ability.can('write', 'Medication');
@@ -804,6 +804,7 @@ export const DischargeForm = ({
           currentUser,
           dischargeNotes,
           medicationInitialValues,
+          getCurrentDateTimeString,
         })}
         FormScreen={props => (
           <DischargeFormScreen

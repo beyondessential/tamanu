@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import * as yup from 'yup';
-import { TextField, TranslatedSelectField, Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
+import { TextField, TranslatedSelectField, Form, FormGrid, FormSubmitCancelRow, useDateTimeFormat } from '@tamanu/ui-components';
 import { Colors } from '../constants/styles';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import styled from 'styled-components';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { Box, Divider } from '@material-ui/core';
@@ -78,6 +77,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
   const { encounter } = useEncounter();
   const { ability, currentUser } = useAuth();
   const { getTranslation } = useTranslation();
+  const { getCurrentDateTimeString } = useDateTimeFormat();
   const queryClient = useQueryClient();
   const canCreateReferenceData = ability.can('create', 'ReferenceData');
 

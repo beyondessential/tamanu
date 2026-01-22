@@ -59,13 +59,13 @@ type WrappedUtils = {
 export interface DateTimeContextValue extends WrappedUtils {
   countryTimeZone: string;
   facilityTimeZone?: string | null;
-  /** Get current datetime string in display timezone (facility if set, otherwise country) */
+  /** Get current datetime string in country timezone (for persistence) */
   getCurrentDateTimeString: () => string;
-  /** Get current date string in display timezone (facility if set, otherwise country) */
+  /** Get current date string in country timezone (for persistence) */
   getCurrentDateString: () => string;
   /** Convert datetime-local input value to country timezone for persistence */
   toDateTimeStringForPersistence: (inputValue: string | null | undefined) => string | null;
-  /** Format stored value for datetime-local input display */
+  /** Format stored value for datetime-local input display in facility timezone */
   formatForDateTimeInput: (value: string | Date | null | undefined) => string | null;
 }
 
@@ -106,21 +106,22 @@ export const DateTimeProvider = ({
     [countryTimeZone, facilityTimeZone],
   );
 
-  const displayTimezone = facilityTimeZone ?? countryTimeZone;
-
   const value = useMemo(
     (): DateTimeContextValue => ({
       countryTimeZone,
       facilityTimeZone,
       ...(mapValues(utils, wrapFunction) as WrappedUtils),
-      getCurrentDateTimeString: () => getCurrentDateTimeStringInTimezone(displayTimezone),
-      getCurrentDateString: () => getCurrentDateStringInTimezone(displayTimezone),
+      // Returns current time in COUNTRY timezone - safe for persistence
+      getCurrentDateTimeString: () => getCurrentDateTimeStringInTimezone(countryTimeZone),
+      getCurrentDateString: () => getCurrentDateStringInTimezone(countryTimeZone),
+      // Converts input (displayed in facility TZ) to country TZ for persistence
       toDateTimeStringForPersistence: (inputValue: string | null | undefined) =>
         toDateTimeStringForPersistence(inputValue, countryTimeZone, facilityTimeZone),
+      // Formats stored value (country TZ) for display in facility TZ
       formatForDateTimeInput: (value: string | Date | null | undefined) =>
         formatForDateTimeInput(value, countryTimeZone, facilityTimeZone),
     }),
-    [countryTimeZone, facilityTimeZone, wrapFunction, displayTimezone],
+    [countryTimeZone, facilityTimeZone, wrapFunction],
   );
 
   return React.createElement(DateTimeProviderContext.Provider, { value }, children);

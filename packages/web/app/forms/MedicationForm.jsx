@@ -19,7 +19,6 @@ import {
   getDateFromTimeString,
   getFirstAdministrationDate,
 } from '@tamanu/shared/utils/medication';
-import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { format, subSeconds } from 'date-fns';
 import { useFormikContext } from 'formik';
 import { toast } from 'react-toastify';
@@ -533,6 +532,7 @@ export const MedicationForm = ({
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
   const queryClient = useQueryClient();
   const { loadEncounter } = useEncounter();
+  const { getCurrentDateString, getCurrentDateTimeString } = useDateTimeFormat();
   const { data: { data: medications = [] } = {} } = useEncounterMedicationQuery(encounterId);
   const existingDrugIds = medications
     .filter(({ discontinued }) => !discontinued)

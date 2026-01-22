@@ -10,9 +10,9 @@ import {
   SurveyScreen,
   Modal,
   ModalLoader,
+  useDateTimeFormat,
 } from '@tamanu/ui-components';
 import { VISIBILITY_STATUSES, CHARTING_DATA_ELEMENT_IDS } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { ForbiddenErrorModalContents } from '../components/ForbiddenErrorModal';
 import { ErrorMessage } from '../components/ErrorMessage';
@@ -43,6 +43,7 @@ export const ChartForm = React.memo(
     const { currentUser, ability } = useAuth();
     const { encounter } = useEncounter();
     const { getTranslation } = useTranslation();
+    const { getCurrentDateTimeString } = useDateTimeFormat();
     const chartSurveyQuery = useSurveyQuery(chartSurveyId);
     const patientAdditionalDataQuery = usePatientAdditionalDataQuery(patient?.id);
     const {

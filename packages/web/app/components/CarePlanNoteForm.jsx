@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useApi, useSuggester } from '../api';
 import { FORM_TYPES } from '@tamanu/constants';
 import {
@@ -9,6 +8,7 @@ import {
   Form,
   FormSubmitCancelRow,
   FormGrid,
+  useDateTimeFormat,
 } from '@tamanu/ui-components';
 import { Colors } from '../constants/styles';
 import { AutocompleteField, DateTimeField, Field } from './Field';
@@ -29,6 +29,7 @@ export function CarePlanNoteForm({
   onCancel,
 }) {
   const { getTranslation } = useTranslation();
+  const { getCurrentDateTimeString } = useDateTimeFormat();
 
   const [submitError, setSubmitError] = useState('');
   const practitionerSuggester = useSuggester('practitioner');

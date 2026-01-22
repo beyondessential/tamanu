@@ -6,7 +6,6 @@ import shortid from 'shortid';
 import * as yup from 'yup';
 
 import { IMAGING_TYPES, FORM_TYPES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { FormSeparatorLine } from '../components';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
@@ -91,7 +90,7 @@ export const ImagingRequestForm = React.memo(
     generateId = shortid.generate,
     setOnSuccess,
   }) => {
-    const { formatShort } = useDateTimeFormat();
+    const { formatShort, getCurrentDateTimeString } = useDateTimeFormat();
     const { getTranslation } = useTranslation();
     const { getLocalisation } = useLocalisation();
     const { currentUser } = useAuth();

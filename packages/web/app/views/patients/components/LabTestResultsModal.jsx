@@ -18,7 +18,7 @@ import { useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
 import { useLabRequest } from '../../../contexts/LabRequest';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 
 const TableContainer = styled.div`
   overflow-y: auto;
@@ -241,6 +241,7 @@ const ResultsForm = ({
   setFieldValue,
   areLabTestResultsReadOnly,
 }) => {
+  const { getCurrentDateTimeString } = useDateTimeFormat();
   const { count, data } = labTestResults;
   /**
    * On entering lab result field for a test some other fields are auto-filled optimistically

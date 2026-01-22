@@ -5,8 +5,7 @@ import NotesIcon from '@material-ui/icons/Notes';
 import { Box } from '@material-ui/core';
 
 import { NOTE_TYPES, FORM_TYPES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { TextField, Form, FormCancelButton, FormSubmitButton, Button } from '@tamanu/ui-components';
+import { TextField, Form, FormCancelButton, FormSubmitButton, Button, useDateTimeFormat } from '@tamanu/ui-components';
 
 import { useApi } from '../api';
 import {
@@ -93,6 +92,7 @@ const CancelAddNoteButton = styled(FormCancelButton)`
 export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
   const api = useApi();
   const queryClient = useQueryClient();
+  const { getCurrentDateTimeString } = useDateTimeFormat();
   const [active, setActive] = useState(false);
 
   const { data: notes, isSuccess } = useQuery(['labRequest', labRequestId, 'notes'], () =>

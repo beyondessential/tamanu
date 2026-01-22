@@ -4,7 +4,6 @@ import { endOfDay } from 'date-fns';
 import { ENCOUNTER_TYPES, FORM_TYPES } from '@tamanu/constants';
 import { useNavigate } from 'react-router';
 import { Box } from '@material-ui/core';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { getAnswersFromData, Form, FormGrid, useDateTimeFormat } from '@tamanu/ui-components';
 import { foreignKey } from '../utils/validation';
 import {
@@ -69,7 +68,7 @@ export const TriageForm = ({
   const navigate = useNavigate();
   const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
-  const { formatDateTimeLocal } = useDateTimeFormat();
+  const { formatDateTimeLocal, getCurrentDateTimeString } = useDateTimeFormat();
   const triageCategories = getSetting('triageCategories');
   const practitionerSuggester = useSuggester('practitioner');
   const triageReasonSuggester = useSuggester('triageReason');
