@@ -636,7 +636,7 @@ export class Encounter extends Model {
         noteLabel: 'reason for encounter',
       });
 
-      const { submittedTime, ...encounterData } = data;
+      const { submittedTime, skipSystemNotes, ...encounterData } = data;
       const updatedEncounter = await super.update({ ...encounterData, ...additionalChanges }, user);
 
       // Create snapshot with array of change types
@@ -648,7 +648,7 @@ export class Encounter extends Model {
         });
       }
 
-      if (systemNoteRows.length > 0) {
+      if (!skipSystemNotes && systemNoteRows.length > 0) {
         const formattedSystemNote = systemNoteRows.map(row => `• ${row}`).join('\n');
         await this.addSystemNote(
           formattedSystemNote,
