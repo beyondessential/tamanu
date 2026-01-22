@@ -112,6 +112,25 @@ const useFormattedDate = (dateValue, { dateFormat, timeFormat, showWeekday }) =>
   return parts.join(' ');
 };
 
+/**
+ * TimeDisplay - Displays time only
+ * @param {string|Date} date - The date/time value
+ * @param {string} format - "default" | "compact" | "withSeconds" | "slot"
+ * @param {boolean} noTooltip - Disable hover tooltip
+ *
+ * @example
+ * // format="default" → "9:30 AM"
+ * <TimeDisplay date="2024-03-15 09:30:00" />
+ *
+ * // format="compact" → "9:30am" (time with minutes, no space)
+ * <TimeDisplay date="2024-03-15 09:30:00" format="compact" />
+ *
+ * // format="withSeconds" → "9:30:45 AM"
+ * <TimeDisplay date="2024-03-15 09:30:45" format="withSeconds" />
+ *
+ * // format="slot" → "9am" (hour only, for calendar slots)
+ * <TimeDisplay date="2024-03-15 09:30:00" format="slot" />
+ */
 export const TimeDisplay = React.memo(
   ({ date: dateValue, format: timeFormat = 'default', noTooltip = false, style, ...props }) => {
     const { countryTimeZone, facilityTimeZone } = useDateTimeFormat();
@@ -163,6 +182,12 @@ export const TimeDisplay = React.memo(
  *
  * // format="explicitShort" → "15 Mar 24"
  * <DateDisplay date="2024-03-15 09:30:00" format="explicitShort" />
+ * 
+ * // format="dayMonth" → "15 Mar"
+ * <DateDisplay date="2024-03-15 09:30:00" format="dayMonth" />
+ *
+ * // showWeekday format="long" → "Monday 15 March 2024"
+ * <DateDisplay date="2024-03-15 09:30:00" showWeekday format="long" />
  *
  * // showTime → "15/03/2024 9:30 AM"
  * <DateDisplay date="2024-03-15 09:30:00" showTime />
