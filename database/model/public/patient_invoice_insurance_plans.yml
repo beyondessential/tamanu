@@ -26,20 +26,17 @@ sources:
                 masking: text
           - name: created_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__created_at') }} in
-              patient_invoice_insurance_plans."
+            description: "{{ doc('generic__created_at') }} in patient_invoice_insurance_plans."
             data_tests:
               - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__updated_at') }} in
-              patient_invoice_insurance_plans."
+            description: "{{ doc('generic__updated_at') }} in patient_invoice_insurance_plans."
             data_tests:
               - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__deleted_at') }} in
-              patient_invoice_insurance_plans."
+            description: "{{ doc('generic__deleted_at') }} in patient_invoice_insurance_plans."
           - name: patient_id
             data_type: text
             description: "{{ doc('patient_invoice_insurance_plans__patient_id') }}"
@@ -50,9 +47,7 @@ sources:
                 masking: text
           - name: invoice_insurance_plan_id
             data_type: text
-            description: "{{
-              doc('patient_invoice_insurance_plans__invoice_insurance_plan_id')
-              }}"
+            description: "{{ doc('patient_invoice_insurance_plans__invoice_insurance_plan_id') }}"
             data_tests:
               - not_null
             config:
@@ -60,7 +55,6 @@ sources:
                 masking: text
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in
-              patient_invoice_insurance_plans."
+            description: "{{ doc('generic__updated_at_sync_tick') }} in patient_invoice_insurance_plans."
             data_tests:
               - not_null
