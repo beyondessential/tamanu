@@ -25,6 +25,7 @@ import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useEncounter } from '../../../contexts/Encounter';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { isEmergencyPatient } from '../../../utils/isEmergencyPatient';
 
 const StyledFormGrid = styled(FormGrid)`
   margin-bottom: 20px;
@@ -323,7 +324,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
 
   const triage = encounter.triages?.[0];
 
-  const onSubmit = async values => {
+  const onSubmitTriageForm = async values => {
     const {
       startDate,
       arrivalTime,
@@ -331,25 +332,30 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
       score,
       chiefComplaintId,
       secondaryComplaintId,
+    } = values;
+
+    await api.put(`triage/${triage.id}`, {
+      submittedTime: getCurrentDateTimeString(),
+      encounterId: encounter.id,
+      arrivalTime,
+      triageTime: startDate,
+      arrivalModeId,
+      score,
+      chiefComplaintId,
+      secondaryComplaintId,
+    });
+
+  };
+
+  const onSubmitEncounterForm = async values => {
+    const {
+      startDate,
       referralSourceId,
       patientBillingTypeId,
       dietIds,
       reasonForEncounter,
       estimatedEndDate,
     } = values;
-
-    if (triage) {
-      await api.put(`triage/${triage.id}`, {
-        submittedTime: getCurrentDateTimeString(),
-        encounterId: encounter.id,
-        arrivalTime,
-        triageTime: startDate,
-        arrivalModeId,
-        score,
-        chiefComplaintId,
-        secondaryComplaintId,
-      });
-    }
 
     await writeAndViewEncounter(encounter.id, {
       startDate,
@@ -372,7 +378,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
       <Form
         initialValues={getFormInitialValues({ encounter, triage })}
         formType={FORM_TYPES.EDIT_FORM}
-        onSubmit={onSubmit}
+        onSubmit={isEmergencyPatient(encounter.encounterType) ? onSubmitTriageForm : onSubmitEncounterForm}
         render={({ submitForm }) => (
           <>
             <StyledFormGrid>

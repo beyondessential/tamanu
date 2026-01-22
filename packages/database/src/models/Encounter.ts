@@ -607,18 +607,14 @@ export class Encounter extends Model {
         changeType: EncounterChangeType.Examiner,
       });
 
-      // Start date is a special case as it is referred to differently in the UI based on the encounter type
+      // Start date is referred to differently in the UI based on the encounter type
       const encounterType = data.encounterType ?? this.encounterType;
-      const isEmergencyEncounter = [ENCOUNTER_TYPES.TRIAGE, ENCOUNTER_TYPES.OBSERVATION, ENCOUNTER_TYPES.EMERGENCY].includes(encounterType);
-      // If emergency encounter, the note is generated from the triage model so we don't need to generate it here
-      if (!isEmergencyEncounter) {
-        const noteLabel = encounterType === ENCOUNTER_TYPES.ADMISSION ? 'admission date & time' : 'date & time';
-        await onChangeTextColumn({
-          columnName: 'startDate',
-          noteLabel,
-          formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
-        });
-      }
+      const noteLabel = encounterType === ENCOUNTER_TYPES.ADMISSION ? 'admission date & time' : 'date & time';
+      await onChangeTextColumn({
+        columnName: 'startDate',
+        noteLabel,
+        formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
+      });
 
       await onChangeTextColumn({
         columnName: 'estimatedEndDate',

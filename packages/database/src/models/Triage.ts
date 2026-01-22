@@ -171,6 +171,16 @@ export class Triage extends Model {
         columnName: 'triageTime',
         noteLabel: 'triage date & time',
         formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
+        onChange: async () => {
+          // Sync triageTime to encounter.startDate when triageTime changes
+          // This ensures the encounter's startDate stays in sync with triage time
+          // We use a direct Sequelize update to bypass Encounter.update() which would generate duplicate notes
+          await Encounter.update(
+            { startDate: data.triageTime },
+            { where: { id: this.encounterId } },
+          );
+
+        },
       });
       await onChangeTextColumn({
         columnName: 'score',
