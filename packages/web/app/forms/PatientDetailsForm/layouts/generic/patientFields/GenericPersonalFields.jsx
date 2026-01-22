@@ -14,6 +14,7 @@ import {
   AutocompleteField,
   SuggesterSelectField,
   TranslatedSelectField,
+  SelectField,
 } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { usePatientSuggester, useSuggester } from '../../../../../api';
@@ -183,6 +184,18 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
           stringId="general.localisedField.fatherId.label"
           fallback="Father"
           data-testid="translatedtext-q3v5"
+        />
+      ),
+    },
+    invoiceInsurancePlanId: {
+      component: SuggesterSelectField,
+      endpoint: 'invoiceInsurancePlan',
+      isMulti: true,
+      label: (
+        <TranslatedText
+          stringId="general.localisedField.invoiceInsurancePlanId.label"
+          fallback="Invoice insurance plan"
+          data-testid="translatedtext-73e2"
         />
       ),
     },

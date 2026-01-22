@@ -29,12 +29,13 @@ import {
   patientProgramRegistration,
   patientProgramRegistrationConditions,
 } from './patientProgramRegistration';
-import { dbRecordToResponse, pickPatientBirthData, requestBodyToRecord } from './utils';
+import { dbRecordToResponse, pickPatientBirthData, requestBodyToRecord, savePatientInsurancePlans } from './utils';
 import { PATIENT_SORT_KEYS } from './constants';
 import { getWhereClausesAndReplacementsFromFilters } from '../../../utils/query';
 import { validate } from '../../../utils/validate';
 import { patientContact } from './patientContact';
 import { patientPortal } from './patientPortal';
+import { patientInsurancePlans } from './patientInsurancePlans';
 
 const patientRoute = express.Router();
 
@@ -92,7 +93,7 @@ patientRoute.put(
   asyncHandler(async (req, res) => {
     const {
       db,
-      models: { Patient, PatientAdditionalData, PatientBirthData, PatientSecondaryId },
+      models: { Patient, PatientAdditionalData, PatientBirthData, PatientSecondaryId, PatientInvoiceInsurancePlan },
       params,
       body: { facilityId, ...body },
     } = req;
@@ -147,6 +148,10 @@ patientRoute.put(
       }
 
       await patient.writeFieldValues(validatedBody.patientFields);
+
+      if (validatedBody.invoiceInsurancePlanId) {
+        await savePatientInsurancePlans(PatientInvoiceInsurancePlan, patient.id, validatedBody.invoiceInsurancePlanId);
+      }
     });
 
     res.send(dbRecordToResponse(patient, facilityId));
@@ -157,7 +162,7 @@ patientRoute.post(
   '/$',
   asyncHandler(async (req, res) => {
     const { db, models, body } = req;
-    const { Patient, PatientAdditionalData, PatientBirthData, PatientFacility } = models;
+    const { Patient, PatientAdditionalData, PatientBirthData, PatientFacility, PatientInvoiceInsurancePlan } = models;
     req.checkPermission('create', 'Patient');
 
     const validatedBody = validate(createPatientSchema, body);
@@ -188,6 +193,10 @@ patientRoute.post(
 
       // mark for sync in this facility
       await PatientFacility.create({ facilityId, patientId: createdPatient.id });
+
+      if (validatedBody.invoiceInsurancePlanId) {
+        await savePatientInsurancePlans(PatientInvoiceInsurancePlan, createdPatient.id, validatedBody.invoiceInsurancePlanId);
+      }
 
       return createdPatient;
     });
@@ -436,9 +445,8 @@ patientRoute.get(
         ${select}
         ${from}
 
-        ORDER BY  ${
-          filterSort && `${filterSort},`
-        } ${sortKey} ${sortDirection}, ${secondarySearchTerm} NULLS LAST
+        ORDER BY  ${filterSort && `${filterSort},`
+      } ${sortKey} ${sortDirection}, ${secondarySearchTerm} NULLS LAST
         LIMIT :limit
         OFFSET :offset
       `,
@@ -554,20 +562,20 @@ patientRoute.get(
         ],
         orderBy === 'route'
           ? [
-              literal(
-                `CASE "Prescription"."route" ${Object.entries(DRUG_ROUTE_LABELS)
-                  .map(([value, label]) => `WHEN '${value}' THEN '${label.replace(/'/g, "''")}'`)
-                  .join(' ')} ELSE "Prescription"."route" END`,
-              ),
-              order.toUpperCase(),
-            ]
+            literal(
+              `CASE "Prescription"."route" ${Object.entries(DRUG_ROUTE_LABELS)
+                .map(([value, label]) => `WHEN '${value}' THEN '${label.replace(/'/g, "''")}'`)
+                .join(' ')} ELSE "Prescription"."route" END`,
+            ),
+            order.toUpperCase(),
+          ]
           : [...orderBy.split('.'), order.toUpperCase()],
       ],
       ...(page && rowsPerPage
         ? {
-            limit: rowsPerPage,
-            offset: page * rowsPerPage,
-          }
+          limit: rowsPerPage,
+          offset: page * rowsPerPage,
+        }
         : {}),
     });
 
@@ -665,5 +673,6 @@ patientRoute.use(patientProgramRegistration);
 patientRoute.use('/programRegistration', patientProgramRegistrationConditions);
 patientRoute.use(patientContact);
 patientRoute.use(patientPortal);
+patientRoute.use(patientInsurancePlans);
 
 export { patientRoute as patient };

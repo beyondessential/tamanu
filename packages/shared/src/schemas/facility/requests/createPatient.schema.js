@@ -59,6 +59,7 @@ export const createPatientSchema = z.object({
   occupationId: foreignKey.optional(),
   socialMedia: z.enum(SOCIAL_MEDIA_TYPES).optional(),
   patientBillingTypeId: foreignKey.optional(),
+  invoiceInsurancePlanId: foreignKey.array().optional(),
   motherId: foreignKey.optional(),
   fatherId: foreignKey.optional(),
 

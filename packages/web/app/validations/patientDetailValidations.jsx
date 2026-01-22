@@ -783,6 +783,13 @@ export const getPatientDetailsValidation = (patientRegistryType, getSetting, get
       ),
       otherwise: yup.string(),
     }),
+    invoiceInsurancePlanId: requiredWhenConfiguredMandatory(
+      getSetting,
+      getTranslation,
+      'invoiceInsurancePlanId',
+      yup.array().of(yup.string()),
+      'Invoice insurance plan',
+    ),
   });
 
   const validatedProperties = Object.keys(patientDetailsValidationSchema.describe().fields);
