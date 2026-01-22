@@ -171,10 +171,16 @@ export const DeathForm = React.memo(
     const { currentUser } = useAuth();
     const showPregnantQuestions = canBePregnant(currentTOD, patient);
     const showInfantQuestions = isInfant(currentTOD, patient);
+    const handleSubmit = (data) => {
+      onSubmit({
+        ...data,
+        fetalOrInfant: showInfantQuestions ? 'yes' : 'no',
+      });
+    };
 
     return (
       <PaginatedForm
-        onSubmit={onSubmit}
+        onSubmit={handleSubmit}
         onCancel={onCancel}
         FormScreen={DeathFormScreen}
         SummaryScreen={deathData ? SummaryScreenTwo : SummaryScreenThree}
@@ -250,7 +256,6 @@ export const DeathForm = React.memo(
           outsideHealthFacility: false,
           timeOfDeath: patient?.dateOfDeath || getCurrentDateTimeString(),
           clinicianId: deathData?.clinicianId || currentUser.id,
-          fetalOrInfant: isInfant ? 'yes' : 'no',
         }}
         formType={FORM_TYPES.CREATE_FORM}
         data-testid="paginatedform-9jrc"
