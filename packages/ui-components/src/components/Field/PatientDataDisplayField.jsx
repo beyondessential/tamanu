@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { getPatientDataDisplayValue } from '../../utils';
-import { useTranslation, useApi, useDateTimeFormat } from '../../contexts';
+import { usePatientDataDisplayValue } from '../../hooks';
 
 const Container = styled.div`
   display: flex;
@@ -12,20 +11,12 @@ const Container = styled.div`
 `;
 
 export const PatientDataDisplayField = ({ config, label, value }) => {
-  const api = useApi();
-  const { formatShort } = useDateTimeFormat();
-  const { getEnumTranslation, getReferenceDataTranslation } = useTranslation();
+  const { getDisplayValue } = usePatientDataDisplayValue();
   const [displayValue, setDisplayValue] = useState('');
 
   useEffect(() => {
-    getPatientDataDisplayValue({
-      api,
-      getEnumTranslation,
-      getReferenceDataTranslation,
-      formatShort,
-      value,
-      config,
-    }).then(setDisplayValue);
+    getDisplayValue(value, config).then(setDisplayValue);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

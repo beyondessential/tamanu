@@ -1,20 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { compareDesc } from 'date-fns';
 
-import { DateDisplay, TimeDisplay } from '../DateDisplay';
-import { SelectInput } from '@tamanu/ui-components';
-import { useApi } from '../../api';
+import { SelectInput, useDateTimeFormat } from '@tamanu/ui-components';
 
-const getDataLabel = (endTime, surveyName) => (
-  <>
-    <DateDisplay date={endTime} /> <TimeDisplay date={endTime} />{' '}
-    {surveyName}
-  </>
-);
+import { useApi } from '../../api';
 
 export const SurveyResponseSelectField = ({ field, patient, config, ...props }) => {
   delete props.options;
-
+  const { formatShort, formatTime } = useDateTimeFormat();
   const api = useApi();
   const [options, setOptions] = useState([]);
   const { source } = config;
@@ -26,11 +19,11 @@ export const SurveyResponseSelectField = ({ field, patient, config, ...props }) 
           .sort((a, b) => compareDesc(new Date(a.endTime), new Date(b.endTime)))
           .map(({ id, endTime, surveyName }) => ({
             value: id,
-            label: getDataLabel(endTime, surveyName),
+            label: `${formatShort(endTime)} ${formatTime(endTime)} ${surveyName}`,
           })),
       );
     });
-  }, [api, patient.id, source]);
+  }, [api, formatShort, formatTime, patient.id, source]);
   return (
     <SelectInput
       {...props}

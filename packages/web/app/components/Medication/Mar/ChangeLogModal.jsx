@@ -1,10 +1,9 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { ConfirmCancelRow, TranslatedText, Modal, DateDisplay } from '@tamanu/ui-components';
+import { ConfirmCancelRow, TranslatedText, Modal, useDateTimeFormat } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
 import { useMarChangelogQuery } from '../../../api/queries/useMarChangelogQuery';
-import { TimeSlotDisplay } from '../../../utils/medications';
 import { Box } from '@mui/material';
 import { useTranslation } from '../../../contexts/Translation';
 import { getMarDoseDisplay } from '@tamanu/shared/utils/medication';
@@ -69,6 +68,7 @@ const LABELS = {
 
 export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
   const [changeLogList, setChangeLogList] = useState([]);
+  const { formatTimeSlot, formatShortest } = useDateTimeFormat();
   const { getEnumTranslation } = useTranslation();
 
   const { data } = useMarChangelogQuery(marId);
@@ -82,7 +82,7 @@ export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
   const getUserChanged = log => {
     return {
       name: log.changedByUser,
-      date: <><DateDisplay date={log.createdAt} format="shortest" /> <TimeSlotDisplay time={log.createdAt} /></>
+      date: `${formatShortest(log.createdAt)} ${formatTimeSlot(log.createdAt)}`,
     };
   };
 
@@ -123,7 +123,7 @@ export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
                   getEnumTranslation,
                 ),
               },
-              { label: LABELS.timeGiven, value: <TimeSlotDisplay time={log.doseGivenTime} /> },
+              { label: LABELS.timeGiven, value: formatTimeSlot(log.doseGivenTime) },
               { label: LABELS.givenBy, value: log.doseGivenByUser.name },
               { label: LABELS.recordedBy, value: log.recordedByUser.name },
             ],
@@ -160,7 +160,7 @@ export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
             });
           }
           if (previousLog?.doseGivenTime !== log.doseGivenTime) {
-            changes.push({ label: LABELS.timeGiven, value: <TimeSlotDisplay time={log.doseGivenTime} /> });
+            changes.push({ label: LABELS.timeGiven, value: formatTimeSlot(log.doseGivenTime) });
           }
           if (previousLog?.doseGivenByUser?.id !== log.doseGivenByUser.id) {
             changes.push({ label: LABELS.givenBy, value: log.doseGivenByUser.name });
@@ -262,7 +262,7 @@ export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
                 },
                 {
                   label: LABELS.timeGiven,
-                  value: logs[1].doseGivenTime && <TimeSlotDisplay time={logs[1].doseGivenTime} />,
+                  value: logs[1].doseGivenTime && formatTimeSlot(logs[1].doseGivenTime),
                 },
                 { label: LABELS.givenBy, value: logs[1].doseGivenByUser.name },
                 { label: LABELS.recordedBy, value: logs[0].recordedByUser.name },
@@ -332,8 +332,8 @@ export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
                     </Box>
                   ))}
                   <NoteText>
-                  {log.userChanged.name} 
-                  {log.userChanged.date}
+                    {log.userChanged.name}
+                    {log.userChanged.date}
                   </NoteText>
                   {log.doseIndex && (
                     <DoseLabel>

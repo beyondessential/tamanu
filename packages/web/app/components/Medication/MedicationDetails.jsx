@@ -25,6 +25,7 @@ import {
   FormGrid,
   DateDisplay,
   TimeDisplay,
+  TimeRangeDisplay,
 } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { CheckField, Field } from '../Field';
@@ -34,7 +35,6 @@ import { useApi } from '../../api';
 import { MedicationDiscontinueModal } from './MedicationDiscontinueModal';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedEnum, TranslatedReferenceData } from '../Translation';
-import { TimeSlotDisplay } from '../../utils/medications';
 import { MedicationPauseModal } from './MedicationPauseModal';
 import { usePausePrescriptionQuery } from '../../api/queries/usePausePrescriptionQuery';
 import { useEncounter } from '../../contexts/Encounter';
@@ -137,10 +137,7 @@ export const MedicationDetails = ({
         <TranslatedText stringId="medication.details.startDate" fallback="Start date & time" />
       ),
       value: (
-        <>
-          <DateDisplay date={medication.startDate} format="shortest" />{' '}
-          <TimeSlotDisplay time={medication.startDate} />
-        </>
+        <DateDisplay date={medication.startDate} format="shortest" showTime timeFormat="compact" />
       ),
     },
     ...(medication.isOngoing || medication.discontinued
@@ -200,8 +197,7 @@ export const MedicationDetails = ({
             value: (
               <>
                 {' '}
-                <DateDisplay date={medication.endDate} format="shortest" />{' '}
-                <TimeSlotDisplay time={medication.endDate} />
+                <DateDisplay date={medication.endDate} format="shortest" showTime timeFormat="compact" />
               </>
             ),
           },
@@ -335,8 +331,7 @@ export const MedicationDetails = ({
                           pauseData.pauseDuration,
                         ).toLowerCase()}{' '}
                         - {<TranslatedText stringId="medication.details.until" fallback="until" />}{' '}
-                        <DateDisplay date={pauseData.pauseEndDate} format="shortest" />{' '}
-                        <TimeSlotDisplay time={pauseData.pauseEndDate} />
+                        <DateDisplay date={pauseData.pauseEndDate} format="shortest" showTime timeFormat="compact" />
                       </DarkestText>
                     </Box>
                     <Box flex={1} pl={2.5} borderLeft={`1px solid ${Colors.outline}`}>
@@ -478,8 +473,10 @@ export const MedicationDetails = ({
                         const slot = findAdministrationTimeSlotFromIdealTime(time).timeSlot;
                         return (
                           <DarkestText key={time}>
-                            <TimeSlotDisplay time={slot.startTime} /> -{' '}
-                            <TimeSlotDisplay time={slot.endTime} />
+                            <TimeRangeDisplay range={{ 
+                              start: getDateFromTimeString(slot.startTime), 
+                              end: getDateFromTimeString(slot.endTime) 
+                            }} />
                           </DarkestText>
                         );
                       })}
@@ -495,7 +492,7 @@ export const MedicationDetails = ({
                       .map(time => {
                         return (
                           <MidText key={time}>
-                            <TimeSlotDisplay time={time} />
+                            <TimeDisplay date={getDateFromTimeString(time)} format="compact" noTooltip />
                           </MidText>
                         );
                       })}

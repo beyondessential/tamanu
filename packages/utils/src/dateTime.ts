@@ -288,10 +288,8 @@ export const intlFormatDate = (
   }
 
   // Datetime strings: apply timezone conversion if timezone provided
-  const shouldApplyTimezoneConversion = countryTimeZone && facilityTimeZone;
-  const dateObj = shouldApplyTimezoneConversion
-    ? fromZonedTime(date, countryTimeZone)
-    : parseDate(date);
+  const dateObj =
+    countryTimeZone && facilityTimeZone ? fromZonedTime(date, countryTimeZone) : parseDate(date);
   if (!dateObj) return fallback;
 
   const timeZone = facilityTimeZone ?? countryTimeZone;
@@ -464,6 +462,20 @@ export const formatShortestExplicit = (
   intlFormatDate(
     date,
     { year: '2-digit', month: 'short', day: 'numeric' },
+    'Unknown',
+    countryTimeZone,
+    facilityTimeZone,
+  );
+
+/** "15 Mar" - day and short month name (no year) */
+export const formatDayMonth = (
+  date: string | Date | null | undefined,
+  countryTimeZone?: string,
+  facilityTimeZone?: string | null,
+) =>
+  intlFormatDate(
+    date,
+    { month: 'short', day: 'numeric' },
     'Unknown',
     countryTimeZone,
     facilityTimeZone,

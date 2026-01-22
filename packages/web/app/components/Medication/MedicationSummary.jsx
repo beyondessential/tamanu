@@ -8,7 +8,6 @@ import { CheckSharp } from '@material-ui/icons';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { Colors } from '../../constants';
 import { useTranslation } from '../../contexts/Translation';
-import { TimeSlotDisplay } from '../../utils/medications';
 
 const MidText = styled(Box)`
   font-size: 14px;
@@ -94,8 +93,7 @@ export const MedicationSummary = ({ medication }) => {
               <TranslatedText stringId="medication.details.endDate" fallback="End date & time" />
             </MidText>
             <DarkestText fontWeight={500} mt={0.5}>
-              <DateDisplay date={medication.endDate} format="shortest" />{' '}
-              <TimeSlotDisplay time={medication.endDate} />
+              <DateDisplay date={medication.endDate} format="shortest" showTime timeFormat="compact" />
             </DarkestText>
           </Box>
         )}

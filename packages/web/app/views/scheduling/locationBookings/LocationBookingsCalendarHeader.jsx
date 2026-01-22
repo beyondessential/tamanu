@@ -7,7 +7,7 @@ import queryString from 'query-string';
 import { isStartOfThisWeek } from '@tamanu/utils/dateTime';
 
 import { MonthPicker } from '../../../components';
-import { Button, DateDisplay } from '@tamanu/ui-components';
+import { Button, useDateTimeFormat } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { scrollToThisWeek } from './utils';
@@ -69,6 +69,7 @@ const Weekday = styled.p`
 `;
 
 export const DayHeaderCell = ({ date, dim, ...props }) => {
+  const { formatWeekdayShort, formatShort } = useDateTimeFormat();
   const isToday = isSameDay(date, startOfToday());
   return (
     <HeaderCell
@@ -79,9 +80,9 @@ export const DayHeaderCell = ({ date, dim, ...props }) => {
       data-testid="headercell-dpnh"
     >
       <Weekday $isToday={isToday} data-testid="weekday-i79b">
-        <DateDisplay date={date} format={null} showWeekday />
+        {formatWeekdayShort(date)}
       </Weekday>
-      <DateDisplay date={date} />
+      {formatShort(date)}
     </HeaderCell>
   );
 };

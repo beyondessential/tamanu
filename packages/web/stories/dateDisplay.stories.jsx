@@ -1,10 +1,17 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import Box from '@material-ui/core/Box';
-import { DateDisplay, TimeDisplay, MultilineDatetimeDisplay, TimeRangeDisplay } from '../app/components/DateDisplay';
+import {
+  DateDisplay,
+  TimeDisplay,
+  MultilineDatetimeDisplay,
+  TimeRangeDisplay,
+  DateTimeRangeDisplay,
+} from '../app/components/DateDisplay';
 
 const testDate = new Date();
 const endDate = new Date(testDate.getTime() + 60 * 60 * 1000);
+const multiDayEndDate = new Date(testDate.getTime() + 26 * 60 * 60 * 1000);
 
 const Section = ({ title, children }) => (
   <Box mb={4}>
@@ -46,13 +53,19 @@ storiesOf('DateDisplay', module)
         <Row label='format="explicitShort"'>
           <DateDisplay date={testDate} format="explicitShort" />
         </Row>
+        <Row label='format="dayMonth"'>
+          <DateDisplay date={testDate} format="dayMonth" />
+        </Row>
         <Row label="showWeekday">
           <DateDisplay date={testDate} showWeekday />
+        </Row>
+        <Row label='showWeekday format="long"'>
+          <DateDisplay date={testDate} showWeekday format="long" />
         </Row>
       </Section>
 
       <Section title="With Time">
-        <Row label="showTime">
+        <Row label="showTime (default time format)">
           <DateDisplay date={testDate} showTime />
         </Row>
         <Row label='showTime timeFormat="compact"'>
@@ -63,6 +76,15 @@ storiesOf('DateDisplay', module)
         </Row>
         <Row label='format="shortest" showTime timeFormat="compact"'>
           <DateDisplay date={testDate} format="shortest" showTime timeFormat="compact" />
+        </Row>
+        <Row label='showWeekday showTime timeFormat="compact"'>
+          <DateDisplay date={testDate} showWeekday showTime timeFormat="compact" />
+        </Row>
+      </Section>
+
+      <Section title="Options">
+        <Row label="noTooltip">
+          <DateDisplay date={testDate} showTime noTooltip />
         </Row>
       </Section>
     </Box>
@@ -100,8 +122,26 @@ storiesOf('DateDisplay', module)
       </Section>
 
       <Section title="TimeRangeDisplay">
-        <Row label="Time range">
+        <Row label="Time range (same day)">
           <TimeRangeDisplay range={{ start: testDate, end: endDate }} />
+        </Row>
+      </Section>
+
+      <Section title="DateTimeRangeDisplay">
+        <Row label="Same day range">
+          <DateTimeRangeDisplay start={testDate} end={endDate} weekdayFormat="short" />
+        </Row>
+        <Row label="Multi-day range">
+          <DateTimeRangeDisplay start={testDate} end={multiDayEndDate} weekdayFormat="short" />
+        </Row>
+        <Row label="Single date (no end)">
+          <DateTimeRangeDisplay start={testDate} weekdayFormat="short" />
+        </Row>
+        <Row label='Same day, format="shortest"'>
+          <DateTimeRangeDisplay start={testDate} end={endDate} weekdayFormat="short" dateFormat="shortest" />
+        </Row>
+        <Row label="No weekday (default)">
+          <DateTimeRangeDisplay start={testDate} end={endDate} />
         </Row>
       </Section>
     </Box>

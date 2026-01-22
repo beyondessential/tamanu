@@ -116,6 +116,7 @@ async function localLogin({ models, settings, email, password, deviceId }) {
   const {
     auth: { secret, tokenDuration },
     canonicalHostName,
+    countryTimeZone,
   } = config;
   const { user } = await models.User.loginFromCredential(
     {
@@ -138,6 +139,7 @@ async function localLogin({ models, settings, email, password, deviceId }) {
     user: user.get({ plain: true }),
     allowedFacilities,
     localisation,
+    countryTimeZone,
   };
 }
 

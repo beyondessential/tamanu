@@ -2,14 +2,13 @@
 import React from 'react';
 import * as yup from 'yup';
 import { intervalToDuration, parseISO } from 'date-fns';
-import { camelCase, isNull, isUndefined } from 'lodash';
+import { isNull, isUndefined } from 'lodash';
 import { toast } from 'react-toastify';
 import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
 import {
   PATIENT_DATA_FIELD_LOCATIONS,
   PROGRAM_DATA_ELEMENT_TYPES,
   READONLY_DATA_FIELDS,
-  SEX_LABELS,
 } from '@tamanu/constants';
 import { convertToBase64 } from '@tamanu/utils/encodings';
 import {
@@ -18,7 +17,7 @@ import {
   ageInYears,
   getCurrentDateTimeString,
 } from '@tamanu/utils/dateTime';
-import { getPatientNameAsString, TranslatedText } from '../components';
+import { TranslatedText } from '../components';
 import { notify } from './notify';
 
 const notifyError = (msg, props) => notify(msg, { ...props, type: 'error' });
@@ -386,63 +385,5 @@ export const checkMandatory = (mandatory, values) => {
       />,
     );
     return false;
-  }
-};
-
-
-export const getPatientDataDisplayValue = async ({
-  api,
-  getEnumTranslation,
-  getReferenceDataTranslation,
-  formatShort,
-  value,
-  config,
-}) => {
-  // eslint-disable-next-line no-unused-vars
-  const [modelName, _, options] = PATIENT_DATA_FIELD_LOCATIONS[config.column] || [];
-  if (!modelName) {
-    // If the field is a custom field, we need to display the raw value
-    return value;
-  } else if (options) {
-    // If the field is a standard field with options, we need to translate the value
-    const translation = getEnumTranslation(options, value);
-    return translation || value;
-  } else {
-    // If the field is a standard field without options, we need to query the display value
-    try {
-      const { data, model } = await api.get(
-        `surveyResponse/patient-data-field-association-data/${config.column}`,
-        {
-          value,
-        },
-      );
-      if (!model) return value;
-
-      switch (model) {
-        case 'ReferenceData':
-          return getReferenceDataTranslation({
-            value: data.id,
-            category: data.type,
-            fallback: data.name,
-          });
-        case 'User':
-          return data?.displayName;
-        case 'Patient':
-          return `${getPatientNameAsString(data)} (${data.displayId}) - ${getEnumTranslation(
-            SEX_LABELS,
-            data.sex,
-          )} - ${formatShort(data.dateOfBirth)}`;
-        default: {
-          const category = camelCase(model);
-          return getReferenceDataTranslation({
-            value: data.id,
-            category,
-            fallback: data.name || value,
-          });
-        }
-      }
-    } catch (error) {
-      return value;
-    }
   }
 };

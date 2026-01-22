@@ -8,7 +8,7 @@ import * as yup from 'yup';
 import { IMAGING_TYPES, FORM_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
-import { DateDisplay, TimeDisplay, FormSeparatorLine } from '../components';
+import { FormSeparatorLine } from '../components';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
 import {
   MultiselectField,
@@ -19,6 +19,7 @@ import {
   FormCancelButton,
   ButtonRow,
   FormGrid,
+  useDateTimeFormat,
 } from '@tamanu/ui-components';
 import { AutocompleteField, DateTimeField, Field, ImagingPriorityField } from '../components/Field';
 import { TranslatedReferenceData, TranslatedText } from '../components/Translation';
@@ -35,14 +36,6 @@ import { useAuth } from '../contexts/Auth';
 function getEncounterTypeLabel(type) {
   return ENCOUNTER_OPTIONS.find(x => x.value === type).label;
 }
-
-const EncounterLabel = ({encounter}) => (
-  <>
-    <DateDisplay date={encounter.startDate} />
-    <TimeDisplay date={encounter.startDate} />
-    ({getEncounterTypeLabel(encounter.encounterType)})
-  </>
-);
 
 const FormSubmitActionDropdown = React.memo(({ encounter, setOnSuccess, submitForm }) => {
   const { loadEncounter } = useEncounter();
@@ -98,6 +91,7 @@ export const ImagingRequestForm = React.memo(
     generateId = shortid.generate,
     setOnSuccess,
   }) => {
+    const { formatShort } = useDateTimeFormat();
     const { getTranslation } = useTranslation();
     const { getLocalisation } = useLocalisation();
     const { currentUser } = useAuth();
@@ -234,7 +228,7 @@ export const ImagingRequestForm = React.memo(
                   />
                 }
                 disabled
-                value={<EncounterLabel encounter={encounter} />}
+                value={`${formatShort(encounter.startDate)} - ${getEncounterTypeLabel(encounter.encounterType)}`}
                 data-testid="textinput-tyem"
               />
               <Field

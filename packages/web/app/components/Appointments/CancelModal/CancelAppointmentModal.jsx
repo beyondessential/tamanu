@@ -2,7 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
-import { isSameDay, parseISO } from 'date-fns';
+import { parseISO } from 'date-fns';
 
 import {
   APPOINTMENT_STATUSES,
@@ -12,7 +12,13 @@ import {
 
 import { useAppointmentMutation } from '../../../api/mutations';
 import { PatientNameDisplay } from '../../PatientNameDisplay';
-import { TranslatedReferenceData, TranslatedText, BaseModal, useDateTimeFormat, DateDisplay } from '@tamanu/ui-components';
+import {
+  TranslatedReferenceData,
+  TranslatedText,
+  BaseModal,
+  useDateTimeFormat,
+  DateTimeRangeDisplay,
+} from '@tamanu/ui-components';
 import {
   AppointmentDetailsColumn,
   AppointmentDetailsColumnLeft,
@@ -32,8 +38,7 @@ const StyledBodyText = styled(BodyText)`
 `;
 
 const AppointmentDetailsDisplay = ({ appointment }) => {
-  const { formatShortest } = useDateTimeFormat();
-  const doesSpanMultipleDays = !isSameDay(parseISO(startTime), parseISO(endTime));
+  const { formatShort } = useDateTimeFormat();
   const {
     patient,
     startTime,
@@ -66,9 +71,12 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
               data-testid="translatedtext-oej8"
             />
           }
-          value={doesSpanMultipleDays
-            ? <><DateDisplay date={startTime} format="shortest" /> - <DateDisplay date={endTime} format="shortest" /></>
-            : <DateDisplay date={startTime} format="shortest" />
+          value={
+            <DateTimeRangeDisplay
+              start={startTime}
+              end={endTime}
+              dateFormat="shortest"
+            />
           }
           data-testid="detaildisplay-l5s4"
         />
@@ -166,7 +174,7 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
                 <TranslatedText
                   stringId="appointment.duration.endsOnDate"
                   fallback="Ends on :date"
-                  replacements={{ date: formatShortest(schedule.untilDate) }}
+                  replacements={{ date: formatShort(schedule.untilDate) }}
                   data-testid="translatedtext-2xq6"
                 />
               ) : (

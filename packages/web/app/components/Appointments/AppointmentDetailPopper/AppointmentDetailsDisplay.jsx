@@ -299,7 +299,6 @@ export const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
           <DateTimeRangeDisplay
             start={startTime}
             end={endTime}
-            showWeekday={false}
             data-testid="datetimerangedisplay-diun"
           />
         }

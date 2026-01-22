@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Button } from '@material-ui/core';
-import { TranslatedText, TranslatedReferenceData, TranslatedOption } from '@tamanu/ui-components';
+import { TranslatedText, TranslatedReferenceData, TranslatedOption, useDateTimeFormat } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { Table } from '../../components/Table';
 import { DateHeadCell, RangeValidatedCell } from '../../components/FormattedTableCell';
 import { LabTestResultModal } from './LabTestResultModal';
-import { BodyText, DateDisplay, TimeDisplay } from '../../components';
+import { BodyText } from '../../components';
 
 const COLUMN_WIDTHS = [150, 120, 120];
 
@@ -104,14 +104,9 @@ const StyledButton = styled(Button)`
   }
 `;
 
-const getTitle = value => (
-  <>
-    <DateDisplay date={value} /> <TimeDisplay date={value} format="withSeconds" />
-  </>
-);
-
 export const PatientLabTestsTable = React.memo(
   ({ patient, labTests = [], count, isLoading, searchParameters }) => {
+    const { formatShort, formatTimeWithSeconds } = useDateTimeFormat();
     const [modalLabTestId, setModalLabTestId] = useState();
     const [modalOpen, setModalOpen] = useState(false);
     const openModal = id => {
@@ -232,7 +227,7 @@ export const PatientLabTestsTable = React.memo(
             );
           },
           exportOverrides: {
-            title: `${getTitle(date)}`,
+            title: `${formatShort(date)} ${formatTimeWithSeconds(date)}`,
             accessor: row => row.results[date]?.result || '—', // em dash
           },
         })),

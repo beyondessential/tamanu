@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router';
 import { endOfDay, startOfDay } from 'date-fns';
 import { Box } from '@material-ui/core';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { TimeDisplay, TranslatedText } from '@tamanu/ui-components';
+import { TranslatedText, useDateTimeFormat } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 
 import { Heading4 } from '../../../components';
@@ -160,13 +160,8 @@ const Link = styled.div`
   cursor: pointer;
 `;
 
-const getFormattedBookingTime = ({ startTime, endTime }) =>
-  <>
-    <TimeDisplay date={startTime} noTooltip /> -
-    <TimeDisplay date={endTime} noTooltip />
-  </>;
-
 const BookingsTimelineItem = ({ appointment }) => {
+  const { formatTimeCompact } = useDateTimeFormat();
   const { startTime, endTime, location, patient, status } = appointment;
   const { locationGroup } = location;
 
@@ -189,7 +184,7 @@ const BookingsTimelineItem = ({ appointment }) => {
       </StyledTimelineSeparator>
       <StyledTimelineContent data-testid="styledtimelinecontent-ptdu">
         <TimeText data-testid="timetext-4k7e">
-          {getFormattedBookingTime({ startTime, endTime })}
+          `${formatTimeCompact(startTime)} - ${formatTimeCompact(endTime)}`
         </TimeText>
         <Box width={0} flex={1} data-testid="box-i72x">
           <ConditionalTooltip

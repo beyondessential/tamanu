@@ -39,6 +39,7 @@ import { TranslatedText } from '../../../components/Translation';
 import { useTranslation } from '../../../contexts/Translation';
 import { useSettings } from '../../../contexts/Settings';
 import { useAuth } from '../../../contexts/Auth';
+import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 
 const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
   const { getLocalisation } = useLocalisation();
@@ -93,39 +94,41 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
         disabled
         data-testid="textinput-z6l1"
       />
-      <Field
-        name="status"
-        label={
-          <TranslatedText
-            stringId="general.status.label"
-            fallback="Status"
-            data-testid="translatedtext-jnts"
-          />
-        }
-        component={TranslatedSelectField}
-        enumValues={IMAGING_REQUEST_STATUS_LABELS}
-        transformOptions={options => {
-          return isCancelled
-            ? [
-                {
-                  label: IMAGING_REQUEST_STATUS_LABELS[IMAGING_REQUEST_STATUS_TYPES.CANCELLED],
-                  value: IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
-                },
-              ]
-            : options.filter(
-                option =>
-                  ![
-                    IMAGING_REQUEST_STATUS_TYPES.DELETED,
-                    IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
-                    IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
-                  ].includes(option.value),
-              );
-        }}
-        disabled={isCancelled}
-        isClearable={false}
-        required
-        data-testid="field-mfc2"
-      />
+      <NoteModalActionBlocker>
+        <Field
+          name="status"
+          label={
+            <TranslatedText
+              stringId="general.status.label"
+              fallback="Status"
+              data-testid="translatedtext-jnts"
+            />
+          }
+          component={TranslatedSelectField}
+          enumValues={IMAGING_REQUEST_STATUS_LABELS}
+          transformOptions={options => {
+            return isCancelled
+              ? [
+                  {
+                    label: IMAGING_REQUEST_STATUS_LABELS[IMAGING_REQUEST_STATUS_TYPES.CANCELLED],
+                    value: IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+                  },
+                ]
+              : options.filter(
+                  option =>
+                    ![
+                      IMAGING_REQUEST_STATUS_TYPES.DELETED,
+                      IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+                      IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+                    ].includes(option.value),
+                );
+          }}
+          disabled={isCancelled}
+          isClearable={false}
+          required
+          data-testid="field-mfc2"
+        />
+      </NoteModalActionBlocker>
       <DateTimeInput
         value={imagingRequest.requestedDate}
         label={
@@ -208,54 +211,57 @@ const BottomAlignFormGrid = styled(FormGrid)`
 const NewResultSection = ({ disabled = false }) => {
   const practitionerSuggester = useSuggester('practitioner');
   const { getTranslation } = useTranslation();
+  const Wrapper = !disabled ? NoteModalActionBlocker : React.Fragment;
 
   return (
     <FormGrid columns={2} data-testid="formgrid-j2u1">
-      <Field
-        label={
-          <TranslatedText
-            stringId="imaging.completedBy.label"
-            fallback="Completed by"
-            data-testid="translatedtext-wjkc"
-          />
-        }
-        name="newResult.completedById"
-        placeholder={getTranslation('imaging.completedBy.placeholder', 'Search')}
-        component={AutocompleteField}
-        suggester={practitionerSuggester}
-        disabled={disabled}
-        data-testid="field-ta7y"
-      />
-      <Field
-        label={
-          <TranslatedText
-            stringId="imaging.completedDate.label"
-            fallback="Completed"
-            data-testid="translatedtext-iiin"
-          />
-        }
-        name="newResult.completedAt"
-        saveDateAsString
-        component={DateTimeField}
-        disabled={disabled}
-        data-testid="field-wxo5"
-      />
-      <Field
-        label={
-          <TranslatedText
-            stringId="imaging.description.label"
-            fallback="Result description"
-            data-testid="translatedtext-3ezd"
-          />
-        }
-        name="newResult.description"
-        placeholder={getTranslation('imaging.description.placeholder', 'Result description...')}
-        multiline
-        component={TextField}
-        style={{ gridColumn: '1 / -1', minHeight: '3em' }}
-        disabled={disabled}
-        data-testid="field-2pjt"
-      />
+      <Wrapper>
+        <Field
+          label={
+            <TranslatedText
+              stringId="imaging.completedBy.label"
+              fallback="Completed by"
+              data-testid="translatedtext-wjkc"
+            />
+          }
+          name="newResult.completedById"
+          placeholder={getTranslation('imaging.completedBy.placeholder', 'Search')}
+          component={AutocompleteField}
+          suggester={practitionerSuggester}
+          disabled={disabled}
+          data-testid="field-ta7y"
+        />
+        <Field
+          label={
+            <TranslatedText
+              stringId="imaging.completedDate.label"
+              fallback="Completed"
+              data-testid="translatedtext-iiin"
+            />
+          }
+          name="newResult.completedAt"
+          saveDateAsString
+          component={DateTimeField}
+          disabled={disabled}
+          data-testid="field-wxo5"
+        />
+        <Field
+          label={
+            <TranslatedText
+              stringId="imaging.description.label"
+              fallback="Result description"
+              data-testid="translatedtext-3ezd"
+            />
+          }
+          name="newResult.description"
+          placeholder={getTranslation('imaging.description.placeholder', 'Result description...')}
+          multiline
+          component={TextField}
+          style={{ gridColumn: '1 / -1', minHeight: '3em' }}
+          disabled={disabled}
+          data-testid="field-2pjt"
+        />
+      </Wrapper>
     </FormGrid>
   );
 };
@@ -409,16 +415,18 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
             <NewResultSection disabled={!canAddResult} data-testid="newresultsection-poyy" />
             <ButtonRow style={{ marginTop: 20 }} data-testid="buttonrow-52n1">
               {!isCancelled && (
-                <FormSubmitButton
-                  text={
-                    <TranslatedText
-                      stringId="general.action.save"
-                      fallback="Save"
-                      data-testid="translatedtext-wp3m"
-                    />
-                  }
-                  data-testid="formsubmitbutton-nisz"
-                />
+                <NoteModalActionBlocker>
+                  <FormSubmitButton
+                    text={
+                      <TranslatedText
+                        stringId="general.action.save"
+                        fallback="Save"
+                        data-testid="translatedtext-wp3m"
+                      />
+                    }
+                    data-testid="formsubmitbutton-nisz"
+                  />
+                </NoteModalActionBlocker>
               )}
             </ButtonRow>
           </>

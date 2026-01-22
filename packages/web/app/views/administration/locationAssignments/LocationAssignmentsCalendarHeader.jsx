@@ -5,8 +5,9 @@ import { formatISO, isSameDay, isSameMonth, parseISO, startOfToday } from 'date-
 import queryString from 'query-string';
 
 import { isStartOfThisWeek } from '@tamanu/utils/dateTime';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 
-import { DateDisplay, MonthPicker } from '../../../components';
+import { MonthPicker } from '../../../components';
 import { Colors } from '../../../constants';
 import { CarouselComponents as CarouselGrid } from '../../scheduling/locationBookings/CarouselComponents';
 import { FIRST_DISPLAYED_DAY_ID, THIS_WEEK_ID } from '../../../constants/locationAssignments';
@@ -49,6 +50,7 @@ const Weekday = styled.p`
 `;
 
 export const DayHeaderCell = ({ date, dim, ...props }) => {
+  const { formatShort, formatWeekdayShort } = useDateTimeFormat();
   const isToday = isSameDay(date, startOfToday());
   return (
     <HeaderCell
@@ -59,9 +61,9 @@ export const DayHeaderCell = ({ date, dim, ...props }) => {
       data-testid="headercell-dpnh"
     >
       <Weekday $isToday={isToday} data-testid="weekday-i79b">
-        <DateDisplay date={date} format={null} showWeekday />
+        {formatWeekdayShort(date)}
       </Weekday>
-      <DateDisplay date={date} />
+      {formatShort(date)}
     </HeaderCell>
   );
 };

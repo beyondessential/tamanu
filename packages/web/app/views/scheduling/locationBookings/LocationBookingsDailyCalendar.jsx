@@ -283,9 +283,9 @@ const LocationHeaderContent = ({ location, assignments = [] }) => {
           assignments.map((assignment, index) => (
             <AssignmentItem key={assignment.id || index} data-testid="assignment-item">
               <AssignmentTime data-testid="assignment-time">
-                <TimeDisplay date={assignment.startTime} style={{ textTransform: 'lowercase' }} />-
+                <TimeDisplay date={assignment.startTime} format="compact" />-
                 <br />
-                <TimeDisplay date={assignment.endTime} style={{ textTransform: 'lowercase' }} />
+                <TimeDisplay date={assignment.endTime} format="compact" />
               </AssignmentTime>
               <AssignmentDivider data-testid="assignment-divider" />
               <AssignmentName data-testid="assignment-name">
@@ -1028,7 +1028,7 @@ export const LocationBookingsDailyCalendar = ({
               const height = (durationMinutes / 60) * 70; // 70px per hour
               return (
                 <TimeSlot key={index} data-testid={`time-slot-${index}`} height={height}>
-                  <TimeDisplay date={slot.start} format="compact" />
+                  <TimeDisplay date={slot.start}/>
                 </TimeSlot>
               );
             })}
