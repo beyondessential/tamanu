@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useMemo, createContext } from 'react';
 import { useSettings } from './SettingsContext';
 import { mapValues } from 'lodash';
-import { dateTimeFormatters } from '@tamanu/utils/dateTime';
+import * as dateTimeFormatters from '@tamanu/utils/dateFormatters';
 import { useAuth } from './AuthContext';
 
 type DateInput = string | Date | null | undefined;

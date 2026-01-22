@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useMemo } from 'react';
 import { get, mapValues } from 'lodash';
-import { dateTimeFormatters } from '@tamanu/utils/dateTime';
+import * as dateTimeFormatters from '@tamanu/utils/dateFormatters';
 
 const DateTimeContext = createContext(null);
 

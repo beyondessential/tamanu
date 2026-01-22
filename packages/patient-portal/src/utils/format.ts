@@ -1,5 +1,5 @@
 import { SEX_LABELS } from '@tamanu/constants';
-import { formatShort } from '@tamanu/utils/dateTime';
+import { formatShort } from '@tamanu/utils/dateFormatters';
 import { format, startOfWeek, parseISO } from 'date-fns';
 import type {
   Location,
