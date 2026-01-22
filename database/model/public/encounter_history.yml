@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - clinical
+          meta:
+            triggers:
+              - notify_encounter_history_changed
+              - record_encounter_history_changelog
+              - set_encounter_history_updated_at
+              - set_encounter_history_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid
@@ -34,53 +40,61 @@ sources:
             description: "{{ doc('generic__date') }} in encounter_history."
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: datetime
           - name: encounter_id
             data_type: character varying(255)
             description: "{{ doc('encounter_history__encounter_id') }}"
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'encounters')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'encounters')
+                    field: id
           - name: department_id
             data_type: character varying(255)
             description: "{{ doc('encounter_history__department_id') }}"
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'departments')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'departments')
+                    field: id
           - name: location_id
             data_type: character varying(255)
             description: "{{ doc('encounter_history__location_id') }}"
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'locations')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'locations')
+                    field: id
           - name: examiner_id
             data_type: character varying(255)
             description: "{{ doc('encounter_history__examiner_id') }}"
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: encounter_type
             data_type: character varying(255)
             description: "{{ doc('encounter_history__encounter_type') }}"
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - admission
-                    - clinic
-                    - imaging
-                    - emergency
-                    - observation
-                    - triage
-                    - surveyResponse
-                    - vaccination
+                  arguments:
+                    values:
+                      - admission
+                      - clinic
+                      - imaging
+                      - emergency
+                      - observation
+                      - triage
+                      - surveyResponse
+                      - vaccination
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in encounter_history."
@@ -91,15 +105,17 @@ sources:
             description: "{{ doc('encounter_history__actor_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: change_type
             data_type: character varying(255)
             description: "{{ doc('encounter_history__change_type') }}"
             data_tests:
               - accepted_values:
-                  values:
-                    - encounter_type
-                    - location
-                    - department
-                    - examiner
+                  arguments:
+                    values:
+                      - encounter_type
+                      - location
+                      - department
+                      - examiner

@@ -1,16 +1,10 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import {
-  getCurrentDateTimeString,
-  toDateString,
-  formatShortest,
-  formatTime,
-} from '@tamanu/utils/dateTime';
+import { toDateString, formatShortest, formatTime } from '@tamanu/utils/dateTime';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
 
-import { useLocationBookingsQuery } from '../../api/queries';
 import { Table } from '../Table';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
@@ -21,6 +15,10 @@ import { CancelLocationBookingModal } from './CancelModal/CancelLocationBookingM
 import { useTableSorting } from '../Table/useTableSorting';
 import { PastBookingsModal } from './PastBookingsModal';
 import { useAuth } from '../../contexts/Auth';
+import {
+  useHasPastLocationBookingsQuery,
+  useUpcomingLocationBookingsQuery,
+} from '../../api/queries/useAppointmentsQuery';
 
 const TableTitleContainer = styled(Box)`
   display: flex;
@@ -178,9 +176,9 @@ const StyledTable = styled(Table)`
     }
   }
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
-    cursor: ${(props) => (props.onClickRow ? 'pointer' : '')};
+    cursor: ${props => (props.onClickRow ? 'pointer' : '')};
     &:hover:not(:has(.menu-container:hover)) {
-      background-color: ${(props) => (props.onClickRow ? Colors.veryLightBlue : '')};
+      background-color: ${props => (props.onClickRow ? Colors.veryLightBlue : '')};
     }
   }
   .MuiTableBody-root {
@@ -251,7 +249,7 @@ const TableHeader = ({ title, openPastBookingsModal }) => (
   </TableTitleContainer>
 );
 
-const getFormattedTime = (time) => {
+const getFormattedTime = time => {
   return formatTime(time).replace(' ', '');
 };
 
@@ -299,32 +297,22 @@ export const LocationBookingsTable = ({ patient }) => {
   });
 
   // Query to check if there are past location bookings
-  const pastBookingsQuery = useLocationBookingsQuery({
-    patientId: patient?.id,
-    before: getCurrentDateTimeString(),
-    after: '1970-01-01 00:00',
-    rowsPerPage: 1,
-  });
-
-  const hasPastBookings = (pastBookingsQuery.data?.data?.length || 0) > 0;
+  const hasPastBookings = useHasPastLocationBookingsQuery(patient?.id);
 
   // Query for future bookings
-  const { data, isLoading } = useLocationBookingsQuery(
-    {
-      all: true,
-      patientId: patient?.id,
-      orderBy,
-      order,
-      after: getCurrentDateTimeString(),
-    },
+  const {
+    data: upcomingBookings = [],
+    isLoading: isLoadingUpcomingBookings,
+  } = useUpcomingLocationBookingsQuery(
+    patient?.id,
+    { orderBy, order },
     { keepPreviousData: true, refetchOnMount: true },
   );
-  const appointments = data?.data ?? [];
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isViewPastBookingsModalOpen, setIsViewPastBookingsModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const actions = [
     {
@@ -341,7 +329,7 @@ export const LocationBookingsTable = ({ patient }) => {
 
   const handleRowClick = (_, data) => {
     const { id, startTime } = data;
-    history.push(`/appointments/locations?appointmentId=${id}&date=${toDateString(startTime)}`);
+    navigate(`/appointments/locations?appointmentId=${id}&date=${toDateString(startTime)}`);
   };
 
   const canWriteAppointment = ability.can('write', 'Appointment');
@@ -422,13 +410,13 @@ export const LocationBookingsTable = ({ patient }) => {
       : []),
   ];
 
-  const hasAnyBookings = hasPastBookings || appointments.length > 0;
+  const hasAnyBookings = hasPastBookings || upcomingBookings.length > 0;
 
   if (!hasAnyBookings) {
     return null;
   }
 
-  if (!appointments.length && !isLoading) {
+  if (!upcomingBookings.length && !isLoadingUpcomingBookings) {
     return (
       <NoDataContainer data-testid="nodatacontainer-t8nv">
         <TableHeader
@@ -456,8 +444,8 @@ export const LocationBookingsTable = ({ patient }) => {
   return (
     <div>
       <StyledTable
-        isLoading={isLoading}
-        data={appointments}
+        isLoading={isLoadingUpcomingBookings}
+        data={upcomingBookings}
         columns={COLUMNS}
         allowExport={false}
         TableHeader={

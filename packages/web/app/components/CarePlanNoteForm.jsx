@@ -3,12 +3,18 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useApi, useSuggester } from '../api';
-import { Colors, FORM_TYPES } from '../constants';
-import { FormSubmitCancelRow } from './ButtonRow';
-import { AutocompleteField, DateTimeField, Field, Form, TextField } from './Field';
-import { FormGrid } from './FormGrid';
+import { FORM_TYPES } from '@tamanu/constants';
+import {
+  TextField,
+  Form,
+  FormSubmitCancelRow,
+  FormGrid,
+} from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
+import { AutocompleteField, DateTimeField, Field } from './Field';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
+import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 
 const SubmitError = styled.div`
   color: ${Colors.alert};
@@ -31,10 +37,10 @@ export function CarePlanNoteForm({
   const submitNote = async (patientCarePlanId, body) =>
     api.post(`patientCarePlan/${patientCarePlanId}/notes`, body);
 
-  const updateNote = async (updatedNote) => api.put(`notes/${updatedNote.id}`, updatedNote);
+  const updateNote = async updatedNote => api.put(`notes/${updatedNote.id}`, updatedNote);
   return (
     <Form
-      onSubmit={async (values) => {
+      onSubmit={async values => {
         try {
           if (note) {
             await updateNote({ ...note, ...values });
@@ -66,43 +72,47 @@ export function CarePlanNoteForm({
       render={() => (
         <>
           <FormGrid columns={2} data-testid="formgrid-fndf">
-            <Field
-              name="onBehalfOfId"
-              label={
-                <TranslatedText
-                  stringId="carePlan.noteOnBehalfOf.label"
-                  fallback="On behalf of"
-                  data-testid="translatedtext-dyao"
-                />
-              }
-              component={AutocompleteField}
-              suggester={practitionerSuggester}
-              data-testid="field-hh8q"
-            />
-            <Field
-              name="date"
-              label={
-                <TranslatedText
-                  stringId="carePlan.noteDateRecorded.label"
-                  fallback="Date Recorded"
-                  data-testid="translatedtext-7ylt"
-                />
-              }
-              component={DateTimeField}
-              saveDateAsString
-              data-testid="field-qouz"
-            />
+            <NoteModalActionBlocker>
+              <Field
+                name="onBehalfOfId"
+                label={
+                  <TranslatedText
+                    stringId="carePlan.noteOnBehalfOf.label"
+                    fallback="On behalf of"
+                    data-testid="translatedtext-dyao"
+                  />
+                }
+                component={AutocompleteField}
+                suggester={practitionerSuggester}
+                data-testid="field-hh8q"
+              />
+              <Field
+                name="date"
+                label={
+                  <TranslatedText
+                    stringId="carePlan.noteDateRecorded.label"
+                    fallback="Date Recorded"
+                    data-testid="translatedtext-7ylt"
+                  />
+                }
+                component={DateTimeField}
+                saveDateAsString
+                data-testid="field-qouz"
+              />
+            </NoteModalActionBlocker>
           </FormGrid>
           <FormGrid columns={1} data-testid="formgrid-fw7y">
-            <Field
-              name="content"
-              placeholder={getTranslation('carePlan.note.placeholder.writeNote', 'Write a note...')}
-              component={TextField}
-              required
-              multiline
-              minRows={4}
-              data-testid="field-e8ln"
-            />
+            <NoteModalActionBlocker>
+              <Field
+                name="content"
+                placeholder={getTranslation('carePlan.note.placeholder.writeNote', 'Write a note...')}
+                component={TextField}
+                required
+                multiline
+                minRows={4}
+                data-testid="field-e8ln"
+              />
+            </NoteModalActionBlocker>
           </FormGrid>
           <SubmitError data-testid="submiterror-89ce">{submitError}</SubmitError>
           <FormSubmitCancelRow
@@ -117,11 +127,12 @@ export function CarePlanNoteForm({
               ) : (
                 <TranslatedText
                   stringId="general.action.addNote"
-                  fallback="Add Note"
+                  fallback="Add note"
                   data-testid="translatedtext-97gm"
                 />
               )
             }
+            ButtonWrapper={NoteModalActionBlocker}
             data-testid="formsubmitcancelrow-2egx"
           />
         </>

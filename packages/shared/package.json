@@ -1,17 +1,14 @@
 {
   "name": "@tamanu/shared",
-  "version": "2.38.0",
+  "version": "2.49.0",
   "description": "Common code across Tamanu packages",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
   "exports": {
     ".": {
       "require": "./dist/cjs/index.js",
       "import": "./dist/esm/index.js"
-    },
-    "./errors": {
-      "require": "./dist/cjs/errors.js",
-      "import": "./dist/esm/errors.js"
     },
     "./permissions/*": {
       "require": "./dist/cjs/permissions/*.js",
@@ -28,6 +25,18 @@
     "./services/logging/*": {
       "require": "./dist/cjs/services/logging/*.js",
       "import": "./dist/esm/services/logging/*.js"
+    },
+    "./services/suggestions/*": {
+      "require": "./dist/cjs/services/suggestions/*.js",
+      "import": "./dist/esm/services/suggestions/*.js"
+    },
+    "./schemas/types": {
+      "require": "./dist/cjs/schemas/types.js",
+      "import": "./dist/esm/schemas/types.js"
+    },
+    "./schemas/facility/requests/*": {
+      "require": "./dist/cjs/schemas/facility/requests/*.js",
+      "import": "./dist/esm/schemas/facility/requests/*.js"
     },
     "./sync/*": {
       "require": "./dist/cjs/sync/*.js",
@@ -69,9 +78,39 @@
       "require": "./dist/cjs/audit/*.js",
       "import": "./dist/esm/audit/*.js"
     },
+    "./schemas/*": {
+      "require": "./dist/cjs/schemas/*.js",
+      "import": "./dist/esm/schemas/*.js",
+      "types": "./dist/esm/schemas/*.d.ts"
+    },
+    "./schemas/patientPortal": {
+      "require": "./dist/cjs/schemas/patientPortal/index.js",
+      "import": "./dist/esm/schemas/patientPortal/index.js",
+      "types": "./dist/esm/schemas/patientPortal/index.d.ts"
+    },
+    "./schemas/patientPortal/*": {
+      "require": "./dist/cjs/schemas/patientPortal/*.js",
+      "import": "./dist/esm/schemas/patientPortal/*.js",
+      "types": "./dist/esm/schemas/patientPortal/*.d.ts"
+    },
+    "./schemas/patientPortal/responses/*": {
+      "require": "./dist/cjs/schemas/patientPortal/responses/*.js",
+      "import": "./dist/esm/schemas/patientPortal/responses/*.js",
+      "types": "./dist/esm/schemas/patientPortal/responses/*.d.ts"
+    },
+    "./schemas/patientPortal/requests/*": {
+      "require": "./dist/cjs/schemas/patientPortal/requests/*.js",
+      "import": "./dist/esm/schemas/patientPortal/requests/*.js",
+      "types": "./dist/esm/schemas/patientPortal/requests/*.d.ts"
+    },
+    "./schemas/facility/responses/*": {
+      "require": "./dist/cjs/schemas/facility/responses/*.js",
+      "import": "./dist/esm/schemas/facility/responses/*.js",
+      "types": "./dist/esm/schemas/facility/responses/*.d.ts"
+    },
     "./*": {
-      "require": "./dist/cjs/*/index.js",
-      "import": "./dist/esm/*/index.js"
+      "import": "./dist/esm/*/index.js",
+      "require": "./dist/cjs/*/index.js"
     }
   },
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -79,11 +118,12 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "GPL-3.0-or-later AND BUSL-1.1",
   "scripts": {
-    "build": "npm run clean && npm run build:esm && npm run build:cjs",
+    "build": "npm run clean && npm run build:esm && npm run build:cjs && npm run build:types",
     "build:dev": "npm run build",
     "build:dev:watch": "npm run clean && concurrently \"npm run build:esm -- --watch\" \"npm run build:cjs -- --watch\"",
     "build:esm": "swc --out-dir dist/esm --copy-files --source-maps true src",
     "build:cjs": "npm run build:esm -- --out-dir dist/cjs --config module.type=commonjs",
+    "build:types": "tsc --emitDeclarationOnly --outDir dist/esm --rootDir src",
     "build-watch": "npm run build:dev:watch",
     "clean": "rimraf dist",
     "clean:deps": "rimraf node_modules",
@@ -99,13 +139,11 @@
   },
   "dependencies": {
     "@casl/ability": "^6.7.1",
-    "@honeycombio/opentelemetry-node": "^0.7.2",
     "@opentelemetry/api": "^1.9.0",
-    "@opentelemetry/auto-instrumentations-node": "^0.54.0",
-    "@opentelemetry/resources": "^1.29.0",
     "@opentelemetry/semantic-conventions": "^1.28.0",
     "@react-pdf/renderer": "^3.4.4",
     "@tamanu/constants": "*",
+    "@tamanu/errors": "*",
     "@tamanu/settings": "*",
     "@tamanu/utils": "*",
     "bcrypt": "^5.1.1",
@@ -118,8 +156,7 @@
     "hookable": "^5.5.3",
     "json5": "^2.2.3",
     "khmer-unicode-converter": "^0.0.6",
-    "libhoney": "^4.3.0",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.21",
     "mathjs": "^9.3.0",
     "ms": "^2.1.3",
     "multiparty": "^4.2.3",
@@ -128,6 +165,8 @@
     "react": "^18.2.0",
     "semver-compare": "^1.0.0",
     "semver-diff": "^3.1.1",
-    "shortid": "^2.2.14"
+    "shortid": "^2.2.14",
+    "winston": "^3.14.2",
+    "zod": "^4.0.17"
   }
 }

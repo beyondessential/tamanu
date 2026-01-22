@@ -1,5 +1,8 @@
 import type { ChangeLog } from 'models';
 import { QueryTypes, type Sequelize } from 'sequelize';
+
+import { runFunctionInBatches } from '@tamanu/utils/runFunctionInBatches';
+
 import type { Models } from 'types/model';
 import type { SyncSnapshotAttributes, SyncSnapshotAttributesWithChangelog } from 'types/sync';
 
@@ -9,7 +12,7 @@ type QueryConfig = {
 };
 
 export const attachChangelogToSnapshotRecords = async (
-  { models, sequelize }: { models: Models, sequelize: Sequelize },
+  { models, sequelize }: { models: Models; sequelize: Sequelize },
   snapshotRecords: SyncSnapshotAttributes[],
   { minSourceTick, maxSourceTick }: QueryConfig,
 ): Promise<SyncSnapshotAttributesWithChangelog[]> => {
@@ -17,23 +20,27 @@ export const attachChangelogToSnapshotRecords = async (
     return snapshotRecords;
   }
 
-  const changelogRecords = await sequelize.query(
-    `
-   SELECT * FROM logs.changes
-    WHERE updated_at_sync_tick >= :minSourceTick
-    ${maxSourceTick ? 'AND updated_at_sync_tick <= :maxSourceTick' : ''}
-    AND (table_name || '-' || record_id) IN (:recordTypeAndIds)
-    `,
-    {
-      model: models.ChangeLog,
-      type: QueryTypes.SELECT,
-      mapToModel: true,
-      replacements: {
-        minSourceTick,
-        maxSourceTick,
-        recordTypeAndIds: snapshotRecords.map(({ recordType, recordId }) => `${recordType}-${recordId}`),
-      },
-    },
+  const changelogRecords = await runFunctionInBatches(
+    snapshotRecords,
+    async (snapshotRecordBatch: SyncSnapshotAttributes[]) =>
+      sequelize.query(
+        `
+          SELECT * FROM logs.changes
+          WHERE updated_at_sync_tick >= ?
+          ${maxSourceTick ? 'AND updated_at_sync_tick <= ?' : ''}
+          AND (table_name, record_id) IN (VALUES ${snapshotRecordBatch.map(() => `(?, ?)`).join(',')});
+        `,
+        {
+          model: models.ChangeLog,
+          type: QueryTypes.SELECT,
+          mapToModel: true,
+          replacements: [
+            minSourceTick,
+            ...(maxSourceTick ? [maxSourceTick] : []),
+            ...snapshotRecordBatch.map(({ recordType, recordId }) => [recordType, recordId]).flat(),
+          ],
+        },
+      ),
   );
 
   const changelogRecordsByRecordId = changelogRecords.reduce<Record<string, ChangeLog[]>>(
@@ -45,7 +52,7 @@ export const attachChangelogToSnapshotRecords = async (
     {},
   );
 
-  snapshotRecords.forEach((snapshotRecord) => {
+  snapshotRecords.forEach(snapshotRecord => {
     const id = `${snapshotRecord.recordType}-${snapshotRecord.recordId}`;
     (snapshotRecord as SyncSnapshotAttributesWithChangelog).changelogRecords =
       changelogRecordsByRecordId[id] || [];

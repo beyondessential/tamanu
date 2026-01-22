@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { storiesOf } from '@storybook/react';
-import { Colors } from '../app/constants';
+import { Colors } from '../app/constants/styles';
 import {
   InwardArrowVectorTooltipContent,
   TooltipContent,

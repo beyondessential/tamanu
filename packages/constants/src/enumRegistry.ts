@@ -13,7 +13,6 @@ import {
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
 } from './invoices';
 import { ENCOUNTER_TYPE_ABBREVIATION_LABELS, ENCOUNTER_TYPE_LABELS } from './encounters';
-import { NOTE_TYPE_LABELS } from './notes';
 import {
   REFERRAL_STATUS_LABELS,
   APPOINTMENT_STATUSES,
@@ -42,6 +41,8 @@ import {
   DRUG_UNIT_LABELS,
   DRUG_UNIT_SHORT_LABELS,
   REPEATS_LABELS,
+  DRUG_STOCK_STATUS_LABELS,
+  PHARMACY_PRESCRIPTION_TYPE_LABELS,
 } from './medications.js';
 import { PLACE_OF_DEATHS, MANNER_OF_DEATHS } from './deaths';
 import { LOCATION_AVAILABILITY_STATUS_LABELS } from './locations';
@@ -52,10 +53,7 @@ import {
   REPEAT_FREQUENCY_UNIT_LABELS,
   REPEAT_FREQUENCY_UNIT_PLURAL_LABELS,
 } from './appointments';
-import {
-  DEPRECATED_PRCC_LABELS,
-  PROGRAM_REGISTRATION_STATUS_LABELS,
-} from './programRegistry';
+import { DEPRECATED_PRCC_LABELS, PROGRAM_REGISTRATION_STATUS_LABELS } from './programRegistry';
 
 type EnumKeys = keyof typeof registeredEnums;
 type EnumValues = (typeof registeredEnums)[EnumKeys];
@@ -92,7 +90,6 @@ export const registeredEnums = {
   LOCATION_AVAILABILITY_STATUS_LABELS,
   MANNER_OF_DEATHS,
   MARTIAL_STATUS_LABELS,
-  NOTE_TYPE_LABELS,
   PATIENT_ISSUE_LABELS,
   PLACE_OF_BIRTH_LABELS,
   PLACE_OF_DEATHS,
@@ -115,6 +112,8 @@ export const registeredEnums = {
   TITLE_LABELS,
   VACCINE_CATEGORY_LABELS,
   VACCINE_STATUS_LABELS,
+  DRUG_STOCK_STATUS_LABELS,
+  PHARMACY_PRESCRIPTION_TYPE_LABELS,
 };
 
 /**
@@ -149,7 +148,6 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   LOCATION_AVAILABILITY_STATUS_LABELS: 'bedManagement.property.status',
   MANNER_OF_DEATHS: 'death.property.mannerOfDeath',
   MARTIAL_STATUS_LABELS: 'patient.property.maritalStatus',
-  NOTE_TYPE_LABELS: 'note.property.type',
   PATIENT_ISSUE_LABELS: 'patient.property.issue',
   PLACE_OF_BIRTH_LABELS: 'birth.property.placeOfBirth',
   PLACE_OF_DEATHS: 'death.property.placeOfDeath',
@@ -172,6 +170,8 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   TITLE_LABELS: 'patient.property.title',
   VACCINE_CATEGORY_LABELS: 'vaccine.property.category',
   VACCINE_STATUS_LABELS: 'vaccine.property.status',
+  DRUG_STOCK_STATUS_LABELS: 'medication.property.drugStockStatus',
+  PHARMACY_PRESCRIPTION_TYPE_LABELS: 'medication.property.pharmacyPrescriptionType',
 };
 
 export const enumRegistry = new Set(Object.values(registeredEnums));

@@ -2,10 +2,10 @@ import React from 'react';
 import styled from 'styled-components';
 import { useHierarchyTypesQuery } from '../../api/queries';
 import { HierarchyFieldItem } from './HierarchyFieldItem';
-import { Colors } from '../../constants';
 import { useFormikContext } from 'formik';
 import { get } from 'lodash';
-import { FormGrid } from '../FormGrid';
+import { FormGrid } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 
 const Container = styled(FormGrid)`
   grid-column: 1 / 3;
@@ -16,18 +16,28 @@ const Container = styled(FormGrid)`
 export const HierarchyFields = ({ fields, leafNodeType, relationType }) => {
   const { values } = useFormikContext();
   const { data: hierarchyTypes = [] } = useHierarchyTypesQuery({ leafNodeType, relationType });
-  const configuredFields = hierarchyTypes.filter((type) =>
-    fields.find((f) => f.referenceType === type),
-  );
-  const hierarchyToShow = configuredFields.length > 0 ? configuredFields : [leafNodeType];
 
-  if (fields.length === 0) return null;
+  // Check if the fields to show are in the hierarchy types
+  const fieldsToShow = fields.filter((f) => hierarchyTypes.includes(f.referenceType));
+
+  if (fieldsToShow.length === 0) {
+    return null;
+  }
+
+  // Filter hierarchy types to only include ones we have fields for
+  const matchedHierarchyTypes = hierarchyTypes.filter((type) =>
+    fieldsToShow.some((f) => f.referenceType === type)
+  );
+
+  if (matchedHierarchyTypes.length === 0) {
+    return null;
+  }
 
   return (
     <Container data-testid="container-bmjc">
-      {hierarchyToShow.map((type, index) => {
-        const fieldData = fields.find((f) => f.referenceType === type);
-        const parentFieldData = fields.find((f) => f.referenceType === hierarchyToShow[index - 1]);
+      {matchedHierarchyTypes.map((type, index) => {
+        const fieldData = fieldsToShow.find((f) => f.referenceType === type);
+        const parentFieldData = fieldsToShow.find((f) => f.referenceType === matchedHierarchyTypes[index - 1]);
         const parentId = get(values, parentFieldData?.name);
 
         return (

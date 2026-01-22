@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { endOfDay, startOfDay } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 
-import { InvalidOperationError, NotFoundError } from '@tamanu/shared/errors';
+import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import {
   LAB_REQUEST_STATUSES,
@@ -36,7 +36,7 @@ labRequest.get(
   '/:id',
   asyncHandler(async (req, res) => {
     const labRequestRecord = await findRouteObject(req, 'LabRequest');
-    const hasSensitiveTests = labRequestRecord.tests.some((test) => test.labTestType.isSensitive);
+    const hasSensitiveTests = labRequestRecord.tests.some(test => test.labTestType.isSensitive);
     if (hasSensitiveTests) {
       req.checkPermission('read', 'SensitiveLabRequest');
     }
@@ -45,7 +45,7 @@ labRequest.get(
 
     await req.audit.access({
       recordId: labRequestRecord.id,
-      params: req.params,
+      frontEndContext: req.params,
       model: LabRequest,
     });
 
@@ -73,7 +73,7 @@ labRequest.put(
       req.checkPermission('write', 'LabRequestStatus');
     }
 
-    const hasSensitiveTests = labRequestRecord.tests.some((test) => test.labTestType.isSensitive);
+    const hasSensitiveTests = labRequestRecord.tests.some(test => test.labTestType.isSensitive);
     if (hasSensitiveTests) {
       req.checkPermission('write', 'SensitiveLabRequest');
     }
@@ -212,7 +212,7 @@ labRequest.get(
       ),
       makeDeletedAtIsNullFilter('encounter'),
       makeFilter(!canListSensitive, 'sensitive_labs.is_sensitive IS NULL', () => {}),
-    ].filter((f) => f);
+    ].filter(f => f);
 
     const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(
       filters,
@@ -335,7 +335,7 @@ labRequest.get(
       },
     );
 
-    const forResponse = result.map((x) => renameObjectKeys(x.forResponse()));
+    const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
     res.send({
       data: forResponse,
       count,
@@ -356,7 +356,7 @@ labRequest.post(
       throw new NotFoundError();
     }
     req.checkPermission('write', lab);
-    const hasSensitiveTests = lab.tests.some((test) => test.labTestType.isSensitive);
+    const hasSensitiveTests = lab.tests.some(test => test.labTestType.isSensitive);
     if (hasSensitiveTests) {
       req.checkPermission('write', 'SensitiveLabRequest');
     }
@@ -371,66 +371,149 @@ labRelations.get('/:id/notes', notesWithSingleItemListHandler(NOTE_RECORD_TYPES.
 labRelations.get(
   '/:id/tests',
   asyncHandler(async (req, res) => {
+    const { models, params, query } = req;
+    const { LabRequest, LabTestPanelRequest, LabTestType, LabTestPanelLabTestTypes, LabTest } =
+      models;
     const canListSensitive = req.ability.can('list', 'SensitiveLabRequest');
-    const options = canListSensitive
-      ? {}
-      : { additionalFilters: { '$labTestType.is_sensitive$': false } };
-    const response = await getResourceList(req, 'LabTest', 'labRequestId', options);
 
-    res.send(response);
+    // First, get the lab request to check if it's associated with a panel
+    const labRequest = await LabRequest.findByPk(params.id, {
+      include: [
+        {
+          model: LabTestPanelRequest,
+          as: 'labTestPanelRequest',
+        },
+      ],
+    });
+
+    // If this is a panel request, we need to order by the panel's test order
+    if (labRequest?.labTestPanelRequest?.labTestPanelId) {
+      req.checkPermission('list', 'LabTest');
+
+      const { rowsPerPage, page } = query;
+
+      const baseQueryOptions = {
+        where: {
+          labRequestId: params.id,
+          ...(!canListSensitive && { '$labTestType.is_sensitive$': false }),
+        },
+        include: [
+          'category',
+          'labTestMethod',
+          {
+            model: LabTestType,
+            as: 'labTestType',
+            include: [
+              {
+                model: LabTestPanelLabTestTypes,
+                as: 'panelRelations',
+                where: {
+                  labTestPanelId: labRequest.labTestPanelRequest.labTestPanelId,
+                },
+                required: false,
+                attributes: ['order'],
+              },
+            ],
+          },
+        ],
+        order: [['labTestType', 'panelRelations', 'order', 'ASC']],
+      };
+
+      const { count, rows: objects } = await LabTest.findAndCountAll({
+        ...baseQueryOptions,
+        limit: rowsPerPage,
+        offset: page && rowsPerPage ? page * rowsPerPage : undefined,
+        distinct: true,
+      });
+
+      const data = objects.map(x => x.forResponse());
+
+      res.send({ count, data });
+    } else {
+      // For non-panel requests, use the default ordering
+      const options = canListSensitive
+        ? {}
+        : { additionalFilters: { '$labTestType.is_sensitive$': false } };
+      const response = await getResourceList(req, 'LabTest', 'labRequestId', options);
+      res.send(response);
+    }
   }),
 );
 
 labRelations.put(
   '/:id/tests',
   asyncHandler(async (req, res) => {
-    const { models, params, body, db, user } = req;
+    const {
+      models,
+      params,
+      body,
+      db,
+      user,
+    } = req;
     const { id } = params;
+    const { resultsInterpretation, labTests = {} } = body;
     req.checkPermission('write', 'LabTest');
 
-    const testIds = Object.keys(body);
+    const testIds = Object.keys(labTests);
 
-    const labTests = await models.LabTest.findAll({
-      where: {
-        labRequestId: id,
-        id: testIds,
-      },
-      include: ['labTestType'],
+    const labRequest = await models.LabRequest.findByPk(id, {
+      include: [
+        {
+          model: models.LabTest,
+          as: 'tests',
+          include: [
+            {
+              model: models.LabTestType,
+              as: 'labTestType',
+            },
+          ],
+        },
+      ],
     });
+    const labTestRecords = labRequest.tests; // LabTest records
 
     // Reject all updates if it includes sensitive tests and user lacks permission
-    const areSensitiveTests = labTests.some((test) => test.labTestType.isSensitive);
+    const areSensitiveTests = labTestRecords.some(test => test.labTestType.isSensitive);
     if (areSensitiveTests) {
       req.checkPermission('write', 'SensitiveLabRequest');
     }
 
     // If any of the tests have a different result, check for LabTestResult permission
-    const labTestObj = keyBy(labTests, 'id');
+    const labTestObj = keyBy(labTestRecords, 'id');
     if (
-      Object.entries(body).some(
-        ([testId, testBody]) => testBody.result && testBody.result !== labTestObj[testId].result,
+      Object.entries(labTests).some(
+        ([testId, testBody]) => testBody.result && labTestObj[testId] && testBody.result !== labTestObj[testId].result,
       )
     ) {
       req.checkPermission('write', 'LabTestResult');
     }
 
-    if (labTests.length !== testIds.length) {
-      // Not all lab tests exist on specified lab request
-      throw new NotFoundError();
+    // Check if all test IDs in the body actually belong to this lab request
+    if (testIds.length > 0) {
+      const invalidTestIds = testIds.filter(testId => !labTestObj[testId]);
+      if (invalidTestIds.length > 0) {
+        throw new NotFoundError();
+      }
     }
 
-    db.transaction(async () => {
+    await db.transaction(async () => {
+      if (resultsInterpretation !== undefined && resultsInterpretation !== labRequest.resultsInterpretation) {
+        await labRequest.update({ resultsInterpretation });
+      }
+
       const promises = [];
 
-      labTests.forEach((labTest) => {
-        req.checkPermission('write', labTest);
-        const labTestBody = body[labTest.id];
-        const updated = labTest.set(labTestBody);
-        if (updated.changed()) {
-          // Temporary solution for lab test officer string field
-          // using displayName of current user
-          labTest.set('laboratoryOfficer', user.displayName);
-          promises.push(updated.save());
+      labTestRecords.forEach(labTestRecord => {
+        const testData = labTests[labTestRecord.id];
+        if (testData) {
+          req.checkPermission('write', labTestRecord);
+          const updated = labTestRecord.set(testData);
+          if (updated.changed()) {
+            // Temporary solution for lab test officer string field
+            // using displayName of current user
+            labTestRecord.set('laboratoryOfficer', user.displayName);
+            promises.push(updated.save());
+          }
         }
       });
 
@@ -469,7 +552,7 @@ labTest.get(
 
     await req.audit.access({
       recordId: response.id,
-      params: req.params,
+      frontEndContext: req.params,
       model: models.LabTest,
       facilityId,
     });
@@ -493,7 +576,7 @@ labTestType.get(
           as: 'category',
         },
       ],
-      // We dont include lab tests with a visibility status of panels only in this route as it is only used for the individual lab workflow
+      // We don't include lab tests with a visibility status of panels only in this route as it is only used for the individual lab workflow
       where: {
         visibilityStatus: {
           [Op.notIn]: [
@@ -547,7 +630,6 @@ labTestPanel.get(
         },
       ],
     });
-
     res.send(response);
   }),
 );
@@ -568,7 +650,7 @@ async function createPanelLabRequests(models, body, note, user) {
   });
 
   const response = await Promise.all(
-    panels.map(async (panel) => {
+    panels.map(async panel => {
       const panelId = panel.id;
       const testPanelRequest = await models.LabTestPanelRequest.create({
         labTestPanelId: panelId,
@@ -577,7 +659,7 @@ async function createPanelLabRequests(models, body, note, user) {
       const innerLabRequestBody = { ...labRequestBody, labTestPanelRequestId: testPanelRequest.id };
 
       const requestSampleDetails = sampleDetails[panelId] || {};
-      const labTestTypeIds = panel.labTestTypes?.map((testType) => testType.id) || [];
+      const labTestTypeIds = panel.labTestTypes?.map(testType => testType.id) || [];
       const labTestCategoryId = panel.categoryId;
       const newLabRequest = await createLabRequest(
         innerLabRequestBody,
@@ -618,7 +700,7 @@ async function createLabRequest(
   const newLabRequest = await models.LabRequest.createWithTests(labRequestData);
   if (note?.content) {
     await newLabRequest.createNote({
-      noteType: NOTE_TYPES.OTHER,
+      noteTypeId: NOTE_TYPES.OTHER,
       date: note.date,
       ...note,
       authorId: user.id,
@@ -657,7 +739,7 @@ async function createIndividualLabRequests(models, body, note, user) {
   const { sampleDetails = {}, ...labRequestBody } = body;
 
   const response = await Promise.all(
-    categories.map(async (category) => {
+    categories.map(async category => {
       const categoryId = category.get('lab_test_category_id');
       const requestSampleDetails = sampleDetails[categoryId] || {};
       const newLabRequest = await createLabRequest(

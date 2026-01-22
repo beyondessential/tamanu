@@ -8,6 +8,10 @@ sources:
         description: "{{ doc('fhir__table__jobs') }}"
         config:
           tags: []
+          meta:
+            masking: truncate
+            triggers:
+              - fhir_jobs_insert_trigger
         columns:
           - name: id
             data_type: uuid
@@ -39,11 +43,12 @@ sources:
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - Queued
-                    - Grabbed
-                    - Started
-                    - Errored
+                  arguments:
+                    values:
+                      - Queued
+                      - Grabbed
+                      - Started
+                      - Errored
           - name: worker_id
             data_type: uuid
             description: "{{ doc('fhir__jobs__worker_id') }}"

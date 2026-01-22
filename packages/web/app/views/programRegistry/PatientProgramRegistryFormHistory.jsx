@@ -115,6 +115,7 @@ export const PatientProgramRegistryFormHistory = ({ patientProgramRegistration }
           onClose={() => setPrintModalOpen(false)}
           patient={patient}
           surveyResponseId={selectedResponse.id}
+          title={selectedResponse.surveyName}
           submittedBy={selectedResponse.submittedBy}
           data-testid="surveyresponsesprintmodal-xem3"
         />

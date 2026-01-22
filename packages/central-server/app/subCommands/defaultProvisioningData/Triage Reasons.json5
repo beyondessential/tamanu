@@ -1,0 +1,285 @@
+{
+  "sheetName": "Triage Reasons",
+  "columns": [
+    "id",
+    "code",
+    "name"
+  ],
+  "data": [
+    {
+      "id": "triage-Cardiorespiratoryarrest",
+      "code": "Cardiorespiratoryarrest",
+      "name": "Cardiorespiratory arrest"
+    },
+    {
+      "id": "triage-Abdominalpaindistension",
+      "code": "Abdominalpaindistension",
+      "name": "Abdominal pain/distension"
+    },
+    {
+      "id": "triage-Abnormalbehaviourmentalstate",
+      "code": "Abnormalbehaviourmentalstate",
+      "name": "Abnormal behaviour/mental state"
+    },
+    {
+      "id": "triage-Allergicreaction",
+      "code": "Allergicreaction",
+      "name": "Allergic reaction"
+    },
+    {
+      "id": "triage-Backpain",
+      "code": "Backpain",
+      "name": "Back pain"
+    },
+    {
+      "id": "triage-Bleeding-fromnose",
+      "code": "Bleeding-fromnose",
+      "name": "Bleeding - from nose"
+    },
+    {
+      "id": "triage-Bleeding-instool",
+      "code": "Bleeding-instool",
+      "name": "Bleeding - in stool"
+    },
+    {
+      "id": "triage-Bleeding-inurine",
+      "code": "Bleeding-inurine",
+      "name": "Bleeding - in urine"
+    },
+    {
+      "id": "triage-Bleeding-invomit",
+      "code": "Bleeding-invomit",
+      "name": "Bleeding - in vomit"
+    },
+    {
+      "id": "triage-Bleeding-other",
+      "code": "Bleeding-other",
+      "name": "Bleeding - other"
+    },
+    {
+      "id": "triage-Bleeding-vaginal",
+      "code": "Bleeding-vaginal",
+      "name": "Bleeding - vaginal"
+    },
+    {
+      "id": "triage-Bleeding-withcough",
+      "code": "Bleeding-withcough",
+      "name": "Bleeding - with cough"
+    },
+    {
+      "id": "triage-Cardiac-chestpain",
+      "code": "Cardiac-chestpain",
+      "name": "Cardiac - chest pain"
+    },
+    {
+      "id": "triage-Cardiac-other",
+      "code": "Cardiac-other",
+      "name": "Cardiac - other"
+    },
+    {
+      "id": "triage-Complicationofdiabetes",
+      "code": "Complicationofdiabetes",
+      "name": "Complication of diabetes"
+    },
+    {
+      "id": "triage-Confusion",
+      "code": "Confusion",
+      "name": "Confusion"
+    },
+    {
+      "id": "triage-Cough",
+      "code": "Cough",
+      "name": "Cough"
+    },
+    {
+      "id": "triage-Decreasedurineoutput",
+      "code": "Decreasedurineoutput",
+      "name": "Decreased urine output"
+    },
+    {
+      "id": "triage-Diarrhoea",
+      "code": "Diarrhoea",
+      "name": "Diarrhoea"
+    },
+    {
+      "id": "triage-Difficultybreathing",
+      "code": "Difficultybreathing",
+      "name": "Difficulty breathing"
+    },
+    {
+      "id": "triage-Difficultywalking",
+      "code": "Difficultywalking",
+      "name": "Difficulty walking"
+    },
+    {
+      "id": "triage-Dizzinessorgeneralweakness",
+      "code": "Dizzinessorgeneralweakness",
+      "name": "Dizziness or general weakness"
+    },
+    {
+      "id": "triage-Earproblem",
+      "code": "Earproblem",
+      "name": "Ear problem"
+    },
+    {
+      "id": "triage-Eyeproblem",
+      "code": "Eyeproblem",
+      "name": "Eye problem"
+    },
+    {
+      "id": "triage-Failuretothrive",
+      "code": "Failuretothrive",
+      "name": "Failure to thrive"
+    },
+    {
+      "id": "triage-FB-inhaledswallowed",
+      "code": "FB-inhaledswallowed",
+      "name": "FB - inhaled/swallowed"
+    },
+    {
+      "id": "triage-Feverorchills",
+      "code": "Feverorchills",
+      "name": "Fever or chills"
+    },
+    {
+      "id": "triage-Flankpain",
+      "code": "Flankpain",
+      "name": "Flank pain"
+    },
+    {
+      "id": "triage-Fluorcold-likesymptoms",
+      "code": "Fluorcold-likesymptoms",
+      "name": "Flu or cold-like symptoms"
+    },
+    {
+      "id": "triage-Focalweaknessornumbness",
+      "code": "Focalweaknessornumbness",
+      "name": "Focal weakness or numbness"
+    },
+    {
+      "id": "triage-ForeignbodyFB-inearnose",
+      "code": "ForeignbodyFB-inearnose",
+      "name": "Foreign body (FB) - in ear/nose"
+    },
+    {
+      "id": "triage-Genderbasedviolence",
+      "code": "Genderbasedviolence",
+      "name": "Gender based violence (GBV)"
+    },
+    {
+      "id": "triage-Genitourinarycomplaint",
+      "code": "Genitourinarycomplaint",
+      "name": "Genitourinary complaint"
+    },
+    {
+      "id": "triage-Headache",
+      "code": "Headache",
+      "name": "Headache"
+    },
+    {
+      "id": "triage-HIV",
+      "code": "HIV",
+      "name": "HIV - suspected/confirmed"
+    },
+    {
+      "id": "triage-Hypoorhyperglycaemia",
+      "code": "Hypoorhyperglycaemia",
+      "name": "Hypo- or hyperglycaemia"
+    },
+    {
+      "id": "triage-Injury",
+      "code": "Injury",
+      "name": "Injury"
+    },
+    {
+      "id": "triage-Intoxicationselfharm",
+      "code": "Intoxicationselfharm",
+      "name": "Intoxication - deliberate self harm"
+    },
+    {
+      "id": "triage-Intoxicationrecreational",
+      "code": "Intoxicationrecreational",
+      "name": "Intoxication - recreational"
+    },
+    {
+      "id": "triage-Jaundice",
+      "code": "Jaundice",
+      "name": "Jaundice"
+    },
+    {
+      "id": "triage-Limbpain",
+      "code": "Limbpain",
+      "name": "Limb pain"
+    },
+    {
+      "id": "triage-Lossofappetite",
+      "code": "Lossofappetite",
+      "name": "Loss of appetite/decreased intake"
+    },
+    {
+      "id": "triage-Lossofconsciousness",
+      "code": "Lossofconsciousness",
+      "name": "Loss of consciousness or faint"
+    },
+    {
+      "id": "triage-Malaria",
+      "code": "Malaria",
+      "name": "Malaria - suspected/confirmed"
+    },
+    {
+      "id": "triage-Mass",
+      "code": "Mass",
+      "name": "Mass"
+    },
+    {
+      "id": "triage-Nausea",
+      "code": "Nausea",
+      "name": "Nausea or vomiting"
+    },
+    {
+      "id": "triage-Nonacutewound",
+      "code": "Nonacutewound",
+      "name": "Non-acute wound or ulcer"
+    },
+    {
+      "id": "triage-Other",
+      "code": "Other",
+      "name": "Other"
+    },
+    {
+      "id": "triage-Pregnancyrelated",
+      "code": "Pregnancyrelated",
+      "name": "Pregnancy-related"
+    },
+    {
+      "id": "triage-Rash",
+      "code": "Rash",
+      "name": "Rash"
+    },
+    {
+      "id": "triage-Seizure",
+      "code": "Seizure",
+      "name": "Seizure or convulsion"
+    },
+    {
+      "id": "triage-Swelling",
+      "code": "Swelling",
+      "name": "Swelling"
+    },
+    {
+      "id": "triage-TB",
+      "code": "TB",
+      "name": "TB - suspected/confirmed"
+    },
+    {
+      "id": "triage-tooth",
+      "code": "tooth",
+      "name": "Tooth problem"
+    },
+    {
+      "id": "triage-Wheezing",
+      "code": "Wheezing",
+      "name": "Wheezing"
+    }
+  ]
+}

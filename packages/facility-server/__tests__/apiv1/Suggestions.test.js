@@ -4,6 +4,8 @@ import {
   SURVEY_TYPES,
   VISIBILITY_STATUSES,
   REFERENCE_DATA_TRANSLATION_PREFIX,
+  INVOICE_ITEMS_CATEGORIES,
+  INVOICE_ITEMS_CATEGORIES_MODELS,
 } from '@tamanu/constants';
 import {
   buildDiagnosis,
@@ -183,11 +185,12 @@ describe('Suggestions', () => {
         monLastNamePatient.id,
       ];
       const { body } = result;
-      expect(body.map((p) => p.id)).toStrictEqual(orderedPatientIds);
+      expect(body.map(p => p.id)).toStrictEqual(orderedPatientIds);
     });
 
     it('should not get patients without permission', async () => {
-      const result = await baseApp.get('/api/suggestions/patient').query({ q: 'anything' });
+      const noPermsApp = await baseApp.asRole('base');
+      const result = await noPermsApp.get('/api/suggestions/patient').query({ q: 'anything' });
       expect(result).toBeForbidden();
     });
   });
@@ -245,20 +248,20 @@ describe('Suggestions', () => {
 
       const { body } = result;
 
-      const occupiedResult = body.find((x) => x.id === occupiedLocation.id);
+      const occupiedResult = body.find(x => x.id === occupiedLocation.id);
       expect(occupiedResult).toHaveProperty('availability', LOCATION_AVAILABILITY_STATUS.OCCUPIED);
 
-      const reservedResult = body.find((x) => x.id === reservedLocation.id);
+      const reservedResult = body.find(x => x.id === reservedLocation.id);
       expect(reservedResult).toHaveProperty('availability', LOCATION_AVAILABILITY_STATUS.RESERVED);
 
-      const unrestrictedResult = body.find((x) => x.id === unrestrictedLocation.id);
+      const unrestrictedResult = body.find(x => x.id === unrestrictedLocation.id);
       expect(unrestrictedResult).toHaveProperty(
         'availability',
         LOCATION_AVAILABILITY_STATUS.AVAILABLE,
       );
 
       const otherResults = body.filter(
-        (x) => ![occupiedLocation.id, reservedLocation.id, unrestrictedLocation.id].includes(x.id),
+        x => ![occupiedLocation.id, reservedLocation.id, unrestrictedLocation.id].includes(x.id),
       );
       for (const location of otherResults) {
         expect(location).toHaveProperty('availability', LOCATION_AVAILABILITY_STATUS.AVAILABLE);
@@ -456,9 +459,7 @@ describe('Suggestions', () => {
     });
 
     it('should get a partial list of diagnoses with a specific query', async () => {
-      const count = testDiagnoses.filter((td) =>
-        td.name.toLowerCase().includes('bacterial'),
-      ).length;
+      const count = testDiagnoses.filter(td => td.name.toLowerCase().includes('bacterial')).length;
       expect(count).toBeLessThan(limit); // ensure we're actually testing filtering!
       const result = await userApp.get('/api/suggestions/diagnosis?q=bacterial');
       expect(result).toHaveSucceeded();
@@ -553,7 +554,7 @@ describe('Suggestions', () => {
   describe('Order of results (via diagnoses)', () => {
     // Applies only to tests in this describe block
     beforeEach(() => {
-      return models.ReferenceData.truncate({ cascade: true, force: true });
+      return models.ReferenceData.destroy({ where: { type: 'diagnosis' }, force: true });
     });
 
     it('should return results that start with the query first', async () => {
@@ -608,7 +609,7 @@ describe('Suggestions', () => {
   describe('Translations', () => {
     beforeEach(async () => {
       const { TranslatedString, ReferenceData } = models;
-      await ReferenceData.truncate({ cascade: true, force: true });
+      await ReferenceData.destroy({ where: { type: 'drug' }, force: true });
       await TranslatedString.truncate({ cascade: true, force: true });
     });
 
@@ -756,7 +757,7 @@ describe('Suggestions', () => {
   describe('Address hierarchy', () => {
     it('should filter address_hierarchy fields by parent id if supplied in query', async () => {
       const { ReferenceData, ReferenceDataRelation } = models;
-      const fakeReferenceData = async (type) =>
+      const fakeReferenceData = async type =>
         await ReferenceData.create(fake(ReferenceData, { type }));
 
       const fakeReferenceDataRelation = async ({ parentId, childId }) =>
@@ -868,7 +869,7 @@ describe('Suggestions', () => {
       expect(body.length).toBe(5);
 
       // Verify we got the correct divisions (26-30)
-      const returnedIds = body.map((item) => item.id).sort();
+      const returnedIds = body.map(item => item.id).sort();
       const expectedIds = [
         'test-division-26',
         'test-division-27',
@@ -903,7 +904,7 @@ describe('Suggestions', () => {
   });
 
   it('Should get all suggestions on the /all endpoint', async () => {
-    await models.ReferenceData.truncate({ cascade: true, force: true });
+    await models.ReferenceData.destroy({ where: { type: 'diagnosis' }, force: true });
     const dummyRecords = new Array(30).fill(0).map((_, i) => ({
       id: `diag-${i}`,
       type: 'diagnosis',
@@ -918,18 +919,22 @@ describe('Suggestions', () => {
   });
 
   it('should handle complex includes in invoiceProduct suggester', async () => {
-    const referenceData = await models.ReferenceData.create({
-      id: 'test-ref-data-id',
-      code: 'TEST_PRODUCT',
-      type: 'additionalInvoiceProduct',
-      name: 'Test Reference Product',
-      visibilityStatus: 'current',
+    const { id: categoryId } = await models.ReferenceData.create({
+      ...fake(models.ReferenceData),
+      name: 'Test Lab Test Category',
+      type: 'labTestCategory',
+    });
+    const labTestType = await models.LabTestType.create({
+      id: 'test-lab-test-type-id',
+      code: 'TEST_LAB_TEST_TYPE',
+      labTestCategoryId: categoryId,
     });
 
     const invoiceProduct = await models.InvoiceProduct.create({
-      id: referenceData.id,
       name: 'Test Invoice Product',
-      price: 100,
+      category: INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE,
+      sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE],
+      sourceRecordId: labTestType.id,
       discountable: true,
       visibilityStatus: 'current',
     });

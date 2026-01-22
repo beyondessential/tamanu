@@ -14,7 +14,7 @@ describe('EU DCC: Vaccination', () => {
     /* eslint-disable require-atomic-updates */
     data.vaxDrug = await ReferenceData.create({
       ...fake(ReferenceData),
-      type: 'vaccine',
+      type: 'drug',
       name: 'Comirnaty',
     });
 

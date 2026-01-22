@@ -1,10 +1,11 @@
 import React from 'react';
-import { TamanuApi as ApiClient, AuthExpiredError } from '@tamanu/api-client';
+import { TamanuApi as ApiClient } from '@tamanu/api-client';
 import { ENGLISH_LANGUAGE_CODE, SERVER_TYPES } from '@tamanu/constants';
 
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { getDeviceId, notifyError } from '../utils';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { ERROR_TYPE } from '@tamanu/errors';
 
 const {
   TOKEN,
@@ -92,7 +93,7 @@ function clearLocalStorage() {
 }
 
 export function isErrorUnknownDefault(error) {
-  const status = error?.response?.status;
+  const status = error?.status;
   if (!status || typeof status !== 'number') {
     return true;
   }
@@ -101,7 +102,7 @@ export function isErrorUnknownDefault(error) {
 }
 
 export function isErrorUnknownAllow404s(error) {
-  const status = error?.response?.status;
+  const status = error?.status;
   if (status === 404) {
     return false;
   }
@@ -131,12 +132,27 @@ export class TamanuApi extends ApiClient {
   }
 
   setToken(token, refreshToken) {
-    if (refreshToken) {
-      localStorage.setItem(TOKEN, refreshToken);
+    if (token) {
+      localStorage.setItem(TOKEN, token);
     } else {
       localStorage.removeItem(TOKEN);
     }
     return super.setToken(token, refreshToken);
+  }
+
+  // Overwrite base method to integrate with the facility-server refresh endpoint which just
+  // checks for an apiToken and returns a new one. This should be removed when refresh tokens are
+  // set up in facility-server
+  async refreshToken(config = {}) {
+    const response = await this.post(
+      'refresh',
+      {
+        deviceId: this.deviceId,
+      },
+      config,
+    );
+    const { token, refreshToken: newRefreshToken } = response;
+    this.setToken(token, newRefreshToken);
   }
 
   async restoreSession() {
@@ -154,9 +170,8 @@ export class TamanuApi extends ApiClient {
       throw new Error('No stored session found.');
     }
 
-    this.setToken(null, token);
+    this.setToken(token);
     const config = { showUnknownErrorToast: false };
-    await this.refreshToken(config);
     const { user, ability } = await this.fetchUserData(permissions, config);
 
     return {
@@ -174,13 +189,14 @@ export class TamanuApi extends ApiClient {
 
   async login(email, password) {
     const output = await super.login(email, password);
-    const { localisation, server, availableFacilities, permissions, role } = output;
+    const { localisation, server, availableFacilities, permissions, role, settings } = output;
     saveToLocalStorage({
       localisation,
       server,
       availableFacilities,
       permissions,
       role,
+      settings,
     });
     return output;
   }
@@ -204,9 +220,7 @@ export class TamanuApi extends ApiClient {
     try {
       return await super.fetch(endpoint, query, otherConfig);
     } catch (err) {
-      const message = err?.message || err?.status;
-
-      if (err instanceof AuthExpiredError) {
+      if (err.type.startsWith(ERROR_TYPE.AUTH)) {
         clearLocalStorage();
       } else if (showUnknownErrorToast && isErrorUnknown(err)) {
         const language = localStorage.getItem(LANGUAGE);
@@ -230,14 +244,14 @@ export class TamanuApi extends ApiClient {
                   key="general.api.notification.message"
                   stringId="general.api.notification.message"
                   fallback="Message: :message"
-                  replacements={{ message }}
+                  replacements={{ message: err?.title }}
                 />,
               ]
             : []),
         ]);
       }
 
-      throw new Error(message);
+      throw err;
     }
   }
 

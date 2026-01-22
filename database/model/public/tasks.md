@@ -124,3 +124,11 @@ One of:
 - `days`
 - `occurrences`
 {% enddocs %}
+
+{% docs tasks__task_type %}
+Type of the task.
+
+One of:
+- `normal_task`
+- `medication_due_task`
+{% enddocs %}

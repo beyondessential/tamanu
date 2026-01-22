@@ -1,20 +1,30 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
-import type { InitOptions, Models } from '../types/model';
+import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import { buildEncounterLinkedLookupFilter, buildEncounterLinkedSyncFilter } from '../sync';
+import type { PharmacyOrderPrescription } from './PharmacyOrderPrescription';
 
 export class PharmacyOrder extends Model {
   declare id: string;
   declare orderingClinicianId: string;
   declare encounterId: string;
   declare comments?: string;
+  declare isDischargePrescription: boolean;
+  declare date: string;
+  declare facilityId: string;
+  declare pharmacyOrderPrescriptions?: PharmacyOrderPrescription[];
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
         comments: DataTypes.TEXT,
+        isDischargePrescription: DataTypes.BOOLEAN,
+        date: dateTimeType('date', {
+          allowNull: false,
+        }),
+        facilityId: DataTypes.STRING,
       },
       {
         ...options,
@@ -38,6 +48,11 @@ export class PharmacyOrder extends Model {
       foreignKey: 'pharmacyOrderId',
       as: 'pharmacyOrderPrescriptions',
     });
+
+    this.belongsTo(models.Facility, {
+      foreignKey: 'facilityId',
+      as: 'facility',
+    });
   }
 
   static getListReferenceAssociations() {
@@ -54,7 +69,7 @@ export class PharmacyOrder extends Model {
     );
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return buildEncounterLinkedLookupFilter(this);
   }
 }

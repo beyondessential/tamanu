@@ -2,9 +2,10 @@ import config from 'config';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { CHARTING_DATA_ELEMENT_IDS, SURVEY_TYPES } from '@tamanu/constants';
 import { setupSurveyFromObject } from '@tamanu/database/demoData/surveys';
-import { fake, fakeUser } from '@tamanu/fake-data/fake';
+import { chance, fake, fakeUser } from '@tamanu/fake-data/fake';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
 
 async function createSimpleChartSurvey(models, index) {
@@ -48,6 +49,66 @@ async function createSimpleChartSurvey(models, index) {
     dataElementId: CHARTING_DATA_ELEMENT_IDS.dateRecorded,
     surveyId: survey.id,
   });
+
+  return survey;
+}
+
+async function createComplexCoreChartSurvey(models, patient) {
+  const encounter = await models.Encounter.create({
+    ...(await createDummyEncounter(models)),
+    patientId: patient.id,
+  });
+  const program = await models.Program.create({ ...fake(models.Program) });
+  const survey = await models.Survey.create({
+    ...fake(models.Survey),
+    code: chance.string({ length: 10 }),
+    programId: program.id,
+    surveyType: SURVEY_TYPES.COMPLEX_CHART_CORE,
+  });
+
+  let instanceNamePde = await models.ProgramDataElement.findOne({
+    where: {
+      id: CHARTING_DATA_ELEMENT_IDS.complexChartInstanceName,
+    },
+  });
+  if (!instanceNamePde) {
+    instanceNamePde = await models.ProgramDataElement.create({
+      ...fake(models.ProgramDataElement),
+      id: CHARTING_DATA_ELEMENT_IDS.complexChartInstanceName,
+    });
+  }
+
+  const response1 = await models.SurveyResponse.create({
+    ...fake(models.SurveyResponse),
+    surveyId: survey.id,
+    encounterId: encounter.id,
+  });
+  const response2 = await models.SurveyResponse.create({
+    ...fake(models.SurveyResponse),
+    surveyId: survey.id,
+    encounterId: encounter.id,
+  });
+  const chartInstance1Answer1 = await models.SurveyResponseAnswer.create({
+    ...fake(models.SurveyResponseAnswer),
+    dataElementId: instanceNamePde.id,
+    responseId: response1.id,
+    body: 'Chart 1',
+  });
+  const chartInstance1Answer2 = await models.SurveyResponseAnswer.create({
+    ...fake(models.SurveyResponseAnswer),
+    dataElementId: instanceNamePde.id,
+    responseId: response2.id,
+    body: 'Chart 2',
+  });
+
+  return {
+    encounter,
+    survey,
+    response1,
+    response2,
+    chartInstance1Answer1,
+    chartInstance1Answer2,
+  };
 }
 
 describe('EncounterCharting', () => {
@@ -71,43 +132,14 @@ describe('EncounterCharting', () => {
 
   describe('Chart instances', () => {
     it('should get a list of chart instances of a chart for an encounter', async () => {
-      const encounter = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        patientId: patient.id,
-      });
-      const program = await models.Program.create({ ...fake(models.Program) });
-      const survey = await models.Survey.create({
-        ...fake(models.Survey),
-        code: 'complex-chart-core',
-        programId: program.id,
-        surveyType: SURVEY_TYPES.COMPLEX_CHART_CORE,
-      });
-      const dataElement = await models.ProgramDataElement.create({
-        ...fake(models.ProgramDataElement),
-        id: CHARTING_DATA_ELEMENT_IDS.complexChartInstanceName,
-      });
-      const response1 = await models.SurveyResponse.create({
-        ...fake(models.SurveyResponse),
-        surveyId: survey.id,
-        encounterId: encounter.id,
-      });
-      const response2 = await models.SurveyResponse.create({
-        ...fake(models.SurveyResponse),
-        surveyId: survey.id,
-        encounterId: encounter.id,
-      });
-      const chartInstance1Answer1 = await models.SurveyResponseAnswer.create({
-        ...fake(models.SurveyResponseAnswer),
-        dataElementId: dataElement.id,
-        responseId: response1.id,
-        body: 'Chart 1',
-      });
-      const chartInstance1Answer2 = await models.SurveyResponseAnswer.create({
-        ...fake(models.SurveyResponseAnswer),
-        dataElementId: dataElement.id,
-        responseId: response2.id,
-        body: 'Chart 2',
-      });
+      const {
+        encounter,
+        survey,
+        response1,
+        response2,
+        chartInstance1Answer1,
+        chartInstance1Answer2,
+      } = await createComplexCoreChartSurvey(models, patient);
 
       const result = await app.get(
         `/api/encounter/${encounter.id}/charts/${survey.id}/chartInstances`,
@@ -246,6 +278,132 @@ describe('EncounterCharting', () => {
       const result = await app.get(`/api/encounter/${chartsEncounter.id}/initialChart`);
       expect(result).toHaveSucceeded();
       expect(result.body.data.survey.name).toBe('Survey B');
+    });
+  });
+
+  describe('Chart permissions', () => {
+    let chartsPatient = null;
+
+    let simpleChartEncounter = null;
+    let simpleChartSurvey = null;
+    let simpleChartResponse = null;
+
+    let complexCoreChartEncounter = null;
+    let complexCoreChartSurvey = null;
+    let complexCoreChartResponse = null;
+
+    let permsApp = null;
+    let noPermsApp = null;
+
+    disableHardcodedPermissionsForSuite();
+
+    beforeAll(async () => {
+      chartsPatient = await models.Patient.create(await createDummyPatient(models));
+
+      // Create a simple chart survey
+      simpleChartSurvey = await createSimpleChartSurvey(models, 10);
+
+      simpleChartEncounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models, { endDate: null })),
+        patientId: chartsPatient.id,
+        reasonForEncounter: 'charting permissions test',
+      });
+      const submissionDate = '2025-01-20 00:00:00';
+      simpleChartResponse = await models.SurveyResponse.create({
+        ...fake(models.SurveyResponse),
+        surveyId: simpleChartSurvey.id,
+        encounterId: simpleChartEncounter.id,
+        patientId: chartsPatient.id,
+      });
+      await models.SurveyResponseAnswer.create({
+        ...fake(models.SurveyResponseAnswer),
+        dataElementId: CHARTING_DATA_ELEMENT_IDS.dateRecorded,
+        responseId: simpleChartResponse.id,
+        body: submissionDate,
+      });
+
+      // Create a complex core chart survey
+      const {
+        survey: survey2,
+        response1,
+        encounter,
+      } = await createComplexCoreChartSurvey(models, chartsPatient);
+      complexCoreChartSurvey = survey2;
+      complexCoreChartResponse = response1;
+      complexCoreChartEncounter = encounter;
+
+      // Create app without permissions
+      noPermsApp = await ctx.baseApp.asNewRole([
+        ['read', 'Encounter'],
+        ['list', 'Charting', 'wrong-id'],
+        ['read', 'Charting', 'wrong-id'],
+        ['delete', 'Charting', 'wrong-id'],
+      ]);
+
+      permsApp = await ctx.baseApp.asNewRole([
+        ['read', 'Encounter'],
+        ['list', 'Charting', complexCoreChartSurvey.id],
+        ['read', 'Charting', simpleChartSurvey.id],
+        ['delete', 'Charting', complexCoreChartSurvey.id],
+      ]);
+    });
+
+    describe('graphData/charts endpoint', () => {
+      it('should fail when user lacks specific charting permission', async () => {
+        const result = await noPermsApp.get(
+          `/api/encounter/${simpleChartEncounter.id}/graphData/charts/${CHARTING_DATA_ELEMENT_IDS.dateRecorded}?startDate=2025-01-19&endDate=2025-01-21`,
+        );
+        expect(result).toBeForbidden();
+      });
+
+      it('should succeed when user has specific charting permission', async () => {
+        const result = await permsApp.get(
+          `/api/encounter/${simpleChartEncounter.id}/graphData/charts/${CHARTING_DATA_ELEMENT_IDS.dateRecorded}?startDate=2025-01-19&endDate=2025-01-21`,
+        );
+        expect(result).toHaveSucceeded();
+        expect(result.body).toHaveProperty('count');
+        expect(result.body).toHaveProperty('data');
+      });
+    });
+
+    describe('chartInstances GET endpoint', () => {
+      it('should fail when user lacks specific charting permission', async () => {
+        const result = await noPermsApp.get(
+          `/api/encounter/${complexCoreChartEncounter.id}/charts/${complexCoreChartSurvey.id}/chartInstances`,
+        );
+        expect(result).toBeForbidden();
+      });
+
+      it('should succeed when user has specific charting permission', async () => {
+        const result = await permsApp.get(
+          `/api/encounter/${complexCoreChartEncounter.id}/charts/${complexCoreChartSurvey.id}/chartInstances`,
+        );
+        expect(result).toHaveSucceeded();
+        expect(result.body).toHaveProperty('count');
+        expect(result.body).toHaveProperty('data');
+        expect(result.body.data).toHaveLength(2);
+        expect(result.body.data).toBeInstanceOf(Array);
+      });
+    });
+
+    describe('chartInstances DELETE endpoint', () => {
+      it('should fail when user lacks specific charting permission', async () => {
+        const result = await noPermsApp.delete(
+          `/api/encounter/${complexCoreChartEncounter.id}/chartInstances/${complexCoreChartResponse.id}`,
+        );
+        expect(result).toBeForbidden();
+      });
+
+      it('should succeed when user has specific charting permission', async () => {
+        const result = await permsApp.delete(
+          `/api/encounter/${complexCoreChartEncounter.id}/chartInstances/${complexCoreChartResponse.id}`,
+        );
+        expect(result).toHaveSucceeded();
+
+        // Verify the response was deleted
+        const deletedResponse = await models.SurveyResponse.findByPk(complexCoreChartResponse.id);
+        expect(deletedResponse).toBeNull();
+      });
     });
   });
 });

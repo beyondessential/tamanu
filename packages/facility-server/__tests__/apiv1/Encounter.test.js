@@ -134,7 +134,7 @@ describe('Encounter', () => {
         'Test 1',
       ),
       models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.TREATMENT_PLAN, 'Test 2'),
-      models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.MEDICAL, 'Test 3'),
+      models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.OTHER, 'Test 3'),
       models.Note.createForRecord(
         otherEncounter.id,
         'Encounter',
@@ -147,24 +147,27 @@ describe('Encounter', () => {
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(3);
     expect(result.body.data.every(x => x.content.match(/^Test \d$/))).toEqual(true);
-    expect(result.body.data[0].noteType).toEqual(NOTE_TYPES.TREATMENT_PLAN);
+    expect(result.body.data[0].noteTypeId).toEqual(NOTE_TYPES.TREATMENT_PLAN);
   });
 
-  it('should get a list of notes filtered by noteType', async () => {
+  it('should get a list of notes filtered by noteTypeId', async () => {
     const encounter = await models.Encounter.create({
       ...(await createDummyEncounter(models)),
       patientId: patient.id,
     });
+
     await Promise.all([
-      models.Note.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 4'),
-      models.Note.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 5'),
-      models.Note.createForRecord(encounter.id, 'Encounter', 'admission', 'Test 6'),
+      models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.TREATMENT_PLAN, 'Test 4'),
+      models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.TREATMENT_PLAN, 'Test 5'),
+      models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.OTHER, 'Test 6'),
     ]);
 
-    const result = await app.get(`/api/encounter/${encounter.id}/notes?noteType=treatmentPlan`);
+    const result = await app.get(
+      `/api/encounter/${encounter.id}/notes?noteTypeId=${NOTE_TYPES.TREATMENT_PLAN}`,
+    );
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(2);
-    expect(result.body.data.every(x => x.noteType === 'treatmentPlan')).toEqual(true);
+    expect(result.body.data.every(x => x.noteTypeId === NOTE_TYPES.TREATMENT_PLAN)).toEqual(true);
   });
 
   it('should get a list of changelog notes of a root note ordered DESC', async () => {
@@ -719,7 +722,7 @@ describe('Encounter', () => {
 
       beforeAll(async () => {
         medicationEncounter = await models.Encounter.create({
-          ...(await createDummyEncounter(models)),
+          ...(await createDummyEncounter(models, { current: true })),
           patientId: patient.id,
           reasonForEncounter: 'medication test',
         });
@@ -748,6 +751,90 @@ describe('Encounter', () => {
         expect(result.body.date).toBeTruthy();
       });
 
+      it('should create a medication set successfully', async () => {
+        const secondMedication = await models.ReferenceData.create({
+          type: 'drug',
+          name: 'TestDrug2',
+          code: 'test2',
+        });
+
+        const result = await app.post('/api/medication/medication-set').send({
+          encounterId: medicationEncounter.id,
+          medicationSet: [
+            {
+              medicationId: secondMedication.id,
+              prescriberId: app.user.id,
+              doseAmount: 2,
+              units: 'mg',
+              frequency: 'Immediately',
+              route: 'oral',
+              date: '2025-01-01',
+              startDate: getCurrentDateTimeString(),
+            },
+          ],
+        });
+        expect(result).toHaveSucceeded();
+        expect(result.body).toHaveLength(1);
+        expect(result.body[0].medicationId).toEqual(secondMedication.id);
+      });
+
+      it('should import ongoing medications successfully', async () => {
+        const ongoingPrescription1 = await models.Prescription.create({
+          medicationId: testMedication.id,
+          prescriberId: app.user.id,
+          doseAmount: 1,
+          units: '%',
+          frequency: 'Immediately',
+          route: 'dermal',
+          date: '2025-01-01',
+          startDate: getCurrentDateTimeString(),
+          isOngoing: true,
+        });
+
+        const secondMedication = await models.ReferenceData.create({
+          type: 'drug',
+          name: 'TestDrug2',
+          code: 'test2',
+        });
+
+        const ongoingPrescription2 = await models.Prescription.create({
+          medicationId: secondMedication.id,
+          prescriberId: app.user.id,
+          doseAmount: 2,
+          units: 'mg',
+          frequency: 'Immediately',
+          route: 'oral',
+          date: '2025-01-01',
+          startDate: getCurrentDateTimeString(),
+          isOngoing: true,
+        });
+
+        await models.PatientOngoingPrescription.bulkCreate([
+          {
+            patientId: patient.id,
+            prescriptionId: ongoingPrescription1.id,
+          },
+          {
+            patientId: patient.id,
+            prescriptionId: ongoingPrescription2.id,
+          },
+        ]);
+
+        const result = await app.post('/api/medication/import-ongoing').send({
+          encounterId: medicationEncounter.id,
+          medications: [
+            { prescriptionId: ongoingPrescription1.id, quantity: 10, repeats: 1 },
+            { prescriptionId: ongoingPrescription2.id, quantity: 20, repeats: 2 },
+          ],
+          prescriberId: app.user.id,
+        });
+        expect(result).toHaveSucceeded();
+        expect(result.body.count).toEqual(2);
+        expect(result.body.data).toHaveLength(2);
+        expect(result.body.data[0].medicationId).toEqual(testMedication.id);
+        expect(result.body.data[1].medicationId).toEqual(secondMedication.id);
+      });
+
       it('should get medications for an encounter', async () => {
         const result = await app.get(`/api/encounter/${medicationEncounter.id}/medications`);
         expect(result).toHaveSucceeded();
@@ -763,6 +850,81 @@ describe('Encounter', () => {
         expect(body.count).toBeGreaterThan(0);
         expect(body.data[0].medication.name).toEqual('Checkizol');
         expect(body.data[0].medication.code).toEqual('check');
+      });
+
+      it('should reject creating medication when encounter is discharged', async () => {
+        // Discharge the encounter first
+        const endDate = getCurrentDateTimeString();
+        await app.put(`/api/encounter/${medicationEncounter.id}`).send({
+          endDate,
+          discharge: {
+            dischargerId: app.user.id,
+          },
+        });
+
+        const result = await app
+          .post(`/api/medication/encounterPrescription/${medicationEncounter.id}`)
+          .send({
+            medicationId: testMedication.id,
+            prescriberId: app.user.id,
+            doseAmount: 1,
+            units: '%',
+            frequency: 'Immediately',
+            route: 'dermal',
+            date: '2025-01-01',
+            startDate: getCurrentDateTimeString(),
+          });
+        expect(result).toHaveRequestError();
+        expect(result.body.error.message).toContain('is discharged');
+      });
+
+      it('should reject creating medication set when encounter is discharged', async () => {
+        const result = await app.post('/api/medication/medication-set').send({
+          encounterId: medicationEncounter.id,
+          medicationSet: [
+            {
+              medicationId: testMedication.id,
+              prescriberId: app.user.id,
+              doseAmount: 1,
+              units: '%',
+              frequency: 'Immediately',
+              route: 'dermal',
+              date: '2025-01-01',
+              startDate: getCurrentDateTimeString(),
+            },
+          ],
+        });
+        expect(result).toHaveRequestError();
+        expect(result.body.error.message).toContain('is discharged');
+      });
+
+      it('should reject importing ongoing medications when encounter is discharged', async () => {
+        const ongoingPrescription = await models.Prescription.create({
+          medicationId: testMedication.id,
+          prescriberId: app.user.id,
+          doseAmount: 1,
+          units: '%',
+          frequency: 'Immediately',
+          route: 'dermal',
+          date: '2025-01-01',
+          startDate: getCurrentDateTimeString(),
+          isOngoing: true,
+        });
+
+        await models.PatientOngoingPrescription.create({
+          patientId: patient.id,
+          prescriptionId: ongoingPrescription.id,
+        });
+
+        const result = await app.post('/api/medication/import-ongoing').send({
+          encounterId: medicationEncounter.id,
+          medications: [
+            { prescriptionId: ongoingPrescription.id, quantity: 10, repeats: 1 },
+          ],
+          prescriberId: app.user.id,
+        });
+        expect(result).toHaveRequestError();
+        expect(result.body.error.message).toContain('is discharged');
       });
     });
 
@@ -790,6 +952,16 @@ describe('Encounter', () => {
             medicationId: testMedication.id,
           }),
         );
+
+        await models.EncounterPrescription.create({
+          encounterId: pharmacyOrderEncounter.id,
+          prescriptionId: testPrescription.id,
+        });
+      });
+
+      afterEach(async () => {
+        await models.PharmacyOrderPrescription.truncate({ cascade: true, force: true });
+        await models.PharmacyOrder.truncate({ cascade: true, force: true });
       });
 
       it('should record a pharmacy order', async () => {
@@ -799,6 +971,9 @@ describe('Encounter', () => {
           .send({
             orderingClinicianId: app.user.id,
             comments,
+            isDischargePrescription: true,
+            date: getCurrentDateTimeString(),
+            facilityId: facilityId,
             pharmacyOrderPrescriptions: [
               {
                 prescriptionId: testPrescription.id,
@@ -810,6 +985,7 @@ describe('Encounter', () => {
         expect(result).toHaveSucceeded();
         expect(result.body.id).toBeTruthy();
         expect(result.body.comments).toBe(comments);
+        expect(result.body.isDischargePrescription).toBe(true);
         expect(result.body.orderingClinicianId).toBe(app.user.id);
         const pharmacyOrderId = result.body.id;
         const pharmacyOrderPrescriptions = await models.PharmacyOrderPrescription.findAll({
@@ -819,6 +995,35 @@ describe('Encounter', () => {
         expect(pharmacyOrderPrescriptions[0].prescriptionId).toBe(testPrescription.id);
         expect(pharmacyOrderPrescriptions[0].quantity).toBe(1);
         expect(pharmacyOrderPrescriptions[0].repeats).toBe(1);
+      });
+
+      it('should return the last ordered timestamp of the medication has been ordered', async () => {
+        const fakeCreatedAt = new Date('2020-01-01T00:00:00.000Z');
+        const pharmacyOrder = await app
+          .post(`/api/encounter/${pharmacyOrderEncounter.id}/pharmacyOrder`)
+          .send({
+            orderingClinicianId: app.user.id,
+            comments: 'comments',
+            date: getCurrentDateTimeString(),
+            facilityId: facilityId,
+            pharmacyOrderPrescriptions: [
+              {
+                prescriptionId: testPrescription.id,
+                quantity: 1,
+                repeats: 1,
+              },
+            ],
+          });
+
+        await models.PharmacyOrderPrescription.update(
+          { createdAt: fakeCreatedAt },
+          { where: { pharmacyOrderId: pharmacyOrder.body.id } },
+        );
+
+        const result = await app.get(`/api/encounter/${pharmacyOrderEncounter.id}/medications`);
+        expect(result).toHaveSucceeded();
+        const { body } = result;
+        expect(body.data[0].lastOrderedAt).toEqual(fakeCreatedAt.toISOString());
       });
     });
 

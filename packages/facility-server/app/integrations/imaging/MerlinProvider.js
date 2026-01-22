@@ -25,14 +25,16 @@ export class MerlinProvider extends Provider {
     } = this.config;
 
     const url = new URL(urlgen);
-    url.username = username;
-    url.password = password;
     url.searchParams.set('accession', externalCode);
 
     url.searchParams.set('patIdType', type);
     url.searchParams.set('patId', patient[field]);
 
-    const res = await fetch(url);
+    const res = await fetch(url, {
+      headers: {
+        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`,
+      },
+    });
     return res.text();
   }
 }

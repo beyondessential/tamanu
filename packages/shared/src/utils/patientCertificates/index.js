@@ -13,6 +13,7 @@ export * from './EncounterRecordPrintout';
 export * from './InvoiceRecordPrintout';
 export * from './MultipleImagingRequestsPrintout'
 export * from './MultipleLabRequestsPrintout'
+export * from './LabResultsPrintout'
 export * from './PrescriptionPrintout';
 export * from './IDCardPrintout'
 export * from './IDLabelPrintout';

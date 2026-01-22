@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { subject } from '@casl/ability';
-import { NotFoundError } from '@tamanu/shared/errors';
+import { NotFoundError } from '@tamanu/errors';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { Op } from 'sequelize';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
@@ -22,7 +22,7 @@ patientProgramRegistration.get(
       params.patientId,
     );
 
-    const filteredData = registrationData.filter((x) => req.ability.can('read', x.programRegistry));
+    const filteredData = registrationData.filter(x => req.ability.can('read', x.programRegistry));
     res.send({ data: filteredData });
   }),
 );
@@ -36,18 +36,7 @@ patientProgramRegistration.post(
 
     await validatePatientProgramRegistrationRequest(req, patientId, programRegistryId);
 
-    const existingRegistration = await models.PatientProgramRegistration.findOne({
-      where: {
-        programRegistryId,
-        patientId,
-      },
-    });
-
-    if (existingRegistration) {
-      req.checkPermission('write', 'PatientProgramRegistration');
-    } else {
-      req.checkPermission('create', 'PatientProgramRegistration');
-    }
+    req.checkPermission('create', 'PatientProgramRegistration');
 
     const { conditions = [], ...registrationData } = body;
 
@@ -56,21 +45,50 @@ patientProgramRegistration.post(
     }
 
     // Run in a transaction so it either fails or succeeds together
-    const [registration, conditionsRecords] = await db.transaction(async (transaction) => {
-      const newRegistration = await models.PatientProgramRegistration.create(
-        {
-          patientId,
+    const [registration, conditionsRecords] = await db.transaction(async transaction => {
+      let registrationRecord;
+
+      // Check if this PPR has been previously deleted
+      const existingRecordedInErrorRegistration = await models.PatientProgramRegistration.findOne({
+        where: {
           programRegistryId,
-          ...registrationData,
+          patientId,
+          registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
         },
-        { transaction },
-      );
+        transaction,
+        paranoid: false,
+      });
+
+      // If the registration was previously recorded in error, update that record to preserve the unique id. Otherwise, create a new one.
+      if (existingRecordedInErrorRegistration) {
+        registrationRecord = await existingRecordedInErrorRegistration.update(
+          {
+            deletedAt: null,
+            clinicalStatusId: null,
+            deactivatedDate: null,
+            deactivatedClinicianId: null,
+            ...registrationData,
+          },
+          {
+            transaction,
+          },
+        );
+      } else {
+        registrationRecord = await models.PatientProgramRegistration.create(
+          {
+            patientId,
+            programRegistryId,
+            ...registrationData,
+          },
+          { transaction },
+        );
+      }
 
       const newConditions = await models.PatientProgramRegistrationCondition.bulkCreate(
         conditions
-          .filter((condition) => condition.conditionId)
-          .map((condition) => ({
-            patientProgramRegistrationId: newRegistration.id,
+          .filter(condition => condition.conditionId)
+          .map(condition => ({
+            patientProgramRegistrationId: registrationRecord.id,
             clinicianId: registrationData.clinicianId,
             date: registrationData.date,
             programRegistryConditionId: condition.conditionId,
@@ -87,7 +105,7 @@ patientProgramRegistration.post(
         { transaction },
       );
 
-      return [newRegistration, newConditions];
+      return [registrationRecord, newConditions];
     });
 
     // Convert Sequelize model to use a custom object as response
@@ -121,7 +139,7 @@ patientProgramRegistration.put(
       throw new NotFoundError('PatientProgramRegistration not found');
     }
 
-    const conditionsData = conditions.map((condition) => ({
+    const conditionsData = conditions.map(condition => ({
       id: condition.id,
       patientProgramRegistrationId: existingRegistration.id,
       clinicianId: registrationData.clinicianId,
@@ -178,13 +196,12 @@ patientProgramRegistration.delete(
       throw new NotFoundError('PatientProgramRegistration not found');
     }
 
-    await db.transaction(async (transaction) => {
-      // Update the status to recordedInError and soft delete the registration
+    await db.transaction(async transaction => {
+      // Update the status to recordedInError
       await existingRegistration.update(
         { registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR },
         { transaction },
       );
-      await existingRegistration.destroy({ transaction });
 
       // Soft delete all related conditions
       await PatientProgramRegistrationCondition.destroy({
@@ -227,7 +244,7 @@ patientProgramRegistration.get(
 
     await req.audit.access({
       recordId: registration.id,
-      params,
+      frontEndContext: params,
       model: PatientProgramRegistration,
       facilityId,
     });
@@ -270,6 +287,7 @@ patientProgramRegistration.get(
       where: {
         tableName: 'patient_program_registrations',
         recordId: registration.id,
+        migrationContext: null,
       },
       include: [
         {
@@ -283,7 +301,7 @@ patientProgramRegistration.get(
 
     // Get all unique clinical status IDs from the changes
     const clinicalStatusIds = [
-      ...new Set(changes.map((change) => change.recordData.clinical_status_id).filter(Boolean)),
+      ...new Set(changes.map(change => change.recordData.clinical_status_id).filter(Boolean)),
     ];
 
     // Fetch all clinical statuses in one query
@@ -303,7 +321,7 @@ patientProgramRegistration.get(
     }, {});
 
     const history = changes
-      .map((change) => {
+      .map(change => {
         const data = change.recordData;
         return {
           id: change.id,
@@ -317,7 +335,7 @@ patientProgramRegistration.get(
           registrationDate: data.date,
         };
       })
-      .filter((change) => change.registrationStatus !== REGISTRATION_STATUSES.INACTIVE)
+      .filter(change => change.registrationStatus !== REGISTRATION_STATUSES.INACTIVE)
       // Add this filter to remove entries with unchanged clinical status
       .filter((change, index, array) => {
         if (index === array.length - 1) return true; // Always keep the original record

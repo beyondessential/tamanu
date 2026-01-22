@@ -1,14 +1,19 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import styled from 'styled-components';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-
-import { Form } from '../../components/Field';
-import { checkVisibility, getFormInitialValues, getValidationSchema } from '../../utils';
+import {
+  checkVisibility,
+  Form,
+  getFormInitialValues,
+  getValidationSchema,
+  SurveyScreenPaginator,
+  TranslatedReferenceData,
+} from '@tamanu/ui-components';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
-import { Colors } from '../../constants';
-import { SurveyScreenPaginator } from '../../components/Surveys';
+import { getComponentForQuestionType } from '../../components/Surveys';
 import { useTranslation } from '../../contexts/Translation';
-import { TranslatedReferenceData } from '../../components';
+import { useEncounter } from '../../contexts/Encounter';
+import { Colors } from '../../constants';
 
 export const SurveyPaneHeader = styled(ProgramsPaneHeader)`
   background: ${props => props.theme.palette.primary.main};
@@ -21,7 +26,17 @@ export const SurveyPaneHeading = styled(ProgramsPaneHeading)`
   color: ${Colors.white};
 `;
 
-export const SurveyView = ({
+const DirtyStateTracker = ({ dirty, setDirty }) => {
+  useEffect(() => {
+    if (setDirty) {
+      setDirty(dirty);
+    }
+  }, [dirty, setDirty]);
+
+  return null;
+};
+
+export const SurveyViewForm = ({
   survey,
   onSubmit,
   onCancel,
@@ -29,8 +44,11 @@ export const SurveyView = ({
   patientAdditionalData,
   currentUser,
   patientProgramRegistration,
+  showCancelButton,
+  setSurveyFormDirty,
 }) => {
   const { getTranslation } = useTranslation();
+  const { encounter } = useEncounter();
   const { components } = survey;
   const currentComponents = components.filter(
     c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
@@ -58,6 +76,7 @@ export const SurveyView = ({
       errors,
       setStatus,
       status,
+      dirty,
     } = props;
 
     // 1. get a list of visible fields
@@ -80,23 +99,44 @@ export const SurveyView = ({
     };
 
     return (
-      <SurveyScreenPaginator
-        survey={survey}
-        patient={patient}
-        values={values}
-        setFieldValue={setFieldValue}
-        onSurveyComplete={submitVisibleValues}
-        onCancel={onCancel}
-        validateForm={validateForm}
-        setErrors={setErrors}
-        errors={errors}
-        setStatus={setStatus}
-        status={status}
-        data-testid="surveyscreenpaginator-8wns"
-      />
+      <>
+        <DirtyStateTracker dirty={dirty} setDirty={setSurveyFormDirty} />
+        <SurveyScreenPaginator
+          survey={survey}
+          patient={patient}
+          values={values}
+          setFieldValue={setFieldValue}
+          onSurveyComplete={submitVisibleValues}
+          onCancel={onCancel}
+          validateForm={validateForm}
+          setErrors={setErrors}
+          errors={errors}
+          setStatus={setStatus}
+          status={status}
+          showCancelButton={showCancelButton}
+          getComponentForQuestionType={getComponentForQuestionType}
+          encounterType={encounter?.type}
+          data-testid="surveyscreenpaginator-8wns"
+        />
+      </>
     );
   };
 
+  return (
+    <Form
+      initialValues={initialValues}
+      onSubmit={onSubmit}
+      render={renderSurvey}
+      validationSchema={validationSchema}
+      validateOnChange
+      validateOnBlur
+      data-testid="form-12o2"
+    />
+  );
+};
+
+export const SurveyView = props => {
+  const { survey } = props;
   return (
     <ProgramsPane data-testid="programspane-s83l">
       <SurveyPaneHeader data-testid="surveypaneheader-q0w3">
@@ -104,15 +144,7 @@ export const SurveyView = ({
           <TranslatedReferenceData category="survey" value={survey.id} fallback={survey.name} />
         </SurveyPaneHeading>
       </SurveyPaneHeader>
-      <Form
-        initialValues={initialValues}
-        onSubmit={onSubmit}
-        render={renderSurvey}
-        validationSchema={validationSchema}
-        validateOnChange
-        validateOnBlur
-        data-testid="form-12o2"
-      />
+      <SurveyViewForm {...props} />
     </ProgramsPane>
   );
 };

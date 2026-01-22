@@ -5,6 +5,7 @@ import { IUser } from './IUser';
 import { ILocation } from './ILocation';
 import { IDepartment } from './IDepartment';
 import { VaccineStatus } from '~/ui/helpers/patient';
+import { INJECTION_SITE_VALUES, INJECTION_SITE_LABELS } from '@tamanu/constants';
 
 export interface IAdministeredVaccine {
   id: ID;
@@ -26,17 +27,8 @@ export interface IAdministeredVaccine {
   notGivenReasonId?: string;
 }
 
-export const InjectionSiteType = {
-  LeftArm: 'Left arm',
-  RightArm: 'Right arm',
-  LeftThigh: 'Left thigh',
-  RightThigh: 'Right thigh',
-  Oral: 'Oral',
-  Other: 'Other',
-} as const;
+export type InjectionSiteType = (typeof INJECTION_SITE_VALUES)[keyof typeof INJECTION_SITE_VALUES];
 
-export type InjectionSiteType = (typeof InjectionSiteType)[keyof typeof InjectionSiteType];
-
-export const INJECTION_SITE_OPTIONS = Object.keys(InjectionSiteType).map(
-  k => InjectionSiteType[k as keyof typeof InjectionSiteType],
+export const INJECTION_SITE_OPTIONS = Object.entries(INJECTION_SITE_LABELS).map(
+  ([value, label]) => ({ value, label }),
 );

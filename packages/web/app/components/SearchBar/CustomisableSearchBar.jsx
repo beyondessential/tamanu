@@ -2,11 +2,11 @@ import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import Box from '@material-ui/core/Box';
 import { IconButton } from '@material-ui/core';
+import { FORM_TYPES } from '@tamanu/constants/forms';
+import { Form, Button, TextButton } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import doubleDown from '../../assets/images/double_down.svg';
 import doubleUp from '../../assets/images/double_up.svg';
-import { Button, TextButton } from '../Button';
-import { Form } from '../Field';
-import { Colors, FORM_TYPES } from '../../constants';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { ThemedTooltip } from '../Tooltip';
 import { withPermissionCheck } from '../withPermissionCheck';
@@ -77,6 +77,7 @@ export const CustomisableSearchBar = ({
   initialValues = {},
   hiddenFields,
   hasPermission = true,
+  className,
 }) => {
   const switchExpandValue = useCallback(() => {
     setIsExpanded((previous) => !previous);
@@ -90,10 +91,10 @@ export const CustomisableSearchBar = ({
     <Form
       onSubmit={handleSubmit}
       render={({ clearForm, values }) => (
-        <Container data-testid="container-ntc5">
+        <Container data-testid="container-ntc5" className={className}>
           <CustomisableSearchBarGrid data-testid="customisablesearchbargrid-c6rk">
             {children}
-            <ActionsContainer data-testid="actionscontainer-3pm7">
+            <ActionsContainer data-testid="actionscontainer-3pm7" className='actions-container'>
               {showExpandButton && (
                 <ThemedTooltip
                   title={isExpanded ? 'Hide advanced search' : 'Advanced search'}

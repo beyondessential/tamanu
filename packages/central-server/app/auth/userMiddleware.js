@@ -1,87 +1,51 @@
 import { context, propagation, trace } from '@opentelemetry/api';
 import asyncHandler from 'express-async-handler';
 import config from 'config';
-
-import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
+import { ForbiddenError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
-import { BadAuthenticationError, ForbiddenError } from '@tamanu/shared/errors';
-import { findUserById, stripUser, verifyToken } from './utils';
 import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
+import { stripUser } from './utils';
+import { initAuditActions } from '@tamanu/database/utils/audit';
 
 import { version } from '../../package.json';
+import { SERVER_TYPES } from '@tamanu/constants';
 
-export const userMiddleware = ({ secret }) =>
-  asyncHandler(async (req, res, next) => {
-    const { store, headers, settings } = req;
+export const userMiddleware = asyncHandler(async (req, res, next) => {
+  const {
+    auth: { secret, tokenDuration },
+    canonicalHostName,
+  } = config;
+  const {
+    store: {
+      models: { User },
+    },
+    settings,
+  } = req;
 
-    const { canonicalHostName } = config;
+  const { token, user, device } = await User.loginFromAuthorizationHeader(
+    req.get('authorization'),
+    { log, settings, tokenDuration, tokenIssuer: canonicalHostName, tokenSecret: secret },
+  );
+  const sessionId = createSessionIdentifier(token);
 
-    // get token
-    const { authorization } = headers;
-    if (!authorization) {
-      throw new ForbiddenError();
-    }
+  /* eslint-disable require-atomic-updates */
+  // in this case we don't care if we're overwriting the user/deviceId
+  // and express also guarantees execution order for middlewares
+  req.user = user;
+  req.deviceId = device?.id;
+  req.device = device;
+  req.sessionId = sessionId;
+  /* eslint-enable require-atomic-updates */
 
-    // verify token
-    const [bearer, token] = authorization.split(/\s/);
-    const sessionId = createSessionIdentifier(token);
-
-    if (bearer.toLowerCase() !== 'bearer') {
-      throw new BadAuthenticationError('Only Bearer token is supported');
-    }
-
-    let contents = null;
-    try {
-      contents = await verifyToken(token, secret, {
-        issuer: canonicalHostName,
-        audience: JWT_TOKEN_TYPES.ACCESS,
-      });
-    } catch (e) {
-      const errorMessage = 'Auth error: Invalid token (hG7c)';
-      log.debug(errorMessage, { error: e.message });
-      res.status(401).send({
-        error: { message: errorMessage },
-      });
-      return;
-    }
-
-    const { userId, deviceId } = contents;
-
-    const user = await findUserById(store.models, userId);
-    if (!user) {
-      throw new BadAuthenticationError(`User specified in token (${userId}) does not exist`);
-    }
-
-    /* eslint-disable require-atomic-updates */
-    // in this case we don't care if we're overwriting the user/deviceId
-    // and express also guarantees execution order for middlewares
-    req.user = user;
-    req.deviceId = deviceId;
-    req.sessionId = sessionId;
-    /* eslint-enable require-atomic-updates */
-
-    const auditSettings = await settings?.[req.facilityId]?.get('audit');
+  const auditSettings = await settings?.[req.facilityId]?.get('audit');
 
     // Auditing middleware
-    // eslint-disable-next-line require-atomic-updates
-    req.audit = {
-      access: async ({ recordId, params, model }) => {
-        if (!auditSettings?.accesses.enabled) return;
-        return req.models.AccessLog.create({
-          userId,
-          recordId,
-          recordType: model.name,
-          sessionId,
-          isMobile: false,
-          frontEndContext: params,
-          backEndContext: { endpoint: req.originalUrl },
-          loggedAt: new Date(),
-          facilityId: null,
-          deviceId: req.deviceId || 'unknown-device',
-          version,
-        });
-      },
-    };
+    req.audit = initAuditActions(req, {
+      enabled: auditSettings?.accesses.enabled,
+      userId: user.id,
+      version,
+      backEndContext: { serverType: SERVER_TYPES.CENTRAL },
+    });
 
     const spanAttributes = user
       ? {

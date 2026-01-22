@@ -4,12 +4,12 @@ import {
   mergePatient,
 } from '../../../dist/admin/patientMerge/mergePatient';
 import { createTestContext } from '../../utilities';
-import { InvalidParameterError } from '@tamanu/shared/errors';
+import { InvalidParameterError } from '@tamanu/errors';
 import { NOTE_TYPES } from '@tamanu/constants/notes';
 import { Op } from 'sequelize';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 import { PatientMergeMaintainer } from '../../../dist/tasks/PatientMergeMaintainer';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { PORTAL_USER_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
 
 import { makeTwoPatients } from './makeTwoPatients';
@@ -175,7 +175,7 @@ describe('Patient merge', () => {
     const [keep, merge] = await makeTwoPatients(models);
 
     const note = await merge.createNote({
-      noteType: NOTE_TYPES.OTHER,
+      noteTypeId: NOTE_TYPES.OTHER,
     });
 
     const { updates } = await mergePatient(models, keep.id, merge.id);
@@ -683,7 +683,7 @@ describe('Patient merge', () => {
 
       const updatedFieldValues = await PatientFieldValue.findAll({});
       expect(updatedFieldValues.length).toEqual(3);
-      updatedFieldValues.forEach((fieldValue) => {
+      updatedFieldValues.forEach(fieldValue => {
         expect(fieldValue.value).toEqual(testValuesObject[fieldValue.definitionId].expect);
       });
     });
@@ -734,9 +734,123 @@ describe('Patient merge', () => {
 
       const postPatientFacilities = await PatientFacility.findAll({});
       expect(postPatientFacilities.length).toEqual(3);
-      expect(postPatientFacilities.map((p) => p.facilityId).sort()).toEqual(
+      expect(postPatientFacilities.map(p => p.facilityId).sort()).toEqual(
         [facilityWithKeep.id, facilityWithMerge.id, facilityWithBoth.id].sort(),
       );
+    });
+  });
+
+  describe('PatientProgramRegistration', () => {
+    let programRegistry1;
+    let programRegistry2;
+
+    beforeEach(async () => {
+      const { ProgramRegistry, Program } = models;
+
+      const program1 = await Program.create(fake(Program));
+      programRegistry1 = await ProgramRegistry.create(
+        fake(ProgramRegistry, { programId: program1.id }),
+      );
+      const program2 = await Program.create(fake(Program));
+      programRegistry2 = await ProgramRegistry.create(
+        fake(ProgramRegistry, { programId: program2.id }),
+      );
+    });
+
+    afterEach(async () => {
+      const { ProgramRegistry, Program, PatientProgramRegistration } = models;
+      await PatientProgramRegistration.truncate({ force: true, cascade: true });
+      await ProgramRegistry.truncate({ force: true, cascade: true });
+      await Program.truncate({ force: true, cascade: true });
+    });
+
+    it('Should merge patient program registrations', async () => {
+      const { PatientProgramRegistration } = models;
+      const [keep, merge] = await makeTwoPatients(models);
+
+      await PatientProgramRegistration.create({
+        patientId: keep.id,
+        programRegistryId: programRegistry1.id,
+        clinicianId: adminApp.user.id,
+      });
+
+      await PatientProgramRegistration.create({
+        patientId: merge.id,
+        programRegistryId: programRegistry2.id,
+        clinicianId: adminApp.user.id,
+      });
+
+      const { updates } = await mergePatient(models, keep.id, merge.id);
+      expect(updates).toEqual({
+        Patient: 2,
+        PatientProgramRegistration: 1,
+      });
+
+      const newKeepRegistrations = await PatientProgramRegistration.findAll({
+        where: { patientId: keep.id },
+      });
+      expect(newKeepRegistrations).toHaveLength(2); // A new registration has been created for the keep patient from the merge patient
+      expect(newKeepRegistrations.map(r => r.programRegistryId)).toEqual(
+        expect.arrayContaining([programRegistry1.id, programRegistry2.id]),
+      );
+
+      const newMergeRegistrations = await PatientProgramRegistration.findAll({
+        where: { patientId: merge.id },
+        paranoid: false, // the existing merge registration should be deleted
+      });
+      expect(newMergeRegistrations).toHaveLength(1);
+      expect(newMergeRegistrations[0].programRegistryId).toEqual(programRegistry2.id);
+      expect(newMergeRegistrations[0].deletedAt).toBeTruthy();
+    });
+
+    it('Should not merge patient program registrations if the keep patient already has a registration for the program registry', async () => {
+      const { PatientProgramRegistration } = models;
+      const [keep, merge] = await makeTwoPatients(models);
+
+      const originalKeepRegistration1 = await PatientProgramRegistration.create({
+        patientId: keep.id,
+        programRegistryId: programRegistry1.id,
+        clinicianId: adminApp.user.id,
+      });
+      const originalKeepRegistration2 = await PatientProgramRegistration.create({
+        patientId: keep.id,
+        programRegistryId: programRegistry2.id,
+        clinicianId: adminApp.user.id,
+      });
+      await originalKeepRegistration2.destroy(); // Even if the registration is deleted, it should still not be merged
+
+      const originalMergeRegistration1 = await PatientProgramRegistration.create({
+        patientId: merge.id,
+        programRegistryId: programRegistry1.id,
+        clinicianId: adminApp.user.id,
+      });
+      const originalMergeRegistration2 = await PatientProgramRegistration.create({
+        patientId: merge.id,
+        programRegistryId: programRegistry2.id,
+        clinicianId: adminApp.user.id,
+      });
+
+      const { updates } = await mergePatient(models, keep.id, merge.id);
+      expect(updates).toEqual({
+        Patient: 2,
+        PatientProgramRegistration: 2,
+      });
+
+      const newKeepRegistrations = await PatientProgramRegistration.findAll({
+        where: { patientId: keep.id },
+      });
+      expect(newKeepRegistrations).toHaveLength(1); // No new registration has been created
+      expect(newKeepRegistrations[0].id).toEqual(originalKeepRegistration1.id);
+
+      const newMergeRegistrations = await PatientProgramRegistration.findAll({
+        where: { patientId: merge.id },
+        paranoid: false, // the existing merge registrations should be deleted
+      });
+      expect(newMergeRegistrations).toHaveLength(2);
+      expect(newMergeRegistrations.map(r => r.id)).toEqual(
+        expect.arrayContaining([originalMergeRegistration1.id, originalMergeRegistration2.id]),
+      );
+      newMergeRegistrations.forEach(r => expect(r.deletedAt).toBeTruthy());
     });
   });
 
@@ -914,6 +1028,46 @@ describe('Patient merge', () => {
         },
       });
       expect(removedFacility).toBeFalsy();
+    });
+
+    it('Should remerge PortalUser records', async () => {
+      const { PortalUser } = models;
+
+      const [keep, merge] = await makeTwoPatients(models);
+      await mergePatient(models, keep.id, merge.id);
+
+      const keepPortalUser = await PortalUser.create({
+        email: 'keep@test.com',
+        patientId: keep.id,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        status: PORTAL_USER_STATUSES.PENDING,
+      });
+
+      const mergePortalUser = await PortalUser.create({
+        email: 'merge@test.com',
+        patientId: merge.id,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        status: PORTAL_USER_STATUSES.REGISTERED,
+      });
+
+      const results = await maintainerTask.remergePatientRecords();
+      expect(results).toEqual({
+        PortalUser: 1,
+      });
+
+      // The more active account (merge) should be kept and transferred to the keep patient
+      await mergePortalUser.reload();
+      expect(mergePortalUser.patientId).toEqual(keep.id);
+      expect(mergePortalUser.status).toEqual(PORTAL_USER_STATUSES.REGISTERED);
+
+      // The less active account should be deleted
+      const deletedPortalUser = await PortalUser.findByPk(keepPortalUser.id);
+      expect(deletedPortalUser).toBeFalsy();
+
+      const remainingPortalUsers = await PortalUser.findAll({
+        where: { patientId: keep.id },
+      });
+      expect(remainingPortalUsers).toHaveLength(1);
     });
   });
 });

@@ -42,6 +42,7 @@ import { Button } from '~/ui/components/Button';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 import { add } from 'date-fns';
 import { Prescription } from '~/models/Prescription';
+import { useAuth } from '~/ui/contexts/AuthContext';
 
 const styles = StyleSheet.create({
   KeyboardAvoidingViewStyles: { flex: 1 },
@@ -64,6 +65,7 @@ const styles = StyleSheet.create({
 
 export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): ReactElement => {
   const { models } = useBackend();
+  const { ability } = useAuth();
   const user = useSelector(authUserSelector);
   const [patientAllergies, setPatientAllergies] = useState<PatientAllergy[]>([]);
   const { getTranslation } = useTranslation();
@@ -148,6 +150,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
     navigateToHistory();
   }, []);
 
+  const canCreateSensitiveMedication = ability.can('create', 'SensitiveMedication');
   const medicationSuggester = new Suggester({
     model: ReferenceData,
     options: {
@@ -162,6 +165,10 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
       value: record.entity_id,
       ...record,
     }),
+    filter: (data: any) => {
+      const isSensitive = data.referenceDrug_isSensitive;
+      return !isSensitive || canCreateSensitiveMedication;
+    },
   });
 
   const practitionerSuggester = new Suggester({
@@ -317,7 +324,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                   <Field
                     component={AutocompleteModalField}
                     placeholder={
-                      <TranslatedText stringId="general.action.search" fallback="Search..." />
+                      <TranslatedText stringId="general.action.search" fallback="Search" />
                     }
                     navigation={navigation}
                     suggester={medicationSuggester}
@@ -419,6 +426,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                   labelFontSize={14}
                   fieldFontSize={14}
                   value={values.units}
+                  allowResetSingleValue
                 />
 
                 <Field
@@ -451,6 +459,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                   labelColor={theme.colors.TEXT_DARK}
                   labelFontSize={14}
                   fieldFontSize={14}
+                  allowResetSingleValue
                 />
 
                 <Field

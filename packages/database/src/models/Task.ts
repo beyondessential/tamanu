@@ -5,6 +5,7 @@ import {
   TASK_DELETE_PATIENT_DISCHARGED_REASON_ID,
   SYSTEM_USER_UUID,
   TASK_DURATION_UNIT,
+  TASK_TYPES,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import config from 'config';
@@ -49,6 +50,7 @@ export class Task extends Model {
   declare notCompletedReasonId?: string;
   declare deletedReasonId?: string;
   declare deletedReasonForSyncId?: string;
+  declare taskType: string;
   declare designations: TaskDesignation[];
 
   static initModel({ primaryKey, ...options }: InitOptions, models: Models) {
@@ -125,6 +127,11 @@ export class Task extends Model {
         deletedTime: dateTimeType('deletedTime', {
           allowNull: true,
         }),
+        taskType: {
+          type: DataTypes.STRING,
+          allowNull: false,
+          defaultValue: TASK_TYPES.NORMAL_TASK,
+        },
       },
       {
         ...options,
@@ -203,7 +210,7 @@ export class Task extends Model {
     );
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return buildEncounterLinkedLookupFilter(this);
   }
 
@@ -283,7 +290,8 @@ export class Task extends Model {
       const upcomingTasksShouldBeGeneratedTimeFrame =
         config.tasking?.upcomingTasksShouldBeGeneratedTimeFrame || 72;
       const { frequencyValue, frequencyUnit, durationValue, durationUnit } = task;
-      const frequency = ms(`${frequencyValue} ${frequencyUnit}`);
+      const frequencyString = `${frequencyValue} ${frequencyUnit}`;
+      const frequency = ms(frequencyString as any) as unknown as number;
 
       const maxDueTime = addMilliseconds(
         new Date(),
@@ -305,7 +313,8 @@ export class Task extends Model {
             ).getTime();
             break;
           default: {
-            const duration = ms(`${durationValue} ${durationUnit}`);
+            const durationString = `${durationValue} ${durationUnit}`;
+            const duration = ms(durationString as any) as unknown as number;
             endDate = addMilliseconds(new Date(task.dueTime), duration).getTime();
             break;
           }

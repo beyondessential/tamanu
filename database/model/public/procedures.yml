@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - clinical
+          meta:
+            triggers:
+              - notify_procedures_changed
+              - record_procedures_changelog
+              - set_procedures_updated_at
+              - set_procedures_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -37,15 +43,27 @@ sources:
             description: "{{ doc('generic__date') }} in procedures."
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: datetime
           - name: end_time
             data_type: character(19)
             description: "{{ doc('procedures__end_time') }}"
+            config:
+              meta:
+                masking: datetime
           - name: note
             data_type: text
             description: "{{ doc('procedures__note') }}"
+            config:
+              meta:
+                masking: text
           - name: completed_note
             data_type: text
             description: "{{ doc('procedures__completed_note') }}"
+            config:
+              meta:
+                masking: text
           - name: encounter_id
             data_type: character varying(255)
             description: "{{ doc('procedures__encounter_id') }}"
@@ -83,13 +101,6 @@ sources:
               - relationships:
                   to: source('tamanu', 'users')
                   field: id
-          - name: assistant_id
-            data_type: character varying(255)
-            description: "{{ doc('procedures__assistant_id') }}"
-            data_tests:
-              - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
           - name: anaesthetist_id
             data_type: character varying(255)
             description: "{{ doc('procedures__anaesthetist_id') }}"
@@ -100,17 +111,41 @@ sources:
           - name: start_time
             data_type: character(19)
             description: "{{ doc('procedures__start_time') }}"
+            config:
+              meta:
+                masking: datetime
           - name: date_legacy
             data_type: timestamp with time zone
             description: "{{ doc('generic__date_legacy') }} in procedures."
+            config:
+              meta:
+                masking: datetime
           - name: start_time_legacy
             data_type: character varying(255)
             description: "{{ doc('procedures__start_time_legacy') }}"
+            config:
+              meta:
+                masking: datetime
           - name: end_time_legacy
             data_type: timestamp with time zone
             description: "{{ doc('procedures__end_time_legacy') }}"
+            config:
+              meta:
+                masking: datetime
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in procedures."
             data_tests:
               - not_null
+          - name: department_id
+            data_type: character varying(255)
+            description: "{{ doc('procedures__department_id') }}"
+          - name: assistant_anaesthetist_id
+            data_type: character varying(255)
+            description: "{{ doc('procedures__assistant_anaesthetist_id') }}"
+          - name: time_in
+            data_type: character(19)
+            description: "{{ doc('procedures__time_in') }}"
+          - name: time_out
+            data_type: character(19)
+            description: "{{ doc('procedures__time_out') }}"

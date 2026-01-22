@@ -149,7 +149,7 @@ export class PatientProgramRegistration extends Model {
     return null;
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
 }

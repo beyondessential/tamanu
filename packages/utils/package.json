@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/utils",
-  "version": "2.38.0",
+  "version": "2.49.0",
   "private": true,
   "description": "Common code across Tamanu packages",
   "main": "dist/cjs/index.js",
@@ -36,15 +36,15 @@
     "test:watch": "vitest --watch"
   },
   "devDependencies": {
-    "rimraf": "^6.0.1",
     "@types/node": "^20.9.0",
+    "rimraf": "^6.0.1",
     "vitest": "^2.1.9"
   },
   "dependencies": {
-    "zod": "^3.23.8",
     "date-fns": "^4.1.0",
-    "uuid": "^11.0.3",
+    "es-toolkit": "^1.31.0",
     "nanoid": "^3.3.8",
-    "es-toolkit": "^1.31.0"
+    "uuid": "^11.0.3",
+    "zod": "^4.0.17"
   }
 }

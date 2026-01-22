@@ -1,6 +1,6 @@
 import { utils } from 'xlsx';
 
-import { REFERENCE_TYPE_VALUES } from '@tamanu/constants';
+import { REFERENCE_TYPE_VALUES, REFERENCE_TYPES } from '@tamanu/constants';
 import { DataLoaderError, ValidationError, WorkSheetError } from '../errors';
 import { statkey, updateStat } from '../stats';
 import { importRows } from '../importer/importRows';
@@ -10,7 +10,7 @@ const FOREIGN_KEY_SCHEMATA = {
     {
       field: 'vaccine',
       model: 'ReferenceData',
-      types: ['vaccine', 'drug'],
+      types: ['drug'],
     },
     {
       field: 'manufacturer',
@@ -61,7 +61,7 @@ const FOREIGN_KEY_SCHEMATA = {
     {
       field: 'vaccine',
       model: 'ReferenceData',
-      types: ['vaccine', 'drug'],
+      types: ['drug'],
     },
   ],
   ReferenceDataRelation: [
@@ -78,6 +78,21 @@ const FOREIGN_KEY_SCHEMATA = {
   ],
 };
 
+// https://github.com/SheetJS/sheetjs/issues/214#issuecomment-96843418
+const extractHeader = sheet => {
+  const header = [];
+  const range = utils.decode_range(sheet['!ref']);
+  let C,
+    R = range.s.r; /* start in the first row */
+  /* walk every column in the range */
+  for (C = range.s.c; C <= range.e.c; ++C) {
+    const cell = sheet[utils.encode_cell({ c: C, r: R })]; /* find the cell in the first row */
+
+    if (cell && cell.t) header.push(utils.format_cell(cell));
+  }
+  return header;
+};
+
 export async function importSheet(
   { errors, log, models },
   { loader, sheetName, sheet, skipExisting },
@@ -85,9 +100,14 @@ export async function importSheet(
   const stats = {};
 
   log.debug('Loading rows from sheet');
+  let sheetHeader;
   let sheetRows;
   try {
-    sheetRows = utils.sheet_to_json(sheet);
+    sheetHeader = extractHeader(sheet);
+    // For drug sheets, include empty cells so facility columns with empty values are preserved
+    sheetRows = sheetName === REFERENCE_TYPES.DRUG
+      ? utils.sheet_to_json(sheet, { defval: '' })
+      : utils.sheet_to_json(sheet);
   } catch (err) {
     errors.push(new WorkSheetError(sheetName, 0, err));
     return stats;
@@ -110,6 +130,7 @@ export async function importSheet(
       for (const { model, values } of await loader(trimmed, {
         models,
         foreignKeySchemata: FOREIGN_KEY_SCHEMATA,
+        header: sheetHeader,
         pushError: message => errors.push(new ValidationError(sheetName, sheetRow, message)),
       })) {
         if (!models[model]) throw new Error(`No such type of data: ${model}`);

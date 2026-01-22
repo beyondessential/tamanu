@@ -1,6 +1,15 @@
 {
   "cSpell.language": "en-GB",
-  "cSpell.words": ["clearable", "Formik", "ilike", "singularize", "upsert", "upserted"],
+  "cSpell.words": [
+    "clearable",
+    "dhis2",
+    "Formik",
+    "ilike",
+    "singularize",
+    "tamanu",
+    "upsert",
+    "upserted"
+  ],
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "eslint.experimental.useFlatConfig": true,
   "eslint.lintTask.enable": true,
@@ -15,5 +24,20 @@
     "**/build": true,
     "**/dist": true,
     "**/node_modules": true
+  },
+  "yaml.schemas": {
+    "https://www.artillery.io/schema.json": [
+      "packages/synthetic-tests/src/config/*.yml",
+      "packages/synthetic-tests/src/scenarios/*.yml",
+      "packages/synthetic-tests/src/merged-scenarios.yml"
+    ]
+  },
+  "yaml.validate": true,
+  "yaml.format.enable": true,
+  "yaml.customTags": [],
+  "yaml.schemaStore.enable": false
+  },
+  "yaml.schemas": {
+    "https://www.artillery.io/schema.json": []
   }
 }

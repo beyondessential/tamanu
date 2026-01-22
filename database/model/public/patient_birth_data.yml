@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - clinical
+          meta:
+            triggers:
+              - notify_patient_birth_data_changed
+              - record_patient_birth_data_changelog
+              - set_patient_birth_data_updated_at
+              - set_patient_birth_data_updated_at_sync_tick
         columns:
           - name: created_at
             data_type: timestamp with time zone
@@ -30,42 +36,77 @@ sources:
               - unique
               - not_null
               - relationships:
-                  to: source('tamanu', 'patients')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'patients')
+                    field: id
           - name: birth_weight
             data_type: numeric
             description: "{{ doc('patient_birth_data__birth_weight') }}"
+            config:
+              meta:
+                masking:
+                  kind: float
+                  range: 2-10
           - name: birth_length
             data_type: numeric
             description: "{{ doc('patient_birth_data__birth_length') }}"
+            config:
+              meta:
+                masking:
+                  kind: float
+                  range: 10-100
           - name: birth_delivery_type
             data_type: character varying(255)
             description: "{{ doc('patient_birth_data__birth_delivery_type') }}"
             data_tests:
               - accepted_values:
-                  values:
-                    - normal_vaginal_delivery
-                    - breech
-                    - emergency_c_section
-                    - elective_c_section
-                    - vacuum_extraction
-                    - forceps
-                    - other
+                  arguments:
+                    values:
+                      - normal_vaginal_delivery
+                      - breech
+                      - emergency_c_section
+                      - elective_c_section
+                      - vacuum_extraction
+                      - forceps
+                      - other
           - name: gestational_age_estimate
             data_type: double precision
             description: "{{ doc('patient_birth_data__gestational_age_estimate') }}"
+            config:
+              meta:
+                masking:
+                  kind: float
+                  range: 30-40
           - name: apgar_score_one_minute
             data_type: integer
             description: "{{ doc('patient_birth_data__apgar_score_one_minute') }}"
+            config:
+              meta:
+                masking:
+                  kind: integer
+                  range: 0-10
           - name: apgar_score_five_minutes
             data_type: integer
             description: "{{ doc('patient_birth_data__apgar_score_five_minutes') }}"
+            config:
+              meta:
+                masking:
+                  kind: integer
+                  range: 0-10
           - name: apgar_score_ten_minutes
             data_type: integer
             description: "{{ doc('patient_birth_data__apgar_score_ten_minutes') }}"
+            config:
+              meta:
+                masking:
+                  kind: integer
+                  range: 0-10
           - name: time_of_birth
             data_type: character(19)
             description: "{{ doc('patient_birth_data__time_of_birth') }}"
+            config:
+              meta:
+                masking: datetime
           - name: birth_type
             data_type: character varying(255)
             description: "{{ doc('patient_birth_data__birth_type') }}"
@@ -74,34 +115,43 @@ sources:
             description: "{{ doc('patient_birth_data__attendant_at_birth') }}"
             data_tests:
               - accepted_values:
-                  values:
-                    - doctor
-                    - midwife
-                    - nurse
-                    - traditional_birth_attentdant
-                    - other
+                  arguments:
+                    values:
+                      - doctor
+                      - midwife
+                      - nurse
+                      - traditional_birth_attentdant
+                      - other
           - name: name_of_attendant_at_birth
             data_type: character varying(255)
             description: "{{ doc('patient_birth_data__name_of_attendant_at_birth') }}"
+            config:
+              meta:
+                masking: name
           - name: birth_facility_id
             data_type: character varying(255)
             description: "{{ doc('patient_birth_data__birth_facility_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'facilities')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'facilities')
+                    field: id
           - name: registered_birth_place
             data_type: character varying(255)
             description: "{{ doc('patient_birth_data__registered_birth_place') }}"
             data_tests:
               - accepted_values:
-                  values:
-                    - health_facility
-                    - home
-                    - other
+                  arguments:
+                    values:
+                      - health_facility
+                      - home
+                      - other
           - name: time_of_birth_legacy
             data_type: character varying(255)
             description: "{{ doc('patient_birth_data__time_of_birth_legacy') }}"
+            config:
+              meta:
+                masking: datetime
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in patient_birth_data."

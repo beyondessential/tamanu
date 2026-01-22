@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import { NotFoundError } from '@tamanu/shared/errors';
+import { NotFoundError } from '@tamanu/errors';
 
 import { getHL7Payload } from './getHL7Payload';
 import { getPatientWhereClause, patientToHL7Patient, patientToHL7PatientList } from './patient';

@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { Button, PatientDataDisplayField } from '@tamanu/ui-components';
 import { SurveyResultBadge } from './SurveyResultBadge';
 import { ViewPhotoLink } from './ViewPhotoLink';
 import { DateDisplay } from './DateDisplay';
-import { Button } from './Button';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { TranslatedReferenceData } from './Translation/index.js';
 import { TranslatedText } from './Translation/TranslatedText';
-import { TranslatedOption } from './Translation/TranslatedOptions.jsx';
+import { TranslatedOption } from './Translation/TranslatedOptions';
 import { getReferenceDataCategoryFromRowConfig } from '@tamanu/shared/utils/translation/getReferenceDataCategoryFromRowConfig';
 
-const PatientDataCell = ({ answer, originalBody, componentConfig }) => {
+const AutocompleteCell = ({ answer, originalBody, componentConfig }) => {
   const category = getReferenceDataCategoryFromRowConfig(componentConfig);
 
   if (!category) {
@@ -23,7 +23,6 @@ const PatientDataCell = ({ answer, originalBody, componentConfig }) => {
 export const SurveyAnswerResult = ({
   answer,
   type,
-  sourceType,
   originalBody,
   componentConfig,
   dataElementId,
@@ -33,7 +32,7 @@ export const SurveyAnswerResult = ({
 
   if (!answer) return 'Answer not submitted';
 
-  switch (sourceType || type) {
+  switch (type) {
     case PROGRAM_DATA_ELEMENT_TYPES.RESULT:
       return <SurveyResultBadge resultText={answer} data-testid="surveyresultbadge-h25b" />;
     case PROGRAM_DATA_ELEMENT_TYPES.CALCULATED:
@@ -87,9 +86,15 @@ export const SurveyAnswerResult = ({
         </>
       ));
     case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA:
+      return (
+        <PatientDataDisplayField
+          value={originalBody}
+          config={componentConfig ? JSON.parse(componentConfig) : {}}
+        />
+      );
     case PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE:
       return (
-        <PatientDataCell
+        <AutocompleteCell
           answer={answer}
           componentConfig={componentConfig}
           originalBody={originalBody}

@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - reference
+          meta:
+            triggers:
+              - notify_program_registry_clinical_statuses_changed
+              - record_program_registry_clinical_statuses_changelog
+              - set_program_registry_clinical_statuses_updated_at
+              - set_program_registry_clinical_statuses_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -52,8 +58,9 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'program_registries')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'program_registries')
+                    field: id
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in program_registry_clinical_statuses."

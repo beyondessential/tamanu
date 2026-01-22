@@ -17,7 +17,7 @@ import { MockedApi } from '../utils/mockedApi';
 import { mockLabRequestFormEndpoints } from '../utils/mockLabData';
 import { EncounterForm } from '../../app/forms/EncounterForm';
 import { TriageForm } from '../../app/forms/TriageForm';
-import { ProcedureForm } from '../../app/forms/ProcedureForm';
+import { ProcedureFormFields as ProcedureForm } from '../../app/forms/ProcedureForm/ProcedureForm';
 import { AllergyForm } from '../../app/forms/AllergyForm';
 import { VaccineForm } from '../../app/forms/VaccineForm';
 import { OngoingConditionForm } from '../../app/forms/OngoingConditionForm';
@@ -30,7 +30,7 @@ import { DeathForm } from '../../app/forms/DeathForm';
 import { FamilyHistoryForm } from '../../app/forms/FamilyHistoryForm';
 import { LabRequestSummaryPane } from '../../app/views/patients/components/LabRequestSummaryPane';
 import { createDummySuggester, mapToSuggestions } from '../utils';
-import { Modal } from '../../app/components/Modal';
+import { Modal } from '@tamanu/ui-components';
 import '@fortawesome/fontawesome-free/css/all.css';
 import { fakeLabRequest } from '../../.storybook/__mocks__/defaultEndpoints';
 import { MockSettingsProvider } from '../utils/mockSettingsProvider.jsx';
@@ -61,7 +61,7 @@ const StoryProviders = ({ children }) => {
 export default {
   title: 'Forms',
   decorators: [
-    (Story) => (
+    Story => (
       <StoryProviders>
         <Story />
       </StoryProviders>
@@ -75,7 +75,7 @@ export const DeathFormStory = {
     <Modal title="Record patient death" open>
       <DeathForm
         onCancel={() => console.log('cancel...')}
-        onSubmit={(data) => console.log('submit...', data)}
+        onSubmit={data => console.log('submit...', data)}
         patient={PATIENTS[0]}
         practitionerSuggester={practitionerSuggester}
         diagnosisSuggester={diagnosisSuggester}

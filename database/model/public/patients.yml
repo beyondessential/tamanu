@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - patient
+          meta:
+            triggers:
+              - notify_patients_changed
+              - record_patients_changelog
+              - set_patients_updated_at
+              - set_patients_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -35,43 +41,71 @@ sources:
             data_tests:
               - unique
               - not_null
+            config:
+              meta:
+                masking: string
           - name: first_name
             data_type: character varying(255)
             description: "{{ doc('patients__first_name') }}"
+            config:
+              meta:
+                masking: name
           - name: middle_name
             data_type: character varying(255)
             description: "{{ doc('patients__middle_name') }}"
+            config:
+              meta:
+                masking: name
           - name: last_name
             data_type: character varying(255)
             description: "{{ doc('patients__last_name') }}"
+            config:
+              meta:
+                masking: name
           - name: cultural_name
             data_type: character varying(255)
             description: "{{ doc('patients__cultural_name') }}"
+            config:
+              meta:
+                masking: name
           - name: email
             data_type: character varying(255)
             description: "{{ doc('patients__email') }}"
+            config:
+              meta:
+                masking: email
           - name: date_of_birth
             data_type: character(10)
             description: "{{ doc('patients__date_of_birth') }}"
+            config:
+              meta:
+                masking: date
           - name: sex
             data_type: user-defined
             description: "{{ doc('patients__sex') }}"
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - female
-                    - male
-                    - other
+                  arguments:
+                    values:
+                      - female
+                      - male
+                      - other
           - name: village_id
             data_type: character varying(255)
             description: "{{ doc('patients__village_id') }}"
           - name: additional_details
             data_type: text
             description: "{{ doc('patients__additional_details') }}"
+            config:
+              meta:
+                masking: text
           - name: date_of_death
             data_type: character(19)
             description: "{{ doc('patients__date_of_death') }}"
+            config:
+              meta:
+                masking: date
           - name: merged_into_id
             data_type: character varying(255)
             description: "{{ doc('patients__merged_into_id') }}"
@@ -81,9 +115,15 @@ sources:
           - name: date_of_death_legacy
             data_type: timestamp with time zone
             description: "{{ doc('patients__date_of_death_legacy') }}"
+            config:
+              meta:
+                masking: date
           - name: date_of_birth_legacy
             data_type: timestamp with time zone
             description: "{{ doc('patients__date_of_birth_legacy') }}"
+            config:
+              meta:
+                masking: date
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in patients."

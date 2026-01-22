@@ -52,7 +52,7 @@ export class PatientCondition extends Model {
     return ['condition'];
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return buildPatientLinkedLookupFilter(this);
   }
 

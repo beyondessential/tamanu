@@ -418,7 +418,7 @@ const encounter = {
         id: 'drug-aciclovir345',
         code: 'aciclovir345',
         type: 'drug',
-        name: 'Aciclovir 3%w/w Eye Oint 4.5g',
+        name: 'Aciclovir 3%w/w Eye Ointment 4.5g',
         visibilityStatus: 'current',
         updatedAtSyncTick: '-999',
         createdAt: '2023-11-07T02:15:34.721Z',

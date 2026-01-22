@@ -143,7 +143,6 @@ describe(`Materialised FHIR - WriteLog`, () => {
         prefer: 'pretty',
         'content-type': 'application/json',
         accept: 'application/fhir+json; fhirVersion=4.0',
-        'user-agent': expect.any(String),
       });
       expect(flog.headers).not.toHaveProperty('authorization');
     }));

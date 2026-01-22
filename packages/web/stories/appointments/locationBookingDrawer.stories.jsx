@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { LocationBookingDrawer } from '../../app/components/Appointments/LocationBookingForm/LocationBookingDrawer';
 import { MockedApi } from '../utils/mockedApi';
 import { MockSettingsProvider } from '../utils/mockSettingsProvider';
-import { Button } from '../../app/components';
+import { Button } from '@tamanu/ui-components';
 import { toDateString } from '@tamanu/utils/dateTime';
 import styled from 'styled-components';
 import {

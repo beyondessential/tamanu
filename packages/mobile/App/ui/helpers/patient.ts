@@ -76,3 +76,11 @@ export const getConfiguredPatientAdditionalDataFields = (
     return true;
   });
 };
+
+export const getPatientNameAsString = ({
+  firstName,
+  lastName,
+}: {
+  firstName: string;
+  lastName: string;
+}) => [firstName, lastName].filter(Boolean).join(' ');

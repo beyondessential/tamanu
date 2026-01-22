@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-import { ForbiddenError } from '@tamanu/shared/errors';
+import { ForbiddenError } from '@tamanu/errors';
 
 import { InvoiceRecordPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { Modal } from '../../Modal';

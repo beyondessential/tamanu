@@ -1,0 +1,1 @@
+export { TamanuApi } from './TamanuApi';

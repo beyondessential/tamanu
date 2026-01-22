@@ -1,4 +1,4 @@
-import { DataTypes, QueryInterface } from 'sequelize';
+import { QueryInterface } from 'sequelize';
 
 export async function up(query: QueryInterface): Promise<void> {
   // Set any incorrectly defaulted empty string start dates to the prescriptions "date" column
@@ -8,16 +8,16 @@ export async function up(query: QueryInterface): Promise<void> {
     WHERE start_date = ''
   `);
   // Remove the empty string default value
-  await query.changeColumn('prescriptions', 'start_date', {
-    type: DataTypes.DATETIMESTRING,
-    allowNull: false,
-  });
+  await query.sequelize.query(`
+    ALTER TABLE prescriptions
+    ALTER COLUMN start_date DROP DEFAULT
+  `);
 }
 
 export async function down(query: QueryInterface): Promise<void> {
-  await query.changeColumn('prescriptions', 'start_date', {
-    type: DataTypes.DATETIMESTRING,
-    allowNull: false,
-    defaultValue: '',
-  });
+  await query.sequelize.query(`
+    ALTER TABLE prescriptions
+    ALTER COLUMN start_date SET DEFAULT ''
+  `);
 }
+

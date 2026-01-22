@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
-import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
-import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation';
+import { SETTING_KEYS, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { getReferenceDataOptionStringId, getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 
 import { DynamicColumnTable } from './Table';
 import { useEncounter } from '../contexts/Encounter';
@@ -11,7 +11,6 @@ import { useVitalsQuery } from '../api/queries/useVitalsQuery';
 import { EditVitalCellModal } from './EditVitalCellModal';
 import { getVitalsTableColumns } from './VitalsAndChartsTableColumns';
 import { useSettings } from '../contexts/Settings';
-import { TranslatedReferenceData } from './Translation';
 import { useTranslation } from '../contexts/Translation';
 
 const StyledDynamicColumnTable = styled(DynamicColumnTable)`
@@ -27,15 +26,15 @@ export const VitalsTable = React.memo(() => {
   const [openEditModal, setOpenEditModal] = useState(false);
   const [selectedCell, setSelectedCell] = useState(null);
   const { getSetting } = useSettings();
-  const isVitalEditEnabled = getSetting('features.enableVitalEdit');
-  const showFooterLegend = data.some(entry =>
-    recordedDates.some(date => entry[date].historyLogs.length > 1),
+  const isVitalEditEnabled = getSetting(SETTING_KEYS.FEATURES_ENABLE_VITAL_EDIT);
+  const showFooterLegend = data.some((entry) =>
+    recordedDates.some((date) => entry[date].historyLogs.length > 1),
   );
 
-  const onCellClick = clickedCell => {
+  const onCellClick = useCallback((clickedCell) => {
     setOpenEditModal(true);
     setSelectedCell(clickedCell);
-  };
+  }, []);
 
   const columns = getVitalsTableColumns(patient, recordedDates, onCellClick, isVitalEditEnabled);
 
@@ -43,12 +42,9 @@ export const VitalsTable = React.memo(() => {
     // First translate the element heading
     const processedRecord = {
       ...record,
-      value: (
-        <TranslatedReferenceData
-          category="programDataElement"
-          value={record.dataElementId}
-          fallback={record.value}
-        />
+      value: getTranslation(
+        getReferenceDataStringId(record.dataElementId, 'programDataElement'),
+        record.value,
       ),
     };
 
@@ -84,6 +80,7 @@ export const VitalsTable = React.memo(() => {
     <>
       <EditVitalCellModal
         open={openEditModal}
+        isVital
         dataPoint={selectedCell}
         onClose={() => {
           setOpenEditModal(false);

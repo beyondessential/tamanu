@@ -3,7 +3,7 @@ import { Op, QueryTypes } from 'sequelize';
 import _config from 'config';
 import { isNil } from 'lodash';
 
-import { DEBUG_LOG_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
+import { DEBUG_LOG_TYPES, SETTINGS_SCOPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { log } from '@tamanu/shared/services/logging';
 import {
@@ -13,11 +13,12 @@ import {
   completeSyncSession,
   countSyncSnapshotRecords,
   createSnapshotTable,
-  findSyncSnapshotRecords,
+  findSyncSnapshotRecordsOrderByDependency,
   getModelsForPull,
   getModelsForPush,
   getSyncTicksOfPendingEdits,
   insertSnapshotRecords,
+  vacuumAnalyzeSnapshotTable,
   removeEchoedChanges,
   saveIncomingChanges,
   updateSnapshotRecords,
@@ -37,12 +38,16 @@ import { startSnapshotWhenCapacityAvailable } from './startSnapshotWhenCapacityA
 import { createMarkedForSyncPatientsTable } from './createMarkedForSyncPatientsTable';
 import { updateLookupTable, updateSyncLookupPendingRecords } from './updateLookupTable';
 
-const errorMessageFromSession = (session) =>
+const errorMessageFromSession = session =>
   `Sync session '${session.id}' encountered an error: ${session.errors[session.errors.length - 1]}`;
 
 // about variables lapsedSessionSeconds and lapsedSessionCheckFrequencySeconds:
 // after x minutes of no activity, consider a session lapsed and wipe it to avoid holding invalid
 // changes in the database when a sync fails on the facility server end
+
+/**
+ * @typedef {import('../ApplicationContext').ApplicationContext} ApplicationContext
+ */
 
 export class CentralSyncManager {
   static config = _config;
@@ -57,6 +62,7 @@ export class CentralSyncManager {
 
   currentSyncTick;
 
+  /** @type {ApplicationContext} */
   store;
 
   purgeInterval;
@@ -98,13 +104,25 @@ export class CentralSyncManager {
     const parameters = { deviceId, facilityIds, isMobile };
 
     const unmarkSessionAsProcessing = await this.markSessionAsProcessing(sessionId);
-    const syncSession = await this.store.models.SyncSession.create({
-      id: sessionId,
-      startTime,
-      lastConnectionTime: startTime,
-      debugInfo,
-      parameters,
-    });
+    let syncSession;
+    try {
+      syncSession = await this.store.models.SyncSession.create({
+        id: sessionId,
+        startTime,
+        lastConnectionTime: startTime,
+        debugInfo,
+        parameters,
+      });
+    } catch (error) {
+      // If the session creation fails, we need to release the lock otherwise it will hold up
+      // an open connection until the application restarts
+      await unmarkSessionAsProcessing();
+      const wrappedError = new Error(
+        `Failed to create sync session, server may be overloaded with sync requests: ${error.message}`,
+      );
+      wrappedError.stack = error.stack; // Preserve the original stack trace
+      throw wrappedError;
+    }
 
     // no await as prepare session (especially the tickTockGlobalClock action) might get blocked
     // and take a while if the central server is concurrently persisting records from another client.
@@ -152,6 +170,14 @@ export class CentralSyncManager {
     }
   }
 
+  async sessionExists(sessionId) {
+    const session = await this.store.sequelize.models.SyncSession.findOne({
+      where: { id: sessionId },
+    });
+
+    return Boolean(session);
+  }
+
   async connectToSession(sessionId) {
     const session = await this.store.sequelize.models.SyncSession.findOne({
       where: { id: sessionId },
@@ -186,17 +212,27 @@ export class CentralSyncManager {
     return session;
   }
 
-  async endSession(sessionId) {
+  async endSession(sessionId, error) {
     const session = await this.connectToSession(sessionId);
     const durationMs = Date.now() - session.startTime;
     log.debug('CentralSyncManager.completingSession', { sessionId, durationMs });
-    await completeSyncSession(this.store, sessionId);
-    log.info('CentralSyncManager.completedSession', {
-      sessionId,
-      durationMs,
-      facilityIds: session.parameters.facilityIds,
-      deviceId: session.parameters.deviceId,
-    });
+    await completeSyncSession(this.store, sessionId, error);
+    if (error) {
+      log.error('CentralSyncManager.completedSession with error', {
+        sessionId,
+        facilityIds: session.parameters.facilityIds,
+        deviceId: session.parameters.deviceId,
+        durationMs,
+        error,
+      });
+    } else {
+      log.info('CentralSyncManager.completedSession', {
+        sessionId,
+        durationMs,
+        facilityIds: session.parameters.facilityIds,
+        deviceId: session.parameters.deviceId,
+      });
+    }
   }
 
   async markSessionAsProcessing(sessionId) {
@@ -272,7 +308,7 @@ export class CentralSyncManager {
 
       const isInitialBuildOfLookupTable = parseInt(previouslyUpToTick, 10) === -1;
 
-      await repeatableReadTransaction(store.sequelize, async (transaction) => {
+      await repeatableReadTransaction(store.sequelize, async transaction => {
         // do not need to update pending records when it is initial build
         // because it uses ticks from the actual tables for updated_at_sync_tick
         if (isInitialBuildOfLookupTable) {
@@ -305,6 +341,7 @@ export class CentralSyncManager {
           : SYNC_TICK_FLAGS.LOOKUP_PENDING_UPDATE;
 
         await updateLookupTable(
+          this.store.models,
           getModelsForPull(this.store.models),
           previouslyUpToTick,
           this.constructor.config,
@@ -340,13 +377,13 @@ export class CentralSyncManager {
   async waitForPendingEdits(tick) {
     // get all the ticks (ie: keys of in-flight transaction advisory locks) of previously pending edits
     const pendingSyncTicks = (await getSyncTicksOfPendingEdits(this.store.sequelize)).filter(
-      (t) => t < tick,
+      t => t < tick,
     );
 
     // wait for any in-flight transactions of pending edits
     // that we don't miss any changes that are in progress
     await Promise.all(
-      pendingSyncTicks.map((t) => waitForPendingEditsUsingSyncTick(this.store.sequelize, t)),
+      pendingSyncTicks.map(t => waitForPendingEditsUsingSyncTick(this.store.sequelize, t)),
     );
   }
 
@@ -509,6 +546,9 @@ export class CentralSyncManager {
         // delete any outgoing changes that were just pushed in during the same session
         await removeEchoedChanges(this.store, sessionId);
       });
+      // after snapshotting inserts are done and the transaction is closed, run VACUUM (ANALYZE)
+      // to mark pages all-visible and refresh stats so pulls use index-only scans
+      await vacuumAnalyzeSnapshotTable(this.store.sequelize, sessionId);
       // this update to the session needs to happen outside of the transaction, as the repeatable
       // read isolation level can suffer serialization failures if a record is updated inside and
       // outside the transaction, and the session is being updated to show the last connection
@@ -588,15 +628,18 @@ export class CentralSyncManager {
 
   async getOutgoingChanges(sessionId, { fromId, limit }) {
     const session = await this.connectToSession(sessionId);
-    const snapshotRecords = await findSyncSnapshotRecords(
-      this.store.sequelize,
+    const snapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
+      this.store,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
       fromId,
       limit,
     );
-    const { minSourceTick, maxSourceTick } = session.parameters;
-    if (!minSourceTick || !maxSourceTick) {
+    const { minSourceTick, maxSourceTick, isMobile } = session.parameters;
+
+    // Currently on mobile we don't need to attach changelog to snapshot records
+    // as changelog data is not stored on mobile. We can also skip if the source tick range is not available.
+    if (isMobile || !minSourceTick || !maxSourceTick) {
       return snapshotRecords;
     }
 
@@ -680,10 +723,64 @@ export class CentralSyncManager {
     }
   }
 
+  #modelMap = null;
   async addIncomingChanges(sessionId, changes) {
-    const { sequelize } = this.store;
+    const { sequelize, models } = this.store;
     await this.connectToSession(sessionId);
-    const incomingSnapshotRecords = changes.map((c) => ({
+
+    if (!this.#modelMap) {
+      this.#modelMap = new Map(
+        Object.values(models)
+          .filter(m => m.tableName && m.usesPublicSchema)
+          .map(m => [m.tableName, m])
+      );
+    }
+
+    for (const change of changes) {
+      const model = this.#modelMap.get(change.recordType);
+      if (!model) {
+        const errorMessage = `Sync security violation: Attempted to push record with unknown model`;
+        log.error(errorMessage, {
+          recordType: change.recordType,
+          recordId: change.recordId,
+          reason: 'Model not found',
+          sessionId,
+        });
+
+        await models.SyncSession.addDebugInfo(sessionId, {
+          rejectedRecord: { type: change.recordType, id: change.recordId },
+        });
+
+        await models.SyncSession.markSessionErrored(sessionId, errorMessage);
+        throw new Error(errorMessage);
+      }
+
+      if (
+        ![
+          SYNC_DIRECTIONS.PUSH_TO_CENTRAL,
+          SYNC_DIRECTIONS.PUSH_TO_CENTRAL_THEN_DELETE,
+          SYNC_DIRECTIONS.BIDIRECTIONAL,
+        ].includes(model.syncDirection)
+      ) {
+        const errorMessage = `Sync security violation: Attempted to push record that is not allowed to be pushed`;
+        log.error(errorMessage, {
+          recordType: change.recordType,
+          recordId: change.recordId,
+          syncDirection: model.syncDirection,
+          reason: `Model has syncDirection '${model.syncDirection}' which is not allowed for push operations`,
+          sessionId,
+        });
+
+        await models.SyncSession.addDebugInfo(sessionId, {
+          rejectedRecord: { type: change.recordType, id: change.recordId },
+        });
+
+        await models.SyncSession.markSessionErrored(sessionId, errorMessage);
+        throw new Error(errorMessage);
+      }
+    }
+
+    const incomingSnapshotRecords = changes.map(c => ({
       ...c,
       direction: SYNC_SESSION_DIRECTION.INCOMING,
       updatedAtByFieldSum: c.data.updatedAtByField

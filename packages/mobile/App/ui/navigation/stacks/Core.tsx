@@ -13,12 +13,12 @@ import { SelectFacilityScreen } from '~/ui/navigation/screens/signup/SelectFacil
 import { MultiSelectModalScreen } from '~/ui/components/MultiSelectModal';
 import { SelectModalScreen } from '~/ui/components/SelectModal';
 import { FrequencySearchModalScreen } from '~/ui/components/FrequencySearchModal';
+import { SecurityScreen } from '~/ui/navigation/screens/signup/SecurityScreen';
+import { useSecurityInfo } from '~/ui/hooks/useSecurityInfo';
 
 const Stack = createStackNavigator();
 
-function getSignInFlowRoute(): string {
-  const { signedIn } = useAuth();
-  const { facilityId } = useFacility();
+function getSignInFlowRoute(signedIn: boolean, facilityId?: string): string {
   if (!signedIn) {
     return Routes.SignUpStack.Index;
   } else if (!facilityId) {
@@ -28,7 +28,21 @@ function getSignInFlowRoute(): string {
 }
 
 export const Core: FunctionComponent<any> = () => {
-  const initialRouteName = getSignInFlowRoute();
+  const { signedIn } = useAuth();
+  const { facilityId } = useFacility();
+  const { isLoading, securityIssues, fetchSecurityInfo } = useSecurityInfo();
+
+  if (isLoading || securityIssues.length > 0) {
+    return (
+      <SecurityScreen
+        isLoading={isLoading}
+        securityIssues={securityIssues}
+        handleRetry={fetchSecurityInfo}
+      />
+    );
+  }
+
+  const initialRouteName = getSignInFlowRoute(signedIn, facilityId);
 
   return (
     <Stack.Navigator headerMode="none" initialRouteName={initialRouteName}>

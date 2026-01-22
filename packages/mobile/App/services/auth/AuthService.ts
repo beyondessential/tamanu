@@ -29,7 +29,7 @@ export class AuthService {
     this.models = models;
     this.centralServer = centralServer;
 
-    this.centralServer.emitter.on('error', (err) => {
+    this.centralServer.emitter.on('error', err => {
       if (err instanceof AuthenticationError || err instanceof OutdatedVersionError) {
         this.emitter.emit('authError', err);
       }
@@ -42,18 +42,20 @@ export class AuthService {
   }
 
   async saveLocalUser(userData: Partial<IUser>, password: string): Promise<IUser> {
-    // save local password to repo for later use
+    // save password to repo for later use
     let user = await this.models.User.findOne({ where: { email: userData.email } });
     if (!user) {
       const newUser = await this.models.User.create(userData).save();
       if (!user) user = newUser;
     }
 
-    // kick off a local password hash & save
+    // kick off a password hash & save
     // the hash takes a while on mobile, but we don't need to do anything with the result
     // of this until next login, so just start the process without awaiting it
+    // the password could be synced from the server, but we just want to ensure in case sync fails,
+    // we still have a password to use
     (async (): Promise<void> => {
-      user.localPassword = await hash(password);
+      user.password = await hash(password);
       await user.save();
       console.log(`Set local password for ${user.email}`);
     })();
@@ -66,8 +68,15 @@ export class AuthService {
     { email, password }: SyncConnectionParameters,
     generateAbilityForUser: (user: User) => PureAbility,
   ): Promise<IUser> {
+    const deviceFacilityId = await readConfig('facilityId', null);
+    if (!deviceFacilityId) {
+      throw new Error(
+        'You need to first link this device to a facility before you can login offline.',
+      );
+    }
+
     console.log('Signing in locally as', email);
-    const { User, Setting } = this.models;
+    const { User } = this.models;
     const user = await User.findOne({
       where: {
         email,
@@ -75,25 +84,19 @@ export class AuthService {
       },
     });
 
-    if (!user.localPassword) {
+    if (!user.password) {
       throw new AuthenticationError(
         'You need to first login when connected to internet to use your account offline.',
       );
     }
 
-    if (!user || !(await compare(password, user.localPassword))) {
+    if (!user || !(await compare(password, user.password))) {
       throw new AuthenticationError(invalidUserCredentialsMessage);
     }
 
     const ability = generateAbilityForUser(user);
-    const restrictUsersToFacilities = await Setting.getByKey('auth.restrictUsersToFacilities');
-    const canLogIntoAllFacilities = ability.can('login', 'Facility');
-    const linkedFacility = await readConfig('facilityId', '');
-    if (
-      restrictUsersToFacilities &&
-      !canLogIntoAllFacilities &&
-      !(await user.canAccessFacility(linkedFacility))
-    ) {
+    const canAccessFacility = await user.canAccessFacility(deviceFacilityId, ability, this.models);
+    if (!canAccessFacility) {
       throw new AuthenticationError(forbiddenFacilityMessage);
     }
 
@@ -147,7 +150,10 @@ export class AuthService {
   async requestResetPassword(params: ResetPasswordFormModel): Promise<void> {
     const { server, email } = params;
     await this.centralServer.connect(server);
-    await this.centralServer.post('resetPassword', {}, { email });
+    await this.centralServer.post('resetPassword', {}, {
+      email,
+      deviceId: this.centralServer.deviceId,
+    });
   }
 
   async changePassword(params: ChangePasswordFormModel): Promise<void> {

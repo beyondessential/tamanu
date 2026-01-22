@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - clinical
+          meta:
+            triggers:
+              - notify_contributing_death_causes_changed
+              - record_contributing_death_causes_changelog
+              - set_contributing_death_causes_updated_at
+              - set_contributing_death_causes_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -21,23 +27,30 @@ sources:
             description: "{{ doc('contributing_death_causes__time_after_onset') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking:
+                  kind: integer
+                  range: 0-50000
           - name: patient_death_data_id
             data_type: character varying(255)
             description: "{{ doc('contributing_death_causes__patient_death_data_id') }}"
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'patient_death_data')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'patient_death_data')
+                    field: id
           - name: condition_id
             data_type: character varying(255)
             description: "{{ doc('contributing_death_causes__condition_id') }}"
             data_tests:
               - not_null
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'diagnosis'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'diagnosis'
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in contributing_death_causes."

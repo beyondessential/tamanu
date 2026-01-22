@@ -33,7 +33,7 @@ export const LanguageSelectButton = ({ navigation }: LanguageSelectButtonProps):
     return null;
   }
 
-  const languageOption = languageOptions.find((o) => o.languageCode === language);
+  const languageOption = languageOptions.find(o => o.languageCode === language);
 
   return (
     <StyledTouchableOpacity onPress={onNavigateToLanguageSelect}>
@@ -51,7 +51,7 @@ export const LanguageSelectButton = ({ navigation }: LanguageSelectButtonProps):
           {languageOption?.countryCode && isISO31661Alpha2(languageOption.countryCode) && (
             <CountryFlag isoCode={languageOption.countryCode} size={22} />
           )}
-          <StyledText color={theme.colors.WHITE}>{languageOption.label}</StyledText>
+          <StyledText color={theme.colors.WHITE}>{languageOption?.label}</StyledText>
           <Icon color={theme.colors.WHITE} name="chevron-down" size={20} />
         </ButtonContainer>
       </StyledView>

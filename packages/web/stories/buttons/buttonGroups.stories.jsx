@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import { Button, ButtonRow, ConfirmCancelRow } from '../../app/components';
+import { Button, ButtonRow, ConfirmCancelRow } from '@tamanu/ui-components';
 
 storiesOf('Buttons/ButtonRow', module)
   .add('ConfirmCancel', () => (

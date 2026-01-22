@@ -3,9 +3,9 @@ import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CancelIcon from '@material-ui/icons/Cancel';
-import { TASK_STATUSES, WS_EVENTS } from '@tamanu/constants';
+import { TASK_STATUSES, TASK_TYPES, WS_EVENTS } from '@tamanu/constants';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 
 import { BodyText, SmallBodyText, formatShortest, formatTime, TranslatedText, Table } from '../.';
@@ -19,6 +19,7 @@ import { useTableSorting } from '../Table/useTableSorting';
 import { reloadPatient } from '../../store';
 import { useEncounter } from '../../contexts/Encounter';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
+import { DrugIcon } from '../../assets/icons/DrugIcon';
 
 const Container = styled.div`
   height: calc(100% - 110px);
@@ -198,25 +199,45 @@ const getLocation = ({ encounter }) => (
   </div>
 );
 
-const getTaskName = ({ name, requestedBy, requestTime, highPriority }) => (
-  <StyledToolTip
-    title={
-      <TooltipContainer data-testid="tooltipcontainer-dse4">
-        <div>{name}</div>
-        <div>{requestedBy?.displayName}</div>
-        <Box sx={{ textTransform: 'lowercase' }} data-testid="box-mkj4">
-          {`${formatShortest(requestTime)} ${formatTime(requestTime)}`}
-        </Box>
-      </TooltipContainer>
+const getTaskName = ({ name, requestedBy, requestTime, highPriority, taskType }) => {
+  const taskName = () => {
+    if (taskType === TASK_TYPES.MEDICATION_DUE_TASK) {
+      return (
+        <TranslatedText
+          stringId="dashboard.tasks.table.column.medicationDueTask"
+          fallback="Medication Due"
+        />
+      );
     }
-    data-testid="styledtooltip-myk4"
-  >
-    <span>
-      {highPriority && <StyledPriorityHighIcon data-testid="styledpriorityhighicon-8mdd" />}
-      {name}
-    </span>
-  </StyledToolTip>
-);
+
+    return name;
+  };
+
+  return (
+    <StyledToolTip
+      title={
+        <TooltipContainer data-testid="tooltipcontainer-dse4">
+          <div>{taskName()}</div>
+          <div>{requestedBy?.displayName}</div>
+          <Box sx={{ textTransform: 'lowercase' }} data-testid="box-mkj4">
+            {`${formatShortest(requestTime)} ${formatTime(requestTime)}`}
+          </Box>
+        </TooltipContainer>
+      }
+      data-testid="styledtooltip-myk4"
+    >
+      <span>
+        {highPriority && <StyledPriorityHighIcon data-testid="styledpriorityhighicon-8mdd" />}
+        {taskType === TASK_TYPES.MEDICATION_DUE_TASK && (
+          <Box display={'flex'} position={'absolute'} left={'-6px'} top={'13px'}>
+            <DrugIcon />
+          </Box>
+        )}
+        {taskName()}
+      </span>
+    </StyledToolTip>
+  );
+};
 
 const NoDataMessage = () => (
   <NoDataContainer data-testid="nodatacontainer-t1wr">
@@ -308,7 +329,7 @@ const COLUMNS = [
 
 export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
   const { currentUser, facilityId } = useAuth();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { loadEncounter } = useEncounter();
   const dispatch = useDispatch();
 
@@ -342,10 +363,15 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
     );
   }
 
-  const onRowClick = async ({ encounter }) => {
+  const onRowClick = async ({ encounter, taskType }) => {
     await loadEncounter(encounter?.id);
     if (encounter?.patientId) await dispatch(reloadPatient(encounter.patientId));
-    history.push(
+    if (taskType === TASK_TYPES.MEDICATION_DUE_TASK) {
+      navigate(`/patients/all/${encounter?.patientId}/encounter/${encounter?.id}/mar/view`);
+      return;
+    }
+
+    navigate(
       `/patients/all/${encounter?.patientId}/encounter/${encounter?.id}?tab=${ENCOUNTER_TAB_NAMES.TASKS}`,
     );
   };

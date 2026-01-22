@@ -4,3 +4,5 @@ export * from './onCreateEncounterMarkPatientForSync';
 export * from './sortInDependencyOrder';
 export * from './fhir';
 export * from './audit';
+export * from './convertDatabaseError';
+export * from './tablesWithTrigger';

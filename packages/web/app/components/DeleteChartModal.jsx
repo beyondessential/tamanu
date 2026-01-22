@@ -17,7 +17,7 @@ export const DeleteChartModal = ({ open, onClose, handleDeleteChart }) => {
       subText={
         <TranslatedText
           stringId="chart.modal.delete.text"
-          fallback="Are you sure you want to delete this chart?"
+          fallback="Are you sure you would like to delete this chart?"
           data-testid="translatedtext-h9v3"
         />
       }

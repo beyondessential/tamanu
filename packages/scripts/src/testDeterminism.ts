@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-import { execFile, ExecFileOptions, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { userInfo } from 'node:os';
 import { join } from 'node:path';
@@ -10,6 +9,7 @@ import type { Model } from '@tamanu/database/models/Model';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { QueryTypes } from 'sequelize';
+import { runCommand, spawnCommand } from './runCommand';
 
 function warn(message: string) {
   if (process.env.CI) {
@@ -31,8 +31,8 @@ async function listTables(sequelize: Sequelize): Promise<string[]> {
   return (
     (sequelize.modelManager.all as (typeof Model)[])
       // No need for determinism test when data is not shared between central and facility
-      .filter((model) => model.syncDirection !== SYNC_DIRECTIONS.DO_NOT_SYNC)
-      .map((model) => {
+      .filter(model => model.syncDirection !== SYNC_DIRECTIONS.DO_NOT_SYNC)
+      .map(model => {
         const schema = (model as any).options?.schema || 'public';
         return `"${schema}"."${model.tableName}"`;
       })
@@ -205,41 +205,6 @@ function printDiff(a: DbHashes, b: DbHashes) {
   }
 }
 
-async function runCommandImpl(
-  prog: string,
-  args: string[],
-  opts: ExecFileOptions,
-): Promise<string> {
-  return new Promise((resolve, reject) => {
-    console.log('$', prog, ...args);
-    execFile(prog, args, { encoding: 'utf-8', ...opts }, (error, stdout, stderr) => {
-      if (error) {
-        console.log(stdout);
-        console.error(stderr);
-        reject(error);
-      } else {
-        resolve(stdout.trim());
-      }
-    });
-  });
-}
-
-let repoRoot: string;
-async function findRepoRoot(): Promise<string> {
-  if (!repoRoot) {
-    const root = await runCommandImpl('npm', ['root'], {});
-    if (!repoRoot) {
-      repoRoot = root;
-    }
-  }
-
-  return repoRoot;
-}
-
-async function runCommand(prog: string, args: string[]): Promise<string> {
-  return runCommandImpl(prog, args, { cwd: await findRepoRoot() });
-}
-
 async function gitCommand(args: string[]): Promise<string> {
   return runCommand('git', args);
 }
@@ -256,30 +221,14 @@ async function listCommitsSince(limitCommitRef: string): Promise<string[]> {
 
 async function listCommitFiles(commitRef: string): Promise<string[]> {
   const stdout = await gitCommand(['diff-tree', '--no-commit-id', '--name-only', '-r', commitRef]);
-  return (stdout.split(/\s+/) ?? []).map((line) => line.trim());
+  return (stdout.split(/\s+/) ?? []).map(line => line.trim());
 }
 
 async function commitTouchesMigrations(commitRef: string): Promise<boolean> {
   const filesChanged = await listCommitFiles(commitRef);
-  return filesChanged.some((file) =>
+  return filesChanged.some(file =>
     file.replaceAll('\\', '/').includes('packages/database/src/migrations'),
   );
-}
-
-async function spawnCommand(prog: string, args: string[]): Promise<void> {
-  const repoRoot = await findRepoRoot();
-  return new Promise((resolve, reject) => {
-    console.log('$', prog, ...args);
-    const child = spawn(prog, args, {
-      cwd: repoRoot,
-      stdio: 'inherit',
-    });
-    child.on('error', (err) => reject(err));
-    child.on('exit', (code) => {
-      if (code !== 0) reject(new Error(`exited with code ${code}`));
-      else resolve();
-    });
-  });
 }
 
 async function generateFake(database: string, rounds: number): Promise<void> {

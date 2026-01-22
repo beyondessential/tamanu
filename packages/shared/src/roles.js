@@ -274,6 +274,36 @@ export const practitioner = [
 
   { verb: 'create', noun: 'MedicationPharmacyNote' },
   { verb: 'write', noun: 'MedicationPharmacyNote' },
+
+  { verb: 'create', noun: 'PatientPortalRegistration' },
+  { verb: 'read', noun: 'PatientPortalRegistration' },
+
+  { verb: 'create', noun: 'PatientPortalForm' },
+  { verb: 'read', noun: 'PatientPortalForm' },
+  { verb: 'delete', noun: 'PatientPortalForm' },
+
+  { verb: 'read', noun: 'SensitiveMedication' },
+  { verb: 'list', noun: 'SensitiveMedication' },
+  { verb: 'create', noun: 'SensitiveMedication' },
+  { verb: 'write', noun: 'SensitiveMedication' },
+  
+  { verb: 'read', noun: 'LocationSchedule' },
+  { verb: 'list', noun: 'LocationSchedule' },
+  { verb: 'create', noun: 'LocationSchedule' },
+  { verb: 'write', noun: 'LocationSchedule' },
+  { verb: 'delete', noun: 'LocationSchedule' },
+
+  { verb: 'read', noun: 'MedicationRequest' },
+  { verb: 'list', noun: 'MedicationRequest' },
+  { verb: 'create', noun: 'MedicationRequest' },
+  { verb: 'write', noun: 'MedicationRequest' },
+  { verb: 'delete', noun: 'MedicationRequest' },
+
+  { verb: 'read', noun: 'MedicationDispense' },
+  { verb: 'list', noun: 'MedicationDispense' },
+  { verb: 'create', noun: 'MedicationDispense' },
+  { verb: 'write', noun: 'MedicationDispense' },
+  { verb: 'delete', noun: 'MedicationDispense' },
 ];
 
 // "Manage all" is a special case in CASL for the admin to grant everything

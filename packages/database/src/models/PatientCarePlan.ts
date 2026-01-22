@@ -47,7 +47,7 @@ export class PatientCarePlan extends Model {
     return ['carePlan', 'examiner'];
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return buildPatientLinkedLookupFilter(this);
   }
 

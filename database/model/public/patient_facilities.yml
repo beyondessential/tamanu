@@ -6,11 +6,16 @@ sources:
     tables:
       - name: patient_facilities
         description: "{{ doc('table__patient_facilities') }}"
-        __generator:
-          js_class: PatientFacility
         config:
           tags:
             - clinical
+          meta:
+            js_class: PatientFacility
+            triggers:
+              - notify_patient_facilities_changed
+              - record_patient_facilities_changelog
+              - set_patient_facilities_updated_at
+              - set_patient_facilities_updated_at_sync_tick
         columns:
           - name: id
             data_type: text
@@ -30,16 +35,18 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'facilities')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'facilities')
+                    field: id
           - name: patient_id
             data_type: character varying(255)
             description: "{{ doc('patient_facilities__patient_id') }}"
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'patients')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'patients')
+                    field: id
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in patient_facilities."

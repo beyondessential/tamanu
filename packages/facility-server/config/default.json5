@@ -8,12 +8,6 @@
     "color": true,
     "timeless": false,
   },
-  "honeycomb": {
-    "apiKey": "",
-    "sampleRate": 1, // 5 = 1/5 = 20% of traces get sent to honeycomb
-    "enabled": true,
-    "level": "info"
-  },
   errors: {
     // enable to send errors to a bug tracking service
     enabled: false,
@@ -36,7 +30,7 @@
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
     "pauseBetweenCacheBatchInMilliseconds": 50,
     "persistUpdateWorkerPoolSize": 5,
-    "assertIfPulledRecordsUpdatedAfterPushSnapshot": false,
+    "assertIfPulledRecordsUpdatedAfterPushSnapshot": true,
     "enabled": true,
     "jitterTime": "1s",
     "backoff": {
@@ -53,6 +47,7 @@
     }
   },
   "port": 4000,
+  "deviceId": null,
   "db": {
     "name": "tamanu-facility",
     "username": "",
@@ -80,9 +75,11 @@
     }
   },
   "metaServer": {
-    "host": "https://meta.tamanu.app",
+    "hosts": [
+      "https://meta.tamanu.app",
+    ],
     "serverId": null,
-    "timeoutMs": 20000
+    "timeoutMs": 20000,
   },
   "senaite": {
     "enabled": false,
@@ -102,6 +99,9 @@
   "serverFacilityId": null,
   "serverFacilityIds": null,
   "debugging": {
+    // set a `tamanu-debug` header on a request with the value of this key
+    // and the errors will get stack traces.
+    apiErrorsToken: false,
     "requestFailureRate": 0
   },
   "schedules": {
@@ -115,6 +115,7 @@
       "enabled": true,
       // every minute
       "schedule": "* * * * *",
+      jitterTime: "30s",
     },
     "timeSync": {
       "enabled": false,

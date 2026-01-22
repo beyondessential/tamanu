@@ -3,21 +3,18 @@ import styled, { css } from 'styled-components';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import NotesIcon from '@material-ui/icons/Notes';
 import { Box } from '@material-ui/core';
-import { NOTE_TYPES } from '@tamanu/constants';
+
+import { NOTE_TYPES, FORM_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { TextField, Form, FormCancelButton, FormSubmitButton, Button } from '@tamanu/ui-components';
 
 import { useApi } from '../api';
 import {
-  Button,
   DateDisplay,
   Field,
-  Form,
-  FormCancelButton,
-  FormSubmitButton,
-  TextField,
 } from '../components';
-import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { NoteModalActionBlocker } from '../components/NoteModalActionBlocker';
 
 const Container = styled.div`
   display: flex;
@@ -81,6 +78,10 @@ const SubmitNoteButton = styled(FormSubmitButton)`
   ${buttonStyle}
 `;
 
+const ShowAddNoteFormButtonContainer = styled.div`
+  display: inline-block;
+`;
+
 const ShowAddNoteFormButton = styled(Button)`
   ${buttonStyle}
 `;
@@ -103,7 +104,7 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
       api.post(`labRequest/${labRequestId}/notes`, {
         content: values.content?.trim(),
         authorId: api.user.id,
-        noteType: NOTE_TYPES.OTHER,
+        noteTypeId: NOTE_TYPES.OTHER,
         date: getCurrentDateTimeString(),
       }),
     {
@@ -166,17 +167,21 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
                   />
                 </Box>
               ) : (
-                <ShowAddNoteFormButton
-                  $underline
-                  onClick={() => setActive(true)}
-                  data-testid="showaddnoteformbutton-thpi"
-                >
-                  <TranslatedText
-                    stringId="general.action.addNote"
-                    fallback="Add note"
-                    data-testid="translatedtext-6ric"
-                  />
-                </ShowAddNoteFormButton>
+                <ShowAddNoteFormButtonContainer>
+                  <NoteModalActionBlocker>
+                    <ShowAddNoteFormButton
+                      $underline
+                      onClick={() => setActive(true)}
+                      data-testid="showaddnoteformbutton-thpi"
+                    >
+                      <TranslatedText
+                        stringId="general.action.addNote"
+                        fallback="Add note"
+                        data-testid="translatedtext-6ric"
+                      />
+                    </ShowAddNoteFormButton>
+                  </NoteModalActionBlocker>
+                </ShowAddNoteFormButtonContainer>
               );
             }}
             data-testid="form-7jdi"

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 
 import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants';
+import { Button } from '@tamanu/ui-components';
 
 import { CancelModal } from '../../../components/CancelModal';
-import { Button } from '../../../components/Button';
 import { useApi } from '../../../api';
 import { useSettings } from '../../../contexts/Settings';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 
 function getReasonForCancellationStatus(reasonForCancellation) {
   // these values are set in localisation
@@ -44,13 +45,15 @@ export const CancelModalButton = ({ imagingRequest, onCancel }) => {
 
   return (
     <>
-      <Button variant="text" onClick={() => setIsOpen(true)} data-testid="button-kuzg">
-        <TranslatedText
-          stringId="imaging.action.cancelRequest"
-          fallback="Cancel request"
-          data-testid="translatedtext-xw1p"
-        />
-      </Button>
+      <NoteModalActionBlocker>
+        <Button variant="text" onClick={() => setIsOpen(true)} data-testid="button-kuzg">
+          <TranslatedText
+            stringId="imaging.action.cancelRequest"
+            fallback="Cancel request"
+            data-testid="translatedtext-xw1p"
+          />
+        </Button>
+      </NoteModalActionBlocker>
       <CancelModal
         title={
           <TranslatedText

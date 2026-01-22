@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - reference
+          meta:
+            triggers:
+              - notify_locations_changed
+              - record_locations_changelog
+              - set_locations_updated_at
+              - set_locations_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -41,23 +47,26 @@ sources:
             description: "{{ doc('locations__facility_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'facilities')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'facilities')
+                    field: id
           - name: visibility_status
             data_type: text
             description: "{{ doc('generic__visibility_status') }} in locations."
             data_tests:
               - accepted_values:
-                  values:
-                    - current
-                    - historical
+                  arguments:
+                    values:
+                      - current
+                      - historical
           - name: location_group_id
             data_type: character varying(255)
             description: "{{ doc('locations__location_group_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'location_groups')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'location_groups')
+                    field: id
           - name: max_occupancy
             data_type: integer
             description: "{{ doc('locations__max_occupancy') }}"

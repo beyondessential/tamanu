@@ -1,0 +1,23 @@
+{
+  "sheetName": "Secondary Id Type",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
+  "data": [
+    {
+      "id": "secondaryIdType-tamanu-display-id",
+      "code": "tamanu-display-id",
+      "name": "Tamanu Display ID",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "secondaryIdType-nhn",
+      "code": "nhn",
+      "name": "National Health Number",
+      "visibilityStatus": "current"
+    }
+  ]
+}

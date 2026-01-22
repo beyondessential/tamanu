@@ -1,63 +1,99 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
-import { useQuery } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { Box, Divider } from '@material-ui/core';
+import { Box, FormControlLabel, Radio, RadioGroup } from '@material-ui/core';
+import { Colors } from '../../constants';
+import {
+  TextField,
+  ConfirmCancelBackRow,
+  ConfirmCancelRow,
+  BaseModal,
+  TranslatedText,
+} from '@tamanu/ui-components';
+import { subHours } from 'date-fns';
+import { ENCOUNTER_TYPES, PHARMACY_PRESCRIPTION_TYPES } from '@tamanu/constants';
 
-import { AutocompleteInput, TextField } from '../Field';
-import { ConfirmCancelRow } from '../ButtonRow';
+import { AutocompleteInput } from '../Field';
 import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
-import { Colors } from '../../constants';
-import { pharmacyIcon } from '../../constants/images';
 
-import { TranslatedText } from '../Translation';
-import { BaseModal } from '../BaseModal';
+import BasePharmacyIcon from '../../assets/images/pharmacy.svg?react';
+
 import { notifyError } from '../../utils';
 import { PharmacyOrderMedicationTable, COLUMN_KEYS } from './PharmacyOrderMedicationTable';
+import { useSettings } from '../../contexts/Settings';
+import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
+import { BodyText } from '../Typography';
+
+const MODAL_TYPES = {
+  REQUEST_CONFIRMATION: 'request_confirmation',
+  REQUEST_SENT: 'request_sent',
+  SEND_TO_PHARMACY: 'send_to_pharmacy',
+};
 
 const StyledModal = styled(BaseModal)`
   .MuiPaper-root {
-    max-width: 900px;
+    max-width: ${({ $modalType }) => {
+      switch ($modalType) {
+        case MODAL_TYPES.REQUEST_CONFIRMATION:
+          return '670px';
+        case MODAL_TYPES.REQUEST_SENT:
+          return '580px';
+        case MODAL_TYPES.SEND_TO_PHARMACY:
+          return '1000px';
+        default:
+          return '1000px';
+      }
+    }};
   }
 `;
 
-const PharmacyIcon = styled.img`
+const SubmitButtonsWrapper = styled.div`
+  border-top: 1px solid ${Colors.outline};
+  padding-top: 10px;
+  margin-top: 20px;
+`;
+
+const PharmacyIcon = styled(BasePharmacyIcon)`
   width: 40%;
   height: 40%;
   margin-bottom: 30px;
 `;
 
 const OrderingClinicianWrapper = styled.div`
-  width: 25%;
+  width: 35%;
   margin-bottom: 20px;
   margin-top: 20px;
-`;
-
-const HorizontalDivider = styled(Divider)`
-  margin: 30px 0;
 `;
 
 const CommentsWrapper = styled.div`
-  margin-bottom: 20px;
   margin-top: 20px;
 `;
 
-const SuccessText = styled.div`
+const DialogPrimaryText = styled.div`
   font-weight: bold;
   font-size: 16px;
   margin-bottom: 12px;
   text-align: center;
 `;
 
-const SuccessDescription = styled.div`
+const AlreadyOrderedPrimaryText = styled(DialogPrimaryText)`
+  text-align: left;
+`;
+
+const DialogSecondaryText = styled.div`
   font-size: 14px;
   text-align: center;
   color: ${Colors.textSecondary};
   line-height: 1.4;
 `;
 
-const SuccessContent = styled.div`
+const AlreadyOrderedSecondaryText = styled(DialogSecondaryText)`
+  text-align: left;
+`;
+
+const DialogContent = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -66,29 +102,117 @@ const SuccessContent = styled.div`
   text-align: center;
 `;
 
-export const PharmacyOrderModal = React.memo(({ encounter, open, onClose }) => {
-  const [orderingClinicianId, setOrderingClinicianId] = useState(null);
+const AlreadyOrderedContent = styled(DialogContent)`
+  align-items: flex-start;
+  justify-content: flex-start;
+  text-align: left;
+  padding: 20px 0px;
+`;
+
+const AlreadyOrderedMedicationsWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 10px;
+`;
+
+const PrescriptionTypeWrapper = styled.div`
+  margin-top: 20px;
+  margin-bottom: 20px;
+  font-size: 14px;
+`;
+
+const PrescriptionTypeLabel = styled.div`
+  font-weight: 500;
+  margin-bottom: 7px;
+  color: ${Colors.darkText};
+`;
+
+const StyledRadioGroup = styled(RadioGroup)`
+  flex-direction: row;
+  gap: 10px;
+`;
+
+const StyledFormControlLabel = styled(FormControlLabel)`
+  .MuiTypography-body1 {
+    font-size: 14px;
+  }
+  border: 1px solid ${Colors.outline};
+  border-radius: 3px;
+  background: ${Colors.white};
+  height: 44px;
+  width: 202px;
+  margin: 0;
+  .MuiSvgIcon-root {
+    font-size: 15px;
+  }
+`;
+
+export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPrescriptions, open, onClose, onSubmit }) => {
+  // Determine if this is ongoing medications mode (no encounter, has patient and ongoingPrescriptions)
+  const isOngoingMode = !encounter && !!patient && !!ongoingPrescriptions;
+
+  const [orderingClinicianId, setOrderingClinicianId] = useState('');
   const [comments, setComments] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showAlreadyOrderedConfirmation, setShowAlreadyOrderedConfirmation] = useState(false);
   const api = useApi();
+  const queryClient = useQueryClient();
   const practitionerSuggester = useSuggester('practitioner');
+  const { getSetting } = useSettings();
+  const { facilityId, currentUser, ability } = useAuth();
 
-  const { data, error, isLoading } = useQuery(['encounterMedication', encounter.id], () =>
-    api.get(`encounter/${encounter.id}/medications`),
+  const medicationAlreadyOrderedConfirmationTimeout = getSetting(
+    'features.pharmacyOrder.medicationAlreadyOrderedConfirmationTimeout',
   );
 
-  const initialPrescriptions = useMemo(
-    () =>
-      data?.data
+  const sendViaMSupply = getSetting('features.pharmacyOrder.sendViaMSupply');
+
+  // Permission to edit repeats (only relevant for ongoing mode)
+  const canEditRepeats = ability.can('write', 'Medication');
+
+  const [prescriptionType, setPrescriptionType] = useState(
+    PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT,
+  );
+  // In ongoing mode, always use discharge/outpatient
+  const isDischargeOrOutpatient =
+    isOngoingMode || prescriptionType === PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT;
+
+  // Only fetch encounter medications if in encounter mode
+  const {
+    data,
+    error,
+    isLoading,
+    refetch: refetchEncounterMedications,
+  } = useEncounterMedicationQuery(encounter?.id);
+
+  const initialPrescriptions = useMemo(() => {
+    if (isOngoingMode) {
+      // Use ongoing prescriptions passed as prop
+      return (ongoingPrescriptions || [])
         .filter(p => !p.discontinued)
         .map(prescription => ({
           ...prescription,
-          quantity: 1,
-          repeats: undefined,
-          selected: true,
-        })) || [],
-    [data],
-  );
+          quantity: prescription.quantity ?? undefined,
+          repeats: prescription.repeats ?? 0,
+          selected: false,
+          // Disable selection if no repeats remaining
+          isSelectionDisabled: (prescription.repeats ?? 0) === 0,
+        }));
+    }
+    // Use encounter medications from query
+    return (
+      data?.data
+        ?.filter(p => !p.discontinued)
+        .map(prescription => ({
+          ...prescription,
+          quantity: prescription.quantity ?? undefined,
+          repeats: prescription.repeats ?? 0,
+          selected: false,
+        })) || []
+    );
+  }, [data, isOngoingMode, ongoingPrescriptions]);
 
   const [prescriptions, setPrescriptions] = useState(initialPrescriptions);
 
@@ -96,18 +220,29 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose }) => {
     setPrescriptions(initialPrescriptions);
   }, [initialPrescriptions]);
 
-  const { currentUser } = useAuth();
-
   useEffect(() => {
     setOrderingClinicianId(currentUser.id);
   }, [currentUser]);
+
+  // Set default prescription type based on encounter type when the modal opens
+  // Only applies in encounter mode
+  useEffect(() => {
+    if (!open || !encounter?.encounterType || isOngoingMode) return;
+
+    if (encounter.encounterType === ENCOUNTER_TYPES.CLINIC) {
+      setPrescriptionType(PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT);
+    } else {
+      setPrescriptionType(PHARMACY_PRESCRIPTION_TYPES.INPATIENT);
+    }
+  }, [open, encounter?.encounterType, isOngoingMode]);
 
   const handleSelectAll = useCallback(event => {
     const checked = event.target.checked;
     setPrescriptions(prev =>
       prev.map(prescription => ({
         ...prescription,
-        selected: checked,
+        // Only select if not disabled (for ongoing mode with no repeats)
+        selected: prescription.isSelectionDisabled ? false : checked,
       })),
     );
   }, []);
@@ -117,35 +252,66 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose }) => {
       const checked = event.target.checked;
       setPrescriptions(prev => {
         const newPrescriptions = [...prev];
-        newPrescriptions[rowIndex] = {
-          ...newPrescriptions[rowIndex],
-          selected: checked,
-        };
+        // Only allow selection if not disabled
+        if (!newPrescriptions[rowIndex].isSelectionDisabled) {
+          newPrescriptions[rowIndex] = {
+            ...newPrescriptions[rowIndex],
+            selected: checked,
+          };
+        }
         return newPrescriptions;
       });
     },
     [],
   );
 
+  const getAlreadyOrderedPrescriptions = useCallback(
+    () =>
+      prescriptions.filter(
+        p =>
+          p.selected &&
+          p.lastOrderedAt &&
+          new Date(p.lastOrderedAt) >
+            subHours(new Date(), medicationAlreadyOrderedConfirmationTimeout),
+      ),
+    [prescriptions, medicationAlreadyOrderedConfirmationTimeout],
+  );
+
   const selectAllChecked = useMemo(() => {
-    return prescriptions.length > 0 && prescriptions.every(p => p.selected);
+    const selectablePrescriptions = prescriptions.filter(p => !p.isSelectionDisabled);
+    return selectablePrescriptions.length > 0 && selectablePrescriptions.every(p => p.selected);
   }, [prescriptions]);
 
   const cellOnChange = useCallback(
     (event, key, rowIndex) => {
       if ([COLUMN_KEYS.QUANTITY, COLUMN_KEYS.REPEATS].includes(key)) {
+        // In ongoing mode, only allow repeats change if user has permission
+        if (isOngoingMode && key === COLUMN_KEYS.REPEATS && !canEditRepeats) {
+          return;
+        }
+
         const newMedicationData = [...prescriptions];
-        const value = parseInt(event.target.value, 10) || undefined;
+        const rawValue = event.target.value;
+        const value =
+          rawValue === '' || rawValue === null || rawValue === undefined
+            ? undefined
+            : parseInt(rawValue, 10);
 
         newMedicationData[rowIndex] = {
           ...newMedicationData[rowIndex],
           [key]: value,
           hasError: key === COLUMN_KEYS.QUANTITY && !value,
         };
+
+        // When repeats change in ongoing mode, recalculate isSelectionDisabled
+        if (isOngoingMode && key === COLUMN_KEYS.REPEATS) {
+          newMedicationData[rowIndex].isSelectionDisabled = !canEditRepeats || (value ?? 0) === 0;
+        }
+
         setPrescriptions(newMedicationData);
       }
     },
-    [prescriptions],
+    [prescriptions, isOngoingMode, canEditRepeats],
   );
 
   const validateForm = useCallback(() => {
@@ -162,32 +328,83 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose }) => {
 
     try {
       const selectedPrescriptions = prescriptions.filter(p => p.selected);
-      const orderData = {
-        encounterId: encounter.id,
-        orderingClinicianId,
-        comments,
-        pharmacyOrderPrescriptions: selectedPrescriptions.map(prescription => ({
-          prescriptionId: prescription.id,
-          quantity: prescription.quantity,
-          repeats: prescription.repeats,
-        })),
-      };
 
-      await api.post(`encounter/${encounter.id}/pharmacyOrder`, orderData);
+      if (isOngoingMode) {
+        // Send ongoing medications to pharmacy (creates automatic encounter)
+        const orderData = {
+          patientId: patient.id,
+          orderingClinicianId,
+          comments,
+          facilityId,
+          prescriptions: selectedPrescriptions.map(prescription => ({
+            prescriptionId: prescription.id,
+            quantity: prescription.quantity,
+            repeats: prescription.repeats,
+          })),
+        };
+
+        await api.post('medication/send-ongoing-to-pharmacy', orderData);
+        await queryClient.invalidateQueries(['patient-ongoing-prescriptions', patient.id]);
+      } else {
+        // Standard encounter-based pharmacy order
+        const orderData = {
+          encounterId: encounter.id,
+          orderingClinicianId,
+          comments,
+          isDischargePrescription: isDischargeOrOutpatient,
+          facilityId,
+          pharmacyOrderPrescriptions: selectedPrescriptions.map(prescription => ({
+            prescriptionId: prescription.id,
+            quantity: prescription.quantity,
+            repeats: prescription.repeats,
+          })),
+        };
+
+        await api.post(`encounter/${encounter.id}/pharmacyOrder`, orderData);
+        await queryClient.invalidateQueries(['encounterMedication', encounter.id]);
+        refetchEncounterMedications();
+      }
+
+      onSubmit();
       setShowSuccess(true);
-    } catch (error) {
-      notifyError(error.message);
+    } catch (err) {
+      notifyError(err.message);
     }
-  }, [validateForm, encounter.id, orderingClinicianId, comments, prescriptions, api]);
+  }, [
+    validateForm,
+    queryClient,
+    isOngoingMode,
+    patient?.id,
+    encounter?.id,
+    orderingClinicianId,
+    comments,
+    isDischargeOrOutpatient,
+    facilityId,
+    prescriptions,
+    api,
+    refetchEncounterMedications,
+    onSubmit,
+  ]);
+
+  const handleClickSend = useCallback(() => {
+    if (!validateForm()) return;
+
+    if (getAlreadyOrderedPrescriptions().length > 0) {
+      setShowAlreadyOrderedConfirmation(true);
+      return;
+    }
+
+    handleSendOrder();
+  }, [validateForm, handleSendOrder, getAlreadyOrderedPrescriptions]);
 
   const handleClose = useCallback(() => {
-    onClose();
     setTimeout(() => {
       setShowSuccess(false);
+      setShowAlreadyOrderedConfirmation(false);
       setComments('');
-      setPrescriptions(initialPrescriptions);
+      onClose();
     }, 200);
-  }, [initialPrescriptions, onClose]);
+  }, [onClose]);
 
   const isFormValid = validateForm();
 
@@ -201,89 +418,234 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose }) => {
     [prescriptions, handleSelectRow],
   );
 
+  const mainTableColumns = useMemo(() => {
+    const columns = [
+      COLUMN_KEYS.SELECT,
+      COLUMN_KEYS.MEDICATION,
+      COLUMN_KEYS.DOSE,
+      COLUMN_KEYS.FREQUENCY,
+    ];
+    if (isDischargeOrOutpatient && !isOngoingMode) {
+      columns.push(COLUMN_KEYS.DURATION);
+    }
+    columns.push(COLUMN_KEYS.DATE, COLUMN_KEYS.LAST_SENT, COLUMN_KEYS.QUANTITY);
+    if (isDischargeOrOutpatient) {
+      columns.push(COLUMN_KEYS.REPEATS);
+    }
+    return columns;
+  }, [isDischargeOrOutpatient, isOngoingMode]);
+
   if (showSuccess) {
     return (
       <StyledModal
-        title={<TranslatedText stringId="pharmacyOrder.success.title" fallback="Order requested" />}
+        title={<TranslatedText stringId="pharmacyOrder.success.title" fallback="Request sent" />}
         open={open}
         onClose={handleClose}
+        $modalType={MODAL_TYPES.REQUEST_SENT}
       >
-        <SuccessContent>
-          <PharmacyIcon src={pharmacyIcon} alt="Pharmacy" />
-          <SuccessText>
+        <DialogContent>
+          <PharmacyIcon alt="Pharmacy" />
+          <DialogPrimaryText>
             <TranslatedText
               stringId="pharmacyOrder.success.message"
               fallback="Your order has been sent to pharmacy."
             />
-          </SuccessText>
-          <SuccessDescription>
+          </DialogPrimaryText>
+          <DialogSecondaryText>
             <TranslatedText
               stringId="pharmacyOrder.success.description"
               fallback="Please do not send additional requests for these item/s until the original request has been filled by pharmacy."
             />
-          </SuccessDescription>
-        </SuccessContent>
+          </DialogSecondaryText>
+        </DialogContent>
 
-        <ConfirmCancelRow
-          confirmText={
+        <SubmitButtonsWrapper>
+          <ConfirmCancelRow
+            confirmText={
+              <TranslatedText
+                stringId="general.action.close"
+                fallback="Close"
+                data-testid="translatedtext-close"
+              />
+            }
+            onConfirm={handleClose}
+            data-testid="confirmcancelrow-success"
+          />
+        </SubmitButtonsWrapper>
+      </StyledModal>
+    );
+  }
+
+  if (showAlreadyOrderedConfirmation) {
+    return (
+      <StyledModal
+        title={
+          <TranslatedText
+            stringId="pharmacyOrder.orderConfirmation.title"
+            fallback="Request confirmation"
+          />
+        }
+        open={open}
+        onClose={handleClose}
+        $modalType={MODAL_TYPES.REQUEST_CONFIRMATION}
+      >
+        <AlreadyOrderedContent>
+          <AlreadyOrderedPrimaryText>
+            {medicationAlreadyOrderedConfirmationTimeout === 1 ? (
+              <TranslatedText
+                stringId="pharmacyOrder.orderConfirmation.message.singleHour"
+                fallback="The above medications have already been sent within the past hour"
+              />
+            ) : (
+              <TranslatedText
+                stringId="pharmacyOrder.orderConfirmation.message.multipleHours"
+                fallback="The above medications have already been sent within the past :medicationAlreadyOrderedConfirmationTimeout hours"
+                replacements={{ medicationAlreadyOrderedConfirmationTimeout }}
+              />
+            )}
+          </AlreadyOrderedPrimaryText>
+          <AlreadyOrderedSecondaryText>
             <TranslatedText
-              stringId="general.action.close"
-              fallback="Close"
-              data-testid="translatedtext-close"
+              stringId="pharmacyOrder.orderConfirmation.secondaryMessage"
+              fallback="Please confirm that you would like to proceed with including these items in your order. Please click 'Back' if you would like to amend your order."
             />
-          }
-          onConfirm={handleClose}
-          data-testid="confirmcancelrow-success"
-        />
+          </AlreadyOrderedSecondaryText>
+        </AlreadyOrderedContent>
+
+        <AlreadyOrderedMedicationsWrapper>
+          <PharmacyOrderMedicationTable
+            data={getAlreadyOrderedPrescriptions()}
+            error={ isOngoingMode ? null : error}
+            isLoading={ isOngoingMode ? false : isLoading}
+            cellOnChange={cellOnChange}
+            handleSelectAll={handleSelectAll}
+            selectAllChecked={selectAllChecked}
+            columnsToInclude={[COLUMN_KEYS.MEDICATION, COLUMN_KEYS.DATE, COLUMN_KEYS.LAST_SENT]}
+          />
+        </AlreadyOrderedMedicationsWrapper>
+
+        <SubmitButtonsWrapper>
+          <ConfirmCancelBackRow
+            onBack={() => setShowAlreadyOrderedConfirmation(false)}
+            onCancel={handleClose}
+            onConfirm={handleSendOrder}
+            data-testid="confirmcancelrow-7g3j"
+          />
+        </SubmitButtonsWrapper>
       </StyledModal>
     );
   }
 
   return (
     <StyledModal
-      title={<TranslatedText stringId="pharmacyOrder.title" fallback="Pharmacy order" />}
+      title={<TranslatedText stringId="pharmacyOrder.title" fallback="Send to pharmacy" />}
       open={open}
       onClose={handleClose}
+      $modalType={MODAL_TYPES.SEND_TO_PHARMACY}
     >
-      <TranslatedText
-        stringId="pharmacyOrder.description"
-        fallback="Select the prescriptions you would like to send to pharmacy (via mSupply)"
-        data-testid="translatedtext-rnjt"
-      />
-      <OrderingClinicianWrapper data-testid="orderingclinicianwrapper-r57g">
-        <AutocompleteInput
-          infoTooltip={
-            <Box width="200px">
-              <TranslatedText
-                stringId="pharmacyOrder.orderingClinician.tooltip"
-                fallback="The clinician who is placing this pharmacy order"
-                data-testid="translatedtext-s7yn"
-              />
-            </Box>
+      <BodyText color={Colors.darkText} fontWeight={500}>
+        <TranslatedText
+          stringId={
+            isOngoingMode
+              ? 'pharmacyOrder.ongoing.description.base'
+              : 'pharmacyOrder.description.base'
           }
-          name="orderingClinicianId"
-          label={
-            <TranslatedText
-              stringId="pharmacyOrder.orderingClinician.label"
-              fallback="Ordering Clinician"
-              data-testid="translatedtext-aemx"
-            />
+          fallback={
+            isOngoingMode
+              ? 'Select the ongoing medications you would like to send to the pharmacy'
+              : 'Select the prescriptions you would like to send to the pharmacy'
           }
-          suggester={practitionerSuggester}
-          onChange={event => setOrderingClinicianId(event.target.value)}
-          value={orderingClinicianId}
-          required
-          data-testid="autocompleteinput-ampt"
+          data-testid="translatedtext-rnjt"
         />
-      </OrderingClinicianWrapper>
+        {sendViaMSupply && (
+          <>
+            {' '}
+            <TranslatedText
+              stringId="pharmacyOrder.description.viaMSupply"
+              fallback="(via mSupply)"
+              data-testid="translatedtext-qweq"
+            />
+          </>
+        )}
+      </BodyText>
+      <Box display="flex" justifyContent="space-between" alignItems="end">
+        <OrderingClinicianWrapper data-testid="orderingclinicianwrapper-r57g">
+          <AutocompleteInput
+            infoTooltip={
+              <Box width="150px">
+                <TranslatedText
+                  stringId="pharmacyOrder.orderingClinician.tooltip"
+                  fallback="The clinician who is placing the pharmacy order."
+                  data-testid="translatedtext-s7yn"
+                />
+              </Box>
+            }
+            name="orderingClinicianId"
+            label={
+              <TranslatedText
+                stringId="pharmacyOrder.orderingClinician.label"
+                fallback="Ordering clinician"
+                data-testid="translatedtext-aemx"
+              />
+            }
+            suggester={practitionerSuggester}
+            onChange={event => setOrderingClinicianId(event.target.value)}
+            value={orderingClinicianId}
+            required
+            data-testid="autocompleteinput-ampt"
+          />
+        </OrderingClinicianWrapper>
 
+        {!isOngoingMode && (
+          <PrescriptionTypeWrapper>
+            <PrescriptionTypeLabel>
+              <TranslatedText
+                stringId="pharmacyOrder.prescriptionType.label"
+                fallback="Prescription type"
+              />
+            </PrescriptionTypeLabel>
+            <StyledRadioGroup
+              name="pharmacy-prescription-type"
+              value={prescriptionType}
+              onChange={event => {
+                setPrescriptionType(event.target.value);
+              }}
+            >
+              <StyledFormControlLabel
+                value={PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT}
+                control={<Radio color="primary" size="small" />}
+                label={
+                  <TranslatedText
+                    stringId="pharmacyOrder.prescriptionType.outpatientDischarge"
+                    fallback="Outpatient/Discharge"
+                  />
+                }
+              />
+              <StyledFormControlLabel
+                value={PHARMACY_PRESCRIPTION_TYPES.INPATIENT}
+                control={<Radio color="primary" size="small" />}
+                label={
+                  <TranslatedText
+                    stringId="pharmacyOrder.prescriptionType.inpatient"
+                    fallback="Inpatient"
+                  />
+                }
+              />
+            </StyledRadioGroup>
+          </PrescriptionTypeWrapper>
+        )}
+      </Box>
       <PharmacyOrderMedicationTable
         data={tableData}
-        error={error}
-        isLoading={isLoading}
+        error={isOngoingMode ? null : error}
+        isLoading={isOngoingMode ? false : isLoading}
         cellOnChange={cellOnChange}
         handleSelectAll={handleSelectAll}
         selectAllChecked={selectAllChecked}
+        columnsToInclude={mainTableColumns}
+        isOngoingMode={isOngoingMode}
+        canEditRepeats={canEditRepeats}
+        disabledPrescriptionIds={prescriptions.filter(p => p.isSelectionDisabled).map(p => p.id)}
       />
 
       <CommentsWrapper>
@@ -306,33 +668,36 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose }) => {
         />
       </CommentsWrapper>
 
-      <HorizontalDivider color={Colors.outline} />
-
-      <ConfirmCancelRow
-        cancelText={
-          <TranslatedText
-            stringId="general.action.cancel"
-            fallback="Cancel"
-            data-testid="translatedtext-9xde"
-          />
-        }
-        confirmText={
-          <TranslatedText
-            stringId="pharmacyOrder.action.send"
-            fallback="Send"
-            data-testid="translatedtext-ojsa"
-          />
-        }
-        confirmDisabled={!isFormValid}
-        onConfirm={handleSendOrder}
-        onCancel={handleClose}
-        data-testid="confirmcancelrow-9lo1"
-      />
+      <SubmitButtonsWrapper>
+        <ConfirmCancelRow
+          confirmText={
+            <TranslatedText
+              stringId="pharmacyOrder.action.send"
+              fallback="Send"
+              data-testid="translatedtext-ojsa"
+            />
+          }
+          confirmDisabled={!isFormValid}
+          onConfirm={handleClickSend}
+          onCancel={handleClose}
+          data-testid="confirmcancelrow-9lo1"
+        />
+      </SubmitButtonsWrapper>
     </StyledModal>
   );
 });
 
 PharmacyOrderModal.propTypes = {
-  encounter: PropTypes.object.isRequired,
+  encounter: PropTypes.object,
+  patient: PropTypes.object,
+  ongoingPrescriptions: PropTypes.array,
+  open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+};
+
+PharmacyOrderModal.defaultProps = {
+  encounter: null,
+  patient: null,
+  ongoingPrescriptions: null,
 };

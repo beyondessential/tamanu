@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { subject } from '@casl/ability';
-import { NotFoundError } from '@tamanu/shared/errors';
+import { NotFoundError } from '@tamanu/errors';
 import { camelCaseProperties } from '@tamanu/utils/camelCaseProperties';
 import { Op } from 'sequelize';
 
@@ -65,6 +65,7 @@ patientProgramRegistrationConditions.get(
         recordId: {
           [Op.in]: conditionIds,
         },
+        migrationContext: null,
       },
       include: [
         {

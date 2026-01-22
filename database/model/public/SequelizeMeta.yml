@@ -8,6 +8,8 @@ sources:
         config:
           tags:
             - system
+          meta:
+            triggers: []
         columns:
           - name: name
             data_type: character varying(255)

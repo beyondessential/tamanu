@@ -4,16 +4,17 @@ import { startOfDay } from 'date-fns';
 import { omit, pick } from 'lodash';
 import queryString from 'query-string';
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import styled from 'styled-components';
 
 import { parseDate } from '@tamanu/utils/dateTime';
 import { MODIFY_REPEATING_APPOINTMENT_MODE } from '@tamanu/constants';
 
-import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
+import { PageContainer, TopBar } from '../../../components';
 import { CancelAppointmentModal } from '../../../components/Appointments/CancelModal/CancelAppointmentModal';
 import { OutpatientAppointmentDrawer } from '../../../components/Appointments/OutpatientsBookingForm/OutpatientAppointmentDrawer';
-import { Colors } from '../../../constants';
+import { Button, TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { OutpatientAppointmentsContextProvider } from '../../../contexts/OutpatientAppointments';
 import { DateSelector } from './DateSelector';
 import { GroupByAppointmentToggle } from './GroupAppointmentToggle';
@@ -104,16 +105,16 @@ export const OutpatientAppointmentsView = () => {
     }
   }, [location.search]);
 
-  const handleChangeDate = (event) => {
+  const handleChangeDate = event => {
     setSelectedDate(event.target.value);
   };
 
-  const handleOpenCancelModal = (appointment) => {
+  const handleOpenCancelModal = appointment => {
     setSelectedAppointment(appointment);
     setIsCancelModalOpen(true);
   };
 
-  const handleSelectAppointment = (appointment) => {
+  const handleSelectAppointment = appointment => {
     setSelectedAppointment(
       pick(appointment, [
         'id',
@@ -129,7 +130,7 @@ export const OutpatientAppointmentsView = () => {
     );
   };
 
-  const handleModifyAppointment = (appointment) => {
+  const handleModifyAppointment = appointment => {
     handleSelectAppointment(appointment);
     if (!appointment.schedule) {
       handleOpenDrawer();
@@ -139,7 +140,7 @@ export const OutpatientAppointmentsView = () => {
     setIsModifyModalOpen(true);
   };
 
-  const handleCreateFromExistingAppointment = (appointment) => {
+  const handleCreateFromExistingAppointment = appointment => {
     handleSelectAppointment(omit(appointment, ['id', 'schedule', 'startTime', 'endTime']));
     if (!appointment.schedule) {
       handleOpenDrawer();

@@ -12,18 +12,10 @@ import {
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { yupAttemptTransformToNumber } from '../utils';
 
-const requiredWhenConfiguredMandatory = (
-  getSetting,
-  getTranslation,
-  name,
-  baseType,
-  fallbackLabel, // this fallback label is a bit of a temporary workaround for now. Once the yup validation card is merged, validation text will all be handled through that work
-) => {
+const requiredWhenConfiguredMandatory = (getSetting, getTranslation, name, baseType) => {
   return baseType.when([], {
     is: () => !!getSetting(`fields.${name}.requiredPatientData`),
-    then: baseType.required(
-      `${getTranslation(`general.localisedField.${name}.label.short`, fallbackLabel)} is required`,
-    ),
+    then: baseType.required(getTranslation('validation.required.inline', '*Required')),
     otherwise: baseType,
   });
 };
@@ -85,7 +77,7 @@ export const getPatientDetailsValidation = (patientRegistryType, getSetting, get
         .translatedLabel(
           <TranslatedText
             stringId="general.localisedField.culturalName.label"
-            fallback="Cultural name"
+            fallback="Cultural/traditional name"
           />,
         ),
       'Cultural name',
@@ -102,7 +94,7 @@ export const getPatientDetailsValidation = (patientRegistryType, getSetting, get
     sex: yup
       .string()
       .oneOf(
-        Object.values(SEX_VALUES).filter((value) =>
+        Object.values(SEX_VALUES).filter(value =>
           getSetting('features.hideOtherSex') === true ? value !== SEX_VALUES.OTHER : true,
         ),
       )
@@ -125,7 +117,7 @@ export const getPatientDetailsValidation = (patientRegistryType, getSetting, get
 
     /* --- PATIENT BIRTH FIELDS START --- */
     birthFacilityId: yup.string().when('registeredBirthPlace', {
-      is: (value) => value === PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY,
+      is: value => value === PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY,
       then: requiredBirthFieldWhenConfiguredMandatory(
         getSetting,
         getTranslation,
@@ -795,16 +787,14 @@ export const getPatientDetailsValidation = (patientRegistryType, getSetting, get
 
   const validatedProperties = Object.keys(patientDetailsValidationSchema.describe().fields);
   const localisedFields = getSetting('fields');
-  const localisedPatientFields = Object.keys(localisedFields).filter((fieldName) =>
+  const localisedPatientFields = Object.keys(localisedFields).filter(fieldName =>
     Object.prototype.hasOwnProperty.call(localisedFields[fieldName], 'requiredPatientData'),
   );
 
   // Validate if any localised patient fields are missing schema validation,
   // so that we don't miss mandatory validation for any patient fields
   if (!isEqual(validatedProperties.sort(), localisedPatientFields.sort())) {
-    const differences = localisedPatientFields.filter(
-      (item) => !validatedProperties.includes(item),
-    );
+    const differences = localisedPatientFields.filter(item => !validatedProperties.includes(item));
 
     throw new Error(
       `Missing schema validation for these following localised patient fields: ${differences.toString()}`,

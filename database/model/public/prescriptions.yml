@@ -8,6 +8,12 @@ sources:
         description: "{{ doc('table__prescriptions') }}"
         config:
           tags: []
+          meta:
+            triggers:
+              - notify_prescriptions_changed
+              - record_prescriptions_changelog
+              - set_prescriptions_updated_at
+              - set_prescriptions_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -33,18 +39,33 @@ sources:
             description: "{{ doc('generic__date') }} in prescriptions."
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: date
           - name: notes
             data_type: character varying(255)
             description: "{{ doc('prescriptions__notes') }}"
+            config:
+              meta:
+                masking: text
           - name: end_date
             data_type: character(19)
             description: "{{ doc('prescriptions__end_date') }}"
+            config:
+              meta:
+                masking: date
           - name: indication
             data_type: character varying(255)
             description: "{{ doc('prescriptions__indication') }}"
+            config:
+              meta:
+                masking: text
           - name: route
             data_type: character varying(255)
             description: "{{ doc('prescriptions__route') }}"
+            config:
+              meta:
+                masking: text
           - name: medication_id
             data_type: character varying(255)
             description: "{{ doc('prescriptions__medication_id') }}"
@@ -69,12 +90,21 @@ sources:
           - name: discontinued_date
             data_type: character varying(255)
             description: "{{ doc('prescriptions__discontinued_date') }}"
+            config:
+              meta:
+                masking: date
           - name: date_legacy
             data_type: timestamp with time zone
             description: "{{ doc('generic__date_legacy') }} in prescriptions."
+            config:
+              meta:
+                masking: date
           - name: end_date_legacy
             data_type: timestamp with time zone
             description: "{{ doc('prescriptions__end_date_legacy') }}"
+            config:
+              meta:
+                masking: date
           - name: is_ongoing
             data_type: boolean
             description: "{{ doc('prescriptions__is_ongoing') }}"
@@ -102,6 +132,9 @@ sources:
             description: "{{ doc('prescriptions__start_date') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: date
           - name: duration_value
             data_type: numeric
             description: "{{ doc('prescriptions__duration_value') }}"
@@ -122,6 +155,9 @@ sources:
           - name: pharmacy_notes
             data_type: character varying(255)
             description: "{{ doc('prescriptions__pharmacy_notes') }}"
+            config:
+              meta:
+                masking: text
           - name: display_pharmacy_notes_in_mar
             data_type: boolean
             description: "{{ doc('prescriptions__display_pharmacy_notes_in_mar') }}"

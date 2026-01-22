@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - reference
+          meta:
+            triggers:
+              - notify_facilities_changed
+              - record_facilities_changelog
+              - set_facilities_updated_at
+              - set_facilities_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -58,19 +64,26 @@ sources:
             description: "{{ doc('generic__visibility_status') }} in facilities."
             data_tests:
               - accepted_values:
-                  values:
-                    - current
-                    - historical
+                  arguments:
+                    values:
+                      - current
+                      - historical
           - name: catchment_id
             data_type: text
             description: "{{ doc('facilities__catchment_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'catchment'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'catchment'
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in facilities."
+            data_tests:
+              - not_null
+          - name: is_sensitive
+            data_type: boolean
+            description: "{{ doc('facilities__is_sensitive') }}"
             data_tests:
               - not_null

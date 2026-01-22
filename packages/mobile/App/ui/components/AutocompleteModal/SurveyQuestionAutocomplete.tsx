@@ -4,7 +4,15 @@ import { useFacility } from '~/ui/contexts/FacilityContext';
 import { useBackend } from '~/ui/hooks';
 import { AutocompleteModalField } from './AutocompleteModalField';
 import { SurveyScreenConfig } from '~/types';
-import { getNameColumnForModel } from '~/ui/helpers/fields';
+
+function getNameColumnForModel(modelName: string): string {
+  switch (modelName) {
+    case 'User':
+      return 'displayName';
+    default:
+      return 'name';
+  }
+}
 
 const useFilterByResource = ({ source, scope }: SurveyScreenConfig): object => {
   const { facilityId } = useFacility();

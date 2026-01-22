@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - reference
+          meta:
+            triggers:
+              - notify_survey_screen_components_changed
+              - record_survey_screen_components_changelog
+              - set_survey_screen_components_updated_at
+              - set_survey_screen_components_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)

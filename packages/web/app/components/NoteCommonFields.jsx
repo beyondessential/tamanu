@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
-import Tooltip from '@material-ui/core/Tooltip';
-import { NOTE_TYPES, NOTE_TYPE_LABELS } from '@tamanu/constants';
+import { NOTE_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 import { Box } from '@material-ui/core';
 import { InfoCard, InfoCardItem } from './InfoCard';
 import {
@@ -10,17 +9,19 @@ import {
   AutocompleteInput,
   DateTimeField,
   Field,
-  TextField,
-  TranslatedSelectField,
   DateTimeInput,
-} from './Field';
+  TextField,
+  FormGrid,
+  SelectField,
+  ConditionalTooltip,
+  TranslatedReferenceData,
+} from '@tamanu/ui-components';
 
 import { useSuggester } from '../api';
 import { DateDisplay } from './DateDisplay';
-import { Colors } from '../constants';
-import { FormGrid } from './FormGrid';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useSettings } from '../contexts/Settings';
+import { useSuggestionsQuery } from '../api/queries/useSuggestionsQuery';
 
 export const StyledDivider = styled(Divider)`
   margin-top: 30px;
@@ -35,40 +36,27 @@ const StyledInfoCard = styled(InfoCard)`
   }
 `;
 
-const StyledTooltip = styled(props => (
-  <Tooltip classes={{ popper: props.className }} {...props} data-testid="tooltip-gupn">
-    {props.children}
-  </Tooltip>
-))`
-  z-index: 1500;
-
-  & .MuiTooltip-tooltip {
-    background-color: ${Colors.primaryDark};
-    color: ${Colors.white};
-    font-weight: 400;
-    font-size: 11px;
-    line-height: 15px;
-  }
-`;
-
 export const StyledFormGrid = styled(FormGrid)`
   margin-top: 20px;
   margin-bottom: 20px;
 `;
 
 const renderOptionLabel = ({ value, label }, noteTypeCountByType) => {
-  return value === NOTE_TYPES.TREATMENT_PLAN && noteTypeCountByType[NOTE_TYPES.TREATMENT_PLAN] ? (
-    <StyledTooltip
-      arrow
-      placement="top"
-      followCursor
-      title="This note type already exists for this encounter"
+  return (
+    <ConditionalTooltip
+      visible={
+        value === NOTE_TYPES.TREATMENT_PLAN && noteTypeCountByType?.[NOTE_TYPES.TREATMENT_PLAN]
+      }
+      title={
+        <TranslatedText
+          stringId="note.type.disabledTooltip"
+          fallback="This note type already exists for this encounter"
+        />
+      }
       data-testid="styledtooltip-tj9s"
     >
       <div>{label}</div>
-    </StyledTooltip>
-  ) : (
-    <div>{label}</div>
+    </ConditionalTooltip>
   );
 };
 
@@ -153,7 +141,7 @@ export const NoteDateTimeField = ({ required, disabled, size }) => {
   );
 };
 
-/* Very sensitive styling below, results in the text field being growable / shrinkable, 
+/* Very sensitive styling below, results in the text field being growable / shrinkable,
 and deals with in-field scrolling at small heights */
 
 const NoteContentBox = styled(Box)`
@@ -162,14 +150,19 @@ const NoteContentBox = styled(Box)`
   flex-direction: column;
   min-height: 0;
   margin-top: 1.2rem;
-  margin-bottom: 30px;
+`;
+
+const StyledField = styled(Field)`
+  &.MuiTextField-root {
+    min-height: ${props => `${props.$minHeight}px`};
+    padding-bottom: 12px;
+  }
 `;
 
 const fieldWrapperSx = {
   flex: 1,
   display: 'flex',
   flexDirection: 'column',
-  minHeight: 0,
 };
 
 const inputContainerSx = {
@@ -185,7 +178,7 @@ const textareaSx = {
   minHeight: 0,
   overflow: 'auto',
   width: '100%',
-  boxSizing: 'border-box',  
+  boxSizing: 'border-box',
 };
 
 export const NoteContentField = ({
@@ -198,27 +191,34 @@ export const NoteContentField = ({
   ),
   onChange,
   size,
-}) => (
-  <NoteContentBox>
-    <Field
-      name="content"
-      label={label}
-      required
-      component={TextField}
-      multiline
-      onChange={onChange}
-      style={fieldWrapperSx}
-      InputProps={{
-        style: inputContainerSx,
-      }}
-      inputProps={{
-        style: textareaSx,
-      }}
-      data-testid="field-wxzr"
-      size={size}
-    />
-  </NoteContentBox>
-);
+  isEditMode = false,
+  isTreatmentPlanNote = false,
+}) => {
+  const minHeight = isEditMode && isTreatmentPlanNote ? 378 : 460;
+
+  return (
+    <NoteContentBox>
+      <StyledField
+        $minHeight={minHeight}
+        name="content"
+        label={label}
+        required
+        component={TextField}
+        multiline
+        onChange={onChange}
+        style={fieldWrapperSx}
+        InputProps={{
+          style: inputContainerSx,
+        }}
+        inputProps={{
+          style: textareaSx,
+        }}
+        data-testid="field-wxzr"
+        size={size}
+      />
+    </NoteContentBox>
+  );
+};
 
 export const NoteInfoSection = ({
   noteType,
@@ -272,43 +272,61 @@ export const NoteInfoSection = ({
   </StyledInfoCard>
 );
 
-export const NoteTypeField = ({ required, noteTypeCountByType, onChange, size, disabled }) => (
-  <Field
-    name="noteType"
-    label={
-      <TranslatedText
-        stringId="note.type.label"
-        fallback="Type"
-        data-testid="translatedtext-43jz"
-      />
-    }
-    required={required}
-    component={TranslatedSelectField}
-    enumValues={NOTE_TYPE_LABELS}
-    transformOptions={types =>
-      types
-        .filter(option => !option.hideFromDropdown)
-        .map(option => ({
-          ...option,
-          isDisabled:
-            noteTypeCountByType &&
-            option.value === NOTE_TYPES.TREATMENT_PLAN &&
-            !!noteTypeCountByType[option.value],
-        }))
-    }
-    formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
-    onChange={onChange}
-    menuPosition="absolute"
-    menuPlacement="auto"
-    size={size}
-    disabled={disabled}
-    data-testid="field-a0mv"
-  />
-);
+export const NoteTypeField = ({
+  required,
+  noteTypeCountByType,
+  onChange,
+  size,
+  disabled,
+  $fontSize,
+}) => {
+  const { data: noteTypes = [] } = useSuggestionsQuery('noteType');
 
-export const NoteTemplateField = ({ noteType, onChangeTemplate, size, disabled }) => {
+  const noteTypeOptions = useMemo(() => {
+    return noteTypes
+      .filter(noteType => noteType.id !== NOTE_TYPES.SYSTEM)
+      .map(noteType => ({
+        value: noteType.id,
+        label: (
+          <TranslatedReferenceData
+            fallback={noteType.name}
+            value={noteType.id}
+            category={REFERENCE_TYPES.NOTE_TYPE}
+          />
+        ),
+        isDisabled:
+          noteType.id === NOTE_TYPES.TREATMENT_PLAN && !!noteTypeCountByType?.[noteType.id],
+      }));
+  }, [noteTypes]);
+
+  return (
+    <Field
+      name="noteTypeId"
+      label={
+        <TranslatedText
+          stringId="note.type.label"
+          fallback="Type"
+          data-testid="translatedtext-43jz"
+        />
+      }
+      required={required}
+      component={SelectField}
+      options={noteTypeOptions}
+      $fontSize={$fontSize}
+      formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
+      onChange={onChange}
+      menuPosition="absolute"
+      menuPlacement="auto"
+      size={size}
+      disabled={disabled}
+      data-testid="field-a0mv"
+    />
+  );
+};
+
+export const NoteTemplateField = ({ noteTypeId, onChangeTemplate, size, disabled }) => {
   const templateSuggester = useSuggester('template', {
-    baseQueryParameters: { type: noteType },
+    baseQueryParameters: { type: noteTypeId },
   });
 
   return (
@@ -324,7 +342,7 @@ export const NoteTemplateField = ({ noteType, onChangeTemplate, size, disabled }
       suggester={templateSuggester}
       component={AutocompleteField}
       onChange={e => onChangeTemplate(e.target.value)}
-      disabled={!noteType || disabled}
+      disabled={!noteTypeId || disabled}
       size={size}
       data-testid="field-ej08"
     />

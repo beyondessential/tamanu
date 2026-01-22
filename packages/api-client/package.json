@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/api-client",
-  "version": "2.38.0",
+  "version": "2.49.0",
   "private": true,
   "description": "API client for Tamanu Facility Server",
   "main": "dist/cjs/index.js",
@@ -20,9 +20,10 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "GPL-3.0-or-later",
   "scripts": {
-    "build": "npm run build:src && npm run build:cjs && dual-pkg dist/mjs dist/cjs",
+    "build": "npm run build:src && npm run build:cjs && npm run build:types && dual-pkg dist/mjs dist/cjs",
     "build:src": "swc --delete-dir-on-start --out-dir dist/mjs --copy-files --source-maps true src",
     "build:cjs": "npm run build:src -- --out-dir dist/cjs --config module.type=commonjs",
+    "build:types": "tsc --declaration --emitDeclarationOnly --noEmit false && move-dts src dist/cjs dist/mjs",
     "build-watch": "npm run build && concurrently \"npm run build:src -- --watch\" \"npm run build:cjs -- --watch\"",
     "clean": "rimraf dist",
     "clean:deps": "rimraf node_modules"
@@ -33,7 +34,9 @@
   },
   "dependencies": {
     "@tamanu/constants": "*",
+    "@tamanu/errors": "*",
     "@tamanu/shared": "*",
+    "jose": "^5.1.1",
     "qs": "^6.10.2"
   }
 }

@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - clinical
+          meta:
+            triggers:
+              - notify_lab_requests_changed
+              - record_lab_requests_changelog
+              - set_lab_requests_updated_at
+              - set_lab_requests_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -32,9 +38,15 @@ sources:
           - name: sample_time
             data_type: character(19)
             description: "{{ doc('lab_requests__sample_time') }}"
+            config:
+              meta:
+                masking: date
           - name: requested_date
             data_type: character(19)
             description: "{{ doc('lab_requests__requested_date') }}"
+            config:
+              meta:
+                masking: date
           - name: urgent
             data_type: boolean
             description: "{{ doc('lab_requests__urgent') }}"
@@ -46,18 +58,19 @@ sources:
             description: "{{ doc('lab_requests__status') }}"
             data_tests:
               - accepted_values:
-                  values:
-                    - reception_pending
-                    - results_pending
-                    - interim_results
-                    - to_be_verified
-                    - verified
-                    - published
-                    - cancelled
-                    - invalidated
-                    - deleted
-                    - sample-not-collected
-                    - entered-in-error
+                  arguments:
+                    values:
+                      - reception_pending
+                      - results_pending
+                      - interim_results
+                      - to_be_verified
+                      - verified
+                      - published
+                      - cancelled
+                      - invalidated
+                      - deleted
+                      - sample-not-collected
+                      - entered-in-error
           - name: senaite_id
             data_type: character varying(255)
             description: "{{ doc('lab_requests__senaite_id') }}"
@@ -69,22 +82,25 @@ sources:
             description: "{{ doc('lab_requests__requested_by_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: encounter_id
             data_type: character varying(255)
             description: "{{ doc('lab_requests__encounter_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'encounters')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'encounters')
+                    field: id
           - name: lab_test_category_id
             data_type: character varying(255)
             description: "{{ doc('lab_requests__lab_test_category_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
                   to_condition: type = 'labTestCategory'
           - name: display_id
             data_type: character varying(255)
@@ -96,23 +112,31 @@ sources:
             description: "{{ doc('lab_requests__lab_test_priority_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'labTestPriority'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'labTestPriority'
           - name: lab_test_laboratory_id
             data_type: character varying(255)
             description: "{{ doc('lab_requests__lab_test_laboratory_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'labTestLaboratory'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'labTestLaboratory'
           - name: sample_time_legacy
             data_type: timestamp with time zone
             description: "{{ doc('lab_requests__sample_time_legacy') }}"
+            config:
+              meta:
+                masking: date
           - name: requested_date_legacy
             data_type: timestamp with time zone
             description: "{{ doc('lab_requests__requested_date_legacy') }}"
+            config:
+              meta:
+                masking: date
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in lab_requests."
@@ -123,50 +147,62 @@ sources:
             description: "{{ doc('lab_requests__reason_for_cancellation') }}"
             data_tests:
               - accepted_values:
-                  values:
-                    - clinical
-                    - duplicate
-                    - entered-in-error
-                    - other
-                    - patient-discharged
-                    - patient-refused
+                  arguments:
+                    values:
+                      - clinical
+                      - duplicate
+                      - entered-in-error
+                      - other
+                      - patient-discharged
+                      - patient-refused
           - name: published_date
             data_type: character(19)
             description: "{{ doc('lab_requests__published_date') }}"
+            config:
+              meta:
+                masking: date
           - name: department_id
             data_type: character varying(255)
             description: "{{ doc('lab_requests__department_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'departments')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'departments')
+                    field: id
           - name: lab_test_panel_request_id
             data_type: uuid
             description: "{{ doc('lab_requests__lab_test_panel_request_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'lab_test_panel_requests')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'lab_test_panel_requests')
+                    field: id
           - name: lab_sample_site_id
             data_type: character varying(255)
             description: "{{ doc('lab_requests__lab_sample_site_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'labSampleSite'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'labSampleSite'
           - name: specimen_type_id
             data_type: character varying(255)
             description: "{{ doc('lab_requests__specimen_type_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'specimenType'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'specimenType'
           - name: collected_by_id
             data_type: character varying(255)
             description: "{{ doc('lab_requests__collected_by_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
+          - name: results_interpretation
+            data_type: text
+            description: "{{ doc('lab_requests__results_interpretation') }}"

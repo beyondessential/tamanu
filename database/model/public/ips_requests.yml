@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - clinical
+          meta:
+            triggers:
+              - notify_ips_requests_changed
+              - record_ips_requests_changelog
+              - set_ips_requests_updated_at
+              - set_ips_requests_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -39,6 +45,10 @@ sources:
             description: "{{ doc('ips_requests__created_by') }}"
             data_tests:
               - not_null
+              - relationships:
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: status
             data_type: character varying(255)
             description: "{{ doc('ips_requests__status') }}"
@@ -49,6 +59,9 @@ sources:
             description: "{{ doc('ips_requests__email') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: email
           - name: error
             data_type: text
             description: "{{ doc('ips_requests__error') }}"

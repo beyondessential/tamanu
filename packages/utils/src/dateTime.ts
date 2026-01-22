@@ -44,6 +44,9 @@ export const isISOString = (dateString: string) =>
 export const parseDate = (date: string | Date | null | undefined) => {
   if (date == null) return null;
 
+  // Handle empty strings
+  if (typeof date === 'string' && date.trim() === '') return null;
+
   const dateObj =
     typeof date === 'string'
       ? isISOString(date)
@@ -296,32 +299,49 @@ export const isStartOfThisWeek = (date: Date | number) => {
 };
 
 // Custom validator for "YYYY-MM-DD" format
-export const dateCustomValidation = z.string().refine(
-  (val: string) => {
-    const regex = /^\d{4}-\d{2}-\d{2}$/;
-    if (!regex.test(val)) return false;
+export const dateCustomValidation = z
+  .string()
+  .refine(
+    (val: string) => {
+      const regex = /^\d{4}-\d{2}-\d{2}$/;
+      if (!regex.test(val)) return false;
 
-    const date = new Date(val);
-    return isValid(date);
+      const date = new Date(val);
+      return isValid(date);
+    },
+    {
+      message: 'Invalid date format, expected YYYY-MM-DD',
+    },
+  )
+  .describe('__dateCustomValidation__');
+
+export const timeCustomValidation = z.string().refine(
+  (val: string) => {
+    const regex = /^\d{2}:\d{2}:\d{2}$/;
+    if (!regex.test(val)) return false;
+    return true;
   },
   {
-    message: 'Invalid date format, expected YYYY-MM-DD',
+    message: 'Invalid time format, expected HH:MM:SS',
   },
 );
 
 // Custom validator for "YYYY-MM-DD HH:MM:SS" format
-export const datetimeCustomValidation = z.string().refine(
-  (val: string) => {
-    const regex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
-    if (!regex.test(val)) return false;
+export const datetimeCustomValidation = z
+  .string()
+  .refine(
+    (val: string) => {
+      const regex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
+      if (!regex.test(val)) return false;
 
-    const date = new Date(val);
-    return isValid(date);
-  },
-  {
-    message: 'Invalid datetime format, expected YYYY-MM-DD HH:MM:SS',
-  },
-);
+      const date = new Date(val);
+      return isValid(date);
+    },
+    {
+      message: 'Invalid datetime format, expected YYYY-MM-DD HH:MM:SS',
+    },
+  )
+  .describe('__datetimeCustomValidation__');
 
 export const endpointsOfDay = (date: Date | number) => [startOfDay(date), endOfDay(date)];
 

@@ -20,7 +20,7 @@ import { User } from './User';
 import { AdministeredVaccine } from './AdministeredVaccine';
 import { SurveyResponse } from './SurveyResponse';
 import { Vitals } from './Vitals';
-import { formatDateForQuery } from '~/infra/db/helpers';
+import { formatDateForQuery } from '~/infra/db/formatDateForQuery';
 import { SummaryInfo } from '~/ui/navigation/screens/home/Tabs/PatientHome/ReportScreen/SummaryBoard';
 import { Department } from './Department';
 import { Location } from './Location';
@@ -34,6 +34,7 @@ import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { DateTimeStringColumn } from './DateColumns';
 import { Note } from './Note';
 import { EncounterPrescription } from './EncounterPrescription';
+import { Task } from './Task';
 
 const TIME_OFFSET = 3;
 
@@ -121,6 +122,9 @@ export class Encounter extends BaseModel implements IEncounter {
 
   @OneToMany(() => Vitals, ({ encounter }) => encounter)
   vitals: Vitals[];
+
+  @OneToMany(() => Task, task => task.encounter)
+  tasks: Task[];
 
   @BeforeInsert()
   async markPatientForSync(): Promise<void> {

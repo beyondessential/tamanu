@@ -116,7 +116,7 @@ describe('VDS-NC: Document cryptography', () => {
 
     const azVaxDrug = await ReferenceData.create({
       ...fake(ReferenceData),
-      type: 'vaccine',
+      type: 'drug',
       name: 'ChAdOx1-S',
     });
 

@@ -1,3 +1,6 @@
+// Please keep in sync with:
+// - mobile/App/constants/patientFields.ts
+
 export const PATIENT_FIELD_DEFINITION_TYPES = {
   STRING: 'string',
   NUMBER: 'number',

@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - reference
+          meta:
+            triggers:
+              - notify_program_registries_changed
+              - record_program_registries_changelog
+              - set_program_registries_updated_at
+              - set_program_registries_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -46,9 +52,10 @@ sources:
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - village
-                    - facility
+                  arguments:
+                    values:
+                      - village
+                      - facility
           - name: visibility_status
             data_type: text
             description: "{{ doc('generic__visibility_status') }} in program_registries."

@@ -5,7 +5,7 @@ import { singularize } from 'inflection';
 import { camelCase, lowerCase } from 'lodash';
 import { Sequelize } from 'sequelize';
 
-import { OTHER_REFERENCE_TYPES, PROGRAM_REGISTRY_REFERENCE_TYPES } from '@tamanu/constants';
+import { OTHER_REFERENCE_TYPES, PROGRAM_REFERENCE_TYPES } from '@tamanu/constants';
 import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { log } from '@tamanu/shared/services/logging/log';
@@ -19,39 +19,40 @@ const normMapping = {
   vaccineSchedule: OTHER_REFERENCE_TYPES.SCHEDULED_VACCINE,
   procedure: 'procedureType',
   // This is needed to handle the way we are exporting that data
-  patientFieldDefCategory: OTHER_REFERENCE_TYPES.PATIENT_FIELD_DEFININION_CATEGORY,
+  patientFieldDefCategory: OTHER_REFERENCE_TYPES.PATIENT_FIELD_DEFINITION_CATEGORY,
+  invoiceInsuranceItem: OTHER_REFERENCE_TYPES.INVOICE_INSURANCE_PLAN_ITEM,
   // We need mapping for program registry imports because program registry data is imported in the
   // worksheet sheets called registry and registryCondition but the full model names
   // are ProgramRegistry and ProgramRegistryCondition which are used everywhere else.
   // ProgramRegistryClinicalStatus is imported in the registry sheet so it doesn't need a mapping here
-  registry: OTHER_REFERENCE_TYPES.PROGRAM_REGISTRY,
-  registryCondition: PROGRAM_REGISTRY_REFERENCE_TYPES.PROGRAM_REGISTRY_CONDITION,
-  registryConditionCategories: PROGRAM_REGISTRY_REFERENCE_TYPES.PROGRAM_REGISTRY_CONDITION_CATEGORY,
+  registry: PROGRAM_REFERENCE_TYPES.PROGRAM_REGISTRY,
+  registryCondition: PROGRAM_REFERENCE_TYPES.PROGRAM_REGISTRY_CONDITION,
+  registryConditionCategories: PROGRAM_REFERENCE_TYPES.PROGRAM_REGISTRY_CONDITION_CATEGORY,
 };
 
 export function normaliseSheetName(name, modelName) {
   const norm = camelCase(
     lowerCase(name)
       .split(/\s+/)
-      .map((word) => singularize(word))
+      .map(word => singularize(word))
       .join(' '),
   );
 
   // Exceptions where the sheet name for the program/survey/etc is not consistent with the model name
   if (modelName === 'ProgramRegistryClinicalStatus') {
-    return PROGRAM_REGISTRY_REFERENCE_TYPES.PROGRAM_REGISTRY_CLINICAL_STATUS;
+    return PROGRAM_REFERENCE_TYPES.PROGRAM_REGISTRY_CLINICAL_STATUS;
   }
   if (modelName === 'ProgramDataElement') {
-    return OTHER_REFERENCE_TYPES.PROGRAM_DATA_ELEMENT;
+    return PROGRAM_REFERENCE_TYPES.PROGRAM_DATA_ELEMENT;
   }
   if (modelName === 'SurveyScreenComponent') {
-    return OTHER_REFERENCE_TYPES.SURVEY_SCREEN_COMPONENT;
+    return PROGRAM_REFERENCE_TYPES.SURVEY_SCREEN_COMPONENT;
   }
   if (modelName === 'Program') {
-    return OTHER_REFERENCE_TYPES.PROGRAM;
+    return PROGRAM_REFERENCE_TYPES.PROGRAM;
   }
   if (modelName === 'Survey') {
-    return OTHER_REFERENCE_TYPES.SURVEY;
+    return PROGRAM_REFERENCE_TYPES.SURVEY;
   }
 
   return normMapping[norm] || norm;
@@ -77,7 +78,7 @@ export async function importerTransaction({
         // strongest level to be sure to read/write good data
         isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
       },
-      async (transaction) => {
+      async transaction => {
         // acquire a lock on the sync time row in the local system facts table, so that all imported
         // changes have the same updated_at_sync_tick, and no sync pull snapshot can start while this
         // import is still in progress
@@ -162,11 +163,11 @@ export function createDataImporterEndpoint(importer) {
     // we don't need the file any more
     if (deleteFileAfterImport) {
       // eslint-disable-next-line no-unused-vars
-      await fs.unlink(file).catch((ignore) => {});
+      await fs.unlink(file).catch(ignore => {});
     }
 
     result.errors =
-      result.errors?.map((err) =>
+      result.errors?.map(err =>
         (err instanceof Error || typeof err === 'string') && !(err instanceof DataImportError)
           ? new DataImportError('(general)', -3, err)
           : err,

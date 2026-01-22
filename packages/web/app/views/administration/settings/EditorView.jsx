@@ -6,13 +6,11 @@ import { Box, Divider } from '@material-ui/core';
 import { getScopedSchema, isSetting } from '@tamanu/settings';
 
 import {
-  Button,
   DynamicSelectField,
-  OutlinedButton,
-  SelectInput,
   TranslatedText,
 } from '../../../components';
-import { Colors } from '../../../constants';
+import { SelectInput, OutlinedButton, Button } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { Category } from './components/Category';
 
 const SettingsWrapper = styled.div`
@@ -129,6 +127,7 @@ export const EditorView = memo(
     handleShowWarningModal,
     scope,
   }) => {
+    const { facilityId } = values;
     const [category, setCategory] = useState(null);
     const [subCategory, setSubCategory] = useState(null);
 
@@ -260,6 +259,7 @@ export const EditorView = memo(
                 schema={schemaForCategory}
                 getSettingValue={getSettingValue}
                 handleChangeSetting={handleChangeSetting}
+                facilityId={facilityId}
                 data-testid="category-cbjk"
               />
             </CategoriesWrapper>

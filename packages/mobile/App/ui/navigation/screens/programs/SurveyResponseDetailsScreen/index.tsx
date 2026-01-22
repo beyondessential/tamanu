@@ -1,7 +1,6 @@
 import React, { ReactElement, useCallback } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
-import { camelCase } from 'lodash';
 import { FullView, StyledText, StyledView } from '../../../../styled/common';
 import { theme } from '../../../../styled/theme';
 
@@ -14,36 +13,61 @@ import { SurveyAnswerResult } from '../../../../components/SurveyAnswerResult';
 import { ViewPhotoLink } from '../../../../components/ViewPhotoLink';
 import { LoadingScreen } from '../../../../components/LoadingScreen';
 import { useBackendEffect } from '../../../../hooks';
-import { TranslatedReferenceData } from '/components/Translations/TranslatedReferenceData';
+import { PatientDataDisplayField } from '~/ui/components/PatientDataDisplayField/PatientDataDisplayField';
+import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { SurveyResponseLink } from '~/ui/components/SurveyResponseLink';
+import { Routes } from '~/ui/helpers/routes';
 
-const BackendAnswer = ({ question, answer }): ReactElement => {
-  const config = JSON.parse(question.config);
-  const [refData, error] = useBackendEffect(
-    ({ models }) => models[config.source].getRepository().findOne({ where: { id: answer } }),
-    [question, answer],
+const SurveyLinkAnswer = ({ answer }): ReactElement => {
+  const [surveyResponse, error] = useBackendEffect(
+    async ({ models }) => {
+      return models.SurveyResponse.getFullResponse(answer);
+    },
+    [answer],
   );
-  if (!refData) {
-    return null;
+  if (error) {
+    return <StyledText>{error.message}</StyledText>;
+  }
+  return (
+    <SurveyResponseLink
+      surveyResponse={surveyResponse}
+      detailsRouteName={Routes.HomeStack.ReferralStack.ViewHistory.SurveyResponseDetailsScreen}
+    />
+  );
+};
+
+const AutocompleteAnswer = ({ config, answer }): ReactElement => {
+  const { getEnumTranslation, getReferenceDataTranslation } = useTranslation();
+  const parsedConfig = JSON.parse(config);
+  const [record, error] = useBackendEffect(
+    ({ models }) => models[parsedConfig.source].getRepository().findOne({ where: { id: answer } }),
+    [config, answer],
+  );
+  if (!record) {
+    return <StyledText>{answer}</StyledText>;
   }
   if (error) {
     console.error(error);
     return <StyledText>{error.message}</StyledText>;
   }
-
-  const displayName = getDisplayNameForModel(config.source, refData);
-  const category = camelCase(config.source);
+  const displayName = getDisplayNameForModel({
+    modelName: parsedConfig.source,
+    record: record,
+    getReferenceDataTranslation,
+    getEnumTranslation,
+  });
 
   return (
     <StyledText textAlign="right" color={theme.colors.TEXT_DARK}>
-      <TranslatedReferenceData fallback={displayName} value={answer} category={category} />
+      {displayName}
     </StyledText>
   );
 };
 
-function getAnswerText(question, answer): string | number {
+function getAnswerText(type, answer): string | number {
   if (answer === null || answer === undefined) return 'N/A';
 
-  switch (question.dataElement.type) {
+  switch (type) {
     case FieldTypes.NUMBER:
     case FieldTypes.MULTILINE:
       return answer;
@@ -55,7 +79,6 @@ function getAnswerText(question, answer): string | number {
     case FieldTypes.RADIO:
     case FieldTypes.CONDITION:
     case FieldTypes.USER_DATA:
-    case FieldTypes.PATIENT_DATA:
       return answer || 'N/A';
     case FieldTypes.BINARY:
     case FieldTypes.CHECKBOX:
@@ -72,53 +95,31 @@ function getAnswerText(question, answer): string | number {
     case FieldTypes.GEOLOCATE:
       return answer || 'N/A';
     default:
-      console.warn(`Unknown field type: ${question.dataElement.type}`);
-      return `?? ${question.dataElement.type}`;
+      console.warn(`Unknown field type: ${type}`);
+      return `?? ${type}`;
   }
 }
 
-const isFromBackend = ({ config, dataElement }): Boolean => {
-  // all autocompletes have answers connected to the backend
-  if (dataElement.type === FieldTypes.AUTOCOMPLETE) {
-    return true;
-  }
+export const renderAnswer = ({ type, config, answer }): ReactElement => {
+  if (!answer) return answer;
 
-  // PatientData has some special cases
-  // see getComponentForQuestionType in web/app/utils/survey.jsx for source of the following logic
-  if (dataElement.type === FieldTypes.PATIENT_DATA) {
-    const configObject = config && JSON.parse(config);
-
-    // PatientData specifically can overwrite field type if we are writing back to patient record
-    if (configObject?.writeToPatient?.fieldType === 'Autocomplete') {
-      return true;
-    }
-
-    // if config has a "source", we're displaying a relation, so need to fetch the data from the
-    // backend (otherwise the bare id will be displayed)
-    if (configObject?.source) {
-      return true;
-    }
-  }
-
-  return false;
-};
-
-export const renderAnswer = (question, answer): ReactElement => {
-  if (isFromBackend(question)) {
-    return <BackendAnswer question={question} answer={answer} />;
-  }
-
-  switch (question.dataElement.type) {
+  switch (type) {
     case FieldTypes.RESULT:
       return <SurveyResultBadge resultText={answer} />;
     case FieldTypes.PHOTO:
       return <ViewPhotoLink imageId={answer} />;
+    case FieldTypes.PATIENT_DATA:
+      return <PatientDataDisplayField value={answer} config={JSON.parse(config)} />;
+    case FieldTypes.AUTOCOMPLETE:
+      return <AutocompleteAnswer config={config} answer={answer} />;
     case FieldTypes.SURVEY_ANSWER:
-      return <SurveyAnswerResult question={question} answer={answer} />;
+      return <SurveyAnswerResult config={config} answer={answer} />;
+    case FieldTypes.SURVEY_LINK:
+      return <SurveyLinkAnswer answer={answer} />;
     default:
       return (
         <StyledText textAlign="right" color={theme.colors.TEXT_DARK}>
-          {getAnswerText(question, answer)}
+          {getAnswerText(type, answer)}
         </StyledText>
       );
   }
@@ -142,7 +143,7 @@ const AnswerItem = ({ question, answer, index }): ReactElement => (
       </StyledText>
     </StyledView>
     <StyledView alignItems="flex-end" justifyContent="center" maxWidth="60%">
-      {renderAnswer(question, answer)}
+      {renderAnswer({ type: question.dataElement.type, config: question.config, answer })}
     </StyledView>
   </StyledView>
 );
@@ -173,7 +174,7 @@ export const SurveyResponseDetailsScreen = ({ route }): ReactElement => {
   const { patient } = encounter;
 
   const attachAnswer = (q): { answer: string; question: any } | null => {
-    const answerObject = answers.find((a) => a.dataElement.id === q.dataElement.id);
+    const answerObject = answers.find(a => a.dataElement.id === q.dataElement.id);
     return {
       question: q,
       answer: (answerObject || null) && answerObject.body,
@@ -185,9 +186,9 @@ export const SurveyResponseDetailsScreen = ({ route }): ReactElement => {
   );
 
   const answerItems = questions
-    .filter((q) => q.dataElement.name)
+    .filter(q => q.dataElement.name)
     .map(attachAnswer)
-    .filter((q) => q.answer !== null && q.answer !== '')
+    .filter(q => q.answer !== null && q.answer !== '')
     .map(questionToAnswerItem);
 
   return (

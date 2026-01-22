@@ -1,5 +1,6 @@
 {
   "port": 3000,
+  "deviceId": null,
   // this should be set to the external address of the server, e.g. "https://central.main.cd.tamanu.app"
   "canonicalHostName": "http://localhost:3000",
   "db": {
@@ -36,10 +37,17 @@
       }
     }
   },
+  debugging: {
+    // set a `tamanu-debug` header on a request with the value of this key
+    // and the errors will get stack traces.
+    apiErrorsToken: false,
+  },
   "metaServer": {
-    "host": "https://meta.tamanu.app",
+    "hosts": [
+      "https://meta.tamanu.app",
+    ],
     "serverId": null,
-    "timeoutMs": 20000
+    "timeoutMs": 20000,
   },
   "updateUrls": {
     "mobile": "https://meta.tamanu.app/versions/~{minVersion}/mobile",
@@ -49,13 +57,6 @@
     "consoleLevel": "http",
     "color": true,
     "timeless": false,
-  },
-  "honeycomb": {
-    "apiKey": "",
-    "sampleRate": 100, // 100 = 1/100 = 1% of traces get sent to honeycomb
-    // in contrast, logs are always sent
-    "enabled": true,
-    "level": "info"
   },
   errors: {
     // enable to send errors to a bug tracking service
@@ -178,6 +179,12 @@
       "batchSize": 100,
       "batchSleepAsyncDurationInMilliseconds": 50
     },
+    "portalCommunicationProcessor": {
+      // every 30seconds /!\
+      "schedule": "*/30 * * * * *",
+      "batchSize": 100,
+      "batchSleepAsyncDurationInMilliseconds": 50
+    },
     "deceasedPatientDischarger": {
       // once an hour
       "schedule": "29 * * * *",
@@ -212,6 +219,10 @@
     },
     "signerWorkingPeriodChecker": {
       "schedule": "0 1 * * *"
+    },
+    "dhis2IntegrationProcessor": {
+      "enabled": false,
+      "schedule": "0 2 * * *"
     },
     "automaticLabTestResultPublisher": {
       "enabled": false,
@@ -278,10 +289,18 @@
       "enabled": true,
       // every minute
       "schedule": "* * * * *",
+      jitterTime: "30s",
     },
     "medicationDiscontinuer": {
       // every hour
       "schedule": "0 * * * *",
+    },
+    "autoDeleteMedicationRequests": {
+      "enabled": true,
+      // every 6 hours
+      "schedule": "0 */6 * * *",
+      "batchSize": 100,
+      "batchSleepAsyncDurationInMilliseconds": 50
     },
   },
   "integrations": {
@@ -356,7 +375,8 @@
           "Organization": false,
           "Practitioner": false,
           "ServiceRequest": false,
-          "Specimen": false
+          "Specimen": false,
+          "MedicationRequest": false
         }
       },
       "parameters": {
@@ -374,9 +394,14 @@
     "omniLab": {
       "enabled": false,
       // Must be set to a random value, and the value must be saved somewhere (at BES we use lastpass)
-      // New keys may be issued by running `node dist apiKeys issue fhirIntegration <email> -e '100 years'
+      // New keys may be issued by running `npx node dist apiKeys issue fhirIntegration <email> -e '100 years'`
       // If this is changed, all API keys using this secret will be revoked and must be reissued
       "secret": null
+    },
+    "dhis2": {
+      "enabled": false,
+      "username": "",
+      "password": ""
     }
   },
   // on the central-server, don't read these values from config!
@@ -431,6 +456,10 @@
       "labRequestDisplayId": "http://tamanu.io/data-dictionary/labrequest-reference-number.html",
       "areaExternalCode": "http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html",
       "encounterClass": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+      "pharmacyOrderPrescriptionId": "http://data-dictionary.tamanu.org/tamanu-mrid-pharmacyorderprescription.html",
+      "pharmacyOrderId": "http://data-dictionary.tamanu.org/tamanu-mrid-pharmacyorder.html",
+      "medicationCodeSystem": "http://data-dictionary.tamanu.org/tamanu-msupplyuniveralcodes.html",
+      "medicationRouteCodeSystem": "http://data-dictionary.tamanu.org/tamanu-medicationroutecodes.html",
       "serviceRequestImagingDisplayId": "http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html",
       "serviceRequestImagingId": "http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html",
       "serviceRequestImagingTypeCodeSystem": "http://tamanu.io/data-dictionary/imaging-type-code.html",
@@ -518,4 +547,9 @@
   "medicationAdministrationRecord": {
     "upcomingRecordsShouldBeGeneratedTimeFrame": 72, // hours
   },
+  "patientPortal": {
+    "tokenDuration": "24h",
+    "loginTokenDurationMinutes": 20,
+    "registerTokenDurationMinutes": 43800 // 1 month
+  }
 }

@@ -51,8 +51,8 @@ export async function createPatientViaApi(allPatientsPage: AllPatientsPage) {
       patientRegistryType: 'new_patient',
       registeredById: userData.id,
       sex: patientData.gender,
-      villageId:testData.VillageID,
-      culturalName: patientData.culturalName
+      villageId: testData.villageID,
+      culturalName: patientData.culturalName,
     }),
   });
 
@@ -85,7 +85,7 @@ export async function getCurrentUser(token: string) {
 }
 
 export async function getItemFromLocalStorage(allPatientsPage: AllPatientsPage, item: string) {
-  const response = await allPatientsPage.page.evaluate((key) => {
+  const response = await allPatientsPage.page.evaluate(key => {
     return localStorage.getItem(key);
   }, item);
 

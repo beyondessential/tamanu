@@ -1,7 +1,6 @@
 import { Brackets, FindManyOptions, ObjectLiteral } from 'typeorm';
 
 import { ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
-
 import { BaseModel } from '~/models/BaseModel';
 import { VisibilityStatus } from '~/visibilityStatuses';
 
@@ -123,7 +122,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
       let query = this.model.getRepository().createQueryBuilder('entity');
 
       if (relations) {
-        relations.forEach((relation) => {
+        relations.forEach(relation => {
           query = query.leftJoinAndSelect(`entity.${relation}`, relation);
         });
       }
@@ -134,7 +133,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
         .addSelect(`COALESCE(translation.text, entity.${column})`, 'entity_display_label');
 
       query = query.where(
-        new Brackets((qb) => {
+        new Brackets(qb => {
           if (search) {
             qb.where('entity_display_label LIKE :search', { search: `%${search}%` });
           }
@@ -148,7 +147,7 @@ export class Suggester<ModelType extends BaseModelSubclass> {
       // Add visibility status filtering if the model has a visibilityStatus column
       const hasVisibilityStatus = this.model
         .getRepository()
-        .metadata.columns.find((col) => col.propertyName === 'visibilityStatus');
+        .metadata.columns.find(col => col.propertyName === 'visibilityStatus');
       if (hasVisibilityStatus) {
         query = query.andWhere('entity.visibilityStatus = :visibilityStatus', {
           visibilityStatus: VisibilityStatus.Current,

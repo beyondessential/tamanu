@@ -92,6 +92,15 @@ export function getAgeWithMonthsFromDate(date: string): string {
   return `${years} year${yearPlural}, ${months} month${monthPlural}`;
 }
 
+export const toDateTimeString = (date: string | Date | null | undefined) => {
+  if (date == null) return null;
+
+  const dateObj = parseDate(date);
+  if (!dateObj) return null;
+
+  return formatISO9075(dateObj, { representation: 'complete' });
+};
+
 export function formatStringDate(date: string, dateFormat: string): string {
   if (!date) {
     return '';

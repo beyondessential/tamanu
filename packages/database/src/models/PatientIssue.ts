@@ -39,7 +39,7 @@ export class PatientIssue extends Model {
     this.belongsTo(models.Patient, { foreignKey: 'patientId' });
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return buildPatientLinkedLookupFilter(this);
   }
 

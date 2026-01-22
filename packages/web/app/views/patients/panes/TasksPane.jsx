@@ -1,10 +1,12 @@
+import { Button, TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { omit } from 'lodash';
 import { Box } from '@material-ui/core';
 import { TASK_STATUSES } from '@tamanu/constants';
-import { Colors } from '../../../constants';
-import { AutocompleteInput, Button, CheckInput, TranslatedText } from '../../../components';
+
+import { AutocompleteInput, CheckInput } from '../../../components';
 import { useSuggester } from '../../../api';
 import { TasksTable } from '../../../components/Tasks/TasksTable';
 import { TaskModal } from '../../../components/Tasks/TaskModal';

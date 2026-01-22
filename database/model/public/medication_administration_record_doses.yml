@@ -8,6 +8,12 @@ sources:
         description: "{{ doc('table__medication_administration_record_doses') }}"
         config:
           tags: []
+          meta:
+            triggers:
+              - notify_medication_administration_record_doses_changed
+              - record_medication_administration_record_doses_changelog
+              - set_medication_administration_record_doses_updated_at
+              - set_medication_administration_record_doses_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid
@@ -25,6 +31,9 @@ sources:
             description: "{{ doc('medication_administration_record_doses__given_time') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: datetime
           - name: given_by_user_id
             data_type: character varying(255)
             description: "{{ doc('medication_administration_record_doses__given_by_user_id') }}"
@@ -64,6 +73,9 @@ sources:
           - name: reason_for_removal
             data_type: character varying(255)
             description: "{{ doc('medication_administration_record_doses__reason_for_removal') }}"
+            config:
+              meta:
+                masking: text
           - name: dose_index
             data_type: integer
             description: "{{ doc('medication_administration_record_doses__dose_index') }}"
@@ -72,3 +84,6 @@ sources:
           - name: reason_for_change
             data_type: character varying(255)
             description: "{{ doc('medication_administration_record_doses__reason_for_change') }}"
+            config:
+              meta:
+                masking: text

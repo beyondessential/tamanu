@@ -1,6 +1,16 @@
 // for explanation of types, see
 // https://docs.google.com/spreadsheets/d/1qwfw1AOED7WiElOCJwt_VHo_JaDhr6ZIiJMqjRCXajQ/edit#gid=1797422705
 
+import {
+  BLOOD_LABELS,
+  EDUCATIONAL_ATTAINMENT_LABELS,
+  MARTIAL_STATUS_LABELS,
+  SEX_LABELS,
+  SOCIAL_MEDIA_LABELS,
+  TITLE_LABELS,
+} from './patientFields';
+import { PROGRAM_REGISTRATION_STATUS_LABELS } from './programRegistry';
+
 export const PROGRAM_DATA_ELEMENT_TYPES = {
   TEXT: 'FreeText',
   MULTILINE: 'Multiline',
@@ -61,6 +71,12 @@ export const SURVEY_TYPES = {
   COMPLEX_CHART_CORE: 'complexChartCore',
 };
 
+export const CHARTING_SURVEY_TYPES = [
+  SURVEY_TYPES.SIMPLE_CHART,
+  SURVEY_TYPES.COMPLEX_CHART,
+  SURVEY_TYPES.COMPLEX_CHART_CORE,
+];
+
 const PDE_DATE_RECORDED = 'pde-PatientVitalsDate';
 const PDE_TEMPERATURE = 'pde-PatientVitalsTemperature';
 const PDE_WEIGHT = 'pde-PatientVitalsWeight';
@@ -94,7 +110,8 @@ export const CHARTING_DATA_ELEMENT_IDS = {
 };
 
 export const CHARTING_CORE_TYPE_TO_ID = {
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: CHARTING_DATA_ELEMENT_IDS.complexChartInstanceName,
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]:
+    CHARTING_DATA_ELEMENT_IDS.complexChartInstanceName,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: CHARTING_DATA_ELEMENT_IDS.complexChartDate,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_TYPE]: CHARTING_DATA_ELEMENT_IDS.complexChartType,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: CHARTING_DATA_ELEMENT_IDS.complexChartSubtype,
@@ -115,18 +132,29 @@ export const VITAL_CHARTS = {
 };
 
 // utility function for when a model's fields are all a direct match for their survey configs
-const makeLookupFields = (model: string, fields: string[]) =>
-  Object.fromEntries(fields.map(f => [f, [model, f]]));
+const makeLookupFields = (model: string, fields: (string | [string, Record<string, string>])[]) =>
+  Object.fromEntries(
+    fields.map(f => [Array.isArray(f) ? f[0] : f, [model, ...(Array.isArray(f) ? f : [f])]]),
+  );
 
+// Following this format:
+// [modelName, fieldName, options]
+// options is an object with the key being the value and the value being the label
+// if options is not provided, the field is a standard field without options (e.g. 'fullName')
+// if options is provided, the field is a standard field with options (e.g. ['sex', SEX_LABELS])
 type PatientDataFieldLocationsType = {
-  [key: string]: Array<string>;
+  [key: string]: [string, string, Record<string, string>] | [string, string];
 };
 
 // Please keep in sync with:
 // - mobile/App/constants/surveys
 export const PATIENT_DATA_FIELD_LOCATIONS: PatientDataFieldLocationsType = {
   registrationClinicalStatus: ['PatientProgramRegistration', 'clinicalStatusId'],
-  programRegistrationStatus: ['PatientProgramRegistration', 'registrationStatus'],
+  programRegistrationStatus: [
+    'PatientProgramRegistration',
+    'registrationStatus',
+    PROGRAM_REGISTRATION_STATUS_LABELS,
+  ],
   registrationClinician: ['PatientProgramRegistration', 'clinicianId'],
   registeringFacility: ['PatientProgramRegistration', 'registeringFacilityId'],
   registrationCurrentlyAtVillage: ['PatientProgramRegistration', 'villageId'],
@@ -138,21 +166,21 @@ export const PATIENT_DATA_FIELD_LOCATIONS: PatientDataFieldLocationsType = {
     'culturalName',
     'dateOfBirth',
     'dateOfDeath',
-    'sex',
+    ['sex', SEX_LABELS],
     'email',
     'villageId',
   ]),
   ...makeLookupFields('PatientAdditionalData', [
     'placeOfBirth',
-    'bloodType',
+    ['bloodType', BLOOD_LABELS],
     'primaryContactNumber',
     'secondaryContactNumber',
-    'maritalStatus',
+    ['maritalStatus', MARTIAL_STATUS_LABELS],
     'cityTown',
     'streetVillage',
-    'educationalLevel',
-    'socialMedia',
-    'title',
+    ['educationalLevel', EDUCATIONAL_ATTAINMENT_LABELS],
+    ['socialMedia', SOCIAL_MEDIA_LABELS],
+    ['title', TITLE_LABELS],
     'birthCertificate',
     'drivingLicense',
     'passport',
@@ -197,4 +225,10 @@ export const RESULT_COLORS = {
   red: '#ff2222',
   deepred: '#971a1a',
   purple: '#971a1a',
+};
+
+export const PORTAL_SURVEY_ASSIGNMENTS_STATUSES = {
+  OUTSTANDING: 'outstanding',
+  COMPLETED: 'completed',
+  CANCELLED: 'cancelled',
 };

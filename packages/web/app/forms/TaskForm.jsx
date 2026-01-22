@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import * as yup from 'yup';
-
+import { TextField, TranslatedSelectField, Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import styled from 'styled-components';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
@@ -11,6 +12,7 @@ import {
   REFERENCE_TYPES,
   TASK_FREQUENCY_UNIT_LABELS,
   TASK_DURATION_UNIT_LABELS,
+  FORM_TYPES,
 } from '@tamanu/constants';
 
 import {
@@ -18,19 +20,13 @@ import {
   CheckField,
   DateTimeField,
   Field,
-  Form,
   NumberField,
   SuggesterSelectField,
-  TextField,
-  TranslatedSelectField,
 } from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
-import { FormSubmitCancelRow } from '../components/ButtonRow';
 
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useSuggester } from '../api';
 import { REFERENCE_DATA_TYPE_TO_LABEL } from '../constants/task';
-import { Colors, FORM_TYPES } from '../constants';
 import { foreignKey } from '../utils/validation';
 import { preventInvalidNumber } from '../utils';
 import { TaskSetTable } from '../components/Tasks/TaskSetTable';
@@ -96,7 +92,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
 
   const [selectedTask, setSelectedTask] = useState({});
 
-  const onSubmit = (values) => {
+  const onSubmit = values => {
     const {
       designationIds,
       highPriority,
@@ -137,7 +133,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
             frequencyUnit: taskTemplate.frequencyUnit,
           }),
         highPriority: !!taskTemplate.highPriority,
-        designationIds: taskTemplate.designations.map((item) => item.designationId),
+        designationIds: taskTemplate.designations.map(item => item.designationId),
         startTime: startTimeString,
         ...(durationValue && durationUnit && { durationValue, durationUnit }),
       }));
@@ -167,7 +163,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
 
       setFieldValue(
         'designationIds',
-        designations?.map((item) => item.designationId),
+        designations?.map(item => item.designationId),
       );
       setFieldValue('highPriority', highPriority);
       frequencyValue ? setFieldValue('frequencyValue', Number(frequencyValue)) : null;
@@ -198,9 +194,9 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                   multiSection
                   allowCreatingCustomValue={canCreateReferenceData}
                   groupByKey="type"
-                  getSectionTitle={(section) => REFERENCE_DATA_TYPE_TO_LABEL[section.type]}
+                  getSectionTitle={section => REFERENCE_DATA_TYPE_TO_LABEL[section.type]}
                   required
-                  onChange={(e) => handleTaskChange(e, { setFieldValue })}
+                  onChange={e => handleTaskChange(e, { setFieldValue })}
                   data-testid="field-hp09"
                 />
                 <Field
@@ -270,20 +266,6 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
             )}
             {selectedTask.type === REFERENCE_TYPES.TASK_TEMPLATE && (
               <FormGrid style={{ gridColumn: 'span 2' }} data-testid="formgrid-2sm7">
-                <Field
-                  name="designationIds"
-                  label={
-                    <TranslatedText
-                      stringId="general.localisedField.assignedTo.label"
-                      fallback="Assigned to"
-                      data-testid="translatedtext-1kdb"
-                    />
-                  }
-                  component={SuggesterSelectField}
-                  endpoint="designation"
-                  isMulti
-                  data-testid="field-npey"
-                />
                 <NestedFormGrid data-testid="nestedformgrid-0y7w">
                   <Field
                     name="frequencyValue"
@@ -298,7 +280,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                     component={NumberField}
                     onInput={preventInvalidNumber}
                     data-testid="field-7vdy"
-                    onChange={(e) => {
+                    onChange={e => {
                       if (!e.target.value) {
                         setFieldValue('durationValue', '');
                         setFieldValue('durationUnit', '');
@@ -311,7 +293,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                     component={TranslatedSelectField}
                     enumValues={TASK_FREQUENCY_UNIT_LABELS}
                     data-testid="field-tadr"
-                    onChange={(e) => {
+                    onChange={e => {
                       if (!e.target.value) {
                         setFieldValue('durationValue', '');
                         setFieldValue('durationUnit', '');
@@ -349,6 +331,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                       component={NumberField}
                       onInput={preventInvalidNumber}
                       disabled={!values.frequencyUnit || !values.frequencyValue}
+                      data-testid="field-0n8f"
                     />
                     <Field
                       name="durationUnit"
@@ -356,6 +339,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                       component={TranslatedSelectField}
                       enumValues={TASK_DURATION_UNIT_LABELS}
                       disabled={!values.frequencyUnit || !values.frequencyValue}
+                      data-testid="field-qy5a"
                     />
                   </NestedFormGrid>
                 </ConditionalTooltip>
@@ -432,7 +416,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
           note: yup.string(),
           highPriority: yup.boolean(),
           frequencyValue: yup.number().when('frequencyUnit', {
-            is: (unit) => !!unit,
+            is: unit => !!unit,
             then: yup
               .number()
               .positive(
@@ -441,7 +425,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
               .required(getTranslation('validation.required.inline', '*Required')),
           }),
           frequencyUnit: yup.string().when('frequencyValue', {
-            is: (value) => !!value,
+            is: value => !!value,
             then: yup.string().required(getTranslation('validation.required.inline', '*Required')),
           }),
           durationValue: yup

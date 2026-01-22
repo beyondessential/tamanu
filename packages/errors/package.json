@@ -1,0 +1,32 @@
+{
+  "name": "@tamanu/errors",
+  "version": "2.49.0",
+  "private": true,
+  "description": "API errors",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "homepage": "https://github.com/beyondessential/tamanu.git#readme",
+  "repository": "git@github.com:beyondessential/tamanu.git",
+  "author": "Beyond Essential Systems Pty. Ltd.",
+  "license": "GPL-3.0-or-later",
+  "scripts": {
+    "build": "npm run clean && npm run build:esm && npm run build:cjs && npm run build:types:cjs",
+    "build:dev:watch": "npm run clean && concurrently \"npm run build:esm -- --watch\" \"npm run build:cjs -- --watch\" \"npm run build:types:cjs -- --watch\"",
+    "build:cjs": "swc --copy-files --source-maps true --out-dir dist/cjs src",
+    "build:esm": "tsc",
+    "build:types:cjs": "tsc --emitDeclarationOnly --outDir dist/cjs",
+    "build-watch": "npm run build:dev:watch",
+    "clean": "rimraf dist *.tsbuildInfo",
+    "clean:deps": "rimraf node_modules"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "yup": "^0.32.9",
+    "zod": "^4.0.17"
+  },
+  "devDependencies": {
+    "@types/node": "^18.14.6",
+    "rimraf": "^6.0.1"
+  }
+}

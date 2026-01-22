@@ -1,29 +1,25 @@
 import React from 'react';
 import * as yup from 'yup';
 import { endOfDay, format } from 'date-fns';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { push } from 'connected-react-router';
-import { useDispatch } from 'react-redux';
+import { ENCOUNTER_TYPES, FORM_TYPES } from '@tamanu/constants';
+import { useNavigate } from 'react-router';
 import { Box } from '@material-ui/core';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { getAnswersFromData, Form, FormGrid } from '@tamanu/ui-components';
 import { foreignKey } from '../utils/validation';
 import {
   AutocompleteField,
   DateTimeField,
   Field,
-  Form,
   LocalisedField,
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,
   RadioField,
   SuggesterSelectField,
 } from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
 import { ModalFormActionRow } from '../components/ModalActionRow';
 import { NestedVitalsModal } from '../components/NestedVitalsModal';
 import { useApi, useSuggester } from '../api';
-import { getAnswersFromData } from '../utils';
-import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 import { useSettings } from '../contexts/Settings';
@@ -70,7 +66,7 @@ export const TriageForm = ({
 }) => {
   const api = useApi();
   const { facilityId, currentUser } = useAuth();
-  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
   const triageCategories = getSetting('triageCategories');
@@ -222,7 +218,7 @@ export const TriageForm = ({
         startTime: getCurrentDateTimeString(),
         endTime: getCurrentDateTimeString(),
         patientId: patient.id,
-        answers: getAnswersFromData(data, survey),
+        answers: await getAnswersFromData(data, survey),
       };
     }
 
@@ -245,7 +241,7 @@ export const TriageForm = ({
     await api.post('triage', newTriage);
 
     if (!noRedirectOnSubmit) {
-      dispatch(push('/patients/emergency'));
+      navigate('/patients/emergency');
     }
   };
 

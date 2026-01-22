@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - reference
+          meta:
+            triggers:
+              - notify_lab_test_types_changed
+              - record_lab_test_types_changelog
+              - set_lab_test_types_updated_at
+              - set_lab_test_types_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -65,10 +71,11 @@ sources:
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - FreeText
-                    - Number
-                    - Select
+                  arguments:
+                    values:
+                      - FreeText
+                      - Number
+                      - Select
           - name: options
             data_type: text
             description: "{{ doc('lab_test_types__options') }}"
@@ -77,9 +84,10 @@ sources:
             description: "{{ doc('lab_test_types__lab_test_category_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'labTestCategory'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'labTestCategory'
           - name: visibility_status
             data_type: text
             description: "{{ doc('generic__visibility_status') }} in lab_test_types."

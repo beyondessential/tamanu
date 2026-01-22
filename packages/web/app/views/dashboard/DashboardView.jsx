@@ -4,11 +4,11 @@ import { Box, IconButton } from '@material-ui/core';
 import { WS_EVENTS } from '@tamanu/constants';
 import { useQuery } from '@tanstack/react-query';
 
+import { TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import { Heading1, Heading5, PageContainer } from '../../components';
 import { RecentlyViewedPatientsList } from '../../components/RecentlyViewedPatientsList';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useAuth } from '../../contexts/Auth';
-import { Colors } from '../../constants';
 import { NotificationIcon } from '../../assets/icons/NotificationIcon';
 import { NotificationDrawer } from '../../components/Notification/NotificationDrawer';
 import { useAutoUpdatingQuery } from '../../api/queries/useAutoUpdatingQuery';

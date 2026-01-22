@@ -1,0 +1,42 @@
+sql: |
+  SELECT facility_id, last_successful_sync FROM (
+    SELECT facility_id, max(completed_at) as last_successful_sync
+    FROM (
+      SELECT jsonb_array_elements_text(parameters->'facilityIds') as facility_id, completed_at
+      FROM sync_sessions
+      WHERE errors IS NULL
+    ) AS successful_syncs
+    GROUP BY facility_id
+  ) AS last_successful_facility_syncs
+  WHERE last_successful_sync < now() - interval '1 hour'
+
+send:
+  - target: external
+    id: default
+    subject: '[Tamanu Alert] Facilities with no successful syncs in the last hour ({{ hostname }})'
+    template: |
+      - Server: {{ hostname }}
+      - Alert: {{ filename }}
+
+      **Report this immediately to support.**
+
+      One or more facilities have not had a successful sync in the last hour.
+
+      This could indicate:
+      - Sync service is down or not running
+      - Network connectivity issues
+      - Database connection problems
+      - Specific facilities are offline
+      - Sync sessions are failing with errors
+
+      **Facilities with no recent successful syncs:**
+      {% for row in rows %}
+      - Facility ID: {{ row.facility_id }} - Last successful sync: {{ row.last_successful_sync }}
+      {% endfor %}
+
+      **Immediate action required:**
+      1. Check if sync service is running
+      2. Verify database connectivity
+      3. Check facility network status
+      4. Review system logs for errors
+      5. Check if sync sessions are failing (look for sessions with errors)

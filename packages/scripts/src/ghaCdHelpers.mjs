@@ -44,7 +44,7 @@ function intBounds(input, [low, high]) {
 }
 
 const OPTIONS = [
-  { key: 'facilities', defaultValue: 2, parse: (input) => intBounds(input, [0, 5]) },
+  { key: 'facilities', defaultValue: 2, parse: input => intBounds(input, [0, 5]) },
   {
     key: 'config',
     defaultValue: (_options, { ref, eventName }) => {
@@ -55,8 +55,8 @@ const OPTIONS = [
   },
   { key: 'env', defaultValue: 'staging' },
   { key: 'timezone', defaultValue: 'Pacific/Auckland' },
-  { key: 'ip', defaultValue: null, parse: (input) => input.split(',').map((s) => s.trim()) },
-  { key: 'dbstorage', defaultValue: 10, parse: (input) => intBounds(input, [10, 100]) },
+  { key: 'ip', defaultValue: null, parse: input => input.split(',').map(s => s.trim()) },
+  { key: 'dbstorage', defaultValue: 10, parse: input => intBounds(input, [10, 100]) },
   { key: 'arch', defaultValue: 'arm64' },
   { key: 'opsref', defaultValue: 'main' },
   { key: 'opsstack', defaultValue: 'tamanu/on-k8s' },
@@ -64,52 +64,54 @@ const OPTIONS = [
   { key: 'pause', defaultValue: false, presence: true },
   { key: 'imagesonly', defaultValue: false, presence: true },
 
-  { key: 'apis', defaultValue: 2, parse: (input) => intBounds(input, [0, 5]) },
+  { key: 'apis', defaultValue: 2, parse: input => intBounds(input, [0, 5]) },
   {
     key: 'centralapis',
-    defaultValue: (options) => intBounds(options.apis, [0, 5]),
-    parse: (input) => intBounds(input, [0, 5]),
+    defaultValue: options => intBounds(options.apis, [0, 5]),
+    parse: input => intBounds(input, [0, 5]),
   },
   {
     key: 'facilityapis',
-    defaultValue: (options) => intBounds(options.apis, [0, 5]),
-    parse: (input) => intBounds(input, [0, 5]),
+    defaultValue: options => intBounds(options.apis, [0, 5]),
+    parse: input => intBounds(input, [0, 5]),
   },
 
-  { key: 'tasks', defaultValue: 1, parse: (input) => intBounds(input, [0, 1]) },
+  { key: 'tasks', defaultValue: 1, parse: input => intBounds(input, [0, 1]) },
   {
     key: 'centraltasks',
-    defaultValue: (options) => intBounds(options.tasks, [0, 1]),
-    parse: (input) => intBounds(input, [0, 1]),
+    defaultValue: options => intBounds(options.tasks, [0, 1]),
+    parse: input => intBounds(input, [0, 1]),
   },
   {
     key: 'facilitytasks',
-    defaultValue: (options) => intBounds(options.tasks, [0, 1]),
-    parse: (input) => intBounds(input, [0, 1]),
+    defaultValue: options => intBounds(options.tasks, [0, 1]),
+    parse: input => intBounds(input, [0, 1]),
   },
 
-  { key: 'webs', defaultValue: 2, parse: (input) => intBounds(input, [0, 5]) },
+  { key: 'webs', defaultValue: 2, parse: input => intBounds(input, [0, 5]) },
   {
     key: 'centralwebs',
-    defaultValue: (options) => intBounds(options.webs, [0, 5]),
-    parse: (input) => intBounds(input, [0, 5]),
+    defaultValue: options => intBounds(options.webs, [0, 5]),
+    parse: input => intBounds(input, [0, 5]),
   },
   {
     key: 'facilitywebs',
-    defaultValue: (options) => intBounds(options.webs, [0, 5]),
-    parse: (input) => intBounds(input, [0, 5]),
+    defaultValue: options => intBounds(options.webs, [0, 5]),
+    parse: input => intBounds(input, [0, 5]),
   },
 
-  { key: 'dbs', defaultValue: 2, parse: (input) => intBounds(input, [2, 3]) },
+  { key: 'patientportals', defaultValue: 1, parse: input => intBounds(input, [0, 5]) },
+
+  { key: 'dbs', defaultValue: 2, parse: input => intBounds(input, [2, 3]) },
   {
     key: 'centraldbs',
-    defaultValue: (options) => intBounds(options.dbs, [2, 3]),
-    parse: (input) => intBounds(input, [2, 3]),
+    defaultValue: options => intBounds(options.dbs, [2, 3]),
+    parse: input => intBounds(input, [2, 3]),
   },
   {
     key: 'facilitydbs',
-    defaultValue: (options) => intBounds(options.dbs, [2, 3]),
-    parse: (input) => intBounds(input, [2, 3]),
+    defaultValue: options => intBounds(options.dbs, [2, 3]),
+    parse: input => intBounds(input, [2, 3]),
   },
   {
     /*
@@ -121,7 +123,7 @@ const OPTIONS = [
      */
     key: 'mobile',
     defaultValue: 'normal',
-    parse: (input) => (['normal', 'always', 'never'].includes(input) ? input : 'normal'),
+    parse: input => (['normal', 'always', 'never'].includes(input) ? input : 'normal'),
   },
   {
     /*
@@ -131,7 +133,7 @@ const OPTIONS = [
      */
     key: 'branding',
     defaultValue: 'tamanu',
-    parse: (input) => (['tamanu'].includes(input) ? input : 'tamanu'),
+    parse: input => (['tamanu'].includes(input) ? input : 'tamanu'),
   },
   {
     key: 'serviceaccountarn',
@@ -144,7 +146,7 @@ const OPTIONS = [
      */
     key: 'facilitynames',
     defaultValue: null,
-    parse: (input) => input.split(','),
+    parse: input => input.split(','),
   },
   {
     /*
@@ -152,7 +154,7 @@ const OPTIONS = [
      */
     key: 'fakedata',
     defaultValue: 0,
-    parse: (input) => intBounds(input, [0, 100]),
+    parse: input => intBounds(input, [0, 100]),
   },
 ];
 
@@ -165,7 +167,7 @@ function parseOptions(str, context) {
   const inputs = new Map(
     str
       .split(/\s+/)
-      .map((opt) => opt.trim().split('='))
+      .map(opt => opt.trim().split('='))
       .map(([key, value]) => [stripPercent(key.toLowerCase()), value])
       .filter(([key]) => !!key),
   );
@@ -201,6 +203,7 @@ export function configMap(deployName, imageTag, options) {
     Object.entries({
       'k8s-core': `bes/k8s-core/${options.k8score}`,
       namespace: `tamanu-${deployName}`,
+      externalNamespace: true,
       imageTag,
 
       architecture: options.arch,
@@ -227,6 +230,8 @@ export function configMap(deployName, imageTag, options) {
       facilityDbReplicas: options.facilitydbs,
       facilityTasksReplicas: options.facilitytasks,
       facilityWebReplicas: options.facilitydbs,
+
+      patientPortalReplicas: options.patientportals,
     }).map(([key, value]) => [`tamanu-on-k8s:${key}`, { value: value ?? null, secret: false }]),
   );
 }
@@ -254,7 +259,7 @@ export function parseBranchConfig(context) {
 
   if (
     context.eventName === 'issues' &&
-    context.payload.issue?.labels?.some((label) => label.name === 'auto-deploy') &&
+    context.payload.issue?.labels?.some(label => label.name === 'auto-deploy') &&
     context.payload.issue?.title.startsWith('Auto-deploy:')
   ) {
     console.log('Using auto-deploy issue body');
@@ -311,7 +316,7 @@ export async function findControlText(context, github) {
     console.log(
       'PRs for branch:',
       prs.data.length,
-      prs.data.map((pr) => pr.number),
+      prs.data.map(pr => pr.number),
     );
     // ...and ignore if that's the case (as the PR event will take care of it)
     if (prs.data.length) {
@@ -329,9 +334,9 @@ export async function findControlText(context, github) {
     console.log(
       'Control issues:',
       issues.data.length,
-      issues.data.map((issue) => issue.title),
+      issues.data.map(issue => issue.title),
     );
-    const issue = issues.data.find((issue) => issue.title === `Auto-deploy: ${branch}`);
+    const issue = issues.data.find(issue => issue.title === `Auto-deploy: ${branch}`);
     if (issue) {
       console.log('Found control issue matching branch:', issue.number);
 
@@ -361,7 +366,7 @@ export async function findDeploysToCleanUp(controlList, ttl = 24, context, githu
   const controls = controlList
     .split(/\s+/)
     .filter(Boolean)
-    .map((control) => control.split('='))
+    .map(control => control.split('='))
     .map(([core, ns, type, number]) => ({ core, ns, type, number }));
 
   const todo = [];

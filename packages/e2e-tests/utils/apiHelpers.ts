@@ -24,7 +24,13 @@ export const getUser = async (api: APIRequestContext): Promise<User> => {
   return user.json();
 };
 
-export const createPatient = async (api: APIRequestContext, page: Page): Promise<Patient> => {
+export const createPatient = async (
+  api: APIRequestContext,
+  page: Page,
+  options: Partial<{
+    dateOfBirth: Date;
+  }> = {},
+): Promise<Patient> => {
   const patientUrl = constructFacilityUrl('/api/patient');
 
   const facilityId = await getItemFromLocalStorage(page, 'facilityId');
@@ -32,7 +38,7 @@ export const createPatient = async (api: APIRequestContext, page: Page): Promise
 
   const patientData = {
     birthFacilityId: null,
-    dateOfBirth: faker.date.birthdate(),
+    dateOfBirth: options.dateOfBirth || faker.date.birthdate(),
     displayId: generateNHN(),
     facilityId,
     firstName: faker.person.firstName(),
@@ -40,13 +46,20 @@ export const createPatient = async (api: APIRequestContext, page: Page): Promise
     patientRegistryType: 'new_patient',
     registeredById: user.id,
     sex: faker.person.sex(),
-    villageId:testData.villageID,
-    culturalName: faker.person.middleName()
+    villageId: testData.villageId,
+    culturalName: faker.person.middleName(),
   };
 
   const response = await api.post(patientUrl, {
     data: patientData,
   });
+
+  if (!response.ok()) {
+    const errorText = await response.text();
+    console.error('Failed to create patient:', response.status(), errorText);
+    throw new Error(`Failed to create patient: ${response.status()} ${errorText}`);
+  }
+
 
   return response.json();
 };
@@ -62,20 +75,22 @@ export const createHospitalAdmissionEncounterViaAPI = async (
     locationId: string;
     patientBillingTypeId: string;
     startDate: string;
-  }> = {}
+  }> = {},
 ) => {
   const encounterUrl = constructFacilityUrl('/api/encounter');
   const user = await getUser(api);
 
+
   const encounterData = {
-    departmentId: 'department-Cardiology',
-    encounterType: 'admission',
+    departmentId: testData.departmentId,
+    encounterType: testData.encounterType,
     examinerId: user.id,
-    locationId: 'location-EDBed1',
-    patientBillingTypeId: 'patientType-Private',
-    patientId,
+    locationId: testData.locationId,
+    patientBillingTypeId: testData.patientBillingTypeId,
+    patientId: testData.patientId || patientId  ,
     startDate: new Date().toISOString().replace('T', ' ').substring(0, 19),
     ...overrides,
+    dietIds: JSON.stringify(['diet-Carb-Controlled', 'diet-Citrusfree']),
   };
 
   const response = await api.post(encounterUrl, {
@@ -85,7 +100,9 @@ export const createHospitalAdmissionEncounterViaAPI = async (
   if (!response.ok()) {
     const errorText = await response.text();
     console.error('Failed to create hospital admission encounter:', response.status(), errorText);
-    throw new Error(`Failed to create hospital admission encounter: ${response.status()} ${errorText}`);
+    throw new Error(
+      `Failed to create hospital admission encounter: ${response.status()} ${errorText}`,
+    );
   }
 
   return response.json();
@@ -104,7 +121,7 @@ export const createTriageEncounterViaApi = async (
     startDate: string;
     triageTime: string;
     vitals: any;
-  }> = {}
+  }> = {},
 ) => {
   const triageUrl = constructFacilityUrl('/api/triage');
   const user = await getUser(api);
@@ -113,7 +130,7 @@ export const createTriageEncounterViaApi = async (
   const triageData = {
     chiefComplaintId: 'triage-Abdominalpaindistension',
     facilityId,
-    locationId: 'location-EDBed1',
+    locationId: 'location-EDBed1-tamanu',
     patientId,
     practitionerId: user.id,
     score: '1',
@@ -145,16 +162,16 @@ export const createClinicEncounterViaApi = async (
     examinerId: string;
     locationId: string;
     startDate: string;
-  }> = {}
+  }> = {},
 ) => {
   const encounterUrl = constructFacilityUrl('/api/encounter');
   const user = await getUser(api);
 
   const encounterData = {
-    departmentId: 'department-GeneralMedicine',
+    departmentId: testData.departmentId,
     encounterType: 'clinic',
     examinerId: user.id,
-    locationId: 'location-EDBed1',
+    locationId: testData.locationId,
     patientId,
     startDate: new Date().toISOString().replace('T', ' ').substring(0, 19),
     ...overrides,
@@ -173,13 +190,17 @@ export const createClinicEncounterViaApi = async (
   return response.json();
 };
 
-export const recordPatientDeathViaApi = async (api: APIRequestContext, page: Page, patientId: string) => {
+export const recordPatientDeathViaApi = async (
+  api: APIRequestContext,
+  page: Page,
+  patientId: string,
+) => {
   const facilityId = await getItemFromLocalStorage(page, 'facilityId');
   const user = await getUser(api);
 
   // Verify patient exists first
   const verifyPatientUrl = constructFacilityUrl(`/api/patient/${patientId}`);
-  
+
   const verifyResponse = await api.get(verifyPatientUrl);
 
   if (!verifyResponse.ok()) {
@@ -187,16 +208,15 @@ export const recordPatientDeathViaApi = async (api: APIRequestContext, page: Pag
   }
 
   const apiDeathUrl = constructFacilityUrl(`/api/patient/${patientId}/death`);
-  
+
   const deathData = {
     clinicianId: user.id,
     facilityId,
     timeOfDeath: new Date().toISOString(),
     manner: 'Disease',
     outsideHealthFacility: false,
-    isPartialWorkflow: true
+    isPartialWorkflow: true,
   };
-
 
   const response = await api.post(apiDeathUrl, {
     data: deathData,

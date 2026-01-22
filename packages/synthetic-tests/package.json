@@ -1,0 +1,22 @@
+{
+  "name": "@tamanu/synthetic-tests",
+  "version": "2.49.0",
+  "private": true,
+  "dependencies": {
+    "@tamanu/constants": "*",
+    "@tamanu/fake-data": "*",
+    "js-yaml": "^4.1.0",
+    "jose": "^5.9.6"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^9.8.0"
+  },
+  "scripts": {
+    "test": "npm run merge-scenarios && artillery run src/merged-scenarios.yml",
+    "merge-scenarios": "node src/scripts/mergeScenarios.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

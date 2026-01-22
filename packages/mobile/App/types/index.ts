@@ -40,3 +40,4 @@ export * from './IPatientContact';
 export * from './ID';
 export * from './DateString';
 export * from './Forms';
+export * from './SecurityInfo';

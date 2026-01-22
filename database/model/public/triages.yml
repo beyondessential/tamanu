@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - clinical
+          meta:
+            triggers:
+              - notify_triages_changed
+              - record_triages_changelog
+              - set_triages_updated_at
+              - set_triages_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -32,12 +38,21 @@ sources:
           - name: arrival_time
             data_type: character(19)
             description: "{{ doc('triages__arrival_time') }}"
+            config:
+              meta:
+                masking: datetime
           - name: triage_time
             data_type: character(19)
             description: "{{ doc('triages__triage_time') }}"
+            config:
+              meta:
+                masking: datetime
           - name: closed_time
             data_type: character(19)
             description: "{{ doc('triages__closed_time') }}"
+            config:
+              meta:
+                masking: datetime
           - name: score
             data_type: text
             description: "{{ doc('triages__score') }}"
@@ -46,48 +61,62 @@ sources:
             description: "{{ doc('triages__encounter_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'encounters')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'encounters')
+                    field: id
           - name: practitioner_id
             data_type: character varying(255)
             description: "{{ doc('triages__practitioner_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: chief_complaint_id
             data_type: character varying(255)
             description: "{{ doc('triages__chief_complaint_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'triageReason'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'triageReason'
           - name: secondary_complaint_id
             data_type: character varying(255)
             description: "{{ doc('triages__secondary_complaint_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'triageReason'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'triageReason'
           - name: arrival_time_legacy
             data_type: timestamp with time zone
             description: "{{ doc('triages__arrival_time_legacy') }}"
+            config:
+              meta:
+                masking: datetime
           - name: triage_time_legacy
             data_type: timestamp with time zone
             description: "{{ doc('triages__triage_time_legacy') }}"
+            config:
+              meta:
+                masking: datetime
           - name: closed_time_legacy
             data_type: timestamp with time zone
             description: "{{ doc('triages__closed_time_legacy') }}"
+            config:
+              meta:
+                masking: datetime
           - name: arrival_mode_id
             data_type: character varying(255)
             description: "{{ doc('triages__arrival_mode_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'arrivalMode'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'arrivalMode'
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in triages."

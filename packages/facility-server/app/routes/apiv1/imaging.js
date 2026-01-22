@@ -9,7 +9,7 @@ import {
   NOTE_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { NotFoundError } from '@tamanu/shared/errors';
+import { NotFoundError } from '@tamanu/errors';
 import { permissionCheckingRouter } from '@tamanu/shared/utils/crudHelpers';
 import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { getNoteWithType } from '@tamanu/shared/utils/notes';
@@ -130,14 +130,19 @@ imagingRequest.get(
         },
         {
           association: 'notes',
+          include: [
+            {
+              association: 'noteTypeReference',
+            },
+          ],
         },
       ],
-    });
+    }); 
     if (!imagingRequestObject) throw new NotFoundError();
 
     await req.audit.access({
       recordId: imagingRequestObject.id,
-      params: req.params,
+      frontEndContext: req.params,
       model: ImagingRequest,
     });
 
@@ -200,7 +205,7 @@ imagingRequest.put(
         notes.note = otherNote.content;
       } else {
         const noteObject = await imagingRequestObject.createNote({
-          noteType: NOTE_TYPES.OTHER,
+          noteTypeId: NOTE_TYPES.OTHER,
           content: note,
           authorId: user.id,
         });
@@ -215,7 +220,7 @@ imagingRequest.put(
         notes.areaNote = areaNote.content || '';
       } else {
         const noteObject = await imagingRequestObject.createNote({
-          noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
+          noteTypeId: NOTE_TYPES.AREA_TO_BE_IMAGED,
           content: areaNote,
           authorId: user.id,
         });
@@ -275,7 +280,7 @@ imagingRequest.post(
 
       if (note) {
         const noteObject = await newImagingRequest.createNote({
-          noteType: NOTE_TYPES.OTHER,
+          noteTypeId: NOTE_TYPES.OTHER,
           content: note,
           authorId: user.id,
         });
@@ -284,7 +289,7 @@ imagingRequest.post(
 
       if (areaNote) {
         const noteObject = await newImagingRequest.createNote({
-          noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
+          noteTypeId: NOTE_TYPES.AREA_TO_BE_IMAGED,
           content: areaNote,
           authorId: user.id,
         });

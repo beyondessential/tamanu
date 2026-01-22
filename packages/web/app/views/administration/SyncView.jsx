@@ -6,7 +6,7 @@ import { DataFetchingTable, DateDisplay, PageContainer, TopBar } from '../../com
 import { SYNC_LAST_COMPLETED_ENDPOINT } from './constants';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 
-const LastSyncs = React.memo((props) => (
+const LastSyncs = React.memo(props => (
   <DataFetchingTable
     endpoint={SYNC_LAST_COMPLETED_ENDPOINT}
     columns={[
@@ -19,14 +19,33 @@ const LastSyncs = React.memo((props) => (
             data-testid="translatedtext-sowk"
           />
         ),
-        minWidth: 100,
         accessor: ({ facilityIds }) => facilityIds.join(', '),
+      },
+      {
+        key: 'deviceId',
+        title: (
+          <TranslatedText
+            stringId="admin.syncStatus.table.column.deviceId"
+            fallback="Devices"
+            data-testid="translatedtext-sown"
+          />
+        ),
+      },
+      {
+        key: 'deviceType',
+        title: (
+          <TranslatedText
+            stringId="admin.syncStatus.table.column.deviceType"
+            fallback="Type"
+            data-testid="translatedtext-sowm"
+          />
+        ),
       },
       {
         key: 'completedAt',
         title: (
           <TranslatedText
-            stringId="admin.syncStatus.table.column.lastCompleted"
+            stringId="admin.syncStatus.table.column.completedAt"
             fallback="Last completed sync"
             data-testid="translatedtext-zsv1"
           />
@@ -39,12 +58,32 @@ const LastSyncs = React.memo((props) => (
         key: 'duration',
         title: (
           <TranslatedText
-            stringId="admin.syncStatus.table.column.duration."
+            stringId="admin.syncStatus.table.column.duration"
             fallback="Duration"
             data-testid="translatedtext-frcu"
           />
         ),
         accessor: ({ duration }) => ms(duration),
+      },
+      {
+        key: 'recordsPulled',
+        title: (
+          <TranslatedText
+            stringId="admin.syncStatus.table.column.recordsPulled"
+            fallback="Records pulled"
+            data-testid="translatedtext-esud"
+          />
+        ),
+      },
+      {
+        key: 'tick',
+        title: (
+          <TranslatedText
+            stringId="admin.syncStatus.table.column.tick"
+            fallback="Tick"
+            data-testid="translatedtext-esut"
+          />
+        ),
       },
     ]}
     noDataMessage={

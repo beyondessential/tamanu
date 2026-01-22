@@ -4,7 +4,7 @@ import { NOTE_TYPES } from '@tamanu/constants/notes';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants/labs';
 import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants/statuses';
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants/diagnoses';
-import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
+import { ForbiddenError, NotFoundError } from '@tamanu/errors';
 
 import { Modal } from '../../Modal';
 import { useCertificate } from '../../../utils/useCertificate';
@@ -262,19 +262,20 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
 
   // Remove discontinued medications and sort by medication name
   const medications = encounter.medications
-    .filter(medication =>
-      encounter.endDate
-        ? medication.encounterPrescription?.isSelectedForDischarge
-        : !medication.discontinued,
+    .filter(
+      medication =>
+        (encounter.endDate
+          ? medication.encounterPrescription?.isSelectedForDischarge
+          : !medication.discontinued) && !medication.medication.referenceDrug.isSensitive,
     )
     .sort((a, b) => a.medication.name.localeCompare(b.medication.name));
 
   const displayNotes = notes.filter(note => {
-    return note.noteType !== NOTE_TYPES.SYSTEM;
+    return note.noteTypeId !== NOTE_TYPES.SYSTEM;
   });
 
   const systemNotes = notes.filter(note => {
-    return note.noteType === NOTE_TYPES.SYSTEM;
+    return note.noteTypeId === NOTE_TYPES.SYSTEM;
   });
 
   const locationSystemNotes = systemNotes.filter(note => {

@@ -10,7 +10,7 @@ import { centralServerLogin, buildToken, comparePassword } from '../../dist/midd
 import { CentralServerConnection } from '../../dist/sync/CentralServerConnection';
 import { createTestContext } from '../utilities';
 
-const createUser = (overrides) => ({
+const createUser = overrides => ({
   email: chance.email(),
   displayName: chance.name(),
   password: chance.word(),
@@ -34,8 +34,16 @@ describe('User', () => {
   const facility1 = { id: 'balwyn', name: 'Balwyn' };
   const facility2 = { id: 'kerang', name: 'Kerang' };
   const facility3 = { id: 'lake-charm', name: 'Lake Charm' };
-  const configFacilities = [facility1, facility2, facility3];
-  const configFacilityIds = configFacilities.map((f) => f.id);
+  const sensitiveFacility1 = { id: 'sensitive', name: 'Sensitive Facility' };
+  const sensitiveFacility2 = { id: 'sensitive2', name: 'Sensitive Facility 2' };
+  const configFacilities = [
+    facility1,
+    facility2,
+    facility3,
+    sensitiveFacility1,
+    sensitiveFacility2,
+  ];
+  const configFacilityIds = configFacilities.map(f => f.id);
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -43,6 +51,19 @@ describe('User', () => {
     models = ctx.models;
     centralServer = ctx.centralServer;
     CentralServerConnection.mockImplementation(() => centralServer);
+
+    // Mock UserLoginAttempt.checkIsUserLockedOut to focus tests here; lockout tests are elsewhere
+    jest.spyOn(models.UserLoginAttempt, 'checkIsUserLockedOut').mockResolvedValue({
+      isUserLockedOut: false,
+      remainingLockout: 0,
+    });
+
+    await models.Facility.create(
+      fake(models.Facility, { ...sensitiveFacility1, isSensitive: true }),
+    );
+    await models.Facility.create(
+      fake(models.Facility, { ...sensitiveFacility2, isSensitive: true }),
+    );
   });
   afterAll(() => ctx.close());
 
@@ -72,6 +93,7 @@ describe('User', () => {
       const result = await baseApp.post('/api/login').send({
         email: authUser.email,
         password: rawPassword,
+        deviceId: 'test-device-id',
       });
       expect(result).toHaveSucceeded();
       expect(result.body.role).toMatchObject({
@@ -84,6 +106,7 @@ describe('User', () => {
       const result = await baseApp.post('/api/login').send({
         email: authUser.email,
         password: rawPassword,
+        deviceId: 'test-device-id',
       });
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('availableFacilities');
@@ -130,6 +153,7 @@ describe('User', () => {
         const result = await baseApp.post('/api/login').send({
           email: authUser.email,
           password: rawPassword,
+          deviceId: 'test-device-id',
         });
         expect(result).toHaveSucceeded();
         expect(result.body).toHaveProperty('token');
@@ -139,6 +163,7 @@ describe('User', () => {
         const result = await baseApp.post('/api/login').send({
           email: authUser.email.toUpperCase(),
           password: rawPassword,
+          deviceId: 'test-device-id',
         });
         expect(result).toHaveSucceeded();
       });
@@ -147,6 +172,7 @@ describe('User', () => {
         const result = await baseApp.post('/api/login').send({
           email: authUser.email,
           password: 'PASSWARD',
+          deviceId: 'test-device-id',
         });
         expect(result).toHaveRequestError();
       });
@@ -155,6 +181,7 @@ describe('User', () => {
         const result = await baseApp.post('/api/login').send({
           email: 'test@toast.com',
           password: rawPassword,
+          deviceId: 'test-device-id',
         });
         expect(result).toHaveRequestError();
       });
@@ -163,6 +190,7 @@ describe('User', () => {
         const result = await baseApp.post('/api/login').send({
           email: authUser.email,
           password: rawPassword,
+          deviceId: 'test-device-id',
         });
         expect(result).toHaveSucceeded();
         expect(result.body).toHaveProperty('localisation');
@@ -170,11 +198,20 @@ describe('User', () => {
       });
 
       it('should pass feature flags through from a central server login request', async () => {
-        centralServer.fetch.mockResolvedValueOnce({
+        centralServer.login.mockResolvedValueOnce({
           user: pick(authUser, ['id', 'role', 'email', 'displayName']),
           localisation,
+          allowedFacilities: [],
+          token: 'mock-token',
+          refreshToken: 'mock-refresh-token',
+          permissions: [],
+          server: { type: 'central' },
         });
-        const result = await centralServerLogin(models, authUser.email, rawPassword);
+        const result = await centralServerLogin({
+          models,
+          email: authUser.email,
+          password: rawPassword,
+        });
         expect(result).toHaveProperty('localisation', localisation);
         const cache = await models.UserLocalisationCache.findOne({
           where: {
@@ -191,6 +228,7 @@ describe('User', () => {
         const result = await baseApp.post('/api/login').send({
           email: authUser.email,
           password: rawPassword,
+          deviceId: 'test-device-id',
         });
         expect(result).toHaveSucceeded();
         expect(result.body).toHaveProperty('permissions');
@@ -201,6 +239,7 @@ describe('User', () => {
           const result = await baseApp.post('/api/login').send({
             email: authUser.email,
             password: 'PASSWARD',
+            deviceId: 'test-device-id',
           });
           expect(result).toHaveRequestError();
         });
@@ -209,6 +248,7 @@ describe('User', () => {
           const result = await baseApp.post('/api/login').send({
             email: 'test@toast.com',
             password: rawPassword,
+            deviceId: 'test-device-id',
           });
           expect(result).toHaveRequestError();
         });
@@ -217,6 +257,7 @@ describe('User', () => {
           const result = await baseApp.post('/api/login').send({
             email: deactivatedUser.email,
             password: rawPassword,
+            deviceId: 'test-device-id',
           });
           expect(result).toHaveRequestError();
         });
@@ -236,11 +277,11 @@ describe('User', () => {
 
       it('should fail to get the user with a null token', async () => {
         const result = await baseApp.get('/api/user/me');
-        expect(result).toBeForbidden();
+        expect(result).toHaveRequestError();
       });
 
       it('should fail to get the user with an expired token', async () => {
-        const expiredToken = await buildToken(authUser, null, '-1s');
+        const expiredToken = await buildToken({ user: authUser, expiresIn: '-1s' });
         const result = await baseApp
           .get('/api/user/me')
           .set('authorization', `Bearer ${expiredToken}`);
@@ -263,7 +304,7 @@ describe('User', () => {
         });
 
         it('should fail to get the user with an expired token', async () => {
-          const expiredToken = await buildToken(authUser, null, '-1s');
+          const expiredToken = await buildToken({ user: authUser, expiresIn: '-1s' });
           const result = await baseApp
             .get('/api/user/me')
             .set('authorization', `Bearer ${expiredToken}`);
@@ -296,9 +337,9 @@ describe('User', () => {
         );
         chPwApp = await baseApp.asUser(chPwUser);
       });
-      const doesPwMatch = async (pw) => {
+      const doesPwMatch = async pw => {
         const user = await models.User.scope('withPassword').findByPk(chPwUser.id);
-        return comparePassword(user, pw);
+        return await comparePassword(user, pw);
       };
 
       it('succeeds if the central succeeds', async () => {
@@ -340,108 +381,153 @@ describe('User', () => {
   });
 
   describe('User facility methods', () => {
-    let user = null;
     let superUser = null;
-    let noFacilityUser = null;
+    let userWithFacilities = null;
+    let userWithoutFacilities = null;
 
-    const validUserFacilities = [facility1, facility2];
-    const validUserFacilityIds = validUserFacilities.map((f) => f.id);
+    const nonSensitiveFacilities = [facility1, facility2, facility3];
+    const userAllowedFacilities = [facility1, sensitiveFacility1];
+
+    // Mock the permission for user [verb: 'login', noun: 'Facility']
+    const mockLoginFacilityPermission = async (user, hasPermission) => {
+      jest.spyOn(user, 'hasPermission').mockImplementation(() => hasPermission);
+    };
+
+    // Defaults for all of the tests in this block. We override as needed
+    beforeEach(async () => {
+      await models.Setting.set('auth.restrictUsersToFacilities', true);
+      mockLoginFacilityPermission(userWithFacilities, false);
+    });
 
     beforeAll(async () => {
-      await models.Setting.set('auth.restrictUsersToFacilities', true);
       superUser = await models.User.create(
         createUser({
           role: 'admin',
         }),
       );
-      user = await models.User.create(
+
+      userWithFacilities = await models.User.create(
         createUser({
           role: 'practitioner',
         }),
       );
-      noFacilityUser = await models.User.create(
+
+      userWithoutFacilities = await models.User.create(
         createUser({
           role: 'practitioner',
         }),
       );
 
       await Promise.all(
-        validUserFacilities.map(async (facility) => {
+        userAllowedFacilities.map(async facility => {
           return await models.UserFacility.create({
             facilityId: facility.id,
-            userId: user.id,
+            userId: userWithFacilities.id,
           });
         }),
       );
 
-      await user.reload({ include: 'facilities' });
-    });
-
-    describe('checkCanAccessAllFacilities', () => {
-      it('should return true if superuser', async () => {
-        expect(await superUser.checkCanAccessAllFacilities()).toBe(true);
-      });
-      it('should return false if user without  "login", "Facility" permission', async () => {
-        expect(await user.checkCanAccessAllFacilities()).toBe(false);
-      });
+      await userWithFacilities.reload({ include: 'facilities' });
     });
 
     describe('allowedFacilities', () => {
-      it('should get special "ALL" key when superuser', async () => {
+      it('should get special "ALL" key when the user is a superuser', async () => {
         const superUserFacilities = await superUser.allowedFacilities();
         expect(superUserFacilities).toBe(CAN_ACCESS_ALL_FACILITIES);
       });
-      it('should return linked facilities from user_facilities table', async () => {
-        const userFacilities = await user.allowedFacilities();
-        expect(userFacilities).toStrictEqual(validUserFacilities);
+
+      it('should return all non-sensitive facilities plus the linked facilities for a user with the "login" permission to "Facility"', async () => {
+        mockLoginFacilityPermission(userWithFacilities, true);
+        const allowedFacilities = await userWithFacilities.allowedFacilities();
+
+        const expectedCombinedFacilities = [...nonSensitiveFacilities, sensitiveFacility1];
+        expect(allowedFacilities).toEqual(expect.arrayContaining(expectedCombinedFacilities));
       });
-      it('should return empty array if no linked facilities', async () => {
-        const userFacilities = await noFacilityUser.allowedFacilities();
-        expect(userFacilities).toHaveLength(0);
+
+      it('should return all non-sensitive facilities plus the linked facilities when restrictUsersToFacilities is disabled', async () => {
+        await models.Setting.set('auth.restrictUsersToFacilities', false);
+        const allowedFacilities = await userWithFacilities.allowedFacilities();
+
+        const expectedCombinedFacilities = [...nonSensitiveFacilities, sensitiveFacility1];
+        expect(allowedFacilities).toEqual(expect.arrayContaining(expectedCombinedFacilities));
+      });
+
+      it('should return the linked facilities from the user_facilities table', async () => {
+        const allowedFacilities = await userWithFacilities.allowedFacilities();
+        expect(allowedFacilities).toStrictEqual(userAllowedFacilities);
+      });
+
+      it('should return an empty array if there are no linked facilities when restrictUsersToFacilities is enabled', async () => {
+        const allowedFacilities = await userWithoutFacilities.allowedFacilities();
+        expect(allowedFacilities).toHaveLength(0);
+      });
+
+      it('should return all non-sensitive facilities if there are no linked facilities when restrictUsersToFacilities is disabled', async () => {
+        await models.Setting.set('auth.restrictUsersToFacilities', false);
+        const allowedFacilities = await userWithoutFacilities.allowedFacilities();
+        expect(allowedFacilities).toEqual(expect.arrayContaining(nonSensitiveFacilities));
       });
     });
 
     describe('allowedFacilityIds', () => {
-      it('should get special "ALL" key when superuser', async () => {
-        jest
-          .spyOn(superUser, 'allowedFacilities')
-          .mockImplementation(() => CAN_ACCESS_ALL_FACILITIES);
+      it('should get special "ALL" key when the user is a superuser', async () => {
         const superUserFacilityIds = await superUser.allowedFacilityIds();
         expect(superUserFacilityIds).toBe(CAN_ACCESS_ALL_FACILITIES);
       });
-      it('should return linked facility ids from user_facilities table', async () => {
-        jest.spyOn(user, 'allowedFacilities').mockImplementation(() => validUserFacilities);
-        const userFacilityIds = await user.allowedFacilityIds();
-        expect(userFacilityIds).toStrictEqual(validUserFacilityIds);
+
+      it('should return all non-sensitive facilities plus the linked facilities for a user with the "login" permission to "Facility"', async () => {
+        mockLoginFacilityPermission(userWithFacilities, true);
+        const allowedFacilityIds = await userWithFacilities.allowedFacilityIds();
+
+        const expectedCombinedFacilities = [...nonSensitiveFacilities, sensitiveFacility1];
+        const expectedCombinedFacilityIds = expectedCombinedFacilities.map(f => f.id);
+        expect(allowedFacilityIds).toEqual(expect.arrayContaining(expectedCombinedFacilityIds));
       });
-      it('should return empty array if no linked facilities', async () => {
-        const userFacilityIds = await noFacilityUser.allowedFacilities();
-        expect(userFacilityIds).toHaveLength(0);
+
+      it('should return all non-sensitive facilities plus the linked facilities when restrictUsersToFacilities is disabled', async () => {
+        await models.Setting.set('auth.restrictUsersToFacilities', false);
+        const allowedFacilityIds = await userWithFacilities.allowedFacilityIds();
+
+        const expectedCombinedFacilities = [...nonSensitiveFacilities, sensitiveFacility1];
+        const expectedCombinedFacilityIds = expectedCombinedFacilities.map(f => f.id);
+        expect(allowedFacilityIds).toEqual(expect.arrayContaining(expectedCombinedFacilityIds));
+      });
+
+      it('should return linked facility ids from the user_facilities table', async () => {
+        const allowedFacilityIds = await userWithFacilities.allowedFacilityIds();
+
+        const userFacilityIds = userAllowedFacilities.map(f => f.id);
+        expect(allowedFacilityIds).toStrictEqual(userFacilityIds);
+      });
+
+      it('should return an empty array if there are no linked facilities when restrictUsersToFacilities is enabled', async () => {
+        const allowedFacilityIds = await userWithoutFacilities.allowedFacilityIds();
+        expect(allowedFacilityIds).toHaveLength(0);
+      });
+      it('should return all non-sensitive facility ids if there are no linked facilities when restrictUsersToFacilities is disabled', async () => {
+        await models.Setting.set('auth.restrictUsersToFacilities', false);
+        const allowedFacilityIds = await userWithoutFacilities.allowedFacilityIds();
+
+        const nonSensitiveFacilityIds = nonSensitiveFacilities.map(f => f.id);
+        expect(allowedFacilityIds).toEqual(expect.arrayContaining(nonSensitiveFacilityIds));
       });
     });
 
     describe('canAccessFacility', () => {
-      it('should return true for every facility if superuser', async () => {
-        jest
-          .spyOn(superUser, 'allowedFacilityIds')
-          .mockImplementation(() => CAN_ACCESS_ALL_FACILITIES);
+      it('should return true for every facility if the user is a superuser', async () => {
         expect(await superUser.canAccessFacility(facility1.id)).toBe(true);
         expect(await superUser.canAccessFacility(facility2.id)).toBe(true);
         expect(await superUser.canAccessFacility(facility3.id)).toBe(true);
+        expect(await superUser.canAccessFacility(sensitiveFacility1.id)).toBe(true);
+        expect(await superUser.canAccessFacility(sensitiveFacility2.id)).toBe(true);
       });
 
-      it('should only return true if valid facility linked through user table', async () => {
-        jest.spyOn(user, 'allowedFacilityIds').mockImplementation(() => validUserFacilityIds);
-        expect(await user.canAccessFacility(facility1.id)).toBe(true);
-        expect(await user.canAccessFacility(facility2.id)).toBe(true);
-        expect(await user.canAccessFacility(facility3.id)).toBe(false);
-      });
-
-      it('should only always return false if no facility links', async () => {
-        jest.spyOn(user, 'allowedFacilityIds').mockImplementation(() => []);
-        expect(await user.canAccessFacility(facility1.id)).toBe(false);
-        expect(await user.canAccessFacility(facility2.id)).toBe(false);
-        expect(await user.canAccessFacility(facility3.id)).toBe(false);
+      it('should return true if the user is linked to the facility', async () => {
+        expect(await userWithFacilities.canAccessFacility(facility1.id)).toBe(true);
+        expect(await userWithFacilities.canAccessFacility(facility2.id)).toBe(false);
+        expect(await userWithFacilities.canAccessFacility(facility3.id)).toBe(false);
+        expect(await userWithFacilities.canAccessFacility(sensitiveFacility1.id)).toBe(true);
+        expect(await userWithFacilities.canAccessFacility(sensitiveFacility2.id)).toBe(false);
       });
     });
 
@@ -451,15 +537,21 @@ describe('User', () => {
           CAN_ACCESS_ALL_FACILITIES,
           configFacilityIds,
         );
-        expect(superUserAllowedFacilities).toStrictEqual([facility1, facility2, facility3]);
+        expect(superUserAllowedFacilities).toStrictEqual([
+          facility1,
+          facility2,
+          facility3,
+          sensitiveFacility1,
+          sensitiveFacility2,
+        ]);
       });
 
       it('should filter allowed facilities by facilityIds argument if normal user', async () => {
-        const userAllowedFacilities = await models.User.filterAllowedFacilities(
-          validUserFacilities,
+        const allowedFacilities = await models.User.filterAllowedFacilities(
+          userAllowedFacilities,
           configFacilityIds,
         );
-        expect(userAllowedFacilities).toStrictEqual(validUserFacilities);
+        expect(allowedFacilities).toStrictEqual(userAllowedFacilities);
       });
     });
   });
@@ -469,7 +561,7 @@ describe('User', () => {
     let app = null;
     let patients = [];
 
-    const viewPatient = async (patient) => {
+    const viewPatient = async patient => {
       const result = await app.post(`/api/user/recently-viewed-patients/${patient.id}`);
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchObject({
@@ -545,9 +637,9 @@ describe('User', () => {
       expect(result.body.data).toHaveLength(12);
 
       // orders should match
-      const resultIds = result.body.data.map((x) => x.id);
+      const resultIds = result.body.data.map(x => x.id);
       const sourceIds = patients
-        .map((x) => x.id)
+        .map(x => x.id)
         .reverse()
         .slice(0, 12);
       expect(resultIds).toEqual(sourceIds);
@@ -581,8 +673,8 @@ describe('User', () => {
       const result = await app.get('/api/user/recently-viewed-patients?encounterType=admission');
       expect(result).toHaveSucceeded();
       // orders should match
-      const resultIds = result.body.data.map((x) => x.id);
-      const sourceIds = patientsToView.map((x) => x.id).reverse();
+      const resultIds = result.body.data.map(x => x.id);
+      const sourceIds = patientsToView.map(x => x.id).reverse();
       expect(resultIds).toEqual(sourceIds);
     });
 
@@ -618,8 +710,8 @@ describe('User', () => {
       expect(result).toHaveSucceeded();
 
       // orders should match
-      const resultIds = result.body.data.map((x) => x.id);
-      const sourceIds = patientsToView.map((x) => x.id).reverse();
+      const resultIds = result.body.data.map(x => x.id);
+      const sourceIds = patientsToView.map(x => x.id).reverse();
       expect(resultIds).toEqual(sourceIds);
     });
   });

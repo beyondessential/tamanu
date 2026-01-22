@@ -4,15 +4,18 @@ import styled from 'styled-components';
 import { Switch } from '@material-ui/core';
 
 import {
+  AutocompleteInput,
   LargeBodyText,
   NumberInput,
   TextButton,
   TextInput,
   TranslatedText,
 } from '../../../../components';
+import { Colors } from '../../../../constants/styles';
 import { JSONEditor } from './JSONEditor';
-import { Colors } from '../../../../constants';
 import { ConditionalTooltip } from '../../../../components/Tooltip';
+import { MultiAutocompleteInput } from '../../../../components/Field/MultiAutocompleteField';
+import { useSuggester } from '../../../../api';
 
 const Unit = styled.div`
   font-size: 15px; // Match TextField
@@ -25,6 +28,14 @@ const StyledTextInput = styled(TextInput)`
 `;
 
 const StyledNumberInput = styled(NumberInput)`
+  .MuiInputBase-root.Mui-disabled {
+    background: ${Colors.background};
+  }
+`;
+
+const StyledMultiAutocompleteInput = styled(MultiAutocompleteInput)`
+  width: 353px;
+
   .MuiInputBase-root.Mui-disabled {
     background: ${Colors.background};
   }
@@ -67,6 +78,8 @@ const TYPE_OVERRIDES_BY_KEY = {
   ['body']: SETTING_TYPES.LONG_TEXT,
 };
 
+const normalize = val => (val === null || val === '' ? '' : val);
+
 export const SettingInput = ({
   path,
   value,
@@ -75,10 +88,13 @@ export const SettingInput = ({
   unit,
   typeSchema,
   disabled,
+  suggesterEndpoint,
+  facilityId,
 }) => {
   const { type } = typeSchema;
   const [error, setError] = useState(null);
-  const normalize = val => (val === null || val === '' ? '' : val);
+  const suggesterOptions = facilityId ? { baseQueryParameters: { facilityId } } : undefined;
+  const suggester = useSuggester(suggesterEndpoint, suggesterOptions);
   const isUnchangedFromDefault = useMemo(() => isEqual(normalize(value), normalize(defaultValue)), [
     value,
     defaultValue,
@@ -130,15 +146,59 @@ export const SettingInput = ({
     );
   };
 
+  const defaultHandleChange = e => handleChangeSetting(path, e.target.value);
   const handleChangeSwitch = e => handleChangeSetting(path, e.target.checked);
-  const handleChangeText = e => handleChangeSetting(path, e.target.value);
   const handleChangeNumber = e => handleChangeSetting(path, Number(e.target.value));
   const handleChangeJSON = e => handleChangeSetting(path, e);
 
   const displayValue = isUndefined(value) ? defaultValue : value;
+  const suggesterDisplayValue = displayValue === null ? '' : displayValue;
 
   const key = path.split('.').pop();
   const typeKey = TYPE_OVERRIDES_BY_KEY[key] || type;
+  if (suggesterEndpoint) {
+    switch (typeKey) {
+      case SETTING_TYPES.ARRAY:
+        return (
+          <Flexbox data-testid="flexbox-bpq4">
+            <StyledMultiAutocompleteInput
+              onChange={defaultHandleChange}
+              disabled={disabled}
+              suggester={suggester}
+              value={suggesterDisplayValue}
+              error={error}
+              helperText={error?.message}
+            />
+            <DefaultButton data-testid="defaultbutton-qsdq" />
+          </Flexbox>
+        );
+      case SETTING_TYPES.STRING:
+        return (
+          <Flexbox data-testid="flexbox-bpq4">
+            <AutocompleteInput
+              onChange={defaultHandleChange}
+              disabled={disabled}
+              suggester={suggester}
+              value={suggesterDisplayValue}
+              error={error}
+              helperText={error?.message}
+            />
+            <DefaultButton data-testid="defaultbutton-qsdq" />
+          </Flexbox>
+        );
+      default:
+        return (
+          <LargeBodyText data-testid="largebodytext-e29s">
+            <TranslatedText
+              stringId="admin.settings.error.noSuggesterComponent"
+              fallback="No suggester component for this type: :type (default: :defaultValue)"
+              replacements={{ type, defaultValue }}
+              data-testid="translatedtext-ah4n"
+            />
+          </LargeBodyText>
+        );
+    }
+  }
 
   switch (typeKey) {
     case SETTING_TYPES.BOOLEAN:
@@ -159,7 +219,7 @@ export const SettingInput = ({
         <Flexbox data-testid="flexbox-wwbe">
           <StyledTextInput
             value={displayValue ?? ''}
-            onChange={handleChangeText}
+            onChange={defaultHandleChange}
             style={{ width: '353px' }}
             error={error}
             helperText={error?.message}
@@ -190,7 +250,7 @@ export const SettingInput = ({
         <Flexbox data-testid="flexbox-r6sr">
           <StyledTextInput
             value={displayValue}
-            onChange={handleChangeText}
+            onChange={defaultHandleChange}
             style={{ width: '353px', minHeight: '156px' }}
             multiline
             error={error}

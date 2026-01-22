@@ -105,6 +105,16 @@ export const globalSettings = {
         },
       },
     },
+    locationAssignments: {
+      description: 'Location assignment settings',
+      properties: {
+        assignmentMaxFutureMonths: {
+          description: 'The maximum number of months allowed when creating location assignments',
+          type: yup.number().min(1),
+          defaultValue: 24,
+        },
+      },
+    },
     features: {
       description: 'Toggle features on/off',
       properties: {
@@ -175,11 +185,6 @@ export const globalSettings = {
           type: yup.boolean(),
           defaultValue: true,
         },
-        enableCovidClearanceCertificate: {
-          description: 'Enable COVID certificate printout',
-          type: yup.boolean(),
-          defaultValue: false,
-        },
         editPatientDisplayId: {
           description: 'Allow the editing of an existing patients display id',
           type: yup.boolean(),
@@ -195,6 +200,13 @@ export const globalSettings = {
           description: 'Enable patient planned move encounter actions',
           type: yup.boolean(),
           defaultValue: false,
+        },
+        patientPortal: {
+          description:
+            'Enable patient portal. When turned off, the patient portal api is disconnected and the UI in tamanu web to register portal users and assign them forms is hidden',
+          type: yup.boolean(),
+          defaultValue: false,
+          highRisk: true,
         },
         onlyAllowLabPanels: {
           description: 'Only allow lab tests to be created via panels and not individual tests',
@@ -227,7 +239,18 @@ export const globalSettings = {
             },
           },
         },
+        mandatoryChartingEditReason: {
+          description: 'Require a reason for change text field to be filled out on chart edit',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        enableChartingEdit: {
+          description: 'Allow existing charting records to be edited',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
         desktopCharting: {
+          description: 'Enable desktop charting module',
           properties: {
             enabled: {
               type: yup.boolean(),
@@ -312,6 +335,18 @@ export const globalSettings = {
             enabled: {
               description: 'Enable pharmacy orders',
               type: yup.boolean(),
+              defaultValue: true,
+            },
+            medicationAlreadyOrderedConfirmationTimeout: {
+              description:
+                'Ask confirmation from users if they try to order a medication that has been ordered within the timeout period',
+              type: yup.number().positive(),
+              defaultValue: 24,
+              unit: 'hours',
+            },
+            sendViaMSupply: {
+              description: 'Send pharmacy orders to mSupply (when an integration is configured)',
+              type: yup.boolean(),
               defaultValue: false,
             },
           },
@@ -320,6 +355,43 @@ export const globalSettings = {
           description: 'Use the global PDF font for all PDFs',
           type: yup.boolean(),
           defaultValue: false,
+        },
+        deviceRegistrationQuota: {
+          description: 'Device registration quota settings',
+          properties: {
+            enabled: {
+              description: 'Enable device registration quota',
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+          },
+        },
+        labRequest: {
+          description: 'Lab request settings',
+          properties: {
+            enableLabResultsPrintout: {
+              name: 'Lab results printout',
+              description:
+                'Enable lab results printout (print results button and interim report option)',
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+          },
+        },
+        covidCertificates: {
+          description: 'COVID certificate settings',
+          properties: {
+            enableCovidClearanceCertificate: {
+              description: 'Enable COVID certificate printout',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            enableCovidVaccinationCertificateSigning: {
+              description: 'Enable signing of COVID vaccination certificate',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+          },
         },
       },
     },
@@ -927,6 +999,12 @@ export const globalSettings = {
         },
       },
     },
+    fileChooserMbSizeLimit: {
+      description:
+        'The maximum size in megabytes of files that can be uploaded with the file chooser',
+      type: yup.number().min(1),
+      defaultValue: 10,
+    },
     integrations: {
       name: 'Integrations',
       description: 'Integration settings',
@@ -1148,6 +1226,13 @@ export const globalSettings = {
                 schedulingLocations: { properties: layoutModuleProperties },
               },
             },
+            medication: {
+              description: '_',
+              properties: {
+                medicationActive: { properties: layoutModuleProperties },
+                medicationDispensed: { properties: layoutModuleProperties },
+              },
+            },
             imaging: {
               description: '_',
               properties: {
@@ -1192,20 +1277,142 @@ export const globalSettings = {
         },
       },
     },
+    security: {
+      highRisk: true,
+      description: 'Security settings',
+      properties: {
+        reportNoUserError: {
+          description:
+            'Display "no such user" message when authenticating. This may weaken security by allowing attackers to determine valid usernames.',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        loginAttempts: {
+          description: 'Login attempts settings',
+          properties: {
+            lockoutThreshold: {
+              description: 'Number of failed attempts before account is locked',
+              type: yup.number().positive().integer(),
+              defaultValue: 10,
+            },
+            observationWindow: {
+              description: 'Time interval in minutes that attempts must occur within',
+              type: yup.number().positive().integer(),
+              defaultValue: 10,
+            },
+            lockoutDuration: {
+              description: 'Duration of lockout in minutes',
+              type: yup.number().positive(),
+              defaultValue: 10,
+            },
+          },
+        },
+        mobile: {
+          description: 'Mobile security settings',
+          properties: {
+            allowUnencryptedStorage: {
+              description: 'Allow unencrypted storage on mobile devices',
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            allowUnprotected: {
+              description: 'Allow mobile devices without screen lock with passcode',
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+          },
+        },
+      },
+    },
     templates: {
       description: 'Strings to be inserted into emails/PDFs',
       properties: {
-        appointmentConfirmation: {
-          description: 'The email sent to confirm an appointment',
+        patientPortalLoginEmail: {
+          description: 'The email sent to the patient with their login code',
           properties: {
             subject: {
               type: yup.string().trim().min(1),
-              defaultValue: 'Appointment confirmation',
+              defaultValue: 'Your Tamanu Patient Portal Login Code',
             },
             body: {
               type: yup.string().trim().min(1),
               defaultValue:
-                'Hi $firstName$ $lastName$,\n\n This is a confirmation that your appointment has been scheduled at $facilityName$.\nDate: $startDate$\nTime: $startTime$\nLocation: $locationName$, $facilityName$$clinicianName$\n\nDo not respond to this email.',
+                'Your 6-digit login code for Tamanu Patient Portal is: $token$\n\nDo not respond to this email.',
+            },
+          },
+        },
+        patientPortalRegistrationEmail: {
+          description: 'The email sent to the patient to register for the patient portal',
+          properties: {
+            subject: {
+              type: yup.string().trim().min(1),
+              defaultValue: 'Tamanu Patient Portal Registration',
+            },
+            body: {
+              type: yup.string().trim().min(1),
+              defaultValue:
+                'Please follow the link below to complete Tamanu Patient Portal registration for $firstName$ $lastName$.\n\n$registrationLink$\n\nDo not respond to this email',
+            },
+          },
+        },
+        patientPortalRegisteredFormEmail: {
+          description: 'The email sent to a registered patient to complete a form',
+          properties: {
+            subject: {
+              type: yup.string().trim().min(1),
+              defaultValue: 'New Patient Form Request from $facilityName$',
+            },
+            body: {
+              type: yup.string().trim().min(1),
+              defaultValue:
+                'A new patient form request has been sent from $facilityName$ for $firstName$ $lastName$. Please follow the below link to log in to your Tamanu Patient Portal to access and complete this form.\n\n$loginLink$\n\nDo not respond to this email.',
+            },
+          },
+        },
+        patientPortalUnregisteredFormEmail: {
+          description: 'The email sent to an unregistered patient to complete a form',
+          properties: {
+            subject: {
+              type: yup.string().trim().min(1),
+              defaultValue: 'New Patient Form Request from $facilityName$',
+            },
+            body: {
+              type: yup.string().trim().min(1),
+              defaultValue:
+                'A new patient form request has been sent from $facilityName$ for $firstName$ $lastName$. Before you can access this form, you must register for a Tamanu Patient Portal account.\n\nPlease follow the link below to complete Tamanu Patient Portal registration for $firstName$ $lastName$. Once you have set up your patient portal account, you will be able to log in and access the requested form.\n\n$registrationLink$\n\nDo not respond to this email.',
+            },
+          },
+        },
+        appointmentConfirmation: {
+          description: 'The email sent to confirm an appointment',
+          properties: {
+            locationBooking: {
+              description: 'The email template sent to confirm a location booking',
+              properties: {
+                subject: {
+                  type: yup.string().trim().min(1),
+                  defaultValue: 'Booking confirmation',
+                },
+                body: {
+                  type: yup.string().trim().min(1),
+                  defaultValue:
+                    'Hi $firstName$ $lastName$,\n\nThis is a confirmation that your booking has been scheduled at $facilityName$.\nDate: $startDate$\nTime: $startTime$\nLocation: $locationName$, $facilityName$$clinicianName$\n\nDo not respond to this email.',
+                },
+              },
+            },
+            outpatientAppointment: {
+              description: 'The email template sent to confirm an outpatient appointment',
+              properties: {
+                subject: {
+                  type: yup.string().trim().min(1),
+                  defaultValue: 'Appointment confirmation',
+                },
+                body: {
+                  type: yup.string().trim().min(1),
+                  defaultValue:
+                    'Hi $firstName$ $lastName$,\n\nThis is a confirmation that your appointment has been scheduled at $facilityName$.\nDate: $startDate$\nTime: $startTime$\nLocation: $locationName$, $facilityName$$clinicianName$\n\nDo not respond to this email.',
+                },
+              },
             },
           },
         },
@@ -1365,9 +1572,48 @@ export const globalSettings = {
         },
       },
     },
+    patientPortal: {
+      description: 'Patient portal settings',
+      properties: {
+        baseUrl: {
+          description: 'The base URL of the patient portal',
+          type: yup.string().trim().url().nullable(),
+          defaultValue: null,
+        },
+      },
+    },
     medications: {
       description: 'Medication settings',
       properties: {
+        dispensing: {
+          description: 'Medication dispensing settings',
+          properties: {
+            prescriptionLabelSize: {
+              description: 'Prescription label size.',
+              properties: {
+                width: {
+                  description: 'Prescription label width.',
+                  type: yup.number().min(1),
+                  defaultValue: 80,
+                  unit: 'mm',
+                },
+                height: {
+                  description: 'Prescription label height.',
+                  type: yup.number().min(1),
+                  defaultValue: 40,
+                  unit: 'mm',
+                },
+              },
+            },
+            autoDeleteTimeframeHours: {
+              name: 'Autodelete medication request timeframe in hours',
+              description: 'Medication requests not dispensed after this timeframe will be automatically deleted.',
+              type: yup.number().integer().positive(),
+              defaultValue: 72,
+              unit: 'hours',
+            },
+          },
+        },
         frequenciesEnabled: {
           description: 'Enable medication frequencies',
           properties: {

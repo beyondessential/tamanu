@@ -9,6 +9,13 @@ sources:
         config:
           tags:
             - patient
+          meta:
+            triggers:
+              - notify_patient_additional_data_changed
+              - record_patient_additional_data_changelog
+              - set_patient_additional_data_updated_at
+              - set_patient_additional_data_updated_at_by_field
+              - set_patient_additional_data_updated_at_sync_tick
         columns:
           - name: created_at
             data_type: timestamp with time zone
@@ -22,51 +29,71 @@ sources:
           - name: place_of_birth
             data_type: character varying(255)
             description: "{{ doc('patient_additional_data__place_of_birth') }}"
+            config:
+              meta:
+                masking: place
           - name: primary_contact_number
             data_type: character varying(255)
             description: "{{ doc('patient_additional_data__primary_contact_number') }}"
+            config:
+              meta:
+                masking: phone
           - name: secondary_contact_number
             data_type: character varying(255)
             description: "{{ doc('patient_additional_data__secondary_contact_number') }}"
+            config:
+              meta:
+                masking: phone
           - name: marital_status
             data_type: character varying(255)
             description: "{{ doc('patient_additional_data__marital_status') }}"
             data_tests:
               - accepted_values:
-                  values:
-                    - Defacto
-                    - Married
-                    - Single
-                    - Widow
-                    - Divorced
-                    - Separated
-                    - Unknown
+                  arguments:
+                    values:
+                      - Defacto
+                      - Married
+                      - Single
+                      - Widow
+                      - Divorced
+                      - Separated
+                      - Unknown
           - name: city_town
             data_type: character varying(255)
             description: "{{ doc('patient_additional_data__city_town') }}"
+            config:
+              meta:
+                masking: place
           - name: street_village
             data_type: character varying(255)
             description: "{{ doc('patient_additional_data__street_village') }}"
+            config:
+              meta:
+                masking: place
           - name: educational_level
             data_type: character varying(255)
             description: "{{ doc('patient_additional_data__educational_level') }}"
           - name: social_media
             data_type: character varying(255)
             description: "{{ doc('patient_additional_data__social_media') }}"
+            config:
+              meta:
+                masking: string
           - name: blood_type
             data_type: character varying(255)
             description: "{{ doc('patient_additional_data__blood_type') }}"
             data_tests:
               - accepted_values:
-                  values:
-                    - A+
-                    - A-
-                    - AB-
-                    - AB+
-                    - B+
-                    - B-
-                    - O+
-                    - O-
+                  arguments:
+                    values:
+                      - A+
+                      - A-
+                      - AB-
+                      - AB+
+                      - B+
+                      - B-
+                      - O+
+                      - O-
           - name: title
             data_type: character varying(255)
             description: "{{ doc('patient_additional_data__title') }}"
@@ -106,12 +133,21 @@ sources:
           - name: birth_certificate
             data_type: character varying(255)
             description: "{{ doc('patient_additional_data__birth_certificate') }}"
+            config:
+              meta:
+                masking: string
           - name: driving_license
             data_type: character varying(255)
             description: "{{ doc('patient_additional_data__driving_license') }}"
+            config:
+              meta:
+                masking: string
           - name: passport
             data_type: character varying(255)
             description: "{{ doc('patient_additional_data__passport') }}"
+            config:
+              meta:
+                masking: string
           - name: religion_id
             data_type: character varying(255)
             description: "{{ doc('patient_additional_data__religion_id') }}"
@@ -127,9 +163,15 @@ sources:
           - name: emergency_contact_name
             data_type: character varying(255)
             description: "{{ doc('patient_additional_data__emergency_contact_name') }}"
+            config:
+              meta:
+                masking: name
           - name: emergency_contact_number
             data_type: character varying(255)
             description: "{{ doc('patient_additional_data__emergency_contact_number') }}"
+            config:
+              meta:
+                masking: phone
           - name: mother_id
             data_type: character varying(255)
             description: "{{ doc('patient_additional_data__mother_id') }}"
@@ -159,3 +201,6 @@ sources:
           - name: insurer_policy_number
             data_type: character varying(255)
             description: "{{ doc('patient_additional_data__insurer_policy_number') }}"
+            config:
+              meta:
+                masking: string

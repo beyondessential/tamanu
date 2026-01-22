@@ -1,8 +1,9 @@
-import { format } from 'date-fns';
+import { format, isSameDay } from 'date-fns';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { Op, Sequelize, literal } from 'sequelize';
+import { Op, QueryTypes, Sequelize, literal } from 'sequelize';
 import { omit } from 'lodash';
+import { z } from 'zod';
 
 import {
   APPOINTMENT_STATUSES,
@@ -10,13 +11,87 @@ import {
   PATIENT_COMMUNICATION_CHANNELS,
   PATIENT_COMMUNICATION_TYPES,
   MODIFY_REPEATING_APPOINTMENT_MODE,
+  LOCATION_BOOKABLE_VIEW,
 } from '@tamanu/constants';
-import { NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
+import { NotFoundError, EditConflictError, InvalidOperationError } from '@tamanu/errors';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
+import { datetimeCustomValidation } from '@tamanu/utils/dateTime';
 
 import { escapePatternWildcard } from '../../utils/query';
 
 export const appointments = express.Router();
+
+
+const reorderAppointmentSchema = z.object({
+  appointments: z
+    .array(
+      z.object({
+        id: z.string(),
+        startTime: datetimeCustomValidation,
+        endTime: datetimeCustomValidation,
+      }),
+    )
+    .min(1),
+});
+appointments.put(
+  '/reorder-location-bookings',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'Appointment');
+
+    const { models } = req;
+    const { Appointment } = models;
+    const body = await reorderAppointmentSchema.parseAsync(req.body);
+    const { appointments } = body;
+    const appointmentIds = appointments.map(appointment => appointment.id);
+
+    const appointmentsToReorder = await Appointment.findAll({
+      where: {
+        id: { [Op.in]: appointmentIds },
+      },
+      include: ['locationGroup', 'location'],
+    });
+    if (
+      appointmentIds.length !== appointmentsToReorder.length ||
+      appointmentsToReorder.some(appointment => !appointmentIds.includes(appointment.id))
+    ) {
+      throw new NotFoundError('Some appointments not found');
+    }
+    const locationId = appointmentsToReorder[0].locationId;
+    if (appointmentsToReorder.some(appointment => appointment.locationId !== locationId)) {
+      throw new InvalidOperationError('All appointments must be in the same location');
+    }
+    if (
+      appointmentsToReorder.some(
+        appointment => appointment.status === APPOINTMENT_STATUSES.CANCELLED,
+      )
+    ) {
+      throw new InvalidOperationError('Some appointments are cancelled');
+    }
+    const startTime = appointmentsToReorder[0].startTime;
+    if (
+      appointmentsToReorder.some(
+        appointment =>
+          !isSameDay(new Date(appointment.startTime), new Date(startTime)) ||
+          !isSameDay(new Date(appointment.endTime), new Date(startTime)),
+      )
+    ) {
+      throw new InvalidOperationError('All appointments must be in the same date');
+    }
+
+    await Appointment.sequelize.transaction(async () => {
+      for (const appointment of appointmentsToReorder) {
+        await appointment.update({
+          startTime: appointments.find(a => a.id === appointment.id).startTime,
+          endTime: appointments.find(a => a.id === appointment.id).endTime,
+        });
+      }
+    });
+
+    res.status(200).send({
+      success: true,
+    });
+  }),
+);
 
 /**
  * @param {string} intervalStart Some valid PostgreSQL Date/Time input.
@@ -35,43 +110,72 @@ const buildTimeQuery = (intervalStart, intervalEnd) => {
   return [whereClause, bindParams];
 };
 
-const sendAppointmentReminder = async ({ appointmentId, email, facilityId, models, settings }) => {
+const sendAppointmentReminder = async ({
+  appointmentId,
+  email,
+  facilityId,
+  models,
+  settings,
+  transaction,
+}) => {
   const { Appointment, Facility, PatientCommunication } = models;
 
   // Fetch appointment relations
   const [appointment, facility] = await Promise.all([
     Appointment.findByPk(appointmentId, {
-      include: ['patient', 'clinician', 'locationGroup'],
+      include: [
+        'patient',
+        'clinician',
+        'locationGroup',
+        {
+          association: 'location',
+          include: ['locationGroup'],
+        },
+      ],
+      transaction,
     }),
-    Facility.findByPk(facilityId),
+    Facility.findByPk(facilityId, { transaction }),
   ]);
 
-  const { patient, locationGroup, clinician } = appointment;
+  const { patient, clinician, locationId } = appointment;
+  const isLocationBooking = !!locationId;
 
+  const templateKeySuffix = isLocationBooking ? 'locationBooking' : 'outpatientAppointment';
   const appointmentConfirmationTemplate = await settings[facilityId].get(
-    'templates.appointmentConfirmation',
+    `templates.appointmentConfirmation.${templateKeySuffix}`,
   );
 
   const start = new Date(appointment.startTime);
+  const locationName = isLocationBooking
+    ? appointment.location?.locationGroup?.name || ''
+    : appointment.locationGroup?.name || '';
+
   const content = replaceInTemplate(appointmentConfirmationTemplate.body, {
     firstName: patient.firstName,
     lastName: patient.lastName,
     facilityName: facility.name,
     startDate: format(start, 'PPPP'),
     startTime: format(start, 'p'),
-    locationName: locationGroup.name,
+    locationName,
     clinicianName: clinician?.displayName ? `\nClinician: ${clinician.displayName}` : '',
   });
 
-  return await PatientCommunication.create({
-    type: PATIENT_COMMUNICATION_TYPES.APPOINTMENT_CONFIRMATION,
-    channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
-    status: COMMUNICATION_STATUSES.QUEUED,
-    destination: email,
-    subject: appointmentConfirmationTemplate.subject,
-    content,
-    patientId: patient.id,
-  });
+  const communicationType = isLocationBooking
+    ? PATIENT_COMMUNICATION_TYPES.BOOKING_CONFIRMATION
+    : PATIENT_COMMUNICATION_TYPES.APPOINTMENT_CONFIRMATION;
+
+  return await PatientCommunication.create(
+    {
+      type: communicationType,
+      channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
+      status: COMMUNICATION_STATUSES.QUEUED,
+      destination: email,
+      subject: appointmentConfirmationTemplate.subject,
+      content,
+      patientId: patient.id,
+    },
+    { transaction },
+  );
 };
 
 appointments.post(
@@ -84,8 +188,8 @@ appointments.post(
       body: { facilityId, schedule: scheduleData, ...appointmentData },
       settings,
     } = req;
-    const { Appointment } = models;
-    const result = await db.transaction(async () => {
+    const { Appointment, PatientFacility } = models;
+    const result = await db.transaction(async transaction => {
       const appointment = scheduleData
         ? (
             await Appointment.createWithSchedule({
@@ -94,7 +198,12 @@ appointments.post(
               scheduleData,
             })
           ).firstAppointment
-        : await Appointment.create(appointmentData);
+        : await Appointment.create(appointmentData, { transaction });
+
+      await PatientFacility.findOrCreate({
+        where: { patientId: appointment.patientId, facilityId },
+        transaction,
+      });
 
       const { email } = appointmentData;
       if (email) {
@@ -104,6 +213,7 @@ appointments.post(
           facilityId,
           models,
           settings,
+          transaction,
         });
       }
 
@@ -188,12 +298,17 @@ appointments.put(
   }),
 );
 
-const isStringOrArray = (obj) => typeof obj === 'string' || Array.isArray(obj);
+const isStringOrArray = obj => typeof obj === 'string' || Array.isArray(obj);
 
-const searchableFields = [
+const CONTAINS_SEARCHABLE_FIELDS = [
+  'patient.first_name',
+  'patient.last_name',
+  'patient.display_id',
+];
+
+const EXACT_MATCH_SEARCHABLE_FIELDS = [
   'startTime',
   'endTime',
-  'type',
   'appointmentTypeId',
   'bookingTypeId',
   'status',
@@ -201,10 +316,9 @@ const searchableFields = [
   'locationId',
   'locationGroupId',
   'patientId',
-  'patient.first_name',
-  'patient.last_name',
-  'patient.display_id',
 ];
+
+const ALL_SEARCHABLE_FIELDS = [...CONTAINS_SEARCHABLE_FIELDS, ...EXACT_MATCH_SEARCHABLE_FIELDS];
 
 const sortKeys = {
   patientName: Sequelize.fn(
@@ -225,7 +339,7 @@ const sortKeys = {
   bookingArea: Sequelize.col('location.locationGroup.name'),
 };
 
-const buildPatientNameOrIdQuery = (patientNameOrId) => {
+const buildPatientNameOrIdQuery = patientNameOrId => {
   if (!patientNameOrId) return null;
 
   const ilikeClause = {
@@ -269,6 +383,7 @@ appointments.get(
         orderBy = 'startTime',
         patientNameOrId,
         includeCancelled = false,
+        view,
         ...queries
       },
     } = req;
@@ -293,8 +408,19 @@ appointments.get(
       ],
     };
 
+    const bookableWhereClause = [
+      LOCATION_BOOKABLE_VIEW.DAILY,
+      LOCATION_BOOKABLE_VIEW.WEEKLY,
+    ].includes(view)
+      ? {
+          '$location.locationGroup.is_bookable$': {
+            [Op.in]: [LOCATION_BOOKABLE_VIEW.ALL, view],
+          },
+        }
+      : null;
+
     const filters = Object.entries(queries).reduce((_filters, [queryField, queryValue]) => {
-      if (!searchableFields.includes(queryField) || !isStringOrArray(queryValue)) {
+      if (!ALL_SEARCHABLE_FIELDS.includes(queryField) || !isStringOrArray(queryValue)) {
         return _filters;
       }
 
@@ -306,7 +432,9 @@ appointments.get(
       if (queryValue === '' || queryValue.length === 0) {
         comparison = { [Op.not]: null };
       } else if (typeof queryValue === 'string') {
-        comparison = { [Op.iLike]: `%${escapePatternWildcard(queryValue)}%` };
+        comparison = EXACT_MATCH_SEARCHABLE_FIELDS.includes(queryField)
+          ? { [Op.eq]: queryValue }
+          : { [Op.iLike]: `%${escapePatternWildcard(queryValue)}%` };
       } else {
         comparison = { [Op.in]: queryValue };
       }
@@ -326,6 +454,7 @@ appointments.get(
           cancelledStatusWhereClause,
           isBeforeScheduleUntilDateWhereClause,
           buildPatientNameOrIdQuery(patientNameOrId),
+          bookableWhereClause,
           ...filters,
         ],
       },
@@ -345,12 +474,12 @@ appointments.post(
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'Appointment');
 
-    const { models, body } = req;
-    const { startTime, endTime, locationId } = body;
-    const { Appointment } = models;
+    const { models, body, settings } = req;
+    const { startTime, endTime, locationId, patientId, procedureTypeIds, email } = body;
+    const { Appointment, PatientFacility, Location } = models;
 
     try {
-      const result = await Appointment.sequelize.transaction(async (transaction) => {
+      const result = await Appointment.sequelize.transaction(async transaction => {
         const [timeQueryWhereClause, timeQueryBindParams] = buildTimeQuery(startTime, endTime);
         const conflictCount = await Appointment.count({
           where: {
@@ -366,9 +495,34 @@ appointments.post(
           transaction,
         });
 
-        if (conflictCount > 0) throw new ResourceConflictError();
+        if (conflictCount > 0) throw new EditConflictError();
 
-        return await Appointment.create(body, { transaction });
+        const location = await Location.findByPk(locationId, { transaction });
+        if (!location) throw new NotFoundError('Location not found');
+
+        await PatientFacility.findOrCreate({
+          where: { patientId, facilityId: location.facilityId },
+          transaction,
+        });
+
+        const appointment = await Appointment.create(body, { transaction });
+
+        if (procedureTypeIds) {
+          await appointment.setProcedureTypes(procedureTypeIds);
+        }
+
+        if (email) {
+          await sendAppointmentReminder({
+            appointmentId: appointment.id,
+            email,
+            facilityId: location.facilityId,
+            models,
+            settings,
+            transaction,
+          });
+        }
+
+        return appointment;
       });
 
       res.status(201).send(result);
@@ -386,11 +540,11 @@ appointments.put(
     const { models, body, params, query } = req;
     const { id } = params;
     const { skipConflictCheck = false } = query;
-    const { startTime, endTime, locationId } = body;
+    const { startTime, endTime, locationId, procedureTypeIds } = body;
     const { Appointment } = models;
 
     try {
-      const result = await Appointment.sequelize.transaction(async (transaction) => {
+      const result = await Appointment.sequelize.transaction(async transaction => {
         const existingBooking = await Appointment.findByPk(id, { transaction });
 
         if (!existingBooking) {
@@ -414,11 +568,14 @@ appointments.put(
           });
 
           if (bookingTimeAlreadyTaken) {
-            throw new ResourceConflictError();
+            throw new EditConflictError();
           }
         }
 
         const updatedRecord = await existingBooking.update(body, { transaction });
+
+        await updatedRecord.setProcedureTypes(procedureTypeIds);
+
         return updatedRecord;
       });
 
@@ -426,5 +583,107 @@ appointments.put(
     } catch (error) {
       res.status(error.status || 500).send();
     }
+  }),
+);
+
+const getAppointmentTypeWhereQuery = (type, facilityId) => {
+  const facilityIdField =
+    type === 'outpatient' ? '$locationGroup.facility_id$' : '$location.facility_id$';
+  if (type === 'outpatient') {
+    return { locationGroupId: { [Op.not]: null }, [facilityIdField]: facilityId };
+  }
+  return { locationId: { [Op.not]: null }, [facilityIdField]: facilityId };
+};
+
+appointments.get(
+  '/hasPastAppointments/:patientId',
+  asyncHandler(async (req, res) => {
+    req.checkListOrReadPermission('Appointment');
+
+    const { models, params, query } = req;
+    const { patientId } = params;
+    const { type, facilityId } = query;
+
+    const [{ hasPastAppointment }] = await models.Appointment.sequelize.query(
+      `
+      SELECT EXISTS(
+        SELECT 1 FROM appointments
+        ${
+          type === 'outpatient'
+            ? 'LEFT JOIN location_groups ON appointments.location_group_id = location_groups.id'
+            : 'LEFT JOIN locations ON appointments.location_id = locations.id'
+        }
+        WHERE patient_id = :patientId
+          AND status != :cancelledStatus
+          AND start_time < NOW()::date_time_string
+          AND ${type === 'outpatient' ? 'location_groups.facility_id = :facilityId' : 'locations.facility_id = :facilityId'}
+        LIMIT 1
+      ) as "hasPastAppointment"
+    `,
+      {
+        replacements: {
+          patientId,
+          facilityId,
+          cancelledStatus: APPOINTMENT_STATUSES.CANCELLED,
+          typeColumn: type === 'outpatient' ? 'location_group_id' : 'location_id',
+        },
+        type: QueryTypes.SELECT,
+      },
+    );
+
+    res.send(hasPastAppointment);
+  }),
+);
+
+appointments.get(
+  '/upcomingAppointments/:patientId',
+  asyncHandler(async (req, res) => {
+    req.checkListOrReadPermission('Appointment');
+
+    const { models, params, query } = req;
+    const { patientId } = params;
+    const { type, facilityId, orderBy = 'startTime', order = 'ASC' } = query;
+    const { Appointment } = models;
+
+    const sortKeys = {
+      startTime: 'startTime',
+      outpatientAppointmentArea: ['locationGroup', 'name'],
+      bookingArea: ['location', 'locationGroup', 'name'],
+      clinician: ['clinician', 'displayName'],
+      appointmentType: ['appointmentType', 'name'],
+      bookingType: ['bookingType', 'name'],
+      location: ['location', 'name'],
+    };
+
+    const sortKey = sortKeys[orderBy] || 'startTime';
+    const sortOrder = order.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+
+    // Build order clause - handle nested associations
+    const orderClause = Array.isArray(sortKey)
+      ? [sortKey.concat([sortOrder])]
+      : [[sortKey, sortOrder]];
+
+    const upcomingAppointments = await Appointment.findAll({
+      where: {
+        patientId,
+        status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED },
+        startTime: { [Op.gt]: new Date() },
+        ...getAppointmentTypeWhereQuery(type, facilityId),
+      },
+      include: [
+        'locationGroup',
+        {
+          association: 'location',
+          include: ['locationGroup'],
+        },
+        'clinician',
+        'appointmentType',
+        'bookingType',
+        'patient',
+      ],
+      order: orderClause,
+    });
+
+    res.send(upcomingAppointments);
   }),
 );

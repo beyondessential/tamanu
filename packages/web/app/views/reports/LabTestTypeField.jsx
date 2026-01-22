@@ -2,15 +2,12 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { useApi } from '../../api';
-import {
-  MultiselectField,
-  Field,
-  TranslatedReferenceData,
-} from '../../components';
+import { MultiselectField } from '@tamanu/ui-components';
+import { Field, TranslatedReferenceData } from '../../components';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useTranslation } from '../../contexts/Translation';
 
-export const useLabTestTypes = (labTestCategoryId) => {
+export const useLabTestTypes = labTestCategoryId => {
   const api = useApi();
   const query = useQuery(
     ['labTestType', { labTestCategoryId }],
@@ -44,7 +41,7 @@ export const LabTestTypeField = ({ name = 'labTestTypeIds', label, required, par
       }
       component={MultiselectField}
       required={required}
-      options={data.map((type) => ({
+      options={data.map(type => ({
         value: type.id,
         label: (
           <TranslatedReferenceData

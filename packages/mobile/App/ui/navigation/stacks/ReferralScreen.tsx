@@ -25,7 +25,7 @@ export const ReferralScreen = ({ navigation }: BaseAppProps): ReactElement => {
   return (
     <ErrorBoundary>
       <StackHeader
-        title={<TranslatedText stringId="patient.referral.title" fallback="Referrals" />}
+        title={<TranslatedText stringId="patient.referral.title" fallback="Referral" />}
         subtitle={joinNames(selectedPatient)}
         onGoBack={goBack}
       />

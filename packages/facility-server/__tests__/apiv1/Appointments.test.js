@@ -1,5 +1,5 @@
 import config from 'config';
-import { add } from 'date-fns';
+import { add, format } from 'date-fns';
 import { Op } from 'sequelize';
 
 import {
@@ -10,6 +10,7 @@ import {
   REPEAT_FREQUENCY,
   MODIFY_REPEATING_APPOINTMENT_MODE,
 } from '@tamanu/constants';
+import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
 import { randomRecordId } from '@tamanu/database/demoData/utilities';
 import { fake } from '@tamanu/fake-data/fake';
@@ -46,6 +47,7 @@ describe('Appointments', () => {
       startTime: add(new Date(), { days: 1 }), // create a date in the future
       clinicianId: userApp.user.dataValues.id,
       appointmentTypeId: 'appointmentType-standard',
+      facilityId,
     });
     expect(result).toHaveSucceeded();
     appointment = result.body;
@@ -80,7 +82,7 @@ describe('Appointments', () => {
       patientId: patient.id,
     });
 
-    const searchPatientNameOrId = (query) =>
+    const searchPatientNameOrId = query =>
       userApp.get(`/api/appointments?patientNameOrId=${query}`);
 
     // Valid searches
@@ -109,6 +111,7 @@ describe('Appointments', () => {
         appointment = await models.Appointment.create({
           ...fake(models.Appointment),
           patientId: patient.id,
+          clinicianId: userApp.user.dataValues.id,
           locationGroupId: await randomRecordId(models, 'LocationGroup'),
         });
       });
@@ -151,15 +154,52 @@ describe('Appointments', () => {
         });
       });
 
-      it('should use template from settings for email subject and body', async () => {
-        const TEST_SUBJECT = 'test subject';
-        const TEST_CONTENT = 'test body';
+      it('should apply template replacements when sending outpatient reminder email', async () => {
+        const template = await ctx.settings[facilityId].get(
+          'templates.appointmentConfirmation.outpatientAppointment',
+        );
+
+        const appointmentForEmail = await models.Appointment.findByPk(appointment.id, {
+          include: ['patient', 'clinician', 'locationGroup'],
+        });
+
+        const facility = await models.Facility.findByPk(facilityId);
+
+        await userApp
+          .post('/api/appointments/emailReminder')
+          .send({ facilityId, appointmentId: appointment.id, email: TEST_EMAIL });
+
+        const patientCommunication = await models.PatientCommunication.findOne({
+          where: {
+            destination: TEST_EMAIL,
+          },
+          raw: true,
+        });
+
+        const start = new Date(appointmentForEmail.startTime);
+        const expectedContent = replaceInTemplate(template.body, {
+          firstName: appointmentForEmail.patient.firstName,
+          lastName: appointmentForEmail.patient.lastName,
+          facilityName: facility.name,
+          startDate: format(start, 'PPPP'),
+          startTime: format(start, 'p'),
+          locationName: appointmentForEmail.locationGroup.name,
+          clinicianName: `\nClinician: ${appointmentForEmail.clinician.displayName}`,
+        });
+
+        expect(patientCommunication.subject).toBe(template.subject);
+        expect(patientCommunication.content).toBe(expectedContent);
+      });
+
+      it('should use overridden outpatient template when settings are updated', async () => {
+        const OVERRIDE_SUBJECT = 'override outpatient subject';
+        const OVERRIDE_BODY = 'override outpatient body';
 
         await models.Setting.set(
-          'templates.appointmentConfirmation',
+          'templates.appointmentConfirmation.outpatientAppointment',
           {
-            subject: TEST_SUBJECT,
-            body: TEST_CONTENT,
+            subject: OVERRIDE_SUBJECT,
+            body: OVERRIDE_BODY,
           },
           SETTINGS_SCOPES.GLOBAL,
         );
@@ -167,14 +207,16 @@ describe('Appointments', () => {
         await userApp
           .post('/api/appointments/emailReminder')
           .send({ facilityId, appointmentId: appointment.id, email: TEST_EMAIL });
+
         const patientCommunication = await models.PatientCommunication.findOne({
           where: {
             destination: TEST_EMAIL,
           },
           raw: true,
         });
-        expect(patientCommunication.subject).toBe(TEST_SUBJECT);
-        expect(patientCommunication.content).toBe(TEST_CONTENT);
+
+        expect(patientCommunication.subject).toBe(OVERRIDE_SUBJECT);
+        expect(patientCommunication.content).toBe(OVERRIDE_BODY);
       });
     });
   });
@@ -183,30 +225,36 @@ describe('Appointments', () => {
     let locationId, patientId, clinicianId;
 
     beforeAll(async () => {
-      locationId = await randomRecordId(models, 'Location'); // Fetch once for all tests
+      const locationGroup = await models.LocationGroup.create(
+        fake(models.LocationGroup, { facilityId }),
+      );
+      const location = await models.Location.create(
+        fake(models.Location, { locationGroupId: locationGroup.id, facilityId }),
+      );
+      locationId = location.id;
       patientId = patient.id;
       clinicianId = userApp.user.dataValues.id;
     });
 
-    const makeBooking = async (startTime, endTime) => {
-      return await userApp.post('/api/appointments/locationBooking').send({
+    const makeBooking = async (startTime, endTime, email) =>
+      userApp.post('/api/appointments/locationBooking').send({
         patientId,
         startTime,
         endTime,
         clinicianId,
         locationId,
+        email,
       });
-    };
-
-    beforeEach(async () => {
-      await makeBooking('2024-10-02 12:00:00', '2024-10-02 12:30:00');
-    });
-
-    afterEach(async () => {
-      await models.Appointment.truncate();
-    });
 
     describe('booked time conflict checking', () => {
+      beforeEach(async () => {
+        await makeBooking('2024-10-02 12:00:00', '2024-10-02 12:30:00');
+      });
+
+      afterEach(async () => {
+        await models.Appointment.truncate();
+      });
+
       it('should reject if the same time', async () => {
         const result = await makeBooking('2024-10-02 12:00:00', '2024-10-02 12:30:00');
         expect(result.status).toBe(409);
@@ -240,6 +288,101 @@ describe('Appointments', () => {
       it('should allow booking if end time equals start time of another', async () => {
         const result = await makeBooking('2024-10-02 11:30:00', '2024-10-02 12:00:00');
         expect(result).toHaveSucceeded();
+      });
+    });
+
+    describe('booking confirmation emails', () => {
+      const TEST_EMAIL = 'booking@test.com';
+
+      afterEach(async () => {
+        await models.PatientCommunication.truncate({ cascade: true, force: true });
+      });
+
+      it('should create patient communication record when created with email in request body', async () => {
+        const result = await makeBooking('2024-10-03 12:00:00', '2024-10-03 12:30:00', TEST_EMAIL);
+        expect(result).toHaveSucceeded();
+
+        const patientCommunications = await models.PatientCommunication.findAll();
+        expect(patientCommunications.length).toBe(1);
+        expect(patientCommunications[0]).toMatchObject({
+          type: PATIENT_COMMUNICATION_TYPES.BOOKING_CONFIRMATION,
+          channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
+          destination: TEST_EMAIL,
+        });
+      });
+
+      it('should apply template replacements when sending location booking confirmation email', async () => {
+        const template = await ctx.settings[facilityId].get(
+          'templates.appointmentConfirmation.locationBooking',
+        );
+
+        const result = await makeBooking('2024-10-04 12:00:00', '2024-10-04 12:30:00', TEST_EMAIL);
+
+        expect(result).toHaveSucceeded();
+
+        const createdAppointmentId = result.body.id;
+
+        const appointmentForEmail = await models.Appointment.findByPk(createdAppointmentId, {
+          include: [
+            'patient',
+            'clinician',
+            {
+              association: 'location',
+              include: ['locationGroup'],
+            },
+          ],
+        });
+
+        const facility = await models.Facility.findByPk(facilityId);
+
+        const patientCommunication = await models.PatientCommunication.findOne({
+          where: {
+            destination: TEST_EMAIL,
+          },
+          raw: true,
+        });
+
+        const start = new Date(appointmentForEmail.startTime);
+        const expectedContent = replaceInTemplate(template.body, {
+          firstName: appointmentForEmail.patient.firstName,
+          lastName: appointmentForEmail.patient.lastName,
+          facilityName: facility.name,
+          startDate: format(start, 'PPPP'),
+          startTime: format(start, 'p'),
+          locationName: appointmentForEmail.location.locationGroup.name,
+          clinicianName: `\nClinician: ${appointmentForEmail.clinician.displayName}`,
+        });
+
+        expect(patientCommunication.subject).toBe(template.subject);
+        expect(patientCommunication.content).toBe(expectedContent);
+      });
+
+      it('should use overridden location booking template when settings are updated', async () => {
+        const OVERRIDE_SUBJECT = 'override booking subject';
+        const OVERRIDE_BODY = 'override booking body';
+
+        await models.Setting.set(
+          'templates.appointmentConfirmation.locationBooking',
+          {
+            subject: OVERRIDE_SUBJECT,
+            body: OVERRIDE_BODY,
+          },
+          SETTINGS_SCOPES.GLOBAL,
+        );
+
+        const result = await makeBooking('2024-10-05 12:00:00', '2024-10-05 12:30:00', TEST_EMAIL);
+
+        expect(result).toHaveSucceeded();
+
+        const patientCommunication = await models.PatientCommunication.findOne({
+          where: {
+            destination: TEST_EMAIL,
+          },
+          raw: true,
+        });
+
+        expect(patientCommunication.subject).toBe(OVERRIDE_SUBJECT);
+        expect(patientCommunication.content).toBe(OVERRIDE_BODY);
       });
     });
   });
@@ -298,7 +441,7 @@ describe('Appointments', () => {
         order: [['startTime', 'ASC']],
       });
       if (!expected) return appointmentsInSchedule;
-      expect(appointmentsInSchedule.map((a) => a.startTime)).toEqual(expected);
+      expect(appointmentsInSchedule.map(a => a.startTime)).toEqual(expected);
     };
 
     it('should generate repeating weekly appointments on Wednesday', async () => {
@@ -462,7 +605,7 @@ describe('Appointments', () => {
           '2024-10-16 12:00:00',
           '2024-10-23 12:00:00',
           '2024-10-30 12:00:00',
-        ].map((startTime) => ({
+        ].map(startTime => ({
           patientId: patient.id,
           startTime,
           clinicianId: userApp.user.dataValues.id,
@@ -489,7 +632,7 @@ describe('Appointments', () => {
       });
 
       // 3rd and 4th appointments should be updated
-      expect(appointmentsInSchedule.map((a) => a.appointmentTypeId)).toEqual([
+      expect(appointmentsInSchedule.map(a => a.appointmentTypeId)).toEqual([
         'appointmentType-standard',
         'appointmentType-standard',
         'appointmentType-specialist',
@@ -515,7 +658,7 @@ describe('Appointments', () => {
 
       // All appointments should be updated
       expect(
-        appointmentsInSchedule.every((a) => a.appointmentTypeId === 'appointmentType-specialist'),
+        appointmentsInSchedule.every(a => a.appointmentTypeId === 'appointmentType-specialist'),
       ).toBeTruthy();
     });
 
@@ -553,13 +696,13 @@ describe('Appointments', () => {
       });
 
       expect(updatedExistingSchedule.cancelledAtDate).toEqual('2024-10-09');
-      expect(updatedExistingScheduleAppointments.map((a) => a.startTime)).toEqual([
+      expect(updatedExistingScheduleAppointments.map(a => a.startTime)).toEqual([
         '2024-10-02 12:00:00',
         '2024-10-09 12:00:00',
       ]);
       expect(
         updatedExistingScheduleAppointments.every(
-          (a) => a.appointmentTypeId === 'appointmentType-standard',
+          a => a.appointmentTypeId === 'appointmentType-standard',
         ),
       ).toBeTruthy();
 
@@ -568,14 +711,14 @@ describe('Appointments', () => {
         order: [['startTime', 'ASC']],
       });
 
-      expect(newScheduleAppointments.map((a) => a.startTime)).toEqual([
+      expect(newScheduleAppointments.map(a => a.startTime)).toEqual([
         '2024-10-16 12:00:00',
         '2024-10-23 12:00:00',
         '2024-10-30 12:00:00',
         '2024-11-06 12:00:00',
       ]);
       expect(
-        newScheduleAppointments.every((a) => a.appointmentTypeId === 'appointmentType-specialist'),
+        newScheduleAppointments.every(a => a.appointmentTypeId === 'appointmentType-specialist'),
       ).toBeTruthy();
     });
 
@@ -627,12 +770,12 @@ describe('Appointments', () => {
         where: { scheduleId: result.body.schedule.id },
         order: [['startTime', 'ASC']],
       });
-      expect(newScheduleAppointments.map((a) => a.startTime)).toEqual([
+      expect(newScheduleAppointments.map(a => a.startTime)).toEqual([
         '2024-10-02 12:00:00',
         '2024-10-16 12:00:00',
       ]);
       expect(
-        newScheduleAppointments.every((a) => a.appointmentTypeId === 'appointmentType-specialist'),
+        newScheduleAppointments.every(a => a.appointmentTypeId === 'appointmentType-specialist'),
       ).toBeTruthy();
     });
   });
@@ -653,7 +796,7 @@ describe('Appointments', () => {
           '2024-10-09 12:00:00',
           '2024-10-16 12:00:00',
           '2024-10-23 12:00:00',
-        ].map((startTime) => ({
+        ].map(startTime => ({
           patientId: patient.id,
           startTime,
           clinicianId: userApp.user.dataValues.id,
@@ -678,7 +821,7 @@ describe('Appointments', () => {
       });
 
       // 3rd and 4th appointments should be cancelled
-      expect(appointmentsInSchedule.map((a) => a.status)).toEqual([
+      expect(appointmentsInSchedule.map(a => a.status)).toEqual([
         APPOINTMENT_STATUSES.CONFIRMED,
         APPOINTMENT_STATUSES.CONFIRMED,
         APPOINTMENT_STATUSES.CANCELLED,
@@ -708,7 +851,7 @@ describe('Appointments', () => {
       });
 
       // 3rd appointment should be cancelled
-      expect(appointmentsInSchedule.map((a) => a.status)).toEqual([
+      expect(appointmentsInSchedule.map(a => a.status)).toEqual([
         APPOINTMENT_STATUSES.CONFIRMED,
         APPOINTMENT_STATUSES.CONFIRMED,
         APPOINTMENT_STATUSES.CANCELLED,

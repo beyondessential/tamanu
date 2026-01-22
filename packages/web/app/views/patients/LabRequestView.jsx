@@ -3,19 +3,30 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { AssignmentLate, Business, Timelapse } from '@material-ui/icons';
-import { LAB_REQUEST_STATUS_CONFIG, LAB_REQUEST_STATUS_LABELS, LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import {
+  LAB_REQUEST_STATUS_CONFIG,
+  LAB_REQUEST_STATUS_LABELS,
+  LAB_REQUEST_STATUSES,
+  INTERIM_LAB_REQUEST_STATUSES,
+} from '@tamanu/constants';
+import {
+  OutlinedButton,
+  Button,
+  MODAL_TRANSITION_DURATION,
+  TranslatedText,
+  TranslatedReferenceData,
+  TranslatedEnum,
+  ReadOnlyTextField,
+} from '@tamanu/ui-components';
 import { useAuth } from '../../contexts/Auth';
 import BeakerIcon from '../../assets/images/beaker.svg';
 import TestCategoryIcon from '../../assets/images/testCategory.svg';
-import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useLabRequest } from '../../contexts/LabRequest';
+import { useSettings } from '../../contexts/Settings';
 import {
-  Button,
   DateDisplay,
   Heading2,
   MenuButton,
-  MODAL_TRANSITION_DURATION,
-  OutlinedButton,
   TableButtonRow,
   Tile,
   TileContainer,
@@ -35,11 +46,12 @@ import { LabRequestRecordSampleModal } from './components/LabRequestRecordSample
 import { LabTestResultsModal } from './components/LabTestResultsModal';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { LabRequestPrintLabelModal } from '../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
+import { LabResultsPrintoutModal } from '../../components/PatientPrinting/modals/LabResultsPrintoutModal';
 import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetailsModal';
-import { Colors } from '../../constants';
-import { TranslatedText, TranslatedReferenceData, TranslatedEnum } from '../../components/Translation';
 import { LabAttachmentModal } from '../../components/LabAttachmentModal';
 import { ConditionalTooltip } from '../../components/Tooltip';
+import { Colors } from '../../constants';
+import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
 
 const Container = styled.div`
   display: flex;
@@ -62,7 +74,7 @@ const BottomContainer = styled.div`
 `;
 
 const LabelContainer = styled.div`
-  color: ${(p) => p.color || Colors.darkestText};
+  color: ${p => p.color || Colors.darkestText};
 `;
 
 const FixedTileRow = styled(TileContainer)`
@@ -90,6 +102,7 @@ const MODAL_IDS = {
   ENTER_RESULTS: 'enterResults',
   LABEL_PRINT: 'labelPrint',
   PRINT: 'print',
+  RESULTS_PRINT: 'resultsPrint',
   RECORD_SAMPLE: 'recordSample',
   SAMPLE_DETAILS: 'sampleDetails',
   VIEW_STATUS_LOG: 'viewStatusLog',
@@ -110,13 +123,14 @@ const MODALS = {
     />
   ),
   [MODAL_IDS.PRINT]: LabRequestPrintModal,
+  [MODAL_IDS.RESULTS_PRINT]: LabResultsPrintoutModal,
   [MODAL_IDS.RECORD_SAMPLE]: LabRequestRecordSampleModal,
   [MODAL_IDS.SAMPLE_DETAILS]: LabRequestSampleDetailsModal,
   [MODAL_IDS.VIEW_STATUS_LOG]: LabRequestLogModal,
   [MODAL_IDS.VIEW_REPORT]: LabAttachmentModal,
 };
 
-const Menu = ({ setModal, status, disabled }) => {
+const Menu = ({ setModal, status, disabled, canReadLabTestResult, enableLabResultsPrintout }) => {
   const menuActions = [
     {
       label: (
@@ -130,6 +144,23 @@ const Menu = ({ setModal, status, disabled }) => {
     },
   ];
 
+  if (
+    enableLabResultsPrintout &&
+    canReadLabTestResult &&
+    INTERIM_LAB_REQUEST_STATUSES.includes(status)
+  ) {
+    menuActions.push({
+      label: (
+        <TranslatedText
+          stringId="lab.action.printInterimReport"
+          fallback="Print interim report"
+          data-testid="translatedtext-print-interim-report"
+        />
+      ),
+      action: () => setModal(MODAL_IDS.RESULTS_PRINT),
+    });
+  }
+
   if (status !== LAB_REQUEST_STATUSES.PUBLISHED) {
     menuActions.push({
       label: (
@@ -140,8 +171,10 @@ const Menu = ({ setModal, status, disabled }) => {
         />
       ),
       action: () => setModal(MODAL_IDS.CANCEL),
+      wrapper: action => <NoteModalActionBlocker>{action}</NoteModalActionBlocker>,
     });
   }
+
   return (
     <MenuButton
       disabled={disabled}
@@ -155,11 +188,13 @@ const Menu = ({ setModal, status, disabled }) => {
 export const LabRequestView = () => {
   const query = useUrlSearchParams();
   const { ability } = useAuth();
+  const { getSetting } = useSettings();
   const [modalId, setModalId] = useState(query.get('modal'));
   const [modalOpen, setModalOpen] = useState(false);
   const [labTestTableRefreshCount, setLabTestTableRefreshCount] = useState(0);
   const { isLoading, labRequest, updateLabRequest } = useLabRequest();
-  const { navigateToLabRequest } = usePatientNavigation();
+
+  const enableLabResultsPrintout = getSetting('features.labRequest.enableLabResultsPrintout');
 
   const closeModal = () => {
     setModalOpen(false);
@@ -174,18 +209,17 @@ export const LabRequestView = () => {
     }, MODAL_TRANSITION_DURATION);
   };
 
-  const patient = useSelector((state) => state.patient);
+  const patient = useSelector(state => state.patient);
 
   const handleRefreshLabTestTable = () => {
-    setLabTestTableRefreshCount((oldVal) => oldVal + 1);
+    setLabTestTableRefreshCount(oldVal => oldVal + 1);
   };
 
-  const updateLabReq = async (data) => {
+  const updateLabReq = async data => {
     await updateLabRequest(labRequest.id, data);
-    navigateToLabRequest(labRequest.id);
   };
 
-  const handleChangeModalId = (id) => {
+  const handleChangeModalId = id => {
     setModalId(id);
     setModalOpen(true);
   };
@@ -195,8 +229,11 @@ export const LabRequestView = () => {
   const canWriteLabRequest = ability?.can('write', 'LabRequest');
   const canWriteLabRequestStatus = ability?.can('write', 'LabRequestStatus');
   const canWriteLabTest = ability?.can('write', 'LabTest');
+  const canReadLabTestResult = ability?.can('read', 'LabTestResult');
 
   const isPublished = labRequest.status === LAB_REQUEST_STATUSES.PUBLISHED;
+  const isVerified = labRequest.status === LAB_REQUEST_STATUSES.VERIFIED;
+
   const isHidden = HIDDEN_STATUSES.includes(labRequest.status);
   const displayAsCancelled = STATUSES_TO_DISPLAY_AS_CANCELLED.includes(labRequest.status);
   const areLabRequestsReadOnly = !canWriteLabRequest || isHidden;
@@ -221,6 +258,7 @@ export const LabRequestView = () => {
               />
             ),
             action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
+            wrapper: action => <NoteModalActionBlocker>{action}</NoteModalActionBlocker>,
           },
         ]
       : [
@@ -233,6 +271,7 @@ export const LabRequestView = () => {
               />
             ),
             action: () => handleChangeModalId(MODAL_IDS.RECORD_SAMPLE),
+            wrapper: action => <NoteModalActionBlocker>{action}</NoteModalActionBlocker>,
           },
           {
             label: (
@@ -266,23 +305,43 @@ export const LabRequestView = () => {
           isReadOnly={areLabRequestsReadOnly}
           actions={
             <Box display="flex" alignItems="center" data-testid="box-qy3e">
-              <OutlinedButton
-                disabled={isHidden}
-                onClick={() => {
-                  handleChangeModalId(MODAL_IDS.PRINT);
-                }}
-                data-testid="outlinedbutton-fdjm"
-              >
-                <TranslatedText
-                  stringId="lab.action.printRequest"
-                  fallback="Print request"
-                  data-testid="translatedtext-7zng"
-                />
-              </OutlinedButton>
+              {enableLabResultsPrintout && (isPublished || isVerified) ? (
+                canReadLabTestResult && (
+                  <OutlinedButton
+                    disabled={isHidden}
+                    onClick={() => {
+                      handleChangeModalId(MODAL_IDS.RESULTS_PRINT);
+                    }}
+                    data-testid="outlinedbutton-fdjm"
+                  >
+                    <TranslatedText
+                      stringId="lab.action.printResults"
+                      fallback="Print results"
+                      data-testid="translatedtext-7zng"
+                    />
+                  </OutlinedButton>
+                )
+              ) : (
+                <OutlinedButton
+                  disabled={isHidden}
+                  onClick={() => {
+                    handleChangeModalId(MODAL_IDS.PRINT);
+                  }}
+                  data-testid="outlinedbutton-fdjm"
+                >
+                  <TranslatedText
+                    stringId="lab.action.printRequest"
+                    fallback="Print request"
+                    data-testid="translatedtext-7zng"
+                  />
+                </OutlinedButton>
+              )}
               <Menu
                 setModal={handleChangeModalId}
                 status={labRequest.status}
                 disabled={isHidden}
+                canReadLabTestResult={canReadLabTestResult}
+                enableLabResultsPrintout={enableLabResultsPrintout}
                 data-testid="menu-pub2"
               />
             </Box>
@@ -300,7 +359,7 @@ export const LabRequestView = () => {
             text={
               <TranslatedText
                 stringId="lab.testCategory.label"
-                fallback="Test Category"
+                fallback="Test category"
                 data-testid="translatedtext-4nhr"
               />
             }
@@ -332,7 +391,11 @@ export const LabRequestView = () => {
                 $color={LAB_REQUEST_STATUS_CONFIG[displayStatus]?.color}
                 data-testid="tiletag-zdg8"
               >
-                <TranslatedEnum enumValues={LAB_REQUEST_STATUS_LABELS} value={displayStatus} data-testid="translatedenum-lab-request-status" />
+                <TranslatedEnum
+                  enumValues={LAB_REQUEST_STATUS_LABELS}
+                  value={displayStatus}
+                  data-testid="translatedenum-lab-request-status"
+                />
               </TileTag>
             }
             actions={[
@@ -366,6 +429,7 @@ export const LabRequestView = () => {
                     </ConditionalTooltip>
                   ),
                   action: handleChangeStatus,
+                  wrapper: action => <NoteModalActionBlocker>{action}</NoteModalActionBlocker>,
                 },
               {
                 label: (
@@ -435,6 +499,7 @@ export const LabRequestView = () => {
                   />
                 ),
                 action: () => handleChangeModalId(MODAL_IDS.CHANGE_LABORATORY),
+                wrapper: action => <NoteModalActionBlocker>{action}</NoteModalActionBlocker>,
               },
             ]}
             data-testid="tile-eeus"
@@ -471,6 +536,7 @@ export const LabRequestView = () => {
                   />
                 ),
                 action: () => handleChangeModalId(MODAL_IDS.CHANGE_PRIORITY),
+                wrapper: action => <NoteModalActionBlocker>{action}</NoteModalActionBlocker>,
               },
             ]}
             data-testid="tile-phsp"
@@ -492,16 +558,18 @@ export const LabRequestView = () => {
             </Button>
           )}
           {canEnterResults && (
-            <Button
-              onClick={() => handleChangeModalId(MODAL_IDS.ENTER_RESULTS)}
-              data-testid="button-oep6"
-            >
-              <TranslatedText
-                stringId="lab.action.enterResults"
-                fallback="Enter results"
-                data-testid="translatedtext-veq6"
-              />
-            </Button>
+            <NoteModalActionBlocker>
+              <Button
+                onClick={() => handleChangeModalId(MODAL_IDS.ENTER_RESULTS)}
+                data-testid="button-oep6"
+              >
+                <TranslatedText
+                  stringId="lab.action.enterResults"
+                  fallback="Enter results"
+                  data-testid="translatedtext-veq6"
+                />
+              </Button>
+            </NoteModalActionBlocker>
           )}
         </TableButtonRow>
         <LabRequestResultsTable
@@ -510,6 +578,23 @@ export const LabRequestView = () => {
           refreshCount={labTestTableRefreshCount}
           data-testid="labrequestresultstable-66qv"
         />
+        {labRequest.resultsInterpretation && (
+          <Box mt={4}>
+            <ReadOnlyTextField
+              label={
+                <TranslatedText
+                  stringId="lab.resultsInterpretation.label"
+                  fallback="Results Interpretation"
+                  data-testid="translatedtext-resultsinterpretation"
+                />
+              }
+              field={{ name: 'resultsInterpretation', value: labRequest.resultsInterpretation }}
+              multiline
+              rows={6}
+              data-testid="readonlytextfield-resultsinterpretation"
+            />
+          </Box>
+        )}
       </BottomContainer>
       {modalId && (
         <ActiveModal

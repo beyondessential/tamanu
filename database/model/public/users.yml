@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - administration
+          meta:
+            triggers:
+              - notify_users_changed
+              - record_users_changelog
+              - set_users_updated_at
+              - set_users_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -35,14 +41,23 @@ sources:
             data_tests:
               - unique
               - not_null
+            config:
+              meta:
+                masking: email
           - name: password
             data_type: character varying(255)
             description: "{{ doc('users__password') }}"
+            config:
+              meta:
+                masking: nil
           - name: display_name
             data_type: character varying(255)
             description: "{{ doc('users__display_name') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: name
           - name: role
             data_type: character varying(255)
             description: "{{ doc('users__role') }}"
@@ -56,6 +71,9 @@ sources:
           - name: display_id
             data_type: character varying(255)
             description: "{{ doc('users__display_id') }}"
+            config:
+              meta:
+                masking: string
           - name: visibility_status
             data_type: character varying(255)
             description: "{{ doc('generic__visibility_status') }} in users."
@@ -64,3 +82,14 @@ sources:
           - name: phone_number
             data_type: character varying(255)
             description: "{{ doc('users__phone_number') }}"
+            config:
+              meta:
+                masking: phone
+          - name: device_registration_quota
+            data_type: integer
+            description: "{{ doc('users__device_registration_quota') }}"
+            data_tests:
+              - not_null
+              - dbt_utils.accepted_range:
+                  arguments:
+                    min_value: 0

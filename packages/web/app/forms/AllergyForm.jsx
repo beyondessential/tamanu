@@ -2,21 +2,17 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { FORM_TYPES } from '@tamanu/constants/forms';
 
 import {
   AutocompleteField,
   DateField,
   Field,
-  Form,
-  TextField,
   SuggesterSelectField,
 } from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
-import { FormSubmitCancelRow } from '../components/ButtonRow';
+import { TextField, Form, FormSubmitCancelRow, FormGrid } from '@tamanu/ui-components';
 import { foreignKey } from '../utils/validation';
-import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { useTranslation } from '../contexts/Translation';
 import { useAuth } from '../contexts/Auth';
 import { NoteModalActionBlocker } from '../components/NoteModalActionBlocker';
 
@@ -30,7 +26,6 @@ export const AllergyForm = ({
   const { ability } = useAuth();
   const canCreateReferenceData = ability.can('create', 'ReferenceData');
 
-  const { getTranslation } = useTranslation();
   return (
     <Form
       onSubmit={onSubmit}
@@ -133,9 +128,7 @@ export const AllergyForm = ({
       }}
       formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
-        allergyId: foreignKey(
-          getTranslation('validation.rule.mustSelectAllergy', 'An allergy must be selected'),
-        ),
+        allergyId: foreignKey(),
         recordedDate: yup
           .date()
           .required()

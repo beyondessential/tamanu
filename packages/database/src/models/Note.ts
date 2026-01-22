@@ -1,7 +1,6 @@
 import { DataTypes } from 'sequelize';
 import {
   NOTE_RECORD_TYPE_VALUES,
-  NOTE_TYPE_VALUES,
   SYNC_DIRECTIONS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
@@ -13,12 +12,12 @@ import {
   buildNoteLinkedSyncFilter,
   getPatientIdColumnOfNotes,
 } from '../sync/buildNoteLinkedSyncFilter';
-import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class Note extends Model {
   declare id: string;
-  declare noteType: string;
+  declare noteTypeId: string;
   declare recordType: string;
   declare date: string;
   declare content: string;
@@ -34,9 +33,13 @@ export class Note extends Model {
           ...primaryKey,
           type: DataTypes.UUID,
         },
-        noteType: {
-          type: DataTypes.STRING,
+        noteTypeId: {
+          type: DataTypes.STRING(255),
           allowNull: false,
+          references: {
+            model: 'ReferenceData',
+            key: 'id',
+          },
         },
         recordType: {
           type: DataTypes.STRING,
@@ -65,18 +68,13 @@ export class Note extends Model {
               throw new Error(`Note: Must have a valid record type (got ${this.recordType})`);
             }
           },
-          mustHaveValidType() {
-            if (!NOTE_TYPE_VALUES.includes(this.noteType as string)) {
-              throw new Error(`Note: Must have a valid note type (got ${this.noteType})`);
-            }
-          },
         },
       },
     );
   }
 
   static initRelations(models: Models) {
-    NOTE_RECORD_TYPE_VALUES.forEach((modelName) => {
+    NOTE_RECORD_TYPE_VALUES.forEach(modelName => {
       this.belongsTo(models[modelName as keyof Models] as typeof Model, {
         foreignKey: 'recordId',
         as: `${modelName.charAt(0).toLowerCase()}${modelName.slice(1)}`, // lower case first letter
@@ -99,19 +97,24 @@ export class Note extends Model {
       as: 'revisedBy',
       constraints: false,
     });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'noteTypeId',
+      as: 'noteTypeReference',
+    });
   }
 
   static async createForRecord(
     recordId: string,
     recordType: string,
-    noteType: string,
+    noteTypeId: string,
     content: string,
     authorId: string,
   ) {
     return Note.create({
       recordId,
       recordType,
-      noteType,
+      noteTypeId,
       date: getCurrentDateTimeString(),
       content,
       authorId,
@@ -126,9 +129,9 @@ export class Note extends Model {
     return (this as any)[parentGetter](options);
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return {
-      select: buildSyncLookupSelect(this, {
+      select: await buildEncounterLinkedLookupSelect(this, {
         patientId: getPatientIdColumnOfNotes(),
       }),
       joins: buildNoteLinkedJoins().join('\n'),

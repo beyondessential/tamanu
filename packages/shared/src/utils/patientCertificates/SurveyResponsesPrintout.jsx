@@ -72,15 +72,7 @@ const ResultBox = ({ resultText, resultName }) => (
   </View>
 );
 
-const getAnswers = ({
-  answer,
-  sourceType,
-  type,
-  getTranslation,
-  dataElementId,
-  config,
-  originalBody,
-}) => {
+const getAnswers = ({ answer, type, getTranslation, dataElementId, config, originalBody }) => {
   const translateOption = option => {
     return getTranslation(
       getReferenceDataOptionStringId(dataElementId, 'programDataElement', option),
@@ -95,7 +87,7 @@ const getAnswers = ({
     );
   };
 
-  switch (sourceType || type) {
+  switch (type) {
     case PROGRAM_DATA_ELEMENT_TYPES.RESULT: {
       const { strippedResultText } = separateColorText(answer);
       return strippedResultText;
@@ -112,13 +104,15 @@ const getAnswers = ({
       return JSON.parse(answer).map(translateOption);
     case PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE:
       return translateReferenceData(answer);
+    case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA:
+      return answer;
     default:
       return translateOption(answer);
   }
 };
 
 const ResponseItem = ({ row, getTranslation }) => {
-  const { name, answer, type, sourceType, dataElementId, config, originalBody } = row;
+  const { name, answer, type, dataElementId, config, originalBody } = row;
   return (
     <View style={pageStyles.item} wrap={false}>
       <Text style={pageStyles.itemText}>
@@ -128,7 +122,6 @@ const ResponseItem = ({ row, getTranslation }) => {
         {getAnswers({
           answer,
           type,
-          sourceType,
           getTranslation,
           dataElementId,
           config,
@@ -201,7 +194,11 @@ const SurveyResponsesPrintoutComponent = ({
           />
         </CertificateHeader>
         <SectionSpacing />
-        <PatientDetails getLocalisation={getLocalisation} patient={patientData} getSetting={getSetting} />
+        <PatientDetails
+          getLocalisation={getLocalisation}
+          patient={patientData}
+          getSetting={getSetting}
+        />
 
         <SurveyResponseDetails surveyResponse={surveyResponse} />
         <SectionSpacing height={16} />

@@ -5,19 +5,19 @@ import { Box, Divider } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { Field, NumberField, AutocompleteField } from '../../Field';
 import {
-  Field,
-  Form,
-  TranslatedSelectField,
   TextField,
-  NumberField,
-  AutocompleteField,
-} from '../../Field';
-import { FormGrid } from '../../FormGrid';
-import { ConfirmCancelRow, FormModal, TranslatedText } from '../..';
+  TranslatedSelectField,
+  Form,
+  FormGrid,
+  ConfirmCancelRow,
+  TranslatedText,
+} from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
+import { FormModal } from '../../FormModal';
 import { useAuth } from '../../../contexts/Auth';
 import { useSuggester } from '../../../api';
-import { Colors } from '../../../constants';
 import { TimePickerField } from '../../Field/TimePickerField';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useGivenMarMutation, useNotGivenMarMutation } from '../../../api/mutations/useMarMutation';
@@ -213,10 +213,7 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
       open={open}
       onClose={onClose}
       title={
-        <TranslatedText
-          stringId="modal.mar.changeStatusModal.title"
-          fallback="Change status"
-        />
+        <TranslatedText stringId="modal.mar.changeStatusModal.title" fallback="Change status" />
       }
     >
       <MarInfoPane medication={medication} marInfo={marInfo} />
@@ -264,7 +261,12 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
                   <Field
                     name="recordedByUserId"
                     component={AutocompleteField}
-                    label={<TranslatedText stringId="mar.details.recordedBy.label" fallback="Recorded by" />}
+                    label={
+                      <TranslatedText
+                        stringId="mar.details.recordedBy.label"
+                        fallback="Recorded by"
+                      />
+                    }
                     suggester={practitionerSuggester}
                     required
                   />
@@ -336,14 +338,21 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
                   <Field
                     name="givenByUserId"
                     component={AutocompleteField}
-                    label={<TranslatedText stringId="mar.details.givenBy.label" fallback="Given by" />}
+                    label={
+                      <TranslatedText stringId="mar.details.givenBy.label" fallback="Given by" />
+                    }
                     suggester={practitionerSuggester}
                     required
                   />
                   <Field
                     name="recordedByUserId"
                     component={AutocompleteField}
-                    label={<TranslatedText stringId="mar.details.recordedBy.label" fallback="Recorded by" />}
+                    label={
+                      <TranslatedText
+                        stringId="mar.details.recordedBy.label"
+                        fallback="Recorded by"
+                      />
+                    }
                     suggester={practitionerSuggester}
                     required
                   />
@@ -365,7 +374,7 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
                 onConfirm={submitForm}
                 confirmDisabled={!(isChangingToGiven || isChangingToNotGiven)}
                 confirmText={
-                  <TranslatedText stringId="general.action.saveChanges" fallback="Save Changes" />
+                  <TranslatedText stringId="general.action.saveChanges" fallback="Save changes" />
                 }
                 cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
               />

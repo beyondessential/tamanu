@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - reference
+          meta:
+            triggers:
+              - notify_location_groups_changed
+              - record_location_groups_changelog
+              - set_location_groups_updated_at
+              - set_location_groups_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -34,9 +40,10 @@ sources:
             description: "{{ doc('generic__visibility_status') }} in location_groups."
             data_tests:
               - accepted_values:
-                  values:
-                    - current
-                    - historical
+                  arguments:
+                    values:
+                      - current
+                      - historical
           - name: name
             data_type: character varying(255)
             description: "{{ doc('location_groups__name') }}"
@@ -53,15 +60,16 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'facilities')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'facilities')
+                    field: id
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in location_groups."
             data_tests:
               - not_null
           - name: is_bookable
-            data_type: boolean
+            data_type: character varying(255)
             description: "{{ doc('location_groups__is_bookable') }}"
             data_tests:
               - not_null

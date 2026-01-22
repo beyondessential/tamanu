@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - clinical
+          meta:
+            triggers:
+              - notify_lab_tests_changed
+              - record_lab_tests_changelog
+              - set_lab_tests_updated_at
+              - set_lab_tests_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -34,56 +40,81 @@ sources:
             description: "{{ doc('generic__date') }} in lab_tests."
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: date
           - name: result
             data_type: character varying(255)
             description: "{{ doc('lab_tests__result') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: text
           - name: lab_request_id
             data_type: character varying(255)
             description: "{{ doc('lab_tests__lab_request_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'lab_requests')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'lab_requests')
+                    field: id
           - name: lab_test_type_id
             data_type: character varying(255)
             description: "{{ doc('lab_tests__lab_test_type_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'lab_test_types')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'lab_test_types')
+                    field: id
           - name: category_id
             data_type: character varying(255)
             description: "{{ doc('lab_tests__category_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'labTestCategory'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'labTestCategory'
           - name: lab_test_method_id
             data_type: character varying(255)
             description: "{{ doc('lab_tests__lab_test_method_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'labTestMethod'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'labTestMethod'
           - name: laboratory_officer
             data_type: character varying(255)
             description: "{{ doc('lab_tests__laboratory_officer') }}"
+            config:
+              meta:
+                masking: name
           - name: completed_date
             data_type: character(19)
             description: "{{ doc('lab_tests__completed_date') }}"
+            config:
+              meta:
+                masking: date
           - name: verification
             data_type: character varying(255)
             description: "{{ doc('lab_tests__verification') }}"
+            config:
+              meta:
+                masking: text
           - name: date_legacy
             data_type: timestamp with time zone
             description: "{{ doc('generic__date_legacy') }} in lab_tests."
+            config:
+              meta:
+                masking: date
           - name: completed_date_legacy
             data_type: timestamp with time zone
             description: "{{ doc('lab_tests__completed_date_legacy') }}"
+            config:
+              meta:
+                masking: date
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in lab_tests."

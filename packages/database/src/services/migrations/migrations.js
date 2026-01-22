@@ -3,6 +3,31 @@ import path from 'node:path';
 import Umzug from 'umzug';
 import { runPostMigration, runPreMigration } from './migrationHooks';
 import { createMigrationAuditLog } from '../../utils/audit';
+import { AUDIT_MIGRATION_CONTEXT_KEY } from '@tamanu/constants';
+import { checkIsMigrationContextAvailable } from '../../utils/audit/checkIsMigrationContextAvailable';
+
+/**
+ * Enhances PostgreSQL "pending trigger events" errors with helpful guidance.
+ * This error occurs when a migration mixes DDL and DML on the same table.
+ */
+function enhancePendingTriggerError(error, migrationName) {
+  if (error?.original?.message?.includes('pending trigger events')) {
+    const enhanced = new Error(
+      `${error.message}\n\n` +
+        `HINT: This error occurs when a migration has both schema changes (DDL) and data changes (DML) ` +
+        `on the same table. PostgreSQL's deferred triggers queue events during DML, then block DDL.\n\n` +
+        `To fix, split "${migrationName}" into separate migrations:\n` +
+        `  1. First migration: schema changes (addColumn, removeColumn, etc.)\n` +
+        `  2. Second migration: data changes (UPDATE, INSERT, etc.)\n` +
+        `  3. Third migration: remaining schema changes (if any)\n\n` +
+        `See packages/database/CLAUDE.md for details.`,
+    );
+    enhanced.original = error.original;
+    enhanced.stack = error.stack;
+    return enhanced;
+  }
+  return error;
+}
 
 // before this, we just cut our losses and accept irreversible migrations
 const LAST_REVERSIBLE_MIGRATION = '1685403132663-systemUser.js';
@@ -21,14 +46,44 @@ export function createMigrationInterface(log, sequelize) {
     throw new Error('Could not find migrations');
   }
 
+  // Closure context to store migration name and direction
+  const wrapContext = {};
+
   const umzug = new Umzug({
     migrations: {
       path: migrationsDir,
       params: [sequelize.getQueryInterface()],
-      wrap:
-        (updown) =>
-        (...args) =>
-          sequelize.transaction(async () => updown(...args)),
+      wrap: (updown) => (...args) => sequelize.transaction(async () => {
+        const isMigrationContextAvailable = await checkIsMigrationContextAvailable(
+          sequelize,
+          wrapContext.migrationName,
+        );
+        if (!isMigrationContextAvailable) {
+          try {
+            return await updown(...args);
+          } catch (error) {
+            throw enhancePendingTriggerError(error, wrapContext.migrationName);
+          }
+        }
+
+        // Create migration context object
+        const migrationContext = {
+          direction: wrapContext.direction,
+          migrationName: wrapContext.migrationName,
+          serverType: global?.serverInfo?.serverType || 'unknown',
+        };
+
+        // Set the migration context as a transaction variable
+        await sequelize.setTransactionVar(AUDIT_MIGRATION_CONTEXT_KEY, JSON.stringify(migrationContext));
+
+        try {
+          return await updown(...args);
+        } catch (error) {
+          throw enhancePendingTriggerError(error, wrapContext.migrationName);
+        } finally {
+          await sequelize.setTransactionVar(AUDIT_MIGRATION_CONTEXT_KEY, null);
+        }
+      }),
 
       customResolver: async (sqlPath) => {
         const migrationImport = await import(sqlPath);
@@ -51,8 +106,16 @@ export function createMigrationInterface(log, sequelize) {
     },
   });
 
-  umzug.on('migrating', (name) => log.info(`Applying migration: ${name}`));
-  umzug.on('reverting', (name) => log.info(`Reverting migration: ${name}`));
+  umzug.on('migrating', (name) => {
+    wrapContext.direction = 'up';
+    wrapContext.migrationName = name;
+    log.info(`Applying migration: ${name}`);
+  });
+  umzug.on('reverting', (name) => {
+    wrapContext.direction = 'down';
+    wrapContext.migrationName = name;
+    log.info(`Reverting migration: ${name}`);
+  });
 
   return umzug;
 }

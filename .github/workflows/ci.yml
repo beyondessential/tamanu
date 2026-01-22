@@ -19,6 +19,28 @@ env:
     packages/*/node_modules
 
 jobs:
+  node_version:
+    name: Check node version consistency
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+      - name: Check package.json against .node-version
+        run: |
+          json=$(jq -r .dependencies.node package.json | cut -c2-)
+          file=$(cat .node-version | cut -c2-)
+          echo "Node.js in package.json:  $json"
+          echo "Node.js in .node-version: $file"
+          test "$json" = "$file"
+      - name: Check dockerfile against .node-version
+        run: |
+          file=$(cat .node-version | cut -c2- | cut -d. -f1)
+          dckr=$(grep -oP '(?<=^FROM node:)\d+' Dockerfile)
+          echo "Node.js major in Dockerfile:    $dckr"
+          echo "Node.js major in .node-version: $file"
+          test "$dckr" = "$file"
+
   node_modules_cache:
     name: Cache node modules
     runs-on: ubuntu-latest
@@ -28,7 +50,7 @@ jobs:
           ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         id: cache
@@ -65,10 +87,11 @@ jobs:
           - { package: "@tamanu/database",                    postgres: 14 }
           - { package: "@tamanu/database",                    postgres: 16 }
           - { package: "@tamanu/database",                    postgres: 17 }
-          - { package: "@tamanu/shared",                                   }
-          - { package: "@tamanu/utils",                                    }
-          - { package: "@tamanu/web-frontend" }
-          - { package: "@tamanu/settings" }
+          - { package: "@tamanu/settings"                                  }
+          - { package: "@tamanu/shared"                                    }
+          - { package: "@tamanu/upgrade"                                   }
+          - { package: "@tamanu/utils"                                     }
+          - { package: "@tamanu/web-frontend"                              }
 
     name: Test ${{ matrix.package }} ${{ matrix.shard }} (pg=${{ matrix.postgres || 'no' }})
     runs-on: ubuntu-latest
@@ -78,7 +101,7 @@ jobs:
           ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         with:
@@ -113,7 +136,7 @@ jobs:
           ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         with:
@@ -133,7 +156,7 @@ jobs:
           ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         with:
@@ -159,7 +182,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         with:
@@ -193,7 +216,7 @@ jobs:
           ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         with:
@@ -220,7 +243,7 @@ jobs:
           ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         with:
@@ -228,6 +251,7 @@ jobs:
           path: ${{ env.NODE_MODULES_PATHS }}
 
       - run: npm i
+      - run: npm run build-shared
 
       - run: npm run test
         working-directory: packages/mobile
@@ -242,7 +266,7 @@ jobs:
           ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         with:
@@ -275,7 +299,7 @@ jobs:
           ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         with:
@@ -294,7 +318,7 @@ jobs:
           ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         with:
@@ -303,7 +327,7 @@ jobs:
 
       - name: Install and start postgres
         run: |
-          source .github/scripts/install-postgres-ubuntu.sh 16
+          source .github/scripts/install-postgres-ubuntu.sh 17
 
           createuser --superuser tamanu
           psql -c "ALTER USER tamanu PASSWORD 'tamanu';" postgres
@@ -315,16 +339,13 @@ jobs:
           npm i
           npm run build-shared
           npm run --workspace @tamanu/central-server build
-          npm run --workspace @tamanu/facility-server build
       - name: Configure Tamanu
         run: |
           echo '{"db":{"host":"localhost","name":"central","username":"tamanu","password":"tamanu"}}' > packages/central-server/config/local.json5
-          echo '{"db":{"host":"localhost","name":"facility","username":"tamanu","password":"tamanu"}}' > packages/facility-server/config/local.json5
 
       - name: Run Migrations
         run: |
-          npm run --workspace @tamanu/central-server start migrate up
-          npm run --workspace @tamanu/facility-server start migrate up
+          npm run --workspace @tamanu/central-server start upgrade
 
       - name: Check model is up to date
         run: |
@@ -351,7 +372,7 @@ jobs:
           ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         with:
@@ -367,7 +388,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Check spelling
-        uses: crate-ci/typos@master
+        uses: crate-ci/typos@v1.36.3
         with:
           config: .typos.toml
 
@@ -376,6 +397,7 @@ jobs:
     if: always() # always run even if dependencies fail
     name: Tests pass
     needs:
+      - node_version
       - test
       - build-all
       - lint

@@ -1,10 +1,13 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, Op, Sequelize } from 'sequelize';
 import {
+  CHARTING_DATA_ELEMENT_IDS,
+  CHARTING_SURVEY_TYPES,
   PROGRAM_DATA_ELEMENT_TYPES,
   SYNC_DIRECTIONS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError } from '@tamanu/errors';
+import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
 import {
   getActiveActionComponents,
@@ -14,20 +17,17 @@ import {
 import { getPatientDataDbLocation } from '@tamanu/shared/utils/getPatientDataDbLocation';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Model } from './Model';
-import {
-  buildEncounterLinkedSyncFilter,
-  buildEncounterLinkedSyncFilterJoins,
-} from '../sync/buildEncounterLinkedSyncFilter';
-import { buildEncounterPatientIdSelect } from '../sync/buildPatientLinkedLookupFilter';
+import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 
 async function createPatientIssues(models: Models, questions: any[], patientId: string) {
   const issueQuestions = questions.filter(
-    (q) => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE,
+    q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE,
   );
   for (const question of issueQuestions) {
     const { config: configString } = question;
-    const config = JSON.parse(configString) || {};
+    const config = safeJsonParse(configString) ?? {};
     if (!config.issueNote || !config.issueType) {
       throw new InvalidOperationError(`Ill-configured PatientIssue with config: ${configString}`);
     }
@@ -49,7 +49,7 @@ const getFieldsToWrite = async (models: Models, questions: any[], answers: any[]
   const recordValuesByModel: Record<string, Record<string, any>> = {};
 
   const patientDataQuestions = questions.filter(
-    (q) => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
+    q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
   );
   for (const question of patientDataQuestions) {
     const { dataElement, config: configString } = question;
@@ -169,6 +169,25 @@ async function handleSurveyResponseActions(
   );
 }
 
+// Special case for answers that depend on creating a new record in the database
+// and store the ID of the new record in the answer body. Currently only used for photos.
+async function getBodyForAnswer(dataElementType: string, value: any, models: Models) {
+  if (dataElementType === PROGRAM_DATA_ELEMENT_TYPES.PHOTO && !!value) {
+    const { size, data } = value as unknown as { size: number; data: string };
+    const { id: attachmentId } = await models.Attachment.create(
+      models.Attachment.sanitizeForDatabase({
+        type: 'image/jpeg',
+        size,
+        data,
+      }),
+    );
+    // Store the attachment ID in the answer body
+    return attachmentId;
+  }
+
+  return getStringValue(dataElementType, value);
+}
+
 export class SurveyResponse extends Model {
   declare id: string;
   declare startTime?: string;
@@ -235,11 +254,8 @@ export class SurveyResponse extends Model {
     );
   }
 
-  static buildSyncLookupQueryDetails() {
-    return {
-      select: buildEncounterPatientIdSelect(this),
-      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounters']),
-    };
+  static async buildSyncLookupQueryDetails() {
+    return buildEncounterLinkedLookupFilter(this);
   }
 
   static async getSurveyEncounter({
@@ -247,12 +263,14 @@ export class SurveyResponse extends Model {
     patientId,
     forceNewEncounter,
     reasonForEncounter,
+    answers,
     ...responseData
   }: {
     encounterId: string | null;
     patientId: string;
     forceNewEncounter: boolean;
     reasonForEncounter: string;
+    answers?: Record<string, any>;
     [key: string]: any;
   }) {
     if (!this.sequelize.isInsideTransaction()) {
@@ -271,8 +289,12 @@ export class SurveyResponse extends Model {
       );
     }
 
+    // Extract date - chart entries have dateRecorded field, complex chart instances have complexChartDate
+    const dateRecordedValue = answers?.[CHARTING_DATA_ELEMENT_IDS.dateRecorded]
+      || answers?.[CHARTING_DATA_ELEMENT_IDS.complexChartDate];
+
     if (!forceNewEncounter) {
-      // find open encounter
+      // First, check for open encounter (active encounter takes precedence)
       const openEncounter = await Encounter.findOne({
         where: {
           patientId,
@@ -282,9 +304,38 @@ export class SurveyResponse extends Model {
       if (openEncounter) {
         return openEncounter;
       }
+
+      // Then, check for existing form response encounter on the same date
+      const recordedDate = dateRecordedValue || responseData.startTime || null;
+
+      if (recordedDate) {
+        const whereConditions = {
+          patientId,
+          encounterType: 'surveyResponse',
+          [Op.and]: [
+            Sequelize.where(
+              Sequelize.fn('DATE', Sequelize.col('start_date')),
+              Sequelize.fn('DATE', recordedDate),
+            ),
+          ],
+          ...(responseData.departmentId && { departmentId: responseData.departmentId }),
+          ...(responseData.locationId && { locationId: responseData.locationId }),
+        };
+
+        const existingFormResponseEncounter = await Encounter.findOne({
+          where: whereConditions,
+        });
+
+        if (existingFormResponseEncounter) {
+          return existingFormResponseEncounter;
+        }
+      }
     }
 
     const { departmentId, examinerId, userId, locationId } = responseData;
+
+    const encounterStartDate = dateRecordedValue || responseData.startTime || getCurrentDateTimeString();
+    const encounterEndDate = dateRecordedValue || responseData.endTime || getCurrentDateTimeString();
 
     // need to create a new encounter with examiner set as the user who submitted the survey.
     const newEncounter = await Encounter.create({
@@ -296,12 +347,12 @@ export class SurveyResponse extends Model {
       locationId,
       // Survey responses will usually have a startTime and endTime and we prefer to use that
       // for the encounter to ensure the times are set in the browser timezone
-      startDate: responseData.startTime ? responseData.startTime : getCurrentDateTimeString(),
+      startDate: encounterStartDate,
       actorId: userId,
     });
 
     return newEncounter.update({
-      endDate: responseData.endTime ? responseData.endTime : getCurrentDateTimeString(),
+      endDate: encounterEndDate,
       systemNote: 'Automatically discharged',
       discharge: {
         note: 'Automatically discharged after survey completion',
@@ -351,11 +402,16 @@ export class SurveyResponse extends Model {
       ...calculatedAnswers,
     };
 
+    // Determine if this is a chart entry or form response
+    const isChartEntry = CHARTING_SURVEY_TYPES.includes(survey.surveyType);
+    const reasonForEncounter = isChartEntry ? 'Chart entry' : 'Form response';
+
     const encounter = await this.getSurveyEncounter({
       encounterId,
       patientId,
       forceNewEncounter,
-      reasonForEncounter: 'Form response',
+      reasonForEncounter,
+      answers: finalAnswers,
       ...responseData,
     });
     const { result, resultText } = getResultValue(questions, answers, {
@@ -376,7 +432,7 @@ export class SurveyResponse extends Model {
     });
 
     const findDataElement = (id: string) => {
-      const component = questions.find((c) => c.dataElement.id === id);
+      const component = questions.find(c => c.dataElement.id === id);
       if (!component) return null;
       return component.dataElement;
     };
@@ -388,7 +444,7 @@ export class SurveyResponse extends Model {
       if (!dataElement) {
         throw new Error(`no data element for question: ${dataElementId}`);
       }
-      const body = getStringValue(dataElement.type, value);
+      const body = await getBodyForAnswer(dataElement.type, value, models);
       // Don't create null answers
       if (body === null) {
         continue;

@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - reference
+          meta:
+            triggers:
+              - notify_assets_changed
+              - record_assets_changelog
+              - set_assets_updated_at
+              - set_assets_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -36,9 +42,10 @@ sources:
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - image/png
-                    - image/svg
+                  arguments:
+                    values:
+                      - image/png
+                      - image/svg
           - name: data
             data_type: bytea
             description: "{{ doc('assets__data') }}"

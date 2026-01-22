@@ -9,6 +9,9 @@ sources:
         config:
           tags:
             - system
+          meta:
+            masking: truncate
+            triggers: []
         columns:
           - name: id
             data_type: character varying(255)

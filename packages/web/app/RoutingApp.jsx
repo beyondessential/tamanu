@@ -1,5 +1,5 @@
 import React from 'react';
-import { Redirect, Route, Switch } from 'react-router';
+import { Routes, Route, Navigate } from 'react-router';
 import { useSelector } from 'react-redux';
 
 import { SERVER_TYPES } from '@tamanu/constants';
@@ -13,6 +13,7 @@ import {
   ImagingRoutes,
   ImmunisationRoutes,
   LabsRoutes,
+  MedicationRoutes,
   PatientsRoutes,
   ProgramRegistryRoutes,
 } from './routes';
@@ -35,18 +36,21 @@ export const RoutingFacilityApp = React.memo(() => {
     <>
       <App sidebar={<Sidebar items={sidebarMenuItems} />}>
         <UserActivityMonitor />
-        <Switch>
-          {isSettingsLoaded ? <Redirect exact path="/" to={sidebarMenuItems[0].path} /> : null}
-          <Route path="/dashboard" component={DashboardView} />
-          <Route path="/patients" component={PatientsRoutes} />
-          <Route path="/appointments" component={AppointmentRoutes} />
-          <Route path="/imaging-requests" component={ImagingRoutes} />
-          <Route path="/lab-requests" component={LabsRoutes} />
-          <Route path="/invoices" component={BillingRoutes} />
-          <Route path="/program-registry" component={ProgramRegistryRoutes} />
-          <Route path="/immunisations" component={ImmunisationRoutes} />
-          <Route path="/facility-admin" component={FacilityAdminRoutes} />
-        </Switch>
+        <Routes>
+          {isSettingsLoaded ? (
+            <Route path="/" element={<Navigate to={sidebarMenuItems[0].path} replace />} />
+          ) : null}
+          <Route path="/dashboard" element={<DashboardView />} />
+          <Route path="/patients/*" element={<PatientsRoutes />} />
+          <Route path="/appointments/*" element={<AppointmentRoutes />} />
+          <Route path="/imaging-requests/*" element={<ImagingRoutes />} />
+          <Route path="/medication/*" element={<MedicationRoutes />} />
+          <Route path="/lab-requests/*" element={<LabsRoutes />} />
+          <Route path="/invoices/*" element={<BillingRoutes />} />
+          <Route path="/program-registry/*" element={<ProgramRegistryRoutes />} />
+          <Route path="/immunisations/*" element={<ImmunisationRoutes />} />
+          <Route path="/facility-admin/*" element={<FacilityAdminRoutes />} />
+        </Routes>
       </App>
     </>
   );
@@ -56,10 +60,10 @@ export const RoutingAdminApp = React.memo(() => {
   const sidebarMenuItems = useCentralSidebar();
   return (
     <App sidebar={<Sidebar items={sidebarMenuItems} />}>
-      <Switch>
-        <Redirect exact path="/" to="/admin" />
-        <Route path="/admin" component={AdministrationRoutes} />
-      </Switch>
+      <Routes>
+        <Route path="/" element={<Navigate to="/admin" replace />} />
+        <Route path="/admin/*" element={<AdministrationRoutes />} />
+      </Routes>
     </App>
   );
 });

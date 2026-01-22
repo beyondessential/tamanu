@@ -10,6 +10,7 @@ import { BodyText } from '../Typography';
 import { useAuth } from '../../contexts/Auth';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { MultiAutocompleteInput } from './MultiAutocompleteField';
+import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 
 const useLocationSuggestion = locationId => {
   const api = useApi();
@@ -39,8 +40,14 @@ export const LocationInput = React.memo(
     autofill = true,
     isMulti = false,
     'data-testid': dataTestId,
+    showAllLocations = false,
+    locationGroupBaseQueryParameters = {},
+    facilityId: facilityIdOverride,
+    wrapInNoteModalActionBlocker = false,
   }) => {
-    const { facilityId } = useAuth();
+    const { facilityId: currentFacilityId } = useAuth();
+    const facilityId = (facilityIdOverride ?? currentFacilityId) || '';
+
     const [groupId, setGroupId] = useState('');
     const [locationId, setLocationId] = useState(value);
     const suggester = useSuggester('location', {
@@ -53,16 +60,21 @@ export const LocationInput = React.memo(
           tag: enableLocationStatus ? LOCATION_AVAILABILITY_TAG_CONFIG[availability] : null,
         };
       },
-      baseQueryParameters: { filterByFacility: true, locationGroupId: groupId },
+      baseQueryParameters: { facilityId, filterByFacility: true, locationGroupId: groupId },
     });
-    const locationGroupSuggester = useSuggester(locationGroupSuggesterType);
+    const locationGroupSuggester = useSuggester(locationGroupSuggesterType, {
+      baseQueryParameters: {
+        facilityId: facilityId,
+        ...locationGroupBaseQueryParameters,
+      },
+    });
     const { data: location } = useLocationSuggestion(locationId);
     const { initialValues } = form;
 
     useEffect(() => {
       if (!initialValues) return;
       // Form is reinitialised, reset the state handled group and location values
-      setGroupId('');
+      setGroupId(initialValues?.locationGroup ?? '');
       setLocationId(initialValues[name] ?? '');
     }, [initialValues, name]);
 
@@ -105,14 +117,16 @@ export const LocationInput = React.memo(
     // 2. The existing location has a different facility than the current facility
     // Disable just the location field if location group has not been chosen or pre-filled
     const existingLocationHasSameFacility =
-      value && location?.facilityId ? facilityId === location.facilityId : true;
+      (value && location?.facilityId ? facilityId === location.facilityId : true) ||
+      showAllLocations;
     const locationSelectIsDisabled = !groupId || !existingLocationHasSameFacility;
     const locationGroupSelectIsDisabled = !existingLocationHasSameFacility;
 
     const LocationAutocompleteInput = isMulti ? MultiAutocompleteInput : AutocompleteInput;
+    const Wrapper = wrapInNoteModalActionBlocker ? NoteModalActionBlocker : React.Fragment;
 
     return (
-      <>
+      <Wrapper>
         {/* Show required asterisk but the field is not actually required */}
         <AutocompleteInput
           label={locationGroupLabel}
@@ -145,7 +159,7 @@ export const LocationInput = React.memo(
           size={size}
           data-testid={`${dataTestId}-location`}
         />
-      </>
+      </Wrapper>
     );
   },
 );

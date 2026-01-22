@@ -3,6 +3,7 @@ import express from 'express';
 import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { settingsCache } from '@tamanu/settings';
 import { attachAuditUserToDbSession } from '@tamanu/database/utils/audit';
+import { suggestions } from '@tamanu/shared/services/suggestions';
 
 import {
   authMiddleware,
@@ -29,6 +30,7 @@ import { invoices } from './invoice';
 import { labRequest, labTest, labTestPanel, labTestType } from './labs';
 import { labRequestLog } from './labRequestLog';
 import { location } from './location';
+import { locationAssignments } from './locationAssignments';
 import { locationGroup } from './locationGroup';
 import { medication } from './medication';
 import { notes } from './note';
@@ -45,7 +47,6 @@ import { reportRequest } from './reportRequest';
 import { reports } from './reports';
 import { resetPassword } from './resetPassword';
 import { scheduledVaccine } from './scheduledVaccine';
-import { suggestions } from './suggestions';
 import { survey } from './survey';
 import { surveyResponse } from './surveyResponse';
 import { surveyResponseAnswer } from './surveyResponseAnswer';
@@ -78,12 +79,15 @@ apiv1.get(
   }),
 );
 
-apiv1.get('/public/translation/languageOptions', async (req, res) => {
-  req.flagPermissionChecked();
-  const { TranslatedString } = req.models;
-  const response = await TranslatedString.getPossibleLanguages();
-  res.send(response);
-});
+apiv1.get(
+  '/public/translation/languageOptions',
+  asyncHandler(async (req, res) => {
+    req.flagPermissionChecked();
+    const { TranslatedString } = req.models;
+    const response = await TranslatedString.getPossibleLanguages();
+    res.send(response);
+  }),
+);
 
 apiv1.get(
   '/public/translation/:language',
@@ -162,6 +166,7 @@ referenceDataRoutes.use('/department', department);
 referenceDataRoutes.use('/facility', facility);
 referenceDataRoutes.use('/labRequestLog', labRequestLog);
 referenceDataRoutes.use('/location', location);
+referenceDataRoutes.use('/locationAssignments', locationAssignments);
 referenceDataRoutes.use('/locationGroup', locationGroup);
 referenceDataRoutes.use('/patientFieldDefinition', patientFieldDefinition);
 referenceDataRoutes.use('/template', template);
