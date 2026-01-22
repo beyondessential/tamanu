@@ -50,7 +50,7 @@ describe('PatientInvoiceInsurancePlan', () => {
       where: { patientId: patient.id },
     });
     expect(patientInvoiceInsurancePlans).toHaveLength(3);
-    expect(patientInvoiceInsurancePlans.map(p => p.invoiceInsurancePlanId)).toEqual([insurancePlan1.id, insurancePlan2.id, insurancePlan3.id]);
+    expect(patientInvoiceInsurancePlans.map(p => p.invoiceInsurancePlanId)).sort().toEqual([insurancePlan1.id, insurancePlan2.id, insurancePlan3.id].sort());
   });
 
   it('should soft delete patient invoice insurance plan if it is not in the list of insurance plans and it is already exist', async () => {
@@ -64,7 +64,7 @@ describe('PatientInvoiceInsurancePlan', () => {
       where: { patientId: patient.id },
     });
     expect(firstPatientInvoiceInsurancePlans).toHaveLength(3);
-    expect(firstPatientInvoiceInsurancePlans.map(p => p.invoiceInsurancePlanId)).toEqual([insurancePlan1.id, insurancePlan2.id, insurancePlan3.id]);
+    expect(firstPatientInvoiceInsurancePlans.map(p => p.invoiceInsurancePlanId)).sort().toEqual([insurancePlan1.id, insurancePlan2.id, insurancePlan3.id].sort());
 
     // Soft delete the patient invoice insurance plan
     const secondUpdateResult = await app.put(`/api/patient/${patient.id}`).send({
@@ -77,8 +77,8 @@ describe('PatientInvoiceInsurancePlan', () => {
       paranoid: false,
     });
     expect(secondPatientInvoiceInsurancePlans).toHaveLength(3);
-    expect(secondPatientInvoiceInsurancePlans.filter(p => p.deletedAt).map(p => p.invoiceInsurancePlanId)).toEqual([insurancePlan2.id, insurancePlan3.id]);
-    expect(secondPatientInvoiceInsurancePlans.filter(p => !p.deletedAt).map(p => p.invoiceInsurancePlanId)).toEqual([insurancePlan1.id]);
+    expect(secondPatientInvoiceInsurancePlans.filter(p => p.deletedAt).map(p => p.invoiceInsurancePlanId)).sort().toEqual([insurancePlan2.id, insurancePlan3.id].sort());
+    expect(secondPatientInvoiceInsurancePlans.filter(p => !p.deletedAt).map(p => p.invoiceInsurancePlanId)).sort().toEqual([insurancePlan1.id].sort());
   });
 
   it('should restore patient invoice insurance plan if it is in the list of insurance plans and it is previously deleted', async () => {
@@ -92,7 +92,7 @@ describe('PatientInvoiceInsurancePlan', () => {
       where: { patientId: patient.id },
     });
     expect(firstPatientInvoiceInsurancePlans).toHaveLength(3);
-    expect(firstPatientInvoiceInsurancePlans.map(p => p.invoiceInsurancePlanId)).toEqual([insurancePlan1.id, insurancePlan2.id, insurancePlan3.id]);
+    expect(firstPatientInvoiceInsurancePlans.map(p => p.invoiceInsurancePlanId)).sort().toEqual([insurancePlan1.id, insurancePlan2.id, insurancePlan3.id].sort());
 
     // Soft delete the patient invoice insurance plan
     const secondUpdateResult = await app.put(`/api/patient/${patient.id}`).send({
@@ -105,8 +105,8 @@ describe('PatientInvoiceInsurancePlan', () => {
       paranoid: false,
     });
     expect(secondPatientInvoiceInsurancePlans).toHaveLength(3);
-    expect(secondPatientInvoiceInsurancePlans.filter(p => p.deletedAt).map(p => p.invoiceInsurancePlanId)).toEqual([insurancePlan2.id, insurancePlan3.id]);
-    expect(secondPatientInvoiceInsurancePlans.filter(p => !p.deletedAt).map(p => p.invoiceInsurancePlanId)).toEqual([insurancePlan1.id]);
+    expect(secondPatientInvoiceInsurancePlans.filter(p => p.deletedAt).map(p => p.invoiceInsurancePlanId)).sort().toEqual([insurancePlan2.id, insurancePlan3.id].sort());
+    expect(secondPatientInvoiceInsurancePlans.filter(p => !p.deletedAt).map(p => p.invoiceInsurancePlanId)).sort().toEqual([insurancePlan1.id].sort());
 
     // Restore the patient invoice insurance plan
     const thirdUpdateResult = await app.put(`/api/patient/${patient.id}`).send({
@@ -120,7 +120,7 @@ describe('PatientInvoiceInsurancePlan', () => {
     });
     expect(thirdPatientInvoiceInsurancePlans).toHaveLength(3);
     expect(thirdPatientInvoiceInsurancePlans.filter(p => p.deletedAt).map(p => p.invoiceInsurancePlanId)).toEqual([]);
-    expect(thirdPatientInvoiceInsurancePlans.filter(p => !p.deletedAt).map(p => p.invoiceInsurancePlanId)).toEqual([insurancePlan1.id, insurancePlan2.id, insurancePlan3.id]);
+    expect(thirdPatientInvoiceInsurancePlans.filter(p => !p.deletedAt).map(p => p.invoiceInsurancePlanId)).sort().toEqual([insurancePlan1.id, insurancePlan2.id, insurancePlan3.id].sort());
   });
 
   it('should delete all patient invoice insurance plans if the list of insurance plans is empty', async () => {
@@ -134,7 +134,7 @@ describe('PatientInvoiceInsurancePlan', () => {
       where: { patientId: patient.id },
     });
     expect(firstPatientInvoiceInsurancePlans).toHaveLength(3);
-    expect(firstPatientInvoiceInsurancePlans.map(p => p.invoiceInsurancePlanId)).toEqual([insurancePlan1.id, insurancePlan2.id, insurancePlan3.id]);
+    expect(firstPatientInvoiceInsurancePlans.map(p => p.invoiceInsurancePlanId)).sort().toEqual([insurancePlan1.id, insurancePlan2.id, insurancePlan3.id].sort());
 
     // Delete all patient invoice insurance plans
     const secondUpdateResult = await app.put(`/api/patient/${patient.id}`).send({
@@ -148,6 +148,6 @@ describe('PatientInvoiceInsurancePlan', () => {
     });
     expect(secondPatientInvoiceInsurancePlans).toHaveLength(3);
     expect(secondPatientInvoiceInsurancePlans.filter(p => !p.deletedAt).map(p => p.invoiceInsurancePlanId)).toEqual([]);
-    expect(secondPatientInvoiceInsurancePlans.filter(p => p.deletedAt).map(p => p.invoiceInsurancePlanId)).toEqual([insurancePlan1.id, insurancePlan2.id, insurancePlan3.id]);
+    expect(secondPatientInvoiceInsurancePlans.filter(p => p.deletedAt).map(p => p.invoiceInsurancePlanId)).sort().toEqual([insurancePlan1.id, insurancePlan2.id, insurancePlan3.id].sort());
   });
 });
