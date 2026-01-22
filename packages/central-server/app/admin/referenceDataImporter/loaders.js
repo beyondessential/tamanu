@@ -507,7 +507,18 @@ export async function taskTemplateLoader(item, { models, pushError }) {
 
 export async function drugLoader(item, { models, pushError }) {
   // eslint-disable-next-line no-unused-vars
-  const { id: drugId, route, units, notes, isSensitive = false, name, visibilityStatus, code, systemRequired, ...rest } = item;
+  const {
+    id: drugId,
+    route,
+    units,
+    notes,
+    isSensitive = false,
+    name,
+    visibilityStatus,
+    code,
+    systemRequired,
+    ...rest
+  } = item;
   const rows = [];
 
   let existingDrug;
@@ -545,22 +556,12 @@ export async function drugLoader(item, { models, pushError }) {
   }
 
   if (facilitiesToImport.length !== facilityIdsToImport.length) {
-    const unavailableFacilityIds = facilityIdsToImport.filter(
-      id => !facilitiesToImport.some(f => f.id === id),
-    );
+    const validFacilityIds = new Set(facilitiesToImport.map(f => f.id));
+    const unavailableFacilityIds = facilityIdsToImport.filter(id => !validFacilityIds.has(id));
     pushError(
       `Drug "${drugId}": Some facilities do not exist or have been deleted: ${unavailableFacilityIds.join(', ')}.`,
     );
     return rows;
-  }
-
-  const validFacilityIds = new Set(facilitiesToImport.map(f => f.id));
-
-  for (const facilityId of facilityIdsToImport) {
-    if (!validFacilityIds.has(facilityId)) {
-      pushError(`Drug "${drugId}": Facility "${facilityId}" does not exist or has been deleted.`);
-      continue;
-    }
   }
 
   for (const [key, value] of Object.entries(facilitiesData)) {
@@ -577,8 +578,7 @@ export async function drugLoader(item, { models, pushError }) {
           : DRUG_STOCK_STATUSES.UNKNOWN;
     } else {
       quantity = parsedQuantity;
-      stockStatus =
-        quantity > 0 ? DRUG_STOCK_STATUSES.IN_STOCK : DRUG_STOCK_STATUSES.OUT_OF_STOCK;
+      stockStatus = quantity > 0 ? DRUG_STOCK_STATUSES.IN_STOCK : DRUG_STOCK_STATUSES.OUT_OF_STOCK;
     }
 
     rows.push({
