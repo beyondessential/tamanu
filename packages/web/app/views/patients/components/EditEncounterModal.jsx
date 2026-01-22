@@ -356,6 +356,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
     estimatedEndDate,
   }) => {
     await writeAndViewEncounter(encounter.id, {
+      submittedTime: getCurrentDateTimeString(),
       startDate,
       referralSourceId,
       patientBillingTypeId,
