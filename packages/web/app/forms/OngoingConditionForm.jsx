@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import Collapse from '@material-ui/core/Collapse';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import styled from 'styled-components';
@@ -12,7 +11,7 @@ import {
   DateField,
   Field,
 } from '../components/Field';
-import { TextField, Form, FormCancelButton, FormSubmitButton, FormSubmitCancelRow, FormGrid } from '@tamanu/ui-components';
+import { TextField, Form, FormCancelButton, FormSubmitButton, FormSubmitCancelRow, FormGrid, useDateTimeFormat } from '@tamanu/ui-components';
 import { Colors } from '../constants/styles';
 import { foreignKey } from '../utils/validation';
 import { TranslatedText } from '../components/Translation/TranslatedText';
@@ -56,6 +55,7 @@ export const OngoingConditionForm = ({
   diagnosisSuggester,
   onDelete,
 }) => {
+  const { getCurrentDateTimeString } = useDateTimeFormat();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const RenderForm = ({ submitForm, values }) => {

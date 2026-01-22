@@ -1,7 +1,6 @@
 import React from 'react';
 import * as yup from 'yup';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { TranslatedSelectField, Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
+import { TranslatedSelectField, Form, FormGrid, FormSubmitCancelRow, useDateTimeFormat } from '@tamanu/ui-components';
 import {
   DIAGNOSIS_CERTAINTY,
   DIAGNOSIS_CERTAINTY_VALUES,
@@ -35,6 +34,7 @@ export const DiagnosisForm = React.memo(
     const defaultCertainty = certaintyOptions[0].value;
     const hasDiagnosis = Boolean(diagnosis?.id);
     const { currentUser } = useAuth();
+    const { getCurrentDateTimeString } = useDateTimeFormat();
 
     const diagnosisSuggester = useSuggester('diagnosis', {
       filterer: icd => !excludeDiagnoses.some(d => d.diagnosisId === icd.id),

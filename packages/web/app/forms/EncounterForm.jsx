@@ -1,13 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   TextField,
   TranslatedSelectField,
   Form,
   FormGrid,
   FormSubmitButton,
+  useDateTimeFormat,
 } from '@tamanu/ui-components';
 import { foreignKey } from '../utils/validation';
 import {
@@ -34,6 +34,7 @@ export const EncounterForm = React.memo(
     });
     const referralSourceSuggester = useSuggester('referralSource');
     const { getTranslation } = useTranslation();
+    const { getCurrentDateTimeString } = useDateTimeFormat();
 
     const renderForm = ({ submitForm, values }) => {
       const buttonText = editedObject ? (

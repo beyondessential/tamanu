@@ -3,8 +3,8 @@ import { PropTypes } from 'prop-types';
 import * as yup from 'yup';
 
 import { SETTING_KEYS, VACCINE_CATEGORIES, VACCINE_RECORDING_TYPES, FORM_TYPES } from '@tamanu/constants';
-import { ISO9075_DATE_FORMAT, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { Form } from '@tamanu/ui-components';
+import { ISO9075_DATE_FORMAT } from '@tamanu/utils/dateTime';
+import { Form, useDateTimeFormat } from '@tamanu/ui-components';
 
 import { REQUIRED_INLINE_ERROR_MESSAGE } from '../constants';
 import { ErrorMessage } from '../components/ErrorMessage';
@@ -43,6 +43,7 @@ export const VaccineForm = ({
   vaccineRecordingType,
 }) => {
   const { getSetting } = useSettings();
+  const { getCurrentDateTimeString } = useDateTimeFormat();
 
   const [vaccineLabel, setVaccineLabel] = useState(existingValues?.vaccineLabel);
   const [category, setCategory] = useState(getInitialCategory(editMode, existingValues));
