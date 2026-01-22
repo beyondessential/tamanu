@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import MuiBox from '@material-ui/core/Box';
@@ -8,7 +8,8 @@ import {
   FORM_TYPES,
   PREGNANCY_MOMENTS,
 } from '@tamanu/constants';
-import { ageInMonths, ageInYears, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { differenceInYears, differenceInMonths, parseISO } from 'date-fns';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   ArrayField,
   AutocompleteField,
@@ -146,6 +147,15 @@ const PartialWorkflowPage = ({ practitionerSuggester }) => {
   );
 };
 
+const canBePregnant = (timeOfDeath, patient) => {
+  const isFemale = patient.sex === 'female';
+  return isFemale && differenceInYears(parseISO(timeOfDeath), parseISO(patient.dateOfBirth)) >= 12;
+};
+
+const isInfant = (timeOfDeath, patient) => {
+  return differenceInMonths(parseISO(timeOfDeath), parseISO(patient.dateOfBirth)) <= 12;
+};
+
 export const DeathForm = React.memo(
   ({
     onCancel,
@@ -156,10 +166,11 @@ export const DeathForm = React.memo(
     diagnosisSuggester,
     facilitySuggester,
   }) => {
+    const [currentTOD, setCurrentTOD] = useState(patient?.dateOfDeath || getCurrentDateTimeString());
     const { getTranslation } = useTranslation();
     const { currentUser } = useAuth();
-    const canBePregnant = patient.sex === 'female' && ageInYears(patient.dateOfBirth) >= 12;
-    const isInfant = ageInMonths(patient.dateOfBirth) <= 12;
+    const showPregnantQuestions = canBePregnant(currentTOD, patient);
+    const showInfantQuestions = isInfant(currentTOD, patient);
 
     return (
       <PaginatedForm
@@ -167,6 +178,7 @@ export const DeathForm = React.memo(
         onCancel={onCancel}
         FormScreen={DeathFormScreen}
         SummaryScreen={deathData ? SummaryScreenTwo : SummaryScreenThree}
+        setParentState={setCurrentTOD}
         validationSchema={yup.object().shape({
           causeOfDeath: yup.string().when('isPartialWorkflow', {
             is: undefined,
@@ -565,7 +577,7 @@ export const DeathForm = React.memo(
             data-testid="field-u4jw"
           />
         </StyledFormGrid>
-        {canBePregnant ? (
+        {showPregnantQuestions ? (
           <StyledFormGrid columns={1} data-testid="styledformgrid-gkfk">
             <Field
               name="pregnant"
@@ -610,7 +622,7 @@ export const DeathForm = React.memo(
             />
           </StyledFormGrid>
         ) : null}
-        {isInfant ? (
+        {showInfantQuestions ? (
           <StyledFormGrid columns={1} data-testid="styledformgrid-7x1s">
             <Subheading>
               <TranslatedText
