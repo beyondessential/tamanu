@@ -168,6 +168,11 @@ export class Triage extends Model {
         formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
       });
       await onChangeTextColumn({
+        columnName: 'triageTime',
+        fieldLabel: 'triage date & time',
+        formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
+      });
+      await onChangeTextColumn({
         columnName: 'score',
         fieldLabel: 'triage score',
       });
