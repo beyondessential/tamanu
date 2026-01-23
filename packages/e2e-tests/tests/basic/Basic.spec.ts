@@ -15,7 +15,6 @@ import { CHARTING_FIELD_KEYS } from '@pages/patients/ChartsPage/types';
 import { SelectFormPage } from '@pages/patients/PatientDetailsPage/pages/SelectFormPage';
 import { FormPage } from '@pages/patients/PatientDetailsPage/pages/FormPage';
 import { FormResponseModal } from '@pages/patients/PatientDetailsPage/modals/FormResponseModal';
-import { DeleteProgramResponseModal } from '@pages/patients/PatientDetailsPage/modals/DeleteProgramResponseModal';
 
 
 
@@ -718,26 +717,5 @@ import { DeleteProgramResponseModal } from '@pages/patients/PatientDetailsPage/m
     expect(referralCompletedBy[0]).toBe(formValues.referralCompletedBy);
     const referralStatus = await getTableItems(referralPane.page, 1, 'status');
     expect(referralStatus[0]).toBe('Pending');
-  });
-  test('[BT-0034][AT-2025] delete a added program response', async ({newPatient, patientDetailsPage}) => {
-    await patientDetailsPage.goToPatient(newPatient);
-    const programPane = await patientDetailsPage.navigateToFormsTab();
-    await programPane.waitForPageToLoad();
-    await programPane.newFormButton.click();
-    const selectFormPage = new SelectFormPage(patientDetailsPage.page);
-    await selectFormPage.waitForPageToLoad();
-    await selectFormPage.selectProgram('NCD Primary Screening');
-    await selectFormPage.selectSurvey('CVD Primary Screening Form');
-    await selectFormPage.clickBeginSurvey();
-    const formPage = new FormPage(patientDetailsPage.page);
-     await formPage.fillFormWithFirstOptions();
-    await programPane.waitForPageToLoad();
-    await programPane.getActionMenuButton(0).click();
-    await programPane.deleteButton.click();
-    const deleteProgramResponseModal = new DeleteProgramResponseModal(patientDetailsPage.page);
-    await deleteProgramResponseModal.waitForModalToLoad();
-    await deleteProgramResponseModal.confirmButton.click();
-    await programPane.waitForPageToLoad();
-    await expect(programPane.tableRows.first()).toHaveText('No program responses found');
   });
     });

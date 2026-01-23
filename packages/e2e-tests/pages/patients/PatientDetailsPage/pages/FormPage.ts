@@ -169,6 +169,8 @@ export class FormPage {
       const lastScreenValues = await this.fillCurrentScreenWithFirstOptions();
       allSelectedValues.push(...lastScreenValues);
       await this.clickSubmit();
+      await this.page.waitForLoadState('networkidle');
+
     }
     
     return allSelectedValues;

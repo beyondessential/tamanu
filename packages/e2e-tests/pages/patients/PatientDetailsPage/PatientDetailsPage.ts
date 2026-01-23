@@ -637,7 +637,6 @@ export class PatientDetailsPage extends BasePatientPage {
   }
 
   async clickRecordDeath(): Promise<void> {
-    await this.recordDeathLink.waitFor({ state: 'visible' });
     await this.recordDeathLink.click();
   }
 
