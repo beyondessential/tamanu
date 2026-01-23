@@ -88,8 +88,6 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
   const { data: labTest } = useLabTestQuery(labTestId);
   const { data: history = [] } = useLabTestResultHistoryQuery(labTestId);
 
-  console.log('history', history);
-
   // Don't show the initial empty result in the history (oldest item, since history is DESC ordered)
   const visibleHistory = React.useMemo(() => {
     const lastItem = history.at(-1);
