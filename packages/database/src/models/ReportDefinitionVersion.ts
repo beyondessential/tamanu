@@ -24,6 +24,9 @@ const optionsValidator = yup.object({
   dateRangeLabel: yup.string(),
   defaultDateRange: yup.string().oneOf(REPORT_DEFAULT_DATE_RANGES_VALUES).required(),
   dhis2DataSet: yup.string(),
+  advancedConfig: yup.object().shape({
+    dhis2DataSet: yup.string(),
+  }),
 });
 
 const generateReportFromQueryData = (queryData: any[]) => {
