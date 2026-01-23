@@ -48,7 +48,7 @@ runs:
       uses: pulumi/actions@v5
 
     - name: Connect to Tailscale
-      uses: tailscale/github-action@v2
+      uses: tailscale/github-action@v4
       with:
         oauth-client-id: ${{ vars.TS_OAUTH_CLIENT_ID }}
         audience: api.tailscale.com/${{ vars.TS_OAUTH_CLIENT_ID }}
