@@ -164,7 +164,7 @@ export class Triage extends Model {
       });
       await onChangeTextColumn({
         columnName: 'arrivalTime',
-        noteLabel: 'arrival time',
+        noteLabel: 'arrival date & time',
         formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
       });
       await onChangeTextColumn({
