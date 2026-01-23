@@ -4,28 +4,29 @@ import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import { Box } from '@material-ui/core';
 import { addDays, isAfter, isBefore, parse } from 'date-fns';
+
 import { format as formatDate, toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
+
+import { DefaultIconButton } from '../Button';
 import { TextInput } from './TextField';
 import { TAMANU_COLORS } from '../../constants';
-import { DefaultIconButton } from '../Button';
 import { useDateTimeFormat } from '../../contexts';
 
-// This component is pretty tricky! It has to keep track of two layers of state:
-//
-//  - actual date, received from `value` and emitted through `onChange`
-//    this is always in RFC3339 format (which looks like "1996-12-19T16:39:57")
-//
-//  - currently entered date, which might be only partially entered
-//    this is a string in whatever format that has been given to the
-//    component through the `format` prop.
-//
-// As the string formats don't contain timezone information, the RFC3339 dates are
-// always in UTC - leaving it up to the local timezone can introduce some wacky
-// behaviour as the dates get converted back and forth.
-//
-// Care has to be taken with setting the string value, as the native date control
-// has some unusual input handling (switching focus between day/month/year etc) that
-// a value change will interfere with.
+/*
+ * DateInput component handles two layers of state:
+ *
+ * 1. Form value (via `value` prop / `onChange`):
+ *    - Stored in ISO9075 format in COUNTRY timezone
+ *    - This is what gets persisted to the database
+ *
+ * 2. Display value (what the user sees/edits):
+ *    - For datetime-local with useTimezone=true: displayed in FACILITY timezone
+ *    - For other types: displayed as-is
+ *
+ * Timezone flow (when useTimezone=true):
+ *    Load:  value (country TZ) → formatForDateTimeInput → display (facility TZ)
+ *    Save:  input (facility TZ) → toDateTimeStringForPersistence → value (country TZ)
+ */
 
 // Here I have made a data URL for the new calendar icon. The existing calendar icon was a pseudo element
 // in the user agent shadow DOM. In order to add a new icon I had to make the pseudo element invisible
@@ -67,10 +68,9 @@ export const DateInput = ({
   const { formatForDateTimeInput, toDateTimeStringForPersistence } = useDateTimeFormat();
   const shouldUseTimezone = useTimezone && type === 'datetime-local';
 
+  // Convert stored value (country TZ) to display value (facility TZ for datetime-local)
   const getDisplayValue = val => {
-    if (shouldUseTimezone) {
-      return formatForDateTimeInput(val) || '';
-    }
+    if (shouldUseTimezone) return formatForDateTimeInput(val) || '';
     return fromRFC3339(val, format);
   };
 
@@ -111,7 +111,7 @@ export const DateInput = ({
 
       let outputValue;
 
-      // Use timezone conversion for datetime-local inputs
+      // Convert input value (facility TZ) to storage value (country TZ)
       if (shouldUseTimezone) {
         outputValue = toDateTimeStringForPersistence(formattedValue);
       } else {

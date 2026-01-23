@@ -93,7 +93,7 @@ export const TriageForm = ({
           data-testid="field-mhav"
         />
         <Field
-          name="triageTime" 
+          name="triageTime"
           label={
             <TranslatedText
               stringId="patient.modal.triage.triageDateTime.label"
