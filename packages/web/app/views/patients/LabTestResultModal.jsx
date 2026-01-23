@@ -76,6 +76,7 @@ const HistoryItem = styled.div`
 const HistoryItemLabel = styled(BodyText)`
   color: ${Colors.midText};
   font-size: 12px;
+  cursor: default;
 `;
 
 const HistoryItemValue = styled(BodyText)`
