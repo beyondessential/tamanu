@@ -97,6 +97,7 @@ EOF
                         enabled: true,
                     },
                     enableTasking: true,
+                    enablePatientDeaths: true,
                 },
             },
         },
