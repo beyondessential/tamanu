@@ -46,7 +46,7 @@ const SubText = styled.div`
 const CustomText = () => {
   return (
     <div>
-      <DateDisplay date={new Date()} showTime />
+      <DateDisplay date={new Date()} timeFormat="default" />
       <SubText style={{ marginTop: 2 }}>
         Site: <span>Left arm</span>
       </SubText>

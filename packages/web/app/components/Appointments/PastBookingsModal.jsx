@@ -2,8 +2,9 @@ import { Box } from '@material-ui/core';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
 import React from 'react';
 import styled from 'styled-components';
+import { isSameDay, parseISO } from 'date-fns';
 
-import { getCurrentDateTimeString, formatShortest, formatTime } from '@tamanu/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { useLocationBookingsQuery } from '../../api/queries';
 import { Colors } from '../../constants';
@@ -11,6 +12,7 @@ import { LimitedLinesCell } from '../FormattedTableCell';
 import { Modal } from '../Modal';
 import { Table } from '../Table';
 import { useTableSorting } from '../Table/useTableSorting';
+import { DateTimeRangeDisplay } from '@tamanu/ui-components';
 import { ThemedTooltip } from '../Tooltip';
 import { TranslatedText } from '../Translation';
 import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
@@ -110,8 +112,8 @@ const StatusBadge = styled.div`
   justify-content: center;
   align-items: center;
   font-size: 11px;
-  color: ${(p) => APPOINTMENT_STATUS_COLORS[p.$status]};
-  background-color: ${(p) => APPOINTMENT_STATUS_COLORS[p.$status]}1a;
+  color: ${p => APPOINTMENT_STATUS_COLORS[p.$status]};
+  background-color: ${p => APPOINTMENT_STATUS_COLORS[p.$status]}1a;
 `;
 
 const OvernightIcon = styled.span`
@@ -121,34 +123,28 @@ const OvernightIcon = styled.span`
   color: ${Colors.primary};
 `;
 
-const getDate = ({ startTime, endTime }) => {
-  const formatShortestStartTime = formatShortest(startTime);
-  const formatShortestEndTime = formatShortest(endTime);
-  const formatTimeStartTime = formatTime(startTime).replace(' ', '');
-  const formatTimeEndTime = formatTime(endTime).replace(' ', '');
-
-  const isOvernight = formatShortestStartTime !== formatShortestEndTime;
+const DateCell = ({ startTime, endTime }) => {
+  const isOvernight = !isSameDay(parseISO(startTime), parseISO(endTime));
 
   return (
     <ThemedTooltip
       title={
         <Box style={{ textTransform: 'lowercase', fontWeight: 400 }} data-testid="box-q74p">
-          {isOvernight ? (
-            `${formatShortestStartTime} - ${formatShortestEndTime}`
-          ) : (
-            <div>
-              <div>{formatShortestStartTime}</div>
-              <div>{`${formatTimeStartTime} - ${formatTimeEndTime}`}</div>
-            </div>
-          )}
+          <DateTimeRangeDisplay 
+            start={startTime} 
+            end={endTime} 
+            dateFormat="shortest"
+          />
         </Box>
       }
       data-testid="themedtooltip-euoy"
     >
       <DateText data-testid="datetext-z14b">
-        {!isOvernight
-          ? `${formatShortestStartTime} ${formatTimeStartTime} - ${formatTimeEndTime}`
-          : `${formatShortestStartTime} - ${formatShortestEndTime}`}
+        <DateTimeRangeDisplay 
+          start={startTime} 
+          end={endTime} 
+          dateFormat="shortest"
+        />
         {isOvernight && (
           <OvernightIcon data-testid="overnighticon-2qtt">
             <Brightness2Icon fontSize="inherit" data-testid="brightness2icon-gxv2" />
@@ -175,7 +171,7 @@ const COLUMNS = [
         data-testid="translatedtext-okjz"
       />
     ),
-    accessor: getDate,
+    accessor: DateCell,
   },
   {
     key: 'bookingArea',
@@ -187,7 +183,7 @@ const COLUMNS = [
       />
     ),
     accessor: ({ location }) => location?.locationGroup?.name,
-    CellComponent: (props) => (
+    CellComponent: props => (
       <LimitedLinesCell {...props} isOneLine data-testid="limitedlinescell-1mrf" />
     ),
   },
@@ -202,7 +198,7 @@ const COLUMNS = [
     ),
     accessor: ({ location }) => location?.name || '-',
     sortable: false,
-    CellComponent: (props) => (
+    CellComponent: props => (
       <LimitedLinesCell {...props} isOneLine data-testid="limitedlinescell-bdup" />
     ),
   },
@@ -216,7 +212,7 @@ const COLUMNS = [
       />
     ),
     accessor: ({ clinician }) => clinician?.displayName || '-',
-    CellComponent: (props) => (
+    CellComponent: props => (
       <LimitedLinesCell {...props} isOneLine data-testid="limitedlinescell-f99y" />
     ),
   },
@@ -230,7 +226,7 @@ const COLUMNS = [
       />
     ),
     accessor: ({ bookingType }) => bookingType?.name,
-    CellComponent: (props) => (
+    CellComponent: props => (
       <LimitedLinesCell {...props} isOneLine data-testid="limitedlinescell-hk2s" />
     ),
   },

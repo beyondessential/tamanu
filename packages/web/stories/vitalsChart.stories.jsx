@@ -1,12 +1,13 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { addDays, addHours, format } from 'date-fns';
+import { addDays, addHours } from 'date-fns';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { Modal } from '@tamanu/ui-components';
 import { LineChart } from '../app/components/Charts/LineChart';
 import { EncounterContext } from '../app/contexts/Encounter';
 import { getVitalChartProps } from '../app/components/Charts/helpers/getVitalChartProps';
 
-const getDate = amount => format(addHours(new Date(), amount), 'yyyy-MM-dd HH:mm:ss');
+const getDate = amount => toDateTimeString(addHours(new Date(), amount));
 const data = [
   {
     name: getDate(-1),
@@ -67,8 +68,8 @@ const visualisationConfig = {
 };
 
 const dateRange = [
-  format(addDays(new Date(), -1), 'yyyy-MM-dd HH:mm:ss'),
-  format(new Date(), 'yyyy-MM-dd HH:mm:ss'),
+  toDateTimeString(addDays(new Date(), -1)),
+  toDateTimeString(new Date()),
 ];
 const chartProps = getVitalChartProps({
   visualisationConfig,

@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { formatShortest, formatTime } from '@tamanu/utils/dateTime';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 import { Colors } from '../../../constants';
 
 const TextFontSize = 11;
@@ -13,6 +13,7 @@ const Text = styled.text`
 `;
 
 export const CustomisedXAxisTick = (props) => {
+  const { formatShortest, formatTime } = useDateTimeFormat();
   const { x, y, payload } = props;
   const { value } = payload;
   const date = new Date(value);

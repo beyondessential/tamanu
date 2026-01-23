@@ -1,9 +1,8 @@
 import { isNumber } from 'lodash';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { formatLong, formatShortest, formatTime } from '@tamanu/utils/dateTime';
 import styled from 'styled-components';
 import { Colors } from '../constants';
-import { DateDisplay } from './DateDisplay';
+import { DateDisplay, TimeDisplay } from './DateDisplay';
 import { TableTooltip } from './Table/TableTooltip';
 
 // severity constants
@@ -88,10 +87,10 @@ export const formatValue = (value, config) => {
 };
 
 export const DateHeadCell = React.memo(({ value }) => (
-  <TableTooltip title={DateDisplay.stringFormat(value, formatLong)} data-testid="tabletooltip-5w9x">
+  <TableTooltip title={<DateDisplay date={value} format="long" />} data-testid="tabletooltip-5w9x">
     <HeadCellWrapper data-testid="headcellwrapper-jcsy">
-      <div>{DateDisplay.stringFormat(value, formatShortest)}</div>
-      <div>{DateDisplay.stringFormat(value, formatTime)}</div>
+      <div><DateDisplay date={value} format="shortest" /></div>
+      <div><TimeDisplay date={value} /></div>
     </HeadCellWrapper>
   </TableTooltip>
 ));
@@ -100,12 +99,12 @@ export const DateBodyCell = React.memo(({ value, onClick }) => {
   const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
   return (
     <TableTooltip
-      title={DateDisplay.stringFormat(value, formatLong)}
+      title={<DateDisplay date={value} timeFormat="default" />}
       data-testid="tabletooltip-3knb"
     >
       <CellContainer onClick={onClick} data-testid="cellcontainer-slh4">
-        <div>{DateDisplay.stringFormat(value, formatShortest)}</div>
-        <div>{DateDisplay.stringFormat(value, formatTime)}</div>
+        <div><DateDisplay date={value} format="shortest" /></div>
+        <div><TimeDisplay date={value} /></div>
       </CellContainer>
     </TableTooltip>
   );

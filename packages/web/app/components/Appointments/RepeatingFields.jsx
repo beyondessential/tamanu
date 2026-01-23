@@ -7,7 +7,8 @@ import { typographyClasses } from '@mui/material/Typography';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
-import { format, add, parseISO } from 'date-fns';
+import { add, parseISO } from 'date-fns';
+import { toDateString } from '@tamanu/utils/dateTime';
 import { get } from 'lodash';
 
 import {
@@ -252,15 +253,14 @@ export const RepeatingFields = ({
               name="schedule.untilDate"
               disabled={readonly || endsMode !== ENDS_MODES.ON}
               value={endsMode === ENDS_MODES.ON ? untilDate : ''}
-              min={format(
+              min={toDateString(
                 add(startTimeDate, {
                   [`${REPEAT_FREQUENCY_UNIT_PLURAL_LABELS[frequency]}`]: interval,
                 }),
-                'yyyy-MM-dd',
               )}
               max={
                 maxFutureMonths
-                  ? format(add(new Date(), { months: maxFutureMonths }), 'yyyy-MM-dd')
+                  ? toDateString(add(new Date(), { months: maxFutureMonths }))
                   : undefined
               }
               component={StyledDateField}

@@ -3,11 +3,10 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 import { Box, Divider } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
-import { formatShort } from '@tamanu/utils/dateTime';
 import { toast } from 'react-toastify';
 import { subject } from '@casl/ability';
 import { FORM_TYPES } from '@tamanu/constants';
-import { Field, Form, DateField } from '@tamanu/ui-components';
+import { Field, Form, DateField, DateDisplay } from '@tamanu/ui-components';
 import { TranslatedText, Button, Heading3, BodyText, FormSubmitButton } from '../../../components';
 import { Colors } from '../../../constants';
 import {
@@ -315,7 +314,7 @@ export const UserLeaveSection = ({ user }) => {
             {leaves.map(leave => (
               <LeaveItem key={leave.id}>
                 <LeaveDates>
-                  {formatShort(leave.startDate)} - {formatShort(leave.endDate)}
+                  <DateDisplay date={leave.startDate} /> - <DateDisplay date={leave.endDate} />
                 </LeaveDates>
                 {canUpdateUser && (
                   <RemoveLink onClick={() => handleDeleteLeave(leave)}>

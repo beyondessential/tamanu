@@ -23,7 +23,7 @@ import {
   type DurationUnit,
   type Interval,
 } from 'date-fns';
-import { fromZonedTime, formatInTimeZone } from 'date-fns-tz';
+import { formatInTimeZone, fromZonedTime } from 'date-fns-tz';
 import { z } from 'zod';
 
 import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
@@ -275,7 +275,7 @@ export const intlFormatDate = (
 
   // Datetime strings: apply timezone conversion if timezone provided
   const dateObj =
-    facilityTimeZone && countryTimeZone ? fromZonedTime(date, countryTimeZone) : parseDate(date);
+    countryTimeZone && facilityTimeZone ? fromZonedTime(date, countryTimeZone) : parseDate(date);
   if (!dateObj) return fallback;
 
   const timeZone = facilityTimeZone ?? countryTimeZone;
@@ -285,7 +285,7 @@ export const intlFormatDate = (
   return dateObj.toLocaleString(locale, formatOptions);
 };
 
-/** "12/04/20" */
+/** "12/04/24" */
 export const formatShortest = (
   date: string | Date | null | undefined,
   countryTimeZone?: string,
@@ -448,6 +448,20 @@ export const formatShortestExplicit = (
   intlFormatDate(
     date,
     { year: '2-digit', month: 'short', day: 'numeric' },
+    'Unknown',
+    countryTimeZone,
+    facilityTimeZone,
+  );
+
+/** "15 Mar" - day and short month name (no year) */
+export const formatDayMonth = (
+  date: string | Date | null | undefined,
+  countryTimeZone?: string,
+  facilityTimeZone?: string | null,
+) =>
+  intlFormatDate(
+    date,
+    { month: 'short', day: 'numeric' },
     'Unknown',
     countryTimeZone,
     facilityTimeZone,

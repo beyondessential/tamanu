@@ -8,7 +8,6 @@ import {
   ENCOUNTER_TYPE_LABELS,
   ENCOUNTER_TYPE_ABBREVIATION_LABELS,
 } from '@tamanu/constants';
-import { formatShortest } from '@tamanu/utils/dateTime';
 
 import { Colors, INVOICE_MODAL_TYPES } from '../../constants';
 import { DataFetchingTable } from '../Table';
@@ -27,6 +26,7 @@ import {
   useInvoiceTotalOutstandingBalanceQuery,
 } from '../../api/queries/useInvoiceQuery';
 import { useAuth } from '../../contexts/Auth';
+import { DateDisplay } from '@tamanu/ui-components';
 
 const TableTitle = styled(Typography)`
   font-size: 16px;
@@ -77,7 +77,7 @@ const Table = styled(DataFetchingTable)`
   }
 `;
 
-const getDate = ({ date }) => formatShortest(date);
+const getDate = ({ date }) => <DateDisplay date={date} format="shortest" />
 const getInvoiceTotal = row => {
   const { patientTotal } = getInvoiceSummaryDisplay(row);
   return patientTotal === undefined ? (

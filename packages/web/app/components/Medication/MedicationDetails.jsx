@@ -9,7 +9,6 @@ import {
   MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
   FORM_TYPES,
 } from '@tamanu/constants';
-import { formatShortest } from '@tamanu/utils/dateTime';
 import {
   findAdministrationTimeSlotFromIdealTime,
   getDateFromTimeString,
@@ -23,7 +22,10 @@ import {
   Form,
   Button,
   OutlinedButton,
-  FormGrid
+  FormGrid,
+  DateDisplay,
+  TimeDisplay,
+  TimeRangeDisplay,
 } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { CheckField, Field } from '../Field';
@@ -33,7 +35,6 @@ import { useApi } from '../../api';
 import { MedicationDiscontinueModal } from './MedicationDiscontinueModal';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedEnum, TranslatedReferenceData } from '../Translation';
-import { formatTimeSlot } from '../../utils/medications';
 import { MedicationPauseModal } from './MedicationPauseModal';
 import { usePausePrescriptionQuery } from '../../api/queries/usePausePrescriptionQuery';
 import { useEncounter } from '../../contexts/Encounter';
@@ -135,7 +136,9 @@ export const MedicationDetails = ({
       label: (
         <TranslatedText stringId="medication.details.startDate" fallback="Start date & time" />
       ),
-      value: `${formatShortest(medication.startDate)} ${formatTimeSlot(medication.startDate)}`,
+      value: (
+        <DateDisplay date={medication.startDate} format="shortest" timeFormat="compact" />
+      ),
     },
     ...(medication.isOngoing || medication.discontinued
       ? []
@@ -182,7 +185,7 @@ export const MedicationDetails = ({
           fallback="Prescription date"
         />
       ),
-      value: `${formatShortest(medication.date)}`,
+      value: <DateDisplay date={medication.date} format="shortest" />,
     },
     ...(medication.isOngoing || medication.discontinued || !medication.endDate
       ? []
@@ -191,7 +194,12 @@ export const MedicationDetails = ({
             label: (
               <TranslatedText stringId="medication.details.endDate" fallback="End date & time" />
             ),
-            value: `${formatShortest(medication.endDate)} ${formatTimeSlot(medication.endDate)}`,
+            value: (
+              <>
+                {' '}
+                <DateDisplay date={medication.endDate} format="shortest" timeFormat="compact" />
+              </>
+            ),
           },
         ]),
     {
@@ -284,9 +292,14 @@ export const MedicationDetails = ({
                           fallback="Discontinue date & time"
                         />
                       </MidText>
-                      <DarkestText mt={0.5}>{`${formatShortest(
-                        medication.discontinuedDate,
-                      )} ${formatTimeSlot(medication.discontinuedDate)}`}</DarkestText>
+                      <DarkestText mt={0.5}>
+                        <DateDisplay date={medication.discontinuedDate} format="shortest" />{' '}
+                        <TimeDisplay
+                          date={medication.discontinuedDate}
+                          timeFormat="compact"
+                          noTooltip
+                        />
+                      </DarkestText>
                     </Box>
                   </DetailsContainer>
                   <Box my={2.5} height={'1px'} bgcolor={Colors.outline} />
@@ -318,9 +331,7 @@ export const MedicationDetails = ({
                           pauseData.pauseDuration,
                         ).toLowerCase()}{' '}
                         - {<TranslatedText stringId="medication.details.until" fallback="until" />}{' '}
-                        {`${formatShortest(pauseData.pauseEndDate)} ${formatTimeSlot(
-                          pauseData.pauseEndDate,
-                        )}`}
+                        <DateDisplay date={pauseData.pauseEndDate} format="shortest" timeFormat="compact" />
                       </DarkestText>
                     </Box>
                     <Box flex={1} pl={2.5} borderLeft={`1px solid ${Colors.outline}`}>
@@ -451,31 +462,40 @@ export const MedicationDetails = ({
                 </DarkestText>
                 <DetailsContainer mt={0.5} width={'50%'} display={'flex'}>
                   <Box display={'flex'} flexDirection={'column'} mr={2.5} style={{ gap: '16px' }}>
-                    {medication?.idealTimes?.slice().sort((a, b) => {
-                      const timeA = getDateFromTimeString(a);
-                      const timeB = getDateFromTimeString(b);
-                      return timeA - timeB;
-                    }).map(time => {
-                      const slot = findAdministrationTimeSlotFromIdealTime(time).timeSlot;
-                      return (
-                        <DarkestText key={time}>
-                          {`${formatTimeSlot(
-                            getDateFromTimeString(slot.startTime),
-                          )} - ${formatTimeSlot(getDateFromTimeString(slot.endTime))} `}
-                        </DarkestText>
-                      );
-                    })}
+                    {medication?.idealTimes
+                      ?.slice()
+                      .sort((a, b) => {
+                        const timeA = getDateFromTimeString(a);
+                        const timeB = getDateFromTimeString(b);
+                        return timeA - timeB;
+                      })
+                      .map(time => {
+                        const slot = findAdministrationTimeSlotFromIdealTime(time).timeSlot;
+                        return (
+                          <DarkestText key={time}>
+                            <TimeRangeDisplay range={{ 
+                              start: getDateFromTimeString(slot.startTime), 
+                              end: getDateFromTimeString(slot.endTime) 
+                            }} />
+                          </DarkestText>
+                        );
+                      })}
                   </Box>
                   <Box display={'flex'} flexDirection={'column'} style={{ gap: '16px' }}>
-                    {medication?.idealTimes?.slice().sort((a, b) => {
-                      const timeA = getDateFromTimeString(a);
-                      const timeB = getDateFromTimeString(b);
-                      return timeA - timeB;
-                    }).map(time => {
-                      return (
-                        <MidText key={time}>{formatTimeSlot(getDateFromTimeString(time))}</MidText>
-                      );
-                    })}
+                    {medication?.idealTimes
+                      ?.slice()
+                      .sort((a, b) => {
+                        const timeA = getDateFromTimeString(a);
+                        const timeB = getDateFromTimeString(b);
+                        return timeA - timeB;
+                      })
+                      .map(time => {
+                        return (
+                          <MidText key={time}>
+                            <TimeDisplay date={getDateFromTimeString(time)} format="compact" noTooltip />
+                          </MidText>
+                        );
+                      })}
                   </Box>
                 </DetailsContainer>
               </Box>

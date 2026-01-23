@@ -264,7 +264,7 @@ const NoteContent = ({
         )}
         <DateDisplay
           date={(note.noteTypeId !== NOTE_TYPES.TREATMENT_PLAN && note.revisedBy?.date) || note.date}
-          showTime
+          timeFormat="default"
           data-testid="datedisplay-yaha"
         />
         {note.revisedById && (

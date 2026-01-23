@@ -1,6 +1,5 @@
 import { ADMINISTRATION_FREQUENCY_SYNONYMS } from '@tamanu/constants';
 import { camelCase } from 'lodash';
-import { formatTime } from '../components';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 
 export const getTranslatedFrequencySynonyms = (frequenciesEnabled, getTranslation) => {
@@ -25,12 +24,6 @@ export const getTranslatedFrequencySynonyms = (frequenciesEnabled, getTranslatio
 export const getTranslatedFrequencySynonym = (synonyms, index, getTranslation) => {
   const frequency = synonyms[index];
   return getTranslation(`medication.frequency.${camelCase(frequency)}.synonym.${index}`, frequency);
-};
-
-export const formatTimeSlot = time => {
-  return formatTime(time)
-    .replaceAll(' ', '')
-    .toLowerCase();
 };
 
 export const isWithinTimeSlot = (timeSlot, time, isFuture = false) => {

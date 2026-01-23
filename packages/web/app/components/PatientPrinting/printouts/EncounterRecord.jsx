@@ -117,7 +117,7 @@ const COLUMNS = {
       key: 'dateMoved',
       title: 'Date & time moved',
       accessor: ({ date }) =>
-        <DateDisplay date={date} showDate showTime data-testid="datedisplay-8jmd" /> || {},
+        <DateDisplay date={date} timeFormat="default" data-testid="datedisplay-8jmd" /> || {},
       style: { width: '30%' },
     },
   ],
@@ -139,7 +139,7 @@ const COLUMNS = {
       key: 'dateMoved',
       title: 'Date & time moved',
       accessor: ({ date }) =>
-        <DateDisplay date={date} showDate showTime data-testid="datedisplay-7isg" /> || {},
+        <DateDisplay date={date} timeFormat="default" data-testid="datedisplay-7isg" /> || {},
       style: { width: '30%' },
     },
   ],
@@ -174,7 +174,7 @@ const COLUMNS = {
       key: 'date',
       title: 'Date',
       accessor: ({ date }) =>
-        <DateDisplay date={date} showDate data-testid="datedisplay-hynw" /> || {},
+        <DateDisplay date={date} data-testid="datedisplay-hynw" /> || {},
       style: { width: '20%' },
     },
   ],
@@ -203,7 +203,7 @@ const COLUMNS = {
       key: 'procedureDate',
       title: 'Procedure date',
       accessor: ({ date }) =>
-        <DateDisplay date={date} showDate data-testid="datedisplay-deyp" /> || {},
+        <DateDisplay date={date} data-testid="datedisplay-deyp" /> || {},
       style: { width: '20%' },
     },
   ],
@@ -228,14 +228,14 @@ const COLUMNS = {
       key: 'requestDate',
       title: 'Request date',
       accessor: ({ requestDate }) =>
-        <DateDisplay date={requestDate} showDate data-testid="datedisplay-db0y" /> || {},
+        <DateDisplay date={requestDate} data-testid="datedisplay-db0y" /> || {},
       style: { width: '20%' },
     },
     {
       key: 'completedDate',
       title: 'Completed date',
       accessor: ({ completedDate }) =>
-        <DateDisplay date={completedDate} showDate data-testid="datedisplay-sl34" /> || {},
+        <DateDisplay date={completedDate} data-testid="datedisplay-sl34" /> || {},
       style: { width: '20%' },
     },
   ],
@@ -269,7 +269,7 @@ const COLUMNS = {
       key: 'requestDate',
       title: 'Request date',
       accessor: ({ requestedDate }) => (
-        <DateDisplay date={requestedDate} showDate data-testid="datedisplay-wkf6" />
+        <DateDisplay date={requestedDate} data-testid="datedisplay-wkf6" />
       ),
       style: { width: '20%' },
     },
@@ -324,7 +324,7 @@ const COLUMNS = {
     {
       key: 'prescriptionDate',
       title: 'Prescription date',
-      accessor: ({ date }) => <DateDisplay date={date} showDate data-testid="datedisplay-2lth" />,
+      accessor: ({ date }) => <DateDisplay date={date} data-testid="datedisplay-2lth" />,
       style: { width: '20%' },
     },
   ],
@@ -370,8 +370,7 @@ export const EncounterRecord = React.memo(
             <LocalisedDisplayValue name="dateOfBirth" data-testid="localiseddisplayvalue-268h">
               <DateDisplay
                 date={dateOfBirth}
-                showDate={false}
-                showExplicitDate
+                format="explicit"
                 data-testid="datedisplay-0c0e"
               />
             </LocalisedDisplayValue>
@@ -465,16 +464,14 @@ export const EncounterRecord = React.memo(
             <DisplayValue name="Date of admission" size="10px" data-testid="displayvalue-w117">
               <DateDisplay
                 date={startDate}
-                showDate={false}
-                showExplicitDate
+                format="explicit"
                 data-testid="datedisplay-rnzz"
               />
             </DisplayValue>
             <DisplayValue name="Date of discharge" size="10px" data-testid="displayvalue-k7iz">
               <DateDisplay
                 date={endDate}
-                showDate={false}
-                showExplicitDate
+                format="explicit"
                 data-testid="datedisplay-abwy"
               />
             </DisplayValue>
@@ -575,7 +572,7 @@ export const EncounterRecord = React.memo(
                       ) : null}
                       <DateDisplay
                         date={note.date}
-                        showTime
+                        timeFormat="default"
                         data-testid={`datedisplay-zlgm-${index}`}
                       />
                     </NoteMeta>

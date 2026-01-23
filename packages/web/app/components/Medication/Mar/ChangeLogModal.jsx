@@ -1,11 +1,9 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { ConfirmCancelRow, TranslatedText, Modal } from '@tamanu/ui-components';
+import { ConfirmCancelRow, TranslatedText, Modal, useDateTimeFormat } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
 import { useMarChangelogQuery } from '../../../api/queries/useMarChangelogQuery';
-import { formatShortest } from '@tamanu/utils/dateTime';
-import { formatTimeSlot } from '../../../utils/medications';
 import { Box } from '@mui/material';
 import { useTranslation } from '../../../contexts/Translation';
 import { getMarDoseDisplay } from '@tamanu/shared/utils/medication';
@@ -70,6 +68,7 @@ const LABELS = {
 
 export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
   const [changeLogList, setChangeLogList] = useState([]);
+  const { formatTimeSlot, formatShortest } = useDateTimeFormat();
   const { getEnumTranslation } = useTranslation();
 
   const { data } = useMarChangelogQuery(marId);
@@ -333,7 +332,8 @@ export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
                     </Box>
                   ))}
                   <NoteText>
-                    {log.userChanged.name} {log.userChanged.date}
+                    {log.userChanged.name}
+                    {log.userChanged.date}
                   </NoteText>
                   {log.doseIndex && (
                     <DoseLabel>

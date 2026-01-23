@@ -7,7 +7,6 @@ import Box from '@mui/material/Box';
 import {
   addDays,
   addMonths,
-  format,
   isSameDay,
   isSameMonth,
   isThisMonth,
@@ -21,7 +20,7 @@ import {
 import { eachDayInMonth } from '@tamanu/utils/dateTime';
 
 import { BodyText, MonthPicker } from '../../../components';
-import { TextButton } from '@tamanu/ui-components';
+import { TextButton, useDateTimeFormat } from '@tamanu/ui-components';
 import { Colors } from '../../../constants';
 
 const Wrapper = styled(Box)`
@@ -132,15 +131,16 @@ const StepperWrapper = styled(Box)`
 
 const DayButton = ({ date, selected, onClick }) => {
   const isWeekendDay = isWeekend(date);
+  const { formatWeekdayNarrow } = useDateTimeFormat();
   return (
     <DayWrapper
       onClick={onClick}
       $selected={selected}
       $isToday={isToday(date)}
-      data-testid={`daywrapper-2vbq-${format(date, 'EEEEE')}-${date.getDate()}`}
+      data-testid={`daywrapper-2vbq-${formatWeekdayNarrow(date)}-${date.getDate()}`}
     >
       <WeekdayText $isWeekend={isWeekendDay} $selected={selected}>
-        {format(date, 'EEEEE')}
+        {formatWeekdayNarrow(date)}
       </WeekdayText>
       <DateText $isWeekend={isWeekendDay} $selected={selected} data-testid="datetext-gl3a">
         {date.getDate()}
@@ -159,7 +159,7 @@ export const DateSelector = ({ value, onChange }) => {
   const handleIncrement = () => setViewedDays(eachDayInMonth(addMonths(viewedDays[0], 1)));
   const handleDecrement = () => setViewedDays(eachDayInMonth(subMonths(viewedDays[0], 1)));
 
-  const handleChange = (day) => {
+  const handleChange = day => {
     onChange({
       target: {
         value: day,
@@ -172,7 +172,7 @@ export const DateSelector = ({ value, onChange }) => {
 
   const handleChangeToday = () => handleChange(new Date());
 
-  const handleMonthYearChange = (newDate) => {
+  const handleMonthYearChange = newDate => {
     if (isThisMonth(newDate)) {
       handleChangeToday();
       return;
@@ -180,7 +180,7 @@ export const DateSelector = ({ value, onChange }) => {
     handleChange(startOfMonth(newDate));
   };
 
-  const handleOnKeyDown = (e) => {
+  const handleOnKeyDown = e => {
     if (e.key === 'ArrowLeft') {
       if (isSameDay(value, viewedDays[0])) return;
       handleChange(subDays(value, 1));
@@ -210,7 +210,7 @@ export const DateSelector = ({ value, onChange }) => {
           <ArrowBackIos data-testid="arrowbackios-jjro" />
         </StepperButton>
         <DaysWrapper data-testid="dayswrapper-f31b">
-          {viewedDays.map((date) => (
+          {viewedDays.map(date => (
             <DayButton
               aria-pressed={isSameDay(date, value)}
               date={date}

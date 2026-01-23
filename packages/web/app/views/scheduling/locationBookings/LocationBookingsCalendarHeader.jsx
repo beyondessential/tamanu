@@ -4,10 +4,10 @@ import { useLocation } from 'react-router';
 import { formatISO, isSameDay, isSameMonth, isThisMonth, parseISO, startOfToday } from 'date-fns';
 import queryString from 'query-string';
 
-import { isStartOfThisWeek, formatShort, formatWeekdayShort } from '@tamanu/utils/dateTime';
+import { isStartOfThisWeek } from '@tamanu/utils/dateTime';
 
 import { MonthPicker } from '../../../components';
-import { Button } from '@tamanu/ui-components';
+import { Button, useDateTimeFormat } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { scrollToThisWeek } from './utils';
@@ -69,6 +69,7 @@ const Weekday = styled.p`
 `;
 
 export const DayHeaderCell = ({ date, dim, ...props }) => {
+  const { formatWeekdayShort, formatShort } = useDateTimeFormat();
   const isToday = isSameDay(date, startOfToday());
   return (
     <HeaderCell

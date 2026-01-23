@@ -250,7 +250,7 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
               data-testid="translatedtext-btml"
             />
           }
-          value={DateDisplay.stringFormat(encounter.endDate)}
+          value={<DateDisplay date={encounter.endDate} />}
           icon={dischargeDateIcon}
           data-testid="infocarditem-w2sg"
         />

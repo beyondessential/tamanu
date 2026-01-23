@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { debounce } from 'lodash';
-import { addDays, format, parseISO, startOfDay } from 'date-fns';
+import { addDays, parseISO, startOfDay } from 'date-fns';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { DateInput as DateInputComponent } from '../../Field';
 import { SelectInput as SelectInputComponent } from '@tamanu/ui-components';
@@ -23,7 +24,6 @@ const DateInput = styled(DateInputComponent)`
 `;
 
 const CUSTOM_DATE = 'Custom Date';
-export const DATE_TIME_FORMAT = 'yyyy-MM-dd HH:mm:ss';
 const DATE_FORMAT = 'yyyy-MM-dd';
 
 const options = [
@@ -52,8 +52,8 @@ export const DateTimeSelector = (props) => {
 
   const formatAndSetDateRange = useCallback(
     (newStartDate, newEndDate) => {
-      const newStartDateString = format(newStartDate, DATE_TIME_FORMAT);
-      const newEndDateString = format(newEndDate, DATE_TIME_FORMAT);
+      const newStartDateString = toDateTimeString(newStartDate);
+      const newEndDateString = toDateTimeString(newEndDate);
       setDateRange([newStartDateString, newEndDateString]);
     },
     [setDateRange],
