@@ -91,7 +91,8 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
   // Don't show the initial empty result in the history (oldest item, since history is DESC ordered)
   const visibleHistory = React.useMemo(() => {
     const lastItem = history.at(-1);
-    return lastItem?.result === '' ? history.slice(0, -1) : history;
+    const isEmpty = lastItem?.result === '' || lastItem?.result == null;
+    return isEmpty ? history.slice(0, -1) : history;
   }, [history]);
 
   return (
