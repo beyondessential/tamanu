@@ -271,12 +271,12 @@ const getMedicationColumns = (
         <Box width="60px" fontWeight={400}>
           <TranslatedText
             stringId="medication.table.lastOrdered.tooltip"
-            fallback="Date item was last ordered from pharmacy"
+            fallback="Date item was last sent to pharmacy"
           />
         </Box>
       ),
       title: (
-        <TranslatedText stringId="medication.table.column.lastOrdered" fallback="Last ordered" />
+        <TranslatedText stringId="medication.table.column.lastOrdered" fallback="Last sent" />
       ),
       sortable: false,
       accessor: ({ lastOrderedAt, encounterPrescription, discontinued }) => {
