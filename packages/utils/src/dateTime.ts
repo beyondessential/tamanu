@@ -262,7 +262,7 @@ export const formatTime = (date: string | Date | null | undefined) => {
   const result = intlFormatDate(
     date,
     { hour: 'numeric', minute: '2-digit', hour12: true },
-    'Unknown',
+    '__:__',
   );
   return result.replace(' ', '').toLowerCase();
 };
