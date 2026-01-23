@@ -139,12 +139,18 @@ export class FhirWorker {
           return;
         }
 
-        this.jobRunner  = new FhirJobRunner(this.models, this.sequelize, this.log, this.worker, this.totalCapacity(), this.handlers);
+        this.jobRunner = new FhirJobRunner(
+          this.models,
+          this.sequelize,
+          this.log,
+          this.worker,
+          this.totalCapacity(),
+          this.handlers,
+        );
         if (this.testMode) {
           this.jobRunner.retryOnEmptyQueue = false;
         }
         await this.jobRunner.start();
-        
       } catch (err) {
         this.log.debug('Trouble retrieving the backlog');
         span.recordException(err);
@@ -155,6 +161,5 @@ export class FhirWorker {
         span.end();
       }
     });
-  } 
+  }
 }
-

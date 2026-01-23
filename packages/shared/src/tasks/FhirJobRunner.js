@@ -11,60 +11,63 @@ const INITIAL_GRAB_DELAY = 5;
 export class FhirJobRunner {
   retryOnEmptyQueue = true;
   isRunning = false;
-  jobRuns = new Map(); 
+  jobRuns = new Map();
   jobRunnerQueuePromise = null;
   jobRunnerQueueResolve = null;
- 
-    constructor(models, sequelize, log, worker, totalCapacity, handlers) {
-        this.models = models;
-        this.sequelize = sequelize;
-        this.log = log;
-        this.worker = worker;
-        this.totalCapacity = totalCapacity;
-        this.handlers = handlers;
-    }
 
-    start() {
-      this.isRunning = true;
-      return getTracer().startActiveSpan(`FhirJobRunner`, { root: true }, async span => {
-        span.setAttributes({
-            'code.function': 'start',
-        });
+  constructor(models, sequelize, log, worker, totalCapacity, handlers) {
+    this.models = models;
+    this.sequelize = sequelize;
+    this.log = log;
+    this.worker = worker;
+    this.totalCapacity = totalCapacity;
+    this.handlers = handlers;
+  }
 
-        this.jobRunnerQueuePromise = new Promise((resolve) => {
-          this.jobRunnerQueueResolve = resolve;
-        });
-        for (const topic of this.handlers.keys()) {
-            const capacity = this.topicCapacity();
-            for (let i = 0; i < capacity; i++) {
-                this.startJobRun(topic);
-            }
-        }
-
-        return this.jobRunnerQueuePromise;
+  start() {
+    this.isRunning = true;
+    return getTracer().startActiveSpan(`FhirJobRunner`, { root: true }, async span => {
+      span.setAttributes({
+        'code.function': 'start',
       });
-    }
 
-    startJobRun(topic, delay = 0) {
-      const id = uuidv4();
-      this.jobRuns.set(id, this.grabAndRunOne(topic, delay).finally(() => this.clearJobRun(id)));
-    }
-
-    clearJobRun(id) {
-      this.jobRuns.delete(id);
-      if (this.jobRunnerQueuePromise && this.jobRuns.size === 0) {
-        // All jobs have been cleared, resolve the promise
-        this.jobRunnerQueueResolve();
-        this.jobRunnerQueuePromise = null;
+      this.jobRunnerQueuePromise = new Promise(resolve => {
+        this.jobRunnerQueueResolve = resolve;
+      });
+      for (const topic of this.handlers.keys()) {
+        const capacity = this.topicCapacity();
+        for (let i = 0; i < capacity; i++) {
+          this.startJobRun(topic);
+        }
       }
-    }
 
-    stop() {
-      this.isRunning = false;
       return this.jobRunnerQueuePromise;
-    }
+    });
+  }
 
-    /**
+  startJobRun(topic, delay = 0) {
+    const id = uuidv4();
+    this.jobRuns.set(
+      id,
+      this.grabAndRunOne(topic, delay).finally(() => this.clearJobRun(id)),
+    );
+  }
+
+  clearJobRun(id) {
+    this.jobRuns.delete(id);
+    if (this.jobRunnerQueuePromise && this.jobRuns.size === 0) {
+      // All jobs have been cleared, resolve the promise
+      this.jobRunnerQueueResolve();
+      this.jobRunnerQueuePromise = null;
+    }
+  }
+
+  stop() {
+    this.isRunning = false;
+    return this.jobRunnerQueuePromise;
+  }
+
+  /**
    * How many jobs can be grabbed for a topic.
    *
    * This is calculated from the number of jobs that are processing, the total
@@ -172,26 +175,23 @@ export class FhirJobRunner {
       } finally {
         span.end();
       }
-      
+
       if (this.isRunning) {
         // immediately start a new run
         this.startJobRun(topic);
       }
     });
   }
-
-}   
-
+}
 
 class FhirWorkerError extends Error {
-    constructor(topic, message, err = null) {
-      super(
-        `FhirWorker/${topic}: ${message}\n${err?.stack ?? err?.message ?? err?.toString() ?? ''}`,
-      );
-      this.name = 'FhirWorkerError';
-      if (err && err instanceof Error) {
-        this.stack = err.stack;
-      }
+  constructor(topic, message, err = null) {
+    super(
+      `FhirWorker/${topic}: ${message}\n${err?.stack ?? err?.message ?? err?.toString() ?? ''}`,
+    );
+    this.name = 'FhirWorkerError';
+    if (err && err instanceof Error) {
+      this.stack = err.stack;
     }
   }
-  
+}

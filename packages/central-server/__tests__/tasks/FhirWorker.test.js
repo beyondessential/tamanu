@@ -187,7 +187,7 @@ describe('Worker Jobs', () => {
       'jobs are processed in priority order',
       withErrorShown(async () => {
         const jobCompletionOrder = [];
-        const workerTest = async (job) => {
+        const workerTest = async job => {
           jobCompletionOrder.push(job.id);
         };
         await worker.setHandler('test1', workerTest);
@@ -259,10 +259,10 @@ describe('Worker Jobs', () => {
         const id1 = await Job.submit('test3');
         const id2 = await Job.submit('test3');
         const id3 = await Job.submit('test3');
-    
+
         // Act 1 (high)
         await worker.processQueue();
-    
+
         // Assert
         expect(await Job.findByPk(id1)).toBeNull();
         expect(await Job.findByPk(id2)).toBeNull();
@@ -275,11 +275,17 @@ describe('Worker Jobs', () => {
       withErrorShown(async () => {
         const { FhirJob: Job } = models;
         await Job.submit('slowJob', {}, { priority: JOB_PRIORITIES.HIGH }); // Ensure slow job gets picked up first
-        const fastJobs = [await Job.submit('fastJob'), await Job.submit('fastJob'), await Job.submit('fastJob'), await Job.submit('fastJob'), await Job.submit('fastJob')];
+        const fastJobs = [
+          await Job.submit('fastJob'),
+          await Job.submit('fastJob'),
+          await Job.submit('fastJob'),
+          await Job.submit('fastJob'),
+          await Job.submit('fastJob'),
+        ];
 
         let fastJobsRemaining = fastJobs.length;
         let fastJobsDoneResolve;
-        const fastJobsDonePromise = new Promise((resolve) => {
+        const fastJobsDonePromise = new Promise(resolve => {
           fastJobsDoneResolve = resolve;
         });
 
