@@ -1,10 +1,10 @@
 import { SpanStatusCode } from '@opentelemetry/api';
 import theConfig from 'config';
-import { formatRFC3339 } from 'date-fns';
 import ms from 'ms';
 import { hostname } from 'os';
 
-import { getTracer, spanWrapFn } from '../services/logging';
+import { getTracer } from '../services/logging';
+import { FhirJobRunner } from './FhirJobRunner';
 
 export class FhirWorker {
   handlers = new Map();
@@ -14,8 +14,6 @@ export class FhirWorker {
   worker = null;
 
   config = theConfig.integrations.fhir.worker;
-
-  processing = new Set();
 
   // if false, immediately reprocess the queue after a job is completed
   // to work through the backlog promptly; this makes testing harder, so
@@ -91,6 +89,7 @@ export class FhirWorker {
     this.handlers.clear();
 
     await this.worker?.deregister();
+    await this.jobRunner?.stop();
     this.worker = null;
 
     if (this.pg) {
@@ -109,24 +108,7 @@ export class FhirWorker {
    * @returns {number} Amount of jobs to grab.
    */
   totalCapacity() {
-    return Math.max(0, this.config.concurrency - this.processing.size);
-  }
-
-  /**
-   * How many jobs can be grabbed for a topic.
-   *
-   * This is calculated from the number of jobs that are processing, the total
-   * allowed concurrency (from config), and the amount of handlers (for fairness).
-   *
-   * @returns {number} Amount of jobs to grab for a topic.
-   */
-  topicCapacity() {
-    return Math.max(
-      // return at least 1 if there's any capacity
-      this.totalCapacity() > 0 ? 1 : 0,
-      // otherwise divide the capacity evenly among the topics
-      Math.floor(this.totalCapacity() / this.handlers.size),
-    );
+    return Math.max(0, this.config.concurrency);
   }
 
   processQueueNow() {
@@ -157,28 +139,9 @@ export class FhirWorker {
           return;
         }
 
-        span.setAttribute('job.capacity', this.totalCapacity());
-
-        const { FhirJob } = this.models;
-
-        const runs = [];
-        for (const topic of this.handlers.keys()) {
-          this.log.debug('FhirWorker: checking queue', { topic });
-          const capacity = this.topicCapacity();
-          const count = await FhirJob.backlogUntilLimit(topic, capacity);
-          if (count === 0) {
-            this.log.debug('FhirWorker: nothing in queue', { topic });
-            continue;
-          }
-
-          this.log.debug('FhirWorker: grabbing some jobs', { topic, count });
-          for (let i = 0; i < count; i += 1) {
-            runs.push(this.grabAndRunOne(topic));
-          }
-        }
-
-        await Promise.allSettled(runs);
-        this.log.debug('FhirWorker: finished batch of jobs', { count: runs.length });
+        this.jobRunner  = new FhirJobRunner(this.models, this.sequelize, this.log, this.worker, this.totalCapacity(), this.handlers);
+        await this.jobRunner.start();
+        
       } catch (err) {
         this.log.debug('Trouble retrieving the backlog');
         span.recordException(err);
@@ -189,112 +152,6 @@ export class FhirWorker {
         span.end();
       }
     });
-  }
-
-  grabAndRunOne(topic) {
-    return getTracer().startActiveSpan(`FhirWorker/${topic}`, { root: true }, async span => {
-      span.setAttributes({
-        'code.function': topic,
-        'job.topic': topic,
-        'job.worker': this.worker.id,
-      });
-
-      try {
-        const handler = this.handlers.get(topic);
-        if (!handler) {
-          throw new FhirWorkerError(topic, 'no handler for topic');
-        }
-
-        const job = await spanWrapFn('FhirJob.grab', () =>
-          this.models.FhirJob.grab(this.worker.id, topic),
-        );
-        if (!job) {
-          this.log.warn('FhirWorker: no job to grab', {
-            workerId: this.worker.id,
-            topic,
-          });
-          return;
-        }
-
-        try {
-          this.processing.add(job.id);
-          span.setAttributes({
-            'job.created_at': job.createdAt,
-            'job.discriminant': job.discriminant,
-            'job.id': job.id,
-            'job.priority': job.priority,
-            'job.submitted': formatRFC3339(job.createdAt),
-          });
-          if (process.env.NODE_ENV !== 'production') {
-            span.setAttribute('job.payload', JSON.stringify(job.payload));
-          }
-
-          try {
-            await spanWrapFn('FhirJob.start', () => job.start(this.worker.id));
-          } catch (err) {
-            throw new FhirWorkerError(topic, 'failed to mark job as started', err);
-          }
-
-          try {
-            await spanWrapFn(`FhirWorker.handler`, childSpan =>
-              handler(job, {
-                span: childSpan,
-                log: this.log.child({ topic, jobId: job.id }),
-                models: this.models,
-                sequelize: this.sequelize,
-              }),
-            );
-          } catch (workErr) {
-            try {
-              await spanWrapFn('FhirJob.fail', () =>
-                job.fail(
-                  this.worker.id,
-                  workErr.stack ?? workErr.message ?? workErr?.toString() ?? 'Unknown error',
-                ),
-              );
-            } catch (err) {
-              throw new FhirWorkerError(topic, 'job completed but failed to mark as errored', err);
-            }
-            throw new FhirWorkerError(topic, 'job failed', workErr);
-          }
-
-          try {
-            await spanWrapFn('FhirJob.complete', () => job.complete(this.worker.id));
-            await this.worker.recordSuccess();
-          } catch (err) {
-            throw new FhirWorkerError(topic, 'job completed but failed to mark as complete', err);
-          }
-        } catch (err) {
-          await this.worker.recordFailure();
-
-          if (err instanceof FhirWorkerError) {
-            throw err;
-          }
-
-          throw new FhirWorkerError(topic, 'error running job', err);
-        } finally {
-          this.processing.delete(job.id);
-        }
-      } catch (err) {
-        span.recordException(err);
-        span.setStatus({ code: SpanStatusCode.ERROR });
-      } finally {
-        span.end();
-        // immediately process the queue again to work through the backlog
-        this.processQueueNow();
-      }
-    });
-  }
+  } 
 }
 
-class FhirWorkerError extends Error {
-  constructor(topic, message, err = null) {
-    super(
-      `FhirWorker/${topic}: ${message}\n${err?.stack ?? err?.message ?? err?.toString() ?? ''}`,
-    );
-    this.name = 'FhirWorkerError';
-    if (err && err instanceof Error) {
-      this.stack = err.stack;
-    }
-  }
-}
