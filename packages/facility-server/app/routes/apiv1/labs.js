@@ -570,6 +570,7 @@ labTest.get(
     const labTestId = params.id;
 
     req.checkPermission('read', 'LabTest');
+    req.checkPermission('read', 'LabTestResult');
 
     // First, check if this lab test exists and get its info
     const labTest = await models.LabTest.findByPk(labTestId, {
@@ -611,7 +612,7 @@ labTest.get(
     let lastResult;
 
     for (const changeLog of changeLogs) {
-      const { id, loggedAt, updatedByUserId, updatedByUser, recordData } = changeLog;
+      const { id, loggedAt, updatedByUserId, updatedByUser, recordData = {} } = changeLog;
       const { result } = recordData;
 
       if (result !== lastResult) {
