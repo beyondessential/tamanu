@@ -700,7 +700,7 @@ export const DischargeForm = ({
   const { getTranslation, getEnumTranslation } = useTranslation();
   const { encounter } = useEncounter();
   const { getSetting } = useSettings();
-  const { formatDateTimeLocal, getCurrentDateTimeString } = useDateTimeFormat();
+  const { formatForDateTimeInput, getCurrentDateTimeString } = useDateTimeFormat();
   const queryClient = useQueryClient();
   const { ability, currentUser } = useAuth();
   const canUpdateMedication = ability.can('write', 'Medication');
@@ -888,7 +888,7 @@ export const DischargeForm = ({
               />
             }
             component={DateTimeField}
-            min={formatDateTimeLocal(encounter.startDate)}
+            min={formatForDateTimeInput(encounter.startDate)}
             required
             saveDateAsString
             data-testid="field-20tt"

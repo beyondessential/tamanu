@@ -68,7 +68,7 @@ export const TriageForm = ({
   const navigate = useNavigate();
   const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
-  const { formatDateTimeLocal, getCurrentDateTimeString } = useDateTimeFormat();
+  const { formatForDateTimeInput, getCurrentDateTimeString } = useDateTimeFormat();
   const triageCategories = getSetting('triageCategories');
   const practitionerSuggester = useSuggester('practitioner');
   const triageReasonSuggester = useSuggester('triageReason');
@@ -87,13 +87,13 @@ export const TriageForm = ({
           }
           component={DateTimeField}
           // Weird time picker behaviour with date.now(), so using end of day. It will be also validated on submit.
-          max={formatDateTimeLocal(endOfDay(new Date()))}
+          max={formatForDateTimeInput(endOfDay(new Date()))}
           helperText="If different from triage time"
           saveDateAsString
           data-testid="field-mhav"
         />
         <Field
-          name="triageTime"
+          name="triageTime" 
           label={
             <TranslatedText
               stringId="patient.modal.triage.triageDateTime.label"
@@ -103,7 +103,7 @@ export const TriageForm = ({
           }
           required
           // Weird time picker behaviour with date.now(), so using end of day. It will be also validated on submit.
-          max={formatDateTimeLocal(endOfDay(new Date()))}
+          max={formatForDateTimeInput(endOfDay(new Date()))}
           component={DateTimeField}
           saveDateAsString
           data-testid="field-9hxy"
