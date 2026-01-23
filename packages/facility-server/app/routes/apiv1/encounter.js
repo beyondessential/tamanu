@@ -228,11 +228,28 @@ encounter.post(
     const { id } = params;
     req.checkPermission('write', 'Encounter');
     req.checkPermission('read', 'Medication');
+    req.checkPermission('create', 'MedicationRequest');
     const encounterObject = await models.Encounter.findByPk(id);
     if (!encounterObject) throw new NotFoundError();
 
-    const { orderingClinicianId, comments, isDischargePrescription, pharmacyOrderPrescriptions } =
-      body;
+    const {
+      orderingClinicianId,
+      comments,
+      isDischargePrescription,
+      pharmacyOrderPrescriptions,
+      facilityId,
+    } = body;
+
+    const prescriptionRecords = await models.Prescription.findAll({
+      where: { id: pharmacyOrderPrescriptions.map(p => p.prescriptionId) },
+      attributes: ['id', 'medicationId', 'quantity'],
+    });
+
+    const hasSensitive = await models.ReferenceDrug.hasSensitiveMedication(prescriptionRecords.map(p => p.medicationId));
+
+    if (hasSensitive) {
+      req.checkPermission('read', 'SensitiveMedication');
+    }
 
     const result = await db.transaction(async () => {
       const pharmacyOrder = await models.PharmacyOrder.create({
@@ -240,6 +257,8 @@ encounter.post(
         encounterId: id,
         comments,
         isDischargePrescription,
+        date: getCurrentDateTimeString(),
+        facilityId,
       });
 
       await models.PharmacyOrderPrescription.bulkCreate(

@@ -67,8 +67,9 @@ describe('Data definition import', () => {
 
       const result = await app
         .post('/v1/admin/import/referenceData')
-        .attach(`./__tests__/importers/refdata-valid.xlsx`)
-        .field('includedDataTypes', 'allergy');
+        .attach('file', './__tests__/importers/refdata-valid.xlsx')
+        .field('includedDataTypes', 'allergy')
+        .field('dryRun', true);
 
       const { didntSendReason, errors } = result.body;
 

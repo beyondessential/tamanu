@@ -295,6 +295,13 @@
       // every hour
       "schedule": "0 * * * *",
     },
+    "autoDeleteMedicationRequests": {
+      "enabled": true,
+      // every 6 hours
+      "schedule": "0 */6 * * *",
+      "batchSize": 100,
+      "batchSleepAsyncDurationInMilliseconds": 50
+    },
   },
   "integrations": {
     "fijiVrs": {
@@ -541,7 +548,6 @@
     "upcomingRecordsShouldBeGeneratedTimeFrame": 72, // hours
   },
   "patientPortal": {
-    "portalUrl": "http://localhost:5175",
     "tokenDuration": "24h",
     "loginTokenDurationMinutes": 20,
     "registerTokenDurationMinutes": 43800 // 1 month
