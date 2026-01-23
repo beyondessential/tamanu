@@ -7,7 +7,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { FormModal } from '../../../components/FormModal';
 import { BodyText, Heading4, SmallBodyText } from '../../../components/Typography';
-import { TextField, Form, ConfirmCancelRow, Field } from '@tamanu/ui-components';
+import { TextField, Form, ConfirmCancelRow, Field, useDateTimeFormat } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { DateTimeField, SuggesterSelectField } from '../../../components/Field';
@@ -18,7 +18,6 @@ import { useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
 import { useLabRequest } from '../../../contexts/LabRequest';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
-import { useDateTimeFormat } from '@tamanu/ui-components';
 
 const TableContainer = styled.div`
   overflow-y: auto;
