@@ -6,12 +6,12 @@ import { useMedicationsQuery } from '@api/queries/useMedicationsQuery';
 import { LabelValueList } from '../../components/LabelValueList';
 import { StyledCircularProgress } from '../../components/StyledCircularProgress';
 import {
-  formatDate,
   formatDose,
   formatFrequency,
   formatRoute,
   formatPrescriber,
 } from '@utils/format';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 
 const MedicationContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -20,6 +20,7 @@ const MedicationContainer = styled(Box)(({ theme }) => ({
 }));
 
 export const MedicationsSection = () => {
+  const { formatShort } = useDateTimeFormat();
   const { data: medications, isLoading } = useMedicationsQuery();
 
   return (
@@ -50,7 +51,7 @@ export const MedicationsSection = () => {
                   />
                   <LabelValueList.ListItem
                     label="Start Date"
-                    value={formatDate(medication.startDate)}
+                    value={formatShort(medication.startDate)}
                   />
                   <LabelValueList.ListItem
                     label="Prescriber"
