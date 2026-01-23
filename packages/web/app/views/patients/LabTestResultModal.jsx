@@ -88,7 +88,7 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
   const { data: history = [] } = useLabTestResultHistoryQuery(labTestId);
 
   // Don't show the initial empty result in the history
-  if (history.at(-1)?.result === '') history.pop();
+  const displayHistory = history.slice(0, -1);
 
   return (
     <Modal
@@ -180,7 +180,7 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
           />
         </div>
       </ModalBody>
-      {history.length > 0 && (
+      {displayHistory.length > 1 && (
         <>
           <HistoryTitle data-testid="historytitle-hist">
             <TranslatedText
@@ -191,7 +191,7 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
           </HistoryTitle>
           <HistorySection data-testid="historysection-hist">
             <HistoryList data-testid="historylist-hist">
-              {history.map(item => (
+              {displayHistory.map(item => (
                 <HistoryItem key={item.id} data-testid="historyitem-hist">
                   <HistoryItemValue data-testid="historyitemvalue-result">
                     <TranslatedText
