@@ -330,6 +330,38 @@ export const formatTime = (
     facilityTimeZone,
   );
 
+/** "3:30pm" - time with minutes and seconds, no space */
+export const formatTimeCompact = (
+  date: string | Date | null | undefined,
+  countryTimeZone?: string,
+  facilityTimeZone?: string | null,
+) => {
+  const result = intlFormatDate(
+    date,
+    { hour: 'numeric', minute: '2-digit', hour12: true },
+    '__:__',
+    countryTimeZone,
+    facilityTimeZone,
+  );
+  return result.replace(' ', '').toLowerCase();
+};
+
+/** "3pm" - hour only, no minutes or seconds */
+export const formatTimeSlot = (
+  date: string | Date | null | undefined,
+  countryTimeZone?: string,
+  facilityTimeZone?: string | null,
+) => {
+  const result = intlFormatDate(
+    date,
+    { hour: 'numeric', hour12: true },
+    '__',
+    countryTimeZone,
+    facilityTimeZone,
+  );
+  return result.replace(' ', '').toLowerCase();
+};
+
 /** "12:30:00 am" */
 export const formatTimeWithSeconds = (
   date: string | Date | null | undefined,
@@ -399,38 +431,6 @@ export const formatFullDate = (
     countryTimeZone,
     facilityTimeZone,
   );
-
-/** "3pm" - hour only, no minutes or seconds */
-export const formatTimeSlot = (
-  date: string | Date | null | undefined,
-  countryTimeZone?: string,
-  facilityTimeZone?: string | null,
-) => {
-  const result = intlFormatDate(
-    date,
-    { hour: 'numeric', hour12: true },
-    'Unknown',
-    countryTimeZone,
-    facilityTimeZone,
-  );
-  return result.replace(' ', '').toLowerCase();
-};
-
-/** "3:30pm" - time with minutes and seconds, no space */
-export const formatTimeCompact = (
-  date: string | Date | null | undefined,
-  countryTimeZone?: string,
-  facilityTimeZone?: string | null,
-) => {
-  const result = intlFormatDate(
-    date,
-    { hour: 'numeric', minute: '2-digit', hour12: true },
-    'Unknown',
-    countryTimeZone,
-    facilityTimeZone,
-  );
-  return result.replace(' ', '').toLowerCase();
-};
 
 /** "Apr 12, 2024" - medium date style with explicit month name (unambiguous across locales) */
 export const formatShortExplicit = (
