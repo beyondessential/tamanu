@@ -31,6 +31,10 @@ export class UserLoginAttempt extends Model {
           type: DataTypes.TEXT,
           allowNull: false,
         },
+        deviceId: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
       },
       {
         ...options,
@@ -43,10 +47,6 @@ export class UserLoginAttempt extends Model {
     this.belongsTo(models.User, {
       foreignKey: 'userId',
       as: 'user',
-    });
-    this.belongsTo(models.Device, {
-      foreignKey: 'deviceId',
-      as: 'device',
     });
   }
 
