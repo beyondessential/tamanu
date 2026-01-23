@@ -121,7 +121,7 @@ describe('Worker Jobs', () => {
 
         // Act
         const id = await Job.submit('test');
-        await worker.grabAndRunOne('test');
+        await worker.processQueue();
 
         // Assert
         expect(await Job.findByPk(id)).toBeNull();
@@ -135,7 +135,7 @@ describe('Worker Jobs', () => {
 
         // Act
         const id = await Job.submit('test', { error: true });
-        await worker.grabAndRunOne('test');
+        await worker.processQueue();
 
         // Assert
         expect(await Job.findByPk(id)).toMatchObject({
@@ -176,12 +176,9 @@ describe('Worker Jobs', () => {
         const id2 = await Job.submit('test2');
 
         // Act 1
-        await worker.grabAndRunOne('test1');
-        expect(await Job.findByPk(id1)).toBeNull();
-        expect(await Job.findByPk(id2)).toMatchObject({ status: 'Queued' });
+        await worker.processQueue();
 
-        // Act 2
-        await worker.grabAndRunOne('test2');
+        expect(await Job.findByPk(id1)).toBeNull();
         expect(await Job.findByPk(id2)).toBeNull();
       }),
     );
@@ -189,40 +186,22 @@ describe('Worker Jobs', () => {
     it(
       'jobs are processed in priority order',
       withErrorShown(async () => {
+        const jobCompletionOrder = [];
+        const workerTest = async (job) => {
+          jobCompletionOrder.push(job.id);
+        };
+        await worker.setHandler('test1', workerTest);
+
         const { FhirJob: Job } = models;
         const id1Low = await Job.submit('test1', {}, { priority: JOB_PRIORITIES.LOW });
         const id1Normal = await Job.submit('test1');
         const id1High = await Job.submit('test1', {}, { priority: JOB_PRIORITIES.HIGH });
-        const id2Low = await Job.submit('test2', {}, { priority: JOB_PRIORITIES.LOW });
-        const id2Normal = await Job.submit('test2');
-        const id2High = await Job.submit('test2', {}, { priority: JOB_PRIORITIES.HIGH });
 
-        // Act 1 (high)
-        await worker.grabAndRunOne('test1');
-        expect(await Job.findByPk(id1High)).toBeNull();
-        expect(await Job.findByPk(id1Normal)).toMatchObject({ status: 'Queued' });
-        expect(await Job.findByPk(id1Low)).toMatchObject({ status: 'Queued' });
+        // Act
+        await worker.processQueue();
 
-        expect(await Job.findByPk(id2High)).toMatchObject({ status: 'Queued' });
-        expect(await Job.findByPk(id2Normal)).toMatchObject({ status: 'Queued' });
-        expect(await Job.findByPk(id2Low)).toMatchObject({ status: 'Queued' });
-
-        // Act 1 (normal)
-        await worker.grabAndRunOne('test1');
-        expect(await Job.findByPk(id1Normal)).toBeNull();
-        expect(await Job.findByPk(id1Low)).toMatchObject({ status: 'Queued' });
-
-        expect(await Job.findByPk(id2High)).toMatchObject({ status: 'Queued' });
-        expect(await Job.findByPk(id2Normal)).toMatchObject({ status: 'Queued' });
-        expect(await Job.findByPk(id2Low)).toMatchObject({ status: 'Queued' });
-
-        // Act 2 (high)
-        await worker.grabAndRunOne('test2');
-        expect(await Job.findByPk(id2High)).toBeNull();
-        expect(await Job.findByPk(id2Normal)).toMatchObject({ status: 'Queued' });
-        expect(await Job.findByPk(id2Low)).toMatchObject({ status: 'Queued' });
-
-        expect(await Job.findByPk(id1Low)).toMatchObject({ status: 'Queued' });
+        // Assert
+        expect(jobCompletionOrder).toEqual([id1High, id1Normal, id1Low]);
       }),
     );
 
@@ -237,7 +216,7 @@ describe('Worker Jobs', () => {
         await sleepAsync(11_000); // jobs must be started within 10 seconds or they are dropped
 
         // Assert
-        await worker.grabAndRunOne('test1');
+        await worker.processQueue();
         expect(await Job.findByPk(id)).toBeNull();
       }),
     );
@@ -253,7 +232,7 @@ describe('Worker Jobs', () => {
         await sleepAsync(11_000); // jobs must be started within 10 seconds or they are dropped
 
         // Assert
-        await worker.grabAndRunOne('test1');
+        await worker.processQueue();
         expect(await Job.findByPk(id)).toBeNull();
       }),
     );
@@ -266,35 +245,8 @@ describe('Worker Jobs', () => {
         await Job.update({ status: 'Started', workerId: fakeUUID() }, { where: { id } });
 
         // Assert
-        await worker.grabAndRunOne('test1');
+        await worker.processQueue();
         expect(await Job.findByPk(id)).toBeNull();
-      }),
-    );
-
-    it(
-      'keeps track of capacity',
-      withErrorShown(() => {
-        worker.config.concurrency = 5;
-
-        expect(worker.processing.size).toBe(0);
-        expect(worker.totalCapacity()).toBe(5);
-        expect(worker.topicCapacity()).toBe(2);
-
-        worker.processing.add('job1');
-        worker.processing.add('job2');
-        expect(worker.processing.size).toBe(2);
-        expect(worker.totalCapacity()).toBe(3);
-        expect(worker.topicCapacity()).toBe(1);
-
-        worker.processing.add('job3');
-        worker.processing.add('job4');
-        expect(worker.processing.size).toBe(4);
-        expect(worker.totalCapacity()).toBe(1);
-        expect(worker.topicCapacity()).toBe(1);
-
-        worker.processing.add('job5');
-        expect(worker.totalCapacity()).toBe(0);
-        expect(worker.topicCapacity()).toBe(0);
       }),
     );
 
@@ -307,17 +259,48 @@ describe('Worker Jobs', () => {
         const id1 = await Job.submit('test3');
         const id2 = await Job.submit('test3');
         const id3 = await Job.submit('test3');
-
+    
         // Act 1 (high)
         await worker.processQueue();
-        // try twice just in case
-        await worker.processQueue();
-        // but not three times as that would ruin the test
-
+    
         // Assert
         expect(await Job.findByPk(id1)).toBeNull();
         expect(await Job.findByPk(id2)).toBeNull();
         expect(await Job.findByPk(id3)).toBeNull();
+      }),
+    );
+
+    it(
+      'slow running jobs will not block other jobs from being processed',
+      withErrorShown(async () => {
+        const { FhirJob: Job } = models;
+        await Job.submit('slowJob', {}, { priority: JOB_PRIORITIES.HIGH }); // Ensure slow job gets picked up first
+        const fastJobs = [await Job.submit('fastJob'), await Job.submit('fastJob'), await Job.submit('fastJob'), await Job.submit('fastJob'), await Job.submit('fastJob')];
+
+        let fastJobsRemaining = fastJobs.length;
+        let fastJobsDoneResolve;
+        const fastJobsDonePromise = new Promise((resolve) => {
+          fastJobsDoneResolve = resolve;
+        });
+
+        const fastJob = async () => {
+          fastJobsRemaining--;
+          if (fastJobsRemaining === 0) {
+            fastJobsDoneResolve();
+          }
+        };
+        await worker.setHandler('fastJob', fastJob);
+
+        const slowJob = async () => {
+          await fastJobsDonePromise;
+        };
+        await worker.setHandler('slowJob', slowJob);
+
+        // Act
+        await worker.processQueue();
+
+        // Assert
+        expect(await Job.count()).toBe(0);
       }),
     );
   });

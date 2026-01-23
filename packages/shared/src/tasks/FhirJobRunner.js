@@ -9,6 +9,7 @@ const MAX_GRAB_RETRY = 5000;
 const INITIAL_GRAB_DELAY = 5;
 
 export class FhirJobRunner {
+  retryOnEmptyQueue = true;
   isRunning = false;
   jobRuns = new Map(); 
   jobRunnerQueuePromise = null;
@@ -29,8 +30,6 @@ export class FhirJobRunner {
         span.setAttributes({
             'code.function': 'start',
         });
-
-        console.log('FhirJobRunner: starting', { workerId: this.worker.id, totalCapacity: this.totalCapacity, handlers: this.handlers });
 
         this.jobRunnerQueuePromise = new Promise((resolve) => {
           this.jobRunnerQueueResolve = resolve;
@@ -102,7 +101,7 @@ export class FhirJobRunner {
           this.models.FhirJob.grab(this.worker.id, topic),
         );
         if (!job) {
-          if (this.isRunning) {
+          if (this.isRunning && this.retryOnEmptyQueue) {
             // No job found, sleep then start a new job and clear this one
             await sleepAsync(delay);
             const nextDelay = Math.min(delay * 2, MAX_GRAB_RETRY) || INITIAL_GRAB_DELAY;
