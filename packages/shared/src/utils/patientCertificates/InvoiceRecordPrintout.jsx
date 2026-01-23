@@ -7,7 +7,7 @@ import { LetterheadSection } from './LetterheadSection';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
 import { Footer } from './printComponents/Footer';
-import { formatShort } from '@tamanu/utils/dateTime';
+import { withDateTimeContext, useDateTimeFormat } from '../pdf/withDateTimeContext';
 import { InvoiceDetails } from './printComponents/InvoiceDetails';
 import {
   getInsurerDiscountAmountDisplayList,
@@ -183,7 +183,7 @@ const COLUMNS = {
       key: 'orderDate',
       title: 'Date',
       style: { width: '12%' },
-      accessor: ({ orderDate }) => (orderDate ? formatShort(orderDate) : '--/--/----'),
+accessor: ({ orderDate }, { formatShort }) => formatShort(orderDate),
     },
     {
       key: 'productName',
@@ -223,7 +223,7 @@ const COLUMNS = {
       key: 'date',
       title: 'Date',
       style: { width: '15%' },
-      accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
+accessor: ({ date }, { formatShort }) => formatShort(date),
     },
     {
       key: 'methodName',
@@ -255,7 +255,7 @@ const COLUMNS = {
       key: 'date',
       title: 'Date',
       style: { width: '15%' },
-      accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
+accessor: ({ date }, { formatShort }) => formatShort(date),
     },
     {
       key: 'insurerName',
@@ -322,13 +322,13 @@ const DataTableHeading = ({ columns, title }) => {
   );
 };
 
-const DataTable = ({ data, columns, title }) => (
+const DataTable = ({ data, columns, title, formatters }) => (
   <Table>
     <DataTableHeading columns={columns} title={title} />
     {data.map(row => (
       <Row key={row.id} wrap={false}>
         {columns.map(({ key, accessor, style, CellComponent }) => {
-          const displayValue = accessor ? accessor(row) : row[key] || '';
+          const displayValue = accessor ? accessor(row, formatters) : row[key] || '';
           if (CellComponent) {
             return (
               <CellComponent key={key} style={style}>
@@ -347,11 +347,11 @@ const DataTable = ({ data, columns, title }) => (
   </Table>
 );
 
-const TableSection = ({ title, data, columns, type }) => {
+const TableSection = ({ title, data, columns, formatters }) => {
   return (
     <View>
       <View minPresenceAhead={70} />
-      <DataTable data={data} columns={columns} title={title} type={type} />
+      <DataTable data={data} columns={columns} title={title} formatters={formatters} />
       <SectionSpacing />
     </View>
   );
@@ -447,12 +447,13 @@ const InvoiceRecordPrintoutComponent = ({
   encounter,
   certificateData,
   discharge,
-  getLocalisation,
   getSetting,
   clinicianText,
   invoice,
   enablePatientInsurer,
 }) => {
+  const { formatShort } = useDateTimeFormat();
+  const formatters = { formatShort };
   const { watermark, logo } = certificateData;
   const patientPayments = getPatientPaymentsWithRemainingBalanceDisplay(invoice);
   const insurerPayments = getInsurerPaymentsWithRemainingBalanceDisplay(invoice);
@@ -474,7 +475,7 @@ const InvoiceRecordPrintoutComponent = ({
           />
         </CertificateHeader>
         <SectionSpacing />
-        <PatientDetails getLocalisation={getLocalisation} getSetting={getSetting} patient={patientData} />
+        <PatientDetails getSetting={getSetting} patient={patientData} />
         <SectionSpacing />
         <InvoiceEncounterDetails
           encounter={encounter}
@@ -490,7 +491,7 @@ const InvoiceRecordPrintoutComponent = ({
         />
         <SectionSpacing />
         {invoice?.items?.length > 0 && (
-          <TableSection data={invoice?.items} columns={COLUMNS.invoiceItems} />
+          <TableSection data={invoice?.items} columns={COLUMNS.invoiceItems} formatters={formatters} />
         )}
         <SummaryPane invoice={invoice} />
         <SectionSpacing />
@@ -499,6 +500,7 @@ const InvoiceRecordPrintoutComponent = ({
             title="Patient payment"
             data={patientPayments}
             columns={COLUMNS.patientPayments}
+            formatters={formatters}
           />
         )}
         {insurerPayments?.length && (
@@ -506,6 +508,7 @@ const InvoiceRecordPrintoutComponent = ({
             title="Insurer payment"
             data={insurerPayments}
             columns={COLUMNS.insurerPayments}
+            formatters={formatters}
           />
         )}
         <Footer />
@@ -514,4 +517,6 @@ const InvoiceRecordPrintoutComponent = ({
   );
 };
 
-export const InvoiceRecordPrintout = withLanguageContext(InvoiceRecordPrintoutComponent);
+export const InvoiceRecordPrintout = withLanguageContext(
+  withDateTimeContext(InvoiceRecordPrintoutComponent),
+);

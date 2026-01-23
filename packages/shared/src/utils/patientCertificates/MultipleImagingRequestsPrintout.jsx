@@ -3,7 +3,6 @@ import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import { getName } from '../patientAccessors';
 import { BaseSigningSection } from './BaseSigningSection';
-import { getDisplayDate } from './getDisplayDate';
 import { CertificateContent, CertificateHeader, Col, Row, styles } from './Layout';
 import { NOTE_TYPES } from '@tamanu/constants/notes';
 import { LetterheadSection } from './LetterheadSection';
@@ -15,10 +14,10 @@ import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithB
 import { startCase } from 'lodash';
 import { DoubleHorizontalRule } from './printComponents/DoubleHorizontalRule';
 import { withLanguageContext } from '../pdf/languageContext';
+import { withDateTimeContext, useDateTimeFormat } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 
-const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
 const labDetailsSectionStyles = StyleSheet.create({
   barcodeLabelText: {
     marginTop: 9,
@@ -72,6 +71,7 @@ const getAreaNote = ({ areas, areaNote }) => {
 };
 
 const ImagingRequestDetailsView = ({ imagingRequests, getLocalisation }) => {
+  const { formatShortDateTime } = useDateTimeFormat();
   const notesAccessor = ({ notes }) => {
     return notes
       ?.filter(note => note.noteTypeId === NOTE_TYPES.OTHER)
@@ -105,7 +105,7 @@ const ImagingRequestDetailsView = ({ imagingRequests, getLocalisation }) => {
                 <Row>
                   <DataItem
                     label="Requested date & time"
-                    value={getDisplayDate(imagingRequest.requestedDate, DATE_TIME_FORMAT)}
+                    value={formatShortDateTime(imagingRequest.requestedDate)}
                   />
                   <DataItem label="Requested by" value={imagingRequest.requestedBy?.displayName} />
                 </Row>
@@ -143,7 +143,7 @@ const MultipleImagingRequestsPrintoutComponent = React.memo(
               certificateTitle="Imaging Request"
             />
             <SectionContainer>
-              <PatientDetailsWithBarcode patient={patient} getLocalisation={getLocalisation} getSetting={getSetting} />
+              <PatientDetailsWithBarcode patient={patient} getSetting={getSetting} />
             </SectionContainer>
             <SectionContainer>
               <EncounterDetails encounter={encounter} />
@@ -167,7 +167,7 @@ const MultipleImagingRequestsPrintoutComponent = React.memo(
 );
 
 export const MultipleImagingRequestsPrintout = withLanguageContext(
-  MultipleImagingRequestsPrintoutComponent,
+  withDateTimeContext(MultipleImagingRequestsPrintoutComponent),
 );
 
 MultipleImagingRequestsPrintout.propTypes = {

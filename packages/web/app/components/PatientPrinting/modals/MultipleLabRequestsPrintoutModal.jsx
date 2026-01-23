@@ -8,7 +8,6 @@ import { useApi } from '../../../api';
 import { Colors } from '../../../constants';
 
 import { PDFLoader, printPDF } from '../PDFLoader';
-import { useLocalisation } from '../../../contexts/Localisation';
 import { useTranslation } from '../../../contexts/Translation';
 import { useSettings } from '../../../contexts/Settings';
 import { MultipleLabRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
@@ -17,7 +16,6 @@ import { usePatientAdditionalDataQuery } from '../../../api/queries';
 
 export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open, onClose }) => {
   const api = useApi();
-  const { getLocalisation } = useLocalisation();
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
@@ -67,7 +65,6 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
           patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
           labRequests={labRequests}
-          getLocalisation={getLocalisation}
           getTranslation={getTranslation}
           getSetting={getSetting}
           data-testid="multiplelabrequestsprintout-fhui"

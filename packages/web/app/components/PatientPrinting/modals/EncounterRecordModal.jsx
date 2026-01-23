@@ -27,6 +27,7 @@ import { useTranslation } from '../../../contexts/Translation';
 import { LoadingIndicator } from '../../LoadingIndicator';
 import { WorkerRenderedPDFViewer } from '../WorkerRenderedPDFViewer';
 import { useSettings } from '../../../contexts/Settings';
+import { useAuth } from '../../../contexts/Auth';
 
 // These below functions are used to extract the history of changes made to the encounter that are stored in notes.
 // obviously a better solution needs to be to properly implemented for storing and accessing this data, but this is an ok workaround for now.
@@ -103,7 +104,8 @@ const extractLocationHistory = (notes, encounterData) => {
 export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const { translations, storedLanguage } = useTranslation();
   const { settings } = useSettings();
-  const { localisation, getLocalisation } = useLocalisation();
+  const { getLocalisation } = useLocalisation();
+  const { countryTimeZone } = useAuth();
   const { data: vitalsData, recordedDates } = useVitalsQuery(encounter.id);
 
   const certificateQuery = useCertificate();
@@ -316,9 +318,9 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           discharge={discharge}
           village={village}
           medications={medications}
-          localisation={localisation}
           translations={translations}
           settings={settings}
+          countryTimeZone={countryTimeZone}
           data-testid="encounterrecordprintout-yqe1"
         />
       )}

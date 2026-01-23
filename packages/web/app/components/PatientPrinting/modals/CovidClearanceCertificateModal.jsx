@@ -5,7 +5,6 @@ import { ASSET_NAMES, COVID_19_CLEARANCE_CERTIFICATE } from '@tamanu/constants';
 
 import { Modal } from '../../Modal';
 import { useApi } from '../../../api';
-import { useLocalisation } from '../../../contexts/Localisation';
 import { EmailButton } from '../../Email/EmailButton';
 import { useCertificate } from '../../../utils/useCertificate';
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
@@ -16,7 +15,6 @@ import { useSettings } from '../../../contexts/Settings';
 
 export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);
-  const { getLocalisation } = useLocalisation();
   const { getSetting } = useSettings();
   const api = useApi();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
@@ -65,7 +63,6 @@ export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
           watermarkSrc={watermark}
           signingSrc={footerImg}
           logoSrc={logo}
-          getLocalisation={getLocalisation}
           getSetting={getSetting}
           printedBy={printedBy}
           certType={CertificateTypes.clearance}

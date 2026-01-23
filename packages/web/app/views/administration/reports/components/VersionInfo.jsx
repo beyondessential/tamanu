@@ -4,7 +4,7 @@ import { TranslatedText } from '../../../../components/Translation/TranslatedTex
 import { useDateTimeFormat } from '@tamanu/ui-components';
 
 export const VersionInfo = ({ version }) => {
-  const { formatShortest, formatTime } = useDateTimeFormat();
+  const { formatShortestDateTime } = useDateTimeFormat();
   return (
     <InfoCard inlineValues data-testid="infocard-czs2">
       <InfoCardItem
@@ -48,7 +48,7 @@ export const VersionInfo = ({ version }) => {
             data-testid="translatedtext-zhty"
           />
         }
-        value={`${formatShortest(version.createdAt)} ${formatTime(version.createdAt)}`}
+        value={formatShortestDateTime(version.createdAt)}
         data-testid="infocarditem-fr79"
       />
       <InfoCardItem

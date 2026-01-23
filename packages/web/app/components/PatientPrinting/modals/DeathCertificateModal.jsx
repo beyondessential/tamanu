@@ -3,14 +3,12 @@ import { Button, Modal, TranslatedText } from '@tamanu/ui-components';
 import { useCertificate } from '../../../utils/useCertificate';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { DeathCertificatePrintout } from '@tamanu/shared/utils/patientCertificates';
-import { useLocalisation } from '../../../contexts/Localisation';
 import { usePatientAdditionalDataQuery, useReferenceDataQuery } from '../../../api/queries';
 import { useTranslation } from '../../../contexts/Translation';
 import { useSettings } from '../../../contexts/Settings';
 
 export const DeathCertificateModal = ({ patient, deathData }) => {
   const [isOpen, setIsOpen] = useState();
-  const { getLocalisation } = useLocalisation();
   const { storedLanguage, translations } = useTranslation();
   const { getSetting } = useSettings();
 
@@ -53,7 +51,6 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
           <DeathCertificatePrintout
             patientData={patientData}
             certificateData={certificateData}
-            getLocalisation={getLocalisation}
             getSetting={getSetting}
             language={storedLanguage}
             translations={translations}
