@@ -88,8 +88,11 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
   const { data: labTest } = useLabTestQuery(labTestId);
   const { data: history = [] } = useLabTestResultHistoryQuery(labTestId);
 
-  // Don't show the initial empty result in the history
-  const displayHistory = history.slice(0, -1);
+  // Don't show the initial empty result in the history (oldest item, since history is DESC ordered)
+  const visibleHistory = React.useMemo(() => {
+    const lastItem = history.at(-1);
+    return lastItem?.result === '' ? history.slice(0, -1) : history;
+  }, [history]);
 
   return (
     <Modal
@@ -181,7 +184,7 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
           />
         </div>
       </ModalBody>
-      {displayHistory.length > 1 && (
+      {visibleHistory.length > 0 && (
         <>
           <HistoryTitle data-testid="historytitle-hist">
             <TranslatedText
@@ -192,7 +195,7 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
           </HistoryTitle>
           <HistorySection data-testid="historysection-hist">
             <HistoryList data-testid="historylist-hist">
-              {displayHistory.map(item => (
+              {visibleHistory.map(item => (
                 <HistoryItem key={item.id} data-testid="historyitem-hist">
                   <HistoryItemValue data-testid="historyitemvalue-result">
                     <TranslatedText
