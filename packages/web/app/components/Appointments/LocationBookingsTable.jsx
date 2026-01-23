@@ -260,7 +260,6 @@ const getDate = ({ startTime, endTime }) => {
       <DateTimeRangeDisplay 
         start={startTime} 
         end={endTime} 
-        showWeekday={false} 
         dateFormat="shortest"
       />
       {isOvernight && <OvernightIcon data-testid="overnighticon-qh8z" />}

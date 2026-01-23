@@ -11,13 +11,11 @@ import {
 } from '../../../api/queries';
 import { useCertificate } from '../../../utils/useCertificate';
 import { PDFLoader, printPDF } from '../PDFLoader';
-import { useLocalisation } from '../../../contexts/Localisation';
 import { useSettings } from '../../../contexts/Settings';
 import { LabResultsPrintout } from '@tamanu/shared/utils/patientCertificates';
 
 export const LabResultsPrintoutModal = React.memo(({ labRequest, patient, open, onClose }) => {
   const { translations } = useTranslation();
-  const { getLocalisation } = useLocalisation();
   const { getSetting } = useSettings();
   const api = useApi();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
@@ -91,7 +89,6 @@ export const LabResultsPrintoutModal = React.memo(({ labRequest, patient, open, 
           patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
           labRequest={labRequestWithDetails}
-          getLocalisation={getLocalisation}
           getSetting={getSetting}
           translations={translations}
           data-testid="labresultsprintout-component"

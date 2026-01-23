@@ -75,7 +75,6 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
             <DateTimeRangeDisplay
               start={startTime}
               end={endTime}
-              showWeekday={false}
               dateFormat="shortest"
             />
           }

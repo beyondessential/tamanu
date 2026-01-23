@@ -18,7 +18,7 @@ import { generateUVCI } from '@tamanu/shared/utils/uvci';
 
 export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
-  const { getLocalisation } = useLocalisation();
+  const { localisation, getLocalisation } = useLocalisation();
   const { getSetting } = useSettings();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
     footerAssetName: ASSET_NAMES.COVID_VACCINATION_CERTIFICATE_FOOTER,
@@ -96,7 +96,7 @@ export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient
           signingSrc={requireSigning ? footerImg : null}
           printedBy={printedBy}
           printedDate={getCurrentDateString()}
-          getLocalisation={getLocalisation}
+          localisation={localisation}
           getSetting={getSetting}
           data-testid="covidvaccinecertificate-s2dc"
           uvci={uvci}

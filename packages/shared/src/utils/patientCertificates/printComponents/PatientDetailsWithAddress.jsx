@@ -4,6 +4,7 @@ import { Col } from '../Layout';
 import { getAddress, getDobWithAge, getSex, getVillageName } from '../../patientAccessors';
 import { useLanguageContext } from '../../pdf/languageContext';
 import { renderDataItems } from './renderDataItems';
+import { useDateTimeFormat } from '../../pdf/withDateTimeContext';
 
 const PATIENT_FIELDS = {
   leftCol: [
@@ -19,13 +20,14 @@ const PATIENT_FIELDS = {
   ],
 };
 
-export const PatientDetailsWithAddress = ({ patient, getLocalisation, getSetting }) => {
+export const PatientDetailsWithAddress = ({ patient, getSetting }) => {
   const { getTranslation } = useLanguageContext();
+  const { formatShort } = useDateTimeFormat();
   return (
     <DataSection title={getTranslation('pdf.patientDetails.title', 'Patient details')}>
-      <Col>{renderDataItems(PATIENT_FIELDS.leftCol, patient, getLocalisation, getTranslation, getSetting)}</Col>
+      <Col>{renderDataItems(PATIENT_FIELDS.leftCol, patient, { getTranslation, getSetting, formatShort })}</Col>
       <Col>
-        {renderDataItems(PATIENT_FIELDS.rightCol, patient, getLocalisation, getTranslation, getSetting)}
+        {renderDataItems(PATIENT_FIELDS.rightCol, patient, { getTranslation, getSetting, formatShort })}
       </Col>
     </DataSection>
   );

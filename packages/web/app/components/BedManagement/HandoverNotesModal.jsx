@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { HandoverNotesPDF } from '@tamanu/shared/utils/handoverNotes';
-import { getDisplayDate } from '@tamanu/shared/utils/patientCertificates/getDisplayDate';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 import { Modal } from '../Modal';
 import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
@@ -14,6 +14,7 @@ import { useAuth } from '../../contexts/Auth';
 export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
   const { getLocalisation } = useLocalisation();
   const { getSetting } = useSettings();
+  const { formatShortest } = useDateTimeFormat();
   const api = useApi();
   const { facilityId } = useAuth();
   const { data: certificateData, isFetching: isFetchingCertificate } = useCertificate();
@@ -23,7 +24,7 @@ export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
     <TranslatedText
       stringId="bedManagement.modal.handoverNotes.title"
       fallback="Handover notes :date"
-      replacements={{ date: getDisplayDate(new Date(), 'dd/MM/yy') }}
+      replacements={{ date: formatShortest(new Date()) }}
       data-testid="translatedtext-4lua"
     />
   );

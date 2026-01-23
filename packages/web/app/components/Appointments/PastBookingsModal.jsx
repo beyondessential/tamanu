@@ -131,7 +131,6 @@ const DateCell = ({ startTime, endTime }) => {
           <DateTimeRangeDisplay 
             start={startTime} 
             end={endTime} 
-            showWeekday={false}
             dateFormat="shortest"
           />
         </Box>
@@ -142,7 +141,6 @@ const DateCell = ({ startTime, endTime }) => {
         <DateTimeRangeDisplay 
           start={startTime} 
           end={endTime} 
-          showWeekday={false}
           dateFormat="shortest"
         />
         {isOvernight && (

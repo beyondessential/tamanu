@@ -129,7 +129,7 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
                   {note.author?.displayName}{' '}
                   <DateDisplay
                     date={note.date}
-                    showTime
+                    timeFormat="default"
                     data-testid={`datedisplay-ju3f-${index}`}
                   />
                 </Caption>

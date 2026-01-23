@@ -6,7 +6,6 @@ import { useAuth } from '../../../contexts/Auth';
 import { isErrorUnknownAllow404s, useApi } from '../../../api';
 import { useCertificate } from '../../../utils/useCertificate';
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
-import { useLocalisation } from '../../../contexts/Localisation';
 
 import { BirthNotificationCertificate } from '@tamanu/shared/utils/patientCertificates';
 import { PDFLoader, printPDF } from '../PDFLoader';
@@ -84,7 +83,6 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);
   const api = useApi();
   const { facilityId } = useAuth();
-  const { getLocalisation } = useLocalisation();
   const { storedLanguage, translations } = useTranslation();
   const { getSetting } = useSettings();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
@@ -147,7 +145,6 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
           childData={{ ...patient, birthData, additionalData, deathData }}
           facility={facility}
           certificateData={certificateData}
-          getLocalisation={getLocalisation}
           getSetting={getSetting}
           language={storedLanguage}
           translations={translations}

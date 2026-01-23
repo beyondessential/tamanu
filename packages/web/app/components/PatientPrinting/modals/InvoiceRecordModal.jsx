@@ -9,7 +9,6 @@ import { usePatientDataQuery } from '../../../api/queries/usePatientDataQuery';
 import { combineQueries } from '../../../api/combineQueries';
 import { useReferenceDataQuery } from '../../../api/queries/useReferenceDataQuery';
 import { usePatientAdditionalDataQuery } from '../../../api/queries/usePatientAdditionalDataQuery';
-import { useLocalisation } from '../../../contexts/Localisation';
 import { Colors } from '../../../constants';
 import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { PDFLoader, printPDF } from '../PDFLoader';
@@ -26,7 +25,6 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
     { casing: 'lower' },
   );
 
-  const { getLocalisation } = useLocalisation();
   const certificateQuery = useCertificate();
   const { getSetting } = useSettings();
   const enablePatientInsurer = getSetting('features.enablePatientInsurer');
@@ -90,7 +88,6 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
           patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
           certificateData={certificateData}
-          getLocalisation={getLocalisation}
           getSetting={getSetting}
           clinicianText={clinicianText}
           invoice={invoice}

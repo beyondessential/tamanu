@@ -107,7 +107,7 @@ const HistoryLog = ({ logData, vitalLabel, vitalEditReasons }) => {
       )}
       <LogTextSmall data-testid="logtextsmall-2hok">
         {userDisplayName}{' '}
-        <DateDisplay date={date} showTime format="shortest" data-testid="datedisplay-tviy" />
+        <DateDisplay date={date} timeFormat="default" format="shortest" data-testid="datedisplay-tviy" />
       </LogTextSmall>
     </LogContainer>
   );
