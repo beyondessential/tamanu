@@ -87,6 +87,9 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
   const { data: labTest } = useLabTestQuery(labTestId);
   const { data: history = [] } = useLabTestResultHistoryQuery(labTestId);
 
+  // Don't show the initial empty result in the history
+  if (history.at(-1)?.result === '') history.pop();
+
   return (
     <Modal
       title={

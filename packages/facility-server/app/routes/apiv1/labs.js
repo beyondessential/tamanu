@@ -626,9 +626,6 @@ labTest.get(
       }
     }
 
-    // Remove the last entry only if it's an empty result (initial creation without a result)
-    const lastEntry = distinctChanges.at(-1);
-    if (!lastEntry.result) distinctChanges.pop();
     res.send(distinctChanges);
   }),
 );
