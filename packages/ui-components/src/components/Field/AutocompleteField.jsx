@@ -146,19 +146,6 @@ export class AutocompleteInput extends Component {
   async componentDidMount() {
     const { allowFreeTextForExistingValue } = this.props;
     await this.updateValue(allowFreeTextForExistingValue);
-    this.observer = new IntersectionObserver(
-      ([entry]) => {
-        const hasSuggestions = this.state.suggestions.length > 0;
-        if (!entry.isIntersecting && hasSuggestions) {
-          this.clearOptions();
-        }
-      },
-      { threshold: 0 },
-    );
-
-    if (this.inputElementNode) {
-      this.observer.observe(this.inputElementNode);
-    }
   }
 
   async componentDidUpdate(prevProps) {
@@ -325,7 +312,32 @@ export class AutocompleteInput extends Component {
   handleInputRef = node => {
     const { inputRef } = this.props;
 
+    // Disconnect observer from previous node if ref is changing
+    if (this.observer && this.inputElementNode && this.inputElementNode !== node) {
+      this.observer.unobserve(this.inputElementNode);
+    }
+
+    // Store the input element node
     this.inputElementNode = node;
+
+    // Ensure we have a node to observe
+    if (node) {
+      // Ensure observer exists
+      if (!this.observer) {
+        this.observer = new IntersectionObserver(
+          ([entry]) => {
+            const hasSuggestions = this.state.suggestions.length > 0;
+            if (!entry.isIntersecting && hasSuggestions) {
+              this.clearOptions();
+            }
+          },
+          { threshold: 0 },
+        );
+      }
+
+      // Start observing the new node
+      this.observer.observe(node);
+    }
 
     // Ensure we respect the inputRef prop if it is provided by the parent component
     if (typeof inputRef === 'function') {
