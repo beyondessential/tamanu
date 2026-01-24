@@ -320,8 +320,9 @@ export class AutocompleteInput extends Component {
     // Store the input element node
     this.inputElementNode = node;
 
-    // Ensure we have a node to observe
-    if (node) {
+    // Ensure we have a node to observe and browser supports IntersectionObserver
+    const supportsIntersectionObserver = 'IntersectionObserver' in window;
+    if (node && supportsIntersectionObserver) {
       // Ensure observer exists
       if (!this.observer) {
         this.observer = new IntersectionObserver(
