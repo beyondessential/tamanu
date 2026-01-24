@@ -295,9 +295,6 @@ export class AutocompleteInput extends Component {
 
   clearOptions = () => {
     this.setState({ suggestions: [] });
-    if (this.inputElementNode) {
-      this.inputElementNode.blur();
-    }
   };
 
   onKeyDown = event => {
@@ -330,6 +327,9 @@ export class AutocompleteInput extends Component {
             const hasSuggestions = this.state.suggestions.length > 0;
             if (!entry.isIntersecting && hasSuggestions) {
               this.clearOptions();
+              if (this.inputElementNode) {
+                this.inputElementNode.blur();
+              }
             }
           },
           { threshold: 0 },
