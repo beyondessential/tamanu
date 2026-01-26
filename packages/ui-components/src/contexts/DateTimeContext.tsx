@@ -33,10 +33,6 @@ export interface DateTimeContextValue extends WrappedFormatters {
   getCurrentDateTimeString: () => string;
   /** Get current date string in country timezone (for initial values / persistence) */
   getCurrentDateString: () => string;
-  // /** Get current datetime string in facility timezone (for UI display of "now") */
-  // getFacilityCurrentDateTimeString: () => string;
-  // /** Get current date string in facility timezone (for UI display of "now") */
-  // getFacilityCurrentDateString: () => string;
   /** Convert datetime-local input value (facility TZ) to country timezone for persistence */
   toDateTimeStringForPersistence: (inputValue: string | null | undefined) => string | null;
   /** Format stored value (country TZ) for datetime-local input display (facility TZ) */
