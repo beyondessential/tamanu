@@ -15,8 +15,8 @@ import { useDateTimeFormat } from '../../contexts';
 /*
  * DateInput handles two layers of state:
  *
- * 1. Form value (`value` / `onChange`): ISO9075 format in country timezone (persisted to DB)
- * 2. Display value: facility timezone when useTimezone=true, otherwise as-is
+ * 1. Form value (`value` / `onChange`): ISO9075 format in countryTimeZone (persisted to DB)
+ * 2. Display value: facilityTimeZone when useTimezone=true, otherwise as-is
  *
  * Timezone flow (useTimezone=true):
  *    Load: countryTimeZone → formatForDateTimeInput → facilityTimeZone
