@@ -2,7 +2,6 @@ import React, { useCallback, useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 
-import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import {
   MultilineTextField,
   TextField,
@@ -12,6 +11,7 @@ import {
   FormGrid,
   ModalLoader,
   TranslatedText,
+  useDateTimeFormat,
 } from '@tamanu/ui-components';
 import { useApi, useSuggester } from '../api';
 import { useAuth } from '../contexts/Auth';
@@ -176,6 +176,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
 
 export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, patient }) => {
   const { currentUser, facilityId } = useAuth();
+  const { getCurrentDateString } = useDateTimeFormat();
   const api = useApi();
 
   const handleSubmit = useCallback(

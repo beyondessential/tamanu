@@ -13,8 +13,8 @@ import { MedicationSetList, MedicationSetMedicationsList } from './MedicationSet
 import { MedicationForm } from '../../forms/MedicationForm';
 import { ADMINISTRATION_FREQUENCY_DETAILS } from '@tamanu/constants';
 import { useCreateMedicationSetMutation } from '../../api/mutations/useMarMutation';
-import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useAuth } from '../../contexts/Auth';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 import { MultiplePrescriptionPrintoutModal } from '../PatientPrinting/modals/MultiplePrescriptionPrintoutModal';
 import { toast } from 'react-toastify';
 
@@ -171,6 +171,7 @@ const StyledIconButton = styled(IconButton)`
 export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, onReloadTable }) => {
   const { encounter } = useEncounter();
   const { ability, currentUser } = useAuth();
+  const { getCurrentDateString, getCurrentDateTimeString } = useDateTimeFormat();
   const { data: allergies } = usePatientAllergiesQuery(encounter?.patientId);
   const { data, isLoading: medicationSetsLoading } = useSuggestionsQuery('medicationSet');
   const medicationSets = data?.sort((a, b) => a.name.localeCompare(b.name));

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useQueries } from '@tanstack/react-query';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
-import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import styled from 'styled-components';
 import { combineQueries, useApi, useSuggester } from '../api';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 import { FormModal } from './FormModal';
 import { LabRequestMultiStepForm } from '../forms/LabRequestForm/LabRequestMultiStepForm';
 import { LabRequestSummaryPane } from '../views/patients/components/LabRequestSummaryPane';
@@ -38,6 +38,7 @@ const useLabRequestsQuery = (labRequestIds) => {
 export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
   const [requestFormType, setRequestFormType] = useState(null);
   const [newLabRequestIds, setNewLabRequestIds] = useState([]);
+  const { getCurrentDateString, getCurrentDateTimeString } = useDateTimeFormat();
   const api = useApi();
   const { loadEncounter } = useEncounter();
   const { isSuccess, isLoading, data: newLabRequests } = useLabRequestsQuery(newLabRequestIds);
