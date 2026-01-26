@@ -2,15 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import { toast } from 'react-toastify';
 import { useParams } from 'react-router';
-import {
-  BodyText,
-  FormSubmitCancelRow,
-  Modal,
-  ModalActionRow,
-  ModalGenericButtonRow,
-  TranslatedText,
-  useDateTimeFormat,
-} from '../../../components';
+import { useDateTimeFormat } from '@tamanu/ui-components';
+import { BodyText, FormSubmitCancelRow, Modal, ModalActionRow, ModalGenericButtonRow, TranslatedText } from '../../../components';
 import { useSendPatientPortalForm } from '../../../api/mutations/useSendPatientFormMutation';
 import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
 import { usePatientPortalSurveyAssignments, usePatientDataQuery } from '../../../api/queries';
