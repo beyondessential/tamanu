@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useMemo } from 'react';
+import React, { useRef, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
 import { Resizable } from 're-resizable';
@@ -9,6 +9,13 @@ import { ResizeCornerIcon } from './Icons/ResizeCornerIcon';
 import { ResizeHorizontalIcon } from './Icons/ResizeHorizontalIcon';
 import { ResizeVerticalIcon } from './Icons/ResizeVerticalIcon';
 import { Colors } from '../constants';
+
+const calculateDefaultPosition = (baseWidth, baseHeight) => {
+  return {
+    x: Math.max(0, Math.round(window.innerWidth / 2 - Number(baseWidth) / 2)),
+    y: Math.max(0, Math.round(window.innerHeight / 2 - Number(baseHeight) / 2)),
+  };
+};
 
 export const withModalFloating = ModalComponent => {
   const StyledModalComponent = styled(ModalComponent)`
@@ -51,26 +58,20 @@ export const withModalFloating = ModalComponent => {
     BackdropProps,
     ...modalProps
   }) => {
-    const positionRef = useRef({ x: 0, y: 0 });
     // Store values in refs to prevent PaperComponent from recreating on window resize
     // Update refs directly in component body to ensure latest values during render
+    const positionRef = useRef({ x: 0, y: 0 });
     const sizeRef = useRef({ width: baseWidth, height: baseHeight });
     const minConstraintsRef = useRef(minConstraints);
     const maxConstraintsRef = useRef(maxConstraints);
+    const defaultPositionRef = useRef({ x: 0, y: 0 });
 
-    // Update refs with latest prop values (refs are stable objects, so PaperComponent won't recreate)
+    // Update refs with latest prop values so PaperComponent won't recreate
     sizeRef.current = { width: baseWidth, height: baseHeight };
     minConstraintsRef.current = minConstraints;
     maxConstraintsRef.current = maxConstraints;
+    defaultPositionRef.current = calculateDefaultPosition(baseWidth, baseHeight);
 
-    const defaultPosition = useMemo(() => {
-      if (typeof window !== 'undefined') {
-        const x = Math.max(0, Math.round(window.innerWidth / 2 - Number(baseWidth) / 2));
-        const y = Math.max(0, Math.round(window.innerHeight / 2 - Number(baseHeight) / 2));
-        return { x, y };
-      }
-      return { x: 0, y: 0 };
-    }, [baseWidth, baseHeight]);
 
     const PaperComponent = useCallback(
       paperProps => {
@@ -79,7 +80,7 @@ export const withModalFloating = ModalComponent => {
           <Draggable
             handle={draggableHandle}
             bounds={draggableBounds}
-            defaultPosition={defaultPosition}
+            defaultPosition={defaultPositionRef.current}
             cancel=".MuiDialogTitle-root button, .MuiDialogActions-root button"
             onStop={(e, data) => {
               positionRef.current = { x: data.x, y: data.y };
