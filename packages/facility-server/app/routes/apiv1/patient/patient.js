@@ -114,10 +114,10 @@ patientRoute.put(
     await db.transaction(async () => {
       // First check if displayId changed to create a secondaryId record
       if (validatedBody.displayId && validatedBody.displayId !== patient.displayId) {
-        const existingPatientCount = await Patient.count({
+        const existingPatients = await Patient.count({
           where: { displayId: validatedBody.displayId },
         });
-        if (existingPatientCount > 0) {
+        if (existingPatients > 0) {
           throw new ValidationError(
             `Display ID ${validatedBody.displayId} is already in use by another patient`,
           );
