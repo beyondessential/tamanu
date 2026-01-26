@@ -13,19 +13,17 @@ import { TAMANU_COLORS } from '../../constants';
 import { useDateTimeFormat } from '../../contexts';
 
 /*
- * DateInput component handles two layers of state:
+ * DateInput handles two layers of state:
  *
- * 1. Form value (via `value` prop / `onChange`):
- *    - Stored in ISO9075 format in COUNTRY timezone
- *    - This is what gets persisted to the database
+ * 1. Form value (`value` / `onChange`): ISO9075 format in country timezone (persisted to DB)
+ * 2. Display value: facility timezone when useTimezone=true, otherwise as-is
  *
- * 2. Display value (what the user sees/edits):
- *    - For datetime-local with useTimezone=true: displayed in FACILITY timezone
- *    - For other types: displayed as-is
+ * Timezone flow (useTimezone=true):
+ *    Load: countryTimeZone → formatForDateTimeInput → facilityTimeZone
+ *    Save: facilityTimeZone → toDateTimeStringForPersistence → countryTimeZone
  *
- * Timezone flow (when useTimezone=true):
- *    Load:  value (country TZ) → formatForDateTimeInput → display (facility TZ)
- *    Save:  input (facility TZ) → toDateTimeStringForPersistence → value (country TZ)
+ * Note: Native datetime inputs have quirky focus handling between day/month/year segments,
+ * so avoid unnecessary value updates that could interfere with user input.
  */
 
 // Here I have made a data URL for the new calendar icon. The existing calendar icon was a pseudo element
