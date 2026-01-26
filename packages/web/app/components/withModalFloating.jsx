@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useRef, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
 import { Resizable } from 're-resizable';
@@ -52,16 +52,16 @@ export const withModalFloating = ModalComponent => {
     ...modalProps
   }) => {
     const positionRef = useRef({ x: 0, y: 0 });
-    // Capture initial values in refs to prevent PaperComponent from recreating on window resize
-    const initialSizeRef = useRef({ width: baseWidth, height: baseHeight });
-    const initialMinConstraintsRef = useRef(minConstraints);
-    // Store maxConstraints in a ref that we can update dynamically
+    // Store values in refs to prevent PaperComponent from recreating on window resize
+    // Update refs directly in component body to ensure latest values during render
+    const sizeRef = useRef({ width: baseWidth, height: baseHeight });
+    const minConstraintsRef = useRef(minConstraints);
     const maxConstraintsRef = useRef(maxConstraints);
 
-    // Update maxConstraints ref when prop changes (for dynamic constraint updates)
-    useEffect(() => {
-      maxConstraintsRef.current = maxConstraints;
-    }, [maxConstraints]);
+    // Update refs with latest prop values (refs are stable objects, so PaperComponent won't recreate)
+    sizeRef.current = { width: baseWidth, height: baseHeight };
+    minConstraintsRef.current = minConstraints;
+    maxConstraintsRef.current = maxConstraints;
 
     const defaultPosition = useMemo(() => {
       if (typeof window !== 'undefined') {
@@ -86,9 +86,9 @@ export const withModalFloating = ModalComponent => {
             }}
           >
             <Resizable
-              defaultSize={initialSizeRef.current}
-              minWidth={initialMinConstraintsRef.current[0]}
-              minHeight={initialMinConstraintsRef.current[1]}
+              defaultSize={sizeRef.current}
+              minWidth={minConstraintsRef.current[0]}
+              minHeight={minConstraintsRef.current[1]}
               maxWidth={maxConstraintsRef.current[0]}
               maxHeight={maxConstraintsRef.current[1]}
               enable={enableResizeHandle}
