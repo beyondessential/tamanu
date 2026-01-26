@@ -1,10 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { REASON_FOR_ENCOUNTER_MAX_CHARACTERS } from '../constants';
 import { FORM_TYPES } from '@tamanu/constants';
-import { TextField, Form, FormGrid } from '@tamanu/ui-components';
+import { TextField, Form, FormGrid, useDateTimeFormat } from '@tamanu/ui-components';
 import { Field } from '../components/Field';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { ModalActionRow } from '../components';
@@ -12,6 +11,7 @@ import { useTranslation } from '../contexts/Translation';
 
 export const ChangeReasonForm = ({ onCancel, onSubmit, reasonForEncounter }) => {
   const { getTranslation } = useTranslation();
+  const { getCurrentDateTimeString } = useDateTimeFormat();
   const renderForm = ({ submitForm }) => (
     <FormGrid columns={1} data-testid="formgrid-srim">
       <Field

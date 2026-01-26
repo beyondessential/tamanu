@@ -2,14 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
+import { Form, FormGrid, FormSubmitCancelRow, useDateTimeFormat } from '@tamanu/ui-components';
 
 import { AutocompleteField, Field, } from '../components/Field';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) => {
+  const { getCurrentDateTimeString } = useDateTimeFormat();
   const renderForm = ({ submitForm }) => (
     <FormGrid columns={1} data-testid="formgrid-5e62">
       <Field

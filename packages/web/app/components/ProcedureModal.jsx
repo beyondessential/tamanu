@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { addDays, parseISO } from 'date-fns';
 import styled from 'styled-components';
-import { Form, ButtonRow, FormCancelButton, FormSubmitButton } from '@tamanu/ui-components';
+import { Form, ButtonRow, FormCancelButton, FormSubmitButton, useDateTimeFormat } from '@tamanu/ui-components';
 import Typography from '@material-ui/core/Typography';
 import MuiDivider from '@material-ui/core/Divider';
 import { useParams } from 'react-router';
@@ -11,7 +11,7 @@ import { toast } from 'react-toastify';
 import { FormModal } from './FormModal';
 import { useApi } from '../api';
 import { TranslatedText } from './Translation/TranslatedText';
-import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { foreignKey, optionalForeignKey } from '../utils/validation';
 import { FORM_TYPES } from '@tamanu/constants';
 import { useAuth } from '../contexts/Auth';
@@ -92,6 +92,7 @@ export const ProcedureModal = ({
 }) => {
   const api = useApi();
   const { currentUser } = useAuth();
+  const { getCurrentDateTimeString } = useDateTimeFormat();
   const { patientId } = useParams();
   const { data: patient } = usePatientDataQuery(patientId);
   const [refreshCount, updateRefreshCount] = useRefreshCount();

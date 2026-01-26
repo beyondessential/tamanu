@@ -1,13 +1,14 @@
 import React from 'react';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { ENCOUNTER_TYPE_LABELS, FORM_TYPES } from '@tamanu/constants';
-import { Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
+import { Form, FormGrid, FormSubmitCancelRow, useDateTimeFormat } from '@tamanu/ui-components';
 
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { TranslatedEnum } from '../components/Translation/TranslatedEnum';
 
 
 export const ChangeEncounterTypeForm = ({ onSubmit, onCancel, encounter, initialNewType }) => {
+  const { getCurrentDateTimeString } = useDateTimeFormat();
+  
   return (
     <Form
       initialValues={{
