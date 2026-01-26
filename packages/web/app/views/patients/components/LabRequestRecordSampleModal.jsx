@@ -1,9 +1,8 @@
 import React from 'react';
 import * as yup from 'yup';
 import { LAB_REQUEST_STATUSES, SETTING_KEYS, FORM_TYPES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import styled from 'styled-components';
-import { Form, FormGrid, TranslatedText } from '@tamanu/ui-components';
+import { Form, FormGrid, TranslatedText, useDateTimeFormat } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import {
   AutocompleteField,
@@ -177,6 +176,7 @@ const LabRequestRecordSampleForm = ({ submitForm, values, onClose }) => {
 export const LabRequestRecordSampleModal = React.memo(
   ({ updateLabReq, labRequest, open, onClose }) => {
     const { getSetting } = useSettings();
+    const { getCurrentDateTimeString } = useDateTimeFormat();
     const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
 
     const sampleNotCollected = labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED;

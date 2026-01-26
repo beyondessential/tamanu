@@ -6,8 +6,8 @@ import { InvoiceDiscountAssessmentForm } from './InvoiceDiscountAssessmentForm';
 import { InvoiceDiscountManualForm } from './InvoiceDiscountManualForm';
 import { useCreateInvoice } from '../../../api/mutations/useInvoiceMutation';
 import { useApi } from '../../../api';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useAuth } from '../../../contexts/Auth';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 
 const ACTIVE_VIEW = {
   DISCOUNT_TYPE_SELECTOR: 'discountTypeSelector',
@@ -24,6 +24,7 @@ export const UpsertInvoiceModal = ({
   onCreateSuccess,
 }) => {
   const { facilityId } = useAuth();
+  const { getCurrentDateTimeString } = useDateTimeFormat();
   const api = useApi();
   const isCreating = !invoice?.id;
 

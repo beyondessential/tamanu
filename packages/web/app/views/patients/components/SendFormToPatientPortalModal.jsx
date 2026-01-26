@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 import { toast } from 'react-toastify';
 import { useParams } from 'react-router';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   BodyText,
   FormSubmitCancelRow,
@@ -10,6 +9,7 @@ import {
   ModalActionRow,
   ModalGenericButtonRow,
   TranslatedText,
+  useDateTimeFormat,
 } from '../../../components';
 import { useSendPatientPortalForm } from '../../../api/mutations/useSendPatientFormMutation';
 import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
@@ -149,6 +149,7 @@ const useIsAssignedToSurvey = (patientId, surveyId) => {
 export const SendFormToPatientPortalModal = ({ open, setOpen, formId }) => {
   const { patientId } = useParams();
   const { data: patient } = usePatientDataQuery(patientId);
+  const { getCurrentDateTimeString } = useDateTimeFormat();
   const isAssignedToSurvey = useIsAssignedToSurvey(patientId, formId);
   const isRegistered = Boolean(patient?.portalUser);
 
