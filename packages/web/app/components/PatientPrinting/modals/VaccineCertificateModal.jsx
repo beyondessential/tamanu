@@ -28,7 +28,7 @@ const VACCINE_CERTIFICATE_PDF_ID = 'vaccine-certificate';
 export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
   const { facilityId, countryTimeZone } = useAuth();
-  const { getCurrentDateString } = useDateTimeFormat();
+  const { getCountryCurrentDateString } = useDateTimeFormat();
   const { localisation } = useLocalisation();
   const { translations } = useTranslation();
   const { getSetting, settings } = useSettings();
@@ -69,7 +69,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
         forwardAddress: data.email,
         facilityName: facility.name,
         createdBy: printedBy,
-        createdAt: getCurrentDateString(),
+        createdAt: getCountryCurrentDateString(),
       }),
     [api, patient.id, printedBy, facility?.name],
   );
@@ -118,8 +118,8 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
           logoSrc={logo}
           facilityName={facility?.name}
           signingSrc={footerImg}
-          printedBy={printedBy}
-          printedDate={getCurrentDateString()}
+          printedBy={printedBy} 
+          printedDate={getCountryCurrentDateString()}
           localisation={localisation}
           settings={settings}
           countryTimeZone={countryTimeZone}

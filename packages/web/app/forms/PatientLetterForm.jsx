@@ -176,7 +176,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
 
 export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, patient }) => {
   const { currentUser, facilityId } = useAuth();
-  const { getCurrentDateString } = useDateTimeFormat();
+  const { getCountryCurrentDateString } = useDateTimeFormat();
   const api = useApi();
 
   const handleSubmit = useCallback(
@@ -224,7 +224,7 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, 
       onSubmit={handleSubmit}
       render={renderForm}
       initialValues={{
-        date: getCurrentDateString(),
+        date: getCountryCurrentDateString(),
         clinicianId: currentUser.id,
         ...editedObject,
       }}
