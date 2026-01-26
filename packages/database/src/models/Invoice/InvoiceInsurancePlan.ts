@@ -50,6 +50,10 @@ export class InvoiceInsurancePlan extends Model {
       foreignKey: 'invoiceInsurancePlanId',
       as: 'invoices',
     });
+    this.hasMany(models.PatientInvoiceInsurancePlan, {
+      foreignKey: 'invoiceInsurancePlanId',
+      as: 'patientInvoiceInsurancePlans',
+    });
 
     this.belongsToMany(models.Invoice, {
       through: models.InvoicesInvoiceInsurancePlan,
