@@ -3,7 +3,9 @@ import { useApi } from '../useApi';
 
 export const usePatientInsurancePlansQuery = ({ patientId }) => {
   const api = useApi();
-  return useQuery(['insurancePlans', patientId], () =>
-    api.get(`patient/${patientId}/insurancePlans`),
+  return useQuery(
+    ['insurancePlans', patientId],
+    () => api.get(`patient/${patientId}/insurancePlans`),
+    { enabled: Boolean(patientId) },
   );
 };

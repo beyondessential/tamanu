@@ -28,7 +28,7 @@ const ModalBody = styled.div`
 `;
 
 export const InvoiceInsuranceModal = ({ open, onClose, invoice }) => {
-  const patientId = invoice.encounter.patientId;
+  const patientId = invoice?.encounter?.patientId;
   const defaultValues = invoice?.insurancePlans?.map(({ id }) => id) || [];
   const [selectedPlans, setSelectedPlans] = useState(defaultValues);
   const { mutate } = useInvoiceInsurancePlansMutation(invoice.id, invoice.encounterId);
@@ -57,7 +57,23 @@ export const InvoiceInsuranceModal = ({ open, onClose, invoice }) => {
   };
 
   if (isLoadingInsurancePlans) {
-    return <LoadingIndicator />;
+    return (
+      <StyledModal
+        width="sm"
+        title={
+          <TranslatedText
+            stringId="invoice.modal.insurancePlans.title"
+            fallback="Insurance plans"
+          />
+        }
+        open={open}
+        onClose={onClose}
+      >
+        <ModalBody>
+          <LoadingIndicator />
+        </ModalBody>
+      </StyledModal>
+    );
   }
 
   if (insurancePlans.length === 0) {
@@ -89,10 +105,7 @@ export const InvoiceInsuranceModal = ({ open, onClose, invoice }) => {
             />
           }
           cancelText={
-            <TranslatedText
-              stringId="invoice.modal.insurancePlans.close"
-              fallback="Close"
-            />
+            <TranslatedText stringId="invoice.modal.insurancePlans.close" fallback="Close" />
           }
           onConfirm={handleGoToPatientDetails}
           onCancel={onClose}

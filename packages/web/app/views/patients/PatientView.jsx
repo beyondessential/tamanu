@@ -201,7 +201,7 @@ export const PatientView = () => {
   const {
     data: insurancePlans = [],
     isLoading: isLoadingInsurancePlans,
-  } = usePatientInsurancePlansQuery({ patientId: patient.id });
+  } = usePatientInsurancePlansQuery({ patientId: patient?.id });
 
   useEffect(() => {
     if (patientId && (!patient?.id || patient?.id !== patientId)) {
