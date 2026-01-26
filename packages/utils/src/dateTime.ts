@@ -373,7 +373,7 @@ export const eachDayInMonth = (date: Date) =>
  *   - toDateTimeStringForPersistence: Convert input value → storage value (country TZ)
  */
 
-/** Get current datetime string in a specific timezone (for initial values) */
+/** Get current datetime string in a specific timezone */
 export const getCurrentDateTimeStringInTimezone = (timezone?: string) => {
   if (!timezone) return formatISO9075(new Date(), { representation: 'complete' });
   return formatInTimeZone(new Date(), timezone, ISO9075_DATETIME_FORMAT);
