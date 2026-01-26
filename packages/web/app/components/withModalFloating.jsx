@@ -11,10 +11,13 @@ import { ResizeVerticalIcon } from './Icons/ResizeVerticalIcon';
 import { Colors } from '../constants';
 
 const calculateDefaultPosition = (baseWidth, baseHeight) => {
-  return {
-    x: Math.max(0, Math.round(window.innerWidth / 2 - Number(baseWidth) / 2)),
-    y: Math.max(0, Math.round(window.innerHeight / 2 - Number(baseHeight) / 2)),
-  };
+  if (typeof window !== 'undefined') {
+    return {
+      x: Math.max(0, Math.round(window.innerWidth / 2 - Number(baseWidth) / 2)),
+      y: Math.max(0, Math.round(window.innerHeight / 2 - Number(baseHeight) / 2)),
+    };
+  }
+  return { x: 0, y: 0 };
 };
 
 export const withModalFloating = ModalComponent => {
