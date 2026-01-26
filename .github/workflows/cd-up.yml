@@ -87,6 +87,8 @@ jobs:
       - name: Generate pulumi config
         id: config
         uses: actions/github-script@v7
+        env:
+          K8S_CORE: ${{ vars.K8S_CORE }}
         with:
           script: |
             const cwd = '${{ github.workspace }}';
