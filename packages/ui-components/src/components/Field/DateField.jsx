@@ -66,7 +66,7 @@ export const DateInput = ({
   const { formatForDateTimeInput, toDateTimeStringForPersistence } = useDateTimeFormat();
   const shouldUseTimezone = useTimezone && type === 'datetime-local';
 
-  // Convert stored value (country TZ) to display value (facility TZ for datetime-local)
+  // Convert stored value (countryTimeZone) to display value (facilityTimeZone for datetime-local)
   const getDisplayValue = val => {
     if (shouldUseTimezone) return formatForDateTimeInput(val) || '';
     return fromRFC3339(val, format);
@@ -109,7 +109,7 @@ export const DateInput = ({
 
       let outputValue;
 
-      // Convert input value (facility TZ) to storage value (country TZ)
+      // Convert input value (facilityTimeZone) to storage value (countryTimeZone)
       if (shouldUseTimezone) {
         outputValue = toDateTimeStringForPersistence(formattedValue);
       } else {
