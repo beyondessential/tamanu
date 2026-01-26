@@ -1,13 +1,14 @@
 import React, { useCallback } from 'react';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { useEncounter } from '../contexts/Encounter';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 import { FormModal } from './FormModal';
 import { ChangeEncounterTypeForm } from '../forms/ChangeEncounterTypeForm';
 
 export const ChangeEncounterTypeModal = React.memo(({ open, encounter, onClose, newType }) => {
   const { writeAndViewEncounter } = useEncounter();
   const { navigateToEncounter } = usePatientNavigation();
+  const { getCurrentDateTimeString } = useDateTimeFormat();
   const changeEncounterType = useCallback(
     async (data) => {
       await writeAndViewEncounter(encounter.id, {

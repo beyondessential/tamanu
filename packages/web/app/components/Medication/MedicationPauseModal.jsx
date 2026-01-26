@@ -2,7 +2,6 @@ import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { Box } from '@mui/material';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { MEDICATION_PAUSE_DURATION_UNITS_LABELS, FORM_TYPES } from '@tamanu/constants';
 import {
   SelectField,
@@ -13,6 +12,7 @@ import {
   FormSubmitButton,
   BaseModal,
   TranslatedText,
+  useDateTimeFormat,
 } from '@tamanu/ui-components';
 import { Colors } from '../../constants';
 import { Field, NumberField } from '..';
@@ -71,6 +71,7 @@ const validationSchema = yup.object().shape({
 });
 
 export const MedicationPauseModal = ({ medication, onPause, onClose }) => {
+  const { getCurrentDateTimeString } = useDateTimeFormat();
   const { encounter } = useEncounter();
   const api = useApi();
 
