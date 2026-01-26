@@ -115,6 +115,21 @@ export const globalSettings = {
         },
       },
     },
+    certificates: {
+      description: 'Certificate settings',
+      properties: {
+        birthCertificate: {
+          description: 'Birth certificate settings',
+          properties: {
+            enableFSMStyle: {
+              description: 'Enable FSM style birth certificate',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+          },
+        },
+      },
+    },
     features: {
       description: 'Toggle features on/off',
       properties: {
