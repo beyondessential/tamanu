@@ -345,7 +345,7 @@ const ImagingResultsSection = ({ results }) => {
 const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
   const api = useApi();
   const { facilityId } = useAuth();
-  const { getCurrentDateTimeString } = useDateTimeFormat();
+  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
 
   const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
   const getCanAddResult = values => values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
@@ -370,7 +370,7 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
       initialValues={{
         ...imagingRequest,
         newResult: {
-          completedAt: getCurrentDateTimeString(),
+          completedAt: getCountryCurrentDateTimeString(),
         },
       }}
       validationSchema={yup.object().shape({

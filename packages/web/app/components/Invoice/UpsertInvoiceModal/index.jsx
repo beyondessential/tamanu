@@ -57,11 +57,11 @@ export const UpsertInvoiceModal = ({
     setDiscountType(discountType);
   };
 
-  const handleActiveView = (view) => {
+  const handleActiveView = view => {
     setActiveView(view);
   };
 
-  const handleUpsertInvoice = (payload) => {
+  const handleUpsertInvoice = payload => {
     if (isSubmitting) {
       return;
     }
@@ -77,7 +77,7 @@ export const UpsertInvoiceModal = ({
     }
   };
 
-  const handleUpsertInvoiceWithDiscount = (data) => {
+  const handleUpsertInvoiceWithDiscount = data => {
     const discount = {
       percentage: data.percentage,
       reason: data.reason,
