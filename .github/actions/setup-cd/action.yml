@@ -7,6 +7,15 @@ inputs:
   ops-ref:
     description: Ref to checkout in ops repo
     default: main
+  tailscale-oauth-client-id:
+    description: Tailscale OAuth client ID for OIDC authentication
+    required: true
+  tailscale-tags:
+    description: Tailscale tags for the connection (must match OIDC trust configuration)
+    required: true
+  tailscale-k8s-operator-hostname:
+    description: Hostname of the Tailscale Kubernetes operator to configure kubeconfig
+    required: true
 runs:
   using: composite
   steps:
@@ -50,13 +59,13 @@ runs:
     - name: Connect to Tailscale
       uses: tailscale/github-action@v4
       with:
-        oauth-client-id: ${{ vars.TS_OAUTH_CLIENT_ID }}
-        audience: api.tailscale.com/${{ vars.TS_OAUTH_CLIENT_ID }}
-        tags: ${{ vars.TS_TAGS }} # must be synced to actual OIDC trust in Tailscale
+        oauth-client-id: ${{ inputs.tailscale-oauth-client-id }}
+        audience: api.tailscale.com/${{ inputs.tailscale-oauth-client-id }}
+        tags: ${{ inputs.tailscale-tags }} # must be synced to actual OIDC trust in Tailscale
 
     - name: Configure kubeconfig
       shell: bash
-      run: tailscale configure kubeconfig ${{ vars.TS_K8S_OPERATOR_HOSTNAME }}
+      run: tailscale configure kubeconfig ${{ inputs.tailscale-k8s-operator-hostname }}
 
     - name: Test kubernetes cluster for readiness
       shell: bash

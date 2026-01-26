@@ -40,6 +40,9 @@ jobs:
         with:
           ops-ssh-key: ${{ secrets.TAMANU_OPS_SSH }}
           ops-ref: ${{ fromJson(inputs.options).opsref }}
+          tailscale-oauth-client-id: ${{ vars.TS_OAUTH_CLIENT_ID }}
+          tailscale-tags: ${{ vars.TS_TAGS }}
+          tailscale-k8s-operator-hostname: ${{ vars.TS_K8S_OPERATOR_HOSTNAME }}
 
       - name: Create or check namespace
         run: |
