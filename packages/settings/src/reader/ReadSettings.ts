@@ -8,6 +8,7 @@ export const KEYS_EXPOSED_TO_FRONT_END = [
   'audit',
   'appointments',
   'ageDisplayFormat',
+  'certificates',
   'customisations',
   'features',
   'fields',
