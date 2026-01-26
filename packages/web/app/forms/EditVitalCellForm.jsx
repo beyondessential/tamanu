@@ -125,7 +125,7 @@ export const EditVitalCellForm = ({
   isPatientRemoved = false,
 }) => {
   const { getTranslation } = useTranslation();
-  const { getCurrentDateTimeString } = useDateTimeFormat();
+  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
   const [isDeleted, setIsDeleted] = useState(false);
   const api = useApi();
   const queryClient = useQueryClient();
@@ -159,7 +159,7 @@ export const EditVitalCellForm = ({
   );
   const handleSubmit = async data => {
     const newShapeData = {
-      date: getCurrentDateTimeString(),
+      date: getCountryCurrentDateTimeString(),
       surveyId: dataPoint.component.surveyId,
     };
     Object.entries(data).forEach(([key, value]) => {

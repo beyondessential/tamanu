@@ -64,7 +64,7 @@ export const DeathForm = React.memo(
   }) => {
     const { getTranslation } = useTranslation();
     const { currentUser } = useAuth();
-    const { getCurrentDateTimeString } = useDateTimeFormat();
+    const { getCountryCurrentDateTimeString } = useDateTimeFormat();
     const canBePregnant = patient.sex === 'female' && ageInYears(patient.dateOfBirth) >= 12;
     const isInfant = ageInMonths(patient.dateOfBirth) <= 2;
 
@@ -143,7 +143,7 @@ export const DeathForm = React.memo(
         })}
         initialValues={{
           outsideHealthFacility: false,
-          timeOfDeath: patient?.dateOfDeath || getCurrentDateTimeString(),
+          timeOfDeath: patient?.dateOfDeath || getCountryCurrentDateTimeString(),
           clinicianId: deathData?.clinicianId || currentUser.id,
         }}
         formType={FORM_TYPES.CREATE_FORM}

@@ -175,7 +175,7 @@ const getDischargeInitialValues = ({
   currentUser,
   dischargeNotes,
   medicationInitialValues,
-  getCurrentDateTimeString,
+  getCountryCurrentDateTimeString,
 }) => {
   const dischargeDraft = encounter?.dischargeDraft?.discharge;
   const today = new Date();
@@ -183,6 +183,7 @@ const getDischargeInitialValues = ({
 
   const getInitialEndDate = () => {
     if (!dischargeDraft) {
+      // TODO: TIME ZONES: toDateTimeString should adhere to country timezone
       if (isFuture(encounterStartDate)) {
         // In the case of a future start_date we cannot default to current datetime as it falls outside of the min date.
         return toDateTimeString(
@@ -193,7 +194,7 @@ const getDischargeInitialValues = ({
           }),
         );
       } else {
-        return getCurrentDateTimeString();
+        return getCountryCurrentDateTimeString();
       }
     }
     return encounter?.dischargeDraft?.endDate;
@@ -207,7 +208,7 @@ const getDischargeInitialValues = ({
       note: dischargeNotes?.map(n => n.content).join('\n\n') || '',
     },
     medications: medicationInitialValues,
-    submittedTime: getCurrentDateTimeString(),
+    submittedTime: getCountryCurrentDateTimeString(),
   };
 };
 
@@ -700,7 +701,7 @@ export const DischargeForm = ({
   const { getTranslation, getEnumTranslation } = useTranslation();
   const { encounter } = useEncounter();
   const { getSetting } = useSettings();
-  const { formatForDateTimeInput, getCurrentDateTimeString } = useDateTimeFormat();
+  const { formatForDateTimeInput, getCountryCurrentDateTimeString } = useDateTimeFormat();
   const queryClient = useQueryClient();
   const { ability, currentUser } = useAuth();
   const canUpdateMedication = ability.can('write', 'Medication');
@@ -804,7 +805,7 @@ export const DischargeForm = ({
           currentUser,
           dischargeNotes,
           medicationInitialValues,
-          getCurrentDateTimeString,
+          getCountryCurrentDateTimeString,
         })}
         FormScreen={props => (
           <DischargeFormScreen
