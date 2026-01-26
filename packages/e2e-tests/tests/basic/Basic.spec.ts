@@ -678,7 +678,7 @@ import { FormResponseModal } from '@pages/patients/PatientDetailsPage/modals/For
 
     // Step 4: Confirm discharge
     await prepareDischargeModal.finaliseDischargeButton.click();
-    prepareDischargeModal.confirmButton.click();
+    await prepareDischargeModal.confirmButton.click();
 
 
     // Step 5: Wait for modal to close and page to reload

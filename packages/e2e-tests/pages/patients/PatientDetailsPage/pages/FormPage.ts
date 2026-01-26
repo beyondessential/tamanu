@@ -118,7 +118,9 @@ export class FormPage {
           await radio.click();
           await radio.waitFor({ state: 'attached' });
           await this.page.waitForLoadState('networkidle', { timeout: 500 }).catch(() => {});
-          selectedValues.push({ question, answer });
+          if (answer) {
+            selectedValues.push({ question, answer });
+          }
           processedGroups.add(groupId);
         }
       }
