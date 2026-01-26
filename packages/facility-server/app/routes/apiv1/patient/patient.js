@@ -7,12 +7,7 @@ import {
   createPatientSchema,
   updatePatientSchema,
 } from '@tamanu/shared/schemas/facility/requests/createPatient.schema';
-import {
-  NotFoundError,
-  InvalidParameterError,
-  DatabaseDuplicateError,
-  ValidationError,
-} from '@tamanu/errors';
+import { NotFoundError, InvalidParameterError, ValidationError } from '@tamanu/errors';
 import {
   PATIENT_REGISTRY_TYPES,
   VISIBILITY_STATUSES,
