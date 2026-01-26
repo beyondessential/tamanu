@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import * as yup from 'yup';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import PropTypes from 'prop-types';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useAuth } from '../../contexts/Auth';
 import { useTranslation } from '../../contexts/Translation';
 import { foreignKey } from '../../utils/validation';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 
 import { FormStep, MultiStepForm } from '../MultiStepForm';
 import { LabRequestFormScreen1 } from './LabRequestFormScreen1';
@@ -28,6 +28,7 @@ export const LabRequestMultiStepForm = ({
   onSubmit,
   editedObject,
 }) => {
+  const { getCurrentDateTimeString } = useDateTimeFormat();
   const { getSetting } = useSettings();
   const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
 

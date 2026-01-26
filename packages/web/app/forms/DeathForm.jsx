@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import MuiBox from '@material-ui/core/Box';
 import { MANNER_OF_DEATHS, PLACE_OF_DEATHS, FORM_TYPES } from '@tamanu/constants';
-import { ageInMonths, ageInYears, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { ageInMonths, ageInYears } from '@tamanu/utils/dateTime';
 import {
   ArrayField,
   AutocompleteField,
@@ -18,7 +18,7 @@ import {
   RadioField,
   TimeWithUnitField,
 } from '../components';
-import { TextField, TranslatedSelectField, FormGrid } from '@tamanu/ui-components';
+import { TextField, TranslatedSelectField, FormGrid, useDateTimeFormat } from '@tamanu/ui-components';
 import { useAuth } from '../contexts/Auth';
 import { DeathFormScreen } from './DeathFormScreen';
 import { SummaryScreenThree, SummaryScreenTwo } from './DeathFormSummaryScreens';
@@ -64,6 +64,7 @@ export const DeathForm = React.memo(
   }) => {
     const { getTranslation } = useTranslation();
     const { currentUser } = useAuth();
+    const { getCurrentDateTimeString } = useDateTimeFormat();
     const canBePregnant = patient.sex === 'female' && ageInYears(patient.dateOfBirth) >= 12;
     const isInfant = ageInMonths(patient.dateOfBirth) <= 2;
 

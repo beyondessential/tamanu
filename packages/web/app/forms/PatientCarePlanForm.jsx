@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { TextField, Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
+import { TextField, Form, FormGrid, FormSubmitCancelRow, useDateTimeFormat } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { AutocompleteField, DateTimeField, Field } from '../components/Field';
 
@@ -16,8 +15,10 @@ export const PatientCarePlanForm = ({
   editedObject,
   onCancel,
   onSubmit,
-}) => (
-  <Form
+}) => {
+  const { getCurrentDateTimeString } = useDateTimeFormat();
+  
+  return (<Form
     onSubmit={onSubmit}
     render={({ submitForm }) => (
       <FormGrid columns={1} data-testid="formgrid-iwuf">
@@ -120,8 +121,8 @@ export const PatientCarePlanForm = ({
       content: yup.string(),
     })}
     data-testid="form-3mv8"
-  />
-);
+  />);
+};
 
 PatientCarePlanForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,

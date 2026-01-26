@@ -1,14 +1,15 @@
 import React from 'react';
 import * as yup from 'yup';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { PATIENT_ISSUE_TYPES, PATIENT_ISSUE_LABELS, FORM_TYPES } from '@tamanu/constants';
-import { TextField, TranslatedSelectField, Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
+import { TextField, TranslatedSelectField, Form, FormGrid, FormSubmitCancelRow, useDateTimeFormat } from '@tamanu/ui-components';
 import { DateField, Field } from '../components/Field';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../components/NoteModalActionBlocker';
 
-export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
-  <Form
+export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => {
+  const { getCurrentDateTimeString } = useDateTimeFormat();
+  
+  return (<Form
     onSubmit={onSubmit}
     render={({ submitForm }) => (
       <FormGrid columns={1} data-testid="formgrid-vv7x">
@@ -107,5 +108,5 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
         ),
     })}
     data-testid="form-3mvk"
-  />
-);
+  />);
+};

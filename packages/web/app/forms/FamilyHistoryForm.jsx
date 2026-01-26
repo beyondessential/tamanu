@@ -138,8 +138,8 @@ export const FamilyHistoryForm = ({
         ),
     })}
     data-testid="form-gxqz"
-  />
-);
+  />);
+};
 
 FamilyHistoryForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
