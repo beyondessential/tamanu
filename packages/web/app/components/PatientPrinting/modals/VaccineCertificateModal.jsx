@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import { ASSET_NAMES, VACCINATION_CERTIFICATE } from '@tamanu/constants';
-import { getCurrentDateString } from '@tamanu/utils/dateTime';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 
 import { Modal } from '../../Modal';
 import { useApi } from '../../../api';
@@ -28,6 +28,7 @@ const VACCINE_CERTIFICATE_PDF_ID = 'vaccine-certificate';
 export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
   const { facilityId, countryTimeZone } = useAuth();
+  const { getCurrentDateString } = useDateTimeFormat();
   const { localisation } = useLocalisation();
   const { translations } = useTranslation();
   const { getSetting, settings } = useSettings();
