@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useMemo } from 'react';
+import React, { useEffect, useRef, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
 import { Resizable } from 're-resizable';
@@ -52,6 +52,17 @@ export const withModalFloating = ModalComponent => {
     ...modalProps
   }) => {
     const positionRef = useRef({ x: 0, y: 0 });
+    // Capture initial values in refs to prevent PaperComponent from recreating on window resize
+    const initialSizeRef = useRef({ width: baseWidth, height: baseHeight });
+    const initialMinConstraintsRef = useRef(minConstraints);
+    // Store maxConstraints in a ref that we can update dynamically
+    const maxConstraintsRef = useRef(maxConstraints);
+
+    // Update maxConstraints ref when prop changes (for dynamic constraint updates)
+    useEffect(() => {
+      maxConstraintsRef.current = maxConstraints;
+    }, [maxConstraints]);
+
     const defaultPosition = useMemo(() => {
       if (typeof window !== 'undefined') {
         const x = Math.max(0, Math.round(window.innerWidth / 2 - Number(baseWidth) / 2));
@@ -75,11 +86,11 @@ export const withModalFloating = ModalComponent => {
             }}
           >
             <Resizable
-              defaultSize={{ width: baseWidth, height: baseHeight }}
-              minWidth={minConstraints[0]}
-              minHeight={minConstraints[1]}
-              maxWidth={maxConstraints[0]}
-              maxHeight={maxConstraints[1]}
+              defaultSize={initialSizeRef.current}
+              minWidth={initialMinConstraintsRef.current[0]}
+              minHeight={initialMinConstraintsRef.current[1]}
+              maxWidth={maxConstraintsRef.current[0]}
+              maxHeight={maxConstraintsRef.current[1]}
               enable={enableResizeHandle}
               resizeRatio={resizeRatio}
               handleComponent={handleComponent}
@@ -107,10 +118,6 @@ export const withModalFloating = ModalComponent => {
         positionRef,
         draggableHandle,
         draggableBounds,
-        baseWidth,
-        baseHeight,
-        minConstraints,
-        maxConstraints,
         enableResizeHandle,
         handleComponent,
         handleStyles,
