@@ -899,7 +899,10 @@ describe('Encounter', () => {
 
         const result = await app.post('/api/medication/import-ongoing').send({
           encounterId: medicationEncounter.id,
-          prescriptionIds: [ongoingPrescription1.id, ongoingPrescription2.id],
+          medications: [
+            { prescriptionId: ongoingPrescription1.id, quantity: 10, repeats: 1 },
+            { prescriptionId: ongoingPrescription2.id, quantity: 20, repeats: 2 },
+          ],
           prescriberId: app.user.id,
         });
         expect(result).toHaveSucceeded();
@@ -992,7 +995,9 @@ describe('Encounter', () => {
 
         const result = await app.post('/api/medication/import-ongoing').send({
           encounterId: medicationEncounter.id,
-          prescriptionIds: [ongoingPrescription.id],
+          medications: [
+            { prescriptionId: ongoingPrescription.id, quantity: 10, repeats: 1 },
+          ],
           prescriberId: app.user.id,
         });
         expect(result).toHaveRequestError();
@@ -1044,6 +1049,8 @@ describe('Encounter', () => {
             orderingClinicianId: app.user.id,
             comments,
             isDischargePrescription: true,
+            date: getCurrentDateTimeString(),
+            facilityId: facilityId,
             pharmacyOrderPrescriptions: [
               {
                 prescriptionId: testPrescription.id,
@@ -1074,6 +1081,8 @@ describe('Encounter', () => {
           .send({
             orderingClinicianId: app.user.id,
             comments: 'comments',
+            date: getCurrentDateTimeString(),
+            facilityId: facilityId,
             pharmacyOrderPrescriptions: [
               {
                 prescriptionId: testPrescription.id,

@@ -3,6 +3,7 @@ import { getJsDateFromExcel } from 'excel-date-to-js';
 import { Op } from 'sequelize';
 import {
   ENCOUNTER_TYPES,
+  DRUG_STOCK_STATUSES,
   VISIBILITY_STATUSES,
   PATIENT_FIELD_DEFINITION_TYPES,
   REFERENCE_DATA_RELATION_TYPES,
@@ -504,8 +505,21 @@ export async function taskTemplateLoader(item, { models, pushError }) {
   return rows;
 }
 
-export async function drugLoader(item, { models }) {
-  const { id: drugId, route, units, notes, isSensitive = false } = item;
+export async function drugLoader(item, { models, pushError }) {
+  /* eslint-disable no-unused-vars */
+  const {
+    id: drugId,
+    route,
+    units,
+    notes,
+    isSensitive = false,
+    name,
+    visibilityStatus,
+    code,
+    systemRequired,
+    ...rest
+  } = item;
+  /* eslint-enable no-unused-vars */
   const rows = [];
 
   let existingDrug;
@@ -515,18 +529,69 @@ export async function drugLoader(item, { models }) {
     });
   }
 
+  const referenceDrugId = existingDrug?.id || uuidv4();
   const newDrug = {
-    id: existingDrug?.id || uuidv4(),
+    id: referenceDrugId,
     referenceDataId: drugId,
     route,
     units,
     notes,
-    isSensitive,
+    isSensitive: !!isSensitive,
   };
   rows.push({
     model: 'ReferenceDrug',
     values: newDrug,
   });
+
+  const facilitiesData = Object.fromEntries(
+    Object.entries(rest).map(([key, value]) => [key.trim(), value]),
+  );
+  const facilityIdsToImport = Object.keys(facilitiesData);
+  const facilitiesToImport = await models.Facility.findAll({
+    attributes: ['id'],
+    where: { deletedAt: null, id: { [Op.in]: facilityIdsToImport } },
+  });
+
+  if (!facilitiesToImport.length) {
+    return rows;
+  }
+
+  if (facilitiesToImport.length !== facilityIdsToImport.length) {
+    const validFacilityIds = new Set(facilitiesToImport.map(f => f.id));
+    const unavailableFacilityIds = facilityIdsToImport.filter(id => !validFacilityIds.has(id));
+    pushError(
+      `Drug "${drugId}": Some facilities do not exist or have been deleted: ${unavailableFacilityIds.join(', ')}.`,
+    );
+    return rows;
+  }
+
+  for (const [key, value] of Object.entries(facilitiesData)) {
+    const facilityId = key;
+    const parsedQuantity = parseInt(value, 10);
+
+    let quantity = null;
+    let stockStatus;
+
+    if (Number.isNaN(parsedQuantity)) {
+      stockStatus =
+        value === DRUG_STOCK_STATUSES.UNAVAILABLE
+          ? DRUG_STOCK_STATUSES.UNAVAILABLE
+          : DRUG_STOCK_STATUSES.UNKNOWN;
+    } else {
+      quantity = parsedQuantity;
+      stockStatus = quantity > 0 ? DRUG_STOCK_STATUSES.IN_STOCK : DRUG_STOCK_STATUSES.OUT_OF_STOCK;
+    }
+
+    rows.push({
+      model: 'ReferenceDrugFacility',
+      values: {
+        referenceDrugId,
+        facilityId,
+        quantity,
+        stockStatus,
+      },
+    });
+  }
 
   return rows;
 }
