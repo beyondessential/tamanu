@@ -68,7 +68,7 @@ export const TriageForm = ({
   const navigate = useNavigate();
   const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
-  const { formatForDateTimeInput, getCurrentDateTimeString } = useDateTimeFormat();
+  const { formatForDateTimeInput, getCountryCurrentDateTimeString } = useDateTimeFormat();
   const triageCategories = getSetting('triageCategories');
   const practitionerSuggester = useSuggester('practitioner');
   const triageReasonSuggester = useSuggester('triageReason');
@@ -215,8 +215,8 @@ export const TriageForm = ({
       const { survey, ...data } = values.vitals;
       updatedVitals = {
         surveyId: survey.id,
-        startTime: getCurrentDateTimeString(),
-        endTime: getCurrentDateTimeString(),
+        startTime: getCountryCurrentDateTimeString(),
+        endTime: getCountryCurrentDateTimeString(),
         patientId: patient.id,
         answers: await getAnswersFromData(data, survey),
       };
@@ -229,7 +229,7 @@ export const TriageForm = ({
 
     const newTriage = {
       ...updatedValues,
-      startDate: getCurrentDateTimeString(),
+      startDate: getCountryCurrentDateTimeString(),
       patientId: patient.id,
       facilityId,
     };
@@ -250,7 +250,7 @@ export const TriageForm = ({
       onSubmit={onSubmit}
       render={renderForm}
       initialValues={{
-        triageTime: getCurrentDateTimeString(),
+        triageTime: getCountryCurrentDateTimeString(),
         practitionerId: currentUser.id,
         ...initialValues,
       }}

@@ -67,9 +67,9 @@ export const ProcedureAdditionalData = ({
 }) => {
   const api = useApi();
   const { currentUser, facilityId } = useAuth();
-  const { getCurrentDateTimeString } = useDateTimeFormat();
+  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
   const [cancelFormModalOpen, setCancelFormModalOpen] = useState(false);
-  const [startTime] = useState(getCurrentDateTimeString());
+  const [startTime] = useState(getCountryCurrentDateTimeString());
   const [pendingSelectedSurveyId, setPendingSelectedSurveyId] = useState(null);
 
   const surveys = useProcedureSurveys(procedureTypeId);
@@ -83,7 +83,7 @@ export const ProcedureAdditionalData = ({
         startTime,
         patientId: patient.id,
         facilityId,
-        endTime: getCurrentDateTimeString(),
+        endTime: getCountryCurrentDateTimeString(),
         answers: await getAnswersFromData(body, survey),
         procedureId,
         procedureTypeId,

@@ -240,7 +240,7 @@ const ResultsForm = ({
   setFieldValue,
   areLabTestResultsReadOnly,
 }) => {
-  const { getCurrentDateTimeString } = useDateTimeFormat();
+  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
   const { count, data } = labTestResults;
   /**
    * On entering lab result field for a test some other fields are auto-filled optimistically
@@ -263,7 +263,7 @@ const ResultsForm = ({
         const uniqueValues = [...new Set(otherRowsValues)];
         const fieldName = `labTests.${labTestId}.${name}`;
         if (name === LAB_TEST_PROPERTIES.COMPLETED_DATE) {
-          setFieldValue(fieldName, getCurrentDateTimeString());
+          setFieldValue(fieldName, getCountryCurrentDateTimeString());
         } else if (uniqueValues.length === 1) {
           setFieldValue(fieldName, uniqueValues[0]);
         }

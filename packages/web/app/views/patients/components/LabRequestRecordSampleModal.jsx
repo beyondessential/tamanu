@@ -176,7 +176,7 @@ const LabRequestRecordSampleForm = ({ submitForm, values, onClose }) => {
 export const LabRequestRecordSampleModal = React.memo(
   ({ updateLabReq, labRequest, open, onClose }) => {
     const { getSetting } = useSettings();
-    const { getCurrentDateTimeString } = useDateTimeFormat();
+    const { getCountryCurrentDateTimeString } = useDateTimeFormat();
     const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
 
     const sampleNotCollected = labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED;
@@ -205,7 +205,7 @@ export const LabRequestRecordSampleModal = React.memo(
           showInlineErrorsOnly
           formType={FORM_TYPES.EDIT_FORM}
           initialValues={{
-            sampleTime: labRequest.sampleTime || getCurrentDateTimeString(),
+            sampleTime: labRequest.sampleTime || getCountryCurrentDateTimeString(),
             labSampleSiteId: labRequest.labSampleSiteId,
             specimenTypeId: labRequest.specimenTypeId,
             collectedById: labRequest.collectedById,

@@ -90,7 +90,7 @@ export const ImagingRequestForm = React.memo(
     generateId = shortid.generate,
     setOnSuccess,
   }) => {
-    const { formatShort, getCurrentDateTimeString } = useDateTimeFormat();
+    const { formatShort, getCountryCurrentDateTimeString } = useDateTimeFormat();
     const { getTranslation } = useTranslation();
     const { getLocalisation } = useLocalisation();
     const { currentUser } = useAuth();
@@ -106,7 +106,7 @@ export const ImagingRequestForm = React.memo(
         onSubmit={onSubmit}
         initialValues={{
           displayId: generateId(),
-          requestedDate: getCurrentDateTimeString(),
+          requestedDate: getCountryCurrentDateTimeString(),
           requestedById: currentUser.id,
           ...editedObject,
         }}

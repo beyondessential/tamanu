@@ -5,13 +5,16 @@ import Collapse from '@material-ui/core/Collapse';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
+import { AutocompleteField, CheckField, DateField, Field } from '../components/Field';
 import {
-  AutocompleteField,
-  CheckField,
-  DateField,
-  Field,
-} from '../components/Field';
-import { TextField, Form, FormCancelButton, FormSubmitButton, FormSubmitCancelRow, FormGrid, useDateTimeFormat } from '@tamanu/ui-components';
+  TextField,
+  Form,
+  FormCancelButton,
+  FormSubmitButton,
+  FormSubmitCancelRow,
+  FormGrid,
+  useDateTimeFormat,
+} from '@tamanu/ui-components';
 import { Colors } from '../constants/styles';
 import { foreignKey } from '../utils/validation';
 import { TranslatedText } from '../components/Translation/TranslatedText';
@@ -55,7 +58,7 @@ export const OngoingConditionForm = ({
   diagnosisSuggester,
   onDelete,
 }) => {
-  const { getCurrentDateTimeString } = useDateTimeFormat();
+  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const RenderForm = ({ submitForm, values }) => {
@@ -261,8 +264,8 @@ export const OngoingConditionForm = ({
       onSubmit={onDataSubmit}
       render={RenderForm}
       initialValues={{
-        recordedDate: getCurrentDateTimeString(),
-        resolutionDate: getCurrentDateTimeString(),
+        recordedDate: getCountryCurrentDateTimeString(),
+        resolutionDate: getCountryCurrentDateTimeString(),
         resolved: false,
         ...editedObject,
       }}
