@@ -522,6 +522,7 @@ medication.post(
         encounter.encounterType,
         encounter.startDate,
         facilitySettings,
+        { transaction },
       );
 
       // Create new prescriptions for this encounter based on the original ongoing prescriptions
