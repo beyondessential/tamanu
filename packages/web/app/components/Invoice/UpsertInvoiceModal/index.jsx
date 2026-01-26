@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, TranslatedText } from '@tamanu/ui-components';
+import { Modal, TranslatedText, useDateTimeFormat } from '@tamanu/ui-components';
 import { INVOICE_DISCOUNT_TYPES } from '../../../constants';
 import { InvoiceDiscountTypeSelector } from './InvoiceDiscountTypeSelector';
 import { InvoiceDiscountAssessmentForm } from './InvoiceDiscountAssessmentForm';
@@ -7,7 +7,6 @@ import { InvoiceDiscountManualForm } from './InvoiceDiscountManualForm';
 import { useCreateInvoice } from '../../../api/mutations/useInvoiceMutation';
 import { useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
-import { useDateTimeFormat } from '@tamanu/ui-components';
 
 const ACTIVE_VIEW = {
   DISCOUNT_TYPE_SELECTOR: 'discountTypeSelector',
@@ -24,7 +23,7 @@ export const UpsertInvoiceModal = ({
   onCreateSuccess,
 }) => {
   const { facilityId } = useAuth();
-  const { getCurrentDateTimeString } = useDateTimeFormat();
+  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
   const api = useApi();
   const isCreating = !invoice?.id;
 
@@ -69,7 +68,7 @@ export const UpsertInvoiceModal = ({
 
     if (isCreating) {
       createInvoice(
-        { encounterId, facilityId, date: getCurrentDateTimeString(), ...payload },
+        { encounterId, facilityId, date: getCountryCurrentDateTimeString(), ...payload },
         { onSuccess: onCreateSuccess },
       );
     } else {

@@ -7,14 +7,14 @@ import { TranslatedEnum } from '../components/Translation/TranslatedEnum';
 
 
 export const ChangeEncounterTypeForm = ({ onSubmit, onCancel, encounter, initialNewType }) => {
-  const { getCurrentDateTimeString } = useDateTimeFormat();
+  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
   
   return (
     <Form
       initialValues={{
         encounterType: initialNewType,
         // Used in creation of associated notes
-        submittedTime: getCurrentDateTimeString(),
+        submittedTime: getCountryCurrentDateTimeString(),
       }}
       formType={FORM_TYPES.EDIT_FORM}
       render={({ submitForm, values }) => {

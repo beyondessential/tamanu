@@ -8,17 +8,23 @@ import { ChangeEncounterTypeForm } from '../forms/ChangeEncounterTypeForm';
 export const ChangeEncounterTypeModal = React.memo(({ open, encounter, onClose, newType }) => {
   const { writeAndViewEncounter } = useEncounter();
   const { navigateToEncounter } = usePatientNavigation();
-  const { getCurrentDateTimeString } = useDateTimeFormat();
+  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
   const changeEncounterType = useCallback(
-    async (data) => {
+    async data => {
       await writeAndViewEncounter(encounter.id, {
         ...data,
-        submittedTime: getCurrentDateTimeString(),
+        submittedTime: getCountryCurrentDateTimeString(),
       });
       navigateToEncounter(encounter.id);
       onClose();
     },
-    [encounter, onClose, writeAndViewEncounter, navigateToEncounter],
+    [
+      encounter,
+      onClose,
+      writeAndViewEncounter,
+      navigateToEncounter,
+      getCountryCurrentDateTimeString,
+    ],
   );
 
   return (

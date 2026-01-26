@@ -9,7 +9,7 @@ import { AutocompleteField, Field, } from '../components/Field';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) => {
-  const { getCurrentDateTimeString } = useDateTimeFormat();
+  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
   const renderForm = ({ submitForm }) => (
     <FormGrid columns={1} data-testid="formgrid-5e62">
       <Field
@@ -55,7 +55,7 @@ export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) 
     <Form
       initialValues={{
         // Used in creation of associated notes
-        submittedTime: getCurrentDateTimeString(),
+        submittedTime: getCountryCurrentDateTimeString(),
       }}
       validationSchema={yup.object().shape({
         examinerId: yup

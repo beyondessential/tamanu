@@ -10,7 +10,7 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const ChangeDepartmentForm = ({ onCancel, departmentSuggester, onSubmit }) => {
   const { encounter } = useEncounter();
-  const { getCurrentDateTimeString } = useDateTimeFormat();
+  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
   const renderForm = ({ submitForm }) => (
     <FormGrid columns={1} data-testid="formgrid-ln39">
       <Field
@@ -47,7 +47,7 @@ export const ChangeDepartmentForm = ({ onCancel, departmentSuggester, onSubmit }
       initialValues={{
         departmentId: encounter.departmentId,
         // Used in creation of associated notes
-        submittedTime: getCurrentDateTimeString(),
+        submittedTime: getCountryCurrentDateTimeString(),
       }}
       formType={FORM_TYPES.EDIT_FORM}
       validationSchema={yup.object().shape({

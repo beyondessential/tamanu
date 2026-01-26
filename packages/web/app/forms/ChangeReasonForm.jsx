@@ -11,7 +11,7 @@ import { useTranslation } from '../contexts/Translation';
 
 export const ChangeReasonForm = ({ onCancel, onSubmit, reasonForEncounter }) => {
   const { getTranslation } = useTranslation();
-  const { getCurrentDateTimeString } = useDateTimeFormat();
+  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
   const renderForm = ({ submitForm }) => (
     <FormGrid columns={1} data-testid="formgrid-srim">
       <Field
@@ -45,7 +45,7 @@ export const ChangeReasonForm = ({ onCancel, onSubmit, reasonForEncounter }) => 
     <Form
       initialValues={{
         // Used in creation of associated notes
-        submittedTime: getCurrentDateTimeString(),
+        submittedTime: getCountryCurrentDateTimeString(),
         reasonForEncounter,
       }}
       formType={FORM_TYPES.EDIT_FORM}

@@ -26,7 +26,7 @@ import { TranslatedReferenceData } from '../../components';
 const SurveyFlow = ({ patient, currentUser }) => {
   const api = useApi();
   const { facilityId } = useAuth();
-  const { getCurrentDateTimeString } = useDateTimeFormat();
+  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
   const params = useParams();
   const queryClient = useQueryClient();
   const dispatch = useDispatch();
@@ -57,7 +57,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
     async id => {
       const response = await api.get(`survey/${encodeURIComponent(id)}`);
       setSurvey(response);
-      setStartTime(getCurrentDateTimeString());
+      setStartTime(getCountryCurrentDateTimeString());
     },
     [api],
   );
@@ -103,7 +103,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
       surveyId: survey.id,
       startTime,
       patientId: patient.id,
-      endTime: getCurrentDateTimeString(),
+      endTime: getCountryCurrentDateTimeString(),
       answers: await getAnswersFromData(data, survey),
       facilityId,
     });

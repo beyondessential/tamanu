@@ -71,14 +71,14 @@ const validationSchema = yup.object().shape({
 });
 
 export const MedicationPauseModal = ({ medication, onPause, onClose }) => {
-  const { getCurrentDateTimeString } = useDateTimeFormat();
+  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
   const { encounter } = useEncounter();
   const api = useApi();
 
   const onSubmit = async data => {
     await api.post(`medication/${medication.id}/pause`, {
       ...data,
-      pauseStartDate: getCurrentDateTimeString(),
+      pauseStartDate: getCountryCurrentDateTimeString(),
     });
     onPause();
     onClose();

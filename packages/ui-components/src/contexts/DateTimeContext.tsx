@@ -30,9 +30,9 @@ export interface DateTimeContextValue extends WrappedFormatters {
   countryTimeZone: string;
   facilityTimeZone?: string | null;
   /** Get current datetime string in country timezone (for initial values / persistence) */
-  getCurrentDateTimeString: () => string;
+  getCountryCurrentDateTimeString: () => string;
   /** Get current date string in country timezone (for initial values / persistence) */
-  getCurrentDateString: () => string;
+  getCountryCurrentDateString: () => string;
   /** Get current datetime string in facility timezone (for UI display / validation) */
   getFacilityCurrentDateTimeString: () => string;
   /** Get current date string in facility timezone (for UI display / validation) */
@@ -85,8 +85,8 @@ export const DateTimeProvider = ({
       countryTimeZone,
       facilityTimeZone,
       ...(mapValues(dateTimeFormatters, wrapFunction) as WrappedFormatters),
-      getCurrentDateTimeString: () => getCurrentDateTimeStringInTimezone(countryTimeZone),
-      getCurrentDateString: () => getCurrentDateStringInTimezone(countryTimeZone),
+      getCountryCurrentDateTimeString: () => getCurrentDateTimeStringInTimezone(countryTimeZone),
+      getCountryCurrentDateString: () => getCurrentDateStringInTimezone(countryTimeZone),
       getFacilityCurrentDateTimeString: () =>
         getCurrentDateTimeStringInTimezone(facilityTimeZone ?? countryTimeZone),
       getFacilityCurrentDateString: () =>

@@ -90,9 +90,9 @@ export const ProcedureModal = ({
   editedProcedure,
   setEditedProcedure,
 }) => {
-  const api = useApi();
+  const api = useApi(); 
   const { currentUser } = useAuth();
-  const { getCurrentDateTimeString } = useDateTimeFormat();
+  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
   const { patientId } = useParams();
   const { data: patient } = usePatientDataQuery(patientId);
   const [refreshCount, updateRefreshCount] = useRefreshCount();
@@ -297,8 +297,8 @@ export const ProcedureModal = ({
         );
       }}
       initialValues={{
-        date: getCurrentDateTimeString(),
-        startTime: getCurrentDateTimeString(),
+        date: getCountryCurrentDateTimeString(),
+        startTime: getCountryCurrentDateTimeString(),
         physicianId: currentUser.id,
         assistantClinicianIds:
           editedProcedure?.assistantClinicians?.map(clinician => clinician.id) || [],

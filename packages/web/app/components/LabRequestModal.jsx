@@ -21,10 +21,10 @@ const SECTION_TITLES = {
   [LAB_REQUEST_FORM_TYPES.PANEL]: 'Panel',
 };
 
-const useLabRequestsQuery = (labRequestIds) => {
+const useLabRequestsQuery = labRequestIds => {
   const api = useApi();
   const queries = useQueries({
-    queries: labRequestIds.map((labRequestId) => {
+    queries: labRequestIds.map(labRequestId => {
       return {
         queryKey: ['labRequest', labRequestId],
         queryFn: () => api.get(`labRequest/${labRequestId}`),
@@ -38,7 +38,7 @@ const useLabRequestsQuery = (labRequestIds) => {
 export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
   const [requestFormType, setRequestFormType] = useState(null);
   const [newLabRequestIds, setNewLabRequestIds] = useState([]);
-  const { getCurrentDateString, getCurrentDateTimeString } = useDateTimeFormat();
+  const { getCountryCurrentDateString, getCountryCurrentDateTimeString } = useDateTimeFormat();
   const api = useApi();
   const { loadEncounter } = useEncounter();
   const { isSuccess, isLoading, data: newLabRequests } = useLabRequestsQuery(newLabRequestIds);
@@ -49,20 +49,20 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
     baseQueryParameters: { filterByFacility: true },
   });
 
-  const handleSubmit = async (data) => {
+  const handleSubmit = async data => {
     const { notes, ...rest } = data;
     const response = await api.post('labRequest', {
       ...rest,
       encounterId: encounter.id,
       labTest: {
-        date: getCurrentDateString(),
+        date: getCountryCurrentDateString(),
       },
       note: {
-        date: getCurrentDateTimeString(),
+        date: getCountryCurrentDateTimeString(),
         content: notes,
       },
     });
-    setNewLabRequestIds(response.map((request) => request.id));
+    setNewLabRequestIds(response.map(request => request.id));
   };
 
   const handleClose = async () => {
