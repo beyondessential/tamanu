@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 
-import { generateId } from '@tamanu/utils/generateId';
+import { generateId, generateIdFromPattern } from '@tamanu/utils/generateId';
 
 import { FormModal } from '../../../components';
 import { NewPatientForm } from '../../../forms';
@@ -10,10 +10,13 @@ import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useAuth } from '../../../contexts/Auth';
 import { DuplicatePatientWarningModal } from './DuplicatePatientWarningModal';
 import { CancelNewPatientConfirmationModal } from './CancelNewPatientConfirmationModal';
+import { useSettings } from '@tamanu/ui-components';
 
 export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formProps }) => {
   const api = useApi();
+  const { getSetting } = useSettings();
   const { facilityId } = useAuth();
+  const patientDisplayIdPattern = getSetting('patientDisplayIdPattern');
 
   const [cancelNewPatientModalOpen, setCancelNewPatientModalOpen] = useState(false);
   const [duplicateWarningModalOpen, setDuplicateWarningModalOpen] = useState(false);
@@ -26,7 +29,7 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
   const confirmUniquePatientWithUser = async () =>
     new Promise(resolve => {
       setResolveFn(() => resolve); // Save resolve to use in onConfirm/onCancel
-      setDuplicateWarningModalOpen(true);
+      setDuplicateWarningModalOpen(true); 
     });
 
   const onSubmit = useCallback(
@@ -73,7 +76,11 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
         data-testid="formmodal-jc02"
       >
         <NewPatientForm
-          generateId={generateId}
+          generateId={() =>
+            patientDisplayIdPattern
+              ? generateIdFromPattern(patientDisplayIdPattern)
+              : generateId()
+          }
           onCancel={() => setCancelNewPatientModalOpen(true)}
           onSubmit={onSubmit}
           {...formProps}
