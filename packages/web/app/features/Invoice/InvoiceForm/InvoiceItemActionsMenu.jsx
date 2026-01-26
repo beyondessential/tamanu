@@ -16,6 +16,16 @@ const useInvoiceItemActionsMenu = ({ item, index, hidePriceInput, onUpdateInvoic
     setActionModal(undefined);
   };
 
+  const handleApproval = (approved) => {
+    const updatedInvoiceItems = [...values.invoiceItems];
+    updatedInvoiceItems[index] = {
+      ...item,
+      approved,
+    };
+
+    onUpdateInvoice({ ...values, invoiceItems: updatedInvoiceItems });
+  };
+
   const handleAction = async (data, type = actionModal) => {
     const updatedInvoiceItems = [...values.invoiceItems];
 
@@ -135,6 +145,28 @@ const useInvoiceItemActionsMenu = ({ item, index, hidePriceInput, onUpdateInvoic
       disabled: !item.productId,
       hidden: !!item.sourceId,
     },
+    ...item.approved ? [{
+      label: (
+        <TranslatedText
+          stringId="invoice.editInvoice.removeApproval"
+          fallback="Remove approval"
+          data-testid="translatedtext-y43b"
+        />
+      ),
+      onClick: () => handleApproval(false),
+    }
+    ] : [
+      {
+        label: (
+          <TranslatedText
+            stringId="invoice.editInvoice.markAsApproved"
+            fallback="Mark as approved"
+            data-testid="translatedtext-c3a4"
+          />
+        ),
+        onClick: () => handleApproval(true),
+      },
+    ],
     {
       label: (
         <TranslatedText

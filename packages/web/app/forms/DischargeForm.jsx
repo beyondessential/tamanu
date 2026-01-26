@@ -3,19 +3,18 @@ import React, { useCallback, useEffect, useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import {
-  REPEATS_LABELS,
   FORM_TYPES,
   SUBMIT_ATTEMPTED_STATUS,
   ENCOUNTER_TYPES,
   MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
-  NOTE_TYPES
+  NOTE_TYPES,
+  MAX_REPEATS,
 } from '@tamanu/constants';
 import CloseIcon from '@material-ui/icons/Close';
 import { isFuture, parseISO, set } from 'date-fns';
 import {
   TextField,
   StyledTextField,
-  TranslatedSelectField,
   TextInput,
   FormGrid,
   FormConfirmCancelBackRow,
@@ -55,7 +54,7 @@ import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOn
 import { useQueryClient } from '@tanstack/react-query';
 import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
 import { createPrescriptionHash } from '../utils/medications';
-import { singularize } from '../utils';
+import { preventInvalidRepeatsInput, singularize } from '../utils';
 
 const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
@@ -379,14 +378,16 @@ const MEDICATION_COLUMNS = (
     accessor: ({ id, medication }) => (
       <Field
         name={`medications.${id}.repeats`}
-        isClearable={false}
-        component={TranslatedSelectField}
-        enumValues={REPEATS_LABELS}
+        component={NumberFieldWithoutLabel}
+        min={0}
+        max={MAX_REPEATS}
         data-testid="field-ium3"
         disabled={
           !canUpdateMedication ||
           (medication?.referenceDrug?.isSensitive && !canWriteSensitiveMedication)
         }
+        step={1}
+        onInput={preventInvalidRepeatsInput}
       />
     ),
     width: '120px',
@@ -836,6 +837,22 @@ export const DischargeForm = ({
                 data-testid="translatedtext-542l"
               />,
             ),
+          medications: yup.lazy(obj =>
+            yup.object(
+              Object.keys(obj || {}).reduce((acc, key) => {
+                acc[key] = yup.object().shape({
+                  repeats: yup
+                    .number()
+                    .integer()
+                    .min(0)
+                    .max(MAX_REPEATS)
+                    .nullable()
+                    .optional(),
+                });
+                return acc;
+              }, {}),
+            ),
+          ),
           discharge: yup
             .object()
             .shape({

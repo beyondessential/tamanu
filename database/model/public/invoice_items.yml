@@ -103,6 +103,11 @@ sources:
             description: "{{ doc('generic__updated_at_sync_tick') }} in invoice_items."
             data_tests:
               - not_null
+          - name: approved
+            data_type: boolean
+            description: "{{ doc('invoice_items__approved') }}"
+            data_tests:
+              - not_null
           - name: price_final
             data_type: numeric
             description: "{{ doc('invoice_items__price_final') }}"

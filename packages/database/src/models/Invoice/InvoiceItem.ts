@@ -14,6 +14,7 @@ export class InvoiceItem extends Model {
   declare productId?: string;
   declare quantity: number;
   declare note?: string;
+  declare approved: boolean;
   declare sourceRecordType?: string;
   declare sourceRecordId?: string;
   declare productNameFinal?: string;
@@ -65,6 +66,11 @@ export class InvoiceItem extends Model {
         productCodeFinal: {
           type: DataTypes.STRING,
           allowNull: true,
+        },
+        approved: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
         },
       },
       { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },

@@ -49,3 +49,7 @@ The final product code used on the invoice. Saved from the product code field wh
 {% docs invoice_items__price_final %}
 The final price per unit for this item on the invoice. This is determined by the manual_entry_price if provided, otherwise from the product's price when the invoice is finalised.
 {% enddocs %}
+
+{% docs invoice_items__approved %}
+A boolean field that enables clinicians to track the approval status of individual invoice line items
+{% enddocs %}

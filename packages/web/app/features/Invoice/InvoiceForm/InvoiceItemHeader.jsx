@@ -35,6 +35,13 @@ export const InvoiceItemHeader = () => {
       <ItemHeadCell $width={CELL_WIDTHS.QUANTITY}>
         <TranslatedText stringId="invoice.table.column.quantity" fallback="Quantity" />
       </ItemHeadCell>
+      <ItemHeadCell $width={CELL_WIDTHS.APPROVED}>
+        <TranslatedText
+          stringId="invoice.modal.editInvoice.approved.label"
+          fallback="Approved"
+          data-testid="translatedtext-q46f"
+        />
+      </ItemHeadCell>
       <ItemHeadCell $width={CELL_WIDTHS.ORDERED_BY}>
         <TranslatedText
           stringId="invoice.modal.editInvoice.orderedBy.label"
