@@ -1,5 +1,5 @@
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
-import {  toDateTimeString } from '@tamanu/utils/dateTime';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { sub, addDays } from 'date-fns';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
@@ -57,7 +57,9 @@ describe('GenerateMedicationAdministrationRecords', () => {
 
     // Reset mocks
     jest.clearAllMocks();
-    jest.spyOn(models.MedicationAdministrationRecord, 'generateMedicationAdministrationRecords').mockImplementation(async () => {});
+    jest
+      .spyOn(models.MedicationAdministrationRecord, 'generateMedicationAdministrationRecords')
+      .mockImplementation(async () => {});
     jest
       .spyOn(models.MedicationAdministrationRecord, 'removeInvalidMedicationAdministrationRecords')
       .mockResolvedValue(undefined);
@@ -104,7 +106,7 @@ describe('GenerateMedicationAdministrationRecords', () => {
   describe('generating medication administration records', () => {
     it('should generate medication administration records for active prescriptions in active encounters', async () => {
       const { prescription } = await createPrescription();
-      
+
       await task.run();
 
       expect(

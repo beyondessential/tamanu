@@ -87,6 +87,7 @@ export class GenerateMedicationAdministrationRecords extends ScheduledTask {
         ...baseQueryOptions,
         offset: i * batchSize,
         limit: batchSize,
+        order: [['id', 'ASC']],
       });
 
       for (const prescription of prescriptions) {
