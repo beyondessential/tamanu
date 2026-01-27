@@ -10,7 +10,7 @@ export const SETTING_KEYS = {
   SYNC_ALL_LAB_REQUESTS: 'sync.syncAllLabRequests',
   SYNC_URGENT_INTERVAL_IN_SECONDS: 'sync.urgentIntervalInSeconds',
   INTEGRATIONS_IMAGING: 'integrations.imaging',
-  FEATURES_DEVICE_REGISTRATION_QUOTA_ENABLED: 'features.deviceRegistrationQuota.enabled',
+  FEATURES_DEVICE_REGISTRATION_ENABLED: 'features.deviceRegistration.enabled',
   FEATURES_DESKTOP_CHARTING_ENABLED: 'features.desktopCharting.enabled',
   FEATURES_MANDATORY_CHARTING_EDIT_REASON: 'features.mandatoryChartingEditReason',
   FEATURES_ENABLE_CHARTING_EDIT: 'features.enableChartingEdit',
