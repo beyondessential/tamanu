@@ -1,13 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Modal } from '../../components/Modal';
-import { TranslatedText } from '../../components/Translation';
-import { ModalFormActionRow } from '../../components/ModalActionRow';
-import { customAlphabet } from 'nanoid';
-import { round, formatDisplayPrice } from '@tamanu/shared/utils/invoice';
 import * as yup from 'yup';
 import Decimal from 'decimal.js';
 import { Box } from '@material-ui/core';
+import { customAlphabet } from 'nanoid';
 import { FORM_TYPES } from '@tamanu/constants';
 import {
   AutocompleteField,
@@ -20,8 +16,17 @@ import {
   TAMANU_COLORS,
   TextButton,
 } from '@tamanu/ui-components';
+import { round, formatDisplayPrice } from '@tamanu/shared/utils/invoice';
+import { Modal } from '../../components/Modal';
+import { TranslatedText } from '../../components/Translation';
+import { ModalFormActionRow } from '../../components/ModalActionRow';
 import { useCreatePatientPayment, useUpdatePatientPayment } from '../../api/mutations';
 import { CHEQUE_PAYMENT_METHOD_ID } from '../../constants';
+
+const RECEIPT_NUMBER_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ123456789';
+const RECEIPT_NUMBER_LENGTH = 8;
+const DECIMAL_PLACES = 2;
+const ALPHANUMERIC_PATTERN = /^[A-Za-z0-9]+$/;
 
 const StyledModal = styled(Modal)`
   .MuiPaper-root {
@@ -87,13 +92,37 @@ const PayBalanceButton = styled(TextButton)`
   text-transform: none;
 `;
 
+const generateReceiptNumber = () =>
+  customAlphabet(RECEIPT_NUMBER_ALPHABET, RECEIPT_NUMBER_LENGTH)();
+
+const normalizeAmount = value => {
+  if (!value && value !== 0) return '';
+
+  try {
+    const decimal = new Decimal(value);
+    if (decimal.isNegative()) return '0';
+    return decimal.toDecimalPlaces(DECIMAL_PLACES).toString();
+  } catch {
+    return value;
+  }
+};
+
+const calculateMaxAllowedAmount = (editingPayment, patientPaymentRemainingBalance) => {
+  const editingAmount = editingPayment?.amount
+    ? new Decimal(editingPayment.amount)
+    : new Decimal(0);
+  return new Decimal(patientPaymentRemainingBalance)
+    .add(editingAmount)
+    .toDecimalPlaces(DECIMAL_PLACES);
+};
+
 const getValidationSchema = (editingPayment, patientPaymentRemainingBalance) =>
   yup.object().shape({
     date: yup.string().required(<TranslatedText stringId="general.required" fallback="Required" />),
     methodId: yup
       .string()
       .required(<TranslatedText stringId="general.required" fallback="Required" />),
-    chequeNumber: yup.string().matches(/^[A-Za-z0-9]+$/, {
+    chequeNumber: yup.string().matches(ALPHANUMERIC_PATTERN, {
       message: (
         <TranslatedText
           stringId="invoice.payment.validation.invalidChequeNumber"
@@ -115,13 +144,10 @@ const getValidationSchema = (editingPayment, patientPaymentRemainingBalance) =>
         function(value) {
           try {
             const inputAmount = new Decimal(value);
-            const editingAmount = editingPayment?.amount
-              ? new Decimal(editingPayment.amount)
-              : new Decimal(0);
-            const maxAllowed = new Decimal(patientPaymentRemainingBalance)
-              .add(editingAmount)
-              .toDecimalPlaces(2);
-
+            const maxAllowed = calculateMaxAllowedAmount(
+              editingPayment,
+              patientPaymentRemainingBalance,
+            );
             return inputAmount.lessThanOrEqualTo(maxAllowed);
           } catch {
             return false;
@@ -137,22 +163,6 @@ const CheckNumberField = ({ selectedPaymentMethodId, showChequeNumberColumn }) =
   return showChequeNumberColumn ? <Box width="15%" data-testid="box-5e2q" /> : null;
 };
 
-const generateReceiptNumber = () => {
-  return customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ123456789', 8)();
-};
-
-const normalizeAmount = value => {
-  if (!value && value !== 0) return '';
-
-  try {
-    const decimal = new Decimal(value);
-    if (decimal.isNegative()) return '0';
-    return decimal.toDecimalPlaces(2).toString();
-  } catch {
-    return value;
-  }
-};
-
 export const PatientPaymentModal = ({
   isOpen,
   onClose,
@@ -162,16 +172,18 @@ export const PatientPaymentModal = ({
   selectedPaymentRecord,
 }) => {
   const [displayAmount, setDisplayAmount] = useState(patientPaymentRemainingBalance);
-  const decimalDisplayAmount = new Decimal(displayAmount);
-  const isNegativeDisplayAmount = decimalDisplayAmount.isNegative();
-  const paymentRecord = selectedPaymentRecord ?? {};
-  const selectedPaymentMethodId = paymentRecord.paymentMethod?.value;
-  const paymentMethodSuggester = useSuggester('paymentMethod');
 
+  const paymentRecord = selectedPaymentRecord ?? {};
+  const isEditMode = !!paymentRecord.id;
+  const selectedPaymentMethodId = paymentRecord.paymentMethod?.value;
+  const isNegativeDisplayAmount = new Decimal(displayAmount).isNegative();
+  const validationSchema = getValidationSchema(paymentRecord, patientPaymentRemainingBalance);
+
+  const paymentMethodSuggester = useSuggester('paymentMethod');
   const { mutate: createPatientPayment } = useCreatePatientPayment(invoice);
   const { mutate: updatePatientPayment } = useUpdatePatientPayment(invoice, paymentRecord.id);
 
-  const onChangeAmount = event => {
+  const handleAmountChange = event => {
     const normalizedValue = normalizeAmount(event.target.value);
     event.target.value = normalizedValue;
 
@@ -180,52 +192,48 @@ export const PatientPaymentModal = ({
       return;
     }
 
-    const remainingAmount = new Decimal(patientPaymentRemainingBalance)
+    let remainingAmount = new Decimal(patientPaymentRemainingBalance)
       .minus(normalizedValue)
       .toNumber();
-    setDisplayAmount(round(remainingAmount, 2));
+
+    if (isEditMode) {
+      remainingAmount = new Decimal(remainingAmount).plus(paymentRecord.amount).toNumber();
+    }
+
+    setDisplayAmount(round(remainingAmount, DECIMAL_PLACES));
+  };
+
+  const handlePayBalance = setFieldValue => {
+    setFieldValue('amount', patientPaymentRemainingBalance);
+    setDisplayAmount(0);
   };
 
   const handleSubmit = data => {
-    const { amount, ...others } = data;
+    const formattedAmount = new Decimal(data.amount).toDecimalPlaces(DECIMAL_PLACES).toString();
     const chequeNumber =
       selectedPaymentMethodId === CHEQUE_PAYMENT_METHOD_ID ? data.chequeNumber : '';
 
-    const formattedAmount = new Decimal(amount).toDecimalPlaces(2).toString();
+    const paymentData = {
+      ...data,
+      chequeNumber,
+      amount: formattedAmount,
+    };
 
-    if (!paymentRecord.id) {
-      const receiptNumber = generateReceiptNumber();
+    const mutation = isEditMode ? updatePatientPayment : createPatientPayment;
+    const submitData = isEditMode
+      ? paymentData
+      : { ...paymentData, receiptNumber: generateReceiptNumber() };
 
-      createPatientPayment(
-        {
-          ...others,
-          receiptNumber,
-          chequeNumber,
-          amount: formattedAmount,
-        },
-        {
-          onSuccess: () => {
-            onClose();
-          },
-        },
-      );
-    } else {
-      updatePatientPayment(
-        {
-          ...others,
-          chequeNumber,
-          amount: formattedAmount,
-        },
-        {
-          onSuccess: () => {
-            onClose();
-          },
-        },
-      );
-    }
+    mutation(submitData, { onSuccess: onClose });
   };
 
-  const validationSchema = getValidationSchema(paymentRecord, patientPaymentRemainingBalance);
+  const initialValues = {
+    date: paymentRecord.date,
+    methodId: paymentRecord.patientPayment?.methodId,
+    chequeNumber: paymentRecord.patientPayment?.chequeNumber,
+    amount: paymentRecord.amount,
+    receiptNumber: paymentRecord.receiptNumber,
+  };
 
   return (
     <StyledModal
@@ -257,6 +265,10 @@ export const PatientPaymentModal = ({
         enableReinitialize
         suppressErrorDialog
         onSubmit={handleSubmit}
+        validationSchema={validationSchema}
+        initialValues={initialValues}
+        formType={isEditMode ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
+        data-testid="form-gsr7"
         render={({ setFieldValue }) => (
           <>
             <FormCard>
@@ -271,6 +283,7 @@ export const PatientPaymentModal = ({
                   <TranslatedText stringId="general.date.amount" fallback="Amount" />
                 </Label>
               </LabelRow>
+
               <FormFields>
                 <Field
                   name="date"
@@ -288,20 +301,14 @@ export const PatientPaymentModal = ({
                   selectedPaymentMethodId={selectedPaymentMethodId}
                   showChequeNumberColumn={showChequeNumberColumn}
                 />
-
                 <Field
                   name="amount"
                   component={NumberField}
-                  onChange={onChangeAmount}
+                  onChange={handleAmountChange}
                   min={0}
                   data-testid="field-773f"
                 />
-                <PayBalanceButton
-                  onClick={() => {
-                    setFieldValue('amount', patientPaymentRemainingBalance);
-                    setDisplayAmount(0);
-                  }}
-                >
+                <PayBalanceButton onClick={() => handlePayBalance(setFieldValue)}>
                   <TranslatedText
                     stringId="invoice.modal.recordPayment.payBalance"
                     fallback="Pay balance"
@@ -317,16 +324,6 @@ export const PatientPaymentModal = ({
             />
           </>
         )}
-        validationSchema={validationSchema}
-        initialValues={{
-          date: paymentRecord.date,
-          methodId: paymentRecord.patientPayment?.methodId,
-          chequeNumber: paymentRecord.patientPayment?.chequeNumber,
-          amount: paymentRecord.amount,
-          receiptNumber: paymentRecord.receiptNumber,
-        }}
-        formType={paymentRecord.DateField ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
-        data-testid="form-gsr7"
       />
     </StyledModal>
   );
