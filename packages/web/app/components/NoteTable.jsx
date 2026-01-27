@@ -200,7 +200,7 @@ const NoteContent = ({
         </NoteContentContainer>
         {hasIndividualNotePermission &&
           hasEncounterNoteWritePermission &&
-          note.noteType !== NOTE_TYPES.SYSTEM && (
+          ![NOTE_TYPES.SYSTEM, NOTE_TYPES.CLINICAL_MOBILE].includes(note.noteType) && (
             <StyledEditIcon
               onClick={() => handleEditNote(note)}
               data-testid="styledediticon-nmdz"
