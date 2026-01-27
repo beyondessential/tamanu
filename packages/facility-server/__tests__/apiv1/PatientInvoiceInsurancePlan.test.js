@@ -1,7 +1,12 @@
+import config from 'config';
+
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+
 import { createTestContext } from '../utilities';
 
 describe('PatientInvoiceInsurancePlan', () => {
+  const [facilityId] = selectFacilityIds(config);
   let patient = null;
   let insurancePlan1 = null;
   let insurancePlan2 = null;
@@ -16,6 +21,11 @@ describe('PatientInvoiceInsurancePlan', () => {
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
+    await models.Facility.upsert({
+      id: facilityId,
+      name: facilityId,
+      code: facilityId,
+    });
     patient = await models.Patient.create(await createDummyPatient(models));
     insurancePlan1 = await models.InvoiceInsurancePlan.create({
       code: 'PLAN-PRIMARY',
@@ -43,6 +53,7 @@ describe('PatientInvoiceInsurancePlan', () => {
   it('should create new patient invoice insurance plan if it is in the list of insurance plans and not exist before', async () => {
     const result = await app.put(`/api/patient/${patient.id}`).send({
       invoiceInsurancePlanId: JSON.stringify([insurancePlan1.id, insurancePlan2.id, insurancePlan3.id]),
+      facilityId,
     });
     expect(result).toHaveSucceeded();
 
@@ -57,6 +68,7 @@ describe('PatientInvoiceInsurancePlan', () => {
     // Create the patient invoice insurance plan
     const firstUpdateResult = await app.put(`/api/patient/${patient.id}`).send({
       invoiceInsurancePlanId: JSON.stringify([insurancePlan1.id, insurancePlan2.id, insurancePlan3.id]),
+      facilityId,
     });
     expect(firstUpdateResult).toHaveSucceeded();
 
@@ -69,6 +81,7 @@ describe('PatientInvoiceInsurancePlan', () => {
     // Soft delete the patient invoice insurance plan
     const secondUpdateResult = await app.put(`/api/patient/${patient.id}`).send({
       invoiceInsurancePlanId: JSON.stringify([insurancePlan1.id]),
+      facilityId,
     });
     expect(secondUpdateResult).toHaveSucceeded();
 
@@ -85,6 +98,7 @@ describe('PatientInvoiceInsurancePlan', () => {
     // Create the patient invoice insurance plan
     const firstUpdateResult = await app.put(`/api/patient/${patient.id}`).send({
       invoiceInsurancePlanId: JSON.stringify([insurancePlan1.id, insurancePlan2.id, insurancePlan3.id]),
+      facilityId,
     });
     expect(firstUpdateResult).toHaveSucceeded();
 
@@ -97,6 +111,7 @@ describe('PatientInvoiceInsurancePlan', () => {
     // Soft delete the patient invoice insurance plan
     const secondUpdateResult = await app.put(`/api/patient/${patient.id}`).send({
       invoiceInsurancePlanId: JSON.stringify([insurancePlan1.id]),
+      facilityId,
     });
     expect(secondUpdateResult).toHaveSucceeded();
 
@@ -111,6 +126,7 @@ describe('PatientInvoiceInsurancePlan', () => {
     // Restore the patient invoice insurance plan
     const thirdUpdateResult = await app.put(`/api/patient/${patient.id}`).send({
       invoiceInsurancePlanId: JSON.stringify([insurancePlan1.id, insurancePlan2.id, insurancePlan3.id]),
+      facilityId,
     });
     expect(thirdUpdateResult).toHaveSucceeded();
 
@@ -127,6 +143,7 @@ describe('PatientInvoiceInsurancePlan', () => {
     // Create the patient invoice insurance plan
     const firstUpdateResult = await app.put(`/api/patient/${patient.id}`).send({
       invoiceInsurancePlanId: JSON.stringify([insurancePlan1.id, insurancePlan2.id, insurancePlan3.id]),
+      facilityId,
     });
     expect(firstUpdateResult).toHaveSucceeded();
 
@@ -139,6 +156,7 @@ describe('PatientInvoiceInsurancePlan', () => {
     // Delete all patient invoice insurance plans
     const secondUpdateResult = await app.put(`/api/patient/${patient.id}`).send({
       invoiceInsurancePlanId: JSON.stringify([]),
+      facilityId,
     });
     expect(secondUpdateResult).toHaveSucceeded();
 
