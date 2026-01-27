@@ -12,7 +12,7 @@ type FormGroupProps = {
 export const FormGroup = ({
   sectionName,
   children,
-  marginTop,
+  marginTop = null,
 }: FormGroupProps): ReactElement => (
   <StyledView
     marginTop={marginTop ? screenPercentageToDP(2.43, Orientation.Height) : 0}
@@ -30,6 +30,3 @@ export const FormGroup = ({
   </StyledView>
 );
 
-FormGroup.defaultProps = {
-  marginTop: null,
-};

@@ -23,7 +23,7 @@ export const SearchInput: FC<SearchInputProps> = ({
   value,
   onChange,
   placeholder,
-  disabled,
+  disabled = false,
 }: SearchInputProps) => {
   const [focus, setFocus] = useState(false);
 
@@ -60,8 +60,4 @@ export const SearchInput: FC<SearchInputProps> = ({
       />
     </RowView>
   );
-};
-
-SearchInput.defaultProps = {
-  disabled: false,
 };

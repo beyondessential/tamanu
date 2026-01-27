@@ -27,7 +27,7 @@ export interface PatientProgramRegistryProps extends BaseAppProps {
 const PatientProgramRegistryForm = ({ selectedPatient }: PatientProgramRegistryProps) => {
   return (
     <ErrorBoundary>
-      <Stack.Navigator headerMode="none">
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen
           name={Routes.HomeStack.PatientProgramRegistryFormStack.Index}
           component={SelectProgramRegistryForm}

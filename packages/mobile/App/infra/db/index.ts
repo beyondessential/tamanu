@@ -1,10 +1,12 @@
 import { Connection, ConnectionOptions, createConnection, getConnectionManager } from 'typeorm';
-import { typeORMDriver } from 'react-native-quick-sqlite'
+import { typeORMDriver, enableSimpleNullHandling } from 'react-native-nitro-sqlite'
 import { DevSettings } from 'react-native';
 
 import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
 import { clear } from '~/services/config';
 import { migrationList } from '~/migrations';
+
+enableSimpleNullHandling();
 
 const LOG_LEVELS = __DEV__
   ? [
