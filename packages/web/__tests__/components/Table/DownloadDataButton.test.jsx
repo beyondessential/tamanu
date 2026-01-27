@@ -14,7 +14,6 @@ import Chance from 'chance';
 import * as React from 'react';
 import { assert, describe, it, vi } from 'vitest';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
-import { DateTimeProvider } from '@tamanu/ui-components';
 import { DownloadDataButton } from '../../../app/components/Table/DownloadDataButton';
 import * as fileSystemAccess from '../../../app/utils/fileSystemAccess';
 import {
@@ -40,6 +39,17 @@ vi.mock('../../../app/utils/fileSystemAccess.js', async () => {
   };
 });
 
+/** Mock `useDateTimeFormat` to avoid needing full provider setup */
+vi.mock('@tamanu/ui-components', async () => {
+  const actual = await vi.importActual('@tamanu/ui-components');
+  return {
+    ...actual,
+    useDateTimeFormat: vi.fn(() => ({
+      getFacilityCurrentDateString: () => getCurrentDateString(),
+    })),
+  };
+});
+
 const chance = new Chance();
 
 const mockTranslations = { 'general.action.download': '🌐 Download 🌐' };
@@ -56,13 +66,8 @@ const mockTranslationContext = {
 const getTranslationSpy = vi.spyOn(mockTranslationContext, 'getTranslation');
 const saveFileSpy = vi.spyOn(fileSystemAccess, 'saveFile');
 
-/** {@link DownloadDataButton} must be rendered within a translation and datetime context */
-const render = (element) =>
-  renderElementWithTranslatedText(
-    <DateTimeProvider countryTimeZone="Pacific/Auckland">{element}</DateTimeProvider>,
-    null,
-    mockTranslationContext,
-  );
+/** {@link DownloadDataButton} must be rendered within a translation context */
+const render = element => renderElementWithTranslatedText(element, null, mockTranslationContext);
 
 describe('DownloadDataButton', () => {
   const columns = [
@@ -100,7 +105,7 @@ describe('DownloadDataButton', () => {
     const stringId = chance.string();
     const translationFallback = chance.string();
     const testId = chance.string();
-    const ExportButton = (props) => (
+    const ExportButton = props => (
       <button data-testid={testId} {...props}>
         <TranslatedText stringId={stringId} fallback={translationFallback} />
       </button>
