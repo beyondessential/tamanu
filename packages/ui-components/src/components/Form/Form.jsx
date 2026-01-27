@@ -212,13 +212,14 @@ export class Form extends React.PureComponent {
       originalSetValues(newValues);
     };
 
-    const { render, style } = this.props;
+    const { render, style, className } = this.props;
     const { showWarningForNonAsyncSubmitHandler } = this.state;
 
     return (
       <>
         {/* do not allow editing fields when form is being submitted */}
         <StyledForm
+          className={className}
           style={style}
           onSubmit={submitForm}
           noValidate

@@ -127,7 +127,7 @@ const SlidingFeeScaleSection = ({
       <InvoiceDiscountModal
         open={discountModalOpen}
         onClose={onClose}
-        onSubmit={handleUpdateDiscount}
+        handleUpdateDiscount={handleUpdateDiscount}
       />
     </>
   );

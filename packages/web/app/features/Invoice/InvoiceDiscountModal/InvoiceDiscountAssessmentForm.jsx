@@ -38,7 +38,7 @@ const validationSchema = yup.object().shape({
     ),
 });
 
-export const InvoiceDiscountAssessmentForm = ({ onClose, onSubmit }) => {
+export const InvoiceDiscountAssessmentForm = ({ onClose, handleUpdateDiscount }) => {
   const api = useApi();
   const [familySize, setFamilySize] = useState();
   const [percentage, setPercentage] = useState();
@@ -81,7 +81,7 @@ export const InvoiceDiscountAssessmentForm = ({ onClose, onSubmit }) => {
       appliedByUser: api?.user,
       appliedTime: new Date(),
     };
-    onSubmit(discount);
+    handleUpdateDiscount(discount);
   };
 
   return (
