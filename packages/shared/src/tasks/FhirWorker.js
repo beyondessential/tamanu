@@ -4,7 +4,7 @@ import ms from 'ms';
 import { hostname } from 'os';
 
 import { getTracer } from '../services/logging';
-import { FhirJobRunner } from './FhirJobRunner';
+import { FhirTopicJobRunner } from './FhirTopicJobRunner';
 
 export class FhirWorker {
   handlers = new Map();
@@ -24,6 +24,7 @@ export class FhirWorker {
     this.models = context.models;
     this.sequelize = context.sequelize;
     this.log = log;
+    this.jobRunners = new Map();
   }
 
   async start() {
@@ -68,8 +69,9 @@ export class FhirWorker {
     this.pg = await this.sequelize.connectionManager.getConnection();
     this.pg.on('notification', msg => {
       if (msg.channel === 'jobs') {
+        const { topic } = JSON.parse(msg.payload);
         this.log.debug('FhirWorker: got postgres notification', msg);
-        this.processQueueNow();
+        this.processQueueNow(topic);
       }
     });
     this.pg.query('LISTEN jobs');
@@ -79,6 +81,13 @@ export class FhirWorker {
     this.log.info('FhirWorker: setting topic handler', { topic });
     await this.worker?.markAsHandling(topic);
     this.handlers.set(topic, handler);
+
+    const existingJobRunner = this.jobRunners.get(topic);
+    if (existingJobRunner) {
+      existingJobRunner.stop(); // No need to await, let it gracefully stop all current jobs in the background
+    }
+
+    this.jobRunners.set(topic, new FhirTopicJobRunner(this, topic, handler));
   }
 
   async stop() {
@@ -89,7 +98,7 @@ export class FhirWorker {
     this.handlers.clear();
 
     await this.worker?.deregister();
-    await this.jobRunner?.stop();
+    await Promise.all(Array.from(this.jobRunners.values()).map(runner => runner.stop()));
     this.worker = null;
 
     if (this.pg) {
@@ -111,53 +120,58 @@ export class FhirWorker {
     return Math.max(0, this.config.concurrency);
   }
 
-  processQueueNow() {
+  /**
+   * How many jobs can be grabbed for a topic.
+   *
+   * This is calculated from the number of jobs that are processing, the total
+   * allowed concurrency (from config), and the amount of handlers (for fairness).
+   *
+   * @returns {number} Amount of jobs to grab for a topic.
+   */
+  topicCapacity() {
+    return Math.max(
+      this.totalCapacity() > 0 ? 1 : 0, // return at least 1 if there's any capacity
+      Math.floor(this.totalCapacity() / this.handlers.size), // otherwise divide the capacity evenly among the topics
+    );
+  }
+
+  processQueueNow(topic) {
     if (this.testMode) return;
 
     // using allSettled to avoid 'uncaught promise rejection' errors
     // and setImmediate to avoid growing the stack
-    setImmediate(() => Promise.allSettled([this.processQueue()])).unref();
+    setImmediate(() => Promise.allSettled([this.processQueue(topic)])).unref();
   }
 
-  currentlyProcessing = false;
-
-  processQueue() {
+  processQueue(topic) {
     // start a new root span here to avoid tying this to any callers
     return getTracer().startActiveSpan(`FhirWorker.processQueue`, { root: true }, async span => {
       this.log.debug(`Starting to process the queue from worker ${this.worker.id}.`);
       span.setAttributes({
         'code.function': 'processQueue',
         'job.worker': this.worker.id,
+        'job.topic': topic,
       });
 
-      if (this.currentlyProcessing) return;
-
       try {
-        this.currentlyProcessing = true;
         if (this.totalCapacity() === 0) {
           this.log.debug('FhirWorker: no capacity');
           return;
         }
 
-        this.jobRunner = new FhirJobRunner(
-          this.models,
-          this.sequelize,
-          this.log,
-          this.worker,
-          this.totalCapacity(),
-          this.handlers,
-        );
-        if (this.testMode) {
-          this.jobRunner.retryOnEmptyQueue = false;
+        const jobRunner = this.jobRunners.get(topic);
+        if (!jobRunner) {
+          this.log.debug('FhirWorker: no job runner for topic', { topic });
+          return;
         }
-        await this.jobRunner.start();
+
+        await this.jobRunners.get(topic).processQueue();
       } catch (err) {
         this.log.debug('Trouble retrieving the backlog');
         span.recordException(err);
         span.setStatus({ code: SpanStatusCode.ERROR });
         throw err;
       } finally {
-        this.currentlyProcessing = false;
         span.end();
       }
     });

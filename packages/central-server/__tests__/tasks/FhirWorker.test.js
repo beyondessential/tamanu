@@ -121,7 +121,7 @@ describe('Worker Jobs', () => {
 
         // Act
         const id = await Job.submit('test');
-        await worker.processQueue();
+        await worker.processQueue('test');
 
         // Assert
         expect(await Job.findByPk(id)).toBeNull();
@@ -135,7 +135,7 @@ describe('Worker Jobs', () => {
 
         // Act
         const id = await Job.submit('test', { error: true });
-        await worker.processQueue();
+        await worker.processQueue('test');
 
         // Assert
         expect(await Job.findByPk(id)).toMatchObject({
@@ -158,9 +158,9 @@ describe('Worker Jobs', () => {
         worker = new FhirWorker(ctx.store, makeLogger(logger));
         worker.testMode = true;
         worker.config.concurrency = 1;
-        await worker.start();
         await worker.setHandler('test1', workerTest);
         await worker.setHandler('test2', workerTest);
+        await worker.start();
       }),
     );
 
@@ -176,10 +176,12 @@ describe('Worker Jobs', () => {
         const id2 = await Job.submit('test2');
 
         // Act 1
-        await worker.processQueue();
+        await worker.processQueue('test1');
 
         expect(await Job.findByPk(id1)).toBeNull();
-        expect(await Job.findByPk(id2)).toBeNull();
+        expect(await Job.findByPk(id2)).toMatchObject({
+          status: 'Queued',
+        });
       }),
     );
 
@@ -198,7 +200,7 @@ describe('Worker Jobs', () => {
         const id1High = await Job.submit('test1', {}, { priority: JOB_PRIORITIES.HIGH });
 
         // Act
-        await worker.processQueue();
+        await worker.processQueue('test1');
 
         // Assert
         expect(jobCompletionOrder).toEqual([id1High, id1Normal, id1Low]);
@@ -216,7 +218,7 @@ describe('Worker Jobs', () => {
         await sleepAsync(11_000); // jobs must be started within 10 seconds or they are dropped
 
         // Assert
-        await worker.processQueue();
+        await worker.processQueue('test1');
         expect(await Job.findByPk(id)).toBeNull();
       }),
     );
@@ -232,7 +234,7 @@ describe('Worker Jobs', () => {
         await sleepAsync(11_000); // jobs must be started within 10 seconds or they are dropped
 
         // Assert
-        await worker.processQueue();
+        await worker.processQueue('test1');
         expect(await Job.findByPk(id)).toBeNull();
       }),
     );
@@ -245,7 +247,7 @@ describe('Worker Jobs', () => {
         await Job.update({ status: 'Started', workerId: fakeUUID() }, { where: { id } });
 
         // Assert
-        await worker.processQueue();
+        await worker.processQueue('test1');
         expect(await Job.findByPk(id)).toBeNull();
       }),
     );
@@ -261,7 +263,7 @@ describe('Worker Jobs', () => {
         const id3 = await Job.submit('test3');
 
         // Act 1 (high)
-        await worker.processQueue();
+        await worker.processQueue('test3');
 
         // Assert
         expect(await Job.findByPk(id1)).toBeNull();
@@ -303,7 +305,7 @@ describe('Worker Jobs', () => {
         await worker.setHandler('slowJob', slowJob);
 
         // Act
-        await worker.processQueue();
+        await Promise.all([worker.processQueue('slowJob'), worker.processQueue('fastJob')]);
 
         // Assert
         expect(await Job.count()).toBe(0);
