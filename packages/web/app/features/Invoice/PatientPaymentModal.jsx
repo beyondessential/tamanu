@@ -175,7 +175,6 @@ export const PatientPaymentModal = ({
 
   const paymentRecord = selectedPaymentRecord ?? {};
   const isEditMode = !!paymentRecord.id;
-  const selectedPaymentMethodId = paymentRecord.paymentMethod?.value;
   const isNegativeDisplayAmount = new Decimal(displayAmount).isNegative();
   const validationSchema = getValidationSchema(paymentRecord, patientPaymentRemainingBalance);
 
@@ -210,8 +209,7 @@ export const PatientPaymentModal = ({
 
   const handleSubmit = data => {
     const formattedAmount = new Decimal(data.amount).toDecimalPlaces(DECIMAL_PLACES).toString();
-    const chequeNumber =
-      selectedPaymentMethodId === CHEQUE_PAYMENT_METHOD_ID ? data.chequeNumber : '';
+    const chequeNumber = data.methodId === CHEQUE_PAYMENT_METHOD_ID ? data.chequeNumber : '';
 
     const paymentData = {
       ...data,
@@ -269,7 +267,7 @@ export const PatientPaymentModal = ({
         initialValues={initialValues}
         formType={isEditMode ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         data-testid="form-gsr7"
-        render={({ setFieldValue }) => (
+        render={({ setFieldValue, values }) => (
           <>
             <FormCard>
               <LabelRow>
@@ -298,7 +296,7 @@ export const PatientPaymentModal = ({
                   data-testid="field-c2nv"
                 />
                 <CheckNumberField
-                  selectedPaymentMethodId={selectedPaymentMethodId}
+                  selectedPaymentMethodId={values.methodId}
                   showChequeNumberColumn={showChequeNumberColumn}
                 />
                 <Field
