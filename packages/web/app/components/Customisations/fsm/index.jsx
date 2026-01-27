@@ -1,1 +1,0 @@
-export { BirthNotificationCertificate } from './BirthNotificationCertificate';
