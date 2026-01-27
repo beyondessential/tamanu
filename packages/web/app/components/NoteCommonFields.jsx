@@ -287,7 +287,7 @@ export const NoteTypeField = ({ required, noteTypeCountByType, onChange, size, d
     enumValues={NOTE_TYPE_LABELS}
     transformOptions={types =>
       types
-        .filter(option => !option.hideFromDropdown)
+        .filter(option => !option.hideFromDropdown && ![NOTE_TYPES.SYSTEM, NOTE_TYPES.CLINICAL_MOBILE].includes(option.value))
         .map(option => ({
           ...option,
           isDisabled:
