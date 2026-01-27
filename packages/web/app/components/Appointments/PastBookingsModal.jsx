@@ -242,7 +242,7 @@ const COLUMNS = [
 ];
 
 export const PastBookingsModal = ({ onClose, patient }) => {
-  const { getCurrentDateTimeString } = useDateTimeFormat();
+  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
   const { orderBy, order, onChangeOrderBy } = useTableSorting({
     initialSortKey: 'startTime',
     initialSortDirection: 'desc',
@@ -252,7 +252,7 @@ export const PastBookingsModal = ({ onClose, patient }) => {
     {
       all: true,
       patientId: patient?.id,
-      before: getCurrentDateTimeString(),
+      before: getCountryCurrentDateTimeString(),
       after: '-infinity',
       orderBy,
       order,
