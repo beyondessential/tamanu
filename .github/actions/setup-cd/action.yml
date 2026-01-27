@@ -61,11 +61,11 @@ runs:
       with:
         oauth-client-id: ${{ inputs.tailscale-oauth-client-id }}
         audience: api.tailscale.com/${{ inputs.tailscale-oauth-client-id }}
-        tags: ${{ inputs.tailscale-tags }} # must be synced to actual OIDC trust in Tailscale
+        tags: '${{ inputs.tailscale-tags }}'
 
     - name: Configure kubeconfig
       shell: bash
-      run: tailscale configure kubeconfig ${{ inputs.tailscale-k8s-operator-hostname }}
+      run: sudo tailscale configure kubeconfig ${{ inputs.tailscale-k8s-operator-hostname }}
 
     - name: Test kubernetes cluster for readiness
       shell: bash
