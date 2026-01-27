@@ -7,7 +7,7 @@ import {
   createPatientSchema,
   updatePatientSchema,
 } from '@tamanu/shared/schemas/facility/requests/createPatient.schema';
-import { NotFoundError, InvalidParameterError } from '@tamanu/errors';
+import { NotFoundError, InvalidParameterError, ValidationError } from '@tamanu/errors';
 import {
   PATIENT_REGISTRY_TYPES,
   VISIBILITY_STATUSES,
@@ -109,6 +109,15 @@ patientRoute.put(
     await db.transaction(async () => {
       // First check if displayId changed to create a secondaryId record
       if (validatedBody.displayId && validatedBody.displayId !== patient.displayId) {
+        const existingPatients = await Patient.count({
+          where: { displayId: validatedBody.displayId },
+        });
+        if (existingPatients > 0) {
+          throw new ValidationError(
+            `Display ID ${validatedBody.displayId} is already in use by another patient`,
+          );
+        }
+
         const oldDisplayIdType = isGeneratedDisplayId(patient.displayId)
           ? 'secondaryIdType-tamanu-display-id'
           : 'secondaryIdType-nhn';
