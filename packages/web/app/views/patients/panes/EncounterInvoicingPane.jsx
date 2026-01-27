@@ -99,7 +99,6 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEd
   const canDeleteInvoice = ability.can('delete', 'Invoice');
   const cancelable = invoice && isInvoiceEditable(invoice) && canWriteInvoice;
   const deletable = invoice && invoice.status !== INVOICE_STATUSES.FINALISED && canDeleteInvoice;
-  const finalisable = invoice && isInvoiceEditable(invoice) && canCreateInvoice && encounter.endDate;
   const { mutate: updateInvoice } = useUpdateInvoice(invoice);
   const finalisable =
     invoice && isInvoiceEditable(invoice) && canCreateInvoice && encounter.endDate;
@@ -110,7 +109,7 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEd
 
   const allItemsAreApproved = invoice.items.every(item => item.approved);
 
-  const handleAllApprovals = (approved) => {
+  const handleAllApprovals = approved => {
     const updatedInvoiceItems = [...invoice.items].map(item => ({ ...item, approved }));
     updateInvoice({ ...invoice, items: updatedInvoiceItems });
   };
@@ -138,25 +137,31 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEd
       onClick: () => setInvoiceModalType(INVOICE_MODAL_TYPES.DELETE_INVOICE),
       hidden: !deletable,
     },
-    ...allItemsAreApproved ? [{
-      label: (
-        <TranslatedText
-          stringId="invoice.editInvoice.removeAllApprovals"
-          fallback="Remove all approvals"
-          data-testid="translatedtext-k3ds"
-        />
-      ),
-      onClick: () => handleAllApprovals(false),
-    }] : [{
-      label: (
-        <TranslatedText
-          stringId="invoice.editInvoice.markAllAsApproved"
-          fallback="Mark all as approved"
-          data-testid="translatedtext-95jh"
-        />
-      ),
-      onClick: () => handleAllApprovals(true),
-    }],
+    ...(allItemsAreApproved
+      ? [
+          {
+            label: (
+              <TranslatedText
+                stringId="invoice.editInvoice.removeAllApprovals"
+                fallback="Remove all approvals"
+                data-testid="translatedtext-k3ds"
+              />
+            ),
+            onClick: () => handleAllApprovals(false),
+          },
+        ]
+      : [
+          {
+            label: (
+              <TranslatedText
+                stringId="invoice.editInvoice.markAllAsApproved"
+                fallback="Mark all as approved"
+                data-testid="translatedtext-95jh"
+              />
+            ),
+            onClick: () => handleAllApprovals(true),
+          },
+        ]),
   ];
 
   if (!isEditing) {

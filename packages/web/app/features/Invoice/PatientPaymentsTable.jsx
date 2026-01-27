@@ -220,7 +220,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
       key: 'receiptNumber',
       title: (
         <TranslatedText
-          stringId="invoice.table.payment.column.receiptNumber"
+          stringId="invoice.table.payment.column.receiptNo"
           fallback="Receipt no."
           data-testid="translatedtext-v87s"
         />
@@ -237,7 +237,6 @@ export const PatientPaymentsTable = ({ invoice }) => {
       key: '',
       sortable: false,
       accessor: row =>
-        !hideRecordPaymentForm &&
         canEditPayment && (
           <>
             <NoteModalActionBlocker>
@@ -268,7 +267,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
               fallback="Patient payments"
             />
           </Heading4>
-          <Box>
+          {!hideRecordPaymentForm && (
             <NoteModalActionBlocker>
               <Button size="small" data-testid="button-dre1" onClick={onRecordPayment}>
                 <TranslatedText
@@ -277,7 +276,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
                 />
               </Button>
             </NoteModalActionBlocker>
-          </Box>
+          )}
         </Title>
         <Table
           columns={COLUMNS}
@@ -297,7 +296,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
           data-testid="table-so8f"
         />
       </TableContainer>
-      {!hideRecordPaymentForm && canCreatePayment && (
+      {canCreatePayment && (
         <PatientPaymentModal
           invoice={invoice}
           patientPaymentRemainingBalance={patientPaymentRemainingBalance}
