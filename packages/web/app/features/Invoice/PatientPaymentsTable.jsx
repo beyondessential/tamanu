@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import Decimal from 'decimal.js';
-import { Box } from '@material-ui/core';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { getInvoiceSummary, round } from '@tamanu/shared/utils/invoice';
 import { TranslatedText } from '../../components/Translation';
