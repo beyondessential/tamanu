@@ -1,10 +1,12 @@
 import React from 'react';
 import * as PalauComponents from './palau';
+import * as FSMComponents from './fsm';
 import { useSettings } from '../../contexts/Settings';
 import { SETTING_KEYS } from '@tamanu/constants';
 
 const ComponentList = {
   palau: PalauComponents,
+  fsm: FSMComponents,
 };
 
 /**
@@ -45,7 +47,9 @@ export const Customisations = ({ children }) => {
   const { getSetting } = useSettings();
   const settings = getSetting(SETTING_KEYS.CUSTOMISATIONS_COMPONENTS);
 
-  const componentName = children?.type?.name;
+  // Because the component can be wrapped in another HOC, we might need to inject
+  // the component name via the componentName property
+  const componentName = children?.type?.componentName || children?.type?.name;
   const props = children?.props;
 
   if (!settings) {

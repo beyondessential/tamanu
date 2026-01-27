@@ -1,6 +1,6 @@
 import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
-import { Watermark } from './Layout';
+import { Watermark } from '@tamanu/shared/utils/patientCertificates/Layout';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import {
   ATTENDANT_OF_BIRTH_OPTIONS,
@@ -10,11 +10,12 @@ import {
   PLACE_OF_BIRTH_OPTIONS,
   SEX_OPTIONS,
 } from '@tamanu/constants';
-import { getDisplayDate } from './getDisplayDate';
-import { getEthnicity } from '../patientAccessors';
-import { useLanguageContext } from '../pdf/languageContext';
-import { Page } from '../pdf/Page';
-import { Text } from '../pdf/Text';
+import { getDisplayDate } from '@tamanu/shared/utils/patientCertificates/getDisplayDate';
+import { getEthnicity } from '@tamanu/shared/utils/patientAccessors';
+import { useLanguageContext } from '@tamanu/shared/utils/pdf/languageContext';
+import { Page } from '@tamanu/shared/utils/pdf/Page';
+import { Text } from '@tamanu/shared/utils/pdf/Text';
+import { useTranslation } from '../../../contexts/Translation';
 
 const LEFT_COL_WIDTH = '12%';
 
@@ -118,17 +119,16 @@ const getNameParts = (patient) => {
   };
 };
 
-export const FSMBirthNotificationCertificate = ({
+export const BirthNotificationCertificate = ({
   motherData,
   fatherData,
   childData,
   facility,
   certificateData,
-  getSetting,
 }) => {
   const { watermark } = certificateData;
-  const { getTranslation } = useLanguageContext();
-  
+  const { getTranslation } = useTranslation();
+
   const childName = getNameParts(childData);
   const motherName = getNameParts(motherData);
   const fatherName = getNameParts(fatherData);

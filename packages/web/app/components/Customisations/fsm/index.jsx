@@ -1,0 +1,1 @@
+export { BirthNotificationCertificate } from './BirthNotificationCertificate';
