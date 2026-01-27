@@ -10,7 +10,7 @@ import { Colors, denseTableStyle, CHEQUE_PAYMENT_METHOD_ID } from '../../constan
 import { Heading4 } from '../../components/Typography';
 import { DateDisplay } from '../../components/DateDisplay';
 import { useAuth } from '../../contexts/Auth';
-import { PatientPaymentForm } from '../../forms/PatientPaymentForm';
+import { PatientPaymentForm } from './PatientPaymentForm';
 import { PencilIcon } from '../../assets/icons/PencilIcon';
 import useOverflow from '../../hooks/useOverflow';
 import { ThemedTooltip } from '../../components/Tooltip';
