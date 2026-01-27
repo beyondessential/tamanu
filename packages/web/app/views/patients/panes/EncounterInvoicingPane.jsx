@@ -68,6 +68,8 @@ const InvoiceContainer = styled.div`
   margin-bottom: 5px;
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
+  // Triggers a horizontal scroll bar on the parent
+  min-width: 860px;
 `;
 
 const PrintButton = styled(OutlinedButton)`
@@ -253,7 +255,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
 
   return (
     <>
-      <TabPane>
+      <TabPane style={{ overflow: 'auto' }}>
         <InvoiceContainer>
           <InvoiceTopBar>
             <InvoiceHeading>

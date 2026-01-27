@@ -14,13 +14,6 @@ import { useUpdateInvoice } from '../../../api/mutations/useInvoiceMutation';
 import { useAuth } from '../../../contexts/Auth';
 import { invoiceFormSchema } from './invoiceFormSchema';
 
-const StyledForm = styled(Form)`
-  overflow: auto;
-  > div {
-    min-width: 750px;
-  }
-`;
-
 const AddButton = styled(MuiButton)`
   font-size: 14px;
   text-transform: none;
@@ -126,7 +119,7 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
   };
 
   return (
-    <StyledForm
+    <Form
       suppressErrorDialogCondition={errors => !handleShowErrorDialog(errors)}
       onSubmit={handleSubmit}
       enableReinitialize
