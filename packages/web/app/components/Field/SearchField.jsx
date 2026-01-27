@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Search from '@material-ui/icons/Search';
 import { IconButton, InputAdornment } from '@material-ui/core';
 import styled from 'styled-components';
@@ -34,35 +34,22 @@ const StyledClearIcon = styled(ClearIcon)`
 
 // N.B. this is specifically for use within forms, you may also want to use the `SearchInput`
 // component for standalone search fields
-export const SearchField = (props) => {
+export const SearchField = props => {
   const {
     field: { value, name, onChange },
-    form: { setFieldValue } = {},
   } = props;
-  const [searchValue, setSearchValue] = useState(value);
-
-  useEffect(() => {
-    setSearchValue(value);
-  }, [value]);
 
   const clearSearch = () => {
-    setSearchValue('');
-    setFieldValue?.(name, '');
+    onChange?.({ target: { value: '', name } });
   };
 
   return (
-    <SearchInput
-      {...props}
-      name={name}
-      value={searchValue}
-      onChange={onChange}
-      onClear={clearSearch}
-    />
+    <SearchInput {...props} name={name} value={value} onChange={onChange} onClear={clearSearch} />
   );
 };
 
 // N.B. this is for standalone use, if you want a search field within a form, use SearchField.jsx
-export const SearchInput = (props) => {
+export const SearchInput = props => {
   const { getTranslation } = useTranslation();
 
   const { label, placeholder, value, onChange, onClear } = props;
