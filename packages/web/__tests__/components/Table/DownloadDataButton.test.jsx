@@ -14,6 +14,7 @@ import Chance from 'chance';
 import * as React from 'react';
 import { assert, describe, it, vi } from 'vitest';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
+import { DateTimeProvider } from '@tamanu/ui-components';
 import { DownloadDataButton } from '../../../app/components/Table/DownloadDataButton';
 import * as fileSystemAccess from '../../../app/utils/fileSystemAccess';
 import {
@@ -55,8 +56,13 @@ const mockTranslationContext = {
 const getTranslationSpy = vi.spyOn(mockTranslationContext, 'getTranslation');
 const saveFileSpy = vi.spyOn(fileSystemAccess, 'saveFile');
 
-/** {@link DownloadDataButton} must be rendered within a translation context */
-const render = (element) => renderElementWithTranslatedText(element, null, mockTranslationContext);
+/** {@link DownloadDataButton} must be rendered within a translation and datetime context */
+const render = (element) =>
+  renderElementWithTranslatedText(
+    <DateTimeProvider countryTimeZone="Pacific/Auckland">{element}</DateTimeProvider>,
+    null,
+    mockTranslationContext,
+  );
 
 describe('DownloadDataButton', () => {
   const columns = [
