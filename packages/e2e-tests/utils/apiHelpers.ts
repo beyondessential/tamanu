@@ -107,39 +107,6 @@ export const createHospitalAdmissionEncounterViaAPI = async (
 
   return response.json();
 };
-/**
- * Get the start date of an encounter from the URL
- * @param api - The API request context
- * @param currentUrl - The current URL
- * @returns The start date of the encounter
- */
-
-export const getEncounterStartDate = async (
-  api: APIRequestContext,
-  currentUrl: string,
-): Promise<Date> => {
-  const encounterIdMatch = currentUrl.match(/\/encounter\/([^/]+)/);
-  
-  if (!encounterIdMatch || !encounterIdMatch[1]) {
-    throw new Error('Could not extract encounter ID from URL');
-  }
-  
-  const encounterId = encounterIdMatch[1];
-  const encounterUrl = constructFacilityUrl(`/api/encounter/${encounterId}`);
-  const encounterResponse = await api.get(encounterUrl);
-  
-  if (!encounterResponse.ok()) {
-    throw new Error(`Failed to fetch encounter: ${encounterResponse.status()}`);
-  }
-  
-  const encounter = await encounterResponse.json();
-  if (!encounter.startDate) {
-    throw new Error('Encounter does not have a start date');
-  }
-  
-  return new Date(encounter.startDate);
-};
-
 // TODO: swap these functions to use the new fakeRequests in fakeData package when it's merged
 export const createTriageEncounterViaApi = async (
   api: APIRequestContext,
