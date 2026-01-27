@@ -203,7 +203,11 @@ export const PatientPaymentModal = ({
   };
 
   const handlePayBalance = setFieldValue => {
-    setFieldValue('amount', patientPaymentRemainingBalance);
+    let balance = patientPaymentRemainingBalance;
+    if (isEditMode) {
+      balance = new Decimal(balance).plus(paymentRecord.amount);
+    }
+    setFieldValue('amount', balance);
     setDisplayAmount(0);
   };
 

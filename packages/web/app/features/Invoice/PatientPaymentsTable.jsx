@@ -299,6 +299,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
       {canCreatePayment && (
         <PatientPaymentModal
           invoice={invoice}
+          key={selectedPaymentRecord?.id}
           patientPaymentRemainingBalance={patientPaymentRemainingBalance}
           showChequeNumberColumn={showChequeNumberColumn}
           selectedPaymentRecord={selectedPaymentRecord}
