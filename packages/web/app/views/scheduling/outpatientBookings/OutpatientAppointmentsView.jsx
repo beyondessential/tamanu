@@ -1,6 +1,6 @@
 import AddIcon from '@mui/icons-material/Add';
 import Box from '@mui/material/Box';
-import { startOfDay } from 'date-fns';
+import { parseISO } from 'date-fns';
 import { omit, pick } from 'lodash';
 import queryString from 'query-string';
 import React, { useEffect, useState } from 'react';
@@ -13,7 +13,7 @@ import { MODIFY_REPEATING_APPOINTMENT_MODE } from '@tamanu/constants';
 import { PageContainer, TopBar } from '../../../components';
 import { CancelAppointmentModal } from '../../../components/Appointments/CancelModal/CancelAppointmentModal';
 import { OutpatientAppointmentDrawer } from '../../../components/Appointments/OutpatientsBookingForm/OutpatientAppointmentDrawer';
-import { Button, TranslatedText } from '@tamanu/ui-components';
+import { Button, TranslatedText, useDateTimeFormat } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { OutpatientAppointmentsContextProvider } from '../../../contexts/OutpatientAppointments';
 import { DateSelector } from './DateSelector';
@@ -82,6 +82,7 @@ export const APPOINTMENT_GROUP_BY = {
 
 export const OutpatientAppointmentsView = () => {
   const { ability } = useAuth();
+  const { getFacilityCurrentDateString } = useDateTimeFormat();
   const location = useLocation();
   const canCreateAppointment = ability.can('create', 'Appointment');
   const canViewAppointments = ability.can('listOrRead', 'Appointment');
@@ -91,7 +92,7 @@ export const OutpatientAppointmentsView = () => {
   const [isCreateFromExistingWarningOpen, setIsCreateFromExistingWarningOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
+  const [selectedDate, setSelectedDate] = useState(() => parseISO(getFacilityCurrentDateString()));
   const [modifyMode, setModifyMode] = useState('');
 
   useEffect(() => {

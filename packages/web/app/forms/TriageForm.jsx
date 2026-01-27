@@ -1,6 +1,5 @@
 import React from 'react';
 import * as yup from 'yup';
-import { endOfDay } from 'date-fns';
 import { ENCOUNTER_TYPES, FORM_TYPES } from '@tamanu/constants';
 import { useNavigate } from 'react-router';
 import { Box } from '@material-ui/core';
@@ -68,7 +67,11 @@ export const TriageForm = ({
   const navigate = useNavigate();
   const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
-  const { formatForDateTimeInput, getCountryCurrentDateTimeString } = useDateTimeFormat();
+  const { getCountryCurrentDateTimeString, getFacilityCurrentDateString } = useDateTimeFormat();
+  
+  // Max for datetime fields: end of today in facility timezone
+  const todayFacility = getFacilityCurrentDateString();
+  const endOfTodayMax = `${todayFacility}T23:59`;
   const triageCategories = getSetting('triageCategories');
   const practitionerSuggester = useSuggester('practitioner');
   const triageReasonSuggester = useSuggester('triageReason');
@@ -86,8 +89,7 @@ export const TriageForm = ({
             />
           }
           component={DateTimeField}
-          // Weird time picker behaviour with date.now(), so using end of day. It will be also validated on submit.
-          max={formatForDateTimeInput(endOfDay(new Date()))}
+          max={endOfTodayMax}
           helperText="If different from triage time"
           saveDateAsString
           data-testid="field-mhav"
@@ -102,8 +104,7 @@ export const TriageForm = ({
             />
           }
           required
-          // Weird time picker behaviour with date.now(), so using end of day. It will be also validated on submit.
-          max={formatForDateTimeInput(endOfDay(new Date()))}
+          max={endOfTodayMax}
           component={DateTimeField}
           saveDateAsString
           data-testid="field-9hxy"

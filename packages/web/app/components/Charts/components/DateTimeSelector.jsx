@@ -1,11 +1,11 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { debounce } from 'lodash';
 import { addDays, parseISO, startOfDay } from 'date-fns';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { DateInput as DateInputComponent } from '../../Field';
-import { SelectInput as SelectInputComponent } from '@tamanu/ui-components';
+import { SelectInput as SelectInputComponent, useDateTimeFormat } from '@tamanu/ui-components';
 import { Y_AXIS_WIDTH } from '../constants';
 
 const Wrapper = styled.div`
@@ -26,28 +26,33 @@ const DateInput = styled(DateInputComponent)`
 const CUSTOM_DATE = 'Custom Date';
 const DATE_FORMAT = 'yyyy-MM-dd';
 
-const options = [
-  {
-    value: 'Last 24 hours',
-    label: 'Last 24 hours',
-    getDefaultStartDate: () => addDays(new Date(), -1),
-  },
-  {
-    value: 'Last 48 hours',
-    label: 'Last 48 hours',
-    getDefaultStartDate: () => addDays(new Date(), -2),
-  },
-  {
-    value: CUSTOM_DATE,
-    label: 'Custom Date',
-    getDefaultStartDate: () => startOfDay(new Date()),
-    getDefaultEndDate: () => startOfDay(addDays(new Date(), 1)),
-  },
-];
-
 export const DateTimeSelector = (props) => {
   const { dateRange, setDateRange } = props;
+  const { getFacilityCurrentDateTimeString } = useDateTimeFormat();
   const [startDateString] = dateRange;
+  
+  const options = useMemo(() => {
+    const facilityNow = parseISO(getFacilityCurrentDateTimeString());
+    return [
+      {
+        value: 'Last 24 hours',
+        label: 'Last 24 hours',
+        getDefaultStartDate: () => addDays(facilityNow, -1),
+      },
+      {
+        value: 'Last 48 hours',
+        label: 'Last 48 hours',
+        getDefaultStartDate: () => addDays(facilityNow, -2),
+      },
+      {
+        value: CUSTOM_DATE,
+        label: 'Custom Date',
+        getDefaultStartDate: () => facilityNow,
+        getDefaultEndDate: () => addDays(facilityNow, 1),
+      },
+    ];
+  }, [getFacilityCurrentDateTimeString]);
+  
   const [value, setValue] = useState(options[0].value);
 
   const formatAndSetDateRange = useCallback(
@@ -67,6 +72,7 @@ export const DateTimeSelector = (props) => {
     const newEndDate = getDefaultEndDate ? getDefaultEndDate() : new Date();
 
     formatAndSetDateRange(newStartDate, newEndDate);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, formatAndSetDateRange]);
 
   return (

@@ -1,6 +1,7 @@
-import { isSameMonth, isThisMonth, startOfToday } from 'date-fns';
+import { isSameMonth, isThisMonth, parseISO } from 'date-fns';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+import { useDateTimeFormat } from '@tamanu/ui-components';
 import {
   scrollToCell,
   scrollToFirstDisplayedDay,
@@ -10,12 +11,13 @@ import {
 const LocationAssignmentsContext = createContext(null);
 
 export const LocationAssignmentsContextProvider = ({ children }) => {
+  const { getFacilityCurrentDateString } = useDateTimeFormat();
   const [selectedCell, setSelectedCell] = useState({
     locationId: null,
     date: null,
   });
 
-  const [monthOf, setMonthOf] = useState(startOfToday());
+  const [monthOf, setMonthOf] = useState(() => parseISO(getFacilityCurrentDateString()));
   const [isCalendarLoaded, setIsCalendarLoaded] = useState(false);
 
   useEffect(

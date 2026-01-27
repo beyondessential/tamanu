@@ -9,9 +9,7 @@ import TimelineContent from '@material-ui/lab/TimelineContent';
 import TimelineDot from '@material-ui/lab/TimelineDot';
 import { USER_PREFERENCES_KEYS, WS_EVENTS } from '@tamanu/constants';
 import { useNavigate } from 'react-router';
-import { endOfDay, startOfDay } from 'date-fns';
 import { Box } from '@material-ui/core';
-import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { TranslatedText, useDateTimeFormat } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 
@@ -216,15 +214,22 @@ const BookingsTimelineItem = ({ appointment }) => {
 
 export const TodayBookingsPane = ({ showTasks }) => {
   const { currentUser, facilityId } = useAuth();
+  const { getFacilityCurrentDateString, toDateTimeStringForPersistence } = useDateTimeFormat();
   const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
+  
+  // Get today's date boundaries in facility timezone, converted to country timezone for query
+  const todayFacility = getFacilityCurrentDateString();
+  const startOfToday = toDateTimeStringForPersistence(`${todayFacility}T00:00:00`);
+  const endOfToday = toDateTimeStringForPersistence(`${todayFacility}T23:59:59`);
+  
   const appointments =
     useAutoUpdatingQuery(
       'appointments',
       {
         locationId: '',
         all: true,
-        after: toDateTimeString(startOfDay(new Date())),
-        before: toDateTimeString(endOfDay(new Date())),
+        after: startOfToday,
+        before: endOfToday,
         clinicianId: currentUser?.id,
         facilityId,
       },

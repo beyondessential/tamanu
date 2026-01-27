@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled, { css } from 'styled-components';
 import { useLocation } from 'react-router';
-import { formatISO, isSameDay, isSameMonth, isThisMonth, parseISO, startOfToday } from 'date-fns';
+import { formatISO, isSameDay, isSameMonth, isThisMonth, parseISO } from 'date-fns';
 import queryString from 'query-string';
 
 import { isStartOfThisWeek } from '@tamanu/utils/dateTime';
@@ -69,8 +69,8 @@ const Weekday = styled.p`
 `;
 
 export const DayHeaderCell = ({ date, dim, ...props }) => {
-  const { formatWeekdayShort, formatShort } = useDateTimeFormat();
-  const isToday = isSameDay(date, startOfToday());
+  const { formatWeekdayShort, formatShort, getFacilityCurrentDateString } = useDateTimeFormat();
+  const isToday = isSameDay(date, parseISO(getFacilityCurrentDateString()));
   return (
     <HeaderCell
       $dim={dim}
@@ -99,6 +99,7 @@ const StyledMonthPicker = styled(MonthPicker)`
 `;
 
 export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedDates }) => {
+  const { getFacilityCurrentDateString } = useDateTimeFormat();
   const isFirstDisplayedDate = date => isSameDay(date, displayedDates[0]);
   const [monthPickerRefreshKey, setMonthPickerRefreshKey] = useState(Date.now());
 
@@ -116,7 +117,7 @@ export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedD
       scrollToThisWeek();
       setMonthPickerRefreshKey(Date.now()); // We need to trigger a refresh of picker state here to repopulate date
     } else {
-      setMonthOf(startOfToday());
+      setMonthOf(parseISO(getFacilityCurrentDateString()));
       // In this case, useEffect in LocationBookings context handles auto-scroll
     }
   };

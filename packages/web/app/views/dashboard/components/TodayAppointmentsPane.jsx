@@ -2,9 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import { WS_EVENTS } from '@tamanu/constants';
 import { useNavigate } from 'react-router';
-import { endOfDay, startOfDay } from 'date-fns';
-import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { Box, Link } from '@material-ui/core';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 
 import { Heading4, TranslatedText } from '../../../components';
 import { Colors } from '../../../constants';
@@ -104,13 +103,20 @@ const NoDataContainer = styled.div`
 export const TodayAppointmentsPane = ({ showTasks }) => {
   const navigate = useNavigate();
   const { currentUser, facilityId } = useAuth();
+  const { getFacilityCurrentDateString, toDateTimeStringForPersistence } = useDateTimeFormat();
+  
+  // Get today's date boundaries in facility timezone, converted to country timezone for query
+  const todayFacility = getFacilityCurrentDateString();
+  const startOfToday = toDateTimeStringForPersistence(`${todayFacility}T00:00:00`);
+  const endOfToday = toDateTimeStringForPersistence(`${todayFacility}T23:59:59`);
+  
   const appointments =
     useAutoUpdatingQuery(
       'appointments',
       {
         locationGroupId: '',
-        after: toDateTimeString(startOfDay(new Date())),
-        before: toDateTimeString(endOfDay(new Date())),
+        after: startOfToday,
+        before: endOfToday,
         clinicianId: currentUser?.id,
         all: true,
         facilityId,
