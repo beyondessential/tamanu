@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { isEqual } from 'lodash';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 import { useApi } from '../../api';
 
 import { Table } from './Table';
@@ -13,11 +13,11 @@ import { ROWS_PER_PAGE_OPTIONS } from '../../constants';
 
 const DEFAULT_SORT = { order: 'asc', orderBy: undefined };
 
-const initialiseFetchState = () => ({
+const initialiseFetchState = (lastUpdatedAt = '') => ({
   page: 0,
   count: 0,
   data: [],
-  lastUpdatedAt: getCurrentDateTimeString(),
+  lastUpdatedAt,
   sorting: DEFAULT_SORT,
   fetchOptions: {},
 });
@@ -39,10 +39,11 @@ export const DataFetchingTable = memo(
     'data-testid': dataTestId,
     ...props
   }) => {
+    const { getFacilityCurrentDateTimeString } = useDateTimeFormat();
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
     const [sorting, setSorting] = useState(initialSort);
-    const [fetchState, setFetchState] = useState(initialiseFetchState());
+    const [fetchState, setFetchState] = useState(() => initialiseFetchState(getFacilityCurrentDateTimeString()));
     const [forcedRefreshCount, setForcedRefreshCount] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [isLoadingMoreData, setIsLoadingMoreData] = useState(false);
@@ -116,12 +117,12 @@ export const DataFetchingTable = memo(
           page,
           count,
           data,
-          lastUpdatedAt: getCurrentDateTimeString(),
+          lastUpdatedAt: getFacilityCurrentDateTimeString(),
           sorting,
           fetchOptions,
         });
       },
-      [fetchOptions, page, sorting],
+      [fetchOptions, page, sorting, getFacilityCurrentDateTimeString],
     );
 
     const loadingIndicatorDelay = () =>
@@ -273,8 +274,8 @@ export const DataFetchingTable = memo(
 
     useEffect(() => {
       setPage(0);
-      setFetchState(initialiseFetchState());
-    }, [fetchOptionsString]);
+      setFetchState(initialiseFetchState(getFacilityCurrentDateTimeString()));
+    }, [fetchOptionsString, getFacilityCurrentDateTimeString]);
 
     const { data, count, lastUpdatedAt } = fetchState;
     const { order, orderBy } = sorting;

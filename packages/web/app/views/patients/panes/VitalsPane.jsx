@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { VitalsTable } from '../../../components/VitalsTable';
 import { FormModal, NoteModalActionBlocker, TableButtonRow } from '../../../components';
 import { TabPane } from '../components';
 import { useApi } from '../../../api';
 import { VitalsForm } from '../../../forms';
-import { getAnswersFromData, Button, TranslatedText } from '@tamanu/ui-components';
+import { getAnswersFromData, Button, TranslatedText, useDateTimeFormat } from '@tamanu/ui-components';
 import { VitalChartDataProvider } from '../../../contexts/VitalChartData';
 import { VitalChartsModal } from '../../../components/VitalChartsModal';
 import { useAuth } from '../../../contexts/Auth';
@@ -14,9 +13,10 @@ import { useAuth } from '../../../contexts/Auth';
 export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
   const { facilityId } = useAuth();
   const queryClient = useQueryClient();
+  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
   const api = useApi();
   const [modalOpen, setModalOpen] = useState(false);
-  const [startTime] = useState(getCurrentDateTimeString());
+  const [startTime] = useState(getCountryCurrentDateTimeString());
 
   const handleClose = () => setModalOpen(false);
 
@@ -27,7 +27,7 @@ export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
       patientId: patient.id,
       encounterId: encounter.id,
       facilityId,
-      endTime: getCurrentDateTimeString(),
+      endTime: getCountryCurrentDateTimeString(),
       answers: await getAnswersFromData(data, survey),
     });
     queryClient.invalidateQueries(['encounterVitals', encounter.id]);

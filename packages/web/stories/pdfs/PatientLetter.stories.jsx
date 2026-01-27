@@ -2,7 +2,7 @@ import React from 'react';
 import { createDummyPatient, createDummyPatientAdditionalData } from '@tamanu/database/demoData';
 import { PDFViewer } from '@react-pdf/renderer';
 import { PatientLetter as Component } from '@tamanu/shared/utils/patientLetters/PatientLetter';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 import Logo from '../assets/tamanu-logo.png';
 
 export default {
@@ -40,11 +40,12 @@ const certificateData = {
 };
 
 export const PatientLetter = () => {
+  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
   const patientLetterData = {
     title: 'Sick note',
     patient,
     clinician: examiner,
-    documentCreatedAt: getCurrentDateTimeString(),
+    documentCreatedAt: getCountryCurrentDateTimeString(),
     body:
       'This is a sick note!\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
   };

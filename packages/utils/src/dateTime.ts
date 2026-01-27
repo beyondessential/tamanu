@@ -23,7 +23,7 @@ import {
   type DurationUnit,
   type Interval,
 } from 'date-fns';
-import { fromZonedTime } from 'date-fns-tz';
+import { formatInTimeZone, fromZonedTime } from 'date-fns-tz';
 import { z } from 'zod';
 
 import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
@@ -93,10 +93,6 @@ export const getCurrentDateTimeString = () => formatISO9075(new Date());
 export const getDateTimeSubtractedFromNow = (daysToSubtract: number) => {
   return toDateTimeString(sub(new Date(), { days: daysToSubtract }));
 };
-
-// export const getDateSubtractedFromToday = (daysToSubtract: number) => {
-//   return toDateTimeString(sub(startOfDay(new Date()), { days: daysToSubtract }));
-// };
 
 export const getCurrentDateString = () => formatISO9075(new Date(), { representation: 'date' });
 
@@ -362,3 +358,87 @@ export const eachDayInMonth = (date: Date) =>
     start: startOfMonth(date),
     end: endOfMonth(date),
   });
+
+/*
+ * Timezone-aware datetime input helpers
+ *
+ * Data flow for datetime-local inputs:
+ *   1. Initial values are stored in COUNTRY timezone (ISO9075 format)
+ *   2. Input displays datetime in FACILITY timezone (for user convenience)
+ *   3. On save, value is converted back to COUNTRY timezone for persistence
+ *
+ * Functions:
+ *   - getCurrentDateTimeStringInTimezone: Get current time in a timezone
+ *   - formatForDateTimeInput: Convert stored value → display value (facility TZ)
+ *   - toDateTimeStringForPersistence: Convert input value → storage value (country TZ)
+ */
+
+/** Get current datetime string in a specific timezone */
+export const getCurrentDateTimeStringInTimezone = (timezone?: string) => {
+  if (!timezone) return formatISO9075(new Date(), { representation: 'complete' });
+  return formatInTimeZone(new Date(), timezone, ISO9075_DATETIME_FORMAT);
+};
+
+/** Get current date string in a specific timezone */
+export const getCurrentDateStringInTimezone = (timezone?: string) => {
+  if (!timezone) return formatISO9075(new Date(), { representation: 'date' });
+  return formatInTimeZone(new Date(), timezone, ISO9075_DATE_FORMAT);
+};
+
+/**
+ * Convert stored datetime (country TZ) to display format (facility TZ)
+ * Used when populating datetime-local inputs with existing values
+ */
+export const formatForDateTimeInput = (
+  value: string | Date | null | undefined,
+  countryTimeZone?: string,
+  facilityTimeZone?: string | null,
+): string | null => {
+  if (value == null) return null;
+
+  const displayTimezone = facilityTimeZone ?? countryTimeZone;
+
+  // No timezone configured - format directly
+  if (!displayTimezone) {
+    const dateObj = value instanceof Date ? value : parseDate(value);
+    if (!dateObj || !isValid(dateObj)) return null;
+    return dateFnsFormat(dateObj, "yyyy-MM-dd'T'HH:mm");
+  }
+
+  // Date objects already represent a point in time - just format in display timezone
+  if (value instanceof Date) {
+    if (!isValid(value)) return null;
+    return formatInTimeZone(value, displayTimezone, "yyyy-MM-dd'T'HH:mm");
+  }
+
+  // String value: interpret as country timezone, convert to UTC, then format in facility timezone
+  const utcDate = countryTimeZone ? fromZonedTime(value, countryTimeZone) : parseDate(value);
+  if (!utcDate || !isValid(utcDate)) return null;
+  return formatInTimeZone(utcDate, displayTimezone, "yyyy-MM-dd'T'HH:mm");
+};
+
+/**
+ * Convert input value (facility TZ) to storage format (country TZ)
+ * Used when saving datetime-local input values to the database
+ */
+export const toDateTimeStringForPersistence = (
+  inputValue: string | null | undefined,
+  countryTimeZone?: string,
+  facilityTimeZone?: string | null,
+): string | null => {
+  if (!inputValue) return null;
+
+  // No timezone configured - just parse and format
+  if (!countryTimeZone) {
+    const date = parseDate(inputValue);
+    return date ? formatISO9075(date, { representation: 'complete' }) : null;
+  }
+
+  // Input value is in display timezone (facility or country)
+  const displayTimezone = facilityTimeZone ?? countryTimeZone;
+
+  // Convert from display timezone to UTC, then format in country timezone
+  const utcDate = fromZonedTime(inputValue, displayTimezone);
+  if (!isValid(utcDate)) return null;
+  return formatInTimeZone(utcDate, countryTimeZone, ISO9075_DATETIME_FORMAT);
+};

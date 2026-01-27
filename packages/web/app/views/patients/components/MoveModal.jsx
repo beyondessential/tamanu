@@ -1,7 +1,6 @@
 import React from 'react';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
+import { Form, FormGrid, FormSubmitCancelRow, useDateTimeFormat } from '@tamanu/ui-components';
 import {
   Field,
   FormModal,
@@ -12,6 +11,7 @@ import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 export const MoveModal = React.memo(({ open, onClose, encounter }) => {
   const { mutate: submit } = usePatientMove(encounter.id, onClose);
+  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
 
   return (
     <FormModal
@@ -29,7 +29,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
       <Form
         initialValues={{
           // Used in creation of associated notes
-          submittedTime: getCurrentDateTimeString(),
+          submittedTime: getCountryCurrentDateTimeString(),
         }}
         formType={FORM_TYPES.EDIT_FORM}
         onSubmit={submit}

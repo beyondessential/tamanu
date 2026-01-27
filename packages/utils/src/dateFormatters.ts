@@ -1,7 +1,4 @@
-import { format } from 'date-fns';
-import { formatInTimeZone, fromZonedTime } from 'date-fns-tz';
-
-import { intlFormatDate, parseDate } from './dateTime';
+import { intlFormatDate } from './dateTime';
 
 /** "12/04/24" */
 export const formatShortest = (
@@ -205,19 +202,4 @@ export const formatShortestDateTime = (
   const dateStr = formatShortest(date, countryTimeZone, facilityTimeZone);
   const timeStr = formatTime(date, countryTimeZone, facilityTimeZone);
   return `${dateStr} ${timeStr}`;
-};
-
-/** "2024-01-15T14:30" - for HTML datetime-local input elements */
-export const formatDateTimeLocal = (
-  date: string | Date | null | undefined,
-  countryTimeZone?: string,
-  facilityTimeZone?: string | null,
-) => {
-  if (date == null) return null;
-  const tz = facilityTimeZone ?? countryTimeZone;
-  const dateObj =
-    facilityTimeZone && countryTimeZone ? fromZonedTime(date, countryTimeZone) : parseDate(date);
-  if (!dateObj) return null;
-  if (!tz) return format(dateObj, "yyyy-MM-dd'T'HH:mm");
-  return formatInTimeZone(dateObj, tz, "yyyy-MM-dd'T'HH:mm");
 };

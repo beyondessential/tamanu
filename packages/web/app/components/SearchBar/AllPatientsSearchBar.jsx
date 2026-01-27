@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import Box from '@material-ui/core/Box';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 import styled from 'styled-components';
 import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
 import {
@@ -34,6 +34,7 @@ const VillageLocalisedField = styled(LocalisedField)`
 `;
 
 export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) => {
+  const { getFacilityCurrentDateString } = useDateTimeFormat();
   const { getSetting } = useSettings();
   const villageSuggester = useSuggester('village');
   const hideOtherSex = getSetting('features.hideOtherSex') === true;
@@ -158,7 +159,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
             data-testid="translatedtext-99pk"
           />
         }
-        max={getCurrentDateString()}
+        max={getFacilityCurrentDateString()}
         data-testid="field-qk60"
       />
     </CustomisableSearchBarWithPermissionCheck>

@@ -1,6 +1,12 @@
 import React, { createContext, useCallback, useContext, useMemo } from 'react';
 import { mapValues } from 'lodash';
 
+import {
+  formatForDateTimeInput,
+  getCurrentDateStringInTimezone,
+  getCurrentDateTimeStringInTimezone,
+  toDateTimeStringForPersistence,
+} from '@tamanu/utils/dateTime';
 import * as dateTimeFormatters from '@tamanu/utils/dateFormatters';
 
 import { useAuth } from './AuthContext';
@@ -23,6 +29,18 @@ type WrappedFormatters = {
 export interface DateTimeContextValue extends WrappedFormatters {
   countryTimeZone: string;
   facilityTimeZone?: string | null;
+  /** Get current datetime string in country timezone (for initial values / persistence) */
+  getCountryCurrentDateTimeString: () => string;
+  /** Get current date string in country timezone (for initial values / persistence) */
+  getCountryCurrentDateString: () => string;
+  /** Get current datetime string in facility timezone (for UI display / validation) */
+  getFacilityCurrentDateTimeString: () => string;
+  /** Get current date string in facility timezone (for UI display / validation) */
+  getFacilityCurrentDateString: () => string;
+  /** Convert datetime-local input value (facility TZ) to country timezone for persistence */
+  toDateTimeStringForPersistence: (inputValue: string | null | undefined) => string | null;
+  /** Format stored value (country TZ) for datetime-local input display (facility TZ) */
+  formatForDateTimeInput: (value: string | Date | null | undefined) => string | null;
 }
 
 interface DateTimeProviderProps {
@@ -67,6 +85,16 @@ export const DateTimeProvider = ({
       countryTimeZone,
       facilityTimeZone,
       ...(mapValues(dateTimeFormatters, wrapFunction) as WrappedFormatters),
+      getCountryCurrentDateTimeString: () => getCurrentDateTimeStringInTimezone(countryTimeZone),
+      getCountryCurrentDateString: () => getCurrentDateStringInTimezone(countryTimeZone),
+      getFacilityCurrentDateTimeString: () =>
+        getCurrentDateTimeStringInTimezone(facilityTimeZone ?? countryTimeZone),
+      getFacilityCurrentDateString: () =>
+        getCurrentDateStringInTimezone(facilityTimeZone ?? countryTimeZone),
+      toDateTimeStringForPersistence: value =>
+        toDateTimeStringForPersistence(value, countryTimeZone, facilityTimeZone),
+      formatForDateTimeInput: value =>
+        formatForDateTimeInput(value, countryTimeZone, facilityTimeZone),
     }),
     [countryTimeZone, facilityTimeZone, wrapFunction],
   );

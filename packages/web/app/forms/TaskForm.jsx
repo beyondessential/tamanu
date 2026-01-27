@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
 import * as yup from 'yup';
-import { TextField, TranslatedSelectField, Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
+import {
+  TextField,
+  TranslatedSelectField,
+  Form,
+  FormGrid,
+  FormSubmitCancelRow,
+  useDateTimeFormat,
+} from '@tamanu/ui-components';
 import { Colors } from '../constants/styles';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import styled from 'styled-components';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { Box, Divider } from '@material-ui/core';
@@ -78,6 +84,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
   const { encounter } = useEncounter();
   const { ability, currentUser } = useAuth();
   const { getTranslation } = useTranslation();
+  const { getCountryCurrentDateTimeString, getFacilityCurrentDateTimeString } = useDateTimeFormat();
   const queryClient = useQueryClient();
   const canCreateReferenceData = ability.can('create', 'ReferenceData');
 
@@ -211,7 +218,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                   saveDateAsString
                   required
                   component={DateTimeField}
-                  min={getCurrentDateTimeString().slice(0, -3)}
+                  min={getFacilityCurrentDateTimeString().slice(0, -3)}
                   data-testid="field-om46"
                 />
               </FormGrid>
@@ -438,8 +445,8 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
         ['frequencyValue', 'frequencyUnit'],
       )}
       initialValues={{
-        startTime: getCurrentDateTimeString(),
-        requestTime: getCurrentDateTimeString(),
+        startTime: getCountryCurrentDateTimeString(),
+        requestTime: getCountryCurrentDateTimeString(),
         requestedByUserId: currentUser?.id,
       }}
       data-testid="form-gy7l"

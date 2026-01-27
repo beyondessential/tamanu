@@ -1,7 +1,6 @@
 import React from 'react';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
+import { Form, FormGrid, FormSubmitCancelRow, useDateTimeFormat } from '@tamanu/ui-components';
 
 import * as yup from 'yup';
 
@@ -11,6 +10,7 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const ChangeDepartmentForm = ({ onCancel, departmentSuggester, onSubmit }) => {
   const { encounter } = useEncounter();
+  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
   const renderForm = ({ submitForm }) => (
     <FormGrid columns={1} data-testid="formgrid-ln39">
       <Field
@@ -47,7 +47,7 @@ export const ChangeDepartmentForm = ({ onCancel, departmentSuggester, onSubmit }
       initialValues={{
         departmentId: encounter.departmentId,
         // Used in creation of associated notes
-        submittedTime: getCurrentDateTimeString(),
+        submittedTime: getCountryCurrentDateTimeString(),
       }}
       formType={FORM_TYPES.EDIT_FORM}
       validationSchema={yup.object().shape({

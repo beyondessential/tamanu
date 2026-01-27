@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
-import { ConfirmCancelBackRow, TranslatedText, Modal } from '@tamanu/ui-components';
+import {
+  ConfirmCancelBackRow,
+  TranslatedText,
+  Modal,
+  useDateTimeFormat,
+} from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { Box, Divider, IconButton } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
@@ -13,7 +18,6 @@ import { MedicationSetList, MedicationSetMedicationsList } from './MedicationSet
 import { MedicationForm } from '../../forms/MedicationForm';
 import { ADMINISTRATION_FREQUENCY_DETAILS } from '@tamanu/constants';
 import { useCreateMedicationSetMutation } from '../../api/mutations/useMarMutation';
-import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useAuth } from '../../contexts/Auth';
 import { MultiplePrescriptionPrintoutModal } from '../PatientPrinting/modals/MultiplePrescriptionPrintoutModal';
 import { toast } from 'react-toastify';
@@ -171,6 +175,7 @@ const StyledIconButton = styled(IconButton)`
 export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, onReloadTable }) => {
   const { encounter } = useEncounter();
   const { ability, currentUser } = useAuth();
+  const { getCountryCurrentDateString, getCountryCurrentDateTimeString } = useDateTimeFormat();
   const { data: allergies } = usePatientAllergiesQuery(encounter?.patientId);
   const { data, isLoading: medicationSetsLoading } = useSuggestionsQuery('medicationSet');
   const medicationSets = data?.sort((a, b) => a.name.localeCompare(b.name));
@@ -192,8 +197,8 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
       .map(({ medicationTemplate }) => ({
         ...medicationTemplate,
         idealTimes: ADMINISTRATION_FREQUENCY_DETAILS[medicationTemplate.frequency].startTimes || [],
-        startDate: getCurrentDateTimeString(),
-        date: getCurrentDateString(),
+        startDate: getCountryCurrentDateTimeString(),
+        date: getCountryCurrentDateString(),
         prescriberId: currentUser.id,
         ...(medicationTemplate.doseAmount && {
           doseAmount: Number(medicationTemplate.doseAmount),
