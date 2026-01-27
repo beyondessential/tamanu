@@ -139,9 +139,7 @@ export class Form extends React.PureComponent {
       // There is a bug in formik when you have validateOnChange set to true and validate manually as
       // well where it adds { isCanceled: true } to the errors so a work around is to manually remove it.
       // @see https://github.com/jaredpalmer/formik/issues/1209
-      console.log('validateForm...');
       const formErrors = await validateForm(values);
-      console.log('validateForm', formErrors);
       delete formErrors.isCanceled;
 
       const validFormErrors = componentsToValidate
@@ -214,31 +212,30 @@ export class Form extends React.PureComponent {
       originalSetValues(newValues);
     };
 
-    const { render, style, className } = this.props;
+    const { render, style } = this.props;
     const { showWarningForNonAsyncSubmitHandler } = this.state;
 
     return (
       <>
         {/* do not allow editing fields when form is being submitted */}
         <StyledForm
-          className={className}
           style={style}
           onSubmit={submitForm}
           noValidate
           $clickable={!isSubmitting}
           data-testid="styledform-5o5i"
         >
-          {/*{showWarningForNonAsyncSubmitHandler && (*/}
-          {/*  <Alert*/}
-          {/*    severity="warning"*/}
-          {/*    onClose={() => this.setState({ showWarningForNonAsyncSubmitHandler: false })}*/}
-          {/*    data-testid="alert-ygcm"*/}
-          {/*  >*/}
-          {/*    <AlertTitle data-testid="alerttitle-3i79">*/}
-          {/*      DEV Warning: this form does not have async onSubmit (ignore if intentional)*/}
-          {/*    </AlertTitle>*/}
-          {/*  </Alert>*/}
-          {/*)}*/}
+          {showWarningForNonAsyncSubmitHandler && (
+            <Alert
+              severity="warning"
+              onClose={() => this.setState({ showWarningForNonAsyncSubmitHandler: false })}
+              data-testid="alert-ygcm"
+            >
+              <AlertTitle data-testid="alerttitle-3i79">
+                DEV Warning: this form does not have async onSubmit (ignore if intentional)
+              </AlertTitle>
+            </Alert>
+          )}
           {render({
             ...formProps,
             setValues,
