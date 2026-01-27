@@ -1,4 +1,4 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
 import { Resizable } from 're-resizable';
@@ -64,18 +64,41 @@ export const withModalFloating = ModalComponent => {
     // Store values in refs to prevent PaperComponent from recreating on window resize
     // Update refs directly in component body to ensure latest values during render
     const positionRef = useRef({ x: 0, y: 0 });
-    const sizeRef = useRef({ width: baseWidth, height: baseHeight });
+    const baseSizeRef = useRef({ width: Number(baseWidth), height: Number(baseHeight) });
+    const currentSizeRef = useRef({ width: Number(baseWidth), height: Number(baseHeight) });
     const minConstraintsRef = useRef(minConstraints);
     const maxConstraintsRef = useRef(maxConstraints);
-    const defaultPositionRef = useRef({ x: 0, y: 0 });
+
+    // Controlled position and size so we can recenter and reset size on window resize
+    const [position, setPosition] = useState(() =>
+      calculateDefaultPosition(baseWidth, baseHeight),
+    );
+    const [size, setSize] = useState(() => ({
+      width: Number(baseWidth),
+      height: Number(baseHeight),
+    }));
+
+    // Recenter and reset to default size when window is resized
+    useEffect(() => {
+      const handleResize = () => {
+        const base = baseSizeRef.current;
+        setPosition(calculateDefaultPosition(base.width, base.height));
+        setSize(base);
+      };
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     // Update refs with latest prop values so PaperComponent won't recreate
-    sizeRef.current = { width: baseWidth, height: baseHeight };
+    baseSizeRef.current = { width: Number(baseWidth), height: Number(baseHeight) };
+    currentSizeRef.current = size;
     minConstraintsRef.current = minConstraints;
     maxConstraintsRef.current = maxConstraints;
-    defaultPositionRef.current = calculateDefaultPosition(baseWidth, baseHeight);
+    positionRef.current = position;
 
-
+    // PaperComponent reads position from positionRef so it stays referentially stable
+    // when position changes (e.g. on resize). That avoids Dialog remounting and
+    // resetting form state inside the modal.
     const PaperComponent = useCallback(
       paperProps => {
         const { style, className, children, ...rest } = paperProps;
@@ -83,14 +106,16 @@ export const withModalFloating = ModalComponent => {
           <Draggable
             handle={draggableHandle}
             bounds={draggableBounds}
-            defaultPosition={defaultPositionRef.current}
+            position={positionRef.current}
             cancel=".MuiDialogTitle-root button, .MuiDialogActions-root button"
             onStop={(e, data) => {
-              positionRef.current = { x: data.x, y: data.y };
+              const next = { x: data.x, y: data.y };
+              positionRef.current = next;
+              setPosition(next);
             }}
           >
             <Resizable
-              defaultSize={sizeRef.current}
+              size={currentSizeRef.current}
               minWidth={minConstraintsRef.current[0]}
               minHeight={minConstraintsRef.current[1]}
               maxWidth={maxConstraintsRef.current[0]}
@@ -99,6 +124,12 @@ export const withModalFloating = ModalComponent => {
               resizeRatio={resizeRatio}
               handleComponent={handleComponent}
               handleStyles={handleStyles}
+              onResizeStop={(e, direction, ref, d) => {
+                setSize({
+                  width: currentSizeRef.current.width + d.width,
+                  height: currentSizeRef.current.height + d.height,
+                });
+              }}
               className={className}
               style={{ ...style, position: 'absolute', overflow: 'visible', zIndex: 1500 }}
             >
@@ -120,7 +151,6 @@ export const withModalFloating = ModalComponent => {
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
       [
-        positionRef,
         draggableHandle,
         draggableBounds,
         enableResizeHandle,
