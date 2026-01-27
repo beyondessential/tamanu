@@ -47,8 +47,8 @@ export const DateTimeSelector = (props) => {
       {
         value: CUSTOM_DATE,
         label: 'Custom Date',
-        getDefaultStartDate: () => facilityNow,
-        getDefaultEndDate: () => addDays(facilityNow, 1),
+        getDefaultStartDate: () => startOfDay(facilityNow),
+        getDefaultEndDate: () => addDays(startOfDay(facilityNow), 1),
       },
     ];
   }, [getFacilityCurrentDateTimeString]);
