@@ -115,21 +115,6 @@ export const globalSettings = {
         },
       },
     },
-    certificates: {
-      description: 'Certificate settings',
-      properties: {
-        birthCertificate: {
-          description: 'Birth certificate settings',
-          properties: {
-            enableFSMStyle: {
-              description: 'Enable FSM style birth certificate',
-              type: yup.boolean(),
-              defaultValue: false,
-            },
-          },
-        },
-      },
-    },
     features: {
       description: 'Toggle features on/off',
       properties: {
@@ -1019,6 +1004,17 @@ export const globalSettings = {
         'The maximum size in megabytes of files that can be uploaded with the file chooser',
       type: yup.number().min(1),
       defaultValue: 10,
+    },
+    fsmCrvsCertificates: {
+      name: 'FSM CRVS Certificates',
+      description: 'Settings for FSM CRVS certificates',
+      properties: {
+        enableFSMStyle: {
+          description: 'Enable FSM CRVS style certificates',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+      },
     },
     integrations: {
       name: 'Integrations',

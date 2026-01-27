@@ -386,7 +386,7 @@ const BirthNotificationCertificateComponent = ({
 }) => {
   const { logo, watermark } = certificateData;
   const { getTranslation } = useLanguageContext();
-  const enableFSMStyle = getSetting('certificates.birthCertificate.enableFSMStyle');
+  const enableFSMStyle = getSetting('fsmCrvsCertificates.enableFSMStyle');
 
   if (enableFSMStyle) {
     return (
