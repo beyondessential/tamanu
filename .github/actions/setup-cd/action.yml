@@ -65,7 +65,9 @@ runs:
 
     - name: Configure kubeconfig
       shell: bash
-      run: sudo tailscale configure kubeconfig ${{ inputs.tailscale-k8s-operator-hostname }}
+      run: |
+        sudo tailscale set --operator=$USER
+        tailscale configure kubeconfig ${{ inputs.tailscale-k8s-operator-hostname }}
 
     - name: Test kubernetes cluster for readiness
       shell: bash
