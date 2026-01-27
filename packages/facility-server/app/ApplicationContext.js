@@ -43,9 +43,9 @@ export class ApplicationContext {
     }
 
     const facilityIds = selectFacilityIds(config);
-    const database = await initDatabase(databaseOverrides);
-    this.sequelize = database.sequelize;
-    this.models = database.models;
+    this.store = await initDatabase(databaseOverrides);
+    this.sequelize = this.store.sequelize;
+    this.models = this.store.models;
 
     this.settings = facilityIds.reduce((acc, facilityId) => {
       acc[facilityId] = new ReadSettings(this.models, facilityId);
@@ -53,7 +53,7 @@ export class ApplicationContext {
     }, {});
     this.settings.global = new ReadSettings(this.models);
     if (config.db.reportSchemas?.enabled) {
-      this.reportSchemaStores = await initReporting(database);
+      this.reportSchemaStores = await initReporting(this.store);
     }
     return this;
   }
