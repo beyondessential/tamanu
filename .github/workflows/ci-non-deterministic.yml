@@ -31,7 +31,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ github.base_ref }}
@@ -47,7 +47,7 @@ jobs:
           realbase=$(git merge-base ${{ github.base_ref || 'HEAD~1' }} HEAD)
           echo "realbase=$realbase" | tee -a "$GITHUB_OUTPUT"
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version-file: '.node-version'
           cache: npm
