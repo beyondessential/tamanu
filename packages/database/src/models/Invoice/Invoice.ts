@@ -1,4 +1,4 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, Transaction } from 'sequelize';
 import {
   INVOICE_INSURER_PAYMENT_STATUSES,
   INVOICE_PATIENT_PAYMENT_STATUSES,
@@ -238,6 +238,7 @@ export class Invoice extends Model {
     encounterType: string,
     date: string,
     settings: ReadSettings,
+    options?: { transaction?: Transaction },
   ) {
     const isInvoicingEnabled = await settings?.get('features.invoicing.enabled');
     const isValidEncounterType =
@@ -246,11 +247,14 @@ export class Invoice extends Model {
       return null;
     }
 
-    return await this.create({
-      displayId: generateInvoiceDisplayId(),
-      status: INVOICE_STATUSES.IN_PROGRESS,
-      date,
-      encounterId,
-    });
+    return await this.create(
+      {
+        displayId: generateInvoiceDisplayId(),
+        status: INVOICE_STATUSES.IN_PROGRESS,
+        date,
+        encounterId,
+      },
+      options,
+    );
   }
 }

@@ -6,21 +6,20 @@ import Decimal from 'decimal.js';
 import { Box } from '@material-ui/core';
 import CachedIcon from '@material-ui/icons/Cached';
 import { round } from '@tamanu/shared/utils/invoice';
+import { FORM_TYPES } from '@tamanu/constants';
+import { TextField, Form, DefaultIconButton, TranslatedText, Button } from '@tamanu/ui-components';
 import {
   AutocompleteField,
   DateField,
   Field,
   NoteModalActionBlocker,
   NumberField,
-} from '../components';
-import { TextField, Form, DefaultIconButton, TranslatedText, Button } from '@tamanu/ui-components';
-import { Colors } from '../constants/styles';
-import { useSuggester } from '../api';
-import { CHEQUE_PAYMENT_METHOD_ID } from '../constants';
-import { FORM_TYPES } from '@tamanu/constants';
-import { useCreatePatientPayment, useUpdatePatientPayment } from '../api/mutations';
-import { ConfirmPaidModal } from '../features/Invoice/InvoiceForm/ConfirmPaidModal';
-import { ThemedTooltip } from '../components/Tooltip';
+  ThemedTooltip,
+} from '../../components';
+import { Colors } from '../../constants/styles';
+import { useSuggester } from '../../api';
+import { CHEQUE_PAYMENT_METHOD_ID } from '../../constants';
+import { useCreatePatientPayment, useUpdatePatientPayment } from '../../api/mutations';
 
 const IconButton = styled(DefaultIconButton)`
   cursor: pointer;
@@ -51,7 +50,6 @@ export const PatientPaymentForm = ({
   selectedPayment,
 }) => {
   const selectedPaymentMethodId = selectedPayment?.paymentMethod?.value;
-  const [openConfirmPaidModal, setOpenConfirmPaidModal] = useState(false);
   const paymentMethodSuggester = useSuggester('paymentMethod');
   const [amount, setAmount] = useState(editingPayment?.amount ?? '');
 
@@ -122,16 +120,6 @@ export const PatientPaymentForm = ({
   };
 
   const handleSubmit = (data, { resetForm }) => {
-    const editingAmount = Number(editingPayment?.amount) ? Number(editingPayment.amount) : 0;
-    const showConfirmModal =
-      Number(data?.amount) >=
-        round(new Decimal(patientPaymentRemainingBalance).add(editingAmount).toNumber(), 2) &&
-      !openConfirmPaidModal;
-    if (showConfirmModal) {
-      setOpenConfirmPaidModal(true);
-      return;
-    }
-    setOpenConfirmPaidModal(false);
     onRecord(data, { resetForm });
   };
 
@@ -244,14 +232,6 @@ export const PatientPaymentForm = ({
               </Button>
             </NoteModalActionBlocker>
           </Box>
-          {openConfirmPaidModal && (
-            <ConfirmPaidModal
-              open
-              onClose={() => setOpenConfirmPaidModal(false)}
-              onConfirm={submitForm}
-              data-testid="confirmpaidmodal-b7z6"
-            />
-          )}
         </FormRow>
       )}
       validationSchema={yup.object().shape({
