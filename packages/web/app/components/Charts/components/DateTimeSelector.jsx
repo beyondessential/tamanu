@@ -32,23 +32,28 @@ export const DateTimeSelector = (props) => {
   const [startDateString] = dateRange;
   
   const options = useMemo(() => {
-    const facilityNow = parseISO(getFacilityCurrentDateTimeString());
     return [
       {
         value: 'Last 24 hours',
         label: 'Last 24 hours',
-        getDefaultStartDate: () => addDays(facilityNow, -1),
+        getDefaultStartDate: () => addDays(parseISO(getFacilityCurrentDateTimeString()), -1),
       },
       {
         value: 'Last 48 hours',
         label: 'Last 48 hours',
-        getDefaultStartDate: () => addDays(facilityNow, -2),
+        getDefaultStartDate: () => addDays(parseISO(getFacilityCurrentDateTimeString()), -2),
       },
       {
         value: CUSTOM_DATE,
         label: 'Custom Date',
-        getDefaultStartDate: () => startOfDay(facilityNow),
-        getDefaultEndDate: () => addDays(startOfDay(facilityNow), 1),
+        getDefaultStartDate: () => {
+          const facilityNow = parseISO(getFacilityCurrentDateTimeString());
+          return startOfDay(facilityNow);
+        },
+        getDefaultEndDate: () => {
+          const facilityNow = parseISO(getFacilityCurrentDateTimeString());
+          return addDays(startOfDay(facilityNow), 1);
+        },
       },
     ];
   }, [getFacilityCurrentDateTimeString]);
