@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { addDays, parseISO } from 'date-fns';
+import { addDays } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { useDateTimeFormat } from '@tamanu/ui-components';
 
@@ -10,17 +10,17 @@ export const GraphDataProviderFactory = ({
   isVital = false,
   children,
 }) => {
-  const { getFacilityCurrentDateTimeString, facilityTimeZone, countryTimeZone } = useDateTimeFormat();
+  const { facilityTimeZone, countryTimeZone } = useDateTimeFormat();
   const [chartKeys, setChartKeys] = useState([]);
   const [isInMultiChartsView, setIsInMultiChartsView] = useState(false);
   const [modalTitle, setModalTitle] = useState(null);
   const [dateRange, setDateRange] = useState(() => {
-    const endDateStr = getFacilityCurrentDateTimeString();
-    const endDate = parseISO(endDateStr);
-    const startDate = addDays(endDate, -1);
-    const tz = facilityTimeZone ?? countryTimeZone;
-    const startDateStr = formatInTimeZone(startDate, tz, 'yyyy-MM-dd HH:mm:ss');
-    return [startDateStr, endDateStr];
+    const timezone = facilityTimeZone ?? countryTimeZone;
+    const now = new Date();
+    const oneDayAgo = addDays(now, -1);
+    const format = 'yyyy-MM-dd HH:mm:ss';
+    
+    return [formatInTimeZone(oneDayAgo, timezone, format), formatInTimeZone(now, timezone, format)];
   });
   const [vitalChartModalOpen, setVitalChartModalOpen] = useState(false);
   const { data } = visualisationConfigQueryFn(...visualisationConfigQueryArgs);
