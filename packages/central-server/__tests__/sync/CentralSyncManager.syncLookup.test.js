@@ -107,6 +107,7 @@ describe('Sync Lookup data', () => {
       PatientProgramRegistration,
       PatientProgramRegistrationCondition,
       PatientSecondaryId,
+      PatientInvoiceInsurancePlan,
       PortalSurveyAssignment,
       Permission,
       ReportDefinitionVersion,
@@ -710,6 +711,12 @@ describe('Sync Lookup data', () => {
       fake(Notification, {
         userId: examiner.id,
         patientId: patient.id,
+      }),
+    );
+    await PatientInvoiceInsurancePlan.create(
+      fake(PatientInvoiceInsurancePlan, {
+        patientId: patient.id,
+        invoiceInsurancePlanId: contract.id,
       }),
     );
   };

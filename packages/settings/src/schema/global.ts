@@ -776,6 +776,14 @@ export const globalSettings = {
             type: LOCALISED_FIELD_TYPES.STRING,
           }),
         },
+        invoiceInsurancePlanId: {
+          name: 'Invoice insurance plan',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
         birthWeight: {
           name: 'Birth weight',
           description: '_',

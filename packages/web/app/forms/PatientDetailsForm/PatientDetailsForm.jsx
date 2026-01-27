@@ -67,7 +67,7 @@ function stripPatientData(patient, additionalData, birthData) {
   };
 }
 
-export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmit }) => {
+export const PatientDetailsForm = ({ patient, additionalData, birthData, insurancePlans, onSubmit }) => {
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const patientRegistryType = !isEmpty(birthData)
@@ -155,6 +155,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
           fieldDefinitionsResponse.data,
           fieldValuesResponse?.data,
         ),
+        invoiceInsurancePlanId: insurancePlans.map(({ invoiceInsurancePlanId }) => invoiceInsurancePlanId),
       }}
       onSubmit={handleSubmit}
       validationSchema={getPatientDetailsValidation(
