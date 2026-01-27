@@ -305,7 +305,7 @@ export const NoteTypeField = ({
     $fontSize={$fontSize}
     transformOptions={types =>
       types
-        .filter(option => !option.hideFromDropdown && option.value !== NOTE_TYPES.SYSTEM)
+        .filter(option => !option.hideFromDropdown && ![NOTE_TYPES.SYSTEM, NOTE_TYPES.CLINICAL_MOBILE].includes(option.value))
         .map(option => ({
           ...option,
           isDisabled:
