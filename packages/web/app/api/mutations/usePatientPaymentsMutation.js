@@ -8,7 +8,6 @@ export const useCreatePatientPayment = invoice => {
 
   return useMutation({
     mutationFn: async body => {
-      console.log('useCreatePatientPayment', body);
       const result = await api.post(`invoices/${invoice.id}/patientPayments`, body);
       await queryClient.invalidateQueries([`encounter/${invoice.encounterId}/invoice`]);
       await queryClient.invalidateQueries({
