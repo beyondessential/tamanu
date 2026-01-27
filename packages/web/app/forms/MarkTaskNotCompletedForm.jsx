@@ -132,7 +132,7 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
             />,
           )
           .max(
-            getFacilityCurrentDateTimeString(),
+            getCountryCurrentDateTimeString(),
             getTranslation(
               'general.validation.date.cannotInFuture',
               'Date cannot be in the future',
