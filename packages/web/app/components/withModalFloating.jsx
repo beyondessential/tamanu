@@ -61,15 +61,18 @@ export const withModalFloating = ModalComponent => {
     BackdropProps,
     ...modalProps
   }) => {
-    // Store values in refs to prevent PaperComponent from recreating on window resize
-    // Update refs directly in component body to ensure latest values during render
+    // We use both state and refs for position/size:
+    // - State triggers re-renders when window resizes (to recenter modal) and keeps
+    //   react-draggable/re-resizable controlled (they need prop updates to reflect changes)
+    // - Refs provide stable references to the memoized PaperComponent callback, preventing
+    //   it from recreating on every render (which would remount Dialog and reset form state)
+    // Refs are synced from state/props on each render so PaperComponent always reads current values
     const positionRef = useRef({ x: 0, y: 0 });
     const baseSizeRef = useRef({ width: Number(baseWidth), height: Number(baseHeight) });
     const currentSizeRef = useRef({ width: Number(baseWidth), height: Number(baseHeight) });
     const minConstraintsRef = useRef(minConstraints);
     const maxConstraintsRef = useRef(maxConstraints);
 
-    // Controlled position and size so we can recenter and reset size on window resize
     const [position, setPosition] = useState(() =>
       calculateDefaultPosition(baseWidth, baseHeight),
     );
