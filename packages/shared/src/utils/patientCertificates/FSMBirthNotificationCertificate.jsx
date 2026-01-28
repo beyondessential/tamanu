@@ -53,14 +53,14 @@ const styles = StyleSheet.create({
   },
   governmentBox: {
     fontSize: 10,
-    width: '14%',
+    width: 110,
     padding: 5,
     justifyContent: 'flex-start',
     alignItems: 'center',
   },
   sealBox: {
     fontSize: 10,
-    width: '14%',
+    width: 110,
     padding: 5,
     justifyContent: 'flex-end',
     alignItems: 'center',
@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   sectionLabel: {
-    width: '6%',
+    width: 50,
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
     backgroundColor: '#eee',
@@ -179,16 +179,16 @@ export const FSMBirthNotificationCertificate = ({
                 <Cell flex={1} label="First name:" value={childName.first} />
                 <Cell flex={1} label="Middle name:" value={childName.middle} />
                 <Cell flex={1} label="Last name:" value={childName.last} />
-                <Cell width="25%" style={{ borderRight: 0 }} label="Plurality:" value={getLabelFromValue(BIRTH_TYPE_OPTIONS, childData?.birthData?.birthType)} />
+                <Cell width={183} style={{ borderRight: 0 }} label="Plurality:" value={getLabelFromValue(BIRTH_TYPE_OPTIONS, childData?.birthData?.birthType)} />
               </View>
               
               {/* Child Row 2 */}
               <View style={[styles.row, { borderBottom: 0, borderLeft: 0 }]}>
-                <Cell width="20%" label="Date of birth:" value={childData?.dateOfBirth ? getDisplayDate(childData?.dateOfBirth) : ''} />
-                <Cell width="15%" label="Sex:" value={getLabelFromValue(SEX_OPTIONS, childData?.sex)} />
-                <Cell width="20%" label="Delivery site:" value={facility?.name || getLabelFromValue(PLACE_OF_BIRTH_OPTIONS, childData?.birthData?.registeredBirthPlace)} />
-                <Cell width="20%" label="Attendant:" value={childData?.birthData?.nameOfAttendantAtBirth} />
-                <Cell width="25%" style={{ borderRight: 0 }} label="Birth order:" value="" />
+                <Cell width={146} label="Date of birth:" value={childData?.dateOfBirth ? getDisplayDate(childData?.dateOfBirth) : ''} />
+                <Cell width={110} label="Sex:" value={getLabelFromValue(SEX_OPTIONS, childData?.sex)} />
+                <Cell width={146} label="Delivery site:" value={facility?.name || getLabelFromValue(PLACE_OF_BIRTH_OPTIONS, childData?.birthData?.registeredBirthPlace)} />
+                <Cell width={146} label="Attendant:" value={childData?.birthData?.nameOfAttendantAtBirth} />
+                <Cell width={183} style={{ borderRight: 0 }} label="Birth order:" value="" />
                </View>
             </View>
           </View>
@@ -205,16 +205,16 @@ export const FSMBirthNotificationCertificate = ({
                 <Cell flex={1} label="Maiden name (First):" value={motherName.first} />
                 <Cell flex={1} label="Middle name:" value={motherName.middle} />
                 <Cell flex={1} label="Last name:" value={motherName.last} />
-                <Cell width="25%" style={{ borderRight: 0 }} label="Birthdate:" value={motherData?.dateOfBirth ? getDisplayDate(motherData?.dateOfBirth) : ''} />
+                <Cell width={183} style={{ borderRight: 0 }} label="Birthdate:" value={motherData?.dateOfBirth ? getDisplayDate(motherData?.dateOfBirth) : ''} />
               </View>
               
               {/* Mother Row 2 */}
               <View style={[styles.row, { borderBottom: '1 solid black', borderLeft: 0 }]}>
-                <Cell width="20%" label="FSM birth state or country:" value={motherData?.additionalData?.nationality?.name} />
-                <Cell width="15%" label="Village:" value={motherData?.village?.name} />
-                <Cell width="20%" label="Municipality:" value="" />
-                <Cell width="20%" label="State (legal residence):" value="" />
-                <Cell width="25%" style={{ borderRight: 0 }} label="Medical record number:" value={motherData?.displayId} />
+                <Cell width={146} label="FSM birth state or country:" value={motherData?.additionalData?.nationality?.name} />
+                <Cell width={110} label="Village:" value={motherData?.village?.name} />
+                <Cell width={146} label="Municipality:" value="" />
+                <Cell width={146} label="State (legal residence):" value="" />
+                <Cell width={183} style={{ borderRight: 0 }} label="Medical record number:" value={motherData?.displayId} />
               </View>
 
               {/* Mother Row 3 */}
@@ -222,7 +222,7 @@ export const FSMBirthNotificationCertificate = ({
                  <Cell flex={1} label="Race:" value={getEthnicity(motherData)} />
                  <Cell flex={1} label="Highest grade:" value="" />
                  <Cell flex={1} label="Occupation:" value={motherData?.occupation?.name} />
-                 <Cell width="25%" style={{ borderRight: 0 }} label="Marital status:" value={getLabelFromValue(MARITAL_STATUS_OPTIONS, motherData?.additionalData?.maritalStatus)} />
+                 <Cell width={183} style={{ borderRight: 0 }} label="Marital status:" value={getLabelFromValue(MARITAL_STATUS_OPTIONS, motherData?.additionalData?.maritalStatus)} />
                </View>
             </View>
           </View>
@@ -239,7 +239,7 @@ export const FSMBirthNotificationCertificate = ({
                 <Cell flex={1} label="First name:" value={fatherName.first} />
                 <Cell flex={1} label="Middle name:" value={fatherName.middle} />
                 <Cell flex={1} label="Last name:" value={fatherName.last} />
-                <Cell width="25%" style={{ borderRight: 0 }} label="Birthdate:" value={fatherData?.dateOfBirth ? getDisplayDate(fatherData?.dateOfBirth) : ''} />
+                <Cell width={183} style={{ borderRight: 0 }} label="Birthdate:" value={fatherData?.dateOfBirth ? getDisplayDate(fatherData?.dateOfBirth) : ''} />
               </View>
               
               {/* Father Row 2 */}
@@ -247,7 +247,7 @@ export const FSMBirthNotificationCertificate = ({
                  <Cell flex={1} label="Race:" value={getEthnicity(fatherData)} />
                  <Cell flex={1} label="Highest grade:" value="" />
                  <Cell flex={1} label="Occupation:" value={fatherData?.occupation?.name} />
-                 <Cell width="25%" style={{ borderRight: 0 }} label="FSM birth state or country:" value={fatherData?.additionalData?.nationality?.name} />
+                 <Cell width={183} style={{ borderRight: 0 }} label="FSM birth state or country:" value={fatherData?.additionalData?.nationality?.name} />
                </View>
             </View>
           </View>
@@ -262,30 +262,30 @@ export const FSMBirthNotificationCertificate = ({
               {/* Cert Row 1 */}
               <View style={[styles.row, { borderLeft: 0 }]}>
                 <Cell style={{ backgroundColor: '#eee' }} flex={1} label="I certify that the above named child was born alive at the place and the date specified above" value=""/>
-                <Cell width="25%" label="Informant:" value="" lastCell />
+                <Cell width={183} label="Informant:" value="" lastCell />
               </View>
               
               {/* Cert Row 2 */}
               <View style={[styles.row, { borderBottom: '1 solid black', borderLeft: 0 }]}>
                 <Cell flex={1} label="Certifier name:" value={childData?.birthData?.nameOfAttendantAtBirth} />
                 <Cell flex={1} label="Signature:" value="" />
-                <Cell width="20%" label="Date signed:" value="" />
-                <Cell width="25%" style={{ borderRight: 0 }} label="Mother/Father agrees to NAME spelling (signatures)" value="" />
+                <Cell width={146} label="Date signed:" value="" />
+                <Cell width={183} style={{ borderRight: 0 }} label="Mother/Father agrees to NAME spelling (signatures)" value="" />
               </View>
 
               {/* Cert Row 3 */}
               <View style={[styles.row, { borderBottom: '1 solid black', borderLeft: 0 }]}>
-                <Cell style={{ backgroundColor: '#eee' }} width="24%" label="I certify that I reviewed this certificate for completeness and accuracy" hideValue />
-                <Cell width="29%" label="Name of Director of Health Services or Designee:" value="" />
-                <Cell width="22%" label="Signature:" value="" />
-                <Cell width="25%" style={{ borderRight: 0 }} label="Date signed:" value="" />
+                <Cell style={{ backgroundColor: '#eee' }} width={176} label="I certify that I reviewed this certificate for completeness and accuracy" hideValue />
+                <Cell width={212} label="Name of Director of Health Services or Designee:" value="" />
+                <Cell width={161} label="Signature:" value="" />
+                <Cell width={183} style={{ borderRight: 0 }} label="Date signed:" value="" />
               </View>
 
               {/* Cert Row 4 */}
               <View style={[styles.row, { borderBottom: 0, borderLeft: 0 }]}>
                 <Cell flex={1} label="Certifier name (Chief Clerk of Court):" value="" />
                 <Cell flex={1} label="Signature of Chief Clerk of Court:" value="" />
-                <Cell width="25%" style={{ borderRight: 0 }} label="Date received by Clerk of Courts:" value="" />
+                <Cell width={183} style={{ borderRight: 0 }} label="Date received by Clerk of Courts:" value="" />
               </View>
             </View>
           </View>
