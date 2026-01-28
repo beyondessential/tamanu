@@ -38,6 +38,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 3,
     justifyContent: 'flex-start',
   },
+  lastCell: {
+    borderRight: 0,
+  },
   label: {
     fontSize: 9,
     marginBottom: 2,
@@ -45,7 +48,6 @@ const styles = StyleSheet.create({
   },
   value: {
     fontSize: 9,
-    fontWeight: 'bold',
   },
   headerRow: {
     flexDirection: 'row',
@@ -76,13 +78,11 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 14,
-    fontWeight: 'bold',
     marginBottom: 4,
     textAlign: 'center',
   },
   headerSubtitle: {
     fontSize: 12,
-    fontWeight: 'bold',
     textAlign: 'center',
   },
   sectionLabel: {
@@ -97,12 +97,25 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
   },
+  colouredCell: {
+    backgroundColor: '#eee',
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 30,
+    borderTop: '1 solid #DEDEDE',
+  },
+  footerText: {
+    fontSize: 8,
+    color: '#888',
+  },
 });
 
-const Cell = ({ label, value, style, width, flex, lastCell = false, hideValue = false }) => (
-  <View style={[styles.cell, style, width ? { width } : {}, flex ? { flex } : {}, lastCell ? { borderRight: 0 } : {}]}>
+const Cell = ({ label, value = '', style, width, flex, lastCell = false }) => (
+  <View style={[styles.cell, style, width ? { width } : {}, flex ? { flex } : {}, lastCell ? styles.lastCell : {}]}>
     {label && <Text bold style={styles.label}>{label}</Text>}
-    {hideValue ? null : <Text style={styles.value}>{value || ' '}</Text>}
+    <Text style={styles.value}>{value || ' '}</Text>
   </View>
 );
 
@@ -141,6 +154,7 @@ export const FSMBirthNotificationCertificate = ({
   const childName = getNameParts(childData);
   const motherName = getNameParts(motherData);
   const fatherName = getNameParts(fatherData);
+  const currentDateString = getCurrentDateString();
 
   return (
     <Document>
@@ -151,20 +165,20 @@ export const FSMBirthNotificationCertificate = ({
             <View style={[styles.sectionLabel, styles.governmentBox]}>
               <Text bold>GOVERNMENT</Text>
             </View>
-            <View style={[styles.titleBox]}>
+            <View style={styles.titleBox}>
               <Text bold style={styles.headerTitle}>CERTIFICATE OF LIVE BIRTH</Text>
               <Text bold style={styles.headerSubtitle}>FEDERATED STATES OF MICRONESIA</Text>
             </View>
           </View>
-          
+
           {/* Row 2: Court Info */}
           <View style={styles.row}>
             <View style={[styles.sectionLabel, styles.sealBox]}>
               <Text bold>SEAL</Text>
             </View>
-            <Cell flex={1} label="State court file no.:" value="" />
-            <Cell flex={1} label="Date:" value="" />
-            <Cell flex={1} label="Medical record no:" value="" lastCell />
+            <Cell flex={1} label="State court file no.:" />
+            <Cell flex={1} label="Date:" />
+            <Cell flex={1} lastCell label="Medical record no:" />
           </View>
 
           {/* Child Section */}
@@ -172,135 +186,135 @@ export const FSMBirthNotificationCertificate = ({
             <View style={styles.sectionLabel}>
               <Text bold>Child</Text>
             </View>
-            
-            <View style={{ flex: 1, flexDirection: 'column' }}>
+
+            <View style={styles.sectionContent}>
               {/* Child Row 1 */}
-              <View style={[styles.row, { borderBottom: '1 solid black', borderLeft: 0 }]}>
+              <View style={styles.row}>
                 <Cell flex={1} label="First name:" value={childName.first} />
                 <Cell flex={1} label="Middle name:" value={childName.middle} />
                 <Cell flex={1} label="Last name:" value={childName.last} />
-                <Cell width={183} style={{ borderRight: 0 }} label="Plurality:" value={getLabelFromValue(BIRTH_TYPE_OPTIONS, childData?.birthData?.birthType)} />
+                <Cell width={183} lastCell label="Plurality:" value={getLabelFromValue(BIRTH_TYPE_OPTIONS, childData?.birthData?.birthType)} />
               </View>
-              
+
               {/* Child Row 2 */}
-              <View style={[styles.row, { borderBottom: 0, borderLeft: 0 }]}>
+              <View style={styles.lastRow}>
                 <Cell width={146} label="Date of birth:" value={childData?.dateOfBirth ? getDisplayDate(childData?.dateOfBirth) : ''} />
                 <Cell width={110} label="Sex:" value={getLabelFromValue(SEX_OPTIONS, childData?.sex)} />
                 <Cell width={146} label="Delivery site:" value={facility?.name || getLabelFromValue(PLACE_OF_BIRTH_OPTIONS, childData?.birthData?.registeredBirthPlace)} />
                 <Cell width={146} label="Attendant:" value={childData?.birthData?.nameOfAttendantAtBirth} />
-                <Cell width={183} style={{ borderRight: 0 }} label="Birth order:" value="" />
+                <Cell width={183} lastCell label="Birth order:" />
                </View>
             </View>
           </View>
 
            {/* Mother Section */}
-           <View style={[styles.row]}>
+           <View style={styles.row}>
             <View style={styles.sectionLabel}>
               <Text bold>Mother</Text>
             </View>
-            
-            <View style={{ flex: 1, flexDirection: 'column' }}>
+
+            <View style={styles.sectionContent}>
               {/* Mother Row 1 */}
-              <View style={[styles.row, { borderBottom: '1 solid black', borderLeft: 0 }]}>
+              <View style={styles.row}>
                 <Cell flex={1} label="Maiden name (First):" value={motherName.first} />
                 <Cell flex={1} label="Middle name:" value={motherName.middle} />
                 <Cell flex={1} label="Last name:" value={motherName.last} />
-                <Cell width={183} style={{ borderRight: 0 }} label="Birthdate:" value={motherData?.dateOfBirth ? getDisplayDate(motherData?.dateOfBirth) : ''} />
+                <Cell width={183} lastCell label="Birthdate:" value={motherData?.dateOfBirth ? getDisplayDate(motherData?.dateOfBirth) : ''} />
               </View>
-              
+
               {/* Mother Row 2 */}
-              <View style={[styles.row, { borderBottom: '1 solid black', borderLeft: 0 }]}>
+              <View style={styles.row}>
                 <Cell width={146} label="FSM birth state or country:" value={motherData?.additionalData?.nationality?.name} />
                 <Cell width={110} label="Village:" value={motherData?.village?.name} />
-                <Cell width={146} label="Municipality:" value="" />
-                <Cell width={146} label="State (legal residence):" value="" />
-                <Cell width={183} style={{ borderRight: 0 }} label="Medical record number:" value={motherData?.displayId} />
+                <Cell width={146} label="Municipality:" value={motherData?.additionalData?.cityTown} />
+                <Cell width={146} label="State (legal residence):" value={motherData?.additionalData?.nationality?.name} />
+                <Cell width={183} lastCell label="Medical record number:" value={motherData?.displayId} />
               </View>
 
               {/* Mother Row 3 */}
-              <View style={[styles.row, { borderBottom: 0, borderLeft: 0 }]}>
+              <View style={styles.lastRow}>
                  <Cell flex={1} label="Race:" value={getEthnicity(motherData)} />
-                 <Cell flex={1} label="Highest grade:" value="" />
+                 <Cell flex={1} label="Highest grade:" value={motherData?.additionalData?.educationalLevel} />
                  <Cell flex={1} label="Occupation:" value={motherData?.occupation?.name} />
-                 <Cell width={183} style={{ borderRight: 0 }} label="Marital status:" value={getLabelFromValue(MARITAL_STATUS_OPTIONS, motherData?.additionalData?.maritalStatus)} />
+                 <Cell width={183} lastCell label="Marital status:" value={getLabelFromValue(MARITAL_STATUS_OPTIONS, motherData?.additionalData?.maritalStatus)} />
                </View>
             </View>
           </View>
 
           {/* Father Section */}
-          <View style={[styles.row]}>
+          <View style={styles.row}>
             <View style={styles.sectionLabel}>
               <Text bold>Father</Text>
             </View>
-            
-            <View style={{ flex: 1, flexDirection: 'column' }}>
+
+            <View style={styles.sectionContent}>
               {/* Father Row 1 */}
-              <View style={[styles.row, { borderBottom: '1 solid black', borderLeft: 0 }]}>
+              <View style={styles.row}>
                 <Cell flex={1} label="First name:" value={fatherName.first} />
                 <Cell flex={1} label="Middle name:" value={fatherName.middle} />
                 <Cell flex={1} label="Last name:" value={fatherName.last} />
-                <Cell width={183} style={{ borderRight: 0 }} label="Birthdate:" value={fatherData?.dateOfBirth ? getDisplayDate(fatherData?.dateOfBirth) : ''} />
+                <Cell width={183} lastCell label="Birthdate:" value={fatherData?.dateOfBirth ? getDisplayDate(fatherData?.dateOfBirth) : ''} />
               </View>
-              
+
               {/* Father Row 2 */}
-              <View style={[styles.row, { borderBottom: 0, borderLeft: 0 }]}>
+              <View style={styles.lastRow}>
                  <Cell flex={1} label="Race:" value={getEthnicity(fatherData)} />
-                 <Cell flex={1} label="Highest grade:" value="" />
+                 <Cell flex={1} label="Highest grade:" value={fatherData?.additionalData?.educationalLevel} />
                  <Cell flex={1} label="Occupation:" value={fatherData?.occupation?.name} />
-                 <Cell width={183} style={{ borderRight: 0 }} label="FSM birth state or country:" value={fatherData?.additionalData?.nationality?.name} />
+                 <Cell width={183} lastCell label="FSM birth state or country:" value={fatherData?.additionalData?.nationality?.name} />
                </View>
             </View>
           </View>
 
           {/* Certifier Section */}
-          <View style={[styles.lastRow]}>
+          <View style={styles.lastRow}>
             <View style={styles.sectionLabel}>
               <Text bold>Certifier</Text>
             </View>
-            
-            <View style={{ flex: 1, flexDirection: 'column' }}>
+
+            <View style={styles.sectionContent}>
               {/* Cert Row 1 */}
-              <View style={[styles.row, { borderLeft: 0 }]}>
-                <Cell style={{ backgroundColor: '#eee' }} flex={1} label="I certify that the above named child was born alive at the place and the date specified above" value=""/>
-                <Cell width={183} label="Informant:" value="" lastCell />
+              <View style={styles.row}>
+                <Cell style={styles.colouredCell} flex={1} label="I certify that the above named child was born alive at the place and the date specified above" />
+                <Cell width={183} lastCell label="Informant:" />
               </View>
-              
+
               {/* Cert Row 2 */}
-              <View style={[styles.row, { borderBottom: '1 solid black', borderLeft: 0 }]}>
-                <Cell flex={1} label="Certifier name:" value={childData?.birthData?.nameOfAttendantAtBirth} />
-                <Cell flex={1} label="Signature:" value="" />
-                <Cell width={146} label="Date signed:" value="" />
-                <Cell width={183} style={{ borderRight: 0 }} label="Mother/Father agrees to NAME spelling (signatures)" value="" />
+              <View style={styles.row}>
+                <Cell flex={1} label="Certifier name:" />
+                <Cell flex={1} label="Signature:" />
+                <Cell width={146} label="Date signed:" />
+                <Cell width={183} lastCell label="Mother/Father agrees to NAME spelling (signatures)" />
               </View>
 
               {/* Cert Row 3 */}
-              <View style={[styles.row, { borderBottom: '1 solid black', borderLeft: 0 }]}>
-                <Cell style={{ backgroundColor: '#eee' }} width={176} label="I certify that I reviewed this certificate for completeness and accuracy" hideValue />
-                <Cell width={212} label="Name of Director of Health Services or Designee:" value="" />
-                <Cell width={161} label="Signature:" value="" />
-                <Cell width={183} style={{ borderRight: 0 }} label="Date signed:" value="" />
+              <View style={styles.row}>
+                <Cell style={styles.colouredCell} width={176} label="I certify that I reviewed this certificate for completeness and accuracy" />
+                <Cell width={212} label="Name of Director of Health Services or Designee:" />
+                <Cell width={161} label="Signature:" />
+                <Cell width={183} lastCell label="Date signed:" />
               </View>
 
               {/* Cert Row 4 */}
-              <View style={[styles.row, { borderBottom: 0, borderLeft: 0 }]}>
-                <Cell flex={1} label="Certifier name (Chief Clerk of Court):" value="" />
-                <Cell flex={1} label="Signature of Chief Clerk of Court:" value="" />
-                <Cell width={183} style={{ borderRight: 0 }} label="Date received by Clerk of Courts:" value="" />
+              <View style={styles.lastRow}>
+                <Cell flex={1} label="Certifier name (Chief Clerk of Court):" />
+                <Cell flex={1} label="Signature of Chief Clerk of Court:" />
+                <Cell width={183} lastCell label="Date received by Clerk of Courts:" />
               </View>
             </View>
           </View>
         </View>
 
          {/* Footer / Print date */}
-         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 25, padding: 2, borderTop: '1 solid #DEDEDE' }}>
-            <View style={{ flexDirection: 'row' }}>
-              <Text bold style={{ fontSize: 8, color: '#888' }}>Print date: </Text>
-              <Text style={{ fontSize: 8, color: '#888' }}>{getCurrentDateString()} | </Text>
-              <Text bold style={{ fontSize: 8, color: '#888' }}>Printed by: </Text>
-              <Text style={{ fontSize: 8, color: '#888' }}>Initial Admin</Text>
+         <View style={styles.footer}>
+            <View style={styles.lastRow}>
+              <Text bold style={styles.footerText}>Print date: </Text>
+              <Text style={styles.footerText}>{currentDateString} | </Text>
+              <Text bold style={styles.footerText}>Printed by: </Text>
+              <Text style={styles.footerText}>Initial Admin</Text>
             </View>
-            <View style={{ flexDirection: 'row' }}>
-              <Text style={{ fontSize: 8, color: '#888' }}>1 of 1</Text>
+            <View style={styles.lastRow}>
+              <Text style={styles.footerText}>1 of 1</Text>
             </View>
          </View>
       </Page>
