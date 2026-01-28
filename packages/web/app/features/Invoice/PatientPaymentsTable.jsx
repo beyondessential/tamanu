@@ -41,15 +41,15 @@ const TableContainer = styled.div`
       }
 
       &:nth-child(3) {
-        width ${props => (props.showChequeNumberColumn ? '100px' : '100px')};
+        width: ${props => (props.showChequeNumberColumn ? '100px' : '100px')};
       }
 
       &:nth-child(4) {
-        width ${props => (props.showChequeNumberColumn ? '120px' : '120px')};
+        width: ${props => (props.showChequeNumberColumn ? '120px' : '120px')};
       }
 
       &:nth-child(5) {
-        width ${props => (props.showChequeNumberColumn ? '80px' : '80px')};
+        width: ${props => (props.showChequeNumberColumn ? '80px' : '80px')};
       }
 
       &:nth-child(6) {
@@ -138,6 +138,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const canEditPayment = ability.can('write', 'InvoicePayment');
 
   const hideRecordPaymentForm =
+    !canCreatePayment ||
     round(new Decimal(patientPaymentRemainingBalance).toNumber(), 2) <= 0 ||
     invoice.status === INVOICE_STATUSES.CANCELLED;
 
@@ -295,17 +296,15 @@ export const PatientPaymentsTable = ({ invoice }) => {
           data-testid="table-so8f"
         />
       </TableContainer>
-      {canCreatePayment && (
-        <PatientPaymentModal
-          invoice={invoice}
-          key={selectedPaymentRecord?.id}
-          patientPaymentRemainingBalance={patientPaymentRemainingBalance}
-          showChequeNumberColumn={showChequeNumberColumn}
-          selectedPaymentRecord={selectedPaymentRecord}
-          isOpen={paymentModalIsOpen}
-          onClose={onClosePaymentModal}
-        />
-      )}
+      <PatientPaymentModal
+        invoice={invoice}
+        key={paymentModalIsOpen ? 'open' : 'closed'}
+        patientPaymentRemainingBalance={patientPaymentRemainingBalance}
+        showChequeNumberColumn={showChequeNumberColumn}
+        selectedPaymentRecord={selectedPaymentRecord}
+        isOpen={paymentModalIsOpen}
+        onClose={onClosePaymentModal}
+      />
     </>
   );
 };
