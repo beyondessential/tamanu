@@ -103,11 +103,11 @@ export class FhirTopicJobRunner {
             try {
               await spanWrapFn('FhirJob.start', () => job.start(this.fhirWorker.worker.id));
             } catch (err) {
-              throw new FhirWorkerError(this.topic, 'failed to mark job as started', err);
+              throw new FhirQueueManagerError(this.topic, 'failed to mark job as started', err);
             }
 
             try {
-              await spanWrapFn(`FhirWorker.handler`, childSpan =>
+              await spanWrapFn(`FhirQueueManager.handler`, childSpan =>
                 this.handler(job, {
                   span: childSpan,
                   log: this.fhirWorker.log.child({ topic: this.topic, jobId: job.id }),
@@ -124,20 +124,20 @@ export class FhirTopicJobRunner {
                   ),
                 );
               } catch (err) {
-                throw new FhirWorkerError(
+                throw new FhirQueueManagerError(
                   this.topic,
                   'job completed but failed to mark as errored',
                   err,
                 );
               }
-              throw new FhirWorkerError(this.topic, 'job failed', workErr);
+              throw new FhirQueueManagerError(this.topic, 'job failed', workErr);
             }
 
             try {
               await spanWrapFn('FhirJob.complete', () => job.complete(this.fhirWorker.worker.id));
               await this.fhirWorker.worker.recordSuccess();
             } catch (err) {
-              throw new FhirWorkerError(
+              throw new FhirQueueManagerError(
                 this.topic,
                 'job completed but failed to mark as complete',
                 err,
@@ -146,11 +146,11 @@ export class FhirTopicJobRunner {
           } catch (err) {
             await this.fhirWorker.worker.recordFailure();
 
-            if (err instanceof FhirWorkerError) {
+            if (err instanceof FhirQueueManagerError) {
               throw err;
             }
 
-            throw new FhirWorkerError(this.topic, 'error running job', err);
+            throw new FhirQueueManagerError(this.topic, 'error running job', err);
           }
         } catch (err) {
           span.recordException(err);
@@ -168,10 +168,10 @@ export class FhirTopicJobRunner {
   }
 }
 
-class FhirWorkerError extends Error {
+class FhirQueueManagerError extends Error {
   constructor(topic, message, err = null) {
     super(
-      `FhirWorker/${topic}: ${message}\n${err?.stack ?? err?.message ?? err?.toString() ?? ''}`,
+      `FhirQueueManager/${topic}: ${message}\n${err?.stack ?? err?.message ?? err?.toString() ?? ''}`,
     );
     this.name = 'FhirWorkerError';
     if (err && err instanceof Error) {

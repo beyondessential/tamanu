@@ -1,6 +1,6 @@
 import { describe, expect, it, jest } from '@jest/globals';
 import { withErrorShown } from '@tamanu/shared/test-helpers';
-import { FhirWorker } from '@tamanu/shared/tasks';
+import { FhirQueueManager } from '@tamanu/shared/tasks';
 import { fakeUUID } from '@tamanu/utils/generateId';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
@@ -17,15 +17,15 @@ function makeLogger(mock, topData = {}) {
   };
 }
 
-function workerTest(job, { log }) {
+function testHandler(job, { log }) {
   if (job.payload.error) {
-    throw new Error('workerTest: error');
+    throw new Error('testHandler: error');
   }
 
-  log.info('workerTest: success', job.payload);
+  log.info('testHandler: success', job.payload);
 }
 
-describe('Worker Jobs', () => {
+describe('FhirQueueManager', () => {
   let ctx;
   let models;
 
@@ -100,18 +100,18 @@ describe('Worker Jobs', () => {
 
   describe('running a job', () => {
     let logger;
-    let worker;
+    let queueManager;
 
     beforeEach(async () => {
       logger = jest.fn();
-      worker = new FhirWorker(ctx.store, makeLogger(logger));
-      worker.testMode = true;
-      await worker.start();
-      await worker.setHandler('test', workerTest);
+      queueManager = new FhirQueueManager(ctx.store, makeLogger(logger));
+      queueManager.testMode = true;
+      await queueManager.start();
+      await queueManager.setHandler('test', testHandler);
     });
 
     afterEach(async () => {
-      await worker.stop();
+      await queueManager.stop();
     });
 
     it(
@@ -121,7 +121,7 @@ describe('Worker Jobs', () => {
 
         // Act
         const id = await Job.submit('test');
-        await worker.processQueue('test');
+        await queueManager.processQueue('test');
 
         // Assert
         expect(await Job.findByPk(id)).toBeNull();
@@ -135,7 +135,7 @@ describe('Worker Jobs', () => {
 
         // Act
         const id = await Job.submit('test', { error: true });
-        await worker.processQueue('test');
+        await queueManager.processQueue('test');
 
         // Assert
         expect(await Job.findByPk(id)).toMatchObject({
@@ -148,24 +148,24 @@ describe('Worker Jobs', () => {
 
   describe('processing the queue', () => {
     let logger;
-    let worker;
+    let queueManager;
 
     beforeEach(
       withErrorShown(async () => {
         await models.FhirJob.truncate();
 
         logger = jest.fn();
-        worker = new FhirWorker(ctx.store, makeLogger(logger));
-        worker.testMode = true;
-        worker.config.concurrency = 1;
-        await worker.setHandler('test1', workerTest);
-        await worker.setHandler('test2', workerTest);
-        await worker.start();
+        queueManager = new FhirQueueManager(ctx.store, makeLogger(logger));
+        queueManager.testMode = true;
+        queueManager.config.concurrency = 1;
+        await queueManager.setHandler('test1', testHandler);
+        await queueManager.setHandler('test2', testHandler);
+        await queueManager.start();
       }),
     );
 
     afterEach(async () => {
-      await worker.stop();
+      await queueManager.stop();
     });
 
     it(
@@ -176,7 +176,7 @@ describe('Worker Jobs', () => {
         const id2 = await Job.submit('test2');
 
         // Act 1
-        await worker.processQueue('test1');
+        await queueManager.processQueue('test1');
 
         expect(await Job.findByPk(id1)).toBeNull();
         expect(await Job.findByPk(id2)).toMatchObject({
@@ -189,10 +189,10 @@ describe('Worker Jobs', () => {
       'jobs are processed in priority order',
       withErrorShown(async () => {
         const jobCompletionOrder = [];
-        const workerTest = async job => {
+        const completionOrderHandler = async job => {
           jobCompletionOrder.push(job.id);
         };
-        await worker.setHandler('test1', workerTest);
+        await queueManager.setHandler('test1', completionOrderHandler);
 
         const { FhirJob: Job } = models;
         const id1Low = await Job.submit('test1', {}, { priority: JOB_PRIORITIES.LOW });
@@ -200,7 +200,7 @@ describe('Worker Jobs', () => {
         const id1High = await Job.submit('test1', {}, { priority: JOB_PRIORITIES.HIGH });
 
         // Act
-        await worker.processQueue('test1');
+        await queueManager.processQueue('test1');
 
         // Assert
         expect(jobCompletionOrder).toEqual([id1High, id1Normal, id1Low]);
@@ -218,7 +218,7 @@ describe('Worker Jobs', () => {
         await sleepAsync(11_000); // jobs must be started within 10 seconds or they are dropped
 
         // Assert
-        await worker.processQueue('test1');
+        await queueManager.processQueue('test1');
         expect(await Job.findByPk(id)).toBeNull();
       }),
     );
@@ -228,13 +228,16 @@ describe('Worker Jobs', () => {
       withErrorShown(async () => {
         const { FhirJob: Job } = models;
         const id = await Job.submit('test1');
-        await Job.update({ status: 'Grabbed', workerId: worker.worker.id }, { where: { id } });
+        await Job.update(
+          { status: 'Grabbed', workerId: queueManager.worker.id },
+          { where: { id } },
+        );
 
         // Act
         await sleepAsync(11_000); // jobs must be started within 10 seconds or they are dropped
 
         // Assert
-        await worker.processQueue('test1');
+        await queueManager.processQueue('test1');
         expect(await Job.findByPk(id)).toBeNull();
       }),
     );
@@ -247,7 +250,7 @@ describe('Worker Jobs', () => {
         await Job.update({ status: 'Started', workerId: fakeUUID() }, { where: { id } });
 
         // Assert
-        await worker.processQueue('test1');
+        await queueManager.processQueue('test1');
         expect(await Job.findByPk(id)).toBeNull();
       }),
     );
@@ -256,14 +259,14 @@ describe('Worker Jobs', () => {
       'several jobs can be grabbed simultaneously',
       withErrorShown(async () => {
         const { FhirJob: Job } = models;
-        worker.config.concurrency = 10;
-        await worker.setHandler('test3', workerTest);
+        queueManager.config.concurrency = 10;
+        await queueManager.setHandler('test3', testHandler);
         const id1 = await Job.submit('test3');
         const id2 = await Job.submit('test3');
         const id3 = await Job.submit('test3');
 
         // Act 1 (high)
-        await worker.processQueue('test3');
+        await queueManager.processQueue('test3');
 
         // Assert
         expect(await Job.findByPk(id1)).toBeNull();
@@ -297,15 +300,18 @@ describe('Worker Jobs', () => {
             fastJobsDoneResolve();
           }
         };
-        await worker.setHandler('fastJob', fastJob);
+        await queueManager.setHandler('fastJob', fastJob);
 
         const slowJob = async () => {
           await fastJobsDonePromise;
         };
-        await worker.setHandler('slowJob', slowJob);
+        await queueManager.setHandler('slowJob', slowJob);
 
         // Act
-        await Promise.all([worker.processQueue('slowJob'), worker.processQueue('fastJob')]);
+        await Promise.all([
+          queueManager.processQueue('slowJob'),
+          queueManager.processQueue('fastJob'),
+        ]);
 
         // Assert
         expect(await Job.count()).toBe(0);
