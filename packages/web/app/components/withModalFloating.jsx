@@ -1,4 +1,4 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
 import { Resizable } from 're-resizable';
@@ -10,6 +10,16 @@ import { ResizeHorizontalIcon } from './Icons/ResizeHorizontalIcon';
 import { ResizeVerticalIcon } from './Icons/ResizeVerticalIcon';
 import { Colors } from '../constants';
 
+const calculateDefaultPosition = (baseWidth, baseHeight) => {
+  if (typeof window !== 'undefined') {
+    return {
+      x: Math.max(0, Math.round(window.innerWidth / 2 - Number(baseWidth) / 2)),
+      y: Math.max(0, Math.round(window.innerHeight / 2 - Number(baseHeight) / 2)),
+    };
+  }
+  return { x: 0, y: 0 };
+};
+
 export const withModalFloating = ModalComponent => {
   const StyledModalComponent = styled(ModalComponent)`
     &.MuiDialog-root,
@@ -17,8 +27,14 @@ export const withModalFloating = ModalComponent => {
       pointer-events: none;
     }
 
+    & .MuiDialog-container {
+      align-items: flex-start;
+      justify-content: flex-start;
+    }
+
     & .MuiDialog-paper {
       pointer-events: auto;
+      margin: 0;
     }
 
     & ${props => props.draggableHandle} {
@@ -45,8 +61,46 @@ export const withModalFloating = ModalComponent => {
     BackdropProps,
     ...modalProps
   }) => {
+    // We use both state and refs for position/size:
+    // - State triggers re-renders when window resizes (to recenter modal) and keeps
+    //   react-draggable/re-resizable controlled (they need prop updates to reflect changes)
+    // - Refs provide stable references to the memoized PaperComponent callback, preventing
+    //   it from recreating on every render (which would remount Dialog and reset form state)
+    // Refs are synced from state/props on each render so PaperComponent always reads current values
     const positionRef = useRef({ x: 0, y: 0 });
+    const baseSizeRef = useRef({ width: Number(baseWidth), height: Number(baseHeight) });
+    const currentSizeRef = useRef({ width: Number(baseWidth), height: Number(baseHeight) });
+    const minConstraintsRef = useRef(minConstraints);
+    const maxConstraintsRef = useRef(maxConstraints);
 
+    const [position, setPosition] = useState(() =>
+      calculateDefaultPosition(baseWidth, baseHeight),
+    );
+    const [size, setSize] = useState(() => ({
+      width: Number(baseWidth),
+      height: Number(baseHeight),
+    }));
+
+    // Recenter and reset to default size when window is resized
+    useEffect(() => {
+      const handleResize = () => {
+        setPosition(calculateDefaultPosition(baseSizeRef.current.width, baseSizeRef.current.height));
+        setSize(baseSizeRef.current);
+      };
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    // Update refs with latest prop values so PaperComponent won't recreate
+    baseSizeRef.current = { width: Number(baseWidth), height: Number(baseHeight) };
+    currentSizeRef.current = size;
+    minConstraintsRef.current = minConstraints;
+    maxConstraintsRef.current = maxConstraints;
+    positionRef.current = position;
+
+    // PaperComponent reads position from positionRef so it stays referentially stable
+    // when position changes (e.g. on resize). That avoids Dialog remounting and
+    // resetting form state inside the modal.
     const PaperComponent = useCallback(
       paperProps => {
         const { style, className, children, ...rest } = paperProps;
@@ -54,22 +108,30 @@ export const withModalFloating = ModalComponent => {
           <Draggable
             handle={draggableHandle}
             bounds={draggableBounds}
-            defaultPosition={positionRef.current}
+            position={positionRef.current}
             cancel=".MuiDialogTitle-root button, .MuiDialogActions-root button"
             onStop={(e, data) => {
-              positionRef.current = { x: data.x, y: data.y };
+              const next = { x: data.x, y: data.y };
+              positionRef.current = next;
+              setPosition(next);
             }}
           >
             <Resizable
-              defaultSize={{ width: baseWidth, height: baseHeight }}
-              minWidth={minConstraints[0]}
-              minHeight={minConstraints[1]}
-              maxWidth={maxConstraints[0]}
-              maxHeight={maxConstraints[1]}
+              size={currentSizeRef.current}
+              minWidth={minConstraintsRef.current[0]}
+              minHeight={minConstraintsRef.current[1]}
+              maxWidth={maxConstraintsRef.current[0]}
+              maxHeight={maxConstraintsRef.current[1]}
               enable={enableResizeHandle}
               resizeRatio={resizeRatio}
               handleComponent={handleComponent}
               handleStyles={handleStyles}
+              onResizeStop={(e, direction, ref, d) => {
+                setSize({
+                  width: currentSizeRef.current.width + d.width,
+                  height: currentSizeRef.current.height + d.height,
+                });
+              }}
               className={className}
               style={{ ...style, position: 'absolute', overflow: 'visible', zIndex: 1500 }}
             >
@@ -89,14 +151,10 @@ export const withModalFloating = ModalComponent => {
           </Draggable>
         );
       },
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       [
-        positionRef,
         draggableHandle,
         draggableBounds,
-        baseWidth,
-        baseHeight,
-        minConstraints,
-        maxConstraints,
         enableResizeHandle,
         handleComponent,
         handleStyles,
@@ -156,7 +214,7 @@ export const withModalFloating = ModalComponent => {
     draggableBounds: 'body',
     hideBackdrop: true,
     BackdropProps: { invisible: true, style: { pointerEvents: 'none' } },
-    resizeRatio: 2,
+    resizeRatio: 1,
   };
 
   return FloatingModal;
