@@ -81,9 +81,8 @@ export const withModalFloating = ModalComponent => {
     // Recenter and reset to default size when window is resized
     useEffect(() => {
       const handleResize = () => {
-        const base = baseSizeRef.current;
-        setPosition(calculateDefaultPosition(base.width, base.height));
-        setSize(base);
+        setPosition(calculateDefaultPosition(baseSizeRef.current.width, baseSizeRef.current.height));
+        setSize(baseSizeRef.current);
       };
       window.addEventListener('resize', handleResize);
       return () => window.removeEventListener('resize', handleResize);
