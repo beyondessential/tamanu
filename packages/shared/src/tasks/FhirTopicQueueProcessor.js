@@ -29,7 +29,7 @@ export class FhirTopicQueueProcessor {
 
         if (!this.queueFinishedPromise) {
           // Don't create a new promise if one already exists
-          // Otherwise other procceses that were already waiting for the queue to finish will never complete
+          // Otherwise other processes that were already waiting for the queue to finish will never complete
           this.queueFinishedPromise = new Promise(resolve => {
             this.queueFinishedResolve = resolve;
           });
