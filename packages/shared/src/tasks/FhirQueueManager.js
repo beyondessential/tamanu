@@ -4,7 +4,7 @@ import ms from 'ms';
 import { hostname } from 'os';
 
 import { getTracer } from '../services/logging';
-import { FhirTopicJobRunner } from './FhirTopicJobRunner';
+import { FhirTopicQueueProcessor } from './FhirTopicQueueProcessor';
 
 export class FhirQueueManager {
   handlers = new Map();
@@ -24,7 +24,7 @@ export class FhirQueueManager {
     this.models = context.models;
     this.sequelize = context.sequelize;
     this.log = log;
-    this.jobRunners = new Map();
+    this.queueProcessors = new Map();
   }
 
   async start() {
@@ -82,12 +82,12 @@ export class FhirQueueManager {
     await this.worker?.markAsHandling(topic);
     this.handlers.set(topic, handler);
 
-    const existingJobRunner = this.jobRunners.get(topic);
-    if (existingJobRunner) {
-      existingJobRunner.stop(); // No need to await, let it gracefully stop all current jobs in the background
+    const existingQueueProcessor = this.queueProcessors.get(topic);
+    if (existingQueueProcessor) {
+      existingQueueProcessor.stop(); // No need to await, let it gracefully stop all current jobs in the background
     }
 
-    this.jobRunners.set(topic, new FhirTopicJobRunner(this, topic, handler));
+    this.queueProcessors.set(topic, new FhirTopicQueueProcessor(this, topic, handler));
   }
 
   async stop() {
@@ -98,7 +98,7 @@ export class FhirQueueManager {
     this.handlers.clear();
 
     await this.worker?.deregister();
-    await Promise.all(Array.from(this.jobRunners.values()).map(runner => runner.stop()));
+    await Promise.all(Array.from(this.queueProcessors.values()).map(runner => runner.stop()));
     this.worker = null;
 
     if (this.pg) {
@@ -121,15 +121,15 @@ export class FhirQueueManager {
   }
 
   /**
-   * How many runners can be assigned to a topic.
+   * How many concurrent jobs can be processed for a topic.
    *
    * This is calculated to evenly distribute the capacity among the topics.
-   * Every topic gets at least 1 runner (regardless of total capacity), and the remaining capacity
+   * Every topic can run at least 1 job (regardless of total capacity), and the remaining capacity
    * is divided evenly among the topics.
    *
-   * @returns {number} Amount of runners to assign to a topic.
+   * @returns {number} Amount of jobs to run in parallel for a topic.
    */
-  runnersPerTopic() {
+  parallelisationPerTopic() {
     return Math.max(
       this.totalCapacity() > 0 ? 1 : 0, // return at least 1 if there's any capacity
       Math.floor(this.totalCapacity() / this.handlers.size), // otherwise divide the capacity evenly among the topics
@@ -163,13 +163,13 @@ export class FhirQueueManager {
             return;
           }
 
-          const jobRunner = this.jobRunners.get(topic);
-          if (!jobRunner) {
-            this.log.debug('FhirQueueManager: no job runner for topic', { topic });
+          const queueProcessor = this.queueProcessors.get(topic);
+          if (!queueProcessor) {
+            this.log.debug('FhirQueueManager: no processor for topic', { topic });
             return;
           }
 
-          await this.jobRunners.get(topic).processQueue();
+          await this.queueProcessors.get(topic).processQueue();
         } catch (err) {
           this.log.debug('Trouble retrieving the backlog');
           span.recordException(err);
