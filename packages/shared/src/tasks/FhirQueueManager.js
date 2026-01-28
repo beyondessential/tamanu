@@ -7,7 +7,7 @@ import { getTracer } from '../services/logging';
 import { FhirTopicQueueProcessor } from './FhirTopicQueueProcessor';
 
 export class FhirQueueManager {
-  handlers = new Map();
+  queueProcessors = new Map();
 
   heartbeat = null;
 
@@ -24,7 +24,6 @@ export class FhirQueueManager {
     this.models = context.models;
     this.sequelize = context.sequelize;
     this.log = log;
-    this.queueProcessors = new Map();
   }
 
   async start() {
@@ -80,7 +79,6 @@ export class FhirQueueManager {
   async setHandler(topic, handler) {
     this.log.info('FhirQueueManager: setting topic handler', { topic });
     await this.worker?.markAsHandling(topic);
-    this.handlers.set(topic, handler);
 
     const existingQueueProcessor = this.queueProcessors.get(topic);
     if (existingQueueProcessor) {
@@ -94,11 +92,12 @@ export class FhirQueueManager {
     clearInterval(this.heartbeat);
     this.heartbeat = null;
 
-    this.log.info('FhirQueueManager: removing all topic handlers');
-    this.handlers.clear();
+    this.log.info('FhirQueueManager: removing all queue processors');
+
+    await Promise.all(Array.from(this.queueProcessors.values()).map(runner => runner.stop()));
+    this.queueProcessors.clear();
 
     await this.worker?.deregister();
-    await Promise.all(Array.from(this.queueProcessors.values()).map(runner => runner.stop()));
     this.worker = null;
 
     if (this.pg) {
@@ -132,7 +131,7 @@ export class FhirQueueManager {
   parallelisationPerTopic() {
     return Math.max(
       this.totalCapacity() > 0 ? 1 : 0, // return at least 1 if there's any capacity
-      Math.floor(this.totalCapacity() / this.handlers.size), // otherwise divide the capacity evenly among the topics
+      Math.floor(this.totalCapacity() / this.queueProcessors.size), // otherwise divide the capacity evenly among the topics
     );
   }
 
