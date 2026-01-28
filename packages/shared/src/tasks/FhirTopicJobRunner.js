@@ -32,7 +32,7 @@ export class FhirTopicJobRunner {
         });
 
         // Start as many job runs as we have capacity
-        for (let i = this.jobRuns.size; i < this.fhirWorker.topicCapacity(); i++) {
+        for (let i = this.jobRuns.size; i < this.fhirWorker.runnersPerTopic(); i++) {
           this.startJobRun();
         }
 

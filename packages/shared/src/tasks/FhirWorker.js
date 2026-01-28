@@ -121,14 +121,15 @@ export class FhirWorker {
   }
 
   /**
-   * How many jobs can be grabbed for a topic.
+   * How many runners can be assigned to a topic.
    *
-   * This is calculated from the number of jobs that are processing, the total
-   * allowed concurrency (from config), and the amount of handlers (for fairness).
+   * This is calculated to evenly distribute the capacity among the topics.
+   * Every topic gets at least 1 runner (regardless of total capacity), and the remaining capacity
+   * is divided evenly among the topics.
    *
-   * @returns {number} Amount of jobs to grab for a topic.
+   * @returns {number} Amount of runners to assign to a topic.
    */
-  topicCapacity() {
+  runnersPerTopic() {
     return Math.max(
       this.totalCapacity() > 0 ? 1 : 0, // return at least 1 if there's any capacity
       Math.floor(this.totalCapacity() / this.handlers.size), // otherwise divide the capacity evenly among the topics
