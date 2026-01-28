@@ -7,8 +7,8 @@ import { v4 as uuidv4 } from 'uuid';
 export class FhirTopicQueueProcessor {
   isRunning = false;
   jobRuns = new Map();
-  jobRunnerQueuePromise = null;
-  jobRunnerQueueResolve = null;
+  queueFinishedPromise = null;
+  queueFinishedResolve = null;
 
   constructor(manager, topic, handler) {
     this.manager = manager;
@@ -27,16 +27,20 @@ export class FhirTopicQueueProcessor {
           'job.topic': this.topic,
         });
 
-        this.jobRunnerQueuePromise = new Promise(resolve => {
-          this.jobRunnerQueueResolve = resolve;
-        });
+        if (!this.queueFinishedPromise) {
+          // Don't create a new promise if one already exists
+          // Otherwise other procceses that were already waiting for the queue to finish will never complete
+          this.queueFinishedPromise = new Promise(resolve => {
+            this.queueFinishedResolve = resolve;
+          });
+        }
 
         // Start as many job runs as we have capacity
         for (let i = this.jobRuns.size; i < this.manager.parallelisationPerTopic(); i++) {
           this.startJobRun();
         }
 
-        return this.jobRunnerQueuePromise;
+        return this.queueFinishedPromise;
       },
     );
   }
@@ -51,17 +55,17 @@ export class FhirTopicQueueProcessor {
 
   clearJobRun(id) {
     this.jobRuns.delete(id);
-    if (this.jobRunnerQueuePromise && this.jobRuns.size === 0) {
-      // All jobs have been cleared, resolve the promise
-      this.jobRunnerQueueResolve();
-      this.jobRunnerQueuePromise = null;
+    if (this.queueFinishedPromise && this.jobRuns.size === 0) {
+      // All jobs have been cleared, queue is finished so resolve the promise
+      this.queueFinishedResolve();
+      this.queueFinishedPromise = null;
       this.isRunning = false;
     }
   }
 
   stop() {
     this.isRunning = false;
-    return this.jobRunnerQueuePromise;
+    return this.queueFinishedPromise;
   }
 
   grabAndRunOne() {
