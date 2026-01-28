@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
-import { NOTE_TYPES, NOTE_TYPE_LABELS } from '@tamanu/constants';
+import { NOTE_TYPES, NOTE_TYPE_LABELS, NON_EDITABLE_NOTE_TYPES } from '@tamanu/constants';
 import { Box } from '@material-ui/core';
 import { InfoCard, InfoCardItem } from './InfoCard';
 import {
@@ -287,7 +287,7 @@ export const NoteTypeField = ({ required, noteTypeCountByType, onChange, size, d
     enumValues={NOTE_TYPE_LABELS}
     transformOptions={types =>
       types
-        .filter(option => !option.hideFromDropdown)
+        .filter(option => !option.hideFromDropdown && !NON_EDITABLE_NOTE_TYPES.includes(option.value))
         .map(option => ({
           ...option,
           isDisabled:
