@@ -156,7 +156,7 @@ const TranslationField = ({ stringId, code }) => (
     name={`['${stringId}']['${code}']`}
     component={TextField}
     multiline
-    data-testid="accessorfield-e12n"
+    data-testid="translation-field-e12n"
   />
 );
 
