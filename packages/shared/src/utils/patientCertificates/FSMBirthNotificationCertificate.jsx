@@ -123,10 +123,7 @@ const getLabelFromValue = (mapping, v) => {
 };
 
 const getCountryOfBirth = ({ additionalData }) => {
-  if (additionalData?.placeOfBirth) {
-    return additionalData?.placeOfBirth;
-  }
-  return additionalData?.countryOfBirth?.name;
+  return additionalData?.placeOfBirth || additionalData?.countryOfBirth?.name;
 };
 
 export const FSMBirthNotificationCertificate = ({
