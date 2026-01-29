@@ -11,6 +11,7 @@ export const KEYS_EXPOSED_TO_FRONT_END = [
   'customisations',
   'features',
   'fields',
+  'fsmCrvsCertificates',
   'imagingCancellationReasons',
   'imagingPriorities',
   'insurer',
