@@ -56,7 +56,8 @@ export class ReadSettings<Path = SettingPath> {
 
   async getPatientPortalSettings() {
     const allSettings = await this.getAll();
-    return pick(allSettings, KEYS_EXPOSED_TO_PATIENT_PORTAL);
+    const portalSettings = pick(allSettings, KEYS_EXPOSED_TO_PATIENT_PORTAL);
+    return portalSettings;
   }
 
   async getAll() {
