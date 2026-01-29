@@ -145,6 +145,7 @@ const getValidationSchema = (editingPayment, patientPaymentRemainingBalance) =>
       ),
   });
 
+// Calculates the patient's remaining balance after applying the payment amount
 const calculateDisplayedBalance = ({
   patientPaymentRemainingBalance,
   amount,
@@ -196,6 +197,7 @@ export const PatientPaymentModal = ({
   const { mutate: createPatientPayment } = useCreatePatientPayment(invoice);
   const { mutate: updatePatientPayment } = useUpdatePatientPayment(invoice, paymentRecord.id);
 
+  // Validates amount input to allow only numbers with up to 2 decimal places
   const handleChangeAmount = event => {
     const next = event.target.value;
 
@@ -204,6 +206,7 @@ export const PatientPaymentModal = ({
     }
   };
 
+  // Sets the payment amount to the full remaining balance
   const handlePayBalance = () => {
     const balance = isEditMode
       ? new Decimal(patientPaymentRemainingBalance).plus(paymentRecord.amount).toNumber()
