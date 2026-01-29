@@ -113,6 +113,7 @@ export const FamilyHistoryForm = ({
       </FormGrid>
     )}
     initialValues={{
+      // TODO: multiple timezones date field saving as date_time_string
       recordedDate: getCountryCurrentDateTimeString(),
       ...editedObject,
     }}

@@ -264,6 +264,7 @@ export const OngoingConditionForm = ({
       onSubmit={onDataSubmit}
       render={RenderForm}
       initialValues={{
+        // TODO: multiple timezones date field saving as date_time_string
         recordedDate: getCountryCurrentDateTimeString(),
         resolutionDate: getCountryCurrentDateTimeString(),
         resolved: false,
