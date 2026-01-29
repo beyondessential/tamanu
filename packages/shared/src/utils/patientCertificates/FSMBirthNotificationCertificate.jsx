@@ -180,8 +180,8 @@ export const FSMBirthNotificationCertificate = ({
             </View>
           </View>
 
-           {/* Mother Section */}
-           <View style={styles.row}>
+          {/* Mother Section */}
+          <View style={styles.row}>
             <View style={styles.sectionLabel}>
               <Text bold>Mother</Text>
             </View>
@@ -206,11 +206,11 @@ export const FSMBirthNotificationCertificate = ({
 
               {/* Mother Row 3 */}
               <View style={styles.lastRow}>
-                 <Cell flex={1} label="Race:" value={getEthnicity(motherData)} />
-                 <Cell flex={1} label="Highest grade:" value={motherData?.additionalData?.educationalLevel} />
-                 <Cell flex={1} label="Occupation:" value={motherData?.occupation?.name} />
-                 <Cell width={183} lastCell label="Marital status:" value={getLabelFromValue(MARITAL_STATUS_OPTIONS, motherData?.additionalData?.maritalStatus)} />
-               </View>
+                <Cell flex={1} label="Race:" value={getEthnicity(motherData)} />
+                <Cell flex={1} label="Highest grade:" value={motherData?.additionalData?.educationalLevel} />
+                <Cell flex={1} label="Occupation:" value={motherData?.occupation?.name} />
+                <Cell width={183} lastCell label="Marital status:" value={getLabelFromValue(MARITAL_STATUS_OPTIONS, motherData?.additionalData?.maritalStatus)} />
+              </View>
             </View>
           </View>
 
@@ -231,11 +231,11 @@ export const FSMBirthNotificationCertificate = ({
 
               {/* Father Row 2 */}
               <View style={styles.lastRow}>
-                 <Cell flex={1} label="Race:" value={getEthnicity(fatherData)} />
-                 <Cell flex={1} label="Highest grade:" value={fatherData?.additionalData?.educationalLevel} />
-                 <Cell flex={1} label="Occupation:" value={fatherData?.occupation?.name} />
-                 <Cell width={183} lastCell label="FSM birth state or country:" value={fatherData?.additionalData?.nationality?.name} />
-               </View>
+                <Cell flex={1} label="Race:" value={getEthnicity(fatherData)} />
+                <Cell flex={1} label="Highest grade:" value={fatherData?.additionalData?.educationalLevel} />
+                <Cell flex={1} label="Occupation:" value={fatherData?.occupation?.name} />
+                <Cell width={183} lastCell label="FSM birth state or country:" value={fatherData?.additionalData?.nationality?.name} />
+              </View>
             </View>
           </View>
 
@@ -278,18 +278,18 @@ export const FSMBirthNotificationCertificate = ({
           </View>
         </View>
 
-         {/* Footer */}
-         <View style={styles.footer}>
-            <View style={styles.lastRow}>
-              <Text bold style={styles.footerText}>Print date: </Text>
-              <Text style={styles.footerText}>{currentDateString} | </Text>
-              <Text bold style={styles.footerText}>Printed by: </Text>
-              <Text style={styles.footerText}>{printedBy}</Text>
-            </View>
-            <View style={styles.lastRow}>
-              <Text style={styles.footerText}>1 of 1</Text>
-            </View>
-         </View>
+        {/* Footer */}
+        <View style={styles.footer}>
+          <View style={styles.lastRow}>
+            <Text bold style={styles.footerText}>Print date: </Text>
+            <Text style={styles.footerText}>{currentDateString} | </Text>
+            <Text bold style={styles.footerText}>Printed by: </Text>
+            <Text style={styles.footerText}>{printedBy}</Text>
+          </View>
+          <View style={styles.lastRow}>
+            <Text style={styles.footerText}>1 of 1</Text>
+          </View>
+        </View>
       </Page>
     </Document>
   );
