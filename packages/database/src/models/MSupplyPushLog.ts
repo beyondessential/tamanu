@@ -14,10 +14,6 @@ export class MSupplyPushLog extends Model {
     super.init(
       {
         id: primaryKey,
-        reportId: {
-          type: DataTypes.TEXT,
-          allowNull: false,
-        },
         status: {
           type: DataTypes.TEXT,
           allowNull: false,
