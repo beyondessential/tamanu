@@ -121,6 +121,13 @@ const getLabelFromValue = (mapping, v) => {
   return entry ? entry.label : '';
 };
 
+const getCountryOfBirth = ({ additionalData }) => {
+  if (additionalData?.placeOfBirth) {
+    return additionalData?.placeOfBirth;
+  }
+  return additionalData?.countryOfBirth?.name;
+};
+
 export const FSMBirthNotificationCertificate = ({
   motherData,
   fatherData,
@@ -197,10 +204,10 @@ export const FSMBirthNotificationCertificate = ({
 
               {/* Mother Row 2 */}
               <View style={styles.row}>
-                <Cell width={146} label="FSM birth state or country:" value={motherData?.additionalData?.nationality?.name} />
+                <Cell width={146} label="FSM birth state or country:" value={getCountryOfBirth(motherData)} />
                 <Cell width={110} label="Village:" value={motherData?.village?.name} />
                 <Cell width={146} label="Municipality:" value={motherData?.additionalData?.cityTown} />
-                <Cell width={146} label="State (legal residence):" value={motherData?.additionalData?.nationality?.name} />
+                <Cell width={146} label="State (legal residence):" value={motherData?.additionalData?.country?.name} />
                 <Cell width={183} lastCell label="Medical record number:" value={motherData?.displayId} />
               </View>
 
@@ -234,7 +241,7 @@ export const FSMBirthNotificationCertificate = ({
                 <Cell flex={1} label="Race:" value={getEthnicity(fatherData)} />
                 <Cell flex={1} label="Highest grade:" value={fatherData?.additionalData?.educationalLevel} />
                 <Cell flex={1} label="Occupation:" value={fatherData?.occupation?.name} />
-                <Cell width={183} lastCell label="FSM birth state or country:" value={fatherData?.additionalData?.nationality?.name} />
+                <Cell width={183} lastCell label="FSM birth state or country:" value={getCountryOfBirth(fatherData)} />
               </View>
             </View>
           </View>
