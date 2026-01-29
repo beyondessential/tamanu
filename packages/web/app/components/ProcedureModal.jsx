@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
 import { addDays, parseISO } from 'date-fns';
 import styled from 'styled-components';
-import { Form, ButtonRow, FormCancelButton, FormSubmitButton, useDateTimeFormat } from '@tamanu/ui-components';
+import {
+  Form,
+  ButtonRow,
+  FormCancelButton,
+  FormSubmitButton,
+  useDateTimeFormat,
+} from '@tamanu/ui-components';
 import Typography from '@material-ui/core/Typography';
 import MuiDivider from '@material-ui/core/Divider';
 import { useParams } from 'react-router';
@@ -59,7 +65,8 @@ const Divider = styled(MuiDivider)`
 const getTime = str => (str?.includes('T') ? str.slice(11, 16) : str?.slice(-8, -3)) || '';
 
 // Combine date (YYYY-MM-DD) + time (HH:mm) into datetime string
-const combineDateTime = (date, time) => date && time ? `${date.slice(0, 10)}T${getTime(time)}` : null;
+const combineDateTime = (date, time) =>
+  date && time ? `${date.slice(0, 10)}T${getTime(time)}` : null;
 
 const useProcedureProgramResponsesQuery = (patientId, procedureId, refreshCount) => {
   const api = useApi();
@@ -77,16 +84,25 @@ export const ProcedureModal = ({
   editedProcedure,
   setEditedProcedure,
 }) => {
-  const api = useApi(); 
+  const api = useApi();
   const { currentUser } = useAuth();
-  const { getFacilityCurrentDateString, getFacilityCurrentDateTimeString, toDateTimeStringForPersistence, formatForDateTimeInput } = useDateTimeFormat();
+  const {
+    getFacilityCurrentDateString,
+    getFacilityCurrentDateTimeString,
+    toDateTimeStringForPersistence,
+    formatForDateTimeInput,
+  } = useDateTimeFormat();
   const { patientId } = useParams();
   const { data: patient } = usePatientDataQuery(patientId);
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const [selectedSurveyId, setSelectedSurveyId] = useState(null);
   const [unsavedChangesModalOpen, setUnsavedChangesModalOpen] = useState(false);
-  const [saveWithoutAdditionalDataModalOpen, setSaveWithoutAdditionalDataModalOpen] = useState(false);
-  const [closeWithoutAdditionalDataModalOpen, setCloseWithoutAdditionalDataModalOpen] = useState(false);
+  const [saveWithoutAdditionalDataModalOpen, setSaveWithoutAdditionalDataModalOpen] = useState(
+    false,
+  );
+  const [closeWithoutAdditionalDataModalOpen, setCloseWithoutAdditionalDataModalOpen] = useState(
+    false,
+  );
   const [pendingFormData, setPendingFormData] = useState(null);
   const [surveyFormDirty, setSurveyFormDirty] = useState(false);
   const procedureId = editedProcedure?.id;
@@ -97,20 +113,20 @@ export const ProcedureModal = ({
   );
 
   // Convert country TZ → facility TZ for display
-  const toFacilityTz = val => val ? formatForDateTimeInput(val) : undefined;
+  const toFacilityTz = val => (val ? formatForDateTimeInput(val) : undefined);
 
   // Form uses facility TZ; on submit, combine date+time and convert to country TZ
   const onSubmit = async data => {
     const dateStr = data.date.slice(0, 10);
-    const toCountry = time => time ? toDateTimeStringForPersistence(combineDateTime(dateStr, time)) : undefined;
+    const toCountry = time =>
+      time ? toDateTimeStringForPersistence(combineDateTime(dateStr, time)) : undefined;
     const toCountryWithRollover = (time, refTime) => {
       if (!time) return undefined;
       // If time < reference time, it's the next day
       const nextDay = getTime(time) < getTime(refTime);
-      return toDateTimeStringForPersistence(combineDateTime(
-        nextDay ? toDateString(addDays(parseISO(dateStr), 1)) : dateStr,
-        time,
-      ));
+      return toDateTimeStringForPersistence(
+        combineDateTime(nextDay ? toDateString(addDays(parseISO(dateStr), 1)) : dateStr, time),
+      );
     };
 
     const actualDateTime = toCountry(data.startTime);
@@ -296,22 +312,26 @@ export const ProcedureModal = ({
           </>
         );
       }}
-      initialValues={editedProcedure ? {
-        // Edit: spread existing data, convert date/time from country TZ to facility TZ
-        ...editedProcedure,
-        date: toFacilityTz(editedProcedure.date)?.slice(0, 10),
-        startTime: toFacilityTz(editedProcedure.startTime),
-        endTime: toFacilityTz(editedProcedure.endTime),
-        timeIn: toFacilityTz(editedProcedure.timeIn),
-        timeOut: toFacilityTz(editedProcedure.timeOut),
-        assistantClinicianIds: editedProcedure.assistantClinicians?.map(c => c.id) || [],
-      } : {
-        // Create: defaults in facility TZ
-        date: getFacilityCurrentDateString(),
-        startTime: getFacilityCurrentDateTimeString(),
-        physicianId: currentUser.id,
-        assistantClinicianIds: [],
-      }}
+      initialValues={
+        editedProcedure?.id
+          ? {
+              // Edit: spread existing data, convert date/time from country TZ to facility TZ
+              ...editedProcedure,
+              date: toFacilityTz(editedProcedure.date)?.slice(0, 10),
+              startTime: toFacilityTz(editedProcedure.startTime),
+              endTime: toFacilityTz(editedProcedure.endTime),
+              timeIn: toFacilityTz(editedProcedure.timeIn),
+              timeOut: toFacilityTz(editedProcedure.timeOut),
+              assistantClinicianIds: editedProcedure.assistantClinicians?.map(c => c.id) || [],
+            }
+          : {
+              // Create: defaults in facility TZ
+              date: getFacilityCurrentDateString(),
+              startTime: getFacilityCurrentDateTimeString(),
+              physicianId: currentUser.id,
+              assistantClinicianIds: [],
+            }
+      }
       formType={procedureId ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
         procedureTypeId: foreignKey().translatedLabel(
