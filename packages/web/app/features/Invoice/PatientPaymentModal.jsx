@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import Decimal from 'decimal.js';
 import { customAlphabet } from 'nanoid';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants';
 import {
   AutocompleteField,
@@ -162,38 +162,12 @@ export const PatientPaymentModal = ({
 }) => {
   const paymentRecord = selectedPaymentRecord ?? {};
 
-  const [amount, setPaymentAmount] = useState(paymentRecord.amount);
   const isEditMode = !!paymentRecord.id;
   const validationSchema = getValidationSchema(paymentRecord, patientPaymentRemainingBalance);
-
-  const balance = calculateDisplayedBalance({
-    patientPaymentRemainingBalance,
-    amount,
-    paymentRecord,
-  });
-
-  const isNegativeDisplayAmount = new Decimal(balance).isNegative();
 
   const paymentMethodSuggester = useSuggester('paymentMethod');
   const { mutate: createPatientPayment } = useCreatePatientPayment(invoice);
   const { mutate: updatePatientPayment } = useUpdatePatientPayment(invoice, paymentRecord.id);
-
-  // Validates amount input to allow only numbers with up to 2 decimal places
-  const handleChangeAmount = event => {
-    const next = event.target.value;
-
-    if (/^\d*\.?\d{0,2}$/.test(next)) {
-      setPaymentAmount(next);
-    }
-  };
-
-  // Sets the payment amount to the full remaining balance
-  const handlePayBalance = () => {
-    const balance = isEditMode
-      ? new Decimal(patientPaymentRemainingBalance).plus(paymentRecord.amount).toNumber()
-      : patientPaymentRemainingBalance;
-    setPaymentAmount(balance);
-  };
 
   const handleSubmit = data => {
     const formattedAmount = new Decimal(data.amount).toDecimalPlaces(DECIMAL_PLACES).toString();
@@ -220,87 +194,121 @@ export const PatientPaymentModal = ({
       onClose={onClose}
       data-testid="modal-j1bi"
     >
-      <Header>
-        <Text>
-          <TranslatedText
-            stringId="invoice.modal.recordPayment.instruction"
-            fallback="Record a patient payment below"
-          />
-        </Text>
-        <Total>
-          <TranslatedText
-            stringId="invoice.modal.recordPayment.totalDue"
-            fallback="Patient total due:"
-          />{' '}
-          <span style={{ color: isNegativeDisplayAmount ? TAMANU_COLORS.alert : 'initial' }}>
-            {formatDisplayPrice(balance)}
-          </span>
-        </Total>
-      </Header>
       <Form
         enableReinitialize
         suppressErrorDialog
         onSubmit={handleSubmit}
         validationSchema={validationSchema}
         initialValues={{
-          date: paymentRecord.date || getCurrentDateTimeString(),
+          date: paymentRecord.date || getCurrentDateString(),
           methodId: paymentRecord.patientPayment?.methodId || CASH_PAYMENT_METHOD_ID,
-          amount: paymentRecord.amount,
+          amount: paymentRecord.amount != null ? paymentRecord.amount : '',
           receiptNumber: paymentRecord.receiptNumber,
         }}
         formType={isEditMode ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         data-testid="form-gsr7"
-        render={() => (
-          <>
-            <FormCard>
-              <LabelRow>
-                <Label>
-                  <TranslatedText stringId="general.date.label" fallback="Date" />
-                </Label>
-                <Label>
-                  <TranslatedText stringId="general.date.method" fallback="Method" />
-                </Label>
-                <Label style={{ gridColumn: 'span 2' }}>
-                  <TranslatedText stringId="general.date.amount" fallback="Amount" />
-                </Label>
-              </LabelRow>
-              <FormFields>
-                <Field
-                  name="date"
-                  component={DateField}
-                  saveDateAsString
-                  data-testid="field-cx1w"
-                />
-                <Field
-                  name="methodId"
-                  component={AutocompleteField}
-                  suggester={paymentMethodSuggester}
-                  data-testid="field-c2nv"
-                />
-                <Field
-                  name="amount"
-                  component={NumberField}
-                  onChange={handleChangeAmount}
-                  value={amount}
-                  min={0}
-                  data-testid="field-773f"
-                />
-                <PayBalanceButton onClick={handlePayBalance}>
+        render={({ setFieldValue, values }) => {
+          const amount = values.amount;
+
+          const balance = calculateDisplayedBalance({
+            patientPaymentRemainingBalance,
+            amount,
+            paymentRecord,
+          });
+
+          const isNegativeDisplayAmount = new Decimal(balance).isNegative();
+
+          // Validates amount input to allow only numbers with up to 2 decimal places
+          const handleChangeAmount = event => {
+            const next = event.target.value;
+
+            if (/^\d*\.?\d{0,2}$/.test(next)) {
+              setFieldValue('amount', next);
+            }
+          };
+
+          // Sets the payment amount to the full remaining balance
+          const handlePayBalance = () => {
+            const fullBalance = isEditMode
+              ? new Decimal(patientPaymentRemainingBalance).plus(paymentRecord.amount).toNumber()
+              : patientPaymentRemainingBalance;
+
+            setFieldValue('amount', String(fullBalance));
+          };
+
+          return (
+            <>
+              <Header>
+                <Text>
                   <TranslatedText
-                    stringId="invoice.modal.recordPayment.payBalance"
-                    fallback="Pay balance"
+                    stringId="invoice.modal.recordPayment.instruction"
+                    fallback="Record a patient payment below"
                   />
-                </PayBalanceButton>
-              </FormFields>
-            </FormCard>
-            <ModalFormActionRow
-              onCancel={onClose}
-              confirmText={
-                <TranslatedText stringId="general.action.recordPayment" fallback="Record payment" />
-              }
-            />
-          </>
-        )}
+                </Text>
+                <Total>
+                  <TranslatedText
+                    stringId="invoice.modal.recordPayment.totalDue"
+                    fallback="Patient total due:"
+                  />{' '}
+                  <span
+                    style={{ color: isNegativeDisplayAmount ? TAMANU_COLORS.alert : 'initial' }}
+                  >
+                    {formatDisplayPrice(balance)}
+                  </span>
+                </Total>
+              </Header>
+              <FormCard>
+                <LabelRow>
+                  <Label>
+                    <TranslatedText stringId="general.date.label" fallback="Date" />
+                  </Label>
+                  <Label>
+                    <TranslatedText stringId="general.date.method" fallback="Method" />
+                  </Label>
+                  <Label style={{ gridColumn: 'span 2' }}>
+                    <TranslatedText stringId="general.date.amount" fallback="Amount" />
+                  </Label>
+                </LabelRow>
+                <FormFields>
+                  <Field
+                    name="date"
+                    component={DateField}
+                    saveDateAsString
+                    data-testid="field-cx1w"
+                  />
+                  <Field
+                    name="methodId"
+                    component={AutocompleteField}
+                    suggester={paymentMethodSuggester}
+                    data-testid="field-c2nv"
+                  />
+                  <Field
+                    name="amount"
+                    component={NumberField}
+                    onChange={handleChangeAmount}
+                    min={0}
+                    data-testid="field-773f"
+                  />
+                  <PayBalanceButton onClick={handlePayBalance}>
+                    <TranslatedText
+                      stringId="invoice.modal.recordPayment.payBalance"
+                      fallback="Pay balance"
+                    />
+                  </PayBalanceButton>
+                </FormFields>
+              </FormCard>
+              <ModalFormActionRow
+                onCancel={onClose}
+                confirmText={
+                  <TranslatedText
+                    stringId="general.action.recordPayment"
+                    fallback="Record payment"
+                  />
+                }
+              />
+            </>
+          );
+        }}
       />
     </StyledModal>
   );
