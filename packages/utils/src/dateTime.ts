@@ -23,7 +23,7 @@ import {
   type DurationUnit,
   type Interval,
 } from 'date-fns';
-import { formatInTimeZone, fromZonedTime } from 'date-fns-tz';
+import { Temporal } from 'temporal-polyfill';
 import { z } from 'zod';
 
 import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
@@ -246,6 +246,22 @@ export const differenceInMilliseconds = (a: number | string | Date, b: number | 
 
 export const locale = globalThis.navigator?.language ?? 'default';
 
+const pad = (n: number) => String(n).padStart(2, '0');
+
+const toISO9075DateTime = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) => {
+  const { year, month, day, hour, minute, second } = dt;
+  return `${year}-${pad(month)}-${pad(day)} ${pad(hour)}:${pad(minute)}:${pad(second)}`;
+};
+
+const toDateTimeLocalFormat = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) =>
+  dt.toString().slice(0, 16);
+
+const parseDateTimeString = (date: string) =>
+  Temporal.PlainDateTime.from(date.replace(' ', 'T'));
+
+const getDisplayTimezone = (countryTimeZone?: string, facilityTimeZone?: string | null) =>
+  facilityTimeZone ?? countryTimeZone;
+
 export const intlFormatDate = (
   date: string | Date | null | undefined,
   formatOptions: Intl.DateTimeFormatOptions,
@@ -255,30 +271,27 @@ export const intlFormatDate = (
 ) => {
   if (!date) return fallback;
 
-  // Date objects: display in local time (no timezone conversion)
-  if (date instanceof Date) {
-    if (!isValid(date)) return fallback;
-    return date.toLocaleString(locale, formatOptions);
-  }
+  try {
+    if (date instanceof Date) {
+      if (!isValid(date)) return fallback;
+      return date.toLocaleString(locale, formatOptions);
+    }
 
-  // Date-only strings (e.g. DOB): display as-is, no timezone shift
-  // We use UTC here because the date-only string is not timezone aware and we want to display it with no offset
-  if (isISO9075DateString(date)) {
-    const dateObj = new Date(date);
-    if (!isValid(dateObj)) return fallback;
-    return dateObj.toLocaleString(locale, { ...formatOptions, timeZone: 'UTC' });
-  }
+    if (isISO9075DateString(date)) {
+      return Temporal.PlainDate.from(date).toLocaleString(locale, formatOptions);
+    }
 
-  // Datetime strings: apply timezone conversion if timezone provided
-  const dateObj =
-    countryTimeZone && facilityTimeZone ? fromZonedTime(date, countryTimeZone) : parseDate(date);
-  if (!dateObj) return fallback;
+    const displayTz = getDisplayTimezone(countryTimeZone, facilityTimeZone);
+    const plain = parseDateTimeString(date);
 
-  const timeZone = facilityTimeZone ?? countryTimeZone;
-  if (timeZone) {
-    formatOptions.timeZone = timeZone;
+    if (countryTimeZone && displayTz) {
+      return plain.toZonedDateTime(countryTimeZone).withTimeZone(displayTz).toLocaleString(locale, formatOptions);
+    }
+
+    return plain.toLocaleString(locale, formatOptions);
+  } catch {
+    return fallback;
   }
-  return dateObj.toLocaleString(locale, formatOptions);
 };
 
 export const isStartOfThisWeek = (date: Date | number) => {
@@ -374,16 +387,12 @@ export const eachDayInMonth = (date: Date) =>
  */
 
 /** Get current datetime string in a specific timezone */
-export const getCurrentDateTimeStringInTimezone = (timezone?: string) => {
-  if (!timezone) return formatISO9075(new Date(), { representation: 'complete' });
-  return formatInTimeZone(new Date(), timezone, ISO9075_DATETIME_FORMAT);
-};
+export const getCurrentDateTimeStringInTimezone = (timezone?: string) =>
+  toISO9075DateTime(Temporal.Now.zonedDateTimeISO(timezone ?? Temporal.Now.timeZoneId()));
 
 /** Get current date string in a specific timezone */
-export const getCurrentDateStringInTimezone = (timezone?: string) => {
-  if (!timezone) return formatISO9075(new Date(), { representation: 'date' });
-  return formatInTimeZone(new Date(), timezone, ISO9075_DATE_FORMAT);
-};
+export const getCurrentDateStringInTimezone = (timezone?: string) =>
+  Temporal.Now.plainDateISO(timezone ?? Temporal.Now.timeZoneId()).toString();
 
 /**
  * Convert stored datetime (country TZ) to display format (facility TZ)
@@ -396,25 +405,28 @@ export const formatForDateTimeInput = (
 ): string | null => {
   if (value == null) return null;
 
-  const displayTimezone = facilityTimeZone ?? countryTimeZone;
+  try {
+    const displayTz = getDisplayTimezone(countryTimeZone, facilityTimeZone);
 
-  // No timezone configured - format directly
-  if (!displayTimezone) {
-    const dateObj = value instanceof Date ? value : parseDate(value);
-    if (!dateObj || !isValid(dateObj)) return null;
-    return dateFnsFormat(dateObj, "yyyy-MM-dd'T'HH:mm");
+    if (value instanceof Date) {
+      if (!isValid(value)) return null;
+      const instant = Temporal.Instant.fromEpochMilliseconds(value.getTime());
+      return toDateTimeLocalFormat(instant.toZonedDateTimeISO(displayTz ?? Temporal.Now.timeZoneId()));
+    }
+
+    if (isISO9075DateString(value)) {
+      return `${value}T00:00`;
+    }
+
+    const plain = parseDateTimeString(value);
+    if (countryTimeZone && displayTz) {
+      return toDateTimeLocalFormat(plain.toZonedDateTime(countryTimeZone).withTimeZone(displayTz));
+    }
+
+    return toDateTimeLocalFormat(plain);
+  } catch {
+    return null;
   }
-
-  // Date objects already represent a point in time - just format in display timezone
-  if (value instanceof Date) {
-    if (!isValid(value)) return null;
-    return formatInTimeZone(value, displayTimezone, "yyyy-MM-dd'T'HH:mm");
-  }
-
-  // String value: interpret as country timezone, convert to UTC, then format in facility timezone
-  const utcDate = countryTimeZone ? fromZonedTime(value, countryTimeZone) : parseDate(value);
-  if (!utcDate || !isValid(utcDate)) return null;
-  return formatInTimeZone(utcDate, displayTimezone, "yyyy-MM-dd'T'HH:mm");
 };
 
 /**
@@ -428,17 +440,17 @@ export const toDateTimeStringForPersistence = (
 ): string | null => {
   if (!inputValue) return null;
 
-  // No timezone configured - just parse and format
-  if (!countryTimeZone) {
-    const date = parseDate(inputValue);
-    return date ? formatISO9075(date, { representation: 'complete' }) : null;
+  try {
+    const plain = parseDateTimeString(inputValue);
+
+    if (!countryTimeZone) {
+      return toISO9075DateTime(plain);
+    }
+
+    // Input is in display timezone (facility or country), convert to country TZ
+    const displayTz = facilityTimeZone ?? countryTimeZone;
+    return toISO9075DateTime(plain.toZonedDateTime(displayTz).withTimeZone(countryTimeZone));
+  } catch {
+    return null;
   }
-
-  // Input value is in display timezone (facility or country)
-  const displayTimezone = facilityTimeZone ?? countryTimeZone;
-
-  // Convert from display timezone to UTC, then format in country timezone
-  const utcDate = fromZonedTime(inputValue, displayTimezone);
-  if (!isValid(utcDate)) return null;
-  return formatInTimeZone(utcDate, countryTimeZone, ISO9075_DATETIME_FORMAT);
 };
