@@ -5,6 +5,7 @@ import { Modal, TranslatedText, TranslatedReferenceData } from '@tamanu/ui-compo
 import { Colors } from '../../constants/styles';
 
 import { useLabTestQuery } from '../../api/queries/useLabTestQuery';
+import { useLabTestResultHistoryQuery } from '../../api/queries';
 import { DateDisplay } from '../../components/DateDisplay';
 import { ModalActionRow } from '../../components/ModalActionRow';
 import { BodyText } from '../../components/Typography';
@@ -47,8 +48,53 @@ const ValueDisplay = ({ title, value }) => (
   </ValueContainer>
 );
 
+const HistoryTitle = styled(BodyText)`
+  font-weight: 500;
+  margin-bottom: 5px;
+  margin-top: 20px;
+  font-size: 14px;
+  color: ${Colors.darkText};
+`;
+
+const HistorySection = styled.div`
+  background-color: ${Colors.white};
+  border: 1px solid ${Colors.outline};
+  border-radius: 5px;
+  padding: 12px 20px;
+  margin: 0px 0px 40px;
+`;
+
+const HistoryList = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const HistoryItem = styled.div`
+  padding: 10px;
+`;
+
+const HistoryItemLabel = styled(BodyText)`
+  color: ${Colors.midText};
+  font-size: 12px;
+  cursor: default;
+`;
+
+const HistoryItemValue = styled(BodyText)`
+  font-weight: 500;
+  font-size: 14px;
+`;
+
 export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
   const { data: labTest } = useLabTestQuery(labTestId);
+  const { data: history = [] } = useLabTestResultHistoryQuery(labTestId);
+
+  // Don't show the initial empty result in the history (oldest item, since history is DESC ordered)
+  const visibleHistory = React.useMemo(() => {
+    const lastItem = history.at(-1);
+    const isEmpty = lastItem?.result === '' || lastItem?.result == null;
+    return isEmpty ? history.slice(0, -1) : history;
+  }, [history]);
+
   return (
     <Modal
       title={
@@ -139,6 +185,43 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
           />
         </div>
       </ModalBody>
+      {visibleHistory.length > 1 && (
+        <>
+          <HistoryTitle data-testid="historytitle-hist">
+            <TranslatedText
+              stringId="general.history"
+              fallback="History"
+              data-testid="translatedtext-hist"
+            />
+          </HistoryTitle>
+          <HistorySection data-testid="historysection-hist">
+            <HistoryList data-testid="historylist-hist">
+              {visibleHistory.map(item => (
+                <HistoryItem key={item.id} data-testid="historyitem-hist">
+                  <HistoryItemValue data-testid="historyitemvalue-result">
+                    <TranslatedText
+                      stringId="lab.modal.testResult.history.result"
+                      fallback="Result: "
+                      data-testid="translatedtext-result"
+                    />
+                    {item.result || '-'}
+                  </HistoryItemValue>
+                  <HistoryItemLabel data-testid="historyitemlabel-time">
+                    {item.updatedByDisplayName || (
+                      <TranslatedText
+                        stringId="general.unknown"
+                        fallback="Unknown"
+                        data-testid="translatedtext-unknown"
+                      />
+                    )}{' '}
+                    <DateDisplay date={item.loggedAt} showTime data-testid="datedisplay-loggedat" />
+                  </HistoryItemLabel>
+                </HistoryItem>
+              ))}
+            </HistoryList>
+          </HistorySection>
+        </>
+      )}
       <ModalActionRow
         confirmText={
           <TranslatedText
