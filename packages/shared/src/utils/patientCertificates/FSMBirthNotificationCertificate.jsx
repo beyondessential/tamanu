@@ -3,6 +3,7 @@ import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import {
   ATTENDANT_OF_BIRTH_OPTIONS,
+  EDUCATIONAL_ATTAINMENT_TYPES,
   BIRTH_TYPE_OPTIONS,
   MARITAL_STATUS_OPTIONS,
   PLACE_OF_BIRTH_OPTIONS,
@@ -214,7 +215,7 @@ export const FSMBirthNotificationCertificate = ({
               {/* Mother Row 3 */}
               <View style={styles.lastRow}>
                 <Cell flex={1} label="Race:" value={getEthnicity(motherData)} />
-                <Cell flex={1} label="Highest grade:" value={motherData?.additionalData?.educationalLevel} />
+                <Cell flex={1} label="Highest grade:" value={getLabelFromValue(EDUCATIONAL_ATTAINMENT_TYPES, motherData?.additionalData?.educationalLevel)} />
                 <Cell flex={1} label="Occupation:" value={motherData?.occupation?.name} />
                 <Cell width={183} lastCell label="Marital status:" value={getLabelFromValue(MARITAL_STATUS_OPTIONS, motherData?.additionalData?.maritalStatus)} />
               </View>
@@ -239,7 +240,7 @@ export const FSMBirthNotificationCertificate = ({
               {/* Father Row 2 */}
               <View style={styles.lastRow}>
                 <Cell flex={1} label="Race:" value={getEthnicity(fatherData)} />
-                <Cell flex={1} label="Highest grade:" value={fatherData?.additionalData?.educationalLevel} />
+                <Cell flex={1} label="Highest grade:" value={getLabelFromValue(EDUCATIONAL_ATTAINMENT_TYPES, fatherData?.additionalData?.educationalLevel)} />
                 <Cell flex={1} label="Occupation:" value={fatherData?.occupation?.name} />
                 <Cell width={183} lastCell label="FSM birth state or country:" value={getCountryOfBirth(fatherData)} />
               </View>
