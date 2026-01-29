@@ -214,35 +214,29 @@ export const formatDateTimeLocal = (
 ): string | null => {
   if (date == null) return null;
 
+  const toLocalFormat = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) =>
+    dt.toString().slice(0, 16); // "YYYY-MM-DDTHH:mm"
+
   try {
     const displayTz = facilityTimeZone ?? countryTimeZone;
 
-    // Date objects: convert to PlainDateTime via Instant
     if (date instanceof Date) {
       const instant = Temporal.Instant.fromEpochMilliseconds(date.getTime());
-      const zoned = displayTz
-        ? instant.toZonedDateTimeISO(displayTz)
-        : instant.toZonedDateTimeISO(Temporal.Now.timeZoneId());
-      const { year, month, day, hour, minute } = zoned;
-      return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+      const zoned = instant.toZonedDateTimeISO(displayTz ?? Temporal.Now.timeZoneId());
+      return toLocalFormat(zoned);
     }
 
-    // Date-only strings: no time component
     if (isISO9075DateString(date)) {
       return `${date}T00:00`;
     }
 
-    // Datetime strings: stored in country TZ, display in facility TZ
     const plain = Temporal.PlainDateTime.from(date.replace(' ', 'T'));
     if (countryTimeZone && displayTz) {
       const zoned = plain.toZonedDateTime(countryTimeZone).withTimeZone(displayTz);
-      const { year, month, day, hour, minute } = zoned;
-      return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+      return toLocalFormat(zoned);
     }
 
-    // No timezone - format directly
-    const { year, month, day, hour, minute } = plain;
-    return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+    return toLocalFormat(plain);
   } catch {
     return null;
   }
