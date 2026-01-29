@@ -68,6 +68,8 @@ const InvoiceContainer = styled.div`
   margin-bottom: 5px;
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
+  // Triggers a horizontal scroll bar on the parent
+  min-width: 860px;
 `;
 
 const PrintButton = styled(OutlinedButton)`
@@ -80,8 +82,16 @@ const PrintButton = styled(OutlinedButton)`
 
 const PaymentsSection = styled.div`
   display: grid;
-  grid-template-columns: 1fr 320px;
+  grid-template-columns: 1fr 240px;
   gap: 8px;
+
+  @media (min-width: 1600px) {
+    grid-template-columns: 1fr 320px;
+  }
+
+  @media (min-width: 2000px) {
+    grid-template-columns: 1fr 420px;
+  }
 `;
 
 const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEditing }) => {
@@ -91,8 +101,9 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEd
   const canDeleteInvoice = ability.can('delete', 'Invoice');
   const cancelable = invoice && isInvoiceEditable(invoice) && canWriteInvoice;
   const deletable = invoice && invoice.status !== INVOICE_STATUSES.FINALISED && canDeleteInvoice;
-  const finalisable = invoice && isInvoiceEditable(invoice) && canCreateInvoice && encounter.endDate;
   const { mutate: updateInvoice } = useUpdateInvoice(invoice);
+  const finalisable =
+    invoice && isInvoiceEditable(invoice) && canCreateInvoice && encounter.endDate;
 
   if (!cancelable && !deletable && !finalisable) {
     return null;
@@ -100,7 +111,7 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEd
 
   const allItemsAreApproved = invoice.items.every(item => item.approved);
 
-  const handleAllApprovals = (approved) => {
+  const handleAllApprovals = approved => {
     const updatedInvoiceItems = [...invoice.items].map(item => ({ ...item, approved }));
     updateInvoice({ ...invoice, items: updatedInvoiceItems });
   };
@@ -128,25 +139,31 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEd
       onClick: () => setInvoiceModalType(INVOICE_MODAL_TYPES.DELETE_INVOICE),
       hidden: !deletable,
     },
-    ...allItemsAreApproved ? [{
-      label: (
-        <TranslatedText
-          stringId="invoice.editInvoice.removeAllApprovals"
-          fallback="Remove all approvals"
-          data-testid="translatedtext-k3ds"
-        />
-      ),
-      onClick: () => handleAllApprovals(false),
-    }] : [{
-      label: (
-        <TranslatedText
-          stringId="invoice.editInvoice.markAllAsApproved"
-          fallback="Mark all as approved"
-          data-testid="translatedtext-95jh"
-        />
-      ),
-      onClick: () => handleAllApprovals(true),
-    }],
+    ...(allItemsAreApproved
+      ? [
+          {
+            label: (
+              <TranslatedText
+                stringId="invoice.editInvoice.removeAllApprovals"
+                fallback="Remove all approvals"
+                data-testid="translatedtext-k3ds"
+              />
+            ),
+            onClick: () => handleAllApprovals(false),
+          },
+        ]
+      : [
+          {
+            label: (
+              <TranslatedText
+                stringId="invoice.editInvoice.markAllAsApproved"
+                fallback="Mark all as approved"
+                data-testid="translatedtext-95jh"
+              />
+            ),
+            onClick: () => handleAllApprovals(true),
+          },
+        ]),
   ];
 
   if (!isEditing) {
@@ -234,11 +251,11 @@ export const EncounterInvoicingPane = ({ encounter }) => {
     );
   }
 
-  const isFinalised = invoice.status === INVOICE_STATUSES.FINALISED;
+  const isInProgress = invoice.status === INVOICE_STATUSES.IN_PROGRESS;
 
   return (
     <>
-      <TabPane>
+      <TabPane style={{ overflow: 'auto' }}>
         <InvoiceContainer>
           <InvoiceTopBar>
             <InvoiceHeading>
@@ -260,7 +277,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
               setEditing={setEditing}
               isEditing={isEditing}
             />
-            {isFinalised && (
+            {!isInProgress && (
               <PrintButton
                 onClick={() => setInvoiceModalType(INVOICE_MODAL_TYPES.PRINT)}
                 startIcon={<PrintIcon />}
@@ -275,13 +292,11 @@ export const EncounterInvoicingPane = ({ encounter }) => {
             isEditing={isEditing}
             setIsEditing={setEditing}
           />
-          {invoice.status !== INVOICE_STATUSES.IN_PROGRESS && (
-            <PaymentsSection>
-              <PatientPaymentsTable invoice={invoice} />
-              <InvoiceSummaryPanel invoiceItems={invoice?.items} inProgress={false} />
-              <InsurerPaymentsTable invoice={invoice} />
-            </PaymentsSection>
-          )}
+          <PaymentsSection>
+            <PatientPaymentsTable invoice={invoice} />
+            <InvoiceSummaryPanel invoice={invoice} />
+            {!isInProgress && <InsurerPaymentsTable invoice={invoice} />}
+          </PaymentsSection>
         </InvoiceContainer>
       </TabPane>
       <InvoiceModalGroup

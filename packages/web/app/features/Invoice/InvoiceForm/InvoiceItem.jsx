@@ -11,10 +11,9 @@ import {
   PriceCell,
   DateCell,
   DetailsCell,
-  CodeCell,
   QuantityCell,
   OrderedByCell,
-  ApprovedCell
+  ApprovedCell,
 } from './InvoiceItemCells';
 import { InvoiceItemActionsMenu } from './InvoiceItemActionsMenu';
 
@@ -203,7 +202,6 @@ export const InvoiceItemRow = ({
         invoiceIsEditable={invoiceIsEditable}
         isEditing={isEditing}
       />
-      <CodeCell item={item} isItemEditable={isItemEditable} />
       <QuantityCell index={index} item={item} isItemEditable={isItemEditable} />
       <ApprovedCell item={item} />
       <OrderedByCell

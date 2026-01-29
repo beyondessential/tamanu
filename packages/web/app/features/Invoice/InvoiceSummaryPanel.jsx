@@ -1,8 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Divider, Button } from '@material-ui/core';
+import { Divider } from '@material-ui/core';
 import { getInvoiceSummary } from '@tamanu/shared/utils/invoice';
-import { useSettings } from '@tamanu/ui-components';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../../components/Translation';
 import { Price } from './Price';
@@ -16,7 +15,6 @@ const Container = styled.div`
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
   padding: 10px 12px;
-  margin-left: auto;
 `;
 
 const Row = styled.div`
@@ -32,126 +30,35 @@ const TotalRow = styled(Row)`
   font-weight: 500;
 `;
 
-const AddDiscountButton = styled(Button)`
-  padding-top: 0;
-  padding-bottom: 0;
-  margin-left: -8px;
-  text-transform: none;
-  font-weight: 500;
-  font-size: 14px;
-  color: ${props => props.theme.palette.primary.main};
-`;
-
-const RemoveDiscountButton = styled(Button)`
-  padding-top: 0;
-  padding-bottom: 0;
-  margin-left: -8px;
-  text-transform: none;
-  font-weight: 400;
-  font-size: 14px;
-  text-decoration: underline;
-  &:hover {
-    text-decoration: underline;
-  }
-`;
-
-const SlidingFeeScaleSection = ({
-  openDiscountModal,
-  handleRemoveDiscount,
-  discountTotal,
-  patientSubtotal,
-  discountPercentage,
-  inProgress,
-}) => {
-  const discountDisplay = discountTotal > 0 ? discountTotal * -1 : 0;
-  return (
-    <>
-      <TotalRow $fontSize="14px">
-        <TranslatedText stringId="invoice.summary.patientSubtotal" fallback="Patient subtotal" />
-        <Price price={patientSubtotal} data-testid="patient-subtotal" />
-      </TotalRow>
-      <Divider />
-      <Row $indent>
-        <span>
-          <TranslatedText
-            stringId="invoice.summary.feeScaleAdjustment"
-            fallback="Fee scale adjustment"
-          />
-          {discountPercentage && ` - ${discountPercentage * 100}%`}
-        </span>
-        <Price price={discountDisplay} data-testid="fee-scale-adjustment" />
-      </Row>
-      {inProgress && (
-        <Row $indent>
-          {discountTotal ? (
-            <RemoveDiscountButton onClick={handleRemoveDiscount}>
-              <TranslatedText
-                stringId="invoice.summary.removeSlidingFeeScale"
-                fallback="Remove sliding fee scale"
-              />
-            </RemoveDiscountButton>
-          ) : (
-            <AddDiscountButton onClick={openDiscountModal}>
-              <TranslatedText
-                stringId="invoice.summary.applySlidingFeeScale"
-                fallback="Apply sliding fee scale"
-              />
-            </AddDiscountButton>
-          )}
-        </Row>
-      )}
-      <Divider />
-    </>
-  );
-};
-
-export const InvoiceSummaryPanel = ({
-  invoiceItems,
-  openDiscountModal,
-  invoiceDiscount,
-  handleRemoveDiscount,
-  patientPayments,
-  inProgress = true,
-}) => {
-  const { getSetting } = useSettings();
-  const slidingFeeScaleEnabled = getSetting('features.invoicing.slidingFeeScale');
-
+export const InvoiceSummaryPanel = ({ invoice }) => {
   const {
     invoiceItemsTotal,
     insuranceCoverageTotal,
-    patientTotal,
-    patientSubtotal,
-    discountTotal,
-  } = getInvoiceSummary({
-    items: invoiceItems,
-    discount: slidingFeeScaleEnabled ? invoiceDiscount : null,
-  });
+    patientPaymentsTotal,
+    patientPaymentRemainingBalance,
+  } = getInvoiceSummary(invoice);
+
   const coverageDisplay = insuranceCoverageTotal > 0 ? insuranceCoverageTotal * -1 : 0;
+  const patientPaymentsTotalDisplay = patientPaymentsTotal > 0 ? patientPaymentsTotal * -1 : 0;
 
   return (
-    <Container $width={patientPayments?.length > 0 ? '220px' : '320px'}>
+    <Container>
       <Row>
         <TranslatedText stringId="invoice.summary.invoiceTotal" fallback="Invoice total" />
-        <Price price={invoiceItemsTotal} data-testid="translatedtext-828s" />
+        <Price price={invoiceItemsTotal} data-testid="invoice-summary-invoiceTotal" />
       </Row>
       <Row>
         <TranslatedText stringId="invoice.summary.insuranceTotal" fallback="Insurance coverage" />
-        <Price price={coverageDisplay} data-testid="translatedtext-qedx" />
+        <Price price={coverageDisplay} data-testid="invoice-summary-insuranceTotal" />
+      </Row>
+      <Row>
+        <TranslatedText stringId="invoice.summary.patientPayments" fallback="Patient payments" />
+        <Price price={patientPaymentsTotalDisplay} data-testid="invoice-summary-patientPayments" />
       </Row>
       <Divider />
-      {slidingFeeScaleEnabled && (
-        <SlidingFeeScaleSection
-          openDiscountModal={openDiscountModal}
-          patientSubtotal={patientSubtotal}
-          discountTotal={discountTotal}
-          handleRemoveDiscount={handleRemoveDiscount}
-          discountPercentage={invoiceDiscount?.percentage}
-          inProgress={inProgress}
-        />
-      )}
       <TotalRow>
         <TranslatedText stringId="invoice.summary.patientTotal" fallback="Patient total due" />
-        <Price price={patientTotal} data-testid="translatedtext-nst0" />
+        <Price price={patientPaymentRemainingBalance} data-testid="translatedtext-nst0" />
       </TotalRow>
     </Container>
   );
