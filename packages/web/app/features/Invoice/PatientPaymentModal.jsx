@@ -5,6 +5,7 @@ import Decimal from 'decimal.js';
 import { customAlphabet } from 'nanoid';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants';
+import { round } from '@tamanu/shared/utils/invoice';
 import {
   AutocompleteField,
   DateField,
@@ -219,11 +220,18 @@ export const PatientPaymentModal = ({
           const isNegativeDisplayAmount = new Decimal(balance).isNegative();
 
           // Validates amount input to allow only numbers with up to 2 decimal places
-          const handleChangeAmount = event => {
+          const handleInputAmount = event => {
             const next = event.target.value;
+            if (next !== '' && !/^\d*\.?\d{0,2}$/.test(next)) {
+              event.target.value = values.amount || '';
+            }
+          };
 
-            if (/^\d*\.?\d{0,2}$/.test(next)) {
-              setFieldValue('amount', next);
+          // Formats the amount to exactly 2 decimal places on blur
+          const handleBlurAmount = () => {
+            if (amount && !isNaN(amount)) {
+              const formatted = new Decimal(amount).toFixed(DECIMAL_PLACES);
+              setFieldValue('amount', formatted);
             }
           };
 
@@ -285,7 +293,8 @@ export const PatientPaymentModal = ({
                   <Field
                     name="amount"
                     component={NumberField}
-                    onChange={handleChangeAmount}
+                    onInput={handleInputAmount}
+                    onBlur={handleBlurAmount}
                     min={0}
                     data-testid="field-773f"
                   />
