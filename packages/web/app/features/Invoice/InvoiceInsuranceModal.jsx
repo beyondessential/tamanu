@@ -76,7 +76,7 @@ export const InvoiceInsuranceModal = ({ open, onClose, invoice }) => {
     );
   }
 
-  if (insurancePlans.length === 0) {
+  if (insurancePlans.length === 0 && defaultValues.length === 0) {
     return (
       <StyledModal
         width="sm"
