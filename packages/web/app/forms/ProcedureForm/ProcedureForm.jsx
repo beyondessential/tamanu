@@ -50,6 +50,7 @@ export const ProcedureFormFields = React.memo(({ values }) => {
             name="date"
             label={<TranslatedText stringId="procedure.date.label" fallback="Procedure date" />}
             saveDateAsString
+            useTimezone
             required
             component={DateField}
             data-testid="field-3a5v"

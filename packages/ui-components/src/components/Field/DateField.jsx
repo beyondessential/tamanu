@@ -64,12 +64,26 @@ export const DateInput = ({
   delete props.placeholder;
 
   const { formatForDateTimeInput, toDateTimeStringForPersistence } = useDateTimeFormat();
-  const shouldUseTimezone = useTimezone && type === 'datetime-local';
+  const shouldUseTimezone = useTimezone && ['datetime-local', 'date', 'time'].includes(type);
 
-  // Convert stored value (countryTimeZone) to display value (facilityTimeZone for datetime-local)
+  // Convert stored value (countryTimeZone) to display value (facilityTimeZone)
   const getDisplayValue = val => {
-    if (shouldUseTimezone) return formatForDateTimeInput(val) || '';
-    return fromRFC3339(val, format);
+    if (!shouldUseTimezone) return fromRFC3339(val, format);
+    // Date-only: convert datetime to facility TZ, extract date portion
+    // (For dates stored with time, the date might differ between timezones)
+    if (type === 'date') {
+      // If it's just a date string, treat it as midnight and convert
+      const dateTimeVal = val?.length === 10 ? `${val} 00:00:00` : val;
+      const converted = formatForDateTimeInput(dateTimeVal);
+      return converted?.slice(0, 10) || ''; // Extract "YYYY-MM-DD"
+    }
+    // Time-only: convert datetime to facility TZ, extract just time portion
+    if (type === 'time') {
+      const converted = formatForDateTimeInput(val);
+      return converted?.slice(11, 16) || ''; // Extract "HH:mm" from "YYYY-MM-DDTHH:mm"
+    }
+    // DateTime: full conversion
+    return formatForDateTimeInput(val) || '';
   };
 
   const [currentText, setCurrentText] = useState(getDisplayValue(value));
@@ -111,7 +125,19 @@ export const DateInput = ({
 
       // Convert input value (facilityTimeZone) to storage value (countryTimeZone)
       if (shouldUseTimezone) {
-        outputValue = toDateTimeStringForPersistence(formattedValue);
+        if (type === 'date') {
+          // Date-only: no TZ conversion needed, pass through as-is
+          outputValue = formattedValue;
+        } else if (type === 'time') {
+          // Time-only: combine with original date context, convert to country TZ
+          // Use original value's date or today if no original value
+          const dateContext = value?.slice(0, 10) || new Date().toISOString().slice(0, 10);
+          const datetimeInput = `${dateContext}T${formattedValue}`;
+          outputValue = toDateTimeStringForPersistence(datetimeInput);
+        } else {
+          // DateTime: full conversion
+          outputValue = toDateTimeStringForPersistence(formattedValue);
+        }
       } else {
         const date = parse(formattedValue, format, new Date());
 
@@ -135,7 +161,7 @@ export const DateInput = ({
 
       onChange({ target: { value: outputValue, name } });
     },
-    [onChange, format, name, saveDateAsString, type, clearValue, shouldUseTimezone, toDateTimeStringForPersistence],
+    [onChange, format, name, saveDateAsString, type, clearValue, shouldUseTimezone, value, toDateTimeStringForPersistence],
   );
 
   const onKeyDown = event => {
@@ -251,7 +277,9 @@ export const DateInput = ({
   );
 };
 
-export const TimeInput = props => <DateInput type="time" format="HH:mm" {...props} />;
+export const TimeInput = ({ useTimezone = true, ...props }) => (
+  <DateInput type="time" format="HH:mm" useTimezone={useTimezone} saveDateAsString {...props} />
+);
 
 export const DateTimeInput = ({ useTimezone = true, ...props }) => (
   <DateInput
