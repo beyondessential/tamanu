@@ -29,31 +29,31 @@ import { NoteModalProvider } from './contexts/NoteModal';
 import { createBrowserRouter, RouterProvider } from 'react-router';
 
 const StateContextProviders = ({ children, store }) => (
-  <EncounterProvider store={store}>
-    <ImagingRequestsProvider>
-      <EncounterNotesProvider>
-        <ProgramRegistryProvider>
-          <LabRequestProvider store={store}>
-            <PatientSearchProvider>
-              <SettingsProvider>
-                <SyncStateProvider>
-                  <TranslationProvider>
-                    <LocalisationProvider store={store}>
-                      <AuthProvider>
-                        <DateTimeProvider>
+  <AuthProvider>
+    <SettingsProvider>
+      <DateTimeProvider>
+        <EncounterProvider store={store}>
+          <ImagingRequestsProvider>
+            <EncounterNotesProvider>
+              <ProgramRegistryProvider>
+                <LabRequestProvider store={store}>
+                  <PatientSearchProvider>
+                    <SyncStateProvider>
+                      <TranslationProvider>
+                        <LocalisationProvider store={store}>
                           <NoteModalProvider>{children}</NoteModalProvider>
-                        </DateTimeProvider>
-                      </AuthProvider>
-                    </LocalisationProvider>
-                  </TranslationProvider>
-                </SyncStateProvider>
-              </SettingsProvider>
-            </PatientSearchProvider>
-          </LabRequestProvider>
-        </ProgramRegistryProvider>
-      </EncounterNotesProvider>
-    </ImagingRequestsProvider>
-  </EncounterProvider>
+                        </LocalisationProvider>
+                      </TranslationProvider>
+                    </SyncStateProvider>
+                  </PatientSearchProvider>
+                </LabRequestProvider>
+              </ProgramRegistryProvider>
+            </EncounterNotesProvider>
+          </ImagingRequestsProvider>
+        </EncounterProvider>
+      </DateTimeProvider>
+    </SettingsProvider>
+  </AuthProvider>
 );
 
 const queryClient = new QueryClient({
