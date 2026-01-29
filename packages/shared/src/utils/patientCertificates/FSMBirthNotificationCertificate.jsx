@@ -184,7 +184,7 @@ export const FSMBirthNotificationCertificate = ({
                 <Cell width={146} label="Delivery site:" value={getLabelFromValue(PLACE_OF_BIRTH_OPTIONS, childData?.birthData?.registeredBirthPlace)} />
                 <Cell width={146} label="Attendant:" value={getLabelFromValue(ATTENDANT_OF_BIRTH_OPTIONS, childData?.birthData?.nameOfAttendantAtBirth)} />
                 <Cell width={183} lastCell label="Birth order:" />
-               </View>
+              </View>
             </View>
           </View>
 
