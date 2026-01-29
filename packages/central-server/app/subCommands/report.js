@@ -41,7 +41,7 @@ async function report(options) {
   }
 
   const store = await initDatabase({ testMode: false });
-  const reportSchemaStores = config.db.reportSchemas?.enabled ? await initReporting() : null;
+  const reportSchemaStores = config.db.reportSchemas?.enabled ? await initReporting(store) : null;
   setupEnv();
   try {
     const { reportId, parameters, recipients, userId, format, sleepAfterReport } = options;
