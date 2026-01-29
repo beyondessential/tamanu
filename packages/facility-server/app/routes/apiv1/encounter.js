@@ -58,6 +58,23 @@ encounter.post(
     const { models, body, user } = req;
     req.checkPermission('create', 'Encounter');
     const validatedBody = validate(createEncounterSchema, body);
+
+    if (!validatedBody.endDate) {
+      const existingOpenEncounterCount = await models.Encounter.count({
+        where: {
+          patientId: validatedBody.patientId,
+          endDate: null,
+          deletedAt: null,
+        },
+      });
+
+      if (existingOpenEncounterCount > 0) {
+        throw new InvalidOperationError(
+          'This patient already has an active encounter. The active encounter must be discharged before a new active encounter can be created.',
+        );
+      }
+    }
+
     const encounterObject = await models.Encounter.create({ ...validatedBody, actorId: user.id });
 
     if (body.dietIds) {
