@@ -153,7 +153,7 @@ const useTranslationMutation = () => {
 
 const TranslationField = ({ stringId, code }) => (
   <Field
-    name={`['${stringId}']['${code}']`}
+    name={`['${stringId}'].${code}`}
     component={TextField}
     multiline
     data-testid="translation-field-e12n"
