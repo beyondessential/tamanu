@@ -23,8 +23,8 @@ import {
   type DurationUnit,
   type Interval,
 } from 'date-fns';
-import { fromZonedTime } from 'date-fns-tz';
 import { z } from 'zod';
+import { Temporal } from 'temporal-polyfill';
 
 import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
 
@@ -259,30 +259,34 @@ export const intlFormatDate = (
 ) => {
   if (!date) return fallback;
 
-  // Date objects: display in local time (no timezone conversion)
-  if (date instanceof Date) {
-    if (!isValid(date)) return fallback;
-    return date.toLocaleString(locale, formatOptions);
-  }
+  try {
+    // Date objects: display in local time (no timezone conversion)
+    if (date instanceof Date) {
+      if (!isValid(date)) return fallback;
+      return date.toLocaleString(locale, formatOptions);
+    }
 
-  // Date-only strings (e.g. DOB): display as-is, no timezone shift
-  // We use UTC here because the date-only string is not timezone aware and we want to display it with no offset
-  if (isISO9075DateString(date)) {
-    const dateObj = new Date(date);
-    if (!isValid(dateObj)) return fallback;
-    return dateObj.toLocaleString(locale, { ...formatOptions, timeZone: 'UTC' });
-  }
+    // Date-only strings (e.g. DOB): display as-is, no timezone shift
+    if (isISO9075DateString(date)) {
+      const plain = Temporal.PlainDate.from(date);
+      return plain.toLocaleString(locale, formatOptions);
+    }
 
-  // Datetime strings: apply timezone conversion if timezone provided
-  const dateObj =
-    countryTimeZone && facilityTimeZone ? fromZonedTime(date, countryTimeZone) : parseDate(date);
-  if (!dateObj) return fallback;
+    // Datetime strings: use Temporal for explicit timezone handling
+    const displayTz = facilityTimeZone ?? countryTimeZone;
+    const plain = Temporal.PlainDateTime.from(date.replace(' ', 'T'));
 
-  const timeZone = facilityTimeZone ?? countryTimeZone;
-  if (timeZone) {
-    formatOptions.timeZone = timeZone;
+    if (countryTimeZone && displayTz) {
+      // Stored datetime is in country timezone, convert to facility timezone for display
+      const zoned = plain.toZonedDateTime(countryTimeZone).withTimeZone(displayTz);
+      return zoned.toLocaleString(locale, formatOptions);
+    }
+
+    // No timezone configured - display in local time
+    return plain.toLocaleString(locale, formatOptions);
+  } catch {
+    return fallback;
   }
-  return dateObj.toLocaleString(locale, formatOptions);
 };
 
 export const isStartOfThisWeek = (date: Date | number) => {
