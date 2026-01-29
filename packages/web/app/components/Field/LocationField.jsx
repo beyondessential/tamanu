@@ -32,10 +32,13 @@ export const LocationInput = React.memo(
     required,
     className,
     value,
+    groupValue,
     onChange,
+    onGroupChange = () => {},
     size = 'medium',
     form = {},
     enableLocationStatus = true,
+    hideLocationGroupError = false,
     locationGroupSuggesterType = 'facilityLocationGroup',
     autofill = true,
     isMulti = false,
@@ -48,7 +51,7 @@ export const LocationInput = React.memo(
     const { facilityId: currentFacilityId } = useAuth();
     const facilityId = (facilityIdOverride ?? currentFacilityId) || '';
 
-    const [groupId, setGroupId] = useState('');
+    const [groupId, setGroupId] = useState(groupValue);
     const [locationId, setLocationId] = useState(value);
     const suggester = useSuggester('location', {
       formatter: ({ name, id, locationGroup, availability }) => {
@@ -74,7 +77,7 @@ export const LocationInput = React.memo(
     useEffect(() => {
       if (!initialValues) return;
       // Form is reinitialised, reset the state handled group and location values
-      setGroupId(initialValues?.locationGroup ?? '');
+      setGroupId('');
       setLocationId(initialValues[name] ?? '');
     }, [initialValues, name]);
 
@@ -84,6 +87,12 @@ export const LocationInput = React.memo(
       }
     }, [value]);
 
+    useEffect(() => {
+      if (groupValue) {
+        setGroupId(groupValue);
+      }
+    }, [groupValue]);
+
     // when the location is selected, set the group value automatically if it's not set yet
     useEffect(() => {
       const isNotSameGroup =
@@ -91,25 +100,29 @@ export const LocationInput = React.memo(
       if (isNotSameGroup) {
         // clear the location if the location group is changed
         setLocationId('');
-        onChange({ target: { value: '', name } });
+        onChange({ target: { value: '', name, groupValue: location.locationGroup.id } });
       }
 
       // Initialise the location group state
       // if the form is being opened in edit mode (i.e. there are existing values)
       if (value && !groupId && location?.locationGroup?.id) {
+        onGroupChange(location.locationGroup.id);
         setGroupId(location.locationGroup.id);
       }
-    }, [onChange, value, name, groupId, location?.id, location?.locationGroup]);
+    }, [onChange, value, name, groupId, location?.id, location?.locationGroup, onGroupChange]);
 
     const handleChangeCategory = event => {
       setGroupId(event.target.value);
-      setLocationId('');
-      onChange({ target: { value: '', name } });
+      onGroupChange(event.target.value);
+      if (locationId) {
+        setLocationId('');
+        onChange({ target: { value: '', name, groupValue: event.target.value } });
+      }
     };
 
     const handleChange = async event => {
       setLocationId(event.target.value);
-      onChange({ target: { value: event.target.value, name } });
+      onChange({ target: { value: event.target.value, name, groupValue: groupId } });
     };
 
     // Disable the location and location group fields if:
@@ -138,9 +151,9 @@ export const LocationInput = React.memo(
           disabled={locationGroupSelectIsDisabled || disabled}
           // do not autofill if there is a pre-filled value
           autofill={!value && autofill}
+          error={hideLocationGroupError ? false : error}
+          helperText={hideLocationGroupError ? undefined : helperText}
           size={size}
-          helperText={helperText}
-          error={error}
           data-testid={`${dataTestId}-group`}
         />
         <LocationAutocompleteInput
@@ -149,7 +162,7 @@ export const LocationInput = React.memo(
           name={name}
           suggester={suggester}
           helperText={helperText}
-          required={required}
+          required={!!groupId || required}
           error={error}
           value={locationId}
           onChange={handleChange}
@@ -170,6 +183,7 @@ LocationInput.propTypes = {
   required: PropTypes.bool,
   disabled: PropTypes.bool,
   error: PropTypes.bool,
+  hideLocationGroupError: PropTypes.bool,
   helperText: PropTypes.string,
   name: PropTypes.string,
   className: PropTypes.string,
