@@ -108,12 +108,9 @@ export class FhirQueueManager {
   }
 
   /**
-   * How many jobs can be grabbed.
+   * This is the total number of jobs that can be processed concurrently across all topics.
    *
-   * This is calculated from the number of jobs that are processing and the
-   * total allowed concurrency (from config).
-   *
-   * @returns {number} Amount of jobs to grab.
+   * @returns {number} Total capacity of the queue manager.
    */
   totalCapacity() {
     return Math.max(0, this.config.concurrency);
