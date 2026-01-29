@@ -17,6 +17,7 @@ import { getEthnicity } from '../patientAccessors';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
+import { FSMBirthNotificationCertificate } from './FSMBirthNotificationCertificate';
 
 const borderStyle = '1 solid black';
 
@@ -380,10 +381,24 @@ const BirthNotificationCertificateComponent = ({
   fatherData,
   childData,
   facility,
+  printedBy,
   certificateData,
+  getSetting,
 }) => {
   const { logo, watermark } = certificateData;
   const { getTranslation } = useLanguageContext();
+  const enableFSMStyle = getSetting('fsmCrvsCertificates.enableFSMStyle');
+
+  if (enableFSMStyle) {
+    return (
+      <FSMBirthNotificationCertificate
+        motherData={motherData}
+        fatherData={fatherData}
+        childData={childData}
+        printedBy={printedBy}
+      />
+    );
+  }
 
   return (
     <Document>

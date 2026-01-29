@@ -1005,6 +1005,17 @@ export const globalSettings = {
       type: yup.number().min(1),
       defaultValue: 10,
     },
+    fsmCrvsCertificates: {
+      name: 'FSM CRVS Certificates',
+      description: 'Settings for FSM CRVS certificates',
+      properties: {
+        enableFSMStyle: {
+          description: 'Enable FSM CRVS style certificates',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+      },
+    },
     integrations: {
       name: 'Integrations',
       description: 'Integration settings',
