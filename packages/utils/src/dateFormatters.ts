@@ -1,6 +1,6 @@
 import { Temporal } from 'temporal-polyfill';
 
-import { intlFormatDate, isISO9075DateString, toDisplayTemporal } from './dateTime';
+import { intlFormatDate, toDisplayTemporal } from './dateTime';
 
 /** "12/04/24" */
 export const formatShortest = (
