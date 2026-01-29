@@ -250,6 +250,40 @@ export const differenceInMilliseconds = (a: number | string | Date, b: number | 
 
 export const locale = globalThis.navigator?.language ?? 'default';
 
+type TemporalDateType =
+  | Temporal.PlainDate
+  | Temporal.PlainDateTime
+  | Temporal.ZonedDateTime
+  | Date;
+
+/**
+ * Converts a date input to the appropriate Temporal type for display,
+ * handling timezone conversion when needed.
+ */
+export const toDisplayTemporal = (
+  date: string | Date,
+  countryTimeZone?: string,
+  facilityTimeZone?: string | null,
+): TemporalDateType => {
+  // Date objects: keep as-is for local time display
+  if (date instanceof Date) return date;
+
+  // Date-only strings: no timezone shift needed
+  if (isISO9075DateString(date)) {
+    return Temporal.PlainDate.from(date);
+  }
+
+  // Datetime strings: convert from country TZ to facility TZ if configured
+  const displayTz = facilityTimeZone ?? countryTimeZone;
+  const plain = Temporal.PlainDateTime.from(date.replace(' ', 'T'));
+
+  if (countryTimeZone && displayTz) {
+    return plain.toZonedDateTime(countryTimeZone).withTimeZone(displayTz);
+  }
+
+  return plain;
+};
+
 export const intlFormatDate = (
   date: string | Date | null | undefined,
   formatOptions: Intl.DateTimeFormatOptions,
@@ -260,30 +294,14 @@ export const intlFormatDate = (
   if (!date) return fallback;
 
   try {
-    // Date objects: display in local time (no timezone conversion)
-    if (date instanceof Date) {
-      if (!isValid(date)) return fallback;
-      return date.toLocaleString(locale, formatOptions);
+    const temporal = toDisplayTemporal(date, countryTimeZone, facilityTimeZone);
+
+    if (temporal instanceof Date) {
+      if (!isValid(temporal)) return fallback;
+      return temporal.toLocaleString(locale, formatOptions);
     }
 
-    // Date-only strings (e.g. DOB): display as-is, no timezone shift
-    if (isISO9075DateString(date)) {
-      const plain = Temporal.PlainDate.from(date);
-      return plain.toLocaleString(locale, formatOptions);
-    }
-
-    // Datetime strings: use Temporal for explicit timezone handling
-    const displayTz = facilityTimeZone ?? countryTimeZone;
-    const plain = Temporal.PlainDateTime.from(date.replace(' ', 'T'));
-
-    if (countryTimeZone && displayTz) {
-      // Stored datetime is in country timezone, convert to facility timezone for display
-      const zoned = plain.toZonedDateTime(countryTimeZone).withTimeZone(displayTz);
-      return zoned.toLocaleString(locale, formatOptions);
-    }
-
-    // No timezone configured - display in local time
-    return plain.toLocaleString(locale, formatOptions);
+    return temporal.toLocaleString(locale, formatOptions);
   } catch {
     return fallback;
   }

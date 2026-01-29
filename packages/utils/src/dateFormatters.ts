@@ -1,6 +1,6 @@
 import { Temporal } from 'temporal-polyfill';
 
-import { intlFormatDate, isISO9075DateString } from './dateTime';
+import { intlFormatDate, isISO9075DateString, toDisplayTemporal } from './dateTime';
 
 /** "12/04/24" */
 export const formatShortest = (
@@ -214,29 +214,22 @@ export const formatDateTimeLocal = (
 ): string | null => {
   if (date == null) return null;
 
-  const toLocalFormat = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) =>
-    dt.toString().slice(0, 16); // "YYYY-MM-DDTHH:mm"
-
   try {
-    const displayTz = facilityTimeZone ?? countryTimeZone;
+    const temporal = toDisplayTemporal(date, countryTimeZone, facilityTimeZone);
 
-    if (date instanceof Date) {
-      const instant = Temporal.Instant.fromEpochMilliseconds(date.getTime());
-      const zoned = instant.toZonedDateTimeISO(displayTz ?? Temporal.Now.timeZoneId());
-      return toLocalFormat(zoned);
+    if (temporal instanceof Date) {
+      const instant = Temporal.Instant.fromEpochMilliseconds(temporal.getTime());
+      const zoned = instant.toZonedDateTimeISO(
+        facilityTimeZone ?? countryTimeZone ?? Temporal.Now.timeZoneId(),
+      );
+      return zoned.toString().slice(0, 16);
     }
 
-    if (isISO9075DateString(date)) {
-      return `${date}T00:00`;
+    if (temporal instanceof Temporal.PlainDate) {
+      return `${temporal.toString()}T00:00`;
     }
 
-    const plain = Temporal.PlainDateTime.from(date.replace(' ', 'T'));
-    if (countryTimeZone && displayTz) {
-      const zoned = plain.toZonedDateTime(countryTimeZone).withTimeZone(displayTz);
-      return toLocalFormat(zoned);
-    }
-
-    return toLocalFormat(plain);
+    return temporal.toString().slice(0, 16);
   } catch {
     return null;
   }
