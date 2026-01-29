@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import Decimal from 'decimal.js';
-import { Box } from '@material-ui/core';
 import { customAlphabet } from 'nanoid';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants';
@@ -12,7 +11,6 @@ import {
   Field,
   Form,
   NumberField,
-  TextField,
   useSuggester,
   TAMANU_COLORS,
   TextButton,
@@ -22,12 +20,11 @@ import { Modal } from '../../components/Modal';
 import { TranslatedText } from '../../components/Translation';
 import { ModalFormActionRow } from '../../components/ModalActionRow';
 import { useCreatePatientPayment, useUpdatePatientPayment } from '../../api/mutations';
-import { CHEQUE_PAYMENT_METHOD_ID } from '../../constants';
+import { CASH_PAYMENT_METHOD_ID } from '../../constants';
 
 const RECEIPT_NUMBER_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ123456789';
 const RECEIPT_NUMBER_LENGTH = 8;
 const DECIMAL_PLACES = 2;
-const ALPHANUMERIC_PATTERN = /^[A-Za-z0-9]+$/;
 
 const StyledModal = styled(Modal)`
   .MuiPaper-root {
@@ -112,15 +109,6 @@ const getValidationSchema = (editingPayment, patientPaymentRemainingBalance) =>
     methodId: yup
       .string()
       .required(<TranslatedText stringId="general.required" fallback="Required" />),
-    chequeNumber: yup.string().matches(ALPHANUMERIC_PATTERN, {
-      message: (
-        <TranslatedText
-          stringId="invoice.payment.validation.invalidChequeNumber"
-          fallback="Invalid cheque number - alphanumeric characters only"
-          data-testid="translatedtext-1as6"
-        />
-      ),
-    }),
     amount: yup
       .string()
       .required(<TranslatedText stringId="general.required" fallback="Required" />)
@@ -165,19 +153,11 @@ const calculateDisplayedBalance = ({
     : decimalRemaining.minus(amount).toNumber();
 };
 
-const CheckNumberField = ({ selectedPaymentMethodId, showChequeNumberColumn }) => {
-  if (selectedPaymentMethodId === CHEQUE_PAYMENT_METHOD_ID) {
-    return <Field name="chequeNumber" component={TextField} data-testid="field-xhya" />;
-  }
-  return showChequeNumberColumn ? <Box width="15%" data-testid="box-5e2q" /> : null;
-};
-
 export const PatientPaymentModal = ({
   isOpen,
   onClose,
   invoice,
   patientPaymentRemainingBalance,
-  showChequeNumberColumn,
   selectedPaymentRecord,
 }) => {
   const paymentRecord = selectedPaymentRecord ?? {};
@@ -217,11 +197,9 @@ export const PatientPaymentModal = ({
 
   const handleSubmit = data => {
     const formattedAmount = new Decimal(data.amount).toDecimalPlaces(DECIMAL_PLACES).toString();
-    const chequeNumber = data.methodId === CHEQUE_PAYMENT_METHOD_ID ? data.chequeNumber : null;
 
     const paymentData = {
       ...data,
-      chequeNumber,
       amount: formattedAmount,
     };
 
@@ -266,14 +244,13 @@ export const PatientPaymentModal = ({
         validationSchema={validationSchema}
         initialValues={{
           date: paymentRecord.date || getCurrentDateTimeString(),
-          methodId: paymentRecord.patientPayment?.methodId,
-          chequeNumber: paymentRecord.patientPayment?.chequeNumber,
+          methodId: paymentRecord.patientPayment?.methodId || CASH_PAYMENT_METHOD_ID,
           amount: paymentRecord.amount,
           receiptNumber: paymentRecord.receiptNumber,
         }}
         formType={isEditMode ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         data-testid="form-gsr7"
-        render={({ values }) => (
+        render={() => (
           <>
             <FormCard>
               <LabelRow>
@@ -299,10 +276,6 @@ export const PatientPaymentModal = ({
                   component={AutocompleteField}
                   suggester={paymentMethodSuggester}
                   data-testid="field-c2nv"
-                />
-                <CheckNumberField
-                  selectedPaymentMethodId={values.methodId}
-                  showChequeNumberColumn={showChequeNumberColumn}
                 />
                 <Field
                   name="amount"

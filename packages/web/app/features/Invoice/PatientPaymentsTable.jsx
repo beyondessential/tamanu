@@ -9,8 +9,6 @@ import { Colors, denseTableStyle } from '../../constants';
 import { Heading4 } from '../../components/Typography';
 import { DateDisplay } from '../../components/DateDisplay';
 import { useAuth } from '../../contexts/Auth';
-import useOverflow from '../../hooks/useOverflow';
-import { ThemedTooltip } from '../../components/Tooltip';
 import { PatientPaymentModal } from './PatientPaymentModal.jsx';
 import { NoteModalActionBlocker } from '../../components/index.js';
 import { Button } from '@tamanu/ui-components';
@@ -45,15 +43,15 @@ const TableContainer = styled.div`
       }
 
       &:nth-child(3) {
-        width: ${props => (props.showChequeNumberColumn ? '100px' : '100px')};
+        width: 100px;
       }
 
       &:nth-child(4) {
-        width: ${props => (props.showChequeNumberColumn ? '120px' : '120px')};
+        width: 120px;
       }
 
       &:nth-child(5) {
-        width: ${props => (props.showChequeNumberColumn ? '80px' : '80px')};
+        width: 80px;
       }
 
       &:nth-child(6) {
@@ -74,68 +72,15 @@ const Title = styled.div`
   }
 `;
 
-const TooltipContainer = styled.div`
-  text-align: center;
-`;
-
-const ChequeNumberContainer = styled.div`
-  max-width: 70px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`;
-
-const ChequeNumberDisplay = ({ patientPayment, setShowRowTooltip }) => {
-  const { chequeNumber } = patientPayment;
-  const [ref, isOverflowing] = useOverflow();
-
-  const renderChequeNumber = () => (
-    <ChequeNumberContainer
-      onMouseEnter={() => setShowRowTooltip(false)}
-      onMouseLeave={() => setShowRowTooltip(true)}
-      ref={ref}
-      data-testid="chequenumbercontainer-grfe"
-    >
-      {chequeNumber}
-    </ChequeNumberContainer>
-  );
-
-  if (!isOverflowing) {
-    return renderChequeNumber();
-  }
-  return (
-    <ThemedTooltip title={chequeNumber} data-testid="themedtooltip-frvt">
-      {renderChequeNumber()}
-    </ThemedTooltip>
-  );
-};
-
-const getRowTooltipText = updatedByUser =>
-  updatedByUser?.displayName ? (
-    <TooltipContainer data-testid="tooltipcontainer-kw8l">
-      <TranslatedText
-        stringId="invoice.table.tooltip.recordedBy"
-        fallback="Recorded by"
-        data-testid="translatedtext-qvgm"
-      />
-      <div>{updatedByUser.displayName}</div>
-    </TooltipContainer>
-  ) : null;
-
 export const PatientPaymentsTable = ({ invoice }) => {
   const [paymentModalIsOpen, setPaymentModalIsOpen] = useState(false);
   const [selectedPaymentRecord, setSelectedPaymentRecord] = useState(null);
-  const [showRowTooltip, setShowRowTooltip] = useState(false);
 
   const patientPayments = invoice.payments
     .filter(payment => !!payment?.patientPayment)
     .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
   const { patientPaymentRemainingBalance } = getInvoiceSummary(invoice);
-
-  const showChequeNumberColumn = patientPayments.some(
-    payment => !!payment.patientPayment?.chequeNumber,
-  );
 
   const { ability } = useAuth();
   const canCreatePayment = ability.can('create', 'InvoicePayment');
@@ -186,28 +131,6 @@ export const PatientPaymentsTable = ({ invoice }) => {
       sortable: false,
       accessor: ({ patientPayment }) => patientPayment?.method?.name,
     },
-    ...(showChequeNumberColumn
-      ? [
-          {
-            key: 'chequeNumber',
-            title: (
-              <TranslatedText
-                stringId="invoice.table.payment.column.chequeNumber"
-                fallback="Chq no."
-                data-testid="translatedtext-50g8"
-              />
-            ),
-            sortable: false,
-            accessor: prop => (
-              <ChequeNumberDisplay
-                {...prop}
-                setShowRowTooltip={setShowRowTooltip}
-                data-testid="chequenumberdisplay-5mlh"
-              />
-            ),
-          },
-        ]
-      : []),
     {
       key: 'amount',
       title: (
@@ -259,11 +182,9 @@ export const PatientPaymentsTable = ({ invoice }) => {
     },
   ];
 
-  const getRowTooltip = ({ updatedByUser }) => getRowTooltipText(updatedByUser);
-
   return (
     <>
-      <TableContainer showChequeNumberColumn={showChequeNumberColumn}>
+      <TableContainer>
         <Title>
           <Heading4>
             <TranslatedText
@@ -296,7 +217,6 @@ export const PatientPaymentsTable = ({ invoice }) => {
           noDataMessage={'No patient payments to display'}
           rowIdKey={'id'}
           data={patientPayments}
-          {...(showRowTooltip && { getRowTooltip })}
           data-testid="table-so8f"
         />
       </TableContainer>
@@ -304,7 +224,6 @@ export const PatientPaymentsTable = ({ invoice }) => {
         invoice={invoice}
         key={paymentModalIsOpen ? 'open' : 'closed'}
         patientPaymentRemainingBalance={patientPaymentRemainingBalance}
-        showChequeNumberColumn={showChequeNumberColumn}
         selectedPaymentRecord={selectedPaymentRecord}
         isOpen={paymentModalIsOpen}
         onClose={onClosePaymentModal}
