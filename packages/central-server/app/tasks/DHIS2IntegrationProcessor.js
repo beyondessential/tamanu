@@ -1,5 +1,5 @@
 import config from 'config';
-import { pick } from 'lodash';
+import { pick, groupBy, map } from 'lodash';
 import { fetch } from 'undici';
 import { utils } from 'xlsx';
 
@@ -8,7 +8,46 @@ import { log } from '@tamanu/shared/services/logging';
 import { REPORT_STATUSES } from '@tamanu/constants';
 import { fetchWithRetryBackoff } from '@tamanu/api-client/fetchWithRetryBackoff';
 
-const arrayOfArraysToCSV = reportData => utils.sheet_to_csv(utils.aoa_to_sheet(reportData));
+const convertToDHIS2DataValueSets = (reportData, dataSet) => {
+  // Convert 2D array report data to JSON format
+  const reportJSON = utils.sheet_to_json(utils.aoa_to_sheet(reportData));
+
+  // Create a grouping key function that combines period, orgunit, and attributeoptioncombo
+  // This groups rows that belong to the same DHIS2 data value set
+  const createGroupingKey = row =>
+    `${row.period || ''}_${row.orgunit || ''}_${row.attributeoptioncombo || ''}`;
+
+  // Group rows by their composite key (period + orgunit + attributeoptioncombo)
+  const groupedRows = groupBy(reportJSON, createGroupingKey);
+
+  // Transform each group of rows into a DHIS2 data value set object
+  return map(groupedRows, rows => {
+    const firstRow = rows[0];
+
+    // Extract common metadata from the first row (all rows in a group share these values)
+    const period = firstRow.period || '';
+    const orgUnit = firstRow.orgunit || '';
+    const attributeOptionCombo = firstRow.attributeoptioncombo || '';
+
+    // Map each row to a data value object containing the actual data element values
+    const dataValues = rows.map(row => ({
+      dataElement: row.dataelement || '',
+      categoryOptionCombo: row.categoryoptioncombo || '',
+      value: row.value || '',
+      comment: row.comment || '',
+    }));
+
+    // Construct the DHIS2 data value set object
+    return {
+      dataSet,
+      completeDate: new Date().toISOString().split('T')[0],
+      period,
+      orgUnit,
+      attributeOptionCombo,
+      dataValues,
+    };
+  });
+};
 
 export const INFO_LOGS = {
   SENDING_REPORTS: 'DHIS2IntegrationProcessor: Sending reports to DHIS2',
@@ -72,12 +111,13 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     return pick(logEntry.get({ plain: true }), LOG_FIELDS);
   }
 
-  async postToDHIS2({ reportId, reportCSV }) {
+  async postToDHIS2({ reportId, dataValueSet }) {
     const { idSchemes, host, backoff } = await this.context.settings.get('integrations.dhis2');
     const { username, password } = config.integrations.dhis2;
     const authHeader = Buffer.from(`${username}:${password}`).toString('base64');
 
     const params = new URLSearchParams({ ...idSchemes, importStrategy: 'CREATE_AND_UPDATE' });
+
     try {
       const response = await fetchWithRetryBackoff(
         `${host}/api/dataValueSets?${params.toString()}`,
@@ -85,11 +125,11 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
           fetch,
           method: 'POST',
           headers: {
-            'Content-Type': 'application/csv',
+            'Content-Type': 'application/json',
             Accept: 'application/json',
             Authorization: `Basic ${authHeader}`,
           },
-          body: reportCSV,
+          body: JSON.stringify(dataValueSet),
         },
         { ...backoff, log },
       );
@@ -140,35 +180,39 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     log.info(INFO_LOGS.PROCESSING_REPORT, { report: reportString });
 
     const latestVersion = report.versions[0];
+    const queryOptions = latestVersion.getQueryOptions();
+
     const reportData = await latestVersion.dataGenerator({ ...this.context, sequelize }, {}); // We don't support parameters in this task
-    const reportCSV = arrayOfArraysToCSV(reportData);
+    const dhis2DataValueSets = convertToDHIS2DataValueSets(reportData, queryOptions.dhis2DataSet);
 
-    const {
-      message,
-      httpStatusCode,
-      response: { importCount, conflicts = [] },
-    } = await this.postToDHIS2({ reportId, reportCSV });
-
-    if (httpStatusCode === 200) {
-      const successLog = await this.logDHIS2Push({
-        reportId,
-        status: AUDIT_STATUSES.SUCCESS,
+    for (const dataValueSet of dhis2DataValueSets) {
+      const {
         message,
-        importCount,
-      });
+        httpStatusCode,
+        response: { importCount, conflicts = [] },
+      } = await this.postToDHIS2({ reportId, dataValueSet });
 
-      log.info(INFO_LOGS.SUCCESSFULLY_SENT_REPORT, successLog);
-    } else {
-      const warningLog = await this.logDHIS2Push({
-        reportId,
-        status: AUDIT_STATUSES.WARNING,
-        message,
-        importCount,
-        conflicts: conflicts.map(conflict => conflict.value),
-      });
+      if (httpStatusCode === 200) {
+        const successLog = await this.logDHIS2Push({
+          reportId,
+          status: AUDIT_STATUSES.SUCCESS,
+          message,
+          importCount,
+        });
 
-      log.warn(WARNING_LOGS.FAILED_TO_SEND_REPORT, warningLog);
-      conflicts.forEach(conflict => log.warn(conflict.value));
+        log.info(INFO_LOGS.SUCCESSFULLY_SENT_REPORT, successLog);
+      } else {
+        const warningLog = await this.logDHIS2Push({
+          reportId,
+          status: AUDIT_STATUSES.WARNING,
+          message,
+          importCount,
+          conflicts: conflicts.map(conflict => conflict.value),
+        });
+
+        log.warn(WARNING_LOGS.FAILED_TO_SEND_REPORT, warningLog);
+        conflicts.forEach(conflict => log.warn(conflict.value));
+      }
     }
   }
 

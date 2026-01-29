@@ -111,10 +111,10 @@ const updateLookupTableForModel = async (
     totalCount += chunkCount;
   }
 
-  log.info('updateLookupTable.updateLookupTableForModel', {
-    model: model.tableName,
-    totalCount: totalCount,
-  });
+  // log.info('updateLookupTable.updateLookupTableForModel', {
+  //   model: model.tableName,
+  //   totalCount: totalCount,
+  // });
 
   return totalCount;
 };
@@ -123,12 +123,12 @@ export const updateLookupTable = withConfig(
   async (models, outgoingModels, since, config, syncLookupTick, debugObject) => {
     const invalidModelNames = Object.values(outgoingModels)
       .filter(
-        (m) =>
+        m =>
           ![SYNC_DIRECTIONS.BIDIRECTIONAL, SYNC_DIRECTIONS.PULL_FROM_CENTRAL].includes(
             m.syncDirection,
           ),
       )
-      .map((m) => m.tableName);
+      .map(m => m.tableName);
 
     if (invalidModelNames.length) {
       throw new Error(

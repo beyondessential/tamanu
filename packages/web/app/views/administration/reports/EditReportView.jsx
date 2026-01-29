@@ -25,16 +25,20 @@ const StyledButton = styled(OutlinedButton)`
 
 const getInitialValues = (version, report) => {
   const { query, status, queryOptions, notes } = version;
-  const { dataSources, ...options } = queryOptions;
+  const { dataSources, parameters, dateRangeLabel, defaultDateRange, dhis2DataSet, ...advancedConfig } = queryOptions;
   const { name, dbSchema } = report;
   return {
     name,
     query,
     status,
     dbSchema,
-    ...options,
+    parameters,
+    dateRangeLabel,
+    defaultDateRange,
+    dhis2DataSet,
     dataSources,
     notes,
+    advancedConfig: Object.keys(advancedConfig).length > 0 ? advancedConfig : null,
   };
 };
 
@@ -56,20 +60,35 @@ export const EditReportView = () => {
     navigate('/admin/reports');
   };
 
-  const handleSave = async ({ query, status, dbSchema, notes, ...queryOptions }) => {
-    const { dataSources } = queryOptions;
-    const { reportDefinition } = version;
+  const handleSave = async ({
+    query,
+    status,
+    dbSchema,
+    notes,
+    parameters,
+    dateRangeLabel,
+    defaultDateRange,
+    dhis2DataSet,
+    dataSources,
+    advancedConfig = {},
+  }) => {
     const payload = {
       queryOptions: {
-        ...queryOptions,
+        parameters,
+        dateRangeLabel,
+        defaultDateRange,
+        dhis2DataSet,
         dataSources,
+        ...advancedConfig,
       },
       query,
       status,
       dbSchema,
       notes,
     };
+
     try {
+      const { reportDefinition } = version;
       const result = await api.post(`admin/reports/${reportDefinition.id}/versions`, payload);
       toast.success(
         <TranslatedText
