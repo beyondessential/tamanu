@@ -25,6 +25,7 @@ import { withLanguageContext, useLanguageContext } from '../pdf/languageContext'
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 import { formatDistanceStrict, milliseconds } from 'date-fns';
+import { FSMDeathCertificatePrintout } from './FSMDeathCertificatePrintout';
 
 const borderStyle = '1 solid black';
 const tableLabelWidth = 200;
@@ -242,9 +243,14 @@ const PATIENT_DEATH_DETAILS = {
 const SectionContainer = props => <View style={generalStyles.sectionContainer} {...props} />;
 
 const DeathCertificatePrintoutComponent = React.memo(
-  ({ patientData, certificateData, getLocalisation }) => {
+  ({ patientData, certificateData, getLocalisation, getSetting, printedBy }) => {
     const { getTranslation } = useLanguageContext();
     const { logo, deathCertFooterImg } = certificateData;
+    const enableFSMStyle = getSetting('fsmCrvsCertificates.enableFSMStyle');
+
+    if (enableFSMStyle) {
+      return <FSMDeathCertificatePrintout patientData={patientData} printedBy={printedBy} />;
+    }
 
     const { causes } = patientData;
     const causeOfDeath = getCauseInfo(causes?.primary);
