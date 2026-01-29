@@ -24,9 +24,6 @@ export default async () => {
       exclude: ['chunk-SVRLYAES'],
       include: ['buffer'],
     },
-    esbuild: {
-      loader: 'jsx',
-    },
     plugins: [react(), json5Plugin(), svgr()],
 
     define: {
