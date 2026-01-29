@@ -125,7 +125,7 @@ export const FSMBirthNotificationCertificate = ({
   motherData,
   fatherData,
   childData,
-  facility,
+  printedBy,
 }) => {
   const currentDateString = getCurrentDateString();
 
@@ -151,7 +151,7 @@ export const FSMBirthNotificationCertificate = ({
             </View>
             <Cell flex={1} label="State court file no.:" />
             <Cell flex={1} label="Date:" value={currentDateString} />
-            <Cell flex={1} lastCell label="Medical record no:" />
+            <Cell flex={1} lastCell label="Medical record no:" value={childData?.displayId} />
           </View>
 
           {/* Child Section */}
@@ -173,7 +173,7 @@ export const FSMBirthNotificationCertificate = ({
               <View style={styles.lastRow}>
                 <Cell width={146} label="Date of birth:" value={childData?.dateOfBirth ? getDisplayDate(childData?.dateOfBirth) : ''} />
                 <Cell width={110} label="Sex:" value={getLabelFromValue(SEX_OPTIONS, childData?.sex)} />
-                <Cell width={146} label="Delivery site:" value={facility?.name || getLabelFromValue(PLACE_OF_BIRTH_OPTIONS, childData?.birthData?.registeredBirthPlace)} />
+                <Cell width={146} label="Delivery site:" value={getLabelFromValue(PLACE_OF_BIRTH_OPTIONS, childData?.birthData?.registeredBirthPlace)} />
                 <Cell width={146} label="Attendant:" value={getLabelFromValue(ATTENDANT_OF_BIRTH_OPTIONS, childData?.birthData?.nameOfAttendantAtBirth)} />
                 <Cell width={183} lastCell label="Birth order:" />
                </View>
@@ -278,13 +278,13 @@ export const FSMBirthNotificationCertificate = ({
           </View>
         </View>
 
-         {/* Footer / Print date */}
+         {/* Footer */}
          <View style={styles.footer}>
             <View style={styles.lastRow}>
               <Text bold style={styles.footerText}>Print date: </Text>
               <Text style={styles.footerText}>{currentDateString} | </Text>
               <Text bold style={styles.footerText}>Printed by: </Text>
-              <Text style={styles.footerText}>Initial Admin</Text>
+              <Text style={styles.footerText}>{printedBy}</Text>
             </View>
             <View style={styles.lastRow}>
               <Text style={styles.footerText}>1 of 1</Text>
