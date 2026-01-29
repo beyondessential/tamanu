@@ -14,10 +14,9 @@ import {
   LANGUAGE_NAME_STRING_ID,
 } from '@tamanu/constants';
 import { useApi } from '../../../api';
-import { TextField, Form, Button, TranslatedText } from '@tamanu/ui-components';
+import { TextField, Form, Button, TranslatedText, Field } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { SearchInput, TableFormFields } from '../../../components';
-import { AccessorField } from '../../patients/components/AccessorField';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { ErrorMessage } from '../../../components/ErrorMessage';
 import { ReferenceDataSwitchInput } from './ReferenceDataSwitch';
@@ -153,10 +152,8 @@ const useTranslationMutation = () => {
 };
 
 const TranslationField = ({ stringId, code }) => (
-  // This id format is necessary to avoid formik nesting at . delimiters
-  <AccessorField
-    id={`['${stringId}']`}
-    name={code}
+  <Field
+    name={`['${stringId}']['${code}']`}
     component={TextField}
     multiline
     data-testid="accessorfield-e12n"

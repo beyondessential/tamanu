@@ -117,14 +117,26 @@ export async function translatedStringLoader(item, { models, header }) {
   });
   const existingTranslationsMap = new Map(existingTranslations.map(t => [t.language, t]));
   for (const language of languagesInSheet) {
-    if (language === DEFAULT_LANGUAGE_CODE) {
-      continue; // Ignore any edits to the default language
-    }
-
     const text = languages[language];
     const emptyCell = isNil(text) || isEmpty(`${text}`.trim());
+    const existing = existingTranslationsMap.get(language);
+
+    if (language === DEFAULT_LANGUAGE_CODE) {
+      // Allow creation of default language translations, but ignore edits
+      if (!existing && !emptyCell) {
+        rows.push({
+          model: 'TranslatedString',
+          values: {
+            stringId,
+            language,
+            text,
+          },
+        });
+      }
+      continue;
+    }
+
     if (emptyCell) {
-      const existing = existingTranslationsMap.get(language);
       if (existing) {
         // An empty cell means delete the translation for this language
         rows.push({
