@@ -1,10 +1,8 @@
 import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
-import { Watermark } from './Layout';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import {
   ATTENDANT_OF_BIRTH_OPTIONS,
-  BIRTH_DELIVERY_TYPE_OPTIONS,
   BIRTH_TYPE_OPTIONS,
   MARITAL_STATUS_OPTIONS,
   PLACE_OF_BIRTH_OPTIONS,
@@ -12,7 +10,6 @@ import {
 } from '@tamanu/constants';
 import { getDisplayDate } from './getDisplayDate';
 import { getEthnicity } from '../patientAccessors';
-import { useLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 
@@ -124,36 +121,12 @@ const getLabelFromValue = (mapping, v) => {
   return entry ? entry.label : '';
 };
 
-const getFullName = (patient) => {
-  if (!patient) return '';
-  // Simple split logic if we don't have separate fields, 
-  // but here we just return full name for the "First name" field 
-  // and leave others blank if we can't parse easily, or put it all in First.
-  // Ideally we would split but names are complex. 
-  // For this form, let's put the whole name in First Name or spread it if we want.
-  // But to be safe, let's just use the helper which returns combined.
-  return `${patient.firstName ?? ''} ${patient.lastName ?? ''}`;
-};
-
-// Helper to extract name parts if possible, otherwise returns full string in first
-const getNameParts = (patient) => {
-  if (!patient) return { first: '', middle: '', last: '' };
-  return {
-    first: patient.firstName || '',
-    middle: '', // We don't have a distinct middle name field in standard patient object usually
-    last: patient.lastName || '',
-  };
-};
-
 export const FSMBirthNotificationCertificate = ({
   motherData,
   fatherData,
   childData,
   facility,
 }) => {
-  const childName = getNameParts(childData);
-  const motherName = getNameParts(motherData);
-  const fatherName = getNameParts(fatherData);
   const currentDateString = getCurrentDateString();
 
   return (
@@ -177,7 +150,7 @@ export const FSMBirthNotificationCertificate = ({
               <Text bold>SEAL</Text>
             </View>
             <Cell flex={1} label="State court file no.:" />
-            <Cell flex={1} label="Date:" />
+            <Cell flex={1} label="Date:" value={currentDateString} />
             <Cell flex={1} lastCell label="Medical record no:" />
           </View>
 
@@ -190,9 +163,9 @@ export const FSMBirthNotificationCertificate = ({
             <View style={styles.sectionContent}>
               {/* Child Row 1 */}
               <View style={styles.row}>
-                <Cell flex={1} label="First name:" value={childName.first} />
-                <Cell flex={1} label="Middle name:" value={childName.middle} />
-                <Cell flex={1} label="Last name:" value={childName.last} />
+                <Cell flex={1} label="First name:" value={childData?.firstName} />
+                <Cell flex={1} label="Middle name:" value={childData?.middleName} />
+                <Cell flex={1} label="Last name:" value={childData?.lastName} />
                 <Cell width={183} lastCell label="Plurality:" value={getLabelFromValue(BIRTH_TYPE_OPTIONS, childData?.birthData?.birthType)} />
               </View>
 
@@ -201,7 +174,7 @@ export const FSMBirthNotificationCertificate = ({
                 <Cell width={146} label="Date of birth:" value={childData?.dateOfBirth ? getDisplayDate(childData?.dateOfBirth) : ''} />
                 <Cell width={110} label="Sex:" value={getLabelFromValue(SEX_OPTIONS, childData?.sex)} />
                 <Cell width={146} label="Delivery site:" value={facility?.name || getLabelFromValue(PLACE_OF_BIRTH_OPTIONS, childData?.birthData?.registeredBirthPlace)} />
-                <Cell width={146} label="Attendant:" value={childData?.birthData?.nameOfAttendantAtBirth} />
+                <Cell width={146} label="Attendant:" value={getLabelFromValue(ATTENDANT_OF_BIRTH_OPTIONS, childData?.birthData?.nameOfAttendantAtBirth)} />
                 <Cell width={183} lastCell label="Birth order:" />
                </View>
             </View>
@@ -216,9 +189,9 @@ export const FSMBirthNotificationCertificate = ({
             <View style={styles.sectionContent}>
               {/* Mother Row 1 */}
               <View style={styles.row}>
-                <Cell flex={1} label="Maiden name (First):" value={motherName.first} />
-                <Cell flex={1} label="Middle name:" value={motherName.middle} />
-                <Cell flex={1} label="Last name:" value={motherName.last} />
+                <Cell flex={1} label="Maiden name (First):" value={motherData?.firstName} />
+                <Cell flex={1} label="Middle name:" value={motherData?.middleName} />
+                <Cell flex={1} label="Last name:" value={motherData?.lastName} />
                 <Cell width={183} lastCell label="Birthdate:" value={motherData?.dateOfBirth ? getDisplayDate(motherData?.dateOfBirth) : ''} />
               </View>
 
@@ -250,9 +223,9 @@ export const FSMBirthNotificationCertificate = ({
             <View style={styles.sectionContent}>
               {/* Father Row 1 */}
               <View style={styles.row}>
-                <Cell flex={1} label="First name:" value={fatherName.first} />
-                <Cell flex={1} label="Middle name:" value={fatherName.middle} />
-                <Cell flex={1} label="Last name:" value={fatherName.last} />
+                <Cell flex={1} label="First name:" value={fatherData?.firstName} />
+                <Cell flex={1} label="Middle name:" value={fatherData?.middleName} />
+                <Cell flex={1} label="Last name:" value={fatherData?.lastName} />
                 <Cell width={183} lastCell label="Birthdate:" value={fatherData?.dateOfBirth ? getDisplayDate(fatherData?.dateOfBirth) : ''} />
               </View>
 
