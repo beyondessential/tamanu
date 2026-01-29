@@ -381,6 +381,7 @@ const BirthNotificationCertificateComponent = ({
   fatherData,
   childData,
   facility,
+  printedBy,
   certificateData,
   getSetting,
 }) => {
@@ -394,9 +395,7 @@ const BirthNotificationCertificateComponent = ({
         motherData={motherData}
         fatherData={fatherData}
         childData={childData}
-        facility={facility}
-        certificateData={certificateData}
-        getSetting={getSetting}
+        printedBy={printedBy}
       />
     );
   }
