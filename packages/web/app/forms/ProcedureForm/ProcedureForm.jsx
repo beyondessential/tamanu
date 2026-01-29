@@ -50,7 +50,6 @@ export const ProcedureFormFields = React.memo(({ values }) => {
             name="date"
             label={<TranslatedText stringId="procedure.date.label" fallback="Procedure date" />}
             saveDateAsString
-            useTimezone
             required
             component={DateField}
             data-testid="field-3a5v"
@@ -138,6 +137,7 @@ export const ProcedureFormFields = React.memo(({ values }) => {
             label={<TranslatedText stringId="procedure.timeIn.label" fallback="Time in" />}
             component={TimeField}
             saveDateAsString
+            useTimezone={false}
             data-testid="field-khml1"
           />
           <Field
@@ -145,6 +145,7 @@ export const ProcedureFormFields = React.memo(({ values }) => {
             label={<TranslatedText stringId="procedure.timeOut.label" fallback="Time out" />}
             component={TimeField}
             saveDateAsString
+            useTimezone={false}
             data-testid="field-hgzz1"
           />
           <Field
@@ -152,6 +153,7 @@ export const ProcedureFormFields = React.memo(({ values }) => {
             label={<TranslatedText stringId="procedure.startTime.label" fallback="Time started" />}
             component={TimeField}
             saveDateAsString
+            useTimezone={false}
             data-testid="field-khml"
           />
           <Field
@@ -159,6 +161,7 @@ export const ProcedureFormFields = React.memo(({ values }) => {
             label={<TranslatedText stringId="procedure.endTime.label" fallback="Time ended" />}
             component={TimeField}
             saveDateAsString
+            useTimezone={false}
             data-testid="field-hgzz"
           />
         </NoteModalActionBlocker>
