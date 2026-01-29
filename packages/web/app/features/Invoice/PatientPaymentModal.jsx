@@ -4,6 +4,7 @@ import * as yup from 'yup';
 import Decimal from 'decimal.js';
 import { Box } from '@material-ui/core';
 import { customAlphabet } from 'nanoid';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants';
 import {
   AutocompleteField,
@@ -216,7 +217,7 @@ export const PatientPaymentModal = ({
 
   const handleSubmit = data => {
     const formattedAmount = new Decimal(data.amount).toDecimalPlaces(DECIMAL_PLACES).toString();
-    const chequeNumber = data.methodId === CHEQUE_PAYMENT_METHOD_ID ? data.chequeNumber : '';
+    const chequeNumber = data.methodId === CHEQUE_PAYMENT_METHOD_ID ? data.chequeNumber : null;
 
     const paymentData = {
       ...data,
@@ -264,7 +265,7 @@ export const PatientPaymentModal = ({
         onSubmit={handleSubmit}
         validationSchema={validationSchema}
         initialValues={{
-          date: paymentRecord.date,
+          date: paymentRecord.date || getCurrentDateTimeString(),
           methodId: paymentRecord.patientPayment?.methodId,
           chequeNumber: paymentRecord.patientPayment?.chequeNumber,
           amount: paymentRecord.amount,

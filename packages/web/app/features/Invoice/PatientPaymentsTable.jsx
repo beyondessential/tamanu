@@ -31,6 +31,10 @@ const TableContainer = styled.div`
       padding: 12px 0;
     }
 
+    tr:last-child td {
+      border: none;
+    }
+
     th {
       &:nth-child(1) {
         width: 120px;
