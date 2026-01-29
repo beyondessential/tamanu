@@ -1,0 +1,360 @@
+import React, { useState } from 'react';
+import { isSameDay } from 'date-fns';
+import { Box, Typography } from '@material-ui/core';
+import styled from 'styled-components';
+import {
+  parseDate,
+  isISO9075DateString,
+  formatShortest,
+  formatShort,
+  formatShortestExplicit,
+  formatShortExplicit,
+  formatTime,
+} from '@tamanu/utils/dateTime';
+
+import { TAMANU_COLORS } from '../../constants';
+import { ThemedTooltip } from '../Tooltip';
+import { useDateTimeFormat } from '../../contexts';
+import { DiagnosticInfo } from './DiagnosticInfo';
+
+const Text = styled(Typography)`
+  font-size: inherit;
+  line-height: inherit;
+  margin-top: -2px;
+`;
+
+const SoftText = styled(Text)`
+  color: ${TAMANU_COLORS.midText};
+`;
+
+const DateTooltip = ({
+  rawDate,
+  displayDate,
+  timeOnlyTooltip,
+  facilityTimeZone,
+  countryTimeZone,
+  children,
+}) => {
+  const isDateOnly = typeof rawDate === 'string' && isISO9075DateString(rawDate);
+  const [tooltipOpen, setTooltipOpen] = useState(false);
+  const [debug, setDebug] = useState(false);
+
+  const handleOpen = event => {
+    if (event.shiftKey) {
+      setDebug(true);
+    }
+    setTooltipOpen(true);
+  };
+
+  const handleClose = () => {
+    setTooltipOpen(false);
+    setDebug(false);
+  };
+
+  const dateTooltip = timeOnlyTooltip ? (
+    <TimeDisplay date={rawDate} noTooltip />
+  ) : (
+    <DateDisplay date={rawDate} showTime={!isDateOnly} noTooltip />
+  );
+
+  const tooltipTitle = debug ? (
+    <DiagnosticInfo
+      rawDate={rawDate}
+      displayDate={displayDate}
+      countryTimeZone={countryTimeZone}
+      facilityTimeZone={facilityTimeZone}
+    />
+  ) : (
+    dateTooltip
+  );
+
+  return (
+    <ThemedTooltip
+      open={tooltipOpen}
+      onClose={handleClose}
+      onOpen={handleOpen}
+      title={tooltipTitle}
+    >
+      {children}
+    </ThemedTooltip>
+  );
+};
+
+const DATE_FORMATS = {
+  short: 'formatShort',
+  shortest: 'formatShortest',
+  long: 'formatFullDate',
+  explicit: 'formatShortExplicit',
+  explicitShort: 'formatShortestExplicit',
+};
+
+const TIME_FORMATS = {
+  default: 'formatTime',
+  compact: 'formatTimeCompact',
+  withSeconds: 'formatTimeWithSeconds',
+  slot: 'formatTimeSlot',
+};
+
+const useFormattedDate = (dateValue, { dateFormat, timeFormat, showWeekday }) => {
+  const formatters = useDateTimeFormat();
+  const parts = [];
+
+  if (showWeekday) {
+    parts.push(formatters.formatWeekdayShort(dateValue));
+  }
+
+  if (dateFormat) {
+    const formatterName = DATE_FORMATS[dateFormat] || DATE_FORMATS.short;
+    parts.push(formatters[formatterName](dateValue));
+  }
+
+  if (timeFormat) {
+    const formatterName = TIME_FORMATS[timeFormat] || TIME_FORMATS.default;
+    parts.push(formatters[formatterName](dateValue));
+  }
+
+  return parts.join(' ');
+};
+
+/**
+ * TimeDisplay - Displays time only
+ * @param {string|Date} date - The date/time value
+ * @param {string} format - "default" | "compact" | "withSeconds" | "slot"
+ * @param {boolean} noTooltip - Disable hover tooltip
+ *
+ * @example
+ * // format="default" → "9:30 AM"
+ * <TimeDisplay date="2024-03-15 09:30:00" />
+ *
+ * // format="compact" → "9:30am" (time with minutes, no space)
+ * <TimeDisplay date="2024-03-15 09:30:00" format="compact" />
+ *
+ * // format="withSeconds" → "9:30:45 AM"
+ * <TimeDisplay date="2024-03-15 09:30:45" format="withSeconds" />
+ *
+ * // format="slot" → "9am" (hour only, for calendar slots)
+ * <TimeDisplay date="2024-03-15 09:30:00" format="slot" />
+ */
+export const getDateDisplay = (
+  dateValue,
+  { showDate = true, showTime = false, showExplicitDate = false, shortYear = false } = {},
+) => {
+  const dateObj = parseDate(dateValue);
+
+  const parts = [];
+  if (showDate) {
+    if (shortYear) {
+      parts.push(formatShortest(dateObj));
+    } else {
+      parts.push(formatShort(dateObj));
+    }
+  } else if (showExplicitDate) {
+    if (shortYear) {
+      parts.push(formatShortestExplicit(dateObj));
+    } else {
+      parts.push(formatShortExplicit(dateObj));
+    }
+  }
+  if (showTime) {
+    parts.push(formatTime(dateObj));
+  }
+
+  return parts.join(' ');
+};
+
+export const TimeDisplay = React.memo(
+  ({ date: dateValue, format: timeFormat = 'default', noTooltip = false, style, ...props }) => {
+    const { countryTimeZone, facilityTimeZone } = useDateTimeFormat();
+    const displayTime = useFormattedDate(dateValue, { timeFormat });
+
+    const content = (
+      <span style={style} {...props}>
+        {displayTime}
+      </span>
+    );
+
+    if (noTooltip) return content;
+
+    return (
+      <DateTooltip
+        rawDate={dateValue}
+        displayDate={displayTime}
+        timeOnlyTooltip
+        facilityTimeZone={facilityTimeZone}
+        countryTimeZone={countryTimeZone}
+      >
+        {content}
+      </DateTooltip>
+    );
+  },
+);
+
+/**
+ * DateDisplay - Displays date with optional time (applies timezone conversion)
+ * @param {string|Date} date - The date value
+ * @param {string} format - "short" (default) | "shortest" | "long" | "explicit" | "explicitShort" | null (for weekday-only)
+ * @param {boolean} showWeekday - Prefix with weekday name (or show alone if format is null)
+ * @param {boolean} showTime - Include time
+ * @param {string} timeFormat - "default" | "compact" | "withSeconds"
+ * @param {boolean} noTooltip - Disable hover tooltip
+ *
+ * @example
+ * // format="short" (default) → "15/03/2024"
+ * <DateDisplay date="2024-03-15 09:30:00" />
+ *
+ * // format="shortest" → "15/03/24"
+ * <DateDisplay date="2024-03-15 09:30:00" format="shortest" />
+ *
+ * // format="long" → "15 March 2024"
+ * <DateDisplay date="2024-03-15 09:30:00" format="long" />
+ *
+ * // format="explicit" → "15 Mar 2024"
+ * <DateDisplay date="2024-03-15 09:30:00" format="explicit" />
+ *
+ * // format="explicitShort" → "15 Mar 24"
+ * <DateDisplay date="2024-03-15 09:30:00" format="explicitShort" />
+ *
+ * // showTime → "15/03/2024 9:30 AM"
+ * <DateDisplay date="2024-03-15 09:30:00" showTime />
+ */
+export const DateDisplay = React.memo(
+  ({
+    date: dateValue,
+    format: dateFormat = 'short',
+    showWeekday = false,
+    showTime = false,
+    timeFormat,
+    color,
+    fontWeight,
+    style,
+    noTooltip = false,
+    timeOnlyTooltip = false,
+    ...props
+  }) => {
+    const { countryTimeZone, facilityTimeZone } = useDateTimeFormat();
+
+    const resolvedTimeFormat = showTime ? timeFormat || 'default' : null;
+
+    const displayDate = useFormattedDate(dateValue, {
+      dateFormat,
+      showWeekday,
+      timeFormat: resolvedTimeFormat,
+    });
+
+    const content = (
+      <span style={{ color, fontWeight, ...style }} {...props}>
+        {displayDate}
+      </span>
+    );
+
+    if (noTooltip) return content;
+
+    return (
+      <DateTooltip
+        rawDate={dateValue}
+        displayDate={displayDate}
+        timeOnlyTooltip={timeOnlyTooltip}
+        facilityTimeZone={facilityTimeZone}
+        countryTimeZone={countryTimeZone}
+      >
+        {content}
+      </DateTooltip>
+    );
+  },
+);
+
+/**
+ * MultilineDatetimeDisplay - Shows date on one line and time below
+ * @param {string|Date} date - The date value
+ * @param {string} format - Date format (defaults to "short")
+ * @param {boolean} isTimeSoft - Use soft/muted color for time (default true)
+ *
+ * @example
+ * // Default → "15/03/2024" on first line, "9:30 AM" below (muted)
+ * <MultilineDatetimeDisplay date="2024-03-15 09:30:00" />
+ */
+export const MultilineDatetimeDisplay = React.memo(
+  ({ date, format: dateFormat = 'short', isTimeSoft = true }) => {
+    const TimeText = isTimeSoft ? SoftText : Text;
+    return (
+      <Box>
+        <DateDisplay date={date} format={dateFormat} />
+        <TimeText>
+          <TimeDisplay date={date} />
+        </TimeText>
+      </Box>
+    );
+  },
+);
+
+/**
+ * TimeRangeDisplay - Shows a time range like "9:30am – 10:00am"
+ * @param {Object} range - Object with start and end date/time values
+ * @param {string|Date} range.start - The start time
+ * @param {string|Date} range.end - The end time
+ *
+ * @example
+ * // → "9:30am – 10:00am"
+ * <TimeRangeDisplay range={{ start: "2024-03-15 09:30:00", end: "2024-03-15 10:00:00" }} />
+ */
+export const TimeRangeDisplay = ({ range: { start, end } }) => (
+  <>
+    <TimeDisplay date={start} format="compact" /> &ndash;{' '}
+    <TimeDisplay date={end} format="compact" />
+  </>
+);
+
+/**
+ * DateTimeRangeDisplay - Shows a date/time range, intelligently handling multi-day spans
+ * @param {string|Date} start - The start date/time
+ * @param {string|Date} end - The end date/time (optional)
+ * @param {boolean} showWeekday - Show weekday for start date (default true)
+ * @param {string} dateFormat - Date format (default "short")
+ * @param {string} timeFormat - Time format (default "compact")
+ *
+ * @example
+ * // Same day → "Mon 15/03/2024 9:30am – 10:00am"
+ * <DateTimeRangeDisplay start="2024-03-15 09:30:00" end="2024-03-15 10:00:00" />
+ *
+ * // Multi-day → "Mon 15/03/2024 9:30am – 16/03/2024 10:00am"
+ * <DateTimeRangeDisplay start="2024-03-15 09:30:00" end="2024-03-16 10:00:00" />
+ *
+ * // No end → "Mon 15/03/2024 9:30am"
+ * <DateTimeRangeDisplay start="2024-03-15 09:30:00" />
+ */
+export const DateTimeRangeDisplay = React.memo(
+  ({ start, end, showWeekday = true, dateFormat = 'short', timeFormat = 'compact' }) => {
+    const startDate = parseDate(start);
+    const endDate = end ? parseDate(end) : null;
+    const spansMultipleDays = endDate && !isSameDay(startDate, endDate);
+
+    return (
+      <span>
+        <DateDisplay
+          date={start}
+          format={dateFormat}
+          showWeekday={showWeekday}
+          showTime
+          timeFormat={timeFormat}
+          noTooltip
+        />
+        {endDate && (
+          <>
+            &nbsp;&ndash;{' '}
+            {spansMultipleDays ? (
+              <DateDisplay
+                date={end}
+                format={dateFormat}
+                showTime
+                timeFormat={timeFormat}
+                noTooltip
+              />
+            ) : (
+              <TimeDisplay date={end} format={timeFormat} noTooltip />
+            )}
+          </>
+        )}
+      </span>
+    );
+  },
+);
