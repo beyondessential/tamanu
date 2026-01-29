@@ -186,6 +186,18 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
         />
       ),
     },
+    invoiceInsurancePlanId: {
+      component: SuggesterSelectField,
+      endpoint: 'invoiceInsurancePlan',
+      isMulti: true,
+      label: (
+        <TranslatedText
+          stringId="general.localisedField.invoiceInsurancePlanId.label"
+          fallback="Invoice insurance plan"
+          data-testid="translatedtext-73e2"
+        />
+      ),
+    },
   };
 
   return (

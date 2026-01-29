@@ -650,7 +650,45 @@ createSuggester(
   },
 );
 
-createSuggester('invoiceProduct', 'InvoiceProduct', ({ endpoint, modelName }) =>
+createSuggester(
+  'invoiceProduct',
+  'InvoiceProduct',
+  ({ endpoint, modelName, query }) => {
+    if (!query.priceListId) {
+      return DEFAULT_WHERE_BUILDER({ endpoint, modelName });
+    }
+
+    return {
+      [Op.and]: [getTranslationWhereLiteral(endpoint, modelName, 'name')],
+      [Op.or]: [
+        Sequelize.where(Sequelize.col('invoicePriceListItems.is_hidden'), Op.eq, false),
+        Sequelize.where(Sequelize.col('invoicePriceListItems.id'), Op.is, null),
+      ],
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+    };
+  },
+  {
+    includeBuilder: req => {
+      const { priceListId } = req.query;
+
+      if (!priceListId) return [];
+
+      return [
+        {
+          model: req.models.InvoicePriceListItem,
+          as: 'invoicePriceListItems',
+          required: false,
+          where: {
+            invoicePriceListId: priceListId,
+          },
+        },
+      ];
+    },
+    queryOptions: { subQuery: false },
+  },
+);
+
+createSuggester('invoiceInsurancePlan', 'InvoiceInsurancePlan', ({ endpoint, modelName }) =>
   DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
 );
 

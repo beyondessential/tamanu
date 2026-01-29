@@ -33,3 +33,4 @@ export * from './ReminderContact/ReminderContactQR';
 export * from './ReminderContact/ReminderContactModal';
 export * from './ReminderContact/ReminderContactList';
 export * from './ReminderContact/RemoveReminderContact';
+export * from './Tooltip';
