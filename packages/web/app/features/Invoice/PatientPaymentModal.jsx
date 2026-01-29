@@ -16,7 +16,7 @@ import {
   TAMANU_COLORS,
   TextButton,
 } from '@tamanu/ui-components';
-import { round, formatDisplayPrice } from '@tamanu/shared/utils/invoice';
+import { formatDisplayPrice } from '@tamanu/shared/utils/invoice';
 import { Modal } from '../../components/Modal';
 import { TranslatedText } from '../../components/Translation';
 import { ModalFormActionRow } from '../../components/ModalActionRow';
@@ -95,22 +95,11 @@ const PayBalanceButton = styled(TextButton)`
 const generateReceiptNumber = () =>
   customAlphabet(RECEIPT_NUMBER_ALPHABET, RECEIPT_NUMBER_LENGTH)();
 
-const normalizeAmount = value => {
-  if (!value && value !== 0) return '';
-
-  try {
-    const decimal = new Decimal(value);
-    if (decimal.isNegative()) return '0';
-    return decimal.toDecimalPlaces(DECIMAL_PLACES).toString();
-  } catch {
-    return value;
-  }
-};
-
 const calculateMaxAllowedAmount = (editingPayment, patientPaymentRemainingBalance) => {
   const editingAmount = editingPayment?.amount
     ? new Decimal(editingPayment.amount)
     : new Decimal(0);
+
   return new Decimal(patientPaymentRemainingBalance)
     .add(editingAmount)
     .toDecimalPlaces(DECIMAL_PLACES);
@@ -156,6 +145,24 @@ const getValidationSchema = (editingPayment, patientPaymentRemainingBalance) =>
       ),
   });
 
+const calculateDisplayedBalance = ({
+  patientPaymentRemainingBalance,
+  amount,
+  paymentRecord = {},
+}) => {
+  if (!amount) return patientPaymentRemainingBalance;
+
+  const decimalRemaining = new Decimal(patientPaymentRemainingBalance);
+  const isEditMode = !!paymentRecord.id;
+
+  return isEditMode
+    ? decimalRemaining
+        .plus(paymentRecord.amount || 0)
+        .minus(amount)
+        .toNumber()
+    : decimalRemaining.minus(amount).toNumber();
+};
+
 const CheckNumberField = ({ selectedPaymentMethodId, showChequeNumberColumn }) => {
   if (selectedPaymentMethodId === CHEQUE_PAYMENT_METHOD_ID) {
     return <Field name="chequeNumber" component={TextField} data-testid="field-xhya" />;
@@ -171,44 +178,37 @@ export const PatientPaymentModal = ({
   showChequeNumberColumn,
   selectedPaymentRecord,
 }) => {
-  const [displayAmount, setDisplayAmount] = useState(patientPaymentRemainingBalance);
-
   const paymentRecord = selectedPaymentRecord ?? {};
+
+  const [amount, setPaymentAmount] = useState(paymentRecord.amount);
   const isEditMode = !!paymentRecord.id;
-  const isNegativeDisplayAmount = new Decimal(displayAmount).isNegative();
   const validationSchema = getValidationSchema(paymentRecord, patientPaymentRemainingBalance);
+
+  const balance = calculateDisplayedBalance({
+    patientPaymentRemainingBalance,
+    amount,
+    paymentRecord,
+  });
+
+  const isNegativeDisplayAmount = new Decimal(balance).isNegative();
 
   const paymentMethodSuggester = useSuggester('paymentMethod');
   const { mutate: createPatientPayment } = useCreatePatientPayment(invoice);
   const { mutate: updatePatientPayment } = useUpdatePatientPayment(invoice, paymentRecord.id);
 
-  const handleAmountChange = event => {
-    const normalizedValue = normalizeAmount(event.target.value);
-    event.target.value = normalizedValue;
+  const handleChangeAmount = event => {
+    const next = event.target.value;
 
-    if (!normalizedValue) {
-      setDisplayAmount(patientPaymentRemainingBalance);
-      return;
+    if (/^\d*\.?\d{0,2}$/.test(next)) {
+      setPaymentAmount(next);
     }
-
-    let remainingAmount = new Decimal(patientPaymentRemainingBalance)
-      .minus(normalizedValue)
-      .toNumber();
-
-    if (isEditMode) {
-      remainingAmount = new Decimal(remainingAmount).plus(paymentRecord.amount).toNumber();
-    }
-
-    setDisplayAmount(round(remainingAmount, DECIMAL_PLACES));
   };
 
-  const handlePayBalance = setFieldValue => {
-    let balance = patientPaymentRemainingBalance;
-    if (isEditMode) {
-      balance = new Decimal(balance).plus(paymentRecord.amount);
-    }
-    setFieldValue('amount', balance);
-    setDisplayAmount(0);
+  const handlePayBalance = () => {
+    const balance = isEditMode
+      ? new Decimal(patientPaymentRemainingBalance).plus(paymentRecord.amount).toNumber()
+      : patientPaymentRemainingBalance;
+    setPaymentAmount(balance);
   };
 
   const handleSubmit = data => {
@@ -227,14 +227,6 @@ export const PatientPaymentModal = ({
       : { ...paymentData, receiptNumber: generateReceiptNumber() };
 
     mutation(submitData, { onSuccess: onClose });
-  };
-
-  const initialValues = {
-    date: paymentRecord.date,
-    methodId: paymentRecord.patientPayment?.methodId,
-    chequeNumber: paymentRecord.patientPayment?.chequeNumber,
-    amount: paymentRecord.amount,
-    receiptNumber: paymentRecord.receiptNumber,
   };
 
   return (
@@ -259,7 +251,7 @@ export const PatientPaymentModal = ({
             fallback="Patient total due:"
           />{' '}
           <span style={{ color: isNegativeDisplayAmount ? TAMANU_COLORS.alert : 'initial' }}>
-            {formatDisplayPrice(displayAmount)}
+            {formatDisplayPrice(balance)}
           </span>
         </Total>
       </Header>
@@ -268,10 +260,16 @@ export const PatientPaymentModal = ({
         suppressErrorDialog
         onSubmit={handleSubmit}
         validationSchema={validationSchema}
-        initialValues={initialValues}
+        initialValues={{
+          date: paymentRecord.date,
+          methodId: paymentRecord.patientPayment?.methodId,
+          chequeNumber: paymentRecord.patientPayment?.chequeNumber,
+          amount: paymentRecord.amount,
+          receiptNumber: paymentRecord.receiptNumber,
+        }}
         formType={isEditMode ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         data-testid="form-gsr7"
-        render={({ setFieldValue, values }) => (
+        render={({ values }) => (
           <>
             <FormCard>
               <LabelRow>
@@ -285,7 +283,6 @@ export const PatientPaymentModal = ({
                   <TranslatedText stringId="general.date.amount" fallback="Amount" />
                 </Label>
               </LabelRow>
-
               <FormFields>
                 <Field
                   name="date"
@@ -306,11 +303,12 @@ export const PatientPaymentModal = ({
                 <Field
                   name="amount"
                   component={NumberField}
-                  onChange={handleAmountChange}
+                  onChange={handleChangeAmount}
+                  value={amount}
                   min={0}
                   data-testid="field-773f"
                 />
-                <PayBalanceButton onClick={() => handlePayBalance(setFieldValue)}>
+                <PayBalanceButton onClick={handlePayBalance}>
                   <TranslatedText
                     stringId="invoice.modal.recordPayment.payBalance"
                     fallback="Pay balance"
