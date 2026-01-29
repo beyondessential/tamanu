@@ -109,26 +109,20 @@ export class LabRequest extends Model {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         hooks: {
           afterUpdate: async (labRequest: LabRequest, options) => {
-            const shouldPushNotification = [
-              LAB_REQUEST_STATUSES.INTERIM_RESULTS,
-              LAB_REQUEST_STATUSES.PUBLISHED,
-              LAB_REQUEST_STATUSES.INVALIDATED,
-            ].includes(labRequest.status);
+            const previousStatus = labRequest.previous('status');
+            const currentStatus = labRequest.status;
+            const isStatusChanging = currentStatus !== previousStatus;
 
-            if (shouldPushNotification && labRequest.status !== labRequest.previous('status')) {
-              await models.Notification.pushNotification(
-                NOTIFICATION_TYPES.LAB_REQUEST,
-                labRequest.dataValues,
-                { transaction: options.transaction },
-              );
-            }
+            if (!isStatusChanging) return;
 
+            // Handle deletion first - if changing to DELETED or ENTERED_IN_ERROR,
+            // delete all notifications and don't create new ones
             const shouldDeleteNotification = [
               LAB_REQUEST_STATUSES.DELETED,
               LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
-            ].includes(labRequest.status);
+            ].includes(currentStatus);
 
-            if (shouldDeleteNotification && labRequest.status !== labRequest.previous('status')) {
+            if (shouldDeleteNotification) {
               await models.Notification.destroy({
                 where: {
                   metadata: {
@@ -137,6 +131,24 @@ export class LabRequest extends Model {
                 },
                 transaction: options.transaction,
               });
+              return;
+            }
+
+            const isChangingFromPublished = previousStatus === LAB_REQUEST_STATUSES.PUBLISHED;
+            const NOTIFICATION_STATUSES = [
+              LAB_REQUEST_STATUSES.INTERIM_RESULTS,
+              LAB_REQUEST_STATUSES.PUBLISHED,
+              LAB_REQUEST_STATUSES.INVALIDATED,
+            ];
+
+            const shouldPushNotification = NOTIFICATION_STATUSES.includes(currentStatus) || isChangingFromPublished;
+
+            if (shouldPushNotification) {
+              await models.Notification.pushNotification(
+                NOTIFICATION_TYPES.LAB_REQUEST,
+                { ...labRequest.dataValues, previousStatus },
+                { transaction: options.transaction },
+              );
             }
           },
         },
