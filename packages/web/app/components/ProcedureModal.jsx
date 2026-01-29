@@ -96,29 +96,32 @@ export const ProcedureModal = ({
     refreshCount,
   );
 
-  // Convert country TZ values to facility TZ for editing
-  const toFacilityTz = val => formatForDateTimeInput(val);
+  // Convert country TZ → facility TZ for display
+  const toFacilityTz = val => val ? formatForDateTimeInput(val) : undefined;
 
   // Form uses facility TZ; on submit, combine date+time and convert to country TZ
   const onSubmit = async data => {
-    const startDateTime = combineDateTime(data.date, data.startTime);
-    const endDateTime = (() => {
-      if (!data.endTime) return undefined;
-      const dateStr = data.date.slice(0, 10);
-      // If end time < start time, procedure ended next day
-      if (getTime(data.endTime) < getTime(data.startTime)) {
-        return combineDateTime(toDateString(addDays(parseISO(dateStr), 1)), data.endTime);
-      }
-      return combineDateTime(dateStr, data.endTime);
-    })();
+    const dateStr = data.date.slice(0, 10);
+    const toCountry = time => time ? toDateTimeStringForPersistence(combineDateTime(dateStr, time)) : undefined;
+    const toCountryWithRollover = (time, refTime) => {
+      if (!time) return undefined;
+      // If time < reference time, it's the next day
+      const nextDay = getTime(time) < getTime(refTime);
+      return toDateTimeStringForPersistence(combineDateTime(
+        nextDay ? toDateString(addDays(parseISO(dateStr), 1)) : dateStr,
+        time,
+      ));
+    };
 
-    const actualDateTime = toDateTimeStringForPersistence(startDateTime);
+    const actualDateTime = toCountry(data.startTime);
 
     await api[data.id ? 'put' : 'post'](data.id ? `procedure/${data.id}` : 'procedure', {
       ...data,
       date: actualDateTime,
       startTime: actualDateTime,
-      endTime: endDateTime ? toDateTimeStringForPersistence(endDateTime) : undefined,
+      endTime: toCountryWithRollover(data.endTime, data.startTime),
+      timeIn: toCountry(data.timeIn),
+      timeOut: toCountryWithRollover(data.timeOut, data.timeIn),
       encounterId,
     });
 
@@ -293,16 +296,21 @@ export const ProcedureModal = ({
           </>
         );
       }}
-      initialValues={{
+      initialValues={editedProcedure ? {
+        // Edit: spread existing data, convert date/time from country TZ to facility TZ
         ...editedProcedure,
-        // Convert date/time fields from country TZ (stored) to facility TZ (display)
-        date: toFacilityTz(editedProcedure?.date)?.slice(0, 10) || getFacilityCurrentDateString(),
-        startTime: toFacilityTz(editedProcedure?.startTime) || getFacilityCurrentDateTimeString(),
-        endTime: toFacilityTz(editedProcedure?.endTime),
-        timeIn: toFacilityTz(editedProcedure?.timeIn),
-        timeOut: toFacilityTz(editedProcedure?.timeOut),
-        physicianId: editedProcedure?.physicianId || currentUser.id,
-        assistantClinicianIds: editedProcedure?.assistantClinicians?.map(c => c.id) || [],
+        date: toFacilityTz(editedProcedure.date)?.slice(0, 10),
+        startTime: toFacilityTz(editedProcedure.startTime),
+        endTime: toFacilityTz(editedProcedure.endTime),
+        timeIn: toFacilityTz(editedProcedure.timeIn),
+        timeOut: toFacilityTz(editedProcedure.timeOut),
+        assistantClinicianIds: editedProcedure.assistantClinicians?.map(c => c.id) || [],
+      } : {
+        // Create: defaults in facility TZ
+        date: getFacilityCurrentDateString(),
+        startTime: getFacilityCurrentDateTimeString(),
+        physicianId: currentUser.id,
+        assistantClinicianIds: [],
       }}
       formType={procedureId ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
