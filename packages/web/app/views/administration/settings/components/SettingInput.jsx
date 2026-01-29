@@ -89,10 +89,12 @@ export const SettingInput = ({
   typeSchema,
   disabled,
   suggesterEndpoint,
+  facilityId,
 }) => {
   const { type } = typeSchema;
   const [error, setError] = useState(null);
-  const suggester = useSuggester(suggesterEndpoint);
+  const suggesterOptions = facilityId ? { baseQueryParameters: { facilityId } } : undefined;
+  const suggester = useSuggester(suggesterEndpoint, suggesterOptions);
   const isUnchangedFromDefault = useMemo(() => isEqual(normalize(value), normalize(defaultValue)), [
     value,
     defaultValue,
@@ -150,6 +152,7 @@ export const SettingInput = ({
   const handleChangeJSON = e => handleChangeSetting(path, e);
 
   const displayValue = isUndefined(value) ? defaultValue : value;
+  const suggesterDisplayValue = displayValue === null ? '' : displayValue;
 
   const key = path.split('.').pop();
   const typeKey = TYPE_OVERRIDES_BY_KEY[key] || type;
@@ -162,7 +165,7 @@ export const SettingInput = ({
               onChange={defaultHandleChange}
               disabled={disabled}
               suggester={suggester}
-              value={displayValue}
+              value={suggesterDisplayValue}
               error={error}
               helperText={error?.message}
             />
@@ -176,7 +179,7 @@ export const SettingInput = ({
               onChange={defaultHandleChange}
               disabled={disabled}
               suggester={suggester}
-              value={displayValue}
+              value={suggesterDisplayValue}
               error={error}
               helperText={error?.message}
             />

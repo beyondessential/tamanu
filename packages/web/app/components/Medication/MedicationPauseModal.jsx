@@ -88,6 +88,7 @@ export const MedicationPauseModal = ({ medication, onPause, onClose }) => {
       open
       onClose={onClose}
       title={<TranslatedText stringId="medication.pauseModal.title" fallback="Pause medication" />}
+      data-testid="medicationpausemodal-xyz789"
     >
       <Form
         suppressErrorDialog
@@ -109,7 +110,7 @@ export const MedicationPauseModal = ({ medication, onPause, onClose }) => {
                 />
               </DarkText>
               <MedicationSummary medication={medication} />
-              <FormGrid>
+              <FormGrid data-testid="formgrid-pausemedication-abc123">
                 <FormGrid nested>
                   <Field
                     name="pauseDuration"
@@ -123,6 +124,7 @@ export const MedicationPauseModal = ({ medication, onPause, onClose }) => {
                     min={0}
                     onInput={preventInvalidNumber}
                     required
+                    data-testid="field-pauseduration-input"
                   />
                   <Field
                     name="pauseTimeUnit"
@@ -134,9 +136,10 @@ export const MedicationPauseModal = ({ medication, onPause, onClose }) => {
                         label,
                       }),
                     )}
+                    data-testid="field-pausetimeunit-select"
                   />
                   {errors.extendBeyondEndDate && (
-                    <ExtendBeyondEndDateError>
+                    <ExtendBeyondEndDateError data-testid="extendbeyondenddateerror-xyz789">
                       <TranslatedText
                         stringId="medication.pauseModal.pauseValidation"
                         fallback="Cannot extend beyond medication end date"
@@ -150,11 +153,15 @@ export const MedicationPauseModal = ({ medication, onPause, onClose }) => {
                     <TranslatedText stringId="medication.pauseModal.notes.label" fallback="Notes" />
                   }
                   component={TextField}
+                  data-testid="field-notes-input"
                 />
               </FormGrid>
             </Box>
-            <StyledFormActions>
-              <FormCancelButton onClick={onClose}>
+            <StyledFormActions data-testid="styledformactions-pause-abc123">
+              <FormCancelButton 
+                onClick={onClose}
+                data-testid="formcancelbutton-cancel-abc123"
+              >
                 <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
               </FormCancelButton>
               <FormSubmitButton
@@ -162,6 +169,7 @@ export const MedicationPauseModal = ({ medication, onPause, onClose }) => {
                 onClick={data => {
                   submitForm(data);
                 }}
+                data-testid="formsubmitbutton-pause-xyz789"
               >
                 <TranslatedText stringId="medication.details.pause" fallback="Pause" />
               </FormSubmitButton>
