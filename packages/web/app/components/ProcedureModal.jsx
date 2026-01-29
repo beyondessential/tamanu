@@ -92,7 +92,7 @@ export const ProcedureModal = ({
 }) => {
   const api = useApi(); 
   const { currentUser } = useAuth();
-  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
+  const { getCountryCurrentDateString, getCountryCurrentDateTimeString } = useDateTimeFormat();
   const { patientId } = useParams();
   const { data: patient } = usePatientDataQuery(patientId);
   const [refreshCount, updateRefreshCount] = useRefreshCount();
@@ -297,7 +297,7 @@ export const ProcedureModal = ({
         );
       }}
       initialValues={{
-        date: getCountryCurrentDateTimeString(),
+        date: getCountryCurrentDateString(),
         startTime: getCountryCurrentDateTimeString(),
         physicianId: currentUser.id,
         assistantClinicianIds:
