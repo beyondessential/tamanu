@@ -65,7 +65,7 @@ const Header = ({ navigation }: StackHeaderProps): ReactElement => {
 
 export const VaccineStack = (): ReactElement => (
   <ErrorBoundary>
-    <Stack.Navigator headerMode="screen">
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen
         options={{
           header: Header,

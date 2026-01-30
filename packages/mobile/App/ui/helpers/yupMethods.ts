@@ -1,8 +1,10 @@
 import * as yup from 'yup';
 import { replaceStringVariables } from '../contexts/TranslationContext';
 
+let isMethodRegistered = false;
+
 const registerTranslatedLabelMethod = (translations: object = {}) => {
-  yup.addMethod(yup.mixed, 'translatedLabel', function(translatedTextComponent) {
+  const methodImpl = function(translatedTextComponent) {
     if (!translations) return this.label(translatedTextComponent.props.fallback);
     const { stringId, fallback } = translatedTextComponent.props;
     const templateString = translations[stringId] || fallback;
@@ -12,11 +14,16 @@ const registerTranslatedLabelMethod = (translations: object = {}) => {
       translations,
     );
     return this.label(replaced);
-  });
+  };
+
+  if (!isMethodRegistered) {
+    yup.addMethod(yup.mixed, 'translatedLabel', methodImpl);
+    isMethodRegistered = true;
+  } else {
+    (yup.mixed.prototype as any).translatedLabel = methodImpl;
+  }
 };
 
-// Register a placeholder method in upper scope to be replaced with
-// translated version, this is required at boot
 registerTranslatedLabelMethod();
 
 export function registerYup(translations: object = {}) {

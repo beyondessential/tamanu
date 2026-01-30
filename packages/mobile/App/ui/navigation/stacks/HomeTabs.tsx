@@ -153,26 +153,31 @@ const TabNavigator = ({ selectedPatient }: BaseAppProps): ReactElement => {
     tabBarLabel: getTranslation('general.home', 'Home'),
     tabBarTestID: 'HOME',
     unmountOnBlur: true,
+    headerShown: false,
   };
   const ReportScreenOptions: BottomTabNavigationOptions = {
     tabBarIcon: TabScreenIcon(ReportsIcon),
     tabBarLabel: getTranslation('general.reports', 'Reports'),
     tabBarTestID: 'REPORTS',
+    headerShown: false,
   };
   const PatientScreenOptions: BottomTabNavigationOptions = {
     tabBarIcon: TabScreenIcon(PatientIcon),
     tabBarLabel: getTranslation('general.patient', 'Patient'),
     tabBarTestID: 'PATIENT',
+    headerShown: false,
   };
   const SyncDataScreenOptions: BottomTabNavigationOptions = {
     tabBarIcon: TabScreenIcon(SyncCloudIcon),
     tabBarLabel: getTranslation('general.sync', 'Sync'),
     tabBarTestID: 'Sync Data',
+    headerShown: false,
   };
   const MoreScreenOptions: BottomTabNavigationOptions = {
     tabBarIcon: TabScreenIcon(MoreLogoIcon),
     tabBarLabel: getTranslation('general.more', 'More'),
     tabBarTestID: 'MORE',
+    headerShown: false,
   };
 
   return (

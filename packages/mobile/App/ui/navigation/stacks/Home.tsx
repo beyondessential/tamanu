@@ -31,8 +31,7 @@ export const HomeStack = (): ReactElement => {
 
   return (
     <Stack.Navigator
-      headerMode="none"
-      screenOptions={noSwipeGestureOnNavigator}
+      screenOptions={{ ...noSwipeGestureOnNavigator, headerShown: false }}
       initialRouteName={
         authCtx.checkFirstSession()
           ? Routes.HomeStack.WelcomeIntroStack

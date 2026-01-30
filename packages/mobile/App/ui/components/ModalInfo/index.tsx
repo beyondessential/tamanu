@@ -21,7 +21,7 @@ export const ModalInfo = ({
   buttonPrompt,
   onFollowPrompt,
   onVisibilityChange,
-  screenPosition,
+  screenPosition = '50%',
 }: ModalInfoProps): ReactElement | null => {
   const dismissModal = useCallback(() => {
     onVisibilityChange(false);
@@ -84,8 +84,4 @@ export const ModalInfo = ({
       </StyledView>
     </StyledSafeAreaView>
   );
-};
-
-ModalInfo.defaultProps = {
-  screenPosition: '50%',
 };

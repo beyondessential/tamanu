@@ -78,7 +78,3 @@ export const VisitTypeButton = ({
     </TouchableWithoutFeedback>
   );
 };
-
-VisitTypeButton.defaultProps = {
-  type: '',
-};
