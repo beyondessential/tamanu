@@ -443,13 +443,7 @@ labRelations.get(
 labRelations.put(
   '/:id/tests',
   asyncHandler(async (req, res) => {
-    const {
-      models,
-      params,
-      body,
-      db,
-      user,
-    } = req;
+    const { models, params, body, db, user } = req;
     const { id } = params;
     const { resultsInterpretation, labTests = {} } = body;
     req.checkPermission('write', 'LabTest');
@@ -482,7 +476,8 @@ labRelations.put(
     const labTestObj = keyBy(labTestRecords, 'id');
     if (
       Object.entries(labTests).some(
-        ([testId, testBody]) => testBody.result && labTestObj[testId] && testBody.result !== labTestObj[testId].result,
+        ([testId, testBody]) =>
+          testBody.result && labTestObj[testId] && testBody.result !== labTestObj[testId].result,
       )
     ) {
       req.checkPermission('write', 'LabTestResult');
@@ -497,7 +492,10 @@ labRelations.put(
     }
 
     await db.transaction(async () => {
-      if (resultsInterpretation !== undefined && resultsInterpretation !== labRequest.resultsInterpretation) {
+      if (
+        resultsInterpretation !== undefined &&
+        resultsInterpretation !== labRequest.resultsInterpretation
+      ) {
         await labRequest.update({ resultsInterpretation });
       }
 
@@ -558,6 +556,78 @@ labTest.get(
     });
 
     res.send(response);
+  }),
+);
+
+labTest.get(
+  '/:id/history',
+  asyncHandler(async (req, res) => {
+    const {
+      models,
+      params,
+      query: { facilityId },
+    } = req;
+    const labTestId = params.id;
+
+    req.checkPermission('read', 'LabTest');
+    req.checkPermission('read', 'LabTestResult');
+
+    // First, check if this lab test exists and get its info
+    const labTest = await models.LabTest.findByPk(labTestId, {
+      include: [{ model: models.LabTestType, as: 'labTestType' }],
+    });
+
+    if (!labTest) {
+      throw new NotFoundError();
+    }
+
+    if (labTest.labTestType.isSensitive === true) {
+      req.checkPermission('read', 'SensitiveLabRequest');
+    }
+
+    await req.audit.access({
+      recordId: labTest.id,
+      frontEndContext: req.params,
+      model: models.LabTest,
+      facilityId,
+    });
+
+    const changeLogs = await models.ChangeLog.findAll({
+      where: {
+        tableName: 'lab_tests',
+        recordId: labTestId,
+      },
+      include: [
+        {
+          model: models.User,
+          as: 'updatedByUser',
+          attributes: ['id', 'displayName'],
+        },
+      ],
+      order: [['loggedAt', 'DESC']],
+      raw: false,
+    });
+
+    const distinctChanges = [];
+    let lastResult;
+
+    for (const changeLog of changeLogs) {
+      const { id, loggedAt, updatedByUserId, updatedByUser, recordData = {} } = changeLog;
+      const { result } = recordData;
+
+      if (result !== lastResult) {
+        distinctChanges.push({
+          id,
+          loggedAt,
+          result,
+          updatedByUserId,
+          updatedByDisplayName: updatedByUser?.displayName,
+        });
+        lastResult = result;
+      }
+    }
+
+    res.send(distinctChanges);
   }),
 );
 
