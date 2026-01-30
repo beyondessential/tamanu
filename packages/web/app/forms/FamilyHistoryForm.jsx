@@ -15,7 +15,7 @@ export const FamilyHistoryForm = ({
   editedObject,
   onSubmit,
 }) => {
-  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
+  const { getFacilityDateString } = useDateTimeFormat();
   
   return (<Form
     onSubmit={onSubmit}
@@ -113,8 +113,7 @@ export const FamilyHistoryForm = ({
       </FormGrid>
     )}
     initialValues={{
-      // TODO: multiple timezones date field saving as date_time_string
-      recordedDate: getCountryCurrentDateTimeString(),
+      recordedDate: getFacilityDateString(),
       ...editedObject,
     }}
     formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}

@@ -58,7 +58,7 @@ export const OngoingConditionForm = ({
   diagnosisSuggester,
   onDelete,
 }) => {
-  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
+  const { getFacilityDateString, getCountryCurrentDateTimeString } = useDateTimeFormat();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const RenderForm = ({ submitForm, values }) => {
@@ -264,8 +264,7 @@ export const OngoingConditionForm = ({
       onSubmit={onDataSubmit}
       render={RenderForm}
       initialValues={{
-        // TODO: multiple timezones date field saving as date_time_string
-        recordedDate: getCountryCurrentDateTimeString(),
+        recordedDate: getFacilityDateString(),
         resolutionDate: getCountryCurrentDateTimeString(),
         resolved: false,
         ...editedObject,
