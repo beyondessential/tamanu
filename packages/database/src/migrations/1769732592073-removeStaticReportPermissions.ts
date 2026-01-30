@@ -5,7 +5,8 @@ export async function up(query: QueryInterface): Promise<void> {
       `
         DELETE FROM permissions
         WHERE noun = 'StaticReport'
-          AND (object_id IS NULL OR object_id <> 'generic-survey-export-line-list');
+          AND verb = 'run'
+          AND object_id <> 'generic-survey-export-line-list'
       `,
     );
 }
