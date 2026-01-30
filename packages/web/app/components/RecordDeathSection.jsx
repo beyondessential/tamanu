@@ -19,11 +19,14 @@ const TypographyLink = styled(Typography)`
   font-weight: 500;
   font-size: 14px;
   line-height: 18px;
-  text-decoration: underline;
   text-align: right;
   cursor: pointer;
   padding-top: 10px;
   margin-top: auto;
+
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 const marginBottom = 58;
