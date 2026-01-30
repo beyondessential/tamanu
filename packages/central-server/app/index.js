@@ -11,17 +11,10 @@ import { setupEnv } from './env';
 import { closeDatabase } from './database';
 
 // allow commands to be hidden if e.g. they're deprecated
-const hiddenCommands = [
-  'migrateChangelogNotesToEncounterHistoryCommand',
-  'migrateNotePagesToNotesCommand',
-  'removeDuplicatedDischargesCommand',
-];
+const hiddenCommands = ['migrateNotePagesToNotesCommand', 'removeDuplicatedDischargesCommand'];
 
 async function run() {
-  program
-    .version(version)
-    .description('Tamanu Central server')
-    .name('node dist');
+  program.version(version).description('Tamanu Central server').name('node dist');
 
   for (const [key, command] of Object.entries(cmd).filter(([k]) => /^\w+Command$/.test(k))) {
     const hidden = hiddenCommands.includes(key);

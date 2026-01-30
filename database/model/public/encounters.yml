@@ -153,6 +153,9 @@ sources:
           - name: discharge_draft
             data_type: jsonb
             description: "{{ doc('encounters__discharge_draft') }}"
+          - name: estimated_end_date
+            data_type: character(10)
+            description: "{{ doc('encounters__estimated_end_date') }}"
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in encounters."
