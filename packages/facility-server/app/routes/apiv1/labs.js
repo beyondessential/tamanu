@@ -540,7 +540,17 @@ labTest.get(
 
     const response = await models.LabTest.findByPk(labTestId, {
       include: [
-        { model: models.LabRequest, as: 'labRequest' },
+        {
+          model: models.LabRequest,
+          as: 'labRequest',
+          include: [
+            {
+              model: models.Encounter,
+              as: 'encounter',
+              attributes: ['id', 'patientId'],
+            },
+          ],
+        },
         { model: models.LabTestType, as: 'labTestType' },
         { model: models.ReferenceData, as: 'labTestMethod' },
       ],
