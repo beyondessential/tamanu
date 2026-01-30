@@ -1,11 +1,10 @@
 import asyncHandler from 'express-async-handler';
-import { INVOICE_STATUSES } from '@tamanu/constants';
 import { z } from 'zod';
 import { ForbiddenError, NotFoundError, ValidationError } from '@tamanu/errors';
 import {
   getInvoicePatientPaymentStatus,
-  getInvoiceSummary,
   round,
+  getInvoiceSummary,
 } from '@tamanu/shared/utils/invoice';
 import express from 'express';
 import Decimal from 'decimal.js';
@@ -30,28 +29,41 @@ const updatePatientPaymentSchema = z
   })
   .strip();
 
-async function getInvoiceWithDetails(req, invoiceId) {
-  return await req.models.Invoice.findByPk(invoiceId, {
-    include: req.models.Invoice.getFullReferenceAssociations(req.models),
+async function getInvoiceWithDetails(req, encounterId) {
+  const invoicePriceListId =
+    await req.models.InvoicePriceList.getIdForPatientEncounter(encounterId);
+  return await req.models.Invoice.findOne({
+    where: { encounterId },
+    include: req.models.Invoice.getFullReferenceAssociations(invoicePriceListId),
   });
 }
+
+async function getEncounterIdFromInvoiceId(req, invoiceId) {
+  const invoice = await req.models.Invoice.findByPk(invoiceId, {
+    attributes: ['id', 'encounterId'],
+  });
+  if (!invoice) throw new NotFoundError('Invoice not found');
+  if (!invoice.encounterId) throw new NotFoundError('Invoice encounter not found');
+  return invoice.encounterId;
+}
+
 const handleCreatePatientPayment = asyncHandler(async (req, res) => {
   req.checkPermission('create', 'InvoicePayment');
+  const { invoiceId } = req.params;
 
-  const invoiceId = req.params.invoiceId;
-
-  const invoice = await getInvoiceWithDetails(req, invoiceId);
+  const encounterId = await getEncounterIdFromInvoiceId(req, invoiceId);
+  const invoice = await getInvoiceWithDetails(req, encounterId);
 
   if (!invoice) throw new NotFoundError('Invoice not found');
-  if (invoice.status !== INVOICE_STATUSES.FINALISED)
-    throw new ForbiddenError('Invoice is not finalised');
 
   const { data, error } = await createPatientPaymentSchema.safeParseAsync(req.body);
   if (error) throw new ValidationError(error.message);
 
   const { patientTotal, patientPaymentRemainingBalance } = getInvoiceSummary(invoice);
-  if (data.amount > round(patientPaymentRemainingBalance, 2))
+
+  if (data.amount > round(patientPaymentRemainingBalance, 2)) {
     throw new ForbiddenError('Amount of payment is higher than the owing total');
+  }
 
   const transaction = await req.db.transaction();
 
@@ -102,13 +114,13 @@ const handleUpdatePatientPayment = asyncHandler(async (req, res) => {
   const invoiceId = req.params.invoiceId;
   const paymentId = req.params.paymentId;
 
-  const invoice = await getInvoiceWithDetails(req, invoiceId);
+  const encounterId = await getEncounterIdFromInvoiceId(req, invoiceId);
+  const invoice = await getInvoiceWithDetails(req, encounterId);
 
   const payment = await req.models.InvoicePayment.findByPk(paymentId);
 
   if (!invoice) throw new NotFoundError('Invoice not found');
-  if (invoice.status !== INVOICE_STATUSES.FINALISED)
-    throw new ForbiddenError('Invoice is not finalised');
+
   if (!payment) throw new NotFoundError('Payment not found');
 
   const { data, error } = await updatePatientPaymentSchema.safeParseAsync(req.body);
