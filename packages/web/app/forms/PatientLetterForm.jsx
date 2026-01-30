@@ -84,6 +84,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
           suggester={practitionerSuggester}
           data-testid="field-ytix"
         />
+        {/* TODO: this date goes nowhere behind scenes */ }
         <Field
           name="date"
           label={
@@ -176,7 +177,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
 
 export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, patient }) => {
   const { currentUser, facilityId } = useAuth();
-  const { getCountryCurrentDateString } = useDateTimeFormat();
+  const { getFacilityCurrentDateString } = useDateTimeFormat();
   const api = useApi();
 
   const handleSubmit = useCallback(
@@ -224,7 +225,8 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, 
       onSubmit={handleSubmit}
       render={renderForm}
       initialValues={{
-        date: getCountryCurrentDateString(),
+        // TODO: this goes nowhere
+        date: getFacilityCurrentDateString(),
         clinicianId: currentUser.id,
         ...editedObject,
       }}
