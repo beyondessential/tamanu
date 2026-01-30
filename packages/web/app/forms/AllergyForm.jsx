@@ -23,7 +23,7 @@ export const AllergyForm = ({
   allergySuggester,
 }) => {
   const { ability } = useAuth();
-  const { getFacilityDateString } = useDateTimeFormat();
+  const { getFacilityCurrentDateString } = useDateTimeFormat();
   const canCreateReferenceData = ability.can('create', 'ReferenceData');
 
   return (
@@ -123,7 +123,7 @@ export const AllergyForm = ({
         </FormGrid>
       )}
       initialValues={{
-        recordedDate: getFacilityDateString(),
+        recordedDate: getFacilityCurrentDateString(),
         ...editedObject,
       }}
       formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}

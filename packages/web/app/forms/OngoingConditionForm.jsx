@@ -58,7 +58,7 @@ export const OngoingConditionForm = ({
   diagnosisSuggester,
   onDelete,
 }) => {
-  const { getFacilityDateString, getCountryCurrentDateTimeString } = useDateTimeFormat();
+  const { getFacilityCurrentDateString } = useDateTimeFormat();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const RenderForm = ({ submitForm, values }) => {
@@ -264,8 +264,8 @@ export const OngoingConditionForm = ({
       onSubmit={onDataSubmit}
       render={RenderForm}
       initialValues={{
-        recordedDate: getFacilityDateString(),
-        resolutionDate: getCountryCurrentDateTimeString(),
+        recordedDate: getFacilityCurrentDateString(),
+        resolutionDate: getFacilityCurrentDateString(),
         resolved: false,
         ...editedObject,
       }}
