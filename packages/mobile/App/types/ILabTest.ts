@@ -7,6 +7,7 @@ export interface ILabTest {
   id: ID;
   date: string;
   result: string;
+  secondaryResult?: string;
 
   labRequest: ILabRequest;
   labRequestId: string;

@@ -5,6 +5,7 @@ import { keyBy, pick } from 'lodash';
 import { Alert, AlertTitle, Skeleton } from '@material-ui/lab';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
+import * as yup from 'yup';
 import { FormModal } from '../../../components/FormModal';
 import { BodyText, Heading4, SmallBodyText } from '../../../components/Typography';
 import { TextField, Form, ConfirmCancelRow, Field } from '@tamanu/ui-components';
@@ -17,7 +18,9 @@ import { AccessorField, LabResultAccessorField } from './AccessorField';
 import { useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
 import { useLabRequest } from '../../../contexts/LabRequest';
+import { useTranslation } from '../../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
+import { ConditionalTooltip } from '../../../components/Tooltip';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 const TableContainer = styled.div`
@@ -43,6 +46,7 @@ const StyledTableFormFields = styled(TableFormFields)`
 
   tbody tr td {
     font-size: 14px;
+    vertical-align: top;
   }
 `;
 
@@ -58,6 +62,7 @@ const LAB_TEST_PROPERTIES = {
   ID: 'id',
   LAB_TEST_METHOD_ID: 'labTestMethodId',
   RESULT: 'result',
+  SECONDARY_RESULT: 'secondaryResult',
   VERIFICATION: 'verification',
 };
 
@@ -66,9 +71,46 @@ const AUTOFILL_FIELD_NAMES = [
   LAB_TEST_PROPERTIES.LAB_TEST_METHOD_ID,
 ];
 
-const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
+const getValidationSchema = getTranslation =>
+  yup.object().shape({
+    labTests: yup.lazy(labTestsObj => {
+      if (!labTestsObj) return yup.object();
+      const shape = {};
+      Object.keys(labTestsObj).forEach(testId => {
+        shape[testId] = yup.object().shape({
+          result: yup.string().when('secondaryResult', {
+            is: secondaryResult => secondaryResult && secondaryResult.trim() !== '',
+            then: yup
+              .string()
+              .required(
+                getTranslation(
+                  'lab.validation.resultRequiredWhenSecondaryResultEntered',
+                  'Result required when secondary result entered',
+                ),
+              ),
+            otherwise: yup.string().nullable(),
+          }),
+          secondaryResult: yup.string().nullable(),
+        });
+      });
+      return yup.object().shape(shape);
+    }),
+    resultsInterpretation: yup.string().nullable(),
+  });
+
+const getColumns = (
+  {
+    labTestResults,
+    onChangeResult,
+    areLabTestResultsReadOnly
+  }
+) => {
+  const { count, data } = labTestResults || {};
   // Generate tab index for vertical tabbing through the table
   const tabIndex = (col, row) => count * col + row + 1;
+  const showSecondaryResultColumn = data?.some(
+    row => row.labTestType?.supportsSecondaryResults,
+  );
   return [
     {
       key: 'labTestType',
@@ -115,6 +157,45 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
         );
       },
     },
+    ...(showSecondaryResultColumn
+      ? [
+        {
+          key: LAB_TEST_PROPERTIES.SECONDARY_RESULT,
+          title: (
+            <TranslatedText
+              stringId="lab.results.table.column.secondaryResult"
+              fallback="Secondary result"
+              data-testid="translatedtext-secondary-result"
+            />
+          ),
+          accessor: (row, i) => {
+            const { supportsSecondaryResults } = row.labTestType;
+            return (
+              <ConditionalTooltip
+                visible={!supportsSecondaryResults}
+                maxWidth="140px"
+                title={
+                  <TranslatedText
+                    stringId="lab.results.tooltip.secondaryResultNotSupported"
+                    fallback="Secondary result is not supported for this test."
+                    data-testid="translatedtext-secondary-not-supported"
+                  />
+                }
+              >
+                <AccessorField
+                  id={row.id}
+                  component={TextField}
+                  name={LAB_TEST_PROPERTIES.SECONDARY_RESULT}
+                  disabled={areLabTestResultsReadOnly || !supportsSecondaryResults}
+                  tabIndex={tabIndex(1, i)}
+                  data-testid="accessorfield-secondary-result"
+                />
+              </ConditionalTooltip>
+            );
+          },
+        },
+      ]
+      : []),
     {
       key: 'unit',
       title: (
@@ -146,7 +227,7 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
           endpoint="labTestMethod"
           name={LAB_TEST_PROPERTIES.LAB_TEST_METHOD_ID}
           component={SuggesterSelectField}
-          tabIndex={tabIndex(1, i)}
+          tabIndex={tabIndex(2, i)}
           data-testid="accessorfield-ik1h"
         />
       ),
@@ -165,7 +246,7 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
           id={row.id}
           component={TextField}
           name={LAB_TEST_PROPERTIES.VERIFICATION}
-          tabIndex={tabIndex(2, i)}
+          tabIndex={tabIndex(3, i)}
           data-testid="accessorfield-jhrr"
         />
       ),
@@ -185,7 +266,7 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
           id={row.id}
           component={DateTimeField}
           name={LAB_TEST_PROPERTIES.COMPLETED_DATE}
-          tabIndex={tabIndex(3, i)}
+          tabIndex={tabIndex(4, i)}
           saveDateAsString
           data-testid="accessorfield-k5ef"
         />
@@ -241,7 +322,6 @@ const ResultsForm = ({
   setFieldValue,
   areLabTestResultsReadOnly,
 }) => {
-  const { count, data } = labTestResults;
   /**
    * On entering lab result field for a test some other fields are auto-filled optimistically
    * In the case of labTestMethod this occurs in the case that:
@@ -272,11 +352,10 @@ const ResultsForm = ({
     [values, setFieldValue],
   );
 
-  const columns = useMemo(() => getColumns(count, onChangeResult, areLabTestResultsReadOnly), [
-    count,
-    onChangeResult,
-    areLabTestResultsReadOnly,
-  ]);
+  const columns = useMemo(
+    () => getColumns({ labTestResults, onChangeResult, areLabTestResultsReadOnly }),
+    [labTestResults, onChangeResult, areLabTestResultsReadOnly],
+  );
 
   if (isLoading) return <ResultsFormSkeleton data-testid="resultsformskeleton-ibqy" />;
   if (isError) return <ResultsFormError error={error} data-testid="resultsformerror-se9z" />;
@@ -304,7 +383,7 @@ const ResultsForm = ({
       <TableContainer data-testid="tablecontainer-dyto">
         <StyledTableFormFields
           columns={columns}
-          data={data}
+          data={labTestResults?.data}
           data-testid="styledtableformfields-5s0u"
         />
       </TableContainer>
@@ -328,6 +407,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
   const queryClient = useQueryClient();
   const { ability } = useAuth();
   const { loadLabRequest } = useLabRequest();
+  const { getTranslation } = useTranslation();
   const canWriteLabTestResult = ability?.can('write', 'LabTestResult');
   const areLabTestResultsReadOnly = !canWriteLabTestResult;
 
@@ -401,6 +481,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
         initialValues={initialData}
         formType={labTestResults ? FORM_TYPES.EDIT : FORM_TYPES.CREATE}
         enableReinitialize
+        validationSchema={getValidationSchema(getTranslation)}
         onSubmit={updateTests}
         render={({ submitForm, isSubmitting, dirty, ...props }) => {
           const confirmDisabled = isLoading || isError || isSavingTests || isSubmitting || !dirty;

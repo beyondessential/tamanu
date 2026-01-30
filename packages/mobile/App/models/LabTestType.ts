@@ -53,6 +53,9 @@ export class LabTestType extends BaseModel implements ILabTestType {
   @Column({ nullable: false, default: false })
   isSensitive: boolean;
 
+  @Column({ nullable: false, default: false })
+  supportsSecondaryResults: boolean;
+
   @Column({ default: VisibilityStatus.Current })
   visibilityStatus: string;
 }
