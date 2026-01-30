@@ -5,7 +5,6 @@ import Decimal from 'decimal.js';
 import { customAlphabet } from 'nanoid';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants';
-import { round } from '@tamanu/shared/utils/invoice';
 import {
   AutocompleteField,
   DateField,
@@ -63,7 +62,8 @@ const FormCard = styled.div`
 
 const FormFields = styled.div`
   display: grid;
-  grid-template-columns: 150px 1fr 1fr 100px;
+  grid-template-columns: 150px 1fr 1fr auto;
+
   gap: 20px;
 
   .label-field {
@@ -73,7 +73,7 @@ const FormFields = styled.div`
 
 const LabelRow = styled.div`
   display: grid;
-  grid-template-columns: 150px 1fr 1fr 100px;
+  grid-template-columns: 150px 1fr 1fr auto;
   gap: 20px;
   border-bottom: 1px solid ${TAMANU_COLORS.outline};
   padding: 0 10px;
@@ -189,7 +189,11 @@ export const PatientPaymentModal = ({
   return (
     <StyledModal
       title={
-        <TranslatedText stringId="invoice.modal.recordPayment.title" fallback="Record payment" />
+        isEditMode ? (
+          <TranslatedText stringId="invoice.modal.editPayment.title" fallback="Edit payment" />
+        ) : (
+          <TranslatedText stringId="invoice.modal.recordPayment.title" fallback="Record payment" />
+        )
       }
       open={isOpen}
       onClose={onClose}
@@ -248,10 +252,17 @@ export const PatientPaymentModal = ({
             <>
               <Header>
                 <Text>
-                  <TranslatedText
-                    stringId="invoice.modal.recordPayment.instruction"
-                    fallback="Record a patient payment below"
-                  />
+                  {isEditMode ? (
+                    <TranslatedText
+                      stringId="invoice.modal.editPayment.instruction"
+                      fallback="Edit patient payment below"
+                    />
+                  ) : (
+                    <TranslatedText
+                      stringId="invoice.modal.recordPayment.instruction"
+                      fallback="Record a patient payment below"
+                    />
+                  )}
                 </Text>
                 <Total>
                   <TranslatedText
@@ -298,21 +309,27 @@ export const PatientPaymentModal = ({
                     min={0}
                     data-testid="field-773f"
                   />
-                  <PayBalanceButton onClick={handlePayBalance}>
-                    <TranslatedText
-                      stringId="invoice.modal.recordPayment.payBalance"
-                      fallback="Pay balance"
-                    />
-                  </PayBalanceButton>
+                  {!isEditMode && (
+                    <PayBalanceButton onClick={handlePayBalance}>
+                      <TranslatedText
+                        stringId="invoice.modal.recordPayment.payBalance"
+                        fallback="Pay balance"
+                      />
+                    </PayBalanceButton>
+                  )}
                 </FormFields>
               </FormCard>
               <ModalFormActionRow
                 onCancel={onClose}
                 confirmText={
-                  <TranslatedText
-                    stringId="general.action.recordPayment"
-                    fallback="Record payment"
-                  />
+                  isEditMode ? (
+                    <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
+                  ) : (
+                    <TranslatedText
+                      stringId="general.action.recordPayment"
+                      fallback="Record payment"
+                    />
+                  )
                 }
               />
             </>
