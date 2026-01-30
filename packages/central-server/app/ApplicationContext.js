@@ -5,9 +5,11 @@ import { Timesimp } from 'timesimp';
 import { ReadSettings } from '@tamanu/settings';
 import { isSyncTriggerDisabled } from '@tamanu/database/dataMigrations';
 import { initBugsnag, log } from '@tamanu/shared/services/logging';
+import { initReporting } from '@tamanu/database/services/reporting';
 
 import { EmailService } from './services/EmailService';
-import { closeDatabase, initDatabase, initReporting } from './database';
+
+import { closeDatabase, initDatabase } from './database';
 import { initIntegrations } from './integrations';
 import { defineSingletonTelegramBotService } from './services/TelegramBotService';
 import { VERSION } from './middleware/versionCompatibility';

@@ -7,10 +7,11 @@ import { ReadSettings } from '@tamanu/settings';
 import { fake } from '@tamanu/fake-data/fake';
 import { asNewRole } from '@tamanu/shared/test-helpers';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
+import { initReporting } from '@tamanu/database/services/reporting';
 
 import { buildToken } from '../dist/auth/utils';
 import { createApp } from '../dist/createApp';
-import { closeDatabase, initDatabase, initReporting } from '../dist/database';
+import { closeDatabase, initDatabase } from '../dist/database';
 import { initIntegrations } from '../dist/integrations';
 
 class MockApplicationContext {
