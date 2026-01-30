@@ -1,7 +1,7 @@
 import { QueryTypes } from 'sequelize';
 import { fake } from '@tamanu/fake-data/fake';
 import config from 'config';
-import { REPORT_DB_SCHEMAS } from '@tamanu/constants';
+import { REPORT_DB_CONNECTIONS } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 
 // Tests are against mocked reporting schema and roles defined in
@@ -47,11 +47,11 @@ describe('ReportSchemaRoles', () => {
 
     rawDefinition = await models.ReportDefinition.create({
       name: 'test raw definition',
-      dbSchema: REPORT_DB_SCHEMAS.RAW,
+      dbSchema: REPORT_DB_CONNECTIONS.RAW,
     });
     reportingDefinition = await models.ReportDefinition.create({
       name: 'test reporting definition',
-      dbSchema: REPORT_DB_SCHEMAS.REPORTING,
+      dbSchema: REPORT_DB_CONNECTIONS.REPORTING,
     });
   });
   afterAll(async () => {
