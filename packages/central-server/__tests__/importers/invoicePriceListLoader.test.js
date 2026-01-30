@@ -80,16 +80,16 @@ describe('Invoice price list item import', () => {
     const headers = ['invoiceProductId', 'PL_A', 'PL_B'];
     const rows = [
       { invoiceProductId: 'prod-1', PL_A: 100, PL_B: 200 },
-      { invoiceProductId: 'prod-2', PL_A: '', PL_B: 300 }, // blank should be ignored
+      { invoiceProductId: 'prod-2', PL_A: 300, PL_B: 400 },
     ];
     const buffer = buildWorkbookBuffer(headers, rows);
 
     const { errors, stats } = await doImport(ctx, { buffer });
     expect(errors).toBeEmpty();
 
-    // Expect 3 items created
+    // Expect 4 items created
     expect(stats).toMatchObject({
-      InvoicePriceListItem: { created: 3, updated: 0, errored: 0 },
+      InvoicePriceListItem: { created: 4, updated: 0, errored: 0 },
     });
 
     // Verify DB state
@@ -104,8 +104,48 @@ describe('Invoice price list item import', () => {
     const pricesProd1 = itemsProd1.map(i => i.price).sort((a, b) => a - b);
     expect(pricesProd1).toEqual(['100', '200']);
 
-    expect(itemsProd2).toHaveLength(1);
-    expect(itemsProd2[0].price).toEqual('300');
+    expect(itemsProd2).toHaveLength(2);
+    const pricesProd2 = itemsProd2.map(i => i.price).sort((a, b) => a - b);
+    expect(pricesProd2).toEqual(['300', '400']);
+  });
+
+  it('should create price list items from sheet headers and rows with special values', async () => {
+    const { InvoiceProduct, InvoicePriceList, InvoicePriceListItem } = models;
+
+    // Create two products
+    await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-1' });
+    await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-2' });
+
+    // Create two price lists
+    await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'PL_A' });
+    await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'PL_B' });
+
+    const headers = ['invoiceProductId', 'PL_A', 'PL_B'];
+    const rows = [
+      { invoiceProductId: 'prod-1', PL_A: 'hidden', PL_B: '' },
+    ];
+    const buffer = buildWorkbookBuffer(headers, rows);
+
+    const { errors, stats } = await doImport(ctx, { buffer });
+    expect(errors).toBeEmpty();
+
+    // Expect 2 items created
+    expect(stats).toMatchObject({
+      InvoicePriceListItem: { created: 2, updated: 0, errored: 0 },
+    });
+
+    // Verify DB state
+    const itemsProd1 = await InvoicePriceListItem.findAll({
+      where: { invoiceProductId: 'prod-1' },
+    });
+
+    expect(itemsProd1).toHaveLength(2);
+    const hiddenItem = itemsProd1.find(i => i.isHidden);
+    expect(hiddenItem).toBeDefined();
+    expect(hiddenItem.price).toBeNull();
+    const visibleItem = itemsProd1.find(i => !i.isHidden);
+    expect(visibleItem).toBeDefined();
+    expect(visibleItem.price).toBeNull();
   });
 
   it('should validate non-numeric price values', async () => {
@@ -120,7 +160,16 @@ describe('Invoice price list item import', () => {
 
     const { didntSendReason, errors, stats } = await doImport(ctx, { buffer });
     expect(didntSendReason).toEqual('validationFailed');
-    expect(stats).toEqual({});
+    expect(stats).toEqual({
+      InvoicePriceListItem: {
+        created: 0,
+        deleted: 0,
+        errored: 1,
+        restored: 0,
+        skipped: 0,
+        updated: 0,
+      },
+    });
     expect(errors[0]).toHaveProperty(
       'message',
       "Invalid price value 'abc' for priceList 'PL_A' and invoiceProductId 'prod-3' on invoicePriceListItem at row 2",
@@ -138,7 +187,16 @@ describe('Invoice price list item import', () => {
 
     const { didntSendReason, errors, stats } = await doImport(ctx, { buffer });
     expect(didntSendReason).toEqual('validationFailed');
-    expect(stats).toEqual({});
+    expect(stats).toEqual({
+      InvoicePriceListItem: {
+        created: 0,
+        deleted: 0,
+        errored: 2,
+        restored: 0,
+        skipped: 0,
+        updated: 0,
+      },
+    });
     expect(errors[0]).toHaveProperty(
       'message',
       "InvoicePriceList with code 'NONEXISTENT_PL' does not exist on invoicePriceListItem at row 2",
@@ -156,7 +214,16 @@ describe('Invoice price list item import', () => {
 
     const { didntSendReason, errors, stats } = await doImport(ctx, { buffer });
     expect(didntSendReason).toEqual('validationFailed');
-    expect(stats).toEqual({});
+    expect(stats).toEqual({
+      InvoicePriceListItem: {
+        created: 0,
+        deleted: 0,
+        errored: 1,
+        restored: 0,
+        skipped: 0,
+        updated: 0,
+      },
+    });
     expect(errors[0]).toHaveProperty(
       'message',
       "Invoice product 'nonexistent-product' does not exist on invoicePriceListItem at row 2",
@@ -188,7 +255,16 @@ describe('Invoice price list item import', () => {
 
     const { didntSendReason, errors, stats } = await doImport(ctx, { buffer });
     expect(didntSendReason).toEqual('validationFailed');
-    expect(stats).toEqual({});
+    expect(stats).toEqual({
+      InvoicePriceListItem: {
+        created: 0,
+        deleted: 0,
+        errored: 1,
+        restored: 0,
+        skipped: 0,
+        updated: 0,
+      },
+    });
     expect(errors[0]).toHaveProperty(
       'message',
       'Missing required column: invoiceProductId on invoicePriceListItem at row 2',
