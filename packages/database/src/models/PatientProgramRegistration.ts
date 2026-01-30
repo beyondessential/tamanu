@@ -1,8 +1,8 @@
 import { Op, DataTypes, Sequelize } from 'sequelize';
 import { REGISTRATION_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { Model } from './Model';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import { dateTimeType, dateType, type InitOptions, type Models } from '../types/model';
 
 export class PatientProgramRegistration extends Model {
   declare id: string;
@@ -45,9 +45,9 @@ export class PatientProgramRegistration extends Model {
             key: 'id',
           },
         },
-        date: dateTimeType('date', {
+        date: dateType('date', {
           allowNull: false,
-          defaultValue: getCurrentDateTimeString,
+          defaultValue: getCurrentDateString, 
         }),
         registrationStatus: {
           allowNull: false,
