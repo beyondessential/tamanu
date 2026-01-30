@@ -1,11 +1,12 @@
 import config from 'config';
 import { omit } from 'lodash';
 
+import { initReporting } from '@tamanu/database/services/reporting';
 import { initBugsnag } from '@tamanu/shared/services/logging';
 import { ReadSettings } from '@tamanu/settings/reader';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
-import { closeDatabase, initDatabase, initReporting } from './database';
+import { closeDatabase, initDatabase } from './database';
 import { VERSION } from './middleware/versionCompatibility.js';
 
 /**
