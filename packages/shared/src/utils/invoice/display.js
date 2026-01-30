@@ -19,7 +19,9 @@ export const formatDisplayPrice = value => {
     return undefined;
   }
 
-  return value.toLocaleString('en-US', {
+  const normalisedValue = parseFloat(value);
+
+  return normalisedValue.toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
