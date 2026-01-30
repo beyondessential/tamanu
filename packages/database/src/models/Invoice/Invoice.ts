@@ -19,13 +19,15 @@ import type { LabTest } from 'models/LabTest';
 import type { ImagingRequestArea } from 'models/ImagingRequestArea';
 import type { ReadSettings } from '@tamanu/settings';
 import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
+import type { Prescription } from 'models/Prescription';
 
 type InvoiceItemSourceRecord =
   | Procedure
   | LabTestPanelRequest
   | LabTest
   | ImagingRequestArea
-  | ImagingRequest;
+  | ImagingRequest
+  | Prescription;
 
 export class Invoice extends Model {
   declare id: string;
