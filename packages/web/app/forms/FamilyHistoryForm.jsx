@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { TextField, Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
+import { TextField, Form, FormGrid, FormSubmitCancelRow, useDateTimeFormat } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { AutocompleteField, DateField, Field } from '../components/Field';
 import { foreignKey, optionalForeignKey } from '../utils/validation';
@@ -15,8 +14,10 @@ export const FamilyHistoryForm = ({
   practitionerSuggester,
   editedObject,
   onSubmit,
-}) => (
-  <Form
+}) => {
+  const { getFacilityCurrentDateString } = useDateTimeFormat();
+  
+  return (<Form
     onSubmit={onSubmit}
     render={({ submitForm }) => (
       <FormGrid columns={1} data-testid="formgrid-kjns">
@@ -112,7 +113,7 @@ export const FamilyHistoryForm = ({
       </FormGrid>
     )}
     initialValues={{
-      recordedDate: getCurrentDateTimeString(),
+      recordedDate: getFacilityCurrentDateString(),
       ...editedObject,
     }}
     formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
@@ -137,8 +138,8 @@ export const FamilyHistoryForm = ({
         ),
     })}
     data-testid="form-gxqz"
-  />
-);
+  />);
+};
 
 FamilyHistoryForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,

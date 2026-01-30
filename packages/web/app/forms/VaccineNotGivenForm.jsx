@@ -20,7 +20,7 @@ import {
 } from '../components/VaccineCommonFields';
 import { LocalisedField, SuggesterSelectField } from '../components/Field';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { getCurrentDateString } from '@tamanu/utils/dateTime';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 
 export const VaccineNotGivenForm = ({
   vaccineLabel,
@@ -34,8 +34,11 @@ export const VaccineNotGivenForm = ({
   setCategory,
   setVaccineLabel,
   values,
-}) => (
-  <TwoTwoGrid data-testid="twotwogrid-ng3x">
+}) => {
+  const { getFacilityCurrentDateString } = useDateTimeFormat();
+
+  return (
+    <TwoTwoGrid data-testid="twotwogrid-ng3x">
     {!editMode && (
       <CategoryField
         category={category}
@@ -95,7 +98,7 @@ export const VaccineNotGivenForm = ({
         />
       }
       min={values?.patientData?.dateOfBirth}
-      max={getCurrentDateString()}
+      max={getFacilityCurrentDateString()}
       keepIncorrectValue
       data-testid="vaccinedatefield-jzo2"
     />
@@ -139,7 +142,8 @@ export const VaccineNotGivenForm = ({
       data-testid="confirmcancelrowfield-8qv4"
     />
   </TwoTwoGrid>
-);
+  );
+};
 
 VaccineNotGivenForm.propTypes = {
   vaccineLabel: PropTypes.string.isRequired,

@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 
 import { ASSET_NAMES, ICAO_DOCUMENT_TYPES } from '@tamanu/constants';
 import { CovidVaccineCertificate } from '@tamanu/shared/utils/patientCertificates';
-import { getCurrentDateString } from '@tamanu/utils/dateTime';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 
 import { Modal } from '../../Modal';
 import { useApi } from '../../../api';
@@ -19,6 +19,7 @@ import { generateUVCI } from '@tamanu/shared/utils/uvci';
 export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
   const { localisation, getLocalisation } = useLocalisation();
+  const { getCountryCurrentDateString } = useDateTimeFormat();
   const { getSetting } = useSettings();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
     footerAssetName: ASSET_NAMES.COVID_VACCINATION_CERTIFICATE_FOOTER,
@@ -50,9 +51,9 @@ export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient
         patientId: patient.id,
         forwardAddress: data.email,
         createdBy: printedBy,
-        printedDate: getCurrentDateString(),
+        printedDate: getCountryCurrentDateString(),
       }),
-    [api, patient.id, printedBy, requireSigning],
+    [api, patient.id, printedBy, requireSigning, getCountryCurrentDateString],
   );
 
   const patientData = { ...patient, additionalData };
@@ -95,7 +96,7 @@ export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient
           logoSrc={logo}
           signingSrc={requireSigning ? footerImg : null}
           printedBy={printedBy}
-          printedDate={getCurrentDateString()}
+          printedDate={getCountryCurrentDateString()}
           localisation={localisation}
           getSetting={getSetting}
           data-testid="covidvaccinecertificate-s2dc"

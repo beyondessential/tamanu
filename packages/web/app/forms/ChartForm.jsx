@@ -10,9 +10,9 @@ import {
   SurveyScreen,
   Modal,
   ModalLoader,
+  useDateTimeFormat,
 } from '@tamanu/ui-components';
 import { VISIBILITY_STATUSES, CHARTING_DATA_ELEMENT_IDS } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { ForbiddenErrorModalContents } from '../components/ForbiddenErrorModal';
 import { ErrorMessage } from '../components/ErrorMessage';
@@ -43,6 +43,7 @@ export const ChartForm = React.memo(
     const { currentUser, ability } = useAuth();
     const { encounter } = useEncounter();
     const { getTranslation } = useTranslation();
+    const { getCountryCurrentDateTimeString } = useDateTimeFormat();
     const chartSurveyQuery = useSurveyQuery(chartSurveyId);
     const patientAdditionalDataQuery = usePatientAdditionalDataQuery(patient?.id);
     const {
@@ -56,7 +57,7 @@ export const ChartForm = React.memo(
     const visibleComponents = components.filter(
       c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
     );
-      
+
     const canCreateChart = ability.can('create', subject('Charting', { id: chartSurveyId }));
 
     const initialValues = useMemo(() => {
@@ -67,14 +68,25 @@ export const ChartForm = React.memo(
         currentUser,
       );
 
-      const hasPatientChartingDate = visibleComponents.some(c => c.dataElement?.id === CHARTING_DATA_ELEMENT_IDS.dateRecorded);
+      const hasPatientChartingDate = visibleComponents.some(
+        c => c.dataElement?.id === CHARTING_DATA_ELEMENT_IDS.dateRecorded,
+      );
 
       return {
-        ...(hasPatientChartingDate && {[CHARTING_DATA_ELEMENT_IDS.dateRecorded]: getCurrentDateTimeString()} ),
+        ...(hasPatientChartingDate && {
+          [CHARTING_DATA_ELEMENT_IDS.dateRecorded]: getCountryCurrentDateTimeString(),
+        }),
         ...formInitialValues,
         ...editedObject,
       };
-    }, [visibleComponents, patient, patientAdditionalData, currentUser, editedObject]);
+    }, [
+      visibleComponents,
+      patient,
+      patientAdditionalData,
+      currentUser,
+      editedObject,
+      getCountryCurrentDateTimeString,
+    ]);
     const validationSchema = useMemo(() => getValidationSchema(chartSurveyData, getTranslation), [
       chartSurveyData,
       getTranslation,

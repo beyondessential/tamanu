@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 
 import {
@@ -10,7 +9,7 @@ import {
   Field,
   SuggesterSelectField,
 } from '../components/Field';
-import { TextField, Form, FormSubmitCancelRow, FormGrid } from '@tamanu/ui-components';
+import { TextField, Form, FormSubmitCancelRow, FormGrid, useDateTimeFormat } from '@tamanu/ui-components';
 import { foreignKey } from '../utils/validation';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
@@ -24,6 +23,7 @@ export const AllergyForm = ({
   allergySuggester,
 }) => {
   const { ability } = useAuth();
+  const { getFacilityCurrentDateString } = useDateTimeFormat();
   const canCreateReferenceData = ability.can('create', 'ReferenceData');
 
   return (
@@ -123,7 +123,7 @@ export const AllergyForm = ({
         </FormGrid>
       )}
       initialValues={{
-        recordedDate: getCurrentDateTimeString(),
+        recordedDate: getFacilityCurrentDateString(),
         ...editedObject,
       }}
       formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}

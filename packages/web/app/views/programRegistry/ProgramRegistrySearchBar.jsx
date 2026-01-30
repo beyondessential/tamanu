@@ -3,7 +3,6 @@ import { useParams } from 'react-router';
 import { Field } from 'formik';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { useSuggester } from '../../api';
 import {
   AutocompleteField,
@@ -13,7 +12,7 @@ import {
   LocalisedField,
   SearchField,
 } from '../../components';
-import { BaseSelectField } from '@tamanu/ui-components';
+import { BaseSelectField, useDateTimeFormat } from '@tamanu/ui-components';
 import { useProgramRegistryQuery } from '../../api/queries/useProgramRegistryQuery';
 import { useSexOptions } from '../../hooks';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
@@ -30,6 +29,7 @@ const Spacer = styled.div`
 `;
 
 export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters }) => {
+  const { getFacilityCurrentDateString } = useDateTimeFormat();
   const params = useParams();
   const [isExpanded, setIsExpanded] = useState(false);
   const facilitySuggester = useSuggester('facility');
@@ -198,7 +198,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
         }
         saveDateAsString
         component={DateField}
-        max={getCurrentDateString()}
+        max={getFacilityCurrentDateString()}
         data-testid="localisedfield-b6xj"
       />
       <Spacer data-testid="spacer-051k" />

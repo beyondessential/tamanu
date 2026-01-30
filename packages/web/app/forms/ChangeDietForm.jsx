@@ -1,14 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { Form, FormGrid } from '@tamanu/ui-components';
+import { Form, FormGrid, useDateTimeFormat } from '@tamanu/ui-components';
 
 import { LocalisedField, SuggesterSelectField } from '../components/Field';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { ModalActionRow } from '../components';
 
 export const ChangeDietForm = ({ onCancel, onSubmit, dietIds }) => {
+  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
   const renderForm = ({ submitForm }) => (
     <FormGrid columns={1} data-testid="formgrid-r4hj">
       <LocalisedField
@@ -44,7 +44,7 @@ export const ChangeDietForm = ({ onCancel, onSubmit, dietIds }) => {
     <Form
       initialValues={{
         // Used in creation of associated notes
-        submittedTime: getCurrentDateTimeString(),
+        submittedTime: getCountryCurrentDateTimeString(),
         dietIds,
       }}
       formType={FORM_TYPES.EDIT_FORM}

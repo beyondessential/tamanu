@@ -7,7 +7,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { subject } from '@casl/ability';
 
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   CHARTING_DATA_ELEMENT_IDS,
   REGISTRATION_STATUSES,
@@ -15,7 +14,7 @@ import {
   USER_PREFERENCES_KEYS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { getAnswersFromData } from '@tamanu/ui-components';
+import { getAnswersFromData, useDateTimeFormat } from '@tamanu/ui-components';
 
 import { TableButtonRow, ButtonWithPermissionCheck } from '../../components';
 import { useProgramRegistryLinkedChartsQuery } from '../../api/queries/useProgramRegistryLinkedChartsQuery';
@@ -128,6 +127,7 @@ const ChartsPanel = styled.div`
 export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patient, patientProgramRegistration }) => {
   const api = useApi();
   const queryClient = useQueryClient();
+  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
   const { facilityId, ability } = useAuth();
   const [isInitiated, setIsInitiated] = useState(false);
   const [selectedChartTypeId, setSelectedChartTypeId] = useState('');
@@ -307,7 +307,7 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
   );
 
   const handleSubmitChart = async ({ survey, ...data }) => {
-    const submittedTime = getCurrentDateTimeString();
+    const submittedTime = getCountryCurrentDateTimeString();
     const responseData = {
       surveyId: survey.id,
       startTime: submittedTime,

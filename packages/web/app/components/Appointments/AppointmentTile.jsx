@@ -62,16 +62,6 @@ const Tile = styled(UnstyledHtmlButton)`
   `}
 `;
 
-const Time = styled.time`
-  margin-inline-end: 0.3em; // Approximates a wordspace
-`;
-
-const Timestamp = ({ date }) => (
-  <Time dateTime={date.toISOString()} data-testid="time-no0k">
-    <TimeDisplay date={date} format="compact" noTooltip />
-  </Time>
-);
-
 const Label = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
@@ -88,6 +78,10 @@ const IconGroup = styled.div`
   align-items: center;
   display: flex;
   justify-content: end;
+`;
+
+const StyledTimeDisplay = styled(TimeDisplay)`
+  margin-inline-end: 0.3em; // Approximates a wordspace
 `;
 
 export const AppointmentTile = ({
@@ -131,7 +125,7 @@ export const AppointmentTile = ({
 
   const tileText = (
     <>
-      {!hideTime && <Timestamp date={startTime} data-testid="timestamp-icgz" />}
+      {!hideTime && <StyledTimeDisplay date={startTimeStr} format="compact" noTooltip />} 
       {getPatientNameAsString(patient)}
     </>
   );

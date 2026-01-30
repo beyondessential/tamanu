@@ -2,27 +2,28 @@ import React from 'react';
 import * as yup from 'yup';
 import { Divider } from '@material-ui/core';
 
+import { AutocompleteField, DateTimeField, Field, TranslatedText } from '../components';
 import {
-  AutocompleteField,
-  DateTimeField,
-  Field,
-  TranslatedText,
-} from '../components';
-import { TextField, Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
+  TextField,
+  Form,
+  FormGrid,
+  FormSubmitCancelRow,
+  useDateTimeFormat,
+} from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { useSuggester } from '../api';
 import { useMarkTaskTodo } from '../api/mutations/useTaskMutation';
-import { getCurrentDateTimeString } from '../utils/dateTime';
 import { useAuth } from '../contexts/Auth';
 import { useTranslation } from '../contexts/Translation';
 
 export const MarkTaskTodoForm = ({ onClose, refreshTaskTable, taskIds }) => {
+  const { getFacilityCurrentDateTimeString, getCountryCurrentDateTimeString } = useDateTimeFormat();
   const { getTranslation } = useTranslation();
   const practitionerSuggester = useSuggester('practitioner');
   const { mutate: markTaskTodo, isLoading } = useMarkTaskTodo();
   const { currentUser } = useAuth();
 
-  const onSubmit = async (values) => {
+  const onSubmit = async values => {
     markTaskTodo(
       {
         ...values,
@@ -71,7 +72,7 @@ export const MarkTaskTodoForm = ({ onClose, refreshTaskTable, taskIds }) => {
               required
               saveDateAsString
               component={DateTimeField}
-              max={getCurrentDateTimeString()}
+              max={getFacilityCurrentDateTimeString()}
               data-testid="field-c16y"
             />
             <Field
@@ -125,7 +126,7 @@ export const MarkTaskTodoForm = ({ onClose, refreshTaskTable, taskIds }) => {
             />,
           )
           .max(
-            getCurrentDateTimeString(),
+            getFacilityCurrentDateTimeString(),
             getTranslation(
               'general.validation.date.cannotInFuture',
               'Date cannot be in the future',
@@ -134,7 +135,7 @@ export const MarkTaskTodoForm = ({ onClose, refreshTaskTable, taskIds }) => {
         todoNote: yup.string(),
       })}
       initialValues={{
-        todoTime: getCurrentDateTimeString(),
+        todoTime: getCountryCurrentDateTimeString(),
         todoByUserId: currentUser?.id,
       }}
       data-testid="form-vu9o"

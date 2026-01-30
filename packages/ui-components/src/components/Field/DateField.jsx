@@ -4,27 +4,27 @@ import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import { Box } from '@material-ui/core';
 import { addDays, isAfter, isBefore, parse } from 'date-fns';
+
 import { format as formatDate, toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
+
+import { DefaultIconButton } from '../Button';
 import { TextInput } from './TextField';
 import { TAMANU_COLORS } from '../../constants';
-import { DefaultIconButton } from '../Button';
+import { useDateTimeFormat } from '../../contexts';
 
-// This component is pretty tricky! It has to keep track of two layers of state:
-//
-//  - actual date, received from `value` and emitted through `onChange`
-//    this is always in RFC3339 format (which looks like "1996-12-19T16:39:57")
-//
-//  - currently entered date, which might be only partially entered
-//    this is a string in whatever format that has been given to the
-//    component through the `format` prop.
-//
-// As the string formats don't contain timezone information, the RFC3339 dates are
-// always in UTC - leaving it up to the local timezone can introduce some wacky
-// behaviour as the dates get converted back and forth.
-//
-// Care has to be taken with setting the string value, as the native date control
-// has some unusual input handling (switching focus between day/month/year etc) that
-// a value change will interfere with.
+/*
+ * DateInput handles two layers of state:
+ *
+ * 1. Form value (`value` / `onChange`): ISO9075 format in countryTimeZone (persisted to DB)
+ * 2. Display value: facilityTimeZone when useTimezone=true, otherwise as-is
+ *
+ * Timezone flow (useTimezone=true):
+ *    Load: countryTimeZone → formatForDateTimeInput → facilityTimeZone
+ *    Save: facilityTimeZone → toDateTimeStringForPersistence → countryTimeZone
+ *
+ * Note: Native datetime inputs have quirky focus handling between day/month/year segments,
+ * so avoid unnecessary value updates that could interfere with user input.
+ */
 
 // Here I have made a data URL for the new calendar icon. The existing calendar icon was a pseudo element
 // in the user agent shadow DOM. In order to add a new icon I had to make the pseudo element invisible
@@ -57,12 +57,22 @@ export const DateInput = ({
   arrows = false,
   inputProps = {},
   keepIncorrectValue,
+  useTimezone = false,
   ['data-testid']: dataTestId,
   ...props
 }) => {
   delete props.placeholder;
 
-  const [currentText, setCurrentText] = useState(fromRFC3339(value, format));
+  const { formatForDateTimeInput, toDateTimeStringForPersistence } = useDateTimeFormat();
+  const shouldUseTimezone = useTimezone && type === 'datetime-local';
+
+  // Convert stored value (countryTimeZone) to display value (facilityTimeZone for datetime-local)
+  const getDisplayValue = val => {
+    if (shouldUseTimezone) return formatForDateTimeInput(val) || '';
+    return fromRFC3339(val, format);
+  };
+
+  const [currentText, setCurrentText] = useState(getDisplayValue(value));
   const [isPlaceholder, setIsPlaceholder] = useState(!value);
 
   // Weird thing alert:
@@ -96,28 +106,36 @@ export const DateInput = ({
         clearValue();
         return;
       }
-      const date = parse(formattedValue, format, new Date());
 
       let outputValue;
-      if (saveDateAsString) {
-        if (type === 'date') {
-          outputValue = toDateString(date);
-        } else if (['time', 'datetime-local'].includes(type)) {
-          outputValue = toDateTimeString(date);
-        }
+
+      // Convert input value (facilityTimeZone) to storage value (countryTimeZone)
+      if (shouldUseTimezone) {
+        outputValue = toDateTimeStringForPersistence(formattedValue);
       } else {
-        outputValue = date.toISOString();
+        const date = parse(formattedValue, format, new Date());
+
+        if (saveDateAsString) {
+          if (type === 'date') {
+            outputValue = toDateString(date);
+          } else if (['time', 'datetime-local'].includes(type)) {
+            outputValue = toDateTimeString(date);
+          }
+        } else {
+          outputValue = date.toISOString();
+        }
       }
+
       setIsPlaceholder(false);
       setCurrentText(formattedValue);
-      if (outputValue === 'Invalid date') {
+      if (outputValue === 'Invalid date' || outputValue === null) {
         clearValue();
         return;
       }
 
       onChange({ target: { value: outputValue, name } });
     },
-    [onChange, format, name, saveDateAsString, type, clearValue],
+    [onChange, format, name, saveDateAsString, type, clearValue, shouldUseTimezone, toDateTimeStringForPersistence],
   );
 
   const onKeyDown = event => {
@@ -165,7 +183,7 @@ export const DateInput = ({
   };
 
   useEffect(() => {
-    const formattedValue = fromRFC3339(value, format);
+    const formattedValue = getDisplayValue(value);
     if (value && formattedValue) {
       setCurrentText(formattedValue);
       setIsPlaceholder(false);
@@ -174,7 +192,8 @@ export const DateInput = ({
       setCurrentText('');
       setIsPlaceholder(true);
     };
-  }, [value, format]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value, format, shouldUseTimezone]);
 
   // We create two copies of the DateField component, so that we can have a temporary one visible
   // during remount (for more on that, see the remounting description at the top of this component)
@@ -234,8 +253,15 @@ export const DateInput = ({
 
 export const TimeInput = props => <DateInput type="time" format="HH:mm" {...props} />;
 
-export const DateTimeInput = props => (
-  <DateInput type="datetime-local" format="yyyy-MM-dd'T'HH:mm" max="9999-12-31T00:00" {...props} />
+export const DateTimeInput = ({ useTimezone = true, ...props }) => (
+  <DateInput
+    type="datetime-local"
+    format="yyyy-MM-dd'T'HH:mm"
+    max="9999-12-31T00:00"
+    useTimezone={useTimezone}
+    saveDateAsString
+    {...props}
+  />
 );
 
 export const DateField = ({ field, ...props }) => (
