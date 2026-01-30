@@ -131,17 +131,18 @@ export class TamanuApi extends ApiClient {
     });
   }
 
-  setToken(token) {
+  setToken(token, refreshToken) {
     if (token) {
       localStorage.setItem(TOKEN, token);
     } else {
       localStorage.removeItem(TOKEN);
     }
-    return super.setToken(token);
+    return super.setToken(token, refreshToken);
   }
 
   // Overwrite base method to integrate with the facility-server refresh endpoint which just
-  // checks for an apiToken and returns a new one.
+  // checks for an apiToken and returns a new one. This should be removed when refresh tokens are
+  // set up in facility-server
   async refreshToken(config = {}) {
     const response = await this.post(
       'refresh',
@@ -150,8 +151,8 @@ export class TamanuApi extends ApiClient {
       },
       config,
     );
-    const { token } = response;
-    this.setToken(token);
+    const { token, refreshToken: newRefreshToken } = response;
+    this.setToken(token, newRefreshToken);
   }
 
   async restoreSession() {
@@ -201,12 +202,7 @@ export class TamanuApi extends ApiClient {
   }
 
   async setFacility(facilityId) {
-    // The setFacility endpoint returns an updated token with facilityId embedded in the JWT claims.
-    // This new token is stored and used for subsequent authenticated requests to facility-scoped endpoints.
-    const { settings, token } = await this.post('setFacility', { facilityId });
-
-    this.setToken(token);
-
+    const { settings } = await this.post('setFacility', { facilityId });
     saveToLocalStorage({
       facilityId,
       settings,
