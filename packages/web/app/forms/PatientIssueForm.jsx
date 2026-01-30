@@ -14,7 +14,7 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../components/NoteModalActionBlocker';
 
 export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => {
-  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
+  const { getFacilityCurrentDateString } = useDateTimeFormat();
 
   return (
     <Form
@@ -88,7 +88,7 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => {
         </FormGrid>
       )}
       initialValues={{
-        recordedDate: getCountryCurrentDateTimeString(),
+        recordedDate: getFacilityCurrentDateString(),
         type: PATIENT_ISSUE_TYPES.ISSUE,
         ...editedObject,
       }}
