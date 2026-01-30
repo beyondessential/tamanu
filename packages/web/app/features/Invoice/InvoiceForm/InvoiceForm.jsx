@@ -185,7 +185,10 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
                         {isEditing && (
                           <EditItemsActions
                             handleSubmit={submitForm}
-                            handleCancel={() => setIsEditing(false)}
+                            handleCancel={() => {
+                              setIsEditing(false);
+                              resetForm();
+                            }}
                             isDisabled={isUpdatingInvoice}
                           />
                         )}
