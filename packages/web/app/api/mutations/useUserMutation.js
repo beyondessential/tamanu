@@ -40,3 +40,13 @@ export const useCheckOnLeaveMutation = (options = {}) => {
     ...options,
   });
 };
+
+export const useDeleteUserDeviceMutation = (userId, options = {}) => {
+  const api = useApi();
+
+  return useMutation({
+    mutationKey: ['users', userId, 'devices', 'delete'],
+    mutationFn: deviceId => api.delete(`admin/users/${userId}/devices/${deviceId}`),
+    ...options,
+  });
+};

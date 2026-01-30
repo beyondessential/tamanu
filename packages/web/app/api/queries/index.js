@@ -33,4 +33,5 @@ export { useFacilityLocationAssignmentsQuery } from './useFacilityLocationAssign
 export * from './usePatientPortalSurveyAssignments';
 export * from './usePatientDataQuery.js';
 export { useSurveyQuery } from './useSurveyQuery';
+export { useUserDevicesQuery } from './useUserDevicesQuery';
 export { useFacilityQuery } from './useFacilityQuery';

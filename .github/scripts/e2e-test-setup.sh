@@ -75,6 +75,7 @@ EOF
                 role: "admin",
                 password: "admin",
                 displayName: "Initial Admin",
+                deviceRegistrationPermission: "unlimited",
             },
         },
 
@@ -90,7 +91,7 @@ EOF
         settings: {
             global: {
                 features: {
-                    deviceRegistrationQuota: {
+                    deviceRegistration: {
                         enabled: false,
                     },
                     desktopCharting: {
