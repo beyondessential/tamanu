@@ -18,6 +18,11 @@ const ItemHeadCell = styled(Box)`
   min-width: ${props => props.$width};
   width: ${props => props.$width};
   flex-shrink: 0;
+
+  @media (min-width: 2000px) {
+    width: 140px;
+    min-width: 140px;
+  }
 `;
 
 export const InvoiceItemHeader = () => {
@@ -29,11 +34,8 @@ export const InvoiceItemHeader = () => {
       <ItemHeadCell style={{ flex: 1 }}>
         <TranslatedText stringId="invoice.modal.editInvoice.details.label" fallback="Details" />
       </ItemHeadCell>
-      <ItemHeadCell $width={CELL_WIDTHS.CODE}>
-        <TranslatedText stringId="invoice.table.column.code" fallback="Code" />
-      </ItemHeadCell>
       <ItemHeadCell $width={CELL_WIDTHS.QUANTITY}>
-        <TranslatedText stringId="invoice.table.column.quantity" fallback="Quantity" />
+        <TranslatedText stringId="invoice.table.column.quantity" fallback="Qty" />
       </ItemHeadCell>
       <ItemHeadCell $width={CELL_WIDTHS.APPROVED}>
         <TranslatedText
