@@ -7,6 +7,7 @@ import {
 } from '@tamanu/constants';
 import type { MedicationAdministrationRecord } from './MedicationAdministrationRecord';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { Op } from 'sequelize';
 
 const createTaskAfterCreateHook = async (instance: MedicationAdministrationRecord) => {
   // Create a task for the MAR if it's not recorded yet
@@ -79,66 +80,88 @@ const getInvoiceContext = async (instance: MedicationAdministrationRecord) => {
   return { prescription, encounter };
 };
 
-const addToInvoice = async (instance: MedicationAdministrationRecord) => {
-  if (instance.status !== ADMINISTRATION_STATUS.GIVEN) {
-    return;
-  }
-
+// Compute final invoice quantity using business rules:
+// - If any PharmacyOrderPrescription exists for this prescription, MAR doses after the earliest pharmacy order date are ignored.
+// - Quantity = (MAR Given total up to first 'sent to pharmacy' date, or all MAR Given if none sent) + (sum of 'sent to pharmacy' quantities)
+const recalculateAndApplyInvoiceQuantity = async (instance: MedicationAdministrationRecord) => {
   const invoiceContext = await getInvoiceContext(instance);
-  if (!invoiceContext) {
-    return;
-  }
+  if (!invoiceContext) return;
   const { prescription, encounter } = invoiceContext;
 
-  const invoiceProduct = await instance.sequelize.models.InvoiceProduct.findOne({
+  const {
+    InvoiceProduct,
+    Invoice,
+    MedicationAdministrationRecord,
+    MedicationAdministrationRecordDose,
+    PharmacyOrderPrescription,
+    PharmacyOrder,
+  } = instance.sequelize.models;
+
+  // Find product for the drug
+  const invoiceProduct = await InvoiceProduct.findOne({
     where: {
       category: INVOICE_ITEMS_CATEGORIES.DRUG,
       sourceRecordId: prescription.medicationId,
     },
   });
-  if (!invoiceProduct) {
-    return;
-  }
-  // By using the prescription as the source record, we can ensure there will be a single invoice item regardless of how many times the medication is given
-  await instance.sequelize.models.Invoice.addItemToInvoice(
-    prescription,
-    encounter.id,
-    invoiceProduct,
-    instance.recordedByUserId,
+  if (!invoiceProduct) return;
+
+  // Gather pharmacy orders for this prescription (Method 1)
+  const pharmacyOrderPrescriptions = await PharmacyOrderPrescription.findAll({
+    where: { prescriptionId: prescription.id },
+    include: [{ model: PharmacyOrder, as: 'pharmacyOrder', attributes: ['date'] }],
+  });
+
+  const hasPharmacy = pharmacyOrderPrescriptions.length > 0;
+  const earliestPharmacyDate = hasPharmacy
+    ? new Date(
+        pharmacyOrderPrescriptions
+          .map(pop => new Date(pop?.pharmacyOrder?.date as unknown as string))
+          .sort((a, b) => a.getTime() - b.getTime())[0]!,
+      )
+    : undefined;
+
+  const totalSentQuantity = pharmacyOrderPrescriptions.reduce(
+    (sum: number, pop: any) => sum + (Number(pop.quantity) || 0),
+    0,
   );
-};
 
-const removeFromInvoice = async (instance: MedicationAdministrationRecord) => {
-  const invoiceContext = await getInvoiceContext(instance);
-  if (!invoiceContext) {
-    return;
-  }
-  const { prescription, encounter } = invoiceContext;
-
-  const allMedicationAdministrationRecordsForPrescription =
-    await instance.sequelize.models.MedicationAdministrationRecord.findAll({
+  // Compute MAR Given quantity (Method 2)
+  const givenMars = await MedicationAdministrationRecord.findAll({
+    where: { prescriptionId: prescription.id, status: ADMINISTRATION_STATUS.GIVEN },
+    attributes: ['id'],
+  });
+  let marQuantity = 0;
+  if (givenMars.length > 0) {
+    const marIds = givenMars.map((m: any) => m.id);
+    const doses = await MedicationAdministrationRecordDose.findAll({
       where: {
-        prescriptionId: prescription.id,
+        marId: { [Op.in]: marIds },
+        isRemoved: { [Op.ne]: true },
+        ...(earliestPharmacyDate
+          ? {
+              givenTime: { [Op.lte]: earliestPharmacyDate },
+            }
+          : {}),
       },
+      attributes: ['doseAmount', 'givenTime'],
     });
-
-  if (
-    allMedicationAdministrationRecordsForPrescription.some(
-      mar => mar.status === ADMINISTRATION_STATUS.GIVEN,
-    )
-  ) {
-    // If any of the MARs for this prescription are still given, don't remove the invoice item
-    return;
+    marQuantity = doses.reduce((sum: number, d: any) => sum + Number(d.doseAmount || 0), 0);
   }
 
-  await instance.sequelize.models.Invoice.removeItemFromInvoice(prescription, encounter.id);
-};
+  const finalQuantity = marQuantity + totalSentQuantity;
 
-const addOrRemoveFromInvoiceAfterUpdateHook = async (instance: MedicationAdministrationRecord) => {
-  if (instance.status === ADMINISTRATION_STATUS.GIVEN) {
-    await addToInvoice(instance);
+  if (finalQuantity > 0) {
+    await Invoice.setItemQuantityForInvoice(
+      prescription,
+      encounter.id,
+      invoiceProduct,
+      finalQuantity,
+      instance.recordedByUserId,
+    );
   } else {
-    await removeFromInvoice(instance);
+    // Only remove if there are no pharmacy orders and no MAR Given doses
+    await Invoice.removeItemFromInvoice(prescription, encounter.id);
   }
 };
 
@@ -146,14 +169,16 @@ export const afterCreateHook = async (instance: MedicationAdministrationRecord) 
   await Promise.all([
     discontinuePrescriptionIfNeeded(instance),
     createTaskAfterCreateHook(instance),
-    addToInvoice(instance),
   ]);
+  // Recalculate invoice after create (covers when status is GIVEN or NOT GIVEN)
+  await recalculateAndApplyInvoiceQuantity(instance);
 };
 
 export const afterUpdateHook = async (instance: MedicationAdministrationRecord) => {
   await Promise.all([
     discontinuePrescriptionIfNeeded(instance),
     completeTaskAfterUpdateHook(instance),
-    addOrRemoveFromInvoiceAfterUpdateHook(instance),
   ]);
+  // Recalculate invoice after update to handle add/update/remove behaviors
+  await recalculateAndApplyInvoiceQuantity(instance);
 };

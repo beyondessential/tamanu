@@ -216,6 +216,54 @@ export class Invoice extends Model {
     );
   }
 
+  // Upsert or update an invoice item with an explicit quantity for the given source record.
+  static async setItemQuantityForInvoice(
+    sourceItem: InvoiceItemSourceRecord,
+    encounterId: string,
+    invoiceProduct: InvoiceProduct,
+    quantity: number,
+    orderedByUserId: string = SYSTEM_USER_UUID,
+    note?: string,
+  ) {
+    const invoice = await this.getInProgressInvoiceForEncounter(encounterId);
+    if (!invoice) {
+      return;
+    }
+    const invoicePriceListId =
+      await this.sequelize.models.InvoicePriceList.getIdForPatientEncounter(encounterId);
+
+    if (invoicePriceListId) {
+      // Do not add hidden products for this price list
+      const hiddenInvoicePriceListItem = await this.sequelize.models.InvoicePriceListItem.findOne({
+        where: {
+          invoicePriceListId,
+          invoiceProductId: invoiceProduct.id,
+          isHidden: true,
+        },
+      });
+      if (hiddenInvoicePriceListItem) {
+        return;
+      }
+    }
+
+    await this.sequelize.models.InvoiceItem.upsert(
+      {
+        invoiceId: invoice.id,
+        sourceRecordType: sourceItem.getModelName(),
+        sourceRecordId: sourceItem.id,
+        productId: invoiceProduct.id,
+        orderedByUserId,
+        orderDate: new Date(),
+        quantity: Math.max(0, Math.floor(Number(quantity) || 0)),
+        note,
+        deletedAt: null,
+      },
+      {
+        conflictFields: ['invoice_id', 'source_record_type', 'source_record_id'],
+      },
+    );
+  }
+
   static async removeItemFromInvoice(
     removedItemSource: InvoiceItemSourceRecord,
     encounterId: string,
