@@ -273,7 +273,7 @@ describe('matchesFacilityWithExclusionaryLogic', () => {
   describe('when rule does not specify a facility (exclusionary logic)', () => {
     describe('and no other rules specify facilities', () => {
       it('returns true for any input facility', () => {
-        const allRules = [{ patientType: 'type-1' }, { patientAge: { min: 18 } }, {}];
+        const allRules = [{ patientBillingType: 'type-1' }, { patientAge: { min: 18 } }, {}];
         expect(matchesFacilityWithExclusionaryLogic(undefined, 'facility-1', allRules)).toBe(true);
         expect(matchesFacilityWithExclusionaryLogic(undefined, 'facility-2', allRules)).toBe(true);
         expect(matchesFacilityWithExclusionaryLogic(undefined, 'any-facility', allRules)).toBe(
@@ -287,7 +287,7 @@ describe('matchesFacilityWithExclusionaryLogic', () => {
         const allRules = [
           { facilityId: 'facility-1' },
           { facilityId: 'facility-2' },
-          { patientType: 'type-1' }, // no facilityId
+          { patientBillingType: 'type-1' }, // no facilityId
         ];
         // Rule without facilityId should NOT match facilities that are explicitly specified
         expect(matchesFacilityWithExclusionaryLogic(undefined, 'facility-1', allRules)).toBe(false);
@@ -298,7 +298,7 @@ describe('matchesFacilityWithExclusionaryLogic', () => {
         const allRules = [
           { facilityId: 'facility-1' },
           { facilityId: 'facility-2' },
-          { patientType: 'type-1' }, // no facilityId
+          { patientBillingType: 'type-1' }, // no facilityId
         ];
         // Rule without facilityId should match all OTHER facilities
         expect(matchesFacilityWithExclusionaryLogic(undefined, 'facility-3', allRules)).toBe(true);
@@ -311,9 +311,9 @@ describe('matchesFacilityWithExclusionaryLogic', () => {
   describe('complex scenarios', () => {
     it('handles multiple rules with and without facility IDs correctly', () => {
       const allRules = [
-        { facilityId: 'facility-A', patientType: 'type-1' },
-        { facilityId: 'facility-B', patientType: 'type-2' },
-        { patientType: 'type-3' }, // no facilityId - should match all except A and B
+        { facilityId: 'facility-A', patientBillingType: 'type-1' },
+        { facilityId: 'facility-B', patientBillingType: 'type-2' },
+        { patientBillingType: 'type-3' }, // no facilityId - should match all except A and B
         { patientAge: { min: 18 } }, // no facilityId - should match all except A and B
       ];
 
@@ -341,7 +341,7 @@ describe('matchesFacilityWithExclusionaryLogic', () => {
     });
 
     it('handles single rule without facility ID', () => {
-      const allRules = [{ patientType: 'type-1' }];
+      const allRules = [{ patientBillingType: 'type-1' }];
 
       // No facilities specified, so matches any facility
       expect(matchesFacilityWithExclusionaryLogic(undefined, 'facility-1', allRules)).toBe(true);
@@ -375,12 +375,12 @@ describe('matchesFacilityWithExclusionaryLogic', () => {
 
 // Helper to build mock encounter objects
 const buildMockEncounter = (
-  overrides: Partial<{ patientType: string; patientDOB: string | null; facilityId: string }>,
+  overrides: Partial<{ patientBillingType: string; patientDOB: string | null; facilityId: string }>,
 ) => ({
-  patientBillingTypeId: overrides.patientType,
+  patientBillingTypeId: overrides.patientBillingType,
   patient: {
     dateOfBirth: overrides.patientDOB,
-    additionalData: overrides.patientType ? [] : [{ patientBillingTypeId: undefined }],
+    additionalData: overrides.patientBillingType ? [] : [{ patientBillingTypeId: undefined }],
   },
   location: {
     facilityId: overrides.facilityId,
@@ -401,10 +401,10 @@ describe('InvoicePriceList.getIdForPatientEncounter', () => {
     vi.restoreAllMocks();
   });
 
-  it('returns the matching price list id when facility, patientType and age match', async () => {
+  it('returns the matching price list id when facility, patientBillingType and age match', async () => {
     const mockEncounter = buildMockEncounter({
       facilityId: 'facility-1',
-      patientType: 'patientType-Charity',
+      patientBillingType: 'patientType-Charity',
       // 2010-10-15 is 14 years old on 2025-10-14
       patientDOB: '2010-10-15',
     });
@@ -426,7 +426,7 @@ describe('InvoicePriceList.getIdForPatientEncounter', () => {
         id: 'pl-1',
         rules: {
           facilityId: 'facility-1',
-          patientType: 'patientType-Charity',
+          patientBillingType: 'patientType-Charity',
           patientAge: { max: 17 },
         },
       },
@@ -434,7 +434,7 @@ describe('InvoicePriceList.getIdForPatientEncounter', () => {
         id: 'pl-2',
         rules: {
           facilityId: 'facility-1',
-          patientType: 'patientType-Private',
+          patientBillingType: 'patientType-Private',
           patientAge: { min: 65 },
         },
       },
@@ -448,7 +448,7 @@ describe('InvoicePriceList.getIdForPatientEncounter', () => {
   it('returns null when no price list rules match', async () => {
     const mockEncounter = buildMockEncounter({
       facilityId: 'facility-1',
-      patientType: 'patientType-Charity',
+      patientBillingType: 'patientType-Charity',
     });
 
     const mockFindByPk = vi.fn().mockResolvedValue(mockEncounter);
@@ -464,7 +464,10 @@ describe('InvoicePriceList.getIdForPatientEncounter', () => {
     });
 
     vi.spyOn(InvoicePriceList as any, 'findAll').mockResolvedValue([
-      { id: 'pl-1', rules: { facilityId: 'facility-1', patientType: 'patientType-Private' } },
+      {
+        id: 'pl-1',
+        rules: { facilityId: 'facility-1', patientBillingType: 'patientType-Private' },
+      },
     ]);
 
     const id = await InvoicePriceList.getIdForPatientEncounter('encounter-1');
