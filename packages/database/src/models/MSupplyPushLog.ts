@@ -22,6 +22,14 @@ export class MSupplyPushLog extends Model {
           type: DataTypes.TEXT,
           allowNull: true,
         },
+        min_created_at: {
+            type: DataTypes.DATE,
+            allowNull: false,
+        },
+        max_created_at: {
+          type: DataTypes.DATE,
+          allowNull: false,
+        },
       },
 
       {
