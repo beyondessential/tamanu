@@ -111,10 +111,10 @@ const updateLookupTableForModel = async (
     totalCount += chunkCount;
   }
 
-  // log.info('updateLookupTable.updateLookupTableForModel', {
-  //   model: model.tableName,
-  //   totalCount: totalCount,
-  // });
+  log.info('updateLookupTable.updateLookupTableForModel', {
+    model: model.tableName,
+    totalCount: totalCount,
+  });
 
   return totalCount;
 };
