@@ -64,7 +64,7 @@ const Divider = styled(MuiDivider)`
 // Extract time portion (HH:mm) from various formats
 const getTime = str => (str?.includes('T') ? str.slice(11, 16) : str?.slice(-8, -3)) || '';
 
-// Combine date (YYYY-MM-DD) + time (HH:mm) into datetime string
+// Combine date + time (HH:mm) into datetime string
 const combineDateTime = (date, time) =>
   date && time ? `${date.slice(0, 10)}T${getTime(time)}` : null;
 
