@@ -273,7 +273,6 @@ export const OngoingConditionForm = ({
       recordedDate: getFacilityCurrentDateString(),
       resolutionDate: getFacilityCurrentDateString(),
       resolved: false,
-      ...editedObject,
     };
   };
 

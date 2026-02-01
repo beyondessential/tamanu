@@ -17,6 +17,17 @@ export const FamilyHistoryForm = ({
 }) => {
   const { getFacilityCurrentDateString } = useDateTimeFormat();
   
+  const getInitialValues = () => {
+    if (editedObject) {
+      return {
+        ...editedObject,
+        recordedDate: editedObject.recordedDate.slice(0, 10),
+      };
+    }
+    return {
+      recordedDate: getFacilityCurrentDateString(),
+    };
+  };
   return (<Form
     onSubmit={onSubmit}
     render={({ submitForm }) => (
@@ -112,10 +123,7 @@ export const FamilyHistoryForm = ({
         </NoteModalActionBlocker>
       </FormGrid>
     )}
-    initialValues={{
-      recordedDate: getFacilityCurrentDateString(),
-      ...editedObject,
-    }}
+    initialValues={getInitialValues()}
     formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
     validationSchema={yup.object().shape({
       diagnosisId: foreignKey().translatedLabel(
