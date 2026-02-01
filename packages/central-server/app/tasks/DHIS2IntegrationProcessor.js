@@ -1,5 +1,5 @@
 import config from 'config';
-import { pick, groupBy, map } from 'lodash';
+import { pick, groupBy } from 'lodash';
 import { fetch } from 'undici';
 import { utils } from 'xlsx';
 
@@ -12,24 +12,21 @@ const convertToDHIS2DataValueSets = (reportData, dataSet) => {
   // Convert 2D array report data to JSON format
   const reportJSON = utils.sheet_to_json(utils.aoa_to_sheet(reportData));
 
-  // Create a grouping key function that combines period, orgunit, and attributeoptioncombo
-  // This groups rows that belong to the same DHIS2 data value set
-  const createGroupingKey = row =>
-    `${row.period || ''}_${row.orgunit || ''}_${row.attributeoptioncombo || ''}`;
+  // Create a grouping key that combines period, orgunit, and attributeoptioncombo.
+  // Use JSON serialization so values containing underscores cannot produce identical keys
+  // for different combinations (e.g. 'OU_A' + 'B' vs 'OU' + 'A_B').
+  const createGroupingKey = ({ period = '', orgunit = '', attributeoptioncombo = '' }) =>
+    JSON.stringify([period, orgunit, attributeoptioncombo]);
 
   // Group rows by their composite key (period + orgunit + attributeoptioncombo)
-  const groupedRows = groupBy(reportJSON, createGroupingKey);
+  const groupedRows = Object.values(groupBy(reportJSON, createGroupingKey));
 
   // Transform each group of rows into a DHIS2 data value set object
-  return map(groupedRows, rows => {
-    const firstRow = rows[0];
-
+  return groupedRows.map(rows => {
     // Extract common metadata from the first row (all rows in a group share these values)
-    const period = firstRow.period || '';
-    const orgUnit = firstRow.orgunit || '';
-    const attributeOptionCombo = firstRow.attributeoptioncombo || '';
+    const { period = '', orgunit = '', attributeoptioncombo = '' } = rows[0];
 
-    // Map each row to a data value object containing the actual data element values
+    // Map each row from the group to a data value object containing the actual data element values
     const dataValues = rows.map(row => ({
       dataElement: row.dataelement || '',
       categoryOptionCombo: row.categoryoptioncombo || '',
@@ -42,8 +39,8 @@ const convertToDHIS2DataValueSets = (reportData, dataSet) => {
       dataSet,
       completeDate: new Date().toISOString().split('T')[0],
       period,
-      orgUnit,
-      attributeOptionCombo,
+      orgUnit: orgunit,
+      attributeOptionCombo: attributeoptioncombo,
       dataValues,
     };
   });
