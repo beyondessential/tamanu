@@ -89,10 +89,10 @@ export const DateTimeProvider = ({
       // Get current date string in facility timezone (for UI display / validation)
       getFacilityCurrentDateString: () =>
         getCurrentDateStringInTimezone(facilityTimeZone ?? countryTimeZone),
-      // Convert datetime-local input value (facility TZ) to country timezone for persistence
+      // Convert datetime-local input value (facility timezone) to country timezone for persistence
       toDateTimeStringForPersistence: value =>
         toDateTimeStringForPersistence(value, countryTimeZone, facilityTimeZone),
-      // Format stored value (country TZ) for datetime-local input display (facility TZ)
+      // Format stored value (country timezone) for datetime-local input display (facility timezone)
       formatForDateTimeInput: value =>
         formatForDateTimeInput(value, countryTimeZone, facilityTimeZone),
     }),
