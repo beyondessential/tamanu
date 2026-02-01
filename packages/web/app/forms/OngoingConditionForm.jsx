@@ -259,16 +259,29 @@ export const OngoingConditionForm = ({
     await onSubmit(fields);
   };
 
+  const getInitialValues = () => {
+    if (editedObject) {
+      // Currently both dates are dateTime type in the database, so we need to convert them to date type
+      // for now to avoid timezone conversion
+      return {
+        ...editedObject,
+        recordedDate: editedObject.recordedDate.slice(0, 10),
+        resolutionDate: editedObject.resolutionDate.slice(0, 10),
+      };
+    }
+    return {
+      recordedDate: getFacilityCurrentDateString(),
+      resolutionDate: getFacilityCurrentDateString(),
+      resolved: false,
+      ...editedObject,
+    };
+  };
+
   return (
     <Form
       onSubmit={onDataSubmit}
       render={RenderForm}
-      initialValues={{
-        recordedDate: getFacilityCurrentDateString(),
-        resolutionDate: getFacilityCurrentDateString(),
-        resolved: false,
-        ...editedObject,
-      }}
+      initialValues={getInitialValues()}
       formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
         conditionId: foreignKey().translatedLabel(
