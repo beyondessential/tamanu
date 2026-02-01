@@ -315,7 +315,7 @@ export const ProcedureModal = ({
       initialValues={
         editedProcedure?.id
           ? {
-              // Edit: spread existing data, convert date/time from country TZ to facility TZ
+              // Edit: spread existing data, convert date/time from country timezone to facility timezone
               ...editedProcedure,
               date: toFacilityTz(editedProcedure.date)?.slice(0, 10),
               startTime: toFacilityTz(editedProcedure.startTime),
@@ -325,7 +325,7 @@ export const ProcedureModal = ({
               assistantClinicianIds: editedProcedure.assistantClinicians?.map(c => c.id) || [],
             }
           : {
-              // Create: defaults in facility TZ
+              // Create: defaults in facility timezone
               date: getFacilityCurrentDateString(),
               startTime: getFacilityCurrentDateTimeString(),
               physicianId: currentUser.id,
