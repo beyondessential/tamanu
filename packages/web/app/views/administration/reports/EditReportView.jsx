@@ -25,7 +25,7 @@ const StyledButton = styled(OutlinedButton)`
 
 const getInitialValues = (version, report) => {
   const { query, status, queryOptions, notes } = version;
-  const { dataSources, parameters, dateRangeLabel, defaultDateRange, dhis2DataSet, ...advancedConfig } = queryOptions;
+  const { dataSources, parameters, dateRangeLabel, defaultDateRange, ...advancedConfig } = queryOptions;
   const { name, dbSchema } = report;
   return {
     name,
@@ -35,7 +35,6 @@ const getInitialValues = (version, report) => {
     parameters,
     dateRangeLabel,
     defaultDateRange,
-    dhis2DataSet,
     dataSources,
     notes,
     advancedConfig: Object.keys(advancedConfig).length > 0 ? advancedConfig : null,
@@ -68,7 +67,6 @@ export const EditReportView = () => {
     parameters,
     dateRangeLabel,
     defaultDateRange,
-    dhis2DataSet,
     dataSources,
     advancedConfig = {},
   }) => {
@@ -77,7 +75,6 @@ export const EditReportView = () => {
         parameters,
         dateRangeLabel,
         defaultDateRange,
-        dhis2DataSet,
         dataSources,
         ...advancedConfig,
       },

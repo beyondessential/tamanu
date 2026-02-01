@@ -33,7 +33,6 @@ export const CreateReportView = () => {
     parameters,
     dateRangeLabel,
     defaultDateRange,
-    dhis2DataSet,
     dataSources,
     advancedConfig = {},
   }) => {
@@ -49,7 +48,6 @@ export const CreateReportView = () => {
           parameters,
           dateRangeLabel,
           defaultDateRange,
-          dhis2DataSet,
           dataSources: isRawReport ? dataSources : [REPORT_DATA_SOURCES.ALL_FACILITIES],
           ...advancedConfig,
         },
