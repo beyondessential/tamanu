@@ -372,19 +372,6 @@ export const eachDayInMonth = (date: Date) =>
     end: endOfMonth(date),
   });
 
-/*
- * Timezone-aware datetime input helpers
- *
- * Data flow for datetime-local inputs:
- *   1. Initial values are stored in COUNTRY timezone (ISO9075 format)
- *   2. Input displays datetime in FACILITY timezone (for user convenience)
- *   3. On save, value is converted back to COUNTRY timezone for persistence
- *
- * Functions:
- *   - getCurrentDateTimeStringInTimezone: Get current time in a timezone
- *   - formatForDateTimeInput: Convert stored value → display value (facility TZ)
- *   - toDateTimeStringForPersistence: Convert input value → storage value (country TZ)
- */
 
 /** Get current datetime string in a specific timezone */
 export const getCurrentDateTimeStringInTimezone = (timezone?: string) =>
