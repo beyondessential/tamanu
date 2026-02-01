@@ -5,6 +5,7 @@ import { Op } from 'sequelize';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { fetchWithRetryBackoff } from '@tamanu/api-client/fetchWithRetryBackoff';
+import { InvalidConfigError } from '@tamanu/shared/errors';
 
 // Designed to post dispensed medications from pharmacy to an Open mSupply instance
 export class mSupplyMedIntegrationProcessor extends ScheduledTask {
@@ -55,43 +56,63 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
   async run() {
     const { host } = await this.context.settings.global.get('integrations.mSupplyMed');
     const { enabled, username, password } = config.integrations.mSupplyMed;
+    const { batchSize, batchSleepAsyncDurationInMilliseconds } = this.config;
 
     if (!enabled || !host || !username || !password) {
       log.warn('Integration for mSupplyMed not configured, skipping');
       return;
     }
 
+    if (!batchSize || !batchSleepAsyncDurationInMilliseconds) {
+      throw new InvalidConfigError(
+        'batchSize and batchSleepAsyncDurationInMilliseconds must be set for mSupplyMedIntegrationProcessor',
+      );
+    }
+
     const lastSuccessfulPush = await this.models.MSupplyPushLog.findOne({
       where: {
         status: 'success',
       },
-      order: [['created_at', 'DESC']],
+      order: [['createdAt', 'DESC']],
     });
-    const lastSuccessfulPushTimestamp = lastSuccessfulPush?.max_created_at || new Date(0);
+    const lastSuccessfulPushTimestamp = lastSuccessfulPush?.maxMedicationCreatedAt ?? new Date(0);
 
-    const medications = await this.models.MedicationDispense.findAll({
+    const query = {
       where: {
         createdAt: {
           [Op.gt]: lastSuccessfulPushTimestamp,
         },
       },
-    });
-
-    log.info(`Sending ${medications.length} dispensed medications to mSupplyMed`);
-
-    const body = {
-      customerFilter: { /* actual name filter from current graphql schema*/ },
-      items: medications.map(medication => ({
-        itemFilter: { /* actual item filter from current graphql schema*/ },
-        quantity: medication.quantity,
-      })),
     };
-    try {
-      await this.postRequest({ bodyJson: JSON.stringify(body) });
-    } catch (error) {
-      log.error('Error sending dispensed medications to mSupplyMed', {
-        error,
+
+    const toProcess = await this.models.MedicationDispense.count(query);
+    if (toProcess === 0) return;
+
+    const batchCount = Math.ceil(toProcess / batchSize);
+
+    for (let i = 0; i < batchCount; i++) {
+      const medications = await this.models.MedicationDispense.findAll({
+        ...query,
+        order: [['createdAt', 'ASC']],
+        limit: batchSize,
       });
+
+      log.info(`Sending ${medications.length} dispensed medications to mSupply`);
+
+      const body = {
+        customerFilter: { /* actual name filter from current graphql schema*/ },
+        items: medications.map(medication => ({
+          itemFilter: { /* actual item filter from current graphql schema*/ },
+          quantity: medication.quantity,
+        })),
+      };
+      try {
+        await this.postRequest({ bodyJson: JSON.stringify(body) });
+      } catch (error) {
+        log.error('Error sending dispensed medications to mSupplyMed', {
+          error,
+        });
+      }
     }
   }
 }
