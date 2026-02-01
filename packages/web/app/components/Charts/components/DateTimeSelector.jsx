@@ -77,7 +77,6 @@ export const DateTimeSelector = (props) => {
     const newEndDate = getDefaultEndDate ? getDefaultEndDate() : new Date();
 
     formatAndSetDateRange(newStartDate, newEndDate);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, formatAndSetDateRange]);
 
   return (

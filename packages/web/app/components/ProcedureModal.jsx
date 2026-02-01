@@ -112,10 +112,10 @@ export const ProcedureModal = ({
     refreshCount,
   );
 
-  // Convert country TZ → facility TZ for display
+  // Convert countryTimeZone → facilityTimeZone for display
   const toFacilityTz = val => (val ? formatForDateTimeInput(val) : undefined);
 
-  // Form uses facility TZ; on submit, combine date+time and convert to country TZ
+  // Form uses facilityTimeZone; on submit, combine date+time and convert to countryTimeZone
   const onSubmit = async data => {
     const dateStr = data.date.slice(0, 10);
     const toCountry = time =>
