@@ -24,14 +24,14 @@ const convertToDHIS2DataValueSets = (reportData, dataSet) => {
   // Transform each group of rows into a DHIS2 data value set object
   return groupedRows.map(rows => {
     // Extract common metadata from the first row (all rows in a group share these values)
-    const { period = '', orgunit = '', attributeoptioncombo = '' } = rows[0];
+    const { period, orgunit: orgUnit, attributeoptioncombo: attributeOptionCombo } = rows[0];
 
     // Map each row from the group to a data value object containing the actual data element values
     const dataValues = rows.map(row => ({
-      dataElement: row.dataelement || '',
-      categoryOptionCombo: row.categoryoptioncombo || '',
-      value: row.value || '',
-      comment: row.comment || '',
+      dataElement: row.dataelement,
+      categoryOptionCombo: row.categoryoptioncombo,
+      value: row.value,
+      comment: row.comment,
     }));
 
     // Construct the DHIS2 data value set object
@@ -39,8 +39,8 @@ const convertToDHIS2DataValueSets = (reportData, dataSet) => {
       dataSet,
       completeDate: new Date().toISOString().split('T')[0],
       period,
-      orgUnit: orgunit,
-      attributeOptionCombo: attributeoptioncombo,
+      orgUnit,
+      attributeOptionCombo,
       dataValues,
     };
   });
