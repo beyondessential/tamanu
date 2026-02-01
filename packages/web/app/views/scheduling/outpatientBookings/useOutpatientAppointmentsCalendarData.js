@@ -1,7 +1,7 @@
 import { groupBy as lodashGroupBy } from 'lodash';
 import { useMemo } from 'react';
 
-import { toDateString } from '@tamanu/utils/dateTime';
+import { toDateString, getDayDateBoundaries } from '@tamanu/utils/dateTime';
 import { useDateTimeFormat } from '@tamanu/ui-components';
 
 import { combineQueries } from '../../../api';
@@ -28,10 +28,11 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
 
   const { filters } = useOutpatientAppointmentsContext();
   const dateString = toDateString(selectedDate);
+  const { start, end } = getDayBoundaries(dateString);
   const appointmentsQuery = useOutpatientAppointmentsQuery(
     {
-      after: toDateTimeStringForPersistence(`${dateString}T00:00:00`),
-      before: toDateTimeStringForPersistence(`${dateString}T23:59:59`),
+      after: start,
+      before: end,
       all: true,
       ...filters,
     },

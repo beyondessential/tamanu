@@ -439,3 +439,11 @@ export const toDateTimeStringForPersistence = (
     return null;
   }
 };
+
+
+export const getDayDateBoundaries = (date: string) => {
+  return {
+    start: toDateTimeStringForPersistence(`${date}T00:00:00`),
+    end: toDateTimeStringForPersistence(`${date}T23:59:59`),
+  };
+};
