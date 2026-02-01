@@ -58,23 +58,22 @@ const FormCard = styled.div`
   border: 1px solid ${TAMANU_COLORS.outline};
   border-radius: 5px;
   padding: 16px 20px;
+
+  > div {
+    display: grid;
+    grid-template-columns: ${props =>
+      props.$isEditMode ? '150px 1fr 150px' : '140px 1fr 120px 80px'};
+    gap: 20px;
+  }
 `;
 
 const FormFields = styled.div`
-  display: grid;
-  grid-template-columns: 150px 1fr 1fr auto;
-
-  gap: 20px;
-
   .label-field {
     display: none;
   }
 `;
 
 const LabelRow = styled.div`
-  display: grid;
-  grid-template-columns: 150px 1fr 1fr auto;
-  gap: 20px;
   border-bottom: 1px solid ${TAMANU_COLORS.outline};
   padding: 0 10px;
   margin: 0 -10px 10px;
@@ -83,12 +82,18 @@ const LabelRow = styled.div`
 const Label = styled.div`
   padding-bottom: 8px;
   font-weight: 400;
-  color: ${props => props.theme.palette.text.secondary};
+  color: ${props => props.theme.palette.text.tertiary};
+  font-size: 14px;
 `;
 
 const PayBalanceButton = styled(TextButton)`
   font-size: 14px;
   text-transform: none;
+  transition: all 0.1s;
+
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 const generateReceiptNumber = () =>
@@ -255,12 +260,12 @@ export const PatientPaymentModal = ({
                   {isEditMode ? (
                     <TranslatedText
                       stringId="invoice.modal.editPayment.instruction"
-                      fallback="Edit patient payment below"
+                      fallback="Edit patient payment below."
                     />
                   ) : (
                     <TranslatedText
                       stringId="invoice.modal.recordPayment.instruction"
-                      fallback="Record a patient payment below"
+                      fallback="Record a patient payment below."
                     />
                   )}
                 </Text>
@@ -269,14 +274,12 @@ export const PatientPaymentModal = ({
                     stringId="invoice.modal.recordPayment.totalDue"
                     fallback="Patient total due:"
                   />{' '}
-                  <span
-                    style={{ color: isNegativeDisplayAmount ? TAMANU_COLORS.alert : 'initial' }}
-                  >
+                  <span style={{ color: isNegativeDisplayAmount ? TAMANU_COLORS.alert : null }}>
                     {formatDisplayPrice(balance)}
                   </span>
                 </Total>
               </Header>
-              <FormCard>
+              <FormCard $isEditMode={isEditMode}>
                 <LabelRow>
                   <Label>
                     <TranslatedText stringId="general.date.label" fallback="Date" />
@@ -284,7 +287,7 @@ export const PatientPaymentModal = ({
                   <Label>
                     <TranslatedText stringId="general.date.method" fallback="Method" />
                   </Label>
-                  <Label style={{ gridColumn: 'span 2' }}>
+                  <Label>
                     <TranslatedText stringId="general.date.amount" fallback="Amount" />
                   </Label>
                 </LabelRow>

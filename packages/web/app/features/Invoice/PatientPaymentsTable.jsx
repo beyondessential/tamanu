@@ -117,7 +117,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
         />
       ),
       sortable: false,
-      accessor: ({ date }) => <DateDisplay date={date} data-testid="datedisplay-21cc" />,
+      accessor: ({ date }) => <DateDisplay date={date} shortYear data-testid="datedisplay-21cc" />,
     },
     {
       key: 'methodName',
