@@ -22,11 +22,11 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     this.models = context.models;
   }
 
-  async createLog() {
-    // TODO: Implement logging to the database
+  async createLog(values) {
+    await this.models.MSupplyPushLog.create(values);
   }
 
-  async postRequest({ bodyJson }) {
+  async postRequest({ bodyJson }, { minMedicationCreatedAt, maxMedicationCreatedAt }) {
     const { host, backoff } = await this.context.settings.get('integrations.mSupplyMed');
     const authToken = 'Bearer 1234567890';
 
@@ -45,10 +45,25 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
         { ...backoff, log },
       );
 
-      return await response.json();
+      const { success, message } = await response.json();
+
+      if (success) {
+        await this.createLog({
+          minMedicationCreatedAt,
+          maxMedicationCreatedAt,
+          status: 'success',
+          message,
+        });
+      } else {
+        throw new Error(message);
+      }
     } catch (error) {
-      // TODO: pass appropriate arguments to createLog
-      await this.createLog();
+      await this.createLog({
+        minMedicationCreatedAt,
+        maxMedicationCreatedAt,
+        status: 'failed',
+        message: error.message,
+      });
       throw error;
     }
   }
@@ -98,7 +113,13 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
         limit: batchSize,
       });
 
-      log.info(`Sending ${medications.length} dispensed medications to mSupply`);
+      const minMedicationCreatedAt = medications[0].createdAt;
+      const maxMedicationCreatedAt = medications[medications.length - 1].createdAt;
+
+      log.info(`Sending ${medications.length} dispensed medications to mSupply`, {
+        minMedicationCreatedAt,
+        maxMedicationCreatedAt,
+      });
 
       const body = {
         customerFilter: { /* actual name filter from current graphql schema*/ },
@@ -108,7 +129,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
         })),
       };
       try {
-        await this.postRequest({ bodyJson: JSON.stringify(body) });
+        await this.postRequest({ bodyJson: JSON.stringify(body) }, { minMedicationCreatedAt, maxMedicationCreatedAt });
       } catch (error) {
         log.error('Error sending dispensed medications to mSupplyMed', {
           error,
