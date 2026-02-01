@@ -61,6 +61,7 @@ export const WARNING_LOGS = {
   REPORT_DOES_NOT_EXIST: "DHIS2IntegrationProcessor: Report doesn't exist, skipping",
   REPORT_HAS_NO_PUBLISHED_VERSION:
     'DHIS2IntegrationProcessor: Report has no published version, skipping',
+  REPORT_DATA_EMPTY: 'DHIS2IntegrationProcessor: Report returned no data rows, skipping push',
   FAILED_TO_SEND_REPORT: 'DHIS2IntegrationProcessor: Failed to send report to DHIS2',
 };
 
@@ -185,7 +186,10 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     const reportData = await latestVersion.dataGenerator({ ...this.context, sequelize }, {}); // We don't support parameters in this task
     const dhis2DataValueSets = convertToDHIS2DataValueSets(reportData, queryOptions.dhis2DataSet);
 
-    // TODO: warn if report data is empty
+    if (dhis2DataValueSets.length === 0) {
+      log.warn(WARNING_LOGS.REPORT_DATA_EMPTY, { report: reportString });
+      return;
+    }
 
     for (const dataValueSet of dhis2DataValueSets) {
       const {
