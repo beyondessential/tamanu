@@ -22,11 +22,11 @@ export class MSupplyPushLog extends Model {
           type: DataTypes.TEXT,
           allowNull: true,
         },
-        min_created_at: {
+        minMedicationCreatedAt: {
             type: DataTypes.DATE,
             allowNull: false,
         },
-        max_created_at: {
+        maxMedicationCreatedAt: {
           type: DataTypes.DATE,
           allowNull: false,
         },

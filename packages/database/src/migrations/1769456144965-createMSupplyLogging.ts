@@ -30,11 +30,11 @@ export async function up(query: QueryInterface) {
       type: DataTypes.TEXT,
       allowNull: true,
     },
-    min_created_at: {
+    min_medication_created_at: {
       type: DataTypes.DATE,
       allowNull: false,
     },
-    max_created_at: {
+    max_medication_created_at: {
       type: DataTypes.DATE,
       allowNull: false,
     },
