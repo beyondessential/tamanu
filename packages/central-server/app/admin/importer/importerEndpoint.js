@@ -27,7 +27,7 @@ const normMapping = {
   // ProgramRegistryClinicalStatus is imported in the registry sheet so it doesn't need a mapping here
   registry: PROGRAM_REFERENCE_TYPES.PROGRAM_REGISTRY,
   registryCondition: PROGRAM_REFERENCE_TYPES.PROGRAM_REGISTRY_CONDITION,
-  registryConditionCategories: PROGRAM_REFERENCE_TYPES.PROGRAM_REGISTRY_CONDITION_CATEGORY,
+  registryConditionCategory: PROGRAM_REFERENCE_TYPES.PROGRAM_REGISTRY_CONDITION_CATEGORY,
 };
 
 export function normaliseSheetName(name, modelName) {
