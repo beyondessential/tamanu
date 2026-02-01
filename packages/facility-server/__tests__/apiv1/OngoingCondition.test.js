@@ -34,12 +34,12 @@ describe('Ongoing conditions', () => {
   it('should save all fields from a submitted form including resolved', async () => {
     const dummyFormObject = {
       note: 'Initial Note',
-      recordedDate: '2023-02-17',
+      recordedDate: '2023-02-17 10:50:15',
       resolved: true,
       patientId: patient.id,
       examinerId: await randomUser(models),
       conditionId: await randomReferenceId(models, 'diagnosis'),
-      resolutionDate: '2023-02-18',
+      resolutionDate: '2023-02-18 00:00:00',
       resolutionPractitionerId: await randomUser(models),
       resolutionNote: 'Resolution Note',
     };

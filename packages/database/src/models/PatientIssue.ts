@@ -1,10 +1,10 @@
 import { DataTypes } from 'sequelize';
 import { PATIENT_ISSUE_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
-import { getCurrentDateString } from '@tamanu/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Model } from './Model';
 import { buildPatientSyncFilterViaPatientId } from '../sync/buildPatientSyncFilterViaPatientId';
 import { buildPatientLinkedLookupFilter } from '../sync/buildPatientLinkedLookupFilter';
-import { dateType, type InitOptions, type Models } from '../types/model';
+import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 const PATIENT_ISSUE_TYPE_VALUES = Object.values(PATIENT_ISSUE_TYPES);
 export class PatientIssue extends Model {
@@ -18,8 +18,8 @@ export class PatientIssue extends Model {
       {
         id: primaryKey,
         note: DataTypes.STRING,
-        recordedDate: dateType('recordedDate', {
-          defaultValue: getCurrentDateString,
+        recordedDate: dateTimeType('recordedDate', {
+          defaultValue: getCurrentDateTimeString,
           allowNull: false,
         }),
         type: {
