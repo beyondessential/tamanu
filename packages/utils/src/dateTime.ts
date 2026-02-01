@@ -382,7 +382,7 @@ export const getCurrentDateStringInTimezone = (timezone?: string) =>
   Temporal.Now.plainDateISO(timezone ?? Temporal.Now.timeZoneId()).toString();
 
 /**
- * Convert stored datetime (country TZ) to display format (facility TZ)
+ * Convert stored datetime (country timezone) to display format (facility timezone)
  * Used when populating datetime-local inputs with existing values
  */
 export const formatForDateTimeInput = (
@@ -417,7 +417,7 @@ export const formatForDateTimeInput = (
 };
 
 /**
- * Convert input value (facility TZ) to storage format (country TZ)
+ * Convert input value (facility timezone) to storage format (country timezone)
  * Used when saving datetime-local input values to the database
  */
 export const toDateTimeStringForPersistence = (
@@ -433,8 +433,6 @@ export const toDateTimeStringForPersistence = (
     if (!countryTimeZone) {
       return toISO9075DateTime(plain);
     }
-
-    // Input is in display timezone (facility or country), convert to country TZ
     const displayTz = facilityTimeZone ?? countryTimeZone;
     return toISO9075DateTime(plain.toZonedDateTime(displayTz).withTimeZone(countryTimeZone));
   } catch {
