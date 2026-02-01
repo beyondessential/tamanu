@@ -19,6 +19,8 @@ export const FamilyHistoryForm = ({
   
   const getInitialValues = () => {
     if (editedObject) {
+      // Currently the recordedDate is a dateTime type in the database, so we need to convert it to date type
+      // for now to avoid timezone conversion
       return {
         ...editedObject,
         recordedDate: editedObject.recordedDate.slice(0, 10),

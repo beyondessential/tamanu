@@ -15,7 +15,20 @@ import { NoteModalActionBlocker } from '../components/NoteModalActionBlocker';
 
 export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => {
   const { getFacilityCurrentDateString } = useDateTimeFormat();
-
+  const getInitialValues = () => {
+    if (editedObject) {
+      // Currently the recordedDate is a dateTime type in the database, so we need to convert it to date type
+      // for now to avoid timezone conversion
+      return {
+        ...editedObject,
+        recordedDate: editedObject.recordedDate.slice(0, 10),
+      };
+    }
+    return {
+      type: PATIENT_ISSUE_TYPES.ISSUE,
+      recordedDate: getFacilityCurrentDateString(),
+    };
+  };
   return (
     <Form
       onSubmit={onSubmit}
@@ -87,11 +100,7 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => {
           </NoteModalActionBlocker>
         </FormGrid>
       )}
-      initialValues={{
-        recordedDate: getFacilityCurrentDateString(),
-        type: PATIENT_ISSUE_TYPES.ISSUE,
-        ...editedObject,
-      }}
+      initialValues={getInitialValues()}
       formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
         note: yup

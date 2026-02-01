@@ -26,6 +26,19 @@ export const AllergyForm = ({
   const { getFacilityCurrentDateString } = useDateTimeFormat();
   const canCreateReferenceData = ability.can('create', 'ReferenceData');
 
+  const getInitialValues = () => {
+    if (editedObject) {
+      // Currently the recordedDate is a dateTime type in the database, so we need to convert it to date type
+      // for now to avoid timezone conversion
+      return {
+        ...editedObject,
+        recordedDate: editedObject.recordedDate.slice(0, 10),
+      };
+    }
+    return {
+      recordedDate: getFacilityCurrentDateString(),
+    };
+  };
   return (
     <Form
       onSubmit={onSubmit}
@@ -122,10 +135,7 @@ export const AllergyForm = ({
           </NoteModalActionBlocker>
         </FormGrid>
       )}
-      initialValues={{
-        recordedDate: getFacilityCurrentDateString(),
-        ...editedObject,
-      }}
+      initialValues={getInitialValues()}
       formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
         allergyId: foreignKey(),
