@@ -1,5 +1,6 @@
 import config from 'config';
 import { fetch } from 'undici';
+import { Op } from 'sequelize';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
@@ -17,6 +18,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     super(schedule, log, jitterTime, enabled);
     this.config = conf;
     this.context = context;
+    this.models = context.models;
   }
 
   async createLog() {
@@ -29,7 +31,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
 
     try {
       const response = await fetchWithRetryBackoff(
-        `${host}/graphql`,
+        `${host}/tamanu-dispense-medication`,
         {
           fetch,
           method: 'POST',
@@ -59,26 +61,37 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
       return;
     }
 
-    // TODO: Implement query to get dispensed medications from the database
-    const medications = [];
+    const lastSuccessfulPush = await this.models.MSupplyPushLog.findOne({
+      where: {
+        status: 'success',
+      },
+      order: [['created_at', 'DESC']],
+    });
+    const lastSuccessfulPushTimestamp = lastSuccessfulPush?.max_created_at || new Date(0);
+
+    const medications = await this.models.MedicationDispense.findAll({
+      where: {
+        createdAt: {
+          [Op.gt]: lastSuccessfulPushTimestamp,
+        },
+      },
+    });
+
     log.info(`Sending ${medications.length} dispensed medications to mSupplyMed`);
 
-    for (const medication of medications) {
-      try {
-        const body = {
-          query: '',
-          variables: {
-            medicationId: medication.id,
-            quantity: medication.quantity,
-          },
-        };
-        await this.postRequest({ bodyJson: JSON.stringify(body) });
-      } catch (error) {
-        log.error('Error sending dispensed medication to mSupplyMed', {
-          medicationId: medication.id,
-          error,
-        });
-      }
+    const body = {
+      customerFilter: { /* actual name filter from current graphql schema*/ },
+      items: medications.map(medication => ({
+        itemFilter: { /* actual item filter from current graphql schema*/ },
+        quantity: medication.quantity,
+      })),
+    };
+    try {
+      await this.postRequest({ bodyJson: JSON.stringify(body) });
+    } catch (error) {
+      log.error('Error sending dispensed medications to mSupplyMed', {
+        error,
+      });
     }
   }
 }
