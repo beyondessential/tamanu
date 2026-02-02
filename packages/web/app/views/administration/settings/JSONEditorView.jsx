@@ -6,7 +6,7 @@ import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { TextButton, ButtonRow, Button } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 
-import { JSONEditor } from './components/JSONEditor';
+import { JSONEditor } from '@tamanu/ui-components';
 import { DefaultSettingsModal } from './components/DefaultSettingsModal';
 import { notifyError } from '../../../utils';
 import { TranslatedText } from '../../../components/Translation';

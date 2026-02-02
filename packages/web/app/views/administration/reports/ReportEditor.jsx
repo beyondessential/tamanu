@@ -10,6 +10,7 @@ import {
   Form,
   ButtonRow,
   Button,
+  JSONEditor,
 } from '@tamanu/ui-components';
 import {
   REPORT_DATA_SOURCE_VALUES,
@@ -32,8 +33,6 @@ import { useAuth } from '../../../contexts/Auth';
 import { useApi } from '../../../api';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useTranslation } from '../../../contexts/Translation';
-// TODO: this component should be generic
-import { JSONEditor } from '../../administration/settings/components/JSONEditor';
 import { Colors } from '../../../constants';
 
 const StyledField = styled(Field)`
