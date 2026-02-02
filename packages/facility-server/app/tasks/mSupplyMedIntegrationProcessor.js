@@ -108,32 +108,29 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     });
     const lastSuccessfulPushTimestamp = lastSuccessfulPush?.maxMedicationCreatedAt ?? new Date(0);
 
-    const toProcess = await this.models.MedicationDispense.count({
+    const baseQuery = {
       where: {
         createdAt: {
           [Op.gt]: lastSuccessfulPushTimestamp,
         },
       },
-    });
+    };
+
+    const toProcess = await this.models.MedicationDispense.count(baseQuery);
     if (toProcess === 0) return;
 
     const batchCount = Math.ceil(toProcess / batchSize);
 
-    let createdAtCursor = lastSuccessfulPushTimestamp;
     for (let i = 0; i < batchCount; i++) {
       const medications = await this.models.MedicationDispense.findAll({
-        where: {
-          createdAt: {
-            [Op.gt]: createdAtCursor,
-          },
-        },
-        order: [['createdAt', 'ASC']],
+        ...baseQuery,
+        order: [['createdAt', 'ASC'], ['id', 'ASC']],
         limit: batchSize,
+        offset: i * batchSize,
       });
 
       const minMedicationCreatedAt = medications[0].createdAt;
       const maxMedicationCreatedAt = medications[medications.length - 1].createdAt;
-      createdAtCursor = maxMedicationCreatedAt;
 
       log.info(`Sending ${medications.length} dispensed medications to mSupply`, {
         minMedicationCreatedAt,
