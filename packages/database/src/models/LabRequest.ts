@@ -115,8 +115,8 @@ export class LabRequest extends Model {
 
             if (!isStatusChanging) return;
 
-            // Handle deletion first - if changing to DELETED or ENTERED_IN_ERROR,
-            // delete all notifications and don't create new ones
+            // Cancelled/invalid requests: remove any existing lab-result notifications
+            // so users don't see alerts for requests that no longer apply. Return early to not create new notifications.
             const shouldDeleteNotification = [
               LAB_REQUEST_STATUSES.DELETED,
               LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
@@ -134,6 +134,9 @@ export class LabRequest extends Model {
               return;
             }
 
+            // For all other status changes: create a notification when the request
+            // reaches a "notify-worthy" status (interim, published, invalidated) or when
+            // it was previously published (so we can notify about updates or withdrawal).
             const isChangingFromPublished = previousStatus === LAB_REQUEST_STATUSES.PUBLISHED;
             const NOTIFICATION_STATUSES = [
               LAB_REQUEST_STATUSES.INTERIM_RESULTS,
@@ -141,7 +144,8 @@ export class LabRequest extends Model {
               LAB_REQUEST_STATUSES.INVALIDATED,
             ];
 
-            const shouldPushNotification = NOTIFICATION_STATUSES.includes(currentStatus) || isChangingFromPublished;
+            const shouldPushNotification =
+              NOTIFICATION_STATUSES.includes(currentStatus) || isChangingFromPublished;
 
             if (shouldPushNotification) {
               await models.Notification.pushNotification(
