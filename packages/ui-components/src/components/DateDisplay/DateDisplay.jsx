@@ -167,7 +167,7 @@ export const TimeDisplay = React.memo(
 
 /**
  * DateDisplay - Displays date with optional time (applies timezone conversion)
- * @param {string|Date} date - The date value
+ * Note: If weekdayFormat and timeFormat are provided display will follow format "{weekdayFormat} {format} {timeFormat}"
  * @param {string} format - "short" (default) | "shortest" | "long" | "explicit" | "explicitShort" | "dayMonth" | null (for weekday/time only)
  * @param {string} weekdayFormat - "short" (e.g. "Fri") | "long" (e.g. "Friday") | "narrow" (e.g. "F") | null (default, hides weekday)
  * @param {string} timeFormat - "default" (e.g. "9:30 am") | "compact" (e.g. "9:30am") | "withSeconds" (e.g. "9:30:45 am") | "slot" (e.g. "9am") | null (default, hides time)
