@@ -183,7 +183,7 @@ export const TimeDisplay = React.memo(
  * // format="long" → "15 March 2024"
  * <DateDisplay date="2024-03-15 09:30:00" format="long" />
  *
- * // format="explicit" → "Mar 15, 2024" (medium dateStyle)
+ * // format="explicit" → "Mar 15, 2024"
  * <DateDisplay date="2024-03-15 09:30:00" format="explicit" />
  *
  * // format="explicitShort" → "15 Mar 24"
