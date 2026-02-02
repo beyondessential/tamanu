@@ -4,14 +4,13 @@ import { useIsFocused } from '@react-navigation/native';
 import { List } from 'react-native-paper';
 import { subject } from '@casl/ability';
 
-import { formatStringDate } from '../../../helpers/date';
-import { DateFormats } from '../../../helpers/constants';
 import { useBackendEffect } from '../../../hooks';
 import { ErrorScreen } from '../../../components/ErrorScreen';
 import { StyledScrollView, StyledText } from '../../../styled/common';
 import { ReduxStoreProps } from '../../../interfaces/ReduxStoreProps';
 import { PatientStateProps } from '../../../store/ducks/patient';
 import { useAuth } from '~/ui/contexts/AuthContext';
+import { useDateTimeFormat } from '~/ui/contexts/DateTimeContext';
 import { renderAnswer } from '../programs/SurveyResponseDetailsScreen';
 
 export const ReferralHistoryScreen = (): ReactElement => {
@@ -20,6 +19,7 @@ export const ReferralHistoryScreen = (): ReactElement => {
   );
   const isFocused = useIsFocused();
   const { ability } = useAuth();
+  const { formatShort, formatShortDateTime } = useDateTimeFormat();
 
   const [referrals, error] = useBackendEffect(
     async ({ models }) => {
@@ -30,6 +30,8 @@ export const ReferralHistoryScreen = (): ReactElement => {
     },
     [isFocused],
   );
+
+  const formatters = { formatShort, formatShortDateTime };
 
   if (error) {
     return <ErrorScreen error={error} />;
@@ -46,7 +48,7 @@ export const ReferralHistoryScreen = (): ReactElement => {
           return (
             <List.Accordion
               key={`${survey.id}-${startTime}`}
-              title={`${survey.name} (${formatStringDate(startTime, DateFormats.DDMMYY)})`}
+              title={`${survey.name} (${formatShort(startTime)})`}
               left={(props): ReactElement => <List.Icon {...props} icon="clipboard-plus-outline" />}
             >
               {answers.map(answer => (
@@ -60,6 +62,7 @@ export const ReferralHistoryScreen = (): ReactElement => {
                           type: answer.dataElement.type,
                           config: answer.dataElement.surveyScreenComponent.config,
                           answer: answer.body,
+                          formatters,
                         })}
                       </StyledText>
                     );

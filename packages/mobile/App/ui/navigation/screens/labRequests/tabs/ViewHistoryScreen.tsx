@@ -4,7 +4,6 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { compose } from 'redux';
 import { Routes } from '/helpers/routes';
 import { Circle, Svg } from 'react-native-svg';
-import { parseISO } from 'date-fns';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { withPatient } from '~/ui/containers/Patient';
@@ -13,13 +12,12 @@ import { ILabRequest } from '~/types';
 import { navigateAfterTimeout } from '~/ui/helpers/navigators';
 import { StyledText, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { formatDate } from '/helpers/date';
-import { DateFormats } from '~/ui/helpers/constants';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { getSyncTick, LAST_SUCCESSFUL_PUSH } from '~/services/sync';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 import { useAuth } from '~/ui/contexts/AuthContext';
+import { useDateTimeFormat } from '~/ui/contexts/DateTimeContext';
 
 const SyncStatusIndicator = ({ synced }): JSX.Element => (
   <StyledView flexDirection="row">
@@ -39,6 +37,7 @@ const SyncStatusIndicator = ({ synced }): JSX.Element => (
 interface LabRequestRowProps {
   labRequest: ILabRequest;
   synced: boolean;
+  formatShort: (date: string) => string | null;
 }
 
 const styles = StyleSheet.create({
@@ -60,14 +59,8 @@ const styles = StyleSheet.create({
   },
 });
 
-const LabRequestRow = ({ labRequest, synced }: LabRequestRowProps): JSX.Element => {
-  let date: string;
-  try {
-    date = formatDate(parseISO(labRequest.requestedDate), DateFormats.DAY_MONTH_YEAR_SHORT);
-  } catch (e) {
-    console.warn(e, labRequest.requestedDate);
-    date = '-';
-  }
+const LabRequestRow = ({ labRequest, synced, formatShort }: LabRequestRowProps): JSX.Element => {
+  const date = formatShort(labRequest.requestedDate) || '-';
   return (
     <StyledView style={styles.row}>
       <StyledView width={screenPercentageToDP(22, Orientation.Width)}>
@@ -96,6 +89,7 @@ const LabRequestRow = ({ labRequest, synced }: LabRequestRowProps): JSX.Element 
 
 export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactElement => {
   const { ability } = useAuth();
+  const { formatShort } = useDateTimeFormat();
   const canListSensitive = ability.can('create', 'SensitiveLabRequest');
   const [data, error] = useBackendEffect(
     ({ models }) => models.LabRequest.getForPatient(selectedPatient.id, canListSensitive),
@@ -120,7 +114,7 @@ export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactEle
   const rows = data.map(labRequest => {
     const synced = labRequest.updatedAtSyncTick <= lastSuccessfulPushTick;
 
-    return <LabRequestRow key={labRequest.id} labRequest={labRequest} synced={synced} />;
+    return <LabRequestRow key={labRequest.id} labRequest={labRequest} synced={synced} formatShort={formatShort} />;
   });
 
   return <ScrollView>{rows}</ScrollView>;

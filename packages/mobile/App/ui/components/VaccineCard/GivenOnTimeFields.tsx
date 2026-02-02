@@ -6,14 +6,16 @@ import { StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { VaccineDataProps } from '.';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { formatStringDate } from '../../helpers/date';
-import { DateFormats } from '../../helpers/constants';
 import { TranslatedText } from '../Translations/TranslatedText';
 import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
 import { TranslatedEnum } from '../Translations/TranslatedEnum';
 import { INJECTION_SITE_LABELS } from '@tamanu/constants';
+import { useDateTimeFormat } from '~/ui/contexts/DateTimeContext';
 
-const GivenOnTimeFields: FC<VaccineDataProps> = ({ administeredVaccine }) => (
+const GivenOnTimeFields: FC<VaccineDataProps> = ({ administeredVaccine }) => {
+  const { formatShort } = useDateTimeFormat();
+
+  return (
   <StyledView
     height={screenPercentageToDP(34.41, Orientation.Height)}
     marginLeft={screenPercentageToDP(2.41, Orientation.Width)}
@@ -22,11 +24,7 @@ const GivenOnTimeFields: FC<VaccineDataProps> = ({ administeredVaccine }) => (
   >
     <RowField
       label={<TranslatedText stringId="vaccine.form.dateGiven.label" fallback="Date given" />}
-      value={
-        administeredVaccine.date
-          ? formatStringDate(administeredVaccine.date, DateFormats.DDMMYY)
-          : null
-      }
+      value={administeredVaccine.date ? formatShort(administeredVaccine.date) : null}
     />
     <RowField
       label={<TranslatedText stringId="vaccine.form.schedule.label" fallback="Schedule" />}
@@ -94,6 +92,7 @@ const GivenOnTimeFields: FC<VaccineDataProps> = ({ administeredVaccine }) => (
       value={administeredVaccine.encounter?.examiner.displayName}
     />
   </StyledView>
-);
+  );
+};
 
 export default GivenOnTimeFields;

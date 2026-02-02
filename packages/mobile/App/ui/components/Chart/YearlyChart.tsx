@@ -1,13 +1,12 @@
 import React, { memo, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import { BarChart, XAxis, YAxis } from 'react-native-svg-charts';
-import { DateFormats } from '/helpers/constants';
 import { RowView, StyledText, StyledView } from '/styled/common';
-import { formatDate } from '/helpers/date';
 import { theme } from '/styled/theme';
 import { getYear } from 'date-fns';
 import { BarChartData } from '../../interfaces/BarChartProps';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { useDateTimeFormat } from '~/ui/contexts/DateTimeContext';
 
 const styles = StyleSheet.create({
   barChartStyles: {
@@ -39,6 +38,7 @@ const verticalContentInset = { top: 10, bottom: 10, right: 0 };
 
 export const YearlyChart = memo(
   ({ data }: BarChartProps): JSX.Element => {
+    const { formatDayMonth } = useDateTimeFormat();
     const totalVisits = useMemo(() => data.reduce<number>((acc, cur) => acc + cur.value, 0), [data]);
 
     const yearRange = `${getYear(data[0].date)} - ${getYear(
@@ -102,7 +102,7 @@ export const YearlyChart = memo(
             <XAxis
               style={styles.xAxis}
               formatLabel={
-                (_, index: number): string => formatDate(data[index].date, DateFormats.SHORT_MONTH)
+                (_, index: number): string => formatDayMonth(data[index].date) || ''
               }
               data={data}
               contentInset={styles.xAxisContent}

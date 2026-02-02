@@ -86,11 +86,20 @@ export const DateField = React.memo(
     labelFontSize = screenPercentageToDP(2.1, Orientation.Height),
     labelColor = theme.colors.TEXT_SUPER_DARK,
     fieldFontSize = screenPercentageToDP(2.18, Orientation.Height),
+    saveDateAsString = false,
+    useTimezone = false,
   }: DateFieldProps) => {
     const [isDatePickerVisible, setDatePickerVisible] = useState(false);
     const [currentPickerMode, setCurrentPickerMode] = useState<'date' | 'time'>('date');
     const [tempDate, setTempDate] = useState<Date | null>(null);
-    const { formatShort, formatTime, formatShortDateTime } = useDateTimeFormat();
+    const {
+      formatShort,
+      formatTime,
+      formatShortDateTime,
+      toDateTimeStringForPersistence,
+    } = useDateTimeFormat();
+
+    const shouldUseTimezone = useTimezone && mode === 'datetime';
 
     const showDatePicker = useCallback(() => {
       setDatePickerVisible(true);
@@ -101,8 +110,22 @@ export const DateField = React.memo(
       }
     }, [mode]);
 
+    const convertDateForOutput = useCallback(
+      (date: Date): Date | string => {
+        if (!saveDateAsString) return date;
+
+        const isoString = formatISO9075(date);
+        if (shouldUseTimezone) {
+          const localFormat = isoString.replace(' ', 'T').slice(0, 16);
+          return toDateTimeStringForPersistence(localFormat) || isoString;
+        }
+        return isoString;
+      },
+      [saveDateAsString, shouldUseTimezone, toDateTimeStringForPersistence],
+    );
+
     const onAndroidDateChange = useCallback(
-      (event, selectedDate) => {
+      (_event, selectedDate) => {
         if (selectedDate) {
           if (mode === 'datetime') {
             if (currentPickerMode === 'date') {
@@ -117,18 +140,18 @@ export const DateField = React.memo(
               combinedDateTime.setSeconds(selectedDate.getSeconds());
               setDatePickerVisible(false);
               setTempDate(null);
-              onChange(combinedDateTime);
+              onChange(convertDateForOutput(combinedDateTime));
               return;
             }
           }
           setDatePickerVisible(false);
-          onChange(selectedDate);
+          onChange(convertDateForOutput(selectedDate));
         } else {
           setDatePickerVisible(false);
           setTempDate(null);
         }
       },
-      [onChange, mode, currentPickerMode, tempDate],
+      [onChange, mode, currentPickerMode, tempDate, convertDateForOutput],
     );
 
     const dateValue = value && (value instanceof Date ? value : parseISO(value));

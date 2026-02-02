@@ -5,8 +5,6 @@ import { FullView, StyledText, StyledView } from '../../../../styled/common';
 import { theme } from '../../../../styled/theme';
 
 import { StackHeader } from '../../../../components/StackHeader';
-import { formatStringDate } from '../../../../helpers/date';
-import { DateFormats } from '../../../../helpers/constants';
 import { FieldTypes, getDisplayNameForModel } from '../../../../helpers/fields';
 import { SurveyResultBadge } from '../../../../components/SurveyResultBadge';
 import { SurveyAnswerResult } from '../../../../components/SurveyAnswerResult';
@@ -15,6 +13,7 @@ import { LoadingScreen } from '../../../../components/LoadingScreen';
 import { useBackendEffect } from '../../../../hooks';
 import { PatientDataDisplayField } from '~/ui/components/PatientDataDisplayField/PatientDataDisplayField';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { useDateTimeFormat } from '~/ui/contexts/DateTimeContext';
 import { SurveyResponseLink } from '~/ui/components/SurveyResponseLink';
 import { Routes } from '~/ui/helpers/routes';
 
@@ -64,7 +63,11 @@ const AutocompleteAnswer = ({ config, answer }): ReactElement => {
   );
 };
 
-function getAnswerText(type, answer): string | number {
+function getAnswerText(
+  type,
+  answer,
+  formatters?: { formatShort: (d: any) => string; formatShortDateTime: (d: any) => string },
+): string | number {
   if (answer === null || answer === undefined) return 'N/A';
 
   switch (type) {
@@ -85,9 +88,9 @@ function getAnswerText(type, answer): string | number {
       return answer.toLowerCase() === 'yes' ? 'Yes' : 'No';
     case FieldTypes.DATE:
     case FieldTypes.SUBMISSION_DATE:
-      return formatStringDate(answer, DateFormats.DDMMYY);
+      return formatters?.formatShort(answer) || answer;
     case FieldTypes.DATE_TIME:
-      return formatStringDate(answer, DateFormats.DDMMYY_HHMMSS);
+      return formatters?.formatShortDateTime(answer) || answer;
     case FieldTypes.PATIENT_ISSUE_GENERATOR:
       return 'PATIENT_ISSUE_GENERATOR';
     case FieldTypes.MULTI_SELECT:
@@ -100,7 +103,17 @@ function getAnswerText(type, answer): string | number {
   }
 }
 
-export const renderAnswer = ({ type, config, answer }): ReactElement => {
+export const renderAnswer = ({
+  type,
+  config,
+  answer,
+  formatters,
+}: {
+  type: string;
+  config?: string;
+  answer: any;
+  formatters?: { formatShort: (d: any) => string; formatShortDateTime: (d: any) => string };
+}): ReactElement => {
   if (!answer) return answer;
 
   switch (type) {
@@ -119,13 +132,13 @@ export const renderAnswer = ({ type, config, answer }): ReactElement => {
     default:
       return (
         <StyledText textAlign="right" color={theme.colors.TEXT_DARK}>
-          {getAnswerText(type, answer)}
+          {getAnswerText(type, answer, formatters)}
         </StyledText>
       );
   }
 };
 
-const AnswerItem = ({ question, answer, index }): ReactElement => (
+const AnswerItem = ({ question, answer, index, formatters }): ReactElement => (
   <StyledView
     minHeight={40}
     maxWidth="100%"
@@ -143,7 +156,7 @@ const AnswerItem = ({ question, answer, index }): ReactElement => (
       </StyledText>
     </StyledView>
     <StyledView alignItems="flex-end" justifyContent="center" maxWidth="60%">
-      {renderAnswer({ type: question.dataElement.type, config: question.config, answer })}
+      {renderAnswer({ type: question.dataElement.type, config: question.config, answer, formatters })}
     </StyledView>
   </StyledView>
 );
@@ -151,6 +164,7 @@ const AnswerItem = ({ question, answer, index }): ReactElement => (
 export const SurveyResponseDetailsScreen = ({ route }): ReactElement => {
   const navigation = useNavigation();
   const { surveyResponseId } = route.params;
+  const { formatShort, formatShortDateTime } = useDateTimeFormat();
 
   const goBack = useCallback(() => {
     navigation.goBack();
@@ -172,6 +186,7 @@ export const SurveyResponseDetailsScreen = ({ route }): ReactElement => {
 
   const { encounter, survey, questions, answers } = surveyResponse;
   const { patient } = encounter;
+  const formatters = { formatShort, formatShortDateTime };
 
   const attachAnswer = (q): { answer: string; question: any } | null => {
     const answerObject = answers.find(a => a.dataElement.id === q.dataElement.id);
@@ -182,7 +197,7 @@ export const SurveyResponseDetailsScreen = ({ route }): ReactElement => {
   };
 
   const questionToAnswerItem = ({ question, answer }, i): ReactElement => (
-    <AnswerItem key={question.id} index={i} question={question} answer={answer} />
+    <AnswerItem key={question.id} index={i} question={question} answer={answer} formatters={formatters} />
   );
 
   const answerItems = questions

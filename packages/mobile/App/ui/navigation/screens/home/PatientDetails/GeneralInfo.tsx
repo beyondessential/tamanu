@@ -1,7 +1,5 @@
 import React, { ReactElement } from 'react';
 
-import { formatStringDate } from '/helpers/date';
-import { DateFormats } from '/helpers/constants';
 import { FieldRowDisplay } from '~/ui/components/FieldRowDisplay';
 import { PatientSection } from './CustomComponents/PatientSection';
 import { getGender } from '~/ui/helpers/user';
@@ -14,6 +12,7 @@ import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
 import { useSettings } from '~/ui/contexts/SettingsContext';
+import { useDateTimeFormat } from '~/ui/contexts/DateTimeContext';
 
 interface GeneralInfoProps {
   onEdit: () => void;
@@ -21,13 +20,15 @@ interface GeneralInfoProps {
 }
 
 export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement => {
+  const { formatShort } = useDateTimeFormat();
+
   const fields = [
     [PATIENT_DATA_FIELDS.FIRST_NAME, patient.firstName],
     [PATIENT_DATA_FIELDS.MIDDLE_NAME, patient.middleName || 'None'],
     [PATIENT_DATA_FIELDS.LAST_NAME, patient.lastName],
     [PATIENT_DATA_FIELDS.CULTURAL_NAME, patient.culturalName || 'None'],
     [PATIENT_DATA_FIELDS.SEX, getGender(patient.sex)],
-    [PATIENT_DATA_FIELDS.DATE_OF_BIRTH, formatStringDate(patient.dateOfBirth, DateFormats.DDMMYY)],
+    [PATIENT_DATA_FIELDS.DATE_OF_BIRTH, formatShort(patient.dateOfBirth)],
     [PATIENT_DATA_FIELDS.EMAIL, patient.email],
     [
       PATIENT_DATA_FIELDS.VILLAGE_ID,

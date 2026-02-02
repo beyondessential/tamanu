@@ -4,24 +4,22 @@ import { VaccineDataProps } from '.';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { StyledView } from '/styled/common';
-import { formatStringDate } from '../../helpers/date';
-import { DateFormats } from '../../helpers/constants';
 import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
 import { TranslatedText } from '../Translations/TranslatedText';
 import { ReferenceDataType } from '~/types';
+import { useDateTimeFormat } from '~/ui/contexts/DateTimeContext';
 
-export const NotGivenFields: FC<VaccineDataProps> = ({ administeredVaccine }) => (
+export const NotGivenFields: FC<VaccineDataProps> = ({ administeredVaccine }) => {
+  const { formatShort } = useDateTimeFormat();
+
+  return (
   <StyledView
     height={screenPercentageToDP(20.04, Orientation.Height)}
     background={theme.colors.WHITE}
   >
     <RowField
       label={<TranslatedText stringId="vaccine.form.dateRecorded.label" fallback="Date recorded" />}
-      value={
-        administeredVaccine.date
-          ? formatStringDate(administeredVaccine.date, DateFormats.DDMMYY)
-          : null
-      }
+      value={administeredVaccine.date ? formatShort(administeredVaccine.date) : null}
     />
     <RowField
       label={<TranslatedText stringId="vaccine.form.schedule.label" fallback="Schedule" />}
@@ -81,4 +79,5 @@ export const NotGivenFields: FC<VaccineDataProps> = ({ administeredVaccine }) =>
       value={administeredVaccine.encounter.examiner.displayName}
     />
   </StyledView>
-);
+  );
+};

@@ -1,9 +1,9 @@
 import React, { ReactElement } from 'react';
-import { formatStringDate } from '/helpers/date';
 import { StyleSheet, Text, View } from 'react-native';
 import { ColumnView, RowView, StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { TranslatedText } from '../Translations/TranslatedText';
+import { useDateTimeFormat } from '~/ui/contexts/DateTimeContext';
 
 const styles = StyleSheet.create({
   container: {
@@ -29,7 +29,12 @@ const styles = StyleSheet.create({
   },
 });
 
-const VaccinationDetailsList = ({ status, date, scheduledVaccine }): ReactElement => (
+const VaccinationDetailsList = ({
+  status,
+  date,
+  scheduledVaccine,
+  formatShortDateTime,
+}): ReactElement => (
   <RowView width="100%">
     <View style={styles.section}>
       <View style={styles.row}>
@@ -48,23 +53,27 @@ const VaccinationDetailsList = ({ status, date, scheduledVaccine }): ReactElemen
         <Text style={styles.item}>
           <TranslatedText stringId="general.date.label" fallback="Date" />:
         </Text>
-        <Text style={styles.item}>{formatStringDate(date, 'do MMM yyyy h:mmaa')}</Text>
+        <Text style={styles.item}>{formatShortDateTime(date)}</Text>
       </View>
     </View>
   </RowView>
 );
 
-export const Content = (section: any): ReactElement => (
-  <StyledView>
-    <ColumnView
-      width="100%"
-      background={theme.colors.BACKGROUND_GREY}
-      paddingLeft={20}
-      paddingRight={20}
-    >
-      {section.data.map(d => (
-        <VaccinationDetailsList key={d.id} {...d} />
-      ))}
-    </ColumnView>
-  </StyledView>
-);
+export const Content = (section: any): ReactElement => {
+  const { formatShortDateTime } = useDateTimeFormat();
+
+  return (
+    <StyledView>
+      <ColumnView
+        width="100%"
+        background={theme.colors.BACKGROUND_GREY}
+        paddingLeft={20}
+        paddingRight={20}
+      >
+        {section.data.map(d => (
+          <VaccinationDetailsList key={d.id} {...d} formatShortDateTime={formatShortDateTime} />
+        ))}
+      </ColumnView>
+    </StyledView>
+  );
+};

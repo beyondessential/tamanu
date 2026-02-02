@@ -8,12 +8,11 @@ import {
 } from '~/ui/components/Translations/TranslatedReferenceData';
 import { TranslatedText, TranslatedTextElement } from '~/ui/components/Translations/TranslatedText';
 
-import { DateFormats } from '~/ui/helpers/constants';
-import { formatStringDate } from '~/ui/helpers/date';
 import { useBackendEffect } from '~/ui/hooks';
 import { StyledScrollView, StyledText, StyledView } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
+import { useDateTimeFormat } from '~/ui/contexts/DateTimeContext';
 
 const Row = styled(StyledView)`
   margin-left: 20px;
@@ -145,6 +144,7 @@ const PatientProgramRegistrationConditionsDetailsRow = ({ conditions }) => {
 
 export const PatientProgramRegistrationDetails = ({ route }) => {
   const { patientProgramRegistration } = route.params;
+  const { formatShort } = useDateTimeFormat();
   const [pprCondition] = useBackendEffect(
     async ({ models }) =>
       models.PatientProgramRegistrationCondition.findForRegistration(patientProgramRegistration.id),
@@ -160,7 +160,7 @@ export const PatientProgramRegistrationDetails = ({ route }) => {
             fallback="Date of registration"
           />
         }
-        value={formatStringDate(patientProgramRegistration.date, DateFormats.DDMMYY)}
+        value={formatShort(patientProgramRegistration.date) || '—'}
       />
       <DataRow
         label={
