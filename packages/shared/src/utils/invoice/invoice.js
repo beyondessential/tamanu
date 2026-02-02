@@ -133,7 +133,7 @@ const getInvoiceDiscountDiscountAmount = (discount, total) => {
 export const getItemAdjustmentAmount = item => {
   const originalPrice = getInvoiceItemTotalPrice(item) || 0;
   const discountedPrice = getInvoiceItemTotalDiscountedPrice(item) || 0;
-  return discountedPrice - originalPrice;
+  return new Decimal(discountedPrice).minus(originalPrice).toNumber();
 };
 
 /**
@@ -160,8 +160,8 @@ export const getItemTotalInsuranceCoverageAmount = item => {
       item,
       insurancePlanItem,
     );
-    return sum + coverageForRow;
-  }, 0);
+    return sum.plus(coverageForRow);
+  }, new Decimal(0));
 
   // Cap coverage at the discounted price
   return Math.min(totalCoverage, discountedPrice);
@@ -200,10 +200,11 @@ export const getFormattedInvoiceItemCoverageAmount = item => {
 export const getFormattedInvoiceItemNetCost = item => {
   const discountedPrice = getInvoiceItemTotalDiscountedPrice(item) || 0;
   const insuranceCoverage = getItemTotalInsuranceCoverageAmount(item);
-  const netCost = discountedPrice - insuranceCoverage;
+  const netCost = new Decimal(discountedPrice).minus(insuranceCoverage).toNumber();
   return formatDisplayPrice(netCost);
 };
 
+// TODO: this is similar to getInsuranceCoverageTotalAmount and could be combined together
 /**
  * Calculate and format the total coverage amount for each insurance plan across all invoice items for display in printout
  * @param {Invoice} invoice - The invoice object with items and insurancePlans
@@ -214,7 +215,7 @@ export const getFormattedCoverageAmountPerInsurancePlanForInvoice = invoice => {
   const items = invoice.items || [];
 
   return insurancePlans.map(plan => {
-    let totalCoverage = 0;
+    let totalCoverage = new Decimal(0);
 
     for (const item of items) {
       if (!item?.product?.insurable || !item.insurancePlanItems?.length) {
@@ -230,7 +231,7 @@ export const getFormattedCoverageAmountPerInsurancePlanForInvoice = invoice => {
           item,
           planItem,
         );
-        totalCoverage += coverageAmount;
+        totalCoverage = totalCoverage.plus(coverageAmount);
       }
     }
 
@@ -243,8 +244,9 @@ export const getFormattedCoverageAmountPerInsurancePlanForInvoice = invoice => {
   });
 };
 
+// TODO: This could be refactored to use getFormattedInvoiceItemNetCost
 /**
- * get invoice summary
+ * Get the summary of an invoice
  * @param {Invoice} invoice
  * @returns
  */
