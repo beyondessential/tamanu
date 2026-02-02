@@ -24,4 +24,3 @@ send:
       {% if remaining > 0 %}
       - ... and {{ remaining }} more
       {% endif %}
-      
