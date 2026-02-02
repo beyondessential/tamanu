@@ -7,6 +7,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { fetchWithRetryBackoff } from '@tamanu/api-client/fetchWithRetryBackoff';
 import { InvalidConfigError } from '@tamanu/shared/errors';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 // Designed to post dispensed medications from pharmacy to an Open mSupply instance
 export class mSupplyMedIntegrationProcessor extends ScheduledTask {
@@ -107,28 +108,32 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     });
     const lastSuccessfulPushTimestamp = lastSuccessfulPush?.maxMedicationCreatedAt ?? new Date(0);
 
-    const query = {
+    const toProcess = await this.models.MedicationDispense.count({
       where: {
         createdAt: {
           [Op.gt]: lastSuccessfulPushTimestamp,
         },
       },
-    };
-
-    const toProcess = await this.models.MedicationDispense.count(query);
+    });
     if (toProcess === 0) return;
 
     const batchCount = Math.ceil(toProcess / batchSize);
 
+    let createdAtCursor = lastSuccessfulPushTimestamp;
     for (let i = 0; i < batchCount; i++) {
       const medications = await this.models.MedicationDispense.findAll({
-        ...query,
+        where: {
+          createdAt: {
+            [Op.gt]: createdAtCursor,
+          },
+        },
         order: [['createdAt', 'ASC']],
         limit: batchSize,
       });
 
       const minMedicationCreatedAt = medications[0].createdAt;
       const maxMedicationCreatedAt = medications[medications.length - 1].createdAt;
+      createdAtCursor = maxMedicationCreatedAt;
 
       log.info(`Sending ${medications.length} dispensed medications to mSupply`, {
         minMedicationCreatedAt,
@@ -161,6 +166,15 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
         log.error('Error sending dispensed medications to mSupplyMed', {
           error,
         });
+
+        // If the request fails, break out of the loop
+        // This will prevent us from sending the same medications multiple times
+        // If the request fails, we will retry in the next batch
+        break;
+      }
+
+      if (i < batchCount - 1) {
+        await sleepAsync(batchSleepAsyncDurationInMilliseconds);
       }
     }
   }
