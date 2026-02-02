@@ -18,7 +18,6 @@ send:
       <ul>
         {% for row in rows | slice(end=5) %}
         <li>
-          <b>{{ row.resource }}</b>
           Lab Request ID: <b>{{ row.lab_request_id }}</b>
           – Unresolved for: <i>{{ row.duration_minutes }} minutes</i>
         </li>
