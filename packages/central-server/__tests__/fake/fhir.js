@@ -1,10 +1,11 @@
-import { fake, fakeReferenceData, fakeString } from '@tamanu/fake-data/fake';
+import { fake, fakeReferenceData } from '@tamanu/fake-data/fake';
 import { randomLabRequest } from '@tamanu/database/demoData';
 import {
   IMAGING_REQUEST_STATUS_TYPES,
   LAB_REQUEST_STATUSES,
   FHIR_REQUEST_PRIORITY,
 } from '@tamanu/constants';
+import { v4 as uuidv4 } from 'uuid';
 
 export const fakeResourcesOfFhirServiceRequest = async models => {
   const {
@@ -183,9 +184,7 @@ export const fakeTestTypes = async function (numberOfTests, LabTestType, categor
     const currentLabTest = await LabTestType.create({
       ...fake(LabTestType),
       labTestCategoryId: categoryId,
-    });
-    await currentLabTest.update({
-      externalCode: fakeString(LabTestType, { fieldName: 'externalCode' }, currentLabTest.id),
+      externalCode: uuidv4(),
     });
     testTypes.push(currentLabTest);
   }

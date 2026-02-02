@@ -68,7 +68,6 @@ describe('Create Observation', () => {
       );
       const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
       const serviceRequestId = mat.id;
-      await FhirServiceRequest.resolveUpstreams();
       const testCode = mat.orderDetail[0];
       const labTest = await LabTest.findOne({
         include: [{ model: LabTestType, as: 'labTestType' }],
@@ -119,7 +118,6 @@ describe('Create Observation', () => {
       );
       const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
       const serviceRequestId = mat.id;
-      await FhirServiceRequest.resolveUpstreams();
       const testCode = mat.orderDetail[0];
       const labTest = await LabTest.findOne({
         include: [{ model: LabTestType, as: 'labTestType' }],
@@ -171,7 +169,6 @@ describe('Create Observation', () => {
       );
       const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
       const serviceRequestId = mat.id;
-      await FhirServiceRequest.resolveUpstreams();
       const labTest = await LabTest.findOne({
         where: {
           labRequestId: labRequest.id,
@@ -264,7 +261,6 @@ describe('Create Observation', () => {
         );
         const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
         const serviceRequestId = mat.id;
-        await FhirServiceRequest.resolveUpstreams();
 
         // Use a code that doesn't exist in the ServiceRequest
         const invalidCode = 'INVALID_CODE_THAT_DOES_NOT_EXIST';

@@ -111,23 +111,30 @@ export class FhirObservation extends FhirResource {
 
   async getLabTestForObservation(labRequest: LabRequest) {
     const { LabTest, LabTestType } = this.sequelize.models;
-    const validatedCode = FhirCodeableConcept.asYup().validateSync(this.code);
+    const validatedCode = FhirCodeableConcept.SCHEMA().validateSync(this.code);
     if (!validatedCode.coding || validatedCode.coding.length === 0) {
       throw new Invalid('Invalid code, must provide at least one coding', {
         code: FHIR_ISSUE_TYPE.INVALID.VALUE,
       });
     }
 
-    const labTestCode = validatedCode.coding.find(
-      (coding: FhirCoding) =>
-        FhirCoding.asYup().validateSync(coding).system ===
-        config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+    const validatedCoding = yup
+      .array()
+      .of(FhirCoding.SCHEMA())
+      .required()
+      .validateSync(validatedCode.coding);
+
+    const validatedCodings = validatedCoding.map((coding: FhirCoding) =>
+      FhirCoding.asYup().validateSync(coding),
+    );
+
+    const labTestCode = validatedCodings.find(
+      coding => coding.system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
     )?.code;
 
-    const labTestExternalCode = validatedCode.coding.find(
-      (coding: FhirCoding) =>
-        FhirCoding.asYup().validateSync(coding).system ===
-        config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem,
+    const labTestExternalCode = validatedCodings.find(
+      coding =>
+        coding.system === config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem,
     )?.code;
 
     if (!labTestCode && !labTestExternalCode) {
