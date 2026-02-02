@@ -8,7 +8,7 @@ import { NoteModalActionBlocker } from '../../../components';
 import { InvoiceItemActionModal } from './InvoiceItemActionModal';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 
-const useInvoiceItemActionsMenu = ({ item, index, hidePriceInput, onUpdateInvoice }) => {
+const useInvoiceItemActionsMenu = ({ item, index, hidePriceInput, onUpdateInvoice, isFinalised }) => {
   const [actionModal, setActionModal] = useState();
   const { values } = useFormikContext();
 
@@ -101,7 +101,7 @@ const useInvoiceItemActionsMenu = ({ item, index, hidePriceInput, onUpdateInvoic
           />
         ),
       onClick: () => handleAction({}, INVOICE_ITEM_ACTION_MODAL_TYPES.REMOVE_DISCOUNT_MARKUP),
-      hidden: !item.discount?.amount,
+      hidden: !item.discount?.amount || isFinalised,
     },
     {
       label: (
@@ -113,7 +113,7 @@ const useInvoiceItemActionsMenu = ({ item, index, hidePriceInput, onUpdateInvoic
       ),
       onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_DISCOUNT),
       disabled: !item.productId,
-      hidden: !!item.discount?.amount || !hidePriceInput,
+      hidden: !!item.discount?.amount || !hidePriceInput || isFinalised,
     },
     {
       label: (
@@ -125,7 +125,7 @@ const useInvoiceItemActionsMenu = ({ item, index, hidePriceInput, onUpdateInvoic
       ),
       onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_MARKUP),
       disabled: !item.productId,
-      hidden: !!item.discount?.amount || !hidePriceInput,
+      hidden: !!item.discount?.amount || !hidePriceInput || isFinalised,
     },
     {
       label: item.note ? (
@@ -143,7 +143,7 @@ const useInvoiceItemActionsMenu = ({ item, index, hidePriceInput, onUpdateInvoic
       ),
       onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_NOTE),
       disabled: !item.productId,
-      hidden: !!item.sourceId,
+      hidden: !!item.sourceId || isFinalised,
     },
     ...item.approved ? [{
       label: (
@@ -176,6 +176,7 @@ const useInvoiceItemActionsMenu = ({ item, index, hidePriceInput, onUpdateInvoic
         />
       ),
       onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.DELETE),
+      hidden: isFinalised,
     },
   ];
 
@@ -200,12 +201,14 @@ export const InvoiceItemActionsMenu = ({
   showActionMenu,
   hidePriceInput,
   onUpdateInvoice,
+  isFinalised,
 }) => {
   const { actionModal, onCloseActionModal, handleAction, menuItems } = useInvoiceItemActionsMenu({
     item,
     onUpdateInvoice,
     index,
     hidePriceInput,
+    isFinalised,
   });
   return (
     <>

@@ -123,6 +123,7 @@ export const InvoiceItemRow = ({
   priceListId,
   isEditing,
   onUpdateInvoice,
+  isFinalised,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const isSaved = item.product?.id;
@@ -223,9 +224,10 @@ export const InvoiceItemRow = ({
       <InvoiceItemActionsMenu
         index={index}
         item={item}
-        showActionMenu={isSaved && invoiceIsEditable}
+        showActionMenu
         hidePriceInput={hidePriceInput}
         onUpdateInvoice={onUpdateInvoice}
+        isFinalised={isFinalised}
       />
     </StyledItemRow>
   );

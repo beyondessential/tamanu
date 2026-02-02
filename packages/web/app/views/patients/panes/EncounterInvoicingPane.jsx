@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Typography, Box } from '@material-ui/core';
-import { Button, OutlinedButton } from '@tamanu/ui-components';
-import { Colors } from '../../../constants/styles';
-import { INVOICE_STATUSES } from '@tamanu/constants';
 import PrintIcon from '@material-ui/icons/Print';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import CircularProgress from '@material-ui/core/CircularProgress';
+
+import { INVOICE_STATUSES } from '@tamanu/constants';
+import { Button, OutlinedButton } from '@tamanu/ui-components';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
+
+import { Colors } from '../../../constants/styles';
 import {
   InvoiceModalGroup,
   InvoiceStatus,
@@ -94,7 +96,7 @@ const PaymentsSection = styled.div`
   }
 `;
 
-const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEditing }) => {
+const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEditing, isFinalised }) => {
   const { ability } = useAuth();
   const canCreateInvoice = ability.can('create', 'Invoice');
   const canWriteInvoice = ability.can('write', 'Invoice');
@@ -104,10 +106,6 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEd
   const { mutate: updateInvoice } = useUpdateInvoice(invoice);
   const finalisable =
     invoice && isInvoiceEditable(invoice) && canCreateInvoice && encounter.endDate;
-
-  if (!cancelable && !deletable && !finalisable) {
-    return null;
-  }
 
   const allItemsAreApproved = invoice.items.every(item => item.approved);
 
@@ -176,6 +174,7 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEd
         />
       ),
       onClick: () => setEditing(true),
+      hidden: !isInvoiceEditable(invoice),
     });
   }
   return (
@@ -183,14 +182,24 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEd
       <NoteModalActionBlocker>
         <ThreeDotMenu items={ACTIONS} data-testid="threedotmenu-5t9u" />
       </NoteModalActionBlocker>
-      <NoteModalActionBlocker>
-        <Button
-          onClick={() => setInvoiceModalType(INVOICE_MODAL_TYPES.INSURANCE)}
-          data-testid="button-insurance-2zyp"
+      {isFinalised && (
+        <PrintButton
+          onClick={() => setInvoiceModalType(INVOICE_MODAL_TYPES.PRINT)}
+          startIcon={<PrintIcon />}
         >
-          <TranslatedText stringId="invoice.action.insurance" fallback="Insurance plan" />
-        </Button>
-      </NoteModalActionBlocker>
+          <TranslatedText stringId="general.action.print" fallback="Print" />
+        </PrintButton>
+      )}
+      {!isFinalised && (
+        <NoteModalActionBlocker>
+          <Button
+            onClick={() => setInvoiceModalType(INVOICE_MODAL_TYPES.INSURANCE)}
+            data-testid="button-insurance-2zyp"
+          >
+            <TranslatedText stringId="invoice.action.insurance" fallback="Insurance plan" />
+          </Button>
+        </NoteModalActionBlocker>
+      )}
       {finalisable && (
         <NoteModalActionBlocker>
           <OutlinedButton
@@ -252,6 +261,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
   }
 
   const isInProgress = invoice.status === INVOICE_STATUSES.IN_PROGRESS;
+  const isFinalised = invoice.status === INVOICE_STATUSES.FINALISED;
 
   return (
     <>
@@ -276,15 +286,8 @@ export const EncounterInvoicingPane = ({ encounter }) => {
               setInvoiceModalType={setInvoiceModalType}
               setEditing={setEditing}
               isEditing={isEditing}
+              isFinalised={isFinalised}
             />
-            {!isInProgress && (
-              <PrintButton
-                onClick={() => setInvoiceModalType(INVOICE_MODAL_TYPES.PRINT)}
-                startIcon={<PrintIcon />}
-              >
-                <TranslatedText stringId="general.action.print" fallback="Print" />
-              </PrintButton>
-            )}
           </InvoiceTopBar>
           <InvoiceForm
             invoice={invoice}

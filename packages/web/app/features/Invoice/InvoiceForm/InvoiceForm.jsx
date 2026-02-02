@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { Plus } from 'lucide-react';
+import { FieldArray } from 'formik';
 import { Box, Button as MuiButton } from '@material-ui/core';
+
 import { Form, TranslatedText, FormSubmitButton, FormCancelButton } from '@tamanu/ui-components';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
-import { Colors } from '../../../constants/styles';
-import { FieldArray } from 'formik';
+import { INVOICE_STATUSES } from '@tamanu/constants';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
+
+import { Colors } from '../../../constants/styles';
 import { InvoiceItemRow } from './InvoiceItem';
 import { InvoiceItemHeader } from './InvoiceItemHeader';
 import { useUpdateInvoice } from '../../../api/mutations/useInvoiceMutation';
@@ -82,6 +85,7 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
   const [inProgressItems, setInProgressItems] = useState([]);
   const canWriteInvoice = ability.can('write', 'Invoice');
   const editable = isInvoiceEditable(invoice) && canWriteInvoice;
+  const isFinalised = invoice.status === INVOICE_STATUSES.FINALISED;
   const { mutate: updateInvoice, isLoading: isUpdatingInvoice } = useUpdateInvoice(invoice);
 
   // Main submit action for the invoice
@@ -155,6 +159,7 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
                           invoiceIsEditable={editable && canWriteInvoice}
                           isEditing={isEditing}
                           onUpdateInvoice={handleUpdateItem}
+                          isFinalised={isFinalised}
                         />
                       );
                     })}
