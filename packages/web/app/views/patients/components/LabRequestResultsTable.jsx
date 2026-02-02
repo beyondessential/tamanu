@@ -62,7 +62,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
             />
           );
         }
-        return result || '-';
+        return result || '–';
       },
       sortable: false,
     },
