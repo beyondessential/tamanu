@@ -22,7 +22,7 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
 
 export const LabRequestResultsTable = React.memo(({ labRequest, patient, refreshCount }) => {
   const { getTranslation } = useTranslation();
-  const columns =  useMemo(() => [
+  const columns = useMemo(() => [
     {
       title: (
         <TranslatedText
@@ -62,7 +62,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
             />
           );
         }
-        return result ?? '–';
+        return result || '-';
       },
       sortable: false,
     },
