@@ -189,6 +189,10 @@ export class Encounter extends Model {
       },
       'referralSource',
       'diets',
+      {
+        association: 'triages',
+        include: ['chiefComplaint', 'secondaryComplaint'],
+      },
     ];
   }
 
