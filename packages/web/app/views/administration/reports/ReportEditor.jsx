@@ -455,24 +455,14 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
             />,
           ),
         advancedConfig: yup
-          .mixed()
+          .object()
           .nullable()
-          .test(
-            'is-valid-json',
-            getTranslation('admin.report.validation.rule.invalidJson', 'Invalid JSON format'),
-            value => {
-              if (!value || value === null || value === '') return true;
-              if (typeof value === 'object') return true;
-              if (typeof value === 'string') {
-                try {
-                  JSON.parse(value);
-                  return true;
-                } catch {
-                  return false;
-                }
-              }
-              return false;
-            },
+          .translatedLabel(
+            <TranslatedText
+              stringId="admin.report.validation.rule.invalidJson"
+              fallback="Invalid JSON format"
+              data-testid="translatedtext-invalid-json"
+            />,
           ),
       })}
       formType={isEdit ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
