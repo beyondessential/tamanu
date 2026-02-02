@@ -27,7 +27,7 @@ import { useEncounterInvoiceQuery } from '../../../api/queries/useInvoiceQuery';
 import { useAuth } from '../../../contexts/Auth';
 import { NoteModalActionBlocker } from '../../../components';
 import { usePatientDataQuery } from '../../../api/queries';
-import { useCreateInvoice, useUpdateInvoice } from '../../../api/mutations/useInvoiceMutation.js';
+import { useCreateInvoice, useBulkUpdateInvoiceItemApproval } from '../../../api/mutations/useInvoiceMutation.js';
 
 const EmptyPane = styled(ContentPane)`
   text-align: center;
@@ -103,15 +103,14 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEd
   const canDeleteInvoice = ability.can('delete', 'Invoice');
   const cancelable = invoice && isInvoiceEditable(invoice) && canWriteInvoice;
   const deletable = invoice && invoice.status !== INVOICE_STATUSES.FINALISED && canDeleteInvoice;
-  const { mutate: updateInvoice } = useUpdateInvoice(invoice);
+  const { mutate: bulkUpdateApproval } = useBulkUpdateInvoiceItemApproval(invoice);
   const finalisable =
     invoice && isInvoiceEditable(invoice) && canCreateInvoice && encounter.endDate;
 
   const allItemsAreApproved = invoice.items.every(item => item.approved);
 
   const handleAllApprovals = approved => {
-    const updatedInvoiceItems = [...invoice.items].map(item => ({ ...item, approved }));
-    updateInvoice({ ...invoice, items: updatedInvoiceItems });
+    bulkUpdateApproval({ approved });
   };
 
   const ACTIONS = [

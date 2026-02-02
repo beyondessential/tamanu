@@ -8,7 +8,14 @@ import { NoteModalActionBlocker } from '../../../components';
 import { InvoiceItemActionModal } from './InvoiceItemActionModal';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 
-const useInvoiceItemActionsMenu = ({ item, index, hidePriceInput, onUpdateInvoice, isFinalised }) => {
+const useInvoiceItemActionsMenu = ({
+  item,
+  index,
+  hidePriceInput,
+  onUpdateInvoice,
+  onUpdateApproval,
+  isFinalised,
+}) => {
   const [actionModal, setActionModal] = useState();
   const { values } = useFormikContext();
 
@@ -16,14 +23,9 @@ const useInvoiceItemActionsMenu = ({ item, index, hidePriceInput, onUpdateInvoic
     setActionModal(undefined);
   };
 
-  const handleApproval = (approved) => {
-    const updatedInvoiceItems = [...values.invoiceItems];
-    updatedInvoiceItems[index] = {
-      ...item,
-      approved,
-    };
-
-    onUpdateInvoice({ ...values, invoiceItems: updatedInvoiceItems });
+  const handleApproval = approved => {
+    // Use dedicated approval endpoint if available (works for both in-progress and finalised invoices)
+    onUpdateApproval({ itemId: item.id, approved });
   };
 
   const handleAction = async (data, type = actionModal) => {
@@ -145,28 +147,31 @@ const useInvoiceItemActionsMenu = ({ item, index, hidePriceInput, onUpdateInvoic
       disabled: !item.productId,
       hidden: !!item.sourceId || isFinalised,
     },
-    ...item.approved ? [{
-      label: (
-        <TranslatedText
-          stringId="invoice.editInvoice.removeApproval"
-          fallback="Remove approval"
-          data-testid="translatedtext-y43b"
-        />
-      ),
-      onClick: () => handleApproval(false),
-    }
-    ] : [
-      {
-        label: (
-          <TranslatedText
-            stringId="invoice.editInvoice.markAsApproved"
-            fallback="Mark as approved"
-            data-testid="translatedtext-c3a4"
-          />
-        ),
-        onClick: () => handleApproval(true),
-      },
-    ],
+    ...(item.approved
+      ? [
+          {
+            label: (
+              <TranslatedText
+                stringId="invoice.editInvoice.removeApproval"
+                fallback="Remove approval"
+                data-testid="translatedtext-y43b"
+              />
+            ),
+            onClick: () => handleApproval(false),
+          },
+        ]
+      : [
+          {
+            label: (
+              <TranslatedText
+                stringId="invoice.editInvoice.markAsApproved"
+                fallback="Mark as approved"
+                data-testid="translatedtext-c3a4"
+              />
+            ),
+            onClick: () => handleApproval(true),
+          },
+        ]),
     {
       label: (
         <TranslatedText
@@ -201,11 +206,13 @@ export const InvoiceItemActionsMenu = ({
   showActionMenu,
   hidePriceInput,
   onUpdateInvoice,
+  onUpdateApproval,
   isFinalised,
 }) => {
   const { actionModal, onCloseActionModal, handleAction, menuItems } = useInvoiceItemActionsMenu({
     item,
     onUpdateInvoice,
+    onUpdateApproval,
     index,
     hidePriceInput,
     isFinalised,

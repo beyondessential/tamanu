@@ -221,6 +221,10 @@ const updateInvoiceSchema = z
   })
   .strip();
 
+/**
+ * Update invoice
+ * - Only in progress invoices can be updated
+ */
 invoiceRoute.put(
   '/:id/',
   asyncHandler(async (req, res) => {
@@ -230,6 +234,12 @@ invoiceRoute.put(
 
     const foundInvoice = await req.models.Invoice.findByPk(invoiceId);
     if (!foundInvoice) throw new NotFoundError(`Unable to find invoice ${invoiceId}`);
+
+    // Only in-progress invoices can be updated via this endpoint
+    // For approval changes on finalised invoices, use PUT /:id/items/:itemId/approval
+    if (foundInvoice.status !== INVOICE_STATUSES.IN_PROGRESS) {
+      throw new InvalidOperationError('Only in progress invoices can be updated.');
+    }
 
     const { data, error } = await updateInvoiceSchema.safeParseAsync(req.body);
     if (error) throw new ValidationError(error.message);
@@ -420,6 +430,100 @@ invoiceRoute.put(
     }
 
     res.json(invoice);
+  }),
+);
+
+/**
+ * Update invoice item approval status
+ * - Can be used on both in-progress and finalised invoices
+ */
+invoiceRoute.put(
+  '/:id/items/:itemId/approval',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'Invoice');
+
+    const { id: invoiceId, itemId } = req.params;
+    const { approved } = req.body;
+
+    if (typeof approved !== 'boolean') {
+      throw new ValidationError('approved must be a boolean');
+    }
+
+    const invoice = await req.models.Invoice.findByPk(invoiceId, {
+      attributes: ['id', 'status'],
+    });
+
+    if (!invoice) {
+      throw new NotFoundError('Invoice not found');
+    }
+
+    // Allow approval changes on both IN_PROGRESS and FINALISED invoices
+    if (
+      invoice.status !== INVOICE_STATUSES.IN_PROGRESS &&
+      invoice.status !== INVOICE_STATUSES.FINALISED
+    ) {
+      throw new InvalidOperationError(
+        'Approval can only be changed on in-progress or finalised invoices',
+      );
+    }
+
+    const invoiceItem = await req.models.InvoiceItem.findOne({
+      where: { id: itemId, invoiceId },
+    });
+
+    if (!invoiceItem) {
+      throw new NotFoundError('Invoice item not found');
+    }
+
+    invoiceItem.approved = approved;
+    await invoiceItem.save();
+
+    res.json({ id: invoiceItem.id, approved: invoiceItem.approved });
+  }),
+);
+
+/**
+ * Bulk update invoice item approval status
+ * - Can be used on both in-progress and finalised invoices
+ */
+invoiceRoute.put(
+  '/:id/items/approval',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'Invoice');
+
+    const { id: invoiceId } = req.params;
+    const { approved } = req.body;
+
+    if (typeof approved !== 'boolean') {
+      throw new ValidationError('approved must be a boolean');
+    }
+
+    const invoice = await req.models.Invoice.findByPk(invoiceId, {
+      attributes: ['id', 'status'],
+    });
+
+    if (!invoice) {
+      throw new NotFoundError('Invoice not found');
+    }
+
+    // Allow approval changes on both IN_PROGRESS and FINALISED invoices
+    if (
+      invoice.status !== INVOICE_STATUSES.IN_PROGRESS &&
+      invoice.status !== INVOICE_STATUSES.FINALISED
+    ) {
+      throw new InvalidOperationError(
+        'Approval can only be changed on in-progress or finalised invoices',
+      );
+    }
+
+    await req.models.InvoiceItem.update({ approved }, { where: { invoiceId } });
+
+    const updatedItems = await req.models.InvoiceItem.findAll({
+      where: { invoiceId },
+      attributes: ['id', 'approved'],
+    });
+
+    res.json(updatedItems);
   }),
 );
 
