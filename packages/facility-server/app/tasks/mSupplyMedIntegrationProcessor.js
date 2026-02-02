@@ -31,7 +31,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
 
   async postRequest(
     { bodyJson },
-    { minMedicationCreatedAt, maxMedicationCreatedAt, serverFacilityId },
+    { minMedicationCreatedAt, maxMedicationCreatedAt, maxMedicationId, serverFacilityId },
   ) {
     const { host, backoff } =
       await this.context.settings[serverFacilityId].get('integrations.mSupplyMed');
@@ -58,6 +58,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
         await this.createLog({
           minMedicationCreatedAt,
           maxMedicationCreatedAt,
+          maxMedicationId,
           status: 'success',
           message,
         });
@@ -68,11 +69,48 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
       await this.createLog({
         minMedicationCreatedAt,
         maxMedicationCreatedAt,
+        maxMedicationId,
         status: 'failed',
         message: error.message,
       });
       throw error;
     }
+  }
+
+  async getBaseQuery() {
+    const lastSuccessfulPush = await this.models.MSupplyPushLog.findOne({
+      where: {
+        status: 'success',
+      },
+      order: [['createdAt', 'DESC']],
+    });
+
+    // Process everything if there is no successful push
+    if (!lastSuccessfulPush) {
+      return {};
+    }
+
+    const { maxMedicationCreatedAt, maxMedicationId } = lastSuccessfulPush;
+
+    return {
+      where: {
+        [Op.or]: [
+          // Case 1: Newer timestamps
+          {
+            createdAt: {
+              [Op.gt]: maxMedicationCreatedAt,
+            },
+          },
+          // Case 2: Exact same timestamp, newer ID
+          {
+            createdAt: maxMedicationCreatedAt,
+            id: {
+              [Op.gt]: maxMedicationId,
+            },
+          },
+        ],
+      },
+    };
   }
 
   async run() {
@@ -100,22 +138,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
       );
     }
 
-    const lastSuccessfulPush = await this.models.MSupplyPushLog.findOne({
-      where: {
-        status: 'success',
-      },
-      order: [['createdAt', 'DESC']],
-    });
-    const lastSuccessfulPushTimestamp = lastSuccessfulPush?.maxMedicationCreatedAt ?? new Date(0);
-
-    const baseQuery = {
-      where: {
-        createdAt: {
-          [Op.gt]: lastSuccessfulPushTimestamp,
-        },
-      },
-    };
-
+    const baseQuery = await this.getBaseQuery();
     const toProcess = await this.models.MedicationDispense.count(baseQuery);
     if (toProcess === 0) return;
 
@@ -129,8 +152,14 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
         offset: i * batchSize,
       });
 
+      // Ensure we have at least one dispensed medication to process,
+      // even though we already counted them, this could happen if they
+      // were deleted between batch count and query.
+      if (medications.length === 0) break;
+
       const minMedicationCreatedAt = medications[0].createdAt;
       const maxMedicationCreatedAt = medications[medications.length - 1].createdAt;
+      const maxMedicationId = medications[medications.length - 1].id;
 
       log.info(`Sending ${medications.length} dispensed medications to mSupply`, {
         minMedicationCreatedAt,
@@ -156,6 +185,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
           {
             minMedicationCreatedAt,
             maxMedicationCreatedAt,
+            maxMedicationId,
             serverFacilityId: this.serverFacilityIds[0],
           },
         );

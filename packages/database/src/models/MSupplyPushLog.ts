@@ -9,6 +9,9 @@ export class MSupplyPushLog extends Model {
   declare id: string;
   declare status: string;
   declare message?: string;
+  declare minMedicationCreatedAt: Date;
+  declare maxMedicationCreatedAt: Date;
+  declare maxMedicationId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -28,6 +31,10 @@ export class MSupplyPushLog extends Model {
         },
         maxMedicationCreatedAt: {
           type: DataTypes.DATE,
+          allowNull: false,
+        },
+        maxMedicationId: {
+          type: DataTypes.TEXT,
           allowNull: false,
         },
       },

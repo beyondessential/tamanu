@@ -38,6 +38,10 @@ export async function up(query: QueryInterface) {
       type: DataTypes.DATE,
       allowNull: false,
     },
+    max_medication_id: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
   });
 }
 
