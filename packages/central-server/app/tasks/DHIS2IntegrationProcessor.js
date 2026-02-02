@@ -12,13 +12,10 @@ const convertToDHIS2DataValueSets = (reportData, dataSet) => {
   // Convert 2D array report data to JSON format
   const reportJSON = utils.sheet_to_json(utils.aoa_to_sheet(reportData));
 
-  // Create a grouping key that combines period, orgunit, and attributeoptioncombo.
-  // Use JSON serialization so values containing underscores cannot produce identical keys
-  // for different combinations (e.g. 'OU_A' + 'B' vs 'OU' + 'A_B').
+  // Group rows by their composite key (period + orgunit + attributeoptioncombo)
   const createGroupingKey = ({ period = '', orgunit = '', attributeoptioncombo = '' }) =>
     JSON.stringify([period, orgunit, attributeoptioncombo]);
 
-  // Group rows by their composite key (period + orgunit + attributeoptioncombo)
   const groupedRows = Object.values(groupBy(reportJSON, createGroupingKey));
 
   // Transform each group of rows into a DHIS2 data value set object
