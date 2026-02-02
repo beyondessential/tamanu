@@ -5,6 +5,7 @@ import {
   LAB_REQUEST_STATUSES,
   FHIR_REQUEST_PRIORITY,
 } from '@tamanu/constants';
+import { v4 as uuidv4 } from 'uuid';
 
 export const fakeResourcesOfFhirServiceRequest = async models => {
   const {
@@ -139,6 +140,14 @@ export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (
 
     labRequestData = await randomLabRequest(models, requestValues);
     labRequest = await LabRequest.create(labRequestData);
+    await Promise.all(
+      testTypes.map(testType =>
+        LabTest.create({
+          labRequestId: labRequest.id,
+          labTestTypeId: testType.id,
+        }),
+      ),
+    );
 
     return {
       category,
@@ -178,6 +187,7 @@ export const fakeTestTypes = async function (numberOfTests, LabTestType, categor
     const currentLabTest = await LabTestType.create({
       ...fake(LabTestType),
       labTestCategoryId: categoryId,
+      externalCode: uuidv4(),
     });
     testTypes.push(currentLabTest);
   }

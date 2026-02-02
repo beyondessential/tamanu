@@ -1,10 +1,11 @@
-/* eslint-disable no-unused-expressions */
+import config from 'config';
 
 import { fake, fakeReferenceData } from '@tamanu/fake-data/fake';
 
 import { createTestContext } from '../../utilities';
 import {
   FHIR_DIAGNOSTIC_REPORT_STATUS,
+  FHIR_OBSERVATION_STATUS,
   IMAGING_REQUEST_STATUS_TYPES,
   LAB_REQUEST_STATUSES,
 } from '@tamanu/constants';
@@ -102,34 +103,24 @@ describe(`FHIR API - Transaction Bundle`, () => {
       await LabTestPanelRequest.destroy({ where: {} });
     });
 
-    it('Can multiple resources in a transaction bundle', async () => {
+    it('Can process multiple resources in a transaction bundle', async () => {
       // arrange
-      const { FhirServiceRequest, ImagingRequest, ImagingResult } = ctx.store.models;
-      const ir = await ImagingRequest.create(
-        fake(ImagingRequest, {
-          requestedById: resources.practitioner.id,
-          encounterId: resources.encounter.id,
-          locationId: resources.location.id,
-          status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
-          priority: 'routine',
-          requestedDate: '2022-03-04 15:30:00',
-        }),
-      );
-      await ir.setAreas([resources.area1.id, resources.area2.id]);
-      await ir.reload();
-      const irMat = await FhirServiceRequest.materialiseFromUpstream(ir.id);
+      const { FhirServiceRequest, LabTest, LabTestType } = ctx.store.models;
+
       await FhirServiceRequest.resolveUpstreams();
       const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
         ctx.store.models,
         resources,
-        {
-          isWithPanels: true,
-        },
+        false,
         {
           status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
         },
       );
       const labMat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const labTests = await LabTest.findAll({
+        include: [{ model: LabTestType, as: 'labTestType' }],
+        where: { labRequestId: labRequest.id },
+      });
       await FhirServiceRequest.resolveUpstreams();
 
       // act
@@ -137,29 +128,6 @@ describe(`FHIR API - Transaction Bundle`, () => {
         resourceType: 'Bundle',
         type: 'transaction',
         entry: [
-          {
-            resource: {
-              resourceType: 'ImagingStudy',
-              status: 'final',
-              identifier: [
-                {
-                  system: 'http://data-dictionary.tamanu-fiji.org/ris-accession-number.html',
-                  value: 'ACCESSION',
-                },
-              ],
-              basedOn: [
-                {
-                  type: 'ServiceRequest',
-                  reference: `ServiceRequest/${irMat.id}`,
-                },
-              ],
-              note: [{ text: 'This is an okay note' }, { text: 'This is another note' }],
-            },
-            request: {
-              method: 'POST',
-              url: `/api/integration/fhir/mat/ImagingStudy`,
-            },
-          },
           {
             resource: {
               resourceType: 'DiagnosticReport',
@@ -195,6 +163,37 @@ describe(`FHIR API - Transaction Bundle`, () => {
               url: `/api/integration/fhir/mat/DiagnosticReport`,
             },
           },
+          ...labTests.map((labTest, index) => ({
+            resource: {
+              resourceType: 'Observation',
+              basedOn: [
+                {
+                  type: 'ServiceRequest',
+                  reference: `ServiceRequest/${labMat.id}`,
+                },
+              ],
+              status: FHIR_OBSERVATION_STATUS.FINAL,
+              code: {
+                coding: [
+                  {
+                    system: config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+                    code: labTest.labTestType.code,
+                  },
+                  {
+                    system: config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem,
+                    code: labTest.labTestType.externalCode,
+                  },
+                ],
+              },
+              value: {
+                valueString: `Result ${index}`,
+              },
+            },
+            request: {
+              method: 'POST',
+              url: `/api/integration/fhir/mat/Observation`,
+            },
+          })),
         ],
       };
       const response = await app.post(PATH).send(body);
@@ -205,14 +204,13 @@ describe(`FHIR API - Transaction Bundle`, () => {
       expect(response.body.resourceType).toBe('Bundle');
       expect(response.body.type).toBe('transaction-response');
       expect(response.body.response.status).toBe('201');
-      const ires = await ImagingResult.findOne({
-        where: { externalCode: 'ACCESSION' },
-      });
-      expect(ires).toBeTruthy();
-      expect(ires.description).toEqual('This is an okay note\n\nThis is another note');
 
       await labRequest.reload();
+      await Promise.all(labTests.map(labTest => labTest.reload()));
       expect(labRequest.status).toBe(LAB_REQUEST_STATUSES.VERIFIED);
+      labTests.forEach((labTest, index) => {
+        expect(labTest.result).toBe(`Result ${index}`);
+      });
     });
   });
 
