@@ -11,9 +11,14 @@ import {
 } from '@tamanu/constants';
 
 import { useAppointmentMutation } from '../../../api/mutations';
-import { formatDateTimeRange, formatShort } from '../../../utils/dateTime';
 import { PatientNameDisplay } from '../../PatientNameDisplay';
-import { TranslatedReferenceData, TranslatedText, BaseModal } from '@tamanu/ui-components';
+import {
+  TranslatedReferenceData,
+  TranslatedText,
+  BaseModal,
+  useDateTimeFormat,
+  DateTimeRangeDisplay,
+} from '@tamanu/ui-components';
 import {
   AppointmentDetailsColumn,
   AppointmentDetailsColumnLeft,
@@ -33,6 +38,7 @@ const StyledBodyText = styled(BodyText)`
 `;
 
 const AppointmentDetailsDisplay = ({ appointment }) => {
+  const { formatShort } = useDateTimeFormat();
   const {
     patient,
     startTime,
@@ -65,7 +71,13 @@ const AppointmentDetailsDisplay = ({ appointment }) => {
               data-testid="translatedtext-oej8"
             />
           }
-          value={formatDateTimeRange(startTime, endTime)}
+          value={
+            <DateTimeRangeDisplay
+              start={startTime}
+              end={endTime}
+              dateFormat="shortest"
+            />
+          }
           data-testid="detaildisplay-l5s4"
         />
         <DetailDisplay

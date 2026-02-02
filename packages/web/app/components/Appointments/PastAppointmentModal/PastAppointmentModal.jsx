@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { getCurrentDateTimeString, formatShortest, formatTime } from '@tamanu/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { DateDisplay, TimeDisplay } from '@tamanu/ui-components';
 
 import { useOutpatientAppointmentsQuery } from '../../../api/queries';
 import { Colors } from '../../../constants';
@@ -109,7 +110,7 @@ const StatusBadge = styled.div`
 
 const getDate = ({ startTime }) => (
   <LowercaseText data-testid="lowercasetext-gcnv">
-    {`${formatShortest(startTime)} ${formatTime(startTime).replace(' ', '')}`}
+    <DateDisplay date={startTime} format="shortest" /> <TimeDisplay date={startTime} noTooltip />
   </LowercaseText>
 );
 

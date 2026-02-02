@@ -69,12 +69,6 @@ export const getTranslatedFrequencySynonym = (synonyms, index, getTranslation) =
   return getTranslation(`medication.frequency.${camelCase(frequency)}.synonym.${index}`, frequency);
 };
 
-export const formatTimeSlot = time => {
-  return formatTime(time)
-    .replaceAll(' ', '')
-    .toLowerCase();
-};
-
 export const isWithinTimeSlot = (timeSlot, time, isFuture = false) => {
   if (!time || !timeSlot || isFuture) return true; // Skip validation if no value or timeSlot or isFuture
 

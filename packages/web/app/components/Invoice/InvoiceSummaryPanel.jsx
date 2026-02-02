@@ -15,7 +15,7 @@ import {
   getInsurerDiscountAmountDisplayList,
   getInvoiceSummaryDisplay,
 } from '@tamanu/shared/utils/invoice';
-import { getDateDisplay } from '../DateDisplay';
+import { DateDisplay } from '@tamanu/ui-components';
 import { useSettings } from '../../contexts/Settings';
 import { AutocompleteField, Field, NumberField } from '../Field';
 import { useSuggester } from '../../api';
@@ -363,9 +363,7 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
                   <span>{invoice.discount?.reason}</span>
                   {invoice.discount?.reason && '\n'}
                   <span>
-                    {`${invoice.discount?.appliedByUser?.displayName}, ${getDateDisplay(
-                      invoice.discount?.appliedTime,
-                    )}`}
+                    {invoice.discount?.appliedByUser?.displayName}, <DateDisplay date={invoice.discount?.appliedTime} />
                   </span>
                 </Box>
               }

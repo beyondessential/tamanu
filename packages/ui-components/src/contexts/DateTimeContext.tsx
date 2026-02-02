@@ -15,11 +15,12 @@ import {
   formatWeekdayNarrow,
   formatShortExplicit,
   formatShortestExplicit,
+  formatDayMonth,
   formatDateTimeLocal,
 } from '@tamanu/utils/dateTime';
 import { useAuth } from './AuthContext';
 
-const formatters = {
+const utils = {
   formatShortest,
   formatShort,
   formatTime,
@@ -33,6 +34,7 @@ const formatters = {
   formatWeekdayNarrow,
   formatShortExplicit,
   formatShortestExplicit,
+  formatDayMonth,
   formatDateTimeLocal,
 };
 
@@ -44,11 +46,13 @@ type RawFormatter = (
   facilityTimeZone?: string | null,
 ) => string | null;
 
-type WrappedFormatters = {
-  [K in keyof typeof formatters]: (date?: DateInput) => string | null;
+type WrappedFormatter = (date?: DateInput) => string | null;
+
+type WrappedUtils = {
+  [K in keyof typeof utils]: WrappedFormatter;
 };
 
-export interface DateTimeContextValue extends WrappedFormatters {
+export interface DateTimeContextValue extends WrappedUtils {
   countryTimeZone: string;
   facilityTimeZone?: string | null;
 }
@@ -83,9 +87,9 @@ export const DateTimeProvider = ({
     ? facilityTimeZoneProp
     : (getSetting('facilityTimeZone') as string | undefined);
 
-  const wrapFormatter = useCallback(
+  const wrapFunction = useCallback(
     (fn: RawFormatter) =>
-      (date?: DateInput): string | null =>
+      (date?: DateInput): string | Date | null =>
         fn(date, countryTimeZone, facilityTimeZone),
     [countryTimeZone, facilityTimeZone],
   );
@@ -94,14 +98,10 @@ export const DateTimeProvider = ({
     (): DateTimeContextValue => ({
       countryTimeZone,
       facilityTimeZone,
-      ...(mapValues(formatters, wrapFormatter) as WrappedFormatters),
+      ...(mapValues(utils, wrapFunction) as WrappedUtils),
     }),
-    [countryTimeZone, facilityTimeZone, wrapFormatter],
+    [countryTimeZone, facilityTimeZone, wrapFunction],
   );
-
-  if (!countryTimeZone) {
-    return null;
-  }
 
   return React.createElement(DateTimeProviderContext.Provider, { value }, children);
 };

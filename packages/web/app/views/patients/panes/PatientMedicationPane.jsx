@@ -7,10 +7,10 @@ import {
   TranslatedText,
   TranslatedReferenceData,
   TranslatedEnum,
+  DateDisplay
 } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { PATIENT_STATUS_COLORS } from '../../../constants';
-import { DateDisplay, formatShortest } from '../../../components/DateDisplay';
 import { DataFetchingTable } from '../../../components/Table';
 
 import { usePatientCurrentEncounterQuery, useFacilityQuery } from '../../../api/queries';
@@ -252,7 +252,7 @@ const ONGOING_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
     key: 'date',
     title: <TranslatedText stringId="patient.medication.table.column.date" fallback="Date" />,
     accessor: data => (
-      <CellText discontinued={data?.discontinued}>{`${formatShortest(data.date)}`}</CellText>
+      <CellText discontinued={data?.discontinued}><DateDisplay date={data.date} format="shortest" /></CellText>
     ),
     sortable: true,
   },

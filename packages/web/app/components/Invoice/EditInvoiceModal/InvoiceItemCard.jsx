@@ -7,7 +7,7 @@ import {
 } from '@tamanu/shared/utils/invoice';
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../../Translation/TranslatedText';
-import { getDateDisplay } from '../../DateDisplay';
+import { DateDisplay } from '@tamanu/ui-components';
 
 const Card = styled(Box)`
   background: white;
@@ -75,7 +75,7 @@ export const InvoiceItemCard = ({ item }) => {
               data-testid="translatedtext-dz71"
             />
           }
-          value={item?.orderDate ? getDateDisplay(item?.orderDate, 'dd/MM/yyyy') : ''}
+          value={item?.orderDate ? <DateDisplay date={item?.orderDate} /> : ''}
           data-testid="carditem-v4wj"
         />
         <CardItem

@@ -1,10 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import { REPORT_STATUSES } from '@tamanu/constants';
-import { TranslatedText } from '@tamanu/ui-components';
+import { TranslatedText, useDateTimeFormat } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
-import { formatTime } from '@tamanu/utils/dateTime';
-import { DateDisplay } from '../../../components';
 import { Table } from '../../../components/Table';
 import { StatusTag } from '../../../components/Tag';
 import { useTableSorting } from '../../../components/Table/useTableSorting';
@@ -47,15 +45,8 @@ const ReportStatusTag = ({ status }) => {
   );
 };
 
-const getDateTime = (value) => {
-  if (!value) return '-';
-
-  const date = DateDisplay.stringFormat(value);
-  const time = DateDisplay.stringFormat(value, formatTime);
-  return `${date} ${time}`;
-};
-
 export const ReportTable = React.memo(({ data, selected, onRowClick, loading, error }) => {
+  const { formatShort, formatTime } = useDateTimeFormat();
   const { orderBy, order, onChangeOrderBy, customSort } = useTableSorting({
     initialSortKey: 'name',
     initialSortDirection: 'asc',
@@ -87,7 +78,7 @@ export const ReportTable = React.memo(({ data, selected, onRowClick, loading, er
             />
           ),
           key: 'lastUpdated',
-          accessor: ({ lastUpdated }) => getDateTime(lastUpdated),
+          accessor: ({ lastUpdated }) => `${formatShort(lastUpdated)} ${formatTime(lastUpdated)}`,
         },
         {
           title: (
@@ -116,6 +107,7 @@ export const ReportTable = React.memo(({ data, selected, onRowClick, loading, er
 });
 
 export const VersionTable = React.memo(({ data, onRowClick, loading, error }) => {
+  const { formatShort, formatTime } = useDateTimeFormat();
   const { orderBy, order, onChangeOrderBy, customSort } = useTableSorting({
     initialSortKey: 'createdAt',
     initialSortDirection: 'desc',
@@ -145,7 +137,7 @@ export const VersionTable = React.memo(({ data, onRowClick, loading, error }) =>
             />
           ),
           key: 'createdAt',
-          accessor: ({ updatedAt }) => getDateTime(updatedAt),
+          accessor: ({ updatedAt }) => `${formatShort(updatedAt)} ${formatTime(updatedAt)}`,
         },
         {
           title: (
