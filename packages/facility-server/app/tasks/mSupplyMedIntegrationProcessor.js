@@ -28,11 +28,12 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     await this.models.MSupplyPushLog.create(values);
   }
 
-  async postRequest({ bodyJson }, { minMedicationCreatedAt, maxMedicationCreatedAt }) {
-    const {
-      host,
-      backoff,
-    } = await this.context.settings[this.serverFacilityIds[0]].get('integrations.mSupplyMed');
+  async postRequest(
+    { bodyJson },
+    { minMedicationCreatedAt, maxMedicationCreatedAt, serverFacilityId },
+  ) {
+    const { host, backoff } =
+      await this.context.settings[serverFacilityId].get('integrations.mSupplyMed');
     const authToken = 'Bearer 1234567890';
 
     try {
@@ -80,7 +81,9 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
       return;
     }
 
-    const { host } = await this.context.settings[this.serverFacilityIds[0]]?.get('integrations.mSupplyMed') ?? {};
+    const { host } =
+      (await this.context.settings[this.serverFacilityIds[0]]?.get('integrations.mSupplyMed')) ??
+      {};
     const { enabled, username, password } = config.integrations.mSupplyMed;
     const { batchSize, batchSleepAsyncDurationInMilliseconds } = this.config;
 
@@ -133,14 +136,27 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
       });
 
       const body = {
-        customerFilter: { /* actual name filter from current graphql schema*/ },
+        customerFilter: {
+          /* actual name filter from current graphql schema*/
+        },
         items: medications.map(medication => ({
-          itemFilter: { /* actual item filter from current graphql schema*/ },
+          itemFilter: {
+            /* actual item filter from current graphql schema*/
+          },
           quantity: medication.quantity,
         })),
       };
       try {
-        await this.postRequest({ bodyJson: JSON.stringify(body) }, { minMedicationCreatedAt, maxMedicationCreatedAt });
+        await this.postRequest(
+          {
+            bodyJson: JSON.stringify(body),
+          },
+          {
+            minMedicationCreatedAt,
+            maxMedicationCreatedAt,
+            serverFacilityId: this.serverFacilityIds[0],
+          },
+        );
       } catch (error) {
         log.error('Error sending dispensed medications to mSupplyMed', {
           error,
