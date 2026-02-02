@@ -157,6 +157,56 @@ describe('Create Observation', () => {
       expect(labTest.result).toBe(result);
     });
 
+    it('post an Observation for a Labs ServiceRequest with panels', async () => {
+      const result = '100';
+
+      const { FhirServiceRequest, LabTest, LabTestType } = ctx.store.models;
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        true,
+        {
+          status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+        },
+      );
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const serviceRequestId = mat.id;
+      await FhirServiceRequest.resolveUpstreams();
+      const labTest = await LabTest.findOne({
+        where: {
+          labRequestId: labRequest.id,
+        },
+        include: [{ model: LabTestType, as: 'labTestType' }],
+      });
+
+      const body = {
+        resourceType: 'Observation',
+        basedOn: [
+          {
+            type: 'ServiceRequest',
+            reference: `ServiceRequest/${serviceRequestId}`,
+          },
+        ],
+        status: FHIR_OBSERVATION_STATUS.FINAL,
+        code: {
+          coding: [
+            {
+              system: config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+              code: labTest.labTestType.code,
+            },
+          ],
+        },
+        value: {
+          valueString: result,
+        },
+      };
+
+      const response = await app.post(endpoint).send(body);
+      await labTest.reload();
+      expect(response).toHaveSucceeded();
+      expect(labTest.result).toBe(result);
+    });
+
     describe('errors', () => {
       it('returns invalid value if the ServiceRequest does not exist', async () => {
         const nonExistentServiceRequestId = uuidv4();
@@ -252,7 +302,9 @@ describe('Create Observation', () => {
               code: 'value',
               diagnostics: expect.any(String),
               details: {
-                text: expect.stringContaining(`No LabTest with code: '${invalidCode}' found for LabRequest: '${labRequest.id}'`),
+                text: expect.stringContaining(
+                  `No LabTest with code: '${invalidCode}' found for LabRequest: '${labRequest.id}'`,
+                ),
               },
             },
           ],

@@ -136,6 +136,14 @@ export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (
 
     labRequestData = await randomLabRequest(models, requestValues);
     labRequest = await LabRequest.create(labRequestData);
+    await Promise.all(
+      testTypes.map(testType =>
+        LabTest.create({
+          labRequestId: labRequest.id,
+          labTestTypeId: testType.id,
+        }),
+      ),
+    );
 
     return {
       category,
