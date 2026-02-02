@@ -167,6 +167,7 @@ export const TimeDisplay = React.memo(
 
 /**
  * DateDisplay - Displays date with optional time (applies timezone conversion)
+ * Note: If weekdayFormat and timeFormat are provided display will follow format "{weekdayFormat} {format} {timeFormat}"
  * @param {string|Date} date - The date value
  * @param {string} format - "short" (default) | "shortest" | "long" | "explicit" | "explicitShort" | "dayMonth" | null (for weekday/time only)
  * @param {string} weekdayFormat - "short" (e.g. "Fri") | "long" (e.g. "Friday") | "narrow" (e.g. "F") | null (default, hides weekday)
@@ -183,7 +184,7 @@ export const TimeDisplay = React.memo(
  * // format="long" → "15 March 2024"
  * <DateDisplay date="2024-03-15 09:30:00" format="long" />
  *
- * // format="explicit" → "Mar 15, 2024" (medium dateStyle)
+ * // format="explicit" → "Mar 15, 2024"
  * <DateDisplay date="2024-03-15 09:30:00" format="explicit" />
  *
  * // format="explicitShort" → "15 Mar 24"

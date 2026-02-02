@@ -60,7 +60,7 @@ const OPTIONS = [
   { key: 'arch', defaultValue: 'arm64' },
   { key: 'opsref', defaultValue: 'main' },
   { key: 'opsstack', defaultValue: 'tamanu/on-k8s' },
-  { key: 'k8score', defaultValue: 'tamanu-internal-main' },
+
   { key: 'pause', defaultValue: false, presence: true },
   { key: 'imagesonly', defaultValue: false, presence: true },
 
@@ -199,9 +199,10 @@ function parseOptions(str, context) {
 }
 
 export function configMap(deployName, imageTag, options) {
+  const k8sCore = process.env.K8S_CORE || 'tamanu-internal-main';
   return Object.fromEntries(
     Object.entries({
-      'k8s-core': `bes/k8s-core/${options.k8score}`,
+      'k8s-core': `bes/k8s-core/${k8sCore}`,
       namespace: `tamanu-${deployName}`,
       externalNamespace: true,
       imageTag,
@@ -425,10 +426,9 @@ export async function findDeploysToCleanUp(controlList, ttl = 24, context, githu
     }
   }
 
-  return todo.map(({ core, ns }) => ({
+  return todo.map(({ ns }) => ({
     name: ns.replace(/^tamanu-/, ''),
     options: JSON.stringify({
-      k8score: core.replace(/^k8s-operator-/, ''),
       opsstack: OPTIONS.find(({ key }) => key === 'opsstack').defaultValue,
     }),
   }));
