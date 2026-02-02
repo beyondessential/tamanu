@@ -194,9 +194,8 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
           error,
         });
 
-        // If the request fails, break out of the loop
-        // This will prevent us from sending the same medications multiple times
-        // If the request fails, we will retry in the next batch
+        // If the request fails, we have to break out of the loop, otherwise we will
+        // miss the medications that failed in this batch.
         break;
       }
 
