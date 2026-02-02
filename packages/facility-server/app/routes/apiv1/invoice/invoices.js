@@ -221,10 +221,6 @@ const updateInvoiceSchema = z
   })
   .strip();
 
-/**
- * Update invoice
- * - Only in progress invoices can be updated
- */
 invoiceRoute.put(
   '/:id/',
   asyncHandler(async (req, res) => {
@@ -234,10 +230,6 @@ invoiceRoute.put(
 
     const foundInvoice = await req.models.Invoice.findByPk(invoiceId);
     if (!foundInvoice) throw new NotFoundError(`Unable to find invoice ${invoiceId}`);
-
-    //* Only in progress invoices can be updated
-    if (foundInvoice.status !== INVOICE_STATUSES.IN_PROGRESS)
-      throw new InvalidOperationError('Only in progress invoices can be updated');
 
     const { data, error } = await updateInvoiceSchema.safeParseAsync(req.body);
     if (error) throw new ValidationError(error.message);
