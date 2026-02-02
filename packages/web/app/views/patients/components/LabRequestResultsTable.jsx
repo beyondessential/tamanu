@@ -113,7 +113,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
         />
       ),
       key: 'laboratoryOfficer',
-      accessor: row => row.laboratoryOfficer ?? '–',
+      accessor: row => row.laboratoryOfficer || '–',
       sortable: false,
     },
     {
@@ -125,7 +125,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
         />
       ),
       key: 'verification',
-      accessor: row => row.verification ?? '–',
+      accessor: row => row.verification || '–',
       sortable: false,
     },
     {
