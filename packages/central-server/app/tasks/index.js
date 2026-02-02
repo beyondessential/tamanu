@@ -27,6 +27,7 @@ import { SurveyCompletionNotifierProcessor } from './SurveyCompletionNotifierPro
 import { SyncLookupRefresher } from './SyncLookupRefresher';
 import { GenerateRepeatingTasks } from './GenerateRepeatingTasks';
 import { GenerateRepeatingAppointments } from './GenerateRepeatingAppointments';
+import { AutoDeleteMedicationRequests } from './AutoDeleteMedicationRequests';
 import { GenerateMedicationAdministrationRecords } from './GenerateMedicationAdministrationRecords';
 import { MedicationDiscontinuer } from './MedicationDiscontinuer';
 import { DHIS2IntegrationProcessor } from './DHIS2IntegrationProcessor';
@@ -58,6 +59,7 @@ export async function startScheduledTasks(context) {
     GenerateRepeatingAppointments,
     GenerateMedicationAdministrationRecords,
     MedicationDiscontinuer,
+    AutoDeleteMedicationRequests,
     DHIS2IntegrationProcessor,
     SendStatusToMetaServer,
   ];

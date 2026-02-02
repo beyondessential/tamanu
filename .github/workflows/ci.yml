@@ -23,7 +23,7 @@ jobs:
     name: Check node version consistency
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref || github.ref }}
       - name: Check package.json against .node-version
@@ -45,10 +45,10 @@ jobs:
     name: Cache node modules
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref || github.ref }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version-file: '.node-version'
           cache: npm
@@ -96,10 +96,10 @@ jobs:
     name: Test ${{ matrix.package }} ${{ matrix.shard }} (pg=${{ matrix.postgres || 'no' }})
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref || github.ref }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version-file: '.node-version'
           cache: npm
@@ -131,10 +131,10 @@ jobs:
     name: Build all packages
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref || github.ref }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version-file: '.node-version'
           cache: npm
@@ -151,10 +151,10 @@ jobs:
     name: Lint packages
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref || github.ref }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version-file: '.node-version'
           cache: npm
@@ -179,8 +179,8 @@ jobs:
     name: Test storybook
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version-file: '.node-version'
           cache: npm
@@ -211,10 +211,10 @@ jobs:
     name: Test migrations server=${{ matrix.server }} pg=${{ matrix.postgres }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref || github.ref }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version-file: '.node-version'
           cache: npm
@@ -238,10 +238,10 @@ jobs:
     name: Test mobile
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref || github.ref }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version-file: '.node-version'
           cache: npm
@@ -261,10 +261,10 @@ jobs:
     name: Test the facility server with the central server being down
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref || github.ref }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version-file: '.node-version'
           cache: npm
@@ -294,10 +294,10 @@ jobs:
     name: Check package-lock.json is up to date
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref || github.ref }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version-file: '.node-version'
           cache: npm
@@ -313,10 +313,10 @@ jobs:
     name: DBT model up to date
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref || github.ref }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version-file: '.node-version'
           cache: npm
@@ -367,10 +367,10 @@ jobs:
     name: DBT model TODOs
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref || github.ref }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version-file: '.node-version'
           cache: npm
@@ -386,9 +386,9 @@ jobs:
     name: Spellcheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Check spelling
-        uses: crate-ci/typos@master
+        uses: crate-ci/typos@v1.36.3
         with:
           config: .typos.toml
 
