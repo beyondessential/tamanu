@@ -2,11 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 
+import { useDateTimeFormat } from '@tamanu/ui-components';
+
 import { Modal } from '../../Modal';
 import { useCertificate } from '../../../utils/useCertificate';
 import { useApi } from '../../../api';
 import { Colors } from '../../../constants';
-
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { useTranslation } from '../../../contexts/Translation';
 import { useSettings } from '../../../contexts/Settings';
@@ -18,6 +19,7 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
   const api = useApi();
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
+  const { countryTimeZone } = useDateTimeFormat();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
 
   const { data: patient, isLoading: isPatientLoading } = useQuery(
@@ -67,6 +69,7 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
           labRequests={labRequests}
           getTranslation={getTranslation}
           getSetting={getSetting}
+          countryTimeZone={countryTimeZone}
           data-testid="multiplelabrequestsprintout-fhui"
         />
       </PDFLoader>

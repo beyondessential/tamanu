@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 
 import { ForbiddenError } from '@tamanu/errors';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 
 import { InvoiceRecordPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { Modal } from '../../Modal';
@@ -27,6 +28,7 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
 
   const certificateQuery = useCertificate();
   const { getSetting } = useSettings();
+  const { countryTimeZone } = useDateTimeFormat();
   const enablePatientInsurer = getSetting('features.enablePatientInsurer');
   const { data: certificateData } = certificateQuery;
 
@@ -92,6 +94,7 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
           clinicianText={clinicianText}
           invoice={invoice}
           enablePatientInsurer={enablePatientInsurer}
+          countryTimeZone={countryTimeZone}
           data-testid="invoicerecordprintout-0r2o"
         />
       </PDFLoader>

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
+import { useDateTimeFormat } from '@tamanu/ui-components';
+
 import { Modal } from '../../Modal';
 import { useCertificate } from '../../../utils/useCertificate';
 import { useApi } from '../../../api';
@@ -25,6 +27,7 @@ export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClos
   const [villageLoading, setVillageLoading] = useState(false);
   const [prescriberLoading, setPrescriberLoading] = useState(false);
   const { facilityId } = useAuth();
+  const { countryTimeZone } = useDateTimeFormat();
   const { encounter, isLoadingEncounter } = useEncounter();
 
   useEffect(() => {
@@ -109,6 +112,7 @@ export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClos
             facility={facility}
             prescriber={prescriber}
             getSetting={getSetting}
+            countryTimeZone={countryTimeZone}
             data-testid="prescriptionprintout-95jw"
           />
         </PDFLoader>
