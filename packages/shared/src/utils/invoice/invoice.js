@@ -1,5 +1,6 @@
-import { INVOICE_ITEMS_DISCOUNT_TYPES, INVOICE_STATUSES } from '@tamanu/constants';
 import Decimal from 'decimal.js';
+import { INVOICE_ITEMS_DISCOUNT_TYPES, INVOICE_STATUSES } from '@tamanu/constants';
+import { formatDisplayPrice } from './display';
 
 /** @typedef {import('@tamanu/database/models').Invoice} Invoice */
 /** @typedef {import('@tamanu/database/models').InvoiceDiscount} InvoiceDiscount */
@@ -66,11 +67,11 @@ export const getInvoiceItemTotalDiscountedPrice = invoiceItem => {
 
 /**
  * Get the display coverage value for an insurance plan item, taking into account finalisedInsurances
- * @param {Object} item - The invoice item containing finalisedInsurances
- * @param {Object} insurancePlanItem - The insurance plan item
+ * @param {InvoiceItem} item - The invoice item containing finalisedInsurances
+ * @param {InsurancePlanItem} insurancePlanItem - The insurance plan item
  * @returns {number} - The coverage value to display (either finalised or default)
  */
-export const getInvoiceItemCoverageValue = (item, insurancePlanItem) => {
+export const getInvoiceItemCoveragePercentage = (item, insurancePlanItem) => {
   const planCoverageValue = insurancePlanItem.coverageValue ?? 0;
 
   if (!item.finalisedInsurances || item.finalisedInsurances.length === 0) {
@@ -93,10 +94,10 @@ export const getInvoiceItemCoverageValue = (item, insurancePlanItem) => {
  * value is capped at the item's discounted price to ensure it does not exceed
  * the discounted amount.
  *
- * @param {Array<Object>} invoiceItems - Array of invoice item objects
+ * @param {Array<InvoiceItem>} invoiceItems - Array of invoice item objects
  * @returns {Decimal} - The total insurance coverage for all invoice items
  */
-export const getInsuranceCoverageTotal = invoiceItems => {
+export const getInsuranceCoverageTotalAmount = invoiceItems => {
   return invoiceItems.reduce((sum, item) => {
     const discountedPrice = getInvoiceItemTotalDiscountedPrice(item) || 0;
 
@@ -106,8 +107,7 @@ export const getInsuranceCoverageTotal = invoiceItems => {
     }
 
     const totalItemInsurance = item.insurancePlanItems.reduce((itemSum, itemPlan) => {
-      const appliedCoverage = getInvoiceItemCoverageValue(item, itemPlan);
-      const coverageForRow = new Decimal(discountedPrice).times(appliedCoverage / 100).toNumber();
+      const coverageForRow = getItemSingleInsuranceCoverageAmount(discountedPrice, item, itemPlan);
       return itemSum.plus(coverageForRow);
     }, new Decimal(0));
 
@@ -127,6 +127,123 @@ const getInvoiceDiscountDiscountAmount = (discount, total) => {
 };
 
 /**
+ * Calculate the item adjustment amount (difference between original and discounted price)
+ * Returns a negative number for discounts, positive for markups
+ */
+export const getItemAdjustmentAmount = item => {
+  const originalPrice = getInvoiceItemTotalPrice(item) || 0;
+  const discountedPrice = getInvoiceItemTotalDiscountedPrice(item) || 0;
+  return discountedPrice - originalPrice;
+};
+
+/**
+ * Check if an item has any adjustment (markup or discount)
+ */
+export const hasItemAdjustment = item => {
+  return getItemAdjustmentAmount(item) !== 0;
+};
+
+/**
+ * Calculate the total insurance coverage amount (from all insurance plans) for an invoice item
+ * @param {InvoiceItem} item
+ * @returns {number} - The total insurance coverage amount for the item
+ */
+export const getItemTotalInsuranceCoverageAmount = item => {
+  if (!item?.product?.insurable || !item.insurancePlanItems?.length) {
+    return 0;
+  }
+
+  const discountedPrice = getInvoiceItemTotalDiscountedPrice(item) || 0;
+  const totalCoverage = item.insurancePlanItems.reduce((sum, insurancePlanItem) => {
+    const coverageForRow = getItemSingleInsuranceCoverageAmount(
+      discountedPrice,
+      item,
+      insurancePlanItem,
+    );
+    return sum + coverageForRow;
+  }, 0);
+
+  // Cap coverage at the discounted price
+  return Math.min(totalCoverage, discountedPrice);
+};
+
+/**
+ * Calculate the insurance coverage amount for a single insurance plan item
+ * @param {number} discountedPrice - The discounted price of the item
+ * @param {InvoiceItem} item - The invoice item object
+ * @param {InsurancePlanItem} insurancePlanItem - The insurance plan item object
+ * @returns {number} - The insurance coverage amount for the item
+ */
+export const getItemSingleInsuranceCoverageAmount = (discountedPrice, item, insurancePlanItem) => {
+  const appliedCoverage = getInvoiceItemCoveragePercentage(item, insurancePlanItem);
+  return new Decimal(discountedPrice).times(appliedCoverage / 100).toNumber();
+};
+
+/**
+ * Calculate and format the insurance coverage of an invoice item for display in printout
+ * @param {InvoiceItem} item - The invoice item object
+ * @returns {string|number|null} - The insurance coverage of the item
+ */
+export const getFormattedInvoiceItemCoverageAmount = item => {
+  if (!item?.product?.insurable || !item.insurancePlanItems?.length) {
+    return 0;
+  }
+  const coverage = getItemTotalInsuranceCoverageAmount(item);
+  return formatDisplayPrice(coverage);
+};
+
+/**
+ * Calculate and format the net cost of an invoice item for display in printout
+ * @param {InvoiceItem} item - The invoice item object
+ * @returns {string|number|null} - The net cost of the item
+ */
+export const getFormattedInvoiceItemNetCost = item => {
+  const discountedPrice = getInvoiceItemTotalDiscountedPrice(item) || 0;
+  const insuranceCoverage = getItemTotalInsuranceCoverageAmount(item);
+  const netCost = discountedPrice - insuranceCoverage;
+  return formatDisplayPrice(netCost);
+};
+
+/**
+ * Calculate and format the total coverage amount for each insurance plan across all invoice items for display in printout
+ * @param {Invoice} invoice - The invoice object with items and insurancePlans
+ * @returns {Array<{id: string, name: string, code: string, totalCoverage: number}>}
+ */
+export const getFormattedCoverageAmountPerInsurancePlanForInvoice = invoice => {
+  const insurancePlans = invoice.insurancePlans || [];
+  const items = invoice.items || [];
+
+  return insurancePlans.map(plan => {
+    let totalCoverage = 0;
+
+    for (const item of items) {
+      if (!item?.product?.insurable || !item.insurancePlanItems?.length) {
+        continue;
+      }
+
+      const discountedPrice = getInvoiceItemTotalDiscountedPrice(item) || 0;
+      const planItem = item.insurancePlanItems.find(p => p.id === plan.id);
+
+      if (planItem) {
+        const coverageAmount = getItemSingleInsuranceCoverageAmount(
+          discountedPrice,
+          item,
+          planItem,
+        );
+        totalCoverage += coverageAmount;
+      }
+    }
+
+    return {
+      id: plan.id,
+      name: plan.name,
+      code: plan.code,
+      totalCoverage: formatDisplayPrice(totalCoverage),
+    };
+  });
+};
+
+/**
  * get invoice summary
  * @param {Invoice} invoice
  * @returns
@@ -139,7 +256,7 @@ export const getInvoiceSummary = invoice => {
     new Decimal(0),
   );
 
-  const insuranceCoverageTotal = getInsuranceCoverageTotal(invoice.items);
+  const insuranceCoverageTotal = getInsuranceCoverageTotalAmount(invoice.items);
 
   const patientSubtotal = invoiceItemsTotal.minus(insuranceCoverageTotal);
   const discountTotal = getInvoiceDiscountDiscountAmount(invoice.discount, patientSubtotal);
