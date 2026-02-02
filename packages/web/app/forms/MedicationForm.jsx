@@ -12,6 +12,7 @@ import {
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
   ADMINISTRATION_FREQUENCIES,
   FORM_TYPES,
+  MAX_REPEATS,
 } from '@tamanu/constants';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import {
@@ -23,6 +24,8 @@ import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/utils/da
 import { format, subSeconds } from 'date-fns';
 import { useFormikContext } from 'formik';
 import { toast } from 'react-toastify';
+
+import { WarningOutlineIcon } from '../assets/icons/WarningOutlineIcon';
 import { foreignKey } from '../utils/validation';
 import { PrintPrescriptionModal } from '../components/PatientPrinting';
 import {
@@ -60,12 +63,13 @@ import { useSettings } from '../contexts/Settings';
 import { ChevronIcon } from '../components/Icons/ChevronIcon';
 import { ConditionalTooltip, ThemedTooltip } from '../components/Tooltip';
 import { capitalize } from 'lodash';
-import { preventInvalidNumber, validateDecimalPlaces } from '../utils/utils';
+import { preventInvalidNumber, preventInvalidRepeatsInput, validateDecimalPlaces } from '../utils/utils';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { useEncounter } from '../contexts/Encounter';
 import { usePatientAllergiesQuery } from '../api/queries/usePatientAllergiesQuery';
 import { useMedicationIdealTimes } from '../hooks/useMedicationIdealTimes';
 import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
+import { CircleAlert, CircleCheck, CircleHelp } from 'lucide-react';
 
 const validationSchema = yup.object().shape({
   medicationId: foreignKey(
@@ -90,6 +94,13 @@ const validationSchema = yup.object().shape({
   units: foreignKey(
     <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
   ).oneOf(DRUG_UNIT_VALUES),
+  repeats: yup
+    .number()
+    .integer()
+    .min(0)
+    .max(MAX_REPEATS)
+    .nullable()
+    .optional(),
   frequency: foreignKey(
     <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
   ),
@@ -133,7 +144,8 @@ const CheckboxGroup = styled.div`
   gap: 20px;
   padding-bottom: 1.2rem;
   border-bottom: 1px solid ${Colors.outline};
-  > div {
+  > div:nth-of-type(1),
+  > div:nth-of-type(2) {
     max-width: fit-content;
   }
 `;
@@ -254,6 +266,60 @@ const StyledTimePicker = styled(TimePicker)`
       border-color: ${Colors.softText};
     }
   }
+`;
+
+const AllergiesWarningBox = styled(Box)`
+  grid-column: 1 / -1;
+  border: 1px solid ${Colors.alert};
+  border-radius: 3px;
+  padding: 10px 26px;
+  background-color: ${Colors.lightAlert};
+  margin-bottom: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const AllergiesWarningHeader = styled(Box)`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const AllergiesWarningTitle = styled(BodyText)`
+  color: ${Colors.darkestText};
+  font-weight: 500;
+  font-size: 14px;
+`;
+
+const AllergiesList = styled.ul`
+  margin: 0;
+  padding-left: 41px;
+  list-style-type: disc;
+`;
+
+const AllergyItem = styled.li`
+  color: ${Colors.darkestText};
+  font-size: 14px;
+  line-height: 20px;
+`;
+
+const StockLevelContainer = styled(Box)`
+  padding: 12px 10px;
+  border: 1px solid ${Colors.outline};
+  border-radius: 3px;
+  background-color: ${Colors.white};
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: absolute;
+  right: 0;
+  top: 31px;
+  transform: translateY(-50%);
+  font-size: 14px;
+  line-height: 18px;
+  color: ${Colors.darkestText};
+  width: 285px;
 `;
 
 const isOneTimeFrequency = frequency =>
@@ -553,6 +619,9 @@ export const MedicationForm = ({
   const [showExistingDrugWarning, setShowExistingDrugWarning] = useState(false);
   const [isFinalizingMedication, setIsFinalizingMedication] = useState(false);
   const [frequencyChanged, setFrequencyChanged] = useState(0);
+  const [selectedDrug, setSelectedDrug] = useState(null);
+  const drugQuantity = selectedDrug?.facilities?.[0]?.quantity;
+  const drugStockStatus = selectedDrug?.facilities?.[0]?.stockStatus;
 
   const { defaultTimeSlots } = useMedicationIdealTimes({
     frequency: editingMedication?.frequency,
@@ -561,17 +630,17 @@ export const MedicationForm = ({
   const practitionerSuggester = useSuggester('practitioner');
   const drugSuggester = useSuggester('drug', {
     formatter: ({ name, id, ...rest }) => ({ ...rest, label: name, value: id }),
+    baseQueryParameters: isOngoingPrescription ? { includeUnavailable: true } : {},
   });
 
   const { data: allergies, isLoading: isLoadingAllergies } = usePatientAllergiesQuery(patient?.id);
-  const allergiesList = allergies?.data
-    ?.map(allergyDetail =>
+  const allergiesList =
+    allergies?.data?.map(allergyDetail =>
       getTranslation(
         getReferenceDataStringId(allergyDetail?.allergy.id, allergyDetail?.allergy.type),
         allergyDetail?.allergy.name,
       ),
-    )
-    .join(', ');
+    ) || [];
 
   // Transition to print page as soon as we have the generated id
   useEffect(() => {
@@ -649,14 +718,76 @@ export const MedicationForm = ({
       isVariableDose: false,
       startDate: getCurrentDateTimeString(),
       isOngoing: isOngoingPrescription,
+      repeats: editingMedication?.repeats ?? 0,
       timeSlots: defaultTimeSlots,
       ...editingMedication,
     };
   };
 
-  const handleChangeMedication = drugId => {
-    const isExistingDrug = existingDrugIds.includes(drugId);
+  const handleChangeMedication = e => {
+    const isExistingDrug = existingDrugIds.includes(e.target.value);
     setShowExistingDrugWarning(isExistingDrug);
+    setSelectedDrug(e.target?.referenceDrug);
+  };
+
+  const getStockLevelIcon = () => {
+    if (drugQuantity > 0) return <CircleHelp size={20} color={Colors.safe} />;
+    if (drugQuantity === 0) return <CircleAlert size={20} color={Colors.alert} />;
+    return <CircleCheck size={20} color={Colors.blue} />;
+  };
+
+  const getStockLevelContent = () => {
+    const MAX_DISPLAYABLE_STOCK_LEVEL = 1000000;
+
+    if (isNaN(parseInt(drugQuantity))) {
+      return (
+        <TranslatedText
+          stringId="medication.stockLevel.unknown"
+          fallback="The stock status of this medication is currently unknown."
+        />
+      );
+    }
+
+    if (drugQuantity === 0) {
+      return (
+        <TranslatedText
+          stringId="medication.stockLevel.outOfStock"
+          fallback="Medication is currently marked as out of stock."
+        />
+      );
+    }
+
+    const stockLevelValue =
+      drugQuantity <= MAX_DISPLAYABLE_STOCK_LEVEL ? (
+        <TranslatedText
+          stringId="medication.stockLevel.inStock.approxUnits"
+          fallback="Approx :quantity units"
+          replacements={{ quantity: Number(drugQuantity).toLocaleString() }}
+        />
+      ) : (
+        <TranslatedText
+          stringId="medication.stockLevel.inStock.moreThanOneMillionUnits"
+          fallback="More than 1 million units"
+        />
+      );
+
+    return (
+      <Box>
+        <TranslatedText
+          stringId="medication.stockLevel.inStock"
+          fallback="Medication is currently in stock."
+        />
+        <Box>
+          <TranslatedText
+            stringId="medication.stockLevel.inStock.stockLevel"
+            fallback="Stock level: "
+          />
+          <Box component={'span'} fontWeight={500}>
+            {stockLevelValue}
+          </Box>
+        </Box>
+      </Box>
+    );
   };
 
   return (
@@ -680,18 +811,24 @@ export const MedicationForm = ({
           <StyledFormGrid>
             {!isEditing ? (
               <>
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <TranslatedText stringId="medication.allergies.title" fallback="Allergies" />:{' '}
-                  <span style={{ fontWeight: 500 }}>
-                    {!isLoadingAllergies &&
-                      (allergiesList || (
+                {!isLoadingAllergies && allergiesList.length > 0 && (
+                  <AllergiesWarningBox>
+                    <AllergiesWarningHeader>
+                      <WarningOutlineIcon />
+                      <AllergiesWarningTitle>
                         <TranslatedText
-                          stringId="medication.allergies.noRecord"
-                          fallback="None recorded"
+                          stringId="medication.allergies.title"
+                          fallback="Patient allergies"
                         />
+                      </AllergiesWarningTitle>
+                    </AllergiesWarningHeader>
+                    <AllergiesList>
+                      {allergiesList.map((allergy, index) => (
+                        <AllergyItem key={index}>{allergy}</AllergyItem>
                       ))}
-                  </span>
-                </div>
+                    </AllergiesList>
+                  </AllergiesWarningBox>
+                )}
                 <div style={{ gridColumn: '1 / -1' }}>
                   <Field
                     name="medicationId"
@@ -712,7 +849,7 @@ export const MedicationForm = ({
                         units: referenceDrug?.units || '',
                         notes: referenceDrug?.notes || '',
                       });
-                      handleChangeMedication(e.target.value);
+                      handleChangeMedication(e);
                     }}
                     data-testid="medication-field-medicationId-8k3m"
                   />
@@ -785,6 +922,14 @@ export const MedicationForm = ({
                 component={CheckField}
                 data-testid="medication-field-isPrn-9n4q"
               />
+              {!isOngoingPrescription && !!drugStockStatus && (
+                <StockLevelContainer>
+                  <Box display="flex" flexShrink={0}>
+                    {getStockLevelIcon()}
+                  </Box>
+                  {getStockLevelContent()}
+                </StockLevelContainer>
+              )}
             </CheckboxGroup>
             <div style={{ gridColumn: '1/-1', marginBottom: '-12px' }}>
               <Field
@@ -841,7 +986,7 @@ export const MedicationForm = ({
             />
             <Field
               name="route"
-              label={<TranslatedText stringId="medication.route.label" fallback="Route" />}
+              label={<TranslatedText stringId="medication.routeOfAdministration.label" fallback="Route of administration" />}
               component={TranslatedSelectField}
               enumValues={DRUG_ROUTE_LABELS}
               required
@@ -984,6 +1129,15 @@ export const MedicationForm = ({
                   component={NumberField}
                   onInput={preventInvalidNumber}
                   data-testid="medication-field-quantity-6j9m"
+                />
+                <Field
+                  name="repeats"
+                  label={<TranslatedText stringId="medication.repeats.label" fallback="Repeats" />}
+                  component={NumberField}
+                  min={0}
+                  max={MAX_REPEATS}
+                  step={1}
+                  onInput={preventInvalidRepeatsInput}
                 />
               </>
             )}

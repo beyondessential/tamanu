@@ -3,6 +3,7 @@ import { fake, fakeReferenceData } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../../utilities';
 import { ADMINISTRATION_FREQUENCIES, DRUG_ROUTES, DRUG_UNITS } from '@tamanu/constants';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 
@@ -132,6 +133,8 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
           orderingClinicianId: resources.practitioner.id,
           comments: 'Test comments',
           isDischargePrescription: true,
+          date: getCurrentDateTimeString(),
+          facilityId: resources.facility.id,
         }),
       );
       const pharmacyOrderPrescription = await PharmacyOrderPrescription.create(
@@ -288,6 +291,8 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
             orderingClinicianId: resources.practitioner.id,
             comments: 'Test comments',
             isDischargePrescription: true,
+            date: getCurrentDateTimeString(),
+            facilityId: resources.facility.id,
           }),
         );
         const pharmacyOrderPrescription1 = await PharmacyOrderPrescription.create(
@@ -348,6 +353,8 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
             orderingClinicianId: resources.practitioner.id,
             comments: 'Test comments',
             isDischargePrescription: true,
+            date: getCurrentDateTimeString(),
+            facilityId: resources.facility.id,
           }),
         );
         const pharmacyOrderPrescription = await PharmacyOrderPrescription.create(
