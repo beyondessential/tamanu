@@ -123,6 +123,7 @@ export const InvoiceItemRow = ({
   priceListId,
   isEditing,
   onUpdateInvoice,
+  onUpdateApproval,
   isFinalised,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -227,6 +228,7 @@ export const InvoiceItemRow = ({
         showActionMenu
         hidePriceInput={hidePriceInput}
         onUpdateInvoice={onUpdateInvoice}
+        onUpdateApproval={onUpdateApproval}
         isFinalised={isFinalised}
       />
     </StyledItemRow>

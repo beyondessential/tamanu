@@ -13,7 +13,7 @@ import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
 import { Colors } from '../../../constants/styles';
 import { InvoiceItemRow } from './InvoiceItem';
 import { InvoiceItemHeader } from './InvoiceItemHeader';
-import { useUpdateInvoice } from '../../../api/mutations/useInvoiceMutation';
+import { useUpdateInvoice, useUpdateInvoiceItemApproval } from '../../../api/mutations/useInvoiceMutation';
 import { useAuth } from '../../../contexts/Auth';
 import { invoiceFormSchema } from './invoiceFormSchema';
 
@@ -87,6 +87,7 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
   const editable = isInvoiceEditable(invoice) && canWriteInvoice;
   const isFinalised = invoice.status === INVOICE_STATUSES.FINALISED;
   const { mutate: updateInvoice, isLoading: isUpdatingInvoice } = useUpdateInvoice(invoice);
+  const { mutate: updateItemApproval } = useUpdateInvoiceItemApproval(invoice);
 
   // Main submit action for the invoice
   const handleSubmit = async data => {
@@ -159,6 +160,7 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
                           invoiceIsEditable={editable && canWriteInvoice}
                           isEditing={isEditing}
                           onUpdateInvoice={handleUpdateItem}
+                          onUpdateApproval={updateItemApproval}
                           isFinalised={isFinalised}
                         />
                       );
