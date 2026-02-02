@@ -109,6 +109,7 @@ export class AuthService {
     refreshToken: string;
     localisation: object;
     settings: object;
+    countryTimeZone: string;
   }> {
     // always use the server stored in config if there is one - last thing
     // we want is a device syncing down data from one server and then up
@@ -119,7 +120,7 @@ export class AuthService {
     // create the sync source and log in to it
     await this.centralServer.connect(server);
     console.log(`Getting token from ${server}`);
-    const { user, token, refreshToken, settings, localisation, permissions } =
+    const { user, token, refreshToken, settings, localisation, permissions, countryTimeZone } =
       await this.centralServer.login(params.email, params.password);
     console.log(`Signed in as ${user.displayName}`);
 
@@ -132,7 +133,7 @@ export class AuthService {
     // kick off a local save
     const userData = await this.saveLocalUser(user, params.password);
 
-    const result = { user: userData, token, refreshToken, settings, localisation, permissions };
+    const result = { user: userData, token, refreshToken, settings, localisation, permissions, countryTimeZone };
     this.emitter.emit('remoteSignIn', result);
     return result;
   }

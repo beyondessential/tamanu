@@ -9,6 +9,7 @@ export interface WithAuthActions {
   setRefreshToken: (payload: string) => PayloadAction<string>;
   setFirstSignIn: (value: boolean) => PayloadAction<boolean>;
   setSignedInStatus: (payload: boolean) => PayloadAction<boolean>;
+  setCountryTimeZone: (payload: string) => PayloadAction<string>;
   signOutUser(): () => PayloadAction<void>;
 }
 
@@ -18,6 +19,7 @@ export interface AuthStateProps {
   user: IUser;
   signedIn: boolean;
   isFirstTime: boolean;
+  countryTimeZone: string;
 }
 
 const initialState: AuthStateProps = {
@@ -26,6 +28,7 @@ const initialState: AuthStateProps = {
   user: null,
   signedIn: false,
   isFirstTime: true,
+  countryTimeZone: '',
 };
 
 export const PatientSlice = createSlice({
@@ -64,6 +67,12 @@ export const PatientSlice = createSlice({
       return {
         ...state,
         user,
+      };
+    },
+    setCountryTimeZone(state, { payload: countryTimeZone }: PayloadAction<string>): AuthStateProps {
+      return {
+        ...state,
+        countryTimeZone,
       };
     },
     signOutUser(state): AuthStateProps {

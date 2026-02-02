@@ -41,6 +41,7 @@ interface AuthContextData {
   resetPasswordLastEmailUsed: string;
   changePassword: (params: ChangePasswordFormModel) => void;
   settings: object;
+  countryTimeZone: string;
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
@@ -50,6 +51,7 @@ const Provider = ({
   setRefreshToken,
   setUser,
   setSignedInStatus,
+  setCountryTimeZone,
   signedIn,
   children,
   signOutUser,
@@ -63,6 +65,7 @@ const Provider = ({
   const [ability, setAbility] = useState(null);
   const [resetPasswordLastEmailUsed, setResetPasswordLastEmailUsed] = useState('');
   const [preventSignOutOnFailure, setPreventSignOutOnFailure] = useState(false);
+  const countryTimeZone = props.countryTimeZone || '';
 
   const setUserFirstSignIn = (): void => {
     props.setFirstSignIn(false);
@@ -108,10 +111,11 @@ const Provider = ({
   };
 
   const remoteSignIn = async (params: SyncConnectionParameters): Promise<void> => {
-    const { user: usr, settings, token, refreshToken } = await backend.auth.remoteSignIn(params);
+    const { user: usr, settings, token, refreshToken, countryTimeZone: tz } = await backend.auth.remoteSignIn(params);
     setToken(token);
     setSettings(settings);
     setRefreshToken(refreshToken);
+    setCountryTimeZone(tz || '');
     signInAs(usr);
   };
 
@@ -220,6 +224,7 @@ const Provider = ({
         requestResetPassword,
         resetPasswordLastEmailUsed,
         changePassword,
+        countryTimeZone,
       }}
     >
       {children}

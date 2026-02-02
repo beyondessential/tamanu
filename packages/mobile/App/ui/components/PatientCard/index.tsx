@@ -1,8 +1,7 @@
 import React from 'react';
 import { TouchableWithoutFeedback } from 'react-native';
 import { ColumnView, RowView, StyledText, StyledView } from '/styled/common';
-import { DateFormats } from '/helpers/constants';
-import { formatDate, getDisplayAge } from '/helpers/date';
+import { getDisplayAge } from '/helpers/date';
 import { UserAvatar } from '../UserAvatar';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import * as styles from './styles';
@@ -12,6 +11,7 @@ import { IPatient } from '~/types';
 import { TranslatedText } from '/components/Translations/TranslatedText';
 import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
 import { useSettings } from '/contexts/SettingsContext';
+import { useDateTimeFormat } from '~/ui/contexts/DateTimeContext';
 
 export interface PatientCardProps {
   patient: IPatient;
@@ -29,6 +29,7 @@ export const PatientCard = ({ patient, onPress }: PatientCardProps): JSX.Element
 
   const { getSetting } = useSettings();
   const ageDisplayFormat = getSetting('ageDisplayFormat');
+  const { formatShort } = useDateTimeFormat();
 
   return (
     <TouchableWithoutFeedback onPress={(): void => onPress()}>
@@ -50,7 +51,7 @@ export const PatientCard = ({ patient, onPress }: PatientCardProps): JSX.Element
             fontWeight={500}
           >
             <TranslatedText stringId="patient.lastViewed.title" fallback="Last viewed" />
-            {` \n${formatDate(lastViewed, DateFormats.short)}`}
+            {` \n${formatShort(lastViewed)}`}
           </StyledText>
         </RowView>
         <ColumnView width="100%" marginTop={screenPercentageToDP(1.82, Orientation.Height)}>

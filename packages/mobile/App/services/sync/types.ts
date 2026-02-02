@@ -46,6 +46,7 @@ export interface LoginResponse {
   settings: object;
   permissions: [];
   allowedFacilities: { id: string }[] | 'ALL';
+  countryTimeZone: string;
 }
 
 export type FetchOptions = {

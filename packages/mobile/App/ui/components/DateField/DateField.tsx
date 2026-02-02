@@ -1,12 +1,11 @@
 import React, { ReactElement, useCallback, useState } from 'react';
 import { StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { parseISO } from 'date-fns';
+import { parseISO, formatISO9075 } from 'date-fns';
 import { StyledText, StyledView } from '/styled/common';
-import { formatDate } from '/helpers/date';
 import { theme } from '/styled/theme';
-import { DateFormats } from '/helpers/constants';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { useDateTimeFormat } from '~/ui/contexts/DateTimeContext';
 import * as Icons from '../Icons';
 import { InputContainer } from '../TextField/styles';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
@@ -59,7 +58,7 @@ const DatePicker = ({
 
 export interface DateFieldProps extends BaseInputProps {
   value: Date | string;
-  onChange: (date: Date) => void;
+  onChange: (date: Date | string) => void;
   placeholder?: '' | string;
   mode?: 'date' | 'time' | 'datetime';
   disabled?: boolean;
@@ -68,6 +67,8 @@ export interface DateFieldProps extends BaseInputProps {
   labelFontSize?: number | string;
   fieldFontSize?: number | string;
   labelColor?: string;
+  saveDateAsString?: boolean;
+  useTimezone?: boolean;
 }
 
 export const DateField = React.memo(
@@ -89,6 +90,7 @@ export const DateField = React.memo(
     const [isDatePickerVisible, setDatePickerVisible] = useState(false);
     const [currentPickerMode, setCurrentPickerMode] = useState<'date' | 'time'>('date');
     const [tempDate, setTempDate] = useState<Date | null>(null);
+    const { formatShort, formatTime, formatShortDateTime } = useDateTimeFormat();
 
     const showDatePicker = useCallback(() => {
       setDatePickerVisible(true);
@@ -104,13 +106,11 @@ export const DateField = React.memo(
         if (selectedDate) {
           if (mode === 'datetime') {
             if (currentPickerMode === 'date') {
-              // Store the selected date and switch to time picker
               setTempDate(selectedDate);
               setCurrentPickerMode('time');
               setDatePickerVisible(true);
               return;
             } else {
-              // Combine the stored date with the selected time
               const combinedDateTime = new Date(tempDate!);
               combinedDateTime.setHours(selectedDate.getHours());
               combinedDateTime.setMinutes(selectedDate.getMinutes());
@@ -132,16 +132,15 @@ export const DateField = React.memo(
     );
 
     const dateValue = value && (value instanceof Date ? value : parseISO(value));
+    const isoValue = typeof value === 'string' ? value : dateValue?.toISOString();
 
     const formatValue = useCallback(() => {
-      if (value) {
-        if (mode === 'date') return formatDate(dateValue, DateFormats.DDMMYY);
-        if (mode === 'time') return formatDate(dateValue, DateFormats.TIME);
-        if (mode === 'datetime')
-          return `${formatDate(dateValue, DateFormats.DDMMYY)} ${formatDate(dateValue, DateFormats.TIME)}`;
-      }
+      if (!isoValue) return null;
+      if (mode === 'date') return formatShort(isoValue);
+      if (mode === 'time') return formatTime(isoValue);
+      if (mode === 'datetime') return formatShortDateTime(isoValue);
       return null;
-    }, [mode, value]);
+    }, [mode, isoValue, formatShort, formatTime, formatShortDateTime]);
 
     const IconComponent = mode === 'time' ? Icons.ClockIcon : Icons.CalendarIcon;
 
