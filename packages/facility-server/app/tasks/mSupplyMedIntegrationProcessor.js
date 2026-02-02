@@ -6,6 +6,7 @@ import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { fetchWithRetryBackoff } from '@tamanu/api-client/fetchWithRetryBackoff';
 import { InvalidConfigError } from '@tamanu/shared/errors';
+import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 // Designed to post dispensed medications from pharmacy to an Open mSupply instance
 export class mSupplyMedIntegrationProcessor extends ScheduledTask {
@@ -20,6 +21,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     this.config = conf;
     this.context = context;
     this.models = context.models;
+    this.serverFacilityIds = selectFacilityIds(config);
   }
 
   async createLog(values) {
@@ -27,7 +29,10 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
   }
 
   async postRequest({ bodyJson }, { minMedicationCreatedAt, maxMedicationCreatedAt }) {
-    const { host, backoff } = await this.context.settings.get('integrations.mSupplyMed');
+    const {
+      host,
+      backoff,
+    } = await this.context.settings[this.serverFacilityIds[0]].get('integrations.mSupplyMed');
     const authToken = 'Bearer 1234567890';
 
     try {
@@ -69,12 +74,18 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
   }
 
   async run() {
-    const { host } = await this.context.settings.global.get('integrations.mSupplyMed');
+    // Ensure this facility is not an omni server
+    if (this.serverFacilityIds.length > 1) {
+      log.warn('This facility is an omni server, skipping mSupplyMedIntegrationProcessor');
+      return;
+    }
+
+    const { host } = await this.context.settings[this.serverFacilityIds[0]]?.get('integrations.mSupplyMed') ?? {};
     const { enabled, username, password } = config.integrations.mSupplyMed;
     const { batchSize, batchSleepAsyncDurationInMilliseconds } = this.config;
 
     if (!enabled || !host || !username || !password) {
-      log.warn('Integration for mSupplyMed not configured, skipping');
+      log.warn('Integration for mSupplyMedIntegrationProcessor not configured, skipping');
       return;
     }
 
