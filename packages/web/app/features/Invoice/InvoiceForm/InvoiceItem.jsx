@@ -125,6 +125,7 @@ export const InvoiceItemRow = ({
   onUpdateInvoice,
   onUpdateApproval,
   isFinalised,
+  isCancelled,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const isSaved = item.product?.id;
@@ -222,15 +223,17 @@ export const InvoiceItemRow = ({
         isEditing={isEditing}
       />
 
-      <InvoiceItemActionsMenu
-        index={index}
-        item={item}
-        showActionMenu
-        hidePriceInput={hidePriceInput}
-        onUpdateInvoice={onUpdateInvoice}
-        onUpdateApproval={onUpdateApproval}
-        isFinalised={isFinalised}
-      />
+      {!isCancelled && (
+        <InvoiceItemActionsMenu
+          index={index}
+          item={item}
+          showActionMenu
+          hidePriceInput={hidePriceInput}
+          onUpdateInvoice={onUpdateInvoice}
+          onUpdateApproval={onUpdateApproval}
+          isFinalised={isFinalised}
+        />
+      )}
     </StyledItemRow>
   );
 };
