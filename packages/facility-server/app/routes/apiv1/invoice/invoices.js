@@ -458,10 +458,7 @@ invoiceRoute.put(
     }
 
     // Allow approval changes on both IN_PROGRESS and FINALISED invoices
-    if (
-      invoice.status !== INVOICE_STATUSES.IN_PROGRESS &&
-      invoice.status !== INVOICE_STATUSES.FINALISED
-    ) {
+    if (![INVOICE_STATUSES.IN_PROGRESS, INVOICE_STATUSES.FINALISED].includes(invoice.status)) {
       throw new InvalidOperationError(
         'Approval can only be changed on in-progress or finalised invoices',
       );
@@ -507,10 +504,7 @@ invoiceRoute.put(
     }
 
     // Allow approval changes on both IN_PROGRESS and FINALISED invoices
-    if (
-      invoice.status !== INVOICE_STATUSES.IN_PROGRESS &&
-      invoice.status !== INVOICE_STATUSES.FINALISED
-    ) {
+    if (![INVOICE_STATUSES.IN_PROGRESS, INVOICE_STATUSES.FINALISED].includes(invoice.status)) {
       throw new InvalidOperationError(
         'Approval can only be changed on in-progress or finalised invoices',
       );
