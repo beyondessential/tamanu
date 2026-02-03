@@ -120,13 +120,13 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
       return;
     }
 
-    const { host } =
+    const { host, customerId } =
       (await this.context.settings[this.serverFacilityIds[0]]?.get('integrations.mSupplyMed')) ??
       {};
     const { enabled, username, password } = config.integrations.mSupplyMed;
     const { batchSize, batchSleepAsyncDurationInMilliseconds } = this.config;
 
-    if (!enabled || !host || !username || !password) {
+    if (!enabled || !host || !username || !password || !customerId) {
       log.warn('Integration for mSupplyMedIntegrationProcessor not configured, skipping');
       return;
     }
@@ -167,13 +167,9 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
       });
 
       const body = {
-        customerFilter: {
-          /* actual name filter from current graphql schema*/
-        },
+        customerId,
         items: medications.map(medication => ({
-          itemFilter: {
-            /* actual item filter from current graphql schema*/
-          },
+          universalCode: '',
           quantity: medication.quantity,
         })),
       };
