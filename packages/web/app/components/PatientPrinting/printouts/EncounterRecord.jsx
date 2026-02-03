@@ -116,8 +116,9 @@ const COLUMNS = {
     {
       key: 'dateMoved',
       title: 'Date & time moved',
-      accessor: ({ date }) =>
-        <DateDisplay date={date} timeFormat="default" data-testid="datedisplay-8jmd" />,
+      accessor: ({ date }) => (
+        <DateDisplay date={date} timeFormat="default" data-testid="datedisplay-8jmd" />
+      ),
       style: { width: '30%' },
     },
   ],
@@ -138,8 +139,9 @@ const COLUMNS = {
     {
       key: 'dateMoved',
       title: 'Date & time moved',
-      accessor: ({ date }) =>
-        <DateDisplay date={date} timeFormat="default" data-testid="datedisplay-7isg" />,
+      accessor: ({ date }) => (
+        <DateDisplay date={date} timeFormat="default" data-testid="datedisplay-7isg" />
+      ),
       style: { width: '30%' },
     },
   ],
@@ -173,8 +175,7 @@ const COLUMNS = {
     {
       key: 'date',
       title: 'Date',
-      accessor: ({ date }) =>
-        <DateDisplay date={date} data-testid="datedisplay-hynw" />,
+      accessor: ({ date }) => <DateDisplay date={date} data-testid="datedisplay-hynw" />,
       style: { width: '20%' },
     },
   ],
@@ -202,8 +203,7 @@ const COLUMNS = {
     {
       key: 'procedureDate',
       title: 'Procedure date',
-      accessor: ({ date }) =>
-        <DateDisplay date={date} data-testid="datedisplay-deyp" />,
+      accessor: ({ date }) => <DateDisplay date={date} data-testid="datedisplay-deyp" />,
       style: { width: '20%' },
     },
   ],
@@ -227,15 +227,17 @@ const COLUMNS = {
     {
       key: 'requestDate',
       title: 'Request date',
-      accessor: ({ requestDate }) =>
-        <DateDisplay date={requestDate} data-testid="datedisplay-db0y" />,
+      accessor: ({ requestDate }) => (
+        <DateDisplay date={requestDate} data-testid="datedisplay-db0y" />
+      ),
       style: { width: '20%' },
     },
     {
       key: 'completedDate',
       title: 'Completed date',
-      accessor: ({ completedDate }) =>
-        <DateDisplay date={completedDate} data-testid="datedisplay-sl34" />,
+      accessor: ({ completedDate }) => (
+        <DateDisplay date={completedDate} data-testid="datedisplay-sl34" />
+      ),
       style: { width: '20%' },
     },
   ],
@@ -311,8 +313,7 @@ const COLUMNS = {
     {
       key: 'route',
       title: 'Route',
-      accessor: ({ route }) =>
-        <TranslatedEnum value={route} enumValues={DRUG_ROUTE_LABELS} />,
+      accessor: ({ route }) => <TranslatedEnum value={route} enumValues={DRUG_ROUTE_LABELS} />,
       style: { width: '10%' },
     },
     {
@@ -368,11 +369,7 @@ export const EncounterRecord = React.memo(
               {firstName} {lastName}
             </DisplayValue>
             <LocalisedDisplayValue name="dateOfBirth" data-testid="localiseddisplayvalue-268h">
-              <DateDisplay
-                date={dateOfBirth}
-                format="explicit"
-                data-testid="datedisplay-0c0e"
-              />
+              <DateDisplay date={dateOfBirth} format="explicit" data-testid="datedisplay-0c0e" />
             </LocalisedDisplayValue>
             <LocalisedDisplayValue name="sex" data-testid="localiseddisplayvalue-8h2t">
               {capitaliseFirstLetter(sex)}
@@ -462,18 +459,10 @@ export const EncounterRecord = React.memo(
               />
             </DisplayValue>
             <DisplayValue name="Date of admission" size="10px" data-testid="displayvalue-w117">
-              <DateDisplay
-                date={startDate}
-                format="explicit"
-                data-testid="datedisplay-rnzz"
-              />
+              <DateDisplay date={startDate} format="explicit" data-testid="datedisplay-rnzz" />
             </DisplayValue>
             <DisplayValue name="Date of discharge" size="10px" data-testid="displayvalue-k7iz">
-              <DateDisplay
-                date={endDate}
-                format="explicit"
-                data-testid="datedisplay-abwy"
-              />
+              <DateDisplay date={endDate} format="explicit" data-testid="datedisplay-abwy" />
             </DisplayValue>
           </div>
         </RowContainer>
