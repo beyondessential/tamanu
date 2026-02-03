@@ -546,8 +546,8 @@ const SummaryPane = ({ invoice }) => {
     invoiceItemsTotal,
     patientPaymentRemainingBalance,
     patientSubtotal,
-    discountTotal,
     patientPaymentsTotal,
+    itemAdjustmentsTotal,
   } = getInvoiceSummaryDisplay(invoice);
   const insurancePlanCoverages = getFormattedCoverageAmountPerInsurancePlanForInvoice(invoice);
 
@@ -559,7 +559,7 @@ const SummaryPane = ({ invoice }) => {
       </View>
       <View style={summaryPaneStyles.item}>
         <P>Item adjustments</P>
-        <P>{discountTotal}</P>
+        <P>{itemAdjustmentsTotal}</P>
       </View>
       <P bold>Insurance coverage</P>
       {insurancePlanCoverages.length > 0 && (

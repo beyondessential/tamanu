@@ -182,11 +182,11 @@ export const getItemSingleInsuranceCoverageAmount = (discountedPrice, item, insu
 /**
  * Calculate and format the insurance coverage of an invoice item for display in printout
  * @param {InvoiceItem} item - The invoice item object
- * @returns {string|number|null} - The insurance coverage of the item
+ * @returns {string} - The formatted insurance coverage of the item (e.g., "0.00")
  */
 export const getFormattedInvoiceItemCoverageAmount = item => {
   if (!item?.product?.insurable || !item.insurancePlanItems?.length) {
-    return 0;
+    return formatDisplayPrice(0);
   }
   const coverage = getItemTotalInsuranceCoverageAmount(item);
   return formatDisplayPrice(coverage);
@@ -260,6 +260,12 @@ export const getInvoiceSummary = invoice => {
   const patientSubtotal = invoiceItemsTotal.minus(insuranceCoverageTotal);
   const discountTotal = getInvoiceDiscountDiscountAmount(invoice.discount, patientSubtotal);
 
+  // Calculate item adjustments here to be used in the printout
+  const itemAdjustmentsTotal = invoice.items.reduce(
+    (sum, item) => sum.plus(getItemAdjustmentAmount(item) || 0),
+    new Decimal(0),
+  );
+
   const patientTotal = patientSubtotal.minus(discountTotal);
 
   // Calculate payments as well
@@ -288,6 +294,7 @@ export const getInvoiceSummary = invoice => {
     insuranceCoverageTotal: insuranceCoverageTotal.toNumber(),
     patientTotal: patientTotal.toNumber(),
     discountTotal: discountTotal,
+    itemAdjustmentsTotal: itemAdjustmentsTotal.toNumber(),
     patientSubtotal: patientSubtotal.toNumber(),
     patientPaymentsTotal,
     insurerPaymentsTotal,
