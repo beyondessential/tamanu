@@ -11,6 +11,7 @@ import { TranslatedOption } from '../../../components/Translation/TranslatedOpti
 import { ConditionalTooltip } from '../../../components/Tooltip';
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
+  cursor: default;
   table tbody tr:last-child td {
     border-bottom: none;
   }
@@ -166,6 +167,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
       elevated={false}
       refreshCount={refreshCount}
       data-testid="styleddatafetchingtable-brdm"
+      allowExport={false}
     />
   );
 });
