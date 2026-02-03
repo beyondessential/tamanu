@@ -86,6 +86,7 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
   const canWriteInvoice = ability.can('write', 'Invoice');
   const editable = isInvoiceEditable(invoice) && canWriteInvoice;
   const isFinalised = invoice.status === INVOICE_STATUSES.FINALISED;
+  const isCancelled = invoice.status === INVOICE_STATUSES.CANCELLED;
   const { mutate: updateInvoice, isLoading: isUpdatingInvoice } = useUpdateInvoice(invoice);
   const { mutate: updateItemApproval } = useUpdateInvoiceItemApproval(invoice);
 
@@ -162,6 +163,7 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
                           onUpdateInvoice={handleUpdateItem}
                           onUpdateApproval={updateItemApproval}
                           isFinalised={isFinalised}
+                          isCancelled={isCancelled}
                         />
                       );
                     })}
