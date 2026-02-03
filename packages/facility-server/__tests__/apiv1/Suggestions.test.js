@@ -956,7 +956,7 @@ describe('Suggestions', () => {
         });
 
         await TranslatedString.create({
-          stringId: `referenceData.subdivision.${sub.id}`,
+          stringId: `refData.subdivision.${sub.id}`,
           text: sub.translation,
           language: 'en',
         });

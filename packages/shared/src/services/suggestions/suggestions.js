@@ -397,15 +397,31 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
     typeName,
     'ReferenceData',
     ({ endpoint, modelName, req }) => {
+      const { parentId, relationType = DEFAULT_HIERARCHY_TYPE } = req.query;
+
       const baseWhere = {
         ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
         type: typeName,
       };
 
+      // Filter by parent using subquery to avoid self-join ambiguity issues
+      if (parentId) {
+        baseWhere.id = {
+          [Op.in]: Sequelize.literal(`(
+            SELECT reference_data_id
+            FROM reference_data_relations
+            WHERE reference_data_parent_id = '${parentId}'
+              AND type = '${relationType}'
+              AND deleted_at IS NULL
+          )`),
+        };
+      }
+
       const canCreateSensitiveMedication = req.ability.can('create', 'SensitiveMedication');
 
       if (typeName === REFERENCE_TYPES.MEDICATION_SET && !canCreateSensitiveMedication) {
         baseWhere.id = {
+          ...(baseWhere.id || {}),
           [Op.notIn]: Sequelize.literal(`
             (SELECT DISTINCT(rdr.reference_data_parent_id)
             FROM reference_data_relations rdr
@@ -426,6 +442,7 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
 
       if (typeName === REFERENCE_TYPES.NOTE_TYPE) {
         baseWhere.id = {
+          ...(baseWhere.id || {}),
           [Op.notIn]: [NOTE_TYPES.AREA_TO_BE_IMAGED, NOTE_TYPES.RESULT_DESCRIPTION],
         };
       }
@@ -436,23 +453,9 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
       includeBuilder: req => {
         const {
           models: { ReferenceData, ReferenceMedicationTemplate, ReferenceDrug },
-          query: { parentId, relationType = DEFAULT_HIERARCHY_TYPE },
         } = req;
 
         const result = [
-          parentId && {
-            model: ReferenceData,
-            as: 'parent',
-            required: true,
-            attributes: [],
-            through: {
-              attributes: [],
-              where: {
-                referenceDataParentId: parentId,
-                type: relationType,
-              },
-            },
-          },
           typeName === REFERENCE_TYPES.DRUG && {
             model: ReferenceDrug,
             as: 'referenceDrug',
@@ -496,7 +499,6 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
           ];
         }
       },
-      shouldSkipDefaultOrder: () => typeName === REFERENCE_TYPES.MEDICATION_SET,
     },
     true,
   );
