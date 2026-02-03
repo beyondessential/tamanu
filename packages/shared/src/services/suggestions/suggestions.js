@@ -444,8 +444,9 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
             model: ReferenceData,
             as: 'parent',
             required: true,
+            attributes: [],
             through: {
-              attributes: ['id'],
+              attributes: [],
               where: {
                 referenceDataParentId: parentId,
                 type: relationType,
