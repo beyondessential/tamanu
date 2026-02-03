@@ -77,7 +77,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     }
   }
 
-  async getBaseQuery() {
+  async getBaseQuery(facilityId) {
     const lastSuccessfulPush = await this.models.MSupplyPushLog.findOne({
       where: {
         status: 'success',
@@ -112,6 +112,9 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
                 model: this.models.Facility,
                 as: 'facility',
                 required: true,
+                where: {
+                  id: facilityId,
+                },
               },
             ],
           },
@@ -175,7 +178,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
       );
     }
 
-    const baseQuery = await this.getBaseQuery();
+    const baseQuery = await this.getBaseQuery(facilityId);
     const toProcess = await this.models.MedicationDispense.count(baseQuery);
     if (toProcess === 0) return;
 
