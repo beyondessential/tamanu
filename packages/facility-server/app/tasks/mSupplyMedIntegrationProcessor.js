@@ -85,9 +85,43 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
       order: [['createdAt', 'DESC']],
     });
 
+    const include = [
+      {
+        model: this.models.PharmacyOrderPrescription,
+        as: 'pharmacyOrderPrescription',
+        required: true,
+        include: [
+          {
+            model: this.models.Prescription,
+            as: 'prescription',
+            required: true,
+            include: [
+              {
+                model: this.models.ReferenceData,
+                as: 'medication',
+                required: true,
+              },
+            ],
+          },
+          {
+            model: this.models.PharmacyOrder,
+            as: 'pharmacyOrder',
+            required: true,
+            include: [
+              {
+                model: this.models.Facility,
+                as: 'facility',
+                required: true,
+              },
+            ],
+          },
+        ],
+      },
+    ];
+
     // Process everything if there is no successful push
     if (!lastSuccessfulPush) {
-      return {};
+      return { include };
     }
 
     const { maxMedicationCreatedAt, maxMedicationId } = lastSuccessfulPush;
@@ -110,6 +144,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
           },
         ],
       },
+      include,
     };
   }
 
@@ -169,7 +204,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
       const body = {
         customerId,
         items: medications.map(medication => ({
-          universalCode: '',
+          universalCode: medication.pharmacyOrderPrescription.prescription.medication.code,
           quantity: medication.quantity,
         })),
       };
