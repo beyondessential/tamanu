@@ -20,7 +20,9 @@ export const TranslatedEnumField = ({
   const InputComponent = component;
 
   const translatedOptions = getTranslatedOptions(
-    Object.entries(enumValues).sort().map(([value, label]) => ({
+    Object.entries(enumValues)
+      .sort((a, b) => a[1].localeCompare(b[1]))
+      .map(([value, label]) => ({
       value,
       label,
     })),
