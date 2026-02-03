@@ -22,6 +22,10 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
   }
 `;
 
+const ResultCell = styled.span`
+  display: inline-block;
+`;
+
 export const LabRequestResultsTable = React.memo(({ labRequest, patient, refreshCount }) => {
   const { getTranslation } = useTranslation();
   const columns = useMemo(
@@ -67,16 +71,18 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
             ) : result;
 
           return (
-            <ConditionalTooltip
-              visible={supportsSecondaryResults && !!secondaryResult}
-              title={getTranslation(
-                'lab.results.tooltip.secondaryResult',
-                'Secondary result: :secondaryResult',
-                { replacements: { secondaryResult } },
-              )}
-            >
-              {resultText}
-            </ConditionalTooltip>
+            <ResultCell>
+              <ConditionalTooltip
+                visible={supportsSecondaryResults && !!secondaryResult}
+                title={getTranslation(
+                  'lab.results.tooltip.secondaryResult',
+                  'Secondary result: :secondaryResult',
+                  { replacements: { secondaryResult } },
+                )}
+              >
+                {resultText}
+              </ConditionalTooltip>
+            </ResultCell>
           );
         },
         sortable: false,
