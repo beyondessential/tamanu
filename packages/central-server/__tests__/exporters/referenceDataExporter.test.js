@@ -1085,4 +1085,35 @@ describe('Permission and Roles exporter', () => {
       '',
     );
   });
+
+  it('Should not show deleted roles in permissions export', async () => {
+    const { Role } = models;
+    await createRole(models, { id: 'admin', name: 'Admin' });
+    await createRole(models, { id: 'deletedRole', name: 'Deleted Role' });
+    await createPermission(models, { verb: 'list', noun: 'User', roleId: 'admin' });
+    await createPermission(models, { verb: 'list', noun: 'User', roleId: 'deletedRole' });
+
+    await Role.destroy({ where: { id: 'deletedRole' } });
+
+    await exporter(store, { 1: 'permission', 2: 'role' });
+    expect(writeExcelFile).toBeCalledWith(
+      [
+        {
+          data: [
+            ['verb', 'noun', 'objectId', 'admin'],
+            ['list', 'User', null, 'y'],
+          ],
+          name: 'Permission',
+        },
+        {
+          data: [
+            ['id', 'name'],
+            ['admin', 'Admin'],
+          ],
+          name: 'Role',
+        },
+      ],
+      '',
+    );
+  });
 });
