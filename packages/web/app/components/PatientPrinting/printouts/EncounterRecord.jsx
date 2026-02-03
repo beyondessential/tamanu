@@ -313,7 +313,7 @@ const COLUMNS = {
     {
       key: 'route',
       title: 'Route',
-      accessor: ({ route }) => <TranslatedEnum value={route} enumValues={DRUG_ROUTE_LABELS} />,
+      accessor: ({ route }) => <TranslatedEnum value={route} enumValues={DRUG_ROUTE_LABELS} fallback="" />,
       style: { width: '10%' },
     },
     {
