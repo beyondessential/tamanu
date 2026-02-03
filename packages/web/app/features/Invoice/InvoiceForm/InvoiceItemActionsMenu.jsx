@@ -147,31 +147,28 @@ const useInvoiceItemActionsMenu = ({
       disabled: !item.productId,
       hidden: !!item.sourceId || isFinalised,
     },
-    ...(item.approved
-      ? [
-          {
-            label: (
-              <TranslatedText
-                stringId="invoice.editInvoice.removeApproval"
-                fallback="Remove approval"
-                data-testid="translatedtext-y43b"
-              />
-            ),
-            onClick: () => handleApproval(false),
-          },
-        ]
-      : [
-          {
-            label: (
-              <TranslatedText
-                stringId="invoice.editInvoice.markAsApproved"
-                fallback="Mark as approved"
-                data-testid="translatedtext-c3a4"
-              />
-            ),
-            onClick: () => handleApproval(true),
-          },
-        ]),
+    {
+      label: (
+        <TranslatedText
+          stringId="invoice.editInvoice.removeApproval"
+          fallback="Remove approval"
+          data-testid="translatedtext-y43b"
+        />
+      ),
+      onClick: () => handleApproval(false),
+      hidden: !item.approved,
+    },
+    {
+      label: (
+        <TranslatedText
+          stringId="invoice.editInvoice.markAsApproved"
+          fallback="Mark as approved"
+          data-testid="translatedtext-c3a4"
+        />
+      ),
+      onClick: () => handleApproval(true),
+      hidden: item.approved,
+    },
     {
       label: (
         <TranslatedText
