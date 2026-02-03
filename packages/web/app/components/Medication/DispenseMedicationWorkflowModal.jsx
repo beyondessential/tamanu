@@ -4,7 +4,6 @@ import styled, { createGlobalStyle } from 'styled-components';
 import { Box } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { formatShort } from '@tamanu/utils/dateTime';
 import { DRUG_ROUTE_LABELS, MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 
@@ -15,6 +14,7 @@ import {
   TextInput,
   TranslatedReferenceData,
   TranslatedText,
+  useDateTimeFormat,
 } from '@tamanu/ui-components';
 
 import { useApi, useSuggester } from '../../api';
@@ -210,7 +210,7 @@ export const DispenseMedicationWorkflowModal = memo(
     const { facilityId, currentUser } = useAuth();
     const { getTranslation, getEnumTranslation } = useTranslation();
     const practitionerSuggester = useSuggester('practitioner');
-
+    const { formatShort } = useDateTimeFormat();
     const [step, setStep] = useState(MODAL_STEPS.DISPENSE);
     const [dispensedByUserId, setDispensedByUserId] = useState('');
     const [items, setItems] = useState([]);

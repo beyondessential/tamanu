@@ -2,8 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 
-import { formatShortest } from '@tamanu/utils/dateTime';
-import { BaseModal, Button, TranslatedReferenceData, TranslatedText } from '@tamanu/ui-components';
+import { BaseModal, Button, TranslatedReferenceData, TranslatedText, useDateTimeFormat } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 
@@ -46,6 +45,7 @@ const ActionRow = styled(Box)`
 `;
 
 export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
+  const { formatShortest } = useDateTimeFormat();
   if (!item || !open) return null;
 
   const {
