@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 
 import { ForbiddenError } from '@tamanu/errors';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 
 import { InvoiceRecordPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { Modal } from '../../Modal';
@@ -9,7 +10,6 @@ import { usePatientDataQuery } from '../../../api/queries/usePatientDataQuery';
 import { combineQueries } from '../../../api/combineQueries';
 import { useReferenceDataQuery } from '../../../api/queries/useReferenceDataQuery';
 import { usePatientAdditionalDataQuery } from '../../../api/queries/usePatientAdditionalDataQuery';
-import { useLocalisation } from '../../../contexts/Localisation';
 import { Colors } from '../../../constants';
 import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { PDFLoader, printPDF } from '../PDFLoader';
@@ -26,9 +26,9 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
     { casing: 'lower' },
   );
 
-  const { getLocalisation } = useLocalisation();
   const certificateQuery = useCertificate();
   const { getSetting } = useSettings();
+  const { countryTimeZone } = useDateTimeFormat();
   const enablePatientInsurer = getSetting('features.enablePatientInsurer');
   const { data: certificateData } = certificateQuery;
 
@@ -90,11 +90,11 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
           patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
           certificateData={certificateData}
-          getLocalisation={getLocalisation}
           getSetting={getSetting}
           clinicianText={clinicianText}
           invoice={invoice}
           enablePatientInsurer={enablePatientInsurer}
+          countryTimeZone={countryTimeZone}
           data-testid="invoicerecordprintout-0r2o"
         />
       </PDFLoader>

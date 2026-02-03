@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { IDLabelPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { Modal } from '../../Modal';
@@ -7,6 +8,7 @@ import { useSettings } from '../../../contexts/Settings';
 export const PatientStickerLabelPage = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);
   const { getSetting } = useSettings();
+  const { countryTimeZone } = useDateTimeFormat();
   const measures = getSetting('printMeasures.stickerLabelPage');
   return (
     <Modal
@@ -22,6 +24,7 @@ export const PatientStickerLabelPage = React.memo(({ patient }) => {
           patient={patient}
           measures={measures}
           getSetting={getSetting}
+          countryTimeZone={countryTimeZone}
           data-testid="idlabelprintout-m146"
         />
       </PDFLoader>

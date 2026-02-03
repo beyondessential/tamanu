@@ -15,8 +15,8 @@ import {
   getRequestId,
   getTimeOfSwab,
 } from './labRequestAccessors';
-import { getDisplayDate } from './getDisplayDate';
 import { withLanguageContext } from '../pdf/languageContext';
+import { withDateTimeContext, useDateTimeFormat } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 
 const columns = [
@@ -87,47 +87,50 @@ const CovidLabCertificateComponent = ({
   watermarkSrc,
   vdsSrc,
   logoSrc,
-  getLocalisation,
   getSetting,
   printedBy,
   certType,
-}) => (
-  <Document>
-    <Page size="A4" style={styles.page}>
-      {watermarkSrc && <Watermark src={watermarkSrc} />}
-      <CovidLetterheadSection getSetting={getSetting} logoSrc={logoSrc} />
-      <Box mb={0}>
-        <H3>{CertificateTitle[certType] || ''}</H3>
-        <CovidPatientDetailsSection
-          patient={patient}
-          vdsSrc={vdsSrc}
-          getLocalisation={getLocalisation}
-          getSetting={getSetting}
-        />
-      </Box>
-      <Box mb={30}>
-        <Table
-          data={labs}
-          columns={columns}
-          getLocalisation={getLocalisation}
-          getSetting={getSetting}
-        />
-      </Box>
-      <P>{getCertificateRemark(patient, getSetting)[certType] || ''}</P>
-      <Box />
-      <Box>
-        <Row>
-          <Col>
-            <P>Printed by: {printedBy}</P>
-          </Col>
-          <Col>
-            <P>Printing date: {getDisplayDate(undefined, undefined, getLocalisation)}</P>
-          </Col>
-        </Row>
-      </Box>
-      <SigningSection signingSrc={signingSrc} />
-    </Page>
-  </Document>
-);
+}) => {
+  const { formatShort, formatShortExplicit, formatTime } = useDateTimeFormat();
+  return (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        {watermarkSrc && <Watermark src={watermarkSrc} />}
+        <CovidLetterheadSection getSetting={getSetting} logoSrc={logoSrc} />
+        <Box mb={0}>
+          <H3>{CertificateTitle[certType] || ''}</H3>
+          <CovidPatientDetailsSection
+            patient={patient}
+            vdsSrc={vdsSrc}
+            getSetting={getSetting}
+          />
+        </Box>
+        <Box mb={30}>
+          <Table
+            data={labs}
+            columns={columns}
+            getSetting={getSetting}
+            formatters={{ formatShort, formatShortExplicit, formatTime }}
+          />
+        </Box>
+        <P>{getCertificateRemark(patient, getSetting)[certType] || ''}</P>
+        <Box />
+        <Box>
+          <Row>
+            <Col>
+              <P>Printed by: {printedBy}</P>
+            </Col>
+            <Col>
+              <P>Printing date: {formatShort(new Date())}</P>
+            </Col>
+          </Row>
+        </Box>
+        <SigningSection signingSrc={signingSrc} />
+      </Page>
+    </Document>
+  );
+};
 
-export const CovidLabCertificate = withLanguageContext(CovidLabCertificateComponent);
+export const CovidLabCertificate = withLanguageContext(
+  withDateTimeContext(CovidLabCertificateComponent),
+);

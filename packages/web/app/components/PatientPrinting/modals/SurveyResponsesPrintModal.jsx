@@ -1,5 +1,6 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 import { useApi } from '../../../api';
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
 import { useCertificate } from '../../../utils/useCertificate';
@@ -7,7 +8,6 @@ import { useCertificate } from '../../../utils/useCertificate';
 import { Modal, TranslatedText } from '../..';
 import { Colors } from '../../../constants';
 import { PDFLoader, printPDF } from '../PDFLoader';
-import { useLocalisation } from '../../../contexts/Localisation';
 import { useTranslation } from '../../../contexts/Translation';
 import { SurveyResponsesPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { useTransformedSurveyResponseQuery } from '../../../api/queries/useSurveyResponseQuery';
@@ -16,13 +16,13 @@ import { useSettings } from '../../../contexts/Settings';
 
 export const SurveyResponsesPrintModal = React.memo(
   ({ patient, open, onClose, surveyResponseId, title, isReferral, submittedBy }) => {
-    const { getLocalisation } = useLocalisation();
     const { getTranslation } = useTranslation();
     const { getSetting } = useSettings();
     const api = useApi();
     const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
 
     const { facilityId, currentUser } = useAuth();
+    const { countryTimeZone } = useDateTimeFormat();
     const { data: facility, isLoading: isFacilityLoading } = useQuery(
       ['facility', facilityId],
       async () => await api.get(`facility/${encodeURIComponent(facilityId)}`),
@@ -94,12 +94,12 @@ export const SurveyResponsesPrintModal = React.memo(
               submittedBy: submittedBy || user?.displayName,
             }}
             certificateData={certificateData}
-            getLocalisation={getLocalisation}
             getTranslation={getTranslation}
             getSetting={getSetting}
             isReferral={isReferral}
             currentUser={currentUser}
             facility={facility}
+            countryTimeZone={countryTimeZone}
             data-testid="surveyresponsesprintout-7nfz"
           />
         </PDFLoader>

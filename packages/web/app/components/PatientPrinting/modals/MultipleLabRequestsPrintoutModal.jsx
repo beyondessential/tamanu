@@ -2,13 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 
+import { useDateTimeFormat } from '@tamanu/ui-components';
+
 import { Modal } from '../../Modal';
 import { useCertificate } from '../../../utils/useCertificate';
 import { useApi } from '../../../api';
 import { Colors } from '../../../constants';
-
 import { PDFLoader, printPDF } from '../PDFLoader';
-import { useLocalisation } from '../../../contexts/Localisation';
 import { useTranslation } from '../../../contexts/Translation';
 import { useSettings } from '../../../contexts/Settings';
 import { MultipleLabRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
@@ -17,9 +17,9 @@ import { usePatientAdditionalDataQuery } from '../../../api/queries';
 
 export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open, onClose }) => {
   const api = useApi();
-  const { getLocalisation } = useLocalisation();
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
+  const { countryTimeZone } = useDateTimeFormat();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
 
   const { data: patient, isLoading: isPatientLoading } = useQuery(
@@ -67,9 +67,9 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
           patientData={{ ...patient, additionalData, village }}
           encounter={encounter}
           labRequests={labRequests}
-          getLocalisation={getLocalisation}
           getTranslation={getTranslation}
           getSetting={getSetting}
+          countryTimeZone={countryTimeZone}
           data-testid="multiplelabrequestsprintout-fhui"
         />
       </PDFLoader>

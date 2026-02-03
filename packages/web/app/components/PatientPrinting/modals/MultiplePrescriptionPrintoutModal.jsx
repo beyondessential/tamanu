@@ -2,12 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 
+import { useDateTimeFormat } from '@tamanu/ui-components';
+
 import { Modal } from '../../Modal';
 import { useCertificate } from '../../../utils/useCertificate';
 import { useApi } from '../../../api';
 import { Colors } from '../../../constants';
 import { PrescriptionPrintout } from '@tamanu/shared/utils/patientCertificates';
-import { useLocalisation } from '../../../contexts/Localisation';
 import { useSettings } from '../../../contexts/Settings';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { useAuth } from '../../../contexts/Auth';
@@ -22,11 +23,11 @@ export const MultiplePrescriptionPrintoutModal = ({
   onClose,
   patientWeight,
 }) => {
-  const { getLocalisation } = useLocalisation();
   const { getSetting } = useSettings();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
   const api = useApi();
   const { facilityId } = useAuth();
+  const { countryTimeZone } = useDateTimeFormat();
 
   const { data: patient, isLoading: isPatientLoading } = useQuery(
     ['patient', encounter.patientId],
@@ -91,8 +92,8 @@ export const MultiplePrescriptionPrintoutModal = ({
           prescriptions={prescriptions}
           encounterData={encounter}
           facility={facility}
-          getLocalisation={getLocalisation}
           getSetting={getSetting}
+          countryTimeZone={countryTimeZone}
           data-testid="prescriptionprintout-on8m"
         />
       </PDFLoader>

@@ -1,18 +1,17 @@
 import React, { useState } from 'react';
-import { Button, Modal, TranslatedText } from '@tamanu/ui-components';
+import { Button, Modal, TranslatedText, useDateTimeFormat } from '@tamanu/ui-components';
 import { useCertificate } from '../../../utils/useCertificate';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { DeathCertificatePrintout } from '@tamanu/shared/utils/patientCertificates';
-import { useLocalisation } from '../../../contexts/Localisation';
 import { usePatientAdditionalDataQuery, useReferenceDataQuery } from '../../../api/queries';
 import { useTranslation } from '../../../contexts/Translation';
 import { useSettings } from '../../../contexts/Settings';
 
 export const DeathCertificateModal = ({ patient, deathData }) => {
   const [isOpen, setIsOpen] = useState();
-  const { getLocalisation } = useLocalisation();
   const { storedLanguage, translations } = useTranslation();
   const { getSetting } = useSettings();
+  const { countryTimeZone } = useDateTimeFormat();
 
   const {
     data: additionalData,
@@ -53,10 +52,10 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
           <DeathCertificatePrintout
             patientData={patientData}
             certificateData={certificateData}
-            getLocalisation={getLocalisation}
             getSetting={getSetting}
             language={storedLanguage}
             translations={translations}
+            countryTimeZone={countryTimeZone}
             data-testid="deathcertificateprintout-l7w8"
           />
         </PDFLoader>

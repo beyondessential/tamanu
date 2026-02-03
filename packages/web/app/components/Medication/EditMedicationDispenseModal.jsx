@@ -2,8 +2,6 @@ import React, { useEffect, useState, memo } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import { Box } from '@material-ui/core';
 
-import { formatShort } from '@tamanu/utils/dateTime';
-
 import {
   BaseModal,
   ConfirmCancelBackRow,
@@ -11,6 +9,7 @@ import {
   TextInput,
   TranslatedText,
   TranslatedReferenceData,
+  useDateTimeFormat,
 } from '@tamanu/ui-components';
 
 import { useApi, useSuggester } from '../../api';
@@ -151,7 +150,7 @@ export const EditMedicationDispenseModal = memo(
     const { facilityId } = useAuth();
     const { getTranslation } = useTranslation();
     const practitionerSuggester = useSuggester('practitioner');
-
+    const { formatShort } = useDateTimeFormat();
     const [step, setStep] = useState(MODAL_STEPS.DISPENSE);
     const [dispensedByUserId, setDispensedByUserId] = useState('');
     const [item, setItem] = useState(null);

@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
+import { useDateTimeFormat } from '@tamanu/ui-components';
+
 import { Modal } from '../../Modal';
 import { useCertificate } from '../../../utils/useCertificate';
 import { useApi } from '../../../api';
 
 import { PrescriptionPrintout } from '@tamanu/shared/utils/patientCertificates';
-import { useLocalisation } from '../../../contexts/Localisation';
 import { useSettings } from '../../../contexts/Settings';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { useAuth } from '../../../contexts/Auth';
@@ -14,7 +15,6 @@ import { TranslatedText } from '../../Translation/TranslatedText';
 import { useEncounter } from '../../../contexts/Encounter';
 
 export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClose }) => {
-  const { getLocalisation } = useLocalisation();
   const { getSetting } = useSettings();
   const { data: certificateData, isFetching: isFetchingCertificate } = useCertificate();
   const api = useApi();
@@ -27,6 +27,7 @@ export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClos
   const [villageLoading, setVillageLoading] = useState(false);
   const [prescriberLoading, setPrescriberLoading] = useState(false);
   const { facilityId } = useAuth();
+  const { countryTimeZone } = useDateTimeFormat();
   const { encounter, isLoadingEncounter } = useEncounter();
 
   useEffect(() => {
@@ -110,8 +111,8 @@ export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClos
             certificateData={certificateData}
             facility={facility}
             prescriber={prescriber}
-            getLocalisation={getLocalisation}
             getSetting={getSetting}
+            countryTimeZone={countryTimeZone}
             data-testid="prescriptionprintout-95jw"
           />
         </PDFLoader>

@@ -1,8 +1,10 @@
 import React from 'react';
-import ReactPDF from '@react-pdf/renderer';
 import path from 'path';
 import QRCode from 'qrcode';
+import config from 'config';
 import { get } from 'lodash';
+import ReactPDF from '@react-pdf/renderer';
+
 import { ASSET_FALLBACK_NAMES, ASSET_NAMES } from '@tamanu/constants';
 
 import {
@@ -102,6 +104,7 @@ export const makeCovidVaccineCertificate = async ({
       vdsSrc={vds}
       getLocalisation={getLocalisationData}
       getSetting={getSettingData}
+      countryTimeZone={config.countryTimeZone}
       language={language}
     />,
     fileName,
@@ -119,6 +122,7 @@ export const makeVaccineCertificate = async ({
   translations,
 }) => {
   const [localisation, settingsObj] = await Promise.all([getLocalisation(), settings.getAll()]);
+  const getLocalisationData = key => get(localisation, key);
   const getSettingData = key => get(settingsObj, key);
 
   const { title, subTitle } = await settings.get('templates.letterhead');
@@ -142,11 +146,12 @@ export const makeVaccineCertificate = async ({
       watermarkSrc={watermark}
       logoSrc={logo}
       translations={translations}
-      localisation={localisation}
+      getLocalisation={getLocalisationData}
       language={language}
       certificateData={{ title, subTitle }}
       healthFacility={healthFacility}
       getSetting={getSettingData}
+      countryTimeZone={config.countryTimeZone}
     />,
     fileName,
   );
@@ -218,6 +223,7 @@ export const makeCovidCertificate = async ({
       vdsSrc={vds}
       getLocalisation={getLocalisationData}
       getSetting={getSettingData}
+      countryTimeZone={config.countryTimeZone}
       certType={certType}
       language={language}
     />,

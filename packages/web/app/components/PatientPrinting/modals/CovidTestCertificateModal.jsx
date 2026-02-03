@@ -1,10 +1,11 @@
 import React, { useCallback, useState } from 'react';
+
 import { CertificateTypes, CovidLabCertificate } from '@tamanu/shared/utils/patientCertificates';
 import { ASSET_NAMES, ICAO_DOCUMENT_TYPES } from '@tamanu/constants';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 
 import { Modal } from '../../Modal';
 import { useApi } from '../../../api';
-import { useLocalisation } from '../../../contexts/Localisation';
 import { EmailButton } from '../../Email/EmailButton';
 import { useCertificate } from '../../../utils/useCertificate';
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
@@ -15,8 +16,8 @@ import { useSettings } from '../../../contexts/Settings';
 
 export const CovidTestCertificateModal = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);
-  const { getLocalisation } = useLocalisation();
   const { getSetting } = useSettings();
+  const { countryTimeZone } = useDateTimeFormat();
   const api = useApi();
 
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
@@ -65,10 +66,10 @@ export const CovidTestCertificateModal = React.memo(({ patient }) => {
           watermarkSrc={watermark}
           signingSrc={footerImg}
           logoSrc={logo}
-          getLocalisation={getLocalisation}
           getSetting={getSetting}
           printedBy={printedBy}
           certType={CertificateTypes.test}
+          countryTimeZone={countryTimeZone}
           data-testid="covidlabcertificate-203o"
         />
       </PDFLoader>

@@ -1,11 +1,12 @@
 import React from 'react';
-import { getDisplayDate } from '../patientCertificates/getDisplayDate';
 import { Box, Logo } from '../patientCertificates/Layout';
 import { H1, H3 } from '../patientCertificates/Typography';
 import { Divider } from './Divider';
+import { useDateTimeFormat } from '../pdf/withDateTimeContext';
 
 export const HandoverHeaderSection = ({ letterheadConfig, logoSrc, locationGroupName }) => {
   const { title, subTitle } = letterheadConfig;
+  const { formatShortestDateTime } = useDateTimeFormat();
   return (
     <>
       {logoSrc && <Logo logoSrc={logoSrc} />}
@@ -51,7 +52,7 @@ export const HandoverHeaderSection = ({ letterheadConfig, logoSrc, locationGroup
             marginTop: 0,
           }}
         >
-          {locationGroupName} | {getDisplayDate(new Date(), 'dd/MM/yy hh:mm a')}
+          {locationGroupName} | {formatShortestDateTime(new Date())}
         </H1>
       </Box>
       <Divider />

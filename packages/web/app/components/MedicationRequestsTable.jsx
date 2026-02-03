@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { SearchTableWithPermissionCheck } from './Table';
-import { DateDisplay, formatTime } from './DateDisplay';
+import { DateDisplay } from './DateDisplay';
 import { PatientNameDisplay } from './PatientNameDisplay';
 import { useMedicationsContext } from '../contexts/Medications';
 import { TranslatedText } from './Translation/TranslatedText';
@@ -10,7 +10,7 @@ import { MEDICATIONS_SEARCH_KEYS } from '../constants/medication';
 import { Colors } from '../constants';
 import { MenuButton } from './MenuButton';
 import { DispenseMedicationWorkflowModal } from './Medication/DispenseMedicationWorkflowModal';
-import { ThemedTooltip, TranslatedEnum, TranslatedReferenceData } from '@tamanu/ui-components';
+import { ThemedTooltip, TranslatedEnum, TranslatedReferenceData, useDateTimeFormat } from '@tamanu/ui-components';
 import { BodyText } from './Typography';
 import { PHARMACY_PRESCRIPTION_TYPE_LABELS, PHARMACY_PRESCRIPTION_TYPES } from '@tamanu/constants';
 import { useApi } from '../api';
@@ -106,7 +106,7 @@ const getMedication = ({ prescription }) => {
 const getPrescriber = ({ prescription }) => {
   return prescription?.prescriber?.displayName;
 };
-const getDateSent = ({ pharmacyOrder }) => (
+const getDateSent = ({ pharmacyOrder }, formatTime) => (
   <div>
     <DateDisplay
       date={pharmacyOrder?.date}
@@ -121,6 +121,7 @@ const getDateSent = ({ pharmacyOrder }) => (
 );
 
 export const MedicationRequestsTable = () => {
+  const { formatTime } = useDateTimeFormat();
   const api = useApi();
   const { ability, facilityId } = useAuth();
   const { searchParameters } = useMedicationsContext(MEDICATIONS_SEARCH_KEYS.ACTIVE);
@@ -249,7 +250,7 @@ export const MedicationRequestsTable = () => {
           data-testid="translatedtext-date-sent-column-title"
         />
       ),
-      accessor: getDateSent,
+      accessor: row => getDateSent(row, formatTime),
       sortable: true,
     },
     {
