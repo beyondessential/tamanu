@@ -307,7 +307,6 @@ const COLUMNS = {
       title: 'Ordered by',
       accessor: ({ orderedByUser }) => orderedByUser?.displayName,
       style: { width: '24%' },
-      subRowLabel: true 
     },
     {
       key: 'price',
@@ -561,9 +560,9 @@ const SummaryPane = ({ invoice }) => {
         <P>Item adjustments</P>
         <P>{itemAdjustmentsTotal}</P>
       </View>
-      <P bold>Insurance coverage</P>
       {insurancePlanCoverages.length > 0 && (
         <>
+          <P bold>Insurance coverage</P>
           {insurancePlanCoverages.map(plan => (
             <View key={plan.id} style={summaryPaneStyles.item}>
               <P>{plan.name || plan.code}</P>
