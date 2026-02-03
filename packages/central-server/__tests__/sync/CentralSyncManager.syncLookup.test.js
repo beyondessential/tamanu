@@ -141,6 +141,7 @@ describe('Sync Lookup data', () => {
       InvoiceItem,
       InvoiceItemDiscount,
       InvoicePayment,
+      InvoiceItemFinalisedInsurance,
       LabTestPanelRequest,
       Procedure,
       ProcedureAssistantClinician,
@@ -670,6 +671,12 @@ describe('Sync Lookup data', () => {
     await InvoiceItemDiscount.create(
       fake(InvoiceItemDiscount, {
         invoiceItemId: invoiceItem.id,
+      }),
+    );
+    await InvoiceItemFinalisedInsurance.create(
+      fake(InvoiceItemFinalisedInsurance, {
+        invoiceItemId: invoiceItem.id,
+        invoiceInsurancePlanId: contract.id,
       }),
     );
 
