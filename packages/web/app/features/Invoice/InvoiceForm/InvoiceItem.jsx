@@ -232,6 +232,7 @@ export const InvoiceItemRow = ({
           onUpdateInvoice={onUpdateInvoice}
           onUpdateApproval={onUpdateApproval}
           isFinalised={isFinalised}
+          isSaved={isSaved}
         />
       )}
     </StyledItemRow>

@@ -184,11 +184,16 @@ const InvoiceMenu = ({
       hidden: !isInvoiceEditable(invoice),
     });
   }
+
+  const hasVisibleActions = ACTIONS.some(action => !action.hidden);
+
   return (
     <ActionsPane data-testid="actionspane-l9ey">
-      <NoteModalActionBlocker>
-        <ThreeDotMenu items={ACTIONS} data-testid="threedotmenu-5t9u" />
-      </NoteModalActionBlocker>
+      {hasVisibleActions && (
+        <NoteModalActionBlocker>
+          <ThreeDotMenu items={ACTIONS} data-testid="threedotmenu-5t9u" />
+        </NoteModalActionBlocker>
+      )}
       {!isInProgress && (
         <PrintButton
           onClick={() => setInvoiceModalType(INVOICE_MODAL_TYPES.PRINT)}

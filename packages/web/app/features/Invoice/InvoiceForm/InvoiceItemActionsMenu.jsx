@@ -15,6 +15,7 @@ const useInvoiceItemActionsMenu = ({
   onUpdateInvoice,
   onUpdateApproval,
   isFinalised,
+  isSaved,
 }) => {
   const [actionModal, setActionModal] = useState();
   const { values } = useFormikContext();
@@ -156,7 +157,7 @@ const useInvoiceItemActionsMenu = ({
         />
       ),
       onClick: () => handleApproval(false),
-      hidden: !item.approved,
+      hidden: !item.approved || !isSaved,
     },
     {
       label: (
@@ -167,7 +168,7 @@ const useInvoiceItemActionsMenu = ({
         />
       ),
       onClick: () => handleApproval(true),
-      hidden: item.approved,
+      hidden: item.approved || !isSaved,
     },
     {
       label: (
@@ -205,6 +206,7 @@ export const InvoiceItemActionsMenu = ({
   onUpdateInvoice,
   onUpdateApproval,
   isFinalised,
+  isSaved,
 }) => {
   const { actionModal, onCloseActionModal, handleAction, menuItems } = useInvoiceItemActionsMenu({
     item,
@@ -213,6 +215,7 @@ export const InvoiceItemActionsMenu = ({
     index,
     hidePriceInput,
     isFinalised,
+    isSaved,
   });
   return (
     <>
