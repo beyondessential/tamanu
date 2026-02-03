@@ -15,17 +15,13 @@ import { FhirResource } from './Resource';
 import type { InitOptions, Models } from '../../types/model';
 import type { LabRequest } from '../../models/LabRequest';
 
-const observationValue = yup.object({
-  valueQuantity: FhirQuantity.asYup().optional(),
-  valueCodeableConcept: FhirCodeableConcept.asYup().optional(),
-  valueString: yup.string().optional(),
-});
-
 export class FhirObservation extends FhirResource {
   declare basedOn: { type: string; reference: string }[];
   declare status: string;
   declare code: Record<string, any>;
-  declare value: Record<string, any>;
+  declare valueQuantity?: FhirQuantity;
+  declare valueCodeableConcept?: FhirCodeableConcept;
+  declare valueString?: string;
 
   static initModel(options: InitOptions, models: Models) {
     super.initResource(
@@ -42,8 +38,14 @@ export class FhirObservation extends FhirResource {
           type: DataTypes.JSONB,
           allowNull: false,
         },
-        value: {
+        valueQuantity: {
           type: DataTypes.JSONB,
+        },
+        valueCodeableConcept: {
+          type: DataTypes.JSONB,
+        },
+        valueString: {
+          type: DataTypes.TEXT,
         },
       },
       options,
@@ -60,11 +62,9 @@ export class FhirObservation extends FhirResource {
       basedOn: yup.array().of(FhirReference.asYup()).required(),
       status: yup.string().required(),
       code: FhirCodeableConcept.asYup().required(),
-      value: yup.object({
-        valueQuantity: FhirQuantity.asYup(),
-        valueCodeableConcept: FhirCodeableConcept.asYup(),
-        valueString: yup.string(),
-      }),
+      valueQuantity: FhirQuantity.asYup(),
+      valueCodeableConcept: FhirCodeableConcept.asYup(),
+      valueString: yup.string(),
     });
   }
 
@@ -174,13 +174,16 @@ export class FhirObservation extends FhirResource {
   }
 
   getValue() {
-    const validatedValue = observationValue.validateSync(this.value);
-    if (validatedValue.valueQuantity) {
-      return `${validatedValue.valueQuantity.value}`;
+    if (this.valueQuantity) {
+      const validatedValueQuantity = FhirQuantity.SCHEMA().validateSync(this.valueQuantity);
+      return `${validatedValueQuantity.value}`;
     }
 
-    if (validatedValue.valueCodeableConcept) {
-      const valueCode = validatedValue.valueCodeableConcept.coding[0]?.code;
+    if (this.valueCodeableConcept) {
+      const validatedValueCodeableConcept = FhirCodeableConcept.SCHEMA().validateSync(
+        this.valueCodeableConcept,
+      );
+      const valueCode = validatedValueCodeableConcept.coding[0]?.code;
       if (!valueCode) {
         throw new Invalid('Invalid code, must provide at least one coding', {
           code: FHIR_ISSUE_TYPE.INVALID.VALUE,
@@ -189,7 +192,7 @@ export class FhirObservation extends FhirResource {
       return valueCode;
     }
 
-    if (!validatedValue.valueString) {
+    if (!this.valueString) {
       throw new Invalid(
         'Invalid value, must provide a valueString or valueQuantity or valueCodeableConcept',
         {
@@ -197,6 +200,6 @@ export class FhirObservation extends FhirResource {
         },
       );
     }
-    return validatedValue.valueString;
+    return this.valueString;
   }
 }

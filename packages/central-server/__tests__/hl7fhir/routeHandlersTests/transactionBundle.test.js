@@ -185,9 +185,7 @@ describe(`FHIR API - Transaction Bundle`, () => {
                   },
                 ],
               },
-              value: {
-                valueString: `Result ${index}`,
-              },
+              valueString: `Result ${index}`,
             },
             request: {
               method: 'POST',

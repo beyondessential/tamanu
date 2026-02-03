@@ -93,9 +93,7 @@ describe('Create Observation', () => {
             ({ system }) => system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
           ),
         },
-        value: {
-          valueString: result,
-        },
+        valueString: result,
       };
 
       const response = await app.post(endpoint).send(body);
@@ -144,9 +142,7 @@ describe('Create Observation', () => {
               system === config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem,
           ),
         },
-        value: {
-          valueString: result,
-        },
+        valueString: result,
       };
 
       const response = await app.post(endpoint).send(body);
@@ -193,9 +189,7 @@ describe('Create Observation', () => {
             },
           ],
         },
-        value: {
-          valueString: result,
-        },
+        valueString: result,
       };
 
       const response = await app.post(endpoint).send(body);
@@ -225,9 +219,7 @@ describe('Create Observation', () => {
               },
             ],
           },
-          value: {
-            valueString: '100',
-          },
+          valueString: '100',
         };
 
         const response = await app.post(endpoint).send(body);
@@ -282,9 +274,7 @@ describe('Create Observation', () => {
               },
             ],
           },
-          value: {
-            valueString: '100',
-          },
+          valueString: '100',
         };
 
         const response = await app.post(endpoint).send(body);
