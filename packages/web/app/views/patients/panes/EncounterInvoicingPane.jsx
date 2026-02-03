@@ -169,6 +169,17 @@ const InvoiceMenu = ({
       onClick: () => handleAllApprovals(true),
       hidden: allItemsAreApproved || isCancelled,
     },
+    {
+      label: (
+        <TranslatedText
+          stringId="invoice.editInvoice.printInvoice"
+          fallback="Print invoice"
+          data-testid="translatedtext-31yh"
+        />
+      ),
+      onClick: () => setInvoiceModalType(INVOICE_MODAL_TYPES.PRINT),
+      hidden: !isInProgress,
+    },
   ];
 
   if (!isEditing) {
