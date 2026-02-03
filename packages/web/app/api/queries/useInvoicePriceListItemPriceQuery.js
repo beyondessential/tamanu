@@ -18,6 +18,7 @@ export const useInvoicePriceListItemPriceQuery = ({
           encounterId,
           productId,
         },
+        // Don't show error toasts when a price list isn't found as it's a valid configurable state
         { showUnknownErrorToast: false },
       ),
     {
