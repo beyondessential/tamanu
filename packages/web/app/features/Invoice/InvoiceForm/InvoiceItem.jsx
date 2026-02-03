@@ -24,7 +24,7 @@ const StyledItemRow = styled.div`
   font-size: 14px;
   padding: 12px 50px 12px 30px;
   background: ${Colors.white};
-  border-top: 1px solid ${Colors.outline};
+  border-bottom: 1px solid ${Colors.outline};
 
   .MuiInputBase-input {
     font-size: 14px;
@@ -32,13 +32,6 @@ const StyledItemRow = styled.div`
 
   .MuiFormControl-root {
     margin: -8px 0 -8px -6px;
-  }
-
-  .MuiInputBase-root {
-  }
-
-  &:last-child {
-    border-bottom: 1px solid ${Colors.outline};
   }
 `;
 

@@ -25,10 +25,9 @@ const AddButton = styled(MuiButton)`
   top: -2px;
 
   .MuiButton-startIcon {
-    width: 20px;
+    width: 18px;
     position: relative;
-    top: -2px;
-    margin-right: 2px;
+    margin-right: 1px;
   }
 `;
 
@@ -43,7 +42,7 @@ const SubmitButton = styled(FormSubmitButton)`
 const FormFooter = styled.div`
   display: flex;
   justify-content: space-between;
-  margin: 10px 0;
+  margin: 5px 0;
 `;
 
 const getDefaultRow = () => ({ id: uuidv4(), quantity: 1, orderDate: getCurrentDateString() });
@@ -130,9 +129,7 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
       onSubmit={handleSubmit}
       enableReinitialize
       initialValues={{
-        invoiceItems: invoice.items?.length
-          ? [...invoice.items, ...inProgressItems]
-          : [editable ? getDefaultRow() : {}],
+        invoiceItems: invoice.items?.length ? [...invoice.items, ...inProgressItems] : [],
         insurers: invoice.insurers?.length
           ? invoice.insurers.map(insurer => ({
               ...insurer,

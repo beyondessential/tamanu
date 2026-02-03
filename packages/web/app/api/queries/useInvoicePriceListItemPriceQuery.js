@@ -12,10 +12,14 @@ export const useInvoicePriceListItemPriceQuery = ({
   return useQuery(
     ['invoices/price-list-item', encounterId, productId],
     () =>
-      api.get('invoices/price-list-item', {
-        encounterId,
-        productId,
-      }),
+      api.get(
+        'invoices/price-list-item',
+        {
+          encounterId,
+          productId,
+        },
+        { showUnknownErrorToast: false },
+      ),
     {
       enabled,
       onSuccess,

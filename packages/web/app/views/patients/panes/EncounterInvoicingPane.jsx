@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Typography, Box } from '@material-ui/core';
+import { Button, OutlinedButton, ThemedTooltip } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
+import { INVOICE_STATUSES } from '@tamanu/constants';
 import PrintIcon from '@material-ui/icons/Print';
 import CircularProgress from '@material-ui/core/CircularProgress';
-
-import { INVOICE_STATUSES } from '@tamanu/constants';
-import { Button, OutlinedButton } from '@tamanu/ui-components';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
-
-import { Colors } from '../../../constants/styles';
 import {
   InvoiceModalGroup,
   InvoiceStatus,
@@ -30,7 +28,7 @@ import { usePatientDataQuery } from '../../../api/queries';
 import {
   useCreateInvoice,
   useBulkUpdateInvoiceItemApproval,
-} from '../../../api/mutations/useInvoiceMutation.js';
+} from '../../../api/mutations/useInvoiceMutation';
 
 const EmptyPane = styled(ContentPane)`
   text-align: center;
@@ -74,7 +72,7 @@ const InvoiceContainer = styled.div`
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
   // Triggers a horizontal scroll bar on the parent
-  min-width: 860px;
+  min-width: 700px;
 `;
 
 const PrintButton = styled(OutlinedButton)`
@@ -99,13 +97,7 @@ const PaymentsSection = styled.div`
   }
 `;
 
-const InvoiceMenu = ({
-  encounter,
-  invoice,
-  setInvoiceModalType,
-  setEditing,
-  isEditing,
-}) => {
+const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEditing }) => {
   const { ability } = useAuth();
   const canCreateInvoice = ability.can('create', 'Invoice');
   const canWriteInvoice = ability.can('write', 'Invoice');
@@ -273,6 +265,23 @@ export const EncounterInvoicingPane = ({ encounter }) => {
   }
 
   const isInProgress = invoice.status === INVOICE_STATUSES.IN_PROGRESS;
+  const priceListText = invoice.priceList?.name ?? (
+    <ThemedTooltip
+      title={
+        <TranslatedText
+          stringId="invoice.priceListFallback.tooltip"
+          fallback="There is no price list configured for this patient"
+        />
+      }
+    >
+      <span>
+        <TranslatedText
+          stringId="invoice.priceListFallback.text"
+          fallback="(No prices configured)"
+        />
+      </span>
+    </ThemedTooltip>
+  );
 
   return (
     <>
@@ -286,7 +295,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                   {invoice.displayId}
                 </InvoiceTitle>
                 <InvoiceSubTitle>
-                  {patient?.village?.name} {invoice.priceList?.name}
+                  {patient?.village?.name} {priceListText}
                 </InvoiceSubTitle>
               </Box>
               <InvoiceStatus status={invoice.status} data-testid="invoicestatus-qb63" />
