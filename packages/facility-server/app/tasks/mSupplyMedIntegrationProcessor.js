@@ -29,12 +29,18 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     await this.models.MSupplyPushLog.create(values);
   }
 
+  async getSettings(facilityId) {
+    const integrationSettings = await this.context.settings[facilityId]?.get(
+      'integrations.mSupplyMed',
+    );
+    return integrationSettings ?? {};
+  }
+
   async postRequest(
     { bodyJson },
-    { minMedicationCreatedAt, maxMedicationCreatedAt, maxMedicationId, serverFacilityId },
+    { minMedicationCreatedAt, maxMedicationCreatedAt, maxMedicationId, facilityId },
   ) {
-    const { host, backoff } =
-      await this.context.settings[serverFacilityId].get('integrations.mSupplyMed');
+    const { host, backoff } = await this.getSettings(facilityId);
     const authToken = 'Bearer 1234567890';
 
     try {
@@ -159,10 +165,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     }
 
     const [facilityId] = this.serverFacilityIds;
-    const integrationSettings = await this.context.settings[facilityId]?.get(
-      'integrations.mSupplyMed',
-    );
-    const { host, customerId } = integrationSettings ?? {};
+    const { host, customerId } = await this.getSettings(facilityId);
     const { enabled, username, password } = config.integrations.mSupplyMed;
     const { batchSize, batchSleepAsyncDurationInMilliseconds } = this.config;
 
@@ -204,6 +207,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
       log.info(`Sending ${medications.length} dispensed medications to mSupply`, {
         minMedicationCreatedAt,
         maxMedicationCreatedAt,
+        maxMedicationId,
       });
 
       const body = {
@@ -222,7 +226,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
             minMedicationCreatedAt,
             maxMedicationCreatedAt,
             maxMedicationId,
-            serverFacilityId: this.serverFacilityIds[0],
+            facilityId,
           },
         );
       } catch (error) {
