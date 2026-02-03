@@ -117,7 +117,7 @@ const COLUMNS = {
       key: 'dateMoved',
       title: 'Date & time moved',
       accessor: ({ date }) =>
-        <DateDisplay date={date} timeFormat="default" data-testid="datedisplay-8jmd" /> || {},
+        <DateDisplay date={date} timeFormat="default" data-testid="datedisplay-8jmd" />,
       style: { width: '30%' },
     },
   ],
@@ -139,7 +139,7 @@ const COLUMNS = {
       key: 'dateMoved',
       title: 'Date & time moved',
       accessor: ({ date }) =>
-        <DateDisplay date={date} timeFormat="default" data-testid="datedisplay-7isg" /> || {},
+        <DateDisplay date={date} timeFormat="default" data-testid="datedisplay-7isg" />,
       style: { width: '30%' },
     },
   ],
@@ -174,7 +174,7 @@ const COLUMNS = {
       key: 'date',
       title: 'Date',
       accessor: ({ date }) =>
-        <DateDisplay date={date} data-testid="datedisplay-hynw" /> || {},
+        <DateDisplay date={date} data-testid="datedisplay-hynw" />,
       style: { width: '20%' },
     },
   ],
@@ -203,7 +203,7 @@ const COLUMNS = {
       key: 'procedureDate',
       title: 'Procedure date',
       accessor: ({ date }) =>
-        <DateDisplay date={date} data-testid="datedisplay-deyp" /> || {},
+        <DateDisplay date={date} data-testid="datedisplay-deyp" />,
       style: { width: '20%' },
     },
   ],
@@ -228,14 +228,14 @@ const COLUMNS = {
       key: 'requestDate',
       title: 'Request date',
       accessor: ({ requestDate }) =>
-        <DateDisplay date={requestDate} data-testid="datedisplay-db0y" /> || {},
+        <DateDisplay date={requestDate} data-testid="datedisplay-db0y" />,
       style: { width: '20%' },
     },
     {
       key: 'completedDate',
       title: 'Completed date',
       accessor: ({ completedDate }) =>
-        <DateDisplay date={completedDate} data-testid="datedisplay-sl34" /> || {},
+        <DateDisplay date={completedDate} data-testid="datedisplay-sl34" />,
       style: { width: '20%' },
     },
   ],
@@ -312,7 +312,7 @@ const COLUMNS = {
       key: 'route',
       title: 'Route',
       accessor: ({ route }) =>
-        <TranslatedEnum value={route} enumValues={DRUG_ROUTE_LABELS} /> || '',
+        <TranslatedEnum value={route} enumValues={DRUG_ROUTE_LABELS} />,
       style: { width: '10%' },
     },
     {
