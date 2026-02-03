@@ -155,9 +155,11 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
       return;
     }
 
-    const { host, customerId } =
-      (await this.context.settings[this.serverFacilityIds[0]]?.get('integrations.mSupplyMed')) ??
-      {};
+    const [facilityId] = this.serverFacilityIds;
+    const integrationSettings = await this.context.settings[facilityId]?.get(
+      'integrations.mSupplyMed',
+    );
+    const { host, customerId } = integrationSettings ?? {};
     const { enabled, username, password } = config.integrations.mSupplyMed;
     const { batchSize, batchSleepAsyncDurationInMilliseconds } = this.config;
 
