@@ -2,7 +2,18 @@ import { ModelExporter } from './ModelExporter';
 
 export class PermissionExporter extends ModelExporter {
   async getData() {
-    const permissions = await this.models.Permission.findAll({ paranoid: false });
+    const permissions = await this.models.Permission.findAll({
+      paranoid: false,
+      include: [
+        {
+          model: this.models.Role,
+          as: 'role',
+          where: { deletedAt: null },
+          required: true,
+          attributes: [],
+        },
+      ],
+    });
     const roles = permissions.reduce((acc, { dataValues: permission }) => {
       const { roleId } = permission;
       if (!acc[roleId]) {
@@ -34,7 +45,7 @@ export class PermissionExporter extends ModelExporter {
 
   getHeadersFromData(data) {
     const heads = ['verb', 'noun', 'objectId'];
-    const cols = Object.keys(data[0]).filter((col) => !heads.includes(col));
+    const cols = Object.keys(data[0]).filter(col => !heads.includes(col));
     cols.sort();
     return heads.concat(cols);
   }

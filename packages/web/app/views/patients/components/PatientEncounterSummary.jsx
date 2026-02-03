@@ -208,7 +208,7 @@ const PatientDeathSummary = React.memo(({ patient }) => {
   );
 });
 
-export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin }) => {
+export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckIn }) => {
   const { getLocalisation } = useLocalisation();
   const { ability } = useAuth();
   const { data: encounter, error, isLoading } = usePatientCurrentEncounterQuery(patient.id);
@@ -250,7 +250,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
         <ButtonRow data-testid="buttonrow-qss7">
           <NoteModalActionBlocker>
             <ButtonWithPermissionCheck
-              onClick={openCheckin}
+              onClick={openCheckIn}
               verb="create"
               noun="Encounter"
               data-testid="buttonwithpermissioncheck-o4ea"
