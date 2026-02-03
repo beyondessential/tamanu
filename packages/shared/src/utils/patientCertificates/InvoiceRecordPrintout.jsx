@@ -307,6 +307,7 @@ const COLUMNS = {
       title: 'Ordered by',
       accessor: ({ orderedByUser }) => orderedByUser?.displayName,
       style: { width: '24%' },
+      subRowLabel: true 
     },
     {
       key: 'price',
@@ -356,7 +357,7 @@ const COLUMNS = {
     {
       key: 'status',
       title: 'Status',
-      accessor: ({ status }) => status,
+      accessor: ({ status }) => status, // TODO: Waiting for refund/paid status to be added
       style: { width: '21%' },
     },
   ],
@@ -554,11 +555,11 @@ const SummaryPane = ({ invoice }) => {
     <View wrap={false} style={summaryPaneStyles.container}>
       <View style={summaryPaneStyles.item}>
         <P>Invoice total</P>
-        <P>{formatDisplayPrice(invoiceItemsTotal)}</P>
+        <P>{invoiceItemsTotal}</P>
       </View>
       <View style={summaryPaneStyles.item}>
         <P>Item adjustments</P>
-        <P>{formatDisplayPrice(discountTotal)}</P>
+        <P>{discountTotal}</P>
       </View>
       <P bold>Insurance coverage</P>
       {insurancePlanCoverages.length > 0 && (
@@ -566,7 +567,7 @@ const SummaryPane = ({ invoice }) => {
           {insurancePlanCoverages.map(plan => (
             <View key={plan.id} style={summaryPaneStyles.item}>
               <P>{plan.name || plan.code}</P>
-              <P>{formatDisplayPrice(plan.totalCoverage)}</P>
+              <P>{plan.totalCoverage}</P>
             </View>
           ))}
         </>
@@ -574,17 +575,17 @@ const SummaryPane = ({ invoice }) => {
       <HorizontalRule />
       <View style={summaryPaneStyles.item}>
         <P bold>Patient subtotal</P>
-        <P>{formatDisplayPrice(patientSubtotal)}</P>
+        <P>{patientSubtotal}</P>
       </View>
       <HorizontalRule />
       <View style={summaryPaneStyles.item}>
         <P>Patient payments</P>
-        <P>{`-${formatDisplayPrice(patientPaymentsTotal)}`}</P>
+        <P>{`-${patientPaymentsTotal}`}</P>
       </View>
       <HorizontalRule />
       <View style={[summaryPaneStyles.item, { marginVertical: 7.5 }]}>
         <P bold>Patient total due</P>
-        <P bold>{formatDisplayPrice(patientPaymentRemainingBalance)}</P>
+        <P bold>{patientPaymentRemainingBalance}</P>
       </View>
     </View>
   );
