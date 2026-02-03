@@ -1,0 +1,72 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: imaging_type_external_codes
+        description: "{{ doc('table__imaging_type_external_codes') }}"
+        config:
+          tags: []
+          meta:
+            triggers:
+              - fhir_refresh
+              - notify_imaging_type_external_codes_changed
+              - record_imaging_type_external_codes_changelog
+              - set_imaging_type_external_codes_updated_at
+              - set_imaging_type_external_codes_updated_at_sync_tick
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in imaging_type_external_codes."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in imaging_type_external_codes."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in imaging_type_external_codes."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in imaging_type_external_codes."
+          - name: visibility_status
+            data_type: text
+            description: "{{ doc('generic__visibility_status') }} in imaging_type_external_codes."
+            data_tests:
+              - not_null
+            config:
+              meta:
+                masking: text
+          - name: imaging_type_code
+            data_type: text
+            description: "{{ doc('imaging_type_external_codes__imaging_type_code') }}"
+            data_tests:
+              - not_null
+            config:
+              meta:
+                masking: text
+          - name: code
+            data_type: text
+            description: "{{ doc('imaging_type_external_codes__code') }}"
+            data_tests:
+              - not_null
+            config:
+              meta:
+                masking: text
+          - name: description
+            data_type: text
+            description: "{{ doc('imaging_type_external_codes__description') }}"
+            config:
+              meta:
+                masking: text
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in imaging_type_external_codes."
+            data_tests:
+              - not_null
