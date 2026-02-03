@@ -397,7 +397,7 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
     typeName,
     'ReferenceData',
     ({ endpoint, modelName, req }) => {
-      const { parentId, relationType = DEFAULT_HIERARCHY_TYPE } = req.query;
+      const { parentId } = req.query;
 
       const baseWhere = {
         ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
@@ -410,8 +410,8 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
           [Op.in]: Sequelize.literal(`(
             SELECT reference_data_id
             FROM reference_data_relations
-            WHERE reference_data_parent_id = '${parentId}'
-              AND type = '${relationType}'
+            WHERE reference_data_parent_id = $parentId
+              AND type = $relationType
               AND deleted_at IS NULL
           )`),
         };
@@ -486,6 +486,10 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
         return result.length > 0 ? result : null;
       },
       queryOptions: typeName === REFERENCE_TYPES.MEDICATION_SET ? { subQuery: false } : {},
+      extraReplacementsBuilder: ({ parentId, relationType = DEFAULT_HIERARCHY_TYPE }) => ({
+        parentId,
+        relationType,
+      }),
       creatingBodyBuilder: req => referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
       afterCreated: afterCreatedReferenceData,
       mapper: item => item,
