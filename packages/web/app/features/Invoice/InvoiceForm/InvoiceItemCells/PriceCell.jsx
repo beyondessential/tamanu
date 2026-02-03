@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import {
   getInvoiceItemTotalDiscountedPrice,
   getInvoiceItemTotalPrice,
-  getInvoiceItemCoverageValue,
+  getInvoiceItemCoveragePercentage,
 } from '@tamanu/shared/utils/invoice';
 import Decimal from 'decimal.js';
 import Collapse from '@material-ui/core/Collapse';
@@ -60,7 +60,7 @@ const InsuranceSection = ({ item, discountedPrice }) => {
   return (
     <Box mt={1}>
       {item.insurancePlanItems.map(insurancePlanItem => {
-        const appliedCoverage = getInvoiceItemCoverageValue(item, insurancePlanItem);
+        const appliedCoverage = getInvoiceItemCoveragePercentage(item, insurancePlanItem);
         const coverageForRow = calculateCoverageValue(discountedPrice, appliedCoverage);
         return (
           <Row key={insurancePlanItem.id}>
