@@ -2479,14 +2479,20 @@ medication.post(
         { transaction },
       );
 
-      // Mark all dispensed pharmacy order prescriptions as completed so they no longer
-      // appear in the Active medication requests table (same behaviour for all encounter types).
-      // If another dispense is needed, a new order must be sent.
-      const dispensedIds = prescriptionRecords.map(r => r.id);
-      await PharmacyOrderPrescription.update(
-        { isCompleted: true },
-        { where: { id: { [Op.in]: dispensedIds } }, transaction },
-      );
+      // After dispensing, soft delete all ineligible pharmacy order prescriptions
+      const allCompletedRecords = prescriptionRecords.filter(record => {
+        const remainingRepeats = record.getRemainingRepeats(1);
+        const isDischargePrescription = record.pharmacyOrder?.isDischargePrescription;
+        return remainingRepeats === 0 && !!isDischargePrescription;
+      });
+
+      if (allCompletedRecords.length > 0) {
+        const completedIds = allCompletedRecords.map(r => r.id);
+        await PharmacyOrderPrescription.update(
+          { isCompleted: true },
+          { where: { id: { [Op.in]: completedIds } }, transaction },
+        );
+      }
 
       return dispenseRecords;
     });
