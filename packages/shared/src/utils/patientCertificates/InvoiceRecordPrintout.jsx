@@ -76,6 +76,7 @@ const baseTableStyles = StyleSheet.create({
   },
   p: {
     fontSize: 9,
+    lineHeight: 1.2,
   },
   noteText: {
     fontSize: 7,
@@ -122,10 +123,12 @@ const subRowStyles = StyleSheet.create({
   },
   labelText: {
     fontSize: 9,
+    lineHeight: 1.2,
     color: '#666666',
   },
   valueText: {
     fontSize: 9,
+    lineHeight: 1.2,
   },
 });
 
@@ -177,65 +180,54 @@ const getPrice = item => {
   return <P>{price}</P>;
 };
 
+const ADJUSTMENT_ROW_HEIGHT = 18;
+const ADJUSTMENT_TOP_MARGIN = 5;
+
 /**
- * Renders the adjustment sub-rows (Item adjustment and Cost after adjustment)
- * These appear below the main invoice item row when there's a markup or discount
+ * Cell component for "Ordered by" column that includes adjustment labels when applicable
  */
-const InvoiceItemAdjustmentRows = ({ item, columns }) => {
-  if (!hasItemAdjustment(item)) {
-    return null;
-  }
-
-  const adjustmentAmount = getItemAdjustmentAmount(item);
-  const costAfterAdjustment = getInvoiceItemTotalDiscountedPrice(item) || 0;
-
-  // Find the index of orderedBy and price columns to know where to place labels and values
-  const orderedByIndex = columns.findIndex(col => col.key === 'orderedBy');
-  const priceIndex = columns.findIndex(col => col.key === 'price');
-
-  const ItemAdjustmentSubRow = ({ label, value, isLastRow = false }) => (
-    <View style={[subRowStyles.row, isLastRow && { borderBottom: borderStyle }]} wrap={false}>
-      {columns.map((col, index) => {
-        const isFirstColumn = index === 0;
-        const isLastColumn = index === columns.length - 1;
-        const cellStyle = [
-          subRowStyles.emptyCell,
-          isFirstColumn && { borderLeft: 'none' },
-          isLastColumn && { borderRight: 'none' },
-          col.style,
-        ];
-
-        if (index === orderedByIndex) {
-          // Label cell (right-aligned gray text)
-          return (
-            <View key={col.key} style={[...cellStyle, { justifyContent: 'flex-end' }]}>
-              <Text style={subRowStyles.labelText}>{label}</Text>
-            </View>
-          );
-        }
-        if (index === priceIndex) {
-          // Value cell
-          return (
-            <View key={col.key} style={cellStyle}>
-              <Text style={subRowStyles.valueText}>{value}</Text>
-            </View>
-          );
-        }
-        // Empty cell for other columns
-        return <View key={col.key} style={cellStyle} />;
-      })}
-    </View>
-  );
+const OrderedByCellWithAdjustments = ({ children, style, item }) => {
+  const showAdjustments = hasItemAdjustment(item);
 
   return (
-    <>
-      <ItemAdjustmentSubRow label="Item adjustment" value={formatDisplayPrice(adjustmentAmount)} />
-      <ItemAdjustmentSubRow
-        label="Cost after adjustment"
-        value={formatDisplayPrice(costAfterAdjustment)}
-        isLastRow
-      />
-    </>
+    <View style={[baseTableStyles.baseCell, style, { flexDirection: 'column', alignItems: 'flex-start' }]}>
+      <P>{children}</P>
+      {showAdjustments && (
+        <>
+          <View style={{ height: ADJUSTMENT_ROW_HEIGHT, marginTop: ADJUSTMENT_TOP_MARGIN, justifyContent: 'center', alignSelf: 'flex-end' }}>
+            <Text style={subRowStyles.labelText}>Item adjustment</Text>
+          </View>
+          <View style={{ height: ADJUSTMENT_ROW_HEIGHT, justifyContent: 'center', alignSelf: 'flex-end' }}>
+            <Text style={subRowStyles.labelText}>Cost after adjustment</Text>
+          </View>
+        </>
+      )}
+    </View>
+  );
+};
+
+/**
+ * Cell component for "Cost" column that includes adjustment values when applicable
+ */
+const PriceCellWithAdjustments = ({ children, style, item }) => {
+  const showAdjustments = hasItemAdjustment(item);
+  const adjustmentAmount = showAdjustments ? getItemAdjustmentAmount(item) : 0;
+  const costAfterAdjustment = showAdjustments ? (getInvoiceItemTotalDiscountedPrice(item) || 0) : 0;
+
+  return (
+    <View style={[baseTableStyles.baseCell, style, { flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'flex-start' }]}>
+      {children}
+      {showAdjustments && (
+        <>
+          <View style={{ height: ADJUSTMENT_ROW_HEIGHT, marginTop: ADJUSTMENT_TOP_MARGIN, justifyContent: 'center' }}>
+            <Text style={subRowStyles.valueText}>{formatDisplayPrice(adjustmentAmount)}</Text>
+          </View>
+          <View style={{ height: ADJUSTMENT_ROW_HEIGHT, justifyContent: 'center' }}>
+            <Text style={subRowStyles.valueText}>{formatDisplayPrice(costAfterAdjustment)}</Text>
+          </View>
+        </>
+      )}
+    </View>
   );
 };
 
@@ -313,13 +305,14 @@ const COLUMNS = {
       title: 'Ordered by',
       accessor: ({ orderedByUser }) => orderedByUser?.displayName,
       style: { width: '24%' },
+      CellComponent: OrderedByCellWithAdjustments,
     },
     {
       key: 'price',
       title: 'Cost',
       accessor: row => getPrice(row),
       style: { width: '10%', justifyContent: 'flex-end' },
-      CellComponent: CustomCellComponent,
+      CellComponent: PriceCellWithAdjustments,
     },
     {
       key: 'insurance',
@@ -479,7 +472,7 @@ const RowWrapper = ({ row, columns, style, SubRowsComponent }) => (
         const isLast = colIndex === columns.length - 1;
         if (CellComponent) {
           return (
-            <CellComponent key={key} style={style} isFirst={isFirst} isLast={isLast}>
+            <CellComponent key={key} style={style} isFirst={isFirst} isLast={isLast} item={row}>
               {displayValue}
             </CellComponent>
           );
@@ -505,7 +498,6 @@ const InvoiceItemTable = ({ data, columns, title }) => (
           row={row}
           columns={columns}
           style={invoiceItemTableStyles.row}
-          SubRowsComponent={InvoiceItemAdjustmentRows}
         />
       );
     })}
