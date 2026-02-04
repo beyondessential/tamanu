@@ -39,7 +39,7 @@ export async function generateSecretKey() {
  * @returns {Promise<CryptoKey>}
  */
 async function importKey(keyBuffer) {
-  return crypto.subtle.importKey('raw', keyBuffer, { name: ALGORITHM, length: KEY_LENGTH }, false, [
+  return crypto.subtle.importKey('raw', keyBuffer, { name: ALGORITHM }, false, [
     'encrypt',
     'decrypt',
   ]);
