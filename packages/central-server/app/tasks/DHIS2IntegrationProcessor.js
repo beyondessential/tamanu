@@ -7,6 +7,7 @@ import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_STATUSES } from '@tamanu/constants';
 import { fetchWithRetryBackoff } from '@tamanu/api-client/fetchWithRetryBackoff';
+import { getConfigSecret } from '@tamanu/shared/utils/crypto';
 
 const arrayOfArraysToCSV = reportData => utils.sheet_to_csv(utils.aoa_to_sheet(reportData));
 
@@ -72,9 +73,45 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     return pick(logEntry.get({ plain: true }), LOG_FIELDS);
   }
 
+  /**
+   * Gets DHIS2 credentials with fallback logic:
+   * 1. Try settings secret (encrypted in DB)
+   * 2. Try config secret (encrypted in config file)
+   * 3. Fall back to plain config value
+   */
+  async getDHIS2Credentials() {
+    let username = null;
+    let password = null;
+
+    // Try settings secret first
+    try {
+      username = await this.context.settings.getSecret('integrations.dhis2.username');
+    } catch {
+      // Settings secret not available, try config secret
+      try {
+        username = await getConfigSecret('integrations.dhis2.username');
+      } catch {
+        // Config secret not available, fall back to plain config
+        username = config.integrations?.dhis2?.username || null;
+      }
+    }
+
+    try {
+      password = await this.context.settings.getSecret('integrations.dhis2.password');
+    } catch {
+      try {
+        password = await getConfigSecret('integrations.dhis2.password');
+      } catch {
+        password = config.integrations?.dhis2?.password || null;
+      }
+    }
+
+    return { username, password };
+  }
+
   async postToDHIS2({ reportId, reportCSV }) {
     const { idSchemes, host, backoff } = await this.context.settings.get('integrations.dhis2');
-    const { username, password } = config.integrations.dhis2;
+    const { username, password } = await this.getDHIS2Credentials();
     const authHeader = Buffer.from(`${username}:${password}`).toString('base64');
 
     const params = new URLSearchParams({ ...idSchemes, importStrategy: 'CREATE_AND_UPDATE' });
@@ -174,7 +211,8 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
 
   async run() {
     const { reportIds, host } = await this.context.settings.get('integrations.dhis2');
-    const { enabled, username, password } = config.integrations.dhis2;
+    const { enabled } = config.integrations?.dhis2 || {};
+    const { username, password } = await this.getDHIS2Credentials();
 
     if (!enabled || !host || !username || !password || reportIds.length === 0) {
       log.warn(WARNING_LOGS.INTEGRATION_NOT_CONFIGURED, {

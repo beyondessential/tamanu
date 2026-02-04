@@ -203,8 +203,7 @@ export const centralSettings = {
               defaultValue: '09:00',
             },
             endTime: {
-              description:
-                'The latest time an assignment can end. Uses 24-hour time, e.g. 13:30.',
+              description: 'The latest time an assignment can end. Uses 24-hour time, e.g. 13:30.',
               type: datelessTimeStringSchema,
               defaultValue: '17:00',
             },
@@ -215,7 +214,7 @@ export const centralSettings = {
               defaultValue: '30min',
             },
           },
-        },        
+        },
       },
     },
     integrations: {
@@ -230,6 +229,20 @@ export const centralSettings = {
                 .string()
                 .matches(/^(?!.*\/$).*$/, 'Host URL must not end with a forward slash'),
               defaultValue: '',
+            },
+            username: {
+              name: 'Username',
+              description: 'Username for DHIS2 API authentication',
+              type: yup.string(),
+              defaultValue: '',
+              secret: true,
+            },
+            password: {
+              name: 'Password',
+              description: 'Password for DHIS2 API authentication',
+              type: yup.string(),
+              defaultValue: '',
+              secret: true,
             },
             reportIds: {
               name: 'Reports',
