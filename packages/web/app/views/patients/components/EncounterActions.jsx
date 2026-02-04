@@ -80,7 +80,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
 
   if (encounter.endDate) {
     return (
-      discharge ? (
+      discharge && (
         <ActionsContainer data-testid="actionscontainer-w92z">
           <StyledButton
             size="small"
@@ -108,7 +108,7 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
             />
           </StyledButton>
         </ActionsContainer>
-      ) : <></>)
+      ))
   }
 
   const progression = {
