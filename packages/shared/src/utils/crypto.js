@@ -12,8 +12,9 @@ const IV_LENGTH = 12; // 96 bits recommended for AES-GCM
 
 /**
  * Generates a new secret key for encryption.
+ * @returns {Promise<Buffer>}
  */
-export async function generateSecretKey(): Promise<Buffer> {
+export async function generateSecretKey() {
   const key = await crypto.subtle.generateKey(
     {
       name: ALGORITHM,
@@ -29,8 +30,10 @@ export async function generateSecretKey(): Promise<Buffer> {
 
 /**
  * Imports a raw key buffer into a CryptoKey.
+ * @param {Buffer} keyBuffer
+ * @returns {Promise<CryptoKey>}
  */
-async function importKey(keyBuffer: Buffer): Promise<CryptoKey> {
+async function importKey(keyBuffer) {
   return crypto.subtle.importKey('raw', keyBuffer, { name: ALGORITHM, length: KEY_LENGTH }, false, [
     'encrypt',
     'decrypt',
@@ -39,8 +42,11 @@ async function importKey(keyBuffer: Buffer): Promise<CryptoKey> {
 
 /**
  * Encrypts a plaintext string and returns an encoded secret string.
+ * @param {Buffer} keyBuffer
+ * @param {string} plaintext
+ * @returns {Promise<string>}
  */
-export async function encryptSecret(keyBuffer: Buffer, plaintext: string): Promise<string> {
+export async function encryptSecret(keyBuffer, plaintext) {
   const key = await importKey(keyBuffer);
 
   // Generate random IV
@@ -68,8 +74,11 @@ export async function encryptSecret(keyBuffer: Buffer, plaintext: string): Promi
 
 /**
  * Decrypts an encoded secret string back to plaintext.
+ * @param {Buffer} keyBuffer
+ * @param {string} encrypted
+ * @returns {Promise<string>}
  */
-export async function decryptSecret(keyBuffer: Buffer, encrypted: string): Promise<string> {
+export async function decryptSecret(keyBuffer, encrypted) {
   const parts = encrypted.split(':');
 
   if (parts.length !== 3) {
@@ -101,8 +110,10 @@ export async function decryptSecret(keyBuffer: Buffer, encrypted: string): Promi
 
 /**
  * Reads a key file from the filesystem.
+ * @param {string} keyFilePath
+ * @returns {Promise<Buffer>}
  */
-export async function readKeyFile(keyFilePath: string): Promise<Buffer> {
+export async function readKeyFile(keyFilePath) {
   const keyContent = await fs.readFile(keyFilePath);
   // The key file contains raw binary key data
   return keyContent;
@@ -110,21 +121,26 @@ export async function readKeyFile(keyFilePath: string): Promise<Buffer> {
 
 /**
  * Writes a key to a file.
+ * @param {string} keyFilePath
+ * @param {Buffer} key
+ * @returns {Promise<void>}
  */
-export async function writeKeyFile(keyFilePath: string, key: Buffer): Promise<void> {
+export async function writeKeyFile(keyFilePath, key) {
   await fs.writeFile(keyFilePath, new Uint8Array(key), { mode: 0o600 });
 }
 
 /**
  * Gets a decrypted secret from the config at the specified path.
+ * @param {string} name
+ * @returns {Promise<string>}
  */
-export async function getConfigSecret(name: string): Promise<string> {
-  const keyFilePath = config.get<string>('crypto.keyFile');
+export async function getConfigSecret(name) {
+  const keyFilePath = config.get('crypto.keyFile');
   if (!keyFilePath) {
     throw new Error('crypto.keyFile is not configured');
   }
 
-  const encryptedValue = lodashGet(config, name) as string;
+  const encryptedValue = lodashGet(config, name);
   if (!encryptedValue) {
     throw new Error(`Config value not found at path: ${name}`);
   }
@@ -135,8 +151,10 @@ export async function getConfigSecret(name: string): Promise<string> {
 
 /**
  * Check if a value looks like an encrypted secret.
+ * @param {string} value
+ * @returns {boolean}
  */
-export function isEncryptedSecret(value: string): boolean {
+export function isEncryptedSecret(value) {
   if (typeof value !== 'string') return false;
   const parts = value.split(':');
   return parts.length === 3 && parts[0] === SECRET_VERSION;
@@ -144,11 +162,12 @@ export function isEncryptedSecret(value: string): boolean {
 
 /**
  * CLI helper: Initialize a new key file for config secret encryption.
+ * @returns {Promise<string>}
  */
-export async function initConfigSecretKeyFile(): Promise<string> {
-  let keyFilePath: string;
+export async function initConfigSecretKeyFile() {
+  let keyFilePath;
   try {
-    keyFilePath = config.get<string>('crypto.keyFile');
+    keyFilePath = config.get('crypto.keyFile');
   } catch {
     throw new Error(
       'crypto.keyFile is not configured. Please set it in your config file before running init.',
@@ -167,9 +186,9 @@ export async function initConfigSecretKeyFile(): Promise<string> {
     throw new Error(
       `Key file already exists at ${keyFilePath}. Remove it first if you want to regenerate.`,
     );
-  } catch (err: unknown) {
+  } catch (err) {
     // File doesn't exist, which is what we want
-    if ((err as NodeJS.ErrnoException).code !== 'ENOENT') {
+    if (err.code !== 'ENOENT') {
       throw err;
     }
   }
@@ -182,11 +201,13 @@ export async function initConfigSecretKeyFile(): Promise<string> {
 
 /**
  * CLI helper: Encrypt a value using the configured key file.
+ * @param {string} plaintext
+ * @returns {Promise<string>}
  */
-export async function encryptConfigValue(plaintext: string): Promise<string> {
-  let keyFilePath: string;
+export async function encryptConfigValue(plaintext) {
+  let keyFilePath;
   try {
-    keyFilePath = config.get<string>('crypto.keyFile');
+    keyFilePath = config.get('crypto.keyFile');
   } catch {
     throw new Error('crypto.keyFile is not configured');
   }

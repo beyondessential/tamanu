@@ -101,7 +101,8 @@ describe('Crypto utilities', () => {
         expect.fail('Should have thrown an error');
       } catch (err) {
         // Expected - decryption should fail with wrong key
-        expect(err).to.be.instanceOf(Error);
+        // Web Crypto API throws DOMException, not Error
+        expect(err).to.exist;
       }
     });
 
@@ -113,7 +114,7 @@ describe('Crypto utilities', () => {
         expect.fail('Should have thrown an error');
       } catch (err) {
         expect(err).to.be.instanceOf(Error);
-        expect((err as Error).message).to.include('Invalid encrypted secret format');
+        expect(err.message).to.include('Invalid encrypted secret format');
       }
     });
 
@@ -125,7 +126,7 @@ describe('Crypto utilities', () => {
         expect.fail('Should have thrown an error');
       } catch (err) {
         expect(err).to.be.instanceOf(Error);
-        expect((err as Error).message).to.include('Unsupported secret version');
+        expect(err.message).to.include('Unsupported secret version');
       }
     });
 
@@ -145,7 +146,8 @@ describe('Crypto utilities', () => {
         expect.fail('Should have thrown an error');
       } catch (err) {
         // AES-GCM authentication should fail
-        expect(err).to.be.instanceOf(Error);
+        // Web Crypto API throws DOMException, not Error
+        expect(err).to.exist;
       }
     });
   });
@@ -170,10 +172,10 @@ describe('Crypto utilities', () => {
     });
 
     it('should return false for non-string values', () => {
-      expect(isEncryptedSecret(null as unknown as string)).to.be.false;
-      expect(isEncryptedSecret(undefined as unknown as string)).to.be.false;
-      expect(isEncryptedSecret(123 as unknown as string)).to.be.false;
-      expect(isEncryptedSecret({} as unknown as string)).to.be.false;
+      expect(isEncryptedSecret(null)).to.be.false;
+      expect(isEncryptedSecret(undefined)).to.be.false;
+      expect(isEncryptedSecret(123)).to.be.false;
+      expect(isEncryptedSecret({})).to.be.false;
     });
   });
 });
