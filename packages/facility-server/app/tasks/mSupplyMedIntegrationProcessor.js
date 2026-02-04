@@ -9,6 +9,36 @@ import { InvalidConfigError } from '@tamanu/shared/errors';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
+// GRAPHQL QUERIES
+const AUTH_QUERY = `
+  query Auth($password: String!, $username: String!) {
+    authToken(password: $password, username: $username) {
+      ... on AuthToken {
+        __typename
+        token
+      }
+      ... on AuthTokenError {
+        __typename
+        error {
+          description
+        }
+      }
+    }
+  }
+`;
+
+function getPostQuery(storeId) {
+  return `
+    query GraphqlPlugin($input: JSON!) {
+      pluginGraphqlQuery(
+        pluginCode: "bes-plugins"
+        storeId: "${storeId}"
+        input: $input
+      )
+    }
+  `;
+}
+
 // Designed to post dispensed medications from pharmacy to an Open mSupply instance
 export class mSupplyMedIntegrationProcessor extends ScheduledTask {
   getName() {
@@ -23,6 +53,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     this.context = context;
     this.models = context.models;
     this.serverFacilityIds = selectFacilityIds(config);
+    this.authHeader = null;
   }
 
   async createLog(values) {
@@ -36,12 +67,10 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     return integrationSettings ?? {};
   }
 
-  async postRequest(
-    { bodyJson },
-    { minMedicationCreatedAt, maxMedicationCreatedAt, maxMedicationId, facilityId },
-  ) {
+  async getAuthHeader(facilityId) {
     const { host, backoff } = await this.getSettings(facilityId);
-    const authToken = 'Bearer 1234567890';
+    const { username, password } = config.integrations.mSupplyMed;
+    const variables = { username, password };
 
     try {
       const response = await fetchWithRetryBackoff(
@@ -51,9 +80,44 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: authToken,
           },
-          body: bodyJson,
+          body: JSON.stringify({ AUTH_QUERY, variables }),
+        },
+        { ...backoff, log },
+      );
+
+      const { data } = await response.json();
+      const authToken = data?.authToken?.token;
+
+      if (!authToken) {
+        throw new Error('No auth token found');
+      }
+
+      return `Bearer ${authToken}`;
+    } catch (error) {
+      throw new Error('Authentication failed: ' + error.message);
+    }
+  }
+
+  async postRequest(
+    { bodyJson },
+    { minMedicationCreatedAt, maxMedicationCreatedAt, maxMedicationId, facilityId },
+  ) {
+    const { host, backoff, storeId } = await this.getSettings(facilityId);
+    const postQuery = getPostQuery(storeId);
+    const variables = { input: bodyJson };
+
+    try {
+      const response = await fetchWithRetryBackoff(
+        `${host}/tamanu-dispense-medication`,
+        {
+          fetch,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: this.authHeader,
+          },
+          body: JSON.stringify({ query: postQuery, variables }),
         },
         { ...backoff, log },
       );
@@ -165,11 +229,11 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     }
 
     const [facilityId] = this.serverFacilityIds;
-    const { host, customerId } = await this.getSettings(facilityId);
+    const { host, storeId, customerId } = await this.getSettings(facilityId);
     const { enabled, username, password } = config.integrations.mSupplyMed;
     const { batchSize, batchSleepAsyncDurationInMilliseconds } = this.config;
 
-    if (!enabled || !host || !username || !password || !customerId) {
+    if (!enabled || !host || !username || !password || !storeId || !customerId) {
       log.warn('Integration for mSupplyMedIntegrationProcessor not configured, skipping');
       return;
     }
@@ -185,6 +249,8 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     const toProcess = await this.models.MedicationDispense.count(baseQuery);
     if (toProcess === 0) return;
 
+    // Log in and process the dispensed medications in batches
+    this.authHeader = await this.getAuthHeader(facilityId);
     const batchCount = Math.ceil(toProcess / batchSize);
 
     for (let i = 0; i < batchCount; i++) {
