@@ -21,6 +21,7 @@ import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 import { getEncounterStartDateLabel } from '../../../utils/getEncounterStartDateLabel';
 import { useAuth } from '../../../contexts/Auth';
+import { isEmergencyPatient } from '../../../utils/isEmergencyPatient';
 
 const Border = css`
   border: 1px solid ${Colors.outline};
@@ -54,12 +55,12 @@ const Header = styled.div`
 const Content = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
+  grid-row-gap: 8px;
   padding: 12px 20px 12px 16px;
 `;
 
 const ContentItem = styled.div`
   display: flex;
-  padding: 8px 0;
 `;
 
 const Title = styled(Typography)`
@@ -211,6 +212,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckIn })
   const { getLocalisation } = useLocalisation();
   const { ability } = useAuth();
   const { data: encounter, error, isLoading } = usePatientCurrentEncounterQuery(patient.id);
+  const triage = encounter?.triages?.[0];
 
   if (patient.dateOfDeath) {
     return <PatientDeathSummary patient={patient} data-testid="patientdeathsummary-uven" />;
@@ -396,17 +398,58 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckIn })
             <DateDisplay date={startDate} data-testid="datedisplay-5hsh" />
           </ContentText>
         </ContentItem>
-        <ContentItem data-testid="contentitem-t8nz">
-          <ContentLabel data-testid="contentlabel-p85w">
-            <TranslatedText
-              stringId="encounter.reasonForEncounter.label"
-              fallback="Reason for encounter"
-              data-testid="translatedtext-5vij"
-            />
-            :
-          </ContentLabel>
-          <ContentText data-testid="contenttext-wf93">{reasonForEncounter}</ContentText>
-        </ContentItem>
+        {isEmergencyPatient(encounterType) ? (
+          <>
+            <ContentItem style={{ gridColumn: 2 }} data-testid="contentitem-chiefcomplaint">
+              <ContentLabel data-testid="contentlabel-chiefcomplaint">
+                <TranslatedText
+                  stringId="triage.chiefComplaint.label"
+                  fallback="Chief complaint"
+                  data-testid="translatedtext-chiefcomplaint"
+                />
+                :
+              </ContentLabel>
+              <ContentText data-testid="contenttext-chiefcomplaint">
+                <TranslatedReferenceData
+                  category="triageReason"
+                  value={triage?.chiefComplaint?.id}
+                  fallback={triage?.chiefComplaint?.name}
+                  placeholder="—"
+                />
+              </ContentText>
+            </ContentItem>
+            <ContentItem style={{ gridColumn: 2 }} data-testid="contentitem-secondarycomplaint">
+              <ContentLabel data-testid="contentlabel-secondarycomplaint">
+                <TranslatedText
+                  stringId="triage.secondaryComplaint.label"
+                  fallback="Secondary complaint"
+                  data-testid="translatedtext-secondarycomplaint"
+                />
+                :
+              </ContentLabel>
+              <ContentText data-testid="contenttext-secondarycomplaint">
+                <TranslatedReferenceData
+                  category="triageReason"
+                  value={triage?.secondaryComplaint?.id}
+                  fallback={triage?.secondaryComplaint?.name}
+                  placeholder="—"
+                />
+              </ContentText>
+            </ContentItem>
+          </>
+        ) : (
+          <ContentItem data-testid="contentitem-t8nz">
+            <ContentLabel data-testid="contentlabel-p85w">
+              <TranslatedText
+                stringId="encounter.reasonForEncounter.label"
+                fallback="Reason for encounter"
+                data-testid="translatedtext-5vij"
+              />
+              :
+            </ContentLabel>
+            <ContentText data-testid="contenttext-wf93">{reasonForEncounter}</ContentText>
+          </ContentItem>
+        )}
       </Content>
     </Container>
   );
