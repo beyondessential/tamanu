@@ -137,6 +137,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                     }
                     navigation={navigation}
                     suggester={diagnosisSuggester}
+                    labelFontSize={14}
                     name="diagnosis"
                   />
                   <Spacer height="24px" />
