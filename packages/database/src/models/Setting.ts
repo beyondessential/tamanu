@@ -108,7 +108,7 @@ export class Setting extends Model {
    */
   static async get(
     key: SettingPath | '' = '',
-    facilityId = null,
+    facilityId: string | null = null,
     scopeOverride: (typeof SETTINGS_SCOPES_VALUES)[number] | null = null,
   ) {
     const determineScope = () => {
@@ -171,7 +171,7 @@ export class Setting extends Model {
     key: SettingPath | '' = '',
     value: object,
     scope: (typeof SETTINGS_SCOPES_VALUES)[number] = SETTINGS_SCOPES.GLOBAL,
-    facilityId = null,
+    facilityId: string | null = null,
   ) {
     const records = buildSettingsRecords(key, value, facilityId, scope);
     const schema = getScopedSchema(scope);
@@ -256,17 +256,12 @@ export class Setting extends Model {
     name: string,
     value: string,
     scope: (typeof SETTINGS_SCOPES_VALUES)[number] = SETTINGS_SCOPES.GLOBAL,
-    facilityId?: string | null,
+    facilityId: string | null = null,
   ): Promise<void> {
     const psk = await getConfigSecret('crypto.settingsPsk');
     const keyBuffer = Buffer.from(psk, 'base64');
     const encryptedValue = await encryptSecret(keyBuffer, value);
-    await this.set(
-      name as SettingPath,
-      encryptedValue as unknown as object,
-      scope,
-      (facilityId ?? null) as unknown as null,
-    );
+    await this.set(name as SettingPath, encryptedValue as unknown as object, scope, facilityId);
   }
 }
 
