@@ -72,7 +72,7 @@ const InvoiceContainer = styled.div`
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
   // Triggers a horizontal scroll bar on the parent
-  min-width: 700px;
+  min-width: 780px;
 `;
 
 const PrintButton = styled(OutlinedButton)`
