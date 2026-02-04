@@ -75,14 +75,6 @@ export const maskSecrets = (
 };
 
 /**
- * Checks if a given path is a secret in the schema.
- */
-export const isSecretPath = (schema: SettingsSchema, path: string): boolean => {
-  const secretPaths = extractSecretPaths(schema);
-  return secretPaths.includes(path);
-};
-
-/**
  * Gets the setting definition at a given path, if it exists.
  */
 export const getSettingAtPath = (schema: SettingsSchema, path: string): Setting | null => {
@@ -101,4 +93,12 @@ export const getSettingAtPath = (schema: SettingsSchema, path: string): Setting 
   }
 
   return isSetting(current) ? current : null;
+};
+
+/**
+ * Checks if a given path is a secret in the schema.
+ */
+export const isSecretPath = (schema: SettingsSchema, path: string): boolean => {
+  const setting = getSettingAtPath(schema, path);
+  return setting?.secret === true;
 };
