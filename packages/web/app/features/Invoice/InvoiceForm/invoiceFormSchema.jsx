@@ -50,7 +50,7 @@ export const invoiceFormSchema = yup.object({
           .transform((value, originalValue) => (originalValue === '' ? undefined : value))
           .required(
             <TranslatedText
-              stringId="general.required"
+              stringId="validation.required.inline"
               fallback="*Required"
               data-testid="translatedtext-029d"
             />,
