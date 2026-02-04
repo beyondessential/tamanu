@@ -140,15 +140,13 @@ adminRoutes.put(
     const schema = scope ? getScopedSchema(scope) : null;
 
     if (schema && settings && typeof settings === 'object') {
-      const secretPaths = extractSecretPaths(schema);
-
       // Process settings to handle secrets
       const entries = flattenSettingsToEntries(settings);
 
       for (const entry of entries) {
         const settingDef = getSettingAtPath(schema, entry.path);
 
-        if (settingDef?.secret && secretPaths.includes(entry.path)) {
+        if (settingDef?.secret) {
           // Encrypt non-placeholder secret values before storing
           if (
             entry.value !== SECRET_PLACEHOLDER &&
@@ -163,8 +161,11 @@ adminRoutes.put(
       }
     }
 
-    // Save non-secret settings normally
-    await Setting.set('', settings, scope, facilityId);
+    // Only save non-secret settings if there are any remaining leaf values
+    const remainingEntries = flattenSettingsToEntries(settings);
+    if (remainingEntries.length > 0) {
+      await Setting.set('', settings, scope, facilityId);
+    }
     res.json({ code: 200 });
   }),
 );
