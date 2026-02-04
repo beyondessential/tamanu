@@ -263,7 +263,10 @@ const HeaderCell = ({ children, style }) => (
   </View>
 );
 
-const SectionSpacing = () => <View style={{ paddingBottom: '10px' }} />;
+const SectionSpacing = ({ minPresenceAhead = 70 }) => (
+  // Between sections, ensure we have enough space for the fixed header
+  <View style={{ paddingBottom: '10px' }} minPresenceAhead={minPresenceAhead} />
+);
 
 const getInsurerPaymentStatus = insurerPayment => {
   if (insurerPayment?.status === INVOICE_INSURER_PAYMENT_STATUSES.REJECTED) {
