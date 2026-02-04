@@ -18,6 +18,7 @@ import { ChangeReasonModal } from '../../../components/ChangeReasonModal';
 import { ChangeDietModal } from '../../../components/ChangeDietModal';
 import { isInpatient } from '../../../utils/isInpatient';
 import { useSettings } from '../../../contexts/Settings';
+import { useEncounterDischargeQuery } from '../../../api/queries/useEncounterDischargeQuery';
 
 const ActionsContainer = styled.div`
   display: flex;
@@ -57,6 +58,7 @@ const StyledDropdownButton = styled(DropdownButton)`
 const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType }) => {
   const { navigateToSummary } = usePatientNavigation();
   const { getSetting } = useSettings();
+  const { data: discharge } = useEncounterDischargeQuery(encounter);
 
   const onChangeEncounterType = type => {
     setNewEncounterType(type);
@@ -78,34 +80,35 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
 
   if (encounter.endDate) {
     return (
-      <ActionsContainer data-testid="actionscontainer-w92z">
-        <StyledButton
-          size="small"
-          variant="outlined"
-          onClick={onViewEncounterRecord}
-          data-testid="styledbutton-00iz"
-        >
-          <TranslatedText
-            stringId="patient.encounter.action.encounterSummary"
-            fallback="Encounter summary"
-            data-testid="translatedtext-ftbh"
-          />
-        </StyledButton>
-        <br />
-        <StyledButton
-          size="small"
-          color="primary"
-          onClick={onViewSummary}
-          data-testid="styledbutton-0m1p"
-        >
-          <TranslatedText
-            stringId="patient.encounter.action.dischargeSummary"
-            fallback="Discharge summary"
-            data-testid="translatedtext-0hzq"
-          />
-        </StyledButton>
-      </ActionsContainer>
-    );
+      discharge ? (
+        <ActionsContainer data-testid="actionscontainer-w92z">
+          <StyledButton
+            size="small"
+            variant="outlined"
+            onClick={onViewEncounterRecord}
+            data-testid="styledbutton-00iz"
+          >
+            <TranslatedText
+              stringId="patient.encounter.action.encounterSummary"
+              fallback="Encounter summary"
+              data-testid="translatedtext-ftbh"
+            />
+          </StyledButton>
+          <br />
+          <StyledButton
+            size="small"
+            color="primary"
+            onClick={onViewSummary}
+            data-testid="styledbutton-0m1p"
+          >
+            <TranslatedText
+              stringId="patient.encounter.action.dischargeSummary"
+              fallback="Discharge summary"
+              data-testid="translatedtext-0hzq"
+            />
+          </StyledButton>
+        </ActionsContainer>
+      ) : <></>)
   }
 
   const progression = {
