@@ -9,6 +9,10 @@ import { InvalidConfigError } from '@tamanu/shared/errors';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
+// INTEGRATION DETAILS
+const INTEGRATION_PLUGIN_CODE = 'bes-plugins';
+const INTEGRATION_ENDPOINT = '/graphql';
+
 // GRAPHQL QUERIES
 const AUTH_QUERY = `
   query Auth($password: String!, $username: String!) {
@@ -31,7 +35,7 @@ function getPostQuery(storeId) {
   return `
     query GraphqlPlugin($input: JSON!) {
       pluginGraphqlQuery(
-        pluginCode: "bes-plugins"
+        pluginCode: "${INTEGRATION_PLUGIN_CODE}"
         storeId: "${storeId}"
         input: $input
       )
@@ -74,7 +78,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
 
     try {
       const response = await fetchWithRetryBackoff(
-        `${host}/tamanu-dispense-medication`,
+        `${host}${INTEGRATION_ENDPOINT}`,
         {
           fetch,
           method: 'POST',
@@ -109,7 +113,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
 
     try {
       const response = await fetchWithRetryBackoff(
-        `${host}/tamanu-dispense-medication`,
+        `${host}${INTEGRATION_ENDPOINT}`,
         {
           fetch,
           method: 'POST',
