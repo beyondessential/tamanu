@@ -42,7 +42,7 @@ export class MSupplyPushLog extends Model {
       {
         ...options,
         tableName: 'm_supply_pushes',
-        syncDirection: SYNC_DIRECTIONS.PUSH_TO_CENTRAL, // TODO: Check if this is correct or if we want do not sync
+        syncDirection: SYNC_DIRECTIONS.PUSH_TO_CENTRAL,
         schema: 'logs',
       },
     );
