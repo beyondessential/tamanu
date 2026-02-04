@@ -53,7 +53,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     const conf = config.schedules.mSupplyMedIntegrationProcessor;
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
-    this.config = conf;
+    this.scheduleConfig = conf;
     this.context = context;
     this.models = context.models;
     this.serverFacilityIds = selectFacilityIds(config);
@@ -235,7 +235,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     const [facilityId] = this.serverFacilityIds;
     const { host, storeId, customerId } = await this.getSettings(facilityId);
     const { enabled, username, password } = config.integrations.mSupplyMed;
-    const { batchSize, batchSleepAsyncDurationInMilliseconds } = this.config;
+    const { batchSize, batchSleepAsyncDurationInMilliseconds } = this.scheduleConfig;
 
     if (!enabled || !host || !username || !password || !storeId || !customerId) {
       log.warn('Integration for mSupplyMedIntegrationProcessor not configured, skipping');
