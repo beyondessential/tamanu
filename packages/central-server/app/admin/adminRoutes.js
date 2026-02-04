@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { unset } from 'lodash';
 
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { NotFoundError } from '@tamanu/errors';
@@ -148,26 +149,16 @@ adminRoutes.put(
         const settingDef = getSettingAtPath(schema, entry.path);
 
         if (settingDef?.secret && secretPaths.includes(entry.path)) {
-          // If the value is the placeholder, the user didn't change it - skip updating this field
-          if (entry.value === SECRET_PLACEHOLDER) {
-            // Remove from settings so it doesn't overwrite the existing value
-            const pathParts = entry.path.split('.');
-            let current = settings;
-            for (let i = 0; i < pathParts.length - 1; i++) {
-              current = current[pathParts[i]];
-            }
-            delete current[pathParts[pathParts.length - 1]];
-          } else if (entry.value !== null && entry.value !== undefined) {
-            // Encrypt the secret value before storing (empty strings are valid secrets)
+          // Encrypt non-placeholder secret values before storing
+          if (
+            entry.value !== SECRET_PLACEHOLDER &&
+            entry.value !== null &&
+            entry.value !== undefined
+          ) {
             await Setting.setSecret(entry.path, entry.value, scope, facilityId);
-            // Remove from regular settings so it's not double-stored
-            const pathParts = entry.path.split('.');
-            let current = settings;
-            for (let i = 0; i < pathParts.length - 1; i++) {
-              current = current[pathParts[i]];
-            }
-            delete current[pathParts[pathParts.length - 1]];
           }
+          // Remove secret from settings object (either unchanged placeholder or already encrypted)
+          unset(settings, entry.path);
         }
       }
     }
