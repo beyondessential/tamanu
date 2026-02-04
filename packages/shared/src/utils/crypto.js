@@ -165,24 +165,30 @@ export function isEncryptedSecret(value) {
 }
 
 /**
- * CLI helper: Initialize a new key file for config secret encryption.
- * @returns {Promise<string>}
+ * Gets the key file path from config, throwing if not configured.
+ * @returns {string}
  */
-export async function initConfigSecretKeyFile() {
+function getConfigKeyFilePath() {
   let keyFilePath;
   try {
     keyFilePath = config.get('crypto.keyFile');
   } catch {
-    throw new Error(
-      'crypto.keyFile is not configured. Please set it in your config file before running init.',
-    );
+    throw new Error('crypto.keyFile is not configured');
   }
 
   if (!keyFilePath) {
-    throw new Error(
-      'crypto.keyFile is not configured. Please set it in your config file before running init.',
-    );
+    throw new Error('crypto.keyFile is not configured');
   }
+
+  return keyFilePath;
+}
+
+/**
+ * CLI helper: Initialize a new key file for config secret encryption.
+ * @returns {Promise<string>}
+ */
+export async function initConfigSecretKeyFile() {
+  const keyFilePath = getConfigKeyFilePath();
 
   // Check if file already exists
   try {
@@ -209,17 +215,7 @@ export async function initConfigSecretKeyFile() {
  * @returns {Promise<string>}
  */
 export async function encryptConfigValue(plaintext) {
-  let keyFilePath;
-  try {
-    keyFilePath = config.get('crypto.keyFile');
-  } catch {
-    throw new Error('crypto.keyFile is not configured');
-  }
-
-  if (!keyFilePath) {
-    throw new Error('crypto.keyFile is not configured');
-  }
-
+  const keyFilePath = getConfigKeyFilePath();
   const keyBuffer = await readKeyFile(keyFilePath);
   return encryptSecret(keyBuffer, plaintext);
 }
