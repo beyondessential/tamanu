@@ -13,7 +13,6 @@ import { Footer } from './printComponents/Footer';
 import { InvoiceDetails } from './printComponents/InvoiceDetails';
 import {
   getInvoiceItemPriceDisplay,
-  getInvoiceSummaryDisplay,
   getPatientPaymentsWithRemainingBalanceDisplay,
   formatDisplayPrice,
   getInsurerPaymentsWithRemainingBalanceDisplay,
@@ -23,6 +22,7 @@ import {
   getFormattedInvoiceItemCoverageAmount,
   getFormattedInvoiceItemNetCost,
   getFormattedCoverageAmountPerInsurancePlanForInvoice,
+  getInvoiceSummary,
 } from '../invoice';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
@@ -124,6 +124,9 @@ const subRowStyles = StyleSheet.create({
     fontSize: 9,
     color: '#666666',
   },
+  valueText: {
+    fontSize: 9,
+  },
 });
 
 const summaryPaneStyles = StyleSheet.create({
@@ -214,7 +217,7 @@ const InvoiceItemAdjustmentRows = ({ item, columns }) => {
           // Value cell
           return (
             <View key={col.key} style={cellStyle}>
-              <Text style={subRowStyles.labelText}>{value}</Text>
+              <Text style={subRowStyles.valueText}>{value}</Text>
             </View>
           );
         }
@@ -237,7 +240,7 @@ const InvoiceItemAdjustmentRows = ({ item, columns }) => {
 };
 
 const getInvoiceItemDetails = item => {
-  const name = item.productName;
+  const name = item.product.name;
   const note = item.note;
 
   return (
@@ -356,7 +359,7 @@ const COLUMNS = {
     {
       key: 'status',
       title: 'Status',
-      accessor: ({ status }) => status, // TODO: Waiting for refund/paid status to be added
+      accessor: () => 'Paid',
       style: { width: '21%' },
     },
   ],
@@ -446,7 +449,7 @@ const HeaderRow = ({ columns, style }) => {
 
 const PaymentDataTableHeading = ({ columns, title }) => {
   return (
-    <View>
+    <View fixed>
       {title && <MultipageTableHeading title={title} />}
       <DataTableHeadingBorder />
       <HeaderRow columns={columns} style={paymentTableStyles.headerRow} />
@@ -547,18 +550,19 @@ const SummaryPane = ({ invoice }) => {
     patientSubtotal,
     patientPaymentsTotal,
     itemAdjustmentsTotal,
-  } = getInvoiceSummaryDisplay(invoice);
+  } = getInvoiceSummary(invoice);
   const insurancePlanCoverages = getFormattedCoverageAmountPerInsurancePlanForInvoice(invoice);
+  const patientPaymentsTotalDisplay = patientPaymentsTotal > 0 ? patientPaymentsTotal * -1 : 0;
 
   return (
     <View wrap={false} style={summaryPaneStyles.container}>
       <View style={summaryPaneStyles.item}>
         <P>Invoice total</P>
-        <P>{invoiceItemsTotal}</P>
+        <P>{formatDisplayPrice(invoiceItemsTotal)}</P>
       </View>
       <View style={summaryPaneStyles.item}>
         <P>Item adjustments</P>
-        <P>{itemAdjustmentsTotal}</P>
+        <P>{formatDisplayPrice(itemAdjustmentsTotal)}</P>
       </View>
       {insurancePlanCoverages.length > 0 && (
         <>
@@ -574,17 +578,19 @@ const SummaryPane = ({ invoice }) => {
       <HorizontalRule />
       <View style={summaryPaneStyles.item}>
         <P bold>Patient subtotal</P>
-        <P>{patientSubtotal}</P>
+        <P>{formatDisplayPrice(patientSubtotal)}</P>
       </View>
       <HorizontalRule />
       <View style={summaryPaneStyles.item}>
         <P>Patient payments</P>
-        <P>{`-${patientPaymentsTotal}`}</P>
+        <P>
+          {formatDisplayPrice(patientPaymentsTotalDisplay)}
+        </P>
       </View>
       <HorizontalRule />
       <View style={[summaryPaneStyles.item, { marginVertical: 7.5 }]}>
         <P bold>Patient total due</P>
-        <P bold>{patientPaymentRemainingBalance}</P>
+        <P bold>{formatDisplayPrice(patientPaymentRemainingBalance)}</P>
       </View>
     </View>
   );

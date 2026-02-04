@@ -189,7 +189,7 @@ export const getFormattedInvoiceItemCoverageAmount = item => {
     return formatDisplayPrice(0);
   }
   const coverage = getItemTotalInsuranceCoverageAmount(item);
-  return formatDisplayPrice(coverage);
+  return formatDisplayPrice(-coverage);
 };
 
 /**
@@ -228,17 +228,23 @@ export const getFormattedCoverageAmountPerInsurancePlanForInvoice = invoice => {
           item,
           planItem,
         );
-        planCoverageTotals.set(planItem.id, planCoverageTotals.get(planItem.id).plus(coverageAmount));
+        planCoverageTotals.set(
+          planItem.id,
+          planCoverageTotals.get(planItem.id).plus(coverageAmount),
+        );
       }
     }
   }
 
-  return insurancePlans.map(plan => ({
-    id: plan.id,
-    name: plan.name,
-    code: plan.code,
-    totalCoverage: formatDisplayPrice(planCoverageTotals.get(plan.id)),
-  }));
+  return insurancePlans.map(plan => {
+    const totalCoverage = planCoverageTotals.get(plan.id);
+    return {
+      id: plan.id,
+      name: plan.name,
+      code: plan.code,
+      totalCoverage: formatDisplayPrice(totalCoverage.negated()),
+    };
+  });
 };
 
 // TODO: This could be refactored to use getFormattedInvoiceItemNetCost

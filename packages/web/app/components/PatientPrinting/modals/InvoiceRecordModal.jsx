@@ -47,7 +47,7 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
     title: (
       <TranslatedText
         stringId="invoice.modal.print.invoiceRecord.title"
-        fallback="Invoice Record"
+        fallback="Print Invoice"
         data-testid="translatedtext-hj8p"
       />
     ),
