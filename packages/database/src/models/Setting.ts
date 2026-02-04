@@ -259,7 +259,7 @@ export class Setting extends Model {
     facilityId: string | null = null,
   ): Promise<void> {
     const psk = await getConfigSecret('crypto.settingsPsk');
-    const keyBuffer = Buffer.from(psk, 'base64');
+    const keyBuffer = Buffer.from(psk, 'hex');
     const encryptedValue = await encryptSecret(keyBuffer, value);
     await this.set(name as SettingPath, encryptedValue as unknown as object, scope, facilityId);
   }

@@ -12,6 +12,7 @@ const SECRET_VERSION = 'S1';
 // AES-GCM configuration
 const ALGORITHM = 'AES-GCM';
 const KEY_LENGTH = 256;
+const KEY_LENGTH_BYTES = KEY_LENGTH / 8; // 32 bytes for AES-256
 const IV_LENGTH = 12; // 96 bits recommended for AES-GCM
 
 /**
@@ -225,15 +226,29 @@ export async function configSecretInitAction(stdout, stderr) {
   stderr.write('Keep this file secure and back it up safely.\n');
   stderr.write('You will need it to decrypt any secrets encrypted with it.\n\n');
 
+  const expectedHexLength = KEY_LENGTH_BYTES * 2; // 64 hex characters for 32 bytes
+
   // Prompt for settings PSK
   const settingsPsk = await read({
-    prompt: 'Enter settings PSK (leave empty to skip): ',
+    prompt: `Enter settings PSK as hex (${expectedHexLength} hex chars, leave empty to skip): `,
     silent: true,
     replace: '*',
   });
 
   let settingsPskLine = '';
   if (settingsPsk) {
+    // Validate hex format
+    if (!/^[0-9a-fA-F]+$/.test(settingsPsk)) {
+      throw new Error('Settings PSK must be a hexadecimal string');
+    }
+
+    // Validate length (must be exactly 32 bytes = 64 hex characters)
+    if (settingsPsk.length !== expectedHexLength) {
+      throw new Error(
+        `Settings PSK must be exactly ${expectedHexLength} hex characters (${KEY_LENGTH_BYTES} bytes for AES-${KEY_LENGTH}), got ${settingsPsk.length}`,
+      );
+    }
+
     const keyBuffer = await readKeyFile(keyFilePath);
     const encryptedPsk = await encryptSecret(keyBuffer, settingsPsk);
     settingsPskLine = `\n  settingsPsk: "${encryptedPsk}",`;

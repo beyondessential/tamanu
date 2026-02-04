@@ -13,7 +13,7 @@ export function patchReadSettings() {
     }
 
     const psk = await getConfigSecret('crypto.settingsPsk');
-    const keyBuffer = Buffer.from(psk, 'base64');
+    const keyBuffer = Buffer.from(psk, 'hex');
     return decryptSecret(keyBuffer, encryptedValue);
   };
 }
