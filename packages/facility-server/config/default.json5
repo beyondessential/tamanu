@@ -125,7 +125,7 @@
     "mSupplyMedIntegrationProcessor": {
       "enabled": false,
       "schedule": "0 2 * * *",
-      "batchSize": 1000,
+      "batchSize": 100,
       "batchSleepAsyncDurationInMilliseconds": 50
     },
   },

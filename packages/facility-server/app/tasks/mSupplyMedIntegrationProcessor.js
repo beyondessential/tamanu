@@ -242,7 +242,6 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
       return;
     }
 
-    // TODO: fine tune these values
     if (!batchSize || !batchSleepAsyncDurationInMilliseconds) {
       throw new InvalidConfigError(
         'batchSize and batchSleepAsyncDurationInMilliseconds must be set for mSupplyMedIntegrationProcessor',
