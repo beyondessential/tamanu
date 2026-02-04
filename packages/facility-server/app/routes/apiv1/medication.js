@@ -2454,10 +2454,13 @@ medication.post(
         );
       }
 
+      // For outpatient/discharge prescriptions with repeats, validate that there are repeats remaining
+      // For inpatient prescriptions, repeats don't apply so they can be dispensed multiple times
       const ineligibleRecords = prescriptionRecords.filter(record => {
         const remainingRepeats = record.getRemainingRepeats();
         const hasDispenses = record.medicationDispenses?.length > 0;
         const isDischargePrescription = record.pharmacyOrder?.isDischargePrescription;
+        // Only check repeats for discharge prescriptions that have already been dispensed
         return remainingRepeats === 0 && hasDispenses && !!isDischargePrescription;
       });
 
@@ -2479,11 +2482,13 @@ medication.post(
         { transaction },
       );
 
-      // After dispensing, soft delete all ineligible pharmacy order prescriptions
+      // After dispensing, mark all prescriptions with no remaining repeats as completed
+      // For inpatient prescriptions, getRemainingRepeats() always returns 0, so they will be
+      // completed on first dispense. For outpatient prescriptions, they will be completed
+      // when all repeats are exhausted.
       const allCompletedRecords = prescriptionRecords.filter(record => {
         const remainingRepeats = record.getRemainingRepeats(1);
-        const isDischargePrescription = record.pharmacyOrder?.isDischargePrescription;
-        return remainingRepeats === 0 && !!isDischargePrescription;
+        return remainingRepeats === 0;
       });
 
       if (allCompletedRecords.length > 0) {
