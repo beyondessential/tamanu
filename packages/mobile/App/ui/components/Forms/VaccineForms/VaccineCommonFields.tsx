@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { NavigationProp } from '@react-navigation/native';
 
 import { DateField } from '../../DateField/DateField';
@@ -95,14 +95,18 @@ export const DepartmentField = ({ navigation }: NavigationFieldProps): JSX.Eleme
   const { models } = useBackend();
   const { facilityId } = useFacility();
 
-  const departmentSuggester = new Suggester({
-    model: models.Department,
-    options: {
-      where: {
-        facility: facilityId,
-      },
-    },
-  });
+  const departmentSuggester = useMemo(
+    () =>
+      new Suggester({
+        model: models.Department,
+        options: {
+          where: {
+            facility: facilityId,
+          },
+        },
+      }),
+    [models.Department, facilityId],
+  );
 
   return (
     <Field

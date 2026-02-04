@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Suggester } from '~/ui/helpers/suggester';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { useBackend } from '~/ui/hooks';
@@ -52,13 +52,17 @@ export const SurveyQuestionAutocomplete = (props): JSX.Element => {
   const where = useSurveyAutocompleteWhere(props.config);
   const { source } = props.config;
 
-  const suggester = new Suggester({
-    model: models[source],
-    options: {
-      where,
-      column: getNameColumnForModel(source),
-    },
-  });
+  const suggester = useMemo(
+    () =>
+      new Suggester({
+        model: models[source],
+        options: {
+          where,
+          column: getNameColumnForModel(source),
+        },
+      }),
+    [models, source, where],
+  );
 
   return (
     <AutocompleteModalField
