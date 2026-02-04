@@ -3,7 +3,7 @@ import { isPlainObject, get as getAtPath, set as setAtPath, isEqual, keyBy } fro
 import { settingsCache } from '@tamanu/settings/cache';
 import { SYNC_DIRECTIONS, SETTINGS_SCOPES } from '@tamanu/constants';
 import { extractDefaults, getScopedSchema } from '@tamanu/settings/schema';
-import { getConfigSecret, encryptSecret, decryptSecret } from '@tamanu/shared/utils/crypto';
+import { getConfigSecret, encryptSecret } from '@tamanu/shared/utils/crypto';
 import { Model } from './Model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { InitOptions, Models } from '../types/model';
@@ -250,20 +250,6 @@ export class Setting extends Model {
   }
 
   /**
-   * Gets a decrypted secret from the settings table.
-   */
-  static async getSecret(name: string, facilityId?: string | null): Promise<string> {
-    const encryptedValue = await this.get(name as SettingPath, (facilityId ?? null) as null);
-    if (!encryptedValue || typeof encryptedValue !== 'string') {
-      throw new Error(`Secret setting not found: ${name}`);
-    }
-
-    const psk = await getConfigSecret('crypto.settingsPsk');
-    const keyBuffer = Buffer.from(psk, 'base64');
-    return decryptSecret(keyBuffer, encryptedValue);
-  }
-
-  /**
    * Sets an encrypted secret in the settings table.
    */
   static async setSecret(
@@ -279,7 +265,7 @@ export class Setting extends Model {
       name as SettingPath,
       encryptedValue as unknown as object,
       scope,
-      (facilityId ?? null) as null,
+      (facilityId ?? null) as unknown as null,
     );
   }
 }
