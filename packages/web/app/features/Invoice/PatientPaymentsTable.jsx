@@ -35,7 +35,7 @@ const TableContainer = styled.div`
 
     th {
       &:nth-child(1) {
-        width: 120px;
+        width: 80px;
       }
 
       &:nth-child(2) {
@@ -43,15 +43,15 @@ const TableContainer = styled.div`
       }
 
       &:nth-child(3) {
-        width: 100px;
+        width: 80px;
       }
 
       &:nth-child(4) {
-        width: 120px;
+        width: 100px;
       }
 
       &:nth-child(5) {
-        width: 80px;
+        width: 50px;
       }
 
       &:nth-child(6) {
@@ -76,9 +76,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const [paymentModalIsOpen, setPaymentModalIsOpen] = useState(false);
   const [selectedPaymentRecord, setSelectedPaymentRecord] = useState(null);
 
-  const patientPayments = invoice.payments
-    .filter(payment => !!payment?.patientPayment)
-    .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+  const patientPayments = invoice.payments.filter(payment => !!payment?.patientPayment);
 
   const { patientPaymentRemainingBalance } = getInvoiceSummary(invoice);
 

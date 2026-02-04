@@ -178,7 +178,11 @@ const useInvoiceItemActionsMenu = ({
           data-testid="translatedtext-wwxo"
         />
       ),
-      onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.DELETE),
+      onClick: () => {
+        isSaved
+          ? setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.DELETE)
+          : handleAction({}, INVOICE_ITEM_ACTION_MODAL_TYPES.DELETE);
+      },
       hidden: isFinalised,
     },
   ];

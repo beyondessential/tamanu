@@ -256,7 +256,9 @@ encounter.post(
       attributes: ['id', 'medicationId', 'quantity'],
     });
 
-    const hasSensitive = await models.ReferenceDrug.hasSensitiveMedication(prescriptionRecords.map(p => p.medicationId));
+    const hasSensitive = await models.ReferenceDrug.hasSensitiveMedication(
+      prescriptionRecords.map(p => p.medicationId),
+    );
 
     if (hasSensitive) {
       req.checkPermission('read', 'SensitiveMedication');
@@ -580,6 +582,7 @@ encounterRelations.get(
       order: [
         [{ model: models.InvoiceItem, as: 'items' }, 'orderDate', 'ASC'],
         [{ model: models.InvoiceItem, as: 'items' }, 'createdAt', 'ASC'],
+        [{ model: models.InvoicePayment, as: 'payments' }, 'date', 'ASC'],
       ],
     });
     if (!invoiceRecord) {
