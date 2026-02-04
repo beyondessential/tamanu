@@ -35,7 +35,7 @@ const SettingLine = styled(BodyText)`
 
 const SettingNameLabel = styled(LargeBodyText)`
   // Match TextField for baseline alignment
-  // Cannot use ‘align-items: baseline’ on parent flexbox because InputText has incorrect semantics
+  // Cannot use 'align-items: baseline' on parent flexbox because InputText has incorrect semantics
   margin-block: 13px;
   padding-block: 0;
   font-size: 15px;
@@ -62,9 +62,9 @@ const CategoryTitle = memo(({ name, path, description }) => {
   );
 });
 
-const SettingName = memo(({ name, path, description, disabled }) => (
+const SettingName = memo(({ name, path, description, disabled, isSecret }) => (
   <ThemedTooltip
-    disableHoverListener={!description && !disabled}
+    disableHoverListener={!description && !disabled && !isSecret}
     title={
       disabled ? (
         <TranslatedText
@@ -72,15 +72,24 @@ const SettingName = memo(({ name, path, description, disabled }) => (
           fallback="User does not required permissions to update this setting"
           data-testid="translatedtext-2xq4"
         />
+      ) : isSecret ? (
+        <TranslatedText
+          stringId="admin.settings.secretSettingTooltip"
+          fallback="This is a secret setting. The current value cannot be retrieved."
+          data-testid="translatedtext-secret"
+        />
       ) : (
         description
       )
     }
     data-testid="themedtooltip-2qoa"
   >
-    <SettingNameLabel color={disabled && 'textTertiary'} data-testid="settingnamelabel-xr19">
+    <SettingNameLabel
+      color={(disabled || isSecret) && 'textTertiary'}
+      data-testid="settingnamelabel-xr19"
+    >
       {formatSettingName(name, path.split('.').pop())}
-      {disabled && <StyledLockIcon data-testid="styledlockicon-x3w0" />}
+      {(disabled || isSecret) && <StyledLockIcon data-testid="styledlockicon-x3w0" />}
     </SettingNameLabel>
   </ThemedTooltip>
 ));
@@ -97,7 +106,13 @@ const sortProperties = ([a0, a1], [b0, b1]) => {
   return aName.localeCompare(bName);
 };
 
-export const Category = ({ schema, path = '', getSettingValue, handleChangeSetting, facilityId }) => {
+export const Category = ({
+  schema,
+  path = '',
+  getSettingValue,
+  handleChangeSetting,
+  facilityId,
+}) => {
   const { ability } = useAuth();
   const canWriteHighRisk = ability.can('manage', 'all');
   if (!schema) return null;
@@ -122,10 +137,12 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
           unit,
           highRisk,
           suggesterEndpoint,
+          secret,
         } = propertySchema;
 
         const isHighRisk = schema.highRisk || highRisk;
         const disabled = !canWriteHighRisk && isHighRisk;
+        const isSecret = Boolean(secret);
 
         return type ? (
           <SettingLine key={newPath} data-testid={`settingline-55rw-${testIdSuffix}`}>
@@ -134,6 +151,7 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
               path={newPath}
               name={name}
               description={description}
+              isSecret={isSecret}
               data-testid={`settingname-g0r7-${testIdSuffix}`}
             />
             <SettingInput
@@ -146,6 +164,7 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
               unit={unit}
               disabled={disabled}
               facilityId={facilityId}
+              isSecret={isSecret}
               data-testid={`settinginput-2wuw-${testIdSuffix}`}
             />
           </SettingLine>

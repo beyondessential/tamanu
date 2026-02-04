@@ -1023,6 +1023,13 @@ export const globalSettings = {
               type: yup.string(),
               defaultValue: 'test',
             },
+            apiKey: {
+              name: 'API Key',
+              description: 'API key for imaging provider authentication',
+              type: yup.string(),
+              defaultValue: '',
+              secret: true,
+            },
           },
         },
       },
@@ -1607,7 +1614,8 @@ export const globalSettings = {
             },
             autoDeleteTimeframeHours: {
               name: 'Autodelete medication request timeframe in hours',
-              description: 'Medication requests not dispensed after this timeframe will be automatically deleted.',
+              description:
+                'Medication requests not dispensed after this timeframe will be automatically deleted.',
               type: yup.number().integer().positive(),
               defaultValue: 72,
               unit: 'hours',

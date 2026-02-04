@@ -8,4 +8,9 @@ export interface Setting<T = any> {
   highRisk?: boolean;
   defaultValue: T;
   deprecated?: boolean;
+  /**
+   * When true, this setting is stored encrypted and its value
+   * cannot be retrieved via the admin UI - only set to new values.
+   */
+  secret?: boolean;
 }

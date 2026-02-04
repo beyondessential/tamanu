@@ -4,7 +4,14 @@ import asyncHandler from 'express-async-handler';
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
 import { NotFoundError } from '@tamanu/errors';
 import { simpleGetList } from '@tamanu/shared/utils/crudHelpers';
-import { settingsCache } from '@tamanu/settings';
+import {
+  settingsCache,
+  getScopedSchema,
+  extractSecretPaths,
+  maskSecrets,
+  SECRET_PLACEHOLDER,
+  getSettingAtPath,
+} from '@tamanu/settings';
 
 import { exporterRouter } from './exporter';
 import { importerRouter } from './importer';
@@ -79,17 +86,94 @@ adminRoutes.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('read', 'Setting');
     const { Setting } = req.store.models;
-    const data = await Setting.get('', req.query.facilityId, req.query.scope);
-    res.send(data);
+    const { facilityId, scope } = req.query;
+
+    const data = await Setting.get('', facilityId, scope);
+
+    // If no scope provided or no data, return as-is
+    if (!scope || !data || typeof data !== 'object') {
+      res.send(data);
+      return;
+    }
+
+    // Mask secret values before sending to the client
+    const schema = getScopedSchema(scope);
+    if (schema) {
+      const secretPaths = extractSecretPaths(schema);
+      const maskedData = maskSecrets(data, secretPaths);
+      res.send(maskedData);
+    } else {
+      res.send(data);
+    }
   }),
 );
+
+/**
+ * Flattens a nested settings object into an array of { path, value } entries.
+ * e.g., { a: { b: 'val' } } => [{ path: 'a.b', value: 'val' }]
+ */
+function flattenSettingsToEntries(obj, parentPath = '') {
+  const entries = [];
+
+  for (const [key, value] of Object.entries(obj)) {
+    const fullPath = parentPath ? `${parentPath}.${key}` : key;
+
+    if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+      entries.push(...flattenSettingsToEntries(value, fullPath));
+    } else {
+      entries.push({ path: fullPath, value });
+    }
+  }
+
+  return entries;
+}
 
 adminRoutes.put(
   '/settings',
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Setting');
     const { Setting } = req.store.models;
-    await Setting.set('', req.body.settings, req.body.scope, req.body.facilityId);
+    const { settings, scope, facilityId } = req.body;
+
+    // Get the schema to identify secret fields
+    const schema = scope ? getScopedSchema(scope) : null;
+
+    if (schema && settings && typeof settings === 'object') {
+      const secretPaths = extractSecretPaths(schema);
+
+      // Process settings to handle secrets
+      const entries = flattenSettingsToEntries(settings);
+
+      for (const entry of entries) {
+        const settingDef = getSettingAtPath(schema, entry.path);
+
+        if (settingDef?.secret && secretPaths.includes(entry.path)) {
+          // If the value is the placeholder, the user didn't change it - skip updating this field
+          if (entry.value === SECRET_PLACEHOLDER) {
+            // Remove from settings so it doesn't overwrite the existing value
+            const pathParts = entry.path.split('.');
+            let current = settings;
+            for (let i = 0; i < pathParts.length - 1; i++) {
+              current = current[pathParts[i]];
+            }
+            delete current[pathParts[pathParts.length - 1]];
+          } else if (entry.value && entry.value !== '') {
+            // Encrypt the secret value before storing
+            await Setting.setSecret(entry.path, entry.value, scope, facilityId);
+            // Remove from regular settings so it's not double-stored
+            const pathParts = entry.path.split('.');
+            let current = settings;
+            for (let i = 0; i < pathParts.length - 1; i++) {
+              current = current[pathParts[i]];
+            }
+            delete current[pathParts[pathParts.length - 1]];
+          }
+        }
+      }
+    }
+
+    // Save non-secret settings normally
+    await Setting.set('', settings, scope, facilityId);
     res.json({ code: 200 });
   }),
 );
