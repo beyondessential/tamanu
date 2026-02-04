@@ -189,8 +189,7 @@ export const getFormattedInvoiceItemCoverageAmount = item => {
     return formatDisplayPrice(0);
   }
   const coverage = getItemTotalInsuranceCoverageAmount(item);
-  const coverageDisplay = coverage > 0 ? coverage * -1 : 0;
-  return formatDisplayPrice(coverageDisplay);
+  return formatDisplayPrice(-coverage);
 };
 
 /**
@@ -239,12 +238,11 @@ export const getFormattedCoverageAmountPerInsurancePlanForInvoice = invoice => {
 
   return insurancePlans.map(plan => {
     const totalCoverage = planCoverageTotals.get(plan.id);
-    const totalCoverageDisplay = totalCoverage > 0 ? totalCoverage * -1 : 0;
     return {
       id: plan.id,
       name: plan.name,
       code: plan.code,
-      totalCoverage: formatDisplayPrice(totalCoverageDisplay),
+      totalCoverage: formatDisplayPrice(totalCoverage.negated()),
     };
   });
 };
