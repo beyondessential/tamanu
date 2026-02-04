@@ -76,9 +76,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const [paymentModalIsOpen, setPaymentModalIsOpen] = useState(false);
   const [selectedPaymentRecord, setSelectedPaymentRecord] = useState(null);
 
-  const patientPayments = invoice.payments
-    .filter(payment => !!payment?.patientPayment)
-    .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+  const patientPayments = invoice.payments.filter(payment => !!payment?.patientPayment);
 
   const { patientPaymentRemainingBalance } = getInvoiceSummary(invoice);
 
