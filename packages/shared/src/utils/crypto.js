@@ -1,6 +1,10 @@
 import config from 'config';
 import { get as lodashGet } from 'lodash';
 import { promises as fs } from 'fs';
+import { promisify } from 'util';
+import readSync from 'read';
+
+const read = promisify(readSync);
 
 // Secret format version prefix
 const SECRET_VERSION = 'S1';
@@ -218,4 +222,56 @@ export async function encryptConfigValue(plaintext) {
 
   const keyBuffer = await readKeyFile(keyFilePath);
   return encryptSecret(keyBuffer, plaintext);
+}
+
+/**
+ * CLI action: Initialize a new key file and optionally encrypt a settings PSK.
+ * @param {NodeJS.WriteStream} stdout
+ * @param {NodeJS.WriteStream} stderr
+ * @returns {Promise<void>}
+ */
+export async function configSecretInitAction(stdout, stderr) {
+  const keyFilePath = await initConfigSecretKeyFile();
+  stderr.write(`Successfully created key file at: ${keyFilePath}\n`);
+  stderr.write('Keep this file secure and back it up safely.\n');
+  stderr.write('You will need it to decrypt any secrets encrypted with it.\n\n');
+
+  // Prompt for settings PSK
+  const settingsPsk = await read({
+    prompt: 'Enter settings PSK (leave empty to skip): ',
+    silent: true,
+    replace: '*',
+  });
+
+  let settingsPskLine = '';
+  if (settingsPsk) {
+    const keyBuffer = await readKeyFile(keyFilePath);
+    const encryptedPsk = await encryptSecret(keyBuffer, settingsPsk);
+    settingsPskLine = `\n  settingsPsk: "${encryptedPsk}",`;
+  }
+
+  stderr.write('\nAdd this to your config file:\n\n');
+  stdout.write(`crypto: {\n  keyFile: "${keyFilePath}",${settingsPskLine}\n},\n`);
+}
+
+/**
+ * CLI action: Encrypt a value using the configured key file.
+ * @param {NodeJS.WriteStream} stdout
+ * @param {NodeJS.WriteStream} stderr
+ * @returns {Promise<void>}
+ */
+export async function configSecretEncryptAction(stdout, stderr) {
+  const value = await read({
+    prompt: 'Enter value to encrypt: ',
+    silent: true,
+    replace: '*',
+  });
+
+  if (!value) {
+    throw new Error('No value provided');
+  }
+
+  const encrypted = await encryptConfigValue(value);
+  stderr.write('Encrypted value (copy this to your config):\n');
+  stdout.write(`${encrypted}\n`);
 }
