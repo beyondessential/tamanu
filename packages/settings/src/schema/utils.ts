@@ -54,7 +54,7 @@ export const SECRET_PLACEHOLDER = '••••••••';
 
 /**
  * Masks secret values in a settings object.
- * Secret fields that have a value will be replaced with a placeholder.
+ * Secret fields that have a value (including empty strings) will be replaced with a placeholder.
  * This is used when returning settings to the admin UI.
  */
 export const maskSecrets = (
@@ -65,8 +65,8 @@ export const maskSecrets = (
 
   for (const path of secretPaths) {
     const value = getAtPath(masked, path);
-    // Only mask if the value exists and is set
-    if (value !== undefined && value !== null && value !== '') {
+    // Mask if the value exists (including empty strings, which are valid secrets)
+    if (value !== undefined && value !== null) {
       setAtPath(masked, path, SECRET_PLACEHOLDER);
     }
   }

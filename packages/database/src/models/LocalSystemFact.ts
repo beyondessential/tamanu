@@ -1,9 +1,13 @@
 import { DataTypes } from 'sequelize';
 import { EndpointKey } from 'mushi';
-import config from 'config';
 
 import { SYNC_DIRECTIONS, FACT_DEVICE_KEY, FACT_LOOKUP_MODELS_TO_REBUILD } from '@tamanu/constants';
-import { encryptSecret, decryptSecret, readKeyFile } from '@tamanu/shared/utils/crypto';
+import {
+  encryptSecret,
+  decryptSecret,
+  readKeyFile,
+  getConfigKeyFilePath,
+} from '@tamanu/shared/utils/crypto';
 import { Model } from './Model';
 import type { InitOptions } from '../types/model';
 import { randomUUID } from 'node:crypto';
@@ -154,10 +158,7 @@ export class LocalSystemFact extends Model {
       return null;
     }
 
-    const keyFilePath: string = config.get('crypto.keyFile');
-    if (!keyFilePath) {
-      throw new Error('crypto.keyFile is not configured');
-    }
+    const keyFilePath = getConfigKeyFilePath();
     const keyBuffer = await readKeyFile(keyFilePath);
     return decryptSecret(keyBuffer, encryptedValue);
   }
@@ -166,10 +167,7 @@ export class LocalSystemFact extends Model {
    * Sets an encrypted secret in the local system facts table.
    */
   static async setSecret(key: FactName, value: string): Promise<void> {
-    const keyFilePath: string = config.get('crypto.keyFile');
-    if (!keyFilePath) {
-      throw new Error('crypto.keyFile is not configured');
-    }
+    const keyFilePath = getConfigKeyFilePath();
     const keyBuffer = await readKeyFile(keyFilePath);
     const encryptedValue = await encryptSecret(keyBuffer, value);
     await this.set(key, encryptedValue);

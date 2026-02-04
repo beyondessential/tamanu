@@ -152,15 +152,26 @@ describe('Secret utilities', () => {
       const settings = {
         apiKey: null,
         token: undefined,
-        emptyString: '',
       };
-      const secretPaths = ['apiKey', 'token', 'emptyString'];
+      const secretPaths = ['apiKey', 'token'];
 
       const masked = maskSecrets(settings, secretPaths);
 
       expect(masked.apiKey).toBe(null);
       expect(masked.token).toBe(undefined);
-      expect(masked.emptyString).toBe('');
+    });
+
+    it('should mask empty strings as valid secrets', () => {
+      const settings = {
+        emptySecret: '',
+        normalSetting: 'visible',
+      };
+      const secretPaths = ['emptySecret'];
+
+      const masked = maskSecrets(settings, secretPaths);
+
+      expect(masked.emptySecret).toBe(SECRET_PLACEHOLDER);
+      expect(masked.normalSetting).toBe('visible');
     });
 
     it('should not mutate the original settings object', () => {

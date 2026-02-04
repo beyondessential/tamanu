@@ -139,10 +139,7 @@ export async function writeKeyFile(keyFilePath, key) {
  * @returns {Promise<string>}
  */
 export async function getConfigSecret(name) {
-  const keyFilePath = config.get('crypto.keyFile');
-  if (!keyFilePath) {
-    throw new Error('crypto.keyFile is not configured');
-  }
+  const keyFilePath = getConfigKeyFilePath();
 
   const encryptedValue = lodashGet(config, name);
   if (!encryptedValue) {
@@ -166,15 +163,11 @@ export function isEncryptedSecret(value) {
 
 /**
  * Gets the key file path from config, throwing if not configured.
+ * This is the single source of truth for reading the crypto.keyFile config.
  * @returns {string}
  */
-function getConfigKeyFilePath() {
-  let keyFilePath;
-  try {
-    keyFilePath = config.get('crypto.keyFile');
-  } catch {
-    throw new Error('crypto.keyFile is not configured');
-  }
+export function getConfigKeyFilePath() {
+  const keyFilePath = config.get('crypto.keyFile');
 
   if (!keyFilePath) {
     throw new Error('crypto.keyFile is not configured');

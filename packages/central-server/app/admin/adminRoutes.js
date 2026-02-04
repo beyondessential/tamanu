@@ -157,8 +157,8 @@ adminRoutes.put(
               current = current[pathParts[i]];
             }
             delete current[pathParts[pathParts.length - 1]];
-          } else if (entry.value && entry.value !== '') {
-            // Encrypt the secret value before storing
+          } else if (entry.value !== null && entry.value !== undefined) {
+            // Encrypt the secret value before storing (empty strings are valid secrets)
             await Setting.setSecret(entry.path, entry.value, scope, facilityId);
             // Remove from regular settings so it's not double-stored
             const pathParts = entry.path.split('.');
