@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Typography, Box } from '@material-ui/core';
-import { Button, OutlinedButton, ThemedTooltip } from '@tamanu/ui-components';
+import { Button, OutlinedButton } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import PrintIcon from '@material-ui/icons/Print';
@@ -85,7 +85,7 @@ const PrintButton = styled(OutlinedButton)`
 
 const PaymentsSection = styled.div`
   display: grid;
-  grid-template-columns: 1fr 240px;
+  grid-template-columns: 1fr 220px;
   gap: 8px;
 
   @media (min-width: 1600px) {
@@ -103,14 +103,17 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEd
   const canWriteInvoice = ability.can('write', 'Invoice');
   const canDeleteInvoice = ability.can('delete', 'Invoice');
 
+  const hasPayments = invoice.payments?.length > 0;
   const isInProgress = invoice.status === INVOICE_STATUSES.IN_PROGRESS;
   const isCancelled = invoice.status === INVOICE_STATUSES.CANCELLED;
-  const cancelable = invoice && isInvoiceEditable(invoice) && canWriteInvoice;
-  const deletable = invoice && invoice.status !== INVOICE_STATUSES.FINALISED && canDeleteInvoice;
+  const cancelable = invoice && isInvoiceEditable(invoice) && canWriteInvoice && !hasPayments;
+  const deletable =
+    invoice && invoice.status !== INVOICE_STATUSES.FINALISED && canDeleteInvoice && !hasPayments;
   const { mutate: bulkUpdateApproval } = useBulkUpdateInvoiceItemApproval(invoice);
   const finalisable =
     invoice && isInvoiceEditable(invoice) && canCreateInvoice && encounter.endDate;
   const allItemsAreApproved = invoice.items.every(item => item.approved);
+  const zeroItems = invoice.items.length === 0;
 
   const handleAllApprovals = approved => {
     bulkUpdateApproval({ approved });
@@ -148,7 +151,7 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEd
         />
       ),
       onClick: () => handleAllApprovals(false),
-      hidden: !allItemsAreApproved || isCancelled,
+      hidden: !allItemsAreApproved || isCancelled || zeroItems,
     },
     {
       label: (
@@ -174,7 +177,7 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEd
     },
   ];
 
-  if (!isEditing) {
+  if (!isEditing && !zeroItems) {
     ACTIONS.unshift({
       label: (
         <TranslatedText
@@ -276,23 +279,6 @@ export const EncounterInvoicingPane = ({ encounter }) => {
   }
 
   const isInProgress = invoice.status === INVOICE_STATUSES.IN_PROGRESS;
-  const priceListText = invoice.priceList?.name ?? (
-    <ThemedTooltip
-      title={
-        <TranslatedText
-          stringId="invoice.priceListFallback.tooltip"
-          fallback="There is no price list configured for this patient"
-        />
-      }
-    >
-      <span>
-        <TranslatedText
-          stringId="invoice.priceListFallback.text"
-          fallback="(No prices configured)"
-        />
-      </span>
-    </ThemedTooltip>
-  );
 
   return (
     <>
@@ -306,7 +292,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                   {invoice.displayId}
                 </InvoiceTitle>
                 <InvoiceSubTitle>
-                  {patient?.village?.name} {priceListText}
+                  {patient?.village?.name} {invoice.priceList?.name}
                 </InvoiceSubTitle>
               </Box>
               <InvoiceStatus status={invoice.status} data-testid="invoicestatus-qb63" />

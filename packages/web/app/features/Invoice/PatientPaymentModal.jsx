@@ -61,6 +61,7 @@ const FormCard = styled.div`
 
   > div {
     display: grid;
+    align-items: start;
     grid-template-columns: ${props =>
       props.$isEditMode ? '150px 1fr 150px' : '140px 1fr 120px 80px'};
     gap: 20px;
@@ -87,9 +88,11 @@ const Label = styled.div`
 `;
 
 const PayBalanceButton = styled(TextButton)`
+  color: ${props => props.theme.palette.primary.main};
   font-size: 14px;
   text-transform: none;
   transition: all 0.1s;
+  margin-top: 15px;
 
   &:hover {
     text-decoration: underline;

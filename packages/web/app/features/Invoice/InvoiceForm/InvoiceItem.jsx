@@ -216,7 +216,7 @@ export const InvoiceItemRow = ({
         isEditing={isEditing}
       />
 
-      {!isCancelled && (
+      {!isCancelled && !isEditing && (
         <InvoiceItemActionsMenu
           index={index}
           item={item}
