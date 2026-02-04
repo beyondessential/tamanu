@@ -1023,13 +1023,6 @@ export const globalSettings = {
               type: yup.string(),
               defaultValue: 'test',
             },
-            apiKey: {
-              name: 'API Key',
-              description: 'API key for imaging provider authentication',
-              type: yup.string(),
-              defaultValue: '',
-              secret: true,
-            },
           },
         },
       },
