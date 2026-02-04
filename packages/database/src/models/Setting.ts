@@ -3,6 +3,7 @@ import { isPlainObject, get as getAtPath, set as setAtPath, isEqual, keyBy } fro
 import { settingsCache } from '@tamanu/settings/cache';
 import { SYNC_DIRECTIONS, SETTINGS_SCOPES } from '@tamanu/constants';
 import { extractDefaults, getScopedSchema } from '@tamanu/settings/schema';
+import { getConfigSecret, encryptSecret, decryptSecret } from '@tamanu/shared/utils/crypto';
 import { Model } from './Model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { InitOptions, Models } from '../types/model';
@@ -178,7 +179,7 @@ export class Setting extends Model {
 
     const existingSettings = await this.findAll({
       where: {
-        key: records.map((r) => r.key),
+        key: records.map(r => r.key),
         scope,
         facilityId,
       },
@@ -188,7 +189,7 @@ export class Setting extends Model {
     const existingByKey = keyBy(existingSettings, 'key');
 
     await Promise.all(
-      records.map(async (record) => {
+      records.map(async record => {
         const existing = existingByKey[record.key];
         if (existing) {
           if (existing.deletedAt) {
@@ -226,7 +227,7 @@ export class Setting extends Model {
           key: {
             [Op.and]: {
               ...keyWhere,
-              [Op.notIn]: records.map((r) => r.key),
+              [Op.notIn]: records.map(r => r.key),
             },
           },
           scope,
@@ -246,6 +247,40 @@ export class Setting extends Model {
         facilityId: 'settings.facility_id',
       }),
     };
+  }
+
+  /**
+   * Gets a decrypted secret from the settings table.
+   */
+  static async getSecret(name: string, facilityId?: string | null): Promise<string> {
+    const encryptedValue = await this.get(name as SettingPath, (facilityId ?? null) as null);
+    if (!encryptedValue || typeof encryptedValue !== 'string') {
+      throw new Error(`Secret setting not found: ${name}`);
+    }
+
+    const psk = await getConfigSecret('crypto.settingsPsk');
+    const keyBuffer = Buffer.from(psk, 'base64');
+    return decryptSecret(keyBuffer, encryptedValue);
+  }
+
+  /**
+   * Sets an encrypted secret in the settings table.
+   */
+  static async setSecret(
+    name: string,
+    value: string,
+    scope: (typeof SETTINGS_SCOPES_VALUES)[number] = SETTINGS_SCOPES.GLOBAL,
+    facilityId?: string | null,
+  ): Promise<void> {
+    const psk = await getConfigSecret('crypto.settingsPsk');
+    const keyBuffer = Buffer.from(psk, 'base64');
+    const encryptedValue = await encryptSecret(keyBuffer, value);
+    await this.set(
+      name as SettingPath,
+      encryptedValue as unknown as object,
+      scope,
+      (facilityId ?? null) as null,
+    );
   }
 }
 

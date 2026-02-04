@@ -1,4 +1,5 @@
 export * from './apiKeys';
+export * from './configSecret';
 export * from './calculateSurveyResults';
 export * from './fhir';
 export * from './generate';

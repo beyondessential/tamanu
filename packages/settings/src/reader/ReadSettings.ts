@@ -66,4 +66,12 @@ export class ReadSettings<Path = SettingPath> {
     }
     return settings;
   }
+
+  /**
+   * Gets a decrypted secret from the settings.
+   * This method must be patched at runtime before use.
+   */
+  async getSecret(_name: string): Promise<string> {
+    throw new Error('BUG: ReadSettings.getSecret must be patched before use');
+  }
 }
