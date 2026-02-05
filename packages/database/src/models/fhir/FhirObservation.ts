@@ -4,6 +4,7 @@ import { DataTypes } from 'sequelize';
 import * as yup from 'yup';
 
 import { FHIR_INTERACTIONS, FHIR_ISSUE_TYPE } from '@tamanu/constants';
+import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import {
   FhirCodeableConcept,
   FhirCoding,
@@ -157,7 +158,7 @@ export class FhirObservation extends FhirResource {
     const labTest = await this.getLabTestForObservation(labRequest);
     const value = this.getValue();
 
-    await labTest.update({ result: value });
+    await labTest.update({ result: value, completedDate: getCurrentDateString() });
     return labTest;
   }
 
@@ -198,7 +199,7 @@ export class FhirObservation extends FhirResource {
       });
     }
 
-    const labTest =
+    let labTest =
       (labTestCode &&
         (await LabTest.findOne({
           include: [{ model: LabTestType, as: 'labTestType' }],
@@ -214,12 +215,31 @@ export class FhirObservation extends FhirResource {
         })));
 
     if (!labTest) {
-      throw new Invalid(
-        `No LabTest with code: '${labTestCode}' found for LabRequest: '${labRequest.id}'`,
-        {
-          code: FHIR_ISSUE_TYPE.INVALID.VALUE,
-        },
-      );
+      const labTestType =
+        (labTestCode &&
+          (await LabTestType.findOne({
+            where: { code: labTestCode },
+          }))) ||
+        (labTestExternalCode &&
+          (await LabTestType.findOne({
+            where: { externalCode: labTestExternalCode },
+          })));
+
+      if (!labTestType) {
+        throw new Invalid(
+          `Cannot create reflex test, no lab test type found with ${labTestCode ? 'code' : 'externalCode'} ${labTestCode || labTestExternalCode}`,
+          {
+            code: FHIR_ISSUE_TYPE.INVALID.VALUE,
+          },
+        );
+      }
+
+      // No pre-existing lab test found, this must be a reflex test, so create a new test to track that
+      labTest = await LabTest.create({
+        labRequestId: labRequest.id,
+        labTestTypeId: labTestType.id,
+        date: getCurrentDateString(),
+      });
     }
 
     return labTest;
