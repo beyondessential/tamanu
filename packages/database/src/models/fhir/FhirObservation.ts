@@ -4,7 +4,7 @@ import { DataTypes } from 'sequelize';
 import * as yup from 'yup';
 
 import { FHIR_INTERACTIONS, FHIR_ISSUE_TYPE } from '@tamanu/constants';
-import { getCurrentDateString } from '@tamanu/utils/dateTime';
+import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   FhirCodeableConcept,
   FhirCoding,
@@ -158,7 +158,7 @@ export class FhirObservation extends FhirResource {
     const labTest = await this.getLabTestForObservation(labRequest);
     const value = this.getValue();
 
-    await labTest.update({ result: value, completedDate: getCurrentDateString() });
+    await labTest.update({ result: value, completedDate: getCurrentDateTimeString() });
     return labTest;
   }
 
