@@ -23,6 +23,7 @@ export const PERMISSION_NOUNS = [
   'Facility',
   'ImagingRequest',
   'ImagingAreaExternalCode',
+  'ImagingTypeExternalCode',
   'Invoice',
   'InvoicePayment',
   'InvoiceProduct',
