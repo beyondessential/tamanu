@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { TranslationContext, useTranslation } from '@tamanu/ui-components';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { useTranslationsQuery } from '../api/queries/useTranslationsQuery';
@@ -11,15 +11,9 @@ export { useTranslation };
 
 export const TranslationProvider = ({ children, value }) => {
   const [storedLanguage, setStoredLanguage] = useState(getCurrentLanguageCode());
-
   const { data: translations } = useTranslationsQuery(storedLanguage);
 
-  // In the case of mocking the translation context, we can pass in the value directly
-  if (value) {
-    return <TranslationContext.Provider value={value}>{children}</TranslationContext.Provider>;
-  }
-
-  const translationFunc = translationFactory(translations);
+  const translationFunc = useMemo(() => translationFactory(translations), [translations]);
 
   /**
    * @param {string} stringId
@@ -27,23 +21,28 @@ export const TranslationProvider = ({ children, value }) => {
    * @param {TranslationOptions} translationOptions
    * @returns {string}
    */
-  const getTranslation = (stringId, fallback, translationOptions = {}) => {
+  const getTranslation = useCallback((stringId, fallback, translationOptions = {}) => {
     const { value } = translationFunc(stringId, fallback, translationOptions);
     return value;
-  };
+  }, [translationFunc]);
 
-  const getEnumTranslation = (enumValues, currentValue) => {
+  const getEnumTranslation = useCallback((enumValues, currentValue) => {
     const fallback = enumValues[currentValue];
     const stringId = getEnumStringId(currentValue ?? '', enumValues);
     const { value } = translationFunc(stringId, fallback);
     return value;
-  };
+  }, [translationFunc]);
 
-  const getReferenceDataTranslation = ({ value, category, fallback, placeholder }) => {
+  const getReferenceDataTranslation = useCallback(({ value, category, fallback, placeholder }) => {
     return value
       ? getTranslation(getReferenceDataStringId(value, category), fallback)
       : placeholder;
-  };
+  }, [getTranslation]);
+
+  // In the case of mocking the translation context, we can pass in the value directly
+  if (value) {
+    return <TranslationContext.Provider value={value}>{children}</TranslationContext.Provider>;
+  }
 
   const updateStoredLanguage = newLanguage => {
     // Save the language in local state so that it updates the react component tree on change
