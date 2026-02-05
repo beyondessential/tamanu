@@ -197,6 +197,7 @@ export const InvoiceItemRow = ({
         handleChangeProduct={handleChangeProduct}
         invoiceIsEditable={invoiceIsEditable}
         isEditing={isEditing}
+        isSaved={isSaved}
       />
       <QuantityCell index={index} item={item} isItemEditable={isItemEditable} />
       <ApprovedCell item={item} />
@@ -214,6 +215,7 @@ export const InvoiceItemRow = ({
         hidePriceInput={hidePriceInput}
         priceListItemPrice={fetchedPrice}
         isEditing={isEditing}
+        isSaved={isSaved}
       />
 
       {!isCancelled && !isEditing && (
