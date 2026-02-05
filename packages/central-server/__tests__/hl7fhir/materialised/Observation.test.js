@@ -6,6 +6,7 @@ import { createTestContext } from '../../utilities';
 import {
   fakeResourcesOfFhirServiceRequest,
   fakeResourcesOfFhirServiceRequestWithLabRequest,
+  fakeTestTypes,
 } from '../../fake/fhir';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -198,6 +199,56 @@ describe('Create Observation', () => {
       expect(labTest.result).toBe(result);
     });
 
+    it('Will add a reflex test if the lab test code is not in the original request', async () => {
+      const result = '100';
+
+      const { FhirServiceRequest, LabTest, LabTestType } = ctx.store.models;
+      const { labRequest, category } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        false,
+        {
+          status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+        },
+      );
+      const [newTestType] = await fakeTestTypes(10, LabTestType, category.id);
+
+      const mat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const serviceRequestId = mat.id;
+
+      const body = {
+        resourceType: 'Observation',
+        basedOn: [
+          {
+            type: 'ServiceRequest',
+            reference: `ServiceRequest/${serviceRequestId}`,
+          },
+        ],
+        status: FHIR_OBSERVATION_STATUS.FINAL,
+        code: {
+          coding: [
+            {
+              system: config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+              code: newTestType.code,
+            },
+          ],
+        },
+        valueString: result,
+      };
+
+      const response = await app.post(endpoint).send(body);
+      expect(response).toHaveSucceeded();
+
+      const labTest = await LabTest.findOne({
+        include: [{ model: LabTestType, as: 'labTestType' }],
+        where: {
+          labRequestId: labRequest.id,
+          '$labTestType.id$': newTestType.id,
+        },
+      });
+      expect(labTest.result).toBe(result);
+    });
+
     describe('errors', () => {
       it('returns invalid value if the ServiceRequest does not exist', async () => {
         const nonExistentServiceRequestId = uuidv4();
@@ -241,7 +292,7 @@ describe('Create Observation', () => {
         expect(response.status).toBe(400);
       });
 
-      it('returns invalid value if the Observation code does not match any test in the ServiceRequest', async () => {
+      it('returns invalid value if the Observation code does not match any test types', async () => {
         const { FhirServiceRequest } = ctx.store.models;
         const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
           ctx.store.models,
@@ -289,7 +340,7 @@ describe('Create Observation', () => {
               diagnostics: expect.any(String),
               details: {
                 text: expect.stringContaining(
-                  `No LabTest with code: '${invalidCode}' found for LabRequest: '${labRequest.id}'`,
+                  `Cannot create reflex test, no lab test type found with code ${invalidCode}`,
                 ),
               },
             },
