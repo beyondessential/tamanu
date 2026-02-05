@@ -9,7 +9,7 @@ import { Button } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 
 import { DataFetchingTable } from '../Table';
-import { formatShortest } from '../DateDisplay';
+import { formatShortest, formatTime } from '../DateDisplay';
 import { TranslatedText, TranslatedReferenceData, TranslatedEnum } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';
 import { formatTimeSlot } from '../../utils/medications';
@@ -299,16 +299,15 @@ const getMedicationColumns = (
           );
         }
 
-        const orderDate = new Date(lastOrderedAt);
         return (
           <NoWrapCell
             color={isPausing ? Colors.softText : 'inherit'}
             fontStyle={isPausing ? 'italic' : 'normal'}
           >
             <Box>
-              {formatShortest(orderDate)}
+              {formatShortest(lastOrderedAt)}
               <Box fontSize="12px" color={Colors.softText}>
-                {format(orderDate, 'h:mma').toLowerCase()}
+                {formatTime(lastOrderedAt).toLowerCase()}
               </Box>
             </Box>
           </NoWrapCell>
@@ -365,10 +364,9 @@ export const EncounterMedicationTable = ({
 
   const rowStyle = ({ discontinued, medication }) => `
     ${discontinued ? 'text-decoration: line-through;' : ''}
-    ${
-      medication.referenceDrug.isSensitive && !canViewSensitiveMedications
-        ? 'pointer-events: none;'
-        : ''
+    ${medication.referenceDrug.isSensitive && !canViewSensitiveMedications
+      ? 'pointer-events: none;'
+      : ''
     }
   `;
 
