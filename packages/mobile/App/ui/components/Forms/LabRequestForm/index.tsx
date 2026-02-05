@@ -116,6 +116,7 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
       <Field
         component={DateField}
         label={<TranslatedText stringId="general.requestDate.label" fallback="Request date" />}
+        labelFontSize="14"
         required
         mode="date"
         name="requestedDate"
@@ -123,6 +124,7 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
       <Field
         component={DateField}
         label={<TranslatedText stringId="lab.requestTime.label" fallback="Request time" />}
+        labelFontSize="14"
         mode="time"
         name="requestedTime"
       />
@@ -158,6 +160,7 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
       <Field
         component={DateField}
         label={<TranslatedText stringId="lab.sampleDate.label" fallback="Sample date" />}
+        labelFontSize="14"
         required
         mode="date"
         name="sampleDate"
@@ -165,6 +168,7 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
       <Field
         component={DateField}
         label={<TranslatedText stringId="lab.sampleTime.label" fallback="Sample time" />}
+        labelFontSize="14"
         required
         mode="time"
         name="sampleTime"
