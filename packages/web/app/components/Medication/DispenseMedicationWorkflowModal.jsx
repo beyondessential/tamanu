@@ -272,7 +272,7 @@ export const DispenseMedicationWorkflowModal = memo(
         });
       setItems(nextItems);
       setItemErrors({});
-    }, [open, dispensableResponse]);
+    }, [open, dispensableResponse, getTranslation, getEnumTranslation]);
 
     const handleClose = () => {
       setItems([]);
