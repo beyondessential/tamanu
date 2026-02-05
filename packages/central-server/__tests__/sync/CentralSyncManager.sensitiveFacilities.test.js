@@ -53,7 +53,15 @@ describe('CentralSyncManager Sensitive Facilities', () => {
         type: REFERENCE_TYPES.NOTE_TYPE,
         visibilityStatus: 'current',
         systemRequired: true,
-      }
+      },
+      {
+        id: NOTE_TYPES.SYSTEM,
+        code: 'system',
+        name: 'System',
+        type: REFERENCE_TYPES.NOTE_TYPE,
+        visibilityStatus: 'current',
+        systemRequired: true,
+      },
     ]);
   });
 
@@ -287,14 +295,14 @@ describe('CentralSyncManager Sensitive Facilities', () => {
         fake(models.Note, {
           recordId: sensitiveEncounter.id,
           recordType: 'Encounter',
-          noteTypeId: NOTE_TYPES.OTHER
+          noteTypeId: NOTE_TYPES.OTHER,
         }),
       );
       const nonSensitiveNote = await models.Note.create(
         fake(models.Note, {
           recordId: nonSensitiveEncounter.id,
           recordType: 'Encounter',
-          noteTypeId: NOTE_TYPES.OTHER
+          noteTypeId: NOTE_TYPES.OTHER,
         }),
       );
 
