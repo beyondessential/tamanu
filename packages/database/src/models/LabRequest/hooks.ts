@@ -18,6 +18,9 @@ export const shouldAddLabRequestToInvoice = async (labRequest: LabRequest) => {
   );
 
   if (invoicePendingLabRequests && labRequest.status === LAB_REQUEST_STATUSES.RECEPTION_PENDING) {
+    return true; // RECEPTION_PENDING requests are invoiceable if setting is enabled
+  }
+
   return INVOICEABLE_LAB_REQUEST_STATUSES.includes(labRequest.status);
 };
 
