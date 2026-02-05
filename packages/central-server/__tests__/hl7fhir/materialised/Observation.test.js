@@ -340,7 +340,7 @@ describe('Create Observation', () => {
               diagnostics: expect.any(String),
               details: {
                 text: expect.stringContaining(
-                  `Cannot create reflex test, no lab test type found with code ${invalidCode}`,
+                  `Cannot create reflex test, no lab test type found with code '${invalidCode}'`,
                 ),
               },
             },
