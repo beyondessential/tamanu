@@ -71,7 +71,7 @@ const InvoiceContainer = styled.div`
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
   // Triggers a horizontal scroll bar on the parent
-  min-width: 780px;
+  min-width: 750px;
 `;
 
 const PrintButton = styled(OutlinedButton)`
@@ -289,9 +289,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                   <TranslatedText stringId="invoice.invoiceNumber" fallback="Invoice number" />:{' '}
                   {invoice.displayId}
                 </InvoiceTitle>
-                <InvoiceSubTitle>
-                  {invoice.priceList?.name}
-                </InvoiceSubTitle>
+                <InvoiceSubTitle>{invoice.priceList?.name}</InvoiceSubTitle>
               </Box>
               <InvoiceStatus status={invoice.status} data-testid="invoicestatus-qb63" />
             </InvoiceHeading>

@@ -113,10 +113,11 @@ const StyledField = styled(Field)`
   }
 `;
 
-export const PriceCell = ({ index, item, isExpanded, hidePriceInput, isEditing }) => {
+export const PriceCell = ({ index, item, isExpanded, hidePriceInput, isEditing, isSaved }) => {
   const price = getInvoiceItemTotalPrice(item);
   const discountedPrice = getInvoiceItemTotalDiscountedPrice(item);
   const hasDiscount = price !== discountedPrice;
+  const showDiscount = hasDiscount && !isEditing && isSaved;
 
   return (
     <>
@@ -125,8 +126,12 @@ export const PriceCell = ({ index, item, isExpanded, hidePriceInput, isEditing }
           <MainContent>
             {hidePriceInput ? (
               <>
-                <Price $isCrossedOut={hasDiscount} price={price} data-testid="pricetext-is33" />
-                {hasDiscount && !isEditing && (
+                <Price
+                  $isCrossedOut={hasDiscount && showDiscount}
+                  price={showDiscount ? price : discountedPrice}
+                  data-testid="pricetext-is33"
+                />
+                {showDiscount && (
                   <DiscountSection
                     discountReason={item.discount?.reason}
                     discountedPrice={discountedPrice}
