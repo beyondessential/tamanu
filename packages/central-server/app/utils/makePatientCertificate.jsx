@@ -16,7 +16,10 @@ import { CertificateTypes, CovidLabCertificate } from '@tamanu/shared/utils/pati
 import { getLocalisation } from '../localisation';
 
 async function getCertificateAssets(models, footerAssetName) {
-  const footerAsset = await models.Asset.findOne({ raw: true, where: { name: footerAssetName } });
+  const footerAsset = await models.Asset.findOne({
+    raw: true,
+    where: { name: footerAssetName, facilityId: null },
+  });
   const footerAssetData = footerAsset?.data;
   const [logo, watermark, signingImage] = (
     await Promise.all(
@@ -26,7 +29,7 @@ async function getCertificateAssets(models, footerAssetName) {
         ...(footerAsset?.data
           ? []
           : [ASSET_FALLBACK_NAMES[footerAssetName] || ASSET_NAMES.CERTIFICATE_BOTTOM_HALF_IMG]),
-      ].map(name => name && models.Asset.findOne({ raw: true, where: { name } })),
+      ].map(name => name && models.Asset.findOne({ raw: true, where: { name, facilityId: null } })),
     )
   ).map(record => record?.data); // avoids having to do ?.data in the prop later
 

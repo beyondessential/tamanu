@@ -35,6 +35,7 @@ import { TabDisplayDraggable } from '../../components/TabDisplayDraggable';
 import { useUserPreferencesQuery } from '../../api/queries/useUserPreferencesQuery';
 import { isEqual } from 'lodash';
 import { ChartDataProvider } from '../../contexts/ChartData';
+import { PlannedMoveActions } from './components/PlannedMoveActions';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
@@ -372,6 +373,7 @@ export const EncounterView = () => {
         }
         data-testid="encounterinfopane-nabb"
       />
+      {encounter.plannedLocation && <PlannedMoveActions encounter={encounter} />}
       <DiagnosisView
         encounter={encounter}
         isTriage={getIsTriage(encounter)}
