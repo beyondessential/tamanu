@@ -2,7 +2,6 @@ import {
   INVOICE_ITEMS_CATEGORIES,
   LAB_REQUEST_STATUSES,
   NOTIFICATION_TYPES,
-  ENCOUNTER_TYPES,
   INVOICEABLE_LAB_REQUEST_STATUSES,
 } from '@tamanu/constants';
 import type { LabRequest } from './LabRequest';
@@ -14,16 +13,12 @@ export const shouldAddLabRequestToInvoice = async (labRequest: LabRequest) => {
     return false;
   }
 
-  const clinicEncounterLabAndImagingRequestsSetting = await labRequest.sequelize.models.Setting.get(
-    'features.invoicing.clinicEncounterLabAndImagingRequests',
+  const invoicePendingLabRequests = await labRequest.sequelize.models.Setting.get(
+    'features.invoicing.invoicePendingLabRequests',
   );
 
-  if (
-    clinicEncounterLabAndImagingRequestsSetting &&
-    encounter.encounterType === ENCOUNTER_TYPES.CLINIC &&
-    labRequest.status === LAB_REQUEST_STATUSES.RECEPTION_PENDING
-  ) {
-    return true; // RECEPTION_PENDING requests are invoiceable for clinic encounters if setting is enabled
+  if (invoicePendingLabRequests && labRequest.status === LAB_REQUEST_STATUSES.RECEPTION_PENDING) {
+    return true; // RECEPTION_PENDING requests are invoiceable if setting is enabled
   }
 
   return INVOICEABLE_LAB_REQUEST_STATUSES.includes(labRequest.status);

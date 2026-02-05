@@ -369,9 +369,15 @@ export const globalSettings = {
               type: yup.boolean(),
               defaultValue: false,
             },
-            clinicEncounterLabAndImagingRequests: {
+            invoicePendingLabRequests: {
               description:
-                'This setting allows lab and imaging requests to be added to an invoice automatically, regardless of the request status',
+                'This setting enables automatically adding lab requests with the status Reception Pending to an invoice.',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            invoicePendingImagingRequests: {
+              description:
+                'This setting enables automatically adding imaging requests with the status pending to an invoice.',
               type: yup.boolean(),
               defaultValue: false,
             },
@@ -1623,7 +1629,8 @@ export const globalSettings = {
             },
             autoDeleteTimeframeHours: {
               name: 'Autodelete medication request timeframe in hours',
-              description: 'Medication requests not dispensed after this timeframe will be automatically deleted.',
+              description:
+                'Medication requests not dispensed after this timeframe will be automatically deleted.',
               type: yup.number().integer().positive(),
               defaultValue: 72,
               unit: 'hours',

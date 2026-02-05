@@ -743,7 +743,7 @@ describe('Encounter invoice', () => {
         });
       });
 
-      it('should automatically add reception_pending items to the invoice when the clinicEncounterLabAndImagingRequests setting is enabled', async () => {
+      it('should automatically add reception_pending items to the invoice when the invoicePendingLabRequests setting is enabled', async () => {
         const encounter = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
           locationId: location.id,
@@ -758,7 +758,7 @@ describe('Encounter invoice', () => {
         });
 
         try {
-          await models.Setting.set('features.invoicing.clinicEncounterLabAndImagingRequests', true);
+          await models.Setting.set('features.invoicing.invoicePendingLabRequests', true);
           const {
             body: [labRequest],
           } = await app.post(`/api/labRequest`).send({
@@ -794,10 +794,7 @@ describe('Encounter invoice', () => {
             ]),
           );
         } finally {
-          await models.Setting.set(
-            'features.invoicing.clinicEncounterLabAndImagingRequests',
-            false,
-          );
+          await models.Setting.set('features.invoicing.invoicePendingLabRequests', false);
         }
       });
     });
@@ -1093,7 +1090,7 @@ describe('Encounter invoice', () => {
         );
       });
 
-      it('should automatically add pending items to the invoice when the clinicEncounterLabAndImagingRequests setting is enabled', async () => {
+      it('should automatically add pending items to the invoice when the invoicePendingImagingRequests setting is enabled', async () => {
         const encounter = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
           locationId: location.id,
@@ -1108,7 +1105,7 @@ describe('Encounter invoice', () => {
         });
 
         try {
-          await models.Setting.set('features.invoicing.clinicEncounterLabAndImagingRequests', true);
+          await models.Setting.set('features.invoicing.invoicePendingImagingRequests', true);
           const { body: imagingRequest } = await app.post(`/api/imagingRequest`).send({
             encounterId: encounter.id,
             imagingType: IMAGING_TYPES.X_RAY,
@@ -1160,10 +1157,7 @@ describe('Encounter invoice', () => {
             ]),
           );
         } finally {
-          await models.Setting.set(
-            'features.invoicing.clinicEncounterLabAndImagingRequests',
-            false,
-          );
+          await models.Setting.set('features.invoicing.invoicePendingImagingRequests', false);
         }
       });
     });
