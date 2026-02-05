@@ -2,15 +2,18 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { Plus } from 'lucide-react';
+import { FieldArray } from 'formik';
 import { Box, Button as MuiButton } from '@material-ui/core';
+
 import { Form, TranslatedText, FormSubmitButton, FormCancelButton } from '@tamanu/ui-components';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
-import { Colors } from '../../../constants/styles';
-import { FieldArray } from 'formik';
+import { INVOICE_STATUSES } from '@tamanu/constants';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
+
+import { Colors } from '../../../constants/styles';
 import { InvoiceItemRow } from './InvoiceItem';
 import { InvoiceItemHeader } from './InvoiceItemHeader';
-import { useUpdateInvoice } from '../../../api/mutations/useInvoiceMutation';
+import { useUpdateInvoice, useUpdateInvoiceItemApproval } from '../../../api/mutations/useInvoiceMutation';
 import { useAuth } from '../../../contexts/Auth';
 import { invoiceFormSchema } from './invoiceFormSchema';
 
@@ -22,10 +25,9 @@ const AddButton = styled(MuiButton)`
   top: -2px;
 
   .MuiButton-startIcon {
-    width: 20px;
+    width: 18px;
     position: relative;
-    top: -2px;
-    margin-right: 2px;
+    margin-right: 1px;
   }
 `;
 
@@ -40,7 +42,7 @@ const SubmitButton = styled(FormSubmitButton)`
 const FormFooter = styled.div`
   display: flex;
   justify-content: space-between;
-  margin: 10px 0;
+  margin: 5px 0;
 `;
 
 const getDefaultRow = () => ({ id: uuidv4(), quantity: 1, orderDate: getCurrentDateString() });
@@ -82,7 +84,10 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
   const [inProgressItems, setInProgressItems] = useState([]);
   const canWriteInvoice = ability.can('write', 'Invoice');
   const editable = isInvoiceEditable(invoice) && canWriteInvoice;
+  const isFinalised = invoice.status === INVOICE_STATUSES.FINALISED;
+  const isCancelled = invoice.status === INVOICE_STATUSES.CANCELLED;
   const { mutate: updateInvoice, isLoading: isUpdatingInvoice } = useUpdateInvoice(invoice);
+  const { mutate: updateItemApproval } = useUpdateInvoiceItemApproval(invoice);
 
   // Main submit action for the invoice
   const handleSubmit = async data => {
@@ -124,9 +129,7 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
       onSubmit={handleSubmit}
       enableReinitialize
       initialValues={{
-        invoiceItems: invoice.items?.length
-          ? [...invoice.items, ...inProgressItems]
-          : [editable ? getDefaultRow() : {}],
+        invoiceItems: invoice.items?.length ? [...invoice.items, ...inProgressItems] : [],
         insurers: invoice.insurers?.length
           ? invoice.insurers.map(insurer => ({
               ...insurer,
@@ -155,6 +158,9 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
                           invoiceIsEditable={editable && canWriteInvoice}
                           isEditing={isEditing}
                           onUpdateInvoice={handleUpdateItem}
+                          onUpdateApproval={updateItemApproval}
+                          isFinalised={isFinalised}
+                          isCancelled={isCancelled}
                         />
                       );
                     })}

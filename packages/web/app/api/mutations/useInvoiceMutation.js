@@ -88,3 +88,33 @@ export const useInvoiceInsurancePlansMutation = (invoiceId, encounterId) => {
     onError: error => notifyError(error.message),
   });
 };
+
+export const useUpdateInvoiceItemApproval = invoice => {
+  const api = useApi();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ itemId, approved }) => {
+      await api.put(`invoices/${invoice?.id}/items/${itemId}/approval`, { approved });
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries([`encounter/${invoice?.encounterId}/invoice`]);
+    },
+    onError: error => notifyError(error.message),
+  });
+};
+
+export const useBulkUpdateInvoiceItemApproval = invoice => {
+  const api = useApi();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ approved }) => {
+      await api.put(`invoices/${invoice?.id}/items/approval`, { approved });
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries([`encounter/${invoice?.encounterId}/invoice`]);
+    },
+    onError: error => notifyError(error.message),
+  });
+};

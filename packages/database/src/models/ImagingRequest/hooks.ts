@@ -3,7 +3,6 @@ import {
   NOTIFICATION_TYPES,
   INVOICE_ITEMS_CATEGORIES,
   INVOICEABLE_IMAGING_REQUEST_STATUSES,
-  ENCOUNTER_TYPES,
   REFERENCE_TYPES,
 } from '@tamanu/constants';
 import type { ImagingRequest } from './ImagingRequest';
@@ -18,17 +17,15 @@ export const shouldAddImagingRequestToInvoice = async (imagingRequest: ImagingRe
     return false;
   }
 
-  const clinicEncounterLabAndImagingRequestsSetting =
-    await imagingRequest.sequelize.models.Setting.get(
-      'features.invoicing.clinicEncounterLabAndImagingRequests',
-    );
+  const invoicePendingImagingRequests = await imagingRequest.sequelize.models.Setting.get(
+    'features.invoicing.invoicePendingImagingRequests',
+  );
 
   if (
-    clinicEncounterLabAndImagingRequestsSetting &&
-    encounter.encounterType === ENCOUNTER_TYPES.CLINIC &&
+    invoicePendingImagingRequests &&
     imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.PENDING
   ) {
-    return true; // PENDING requests are invoiceable for clinic encounters if setting is enabled
+    return true; // PENDING requests are invoiceable if setting is enabled
   }
 
   return INVOICEABLE_IMAGING_REQUEST_STATUSES.includes(imagingRequest.status);

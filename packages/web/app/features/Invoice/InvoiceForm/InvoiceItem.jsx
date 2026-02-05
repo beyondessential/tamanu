@@ -24,7 +24,7 @@ const StyledItemRow = styled.div`
   font-size: 14px;
   padding: 12px 50px 12px 30px;
   background: ${Colors.white};
-  border-top: 1px solid ${Colors.outline};
+  border-bottom: 1px solid ${Colors.outline};
 
   .MuiInputBase-input {
     font-size: 14px;
@@ -32,13 +32,6 @@ const StyledItemRow = styled.div`
 
   .MuiFormControl-root {
     margin: -8px 0 -8px -6px;
-  }
-
-  .MuiInputBase-root {
-  }
-
-  &:last-child {
-    border-bottom: 1px solid ${Colors.outline};
   }
 `;
 
@@ -123,6 +116,9 @@ export const InvoiceItemRow = ({
   priceListId,
   isEditing,
   onUpdateInvoice,
+  onUpdateApproval,
+  isFinalised,
+  isCancelled,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const isSaved = item.product?.id;
@@ -201,6 +197,7 @@ export const InvoiceItemRow = ({
         handleChangeProduct={handleChangeProduct}
         invoiceIsEditable={invoiceIsEditable}
         isEditing={isEditing}
+        isSaved={isSaved}
       />
       <QuantityCell index={index} item={item} isItemEditable={isItemEditable} />
       <ApprovedCell item={item} />
@@ -218,15 +215,21 @@ export const InvoiceItemRow = ({
         hidePriceInput={hidePriceInput}
         priceListItemPrice={fetchedPrice}
         isEditing={isEditing}
+        isSaved={isSaved}
       />
 
-      <InvoiceItemActionsMenu
-        index={index}
-        item={item}
-        showActionMenu={isSaved && invoiceIsEditable}
-        hidePriceInput={hidePriceInput}
-        onUpdateInvoice={onUpdateInvoice}
-      />
+      {!isCancelled && !isEditing && (
+        <InvoiceItemActionsMenu
+          index={index}
+          item={item}
+          showActionMenu
+          hidePriceInput={hidePriceInput}
+          onUpdateInvoice={onUpdateInvoice}
+          onUpdateApproval={onUpdateApproval}
+          isFinalised={isFinalised}
+          isSaved={isSaved}
+        />
+      )}
     </StyledItemRow>
   );
 };

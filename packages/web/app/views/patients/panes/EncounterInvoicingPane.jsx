@@ -5,8 +5,8 @@ import { Button, OutlinedButton } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import PrintIcon from '@material-ui/icons/Print';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
 import {
   InvoiceModalGroup,
@@ -24,8 +24,10 @@ import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { useEncounterInvoiceQuery } from '../../../api/queries/useInvoiceQuery';
 import { useAuth } from '../../../contexts/Auth';
 import { NoteModalActionBlocker } from '../../../components';
-import { usePatientDataQuery } from '../../../api/queries';
-import { useCreateInvoice, useUpdateInvoice } from '../../../api/mutations/useInvoiceMutation.js';
+import {
+  useCreateInvoice,
+  useBulkUpdateInvoiceItemApproval,
+} from '../../../api/mutations/useInvoiceMutation';
 
 const EmptyPane = styled(ContentPane)`
   text-align: center;
@@ -69,7 +71,7 @@ const InvoiceContainer = styled.div`
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
   // Triggers a horizontal scroll bar on the parent
-  min-width: 860px;
+  min-width: 750px;
 `;
 
 const PrintButton = styled(OutlinedButton)`
@@ -82,7 +84,7 @@ const PrintButton = styled(OutlinedButton)`
 
 const PaymentsSection = styled.div`
   display: grid;
-  grid-template-columns: 1fr 240px;
+  grid-template-columns: 1fr 220px;
   gap: 8px;
 
   @media (min-width: 1600px) {
@@ -99,21 +101,21 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEd
   const canCreateInvoice = ability.can('create', 'Invoice');
   const canWriteInvoice = ability.can('write', 'Invoice');
   const canDeleteInvoice = ability.can('delete', 'Invoice');
-  const cancelable = invoice && isInvoiceEditable(invoice) && canWriteInvoice;
-  const deletable = invoice && invoice.status !== INVOICE_STATUSES.FINALISED && canDeleteInvoice;
-  const { mutate: updateInvoice } = useUpdateInvoice(invoice);
+
+  const hasPayments = invoice.payments?.length > 0;
+  const isInProgress = invoice.status === INVOICE_STATUSES.IN_PROGRESS;
+  const isCancelled = invoice.status === INVOICE_STATUSES.CANCELLED;
+  const cancelable = invoice && isInvoiceEditable(invoice) && canWriteInvoice && !hasPayments;
+  const deletable =
+    invoice && invoice.status !== INVOICE_STATUSES.FINALISED && canDeleteInvoice && !hasPayments;
+  const { mutate: bulkUpdateApproval } = useBulkUpdateInvoiceItemApproval(invoice);
   const finalisable =
     invoice && isInvoiceEditable(invoice) && canCreateInvoice && encounter.endDate;
-
-  if (!cancelable && !deletable && !finalisable) {
-    return null;
-  }
-
   const allItemsAreApproved = invoice.items.every(item => item.approved);
+  const zeroItems = invoice.items.length === 0;
 
   const handleAllApprovals = approved => {
-    const updatedInvoiceItems = [...invoice.items].map(item => ({ ...item, approved }));
-    updateInvoice({ ...invoice, items: updatedInvoiceItems });
+    bulkUpdateApproval({ approved });
   };
 
   const ACTIONS = [
@@ -139,34 +141,42 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEd
       onClick: () => setInvoiceModalType(INVOICE_MODAL_TYPES.DELETE_INVOICE),
       hidden: !deletable,
     },
-    ...(allItemsAreApproved
-      ? [
-          {
-            label: (
-              <TranslatedText
-                stringId="invoice.editInvoice.removeAllApprovals"
-                fallback="Remove all approvals"
-                data-testid="translatedtext-k3ds"
-              />
-            ),
-            onClick: () => handleAllApprovals(false),
-          },
-        ]
-      : [
-          {
-            label: (
-              <TranslatedText
-                stringId="invoice.editInvoice.markAllAsApproved"
-                fallback="Mark all as approved"
-                data-testid="translatedtext-95jh"
-              />
-            ),
-            onClick: () => handleAllApprovals(true),
-          },
-        ]),
+    {
+      label: (
+        <TranslatedText
+          stringId="invoice.editInvoice.removeAllApprovals"
+          fallback="Remove all approvals"
+          data-testid="translatedtext-k3ds"
+        />
+      ),
+      onClick: () => handleAllApprovals(false),
+      hidden: !allItemsAreApproved || isCancelled || zeroItems,
+    },
+    {
+      label: (
+        <TranslatedText
+          stringId="invoice.editInvoice.markAllAsApproved"
+          fallback="Mark all as approved"
+          data-testid="translatedtext-95jh"
+        />
+      ),
+      onClick: () => handleAllApprovals(true),
+      hidden: allItemsAreApproved || isCancelled,
+    },
+    {
+      label: (
+        <TranslatedText
+          stringId="invoice.editInvoice.printInvoice"
+          fallback="Print invoice"
+          data-testid="translatedtext-31yh"
+        />
+      ),
+      onClick: () => setInvoiceModalType(INVOICE_MODAL_TYPES.PRINT),
+      hidden: !isInProgress,
+    },
   ];
 
-  if (!isEditing) {
+  if (!isEditing && !zeroItems) {
     ACTIONS.unshift({
       label: (
         <TranslatedText
@@ -176,21 +186,37 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEd
         />
       ),
       onClick: () => setEditing(true),
+      hidden: !isInvoiceEditable(invoice),
     });
   }
+
+  const hasVisibleActions = ACTIONS.some(action => !action.hidden);
+
   return (
     <ActionsPane data-testid="actionspane-l9ey">
-      <NoteModalActionBlocker>
-        <ThreeDotMenu items={ACTIONS} data-testid="threedotmenu-5t9u" />
-      </NoteModalActionBlocker>
-      <NoteModalActionBlocker>
-        <Button
-          onClick={() => setInvoiceModalType(INVOICE_MODAL_TYPES.INSURANCE)}
-          data-testid="button-insurance-2zyp"
+      {hasVisibleActions && (
+        <NoteModalActionBlocker>
+          <ThreeDotMenu items={ACTIONS} data-testid="threedotmenu-5t9u" />
+        </NoteModalActionBlocker>
+      )}
+      {!isInProgress && (
+        <PrintButton
+          onClick={() => setInvoiceModalType(INVOICE_MODAL_TYPES.PRINT)}
+          startIcon={<PrintIcon />}
         >
-          <TranslatedText stringId="invoice.action.insurance" fallback="Insurance plan" />
-        </Button>
-      </NoteModalActionBlocker>
+          <TranslatedText stringId="general.action.print" fallback="Print" />
+        </PrintButton>
+      )}
+      {isInProgress && (
+        <NoteModalActionBlocker>
+          <Button
+            onClick={() => setInvoiceModalType(INVOICE_MODAL_TYPES.INSURANCE)}
+            data-testid="button-insurance-2zyp"
+          >
+            <TranslatedText stringId="invoice.action.insurance" fallback="Insurance plan" />
+          </Button>
+        </NoteModalActionBlocker>
+      )}
       {finalisable && (
         <NoteModalActionBlocker>
           <OutlinedButton
@@ -211,7 +237,6 @@ export const EncounterInvoicingPane = ({ encounter }) => {
   const [isEditing, setEditing] = useState(false);
   const [invoiceModalType, setInvoiceModalType] = useState(null);
   const { data: invoice, isLoading } = useEncounterInvoiceQuery(encounter.id);
-  const { data: patient } = usePatientDataQuery(encounter.patientId);
   const { mutate: createInvoice, isLoading: isSubmitting } = useCreateInvoice();
 
   const handleCreateInvoice = () => {
@@ -264,9 +289,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                   <TranslatedText stringId="invoice.invoiceNumber" fallback="Invoice number" />:{' '}
                   {invoice.displayId}
                 </InvoiceTitle>
-                <InvoiceSubTitle>
-                  {patient?.village?.name} {invoice.priceList?.name}
-                </InvoiceSubTitle>
+                <InvoiceSubTitle>{invoice.priceList?.name}</InvoiceSubTitle>
               </Box>
               <InvoiceStatus status={invoice.status} data-testid="invoicestatus-qb63" />
             </InvoiceHeading>
@@ -277,14 +300,6 @@ export const EncounterInvoicingPane = ({ encounter }) => {
               setEditing={setEditing}
               isEditing={isEditing}
             />
-            {!isInProgress && (
-              <PrintButton
-                onClick={() => setInvoiceModalType(INVOICE_MODAL_TYPES.PRINT)}
-                startIcon={<PrintIcon />}
-              >
-                <TranslatedText stringId="general.action.print" fallback="Print" />
-              </PrintButton>
-            )}
           </InvoiceTopBar>
           <InvoiceForm
             invoice={invoice}

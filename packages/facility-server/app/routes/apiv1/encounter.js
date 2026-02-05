@@ -60,7 +60,25 @@ encounter.post(
       user,
     } = req;
     req.checkPermission('create', 'Encounter');
+
     const validatedBody = validate(createEncounterSchema, data);
+
+    if (!validatedBody.endDate) {
+      const existingOpenEncounterCount = await models.Encounter.count({
+        where: {
+          patientId: validatedBody.patientId,
+          endDate: null,
+          deletedAt: null,
+        },
+      });
+
+      if (existingOpenEncounterCount > 0) {
+        throw new InvalidOperationError(
+          'This patient already has an active encounter. The active encounter must be discharged before a new active encounter can be created.',
+        );
+      }
+    }
+
     const encounterObject = await models.Encounter.create({ ...validatedBody, actorId: user.id });
 
     await models.Invoice.automaticallyCreateForEncounter(
@@ -156,11 +174,18 @@ encounter.put(
         await referral.update({ encounterId: id });
       }
 
+      if (req.body.locationId != null) {
+        const location = await models.Location.findByPk(req.body.locationId);
+        if (!location) {
+          throw new InvalidOperationError('Invalid location specified');
+        }
+      }
+
+      await encounterObject.update({ ...req.body, systemNote }, user);
       if (req.body.dietIds) {
         const dietIds = JSON.parse(req.body.dietIds);
         await encounterObject.setDiets(dietIds);
       }
-      await encounterObject.update({ ...req.body, systemNote }, user);
     });
     res.send(encounterObject);
   }),
@@ -238,7 +263,9 @@ encounter.post(
       attributes: ['id', 'medicationId', 'quantity'],
     });
 
-    const hasSensitive = await models.ReferenceDrug.hasSensitiveMedication(prescriptionRecords.map(p => p.medicationId));
+    const hasSensitive = await models.ReferenceDrug.hasSensitiveMedication(
+      prescriptionRecords.map(p => p.medicationId),
+    );
 
     if (hasSensitive) {
       req.checkPermission('read', 'SensitiveMedication');
@@ -559,7 +586,11 @@ encounterRelations.get(
     const invoiceRecord = await Invoice.findOne({
       where: { encounterId },
       include: Invoice.getFullReferenceAssociations(invoicePriceListId),
-      order: [[{ model: models.InvoiceItem, as: 'items' }, 'orderDate', 'ASC']],
+      order: [
+        [{ model: models.InvoiceItem, as: 'items' }, 'orderDate', 'ASC'],
+        [{ model: models.InvoiceItem, as: 'items' }, 'createdAt', 'ASC'],
+        [{ model: models.InvoicePayment, as: 'payments' }, 'date', 'ASC'],
+      ],
     });
     if (!invoiceRecord) {
       // Return null rather than a 404 as it is a valid scenario for there not to be an invoice

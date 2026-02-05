@@ -182,14 +182,14 @@ export const getItemSingleInsuranceCoverageAmount = (discountedPrice, item, insu
 /**
  * Calculate and format the insurance coverage of an invoice item for display in printout
  * @param {InvoiceItem} item - The invoice item object
- * @returns {string|number|null} - The insurance coverage of the item
+ * @returns {string} - The formatted insurance coverage of the item (e.g., "0.00")
  */
 export const getFormattedInvoiceItemCoverageAmount = item => {
   if (!item?.product?.insurable || !item.insurancePlanItems?.length) {
-    return 0;
+    return formatDisplayPrice(0);
   }
   const coverage = getItemTotalInsuranceCoverageAmount(item);
-  return formatDisplayPrice(coverage);
+  return formatDisplayPrice(-coverage);
 };
 
 /**
@@ -213,33 +213,36 @@ export const getFormattedInvoiceItemNetCost = item => {
 export const getFormattedCoverageAmountPerInsurancePlanForInvoice = invoice => {
   const insurancePlans = invoice.insurancePlans || [];
   const items = invoice.items || [];
+  const planCoverageTotals = new Map(insurancePlans.map(p => [p.id, new Decimal(0)]));
 
-  return insurancePlans.map(plan => {
-    let totalCoverage = new Decimal(0);
+  for (const item of items) {
+    if (!item?.product?.insurable || !item.insurancePlanItems?.length) {
+      continue;
+    }
 
-    for (const item of items) {
-      if (!item?.product?.insurable || !item.insurancePlanItems?.length) {
-        continue;
-      }
-
-      const discountedPrice = getInvoiceItemTotalDiscountedPrice(item) || 0;
-      const planItem = item.insurancePlanItems.find(p => p.id === plan.id);
-
-      if (planItem) {
+    const discountedPrice = getInvoiceItemTotalDiscountedPrice(item) || 0;
+    for (const planItem of item.insurancePlanItems) {
+      if (planCoverageTotals.has(planItem.id)) {
         const coverageAmount = getItemSingleInsuranceCoverageAmount(
           discountedPrice,
           item,
           planItem,
         );
-        totalCoverage = totalCoverage.plus(coverageAmount);
+        planCoverageTotals.set(
+          planItem.id,
+          planCoverageTotals.get(planItem.id).plus(coverageAmount),
+        );
       }
     }
+  }
 
+  return insurancePlans.map(plan => {
+    const totalCoverage = planCoverageTotals.get(plan.id);
     return {
       id: plan.id,
       name: plan.name,
       code: plan.code,
-      totalCoverage: formatDisplayPrice(totalCoverage),
+      totalCoverage: formatDisplayPrice(totalCoverage.negated()),
     };
   });
 };
@@ -262,6 +265,12 @@ export const getInvoiceSummary = invoice => {
 
   const patientSubtotal = invoiceItemsTotal.minus(insuranceCoverageTotal);
   const discountTotal = getInvoiceDiscountDiscountAmount(invoice.discount, patientSubtotal);
+
+  // Calculate item adjustments here to be used in the printout
+  const itemAdjustmentsTotal = invoice.items.reduce(
+    (sum, item) => sum.plus(getItemAdjustmentAmount(item) || 0),
+    new Decimal(0),
+  );
 
   const patientTotal = patientSubtotal.minus(discountTotal);
 
@@ -291,6 +300,7 @@ export const getInvoiceSummary = invoice => {
     insuranceCoverageTotal: insuranceCoverageTotal.toNumber(),
     patientTotal: patientTotal.toNumber(),
     discountTotal: discountTotal,
+    itemAdjustmentsTotal: itemAdjustmentsTotal.toNumber(),
     patientSubtotal: patientSubtotal.toNumber(),
     patientPaymentsTotal,
     insurerPaymentsTotal,

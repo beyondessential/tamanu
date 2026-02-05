@@ -13,6 +13,7 @@ export const DateCell = ({ index, item, isItemEditable }) => (
           required
           component={DateField}
           saveDateAsString
+          shortYear
           data-testid="field-e3dv"
         />
       </NoteModalActionBlocker>

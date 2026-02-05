@@ -9,8 +9,4 @@ export const ItemCell = styled(Box)`
     width: 140px;
     min-width: 140px;
   }
-
-  .MuiFormHelperText-root {
-    font-size: 14px;
-  }
 `;

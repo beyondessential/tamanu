@@ -8,7 +8,15 @@ import { NoteModalActionBlocker } from '../../../components';
 import { InvoiceItemActionModal } from './InvoiceItemActionModal';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 
-const useInvoiceItemActionsMenu = ({ item, index, hidePriceInput, onUpdateInvoice }) => {
+const useInvoiceItemActionsMenu = ({
+  item,
+  index,
+  hidePriceInput,
+  onUpdateInvoice,
+  onUpdateApproval,
+  isFinalised,
+  isSaved,
+}) => {
   const [actionModal, setActionModal] = useState();
   const { values } = useFormikContext();
 
@@ -16,14 +24,9 @@ const useInvoiceItemActionsMenu = ({ item, index, hidePriceInput, onUpdateInvoic
     setActionModal(undefined);
   };
 
-  const handleApproval = (approved) => {
-    const updatedInvoiceItems = [...values.invoiceItems];
-    updatedInvoiceItems[index] = {
-      ...item,
-      approved,
-    };
-
-    onUpdateInvoice({ ...values, invoiceItems: updatedInvoiceItems });
+  const handleApproval = approved => {
+    // Use dedicated approval endpoint if available (works for both in-progress and finalised invoices)
+    onUpdateApproval({ itemId: item.id, approved });
   };
 
   const handleAction = async (data, type = actionModal) => {
@@ -101,7 +104,7 @@ const useInvoiceItemActionsMenu = ({ item, index, hidePriceInput, onUpdateInvoic
           />
         ),
       onClick: () => handleAction({}, INVOICE_ITEM_ACTION_MODAL_TYPES.REMOVE_DISCOUNT_MARKUP),
-      hidden: !item.discount?.amount,
+      hidden: !item.discount?.amount || isFinalised,
     },
     {
       label: (
@@ -113,7 +116,7 @@ const useInvoiceItemActionsMenu = ({ item, index, hidePriceInput, onUpdateInvoic
       ),
       onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_DISCOUNT),
       disabled: !item.productId,
-      hidden: !!item.discount?.amount || !hidePriceInput,
+      hidden: !!item.discount?.amount || !hidePriceInput || isFinalised,
     },
     {
       label: (
@@ -125,7 +128,7 @@ const useInvoiceItemActionsMenu = ({ item, index, hidePriceInput, onUpdateInvoic
       ),
       onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_MARKUP),
       disabled: !item.productId,
-      hidden: !!item.discount?.amount || !hidePriceInput,
+      hidden: !!item.discount?.amount || !hidePriceInput || isFinalised,
     },
     {
       label: item.note ? (
@@ -143,9 +146,9 @@ const useInvoiceItemActionsMenu = ({ item, index, hidePriceInput, onUpdateInvoic
       ),
       onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.ADD_NOTE),
       disabled: !item.productId,
-      hidden: !!item.sourceId,
+      hidden: !!item.sourceId || isFinalised,
     },
-    ...item.approved ? [{
+    {
       label: (
         <TranslatedText
           stringId="invoice.editInvoice.removeApproval"
@@ -154,19 +157,19 @@ const useInvoiceItemActionsMenu = ({ item, index, hidePriceInput, onUpdateInvoic
         />
       ),
       onClick: () => handleApproval(false),
-    }
-    ] : [
-      {
-        label: (
-          <TranslatedText
-            stringId="invoice.editInvoice.markAsApproved"
-            fallback="Mark as approved"
-            data-testid="translatedtext-c3a4"
-          />
-        ),
-        onClick: () => handleApproval(true),
-      },
-    ],
+      hidden: !item.approved || !isSaved,
+    },
+    {
+      label: (
+        <TranslatedText
+          stringId="invoice.editInvoice.markAsApproved"
+          fallback="Mark as approved"
+          data-testid="translatedtext-c3a4"
+        />
+      ),
+      onClick: () => handleApproval(true),
+      hidden: item.approved || !isSaved,
+    },
     {
       label: (
         <TranslatedText
@@ -175,7 +178,12 @@ const useInvoiceItemActionsMenu = ({ item, index, hidePriceInput, onUpdateInvoic
           data-testid="translatedtext-wwxo"
         />
       ),
-      onClick: () => setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.DELETE),
+      onClick: () => {
+        isSaved
+          ? setActionModal(INVOICE_ITEM_ACTION_MODAL_TYPES.DELETE)
+          : handleAction({}, INVOICE_ITEM_ACTION_MODAL_TYPES.DELETE);
+      },
+      hidden: isFinalised,
     },
   ];
 
@@ -200,12 +208,18 @@ export const InvoiceItemActionsMenu = ({
   showActionMenu,
   hidePriceInput,
   onUpdateInvoice,
+  onUpdateApproval,
+  isFinalised,
+  isSaved,
 }) => {
   const { actionModal, onCloseActionModal, handleAction, menuItems } = useInvoiceItemActionsMenu({
     item,
     onUpdateInvoice,
+    onUpdateApproval,
     index,
     hidePriceInput,
+    isFinalised,
+    isSaved,
   });
   return (
     <>
