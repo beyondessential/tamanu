@@ -344,7 +344,7 @@ const COLUMNS = {
       key: 'amount',
       title: 'Amount',
       style: { width: '15%' },
-      accessor: ({ amount }) => formatDisplayPrice(amount),
+      accessor: ({ amount }) => amount,
     },
     {
       key: 'receiptNumber',
