@@ -4,8 +4,8 @@ import { LOCAL_STORAGE_KEYS } from '../constants';
 import { useTranslationsQuery } from '../api/queries/useTranslationsQuery';
 import { translationFactory } from '@tamanu/shared/utils/translation/translationFactory';
 import { getCurrentLanguageCode } from '../utils/translation';
-import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
+import { getEnumStringId } from '../components/Translation/TranslatedEnum';
 
 export { useTranslation };
 
@@ -34,7 +34,7 @@ export const TranslationProvider = ({ children, value }) => {
 
   const getEnumTranslation = (enumValues, currentValue) => {
     const fallback = enumValues[currentValue];
-    const stringId = `${getEnumPrefix(enumValues)}.${currentValue}`;
+    const stringId = getEnumStringId(currentValue ?? '', enumValues);
     const { value } = translationFunc(stringId, fallback);
     return value;
   };
