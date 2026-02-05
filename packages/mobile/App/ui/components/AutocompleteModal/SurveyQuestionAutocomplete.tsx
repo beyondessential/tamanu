@@ -14,14 +14,15 @@ function getNameColumnForModel(modelName: string): string {
   }
 }
 
+const EMPTY_FILTER: Record<string, never> = {};
+
 const useFilterByResource = ({ source, scope }: SurveyScreenConfig): object => {
   const { facilityId } = useFacility();
-
-  if (source === 'LocationGroup' && scope !== 'allFacilities') {
-    return { facility: facilityId };
-  }
-
-  return {};
+  const hasFacilityFilter = source === 'LocationGroup' && scope !== 'allFacilities';
+  return useMemo(
+    () => (hasFacilityFilter ? { facility: facilityId } : EMPTY_FILTER),
+    [hasFacilityFilter, facilityId],
+  );
 };
 
 const useWhere = ({
@@ -31,20 +32,18 @@ const useWhere = ({
   where?: {
     type: string;
   };
-}) => {
-  if (source === 'ReferenceData' && where?.type === 'icd10')
-    // Continue to support existing surveys with deprecated icd10 type by treating as diagnosis
-    return {
-      ...where,
-      type: 'diagnosis',
-    };
-  return where;
-};
+}) =>
+  useMemo(() => {
+    if (source === 'ReferenceData' && where?.type === 'icd10') {
+      return { ...where, type: 'diagnosis' };
+    }
+    return where;
+  }, [source, where]);
 
 const useSurveyAutocompleteWhere = (config: SurveyScreenConfig) => {
   const where = useWhere(config);
   const filter = useFilterByResource(config);
-  return { ...where, ...filter };
+  return useMemo(() => ({ ...where, ...filter }), [where, filter]);
 };
 
 export const SurveyQuestionAutocomplete = (props): JSX.Element => {

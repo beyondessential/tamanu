@@ -22,6 +22,7 @@ const InjectionSiteDropdown = ({ value, label, onChange, selectPlaceholderText }
     options={INJECTION_SITE_OPTIONS}
     onChange={onChange}
     label={label}
+    labelFontSize="14"
     selectPlaceholderText={selectPlaceholderText}
   />
 );
