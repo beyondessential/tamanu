@@ -1,22 +1,28 @@
 import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import { capitalize } from 'lodash';
+
 import { INVOICE_INSURER_PAYMENT_STATUSES } from '@tamanu/constants';
-import { CertificateHeader, Watermark } from './Layout';
+import { formatShort } from '@tamanu/utils/dateTime';
+
+import { CertificateHeader, SigningImage, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
 import { Footer } from './printComponents/Footer';
-import { formatShort } from '@tamanu/utils/dateTime';
 import { InvoiceDetails } from './printComponents/InvoiceDetails';
 import {
-  getInsurerDiscountAmountDisplayList,
-  getInvoiceItemDiscountPriceDisplay,
   getInvoiceItemPriceDisplay,
-  getInvoiceSummaryDisplay,
   getPatientPaymentsWithRemainingBalanceDisplay,
   formatDisplayPrice,
   getInsurerPaymentsWithRemainingBalanceDisplay,
+  getInvoiceItemTotalDiscountedPrice,
+  hasItemAdjustment,
+  getItemAdjustmentAmount,
+  getFormattedInvoiceItemCoverageAmount,
+  getFormattedInvoiceItemNetCost,
+  getFormattedCoverageAmountPerInsurancePlanForInvoice,
+  getInvoiceSummary,
 } from '../invoice';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
@@ -28,7 +34,7 @@ const borderStyle = '1 solid black';
 
 const pageStyles = StyleSheet.create({
   body: {
-    paddingHorizontal: 50,
+    paddingHorizontal: 30,
     paddingTop: 30,
     paddingBottom: 50,
   },
@@ -37,31 +43,40 @@ const pageStyles = StyleSheet.create({
 const textStyles = StyleSheet.create({
   sectionTitle: {
     marginBottom: 3,
-    fontSize: 11,
+    fontSize: 9,
   },
 });
 
-const tableStyles = StyleSheet.create({
+const baseTableStyles = StyleSheet.create({
   table: {
     flexDirection: 'column',
     marginBottom: 5,
+  },
+  heading: {
+    paddingLeft: 13,
+    paddingTop: 5,
+    paddingBottom: 5,
+    borderBottom: 'none',
+    justifyContent: 'flex-start',
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     borderTop: borderStyle,
     borderRight: borderStyle,
+    borderLeft: borderStyle,
     borderBottom: borderStyle,
     marginBottom: -1,
   },
   baseCell: {
     flexDirection: 'row',
-    borderLeft: borderStyle,
+    borderLeft: 'none',
     alignItems: 'flex-start',
     padding: 7,
   },
   p: {
     fontSize: 9,
+    lineHeight: 1.2,
   },
   noteText: {
     fontSize: 7,
@@ -69,14 +84,51 @@ const tableStyles = StyleSheet.create({
   },
 });
 
-const priceCellStyles = StyleSheet.create({
-  container: {
-    justifyContent: 'space-between',
-    width: '100%',
-    flexDirection: 'row',
+const paymentTableStyles = StyleSheet.create({
+  headerRow: {
+    borderBottom: 'none',
+    borderTop: 'none',
   },
-  crossOutText: {
-    textDecoration: 'line-through',
+  row: {
+    borderBottom: 'none',
+  },
+});
+
+const invoiceItemTableStyles = StyleSheet.create({
+  headerRow: {
+    borderBottom: 'none',
+    borderRight: 'none',
+    borderLeft: 'none',
+  },
+  row: {
+    borderBottom: 'none',
+    borderRight: 'none',
+    borderLeft: 'none',
+  },
+});
+
+const subRowStyles = StyleSheet.create({
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    borderRight: 'none',
+    borderBottom: 'none',
+    marginBottom: -1,
+  },
+  emptyCell: {
+    flexDirection: 'row',
+    borderLeft: 'none',
+    alignItems: 'flex-start',
+    padding: 7,
+  },
+  labelText: {
+    fontSize: 9,
+    lineHeight: 1.2,
+    color: '#666666',
+  },
+  valueText: {
+    fontSize: 9,
+    lineHeight: 1.2,
   },
 });
 
@@ -105,51 +157,92 @@ const HorizontalRule = ({ width = '1px' }) => {
   return <View style={{ borderBottom: `${width} solid black` }} />;
 };
 
-const Table = props => <View style={tableStyles.table} {...props} />;
-const Row = props => <View style={tableStyles.row} {...props} />;
+const Table = props => <View style={baseTableStyles.table} {...props} />;
+const Row = ({ style, ...props }) => <View style={[baseTableStyles.row, style]} {...props} />;
 const P = ({ style = {}, children, bold }) => (
-  <Text bold={bold} style={[tableStyles.p, style]}>
+  <Text bold={bold} style={[baseTableStyles.p, style]}>
     {children}
   </Text>
 );
 
 const Cell = ({ children, style = {} }) => (
-  <View style={[tableStyles.baseCell, style]}>
+  <View style={[baseTableStyles.baseCell, style]}>
     <P>{children}</P>
   </View>
 );
 
 const CustomCellComponent = ({ children, style = {} }) => (
-  <View style={[tableStyles.baseCell, style]}>{children}</View>
+  <View style={[baseTableStyles.baseCell, style]}>{children}</View>
 );
 
 const getPrice = item => {
   const price = getInvoiceItemPriceDisplay(item);
-  const discountPrice = getInvoiceItemDiscountPriceDisplay(item);
+  return <P>{price}</P>;
+};
+
+const ADJUSTMENT_ROW_HEIGHT = 18;
+const ADJUSTMENT_TOP_MARGIN = 5;
+
+/**
+ * Cell component for "Ordered by" column that includes adjustment labels when applicable
+ */
+const OrderedByCellWithAdjustments = ({ children, style, item }) => {
+  const showAdjustments = hasItemAdjustment(item);
 
   return (
-    <View style={priceCellStyles.container}>
-      <P style={discountPrice ? priceCellStyles.crossOutText : undefined}>{price}</P>
-      {!!discountPrice && <P>{discountPrice}</P>}
+    <View style={[baseTableStyles.baseCell, style, { flexDirection: 'column', alignItems: 'flex-start' }]}>
+      <P>{children}</P>
+      {showAdjustments && (
+        <>
+          <View style={{ height: ADJUSTMENT_ROW_HEIGHT, marginTop: ADJUSTMENT_TOP_MARGIN, justifyContent: 'center', alignSelf: 'flex-end' }}>
+            <Text style={subRowStyles.labelText}>Item adjustment</Text>
+          </View>
+          <View style={{ height: ADJUSTMENT_ROW_HEIGHT, justifyContent: 'center', alignSelf: 'flex-end' }}>
+            <Text style={subRowStyles.labelText}>Cost after adjustment</Text>
+          </View>
+        </>
+      )}
+    </View>
+  );
+};
+
+/**
+ * Cell component for "Cost" column that includes adjustment values when applicable
+ */
+const PriceCellWithAdjustments = ({ children, style, item }) => {
+  const showAdjustments = hasItemAdjustment(item);
+  const adjustmentAmount = showAdjustments ? getItemAdjustmentAmount(item) : 0;
+  const costAfterAdjustment = showAdjustments ? (getInvoiceItemTotalDiscountedPrice(item) || 0) : 0;
+
+  return (
+    <View style={[baseTableStyles.baseCell, style, { flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'flex-start' }]}>
+      {children}
+      {showAdjustments && (
+        <>
+          <View style={{ height: ADJUSTMENT_ROW_HEIGHT, marginTop: ADJUSTMENT_TOP_MARGIN, justifyContent: 'center' }}>
+            <Text style={subRowStyles.valueText}>{formatDisplayPrice(adjustmentAmount)}</Text>
+          </View>
+          <View style={{ height: ADJUSTMENT_ROW_HEIGHT, justifyContent: 'center' }}>
+            <Text style={subRowStyles.valueText}>{formatDisplayPrice(costAfterAdjustment)}</Text>
+          </View>
+        </>
+      )}
     </View>
   );
 };
 
 const getInvoiceItemDetails = item => {
-  const name = item.productName;
+  const name = item.product.name;
   const note = item.note;
 
   return (
     <View>
       <View>
-        <P>
-          {name}
-          {!item.productDiscountable && ' (non-discountable)'}
-        </P>
+        <P>{name}</P>
       </View>
       {!!note && (
         <View>
-          <P style={[tableStyles.noteText]}>Note: {note}</P>
+          <P style={[baseTableStyles.noteText]}>Note: {note}</P>
         </View>
       )}
     </View>
@@ -157,12 +250,15 @@ const getInvoiceItemDetails = item => {
 };
 
 const HeaderCell = ({ children, style }) => (
-  <View style={[tableStyles.baseCell, style]}>
+  <View style={[baseTableStyles.baseCell, style]}>
     <P bold>{children}</P>
   </View>
 );
 
-const SectionSpacing = () => <View style={{ paddingBottom: '10px' }} />;
+const SectionSpacing = ({ minPresenceAhead = 70 }) => (
+  // Between sections, ensure we have enough space for the fixed header
+  <View style={{ paddingBottom: '10px' }} minPresenceAhead={minPresenceAhead} />
+);
 
 const getInsurerPaymentStatus = insurerPayment => {
   if (insurerPayment?.status === INVOICE_INSURER_PAYMENT_STATUSES.REJECTED) {
@@ -182,47 +278,60 @@ const COLUMNS = {
     {
       key: 'orderDate',
       title: 'Date',
-      style: { width: '12%' },
+      style: { width: '14%' },
       accessor: ({ orderDate }) => (orderDate ? formatShort(orderDate) : '--/--/----'),
     },
     {
       key: 'productName',
       title: 'Details',
-      style: { width: '34%' },
+      style: { width: '24%' },
       accessor: row => getInvoiceItemDetails(row),
       CellComponent: CustomCellComponent,
     },
     {
-      key: 'productCode',
-      title: 'Code',
-      style: { width: '10%' },
-      accessor: ({ productCode }) => productCode,
-    },
-    {
       key: 'quantity',
       title: 'Quantity',
-      style: { width: '11%' },
+      style: { width: '12%' },
       accessor: ({ quantity }) => quantity,
+    },
+    {
+      key: 'approved',
+      title: 'Approved',
+      style: { width: '13%' },
+      accessor: ({ approved }) => (approved ? 'Y' : ''),
     },
     {
       key: 'orderedBy',
       title: 'Ordered by',
       accessor: ({ orderedByUser }) => orderedByUser?.displayName,
-      style: { width: '14%' },
+      style: { width: '24%' },
+      CellComponent: OrderedByCellWithAdjustments,
     },
     {
       key: 'price',
-      title: 'Price',
+      title: 'Cost',
       accessor: row => getPrice(row),
-      style: { width: '19%' },
-      CellComponent: CustomCellComponent,
+      style: { width: '10%', justifyContent: 'flex-end' },
+      CellComponent: PriceCellWithAdjustments,
+    },
+    {
+      key: 'insurance',
+      title: 'Insurance',
+      accessor: row => getFormattedInvoiceItemCoverageAmount(row),
+      style: { width: '13%', justifyContent: 'flex-end' },
+    },
+    {
+      key: 'netCost',
+      title: 'Net cost',
+      accessor: row => getFormattedInvoiceItemNetCost(row),
+      style: { width: '12%', justifyContent: 'flex-end' },
     },
   ],
   patientPayments: [
     {
       key: 'date',
       title: 'Date',
-      style: { width: '15%' },
+      style: { width: '14%', paddingLeft: 13 },
       accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
     },
     {
@@ -235,7 +344,7 @@ const COLUMNS = {
       key: 'amount',
       title: 'Amount',
       style: { width: '15%' },
-      accessor: ({ amount }) => formatDisplayPrice(amount),
+      accessor: ({ amount }) => amount,
     },
     {
       key: 'receiptNumber',
@@ -244,9 +353,9 @@ const COLUMNS = {
       style: { width: '21%' },
     },
     {
-      key: 'remainingBalance',
-      title: 'Remaining balance',
-      accessor: ({ remainingBalance }) => remainingBalance,
+      key: 'status',
+      title: 'Status',
+      accessor: () => 'Paid',
       style: { width: '21%' },
     },
   ],
@@ -254,7 +363,7 @@ const COLUMNS = {
     {
       key: 'date',
       title: 'Date',
-      style: { width: '15%' },
+      style: { width: '15%', paddingLeft: 13 },
       accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
     },
     {
@@ -293,65 +402,137 @@ const COLUMNS = {
 const MultipageTableHeading = ({ title, style = textStyles.sectionTitle }) => {
   let firstPageOccurrence = Number.MAX_SAFE_INTEGER;
   return (
-    <Text
-      bold
-      fixed
-      style={style}
-      render={({ pageNumber, subPageNumber }) => {
-        if (pageNumber < firstPageOccurrence && subPageNumber) {
-          firstPageOccurrence = pageNumber;
-        }
-        return pageNumber === firstPageOccurrence ? title : `${title} cont...`;
-      }}
-    />
+    <Row style={baseTableStyles.heading}>
+      <Text
+        bold
+        fixed
+        style={style}
+        render={({ pageNumber, subPageNumber }) => {
+          if (pageNumber < firstPageOccurrence && subPageNumber) {
+            firstPageOccurrence = pageNumber;
+          }
+          return pageNumber === firstPageOccurrence ? title : `${title} cont...`;
+        }}
+      />
+    </Row>
   );
 };
 
-const DataTableHeading = ({ columns, title }) => {
+const DataTableHeadingBorder = () => {
   return (
-    <View fixed>
-      {title && <MultipageTableHeading title={title} />}
-      <Row wrap={false}>
-        {columns.map(({ key, title, style }) => (
-          <HeaderCell key={key} style={style}>
-            {title}
-          </HeaderCell>
-        ))}
-      </Row>
+    <View style={{ paddingLeft: 7, paddingRight: 7 }}>
+      <HorizontalRule />
     </View>
   );
 };
 
-const DataTable = ({ data, columns, title }) => (
-  <Table>
-    <DataTableHeading columns={columns} title={title} />
-    {data.map(row => (
-      <Row key={row.id} wrap={false}>
-        {columns.map(({ key, accessor, style, CellComponent }) => {
-          const displayValue = accessor ? accessor(row) : row[key] || '';
-          if (CellComponent) {
-            return (
-              <CellComponent key={key} style={style}>
-                {displayValue}
-              </CellComponent>
-            );
-          }
+const HeaderRow = ({ columns, style }) => {
+  return (
+    <Row wrap={false} style={style}>
+      {columns.map(({ key, title, style }, colIndex) => (
+        <HeaderCell
+          key={key}
+          style={style}
+          isFirst={colIndex === 0}
+          isLast={colIndex === columns.length - 1}
+        >
+          {title}
+        </HeaderCell>
+      ))}
+    </Row>
+  );
+};
+
+const PaymentDataTableHeading = ({ columns, title }) => {
+  return (
+    <View fixed>
+      {title && <MultipageTableHeading title={title} />}
+      <DataTableHeadingBorder />
+      <HeaderRow columns={columns} style={paymentTableStyles.headerRow} />
+      <DataTableHeadingBorder />
+    </View>
+  );
+};
+
+const InvoiceItemDataTableHeading = ({ columns, title }) => {
+  return (
+    <View>
+      {title && <MultipageTableHeading title={title} />}
+      <HeaderRow columns={columns} style={invoiceItemTableStyles.headerRow} />
+    </View>
+  );
+};
+
+const RowWrapper = ({ row, columns, style, SubRowsComponent }) => (
+  <React.Fragment>
+    <Row wrap={false} style={style}>
+      {columns.map(({ key, accessor, style, CellComponent }, colIndex) => {
+        const displayValue = accessor ? accessor(row) : row[key] || '';
+        const isFirst = colIndex === 0;
+        const isLast = colIndex === columns.length - 1;
+        if (CellComponent) {
           return (
-            <Cell key={key} style={style}>
+            <CellComponent key={key} style={style} isFirst={isFirst} isLast={isLast} item={row}>
               {displayValue}
-            </Cell>
+            </CellComponent>
           );
-        })}
-      </Row>
-    ))}
+        }
+        return (
+          <Cell key={key} style={style} isFirst={isFirst} isLast={isLast}>
+            {displayValue}
+          </Cell>
+        );
+      })}
+    </Row>
+    {SubRowsComponent && <SubRowsComponent item={row} columns={columns} />}
+  </React.Fragment>
+);
+
+const InvoiceItemTable = ({ data, columns, title }) => (
+  <Table>
+    <InvoiceItemDataTableHeading columns={columns} title={title} />
+    {data.map(row => {
+      return (
+        <RowWrapper
+          key={row.id}
+          row={row}
+          columns={columns}
+          style={invoiceItemTableStyles.row}
+        />
+      );
+    })}
   </Table>
 );
 
-const TableSection = ({ title, data, columns, type }) => {
+const PaymentTable = ({ data, columns, title }) => (
+  <Table>
+    <PaymentDataTableHeading columns={columns} title={title} />
+    {data.map((row, rowIndex) => {
+      const isLastRow = rowIndex === data.length - 1;
+      const rowStyle = {
+        borderTop: 'none',
+        borderBottom: isLastRow ? borderStyle : 'none',
+      };
+      return <RowWrapper key={row.id} row={row} columns={columns} style={rowStyle} />;
+    })}
+  </Table>
+);
+
+const InvoiceItemTableSection = ({ title, data, columns }) => {
   return (
     <View>
       <View minPresenceAhead={70} />
-      <DataTable data={data} columns={columns} title={title} type={type} />
+      <InvoiceItemTable data={data} columns={columns} title={title} />
+      <SectionSpacing />
+    </View>
+  );
+};
+
+const PaymentTableSection = ({ title, data, columns }) => {
+  return (
+    <View>
+      <View minPresenceAhead={70} />
+      <PaymentTable data={data} columns={columns} title={title} />
       <SectionSpacing />
     </View>
   );
@@ -359,84 +540,52 @@ const TableSection = ({ title, data, columns, type }) => {
 
 const SummaryPane = ({ invoice }) => {
   const {
-    discountableItemsSubtotal,
-    nonDiscountableItemsSubtotal,
-    itemsSubtotal,
+    invoiceItemsTotal,
+    patientPaymentRemainingBalance,
     patientSubtotal,
-    patientDiscountableSubtotal,
-    discountTotal,
-    patientTotal,
-  } = getInvoiceSummaryDisplay(invoice);
-  const insurerDiscountAmountDisplayList = getInsurerDiscountAmountDisplayList(
-    invoice?.insurers,
-    itemsSubtotal,
-  );
+    patientPaymentsTotal,
+    itemAdjustmentsTotal,
+  } = getInvoiceSummary(invoice);
+  const insurancePlanCoverages = getFormattedCoverageAmountPerInsurancePlanForInvoice(invoice);
+  const patientPaymentsTotalDisplay = patientPaymentsTotal > 0 ? patientPaymentsTotal * -1 : 0;
 
   return (
     <View wrap={false} style={summaryPaneStyles.container}>
       <View style={summaryPaneStyles.item}>
-        <P>Discountable items subtotal</P>
-        <P>{discountableItemsSubtotal ?? '-'}</P>
+        <P>Invoice total</P>
+        <P>{formatDisplayPrice(invoiceItemsTotal)}</P>
       </View>
       <View style={summaryPaneStyles.item}>
-        <P>Non-discountable items subtotal</P>
-        <P>{nonDiscountableItemsSubtotal ?? '-'}</P>
+        <P>Item adjustments</P>
+        <P>{formatDisplayPrice(itemAdjustmentsTotal)}</P>
       </View>
-      <HorizontalRule />
-      <View style={summaryPaneStyles.item}>
-        <P bold>Total</P>
-        <P bold>{itemsSubtotal ?? '-'}</P>
-      </View>
-      <HorizontalRule />
-      {invoice?.insurers?.length && (
+      {insurancePlanCoverages.length > 0 && (
         <>
-          <View style={summaryPaneStyles.item}>
-            <P bold>Insurer</P>
-          </View>
-          {invoice?.insurers.map((insurer, index) => {
-            return (
-              <View key={insurer.id} style={summaryPaneStyles.item}>
-                <P>{insurer.insurer?.name}</P>
-                <View style={summaryPaneStyles.subItem}>
-                  <P>{insurer.percentage * 100}%</P>
-                  <P>{`-${insurerDiscountAmountDisplayList[index]}`}</P>
-                </View>
-              </View>
-            );
-          })}
-          <HorizontalRule />
+          <P bold>Insurance coverage</P>
+          {insurancePlanCoverages.map(plan => (
+            <View key={plan.id} style={summaryPaneStyles.item}>
+              <P>{plan.name || plan.code}</P>
+              <P>{plan.totalCoverage}</P>
+            </View>
+          ))}
         </>
       )}
+      <HorizontalRule />
       <View style={summaryPaneStyles.item}>
         <P bold>Patient subtotal</P>
-        <P>{patientSubtotal}</P>
+        <P>{formatDisplayPrice(patientSubtotal)}</P>
       </View>
+      <HorizontalRule />
       <View style={summaryPaneStyles.item}>
-        <P bold>Discount</P>
-        {!!invoice.discount && (
-          <View style={summaryPaneStyles.subItem}>
-            <P>{invoice.discount?.percentage * 100}%</P>
-            <P bold>{typeof discountTotal === 'string' ? `-${discountTotal}` : '-'}</P>
-          </View>
-        )}
+        <P>Patient payments</P>
+        <P>
+          {formatDisplayPrice(patientPaymentsTotalDisplay)}
+        </P>
       </View>
-      {!!invoice.discount && (
-        <>
-          <View style={summaryPaneStyles.item}>
-            {invoice.discount?.isManual ? <P>Manual discount</P> : <P>Patient discount applied</P>}
-          </View>
-          <View style={summaryPaneStyles.item}>
-            <P>Applied to discountable balance</P>
-            <View style={summaryPaneStyles.subItem}>
-              <P>{patientDiscountableSubtotal ?? '-'}</P>
-            </View>
-          </View>
-        </>
-      )}
       <HorizontalRule />
       <View style={[summaryPaneStyles.item, { marginVertical: 7.5 }]}>
-        <P bold>Patient total</P>
-        <P bold>{patientTotal ?? '-'}</P>
+        <P bold>Patient total due</P>
+        <P bold>{formatDisplayPrice(patientPaymentRemainingBalance)}</P>
       </View>
     </View>
   );
@@ -453,7 +602,7 @@ const InvoiceRecordPrintoutComponent = ({
   invoice,
   enablePatientInsurer,
 }) => {
-  const { watermark, logo } = certificateData;
+  const { watermark, logo, footerImg } = certificateData;
   const patientPayments = getPatientPaymentsWithRemainingBalanceDisplay(invoice);
   const insurerPayments = getInsurerPaymentsWithRemainingBalanceDisplay(invoice);
 
@@ -474,7 +623,11 @@ const InvoiceRecordPrintoutComponent = ({
           />
         </CertificateHeader>
         <SectionSpacing />
-        <PatientDetails getLocalisation={getLocalisation} getSetting={getSetting} patient={patientData} />
+        <PatientDetails
+          getLocalisation={getLocalisation}
+          getSetting={getSetting}
+          patient={patientData}
+        />
         <SectionSpacing />
         <InvoiceEncounterDetails
           encounter={encounter}
@@ -490,24 +643,29 @@ const InvoiceRecordPrintoutComponent = ({
         />
         <SectionSpacing />
         {invoice?.items?.length > 0 && (
-          <TableSection data={invoice?.items} columns={COLUMNS.invoiceItems} />
+          <InvoiceItemTableSection
+            data={invoice?.items}
+            columns={COLUMNS.invoiceItems}
+            showAdjustmentRows
+          />
         )}
         <SummaryPane invoice={invoice} />
         <SectionSpacing />
         {patientPayments?.length && (
-          <TableSection
+          <PaymentTableSection
             title="Patient payment"
             data={patientPayments}
             columns={COLUMNS.patientPayments}
           />
         )}
         {insurerPayments?.length && (
-          <TableSection
+          <PaymentTableSection
             title="Insurer payment"
             data={insurerPayments}
             columns={COLUMNS.insurerPayments}
           />
         )}
+        {footerImg && <SigningImage src={footerImg} />}
         <Footer />
       </Page>
     </Document>

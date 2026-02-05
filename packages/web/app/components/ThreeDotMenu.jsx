@@ -29,7 +29,7 @@ const StyledIconButton = styled(IconButton)`
   padding: 7px;
 `;
 
-export const ThreeDotMenu = ({ items, disabled }) => {
+export const ThreeDotMenu = ({ items, disabled, className }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
@@ -51,6 +51,7 @@ export const ThreeDotMenu = ({ items, disabled }) => {
       <StyledIconButton
         onClick={onOpenKebabMenu}
         disabled={disabled}
+        className={className}
         data-testid="stylediconbutton-szh8"
       >
         <MoreVert data-testid="morevert-kusc" />

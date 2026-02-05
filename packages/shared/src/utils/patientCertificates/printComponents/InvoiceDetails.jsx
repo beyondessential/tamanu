@@ -39,6 +39,10 @@ export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsur
             label={getTranslation('invoice.invoiceStatus.label', 'Invoice status')}
             value={INVOICE_STATUS_LABELS[invoice.status]}
           />
+          <DataItem
+            label={getTranslation('invoice.priceList.label', 'Price list')}
+            value={invoice.priceList?.name}
+          />
         </Col>
         <Col>
           <DataItem

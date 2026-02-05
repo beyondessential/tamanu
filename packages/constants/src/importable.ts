@@ -147,6 +147,7 @@ export const ASSET_NAMES = {
   COVID_CLEARANCE_CERTIFICATE_FOOTER: 'covid-clearance-certificate-footer-img',
   COVID_TEST_CERTIFICATE_FOOTER: 'covid-test-certificate-footer-img',
   VACCINATION_CERTIFICATE_FOOTER: 'vaccination-certificate-footer-img',
+  INVOICE_FOOTER: 'invoice-footer-img',
 };
 
 export const ASSET_NAME_LABELS = {
@@ -158,6 +159,7 @@ export const ASSET_NAME_LABELS = {
   [ASSET_NAMES.COVID_CLEARANCE_CERTIFICATE_FOOTER]: 'covid-clearance-certificate-footer-img',
   [ASSET_NAMES.COVID_TEST_CERTIFICATE_FOOTER]: 'covid-test-certificate-footer-img',
   [ASSET_NAMES.VACCINATION_CERTIFICATE_FOOTER]: 'vaccination-certificate-footer-img',
+  [ASSET_NAMES.INVOICE_FOOTER]: 'invoice-footer-img',
 };
 
 export const ASSET_FALLBACK_NAMES = {

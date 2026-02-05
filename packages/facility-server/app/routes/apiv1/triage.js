@@ -106,6 +106,13 @@ triage.post(
       user,
     );
 
+    await models.Invoice.automaticallyCreateForEncounter(
+      encounter.id,
+      encounter.encounterType,
+      encounter.startDate,
+      settings[facilityId],
+    );
+
     res.send(triageRecord);
   }),
 );
