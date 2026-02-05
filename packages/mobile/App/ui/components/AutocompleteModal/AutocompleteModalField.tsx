@@ -73,8 +73,7 @@ export const AutocompleteModalField = ({
         setLabel(null);
       }
     })();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value, language]);
+  }, [value, suggester, language]);
 
   if (readOnly) {
     return <ReadOnlyField value={label} />;
