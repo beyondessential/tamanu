@@ -54,12 +54,16 @@ export const EncounterActions = React.memo(({ encounter }) => {
   const canWriteEncounter = ability.can('write', 'Encounter');
 
   if (encounter.endDate) {
+    // Ideally we would have a dedicated encounter type for discharged encounters and filter
+    // at the same level as the other encounter types. Because discharge uses clinic data we
+    // need this extra check here to only show encounter/discharge summary actions when
+    // the encounter is actually discharged (discharge record exists).
     return (
       <ActionsContainer data-testid="actionscontainer-w92z">
         <StyledButton
           size="small"
           variant="outlined"
-          onClick={() => setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_RECORD)}
+          onClick={() => setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD)}
           data-testid="styledbutton-00iz"
         >
           <TranslatedText
