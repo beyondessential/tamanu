@@ -5,7 +5,7 @@ import { capitalize } from 'lodash';
 import { INVOICE_INSURER_PAYMENT_STATUSES } from '@tamanu/constants';
 import { formatShort } from '@tamanu/utils/dateTime';
 
-import { CertificateHeader, Watermark } from './Layout';
+import { CertificateHeader, SigningImage, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
@@ -602,7 +602,7 @@ const InvoiceRecordPrintoutComponent = ({
   invoice,
   enablePatientInsurer,
 }) => {
-  const { watermark, logo } = certificateData;
+  const { watermark, logo, footerImg } = certificateData;
   const patientPayments = getPatientPaymentsWithRemainingBalanceDisplay(invoice);
   const insurerPayments = getInsurerPaymentsWithRemainingBalanceDisplay(invoice);
 
@@ -665,6 +665,7 @@ const InvoiceRecordPrintoutComponent = ({
             columns={COLUMNS.insurerPayments}
           />
         )}
+        {footerImg && <SigningImage src={footerImg} />}
         <Footer />
       </Page>
     </Document>
