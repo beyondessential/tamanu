@@ -47,7 +47,15 @@ export const DateGivenField = ({
   min,
   max,
 }: LabelledFieldProps & DateGivenFieldProps): JSX.Element => (
-  <Field component={DateField} name="date" label={label} required={required} min={min} max={max} />
+  <Field
+    component={DateField}
+    name="date"
+    label={label}
+    labelFontSize="14"
+    required={required}
+    min={min}
+    max={max}
+  />
 );
 
 export const BatchField = (): JSX.Element => (
