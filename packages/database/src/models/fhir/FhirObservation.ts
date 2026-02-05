@@ -226,8 +226,15 @@ export class FhirObservation extends FhirResource {
           })));
 
       if (!labTestType) {
+        const identifiers = [];
+        if (labTestCode) {
+          identifiers.push(`code '${labTestCode}'`);
+        }
+        if (labTestExternalCode) {
+          identifiers.push(`externalCode '${labTestExternalCode}'`);
+        }
         throw new Invalid(
-          `Cannot create reflex test, no lab test type found with ${labTestCode ? 'code' : 'externalCode'} ${labTestCode || labTestExternalCode}`,
+          `Cannot create reflex test, no lab test type found with ${identifiers.join(' or ')}`,
           {
             code: FHIR_ISSUE_TYPE.INVALID.VALUE,
           },
