@@ -24,7 +24,6 @@ import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { useEncounterInvoiceQuery } from '../../../api/queries/useInvoiceQuery';
 import { useAuth } from '../../../contexts/Auth';
 import { NoteModalActionBlocker } from '../../../components';
-import { usePatientDataQuery } from '../../../api/queries';
 import {
   useCreateInvoice,
   useBulkUpdateInvoiceItemApproval,
@@ -238,7 +237,6 @@ export const EncounterInvoicingPane = ({ encounter }) => {
   const [isEditing, setEditing] = useState(false);
   const [invoiceModalType, setInvoiceModalType] = useState(null);
   const { data: invoice, isLoading } = useEncounterInvoiceQuery(encounter.id);
-  const { data: patient } = usePatientDataQuery(encounter.patientId);
   const { mutate: createInvoice, isLoading: isSubmitting } = useCreateInvoice();
 
   const handleCreateInvoice = () => {
@@ -292,7 +290,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                   {invoice.displayId}
                 </InvoiceTitle>
                 <InvoiceSubTitle>
-                  {patient?.village?.name} {invoice.priceList?.name}
+                  {invoice.priceList?.name}
                 </InvoiceSubTitle>
               </Box>
               <InvoiceStatus status={invoice.status} data-testid="invoicestatus-qb63" />
