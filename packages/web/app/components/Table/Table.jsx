@@ -102,13 +102,13 @@ const StyledTableContainer = styled.div`
 const StyledTableBody = styled(TableBody)`
   &.MuiTableBody-root {
     ${(props) =>
-      props.$lazyLoading
-        ? `
+    props.$lazyLoading
+      ? `
         overflow: auto;
         height: 62vh;
         display: block;
       `
-        : ''};
+      : ''};
   }
 `;
 
@@ -254,6 +254,12 @@ const StatusTableCell = styled(StyledTableCell)`
   ${(props) => (props.$statusCellStyle ? props.$statusCellStyle : '')}
 `;
 
+const formatCellValue = (value) => {
+  const isEmpty = value === null || value === undefined || value === '';
+  if (isEmpty) return '–';
+  return value === 0 ? '0' : value;
+};
+
 const Row = React.memo(
   ({
     rowIndex,
@@ -275,7 +281,6 @@ const Row = React.memo(
         const onChange = cellOnChange ? (event) => cellOnChange(event, key, rowIndex, data) : null;
         const passingData = { refreshTable, onChange, ...data, rowIndex };
         const value = accessor ? React.createElement(accessor, passingData) : get(data, key);
-        const displayValue = value === 0 ? '0' : value;
         const backgroundColor = typeof cellColor === 'function' ? cellColor(data) : cellColor;
         return (
           <StyledTableCell
@@ -293,14 +298,14 @@ const Row = React.memo(
             >
               {CellComponent ? (
                 <CellComponent
-                  value={displayValue}
+                  value={formatCellValue(value)}
                   data={data}
                   data-testid={`cellcomponent-pz8j-${rowIndex}-${key}`}
                 />
               ) : (
                 <DisplayValue
                   maxWidth={maxWidth}
-                  displayValue={displayValue}
+                  displayValue={formatCellValue(value)}
                   data-testid={`displayvalue-ds9w-${rowIndex}-${key}`}
                 />
               )}
@@ -384,8 +389,8 @@ class TableComponent extends React.Component {
     if (!lazyLoading || isLoadingMore || !onChangePage) return;
     const bottom =
       event.target.scrollHeight -
-        Math.ceil(event.target.scrollTop) -
-        LAZY_LOADING_BOTTOM_SENSITIVITY <=
+      Math.ceil(event.target.scrollTop) -
+      LAZY_LOADING_BOTTOM_SENSITIVITY <=
       event.target.clientHeight;
     const isNotLastPage = page + 1 < Math.ceil(count / rowsPerPage);
     if (bottom && isNotLastPage) onChangePage(page + 1);
