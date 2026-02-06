@@ -33,7 +33,11 @@ export const transactionBundleHandler = () => {
             throw new InvalidOperationError(`Resource type ${rawResource.resourceType} not found`);
           }
 
-          await createResource(store, FhirResource, rawResource, req.user?.id, settings);
+          const hydratedResource = FhirResource.hydrateRawResourceFromBundle(
+            validatedBundle,
+            rawResource,
+          );
+          await createResource(store, FhirResource, hydratedResource, req.user?.id, settings);
           responses.push({
             response: {
               status: '201',

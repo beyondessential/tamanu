@@ -9,11 +9,13 @@ import {
   FhirCoding,
   FhirQuantity,
   FhirReference,
+  FhirTransactionBundle,
 } from '@tamanu/shared/services/fhirTypes';
 import { Invalid } from '@tamanu/shared/utils/fhir';
 import { FhirResource } from './Resource';
 import type { InitOptions, Models } from '../../types/model';
 import type { LabRequest } from '../../models/LabRequest';
+import { FhirDiagnosticReport } from './FhirDiagnosticReport';
 
 export class FhirObservation extends FhirResource {
   declare basedOn: { type: string; reference: string }[];
@@ -66,6 +68,56 @@ export class FhirObservation extends FhirResource {
       valueCodeableConcept: FhirCodeableConcept.asYup(),
       valueString: yup.string(),
     });
+  }
+
+  static hydrateRawResourceFromBundle(
+    bundle: FhirTransactionBundle,
+    rawResource: Record<string, any>,
+  ) {
+    const hydratedWithBasedOn = FhirObservation.hydrateBasedOn(bundle, rawResource);
+    return hydratedWithBasedOn;
+  }
+
+  static hydrateBasedOn(bundle: FhirTransactionBundle, rawResource: Record<string, any>) {
+    if (rawResource.basedOn) {
+      // basedOn is already present, no need to hydrate
+      return rawResource;
+    }
+
+    if (!rawResource.id) {
+      throw new Invalid(`Observation id is required to link to a DiagnosticReport in a bundle`, {
+        code: FHIR_ISSUE_TYPE.INVALID.VALUE,
+      });
+    }
+
+    const validatedBundle = FhirTransactionBundle.SCHEMA().validateSync(bundle);
+    // basedOn missing, need to look it up in the diagnostic report in the bundle
+    const diagnosticReports = validatedBundle.entry
+      .filter(entry => entry.resource.resourceType === 'DiagnosticReport')
+      .map(report => FhirDiagnosticReport.INTAKE_SCHEMA.validateSync(report.resource));
+    if (diagnosticReports.length === 0) {
+      throw new Invalid(
+        `Unable to determine basedOn of Observation/${rawResource.id}: No diagnostic report found in bundle`,
+        {
+          code: FHIR_ISSUE_TYPE.INVALID.VALUE,
+        },
+      );
+    }
+
+    const reportContainingObservation = diagnosticReports.find(report =>
+      report.result?.some(result => result.reference === `Observation/${rawResource.id}`),
+    );
+    if (!reportContainingObservation) {
+      throw new Invalid(
+        `Unable to determine basedOn of Observation/${rawResource.id}: No diagnostic report found with result containing Observation/${rawResource.id}`,
+        {
+          code: FHIR_ISSUE_TYPE.INVALID.VALUE,
+        },
+      );
+    }
+
+    rawResource.basedOn = reportContainingObservation.basedOn;
+    return rawResource;
   }
 
   async pushUpstream() {

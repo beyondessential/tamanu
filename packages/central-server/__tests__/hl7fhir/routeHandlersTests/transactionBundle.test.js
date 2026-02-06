@@ -213,6 +213,117 @@ describe(`FHIR API - Transaction Bundle`, () => {
         expect(labTest.result).toBe(`Result ${index}`);
       });
     });
+
+    it('Can hydrate missing fields in a resource from a bundle', async () => {
+      // arrange
+      const { FhirServiceRequest, LabTest, LabTestType } = ctx.store.models;
+
+      await FhirServiceRequest.resolveUpstreams();
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        false,
+        {
+          status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+        },
+      );
+      const labMat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const labTests = await LabTest.findAll({
+        include: [{ model: LabTestType, as: 'labTestType' }],
+        where: { labRequestId: labRequest.id },
+      });
+      await FhirServiceRequest.resolveUpstreams();
+
+      // act
+      const body = {
+        resourceType: 'Bundle',
+        type: 'transaction',
+        entry: [
+          {
+            resource: {
+              resourceType: 'DiagnosticReport',
+              basedOn: [
+                {
+                  type: 'ServiceRequest',
+                  reference: `ServiceRequest/${labMat.id}`,
+                },
+              ],
+              status: FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL,
+              category: [
+                {
+                  coding: [
+                    {
+                      code: '108252007',
+                      system: 'http://snomed.info/sct',
+                    },
+                  ],
+                },
+              ],
+              code: {
+                coding: [
+                  {
+                    system: 'http://loinc.org',
+                    code: '42191-7',
+                    display: 'Hepatitis Panel',
+                  },
+                ],
+              },
+              // The result array is used to link the Observations to the DiagnosticReport
+              result: labTests.map((_, index) => ({
+                reference: `Observation/${index}`,
+              })),
+            },
+            request: {
+              method: 'POST',
+              url: `/api/integration/fhir/mat/DiagnosticReport`,
+            },
+          },
+          // No basedOn field in the Observations, they need to get it from the DiagnosticReport
+          ...labTests.map((labTest, index) => ({
+            resource: {
+              id: `${index}`,
+              resourceType: 'Observation',
+              status: FHIR_OBSERVATION_STATUS.FINAL,
+              code: {
+                coding: [
+                  {
+                    system: config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+                    code: labTest.labTestType.code,
+                  },
+                  {
+                    system: config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem,
+                    code: labTest.labTestType.externalCode,
+                  },
+                ],
+              },
+              valueString: `Result ${index}`,
+            },
+            request: {
+              method: 'POST',
+              url: `/api/integration/fhir/mat/Observation`,
+            },
+          })),
+        ],
+      };
+      const response = await app.post(PATH).send(body);
+
+      // assert
+      expect(response).toHaveSucceeded();
+      expect(response.status).toBe(200);
+      expect(response.body.resourceType).toBe('Bundle');
+      expect(response.body.type).toBe('transaction-response');
+      expect(response.body.entry).toHaveLength(labTests.length + 1); // Add one for the diagnostic report
+      response.body.entry.forEach(entry => {
+        expect(entry.response.status).toBe('201');
+      });
+
+      await labRequest.reload();
+      await Promise.all(labTests.map(labTest => labTest.reload()));
+      expect(labRequest.status).toBe(LAB_REQUEST_STATUSES.VERIFIED);
+      labTests.forEach((labTest, index) => {
+        expect(labTest.result).toBe(`Result ${index}`);
+      });
+    });
   });
 
   describe('errors', () => {
@@ -446,6 +557,119 @@ describe(`FHIR API - Transaction Bundle`, () => {
       // assert
       expect(response).not.toHaveSucceeded();
       expect(response.status).toBe(400); // the request should be rejected because the method is not POST
+    });
+
+    it('will throw an error if resources cannot be hydrated correctly', async () => {
+      // arrange
+      const { FhirServiceRequest, LabTest, LabTestType } = ctx.store.models;
+
+      await FhirServiceRequest.resolveUpstreams();
+      const { labRequest } = await fakeResourcesOfFhirServiceRequestWithLabRequest(
+        ctx.store.models,
+        resources,
+        false,
+        {
+          status: LAB_REQUEST_STATUSES.RESULTS_PENDING,
+        },
+      );
+      const labMat = await FhirServiceRequest.materialiseFromUpstream(labRequest.id);
+      const labTests = await LabTest.findAll({
+        include: [{ model: LabTestType, as: 'labTestType' }],
+        where: { labRequestId: labRequest.id },
+      });
+      await FhirServiceRequest.resolveUpstreams();
+
+      // act
+      const body = {
+        resourceType: 'Bundle',
+        type: 'transaction',
+        entry: [
+          {
+            resource: {
+              resourceType: 'DiagnosticReport',
+              basedOn: [
+                {
+                  type: 'ServiceRequest',
+                  reference: `ServiceRequest/${labMat.id}`,
+                },
+              ],
+              status: FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL,
+              category: [
+                {
+                  coding: [
+                    {
+                      code: '108252007',
+                      system: 'http://snomed.info/sct',
+                    },
+                  ],
+                },
+              ],
+              code: {
+                coding: [
+                  {
+                    system: 'http://loinc.org',
+                    code: '42191-7',
+                    display: 'Hepatitis Panel',
+                  },
+                ],
+              },
+              // The result array is used to link the Observations to the DiagnosticReport, but we're missing the last one
+              result: labTests.slice(0, -1).map((_, index) => ({
+                reference: `Observation/${index}`,
+              })),
+            },
+            request: {
+              method: 'POST',
+              url: `/api/integration/fhir/mat/DiagnosticReport`,
+            },
+          },
+          // No basedOn field in the Observations, they need to get it from the DiagnosticReport
+          ...labTests.map((labTest, index) => ({
+            resource: {
+              id: `${index}`,
+              resourceType: 'Observation',
+              status: FHIR_OBSERVATION_STATUS.FINAL,
+              code: {
+                coding: [
+                  {
+                    system: config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+                    code: labTest.labTestType.code,
+                  },
+                  {
+                    system: config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem,
+                    code: labTest.labTestType.externalCode,
+                  },
+                ],
+              },
+              valueString: `Result ${index}`,
+            },
+            request: {
+              method: 'POST',
+              url: `/api/integration/fhir/mat/Observation`,
+            },
+          })),
+        ],
+      };
+      const response = await app.post(PATH).send(body);
+      // assert
+      expect(response).not.toHaveSucceeded();
+      expect(response.status).toBe(400); // the request should be rejected
+      expect(response.body).toMatchObject({
+        resourceType: 'OperationOutcome',
+        id: expect.any(String),
+        issue: [
+          {
+            severity: 'error',
+            code: 'value',
+            diagnostics: expect.any(String),
+            details: {
+              text: expect.stringContaining(
+                `Unable to determine basedOn of Observation/${labTests.length - 1}: No diagnostic report found with result containing Observation/${labTests.length - 1}`,
+              ),
+            },
+          },
+        ],
+      });
     });
   });
 });
