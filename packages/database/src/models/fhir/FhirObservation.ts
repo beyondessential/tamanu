@@ -73,8 +73,8 @@ export class FhirObservation extends FhirResource {
       valueString: yup.string(),
       referenceRange: yup.array().of(
         yup.object({
-          low: FhirQuantity.asYup().nullable(),
-          high: FhirQuantity.asYup().nullable(),
+          low: FhirQuantity.asYup(),
+          high: FhirQuantity.asYup(),
         }),
       ),
     });
