@@ -41,11 +41,16 @@ export class FhirTransactionResponseBundle extends FhirBundle {
     return yup.object({
       resourceType: yup.string().oneOf(['Bundle']).required(),
       type: yup.string().oneOf([FHIR_BUNDLE_TYPES.TRANSACTION_RESPONSE]).required(),
-      response: yup
-        .object({
-          status: yup.string().required(),
-        })
-        .required(),
+      entry: yup.array().of(
+        yup.object({
+          response: yup
+            .object({
+              status: yup.string().required(),
+              location: yup.string(),
+            })
+            .required(),
+        }),
+      ),
     });
   }
 }

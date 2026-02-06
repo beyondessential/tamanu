@@ -201,7 +201,10 @@ describe(`FHIR API - Transaction Bundle`, () => {
       expect(response.status).toBe(200);
       expect(response.body.resourceType).toBe('Bundle');
       expect(response.body.type).toBe('transaction-response');
-      expect(response.body.response.status).toBe('201');
+      expect(response.body.entry).toHaveLength(labTests.length + 1); // Add one for the diagnostic report
+      response.body.entry.forEach(entry => {
+        expect(entry.response.status).toBe('201');
+      });
 
       await labRequest.reload();
       await Promise.all(labTests.map(labTest => labTest.reload()));

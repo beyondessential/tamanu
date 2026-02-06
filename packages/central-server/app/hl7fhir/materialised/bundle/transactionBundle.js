@@ -22,6 +22,7 @@ export const transactionBundleHandler = () => {
     const creatableResources = resourcesThatCanDo(store.models, FHIR_INTERACTIONS.TYPE.CREATE);
 
     // Run all operations in a database transaction to ensure atomicity
+    const responses = [];
     try {
       await store.sequelize.transaction(async () => {
         for (const { resource: rawResource } of validatedBundle.entry) {
@@ -33,6 +34,11 @@ export const transactionBundleHandler = () => {
           }
 
           await createResource(store, FhirResource, rawResource, req.user?.id, settings);
+          responses.push({
+            response: {
+              status: '201',
+            },
+          });
         }
       });
     } catch (err) {
@@ -42,9 +48,7 @@ export const transactionBundleHandler = () => {
     const responseBundle = new FhirTransactionResponseBundle({
       resourceType: 'Bundle',
       type: FHIR_BUNDLE_TYPES.TRANSACTION_RESPONSE,
-      response: {
-        status: '201',
-      },
+      entry: responses,
     });
     res.status(200).send(responseBundle);
   });
