@@ -26,6 +26,7 @@ export class FhirObservation extends FhirResource {
   declare valueQuantity?: FhirQuantity;
   declare valueCodeableConcept?: FhirCodeableConcept;
   declare valueString?: string;
+  declare referenceRange?: Array<{ low?: { value?: number }; high?: { value?: number } }>;
 
   static initModel(options: InitOptions, models: Models) {
     super.initResource(
@@ -54,6 +55,9 @@ export class FhirObservation extends FhirResource {
         valueString: {
           type: DataTypes.TEXT,
         },
+        referenceRange: {
+          type: DataTypes.JSONB,
+        },
       },
       options,
     );
@@ -73,6 +77,12 @@ export class FhirObservation extends FhirResource {
       valueQuantity: FhirQuantity.asYup(),
       valueCodeableConcept: FhirCodeableConcept.asYup(),
       valueString: yup.string(),
+      referenceRange: yup.array().of(
+        yup.object({
+          low: FhirQuantity.asYup(),
+          high: FhirQuantity.asYup(),
+        }),
+      ),
     });
   }
 
@@ -164,11 +174,34 @@ export class FhirObservation extends FhirResource {
     const labTest = await this.getLabTestForObservation(labRequest);
     const value = this.getValue();
 
-    await labTest.update({
+    const updatePayload: Record<string, any> = {
       result: value,
       completedDate: getCurrentDateTimeString(),
-      ...(labTestMethodId ? { labTestMethodId } : {}),
-    });
+    };
+
+    if (
+      this.referenceRange &&
+      Array.isArray(this.referenceRange) &&
+      this.referenceRange.length > 0
+    ) {
+      const first = this.referenceRange[0];
+      const lowValue =
+        first?.low != null && typeof first.low === 'object' && 'value' in first.low
+          ? first.low.value
+          : null;
+      const highValue =
+        first?.high != null && typeof first.high === 'object' && 'value' in first.high
+          ? first.high.value
+          : null;
+      updatePayload.referenceRangeMin = lowValue ?? null;
+      updatePayload.referenceRangeMax = highValue ?? null;
+    }
+
+    if (labTestMethodId) {
+      updatePayload.labTestMethodId = labTestMethodId;
+    }
+
+    await labTest.update(updatePayload);
     return labTest;
   }
 
@@ -272,7 +305,8 @@ export class FhirObservation extends FhirResource {
     const methodCodings =
       validatedMethod.coding?.filter(
         (coding: Record<string, any>) =>
-          coding?.code && coding?.system === config.hl7.dataDictionaries.observationMethodCodeSystem,
+          coding?.code &&
+          coding?.system === config.hl7.dataDictionaries.observationMethodCodeSystem,
       ) ?? [];
     if (methodCodings.length === 0) {
       throw new Invalid(

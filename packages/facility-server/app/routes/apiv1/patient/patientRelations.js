@@ -439,7 +439,9 @@ patientRelations.get(
       lab_requests.sample_time, JSONB_BUILD_OBJECT(
         'result', lab_tests.result,
         'id', lab_tests.id,
-        'isEdited', COALESCE(edited_tests.is_edited, FALSE)
+        'isEdited', COALESCE(edited_tests.is_edited, FALSE),
+        'referenceRangeMin', lab_tests.reference_range_min,
+        'referenceRangeMax', lab_tests.reference_range_max
       )
     ) AS results
     ${panelId ? ', panel_join."order" AS panel_order' : ''}
