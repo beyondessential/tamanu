@@ -266,7 +266,7 @@ export const OngoingConditionForm = ({
       return {
         ...editedObject,
         recordedDate: editedObject.recordedDate.slice(0, 10),
-        resolutionDate: editedObject.resolutionDate.slice(0, 10),
+        resolutionDate: editedObject.resolutionDate?.slice(0, 10),
       };
     }
     return {
