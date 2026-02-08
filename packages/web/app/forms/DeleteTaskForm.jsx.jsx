@@ -17,7 +17,7 @@ import { useAuth } from '../contexts/Auth';
 import { useTranslation } from '../contexts/Translation';
 
 export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
-  const { getCountryCurrentDateTimeString, getFacilityCurrentDateTimeString } = useDateTimeFormat();
+  const { formatForDateTimeInput, getCountryCurrentDateTimeString } = useDateTimeFormat();
   const { getTranslation } = useTranslation();
   const practitionerSuggester = useSuggester('practitioner');
   const taskDeletionReasonSuggester = useSuggester('taskDeletionReason');
@@ -75,7 +75,7 @@ export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
               required
               saveDateAsString
               component={DateTimeField}
-              max={getFacilityCurrentDateTimeString()}
+              max={formatForDateTimeInput(new Date())}
               data-testid="field-bnve"
             />
             <Field
