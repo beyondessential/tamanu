@@ -256,8 +256,7 @@ const toISO9075DateTime = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) 
 const toDateTimeLocalFormat = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) =>
   dt.toString().slice(0, 16);
 
-const parseDateTimeString = (date: string) =>
-  Temporal.PlainDateTime.from(date.replace(' ', 'T'));
+const parseDateTimeString = (date: string) => Temporal.PlainDateTime.from(date.replace(' ', 'T'));
 
 const getDisplayTimezone = (countryTimeZone?: string, facilityTimeZone?: string | null) =>
   facilityTimeZone ?? countryTimeZone;
@@ -285,7 +284,10 @@ export const intlFormatDate = (
     const plain = parseDateTimeString(date);
 
     if (countryTimeZone && displayTz) {
-      return plain.toZonedDateTime(countryTimeZone).withTimeZone(displayTz).toLocaleString(locale, formatOptions);
+      return plain
+        .toZonedDateTime(countryTimeZone)
+        .withTimeZone(displayTz)
+        .toLocaleString(locale, formatOptions);
     }
 
     return plain.toLocaleString(locale, formatOptions);
@@ -372,7 +374,6 @@ export const eachDayInMonth = (date: Date) =>
     end: endOfMonth(date),
   });
 
-
 /** Get current datetime string in a specific timezone */
 export const getCurrentDateTimeStringInTimezone = (timezone?: string) =>
   toISO9075DateTime(Temporal.Now.zonedDateTimeISO(timezone ?? Temporal.Now.timeZoneId()));
@@ -398,7 +399,9 @@ export const formatForDateTimeInput = (
     if (value instanceof Date) {
       if (!isValid(value)) return null;
       const instant = Temporal.Instant.fromEpochMilliseconds(value.getTime());
-      return toDateTimeLocalFormat(instant.toZonedDateTimeISO(displayTz ?? Temporal.Now.timeZoneId()));
+      return toDateTimeLocalFormat(
+        instant.toZonedDateTimeISO(displayTz ?? Temporal.Now.timeZoneId()),
+      );
     }
 
     if (isISO9075DateString(value)) {
@@ -440,10 +443,20 @@ export const toDateTimeStringForPersistence = (
   }
 };
 
-
-export const getDayDateBoundaries = (date: string) => {
+export const getDayDateBoundaries = (
+  date: string,
+  countryTimeZone?: string,
+  facilityTimeZone?: string | null,
+) => {
+  const start = toDateTimeStringForPersistence(
+    `${date}T00:00:00`,
+    countryTimeZone,
+    facilityTimeZone,
+  );
+  const end = toDateTimeStringForPersistence(`${date}T23:59:59`, countryTimeZone, facilityTimeZone);
+  if (!start || !end) return null;
   return {
-    start: toDateTimeStringForPersistence(`${date}T00:00:00`),
-    end: toDateTimeStringForPersistence(`${date}T23:59:59`),
+    start,
+    end,
   };
 };

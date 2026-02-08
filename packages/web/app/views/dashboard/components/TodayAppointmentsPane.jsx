@@ -4,7 +4,6 @@ import { WS_EVENTS } from '@tamanu/constants';
 import { useNavigate } from 'react-router';
 import { Box, Link } from '@material-ui/core';
 import { useDateTimeFormat } from '@tamanu/ui-components';
-import { getDayDateBoundaries } from '@tamanu/utils/dateTime';
 
 import { Heading4, TranslatedText } from '../../../components';
 import { Colors } from '../../../constants';
@@ -104,7 +103,7 @@ const NoDataContainer = styled.div`
 export const TodayAppointmentsPane = ({ showTasks }) => {
   const navigate = useNavigate();
   const { currentUser, facilityId } = useAuth();
-  const { getFacilityCurrentDateString } = useDateTimeFormat();
+  const { getFacilityCurrentDateString, getDayDateBoundaries } = useDateTimeFormat();
   
   // Get today's date boundaries in facility timezone, converted to country timezone for query
   const todayFacility = getFacilityCurrentDateString();
