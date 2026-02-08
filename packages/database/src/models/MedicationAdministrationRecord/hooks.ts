@@ -1,4 +1,8 @@
-import { ADMINISTRATION_FREQUENCIES, SYSTEM_USER_UUID } from '@tamanu/constants';
+import {
+  ADMINISTRATION_FREQUENCIES,
+  ADMINISTRATION_STATUS,
+  SYSTEM_USER_UUID,
+} from '@tamanu/constants';
 import type { MedicationAdministrationRecord } from './MedicationAdministrationRecord';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
@@ -45,10 +49,12 @@ const discontinuePrescriptionIfNeeded = async (instance: MedicationAdministratio
 // - If any PharmacyOrderPrescription exists for this prescription, MAR doses after the earliest pharmacy order date are ignored.
 // - Quantity = (MAR Given total up to first 'sent to pharmacy' date, or all MAR Given if none sent) + (sum of 'sent to pharmacy' quantities)
 const recalculateAndApplyInvoiceQuantity = async (instance: MedicationAdministrationRecord) => {
-  await instance.sequelize.models.Prescription.recalculateAndApplyInvoiceQuantity(
-    instance.prescriptionId,
-    instance.recordedByUserId,
-  );
+  if (instance.prescriptionId && instance.status === ADMINISTRATION_STATUS.GIVEN) {
+    await instance.sequelize.models.Prescription.recalculateAndApplyInvoiceQuantity(
+      instance.prescriptionId,
+      instance.recordedByUserId,
+    );
+  }
 };
 
 export const afterCreateHook = async (instance: MedicationAdministrationRecord) => {

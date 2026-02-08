@@ -1,13 +1,11 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, Op } from 'sequelize';
 import {
   NOTIFICATION_TYPES,
   SYNC_DIRECTIONS,
   ADMINISTRATION_STATUS,
   INVOICE_ITEMS_CATEGORIES,
-  INVOICEABLE_MEDICATION_ENCOUNTER_TYPES,
 } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { Op } from 'sequelize';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import { EncounterPrescription } from './EncounterPrescription';
@@ -223,11 +221,7 @@ export class Prescription extends Model {
     });
 
     const encounter = prescription?.encounterPrescription?.encounter;
-    if (
-      !encounter ||
-      !INVOICEABLE_MEDICATION_ENCOUNTER_TYPES.includes(encounter.encounterType || '')
-    )
-      return;
+    if (!encounter) return;
 
     const invoiceProduct = await InvoiceProduct.findOne({
       where: {

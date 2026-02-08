@@ -2,7 +2,7 @@ import type { PharmacyOrderPrescription } from './PharmacyOrderPrescription';
 
 // Recalculate invoice quantity:
 // finalQty = (sum of MAR Given doses up to earliest pharmacy order date) + (sum of pharmacy order quantities)
-export const updateInvoiceQuantityForPrescription = async (instance: PharmacyOrderPrescription) => {
+const updateInvoiceQuantityForPrescription = async (instance: PharmacyOrderPrescription) => {
   await instance.sequelize.models.Prescription.recalculateAndApplyInvoiceQuantity(
     instance.prescriptionId,
   );
@@ -37,5 +37,5 @@ export const afterUpdateHook = async (instance: PharmacyOrderPrescription) => {
 };
 
 export const afterDestroyHook = async (instance: PharmacyOrderPrescription) => {
-  await Promise.all([destroyPharmacyOrder(instance)]);
+  await destroyPharmacyOrder(instance);
 };
