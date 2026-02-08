@@ -6,6 +6,7 @@ import { utils } from 'xlsx';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_STATUSES } from '@tamanu/constants';
+import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { fetchWithRetryBackoff } from '@tamanu/api-client/fetchWithRetryBackoff';
 
 const convertToDHIS2DataValueSets = (reportData, dataSet) => {
@@ -34,7 +35,7 @@ const convertToDHIS2DataValueSets = (reportData, dataSet) => {
     // Construct the DHIS2 data value set object
     return {
       dataSet,
-      completeDate: new Date().toISOString().split('T')[0],
+      completeDate: getCurrentDateString(),
       period,
       orgUnit,
       attributeOptionCombo,
