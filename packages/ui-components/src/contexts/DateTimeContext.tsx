@@ -34,7 +34,7 @@ export interface DateTimeContextValue extends WrappedFormatters {
   getCountryCurrentDateString: () => string;
   getFacilityCurrentDateTimeString: () => string;
   getFacilityCurrentDateString: () => string;
-  getDayBoundaries: (date: string, countryTimeZone?: string, facilityTimeZone?: string | null) => { start: string; end: string };
+  getDayBoundaries: (date: string) => { start: string; end: string } | null;
   toDateTimeStringForPersistence: (inputValue: string | null | undefined) => string | null;
   formatForDateTimeInput: (value: string | Date | null | undefined) => string | null;
 }
