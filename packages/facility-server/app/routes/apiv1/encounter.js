@@ -423,7 +423,9 @@ encounterRelations.get(
         SELECT pop.prescription_id, max(po.date) AS last_ordered_at
         FROM pharmacy_order_prescriptions pop
         INNER JOIN pharmacy_orders po ON po.id = pop.pharmacy_order_id
-        WHERE pop.prescription_id IN (:prescriptionIds) AND pop.deleted_at IS NULL
+        WHERE pop.prescription_id IN (:prescriptionIds)
+          AND pop.deleted_at IS NULL
+          AND po.deleted_at IS NULL
         GROUP BY pop.prescription_id
       `,
         { replacements: { prescriptionIds } },
