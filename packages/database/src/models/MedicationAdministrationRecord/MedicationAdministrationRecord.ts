@@ -21,7 +21,7 @@ import config from 'config';
 import {
   getFirstAdministrationDate,
   areDatesInSameTimeSlot,
-} from '@tamanu/shared/utils/medication.js';
+} from '@tamanu/shared/utils/medication';
 import { Model } from '../Model';
 import { dateTimeType, type InitOptions, type Models } from '../../types/model';
 import type { Prescription } from '../Prescription';
