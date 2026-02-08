@@ -1,4 +1,4 @@
-import React, { Fragment, ReactElement, useCallback, useEffect, useState } from 'react';
+import React, { Fragment, ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { compose } from 'redux';
 import { useSelector } from 'react-redux';
 import { Formik } from 'formik';
@@ -151,33 +151,41 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
   }, []);
 
   const canCreateSensitiveMedication = ability.can('create', 'SensitiveMedication');
-  const medicationSuggester = new Suggester({
-    model: ReferenceData,
-    options: {
-      column: 'name',
-      where: {
-        type: ReferenceDataType.Drug,
-      },
-      relations: ['referenceDrug'],
-    },
-    formatter: (record: any) => ({
-      label: record.entity_display_label,
-      value: record.entity_id,
-      ...record,
-    }),
-    filter: (data: any) => {
-      const isSensitive = data.referenceDrug_isSensitive;
-      return !isSensitive || canCreateSensitiveMedication;
-    },
-  });
+  const medicationSuggester = useMemo(
+    () =>
+      new Suggester({
+        model: ReferenceData,
+        options: {
+          column: 'name',
+          where: {
+            type: ReferenceDataType.Drug,
+          },
+          relations: ['referenceDrug'],
+        },
+        formatter: (record: any) => ({
+          label: record.entity_display_label,
+          value: record.entity_id,
+          ...record,
+        }),
+        filter: (data: any) => {
+          const isSensitive = data.referenceDrug_isSensitive;
+          return !isSensitive || canCreateSensitiveMedication;
+        },
+      }),
+    [canCreateSensitiveMedication],
+  );
 
-  const practitionerSuggester = new Suggester({
-    model: models.User,
-    options: {
-      column: 'displayName',
-      where: {},
-    },
-  });
+  const practitionerSuggester = useMemo(
+    () =>
+      new Suggester({
+        model: models.User,
+        options: {
+          column: 'displayName',
+          where: {},
+        },
+      }),
+    [models.User],
+  );
 
   // Convert constants to dropdown options
   const unitOptions = Object.entries(DRUG_UNIT_LABELS).map(([value, label]) => ({
