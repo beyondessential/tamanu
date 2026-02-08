@@ -1,15 +1,16 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { generateDisplayId } from '@tamanu/utils/generateDisplayId';
-import { Model } from './Model';
-import type { InitOptions, Models } from '../types/model';
-import type { MedicationDispense } from './MedicationDispense';
-import type { PharmacyOrder } from './PharmacyOrder';
+import { Model } from '../Model';
+import type { InitOptions, Models } from '../../types/model';
+import type { MedicationDispense } from '../MedicationDispense';
+import type { PharmacyOrder } from '../PharmacyOrder';
 import {
   buildEncounterPatientIdSelect,
   buildEncounterLinkedSyncFilter,
   buildEncounterLinkedSyncFilterJoins,
-} from '../sync';
+} from '../../sync';
+import { afterDestroyHook } from './hooks';
 
 export class PharmacyOrderPrescription extends Model {
   declare id: string;
@@ -22,7 +23,7 @@ export class PharmacyOrderPrescription extends Model {
   declare medicationDispenses?: MedicationDispense[];
   declare pharmacyOrder?: PharmacyOrder;
 
-  static initModel({ primaryKey, ...options }: InitOptions, models: Models) {
+  static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
@@ -50,28 +51,7 @@ export class PharmacyOrderPrescription extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
-        hooks: {
-          async afterDestroy(pharmacyOrderPrescription: PharmacyOrderPrescription, opts) {
-            const pharmacyOrder = await models.PharmacyOrder.findByPk(
-              pharmacyOrderPrescription.pharmacyOrderId,
-              {
-                include: [
-                  {
-                    association: 'pharmacyOrderPrescriptions',
-                  },
-                ],
-                transaction: opts.transaction,
-              },
-            );
-            if (
-              pharmacyOrder &&
-              (!pharmacyOrder?.pharmacyOrderPrescriptions ||
-                !pharmacyOrder?.pharmacyOrderPrescriptions.length)
-            ) {
-              await pharmacyOrder.destroy({ transaction: opts.transaction });
-            }
-          },
-        },
+        hooks: { afterDestroy: afterDestroyHook },
       },
     );
   }
