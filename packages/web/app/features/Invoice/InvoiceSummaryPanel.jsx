@@ -39,7 +39,7 @@ export const InvoiceSummaryPanel = ({ invoice }) => {
   } = getInvoiceSummary(invoice);
 
   const coverageDisplay = insuranceCoverageTotal > 0 ? insuranceCoverageTotal * -1 : 0;
-  const patientPaymentsTotalDisplay = patientPaymentsTotal > 0 ? patientPaymentsTotal * -1 : 0;
+  const patientPaymentsTotalDisplay = -patientPaymentsTotal;
 
   return (
     <Container>

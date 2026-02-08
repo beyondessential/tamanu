@@ -61,6 +61,7 @@ export * from './LabTestPanelLabTestTypes';
 export * from './ImagingRequest';
 export * from './ImagingRequestArea';
 export * from './ImagingAreaExternalCode';
+export * from './ImagingTypeExternalCode';
 export * from './ImagingResult';
 
 export * from './Program';

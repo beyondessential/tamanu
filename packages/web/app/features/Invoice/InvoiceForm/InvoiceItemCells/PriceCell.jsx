@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import {
   getInvoiceItemTotalDiscountedPrice,
   getInvoiceItemTotalPrice,
-  getInvoiceItemCoverageValue,
+  getInvoiceItemCoveragePercentage,
 } from '@tamanu/shared/utils/invoice';
 import Decimal from 'decimal.js';
 import Collapse from '@material-ui/core/Collapse';
@@ -60,7 +60,7 @@ const InsuranceSection = ({ item, discountedPrice }) => {
   return (
     <Box mt={1}>
       {item.insurancePlanItems.map(insurancePlanItem => {
-        const appliedCoverage = getInvoiceItemCoverageValue(item, insurancePlanItem);
+        const appliedCoverage = getInvoiceItemCoveragePercentage(item, insurancePlanItem);
         const coverageForRow = calculateCoverageValue(discountedPrice, appliedCoverage);
         return (
           <Row key={insurancePlanItem.id}>
@@ -113,10 +113,11 @@ const StyledField = styled(Field)`
   }
 `;
 
-export const PriceCell = ({ index, item, isExpanded, hidePriceInput, isEditing }) => {
+export const PriceCell = ({ index, item, isExpanded, hidePriceInput, isEditing, isSaved }) => {
   const price = getInvoiceItemTotalPrice(item);
   const discountedPrice = getInvoiceItemTotalDiscountedPrice(item);
   const hasDiscount = price !== discountedPrice;
+  const showDiscount = hasDiscount && !isEditing && isSaved;
 
   return (
     <>
@@ -125,8 +126,12 @@ export const PriceCell = ({ index, item, isExpanded, hidePriceInput, isEditing }
           <MainContent>
             {hidePriceInput ? (
               <>
-                <Price $isCrossedOut={hasDiscount} price={price} data-testid="pricetext-is33" />
-                {hasDiscount && !isEditing && (
+                <Price
+                  $isCrossedOut={hasDiscount && showDiscount}
+                  price={showDiscount ? price : discountedPrice}
+                  data-testid="pricetext-is33"
+                />
+                {showDiscount && (
                   <DiscountSection
                     discountReason={item.discount?.reason}
                     discountedPrice={discountedPrice}

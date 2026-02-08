@@ -50,7 +50,7 @@ const COLUMNS = [
     ),
     sortable: false,
     dontCallRowInput: true,
-    accessor: ({ date }) => <DateDisplay date={date} data-testid="datedisplay-t3t2" />,
+    accessor: ({ date }) => <DateDisplay date={date} shortYear data-testid="datedisplay-t3t2" />,
   },
   {
     key: 'insurerName',

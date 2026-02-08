@@ -3,8 +3,8 @@ import {
   getInvoiceItemPrice,
   getInvoiceItemTotalPrice,
   getInvoiceItemTotalDiscountedPrice,
-  getInvoiceItemCoverageValue,
-  getInsuranceCoverageTotal,
+  getInvoiceItemCoveragePercentage,
+  getInsuranceCoverageTotalAmount,
   getInvoiceSummary,
 } from '../../src/utils';
 
@@ -165,13 +165,13 @@ describe('Invoice Utils', () => {
     });
   });
 
-  describe('getInvoiceItemCoverageValue', () => {
+  describe('getInvoiceItemCoveragePercentage', () => {
     it('should return coverageValue when no finalisedInsurances', () => {
       const item = {
         insurancePlanItems: [{ id: 'plan-1', coverageValue: 50 }],
       };
       const insurancePlanItem = { id: 'plan-1', coverageValue: 50 };
-      expect(getInvoiceItemCoverageValue(item, insurancePlanItem)).toEqual(50);
+      expect(getInvoiceItemCoveragePercentage(item, insurancePlanItem)).toEqual(50);
     });
 
     it('should return coverageValue when finalisedInsurances is empty', () => {
@@ -180,7 +180,7 @@ describe('Invoice Utils', () => {
         insurancePlanItems: [{ id: 'plan-1', coverageValue: 50 }],
       };
       const insurancePlanItem = { id: 'plan-1', coverageValue: 50 };
-      expect(getInvoiceItemCoverageValue(item, insurancePlanItem)).toEqual(50);
+      expect(getInvoiceItemCoveragePercentage(item, insurancePlanItem)).toEqual(50);
     });
 
     it('should return coverageValueFinal when finalisedInsurances exists for the plan', () => {
@@ -189,7 +189,7 @@ describe('Invoice Utils', () => {
         insurancePlanItems: [{ id: 'plan-1', coverageValue: 50 }],
       };
       const insurancePlanItem = { id: 'plan-1', coverageValue: 50 };
-      expect(getInvoiceItemCoverageValue(item, insurancePlanItem)).toEqual(60);
+      expect(getInvoiceItemCoveragePercentage(item, insurancePlanItem)).toEqual(60);
     });
 
     it('should return original coverageValue when finalisedInsurances does not match plan', () => {
@@ -198,11 +198,11 @@ describe('Invoice Utils', () => {
         insurancePlanItems: [{ id: 'plan-1', coverageValue: 50 }],
       };
       const insurancePlanItem = { id: 'plan-1', coverageValue: 50 };
-      expect(getInvoiceItemCoverageValue(item, insurancePlanItem)).toEqual(50);
+      expect(getInvoiceItemCoveragePercentage(item, insurancePlanItem)).toEqual(50);
     });
   });
 
-  describe('getInsuranceCoverageTotal', () => {
+  describe('getInsuranceCoverageTotalAmount', () => {
     it('should calculate insurance coverage for single item with one plan', () => {
       const invoiceItems = [
         {
@@ -219,7 +219,7 @@ describe('Invoice Utils', () => {
           },
         },
       ];
-      expect(getInsuranceCoverageTotal(invoiceItems).toNumber()).toEqual(50);
+      expect(getInsuranceCoverageTotalAmount(invoiceItems).toNumber()).toEqual(50);
     });
 
     it('should calculate insurance coverage for multiple plans', () => {
@@ -236,7 +236,7 @@ describe('Invoice Utils', () => {
           },
         },
       ];
-      expect(getInsuranceCoverageTotal(invoiceItems).toNumber()).toEqual(50);
+      expect(getInsuranceCoverageTotalAmount(invoiceItems).toNumber()).toEqual(50);
     });
 
     it('should handle items with no insurance', () => {
@@ -247,7 +247,7 @@ describe('Invoice Utils', () => {
           insurancePlanItems: [],
         },
       ];
-      expect(getInsuranceCoverageTotal(invoiceItems).toNumber()).toEqual(0);
+      expect(getInsuranceCoverageTotalAmount(invoiceItems).toNumber()).toEqual(0);
     });
 
     it('should handle items with missing coverageValue', () => {
@@ -261,7 +261,7 @@ describe('Invoice Utils', () => {
           ],
         },
       ];
-      expect(getInsuranceCoverageTotal(invoiceItems).toNumber()).toEqual(0);
+      expect(getInsuranceCoverageTotalAmount(invoiceItems).toNumber()).toEqual(0);
     });
 
     it('should calculate insurance coverage on discounted price', () => {
@@ -280,7 +280,7 @@ describe('Invoice Utils', () => {
         },
       ];
       // Price after discount: 90, insurance: 45
-      expect(getInsuranceCoverageTotal(invoiceItems).toNumber()).toEqual(45);
+      expect(getInsuranceCoverageTotalAmount(invoiceItems).toNumber()).toEqual(45);
     });
 
     it('should handle multiple items', () => {
@@ -303,7 +303,7 @@ describe('Invoice Utils', () => {
         },
       ];
       // Item 1: 50, Item 2: 60, Total: 110
-      expect(getInsuranceCoverageTotal(invoiceItems).toNumber()).toEqual(110);
+      expect(getInsuranceCoverageTotalAmount(invoiceItems).toNumber()).toEqual(110);
     });
 
     it('should use coverageValueFinal from finalisedInsurances when available', () => {
@@ -319,7 +319,7 @@ describe('Invoice Utils', () => {
         },
       ];
       // Should use 60% instead of 50%
-      expect(getInsuranceCoverageTotal(invoiceItems).toNumber()).toEqual(60);
+      expect(getInsuranceCoverageTotalAmount(invoiceItems).toNumber()).toEqual(60);
     });
   });
 

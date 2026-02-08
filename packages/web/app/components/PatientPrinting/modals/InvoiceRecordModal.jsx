@@ -1,4 +1,5 @@
 import React from 'react';
+import { ASSET_NAMES } from '@tamanu/constants';
 import { ForbiddenError } from '@tamanu/errors';
 import { InvoiceRecordPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { Modal } from '../../Modal';
@@ -25,7 +26,9 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
   );
 
   const { getLocalisation } = useLocalisation();
-  const certificateQuery = useCertificate();
+  const certificateQuery = useCertificate({
+    footerAssetName: ASSET_NAMES.INVOICE_FOOTER,
+  });
   const { getSetting } = useSettings();
   const enablePatientInsurer = getSetting('features.enablePatientInsurer');
   const { data: certificateData } = certificateQuery;
@@ -47,7 +50,7 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
     title: (
       <TranslatedText
         stringId="invoice.modal.print.invoiceRecord.title"
-        fallback="Invoice Record"
+        fallback="Print Invoice"
         data-testid="translatedtext-hj8p"
       />
     ),

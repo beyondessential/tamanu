@@ -133,7 +133,7 @@ export type AgeRange = {
 };
 
 const getAgeRangeInMinutes = ({ ageMin = -Infinity, ageMax = Infinity, ageUnit }: AgeRange) => {
-  const timeUnit = TIME_UNIT_OPTIONS.find((option) => option.unit === ageUnit);
+  const timeUnit = TIME_UNIT_OPTIONS.find(option => option.unit === ageUnit);
   if (!timeUnit) return null;
 
   const conversionValue = timeUnit.minutes;
@@ -179,7 +179,7 @@ export const doAgeRangesHaveGaps = (rangesArray: AgeRange[]) => {
   };
 
   // Get all values into same time unit and sort by ageMin low to high
-  const normalized = rangesArray.map(getAgeRangeInMinutes).filter((range) => range !== null);
+  const normalized = rangesArray.map(getAgeRangeInMinutes).filter(range => range !== null);
   normalized.sort((a, b) => a.ageMin - b.ageMin);
 
   return normalized.some((rangeA, i) => {
@@ -257,15 +257,15 @@ export const formatShortest = (date: string | null | undefined) =>
 export const formatShort = (date: string | null | undefined) =>
   intlFormatDate(date, { day: '2-digit', month: '2-digit', year: 'numeric' }, '--/--/----'); // 12/04/2020
 
-export const formatTime = (date: string | null | undefined) =>
-  intlFormatDate(
+/** "3:30pm" - time with minutes and seconds, no space */
+export const formatTime = (date: string | Date | null | undefined) => {
+  const result = intlFormatDate(
     date,
-    {
-      timeStyle: 'short',
-      hour12: true,
-    },
+    { hour: 'numeric', minute: '2-digit', hour12: true },
     '__:__',
-  ); // 12:30 am
+  );
+  return result.replace(' ', '').toLowerCase();
+};
 
 export const formatTimeWithSeconds = (date: string | null | undefined) =>
   intlFormatDate(

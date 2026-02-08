@@ -37,6 +37,7 @@ export const DetailsCell = ({
   handleChangeProduct,
   invoiceIsEditable,
   isEditing,
+  isSaved,
 }) => {
   const detailsText = item.productNameFinal || item.product?.name;
   return (
@@ -57,7 +58,7 @@ export const DetailsCell = ({
           <Cell>{detailsText}</Cell>
         </ThemedTooltip>
       )}
-      {!isEditing && item.note && (
+      {!isEditing && isSaved && item.note && (
         <Box marginTop={invoiceIsEditable ? '4px' : '-8px'} color={Colors.darkText}>
           <TranslatedText
             stringId="invoice.modal.editInvoice.note.label"
