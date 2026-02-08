@@ -1,6 +1,13 @@
 import { DataTypes } from 'sequelize';
-import { NOTIFICATION_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import {
+  NOTIFICATION_TYPES,
+  SYNC_DIRECTIONS,
+  ADMINISTRATION_STATUS,
+  INVOICE_ITEMS_CATEGORIES,
+  INVOICEABLE_MEDICATION_ENCOUNTER_TYPES,
+} from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { Op } from 'sequelize';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import { EncounterPrescription } from './EncounterPrescription';
@@ -169,7 +176,7 @@ export class Prescription extends Model {
       LEFT JOIN patient_ongoing_prescriptions ON prescriptions.id = patient_ongoing_prescriptions.prescription_id
       WHERE (
         (encounters.patient_id IS NOT NULL AND encounters.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}))
-        OR 
+        OR
         (patient_ongoing_prescriptions.patient_id IS NOT NULL AND patient_ongoing_prescriptions.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}))
       )
       AND prescriptions.updated_at_sync_tick > :since
@@ -189,5 +196,100 @@ export class Prescription extends Model {
         LEFT JOIN facilities ON locations.facility_id = facilities.id
       `,
     };
+  }
+
+  static async recalculateAndApplyInvoiceQuantity(prescriptionId: string, userId?: string) {
+    const {
+      Prescription,
+      EncounterPrescription,
+      Encounter,
+      InvoiceProduct,
+      Invoice,
+      MedicationAdministrationRecord,
+      MedicationAdministrationRecordDose,
+      PharmacyOrderPrescription,
+      PharmacyOrder,
+    } = this.sequelize.models;
+
+    const prescription = await Prescription.findByPk(prescriptionId, {
+      include: [
+        {
+          model: EncounterPrescription,
+          as: 'encounterPrescription',
+          required: true,
+          include: [{ model: Encounter, as: 'encounter', required: true }],
+        },
+      ],
+    });
+
+    const encounter = prescription?.encounterPrescription?.encounter;
+    if (
+      !encounter ||
+      !INVOICEABLE_MEDICATION_ENCOUNTER_TYPES.includes(encounter.encounterType || '')
+    )
+      return;
+
+    const invoiceProduct = await InvoiceProduct.findOne({
+      where: {
+        category: INVOICE_ITEMS_CATEGORIES.DRUG,
+        sourceRecordId: prescription.medicationId,
+      },
+    });
+    if (!invoiceProduct) return;
+
+    const pops = await PharmacyOrderPrescription.findAll({
+      where: { prescriptionId: prescription.id },
+      include: [
+        { model: PharmacyOrder, as: 'pharmacyOrder', attributes: ['date', 'orderingClinicianId'] },
+      ],
+    });
+
+    const hasPharmacy = pops.length > 0;
+    const earliestPharmacyDate = hasPharmacy
+      ? new Date(
+          pops
+            .map(p => new Date(p?.pharmacyOrder?.date as unknown as string))
+            .sort((a, b) => a.getTime() - b.getTime())[0]!,
+        )
+      : undefined;
+
+    const totalSentQty = pops.reduce((sum: number, p: any) => sum + (Number(p.quantity) || 0), 0);
+
+    let marQty = 0;
+    const givenMars = await MedicationAdministrationRecord.findAll({
+      where: { prescriptionId: prescription.id, status: ADMINISTRATION_STATUS.GIVEN },
+      attributes: ['id'],
+    });
+
+    if (givenMars.length > 0) {
+      const marIds = givenMars.map((m: any) => m.id);
+      const doses = await MedicationAdministrationRecordDose.findAll({
+        where: {
+          marId: { [Op.in]: marIds },
+          isRemoved: { [Op.ne]: true },
+          ...(earliestPharmacyDate
+            ? {
+                givenTime: { [Op.lte]: earliestPharmacyDate },
+              }
+            : {}),
+        },
+        attributes: ['doseAmount'],
+      });
+      marQty = doses.reduce((sum: number, d: any) => sum + Number(d.doseAmount || 0), 0);
+    }
+
+    const finalQty = marQty + totalSentQty;
+
+    if (finalQty > 0) {
+      await Invoice.setItemQuantityForInvoice(
+        prescription,
+        encounter.id,
+        invoiceProduct,
+        finalQty,
+        userId || pops[0]?.pharmacyOrder?.orderingClinicianId,
+      );
+    } else {
+      await Invoice.removeItemFromInvoice(prescription, encounter.id);
+    }
   }
 }
