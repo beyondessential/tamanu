@@ -45,11 +45,11 @@ export class FhirTopicQueueProcessor {
     );
   }
 
-  startJobRun() {
+  startJobRun(delay = 0) {
     const id = uuidv4();
     this.jobRuns.set(
       id,
-      this.grabAndRunOne().finally(() => this.clearJobRun(id)),
+      this.grabAndRunOne(delay).finally(() => this.clearJobRun(id)),
     );
   }
 
