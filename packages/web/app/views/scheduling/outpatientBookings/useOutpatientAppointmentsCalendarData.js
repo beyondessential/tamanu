@@ -2,7 +2,6 @@ import { groupBy as lodashGroupBy } from 'lodash';
 import { useMemo } from 'react';
 
 import { toDateString, getDayDateBoundaries } from '@tamanu/utils/dateTime';
-import { useDateTimeFormat } from '@tamanu/ui-components';
 
 import { combineQueries } from '../../../api';
 import { useOutpatientAppointmentsQuery } from '../../../api/queries/useAppointmentsQuery';
@@ -12,7 +11,6 @@ import { useOutpatientAppointmentsContext } from '../../../contexts/OutpatientAp
 import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
 
 export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate }) => {
-  const { toDateTimeStringForPersistence } = useDateTimeFormat();
   const locationGroupsQuery = useLocationGroupsQuery(null, { keepPreviousData: true });
   const { data: locationGroupData } = locationGroupsQuery;
 
@@ -28,7 +26,7 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
 
   const { filters } = useOutpatientAppointmentsContext();
   const dateString = toDateString(selectedDate);
-  const { start, end } = getDayBoundaries(dateString);
+  const { start, end } = getDayDateBoundaries(dateString);
   const appointmentsQuery = useOutpatientAppointmentsQuery(
     {
       after: start,

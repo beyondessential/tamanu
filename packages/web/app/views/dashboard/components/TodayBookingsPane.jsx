@@ -7,7 +7,7 @@ import TimelineSeparator from '@material-ui/lab/TimelineSeparator';
 import TimelineConnector from '@material-ui/lab/TimelineConnector';
 import TimelineContent from '@material-ui/lab/TimelineContent';
 import TimelineDot from '@material-ui/lab/TimelineDot';
-import { getDayBoundaries } from '@tamanu/utils/dateTime';
+import { getDayDateBoundaries } from '@tamanu/utils/dateTime';
 import { USER_PREFERENCES_KEYS, WS_EVENTS } from '@tamanu/constants';
 import { useNavigate } from 'react-router';
 import { Box } from '@material-ui/core';
@@ -220,7 +220,7 @@ export const TodayBookingsPane = ({ showTasks }) => {
   
   // Get today's date boundaries in facility timezone, converted to country timezone for query
   const todayFacility = getFacilityCurrentDateString();
-  const { start, end } = getDayBoundaries(todayFacility);
+  const { start, end } = getDayDateBoundaries(todayFacility);
   const appointments =
     useAutoUpdatingQuery(
       'appointments',
