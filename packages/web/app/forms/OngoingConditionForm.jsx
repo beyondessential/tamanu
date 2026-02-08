@@ -265,7 +265,7 @@ export const OngoingConditionForm = ({
       // for now to avoid timezone conversion
       return {
         ...editedObject,
-        recordedDate: editedObject.recordedDate.slice(0, 10),
+        recordedDate: editedObject.recordedDate?.slice(0, 10),
         resolutionDate: editedObject.resolutionDate?.slice(0, 10),
       };
     }
