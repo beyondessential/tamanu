@@ -1,6 +1,9 @@
 import { DataTypes, Op } from 'sequelize';
-import { INVOICE_ITEMS_CATEGORIES, INVOICEABLE_MEDICATION_ENCOUNTER_TYPES } from '@tamanu/constants';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import {
+  INVOICE_ITEMS_CATEGORIES,
+  INVOICEABLE_MEDICATION_ENCOUNTER_TYPES,
+  SYNC_DIRECTIONS,
+} from '@tamanu/constants';
 import { generateDisplayId } from '@tamanu/utils/generateDisplayId';
 import { Model } from '../Model';
 import type { InitOptions, Models } from '../../types/model';
@@ -119,7 +122,9 @@ export class PharmacyOrderPrescription extends Model {
     // All pharmacy orders for this prescription
     const pops = await PharmacyOrderPrescription.findAll({
       where: { prescriptionId: prescription.id },
-      include: [{ model: PharmacyOrder, as: 'pharmacyOrder', attributes: ['date', 'orderingClinicianId'] }],
+      include: [
+        { model: PharmacyOrder, as: 'pharmacyOrder', attributes: ['date', 'orderingClinicianId'] },
+      ],
     });
 
     const hasPharmacy = pops.length > 0;
