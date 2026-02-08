@@ -6,7 +6,7 @@ import { locale } from '@tamanu/utils/dateTime';
 /**
  * Get the formatted offset for a given timezone.
  * @example
- * getFormattedOffset('Australia/Sydney', new Date()) // '+11:00'
+ * getFormattedOffset('Australia/Sydney') // '+11:00'
  */
 const getFormattedOffset = (tz) => {
   if (!tz) return 'N/A';

@@ -21,6 +21,7 @@ export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient
   const { localisation, getLocalisation } = useLocalisation();
   const { getCountryCurrentDateString } = useDateTimeFormat();
   const { getSetting } = useSettings();
+  const { countryTimeZone } = useDateTimeFormat();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
     footerAssetName: ASSET_NAMES.COVID_VACCINATION_CERTIFICATE_FOOTER,
   });
@@ -99,6 +100,7 @@ export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient
           printedDate={getCountryCurrentDateString()}
           localisation={localisation}
           getSetting={getSetting}
+          countryTimeZone={countryTimeZone}
           data-testid="covidvaccinecertificate-s2dc"
           uvci={uvci}
         />

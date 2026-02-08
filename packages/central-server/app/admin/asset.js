@@ -16,6 +16,7 @@ const assetSchema = yup.object().shape({
     .oneOf(Object.values(ASSET_MIME_TYPES))
     .required(),
   data: yup.string().required(),
+  facilityId: yup.string().nullable(),
 });
 
 assetRoutes.put(
@@ -31,16 +32,18 @@ assetRoutes.put(
     const ext = (body.filename || '').split('.').slice(-1);
     const type = ASSET_MIME_TYPES[ext] || 'unknown';
     const data = Buffer.from(body.data, 'base64');
+    const { facilityId = null } = body;
 
     const record = {
       name,
       data,
       type,
+      facilityId,
     };
     await assetSchema.validate(record);
 
     const { Asset } = req.store.models;
-    const existing = await Asset.findOne({ where: { name } });
+    const existing = await Asset.findOne({ where: { name, facilityId } });
 
     if (existing) {
       req.checkPermission('write', existing);

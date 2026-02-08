@@ -29,6 +29,7 @@ export const KEYS_EXPOSED_TO_FRONT_END = [
   'medications',
   'sync',
   'mobileSync',
+  'patientDisplayIdPattern',
   'facilityTimeZone',
 ] as const;
 

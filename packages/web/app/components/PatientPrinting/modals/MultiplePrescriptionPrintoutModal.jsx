@@ -2,6 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 
+import { useDateTimeFormat } from '@tamanu/ui-components';
+
 import { Modal } from '../../Modal';
 import { useCertificate } from '../../../utils/useCertificate';
 import { useApi } from '../../../api';
@@ -25,6 +27,7 @@ export const MultiplePrescriptionPrintoutModal = ({
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
   const api = useApi();
   const { facilityId } = useAuth();
+  const { countryTimeZone } = useDateTimeFormat();
 
   const { data: patient, isLoading: isPatientLoading } = useQuery(
     ['patient', encounter.patientId],
@@ -90,6 +93,7 @@ export const MultiplePrescriptionPrintoutModal = ({
           encounterData={encounter}
           facility={facility}
           getSetting={getSetting}
+          countryTimeZone={countryTimeZone}
           data-testid="prescriptionprintout-on8m"
         />
       </PDFLoader>

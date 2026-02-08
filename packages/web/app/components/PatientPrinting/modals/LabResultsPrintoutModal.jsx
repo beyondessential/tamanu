@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-import { Modal, TranslatedText, useTranslation } from '@tamanu/ui-components';
+import { Modal, TranslatedText, useTranslation, useDateTimeFormat } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { useApi } from '../../../api';
 import {
@@ -17,6 +17,7 @@ import { LabResultsPrintout } from '@tamanu/shared/utils/patientCertificates';
 export const LabResultsPrintoutModal = React.memo(({ labRequest, patient, open, onClose }) => {
   const { translations } = useTranslation();
   const { getSetting } = useSettings();
+  const { countryTimeZone } = useDateTimeFormat();
   const api = useApi();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
 
@@ -24,8 +25,10 @@ export const LabResultsPrintoutModal = React.memo(({ labRequest, patient, open, 
     labRequest.encounterId,
   );
 
-  const { data: additionalData, isLoading: isAdditionalDataLoading } =
-    usePatientAdditionalDataQuery(patient.id);
+  const {
+    data: additionalData,
+    isLoading: isAdditionalDataLoading,
+  } = usePatientAdditionalDataQuery(patient.id);
 
   const { data: notes, isLoading: areNotesLoading } = useLabRequestNotesQuery(labRequest.id);
 
@@ -91,11 +94,10 @@ export const LabResultsPrintoutModal = React.memo(({ labRequest, patient, open, 
           labRequest={labRequestWithDetails}
           getSetting={getSetting}
           translations={translations}
+          countryTimeZone={countryTimeZone}
           data-testid="labresultsprintout-component"
         />
       </PDFLoader>
     </Modal>
   );
 });
-
-
