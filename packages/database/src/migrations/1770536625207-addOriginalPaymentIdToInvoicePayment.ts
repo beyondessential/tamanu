@@ -2,7 +2,7 @@ import { DataTypes, QueryInterface } from 'sequelize';
 
 export async function up(query: QueryInterface): Promise<void> {
   await query.addColumn('invoice_payments', 'original_payment_id', {
-    type: DataTypes.TEXT,
+    type: DataTypes.UUID,
     allowNull: true,
     unique: true,
     references: {
