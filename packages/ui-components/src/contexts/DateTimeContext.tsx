@@ -33,7 +33,7 @@ export interface DateTimeContextValue extends WrappedFormatters {
   getCountryCurrentDateString: () => string;
   getFacilityCurrentDateTimeString: () => string;
   getFacilityCurrentDateString: () => string;
-  getDayDateBoundaries: (date: string, countryTimeZone?: string, facilityTimeZone?: string | null) => { start: string; end: string };
+  getDayBoundaries: (date: string, countryTimeZone?: string, facilityTimeZone?: string | null) => { start: string; end: string };
   toDateTimeStringForPersistence: (inputValue: string | null | undefined) => string | null;
   formatForDateTimeInput: (value: string | Date | null | undefined) => string | null;
 }
@@ -91,7 +91,7 @@ export const DateTimeProvider = ({
       getFacilityCurrentDateString: () =>
         getCurrentDateStringInTimezone(facilityTimeZone ?? countryTimeZone),
       // Get day date boundaries i.e start and end of the day at the given date in country timezone for query
-      getDayDateBoundaries: (date) => getDayDateBoundaries(date, countryTimeZone, facilityTimeZone),
+      getDayBoundaries: (date) => getDayBoundaries(date, countryTimeZone, facilityTimeZone),
       // Convert datetime-local input value (facility timezone) to country timezone for persistence
       toDateTimeStringForPersistence: value =>
         toDateTimeStringForPersistence(value, countryTimeZone, facilityTimeZone),

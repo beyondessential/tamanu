@@ -103,11 +103,11 @@ const NoDataContainer = styled.div`
 export const TodayAppointmentsPane = ({ showTasks }) => {
   const navigate = useNavigate();
   const { currentUser, facilityId } = useAuth();
-  const { getFacilityCurrentDateString, getDayDateBoundaries } = useDateTimeFormat();
+  const { getFacilityCurrentDateString, getDayBoundaries } = useDateTimeFormat();
   
   // Get today's date boundaries in facility timezone, converted to country timezone for query
   const todayFacility = getFacilityCurrentDateString();
-  const { start, end } = getDayDateBoundaries(todayFacility);
+  const { start, end } = getDayBoundaries(todayFacility);
   
   const appointments =
     useAutoUpdatingQuery(

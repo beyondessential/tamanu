@@ -443,7 +443,7 @@ export const toDateTimeStringForPersistence = (
   }
 };
 
-export const getDayDateBoundaries = (
+export const getDayBoundaries = (
   date: string,
   countryTimeZone?: string,
   facilityTimeZone?: string | null,

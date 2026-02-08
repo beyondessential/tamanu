@@ -12,7 +12,7 @@ import { useOutpatientAppointmentsContext } from '../../../contexts/OutpatientAp
 import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
 
 export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate }) => {
-  const { getDayDateBoundaries } = useDateTimeFormat();
+  const { getDayBoundaries } = useDateTimeFormat();
   const locationGroupsQuery = useLocationGroupsQuery(null, { keepPreviousData: true });
   const { data: locationGroupData } = locationGroupsQuery;
 
@@ -28,7 +28,7 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
 
   const { filters } = useOutpatientAppointmentsContext();
   const dateString = toDateString(selectedDate);
-  const { start, end } = getDayDateBoundaries(dateString);
+  const { start, end } = getDayBoundaries(dateString);
   const appointmentsQuery = useOutpatientAppointmentsQuery(
     {
       after: start,
