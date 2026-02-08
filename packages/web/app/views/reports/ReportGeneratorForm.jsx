@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { keyBy, orderBy } from 'lodash';
 import { format } from 'date-fns';
-import { Box, Typography } from '@material-ui/core';
+import { Box, Tooltip, Typography } from '@material-ui/core';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import styled from 'styled-components';
@@ -121,6 +121,14 @@ const isJsonString = str => {
   return true;
 };
 
+const getTimeZoneDisplayLabel = tz => tz?.split('/').pop().replace(/_/g, ' ') ?? tz;
+
+const TimezoneLabel = ({ timeZone }) => (
+  <Tooltip title={timeZone} placement="top" arrow>
+    <span>{getTimeZoneDisplayLabel(timeZone)}</span>
+  </Tooltip>
+);
+
 export const ReportGeneratorForm = () => {
   const api = useApi();
   const { getTranslation } = useTranslation();
@@ -134,6 +142,9 @@ export const ReportGeneratorForm = () => {
   const [selectedReportId, setSelectedReportId] = useState(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [dataReadyForSaving, setDataReadyForSaving] = useState(null);
+  const { countryTimeZone, facilityTimeZone } = useDateTimeFormat();
+  const showTimeZoneSelector = facilityTimeZone && facilityTimeZone !== countryTimeZone;
+  const [selectedTimeZone, setSelectedTimeZone] = useState(countryTimeZone);
 
   const reportsById = useMemo(() => keyBy(availableReports, 'id'), [availableReports]);
   const reportOptions = useMemo(
@@ -188,6 +199,7 @@ export const ReportGeneratorForm = () => {
   const submitRequestReport = async formValues => {
     const { reportId, ...filterValues } = formValues;
     delete filterValues.emails;
+    delete filterValues.timezone;
 
     const updatedFilters = Object.fromEntries(
       Object.entries(filterValues).map(([key, value]) => {
@@ -201,7 +213,7 @@ export const ReportGeneratorForm = () => {
     try {
       if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
         const excelData = await api.post(`reports/${reportId}`, {
-          parameters: updatedFilters,
+          parameters: { ...updatedFilters, timezone: selectedTimeZone },
           facilityId,
         });
 
@@ -229,7 +241,7 @@ export const ReportGeneratorForm = () => {
       } else {
         await api.post(`reportRequest`, {
           reportId,
-          parameters: updatedFilters,
+          parameters: { ...updatedFilters, timezone: selectedTimeZone },
           emailList: parseEmails(formValues.emails),
           bookType,
         });
@@ -407,6 +419,52 @@ export const ReportGeneratorForm = () => {
           <DateRangeLabel variant="body1" data-testid="daterangelabel-r96n">
             {dateRangeLabel}
           </DateRangeLabel>
+          {showTimeZoneSelector && (
+            <FormGrid columns={1} style={{ marginBottom: 16 }} data-testid="formgrid-tz">
+              <Field
+                name="timezone"
+                label={
+                  <TranslatedText
+                    stringId="report.generate.timezone.label"
+                    fallback="Timezone"
+                    data-testid="translatedtext-tz"
+                  />
+                }
+                value={selectedTimeZone}
+                onChange={e => {
+                  setSelectedTimeZone(e.target.value);
+                  resetDownload();
+                }}
+                options={[
+                  {
+                    label: <TimezoneLabel timeZone={countryTimeZone} />,
+                    description: (
+                      <TranslatedText
+                        stringId="report.generate.timezone.option.country"
+                        fallback="Use primary timezone for Tamanu deployment"
+                        data-testid="translatedtext-tz-country"
+                      />
+                    ),
+                    value: countryTimeZone,
+                  },
+                  {
+                    label: <TimezoneLabel timeZone={facilityTimeZone} />,
+                    description: (
+                      <TranslatedText
+                        stringId="report.generate.timezone.option.facility"
+                        fallback="Use facility configured timezone"
+                        data-testid="translatedtext-tz-facility"
+                      />
+                    ),
+                    value: facilityTimeZone,
+                  },
+                ]}
+                component={RadioField}
+                required
+                data-testid="field-tz"
+              />
+            </FormGrid>
+          )}
           <FormGrid columns={2} style={{ marginBottom: 30 }} data-testid="formgrid-v8bv">
             <Field
               name="fromDate"
