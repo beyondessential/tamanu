@@ -144,6 +144,33 @@ export const ReportGeneratorForm = () => {
   const [dataReadyForSaving, setDataReadyForSaving] = useState(null);
   const { countryTimeZone, facilityTimeZone } = useDateTimeFormat();
   const showTimeZoneSelector = facilityTimeZone && facilityTimeZone !== countryTimeZone;
+  const timezoneOptions = useMemo(
+    () => [
+      {
+        label: <TimezoneLabel timeZone={countryTimeZone} />,
+        description: (
+          <TranslatedText
+            stringId="report.generate.timezone.option.country"
+            fallback="Use primary timezone for Tamanu deployment"
+            data-testid="translatedtext-tz-country"
+          />
+        ),
+        value: countryTimeZone,
+      },
+      {
+        label: <TimezoneLabel timeZone={facilityTimeZone} />,
+        description: (
+          <TranslatedText
+            stringId="report.generate.timezone.option.facility"
+            fallback="Use facility configured timezone"
+            data-testid="translatedtext-tz-facility"
+          />
+        ),
+        value: facilityTimeZone,
+      },
+    ],
+    [countryTimeZone, facilityTimeZone],
+  );
 
   const reportsById = useMemo(() => keyBy(availableReports, 'id'), [availableReports]);
   const reportOptions = useMemo(
@@ -429,30 +456,7 @@ export const ReportGeneratorForm = () => {
                   />
                 }
                 onChange={() => resetDownload()}
-                options={[
-                  {
-                    label: <TimezoneLabel timeZone={countryTimeZone} />,
-                    description: (
-                      <TranslatedText
-                        stringId="report.generate.timezone.option.country"
-                        fallback="Use primary timezone for Tamanu deployment"
-                        data-testid="translatedtext-tz-country"
-                      />
-                    ),
-                    value: countryTimeZone,
-                  },
-                  {
-                    label: <TimezoneLabel timeZone={facilityTimeZone} />,
-                    description: (
-                      <TranslatedText
-                        stringId="report.generate.timezone.option.facility"
-                        fallback="Use facility configured timezone"
-                        data-testid="translatedtext-tz-facility"
-                      />
-                    ),
-                    value: facilityTimeZone,
-                  },
-                ]}
+                options={timezoneOptions}
                 component={RadioField}
                 required
                 data-testid="field-tz"
