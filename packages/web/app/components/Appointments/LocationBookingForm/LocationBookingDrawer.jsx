@@ -317,8 +317,8 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
       {
         id: initialValues.id, // Undefined when creating new booking
         locationId,
-        startTime: toDateTimeStringForPersistence(toDateTimeString(startTime)),
-        endTime: toDateTimeStringForPersistence(toDateTimeString(endTime)),
+        startTime: toDateTimeStringForPersistence(startTime),
+        endTime: toDateTimeStringForPersistence(endTime),
         patientId,
         bookingTypeId,
         clinicianId,
