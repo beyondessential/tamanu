@@ -11,7 +11,7 @@ import {
   MAX_REPEATS,
 } from '@tamanu/constants';
 import CloseIcon from '@material-ui/icons/Close';
-import { isFuture, parseISO, set } from 'date-fns';
+import { isFuture, parseISO } from 'date-fns';
 import {
   TextField,
   StyledTextField,
@@ -23,7 +23,6 @@ import {
   MODAL_PADDING_TOP_AND_BOTTOM,
   useDateTimeFormat,
 } from '@tamanu/ui-components';
-import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { Divider as BaseDivider, Box, IconButton as BaseIconButton } from '@material-ui/core';
 import { useApi } from '../api';
 import { foreignKey } from '../utils/validation';
@@ -177,21 +176,14 @@ const getDischargeInitialValues = ({
   getCountryCurrentDateTimeString,
 }) => {
   const dischargeDraft = encounter?.dischargeDraft?.discharge;
-  const today = new Date();
   const encounterStartDate = parseISO(encounter.startDate);
 
   const getInitialEndDate = () => {
     if (!dischargeDraft) {
-      // TODO: TIME ZONES: toDateTimeString should adhere to country timezone
       if (isFuture(encounterStartDate)) {
-        // In the case of a future start_date we cannot default to current datetime as it falls outside of the min date.
-        return toDateTimeString(
-          set(encounterStartDate, {
-            hours: today.getHours(),
-            minutes: today.getMinutes(),
-            seconds: today.getSeconds(),
-          }),
-        );
+        // Future start_date: use the encounter's date with the current country-timezone time
+        const countryNow = getCountryCurrentDateTimeString();
+        return `${encounter.startDate.split(' ')[0]} ${countryNow.split(' ')[1]}`;
       } else {
         return getCountryCurrentDateTimeString();
       }
