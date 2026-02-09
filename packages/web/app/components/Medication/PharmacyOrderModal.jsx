@@ -197,8 +197,8 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
           quantity: prescription.quantity ?? undefined,
           repeats: prescription.repeats ?? 0,
           selected: false,
-          // Disable selection if no repeats remaining
-          isSelectionDisabled: (prescription.repeats ?? 0) === 0,
+          // Disable selection if no repeats remaining and user cannot edit repeats
+          isSelectionDisabled: !canEditRepeats && (prescription.repeats ?? 0) === 0,
         }));
     }
     // Use encounter medications from query
@@ -212,7 +212,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
           selected: false,
         })) || []
     );
-  }, [data, isOngoingMode, ongoingPrescriptions]);
+  }, [data, isOngoingMode, ongoingPrescriptions, canEditRepeats]);
 
   const [prescriptions, setPrescriptions] = useState(initialPrescriptions);
 

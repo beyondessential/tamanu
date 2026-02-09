@@ -2463,16 +2463,16 @@ medication.post(
         );
       }
 
-      const ineligibleRecords = prescriptionRecords.filter(record => {
-        const remainingRepeats = record.getRemainingRepeats();
+      // Check if any of the pharmacy order prescriptions have already been dispensed
+      // Each request can only be dispensed once
+      const alreadyDispensedRecords = prescriptionRecords.filter(record => {
         const hasDispenses = record.medicationDispenses?.length > 0;
-        const isDischargePrescription = record.pharmacyOrder?.isDischargePrescription;
-        return remainingRepeats === 0 && hasDispenses && !!isDischargePrescription;
+        return hasDispenses;
       });
 
-      if (ineligibleRecords.length > 0) {
+      if (alreadyDispensedRecords.length > 0) {
         throw new InvalidOperationError(
-          `The following prescriptions have no remaining repeats and cannot be dispensed: ${ineligibleRecords.map(r => r.id).join(', ')}`,
+          `The following prescriptions have already been dispensed: ${alreadyDispensedRecords.map(r => r.id).join(', ')}`,
         );
       }
 
@@ -2488,19 +2488,77 @@ medication.post(
         { transaction },
       );
 
-      // After dispensing, soft delete all ineligible pharmacy order prescriptions
-      const allCompletedRecords = prescriptionRecords.filter(record => {
-        const remainingRepeats = record.getRemainingRepeats(1);
-        const isDischargePrescription = record.pharmacyOrder?.isDischargePrescription;
-        return remainingRepeats === 0 && !!isDischargePrescription;
-      });
+      // After dispensing, mark all pharmacy order prescriptions as completed
+      // Each request can only be dispensed once, so all dispensed prescriptions are now complete
+      const completedIds = prescriptionRecords.map(r => r.id);
+      await PharmacyOrderPrescription.update(
+        { isCompleted: true },
+        { where: { id: { [Op.in]: completedIds } }, transaction },
+      );
 
-      if (allCompletedRecords.length > 0) {
-        const completedIds = allCompletedRecords.map(r => r.id);
-        await PharmacyOrderPrescription.update(
-          { isCompleted: true },
-          { where: { id: { [Op.in]: completedIds } }, transaction },
-        );
+      // For outpatient (discharge) prescriptions that came from ongoing medications,
+      // decrement the repeats on the original ongoing prescription
+      const outpatientRecords = prescriptionRecords.filter(
+        record => record.pharmacyOrder?.isDischargePrescription,
+      );
+
+      if (outpatientRecords.length > 0) {
+        // Fetch the prescriptions with their encounter and ongoing prescription links
+        const prescriptionIds = outpatientRecords.map(r => r.prescription.id);
+        const prescriptionsWithLinks = await models.Prescription.findAll({
+          where: { id: { [Op.in]: prescriptionIds } },
+          include: [
+            {
+              association: 'encounterPrescription',
+              required: true,
+              include: [
+                {
+                  association: 'encounter',
+                  required: true,
+                  attributes: ['patientId'],
+                },
+              ],
+            },
+          ],
+          transaction,
+        });
+
+        // For each prescription, find the corresponding ongoing prescription and decrement repeats
+        for (const prescription of prescriptionsWithLinks) {
+          const patientId = prescription.encounterPrescription?.encounter?.patientId;
+          if (!patientId) continue;
+
+          // Find the matching ongoing prescription for this patient
+          const ongoingPrescription = await models.PatientOngoingPrescription.findOne({
+            where: { patientId },
+            include: [
+              {
+                model: models.Prescription,
+                as: 'prescription',
+                where: {
+                  medicationId: prescription.medicationId,
+                  doseAmount: prescription.doseAmount,
+                  units: prescription.units,
+                  route: prescription.route,
+                  frequency: prescription.frequency,
+                  discontinued: { [Op.not]: true },
+                },
+              },
+            ],
+            transaction,
+          });
+
+          // Decrement the repeats on the ongoing prescription if found
+          if (ongoingPrescription?.prescription) {
+            const currentRepeats = ongoingPrescription.prescription.repeats ?? 0;
+            if (currentRepeats > 0) {
+              await ongoingPrescription.prescription.update(
+                { repeats: currentRepeats - 1 },
+                { transaction },
+              );
+            }
+          }
+        }
       }
 
       return dispenseRecords;

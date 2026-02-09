@@ -180,7 +180,9 @@ const buildInstructionText = (prescription, getTranslation, getEnumTranslation) 
 };
 
 const isItemDisabled = item => {
-  return item.pharmacyOrder?.isDischargePrescription && (item.remainingRepeats ?? 0) === 0;
+  // Active requests can always be dispensed once they are in the table
+  // Repeats only apply when sending from ongoing medications to pharmacy
+  return false;
 };
 
 const InstructionsInput = memo(({ value: defaultValue, onChange, ...props }) => {
