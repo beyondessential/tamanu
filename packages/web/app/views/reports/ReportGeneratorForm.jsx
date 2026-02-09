@@ -144,7 +144,6 @@ export const ReportGeneratorForm = () => {
   const [dataReadyForSaving, setDataReadyForSaving] = useState(null);
   const { countryTimeZone, facilityTimeZone } = useDateTimeFormat();
   const showTimeZoneSelector = facilityTimeZone && facilityTimeZone !== countryTimeZone;
-  const [selectedTimeZone, setSelectedTimeZone] = useState(countryTimeZone);
 
   const reportsById = useMemo(() => keyBy(availableReports, 'id'), [availableReports]);
   const reportOptions = useMemo(
@@ -197,11 +196,9 @@ export const ReportGeneratorForm = () => {
   }, [api]);
 
   const submitRequestReport = async formValues => {
-    const { reportId, ...filterValues } = formValues;
-    delete filterValues.emails;
-    delete filterValues.timezone;
+    const { reportId, emails, ...filterValues } = formValues;
 
-    const updatedFilters = Object.fromEntries(
+    const parameters = Object.fromEntries(
       Object.entries(filterValues).map(([key, value]) => {
         if (isJsonString(value)) {
           return [key, JSON.parse(value)];
@@ -213,7 +210,7 @@ export const ReportGeneratorForm = () => {
     try {
       if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
         const excelData = await api.post(`reports/${reportId}`, {
-          parameters: { ...updatedFilters, timezone: selectedTimeZone },
+          parameters,
           facilityId,
         });
 
@@ -241,8 +238,8 @@ export const ReportGeneratorForm = () => {
       } else {
         await api.post(`reportRequest`, {
           reportId,
-          parameters: { ...updatedFilters, timezone: selectedTimeZone },
-          emailList: parseEmails(formValues.emails),
+          parameters,
+          emailList: parseEmails(emails),
           bookType,
         });
         setSuccessMessage(
@@ -299,6 +296,7 @@ export const ReportGeneratorForm = () => {
       initialValues={{
         reportId: '',
         emails: currentUser.email,
+        timezone: countryTimeZone,
       }}
       formType={FORM_TYPES.CREATE_FORM}
       onSubmit={submitRequestReport}
@@ -430,11 +428,7 @@ export const ReportGeneratorForm = () => {
                     data-testid="translatedtext-tz"
                   />
                 }
-                value={selectedTimeZone}
-                onChange={e => {
-                  setSelectedTimeZone(e.target.value);
-                  resetDownload();
-                }}
+                onChange={() => resetDownload()}
                 options={[
                   {
                     label: <TimezoneLabel timeZone={countryTimeZone} />,
