@@ -8,11 +8,10 @@ import {
   ENCOUNTER_TYPE_LABELS,
   ENCOUNTER_TYPE_ABBREVIATION_LABELS,
 } from '@tamanu/constants';
-import { DateDisplay } from '@tamanu/ui-components';
+import { DateDisplay, TranslatedEnum, TranslatedText } from '@tamanu/ui-components';
 
 import { Colors } from '../../constants';
-import { DataFetchingTable } from '../Table';
-import { TranslatedEnum, TranslatedText } from '../Translation';
+import { DataFetchingTable } from '../../components/Table';
 import { Typography } from '@material-ui/core';
 import { ThemedTooltip } from '../../components/Tooltip';
 import { InvoiceStatus } from './InvoiceStatus';
