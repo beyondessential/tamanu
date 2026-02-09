@@ -6,9 +6,6 @@ import {
   parseISO,
   add,
   set as dateFnsSet,
-  getYear,
-  getDate,
-  getMonth,
 } from 'date-fns';
 import styled from 'styled-components';
 import * as yup from 'yup';
@@ -328,17 +325,15 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
       handleUpdateScheduleToStartTime(startTimeDate);
       if (!values.endTime) return;
       const facilityStartStr = formatForDateTimeInput(event.target.value);
-      const endDate =
-        facilityStartStr ?
-          parseISO(`${facilityStartStr.slice(0, 10)}T00:00:00`)
-        : startTimeDate;
+      if (!facilityStartStr) return;
+      const [year, month, day] = facilityStartStr.slice(0, 10).split('-').map(Number);
       setFieldValue(
         'endTime',
         toDateTimeString(
           dateFnsSet(parseISO(values.endTime), {
-            year: getYear(endDate),
-            date: getDate(endDate),
-            month: getMonth(endDate),
+            year,
+            date: day,
+            month: month - 1,
           }),
         ),
       );

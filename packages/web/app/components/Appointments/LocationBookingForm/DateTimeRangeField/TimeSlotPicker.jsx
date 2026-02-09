@@ -272,15 +272,15 @@ export const TimeSlotPicker = ({
     () =>
       existingBookings?.data
         .map((booking) => {
-          // Convert from country timezone to facility timezone for comparison with facility tz slots
           const facilityStart = formatForDateTimeInput(booking.startTime);
           const facilityEnd = formatForDateTimeInput(booking.endTime);
+          if (!facilityStart || !facilityEnd) return null;
           return appointmentToInterval({
-            startTime: facilityStart ?? booking.startTime,
-            endTime: facilityEnd ?? booking.endTime,
+            startTime: facilityStart,
+            endTime: facilityEnd,
           });
         })
-        .filter((interval) => !isEqual(interval, initialInterval)) ?? [],
+        .filter((interval) => interval && !isEqual(interval, initialInterval)) ?? [],
     [existingBookings?.data, initialInterval, formatForDateTimeInput],
   );
 
