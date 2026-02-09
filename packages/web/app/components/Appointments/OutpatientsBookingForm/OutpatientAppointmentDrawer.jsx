@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import { isNumber, omit, set } from 'lodash';
 import {
@@ -172,6 +172,19 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
   const isEdit = !!initialValues.id;
   const isLockedPatient = !!initialValues.patientId;
   const hideIsRepeatingToggle = isEdit && !initialValues.schedule;
+
+  // Convert endTime from country timezone to facility timezone for form state,
+  // since TimeWithFixedDateField operates in facility timezone and handleSubmitForm
+  // converts back to country timezone via toDateTimeStringForPersistence on save.
+  const processedInitialValues = useMemo(() => {
+    if (!initialValues.endTime) return initialValues;
+    const facilityEndTimeStr = formatForDateTimeInput(initialValues.endTime);
+    if (!facilityEndTimeStr) return initialValues;
+    return {
+      ...initialValues,
+      endTime: toDateTimeString(parseISO(facilityEndTimeStr)),
+    };
+  }, [initialValues, formatForDateTimeInput]);
 
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
@@ -538,7 +551,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
         suppressErrorDialog
         formType={isEdit ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={validationSchema}
-        initialValues={initialValues}
+        initialValues={processedInitialValues}
         enableReinitialize
         render={renderForm}
         data-testid="form-mvw4"
