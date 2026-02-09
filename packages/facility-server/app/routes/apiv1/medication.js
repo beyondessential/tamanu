@@ -576,6 +576,18 @@ medication.post(
         { transaction },
       );
 
+      // Decrement repeats on the ongoing prescriptions (repeats = remaining "send to pharmacy" count)
+      for (const originalPrescription of ongoingPrescriptions) {
+        const { repeats } = originalPrescription;
+        if (repeats > 0) {
+          await originalPrescription.update({ repeats: repeats - 1 }, { transaction });
+        } else {
+          throw new InvalidOperationError(
+            `Prescription "${originalPrescription.medication?.name}" has no remaining repeats and cannot be sent to pharmacy.`,
+          );
+        }
+      }
+
       return {
         encounter,
         pharmacyOrder,
