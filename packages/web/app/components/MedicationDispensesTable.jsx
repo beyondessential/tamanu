@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { SearchTableWithPermissionCheck } from './Table';
 import { DateDisplay } from './DateDisplay';
@@ -9,7 +9,7 @@ import { useAuth } from '../contexts/Auth';
 import { MEDICATIONS_SEARCH_KEYS } from '../constants/medication';
 import { Colors } from '../constants';
 import { MenuButton } from './MenuButton';
-import { TranslatedReferenceData } from '@tamanu/ui-components';
+import { TranslatedReferenceData, useDateTimeFormat } from '@tamanu/ui-components';
 import { MedicationLabelPrintModal } from './PatientPrinting/modals/MedicationLabelPrintModal';
 import { getMedicationLabelData } from '../utils/medications';
 import { useFacilityQuery } from '../api/queries/useFacilityQuery';
@@ -273,10 +273,15 @@ export const MedicationDispensesTable = () => {
       : []),
   ];
 
-  const fetchOptions = { ...searchParameters, facilityId };
+  const { getDayBoundaries } = useDateTimeFormat();
+  const fetchOptions = useMemo(() => {
+    const { dispensedAt, ...rest } = searchParameters;
+    if (!dispensedAt) return { ...rest, facilityId };
+    const boundaries = getDayBoundaries(dispensedAt);
+    return { ...rest, facilityId, dispensedAtFrom: boundaries?.start, dispensedAtTo: boundaries?.end };
+  }, [searchParameters, facilityId, getDayBoundaries]);
 
   const handleRowClick = (_, dispenseData) => {
-    // Map the dispense data to the format expected by the detail modal
     const patient = dispenseData.pharmacyOrderPrescription?.pharmacyOrder?.encounter?.patient;
     const mappedItem = {
       id: dispenseData.id,

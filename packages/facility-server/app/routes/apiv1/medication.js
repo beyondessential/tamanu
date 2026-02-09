@@ -1777,12 +1777,14 @@ medication.get(
     // PharmacyOrder filters
     const pharmacyOrderFilters = mapQueryFilters(filterParams, [
       {
-        key: 'date',
-        mapFn: (fieldName, _operator, value) => {
-          const startOfDay = `${value} 00:00:00`;
-          const endOfDay = `${value} 23:59:59`;
-          return { [fieldName]: { [Op.between]: [startOfDay, endOfDay] } };
-        },
+        key: 'dateFrom',
+        alias: 'date',
+        operator: Op.gte,
+      },
+      {
+        key: 'dateTo',
+        alias: 'date',
+        operator: Op.lte,
       },
       {
         key: 'prescriptionType',
@@ -2003,12 +2005,14 @@ medication.get(
 
     const rootFilter = mapQueryFilters(filterParams, [
       {
-        key: 'dispensedAt',
-        mapFn: (fieldName, _operator, value) => {
-          const startOfDay = `${value} 00:00:00`;
-          const endOfDay = `${value} 23:59:59`;
-          return { [fieldName]: { [Op.between]: [startOfDay, endOfDay] } };
-        },
+        key: 'dispensedAtFrom',
+        alias: 'dispensedAt',
+        operator: Op.gte,
+      },
+      {
+        key: 'dispensedAtTo',
+        alias: 'dispensedAt',
+        operator: Op.lte,
       },
       { key: 'dispensedByUserId', operator: Op.eq },
     ]);

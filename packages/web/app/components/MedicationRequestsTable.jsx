@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { SearchTableWithPermissionCheck } from './Table';
 import { DateDisplay } from './DateDisplay';
@@ -290,7 +290,13 @@ export const MedicationRequestsTable = () => {
       : []),
   ];
 
-  const fetchOptions = { ...searchParameters, facilityId };
+  const { getDayBoundaries } = useDateTimeFormat();
+  const fetchOptions = useMemo(() => {
+    const { date, ...rest } = searchParameters;
+    if (!date) return { ...rest, facilityId };
+    const boundaries = getDayBoundaries(date);
+    return { ...rest, facilityId, dateFrom: boundaries?.start, dateTo: boundaries?.end };
+  }, [searchParameters, facilityId, getDayBoundaries]);
 
   const handleRowClick = (_, data) => {
     const patient = data?.pharmacyOrder?.encounter?.patient;
