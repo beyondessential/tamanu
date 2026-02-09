@@ -116,10 +116,10 @@ sources:
               meta:
                 masking: date
           - name: reference_range_min
-            data_type: numeric
+            data_type: double precision
             description: "{{ doc('lab_tests__reference_range_min') }}"
           - name: reference_range_max
-            data_type: numeric
+            data_type: double precision
             description: "{{ doc('lab_tests__reference_range_max') }}"
           - name: updated_at_sync_tick
             data_type: bigint
