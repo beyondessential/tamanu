@@ -82,7 +82,7 @@ const StyledLabelDescription = styled.p`
   color: ${Colors.midText};
   margin: 0;
   padding-right: 10px;
-  width: 160px;
+  width: 200px;
 `;
 
 const StyledLabelTitle = styled.p`
