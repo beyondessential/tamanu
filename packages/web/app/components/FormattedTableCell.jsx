@@ -89,8 +89,8 @@ export const formatValue = (value, config) => {
 export const DateHeadCell = React.memo(({ value }) => (
   <TableTooltip title={<DateDisplay date={value} format="long" />} data-testid="tabletooltip-5w9x">
     <HeadCellWrapper data-testid="headcellwrapper-jcsy">
-      <div><DateDisplay date={value} format="shortest" /></div>
-      <div><TimeDisplay date={value} /></div>
+      <div><DateDisplay noTooltip date={value} format="shortest" /></div>
+      <div><TimeDisplay noTooltip date={value} /></div>
     </HeadCellWrapper>
   </TableTooltip>
 ));
@@ -103,8 +103,8 @@ export const DateBodyCell = React.memo(({ value, onClick }) => {
       data-testid="tabletooltip-3knb"
     >
       <CellContainer onClick={onClick} data-testid="cellcontainer-slh4">
-        <div><DateDisplay date={value} format="shortest" /></div>
-        <div><TimeDisplay date={value} /></div>
+        <div><DateDisplay noTooltip date={value} format="shortest" /></div>
+        <div><TimeDisplay noTooltip date={value} /></div>
       </CellContainer>
     </TableTooltip>
   );
