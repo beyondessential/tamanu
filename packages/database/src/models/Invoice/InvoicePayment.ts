@@ -33,7 +33,7 @@ export class InvoicePayment extends Model {
           allowNull: false,
         },
         originalPaymentId: {
-          type: DataTypes.TEXT,
+          type: DataTypes.UUID,
           allowNull: true,
           unique: true,
         },
