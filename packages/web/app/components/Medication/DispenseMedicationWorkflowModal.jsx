@@ -456,7 +456,7 @@ export const DispenseMedicationWorkflowModal = memo(
               fallback="Prescription date"
             />
           ),
-          accessor: ({ prescription }) => <Box>{formatShort(prescription?.date)}</Box>,
+          accessor: ({ prescription }) => <Box>{formatShort(prescription?.date.slice(0, 10))}</Box>,
         },
         {
           key: 'medication',
