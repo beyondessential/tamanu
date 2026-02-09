@@ -12,7 +12,14 @@ import {
   REPORT_EXPORT_FORMATS,
   FORM_TYPES,
 } from '@tamanu/constants';
-import { Form, FormGrid, TextButton, Button, useDateTimeFormat } from '@tamanu/ui-components';
+import {
+  Form,
+  FormGrid,
+  TextButton,
+  Button,
+  useDateTimeFormat,
+  ThemedTooltip,
+} from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -121,6 +128,18 @@ const isJsonString = str => {
   return true;
 };
 
+const getTimeZoneDisplayLabel = tz =>
+  tz
+    ?.split('/')
+    ?.pop()
+    ?.replace(/_/g, ' ') ?? tz;
+
+const TimezoneLabel = ({ timeZone }) => (
+  <ThemedTooltip title={timeZone} placement="top" arrow>
+    <span>{getTimeZoneDisplayLabel(timeZone)}</span>
+  </ThemedTooltip>
+);
+
 export const ReportGeneratorForm = () => {
   const api = useApi();
   const { getTranslation } = useTranslation();
@@ -134,6 +153,35 @@ export const ReportGeneratorForm = () => {
   const [selectedReportId, setSelectedReportId] = useState(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [dataReadyForSaving, setDataReadyForSaving] = useState(null);
+  const { countryTimeZone, facilityTimeZone } = useDateTimeFormat();
+  const showTimeZoneSelector = facilityTimeZone && facilityTimeZone !== countryTimeZone;
+  const timezoneOptions = useMemo(
+    () => [
+      {
+        label: <TimezoneLabel timeZone={countryTimeZone} />,
+        description: (
+          <TranslatedText
+            stringId="report.generate.timezone.option.country"
+            fallback="Use primary timezone for Tamanu deployment"
+            data-testid="translatedtext-tz-country"
+          />
+        ),
+        value: countryTimeZone,
+      },
+      {
+        label: <TimezoneLabel timeZone={facilityTimeZone} />,
+        description: (
+          <TranslatedText
+            stringId="report.generate.timezone.option.facility"
+            fallback="Use facility configured timezone"
+            data-testid="translatedtext-tz-facility"
+          />
+        ),
+        value: facilityTimeZone,
+      },
+    ],
+    [countryTimeZone, facilityTimeZone],
+  );
 
   const reportsById = useMemo(() => keyBy(availableReports, 'id'), [availableReports]);
   const reportOptions = useMemo(
@@ -186,10 +234,9 @@ export const ReportGeneratorForm = () => {
   }, [api]);
 
   const submitRequestReport = async formValues => {
-    const { reportId, ...filterValues } = formValues;
-    delete filterValues.emails;
+    const { reportId, emails, ...filterValues } = formValues;
 
-    const updatedFilters = Object.fromEntries(
+    const parameters = Object.fromEntries(
       Object.entries(filterValues).map(([key, value]) => {
         if (isJsonString(value)) {
           return [key, JSON.parse(value)];
@@ -201,7 +248,7 @@ export const ReportGeneratorForm = () => {
     try {
       if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
         const excelData = await api.post(`reports/${reportId}`, {
-          parameters: updatedFilters,
+          parameters,
           facilityId,
         });
 
@@ -229,8 +276,8 @@ export const ReportGeneratorForm = () => {
       } else {
         await api.post(`reportRequest`, {
           reportId,
-          parameters: updatedFilters,
-          emailList: parseEmails(formValues.emails),
+          parameters,
+          emailList: parseEmails(emails),
           bookType,
         });
         setSuccessMessage(
@@ -287,6 +334,7 @@ export const ReportGeneratorForm = () => {
       initialValues={{
         reportId: '',
         emails: currentUser.email,
+        timezone: countryTimeZone,
       }}
       formType={FORM_TYPES.CREATE_FORM}
       onSubmit={submitRequestReport}
@@ -305,7 +353,7 @@ export const ReportGeneratorForm = () => {
           {},
         ),
       })}
-      render={({ values, submitForm, clearForm }) => (
+      render={({ values, submitForm, ...formProps }) => (
         <>
           <FormGrid columns={2} data-testid="formgrid-8gz6">
             <Field
@@ -322,7 +370,13 @@ export const ReportGeneratorForm = () => {
               required
               onValueChange={reportId => {
                 setSelectedReportId(reportId);
-                clearForm();
+                formProps.resetForm({
+                  values: {
+                    reportId,
+                    emails: values.emails || currentUser.email,
+                    timezone: values.timezone || countryTimeZone,
+                  },
+                });
                 resetDownload();
               }}
               data-testid="field-sg1t"
@@ -407,6 +461,25 @@ export const ReportGeneratorForm = () => {
           <DateRangeLabel variant="body1" data-testid="daterangelabel-r96n">
             {dateRangeLabel}
           </DateRangeLabel>
+          {showTimeZoneSelector && (
+            <FormGrid columns={1} style={{ marginBottom: 16 }} data-testid="formgrid-tz">
+              <Field
+                name="timezone"
+                label={
+                  <TranslatedText
+                    stringId="report.generate.timezone.label"
+                    fallback="Timezone"
+                    data-testid="translatedtext-tz"
+                  />
+                }
+                onChange={() => resetDownload()}
+                options={timezoneOptions}
+                component={RadioField}
+                required
+                data-testid="field-tz"
+              />
+            </FormGrid>
+          )}
           <FormGrid columns={2} style={{ marginBottom: 30 }} data-testid="formgrid-v8bv">
             <Field
               name="fromDate"
