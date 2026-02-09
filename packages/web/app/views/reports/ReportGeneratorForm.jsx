@@ -131,13 +131,13 @@ const isJsonString = str => {
 const getTimeZoneDisplayLabel = tz =>
   tz
     ?.split('/')
-    .pop()
-    .replace(/_/g, ' ') ?? tz;
+    ?.pop()
+    ?.replace(/_/g, ' ') ?? tz;
 
 const TimezoneLabel = ({ timeZone }) => (
   <ThemedTooltip title={timeZone} placement="top" arrow>
     <span>{getTimeZoneDisplayLabel(timeZone)}</span>
-</ThemedTooltip>
+  </ThemedTooltip>
 );
 
 export const ReportGeneratorForm = () => {
