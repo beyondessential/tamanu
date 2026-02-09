@@ -182,7 +182,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
     if (!facilityEndTimeStr) return initialValues;
     return {
       ...initialValues,
-      endTime: toDateTimeString(parseISO(facilityEndTimeStr)),
+      endTime: facilityEndTimeStr.replace('T', ' ') + ':00',
     };
   }, [initialValues, formatForDateTimeInput]);
 
