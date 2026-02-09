@@ -12,7 +12,8 @@ import {
 } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
 import { dischargeOutpatientEncounters } from '@tamanu/shared/utils/dischargeOutpatientEncounters';
-import { formatShort, formatTime, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { formatShort, formatTime } from '@tamanu/utils/dateFormatters';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { Model } from './Model';
 import {

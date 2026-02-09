@@ -2,7 +2,8 @@ import { Op, DataTypes } from 'sequelize';
 
 import { ENCOUNTER_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
-import { formatShort, formatTime, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { formatShort, formatTime } from '@tamanu/utils/dateFormatters';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
