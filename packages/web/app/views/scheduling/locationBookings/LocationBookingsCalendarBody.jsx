@@ -1,4 +1,4 @@
-import { formatISO, isEqual, isSameDay, parseISO } from 'date-fns';
+import { formatISO, isEqual } from 'date-fns';
 import React from 'react';
 
 import { toDateString } from '@tamanu/utils/dateTime';
@@ -39,12 +39,13 @@ export const BookingsCell = ({
       data-testid="cell-dp5l"
     >
       {appointments?.map((a, index) => {
-        const facilityStartStr = formatForDateTimeInput(a.startTime);
+        const facilityStartDate = formatForDateTimeInput(a.startTime)?.slice(0, 10);
+        const cellDateStr = toDateString(date);
         return (
         <AppointmentTile
           appointment={a}
           className="appointment-tile"
-          hideTime={!isSameDay(date, facilityStartStr ? parseISO(facilityStartStr) : parseISO(a.startTime))}
+          hideTime={!facilityStartDate || facilityStartDate !== cellDateStr}
           key={a.id}
           onCancel={() => openCancelModal(a)}
           onEdit={() => openBookingForm(a)}

@@ -431,10 +431,8 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
             name="endTime"
             disabled={!values.startTime}
             date={
-              values.startTime && formatForDateTimeInput(values.startTime)
-                ? parseISO(
-                    `${formatForDateTimeInput(values.startTime).slice(0, 10)}T00:00:00`,
-                  )
+              values.startTime
+                ? formatForDateTimeInput(values.startTime)?.slice(0, 10)
                 : undefined
             }
             label={
