@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { keyBy, orderBy } from 'lodash';
 import { format } from 'date-fns';
-import { Box, Tooltip, Typography } from '@material-ui/core';
+import { Box, Typography } from '@material-ui/core';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import styled from 'styled-components';
@@ -12,7 +12,14 @@ import {
   REPORT_EXPORT_FORMATS,
   FORM_TYPES,
 } from '@tamanu/constants';
-import { Form, FormGrid, TextButton, Button, useDateTimeFormat } from '@tamanu/ui-components';
+import {
+  Form,
+  FormGrid,
+  TextButton,
+  Button,
+  useDateTimeFormat,
+  ThemedTooltip,
+} from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -121,12 +128,16 @@ const isJsonString = str => {
   return true;
 };
 
-const getTimeZoneDisplayLabel = tz => tz?.split('/').pop().replace(/_/g, ' ') ?? tz;
+const getTimeZoneDisplayLabel = tz =>
+  tz
+    ?.split('/')
+    .pop()
+    .replace(/_/g, ' ') ?? tz;
 
 const TimezoneLabel = ({ timeZone }) => (
-  <Tooltip title={timeZone} placement="top" arrow>
+  <ThemedTooltip title={timeZone} placement="top" arrow>
     <span>{getTimeZoneDisplayLabel(timeZone)}</span>
-  </Tooltip>
+</ThemedTooltip>
 );
 
 export const ReportGeneratorForm = () => {
