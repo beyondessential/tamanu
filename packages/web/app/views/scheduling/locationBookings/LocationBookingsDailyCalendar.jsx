@@ -595,11 +595,11 @@ export const LocationBookingsDailyCalendar = ({
   const getAppointmentStyle = appointment => {
     if (!timeSlots || timeSlots.length === 0) return { top: 0, height: 70 };
 
-    // Convert from country timezone to facility timezone for calendar positioning
     const facilityStartStr = formatForDateTimeInput(appointment.startTime);
+    if (!facilityStartStr) return null;
     const facilityEndStr = appointment.endTime ? formatForDateTimeInput(appointment.endTime) : null;
-    const startTime = facilityStartStr ? parseISO(facilityStartStr) : parseISO(appointment.startTime);
-    const endTime = facilityEndStr ? parseISO(facilityEndStr) : addHours(startTime, 1);
+    const startTime = new Date(facilityStartStr);
+    const endTime = facilityEndStr ? new Date(facilityEndStr) : addHours(startTime, 1);
 
     // Visible window of the daily grid based on generated time slots
     const visibleStart = timeSlots[0].start;

@@ -10,7 +10,6 @@ import {
   isSameDay,
   isSameMonth,
   isWeekend,
-  parseISO,
   startOfMonth,
   subDays,
   subMonths,
@@ -150,7 +149,7 @@ const DayButton = ({ date, selected, facilityToday, onClick }) => {
 
 export const DateSelector = ({ value, onChange }) => {
   const { getFacilityCurrentDateString } = useDateTimeFormat();
-  const facilityToday = parseISO(getFacilityCurrentDateString());
+  const facilityToday = new Date(`${getFacilityCurrentDateString()}T00:00:00`);
   const [viewedDays, setViewedDays] = useState(eachDayInMonth(value));
 
   useEffect(() => {

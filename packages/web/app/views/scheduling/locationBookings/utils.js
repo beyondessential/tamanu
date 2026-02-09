@@ -1,4 +1,4 @@
-import { eachDayOfInterval, isSameDay, isValid, parseISO } from 'date-fns';
+import { eachDayOfInterval, isSameDay, isValid } from 'date-fns';
 
 import { toDateString } from '@tamanu/utils/dateTime';
 
@@ -63,16 +63,20 @@ export const partitionAppointmentsByLocation = appointments =>
 
 export const partitionAppointmentsByDate = (appointments, formatForDateTimeInput) =>
   appointments.reduce((acc, appt) => {
-    const startStr = formatForDateTimeInput?.(appt.startTime) ?? appt.startTime;
-    const endStr = appt.endTime
-      ? (formatForDateTimeInput?.(appt.endTime) ?? appt.endTime)
-      : null;
-    const start = parseISO(startStr);
-    const end = endStr ? parseISO(endStr) : null;
+    const startStr = formatForDateTimeInput?.(appt.startTime);
+    if (!startStr) return acc;
+    const startDate = startStr.slice(0, 10);
 
-    const dates = end
-      ? eachDayOfInterval({ start, end }).map(toDateString)
-      : [startStr.slice(0, 10)];
+    const endStr = appt.endTime ? formatForDateTimeInput(appt.endTime) : null;
+    const endDate = endStr?.slice(0, 10);
+
+    const dates =
+      endDate && endDate !== startDate
+        ? eachDayOfInterval({
+            start: new Date(`${startDate}T00:00:00`),
+            end: new Date(`${endDate}T00:00:00`),
+          }).map(toDateString)
+        : [startDate];
     for (const date of dates) (acc[date] ?? (acc[date] = [])).push(appt);
 
     return acc;
