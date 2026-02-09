@@ -12,6 +12,8 @@ export const makePatientLetter = async (req, { id, facilityId, ...data }) => {
   const { getLocalisation, models, language, settings } = req;
   const localisation = await getLocalisation();
   const getLocalisationData = key => get(localisation, key);
+  const settingsObj = await settings[facilityId].getAll();
+  const getSettingData = key => get(settingsObj, key);
   const letterheadConfig = await settings[facilityId].get(
     SETTING_KEYS.TEMPLATES_LETTERHEAD,
     facilityId,
@@ -35,7 +37,7 @@ export const makePatientLetter = async (req, { id, facilityId, ...data }) => {
       logoSrc={logo?.data}
       letterheadConfig={letterheadConfig}
       language={language}
-      settings={settings}
+      getSetting={getSettingData}
       countryTimeZone={config.countryTimeZone}
     />,
     filePath,

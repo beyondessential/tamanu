@@ -111,18 +111,21 @@ export const DataFetchingTable = memo(
       return highlightedData;
     };
 
+    const getFacilityCurrentDateTimeStringRef = useRef(getFacilityCurrentDateTimeString);
+    getFacilityCurrentDateTimeStringRef.current = getFacilityCurrentDateTimeString;
+
     const updateFetchState = useCallback(
       (data, count) => {
         setFetchState({
           page,
           count,
           data,
-          lastUpdatedAt: getFacilityCurrentDateTimeString(),
+          lastUpdatedAt: getFacilityCurrentDateTimeStringRef.current(),
           sorting,
           fetchOptions,
         });
       },
-      [fetchOptions, page, sorting, getFacilityCurrentDateTimeString],
+      [fetchOptions, page, sorting],
     );
 
     const loadingIndicatorDelay = () =>
@@ -274,8 +277,9 @@ export const DataFetchingTable = memo(
 
     useEffect(() => {
       setPage(0);
-      setFetchState(initialiseFetchState(getFacilityCurrentDateTimeString()));
-    }, [fetchOptionsString, getFacilityCurrentDateTimeString]);
+      setFetchState(initialiseFetchState(getFacilityCurrentDateTimeStringRef.current()));
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [fetchOptionsString]);
 
     const { data, count, lastUpdatedAt } = fetchState;
     const { order, orderBy } = sorting;
