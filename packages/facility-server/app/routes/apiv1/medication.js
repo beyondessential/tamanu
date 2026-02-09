@@ -2466,16 +2466,13 @@ medication.post(
         );
       }
 
-      const ineligibleRecords = prescriptionRecords.filter(record => {
-        const remainingRepeats = record.getRemainingRepeats();
-        const hasDispenses = record.medicationDispenses?.length > 0;
-        const isDischargePrescription = record.pharmacyOrder?.isDischargePrescription;
-        return remainingRepeats === 0 && hasDispenses && !!isDischargePrescription;
-      });
-
-      if (ineligibleRecords.length > 0) {
+      // Each pharmacy order prescription may only be dispensed once
+      const alreadyDispensed = prescriptionRecords.filter(
+        record => (record.medicationDispenses?.length ?? 0) > 0,
+      );
+      if (alreadyDispensed.length > 0) {
         throw new InvalidOperationError(
-          `The following prescriptions have no remaining repeats and cannot be dispensed: ${ineligibleRecords.map(r => r.id).join(', ')}`,
+          `The following have already been dispensed and cannot be dispensed again: ${alreadyDispensed.map(r => r.id).join(', ')}`,
         );
       }
 
@@ -2491,15 +2488,9 @@ medication.post(
         { transaction },
       );
 
-      // After dispensing, soft delete all ineligible pharmacy order prescriptions
-      const allCompletedRecords = prescriptionRecords.filter(record => {
-        const remainingRepeats = record.getRemainingRepeats(1);
-        const isDischargePrescription = record.pharmacyOrder?.isDischargePrescription;
-        return remainingRepeats === 0 && !!isDischargePrescription;
-      });
-
-      if (allCompletedRecords.length > 0) {
-        const completedIds = allCompletedRecords.map(r => r.id);
+      // After dispensing, mark all dispensed prescriptions as completed so they disappear from the medication requests list.
+      if (prescriptionRecords.length > 0) {
+        const completedIds = prescriptionRecords.map(r => r.id);
         await PharmacyOrderPrescription.update(
           { isCompleted: true },
           { where: { id: { [Op.in]: completedIds } }, transaction },
