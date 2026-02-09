@@ -107,7 +107,9 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
   
   // Get today's date boundaries in facility timezone, converted to country timezone for query
   const todayFacility = getFacilityCurrentDateString();
-  const { start, end } = getDayBoundaries(todayFacility);
+  const boundaries = getDayBoundaries(todayFacility);
+  const start = boundaries?.start;
+  const end = boundaries?.end;
   
   const appointments =
     useAutoUpdatingQuery(

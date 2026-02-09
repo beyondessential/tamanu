@@ -30,13 +30,13 @@ import { createBrowserRouter, RouterProvider } from 'react-router';
 import { MedicationsProvider } from './contexts/Medications';
 
 const StateContextProviders = ({ children, store }) => (
-  <AuthProvider>
-    <SettingsProvider>
-      <DateTimeProvider>
-        <EncounterProvider store={store}>
-          <ImagingRequestsProvider>
-            <MedicationsProvider>
-              <EncounterNotesProvider>
+  <EncounterNotesProvider>
+    <AuthProvider>
+      <SettingsProvider>
+        <DateTimeProvider>
+          <EncounterProvider store={store}>
+            <ImagingRequestsProvider>
+              <MedicationsProvider>
                 <ProgramRegistryProvider>
                   <LabRequestProvider store={store}>
                     <PatientSearchProvider>
@@ -50,13 +50,13 @@ const StateContextProviders = ({ children, store }) => (
                     </PatientSearchProvider>
                   </LabRequestProvider>
                 </ProgramRegistryProvider>
-              </EncounterNotesProvider>
-            </MedicationsProvider>
-          </ImagingRequestsProvider>
-        </EncounterProvider>
-      </DateTimeProvider>
-    </SettingsProvider>
-  </AuthProvider>
+              </MedicationsProvider>
+            </ImagingRequestsProvider>
+          </EncounterProvider>
+        </DateTimeProvider>
+      </SettingsProvider>
+    </AuthProvider>
+  </EncounterNotesProvider>
 );
 
 const queryClient = new QueryClient({
