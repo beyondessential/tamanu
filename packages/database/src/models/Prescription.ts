@@ -266,12 +266,12 @@ export class Prescription extends Model {
     const finalQty = marQty + totalSentQty;
 
     if (finalQty > 0) {
-      await Invoice.setItemQuantityForInvoice(
+      await Invoice.addItemToInvoice(
         prescription,
         encounter.id,
         invoiceProduct,
-        finalQty,
         userId || pops[0]?.pharmacyOrder?.orderingClinicianId,
+        { quantity: finalQty },
       );
     } else {
       await Invoice.removeItemFromInvoice(prescription, encounter.id);

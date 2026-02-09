@@ -70,7 +70,7 @@ const addItemAsRequestTypeProduct = async (
     imagingRequest.encounterId,
     requestTypeProduct,
     imagingRequest.requestedById,
-    areaRefData?.name,
+    { note: areaRefData?.name },
   );
 };
 

@@ -168,12 +168,21 @@ export class Invoice extends Model {
     return invoices[0]!;
   }
 
+  private static normaliseInvoiceItemQuantity(quantity: unknown, fallback: number) {
+    const n = Number(quantity);
+    if (!Number.isFinite(n)) return fallback;
+    return Math.max(0, Math.floor(n));
+  }
+
   static async addItemToInvoice(
     newItem: InvoiceItemSourceRecord,
     encounterId: string,
     invoiceProduct: InvoiceProduct,
     orderedByUserId: string = SYSTEM_USER_UUID,
-    note?: string,
+    options?: {
+      quantity?: number;
+      note?: string;
+    },
   ) {
     const invoice = await this.getInProgressInvoiceForEncounter(encounterId);
 
@@ -198,6 +207,8 @@ export class Invoice extends Model {
       }
     }
 
+    const quantity = this.normaliseInvoiceItemQuantity(options?.quantity, 1);
+
     await this.sequelize.models.InvoiceItem.upsert(
       {
         invoiceId: invoice.id,
@@ -206,57 +217,9 @@ export class Invoice extends Model {
         productId: invoiceProduct.id,
         orderedByUserId,
         orderDate: new Date(),
-        quantity: 1,
-        note,
+        quantity: quantity,
+        note: options?.note,
         deletedAt: null, // Ensure we restore the item if it already exists
-      },
-      {
-        conflictFields: ['invoice_id', 'source_record_type', 'source_record_id'],
-      },
-    );
-  }
-
-  // Upsert or update an invoice item with an explicit quantity for the given source record.
-  static async setItemQuantityForInvoice(
-    sourceItem: InvoiceItemSourceRecord,
-    encounterId: string,
-    invoiceProduct: InvoiceProduct,
-    quantity: number,
-    orderedByUserId: string = SYSTEM_USER_UUID,
-    note?: string,
-  ) {
-    const invoice = await this.getInProgressInvoiceForEncounter(encounterId);
-    if (!invoice) {
-      return;
-    }
-    const invoicePriceListId =
-      await this.sequelize.models.InvoicePriceList.getIdForPatientEncounter(encounterId);
-
-    if (invoicePriceListId) {
-      // Do not add hidden products for this price list
-      const hiddenInvoicePriceListItem = await this.sequelize.models.InvoicePriceListItem.findOne({
-        where: {
-          invoicePriceListId,
-          invoiceProductId: invoiceProduct.id,
-          isHidden: true,
-        },
-      });
-      if (hiddenInvoicePriceListItem) {
-        return;
-      }
-    }
-
-    await this.sequelize.models.InvoiceItem.upsert(
-      {
-        invoiceId: invoice.id,
-        sourceRecordType: sourceItem.getModelName(),
-        sourceRecordId: sourceItem.id,
-        productId: invoiceProduct.id,
-        orderedByUserId,
-        orderDate: new Date(),
-        quantity: Math.max(0, Math.floor(Number(quantity) || 0)),
-        note,
-        deletedAt: null,
       },
       {
         conflictFields: ['invoice_id', 'source_record_type', 'source_record_id'],
