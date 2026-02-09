@@ -18,37 +18,38 @@ on:
     secrets:
       PULUMI_ACCESS_TOKEN:
         required: true
-      TAILSCALE_OAUTH:
-        required: true
       TAMANU_OPS_SSH:
         required: true
 
 permissions:
   contents: write # to update the release notes
   pull-requests: write
+  id-token: write # for Tailscale OIDC authentication
 
 jobs:
   down:
     name: Bring down ${{ inputs.deploy-name }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - id: setup
         uses: ./.github/actions/setup-cd
         with:
           ops-ssh-key: ${{ secrets.TAMANU_OPS_SSH }}
-          tailscale-oauth: ${{ secrets.TAILSCALE_OAUTH }}
-          k8s-core: ${{ fromJson(inputs.options).k8score }}
+          tailscale-oauth-client-id: ${{ vars.TS_OAUTH_CLIENT_ID }}
+          tailscale-tags: ${{ vars.TS_TAGS }}
+          tailscale-k8s-operator-hostname: ${{ vars.TS_K8S_OPERATOR_HOSTNAME }}
 
       - name: Check namespace
         id: check
         continue-on-error: true # so a false check doesn't make the workflow fail
         run: |
-          if kubectl get namespace tamanu-${{ inputs.deploy-name }} 2>/dev/null; then
+          NS_NAME="tamanu-${{ inputs.deploy-name }}"
+          if kubectl -n tamanu-super get subnamespaceanchor "$NS_NAME" 2>/dev/null; then
             echo "Namespace exists"
             if ${{ inputs.check-branch }}; then
               echo "Checking it's matched to this branch"
-              if kubectl -n tamanu-${{ inputs.deploy-name }} \
+              if kubectl -n "$NS_NAME" \
                 get configmap auto-deploy -o json \
                 | tee -a /dev/stderr \
                 | jq -e '.data | [.repo == "${{ github.repository }}", .ref == "${{ inputs.ref }}"] | all | not'
@@ -84,17 +85,21 @@ jobs:
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
 
-      - # if down fails but namespace existed, try to hard-delete the namespace
-        if: failure() && steps.down.outcome != 'success'
-        id: hard-delete
-        name: Delete namespace outright
+      - # we always need to delete the namespace anchor as pulumi is configured not to manage it
+        # additionally, if the pulumi destroy failed, this will hard-delete all the resources
+        if: always()
+        name: Delete namespace
         run: |
-          if kubectl get namespace tamanu-${{ inputs.deploy-name }} 2>/dev/null; then
-            echo "Deleting namespace hard"
-            kubectl delete namespace tamanu-${{ inputs.deploy-name }}
+          NS_NAME="tamanu-${{ inputs.deploy-name }}"
+          if kubectl -n tamanu-super get subnamespaceanchor "$NS_NAME" 2>/dev/null; then
+            echo "Deleting namespace"
+            kubectl -n tamanu-super delete subnamespaceanchor "$NS_NAME" --wait=true
           fi
-      - # run pulumi destroy again to clean up any resources that might have been left behind
-        if: always() && steps.hard-delete.outcome == 'success'
+
+      - # if the pulumi destroy had failed, then the namespace delete will have deleted the
+        # actual resources, but we run pulumi destroy again to clean up the pulumi state
+        if: always() && steps.down.outcome != 'success'
+        continue-on-error: true
         name: Down again!
         uses: pulumi/actions@v5
         with:
