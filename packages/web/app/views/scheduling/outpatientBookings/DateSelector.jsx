@@ -9,9 +9,8 @@ import {
   addMonths,
   isSameDay,
   isSameMonth,
-  isThisMonth,
-  isToday,
   isWeekend,
+  parseISO,
   startOfMonth,
   subDays,
   subMonths,
@@ -129,14 +128,14 @@ const StepperWrapper = styled(Box)`
   inline-size: 100%;
 `;
 
-const DayButton = ({ date, selected, onClick }) => {
+const DayButton = ({ date, selected, facilityToday, onClick }) => {
   const isWeekendDay = isWeekend(date);
   const { formatWeekdayNarrow } = useDateTimeFormat();
   return (
     <DayWrapper
       onClick={onClick}
       $selected={selected}
-      $isToday={isToday(date)}
+      $isToday={isSameDay(date, facilityToday)}
       data-testid={`daywrapper-2vbq-${formatWeekdayNarrow(date)}-${date.getDate()}`}
     >
       <WeekdayText $isWeekend={isWeekendDay} $selected={selected}>
@@ -150,6 +149,8 @@ const DayButton = ({ date, selected, onClick }) => {
 };
 
 export const DateSelector = ({ value, onChange }) => {
+  const { getFacilityCurrentDateString } = useDateTimeFormat();
+  const facilityToday = parseISO(getFacilityCurrentDateString());
   const [viewedDays, setViewedDays] = useState(eachDayInMonth(value));
 
   useEffect(() => {
@@ -170,10 +171,10 @@ export const DateSelector = ({ value, onChange }) => {
     setViewedDays(eachDayInMonth(day));
   };
 
-  const handleChangeToday = () => handleChange(new Date());
+  const handleChangeToday = () => handleChange(facilityToday);
 
   const handleMonthYearChange = newDate => {
-    if (isThisMonth(newDate)) {
+    if (isSameMonth(newDate, facilityToday)) {
       handleChangeToday();
       return;
     }
@@ -215,6 +216,7 @@ export const DateSelector = ({ value, onChange }) => {
               aria-pressed={isSameDay(date, value)}
               date={date}
               selected={isSameDay(date, value)}
+              facilityToday={facilityToday}
               onClick={() => handleChange(date)}
               key={`day-button-${date.getTime()}`}
             />
