@@ -353,7 +353,7 @@ export const ReportGeneratorForm = () => {
           {},
         ),
       })}
-      render={({ values, submitForm, clearForm }) => (
+      render={({ values, submitForm, ...formProps }) => (
         <>
           <FormGrid columns={2} data-testid="formgrid-8gz6">
             <Field
@@ -370,7 +370,13 @@ export const ReportGeneratorForm = () => {
               required
               onValueChange={reportId => {
                 setSelectedReportId(reportId);
-                clearForm();
+                formProps.resetForm({
+                  values: {
+                    reportId,
+                    emails: values.emails || currentUser.email,
+                    timezone: values.timezone || countryTimeZone,
+                  },
+                });
                 resetDownload();
               }}
               data-testid="field-sg1t"
