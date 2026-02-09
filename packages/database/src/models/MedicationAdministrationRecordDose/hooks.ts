@@ -1,5 +1,5 @@
-import { type DestroyOptions } from 'sequelize';
-import type { MedicationAdministrationRecordDose } from './MedicationAdministrationRecordDose';
+import { type DestroyOptions, type UpdateOptions } from 'sequelize';
+import { MedicationAdministrationRecordDose } from './MedicationAdministrationRecordDose';
 
 const recalculateAndApplyInvoiceQuantity = async (instance: MedicationAdministrationRecordDose) => {
   const MedicationAdministrationRecord = instance.sequelize.models.MedicationAdministrationRecord;
@@ -31,11 +31,21 @@ export const afterBulkCreateHook = async (instances: MedicationAdministrationRec
 };
 
 export const afterBulkDestroyHook = async (options: DestroyOptions) => {
-  const { model, where } = options;
-
-  const instances = await model!.findAll({
+  const { where } = options;
+  const instances = await MedicationAdministrationRecordDose.findAll({
     where,
     paranoid: false, // include deleted records to find what was just destroyed
+  });
+
+  for (const instance of instances) {
+    await recalculateAndApplyInvoiceQuantity(instance as MedicationAdministrationRecordDose);
+  }
+};
+
+export const afterBulkUpdateHook = async (options: UpdateOptions) => {
+  const { where } = options;
+  const instances = await MedicationAdministrationRecordDose.findAll({
+    where,
   });
 
   for (const instance of instances) {

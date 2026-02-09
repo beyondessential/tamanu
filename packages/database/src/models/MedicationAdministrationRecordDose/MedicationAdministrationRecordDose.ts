@@ -9,6 +9,7 @@ import {
   afterDestroyHook,
   afterBulkDestroyHook,
   afterBulkCreateHook,
+  afterBulkUpdateHook,
 } from './hooks';
 
 export class MedicationAdministrationRecordDose extends Model {
@@ -70,6 +71,7 @@ export class MedicationAdministrationRecordDose extends Model {
           afterCreate: afterCreateHook,
           afterBulkCreate: afterBulkCreateHook,
           afterUpdate: afterUpdateHook,
+          afterBulkUpdate: afterBulkUpdateHook,
           afterDestroy: afterDestroyHook,
           afterBulkDestroy: afterBulkDestroyHook,
         },
