@@ -2,7 +2,11 @@ import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Model } from '../Model';
 import type { InitOptions, Models } from '../../types/model';
-import { matchesAgeIfPresent, equalsIfPresent } from './invoicePriceListMatching';
+import {
+  matchesAgeIfPresent,
+  equalsIfPresent,
+  matchesFacilityWithExclusionaryLogic,
+} from './invoicePriceListMatching';
 
 export class InvoicePriceList extends Model {
   declare id: string;
@@ -88,13 +92,16 @@ export class InvoicePriceList extends Model {
       ],
     });
 
+    // Collect all rules for exclusionary logic
+    const allRules = priceLists.map(pl => pl.rules ?? {});
+
     const matches: Array<{ id: string; name: string }> = [];
 
     for (const priceList of priceLists) {
       const rules = priceList.rules ?? {};
 
       const match =
-        equalsIfPresent(rules.facilityId, facilityId) &&
+        matchesFacilityWithExclusionaryLogic(rules.facilityId, facilityId, allRules) &&
         equalsIfPresent(rules.patientType, patientType) &&
         matchesAgeIfPresent(rules.patientAge, patientDOB);
 
