@@ -122,7 +122,6 @@ export const makeVaccineCertificate = async ({
   translations,
 }) => {
   const [localisation, settingsObj] = await Promise.all([getLocalisation(), settings.getAll()]);
-  const getLocalisationData = key => get(localisation, key);
   const getSettingData = key => get(settingsObj, key);
 
   const { title, subTitle } = await settings.get('templates.letterhead');
@@ -146,7 +145,7 @@ export const makeVaccineCertificate = async ({
       watermarkSrc={watermark}
       logoSrc={logo}
       translations={translations}
-      getLocalisation={getLocalisationData}
+      localisation={localisation}
       language={language}
       certificateData={{ title, subTitle }}
       healthFacility={healthFacility}
@@ -166,8 +165,7 @@ export const makeCovidCertificate = async ({
   printedBy,
   vdsData = null,
 }) => {
-  const [localisation, settingsObj] = await Promise.all([getLocalisation(), settings.getAll()]);
-  const getLocalisationData = key => get(localisation, key);
+  const [settingsObj] = await Promise.all([settings.getAll()]);
   const getSettingData = key => get(settingsObj, key);
 
   const fileName = `covid-${certType}-certificate-${patient.id}.pdf`;
@@ -221,7 +219,6 @@ export const makeCovidCertificate = async ({
       logoSrc={logo}
       printedBy={printedBy}
       vdsSrc={vds}
-      getLocalisation={getLocalisationData}
       getSetting={getSettingData}
       countryTimeZone={config.countryTimeZone}
       certType={certType}
