@@ -1,10 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { endOfDay, startOfDay } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 
 import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
-import { toDateTimeString } from '@tamanu/utils/dateTime';
 import {
   LAB_REQUEST_STATUSES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
@@ -185,16 +183,10 @@ labRequest.get(
       makeFilter(
         filterParams.requestedDateFrom,
         'lab_requests.requested_date >= :requestedDateFrom',
-        ({ requestedDateFrom }) => ({
-          requestedDateFrom: toDateTimeString(startOfDay(new Date(requestedDateFrom))),
-        }),
       ),
       makeFilter(
         filterParams.requestedDateTo,
         'lab_requests.requested_date <= :requestedDateTo',
-        ({ requestedDateTo }) => ({
-          requestedDateTo: toDateTimeString(endOfDay(new Date(requestedDateTo))),
-        }),
       ),
       makeFilter(
         !JSON.parse(filterParams.allFacilities || false),

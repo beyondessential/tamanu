@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { endOfDay, parseISO, startOfDay } from 'date-fns';
+import { parseISO } from 'date-fns';
 import { literal, Op } from 'sequelize';
 import {
   AREA_TYPE_TO_IMAGING_TYPE,
@@ -11,7 +11,7 @@ import {
 } from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/errors';
 import { permissionCheckingRouter } from '@tamanu/shared/utils/crudHelpers';
-import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
+import { toDateString } from '@tamanu/utils/dateTime';
 import { getNoteWithType } from '@tamanu/shared/utils/notes';
 import { mapQueryFilters } from '../../database/utils';
 import { getImagingProvider } from '../../integrations/imaging';
@@ -356,21 +356,11 @@ globalImagingRequests.get(
         key: 'requestedDateFrom',
         alias: 'requestedDate',
         operator: Op.gte,
-        mapFn: (fieldName, operator, value) => ({
-          [fieldName]: {
-            [operator]: toDateTimeString(startOfDay(new Date(value))),
-          },
-        }),
       },
       {
         key: 'requestedDateTo',
         alias: 'requestedDate',
         operator: Op.lte,
-        mapFn: (fieldName, operator, value) => ({
-          [fieldName]: {
-            [operator]: toDateTimeString(endOfDay(new Date(value))),
-          },
-        }),
       },
       { key: 'requestedById', operator: Op.eq },
     ]);

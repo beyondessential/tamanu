@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 import { SearchTableWithPermissionCheck } from '../components';
 import { reloadPatient } from '../store/patient';
 import {
@@ -23,6 +24,7 @@ export const LabRequestsTable = React.memo(
     const isPublishedTable = statuses?.includes(LAB_REQUEST_STATUSES.PUBLISHED);
 
     const { facilityId } = useAuth();
+    const { getDayBoundaries } = useDateTimeFormat();
 
     const columns = useMemo(() => {
       return [
@@ -101,7 +103,16 @@ export const LabRequestsTable = React.memo(
       navigate(`/patients/all/${patientId}/encounter/${lab.encounterId}/lab-request/${lab.id}`);
     };
 
-    const { status, ...searchFilters } = searchParameters;
+    const { status, requestedDateFrom, requestedDateTo, ...searchFilters } = searchParameters;
+
+    if (requestedDateFrom) {
+      const boundaries = getDayBoundaries(requestedDateFrom);
+      if (boundaries) searchFilters.requestedDateFrom = boundaries.start;
+    }
+    if (requestedDateTo) {
+      const boundaries = getDayBoundaries(requestedDateTo);
+      if (boundaries) searchFilters.requestedDateTo = boundaries.end;
+    }
 
     return (
       <SearchTableWithPermissionCheck
