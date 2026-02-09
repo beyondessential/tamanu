@@ -192,7 +192,7 @@ export const MedicationDetails = ({
           fallback="Prescription date"
         />
       ),
-      value: <DateDisplay date={medication.date} format="shortest" />,
+      value: <DateDisplay date={medication.date.slice(0, 10)} format="shortest" />,
     },
     ...(medication.isOngoing || medication.discontinued || !medication.endDate
       ? []

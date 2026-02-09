@@ -293,7 +293,7 @@ export const EditMedicationDispenseModal = memo(
             />
           ),
           accessor: ({ pharmacyOrderPrescription }) => (
-            <Box>{formatShort(pharmacyOrderPrescription?.prescription?.date)}</Box>
+            <Box>{formatShort(pharmacyOrderPrescription?.prescription?.date.slice(0, 10))}</Box>
           ),
         },
         {

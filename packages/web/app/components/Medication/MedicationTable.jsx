@@ -236,7 +236,7 @@ const getMedicationColumns = (
               visible={tooltipTitle}
               title={<Box fontWeight={400}>{tooltipTitle}</Box>}
             >
-              <DateDisplay date={date} format="shortest" />
+              <DateDisplay date={date.slice(0, 10)} format="shortest" />
             </ConditionalTooltip>
           </NoWrapCell>
         );
@@ -296,15 +296,16 @@ const getMedicationColumns = (
           );
         }
 
+        const orderDate = new Date(lastOrderedAt);
         return (
           <NoWrapCell
             color={isPausing ? Colors.softText : 'inherit'}
             fontStyle={isPausing ? 'italic' : 'normal'}
           >
             <Box>
-              <DateDisplay date={lastOrderedAt} format="shortest" noTooltip />
+              <DateDisplay date={orderDate} format="shortest" noTooltip />
               <Box fontSize="12px" color={Colors.softText}>
-                <TimeDisplay date={lastOrderedAt} format="compact" noTooltip />
+                <TimeDisplay date={orderDate} format="compact" noTooltip />
               </Box>
             </Box>
           </NoWrapCell>
@@ -361,9 +362,10 @@ export const EncounterMedicationTable = ({
 
   const rowStyle = ({ discontinued, medication }) => `
     ${discontinued ? 'text-decoration: line-through;' : ''}
-    ${medication.referenceDrug.isSensitive && !canViewSensitiveMedications
-      ? 'pointer-events: none;'
-      : ''
+    ${
+      medication.referenceDrug.isSensitive && !canViewSensitiveMedications
+        ? 'pointer-events: none;'
+        : ''
     }
   `;
 
