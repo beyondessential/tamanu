@@ -4,7 +4,7 @@ import { Op } from 'sequelize';
 import config from 'config';
 
 const DEFAULT_SETTINGS = {
-  [SETTING_KEYS.INSURER_DEFAUlT_CONTRIBUTION]: JSON.stringify(0.8),
+  [SETTING_KEYS.INSURER_DEFAULT_CONTRIBUTION]: JSON.stringify(0.8),
 };
 
 /**

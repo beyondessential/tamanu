@@ -245,13 +245,12 @@ const getColumns = (
           );
         }
 
-        const orderDate = new Date(lastOrderedAt);
         return (
           <NoWrapCell color={'inherit'} fontStyle={'normal'}>
             <Box>
-              <DateDisplay date={orderDate} format="shortest" />
+              <DateDisplay date={lastOrderedAt} format="shortest" />
               <Box fontSize="12px" color={Colors.softText}>
-                <TimeDisplay date={orderDate} format="compact" />
+                <TimeDisplay date={lastOrderedAt} format="compact" />
               </Box>
             </Box>
           </NoWrapCell>

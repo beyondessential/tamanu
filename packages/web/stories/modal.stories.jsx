@@ -3,7 +3,6 @@ import { MemoryRouter, Route } from 'react-router';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { Button, ButtonRow, ConfirmCancelRow, Modal } from '@tamanu/ui-components';
-import { BeginPatientMoveModal } from '../app/views/patients/components/BeginPatientMoveModal';
 import { FinalisePatientMoveModal } from '../app/views/patients/components/FinalisePatientMoveModal';
 
 storiesOf('Modal', module)
@@ -48,15 +47,6 @@ storiesOf('Modal', module)
         <Story />
       </Route>
     </MemoryRouter>
-  ))
-  .add('BeginMove', () => (
-    <BeginPatientMoveModal
-      encounter={{ id: '123', plannedLocation: 'Unit 1' }}
-      open
-      onClose={() => {
-        console.log('close');
-      }}
-    />
   ))
   .add('FinaliseMove', () => (
     <FinalisePatientMoveModal
