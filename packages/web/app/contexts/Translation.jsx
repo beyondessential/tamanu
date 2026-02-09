@@ -39,17 +39,17 @@ export const TranslationProvider = ({ children, value }) => {
       : placeholder;
   }, [getTranslation]);
 
-  // In the case of mocking the translation context, we can pass in the value directly
-  if (value) {
-    return <TranslationContext.Provider value={value}>{children}</TranslationContext.Provider>;
-  }
-
   const updateStoredLanguage = newLanguage => {
     // Save the language in local state so that it updates the react component tree on change
     setStoredLanguage(newLanguage);
     // Save the language in local storage so that it persists between sessions
     localStorage.setItem(LOCAL_STORAGE_KEYS.LANGUAGE, newLanguage);
   };
+
+  // In the case of mocking the translation context, we can pass in the value directly
+  if (value) {
+    return <TranslationContext.Provider value={value}>{children}</TranslationContext.Provider>;
+  }
 
   return (
     <TranslationContext.Provider
