@@ -63,6 +63,10 @@ export class InvoicePayment extends Model {
       foreignKey: 'originalPaymentId',
       as: 'originalPayment',
     });
+    this.hasOne(models.InvoicePayment, {
+      foreignKey: 'originalPaymentId',
+      as: 'refundPayment',
+    });
   }
 
   static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {
