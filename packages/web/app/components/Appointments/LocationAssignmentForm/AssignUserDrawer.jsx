@@ -443,6 +443,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
       <Drawer
         open={open}
         onClose={handleClose}
+        unmountOnExit
         title={
           isViewing ? (
             <TranslatedText
