@@ -542,7 +542,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'prescriptionDate',
         title: getTranslation('medication.date.label', 'Prescription date'),
-        accessor: ({ date }) => formatShort(date),
+        accessor: ({ date }) => formatShort(date.slice(0, 10)),
         style: { width: '23%' },
       },
     ],
