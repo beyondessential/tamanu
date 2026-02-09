@@ -165,7 +165,7 @@ export const makeCovidCertificate = async ({
   printedBy,
   vdsData = null,
 }) => {
-  const [settingsObj] = await Promise.all([settings.getAll()]);
+  const settingsObj = await settings.getAll();
   const getSettingData = key => get(settingsObj, key);
 
   const fileName = `covid-${certType}-certificate-${patient.id}.pdf`;
