@@ -1,6 +1,4 @@
 import {
-  endOfDay,
-  startOfDay,
   addHours,
   parseISO,
   setHours,
@@ -24,7 +22,7 @@ import { cloneDeep } from 'lodash';
 import { useDrop, useDrag } from 'react-dnd';
 
 import { toDateTimeString, toDateString } from '@tamanu/utils/dateTime';
-import { TimeDisplay, notifyError, notifySuccess } from '@tamanu/ui-components';
+import { TimeDisplay, useDateTimeFormat, notifyError, notifySuccess } from '@tamanu/ui-components';
 
 import {
   useLocationBookingsQuery,
@@ -418,6 +416,7 @@ export const LocationBookingsDailyCalendar = ({
   ...props
 }) => {
   const { ability } = useAuth();
+  const { getDayBoundaries, formatForDateTimeInput } = useDateTimeFormat();
   const {
     filters: { bookingTypeId, clinicianId, patientNameOrId, locationGroupIds },
     selectedCell,
@@ -436,10 +435,11 @@ export const LocationBookingsDailyCalendar = ({
 
   const { data: locations } = locationsQuery;
 
+  const dayBoundaries = getDayBoundaries(toDateString(selectedDate));
   const { data: appointmentsData, isLoading, error } = useLocationBookingsQuery(
     {
-      after: toDateTimeString(startOfDay(selectedDate)),
-      before: toDateTimeString(endOfDay(selectedDate)),
+      after: dayBoundaries?.start,
+      before: dayBoundaries?.end,
       all: true,
       clinicianId,
       bookingTypeId,
@@ -595,8 +595,11 @@ export const LocationBookingsDailyCalendar = ({
   const getAppointmentStyle = appointment => {
     if (!timeSlots || timeSlots.length === 0) return { top: 0, height: 70 };
 
-    const startTime = parseISO(appointment.startTime);
-    const endTime = appointment.endTime ? parseISO(appointment.endTime) : addHours(startTime, 1);
+    // Convert from country timezone to facility timezone for calendar positioning
+    const facilityStartStr = formatForDateTimeInput(appointment.startTime);
+    const facilityEndStr = appointment.endTime ? formatForDateTimeInput(appointment.endTime) : null;
+    const startTime = facilityStartStr ? parseISO(facilityStartStr) : parseISO(appointment.startTime);
+    const endTime = facilityEndStr ? parseISO(facilityEndStr) : addHours(startTime, 1);
 
     // Visible window of the daily grid based on generated time slots
     const visibleStart = timeSlots[0].start;

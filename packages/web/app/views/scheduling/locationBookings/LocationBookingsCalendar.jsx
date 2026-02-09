@@ -22,7 +22,7 @@ import { LocationBookingsCalendarHeader } from './LocationBookingsCalendarHeader
 import { partitionAppointmentsByLocation } from './utils';
 import { useSendAppointmentEmail } from '../../../api/mutations';
 import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
-import { notifyError, notifySuccess } from '@tamanu/ui-components';
+import { notifyError, notifySuccess, useDateTimeFormat } from '@tamanu/ui-components';
 
 const getDisplayableDates = date => {
   const start = startOfWeek(startOfMonth(date), { weekStartsOn: 1 });
@@ -94,6 +94,7 @@ export const LocationBookingsCalendar = ({
 }) => {
   const [emailModalState, setEmailModalState] = useState(null);
   const { monthOf, setMonthOf } = useLocationBookingsContext();
+  const { toDateTimeStringForPersistence } = useDateTimeFormat();
 
   const displayedDates = getDisplayableDates(monthOf);
 
@@ -108,8 +109,8 @@ export const LocationBookingsCalendar = ({
 
   const { data: appointmentsData } = useLocationBookingsQuery(
     {
-      after: toDateTimeString(displayedDates[0]),
-      before: toDateTimeString(endOfDay(displayedDates.at(-1))),
+      after: toDateTimeStringForPersistence(toDateTimeString(displayedDates[0])),
+      before: toDateTimeStringForPersistence(toDateTimeString(endOfDay(displayedDates.at(-1)))),
       all: true,
       clinicianId,
       bookingTypeId,

@@ -61,14 +61,18 @@ export const partitionAppointmentsByLocation = appointments =>
     return acc;
   }, {});
 
-export const partitionAppointmentsByDate = appointments =>
+export const partitionAppointmentsByDate = (appointments, formatForDateTimeInput) =>
   appointments.reduce((acc, appt) => {
-    const start = parseISO(appt.startTime);
-    const end = parseISO(appt.endTime);
+    const startStr = formatForDateTimeInput?.(appt.startTime) ?? appt.startTime;
+    const endStr = appt.endTime
+      ? (formatForDateTimeInput?.(appt.endTime) ?? appt.endTime)
+      : null;
+    const start = parseISO(startStr);
+    const end = endStr ? parseISO(endStr) : null;
 
-    const dates = appt.endTime
+    const dates = end
       ? eachDayOfInterval({ start, end }).map(toDateString)
-      : [appt.startTime.slice(0, 10)]; // Slice out datestring without converting to Date and back
+      : [startStr.slice(0, 10)];
     for (const date of dates) (acc[date] ?? (acc[date] = [])).push(appt);
 
     return acc;

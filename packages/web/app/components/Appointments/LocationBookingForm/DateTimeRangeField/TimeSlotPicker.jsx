@@ -15,6 +15,7 @@ import {
   minValidDate,
   toDateTimeString,
 } from '@tamanu/utils/dateTime';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 
 import { useLocationAssignmentsQuery, useLocationBookingsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';
@@ -95,6 +96,7 @@ export const TimeSlotPicker = ({
     errors,
     isSubmitting,
   } = useFormikContext();
+  const { getDayBoundaries, formatForDateTimeInput } = useDateTimeFormat();
 
   const {
     slots: timeSlots,
@@ -120,11 +122,14 @@ export const TimeSlotPicker = ({
   );
   const [hoverRange, setHoverRange] = useState(null);
 
+  // Convert query boundaries from facility to country timezone
+  const queryBoundaries = useMemo(() => date ? getDayBoundaries(date) : null, [date, getDayBoundaries]);
+
   const locationBookingsQuery =
     useLocationBookingsQuery(
       {
-        after: toDateTimeString(dayStart),
-        before: toDateTimeString(dayEnd),
+        after: queryBoundaries?.start,
+        before: queryBoundaries?.end,
         all: true,
         locationId: values.locationId,
       },
@@ -266,9 +271,17 @@ export const TimeSlotPicker = ({
   const bookedIntervals = useMemo(
     () =>
       existingBookings?.data
-        .map(appointmentToInterval)
-        .filter((interval) => !isEqual(interval, initialInterval)) ?? [], // Ignore the booking currently being modified
-    [existingBookings?.data, initialInterval],
+        .map((booking) => {
+          // Convert from country timezone to facility timezone for comparison with facility tz slots
+          const facilityStart = formatForDateTimeInput(booking.startTime);
+          const facilityEnd = formatForDateTimeInput(booking.endTime);
+          return appointmentToInterval({
+            startTime: facilityStart ?? booking.startTime,
+            endTime: facilityEnd ?? booking.endTime,
+          });
+        })
+        .filter((interval) => !isEqual(interval, initialInterval)) ?? [],
+    [existingBookings?.data, initialInterval, formatForDateTimeInput],
   );
 
   /** A time slot is selectable if it does not create a selection of time slots that collides with another booking */

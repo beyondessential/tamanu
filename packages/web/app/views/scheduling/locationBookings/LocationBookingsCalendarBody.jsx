@@ -2,6 +2,7 @@ import { formatISO, isEqual, isSameDay, parseISO } from 'date-fns';
 import React from 'react';
 
 import { toDateString } from '@tamanu/utils/dateTime';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
@@ -21,6 +22,7 @@ export const BookingsCell = ({
 }) => {
   const { ability } = useAuth();
   const { selectedCell, updateSelectedCell } = useLocationBookingsContext();
+  const { formatForDateTimeInput } = useDateTimeFormat();
   const isSelected = selectedCell.locationId === locationId && isEqual(date, selectedCell.date);
   const canCreateBooking = ability.can('create', 'Appointment');
 
@@ -36,11 +38,13 @@ export const BookingsCell = ({
       $clickable={canCreateBooking}
       data-testid="cell-dp5l"
     >
-      {appointments?.map((a, index) => (
+      {appointments?.map((a, index) => {
+        const facilityStartStr = formatForDateTimeInput(a.startTime);
+        return (
         <AppointmentTile
           appointment={a}
           className="appointment-tile"
-          hideTime={!isSameDay(date, parseISO(a.startTime))}
+          hideTime={!isSameDay(date, facilityStartStr ? parseISO(facilityStartStr) : parseISO(a.startTime))}
           key={a.id}
           onCancel={() => openCancelModal(a)}
           onEdit={() => openBookingForm(a)}
@@ -62,7 +66,8 @@ export const BookingsCell = ({
           }
           data-testid={`appointmenttile-b6vn-${index}`}
         />
-      ))}
+        );
+      })}
     </CarouselGrid.Cell>
   );
 };
@@ -75,8 +80,9 @@ export const BookingsRow = ({
   openCancelModal,
   onEmailBooking,
 }) => {
+  const { formatForDateTimeInput } = useDateTimeFormat();
   const { locationGroup } = location;
-  const appointmentsByDate = partitionAppointmentsByDate(appointments);
+  const appointmentsByDate = partitionAppointmentsByDate(appointments, formatForDateTimeInput);
 
   return (
     <CarouselGrid.Row data-testid="row-m8yc">

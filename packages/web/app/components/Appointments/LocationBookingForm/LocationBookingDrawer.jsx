@@ -1,10 +1,10 @@
 import OvernightIcon from '@material-ui/icons/Brightness2';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import { sub } from 'date-fns';
+import { isSameDay, parseISO, sub } from 'date-fns';
 
-import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { Form, FormGrid, FormSubmitCancelRow, useDateTimeFormat } from '@tamanu/ui-components';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
@@ -127,8 +127,40 @@ const ErrorMessage = ({ isEdit = false, error }) => {
 export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
   const { updateSelectedCell, viewType } = useLocationBookingsContext();
-  const { formatShort } = useDateTimeFormat();
+  const { formatShort, toDateTimeStringForPersistence, formatForDateTimeInput } = useDateTimeFormat();
   const isEdit = !!initialValues.id;
+
+  // Convert startTime/endTime from country timezone to facility timezone for the form,
+  // since the time slot picker operates in facility timezone and handleSubmit converts
+  // back to country timezone via toDateTimeStringForPersistence on save.
+  const processedInitialValues = useMemo(() => {
+    if (!initialValues.startTime) return initialValues;
+    const facilityStartStr = formatForDateTimeInput(initialValues.startTime);
+    if (!facilityStartStr) return initialValues;
+
+    const facilityStartTime = toDateTimeString(parseISO(facilityStartStr));
+    const facilityEndStr = initialValues.endTime
+      ? formatForDateTimeInput(initialValues.endTime)
+      : null;
+    const facilityEndTime = facilityEndStr
+      ? toDateTimeString(parseISO(facilityEndStr))
+      : null;
+
+    const startObj = parseISO(facilityStartTime);
+    const endObj = facilityEndTime ? parseISO(facilityEndTime) : null;
+    const dateFromStart = toDateString(startObj);
+    const dateFromEnd = endObj ? toDateString(endObj) : null;
+
+    return {
+      ...initialValues,
+      startTime: facilityStartTime,
+      endTime: facilityEndTime,
+      date: dateFromStart ?? initialValues.startDate,
+      startDate: dateFromStart ?? initialValues.startDate,
+      endDate: dateFromEnd ?? initialValues.endDate,
+      overnight: startObj && endObj ? !isSameDay(startObj, endObj) : initialValues.overnight,
+    };
+  }, [initialValues, formatForDateTimeInput]);
 
   const { mutateAsync: checkOnLeave } = useCheckOnLeaveMutation();
 
@@ -285,8 +317,8 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
       {
         id: initialValues.id, // Undefined when creating new booking
         locationId,
-        startTime: toDateTimeString(startTime),
-        endTime: toDateTimeString(endTime),
+        startTime: toDateTimeStringForPersistence(toDateTimeString(startTime)),
+        endTime: toDateTimeStringForPersistence(toDateTimeString(endTime)),
         patientId,
         bookingTypeId,
         clinicianId,
@@ -602,7 +634,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     <>
       <Form
         enableReinitialize
-        initialValues={initialValues}
+        initialValues={processedInitialValues}
         formType={isEdit ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         onSubmit={handleSubmit}
         render={renderForm}

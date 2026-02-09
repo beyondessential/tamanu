@@ -4,6 +4,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { useDateTimeFormat } from '@tamanu/ui-components';
 
 import { useLocationBookingsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';
@@ -41,6 +42,7 @@ const DateTimePicker = ({
   timePickerName,
 }) => {
   const { values, setFieldValue } = useFormikContext();
+  const { toDateTimeStringForPersistence } = useDateTimeFormat();
   const dateFieldValue = values[datePickerName];
   const isValidDate = isValid(parseISO(dateFieldValue));
 
@@ -52,9 +54,9 @@ const DateTimePicker = ({
   };
 
   const startDateTimeString =
-    values.startDate && toDateTimeString(endOfDay(parseISO(values.startDate)));
+    values.startDate && toDateTimeStringForPersistence(toDateTimeString(endOfDay(parseISO(values.startDate))));
   const endDateTimeString =
-    values.endDate && toDateTimeString(startOfDay(parseISO(values.endDate)));
+    values.endDate && toDateTimeStringForPersistence(toDateTimeString(startOfDay(parseISO(values.endDate))));
 
   /**
    * Check for any booked timeslots *between* dates in overnight bookings. {@link TimeSlotPicker}
