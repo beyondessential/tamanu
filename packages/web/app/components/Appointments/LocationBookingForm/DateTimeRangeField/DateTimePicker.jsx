@@ -1,9 +1,8 @@
-import { endOfDay, isValid, parseISO, startOfDay } from 'date-fns';
+import { isValid, parseISO } from 'date-fns';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import styled from 'styled-components';
 
-import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { useDateTimeFormat } from '@tamanu/ui-components';
 
 import { useLocationBookingsQuery } from '../../../../api/queries';
@@ -42,7 +41,7 @@ const DateTimePicker = ({
   timePickerName,
 }) => {
   const { values, setFieldValue } = useFormikContext();
-  const { toDateTimeStringForPersistence } = useDateTimeFormat();
+  const { getDayBoundaries } = useDateTimeFormat();
   const dateFieldValue = values[datePickerName];
   const isValidDate = isValid(parseISO(dateFieldValue));
 
@@ -53,10 +52,10 @@ const DateTimePicker = ({
     }
   };
 
-  const startDateTimeString =
-    values.startDate && toDateTimeStringForPersistence(toDateTimeString(endOfDay(parseISO(values.startDate))));
-  const endDateTimeString =
-    values.endDate && toDateTimeStringForPersistence(toDateTimeString(startOfDay(parseISO(values.endDate))));
+  const startBoundaries = values.startDate && getDayBoundaries(values.startDate);
+  const endBoundaries = values.endDate && getDayBoundaries(values.endDate);
+  const startDateTimeString = startBoundaries?.end;
+  const endDateTimeString = endBoundaries?.start;
 
   /**
    * Check for any booked timeslots *between* dates in overnight bookings. {@link TimeSlotPicker}
