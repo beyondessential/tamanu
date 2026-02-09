@@ -1,4 +1,4 @@
-import { formatISO, isEqual } from 'date-fns';
+import { isEqual } from 'date-fns';
 import React from 'react';
 
 import { toDateString } from '@tamanu/utils/dateTime';
@@ -40,7 +40,7 @@ export const BookingsCell = ({
     >
       {appointments?.map((a, index) => {
         const facilityStartDate = formatForDateTimeInput(a.startTime)?.slice(0, 10);
-        const cellDateStr = toDateString(date);
+        const cellDateStr = formatForDateTimeInput(date)?.slice(0, 10);
         return (
         <AppointmentTile
           appointment={a}
@@ -103,7 +103,7 @@ export const BookingsRow = ({
       </CarouselGrid.RowHeaderCell>
       {dates.map((d) => (
         <BookingsCell
-          appointments={appointmentsByDate[formatISO(d, { representation: 'date' })]}
+          appointments={appointmentsByDate[formatForDateTimeInput(d)?.slice(0, 10)]}
           date={d}
           key={d.valueOf()}
           location={location}

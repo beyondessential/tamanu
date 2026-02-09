@@ -173,12 +173,12 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const [selectedAdditionalClinicianId, setSelectedAdditionalClinicianId] = useState(
     initialValues?.additionalClinicianId ?? null,
   );
-  const [selectedDate, setSelectedDate] = useState(initialValues?.date ?? null);
+  const [selectedDate, setSelectedDate] = useState(processedInitialValues?.date ?? null);
   const [selectedSeparateDate, setSelectedSeparateDate] = useState({
-    startDate: initialValues?.startDate ?? null,
-    endDate: initialValues?.endDate ?? null,
+    startDate: processedInitialValues?.startDate ?? null,
+    endDate: processedInitialValues?.endDate ?? null,
   });
-  const [isOvernight, setIsOvernight] = useState(initialValues?.overnight ?? false);
+  const [isOvernight, setIsOvernight] = useState(processedInitialValues?.overnight ?? false);
   const [clinicianHasLeave, setClinicianHasLeave] = useState(false);
   const [additionalClinicianHasLeave, setAdditionalClinicianHasLeave] = useState(false);
 

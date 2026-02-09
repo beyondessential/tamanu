@@ -265,6 +265,7 @@ const NoteContent = ({
         <DateDisplay
           date={(note.noteTypeId !== NOTE_TYPES.TREATMENT_PLAN && note.revisedBy?.date) || note.date}
           timeFormat="default"
+          noTooltip
           data-testid="datedisplay-yaha"
         />
         {note.revisedById && (
