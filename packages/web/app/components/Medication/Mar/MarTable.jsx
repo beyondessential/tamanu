@@ -7,7 +7,7 @@ import {
   findAdministrationTimeSlotFromIdealTime,
 } from '@tamanu/shared/utils/medication';
 import { toDateString } from '@tamanu/utils/dateTime';
-import { TimeDisplay } from '@tamanu/ui-components';
+import { TimeDisplay, useDateTimeFormat } from '@tamanu/ui-components';
 
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../..';
@@ -180,6 +180,7 @@ const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate }) => {
 
 export const MarTable = ({ selectedDate }) => {
   const { encounter } = useEncounter();
+  const { getDayBoundaries } = useDateTimeFormat();
   const scheduledSectionRef = useRef(null);
   const scheduledHeaderRef = useRef(null);
   const prnSectionRef = useRef(null);
@@ -188,10 +189,13 @@ export const MarTable = ({ selectedDate }) => {
   const [overlayHeight, setOverlayHeight] = useState('100%');
   const [popperAnchorEl, setPopperAnchorEl] = useState(null);
 
+  const marDateString = toDateString(selectedDate);
+  const boundaries = getDayBoundaries(marDateString);
   const { data: medicationsData, isLoading: isLoadingMedications } = useEncounterMedicationQuery(
     encounter?.id,
     {
-      marDate: toDateString(selectedDate),
+      marDateStart: boundaries?.start,
+      marDateEnd: boundaries?.end,
       orderBy: 'date',
       order: 'asc',
     },

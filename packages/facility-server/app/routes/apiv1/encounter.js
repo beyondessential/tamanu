@@ -336,7 +336,7 @@ encounterRelations.get(
   asyncHandler(async (req, res) => {
     const { models, params, query, db } = req;
     const { Prescription } = models;
-    const { order = 'ASC', orderBy = 'medication.name', rowsPerPage, page, marDate } = query;
+    const { order = 'ASC', orderBy = 'medication.name', rowsPerPage, page, marDateStart, marDateEnd } = query;
 
     req.checkPermission('list', 'Medication');
 
@@ -393,11 +393,11 @@ encounterRelations.get(
     };
 
     // Add medicationAdministrationRecords with condition for same day
-    if (marDate) {
+    if (marDateStart && marDateEnd) {
       req.checkPermission('list', 'MedicationAdministration');
 
-      const startOfMarDate = `${marDate} 00:00:00`;
-      const endOfMarDate = `${marDate} 23:59:59`;
+      const startOfMarDate = marDateStart;
+      const endOfMarDate = marDateEnd;
       baseQueryOptions.include.push({
         model: models.MedicationAdministrationRecord,
         as: 'medicationAdministrationRecords',

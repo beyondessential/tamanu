@@ -18,11 +18,10 @@ import { MedicationDetails } from '../MedicationDetails';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../../contexts/Auth';
 
-const mapRecordsToWindows = medicationAdministrationRecords => {
-  // Create an array of 12 nulls (one for each 2-hour window)
+const mapRecordsToWindows = (medicationAdministrationRecords = []) => {
+  // Create an array of 12 null values (one for each time slot)
   const result = Array(12).fill(null);
 
-  // Process each medication administration record
   medicationAdministrationRecords.forEach(record => {
     const dueAt = new Date(record.dueAt);
     const windowIndex = findAdministrationTimeSlotFromIdealTime(dueAt).index;
