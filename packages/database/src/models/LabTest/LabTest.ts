@@ -45,11 +45,11 @@ export class LabTest extends Model {
         },
         completedDate: dateTimeType('completedDate'),
         referenceRangeMin: {
-          type: DataTypes.DOUBLE,
+          type: DataTypes.DECIMAL,
           allowNull: true,
         },
         referenceRangeMax: {
-          type: DataTypes.DOUBLE,
+          type: DataTypes.DECIMAL,
           allowNull: true,
         },
       },
