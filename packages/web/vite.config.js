@@ -4,6 +4,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import svgr from 'vite-plugin-svgr';
 import json5Plugin from 'vite-plugin-json5';
+import path from 'path';
 
 /** @see https://vitejs.dev/config */
 export default async () => {
@@ -75,6 +76,14 @@ export default async () => {
       clearMocks: true,
       globals: true,
       environment: 'jsdom',
+    },
+    resolve: {
+      alias: {
+        '@tamanu/shared/utils/invoice': path.resolve(
+          __dirname,
+          '../shared/src/utils/invoice/index.js',
+        ),
+      },
     },
   });
 };

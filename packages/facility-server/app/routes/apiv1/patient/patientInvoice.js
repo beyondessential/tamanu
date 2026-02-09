@@ -1,12 +1,48 @@
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { getInvoiceSummary } from '@tamanu/shared/utils/invoice';
+import { NotFoundError } from '@tamanu/errors';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import Decimal from 'decimal.js';
+import { invoiceForResponse } from '../invoice/invoiceForResponse';
 
 export const patientInvoiceRoutes = express.Router();
 
 const encounterOrderByKeys = ['encounterType'];
 const invoiceOrderByKeys = ['date', 'displayId', 'status'];
+
+// Shared function to hydrate invoices with price list associations
+async function hydrateInvoices(invoiceRecords, models) {
+  return Promise.all(
+    invoiceRecords.map(async invoiceRecord => {
+      const { Invoice, InvoicePriceList } = models;
+      // Determine the price list for the invoice based on its encounter
+      const invoiceId = invoiceRecord.id;
+      const encounterId = invoiceRecord.encounterId;
+      const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(encounterId);
+
+      // Refetch the invoice with associations that depend on the price list
+      const hydratedInvoiceRecord = await Invoice.findOne({
+        where: { id: invoiceId },
+        include: Invoice.getFullReferenceAssociations(invoicePriceListId),
+      });
+
+      if (!hydratedInvoiceRecord) {
+        throw new NotFoundError('Invoice not found');
+      }
+      return invoiceForResponse(hydratedInvoiceRecord);
+    }),
+  );
+}
+
+// Calculate total balance from invoices
+function calculateTotalBalance(invoices) {
+  const balance = invoices.reduce((sum, invoice) => {
+    const invoiceAmount = new Decimal(getInvoiceSummary(invoice).patientPaymentRemainingBalance);
+    return sum.add(invoiceAmount);
+  }, new Decimal(0));
+  return balance.toNumber();
+}
 
 patientInvoiceRoutes.get(
   '/:id/invoices',
@@ -19,7 +55,6 @@ patientInvoiceRoutes.get(
 
     const data = await models.Invoice.findAll({
       include: [
-        ...models.Invoice.getFullReferenceAssociations(),
         {
           model: models.Encounter,
           as: 'encounter',
@@ -48,9 +83,11 @@ patientInvoiceRoutes.get(
       ],
     });
 
+    const dataResponse = await hydrateInvoices(data, models);
+
     res.send({
       count,
-      data,
+      data: dataResponse,
     });
   }),
 );
@@ -68,7 +105,6 @@ patientInvoiceRoutes.get(
         status: INVOICE_STATUSES.FINALISED,
       },
       include: [
-        ...models.Invoice.getFullReferenceAssociations(),
         {
           model: models.Encounter,
           as: 'encounter',
@@ -77,10 +113,8 @@ patientInvoiceRoutes.get(
       ],
     });
 
-    const balance = invoices.reduce(
-      (acc, invoice) => acc + getInvoiceSummary(invoice).patientPaymentRemainingBalance,
-      0,
-    );
+    const dataResponse = await hydrateInvoices(invoices, models);
+    const balance = calculateTotalBalance(dataResponse);
 
     res.send({
       result: balance,

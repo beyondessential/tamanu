@@ -1,4 +1,4 @@
-import React, { ReactElement, FC, useState, useEffect, useCallback } from 'react';
+import React, { ReactElement, FC, useState, useEffect, useCallback, useMemo } from 'react';
 import { Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StyledView, StyledText, StyledTouchableOpacity } from '/styled/common';
@@ -251,18 +251,22 @@ export const PatientProgramRegistrationConditionsField = ({
     getTranslation,
   );
 
-  const conditionSuggester = new Suggester({
-    model: models.ProgramRegistryCondition,
-    options: {
-      where: {
-        programRegistry: programRegistryId,
-      },
-    },
-    filter: ({ entity_id }) => {
-      // hide previously selected conditions
-      return !conditions.map((value) => value?.condition?.value).includes(entity_id);
-    },
-  });
+  const conditionSuggester = useMemo(
+    () =>
+      new Suggester({
+        model: models.ProgramRegistryCondition,
+        options: {
+          where: {
+            programRegistry: programRegistryId,
+          },
+        },
+        filter: ({ entity_id }) => {
+          // hide previously selected conditions
+          return !conditions.map((value) => value?.condition?.value).includes(entity_id);
+        },
+      }),
+    [models.ProgramRegistryCondition, programRegistryId, conditions],
+  );
 
   const addItem = (newValue: ConditionAndCategory) => {
     onChange([...conditions, newValue]);

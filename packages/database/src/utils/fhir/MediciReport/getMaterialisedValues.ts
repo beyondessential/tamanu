@@ -210,7 +210,7 @@ department_info as (
     join encounter_history eh on eh.encounter_id = e.id
       and eh.deleted_at is null
     left join departments d on d.id = eh.department_id
-    where change_type isnull or change_type = 'department'
+    where change_type isnull or 'department' = ANY(change_type)
     and e.id = $encounter_id
     and e.deleted_at isnull
     group by eh.encounter_id
@@ -233,7 +233,7 @@ location_info as (
   left join locations l on eh.location_id = l.id
   left join location_groups lg on l.location_group_id = lg.id
   left join facilities f on l.facility_id = f.id
-  where change_type isnull or change_type = 'location'
+  where change_type isnull or 'location' = ANY(change_type)
   and e.id = $encounter_id
   and e.deleted_at isnull
   group by eh.encounter_id
