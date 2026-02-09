@@ -163,7 +163,7 @@ const ErrorMessage = ({ isEdit = false, error }) => {
 
 export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {}, modifyMode }) => {
   const { getTranslation } = useTranslation();
-  const { toDateTimeStringForPersistence } = useDateTimeFormat();
+  const { toDateTimeStringForPersistence, formatForDateTimeInput } = useDateTimeFormat();
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
   const appointmentTypeSuggester = useSuggester('appointmentType');
@@ -192,9 +192,9 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
         ),
         (value, { parent }) => {
           if (!value) return true;
-          const startTime = parseISO(parent.startTime);
-          const endTime = parseISO(value);
-          return isAfter(endTime, startTime);
+          const endTimeCountry = toDateTimeStringForPersistence(value);
+          if (!endTimeCountry) return true;
+          return isAfter(parseISO(endTimeCountry), parseISO(parent.startTime));
         },
       ),
     patientId: yup.string().required(requiredMessage),
@@ -314,14 +314,18 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
       const startTimeDate = parseISO(event.target.value);
       handleUpdateScheduleToStartTime(startTimeDate);
       if (!values.endTime) return;
-      // Update the end time to match the new start time date
+      const facilityStartStr = formatForDateTimeInput(event.target.value);
+      const endDate =
+        facilityStartStr ?
+          parseISO(`${facilityStartStr.slice(0, 10)}T00:00:00`)
+        : startTimeDate;
       setFieldValue(
         'endTime',
         toDateTimeString(
           dateFnsSet(parseISO(values.endTime), {
-            year: getYear(startTimeDate),
-            date: getDate(startTimeDate),
-            month: getMonth(startTimeDate),
+            year: getYear(endDate),
+            date: getDate(endDate),
+            month: getMonth(endDate),
           }),
         ),
       );
@@ -418,7 +422,13 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
           <Field
             name="endTime"
             disabled={!values.startTime}
-            date={values.startTime && parseISO(values.startTime)}
+            date={
+              values.startTime && formatForDateTimeInput(values.startTime)
+                ? parseISO(
+                    `${formatForDateTimeInput(values.startTime).slice(0, 10)}T00:00:00`,
+                  )
+                : undefined
+            }
             label={
               <TranslatedText
                 stringId="general.endTime.label"
