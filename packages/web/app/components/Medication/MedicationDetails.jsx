@@ -9,6 +9,7 @@ import {
   DRUG_ROUTE_LABELS,
   MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
   FORM_TYPES,
+  MAX_REPEATS,
 } from '@tamanu/constants';
 import { formatShortest } from '@tamanu/utils/dateTime';
 import {
@@ -21,7 +22,7 @@ import {
 import { TranslatedText } from '../Translation/TranslatedText';
 import { TextField, Form, Button, OutlinedButton, FormGrid } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
-import { CheckField, Field } from '../Field';
+import { CheckField, Field, NumberField } from '../Field';
 import { FormModal } from '../FormModal';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
@@ -35,6 +36,7 @@ import { useEncounter } from '../../contexts/Encounter';
 import { MedicationResumeModal } from './MedicationResumeModal';
 import { singularize } from '../../utils';
 import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
+import { preventInvalidRepeatsInput } from '../../utils/utils';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -220,8 +222,9 @@ export const MedicationDetails = ({
 
   const onSubmit = async data => {
     const payload = { ...data };
-    // Repeats are view-only in this modal; only set when creating an ongoing prescription
-    delete payload.repeats;
+    if (payload.repeats === '') {
+      delete payload.repeats;
+    }
     await api.put(`medication/${medication.id}/details`, {
       ...payload,
     });
@@ -238,7 +241,15 @@ export const MedicationDetails = ({
     onReloadTable();
   };
 
-  const validationSchema = yup.object().shape({});
+  const validationSchema = yup.object().shape({
+    repeats: yup
+      .number()
+      .integer()
+      .min(0)
+      .max(MAX_REPEATS)
+      .nullable()
+      .optional(),
+  });
 
   return (
     <StyledFormModal
@@ -255,6 +266,7 @@ export const MedicationDetails = ({
         initialValues={{
           pharmacyNotes: medication.pharmacyNotes,
           displayPharmacyNotesInMar: medication.displayPharmacyNotesInMar,
+          repeats: medication.repeats ?? 0,
         }}
         render={values => (
           <>
@@ -497,6 +509,29 @@ export const MedicationDetails = ({
                     </Box>
                   </DetailsContainer>
                 </Box>
+                {medication.isOngoing && (
+                  <Box flex={1}>
+                    <DarkestText color={`${Colors.darkText} !important`} mb={0.5}>
+                      <TranslatedText stringId="medication.details.repeats" fallback="Repeats" />
+                    </DarkestText>
+                    <NoteModalActionBlocker>
+                      <Field
+                        name="repeats"
+                        component={NumberField}
+                        min={0}
+                        max={MAX_REPEATS}
+                        step={1}
+                        onInput={preventInvalidRepeatsInput}
+                        disabled={
+                          !canDiscontinueMedication ||
+                          (isSensitive && !canWriteSensitiveMedication) ||
+                          medication.discontinued ||
+                          isPausing
+                        }
+                      />
+                    </NoteModalActionBlocker>
+                  </Box>
+                )}
               </Box>
             </Container>
 

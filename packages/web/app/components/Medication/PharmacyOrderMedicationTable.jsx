@@ -7,12 +7,12 @@ import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared
 
 import { TextInput, ConditionalTooltip } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
-import { OuterLabelFieldWrapper, CheckInput } from '../Field';
+import { OuterLabelFieldWrapper, CheckInput, NumberInput } from '../Field';
 import { Table } from '../Table';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../Translation';
-import { MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
-import { singularize } from '../../utils';
+import { MEDICATION_DURATION_DISPLAY_UNITS_LABELS, MAX_REPEATS } from '@tamanu/constants';
+import { preventInvalidRepeatsInput, singularize } from '../../utils';
 
 const StyledTable = styled(Table)`
   .MuiTableCell-root {
@@ -99,7 +99,7 @@ const getColumns = (
   onSelectAll,
   selectAllChecked,
   columnsToInclude = Object.values(COLUMN_KEYS),
-  { isOngoingMode = false, disabledPrescriptionIds = [] } = {},
+  { isOngoingMode = false, canEditRepeats = true, disabledPrescriptionIds = [] } = {},
 ) => {
   const allColumns = [
     {
@@ -299,9 +299,25 @@ const getColumns = (
         />
       ),
       sortable: false,
-      accessor: ({ repeats }) => (
-        <Box width="89px">{repeats ?? 0}</Box>
-      ),
+      accessor: ({ repeats, onChange }) => {
+        // In ongoing mode without edit permission, show read-only value
+        if (isOngoingMode && !canEditRepeats) {
+          return <Box width="89px">{repeats ?? 0}</Box>;
+        }
+        return (
+          <Box width="89px">
+            <NumberInput
+              value={repeats ?? 0}
+              onChange={onChange}
+              min={0}
+              max={MAX_REPEATS}
+              data-testid="selectinput-ld3p"
+              step={1}
+              onInput={preventInvalidRepeatsInput}
+            />
+          </Box>
+        );
+      },
     },
   ];
 
@@ -332,7 +348,7 @@ export const PharmacyOrderMedicationTable = ({
         handleSelectAll,
         selectAllChecked,
         columnsToInclude,
-        { isOngoingMode, disabledPrescriptionIds },
+        { isOngoingMode, canEditRepeats, disabledPrescriptionIds },
       ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
@@ -342,6 +358,7 @@ export const PharmacyOrderMedicationTable = ({
       selectAllChecked,
       columnsToInclude,
       isOngoingMode,
+      canEditRepeats,
       disabledIdsKey,
     ],
   );
