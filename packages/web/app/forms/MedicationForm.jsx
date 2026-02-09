@@ -126,8 +126,8 @@ const validationSchema = yup.object().shape({
     .when('durationValue', (durationValue, schema) =>
       durationValue
         ? schema.required(
-            <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
-          )
+          <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
+        )
         : schema.optional(),
     ),
   prescriberId: foreignKey(
@@ -381,13 +381,13 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
       ...values,
       timeSlots: checked
         ? [
-            ...selectedTimeSlots,
-            {
-              index,
-              value: getDefaultIdealTimeFromTimeSlot(slot, index),
-              timeSlot: slot,
-            },
-          ]
+          ...selectedTimeSlots,
+          {
+            index,
+            value: getDefaultIdealTimeFromTimeSlot(slot, index),
+            timeSlot: slot,
+          },
+        ]
         : selectedTimeSlots.filter(s => s.index !== index),
     });
   };
@@ -459,7 +459,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
             const isDisabled =
               (!checked &&
                 frequenciesAdministrationIdealTimes?.[values.frequency]?.length ===
-                  selectedTimeSlots?.length) ||
+                selectedTimeSlots?.length) ||
               isOneTimeFrequency(values.frequency);
             const selectedTime = selectedTimeSlot
               ? getDateFromTimeString(selectedTimeSlot.value)
@@ -1115,35 +1115,34 @@ export const MedicationForm = ({
                 </FieldContent>
               </div>
             )}
-            {!isOngoingPrescription && (
-              <>
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <Divider />
-                </div>
-                <Field
-                  name="quantity"
-                  label={
-                    <TranslatedText
-                      stringId="medication.dischargeQuantity.label"
-                      fallback="Discharge quantity"
-                    />
-                  }
-                  min={0}
-                  component={NumberField}
-                  onInput={preventInvalidNumber}
-                  data-testid="medication-field-quantity-6j9m"
-                />
-                <Field
-                  name="repeats"
-                  label={<TranslatedText stringId="medication.repeats.label" fallback="Repeats" />}
-                  component={NumberField}
-                  min={0}
-                  max={MAX_REPEATS}
-                  step={1}
-                  onInput={preventInvalidRepeatsInput}
-                />
-              </>
-            )}
+            <>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <Divider />
+              </div>
+              <Field
+                name="quantity"
+                label={
+                  <TranslatedText
+                    stringId="medication.quantity.label"
+                    fallback="Quantity"
+                  />
+                }
+                min={0}
+                component={NumberField}
+                onInput={preventInvalidNumber}
+                data-testid="medication-field-quantity-6j9m"
+              />
+              <Field
+                name="repeats"
+                label={<TranslatedText stringId="medication.repeats.label" fallback="Repeats" />}
+                component={NumberField}
+                min={0}
+                max={MAX_REPEATS}
+                step={1}
+                onInput={preventInvalidRepeatsInput}
+              />
+            </>
+
             {showPatientWeight && (
               <>
                 <div style={{ gridColumn: '1 / -1' }}>
