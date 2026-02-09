@@ -278,13 +278,15 @@ export function shouldForceRematerialise(
 }
 
 function labCode(upstream: LabRequest) {
-  const { labTestPanelRequest } = upstream;
+  const { labTestPanelRequests } = upstream;
 
-  // ServiceRequests may not have a panel
-  if (!labTestPanelRequest) {
+  // ServiceRequests may not have panels
+  if (!labTestPanelRequests || labTestPanelRequests.length === 0) {
     return null;
   }
-  const { externalCode, name, code } = labTestPanelRequest.labTestPanel || {};
+  // Use the first panel for the code (when there are multiple panels in the same category, 
+  // they should have the same category so we just use the first one)
+  const { externalCode, name, code } = labTestPanelRequests[0].labTestPanel || {};
   return generateCodings(
     code,
     externalCode,

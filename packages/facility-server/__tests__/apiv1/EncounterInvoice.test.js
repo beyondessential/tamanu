@@ -504,6 +504,13 @@ describe('Encounter invoice', () => {
           userId: user.id,
         });
 
+        // Get the lab test panel request IDs
+        const labTestPanelRequests = await models.LabTestPanelRequest.findAll({
+          where: { labRequestId: labRequest.id },
+        });
+        expect(labTestPanelRequests).toHaveLength(1);
+        const panelRequestId = labTestPanelRequests[0].id;
+
         const result2 = await app.get(`/api/encounter/${encounter.id}/invoice`);
         expect(result2.body).toMatchObject({
           displayId: 'INV-123',
@@ -514,7 +521,7 @@ describe('Encounter invoice', () => {
         expect(result2.body.items).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              sourceRecordId: labRequest.labTestPanelRequestId,
+              sourceRecordId: panelRequestId,
               sourceRecordType: 'LabTestPanelRequest',
               productId: labTestPanelGeneralProduct.id,
               orderedByUserId: user.id,
@@ -774,6 +781,14 @@ describe('Encounter invoice', () => {
           });
 
           expect(labRequest.status).toEqual(LAB_REQUEST_STATUSES.RECEPTION_PENDING);
+          
+          // Get the lab test panel request IDs
+          const labTestPanelRequests = await models.LabTestPanelRequest.findAll({
+            where: { labRequestId: labRequest.id },
+          });
+          expect(labTestPanelRequests).toHaveLength(1);
+          const panelRequestId = labTestPanelRequests[0].id;
+          
           const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
           expect(result).toHaveSucceeded();
           expect(result.body).toMatchObject({
@@ -784,7 +799,7 @@ describe('Encounter invoice', () => {
           expect(result.body.items).toEqual(
             expect.arrayContaining([
               expect.objectContaining({
-                sourceRecordId: labRequest.labTestPanelRequestId,
+                sourceRecordId: panelRequestId,
                 sourceRecordType: 'LabTestPanelRequest',
                 productId: labTestPanelGeneralProduct.id,
                 orderedByUserId: user.id,

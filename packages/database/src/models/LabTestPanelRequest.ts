@@ -13,6 +13,7 @@ export class LabTestPanelRequest extends Model {
   declare id: string;
   declare encounterId?: string;
   declare labTestPanelId?: string;
+  declare labRequestId?: string;
   declare labTestPanel?: LabTestPanel;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -35,6 +36,10 @@ export class LabTestPanelRequest extends Model {
     this.belongsTo(models.LabTestPanel, {
       foreignKey: 'labTestPanelId',
       as: 'labTestPanel',
+    });
+    this.belongsTo(models.LabRequest, {
+      foreignKey: 'labRequestId',
+      as: 'labRequest',
     });
   }
 

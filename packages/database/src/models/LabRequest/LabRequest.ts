@@ -53,13 +53,12 @@ export class LabRequest extends Model {
   declare labTestPriorityId?: string;
   declare labTestLaboratoryId?: string;
   declare specimenTypeId?: string;
-  declare labTestPanelRequestId?: string;
   declare priority?: ReferenceData;
   declare tests: LabTest[];
   declare encounter?: Encounter;
   declare requestedBy?: User;
   declare notes: Note[];
-  declare labTestPanelRequest?: LabTestPanelRequest;
+  declare labTestPanelRequests?: LabTestPanelRequest[];
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -123,26 +122,18 @@ export class LabRequest extends Model {
   }
 
   static createWithTests(
-    data: LabRequestData & ModelProperties<LabRequest> & { labTest: ModelProperties<LabTest> },
+    data: LabRequestData & ModelProperties<LabRequest> & { labTest: ModelProperties<LabTest> } & { labTestPanelIds?: string[] },
   ) {
     return this.sequelize!.transaction(async () => {
-      const { labTestTypeIds = [] } = data;
-      if (!labTestTypeIds.length) {
-        throw new InvalidOperationError('A request must have at least one test');
+      const { labTestTypeIds = [], labTestPanelIds = [] } = data;
+      if (!labTestTypeIds.length && !labTestPanelIds.length) {
+        throw new InvalidOperationError('A request must have at least one test or panel');
       }
       const { LabTest, LabTestPanelRequest, LabRequestLog } = this.sequelize!.models;
-      const { labTest, labTestPanelId, userId, ...requestData } = data;
-      let newLabRequest;
-
-      if (labTestPanelId) {
-        const { id: labTestPanelRequestId } = await LabTestPanelRequest.create({
-          encounterId: data.encounterId,
-          labTestPanelId,
-        });
-        newLabRequest = await this.create({ ...requestData, labTestPanelRequestId });
-      } else {
-        newLabRequest = await this.create(requestData);
-      }
+      const { labTest, labTestPanelId, labTestPanelIds: panelIds, userId, ...requestData } = data;
+      
+      // Create the lab request first
+      const newLabRequest = await this.create(requestData);
 
       await LabRequestLog.create({
         status: newLabRequest.status,
@@ -150,16 +141,39 @@ export class LabRequest extends Model {
         updatedById: userId,
       });
 
-      // then create tests
-      await Promise.all(
-        labTestTypeIds.map(t =>
-          LabTest.create({
-            labTestTypeId: t,
-            labRequestId: newLabRequest.id,
-            date: labTest?.date,
-          }),
-        ),
-      );
+      // Create panel requests if provided
+      if (panelIds && panelIds.length > 0) {
+        await Promise.all(
+          panelIds.map(panelId =>
+            LabTestPanelRequest.create({
+              encounterId: data.encounterId,
+              labTestPanelId: panelId,
+              labRequestId: newLabRequest.id,
+            }),
+          ),
+        );
+      }
+      // For backward compatibility with single panel
+      else if (labTestPanelId) {
+        await LabTestPanelRequest.create({
+          encounterId: data.encounterId,
+          labTestPanelId,
+          labRequestId: newLabRequest.id,
+        });
+      }
+
+      // Create individual tests
+      if (labTestTypeIds.length > 0) {
+        await Promise.all(
+          labTestTypeIds.map(t =>
+            LabTest.create({
+              labTestTypeId: t,
+              labRequestId: newLabRequest.id,
+              date: labTest?.date,
+            }),
+          ),
+        );
+      }
 
       return newLabRequest;
     });
@@ -211,9 +225,9 @@ export class LabRequest extends Model {
       as: 'specimenType',
     });
 
-    this.belongsTo(models.LabTestPanelRequest, {
-      foreignKey: 'labTestPanelRequestId',
-      as: 'labTestPanelRequest',
+    this.hasMany(models.LabTestPanelRequest, {
+      foreignKey: 'labRequestId',
+      as: 'labTestPanelRequests',
     });
 
     this.hasMany(models.LabTest, {
@@ -251,7 +265,7 @@ export class LabRequest extends Model {
       'site',
       'collectedBy',
       'specimenType',
-      { association: 'labTestPanelRequest', include: ['labTestPanel'] },
+      { association: 'labTestPanelRequests', include: ['labTestPanel'] },
       { association: 'tests', include: ['labTestType'] },
     ];
   }

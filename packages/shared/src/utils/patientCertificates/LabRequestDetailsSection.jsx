@@ -93,9 +93,12 @@ export const MinimalLabRequestDetailsSection = ({ request }) => {
 
 export const FullLabRequestDetailsSection = ({ request }) => {
   const { getTranslation } = useLanguageContext();
-  const labTestTypeAccessor = ({ labTestPanelRequest, tests }) => {
-    if (labTestPanelRequest) {
-      return labTestPanelRequest.labTestPanel.name;
+  const labTestTypeAccessor = ({ labTestPanelRequests, tests }) => {
+    if (labTestPanelRequests && labTestPanelRequests.length > 0) {
+      return labTestPanelRequests
+        .map(panelRequest => panelRequest.labTestPanel?.name)
+        .filter(Boolean)
+        .join(', ');
     }
     return tests?.map(test => test.labTestType?.name).join(', ') || '';
   };

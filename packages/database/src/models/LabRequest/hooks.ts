@@ -60,11 +60,16 @@ export const pushNotificationAfterUpdateHook = async (
 };
 
 const getItemsForLabRequest = async (instance: LabRequest) => {
-  if (instance.labTestPanelRequestId) {
-    const labTestPanelRequest = await instance.sequelize.models.LabTestPanelRequest.findByPk(
-      instance.labTestPanelRequestId,
-    );
-    if (labTestPanelRequest) {
+  // Check if this lab request has panel requests
+  const labTestPanelRequests = await instance.sequelize.models.LabTestPanelRequest.findAll({
+    where: {
+      labRequestId: instance.id,
+    },
+  });
+
+  if (labTestPanelRequests && labTestPanelRequests.length > 0) {
+    const panelItems = [];
+    for (const labTestPanelRequest of labTestPanelRequests) {
       const panelProduct = await instance.sequelize.models.InvoiceProduct.findOne({
         where: {
           category: INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL,
@@ -73,8 +78,12 @@ const getItemsForLabRequest = async (instance: LabRequest) => {
       });
 
       if (panelProduct) {
-        return [{ item: labTestPanelRequest, product: panelProduct }];
+        panelItems.push({ item: labTestPanelRequest, product: panelProduct });
       }
+    }
+
+    if (panelItems.length > 0) {
+      return panelItems;
     }
   }
 

@@ -12,22 +12,24 @@ const addToInvoiceAfterCreateHook = async (instance: LabTest) => {
     return;
   }
 
-  if (labRequest.labTestPanelRequestId) {
-    const labTestPanelRequest = await instance.sequelize.models.LabTestPanelRequest.findByPk(
-      labRequest.labTestPanelRequestId,
-    );
-    if (!labTestPanelRequest) {
-      return;
-    }
+  // Check if this lab request has panel requests with invoice products
+  const labTestPanelRequests = await instance.sequelize.models.LabTestPanelRequest.findAll({
+    where: {
+      labRequestId: labRequest.id,
+    },
+  });
 
-    const labTestPanelProduct = await instance.sequelize.models.InvoiceProduct.findOne({
-      where: {
-        category: INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL,
-        sourceRecordId: labTestPanelRequest.labTestPanelId,
-      },
-    });
-    if (labTestPanelProduct) {
-      return; // There's a product for the panel, so no need to create invoice items for the individual tests
+  if (labTestPanelRequests && labTestPanelRequests.length > 0) {
+    for (const labTestPanelRequest of labTestPanelRequests) {
+      const labTestPanelProduct = await instance.sequelize.models.InvoiceProduct.findOne({
+        where: {
+          category: INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL,
+          sourceRecordId: labTestPanelRequest.labTestPanelId,
+        },
+      });
+      if (labTestPanelProduct) {
+        return; // There's a product for a panel, so no need to create invoice items for the individual tests
+      }
     }
   }
 

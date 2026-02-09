@@ -130,15 +130,16 @@ export const fakeResourcesOfFhirServiceRequestWithLabRequest = async (
         }),
       ),
     );
+
+    labRequestData = await randomLabRequest(models, requestValues);
+    labRequest = await LabRequest.create(labRequestData);
+
     const labTestPanelRequest = await LabTestPanelRequest.create({
       ...fake(LabTestPanelRequest),
       labTestPanelId: labTestPanel.id,
       encounterId: resources.encounter.id,
+      labRequestId: labRequest.id,
     });
-    requestValues.labTestPanelRequestId = labTestPanelRequest.id; // make one of them part of a panel
-
-    labRequestData = await randomLabRequest(models, requestValues);
-    labRequest = await LabRequest.create(labRequestData);
 
     return {
       category,
@@ -221,11 +222,6 @@ export const fakeResourcesOfFhirSpecimen = async (models, resources, overrides =
     ...fake(LabTestPanel),
     categoryId: category.id,
   });
-  const labTestPanelRequest = await LabTestPanelRequest.create({
-    ...fake(LabTestPanelRequest),
-    labTestPanelId: labTestPanel.id,
-    encounterId: resources.encounter.id,
-  });
   const labRequestData = await randomLabRequest(models, {
     requestedById: resources.practitioner.id,
     collectedById: resources.practitioner.id,
@@ -237,9 +233,14 @@ export const fakeResourcesOfFhirSpecimen = async (models, resources, overrides =
     requestedDate: '2022-07-27 16:30:00',
     sampleTime: '2022-07-27 15:05:00',
     specimenAttached: true,
-    labTestPanelRequestId: labTestPanelRequest.id, // make one of them part of a panel
     ...overrides,
   });
   const labRequest = await LabRequest.create(labRequestData);
+  const labTestPanelRequest = await LabTestPanelRequest.create({
+    ...fake(LabTestPanelRequest),
+    labTestPanelId: labTestPanel.id,
+    encounterId: resources.encounter.id,
+    labRequestId: labRequest.id,
+  });
   return { labRequest, specimenType, bodySiteRef };
 };

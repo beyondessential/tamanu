@@ -113,7 +113,7 @@ export function getQueryOptions(models: Models) {
       },
       {
         model: LabTestPanelRequest,
-        as: 'labTestPanelRequest',
+        as: 'labTestPanelRequests',
         include: [
           {
             model: LabTestPanel,

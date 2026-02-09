@@ -82,21 +82,32 @@ const getColumns = (type) => [
             />
           ),
           sortable: false,
-          accessor: ({ labTestPanelRequest }) =>
-            (labTestPanelRequest?.labTestPanel?.name && (
-              <TranslatedReferenceData
-                fallback={labTestPanelRequest.labTestPanel.name}
-                value={labTestPanelRequest.labTestPanel.id}
-                category="labTestPanel"
-                data-testid="translatedreferencedata-6okl"
-              />
-            )) || (
-              <TranslatedText
-                stringId="general.fallback.notApplicable"
-                fallback="N/A"
-                data-testid="translatedtext-zjj6"
-              />
-            ),
+          accessor: ({ labTestPanelRequests }) => {
+            if (!labTestPanelRequests || labTestPanelRequests.length === 0) {
+              return (
+                <TranslatedText
+                  stringId="general.fallback.notApplicable"
+                  fallback="N/A"
+                  data-testid="translatedtext-zjj6"
+                />
+              );
+            }
+            // Display all panel names, separated by commas
+            return labTestPanelRequests
+              .map((panelRequest, index) =>
+                panelRequest?.labTestPanel?.name ? (
+                  <TranslatedReferenceData
+                    key={panelRequest.labTestPanel.id}
+                    fallback={panelRequest.labTestPanel.name}
+                    value={panelRequest.labTestPanel.id}
+                    category="labTestPanel"
+                    data-testid={`translatedreferencedata-${index}`}
+                  />
+                ) : null
+              )
+              .filter(Boolean)
+              .reduce((prev, curr, index) => [prev, index > 0 ? ', ' : '', curr]);
+          },
         },
       ]
     : []),

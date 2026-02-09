@@ -234,7 +234,7 @@ labRequest.get(
         LEFT JOIN reference_data AS site
           ON (site.type = 'labSampleSite' AND lab_requests.lab_sample_site_id = site.id)
         LEFT JOIN lab_test_panel_requests AS lab_test_panel_requests
-          ON (lab_test_panel_requests.id = lab_requests.lab_test_panel_request_id)
+          ON (lab_test_panel_requests.lab_request_id = lab_requests.id)
         LEFT JOIN lab_test_panels AS lab_test_panel
           ON (lab_test_panel.id = lab_test_panel_requests.lab_test_panel_id)
         LEFT JOIN patients AS patient
@@ -376,21 +376,24 @@ labRelations.get(
       models;
     const canListSensitive = req.ability.can('list', 'SensitiveLabRequest');
 
-    // First, get the lab request to check if it's associated with a panel
+    // First, get the lab request to check if it's associated with panels
     const labRequest = await LabRequest.findByPk(params.id, {
       include: [
         {
           model: LabTestPanelRequest,
-          as: 'labTestPanelRequest',
+          as: 'labTestPanelRequests',
         },
       ],
     });
 
     // If this is a panel request, we need to order by the panel's test order
-    if (labRequest?.labTestPanelRequest?.labTestPanelId) {
+    if (labRequest?.labTestPanelRequests?.length > 0) {
       req.checkPermission('list', 'LabTest');
 
       const { rowsPerPage, page } = query;
+
+      // Get all panel IDs from the lab request
+      const panelIds = labRequest.labTestPanelRequests.map(pr => pr.labTestPanelId);
 
       const baseQueryOptions = {
         where: {
@@ -408,7 +411,7 @@ labRelations.get(
                 model: LabTestPanelLabTestTypes,
                 as: 'panelRelations',
                 where: {
-                  labTestPanelId: labRequest.labTestPanelRequest.labTestPanelId,
+                  labTestPanelId: panelIds,
                 },
                 required: false,
                 attributes: ['order'],
@@ -649,30 +652,65 @@ async function createPanelLabRequests(models, body, note, user) {
     ],
   });
 
-  const response = await Promise.all(
-    panels.map(async panel => {
-      const panelId = panel.id;
-      const testPanelRequest = await models.LabTestPanelRequest.create({
-        labTestPanelId: panelId,
-        encounterId: labRequestBody.encounterId,
-      });
-      const innerLabRequestBody = { ...labRequestBody, labTestPanelRequestId: testPanelRequest.id };
+  // Group panels by category, similar to how individual tests are grouped
+  const panelsByCategory = {};
+  const allLabTestTypeIds = [];
+  
+  for (const panel of panels) {
+    const categoryId = panel.categoryId;
+    if (!panelsByCategory[categoryId]) {
+      panelsByCategory[categoryId] = [];
+    }
+    panelsByCategory[categoryId].push(panel);
+    
+    // Collect all test type IDs from all panels
+    const testTypeIds = panel.labTestTypes?.map(testType => testType.id) || [];
+    allLabTestTypeIds.push(...testTypeIds);
+  }
 
-      const requestSampleDetails = sampleDetails[panelId] || {};
-      const labTestTypeIds = panel.labTestTypes?.map(testType => testType.id) || [];
-      const labTestCategoryId = panel.categoryId;
-      const newLabRequest = await createLabRequest(
-        innerLabRequestBody,
-        requestSampleDetails,
+  // Create one lab request per category with all panels in that category
+  const response = await Promise.all(
+    Object.entries(panelsByCategory).map(async ([categoryId, categoryPanels]) => {
+      // Get sample details - use the first panel's sample details for the category
+      const firstPanelId = categoryPanels[0].id;
+      const requestSampleDetails = sampleDetails[firstPanelId] || {};
+      
+      // Collect all test type IDs for this category
+      const labTestTypeIds = [];
+      for (const panel of categoryPanels) {
+        const testTypeIds = panel.labTestTypes?.map(testType => testType.id) || [];
+        labTestTypeIds.push(...testTypeIds);
+      }
+
+      // Create the lab request
+      const labRequestData = {
+        ...labRequestBody,
+        ...requestSampleDetails,
+        specimenAttached: !!requestSampleDetails.specimenTypeId,
+        status: requestSampleDetails.sampleTime
+          ? LAB_REQUEST_STATUSES.RECEPTION_PENDING
+          : LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED,
         labTestTypeIds,
-        labTestCategoryId,
-        models,
-        note,
-        user,
-      );
+        labTestCategoryId: categoryId,
+        labTestPanelIds: categoryPanels.map(p => p.id),
+        userId: user.id,
+      };
+
+      const newLabRequest = await models.LabRequest.createWithTests(labRequestData);
+      
+      if (note?.content) {
+        await newLabRequest.createNote({
+          noteTypeId: NOTE_TYPES.OTHER,
+          date: note.date,
+          ...note,
+          authorId: user.id,
+        });
+      }
+      
       return newLabRequest;
     }),
   );
+  
   return response;
 }
 
