@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight } from '@material-ui/icons';
 import {
   ButtonWithPermissionCheck,
   DateDisplay as DateDisplayComponent,
+  useDateTimeFormat,
 } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { Heading3, TranslatedText } from '../..';
@@ -50,7 +51,18 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
   const [createMedicationModalOpen, setCreateMedicationModalOpen] = useState(false);
   const { encounter } = useEncounter();
   const { ability } = useAuth();
+  const { getFacilityCurrentDateTimeString, formatForDateTimeInput } = useDateTimeFormat();
   const canCreatePrescription = ability.can('create', 'Medication');
+
+  const toFacilityDate = (dateStr) => {
+    if (!dateStr) return null;
+    const converted = formatForDateTimeInput(dateStr);
+    return converted ? new Date(converted) : null;
+  };
+
+  const facilityNow = new Date(getFacilityCurrentDateTimeString().replace(' ', 'T'));
+  const encounterStart = toFacilityDate(encounter?.startDate);
+  const encounterEnd = toFacilityDate(encounter?.endDate);
 
   const goToPreviousDay = () => {
     onDateChange(prevDate => subDays(prevDate, 1));
@@ -60,10 +72,10 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
     onDateChange(prevDate => addDays(prevDate, 1));
   };
 
-  const isPreviousDayDisabled = isSameDay(selectedDate, new Date(encounter?.startDate));
+  const isPreviousDayDisabled = encounterStart && isSameDay(selectedDate, encounterStart);
   const isNextDayHidden =
-    isSameDay(addDays(new Date(), 2), selectedDate) ||
-    isSameDay(new Date(encounter?.endDate), selectedDate);
+    isSameDay(addDays(facilityNow, 2), selectedDate) ||
+    (encounterEnd && isSameDay(encounterEnd, selectedDate));
 
   const isEncounterDischarged = !!encounter?.endDate;
 
