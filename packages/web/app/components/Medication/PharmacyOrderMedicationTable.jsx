@@ -294,30 +294,12 @@ const getColumns = (
       title: (
         <TranslatedText
           stringId="pharmacyOrder.table.column.repeats"
-          fallback="Repeats"
+          fallback="Remaining"
           data-testid="translatedtext-psdf"
         />
       ),
       sortable: false,
-      accessor: ({ repeats, onChange }) => {
-        // In ongoing mode without edit permission, show read-only value
-        if (isOngoingMode && !canEditRepeats) {
-          return <Box width="89px">{repeats ?? 0}</Box>;
-        }
-        return (
-          <Box width="89px">
-            <NumberInput
-              value={repeats ?? 0}
-              onChange={onChange}
-              min={0}
-              max={MAX_REPEATS}
-              data-testid="selectinput-ld3p"
-              step={1}
-              onInput={preventInvalidRepeatsInput}
-            />
-          </Box>
-        );
-      },
+      accessor: ({ repeats }) => repeats + 1,
     },
   ];
 
