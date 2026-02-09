@@ -1,6 +1,5 @@
 import {
   eachDayOfInterval,
-  endOfDay,
   endOfMonth,
   endOfWeek,
   startOfMonth,
@@ -9,7 +8,7 @@ import {
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { toDateString } from '@tamanu/utils/dateTime';
 
 import { useLocationBookingsQuery } from '../../../api/queries';
 import { FormModal, TranslatedText } from '../../../components';
@@ -94,9 +93,11 @@ export const LocationBookingsCalendar = ({
 }) => {
   const [emailModalState, setEmailModalState] = useState(null);
   const { monthOf, setMonthOf } = useLocationBookingsContext();
-  const { toDateTimeStringForPersistence } = useDateTimeFormat();
+  const { getDayBoundaries } = useDateTimeFormat();
 
   const displayedDates = getDisplayableDates(monthOf);
+  const firstDayBoundaries = getDayBoundaries(toDateString(displayedDates[0]));
+  const lastDayBoundaries = getDayBoundaries(toDateString(displayedDates.at(-1)));
 
   const {
     filters: { bookingTypeId, clinicianId, patientNameOrId },
@@ -109,8 +110,8 @@ export const LocationBookingsCalendar = ({
 
   const { data: appointmentsData } = useLocationBookingsQuery(
     {
-      after: toDateTimeStringForPersistence(toDateTimeString(displayedDates[0])),
-      before: toDateTimeStringForPersistence(toDateTimeString(endOfDay(displayedDates.at(-1)))),
+      after: firstDayBoundaries?.start,
+      before: lastDayBoundaries?.end,
       all: true,
       clinicianId,
       bookingTypeId,
