@@ -196,11 +196,8 @@ export class Prescription extends Model {
     };
   }
 
-  static async recalculateAndApplyInvoiceQuantity(prescriptionId: string, userId?: string) {
+  async recalculateAndApplyInvoiceQuantity(userId?: string) {
     const {
-      Prescription,
-      EncounterPrescription,
-      Encounter,
       InvoiceProduct,
       Invoice,
       MedicationAdministrationRecord,
@@ -209,18 +206,9 @@ export class Prescription extends Model {
       PharmacyOrder,
     } = this.sequelize.models;
 
-    const prescription = await Prescription.findByPk(prescriptionId, {
-      include: [
-        {
-          model: EncounterPrescription,
-          as: 'encounterPrescription',
-          required: true,
-          include: [{ model: Encounter, as: 'encounter', required: true }],
-        },
-      ],
-    });
+    const prescription = this;
 
-    const encounter = prescription?.encounterPrescription?.encounter;
+    const encounter = prescription.encounterPrescription?.encounter;
 
     if (!encounter) return;
 
@@ -230,6 +218,7 @@ export class Prescription extends Model {
         sourceRecordId: prescription.medicationId,
       },
     });
+
     if (!invoiceProduct) return;
 
     const pops = await PharmacyOrderPrescription.findAll({

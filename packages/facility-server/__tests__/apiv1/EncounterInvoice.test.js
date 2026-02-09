@@ -1193,7 +1193,7 @@ describe('Encounter invoice', () => {
         );
       });
 
-      it.only('should automatically add/remove items to the invoice when a medication is administered', async () => {
+      it('should automatically add/remove items to the invoice when a medication is administered', async () => {
         const encounter = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
           encounterType: ENCOUNTER_TYPES.ADMISSION,
@@ -1352,7 +1352,7 @@ describe('Encounter invoice', () => {
               sourceRecordType: 'Prescription',
               productId: drugProduct.id,
               orderedByUserId: user.id,
-              quantity: 1,
+              quantity: 2,
               insurancePlanItems: [],
             }),
           ]),

@@ -3,9 +3,20 @@ import type { PharmacyOrderPrescription } from './PharmacyOrderPrescription';
 // Recalculate invoice quantity:
 // finalQty = (sum of MAR Given doses up to earliest pharmacy order date) + (sum of pharmacy order quantities)
 const updateInvoiceQuantityForPrescription = async (instance: PharmacyOrderPrescription) => {
-  await instance.sequelize.models.Prescription.recalculateAndApplyInvoiceQuantity(
-    instance.prescriptionId,
-  );
+  const { models } = instance.sequelize;
+  const prescription = await models.Prescription.findByPk(instance.prescriptionId, {
+    include: [
+      {
+        model: models.EncounterPrescription,
+        as: 'encounterPrescription',
+        required: true,
+        include: [{ model: models.Encounter, as: 'encounter', required: true }],
+      },
+    ],
+  });
+  if (prescription) {
+    await prescription.recalculateAndApplyInvoiceQuantity();
+  }
 };
 
 const destroyPharmacyOrder = async (instance: PharmacyOrderPrescription) => {

@@ -1,14 +1,28 @@
 import { type DestroyOptions, type UpdateOptions } from 'sequelize';
+import { INVOICEABLE_MEDICATION_ENCOUNTER_TYPES } from '@tamanu/constants';
 import { MedicationAdministrationRecordDose } from './MedicationAdministrationRecordDose';
 
 const recalculateAndApplyInvoiceQuantity = async (instance: MedicationAdministrationRecordDose) => {
-  const MedicationAdministrationRecord = instance.sequelize.models.MedicationAdministrationRecord;
-  const mar = await MedicationAdministrationRecord.findByPk(instance.marId);
-  if (mar && mar.prescriptionId) {
-    await instance.sequelize.models.Prescription.recalculateAndApplyInvoiceQuantity(
-      mar.prescriptionId,
-      instance.recordedByUserId,
-    );
+  const { models } = instance.sequelize;
+  const prescription = await models.Prescription.findOne({
+    include: [
+      {
+        model: models.MedicationAdministrationRecord,
+        as: 'medicationAdministrationRecords',
+        where: { id: instance.marId },
+        required: true,
+      },
+      {
+        model: models.EncounterPrescription,
+        as: 'encounterPrescription',
+        required: true,
+        include: [{ model: models.Encounter, as: 'encounter', required: true }],
+      },
+    ],
+  });
+  const encounterType = prescription?.encounterPrescription?.encounter?.encounterType || '';
+  if (prescription && INVOICEABLE_MEDICATION_ENCOUNTER_TYPES.includes(encounterType)) {
+    await prescription.recalculateAndApplyInvoiceQuantity(instance.recordedByUserId);
   }
 };
 
