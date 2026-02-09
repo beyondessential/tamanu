@@ -169,9 +169,6 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
 
   const sendViaMSupply = getSetting('features.pharmacyOrder.sendViaMSupply');
 
-  // Permission to edit repeats (only relevant for ongoing mode)
-  const canEditRepeats = ability.can('write', 'Medication');
-
   const [prescriptionType, setPrescriptionType] = useState(
     PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT,
   );
@@ -283,12 +280,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
 
   const cellOnChange = useCallback(
     (event, key, rowIndex) => {
-      if ([COLUMN_KEYS.QUANTITY, COLUMN_KEYS.REPEATS].includes(key)) {
-        // In ongoing mode, only allow repeats change if user has permission
-        if (isOngoingMode && key === COLUMN_KEYS.REPEATS && !canEditRepeats) {
-          return;
-        }
-
+      if (key === COLUMN_KEYS.QUANTITY) {
         const newMedicationData = [...prescriptions];
         const rawValue = event.target.value;
         const value =
@@ -305,7 +297,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
         setPrescriptions(newMedicationData);
       }
     },
-    [prescriptions, isOngoingMode, canEditRepeats],
+    [prescriptions],
   );
 
   const validateForm = useCallback(() => {
@@ -638,7 +630,6 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
         selectAllChecked={selectAllChecked}
         columnsToInclude={mainTableColumns}
         isOngoingMode={isOngoingMode}
-        canEditRepeats={canEditRepeats}
         disabledPrescriptionIds={prescriptions.filter(p => p.isSelectionDisabled).map(p => p.id)}
       />
 
