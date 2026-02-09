@@ -36,7 +36,6 @@ export const getMedicationLabelData = ({ items, patient, facility }) => {
     dispensedAt: item.dispensedAt || new Date().toISOString(),
     quantity: item.quantity,
     units: item.units || '',
-    remainingRepeats: item.remainingRepeats,
     prescriberName: item.prescriberName || '-',
     requestNumber: item.requestNumber || '-',
     facilityName: facility?.name || '',

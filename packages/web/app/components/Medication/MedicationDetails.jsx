@@ -137,19 +137,19 @@ export const MedicationDetails = ({
     ...(medication.isOngoing || medication.discontinued
       ? []
       : [
-          {
-            label: <TranslatedText stringId="medication.details.duration" fallback="Duration" />,
-            value: medication.durationValue
-              ? `${medication.durationValue} ${singularize(
-                  getEnumTranslation(
-                    MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
-                    medication.durationUnit,
-                  ),
-                  medication.durationValue,
-                ).toLowerCase()}`
-              : '-',
-          },
-        ]),
+        {
+          label: <TranslatedText stringId="medication.details.duration" fallback="Duration" />,
+          value: medication.durationValue
+            ? `${medication.durationValue} ${singularize(
+              getEnumTranslation(
+                MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
+                medication.durationUnit,
+              ),
+              medication.durationValue,
+            ).toLowerCase()}`
+            : '-',
+        },
+      ]),
     {
       label: <TranslatedText stringId="medication.details.indication" fallback="Indication" />,
       value: medication.indication || '-',
@@ -163,10 +163,14 @@ export const MedicationDetails = ({
       ),
       value: medication.quantity ?? '-',
     },
-    {
-      label: <TranslatedText stringId="medication.details.repeats" fallback="Repeats" />,
-      value: medication.repeats ?? 0,
-    },
+    ...(medication.isOngoing
+      ? [
+        {
+          label: <TranslatedText stringId="medication.details.repeats" fallback="Repeats" />,
+          value: medication.repeats ?? 0,
+        },
+      ]
+      : []),
   ];
 
   const rightDetails = [
@@ -188,13 +192,13 @@ export const MedicationDetails = ({
     ...(medication.isOngoing || medication.discontinued || !medication.endDate
       ? []
       : [
-          {
-            label: (
-              <TranslatedText stringId="medication.details.endDate" fallback="End date & time" />
-            ),
-            value: `${formatShortest(medication.endDate)} ${formatTimeSlot(medication.endDate)}`,
-          },
-        ]),
+        {
+          label: (
+            <TranslatedText stringId="medication.details.endDate" fallback="End date & time" />
+          ),
+          value: `${formatShortest(medication.endDate)} ${formatTimeSlot(medication.endDate)}`,
+        },
+      ]),
     {
       label: <TranslatedText stringId="medication.details.prescriber" fallback="Prescriber" />,
       value: medication.prescriber?.displayName || '-',
@@ -505,27 +509,29 @@ export const MedicationDetails = ({
                     </Box>
                   </DetailsContainer>
                 </Box>
-                <Box flex={1}>
-                  <DarkestText color={`${Colors.darkText} !important`} mb={0.5}>
-                    <TranslatedText stringId="medication.details.repeats" fallback="Repeats" />
-                  </DarkestText>
-                  <NoteModalActionBlocker>
-                    <Field
-                      name="repeats"
-                      component={NumberField}
-                      min={0}
-                      max={MAX_REPEATS}
-                      step={1}
-                      onInput={preventInvalidRepeatsInput}
-                      disabled={
-                        !canDiscontinueMedication ||
-                        (isSensitive && !canWriteSensitiveMedication) ||
-                        medication.discontinued ||
-                        isPausing
-                      }
-                    />
-                  </NoteModalActionBlocker>
-                </Box>
+                {medication.isOngoing && (
+                  <Box flex={1}>
+                    <DarkestText color={`${Colors.darkText} !important`} mb={0.5}>
+                      <TranslatedText stringId="medication.details.repeats" fallback="Repeats" />
+                    </DarkestText>
+                    <NoteModalActionBlocker>
+                      <Field
+                        name="repeats"
+                        component={NumberField}
+                        min={0}
+                        max={MAX_REPEATS}
+                        step={1}
+                        onInput={preventInvalidRepeatsInput}
+                        disabled={
+                          !canDiscontinueMedication ||
+                          (isSensitive && !canWriteSensitiveMedication) ||
+                          medication.discontinued ||
+                          isPausing
+                        }
+                      />
+                    </NoteModalActionBlocker>
+                  </Box>
+                )}
               </Box>
             </Container>
 

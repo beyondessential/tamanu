@@ -245,7 +245,6 @@ export const EditMedicationDispenseModal = memo(
         instructions: item.instructions,
         quantity: item.quantity,
         units: item.pharmacyOrderPrescription.prescription?.units,
-        remainingRepeats: item.pharmacyOrderPrescription.remainingRepeats,
         prescriberName: item.pharmacyOrderPrescription.prescription?.prescriber?.displayName,
         requestNumber: item.pharmacyOrderPrescription.displayId,
       };
@@ -340,18 +339,6 @@ export const EditMedicationDispenseModal = memo(
               />
             );
           },
-        },
-        {
-          key: 'remainingRepeats',
-          width: '94px',
-          title: (
-            <TranslatedText
-              stringId="medication.editDispensedMedication.remainingRepeats"
-              fallback="Remaining repeats"
-            />
-          ),
-          accessor: ({ pharmacyOrderPrescription }) =>
-            pharmacyOrderPrescription?.remainingRepeats ?? 0,
         },
         {
           key: 'instructions',

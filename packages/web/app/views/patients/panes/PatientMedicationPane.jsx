@@ -277,108 +277,108 @@ const DISPENSED_MEDICATION_COLUMNS = (
   handleEdit,
   handleCancelClick,
 ) => [
-  {
-    key: 'pharmacyOrderPrescription.prescription.medication.name',
-    title: (
-      <TranslatedText stringId="patient.medication.table.column.medication" fallback="Medication" />
-    ),
-    sortable: true,
-    accessor: data => (
-      <TranslatedReferenceData
-        fallback={data?.pharmacyOrderPrescription?.prescription?.medication?.name}
-        value={data?.pharmacyOrderPrescription?.prescription?.medication?.id}
-        category={data?.pharmacyOrderPrescription?.prescription?.medication?.type}
-      />
-    ),
-  },
-  {
-    key: 'dose',
-    title: <TranslatedText stringId="patient.medication.table.column.dose" fallback="Dose" />,
-    accessor: data => {
-      const prescription = data?.pharmacyOrderPrescription?.prescription;
-      if (!prescription) return '';
-      return (
-        <>
-          {getMedicationDoseDisplay(prescription, getTranslation, getEnumTranslation)}
-          {prescription.isPrn && ` ${getTranslation('patient.medication.table.prn', 'PRN')}`}
-        </>
-      );
+    {
+      key: 'pharmacyOrderPrescription.prescription.medication.name',
+      title: (
+        <TranslatedText stringId="patient.medication.table.column.medication" fallback="Medication" />
+      ),
+      sortable: true,
+      accessor: data => (
+        <TranslatedReferenceData
+          fallback={data?.pharmacyOrderPrescription?.prescription?.medication?.name}
+          value={data?.pharmacyOrderPrescription?.prescription?.medication?.id}
+          category={data?.pharmacyOrderPrescription?.prescription?.medication?.type}
+        />
+      ),
     },
-    sortable: false,
-  },
-  {
-    key: 'frequency',
-    title: (
-      <TranslatedText stringId="patient.medication.table.column.frequency" fallback="Frequency" />
-    ),
-    accessor: data => {
-      const frequency = data?.pharmacyOrderPrescription?.prescription?.frequency;
-      return frequency ? getTranslatedFrequency(frequency, getTranslation) : '';
+    {
+      key: 'dose',
+      title: <TranslatedText stringId="patient.medication.table.column.dose" fallback="Dose" />,
+      accessor: data => {
+        const prescription = data?.pharmacyOrderPrescription?.prescription;
+        if (!prescription) return '';
+        return (
+          <>
+            {getMedicationDoseDisplay(prescription, getTranslation, getEnumTranslation)}
+            {prescription.isPrn && ` ${getTranslation('patient.medication.table.prn', 'PRN')}`}
+          </>
+        );
+      },
+      sortable: false,
     },
-    sortable: false,
-  },
-  {
-    key: 'dispensedAt',
-    title: (
-      <TranslatedText
-        stringId="patient.medication.table.column.dateDispensed"
-        fallback="Date dispensed"
-      />
-    ),
-    accessor: data => <DateDisplay date={data?.dispensedAt} timeOnlyTooltip shortYear />,
-    sortable: true,
-  },
-  {
-    key: 'quantity',
-    title: (
-      <TranslatedText
-        stringId="patient.medication.table.column.qtyDispensed"
-        fallback="Qty dispensed"
-      />
-    ),
-    sortable: false,
-    accessor: data => data?.quantity,
-  },
-  {
-    key: 'dispensedBy.displayName',
-    title: (
-      <TranslatedText
-        stringId="patient.medication.table.column.dispensedBy"
-        fallback="Dispensed by"
-      />
-    ),
-    accessor: data => data?.dispensedBy?.displayName ?? '',
-    sortable: true,
-  },
-  {
-    key: 'actions',
-    title: '',
-    allowExport: false,
-    accessor: row => {
-      const actions = [
-        {
-          label: <TranslatedText stringId="general.action.printLabel" fallback="Print label" />,
-          action: () => handlePrintLabel(row),
-        },
-        {
-          label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
-          action: () => handleEdit(row),
-        },
-        {
-          label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
-          action: () => handleCancelClick(row.id),
-        },
-      ];
-      return (
-        <div onMouseEnter={() => hoveredRow !== row && setHoveredRow(row.id)}>
-          <MenuButton actions={actions} />
-        </div>
-      );
+    {
+      key: 'frequency',
+      title: (
+        <TranslatedText stringId="patient.medication.table.column.frequency" fallback="Frequency" />
+      ),
+      accessor: data => {
+        const frequency = data?.pharmacyOrderPrescription?.prescription?.frequency;
+        return frequency ? getTranslatedFrequency(frequency, getTranslation) : '';
+      },
+      sortable: false,
     },
-    sortable: false,
-    dontCallRowInput: true,
-  },
-];
+    {
+      key: 'dispensedAt',
+      title: (
+        <TranslatedText
+          stringId="patient.medication.table.column.dateDispensed"
+          fallback="Date dispensed"
+        />
+      ),
+      accessor: data => <DateDisplay date={data?.dispensedAt} timeOnlyTooltip shortYear />,
+      sortable: true,
+    },
+    {
+      key: 'quantity',
+      title: (
+        <TranslatedText
+          stringId="patient.medication.table.column.qtyDispensed"
+          fallback="Qty dispensed"
+        />
+      ),
+      sortable: false,
+      accessor: data => data?.quantity,
+    },
+    {
+      key: 'dispensedBy.displayName',
+      title: (
+        <TranslatedText
+          stringId="patient.medication.table.column.dispensedBy"
+          fallback="Dispensed by"
+        />
+      ),
+      accessor: data => data?.dispensedBy?.displayName ?? '',
+      sortable: true,
+    },
+    {
+      key: 'actions',
+      title: '',
+      allowExport: false,
+      accessor: row => {
+        const actions = [
+          {
+            label: <TranslatedText stringId="general.action.printLabel" fallback="Print label" />,
+            action: () => handlePrintLabel(row),
+          },
+          {
+            label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
+            action: () => handleEdit(row),
+          },
+          {
+            label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
+            action: () => handleCancelClick(row.id),
+          },
+        ];
+        return (
+          <div onMouseEnter={() => hoveredRow !== row && setHoveredRow(row.id)}>
+            <MenuButton actions={actions} />
+          </div>
+        );
+      },
+      sortable: false,
+      dontCallRowInput: true,
+    },
+  ];
 
 export const PatientMedicationPane = ({ patient }) => {
   const api = useApi();
@@ -471,7 +471,6 @@ export const PatientMedicationPane = ({ patient }) => {
           instructions,
           quantity,
           units: prescription?.units,
-          remainingRepeats: pharmacyOrderPrescription?.remainingRepeats,
           prescriberName: prescription?.prescriber?.displayName,
           requestNumber: pharmacyOrderPrescription?.displayId,
           dispensedAt,
@@ -535,7 +534,6 @@ export const PatientMedicationPane = ({ patient }) => {
         displayId: pharmacyOrderPrescription?.displayId,
         quantity,
         instructions,
-        remainingRepeats: pharmacyOrderPrescription?.remainingRepeats,
         dispensedAt,
         dispensedBy,
         prescription: {
@@ -556,10 +554,9 @@ export const PatientMedicationPane = ({ patient }) => {
   }, []);
 
   const rowStyle = ({ medication }) => `
-    ${
-      medication?.referenceDrug?.isSensitive && !canViewSensitiveMedications
-        ? 'pointer-events: none;'
-        : ''
+    ${medication?.referenceDrug?.isSensitive && !canViewSensitiveMedications
+      ? 'pointer-events: none;'
+      : ''
     }
     ${isUnavailableAtFacility(medication) ? 'opacity: 0.5; cursor: default !important;' : ''}
   `;

@@ -52,7 +52,6 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
     prescription,
     quantity,
     instructions,
-    remainingRepeats,
     displayId,
     dispensedAt,
     dispensedBy,
@@ -113,15 +112,6 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
     {
       label: <TranslatedText stringId="medication.dispenseDetails.requestNo" fallback="Request no." />,
       value: displayId || '-',
-    },
-    {
-      label: (
-        <TranslatedText
-          stringId="medication.dispenseDetails.remainingRepeats"
-          fallback="Remaining repeats"
-        />
-      ),
-      value: remainingRepeats ?? 0,
     },
   ];
 

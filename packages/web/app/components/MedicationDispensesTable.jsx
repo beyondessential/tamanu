@@ -103,7 +103,6 @@ export const MedicationDispensesTable = () => {
         instructions,
         quantity,
         units: prescription?.units,
-        remainingRepeats: pharmacyOrderPrescription?.remainingRepeats,
         prescriberName: prescription?.prescriber?.displayName,
         requestNumber: pharmacyOrderPrescription?.displayId,
         dispensedAt,
@@ -239,37 +238,37 @@ export const MedicationDispensesTable = () => {
     },
     ...(canWriteMedicationDispense
       ? [
-          {
-            key: 'actions',
-            title: '',
-            allowExport: false,
-            accessor: row => {
-              const actions = [
-                {
-                  label: (
-                    <TranslatedText stringId="general.action.printLabel" fallback="Print label" />
-                  ),
-                  action: () => handlePrintLabel(row),
-                },
-                {
-                  label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
-                  action: () => handleEditClick(row),
-                },
-                {
-                  label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
-                  action: () => handleCancelClick(row),
-                },
-              ];
-              return (
-                <div onMouseEnter={() => hoveredRow !== row && setHoveredRow(row.id)}>
-                  <MenuButton actions={actions} />
-                </div>
-              );
-            },
-            sortable: false,
-            dontCallRowInput: true,
+        {
+          key: 'actions',
+          title: '',
+          allowExport: false,
+          accessor: row => {
+            const actions = [
+              {
+                label: (
+                  <TranslatedText stringId="general.action.printLabel" fallback="Print label" />
+                ),
+                action: () => handlePrintLabel(row),
+              },
+              {
+                label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
+                action: () => handleEditClick(row),
+              },
+              {
+                label: <TranslatedText stringId="general.action.cancel" fallback="Cancel" />,
+                action: () => handleCancelClick(row),
+              },
+            ];
+            return (
+              <div onMouseEnter={() => hoveredRow !== row && setHoveredRow(row.id)}>
+                <MenuButton actions={actions} />
+              </div>
+            );
           },
-        ]
+          sortable: false,
+          dontCallRowInput: true,
+        },
+      ]
       : []),
   ];
 
@@ -283,7 +282,6 @@ export const MedicationDispensesTable = () => {
       displayId: dispenseData.pharmacyOrderPrescription?.displayId,
       quantity: dispenseData.quantity,
       instructions: dispenseData.instructions,
-      remainingRepeats: dispenseData.pharmacyOrderPrescription?.remainingRepeats,
       dispensedAt: dispenseData.dispensedAt,
       dispensedBy: dispenseData.dispensedBy,
       prescription: {

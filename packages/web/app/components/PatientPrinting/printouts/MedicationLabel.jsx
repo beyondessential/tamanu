@@ -31,7 +31,7 @@ const Label = styled.div`
 
 const LabelTitle = styled.div`
   font-weight: 700;
-  line-height: ${props => props.$fontSize*1.875}mm;
+  line-height: ${props => props.$fontSize * 1.875}mm;
   text-align: center;
 `;
 
@@ -61,7 +61,7 @@ const LabelInstructions = styled.div`
 const LabelBottomSection = styled.div`
   display: flex;
   justify-content: space-between;
-  line-height: ${props => props.$fontSize*1.125}mm;
+  line-height: ${props => props.$fontSize * 1.125}mm;
 `;
 
 const LabelLeftColumn = styled.div`
@@ -75,7 +75,7 @@ const LabelRightColumn = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.708mm;
-  width: ${props => props.$width*0.478}mm;
+  width: ${props => props.$width * 0.478}mm;
 `;
 
 const LabelPatientName = styled.div`
@@ -127,14 +127,13 @@ export const MedicationLabel = React.memo(({ data }) => {
     dispensedAt,
     quantity,
     units,
-    remainingRepeats,
     prescriberName,
     requestNumber,
     facilityAddress,
     facilityContactNumber,
   } = data;
 
-  const fontSize = labelHeight*0.071;
+  const fontSize = labelHeight * 0.071;
 
   return (
     <Label $width={labelWidth} $height={labelHeight} $fontSize={fontSize}>
@@ -154,13 +153,6 @@ export const MedicationLabel = React.memo(({ data }) => {
             <LabelPatientName>{patientName}</LabelPatientName>
             <LabelRow>
               {getMedicationLabel(quantity, units, getEnumTranslation)}
-            </LabelRow>
-            <LabelRow>
-              <TranslatedText
-                stringId="medication.dispense.numberOfRepeats"
-                fallback="Number of repeats"
-              />
-              : {remainingRepeats}
             </LabelRow>
           </LabelLeftColumn>
           <LabelRightColumn $width={labelWidth}>
@@ -195,7 +187,6 @@ MedicationLabel.propTypes = {
     dispensedAt: PropTypes.string.isRequired,
     quantity: PropTypes.number.isRequired,
     units: PropTypes.string.isRequired,
-    remainingRepeats: PropTypes.number.isRequired,
     prescriberName: PropTypes.string.isRequired,
     requestNumber: PropTypes.string.isRequired,
     facilityAddress: PropTypes.string,

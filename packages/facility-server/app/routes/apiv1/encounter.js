@@ -228,21 +228,28 @@ encounter.post(
       attributes: ['id', 'medicationId', 'quantity'],
     });
 
-    const hasSensitive = await models.ReferenceDrug.hasSensitiveMedication(prescriptionRecords.map(p => p.medicationId));
+    const hasSensitive = await models.ReferenceDrug.hasSensitiveMedication(
+      prescriptionRecords.map(p => p.medicationId),
+    );
 
     if (hasSensitive) {
       req.checkPermission('read', 'SensitiveMedication');
     }
 
-    const result = await db.transaction(async () => {
-      const pharmacyOrder = await models.PharmacyOrder.create({
-        orderingClinicianId,
-        encounterId: id,
-        comments,
-        isDischargePrescription,
-        date: getCurrentDateTimeString(),
-        facilityId,
-      });
+    const prescriptionIds = pharmacyOrderPrescriptions.map(p => p.prescriptionId);
+
+    const result = await db.transaction(async transaction => {
+      const pharmacyOrder = await models.PharmacyOrder.create(
+        {
+          orderingClinicianId,
+          encounterId: id,
+          comments,
+          isDischargePrescription,
+          date: getCurrentDateTimeString(),
+          facilityId,
+        },
+        { transaction },
+      );
 
       await models.PharmacyOrderPrescription.bulkCreate(
         pharmacyOrderPrescriptions.map(prescription => ({
@@ -251,7 +258,16 @@ encounter.post(
           quantity: prescription.quantity,
           repeats: prescription.repeats,
         })),
+        { transaction },
       );
+
+      // Decrement repeats on the prescriptions (repeats = remaining "send to pharmacy" count)
+      if (prescriptionIds.length > 0) {
+        await models.Prescription.update(
+          { repeats: literal('GREATEST(0, COALESCE("repeats", 0) - 1)') },
+          { where: { id: prescriptionIds }, transaction },
+        );
+      }
 
       return pharmacyOrder;
     });

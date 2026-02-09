@@ -179,9 +179,8 @@ const buildInstructionText = (prescription, getTranslation, getEnumTranslation) 
   return output.trim();
 };
 
-const isItemDisabled = item => {
-  return item.pharmacyOrder?.isDischargePrescription && (item.remainingRepeats ?? 0) === 0;
-};
+// 1 record = 1 dispense; repeats are not used in the dispense workflow
+const isItemDisabled = () => false;
 
 const InstructionsInput = memo(({ value: defaultValue, onChange, ...props }) => {
   const [value, setValue] = useState(defaultValue);
@@ -385,7 +384,6 @@ export const DispenseMedicationWorkflowModal = memo(
         instructions: item.instructions,
         quantity: item.quantity,
         units: item.prescription?.units,
-        remainingRepeats: item.remainingRepeats,
         prescriberName: item.prescription?.prescriber?.displayName,
         requestNumber: item.displayId,
       }));
@@ -503,17 +501,6 @@ export const DispenseMedicationWorkflowModal = memo(
               />
             );
           },
-        },
-        {
-          key: 'remainingRepeats',
-          width: '94px',
-          title: (
-            <TranslatedText
-              stringId="medication.dispense.remainingRepeats"
-              fallback="Remaining repeats"
-            />
-          ),
-          accessor: ({ remainingRepeats }) => remainingRepeats ?? 0,
         },
         {
           key: 'instructions',

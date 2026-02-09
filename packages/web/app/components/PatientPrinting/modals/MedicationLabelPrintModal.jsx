@@ -96,7 +96,6 @@ MedicationLabelPrintModal.propTypes = {
       patientName: PropTypes.string.isRequired,
       dispensedAt: PropTypes.string.isRequired,
       quantity: PropTypes.number.isRequired,
-      remainingRepeats: PropTypes.number.isRequired,
       prescriberName: PropTypes.string.isRequired,
       requestNumber: PropTypes.string.isRequired,
       facilityAddress: PropTypes.string,

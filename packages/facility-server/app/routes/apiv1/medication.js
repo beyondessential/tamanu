@@ -25,7 +25,7 @@ import {
   SYSTEM_USER_UUID,
   PHARMACY_PRESCRIPTION_TYPES,
 } from '@tamanu/constants';
-import { add, format, isAfter, isBefore, isEqual } from 'date-fns';
+import { add, format, isAfter, isEqual } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 import { validate } from '../../utils/validate';
 import { mapQueryFilters } from '../../database/utils';
@@ -575,6 +575,12 @@ medication.post(
         }),
         { transaction },
       );
+
+      // Decrement repeats on the ongoing prescriptions (repeats = remaining "send to pharmacy" count)
+      for (const originalPrescription of ongoingPrescriptions) {
+        const newRepeats = Math.max(0, (originalPrescription.repeats ?? 0) - 1);
+        await originalPrescription.update({ repeats: newRepeats }, { transaction });
+      }
 
       return {
         encounter,
@@ -2104,24 +2110,6 @@ medication.get(
       },
     });
 
-    // Fetch all dispenses for the pharmacy order prescriptions to calculate remaining repeats
-    const pharmacyOrderPrescriptionIds = [
-      ...new Set(data.map(item => item.pharmacyOrderPrescription.id)),
-    ];
-
-    const allDispenses = await models.MedicationDispense.findAll({
-      where: { pharmacyOrderPrescriptionId: { [Op.in]: pharmacyOrderPrescriptionIds } },
-      attributes: ['id', 'pharmacyOrderPrescriptionId', 'dispensedAt'],
-    });
-
-    // Group dispenses by pharmacyOrderPrescriptionId
-    const dispensesByPrescriptionId = allDispenses.reduce((acc, dispense) => {
-      const id = dispense.pharmacyOrderPrescriptionId;
-      if (!acc[id]) acc[id] = [];
-      acc[id].push(dispense);
-      return acc;
-    }, {});
-
     const result = data.map(item => {
       const patient = patients.find(
         p => p.id === item.pharmacyOrderPrescription.pharmacyOrder.encounter.patient.id,
@@ -2131,12 +2119,6 @@ medication.get(
       const referenceDrug = referenceDrugs.find(
         r => r.referenceDataId === item.pharmacyOrderPrescription.prescription.medication.id,
       );
-
-      // Manually set medicationDispenses for getRemainingRepeats calculation
-      // We only want to include dispenses that were dispensed before the current dispense to get remaining repeats at the time of the dispense
-      item.pharmacyOrderPrescription.medicationDispenses = (
-        dispensesByPrescriptionId[item.pharmacyOrderPrescription.id] || []
-      ).filter(d => isBefore(new Date(d.dispensedAt), new Date(item.dispensedAt)));
 
       return {
         ...item.toJSON(),
@@ -2149,7 +2131,6 @@ medication.get(
               referenceDrug: referenceDrug,
             },
           },
-          remainingRepeats: item.pharmacyOrderPrescription.getRemainingRepeats(),
         },
       };
     });
@@ -2319,7 +2300,6 @@ medication.get(
       count: pharmacyOrderPrescriptions.length,
       data: pharmacyOrderPrescriptions.map(pop => ({
         ...pop.toJSON(),
-        remainingRepeats: pop.getRemainingRepeats(),
         lastDispensedAt: pop.medicationDispenses?.sort(
           (a, b) => new Date(b.dispensedAt) - new Date(a.dispensedAt),
         )[0]?.dispensedAt,
@@ -2454,16 +2434,13 @@ medication.post(
         );
       }
 
-      const ineligibleRecords = prescriptionRecords.filter(record => {
-        const remainingRepeats = record.getRemainingRepeats();
-        const hasDispenses = record.medicationDispenses?.length > 0;
-        const isDischargePrescription = record.pharmacyOrder?.isDischargePrescription;
-        return remainingRepeats === 0 && hasDispenses && !!isDischargePrescription;
-      });
-
-      if (ineligibleRecords.length > 0) {
+      // Each pharmacy order prescription may only be dispensed once
+      const alreadyDispensed = prescriptionRecords.filter(
+        record => (record.medicationDispenses?.length ?? 0) > 0,
+      );
+      if (alreadyDispensed.length > 0) {
         throw new InvalidOperationError(
-          `The following prescriptions have no remaining repeats and cannot be dispensed: ${ineligibleRecords.map(r => r.id).join(', ')}`,
+          `The following have already been dispensed and cannot be dispensed again: ${alreadyDispensed.map(r => r.id).join(', ')}`,
         );
       }
 
