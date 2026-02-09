@@ -1164,7 +1164,7 @@ describe('Encounter invoice', () => {
       });
     });
 
-    describe('Medications', () => {
+    describe.only('Medications', () => {
       let notGivenReason;
       let drug;
       let drugProduct;
@@ -1193,7 +1193,7 @@ describe('Encounter invoice', () => {
         );
       });
 
-      it('should automatically add/remove items to the invoice when a medication is administered', async () => {
+      it.only('should automatically add/remove items to the invoice when a medication is administered', async () => {
         const encounter = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
           encounterType: ENCOUNTER_TYPES.ADMISSION,
@@ -1231,6 +1231,7 @@ describe('Encounter invoice', () => {
         });
 
         // Administer the medication
+        console.log('Administer the medication');
         const { body: medicationAdministrationRecord } = await app
           .post(`/api/medication/medication-administration-record/given`)
           .send({
@@ -1262,6 +1263,8 @@ describe('Encounter invoice', () => {
             }),
           ]),
         );
+        console.log('NEXT TEST');
+        console.log('REMOVE TEST');
 
         // Switching the MAR to not given should remove the item from the invoice
         await app

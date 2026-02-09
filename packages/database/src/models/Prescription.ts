@@ -197,6 +197,7 @@ export class Prescription extends Model {
   }
 
   static async recalculateAndApplyInvoiceQuantity(prescriptionId: string, userId?: string) {
+    console.log('recalculateAndApplyInvoiceQuantity', prescriptionId, userId);
     const {
       Prescription,
       EncounterPrescription,
@@ -220,7 +221,10 @@ export class Prescription extends Model {
       ],
     });
 
+    console.log('prescription', prescription?.id);
     const encounter = prescription?.encounterPrescription?.encounter;
+    console.log('encounter', encounter?.id);
+
     if (!encounter) return;
 
     const invoiceProduct = await InvoiceProduct.findOne({
@@ -229,6 +233,7 @@ export class Prescription extends Model {
         sourceRecordId: prescription.medicationId,
       },
     });
+    console.log('invoiceProduct', invoiceProduct?.id);
     if (!invoiceProduct) return;
 
     const pops = await PharmacyOrderPrescription.findAll({
@@ -237,6 +242,8 @@ export class Prescription extends Model {
         { model: PharmacyOrder, as: 'pharmacyOrder', attributes: ['date', 'orderingClinicianId'] },
       ],
     });
+
+    console.log('pops', pops.length);
 
     const hasPharmacy = pops.length > 0;
     const earliestPharmacyDate = hasPharmacy
@@ -248,6 +255,7 @@ export class Prescription extends Model {
       : undefined;
 
     const totalSentQty = pops.reduce((sum: number, p: any) => sum + (Number(p.quantity) || 0), 0);
+    console.log('totalSentQty', totalSentQty);
 
     let marQty = 0;
     const givenMars = await MedicationAdministrationRecord.findAll({
@@ -255,12 +263,19 @@ export class Prescription extends Model {
       attributes: ['id'],
     });
 
+    console.log(
+      'givenMars ids',
+      givenMars.map((m: any) => m.id),
+    );
+    console.log('earliestPharmacyDate', earliestPharmacyDate);
+
     if (givenMars.length > 0) {
       const marIds = givenMars.map((m: any) => m.id);
       const doses = await MedicationAdministrationRecordDose.findAll({
+        logging: console.log,
         where: {
           marId: { [Op.in]: marIds },
-          isRemoved: { [Op.ne]: true },
+          isRemoved: { [Op.or]: [false, null] },
           ...(earliestPharmacyDate
             ? {
                 givenTime: { [Op.lte]: earliestPharmacyDate },
@@ -269,10 +284,13 @@ export class Prescription extends Model {
         },
         attributes: ['doseAmount'],
       });
+      console.log('doses', doses);
+
       marQty = doses.reduce((sum: number, d: any) => sum + Number(d.doseAmount || 0), 0);
     }
 
     const finalQty = marQty + totalSentQty;
+    console.log('finalQty', finalQty);
 
     if (finalQty > 0) {
       await Invoice.setItemQuantityForInvoice(
