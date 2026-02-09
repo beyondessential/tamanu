@@ -63,6 +63,7 @@ export const TriageForm = ({
   noRedirectOnSubmit,
   patient,
   initialValues,
+  withExistingEncounterCheck,
 }) => {
   const api = useApi();
   const { facilityId, currentUser } = useAuth();
@@ -236,7 +237,7 @@ export const TriageForm = ({
     };
 
     if (typeof onSubmitEncounter === 'function') {
-      onSubmitEncounter(newTriage);
+      await onSubmitEncounter(newTriage);
     }
 
     await api.post('triage', newTriage);
@@ -248,7 +249,7 @@ export const TriageForm = ({
 
   return (
     <Form
-      onSubmit={onSubmit}
+      onSubmit={async data => withExistingEncounterCheck(async () => await onSubmit(data))}
       render={renderForm}
       initialValues={{
         triageTime: getCurrentDateTimeString(),

@@ -136,10 +136,12 @@ describe('Sync Lookup data', () => {
       ImagingResult,
       Invoice,
       InvoiceDiscount,
-      InvoiceInsurer,
+      InvoiceInsurancePlan,
+      InvoicesInvoiceInsurancePlan,
       InvoiceItem,
       InvoiceItemDiscount,
       InvoicePayment,
+      InvoiceItemFinalisedInsurance,
       LabTestPanelRequest,
       Procedure,
       ProcedureAssistantClinician,
@@ -630,10 +632,11 @@ describe('Sync Lookup data', () => {
         appliedByUserId: examiner.id,
       }),
     );
-    await InvoiceInsurer.create(
-      fake(InvoiceInsurer, {
+    const contract = await InvoiceInsurancePlan.create(fake(InvoiceInsurancePlan));
+    await InvoicesInvoiceInsurancePlan.create(
+      fake(InvoicesInvoiceInsurancePlan, {
         invoiceId: invoice.id,
-        insurerId: referenceData.id,
+        invoiceInsurancePlanId: contract.id,
       }),
     );
     const invoicePayment = await InvoicePayment.create(
@@ -668,6 +671,12 @@ describe('Sync Lookup data', () => {
     await InvoiceItemDiscount.create(
       fake(InvoiceItemDiscount, {
         invoiceItemId: invoiceItem.id,
+      }),
+    );
+    await InvoiceItemFinalisedInsurance.create(
+      fake(InvoiceItemFinalisedInsurance, {
+        invoiceItemId: invoiceItem.id,
+        invoiceInsurancePlanId: contract.id,
       }),
     );
 
