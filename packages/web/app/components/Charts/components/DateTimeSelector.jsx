@@ -5,7 +5,7 @@ import { addDays, parseISO, startOfDay } from 'date-fns';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { DateInput as DateInputComponent } from '../../Field';
-import { SelectInput as SelectInputComponent, useDateTimeFormat } from '@tamanu/ui-components';
+import { SelectInput as SelectInputComponent } from '@tamanu/ui-components';
 import { Y_AXIS_WIDTH } from '../constants';
 
 const Wrapper = styled.div`
@@ -28,35 +28,28 @@ const DATE_FORMAT = 'yyyy-MM-dd';
 
 export const DateTimeSelector = (props) => {
   const { dateRange, setDateRange } = props;
-  const { getFacilityCurrentDateTimeString } = useDateTimeFormat();
   const [startDateString] = dateRange;
-  
+
   const options = useMemo(() => {
     return [
       {
         value: 'Last 24 hours',
         label: 'Last 24 hours',
-        getDefaultStartDate: () => addDays(parseISO(getFacilityCurrentDateTimeString()), -1),
+        getDefaultStartDate: () => addDays(new Date(), -1),
       },
       {
         value: 'Last 48 hours',
         label: 'Last 48 hours',
-        getDefaultStartDate: () => addDays(parseISO(getFacilityCurrentDateTimeString()), -2),
+        getDefaultStartDate: () => addDays(new Date(), -2),
       },
       {
         value: CUSTOM_DATE,
         label: 'Custom Date',
-        getDefaultStartDate: () => {
-          const facilityNow = parseISO(getFacilityCurrentDateTimeString());
-          return startOfDay(facilityNow);
-        },
-        getDefaultEndDate: () => {
-          const facilityNow = parseISO(getFacilityCurrentDateTimeString());
-          return addDays(startOfDay(facilityNow), 1);
-        },
+        getDefaultStartDate: () => startOfDay(new Date()),
+        getDefaultEndDate: () => addDays(startOfDay(new Date()), 1),
       },
     ];
-  }, [getFacilityCurrentDateTimeString]);
+  }, []);
   
   const [value, setValue] = useState(options[0].value);
 
