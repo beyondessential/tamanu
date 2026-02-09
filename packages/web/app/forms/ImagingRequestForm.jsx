@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 import shortid from 'shortid';
 import * as yup from 'yup';
 
-import { IMAGING_TYPES, FORM_TYPES } from '@tamanu/constants';
+import { IMAGING_TYPES, FORM_TYPES, ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { FormSeparatorLine } from '../components';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
@@ -22,7 +22,6 @@ import {
 } from '@tamanu/ui-components';
 import { AutocompleteField, DateTimeField, Field, ImagingPriorityField } from '../components/Field';
 import { TranslatedReferenceData, TranslatedText } from '../components/Translation';
-import { ENCOUNTER_OPTIONS } from '../constants';
 import { useEncounter } from '../contexts/Encounter';
 import { useLocalisation } from '../contexts/Localisation';
 import { useTranslation } from '../contexts/Translation';
@@ -31,10 +30,6 @@ import { useImagingRequestAreas } from '../utils/useImagingRequestAreas';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { foreignKey } from '../utils/validation';
 import { useAuth } from '../contexts/Auth';
-
-function getEncounterTypeLabel(type) {
-  return ENCOUNTER_OPTIONS.find(x => x.value === type).label;
-}
 
 const FormSubmitActionDropdown = React.memo(({ encounter, setOnSuccess, submitForm }) => {
   const { loadEncounter } = useEncounter();
@@ -91,7 +86,7 @@ export const ImagingRequestForm = React.memo(
     setOnSuccess,
   }) => {
     const { formatShort, getCountryCurrentDateTimeString } = useDateTimeFormat();
-    const { getTranslation } = useTranslation();
+    const { getTranslation, getEnumTranslation } = useTranslation();
     const { getLocalisation } = useLocalisation();
     const { currentUser } = useAuth();
 
@@ -227,7 +222,10 @@ export const ImagingRequestForm = React.memo(
                   />
                 }
                 disabled
-                value={`${formatShort(encounter.startDate)} - ${getEncounterTypeLabel(encounter.encounterType)}`}
+                value={`${formatShort(encounter.startDate)} - ${getEnumTranslation(
+                  ENCOUNTER_TYPE_LABELS,
+                  encounter.encounterType,
+                )}`}
                 data-testid="textinput-tyem"
               />
               <Field
