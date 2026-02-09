@@ -138,12 +138,12 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     const facilityStartStr = formatForDateTimeInput(initialValues.startTime);
     if (!facilityStartStr) return initialValues;
 
-    const facilityStartTime = toDateTimeString(parseISO(facilityStartStr));
+    const facilityStartTime = facilityStartStr.replace('T', ' ') + ':00';
     const facilityEndStr = initialValues.endTime
       ? formatForDateTimeInput(initialValues.endTime)
       : null;
     const facilityEndTime = facilityEndStr
-      ? toDateTimeString(parseISO(facilityEndStr))
+      ? facilityEndStr.replace('T', ' ') + ':00'
       : null;
 
     const startObj = parseISO(facilityStartTime);
