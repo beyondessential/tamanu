@@ -3,7 +3,13 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from '../Model';
 import { dateTimeType, type InitOptions, type Models } from '../../types/model';
 import { buildEncounterLinkedLookupSelect } from '../../sync/buildEncounterLinkedLookupFilter';
-import { afterCreateHook, afterUpdateHook } from './hooks';
+import {
+  afterCreateHook,
+  afterUpdateHook,
+  afterDestroyHook,
+  afterBulkDestroyHook,
+  afterBulkCreateHook,
+} from './hooks';
 
 export class MedicationAdministrationRecordDose extends Model {
   declare id: string;
@@ -62,7 +68,10 @@ export class MedicationAdministrationRecordDose extends Model {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         hooks: {
           afterCreate: afterCreateHook,
+          afterBulkCreate: afterBulkCreateHook,
           afterUpdate: afterUpdateHook,
+          afterDestroy: afterDestroyHook,
+          afterBulkDestroy: afterBulkDestroyHook,
         },
       },
     );
