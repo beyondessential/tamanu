@@ -120,7 +120,7 @@ export const ProcedureModal = ({
     const toCountryWithRollover = (time, refTime) => {
       if (!time) return undefined;
       // If time < reference time, it's the next day
-      const nextDay = getTime(time) < getTime(refTime);
+      const nextDay = trimToTime(time) < trimToTime(refTime);
       return toDateTimeStringForPersistence(
         combineDateTime(nextDay ? toDateString(addDays(parseISO(dateStr), 1)) : dateStr, time),
       );

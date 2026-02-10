@@ -12,6 +12,7 @@ import {
 } from '@tamanu/constants';
 import CloseIcon from '@material-ui/icons/Close';
 import { isFuture, parseISO } from 'date-fns';
+import { trimToDate, trimToTime } from '@tamanu/utils/dateTime';
 import {
   TextField,
   StyledTextField,
@@ -183,7 +184,7 @@ const getDischargeInitialValues = ({
       if (isFuture(encounterStartDate)) {
         // Future start_date: use the encounter's date with the current country-timezone time
         const countryNow = getCountryCurrentDateTimeString();
-        return `${encounter.startDate.split(' ')[0]} ${countryNow.split(' ')[1]}`;
+        return `${trimToDate(encounter.startDate)} ${trimToTime(countryNow)}`;
       } else {
         return getCountryCurrentDateTimeString();
       }
