@@ -17,14 +17,20 @@ const toDate = (dateTimeString) => new Date(dateTimeString.replace(' ', 'T'));
 
 const useFacilityDate = () => {
   const { encounter } = useEncounter();
-  const { getFacilityCurrentDateTimeString } = useDateTimeFormat();
+  const { getFacilityCurrentDateTimeString, formatForDateTimeInput } = useDateTimeFormat();
   const getFacilityNowRef = useRef(getFacilityCurrentDateTimeString);
   getFacilityNowRef.current = getFacilityCurrentDateTimeString;
 
+  const toFacilityDate = (dateStr) => {
+    if (!dateStr) return null;
+    const converted = formatForDateTimeInput(dateStr);
+    return converted ? new Date(converted) : null;
+  };
+
   const [selectedDate, setSelectedDate] = useState(() => {
     const facilityNow = toDate(getFacilityCurrentDateTimeString());
-    const encounterEnd = new Date(encounter?.endDate);
-    return encounterEnd < facilityNow ? encounterEnd : facilityNow;
+    const encounterEnd = toFacilityDate(encounter?.endDate);
+    return encounterEnd && encounterEnd < facilityNow ? encounterEnd : facilityNow;
   });
 
   useEffect(() => {
