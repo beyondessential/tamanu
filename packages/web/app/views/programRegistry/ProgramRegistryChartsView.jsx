@@ -127,7 +127,7 @@ const ChartsPanel = styled.div`
 export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patient, patientProgramRegistration }) => {
   const api = useApi();
   const queryClient = useQueryClient();
-  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTimeFormat();
   const { facilityId, ability } = useAuth();
   const [isInitiated, setIsInitiated] = useState(false);
   const [selectedChartTypeId, setSelectedChartTypeId] = useState('');
@@ -307,7 +307,7 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
   );
 
   const handleSubmitChart = async ({ survey, ...data }) => {
-    const submittedTime = getCountryCurrentDateTimeString();
+    const submittedTime = getCurrentDateTime();
     const responseData = {
       surveyId: survey.id,
       startTime: submittedTime,

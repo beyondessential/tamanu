@@ -142,7 +142,7 @@ const useIsAssignedToSurvey = (patientId, surveyId) => {
 export const SendFormToPatientPortalModal = ({ open, setOpen, formId }) => {
   const { patientId } = useParams();
   const { data: patient } = usePatientDataQuery(patientId);
-  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTimeFormat();
   const isAssignedToSurvey = useIsAssignedToSurvey(patientId, formId);
   const isRegistered = Boolean(patient?.portalUser);
 
@@ -159,7 +159,7 @@ export const SendFormToPatientPortalModal = ({ open, setOpen, formId }) => {
   const handleSubmit = ({ email } = {}) => {
     sendPatientPortalForm({
       formId,
-      assignedAt: getCountryCurrentDateTimeString(),
+      assignedAt: getCurrentDateTime(),
       email,
     });
   };

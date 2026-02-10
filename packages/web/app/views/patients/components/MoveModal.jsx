@@ -228,7 +228,7 @@ const getFormProps = ({
   encounter,
   enablePatientMoveActions,
   isAdmittingToHospital,
-  getCountryCurrentDateTimeString,
+  getCurrentDateTime,
 }) => {
   const validationObject = {
     examinerId: yup.string().required(),
@@ -269,7 +269,7 @@ const getFormProps = ({
       .of(yup.string())
       .nullable();
 
-    initialValues.startDate = getCountryCurrentDateTimeString();
+    initialValues.startDate = getCurrentDateTime();
   }
 
   return { initialValues, validationSchema: yup.object().shape(validationObject) };
@@ -369,7 +369,7 @@ const HospitalAdmissionFields = () => {
 export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterType }) => {
   const { getSetting } = useSettings();
   const { writeAndViewEncounter } = useEncounter();
-  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTimeFormat();
 
   const clinicianSuggester = useSuggester('practitioner');
   const departmentSuggester = useSuggester('department', {
@@ -395,7 +395,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
     const encounterTypeData = newEncounterType ? { encounterType: newEncounterType } : {};
 
     await writeAndViewEncounter(encounter.id, {
-      submittedTime: getCountryCurrentDateTimeString(),
+        submittedTime: getCurrentDateTime(),
       ...rest,
       ...locationData,
       ...encounterTypeData,
@@ -406,7 +406,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
     encounter,
     enablePatientMoveActions,
     isAdmittingToHospital,
-    getCountryCurrentDateTimeString,
+    getCurrentDateTime,
   });
 
   return (

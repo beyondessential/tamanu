@@ -96,7 +96,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
   const api = useApi();
   const queryClient = useQueryClient();
   const { facilityId, ability } = useAuth();
-  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTimeFormat();
   const { loadEncounter } = useEncounter();
   const {
     isLoading: isLoadingChartData,
@@ -218,7 +218,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
   );
 
   const handleSubmitChart = async ({ survey, ...data }) => {
-    const submittedTime = getCountryCurrentDateTimeString();
+    const submittedTime = getCurrentDateTime();
     const responseData = {
       surveyId: survey.id,
       startTime: submittedTime,

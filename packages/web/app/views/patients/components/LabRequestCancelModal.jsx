@@ -11,7 +11,7 @@ export const LabRequestCancelModal = React.memo(({ open, onClose, updateLabReq, 
   const api = useApi();
   const auth = useAuth();
   const { getSetting } = useSettings();
-  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTimeFormat();
   const cancellationReasonOptions = getSetting('labsCancellationReasons');
 
   const onConfirmCancel = async ({ reasonForCancellation }) => {
@@ -33,7 +33,7 @@ export const LabRequestCancelModal = React.memo(({ open, onClose, updateLabReq, 
       content: note,
       authorId: auth.currentUser.id,
       noteTypeId: NOTE_TYPES.OTHER,
-      date: getCountryCurrentDateTimeString(),
+      date: getCurrentDateTime(),
     });
 
     await updateLabReq({

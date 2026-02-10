@@ -16,8 +16,8 @@ import { TranslatedText } from '../../components/index.js';
 
 export const ProgramRegistrySurveyView = () => {
   const api = useApi();
-  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
-  const [startTime] = useState(getCountryCurrentDateTimeString());
+  const { getCurrentDateTime } = useDateTimeFormat();
+  const [startTime] = useState(getCurrentDateTime());
   const { navigateToProgramRegistry } = usePatientNavigation();
   const { currentUser, facilityId } = useAuth();
   const { patientId, programRegistryId, surveyId } = useParams();
@@ -43,7 +43,7 @@ export const ProgramRegistrySurveyView = () => {
       startTime,
       patientId: patient.id,
       facilityId,
-      endTime: getCountryCurrentDateTimeString(),
+      endTime: getCurrentDateTime(),
       answers: await getAnswersFromData(data, survey),
     });
 
