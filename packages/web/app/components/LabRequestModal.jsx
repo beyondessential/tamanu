@@ -38,7 +38,7 @@ const useLabRequestsQuery = labRequestIds => {
 export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
   const [requestFormType, setRequestFormType] = useState(null);
   const [newLabRequestIds, setNewLabRequestIds] = useState([]);
-  const { getCurrentDateString, getCurrentDateTime } = useDateTimeFormat();
+  const { getCurrentDate, getCurrentDateTime } = useDateTimeFormat();
   const api = useApi();
   const { loadEncounter } = useEncounter();
   const { isSuccess, isLoading, data: newLabRequests } = useLabRequestsQuery(newLabRequestIds);
@@ -55,7 +55,7 @@ export const LabRequestModal = React.memo(({ open, onClose, encounter }) => {
       ...rest,
       encounterId: encounter.id,
       labTest: {
-        date: getCurrentDateString(),
+        date: getCurrentDate(),
       },
       note: {
         date: getCurrentDateTime(),
