@@ -52,10 +52,9 @@ const DateTimePicker = ({
     }
   };
 
-  const startBoundaries = values.startDate && getDayBoundaries(values.startDate);
-  const endBoundaries = values.endDate && getDayBoundaries(values.endDate);
-  const startDateTimeString = startBoundaries?.end;
-  const endDateTimeString = endBoundaries?.start;
+  const startDateTimeString = getDayBoundaries(values.startDate)?.end;
+  const endDateTimeString = getDayBoundaries(values.endDate)?.start;
+
 
   /**
    * Check for any booked timeslots *between* dates in overnight bookings. {@link TimeSlotPicker}

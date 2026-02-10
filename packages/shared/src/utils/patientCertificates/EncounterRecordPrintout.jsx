@@ -8,7 +8,7 @@ import {
   NOTE_TYPES,
   REFERENCE_TYPES,
 } from '@tamanu/constants';
-import { parseDate } from '@tamanu/utils/dateTime';
+import { parseDate, trimToDate } from '@tamanu/utils/dateTime';
 
 import { CertificateHeader, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
@@ -542,7 +542,7 @@ const EncounterRecordPrintoutComponent = ({
       {
         key: 'prescriptionDate',
         title: getTranslation('medication.date.label', 'Prescription date'),
-        accessor: ({ date }) => formatShort(date.slice(0, 10)),
+        accessor: ({ date }) => formatShort(trimToDate(date)),
         style: { width: '23%' },
       },
     ],

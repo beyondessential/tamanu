@@ -9,6 +9,7 @@ import {
   TranslatedText,
   useDateTimeFormat,
 } from '@tamanu/ui-components';
+import { trimToDate } from '@tamanu/utils/dateTime';
 import { Colors } from '../../constants/styles';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 
@@ -124,7 +125,7 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
           fallback="Prescription date"
         />
       ),
-      value: prescription?.date ? formatShortest(prescription.date.slice(0, 10)) : '-',
+      value: prescription?.date ? formatShortest(trimToDate(prescription.date)) : '-',
     },
     {
       label: (

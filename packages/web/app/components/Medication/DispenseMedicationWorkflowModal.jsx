@@ -23,6 +23,7 @@ import { useTranslation } from '../../contexts/Translation';
 import { singularize } from '../../utils';
 import { AutocompleteInput, CheckInput } from '../Field';
 import { TableFormFields } from '../Table/TableFormFields';
+import { trimToDate } from '@tamanu/utils/dateTime';
 import { DateDisplay } from '../DateDisplay';
 import { useDispensableMedicationsQuery } from '../../api/queries/useDispensableMedicationsQuery';
 import { useFacilityQuery } from '../../api/queries/useFacilityQuery';
@@ -456,7 +457,7 @@ export const DispenseMedicationWorkflowModal = memo(
               fallback="Prescription date"
             />
           ),
-          accessor: ({ prescription }) => <Box>{formatShort(prescription?.date.slice(0, 10))}</Box>,
+          accessor: ({ prescription }) => <Box>{formatShort(trimToDate(prescription?.date))}</Box>,
         },
         {
           key: 'medication',

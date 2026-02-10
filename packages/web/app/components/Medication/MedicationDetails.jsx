@@ -4,6 +4,7 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { CheckSharp } from '@material-ui/icons';
+import { trimToDate } from '@tamanu/utils/dateTime';
 import {
   ADMINISTRATION_FREQUENCIES,
   DRUG_ROUTE_LABELS,
@@ -192,7 +193,7 @@ export const MedicationDetails = ({
           fallback="Prescription date"
         />
       ),
-      value: <DateDisplay date={medication.date.slice(0, 10)} format="shortest" />,
+      value: <DateDisplay date={trimToDate(medication.date)} format="shortest" />,
     },
     ...(medication.isOngoing || medication.discontinued || !medication.endDate
       ? []

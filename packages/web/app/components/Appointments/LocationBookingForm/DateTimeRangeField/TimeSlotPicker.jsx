@@ -122,8 +122,7 @@ export const TimeSlotPicker = ({
   );
   const [hoverRange, setHoverRange] = useState(null);
 
-  // Convert query boundaries from facility to country timezone
-  const queryBoundaries = useMemo(() => date ? getDayBoundaries(date) : null, [date, getDayBoundaries]);
+  const queryBoundaries = useMemo(() => getDayBoundaries(date), [date, getDayBoundaries]);
 
   const locationBookingsQuery =
     useLocationBookingsQuery(
