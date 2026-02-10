@@ -72,7 +72,7 @@ export const MarkTaskTodoForm = ({ onClose, refreshTaskTable, taskIds }) => {
               required
               saveDateAsString
               component={DateTimeField}
-              max={formatForDateTimeInput(new Date())}
+              max={formatForDateTimeInput(getCountryCurrentDateTimeString())}
               data-testid="field-c16y"
             />
             <Field

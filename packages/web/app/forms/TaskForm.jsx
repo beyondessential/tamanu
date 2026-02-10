@@ -218,7 +218,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                   saveDateAsString
                   required
                   component={DateTimeField}
-                  min={formatForDateTimeInput(new Date())}
+                  min={formatForDateTimeInput(getCountryCurrentDateTimeString())}
                   data-testid="field-om46"
                 />
               </FormGrid>
