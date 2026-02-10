@@ -239,7 +239,7 @@ const StyledIconButton = styled(IconButton)`
 export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, onReloadTable }) => {
   const { encounter } = useEncounter();
   const { ability, currentUser } = useAuth();
-  const { getCountryCurrentDateString, getCountryCurrentDateTimeString } = useDateTimeFormat();
+  const { getCurrentDateString, getCurrentDateTime } = useDateTimeFormat();
   const { data: allergies } = usePatientAllergiesQuery(encounter?.patientId);
   const { data, isLoading: medicationSetsLoading } = useSuggestionsQuery('medicationSet');
   const medicationSets = data?.sort((a, b) => a.name.localeCompare(b.name));
@@ -261,8 +261,8 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
       .map(({ medicationTemplate }) => ({
         ...medicationTemplate,
         idealTimes: ADMINISTRATION_FREQUENCY_DETAILS[medicationTemplate.frequency].startTimes || [],
-        startDate: getCountryCurrentDateTimeString(),
-        date: getCountryCurrentDateString(),
+        startDate: getCurrentDateTime(),
+        date: getCurrentDateString(),
         prescriberId: currentUser.id,
         ...(medicationTemplate.doseAmount && {
           doseAmount: Number(medicationTemplate.doseAmount),
