@@ -22,8 +22,8 @@ export const FamilyHistoryForm = ({
   editedObject,
   onSubmit,
 }) => {
-  const { getFacilityCurrentDateString } = useDateTimeFormat();
-
+  const { getCurrentDate } = useDateTimeFormat();
+  
   const getInitialValues = () => {
     if (editedObject) {
       // Currently the recordedDate is a dateTime type in the database, so we need to convert it to date type
@@ -34,7 +34,7 @@ export const FamilyHistoryForm = ({
       };
     }
     return {
-      recordedDate: getFacilityCurrentDateString(),
+      recordedDate: getCurrentDate(),
     };
   };
   return (

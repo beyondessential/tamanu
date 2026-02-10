@@ -15,7 +15,7 @@ import { NoteModalActionBlocker } from '../components/NoteModalActionBlocker';
 import { trimToDate } from '@tamanu/utils/dateTime';
 
 export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => {
-  const { getFacilityCurrentDateString } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTimeFormat();
   const getInitialValues = () => {
     if (editedObject) {
       // Currently the recordedDate is a dateTime type in the database, so we need to convert it to date type
@@ -27,7 +27,7 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => {
     }
     return {
       type: PATIENT_ISSUE_TYPES.ISSUE,
-      recordedDate: getFacilityCurrentDateString(),
+      recordedDate: getCurrentDate(),
     };
   };
   return (

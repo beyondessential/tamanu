@@ -93,9 +93,9 @@ const buildParameterFieldValidation = ({ required }) => {
 
 const useFileName = () => {
   const { getLocalisation } = useLocalisation();
-  const { getFacilityCurrentDateString } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTimeFormat();
   const country = getLocalisation('country');
-  const date = getFacilityCurrentDateString();
+  const date = getCurrentDate();
   const { getTranslation } = useTranslation();
 
   const countryName = getTranslation(getReferenceDataStringId(country.id, 'country'), country.name);

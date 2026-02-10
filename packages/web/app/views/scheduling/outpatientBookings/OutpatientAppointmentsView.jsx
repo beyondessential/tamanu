@@ -82,7 +82,7 @@ export const APPOINTMENT_GROUP_BY = {
 
 export const OutpatientAppointmentsView = () => {
   const { ability } = useAuth();
-  const { getFacilityCurrentDateString } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTimeFormat();
   const location = useLocation();
   const canCreateAppointment = ability.can('create', 'Appointment');
   const canViewAppointments = ability.can('listOrRead', 'Appointment');
@@ -92,7 +92,7 @@ export const OutpatientAppointmentsView = () => {
   const [isCreateFromExistingWarningOpen, setIsCreateFromExistingWarningOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(() => parseISO(getFacilityCurrentDateString()));
+  const [selectedDate, setSelectedDate] = useState(() => parseISO(getCurrentDate()));
   const [modifyMode, setModifyMode] = useState('');
 
   useEffect(() => {

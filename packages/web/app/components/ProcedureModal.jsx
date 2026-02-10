@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { addDays, parseISO } from 'date-fns';
 import styled from 'styled-components';
 import {
   Form,
@@ -17,7 +16,7 @@ import { toast } from 'react-toastify';
 import { FormModal } from './FormModal';
 import { useApi } from '../api';
 import { TranslatedText } from './Translation/TranslatedText';
-import { toDateString, trimToDate, trimToTime } from '@tamanu/utils/dateTime';
+import { trimToDate } from '@tamanu/utils/dateTime';
 import { foreignKey, optionalForeignKey } from '../utils/validation';
 import { FORM_TYPES } from '@tamanu/constants';
 import { useAuth } from '../contexts/Auth';
@@ -61,10 +60,6 @@ const Divider = styled(MuiDivider)`
   margin: 10px 0 20px;
 `;
 
-// Combine date + time (HH:mm) into datetime string
-const combineDateTime = (date, time) =>
-  date && time ? `${trimToDate(date)}T${trimToTime(time)}` : null;
-
 const useProcedureProgramResponsesQuery = (patientId, procedureId, refreshCount) => {
   const api = useApi();
   return useQuery(
@@ -84,10 +79,10 @@ export const ProcedureModal = ({
   const api = useApi();
   const { currentUser } = useAuth();
   const {
-    getFacilityCurrentDateString,
-    getFacilityCurrentDateTimeString,
-    toDateTimeStringForPersistence,
-    formatForDateTimeInput,
+    getCurrentDate,
+    getCurrentDateTime,
+    toStoredDateTime,
+    toFacilityDateTime,
   } = useDateTimeFormat();
   const { patientId } = useParams();
   const { data: patient } = usePatientDataQuery(patientId);
@@ -108,31 +103,21 @@ export const ProcedureModal = ({
   );
 
   // Convert countryTimeZone → facilityTimeZone for display
-  const toFacilityTz = val => (val ? formatForDateTimeInput(val) : undefined);
+  const toFacilityTz = val => (val ? toFacilityDateTime(val) : undefined);
 
-  // Form uses facilityTimeZone; on submit, combine date+time and convert to countryTimeZone
+  // Form values already have correct dates (ProcedureDateSync handles rollover),
+  // so submit just needs to convert from facility timezone to country timezone.
   const onSubmit = async data => {
-    const dateStr = trimToDate(data.date);
-    const toCountry = time =>
-      time ? toDateTimeStringForPersistence(combineDateTime(dateStr, time)) : undefined;
-    const toCountryWithRollover = (time, refTime) => {
-      if (!time) return undefined;
-      // If time < reference time, it's the next day
-      const nextDay = trimToTime(time) < trimToTime(refTime);
-      return toDateTimeStringForPersistence(
-        combineDateTime(nextDay ? toDateString(addDays(parseISO(dateStr), 1)) : dateStr, time),
-      );
-    };
-
-    const actualDateTime = toCountry(data.startTime);
+    const toPersisted = val => (val ? toStoredDateTime(val) : undefined);
+    const startDateTime = toPersisted(data.startTime);
 
     await api[data.id ? 'put' : 'post'](data.id ? `procedure/${data.id}` : 'procedure', {
       ...data,
-      date: actualDateTime,
-      startTime: actualDateTime,
-      endTime: toCountryWithRollover(data.endTime, data.startTime),
-      timeIn: toCountry(data.timeIn),
-      timeOut: toCountryWithRollover(data.timeOut, data.timeIn),
+      date: startDateTime,
+      startTime: startDateTime,
+      endTime: toPersisted(data.endTime),
+      timeIn: toPersisted(data.timeIn),
+      timeOut: toPersisted(data.timeOut),
       encounterId,
     });
 
@@ -320,9 +305,8 @@ export const ProcedureModal = ({
               assistantClinicianIds: editedProcedure.assistantClinicians?.map(c => c.id) || [],
             }
           : {
-              // Create: defaults in facility timezone
-              date: getFacilityCurrentDateString(),
-              startTime: getFacilityCurrentDateTimeString(),
+              date: getCurrentDate(),
+              startTime: toFacilityTz(getCurrentDateTime()),
               physicianId: currentUser.id,
               assistantClinicianIds: [],
             }

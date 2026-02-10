@@ -43,7 +43,7 @@ const validationSchema = yup.object().shape({
 });
 
 export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose }) => {
-  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTimeFormat();
   const api = useApi();
   const practitionerSuggester = useSuggester('practitioner');
   const { encounter, loadEncounter } = useEncounter();
@@ -51,7 +51,7 @@ export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose 
   const onSubmit = async data => {
     const updatedMedication = await api.post(`medication/${medication.id}/discontinue`, {
       ...data,
-      discontinuingDate: getCountryCurrentDateTimeString(),
+      discontinuingDate: getCurrentDateTime(),
     });
     onDiscontinue(updatedMedication);
     if (loadEncounter && encounter) {

@@ -69,7 +69,7 @@ export const VaccineGivenForm = ({
   setValues,
   vaccineConsentEnabled,
 }) => {
-  const { getCountryCurrentDateTimeString, getFacilityCurrentDateString } = useDateTimeFormat();
+  const { getCurrentDateTime, getCurrentDate } = useDateTimeFormat();
   
   return (
     <TwoTwoGrid data-testid="twotwogrid-2swz">
@@ -99,7 +99,7 @@ export const VaccineGivenForm = ({
                 delete newValues.givenBy;
                 if (!value) {
                   delete newValues.circumstanceIds;
-                  newValues.date = getCountryCurrentDateTimeString();
+                  newValues.date = getCurrentDateTime();
                 } else {
                   delete newValues.date;
                 }
@@ -168,7 +168,7 @@ export const VaccineGivenForm = ({
         }
         required={!values.givenElsewhere}
         min={values?.patientData?.dateOfBirth}
-        max={getFacilityCurrentDateString()}
+        max={getCurrentDate()}
         keepIncorrectValue
         data-testid="vaccinedatefield-z99f"
       />

@@ -2,11 +2,11 @@ import React, { createContext, useCallback, useContext, useMemo } from 'react';
 import { mapValues } from 'lodash';
 
 import {
-  formatForDateTimeInput,
+  toFacilityDateTime,
   getCurrentDateStringInTimezone,
   getCurrentDateTimeStringInTimezone,
   getDayBoundaries,
-  toDateTimeStringForPersistence,
+  toStoredDateTime,
 } from '@tamanu/utils/dateTime';
 import * as dateTimeFormatters from '@tamanu/utils/dateFormatters';
 
@@ -30,13 +30,12 @@ type WrappedFormatters = {
 export interface DateTimeContextValue extends WrappedFormatters {
   countryTimeZone: string;
   facilityTimeZone?: string | null;
-  getCountryCurrentDateTimeString: () => string;
-  getCountryCurrentDateString: () => string;
-  getFacilityCurrentDateTimeString: () => string;
-  getFacilityCurrentDateString: () => string;
+  getCurrentDate: () => string;
+  getCurrentDateTime: () => string;
+  getFacilityNow: () => string;
   getDayBoundaries: (date: string) => { start: string; end: string } | null;
-  toDateTimeStringForPersistence: (inputValue: string | null | undefined) => string | null;
-  formatForDateTimeInput: (value: string | Date | null | undefined) => string | null;
+  toStoredDateTime: (inputValue: string | null | undefined) => string | null;
+  toFacilityDateTime: (value: string | Date | null | undefined) => string | null;
 }
 
 interface DateTimeProviderProps {
@@ -81,24 +80,17 @@ export const DateTimeProvider = ({
       countryTimeZone,
       facilityTimeZone,
       ...(mapValues(dateTimeFormatters, wrapFunction) as WrappedFormatters),
-      // Get current datetime string in country timezone (for initial values / persistence)
-      getCountryCurrentDateTimeString: () => getCurrentDateTimeStringInTimezone(countryTimeZone),
-      // Get current date string in country timezone (for initial values / persistence)
-      getCountryCurrentDateString: () => getCurrentDateStringInTimezone(countryTimeZone),
-      // Get current datetime string in facility timezone (for UI display / validation)
-      getFacilityCurrentDateTimeString: () =>
-        getCurrentDateTimeStringInTimezone(facilityTimeZone ?? countryTimeZone),
-      // Get current date string in facility timezone (for UI display / validation)
-      getFacilityCurrentDateString: () =>
-        getCurrentDateStringInTimezone(facilityTimeZone ?? countryTimeZone),
-      // Get day date boundaries i.e start and end of the day at the given date in country timezone for query
-      getDayBoundaries: (date) => getDayBoundaries(date, countryTimeZone, facilityTimeZone),
-      // Convert datetime-local input value (facility timezone) to country timezone for persistence
-      toDateTimeStringForPersistence: value =>
-        toDateTimeStringForPersistence(value, countryTimeZone, facilityTimeZone),
-      // Format stored value (country timezone) for datetime-local input display (facility timezone)
-      formatForDateTimeInput: value =>
-        formatForDateTimeInput(value, countryTimeZone, facilityTimeZone),
+      getCurrentDate: () => getCurrentDateStringInTimezone(facilityTimeZone ?? countryTimeZone),
+      getCurrentDateTime: () => getCurrentDateTimeStringInTimezone(countryTimeZone),
+      getFacilityNow: () =>
+        toFacilityDateTime(
+          getCurrentDateTimeStringInTimezone(countryTimeZone),
+          countryTimeZone,
+          facilityTimeZone,
+        )!,
+      getDayBoundaries: date => getDayBoundaries(date, countryTimeZone, facilityTimeZone),
+      toStoredDateTime: value => toStoredDateTime(value, countryTimeZone, facilityTimeZone),
+      toFacilityDateTime: value => toFacilityDateTime(value, countryTimeZone, facilityTimeZone),
     }),
     [countryTimeZone, facilityTimeZone, wrapFunction],
   );

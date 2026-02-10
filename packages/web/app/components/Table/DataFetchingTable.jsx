@@ -39,11 +39,11 @@ export const DataFetchingTable = memo(
     'data-testid': dataTestId,
     ...props
   }) => {
-    const { getFacilityCurrentDateTimeString } = useDateTimeFormat();
+    const { getCurrentDateTime } = useDateTimeFormat();
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
     const [sorting, setSorting] = useState(initialSort);
-    const [fetchState, setFetchState] = useState(() => initialiseFetchState(getFacilityCurrentDateTimeString()));
+    const [fetchState, setFetchState] = useState(() => initialiseFetchState(getCurrentDateTime()));
     const [forcedRefreshCount, setForcedRefreshCount] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [isLoadingMoreData, setIsLoadingMoreData] = useState(false);
@@ -111,8 +111,8 @@ export const DataFetchingTable = memo(
       return highlightedData;
     };
 
-    const getFacilityCurrentDateTimeStringRef = useRef(getFacilityCurrentDateTimeString);
-    getFacilityCurrentDateTimeStringRef.current = getFacilityCurrentDateTimeString;
+    const getCurrentDateTimeRef = useRef(getCurrentDateTime);
+    getCurrentDateTimeRef.current = getCurrentDateTime;
 
     const updateFetchState = useCallback(
       (data, count) => {
@@ -120,7 +120,7 @@ export const DataFetchingTable = memo(
           page,
           count,
           data,
-          lastUpdatedAt: getFacilityCurrentDateTimeStringRef.current(),
+          lastUpdatedAt: getCurrentDateTimeRef.current(),
           sorting,
           fetchOptions,
         });
@@ -277,7 +277,7 @@ export const DataFetchingTable = memo(
 
     useEffect(() => {
       setPage(0);
-      setFetchState(initialiseFetchState(getFacilityCurrentDateTimeStringRef.current()));
+      setFetchState(initialiseFetchState(getCurrentDateTimeRef.current()));
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fetchOptionsString]);
 

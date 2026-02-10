@@ -127,20 +127,20 @@ const ErrorMessage = ({ isEdit = false, error }) => {
 export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
   const { updateSelectedCell, viewType } = useLocationBookingsContext();
-  const { formatShort, toDateTimeStringForPersistence, formatForDateTimeInput } =
+  const { formatShort, toStoredDateTime, toFacilityDateTime } =
     useDateTimeFormat();
   const isEdit = !!initialValues.id;
 
   // Convert startTime/endTime from country timezone to facility timezone for the form,
   // since the time slot picker operates in facility timezone and handleSubmit converts
-  // back to country timezone via toDateTimeStringForPersistence on save.
+  // back to country timezone via toStoredDateTime on save.
   const processedInitialValues = useMemo(() => {
     if (!initialValues.startTime) return initialValues;
-    const facilityStartStr = formatForDateTimeInput(initialValues.startTime);
+    const facilityStartStr = toFacilityDateTime(initialValues.startTime);
     if (!facilityStartStr) return initialValues;
 
     const facilityEndStr = initialValues.endTime
-      ? formatForDateTimeInput(initialValues.endTime)
+      ? toFacilityDateTime(initialValues.endTime)
       : null;
 
     const startDate = trimToDate(facilityStartStr);
@@ -155,7 +155,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
       endDate: endDate ?? initialValues.endDate,
       overnight: startDate && endDate ? startDate !== endDate : initialValues.overnight,
     };
-  }, [initialValues, formatForDateTimeInput]);
+  }, [initialValues, toFacilityDateTime]);
 
   const { mutateAsync: checkOnLeave } = useCheckOnLeaveMutation();
 
@@ -312,8 +312,8 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
       {
         id: initialValues.id, // Undefined when creating new booking
         locationId,
-        startTime: toDateTimeStringForPersistence(startTime),
-        endTime: toDateTimeStringForPersistence(endTime),
+        startTime: toStoredDateTime(startTime),
+        endTime: toStoredDateTime(endTime),
         patientId,
         bookingTypeId,
         clinicianId,

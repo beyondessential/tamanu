@@ -92,7 +92,7 @@ const CancelAddNoteButton = styled(FormCancelButton)`
 export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
   const api = useApi();
   const queryClient = useQueryClient();
-  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTimeFormat();
   const [active, setActive] = useState(false);
 
   const { data: notes, isSuccess } = useQuery(['labRequest', labRequestId, 'notes'], () =>
@@ -105,7 +105,7 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
         content: values.content?.trim(),
         authorId: api.user.id,
         noteTypeId: NOTE_TYPES.OTHER,
-        date: getCountryCurrentDateTimeString(),
+        date: getCurrentDateTime(),
       }),
     {
       onSuccess: (responseData, { formProps }) => {

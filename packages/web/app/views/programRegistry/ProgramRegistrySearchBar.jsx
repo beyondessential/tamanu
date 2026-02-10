@@ -29,7 +29,7 @@ const Spacer = styled.div`
 `;
 
 export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters }) => {
-  const { getFacilityCurrentDateString } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTimeFormat();
   const params = useParams();
   const [isExpanded, setIsExpanded] = useState(false);
   const facilitySuggester = useSuggester('facility');
@@ -198,7 +198,7 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
         }
         saveDateAsString
         component={DateField}
-        max={getFacilityCurrentDateString()}
+        max={getCurrentDate()}
         data-testid="localisedfield-b6xj"
       />
       <Spacer data-testid="spacer-051k" />

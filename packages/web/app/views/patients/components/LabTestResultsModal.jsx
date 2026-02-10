@@ -240,7 +240,7 @@ const ResultsForm = ({
   setFieldValue,
   areLabTestResultsReadOnly,
 }) => {
-  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTimeFormat();
   const { count, data } = labTestResults;
   /**
    * On entering lab result field for a test some other fields are auto-filled optimistically
@@ -263,13 +263,13 @@ const ResultsForm = ({
         const uniqueValues = [...new Set(otherRowsValues)];
         const fieldName = `labTests.${labTestId}.${name}`;
         if (name === LAB_TEST_PROPERTIES.COMPLETED_DATE) {
-          setFieldValue(fieldName, getCountryCurrentDateTimeString());
+          setFieldValue(fieldName, getCurrentDateTime());
         } else if (uniqueValues.length === 1) {
           setFieldValue(fieldName, uniqueValues[0]);
         }
       });
     },
-    [values, setFieldValue],
+    [values.labTests, setFieldValue, getCurrentDateTime],
   );
 
   const columns = useMemo(() => getColumns(count, onChangeResult, areLabTestResultsReadOnly), [

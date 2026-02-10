@@ -174,8 +174,8 @@ const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate, facilit
 
 export const MarTable = ({ selectedDate }) => {
   const { encounter } = useEncounter();
-  const { getDayBoundaries, getFacilityCurrentDateTimeString } = useDateTimeFormat();
-  const facilityNow = new Date(getFacilityCurrentDateTimeString().replace(' ', 'T'));
+  const { getDayBoundaries, getFacilityNowDate } = useDateTimeFormat();
+  const facilityNow = getFacilityNowDate();
   const scheduledSectionRef = useRef(null);
   const scheduledHeaderRef = useRef(null);
   const prnSectionRef = useRef(null);

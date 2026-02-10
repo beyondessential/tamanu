@@ -22,8 +22,7 @@ const JoinedField = styled(Field)`
 `;
 
 export const DOBFields = ({ showExactBirth = true }) => {
-  const { getFacilityCurrentDateString } = useDateTimeFormat();
-
+  const { getCurrentDate } = useDateTimeFormat();
   return (
     <>
       {showExactBirth && (
@@ -38,7 +37,7 @@ export const DOBFields = ({ showExactBirth = true }) => {
               data-testid="translatedtext-skqd"
             />
           }
-          max={getFacilityCurrentDateString()}
+          max={getCurrentDate()}
           data-testid="field-h3d3"
         />
       )}
@@ -53,7 +52,7 @@ export const DOBFields = ({ showExactBirth = true }) => {
             data-testid="translatedtext-2nkk"
           />
         }
-        max={getFacilityCurrentDateString()}
+        max={getCurrentDate()}
         data-testid="joinedfield-swzm"
       />
       <Field
@@ -67,7 +66,7 @@ export const DOBFields = ({ showExactBirth = true }) => {
             data-testid="translatedtext-v82q"
           />
         }
-        max={getFacilityCurrentDateString()}
+        max={getCurrentDate()}
         data-testid="field-aax5"
       />
     </>

@@ -416,7 +416,7 @@ export const LocationBookingsDailyCalendar = ({
   ...props
 }) => {
   const { ability } = useAuth();
-  const { getDayBoundaries, formatForDateTimeInput } = useDateTimeFormat();
+  const { getDayBoundaries, toFacilityDateTime } = useDateTimeFormat();
   const {
     filters: { bookingTypeId, clinicianId, patientNameOrId, locationGroupIds },
     selectedCell,
@@ -598,9 +598,9 @@ export const LocationBookingsDailyCalendar = ({
   const getAppointmentStyle = appointment => {
     if (!timeSlots || timeSlots.length === 0) return { top: 0, height: 70 };
 
-    const facilityStartStr = formatForDateTimeInput(appointment.startTime);
+    const facilityStartStr = toFacilityDateTime(appointment.startTime);
     if (!facilityStartStr) return { top: 0, height: 70 };
-    const facilityEndStr = appointment.endTime ? formatForDateTimeInput(appointment.endTime) : null;
+    const facilityEndStr = appointment.endTime ? toFacilityDateTime(appointment.endTime) : null;
     const startTime = new Date(facilityStartStr);
     const endTime = facilityEndStr ? new Date(facilityEndStr) : addHours(startTime, 1);
 

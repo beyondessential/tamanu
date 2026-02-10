@@ -51,16 +51,16 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
   const [createMedicationModalOpen, setCreateMedicationModalOpen] = useState(false);
   const { encounter } = useEncounter();
   const { ability } = useAuth();
-  const { getFacilityCurrentDateTimeString, formatForDateTimeInput } = useDateTimeFormat();
+  const { getFacilityNowDate, toFacilityDateTime } = useDateTimeFormat();
   const canCreatePrescription = ability.can('create', 'Medication');
 
   const toFacilityDate = dateStr => {
     if (!dateStr) return null;
-    const converted = formatForDateTimeInput(dateStr);
+    const converted = toFacilityDateTime(dateStr);
     return converted ? new Date(converted) : null;
   };
 
-  const facilityNow = new Date(getFacilityCurrentDateTimeString().replace(' ', 'T'));
+  const facilityNow = getFacilityNowDate();
   const encounterStart = toFacilityDate(encounter?.startDate);
   const encounterEnd = toFacilityDate(encounter?.endDate);
 

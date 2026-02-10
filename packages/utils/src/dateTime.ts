@@ -23,6 +23,7 @@ import {
   type DurationUnit,
   type Interval,
 } from 'date-fns';
+import { has } from 'lodash';
 import { Temporal } from 'temporal-polyfill';
 import { z } from 'zod';
 
@@ -296,7 +297,13 @@ export const intlFormatDate = (
     }
 
     if (isISO9075DateString(date)) {
-      return Temporal.PlainDate.from(date).toLocaleString(locale, formatOptions);
+      const plainDate = Temporal.PlainDate.from(date);
+      const timeKeys = ['hour', 'minute', 'second', 'timeStyle', 'dayPeriod'] as const;
+      const hasTimeOptions = timeKeys.some(key => has(formatOptions, key));
+      if (hasTimeOptions) {
+        return plainDate.toPlainDateTime().toLocaleString(locale, formatOptions);
+      }
+      return plainDate.toLocaleString(locale, formatOptions);
     }
 
     const displayTz = getDisplayTimezone(countryTimeZone, facilityTimeZone);
@@ -405,7 +412,7 @@ export const getCurrentDateStringInTimezone = (timezone?: string) =>
  * Convert stored datetime (country timezone) to display format (facility timezone)
  * Used when populating datetime-local inputs with existing values
  */
-export const formatForDateTimeInput = (
+export const toFacilityDateTime = (
   value: string | Date | null | undefined,
   countryTimeZone?: string,
   facilityTimeZone?: string | null,
@@ -442,7 +449,7 @@ export const formatForDateTimeInput = (
  * Convert input value (facility timezone) to storage format (country timezone)
  * Used when saving datetime-local input values to the database
  */
-export const toDateTimeStringForPersistence = (
+export const toStoredDateTime = (
   inputValue: string | null | undefined,
   countryTimeZone?: string,
   facilityTimeZone?: string | null,
@@ -467,12 +474,12 @@ export const getDayBoundaries = (
   countryTimeZone?: string,
   facilityTimeZone?: string | null,
 ) => {
-  const start = toDateTimeStringForPersistence(
+  const start = toStoredDateTime(
     `${date}T00:00:00`,
     countryTimeZone,
     facilityTimeZone,
   );
-  const end = toDateTimeStringForPersistence(`${date}T23:59:59`, countryTimeZone, facilityTimeZone);
+  const end = toStoredDateTime(`${date}T23:59:59`, countryTimeZone, facilityTimeZone);
   if (!start || !end) return null;
   return {
     start,

@@ -13,29 +13,27 @@ const MarContainer = styled.div`
   border-right: 1px solid ${Colors.outline};
 `;
 
-const toDate = dateTimeString => new Date(dateTimeString.replace(' ', 'T'));
-
 const useFacilityDate = () => {
   const { encounter } = useEncounter();
-  const { getFacilityCurrentDateTimeString, formatForDateTimeInput } = useDateTimeFormat();
-  const getFacilityNowRef = useRef(getFacilityCurrentDateTimeString);
-  getFacilityNowRef.current = getFacilityCurrentDateTimeString;
+  const { getFacilityNowDate, toFacilityDateTime } = useDateTimeFormat();
+  const getFacilityNowDateRef = useRef(getFacilityNowDate);
+  getFacilityNowDateRef.current = getFacilityNowDate;
 
   const toFacilityDate = dateStr => {
     if (!dateStr) return null;
-    const converted = formatForDateTimeInput(dateStr);
+    const converted = toFacilityDateTime(dateStr);
     return converted ? new Date(converted) : null;
   };
 
   const [selectedDate, setSelectedDate] = useState(() => {
-    const facilityNow = toDate(getFacilityCurrentDateTimeString());
+    const facilityNow = getFacilityNowDate();
     const encounterEnd = toFacilityDate(encounter?.endDate);
     return encounterEnd && encounterEnd < facilityNow ? encounterEnd : facilityNow;
   });
 
   useEffect(() => {
     const timer = setInterval(() => {
-      const now = toDate(getFacilityNowRef.current());
+      const now = getFacilityNowDateRef.current();
       setSelectedDate(prev => set(prev, { hours: now.getHours(), minutes: now.getMinutes() }));
     }, 60000);
     return () => clearInterval(timer);

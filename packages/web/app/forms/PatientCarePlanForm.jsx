@@ -16,7 +16,7 @@ export const PatientCarePlanForm = ({
   onCancel,
   onSubmit,
 }) => {
-  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTimeFormat();
   
   return (<Form
     onSubmit={onSubmit}
@@ -104,7 +104,7 @@ export const PatientCarePlanForm = ({
       </FormGrid>
     )}
     initialValues={{
-      date: getCountryCurrentDateTimeString(),
+      date: getCurrentDateTime(), 
       ...editedObject,
     }}
     formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}

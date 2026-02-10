@@ -28,7 +28,7 @@ export const LabRequestMultiStepForm = ({
   onSubmit,
   editedObject,
 }) => {
-  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTimeFormat();
   const { getSetting } = useSettings();
   const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
 
@@ -148,7 +148,7 @@ export const LabRequestMultiStepForm = ({
       initialValues={{
         requestedById: currentUser.id,
         departmentId: encounter.departmentId,
-        requestedDate: getCountryCurrentDateTimeString(),
+        requestedDate: getCurrentDateTime(),
         labTestTypeIds: [],
         panelIds: [],
         notes: '',

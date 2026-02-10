@@ -161,7 +161,7 @@ const ErrorMessage = ({ isEdit = false, error }) => {
 
 export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {}, modifyMode }) => {
   const { getTranslation } = useTranslation();
-  const { toDateTimeStringForPersistence, formatForDateTimeInput } = useDateTimeFormat();
+  const { toStoredDateTime, toFacilityDateTime } = useDateTimeFormat();
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
   const appointmentTypeSuggester = useSuggester('appointmentType');
@@ -173,16 +173,16 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
 
   // Convert endTime from country timezone to facility timezone for form state,
   // since TimeWithFixedDateField operates in facility timezone and handleSubmitForm
-  // converts back to country timezone via toDateTimeStringForPersistence on save.
+  // converts back to country timezone via toStoredDateTime on save.
   const processedInitialValues = useMemo(() => {
     if (!initialValues.endTime) return initialValues;
-    const facilityEndTimeStr = formatForDateTimeInput(initialValues.endTime);
+    const facilityEndTimeStr = toFacilityDateTime(initialValues.endTime);
     if (!facilityEndTimeStr) return initialValues;
     return {
       ...initialValues,
       endTime: dateTimeInputToISO9075(facilityEndTimeStr),
     };
-  }, [initialValues, formatForDateTimeInput]);
+  }, [initialValues, toFacilityDateTime]);
 
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
@@ -203,7 +203,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
         ),
         (value, { parent }) => {
           if (!value) return true;
-          const endTimeCountry = toDateTimeStringForPersistence(value);
+          const endTimeCountry = toStoredDateTime(value);
           if (!endTimeCountry) return true;
           return isAfter(parseISO(endTimeCountry), parseISO(parent.startTime));
         },
@@ -321,7 +321,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
       const startTimeDate = parseISO(event.target.value);
       handleUpdateScheduleToStartTime(startTimeDate);
       if (!values.endTime) return;
-      const facilityStartStr = formatForDateTimeInput(event.target.value);
+      const facilityStartStr = toFacilityDateTime(event.target.value);
       if (!facilityStartStr) return;
       const [year, month, day] = trimToDate(facilityStartStr).split('-').map(Number);
       setFieldValue(
@@ -428,7 +428,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
             name="endTime"
             disabled={!values.startTime}
             date={
-              values.startTime ? trimToDate(formatForDateTimeInput(values.startTime)) : undefined
+              values.startTime ? trimToDate(toFacilityDateTime(values.startTime)) : undefined
             }
             label={
               <TranslatedText
@@ -525,7 +525,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
 
   const handleSubmitForm = async (values, { resetForm }) => {
     const endTimeForPersistence = values.endTime
-      ? toDateTimeStringForPersistence(values.endTime)
+      ? toStoredDateTime(values.endTime)
       : values.endTime;
     await handleSubmit({ ...values, endTime: endTimeForPersistence, modifyMode });
     resetForm();

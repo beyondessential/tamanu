@@ -174,7 +174,7 @@ const getDischargeInitialValues = ({
   currentUser,
   dischargeNotes,
   medicationInitialValues,
-  getCountryCurrentDateTimeString,
+  getCurrentDateTime,
 }) => {
   const dischargeDraft = encounter?.dischargeDraft?.discharge;
   const encounterStartDate = parseISO(encounter.startDate);
@@ -183,10 +183,10 @@ const getDischargeInitialValues = ({
     if (!dischargeDraft) {
       if (isFuture(encounterStartDate)) {
         // Future start_date: use the encounter's date with the current country-timezone time
-        const countryNow = getCountryCurrentDateTimeString();
+        const countryNow = getCurrentDateTime();
         return `${trimToDate(encounter.startDate)} ${trimToTime(countryNow)}`;
       } else {
-        return getCountryCurrentDateTimeString();
+        return getCurrentDateTime();
       }
     }
     return encounter?.dischargeDraft?.endDate;
@@ -200,7 +200,7 @@ const getDischargeInitialValues = ({
       note: dischargeNotes?.map(n => n.content).join('\n\n') || '',
     },
     medications: medicationInitialValues,
-    submittedTime: getCountryCurrentDateTimeString(),
+    submittedTime: getCurrentDateTime(),
   };
 };
 
@@ -695,7 +695,7 @@ export const DischargeForm = ({
   const { getTranslation, getEnumTranslation } = useTranslation();
   const { encounter } = useEncounter();
   const { getSetting } = useSettings();
-  const { formatForDateTimeInput, getCountryCurrentDateTimeString } = useDateTimeFormat();
+  const { toFacilityDateTime, getCurrentDateTime } = useDateTimeFormat();
   const queryClient = useQueryClient();
   const { ability, currentUser } = useAuth();
   const canUpdateMedication = ability.can('write', 'Medication');
@@ -799,7 +799,7 @@ export const DischargeForm = ({
           currentUser,
           dischargeNotes,
           medicationInitialValues,
-          getCountryCurrentDateTimeString,
+          getCurrentDateTime,
         })}
         FormScreen={props => (
           <DischargeFormScreen
@@ -893,7 +893,7 @@ export const DischargeForm = ({
               />
             }
             component={DateTimeField}
-            min={formatForDateTimeInput(encounter.startDate)}
+            min={toFacilityDateTime(encounter.startDate)}
             required
             saveDateAsString
             data-testid="field-20tt"

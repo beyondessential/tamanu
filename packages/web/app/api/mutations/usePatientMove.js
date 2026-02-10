@@ -4,7 +4,7 @@ import { useApi } from '../useApi';
 import { useEncounter } from '../../contexts/Encounter';
 
 export const usePatientMove = (encounterId, onClose) => {
-  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTimeFormat();
   const api = useApi();
   const { loadEncounter } = useEncounter();
 
@@ -13,7 +13,7 @@ export const usePatientMove = (encounterId, onClose) => {
     mutationFn: async (data) => {
       await api.put(`encounter/${encounterId}`, {
         ...data,
-        submittedTime: getCountryCurrentDateTimeString(),
+        submittedTime: getCurrentDateTime(),
       });
     },
     onSuccess: async () => {

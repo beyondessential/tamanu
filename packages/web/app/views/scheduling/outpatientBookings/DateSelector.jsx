@@ -148,8 +148,8 @@ const DayButton = ({ date, selected, facilityToday, onClick }) => {
 };
 
 export const DateSelector = ({ value, onChange }) => {
-  const { getFacilityCurrentDateString } = useDateTimeFormat();
-  const facilityToday = new Date(`${getFacilityCurrentDateString()}T00:00:00`);
+  const { getCurrentDate } = useDateTimeFormat();
+  const facilityToday = new Date(`${getCurrentDate()}T00:00:00`);
   const [viewedDays, setViewedDays] = useState(eachDayInMonth(value));
 
   useEffect(() => {

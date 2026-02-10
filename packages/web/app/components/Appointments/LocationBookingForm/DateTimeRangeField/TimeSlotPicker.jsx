@@ -95,7 +95,7 @@ export const TimeSlotPicker = ({
     errors,
     isSubmitting,
   } = useFormikContext();
-  const { getDayBoundaries, formatForDateTimeInput } = useDateTimeFormat();
+  const { getDayBoundaries, toFacilityDateTime } = useDateTimeFormat();
 
   const {
     slots: timeSlots,
@@ -268,8 +268,8 @@ export const TimeSlotPicker = ({
     () =>
       existingBookings?.data
         .map(booking => {
-          const facilityStart = formatForDateTimeInput(booking.startTime);
-          const facilityEnd = formatForDateTimeInput(booking.endTime);
+          const facilityStart = toFacilityDateTime(booking.startTime);
+          const facilityEnd = toFacilityDateTime(booking.endTime);
           if (!facilityStart || !facilityEnd) return null;
           return appointmentToInterval({
             startTime: facilityStart,
@@ -277,7 +277,7 @@ export const TimeSlotPicker = ({
           });
         })
         .filter(interval => interval && !isEqual(interval, initialInterval)) ?? [],
-    [existingBookings?.data, initialInterval, formatForDateTimeInput],
+    [existingBookings?.data, initialInterval, toFacilityDateTime],
   );
 
   /** A time slot is selectable if it does not create a selection of time slots that collides with another booking */

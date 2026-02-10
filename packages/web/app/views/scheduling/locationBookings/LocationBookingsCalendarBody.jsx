@@ -22,7 +22,7 @@ export const BookingsCell = ({
 }) => {
   const { ability } = useAuth();
   const { selectedCell, updateSelectedCell } = useLocationBookingsContext();
-  const { formatForDateTimeInput } = useDateTimeFormat();
+  const { toFacilityDateTime } = useDateTimeFormat();
   const isSelected = selectedCell.locationId === locationId && isEqual(date, selectedCell.date);
   const canCreateBooking = ability.can('create', 'Appointment');
 
@@ -39,7 +39,7 @@ export const BookingsCell = ({
       data-testid="cell-dp5l"
     >
       {appointments?.map((a, index) => {
-        const facilityStartDate = trimToDate(formatForDateTimeInput(a.startTime));
+        const facilityStartDate = trimToDate(toFacilityDateTime(a.startTime));
         const cellDateStr = toDateString(date);
         return (
           <AppointmentTile
@@ -81,9 +81,9 @@ export const BookingsRow = ({
   openCancelModal,
   onEmailBooking,
 }) => {
-  const { formatForDateTimeInput } = useDateTimeFormat();
+  const { toFacilityDateTime } = useDateTimeFormat();
   const { locationGroup } = location;
-  const appointmentsByDate = partitionAppointmentsByDate(appointments, formatForDateTimeInput);
+  const appointmentsByDate = partitionAppointmentsByDate(appointments, toFacilityDateTime);
 
   return (
     <CarouselGrid.Row data-testid="row-m8yc">

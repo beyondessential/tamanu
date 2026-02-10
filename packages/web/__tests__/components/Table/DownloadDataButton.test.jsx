@@ -45,7 +45,7 @@ vi.mock('@tamanu/ui-components', async () => {
   return {
     ...actual,
     useDateTimeFormat: vi.fn(() => ({
-      getFacilityCurrentDateString: () => getCurrentDateString(),
+      getCurrentDate: () => getCurrentDateString(),
     })),
   };
 });

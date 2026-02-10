@@ -32,7 +32,7 @@ export const GenericPrimaryDetailsLayout = ({
   isRequiredPatientData,
   isDetailsForm = false,
 }) => {
-  const { getFacilityCurrentDateString } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTimeFormat();
   const { getSetting } = useSettings();
   const isReminderContactEnabled = getSetting(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED);
   const villageSuggester = useSuggester('village');
@@ -118,7 +118,7 @@ export const GenericPrimaryDetailsLayout = ({
                 data-testid="translatedtext-o7gm"
               />
             }
-            max={getFacilityCurrentDateString()}
+            max={getCurrentDate()}  
             component={DateField}
             required
             saveDateAsString

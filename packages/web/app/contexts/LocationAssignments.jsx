@@ -11,13 +11,13 @@ import {
 const LocationAssignmentsContext = createContext(null);
 
 export const LocationAssignmentsContextProvider = ({ children }) => {
-  const { getFacilityCurrentDateString } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTimeFormat();
   const [selectedCell, setSelectedCell] = useState({
     locationId: null,
     date: null,
   });
 
-  const [monthOf, setMonthOf] = useState(() => parseISO(getFacilityCurrentDateString()));
+  const [monthOf, setMonthOf] = useState(() => parseISO(getCurrentDate()));
   const [isCalendarLoaded, setIsCalendarLoaded] = useState(false);
 
   useEffect(

@@ -56,13 +56,13 @@ export const partitionAppointmentsByLocation = appointments =>
     return acc;
   }, {});
 
-export const partitionAppointmentsByDate = (appointments, formatForDateTimeInput) =>
+export const partitionAppointmentsByDate = (appointments, toFacilityDateTime) =>
   appointments.reduce((acc, appt) => {
-    const startStr = formatForDateTimeInput?.(appt.startTime);
+    const startStr = toFacilityDateTime?.(appt.startTime);
     if (!startStr) return acc;
     const startDate = trimToDate(startStr);
 
-    const endStr = appt.endTime ? formatForDateTimeInput(appt.endTime) : null;
+    const endStr = appt.endTime ? toFacilityDateTime(appt.endTime) : null;
     const endDate = trimToDate(endStr);
 
     const dates =

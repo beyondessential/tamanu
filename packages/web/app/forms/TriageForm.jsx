@@ -68,10 +68,9 @@ export const TriageForm = ({
   const navigate = useNavigate();
   const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
-  const { getCountryCurrentDateTimeString, getFacilityCurrentDateString } = useDateTimeFormat();
+  const { getCurrentDateTime, getCurrentDate } = useDateTimeFormat();
   
-  // Max for datetime fields: end of today in facility timezone
-  const todayFacility = getFacilityCurrentDateString();
+  const todayFacility = getCurrentDate();
   const endOfTodayMax = `${todayFacility}T23:59`;
   const triageCategories = getSetting('triageCategories');
   const practitionerSuggester = useSuggester('practitioner');
@@ -217,8 +216,8 @@ export const TriageForm = ({
       const { survey, ...data } = values.vitals;
       updatedVitals = {
         surveyId: survey.id,
-        startTime: getCountryCurrentDateTimeString(),
-        endTime: getCountryCurrentDateTimeString(),
+        startTime: getCurrentDateTime(),
+        endTime: getCurrentDateTime(),
         patientId: patient.id,
         answers: await getAnswersFromData(data, survey),
       };
@@ -231,7 +230,7 @@ export const TriageForm = ({
 
     const newTriage = {
       ...updatedValues,
-      startDate: getCountryCurrentDateTimeString(),
+      startDate: getCurrentDateTime(),
       patientId: patient.id,
       facilityId,
     };
@@ -252,7 +251,7 @@ export const TriageForm = ({
       onSubmit={async data => withExistingEncounterCheck(async () => await onSubmit(data))}
       render={renderForm}
       initialValues={{
-        triageTime: getCountryCurrentDateTimeString(),
+        triageTime: getCurrentDateTime(),
         practitionerId: currentUser.id,
         ...initialValues,
       }}

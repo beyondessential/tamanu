@@ -19,8 +19,8 @@ import { useDateTimeFormat } from '../../contexts';
  * 2. Display value: facilityTimeZone when useTimezone=true, otherwise as-is
  *
  * Timezone flow (useTimezone=true):
- *    Load: countryTimeZone → formatForDateTimeInput → facilityTimeZone
- *    Save: facilityTimeZone → toDateTimeStringForPersistence → countryTimeZone
+ *    Load: countryTimeZone → toFacilityDateTime → facilityTimeZone
+ *    Save: facilityTimeZone → toStoredDateTime → countryTimeZone
  *
  * Note: Native datetime inputs have quirky focus handling between day/month/year segments,
  * so avoid unnecessary value updates that could interfere with user input.
@@ -63,12 +63,12 @@ export const DateInput = ({
 }) => {
   delete props.placeholder;
 
-  const { formatForDateTimeInput, toDateTimeStringForPersistence } = useDateTimeFormat();
+  const { toFacilityDateTime, toStoredDateTime } = useDateTimeFormat();
   const shouldUseTimezone = useTimezone && type === 'datetime-local';
 
   // Convert stored value (countryTimeZone) to display value (facilityTimeZone for datetime-local)
   const getDisplayValue = val => {
-    if (shouldUseTimezone) return formatForDateTimeInput(val) || '';
+    if (shouldUseTimezone) return toFacilityDateTime(val) || '';
     return fromRFC3339(val, format);
   };
 
@@ -109,9 +109,9 @@ export const DateInput = ({
 
       let outputValue;
 
-      // Convert input value (facilityTimeZone) to storage value (countryTimeZone)
       if (shouldUseTimezone) {
-        outputValue = toDateTimeStringForPersistence(formattedValue);
+        // Convert input value (facilityTimeZone) to storage value (countryTimeZone)
+        outputValue = toStoredDateTime(formattedValue);
       } else {
         const date = parse(formattedValue, format, new Date());
 
@@ -135,7 +135,16 @@ export const DateInput = ({
 
       onChange({ target: { value: outputValue, name } });
     },
-    [onChange, format, name, saveDateAsString, type, clearValue, shouldUseTimezone, toDateTimeStringForPersistence],
+    [
+      onChange,
+      format,
+      name,
+      saveDateAsString,
+      type,
+      clearValue,
+      shouldUseTimezone,
+      toStoredDateTime,
+    ],
   );
 
   const onKeyDown = event => {
@@ -150,36 +159,26 @@ export const DateInput = ({
 
   const onArrowChange = addDaysAmount => {
     const date = parse(currentText, format, new Date());
-    const newDate = formatDate(addDays(date, addDaysAmount), format);
-
-    onValueChange({ target: { value: newDate } });
+    const newValue = formatDate(addDays(date, addDaysAmount), format);
+    onValueChange({ target: { value: newValue } });
   };
 
   const handleBlur = e => {
-    // if the final input is invalid, clear the component value
+      // if the final input is invalid, clear the component value
     if (!e.target.value) {
       clearValue();
       setCurrentText('');
       return;
     }
+    if (keepIncorrectValue) return;
 
-    const date = parse(currentText, format, new Date());
+    // When using timezones, compare ISO strings directly to avoid browser DST interference
+    const outOfBounds = shouldUseTimezone
+      ? (max && currentText > max) || (min && currentText < min)
+      : (max && isAfter(parse(currentText, format, new Date()), parse(max, format, new Date()))) ||
+        (min && isBefore(parse(currentText, format, new Date()), parse(min, format, new Date())));
 
-    if (max && !keepIncorrectValue) {
-      const maxDate = parse(max, format, new Date());
-      if (isAfter(date, maxDate)) {
-        clearValue();
-        return;
-      }
-    }
-
-    if (min && !keepIncorrectValue) {
-      const minDate = parse(min, format, new Date());
-      if (isBefore(date, minDate)) {
-        clearValue();
-        return;
-      }
-    }
+    if (outOfBounds) clearValue();
   };
 
   useEffect(() => {
@@ -259,7 +258,6 @@ export const DateTimeInput = ({ useTimezone = true, ...props }) => (
     format="yyyy-MM-dd'T'HH:mm"
     max="9999-12-31T00:00"
     useTimezone={useTimezone}
-    saveDateAsString
     {...props}
   />
 );
