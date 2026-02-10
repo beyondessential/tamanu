@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useMemo } from 'react';
 import * as yup from 'yup';
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { Form, FormGrid, ButtonRow, FormSubmitButton } from '@tamanu/ui-components';
+import { Form, FormGrid, ButtonRow, FormSubmitButton, useDateTimeFormat } from '@tamanu/ui-components';
 
 import { useApi } from '../../../api';
 import { AutocompleteField, Field } from '../../../components/Field';
@@ -36,6 +36,7 @@ const ExportForm = ({ options = [] }) => (
 export const ProgramExporterView = memo(({ setIsLoading }) => {
   const api = useApi();
   const { getTranslation } = useTranslation();
+  const { formatShortDateTime } = useDateTimeFormat();
 
   const { data: programs } = useQuery(['programs'], () => api.get('admin/programs'));
 
@@ -54,7 +55,7 @@ export const ProgramExporterView = memo(({ setIsLoading }) => {
         setIsLoading(true);
         const programName = programOptions.find(option => option.value === programId).label;
         await saveFile({
-          defaultFileName: `Program-${programName}-export-${new Date().toLocaleString()}`,
+          defaultFileName: `Program-${programName}-export-${formatShortDateTime(new Date())}`,
           getData: async () => await api.download(`admin/export/program/${programId}`),
           extension: 'xlsx',
         });
@@ -65,7 +66,7 @@ export const ProgramExporterView = memo(({ setIsLoading }) => {
         setIsLoading(false);
       }
     },
-    [api, programOptions],
+    [api, programOptions, formatShortDateTime],
   );
 
   const renderForm = useCallback(
