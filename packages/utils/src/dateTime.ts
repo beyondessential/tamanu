@@ -23,6 +23,7 @@ import {
   type DurationUnit,
   type Interval,
 } from 'date-fns';
+import { has } from 'lodash';
 import { Temporal } from 'temporal-polyfill';
 import { z } from 'zod';
 
@@ -277,7 +278,18 @@ export const intlFormatDate = (
     }
 
     if (isISO9075DateString(date)) {
-      return Temporal.PlainDate.from(date).toLocaleString(locale, formatOptions);
+      const plainDate = Temporal.PlainDate.from(date);
+      const hasTimeOptions = has(formatOptions, [
+        'hour',
+        'minute',
+        'second',
+        'timeStyle',
+        'dayPeriod',
+      ]);
+      if (hasTimeOptions) {
+        return plainDate.toPlainDateTime().toLocaleString(locale, formatOptions);
+      }
+      return plainDate.toLocaleString(locale, formatOptions);
     }
 
     const displayTz = getDisplayTimezone(countryTimeZone, facilityTimeZone);
