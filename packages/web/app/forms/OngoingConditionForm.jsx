@@ -65,7 +65,7 @@ export const OngoingConditionForm = ({
     const resolving = values.resolved;
     const buttonText = editedObject ? (
       <TranslatedText
-        stringId="general.action.save "
+        stringId="general.action.save"
         fallback="Save"
         data-testid="translatedtext-5jcb"
       />

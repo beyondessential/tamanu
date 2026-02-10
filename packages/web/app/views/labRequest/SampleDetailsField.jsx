@@ -67,7 +67,7 @@ export const SampleDetailsField = ({
   labSampleSiteSuggester,
   onSampleChange,
 }) => {
-  const { getFacilityCurrentDateTimeInputValue } = useDateTimeFormat();
+  const { formatForDateTimeInput, getCurrentDateTime } = useDateTimeFormat();
   const { getSetting } = useSettings();
   const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
 
@@ -187,7 +187,7 @@ export const SampleDetailsField = ({
             <StyledField
               name={`${SAMPLE_DETAILS_FIELD_PREFIX}sampleTime-${identifier}`}
               component={DateTimeField}
-              max={getFacilityCurrentDateTimeInputValue()}
+              max={formatForDateTimeInput(getCurrentDateTime())}
               saveDateAsString
               onChange={({ target: { value } }) => {
                 if (value) {
@@ -249,7 +249,8 @@ export const SampleDetailsField = ({
       removeSample,
       setValue,
       hasPanels,
-      getFacilityCurrentDateTimeInputValue,
+      formatForDateTimeInput,
+      getCurrentDateTime,
     ],
   );
 

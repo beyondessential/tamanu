@@ -22,7 +22,7 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
   const taskNotCompletedReasonSuggester = useSuggester('taskNotCompletedReason');
   const { currentUser, ability } = useAuth();
   const canCreateReferenceData = ability.can('create', 'ReferenceData');
-  const { getFacilityCurrentDateTimeInputValue, getCurrentDateTime } =
+  const { formatForDateTimeInput, getCurrentDateTime } =
     useDateTimeFormat();
 
   const { mutate: markTaskNotCompleted } = useMarkTaskNotCompleted();
@@ -78,7 +78,7 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
               required
               saveDateAsString
               component={DateTimeField}
-              max={getFacilityCurrentDateTimeInputValue()}
+              max={formatForDateTimeInput(getCurrentDateTime())}
               data-testid="field-sgto"
             />
             <Field
