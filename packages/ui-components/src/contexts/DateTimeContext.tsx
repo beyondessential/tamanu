@@ -30,6 +30,10 @@ type WrappedFormatters = {
 export interface DateTimeContextValue extends WrappedFormatters {
   countryTimeZone: string;
   facilityTimeZone?: string | null;
+  /** Current date string for DateField defaults — facility's "today" */
+  getCurrentDate: () => string;
+  /** Current datetime string for DateTimeField defaults — stored in country tz for persistence */
+  getCurrentDateTime: () => string;
   getCountryCurrentDateTimeString: () => string;
   getCountryCurrentDateString: () => string;
   getFacilityCurrentDateTimeString: () => string;
@@ -82,14 +86,14 @@ export const DateTimeProvider = ({
       countryTimeZone,
       facilityTimeZone,
       ...(mapValues(dateTimeFormatters, wrapFunction) as WrappedFormatters),
-      // Get current datetime string in country timezone (for initial values / persistence)
+      // Form field defaults — use these for initial values
+      getCurrentDate: () => getCurrentDateStringInTimezone(facilityTimeZone ?? countryTimeZone),
+      getCurrentDateTime: () => getCurrentDateTimeStringInTimezone(countryTimeZone),
+      // Explicit timezone variants (prefer getCurrentDate/getCurrentDateTime for form defaults)
       getCountryCurrentDateTimeString: () => getCurrentDateTimeStringInTimezone(countryTimeZone),
-      // Get current date string in country timezone (for initial values / persistence)
       getCountryCurrentDateString: () => getCurrentDateStringInTimezone(countryTimeZone),
-      // Get current datetime string in facility timezone (for UI display / validation)
       getFacilityCurrentDateTimeString: () =>
         getCurrentDateTimeStringInTimezone(facilityTimeZone ?? countryTimeZone),
-      // Get current date string in facility timezone (for UI display / validation)
       getFacilityCurrentDateString: () =>
         getCurrentDateStringInTimezone(facilityTimeZone ?? countryTimeZone),
       // Get current facility datetime formatted for datetime-local input (for min/max constraints)

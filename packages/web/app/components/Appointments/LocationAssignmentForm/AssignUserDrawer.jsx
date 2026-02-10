@@ -95,7 +95,7 @@ const StyledButton = styled(Button)`
 `;
 
 export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) => {
-  const { getFacilityCurrentDateString } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTimeFormat();
   const { getTranslation } = useTranslation();
   const { updateSelectedCell } = useLocationAssignmentsContext();
   const { getSetting } = useSettings();
@@ -411,7 +411,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
       const { untilDate: initialUntilDate } = initialValues.schedule || {};
       setFieldValue(
         'schedule.untilDate',
-        initialUntilDate || toDateString(add(parseISO(getFacilityCurrentDateString()), { months: maxFutureMonths })),
+        initialUntilDate || toDateString(add(parseISO(getCurrentDate()), { months: maxFutureMonths })),
       );
     };
 
@@ -521,7 +521,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
               />
             }
             component={DateField}
-            max={toDateString(add(parseISO(getFacilityCurrentDateString()), { months: 24 }))}
+            max={toDateString(add(parseISO(getCurrentDate()), { months: 24 }))}
             onChange={handleUpdateDate}
             required
             saveDateAsString
@@ -561,7 +561,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
           {values.isRepeatingAssignment && !hideRepeatingFields && (
             <RepeatingFields
               schedule={values.schedule}
-              startTime={values.date || getFacilityCurrentDateString()}
+              startTime={values.date || getCurrentDate()}
               setFieldValue={setFieldValue}
               setFieldError={setFieldError}
               handleResetRepeatUntilDate={handleResetRepeatUntilDate}

@@ -78,8 +78,8 @@ export const ProcedureModal = ({
   const api = useApi();
   const { currentUser } = useAuth();
   const {
-    getFacilityCurrentDateString,
-    getFacilityCurrentDateTimeString,
+    getCurrentDate,
+    getCurrentDateTime,
     toDateTimeStringForPersistence,
     formatForDateTimeInput,
   } = useDateTimeFormat();
@@ -304,9 +304,8 @@ export const ProcedureModal = ({
               assistantClinicianIds: editedProcedure.assistantClinicians?.map(c => c.id) || [],
             }
           : {
-              // Create: defaults in facility timezone
-              date: getFacilityCurrentDateString(),
-              startTime: getFacilityCurrentDateTimeString(),
+              date: getCurrentDate(),
+              startTime: getCurrentDateTime(),
               physicianId: currentUser.id,
               assistantClinicianIds: [],
             }

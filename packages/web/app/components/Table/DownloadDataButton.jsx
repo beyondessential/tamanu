@@ -16,7 +16,7 @@ import { TranslatedText } from '../Translation';
 import { ExportProvider } from '../../contexts/ExportContext';
 
 export function DownloadDataButton({ exportName, columns, data, ExportButton }) {
-  const { getFacilityCurrentDateString } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTimeFormat();
   const queryClient = useQueryClient();
   const api = useApi();
   const translationContext = useTranslation();
@@ -106,7 +106,7 @@ export function DownloadDataButton({ exportName, columns, data, ExportButton }) 
 
   const onDownloadData = async () => {
     await saveFile({
-      defaultFileName: `${exportName}-${getFacilityCurrentDateString()}`,
+      defaultFileName: `${exportName}-${getCurrentDate()}`,
       getData: prepareData,
       extension: 'xlsx',
     });

@@ -21,7 +21,7 @@ export const LOCATION_BOOKINGS_EMPTY_FILTER_STATE = {
 };
 
 export const LocationBookingsContextProvider = ({ children }) => {
-  const { getFacilityCurrentDateString } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTimeFormat();
   const queryParams = useUrlSearchParams();
   const clinicianId = queryParams.get('clinicianId');
   const { data: userPreferences } = useUserPreferencesQuery();
@@ -47,11 +47,11 @@ export const LocationBookingsContextProvider = ({ children }) => {
     date: null,
   });
 
-  const [monthOf, setMonthOf] = useState(() => parseISO(getFacilityCurrentDateString()));
+  const [monthOf, setMonthOf] = useState(() => parseISO(getCurrentDate()));
   const [viewType, setViewType] = useState(
     userPreferences?.locationBookingViewType || VIEW_TYPES.DAILY,
   );
-  const [selectedDate, setSelectedDate] = useState(() => parseISO(getFacilityCurrentDateString()));
+  const [selectedDate, setSelectedDate] = useState(() => parseISO(getCurrentDate()));
   useEffect(
     () => {
       if (isSameMonth(selectedCell.date, monthOf)) {

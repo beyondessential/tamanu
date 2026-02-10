@@ -144,7 +144,7 @@ export const RepeatingFields = ({
   readonly,
   maxFutureMonths,
 }) => {
-  const { getFacilityCurrentDateString } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTimeFormat();
   const { occurrenceCount: initialOccurrenceCount } = initialValues?.schedule || {};
   const { interval, frequency, occurrenceCount, untilDate } = schedule;
   const [endsMode, setEndsMode] = useState(schedule.untilDate ? ENDS_MODES.ON : ENDS_MODES.AFTER);
@@ -259,10 +259,10 @@ export const RepeatingFields = ({
                 add(startTimeDate, {
                   [`${REPEAT_FREQUENCY_UNIT_PLURAL_LABELS[frequency]}`]: interval,
                 }),
-              )}
+              )}  
               max={
                 maxFutureMonths
-                  ? toDateString(add(parseISO(getFacilityCurrentDateString()), { months: maxFutureMonths }))
+                  ? toDateString(add(parseISO(getCurrentDate()), { months: maxFutureMonths }))
                   : undefined
               }
               component={StyledDateField}

@@ -34,7 +34,7 @@ const VillageLocalisedField = styled(LocalisedField)`
 `;
 
 export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) => {
-  const { getFacilityCurrentDateString } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTimeFormat();
   const { getSetting } = useSettings();
   const villageSuggester = useSuggester('village');
   const hideOtherSex = getSetting('features.hideOtherSex') === true;
@@ -159,7 +159,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
             data-testid="translatedtext-99pk"
           />
         }
-        max={getFacilityCurrentDateString()}
+        max={getCurrentDate()}
         data-testid="field-qk60"
       />
     </CustomisableSearchBarWithPermissionCheck>
