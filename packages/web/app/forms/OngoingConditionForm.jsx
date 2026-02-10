@@ -58,14 +58,14 @@ export const OngoingConditionForm = ({
   diagnosisSuggester,
   onDelete,
 }) => {
-  const { getFacilityCurrentDateString } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTimeFormat();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const RenderForm = ({ submitForm, values }) => {
     const resolving = values.resolved;
     const buttonText = editedObject ? (
       <TranslatedText
-        stringId="general.action.save"
+        stringId="general.action.save "
         fallback="Save"
         data-testid="translatedtext-5jcb"
       />
@@ -270,8 +270,8 @@ export const OngoingConditionForm = ({
       };
     }
     return {
-      recordedDate: getFacilityCurrentDateString(),
-      resolutionDate: getFacilityCurrentDateString(),
+      recordedDate: getCurrentDate(),
+      resolutionDate: getCurrentDate(),
       resolved: false,
     };
   };
