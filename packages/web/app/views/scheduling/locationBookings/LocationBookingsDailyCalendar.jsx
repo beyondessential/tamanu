@@ -599,7 +599,7 @@ export const LocationBookingsDailyCalendar = ({
     if (!timeSlots || timeSlots.length === 0) return { top: 0, height: 70 };
 
     const facilityStartStr = formatForDateTimeInput(appointment.startTime);
-    if (!facilityStartStr) return null;
+    if (!facilityStartStr) return { top: 0, height: 70 };
     const facilityEndStr = appointment.endTime ? formatForDateTimeInput(appointment.endTime) : null;
     const startTime = new Date(facilityStartStr);
     const endTime = facilityEndStr ? new Date(facilityEndStr) : addHours(startTime, 1);
