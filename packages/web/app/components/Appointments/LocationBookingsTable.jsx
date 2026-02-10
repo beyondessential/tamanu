@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { toDateString } from '@tamanu/utils/dateTime';
+import { trimToDate } from '@tamanu/utils/dateTime';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
 import { DateTimeRangeDisplay } from '@tamanu/ui-components';
   
@@ -251,9 +251,9 @@ const TableHeader = ({ title, openPastBookingsModal }) => (
 );
 
 const getDate = ({ startTime, endTime }) => {
-  const startDate = toDateString(startTime);
-  const endDate = toDateString(endTime);
-  const isOvernight = startDate !== endDate;
+  const startDate = trimToDate(startTime);
+  const endDate = trimToDate(endTime);
+  const isOvernight = startDate && endDate && startDate !== endDate;
 
   return (
     <DateText data-testid="datetext-jp36">
@@ -322,7 +322,7 @@ export const LocationBookingsTable = ({ patient }) => {
 
   const handleRowClick = (_, data) => {
     const { id, startTime } = data;
-    navigate(`/appointments/locations?appointmentId=${id}&date=${toDateString(startTime)}`);
+    navigate(`/appointments/locations?appointmentId=${id}&date=${trimToDate(startTime)}`);
   };
 
   const canWriteAppointment = ability.can('write', 'Appointment');

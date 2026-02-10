@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { toDateString } from '@tamanu/utils/dateTime';
+import { trimToDate } from '@tamanu/utils/dateTime';
 import { Button, DateDisplay, TimeDisplay } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 
@@ -346,7 +346,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
 
   const handleRowClick = (_, data) => {
     const { id, startTime } = data;
-    navigate(`/appointments/outpatients?appointmentId=${id}&date=${toDateString(startTime)}`);
+    navigate(`/appointments/outpatients?appointmentId=${id}&date=${trimToDate(startTime)}`);
   };
 
   const canWriteAppointment = ability.can('write', 'Appointment');
