@@ -247,6 +247,7 @@ export class Prescription extends Model {
 
     if (givenMars.length > 0) {
       const marIds = givenMars.map((m: any) => m.id);
+
       const doses = await MedicationAdministrationRecordDose.findAll({
         where: {
           marId: { [Op.in]: marIds },

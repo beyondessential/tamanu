@@ -1,5 +1,6 @@
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
+import { sub } from 'date-fns';
 import { createTestContext } from '../utilities';
 import {
   ADMINISTRATION_FREQUENCIES,
@@ -13,7 +14,7 @@ import {
   REFERENCE_TYPES,
 } from '@tamanu/constants';
 import { describe } from 'node:test';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 
 async function createPriceListItemForProduct(
   models,
@@ -1164,10 +1165,41 @@ describe('Encounter invoice', () => {
       });
     });
 
-    describe.only('Medications', () => {
+    describe('Medications', () => {
       let notGivenReason;
       let drug;
       let drugProduct;
+
+      async function createEncounterPrescription(encounterType = ENCOUNTER_TYPES.ADMISSION) {
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          encounterType,
+          endDate: null,
+          patientId: patient.id,
+        });
+
+        await models.Invoice.create({
+          encounterId: encounter.id,
+          displayId: 'INV-123',
+          date: new Date(),
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+
+        const { body: prescription } = await app
+          .post(`/api/medication/encounterPrescription/${encounter.id}`)
+          .send({
+            medicationId: drug.id,
+            prescriberId: user.id,
+            doseAmount: 1,
+            units: 'mg',
+            frequency: ADMINISTRATION_FREQUENCIES.IMMEDIATELY,
+            route: 'dermal',
+            date: '2025-01-01',
+            startDate: getCurrentDateTimeString(),
+          });
+
+        return { encounter, prescription };
+      }
 
       beforeAll(async () => {
         notGivenReason = await models.ReferenceData.create(
@@ -1194,32 +1226,7 @@ describe('Encounter invoice', () => {
       });
 
       it('should automatically add/remove items to the invoice when a medication is administered', async () => {
-        const encounter = await models.Encounter.create({
-          ...(await createDummyEncounter(models)),
-          encounterType: ENCOUNTER_TYPES.ADMISSION,
-          endDate: null,
-          patientId: patient.id,
-        });
-
-        await models.Invoice.create({
-          encounterId: encounter.id,
-          displayId: 'INV-123',
-          date: new Date(),
-          status: INVOICE_STATUSES.IN_PROGRESS,
-        });
-
-        const { body: prescription } = await app
-          .post(`/api/medication/encounterPrescription/${encounter.id}`)
-          .send({
-            medicationId: drug.id,
-            prescriberId: user.id,
-            doseAmount: 1,
-            units: 'mg',
-            frequency: ADMINISTRATION_FREQUENCIES.IMMEDIATELY,
-            route: 'dermal',
-            date: '2025-01-01',
-            startDate: getCurrentDateTimeString(),
-          });
+        const { encounter, prescription } = await createEncounterPrescription();
 
         const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
         expect(result).toHaveSucceeded();
@@ -1231,7 +1238,6 @@ describe('Encounter invoice', () => {
         });
 
         // Administer the medication
-        console.log('Administer the medication');
         const { body: medicationAdministrationRecord } = await app
           .post(`/api/medication/medication-administration-record/given`)
           .send({
@@ -1263,8 +1269,6 @@ describe('Encounter invoice', () => {
             }),
           ]),
         );
-        console.log('NEXT TEST');
-        console.log('REMOVE TEST');
 
         // Switching the MAR to not given should remove the item from the invoice
         await app
@@ -1288,32 +1292,7 @@ describe('Encounter invoice', () => {
       });
 
       it('should add a single invoice item as long as there is at least one MAR that is given', async () => {
-        const encounter = await models.Encounter.create({
-          ...(await createDummyEncounter(models)),
-          encounterType: ENCOUNTER_TYPES.ADMISSION,
-          endDate: null,
-          patientId: patient.id,
-        });
-
-        await models.Invoice.create({
-          encounterId: encounter.id,
-          displayId: 'INV-123',
-          date: new Date(),
-          status: INVOICE_STATUSES.IN_PROGRESS,
-        });
-
-        const { body: prescription } = await app
-          .post(`/api/medication/encounterPrescription/${encounter.id}`)
-          .send({
-            medicationId: drug.id,
-            prescriberId: user.id,
-            doseAmount: 1,
-            units: 'mg',
-            frequency: ADMINISTRATION_FREQUENCIES.IMMEDIATELY,
-            route: 'dermal',
-            date: '2025-01-01',
-            startDate: getCurrentDateTimeString(),
-          });
+        const { encounter, prescription } = await createEncounterPrescription();
 
         // Administer the medication twice
         const { body: medicationAdministrationRecord } = await app
@@ -1392,32 +1371,9 @@ describe('Encounter invoice', () => {
       });
 
       it('should not add items for an encounter type that is not invoiceable', async () => {
-        const encounter = await models.Encounter.create({
-          ...(await createDummyEncounter(models)),
-          encounterType: ENCOUNTER_TYPES.VACCINATION,
-          endDate: null,
-          patientId: patient.id,
-        });
-
-        await models.Invoice.create({
-          encounterId: encounter.id,
-          displayId: 'INV-123',
-          date: new Date(),
-          status: INVOICE_STATUSES.IN_PROGRESS,
-        });
-
-        const { body: prescription } = await app
-          .post(`/api/medication/encounterPrescription/${encounter.id}`)
-          .send({
-            medicationId: drug.id,
-            prescriberId: user.id,
-            doseAmount: 1,
-            units: 'mg',
-            frequency: ADMINISTRATION_FREQUENCIES.IMMEDIATELY,
-            route: 'dermal',
-            date: '2025-01-01',
-            startDate: getCurrentDateTimeString(),
-          });
+        const { encounter, prescription } = await createEncounterPrescription(
+          ENCOUNTER_TYPES.VACCINATION,
+        );
 
         await app.post(`/api/medication/medication-administration-record/given`).send({
           prescriptionId: prescription.id,
@@ -1437,6 +1393,131 @@ describe('Encounter invoice', () => {
           status: INVOICE_STATUSES.IN_PROGRESS,
           items: [],
         });
+      });
+
+      it('should automatically add/remove items to the invoice when a pharmacy order is created', async () => {
+        const { encounter, prescription } = await createEncounterPrescription();
+
+        // Create a pharmacy order
+        const { body: pharmacyOrder } = await app
+          .post(`/api/encounter/${encounter.id}/pharmacyOrder`)
+          .send({
+            orderingClinicianId: user.id,
+            date: getCurrentDateTimeString(),
+            pharmacyOrderPrescriptions: [
+              {
+                prescriptionId: prescription.id,
+                quantity: 10,
+              },
+            ],
+            facilityId: facility.id,
+          });
+
+        const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result).toHaveSucceeded();
+        expect(result.body.items).toHaveLength(1);
+        expect(result.body.items).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              sourceRecordId: prescription.id,
+              quantity: 10,
+            }),
+          ]),
+        );
+
+        // Delete the pharmacy order prescription
+        const pops = await models.PharmacyOrderPrescription.findAll({
+          where: { pharmacyOrderId: pharmacyOrder.id },
+        });
+        const popId = pops[0].id;
+        await app.delete(`/api/medication/medication-requests/${popId}`);
+
+        const result2 = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result2).toHaveSucceeded();
+        expect(result2.body.items).toHaveLength(0);
+      });
+
+      it('should update the invoice when a pharmacy order prescription is updated', async () => {
+        const { encounter, prescription } = await createEncounterPrescription();
+
+        const { body: pharmacyOrder } = await app
+          .post(`/api/encounter/${encounter.id}/pharmacyOrder`)
+          .send({
+            orderingClinicianId: user.id,
+            date: getCurrentDateTimeString(),
+            pharmacyOrderPrescriptions: [
+              {
+                prescriptionId: prescription.id,
+                quantity: 10,
+              },
+            ],
+            facilityId: facility.id,
+          });
+
+        const pops = await models.PharmacyOrderPrescription.findAll({
+          where: { pharmacyOrderId: pharmacyOrder.id },
+        });
+        const popId = pops[0].id;
+        await models.PharmacyOrderPrescription.update({ quantity: 20 }, { where: { id: popId } });
+
+        const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result).toHaveSucceeded();
+        expect(result.body.items).toHaveLength(1);
+        expect(result.body.items[0]).toMatchObject({
+          sourceRecordId: prescription.id,
+          quantity: 20,
+        });
+      });
+
+      it('should combine MAR and Pharmacy Order Prescription quantities correctly', async () => {
+        const { encounter, prescription } = await createEncounterPrescription();
+
+        // 1. Administer a dose (MAR)
+        await app.post(`/api/medication/medication-administration-record/given`).send({
+          prescriptionId: prescription.id,
+          dose: {
+            doseAmount: 5,
+            givenTime: toDateTimeString(sub(new Date(), { days: 2 })),
+          },
+          dueAt: toDateTimeString(sub(new Date(), { days: 2 })),
+        });
+
+        // 2. Create a Pharmacy Order (later than MAR)
+        await app.post(`/api/encounter/${encounter.id}/pharmacyOrder`).send({
+          orderingClinicianId: user.id,
+          date: toDateTimeString(sub(new Date(), { days: 1 })),
+          pharmacyOrderPrescriptions: [
+            {
+              prescriptionId: prescription.id,
+              quantity: 10,
+            },
+          ],
+          facilityId: facility.id,
+        });
+
+        // Total should be 5 (MAR) + 10 (POP) = 15
+        const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result).toHaveSucceeded();
+        expect(result.body.items).toHaveLength(1);
+        expect(result.body.items[0]).toMatchObject({
+          sourceRecordId: prescription.id,
+          quantity: 15,
+        });
+
+        // 3. Administer another dose (MAR) AFTER the Pharmacy Order date
+        await app.post(`/api/medication/medication-administration-record/given`).send({
+          prescriptionId: prescription.id,
+          dose: {
+            doseAmount: 7,
+            givenTime: getCurrentDateTimeString(),
+          },
+          dueAt: getCurrentDateTimeString(),
+        });
+
+        // Total should still be 15 because the second dose is after the pharmacy order
+        const result2 = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result2).toHaveSucceeded();
+        expect(result2.body.items[0].quantity).toBe(15);
       });
     });
   });

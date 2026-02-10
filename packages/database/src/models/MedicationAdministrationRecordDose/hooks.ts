@@ -44,11 +44,10 @@ export const afterBulkCreateHook = async (instances: MedicationAdministrationRec
   }
 };
 
-export const afterBulkDestroyHook = async (options: DestroyOptions) => {
+export const afterBulkUpdateHook = async (options: UpdateOptions) => {
   const { where } = options;
   const instances = await MedicationAdministrationRecordDose.findAll({
     where,
-    paranoid: false, // include deleted records to find what was just destroyed
   });
 
   for (const instance of instances) {
@@ -56,10 +55,11 @@ export const afterBulkDestroyHook = async (options: DestroyOptions) => {
   }
 };
 
-export const afterBulkUpdateHook = async (options: UpdateOptions) => {
+export const afterBulkDestroyHook = async (options: DestroyOptions) => {
   const { where } = options;
   const instances = await MedicationAdministrationRecordDose.findAll({
     where,
+    paranoid: false, // include deleted records to find what was just destroyed
   });
 
   for (const instance of instances) {
