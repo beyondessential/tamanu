@@ -4,7 +4,8 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { pluralize } from 'inflection';
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { Form, FormSubmitButton, ButtonRow, FormGrid, useDateTimeFormat } from '@tamanu/ui-components';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { Form, FormSubmitButton, ButtonRow, FormGrid } from '@tamanu/ui-components';
 
 import { useApi } from '../../../api';
 import { Field } from '../../../components/Field';
@@ -50,12 +51,11 @@ export const ExporterView = memo(
   ({ title, endpoint, dataTypes, dataTypesSelectable, ExportButton }) => {
     const api = useApi();
     const { getTranslation } = useTranslation();
-    const { formatShortDateTime } = useDateTimeFormat();
 
     const onSubmit = useCallback(
       async queryParameters => {
         await saveFile({
-          defaultFileName: `${title} export ${formatShortDateTime(new Date())}`,
+          defaultFileName: `${title} export ${getCurrentDateTimeString()}`,
           getData: async () => api.download(`admin/export/${endpoint}`, queryParameters),
           extension: 'xlsx',
         });
@@ -63,7 +63,7 @@ export const ExporterView = memo(
           getTranslation('document.notification.downloadSuccess', 'Successfully downloaded file'),
         );
       },
-      [api, title, endpoint, formatShortDateTime],
+      [api, title, endpoint],
     );
 
     const buttonLabel = useMemo(() => {
