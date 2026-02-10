@@ -259,7 +259,6 @@ export const DateTimeInput = ({ useTimezone = true, ...props }) => (
     format="yyyy-MM-dd'T'HH:mm"
     max="9999-12-31T00:00"
     useTimezone={useTimezone}
-    saveDateAsString
     {...props}
   />
 );
