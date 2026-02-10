@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import Collapse from '@material-ui/core/Collapse';
 import MuiDivider from '@material-ui/core/Divider';
+import { useFormikContext } from 'formik';
+import { addDays, parseISO } from 'date-fns';
+import { toDateString, trimToDate } from '@tamanu/utils/dateTime';
 import {
   AutocompleteField,
   CheckField,
@@ -20,6 +23,44 @@ const Divider = styled(MuiDivider)`
   margin: 10px 0 20px;
 `;
 
+/**
+ * Keeps time field dates in sync with the procedure date field.
+ * When an end time (endTime/timeOut) is earlier than its reference start time
+ * (startTime/timeIn), the date portion is rolled forward to the next day.
+ * Non-rollover time fields are synced to the procedure date.
+ */
+const syncTimeDate = (time, targetDate, setFieldValue, fieldName) => {
+  if (!time) return;
+  if (time.slice(0, 10) !== targetDate) {
+    setFieldValue(fieldName, targetDate + time.slice(10));
+  }
+};
+
+const isRollover = (time, refTime) => time && refTime && time.slice(11, 16) < refTime.slice(11, 16);
+
+const ProcedureDateSync = () => {
+  const { values, setFieldValue } = useFormikContext();
+  const { date: dateVal, startTime, endTime, timeIn, timeOut } = values;
+  const date = trimToDate(dateVal);
+
+  useEffect(() => {
+    if (!date) return;
+    const nextDay = toDateString(addDays(parseISO(date), 1));
+
+    syncTimeDate(startTime, date, setFieldValue, 'startTime');
+    syncTimeDate(
+      endTime,
+      isRollover(endTime, startTime) ? nextDay : date,
+      setFieldValue,
+      'endTime',
+    );
+    syncTimeDate(timeIn, date, setFieldValue, 'timeIn');
+    syncTimeDate(timeOut, isRollover(timeOut, timeIn) ? nextDay : date, setFieldValue, 'timeOut');
+  }, [date, startTime, endTime, timeIn, timeOut, setFieldValue]);
+
+  return null;
+};
+
 export const ProcedureFormFields = React.memo(({ values }) => {
   const physicianSuggester = useSuggester('practitioner');
   const departmentSuggester = useSuggester('department', {
@@ -32,12 +73,15 @@ export const ProcedureFormFields = React.memo(({ values }) => {
 
   return (
     <>
+      <ProcedureDateSync />
       <FormGrid data-testid="formgrid-6sdo">
         <div style={{ gridColumn: 'span 2' }}>
           <NoteModalActionBlocker>
             <Field
               name="procedureTypeId"
-              label={<TranslatedText stringId="procedure.procedureType.label" fallback="Procedure" />}
+              label={
+                <TranslatedText stringId="procedure.procedureType.label" fallback="Procedure" />
+              }
               required
               component={AutocompleteField}
               suggester={procedureSuggester}
@@ -104,7 +148,9 @@ export const ProcedureFormFields = React.memo(({ values }) => {
           />
           <Field
             name="anaesthetistId"
-            label={<TranslatedText stringId="procedure.anaesthetist.label" fallback="Anaesthetist" />}
+            label={
+              <TranslatedText stringId="procedure.anaesthetist.label" fallback="Anaesthetist" />
+            }
             component={AutocompleteField}
             suggester={anaesthetistSuggester}
             data-testid="field-96eg"
