@@ -69,7 +69,7 @@ export const VaccineGivenForm = ({
   setValues,
   vaccineConsentEnabled,
 }) => {
-  const { getCurrentDateTime, getCurrentDate } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTimeFormat();
   
   return (
     <TwoTwoGrid data-testid="twotwogrid-2swz">
@@ -99,7 +99,7 @@ export const VaccineGivenForm = ({
                 delete newValues.givenBy;
                 if (!value) {
                   delete newValues.circumstanceIds;
-                  newValues.date = getCurrentDateTime();
+                  newValues.date = getCurrentDate();
                 } else {
                   delete newValues.date;
                 }
