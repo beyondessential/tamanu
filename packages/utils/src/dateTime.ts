@@ -279,13 +279,8 @@ export const intlFormatDate = (
 
     if (isISO9075DateString(date)) {
       const plainDate = Temporal.PlainDate.from(date);
-      const hasTimeOptions = has(formatOptions, [
-        'hour',
-        'minute',
-        'second',
-        'timeStyle',
-        'dayPeriod',
-      ]);
+      const timeKeys = ['hour', 'minute', 'second', 'timeStyle', 'dayPeriod'] as const;
+      const hasTimeOptions = timeKeys.some(key => has(formatOptions, key));
       if (hasTimeOptions) {
         return plainDate.toPlainDateTime().toLocaleString(locale, formatOptions);
       }
