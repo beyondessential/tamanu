@@ -103,9 +103,8 @@ export const LabRequestsTable = React.memo(
       navigate(`/patients/all/${patientId}/encounter/${lab.encounterId}/lab-request/${lab.id}`);
     };
 
-    const { status, requestedDateFrom, requestedDateTo, ...otherSearchFilters } = searchParameters;
-
     const fetchOptions = useMemo(() => {
+      const { status, requestedDateFrom, requestedDateTo, ...otherSearchFilters } = searchParameters;
       const filters = { ...otherSearchFilters, facilityId, statuses: status ? [status] : statuses };
       if (requestedDateFrom) {
         const boundaries = getDayBoundaries(requestedDateFrom);
@@ -116,15 +115,7 @@ export const LabRequestsTable = React.memo(
         if (boundaries) filters.requestedDateTo = boundaries.end;
       }
       return filters;
-    }, [
-      otherSearchFilters,
-      facilityId,
-      status,
-      statuses,
-      requestedDateFrom,
-      requestedDateTo,
-      getDayBoundaries,
-    ]);
+    }, [searchParameters, facilityId, statuses, getDayBoundaries]);
 
     return (
       <SearchTableWithPermissionCheck
