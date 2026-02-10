@@ -99,7 +99,7 @@ const getColumns = (
   onSelectAll,
   selectAllChecked,
   columnsToInclude = Object.values(COLUMN_KEYS),
-  { isOngoingMode = false, canEditRepeats = true, disabledPrescriptionIds = [] } = {},
+  { isOngoingMode = false, disabledPrescriptionIds = [] } = {},
 ) => {
   const allColumns = [
     {
