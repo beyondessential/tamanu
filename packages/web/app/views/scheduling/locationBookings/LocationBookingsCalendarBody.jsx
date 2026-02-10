@@ -1,7 +1,7 @@
 import { isEqual } from 'date-fns';
 import React from 'react';
 
-import { toDateString } from '@tamanu/utils/dateTime';
+import { toDateString, trimToDate } from '@tamanu/utils/dateTime';
 import { useDateTimeFormat } from '@tamanu/ui-components';
 
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
@@ -29,7 +29,7 @@ export const BookingsCell = ({
   return (
     <CarouselGrid.Cell
       id={generateIdFromCell({ locationId, date })}
-      onClick={(e) => {
+      onClick={e => {
         if (e.target.closest('.appointment-tile') || !canCreateBooking) return;
         openBookingForm({ startDate: toDateString(date), locationId });
         updateSelectedCell({ date, locationId });
@@ -39,34 +39,34 @@ export const BookingsCell = ({
       data-testid="cell-dp5l"
     >
       {appointments?.map((a, index) => {
-        const facilityStartDate = formatForDateTimeInput(a.startTime)?.slice(0, 10);
-        const cellDateStr = formatForDateTimeInput(date)?.slice(0, 10);
+        const facilityStartDate = trimToDate(formatForDateTimeInput(a.startTime));
+        const cellDateStr = trimToDate(formatForDateTimeInput(date));
         return (
-        <AppointmentTile
-          appointment={a}
-          className="appointment-tile"
-          hideTime={!facilityStartDate || facilityStartDate !== cellDateStr}
-          key={a.id}
-          onCancel={() => openCancelModal(a)}
-          onEdit={() => openBookingForm(a)}
-          actions={
-            canCreateBooking && onEmailBooking
-              ? [
-                  {
-                    label: (
-                      <TranslatedText
-                        stringId="locationBooking.action.emailBooking"
-                        fallback="Email booking"
-                        data-testid={`translatedtext-email-booking-${locationId}-${index}`}
-                      />
-                    ),
-                    action: () => onEmailBooking(a),
-                  },
-                ]
-              : []
-          }
-          data-testid={`appointmenttile-b6vn-${index}`}
-        />
+          <AppointmentTile
+            appointment={a}
+            className="appointment-tile"
+            hideTime={!facilityStartDate || facilityStartDate !== cellDateStr}
+            key={a.id}
+            onCancel={() => openCancelModal(a)}
+            onEdit={() => openBookingForm(a)}
+            actions={
+              canCreateBooking && onEmailBooking
+                ? [
+                    {
+                      label: (
+                        <TranslatedText
+                          stringId="locationBooking.action.emailBooking"
+                          fallback="Email booking"
+                          data-testid={`translatedtext-email-booking-${locationId}-${index}`}
+                        />
+                      ),
+                      action: () => onEmailBooking(a),
+                    },
+                  ]
+                : []
+            }
+            data-testid={`appointmenttile-b6vn-${index}`}
+          />
         );
       })}
     </CarouselGrid.Cell>
@@ -101,9 +101,9 @@ export const BookingsRow = ({
           data-testid="translatedreferencedata-1gpj"
         />
       </CarouselGrid.RowHeaderCell>
-      {dates.map((d) => (
+      {dates.map(d => (
         <BookingsCell
-          appointments={appointmentsByDate[formatForDateTimeInput(d)?.slice(0, 10)]}
+          appointments={appointmentsByDate[trimToDate(formatForDateTimeInput(d))]}
           date={d}
           key={d.valueOf()}
           location={location}
@@ -131,7 +131,7 @@ export const LocationBookingsCalendarBody = ({
 
   if (filteredLocations?.length === 0) return null;
 
-  return filteredLocations?.map((location) => (
+  return filteredLocations?.map(location => (
     <BookingsRow
       appointments={appointmentsByLocation[location.id] ?? []}
       dates={displayedDates}

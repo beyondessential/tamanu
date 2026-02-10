@@ -94,12 +94,10 @@ export const ProcedureModal = ({
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const [selectedSurveyId, setSelectedSurveyId] = useState(null);
   const [unsavedChangesModalOpen, setUnsavedChangesModalOpen] = useState(false);
-  const [saveWithoutAdditionalDataModalOpen, setSaveWithoutAdditionalDataModalOpen] = useState(
-    false,
-  );
-  const [closeWithoutAdditionalDataModalOpen, setCloseWithoutAdditionalDataModalOpen] = useState(
-    false,
-  );
+  const [saveWithoutAdditionalDataModalOpen, setSaveWithoutAdditionalDataModalOpen] =
+    useState(false);
+  const [closeWithoutAdditionalDataModalOpen, setCloseWithoutAdditionalDataModalOpen] =
+    useState(false);
   const [pendingFormData, setPendingFormData] = useState(null);
   const [surveyFormDirty, setSurveyFormDirty] = useState(false);
   const procedureId = editedProcedure?.id;

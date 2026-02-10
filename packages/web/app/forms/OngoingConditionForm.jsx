@@ -269,8 +269,8 @@ export const OngoingConditionForm = ({
         recordedDate: trimToDate(editedObject.recordedDate),
         resolutionDate: trimToDate(editedObject.resolutionDate),
       };
-    } 
-    return {  
+    }
+    return {
       recordedDate: getFacilityCurrentDateString(),
       resolutionDate: getFacilityCurrentDateString(),
       resolved: false,

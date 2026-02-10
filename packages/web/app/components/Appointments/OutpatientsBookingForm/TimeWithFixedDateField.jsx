@@ -8,7 +8,7 @@ import { TimeInput } from '../../Field';
  * The resulting date-time will match the provided `date` (YYYY-MM-DD string) with the time set by the user.
  */
 export const TimeWithFixedDateField = ({ field, date, ...props }) => {
-  const handleChange = (event) => {
+  const handleChange = event => {
     if (!event.target.value || !date) {
       field.onChange({ target: { value: null, name: field.name } });
       return;

@@ -138,7 +138,7 @@ const getVitalsColumn = (startIndex, getTranslation, recordedDates, formatters) 
           const { value, config } = cells[date];
           return formatValue(value, config);
         },
-        style: { width: 60, },
+        style: { width: 60 },
       })),
   ];
 };
@@ -319,7 +319,7 @@ const NotesSection = ({ notes }) => {
                   <MultipageTableHeading
                     title={getTranslation(
                       getReferenceDataStringId(note.noteTypeId, REFERENCE_TYPES.NOTE_TYPE),
-                      note.noteTypeReference?.name || note.noteTypeId
+                      note.noteTypeReference?.name || note.noteTypeId,
                     )}
                     style={textStyles.tableColumnHeader}
                   />
@@ -362,7 +362,7 @@ const EncounterRecordPrintoutComponent = ({
   recordedDates,
   settings,
 }) => {
-  const getSetting = (key) => get(settings, key);
+  const getSetting = key => get(settings, key);
   const { getTranslation, getEnumTranslation } = useLanguageContext();
   const { formatShort, formatShortest, formatTime, formatShortDateTime } = useDateTimeFormat();
   const { watermark, logo } = certificateData;
@@ -658,7 +658,10 @@ const EncounterRecordPrintoutComponent = ({
                 <TableSection
                   title={getTranslation('pdf.encounterRecord.section.vitals', 'Vitals')}
                   data={vitalsData}
-                  columns={getVitalsColumn(start, getTranslation, recordedDates, { formatShortest, formatTime })}
+                  columns={getVitalsColumn(start, getTranslation, recordedDates, {
+                    formatShortest,
+                    formatTime,
+                  })}
                   type="vitals"
                 />
                 <Footer />

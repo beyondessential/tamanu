@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 import { sub } from 'date-fns';
 
-import { trimToDate, toDateTimeString } from '@tamanu/utils/dateTime';
+import { trimToDate, toDateTimeString, dateTimeInputToISO9075 } from '@tamanu/utils/dateTime';
 import { Form, FormGrid, FormSubmitCancelRow, useDateTimeFormat } from '@tamanu/ui-components';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
@@ -127,7 +127,8 @@ const ErrorMessage = ({ isEdit = false, error }) => {
 export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
   const { updateSelectedCell, viewType } = useLocationBookingsContext();
-  const { formatShort, toDateTimeStringForPersistence, formatForDateTimeInput } = useDateTimeFormat();
+  const { formatShort, toDateTimeStringForPersistence, formatForDateTimeInput } =
+    useDateTimeFormat();
   const isEdit = !!initialValues.id;
 
   // Convert startTime/endTime from country timezone to facility timezone for the form,
@@ -147,8 +148,8 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
 
     return {
       ...initialValues,
-      startTime: facilityStartStr.replace('T', ' ') + ':00',
-      endTime: facilityEndStr ? facilityEndStr.replace('T', ' ') + ':00' : null,
+      startTime: dateTimeInputToISO9075(facilityStartStr),
+      endTime: dateTimeInputToISO9075(facilityEndStr),
       date: startDate ?? initialValues.startDate,
       startDate: startDate ?? initialValues.startDate,
       endDate: endDate ?? initialValues.endDate,
@@ -337,36 +338,21 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     overnight: yup.boolean(),
     date: yup.string().when('overnight', {
       is: value => !value,
-      then: yup
-        .string()
-        .nullable()
-        .required(requiredMessage),
+      then: yup.string().nullable().required(requiredMessage),
       otherwise: yup.string().nullable(),
     }),
     startDate: yup.string().when('overnight', {
       is: true,
-      then: yup
-        .string()
-        .nullable()
-        .required(requiredMessage),
+      then: yup.string().nullable().required(requiredMessage),
       otherwise: yup.string().nullable(),
     }),
     endDate: yup.string().when('overnight', {
       is: true,
-      then: yup
-        .string()
-        .nullable()
-        .required(requiredMessage),
+      then: yup.string().nullable().required(requiredMessage),
       otherwise: yup.string().nullable(),
     }),
-    startTime: yup
-      .date()
-      .nullable()
-      .required(requiredMessage),
-    endTime: yup
-      .date()
-      .nullable()
-      .required(requiredMessage),
+    startTime: yup.date().nullable().required(requiredMessage),
+    endTime: yup.date().nullable().required(requiredMessage),
     patientId: yup.string().required(requiredMessage),
     bookingTypeId: yup.string().required(requiredMessage),
     clinicianId: yup.string(),

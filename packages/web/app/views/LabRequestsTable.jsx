@@ -103,16 +103,28 @@ export const LabRequestsTable = React.memo(
       navigate(`/patients/all/${patientId}/encounter/${lab.encounterId}/lab-request/${lab.id}`);
     };
 
-    const { status, requestedDateFrom, requestedDateTo, ...searchFilters } = searchParameters;
+    const { status, requestedDateFrom, requestedDateTo, ...otherSearchFilters } = searchParameters;
 
-    if (requestedDateFrom) {
-      const boundaries = getDayBoundaries(requestedDateFrom);
-      if (boundaries) searchFilters.requestedDateFrom = boundaries.start;
-    }
-    if (requestedDateTo) {
-      const boundaries = getDayBoundaries(requestedDateTo);
-      if (boundaries) searchFilters.requestedDateTo = boundaries.end;
-    }
+    const fetchOptions = useMemo(() => {
+      const filters = { ...otherSearchFilters, facilityId, statuses: status ? [status] : statuses };
+      if (requestedDateFrom) {
+        const boundaries = getDayBoundaries(requestedDateFrom);
+        if (boundaries) filters.requestedDateFrom = boundaries.start;
+      }
+      if (requestedDateTo) {
+        const boundaries = getDayBoundaries(requestedDateTo);
+        if (boundaries) filters.requestedDateTo = boundaries.end;
+      }
+      return filters;
+    }, [
+      otherSearchFilters,
+      facilityId,
+      status,
+      statuses,
+      requestedDateFrom,
+      requestedDateTo,
+      getDayBoundaries,
+    ]);
 
     return (
       <SearchTableWithPermissionCheck
@@ -129,11 +141,7 @@ export const LabRequestsTable = React.memo(
           />
         }
         onRowClick={selectLab}
-        fetchOptions={{
-          ...searchFilters,
-          statuses: status ? [status] : statuses,
-          facilityId,
-        }}
+        fetchOptions={fetchOptions}
         initialSort={{
           order: 'desc',
           orderBy: isPublishedTable ? 'publishedDate' : 'requestedDate',

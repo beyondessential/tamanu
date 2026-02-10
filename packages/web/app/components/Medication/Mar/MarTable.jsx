@@ -163,15 +163,8 @@ const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate }) => {
       <TimeSlotText>
         <TimeSlotLabel>{periodLabel || ''}</TimeSlotLabel>
         <div>
-          <TimeDisplay
-            date={startDate}
-            format="slot"
-          />{' '}
-          -{' '}
-          <TimeDisplay
-            date={endDate}
-            format="slot"
-          />
+          <TimeDisplay date={startDate} format="slot" /> -{' '}
+          <TimeDisplay date={endDate} format="slot" />
         </div>
       </TimeSlotText>
     </TimeSlotHeaderContainer>
@@ -285,8 +278,8 @@ export const MarTable = ({ selectedDate }) => {
         headerElement.style.position = entry.isIntersecting
           ? 'sticky'
           : entry.boundingClientRect.top < HEADER_HEIGHT
-          ? 'static'
-          : headerElement.style.position;
+            ? 'static'
+            : headerElement.style.position;
       }, observerOptions);
     };
 

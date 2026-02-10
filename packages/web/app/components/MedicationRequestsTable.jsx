@@ -10,7 +10,12 @@ import { MEDICATIONS_SEARCH_KEYS } from '../constants/medication';
 import { Colors } from '../constants';
 import { MenuButton } from './MenuButton';
 import { DispenseMedicationWorkflowModal } from './Medication/DispenseMedicationWorkflowModal';
-import { ThemedTooltip, TranslatedEnum, TranslatedReferenceData, useDateTimeFormat } from '@tamanu/ui-components';
+import {
+  ThemedTooltip,
+  TranslatedEnum,
+  TranslatedReferenceData,
+  useDateTimeFormat,
+} from '@tamanu/ui-components';
 import { BodyText } from './Typography';
 import { PHARMACY_PRESCRIPTION_TYPE_LABELS, PHARMACY_PRESCRIPTION_TYPES } from '@tamanu/constants';
 import { useApi } from '../api';

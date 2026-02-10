@@ -62,7 +62,11 @@ import { useSettings } from '../contexts/Settings';
 import { ChevronIcon } from '../components/Icons/ChevronIcon';
 import { ConditionalTooltip, ThemedTooltip } from '../components/Tooltip';
 import { capitalize } from 'lodash';
-import { preventInvalidNumber, preventInvalidRepeatsInput, validateDecimalPlaces } from '../utils/utils';
+import {
+  preventInvalidNumber,
+  preventInvalidRepeatsInput,
+  validateDecimalPlaces,
+} from '../utils/utils';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { useEncounter } from '../contexts/Encounter';
 import { usePatientAllergiesQuery } from '../api/queries/usePatientAllergiesQuery';
@@ -93,13 +97,7 @@ const validationSchema = yup.object().shape({
   units: foreignKey(
     <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
   ).oneOf(DRUG_UNIT_VALUES),
-  repeats: yup
-    .number()
-    .integer()
-    .min(0)
-    .max(MAX_REPEATS)
-    .nullable()
-    .optional(),
+  repeats: yup.number().integer().min(0).max(MAX_REPEATS).nullable().optional(),
   frequency: foreignKey(
     <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
   ),
@@ -986,7 +984,12 @@ export const MedicationForm = ({
             />
             <Field
               name="route"
-              label={<TranslatedText stringId="medication.routeOfAdministration.label" fallback="Route of administration" />}
+              label={
+                <TranslatedText
+                  stringId="medication.routeOfAdministration.label"
+                  fallback="Route of administration"
+                />
+              }
               component={TranslatedSelectField}
               enumValues={DRUG_ROUTE_LABELS}
               required

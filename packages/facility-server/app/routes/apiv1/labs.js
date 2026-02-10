@@ -184,10 +184,7 @@ labRequest.get(
         filterParams.requestedDateFrom,
         'lab_requests.requested_date >= :requestedDateFrom',
       ),
-      makeFilter(
-        filterParams.requestedDateTo,
-        'lab_requests.requested_date <= :requestedDateTo',
-      ),
+      makeFilter(filterParams.requestedDateTo, 'lab_requests.requested_date <= :requestedDateTo'),
       makeFilter(
         !JSON.parse(filterParams.allFacilities || false),
         'location.facility_id = :facilityId',
@@ -435,13 +432,7 @@ labRelations.get(
 labRelations.put(
   '/:id/tests',
   asyncHandler(async (req, res) => {
-    const {
-      models,
-      params,
-      body,
-      db,
-      user,
-    } = req;
+    const { models, params, body, db, user } = req;
     const { id } = params;
     const { resultsInterpretation, labTests = {} } = body;
     req.checkPermission('write', 'LabTest');
@@ -474,7 +465,8 @@ labRelations.put(
     const labTestObj = keyBy(labTestRecords, 'id');
     if (
       Object.entries(labTests).some(
-        ([testId, testBody]) => testBody.result && labTestObj[testId] && testBody.result !== labTestObj[testId].result,
+        ([testId, testBody]) =>
+          testBody.result && labTestObj[testId] && testBody.result !== labTestObj[testId].result,
       )
     ) {
       req.checkPermission('write', 'LabTestResult');
@@ -489,7 +481,10 @@ labRelations.put(
     }
 
     await db.transaction(async () => {
-      if (resultsInterpretation !== undefined && resultsInterpretation !== labRequest.resultsInterpretation) {
+      if (
+        resultsInterpretation !== undefined &&
+        resultsInterpretation !== labRequest.resultsInterpretation
+      ) {
         await labRequest.update({ resultsInterpretation });
       }
 

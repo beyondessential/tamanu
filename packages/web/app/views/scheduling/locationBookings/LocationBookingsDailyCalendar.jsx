@@ -394,8 +394,8 @@ const DraggableAppointment = ({ appointment, children, onDragEnd }) => {
     typeof children === 'function'
       ? children({ isDragging })
       : React.isValidElement(children)
-      ? React.cloneElement(children, { isDragging })
-      : children;
+        ? React.cloneElement(children, { isDragging })
+        : children;
 
   return isDragging ? (
     <div ref={preview} style={{ height: '100%', width: '100%', display: 'flex' }}>
@@ -436,7 +436,11 @@ export const LocationBookingsDailyCalendar = ({
   const { data: locations } = locationsQuery;
 
   const dayBoundaries = getDayBoundaries(toDateString(selectedDate));
-  const { data: appointmentsData, isLoading, error } = useLocationBookingsQuery(
+  const {
+    data: appointmentsData,
+    isLoading,
+    error,
+  } = useLocationBookingsQuery(
     {
       after: dayBoundaries?.start,
       before: dayBoundaries?.end,
@@ -449,25 +453,22 @@ export const LocationBookingsDailyCalendar = ({
     { keepPreviousData: true },
   );
 
-  const {
-    data: assignmentsData,
-    isLoading: isAssignmentsLoading,
-  } = useFacilityLocationAssignmentsQuery(
-    {
-      after: toDateString(selectedDate),
-      before: toDateString(selectedDate),
-      all: true,
-    },
-    { keepPreviousData: true },
-  );
+  const { data: assignmentsData, isLoading: isAssignmentsLoading } =
+    useFacilityLocationAssignmentsQuery(
+      {
+        after: toDateString(selectedDate),
+        before: toDateString(selectedDate),
+        all: true,
+      },
+      { keepPreviousData: true },
+    );
 
   const scheduleRefs = useRef({});
   const dragData = useRef(null);
   const [triggerReorder, setTriggerReorder] = useState(0);
   const [isInDragDropProcess, setIsInDragDropProcess] = useState(false);
-  const [clinicianAssignmentDiscrepancyModal, setClinicianAssignmentDiscrepancyModal] = useState(
-    null,
-  );
+  const [clinicianAssignmentDiscrepancyModal, setClinicianAssignmentDiscrepancyModal] =
+    useState(null);
 
   const { mutate: reorderMutation } = useReorderLocationBookingMutation({
     onError: () => setTriggerReorder(0),
@@ -496,9 +497,11 @@ export const LocationBookingsDailyCalendar = ({
 
   const canCreateAppointment = ability.can('create', 'Appointment');
 
-  const { slots: bookingSlots, slotDuration, isPending: isBookingSlotsLoading } = useBookingSlots(
-    selectedDate,
-  );
+  const {
+    slots: bookingSlots,
+    slotDuration,
+    isPending: isBookingSlotsLoading,
+  } = useBookingSlots(selectedDate);
 
   const { mutateAsync: sendAppointmentEmail } = useSendAppointmentEmail(
     emailModalState?.appointmentId,
@@ -1031,7 +1034,7 @@ export const LocationBookingsDailyCalendar = ({
               const height = (durationMinutes / 60) * 70; // 70px per hour
               return (
                 <TimeSlot key={index} data-testid={`time-slot-${index}`} height={height}>
-                  <TimeDisplay date={slot.start}/>
+                  <TimeDisplay date={slot.start} />
                 </TimeSlot>
               );
             })}
@@ -1155,12 +1158,7 @@ export const LocationBookingsDailyCalendar = ({
         )}
       </ScrollWrapper>
       <FormModal
-        title={
-          <TranslatedText
-            stringId="patient.email.title"
-            fallback="Enter email address"
-          />
-        }
+        title={<TranslatedText stringId="patient.email.title" fallback="Enter email address" />}
         open={!!emailModalState}
         onClose={() => setEmailModalState(null)}
       >

@@ -45,6 +45,11 @@ export const trimToDate = (date: string | null | undefined): string | null | und
 export const trimToTime = (date: string | null | undefined): string | null | undefined =>
   date?.slice(11, 19);
 
+/** Converts a datetime-local input value (YYYY-MM-DDTHH:mm) to ISO 9075 format (YYYY-MM-DD HH:mm:00). */
+export const dateTimeInputToISO9075 = (
+  value: string | null | undefined,
+): string | null | undefined => (value ? value.replace('T', ' ') + ':00' : value);
+
 const makeDateObject = (date: string | Date) => {
   if (typeof date !== 'string') return date;
   return isISOString(date) ? parseISO(date) : new Date(date.replace(' ', 'T'));

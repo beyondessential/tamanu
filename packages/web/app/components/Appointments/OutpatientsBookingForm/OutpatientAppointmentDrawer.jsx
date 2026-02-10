@@ -1,23 +1,24 @@
 import React, { useMemo, useState } from 'react';
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import { isNumber, omit, set } from 'lodash';
-import {
-  isAfter,
-  parseISO,
-  add,
-  set as dateFnsSet,
-} from 'date-fns';
+import { isAfter, parseISO, add, set as dateFnsSet } from 'date-fns';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
 import {
   DAYS_OF_WEEK,
-  MODIFY_REPEATING_APPOINTMENT_MODE,  
+  MODIFY_REPEATING_APPOINTMENT_MODE,
   REPEAT_FREQUENCY,
   FORM_TYPES,
 } from '@tamanu/constants';
 import { getWeekdayOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
-import { toDateString, toDateTimeString, toWeekdayCode, trimToDate } from '@tamanu/utils/dateTime';
+import {
+  toDateString,
+  toDateTimeString,
+  toWeekdayCode,
+  trimToDate,
+  dateTimeInputToISO9075,
+} from '@tamanu/utils/dateTime';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
@@ -179,7 +180,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
     if (!facilityEndTimeStr) return initialValues;
     return {
       ...initialValues,
-      endTime: facilityEndTimeStr.replace('T', ' ') + ':00',
+      endTime: dateTimeInputToISO9075(facilityEndTimeStr),
     };
   }, [initialValues, formatForDateTimeInput]);
 
@@ -255,11 +256,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
             .of(yup.string().oneOf(DAYS_OF_WEEK))
             // Note: currently supports a single day of the week
             .length(1),
-          nthWeekday: yup
-            .number()
-            .nullable()
-            .min(-1)
-            .max(4),
+          nthWeekday: yup.number().nullable().min(-1).max(4),
         },
         ['untilDate', 'occurrenceCount'],
       ),
@@ -431,9 +428,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
             name="endTime"
             disabled={!values.startTime}
             date={
-              values.startTime
-                ? trimToDate(formatForDateTimeInput(values.startTime))
-                : undefined
+              values.startTime ? trimToDate(formatForDateTimeInput(values.startTime)) : undefined
             }
             label={
               <TranslatedText

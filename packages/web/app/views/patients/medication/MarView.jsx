@@ -13,7 +13,7 @@ const MarContainer = styled.div`
   border-right: 1px solid ${Colors.outline};
 `;
 
-const toDate = (dateTimeString) => new Date(dateTimeString.replace(' ', 'T'));
+const toDate = dateTimeString => new Date(dateTimeString.replace(' ', 'T'));
 
 const useFacilityDate = () => {
   const { encounter } = useEncounter();
@@ -21,7 +21,7 @@ const useFacilityDate = () => {
   const getFacilityNowRef = useRef(getFacilityCurrentDateTimeString);
   getFacilityNowRef.current = getFacilityCurrentDateTimeString;
 
-  const toFacilityDate = (dateStr) => {
+  const toFacilityDate = dateStr => {
     if (!dateStr) return null;
     const converted = formatForDateTimeInput(dateStr);
     return converted ? new Date(converted) : null;

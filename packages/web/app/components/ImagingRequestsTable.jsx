@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams, useNavigate } from 'react-router';
 import { IMAGING_REQUEST_STATUS_CONFIG, IMAGING_TABLE_VERSIONS } from '@tamanu/constants';
@@ -64,8 +64,6 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
   const { searchParameters } = useImagingRequestsQuery(memoryKey);
   const isCompletedTable = memoryKey === IMAGING_TABLE_VERSIONS.COMPLETED.memoryKey;
   const [isRowsDisabled, setIsRowsDisabled] = useState(false);
-
-  const statusFilter = statuses.length > 0 ? { status: statuses } : {};
 
   const encounterColumns = [
     {
@@ -194,8 +192,9 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
       }
       await dispatch(reloadImagingRequest(imagingRequest.id));
       const category = params.category || 'all';
-      const path = `/patients/${category}/${patientId}/encounter/${encounterId ||
-        encounter.id}/imaging-request/${imagingRequest.id}`;
+      const path = `/patients/${category}/${patientId}/encounter/${
+        encounterId || encounter.id
+      }/imaging-request/${imagingRequest.id}`;
       navigate(path);
       setIsRowsDisabled(false);
     },
@@ -210,23 +209,23 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
     ],
   );
 
-  const { requestedDateFrom, requestedDateTo, ...otherSearchParameters } = searchParameters;
-  const dateBoundaryFilters = {};
-  if (requestedDateFrom) {
-    const boundaries = getDayBoundaries(requestedDateFrom);
-    if (boundaries) dateBoundaryFilters.requestedDateFrom = boundaries.start;
-  }
-  if (requestedDateTo) {
-    const boundaries = getDayBoundaries(requestedDateTo);
-    if (boundaries) dateBoundaryFilters.requestedDateTo = boundaries.end;
-  }
-
-  const globalImagingRequestsFetchOptions = {
-    ...statusFilter,
-    ...otherSearchParameters,
-    ...dateBoundaryFilters,
-    facilityId,
-  };
+  const globalImagingRequestsFetchOptions = useMemo(() => {
+    const { requestedDateFrom, requestedDateTo, ...otherSearchParameters } = searchParameters;
+    const filters = {
+      ...(statuses.length > 0 ? { status: statuses } : {}),
+      ...otherSearchParameters,
+      facilityId,
+    };
+    if (requestedDateFrom) {
+      const boundaries = getDayBoundaries(requestedDateFrom);
+      if (boundaries) filters.requestedDateFrom = boundaries.start;
+    }
+    if (requestedDateTo) {
+      const boundaries = getDayBoundaries(requestedDateTo);
+      if (boundaries) filters.requestedDateTo = boundaries.end;
+    }
+    return filters;
+  }, [searchParameters, statuses, facilityId, getDayBoundaries]);
 
   return (
     <SearchTableWithPermissionCheck

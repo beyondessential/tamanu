@@ -54,7 +54,7 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
   const { getFacilityCurrentDateTimeString, formatForDateTimeInput } = useDateTimeFormat();
   const canCreatePrescription = ability.can('create', 'Medication');
 
-  const toFacilityDate = (dateStr) => {
+  const toFacilityDate = dateStr => {
     if (!dateStr) return null;
     const converted = formatForDateTimeInput(dateStr);
     return converted ? new Date(converted) : null;
@@ -113,8 +113,8 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
             },
           }}
         >
-          <StepperButton 
-            onClick={goToPreviousDay} 
+          <StepperButton
+            onClick={goToPreviousDay}
             disabled={isPreviousDayDisabled}
             data-testid="iconbutton-previousdate-abc123"
           >
@@ -125,10 +125,7 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
           <DateDisplayComponent date={selectedDate} format="long" noTooltip />
         </DateDisplay>
         {!isNextDayHidden && (
-          <StepperButton 
-            onClick={goToNextDay}
-            data-testid="iconbutton-nextdate-xyz789"
-          >
+          <StepperButton onClick={goToNextDay} data-testid="iconbutton-nextdate-xyz789">
             <ChevronRight />
           </StepperButton>
         )}

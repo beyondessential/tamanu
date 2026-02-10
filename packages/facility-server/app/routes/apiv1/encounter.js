@@ -336,7 +336,14 @@ encounterRelations.get(
   asyncHandler(async (req, res) => {
     const { models, params, query, db } = req;
     const { Prescription } = models;
-    const { order = 'ASC', orderBy = 'medication.name', rowsPerPage, page, marDateStart, marDateEnd } = query;
+    const {
+      order = 'ASC',
+      orderBy = 'medication.name',
+      rowsPerPage,
+      page,
+      marDateStart,
+      marDateEnd,
+    } = query;
 
     req.checkPermission('list', 'Medication');
 

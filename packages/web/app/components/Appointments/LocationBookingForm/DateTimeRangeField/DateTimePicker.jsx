@@ -46,7 +46,7 @@ const DateTimePicker = ({
   const isValidDate = isValid(parseISO(dateFieldValue));
 
   /** Keep startDate synchronised with date field for non-overnight bookings */
-  const flushChangeToDateField = (e) => {
+  const flushChangeToDateField = e => {
     if (datePickerName === 'startDate') {
       setFieldValue('date', e.target.value);
     }
@@ -54,7 +54,6 @@ const DateTimePicker = ({
 
   const startDateTimeString = getDayBoundaries(values.startDate)?.end;
   const endDateTimeString = getDayBoundaries(values.endDate)?.start;
-
 
   /**
    * Check for any booked timeslots *between* dates in overnight bookings. {@link TimeSlotPicker}
@@ -87,7 +86,7 @@ const DateTimePicker = ({
         label={datePickerLabel}
         min={minDate}
         name={datePickerName}
-        onChange={(e) => {
+        onChange={e => {
           flushChangeToDateField(e);
           onChange?.(e);
         }}

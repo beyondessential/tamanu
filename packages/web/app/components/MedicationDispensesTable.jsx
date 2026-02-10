@@ -278,7 +278,12 @@ export const MedicationDispensesTable = () => {
     const { dispensedAt, ...rest } = searchParameters;
     if (!dispensedAt) return { ...rest, facilityId };
     const boundaries = getDayBoundaries(dispensedAt);
-    return { ...rest, facilityId, dispensedAtFrom: boundaries?.start, dispensedAtTo: boundaries?.end };
+    return {
+      ...rest,
+      facilityId,
+      dispensedAtFrom: boundaries?.start,
+      dispensedAtTo: boundaries?.end,
+    };
   }, [searchParameters, facilityId, getDayBoundaries]);
 
   const handleRowClick = (_, dispenseData) => {

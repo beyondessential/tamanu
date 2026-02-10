@@ -235,8 +235,7 @@ const ActionRow = styled.div`
 
 const getDate = ({ startTime }) => (
   <DateText data-testid="datetext-axl2">
-    <DateDisplay date={startTime} format="shortest" />{' '}
-    <TimeDisplay date={startTime} noTooltip />
+    <DateDisplay date={startTime} format="shortest" /> <TimeDisplay date={startTime} noTooltip />
   </DateText>
 );
 
@@ -318,14 +317,12 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
   // Query to check if there are past appointments
   const { data: hasPastAppointments } = useHasPastOutpatientAppointmentsQuery(patient?.id);
 
-  const {
-    data: upcomingAppointments = [],
-    isLoading: isLoadingUpcomingAppointments,
-  } = useUpcomingOutpatientAppointmentsQuery(
-    patient?.id,
-    { orderBy, order },
-    { keepPreviousData: true, refetchOnMount: true },
-  );
+  const { data: upcomingAppointments = [], isLoading: isLoadingUpcomingAppointments } =
+    useUpcomingOutpatientAppointmentsQuery(
+      patient?.id,
+      { orderBy, order },
+      { keepPreviousData: true, refetchOnMount: true },
+    );
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});

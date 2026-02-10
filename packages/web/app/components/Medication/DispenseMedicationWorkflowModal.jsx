@@ -288,13 +288,15 @@ export const DispenseMedicationWorkflowModal = memo(
       setItems(prev => prev.map(i => ({ ...i, selected: !isItemDisabled(i) ? checked : false })));
     };
 
-    const handleSelectRow = rowIndex => ({ target: { checked } }) => {
-      setItems(prev => {
-        const next = [...prev];
-        next[rowIndex] = { ...next[rowIndex], selected: checked };
-        return next;
-      });
-    };
+    const handleSelectRow =
+      rowIndex =>
+      ({ target: { checked } }) => {
+        setItems(prev => {
+          const next = [...prev];
+          next[rowIndex] = { ...next[rowIndex], selected: checked };
+          return next;
+        });
+      };
 
     const selectableItems = items.filter(i => !isItemDisabled(i));
     const selectAllChecked =

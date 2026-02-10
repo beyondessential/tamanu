@@ -89,8 +89,12 @@ export const formatValue = (value, config) => {
 export const DateHeadCell = React.memo(({ value }) => (
   <TableTooltip title={<DateDisplay date={value} format="long" />} data-testid="tabletooltip-5w9x">
     <HeadCellWrapper data-testid="headcellwrapper-jcsy">
-      <div><DateDisplay noTooltip date={value} format="shortest" /></div>
-      <div><TimeDisplay noTooltip date={value} /></div>
+      <div>
+        <DateDisplay noTooltip date={value} format="shortest" />
+      </div>
+      <div>
+        <TimeDisplay noTooltip date={value} />
+      </div>
     </HeadCellWrapper>
   </TableTooltip>
 ));
@@ -103,8 +107,12 @@ export const DateBodyCell = React.memo(({ value, onClick }) => {
       data-testid="tabletooltip-3knb"
     >
       <CellContainer onClick={onClick} data-testid="cellcontainer-slh4">
-        <div><DateDisplay noTooltip date={value} format="shortest" /></div>
-        <div><TimeDisplay noTooltip date={value} /></div>
+        <div>
+          <DateDisplay noTooltip date={value} format="shortest" />
+        </div>
+        <div>
+          <TimeDisplay noTooltip date={value} />
+        </div>
       </CellContainer>
     </TableTooltip>
   );
@@ -220,11 +228,10 @@ export const RangeValidatedCell = React.memo(
     const float = round(value, config);
     const isEditedSuffix = isEdited ? '*' : '';
     const formattedValue = `${formatValue(value, config)}${isEditedSuffix}`;
-    const { tooltip, severity } = useMemo(() => getTooltip(float, config, validationCriteria), [
-      float,
-      config,
-      validationCriteria,
-    ]);
+    const { tooltip, severity } = useMemo(
+      () => getTooltip(float, config, validationCriteria),
+      [float, config, validationCriteria],
+    );
 
     const cell = (
       <CellContainer

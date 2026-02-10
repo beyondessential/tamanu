@@ -1,10 +1,4 @@
-import {
-  eachDayOfInterval,
-  endOfMonth,
-  endOfWeek,
-  startOfMonth,
-  startOfWeek,
-} from 'date-fns';
+import { eachDayOfInterval, endOfMonth, endOfWeek, startOfMonth, startOfWeek } from 'date-fns';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
@@ -176,12 +170,7 @@ export const LocationBookingsCalendar = ({
       </Carousel>
       {filteredLocations?.length === 0 && emptyStateMessage}
       <FormModal
-        title={
-          <TranslatedText
-            stringId="patient.email.title"
-            fallback="Enter email address"
-          />
-        }
+        title={<TranslatedText stringId="patient.email.title" fallback="Enter email address" />}
         open={!!emailModalState}
         onClose={() => setEmailModalState(null)}
       >

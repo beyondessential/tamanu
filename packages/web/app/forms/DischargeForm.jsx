@@ -838,13 +838,7 @@ export const DischargeForm = ({
             yup.object(
               Object.keys(obj || {}).reduce((acc, key) => {
                 acc[key] = yup.object().shape({
-                  repeats: yup
-                    .number()
-                    .integer()
-                    .min(0)
-                    .max(MAX_REPEATS)
-                    .nullable()
-                    .optional(),
+                  repeats: yup.number().integer().min(0).max(MAX_REPEATS).nullable().optional(),
                 });
                 return acc;
               }, {}),
