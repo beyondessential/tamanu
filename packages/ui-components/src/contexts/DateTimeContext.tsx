@@ -34,8 +34,6 @@ export interface DateTimeContextValue extends WrappedFormatters {
   getCurrentDate: () => string;
   /** Current datetime string for DateTimeField defaults — stored in country tz for persistence */
   getCurrentDateTime: () => string;
-  getCountryCurrentDateTimeString: () => string;
-  getCountryCurrentDateString: () => string;
   getFacilityCurrentDateTimeString: () => string;
   getFacilityCurrentDateString: () => string;
   getFacilityCurrentDateTimeInputValue: () => string | null;
@@ -89,9 +87,6 @@ export const DateTimeProvider = ({
       // Form field defaults — use these for initial values
       getCurrentDate: () => getCurrentDateStringInTimezone(facilityTimeZone ?? countryTimeZone),
       getCurrentDateTime: () => getCurrentDateTimeStringInTimezone(countryTimeZone),
-      // Explicit timezone variants (prefer getCurrentDate/getCurrentDateTime for form defaults)
-      getCountryCurrentDateTimeString: () => getCurrentDateTimeStringInTimezone(countryTimeZone),
-      getCountryCurrentDateString: () => getCurrentDateStringInTimezone(countryTimeZone),
       getFacilityCurrentDateTimeString: () =>
         getCurrentDateTimeStringInTimezone(facilityTimeZone ?? countryTimeZone),
       getFacilityCurrentDateString: () =>
