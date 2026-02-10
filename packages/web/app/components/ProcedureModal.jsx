@@ -305,7 +305,7 @@ export const ProcedureModal = ({
             }
           : {
               date: getCurrentDate(),
-              startTime: getCurrentDateTime(),
+              startTime: toFacilityTz(getCurrentDateTime()),
               physicianId: currentUser.id,
               assistantClinicianIds: [],
             }
