@@ -15,6 +15,7 @@ export class InvoicePayment extends Model {
   declare amount: number;
   declare invoiceId?: string;
   declare updatedByUserId?: string;
+  declare originalPaymentId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -30,6 +31,11 @@ export class InvoicePayment extends Model {
         amount: {
           type: DataTypes.DECIMAL,
           allowNull: false,
+        },
+        originalPaymentId: {
+          type: DataTypes.UUID,
+          allowNull: true,
+          unique: true,
         },
       },
       { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
@@ -52,6 +58,14 @@ export class InvoicePayment extends Model {
     this.belongsTo(models.User, {
       foreignKey: 'updatedByUserId',
       as: 'updatedByUser',
+    });
+    this.belongsTo(models.InvoicePayment, {
+      foreignKey: 'originalPaymentId',
+      as: 'originalPayment',
+    });
+    this.hasOne(models.InvoicePayment, {
+      foreignKey: 'originalPaymentId',
+      as: 'refundPayment',
     });
   }
 
