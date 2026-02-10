@@ -35,17 +35,17 @@ const MODAL_TYPES = {
 const StyledModal = styled(BaseModal)`
   .MuiPaper-root {
     max-width: ${({ $modalType }) => {
-      switch ($modalType) {
-        case MODAL_TYPES.REQUEST_CONFIRMATION:
-          return '670px';
-        case MODAL_TYPES.REQUEST_SENT:
-          return '580px';
-        case MODAL_TYPES.SEND_TO_PHARMACY:
-          return '1000px';
-        default:
-          return '1000px';
-      }
-    }};
+    switch ($modalType) {
+      case MODAL_TYPES.REQUEST_CONFIRMATION:
+        return '670px';
+      case MODAL_TYPES.REQUEST_SENT:
+        return '580px';
+      case MODAL_TYPES.SEND_TO_PHARMACY:
+        return '1000px';
+      default:
+        return '1000px';
+    }
+  }};
   }
 `;
 
@@ -192,14 +192,17 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
       // Use ongoing prescriptions passed as prop
       return (ongoingPrescriptions || [])
         .filter(p => !p.discontinued)
-        .map(prescription => ({
-          ...prescription,
-          quantity: prescription.quantity ?? undefined,
-          repeats: prescription.repeats ?? 0,
-          selected: false,
-          // Disable selection if no repeats remaining
-          isSelectionDisabled: (prescription.repeats ?? 0) === 0,
-        }));
+        .map(prescription => {
+          const { repeats, lastOrderedAt, quantity } = prescription;
+          return ({
+            ...prescription,
+            quantity,
+            repeats: repeats ?? 0,
+            selected: false,
+            // Disable selection if no repeats remaining and has been ordered at least once
+            isSelectionDisabled: (prescription.repeats ?? 0) === 0 && lastOrderedAt,
+          })
+        });
     }
     // Use encounter medications from query
     return (
@@ -272,7 +275,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
           p.selected &&
           p.lastOrderedAt &&
           new Date(p.lastOrderedAt) >
-            subHours(new Date(), medicationAlreadyOrderedConfirmationTimeout),
+          subHours(new Date(), medicationAlreadyOrderedConfirmationTimeout),
       ),
     [prescriptions, medicationAlreadyOrderedConfirmationTimeout],
   );
@@ -515,8 +518,8 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
         <AlreadyOrderedMedicationsWrapper>
           <PharmacyOrderMedicationTable
             data={getAlreadyOrderedPrescriptions()}
-            error={ isOngoingMode ? null : error}
-            isLoading={ isOngoingMode ? false : isLoading}
+            error={isOngoingMode ? null : error}
+            isLoading={isOngoingMode ? false : isLoading}
             cellOnChange={cellOnChange}
             handleSelectAll={handleSelectAll}
             selectAllChecked={selectAllChecked}
