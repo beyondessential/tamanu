@@ -70,7 +70,6 @@ export const TriageForm = ({
   const { getTranslation } = useTranslation();
   const { getCurrentDateTime, getCurrentDate } = useDateTimeFormat();
   
-  // Max for datetime fields: end of today in facility timezone
   const todayFacility = getCurrentDate();
   const endOfTodayMax = ` ${todayFacility}T23:59`;
   const triageCategories = getSetting('triageCategories');
