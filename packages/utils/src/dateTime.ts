@@ -42,8 +42,10 @@ export const trimToDate = (date: string | null | undefined): string | null | und
   date?.slice(0, 10);
 
 /** Extracts the time portion (HH:mm:ss) from a datetime string, returning null/undefined as-is. */
-export const trimToTime = (date: string | null | undefined): string | null | undefined =>
-  date?.slice(11, 19);
+export const trimToTime = (date: string | null | undefined): string | null | undefined => {
+  const time = date?.slice(11, 19);
+  return time?.length === 5 ? `${time}:00` : time;
+};
 
 /** Converts a datetime-local input value (YYYY-MM-DDTHH:mm) to ISO 9075 format (YYYY-MM-DD HH:mm:00). */
 export const dateTimeInputToISO9075 = (

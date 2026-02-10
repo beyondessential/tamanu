@@ -40,7 +40,7 @@ export const DiagnosisForm = React.memo(
     const defaultCertainty = certaintyOptions[0].value;
     const hasDiagnosis = Boolean(diagnosis?.id);
     const { currentUser } = useAuth();
-    const { getCountryCurrentDateTimeString } = useDateTimeFormat();
+    const { getFacilityCurrentDateString } = useDateTimeFormat();
 
     const diagnosisSuggester = useSuggester('diagnosis', {
       filterer: icd => !excludeDiagnoses.some(d => d.diagnosisId === icd.id),
@@ -51,7 +51,7 @@ export const DiagnosisForm = React.memo(
       <Form
         onSubmit={onSave}
         initialValues={{
-          date: getCountryCurrentDateTimeString(),
+          date: getFacilityCurrentDateString(),
           isPrimary: true,
           certainty: defaultCertainty,
           ...diagnosis,
