@@ -258,6 +258,18 @@ const getColumns = (
       },
     },
     {
+      key: COLUMN_KEYS.REPEATS,
+      title: (
+        <TranslatedText
+          stringId="pharmacyOrder.table.column.repeats"
+          fallback="Remaining"
+          data-testid="translatedtext-psdf"
+        />
+      ),
+      sortable: false,
+      accessor: ({ repeats, lastOrderedAt }) => lastOrderedAt ? repeats : repeats + 1,
+    },
+    {
       key: COLUMN_KEYS.QUANTITY,
       title: (
         <OuterLabelFieldWrapper
@@ -288,18 +300,6 @@ const getColumns = (
           data-testid="textinput-rxbh"
         />
       ),
-    },
-    {
-      key: COLUMN_KEYS.REPEATS,
-      title: (
-        <TranslatedText
-          stringId="pharmacyOrder.table.column.repeats"
-          fallback="Remaining"
-          data-testid="translatedtext-psdf"
-        />
-      ),
-      sortable: false,
-      accessor: ({ repeats, lastOrderedAt }) => lastOrderedAt ? repeats : repeats + 1,
     },
   ];
 
