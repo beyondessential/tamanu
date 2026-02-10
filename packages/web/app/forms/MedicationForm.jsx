@@ -1122,10 +1122,17 @@ export const MedicationForm = ({
               <Field
                 name="quantity"
                 label={
-                  <TranslatedText
-                    stringId="medication.quantity.label"
-                    fallback="Quantity"
-                  />
+                  encounterId ? (
+                    <TranslatedText
+                      stringId="medication.details.dischargeQuantity"
+                      fallback="Discharge quantity"
+                    />
+                  ) : (
+                    <TranslatedText
+                      stringId="medication.quantity.label"
+                      fallback="Quantity"
+                    />
+                  )
                 }
                 min={0}
                 component={NumberField}
