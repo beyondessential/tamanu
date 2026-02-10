@@ -273,7 +273,12 @@ const getColumns = (
         />
       ),
       sortable: false,
-      accessor: ({ repeats, lastOrderedAt }) => lastOrderedAt ? repeats : repeats + 1,
+      accessor: ({ repeats, lastOrderedAt }) => {
+        if (isOngoingMode && !lastOrderedAt) {
+          return repeats + 1;
+        }
+        return repeats;
+      },
     },
     {
       key: COLUMN_KEYS.QUANTITY,
