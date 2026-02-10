@@ -152,11 +152,12 @@ const LoadingContainer = styled.div`
   height: 42px;
 `;
 
-const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate }) => {
-  const startDate = getDateFromTimeString(startTime).getTime();
-  const endDate = getDateFromTimeString(endTime).getTime();
+const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate, facilityNow }) => {
+  const now = facilityNow.getTime();
+  const startDate = getDateFromTimeString(startTime, facilityNow).getTime();
+  const endDate = getDateFromTimeString(endTime, facilityNow).getTime();
   const isCurrentTimeSlot =
-    startDate <= Date.now() && Date.now() <= endDate && isSameDay(selectedDate, new Date());
+    startDate <= now && now <= endDate && isSameDay(selectedDate, facilityNow);
 
   return (
     <TimeSlotHeaderContainer isCurrentTimeSlot={isCurrentTimeSlot}>
@@ -173,7 +174,8 @@ const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate }) => {
 
 export const MarTable = ({ selectedDate }) => {
   const { encounter } = useEncounter();
-  const { getDayBoundaries } = useDateTimeFormat();
+  const { getDayBoundaries, getFacilityCurrentDateTimeString } = useDateTimeFormat();
+  const facilityNow = new Date(getFacilityCurrentDateTimeString().replace(' ', 'T'));
   const scheduledSectionRef = useRef(null);
   const scheduledHeaderRef = useRef(null);
   const prnSectionRef = useRef(null);
@@ -300,9 +302,9 @@ export const MarTable = ({ selectedDate }) => {
 
   return (
     <Container>
-      {isSameDay(selectedDate, new Date()) && (
+      {isSameDay(selectedDate, facilityNow) && (
         <CurrentTimeOverlay
-          $index={findAdministrationTimeSlotFromIdealTime(new Date()).index}
+          $index={findAdministrationTimeSlotFromIdealTime(facilityNow).index}
           $length={MEDICATION_ADMINISTRATION_TIME_SLOTS.length}
           $height={overlayHeight}
         />
@@ -319,6 +321,7 @@ export const MarTable = ({ selectedDate }) => {
             endTime={endTime}
             index={index}
             selectedDate={selectedDate}
+            facilityNow={facilityNow}
           />
         ))}
       </HeaderRow>
