@@ -36,7 +36,7 @@ export const useLabRequest = (key = LabRequestSearchParamKeys.Other) => {
 };
 
 export const LabRequestProvider = ({ children }) => {
-  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTimeFormat();
   const [labRequest, setLabRequest] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [searchParameters, setSearchParameters] = useState({
@@ -63,7 +63,7 @@ export const LabRequestProvider = ({ children }) => {
       update.userId = api.user.id;
     }
     if (data.status === LAB_REQUEST_STATUSES.PUBLISHED) {
-      update.publishedDate = getCountryCurrentDateTimeString();
+      update.publishedDate = getCurrentDateTime();
     }
 
     await api.put(`labRequest/${labRequestId}`, update);

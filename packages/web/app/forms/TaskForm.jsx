@@ -84,7 +84,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
   const { encounter } = useEncounter();
   const { ability, currentUser } = useAuth();
   const { getTranslation } = useTranslation();
-  const { getFacilityCurrentDateTimeInputValue, getCountryCurrentDateTimeString } =
+  const { getFacilityCurrentDateTimeInputValue, getCurrentDateTime } =
     useDateTimeFormat();
   const queryClient = useQueryClient();
   const canCreateReferenceData = ability.can('create', 'ReferenceData');
@@ -446,8 +446,8 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
         ['frequencyValue', 'frequencyUnit'],
       )}
       initialValues={{
-        startTime: getCountryCurrentDateTimeString(),
-        requestTime: getCountryCurrentDateTimeString(),
+        startTime: getCurrentDateTime(),  
+        requestTime: getCurrentDateTime(),
         requestedByUserId: currentUser?.id,
       }}
       data-testid="form-gy7l"

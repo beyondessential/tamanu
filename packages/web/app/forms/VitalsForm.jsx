@@ -24,7 +24,7 @@ import { getComponentForQuestionType } from '../components/Surveys';
 
 export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterType }) => {
   const { getTranslation } = useTranslation();
-  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTimeFormat();
   const {
     data: [vitalsSurvey, patientAdditionalData],
     isLoading,
@@ -100,12 +100,12 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
       validateOnBlur
       validationSchema={validationSchema}
       initialValues={{
-        [VITALS_DATA_ELEMENT_IDS.dateRecorded]: getCountryCurrentDateTimeString(),
+        [VITALS_DATA_ELEMENT_IDS.dateRecorded]: getCurrentDateTime(),
         ...getFormInitialValues(currentComponents, patient, patientAdditionalData),
       }}
       validate={values => {
         if (
-          Object.entries(values)
+          Object.entries(values)  
             .filter(([name]) => name !== VITALS_DATA_ELEMENT_IDS.dateRecorded)
             .every(([, value]) => value === '' || value === null || value === undefined)
         ) {

@@ -20,7 +20,7 @@ export const NoteForm = ({
   onSubmit,
 }) => {
   const { currentUser } = useAuth();
-  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTimeFormat();
 
   const renderForm = ({ submitForm, values, setValues }) => {
     const isTreatmentPlan = note?.noteTypeId === NOTE_TYPES.TREATMENT_PLAN;
@@ -55,7 +55,7 @@ export const NoteForm = ({
       render={renderForm}
       showInlineErrorsOnly
       initialValues={{
-        date: getCountryCurrentDateTimeString(),
+        date: getCurrentDateTime(),
         noteTypeId: note?.noteTypeId,
         writtenById: currentUser.id,
         content: note?.content,

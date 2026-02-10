@@ -34,7 +34,7 @@ export const EncounterForm = React.memo(
     });
     const referralSourceSuggester = useSuggester('referralSource');
     const { getTranslation } = useTranslation();
-    const { getCountryCurrentDateTimeString } = useDateTimeFormat();
+    const { getCurrentDateTime } = useDateTimeFormat();
 
     const renderForm = ({ submitForm, values }) => {
       const buttonText = editedObject ? (
@@ -210,7 +210,7 @@ export const EncounterForm = React.memo(
         onSubmit={onSubmit}
         render={renderForm}
         initialValues={{
-          startDate: getCountryCurrentDateTimeString(),
+          startDate: getCurrentDateTime(), 
           encounterType,
           patientBillingTypeId,
           ...editedObject,

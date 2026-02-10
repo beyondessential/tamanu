@@ -43,7 +43,7 @@ export const VaccineForm = ({
   vaccineRecordingType,
 }) => {
   const { getSetting } = useSettings();
-  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTimeFormat();
 
   const [vaccineLabel, setVaccineLabel] = useState(existingValues?.vaccineLabel);
   const [category, setCategory] = useState(getInitialCategory(editMode, existingValues));
@@ -205,7 +205,7 @@ export const VaccineForm = ({
         vaccineLabel,
         category,
         scheduledVaccineId: existingValues?.scheduledVaccineId,
-        date: getCountryCurrentDateTimeString(),
+        date: getCurrentDateTime(),
         locationGroupId: !currentEncounter
           ? vaccinationDefaults?.locationGroupId
           : currentEncounter.location?.locationGroup?.id,
