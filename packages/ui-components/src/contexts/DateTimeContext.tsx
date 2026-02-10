@@ -34,8 +34,7 @@ export interface DateTimeContextValue extends WrappedFormatters {
   getCurrentDate: () => string;
   /** Current datetime string for DateTimeField defaults — stored in country tz for persistence */
   getCurrentDateTime: () => string;
-  getFacilityCurrentDateTimeString: () => string;
-  getFacilityCurrentDateString: () => string;
+  getFacilityCurrentDateTimeString: () => string; 
   getFacilityCurrentDateTimeInputValue: () => string | null;
   getDayBoundaries: (date: string) => { start: string; end: string } | null;
   toDateTimeStringForPersistence: (inputValue: string | null | undefined) => string | null;
@@ -89,8 +88,6 @@ export const DateTimeProvider = ({
       getCurrentDateTime: () => getCurrentDateTimeStringInTimezone(countryTimeZone),
       getFacilityCurrentDateTimeString: () =>
         getCurrentDateTimeStringInTimezone(facilityTimeZone ?? countryTimeZone),
-      getFacilityCurrentDateString: () =>
-        getCurrentDateStringInTimezone(facilityTimeZone ?? countryTimeZone),
       // Get current facility datetime formatted for datetime-local input (for min/max constraints)
       getFacilityCurrentDateTimeInputValue: () =>
         formatForDateTimeInput(
