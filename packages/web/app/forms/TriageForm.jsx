@@ -71,7 +71,7 @@ export const TriageForm = ({
   const { getCurrentDateTime, getCurrentDate } = useDateTimeFormat();
   
   const todayFacility = getCurrentDate();
-  const endOfTodayMax = ` ${todayFacility}T23:59`;
+  const endOfTodayMax = `${todayFacility}T23:59`;
   const triageCategories = getSetting('triageCategories');
   const practitionerSuggester = useSuggester('practitioner');
   const triageReasonSuggester = useSuggester('triageReason');
