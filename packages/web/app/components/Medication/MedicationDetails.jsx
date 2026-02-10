@@ -162,16 +162,7 @@ export const MedicationDetails = ({
         />
       ),
       value: medication.quantity ?? '-',
-    },
-    {
-      label:
-        encounter && !isOngoingPrescription ? (
-          <TranslatedText stringId="medication.details.repeatsOnDischarge" fallback="Repeats on discharge" />
-        ) : (
-          <TranslatedText stringId="medication.details.repeats" fallback="Repeats" />
-        ),
-      value: medication.repeats ?? 0,
-    },
+    }
   ];
 
   const rightDetails = [
