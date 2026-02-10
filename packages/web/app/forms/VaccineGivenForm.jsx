@@ -69,7 +69,7 @@ export const VaccineGivenForm = ({
   setValues,
   vaccineConsentEnabled,
 }) => {
-  const { getCountryCurrentDateTimeString, getFacilityCurrentDateString } = useDateTimeFormat();
+  const { getCountryCurrentDateTimeString, getCurrentDate } = useDateTimeFormat();
   
   return (
     <TwoTwoGrid data-testid="twotwogrid-2swz">
@@ -168,9 +168,9 @@ export const VaccineGivenForm = ({
         }
         required={!values.givenElsewhere}
         min={values?.patientData?.dateOfBirth}
-        max={getFacilityCurrentDateString()}
+        max={getCurrentDate()}
         keepIncorrectValue
-        data-testid="vaccinedatefield-z99f"
+        data-testid="vaccinedatefield-z99 f"
       />
       <InjectionSiteField data-testid="injectionsitefield-hu3i" />
       {!values.givenElsewhere ? (
