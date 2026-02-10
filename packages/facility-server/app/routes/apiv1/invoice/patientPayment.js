@@ -46,12 +46,23 @@ async function getInvoiceWithDetails(req, encounterId) {
   });
 }
 
-async function getEncounterIdFromInvoiceId(req, invoiceId) {
+const validateInvoiceExists = async (req, invoiceId) => {
   const invoice = await req.models.Invoice.findByPk(invoiceId, {
     attributes: ['id', 'encounterId'],
   });
-  if (!invoice) throw new NotFoundError('Invoice not found');
-  if (!invoice.encounterId) throw new NotFoundError('Invoice encounter not found');
+
+  if (!invoice) {
+    throw new NotFoundError('Invoice not found');
+  }
+  if (!invoice.encounterId) {
+    throw new NotFoundError('Invoice encounter not found');
+  }
+
+  return invoice;
+};
+
+async function getEncounterIdFromInvoiceId(req, invoiceId) {
+  const invoice = await validateInvoiceExists(req, invoiceId);
   return invoice.encounterId;
 }
 
@@ -223,8 +234,8 @@ const handleRefundPatientPayment = asyncHandler(async (req, res) => {
   req.checkPermission('write', 'InvoicePayment');
   const { invoiceId, paymentId } = req.params;
 
-  const encounterId = await getEncounterIdFromInvoiceId(req, invoiceId);
-  const invoice = await getInvoiceWithDetails(req, encounterId);
+  await validateInvoiceExists(req, invoiceId);
+
   const payment = await req.models.InvoicePayment.findByPk(paymentId, {
     include: [
       { model: req.models.InvoicePatientPayment, as: 'patientPayment' },
@@ -233,21 +244,15 @@ const handleRefundPatientPayment = asyncHandler(async (req, res) => {
     ],
   });
 
-  if (!invoice) {
-    throw new NotFoundError('Invoice not found');
-  }
   if (!payment) {
     throw new NotFoundError('Payment not found');
   }
-
   if (!payment.patientPayment) {
     throw new ForbiddenError('Payment is not a patient payment');
   }
-
   if (payment.refundPayment) {
     throw new ForbiddenError('Payment has already been refunded');
   }
-
   if (payment.originalPayment) {
     throw new ForbiddenError('This payment is a refund of another payment');
   }
