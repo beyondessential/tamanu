@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { trimToDate } from '@tamanu/utils/dateTime';
 import styled from 'styled-components';
 import {
   Form,
@@ -297,7 +296,7 @@ export const ProcedureModal = ({
           ? {
               // Edit: spread existing data, convert date/time from country timezone to facility timezone
               ...editedProcedure,
-              date: trimToDate(toFacilityTz(editedProcedure.date)),
+              date: toFacilityTz(editedProcedure.date)?.slice(0, 10),
               startTime: toFacilityTz(editedProcedure.startTime),
               endTime: toFacilityTz(editedProcedure.endTime),
               timeIn: toFacilityTz(editedProcedure.timeIn),

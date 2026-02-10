@@ -4,7 +4,7 @@ import Collapse from '@material-ui/core/Collapse';
 import MuiDivider from '@material-ui/core/Divider';
 import { useFormikContext } from 'formik';
 import { addDays, parseISO } from 'date-fns';
-import { toDateString, trimToDate } from '@tamanu/utils/dateTime';
+import { toDateString } from '@tamanu/utils/dateTime';
 import {
   AutocompleteField,
   CheckField,
@@ -41,7 +41,7 @@ const isRollover = (time, refTime) => time && refTime && time.slice(11, 16) < re
 const ProcedureDateSync = () => {
   const { values, setFieldValue } = useFormikContext();
   const { date: dateVal, startTime, endTime, timeIn, timeOut } = values;
-  const date = trimToDate(dateVal);
+  const date = dateVal?.slice(0, 10);
 
   useEffect(() => {
     if (!date) return;
