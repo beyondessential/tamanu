@@ -19,7 +19,7 @@ import { useAuth } from '../../contexts/Auth';
 import { TranslatedText } from '../../components';
 
 const ReferralFlow = ({ patient, currentUser }) => {
-  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTimeFormat();
   const api = useApi();
   const { facilityId } = useAuth();
   const { navigateToPatient } = usePatientNavigation();
@@ -39,7 +39,7 @@ const ReferralFlow = ({ patient, currentUser }) => {
     async id => {
       const response = await api.get(`survey/${encodeURIComponent(id)}`);
       setReferralSurvey(response);
-      setStartTime(getCountryCurrentDateTimeString());
+      setStartTime(getCurrentDateTime());
     },
     [api],
   );
@@ -53,7 +53,7 @@ const ReferralFlow = ({ patient, currentUser }) => {
       surveyId: referralSurvey.id,
       startTime,
       patientId: patient.id,
-      endTime: getCountryCurrentDateTimeString(),
+      endTime: getCurrentDateTime(),
       answers: await getAnswersFromData(data, referralSurvey),
       facilityId,
     });

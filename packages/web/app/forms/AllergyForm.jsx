@@ -23,7 +23,7 @@ export const AllergyForm = ({
   allergySuggester,
 }) => {
   const { ability } = useAuth();
-  const { getFacilityCurrentDateString } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTimeFormat();
   const canCreateReferenceData = ability.can('create', 'ReferenceData');
 
   const getInitialValues = () => {
@@ -36,7 +36,7 @@ export const AllergyForm = ({
       };
     }
     return {
-      recordedDate: getFacilityCurrentDateString(),
+      recordedDate: getCurrentDate(),
     };
   };
   return (

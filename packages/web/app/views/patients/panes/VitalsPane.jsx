@@ -13,10 +13,10 @@ import { useAuth } from '../../../contexts/Auth';
 export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
   const { facilityId } = useAuth();
   const queryClient = useQueryClient();
-  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTimeFormat();
   const api = useApi();
   const [modalOpen, setModalOpen] = useState(false);
-  const [startTime] = useState(getCountryCurrentDateTimeString());
+  const [startTime] = useState(getCurrentDateTime());
 
   const handleClose = () => setModalOpen(false);
 
@@ -27,7 +27,7 @@ export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
       patientId: patient.id,
       encounterId: encounter.id,
       facilityId,
-      endTime: getCountryCurrentDateTimeString(),
+      endTime: getCurrentDateTime(),
       answers: await getAnswersFromData(data, survey),
     });
     queryClient.invalidateQueries(['encounterVitals', encounter.id]);

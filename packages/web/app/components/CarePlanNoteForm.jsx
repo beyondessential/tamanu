@@ -29,7 +29,7 @@ export function CarePlanNoteForm({
   onCancel,
 }) {
   const { getTranslation } = useTranslation();
-  const { getCountryCurrentDateTimeString } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTimeFormat();
 
   const [submitError, setSubmitError] = useState('');
   const practitionerSuggester = useSuggester('practitioner');
@@ -56,7 +56,7 @@ export function CarePlanNoteForm({
         // reload notes on failure just in case it was recorded
         onReloadNotes();
       }}
-      initialValues={note || { date: getCountryCurrentDateTimeString() }}
+      initialValues={note || { date: getCurrentDateTime() }}
       validationSchema={yup.object().shape({
         content: yup
           .string()

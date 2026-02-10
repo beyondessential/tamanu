@@ -50,8 +50,8 @@ const Weekday = styled.p`
 `;
 
 export const DayHeaderCell = ({ date, dim, ...props }) => {
-  const { formatShort, formatWeekdayShort, getFacilityCurrentDateString } = useDateTimeFormat();
-  const isToday = isSameDay(date, parseISO(getFacilityCurrentDateString()));
+  const { formatShort, formatWeekdayShort, getCurrentDate } = useDateTimeFormat();
+  const isToday = isSameDay(date, parseISO(getCurrentDate()));
   return (
     <HeaderCell
       $dim={dim}

@@ -22,7 +22,8 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
   const taskNotCompletedReasonSuggester = useSuggester('taskNotCompletedReason');
   const { currentUser, ability } = useAuth();
   const canCreateReferenceData = ability.can('create', 'ReferenceData');
-  const { formatForDateTimeInput, getCountryCurrentDateTimeString } = useDateTimeFormat();
+  const { formatForDateTimeInput, getCurrentDateTime } =
+    useDateTimeFormat();
 
   const { mutate: markTaskNotCompleted } = useMarkTaskNotCompleted();
 
@@ -77,7 +78,7 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
               required
               saveDateAsString
               component={DateTimeField}
-              max={formatForDateTimeInput(new Date())}
+              max={formatForDateTimeInput(getCurrentDateTime())}
               data-testid="field-sgto"
             />
             <Field
@@ -132,7 +133,7 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
             />,
           )
           .max(
-            getCountryCurrentDateTimeString(),
+            getCurrentDateTime(),
             getTranslation(
               'general.validation.date.cannotInFuture',
               'Date cannot be in the future',
@@ -141,7 +142,7 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
         notCompletedReasonId: yup.string(),
       })}
       initialValues={{
-        notCompletedTime: getCountryCurrentDateTimeString(),
+        notCompletedTime: getCurrentDateTime(),
         notCompletedByUserId: currentUser?.id,
       }}
       data-testid="form-3cwo"

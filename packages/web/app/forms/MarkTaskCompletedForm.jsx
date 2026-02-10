@@ -18,7 +18,8 @@ import { useTranslation } from '../contexts/Translation';
 
 export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) => {
   const { getTranslation } = useTranslation();
-  const { formatForDateTimeInput, getCountryCurrentDateTimeString } = useDateTimeFormat();
+  const { formatForDateTimeInput, getCurrentDateTime } =
+    useDateTimeFormat();
   const practitionerSuggester = useSuggester('practitioner');
   const { mutate: markTaskCompleted, isLoading } = useMarkTaskCompleted();
   const { currentUser } = useAuth();
@@ -72,7 +73,7 @@ export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) =>
               required
               saveDateAsString
               component={DateTimeField}
-              max={formatForDateTimeInput(new Date())}
+              max={formatForDateTimeInput(getCurrentDateTime())}
               data-testid="field-el3t"
             />
             <Field
@@ -126,7 +127,7 @@ export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) =>
             />,
           )
           .max(
-            getCountryCurrentDateTimeString(),
+            getCurrentDateTime(),
             getTranslation(
               'general.validation.date.cannotInFuture',
               'Date cannot be in the future',
@@ -135,7 +136,7 @@ export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) =>
         completedNote: yup.string(),
       })}
       initialValues={{
-        completedTime: getCountryCurrentDateTimeString(),
+        completedTime: getCurrentDateTime(),
         completedByUserId: currentUser?.id,
       }}
       data-testid="form-fiov"

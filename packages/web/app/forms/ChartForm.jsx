@@ -43,7 +43,7 @@ export const ChartForm = React.memo(
     const { currentUser, ability } = useAuth();
     const { encounter } = useEncounter();
     const { getTranslation } = useTranslation();
-    const { getCountryCurrentDateTimeString } = useDateTimeFormat();
+    const { getCurrentDateTime } = useDateTimeFormat();
     const chartSurveyQuery = useSurveyQuery(chartSurveyId);
     const patientAdditionalDataQuery = usePatientAdditionalDataQuery(patient?.id);
     const {
@@ -74,7 +74,7 @@ export const ChartForm = React.memo(
 
       return {
         ...(hasPatientChartingDate && {
-          [CHARTING_DATA_ELEMENT_IDS.dateRecorded]: getCountryCurrentDateTimeString(),
+          [CHARTING_DATA_ELEMENT_IDS.dateRecorded]: getCurrentDateTime(),
         }),
         ...formInitialValues,
         ...editedObject,
@@ -85,7 +85,7 @@ export const ChartForm = React.memo(
       patientAdditionalData,
       currentUser,
       editedObject,
-      getCountryCurrentDateTimeString,
+      getCurrentDateTime,
     ]);
     const validationSchema = useMemo(() => getValidationSchema(chartSurveyData, getTranslation), [
       chartSurveyData,

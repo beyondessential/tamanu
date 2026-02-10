@@ -17,7 +17,8 @@ import { useAuth } from '../contexts/Auth';
 import { useTranslation } from '../contexts/Translation';
 
 export const MarkTaskTodoForm = ({ onClose, refreshTaskTable, taskIds }) => {
-  const { formatForDateTimeInput, getCountryCurrentDateTimeString } = useDateTimeFormat();
+  const { formatForDateTimeInput, getCurrentDateTime } =
+    useDateTimeFormat();
   const { getTranslation } = useTranslation();
   const practitionerSuggester = useSuggester('practitioner');
   const { mutate: markTaskTodo, isLoading } = useMarkTaskTodo();
@@ -72,7 +73,7 @@ export const MarkTaskTodoForm = ({ onClose, refreshTaskTable, taskIds }) => {
               required
               saveDateAsString
               component={DateTimeField}
-              max={formatForDateTimeInput(new Date())}
+              max={formatForDateTimeInput(getCurrentDateTime())}
               data-testid="field-c16y"
             />
             <Field
@@ -126,7 +127,7 @@ export const MarkTaskTodoForm = ({ onClose, refreshTaskTable, taskIds }) => {
             />,
           )
           .max(
-            getCountryCurrentDateTimeString(),
+            getCurrentDateTime(),
             getTranslation(
               'general.validation.date.cannotInFuture',
               'Date cannot be in the future',
@@ -135,7 +136,7 @@ export const MarkTaskTodoForm = ({ onClose, refreshTaskTable, taskIds }) => {
         todoNote: yup.string(),
       })}
       initialValues={{
-        todoTime: getCountryCurrentDateTimeString(),
+        todoTime: getCurrentDateTime(),
         todoByUserId: currentUser?.id,
       }}
       data-testid="form-vu9o"

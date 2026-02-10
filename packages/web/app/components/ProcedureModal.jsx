@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { addDays, parseISO } from 'date-fns';
 import styled from 'styled-components';
 import {
   Form,
@@ -17,7 +16,6 @@ import { toast } from 'react-toastify';
 import { FormModal } from './FormModal';
 import { useApi } from '../api';
 import { TranslatedText } from './Translation/TranslatedText';
-import { toDateString } from '@tamanu/utils/dateTime';
 import { foreignKey, optionalForeignKey } from '../utils/validation';
 import { FORM_TYPES } from '@tamanu/constants';
 import { useAuth } from '../contexts/Auth';
@@ -61,13 +59,6 @@ const Divider = styled(MuiDivider)`
   margin: 10px 0 20px;
 `;
 
-// Extract time portion (HH:mm) from various formats
-const getTime = str => (str?.includes('T') ? str.slice(11, 16) : str?.slice(-8, -3)) || '';
-
-// Combine date + time (HH:mm) into datetime string
-const combineDateTime = (date, time) =>
-  date && time ? `${date.slice(0, 10)}T${getTime(time)}` : null;
-
 const useProcedureProgramResponsesQuery = (patientId, procedureId, refreshCount) => {
   const api = useApi();
   return useQuery(
@@ -87,8 +78,8 @@ export const ProcedureModal = ({
   const api = useApi();
   const { currentUser } = useAuth();
   const {
-    getFacilityCurrentDateString,
-    getFacilityCurrentDateTimeString,
+    getCurrentDate,
+    getCurrentDateTime,
     toDateTimeStringForPersistence,
     formatForDateTimeInput,
   } = useDateTimeFormat();
@@ -97,12 +88,10 @@ export const ProcedureModal = ({
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const [selectedSurveyId, setSelectedSurveyId] = useState(null);
   const [unsavedChangesModalOpen, setUnsavedChangesModalOpen] = useState(false);
-  const [saveWithoutAdditionalDataModalOpen, setSaveWithoutAdditionalDataModalOpen] = useState(
-    false,
-  );
-  const [closeWithoutAdditionalDataModalOpen, setCloseWithoutAdditionalDataModalOpen] = useState(
-    false,
-  );
+  const [saveWithoutAdditionalDataModalOpen, setSaveWithoutAdditionalDataModalOpen] =
+    useState(false);
+  const [closeWithoutAdditionalDataModalOpen, setCloseWithoutAdditionalDataModalOpen] =
+    useState(false);
   const [pendingFormData, setPendingFormData] = useState(null);
   const [surveyFormDirty, setSurveyFormDirty] = useState(false);
   const procedureId = editedProcedure?.id;
@@ -115,29 +104,19 @@ export const ProcedureModal = ({
   // Convert countryTimeZone → facilityTimeZone for display
   const toFacilityTz = val => (val ? formatForDateTimeInput(val) : undefined);
 
-  // Form uses facilityTimeZone; on submit, combine date+time and convert to countryTimeZone
+  // Form values already have correct dates (ProcedureDateSync handles rollover),
+  // so submit just needs to convert from facility timezone to country timezone.
   const onSubmit = async data => {
-    const dateStr = data.date.slice(0, 10);
-    const toCountry = time =>
-      time ? toDateTimeStringForPersistence(combineDateTime(dateStr, time)) : undefined;
-    const toCountryWithRollover = (time, refTime) => {
-      if (!time) return undefined;
-      // If time < reference time, it's the next day
-      const nextDay = getTime(time) < getTime(refTime);
-      return toDateTimeStringForPersistence(
-        combineDateTime(nextDay ? toDateString(addDays(parseISO(dateStr), 1)) : dateStr, time),
-      );
-    };
-
-    const actualDateTime = toCountry(data.startTime);
+    const toPersisted = val => (val ? toDateTimeStringForPersistence(val) : undefined);
+    const startDateTime = toPersisted(data.startTime);
 
     await api[data.id ? 'put' : 'post'](data.id ? `procedure/${data.id}` : 'procedure', {
       ...data,
-      date: actualDateTime,
-      startTime: actualDateTime,
-      endTime: toCountryWithRollover(data.endTime, data.startTime),
-      timeIn: toCountry(data.timeIn),
-      timeOut: toCountryWithRollover(data.timeOut, data.timeIn),
+      date: startDateTime,
+      startTime: startDateTime,
+      endTime: toPersisted(data.endTime),
+      timeIn: toPersisted(data.timeIn),
+      timeOut: toPersisted(data.timeOut),
       encounterId,
     });
 
@@ -325,9 +304,8 @@ export const ProcedureModal = ({
               assistantClinicianIds: editedProcedure.assistantClinicians?.map(c => c.id) || [],
             }
           : {
-              // Create: defaults in facility timezone
-              date: getFacilityCurrentDateString(),
-              startTime: getFacilityCurrentDateTimeString(),
+              date: getCurrentDate(),
+              startTime: toFacilityTz(getCurrentDateTime()),
               physicianId: currentUser.id,
               assistantClinicianIds: [],
             }

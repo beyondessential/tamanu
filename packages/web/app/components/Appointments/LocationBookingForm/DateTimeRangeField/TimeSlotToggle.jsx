@@ -229,8 +229,8 @@ const SkeletonTimeSlotToggles = ({ count = 16 }) => {
  * render. The time slots are the same for each day, so this does just fine as a GUI placeholder.
  */
 export const PlaceholderTimeSlotToggles = memo(({ type = BOOKING_SLOT_TYPES.BOOKINGS }) => {
-  const { getFacilityCurrentDateString } = useDateTimeFormat();
-  const { isPending, slots } = useBookingSlots(parseISO(getFacilityCurrentDateString()), type);
+  const { getCurrentDate } = useDateTimeFormat();
+  const { isPending, slots } = useBookingSlots(parseISO(getCurrentDate()), type);
   if (isPending) return <SkeletonTimeSlotToggles data-testid="skeletontimeslottoggles-9a22" />;
   return slots?.map((slot) => (
     <TimeSlotToggle

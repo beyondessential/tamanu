@@ -15,7 +15,7 @@ export const FamilyHistoryForm = ({
   editedObject,
   onSubmit,
 }) => {
-  const { getFacilityCurrentDateString } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTimeFormat();
   
   const getInitialValues = () => {
     if (editedObject) {
@@ -27,9 +27,9 @@ export const FamilyHistoryForm = ({
       };
     }
     return {
-      recordedDate: getFacilityCurrentDateString(),
+      recordedDate: getCurrentDate(),
     };
-  };
+  };  
   return (<Form
     onSubmit={onSubmit}
     render={({ submitForm }) => (

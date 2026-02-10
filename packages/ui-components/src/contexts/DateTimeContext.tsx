@@ -30,10 +30,10 @@ type WrappedFormatters = {
 export interface DateTimeContextValue extends WrappedFormatters {
   countryTimeZone: string;
   facilityTimeZone?: string | null;
-  getCountryCurrentDateTimeString: () => string;
-  getCountryCurrentDateString: () => string;
-  getFacilityCurrentDateTimeString: () => string;
-  getFacilityCurrentDateString: () => string;
+  /** Current date string for DateField defaults — facility's "today" */
+  getCurrentDate: () => string;
+  /** Current datetime string for DateTimeField defaults — stored in country tz for persistence */
+  getCurrentDateTime: () => string;
   getDayBoundaries: (date: string) => { start: string; end: string } | null;
   toDateTimeStringForPersistence: (inputValue: string | null | undefined) => string | null;
   formatForDateTimeInput: (value: string | Date | null | undefined) => string | null;
@@ -81,16 +81,9 @@ export const DateTimeProvider = ({
       countryTimeZone,
       facilityTimeZone,
       ...(mapValues(dateTimeFormatters, wrapFunction) as WrappedFormatters),
-      // Get current datetime string in country timezone (for initial values / persistence)
-      getCountryCurrentDateTimeString: () => getCurrentDateTimeStringInTimezone(countryTimeZone),
-      // Get current date string in country timezone (for initial values / persistence)
-      getCountryCurrentDateString: () => getCurrentDateStringInTimezone(countryTimeZone),
-      // Get current datetime string in facility timezone (for UI display / validation)
-      getFacilityCurrentDateTimeString: () =>
-        getCurrentDateTimeStringInTimezone(facilityTimeZone ?? countryTimeZone),
-      // Get current date string in facility timezone (for UI display / validation)
-      getFacilityCurrentDateString: () =>
-        getCurrentDateStringInTimezone(facilityTimeZone ?? countryTimeZone),
+      // Form field defaults — use these for initial values
+      getCurrentDate: () => getCurrentDateStringInTimezone(facilityTimeZone ?? countryTimeZone),
+      getCurrentDateTime: () => getCurrentDateTimeStringInTimezone(countryTimeZone),
       // Get day date boundaries i.e start and end of the day at the given date in country timezone for query
       getDayBoundaries: (date) => getDayBoundaries(date, countryTimeZone, facilityTimeZone),
       // Convert datetime-local input value (facility timezone) to country timezone for persistence

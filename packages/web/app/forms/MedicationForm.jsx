@@ -598,7 +598,7 @@ export const MedicationForm = ({
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
   const queryClient = useQueryClient();
   const { loadEncounter } = useEncounter();
-  const { getCountryCurrentDateString, getCountryCurrentDateTimeString } = useDateTimeFormat();
+  const { getCurrentDate, getCurrentDateTime } = useDateTimeFormat();
   const { data: { data: medications = [] } = {} } = useEncounterMedicationQuery(encounterId);
   const existingDrugIds = medications
     .filter(({ discontinued }) => !discontinued)
@@ -713,10 +713,10 @@ export const MedicationForm = ({
 
   const getInitialValues = () => {
     return {
-      date: getCountryCurrentDateString(),
+      date: getCurrentDate(),
       prescriberId: currentUser.id,
       isVariableDose: false,
-      startDate: getCountryCurrentDateTimeString(),
+      startDate: getCurrentDateTime(),
       isOngoing: isOngoingPrescription,
       repeats: editingMedication?.repeats ?? 0,
       timeSlots: defaultTimeSlots,

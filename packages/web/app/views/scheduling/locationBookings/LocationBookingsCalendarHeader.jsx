@@ -69,8 +69,8 @@ const Weekday = styled.p`
 `;
 
 export const DayHeaderCell = ({ date, dim, ...props }) => {
-  const { formatWeekdayShort, formatShort, getFacilityCurrentDateString } = useDateTimeFormat();
-  const isToday = isSameDay(date, parseISO(getFacilityCurrentDateString()));
+  const { formatWeekdayShort, formatShort, getCurrentDate } = useDateTimeFormat();
+  const isToday = isSameDay(date, parseISO(getCurrentDate()));
   return (
     <HeaderCell
       $dim={dim}
@@ -99,7 +99,7 @@ const StyledMonthPicker = styled(MonthPicker)`
 `;
 
 export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedDates }) => {
-  const { getFacilityCurrentDateString } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTimeFormat();
   const isFirstDisplayedDate = date => isSameDay(date, displayedDates[0]);
   const [monthPickerRefreshKey, setMonthPickerRefreshKey] = useState(Date.now());
 
@@ -117,7 +117,7 @@ export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedD
       scrollToThisWeek();
       setMonthPickerRefreshKey(Date.now()); // We need to trigger a refresh of picker state here to repopulate date
     } else {
-      setMonthOf(parseISO(getFacilityCurrentDateString()));
+      setMonthOf(parseISO(getCurrentDate()));
       // In this case, useEffect in LocationBookings context handles auto-scroll
     }
   };
