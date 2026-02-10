@@ -3,10 +3,10 @@ import { mapValues } from 'lodash';
 
 import {
   toFacilityDateTime,
+  toStoredDateTime,
   getCurrentDateStringInTimezone,
   getCurrentDateTimeStringInTimezone,
   getDayBoundaries,
-  toStoredDateTime,
 } from '@tamanu/utils/dateTime';
 import * as dateTimeFormatters from '@tamanu/utils/dateFormatters';
 
@@ -30,11 +30,17 @@ type WrappedFormatters = {
 export interface DateTimeContextValue extends WrappedFormatters {
   countryTimeZone: string;
   facilityTimeZone?: string | null;
+  /** Get current date string in facility timezone */
   getCurrentDate: () => string;
+  /** Get current datetime string in facility timezone */
   getCurrentDateTime: () => string;
+  /** Get current facility wall-clock time as yyyy-MM-ddTHH:mm */
   getFacilityNow: () => string;
+  /** Get day boundaries i.e start and end of the day at the given date in facility timezone for query */
   getDayBoundaries: (date: string) => { start: string; end: string } | null;
+  /** Convert facility-tz input value to country-tz for storage */
   toStoredDateTime: (inputValue: string | null | undefined) => string | null;
+  /** Convert stored country-tz value to facility-tz for display */
   toFacilityDateTime: (value: string | Date | null | undefined) => string | null;
 }
 
