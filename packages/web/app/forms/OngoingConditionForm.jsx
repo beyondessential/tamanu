@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import Collapse from '@material-ui/core/Collapse';
 import { FORM_TYPES } from '@tamanu/constants/forms';
+import { trimToDate } from '@tamanu/utils/dateTime';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { AutocompleteField, CheckField, DateField, Field } from '../components/Field';
@@ -265,11 +266,11 @@ export const OngoingConditionForm = ({
       // for now to avoid timezone conversion
       return {
         ...editedObject,
-        recordedDate: editedObject.recordedDate?.slice(0, 10),
-        resolutionDate: editedObject.resolutionDate?.slice(0, 10),
+        recordedDate: trimToDate(editedObject.recordedDate),
+        resolutionDate: trimToDate(editedObject.resolutionDate),
       };
-    }
-    return {
+    } 
+    return {  
       recordedDate: getFacilityCurrentDateString(),
       resolutionDate: getFacilityCurrentDateString(),
       resolved: false,

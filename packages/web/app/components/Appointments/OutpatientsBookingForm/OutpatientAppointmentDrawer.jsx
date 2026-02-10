@@ -12,12 +12,12 @@ import * as yup from 'yup';
 
 import {
   DAYS_OF_WEEK,
-  MODIFY_REPEATING_APPOINTMENT_MODE,
+  MODIFY_REPEATING_APPOINTMENT_MODE,  
   REPEAT_FREQUENCY,
   FORM_TYPES,
 } from '@tamanu/constants';
 import { getWeekdayOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
-import { toDateString, toDateTimeString, toWeekdayCode } from '@tamanu/utils/dateTime';
+import { toDateString, toDateTimeString, toWeekdayCode, trimToDate } from '@tamanu/utils/dateTime';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
@@ -326,7 +326,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
       if (!values.endTime) return;
       const facilityStartStr = formatForDateTimeInput(event.target.value);
       if (!facilityStartStr) return;
-      const [year, month, day] = facilityStartStr.slice(0, 10).split('-').map(Number);
+      const [year, month, day] = trimToDate(facilityStartStr).split('-').map(Number);
       setFieldValue(
         'endTime',
         toDateTimeString(
@@ -432,7 +432,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
             disabled={!values.startTime}
             date={
               values.startTime
-                ? formatForDateTimeInput(values.startTime)?.slice(0, 10)
+                ? trimToDate(formatForDateTimeInput(values.startTime))
                 : undefined
             }
             label={

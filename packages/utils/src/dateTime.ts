@@ -41,6 +41,10 @@ export const isISO9075DateString = (dateString: string) => isMatch(dateString, I
 export const trimToDate = (date: string | null | undefined): string | null | undefined =>
   date?.slice(0, 10);
 
+/** Extracts the time portion (HH:mm:ss) from a datetime string, returning null/undefined as-is. */
+export const trimToTime = (date: string | null | undefined): string | null | undefined =>
+  date?.slice(11, 19);
+
 const makeDateObject = (date: string | Date) => {
   if (typeof date !== 'string') return date;
   return isISOString(date) ? parseISO(date) : new Date(date.replace(' ', 'T'));

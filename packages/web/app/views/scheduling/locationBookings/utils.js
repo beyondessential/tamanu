@@ -1,6 +1,6 @@
 import { eachDayOfInterval, isSameDay, isValid } from 'date-fns';
 
-import { toDateString } from '@tamanu/utils/dateTime';
+import { toDateString, trimToDate } from '@tamanu/utils/dateTime';
 
 import { THIS_WEEK_ID } from './LocationBookingsCalendarHeader';
 import { LOCATION_BOOKINGS_CALENDAR_ID } from './LocationBookingsView';
@@ -65,10 +65,10 @@ export const partitionAppointmentsByDate = (appointments, formatForDateTimeInput
   appointments.reduce((acc, appt) => {
     const startStr = formatForDateTimeInput?.(appt.startTime);
     if (!startStr) return acc;
-    const startDate = startStr.slice(0, 10);
+    const startDate = trimToDate(startStr);
 
     const endStr = appt.endTime ? formatForDateTimeInput(appt.endTime) : null;
-    const endDate = endStr?.slice(0, 10);
+    const endDate = trimToDate(endStr);
 
     const dates =
       endDate && endDate !== startDate

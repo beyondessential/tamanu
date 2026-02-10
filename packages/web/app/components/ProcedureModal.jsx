@@ -17,7 +17,7 @@ import { toast } from 'react-toastify';
 import { FormModal } from './FormModal';
 import { useApi } from '../api';
 import { TranslatedText } from './Translation/TranslatedText';
-import { toDateString } from '@tamanu/utils/dateTime';
+import { toDateString, trimToDate, trimToTime } from '@tamanu/utils/dateTime';
 import { foreignKey, optionalForeignKey } from '../utils/validation';
 import { FORM_TYPES } from '@tamanu/constants';
 import { useAuth } from '../contexts/Auth';
@@ -61,12 +61,9 @@ const Divider = styled(MuiDivider)`
   margin: 10px 0 20px;
 `;
 
-// Extract time portion (HH:mm) from various formats
-const getTime = str => (str?.includes('T') ? str.slice(11, 16) : str?.slice(-8, -3)) || '';
-
 // Combine date + time (HH:mm) into datetime string
 const combineDateTime = (date, time) =>
-  date && time ? `${date.slice(0, 10)}T${getTime(time)}` : null;
+  date && time ? `${trimToDate(date)}T${trimToTime(time)}` : null;
 
 const useProcedureProgramResponsesQuery = (patientId, procedureId, refreshCount) => {
   const api = useApi();
@@ -117,7 +114,7 @@ export const ProcedureModal = ({
 
   // Form uses facilityTimeZone; on submit, combine date+time and convert to countryTimeZone
   const onSubmit = async data => {
-    const dateStr = data.date.slice(0, 10);
+    const dateStr = trimToDate(data.date);
     const toCountry = time =>
       time ? toDateTimeStringForPersistence(combineDateTime(dateStr, time)) : undefined;
     const toCountryWithRollover = (time, refTime) => {
@@ -317,7 +314,7 @@ export const ProcedureModal = ({
           ? {
               // Edit: spread existing data, convert date/time from country timezone to facility timezone
               ...editedProcedure,
-              date: toFacilityTz(editedProcedure.date)?.slice(0, 10),
+              date: trimToDate(toFacilityTz(editedProcedure.date)),
               startTime: toFacilityTz(editedProcedure.startTime),
               endTime: toFacilityTz(editedProcedure.endTime),
               timeIn: toFacilityTz(editedProcedure.timeIn),

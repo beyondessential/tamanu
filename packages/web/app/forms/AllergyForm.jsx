@@ -10,6 +10,7 @@ import {
   SuggesterSelectField,
 } from '../components/Field';
 import { TextField, Form, FormSubmitCancelRow, FormGrid, useDateTimeFormat } from '@tamanu/ui-components';
+import { trimToDate } from '@tamanu/utils/dateTime';
 import { foreignKey } from '../utils/validation';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
@@ -32,7 +33,7 @@ export const AllergyForm = ({
       // for now to avoid timezone conversion
       return {
         ...editedObject,
-        recordedDate: editedObject.recordedDate?.slice(0, 10),
+        recordedDate: trimToDate(editedObject.recordedDate),
       };
     }
     return {

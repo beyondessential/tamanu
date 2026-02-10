@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
+import { trimToDate } from '@tamanu/utils/dateTime';
 import { TextField, Form, FormGrid, FormSubmitCancelRow, useDateTimeFormat } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { AutocompleteField, DateField, Field } from '../components/Field';
@@ -23,7 +24,7 @@ export const FamilyHistoryForm = ({
       // for now to avoid timezone conversion
       return {
         ...editedObject,
-        recordedDate: editedObject.recordedDate?.slice(0, 10),
+        recordedDate: trimToDate(editedObject.recordedDate),
       };
     }
     return {
