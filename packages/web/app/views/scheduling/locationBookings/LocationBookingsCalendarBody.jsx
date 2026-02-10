@@ -40,7 +40,7 @@ export const BookingsCell = ({
     >
       {appointments?.map((a, index) => {
         const facilityStartDate = trimToDate(formatForDateTimeInput(a.startTime));
-        const cellDateStr = trimToDate(formatForDateTimeInput(date));
+        const cellDateStr = toDateString(date);
         return (
           <AppointmentTile
             appointment={a}
@@ -103,7 +103,7 @@ export const BookingsRow = ({
       </CarouselGrid.RowHeaderCell>
       {dates.map(d => (
         <BookingsCell
-          appointments={appointmentsByDate[trimToDate(formatForDateTimeInput(d))]}
+          appointments={appointmentsByDate[toDateString(d)]}
           date={d}
           key={d.valueOf()}
           location={location}
