@@ -109,8 +109,8 @@ export const DateInput = ({
 
       let outputValue;
 
-      // Convert input value (facilityTimeZone) to storage value (countryTimeZone)
       if (shouldUseTimezone) {
+        // Convert input value (facilityTimeZone) to storage value (countryTimeZone)
         outputValue = toDateTimeStringForPersistence(formattedValue);
       } else {
         const date = parse(formattedValue, format, new Date());
@@ -135,7 +135,16 @@ export const DateInput = ({
 
       onChange({ target: { value: outputValue, name } });
     },
-    [onChange, format, name, saveDateAsString, type, clearValue, shouldUseTimezone, toDateTimeStringForPersistence],
+    [
+      onChange,
+      format,
+      name,
+      saveDateAsString,
+      type,
+      clearValue,
+      shouldUseTimezone,
+      toDateTimeStringForPersistence,
+    ],
   );
 
   const onKeyDown = event => {
@@ -150,36 +159,26 @@ export const DateInput = ({
 
   const onArrowChange = addDaysAmount => {
     const date = parse(currentText, format, new Date());
-    const newDate = formatDate(addDays(date, addDaysAmount), format);
-
-    onValueChange({ target: { value: newDate } });
+    const newValue = formatDate(addDays(date, addDaysAmount), format);
+    onValueChange({ target: { value: newValue } });
   };
 
   const handleBlur = e => {
-    // if the final input is invalid, clear the component value
+      // if the final input is invalid, clear the component value
     if (!e.target.value) {
       clearValue();
       setCurrentText('');
       return;
     }
+    if (keepIncorrectValue) return;
 
-    const date = parse(currentText, format, new Date());
+    // When using timezones, compare ISO strings directly to avoid browser DST interference
+    const outOfBounds = shouldUseTimezone
+      ? (max && currentText > max) || (min && currentText < min)
+      : (max && isAfter(parse(currentText, format, new Date()), parse(max, format, new Date()))) ||
+        (min && isBefore(parse(currentText, format, new Date()), parse(min, format, new Date())));
 
-    if (max && !keepIncorrectValue) {
-      const maxDate = parse(max, format, new Date());
-      if (isAfter(date, maxDate)) {
-        clearValue();
-        return;
-      }
-    }
-
-    if (min && !keepIncorrectValue) {
-      const minDate = parse(min, format, new Date());
-      if (isBefore(date, minDate)) {
-        clearValue();
-        return;
-      }
-    }
+    if (outOfBounds) clearValue();
   };
 
   useEffect(() => {
