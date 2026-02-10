@@ -4,6 +4,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { useDateTimeFormat } from '@tamanu/ui-components';
+import { trimToDate } from '@tamanu/utils/dateTime';
 
 import { useLocationBookingsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';
@@ -52,8 +53,8 @@ const DateTimePicker = ({
     }
   };
 
-  const startDateTimeString = getDayBoundaries(values.startDate)?.end;
-  const endDateTimeString = getDayBoundaries(values.endDate)?.start;
+  const startDateTimeString = getDayBoundaries(trimToDate(values.startDate))?.end;
+  const endDateTimeString = getDayBoundaries(trimToDate(values.endDate))?.start;
 
   /**
    * Check for any booked timeslots *between* dates in overnight bookings. {@link TimeSlotPicker}
