@@ -214,11 +214,11 @@ const BookingsTimelineItem = ({ appointment }) => {
 
 export const TodayBookingsPane = ({ showTasks }) => {
   const { currentUser, facilityId } = useAuth();
-  const { getFacilityCurrentDateString, getDayBoundaries } = useDateTimeFormat();
+  const { getCurrentDate, getDayBoundaries } = useDateTimeFormat();
   const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
   
   // Get today's date boundaries in facility timezone, converted to country timezone for query
-  const todayFacility = getFacilityCurrentDateString();
+  const todayFacility = getCurrentDate();
   const { start, end } = getDayBoundaries(todayFacility);
   const appointments =
     useAutoUpdatingQuery(

@@ -47,7 +47,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
   const { currentUser, facilityId } = useAuth();
   const patient = useSelector(state => state.patient);
   const [selectedProgramRegistryId, setSelectedProgramRegistryId] = useState();
-  const { getFacilityCurrentDateString } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTimeFormat();
 
   const { data: program } = useProgramRegistryQuery(selectedProgramRegistryId);
 
@@ -279,7 +279,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
         );
       }}
       initialValues={{
-        date: getFacilityCurrentDateString(),
+        date: getCurrentDate(),
         registeringFacilityId: facilityId,
         clinicianId: currentUser.id,
         ...editedObject,
