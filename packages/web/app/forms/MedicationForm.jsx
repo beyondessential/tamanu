@@ -1134,7 +1134,13 @@ export const MedicationForm = ({
               />
               <Field
                 name="repeats"
-                label={<TranslatedText stringId="medication.repeats.label" fallback="Repeats" />}
+                label={
+                  encounterId ? (
+                    <TranslatedText stringId="medication.repeats.onDischarge.label" fallback="Repeats on discharge" />
+                  ) : (
+                    <TranslatedText stringId="medication.repeats.label" fallback="Repeats" />
+                  )
+                }
                 component={NumberField}
                 min={0}
                 max={MAX_REPEATS}

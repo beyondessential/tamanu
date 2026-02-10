@@ -137,19 +137,19 @@ export const MedicationDetails = ({
     ...(medication.isOngoing || medication.discontinued
       ? []
       : [
-          {
-            label: <TranslatedText stringId="medication.details.duration" fallback="Duration" />,
-            value: medication.durationValue
-              ? `${medication.durationValue} ${singularize(
-                  getEnumTranslation(
-                    MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
-                    medication.durationUnit,
-                  ),
-                  medication.durationValue,
-                ).toLowerCase()}`
-              : '-',
-          },
-        ]),
+        {
+          label: <TranslatedText stringId="medication.details.duration" fallback="Duration" />,
+          value: medication.durationValue
+            ? `${medication.durationValue} ${singularize(
+              getEnumTranslation(
+                MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
+                medication.durationUnit,
+              ),
+              medication.durationValue,
+            ).toLowerCase()}`
+            : '-',
+        },
+      ]),
     {
       label: <TranslatedText stringId="medication.details.indication" fallback="Indication" />,
       value: medication.indication || '-',
@@ -164,7 +164,12 @@ export const MedicationDetails = ({
       value: medication.quantity ?? '-',
     },
     {
-      label: <TranslatedText stringId="medication.details.repeats" fallback="Repeats" />,
+      label:
+        encounter && !isOngoingPrescription ? (
+          <TranslatedText stringId="medication.details.repeatsOnDischarge" fallback="Repeats on discharge" />
+        ) : (
+          <TranslatedText stringId="medication.details.repeats" fallback="Repeats" />
+        ),
       value: medication.repeats ?? 0,
     },
   ];
@@ -188,13 +193,13 @@ export const MedicationDetails = ({
     ...(medication.isOngoing || medication.discontinued || !medication.endDate
       ? []
       : [
-          {
-            label: (
-              <TranslatedText stringId="medication.details.endDate" fallback="End date & time" />
-            ),
-            value: `${formatShortest(medication.endDate)} ${formatTimeSlot(medication.endDate)}`,
-          },
-        ]),
+        {
+          label: (
+            <TranslatedText stringId="medication.details.endDate" fallback="End date & time" />
+          ),
+          value: `${formatShortest(medication.endDate)} ${formatTimeSlot(medication.endDate)}`,
+        },
+      ]),
     {
       label: <TranslatedText stringId="medication.details.prescriber" fallback="Prescriber" />,
       value: medication.prescriber?.displayName || '-',
@@ -507,7 +512,11 @@ export const MedicationDetails = ({
                 </Box>
                 <Box flex={1}>
                   <DarkestText color={`${Colors.darkText} !important`} mb={0.5}>
-                    <TranslatedText stringId="medication.details.repeats" fallback="Repeats" />
+                    {encounter && !isOngoingPrescription ? (
+                      <TranslatedText stringId="medication.details.repeatsOnDischarge" fallback="Repeats on discharge" />
+                    ) : (
+                      <TranslatedText stringId="medication.details.repeats" fallback="Repeats" />
+                    )}
                   </DarkestText>
                   <NoteModalActionBlocker>
                     <Field

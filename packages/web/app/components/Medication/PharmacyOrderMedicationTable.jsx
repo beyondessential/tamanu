@@ -259,10 +259,16 @@ const getColumns = (
     },
     {
       key: COLUMN_KEYS.REPEATS,
-      title: (
+      title: isOngoingMode ? (
         <TranslatedText
           stringId="pharmacyOrder.table.column.repeats"
           fallback="Remaining"
+          data-testid="translatedtext-psdf"
+        />
+      ) : (
+        <TranslatedText
+          stringId="pharmacyOrder.table.column.repeatsOnDischarge"
+          fallback="Repeats on discharge"
           data-testid="translatedtext-psdf"
         />
       ),
