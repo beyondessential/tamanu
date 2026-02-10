@@ -611,16 +611,15 @@ medication.post(
       for (const originalPrescription of ongoingPrescriptions) {
         const { repeats } = originalPrescription;
         const lastOrderedAt = lastOrderedAts[originalPrescription.id]?.last_ordered_at;
-        
-        if (repeats > 0) {
-          // Only decrement repeats if this prescription has been ordered before
-          if (lastOrderedAt) {
-            await originalPrescription.update({ repeats: repeats - 1 }, { transaction });
+
+        // We only start decrementing repeats after the first send.
+        if (lastOrderedAt) {
+          if (repeats === 0) {
+            throw new InvalidOperationError(
+              `Prescription "${originalPrescription.medication?.name}" has no remaining repeats and cannot be sent to pharmacy.`,
+            );
           }
-        } else {
-          throw new InvalidOperationError(
-            `Prescription "${originalPrescription.medication?.name}" has no remaining repeats and cannot be sent to pharmacy.`,
-          );
+          await originalPrescription.update({ repeats: repeats - 1 }, { transaction });
         }
       }
 
