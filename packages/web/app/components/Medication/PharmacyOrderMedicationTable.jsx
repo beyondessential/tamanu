@@ -299,7 +299,7 @@ const getColumns = (
         />
       ),
       sortable: false,
-      accessor: ({ repeats }) => repeats + 1,
+      accessor: ({ repeats, lastOrderedAt }) => lastOrderedAt ? repeats : repeats + 1,
     },
   ];
 
