@@ -275,7 +275,8 @@ const getColumns = (
       sortable: false,
       accessor: ({ repeats, lastOrderedAt }) => {
         if (!isOngoingMode) return repeats;
-        return lastOrderedAt ? repeats : repeats + 1;
+        if (!lastOrderedAt) return repeats + 1;
+        return repeats;
       },
     },
     {
