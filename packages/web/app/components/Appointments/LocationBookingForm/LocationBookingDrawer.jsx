@@ -2,9 +2,9 @@ import OvernightIcon from '@material-ui/icons/Brightness2';
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import { isSameDay, parseISO, sub } from 'date-fns';
+import { sub } from 'date-fns';
 
-import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
+import { trimToDate, toDateTimeString } from '@tamanu/utils/dateTime';
 import { Form, FormGrid, FormSubmitCancelRow, useDateTimeFormat } from '@tamanu/ui-components';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
@@ -138,27 +138,21 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     const facilityStartStr = formatForDateTimeInput(initialValues.startTime);
     if (!facilityStartStr) return initialValues;
 
-    const facilityStartTime = facilityStartStr.replace('T', ' ') + ':00';
     const facilityEndStr = initialValues.endTime
       ? formatForDateTimeInput(initialValues.endTime)
       : null;
-    const facilityEndTime = facilityEndStr
-      ? facilityEndStr.replace('T', ' ') + ':00'
-      : null;
 
-    const startObj = parseISO(facilityStartTime);
-    const endObj = facilityEndTime ? parseISO(facilityEndTime) : null;
-    const dateFromStart = toDateString(startObj);
-    const dateFromEnd = endObj ? toDateString(endObj) : null;
+    const startDate = trimToDate(facilityStartStr);
+    const endDate = trimToDate(facilityEndStr);
 
     return {
       ...initialValues,
-      startTime: facilityStartTime,
-      endTime: facilityEndTime,
-      date: dateFromStart ?? initialValues.startDate,
-      startDate: dateFromStart ?? initialValues.startDate,
-      endDate: dateFromEnd ?? initialValues.endDate,
-      overnight: startObj && endObj ? !isSameDay(startObj, endObj) : initialValues.overnight,
+      startTime: facilityStartStr.replace('T', ' ') + ':00',
+      endTime: facilityEndStr ? facilityEndStr.replace('T', ' ') + ':00' : null,
+      date: startDate ?? initialValues.startDate,
+      startDate: startDate ?? initialValues.startDate,
+      endDate: endDate ?? initialValues.endDate,
+      overnight: startDate && endDate ? startDate !== endDate : initialValues.overnight,
     };
   }, [initialValues, formatForDateTimeInput]);
 
