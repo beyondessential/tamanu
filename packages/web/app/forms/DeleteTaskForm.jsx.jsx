@@ -17,7 +17,7 @@ import { useAuth } from '../contexts/Auth';
 import { useTranslation } from '../contexts/Translation';
 
 export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
-  const { getFacilityCurrentDateTimeInputValue, getCountryCurrentDateTimeString } =
+  const { getFacilityCurrentDateTimeInputValue, getCurrentDateTime } =
     useDateTimeFormat();
   const { getTranslation } = useTranslation();
   const practitionerSuggester = useSuggester('practitioner');
@@ -132,7 +132,7 @@ export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
             />,
           )
           .max(
-            getCountryCurrentDateTimeString(),
+            getCurrentDateTime(),
             getTranslation(
               'general.validation.date.cannotInFuture',
               'Date cannot be in the future',
@@ -141,7 +141,7 @@ export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
         deletedReasonId: yup.string(),
       })}
       initialValues={{
-        deletedTime: getCountryCurrentDateTimeString(),
+        deletedTime: getCurrentDateTime(),
         deletedByUserId: currentUser?.id,
       }}
       data-testid="form-nv8b"

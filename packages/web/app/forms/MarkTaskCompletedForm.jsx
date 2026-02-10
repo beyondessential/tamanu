@@ -18,7 +18,7 @@ import { useTranslation } from '../contexts/Translation';
 
 export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) => {
   const { getTranslation } = useTranslation();
-  const { getFacilityCurrentDateTimeInputValue, getCountryCurrentDateTimeString } =
+  const { getFacilityCurrentDateTimeInputValue, getCurrentDateTime } =
     useDateTimeFormat();
   const practitionerSuggester = useSuggester('practitioner');
   const { mutate: markTaskCompleted, isLoading } = useMarkTaskCompleted();
@@ -127,7 +127,7 @@ export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) =>
             />,
           )
           .max(
-            getCountryCurrentDateTimeString(),
+            getCurrentDateTime(),
             getTranslation(
               'general.validation.date.cannotInFuture',
               'Date cannot be in the future',
@@ -136,7 +136,7 @@ export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) =>
         completedNote: yup.string(),
       })}
       initialValues={{
-        completedTime: getCountryCurrentDateTimeString(),
+        completedTime: getCurrentDateTime(),
         completedByUserId: currentUser?.id,
       }}
       data-testid="form-fiov"
