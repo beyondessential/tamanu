@@ -7,12 +7,12 @@ import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared
 
 import { TextInput, ConditionalTooltip } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
-import { OuterLabelFieldWrapper, CheckInput, NumberInput } from '../Field';
+import { OuterLabelFieldWrapper, CheckInput } from '../Field';
 import { Table } from '../Table';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../Translation';
-import { MEDICATION_DURATION_DISPLAY_UNITS_LABELS, MAX_REPEATS } from '@tamanu/constants';
-import { preventInvalidRepeatsInput, singularize } from '../../utils';
+import { MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
+import { singularize } from '../../utils';
 
 const StyledTable = styled(Table)`
   .MuiTableCell-root {
