@@ -1,5 +1,4 @@
 import { type DestroyOptions, type UpdateOptions } from 'sequelize';
-import { INVOICEABLE_MEDICATION_ENCOUNTER_TYPES } from '@tamanu/constants';
 import { MedicationAdministrationRecordDose } from './MedicationAdministrationRecordDose';
 
 const recalculateAndApplyInvoiceQuantity = async (instance: MedicationAdministrationRecordDose) => {
@@ -20,8 +19,7 @@ const recalculateAndApplyInvoiceQuantity = async (instance: MedicationAdministra
       },
     ],
   });
-  const encounterType = prescription?.encounterPrescription?.encounter?.encounterType || '';
-  if (prescription && INVOICEABLE_MEDICATION_ENCOUNTER_TYPES.includes(encounterType)) {
+  if (prescription) {
     await prescription.recalculateAndApplyInvoiceQuantity(instance.recordedByUserId);
   }
 };

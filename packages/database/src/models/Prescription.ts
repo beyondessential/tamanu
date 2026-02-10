@@ -4,6 +4,7 @@ import {
   SYNC_DIRECTIONS,
   ADMINISTRATION_STATUS,
   INVOICE_ITEMS_CATEGORIES,
+  INVOICEABLE_MEDICATION_ENCOUNTER_TYPES,
 } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Model } from './Model';
@@ -198,6 +199,7 @@ export class Prescription extends Model {
 
   async recalculateAndApplyInvoiceQuantity(userId?: string) {
     const {
+      Encounter,
       InvoiceProduct,
       Invoice,
       MedicationAdministrationRecord,
@@ -241,8 +243,35 @@ export class Prescription extends Model {
 
     let marQty = 0;
     const givenMars = await MedicationAdministrationRecord.findAll({
-      where: { prescriptionId: prescription.id, status: ADMINISTRATION_STATUS.GIVEN },
+      where: {
+        prescriptionId: prescription.id,
+        status: ADMINISTRATION_STATUS.GIVEN,
+      },
       attributes: ['id'],
+      include: [
+        {
+          model: Prescription,
+          as: 'prescription',
+          required: true,
+          include: [
+            {
+              model: EncounterPrescription,
+              as: 'encounterPrescription',
+              required: true,
+              include: [
+                {
+                  model: Encounter,
+                  as: 'encounter',
+                  required: true,
+                  where: {
+                    encounterType: { [Op.in]: INVOICEABLE_MEDICATION_ENCOUNTER_TYPES },
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
     });
 
     if (givenMars.length > 0) {
