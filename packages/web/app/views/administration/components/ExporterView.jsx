@@ -4,13 +4,7 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { pluralize } from 'inflection';
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import {
-  Form,
-  FormSubmitButton,
-  ButtonRow,
-  FormGrid,
-  useDateTimeFormat,
-} from '@tamanu/ui-components';
+import { Form, FormSubmitButton, ButtonRow, FormGrid, useDateTimeFormat } from '@tamanu/ui-components';
 
 import { useApi } from '../../../api';
 import { Field } from '../../../components/Field';
@@ -54,14 +48,14 @@ const ExportForm = ({
 
 export const ExporterView = memo(
   ({ title, endpoint, dataTypes, dataTypesSelectable, ExportButton }) => {
-    const { formatForDateTimeInput, getCurrentDateTime } = useDateTimeFormat();
+    const { getFacilityCurrentDateTimeString } = useDateTimeFormat();
     const api = useApi();
     const { getTranslation } = useTranslation();
 
     const onSubmit = useCallback(
       async queryParameters => {
         await saveFile({
-          defaultFileName: `${title} export ${formatForDateTimeInput(getCurrentDateTime())}`,
+          defaultFileName: `${title} export ${getFacilityCurrentDateTimeString()}`,
           getData: async () => api.download(`admin/export/${endpoint}`, queryParameters),
           extension: 'xlsx',
         });
@@ -69,7 +63,7 @@ export const ExporterView = memo(
           getTranslation('document.notification.downloadSuccess', 'Successfully downloaded file'),
         );
       },
-      [title, formatForDateTimeInput, getCurrentDateTime, getTranslation, api, endpoint],
+      [api, title, endpoint, getFacilityCurrentDateTimeString],
     );
 
     const buttonLabel = useMemo(() => {
