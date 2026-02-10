@@ -47,10 +47,14 @@ export const trimToTime = (date: string | null | undefined): string | null | und
   return time?.length === 5 ? `${time}:00` : time;
 };
 
-/** Converts a datetime-local input value (YYYY-MM-DDTHH:mm) to ISO 9075 format (YYYY-MM-DD HH:mm:00). */
+/** Converts a datetime-local input value (YYYY-MM-DDTHH:mm or YYYY-MM-DDTHH:mm:ss) to ISO 9075 format. */
 export const dateTimeInputToISO9075 = (
   value: string | null | undefined,
-): string | null | undefined => (value ? value.replace('T', ' ') + ':00' : value);
+): string | null | undefined => {
+  if (!value) return value;
+  const replaced = value.replace('T', ' ');
+  return replaced.length <= 16 ? `${replaced}:00` : replaced;
+};
 
 const makeDateObject = (date: string | Date) => {
   if (typeof date !== 'string') return date;
