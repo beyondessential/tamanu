@@ -114,7 +114,7 @@ export class Invoice extends Model {
     return buildEncounterLinkedLookupFilter(this);
   }
 
-  static getFullReferenceAssociations(invoicePriceListId?: string) {
+  static getFullReferenceAssociations(invoicePriceListId?: string, includeRefundingPayments?: boolean) {
     const { models } = this.sequelize;
 
     return [
@@ -136,7 +136,13 @@ export class Invoice extends Model {
       {
         model: models.InvoicePayment,
         as: 'payments',
+        required: false,
         include: models.InvoicePayment.getListReferenceAssociations(models),
+        ...(!includeRefundingPayments ? {
+          where: {
+            'original_payment_id': null,
+          }
+        } : {}),
       },
       {
         model: models.InvoiceInsurancePlan,
