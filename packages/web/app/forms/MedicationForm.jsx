@@ -256,7 +256,7 @@ const CheckboxRow = styled.div`
   align-items: stretch;
   border: 1px solid ${Colors.outline};
   padding: 12px 16px;
-  border-radius: 3px
+  border-radius: 3px;
 `;
 
 const CheckboxRowItem = styled.div`
