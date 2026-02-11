@@ -14,7 +14,7 @@ const validateUser = async (existingStore, username) => {
     },
   );
 
-  if (!result.length > 0) {
+  if (result.length === 0) {
     throw new Error(
       `Reporting role "${username}" does not exist, please create the role in the database first`,
     );
@@ -27,7 +27,7 @@ const grantPrivileges = async (existingStore, schemaName, username) => {
     `);
 };
 
-async function initReportStore(existingStore, connectionName, credentials) {
+const initReportStore = async (existingStore, connectionName, credentials) => {
   const testMode = process.env.NODE_ENV === 'test';
   const { username, password, pool } = credentials;
   const overrides = {
@@ -52,9 +52,9 @@ async function initReportStore(existingStore, connectionName, credentials) {
   await grantPrivileges(existingStore, REPORT_DB_CONNECTION_SCHEMAS[connectionName], username);
 
   return openDatabase(`reporting-${connectionName}`, overrides);
-}
+};
 
-export async function initReporting(existingStore) {
+export const initReporting = async existingStore => {
   const { connections } = config.db.reportSchemas;
   return Object.entries(connections).reduce(
     async (accPromise, [schemaName, { username, password }]) => {
@@ -67,4 +67,4 @@ export async function initReporting(existingStore) {
     },
     Promise.resolve({}),
   );
-}
+};
