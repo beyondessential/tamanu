@@ -88,10 +88,12 @@ export const ProcedureModal = ({
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const [selectedSurveyId, setSelectedSurveyId] = useState(null);
   const [unsavedChangesModalOpen, setUnsavedChangesModalOpen] = useState(false);
-  const [saveWithoutAdditionalDataModalOpen, setSaveWithoutAdditionalDataModalOpen] =
-    useState(false);
-  const [closeWithoutAdditionalDataModalOpen, setCloseWithoutAdditionalDataModalOpen] =
-    useState(false);
+  const [saveWithoutAdditionalDataModalOpen, setSaveWithoutAdditionalDataModalOpen] = useState(
+    false,
+  );
+  const [closeWithoutAdditionalDataModalOpen, setCloseWithoutAdditionalDataModalOpen] = useState(
+    false,
+  );
   const [pendingFormData, setPendingFormData] = useState(null);
   const [surveyFormDirty, setSurveyFormDirty] = useState(false);
   const procedureId = editedProcedure?.id;
@@ -107,16 +109,18 @@ export const ProcedureModal = ({
   // Form values already have correct dates (ProcedureDateSync handles rollover),
   // so submit just needs to convert from facility timezone to country timezone.
   const onSubmit = async data => {
+    delete data.date;
     const toPersisted = val => (val ? toDateTimeStringForPersistence(val) : undefined);
-    const startDateTime = toPersisted(data.startTime);
+    const { startTime, endTime, timeIn, timeOut, ...rest } = data; // eslint-disable-line no-unused-vars
+    const startDateTime = toPersisted(startTime);
 
-    await api[data.id ? 'put' : 'post'](data.id ? `procedure/${data.id}` : 'procedure', {
-      ...data,
+    await api[rest.id ? 'put' : 'post'](rest.id ? `procedure/${rest.id}` : 'procedure', {
+      ...rest,
       date: startDateTime,
       startTime: startDateTime,
-      endTime: toPersisted(data.endTime),
-      timeIn: toPersisted(data.timeIn),
-      timeOut: toPersisted(data.timeOut),
+      endTime: toPersisted(endTime),
+      timeIn: toPersisted(timeIn),
+      timeOut: toPersisted(timeOut),
       encounterId,
     });
 

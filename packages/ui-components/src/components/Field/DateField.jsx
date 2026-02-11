@@ -67,6 +67,11 @@ export const DateInput = ({
   const shouldUseTimezone = useTimezone && type === 'datetime-local' && dateTimeFormat != null;
   const { formatForDateTimeInput, toDateTimeStringForPersistence } = dateTimeFormat ?? {};
 
+  // Normalize max/min to datetime-local format when using timezones so both the
+  // HTML input constraint and the handleBlur check use the same T-separator format
+  const normalizedMax = shouldUseTimezone && max ? formatForDateTimeInput(max) || max : max;
+  const normalizedMin = shouldUseTimezone && min ? formatForDateTimeInput(min) || min : min;
+
   // Convert stored value (countryTimeZone) to display value (facilityTimeZone for datetime-local)
   const getDisplayValue = val => {
     if (shouldUseTimezone) return formatForDateTimeInput(val) || '';
@@ -173,9 +178,9 @@ export const DateInput = ({
     }
     if (keepIncorrectValue) return;
 
-    // When using timezones, compare ISO strings directly to avoid browser DST interference
     const outOfBounds = shouldUseTimezone
-      ? (max && currentText > max) || (min && currentText < min)
+      ? (normalizedMax && currentText > normalizedMax) ||
+        (normalizedMin && currentText < normalizedMin)
       : (max && isAfter(parse(currentText, format, new Date()), parse(max, format, new Date()))) ||
         (min && isBefore(parse(currentText, format, new Date()), parse(min, format, new Date())));
 
@@ -206,7 +211,7 @@ export const DateInput = ({
       onBlur={handleBlur}
       InputProps={{
         // Set max property on HTML input element to force 4-digit year value (max year being 9999)
-        inputProps: { max, min, ...inputProps },
+        inputProps: { max: normalizedMax, min: normalizedMin, ...inputProps },
         'data-testid': `${dataTestId}-input`,
       }}
       style={isPlaceholder ? { color: TAMANU_COLORS.softText } : undefined}
