@@ -11,7 +11,8 @@ import { Text } from '../pdf/Text';
 
 const styles = StyleSheet.create({
   page: {
-    padding: 30,
+    paddingVertical: 10,
+    paddingHorizontal: 30,
     fontSize: 9,
   },
   table: {
@@ -63,7 +64,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   sectionLabel: {
-    width: 20, // Reduced as it's just for "a.", "b." etc in Part I
+    width: 20,
     justifyContent: 'flex-start',
     alignItems: 'center',
     padding: 4,
@@ -88,11 +89,10 @@ const styles = StyleSheet.create({
     fontSize: 8,
     color: '#888',
   },
-  // Specific for Cause of Death
   causeRow: {
     flexDirection: 'row',
     borderBottom: '1 solid black',
-    minHeight: 24,
+    height: 36,
   },
   causeLabel: {
     width: 30,
