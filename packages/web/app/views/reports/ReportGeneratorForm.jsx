@@ -248,7 +248,7 @@ export const ReportGeneratorForm = () => {
     try {
       if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
         const excelData = await api.post(`reports/${reportId}`, {
-          parameters,
+          parameters: { ...parameters, timezone },
           facilityId,
         });
 
@@ -277,7 +277,7 @@ export const ReportGeneratorForm = () => {
       } else {
         await api.post(`reportRequest`, {
           reportId,
-          parameters,
+          parameters: { ...parameters, timezone },
           emailList: parseEmails(emails),
           bookType,
         });
