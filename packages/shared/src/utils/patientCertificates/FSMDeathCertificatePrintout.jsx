@@ -134,6 +134,8 @@ const getLabelFromValue = (mapping, v) => {
   return entry ? entry.label : '';
 };
 
+const FSM_DATE_FORMAT = 'MM/dd/yyyy';
+
 // Accessor helpers
 const getCauseText = (cause) => cause?.condition?.name || '';
 const getCauseInterval = (cause) => cause?.timeAfterOnset || '';
@@ -207,7 +209,7 @@ export const FSMDeathCertificatePrintout = ({
             <Cell flex={1} label="Middle name:" value={patientData?.middleName} />
             <Cell flex={1} label="Last name:" value={patientData?.lastName} />
             <Cell width={60} label="Sex:" value={getLabelFromValue(SEX_OPTIONS, patientData?.sex)} />
-            <Cell width={140} lastCell label="Date of death:" value={dod ? getDisplayDate(dod) : ''} />
+            <Cell width={140} lastCell label="Date of death:" value={dod ? getDisplayDate(dod, FSM_DATE_FORMAT) : ''} />
           </View>
 
           {/* Row 2: Age Details */}
@@ -215,7 +217,7 @@ export const FSMDeathCertificatePrintout = ({
             <Cell flex={1} label="Age:" value={getAgeAtDeath(dob, dod)} />
             <Cell flex={1} label="Under 1 year:" value={getUnder1Year(dob, dod)} />
             <Cell flex={1} label="Under 1 day:" value={getUnder1Day(dob, dod)} />
-            <Cell flex={1} label="Date of birth:" value={dob ? getDisplayDate(dob) : ''} />
+            <Cell flex={1} label="Date of birth:" value={dob ? getDisplayDate(dob, FSM_DATE_FORMAT) : ''} />
             <Cell width={250} lastCell label="FSM state of death:" />
           </View>
 
@@ -394,7 +396,7 @@ export const FSMDeathCertificatePrintout = ({
           {/* Injury Details */}
           <View style={styles.row}>
             <Cell flex={1} label="Accident, suicide, homicide, undetermined (specify):" value={patientData?.manner} />
-            <Cell width={150} label="Date of injury:" value={patientData?.causes?.external?.date ? getDisplayDate(patientData?.causes?.external?.date) : ''} />
+            <Cell width={150} label="Date of injury:" value={patientData?.causes?.external?.date ? getDisplayDate(patientData?.causes?.external?.date, FSM_DATE_FORMAT) : ''} />
             <Cell flex={1} lastCell label="How injury occurred:" value={patientData?.causes?.external?.notes} />
           </View>
           <View style={styles.row}>
