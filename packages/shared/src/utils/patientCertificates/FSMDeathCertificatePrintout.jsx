@@ -84,7 +84,8 @@ const styles = StyleSheet.create({
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 10,
+    marginTop: 'auto',
+    paddingTop: 2,
     borderTop: '1 solid #DEDEDE',
   },
   footerText: {
