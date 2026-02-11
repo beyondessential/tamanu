@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Typography, Box } from '@material-ui/core';
-import { Button, OutlinedButton } from '@tamanu/ui-components';
+import { Button, OutlinedButton, useDateTimeFormat } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import PrintIcon from '@material-ui/icons/Print';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
 import {
   InvoiceModalGroup,
@@ -233,6 +232,7 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEd
 };
 
 export const EncounterInvoicingPane = ({ encounter }) => {
+  const { getCurrentDateTime } = useDateTimeFormat();
   const { ability } = useAuth();
   const [isEditing, setEditing] = useState(false);
   const [invoiceModalType, setInvoiceModalType] = useState(null);
@@ -242,7 +242,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
   const handleCreateInvoice = () => {
     createInvoice({
       encounterId: encounter.id,
-      date: getCurrentDateTimeString(),
+      date: getCurrentDateTime(),
     });
   };
 

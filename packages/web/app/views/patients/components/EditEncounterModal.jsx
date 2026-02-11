@@ -11,6 +11,7 @@ import {
   useApi,
   useSettings,
   useSuggester,
+  useDateTimeFormat,
 } from '@tamanu/ui-components';
 import {
   DynamicSelectField,
@@ -24,7 +25,6 @@ import {
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useEncounter } from '../../../contexts/Encounter';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { isEmergencyPatient } from '../../../utils/isEmergencyPatient';
 
 const StyledFormGrid = styled(FormGrid)`
@@ -321,6 +321,7 @@ const getFormInitialValues = ({ encounter, triage = {} }) => {
 export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
   const api = useApi();
   const { writeAndViewEncounter } = useEncounter();
+  const {getCurrentDateTime} = useDateTimeFormat();
 
   const triage = encounter.triages?.[0];
 
@@ -333,13 +334,13 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
     secondaryComplaintId,
   }) => {
     await api.put(`triage/${triage?.id}`, {
-      submittedTime: getCurrentDateTimeString(),
+      submittedTime: getCurrentDateTime(),
       encounterId: encounter.id,
       arrivalTime,
       triageTime: startDate,
       arrivalModeId,
       score,
-      chiefComplaintId,
+      chiefComplaintId, 
       secondaryComplaintId,
     });
 
@@ -356,7 +357,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
     estimatedEndDate,
   }) => {
     await writeAndViewEncounter(encounter.id, {
-      submittedTime: getCurrentDateTimeString(),
+      submittedTime: getCurrentDateTime(),
       startDate,
       referralSourceId,
       patientBillingTypeId,
