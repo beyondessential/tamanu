@@ -119,7 +119,7 @@ export const TimeSlotPicker = ({
   );
   const [hoverRange, setHoverRange] = useState(null);
 
-  const queryBoundaries = useMemo(() => getDayBoundaries(date), [date]);
+  const queryBoundaries = useMemo(() => getDayBoundaries(date), [date, getDayBoundaries]);
 
   const locationBookingsQuery = useLocationBookingsQuery(
     {
