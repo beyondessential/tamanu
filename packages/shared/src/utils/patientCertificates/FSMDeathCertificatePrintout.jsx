@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     borderBottom: '1 solid black',
   },
   causeInterval: {
-    width: 150,
+    width: 190,
     padding: 4,
     borderBottom: '1 solid black',
   },
@@ -156,8 +156,8 @@ export const FSMDeathCertificatePrintout = ({
             <Cell flex={1} label="First name:" value={patientData?.firstName} />
             <Cell flex={1} label="Middle name:" value={patientData?.middleName} />
             <Cell flex={1} label="Last name:" value={patientData?.lastName} />
-            <Cell width={80} label="Sex:" value={getLabelFromValue(SEX_OPTIONS, patientData?.sex)} />
-            <Cell width={120} lastCell label="Date of death:" value={patientData?.dateOfDeath ? getDisplayDate(patientData?.dateOfDeath) : ''} />
+            <Cell width={60} label="Sex:" value={getLabelFromValue(SEX_OPTIONS, patientData?.sex)} />
+            <Cell width={140} lastCell label="Date of death:" value={patientData?.dateOfDeath ? getDisplayDate(patientData?.dateOfDeath) : ''} />
           </View>
 
           {/* Row 2: Age Details */}
@@ -166,36 +166,36 @@ export const FSMDeathCertificatePrintout = ({
             <Cell flex={1} label="Under 1 year:" />
             <Cell flex={1} label="Under 1 day:" />
             <Cell flex={1} label="Date of birth:" value={patientData?.dateOfBirth ? getDisplayDate(patientData?.dateOfBirth) : ''} />
-            <Cell flex={1} lastCell label="FSM state of death:" />
+            <Cell width={250} lastCell label="FSM state of death:" />
           </View>
 
           {/* Row 3: Location of Death */}
           <View style={styles.row}>
-            <Cell flex={2} label="Atoll of island group of death:" />
-            <Cell flex={2} label="Hospital/Dispensary or village & island municipality:" value={patientData?.facility?.name} />
-            <Cell flex={1} lastCell label="Hospital Record No.:" value={patientData?.displayId} />
+            <Cell flex={1} label="Atoll of island group of death:" />
+            <Cell flex={1} label="Hospital/Dispensary or village & island municipality:" value={patientData?.facility?.name} />
+            <Cell width={150} lastCell label="Hospital Record No.:" value={patientData?.displayId} />
           </View>
 
           {/* Row 4: Origin & Status */}
           <View style={styles.row}>
-            <Cell flex={1.5} label="State & island of birth or country:" value={patientData?.placeOfBirth} />
-            <Cell flex={1.5} label="Country of citizenship:" value={patientData?.nationality?.name} />
-            <Cell flex={1} label="Marital status:" value={getLabelFromValue(MARITAL_STATUS_OPTIONS, patientData?.maritalStatus)} />
-            <Cell flex={1} lastCell label="Surviving spouse (marital):" />
+            <Cell flex={1} label="State & island of birth or country:" value={patientData?.placeOfBirth} />
+            <Cell flex={1} label="Country of citizenship:" value={patientData?.nationality?.name} />
+            <Cell width={130} label="Marital status:" value={getLabelFromValue(MARITAL_STATUS_OPTIONS, patientData?.maritalStatus)} />
+            <Cell width={210} lastCell label="Surviving spouse (marital):" />
           </View>
 
           {/* Row 5: Employment */}
           <View style={styles.row}>
-            <Cell flex={1} label="Social security no.:" />
+            <Cell width={190} label="Social security no.:" />
             <Cell flex={1} label="Usual occupation:" value={patientData?.occupation?.name} />
             <Cell flex={1} lastCell label="Kind of Business/Ind.:" />
           </View>
 
           {/* Row 6: Residence */}
           <View style={styles.row}>
-            <Cell flex={1} label="Residence (FSM state):" value={patientData?.address?.state} />
+            <Cell width={190} label="Residence (FSM state):" value={patientData?.address?.state} />
             <Cell flex={1} label="Atoll or Island group:" />
-            <Cell flex={1.5} lastCell label="Village or Hamlet, Municipality, Island:" value={patientData?.address?.text} />
+            <Cell flex={1} lastCell label="Village or Hamlet, Municipality, Island:" value={patientData?.address?.text} />
           </View>
 
           {/* Row 7: Parents */}
@@ -205,15 +205,15 @@ export const FSMDeathCertificatePrintout = ({
             <Cell flex={1} label="Father last name:" value={patientData?.father?.lastName} />
             <Cell flex={1} label="Mother first name:" value={patientData?.mother?.firstName} />
             <Cell flex={1} label="Mother middle name:" value={patientData?.mother?.middleName} />
-            <Cell flex={1} lastCell label="Mother last name:" value={patientData?.mother?.lastName} />
+            <Cell width={140} lastCell label="Mother last name:" value={patientData?.mother?.lastName} />
           </View>
 
           {/* Row 8: Informant */}
           <View style={styles.row}>
-            <Cell flex={1} label="Informant name:" />
-            <Cell flex={1} label="Informant relationship:" />
-            <Cell flex={1.5} label="Informant address:" />
-            <Cell flex={0.8} lastCell label="Date information was given:" />
+            <Cell width={160} label="Informant name:" />
+            <Cell width={160} label="Informant relationship:" />
+            <Cell flex={1} label="Informant address:" />
+            <Cell width={140} lastCell label="Date information was given:" />
           </View>
 
           {/* PART I: Medical Certification */}
@@ -221,7 +221,7 @@ export const FSMDeathCertificatePrintout = ({
             <View style={{ flex: 1, borderRight: '1 solid black', padding: 4 }}>
               <Text bold style={styles.partHeaderText}>PART I - Death was caused by:</Text>
             </View>
-            <View style={{ width: 150, padding: 4 }}>
+            <View style={{ width: 190, padding: 4 }}>
               <Text bold style={styles.partHeaderText}>Approx. Interval - onset & death:</Text>
             </View>
           </View>
@@ -279,7 +279,7 @@ export const FSMDeathCertificatePrintout = ({
                   {patientData?.causes?.contributing?.map(c => c?.condition?.name).join(', ')}
                </Text>
             </View>
-            <Cell width={150} lastCell label="Autopsy" />
+            <Cell width={190} lastCell label="Autopsy" />
           </View>
         </View>
 
