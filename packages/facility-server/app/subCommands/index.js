@@ -1,3 +1,4 @@
+export { configSecretCommand } from './configSecret';
 export { migrateCommand } from './migrate';
 export { reportCommand } from './report';
 export { syncCommand } from './sync';

@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { isEqual, isString, isUndefined } from 'lodash';
 import styled from 'styled-components';
-import { Switch } from '@material-ui/core';
+import { Switch, IconButton, InputAdornment } from '@material-ui/core';
+import { Visibility, VisibilityOff } from '@material-ui/icons';
 
 import {
   AutocompleteInput,
@@ -65,6 +66,12 @@ const Flexbox = styled.div`
   gap: 0.5rem;
 `;
 
+const SecretHelpText = styled.span`
+  font-size: 12px;
+  color: ${Colors.midText};
+  font-style: italic;
+`;
+
 const SETTING_TYPES = {
   BOOLEAN: 'boolean',
   STRING: 'string',
@@ -78,6 +85,9 @@ const TYPE_OVERRIDES_BY_KEY = {
   ['body']: SETTING_TYPES.LONG_TEXT,
 };
 
+// Placeholder used by the server to indicate a secret exists but value is hidden
+const SECRET_PLACEHOLDER = '••••••••';
+
 const normalize = val => (val === null || val === '' ? '' : val);
 
 export const SettingInput = ({
@@ -90,17 +100,33 @@ export const SettingInput = ({
   disabled,
   suggesterEndpoint,
   facilityId,
+  isSecret = false,
 }) => {
   const { type } = typeSchema;
   const [error, setError] = useState(null);
+  const [showSecretValue, setShowSecretValue] = useState(false);
+  const [secretEdited, setSecretEdited] = useState(false);
   const suggesterOptions = facilityId ? { baseQueryParameters: { facilityId } } : undefined;
   const suggester = useSuggester(suggesterEndpoint, suggesterOptions);
-  const isUnchangedFromDefault = useMemo(() => isEqual(normalize(value), normalize(defaultValue)), [
-    value,
-    defaultValue,
-  ]);
+
+  // For secrets, check if the value is the placeholder (meaning secret exists but is hidden)
+  const isSecretPlaceholder = isSecret && value === SECRET_PLACEHOLDER;
+
+  const isUnchangedFromDefault = useMemo(() => {
+    if (isSecret) {
+      // For secrets, we can't compare to default since value is hidden
+      return !secretEdited;
+    }
+    return isEqual(normalize(value), normalize(defaultValue));
+  }, [value, defaultValue, isSecret, secretEdited]);
 
   useEffect(() => {
+    // Don't validate secret placeholders
+    if (isSecretPlaceholder) {
+      setError(null);
+      return;
+    }
+
     try {
       if ((type === SETTING_TYPES.ARRAY || type === SETTING_TYPES.OBJECT) && isString(value)) {
         typeSchema.validateSync(JSON.parse(value));
@@ -111,10 +137,13 @@ export const SettingInput = ({
     } catch (err) {
       setError(err);
     }
-  }, [value, typeSchema, type]);
+  }, [value, typeSchema, type, isSecretPlaceholder]);
 
   const DefaultButton = () => {
     if (disabled) return null;
+    // Don't show reset button for secrets - they can only be set, not reset
+    if (isSecret) return null;
+
     return (
       <ConditionalTooltip
         visible={isUnchangedFromDefault}
@@ -151,11 +180,68 @@ export const SettingInput = ({
   const handleChangeNumber = e => handleChangeSetting(path, Number(e.target.value));
   const handleChangeJSON = e => handleChangeSetting(path, e);
 
+  const handleSecretChange = e => {
+    setSecretEdited(true);
+    handleChangeSetting(path, e.target.value);
+  };
+
+  const toggleShowSecret = () => {
+    setShowSecretValue(prev => !prev);
+  };
+
   const displayValue = isUndefined(value) ? defaultValue : value;
   const suggesterDisplayValue = displayValue === null ? '' : displayValue;
 
   const key = path.split('.').pop();
   const typeKey = TYPE_OVERRIDES_BY_KEY[key] || type;
+
+  // Handle secret fields with password-style input
+  if (isSecret) {
+    // For secrets, we only support string type
+    const secretDisplayValue = isSecretPlaceholder && !secretEdited ? '' : displayValue ?? '';
+
+    return (
+      <Flexbox data-testid="flexbox-secret">
+        <div>
+          <StyledTextInput
+            value={secretDisplayValue}
+            onChange={handleSecretChange}
+            style={{ width: '353px' }}
+            error={error}
+            helperText={error?.message}
+            disabled={disabled}
+            type={showSecretValue ? 'text' : 'password'}
+            placeholder={isSecretPlaceholder ? 'Enter new value to update' : 'Enter secret value'}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle secret visibility"
+                    onClick={toggleShowSecret}
+                    edge="end"
+                    size="small"
+                  >
+                    {showSecretValue ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+            data-testid="styledtextinput-secret"
+          />
+          {isSecretPlaceholder && !secretEdited && (
+            <SecretHelpText data-testid="secret-help-text">
+              <TranslatedText
+                stringId="admin.settings.secretExistsHint"
+                fallback="A secret value is set. Enter a new value to change it."
+                data-testid="translatedtext-secret-hint"
+              />
+            </SecretHelpText>
+          )}
+        </div>
+      </Flexbox>
+    );
+  }
+
   if (suggesterEndpoint) {
     switch (typeKey) {
       case SETTING_TYPES.ARRAY:

@@ -32,7 +32,7 @@ export class Setting extends BaseModel {
    * IMPORTANT: Duplicated from shared-src/models/Setting.js
    * Please update both places when modify
    */
-  static async get(key = '', facilityId = null, scopeOverride = null) {
+  static async get(key = '', facilityId: string | null = null, scopeOverride = null) {
     const determineScope = () => {
       if (scopeOverride) {
         return scopeOverride;
@@ -48,14 +48,14 @@ export class Setting extends BaseModel {
     const settingsQueryBuilder = this.getRepository()
       .createQueryBuilder('setting')
       .where(
-        new Brackets((qb) => {
+        new Brackets(qb => {
           qb.where('facilityId = :facilityId', { facilityId }).orWhere('facilityId IS NULL');
         }),
       );
 
     if (key) {
       settingsQueryBuilder.andWhere(
-        new Brackets((qb) => {
+        new Brackets(qb => {
           qb.where('key = :key', { key }).orWhere('key LIKE :keyLike', { keyLike: `${key}.%` });
         }),
       );
@@ -63,7 +63,7 @@ export class Setting extends BaseModel {
 
     if (scope) {
       settingsQueryBuilder.andWhere(
-        new Brackets((qb) => {
+        new Brackets(qb => {
           qb.where('scope = :scope', { scope });
         }),
       );
@@ -102,7 +102,7 @@ export class Setting extends BaseModel {
   }
 
   static sanitizePulledRecordData(rows) {
-    return rows.map((row) => {
+    return rows.map(row => {
       const sanitizedRow = {
         ...row,
       };
