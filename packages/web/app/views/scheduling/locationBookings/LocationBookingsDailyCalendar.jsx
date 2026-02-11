@@ -450,7 +450,7 @@ export const LocationBookingsDailyCalendar = ({
       patientNameOrId,
       view: viewType,
     },
-    { keepPreviousData: true },
+    { enabled: !!dayBoundaries, keepPreviousData: true },
   );
 
   const { data: assignmentsData, isLoading: isAssignmentsLoading } =

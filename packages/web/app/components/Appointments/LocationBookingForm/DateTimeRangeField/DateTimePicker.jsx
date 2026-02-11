@@ -72,7 +72,9 @@ const DateTimePicker = ({
         datePickerName === 'endDate' &&
         values.startDate &&
         values.endDate &&
-        values.locationId
+        values.locationId &&
+        startDateTimeString &&
+        endDateTimeString
       ),
     },
   );
