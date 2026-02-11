@@ -695,7 +695,7 @@ export const DischargeForm = ({
   const { getTranslation, getEnumTranslation } = useTranslation();
   const { encounter } = useEncounter();
   const { getSetting } = useSettings();
-  const { toFacilityDateTime, getCurrentDateTime } = useDateTime();
+  const { getCurrentDateTime } = useDateTime();
   const queryClient = useQueryClient();
   const { ability, currentUser } = useAuth();
   const canUpdateMedication = ability.can('write', 'Medication');
@@ -893,7 +893,7 @@ export const DischargeForm = ({
               />
             }
             component={DateTimeField}
-            min={toFacilityDateTime(encounter.startDate)}
+            min={encounter.startDate}
             required
             saveDateAsString
             data-testid="field-20tt"

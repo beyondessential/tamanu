@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import { isNumber, omit, set } from 'lodash';
 import { isAfter, parseISO, add, set as dateFnsSet } from 'date-fns';
@@ -17,7 +17,6 @@ import {
   toDateTimeString,
   toWeekdayCode,
   trimToDate,
-  dateTimeInputToISO9075,
 } from '@tamanu/utils/dateTime';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
@@ -171,19 +170,6 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
   const isLockedPatient = !!initialValues.patientId;
   const hideIsRepeatingToggle = isEdit && !initialValues.schedule;
 
-  // Convert endTime from global timezone to facility timezone for form state,
-  // since TimeWithFixedDateField operates in facility timezone and handleSubmitForm
-  // converts back to global timezone via toStoredDateTime on save.
-  const processedInitialValues = useMemo(() => {
-    if (!initialValues.endTime) return initialValues;
-    const facilityEndTimeStr = toFacilityDateTime(initialValues.endTime);
-    if (!facilityEndTimeStr) return initialValues;
-    return {
-      ...initialValues,
-      endTime: dateTimeInputToISO9075(facilityEndTimeStr),
-    };
-  }, [initialValues, toFacilityDateTime]);
-
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
 
@@ -203,9 +189,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
         ),
         (value, { parent }) => {
           if (!value) return true;
-          const endTimeCountry = toStoredDateTime(value);
-          if (!endTimeCountry) return true;
-          return isAfter(parseISO(endTimeCountry), parseISO(parent.startTime));
+          return isAfter(parseISO(value), parseISO(parent.startTime));
         },
       ),
     patientId: yup.string().required(requiredMessage),
@@ -322,18 +306,17 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
       handleUpdateScheduleToStartTime(startTimeDate);
       if (!values.endTime) return;
       const facilityStartStr = toFacilityDateTime(event.target.value);
-      if (!facilityStartStr) return;
+      const facilityEndStr = toFacilityDateTime(values.endTime);
+      if (!facilityStartStr || !facilityEndStr) return;
       const [year, month, day] = trimToDate(facilityStartStr).split('-').map(Number);
-      setFieldValue(
-        'endTime',
-        toDateTimeString(
-          dateFnsSet(parseISO(values.endTime), {
-            year,
-            date: day,
-            month: month - 1,
-          }),
-        ),
+      const updatedFacilityEnd = toDateTimeString(
+        dateFnsSet(parseISO(facilityEndStr), {
+          year,
+          date: day,
+          month: month - 1,
+        }),
       );
+      setFieldValue('endTime', toStoredDateTime(updatedFacilityEnd));
     };
 
     return (
@@ -438,6 +421,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
               />
             }
             component={TimeWithFixedDateField}
+            useTimezone
             saveDateAsString
             data-testid="field-6mrp"
           />
@@ -524,10 +508,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
   });
 
   const handleSubmitForm = async (values, { resetForm }) => {
-    const endTimeForPersistence = values.endTime
-      ? toStoredDateTime(values.endTime)
-      : values.endTime;
-    await handleSubmit({ ...values, endTime: endTimeForPersistence, modifyMode });
+    await handleSubmit({ ...values, modifyMode });
     resetForm();
   };
 
@@ -539,7 +520,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
         suppressErrorDialog
         formType={isEdit ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
         validationSchema={validationSchema}
-        initialValues={processedInitialValues}
+        initialValues={initialValues}
         enableReinitialize
         render={renderForm}
         data-testid="form-mvw4"

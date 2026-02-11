@@ -112,7 +112,7 @@ export const LocationBookingsCalendar = ({
       patientNameOrId,
       view: viewType,
     },
-    { keepPreviousData: true },
+    { enabled: !!firstDayBoundaries && !!lastDayBoundaries, keepPreviousData: true },
   );
   const appointments = appointmentsData?.data ?? [];
   const appointmentsByLocation = partitionAppointmentsByLocation(appointments);

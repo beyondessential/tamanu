@@ -1958,7 +1958,7 @@ medication.delete(
 medication.get(
   '/medication-dispenses',
   asyncHandler(async (req, res) => {
-    const { models, query } = req;
+    const { models, query, settings } = req;
     const {
       order = 'DESC',
       orderBy = 'dispensedAt',
@@ -2008,7 +2008,7 @@ medication.get(
     ]);
 
     const { globalTimeZone: dispenseTz } = config;
-    const dispenseFacilityTimeZone = await req.settings[req.facilityId]?.get('facilityTimeZone');
+    const dispenseFacilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
 
     const rootFilter = mapQueryFilters(filterParams, [
       {

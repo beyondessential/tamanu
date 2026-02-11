@@ -274,18 +274,45 @@ const toISO9075DateTime = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) 
   return `${yyyy}-${pad(month)}-${pad(day)} ${pad(hour)}:${pad(minute)}:${pad(second)}`;
 };
 
-const toDateTimeLocalFormat = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) =>
-  dt.toString().slice(0, 16);
+const toDateTimeLocalFormat = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) => {
+  const { year, month, day, hour, minute, second } = dt;
+  const yyyy = String(year).padStart(4, '0');
+  const base = `${yyyy}-${pad(month)}-${pad(day)}T${pad(hour)}:${pad(minute)}`;
+  return second !== 0 ? `${base}:${pad(second)}` : base;
+};
 
-const parseDateTimeString = (date: string) =>
-  Temporal.PlainDateTime.from(
-    date
-      .replace(' ', 'T')
-      .replace(/[Zz]$/, ''),
-  );
+const parseDateTimeString = (date: string, globalTimeZone?: string): Temporal.PlainDateTime => {
+  const normalized = date.replace(' ', 'T');
+  if (/[Zz]$/.test(normalized)) {
+    const instant = Temporal.Instant.from(normalized);
+    const tz = globalTimeZone ?? Temporal.Now.timeZoneId();
+    return instant.toZonedDateTimeISO(tz).toPlainDateTime();
+  }
+  return Temporal.PlainDateTime.from(normalized);
+};
 
 const getDisplayTimezone = (globalTimeZone?: string, facilityTimeZone?: string | null) =>
   facilityTimeZone ?? globalTimeZone;
+
+const isTimezoneError = (error: unknown): boolean =>
+  error instanceof RangeError && /time\s*zone/i.test(String(error));
+
+const logDateError = (
+  fnName: string,
+  error: unknown,
+  value: unknown,
+  globalTimeZone?: string,
+  facilityTimeZone?: string | null,
+) => {
+  if (isTimezoneError(error)) {
+    console.error(
+      `[${fnName}] Invalid timezone configuration — globalTimeZone: ${JSON.stringify(globalTimeZone)}, facilityTimeZone: ${JSON.stringify(facilityTimeZone)}. Error:`,
+      error,
+    );
+  } else {
+    console.warn(`[${fnName}] Failed to process date value ${JSON.stringify(value)}:`, error);
+  }
+};
 
 export const intlFormatDate = (
   date: string | Date | null | undefined,
@@ -323,7 +350,8 @@ export const intlFormatDate = (
     }
 
     return plain.toLocaleString(locale, formatOptions);
-  } catch {
+  } catch (error) {
+    logDateError('intlFormatDate', error, date, globalTimeZone, facilityTimeZone);
     return fallback;
   }
 };
@@ -414,6 +442,24 @@ export const getCurrentDateTimeStringInTimezone = (timezone?: string) =>
 export const getCurrentDateStringInTimezone = (timezone?: string) =>
   Temporal.Now.plainDateISO(timezone ?? Temporal.Now.timeZoneId()).toString();
 
+/** Get current facility wall-clock time as yyyy-MM-ddTHH:mm */
+export const getFacilityNow = (
+  globalTimeZone?: string,
+  facilityTimeZone?: string | null,
+): string => {
+  const now = toFacilityDateTime(
+    getCurrentDateTimeStringInTimezone(globalTimeZone),
+    globalTimeZone,
+    facilityTimeZone,
+  );
+  if (!now) {
+    throw new Error(
+      `Failed to compute facility time (globalTimeZone=${globalTimeZone}, facilityTimeZone=${facilityTimeZone})`,
+    );
+  }
+  return now;
+};
+
 /**
  * Convert stored datetime (global timezone) to display format (facility timezone)
  * Used when populating datetime-local inputs with existing values
@@ -437,7 +483,7 @@ export const toFacilityDateTime = (
     }
 
     if (isISO9075DateString(value)) {
-      return `${value}T00:00`;
+      return `${value}T00:00:00`;
     }
 
     const plain = parseDateTimeString(value);
@@ -446,8 +492,9 @@ export const toFacilityDateTime = (
     }
 
     return toDateTimeLocalFormat(plain);
-  } catch {
-    return null;
+  } catch (error) {
+    logDateError('formatForDateTimeInput', error, value, globalTimeZone, facilityTimeZone);
+    return null;  
   }
 };
 
@@ -463,14 +510,27 @@ export const toStoredDateTime = (
   if (!inputValue) return null;
 
   try {
-    const plain = parseDateTimeString(inputValue);
+    if (/[Zz]$/.test(inputValue)) {
+      const instant = Temporal.Instant.from(inputValue.replace(' ', 'T'));
+      const tz = globalTimeZone ?? Temporal.Now.timeZoneId();
+      return toISO9075DateTime(instant.toZonedDateTimeISO(tz));
+    }
+
+    const plain = parseDateTimeString(inputValue, globalTimeZone);
 
     if (!globalTimeZone) {
       return toISO9075DateTime(plain);
     }
     const displayTz = facilityTimeZone ?? globalTimeZone;
-    return toISO9075DateTime(plain.toZonedDateTime(displayTz).withTimeZone(globalTimeZone));
-  } catch {
+    return toISO9075DateTime(plain.toZonedDateTime(globalTimeZone).withTimeZone(displayTz));
+  } catch (error) {
+    logDateError(
+      'toDateTimeStringForPersistence',
+      error,
+      inputValue,
+      globalTimeZone,
+      facilityTimeZone,
+    );
     return null;
   }
 };

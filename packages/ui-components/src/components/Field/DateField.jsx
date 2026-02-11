@@ -67,6 +67,13 @@ export const DateInput = ({
   const shouldUseTimezone = useTimezone && type === 'datetime-local' && dateTime != null;
   const { toFacilityDateTime, toStoredDateTime } = dateTime ?? {};
 
+  // Normalize max/min to datetime-local format when using timezones so both the
+  // HTML input constraint and the handleBlur check use the same T-separator format.
+  // If formatForDateTimeInput returns null (parse error), let it stay null so the
+  // handleBlur bounds check is skipped rather than comparing mismatched formats.
+  const normalizedMax = shouldUseTimezone ? toFacilityDateTime(max) : max;
+  const normalizedMin = shouldUseTimezone ? toFacilityDateTime(min) : min;
+
   // Convert stored value (globalTimeZone) to display value (facilityTimeZone for datetime-local)
   const getDisplayValue = val => {
     if (shouldUseTimezone) return toFacilityDateTime(val) || '';
@@ -173,11 +180,12 @@ export const DateInput = ({
     }
     if (keepIncorrectValue) return;
 
-    // When using timezones, compare ISO strings directly to avoid browser DST interference
+    const inputValue = e.target.value;
     const outOfBounds = shouldUseTimezone
-      ? (max && currentText > max) || (min && currentText < min)
-      : (max && isAfter(parse(currentText, format, new Date()), parse(max, format, new Date()))) ||
-        (min && isBefore(parse(currentText, format, new Date()), parse(min, format, new Date())));
+      ? (normalizedMax && inputValue > normalizedMax) ||
+        (normalizedMin && inputValue < normalizedMin)
+      : (max && isAfter(parse(inputValue, format, new Date()), parse(max, format, new Date()))) ||
+        (min && isBefore(parse(inputValue, format, new Date()), parse(min, format, new Date())));
 
     if (outOfBounds) clearValue();
   };
@@ -206,7 +214,7 @@ export const DateInput = ({
       onBlur={handleBlur}
       InputProps={{
         // Set max property on HTML input element to force 4-digit year value (max year being 9999)
-        inputProps: { max, min, ...inputProps },
+        inputProps: { max: normalizedMax, min: normalizedMin, ...inputProps },
         'data-testid': `${dataTestId}-input`,
       }}
       style={isPlaceholder ? { color: TAMANU_COLORS.softText } : undefined}

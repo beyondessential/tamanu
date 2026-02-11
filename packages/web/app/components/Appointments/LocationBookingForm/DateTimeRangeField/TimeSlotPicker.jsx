@@ -119,7 +119,7 @@ export const TimeSlotPicker = ({
   );
   const [hoverRange, setHoverRange] = useState(null);
 
-  const queryBoundaries = useMemo(() => getDayBoundaries(date), [date]);
+  const queryBoundaries = useMemo(() => getDayBoundaries(date), [date, getDayBoundaries]);
 
   const locationBookingsQuery = useLocationBookingsQuery(
     {
@@ -128,7 +128,7 @@ export const TimeSlotPicker = ({
       all: true,
       locationId: values.locationId,
     },
-    { enabled: !!date && !!values.locationId && type === 'bookings' },
+    { enabled: !!date && !!values.locationId && !!queryBoundaries && type === 'bookings' },
   );
 
   const locationAssignmentsQuery = useLocationAssignmentsQuery(
@@ -509,7 +509,9 @@ export const TimeSlotPicker = ({
                 selectable={!hasNoLegalSelection && checkIfSelectableTimeSlot(timeSlot)}
                 timeSlot={timeSlot}
                 value={id}
-                data-testid={`timeslottoggle-9o5k-${parseISO(timeSlot.start)}-${parseISO(timeSlot.end)}`}
+                data-testid={`timeslottoggle-9o5k-${parseISO(timeSlot.start)}-${parseISO(
+                  timeSlot.end,
+                )}`}
               />
             );
           })
