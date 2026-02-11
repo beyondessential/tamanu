@@ -84,7 +84,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
   const { encounter } = useEncounter();
   const { ability, currentUser } = useAuth();
   const { getTranslation } = useTranslation();
-  const { toFacilityDateTime, getCurrentDateTime } = useDateTime();
+  const { getCurrentDateTime } = useDateTime();
   const queryClient = useQueryClient();
   const canCreateReferenceData = ability.can('create', 'ReferenceData');
 
@@ -218,7 +218,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                   saveDateAsString
                   required
                   component={DateTimeField}
-                  min={toFacilityDateTime(getCurrentDateTime())}
+                  min={getCurrentDateTime()}
                   data-testid="field-om46"
                 />
               </FormGrid>
@@ -407,7 +407,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
             .date()
             .required(getTranslation('validation.required.inline', '*Required'))
             .min(
-              new Date(new Date().setHours(0, 0, 0, 0)),
+              new Date(new Date().setHours(0, 0, 0, 0)), 
               getTranslation('general.validation.date.cannotInPast', 'Date cannot be in the past'),
             ),
           requestedByUserId: foreignKey().required(
