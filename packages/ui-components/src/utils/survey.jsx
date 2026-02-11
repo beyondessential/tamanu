@@ -108,7 +108,7 @@ function getInitialValue(dataElement, getCurrentDateTime) {
     case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE: // This is important (doesn't make sense that it is important though...)
       return '';
     case PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE:
-      return getCurrentDateTime();
+      return getCurrentDateTime?.();
     default:
       return undefined;
   }
