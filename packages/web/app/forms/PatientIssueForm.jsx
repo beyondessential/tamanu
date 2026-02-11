@@ -7,14 +7,14 @@ import {
   Form,
   FormGrid,
   FormSubmitCancelRow,
-  useDateTimeFormat,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { DateField, Field } from '../components/Field';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../components/NoteModalActionBlocker';
 
 export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => {
-  const { getCurrentDate } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTime();
   const getInitialValues = () => {
     if (editedObject) {
       // Currently the recordedDate is a dateTime type in the database, so we need to convert it to date type

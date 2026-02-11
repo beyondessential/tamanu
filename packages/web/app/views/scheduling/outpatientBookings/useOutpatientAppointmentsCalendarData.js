@@ -2,7 +2,7 @@ import { groupBy as lodashGroupBy } from 'lodash';
 import { useMemo } from 'react';
 
 import { toDateString } from '@tamanu/utils/dateTime';
-import { useDateTimeFormat } from '@tamanu/ui-components';
+import { useDateTime } from '@tamanu/ui-components';
 
 import { combineQueries } from '../../../api';
 import { useOutpatientAppointmentsQuery } from '../../../api/queries/useAppointmentsQuery';
@@ -12,7 +12,7 @@ import { useOutpatientAppointmentsContext } from '../../../contexts/OutpatientAp
 import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
 
 export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate }) => {
-  const { getDayBoundaries } = useDateTimeFormat();
+  const { getDayBoundaries } = useDateTime();
   const locationGroupsQuery = useLocationGroupsQuery(null, { keepPreviousData: true });
   const { data: locationGroupData } = locationGroupsQuery;
 

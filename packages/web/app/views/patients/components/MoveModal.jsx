@@ -10,7 +10,7 @@ import {
   Form,
   FormGrid,
   TAMANU_COLORS,
-  useDateTimeFormat,
+  useDateTime,
   useTranslation,
 } from '@tamanu/ui-components';
 import {
@@ -369,7 +369,7 @@ const HospitalAdmissionFields = () => {
 export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterType }) => {
   const { getSetting } = useSettings();
   const { writeAndViewEncounter } = useEncounter();
-  const { getCurrentDateTime } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTime();
 
   const clinicianSuggester = useSuggester('practitioner');
   const departmentSuggester = useSuggester('department', {

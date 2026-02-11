@@ -9,7 +9,7 @@ import {
   TranslatedEnum,
   TranslatedText,
   useTranslation,
-  useDateTimeFormat,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 
@@ -77,7 +77,7 @@ const WeeklyFrequencyText = ({ weekday, interval }) =>
   );
 
 const FrequencyText = ({ frequency, interval, startTimeDate }) => {
-  const { formatWeekdayLong } = useDateTimeFormat();
+  const { formatWeekdayLong } = useDateTime();
   const weekday = formatWeekdayLong(startTimeDate);
   const ordinalText = useOrdinalText(startTimeDate, frequency);
   return frequency === REPEAT_FREQUENCY.WEEKLY ? (

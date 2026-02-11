@@ -7,7 +7,7 @@ import {
   TranslationContext,
   useTranslation,
   GreyOutlinedButton,
-  useDateTimeFormat,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { useApi } from '../../api';
 import { notifySuccess, renderToText } from '../../utils';
@@ -16,7 +16,7 @@ import { TranslatedText } from '../Translation';
 import { ExportProvider } from '../../contexts/ExportContext';
 
 export function DownloadDataButton({ exportName, columns, data, ExportButton }) {
-  const { getCurrentDate } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTime();
   const queryClient = useQueryClient();
   const api = useApi();
   const translationContext = useTranslation();

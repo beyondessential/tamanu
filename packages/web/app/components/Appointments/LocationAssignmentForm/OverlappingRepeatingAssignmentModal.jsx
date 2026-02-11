@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { set } from 'date-fns';
 
-import { DateDisplay, useDateTimeFormat } from '@tamanu/ui-components';
+import { DateDisplay, useDateTime } from '@tamanu/ui-components';
 
 import { TranslatedText } from '../../Translation';
 import { ConfirmRowDivider } from '../../ConfirmRowDivider';
@@ -57,7 +57,7 @@ const RightDetails = styled.div`
 `;
 
 const AssignmentDetails = ({ assignment }) => {
-  const { formatTimeCompact } = useDateTimeFormat();
+  const { formatTimeCompact } = useDateTime();
 
   const getDisplayTime = time => {
     const parsedTime = time.split(':');

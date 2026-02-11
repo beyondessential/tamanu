@@ -11,7 +11,7 @@ import {
   FormGrid,
   ModalLoader,
   TranslatedText,
-  useDateTimeFormat,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { useApi, useSuggester } from '../api';
 import { useAuth } from '../contexts/Auth';
@@ -177,7 +177,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
 
 export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, patient }) => {
   const { currentUser, facilityId } = useAuth();
-  const { getCurrentDate } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTime();
   const api = useApi();
 
   const handleSubmit = useCallback(

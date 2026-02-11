@@ -3,7 +3,7 @@ import { Divider } from '@material-ui/core';
 import * as yup from 'yup';
 
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { Form, FormGrid, FormSubmitCancelRow, useDateTimeFormat } from '@tamanu/ui-components';
+import { Form, FormGrid, FormSubmitCancelRow, useDateTime } from '@tamanu/ui-components';
 
 import {
   AutocompleteField,
@@ -23,7 +23,7 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
   const { currentUser, ability } = useAuth();
   const canCreateReferenceData = ability.can('create', 'ReferenceData');
   const { formatForDateTimeInput, getCurrentDateTime } =
-    useDateTimeFormat();
+    useDateTime();
 
   const { mutate: markTaskNotCompleted } = useMarkTaskNotCompleted();
 
@@ -133,7 +133,7 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
             />,
           )
           .max(
-            getCurrentDateTime(),
+            formatForDateTimeInput(getCurrentDateTime()),
             getTranslation(
               'general.validation.date.cannotInFuture',
               'Date cannot be in the future',

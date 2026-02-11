@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useAuth, useApi, useDateTimeFormat } from '../../contexts';
+import { useAuth, useApi, useDateTime } from '../../contexts';
 import { Suggester } from './Suggester';
 import { getPatientNameAsString } from '../PatientNameDisplay';
 
@@ -19,7 +19,7 @@ export const useSuggester = (type, options) => {
 
 export const usePatientSuggester = () => {
   const api = useApi();
-  const { formatShort } = useDateTimeFormat();
+  const { formatShort } = useDateTime();
   return useMemo(
     () =>
       new Suggester(api, 'patient', {

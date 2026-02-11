@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-import { useDateTimeFormat } from '@tamanu/ui-components';
+import { useDateTime } from '@tamanu/ui-components';
 
 import { Modal } from '../../Modal';
 import { useCertificate } from '../../../utils/useCertificate';
@@ -27,7 +27,7 @@ export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClos
   const [villageLoading, setVillageLoading] = useState(false);
   const [prescriberLoading, setPrescriberLoading] = useState(false);
   const { facilityId } = useAuth();
-  const { countryTimeZone } = useDateTimeFormat();
+  const { countryTimeZone } = useDateTime();
   const { encounter, isLoadingEncounter } = useEncounter();
 
   useEffect(() => {

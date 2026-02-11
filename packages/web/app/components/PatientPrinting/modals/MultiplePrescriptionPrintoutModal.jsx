@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 
-import { useDateTimeFormat } from '@tamanu/ui-components';
+import { useDateTime } from '@tamanu/ui-components';
 
 import { Modal } from '../../Modal';
 import { useCertificate } from '../../../utils/useCertificate';
@@ -27,7 +27,7 @@ export const MultiplePrescriptionPrintoutModal = ({
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
   const api = useApi();
   const { facilityId } = useAuth();
-  const { countryTimeZone } = useDateTimeFormat();
+  const { countryTimeZone } = useDateTime();
 
   const { data: patient, isLoading: isPatientLoading } = useQuery(
     ['patient', encounter.patientId],

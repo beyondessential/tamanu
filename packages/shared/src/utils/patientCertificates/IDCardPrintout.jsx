@@ -3,7 +3,7 @@ import { Document, Image, StyleSheet, View } from '@react-pdf/renderer';
 import { getDob, getSex } from '../patientAccessors';
 import JsBarcode from 'jsbarcode';
 import { withLanguageContext } from '../pdf/languageContext';
-import { useDateTimeFormat, withDateTimeContext } from '../pdf/withDateTimeContext';
+import { useDateTime, withDateTimeContext } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 
@@ -102,7 +102,7 @@ const IDCardPrintoutComponent = ({
   measures,
   getTranslation,
 }) => {
-  const { formatShort } = useDateTimeFormat();
+  const { formatShort } = useDateTime();
   const pageStyles = StyleSheet.create({
     card: {
       width: cardDimensions.width,

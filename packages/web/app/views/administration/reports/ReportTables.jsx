@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { REPORT_STATUSES } from '@tamanu/constants';
-import { TranslatedText, useDateTimeFormat } from '@tamanu/ui-components';
+import { TranslatedText, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { Table } from '../../../components/Table';
 import { StatusTag } from '../../../components/Tag';
@@ -46,7 +46,7 @@ const ReportStatusTag = ({ status }) => {
 };
 
 export const ReportTable = React.memo(({ data, selected, onRowClick, loading, error }) => {
-  const { formatShortDateTime } = useDateTimeFormat();
+  const { formatShortDateTime } = useDateTime();
   const { orderBy, order, onChangeOrderBy, customSort } = useTableSorting({
     initialSortKey: 'name',
     initialSortDirection: 'asc',
@@ -107,7 +107,7 @@ export const ReportTable = React.memo(({ data, selected, onRowClick, loading, er
 });
 
 export const VersionTable = React.memo(({ data, onRowClick, loading, error }) => {
-  const { formatShortDateTime } = useDateTimeFormat();
+  const { formatShortDateTime } = useDateTime();
   const { orderBy, order, onChangeOrderBy, customSort } = useTableSorting({
     initialSortKey: 'createdAt',
     initialSortDirection: 'desc',

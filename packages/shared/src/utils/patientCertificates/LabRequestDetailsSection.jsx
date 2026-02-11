@@ -7,11 +7,11 @@ import { P } from './Typography';
 import { DataItem } from './printComponents/DataItem';
 import { PrintableBarcode } from './printComponents/PrintableBarcode';
 import { useLanguageContext } from '../pdf/languageContext';
-import { useDateTimeFormat } from '../pdf/withDateTimeContext';
+import { useDateTime } from '../pdf/withDateTimeContext';
 
 export const SampleDetailsRow = ({ request }) => {
   const { getTranslation } = useLanguageContext();
-  const { formatShortDateTime } = useDateTimeFormat();
+  const { formatShortDateTime } = useDateTime();
   return (
     <Row>
       <Col>
@@ -37,7 +37,7 @@ export const SampleDetailsRow = ({ request }) => {
 
 export const PublishedDetailsRow = ({ request }) => {
   const { getEnumTranslation, getTranslation } = useLanguageContext();
-  const { formatShortDateTime } = useDateTimeFormat();
+  const { formatShortDateTime } = useDateTime();
   const notApplicable = getTranslation('general.fallback.notApplicable', 'N/A', {
     casing: 'lower',
   });
@@ -65,7 +65,7 @@ export const PublishedDetailsRow = ({ request }) => {
 
 export const MinimalLabRequestDetailsSection = ({ request }) => {
   const { getTranslation } = useLanguageContext();
-  const { formatShortDateTime } = useDateTimeFormat();
+  const { formatShortDateTime } = useDateTime();
   return (
     <Row>
       <Col>
@@ -90,7 +90,7 @@ export const MinimalLabRequestDetailsSection = ({ request }) => {
 
 export const FullLabRequestDetailsSection = ({ request }) => {
   const { getTranslation } = useLanguageContext();
-  const { formatShortDateTime } = useDateTimeFormat();
+  const { formatShortDateTime } = useDateTime();
   const labTestTypeAccessor = ({ labTestPanelRequest, tests }) => {
     if (labTestPanelRequest) {
       return labTestPanelRequest.labTestPanel.name;

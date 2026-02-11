@@ -3,7 +3,7 @@ import {
   ConfirmCancelBackRow,
   TranslatedText,
   Modal,
-  useDateTimeFormat,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { Box, Divider, IconButton } from '@material-ui/core';
@@ -239,7 +239,7 @@ const StyledIconButton = styled(IconButton)`
 export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, onReloadTable }) => {
   const { encounter } = useEncounter();
   const { ability, currentUser } = useAuth();
-  const { getCurrentDate, getCurrentDateTime } = useDateTimeFormat();
+  const { getCurrentDate, getCurrentDateTime } = useDateTime();
   const { data: allergies } = usePatientAllergiesQuery(encounter?.patientId);
   const { data, isLoading: medicationSetsLoading } = useSuggestionsQuery('medicationSet');
   const medicationSets = data?.sort((a, b) => a.name.localeCompare(b.name));

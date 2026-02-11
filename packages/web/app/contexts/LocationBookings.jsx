@@ -2,7 +2,7 @@ import { isSameMonth, isThisMonth, parseISO } from 'date-fns';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 import { VIEW_TYPES } from '@tamanu/constants';
-import { useDateTimeFormat } from '@tamanu/ui-components';
+import { useDateTime } from '@tamanu/ui-components';
 import {
   scrollToBeginning,
   scrollToCell,
@@ -21,7 +21,7 @@ export const LOCATION_BOOKINGS_EMPTY_FILTER_STATE = {
 };
 
 export const LocationBookingsContextProvider = ({ children }) => {
-  const { getCurrentDate } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTime();
   const queryParams = useUrlSearchParams();
   const clinicianId = queryParams.get('clinicianId');
   const { data: userPreferences } = useUserPreferencesQuery();

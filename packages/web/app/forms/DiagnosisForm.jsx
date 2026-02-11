@@ -5,7 +5,7 @@ import {
   Form,
   FormGrid,
   FormSubmitCancelRow,
-  useDateTimeFormat,
+  useDateTime,
 } from '@tamanu/ui-components';
 import {
   DIAGNOSIS_CERTAINTY,
@@ -40,7 +40,7 @@ export const DiagnosisForm = React.memo(
     const defaultCertainty = certaintyOptions[0].value;
     const hasDiagnosis = Boolean(diagnosis?.id);
     const { currentUser } = useAuth();
-    const { getCurrentDate } = useDateTimeFormat();
+    const { getCurrentDate } = useDateTime();
 
     const diagnosisSuggester = useSuggester('diagnosis', {
       filterer: icd => !excludeDiagnoses.some(d => d.diagnosisId === icd.id),

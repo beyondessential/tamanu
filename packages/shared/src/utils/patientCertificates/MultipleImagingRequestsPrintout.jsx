@@ -14,7 +14,7 @@ import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithB
 import { startCase } from 'lodash';
 import { DoubleHorizontalRule } from './printComponents/DoubleHorizontalRule';
 import { withLanguageContext } from '../pdf/languageContext';
-import { withDateTimeContext, useDateTimeFormat } from '../pdf/withDateTimeContext';
+import { withDateTimeContext, useDateTime } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 
@@ -71,7 +71,7 @@ const getAreaNote = ({ areas, areaNote }) => {
 };
 
 const ImagingRequestDetailsView = ({ imagingRequests, getLocalisation }) => {
-  const { formatShortDateTime } = useDateTimeFormat();
+  const { formatShortDateTime } = useDateTime();
   const notesAccessor = ({ notes }) => {
     return notes
       ?.filter(note => note.noteTypeId === NOTE_TYPES.OTHER)

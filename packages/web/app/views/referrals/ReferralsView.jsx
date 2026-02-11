@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { SURVEY_TYPES } from '@tamanu/constants';
-import { getAnswersFromData, FormGrid, useDateTimeFormat } from '@tamanu/ui-components';
+import { getAnswersFromData, FormGrid, useDateTime } from '@tamanu/ui-components';
 
 import { useApi } from '../../api';
 import { reloadPatient } from '../../store/patient';
@@ -19,7 +19,7 @@ import { useAuth } from '../../contexts/Auth';
 import { TranslatedText } from '../../components';
 
 const ReferralFlow = ({ patient, currentUser }) => {
-  const { getCurrentDateTime } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTime();
   const api = useApi();
   const { facilityId } = useAuth();
   const { navigateToPatient } = usePatientNavigation();

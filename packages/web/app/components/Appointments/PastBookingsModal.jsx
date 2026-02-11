@@ -10,7 +10,7 @@ import { LimitedLinesCell } from '../FormattedTableCell';
 import { Modal } from '../Modal';
 import { Table } from '../Table';
 import { useTableSorting } from '../Table/useTableSorting';
-import { DateTimeRangeDisplay, useDateTimeFormat } from '@tamanu/ui-components';
+import { DateTimeRangeDisplay, useDateTime } from '@tamanu/ui-components';
 import { ThemedTooltip } from '../Tooltip';
 import { TranslatedText } from '../Translation';
 import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
@@ -242,7 +242,7 @@ const COLUMNS = [
 ];
 
 export const PastBookingsModal = ({ onClose, patient }) => {
-  const { getCurrentDateTime } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTime();
   const { orderBy, order, onChangeOrderBy } = useTableSorting({
     initialSortKey: 'startTime',
     initialSortDirection: 'desc',

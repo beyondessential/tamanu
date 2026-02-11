@@ -10,7 +10,7 @@ import { format as formatDate, toDateString, toDateTimeString } from '@tamanu/ut
 import { DefaultIconButton } from '../Button';
 import { TextInput } from './TextField';
 import { TAMANU_COLORS } from '../../constants';
-import { useDateTimeFormat } from '../../contexts';
+import { useDateTimeIfAvailable } from '../../contexts';
 
 /*
  * DateInput handles two layers of state:
@@ -63,8 +63,9 @@ export const DateInput = ({
 }) => {
   delete props.placeholder;
 
-  const { formatForDateTimeInput, toDateTimeStringForPersistence } = useDateTimeFormat();
+  const dateTimeFormat = useDateTimeIfAvailable();
   const shouldUseTimezone = useTimezone && type === 'datetime-local';
+  const { formatForDateTimeInput, toDateTimeStringForPersistence } = dateTimeFormat ?? {};
 
   // Convert stored value (countryTimeZone) to display value (facilityTimeZone for datetime-local)
   const getDisplayValue = val => {
@@ -192,7 +193,7 @@ export const DateInput = ({
       setIsPlaceholder(true);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value, format, shouldUseTimezone]);
+  }, [value, format, shouldUseTimezone, formatForDateTimeInput]);
 
   // We create two copies of the DateField component, so that we can have a temporary one visible
   // during remount (for more on that, see the remounting description at the top of this component)

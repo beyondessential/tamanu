@@ -12,7 +12,7 @@ import {
   LocalisedField,
   SearchField,
 } from '../../components';
-import { BaseSelectField, useDateTimeFormat } from '@tamanu/ui-components';
+import { BaseSelectField, useDateTime } from '@tamanu/ui-components';
 import { useProgramRegistryQuery } from '../../api/queries/useProgramRegistryQuery';
 import { useSexOptions } from '../../hooks';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
@@ -29,7 +29,7 @@ const Spacer = styled.div`
 `;
 
 export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters }) => {
-  const { getCurrentDate } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTime();
   const params = useParams();
   const [isExpanded, setIsExpanded] = useState(false);
   const facilitySuggester = useSuggester('facility');

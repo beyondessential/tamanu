@@ -11,7 +11,7 @@ import {
   FormSubmitButton,
   BaseModal,
   TranslatedText,
-  useDateTimeFormat,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants';
 import { Colors } from '../../constants';
@@ -43,7 +43,7 @@ const validationSchema = yup.object().shape({
 });
 
 export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose }) => {
-  const { getCurrentDateTime } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTime();
   const api = useApi();
   const practitionerSuggester = useSuggester('practitioner');
   const { encounter, loadEncounter } = useEncounter();

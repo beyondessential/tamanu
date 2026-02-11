@@ -9,7 +9,7 @@ import {
   TextInput,
   TranslatedText,
   TranslatedReferenceData,
-  useDateTimeFormat,
+  useDateTime,
 } from '@tamanu/ui-components';
 
 import { useApi, useSuggester } from '../../api';
@@ -150,7 +150,7 @@ export const EditMedicationDispenseModal = memo(
     const { facilityId } = useAuth();
     const { getTranslation } = useTranslation();
     const practitionerSuggester = useSuggester('practitioner');
-    const { formatShort } = useDateTimeFormat();
+    const { formatShort } = useDateTime();
     const [step, setStep] = useState(MODAL_STEPS.DISPENSE);
     const [dispensedByUserId, setDispensedByUserId] = useState('');
     const [item, setItem] = useState(null);

@@ -4,10 +4,10 @@ import * as dateTimeFormatters from '@tamanu/utils/dateFormatters';
 
 const DateTimeContext = createContext(null);
 
-export const useDateTimeFormat = () => {
+export const useDateTime = () => {
   const context = useContext(DateTimeContext);
   if (!context) {
-    throw new Error('useDateTimeFormat must be used within withDateTimeContext');
+    throw new Error('useDateTime must be used within withDateTimeContext');
   }
   return context;
 };

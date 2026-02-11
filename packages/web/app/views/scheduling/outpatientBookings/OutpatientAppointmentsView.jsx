@@ -13,7 +13,7 @@ import { MODIFY_REPEATING_APPOINTMENT_MODE } from '@tamanu/constants';
 import { PageContainer, TopBar } from '../../../components';
 import { CancelAppointmentModal } from '../../../components/Appointments/CancelModal/CancelAppointmentModal';
 import { OutpatientAppointmentDrawer } from '../../../components/Appointments/OutpatientsBookingForm/OutpatientAppointmentDrawer';
-import { Button, TranslatedText, useDateTimeFormat } from '@tamanu/ui-components';
+import { Button, TranslatedText, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { OutpatientAppointmentsContextProvider } from '../../../contexts/OutpatientAppointments';
 import { DateSelector } from './DateSelector';
@@ -82,7 +82,7 @@ export const APPOINTMENT_GROUP_BY = {
 
 export const OutpatientAppointmentsView = () => {
   const { ability } = useAuth();
-  const { getCurrentDate } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTime();
   const location = useLocation();
   const canCreateAppointment = ability.can('create', 'Appointment');
   const canViewAppointments = ability.can('listOrRead', 'Appointment');

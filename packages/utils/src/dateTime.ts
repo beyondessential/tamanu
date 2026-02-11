@@ -251,13 +251,19 @@ const pad = (n: number) => String(n).padStart(2, '0');
 
 const toISO9075DateTime = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) => {
   const { year, month, day, hour, minute, second } = dt;
-  return `${year}-${pad(month)}-${pad(day)} ${pad(hour)}:${pad(minute)}:${pad(second)}`;
+  const yyyy = String(year).padStart(4, '0');
+  return `${yyyy}-${pad(month)}-${pad(day)} ${pad(hour)}:${pad(minute)}:${pad(second)}`;
 };
 
 const toDateTimeLocalFormat = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) =>
   dt.toString().slice(0, 16);
 
-const parseDateTimeString = (date: string) => Temporal.PlainDateTime.from(date.replace(' ', 'T'));
+const parseDateTimeString = (date: string) =>
+  Temporal.PlainDateTime.from(
+    date
+      .replace(' ', 'T')
+      .replace(/[Zz]$/, ''),
+  );
 
 const getDisplayTimezone = (countryTimeZone?: string, facilityTimeZone?: string | null) =>
   facilityTimeZone ?? countryTimeZone;

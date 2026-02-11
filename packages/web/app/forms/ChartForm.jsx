@@ -10,7 +10,7 @@ import {
   SurveyScreen,
   Modal,
   ModalLoader,
-  useDateTimeFormat,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { VISIBILITY_STATUSES, CHARTING_DATA_ELEMENT_IDS } from '@tamanu/constants';
 
@@ -43,7 +43,7 @@ export const ChartForm = React.memo(
     const { currentUser, ability } = useAuth();
     const { encounter } = useEncounter();
     const { getTranslation } = useTranslation();
-    const { getCurrentDateTime } = useDateTimeFormat();
+    const { getCurrentDateTime } = useDateTime();
     const chartSurveyQuery = useSurveyQuery(chartSurveyId);
     const patientAdditionalDataQuery = usePatientAdditionalDataQuery(patient?.id);
     const {
@@ -61,12 +61,13 @@ export const ChartForm = React.memo(
     const canCreateChart = ability.can('create', subject('Charting', { id: chartSurveyId }));
 
     const initialValues = useMemo(() => {
-      const formInitialValues = getFormInitialValues(
-        visibleComponents,
+      const formInitialValues = getFormInitialValues({
+        components: visibleComponents,
+        additionalData: patientAdditionalData,
         patient,
-        patientAdditionalData,
         currentUser,
-      );
+        getCurrentDateTime,
+      });
 
       const hasPatientChartingDate = visibleComponents.some(
         c => c.dataElement?.id === CHARTING_DATA_ELEMENT_IDS.dateRecorded,

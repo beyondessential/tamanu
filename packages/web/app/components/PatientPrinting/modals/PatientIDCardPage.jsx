@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useDateTimeFormat } from '@tamanu/ui-components';
+import { useDateTime } from '@tamanu/ui-components';
 import { Modal } from '../../Modal';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { IDCardPrintout } from '@tamanu/shared/utils/patientCertificates';
@@ -14,7 +14,7 @@ const cardDimensions = {
 export const PatientIDCardPage = React.memo(({ patient, imageData }) => {
   const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
-  const { countryTimeZone } = useDateTimeFormat();
+  const { countryTimeZone } = useDateTime();
   const measures = getSetting('printMeasures.idCardPage');
   const [open, setOpen] = useState(true);
 

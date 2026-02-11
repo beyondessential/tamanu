@@ -8,7 +8,7 @@ import { SigningSection } from './SigningSection';
 import { H3, P } from './Typography';
 import { CovidLetterheadSection } from './CovidLetterheadSection';
 import { withLanguageContext } from '../pdf/languageContext';
-import { withDateTimeContext, useDateTimeFormat } from '../pdf/withDateTimeContext';
+import { withDateTimeContext, useDateTime } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 
 const getColumns = formatShort => [
@@ -67,7 +67,7 @@ const CovidVaccineCertificateComponent = ({
   extraPatientFields,
   printedDate,
 }) => {
-  const { formatShort } = useDateTimeFormat();
+  const { formatShort } = useDateTime();
   const {
     emailAddress: contactEmail,
     contactNumber,

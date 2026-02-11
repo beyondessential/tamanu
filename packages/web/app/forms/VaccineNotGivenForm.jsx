@@ -20,7 +20,7 @@ import {
 } from '../components/VaccineCommonFields';
 import { LocalisedField, SuggesterSelectField } from '../components/Field';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { useDateTimeFormat } from '@tamanu/ui-components';
+import { useDateTime } from '@tamanu/ui-components';
 
 export const VaccineNotGivenForm = ({
   vaccineLabel,
@@ -35,7 +35,7 @@ export const VaccineNotGivenForm = ({
   setVaccineLabel,
   values,
 }) => {
-  const { getCurrentDate } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTime();
 
   return (
     <TwoTwoGrid data-testid="twotwogrid-ng3x">

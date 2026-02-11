@@ -6,7 +6,7 @@ import {
   Form,
   FormGrid,
   FormSubmitCancelRow,
-  useDateTimeFormat,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { Colors } from '../constants/styles';
 import styled from 'styled-components';
@@ -85,7 +85,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
   const { ability, currentUser } = useAuth();
   const { getTranslation } = useTranslation();
   const { formatForDateTimeInput, getCurrentDateTime } =
-    useDateTimeFormat();
+    useDateTime();
   const queryClient = useQueryClient();
   const canCreateReferenceData = ability.can('create', 'ReferenceData');
 

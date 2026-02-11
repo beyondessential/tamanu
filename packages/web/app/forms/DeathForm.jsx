@@ -18,7 +18,7 @@ import {
   RadioField,
   TimeWithUnitField,
 } from '../components';
-import { TextField, TranslatedSelectField, FormGrid, useDateTimeFormat } from '@tamanu/ui-components';
+import { TextField, TranslatedSelectField, FormGrid, useDateTime } from '@tamanu/ui-components';
 import { useAuth } from '../contexts/Auth';
 import { DeathFormScreen } from './DeathFormScreen';
 import { SummaryScreenThree, SummaryScreenTwo } from './DeathFormSummaryScreens';
@@ -64,7 +64,7 @@ export const DeathForm = React.memo(
   }) => {
     const { getTranslation } = useTranslation();
     const { currentUser } = useAuth();
-    const { getCurrentDateTime } = useDateTimeFormat();
+    const { getCurrentDateTime } = useDateTime();
     const canBePregnant = patient.sex === 'female' && ageInYears(patient.dateOfBirth) >= 12;
     const isInfant = ageInMonths(patient.dateOfBirth) <= 2;
 

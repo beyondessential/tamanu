@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { SurveyView } from '../programs/SurveyView';
 import { useParams } from 'react-router';
 import { useSelector } from 'react-redux';
-import { getAnswersFromData, useDateTimeFormat } from '@tamanu/ui-components';
+import { getAnswersFromData, useDateTime } from '@tamanu/ui-components';
 import { usePatientProgramRegistrySurveysQuery } from '../../api/queries/usePatientProgramRegistrySurveysQuery';
 import { useAuth } from '../../contexts/Auth';
 import {
@@ -16,7 +16,7 @@ import { TranslatedText } from '../../components/index.js';
 
 export const ProgramRegistrySurveyView = () => {
   const api = useApi();
-  const { getCurrentDateTime } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTime();
   const [startTime] = useState(getCurrentDateTime());
   const { navigateToProgramRegistry } = usePatientNavigation();
   const { currentUser, facilityId } = useAuth();

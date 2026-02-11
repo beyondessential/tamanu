@@ -9,7 +9,7 @@ import {
   Field,
   SuggesterSelectField,
 } from '../components/Field';
-import { TextField, Form, FormSubmitCancelRow, FormGrid, useDateTimeFormat } from '@tamanu/ui-components';
+import { TextField, Form, FormSubmitCancelRow, FormGrid, useDateTime } from '@tamanu/ui-components';
 import { foreignKey } from '../utils/validation';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
@@ -23,7 +23,7 @@ export const AllergyForm = ({
   allergySuggester,
 }) => {
   const { ability } = useAuth();
-  const { getCurrentDate } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTime();
   const canCreateReferenceData = ability.can('create', 'ReferenceData');
 
   const getInitialValues = () => {

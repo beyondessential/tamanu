@@ -3,7 +3,7 @@ import { Typography } from '@material-ui/core';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Heading4 } from '../../components';
-import { useDateTimeFormat } from '@tamanu/ui-components';
+import { useDateTime } from '@tamanu/ui-components';
 import { AutocompleteField, DateTimeField, Field } from '../../components/Field';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { SETTING_KEYS } from '@tamanu/constants';
@@ -67,7 +67,7 @@ export const SampleDetailsField = ({
   labSampleSiteSuggester,
   onSampleChange,
 }) => {
-  const { formatForDateTimeInput, getCurrentDateTime } = useDateTimeFormat();
+  const { formatForDateTimeInput, getCurrentDateTime } = useDateTime();
   const { getSetting } = useSettings();
   const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
 

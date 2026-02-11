@@ -18,7 +18,7 @@ import {
   FormCancelButton,
   ButtonRow,
   FormGrid,
-  useDateTimeFormat,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { AutocompleteField, DateTimeField, Field, ImagingPriorityField } from '../components/Field';
 import { TranslatedReferenceData, TranslatedText } from '../components/Translation';
@@ -85,7 +85,7 @@ export const ImagingRequestForm = React.memo(
     generateId = shortid.generate,
     setOnSuccess,
   }) => {
-    const { formatShort, getCurrentDateTime } = useDateTimeFormat();
+    const { formatShort, getCurrentDateTime } = useDateTime();
     const { getTranslation, getEnumTranslation } = useTranslation();
     const { getLocalisation } = useLocalisation();
     const { currentUser } = useAuth();
