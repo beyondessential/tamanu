@@ -368,6 +368,165 @@ describe('Medication', () => {
     });
   });
 
+  describe('POST /api/medication/import-ongoing', () => {
+    it('should import ongoing medications into an encounter successfully', async () => {
+      const encounter = await models.Encounter.create({
+        patientId: patient.id,
+        encounterType: 'clinic',
+        startDate: getCurrentDateTimeString(),
+        endDate: null,
+        reasonForEncounter: 'Import test',
+        examinerId: app.user.id,
+        locationId: location.id,
+        departmentId: department.id,
+      });
+
+      const ongoingPrescription1 = await createOngoingPrescription({
+        patientId: patient.id,
+        prescriberId: app.user.id,
+        name: 'ImportMed1',
+        code: 'import-med-1',
+      });
+      const ongoingPrescription2 = await createOngoingPrescription({
+        patientId: patient.id,
+        prescriberId: app.user.id,
+        name: 'ImportMed2',
+        code: 'import-med-2',
+        repeats: 5,
+      });
+
+      const result = await app.post('/api/medication/import-ongoing').send({
+        encounterId: encounter.id,
+        medications: [
+          { prescriptionId: ongoingPrescription1.id, quantity: 10, repeats: 1 },
+          { prescriptionId: ongoingPrescription2.id, quantity: 20, repeats: 2 },
+        ],
+        prescriberId: app.user.id,
+      });
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.count).toBe(2);
+      expect(result.body.data).toHaveLength(2);
+
+      const encounterPrescriptions = await models.EncounterPrescription.findAll({
+        where: { encounterId: encounter.id },
+        include: [{ model: models.Prescription, as: 'prescription' }],
+      });
+      expect(encounterPrescriptions).toHaveLength(2);
+    });
+
+    it('should reject import when encounter is not found', async () => {
+      const ongoingPrescription = await createOngoingPrescription({
+        patientId: patient.id,
+        prescriberId: app.user.id,
+        name: 'ImportMedNotFound',
+        code: 'import-med-nf',
+      });
+
+      const result = await app.post('/api/medication/import-ongoing').send({
+        encounterId: uuidv4(),
+        medications: [{ prescriptionId: ongoingPrescription.id, quantity: 10, repeats: 1 }],
+        prescriberId: app.user.id,
+      });
+
+      expect(result).toHaveRequestError();
+      expect(result.body.error.message).toContain('not found');
+    });
+
+    it('should reject import when encounter is discharged', async () => {
+      const encounter = await models.Encounter.create({
+        patientId: patient.id,
+        encounterType: 'clinic',
+        startDate: getCurrentDateTimeString(),
+        endDate: getCurrentDateTimeString(),
+        reasonForEncounter: 'Discharged encounter',
+        examinerId: app.user.id,
+        locationId: location.id,
+        departmentId: department.id,
+      });
+
+      const ongoingPrescription = await createOngoingPrescription({
+        patientId: patient.id,
+        prescriberId: app.user.id,
+        name: 'ImportMedDischarged',
+        code: 'import-med-disch',
+      });
+
+      const result = await app.post('/api/medication/import-ongoing').send({
+        encounterId: encounter.id,
+        medications: [{ prescriptionId: ongoingPrescription.id, quantity: 10, repeats: 1 }],
+        prescriberId: app.user.id,
+      });
+
+      expect(result).toHaveRequestError();
+      expect(result.body.error.message).toContain('discharged');
+    });
+
+    it('should reject import when prescription does not belong to patient', async () => {
+      const otherPatient = await models.Patient.create(fake(models.Patient));
+      const encounter = await models.Encounter.create({
+        patientId: patient.id,
+        encounterType: 'clinic',
+        startDate: getCurrentDateTimeString(),
+        endDate: null,
+        reasonForEncounter: 'Wrong patient test',
+        examinerId: app.user.id,
+        locationId: location.id,
+        departmentId: department.id,
+      });
+
+      const ongoingPrescriptionForOther = await createOngoingPrescription({
+        patientId: otherPatient.id,
+        prescriberId: app.user.id,
+        name: 'OtherPatientMed',
+        code: 'other-patient-med',
+      });
+
+      const result = await app.post('/api/medication/import-ongoing').send({
+        encounterId: encounter.id,
+        medications: [
+          { prescriptionId: ongoingPrescriptionForOther.id, quantity: 10, repeats: 1 },
+        ],
+        prescriberId: app.user.id,
+      });
+
+      expect(result).toHaveRequestError();
+      expect(result.body.error.message).toContain('not found');
+      expect(result.body.error.message).toContain('do not belong to this patient');
+    });
+
+    it('should reject import when prescription is discontinued', async () => {
+      const encounter = await models.Encounter.create({
+        patientId: patient.id,
+        encounterType: 'clinic',
+        startDate: getCurrentDateTimeString(),
+        endDate: null,
+        reasonForEncounter: 'Discontinued test',
+        examinerId: app.user.id,
+        locationId: location.id,
+        departmentId: department.id,
+      });
+
+      const ongoingPrescription = await createOngoingPrescription({
+        patientId: patient.id,
+        prescriberId: app.user.id,
+        name: 'DiscontinuedMed',
+        code: 'discontinued-med',
+      });
+      await ongoingPrescription.update({ discontinued: true });
+
+      const result = await app.post('/api/medication/import-ongoing').send({
+        encounterId: encounter.id,
+        medications: [{ prescriptionId: ongoingPrescription.id, quantity: 10, repeats: 1 }],
+        prescriberId: app.user.id,
+      });
+
+      expect(result).toHaveRequestError();
+      expect(result.body.error.message).toContain('discontinued');
+      expect(result.body.error.message).toContain('do not belong to this patient');
+    });
+  });
+
   describe('POST /api/encounter/:id/pharmacyOrder', () => {
     describe('repeats', () => {
       it('should not decrement prescription repeats when sending from encounter', async () => {
