@@ -78,7 +78,7 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
               required
               saveDateAsString
               component={DateTimeField}
-              max={formatForDateTimeInput(getCurrentDateTime())}
+              max={getCurrentDateTime()}
               data-testid="field-sgto"
             />
             <Field
