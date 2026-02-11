@@ -5,7 +5,7 @@ const ISO9075_DATE_TIME_FMT = 'YYYY-MM-DD HH24:MI:SS';
 const ISO9075_DATE_FMT = 'YYYY-MM-DD';
 
 // Date time table columns that have been migrated so far, excluding columns which were already
-// migrated in 098_reMigrateDatesUsingglobalTimeZone.js (patients, appointments & triages)
+// migrated in 098_reMigrateDatesUsingCountryTimeZone.js (patients, appointments & triages)
 const dateTimeTableColumns = {
   administered_vaccines: ['date'],
   encounters: ['start_date', 'end_date'],
