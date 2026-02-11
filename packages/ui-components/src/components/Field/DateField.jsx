@@ -65,7 +65,7 @@ export const DateInput = ({
 
   const dateTimeFormat = useDateTimeIfAvailable();
   const shouldUseTimezone = useTimezone && type === 'datetime-local';
-  const { formatForDateTimeInput, toFacilityDateTime, toStoredDateTime } = dateTimeFormat ?? {};
+  const { toFacilityDateTime, toStoredDateTime } = dateTimeFormat ?? {};
 
   // Convert stored value (countryTimeZone) to display value (facilityTimeZone for datetime-local)
   const getDisplayValue = val => {
@@ -193,7 +193,7 @@ export const DateInput = ({
       setIsPlaceholder(true);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value, format, shouldUseTimezone, formatForDateTimeInput]);
+  }, [value, format, shouldUseTimezone, toFacilityDateTime]);
 
   // We create two copies of the DateField component, so that we can have a temporary one visible
   // during remount (for more on that, see the remounting description at the top of this component)
