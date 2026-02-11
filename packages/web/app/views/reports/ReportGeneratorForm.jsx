@@ -236,7 +236,7 @@ export const ReportGeneratorForm = () => {
   const submitRequestReport = async formValues => {
     const { reportId, emails, timezone, ...filterValues } = formValues;
 
-    const parameters = Object.fromEntries(
+    const parsedParameters = Object.fromEntries(
       Object.entries(filterValues).map(([key, value]) => {
         if (isJsonString(value)) {
           return [key, JSON.parse(value)];
@@ -248,7 +248,7 @@ export const ReportGeneratorForm = () => {
     try {
       if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
         const excelData = await api.post(`reports/${reportId}`, {
-          parameters: { ...parameters, timezone },
+          parameters: { ...parsedParameters, timezone },
           facilityId,
         });
 
@@ -277,7 +277,7 @@ export const ReportGeneratorForm = () => {
       } else {
         await api.post(`reportRequest`, {
           reportId,
-          parameters: { ...parameters, timezone },
+          parameters: { ...parsedParameters, timezone },
           emailList: parseEmails(emails),
           bookType,
         });
