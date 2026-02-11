@@ -274,8 +274,8 @@ const toISO9075DateTime = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) 
   return `${yyyy}-${pad(month)}-${pad(day)} ${pad(hour)}:${pad(minute)}:${pad(second)}`;
 };
 
-const toDateTimeLocalFormat = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) =>
-  dt.toString().slice(0, 16);
+const toDateTimeLocalFormat = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) => 
+  dt.toString().slice(0, 'second' in dt ? 19 : 16);
 
 const parseDateTimeString = (date: string) =>
   Temporal.PlainDateTime.from(
