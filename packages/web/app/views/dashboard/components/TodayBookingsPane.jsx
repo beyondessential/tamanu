@@ -217,7 +217,7 @@ export const TodayBookingsPane = ({ showTasks }) => {
   const { getCurrentDate, getDayBoundaries } = useDateTime();
   const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
   
-  // Get today's date boundaries in facility timezone, converted to country timezone for query
+  // Get today's date boundaries in facility timezone, converted to global timezone for query
   const todayFacility = getCurrentDate();
   const { start, end } = getDayBoundaries(todayFacility);
   const appointments =

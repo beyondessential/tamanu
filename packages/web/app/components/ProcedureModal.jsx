@@ -106,7 +106,7 @@ export const ProcedureModal = ({
   const toFacilityTz = val => (val ? toFacilityDateTime(val) : undefined);
 
   // Form values already have correct dates (ProcedureDateSync handles rollover),
-  // so submit just needs to convert from facility timezone to country timezone.
+  // so submit just needs to convert from facility timezone to global timezone.
   const onSubmit = async data => {
     const toPersisted = val => (val ? toStoredDateTime(val) : undefined);
     const startDateTime = toPersisted(data.startTime);
@@ -295,7 +295,7 @@ export const ProcedureModal = ({
       initialValues={
         editedProcedure?.id
           ? {
-              // Edit: spread existing data, convert date/time from country timezone to facility timezone
+              // Edit: spread existing data, convert date/time from global timezone to facility timezone
               ...editedProcedure,
               date: trimToDate(toFacilityTz(editedProcedure.date)),
               startTime: toFacilityTz(editedProcedure.startTime),

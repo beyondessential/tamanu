@@ -171,9 +171,9 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
   const isLockedPatient = !!initialValues.patientId;
   const hideIsRepeatingToggle = isEdit && !initialValues.schedule;
 
-  // Convert endTime from country timezone to facility timezone for form state,
+  // Convert endTime from global timezone to facility timezone for form state,
   // since TimeWithFixedDateField operates in facility timezone and handleSubmitForm
-  // converts back to country timezone via toStoredDateTime on save.
+  // converts back to global timezone via toStoredDateTime on save.
   const processedInitialValues = useMemo(() => {
     if (!initialValues.endTime) return initialValues;
     const facilityEndTimeStr = toFacilityDateTime(initialValues.endTime);

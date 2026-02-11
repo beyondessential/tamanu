@@ -131,9 +131,9 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     useDateTime();
   const isEdit = !!initialValues.id;
 
-  // Convert startTime/endTime from country timezone to facility timezone for the form,
+  // Convert startTime/endTime from global timezone to facility timezone for the form,
   // since the time slot picker operates in facility timezone and handleSubmit converts
-  // back to country timezone via toStoredDateTime on save.
+  // back to global timezone via toStoredDateTime on save.
   const processedInitialValues = useMemo(() => {
     if (!initialValues.startTime) return initialValues;
     const facilityStartStr = toFacilityDateTime(initialValues.startTime);
