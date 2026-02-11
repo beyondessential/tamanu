@@ -8,7 +8,7 @@ import { useSettings } from '../../../contexts/Settings';
 export const PatientStickerLabelPage = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);
   const { getSetting } = useSettings();
-  const { countryTimeZone } = useDateTime();
+  const { globalTimeZone } = useDateTime();
   const measures = getSetting('printMeasures.stickerLabelPage');
   return (
     <Modal
@@ -24,7 +24,7 @@ export const PatientStickerLabelPage = React.memo(({ patient }) => {
           patient={patient}
           measures={measures}
           getSetting={getSetting}
-          countryTimeZone={countryTimeZone}
+          globalTimeZone={globalTimeZone}
           data-testid="idlabelprintout-m146"
         />
       </PDFLoader>

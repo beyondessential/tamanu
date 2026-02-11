@@ -9,10 +9,10 @@ interface tableOid {
 }
 
 export async function up(query: QueryInterface): Promise<void> {
-  const COUNTRY_TIMEZONE = config?.countryTimeZone;
+  const GLOBAL_TIME_ZONE = config?.globalTimeZone;
 
-  if (!COUNTRY_TIMEZONE) {
-    throw Error('A countryTimeZone must be configured in local.json5 for this migration to run.');
+  if (!GLOBAL_TIME_ZONE) {
+    throw Error('A globalTimeZone must be configured in local.json5 for this migration to run.');
   }
 
   // Save previously set time zone
@@ -20,7 +20,7 @@ export async function up(query: QueryInterface): Promise<void> {
   const previousTimeZone = previousTimeZoneQuery[0].TimeZone;
 
   // Set time zone defined in config
-  await query.sequelize.query(`SET timezone to '${COUNTRY_TIMEZONE}'`);
+  await query.sequelize.query(`SET timezone to '${GLOBAL_TIME_ZONE}'`);
 
   const [tableOidQuery]: any = await query.sequelize.query<tableOid>(
     `SELECT oid FROM pg_class WHERE relname = 'patient_program_registrations';`,

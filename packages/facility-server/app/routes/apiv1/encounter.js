@@ -397,8 +397,8 @@ encounterRelations.get(
       req.checkPermission('list', 'MedicationAdministration');
 
       const facilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
-      const { countryTimeZone } = config;
-      const boundaries = getDayBoundaries(marDate, countryTimeZone, facilityTimeZone);
+      const { globalTimeZone } = config;
+      const boundaries = getDayBoundaries(marDate, globalTimeZone, facilityTimeZone);
       const startOfMarDate = boundaries?.start ?? `${marDate} 00:00:00`;
       const endOfMarDate = boundaries?.end ?? `${marDate} 23:59:59`;
       baseQueryOptions.include.push({

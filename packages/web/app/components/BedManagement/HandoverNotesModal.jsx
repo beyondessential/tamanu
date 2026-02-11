@@ -14,7 +14,7 @@ import { useAuth } from '../../contexts/Auth';
 export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
   const { getLocalisation } = useLocalisation();
   const { getSetting } = useSettings();
-  const { formatShortest, countryTimeZone } = useDateTime();
+  const { formatShortest, globalTimeZone } = useDateTime();
   const api = useApi();
   const { facilityId } = useAuth();
   const { data: certificateData, isFetching: isFetchingCertificate } = useCertificate();
@@ -62,7 +62,7 @@ export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
           getLocalisation={getLocalisation}
           getSetting={getSetting}
           letterheadConfig={letterheadConfig}
-          countryTimeZone={countryTimeZone}
+          globalTimeZone={globalTimeZone}
           data-testid="handovernotespdf-uu0b"
         />
       </PDFLoader>

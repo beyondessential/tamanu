@@ -22,7 +22,7 @@ type WrappedFormatters = {
 };
 
 export interface DateTimeContextValue extends WrappedFormatters {
-  countryTimeZone: string;
+  globalTimeZone: string;
   facilityTimeZone?: string | null;
   /** Get current date string in facility timezone */
   getCurrentDate: () => string;
@@ -40,7 +40,7 @@ export interface DateTimeContextValue extends WrappedFormatters {
 
 interface DateTimeProviderProps {
   children: React.ReactNode;
-  countryTimeZone?: string;
+  globalTimeZone?: string;
   facilityTimeZone?: string | null;
 }
 
@@ -61,14 +61,14 @@ export const useDateTimeIfAvailable = (): DateTimeContextValue | null => {
 
 export const DateTimeProvider = ({
   children,
-  countryTimeZone: countryTimeZoneProp,
+  globalTimeZone: globalTimeZoneProp,
   facilityTimeZone: facilityTimeZoneProp,
 }: DateTimeProviderProps) => {
-  const { countryTimeZone: authCountryTimeZone } = useAuth();
+  const { globalTimeZone: authglobalTimeZone } = useAuth();
   const { getSetting } = useSettings();
-  const usePropsMode = countryTimeZoneProp !== undefined;
+  const usePropsMode = globalTimeZoneProp !== undefined;
 
-  const countryTimeZone = usePropsMode ? countryTimeZoneProp : authCountryTimeZone;
+  const globalTimeZone = usePropsMode ? globalTimeZoneProp : authglobalTimeZone;
   const facilityTimeZone = usePropsMode
     ? facilityTimeZoneProp
     : (getSetting('facilityTimeZone') as string | undefined);
@@ -76,28 +76,28 @@ export const DateTimeProvider = ({
   const bindTimezones = useCallback(
     (fn: (...args: any[]) => any) =>
       (date?: DateInput) =>
-        fn(date, countryTimeZone, facilityTimeZone),
-    [countryTimeZone, facilityTimeZone],
+        fn(date, globalTimeZone, facilityTimeZone),
+    [globalTimeZone, facilityTimeZone],
   );
 
   const value = useMemo(
     (): DateTimeContextValue => ({
-      countryTimeZone,
+      globalTimeZone,
       facilityTimeZone,
       ...(mapValues(dateTimeFormatters, bindTimezones) as WrappedFormatters),
-      getCurrentDate: () => getCurrentDateStringInTimezone(facilityTimeZone ?? countryTimeZone),
-      getCurrentDateTime: () => getCurrentDateTimeStringInTimezone(countryTimeZone),
+      getCurrentDate: () => getCurrentDateStringInTimezone(facilityTimeZone ?? globalTimeZone),
+      getCurrentDateTime: () => getCurrentDateTimeStringInTimezone(globalTimeZone),
       getFacilityNow: () =>
         toFacilityDateTime(
-          getCurrentDateTimeStringInTimezone(countryTimeZone),
-          countryTimeZone,
+          getCurrentDateTimeStringInTimezone(globalTimeZone),
+          globalTimeZone,
           facilityTimeZone,
         )!,
-      getDayBoundaries: date => getDayBoundaries(date, countryTimeZone, facilityTimeZone),
-      toStoredDateTime: value => toStoredDateTime(value, countryTimeZone, facilityTimeZone),
-      toFacilityDateTime: value => toFacilityDateTime(value, countryTimeZone, facilityTimeZone),
+      getDayBoundaries: date => getDayBoundaries(date, globalTimeZone, facilityTimeZone),
+      toStoredDateTime: value => toStoredDateTime(value, globalTimeZone, facilityTimeZone),
+      toFacilityDateTime: value => toFacilityDateTime(value, globalTimeZone, facilityTimeZone),
     }),
-    [countryTimeZone, facilityTimeZone, bindTimezones],
+    [globalTimeZone, facilityTimeZone, bindTimezones],
   );
 
   return React.createElement(DateTimeProviderContext.Provider, { value }, children);

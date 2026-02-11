@@ -102,7 +102,7 @@ export const login = asyncHandler(async (req, res) => {
 
   // Send some additional data with login to tell the user about
   // the context they've just logged in to.
-  const { canonicalHostName: centralHost, countryTimeZone } = config;
+  const { canonicalHostName: centralHost, globalTimeZone } = config;
   res.send({
     token,
     refreshToken,
@@ -113,7 +113,7 @@ export const login = asyncHandler(async (req, res) => {
     allowedFacilities,
     localisation,
     centralHost,
-    countryTimeZone,
+    globalTimeZone,
     settings: userSettings,
   });
 });

@@ -5,7 +5,7 @@ const ISO9075_DATE_TIME_FMT = 'YYYY-MM-DD HH24:MI:SS';
 const ISO9075_DATE_FMT = 'YYYY-MM-DD';
 
 // Date time table columns that have been migrated so far, excluding columns which were already
-// migrated in 098_reMigrateDatesUsingCountryTimezone.js (patients, appointments & triages)
+// migrated in 098_reMigrateDatesUsingglobalTimeZone.js (patients, appointments & triages)
 const dateTimeTableColumns = {
   administered_vaccines: ['date'],
   encounters: ['start_date', 'end_date'],
@@ -57,10 +57,10 @@ export async function up(query) {
     return;
   }
 
-  const COUNTRY_TIMEZONE = config?.countryTimeZone;
+  const GLOBAL_TIME_ZONE = config?.globalTimeZone;
 
-  if (!COUNTRY_TIMEZONE) {
-    throw Error('A countryTimeZone must be configured in local.json5 for this migration to run.');
+  if (!GLOBAL_TIME_ZONE) {
+    throw Error('A globalTimeZone must be configured in local.json5 for this migration to run.');
   }
 
   const promises = [];
@@ -73,7 +73,7 @@ export async function up(query) {
       promises.push(
         query.sequelize.query(
           `UPDATE ${tableName}
-           SET ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE '${COUNTRY_TIMEZONE}', :dateTimeFmt)
+           SET ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE '${GLOBAL_TIME_ZONE}', :dateTimeFmt)
            WHERE ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE 'UTC', :dateTimeFmt);
         `,
           {
@@ -94,7 +94,7 @@ export async function up(query) {
       promises.push(
         query.sequelize.query(
           `UPDATE ${tableName}
-           SET ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE '${COUNTRY_TIMEZONE}', :dateFmt)
+           SET ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE '${GLOBAL_TIME_ZONE}', :dateFmt)
            WHERE ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE 'UTC', :dateFmt);
         `,
           {

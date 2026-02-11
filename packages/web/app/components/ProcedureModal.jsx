@@ -102,7 +102,7 @@ export const ProcedureModal = ({
     refreshCount,
   );
 
-  // Convert countryTimeZone → facilityTimeZone for display
+  // Convert globalTimeZone → facilityTimeZone for display
   const toFacilityTz = val => (val ? toFacilityDateTime(val) : undefined);
 
   // Form values already have correct dates (ProcedureDateSync handles rollover),

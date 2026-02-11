@@ -90,7 +90,7 @@ export async function centralServerLogin({
   });
 
   // we've logged in as a valid central user - update local database to match
-  const { user, localisation, allowedFacilities, countryTimeZone } = response;
+  const { user, localisation, allowedFacilities, globalTimeZone } = response;
   const { id, ...userDetails } = user;
 
   const userModel = await models.User.sequelize.transaction(async () => {
@@ -109,14 +109,14 @@ export async function centralServerLogin({
 
   await models.Device.ensureRegistration({ settings, user: userModel, deviceId, scopes: [] });
 
-  return { central: true, user, localisation, allowedFacilities, countryTimeZone };
+  return { central: true, user, localisation, allowedFacilities, globalTimeZone };
 }
 
 async function localLogin({ models, settings, email, password, deviceId }) {
   const {
     auth: { secret, tokenDuration },
     canonicalHostName,
-    countryTimeZone,
+    globalTimeZone,
   } = config;
   const { user } = await models.User.loginFromCredential(
     {
@@ -139,7 +139,7 @@ async function localLogin({ models, settings, email, password, deviceId }) {
     user: user.get({ plain: true }),
     allowedFacilities,
     localisation,
-    countryTimeZone,
+    globalTimeZone,
   };
 }
 
@@ -200,7 +200,7 @@ export async function loginHandler(req, res, next) {
     const globalSettings =
       settings.global ?? (typeof settings.get === 'function' ? settings : new ReadSettings(models));
 
-    const { central, user, localisation, allowedFacilities, countryTimeZone } =
+    const { central, user, localisation, allowedFacilities, globalTimeZone } =
       await centralServerLoginWithLocalFallback({
         models,
         settings: globalSettings,
@@ -232,7 +232,7 @@ export async function loginHandler(req, res, next) {
       permissions,
       role: role?.forResponse() ?? null,
       serverType: SERVER_TYPES.FACILITY,
-      countryTimeZone,
+      globalTimeZone,
       availableFacilities,
     });
   } catch (e) {

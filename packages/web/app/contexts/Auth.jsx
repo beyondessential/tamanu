@@ -16,12 +16,12 @@ export const AuthProvider = ({ children }) => {
   const { resetNoteContext } = useEncounterNotesQuery();
   const navigate = useNavigate();
 
-  const { currentUser, ability, facilityId, currentRole, countryTimeZone } = useSelector(state => ({
+  const { currentUser, ability, facilityId, currentRole, globalTimeZone } = useSelector(state => ({
     currentUser: state.auth.user,
     ability: state.auth.ability,
     facilityId: state.auth.facilityId,
     currentRole: state.auth.role,
-    countryTimeZone: state.auth.countryTimeZone,
+    globalTimeZone: state.auth.globalTimeZone,
   }));
 
   const cleanupSession = useCallback(() => {
@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }) => {
       ability,
       facilityId,
       currentRole,
-      countryTimeZone,
+      globalTimeZone,
       onLogout,
       onTimeout,
       refreshToken,
@@ -59,7 +59,7 @@ export const AuthProvider = ({ children }) => {
       ability,
       facilityId,
       currentRole,
-      countryTimeZone,
+      globalTimeZone,
       onLogout,
       onTimeout,
       refreshToken,

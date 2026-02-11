@@ -13,18 +13,18 @@ export const useDateTime = () => {
 };
 
 export const withDateTimeContext = Component => props => {
-  const { settings, getSetting: getSettingProp, countryTimeZone } = props;
+  const { settings, getSetting: getSettingProp, globalTimeZone } = props;
   const getSetting = getSettingProp ?? (key => get(settings, key));
 
   const facilityTimeZone = getSetting('facilityTimeZone');
 
   const value = useMemo(
     () => ({
-      countryTimeZone,
+      globalTimeZone,
       facilityTimeZone,
-      ...mapValues(dateTimeFormatters, fn => date => fn(date, countryTimeZone, facilityTimeZone)),
+      ...mapValues(dateTimeFormatters, fn => date => fn(date, globalTimeZone, facilityTimeZone)),
     }),
-    [countryTimeZone, facilityTimeZone],
+    [globalTimeZone, facilityTimeZone],
   );
 
   return (

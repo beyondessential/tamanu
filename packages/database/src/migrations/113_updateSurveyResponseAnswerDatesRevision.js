@@ -21,10 +21,10 @@ export async function up(query) {
     return;
   }
 
-  const COUNTRY_TIMEZONE = config?.countryTimeZone;
+  const GLOBAL_TIME_ZONE = config?.globalTimeZone;
 
-  if (!COUNTRY_TIMEZONE) {
-    throw Error('A countryTimeZone must be configured in local.json5 for this migration to run.');
+  if (!GLOBAL_TIME_ZONE) {
+    throw Error('A globalTimeZone must be configured in local.json5 for this migration to run.');
   }
 
   await query.sequelize.query(
@@ -32,7 +32,7 @@ export async function up(query) {
   UPDATE survey_response_answers
   SET
       body_legacy = body,
-      body = COALESCE(TO_CHAR(body::TIMESTAMPTZ AT TIME ZONE '${COUNTRY_TIMEZONE}', '${ISO9075_DATE_TIME_FMT}'), body)
+      body = COALESCE(TO_CHAR(body::TIMESTAMPTZ AT TIME ZONE '${GLOBAL_TIME_ZONE}', '${ISO9075_DATE_TIME_FMT}'), body)
   WHERE body ~ '${ISO8601_DATE_FMT_REGEXP}';
 `,
   );

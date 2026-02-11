@@ -15,7 +15,7 @@ export function toCountryDateTimeString(date) {
     return null;
   }
 
-  return formatInTimeZone(date, config?.countryTimeZone, ISO9075_DATETIME_FORMAT);
+  return formatInTimeZone(date, config?.globalTimeZone, ISO9075_DATETIME_FORMAT);
 }
 
 export function toCountryDateString(date) {
@@ -23,29 +23,29 @@ export function toCountryDateString(date) {
     return null;
   }
 
-  return formatInTimeZone(date, config?.countryTimeZone, ISO9075_DATE_FORMAT);
+  return formatInTimeZone(date, config?.globalTimeZone, ISO9075_DATE_FORMAT);
 }
 
-export function dateTimeStringIntoCountryTimezone(date) {
+export function dateTimeStringIntoglobalTimeZone(date) {
   if (date === null || date === undefined) {
     return null;
   }
 
-  return parseISO(formatInTimeZone(date, config?.countryTimeZone, ISO8061_WITH_TIMEZONE));
+  return parseISO(formatInTimeZone(date, config?.globalTimeZone, ISO8061_WITH_TIMEZONE));
 }
 
-export function getCurrentCountryTimeZoneDateTimeString() {
-  // Use the countryTimeZone if set, other wise fallback to the server time zone
-  if (config?.countryTimeZone) {
-    return formatInTimeZone(new Date(), config.countryTimeZone, ISO9075_DATETIME_FORMAT);
+export function getCurrentglobalTimeZoneDateTimeString() {
+  // Use the globalTimeZone if set, other wise fallback to the server time zone
+  if (config?.globalTimeZone) {
+    return formatInTimeZone(new Date(), config.globalTimeZone, ISO9075_DATETIME_FORMAT);
   }
   return formatISO9075(new Date());
 }
 
-export function getCurrentCountryTimeZoneDateString() {
-  // Use the countryTimeZone if set, other wise fallback to the server time zone
-  if (config?.countryTimeZone) {
-    return formatInTimeZone(new Date(), config.countryTimeZone, ISO9075_DATE_FORMAT);
+export function getCurrentglobalTimeZoneDateString() {
+  // Use the globalTimeZone if set, other wise fallback to the server time zone
+  if (config?.globalTimeZone) {
+    return formatInTimeZone(new Date(), config.globalTimeZone, ISO9075_DATE_FORMAT);
   }
   return formatISO9075(new Date(), { representation: 'date' });
 }

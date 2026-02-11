@@ -14,7 +14,7 @@ import { TranslatedText } from '../../Translation/TranslatedText';
 export const MultipleImagingRequestsWrapper = ({ encounter, imagingRequests }) => {
   const { getLocalisation } = useLocalisation();
   const { getSetting } = useSettings();
-  const { countryTimeZone } = useDateTime();
+  const { globalTimeZone } = useDateTime();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
   const { data: patient, isLoading: isPatientLoading } = usePatientDataQuery(encounter.patientId);
   const isVillageEnabled = patient?.villageId;
@@ -30,7 +30,7 @@ export const MultipleImagingRequestsWrapper = ({ encounter, imagingRequests }) =
         encounter={encounter}
         imagingRequests={imagingRequests}
         certificateData={certificateData}
-        countryTimeZone={countryTimeZone}
+        globalTimeZone={globalTimeZone}
         data-testid="multipleimagingrequestsprintout-mc0g"
       />
     </PDFLoader>

@@ -18,14 +18,14 @@ const getFormattedOffset = (tz) => {
   return `${sign}${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
 };
 
-export const DiagnosticInfo = ({ rawDate, displayDate, facilityTimeZone, countryTimeZone }) => {
-  const displayTimeZone = facilityTimeZone || countryTimeZone;
+export const DiagnosticInfo = ({ rawDate, displayDate, facilityTimeZone, globalTimeZone }) => {
+  const displayTimeZone = facilityTimeZone || globalTimeZone;
   const displayOffset = getFormattedOffset(displayTimeZone);
   const parsedRawDate = typeof rawDate === 'string' ? rawDate : rawDate.toISOString();
   return (
     <div>
       <strong>Raw date:</strong> {parsedRawDate} <br />
-      <strong>Country timezone:</strong> {countryTimeZone} <br />
+      <strong>Country timezone:</strong> {globalTimeZone} <br />
       <strong>Displayed timezone:</strong> {displayTimeZone} <br />
       <strong>Displayed offset:</strong> {displayOffset} <br />
       <strong>Display date:</strong> {displayDate} <br />

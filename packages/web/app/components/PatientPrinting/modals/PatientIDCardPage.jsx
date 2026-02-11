@@ -14,7 +14,7 @@ const cardDimensions = {
 export const PatientIDCardPage = React.memo(({ patient, imageData }) => {
   const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
-  const { countryTimeZone } = useDateTime();
+  const { globalTimeZone } = useDateTime();
   const measures = getSetting('printMeasures.idCardPage');
   const [open, setOpen] = useState(true);
 
@@ -35,7 +35,7 @@ export const PatientIDCardPage = React.memo(({ patient, imageData }) => {
           patient={patient}
           getTranslation={getTranslation}
           getSetting={getSetting}
-          countryTimeZone={countryTimeZone}
+          globalTimeZone={globalTimeZone}
           data-testid="idcardprintout-gj3h"
         />
       </PDFLoader>

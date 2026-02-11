@@ -284,14 +284,14 @@ const parseDateTimeString = (date: string) =>
       .replace(/[Zz]$/, ''),
   );
 
-const getDisplayTimezone = (countryTimeZone?: string, facilityTimeZone?: string | null) =>
-  facilityTimeZone ?? countryTimeZone;
+const getDisplayTimezone = (globalTimeZone?: string, facilityTimeZone?: string | null) =>
+  facilityTimeZone ?? globalTimeZone;
 
 export const intlFormatDate = (
   date: string | Date | null | undefined,
   formatOptions: Intl.DateTimeFormatOptions,
   fallback = 'Unknown',
-  countryTimeZone?: string,
+  globalTimeZone?: string,
   facilityTimeZone?: string | null,
 ) => {
   if (!date) return fallback;
@@ -312,12 +312,12 @@ export const intlFormatDate = (
       return plainDate.toLocaleString(locale, formatOptions);
     }
 
-    const displayTz = getDisplayTimezone(countryTimeZone, facilityTimeZone);
+    const displayTz = getDisplayTimezone(globalTimeZone, facilityTimeZone);
     const plain = parseDateTimeString(date);
 
-    if (countryTimeZone && displayTz) {
+    if (globalTimeZone && displayTz) {
       return plain
-        .toZonedDateTime(countryTimeZone)
+        .toZonedDateTime(globalTimeZone)
         .withTimeZone(displayTz)
         .toLocaleString(locale, formatOptions);
     }
@@ -420,13 +420,13 @@ export const getCurrentDateStringInTimezone = (timezone?: string) =>
  */
 export const toFacilityDateTime = (
   value: string | Date | null | undefined,
-  countryTimeZone?: string,
+  globalTimeZone?: string,
   facilityTimeZone?: string | null,
 ): string | null => {
   if (value == null) return null;
 
   try {
-    const displayTz = getDisplayTimezone(countryTimeZone, facilityTimeZone);
+    const displayTz = getDisplayTimezone(globalTimeZone, facilityTimeZone);
 
     if (value instanceof Date) {
       if (!isValid(value)) return null;
@@ -441,8 +441,8 @@ export const toFacilityDateTime = (
     }
 
     const plain = parseDateTimeString(value);
-    if (countryTimeZone && displayTz) {
-      return toDateTimeLocalFormat(plain.toZonedDateTime(countryTimeZone).withTimeZone(displayTz));
+    if (globalTimeZone && displayTz) {
+      return toDateTimeLocalFormat(plain.toZonedDateTime(globalTimeZone).withTimeZone(displayTz));
     }
 
     return toDateTimeLocalFormat(plain);
@@ -457,7 +457,7 @@ export const toFacilityDateTime = (
  */
 export const toStoredDateTime = (
   inputValue: string | null | undefined,
-  countryTimeZone?: string,
+  globalTimeZone?: string,
   facilityTimeZone?: string | null,
 ): string | null => {
   if (!inputValue) return null;
@@ -465,11 +465,11 @@ export const toStoredDateTime = (
   try {
     const plain = parseDateTimeString(inputValue);
 
-    if (!countryTimeZone) {
+    if (!globalTimeZone) {
       return toISO9075DateTime(plain);
     }
-    const displayTz = facilityTimeZone ?? countryTimeZone;
-    return toISO9075DateTime(plain.toZonedDateTime(displayTz).withTimeZone(countryTimeZone));
+    const displayTz = facilityTimeZone ?? globalTimeZone;
+    return toISO9075DateTime(plain.toZonedDateTime(displayTz).withTimeZone(globalTimeZone));
   } catch {
     return null;
   }
@@ -477,15 +477,15 @@ export const toStoredDateTime = (
 
 export const getDayBoundaries = (
   date: string,
-  countryTimeZone?: string,
+  globalTimeZone?: string,
   facilityTimeZone?: string | null,
 ) => {
   const start = toStoredDateTime(
     `${date}T00:00:00`,
-    countryTimeZone,
+    globalTimeZone,
     facilityTimeZone,
   );
-  const end = toStoredDateTime(`${date}T23:59:59`, countryTimeZone, facilityTimeZone);
+  const end = toStoredDateTime(`${date}T23:59:59`, globalTimeZone, facilityTimeZone);
   if (!start || !end) return null;
   return {
     start,

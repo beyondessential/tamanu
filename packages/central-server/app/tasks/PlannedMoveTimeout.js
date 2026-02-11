@@ -6,7 +6,7 @@ import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import {
-  getCurrentCountryTimeZoneDateTimeString,
+  getCurrentglobalTimeZoneDateTimeString,
   toCountryDateTimeString,
 } from '@tamanu/shared/utils/countryDateTime';
 import { InvalidConfigError } from '.';
@@ -79,7 +79,7 @@ export class PlannedMoveTimeout extends ScheduledTask {
       for (const encounter of encounters) {
         await encounter.addSystemNote(
           `Automatically cancelled planned move to ${encounter.plannedLocation.name} after ${this.config.timeoutHours} hours`,
-          getCurrentCountryTimeZoneDateTimeString(),
+          getCurrentglobalTimeZoneDateTimeString(),
         );
         await encounter.update({
           plannedLocationId: null,

@@ -35,5 +35,5 @@
       }
     }
   },
-  "countryTimeZone": "Pacific/Auckland"
+  "globalTimeZone": "Pacific/Auckland"
 }

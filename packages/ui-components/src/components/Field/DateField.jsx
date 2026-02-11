@@ -15,12 +15,12 @@ import { useDateTimeIfAvailable } from '../../contexts';
 /*
  * DateInput handles two layers of state:
  *
- * 1. Form value (`value` / `onChange`): ISO9075 format in countryTimeZone (persisted to DB)
+ * 1. Form value (`value` / `onChange`): ISO9075 format in globalTimeZone (persisted to DB)
  * 2. Display value: facilityTimeZone when useTimezone=true, otherwise as-is
  *
  * Timezone flow (useTimezone=true):
- *    Load: countryTimeZone → toFacilityDateTime → facilityTimeZone
- *    Save: facilityTimeZone → toStoredDateTime → countryTimeZone
+ *    Load: globalTimeZone → toFacilityDateTime → facilityTimeZone
+ *    Save: facilityTimeZone → toStoredDateTime → globalTimeZone
  *
  * Note: Native datetime inputs have quirky focus handling between day/month/year segments,
  * so avoid unnecessary value updates that could interfere with user input.
@@ -67,7 +67,7 @@ export const DateInput = ({
   const shouldUseTimezone = useTimezone && type === 'datetime-local';
   const { toFacilityDateTime, toStoredDateTime } = dateTimeFormat ?? {};
 
-  // Convert stored value (countryTimeZone) to display value (facilityTimeZone for datetime-local)
+  // Convert stored value (globalTimeZone) to display value (facilityTimeZone for datetime-local)
   const getDisplayValue = val => {
     if (shouldUseTimezone) return toFacilityDateTime(val) || '';
     return fromRFC3339(val, format);
@@ -111,7 +111,7 @@ export const DateInput = ({
       let outputValue;
 
       if (shouldUseTimezone) {
-        // Convert input value (facilityTimeZone) to storage value (countryTimeZone)
+        // Convert input value (facilityTimeZone) to storage value (globalTimeZone)
         outputValue = toStoredDateTime(formattedValue);
       } else {
         const date = parse(formattedValue, format, new Date());
