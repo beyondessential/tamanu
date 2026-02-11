@@ -9,7 +9,7 @@ import { useAuth } from '../contexts/Auth';
 import { MEDICATIONS_SEARCH_KEYS } from '../constants/medication';
 import { Colors } from '../constants';
 import { MenuButton } from './MenuButton';
-import { TranslatedReferenceData, useDateTimeFormat } from '@tamanu/ui-components';
+import { TranslatedReferenceData } from '@tamanu/ui-components';
 import { MedicationLabelPrintModal } from './PatientPrinting/modals/MedicationLabelPrintModal';
 import { getMedicationLabelData } from '../utils/medications';
 import { useFacilityQuery } from '../api/queries/useFacilityQuery';
@@ -273,18 +273,10 @@ export const MedicationDispensesTable = () => {
       : []),
   ];
 
-  const { getDayBoundaries } = useDateTimeFormat();
-  const fetchOptions = useMemo(() => {
-    const { dispensedAt, ...rest } = searchParameters;
-    if (!dispensedAt) return { ...rest, facilityId };
-    const boundaries = getDayBoundaries(dispensedAt);
-    return {
-      ...rest,
-      facilityId,
-      dispensedAtFrom: boundaries?.start,
-      dispensedAtTo: boundaries?.end,
-    };
-  }, [searchParameters, facilityId, getDayBoundaries]);
+  const fetchOptions = useMemo(() => ({
+    ...searchParameters,
+    facilityId,
+  }), [searchParameters, facilityId]);
 
   const handleRowClick = (_, dispenseData) => {
     const patient = dispenseData.pharmacyOrderPrescription?.pharmacyOrder?.encounter?.patient;

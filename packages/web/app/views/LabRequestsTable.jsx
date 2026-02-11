@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
-import { useDateTimeFormat } from '@tamanu/ui-components';
 import { SearchTableWithPermissionCheck } from '../components';
 import { reloadPatient } from '../store/patient';
 import {
@@ -24,7 +23,6 @@ export const LabRequestsTable = React.memo(
     const isPublishedTable = statuses?.includes(LAB_REQUEST_STATUSES.PUBLISHED);
 
     const { facilityId } = useAuth();
-    const { getDayBoundaries } = useDateTimeFormat();
 
     const columns = useMemo(() => {
       return [
@@ -104,18 +102,9 @@ export const LabRequestsTable = React.memo(
     };
 
     const fetchOptions = useMemo(() => {
-      const { status, requestedDateFrom, requestedDateTo, ...otherSearchFilters } = searchParameters;
-      const filters = { ...otherSearchFilters, facilityId, statuses: status ? [status] : statuses };
-      if (requestedDateFrom) {
-        const boundaries = getDayBoundaries(requestedDateFrom);
-        if (boundaries) filters.requestedDateFrom = boundaries.start;
-      }
-      if (requestedDateTo) {
-        const boundaries = getDayBoundaries(requestedDateTo);
-        if (boundaries) filters.requestedDateTo = boundaries.end;
-      }
-      return filters;
-    }, [searchParameters, facilityId, statuses, getDayBoundaries]);
+      const { status, ...otherSearchFilters } = searchParameters;
+      return { ...otherSearchFilters, facilityId, statuses: status ? [status] : statuses };
+    }, [searchParameters, facilityId, statuses]);
 
     return (
       <SearchTableWithPermissionCheck

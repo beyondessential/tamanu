@@ -1,8 +1,10 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import config from 'config';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 
 import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
+import { getDayBoundaries } from '@tamanu/utils/dateTime';
 import {
   LAB_REQUEST_STATUSES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
@@ -128,6 +130,7 @@ labRequest.get(
     const {
       models: { LabRequest },
       query,
+      settings
     } = req;
     req.checkPermission('list', 'LabRequest');
     const canListSensitive = req.ability.can('list', 'SensitiveLabRequest');
@@ -139,6 +142,10 @@ labRequest.get(
       page = 0,
       ...filterParams
     } = query;
+
+    const { countryTimeZone } = config;
+    const { facilityId } = filterParams;
+    const facilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
 
     const makeSimpleTextFilter = makeSimpleTextFilterFactory(filterParams);
     const makePartialTextFilter = makeSubstringTextFilterFactory(filterParams);
@@ -183,8 +190,19 @@ labRequest.get(
       makeFilter(
         filterParams.requestedDateFrom,
         'lab_requests.requested_date >= :requestedDateFrom',
+        ({ requestedDateFrom }) => {
+          const boundaries = getDayBoundaries(requestedDateFrom, countryTimeZone, facilityTimeZone);
+          return { requestedDateFrom: boundaries?.start ?? `${requestedDateFrom} 00:00:00` };
+        },
       ),
-      makeFilter(filterParams.requestedDateTo, 'lab_requests.requested_date <= :requestedDateTo'),
+      makeFilter(
+        filterParams.requestedDateTo,
+        'lab_requests.requested_date <= :requestedDateTo',
+        ({ requestedDateTo }) => {
+          const boundaries = getDayBoundaries(requestedDateTo, countryTimeZone, facilityTimeZone);
+          return { requestedDateTo: boundaries?.end ?? `${requestedDateTo} 23:59:59` };
+        },
+      ),
       makeFilter(
         !JSON.parse(filterParams.allFacilities || false),
         'location.facility_id = :facilityId',

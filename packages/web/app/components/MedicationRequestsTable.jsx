@@ -295,13 +295,10 @@ export const MedicationRequestsTable = () => {
       : []),
   ];
 
-  const { getDayBoundaries } = useDateTime();
-  const fetchOptions = useMemo(() => {
-    const { date, ...rest } = searchParameters;
-    if (!date) return { ...rest, facilityId };
-    const boundaries = getDayBoundaries(date);
-    return { ...rest, facilityId, dateFrom: boundaries?.start, dateTo: boundaries?.end };
-  }, [searchParameters, facilityId, getDayBoundaries]);
+  const fetchOptions = useMemo(() => ({
+    ...searchParameters,
+    facilityId,
+  }), [searchParameters, facilityId]);
 
   const handleRowClick = (_, data) => {
     const patient = data?.pharmacyOrder?.encounter?.patient;

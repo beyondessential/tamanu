@@ -174,7 +174,7 @@ const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate, facilit
 
 export const MarTable = ({ selectedDate }) => {
   const { encounter } = useEncounter();
-  const { getDayBoundaries, getFacilityNow } = useDateTimeFormat();
+  const { getFacilityNow } = useDateTimeFormat();
   const facilityNow = new Date(getFacilityNow());
   const scheduledSectionRef = useRef(null);
   const scheduledHeaderRef = useRef(null);
@@ -184,13 +184,10 @@ export const MarTable = ({ selectedDate }) => {
   const [overlayHeight, setOverlayHeight] = useState('100%');
   const [popperAnchorEl, setPopperAnchorEl] = useState(null);
 
-  const marDateString = toDateString(selectedDate);
-  const boundaries = getDayBoundaries(marDateString);
   const { data: medicationsData, isLoading: isLoadingMedications } = useEncounterMedicationQuery(
     encounter?.id,
     {
-      marDateStart: boundaries?.start,
-      marDateEnd: boundaries?.end,
+      marDate: toDateString(selectedDate),
       orderBy: 'date',
       order: 'asc',
     },

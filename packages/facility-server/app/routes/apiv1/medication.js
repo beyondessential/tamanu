@@ -1,9 +1,11 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import config from 'config';
 import {
   dateCustomValidation,
   datetimeCustomValidation,
   getCurrentDateTimeString,
+  getDayBoundaries,
   toDateTimeString,
 } from '@tamanu/utils/dateTime';
 import { z } from 'zod';
@@ -1716,7 +1718,7 @@ const caseInsensitiveFilter = (fieldName, _operator, value) => ({
 medication.get(
   '/medication-requests',
   asyncHandler(async (req, res) => {
-    const { models, query } = req;
+    const { models, query, settings } = req;
     const {
       order = 'DESC',
       orderBy = 'pharmacyOrder.date',
@@ -1774,17 +1776,19 @@ medication.get(
       required: true,
     };
 
+    const { countryTimeZone } = config;
+    const facilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
+
     // PharmacyOrder filters
     const pharmacyOrderFilters = mapQueryFilters(filterParams, [
       {
-        key: 'dateFrom',
-        alias: 'date',
-        operator: Op.gte,
-      },
-      {
-        key: 'dateTo',
-        alias: 'date',
-        operator: Op.lte,
+        key: 'date',
+        mapFn: (fieldName, _operator, value) => {
+          const boundaries = getDayBoundaries(value, countryTimeZone, facilityTimeZone);
+          const startOfDay = boundaries?.start ?? `${value} 00:00:00`;
+          const endOfDay = boundaries?.end ?? `${value} 23:59:59`;
+          return { [fieldName]: { [Op.between]: [startOfDay, endOfDay] } };
+        },
       },
       {
         key: 'prescriptionType',
@@ -2003,16 +2007,18 @@ medication.get(
       },
     ]);
 
+    const { countryTimeZone: dispenseTz } = config;
+    const dispenseFacilityTimeZone = await req.settings[req.facilityId]?.get('facilityTimeZone');
+
     const rootFilter = mapQueryFilters(filterParams, [
       {
-        key: 'dispensedAtFrom',
-        alias: 'dispensedAt',
-        operator: Op.gte,
-      },
-      {
-        key: 'dispensedAtTo',
-        alias: 'dispensedAt',
-        operator: Op.lte,
+        key: 'dispensedAt',
+        mapFn: (fieldName, _operator, value) => {
+          const boundaries = getDayBoundaries(value, dispenseTz, dispenseFacilityTimeZone);
+          const startOfDay = boundaries?.start ?? `${value} 00:00:00`;
+          const endOfDay = boundaries?.end ?? `${value} 23:59:59`;
+          return { [fieldName]: { [Op.between]: [startOfDay, endOfDay] } };
+        },
       },
       { key: 'dispensedByUserId', operator: Op.eq },
     ]);
