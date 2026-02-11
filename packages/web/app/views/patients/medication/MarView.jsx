@@ -15,9 +15,10 @@ const MarContainer = styled.div`
 
 const useFacilityDate = () => {
   const { encounter } = useEncounter();
-  const { getFacilityNowDate, toFacilityDateTime } = useDateTimeFormat();
-  const getFacilityNowDateRef = useRef(getFacilityNowDate);
-  getFacilityNowDateRef.current = getFacilityNowDate;
+  const { getFacilityNow, toFacilityDateTime } = useDateTimeFormat();
+  const getFacilityNowDate = () => new Date(getFacilityNow());
+  const getFacilityNowRef = useRef(getFacilityNowDate);
+  getFacilityNowRef.current = getFacilityNowDate;
 
   const toFacilityDate = dateStr => {
     if (!dateStr) return null;
@@ -33,7 +34,7 @@ const useFacilityDate = () => {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      const now = getFacilityNowDateRef.current();
+      const now = getFacilityNowRef.current();
       setSelectedDate(prev => set(prev, { hours: now.getHours(), minutes: now.getMinutes() }));
     }, 60000);
     return () => clearInterval(timer);
