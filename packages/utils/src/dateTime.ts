@@ -256,7 +256,7 @@ const toISO9075DateTime = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) 
 };
 
 const toDateTimeLocalFormat = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) =>
-  dt.toString().slice(0, 19);
+  dt.toString().slice(0, 16);
 
 const parseDateTimeString = (date: string) =>
   Temporal.PlainDateTime.from(
@@ -418,7 +418,7 @@ export const formatForDateTimeInput = (
     }
 
     if (isISO9075DateString(value)) {
-      return `${value}T00:00:00`;
+      return `${value}T00:00`;
     }
 
     const plain = parseDateTimeString(value);
