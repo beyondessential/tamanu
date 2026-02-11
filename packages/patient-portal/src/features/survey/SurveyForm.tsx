@@ -50,7 +50,7 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
      */
     currentUser: {},
     patientProgramRegistration,
-    getCurrentDateTime: getCurrentDateTimeString(),
+    getCurrentDateTime: getCurrentDateTimeString,
   });
   const validationSchema = useMemo(
     () => getValidationSchema(survey, getTranslation),
