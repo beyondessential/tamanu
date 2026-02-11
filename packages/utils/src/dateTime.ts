@@ -414,6 +414,24 @@ export const getCurrentDateTimeStringInTimezone = (timezone?: string) =>
 export const getCurrentDateStringInTimezone = (timezone?: string) =>
   Temporal.Now.plainDateISO(timezone ?? Temporal.Now.timeZoneId()).toString();
 
+/** Get current facility wall-clock time as yyyy-MM-ddTHH:mm */
+export const getFacilityNow = (
+  countryTimeZone?: string,
+  facilityTimeZone?: string | null,
+): string => {
+  const now = toFacilityDateTime(
+    getCurrentDateTimeStringInTimezone(countryTimeZone),
+    countryTimeZone,
+    facilityTimeZone,
+  );
+  if (!now) {
+    throw new Error(
+      `Failed to compute facility time (countryTimeZone=${countryTimeZone}, facilityTimeZone=${facilityTimeZone})`,
+    );
+  }
+  return now;
+};
+
 /**
  * Convert stored datetime (country timezone) to display format (facility timezone)
  * Used when populating datetime-local inputs with existing values

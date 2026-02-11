@@ -7,6 +7,7 @@ import {
   getCurrentDateStringInTimezone,
   getCurrentDateTimeStringInTimezone,
   getDayBoundaries,
+  getFacilityNow,
 } from '@tamanu/utils/dateTime';
 import * as dateTimeFormatters from '@tamanu/utils/dateFormatters';
 
@@ -74,9 +75,8 @@ export const DateTimeProvider = ({
     : (getSetting('facilityTimeZone') as string | undefined);
 
   const bindTimezones = useCallback(
-    (fn: (...args: any[]) => any) =>
-      (date?: DateInput) =>
-        fn(date, countryTimeZone, facilityTimeZone),
+    (fn: (...args: any[]) => any) => (date?: DateInput) =>
+      fn(date, countryTimeZone, facilityTimeZone),
     [countryTimeZone, facilityTimeZone],
   );
 
@@ -87,12 +87,7 @@ export const DateTimeProvider = ({
       ...(mapValues(dateTimeFormatters, bindTimezones) as WrappedFormatters),
       getCurrentDate: () => getCurrentDateStringInTimezone(facilityTimeZone ?? countryTimeZone),
       getCurrentDateTime: () => getCurrentDateTimeStringInTimezone(countryTimeZone),
-      getFacilityNow: () =>
-        toFacilityDateTime(
-          getCurrentDateTimeStringInTimezone(countryTimeZone),
-          countryTimeZone,
-          facilityTimeZone,
-        )!,
+      getFacilityNow: () => getFacilityNow(countryTimeZone, facilityTimeZone),
       getDayBoundaries: date => getDayBoundaries(date, countryTimeZone, facilityTimeZone),
       toStoredDateTime: value => toStoredDateTime(value, countryTimeZone, facilityTimeZone),
       toFacilityDateTime: value => toFacilityDateTime(value, countryTimeZone, facilityTimeZone),
