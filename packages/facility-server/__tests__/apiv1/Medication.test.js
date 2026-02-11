@@ -200,16 +200,15 @@ describe('Medication', () => {
         });
 
         // Create an active encounter for the patient (endDate: null)
-        await models.Encounter.create({
-          patientId: patient.id,
-          encounterType: 'clinic',
-          startDate: getCurrentDateTimeString(),
-          endDate: null,
-          reasonForEncounter: 'Clinic visit',
-          examinerId: app.user.id,
-          locationId: location.id,
-          departmentId: department.id,
-        });
+        await models.Encounter.create(
+          fake(models.Encounter, {
+            patientId: patient.id,
+            locationId: location.id,
+            departmentId: department.id,
+            examinerId: app.user.id,
+            endDate: null,
+          }),
+        );
 
         const result = await app.post('/api/medication/send-ongoing-to-pharmacy').send({
           patientId: patient.id,
@@ -241,16 +240,15 @@ describe('Medication', () => {
           code: 'test-med-enc',
         });
 
-        const encounter = await models.Encounter.create({
-          patientId: patient.id,
-          encounterType: 'clinic',
-          startDate: getCurrentDateTimeString(),
-          endDate: null,
-          reasonForEncounter: 'Clinic visit',
-          examinerId: app.user.id,
-          locationId: location.id,
-          departmentId: department.id,
-        });
+        const encounter = await models.Encounter.create(
+          fake(models.Encounter, {
+            patientId: patient.id,
+            locationId: location.id,
+            departmentId: department.id,
+            examinerId: app.user.id,
+            endDate: null,
+          }),
+        );
 
         const prescription = await models.Prescription.create({
           medicationId: medication.id,
@@ -297,16 +295,15 @@ describe('Medication', () => {
         name: `DispenseMed-${Date.now()}`,
         code: `disp-med-${Date.now()}`,
       });
-      const encounter = await models.Encounter.create({
-        patientId,
-        encounterType: 'clinic',
-        startDate: getCurrentDateTimeString(),
-        endDate: getCurrentDateTimeString(),
-        reasonForEncounter: 'Dispense test',
-        examinerId: app.user.id,
-        locationId: location.id,
-        departmentId: department.id,
-      });
+      const encounter = await models.Encounter.create(
+        fake(models.Encounter, {
+          patientId,
+          locationId: location.id,
+          departmentId: department.id,
+          examinerId: app.user.id,
+          endDate: getCurrentDateTimeString(),
+        }),
+      );
       const prescription = await models.Prescription.create({
         medicationId: medication.id,
         prescriberId: app.user.id,
@@ -426,16 +423,15 @@ describe('Medication', () => {
 
   describe('POST /api/medication/import-ongoing', () => {
     it('should import ongoing medications into an encounter successfully', async () => {
-      const encounter = await models.Encounter.create({
-        patientId: patient.id,
-        encounterType: 'clinic',
-        startDate: getCurrentDateTimeString(),
-        endDate: null,
-        reasonForEncounter: 'Import test',
-        examinerId: app.user.id,
-        locationId: location.id,
-        departmentId: department.id,
-      });
+      const encounter = await models.Encounter.create(
+        fake(models.Encounter, {
+          patientId: patient.id,
+          locationId: location.id,
+          departmentId: department.id,
+          examinerId: app.user.id,
+          endDate: null,
+        }),
+      );
 
       const ongoingPrescription1 = await createOngoingPrescription({
         patientId: patient.id,
@@ -490,16 +486,15 @@ describe('Medication', () => {
     });
 
     it('should reject import when encounter is discharged', async () => {
-      const encounter = await models.Encounter.create({
-        patientId: patient.id,
-        encounterType: 'clinic',
-        startDate: getCurrentDateTimeString(),
-        endDate: getCurrentDateTimeString(),
-        reasonForEncounter: 'Discharged encounter',
-        examinerId: app.user.id,
-        locationId: location.id,
-        departmentId: department.id,
-      });
+      const encounter = await models.Encounter.create(
+        fake(models.Encounter, {
+          patientId: patient.id,
+          locationId: location.id,
+          departmentId: department.id,
+          examinerId: app.user.id,
+          endDate: getCurrentDateTimeString(),
+        }),
+      );
 
       const ongoingPrescription = await createOngoingPrescription({
         patientId: patient.id,
@@ -520,16 +515,15 @@ describe('Medication', () => {
 
     it('should reject import when prescription does not belong to patient', async () => {
       const otherPatient = await models.Patient.create(fake(models.Patient));
-      const encounter = await models.Encounter.create({
-        patientId: patient.id,
-        encounterType: 'clinic',
-        startDate: getCurrentDateTimeString(),
-        endDate: null,
-        reasonForEncounter: 'Wrong patient test',
-        examinerId: app.user.id,
-        locationId: location.id,
-        departmentId: department.id,
-      });
+      const encounter = await models.Encounter.create(
+        fake(models.Encounter, {
+          patientId: patient.id,
+          locationId: location.id,
+          departmentId: department.id,
+          examinerId: app.user.id,
+          endDate: null,
+        }),
+      );
 
       const ongoingPrescriptionForOther = await createOngoingPrescription({
         patientId: otherPatient.id,
@@ -550,16 +544,15 @@ describe('Medication', () => {
     });
 
     it('should reject import when prescription is discontinued', async () => {
-      const encounter = await models.Encounter.create({
-        patientId: patient.id,
-        encounterType: 'clinic',
-        startDate: getCurrentDateTimeString(),
-        endDate: null,
-        reasonForEncounter: 'Discontinued test',
-        examinerId: app.user.id,
-        locationId: location.id,
-        departmentId: department.id,
-      });
+      const encounter = await models.Encounter.create(
+        fake(models.Encounter, {
+          patientId: patient.id,
+          locationId: location.id,
+          departmentId: department.id,
+          examinerId: app.user.id,
+          endDate: null,
+        }),
+      );
 
       const ongoingPrescription = await createOngoingPrescription({
         patientId: patient.id,
