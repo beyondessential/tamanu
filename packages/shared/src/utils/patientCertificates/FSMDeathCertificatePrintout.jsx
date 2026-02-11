@@ -70,10 +70,8 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   partHeader: {
-    padding: 4,
     borderBottom: '1 solid black',
     flexDirection: 'row',
-    justifyContent: 'space-between',
   },
   partHeaderText: {
     fontSize: 9,
@@ -220,8 +218,12 @@ export const FSMDeathCertificatePrintout = ({
 
           {/* PART I: Medical Certification */}
           <View style={styles.partHeader}>
-            <Text bold style={styles.partHeaderText}>PART I - Death was caused by:</Text>
-            <Text bold style={styles.partHeaderText}>Approx. Interval - onset & death:</Text>
+            <View style={{ flex: 1, borderRight: '1 solid black', padding: 4 }}>
+              <Text bold style={styles.partHeaderText}>PART I - Death was caused by:</Text>
+            </View>
+            <View style={{ width: 150, padding: 4 }}>
+              <Text bold style={styles.partHeaderText}>Approx. Interval - onset & death:</Text>
+            </View>
           </View>
           
           {/* Cause rows */}
@@ -271,13 +273,13 @@ export const FSMDeathCertificatePrintout = ({
 
           {/* PART II */}
           <View style={[styles.row, { borderBottom: 0 }]}>
-            <View style={[styles.cell, { flex: 3, borderRight: '1 solid black' }]}>
+            <View style={[styles.cell, { flex: 1, borderRight: '1 solid black' }]}>
                <Text bold style={styles.label}>PART II - Other significant conditions: Conditions contributing to death, not related to Part I (a):</Text>
                <Text style={styles.value}>
                   {patientData?.causes?.contributing?.map(c => c?.condition?.name).join(', ')}
                </Text>
             </View>
-            <Cell flex={1} lastCell label="Autopsy" />
+            <Cell width={150} lastCell label="Autopsy" />
           </View>
         </View>
 
