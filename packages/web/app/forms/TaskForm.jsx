@@ -84,8 +84,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
   const { encounter } = useEncounter();
   const { ability, currentUser } = useAuth();
   const { getTranslation } = useTranslation();
-  const { formatForDateTimeInput, getCurrentDateTime } =
-    useDateTime();
+  const { getCurrentDateTime } = useDateTime();
   const queryClient = useQueryClient();
   const canCreateReferenceData = ability.can('create', 'ReferenceData');
 
@@ -219,7 +218,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                   saveDateAsString
                   required
                   component={DateTimeField}
-                  min={formatForDateTimeInput(getCurrentDateTime())}
+                  min={getCurrentDateTime()}
                   data-testid="field-om46"
                 />
               </FormGrid>
@@ -446,7 +445,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
         ['frequencyValue', 'frequencyUnit'],
       )}
       initialValues={{
-        startTime: getCurrentDateTime(),  
+        startTime: getCurrentDateTime(),
         requestTime: getCurrentDateTime(),
         requestedByUserId: currentUser?.id,
       }}
