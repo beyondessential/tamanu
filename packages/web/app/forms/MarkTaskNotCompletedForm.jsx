@@ -17,12 +17,12 @@ import { useAuth } from '../contexts/Auth';
 import { useTranslation } from '../contexts/Translation';
 
 export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds }) => {
+  const { getFacilityNow, getCurrentDateTime } = useDateTimeFormat();
   const { getTranslation } = useTranslation();
   const practitionerSuggester = useSuggester('practitioner');
   const taskNotCompletedReasonSuggester = useSuggester('taskNotCompletedReason');
   const { currentUser, ability } = useAuth();
   const canCreateReferenceData = ability.can('create', 'ReferenceData');
-  const { getFacilityNow } = useDateTimeFormat();
 
   const { mutate: markTaskNotCompleted } = useMarkTaskNotCompleted();
 
