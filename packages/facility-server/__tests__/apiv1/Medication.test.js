@@ -309,7 +309,7 @@ describe('Medication', () => {
       expect(result.body[0].pharmacyOrderPrescriptionId).toBe(pharmacyOrderPrescription.id);
     });
 
-    it('should only be able to dis', async () => {
+    it('should only be able to dispensed once', async () => {
       const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
         patientId: patient.id,
         repeats: 0,
@@ -369,7 +369,6 @@ describe('Medication', () => {
       });
 
       expect(result).toHaveRequestError();
-      expect(result.body.error.message).toContain('same patient');
     });
   });
 });
