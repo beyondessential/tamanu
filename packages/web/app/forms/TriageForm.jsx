@@ -260,7 +260,7 @@ export const TriageForm = ({
         arrivalTime: yup
           .date()
           .max(
-            new Date(),
+            new Date(getCurrentDateTime()),
             getTranslation(
               'validation.rule.arrivalTimeNotInFuture',
               'Arrival time cannot be in the future',
@@ -270,7 +270,7 @@ export const TriageForm = ({
           .date()
           .required()
           .max(
-            new Date(),
+            new Date(getCurrentDateTime()),
             getTranslation(
               'validation.rule.triageTimeNotInFuture',
               'Triage time cannot be in the future',
