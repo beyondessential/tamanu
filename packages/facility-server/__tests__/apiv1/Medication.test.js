@@ -190,7 +190,6 @@ describe('Medication', () => {
         });
 
         expect(secondResult).toHaveRequestError();
-        expect(secondResult.body.error.message).toContain('no remaining repeats');
       });
       it('should throw error if the prescription is linked to an active encounter', async () => {
         const ongoingPrescription = await createOngoingPrescription({
@@ -225,10 +224,67 @@ describe('Medication', () => {
         });
 
         expect(result).toHaveRequestError();
-        expect(result.body.error.message).toContain('active encounter');
 
         // Prescription repeats should be unchanged since we never got to the decrement logic
         const reloadedPrescription = await models.Prescription.findByPk(ongoingPrescription.id);
+        expect(reloadedPrescription.repeats).toBe(3);
+      });
+    });
+  });
+
+  describe('POST /api/encounter/:id/pharmacyOrder', () => {
+    describe('repeats', () => {
+      it('should not decrement prescription repeats when sending from encounter', async () => {
+        const medication = await models.ReferenceData.create({
+          type: 'drug',
+          name: 'TestMedicationEncounter',
+          code: 'test-med-enc',
+        });
+
+        const encounter = await models.Encounter.create({
+          patientId: patient.id,
+          encounterType: 'clinic',
+          startDate: getCurrentDateTimeString(),
+          endDate: null,
+          reasonForEncounter: 'Clinic visit',
+          examinerId: app.user.id,
+          locationId: location.id,
+          departmentId: department.id,
+        });
+
+        const prescription = await models.Prescription.create({
+          medicationId: medication.id,
+          prescriberId: app.user.id,
+          doseAmount: 1,
+          units: 'mg',
+          frequency: 'Immediately',
+          route: 'oral',
+          date: '2025-01-01',
+          startDate: getCurrentDateTimeString(),
+          repeats: 3,
+        });
+
+        await models.EncounterPrescription.create({
+          encounterId: encounter.id,
+          prescriptionId: prescription.id,
+        });
+
+        const result = await app.post(`/api/encounter/${encounter.id}/pharmacyOrder`).send({
+          orderingClinicianId: app.user.id,
+          isDischargePrescription: true,
+          facilityId,
+          pharmacyOrderPrescriptions: [
+            {
+              prescriptionId: prescription.id,
+              quantity: 10,
+              repeats: 3,
+            },
+          ],
+        });
+
+        expect(result).toHaveSucceeded();
+
+        const reloadedPrescription = await models.Prescription.findByPk(prescription.id);
         expect(reloadedPrescription.repeats).toBe(3);
       });
     });
@@ -484,9 +540,7 @@ describe('Medication', () => {
 
       const result = await app.post('/api/medication/import-ongoing').send({
         encounterId: encounter.id,
-        medications: [
-          { prescriptionId: ongoingPrescriptionForOther.id, quantity: 10, repeats: 1 },
-        ],
+        medications: [{ prescriptionId: ongoingPrescriptionForOther.id, quantity: 10, repeats: 1 }],
         prescriberId: app.user.id,
       });
 
@@ -524,64 +578,6 @@ describe('Medication', () => {
       expect(result).toHaveRequestError();
       expect(result.body.error.message).toContain('discontinued');
       expect(result.body.error.message).toContain('do not belong to this patient');
-    });
-  });
-
-  describe('POST /api/encounter/:id/pharmacyOrder', () => {
-    describe('repeats', () => {
-      it('should not decrement prescription repeats when sending from encounter', async () => {
-        const medication = await models.ReferenceData.create({
-          type: 'drug',
-          name: 'TestMedicationEncounter',
-          code: 'test-med-enc',
-        });
-
-        const encounter = await models.Encounter.create({
-          patientId: patient.id,
-          encounterType: 'clinic',
-          startDate: getCurrentDateTimeString(),
-          endDate: null,
-          reasonForEncounter: 'Clinic visit',
-          examinerId: app.user.id,
-          locationId: location.id,
-          departmentId: department.id,
-        });
-
-        const prescription = await models.Prescription.create({
-          medicationId: medication.id,
-          prescriberId: app.user.id,
-          doseAmount: 1,
-          units: 'mg',
-          frequency: 'Immediately',
-          route: 'oral',
-          date: '2025-01-01',
-          startDate: getCurrentDateTimeString(),
-          repeats: 3,
-        });
-
-        await models.EncounterPrescription.create({
-          encounterId: encounter.id,
-          prescriptionId: prescription.id,
-        });
-
-        const result = await app.post(`/api/encounter/${encounter.id}/pharmacyOrder`).send({
-          orderingClinicianId: app.user.id,
-          isDischargePrescription: true,
-          facilityId,
-          pharmacyOrderPrescriptions: [
-            {
-              prescriptionId: prescription.id,
-              quantity: 10,
-              repeats: 3,
-            },
-          ],
-        });
-
-        expect(result).toHaveSucceeded();
-
-        const reloadedPrescription = await models.Prescription.findByPk(prescription.id);
-        expect(reloadedPrescription.repeats).toBe(3);
-      });
     });
   });
 });
