@@ -255,8 +255,12 @@ const toISO9075DateTime = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) 
   return `${yyyy}-${pad(month)}-${pad(day)} ${pad(hour)}:${pad(minute)}:${pad(second)}`;
 };
 
-const toDateTimeLocalFormat = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) =>
-  toISO9075DateTime(dt).replace(' ', 'T');
+const toDateTimeLocalFormat = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) => {
+  const { year, month, day, hour, minute, second } = dt;
+  const yyyy = String(year).padStart(4, '0');
+  const base = `${yyyy}-${pad(month)}-${pad(day)}T${pad(hour)}:${pad(minute)}`;
+  return second !== 0 ? `${base}:${pad(second)}` : base;
+};
 
 const parseDateTimeString = (date: string, countryTimeZone?: string): Temporal.PlainDateTime => {
   const normalized = date.replace(' ', 'T');
@@ -424,7 +428,7 @@ export const formatForDateTimeInput = (
       return `${value}T00:00:00`;
     }
 
-    const plain = parseDateTimeString(value);
+    const plain = parseDateTimeString(value, countryTimeZone);
     if (countryTimeZone && displayTz) {
       return toDateTimeLocalFormat(plain.toZonedDateTime(countryTimeZone).withTimeZone(displayTz));
     }
@@ -453,7 +457,7 @@ export const toDateTimeStringForPersistence = (
       return toISO9075DateTime(instant.toZonedDateTimeISO(tz));
     }
 
-    const plain = parseDateTimeString(inputValue);
+    const plain = parseDateTimeString(inputValue, countryTimeZone);
 
     if (!countryTimeZone) {
       return toISO9075DateTime(plain);
