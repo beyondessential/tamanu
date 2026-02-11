@@ -275,6 +275,26 @@ const parseDateTimeString = (date: string, countryTimeZone?: string): Temporal.P
 const getDisplayTimezone = (countryTimeZone?: string, facilityTimeZone?: string | null) =>
   facilityTimeZone ?? countryTimeZone;
 
+const isTimezoneError = (error: unknown): boolean =>
+  error instanceof RangeError && /time\s*zone/i.test(String(error));
+
+const logDateError = (
+  fnName: string,
+  error: unknown,
+  value: unknown,
+  countryTimeZone?: string,
+  facilityTimeZone?: string | null,
+) => {
+  if (isTimezoneError(error)) {
+    console.error(
+      `[${fnName}] Invalid timezone configuration — countryTimeZone: ${JSON.stringify(countryTimeZone)}, facilityTimeZone: ${JSON.stringify(facilityTimeZone)}. Error:`,
+      error,
+    );
+  } else {
+    console.warn(`[${fnName}] Failed to process date value ${JSON.stringify(value)}:`, error);
+  }
+};
+
 export const intlFormatDate = (
   date: string | Date | null | undefined,
   formatOptions: Intl.DateTimeFormatOptions,
@@ -311,7 +331,8 @@ export const intlFormatDate = (
     }
 
     return plain.toLocaleString(locale, formatOptions);
-  } catch {
+  } catch (error) {
+    logDateError('intlFormatDate', error, date, countryTimeZone, facilityTimeZone);
     return fallback;
   }
 };
@@ -434,7 +455,8 @@ export const formatForDateTimeInput = (
     }
 
     return toDateTimeLocalFormat(plain);
-  } catch {
+  } catch (error) {
+    logDateError('formatForDateTimeInput', error, value, countryTimeZone, facilityTimeZone);
     return null;
   }
 };
@@ -464,7 +486,14 @@ export const toDateTimeStringForPersistence = (
     }
     const displayTz = facilityTimeZone ?? countryTimeZone;
     return toISO9075DateTime(plain.toZonedDateTime(displayTz).withTimeZone(countryTimeZone));
-  } catch {
+  } catch (error) {
+    logDateError(
+      'toDateTimeStringForPersistence',
+      error,
+      inputValue,
+      countryTimeZone,
+      facilityTimeZone,
+    );
     return null;
   }
 };
