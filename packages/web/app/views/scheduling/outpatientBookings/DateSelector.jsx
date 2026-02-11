@@ -16,9 +16,9 @@ import {
 } from 'date-fns';
 
 import { eachDayInMonth } from '@tamanu/utils/dateTime';
+import { TextButton, useDateTime } from '@tamanu/ui-components';
 
 import { BodyText, MonthPicker } from '../../../components';
-import { TextButton, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../../constants';
 
 const Wrapper = styled(Box)`
@@ -148,7 +148,7 @@ const DayButton = ({ date, selected, facilityToday, onClick }) => {
 };
 
 export const DateSelector = ({ value, onChange }) => {
-  const { getCurrentDate } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTime();
   const facilityToday = new Date(`${getCurrentDate()}T00:00:00`);
   const [viewedDays, setViewedDays] = useState(eachDayInMonth(value));
 
