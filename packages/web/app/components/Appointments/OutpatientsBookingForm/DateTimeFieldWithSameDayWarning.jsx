@@ -3,6 +3,7 @@ import { useFormikContext } from 'formik';
 import { endOfDay, parseISO, startOfDay } from 'date-fns';
 
 import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { useDateTime } from '@tamanu/ui-components';
 
 import { TranslatedText } from '../../Translation';
 import { useOutpatientAppointmentsQuery } from '../../../api/queries/useAppointmentsQuery';
@@ -10,11 +11,15 @@ import { DateTimeField, Field } from '../../Field';
 
 export const DateTimeFieldWithSameDayWarning = ({ isEdit, onChange }) => {
   const { values, setFieldValue } = useFormikContext();
+  const { toStoredDateTime } = useDateTime();
+
+  // values.startTime is in facility timezone; convert to country timezone for API query
+  const countryStartTime = values.startTime ? toStoredDateTime(values.startTime) : null;
 
   const { data: existingAppointments, isFetched } = useOutpatientAppointmentsQuery(
     {
-      after: values.startTime ? toDateTimeString(startOfDay(parseISO(values.startTime))) : null,
-      before: values.startTime ? toDateTimeString(endOfDay(parseISO(values.startTime))) : null,
+      after: countryStartTime ? toDateTimeString(startOfDay(parseISO(countryStartTime))) : null,
+      before: countryStartTime ? toDateTimeString(endOfDay(parseISO(countryStartTime))) : null,
       all: true,
       patientId: values.patientId,
     },
@@ -41,6 +46,7 @@ export const DateTimeFieldWithSameDayWarning = ({ isEdit, onChange }) => {
       }
       component={DateTimeField}
       saveDateAsString
+      useTimezone={false}
       required
       onChange={(e) => {
         onChange(e);

@@ -32,7 +32,7 @@ const Divider = styled(MuiDivider)`
 const syncTimeDate = (time, targetDate, setFieldValue, fieldName) => {
   if (!time) return;
   const timePart = time.slice(11);
-  const expected = `${targetDate} ${timePart}`;
+  const expected = `${targetDate}T${timePart}`;
   if (time !== expected) {
     setFieldValue(fieldName, expected);
   }
