@@ -263,6 +263,12 @@ const CheckboxRowItem = styled.div`
   flex: 1;
 `;
 
+const VariableDoseFieldWrapper = styled.div`
+  margin-bottom: -12px;
+  grid-column: 1 / -1;
+  width: 290px;
+`;
+
 const StyledTimePicker = styled(TimePicker)`
   .MuiInputBase-root {
     font-size: 14px;
@@ -956,27 +962,29 @@ export const MedicationForm = ({
                 </StockLevelContainer>
               )}
             </CheckboxGroup>
-            <div style={{ gridColumn: '1/-1', marginBottom: '-12px' }}>
-              <Field
-                name="isVariableDose"
-                label={
-                  <BodyText>
-                    <TranslatedText
-                      stringId="medication.variableDose.label"
-                      fallback="Variable dose"
-                    />
-                  </BodyText>
-                }
-                component={CheckField}
-                onChange={(_, value) => {
-                  if (value) {
-                    setValues({ ...values, doseAmount: '' });
-                    setFieldError('doseAmount', null);
+            <VariableDoseFieldWrapper>
+              <CheckboxBox $checked={values.isVariableDose}>
+                <Field
+                  name="isVariableDose"
+                  label={
+                    <BodyText>
+                      <TranslatedText
+                        stringId="medication.variableDose.label"
+                        fallback="Variable dose"
+                      />
+                    </BodyText>
                   }
-                }}
-                data-testid="medication-field-isVariableDose-5h8x"
-              />
-            </div>
+                  component={CheckField}
+                  onChange={(_, value) => {
+                    if (value) {
+                      setValues({ ...values, doseAmount: '' });
+                      setFieldError('doseAmount', null);
+                    }
+                  }}
+                  data-testid="medication-field-isVariableDose-5h8x"
+                />
+              </CheckboxBox>
+            </VariableDoseFieldWrapper>
             <Field
               name="doseAmount"
               label={
