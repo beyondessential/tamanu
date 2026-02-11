@@ -1,4 +1,5 @@
 import config from 'config';
+import { v4 as uuidv4 } from 'uuid';
 
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
@@ -230,6 +231,140 @@ describe('Medication', () => {
         const reloadedPrescription = await models.Prescription.findByPk(ongoingPrescription.id);
         expect(reloadedPrescription.repeats).toBe(3);
       });
+    });
+  });
+
+  describe('POST /api/medication/dispense', () => {
+    const createPharmacyOrderWithPrescription = async ({ patientId, repeats = 1 }) => {
+      const medication = await models.ReferenceData.create({
+        type: 'drug',
+        name: `DispenseMed-${Date.now()}`,
+        code: `disp-med-${Date.now()}`,
+      });
+      const encounter = await models.Encounter.create({
+        patientId,
+        encounterType: 'clinic',
+        startDate: getCurrentDateTimeString(),
+        endDate: getCurrentDateTimeString(),
+        reasonForEncounter: 'Dispense test',
+        examinerId: app.user.id,
+        locationId: location.id,
+        departmentId: department.id,
+      });
+      const prescription = await models.Prescription.create({
+        medicationId: medication.id,
+        prescriberId: app.user.id,
+        doseAmount: 1,
+        units: 'mg',
+        frequency: 'Immediately',
+        route: 'oral',
+        date: '2025-01-01',
+        startDate: getCurrentDateTimeString(),
+      });
+      await models.EncounterPrescription.create({
+        encounterId: encounter.id,
+        prescriptionId: prescription.id,
+      });
+      const pharmacyOrder = await models.PharmacyOrder.create({
+        orderingClinicianId: app.user.id,
+        encounterId: encounter.id,
+        isDischargePrescription: true,
+        date: getCurrentDateTimeString(),
+        facilityId,
+      });
+      const pharmacyOrderPrescription = await models.PharmacyOrderPrescription.create({
+        id: uuidv4(),
+        pharmacyOrderId: pharmacyOrder.id,
+        prescriptionId: prescription.id,
+        quantity: 10,
+        repeats,
+      });
+      return { pharmacyOrderPrescription, encounter, prescription };
+    };
+
+    it('should dispense medication successfully', async () => {
+      const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+        patientId: patient.id,
+      });
+
+      const result = await app.post('/api/medication/dispense').send({
+        dispensedByUserId: app.user.id,
+        facilityId,
+        items: [
+          {
+            pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+            quantity: 10,
+            instructions: 'Take with food',
+          },
+        ],
+      });
+
+      expect(result).toHaveSucceeded();
+      expect(result.body).toHaveLength(1);
+      expect(result.body[0].pharmacyOrderPrescriptionId).toBe(pharmacyOrderPrescription.id);
+    });
+
+    it('should only be able to be dispensed once', async () => {
+      const { pharmacyOrderPrescription } = await createPharmacyOrderWithPrescription({
+        patientId: patient.id,
+        repeats: 0,
+      });
+
+      const firstResult = await app.post('/api/medication/dispense').send({
+        dispensedByUserId: app.user.id,
+        facilityId,
+        items: [
+          {
+            pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+            quantity: 10,
+            instructions: 'Initial dispense',
+          },
+        ],
+      });
+      expect(firstResult).toHaveSucceeded();
+
+      const secondResult = await app.post('/api/medication/dispense').send({
+        dispensedByUserId: app.user.id,
+        facilityId,
+        items: [
+          {
+            pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+            quantity: 10,
+            instructions: 'Second dispense',
+          },
+        ],
+      });
+      expect(secondResult).toHaveRequestError();
+    });
+
+    it('should reject dispense when prescriptions are from different patients', async () => {
+      const otherPatient = await models.Patient.create(fake(models.Patient));
+      const { pharmacyOrderPrescription: pop1 } = await createPharmacyOrderWithPrescription({
+        patientId: patient.id,
+      });
+      const { pharmacyOrderPrescription: pop2 } = await createPharmacyOrderWithPrescription({
+        patientId: otherPatient.id,
+      });
+
+      const result = await app.post('/api/medication/dispense').send({
+        dispensedByUserId: app.user.id,
+        facilityId,
+        items: [
+          {
+            pharmacyOrderPrescriptionId: pop1.id,
+            quantity: 10,
+            instructions: 'Dispense 1',
+          },
+          {
+            pharmacyOrderPrescriptionId: pop2.id,
+            quantity: 10,
+            instructions: 'Dispense 2',
+          },
+        ],
+      });
+
+      expect(result).toHaveRequestError();
+      expect(result.body.error.message).toContain('same patient');
     });
   });
 
