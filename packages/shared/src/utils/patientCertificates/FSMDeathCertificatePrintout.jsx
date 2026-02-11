@@ -89,12 +89,10 @@ const styles = StyleSheet.create({
   },
   causeRow: {
     flexDirection: 'row',
-    borderBottom: '1 solid black',
     height: 36,
   },
   causeLabel: {
     width: 30,
-    borderRight: '1 solid black',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -102,10 +100,12 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 4,
     borderRight: '1 solid black',
+    borderBottom: '1 solid black',
   },
   causeInterval: {
     width: 150,
     padding: 4,
+    borderBottom: '1 solid black',
   },
 });
 
@@ -262,17 +262,17 @@ export const FSMDeathCertificatePrintout = ({
            {/* d */}
           <View style={styles.causeRow}>
             <View style={styles.causeLabel}><Text>d.</Text></View>
-            <View style={styles.causeContent}>
+            <View style={[styles.causeContent, { borderBottom: 0 }]}>
                <Text style={{ marginBottom: 4 }}>Due to, or as a consequence of:</Text>
                <Text>{getCauseText(patientData?.causes?.antecedent3)}</Text>
             </View>
-            <View style={[styles.causeInterval, { borderRight: 0 }]}>
+            <View style={[styles.causeInterval, { borderRight: 0, borderBottom: 0 }]}>
               <Text>{getCauseInterval(patientData?.causes?.antecedent3)}</Text>
             </View>
           </View>
 
           {/* PART II */}
-          <View style={[styles.row, { borderBottom: 0 }]}>
+          <View style={[styles.row, { borderTop: '1 solid black', borderBottom: 0 }]}>
             <View style={[styles.cell, { flex: 1, borderRight: '1 solid black' }]}>
                <Text bold style={styles.label}>PART II - Other significant conditions: Conditions contributing to death, not related to Part I (a):</Text>
                <Text style={styles.value}>
