@@ -5,7 +5,7 @@ import { Box } from '@material-ui/core';
 import { formatShortest, formatTime } from '@tamanu/utils/dateTime';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 
-import { TextInput, ConditionalTooltip } from '@tamanu/ui-components';
+import { TextInput, ConditionalTooltip, ThemedTooltip } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { OuterLabelFieldWrapper, CheckInput } from '../Field';
 import { Table } from '../Table';
@@ -260,11 +260,23 @@ const getColumns = (
     {
       key: COLUMN_KEYS.REPEATS,
       title: isOngoingMode ? (
-        <TranslatedText
-          stringId="pharmacyOrder.table.column.repeats"
-          fallback="Remaining"
-          data-testid="translatedtext-psdf"
-        />
+        <ThemedTooltip
+          title={
+            <TranslatedText
+              stringId="pharmacyOrder.table.column.repeats.tooltip"
+              fallback="Remaining prescriptions available to dispense"
+            />
+          }
+          $maxWidth="150px"
+        >
+          <span>
+            <TranslatedText
+              stringId="pharmacyOrder.table.column.repeats"
+              fallback="Remaining"
+              data-testid="translatedtext-psdf"
+            />
+          </span>
+        </ThemedTooltip>
       ) : (
         <TranslatedText
           stringId="pharmacyOrder.table.column.repeatsOnDischarge"
