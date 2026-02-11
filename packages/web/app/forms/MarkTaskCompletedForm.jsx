@@ -127,7 +127,7 @@ export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) =>
             />,
           )
           .max(
-            getCurrentDateTime(),
+            formatForDateTimeInput(getCurrentDateTime()),
             getTranslation(
               'general.validation.date.cannotInFuture',
               'Date cannot be in the future',

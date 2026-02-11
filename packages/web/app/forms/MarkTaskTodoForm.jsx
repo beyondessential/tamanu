@@ -3,13 +3,7 @@ import * as yup from 'yup';
 import { Divider } from '@material-ui/core';
 
 import { AutocompleteField, DateTimeField, Field, TranslatedText } from '../components';
-import {
-  TextField,
-  Form,
-  FormGrid,
-  FormSubmitCancelRow,
-  useDateTime,
-} from '@tamanu/ui-components';
+import { TextField, Form, FormGrid, FormSubmitCancelRow, useDateTime } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { useSuggester } from '../api';
 import { useMarkTaskTodo } from '../api/mutations/useTaskMutation';
@@ -17,8 +11,7 @@ import { useAuth } from '../contexts/Auth';
 import { useTranslation } from '../contexts/Translation';
 
 export const MarkTaskTodoForm = ({ onClose, refreshTaskTable, taskIds }) => {
-  const { formatForDateTimeInput, getCurrentDateTime } =
-    useDateTime();
+  const { formatForDateTimeInput, getCurrentDateTime } = useDateTime();
   const { getTranslation } = useTranslation();
   const practitionerSuggester = useSuggester('practitioner');
   const { mutate: markTaskTodo, isLoading } = useMarkTaskTodo();
@@ -127,7 +120,7 @@ export const MarkTaskTodoForm = ({ onClose, refreshTaskTable, taskIds }) => {
             />,
           )
           .max(
-            getCurrentDateTime(),
+            formatForDateTimeInput(getCurrentDateTime()),
             getTranslation(
               'general.validation.date.cannotInFuture',
               'Date cannot be in the future',
