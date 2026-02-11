@@ -1,6 +1,7 @@
 import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
+import { differenceInYears, differenceInMonths, differenceInDays, differenceInHours } from 'date-fns';
 import {
   MARITAL_STATUS_OPTIONS,
   SEX_OPTIONS,
@@ -133,15 +134,59 @@ const getLabelFromValue = (mapping, v) => {
   return entry ? entry.label : '';
 };
 
-// Accessor helpers (placeholder logic mostly)
+// Accessor helpers
 const getCauseText = (cause) => cause?.condition?.name || '';
-const getCauseInterval = (cause) => cause?.timeAfterOnset || ''; // Naive format
+const getCauseInterval = (cause) => cause?.timeAfterOnset || '';
+
+const getAgeAtDeath = (dateOfBirth, dateOfDeath) => {
+  if (!dateOfBirth || !dateOfDeath) return '';
+  return String(differenceInYears(new Date(dateOfDeath), new Date(dateOfBirth)));
+};
+
+const getUnder1Year = (dateOfBirth, dateOfDeath) => {
+  if (!dateOfBirth || !dateOfDeath) return '';
+  const dob = new Date(dateOfBirth);
+  const dod = new Date(dateOfDeath);
+  const years = differenceInYears(dod, dob);
+  if (years >= 1) return 'n/a';
+  const hours = differenceInHours(dod, dob);
+  if (hours < 24) return 'n/a';
+  const months = differenceInMonths(dod, dob);
+  const afterMonths = new Date(dob);
+  afterMonths.setMonth(afterMonths.getMonth() + months);
+  const days = differenceInDays(dod, afterMonths);
+  return `${months}m ${days}d`;
+};
+
+const getUnder1Day = (dateOfBirth, dateOfDeath) => {
+  if (!dateOfBirth || !dateOfDeath) return '';
+  const years = differenceInYears(new Date(dateOfDeath), new Date(dateOfBirth));
+  if (years >= 1) return 'N';
+  const hours = differenceInHours(new Date(dateOfDeath), new Date(dateOfBirth));
+  return hours < 24 ? 'Y' : 'N';
+};
+
+const getChildBearingAge = (sex, dateOfBirth, dateOfDeath) => {
+  if (!dateOfBirth || !dateOfDeath || sex !== 'female') return 'n/a';
+  const age = differenceInYears(new Date(dateOfDeath), new Date(dateOfBirth));
+  return (age >= 15 && age <= 44) ? 'Y' : 'n/a';
+};
+
+const getPregnancyStatus = (pregnancy) => {
+  if (pregnancy === 'yes' || (typeof pregnancy === 'object' && pregnancy !== null)) return 'Yes';
+  if (pregnancy === 'no') return 'No';
+  if (pregnancy === 'unknown') return 'Unknown';
+  return '';
+};
 
 export const FSMDeathCertificatePrintout = ({
   patientData,
   printedBy,
 }) => {
   const currentDateString = getCurrentDateString();
+  const additionalData = patientData?.additionalData;
+  const dob = patientData?.dateOfBirth;
+  const dod = patientData?.dateOfDeath;
 
   return (
     <Document>
@@ -162,15 +207,15 @@ export const FSMDeathCertificatePrintout = ({
             <Cell flex={1} label="Middle name:" value={patientData?.middleName} />
             <Cell flex={1} label="Last name:" value={patientData?.lastName} />
             <Cell width={60} label="Sex:" value={getLabelFromValue(SEX_OPTIONS, patientData?.sex)} />
-            <Cell width={140} lastCell label="Date of death:" value={patientData?.dateOfDeath ? getDisplayDate(patientData?.dateOfDeath) : ''} />
+            <Cell width={140} lastCell label="Date of death:" value={dod ? getDisplayDate(dod) : ''} />
           </View>
 
           {/* Row 2: Age Details */}
           <View style={styles.row}>
-            <Cell flex={1} label="Age:" value={patientData?.age} />
-            <Cell flex={1} label="Under 1 year:" />
-            <Cell flex={1} label="Under 1 day:" />
-            <Cell flex={1} label="Date of birth:" value={patientData?.dateOfBirth ? getDisplayDate(patientData?.dateOfBirth) : ''} />
+            <Cell flex={1} label="Age:" value={getAgeAtDeath(dob, dod)} />
+            <Cell flex={1} label="Under 1 year:" value={getUnder1Year(dob, dod)} />
+            <Cell flex={1} label="Under 1 day:" value={getUnder1Day(dob, dod)} />
+            <Cell flex={1} label="Date of birth:" value={dob ? getDisplayDate(dob) : ''} />
             <Cell width={250} lastCell label="FSM state of death:" />
           </View>
 
@@ -183,34 +228,34 @@ export const FSMDeathCertificatePrintout = ({
 
           {/* Row 4: Origin & Status */}
           <View style={styles.row}>
-            <Cell flex={1} label="State & island of birth or country:" value={patientData?.placeOfBirth} />
-            <Cell flex={1} label="Country of citizenship:" value={patientData?.nationality?.name} />
-            <Cell width={130} label="Marital status:" value={getLabelFromValue(MARITAL_STATUS_OPTIONS, patientData?.maritalStatus)} />
+            <Cell flex={1} label="State & island of birth or country:" value={additionalData?.placeOfBirth} />
+            <Cell flex={1} label="Country of citizenship:" value={additionalData?.nationality?.name} />
+            <Cell width={130} label="Marital status:" value={getLabelFromValue(MARITAL_STATUS_OPTIONS, additionalData?.maritalStatus)} />
             <Cell width={210} lastCell label="Surviving spouse (marital):" />
           </View>
 
           {/* Row 5: Employment */}
           <View style={styles.row}>
             <Cell width={190} label="Social security no.:" />
-            <Cell flex={1} label="Usual occupation:" value={patientData?.occupation?.name} />
+            <Cell flex={1} label="Usual occupation:" value={additionalData?.occupation?.name} />
             <Cell flex={1} lastCell label="Kind of Business/Ind.:" />
           </View>
 
           {/* Row 6: Residence */}
           <View style={styles.row}>
-            <Cell width={190} label="Residence (FSM state):" value={patientData?.address?.state} />
-            <Cell flex={1} label="Atoll or Island group:" />
-            <Cell flex={1} lastCell label="Village or Hamlet, Municipality, Island:" value={patientData?.address?.text} />
+            <Cell width={190} label="Residence (FSM state):" value={additionalData?.division?.name} />
+            <Cell flex={1} label="Atoll or Island group:" value={additionalData?.subdivision?.name} />
+            <Cell flex={1} lastCell label="Village or Hamlet, Municipality, Island:" value={patientData?.village?.name} />
           </View>
 
           {/* Row 7: Parents */}
           <View style={styles.row}>
-            <Cell flex={1} label="Father first name:" value={patientData?.father?.firstName} />
-            <Cell flex={1} label="Father middle name:" value={patientData?.father?.middleName} />
-            <Cell flex={1} label="Father last name:" value={patientData?.father?.lastName} />
-            <Cell flex={1} label="Mother first name:" value={patientData?.mother?.firstName} />
-            <Cell flex={1} label="Mother middle name:" value={patientData?.mother?.middleName} />
-            <Cell width={140} lastCell label="Mother last name:" value={patientData?.mother?.lastName} />
+            <Cell flex={1} label="Father first name:" value={additionalData?.father?.firstName} />
+            <Cell flex={1} label="Father middle name:" value={additionalData?.father?.middleName} />
+            <Cell flex={1} label="Father last name:" value={additionalData?.father?.lastName} />
+            <Cell flex={1} label="Mother first name:" value={additionalData?.mother?.firstName} />
+            <Cell flex={1} label="Mother middle name:" value={additionalData?.mother?.middleName} />
+            <Cell width={140} lastCell label="Mother last name:" value={additionalData?.mother?.lastName} />
           </View>
 
           {/* Row 8: Informant */}
@@ -315,8 +360,8 @@ export const FSMDeathCertificatePrintout = ({
         <View style={styles.table}>
           {/* Row 1: Maternal Details */}
           <View style={styles.row}>
-            <Cell flex={1} label="Child Bearing Age (15-44):" />
-            <Cell flex={1} label="Now pregnant:" />
+            <Cell flex={1} label="Child Bearing Age (15-44):" value={getChildBearingAge(patientData?.sex, dob, dod)} />
+            <Cell flex={1} label="Now pregnant:" value={getPregnancyStatus(patientData?.pregnancy)} />
             <Cell flex={1} label="Number of weeks:" />
             <Cell width={220} label="Death date within 42 days of delivery or abortion" />
             <Cell width={140} lastCell label="Date of Delivery/Abortion:" />
@@ -329,7 +374,7 @@ export const FSMDeathCertificatePrintout = ({
              </View>
           </View>
           <View style={styles.row}>
-            <Cell flex={1} label="Name of physician:" />
+            <Cell flex={1} label="Name of physician:" value={patientData?.clinician?.displayName} />
             <Cell flex={1} label="Signature:" />
             <Cell width={140} lastCell label="Date signed:" />
           </View>
@@ -348,13 +393,13 @@ export const FSMDeathCertificatePrintout = ({
 
           {/* Injury Details */}
           <View style={styles.row}>
-            <Cell flex={1} label="Accident, suicide, homicide, undetermined (specify):" />
-            <Cell width={150} label="Date of injury:" />
-            <Cell flex={1} lastCell label="How injury occurred:" />
+            <Cell flex={1} label="Accident, suicide, homicide, undetermined (specify):" value={patientData?.manner} />
+            <Cell width={150} label="Date of injury:" value={patientData?.causes?.external?.date ? getDisplayDate(patientData?.causes?.external?.date) : ''} />
+            <Cell flex={1} lastCell label="How injury occurred:" value={patientData?.causes?.external?.notes} />
           </View>
           <View style={styles.row}>
              <Cell width={100} label="Injury at work:" />
-             <Cell flex={1} label="Place of injury:" />
+             <Cell flex={1} label="Place of injury:" value={patientData?.causes?.external?.location} />
              <Cell flex={1} lastCell label="Location:" />
           </View>
 
