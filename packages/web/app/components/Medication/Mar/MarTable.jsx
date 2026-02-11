@@ -7,7 +7,7 @@ import {
   findAdministrationTimeSlotFromIdealTime,
 } from '@tamanu/shared/utils/medication';
 import { toDateString } from '@tamanu/utils/dateTime';
-import { TimeDisplay, useDateTimeFormat } from '@tamanu/ui-components';
+import { TimeDisplay, useDateTime } from '@tamanu/ui-components';
 
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../..';
@@ -174,7 +174,7 @@ const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate, facilit
 
 export const MarTable = ({ selectedDate }) => {
   const { encounter } = useEncounter();
-  const { getFacilityNow } = useDateTimeFormat();
+  const { getFacilityNow } = useDateTime();
   const facilityNow = new Date(getFacilityNow());
   const scheduledSectionRef = useRef(null);
   const scheduledHeaderRef = useRef(null);

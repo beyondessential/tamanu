@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight } from '@material-ui/icons';
 import {
   ButtonWithPermissionCheck,
   DateDisplay as DateDisplayComponent,
-  useDateTimeFormat,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { Heading3, TranslatedText } from '../..';
@@ -51,7 +51,7 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
   const [createMedicationModalOpen, setCreateMedicationModalOpen] = useState(false);
   const { encounter } = useEncounter();
   const { ability } = useAuth();
-  const { getFacilityNow, toFacilityDateTime } = useDateTimeFormat();
+  const { getFacilityNow, toFacilityDateTime } = useDateTime();
   const canCreatePrescription = ability.can('create', 'Medication');
 
   const toFacilityDate = dateStr => {

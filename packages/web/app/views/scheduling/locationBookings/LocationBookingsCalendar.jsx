@@ -15,7 +15,7 @@ import { LocationBookingsCalendarHeader } from './LocationBookingsCalendarHeader
 import { partitionAppointmentsByLocation } from './utils';
 import { useSendAppointmentEmail } from '../../../api/mutations';
 import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
-import { notifyError, notifySuccess, useDateTimeFormat } from '@tamanu/ui-components';
+import { notifyError, notifySuccess, useDateTime } from '@tamanu/ui-components';
 
 const getDisplayableDates = date => {
   const start = startOfWeek(startOfMonth(date), { weekStartsOn: 1 });
@@ -87,7 +87,7 @@ export const LocationBookingsCalendar = ({
 }) => {
   const [emailModalState, setEmailModalState] = useState(null);
   const { monthOf, setMonthOf } = useLocationBookingsContext();
-  const { getDayBoundaries } = useDateTimeFormat();
+  const { getDayBoundaries } = useDateTime();
 
   const displayedDates = getDisplayableDates(monthOf);
   const firstDayBoundaries = getDayBoundaries(toDateString(displayedDates[0]));

@@ -14,7 +14,7 @@ import {
   minValidDate,
   toDateTimeString,
 } from '@tamanu/utils/dateTime';
-import { useDateTimeFormat } from '@tamanu/ui-components';
+import { useDateTime } from '@tamanu/ui-components';
 
 import { useLocationAssignmentsQuery, useLocationBookingsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';
@@ -95,7 +95,7 @@ export const TimeSlotPicker = ({
     errors,
     isSubmitting,
   } = useFormikContext();
-  const { getDayBoundaries, toFacilityDateTime } = useDateTimeFormat();
+  const { toFacilityDateTime, getDayBoundaries } = useDateTime();
 
   const {
     slots: timeSlots,
@@ -119,7 +119,7 @@ export const TimeSlotPicker = ({
   );
   const [hoverRange, setHoverRange] = useState(null);
 
-  const queryBoundaries = useMemo(() => getDayBoundaries(date), [date, getDayBoundaries]);
+  const queryBoundaries = useMemo(() => getDayBoundaries(date), [date]);
 
   const locationBookingsQuery = useLocationBookingsQuery(
     {

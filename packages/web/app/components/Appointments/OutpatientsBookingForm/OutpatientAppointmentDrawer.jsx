@@ -27,7 +27,7 @@ import { notifyError, notifySuccess } from '../../../utils';
 import { ConfirmModal } from '../../ConfirmModal';
 import { Drawer } from '../../Drawer';
 import { AutocompleteField, CheckField, DynamicSelectField, Field, SwitchField } from '../../Field';
-import { Form, FormGrid, FormSubmitCancelRow, useDateTimeFormat } from '@tamanu/ui-components';
+import { Form, FormGrid, FormSubmitCancelRow, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
@@ -161,7 +161,7 @@ const ErrorMessage = ({ isEdit = false, error }) => {
 
 export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {}, modifyMode }) => {
   const { getTranslation } = useTranslation();
-  const { toStoredDateTime, toFacilityDateTime } = useDateTimeFormat();
+  const { toStoredDateTime, toFacilityDateTime } = useDateTime();
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
   const appointmentTypeSuggester = useSuggester('appointmentType');

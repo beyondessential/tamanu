@@ -2,7 +2,7 @@ import { isEqual } from 'date-fns';
 import React from 'react';
 
 import { toDateString, trimToDate } from '@tamanu/utils/dateTime';
-import { useDateTimeFormat } from '@tamanu/ui-components';
+import { useDateTime } from '@tamanu/ui-components';
 
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
@@ -22,7 +22,7 @@ export const BookingsCell = ({
 }) => {
   const { ability } = useAuth();
   const { selectedCell, updateSelectedCell } = useLocationBookingsContext();
-  const { toFacilityDateTime } = useDateTimeFormat();
+  const { toFacilityDateTime } = useDateTime();
   const isSelected = selectedCell.locationId === locationId && isEqual(date, selectedCell.date);
   const canCreateBooking = ability.can('create', 'Appointment');
 
@@ -81,7 +81,7 @@ export const BookingsRow = ({
   openCancelModal,
   onEmailBooking,
 }) => {
-  const { toFacilityDateTime } = useDateTimeFormat();
+  const { toFacilityDateTime } = useDateTime();
   const { locationGroup } = location;
   const appointmentsByDate = partitionAppointmentsByDate(appointments, toFacilityDateTime);
 

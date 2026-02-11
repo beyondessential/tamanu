@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { set } from 'date-fns';
-import { useDateTimeFormat } from '@tamanu/ui-components';
+import { useDateTime } from '@tamanu/ui-components';
 
 import { MarHeader } from '../../../components/Medication/Mar/MarHeader';
 import { MarTable } from '../../../components/Medication/Mar/MarTable';
@@ -15,7 +15,7 @@ const MarContainer = styled.div`
 
 const useFacilityDate = () => {
   const { encounter } = useEncounter();
-  const { getFacilityNow, toFacilityDateTime } = useDateTimeFormat();
+  const { getFacilityNow, toFacilityDateTime } = useDateTime();
   const getFacilityNowDate = () => new Date(getFacilityNow());
   const getFacilityNowRef = useRef(getFacilityNowDate);
   getFacilityNowRef.current = getFacilityNowDate;

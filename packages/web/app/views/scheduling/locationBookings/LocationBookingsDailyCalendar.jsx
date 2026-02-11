@@ -22,7 +22,7 @@ import { cloneDeep } from 'lodash';
 import { useDrop, useDrag } from 'react-dnd';
 
 import { toDateTimeString, toDateString } from '@tamanu/utils/dateTime';
-import { TimeDisplay, useDateTimeFormat, notifyError, notifySuccess } from '@tamanu/ui-components';
+import { TimeDisplay, useDateTime, notifyError, notifySuccess } from '@tamanu/ui-components';
 
 import {
   useLocationBookingsQuery,
@@ -416,7 +416,7 @@ export const LocationBookingsDailyCalendar = ({
   ...props
 }) => {
   const { ability } = useAuth();
-  const { getDayBoundaries, toFacilityDateTime } = useDateTimeFormat();
+  const { getDayBoundaries, toFacilityDateTime } = useDateTime();
   const {
     filters: { bookingTypeId, clinicianId, patientNameOrId, locationGroupIds },
     selectedCell,

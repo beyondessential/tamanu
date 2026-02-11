@@ -3,7 +3,7 @@ import { useFormikContext } from 'formik';
 import React from 'react';
 import styled from 'styled-components';
 
-import { useDateTimeFormat } from '@tamanu/ui-components';
+import { useDateTime } from '@tamanu/ui-components';
 import { trimToDate } from '@tamanu/utils/dateTime';
 
 import { useLocationBookingsQuery } from '../../../../api/queries';
@@ -42,7 +42,7 @@ const DateTimePicker = ({
   timePickerName,
 }) => {
   const { values, setFieldValue } = useFormikContext();
-  const { getDayBoundaries } = useDateTimeFormat();
+  const { getDayBoundaries } = useDateTime();
   const dateFieldValue = values[datePickerName];
   const isValidDate = isValid(parseISO(dateFieldValue));
 
