@@ -64,7 +64,7 @@ import { FrequencySearchField } from '../components/Medication/FrequencySearchIn
 import { useAuth } from '../contexts/Auth';
 import { useSettings } from '../contexts/Settings';
 import { ChevronIcon } from '../components/Icons/ChevronIcon';
-import { ConditionalTooltip, ThemedTooltip } from '../components/Tooltip';
+import { ConditionalTooltip } from '../components/Tooltip';
 import { capitalize } from 'lodash';
 import { preventInvalidNumber, preventInvalidRepeatsInput, validateDecimalPlaces } from '../utils/utils';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
@@ -137,18 +137,24 @@ const validationSchema = yup.object().shape({
   patientWeight: yup.number().positive(),
 });
 
+const FullWidthFieldWrapper = styled.div`
+  position: relative;
+  grid-column: 1 / -1;
+  width: 100%;
+`;
+
 const CheckboxGroup = styled.div`
   position: relative;
+  width: 100%;
+  grid-column: 1 / -1;
   .MuiTypography-body1 {
     font-size: 14px;
   }
-  grid-column: 1 / -1;
   display: flex;
   flex-direction: column;
   gap: 20px;
   padding-bottom: 1.2rem;
   border-bottom: 1px solid ${Colors.outline};
-  > div:nth-of-type(1),
   > div:nth-of-type(2) {
     max-width: fit-content;
   }
@@ -233,12 +239,28 @@ const StyledConditionalTooltip = styled(ConditionalTooltip)`
   }
 `;
 
-const StyledOngoingTooltip = styled(ThemedTooltip)`
-  .MuiTooltip-tooltip {
-    font-weight: 400;
-    width: 180px;
-    padding: 8px 16px;
+const CheckboxBox = styled.div`
+  padding: 10px 12px;
+  background-color: ${Colors.white};
+  border-radius: 3px;
+  border: 1px solid ${({ $checked }) => ($checked ? Colors.primary : Colors.outline)};
+  .MuiTypography-body1 {
+    font-size: 14px;
   }
+`;
+
+const CheckboxRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  align-items: stretch;
+  border: 1px solid ${Colors.outline};
+  padding: 12px 16px;
+  border-radius: 3px
+`;
+
+const CheckboxRowItem = styled.div`
+  flex: 1;
 `;
 
 const StyledTimePicker = styled(TimePicker)`
@@ -832,7 +854,7 @@ export const MedicationForm = ({
                     </AllergiesList>
                   </AllergiesWarningBox>
                 )}
-                <div style={{ gridColumn: '1 / -1' }}>
+                <FullWidthFieldWrapper>
                   <Field
                     name="medicationId"
                     label={
@@ -864,7 +886,7 @@ export const MedicationForm = ({
                       />
                     </SmallBodyText>
                   )}
-                </div>
+                </FullWidthFieldWrapper>
               </>
             ) : (
               <MedicationBox>
@@ -877,54 +899,54 @@ export const MedicationForm = ({
               </MedicationBox>
             )}
             <CheckboxGroup>
-              {isOngoingPrescription && (
-                <StyledOngoingTooltip
-                  title={
-                    <TranslatedText
-                      stringId="medication.isOngoing.tooltip"
-                      fallback="Medications recorded outside of an encounter must be recorded as ongoing"
+              <CheckboxRow>
+                <CheckboxRowItem>
+                  <ConditionalTooltip
+                    visible={isOngoingPrescription}
+                    $maxWidth="220px"
+                    title={
+                      <TranslatedText
+                        stringId="medication.isOngoing.tooltip"
+                        fallback="Medications recorded outside of an encounter must be recorded as ongoing"
+                      />
+                    }
+                  >
+                    <CheckboxBox $checked={values.isOngoing || isOngoingPrescription} $fill>
+                      <Field
+                        name="isOngoing"
+                        label={
+                          <TranslatedText
+                            stringId="medication.isOngoing.label"
+                            fallback="Ongoing medication"
+                          />
+                        }
+                        component={CheckField}
+                        style={{ ...(isOngoingPrescription && { pointerEvents: 'none' }) }}
+                        {...(isOngoingPrescription && { value: true })}
+                        onChange={(_, value) => {
+                          if (value) {
+                            setValues({ ...values, durationValue: '', durationUnit: '' });
+                          }
+                        }}
+                        checkedIcon={<StyledIcon className="far fa-check-square" $color={Colors.midText} />}
+                        data-testid="medication-field-isOngoing-7j2p"
+                      />
+                    </CheckboxBox>
+                  </ConditionalTooltip>
+                </CheckboxRowItem>
+                <CheckboxRowItem>
+                  <CheckboxBox $checked={values.isPrn} $fill>
+                    <Field
+                      name="isPrn"
+                      label={
+                        <TranslatedText stringId="medication.isPrn.label" fallback="PRN medication" />
+                      }
+                      component={CheckField}
+                      data-testid="medication-field-isPrn-9n4q"
                     />
-                  }
-                >
-                  <Box
-                    component={'span'}
-                    width={32}
-                    height={16}
-                    position={'absolute'}
-                    zIndex={1}
-                    top={2.5}
-                    left={-9}
-                  />
-                </StyledOngoingTooltip>
-              )}
-
-              <Field
-                name="isOngoing"
-                label={
-                  <TranslatedText
-                    stringId="medication.isOngoing.label"
-                    fallback="Ongoing medication"
-                  />
-                }
-                component={CheckField}
-                style={{ ...(isOngoingPrescription && { pointerEvents: 'none' }) }}
-                {...(isOngoingPrescription && { value: true })}
-                onChange={(_, value) => {
-                  if (value) {
-                    setValues({ ...values, durationValue: '', durationUnit: '' });
-                  }
-                }}
-                checkedIcon={<StyledIcon className="far fa-check-square" $color={Colors.midText} />}
-                data-testid="medication-field-isOngoing-7j2p"
-              />
-              <Field
-                name="isPrn"
-                label={
-                  <TranslatedText stringId="medication.isPrn.label" fallback="PRN medication" />
-                }
-                component={CheckField}
-                data-testid="medication-field-isPrn-9n4q"
-              />
+                  </CheckboxBox>
+                </CheckboxRowItem>
+              </CheckboxRow>
               {!isOngoingPrescription && !!drugStockStatus && (
                 <StockLevelContainer>
                   <Box display="flex" flexShrink={0}>
