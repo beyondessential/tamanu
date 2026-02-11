@@ -234,7 +234,7 @@ export const ReportGeneratorForm = () => {
   }, [api]);
 
   const submitRequestReport = async formValues => {
-    const { reportId, emails, ...filterValues } = formValues;
+    const { reportId, emails, timezone, ...filterValues } = formValues;
 
     const parameters = Object.fromEntries(
       Object.entries(filterValues).map(([key, value]) => {
@@ -263,6 +263,7 @@ export const ReportGeneratorForm = () => {
           ['Date Generated:', format(new Date(), 'ddMMyyyy')],
           ['User:', currentUser.email],
           ['Filters:', filterString],
+          ['Timezone:', timezone],
         ];
 
         setDataReadyForSaving(
