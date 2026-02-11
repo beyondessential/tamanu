@@ -274,8 +274,12 @@ const toISO9075DateTime = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) 
   return `${yyyy}-${pad(month)}-${pad(day)} ${pad(hour)}:${pad(minute)}:${pad(second)}`;
 };
 
-const toDateTimeLocalFormat = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) =>
-  toISO9075DateTime(dt).replace(' ', 'T');
+const toDateTimeLocalFormat = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) => {
+  const { year, month, day, hour, minute, second } = dt;
+  const yyyy = String(year).padStart(4, '0');
+  const base = `${yyyy}-${pad(month)}-${pad(day)}T${pad(hour)}:${pad(minute)}`;
+  return second !== 0 ? `${base}:${pad(second)}` : base;
+};
 
 const parseDateTimeString = (date: string, countryTimeZone?: string): Temporal.PlainDateTime => {
   const normalized = date.replace(' ', 'T');
@@ -289,6 +293,26 @@ const parseDateTimeString = (date: string, countryTimeZone?: string): Temporal.P
 
 const getDisplayTimezone = (countryTimeZone?: string, facilityTimeZone?: string | null) =>
   facilityTimeZone ?? countryTimeZone;
+
+const isTimezoneError = (error: unknown): boolean =>
+  error instanceof RangeError && /time\s*zone/i.test(String(error));
+
+const logDateError = (
+  fnName: string,
+  error: unknown,
+  value: unknown,
+  countryTimeZone?: string,
+  facilityTimeZone?: string | null,
+) => {
+  if (isTimezoneError(error)) {
+    console.error(
+      `[${fnName}] Invalid timezone configuration — countryTimeZone: ${JSON.stringify(countryTimeZone)}, facilityTimeZone: ${JSON.stringify(facilityTimeZone)}. Error:`,
+      error,
+    );
+  } else {
+    console.warn(`[${fnName}] Failed to process date value ${JSON.stringify(value)}:`, error);
+  }
+};
 
 export const intlFormatDate = (
   date: string | Date | null | undefined,
@@ -326,7 +350,8 @@ export const intlFormatDate = (
     }
 
     return plain.toLocaleString(locale, formatOptions);
-  } catch {
+  } catch (error) {
+    logDateError('intlFormatDate', error, date, countryTimeZone, facilityTimeZone);
     return fallback;
   }
 };
@@ -461,13 +486,14 @@ export const toFacilityDateTime = (
       return `${value}T00:00:00`;
     }
 
-    const plain = parseDateTimeString(value);
+    const plain = parseDateTimeString(value, countryTimeZone);
     if (countryTimeZone && displayTz) {
       return toDateTimeLocalFormat(plain.toZonedDateTime(countryTimeZone).withTimeZone(displayTz));
     }
 
     return toDateTimeLocalFormat(plain);
-  } catch {
+  } catch (error) {
+    logDateError('formatForDateTimeInput', error, value, countryTimeZone, facilityTimeZone);
     return null;
   }
 };
@@ -490,14 +516,21 @@ export const toStoredDateTime = (
       return toISO9075DateTime(instant.toZonedDateTimeISO(tz));
     }
 
-    const plain = parseDateTimeString(inputValue);
+    const plain = parseDateTimeString(inputValue, countryTimeZone);
 
     if (!countryTimeZone) {
       return toISO9075DateTime(plain);
     }
     const displayTz = facilityTimeZone ?? countryTimeZone;
     return toISO9075DateTime(plain.toZonedDateTime(displayTz).withTimeZone(countryTimeZone));
-  } catch {
+  } catch (error) {
+    logDateError(
+      'toDateTimeStringForPersistence',
+      error,
+      inputValue,
+      countryTimeZone,
+      facilityTimeZone,
+    );
     return null;
   }
 };

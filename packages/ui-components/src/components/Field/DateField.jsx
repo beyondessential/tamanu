@@ -180,11 +180,12 @@ export const DateInput = ({
     }
     if (keepIncorrectValue) return;
 
+    const inputValue = e.target.value;
     const outOfBounds = shouldUseTimezone
-      ? (normalizedMax && currentText > normalizedMax) ||
-        (normalizedMin && currentText < normalizedMin)
-      : (max && isAfter(parse(currentText, format, new Date()), parse(max, format, new Date()))) ||
-        (min && isBefore(parse(currentText, format, new Date()), parse(min, format, new Date())));
+      ? (normalizedMax && inputValue > normalizedMax) ||
+        (normalizedMin && inputValue < normalizedMin)
+      : (max && isAfter(parse(inputValue, format, new Date()), parse(max, format, new Date()))) ||
+        (min && isBefore(parse(inputValue, format, new Date()), parse(min, format, new Date())));
 
     if (outOfBounds) clearValue();
   };
