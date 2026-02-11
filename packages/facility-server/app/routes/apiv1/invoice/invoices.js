@@ -13,7 +13,7 @@ import { Op } from 'sequelize';
 import { getInvoiceItemPrice } from '@tamanu/shared/utils';
 import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
 import { invoiceItemsRoute } from './invoiceItems';
-import { getCurrentCountryTimeZoneDateTimeString } from '@tamanu/shared/utils/countryDateTime';
+import { getCurrentGlobalTimeZoneDateTimeString } from '@tamanu/shared/utils/globalDateTime';
 import { patientPaymentRoute } from './patientPayment';
 import { insurancePlansRoute } from './insurancePlans';
 
@@ -264,7 +264,7 @@ invoiceRoute.put(
             ...data.discount,
             invoiceId,
             appliedByUserId: req.user.id,
-            appliedTime: getCurrentCountryTimeZoneDateTimeString(),
+            appliedTime: getCurrentGlobalTimeZoneDateTimeString(),
           },
           { transaction },
         );

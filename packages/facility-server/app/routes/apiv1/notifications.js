@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { NotFoundError } from '@tamanu/errors';
 import { NOTIFICATION_STATUSES } from '@tamanu/constants';
 import { Op, Sequelize } from 'sequelize';
-import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
+import { toGlobalDateTimeString } from '@tamanu/shared/utils/globalDateTime';
 import { sub } from 'date-fns';
 
 export const notifications = express.Router();
@@ -23,7 +23,7 @@ notifications.get(
         userId: user.id,
         status: NOTIFICATION_STATUSES.READ,
         createdTime: {
-          [Op.gte]: toCountryDateTimeString(
+          [Op.gte]: toGlobalDateTimeString(
             sub(new Date(), { hours: recentNotificationsTimeFrame }),
           ),
         },

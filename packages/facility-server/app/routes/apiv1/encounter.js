@@ -4,7 +4,7 @@ import { subject } from '@casl/ability';
 import { NotFoundError, InvalidParameterError, InvalidOperationError } from '@tamanu/errors';
 import { getCurrentDateTimeString, getDayBoundaries } from '@tamanu/utils/dateTime';
 import config from 'config';
-import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
+import { toGlobalDateTimeString } from '@tamanu/shared/utils/globalDateTime';
 import {
   LAB_REQUEST_STATUSES,
   DOCUMENT_SIZE_LIMIT,
@@ -805,7 +805,7 @@ encounterRelations.get(
         encounterId,
         status: { [Op.in]: statuses },
         dueTime: {
-          [Op.lte]: toCountryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
+          [Op.lte]: toGlobalDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
         },
         taskType: {
           [Op.notIn]: DASHBOARD_ONLY_TASK_TYPES,
