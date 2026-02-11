@@ -40,6 +40,10 @@ const styles = StyleSheet.create({
     marginBottom: 2,
     color: '#333',
   },
+  certificateLabel: {
+    fontSize: 9,
+    color: '#333',
+  },
   value: {
     fontSize: 9,
   },
@@ -307,69 +311,68 @@ export const FSMDeathCertificatePrintout = ({
           </View>
         </View>
 
-         <View style={styles.table}>
+        <View style={styles.table}>
           {/* Row 1: Maternal Details */}
           <View style={styles.row}>
             <Cell flex={1} label="Child Bearing Age (15-44):" />
             <Cell flex={1} label="Now pregnant:" />
             <Cell flex={1} label="Number of weeks:" />
-            <Cell flex={1.5} label="Death date within 42 days of delivery or abortion" />
-            <Cell flex={1} lastCell label="Date of Delivery/Abortion:" />
+            <Cell width={220} label="Death date within 42 days of delivery or abortion" />
+            <Cell width={140} lastCell label="Date of Delivery/Abortion:" />
           </View>
 
           {/* Physician Cert 1 */}
           <View style={styles.row}>
-             <View style={[styles.cell, { flex: 1, borderRight: 0 }]}>
-               <Text bold style={styles.label}>I certify that I attended the deceased and that death occurred on the date and at the time my knowledge from the causes shown</Text>
+             <View style={{ flex: 1, padding: 4, borderRight: 0 }}>
+               <Text bold style={styles.certificateLabel}>I certify that I attended the deceased and that death occurred on the date and at the time my knowledge from the causes shown</Text>
              </View>
           </View>
           <View style={styles.row}>
-            <Cell flex={2} label="Name of physician:" />
-            <Cell flex={2} label="Signature:" />
-            <Cell flex={1} lastCell label="Date signed:" />
+            <Cell flex={1} label="Name of physician:" />
+            <Cell flex={1} label="Signature:" />
+            <Cell width={140} lastCell label="Date signed:" />
           </View>
 
            {/* Review Cert */}
           <View style={styles.row}>
-             <View style={[styles.cell, { flex: 1, borderRight: 0 }]}>
-               <Text bold style={styles.label}>Official report and findings of investigation where applicable were reviewed by:</Text>
+             <View style={{ flex: 1, padding: 4, borderRight: 0 }}>
+               <Text bold style={styles.certificateLabel}>Official report and findings of investigation where applicable were reviewed by:</Text>
              </View>
           </View>
           <View style={styles.row}>
-            <Cell flex={2} label="Name of physician:" />
-            <Cell flex={2} label="Signature:" />
-            <Cell flex={1} lastCell label="Date signed:" />
+            <Cell flex={1} label="Name of physician:" />
+            <Cell flex={1} label="Signature:" />
+            <Cell width={140} lastCell label="Date signed:" />
           </View>
 
           {/* Injury Details */}
           <View style={styles.row}>
-            <Cell flex={1.5} label="Accident, suicide, homicide, undetermined (specify):" />
-            <Cell flex={1} label="Date of injury:" />
-            <Cell flex={2} lastCell label="How injury occurred:" />
+            <Cell flex={1} label="Accident, suicide, homicide, undetermined (specify):" />
+            <Cell width={150} label="Date of injury:" />
+            <Cell flex={1} lastCell label="How injury occurred:" />
           </View>
           <View style={styles.row}>
-             <Cell flex={1} label="Injury at work:" />
-             <Cell flex={2} label="Place of injury:" />
-             <Cell flex={1.5} lastCell label="Location:" />
+             <Cell width={100} label="Injury at work:" />
+             <Cell flex={1} label="Place of injury:" />
+             <Cell flex={1} lastCell label="Location:" />
           </View>
 
           {/* Administrative Cert */}
           <View style={styles.row}>
-             <View style={[styles.cell, { flex: 1, borderRight: 0 }]}>
-               <Text bold style={styles.label}>I certify that I have reviewed this Certificate for completeness and accuracy</Text>
+             <View style={{ flex: 1, padding: 4, borderRight: 0 }}>
+               <Text bold style={styles.certificateLabel}>I certify that I have reviewed this Certificate for completeness and accuracy</Text>
              </View>
           </View>
           <View style={styles.row}>
-            <Cell flex={2} label="Name of SD/HS or Designee:" />
-            <Cell flex={2} label="Signature:" />
-            <Cell flex={1} lastCell label="Date signed:" />
+            <Cell flex={1} label="Name of SD/HS or Designee:" />
+            <Cell flex={1} label="Signature:" />
+            <Cell width={140} lastCell label="Date signed:" />
           </View>
           <View style={[styles.row, { borderBottom: 0 }]}>
-            <Cell flex={2} label="Name of clerk of courts:" />
-            <Cell flex={2} label="Signature:" />
-            <Cell flex={1} lastCell label="Date signed:" />
+            <Cell flex={1} label="Name of clerk of courts:" />
+            <Cell flex={1} label="Signature:" />
+            <Cell width={140} lastCell label="Date signed:" />
           </View>
-
         </View>
 
         {/* Footer */}
