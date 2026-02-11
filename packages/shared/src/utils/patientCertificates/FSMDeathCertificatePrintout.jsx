@@ -51,8 +51,6 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#0000001A',
-    borderBottom: '1 solid black',
     padding: 5,
   },
   headerTitle: {
@@ -71,7 +69,6 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   partHeader: {
-    backgroundColor: '#0000001A',
     padding: 4,
     borderBottom: '1 solid black',
     flexDirection: 'row',
@@ -147,15 +144,15 @@ export const FSMDeathCertificatePrintout = ({
     <Document>
       {/* Page 1 */}
       <Page size="A4" orientation="landscape" style={styles.page}>
-        <View style={styles.table}>
-          {/* Header */}
-          <View style={styles.headerRow}>
-             <View style={styles.titleBox}>
-              <Text bold style={styles.headerTitle}>DEATH CERTIFICATE</Text>
-              <Text bold style={styles.headerSubtitle}>FEDERATED STATES OF MICRONESIA</Text>
-            </View>
+        {/* Header */}
+        <View style={styles.headerRow}>
+           <View style={styles.titleBox}>
+            <Text bold style={styles.headerTitle}>DEATH CERTIFICATE</Text>
+            <Text bold style={styles.headerSubtitle}>FEDERATED STATES OF MICRONESIA</Text>
           </View>
+        </View>
 
+        <View style={styles.table}>
           {/* Row 1: Personal Identification */}
           <View style={styles.row}>
             <Cell flex={1} label="First name:" value={patientData?.firstName} />
@@ -300,15 +297,15 @@ export const FSMDeathCertificatePrintout = ({
 
       {/* Page 2 */}
       <Page size="A4" orientation="landscape" style={styles.page}>
-         <View style={styles.table}>
-          {/* Header */}
-          <View style={styles.headerRow}>
-             <View style={styles.titleBox}>
-              <Text bold style={styles.headerTitle}>DEATH CERTIFICATE</Text>
-              <Text bold style={styles.headerSubtitle}>FEDERATED STATES OF MICRONESIA</Text>
-            </View>
+        {/* Header */}
+        <View style={styles.headerRow}>
+           <View style={styles.titleBox}>
+            <Text bold style={styles.headerTitle}>DEATH CERTIFICATE</Text>
+            <Text bold style={styles.headerSubtitle}>FEDERATED STATES OF MICRONESIA</Text>
           </View>
+        </View>
 
+         <View style={styles.table}>
           {/* Row 1: Maternal Details */}
           <View style={styles.row}>
             <Cell flex={1} label="Child Bearing Age (15-44):" />
