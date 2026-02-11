@@ -63,9 +63,9 @@ export const DateInput = ({
 }) => {
   delete props.placeholder;
 
-  const dateTimeFormat = useDateTimeIfAvailable();
-  const shouldUseTimezone = useTimezone && type === 'datetime-local';
-  const { toFacilityDateTime, toStoredDateTime } = dateTimeFormat ?? {};
+  const dateTime = useDateTimeIfAvailable();
+  const shouldUseTimezone = useTimezone && type === 'datetime-local' && dateTime != null;
+  const { toFacilityDateTime, toStoredDateTime } = dateTime ?? {};
 
   // Convert stored value (countryTimeZone) to display value (facilityTimeZone for datetime-local)
   const getDisplayValue = val => {
