@@ -257,7 +257,12 @@ const toISO9075DateTime = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) 
 const toDateTimeLocalFormat = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) =>
   dt.toString().slice(0, 16);
 
-const parseDateTimeString = (date: string) => Temporal.PlainDateTime.from(date.replace(' ', 'T'));
+const parseDateTimeString = (date: string) =>
+  Temporal.PlainDateTime.from(
+    date
+      .replace(' ', 'T')
+      .replace(/[Zz]$/, ''),
+  );
 
 const getDisplayTimezone = (countryTimeZone?: string, facilityTimeZone?: string | null) =>
   facilityTimeZone ?? countryTimeZone;

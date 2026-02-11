@@ -2,11 +2,11 @@ import React, { createContext, useCallback, useContext, useMemo } from 'react';
 import { mapValues } from 'lodash';
 
 import {
-  formatForDateTimeInput,
+  formatForDateTimeInput as formatForDateTimeInputRaw,
   getCurrentDateStringInTimezone,
   getCurrentDateTimeStringInTimezone,
   getDayBoundaries,
-  toDateTimeStringForPersistence,
+  toDateTimeStringForPersistence as toDateTimeStringForPersistenceRaw,
 } from '@tamanu/utils/dateTime';
 import * as dateTimeFormatters from '@tamanu/utils/dateFormatters';
 
@@ -14,12 +14,6 @@ import { useAuth } from './AuthContext';
 import { useSettings } from './SettingsContext';
 
 type DateInput = string | Date | null | undefined;
-
-type RawFormatter = (
-  date?: DateInput,
-  countryTimeZone?: string,
-  facilityTimeZone?: string | null,
-) => string | null;
 
 type WrappedFormatter = (date?: DateInput) => string | null;
 
@@ -69,9 +63,9 @@ export const DateTimeProvider = ({
     ? facilityTimeZoneProp
     : (getSetting('facilityTimeZone') as string | undefined);
 
-  const wrapFunction = useCallback(
-    (fn: RawFormatter) =>
-      (date?: DateInput): string | Date | null =>
+  const bindTimezones = useCallback(
+    (fn: (...args: any[]) => any) =>
+      (date?: DateInput) =>
         fn(date, countryTimeZone, facilityTimeZone),
     [countryTimeZone, facilityTimeZone],
   );
@@ -80,20 +74,14 @@ export const DateTimeProvider = ({
     (): DateTimeContextValue => ({
       countryTimeZone,
       facilityTimeZone,
-      ...(mapValues(dateTimeFormatters, wrapFunction) as WrappedFormatters),
-      // Form field defaults — use these for initial values
+      ...(mapValues(dateTimeFormatters, bindTimezones) as WrappedFormatters),
+      formatForDateTimeInput: bindTimezones(formatForDateTimeInputRaw),
+      toDateTimeStringForPersistence: bindTimezones(toDateTimeStringForPersistenceRaw),
       getCurrentDate: () => getCurrentDateStringInTimezone(facilityTimeZone ?? countryTimeZone),
       getCurrentDateTime: () => getCurrentDateTimeStringInTimezone(countryTimeZone),
-      // Get day date boundaries i.e start and end of the day at the given date in country timezone for query
       getDayBoundaries: (date) => getDayBoundaries(date, countryTimeZone, facilityTimeZone),
-      // Convert datetime-local input value (facility timezone) to country timezone for persistence
-      toDateTimeStringForPersistence: value =>
-        toDateTimeStringForPersistence(value, countryTimeZone, facilityTimeZone),
-      // Format stored value (country timezone) for datetime-local input display (facility timezone)
-      formatForDateTimeInput: value =>
-        formatForDateTimeInput(value, countryTimeZone, facilityTimeZone),
     }),
-    [countryTimeZone, facilityTimeZone, wrapFunction],
+    [countryTimeZone, facilityTimeZone, bindTimezones],
   );
 
   return React.createElement(DateTimeProviderContext.Provider, { value }, children);

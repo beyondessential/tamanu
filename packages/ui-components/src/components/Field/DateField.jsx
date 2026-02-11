@@ -192,7 +192,7 @@ export const DateInput = ({
       setIsPlaceholder(true);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value, format, shouldUseTimezone]);
+  }, [value, format, shouldUseTimezone, formatForDateTimeInput]);
 
   // We create two copies of the DateField component, so that we can have a temporary one visible
   // during remount (for more on that, see the remounting description at the top of this component)
