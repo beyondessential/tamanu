@@ -14,7 +14,7 @@ import {
   ThemedTooltip,
   TranslatedEnum,
   TranslatedReferenceData,
-  useDateTimeFormat,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { BodyText } from './Typography';
 import { PHARMACY_PRESCRIPTION_TYPE_LABELS, PHARMACY_PRESCRIPTION_TYPES } from '@tamanu/constants';
@@ -126,7 +126,7 @@ const getDateSent = ({ pharmacyOrder }, formatTime) => (
 );
 
 export const MedicationRequestsTable = () => {
-  const { formatTime } = useDateTimeFormat();
+  const { formatTime } = useDateTime();
   const api = useApi();
   const { ability, facilityId } = useAuth();
   const { searchParameters } = useMedicationsContext(MEDICATIONS_SEARCH_KEYS.ACTIVE);
@@ -295,7 +295,7 @@ export const MedicationRequestsTable = () => {
       : []),
   ];
 
-  const { getDayBoundaries } = useDateTimeFormat();
+  const { getDayBoundaries } = useDateTime();
   const fetchOptions = useMemo(() => {
     const { date, ...rest } = searchParameters;
     if (!date) return { ...rest, facilityId };

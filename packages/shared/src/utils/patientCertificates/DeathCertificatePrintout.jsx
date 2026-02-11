@@ -13,7 +13,7 @@ import { renderDataItems } from './printComponents/renderDataItems';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
-import { useDateTimeFormat, withDateTimeContext } from '../pdf/withDateTimeContext';
+import { useDateTime, withDateTimeContext } from '../pdf/withDateTimeContext';
 import {
   getAddress,
   getClinician,
@@ -241,7 +241,7 @@ const SectionContainer = props => <View style={generalStyles.sectionContainer} {
 const DeathCertificatePrintoutComponent = React.memo(
   ({ patientData, certificateData }) => {
     const { getTranslation } = useLanguageContext();
-    const { formatShort, formatShortExplicit, formatTime } = useDateTimeFormat();
+    const { formatShort, formatShortExplicit, formatTime } = useDateTime();
     const renderDataOptions = { getTranslation, formatShort, formatShortExplicit, formatTime }; 
     const { logo, deathCertFooterImg } = certificateData;
 

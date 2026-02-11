@@ -6,7 +6,7 @@ import { H3, P } from '../patientCertificates/Typography';
 import { LetterheadSection } from '../patientCertificates/LetterheadSection';
 import { getDob, getName, getSex } from '../patientAccessors';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
-import { useDateTimeFormat, withDateTimeContext } from '../pdf/withDateTimeContext';
+import { useDateTime, withDateTimeContext } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 
 export const getCreatedAtDate = ({ documentCreatedAt }, { formatShort }) =>
@@ -35,7 +35,7 @@ const detailsSectionStyle = {
 
 const DetailsSection = ({  data }) => {
   const { getTranslation } = useLanguageContext();
-  const { formatShort } = useDateTimeFormat();
+  const { formatShort } = useDateTime();
   return (
     <View style={{ marginTop: 10 }}>
       <H3 style={{ marginBottom: 5 }}>Details</H3>

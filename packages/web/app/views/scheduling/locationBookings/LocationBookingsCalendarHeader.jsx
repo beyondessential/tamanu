@@ -7,7 +7,7 @@ import queryString from 'query-string';
 import { isStartOfThisWeek } from '@tamanu/utils/dateTime';
 
 import { MonthPicker } from '../../../components';
-import { Button, useDateTimeFormat } from '@tamanu/ui-components';
+import { Button, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { scrollToThisWeek } from './utils';
@@ -69,7 +69,7 @@ const Weekday = styled.p`
 `;
 
 export const DayHeaderCell = ({ date, dim, ...props }) => {
-  const { formatWeekdayShort, formatShort, getCurrentDate } = useDateTimeFormat();
+  const { formatWeekdayShort, formatShort, getCurrentDate } = useDateTime();
   const isToday = isSameDay(date, parseISO(getCurrentDate()));
   return (
     <HeaderCell
@@ -99,7 +99,7 @@ const StyledMonthPicker = styled(MonthPicker)`
 `;
 
 export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedDates }) => {
-  const { getCurrentDate } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTime();
   const isFirstDisplayedDate = date => isSameDay(date, displayedDates[0]);
   const [monthPickerRefreshKey, setMonthPickerRefreshKey] = useState(Date.now());
 

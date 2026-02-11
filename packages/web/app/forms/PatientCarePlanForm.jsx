@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import { TextField, Form, FormGrid, FormSubmitCancelRow, useDateTimeFormat } from '@tamanu/ui-components';
+import { TextField, Form, FormGrid, FormSubmitCancelRow, useDateTime } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { AutocompleteField, DateTimeField, Field } from '../components/Field';
 
@@ -16,7 +16,7 @@ export const PatientCarePlanForm = ({
   onCancel,
   onSubmit,
 }) => {
-  const { getCurrentDateTime } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTime();
   
   return (<Form
     onSubmit={onSubmit}

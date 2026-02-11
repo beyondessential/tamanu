@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 
 import { CertificateTypes, CovidLabCertificate } from '@tamanu/shared/utils/patientCertificates';
 import { ASSET_NAMES, COVID_19_CLEARANCE_CERTIFICATE } from '@tamanu/constants';
-import { useDateTimeFormat } from '@tamanu/ui-components';
+import { useDateTime } from '@tamanu/ui-components';
 
 import { Modal } from '../../Modal';
 import { useApi } from '../../../api';
@@ -17,7 +17,7 @@ import { useSettings } from '../../../contexts/Settings';
 export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);
   const { getSetting } = useSettings();
-  const { countryTimeZone } = useDateTimeFormat();
+  const { countryTimeZone } = useDateTime();
   const api = useApi();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
     footerAssetName: ASSET_NAMES.COVID_CLEARANCE_CERTIFICATE_FOOTER,

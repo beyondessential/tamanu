@@ -14,7 +14,7 @@ import {
   FormSubmitButton,
   FormSubmitCancelRow,
   FormGrid,
-  useDateTimeFormat,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { Colors } from '../constants/styles';
 import { foreignKey } from '../utils/validation';
@@ -59,7 +59,7 @@ export const OngoingConditionForm = ({
   diagnosisSuggester,
   onDelete,
 }) => {
-  const { getCurrentDate } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTime();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const RenderForm = ({ submitForm, values }) => {

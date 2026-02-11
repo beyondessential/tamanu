@@ -7,7 +7,7 @@ import {
   Form,
   FormGrid,
   FormSubmitCancelRow,
-  useDateTimeFormat,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { AutocompleteField, DateField, Field } from '../components/Field';
@@ -22,7 +22,7 @@ export const FamilyHistoryForm = ({
   editedObject,
   onSubmit,
 }) => {
-  const { getCurrentDate } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTime();
   
   const getInitialValues = () => {
     if (editedObject) {

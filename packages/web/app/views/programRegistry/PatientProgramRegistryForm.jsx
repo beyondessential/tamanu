@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 import { REGISTRATION_STATUSES, FORM_TYPES } from '@tamanu/constants';
 import { useSelector } from 'react-redux';
-import { Form, FormGrid, useDateTimeFormat } from '@tamanu/ui-components';
+import { Form, FormGrid, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import {
   AutocompleteField,
@@ -47,7 +47,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
   const { currentUser, facilityId } = useAuth();
   const patient = useSelector(state => state.patient);
   const [selectedProgramRegistryId, setSelectedProgramRegistryId] = useState();
-  const { getCurrentDate } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTime();
 
   const { data: program } = useProgramRegistryQuery(selectedProgramRegistryId);
 

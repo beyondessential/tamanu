@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { useDateTimeFormat } from '@tamanu/ui-components';
+import { useDateTime } from '@tamanu/ui-components';
 
 import { DateField } from './DateField';
 import { Field } from './Field';
@@ -22,7 +22,7 @@ const JoinedField = styled(Field)`
 `;
 
 export const DOBFields = ({ showExactBirth = true }) => {
-  const { getCurrentDate } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTime();
   return (
     <>
       {showExactBirth && (

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import * as yup from 'yup';
 
 import { NOTE_TYPES, FORM_TYPES } from '@tamanu/constants';
-import { Form, useDateTimeFormat } from '@tamanu/ui-components';
+import { Form, useDateTime } from '@tamanu/ui-components';
 import { useAuth } from '../contexts/Auth';
 import { foreignKey } from '../utils/validation';
 
@@ -20,7 +20,7 @@ export const NoteForm = ({
   onSubmit,
 }) => {
   const { currentUser } = useAuth();
-  const { getCurrentDateTime } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTime();
 
   const renderForm = ({ submitForm, values, setValues }) => {
     const isTreatmentPlan = note?.noteTypeId === NOTE_TYPES.TREATMENT_PLAN;

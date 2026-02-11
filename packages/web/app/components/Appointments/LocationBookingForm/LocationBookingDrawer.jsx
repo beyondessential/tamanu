@@ -5,7 +5,7 @@ import * as yup from 'yup';
 import { sub } from 'date-fns';
 
 import { trimToDate, toDateTimeString, dateTimeInputToISO9075 } from '@tamanu/utils/dateTime';
-import { Form, FormGrid, FormSubmitCancelRow, useDateTimeFormat } from '@tamanu/ui-components';
+import { Form, FormGrid, FormSubmitCancelRow, useDateTime } from '@tamanu/ui-components';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useCheckOnLeaveMutation, useLocationBookingMutation } from '../../../api/mutations';
@@ -128,7 +128,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
   const { updateSelectedCell, viewType } = useLocationBookingsContext();
   const { formatShort, toStoredDateTime, toFacilityDateTime } =
-    useDateTimeFormat();
+    useDateTime();
   const isEdit = !!initialValues.id;
 
   // Convert startTime/endTime from country timezone to facility timezone for the form,

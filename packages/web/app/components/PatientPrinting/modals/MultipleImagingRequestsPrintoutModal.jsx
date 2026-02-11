@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDateTimeFormat } from '@tamanu/ui-components';
+import { useDateTime } from '@tamanu/ui-components';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { MultipleImagingRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { usePatientDataQuery } from '../../../api/queries/usePatientDataQuery';
@@ -14,7 +14,7 @@ import { TranslatedText } from '../../Translation/TranslatedText';
 export const MultipleImagingRequestsWrapper = ({ encounter, imagingRequests }) => {
   const { getLocalisation } = useLocalisation();
   const { getSetting } = useSettings();
-  const { countryTimeZone } = useDateTimeFormat();
+  const { countryTimeZone } = useDateTime();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
   const { data: patient, isLoading: isPatientLoading } = usePatientDataQuery(encounter.patientId);
   const isVillageEnabled = patient?.villageId;

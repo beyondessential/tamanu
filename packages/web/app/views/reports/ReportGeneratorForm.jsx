@@ -17,7 +17,7 @@ import {
   FormGrid,
   TextButton,
   Button,
-  useDateTimeFormat,
+  useDateTime,
   ThemedTooltip,
 } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
@@ -93,7 +93,7 @@ const buildParameterFieldValidation = ({ required }) => {
 
 const useFileName = () => {
   const { getLocalisation } = useLocalisation();
-  const { getCurrentDate } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTime();
   const country = getLocalisation('country');
   const date = getCurrentDate();
   const { getTranslation } = useTranslation();
@@ -153,7 +153,7 @@ export const ReportGeneratorForm = () => {
   const [selectedReportId, setSelectedReportId] = useState(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [dataReadyForSaving, setDataReadyForSaving] = useState(null);
-  const { countryTimeZone, facilityTimeZone } = useDateTimeFormat();
+  const { countryTimeZone, facilityTimeZone } = useDateTime();
   const showTimeZoneSelector = facilityTimeZone && facilityTimeZone !== countryTimeZone;
   const timezoneOptions = useMemo(
     () => [

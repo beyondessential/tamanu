@@ -16,7 +16,7 @@ import {
   TranslatedReferenceData,
   TranslatedText,
   BaseModal,
-  useDateTimeFormat,
+  useDateTime,
   DateTimeRangeDisplay,
 } from '@tamanu/ui-components';
 import {
@@ -38,7 +38,7 @@ const StyledBodyText = styled(BodyText)`
 `;
 
 const AppointmentDetailsDisplay = ({ appointment }) => {
-  const { formatShort } = useDateTimeFormat();
+  const { formatShort } = useDateTime();
   const {
     patient,
     startTime,

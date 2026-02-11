@@ -7,7 +7,7 @@ import {
   Button,
   TranslatedReferenceData,
   TranslatedText,
-  useDateTimeFormat,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { trimToDate } from '@tamanu/utils/dateTime';
 import { Colors } from '../../constants/styles';
@@ -52,7 +52,7 @@ const ActionRow = styled(Box)`
 `;
 
 export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
-  const { formatShortest } = useDateTimeFormat();
+  const { formatShortest } = useDateTime();
   if (!item || !open) return null;
 
   const {

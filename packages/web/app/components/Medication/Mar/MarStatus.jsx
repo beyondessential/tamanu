@@ -11,7 +11,7 @@ import {
   DRUG_UNIT_SHORT_LABELS,
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
 } from '@tamanu/constants';
-import { TranslatedEnum, TranslatedText, DateDisplay, useDateTimeFormat } from '@tamanu/ui-components';
+import { TranslatedEnum, TranslatedText, DateDisplay, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { ConditionalTooltip } from '../../Tooltip';
@@ -194,7 +194,7 @@ export const MarStatus = ({
 }) => {
   const { data: { data: marDoses = [] } = {} } = useMarDoses(marInfo?.id);
   const { getEnumTranslation } = useTranslation();
-  const { formatTimeCompact } = useDateTimeFormat();
+  const { formatTimeCompact } = useDateTime();
   const { ability } = useAuth();
   const canViewMar = ability.can('read', 'MedicationAdministration');
   const canCreateMar = ability.can('create', 'MedicationAdministration');

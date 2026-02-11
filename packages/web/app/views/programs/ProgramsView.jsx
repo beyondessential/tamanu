@@ -6,7 +6,7 @@ import {
   getAnswersFromData,
   SelectInput,
   FormGrid,
-  useDateTimeFormat,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { reloadPatient } from '../../store/patient';
@@ -31,7 +31,7 @@ import { TranslatedReferenceData } from '../../components';
 const SurveyFlow = ({ patient, currentUser }) => {
   const api = useApi();
   const { facilityId } = useAuth();
-  const { getCurrentDateTime } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTime();
   const params = useParams();
   const queryClient = useQueryClient();
   const dispatch = useDispatch();

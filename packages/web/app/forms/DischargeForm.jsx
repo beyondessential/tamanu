@@ -22,7 +22,7 @@ import {
   FormSubmitButton,
   MODAL_PADDING_LEFT_AND_RIGHT,
   MODAL_PADDING_TOP_AND_BOTTOM,
-  useDateTimeFormat,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { Divider as BaseDivider, Box, IconButton as BaseIconButton } from '@material-ui/core';
 import { useApi } from '../api';
@@ -695,7 +695,7 @@ export const DischargeForm = ({
   const { getTranslation, getEnumTranslation } = useTranslation();
   const { encounter } = useEncounter();
   const { getSetting } = useSettings();
-  const { toFacilityDateTime, getCurrentDateTime } = useDateTimeFormat();
+  const { toFacilityDateTime, getCurrentDateTime } = useDateTime();
   const queryClient = useQueryClient();
   const { ability, currentUser } = useAuth();
   const canUpdateMedication = ability.can('write', 'Medication');

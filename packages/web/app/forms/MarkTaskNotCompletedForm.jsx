@@ -3,7 +3,7 @@ import { Divider } from '@material-ui/core';
 import * as yup from 'yup';
 
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { Form, FormGrid, FormSubmitCancelRow, useDateTimeFormat } from '@tamanu/ui-components';
+import { Form, FormGrid, FormSubmitCancelRow, useDateTime } from '@tamanu/ui-components';
 
 import {
   AutocompleteField,
@@ -17,7 +17,7 @@ import { useAuth } from '../contexts/Auth';
 import { useTranslation } from '../contexts/Translation';
 
 export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds }) => {
-  const { getFacilityNow, getCurrentDateTime } = useDateTimeFormat();
+  const { getFacilityNow, getCurrentDateTime } = useDateTime();
   const { getTranslation } = useTranslation();
   const practitionerSuggester = useSuggester('practitioner');
   const taskNotCompletedReasonSuggester = useSuggester('taskNotCompletedReason');
@@ -132,7 +132,7 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
             />,
           )
           .max(
-            getCurrentDateTime(),
+            getFacilityNow(),
             getTranslation(
               'general.validation.date.cannotInFuture',
               'Date cannot be in the future',

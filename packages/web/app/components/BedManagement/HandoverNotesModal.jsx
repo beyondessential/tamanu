@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { HandoverNotesPDF } from '@tamanu/shared/utils/handoverNotes';
-import { useDateTimeFormat } from '@tamanu/ui-components';
+import { useDateTime } from '@tamanu/ui-components';
 import { Modal } from '../Modal';
 import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
@@ -14,7 +14,7 @@ import { useAuth } from '../../contexts/Auth';
 export const HandoverNotesModal = React.memo(({ area: areaId, ...props }) => {
   const { getLocalisation } = useLocalisation();
   const { getSetting } = useSettings();
-  const { formatShortest, countryTimeZone } = useDateTimeFormat();
+  const { formatShortest, countryTimeZone } = useDateTime();
   const api = useApi();
   const { facilityId } = useAuth();
   const { data: certificateData, isFetching: isFetchingCertificate } = useCertificate();

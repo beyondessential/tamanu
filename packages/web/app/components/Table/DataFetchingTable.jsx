@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { isEqual } from 'lodash';
-import { useDateTimeFormat } from '@tamanu/ui-components';
+import { useDateTime } from '@tamanu/ui-components';
 import { useApi } from '../../api';
 
 import { Table } from './Table';
@@ -39,7 +39,7 @@ export const DataFetchingTable = memo(
     'data-testid': dataTestId,
     ...props
   }) => {
-    const { getCurrentDateTime } = useDateTimeFormat();
+    const { getCurrentDateTime } = useDateTime();
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
     const [sorting, setSorting] = useState(initialSort);

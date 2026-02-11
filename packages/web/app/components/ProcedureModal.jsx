@@ -5,7 +5,7 @@ import {
   ButtonRow,
   FormCancelButton,
   FormSubmitButton,
-  useDateTimeFormat,
+  useDateTime,
 } from '@tamanu/ui-components';
 import Typography from '@material-ui/core/Typography';
 import MuiDivider from '@material-ui/core/Divider';
@@ -83,7 +83,7 @@ export const ProcedureModal = ({
     getCurrentDateTime,
     toStoredDateTime,
     toFacilityDateTime,
-  } = useDateTimeFormat();
+  } = useDateTime();
   const { patientId } = useParams();
   const { data: patient } = usePatientDataQuery(patientId);
   const [refreshCount, updateRefreshCount] = useRefreshCount();

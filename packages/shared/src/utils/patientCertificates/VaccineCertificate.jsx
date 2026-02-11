@@ -20,7 +20,7 @@ import { useTextStyles } from './printComponents/MultiPageHeader';
 import { Page } from '../pdf/Page';
 import { Text, TextWithoutContext } from '../pdf/Text';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
-import { useDateTimeFormat, withDateTimeContext } from '../pdf/withDateTimeContext';
+import { useDateTime, withDateTimeContext } from '../pdf/withDateTimeContext';
 
 const getColumns = (getTranslation, formatShort) => [
   {
@@ -145,7 +145,7 @@ const VaccineCertificateComponent = ({
   healthFacility,
 }) => {
   const { getTranslation } = useLanguageContext();
-  const { formatShort } = useDateTimeFormat();
+  const { formatShort } = useDateTime();
   const getLocalisation = key => get(localisation, key);
   const countryName = getLocalisation('country.name');
 

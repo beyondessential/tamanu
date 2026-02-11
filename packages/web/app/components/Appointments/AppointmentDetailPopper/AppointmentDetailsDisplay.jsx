@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux';
 import { Link, generatePath, useNavigate } from 'react-router';
 import { Colors } from '../../../constants';
 import { PATIENT_PATHS, PATIENT_CATEGORIES } from '../../../constants/patientPaths';
-import { DateTimeRangeDisplay, useDateTimeFormat } from '@tamanu/ui-components';
+import { DateTimeRangeDisplay, useDateTime } from '@tamanu/ui-components';
 import { TranslatedReferenceData, TranslatedText } from '../../Translation';
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 import { DetailsDisplay } from './SharedComponents';
@@ -56,7 +56,7 @@ const ClinicianContainer = styled('div')`
 `;
 
 const LinkedEncounter = ({ encounter, isOvernight }) => {
-  const { formatShort } = useDateTimeFormat();
+  const { formatShort } = useDateTime();
   const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch();

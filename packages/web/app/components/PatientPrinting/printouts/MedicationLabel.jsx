@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { useSettings, useTranslation, useDateTimeFormat } from '@tamanu/ui-components';
+import { useSettings, useTranslation, useDateTime } from '@tamanu/ui-components';
 import { DRUG_UNIT_LABELS } from '@tamanu/constants';
 import { pluralize } from 'inflection';
 import { Colors } from '../../../constants';
@@ -117,7 +117,7 @@ export const getMedicationLabel = (quantity, units, getEnumTranslation) => {
 };
 
 export const MedicationLabel = React.memo(({ data }) => {
-  const { formatShortest } = useDateTimeFormat();
+  const { formatShortest } = useDateTime();
   const { getEnumTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const labelWidth = getSetting('medications.dispensing.prescriptionLabelSize.width') || 80;

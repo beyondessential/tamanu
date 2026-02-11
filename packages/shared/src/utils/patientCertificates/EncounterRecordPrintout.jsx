@@ -18,7 +18,7 @@ import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
 import { Footer } from './printComponents/Footer';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
-import { withDateTimeContext, useDateTimeFormat } from '../pdf/withDateTimeContext';
+import { withDateTimeContext, useDateTime } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '../medication';
@@ -257,7 +257,7 @@ const TableSection = ({ title, data, columns, type }) => {
 
 const NoteFooter = ({ note }) => {
   const { getTranslation } = useLanguageContext();
-  const { formatShortDateTime } = useDateTimeFormat();
+  const { formatShortDateTime } = useDateTime();
   return (
     <Text style={textStyles.tableCellFooter}>
       {[
@@ -364,7 +364,7 @@ const EncounterRecordPrintoutComponent = ({
 }) => {
   const getSetting = key => get(settings, key);
   const { getTranslation, getEnumTranslation } = useLanguageContext();
-  const { formatShort, formatShortest, formatTime, formatShortDateTime } = useDateTimeFormat();
+  const { formatShort, formatShortest, formatTime, formatShortDateTime } = useDateTime();
   const { watermark, logo } = certificateData;
 
   const COLUMNS = {

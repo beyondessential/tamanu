@@ -9,7 +9,7 @@ import {
   Form,
   FormSubmitCancelRow,
   FormGrid,
-  useDateTimeFormat,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { trimToDate } from '@tamanu/utils/dateTime';
 import { foreignKey } from '../utils/validation';
@@ -25,7 +25,7 @@ export const AllergyForm = ({
   allergySuggester,
 }) => {
   const { ability } = useAuth();
-  const { getCurrentDate } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTime();
   const canCreateReferenceData = ability.can('create', 'ReferenceData');
 
   const getInitialValues = () => {

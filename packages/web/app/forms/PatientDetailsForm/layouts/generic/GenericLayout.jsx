@@ -9,7 +9,7 @@ import {
   TranslatedRadioField,
   NoteModalActionBlocker,
 } from '../../../../components';
-import { TextField, FormGrid, useDateTimeFormat } from '@tamanu/ui-components';
+import { TextField, FormGrid, useDateTime } from '@tamanu/ui-components';
 import {
   PatientDetailsHeading,
   SecondaryDetailsFormGrid,
@@ -32,7 +32,7 @@ export const GenericPrimaryDetailsLayout = ({
   isRequiredPatientData,
   isDetailsForm = false,
 }) => {
-  const { getCurrentDate } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTime();
   const { getSetting } = useSettings();
   const isReminderContactEnabled = getSetting(SETTING_KEYS.FEATURES_REMINDER_CONTACT_ENABLED);
   const villageSuggester = useSuggester('village');

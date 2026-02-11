@@ -24,7 +24,7 @@ import {
   LocalisedLocationField,
   SwitchField,
 } from '../../Field';
-import { FormGrid, Form, useDateTimeFormat } from '@tamanu/ui-components';
+import { FormGrid, Form, useDateTime } from '@tamanu/ui-components';
 import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import {
@@ -100,7 +100,7 @@ const StyledButton = styled(Button)`
 `;
 
 export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) => {
-  const { getCurrentDate } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTime();
   const { getTranslation } = useTranslation();
   const { updateSelectedCell } = useLocationAssignmentsContext();
   const { getSetting } = useSettings();

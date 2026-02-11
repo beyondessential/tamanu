@@ -1,7 +1,7 @@
 import React from 'react';
 import { ASSET_NAMES } from '@tamanu/constants';
 import { ForbiddenError } from '@tamanu/errors';
-import { useDateTimeFormat } from '@tamanu/ui-components';
+import { useDateTime } from '@tamanu/ui-components';
 
 import { InvoiceRecordPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { Modal } from '../../Modal';
@@ -30,7 +30,7 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
     footerAssetName: ASSET_NAMES.INVOICE_FOOTER,
   });
   const { getSetting } = useSettings();
-  const { countryTimeZone } = useDateTimeFormat();
+  const { countryTimeZone } = useDateTime();
   const enablePatientInsurer = getSetting('features.enablePatientInsurer');
   const { data: certificateData } = certificateQuery;
 

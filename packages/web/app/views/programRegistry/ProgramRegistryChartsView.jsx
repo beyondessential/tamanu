@@ -14,7 +14,7 @@ import {
   USER_PREFERENCES_KEYS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { getAnswersFromData, useDateTimeFormat } from '@tamanu/ui-components';
+import { getAnswersFromData, useDateTime } from '@tamanu/ui-components';
 
 import { TableButtonRow, ButtonWithPermissionCheck } from '../../components';
 import { useProgramRegistryLinkedChartsQuery } from '../../api/queries/useProgramRegistryLinkedChartsQuery';
@@ -127,7 +127,7 @@ const ChartsPanel = styled.div`
 export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patient, patientProgramRegistration }) => {
   const api = useApi();
   const queryClient = useQueryClient();
-  const { getCurrentDateTime } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTime();
   const { facilityId, ability } = useAuth();
   const [isInitiated, setIsInitiated] = useState(false);
   const [selectedChartTypeId, setSelectedChartTypeId] = useState('');

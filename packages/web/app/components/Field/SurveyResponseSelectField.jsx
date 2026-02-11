@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { compareDesc } from 'date-fns';
 
-import { SelectInput, useDateTimeFormat } from '@tamanu/ui-components';
+import { SelectInput, useDateTime } from '@tamanu/ui-components';
 
 import { useApi } from '../../api';
 
 export const SurveyResponseSelectField = ({ field, patient, config, ...props }) => {
   delete props.options;
-  const { formatShort, formatTime } = useDateTimeFormat();
+  const { formatShort, formatTime } = useDateTime();
   const api = useApi();
   const [options, setOptions] = useState([]);
   const { source } = config;

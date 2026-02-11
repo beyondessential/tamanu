@@ -14,7 +14,7 @@ import {
 import { Footer } from './printComponents/Footer';
 import { getEthnicity } from '../patientAccessors';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
-import { withDateTimeContext, useDateTimeFormat } from '../pdf/withDateTimeContext';
+import { withDateTimeContext, useDateTime } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 
@@ -40,7 +40,7 @@ const topStyles = StyleSheet.create({
 });
 
 const TopSection = ({ facilityName, childDisplayId }) => {
-  const { formatShort } = useDateTimeFormat();
+  const { formatShort } = useDateTime();
   return (
     <View style={topStyles.container}>
       <View style={topStyles.cell}>
@@ -126,7 +126,7 @@ const getFullName = patient => `${patient?.firstName ?? ''} ${patient?.lastName 
 
 const ChildSection = ({ data }) => {
   const { getTranslation } = useLanguageContext();
-  const { formatShort, formatTime } = useDateTimeFormat();
+  const { formatShort, formatTime } = useDateTime();
   const causeOfDeath =
     data?.deathData?.causes?.primary?.condition?.name ??
     getTranslation('general.fallback.notApplicable', 'N/A');
@@ -223,7 +223,7 @@ const ChildSection = ({ data }) => {
 
 const ParentSection = ({ parentType, data = {} }) => {
   const { getTranslation } = useLanguageContext();
-  const { formatShort } = useDateTimeFormat();
+  const { formatShort } = useDateTime();
   return (
     <Table>
       <Row>

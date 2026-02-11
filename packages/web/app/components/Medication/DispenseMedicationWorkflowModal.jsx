@@ -14,7 +14,7 @@ import {
   TextInput,
   TranslatedReferenceData,
   TranslatedText,
-  useDateTimeFormat,
+  useDateTime,
 } from '@tamanu/ui-components';
 
 import { useApi, useSuggester } from '../../api';
@@ -211,7 +211,7 @@ export const DispenseMedicationWorkflowModal = memo(
     const { facilityId, currentUser } = useAuth();
     const { getTranslation, getEnumTranslation } = useTranslation();
     const practitionerSuggester = useSuggester('practitioner');
-    const { formatShort } = useDateTimeFormat();
+    const { formatShort } = useDateTime();
     const [step, setStep] = useState(MODAL_STEPS.DISPENSE);
     const [dispensedByUserId, setDispensedByUserId] = useState('');
     const [items, setItems] = useState([]);
