@@ -6,13 +6,13 @@ export const useEncounterMedicationQuery = (encounterId, fetchOptions) => {
   const { facilityId } = useAuth();
   const api = useApi();
 
-  return useQuery(
-    ['encounterMedication', encounterId, fetchOptions],
-    () =>
-      api.get(`encounter/${encodeURIComponent(encounterId)}/medications`, {
-        facilityId,
-        ...fetchOptions,
-      }),
+  const options = {
+    facilityId,
+    ...fetchOptions,
+  };
+
+  return useQuery(['encounterMedication', encounterId, options], () =>
+    api.get(`encounter/${encodeURIComponent(encounterId)}/medications`, options),
     { enabled: !!encounterId },
   );
 };
