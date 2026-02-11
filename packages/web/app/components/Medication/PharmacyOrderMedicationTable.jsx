@@ -286,7 +286,12 @@ const getColumns = (
       ),
       sortable: false,
       accessor: ({ repeats, lastOrderedAt }) => {
+        // Encounter level: show "Repeats on discharge" — use the raw repeats total.
         if (!isOngoingMode) return repeats;
+        // Patient level: show "Remaining" (prescriptions available to dispense).
+        // The first send is not counted as a repeat. When never sent (no lastOrderedAt),
+        // remaining = initial + repeats = repeats + 1. Once sent, repeats is decremented
+        // on the backend per send, so it already represents remaining.
         if (!lastOrderedAt) return repeats + 1;
         return repeats;
       },
