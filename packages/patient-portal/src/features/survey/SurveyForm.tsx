@@ -14,6 +14,7 @@ import {
   type Patient,
 } from '@tamanu/shared/schemas/patientPortal';
 import { getComponentForQuestionType } from './getComponentForQuestionType';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 interface SurveyFormProps {
   survey: SurveyWithComponents;
@@ -48,7 +49,8 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
      * User data questions are not supported in the patient portal
      */
     currentUser: {},
-    patientProgramRegistration
+    patientProgramRegistration,
+    getCurrentDateTime: getCurrentDateTimeString(),
   });
   const validationSchema = useMemo(
     () => getValidationSchema(survey, getTranslation),
