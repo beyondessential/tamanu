@@ -61,12 +61,13 @@ export const ChartForm = React.memo(
     const canCreateChart = ability.can('create', subject('Charting', { id: chartSurveyId }));
 
     const initialValues = useMemo(() => {
-      const formInitialValues = getFormInitialValues(
-        visibleComponents,
+      const formInitialValues = getFormInitialValues({
+        components: visibleComponents,
+        additionalData: patientAdditionalData,
         patient,
-        patientAdditionalData,
         currentUser,
-      );
+        getCurrentDateTime,
+      });
 
       const hasPatientChartingDate = visibleComponents.some(
         c => c.dataElement?.id === CHARTING_DATA_ELEMENT_IDS.dateRecorded,

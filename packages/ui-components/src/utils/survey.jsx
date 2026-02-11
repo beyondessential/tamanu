@@ -15,7 +15,6 @@ import {
   ageInMonths,
   ageInWeeks,
   ageInYears,
-  getCurrentDateTimeString,
 } from '@tamanu/utils/dateTime';
 import { TranslatedText } from '../components';
 import { notify } from './notify';
@@ -101,7 +100,7 @@ function fallbackParseVisibilityCriteria({ visibilityCriteria, dataElement }, va
   return false;
 }
 
-function getInitialValue(dataElement) {
+function getInitialValue(dataElement, getCurrentDateTime) {
   switch (dataElement.type) {
     case PROGRAM_DATA_ELEMENT_TYPES.TEXT:
     case PROGRAM_DATA_ELEMENT_TYPES.MULTILINE:
@@ -109,7 +108,7 @@ function getInitialValue(dataElement) {
     case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE: // This is important (doesn't make sense that it is important though...)
       return '';
     case PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE:
-      return getCurrentDateTimeString();
+      return getCurrentDateTime();
     default:
       return undefined;
   }
@@ -185,15 +184,16 @@ function transformPatientData(patient, additionalData, patientProgramRegistratio
     }
   }
 }
-export function getFormInitialValues(
+export function getFormInitialValues({
   components,
   patient,
   additionalData,
   currentUser = {},
   patientProgramRegistration,
-) {
+  getCurrentDateTime = null,
+}) {
   const initialValues = components.reduce((acc, { dataElement }) => {
-    const initialValue = getInitialValue(dataElement);
+    const initialValue = getInitialValue(dataElement, getCurrentDateTime);
     const propName = dataElement.id;
     if (isNullOrUndefined(initialValue)) {
       return acc;
@@ -301,15 +301,13 @@ export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMan
         case PROGRAM_DATA_ELEMENT_TYPES.DATE:
         case PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME:
         case PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE:
-          valueSchema = yup
-            .date()
-            .transform((value, originalValue) => {
-              // Convert empty strings to null/undefined to prevent validation errors
-              if (typeof originalValue === 'string' && originalValue.trim() === '') {
-                return null;
-              }
-              return value;
-            });
+          valueSchema = yup.date().transform((value, originalValue) => {
+            // Convert empty strings to null/undefined to prevent validation errors
+            if (typeof originalValue === 'string' && originalValue.trim() === '') {
+              return null;
+            }
+            return value;
+          });
           break;
         default:
           valueSchema = yup.mixed();

@@ -101,11 +101,17 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
       validationSchema={validationSchema}
       initialValues={{
         [VITALS_DATA_ELEMENT_IDS.dateRecorded]: getCurrentDateTime(),
-        ...getFormInitialValues(currentComponents, patient, patientAdditionalData),
+        ...getFormInitialValues({
+          components: currentComponents,
+          additionalData: patientAdditionalData,
+          patient,
+          getCurrentDateTime,
+        }
+        ),
       }}
       validate={values => {
         if (
-          Object.entries(values)  
+          Object.entries(values)
             .filter(([name]) => name !== VITALS_DATA_ELEMENT_IDS.dateRecorded)
             .every(([, value]) => value === '' || value === null || value === undefined)
         ) {
