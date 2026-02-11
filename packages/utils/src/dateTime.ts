@@ -446,7 +446,9 @@ export const formatForDateTimeInput = (
     }
 
     if (isISO9075DateString(value)) {
-      return `${value}T00:00:00`;
+      // Must omit seconds to match toDateTimeLocalFormat and HTML datetime-local input values,
+      // otherwise string comparisons in DateInput's handleBlur treat equal values as out of bounds.
+      return `${value}T00:00`;
     }
 
     const plain = parseDateTimeString(value, countryTimeZone);
