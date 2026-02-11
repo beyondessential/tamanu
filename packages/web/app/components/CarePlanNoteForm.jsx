@@ -8,7 +8,7 @@ import {
   Form,
   FormSubmitCancelRow,
   FormGrid,
-  useDateTimeFormat,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { Colors } from '../constants/styles';
 import { AutocompleteField, DateTimeField, Field } from './Field';
@@ -29,7 +29,7 @@ export function CarePlanNoteForm({
   onCancel,
 }) {
   const { getTranslation } = useTranslation();
-  const { getCurrentDateTime } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTime();
 
   const [submitError, setSubmitError] = useState('');
   const practitionerSuggester = useSuggester('practitioner');

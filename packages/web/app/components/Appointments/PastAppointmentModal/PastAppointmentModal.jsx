@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { DateDisplay, TimeDisplay, useDateTimeFormat } from '@tamanu/ui-components';
+import { DateDisplay, TimeDisplay, useDateTime } from '@tamanu/ui-components';
 
 import { useOutpatientAppointmentsQuery } from '../../../api/queries';
 import { Colors } from '../../../constants';
@@ -190,7 +190,7 @@ const COLUMNS = [
 ];
 
 export const PastAppointmentModal = ({ open, onClose, patient }) => {
-  const { getCurrentDateTime } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTime();
   const { orderBy, order, onChangeOrderBy } = useTableSorting({
     initialSortKey: 'startTime',
     initialSortDirection: 'desc',

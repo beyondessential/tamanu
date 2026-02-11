@@ -47,7 +47,7 @@ import {
   FormGrid,
   FormSubmitButton,
   Dialog,
-  useDateTimeFormat,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { Colors, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
@@ -328,7 +328,7 @@ const isOneTimeFrequency = frequency =>
 
 const MedicationAdministrationForm = ({ frequencyChanged }) => {
   const { getSetting } = useSettings();
-  const { formatTimeCompact, formatShort } = useDateTimeFormat();
+  const { formatTimeCompact, formatShort } = useDateTime();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
 
   const { values, setValues } = useFormikContext();
@@ -598,7 +598,7 @@ export const MedicationForm = ({
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
   const queryClient = useQueryClient();
   const { loadEncounter } = useEncounter();
-  const { getCurrentDate, getCurrentDateTime } = useDateTimeFormat();
+  const { getCurrentDate, getCurrentDateTime } = useDateTime();
   const { data: { data: medications = [] } = {} } = useEncounterMedicationQuery(encounterId);
   const existingDrugIds = medications
     .filter(({ discontinued }) => !discontinued)

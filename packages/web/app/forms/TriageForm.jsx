@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import { ENCOUNTER_TYPES, FORM_TYPES } from '@tamanu/constants';
 import { useNavigate } from 'react-router';
 import { Box } from '@material-ui/core';
-import { getAnswersFromData, Form, FormGrid, useDateTimeFormat } from '@tamanu/ui-components';
+import { getAnswersFromData, Form, FormGrid, useDateTime } from '@tamanu/ui-components';
 import { foreignKey } from '../utils/validation';
 import {
   AutocompleteField,
@@ -68,7 +68,7 @@ export const TriageForm = ({
   const navigate = useNavigate();
   const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
-  const { getCurrentDateTime, getCurrentDate } = useDateTimeFormat();
+  const { getCurrentDateTime, getCurrentDate } = useDateTime();
   
   const todayFacility = getCurrentDate();
   const endOfTodayMax = `${todayFacility}T23:59`;

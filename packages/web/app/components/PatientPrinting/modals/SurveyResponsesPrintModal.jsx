@@ -1,6 +1,6 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useDateTimeFormat } from '@tamanu/ui-components';
+import { useDateTime } from '@tamanu/ui-components';
 import { useApi } from '../../../api';
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
 import { useCertificate } from '../../../utils/useCertificate';
@@ -22,7 +22,7 @@ export const SurveyResponsesPrintModal = React.memo(
     const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
 
     const { facilityId, currentUser } = useAuth();
-    const { countryTimeZone } = useDateTimeFormat();
+    const { countryTimeZone } = useDateTime();
     const { data: facility, isLoading: isFacilityLoading } = useQuery(
       ['facility', facilityId],
       async () => await api.get(`facility/${encodeURIComponent(facilityId)}`),

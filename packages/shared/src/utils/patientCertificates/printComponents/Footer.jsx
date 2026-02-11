@@ -3,7 +3,7 @@ import React from 'react';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Text } from '../../pdf/Text';
 import { useLanguageContext } from '../../pdf/languageContext';
-import { useDateTimeFormat } from '../../pdf/withDateTimeContext';
+import { useDateTime } from '../../pdf/withDateTimeContext';
 
 const styles = StyleSheet.create({
   footer: {
@@ -53,7 +53,7 @@ const ValueText = ({ children, ...props }) => (
 
 export const Footer = ({ printDate, printFacility, printedBy, style }) => {
   const { getTranslation } = useLanguageContext();
-  const { formatShortDateTime } = useDateTimeFormat();
+  const { formatShortDateTime } = useDateTime();
   const dateToFormat = printDate || getCurrentDateTimeString();
   return (
     <View style={[styles.footer, style]} fixed>

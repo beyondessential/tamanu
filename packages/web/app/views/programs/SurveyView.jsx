@@ -8,7 +8,7 @@ import {
   getValidationSchema,
   SurveyScreenPaginator,
   TranslatedReferenceData,
-  useDateTimeFormat,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { getComponentForQuestionType } from '../../components/Surveys';
@@ -49,7 +49,7 @@ export const SurveyViewForm = ({
   setSurveyFormDirty,
 }) => {
   const { getTranslation } = useTranslation();
-  const { getCurrentDateTime } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTime();
   const { encounter } = useEncounter();
   const { components } = survey;
   const currentComponents = components.filter(

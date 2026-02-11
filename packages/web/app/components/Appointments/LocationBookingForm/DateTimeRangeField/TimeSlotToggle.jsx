@@ -5,7 +5,7 @@ import { parseISO } from 'date-fns';
 import React, { memo } from 'react';
 import styled, { css } from 'styled-components';
 
-import { useDateTimeFormat } from '@tamanu/ui-components';
+import { useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../../../constants';
 import { useBookingSlots } from '../../../../hooks/useBookingSlots';
 import { BOOKING_SLOT_TYPES } from '../../../../constants/locationAssignments';
@@ -229,7 +229,7 @@ const SkeletonTimeSlotToggles = ({ count = 16 }) => {
  * render. The time slots are the same for each day, so this does just fine as a GUI placeholder.
  */
 export const PlaceholderTimeSlotToggles = memo(({ type = BOOKING_SLOT_TYPES.BOOKINGS }) => {
-  const { getCurrentDate } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTime();
   const { isPending, slots } = useBookingSlots(parseISO(getCurrentDate()), type);
   if (isPending) return <SkeletonTimeSlotToggles data-testid="skeletontimeslottoggles-9a22" />;
   return slots?.map((slot) => (

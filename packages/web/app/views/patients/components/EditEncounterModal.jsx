@@ -11,7 +11,7 @@ import {
   useApi,
   useSettings,
   useSuggester,
-  useDateTimeFormat,
+  useDateTime,
 } from '@tamanu/ui-components';
 import {
   DynamicSelectField,
@@ -321,7 +321,7 @@ const getFormInitialValues = ({ encounter, triage = {} }) => {
 export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
   const api = useApi();
   const { writeAndViewEncounter } = useEncounter();
-  const {getCurrentDateTime} = useDateTimeFormat();
+  const {getCurrentDateTime} = useDateTime();
 
   const triage = encounter.triages?.[0];
 

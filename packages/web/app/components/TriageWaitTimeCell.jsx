@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Tooltip from '@material-ui/core/Tooltip';
 import { ENCOUNTER_TYPES } from '@tamanu/constants/encounters';
-import { useDateTimeFormat } from '@tamanu/ui-components';
+import { useDateTime } from '@tamanu/ui-components';
 import { TranslatedText } from './Translation/TranslatedText';
 
 const MINUTE = 60 * 1000;
@@ -46,7 +46,7 @@ const TriageCell = ({ arrivalTime, children }) => (
 export const TriageWaitTimeCell = React.memo(
   ({ encounterType, triageTime, closedTime, arrivalTime }) => {
     const [, updateState] = useState({});
-    const { formatTimeCompact } = useDateTimeFormat();
+    const { formatTimeCompact } = useDateTime();
 
     // arrivalTime is an optional field and the ui prompts the user to enter it only if arrivalTime
     // is different to triageTime so we should assume the arrivalTime is the triageTime if arrivalTime

@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { getNormalRangeByAge, useDateTimeFormat } from '@tamanu/ui-components';
+import { getNormalRangeByAge, useDateTime } from '@tamanu/ui-components';
 import {
   PROGRAM_DATA_ELEMENT_TYPES,
   VISIBILITY_STATUSES,
@@ -202,7 +202,7 @@ export const useChartsTableColumns = (
   onCellClick,
   isEditEnabled = false,
 ) => {
-  const { formatShortest, formatTimeWithSeconds } = useDateTimeFormat();
+  const { formatShortest, formatTimeWithSeconds } = useDateTime();
   return [
     {
       key: 'measure',

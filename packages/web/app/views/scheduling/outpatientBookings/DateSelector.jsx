@@ -20,7 +20,7 @@ import {
 import { eachDayInMonth } from '@tamanu/utils/dateTime';
 
 import { BodyText, MonthPicker } from '../../../components';
-import { TextButton, useDateTimeFormat } from '@tamanu/ui-components';
+import { TextButton, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../../constants';
 
 const Wrapper = styled(Box)`
@@ -131,7 +131,7 @@ const StepperWrapper = styled(Box)`
 
 const DayButton = ({ date, selected, onClick }) => {
   const isWeekendDay = isWeekend(date);
-  const { formatWeekdayNarrow } = useDateTimeFormat();
+  const { formatWeekdayNarrow } = useDateTime();
   return (
     <DayWrapper
       onClick={onClick}

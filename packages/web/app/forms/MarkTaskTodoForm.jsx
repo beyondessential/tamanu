@@ -8,7 +8,7 @@ import {
   Form,
   FormGrid,
   FormSubmitCancelRow,
-  useDateTimeFormat,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { useSuggester } from '../api';
@@ -18,7 +18,7 @@ import { useTranslation } from '../contexts/Translation';
 
 export const MarkTaskTodoForm = ({ onClose, refreshTaskTable, taskIds }) => {
   const { formatForDateTimeInput, getCurrentDateTime } =
-    useDateTimeFormat();
+    useDateTime();
   const { getTranslation } = useTranslation();
   const practitionerSuggester = useSuggester('practitioner');
   const { mutate: markTaskTodo, isLoading } = useMarkTaskTodo();

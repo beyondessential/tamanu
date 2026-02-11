@@ -9,7 +9,7 @@ import {
   Form,
   FormGrid,
   FormSubmitCancelRow,
-  useDateTimeFormat,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { useSuggester } from '../api';
 import { useMarkTaskCompleted } from '../api/mutations/useTaskMutation';
@@ -19,7 +19,7 @@ import { useTranslation } from '../contexts/Translation';
 export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) => {
   const { getTranslation } = useTranslation();
   const { formatForDateTimeInput, getCurrentDateTime } =
-    useDateTimeFormat();
+    useDateTime();
   const practitionerSuggester = useSuggester('practitioner');
   const { mutate: markTaskCompleted, isLoading } = useMarkTaskCompleted();
   const { currentUser } = useAuth();

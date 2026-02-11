@@ -10,7 +10,7 @@ import {
   Modal,
   ModalLoader,
   TranslatedText,
-  useDateTimeFormat,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { VISIBILITY_STATUSES, VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants';
 import { combineQueries } from '../api/combineQueries';
@@ -24,7 +24,7 @@ import { getComponentForQuestionType } from '../components/Surveys';
 
 export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterType }) => {
   const { getTranslation } = useTranslation();
-  const { getCurrentDateTime } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTime();
   const {
     data: [vitalsSurvey, patientAdditionalData],
     isLoading,

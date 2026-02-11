@@ -3,7 +3,7 @@ import { Divider } from '@material-ui/core';
 import * as yup from 'yup';
 
 import { TASK_DELETE_BY_SYSTEM_REASON, FORM_TYPES } from '@tamanu/constants';
-import { Form, FormGrid, FormSubmitCancelRow, useDateTimeFormat } from '@tamanu/ui-components';
+import { Form, FormGrid, FormSubmitCancelRow, useDateTime } from '@tamanu/ui-components';
 
 import {
   AutocompleteField,
@@ -18,7 +18,7 @@ import { useTranslation } from '../contexts/Translation';
 
 export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
   const { formatForDateTimeInput, getCurrentDateTime } =
-    useDateTimeFormat();
+    useDateTime();
   const { getTranslation } = useTranslation();
   const practitionerSuggester = useSuggester('practitioner');
   const taskDeletionReasonSuggester = useSuggester('taskDeletionReason');

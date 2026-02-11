@@ -3,12 +3,12 @@ import { Col } from '../Layout';
 import { DataItem } from './DataItem';
 import React from 'react';
 import { useLanguageContext } from '../../pdf/languageContext';
-import { useDateTimeFormat } from '../../pdf/withDateTimeContext';
+import { useDateTime } from '../../pdf/withDateTimeContext';
 
 export const EncounterDetailsExtended = ({ encounter, discharge }) => {
   const { location, examiner, department, startDate, endDate, reasonForEncounter } = encounter;
   const { getTranslation } = useLanguageContext();
-  const { formatShort } = useDateTimeFormat();
+  const { formatShort } = useDateTime();
 
   const clinicianText = getTranslation(
     'general.localisedField.clinician.label.short',

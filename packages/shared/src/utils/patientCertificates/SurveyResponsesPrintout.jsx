@@ -14,7 +14,7 @@ import { PatientDetails } from './printComponents/PatientDetails';
 import { getResultName, getSurveyAnswerRows, separateColorText } from './surveyAnswers';
 import { SurveyResponseDetails } from './printComponents/SurveyResponseDetails';
 import { getReferenceDataCategoryFromRowConfig } from '../translation/getReferenceDataCategoryFromRowConfig';
-import { withDateTimeContext, useDateTimeFormat } from '../pdf/withDateTimeContext';
+import { withDateTimeContext, useDateTime } from '../pdf/withDateTimeContext';
 import { getReferenceDataOptionStringId, getReferenceDataStringId } from '../translation';
 
 const pageStyles = StyleSheet.create({
@@ -154,7 +154,7 @@ const SurveyResponsesPrintoutComponent = ({
   currentUser,
   getSetting,
 }) => {
-  const { formatShort } = useDateTimeFormat();
+  const { formatShort } = useDateTime();
   const { watermark, logo } = certificateData;
 
   const surveyAnswerRows = getSurveyAnswerRows(surveyResponse).filter(({ answer }) => answer);

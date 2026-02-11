@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Typography, Box } from '@material-ui/core';
-import { Button, OutlinedButton, useDateTimeFormat } from '@tamanu/ui-components';
+import { Button, OutlinedButton, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import PrintIcon from '@material-ui/icons/Print';
@@ -232,7 +232,7 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEd
 };
 
 export const EncounterInvoicingPane = ({ encounter }) => {
-  const { getCurrentDateTime } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTime();
   const { ability } = useAuth();
   const [isEditing, setEditing] = useState(false);
   const [invoiceModalType, setInvoiceModalType] = useState(null);

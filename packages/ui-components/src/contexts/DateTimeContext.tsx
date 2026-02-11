@@ -41,12 +41,17 @@ interface DateTimeProviderProps {
 
 const DateTimeProviderContext = createContext<DateTimeContextValue | null>(null);
 
-export const useDateTimeFormat = (): DateTimeContextValue => {
+export const useDateTime = (): DateTimeContextValue => {
   const context = useContext(DateTimeProviderContext);
   if (!context) {
-    throw new Error('useDateTimeFormat must be used within a DateTimeProvider');
+    throw new Error('useDateTime must be used within a DateTimeProvider');
   }
   return context;
+};
+
+// Temporary support patient portal
+export const useDateTimeIfAvailable = (): DateTimeContextValue | null => {
+  return useContext(DateTimeProviderContext);
 };
 
 export const DateTimeProvider = ({

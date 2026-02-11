@@ -5,7 +5,7 @@ import { FormModal, NoteModalActionBlocker, TableButtonRow } from '../../../comp
 import { TabPane } from '../components';
 import { useApi } from '../../../api';
 import { VitalsForm } from '../../../forms';
-import { getAnswersFromData, Button, TranslatedText, useDateTimeFormat } from '@tamanu/ui-components';
+import { getAnswersFromData, Button, TranslatedText, useDateTime } from '@tamanu/ui-components';
 import { VitalChartDataProvider } from '../../../contexts/VitalChartData';
 import { VitalChartsModal } from '../../../components/VitalChartsModal';
 import { useAuth } from '../../../contexts/Auth';
@@ -13,7 +13,7 @@ import { useAuth } from '../../../contexts/Auth';
 export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
   const { facilityId } = useAuth();
   const queryClient = useQueryClient();
-  const { getCurrentDateTime } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTime();
   const api = useApi();
   const [modalOpen, setModalOpen] = useState(false);
   const [startTime] = useState(getCurrentDateTime());

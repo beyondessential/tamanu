@@ -39,12 +39,12 @@ vi.mock('../../../app/utils/fileSystemAccess.js', async () => {
   };
 });
 
-/** Mock `useDateTimeFormat` to avoid needing full provider setup */
+/** Mock `useDateTime` to avoid needing full provider setup */
 vi.mock('@tamanu/ui-components', async () => {
   const actual = await vi.importActual('@tamanu/ui-components');
   return {
     ...actual,
-    useDateTimeFormat: vi.fn(() => ({
+    useDateTime: vi.fn(() => ({
       getCurrentDate: () => getCurrentDateString(),
     })),
   };

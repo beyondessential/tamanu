@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { useAuth } from '../../contexts/Auth';
 import { useTranslation } from '../../contexts/Translation';
 import { foreignKey } from '../../utils/validation';
-import { useDateTimeFormat } from '@tamanu/ui-components';
+import { useDateTime } from '@tamanu/ui-components';
 
 import { FormStep, MultiStepForm } from '../MultiStepForm';
 import { LabRequestFormScreen1 } from './LabRequestFormScreen1';
@@ -28,7 +28,7 @@ export const LabRequestMultiStepForm = ({
   onSubmit,
   editedObject,
 }) => {
-  const { getCurrentDateTime } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTime();
   const { getSetting } = useSettings();
   const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
 

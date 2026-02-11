@@ -7,11 +7,11 @@ import { getDobWithAge, getPatientWeight, getSex, getVillageName } from '../../p
 import { useLanguageContext } from '../../pdf/languageContext';
 import { PrintableBarcode } from './PrintableBarcode';
 import { renderDataItems } from './renderDataItems';
-import { useDateTimeFormat } from '../../pdf/withDateTimeContext';
+import { useDateTime } from '../../pdf/withDateTimeContext';
 
 export const PatientDetailsWithBarcode = ({ patient, getSetting }) => {
   const { getTranslation } = useLanguageContext();
-  const { formatShort } = useDateTimeFormat();
+  const { formatShort } = useDateTime();
   const PATIENT_FIELDS = {
     leftCol: [
       { key: 'firstName', label: 'First name' },

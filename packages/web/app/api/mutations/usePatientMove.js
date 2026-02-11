@@ -1,10 +1,10 @@
 import { useMutation } from '@tanstack/react-query';
-import { useDateTimeFormat } from '@tamanu/ui-components';
+import { useDateTime } from '@tamanu/ui-components';
 import { useApi } from '../useApi';
 import { useEncounter } from '../../contexts/Encounter';
 
 export const usePatientMove = (encounterId, onClose) => {
-  const { getCurrentDateTime } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTime();
   const api = useApi();
   const { loadEncounter } = useEncounter();
 

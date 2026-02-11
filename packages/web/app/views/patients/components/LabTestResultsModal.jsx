@@ -7,7 +7,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { FormModal } from '../../../components/FormModal';
 import { BodyText, Heading4, SmallBodyText } from '../../../components/Typography';
-import { TextField, Form, ConfirmCancelRow, Field, useDateTimeFormat } from '@tamanu/ui-components';
+import { TextField, Form, ConfirmCancelRow, Field, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { DateTimeField, SuggesterSelectField } from '../../../components/Field';
@@ -240,7 +240,7 @@ const ResultsForm = ({
   setFieldValue,
   areLabTestResultsReadOnly,
 }) => {
-  const { getCurrentDateTime } = useDateTimeFormat();
+  const { getCurrentDateTime } = useDateTime();
   const { count, data } = labTestResults;
   /**
    * On entering lab result field for a test some other fields are auto-filled optimistically

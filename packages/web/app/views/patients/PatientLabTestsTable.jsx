@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Button } from '@material-ui/core';
-import { TranslatedText, TranslatedReferenceData, TranslatedOption, useDateTimeFormat } from '@tamanu/ui-components';
+import { TranslatedText, TranslatedReferenceData, TranslatedOption, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { Table } from '../../components/Table';
 import { DateHeadCell, RangeValidatedCell } from '../../components/FormattedTableCell';
@@ -106,7 +106,7 @@ const StyledButton = styled(Button)`
 
 export const PatientLabTestsTable = React.memo(
   ({ patient, labTests = [], count, isLoading, searchParameters }) => {
-    const { formatShort, formatTimeWithSeconds } = useDateTimeFormat();
+    const { formatShort, formatTimeWithSeconds } = useDateTime();
     const [modalLabTestId, setModalLabTestId] = useState();
     const [modalOpen, setModalOpen] = useState(false);
     const openModal = id => {

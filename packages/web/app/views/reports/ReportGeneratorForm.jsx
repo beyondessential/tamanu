@@ -12,7 +12,7 @@ import {
   REPORT_EXPORT_FORMATS,
   FORM_TYPES,
 } from '@tamanu/constants';
-import { Form, FormGrid, TextButton, Button, useDateTimeFormat } from '@tamanu/ui-components';
+import { Form, FormGrid, TextButton, Button, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -86,7 +86,7 @@ const buildParameterFieldValidation = ({ required }) => {
 
 const useFileName = () => {
   const { getLocalisation } = useLocalisation();
-  const { getCurrentDate } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTime();
   const country = getLocalisation('country');
   const date = getCurrentDate();
   const { getTranslation } = useTranslation();

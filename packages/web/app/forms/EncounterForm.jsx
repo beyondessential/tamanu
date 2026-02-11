@@ -7,7 +7,7 @@ import {
   Form,
   FormGrid,
   FormSubmitButton,
-  useDateTimeFormat,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { foreignKey } from '../utils/validation';
 import {
@@ -34,7 +34,7 @@ export const EncounterForm = React.memo(
     });
     const referralSourceSuggester = useSuggester('referralSource');
     const { getTranslation } = useTranslation();
-    const { getCurrentDateTime } = useDateTimeFormat();
+    const { getCurrentDateTime } = useDateTime();
 
     const renderForm = ({ submitForm, values }) => {
       const buttonText = editedObject ? (

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import { TextField, Form, FormGrid, FormSubmitCancelRow, useDateTimeFormat } from '@tamanu/ui-components';
+import { TextField, Form, FormGrid, FormSubmitCancelRow, useDateTime } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { AutocompleteField, DateField, Field } from '../components/Field';
 import { foreignKey, optionalForeignKey } from '../utils/validation';
@@ -15,7 +15,7 @@ export const FamilyHistoryForm = ({
   editedObject,
   onSubmit,
 }) => {
-  const { getCurrentDate } = useDateTimeFormat();
+  const { getCurrentDate } = useDateTime();
   
   const getInitialValues = () => {
     if (editedObject) {
