@@ -398,7 +398,7 @@ globalImagingRequests.get(
       where:
         filterParams?.allFacilities && JSON.parse(filterParams.allFacilities)
           ? {}
-          : { facilityId: { [Op.eq]: filterParams.facilityId } },
+          : { facilityId: { [Op.eq]: facilityId } },
     };
 
     const location = {
