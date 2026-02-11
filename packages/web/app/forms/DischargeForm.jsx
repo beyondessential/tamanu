@@ -29,7 +29,6 @@ import { foreignKey } from '../utils/validation';
 import { Colors } from '../constants';
 import {
   AutocompleteField,
-  CheckField,
   DefaultFormScreen,
   Field,
   LocalisedField,
