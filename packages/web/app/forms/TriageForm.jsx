@@ -68,7 +68,7 @@ export const TriageForm = ({
   const navigate = useNavigate();
   const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
-  const { getCurrentDateTime, getCurrentDate } = useDateTime();
+  const { getCurrentDateTime, getCurrentDate, formatForDateTimeInput } = useDateTime();
   
   const todayFacility = getCurrentDate();
   const endOfTodayMax = `${todayFacility}T23:59`;
@@ -260,7 +260,7 @@ export const TriageForm = ({
         arrivalTime: yup
           .date()
           .max(
-            getCurrentDateTime(),
+            formatForDateTimeInput(getCurrentDateTime()),
             getTranslation(
               'validation.rule.arrivalTimeNotInFuture',
               'Arrival time cannot be in the future',
@@ -270,7 +270,7 @@ export const TriageForm = ({
           .date()
           .required()
           .max(
-            getCurrentDateTime(),
+            formatForDateTimeInput(getCurrentDateTime()),
             getTranslation(
               'validation.rule.triageTimeNotInFuture',
               'Triage time cannot be in the future',
