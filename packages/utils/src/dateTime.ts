@@ -274,19 +274,18 @@ const toISO9075DateTime = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) 
   return `${yyyy}-${pad(month)}-${pad(day)} ${pad(hour)}:${pad(minute)}:${pad(second)}`;
 };
 
-const toDateTimeLocalFormat = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) => {
-  const { year, month, day, hour, minute, second } = dt;
-  const yyyy = String(year).padStart(4, '0');
-  const base = `${yyyy}-${pad(month)}-${pad(day)}T${pad(hour)}:${pad(minute)}`;
-  return second ? `${base}:${pad(second)}` : base;
-};
+const toDateTimeLocalFormat = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) =>
+  toISO9075DateTime(dt).replace(' ', 'T');
 
-const parseDateTimeString = (date: string) =>
-  Temporal.PlainDateTime.from(
-    date
-      .replace(' ', 'T')
-      .replace(/[Zz]$/, ''),
-  );
+const parseDateTimeString = (date: string, countryTimeZone?: string): Temporal.PlainDateTime => {
+  const normalized = date.replace(' ', 'T');
+  if (/[Zz]$/.test(normalized)) {
+    const instant = Temporal.Instant.from(normalized);
+    const tz = countryTimeZone ?? Temporal.Now.timeZoneId();
+    return instant.toZonedDateTimeISO(tz).toPlainDateTime();
+  }
+  return Temporal.PlainDateTime.from(normalized);
+};
 
 const getDisplayTimezone = (countryTimeZone?: string, facilityTimeZone?: string | null) =>
   facilityTimeZone ?? countryTimeZone;
@@ -317,7 +316,7 @@ export const intlFormatDate = (
     }
 
     const displayTz = getDisplayTimezone(countryTimeZone, facilityTimeZone);
-    const plain = parseDateTimeString(date);
+    const plain = parseDateTimeString(date, countryTimeZone);
 
     if (countryTimeZone && displayTz) {
       return plain
@@ -459,7 +458,7 @@ export const toFacilityDateTime = (
     }
 
     if (isISO9075DateString(value)) {
-      return `${value}T00:00`;
+      return `${value}T00:00:00`;
     }
 
     const plain = parseDateTimeString(value);
@@ -485,6 +484,12 @@ export const toStoredDateTime = (
   if (!inputValue) return null;
 
   try {
+    if (/[Zz]$/.test(inputValue)) {
+      const instant = Temporal.Instant.from(inputValue.replace(' ', 'T'));
+      const tz = countryTimeZone ?? Temporal.Now.timeZoneId();
+      return toISO9075DateTime(instant.toZonedDateTimeISO(tz));
+    }
+
     const plain = parseDateTimeString(inputValue);
 
     if (!countryTimeZone) {

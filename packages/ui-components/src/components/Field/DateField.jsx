@@ -68,9 +68,11 @@ export const DateInput = ({
   const { toFacilityDateTime, toStoredDateTime } = dateTime ?? {};
 
   // Normalize max/min to datetime-local format when using timezones so both the
-  // HTML input constraint and the handleBlur check use the same T-separator format
-  const normalizedMax = shouldUseTimezone && max ? toFacilityDateTime(max) || max : max;
-  const normalizedMin = shouldUseTimezone && min ? toFacilityDateTime(min) || min : min;
+  // HTML input constraint and the handleBlur check use the same T-separator format.
+  // If formatForDateTimeInput returns null (parse error), let it stay null so the
+  // handleBlur bounds check is skipped rather than comparing mismatched formats.
+  const normalizedMax = shouldUseTimezone ? toFacilityDateTime(max) : max;
+  const normalizedMin = shouldUseTimezone ? toFacilityDateTime(min) : min;
 
   // Convert stored value (countryTimeZone) to display value (facilityTimeZone for datetime-local)
   const getDisplayValue = val => {
