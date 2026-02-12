@@ -48,14 +48,6 @@ export const trimToTime = (date: string | null | undefined): string | null | und
   return time?.length === 5 ? `${time}:00` : time;
 };
 
-/** Converts a datetime-local input value (YYYY-MM-DDTHH:mm or YYYY-MM-DDTHH:mm:ss) to ISO 9075 format. */
-export const dateTimeInputToISO9075 = (
-  value: string | null | undefined,
-): string | null | undefined => {
-  if (!value) return value;
-  const replaced = value.replace('T', ' ');
-  return replaced.length <= 16 ? `${replaced}:00` : replaced;
-};
 
 const makeDateObject = (date: string | Date) => {
   if (typeof date !== 'string') return date;
@@ -96,13 +88,21 @@ export const toWeekdayCode = (date: string | Date | null | undefined) => {
   return parsed ? dateFnsFormat(parsed, 'iiiiii').toUpperCase() : null;
 };
 
+/** Get ISO 9075 date string for current date 
+* Note: Do not use this function on client side as is not timezone aware
+* use getCurrentDate from DateTimeContext instead
+*/
+export const getCurrentDateString = () => formatISO9075(new Date(), { representation: 'date' });
+
+/** Get ISO 9075 datetime string for current datetime
+ * Note: Do not use this function on client side as is not timezone aware
+ * use getCurrentDateTime from DateTimeContext instead
+ */
 export const getCurrentDateTimeString = () => formatISO9075(new Date());
 
 export const getDateTimeSubtractedFromNow = (daysToSubtract: number) => {
   return toDateTimeString(sub(new Date(), { days: daysToSubtract }));
 };
-
-export const getCurrentDateString = () => formatISO9075(new Date(), { representation: 'date' });
 
 /**
  *  Don't use this function when using a datestring or datetimestring column
@@ -408,7 +408,9 @@ export const eachDayInMonth = (date: Date) =>
     end: endOfMonth(date),
   });
 
-/** Get current datetime string in a specific timezone */
+  
+
+/** Get current datetime string in a specific timezone (ISO 9075 — space-separated, for storage) */
 export const getCurrentDateTimeStringInTimezone = (timezone: string) =>
   toISO9075DateTime(Temporal.Now.zonedDateTimeISO(timezone ?? Temporal.Now.timeZoneId()));
 

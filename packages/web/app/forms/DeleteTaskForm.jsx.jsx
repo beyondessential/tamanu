@@ -131,7 +131,7 @@ export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
             />,
           )
           .max(
-            getCurrentDateTime(),
+            getCurrentDateTime(), 
             getTranslation(
               'general.validation.date.cannotInFuture',
               'Date cannot be in the future',

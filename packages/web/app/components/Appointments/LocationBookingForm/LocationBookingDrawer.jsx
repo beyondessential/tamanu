@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 import { sub } from 'date-fns';
 
-import { trimToDate, toDateTimeString, dateTimeInputToISO9075 } from '@tamanu/utils/dateTime';
+import { trimToDate, toDateTimeString } from '@tamanu/utils/dateTime';
 import { Form, FormGrid, FormSubmitCancelRow, useDateTime } from '@tamanu/ui-components';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
@@ -148,8 +148,8 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
 
     return {
       ...initialValues,
-      startTime: dateTimeInputToISO9075(facilityStartStr),
-      endTime: dateTimeInputToISO9075(facilityEndStr),
+      startTime: facilityStartStr,
+      endTime: facilityEndStr,
       date: startDate ?? initialValues.startDate,
       startDate: startDate ?? initialValues.startDate,
       endDate: endDate ?? initialValues.endDate,
