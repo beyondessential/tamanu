@@ -15,6 +15,7 @@ import { keyBy } from 'lodash';
  */
 export async function getLastOrderedAtForOngoingPrescriptions(
   db,
+  patientId,
   ongoingPrescriptionIds,
   options = {},
 ) {
