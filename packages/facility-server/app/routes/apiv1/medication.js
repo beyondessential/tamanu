@@ -28,7 +28,7 @@ import {
 import { add, format, isAfter, isBefore, isEqual } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 import { validate } from '../../utils/validate';
-import { getLastOrderedPrescriptionDates } from '../../utils/medication';
+import { getLastOrderedAtForOngoingPrescriptions } from '../../utils/medication';
 import { mapQueryFilters } from '../../database/utils';
 
 export const medication = express.Router();
@@ -441,7 +441,7 @@ medication.post(
     // Fetch last ordered dates for "first send free" validation - prescriptions with 0 repeats
     // that have never been ordered still have one remaining send
     const ongoingPrescriptionIds = ongoingPrescriptions.map(p => p.id);
-    const lastOrderedAts = await getLastOrderedPrescriptionDates(
+    const lastOrderedAts = await getLastOrderedAtForOngoingPrescriptions(
       db,
       patientId,
       ongoingPrescriptionIds,
@@ -542,7 +542,7 @@ medication.post(
       // Find the latest pharmacy_order_prescriptions for prescriptions that were cloned from ongoing prescriptions.
       // This query runs before creating new records, so it only finds previous orders.
       const ongoingPrescriptionIds = ongoingPrescriptions.map(p => p.id);
-      const lastOrderedAts = await getLastOrderedPrescriptionDates(
+      const lastOrderedAts = await getLastOrderedAtForOngoingPrescriptions(
         db,
         patientId,
         ongoingPrescriptionIds,

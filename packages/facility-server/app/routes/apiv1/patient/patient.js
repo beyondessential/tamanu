@@ -32,7 +32,7 @@ import {
 import { dbRecordToResponse, pickPatientBirthData, requestBodyToRecord } from './utils';
 import { PATIENT_SORT_KEYS } from './constants';
 import { getWhereClausesAndReplacementsFromFilters } from '../../../utils/query';
-import { getLastOrderedPrescriptionDates } from '../../../utils/medication';
+import { getLastOrderedAtForOngoingPrescriptions } from '../../../utils/medication';
 import { validate } from '../../../utils/validate';
 import { patientContact } from './patientContact';
 import { patientPortal } from './patientPortal';
@@ -605,7 +605,7 @@ patientRoute.get(
     if (responseData.length > 0) {
       const ongoingPrescriptionIds = responseData.map(p => p.id);
 
-      const lastOrderedAts = await getLastOrderedPrescriptionDates(
+      const lastOrderedAts = await getLastOrderedAtForOngoingPrescriptions(
         db,
         patientId,
         ongoingPrescriptionIds,

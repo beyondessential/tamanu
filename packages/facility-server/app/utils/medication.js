@@ -20,7 +20,7 @@ import { keyBy } from 'lodash';
  * @param {Object} [options.transaction] - Sequelize transaction
  * @returns {Promise<Object>} Map of ongoing_prescription_id to { ongoing_prescription_id, last_ordered_at }
  */
-export async function getLastOrderedPrescriptionDates(
+export async function getLastOrderedAtForOngoingPrescriptions(
   db,
   patientId,
   ongoingPrescriptionIds,
