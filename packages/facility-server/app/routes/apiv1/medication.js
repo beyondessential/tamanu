@@ -344,13 +344,15 @@ const sendOngoingToPharmacySchema = z
     orderingClinicianId: z.string().uuid({ message: 'Valid ordering clinician ID is required' }),
     comments: z.string().optional().nullable(),
     facilityId: z.string({ message: 'Valid facility ID is required' }),
-    prescriptions: z.array(
-      z.object({
-        prescriptionId: z.string().uuid({ message: 'Valid prescription ID is required' }),
-        quantity: z.number().int().positive({ message: 'Quantity must be a positive integer' }),
-        repeats: z.number().int().min(0).max(MAX_REPEATS).optional().nullable(),
-      }),
-    ),
+    prescriptions: z
+      .array(
+        z.object({
+          prescriptionId: z.string().uuid({ message: 'Valid prescription ID is required' }),
+          quantity: z.number().int().positive({ message: 'Quantity must be a positive integer' }),
+          repeats: z.number().int().min(0).max(MAX_REPEATS).optional().nullable(),
+        }),
+      )
+      .nonempty({ message: 'At least one prescription is required' }),
   })
   .strip();
 
