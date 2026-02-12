@@ -840,8 +840,8 @@ export const globalSettings = {
             type: LOCALISED_FIELD_TYPES.STRING,
           }),
         },
-        birthType: {
-          name: 'Birth type',
+        plurality: {
+          name: 'Plurality',
           description: '_',
           properties: generateFieldSchema({
             isPatientDetails: true,

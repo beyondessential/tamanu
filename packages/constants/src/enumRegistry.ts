@@ -22,7 +22,7 @@ import { VACCINE_STATUS_LABELS, INJECTION_SITE_LABELS, VACCINE_CATEGORY_LABELS }
 import {
   ATTENDANT_OF_BIRTH_LABELS,
   BIRTH_DELIVERY_TYPE_LABELS,
-  BIRTH_TYPE_LABELS,
+  PLURALITY_LABELS,
   PLACE_OF_BIRTH_LABELS,
 } from './births';
 import {
@@ -128,7 +128,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   ATTENDANT_OF_BIRTH_LABELS: 'birth.property.attendantOfBirth',
   ASSET_NAME_LABELS: 'asset.property.name',
   BIRTH_DELIVERY_TYPE_LABELS: 'birth.property.birthDeliveryType',
-  BIRTH_TYPE_LABELS: 'birth.property.birthType',
+  PLURALITY_LABELS: 'birth.property.plurality',
   BLOOD_LABELS: 'patient.property.blood',
   DIAGNOSIS_CERTAINTY_LABELS: 'diagnosis.property.certainty',
   DRUG_ROUTE_LABELS: 'medication.property.route',

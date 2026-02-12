@@ -1,4 +1,4 @@
-import { BIRTH_DELIVERY_TYPES, BIRTH_TYPES } from '@tamanu/constants';
+import { BIRTH_DELIVERY_TYPES, PLURALITY_TYPES } from '@tamanu/constants';
 
 export const BIRTH_DELIVERY_TYPE_LABELS = {
   [BIRTH_DELIVERY_TYPES.NORMAL_VAGINAL_DELIVERY]: 'Normal vaginal delivery',
@@ -41,12 +41,12 @@ export const BIRTH_DELIVERY_TYPE_OPTIONS = [
   },
 ];
 
-export const BIRTH_TYPE_LABELS = {
-  [BIRTH_TYPES.SINGLE]: 'Single',
-  [BIRTH_TYPES.PLURAL]: 'Plural',
+export const PLURALITY_LABELS = {
+  [PLURALITY_TYPES.SINGLE]: 'Single',
+  [PLURALITY_TYPES.PLURAL]: 'Plural',
 };
 
-export const BIRTH_TYPE_OPTIONS = [
-  { value: BIRTH_TYPES.SINGLE, label: BIRTH_TYPE_LABELS[BIRTH_TYPES.SINGLE] },
-  { value: BIRTH_TYPES.PLURAL, label: BIRTH_TYPE_LABELS[BIRTH_TYPES.PLURAL] },
+export const PLURALITY_OPTIONS = [
+  { value: PLURALITY_TYPES.SINGLE, label: PLURALITY_LABELS[PLURALITY_TYPES.SINGLE] },
+  { value: PLURALITY_TYPES.PLURAL, label: PLURALITY_LABELS[PLURALITY_TYPES.PLURAL] },
 ];

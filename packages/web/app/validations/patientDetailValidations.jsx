@@ -4,7 +4,7 @@ import { isEqual } from 'lodash';
 
 import {
   BIRTH_DELIVERY_TYPES,
-  BIRTH_TYPES,
+  PLURALITY_TYPES,
   PATIENT_REGISTRY_TYPES,
   PLACE_OF_BIRTH_TYPES,
   SEX_VALUES,
@@ -284,21 +284,21 @@ export const getPatientDetailsValidation = (patientRegistryType, getSetting, get
         ),
       'Apgar score at 10 min',
     ),
-    birthType: requiredBirthFieldWhenConfiguredMandatory(
+    plurality: requiredBirthFieldWhenConfiguredMandatory(
       getSetting,
       getTranslation,
       patientRegistryType,
-      'birthType',
+      'plurality',
       yup
         .string()
-        .oneOf(Object.values(BIRTH_TYPES))
+        .oneOf(Object.values(PLURALITY_TYPES))
         .translatedLabel(
           <TranslatedText
-            stringId="general.localisedField.birthType.label"
-            fallback="Single/Plural birth"
+            stringId="general.localisedField.plurality.label"
+            fallback="Plurality"
           />,
         ),
-      'Single/Plural birth',
+      'Plurality',
     ),
     timeOfBirth: requiredBirthFieldWhenConfiguredMandatory(
       getSetting,
