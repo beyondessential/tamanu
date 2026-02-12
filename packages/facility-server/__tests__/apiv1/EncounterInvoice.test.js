@@ -798,10 +798,10 @@ describe('Encounter invoice', () => {
           });
 
           expect(result.body.items).toHaveLength(2);
-          console.log('result.body.items', result.body.items);
           expect(result.body.items).toEqual(
             expect.arrayContaining([
               expect.objectContaining({
+                id: labRequest.id,
                 sourceRecordId: labRequest.labTestPanelRequestId,
                 sourceRecordType: 'LabTestPanelRequest',
                 productId: labTestPanelGeneralProduct.id,
