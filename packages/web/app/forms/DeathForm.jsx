@@ -27,6 +27,8 @@ import { useTranslation } from '../contexts/Translation';
 import {
   FSMSpecificQuestions,
   InfantPage,
+  FSMPregnancyPage,
+  FSMMannerOfDeathPage,
   MannerOfDeathPage,
   PregnancyPage,
 } from './DeathFormOptionalPages';
@@ -146,6 +148,12 @@ const isInfant = (timeOfDeath, patient) => {
   return differenceInMonths(parseISO(timeOfDeath), parseISO(patient.dateOfBirth)) <= 12;
 };
 
+const canBePregnantFSM = (timeOfDeath, patient) => {
+  if (!timeOfDeath || !patient?.dateOfBirth || patient?.sex !== 'female') return false;
+  const age = differenceInYears(parseISO(timeOfDeath), parseISO(patient.dateOfBirth));
+  return age >= 15 && age <= 44;
+};
+
 export const DeathForm = React.memo(
   ({
     onCancel,
@@ -160,7 +168,6 @@ export const DeathForm = React.memo(
     const { getTranslation } = useTranslation();
     const { currentUser } = useAuth();
     const { getSetting } = useSettings();
-    const showPregnantQuestions = canBePregnant(currentTOD, patient);
     const showInfantQuestions = isInfant(currentTOD, patient);
     const handleSubmit = (data) => {
       onSubmit({
@@ -169,6 +176,8 @@ export const DeathForm = React.memo(
       });
     };
     const isFSMStyleEnabled = getSetting('fsmCrvsCertificates.enableFSMStyle');
+    const showPregnantFSMQuestions = isFSMStyleEnabled && canBePregnantFSM(currentTOD, patient);
+    const showPregnantQuestions = !isFSMStyleEnabled && canBePregnant(currentTOD, patient);
 
     return (
       <PaginatedForm
@@ -505,7 +514,8 @@ export const DeathForm = React.memo(
             data-testid="field-333j"
           />
         </StyledFormGrid>
-        <MannerOfDeathPage />
+        {isFSMStyleEnabled ? <FSMMannerOfDeathPage /> : <MannerOfDeathPage />}
+        {showPregnantFSMQuestions ? <FSMPregnancyPage /> : null}
         {showPregnantQuestions ? <PregnancyPage /> : null}
         {showInfantQuestions ? <InfantPage /> : null}
       </PaginatedForm>

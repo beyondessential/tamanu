@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { differenceInYears, parseISO } from 'date-fns';
 import {
   BINARY_OPTIONS,
   BINARY_UNKNOWN_OPTIONS,
@@ -78,12 +77,6 @@ const DEATH_LOCATION_HIERARCHY_FIELDS = [
     ),
   },
 ];
-
-const isChildBearingAge = (timeOfDeath, patient) => {
-  if (!timeOfDeath || !patient?.dateOfBirth || patient?.sex !== 'female') return false;
-  const age = differenceInYears(parseISO(timeOfDeath), parseISO(patient.dateOfBirth));
-  return age >= 15 && age <= 44;
-};
 
 export const FSMSpecificQuestions = () => {
   return (
@@ -543,11 +536,7 @@ export const FSMMannerOfDeathPage = () => {
   );
 };
 
-export const FSMPregnancyPage = ({ patient, currentTOD }) => {
-  const showChildBearingFields = isChildBearingAge(currentTOD, patient);
-
-  if (!showChildBearingFields) return null;
-
+export const FSMPregnancyPage = () => {
   return (
     <StyledFormGrid columns={2} data-testid="styledformgrid-fsm-pregnancy">
       <Field
