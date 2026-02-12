@@ -87,6 +87,7 @@ function classificationCode({ encounterType }: Encounter) {
 
     case ENCOUNTER_TYPES.SURVEY_RESPONSE:
     case ENCOUNTER_TYPES.VACCINATION:
+    case ENCOUNTER_TYPES.MEDICATION_DISPENSING:
     default:
       return null; // these should be filtered out (TODO EPI-452)
   }
