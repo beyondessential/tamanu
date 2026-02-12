@@ -342,7 +342,6 @@ export const PharmacyOrderMedicationTable = ({
   selectAllChecked,
   columnsToInclude,
   isOngoingMode = false,
-  canEditRepeats = true,
   disabledPrescriptionIds = [],
 }) => {
   const { getTranslation, getEnumTranslation } = useTranslation();
@@ -357,7 +356,7 @@ export const PharmacyOrderMedicationTable = ({
         handleSelectAll,
         selectAllChecked,
         columnsToInclude,
-        { isOngoingMode, canEditRepeats, disabledPrescriptionIds },
+        { isOngoingMode, disabledPrescriptionIds },
       ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
@@ -367,7 +366,6 @@ export const PharmacyOrderMedicationTable = ({
       selectAllChecked,
       columnsToInclude,
       isOngoingMode,
-      canEditRepeats,
       disabledIdsKey,
     ],
   );

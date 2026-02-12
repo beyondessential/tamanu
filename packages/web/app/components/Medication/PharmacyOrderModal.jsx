@@ -638,7 +638,6 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
         selectAllChecked={selectAllChecked}
         columnsToInclude={mainTableColumns}
         isOngoingMode={isOngoingMode}
-        canEditRepeats={canEditRepeats}
         disabledPrescriptionIds={prescriptions.filter(p => p.isSelectionDisabled).map(p => p.id)}
       />
 
