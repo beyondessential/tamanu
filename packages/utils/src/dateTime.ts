@@ -353,14 +353,8 @@ export const dateCustomValidation = z
   .describe('__dateCustomValidation__');
 
 export const timeCustomValidation = z.string().refine(
-  (val: string) => {
-    const regex = /^\d{2}:\d{2}:\d{2}$/;
-    if (!regex.test(val)) return false;
-    return true;
-  },
-  {
-    message: 'Invalid time format, expected HH:MM:SS',
-  },
+  (val: string) => /^\d{2}:\d{2}:\d{2}$/.test(val),
+  { message: 'Invalid time format, expected HH:MM:SS' },
 );
 
 // Custom validator for "YYYY-MM-DD HH:MM:SS" format
@@ -407,8 +401,6 @@ export const eachDayInMonth = (date: Date) =>
     start: startOfMonth(date),
     end: endOfMonth(date),
   });
-
-  
 
 /** Get current datetime string in a specific timezone (ISO 9075 — space-separated, for storage) */
 export const getCurrentDateTimeStringInTimezone = (timezone: string) =>
@@ -489,8 +481,8 @@ export const toStoredDateTime = (
     if (!countryTimeZone) {
       return toISO9075DateTime(plain);
     }
-    const displayTz = facilityTimeZone ?? countryTimeZone;
-    return toISO9075DateTime(plain.toZonedDateTime(displayTz).withTimeZone(countryTimeZone));
+    const inputTz = getDisplayTimezone(countryTimeZone, facilityTimeZone);
+    return toISO9075DateTime(plain.toZonedDateTime(inputTz).withTimeZone(countryTimeZone));
   } catch (error) {
     logDateError('toStoredDateTime', error, inputValue, countryTimeZone, facilityTimeZone);
     return null;
