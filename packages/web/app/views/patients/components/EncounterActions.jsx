@@ -10,6 +10,7 @@ import { NoteModalActionBlocker } from '../../../components';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { useAuth } from '../../../contexts/Auth';
+import { useEncounterDischargeQuery } from '../../../api/queries/useEncounterDischargeQuery';
 
 const ENCOUNTER_MODALS = {
   NONE: 'none',
@@ -51,6 +52,8 @@ export const EncounterActions = React.memo(({ encounter }) => {
   const onClose = () => setOpenModal(ENCOUNTER_MODALS.NONE);
   const onViewSummary = () => navigateToSummary();
 
+  const { data: discharge } = useEncounterDischargeQuery(encounter)
+
   const canWriteEncounter = ability.can('write', 'Encounter');
 
   if (encounter.endDate) {
@@ -59,7 +62,7 @@ export const EncounterActions = React.memo(({ encounter }) => {
     // need this extra check here to only show encounter/discharge summary actions when
     // the encounter is actually discharged (discharge record exists).
     return (
-      <>
+      discharge && <>
         <ActionsContainer data-testid="actionscontainer-w92z">
           <StyledButton
             size="small"
