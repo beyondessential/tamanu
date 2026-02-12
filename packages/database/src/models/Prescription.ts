@@ -232,11 +232,7 @@ export class Prescription extends Model {
 
     const hasPharmacy = pops.length > 0;
     const earliestPharmacyDate = hasPharmacy
-      ? new Date(
-          pops
-            .map(p => new Date(p?.pharmacyOrder?.date as unknown as string))
-            .sort((a, b) => a.getTime() - b.getTime())[0]!,
-        )
+      ? pops.map(p => p.pharmacyOrder!.date).sort((a, b) => a.localeCompare(b))[0]
       : undefined;
 
     const totalSentQty = pops.reduce((sum: number, p: any) => sum + (Number(p.quantity) || 0), 0);
