@@ -466,6 +466,83 @@ export const PregnancyPage = () => {
   );
 };
 
+export const FSMMannerOfDeathPage = () => {
+  return (
+    <StyledFormGrid columns={2} data-testid="styledformgrid-fsm-manner-of-death">
+      <Field
+        name="mannerOfDeath"
+        label={
+          <TranslatedText
+            stringId="death.mannerOfDeath.label"
+            fallback="What was the manner of death?"
+            data-testid="translatedtext-ix0p"
+          />
+        }
+        component={TranslatedSelectField}
+        enumValues={MANNER_OF_DEATHS}
+        required
+        data-testid="field-fsm-manner-of-death"
+      />
+      <Field
+        name="mannerOfDeathDate"
+        label={
+          <TranslatedText
+            stringId="death.mannerOfDeathDate.label"
+            fallback="Date of external cause"
+            data-testid="translatedtext-hntf"
+          />
+        }
+        component={DateField}
+        saveDateAsString
+        format="MM/dd/yyyy"
+        visibilityCriteria={mannerOfDeathVisibilityCriteria}
+        data-testid="field-fsm-date-of-external-cause"
+      />
+      <Field
+        name="fsmInjuryAtWork"
+        label={
+          <TranslatedText
+            stringId="death.fsm.injuryAtWork.label"
+            fallback="Did the injury occur at work?"
+            data-testid="translatedtext-fsm-injury-at-work"
+          />
+        }
+        component={RadioField}
+        options={BINARY_OPTIONS}
+        visibilityCriteria={mannerOfDeathVisibilityCriteria}
+        data-testid="field-fsm-injury-at-work"
+      />
+      <Field
+        name="mannerOfDeathLocation"
+        label={
+          <TranslatedText
+            stringId="death.fsm.placeOfInjury.label"
+            fallback="Place of injury"
+            data-testid="translatedtext-fsm-place-of-injury"
+          />
+        }
+        component={TranslatedSelectField}
+        enumValues={PLACE_OF_DEATHS}
+        visibilityCriteria={mannerOfDeathVisibilityCriteria}
+        data-testid="field-fsm-place-of-injury"
+      />
+      <Field
+        name="mannerOfDeathOther"
+        label={
+          <TranslatedText
+            stringId="death.fsm.location.label"
+            fallback="Location (Village, Hamlet, etc.)"
+            data-testid="translatedtext-fsm-location"
+          />
+        }
+        component={TextField}
+        visibilityCriteria={mannerOfDeathVisibilityCriteria}
+        data-testid="field-fsm-location"
+      />
+    </StyledFormGrid>
+  );
+};
+
 export const FSMPregnancyPage = ({ patient, currentTOD }) => {
   const showChildBearingFields = isChildBearingAge(currentTOD, patient);
 
@@ -549,19 +626,6 @@ export const FSMInjuryPage = () => {
         component={DateField}
         saveDateAsString
         data-testid="field-fsm-date-of-injury"
-      />
-      <Field
-        name="fsmInjuryAtWork"
-        label={
-          <TranslatedText
-            stringId="death.fsm.injuryAtWork.label"
-            fallback="Did the injury occur at work?"
-            data-testid="translatedtext-fsm-injury-at-work"
-          />
-        }
-        component={RadioField}
-        options={BINARY_OPTIONS}
-        data-testid="field-fsm-injury-at-work"
       />
     </StyledFormGrid>
   );
