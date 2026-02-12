@@ -40,6 +40,7 @@ export const HeaderIcons = {
   [EncounterType.Observation]: Icons.FirstAidKitIcon,
   [EncounterType.Triage]: Icons.FirstAidKitIcon,
   [EncounterType.SurveyResponse]: Icons.FirstAidKitIcon,
+  [EncounterType.MedicationDispensing]: Icons.ClipboardIcon,
 };
 
 export const PatientVitalsList = [
@@ -201,6 +202,7 @@ export const EncounterTypeNames = {
   triage: 'Triage',
   surveyResponse: 'Form response',
   vaccination: 'Vaccination record',
+  medicationDispensing: 'Medication dispensing',
 };
 
 export const LabRequestStatus = {

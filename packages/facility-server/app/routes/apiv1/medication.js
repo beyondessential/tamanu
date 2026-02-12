@@ -518,10 +518,9 @@ medication.post(
       const encounter = await Encounter.create(
         {
           patientId,
-          encounterType: ENCOUNTER_TYPES.CLINIC,
+          encounterType: ENCOUNTER_TYPES.MEDICATION_DISPENSING,
           startDate: currentDateTime,
           endDate: currentDateTime,
-          reasonForEncounter: 'Medication dispensing',
           examinerId: orderingClinicianId,
           dischargerId: orderingClinicianId,
           locationId: automaticEncounterLocationId,

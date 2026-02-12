@@ -14,6 +14,7 @@ One of:
 - `triage`
 - `surveyResponse`
 - `vaccination`
+- `medicationDispensing`
 {% enddocs %}
 
 {% docs encounters__start_date %}

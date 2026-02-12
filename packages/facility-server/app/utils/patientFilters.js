@@ -78,6 +78,7 @@ export const createPatientFilters = filterParams => {
           ENCOUNTER_TYPES.IMAGING,
           ENCOUNTER_TYPES.SURVEY_RESPONSE,
           ENCOUNTER_TYPES.VACCINATION,
+          ENCOUNTER_TYPES.MEDICATION_DISPENSING,
         ],
       }),
     ),

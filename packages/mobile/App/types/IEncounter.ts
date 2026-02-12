@@ -14,6 +14,7 @@ export const EncounterType = {
   Triage: 'triage',
   SurveyResponse: 'surveyResponse',
   Vaccination: 'vaccination',
+  MedicationDispensing: 'medicationDispensing',
 } as const;
 
 export type EncounterType = (typeof EncounterType)[keyof typeof EncounterType];

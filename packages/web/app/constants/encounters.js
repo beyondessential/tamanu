@@ -46,6 +46,10 @@ export const ENCOUNTER_OPTIONS = [
     value: ENCOUNTER_TYPES.VACCINATION,
     hideFromMenu: true,
   },
+  {
+    value: ENCOUNTER_TYPES.MEDICATION_DISPENSING,
+    hideFromMenu: true,
+  },
 ];
 
 export const ENCOUNTER_OPTIONS_BY_VALUE = createValueIndex(ENCOUNTER_OPTIONS);
