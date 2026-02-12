@@ -7,7 +7,6 @@ import {
   PLACE_OF_DEATHS,
   FORM_TYPES,
   PREGNANCY_MOMENTS,
-  BINARY_OPTIONS,
   BINARY_UNKNOWN_OPTIONS,
 } from '@tamanu/constants';
 import { differenceInYears, differenceInMonths, parseISO } from 'date-fns';
@@ -21,7 +20,6 @@ import {
   Field,
   FieldWithTooltip,
   FormSeparatorLine,
-  NumberField,
   PaginatedForm,
   RadioField,
   TimeWithUnitField,
@@ -32,7 +30,7 @@ import { DeathFormScreen } from './DeathFormScreen';
 import { SummaryScreenThree, SummaryScreenTwo } from './DeathFormSummaryScreens';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
-import { FSMSpecificQuestions } from './DeathFormOptionalPages';
+import { FSMSpecificQuestions, InfantPage } from './DeathFormOptionalPages';
 import { useSettings } from '../contexts/Settings';
 
 const PrefixWrapper = styled.div`
@@ -63,12 +61,6 @@ const StyledCheckField = styled(CheckField)`
 const StyledFormGrid = styled(FormGrid)`
   min-height: 200px;
   padding-left: 10px;
-`;
-
-const Subheading = styled.div`
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 21px;
 `;
 
 const attendingClinicianLabel = (
@@ -633,121 +625,7 @@ export const DeathForm = React.memo(
             />
           </StyledFormGrid>
         ) : null}
-        {showInfantQuestions ? (
-          <StyledFormGrid columns={1} data-testid="styledformgrid-7x1s">
-            <Subheading>
-              <TranslatedText
-                stringId="death.fetalOrInfantDeathDetails.label"
-                fallback="Details on fetal or infant death"
-                data-testid="translatedtext-fetal-infant-death-details"
-              />
-            </Subheading>
-            <Field
-              name="multiplePregnancy"
-              label={
-                <TranslatedText
-                  stringId="death.multiplePregnancy.label"
-                  fallback="Multiple pregnancy"
-                  data-testid="translatedtext-9c6g"
-                />
-              }
-              component={RadioField}
-              options={BINARY_UNKNOWN_OPTIONS}
-              data-testid="field-y4u7"
-            />
-            <Field
-              name="stillborn"
-              label={
-                <TranslatedText
-                  stringId="death.stillborn.label"
-                  fallback="Stillbirth"
-                  data-testid="translatedtext-ki92"
-                />
-              }
-              component={RadioField}
-              options={BINARY_UNKNOWN_OPTIONS}
-              data-testid="field-yol7"
-            />
-            <Field
-              name="deathWithin24HoursOfBirth"
-              label={
-                <TranslatedText
-                  stringId="death.deathWithin24HoursOfBirth.label"
-                  fallback="Was the death within 24 hours of birth?"
-                  data-testid="translatedtext-s42j"
-                />
-              }
-              component={RadioField}
-              options={BINARY_OPTIONS}
-              data-testid="field-z06p"
-            />
-            <Field
-              name="numberOfHoursSurvivedSinceBirth"
-              label={
-                <TranslatedText
-                  stringId="death.numberOfHoursSurvived.label"
-                  fallback="Number of hours survived"
-                  data-testid="translatedtext-ubzt"
-                />
-              }
-              component={NumberField}
-              min={0}
-              visibilityCriteria={{ deathWithin24HoursOfBirth: 'yes' }}
-              data-testid="field-fhz5"
-            />
-            <Field
-              name="birthWeight"
-              label={
-                <TranslatedText
-                  stringId="death.birthWeight.label"
-                  fallback="Birth weight (grams):"
-                  data-testid="translatedtext-mkew"
-                />
-              }
-              component={NumberField}
-              min={0}
-              data-testid="field-k1l7"
-            />
-            <Field
-              name="numberOfCompletedPregnancyWeeks"
-              label={
-                <TranslatedText
-                  stringId="death.numberOfCompletedPregnancyWeeks.label"
-                  fallback="Number of completed weeks of pregnancy"
-                  data-testid="translatedtext-au8c"
-                />
-              }
-              component={NumberField}
-              min={0}
-              data-testid="field-urj7"
-            />
-            <Field
-              name="ageOfMother"
-              label={
-                <TranslatedText
-                  stringId="death.ageOfMother.label"
-                  fallback="Age of mother"
-                  data-testid="translatedtext-6fp9"
-                />
-              }
-              component={NumberField}
-              min={0}
-              data-testid="field-k593"
-            />
-            <Field
-              name="motherConditionDescription"
-              label={
-                <TranslatedText
-                  stringId="death.motherConditionDescription.label"
-                  fallback="If the death was perinatal, state conditions of mother that affected the fetus/newborn"
-                  data-testid="translatedtext-2c2y"
-                />
-              }
-              component={TextField}
-              data-testid="field-p0rp"
-            />
-          </StyledFormGrid>
-        ) : null}
+        {showInfantQuestions ? <InfantPage /> : null}
       </PaginatedForm>
     );
   },
