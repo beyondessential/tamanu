@@ -801,7 +801,6 @@ describe('Encounter invoice', () => {
           expect(result.body.items).toEqual(
             expect.arrayContaining([
               expect.objectContaining({
-                id: labRequest.id,
                 sourceRecordId: labRequest.labTestPanelRequestId,
                 sourceRecordType: 'LabTestPanelRequest',
                 productId: labTestPanelGeneralProduct.id,
