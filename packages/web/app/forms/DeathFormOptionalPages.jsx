@@ -6,6 +6,9 @@ import {
   BINARY_UNKNOWN_OPTIONS,
   REFERENCE_TYPES,
   REFERENCE_DATA_RELATION_TYPES,
+  PREGNANCY_MOMENTS,
+  MANNER_OF_DEATHS,
+  PLACE_OF_DEATHS,
 } from '@tamanu/constants';
 import {
   DateField,
@@ -15,7 +18,7 @@ import {
   NumberField,
   RadioField,
 } from '../components';
-import { TextField, SelectField, FormGrid } from '@tamanu/ui-components';
+import { TextField, SelectField, FormGrid, TranslatedSelectField } from '@tamanu/ui-components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const StyledFormGrid = styled(FormGrid)`
@@ -28,6 +31,10 @@ const Subheading = styled.div`
   font-size: 16px;
   line-height: 21px;
 `;
+
+const mannerOfDeathVisibilityCriteria = {
+  mannerOfDeath: Object.values(MANNER_OF_DEATHS).filter(x => x !== 'Disease'),
+};
 
 const FSM_MARITAL_STATUS_OPTIONS = [
   { value: 'Married', label: 'Married' },
@@ -218,6 +225,81 @@ export const FSMSpecificQuestions = () => {
   );
 };
 
+export const MannerOfDeathPage = () => {
+  return (
+    <StyledFormGrid columns={1} data-testid="styledformgrid-e4ss">
+      <Field
+        name="mannerOfDeath"
+        label={
+          <TranslatedText
+            stringId="death.mannerOfDeath.label"
+            fallback="What was the manner of death?"
+            data-testid="translatedtext-wvl5"
+          />
+        }
+        component={TranslatedSelectField}
+        enumValues={MANNER_OF_DEATHS}
+        required
+        data-testid="field-ylgd"
+      />
+      <Field
+        name="mannerOfDeathDate"
+        label={
+          <TranslatedText
+            stringId="death.mannerOfDeathDate.label"
+            fallback="Date of external cause"
+            data-testid="translatedtext-d3kf"
+          />
+        }
+        component={DateField}
+        saveDateAsString
+        visibilityCriteria={mannerOfDeathVisibilityCriteria}
+        data-testid="field-ezni"
+      />
+      <Field
+        name="mannerOfDeathDescription"
+        label={
+          <TranslatedText
+            stringId="death.mannerOfDeathDescription.label"
+            fallback="Describe how the external cause occurred. Specify poisoning agent if applicable"
+            data-testid="translatedtext-4s7r"
+          />
+        }
+        component={TextField}
+        visibilityCriteria={mannerOfDeathVisibilityCriteria}
+        data-testid="field-c5l7"
+      />
+      <Field
+        name="mannerOfDeathLocation"
+        label={
+          <TranslatedText
+            stringId="death.mannerOfDeathLocation.label"
+            fallback="Place of occurrence of the external cause"
+            data-testid="translatedtext-d15s"
+          />
+        }
+        component={TranslatedSelectField}
+        enumValues={PLACE_OF_DEATHS}
+        visibilityCriteria={mannerOfDeathVisibilityCriteria}
+        data-testid="field-r81o"
+      />
+      <Field
+        name="mannerOfDeathOther"
+        label={
+          <TranslatedText
+            stringId="general.other.label"
+            fallback="Please specify"
+            data-testid="translatedtext-4gij"
+          />
+        }
+        component={TextField}
+        visibilityCriteria={{ mannerOfDeathLocation: 'Other' }}
+        data-testid="field-u4jw"
+      />
+    </StyledFormGrid>
+  );
+};
+
 export const InfantPage = () => {
   return (
     <StyledFormGrid columns={1} data-testid="styledformgrid-7x1s">
@@ -331,6 +413,54 @@ export const InfantPage = () => {
         }
         component={TextField}
         data-testid="field-p0rp"
+      />
+    </StyledFormGrid>
+  );
+};
+
+export const PregnancyPage = () => {
+  return (
+    <StyledFormGrid columns={1} data-testid="styledformgrid-gkfk">
+      <Field
+        name="pregnant"
+        label={
+          <TranslatedText
+            stringId="death.pregnant.label"
+            fallback="Was the woman pregnant or recently pregnant?"
+            data-testid="translatedtext-vvm2"
+          />
+        }
+        component={RadioField}
+        options={BINARY_UNKNOWN_OPTIONS}
+        data-testid="field-swkw"
+      />
+      <Field
+        name="pregnancyMoment"
+        label={
+          <TranslatedText
+            stringId="death.pregnancyMoment.label"
+            fallback="When was the woman pregnant?"
+            data-testid="translatedtext-o06d"
+          />
+        }
+        component={TranslatedSelectField}
+        enumValues={PREGNANCY_MOMENTS}
+        visibilityCriteria={{ pregnant: 'yes' }}
+        data-testid="field-9j31"
+      />
+      <Field
+        name="pregnancyContribute"
+        label={
+          <TranslatedText
+            stringId="death.pregnancyContribute.label"
+            fallback="Did the pregnancy contribute to the death?"
+            data-testid="translatedtext-1mbh"
+          />
+        }
+        component={RadioField}
+        options={BINARY_UNKNOWN_OPTIONS}
+        visibilityCriteria={{ pregnant: 'yes' }}
+        data-testid="field-bt6f"
       />
     </StyledFormGrid>
   );

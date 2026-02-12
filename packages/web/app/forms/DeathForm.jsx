@@ -2,13 +2,7 @@ import React, { useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import MuiBox from '@material-ui/core/Box';
-import {
-  MANNER_OF_DEATHS,
-  PLACE_OF_DEATHS,
-  FORM_TYPES,
-  PREGNANCY_MOMENTS,
-  BINARY_UNKNOWN_OPTIONS,
-} from '@tamanu/constants';
+import { FORM_TYPES, BINARY_UNKNOWN_OPTIONS } from '@tamanu/constants';
 import { differenceInYears, differenceInMonths, parseISO } from 'date-fns';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
@@ -24,13 +18,18 @@ import {
   RadioField,
   TimeWithUnitField,
 } from '../components';
-import { TextField, TranslatedSelectField, FormGrid } from '@tamanu/ui-components';
+import { FormGrid } from '@tamanu/ui-components';
 import { useAuth } from '../contexts/Auth';
 import { DeathFormScreen } from './DeathFormScreen';
 import { SummaryScreenThree, SummaryScreenTwo } from './DeathFormSummaryScreens';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
-import { FSMSpecificQuestions, InfantPage } from './DeathFormOptionalPages';
+import {
+  FSMSpecificQuestions,
+  InfantPage,
+  MannerOfDeathPage,
+  PregnancyPage,
+} from './DeathFormOptionalPages';
 import { useSettings } from '../contexts/Settings';
 
 const PrefixWrapper = styled.div`
@@ -80,10 +79,6 @@ const attendingClinicianLabel = (
     data-testid="translatedtext-7vdz"
   />
 );
-
-const mannerOfDeathVisibilityCriteria = {
-  mannerOfDeath: Object.values(MANNER_OF_DEATHS).filter(x => x !== 'Disease'),
-};
 
 // These fields are both on page 1 and page 2. This allows
 // partial workflow and is intended by design.
@@ -510,121 +505,8 @@ export const DeathForm = React.memo(
             data-testid="field-333j"
           />
         </StyledFormGrid>
-        <StyledFormGrid columns={1} data-testid="styledformgrid-e4ss">
-          <Field
-            name="mannerOfDeath"
-            label={
-              <TranslatedText
-                stringId="death.mannerOfDeath.label"
-                fallback="What was the manner of death?"
-                data-testid="translatedtext-wvl5"
-              />
-            }
-            component={TranslatedSelectField}
-            enumValues={MANNER_OF_DEATHS}
-            required
-            data-testid="field-ylgd"
-          />
-          <Field
-            name="mannerOfDeathDate"
-            label={
-              <TranslatedText
-                stringId="death.mannerOfDeathDate.label"
-                fallback="Date of external cause"
-                data-testid="translatedtext-d3kf"
-              />
-            }
-            component={DateField}
-            saveDateAsString
-            visibilityCriteria={mannerOfDeathVisibilityCriteria}
-            data-testid="field-ezni"
-          />
-          <Field
-            name="mannerOfDeathDescription"
-            label={
-              <TranslatedText
-                stringId="death.mannerOfDeathDescription.label"
-                fallback="Describe how the external cause occurred. Specify poisoning agent if applicable"
-                data-testid="translatedtext-4s7r"
-              />
-            }
-            component={TextField}
-            visibilityCriteria={mannerOfDeathVisibilityCriteria}
-            data-testid="field-c5l7"
-          />
-          <Field
-            name="mannerOfDeathLocation"
-            label={
-              <TranslatedText
-                stringId="death.mannerOfDeathLocation.label"
-                fallback="Place of occurrence of the external cause"
-                data-testid="translatedtext-d15s"
-              />
-            }
-            component={TranslatedSelectField}
-            enumValues={PLACE_OF_DEATHS}
-            visibilityCriteria={mannerOfDeathVisibilityCriteria}
-            data-testid="field-r81o"
-          />
-          <Field
-            name="mannerOfDeathOther"
-            label={
-              <TranslatedText
-                stringId="general.other.label"
-                fallback="Please specify"
-                data-testid="translatedtext-4gij"
-              />
-            }
-            component={TextField}
-            visibilityCriteria={{ mannerOfDeathLocation: 'Other' }}
-            data-testid="field-u4jw"
-          />
-        </StyledFormGrid>
-        {showPregnantQuestions ? (
-          <StyledFormGrid columns={1} data-testid="styledformgrid-gkfk">
-            <Field
-              name="pregnant"
-              label={
-                <TranslatedText
-                  stringId="death.pregnant.label"
-                  fallback="Was the woman pregnant or recently pregnant?"
-                  data-testid="translatedtext-vvm2"
-                />
-              }
-              component={RadioField}
-              options={BINARY_UNKNOWN_OPTIONS}
-              data-testid="field-swkw"
-            />
-            <Field
-              name="pregnancyMoment"
-              label={
-                <TranslatedText
-                  stringId="death.pregnancyMoment.label"
-                  fallback="When was the woman pregnant?"
-                  data-testid="translatedtext-o06d"
-                />
-              }
-              component={TranslatedSelectField}
-              enumValues={PREGNANCY_MOMENTS}
-              visibilityCriteria={{ pregnant: 'yes' }}
-              data-testid="field-9j31"
-            />
-            <Field
-              name="pregnancyContribute"
-              label={
-                <TranslatedText
-                  stringId="death.pregnancyContribute.label"
-                  fallback="Did the pregnancy contribute to the death?"
-                  data-testid="translatedtext-1mbh"
-                />
-              }
-              component={RadioField}
-              options={BINARY_UNKNOWN_OPTIONS}
-              visibilityCriteria={{ pregnant: 'yes' }}
-              data-testid="field-bt6f"
-            />
-          </StyledFormGrid>
-        ) : null}
+        <MannerOfDeathPage />
+        {showPregnantQuestions ? <PregnancyPage /> : null}
         {showInfantQuestions ? <InfantPage /> : null}
       </PaginatedForm>
     );
