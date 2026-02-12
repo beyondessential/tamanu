@@ -560,7 +560,7 @@ export const FSMPregnancyPage = ({ patient, currentTOD }) => {
           />
         }
         component={RadioField}
-        options={BINARY_OPTIONS}
+        options={BINARY_UNKNOWN_OPTIONS}
         style={{ gridColumn: '1/-1' }}
         data-testid="field-fsm-pregnant-now"
       />
@@ -576,7 +576,23 @@ export const FSMPregnancyPage = ({ patient, currentTOD }) => {
         component={NumberField}
         min={0}
         visibilityCriteria={{ fsmPregnantNow: 'yes' }}
+        style={{ gridColumn: '1/-1' }}
         data-testid="field-fsm-number-of-weeks"
+      />
+      <Field
+        name="pregnancyContribute"
+        label={
+          <TranslatedText
+            stringId="death.pregnancyContribute.label"
+            fallback="Did the pregnancy contribute to the death?"
+            data-testid="translatedtext-1mbh"
+          />
+        }
+        component={RadioField}
+        options={BINARY_UNKNOWN_OPTIONS}
+        visibilityCriteria={{ fsmPregnantNow: 'yes' }}
+        style={{ gridColumn: '1/-1' }}
+        data-testid="field-f1kx"
       />
       <Field
         name="fsmDeathWithin42Days"
@@ -589,7 +605,6 @@ export const FSMPregnancyPage = ({ patient, currentTOD }) => {
         }
         component={RadioField}
         options={BINARY_OPTIONS}
-        style={{ gridColumn: '1/-1' }}
         visibilityCriteria={{ fsmPregnantNow: 'no' }}
         data-testid="field-fsm-death-within-42-days"
       />
@@ -604,6 +619,7 @@ export const FSMPregnancyPage = ({ patient, currentTOD }) => {
         }
         component={DateField}
         saveDateAsString
+        format="MM/dd/yyyy"
         visibilityCriteria={{ fsmDeathWithin42Days: 'yes' }}
         data-testid="field-fsm-date-delivery-abortion"
       />
