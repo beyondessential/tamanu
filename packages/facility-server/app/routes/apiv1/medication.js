@@ -27,8 +27,8 @@ import {
 } from '@tamanu/constants';
 import { add, format, isAfter, isBefore, isEqual } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
-import { keyBy } from 'lodash';
 import { validate } from '../../utils/validate';
+import { getLastOrderedPrescriptionDates } from '../../utils/medication';
 import { mapQueryFilters } from '../../database/utils';
 
 export const medication = express.Router();
@@ -522,32 +522,9 @@ medication.post(
       // Find the latest pharmacy_order_prescriptions for prescriptions that were cloned from ongoing prescriptions.
       // This query runs before creating new records, so it only finds previous orders.
       const ongoingPrescriptionIds = ongoingPrescriptions.map(p => p.id);
-      const [pharmacyOrderPrescriptions] = await db.query(
-        `
-        SELECT
-          p_ongoing.id as ongoing_prescription_id,
-          MAX(pop.created_at) as last_ordered_at
-        FROM prescriptions p_ongoing
-        INNER JOIN prescriptions p_cloned ON p_cloned.medication_id = p_ongoing.medication_id
-          AND p_cloned.deleted_at IS NULL
-        INNER JOIN encounter_prescriptions ep_cloned ON ep_cloned.prescription_id = p_cloned.id
-        INNER JOIN encounters e ON e.id = ep_cloned.encounter_id
-          AND e.patient_id = :patientId
-          AND e.reason_for_encounter = 'Medication dispensing'
-        INNER JOIN pharmacy_order_prescriptions pop ON pop.prescription_id = p_cloned.id
-          AND pop.deleted_at IS NULL
-        WHERE p_ongoing.id IN (:ongoingPrescriptionIds)
-        GROUP BY p_ongoing.id
-      `,
-        {
-          replacements: {
-            patientId,
-            ongoingPrescriptionIds,
-          },
-          transaction,
-        },
-      );
-      const lastOrderedAts = keyBy(pharmacyOrderPrescriptions, 'ongoing_prescription_id');
+      const lastOrderedAts = await getLastOrderedPrescriptionDates(db, patientId, ongoingPrescriptionIds, {
+        transaction,
+      });
 
       // Create new prescriptions for this encounter based on the original ongoing prescriptions
       const newPrescriptions = [];
