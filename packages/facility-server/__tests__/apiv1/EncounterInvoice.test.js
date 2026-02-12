@@ -1477,15 +1477,15 @@ describe('Encounter invoice', () => {
           prescriptionId: prescription.id,
           dose: {
             doseAmount: 5,
-            givenTime: toDateTimeString(sub(new Date(), { days: 2 })),
+            givenTime: toDateTimeString(sub(new Date(), { days: 10 })),
           },
-          dueAt: toDateTimeString(sub(new Date(), { days: 2 })),
+          dueAt: toDateTimeString(sub(new Date(), { days: 10 })),
         });
 
         // 2. Create a Pharmacy Order (later than MAR)
         await app.post(`/api/encounter/${encounter.id}/pharmacyOrder`).send({
           orderingClinicianId: user.id,
-          date: toDateTimeString(sub(new Date(), { days: 1 })),
+          date: toDateTimeString(sub(new Date(), { days: 5 })),
           pharmacyOrderPrescriptions: [
             {
               prescriptionId: prescription.id,
