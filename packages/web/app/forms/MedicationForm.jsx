@@ -341,7 +341,7 @@ const AllergyItem = styled.li`
 
 const StockLevelContainer = styled.div`
   padding: 12px 10px;
-  margin-top: 12px;
+  margin-top: 4px;
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
   background-color: ${Colors.white};
