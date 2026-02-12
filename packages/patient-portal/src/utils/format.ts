@@ -1,5 +1,4 @@
 import { SEX_LABELS } from '@tamanu/constants';
-import { formatShort } from '@tamanu/utils/dateFormatters';
 import { format, startOfWeek, parseISO } from 'date-fns';
 import type {
   Location,
@@ -12,7 +11,8 @@ import type {
 export const formatDate = (dateString: string | null | undefined) => {
   if (!dateString) return '--/--/----';
   try {
-    return formatShort(dateString) || '--/--/----';
+    const date = parseISO(dateString);
+    return format(date, 'P');
   } catch {
     return '--/--/----';
   }
@@ -83,7 +83,7 @@ export const formatWeekOf = (dateString: string | null | undefined) => {
   if (!dateString) return '--';
   try {
     const mondayDate = startOfWeek(parseISO(dateString), { weekStartsOn: 1 });
-    return `Week of ${format(mondayDate, 'dd/MM/yyyy')}`;
+    return `Week of ${format(mondayDate, 'P')}`;
   } catch {
     return '--';
   }
@@ -96,7 +96,7 @@ export const formatAppointmentDateTime = (
   if (!startTime) return '--';
   try {
     const date = parseISO(startTime);
-    return format(date, 'dd/MM/yy h:mmaa');
+    return format(date, 'Pp');
   } catch {
     return '--';
   }
