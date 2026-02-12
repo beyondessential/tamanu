@@ -14,7 +14,7 @@ import { InvalidOperationError } from '@tamanu/errors';
 
 export const routes = express.Router();
 
-const GLOBAL_TIME_ZONE = config?.globalTimeZone;
+const PRIMARY_TIME_ZONE = config?.primaryTimeZone;
 
 // Workaround for this test changing from a hotfix, see EPI-483/484
 function formatDate(date) {
@@ -83,7 +83,7 @@ LIMIT $limit OFFSET $offset;
 `;
 
 const parseDateParam = (date) => {
-  const { plain: parsedDate } = parseDateTime(date, { withTz: GLOBAL_TIME_ZONE });
+  const { plain: parsedDate } = parseDateTime(date, { withTz: PRIMARY_TIME_ZONE });
   return parsedDate || null;
 };
 
@@ -107,8 +107,8 @@ routes.get(
       encounters,
       offset = 0,
     } = req.query;
-    if (!GLOBAL_TIME_ZONE) {
-      throw new Error('A globalTimeZone must be configured in local.json5 for this report to run');
+    if (!PRIMARY_TIME_ZONE) {
+      throw new Error('A primaryTimeZone must be configured in local.json5 for this report to run');
     }
 
     if (!encounters && (!fromDate || !toDate)) {
@@ -136,13 +136,13 @@ routes.get(
     const data = await sequelize.query(reportQuery, {
       type: QueryTypes.SELECT,
       bind: {
-        from_date: fromDate ? parseDateParam(fromDate, GLOBAL_TIME_ZONE) : null,
-        to_date: toDate ? parseDateParam(toDate, GLOBAL_TIME_ZONE) : null,
+        from_date: fromDate ? parseDateParam(fromDate, PRIMARY_TIME_ZONE) : null,
+        to_date: toDate ? parseDateParam(toDate, PRIMARY_TIME_ZONE) : null,
         input_encounter_ids: encounters?.split(',') ?? [],
         billing_type: null,
         limit: parseInt(limit, 10),
         offset, // Should still be able to offset even with no limit
-        timezone_string: GLOBAL_TIME_ZONE,
+        timezone_string: PRIMARY_TIME_ZONE,
       },
     });
 

@@ -366,14 +366,14 @@ WHERE e.id = $encounter_id
 `;
 
 export const getMaterialisedValues = async (sequelize: Sequelize, upstreamId: string) => {
-  const GLOBAL_TIME_ZONE = config?.globalTimeZone;
+  const PRIMARY_TIME_ZONE = config?.primaryTimeZone;
 
   const [upstream] = await sequelize.query(REPORT_QUERY, {
     type: QueryTypes.SELECT,
     bind: {
       encounter_id: upstreamId,
       billing_type: null,
-      timezone_string: GLOBAL_TIME_ZONE,
+      timezone_string: PRIMARY_TIME_ZONE,
     },
   });
 

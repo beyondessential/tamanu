@@ -20,7 +20,7 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
   const { getLocalisation } = useLocalisation();
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
-  const { globalTimeZone } = useDateTime();
+  const { primaryTimeZone } = useDateTime();
   const api = useApi();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
 
@@ -73,7 +73,7 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
           getLocalisation={getLocalisation}
           getTranslation={getTranslation}
           getSetting={getSetting}
-          globalTimeZone={globalTimeZone}
+          primaryTimeZone={primaryTimeZone}
           data-testid="multiplelabrequestsprintout-ttpy"
         />
       </PDFLoader>

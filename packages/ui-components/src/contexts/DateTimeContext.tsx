@@ -33,9 +33,9 @@ export interface DateTimeContextValue extends WrappedFormatters {
   getFacilityNow: () => string;
   /** Get day boundaries i.e start and end of the day at the given date in facilityTimeZone for query */
   getDayBoundaries: (date: string) => { start: string; end: string } | null;
-  /** Convert facilityTimeZone input value to globalTimeZone for storage */
+  /** Convert facilityTimeZone input value to primaryTimeZone for storage */
   toStoredDateTime: (inputValue: string | null | undefined) => string | null;
-  /** Convert stored globalTimeZone value to facilityTimeZone for display */
+  /** Convert stored primaryTimeZone value to facilityTimeZone for display */
   toFacilityDateTime: (value: string | Date | null | undefined) => string | null;
 }
 

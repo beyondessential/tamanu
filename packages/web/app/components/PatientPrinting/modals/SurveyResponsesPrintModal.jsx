@@ -22,7 +22,7 @@ export const SurveyResponsesPrintModal = React.memo(
     const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
 
     const { facilityId, currentUser } = useAuth();
-    const { globalTimeZone } = useDateTime();
+    const { primaryTimeZone } = useDateTime();
     const { data: facility, isLoading: isFacilityLoading } = useQuery(
       ['facility', facilityId],
       async () => await api.get(`facility/${encodeURIComponent(facilityId)}`),
@@ -99,7 +99,7 @@ export const SurveyResponsesPrintModal = React.memo(
             isReferral={isReferral}
             currentUser={currentUser}
             facility={facility}
-            globalTimeZone={globalTimeZone}
+            primaryTimeZone={primaryTimeZone}
             data-testid="surveyresponsesprintout-7nfz"
           />
         </PDFLoader>

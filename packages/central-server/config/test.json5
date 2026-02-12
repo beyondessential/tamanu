@@ -137,5 +137,5 @@
   "validateQuestionConfigs": {
     "enabled": true
   },
-  "globalTimeZone": "Pacific/Auckland"
+  "primaryTimeZone": "Pacific/Auckland"
 }

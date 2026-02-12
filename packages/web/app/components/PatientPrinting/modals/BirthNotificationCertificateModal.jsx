@@ -84,7 +84,7 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);
   const api = useApi();
   const { facilityId } = useAuth();
-  const { globalTimeZone } = useDateTime();
+  const { primaryTimeZone } = useDateTime();
   const { storedLanguage, translations } = useTranslation();
   const { getSetting } = useSettings();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
@@ -150,7 +150,7 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
           getSetting={getSetting}
           language={storedLanguage}
           translations={translations}
-          globalTimeZone={globalTimeZone}
+          primaryTimeZone={primaryTimeZone}
           data-testid="birthnotificationcertificate-mwfw"
         />
       </PDFLoader>

@@ -62,7 +62,7 @@ describe('RefreshMaterializedView', () => {
       {
         type: QueryTypes.SELECT,
         replacements: {
-          serverTimezone: config.globalTimeZone,
+          serverTimezone: config.primaryTimeZone,
           sequelizeTimezone: sequelizeTimezone['TimeZone'],
         },
       },
@@ -81,7 +81,7 @@ describe('RefreshMaterializedView', () => {
       {
         type: QueryTypes.SELECT,
         replacements: {
-          serverTimezone: config.globalTimeZone,
+          serverTimezone: config.primaryTimeZone,
           sequelizeTimezone: sequelizeTimezone['TimeZone'],
         },
       },
@@ -98,7 +98,7 @@ describe('RefreshMaterializedView', () => {
       {
         type: QueryTypes.SELECT,
         replacements: {
-          serverTimezone: config.globalTimeZone,
+          serverTimezone: config.primaryTimeZone,
           sequelizeTimezone: sequelizeTimezone['TimeZone'],
         },
       },

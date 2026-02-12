@@ -41,10 +41,10 @@ export async function up(query) {
     return;
   }
 
-  const GLOBAL_TIME_ZONE = config?.globalTimeZone;
+  const PRIMARY_TIME_ZONE = config?.primaryTimeZone;
 
-  if (!GLOBAL_TIME_ZONE) {
-    throw Error('A globalTimeZone must be configured in local.json5 for this migration to run.');
+  if (!PRIMARY_TIME_ZONE) {
+    throw Error('A primaryTimeZone must be configured in local.json5 for this migration to run.');
   }
 
   const promises = [];
@@ -56,7 +56,7 @@ export async function up(query) {
       promises.push(
         query.sequelize.query(
           `UPDATE ${tableName}
-           SET ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE '${GLOBAL_TIME_ZONE}', :dateTimeFmt)
+           SET ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE '${PRIMARY_TIME_ZONE}', :dateTimeFmt)
            WHERE ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE 'UTC', :dateTimeFmt);
         `,
           {
@@ -76,7 +76,7 @@ export async function up(query) {
       promises.push(
         query.sequelize.query(
           `UPDATE ${tableName}
-           SET ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE '${GLOBAL_TIME_ZONE}', :dateFmt)
+           SET ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE '${PRIMARY_TIME_ZONE}', :dateFmt)
            WHERE ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE 'UTC', :dateFmt);
         `,
           {

@@ -1776,7 +1776,7 @@ medication.get(
       required: true,
     };
 
-    const { globalTimeZone } = config;
+    const { primaryTimeZone } = config;
     const facilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
 
     // PharmacyOrder filters
@@ -1784,7 +1784,7 @@ medication.get(
       {
         key: 'date',
         mapFn: (fieldName, _operator, value) => {
-          const boundaries = getDayBoundaries(value, globalTimeZone, facilityTimeZone);
+          const boundaries = getDayBoundaries(value, primaryTimeZone, facilityTimeZone);
           const startOfDay = boundaries?.start ?? `${value} 00:00:00`;
           const endOfDay = boundaries?.end ?? `${value} 23:59:59`;
           return { [fieldName]: { [Op.between]: [startOfDay, endOfDay] } };
@@ -2007,7 +2007,7 @@ medication.get(
       },
     ]);
 
-    const { globalTimeZone: dispenseTz } = config;
+    const { primaryTimeZone: dispenseTz } = config;
     const dispenseFacilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
 
     const rootFilter = mapQueryFilters(filterParams, [

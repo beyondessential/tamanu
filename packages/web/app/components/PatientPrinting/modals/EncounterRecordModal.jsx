@@ -105,7 +105,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
   const { translations, storedLanguage } = useTranslation();
   const { settings } = useSettings();
   const { getLocalisation } = useLocalisation();
-  const { globalTimeZone } = useAuth();
+  const { primaryTimeZone } = useAuth();
   const { data: vitalsData, recordedDates } = useVitalsQuery(encounter.id);
 
   const certificateQuery = useCertificate();
@@ -320,7 +320,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
           medications={medications}
           translations={translations}
           settings={settings}
-          globalTimeZone={globalTimeZone}
+          primaryTimeZone={primaryTimeZone}
           data-testid="encounterrecordprintout-yqe1"
         />
       )}

@@ -21,10 +21,10 @@ const TABLES = {
 // DATE cast will be kept/changed to whatever timezone is set in the config.
 // DATETIMESTRING cast will assume that's the correct one.
 export async function up(query) {
-  const GLOBAL_TIME_ZONE = config?.globalTimeZone;
+  const PRIMARY_TIME_ZONE = config?.primaryTimeZone;
 
-  if (!GLOBAL_TIME_ZONE) {
-    throw Error('A globalTimeZone must be configured in local.json5 for this migration to run.');
+  if (!PRIMARY_TIME_ZONE) {
+    throw Error('A primaryTimeZone must be configured in local.json5 for this migration to run.');
   }
 
   // Save previously set time zone
@@ -32,7 +32,7 @@ export async function up(query) {
   const previousTimeZone = previousTimeZoneQuery[0].TimeZone;
 
   // Set time zone defined in config
-  await query.sequelize.query(`SET timezone to '${GLOBAL_TIME_ZONE}'`);
+  await query.sequelize.query(`SET timezone to '${PRIMARY_TIME_ZONE}'`);
 
   for (const [tableName, columns] of Object.entries(TABLES)) {
     for (const [columnName, columnType] of Object.entries(columns)) {

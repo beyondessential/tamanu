@@ -19,7 +19,7 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
   const api = useApi();
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
-  const { globalTimeZone } = useDateTime();
+  const { primaryTimeZone } = useDateTime();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
 
   const { data: patient, isLoading: isPatientLoading } = useQuery(
@@ -69,7 +69,7 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
           labRequests={labRequests}
           getTranslation={getTranslation}
           getSetting={getSetting}
-          globalTimeZone={globalTimeZone}
+          primaryTimeZone={primaryTimeZone}
           data-testid="multiplelabrequestsprintout-fhui"
         />
       </PDFLoader>

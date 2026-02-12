@@ -343,7 +343,7 @@ globalImagingRequests.get(
       { key: 'departmentId', operator: Op.eq },
     ]);
     const facilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
-    const { globalTimeZone } = config;
+    const { primaryTimeZone } = config;
 
     const imagingRequestFilters = mapQueryFilters(filterParams, [
       {
@@ -368,7 +368,7 @@ globalImagingRequests.get(
         alias: 'requestedDate',
         operator: Op.gte,
         mapFn: (fieldName, operator, value) => {
-          const boundaries = getDayBoundaries(value, globalTimeZone, facilityTimeZone);
+          const boundaries = getDayBoundaries(value, primaryTimeZone, facilityTimeZone);
           return { [fieldName]: { [operator]: boundaries?.start ?? `${value} 00:00:00` } };
         },
       },
@@ -377,7 +377,7 @@ globalImagingRequests.get(
         alias: 'requestedDate',
         operator: Op.lte,
         mapFn: (fieldName, operator, value) => {
-          const boundaries = getDayBoundaries(value, globalTimeZone, facilityTimeZone);
+          const boundaries = getDayBoundaries(value, primaryTimeZone, facilityTimeZone);
           return { [fieldName]: { [operator]: boundaries?.end ?? `${value} 23:59:59` } };
         },
       },

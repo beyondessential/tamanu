@@ -38,7 +38,7 @@ export const makePatientLetter = async (req, { id, facilityId, ...data }) => {
       letterheadConfig={letterheadConfig}
       language={language}
       getSetting={getSettingData}
-      globalTimeZone={config.globalTimeZone}
+      primaryTimeZone={config.primaryTimeZone}
     />,
     filePath,
   );

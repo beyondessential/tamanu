@@ -6,7 +6,7 @@ function getSystemTimeZone() {
 }
 
 function getConfigTimeZone(config) {
-  return config.globalTimeZone;
+  return config.primaryTimeZone;
 }
 
 async function getDatabaseTimeZone(sequelize) {
@@ -30,10 +30,10 @@ async function getRemoteTimeZone(remote) {
         preserveBackoffForAuthAttempt: true,
       },
     );
-    const { globalTimeZone } = health.config;
-    return globalTimeZone;
+    const { primaryTimeZone } = health.config;
+    return primaryTimeZone;
   } catch (error) {
-    log.warn('Unable to grab globalTimeZone from central server.');
+    log.warn('Unable to grab primaryTimeZone from central server.');
   }
 
   return null;

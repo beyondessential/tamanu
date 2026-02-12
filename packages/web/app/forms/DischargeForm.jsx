@@ -182,9 +182,8 @@ const getDischargeInitialValues = ({
   const getInitialEndDate = () => {
     if (!dischargeDraft) {
       if (isFuture(encounterStartDate)) {
-        // Future start_date: use the encounter's date with the current country-timezone time
-        const countryNow = getCurrentDateTime();
-        return `${trimToDate(encounter.startDate)} ${trimToTime(countryNow)}`;
+        const primaryNow = getCurrentDateTime();
+        return `${trimToDate(encounter.startDate)} ${trimToTime(primaryNow)}`;
       } else {
         return getCurrentDateTime();
       }

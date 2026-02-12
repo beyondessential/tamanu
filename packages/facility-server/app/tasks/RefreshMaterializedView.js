@@ -28,11 +28,11 @@ const buildRefreshMaterializedViewTask = viewName =>
 
     async run() {
       await this.sequelize.transaction(async () => {
-        // Set timezone to global timezone this is because sequelize timezone is defaulted to UTC currently
-        await this.sequelize.query(`SET TIME ZONE '${config.globalTimeZone}'`);
+        // Set timezone to primary timezone this is because sequelize timezone is defaulted to UTC currently
+        await this.sequelize.query(`SET TIME ZONE '${config.primaryTimeZone}'`);
         await this.sequelize.query(
           `REFRESH MATERIALIZED VIEW CONCURRENTLY materialized_${snake(this.viewName)}`,
-          { timezone: config.globalTimeZone },
+          { timezone: config.primaryTimeZone },
         );
         await this.sequelize.query(`SET TIME ZONE '${this.sequelize.options.timezone}'`); // Revert to sequelize timezone
         await this.sequelize.query(

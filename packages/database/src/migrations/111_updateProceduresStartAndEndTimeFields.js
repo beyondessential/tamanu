@@ -20,10 +20,10 @@ const alterSchemaOnly = async (query, table, field) => {
 };
 
 const alterSchemaAndBackUpLegacyData = async (query, table, field) => {
-  const GLOBAL_TIME_ZONE = config?.globalTimeZone;
+  const PRIMARY_TIME_ZONE = config?.primaryTimeZone;
 
-  if (!GLOBAL_TIME_ZONE) {
-    throw Error('A globalTimeZone must be configured in local.json for this migration to run.');
+  if (!PRIMARY_TIME_ZONE) {
+    throw Error('A primaryTimeZone must be configured in local.json for this migration to run.');
   }
 
   // Copy data to legacy columns for backup
@@ -37,7 +37,7 @@ const alterSchemaAndBackUpLegacyData = async (query, table, field) => {
   return query.sequelize.query(`
     ALTER TABLE ${table}
     ALTER COLUMN ${field} TYPE date_time_string
-    USING TO_CHAR(${field}::TIMESTAMPTZ AT TIME ZONE '${GLOBAL_TIME_ZONE}', '${ISO9075_DATE_TIME_FMT}');
+    USING TO_CHAR(${field}::TIMESTAMPTZ AT TIME ZONE '${PRIMARY_TIME_ZONE}', '${ISO9075_DATE_TIME_FMT}');
   `);
 };
 

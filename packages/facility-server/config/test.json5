@@ -45,5 +45,5 @@
       "includedPatientFieldIds": ["test-field-id-1", "test-field-id-2"]
     }
   },
-  "globalTimeZone": "Pacific/Auckland"
+  "primaryTimeZone": "Pacific/Auckland"
 }

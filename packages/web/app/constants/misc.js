@@ -4,7 +4,7 @@ export const LOCAL_STORAGE_KEYS = {
   SERVER: 'server',
   AVAILABLE_FACILITIES: 'availableFacilities',
   FACILITY_ID: 'facilityId',
-  GLOBAL_TIME_ZONE: 'globalTimeZone',
+  PRIMARY_TIME_ZONE: 'primaryTimeZone',
   REMEMBER_EMAIL: 'remember-email',
   PERMISSIONS: 'permissions',
   ROLE: 'role',

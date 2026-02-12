@@ -104,7 +104,7 @@ export const makeCovidVaccineCertificate = async ({
       vdsSrc={vds}
       getLocalisation={getLocalisationData}
       getSetting={getSettingData}
-      globalTimeZone={config.globalTimeZone}
+      primaryTimeZone={config.primaryTimeZone}
       language={language}
     />,
     fileName,
@@ -150,7 +150,7 @@ export const makeVaccineCertificate = async ({
       certificateData={{ title, subTitle }}
       healthFacility={healthFacility}
       getSetting={getSettingData}
-      globalTimeZone={config.globalTimeZone}
+      primaryTimeZone={config.primaryTimeZone}
     />,
     fileName,
   );
@@ -220,7 +220,7 @@ export const makeCovidCertificate = async ({
       printedBy={printedBy}
       vdsSrc={vds}
       getSetting={getSettingData}
-      globalTimeZone={config.globalTimeZone}
+      primaryTimeZone={config.primaryTimeZone}
       certType={certType}
       language={language}
     />,

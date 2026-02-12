@@ -30,7 +30,7 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
     footerAssetName: ASSET_NAMES.INVOICE_FOOTER,
   });
   const { getSetting } = useSettings();
-  const { globalTimeZone } = useDateTime();
+  const { primaryTimeZone } = useDateTime();
   const enablePatientInsurer = getSetting('features.enablePatientInsurer');
   const { data: certificateData } = certificateQuery;
 
@@ -86,7 +86,7 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
           clinicianText={clinicianText}
           invoice={invoice}
           enablePatientInsurer={enablePatientInsurer}
-          globalTimeZone={globalTimeZone}
+          primaryTimeZone={primaryTimeZone}
           data-testid="invoicerecordprintout-0r2o"
         />
       </PDFLoader>

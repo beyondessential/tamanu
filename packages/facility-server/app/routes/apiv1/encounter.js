@@ -4,7 +4,7 @@ import { subject } from '@casl/ability';
 import { NotFoundError, InvalidParameterError, InvalidOperationError } from '@tamanu/errors';
 import { getCurrentDateTimeString, getDayBoundaries } from '@tamanu/utils/dateTime';
 import config from 'config';
-import { toGlobalDateTimeString } from '@tamanu/shared/utils/globalDateTime';
+import { toPrimaryDateTimeString } from '@tamanu/shared/utils/primaryDateTime';
 import {
   LAB_REQUEST_STATUSES,
   DOCUMENT_SIZE_LIMIT,
@@ -397,8 +397,8 @@ encounterRelations.get(
       req.checkPermission('list', 'MedicationAdministration');
 
       const facilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
-      const { globalTimeZone } = config;
-      const boundaries = getDayBoundaries(marDate, globalTimeZone, facilityTimeZone);
+      const { primaryTimeZone } = config;
+      const boundaries = getDayBoundaries(marDate, primaryTimeZone, facilityTimeZone);
       const startOfMarDate = boundaries?.start ?? `${marDate} 00:00:00`;
       const endOfMarDate = boundaries?.end ?? `${marDate} 23:59:59`;
       baseQueryOptions.include.push({
@@ -805,7 +805,7 @@ encounterRelations.get(
         encounterId,
         status: { [Op.in]: statuses },
         dueTime: {
-          [Op.lte]: toGlobalDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
+          [Op.lte]: toPrimaryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
         },
         taskType: {
           [Op.notIn]: DASHBOARD_ONLY_TASK_TYPES,

@@ -105,7 +105,7 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
   const { currentUser, facilityId } = useAuth();
   const { getCurrentDate, getDayBoundaries } = useDateTime();
   
-  // Get today's date boundaries in facility timezone, converted to global timezone for query
+  // Get today's date boundaries in facility timezone, converted to primary timezone for query
   const todayFacility = getCurrentDate(); 
   const boundaries = getDayBoundaries(todayFacility);
   const start = boundaries?.start;
