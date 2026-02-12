@@ -605,11 +605,15 @@ patientRoute.get(
     if (responseData.length > 0) {
       const ongoingPrescriptionIds = responseData.map(p => p.id);
 
-      const lastOrderedAts = await getLastOrderedPrescriptionDates(db, patientId, ongoingPrescriptionIds);
+      const lastOrderedAts = await getLastOrderedPrescriptionDates(
+        db,
+        patientId,
+        ongoingPrescriptionIds,
+      );
 
       responseData = responseData.map(p => ({
         ...p,
-        lastOrderedAt: lastOrderedAts[p.id]?.last_ordered_at?.toISOString(),
+        lastOrderedAt: lastOrderedAts[p.id]?.last_ordered_at,
       }));
     }
 
