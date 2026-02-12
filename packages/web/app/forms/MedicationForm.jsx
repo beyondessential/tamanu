@@ -339,22 +339,23 @@ const AllergyItem = styled.li`
   line-height: 20px;
 `;
 
-const StockLevelContainer = styled(Box)`
+const StockLevelContainer = styled.div`
   padding: 12px 10px;
+  margin-top: 12px;
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
   background-color: ${Colors.white};
   display: flex;
   align-items: center;
   gap: 12px;
-  position: absolute;
-  right: 0;
-  top: 31px;
-  transform: translateY(-50%);
   font-size: 14px;
-  line-height: 18px;
   color: ${Colors.darkestText};
-  width: 285px;
+`;
+
+const StockLevelValue = styled.span`
+  font-weight: 500;
+  font-size: 14px;
+  margin-left: -8px;
 `;
 
 const isOneTimeFrequency = frequency =>
@@ -806,21 +807,13 @@ export const MedicationForm = ({
       );
 
     return (
-      <Box>
+      <>
         <TranslatedText
           stringId="medication.stockLevel.inStock"
-          fallback="Medication is currently in stock."
+          fallback="Medication is currently in stock. Stock level: "
         />
-        <Box>
-          <TranslatedText
-            stringId="medication.stockLevel.inStock.stockLevel"
-            fallback="Stock level: "
-          />
-          <Box component={'span'} fontWeight={500}>
-            {stockLevelValue}
-          </Box>
-        </Box>
-      </Box>
+        <StockLevelValue>{stockLevelValue}</StockLevelValue>
+      </>
     );
   };
 
@@ -887,6 +880,12 @@ export const MedicationForm = ({
                     }}
                     data-testid="medication-field-medicationId-8k3m"
                   />
+                  {!isOngoingPrescription && !!drugStockStatus && (
+                    <StockLevelContainer>
+                      {getStockLevelIcon()}
+                      {getStockLevelContent()}
+                    </StockLevelContainer>
+                  )}
                   {showExistingDrugWarning && (
                     <SmallBodyText mt="2px" color={Colors.midText}>
                       <TranslatedText
@@ -954,14 +953,6 @@ export const MedicationForm = ({
                   />
                 </CheckboxRowItem>
               </CheckboxRow>
-              {!isOngoingPrescription && !!drugStockStatus && (
-                <StockLevelContainer>
-                  <Box display="flex" flexShrink={0}>
-                    {getStockLevelIcon()}
-                  </Box>
-                  {getStockLevelContent()}
-                </StockLevelContainer>
-              )}
             </CheckboxGroup>
             <VariableDoseFieldWrapper>
               <Field
