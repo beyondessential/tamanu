@@ -973,6 +973,7 @@ export const MedicationForm = ({
                   }
                 }}
                 data-testid="medication-field-isVariableDose-5h8x"
+                $checked={values.isVariableDose}
               />
             </VariableDoseFieldWrapper>
             <Field
