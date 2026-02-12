@@ -203,10 +203,8 @@ export const MarStatus = ({
 }) => {
   const { data: { data: marDoses = [] } = {} } = useMarDoses(marInfo?.id);
   const { getEnumTranslation } = useTranslation();
-  const { formatTimeCompact, getFacilityNow, toFacilityDateTime } = useDateTime();
-  const facilityNowStr = getFacilityNow();
-  if (!facilityNowStr) throw new Error('Failed to determine facility time — check timezone configuration');
-  const facilityNow = new Date(facilityNowStr);
+  const { formatTimeCompact, getFacilityNowDate, toFacilityDateTime } = useDateTime();
+  const facilityNow = getFacilityNowDate();
   const { ability } = useAuth();
   const canViewMar = ability.can('read', 'MedicationAdministration');
   const canCreateMar = ability.can('create', 'MedicationAdministration');

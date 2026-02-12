@@ -447,13 +447,8 @@ export const getFacilityNowDate = (
   countryTimeZone: string,
   facilityTimeZone?: string | null,
 ): Date => {
-  const result = toFacilityDateTime(
-    getCurrentDateTimeStringInTimezone(countryTimeZone),
-    countryTimeZone,
-    facilityTimeZone,
-  );
-  if (result != null) return new Date(result);
-  return new Date(); // fallback: use system local time so never a no-op
+  const tz = facilityTimeZone ?? countryTimeZone;
+  return new Date(getCurrentDateTimeStringInTimezone(tz).replace(' ', 'T'));
 };
 
 /**
