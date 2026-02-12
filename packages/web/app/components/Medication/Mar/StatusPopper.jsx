@@ -251,7 +251,7 @@ const GivenScreen = ({
 }) => {
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
-  const { getFacilityNow } = useDateTime();
+  const { getFacilityNow, toStoredDateTime } = useDateTime();
   const [containerWidth, setContainerWidth] = useState(null);
   const doseInputRef = useRef(null);
   const [showWarningModal, setShowWarningModal] = useState(null);
@@ -308,7 +308,7 @@ const GivenScreen = ({
       prescriptionId,
       dose: {
         doseAmount,
-        givenTime: toDateTimeString(givenTime),
+        givenTime: toStoredDateTime(toDateTimeString(givenTime)),
       },
     });
   };
