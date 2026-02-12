@@ -304,7 +304,7 @@ const GivenScreen = ({
     });
     const dueAt = addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1);
     await updateMarToGiven({
-      dueAt: toDateTimeString(dueAt),
+      dueAt: toStoredDateTime(toDateTimeString(dueAt)),
       prescriptionId,
       dose: {
         doseAmount,
@@ -434,6 +434,7 @@ export const StatusPopper = ({
 }) => {
   const { id: marId } = marInfo || {};
   const { doseAmount, units, id: prescriptionId, isVariableDose } = medication || {};
+  const { toStoredDateTime } = useDateTime();
 
   const [showReasonScreen, setShowReasonScreen] = useState(false);
   const [showGivenScreen, setShowGivenScreen] = useState(false);
@@ -465,7 +466,7 @@ export const StatusPopper = ({
     await updateMarToNotGiven({
       status: ADMINISTRATION_STATUS.NOT_GIVEN,
       reasonNotGivenId,
-      dueAt: toDateTimeString(dueAt),
+      dueAt: toStoredDateTime(toDateTimeString(dueAt)),
       prescriptionId,
     });
 
