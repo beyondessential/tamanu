@@ -615,12 +615,13 @@ medication.post(
 
         // We only start decrementing repeats after the first send.
         if (lastOrderedAt) {
-          if (repeats === 0) {
+          if (repeats > 0) {
+            await originalPrescription.update({ repeats: repeats - 1 }, { transaction });
+          } else {
             throw new InvalidOperationError(
               `Prescription "${originalPrescription.medication?.name}" has no remaining repeats and cannot be sent to pharmacy.`,
             );
           }
-          await originalPrescription.update({ repeats: repeats - 1 }, { transaction });
         }
       }
 
