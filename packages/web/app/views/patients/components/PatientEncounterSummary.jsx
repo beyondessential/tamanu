@@ -104,6 +104,37 @@ const ButtonRow = styled(Box)`
   }
 `;
 
+const DeathLocationDisplay = ({ deathData }) => {
+  if (deathData?.outsideHealthFacility) {
+    return (
+      <TranslatedText
+        stringId="death.outsideHealthFacility.label"
+        fallback="Died outside health facility"
+        data-testid="translatedtext-n2t4"
+      />
+    );
+  }
+
+  if (deathData?.facility?.name) {
+    return (
+      <TranslatedReferenceData
+        fallback={deathData.facility.name}
+        value={deathData?.facility.id}
+        category="facility"
+        data-testid="translatedreferencedata-w40f"
+      />
+    );
+  }
+
+  return (
+    <TranslatedText
+      stringId="general.fallback.unknown"
+      fallback="Unknown"
+      data-testid="translatedtext-p25g"
+    />
+  );
+};
+
 const DataStatusMessage = ({ message }) => (
   <NoVisitContainer data-testid="novisitcontainer-xlql">
     <Typography variant="h6" data-testid="typography-vg0z">
@@ -138,7 +169,11 @@ const PatientDeathSummary = React.memo(({ patient }) => {
           data-testid="box-5a71"
         >
           <BoldTitle variant="h3" data-testid="boldtitle-eb0y">
-            Deceased
+            <TranslatedText
+              stringId="death.deceased.label"
+              fallback="Deceased"
+              data-testid="translatedtext-b4u4"
+            />
           </BoldTitle>
           <DeathCertificateModal
             patient={patient}
@@ -149,18 +184,16 @@ const PatientDeathSummary = React.memo(({ patient }) => {
       </Header>
       <Content data-testid="content-y0fh">
         <ContentItem data-testid="contentitem-xxod">
-          <ContentLabel data-testid="contentlabel-nvid">Place of death:</ContentLabel>
+          <ContentLabel data-testid="contentlabel-nvid">
+            <TranslatedText
+              stringId="death.locationOfDeath.label"
+              fallback="Location of death"
+              data-testid="translatedtext-5x5z"
+            />
+            :
+          </ContentLabel>
           <ContentText data-testid="contenttext-genv">
-            {(deathData?.outsideHealthFacility && 'Died outside health facility') ||
-              (deathData?.facility?.name && (
-                <TranslatedReferenceData
-                  fallback={deathData.facility.name}
-                  value={deathData?.facility.id}
-                  category="facility"
-                  data-testid="translatedreferencedata-c4cx"
-                />
-              )) ||
-              'Unknown'}
+            <DeathLocationDisplay deathData={deathData} />
           </ContentText>
         </ContentItem>
         <ContentItem data-testid="contentitem-sw3j">
@@ -178,7 +211,12 @@ const PatientDeathSummary = React.memo(({ patient }) => {
         </ContentItem>
         <ContentItem style={{ gridColumn: '1/-1' }} data-testid="contentitem-evco">
           <ContentLabel data-testid="contentlabel-4c0x">
-            Underlying condition causing death:
+            <TranslatedText
+              stringId="death.underlyingConditionCausingDeath.label"
+              fallback="Underlying condition causing death"
+              data-testid="translatedtext-z6kv"
+            />
+            :
           </ContentLabel>
           <ContentText data-testid="contenttext-usv8">
             {deathData?.causes?.primary?.condition.id ? (
@@ -198,7 +236,14 @@ const PatientDeathSummary = React.memo(({ patient }) => {
           </ContentText>
         </ContentItem>
         <ContentItem data-testid="contentitem-ld97">
-          <ContentLabel data-testid="contentlabel-yujn">Date of death:</ContentLabel>
+          <ContentLabel data-testid="contentlabel-yujn">
+            <TranslatedText
+              stringId="death.dateOfDeath.label"
+              fallback="Date of death"
+              data-testid="translatedtext-4s11"
+            />
+            :
+          </ContentLabel>
           <ContentText data-testid="contenttext-08c1">
             <DateDisplay date={deathData?.dateOfDeath} data-testid="datedisplay-55sx" />
           </ContentText>
