@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useContext, useState } from 'react';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
-import { useDateTime } from '@tamanu/ui-components';
+import { useDateTimeIfAvailable } from '@tamanu/ui-components';
 import { useApi } from '../api';
 
 const LabRequestContext = createContext({
@@ -36,7 +36,7 @@ export const useLabRequest = (key = LabRequestSearchParamKeys.Other) => {
 };
 
 export const LabRequestProvider = ({ children }) => {
-  const { getCurrentDateTime } = useDateTime();
+  const { getCurrentDateTime } = (useDateTimeIfAvailable() || {})
   const [labRequest, setLabRequest] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [searchParameters, setSearchParameters] = useState({

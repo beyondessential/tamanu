@@ -7,7 +7,8 @@ import {
   findAdministrationTimeSlotFromIdealTime,
 } from '@tamanu/shared/utils/medication';
 import { toDateString } from '@tamanu/utils/dateTime';
-import { TimeDisplay, useDateTime } from '@tamanu/ui-components';
+import { useDateTime } from '@tamanu/ui-components';
+import { formatTimeSlot } from '@tamanu/utils/dateFormatters';
 
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../..';
@@ -152,6 +153,11 @@ const LoadingContainer = styled.div`
   height: 42px;
 `;
 
+const formatSlotTime = timeStr => {
+  const normalized = timeStr === '24:00' ? '00:00' : timeStr;
+  return formatTimeSlot(`2000-01-01 ${normalized}:00`);
+};
+
 const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate, facilityNow }) => {
   const now = facilityNow.getTime();
   const startDate = getDateFromTimeString(startTime, facilityNow).getTime();
@@ -164,8 +170,7 @@ const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate, facilit
       <TimeSlotText>
         <TimeSlotLabel>{periodLabel || ''}</TimeSlotLabel>
         <div>
-          <TimeDisplay date={startDate} format="slot" /> -{' '}
-          <TimeDisplay date={endDate} format="slot" />
+          {formatSlotTime(startTime)} - {formatSlotTime(endTime)}
         </div>
       </TimeSlotText>
     </TimeSlotHeaderContainer>

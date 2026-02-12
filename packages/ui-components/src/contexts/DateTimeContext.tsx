@@ -23,13 +23,13 @@ type WrappedFormatters = {
 };
 
 export interface DateTimeContextValue extends WrappedFormatters {
-  globalTimeZone: string;
+  primaryTimeZone: string;
   facilityTimeZone?: string | null;
   /** Get current date string in facilityTimeZone */
   getCurrentDate: () => string;
   /** Get current datetime string in facilityTimeZone */
   getCurrentDateTime: () => string;
-  /** Get current facility wall-clock time as yyyy-MM-ddTHH:mm */
+  /** Get current facility wall-clock time as yyyy-MM-ddTHH:mm (never null) */
   getFacilityNow: () => string;
   /** Get day boundaries i.e start and end of the day at the given date in facilityTimeZone for query */
   getDayBoundaries: (date: string) => { start: string; end: string } | null;
@@ -41,7 +41,7 @@ export interface DateTimeContextValue extends WrappedFormatters {
 
 interface DateTimeProviderProps {
   children: React.ReactNode;
-  globalTimeZone?: string;
+  primaryTimeZone?: string;
   facilityTimeZone?: string | null;
 }
 
@@ -60,41 +60,67 @@ export const useDateTimeIfAvailable = (): DateTimeContextValue | null => {
   return useContext(DateTimeProviderContext);
 };
 
-export const DateTimeProvider = ({
+const DateTimeProviderInner = ({
   children,
-  globalTimeZone: globalTimeZoneProp,
-  facilityTimeZone: facilityTimeZoneProp,
-}: DateTimeProviderProps) => {
-  const { globalTimeZone: authGlobalTimeZone } = useAuth();
-  const { getSetting } = useSettings();
-  const usePropsMode = globalTimeZoneProp !== undefined;
-
-  const globalTimeZone = usePropsMode ? globalTimeZoneProp : authGlobalTimeZone;
-  const facilityTimeZone = usePropsMode
-    ? facilityTimeZoneProp
-    : (getSetting('facilityTimeZone') as string | undefined);
-
+  primaryTimeZone,
+  facilityTimeZone,
+}: {
+  children: React.ReactNode;
+  primaryTimeZone: string;
+  facilityTimeZone?: string | null;
+}) => {
   const bindTimeZones = useCallback(
-    (fn: (...args: any[]) => any) =>
-      (date?: DateInput) =>
-        fn(date, globalTimeZone, facilityTimeZone),
-    [globalTimeZone, facilityTimeZone],
+    (fn: (...args: any[]) => any) => (date?: DateInput) =>
+      fn(date, primaryTimeZone, facilityTimeZone),
+    [primaryTimeZone, facilityTimeZone],
   );
 
   const value = useMemo(
     (): DateTimeContextValue => ({
-      globalTimeZone,
+      primaryTimeZone,
       facilityTimeZone,
       ...(mapValues(dateTimeFormatters, bindTimeZones) as WrappedFormatters),
-      getCurrentDate: () => getCurrentDateStringInTimezone(facilityTimeZone ?? globalTimeZone),
-      getCurrentDateTime: () => getCurrentDateTimeStringInTimezone(globalTimeZone),
-      getFacilityNow: () => getFacilityNow(globalTimeZone, facilityTimeZone),
-      getDayBoundaries: date => getDayBoundaries(date, globalTimeZone, facilityTimeZone),
-      toStoredDateTime: value => toStoredDateTime(value, globalTimeZone, facilityTimeZone),
-      toFacilityDateTime: value => toFacilityDateTime(value, globalTimeZone, facilityTimeZone),
+      getCurrentDate: () => getCurrentDateStringInTimezone(facilityTimeZone ?? primaryTimeZone),
+      getCurrentDateTime: () => getCurrentDateTimeStringInTimezone(primaryTimeZone),
+      getFacilityNow: () => getFacilityNow(primaryTimeZone, facilityTimeZone),
+      getDayBoundaries: date => getDayBoundaries(date, primaryTimeZone, facilityTimeZone),
+      toStoredDateTime: value => toStoredDateTime(value, primaryTimeZone, facilityTimeZone),
+      toFacilityDateTime: value => toFacilityDateTime(value, primaryTimeZone, facilityTimeZone),
     }),
-    [globalTimeZone, facilityTimeZone, bindTimeZones],
+    [primaryTimeZone, facilityTimeZone, bindTimeZones],
   );
 
   return React.createElement(DateTimeProviderContext.Provider, { value }, children);
+};
+
+export const DateTimeProvider = ({
+  children,
+  primaryTimeZone: primaryTimeZoneProp,
+  facilityTimeZone: facilityTimeZoneProp,
+}: DateTimeProviderProps) => {
+  const { primaryTimeZone: authPrimaryTimeZone } = useAuth();
+  const { getSetting } = useSettings();
+  const usePropsMode = primaryTimeZoneProp !== undefined;
+
+  const primaryTimeZone = usePropsMode ? primaryTimeZoneProp : authPrimaryTimeZone;
+
+  // Pre-login: primaryTimeZone not yet available — render children without
+  // the DateTime context. Post-login screens that call useDateTime() are
+  // behind auth gates and will always have the context available.
+  if (!primaryTimeZone) {
+    return <>{children}</>;
+  }
+
+  const facilityTimeZone = usePropsMode
+    ? facilityTimeZoneProp
+    : (getSetting('facilityTimeZone') as string | undefined);
+
+  return (
+    <DateTimeProviderInner
+      primaryTimeZone={primaryTimeZone}
+      facilityTimeZone={facilityTimeZone}
+    >
+      {children}
+    </DateTimeProviderInner>
+  );
 };

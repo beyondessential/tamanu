@@ -8,8 +8,8 @@ const createFormatter =
     fallback: string,
     transform?: (result: string) => string,
   ) =>
-  (date: DateInput, globalTimeZone?: string, facilityTimeZone?: string | null): string => {
-    const result = intlFormatDate(date, formatOptions, fallback, globalTimeZone, facilityTimeZone);
+  (date: DateInput, primaryTimeZone: string, facilityTimeZone?: string | null): string => {
+    const result = intlFormatDate(date, formatOptions, fallback, primaryTimeZone, facilityTimeZone);
     return transform ? transform(result) : result;
   };
 
@@ -82,15 +82,15 @@ export const formatDayMonth = createFormatter({ month: 'short', day: 'numeric' }
 /** "12/04/2024 12:30 am" */
 export const formatShortDateTime = (
   date: DateInput,
-  globalTimeZone?: string,
+  primaryTimeZone: string,
   facilityTimeZone?: string | null,
 ) =>
-  `${formatShort(date, globalTimeZone, facilityTimeZone)} ${formatTime(date, globalTimeZone, facilityTimeZone)}`;
+  `${formatShort(date, primaryTimeZone, facilityTimeZone)} ${formatTime(date, primaryTimeZone, facilityTimeZone)}`;
 
 /** "12/04/24 12:30 am" */
 export const formatShortestDateTime = (
   date: DateInput,
-  globalTimeZone?: string,
+  primaryTimeZone: string,
   facilityTimeZone?: string | null,
 ) =>
-  `${formatShortest(date, globalTimeZone, facilityTimeZone)} ${formatTime(date, globalTimeZone, facilityTimeZone)}`;
+  `${formatShortest(date, primaryTimeZone, facilityTimeZone)} ${formatTime(date, primaryTimeZone, facilityTimeZone)}`;

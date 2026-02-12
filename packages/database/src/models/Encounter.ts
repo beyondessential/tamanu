@@ -12,6 +12,7 @@ import {
 } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
 import { dischargeOutpatientEncounters } from '@tamanu/shared/utils/dischargeOutpatientEncounters';
+import config from 'config';
 import { formatShort, formatTime } from '@tamanu/utils/dateFormatters';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
@@ -619,13 +620,13 @@ export class Encounter extends Model {
         columnName: 'startDate',
         noteLabel:
           encounterType === ENCOUNTER_TYPES.ADMISSION ? 'admission date & time' : 'date & time',
-        formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
+        formatText: date => (date ? `${formatShort(date, config.countryTimeZone)} ${formatTime(date, config.countryTimeZone)}` : '-'),
       });
 
       await onChangeTextColumn({
         columnName: 'estimatedEndDate',
         noteLabel: 'estimated discharge date',
-        formatText: date => (date ? formatShort(date) : '-'),
+        formatText: date => (date ? formatShort(date, config.countryTimeZone) : '-'),
       });
       await onChangeForeignKey({
         columnName: 'patientBillingTypeId',

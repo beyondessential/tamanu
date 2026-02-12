@@ -14,6 +14,7 @@ import {
   OutlinedButton,
   FormGrid,
   TimeDisplay,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { AutocompleteField, CheckField, Field, NumberField } from '../../Field';
@@ -206,6 +207,7 @@ export const MarDetails = ({
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
   const { getTranslation, getEnumTranslation } = useTranslation();
+  const { toStoredDateTime } = useDateTime();
   const practitionerSuggester = useSuggester('practitioner');
   const requiredMessage = getTranslation('validation.required.inline', '*Required');
 
@@ -253,7 +255,7 @@ export const MarDetails = ({
       ...data,
       doses: data.doses.map(dose => ({
         ...dose,
-        givenTime: toDateTimeString(dose.givenTime),
+        givenTime: toStoredDateTime(toDateTimeString(dose.givenTime)),
         doseAmount: Number(dose.doseAmount),
       })),
     });

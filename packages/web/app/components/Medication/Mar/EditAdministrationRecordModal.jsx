@@ -11,6 +11,7 @@ import {
   FormGrid,
   ConfirmCancelRow,
   TranslatedText,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { Field, NumberField, AutocompleteField } from '../../Field';
@@ -112,6 +113,7 @@ export const EditAdministrationRecordModal = ({
   const medicationReasonNotGivenSuggester = useSuggester('medicationNotGivenReason');
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
+  const { toStoredDateTime, toFacilityDateTime } = useDateTime();
   const [showWarningModal, setShowWarningModal] = useState('');
 
   const { mutateAsync: updateNotGivenInfoMar } = useNotGivenInfoMarMutation(marInfo?.id, {
@@ -147,7 +149,7 @@ export const EditAdministrationRecordModal = ({
         }
         await updateMarDose({
           doseAmount: Number(doseAmount),
-          givenTime: toDateTimeString(givenTime),
+          givenTime: toStoredDateTime(toDateTimeString(givenTime)),
           givenByUserId,
           recordedByUserId,
           reasonForChange,
@@ -230,7 +232,7 @@ export const EditAdministrationRecordModal = ({
               }
             : {
                 doseAmount: doseInfo?.doseAmount,
-                givenTime: doseInfo?.givenTime ? new Date(doseInfo.givenTime) : null,
+                givenTime: doseInfo?.givenTime ? new Date(toFacilityDateTime(doseInfo.givenTime)) : null,
                 givenByUserId: doseInfo?.givenByUserId,
                 recordedByUserId: doseInfo?.recordedByUserId,
               }

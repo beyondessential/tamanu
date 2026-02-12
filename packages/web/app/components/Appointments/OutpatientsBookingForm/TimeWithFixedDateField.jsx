@@ -7,15 +7,11 @@ import { TimeInput } from '../../Field';
 /**
  * A field for selecting a time while keeping the date fixed.
  * The resulting date-time will match the provided `date` (YYYY-MM-DD string) with the time set by the user.
- *
- * When useTimezone is true, the Formik value is expected in global timezone (matching DateTimeField
- * behaviour). The component converts to facility timezone for display and back on save.
  */
-export const TimeWithFixedDateField = ({ field, date, useTimezone = false, ...props }) => {
+export const TimeWithFixedDateField = ({ field, date, ...props }) => {
   const { toFacilityDateTime, toStoredDateTime } = useDateTime();
 
-  const displayValue =
-    useTimezone && field.value ? toFacilityDateTime(field.value) : field.value;
+  const displayValue = toFacilityDateTime(field.value);
 
   const handleChange = event => {
     if (!event.target.value || !date) {
@@ -23,14 +19,14 @@ export const TimeWithFixedDateField = ({ field, date, useTimezone = false, ...pr
       return;
     }
     const [year, month, day] = date.split('-').map(Number);
-    const facilityDateTime = toDateTimeString(
+    const facilityDateTime = toDateTimeString(  
       dateFnsSet(parseISO(event.target.value), {
         year,
         date: day,
         month: month - 1,
       }),
     );
-    const outputValue = useTimezone ? toStoredDateTime(facilityDateTime) : facilityDateTime;
+    const outputValue = toStoredDateTime(facilityDateTime)
     field.onChange({ target: { value: outputValue, name: field.name } });
   };
 
