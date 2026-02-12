@@ -30,7 +30,7 @@ export interface DateTimeContextValue extends WrappedFormatters {
   /** Get current datetime string in facility timezone */
   getCurrentDateTime: () => string;
   /** Get current facility wall-clock time as yyyy-MM-ddTHH:mm */
-  getFacilityNow: () => string;
+  getFacilityNow: () => string | null;
   /** Get day boundaries i.e start and end of the day at the given date in facility timezone for query */
   getDayBoundaries: (date: string) => { start: string; end: string } | null;
   /** Convert facility-tz input value to country-tz for storage */

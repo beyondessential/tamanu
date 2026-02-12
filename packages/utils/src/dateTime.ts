@@ -491,7 +491,7 @@ export const toFacilityDateTime = (
   }
 };
 
-/**f
+/**
  * Convert input value (facility timezone) to storage format (country timezone)
  * Used when saving datetime-local input values to the database
  */
