@@ -7,7 +7,7 @@ import {
   getCurrentDateStringInTimezone,
   getCurrentDateTimeStringInTimezone,
   getDayBoundaries,
-  getFacilityNow,
+  getFacilityNowDate,
 } from '@tamanu/utils/dateTime';
 import * as dateTimeFormatters from '@tamanu/utils/dateFormatters';
 
@@ -27,11 +27,11 @@ export interface DateTimeContextValue extends WrappedFormatters {
   facilityTimeZone?: string | null;
   /** Get current date string in facilityTimeZone */
   getCurrentDate: () => string;
-  /** Get current datetime string in facilityTimeZone */
+  /** Get current datetime string in primaryTimeZone (ISO 9075) */
   getCurrentDateTime: () => string;
-  /** Get current facility wall-clock time as yyyy-MM-ddTHH:mm (never null) */
-  getFacilityNow: () => string;
-  /** Get day boundaries i.e start and end of the day at the given date in facilityTimeZone for query */
+  /** Get Date object in facility timezone */
+  getFacilityNowDate: () => Date;
+  /** Get day boundaries i.e start and end of the day at the given date in facility timezone for query */
   getDayBoundaries: (date: string) => { start: string; end: string } | null;
   /** Convert facilityTimeZone input value to primaryTimeZone for storage */
   toStoredDateTime: (inputValue: string | null | undefined) => string | null;
@@ -82,7 +82,7 @@ const DateTimeProviderInner = ({
       ...(mapValues(dateTimeFormatters, bindTimeZones) as WrappedFormatters),
       getCurrentDate: () => getCurrentDateStringInTimezone(facilityTimeZone ?? primaryTimeZone),
       getCurrentDateTime: () => getCurrentDateTimeStringInTimezone(primaryTimeZone),
-      getFacilityNow: () => getFacilityNow(primaryTimeZone, facilityTimeZone),
+      getFacilityNowDate: () => getFacilityNowDate(primaryTimeZone, facilityTimeZone),
       getDayBoundaries: date => getDayBoundaries(date, primaryTimeZone, facilityTimeZone),
       toStoredDateTime: value => toStoredDateTime(value, primaryTimeZone, facilityTimeZone),
       toFacilityDateTime: value => toFacilityDateTime(value, primaryTimeZone, facilityTimeZone),

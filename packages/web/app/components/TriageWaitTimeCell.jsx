@@ -25,23 +25,26 @@ const ColourCell = styled(PlainCell)`
   color: white;
 `;
 
-const TriageCell = ({ arrivalTime, children }) => (
-  <Tooltip
-    title={
-      <TranslatedText
-        stringId="patientList.triage.table.waitTime.arrivalTime.toolTip"
-        fallback="Arrival time: :arrivalTime"
-        replacements={{ arrivalTime }}
-        data-testid="translatedtext-z21d"
-      />
-    }
-    arrow
-    placement="top"
-    data-testid="tooltip-dfw8"
-  >
-    <ColourCell data-testid="colourcell-1o42">{children}</ColourCell>
-  </Tooltip>
-);
+const TriageCell = ({ arrivalTime, children }) => {
+  const { formatShortDateTime } = useDateTime();
+  return (
+    <Tooltip
+      title={
+        <TranslatedText
+          stringId="patientList.triage.table.waitTime.arrivalTime.toolTip"
+          fallback="Arrival time: :arrivalTime"
+          replacements={{ arrivalTime: formatShortDateTime(arrivalTime) }}
+          data-testid="translatedtext-z21d"
+        />
+      }
+      arrow
+      placement="top"
+      data-testid="tooltip-dfw8"
+    >
+      <ColourCell data-testid="colourcell-1o42">{children}</ColourCell>
+    </Tooltip>
+  );
+};
 
 export const TriageWaitTimeCell = React.memo(
   ({ encounterType, triageTime, closedTime, arrivalTime }) => {

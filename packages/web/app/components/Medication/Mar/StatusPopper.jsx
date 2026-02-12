@@ -251,7 +251,7 @@ const GivenScreen = ({
 }) => {
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
-  const { getFacilityNow, toStoredDateTime } = useDateTime();
+  const { getFacilityNowDate, toStoredDateTime } = useDateTime();
   const [containerWidth, setContainerWidth] = useState(null);
   const doseInputRef = useRef(null);
   const [showWarningModal, setShowWarningModal] = useState(null);
@@ -396,7 +396,7 @@ const GivenScreen = ({
         doseAmount: Number(prescriptionDoseAmount) || '',
         timeGiven: isPast
           ? addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1)
-          : new Date(getFacilityNow()),
+          : getFacilityNowDate(),
       }}
       validationSchema={yup.object().shape({
         doseAmount: yup

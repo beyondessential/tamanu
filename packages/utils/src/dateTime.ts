@@ -81,31 +81,19 @@ export const parseDate = (date: string | Date | null | undefined) => {
 };
 
 export const toDateTimeString = (date: string | Date | null | undefined) => {
-  if (date == null) return null;
-
-  const dateObj = parseDate(date);
-  if (!dateObj) return null;
-
-  return formatISO9075(dateObj, { representation: 'complete' });
+  const parsed = parseDate(date);
+  return parsed ? formatISO9075(parsed, { representation: 'complete' }) : null;
 };
 
 export const toDateString = (date: string | Date | null | undefined) => {
-  if (date == null) return null;
-
-  const dateObj = parseDate(date);
-  if (!dateObj) return null;
-
-  return formatISO9075(dateObj, { representation: 'date' });
+  const parsed = parseDate(date);
+  return parsed ? formatISO9075(parsed, { representation: 'date' }) : null;
 };
 
 /** "MO" - Uppercase 2 letter weekday representation for scheduling */
 export const toWeekdayCode = (date: string | Date | null | undefined) => {
-  if (date == null) return null;
-
-  const dateObj = parseDate(date);
-  if (!dateObj) return null;
-
-  return dateFnsFormat(dateObj, 'iiiiii').toUpperCase();
+  const parsed = parseDate(date);
+  return parsed ? dateFnsFormat(parsed, 'iiiiii').toUpperCase() : null;
 };
 
 export const getCurrentDateTimeString = () => formatISO9075(new Date());
@@ -136,21 +124,6 @@ export const ageInMonths = (dob: string) => {
 
 export const ageInYears = (dob: string) => {
   return differenceInYears(new Date(), parseISO(dob));
-};
-
-export const compareDateStrings = (key: 'asc' | 'desc' | 'ASC' | 'DESC' = 'desc') => {
-  return (a: { date: string }, b: { date: string }) => {
-    switch (key) {
-      case 'asc':
-      case 'ASC':
-        return parseISO(a.date).getTime() - parseISO(b.date).getTime();
-      case 'desc':
-      case 'DESC':
-        return parseISO(b.date).getTime() - parseISO(a.date).getTime();
-      default:
-        return 0;
-    }
-  };
 };
 
 export type AgeRange = {
@@ -254,11 +227,8 @@ export const doAgeRangesOverlap = (rangesArray: AgeRange[]) => {
  * For date-fns docs @see https://date-fns.org
  */
 export const format = (date: string | Date | null | undefined, format: string) => {
-  if (date == null) return null;
-  const dateObj = parseDate(date);
-  if (!dateObj) return null;
-
-  return dateFnsFormat(dateObj, format);
+  const parsed = parseDate(date);
+  return parsed ? dateFnsFormat(parsed, format) : null;
 };
 
 export const differenceInMilliseconds = (a: number | string | Date, b: number | string | Date) =>
@@ -268,18 +238,22 @@ export const locale = globalThis.navigator?.language ?? 'default';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
-const toISO9075DateTime = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) => {
+const formatTemporal = (
+  dt: Temporal.PlainDateTime | Temporal.ZonedDateTime,
+  separator: string,
+  alwaysIncludeSeconds: boolean,
+) => {
   const { year, month, day, hour, minute, second } = dt;
   const yyyy = String(year).padStart(4, '0');
-  return `${yyyy}-${pad(month)}-${pad(day)} ${pad(hour)}:${pad(minute)}:${pad(second)}`;
+  const base = `${yyyy}-${pad(month)}-${pad(day)}${separator}${pad(hour)}:${pad(minute)}`;
+  return alwaysIncludeSeconds || second !== 0 ? `${base}:${pad(second)}` : base;
 };
 
-const toDateTimeLocalFormat = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) => {
-  const { year, month, day, hour, minute, second } = dt;
-  const yyyy = String(year).padStart(4, '0');
-  const base = `${yyyy}-${pad(month)}-${pad(day)}T${pad(hour)}:${pad(minute)}`;
-  return second !== 0 ? `${base}:${pad(second)}` : base;
-};
+const toISO9075DateTime = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) =>
+  formatTemporal(dt, ' ', true);
+
+const toDateTimeLocalFormat = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) =>
+  formatTemporal(dt, 'T', false);
 
 const parseDateTimeString = (date: string, primaryTimeZone: string): Temporal.PlainDateTime => {
   const normalized = date.replace(' ', 'T');
@@ -442,21 +416,13 @@ export const getCurrentDateTimeStringInTimezone = (timezone: string) =>
 export const getCurrentDateStringInTimezone = (timezone: string) =>
   Temporal.Now.plainDateISO(timezone ?? Temporal.Now.timeZoneId()).toString();
 
-/** Get current facility wall-clock time as yyyy-MM-ddTHH:mm (never null) */
-export const getFacilityNow = (
+/** Get current facility date object in facility timezone */
+export const getFacilityNowDate = (
   primaryTimeZone: string,
   facilityTimeZone?: string | null,
-): string => {
-  const result = toFacilityDateTime(
-    getCurrentDateTimeStringInTimezone(primaryTimeZone),
-    primaryTimeZone, 
-    facilityTimeZone,
-  );
-  if (result != null) return result;
-
-  // Fallback: use system local time so .max() validation is never a no-op
-  const now = Temporal.Now.plainDateTimeISO();
-  return toDateTimeLocalFormat(now);
+): Date => {
+  const tz = facilityTimeZone ?? primaryTimeZone;
+  return new Date(getCurrentDateTimeStringInTimezone(tz).replace(' ', 'T'));
 };
 
 /**
@@ -482,7 +448,8 @@ export const toFacilityDateTime = (
     }
 
     if (isISO9075DateString(value)) {
-      return `${value}T00:00:00`;
+      // Must omit seconds to match toDateTimeLocalFormat and HTML datetime-local input values,
+      return `${value}T00:00`;
     }
 
     const plain = parseDateTimeString(value, primaryTimeZone);

@@ -7,7 +7,7 @@ import { useApi } from '../../api';
 
 export const SurveyResponseSelectField = ({ field, patient, config, ...props }) => {
   delete props.options;
-  const { formatShort, formatTime } = useDateTime();
+  const { formatShortDateTime } = useDateTime();
   const api = useApi();
   const [options, setOptions] = useState([]);
   const { source } = config;
@@ -19,11 +19,11 @@ export const SurveyResponseSelectField = ({ field, patient, config, ...props }) 
           .sort((a, b) => compareDesc(new Date(a.endTime), new Date(b.endTime)))
           .map(({ id, endTime, surveyName }) => ({
             value: id,
-            label: `${formatShort(endTime)} ${formatTime(endTime)} ${surveyName}`,
+            label: `${formatShortDateTime(endTime)} ${surveyName}`,
           })),
       );
     });
-  }, [api, formatShort, formatTime, patient.id, source]);
+  }, [api, formatShortDateTime, patient.id, source]);
   return (
     <SelectInput
       {...props}
