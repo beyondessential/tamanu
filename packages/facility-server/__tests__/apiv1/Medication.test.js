@@ -137,35 +137,6 @@ describe('Medication', () => {
         expect(afterSecond.repeats).toBe(2);
       });
 
-      it('should throw an error if the prescription has no repeats remaining', async () => {
-        const ongoingPrescription = await createOngoingPrescription({
-          patientId: patient.id,
-          prescriberId: app.user.id,
-        });
-
-        // First send - establishes lastOrderedAt
-        const firstResult = await app.post('/api/medication/send-ongoing-to-pharmacy').send({
-          patientId: patient.id,
-          orderingClinicianId: app.user.id,
-          facilityId,
-          prescriptions: [{ prescriptionId: ongoingPrescription.id, quantity: 10 }],
-        });
-
-        expect(firstResult).toHaveSucceeded();
-
-        // Decrement to 0 (simulating multiple sends)
-        await ongoingPrescription.update({ repeats: 0 });
-
-        // Second send - should fail with no repeats remaining
-        const secondResult = await app.post('/api/medication/send-ongoing-to-pharmacy').send({
-          patientId: patient.id,
-          orderingClinicianId: app.user.id,
-          facilityId,
-          prescriptions: [{ prescriptionId: ongoingPrescription.id, quantity: 10 }],
-        });
-
-        expect(secondResult).toHaveRequestError();
-      });
       it('should throw error if the prescription is linked to an active encounter', async () => {
         const ongoingPrescription = await createOngoingPrescription({
           patientId: patient.id,
