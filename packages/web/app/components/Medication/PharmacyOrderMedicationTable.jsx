@@ -292,7 +292,7 @@ const getColumns = (
         // The first send is not counted as a repeat. When never sent (no lastOrderedAt),
         // remaining = initial + repeats = repeats + 1. Once sent, repeats is decremented
         // on the backend per send, so it already represents remaining.
-        if (!lastOrderedAt) return repeats + 1;
+        if (!lastOrderedAt) return Number(repeats) + 1;
         return repeats;
       },
     },
