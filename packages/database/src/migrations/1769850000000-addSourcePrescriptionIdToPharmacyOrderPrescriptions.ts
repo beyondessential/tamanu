@@ -1,7 +1,7 @@
 import { DataTypes, QueryInterface } from 'sequelize';
 
 export async function up(query: QueryInterface): Promise<void> {
-  await query.addColumn('pharmacy_order_prescriptions', 'source_prescription_id', {
+  await query.addColumn('pharmacy_order_prescriptions', 'ongoing_prescription_id', {
     type: DataTypes.TEXT,
     allowNull: true,
     references: {
@@ -12,5 +12,5 @@ export async function up(query: QueryInterface): Promise<void> {
 }
 
 export async function down(query: QueryInterface): Promise<void> {
-  await query.removeColumn('pharmacy_order_prescriptions', 'source_prescription_id');
+  await query.removeColumn('pharmacy_order_prescriptions', 'ongoing_prescription_id');
 }
