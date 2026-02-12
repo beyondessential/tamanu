@@ -2,7 +2,6 @@ import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import {
-  ATTENDANT_OF_BIRTH_OPTIONS,
   EDUCATIONAL_ATTAINMENT_LABELS,
   BIRTH_TYPE_OPTIONS,
   MARITAL_STATUS_OPTIONS,
@@ -179,7 +178,7 @@ export const FSMBirthNotificationCertificate = ({
                 <Cell width={146} label="Date of birth:" value={childData?.dateOfBirth ? getDisplayDate(childData?.dateOfBirth) : ''} />
                 <Cell width={110} label="Sex:" value={getLabelFromValue(SEX_OPTIONS, childData?.sex)} />
                 <Cell width={146} label="Delivery site:" value={getLabelFromValue(PLACE_OF_BIRTH_OPTIONS, childData?.birthData?.registeredBirthPlace)} />
-                <Cell width={146} label="Attendant:" value={getLabelFromValue(ATTENDANT_OF_BIRTH_OPTIONS, childData?.birthData?.attendantAtBirth)} />
+                <Cell width={146} label="Attendant:" value={childData?.birthData?.nameOfAttendantAtBirth} />
                 <Cell width={183} lastCell label="Birth order:" value={childData?.birthData?.birthOrder} />
               </View>
             </View>
@@ -204,8 +203,8 @@ export const FSMBirthNotificationCertificate = ({
               <View style={styles.row}>
                 <Cell width={146} label="FSM birth state or country:" value={getCountryOfBirth(motherData)} />
                 <Cell width={110} label="Village:" value={motherData?.village?.name} />
-                <Cell width={146} label="Municipality:" value={motherData?.additionalData?.cityTown} />
-                <Cell width={146} label="State (legal residence):" value={motherData?.additionalData?.country?.name} />
+                <Cell width={146} label="Municipality:" value={motherData?.additionalData?.subdivision?.name} />
+                <Cell width={146} label="State (legal residence):" value={motherData?.additionalData?.division?.name} />
                 <Cell width={183} lastCell label="Medical record number:" value={motherData?.displayId} />
               </View>
 
