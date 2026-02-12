@@ -604,7 +604,6 @@ medication.post(
           return {
             pharmacyOrderId: pharmacyOrder.id,
             prescriptionId: prescription.id,
-            sourcePrescriptionId: originalPrescription.id,
             quantity: requestData.quantity,
             repeats: requestData.repeats ?? originalPrescription.repeats ?? 0,
           };

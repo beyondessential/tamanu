@@ -3,11 +3,18 @@ import { keyBy } from 'lodash';
 /**
  * Returns when each ongoing prescription was last sent to pharmacy.
  *
- * Uses the source_prescription_id column on pharmacy_order_prescriptions to link
- * pharmacy order prescriptions (clones) back to their source ongoing prescriptions.
+ * When an ongoing prescription is sent to pharmacy, the system creates a new encounter, clones each
+ * ongoing prescription to attach to that encounter, then creates a pharmacy order referencing those
+ * clones. The clones have new IDs with no schema link back to the source ongoing prescriptions. We
+ * infer the relationship by matching medication_id + patient + "Medication dispensing" encounter type.
+ *
+ * NOTE: This approach is extremely fragile and needs a rethink. It was duplicated in a couple of
+ * places so it was consolidated here, but the underlying design (inferring clone→source via
+ * medication_id + reason_for_encounter string) is brittle. Prefer adding a schema link from clone
+ * to source, or a dedicated encounter type, if refactoring.
  *
  * @param {Object} db - Sequelize db instance
- * @param {string} patientId - Patient ID (unused, kept for API compatibility)
+ * @param {string} patientId - Patient ID
  * @param {string[]} ongoingPrescriptionIds - IDs of ongoing prescriptions
  * @param {Object} [options] - Optional query options
  * @param {Object} [options.transaction] - Sequelize transaction
@@ -26,17 +33,26 @@ export async function getLastOrderedAtForOngoingPrescriptions(
   const [rows] = await db.query(
     `
     SELECT
-      pop.source_prescription_id as ongoing_prescription_id,
+      p_ongoing.id as ongoing_prescription_id,
       MAX(po.date) as last_ordered_at
-    FROM pharmacy_order_prescriptions pop
+    FROM prescriptions p_ongoing
+    INNER JOIN prescriptions p_cloned ON p_cloned.medication_id = p_ongoing.medication_id
+      AND p_cloned.deleted_at IS NULL
+    INNER JOIN encounter_prescriptions ep_cloned ON ep_cloned.prescription_id = p_cloned.id
+    INNER JOIN encounters e ON e.id = ep_cloned.encounter_id
+      AND e.patient_id = :patientId
+      -- NOTE: This really should be matching a new system encounter type, not the reason for encounter string.
+      AND e.reason_for_encounter = 'Medication dispensing'
+    INNER JOIN pharmacy_order_prescriptions pop ON pop.prescription_id = p_cloned.id
+      AND pop.deleted_at IS NULL
     INNER JOIN pharmacy_orders po ON po.id = pop.pharmacy_order_id
       AND po.deleted_at IS NULL
-    WHERE pop.source_prescription_id IN (:ongoingPrescriptionIds)
-      AND pop.deleted_at IS NULL
-    GROUP BY pop.source_prescription_id
+    WHERE p_ongoing.id IN (:ongoingPrescriptionIds)
+    GROUP BY p_ongoing.id
   `,
     {
       replacements: {
+        patientId,
         ongoingPrescriptionIds,
       },
       ...options,
