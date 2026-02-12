@@ -102,6 +102,11 @@ export const usePatientNavigation = () => {
     });
     navigate(programRegistryRoute);
   };
+
+  const setNavigateBackTab = tab => {
+    window.history.replaceState(null, '', `${location.pathname}?tab=${tab}`);
+  };
+
   return {
     navigateToPatient,
     navigateToEncounter,
@@ -112,5 +117,6 @@ export const usePatientNavigation = () => {
     navigateToMar,
     navigateToProgramRegistry,
     navigateToProgramRegistrySurvey,
+    setNavigateBackTab,
   };
 };

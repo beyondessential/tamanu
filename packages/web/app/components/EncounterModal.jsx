@@ -24,6 +24,7 @@ export const EncounterModal = React.memo(
     patient,
     patientBillingTypeId,
     initialValues,
+    withExistingEncounterCheck,
   }) => {
     const [modalStatus, setModalStatus] = useState(MODAL_STATES.SELECT_OPEN);
     const [encounterType, setEncounterType] = useState(null);
@@ -33,7 +34,7 @@ export const EncounterModal = React.memo(
       setModalStatus(MODAL_STATES.SELECT_OPEN);
       onClose();
     }, [onClose]);
-    const onSelectEncounterType = useCallback((value) => {
+    const onSelectEncounterType = useCallback(value => {
       if (value === ENCOUNTER_TYPES.TRIAGE) {
         setModalStatus(MODAL_STATES.TRIAGE_OPEN);
         return;
@@ -66,6 +67,7 @@ export const EncounterModal = React.memo(
           referral={referral}
           initialValues={initialValues}
           data-testid="checkinmodal-7ijs"
+          withExistingEncounterCheck={withExistingEncounterCheck}
         />
         <TriageModal
           open={modalStatus === MODAL_STATES.TRIAGE_OPEN}
@@ -75,6 +77,7 @@ export const EncounterModal = React.memo(
           patient={patient}
           initialValues={initialValues}
           data-testid="triagemodal-715s"
+          withExistingEncounterCheck={withExistingEncounterCheck}
         />
       </>
     );

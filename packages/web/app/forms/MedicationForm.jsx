@@ -1010,7 +1010,7 @@ export const MedicationForm = ({
             />
             <Field
               name="route"
-              label={<TranslatedText stringId="medication.route.label" fallback="Route" />}
+              label={<TranslatedText stringId="medication.routeOfAdministration.label" fallback="Route of administration" />}
               component={TranslatedSelectField}
               enumValues={DRUG_ROUTE_LABELS}
               required

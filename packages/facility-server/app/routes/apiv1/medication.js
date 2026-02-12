@@ -519,7 +519,16 @@ medication.post(
         { transaction },
       );
 
-      // Find the latest pharmacy_order_prescriptions for prescriptions that were cloned from ongoing prescriptions.
+      // Automatically add an invoice
+      await models.Invoice.automaticallyCreateForEncounter(
+        encounter.id,
+        encounter.encounterType,
+        encounter.startDate,
+        facilitySettings,
+        { transaction },
+      );
+      
+       // Find the latest pharmacy_order_prescriptions for prescriptions that were cloned from ongoing prescriptions.
       // This query runs before creating new records, so it only finds previous orders.
       const ongoingPrescriptionIds = ongoingPrescriptions.map(p => p.id);
       const lastOrderedAts = await getLastOrderedPrescriptionDates(db, patientId, ongoingPrescriptionIds, {
@@ -2284,7 +2293,7 @@ medication.get(
           include: [
             {
               association: 'medication',
-              attributes: ['id', 'name'],
+              attributes: ['id', 'name', 'type'],
               include: [
                 {
                   model: models.ReferenceDrug,

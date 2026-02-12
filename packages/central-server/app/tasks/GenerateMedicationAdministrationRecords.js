@@ -85,7 +85,9 @@ export class GenerateMedicationAdministrationRecords extends ScheduledTask {
     for (let i = 0; i < batchCount; i++) {
       const prescriptions = await Prescription.findAll({
         ...baseQueryOptions,
+        offset: i * batchSize,
         limit: batchSize,
+        order: [['id', 'ASC']],
       });
 
       for (const prescription of prescriptions) {
@@ -101,7 +103,10 @@ export class GenerateMedicationAdministrationRecords extends ScheduledTask {
         }
       }
 
-      await sleepAsync(batchSleepAsyncDurationInMilliseconds);
+      if (i < batchCount - 1) {
+        // only sleep if not the last batch
+        await sleepAsync(batchSleepAsyncDurationInMilliseconds);
+      }
     }
   }
 }
