@@ -7,7 +7,7 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { addHours, set } from 'date-fns';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { Form, Button } from '@tamanu/ui-components';
+import { Form, Button, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import * as yup from 'yup';
 import { TranslatedEnum, TranslatedText } from '../../Translation';
@@ -251,6 +251,7 @@ const GivenScreen = ({
 }) => {
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
+  const { getFacilityNow } = useDateTime();
   const [containerWidth, setContainerWidth] = useState(null);
   const doseInputRef = useRef(null);
   const [showWarningModal, setShowWarningModal] = useState(null);
@@ -395,7 +396,7 @@ const GivenScreen = ({
         doseAmount: Number(prescriptionDoseAmount) || '',
         timeGiven: isPast
           ? addHours(getDateFromTimeString(timeSlot.startTime, selectedDate), 1)
-          : new Date(),
+          : new Date(getFacilityNow()),
       }}
       validationSchema={yup.object().shape({
         doseAmount: yup

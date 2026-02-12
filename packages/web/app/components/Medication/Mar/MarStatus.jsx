@@ -106,23 +106,23 @@ const DiscontinuedDivider = styled.div`
   background-color: ${Colors.midText};
 `;
 
-const getIsPast = ({ timeSlot, selectedDate }) => {
+const getIsPast = ({ timeSlot, selectedDate, now }) => {
   const slotEndDate = getDateFromTimeString(timeSlot.endTime, selectedDate);
-  return new Date() > slotEndDate;
+  return now > slotEndDate;
 };
 
-const getIsCurrent = ({ timeSlot, selectedDate }) => {
+const getIsCurrent = ({ timeSlot, selectedDate, now }) => {
   const slotStartDate = getDateFromTimeString(timeSlot.startTime, selectedDate);
   const slotEndDate = getDateFromTimeString(timeSlot.endTime, selectedDate);
-  return new Date() >= slotStartDate && new Date() < slotEndDate;
+  return now >= slotStartDate && now < slotEndDate;
 };
 
-const getIsDisabled = ({ hasRecord, timeSlot, selectedDate }) => {
+const getIsDisabled = ({ hasRecord, timeSlot, selectedDate, now }) => {
   const slotStartDate = getDateFromTimeString(timeSlot.startTime, selectedDate);
   if (!hasRecord) {
-    return slotStartDate > new Date();
+    return slotStartDate > now;
   }
-  return slotStartDate > addHours(new Date(), 2);
+  return slotStartDate > addHours(now, 2);
 };
 
 const getIsEnd = ({ endDate, hasRecord, timeSlot, selectedDate }) => {
@@ -194,7 +194,10 @@ export const MarStatus = ({
 }) => {
   const { data: { data: marDoses = [] } = {} } = useMarDoses(marInfo?.id);
   const { getEnumTranslation } = useTranslation();
-  const { formatTimeCompact } = useDateTime();
+  const { formatTimeCompact, getFacilityNow } = useDateTime();
+  const facilityNowStr = getFacilityNow();
+  if (!facilityNowStr) throw new Error('Failed to determine facility time — check timezone configuration');
+  const facilityNow = new Date(facilityNowStr);
   const { ability } = useAuth();
   const canViewMar = ability.can('read', 'MedicationAdministration');
   const canCreateMar = ability.can('create', 'MedicationAdministration');
@@ -211,10 +214,10 @@ export const MarStatus = ({
   const [showMarDetailsModal, setShowMarDetailsModal] = useState(false);
 
   const containerRef = useRef(null);
-  const isPast = getIsPast({ timeSlot, selectedDate });
-  const isDisabled = getIsDisabled({ hasRecord: !!marInfo, timeSlot, selectedDate });
-  const isFuture = getDateFromTimeString(timeSlot.startTime, selectedDate) > new Date();
-  const isCurrent = getIsCurrent({ timeSlot, selectedDate });
+  const isPast = getIsPast({ timeSlot, selectedDate, now: facilityNow });
+  const isDisabled = getIsDisabled({ hasRecord: !!marInfo, timeSlot, selectedDate, now: facilityNow });
+  const isFuture = getDateFromTimeString(timeSlot.startTime, selectedDate) > facilityNow;
+  const isCurrent = getIsCurrent({ timeSlot, selectedDate, now: facilityNow });
   const isDiscontinued = getIsDiscontinued({
     discontinuedDate,
     dueAt,
