@@ -6,7 +6,7 @@ import { LetterheadSection } from './LetterheadSection';
 import {
   ATTENDANT_OF_BIRTH_OPTIONS,
   BIRTH_DELIVERY_TYPE_OPTIONS,
-  PLURALITY_OPTIONS,
+  BIRTH_TYPE_OPTIONS,
   MARITAL_STATUS_OPTIONS,
   PLACE_OF_BIRTH_OPTIONS,
   SEX_OPTIONS,
@@ -153,9 +153,9 @@ const ChildSection = ({ data }) => {
           {getLabelFromValue(BIRTH_DELIVERY_TYPE_OPTIONS, data?.birthData?.birthDeliveryType)}
         </Cell>
         <Cell style={{ width: 100 }} bold>
-          {getTranslation('pdf.birthNotification.plurality.label', 'Plurality')}
+          {getTranslation('pdf.birthNotification.singlePluralBirths.label', 'Single/plural births')}
         </Cell>
-        <FlexCell>{getLabelFromValue(PLURALITY_OPTIONS, data?.birthData?.plurality)}</FlexCell>
+        <FlexCell>{getLabelFromValue(BIRTH_TYPE_OPTIONS, data?.birthData?.birthType)}</FlexCell>
       </Row>
       <Row>
         <LeftCell>

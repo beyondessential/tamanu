@@ -21,7 +21,7 @@ export class PatientBirthData extends Model {
   declare apgarScoreFiveMinutes?: number;
   declare apgarScoreTenMinutes?: number;
   declare timeOfBirth?: string;
-  declare plurality?: string;
+  declare birthType?: string;
   declare registeredBirthPlace?: string;
   declare birthFacilityId?: string;
 
@@ -54,7 +54,7 @@ export class PatientBirthData extends Model {
         apgarScoreFiveMinutes: { type: Sequelize.INTEGER },
         apgarScoreTenMinutes: { type: Sequelize.INTEGER },
         timeOfBirth: dateTimeType('timeOfBirth'),
-        plurality: { type: Sequelize.STRING },
+        birthType: { type: Sequelize.STRING }, // Single/Plural
         registeredBirthPlace: { type: Sequelize.STRING },
       },
       {
@@ -96,7 +96,7 @@ export class PatientBirthData extends Model {
     'apgarScoreFiveMinutes',
     'apgarScoreTenMinutes',
     'timeOfBirth',
-    'plurality',
+    'birthType',
     'attendantAtBirth',
     'nameOfAttendantAtBirth',
     'birthFacilityId',

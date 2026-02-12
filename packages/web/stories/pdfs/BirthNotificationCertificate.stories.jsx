@@ -83,7 +83,7 @@ const childData = {
   birthData: {
     gestationalAgeEstimate: 37,
     birthDeliveryType: 'normal',
-    plurality: 'single',
+    birthType: 'single',
     birthWeight: 2.6,
     dateOfBirth: null,
     timeOfBirth: null,

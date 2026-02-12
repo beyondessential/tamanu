@@ -3,7 +3,7 @@ import React from 'react';
 import {
   ATTENDANT_OF_BIRTH_LABELS,
   BIRTH_DELIVERY_TYPE_LABELS,
-  PLURALITY_LABELS,
+  BIRTH_TYPE_LABELS,
   PLACE_OF_BIRTH_LABELS,
   PLACE_OF_BIRTH_TYPES,
 } from '@tamanu/constants';
@@ -99,17 +99,17 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
         />
       ),
     },
-    plurality: {
+    birthType: {
       component: TranslatedSelectField,
-      enumValues: PLURALITY_LABELS,
+      enumValues: BIRTH_TYPE_LABELS,
       label: (
         <TranslatedText
-          stringId="general.localisedField.plurality.label"
-          fallback="Plurality"
+          stringId="general.localisedField.birthType.label"
+          fallback="Single/Plural birth"
           data-testid="translatedtext-f37p"
         />
       ),
-      prefix: 'localisedField.property.plurality',
+      prefix: 'localisedField.property.birthType',
     },
     birthWeight: {
       component: TextField,

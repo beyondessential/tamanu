@@ -13,7 +13,7 @@ export const BIRTH_DELIVERY_TYPES = {
   OTHER: 'other',
 };
 
-export const PLURALITY_TYPES = {
+export const BIRTH_TYPES = {
   SINGLE: 'single',
   PLURAL: 'plural',
 };
@@ -104,14 +104,14 @@ export const BIRTH_DELIVERY_TYPE_OPTIONS = [
   },
 ];
 
-export const PLURALITY_LABELS = {
-  [PLURALITY_TYPES.SINGLE]: 'Single',
-  [PLURALITY_TYPES.PLURAL]: 'Plural',
+export const BIRTH_TYPE_LABELS = {
+  [BIRTH_TYPES.SINGLE]: 'Single',
+  [BIRTH_TYPES.PLURAL]: 'Plural',
 };
 
-export const PLURALITY_OPTIONS = [
-  { value: PLURALITY_TYPES.SINGLE, label: PLURALITY_LABELS[PLURALITY_TYPES.SINGLE] },
-  { value: PLURALITY_TYPES.PLURAL, label: PLURALITY_LABELS[PLURALITY_TYPES.PLURAL] },
+export const BIRTH_TYPE_OPTIONS = [
+  { value: BIRTH_TYPES.SINGLE, label: BIRTH_TYPE_LABELS[BIRTH_TYPES.SINGLE] },
+  { value: BIRTH_TYPES.PLURAL, label: BIRTH_TYPE_LABELS[BIRTH_TYPES.PLURAL] },
 ];
 
 export const PLACE_OF_BIRTH_LABELS = {

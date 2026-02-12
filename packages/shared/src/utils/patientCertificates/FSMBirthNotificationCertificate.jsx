@@ -4,7 +4,7 @@ import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import {
   ATTENDANT_OF_BIRTH_OPTIONS,
   EDUCATIONAL_ATTAINMENT_LABELS,
-  PLURALITY_OPTIONS,
+  BIRTH_TYPE_OPTIONS,
   MARITAL_STATUS_OPTIONS,
   PLACE_OF_BIRTH_OPTIONS,
   SEX_OPTIONS,
@@ -171,7 +171,7 @@ export const FSMBirthNotificationCertificate = ({
                 <Cell flex={1} label="First name:" value={childData?.firstName} />
                 <Cell flex={1} label="Middle name:" value={childData?.middleName} />
                 <Cell flex={1} label="Last name:" value={childData?.lastName} />
-                <Cell width={183} lastCell label="Plurality:" value={getLabelFromValue(PLURALITY_OPTIONS, childData?.birthData?.plurality)} />
+                <Cell width={183} lastCell label="Plurality:" value={getLabelFromValue(BIRTH_TYPE_OPTIONS, childData?.birthData?.birthType)} />
               </View>
 
               {/* Child Row 2 */}
