@@ -223,19 +223,24 @@ export class Prescription extends Model {
 
     if (!invoiceProduct) return;
 
-    const pops = await PharmacyOrderPrescription.findAll({
+    const pharmacyOrderPrescriptions = await PharmacyOrderPrescription.findAll({
       where: { prescriptionId: prescription.id },
       include: [
         { model: PharmacyOrder, as: 'pharmacyOrder', attributes: ['date', 'orderingClinicianId'] },
       ],
     });
 
-    const hasPharmacy = pops.length > 0;
+    const hasPharmacy = pharmacyOrderPrescriptions.length > 0;
     const earliestPharmacyDate = hasPharmacy
-      ? pops.map(p => p.pharmacyOrder!.date).sort((a, b) => a.localeCompare(b))[0]
+      ? pharmacyOrderPrescriptions
+          .map(p => p.pharmacyOrder!.date)
+          .sort((a, b) => a.localeCompare(b))[0]
       : undefined;
 
-    const totalSentQty = pops.reduce((sum: number, p: any) => sum + (Number(p.quantity) || 0), 0);
+    const totalSentQty = pharmacyOrderPrescriptions.reduce(
+      (sum: number, p: any) => sum + (Number(p.quantity) || 0),
+      0,
+    );
 
     let marQty = 0;
     const givenMars = await MedicationAdministrationRecord.findAll({
@@ -279,7 +284,7 @@ export class Prescription extends Model {
           isRemoved: { [Op.or]: [false, null] },
           ...(earliestPharmacyDate
             ? {
-                givenTime: { [Op.lte]: earliestPharmacyDate },
+                givenTime: { [Op.lte]: earliestPharmacyDate }, // Don't include doses given after pharmacy order
               }
             : {}),
         },
@@ -289,6 +294,7 @@ export class Prescription extends Model {
       marQty = doses.reduce((sum: number, d: any) => sum + Number(d.doseAmount || 0), 0);
     }
 
+    // Consolidate all administered + dispensed quantities into a single invoice item (update quantity instead of creating duplicates)
     const finalQty = marQty + totalSentQty;
 
     if (finalQty > 0) {
@@ -296,7 +302,7 @@ export class Prescription extends Model {
         prescription,
         encounter.id,
         invoiceProduct,
-        userId || pops[0]?.pharmacyOrder?.orderingClinicianId,
+        userId || pharmacyOrderPrescriptions[0]?.pharmacyOrder?.orderingClinicianId,
         { quantity: finalQty },
       );
     } else {
