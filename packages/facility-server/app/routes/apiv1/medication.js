@@ -623,7 +623,7 @@ medication.post(
             await originalPrescription.update({ repeats: repeats - 1 }, { transaction });
           }
           if (repeats === 0 && !canEditRepeats) {
-            // Users with write Medication permission can send with 0 repeats (per outer validation)
+            // Users with write Medication permission can send with 0 repeats
             throw new InvalidOperationError(
               `Prescription "${originalPrescription.medication?.name}" has no remaining repeats and cannot be sent to pharmacy.`,
             );
