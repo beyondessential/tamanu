@@ -438,15 +438,26 @@ medication.post(
       'read',
     );
 
+    // Fetch last ordered dates for "first send free" validation - prescriptions with 0 repeats
+    // that have never been ordered still have one remaining send
+    const ongoingPrescriptionIds = ongoingPrescriptions.map(p => p.id);
+    const lastOrderedAts = await getLastOrderedPrescriptionDates(
+      db,
+      patientId,
+      ongoingPrescriptionIds,
+    );
+
     // Validate repeats for each prescription
     const prescriptionMap = new Map(prescriptions.map(p => [p.prescriptionId, p]));
 
     for (const prescription of ongoingPrescriptions) {
       const requestData = prescriptionMap.get(prescription.id);
       const currentRepeats = prescription.repeats ?? 0;
+      const lastOrderedAt = lastOrderedAts[prescription.id]?.last_ordered_at;
 
       // If user doesn't have write Medication permission, they can't send medications with 0 repeats
-      if (!canEditRepeats && currentRepeats === 0) {
+      // that have already been ordered (first send is "free" - 0 repeats + never ordered = 1 remaining)
+      if (!canEditRepeats && currentRepeats === 0 && lastOrderedAt) {
         throw new InvalidOperationError(
           `Cannot send medication "${prescription.medication?.name || prescription.id}" to pharmacy - no repeats remaining. You do not have permission to modify repeats.`,
         );
@@ -527,13 +538,18 @@ medication.post(
         facilitySettings,
         { transaction },
       );
-      
-       // Find the latest pharmacy_order_prescriptions for prescriptions that were cloned from ongoing prescriptions.
+
+      // Find the latest pharmacy_order_prescriptions for prescriptions that were cloned from ongoing prescriptions.
       // This query runs before creating new records, so it only finds previous orders.
       const ongoingPrescriptionIds = ongoingPrescriptions.map(p => p.id);
-      const lastOrderedAts = await getLastOrderedPrescriptionDates(db, patientId, ongoingPrescriptionIds, {
-        transaction,
-      });
+      const lastOrderedAts = await getLastOrderedPrescriptionDates(
+        db,
+        patientId,
+        ongoingPrescriptionIds,
+        {
+          transaction,
+        },
+      );
 
       // Create new prescriptions for this encounter based on the original ongoing prescriptions
       const newPrescriptions = [];

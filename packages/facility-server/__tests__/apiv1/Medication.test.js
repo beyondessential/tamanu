@@ -5,6 +5,7 @@ import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { REFERENCE_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 
 import { createTestContext } from '../utilities';
 
@@ -69,6 +70,15 @@ describe('Medication', () => {
       SETTINGS_SCOPES.FACILITY,
       facilityId,
     );
+  });
+
+  afterEach(async () => {
+    await models.Prescription.truncate({ cascade: true, force: true });
+    await models.PatientOngoingPrescription.truncate({ cascade: true, force: true });
+    await models.EncounterPrescription.truncate({ cascade: true, force: true });
+    await models.Encounter.truncate({ cascade: true, force: true });
+    await models.PharmacyOrderPrescription.truncate({ cascade: true, force: true });
+    await models.PharmacyOrder.truncate({ cascade: true, force: true });
   });
 
   afterAll(() => ctx.close());
@@ -185,6 +195,97 @@ describe('Medication', () => {
         // Prescription repeats should be unchanged since we never got to the decrement logic
         const reloadedPrescription = await models.Prescription.findByPk(ongoingPrescription.id);
         expect(reloadedPrescription.repeats).toBe(3);
+      });
+    });
+    describe('permissions', () => {
+      const sendToPharmacyPermissions = [
+        ['create', 'Encounter'],
+        ['create', 'Medication'],
+        ['create', 'MedicationRequest'],
+        ['read', 'Medication'],
+      ];
+
+      const sendToPharmacyWithWriteRepeatsPermissions = [
+        ...sendToPharmacyPermissions,
+        ['write', 'Medication'],
+      ];
+
+      disableHardcodedPermissionsForSuite();
+
+      it('should allow a user with write permission to send ongoing prescriptions to pharmacy if repeats are 0', async () => {
+        const practitionerApp = await baseApp.asNewRole(sendToPharmacyWithWriteRepeatsPermissions);
+
+        const ongoingPrescription = await createOngoingPrescription({
+          patientId: patient.id,
+          prescriberId: practitionerApp.user.id,
+          repeats: 0,
+        });
+
+        const result = await practitionerApp.post('/api/medication/send-ongoing-to-pharmacy').send({
+          patientId: patient.id,
+          orderingClinicianId: practitionerApp.user.id,
+          facilityId,
+          prescriptions: [{ prescriptionId: ongoingPrescription.id, quantity: 10 }],
+        });
+
+        expect(result).toHaveSucceeded();
+
+        const reloadedPrescription = await models.Prescription.findByPk(ongoingPrescription.id);
+        expect(reloadedPrescription.repeats).toBe(0);
+      });
+
+      it('should allow a user without write permission to send ongoing prescriptions when repeats are 0 and never ordered (first send free)', async () => {
+        const limitedApp = await baseApp.asNewRole(sendToPharmacyPermissions);
+
+        const ongoingPrescription = await createOngoingPrescription({
+          patientId: patient.id,
+          prescriberId: limitedApp.user.id,
+          repeats: 0,
+        });
+
+        const result = await limitedApp.post('/api/medication/send-ongoing-to-pharmacy').send({
+          patientId: patient.id,
+          orderingClinicianId: limitedApp.user.id,
+          facilityId,
+          prescriptions: [{ prescriptionId: ongoingPrescription.id, quantity: 10 }],
+        });
+
+        expect(result).toHaveSucceeded();
+
+        const reloadedPrescription = await models.Prescription.findByPk(ongoingPrescription.id);
+        expect(reloadedPrescription.repeats).toBe(0);
+      });
+
+      it('should reject a user without write permission when repeats are 0 and already ordered', async () => {
+        const practitionerApp = await baseApp.asNewRole(sendToPharmacyWithWriteRepeatsPermissions);
+        const limitedApp = await baseApp.asNewRole(sendToPharmacyPermissions);
+
+        const ongoingPrescription = await createOngoingPrescription({
+          patientId: patient.id,
+          prescriberId: practitionerApp.user.id,
+          repeats: 0,
+        });
+
+        const firstResult = await practitionerApp
+          .post('/api/medication/send-ongoing-to-pharmacy')
+          .send({
+            patientId: patient.id,
+            orderingClinicianId: practitionerApp.user.id,
+            facilityId,
+            prescriptions: [{ prescriptionId: ongoingPrescription.id, quantity: 10 }],
+          });
+        expect(firstResult).toHaveSucceeded();
+
+        const secondResult = await limitedApp
+          .post('/api/medication/send-ongoing-to-pharmacy')
+          .send({
+            patientId: patient.id,
+            orderingClinicianId: limitedApp.user.id,
+            facilityId,
+            prescriptions: [{ prescriptionId: ongoingPrescription.id, quantity: 10 }],
+          });
+
+        expect(secondResult).toHaveRequestError();
       });
     });
   });
