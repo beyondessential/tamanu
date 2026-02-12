@@ -160,6 +160,33 @@ const CheckboxGroup = styled.div`
   }
 `;
 
+const StyledCheckField = styled(CheckField)`
+  cursor: pointer;
+  width: 100%;
+  background-color: ${Colors.white};
+  border: 1px solid ${({ $checked }) => ($checked ? Colors.primary : Colors.outline)};
+  border-radius: 3px;
+  .MuiFormControlLabel-root {
+    padding: 10px 2px;
+    margin: 0;
+    height: 44px;
+  }
+`;
+
+const CheckboxRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  align-items: stretch;
+  border: 1px solid ${Colors.outline};
+  padding: 12px 16px;
+  border-radius: 3px;
+`;
+
+const CheckboxRowItem = styled.div`
+  flex: 1;
+`;
+
 const ButtonRow = styled.div`
   display: flex;
   grid-column: 1 / -1;
@@ -237,30 +264,6 @@ const StyledConditionalTooltip = styled(ConditionalTooltip)`
   .MuiTooltip-tooltip {
     font-weight: 400;
   }
-`;
-
-const CheckboxBox = styled.div`
-  padding: 10px 12px;
-  background-color: ${Colors.white};
-  border-radius: 3px;
-  border: 1px solid ${({ $checked }) => ($checked ? Colors.primary : Colors.outline)};
-  .MuiTypography-body1 {
-    font-size: 14px;
-  }
-`;
-
-const CheckboxRow = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 16px;
-  align-items: stretch;
-  border: 1px solid ${Colors.outline};
-  padding: 12px 16px;
-  border-radius: 3px;
-`;
-
-const CheckboxRowItem = styled.div`
-  flex: 1;
 `;
 
 const VariableDoseFieldWrapper = styled.div`
@@ -917,40 +920,38 @@ export const MedicationForm = ({
                       />
                     }
                   >
-                    <CheckboxBox $checked={values.isOngoing || isOngoingPrescription} $fill>
-                      <Field
-                        name="isOngoing"
-                        label={
-                          <TranslatedText
-                            stringId="medication.isOngoing.label"
-                            fallback="Ongoing medication"
-                          />
+                    <Field
+                      name="isOngoing"
+                      label={
+                        <TranslatedText
+                          stringId="medication.isOngoing.label"
+                          fallback="Ongoing medication"
+                        />
+                      }
+                      component={StyledCheckField}
+                      style={{ ...(isOngoingPrescription && { pointerEvents: 'none' }) }}
+                      {...(isOngoingPrescription && { value: true })}
+                      onChange={(_, value) => {
+                        if (value) {
+                          setValues({ ...values, durationValue: '', durationUnit: '' });
                         }
-                        component={CheckField}
-                        style={{ ...(isOngoingPrescription && { pointerEvents: 'none' }) }}
-                        {...(isOngoingPrescription && { value: true })}
-                        onChange={(_, value) => {
-                          if (value) {
-                            setValues({ ...values, durationValue: '', durationUnit: '' });
-                          }
-                        }}
-                        checkedIcon={<StyledIcon className="far fa-check-square" $color={Colors.midText} />}
-                        data-testid="medication-field-isOngoing-7j2p"
-                      />
-                    </CheckboxBox>
+                      }}
+                      checkedIcon={<StyledIcon className="far fa-check-square" $color={Colors.midText} />}
+                      data-testid="medication-field-isOngoing-7j2p"
+                      $checked={values.isOngoing || isOngoingPrescription}
+                    />
                   </ConditionalTooltip>
                 </CheckboxRowItem>
                 <CheckboxRowItem>
-                  <CheckboxBox $checked={values.isPrn} $fill>
-                    <Field
-                      name="isPrn"
-                      label={
-                        <TranslatedText stringId="medication.isPrn.label" fallback="PRN medication" />
-                      }
-                      component={CheckField}
-                      data-testid="medication-field-isPrn-9n4q"
-                    />
-                  </CheckboxBox>
+                  <Field
+                    name="isPrn"
+                    label={
+                      <TranslatedText stringId="medication.isPrn.label" fallback="PRN medication" />
+                    }
+                    component={StyledCheckField}
+                    data-testid="medication-field-isPrn-9n4q"
+                    $checked={values.isPrn}
+                  />
                 </CheckboxRowItem>
               </CheckboxRow>
               {!isOngoingPrescription && !!drugStockStatus && (
@@ -963,27 +964,25 @@ export const MedicationForm = ({
               )}
             </CheckboxGroup>
             <VariableDoseFieldWrapper>
-              <CheckboxBox $checked={values.isVariableDose}>
-                <Field
-                  name="isVariableDose"
-                  label={
-                    <BodyText>
-                      <TranslatedText
-                        stringId="medication.variableDose.label"
-                        fallback="Variable dose"
-                      />
-                    </BodyText>
+              <Field
+                name="isVariableDose"
+                label={
+                  <BodyText>
+                    <TranslatedText
+                      stringId="medication.variableDose.label"
+                      fallback="Variable dose"
+                    />
+                  </BodyText>
+                }
+                component={StyledCheckField}
+                onChange={(_, value) => {
+                  if (value) {
+                    setValues({ ...values, doseAmount: '' });
+                    setFieldError('doseAmount', null);
                   }
-                  component={CheckField}
-                  onChange={(_, value) => {
-                    if (value) {
-                      setValues({ ...values, doseAmount: '' });
-                      setFieldError('doseAmount', null);
-                    }
-                  }}
-                  data-testid="medication-field-isVariableDose-5h8x"
-                />
-              </CheckboxBox>
+                }}
+                data-testid="medication-field-isVariableDose-5h8x"
+              />
             </VariableDoseFieldWrapper>
             <Field
               name="doseAmount"
