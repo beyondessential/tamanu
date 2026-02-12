@@ -5,6 +5,9 @@ import { differenceInYears, differenceInMonths, differenceInDays, differenceInHo
 import {
   MARITAL_STATUS_OPTIONS,
   SEX_OPTIONS,
+  MANNER_OF_DEATHS,
+  PLACE_OF_DEATHS,
+  BINARY_UNKNOWN_OPTIONS,
 } from '@tamanu/constants';
 import { getDisplayDate } from './getDisplayDate';
 import { Page } from '../pdf/Page';
@@ -174,11 +177,14 @@ const getChildBearingAge = (sex, dateOfBirth, dateOfDeath) => {
   return (age >= 15 && age <= 44) ? 'Y' : 'n/a';
 };
 
-const getPregnancyStatus = (pregnancy) => {
-  if (pregnancy === 'yes' || (typeof pregnancy === 'object' && pregnancy !== null)) return 'Yes';
-  if (pregnancy === 'no') return 'No';
-  if (pregnancy === 'unknown') return 'Unknown';
-  return '';
+const getMannerOfDeath = ({ manner, mannerOfDeathDescription }) => {
+  if (mannerOfDeathDescription) return mannerOfDeathDescription;
+  return getLabelFromValue(MANNER_OF_DEATHS, manner);
+};
+
+const getFSMDisplayDate = (date) => {
+  if (!date) return '';
+  return getDisplayDate(date, FSM_DATE_FORMAT);
 };
 
 export const FSMDeathCertificatePrintout = ({
@@ -189,6 +195,7 @@ export const FSMDeathCertificatePrintout = ({
   const additionalData = patientData?.additionalData;
   const dob = patientData?.dateOfBirth;
   const dod = patientData?.dateOfDeath;
+  const mannerOfDeath = getMannerOfDeath(patientData);
 
   return (
     <Document>
@@ -209,7 +216,7 @@ export const FSMDeathCertificatePrintout = ({
             <Cell flex={1} label="Middle name:" value={patientData?.middleName} />
             <Cell flex={1} label="Last name:" value={patientData?.lastName} />
             <Cell width={60} label="Sex:" value={getLabelFromValue(SEX_OPTIONS, patientData?.sex)} />
-            <Cell width={140} lastCell label="Date of death:" value={dod ? getDisplayDate(dod, FSM_DATE_FORMAT) : ''} />
+            <Cell width={140} lastCell label="Date of death:" value={getFSMDisplayDate(dod)} />
           </View>
 
           {/* Row 2: Age Details */}
@@ -217,7 +224,7 @@ export const FSMDeathCertificatePrintout = ({
             <Cell flex={1} label="Age:" value={getAgeAtDeath(dob, dod)} />
             <Cell flex={1} label="Under 1 year:" value={getUnder1Year(dob, dod)} />
             <Cell flex={1} label="Under 1 day:" value={getUnder1Day(dob, dod)} />
-            <Cell flex={1} label="Date of birth:" value={dob ? getDisplayDate(dob, FSM_DATE_FORMAT) : ''} />
+            <Cell flex={1} label="Date of birth:" value={getFSMDisplayDate(dob)} />
             <Cell width={250} lastCell label="FSM state of death:" value="TBD" />
           </View>
 
@@ -331,7 +338,7 @@ export const FSMDeathCertificatePrintout = ({
                   {patientData?.causes?.contributing?.map(c => c?.condition?.name).join(', ')}
                </Text>
             </View>
-            <Cell width={190} lastCell label="Autopsy" value="TBD" />
+            <Cell width={190} lastCell label="Autopsy" value={getLabelFromValue(BINARY_UNKNOWN_OPTIONS, patientData?.autopsyRequested)} />
           </View>
         </View>
 
@@ -363,7 +370,7 @@ export const FSMDeathCertificatePrintout = ({
           {/* Row 1: Maternal Details */}
           <View style={styles.row}>
             <Cell flex={1} label="Child Bearing Age (15-44):" value={getChildBearingAge(patientData?.sex, dob, dod)} />
-            <Cell flex={1} label="Now pregnant:" value={getPregnancyStatus(patientData?.pregnancy)} />
+            <Cell flex={1} label="Now pregnant:" value="TBD" />
             <Cell flex={1} label="Number of weeks:" value="TBD" />
             <Cell width={220} label="Death date within 42 days of delivery or abortion" value="TBD" />
             <Cell width={140} lastCell label="Date of Delivery/Abortion:" value="TBD" />
@@ -395,13 +402,13 @@ export const FSMDeathCertificatePrintout = ({
 
           {/* Injury Details */}
           <View style={styles.row}>
-            <Cell flex={1} label="Accident, suicide, homicide, undetermined (specify):" value={patientData?.manner} />
-            <Cell width={150} label="Date of injury:" value={patientData?.causes?.external?.date ? getDisplayDate(patientData?.causes?.external?.date, FSM_DATE_FORMAT) : ''} />
-            <Cell flex={1} lastCell label="How injury occurred:" value={patientData?.causes?.external?.notes} />
+            <Cell flex={1} label="Accident, suicide, homicide, undetermined (specify):" value={mannerOfDeath} />
+            <Cell width={150} label="Date of injury:" value={getFSMDisplayDate(patientData?.externalCauseDate)} />
+            <Cell flex={1} lastCell label="How injury occurred:" value={mannerOfDeath} />
           </View>
           <View style={styles.row}>
              <Cell width={100} label="Injury at work:" value="TBD" />
-             <Cell flex={1} label="Place of injury:" value={patientData?.causes?.external?.location} />
+             <Cell flex={1} label="Place of injury:" value={getLabelFromValue(PLACE_OF_DEATHS, patientData?.mannerOfDeathLocation)} />
              <Cell flex={1} lastCell label="Location:" value="TBD" />
           </View>
 
