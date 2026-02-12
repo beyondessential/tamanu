@@ -446,19 +446,12 @@ export const getCurrentDateStringInTimezone = (timezone?: string) =>
 export const getFacilityNow = (
   countryTimeZone?: string,
   facilityTimeZone?: string | null,
-): string => {
-  const now = toFacilityDateTime(
+): string | null =>
+  toFacilityDateTime(
     getCurrentDateTimeStringInTimezone(countryTimeZone),
     countryTimeZone,
     facilityTimeZone,
   );
-  if (!now) {
-    throw new Error(
-      `Failed to compute facility time (countryTimeZone=${countryTimeZone}, facilityTimeZone=${facilityTimeZone})`,
-    );
-  }
-  return now;
-};
 
 /**
  * Convert stored datetime (country timezone) to display format (facility timezone)
@@ -493,12 +486,12 @@ export const toFacilityDateTime = (
 
     return toDateTimeLocalFormat(plain);
   } catch (error) {
-    logDateError('formatForDateTimeInput', error, value, countryTimeZone, facilityTimeZone);
+    logDateError('toFacilityDateTime', error, value, countryTimeZone, facilityTimeZone);
     return null;
   }
 };
 
-/**
+/**f
  * Convert input value (facility timezone) to storage format (country timezone)
  * Used when saving datetime-local input values to the database
  */
@@ -524,13 +517,7 @@ export const toStoredDateTime = (
     const displayTz = facilityTimeZone ?? countryTimeZone;
     return toISO9075DateTime(plain.toZonedDateTime(displayTz).withTimeZone(countryTimeZone));
   } catch (error) {
-    logDateError(
-      'toDateTimeStringForPersistence',
-      error,
-      inputValue,
-      countryTimeZone,
-      facilityTimeZone,
-    );
+    logDateError('toStoredDateTime', error, inputValue, countryTimeZone, facilityTimeZone);
     return null;
   }
 };
@@ -540,11 +527,7 @@ export const getDayBoundaries = (
   countryTimeZone?: string,
   facilityTimeZone?: string | null,
 ) => {
-  const start = toStoredDateTime(
-    `${date}T00:00:00`,
-    countryTimeZone,
-    facilityTimeZone,
-  );
+  const start = toStoredDateTime(`${date}T00:00:00`, countryTimeZone, facilityTimeZone);
   const end = toStoredDateTime(`${date}T23:59:59`, countryTimeZone, facilityTimeZone);
   if (!start || !end) return null;
   return {
