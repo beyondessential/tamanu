@@ -11,6 +11,19 @@ import {
 
 export const upcomingVaccinations = express.Router();
 
+const THRESHOLD_DEFAULTS = JSON.stringify([
+  { threshold: 28, status: 'SCHEDULED' },
+  { threshold: 7, status: 'UPCOMING' },
+  { threshold: -7, status: 'DUE' },
+  { threshold: -55, status: 'OVERDUE' },
+  { threshold: '-Infinity', status: 'MISSED' },
+]);
+
+const getFacilityToday = (countryTimeZone, facilityTimeZone) => {
+  const tz = facilityTimeZone || countryTimeZone;
+  return new Date().toLocaleDateString('en-CA', { timeZone: tz });
+};
+
 const createUpcomingVaccinationFilters = filterParams => {
   const filters = [
     makeFilter(
@@ -40,6 +53,10 @@ upcomingVaccinations.get(
   '/$',
   asyncHandler(async (req, res) => {
     req.checkPermission('read', 'PatientVaccine');
+
+    const { facilityId, settings } = req;
+    const facilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
+    const facilityToday = getFacilityToday(config.countryTimeZone, facilityTimeZone);
 
     const sortKeys = {
       displayId: 'display_id',
@@ -81,12 +98,46 @@ upcomingVaccinations.get(
     const tableName =
       enabled === false ? 'upcoming_vaccinations' : 'materialized_upcoming_vaccinations';
 
-    const withRowNumber = `
-      WITH upcoming_vaccinations_with_row_number AS (
+    // Compute status at query time using the facility's timezone-aware "today",
+    // since the materialized view no longer stores timezone-dependent columns.
+    // When using the live view, this also ensures correct timezone handling
+    // without needing SET TIME ZONE.
+    const withStatusAndRowNumber = `
+      WITH vaccine_settings AS (
+        SELECT s.value AS thresholds, 1 AS priority
+        FROM settings s
+        WHERE s.deleted_at IS NULL
+        AND s.key = 'upcomingVaccinations.thresholds'
+        UNION
+        SELECT :thresholdsDefault::jsonb, 0
+        ORDER BY priority DESC LIMIT 1
+      ),
+      vaccine_thresholds AS (
+        SELECT
+          (jsonb_array_elements(s.thresholds) ->> 'threshold')::double precision AS threshold,
+          jsonb_array_elements(s.thresholds) ->> 'status' AS status
+        FROM vaccine_settings s
+      ),
+      upcoming_with_status AS (
+        SELECT
+          uv.patient_id,
+          uv.scheduled_vaccine_id,
+          uv.vaccine_category,
+          uv.vaccine_id,
+          uv.due_date,
+          uv.due_date - :facilityToday::date AS days_till_due,
+          (SELECT vst.status
+           FROM vaccine_thresholds vst
+           WHERE uv.due_date - :facilityToday::date > vst.threshold
+           ORDER BY vst.threshold DESC
+           LIMIT 1) AS status
+        FROM ${tableName} uv
+      ),
+      upcoming_vaccinations_with_row_number AS (
         SELECT *,
         ROW_NUMBER() OVER(PARTITION BY patient_id ORDER BY due_date ASC) AS row_number
-        FROM ${tableName} uv
-        WHERE uv.status <> '${VACCINE_STATUS.MISSED}'
+        FROM upcoming_with_status
+        WHERE status <> '${VACCINE_STATUS.MISSED}'
       )
     `;
 
@@ -99,9 +150,15 @@ upcomingVaccinations.get(
       AND row_number = 1
     `;
 
+    const commonReplacements = {
+      facilityToday,
+      thresholdsDefault: THRESHOLD_DEFAULTS,
+      ...filterReplacements,
+    };
+
     const results = await req.db.query(
       `
-      ${withRowNumber}
+      ${withStatusAndRowNumber}
       SELECT
       p.id id,
       p.display_id "displayId",
@@ -126,7 +183,7 @@ upcomingVaccinations.get(
         replacements: {
           limit: rowsPerPage,
           offset: page * rowsPerPage,
-          ...filterReplacements,
+          ...commonReplacements,
         },
         type: QueryTypes.SELECT,
       },
@@ -134,10 +191,10 @@ upcomingVaccinations.get(
 
     const countResult = await req.db.query(
       `
-      ${withRowNumber}
+      ${withStatusAndRowNumber}
       SELECT COUNT(1) AS count ${fromUpcomingVaccinations};`,
       {
-        replacements: filterReplacements,
+        replacements: commonReplacements,
         type: QueryTypes.SELECT,
       },
     );

@@ -122,10 +122,13 @@ patientVaccineRoutes.get(
     WHERE uv.patient_id = :patientId
     AND uv.status <> '${VACCINE_STATUS.MISSED}'`;
 
+    const { facilityId, settings } = req;
+    const facilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
+    const tz = facilityTimeZone || config.countryTimeZone;
+
     let data;
     await req.db.transaction(async () => {
-      // Set timezone to country timezone this is because sequelize timezone is defaulted to UTC currently
-      await req.db.query(`SET TIME ZONE '${config.countryTimeZone}'`);
+      await req.db.query(`SET TIME ZONE '${tz}'`);
       const results = await req.db.query(
         `SELECT
         sv.id "scheduledVaccineId",

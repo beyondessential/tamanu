@@ -49,6 +49,8 @@ describe('RefreshMaterializedView', () => {
       weeksFromLastVaccinationDue: null,
     });
     // Up to date results from the view, per the server timezone
+    // Only select the core columns that the materialized view stores
+    // (status and days_till_due are now computed at query time)
     sequelizeTimezone = await context.sequelize.query('SHOW TIMEZONE;', {
       type: QueryTypes.SELECT,
       plain: true,
@@ -56,7 +58,8 @@ describe('RefreshMaterializedView', () => {
     upcomingVaccinations = await context.sequelize.query(
       `
       SET TIMEZONE TO :serverTimezone;
-      SELECT * FROM upcoming_vaccinations order by vaccine_id;
+      SELECT patient_id, scheduled_vaccine_id, vaccine_category, vaccine_id, due_date
+      FROM upcoming_vaccinations order by vaccine_id;
       SET TIMEZONE TO :sequelizeTimezone;
       `,
       {
@@ -73,18 +76,8 @@ describe('RefreshMaterializedView', () => {
 
   it('should refresh materialized view', async () => {
     const originalMaterializedResult = await context.sequelize.query(
-      `
-      SET TIMEZONE TO :serverTimezone;
-      SELECT * FROM materialized_upcoming_vaccinations;
-      SET TIMEZONE TO :sequelizeTimezone;
-      `,
-      {
-        type: QueryTypes.SELECT,
-        replacements: {
-          serverTimezone: config.countryTimeZone,
-          sequelizeTimezone: sequelizeTimezone['TimeZone'],
-        },
-      },
+      `SELECT * FROM materialized_upcoming_vaccinations;`,
+      { type: QueryTypes.SELECT },
     );
     // Check that the materialized view is empty as we haven't run the task yet
     expect(originalMaterializedResult).toEqual([]);

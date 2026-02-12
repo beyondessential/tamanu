@@ -28,13 +28,14 @@ const buildRefreshMaterializedViewTask = viewName =>
 
     async run() {
       await this.sequelize.transaction(async () => {
-        // Set timezone to country timezone this is because sequelize timezone is defaulted to UTC currently
+        // Set countryTimeZone so CURRENT_DATE in the underlying view resolves correctly
+        // for the date-range filter window (±180/730 days). Timezone-sensitive columns
+        // (days_till_due, status) are computed at query time per-facility, not stored here.
         await this.sequelize.query(`SET TIME ZONE '${config.countryTimeZone}'`);
         await this.sequelize.query(
           `REFRESH MATERIALIZED VIEW CONCURRENTLY materialized_${snake(this.viewName)}`,
-          { timezone: config.countryTimeZone },
         );
-        await this.sequelize.query(`SET TIME ZONE '${this.sequelize.options.timezone}'`); // Revert to sequelize timezone
+        await this.sequelize.query(`SET TIME ZONE '${this.sequelize.options.timezone}'`);
         await this.sequelize.query(
           `NOTIFY ${NOTIFY_CHANNELS.MATERIALIZED_VIEW_REFRESHED}, '${this.viewName}'`,
         );
