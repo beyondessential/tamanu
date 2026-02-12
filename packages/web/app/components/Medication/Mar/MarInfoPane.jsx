@@ -80,7 +80,7 @@ export const MarInfoPane = ({ medication, marInfo }) => {
 
   const [showChangeLogModal, setShowChangeLogModal] = useState(false);
 
-  const facilityDueAt = toFacilityDateTime(dueAt);
+  const facilityDueAt = toFacilityDateTime(dueAt) ?? dueAt;
   const facilityTime = facilityDueAt?.split('T')[1]?.substring(0, 5) ?? '00:00';
   const { timeSlot } = findAdministrationTimeSlotFromIdealTime(facilityTime);
   const slotStartTime = getDateFromTimeString(timeSlot.startTime);
