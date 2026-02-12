@@ -610,7 +610,7 @@ medication.post(
       // Decrement repeats on the ongoing prescriptions (repeats = remaining "send to pharmacy" count)
       // Only decrement if the prescription has been ordered before (has a lastOrderedAt)
       for (const originalPrescription of ongoingPrescriptions) {
-        const { repeats } = originalPrescription;
+        const { repeats = 0 } = originalPrescription;
         const lastOrderedAt = lastOrderedAts[originalPrescription.id]?.last_ordered_at;
 
         // We only start decrementing repeats after the first send.
