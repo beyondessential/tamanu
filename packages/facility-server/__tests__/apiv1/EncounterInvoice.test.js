@@ -743,7 +743,7 @@ describe('Encounter invoice', () => {
         });
       });
 
-      it('should automatically add reception_pending items to the invoice when the invoicePendingLabRequests setting is enabled', async () => {
+      it.only('should automatically add reception_pending items to the invoice when the invoicePendingLabRequests setting is enabled', async () => {
         const encounter = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
           locationId: location.id,
@@ -759,6 +759,8 @@ describe('Encounter invoice', () => {
 
         try {
           await models.Setting.set('features.invoicing.invoicePendingLabRequests', true);
+
+          // Reception pending
           const {
             body: [labRequest],
           } = await app.post(`/api/labRequest`).send({
@@ -774,13 +776,29 @@ describe('Encounter invoice', () => {
           });
 
           expect(labRequest.status).toEqual(LAB_REQUEST_STATUSES.RECEPTION_PENDING);
+
+          // Sample not collected pending
+          const {
+            body: [labRequest2],
+          } = await app.post(`/api/labRequest`).send({
+            encounterId: encounter.id,
+            panelIds: [labTestPanelGeneral.id],
+            requestedById: user.id,
+            date: new Date(),
+          });
+
+          expect(labRequest2.status).toEqual(LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED);
+
+          // Invoice
           const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
           expect(result).toHaveSucceeded();
           expect(result.body).toMatchObject({
             displayId: 'INV-123',
             encounterId: encounter.id,
           });
-          expect(result.body.items).toHaveLength(1);
+
+          expect(result.body.items).toHaveLength(2);
+          console.log('result.body.items', result.body.items);
           expect(result.body.items).toEqual(
             expect.arrayContaining([
               expect.objectContaining({
