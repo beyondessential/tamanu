@@ -538,18 +538,6 @@ medication.post(
         { transaction },
       );
 
-      // Find the latest pharmacy_order_prescriptions for prescriptions that were cloned from ongoing prescriptions.
-      // This query runs before creating new records, so it only finds previous orders.
-      const ongoingPrescriptionIds = ongoingPrescriptions.map(p => p.id);
-      const lastOrderedAts = await getLastOrderedAtForOngoingPrescriptions(
-        db,
-        patientId,
-        ongoingPrescriptionIds,
-        {
-          transaction,
-        },
-      );
-
       // Create new prescriptions for this encounter based on the original ongoing prescriptions
       const newPrescriptions = [];
       for (const originalPrescription of ongoingPrescriptions) {
@@ -617,16 +605,8 @@ medication.post(
         const lastOrderedAt = lastOrderedAts[originalPrescription.id]?.last_ordered_at;
 
         // We only start decrementing repeats after the first send.
-        if (lastOrderedAt) {
-          if (repeats > 0) {
-            await originalPrescription.update({ repeats: repeats - 1 }, { transaction });
-          }
-          if (repeats === 0 && !canEditRepeats) {
-            // Users with write Medication permission can send with 0 repeats
-            throw new InvalidOperationError(
-              `Prescription "${originalPrescription.medication?.name}" has no remaining repeats and cannot be sent to pharmacy.`,
-            );
-          }
+        if (lastOrderedAt && repeats > 0) {
+          await originalPrescription.update({ repeats: repeats - 1 }, { transaction });
         }
       }
 

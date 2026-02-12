@@ -292,7 +292,7 @@ const getColumns = (
         // The first send is not counted as a repeat. When never sent (no lastOrderedAt),
         // remaining = initial + repeats = repeats + 1. Once sent, repeats is decremented
         // on the backend per send, so it already represents remaining.
-        if (!lastOrderedAt) return repeats + 1;
+        if (!lastOrderedAt) return Number(repeats) + 1;
         return repeats;
       },
     },
@@ -342,7 +342,6 @@ export const PharmacyOrderMedicationTable = ({
   selectAllChecked,
   columnsToInclude,
   isOngoingMode = false,
-  canEditRepeats = true,
   disabledPrescriptionIds = [],
 }) => {
   const { getTranslation, getEnumTranslation } = useTranslation();
@@ -357,7 +356,7 @@ export const PharmacyOrderMedicationTable = ({
         handleSelectAll,
         selectAllChecked,
         columnsToInclude,
-        { isOngoingMode, canEditRepeats, disabledPrescriptionIds },
+        { isOngoingMode, disabledPrescriptionIds },
       ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
@@ -367,7 +366,6 @@ export const PharmacyOrderMedicationTable = ({
       selectAllChecked,
       columnsToInclude,
       isOngoingMode,
-      canEditRepeats,
       disabledIdsKey,
     ],
   );
