@@ -7,6 +7,8 @@ import {
   PLACE_OF_DEATHS,
   FORM_TYPES,
   PREGNANCY_MOMENTS,
+  BINARY_OPTIONS,
+  BINARY_UNKNOWN_OPTIONS,
 } from '@tamanu/constants';
 import { differenceInYears, differenceInMonths, parseISO } from 'date-fns';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
@@ -28,7 +30,6 @@ import { TextField, TranslatedSelectField, FormGrid } from '@tamanu/ui-component
 import { useAuth } from '../contexts/Auth';
 import { DeathFormScreen } from './DeathFormScreen';
 import { SummaryScreenThree, SummaryScreenTwo } from './DeathFormSummaryScreens';
-import { BINARY_OPTIONS, BINARY_UNKNOWN_OPTIONS } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 import { FSMSpecificQuestions } from './DeathFormOptionalPages';

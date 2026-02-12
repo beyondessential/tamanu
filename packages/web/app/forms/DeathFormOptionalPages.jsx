@@ -1,7 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 import { differenceInYears, parseISO } from 'date-fns';
-import { REFERENCE_TYPES, REFERENCE_DATA_RELATION_TYPES } from '@tamanu/constants';
+import {
+  BINARY_OPTIONS,
+  REFERENCE_TYPES,
+  REFERENCE_DATA_RELATION_TYPES,
+} from '@tamanu/constants';
 import {
   DateField,
   Field,
@@ -11,7 +15,6 @@ import {
   RadioField,
 } from '../components';
 import { TextField, SelectField, FormGrid } from '@tamanu/ui-components';
-import { BINARY_OPTIONS } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const StyledFormGrid = styled(FormGrid)`
