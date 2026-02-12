@@ -7,7 +7,6 @@ import { keyBy } from 'lodash';
  * pharmacy order prescriptions (clones) back to their source ongoing prescriptions.
  *
  * @param {Object} db - Sequelize db instance
- * @param {string} patientId - Patient ID (unused, kept for API compatibility)
  * @param {string[]} ongoingPrescriptionIds - IDs of ongoing prescriptions
  * @param {Object} [options] - Optional query options
  * @param {Object} [options.transaction] - Sequelize transaction
