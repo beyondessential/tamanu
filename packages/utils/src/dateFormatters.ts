@@ -8,7 +8,7 @@ const createFormatter =
     fallback: string,
     transform?: (result: string) => string,
   ) =>
-  (date: DateInput, countryTimeZone?: string, facilityTimeZone?: string | null): string => {
+  (date: DateInput, countryTimeZone: string, facilityTimeZone?: string | null): string => {
     const result = intlFormatDate(date, formatOptions, fallback, countryTimeZone, facilityTimeZone);
     return transform ? transform(result) : result;
   };
@@ -82,7 +82,7 @@ export const formatDayMonth = createFormatter({ month: 'short', day: 'numeric' }
 /** "12/04/2024 12:30 am" */
 export const formatShortDateTime = (
   date: DateInput,
-  countryTimeZone?: string,
+  countryTimeZone: string,
   facilityTimeZone?: string | null,
 ) =>
   `${formatShort(date, countryTimeZone, facilityTimeZone)} ${formatTime(date, countryTimeZone, facilityTimeZone)}`;
@@ -90,7 +90,7 @@ export const formatShortDateTime = (
 /** "12/04/24 12:30 am" */
 export const formatShortestDateTime = (
   date: DateInput,
-  countryTimeZone?: string,
+  countryTimeZone: string,
   facilityTimeZone?: string | null,
 ) =>
   `${formatShortest(date, countryTimeZone, facilityTimeZone)} ${formatTime(date, countryTimeZone, facilityTimeZone)}`;

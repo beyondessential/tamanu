@@ -281,7 +281,7 @@ const toDateTimeLocalFormat = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTi
   return second !== 0 ? `${base}:${pad(second)}` : base;
 };
 
-const parseDateTimeString = (date: string, countryTimeZone?: string): Temporal.PlainDateTime => {
+const parseDateTimeString = (date: string, countryTimeZone: string): Temporal.PlainDateTime => {
   const normalized = date.replace(' ', 'T');
   if (/[Zz]$/.test(normalized)) {
     const instant = Temporal.Instant.from(normalized);
@@ -291,7 +291,7 @@ const parseDateTimeString = (date: string, countryTimeZone?: string): Temporal.P
   return Temporal.PlainDateTime.from(normalized);
 };
 
-const getDisplayTimezone = (countryTimeZone?: string, facilityTimeZone?: string | null) =>
+const getDisplayTimezone = (countryTimeZone: string, facilityTimeZone?: string | null) =>
   facilityTimeZone ?? countryTimeZone;
 
 const isTimezoneError = (error: unknown): boolean =>
@@ -301,7 +301,7 @@ const logDateError = (
   fnName: string,
   error: unknown,
   value: unknown,
-  countryTimeZone?: string,
+  countryTimeZone: string,
   facilityTimeZone?: string | null,
 ) => {
   if (isTimezoneError(error)) {
@@ -318,7 +318,7 @@ export const intlFormatDate = (
   date: string | Date | null | undefined,
   formatOptions: Intl.DateTimeFormatOptions,
   fallback = 'Unknown',
-  countryTimeZone?: string,
+  countryTimeZone: string,
   facilityTimeZone?: string | null,
 ) => {
   if (!date) return fallback;
@@ -435,23 +435,29 @@ export const eachDayInMonth = (date: Date) =>
   });
 
 /** Get current datetime string in a specific timezone */
-export const getCurrentDateTimeStringInTimezone = (timezone?: string) =>
+export const getCurrentDateTimeStringInTimezone = (timezone: string) =>
   toISO9075DateTime(Temporal.Now.zonedDateTimeISO(timezone ?? Temporal.Now.timeZoneId()));
 
 /** Get current date string in a specific timezone */
-export const getCurrentDateStringInTimezone = (timezone?: string) =>
+export const getCurrentDateStringInTimezone = (timezone: string) =>
   Temporal.Now.plainDateISO(timezone ?? Temporal.Now.timeZoneId()).toString();
 
-/** Get current facility wall-clock time as yyyy-MM-ddTHH:mm */
+/** Get current facility wall-clock time as yyyy-MM-ddTHH:mm (never null) */
 export const getFacilityNow = (
-  countryTimeZone?: string,
+  countryTimeZone: string,
   facilityTimeZone?: string | null,
-): string | null =>
-  toFacilityDateTime(
+): string => {
+  const result = toFacilityDateTime(
     getCurrentDateTimeStringInTimezone(countryTimeZone),
     countryTimeZone,
     facilityTimeZone,
   );
+  if (result != null) return result;
+
+  // Fallback: use system local time so .max() validation is never a no-op
+  const now = Temporal.Now.plainDateTimeISO();
+  return toDateTimeLocalFormat(now);
+};
 
 /**
  * Convert stored datetime (country timezone) to display format (facility timezone)
@@ -459,7 +465,7 @@ export const getFacilityNow = (
  */
 export const toFacilityDateTime = (
   value: string | Date | null | undefined,
-  countryTimeZone?: string,
+  countryTimeZone: string,
   facilityTimeZone?: string | null,
 ): string | null => {
   if (value == null) return null;
@@ -497,7 +503,7 @@ export const toFacilityDateTime = (
  */
 export const toStoredDateTime = (
   inputValue: string | null | undefined,
-  countryTimeZone?: string,
+  countryTimeZone: string,
   facilityTimeZone?: string | null,
 ): string | null => {
   if (!inputValue) return null;
@@ -524,7 +530,7 @@ export const toStoredDateTime = (
 
 export const getDayBoundaries = (
   date: string,
-  countryTimeZone?: string,
+  countryTimeZone: string,
   facilityTimeZone?: string | null,
 ) => {
   const start = toStoredDateTime(`${date}T00:00:00`, countryTimeZone, facilityTimeZone);
