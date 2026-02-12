@@ -626,23 +626,3 @@ export const FSMPregnancyPage = ({ patient, currentTOD }) => {
     </StyledFormGrid>
   );
 };
-
-export const FSMInjuryPage = () => {
-  return (
-    <StyledFormGrid columns={2} data-testid="styledformgrid-fsm-injury">
-      <Field
-        name="fsmDateOfInjury"
-        label={
-          <TranslatedText
-            stringId="death.fsm.dateOfInjury.label"
-            fallback="Date of external cause"
-            data-testid="translatedtext-fsm-date-of-injury"
-          />
-        }
-        component={DateField}
-        saveDateAsString
-        data-testid="field-fsm-date-of-injury"
-      />
-    </StyledFormGrid>
-  );
-};
