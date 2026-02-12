@@ -421,7 +421,6 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
               />
             }
             component={TimeWithFixedDateField}
-            useTimezone
             saveDateAsString
             data-testid="field-6mrp"
           />
