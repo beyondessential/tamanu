@@ -442,21 +442,18 @@ export const getCurrentDateTimeStringInTimezone = (timezone: string) =>
 export const getCurrentDateStringInTimezone = (timezone: string) =>
   Temporal.Now.plainDateISO(timezone ?? Temporal.Now.timeZoneId()).toString();
 
-/** Get current facility wall-clock time as yyyy-MM-ddTHH:mm (never null) */
-export const getFacilityNow = (
+/** Get current facility date object in facility timezone */
+export const getFacilityNowDate = (
   countryTimeZone: string,
   facilityTimeZone?: string | null,
-): string => {
+): Date => {
   const result = toFacilityDateTime(
     getCurrentDateTimeStringInTimezone(countryTimeZone),
     countryTimeZone,
     facilityTimeZone,
   );
-  if (result != null) return result;
-
-  // Fallback: use system local time so .max() validation is never a no-op
-  const now = Temporal.Now.plainDateTimeISO();
-  return toDateTimeLocalFormat(now);
+  if (result != null) return new Date(result);
+  return new Date(); // fallback: use system local time so never a no-op
 };
 
 /**

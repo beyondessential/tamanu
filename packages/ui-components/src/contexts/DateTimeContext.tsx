@@ -7,7 +7,7 @@ import {
   getCurrentDateStringInTimezone,
   getCurrentDateTimeStringInTimezone,
   getDayBoundaries,
-  getFacilityNow,
+  getFacilityNowDate,
 } from '@tamanu/utils/dateTime';
 import * as dateTimeFormatters from '@tamanu/utils/dateFormatters';
 
@@ -27,10 +27,10 @@ export interface DateTimeContextValue extends WrappedFormatters {
   facilityTimeZone?: string | null;
   /** Get current date string in facility timezone */
   getCurrentDate: () => string;
-  /** Get current datetime string in facility timezone */
+  /** Get current datetime string in countryTimeZone (ISO 9075) */
   getCurrentDateTime: () => string;
-  /** Get current facility wall-clock time as yyyy-MM-ddTHH:mm (never null) */
-  getFacilityNow: () => string;
+  /** Get Date object in facility timezone */
+  getFacilityNowDate: () => Date;
   /** Get day boundaries i.e start and end of the day at the given date in facility timezone for query */
   getDayBoundaries: (date: string) => { start: string; end: string } | null;
   /** Convert facility-tz input value to country-tz for storage */
@@ -82,7 +82,7 @@ const DateTimeProviderInner = ({
       ...(mapValues(dateTimeFormatters, bindTimezones) as WrappedFormatters),
       getCurrentDate: () => getCurrentDateStringInTimezone(facilityTimeZone ?? countryTimeZone),
       getCurrentDateTime: () => getCurrentDateTimeStringInTimezone(countryTimeZone),
-      getFacilityNow: () => getFacilityNow(countryTimeZone, facilityTimeZone),
+      getFacilityNowDate: () => getFacilityNowDate(countryTimeZone, facilityTimeZone),
       getDayBoundaries: date => getDayBoundaries(date, countryTimeZone, facilityTimeZone),
       toStoredDateTime: value => toStoredDateTime(value, countryTimeZone, facilityTimeZone),
       toFacilityDateTime: value => toFacilityDateTime(value, countryTimeZone, facilityTimeZone),
