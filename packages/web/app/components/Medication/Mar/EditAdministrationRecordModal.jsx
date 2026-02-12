@@ -113,7 +113,7 @@ export const EditAdministrationRecordModal = ({
   const medicationReasonNotGivenSuggester = useSuggester('medicationNotGivenReason');
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
-  const { toStoredDateTime } = useDateTime();
+  const { toStoredDateTime, toFacilityDateTime } = useDateTime();
   const [showWarningModal, setShowWarningModal] = useState('');
 
   const { mutateAsync: updateNotGivenInfoMar } = useNotGivenInfoMarMutation(marInfo?.id, {
@@ -232,7 +232,7 @@ export const EditAdministrationRecordModal = ({
               }
             : {
                 doseAmount: doseInfo?.doseAmount,
-                givenTime: doseInfo?.givenTime ? new Date(doseInfo.givenTime) : null,
+                givenTime: doseInfo?.givenTime ? new Date(toFacilityDateTime(doseInfo.givenTime)) : null,
                 givenByUserId: doseInfo?.givenByUserId,
                 recordedByUserId: doseInfo?.recordedByUserId,
               }
