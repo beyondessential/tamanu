@@ -743,7 +743,7 @@ describe('Encounter invoice', () => {
         });
       });
 
-      it.only('should automatically add reception_pending items to the invoice when the invoicePendingLabRequests setting is enabled', async () => {
+      it('should automatically add reception_pending items to the invoice when the invoicePendingLabRequests setting is enabled', async () => {
         const encounter = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
           locationId: location.id,
