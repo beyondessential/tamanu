@@ -287,34 +287,24 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
 
   const cellOnChange = useCallback(
     (event, key, rowIndex) => {
-      if ([COLUMN_KEYS.QUANTITY, COLUMN_KEYS.REPEATS].includes(key)) {
-        // In ongoing mode, only allow repeats change if user has permission
-        if (isOngoingMode && key === COLUMN_KEYS.REPEATS && !canEditRepeats) {
-          return;
-        }
+      if (key !== COLUMN_KEYS.QUANTITY) return;
 
-        const newMedicationData = [...prescriptions];
-        const rawValue = event.target.value;
-        const value =
-          rawValue === '' || rawValue === null || rawValue === undefined
-            ? undefined
-            : parseInt(rawValue, 10);
+      const newMedicationData = [...prescriptions];
+      const rawValue = event.target.value;
+      const value =
+        rawValue === '' || rawValue === null || rawValue === undefined
+          ? undefined
+          : parseInt(rawValue, 10);
 
-        newMedicationData[rowIndex] = {
-          ...newMedicationData[rowIndex],
-          [key]: value,
-          hasError: key === COLUMN_KEYS.QUANTITY && !value,
-        };
+      newMedicationData[rowIndex] = {
+        ...newMedicationData[rowIndex],
+        quantity: value,
+        hasError: !value,
+      };
 
-        // When repeats change in ongoing mode, recalculate isSelectionDisabled
-        if (isOngoingMode && key === COLUMN_KEYS.REPEATS) {
-          newMedicationData[rowIndex].isSelectionDisabled = !canEditRepeats || (value ?? 0) === 0;
-        }
-
-        setPrescriptions(newMedicationData);
-      }
+      setPrescriptions(newMedicationData);
     },
-    [prescriptions, isOngoingMode, canEditRepeats],
+    [prescriptions],
   );
 
   const validateForm = useCallback(() => {
