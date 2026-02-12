@@ -200,7 +200,8 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
             repeats: repeats ?? 0,
             selected: false,
             // Disable selection if no repeats remaining and has been ordered at least once
-            isSelectionDisabled: (prescription.repeats ?? 0) === 0 && lastOrderedAt,
+            // (users with write Medication permission can bypass this)
+            isSelectionDisabled: !canEditRepeats && (prescription.repeats ?? 0) === 0 && lastOrderedAt,
           })
         });
     }
@@ -215,7 +216,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
           selected: false,
         })) || []
     );
-  }, [data, isOngoingMode, ongoingPrescriptions]);
+  }, [data, isOngoingMode, ongoingPrescriptions, canEditRepeats]);
 
   const [prescriptions, setPrescriptions] = useState(initialPrescriptions);
 
