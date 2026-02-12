@@ -31,6 +31,8 @@ import { SummaryScreenThree, SummaryScreenTwo } from './DeathFormSummaryScreens'
 import { BINARY_OPTIONS, BINARY_UNKNOWN_OPTIONS } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
+import { FSMSpecificQuestions } from './DeathFormOptionalPages';
+import { useSettings } from '../contexts/Settings';
 
 const PrefixWrapper = styled.div`
   position: relative;
@@ -169,6 +171,7 @@ export const DeathForm = React.memo(
     const [currentTOD, setCurrentTOD] = useState(patient?.dateOfDeath || getCurrentDateTimeString());
     const { getTranslation } = useTranslation();
     const { currentUser } = useAuth();
+    const { getSetting } = useSettings();
     const showPregnantQuestions = canBePregnant(currentTOD, patient);
     const showInfantQuestions = isInfant(currentTOD, patient);
     const handleSubmit = (data) => {
@@ -177,6 +180,7 @@ export const DeathForm = React.memo(
         fetalOrInfant: showInfantQuestions ? 'yes' : 'no',
       });
     };
+    const isFSMStyleEnabled = getSetting('fsmCrvsCertificates.enableFSMStyle');
 
     return (
       <PaginatedForm
@@ -261,6 +265,7 @@ export const DeathForm = React.memo(
         data-testid="paginatedform-9jrc"
       >
         {!deathData ? <PartialWorkflowPage practitionerSuggester={practitionerSuggester} /> : null}
+        {isFSMStyleEnabled ? <FSMSpecificQuestions /> : null}
         <StyledFormGrid columns={2} data-testid="styledformgrid-5gyh">
           <FieldWithTooltip
             name="causeOfDeath"
