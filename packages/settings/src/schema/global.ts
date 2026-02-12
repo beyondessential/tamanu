@@ -848,6 +848,14 @@ export const globalSettings = {
             type: LOCALISED_FIELD_TYPES.STRING,
           }),
         },
+        birthOrder: {
+          name: 'Birth order',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
         birthFacilityId: {
           name: 'Birth facility',
           description: '_',
