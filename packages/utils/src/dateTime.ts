@@ -482,7 +482,8 @@ export const toFacilityDateTime = (
     }
 
     if (isISO9075DateString(value)) {
-      return `${value}T00:00:00`;
+      // Must omit seconds to match toDateTimeLocalFormat and HTML datetime-local input values,
+      return `${value}T00:00`;
     }
 
     const plain = parseDateTimeString(value, countryTimeZone);
