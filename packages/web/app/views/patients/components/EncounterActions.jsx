@@ -59,33 +59,41 @@ export const EncounterActions = React.memo(({ encounter }) => {
     // need this extra check here to only show encounter/discharge summary actions when
     // the encounter is actually discharged (discharge record exists).
     return (
-      <ActionsContainer data-testid="actionscontainer-w92z">
-        <StyledButton
-          size="small"
-          variant="outlined"
-          onClick={() => setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD)}
-          data-testid="styledbutton-00iz"
-        >
-          <TranslatedText
-            stringId="patient.encounter.action.encounterSummary"
-            fallback="Encounter summary"
-            data-testid="translatedtext-ftbh"
-          />
-        </StyledButton>
-        <br />
-        <StyledButton
-          size="small"
-          color="primary"
-          onClick={onViewSummary}
-          data-testid="styledbutton-0m1p"
-        >
-          <TranslatedText
-            stringId="patient.encounter.action.dischargeSummary"
-            fallback="Discharge summary"
-            data-testid="translatedtext-0hzq"
-          />
-        </StyledButton>
-      </ActionsContainer>
+      <>
+        <ActionsContainer data-testid="actionscontainer-w92z">
+          <StyledButton
+            size="small"
+            variant="outlined"
+            onClick={() => setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD)}
+            data-testid="styledbutton-00iz"
+          >
+            <TranslatedText
+              stringId="patient.encounter.action.encounterSummary"
+              fallback="Encounter summary"
+              data-testid="translatedtext-ftbh"
+            />
+          </StyledButton>
+          <br />
+          <StyledButton
+            size="small"
+            color="primary"
+            onClick={onViewSummary}
+            data-testid="styledbutton-0m1p"
+          >
+            <TranslatedText
+              stringId="patient.encounter.action.dischargeSummary"
+              fallback="Discharge summary"
+              data-testid="translatedtext-0hzq"
+            />
+          </StyledButton>
+        </ActionsContainer>
+        <EncounterRecordModal
+          encounter={encounter}
+          open={openModal === ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD}
+          onClose={onClose}
+          data-testid="encounterrecordmodal-discharged"
+        />
+      </>
     );
   }
 
