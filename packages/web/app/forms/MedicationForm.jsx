@@ -881,7 +881,7 @@ export const MedicationForm = ({
                     data-testid="medication-field-medicationId-8k3m"
                   />
                   {showExistingDrugWarning && (
-                    <SmallBodyText mt="2px" color={Colors.midText}>
+                    <SmallBodyText mt="2px" color={Colors.darkText}>
                       <TranslatedText
                         stringId="medication.warning.existingDrug"
                         fallback="Please be aware that this medicine has already been prescribed for this encounter. Double check that this is clinically appropriate."
