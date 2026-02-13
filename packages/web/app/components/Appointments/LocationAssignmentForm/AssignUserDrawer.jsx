@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { DeleteOutlined } from '@material-ui/icons';
-import { toDateString, toDateTimeString, toWeekdayCode, trimToTime } from '@tamanu/utils/dateTime';
+import { toDateString, toWeekdayCode, trimToTime } from '@tamanu/utils/dateTime';
 
 import { useSuggester } from '../../../api';
 import {
@@ -100,7 +100,7 @@ const StyledButton = styled(Button)`
 `;
 
 export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) => {
-  const { getCurrentDate } = useDateTime();
+  const { getCurrentDate, toStoredDateTime } = useDateTime();
   const { getTranslation } = useTranslation();
   const { updateSelectedCell } = useLocationAssignmentsContext();
   const { getSetting } = useSettings();
@@ -171,8 +171,8 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
       userId,
       locationId,
       date,
-      startTime: trimToTime(toDateTimeString(startTime)),
-      endTime: trimToTime(toDateTimeString(endTime)),
+      startTime: trimToTime(toStoredDateTime(startTime)),
+      endTime: trimToTime(toStoredDateTime(endTime)),
     };
     if ((isRepeatingAssignment && !isViewing) || isEditingMultipleRepeatingAssignments) {
       payload.repeatFrequency = schedule.interval;
