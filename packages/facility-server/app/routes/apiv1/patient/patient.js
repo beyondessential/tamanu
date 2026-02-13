@@ -607,7 +607,6 @@ patientRoute.get(
 
       const lastOrderedAts = await getLastOrderedAtForOngoingPrescriptions(
         db,
-        patientId,
         ongoingPrescriptionIds,
       );
 
