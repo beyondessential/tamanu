@@ -137,16 +137,6 @@ patientDeath.get(
             : null,
       },
 
-      /*
-      TBD on upcoming card - check if these are needed for the new certificate:
-        autopsyRequested
-        autopsyFindingsUsed
-        mannerOfDeathDescription
-        pregnancyMoment
-        multiplePregnancy
-        motherConditionDescription
-      */
-
       recentSurgery:
         deathData?.recentSurgery === 'yes'
           ? {
@@ -174,6 +164,10 @@ patientDeath.get(
             withinDayOfBirth: deathData?.withinDayOfBirth,
           }
         : false,
+
+      autopsyRequested: deathData?.autopsyRequested,
+      mannerOfDeathDescription: deathData?.mannerOfDeathDescription,
+      extraData: deathData?.extraData,
     });
   }),
 );
