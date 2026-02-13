@@ -443,7 +443,6 @@ medication.post(
     const ongoingPrescriptionIds = ongoingPrescriptions.map(p => p.id);
     const lastOrderedAts = await getLastOrderedAtForOngoingPrescriptions(
       db,
-      patientId,
       ongoingPrescriptionIds,
     );
 
@@ -592,6 +591,7 @@ medication.post(
           return {
             pharmacyOrderId: pharmacyOrder.id,
             prescriptionId: prescription.id,
+            ongoingPrescriptionId: originalPrescription.id,
             quantity: requestData.quantity,
             repeats: requestData.repeats ?? originalPrescription.repeats ?? 0,
           };
