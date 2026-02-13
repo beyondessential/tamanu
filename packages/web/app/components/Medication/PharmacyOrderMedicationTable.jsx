@@ -278,11 +278,13 @@ const getColumns = (
           </span>
         </ThemedTooltip>
       ) : (
-        <TranslatedText
-          stringId="pharmacyOrder.table.column.repeatsOnDischarge"
-          fallback="Repeats on discharge"
-          data-testid="translatedtext-psdf"
-        />
+        <span style={{ display: 'inline-block', maxWidth: 80 }}>
+          <TranslatedText
+            stringId="pharmacyOrder.table.column.repeatsOnDischarge"
+            fallback="Repeats on discharge"
+            data-testid="translatedtext-psdf"
+          />
+        </span>
       ),
       sortable: false,
       accessor: ({ repeats, lastOrderedAt }) => {
@@ -312,7 +314,7 @@ const getColumns = (
       ),
       sortable: false,
       maxWidth: 100,
-      accessor: ({ quantity, onChange, hasError }) => (
+      accessor: ({ quantity, onChange, hasError, helperText }) => (
         <TextInput
           type="number"
           InputProps={{
@@ -324,6 +326,7 @@ const getColumns = (
           onChange={onChange}
           required
           error={hasError}
+          helperText={hasError ? helperText : undefined}
           data-testid="textinput-rxbh"
         />
       ),
