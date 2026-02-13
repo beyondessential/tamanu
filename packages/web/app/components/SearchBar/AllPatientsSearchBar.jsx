@@ -9,6 +9,7 @@ import {
   Field,
   LocalisedField,
   SearchField,
+  QRCodeSearchField,
   TranslatedSelectField,
 } from '../Field';
 import { useSuggester } from '../../api';
@@ -112,7 +113,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
       data-testid="customisablesearchbarwithpermissioncheck-al75"
     >
       <LocalisedField
-        component={SearchField}
+        component={QRCodeSearchField}
         name="displayId"
         label={
           <TranslatedText
@@ -121,7 +122,6 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
             data-testid="translatedtext-d0eg"
           />
         }
-        showQRScanner
         data-testid="localisedfield-dzml"
       />
       <LocalisedField
