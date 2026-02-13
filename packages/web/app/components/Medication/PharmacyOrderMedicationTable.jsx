@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 
-import { formatShortest } from '@tamanu/utils/dateTime';
+import { formatShortest, formatTime } from '@tamanu/utils/dateTime';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 
 import { TextInput, ConditionalTooltip } from '@tamanu/ui-components';
@@ -11,7 +11,6 @@ import { OuterLabelFieldWrapper, CheckInput, NumberInput } from '../Field';
 import { Table } from '../Table';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../Translation';
-import { format } from 'date-fns';
 import { MEDICATION_DURATION_DISPLAY_UNITS_LABELS, MAX_REPEATS } from '@tamanu/constants';
 import { preventInvalidRepeatsInput, singularize } from '../../utils';
 
@@ -246,13 +245,12 @@ const getColumns = (
           );
         }
 
-        const orderDate = new Date(lastOrderedAt);
         return (
           <NoWrapCell color={'inherit'} fontStyle={'normal'}>
             <Box>
-              {formatShortest(orderDate)}
+              {formatShortest(lastOrderedAt)}
               <Box fontSize="12px" color={Colors.softText}>
-                {format(orderDate, 'h:mma').toLowerCase()}
+                {formatTime(lastOrderedAt).toLowerCase()}
               </Box>
             </Box>
           </NoWrapCell>

@@ -516,6 +516,15 @@ medication.post(
         { transaction },
       );
 
+      // Automatically add an invoice
+      await models.Invoice.automaticallyCreateForEncounter(
+        encounter.id,
+        encounter.encounterType,
+        encounter.startDate,
+        facilitySettings,
+        { transaction },
+      );
+
       // Create new prescriptions for this encounter based on the original ongoing prescriptions
       const newPrescriptions = [];
       for (const originalPrescription of ongoingPrescriptions) {
@@ -2256,7 +2265,7 @@ medication.get(
           include: [
             {
               association: 'medication',
-              attributes: ['id', 'name'],
+              attributes: ['id', 'name', 'type'],
               include: [
                 {
                   model: models.ReferenceDrug,

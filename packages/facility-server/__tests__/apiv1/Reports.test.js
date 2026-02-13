@@ -2,7 +2,7 @@ import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers
 import { fake } from '@tamanu/fake-data/fake';
 
 import config from 'config';
-import { REPORT_DB_SCHEMAS } from '@tamanu/constants';
+import { REPORT_DB_CONNECTIONS } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { setupReportPermissionsTest, testReportPermissions } from './reportsApiCommon';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
@@ -38,7 +38,7 @@ describe('Reports', () => {
       const definition = await models.ReportDefinition.create({
         ...fake(models.ReportDefinition),
         name: 'test-report',
-        dbSchema: REPORT_DB_SCHEMAS.RAW,
+        dbSchema: REPORT_DB_CONNECTIONS.RAW,
       });
       reportDefinitionVersion = await models.ReportDefinitionVersion.create({
         versionNumber: 1,
