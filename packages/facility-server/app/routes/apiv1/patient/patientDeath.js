@@ -247,6 +247,7 @@ patientDeath.post(
         withinDayOfBirth: body.deathWithin24HoursOfBirth
           ? body.deathWithin24HoursOfBirth === 'yes'
           : null,
+        extraData: body.extraData ?? null,
         deletedAt: null,
       });
 

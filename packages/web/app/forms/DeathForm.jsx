@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import MuiBox from '@material-ui/core/Box';
-import { FORM_TYPES, BINARY_UNKNOWN_OPTIONS } from '@tamanu/constants';
+import { FORM_TYPES, BINARY_UNKNOWN_OPTIONS, FSM_FIELDS } from '@tamanu/constants';
 import { differenceInYears, differenceInMonths, parseISO } from 'date-fns';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
@@ -159,6 +159,27 @@ const canBePregnantFSM = (timeOfDeath, patient) => {
   return age >= 15 && age <= 44;
 };
 
+// Nest the FSM fields in the extraData object (we avoid using formik's nested objects
+// to be able to use the visibility criteria functionality across the optional pages)
+const transformData = (data, showInfantQuestions) => {
+  const mainData = {};
+  const extraData = {};
+
+  Object.entries(data).forEach(([key, value]) => {
+    if (FSM_FIELDS.includes(key)) {
+      extraData[key] = value;
+    } else {
+      mainData[key] = value;
+    }
+  });
+
+  return {
+    ...mainData,
+    extraData,
+    fetalOrInfant: showInfantQuestions ? 'yes' : 'no',
+  };
+};
+
 export const DeathForm = React.memo(
   ({
     onCancel,
@@ -175,10 +196,7 @@ export const DeathForm = React.memo(
     const { getSetting } = useSettings();
     const showInfantQuestions = isInfant(currentTOD, patient);
     const handleSubmit = (data) => {
-      onSubmit({
-        ...data,
-        fetalOrInfant: showInfantQuestions ? 'yes' : 'no',
-      });
+      onSubmit(transformData(data, showInfantQuestions));
     };
     const isFSMStyleEnabled = getSetting('fsmCrvsCertificates.enableFSMStyle');
     const showPregnantFSMQuestions = isFSMStyleEnabled && canBePregnantFSM(currentTOD, patient);
