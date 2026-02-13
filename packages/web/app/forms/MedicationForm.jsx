@@ -64,7 +64,7 @@ import { FrequencySearchField } from '../components/Medication/FrequencySearchIn
 import { useAuth } from '../contexts/Auth';
 import { useSettings } from '../contexts/Settings';
 import { ChevronIcon } from '../components/Icons/ChevronIcon';
-import { ConditionalTooltip, ThemedTooltip } from '../components/Tooltip';
+import { ConditionalTooltip } from '../components/Tooltip';
 import { capitalize } from 'lodash';
 import { preventInvalidNumber, preventInvalidRepeatsInput, validateDecimalPlaces } from '../utils/utils';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
@@ -126,8 +126,8 @@ const validationSchema = yup.object().shape({
     .when('durationValue', (durationValue, schema) =>
       durationValue
         ? schema.required(
-            <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
-          )
+          <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
+        )
         : schema.optional(),
     ),
   prescriberId: foreignKey(
@@ -137,21 +137,54 @@ const validationSchema = yup.object().shape({
   patientWeight: yup.number().positive(),
 });
 
+const FullWidthFieldWrapper = styled.div`
+  position: relative;
+  grid-column: 1 / -1;
+  width: 100%;
+`;
+
 const CheckboxGroup = styled.div`
   position: relative;
+  width: 100%;
+  grid-column: 1 / -1;
   .MuiTypography-body1 {
     font-size: 14px;
   }
-  grid-column: 1 / -1;
   display: flex;
   flex-direction: column;
   gap: 20px;
   padding-bottom: 1.2rem;
   border-bottom: 1px solid ${Colors.outline};
-  > div:nth-of-type(1),
   > div:nth-of-type(2) {
     max-width: fit-content;
   }
+`;
+
+const StyledCheckField = styled(CheckField)`
+  cursor: pointer;
+  width: 100%;
+  background-color: ${Colors.white};
+  border: 1px solid ${({ $checked }) => ($checked ? Colors.primary : Colors.outline)};
+  border-radius: 3px;
+  .MuiFormControlLabel-root {
+    padding: 10px 2px;
+    margin: 0;
+    height: 44px;
+  }
+`;
+
+const CheckboxRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  align-items: stretch;
+  border: 1px solid ${Colors.outline};
+  padding: 12px 16px;
+  border-radius: 3px;
+`;
+
+const CheckboxRowItem = styled.div`
+  flex: 1;
 `;
 
 const ButtonRow = styled.div`
@@ -233,12 +266,10 @@ const StyledConditionalTooltip = styled(ConditionalTooltip)`
   }
 `;
 
-const StyledOngoingTooltip = styled(ThemedTooltip)`
-  .MuiTooltip-tooltip {
-    font-weight: 400;
-    width: 180px;
-    padding: 8px 16px;
-  }
+const VariableDoseFieldWrapper = styled.div`
+  margin-bottom: -12px;
+  grid-column: 1 / -1;
+  width: 290px;
 `;
 
 const StyledTimePicker = styled(TimePicker)`
@@ -308,22 +339,23 @@ const AllergyItem = styled.li`
   line-height: 20px;
 `;
 
-const StockLevelContainer = styled(Box)`
+const StockLevelContainer = styled.div`
   padding: 12px 10px;
+  margin-top: 4px;
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
   background-color: ${Colors.white};
   display: flex;
   align-items: center;
   gap: 12px;
-  position: absolute;
-  right: 0;
-  top: 31px;
-  transform: translateY(-50%);
   font-size: 14px;
-  line-height: 18px;
   color: ${Colors.darkestText};
-  width: 285px;
+`;
+
+const StockLevelValue = styled.span`
+  font-weight: 500;
+  font-size: 14px;
+  margin-left: -8px;
 `;
 
 const isOneTimeFrequency = frequency =>
@@ -381,13 +413,13 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
       ...values,
       timeSlots: checked
         ? [
-            ...selectedTimeSlots,
-            {
-              index,
-              value: getDefaultIdealTimeFromTimeSlot(slot, index),
-              timeSlot: slot,
-            },
-          ]
+          ...selectedTimeSlots,
+          {
+            index,
+            value: getDefaultIdealTimeFromTimeSlot(slot, index),
+            timeSlot: slot,
+          },
+        ]
         : selectedTimeSlots.filter(s => s.index !== index),
     });
   };
@@ -459,7 +491,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
             const isDisabled =
               (!checked &&
                 frequenciesAdministrationIdealTimes?.[values.frequency]?.length ===
-                  selectedTimeSlots?.length) ||
+                selectedTimeSlots?.length) ||
               isOneTimeFrequency(values.frequency);
             const selectedTime = selectedTimeSlot
               ? getDateFromTimeString(selectedTimeSlot.value)
@@ -775,21 +807,13 @@ export const MedicationForm = ({
       );
 
     return (
-      <Box>
+      <>
         <TranslatedText
           stringId="medication.stockLevel.inStock"
-          fallback="Medication is currently in stock."
+          fallback="Medication is currently in stock. Stock level: "
         />
-        <Box>
-          <TranslatedText
-            stringId="medication.stockLevel.inStock.stockLevel"
-            fallback="Stock level: "
-          />
-          <Box component={'span'} fontWeight={500}>
-            {stockLevelValue}
-          </Box>
-        </Box>
-      </Box>
+        <StockLevelValue>{stockLevelValue}</StockLevelValue>
+      </>
     );
   };
 
@@ -832,7 +856,7 @@ export const MedicationForm = ({
                     </AllergiesList>
                   </AllergiesWarningBox>
                 )}
-                <div style={{ gridColumn: '1 / -1' }}>
+                <FullWidthFieldWrapper>
                   <Field
                     name="medicationId"
                     label={
@@ -856,6 +880,12 @@ export const MedicationForm = ({
                     }}
                     data-testid="medication-field-medicationId-8k3m"
                   />
+                  {!isOngoingPrescription && !!drugStockStatus && (
+                    <StockLevelContainer>
+                      {getStockLevelIcon()}
+                      {getStockLevelContent()}
+                    </StockLevelContainer>
+                  )}
                   {showExistingDrugWarning && (
                     <SmallBodyText mt="2px" color={Colors.midText}>
                       <TranslatedText
@@ -864,7 +894,7 @@ export const MedicationForm = ({
                       />
                     </SmallBodyText>
                   )}
-                </div>
+                </FullWidthFieldWrapper>
               </>
             ) : (
               <MedicationBox>
@@ -877,64 +907,54 @@ export const MedicationForm = ({
               </MedicationBox>
             )}
             <CheckboxGroup>
-              {isOngoingPrescription && (
-                <StyledOngoingTooltip
-                  title={
-                    <TranslatedText
-                      stringId="medication.isOngoing.tooltip"
-                      fallback="Medications recorded outside of an encounter must be recorded as ongoing"
+              <CheckboxRow>
+                <CheckboxRowItem>
+                  <ConditionalTooltip
+                    visible={isOngoingPrescription}
+                    $maxWidth="220px"
+                    title={
+                      <TranslatedText
+                        stringId="medication.isOngoing.tooltip"
+                        fallback="Medications recorded outside of an encounter must be recorded as ongoing"
+                      />
+                    }
+                  >
+                    <Field
+                      name="isOngoing"
+                      label={
+                        <TranslatedText
+                          stringId="medication.isOngoing.label"
+                          fallback="Ongoing medication"
+                        />
+                      }
+                      component={StyledCheckField}
+                      style={{ ...(isOngoingPrescription && { pointerEvents: 'none' }) }}
+                      {...(isOngoingPrescription && { value: true })}
+                      onChange={(_, value) => {
+                        if (value) {
+                          setValues({ ...values, durationValue: '', durationUnit: '' });
+                        }
+                      }}
+                      checkedIcon={<StyledIcon className="far fa-check-square" $color={Colors.midText} />}
+                      data-testid="medication-field-isOngoing-7j2p"
+                      $checked={values.isOngoing || isOngoingPrescription}
                     />
-                  }
-                >
-                  <Box
-                    component={'span'}
-                    width={32}
-                    height={16}
-                    position={'absolute'}
-                    zIndex={1}
-                    top={2.5}
-                    left={-9}
+                  </ConditionalTooltip>
+                </CheckboxRowItem>
+                <CheckboxRowItem>
+                  <Field
+                    name="isPrn"
+                    label={
+                      <TranslatedText stringId="medication.isPrn.label" fallback="PRN medication" />
+                    }
+                    component={StyledCheckField}
+                    data-testid="medication-field-isPrn-9n4q"
+                    $checked={values.isPrn}
                   />
-                </StyledOngoingTooltip>
-              )}
-
-              <Field
-                name="isOngoing"
-                label={
-                  <TranslatedText
-                    stringId="medication.isOngoing.label"
-                    fallback="Ongoing medication"
-                  />
-                }
-                component={CheckField}
-                style={{ ...(isOngoingPrescription && { pointerEvents: 'none' }) }}
-                {...(isOngoingPrescription && { value: true })}
-                onChange={(_, value) => {
-                  if (value) {
-                    setValues({ ...values, durationValue: '', durationUnit: '' });
-                  }
-                }}
-                checkedIcon={<StyledIcon className="far fa-check-square" $color={Colors.midText} />}
-                data-testid="medication-field-isOngoing-7j2p"
-              />
-              <Field
-                name="isPrn"
-                label={
-                  <TranslatedText stringId="medication.isPrn.label" fallback="PRN medication" />
-                }
-                component={CheckField}
-                data-testid="medication-field-isPrn-9n4q"
-              />
-              {!isOngoingPrescription && !!drugStockStatus && (
-                <StockLevelContainer>
-                  <Box display="flex" flexShrink={0}>
-                    {getStockLevelIcon()}
-                  </Box>
-                  {getStockLevelContent()}
-                </StockLevelContainer>
-              )}
+                </CheckboxRowItem>
+              </CheckboxRow>
             </CheckboxGroup>
-            <div style={{ gridColumn: '1/-1', marginBottom: '-12px' }}>
+            <VariableDoseFieldWrapper>
               <Field
                 name="isVariableDose"
                 label={
@@ -945,7 +965,7 @@ export const MedicationForm = ({
                     />
                   </BodyText>
                 }
-                component={CheckField}
+                component={StyledCheckField}
                 onChange={(_, value) => {
                   if (value) {
                     setValues({ ...values, doseAmount: '' });
@@ -953,8 +973,9 @@ export const MedicationForm = ({
                   }
                 }}
                 data-testid="medication-field-isVariableDose-5h8x"
+                $checked={values.isVariableDose}
               />
-            </div>
+            </VariableDoseFieldWrapper>
             <Field
               name="doseAmount"
               label={
@@ -1115,35 +1136,47 @@ export const MedicationForm = ({
                 </FieldContent>
               </div>
             )}
-            {!isOngoingPrescription && (
-              <>
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <Divider />
-                </div>
-                <Field
-                  name="quantity"
-                  label={
+            <>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <Divider />
+              </div>
+              <Field
+                name="quantity"
+                label={
+                  encounterId ? (
                     <TranslatedText
-                      stringId="medication.dischargeQuantity.label"
+                      stringId="medication.details.dischargeQuantity"
                       fallback="Discharge quantity"
                     />
-                  }
-                  min={0}
-                  component={NumberField}
-                  onInput={preventInvalidNumber}
-                  data-testid="medication-field-quantity-6j9m"
-                />
-                <Field
-                  name="repeats"
-                  label={<TranslatedText stringId="medication.repeats.label" fallback="Repeats" />}
-                  component={NumberField}
-                  min={0}
-                  max={MAX_REPEATS}
-                  step={1}
-                  onInput={preventInvalidRepeatsInput}
-                />
-              </>
-            )}
+                  ) : (
+                    <TranslatedText
+                      stringId="medication.quantity.label"
+                      fallback="Quantity"
+                    />
+                  )
+                }
+                min={0}
+                component={NumberField}
+                onInput={preventInvalidNumber}
+                data-testid="medication-field-quantity-6j9m"
+              />
+              <Field
+                name="repeats"
+                label={
+                  encounterId ? (
+                    <TranslatedText stringId="medication.repeats.onDischarge.label" fallback="Repeats on discharge" />
+                  ) : (
+                    <TranslatedText stringId="medication.repeats.label" fallback="Repeats" />
+                  )
+                }
+                component={NumberField}
+                min={0}
+                max={MAX_REPEATS}
+                step={1}
+                onInput={preventInvalidRepeatsInput}
+              />
+            </>
+
             {showPatientWeight && (
               <>
                 <div style={{ gridColumn: '1 / -1' }}>

@@ -638,8 +638,8 @@ export const PatientMedicationPane = ({ patient }) => {
                 visible={!!currentEncounter}
                 title={
                   <TranslatedText
-                    stringId="patient.medication.ongoing.add"
-                    fallback="Add ongoing medication"
+                    stringId="patient.medication.ongoing.add.activeEncounter.tooltip"
+                    fallback="Please add any medications via the patient active encounter"
                   />
                 }
                 PopperProps={{
