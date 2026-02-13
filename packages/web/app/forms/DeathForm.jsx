@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import MuiBox from '@material-ui/core/Box';
@@ -29,6 +29,11 @@ import {
   InfantPage,
   FSMPregnancyPage,
   FSMMannerOfDeathPage,
+  getFSMMannerOfDeathPageFields,
+  getInfantPageFields,
+  getMannerOfDeathPageFields,
+  getPregnancyPageFields,
+  getFSMPregnancyPageFields,
   MannerOfDeathPage,
   PregnancyPage,
 } from './DeathFormOptionalPages';
@@ -178,6 +183,13 @@ export const DeathForm = React.memo(
     const isFSMStyleEnabled = getSetting('fsmCrvsCertificates.enableFSMStyle');
     const showPregnantFSMQuestions = isFSMStyleEnabled && canBePregnantFSM(currentTOD, patient);
     const showPregnantQuestions = !isFSMStyleEnabled && canBePregnant(currentTOD, patient);
+
+    // Needed to use the visibility criteria functionality across the optional pages
+    const fsmMannerOfDeathPageFields = useMemo(() => getFSMMannerOfDeathPageFields(), []);
+    const mannerOfDeathPageFields = useMemo(() => getMannerOfDeathPageFields(), []);
+    const infantPageFields = useMemo(() => getInfantPageFields(), []);
+    const pregnancyPageFields = useMemo(() => getPregnancyPageFields(), []);
+    const fsmPregnancyPageFields = useMemo(() => getFSMPregnancyPageFields(), []);
 
     return (
       <PaginatedForm
@@ -514,10 +526,18 @@ export const DeathForm = React.memo(
             data-testid="field-333j"
           />
         </StyledFormGrid>
-        {isFSMStyleEnabled ? <FSMMannerOfDeathPage /> : <MannerOfDeathPage />}
-        {showPregnantFSMQuestions ? <FSMPregnancyPage /> : null}
-        {showPregnantQuestions ? <PregnancyPage /> : null}
-        {showInfantQuestions ? <InfantPage /> : null}
+        {isFSMStyleEnabled ? (
+          <FSMMannerOfDeathPage>{fsmMannerOfDeathPageFields}</FSMMannerOfDeathPage>
+        ) : (
+          <MannerOfDeathPage>{mannerOfDeathPageFields}</MannerOfDeathPage>
+        )}
+        {showPregnantFSMQuestions ? (
+          <FSMPregnancyPage>{fsmPregnancyPageFields}</FSMPregnancyPage>
+        ) : null}
+        {showPregnantQuestions ? (
+          <PregnancyPage>{pregnancyPageFields}</PregnancyPage>
+        ) : null}
+        {showInfantQuestions ? <InfantPage>{infantPageFields}</InfantPage> : null}
       </PaginatedForm>
     );
   },
