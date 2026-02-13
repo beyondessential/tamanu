@@ -5,7 +5,7 @@ import { QRCodeIcon } from '../Icons';
 import { useTranslation } from '../../contexts/Translation';
 import { QRCodeScannerModal } from '../QRCodeScannerModal';
 import { ThemedTooltip } from '../Tooltip';
-import { SearchInput } from './SearchField.jsx';
+import { SearchInput } from './SearchField';
 
 const Container = styled.div`
   display: flex;

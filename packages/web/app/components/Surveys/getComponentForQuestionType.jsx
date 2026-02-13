@@ -10,7 +10,7 @@ import {
   PhotoField as BasePhotoField,
   PatientDataDisplayField,
 } from '@tamanu/ui-components';
-import { PhotoCaptureModal } from '../PhotoCaptureModal.jsx';
+import { PhotoCaptureModal } from '../PhotoCaptureModal';
 import {
   DateField,
   DateTimeField,

@@ -1,7 +1,7 @@
 import React, { useRef, useState, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import { Button, TranslatedText } from '@tamanu/ui-components';
-import { WebcamCaptureModal, CAMERA_STATUS } from './WebcamCaptureModal.jsx';
+import { WebcamCaptureModal, CAMERA_STATUS } from './WebcamCaptureModal';
 
 const CapturedImageContainer = styled.div`
   display: flex;
@@ -56,12 +56,6 @@ export const PhotoCaptureModal = ({ open, onClose, onCapture }) => {
       handleCancel();
     }
   }, [capturedImage, onCapture, handleCancel]);
-
-  const renderCapturedView = () => (
-    <CapturedImageContainer>
-      <CapturedImage src={capturedImage} alt="Captured photo" />
-    </CapturedImageContainer>
-  );
 
   const videoConstraints = {
     width: 1280,
@@ -127,7 +121,11 @@ export const PhotoCaptureModal = ({ open, onClose, onCapture }) => {
       onCameraStatusChange={setCameraStatus}
       webcamRef={webcamRef}
     >
-      {capturedImage ? renderCapturedView() : null}
+      {capturedImage ? (
+        <CapturedImageContainer>
+          <CapturedImage src={capturedImage} alt="Captured photo" />
+        </CapturedImageContainer>
+      ) : null}
     </WebcamCaptureModal>
   );
 };
