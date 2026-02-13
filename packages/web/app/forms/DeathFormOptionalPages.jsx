@@ -85,8 +85,22 @@ export const FSMSpecificQuestions = () => {
         relationType={REFERENCE_DATA_RELATION_TYPES.ADDRESS_HIERARCHY}
         leafNodeType={REFERENCE_TYPES.VILLAGE}
         fields={DEATH_LOCATION_HIERARCHY_FIELDS}
+        removeContainer
         data-testid="hierarchyfields-fsm-death-location"
       />
+      <Field
+        name="fsmSocialSecurityNumber"
+        label={
+          <TranslatedText
+            stringId="death.fsm.socialSecurityNumber.label"
+            fallback="Social security no."
+            data-testid="translatedtext-fsm-social-security-number"
+          />
+        }
+        component={TextField}
+        data-testid="field-fsm-social-security-number"
+      />
+      <FormSeparatorLine data-testid="formseparatorline-fsm-1" />
       <Field
         name="fsmMaritalStatus"
         label={
