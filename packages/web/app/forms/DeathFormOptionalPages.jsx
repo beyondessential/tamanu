@@ -524,7 +524,7 @@ export const getFSMMannerOfDeathPageFields = () => [
       />
     }
     component={RadioField}
-    options={BINARY_OPTIONS}
+    options={BINARY_UNKNOWN_OPTIONS}
     visibilityCriteria={mannerOfDeathVisibilityCriteria}
     data-testid="field-fsm-injury-at-work"
   />,
@@ -624,7 +624,7 @@ export const getFSMPregnancyPageFields = () => [
       />
     }
     component={RadioField}
-    options={BINARY_OPTIONS}
+    options={BINARY_UNKNOWN_OPTIONS}
     visibilityCriteria={{ fsmPregnantNow: 'no' }}
     data-testid="field-fsm-death-within-42-days"
   />,
