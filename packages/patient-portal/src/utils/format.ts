@@ -1,5 +1,5 @@
 import { SEX_LABELS } from '@tamanu/constants';
-export { startOfWeek, parseISO } from 'date-fns';
+import { startOfWeek, parseISO } from 'date-fns';
 import type {
   Location,
   Appointment,
