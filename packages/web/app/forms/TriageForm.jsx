@@ -1,7 +1,6 @@
 import React from 'react';
 import * as yup from 'yup';
 import { ENCOUNTER_TYPES, FORM_TYPES } from '@tamanu/constants';
-import {trimToDate} from '@tamanu/utils/dateTime';
 import { useNavigate } from 'react-router';
 import { Box } from '@material-ui/core';
 import { getAnswersFromData, Form, FormGrid, useDateTime } from '@tamanu/ui-components';
@@ -69,9 +68,9 @@ export const TriageForm = ({
   const navigate = useNavigate();
   const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
-  const { getCurrentDateTime } = useDateTime();
+  const { getCurrentDateTime, getCurrentDate } = useDateTime();
 
-  const endOfTodayMax = `${trimToDate(getCurrentDateTime())}T23:59`;
+  const endOfTodayMax = `${getCurrentDate()}T23:59`;
   const triageCategories = getSetting('triageCategories');
   const practitionerSuggester = useSuggester('practitioner');
   const triageReasonSuggester = useSuggester('triageReason');
