@@ -126,6 +126,7 @@ const getIsDisabled = ({ hasRecord, timeSlot, selectedDate, now }) => {
 };
 
 const toFacilityDate = (dateStr, toFacilityDateTime) => {
+  if (!dateStr) return null;
   const facilityStr = toFacilityDateTime(dateStr);
   return facilityStr ? new Date(facilityStr) : new Date(dateStr);
 };
