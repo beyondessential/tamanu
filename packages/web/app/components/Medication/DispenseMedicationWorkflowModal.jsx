@@ -478,13 +478,12 @@ export const DispenseMedicationWorkflowModal = memo(
           accessor: (item, rowIndex) => {
             const { id, quantity, selected } = item;
             const hasQuantityError = itemErrors[id]?.hasQuantityError || false;
-            const disabled = !selected;
             return (
               <QuantityInput
                 value={quantity}
                 onChange={e => handleQuantityChange(rowIndex, e)}
                 error={showValidationErrors && hasQuantityError}
-                disabled={disabled}
+                disabled={!selected}
                 InputProps={{ inputProps: { min: 1 } }}
                 data-testid="dispense-quantity"
                 required={selected}
@@ -522,14 +521,13 @@ export const DispenseMedicationWorkflowModal = memo(
           accessor: (item, rowIndex) => {
             const { id, instructions, selected } = item;
             const hasInstructionsError = itemErrors[id]?.hasInstructionsError || false;
-            const disabled = !selected;
             return (
               <InstructionsInput
                 value={instructions}
                 onChange={e => handleInstructionsChange(rowIndex, e)}
                 error={showValidationErrors && hasInstructionsError}
                 required={selected}
-                disabled={disabled}
+                disabled={!selected}
                 testId="dispense-instructions"
                 helperText={
                   showValidationErrors && hasInstructionsError
