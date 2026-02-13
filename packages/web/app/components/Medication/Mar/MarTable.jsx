@@ -6,9 +6,8 @@ import {
   getDateFromTimeString,
   findAdministrationTimeSlotFromIdealTime,
 } from '@tamanu/shared/utils/medication';
-import { toDateString } from '@tamanu/utils/dateTime';
+import { toDateString, locale } from '@tamanu/utils/dateTime';
 import { useDateTime } from '@tamanu/ui-components';
-import { formatTimeSlot } from '@tamanu/utils/dateFormatters';
 
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../..';
@@ -153,10 +152,11 @@ const LoadingContainer = styled.div`
   height: 42px;
 `;
 
-const formatSlotTime = timeStr => {
-  const normalized = timeStr === '24:00' ? '00:00' : timeStr;
-  return formatTimeSlot(`2000-01-01 ${normalized}:00`);
-};
+// Convert time string to locale-specific time string no timezone conversion is applied
+const formatSlotTime = timeStr =>
+  Intl.DateTimeFormat(locale, { hour: 'numeric', hour12: true }).format(
+    new Date(`2000-01-01 ${timeStr === '24:00' ? '00:00' : timeStr}:00`),
+  );
 
 const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate, facilityNow }) => {
   const now = facilityNow.getTime();
@@ -282,8 +282,8 @@ export const MarTable = ({ selectedDate }) => {
         headerElement.style.position = entry.isIntersecting
           ? 'sticky'
           : entry.boundingClientRect.top < HEADER_HEIGHT
-            ? 'static'
-            : headerElement.style.position;
+          ? 'static'
+          : headerElement.style.position;
       }, observerOptions);
     };
 
