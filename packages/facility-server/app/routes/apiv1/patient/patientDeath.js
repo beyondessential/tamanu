@@ -167,6 +167,9 @@ patientDeath.get(
 
       autopsyRequested: deathData?.autopsyRequested,
       mannerOfDeathDescription: deathData?.mannerOfDeathDescription,
+      externalCauseLocation: deathData?.externalCauseLocation,
+      externalCauseDate: deathData?.externalCauseDate,
+      externalCauseNotes: deathData?.externalCauseNotes,
       extraData: deathData?.extraData,
     });
   }),
