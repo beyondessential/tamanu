@@ -278,13 +278,11 @@ const getColumns = (
           </span>
         </ThemedTooltip>
       ) : (
-        <span style={{ display: 'inline-block', maxWidth: 80 }}>
-          <TranslatedText
-            stringId="pharmacyOrder.table.column.repeatsOnDischarge"
-            fallback="Repeats on discharge"
-            data-testid="translatedtext-psdf"
-          />
-        </span>
+        <TranslatedText
+          stringId="pharmacyOrder.table.column.repeatsOnDischarge"
+          fallback="Repeats on discharge"
+          data-testid="translatedtext-psdf"
+        />
       ),
       sortable: false,
       accessor: ({ repeats, lastOrderedAt }) => {
