@@ -179,10 +179,6 @@ const buildInstructionText = (prescription, getTranslation, getEnumTranslation) 
   return output.trim();
 };
 
-const isItemDisabled = item => {
-  return item.pharmacyOrder?.isDischargePrescription && (item.remainingRepeats ?? 0) === 0;
-};
-
 const InstructionsInput = memo(({ value: defaultValue, onChange, ...props }) => {
   const [value, setValue] = useState(defaultValue);
   const handleChange = e => {
@@ -256,7 +252,7 @@ export const DispenseMedicationWorkflowModal = memo(
           const { quantity, prescription, instructions } = d;
           return {
             ...d,
-            selected: !isItemDisabled(d), // Don't auto-select disabled items
+            selected: true,
             quantity: quantity ?? 1,
             instructions:
               buildInstructionText(prescription, getTranslation, getEnumTranslation) ||
@@ -284,7 +280,7 @@ export const DispenseMedicationWorkflowModal = memo(
     };
 
     const handleSelectAll = ({ target: { checked } }) => {
-      setItems(prev => prev.map(i => ({ ...i, selected: !isItemDisabled(i) ? checked : false })));
+      setItems(prev => prev.map(i => ({ ...i, selected: checked })));
     };
 
     const handleSelectRow = rowIndex => ({ target: { checked } }) => {
@@ -295,9 +291,7 @@ export const DispenseMedicationWorkflowModal = memo(
       });
     };
 
-    const selectableItems = items.filter(i => !isItemDisabled(i));
-    const selectAllChecked =
-      selectableItems.length > 0 && selectableItems.every(({ selected }) => selected);
+    const selectAllChecked = items.length > 0 && items.every(({ selected }) => selected);
 
     const handleQuantityChange = (rowIndex, { target: { value: rawValue } }) => {
       setItems(prev => {
@@ -442,7 +436,6 @@ export const DispenseMedicationWorkflowModal = memo(
                 onChange={handleSelectRow(rowIndex)}
                 style={{ margin: 'auto' }}
                 data-testid={`dispense-row-checkbox-${rowIndex}`}
-                disabled={isItemDisabled(item)}
               />
             );
           },
@@ -485,7 +478,7 @@ export const DispenseMedicationWorkflowModal = memo(
           accessor: (item, rowIndex) => {
             const { id, quantity, selected } = item;
             const hasQuantityError = itemErrors[id]?.hasQuantityError || false;
-            const disabled = isItemDisabled(item) || !selected;
+            const disabled = !selected;
             return (
               <QuantityInput
                 value={quantity}
@@ -529,7 +522,7 @@ export const DispenseMedicationWorkflowModal = memo(
           accessor: (item, rowIndex) => {
             const { id, instructions, selected } = item;
             const hasInstructionsError = itemErrors[id]?.hasInstructionsError || false;
-            const disabled = isItemDisabled(item) || !selected;
+            const disabled = !selected;
             return (
               <InstructionsInput
                 value={instructions}
