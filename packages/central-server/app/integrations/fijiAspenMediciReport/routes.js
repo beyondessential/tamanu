@@ -136,8 +136,8 @@ routes.get(
     const data = await sequelize.query(reportQuery, {
       type: QueryTypes.SELECT,
       bind: {
-        from_date: fromDate ? parseDateParam(fromDate, PRIMARY_TIME_ZONE) : null,
-        to_date: toDate ? parseDateParam(toDate, PRIMARY_TIME_ZONE) : null,
+        from_date: fromDate ? parseDateParam(fromDate) : null,
+        to_date: toDate ? parseDateParam(toDate) : null,
         input_encounter_ids: encounters?.split(',') ?? [],
         billing_type: null,
         limit: parseInt(limit, 10),

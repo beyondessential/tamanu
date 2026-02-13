@@ -25,7 +25,7 @@ export const DiagnosticInfo = ({ rawDate, displayDate, facilityTimeZone, primary
   return (
     <div>
       <strong>Raw date:</strong> {parsedRawDate} <br />
-      <strong>primary timezone:</strong> {primaryTimeZone} <br />
+      <strong>Primary timezone:</strong> {primaryTimeZone} <br />
       <strong>Displayed timezone:</strong> {displayTimeZone} <br />
       <strong>Displayed offset:</strong> {displayOffset} <br />
       <strong>Display date:</strong> {displayDate} <br />
