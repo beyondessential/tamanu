@@ -525,6 +525,7 @@ export const getFSMMannerOfDeathPageFields = () => [
     }
     component={RadioField}
     options={BINARY_UNKNOWN_OPTIONS}
+    style={{ gridColumn: '1/-1' }}
     visibilityCriteria={mannerOfDeathVisibilityCriteria}
     data-testid="field-fsm-injury-at-work"
   />,
@@ -578,7 +579,6 @@ export const getFSMPregnancyPageFields = () => [
     }
     component={RadioField}
     options={BINARY_UNKNOWN_OPTIONS}
-    style={{ gridColumn: '1/-1' }}
     data-testid="field-fsm-pregnant-now"
   />,
   <Field
@@ -594,7 +594,6 @@ export const getFSMPregnancyPageFields = () => [
     component={NumberField}
     min={0}
     visibilityCriteria={{ fsmPregnantNow: 'yes' }}
-    style={{ gridColumn: '1/-1' }}
     data-testid="field-fsm-number-of-weeks"
   />,
   <Field
@@ -610,7 +609,6 @@ export const getFSMPregnancyPageFields = () => [
     component={RadioField}
     options={BINARY_UNKNOWN_OPTIONS}
     visibilityCriteria={{ fsmPregnantNow: 'yes' }}
-    style={{ gridColumn: '1/-1' }}
     data-testid="field-f1kx"
   />,
   <Field
@@ -647,7 +645,7 @@ export const getFSMPregnancyPageFields = () => [
 ];
 
 export const FSMPregnancyPage = ({ children }) => (
-  <StyledFormGrid columns={2} data-testid="styledformgrid-fsm-pregnancy">
+  <StyledFormGrid columns={1} data-testid="styledformgrid-fsm-pregnancy">
     {children}
   </StyledFormGrid>
 );
