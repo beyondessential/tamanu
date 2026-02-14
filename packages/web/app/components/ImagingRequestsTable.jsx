@@ -1,7 +1,9 @@
 import React, { useCallback, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams, useNavigate } from 'react-router';
+
 import { IMAGING_REQUEST_STATUS_CONFIG, IMAGING_TABLE_VERSIONS } from '@tamanu/constants';
+
 import { SearchTableWithPermissionCheck } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { PatientNameDisplay } from './PatientNameDisplay';
@@ -15,6 +17,7 @@ import { useImagingRequestsQuery } from '../contexts/ImagingRequests';
 import { capitaliseFirstLetter } from '../utils/capitalise';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
+import { getApprovalStatus } from '../utils/medications';
 
 const StatusDisplay = React.memo(({ status }) => {
   const {
@@ -137,6 +140,12 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
             accessor: getPriority,
           },
         ]),
+    {
+      key: 'invoiceItem.approved',
+      title: <TranslatedText stringId="general.label.approved" fallback="Approved" />,
+      accessor: ({ approved }) => getApprovalStatus(approved),
+      sortable: true,
+    },
     {
       key: 'status',
       title: (

@@ -1875,6 +1875,11 @@ medication.get(
               association: 'prescriber',
               attributes: ['id', 'displayName'],
             },
+            {
+              association: 'invoiceItem',
+              attributes: ['id', 'approved'],
+              required: false,
+            },
           ],
           required: true,
         },

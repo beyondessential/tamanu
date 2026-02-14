@@ -159,6 +159,13 @@ export class Prescription extends Model {
       foreignKey: 'prescriptionId',
       as: 'medicationAdministrationRecords',
     });
+
+    this.hasOne(models.InvoiceItem, {
+      foreignKey: 'sourceRecordId',
+      as: 'invoiceItem',
+      constraints: false,
+      scope: { source_record_type: this.name },
+    });
   }
 
   static getListReferenceAssociations() {

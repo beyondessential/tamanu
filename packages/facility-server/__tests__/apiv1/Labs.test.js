@@ -1,9 +1,11 @@
+import config from 'config';
+
 import {
+  INVOICE_STATUSES,
   LAB_REQUEST_STATUSES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import config from 'config';
 import {
   createDummyEncounter,
   createDummyPatient,
@@ -15,6 +17,8 @@ import {
   randomSensitiveLabRequest,
 } from '@tamanu/database/demoData/labRequests';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+
 import { createTestContext } from '../utilities';
 
 describe('Labs', () => {
@@ -571,6 +575,290 @@ describe('Labs', () => {
         });
         expect(response).toBeForbidden();
       });
+    });
+  });
+
+  describe('Approved column', () => {
+    const [facilityId] = selectFacilityIds(config);
+    let testLocation;
+    let testEncounter;
+    let testInvoice;
+    let labTestTypes;
+
+    beforeAll(async () => {
+      testLocation = await models.Location.create({
+        ...fake(models.Location),
+        facilityId,
+      });
+      testEncounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        locationId: testLocation.id,
+        patientId,
+      });
+      testInvoice = await models.Invoice.create({
+        encounterId: testEncounter.id,
+        displayId: 'INV-LAB-APPROVED-TEST',
+        status: INVOICE_STATUSES.IN_PROGRESS,
+        date: getCurrentDateTimeString(),
+      });
+      // Create lab test types for testing
+      labTestTypes = await createLabTestTypes(models);
+    });
+
+    const createLabRequestWithPanel = async () => {
+      const labTestPanel = await models.LabTestPanel.create({
+        name: `Test panel ${chance.guid()}`,
+        code: `test-panel-${chance.guid()}`,
+      });
+      await Promise.all(
+        labTestTypes.map(ltt =>
+          models.LabTestPanelLabTestTypes.create({
+            labTestPanelId: labTestPanel.id,
+            labTestTypeId: ltt.id,
+          }),
+        ),
+      );
+
+      const labTestPanelRequest = await models.LabTestPanelRequest.create({
+        labTestPanelId: labTestPanel.id,
+        encounterId: testEncounter.id,
+      });
+
+      const labRequest = await models.LabRequest.create({
+        ...fake(models.LabRequest),
+        encounterId: testEncounter.id,
+        requestedById: app.user.id,
+        status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+        labTestPanelRequestId: labTestPanelRequest.id,
+      });
+
+      const labTests = await Promise.all(
+        labTestTypes.map(ltt =>
+          models.LabTest.create({
+            labRequestId: labRequest.id,
+            labTestTypeId: ltt.id,
+            status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+          }),
+        ),
+      );
+
+      return { labRequest, labTestPanelRequest, labTests };
+    };
+
+    const createLabRequestWithoutPanel = async () => {
+      const labRequest = await models.LabRequest.create({
+        ...fake(models.LabRequest),
+        encounterId: testEncounter.id,
+        requestedById: app.user.id,
+        status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+      });
+
+      const labTests = await Promise.all(
+        labTestTypes.map(ltt =>
+          models.LabTest.create({
+            labRequestId: labRequest.id,
+            labTestTypeId: ltt.id,
+            status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+          }),
+        ),
+      );
+
+      return { labRequest, labTests };
+    };
+
+    it('should return null for approved when no invoice items exist', async () => {
+      await models.LabRequest.truncate({ cascade: true, force: true });
+      const { labRequest } = await createLabRequestWithoutPanel();
+
+      const result = await app.get(`/api/labRequest?allFacilities=true`);
+      expect(result).toHaveSucceeded();
+
+      const found = result.body.data.find(lr => lr.id === labRequest.id);
+      expect(found).toBeDefined();
+      expect(found.approved).not.toBeDefined();
+    });
+
+    it('should return true when panel invoice item is approved', async () => {
+      await models.LabRequest.truncate({ cascade: true, force: true });
+      const { labRequest, labTestPanelRequest } = await createLabRequestWithPanel();
+
+      await models.InvoiceItem.create({
+        invoiceId: testInvoice.id,
+        sourceRecordId: labTestPanelRequest.id,
+        sourceRecordType: 'LabTestPanelRequest',
+        approved: true,
+        orderDate: new Date().toISOString(),
+        quantity: 1,
+        orderedByUserId: app.user.id,
+      });
+
+      const result = await app.get(`/api/labRequest?allFacilities=true`);
+      expect(result).toHaveSucceeded();
+
+      const found = result.body.data.find(lr => lr.id === labRequest.id);
+      expect(found).toBeDefined();
+      expect(found.approved).toBe(true);
+    });
+
+    it('should return false when panel invoice item is not approved', async () => {
+      await models.LabRequest.truncate({ cascade: true, force: true });
+      const { labRequest, labTestPanelRequest } = await createLabRequestWithPanel();
+
+      await models.InvoiceItem.create({
+        invoiceId: testInvoice.id,
+        sourceRecordId: labTestPanelRequest.id,
+        sourceRecordType: 'LabTestPanelRequest',
+        approved: false,
+        orderDate: new Date().toISOString(),
+        quantity: 1,
+        orderedByUserId: app.user.id,
+      });
+
+      const result = await app.get(`/api/labRequest?allFacilities=true`);
+      expect(result).toHaveSucceeded();
+
+      const found = result.body.data.find(lr => lr.id === labRequest.id);
+      expect(found).toBeDefined();
+      expect(found.approved).toBe(false);
+    });
+
+    it('should return true when all lab test invoice items are approved', async () => {
+      await models.LabRequest.truncate({ cascade: true, force: true });
+      const { labRequest, labTests } = await createLabRequestWithoutPanel();
+
+      for (const labTest of labTests) {
+        await models.InvoiceItem.create({
+          invoiceId: testInvoice.id,
+          sourceRecordId: labTest.id,
+          sourceRecordType: 'LabTest',
+          approved: true,
+          orderDate: new Date().toISOString(),
+          quantity: 1,
+          orderedByUserId: app.user.id,
+        });
+      }
+
+      const result = await app.get(`/api/labRequest?allFacilities=true`);
+      expect(result).toHaveSucceeded();
+
+      const found = result.body.data.find(lr => lr.id === labRequest.id);
+      expect(found).toBeDefined();
+      expect(found.approved).toBe(true);
+    });
+
+    it('should return false when any lab test invoice item is not approved', async () => {
+      await models.LabRequest.truncate({ cascade: true, force: true });
+      const { labRequest, labTests } = await createLabRequestWithoutPanel();
+
+      // First test approved
+      await models.InvoiceItem.create({
+        invoiceId: testInvoice.id,
+        sourceRecordId: labTests[0].id,
+        sourceRecordType: 'LabTest',
+        approved: true,
+        orderDate: new Date().toISOString(),
+        quantity: 1,
+        orderedByUserId: app.user.id,
+      });
+
+      // Second test not approved
+      await models.InvoiceItem.create({
+        invoiceId: testInvoice.id,
+        sourceRecordId: labTests[1].id,
+        sourceRecordType: 'LabTest',
+        approved: false,
+        orderDate: new Date().toISOString(),
+        quantity: 1,
+        orderedByUserId: app.user.id,
+      });
+
+      const result = await app.get(`/api/labRequest?allFacilities=true`);
+      expect(result).toHaveSucceeded();
+
+      const found = result.body.data.find(lr => lr.id === labRequest.id);
+      expect(found).toBeDefined();
+      expect(found.approved).toBe(false);
+    });
+
+    it('should prioritize panel invoice items over lab test invoice items', async () => {
+      await models.LabRequest.truncate({ cascade: true, force: true });
+      const { labRequest, labTestPanelRequest, labTests } = await createLabRequestWithPanel();
+
+      // Panel item is NOT approved
+      await models.InvoiceItem.create({
+        invoiceId: testInvoice.id,
+        sourceRecordId: labTestPanelRequest.id,
+        sourceRecordType: 'LabTestPanelRequest',
+        approved: false,
+        orderDate: new Date().toISOString(),
+        quantity: 1,
+        orderedByUserId: app.user.id,
+      });
+
+      // Lab test items ARE approved
+      for (const labTest of labTests) {
+        await models.InvoiceItem.create({
+          invoiceId: testInvoice.id,
+          sourceRecordId: labTest.id,
+          sourceRecordType: 'LabTest',
+          approved: true,
+          orderDate: new Date().toISOString(),
+          quantity: 1,
+          orderedByUserId: app.user.id,
+        });
+      }
+
+      const result = await app.get(`/api/labRequest?allFacilities=true`);
+      expect(result).toHaveSucceeded();
+
+      const found = result.body.data.find(lr => lr.id === labRequest.id);
+      expect(found).toBeDefined();
+      // Should be false because panel items take precedence
+      expect(found.approved).toBe(false);
+    });
+
+    it('should sort by approved column', async () => {
+      await models.LabRequest.truncate({ cascade: true, force: true });
+
+      // Create requests with different approval statuses
+      const { labRequest: lrApproved, labTestPanelRequest: panelApproved } =
+        await createLabRequestWithPanel();
+      const { labRequest: lrUnapproved, labTestPanelRequest: panelUnapproved } =
+        await createLabRequestWithPanel();
+      const { labRequest: lrNoItems } = await createLabRequestWithPanel();
+
+      await models.InvoiceItem.create({
+        invoiceId: testInvoice.id,
+        sourceRecordId: panelApproved.id,
+        sourceRecordType: 'LabTestPanelRequest',
+        approved: true,
+        orderDate: new Date().toISOString(),
+        quantity: 1,
+        orderedByUserId: app.user.id,
+      });
+      await models.InvoiceItem.create({
+        invoiceId: testInvoice.id,
+        sourceRecordId: panelUnapproved.id,
+        sourceRecordType: 'LabTestPanelRequest',
+        approved: false,
+        orderDate: new Date().toISOString(),
+        quantity: 1,
+        orderedByUserId: app.user.id,
+      });
+
+      // Sort ASC - nulls first, then false, then true
+      const resultAsc = await app.get(`/api/labRequest?allFacilities=true&orderBy=approved&order=ASC`);
+      expect(resultAsc).toHaveSucceeded();
+      expect(resultAsc.body.data[0].id).toBe(lrNoItems.id);
+      expect(resultAsc.body.data[0].approved).not.toBeDefined();
+
+      // Sort DESC - true first, then false, then nulls
+      const resultDesc = await app.get(
+        `/api/labRequest?allFacilities=true&orderBy=approved&order=DESC`,
+      );
+      expect(resultDesc).toHaveSucceeded();
+      expect(resultDesc.body.data[0].id).toBe(lrApproved.id);
+      expect(resultDesc.body.data[0].approved).toBe(true);
     });
   });
 

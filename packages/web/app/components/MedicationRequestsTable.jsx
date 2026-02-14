@@ -16,7 +16,7 @@ import { PHARMACY_PRESCRIPTION_TYPE_LABELS, PHARMACY_PRESCRIPTION_TYPES } from '
 import { useApi } from '../api';
 import { DeleteMedicationRequestModal } from './Medication/DeleteMedicationRequestModal';
 import { Box } from '@mui/material';
-import { getStockStatus } from '../utils/medications';
+import { getApprovalStatus, getStockStatus } from '../utils/medications';
 
 const NoDataContainer = styled.div`
   height: 500px;
@@ -250,6 +250,17 @@ export const MedicationRequestsTable = () => {
         />
       ),
       accessor: getDateSent,
+      sortable: true,
+    },
+    {
+      key: 'prescription.invoiceItem.approved',
+      title: (
+        <TranslatedText
+          stringId="general.label.approved"
+          fallback="Approved"
+        />
+      ),
+      accessor: ({ approved }) => getApprovalStatus(approved),
       sortable: true,
     },
     {

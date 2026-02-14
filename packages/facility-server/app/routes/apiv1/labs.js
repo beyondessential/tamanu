@@ -245,6 +245,30 @@ labRequest.get(
           ON (requester.id = lab_requests.requested_by_id)
         LEFT JOIN sensitive_labs
           ON (sensitive_labs.id = lab_requests.id)
+        LEFT JOIN LATERAL (
+          SELECT COALESCE(
+            -- Panel approval takes precedence (NULL if no panel items)
+            (
+              SELECT BOOL_AND(ii.approved)
+              FROM invoice_items ii
+              WHERE ii.source_record_id = lab_test_panel_requests.id::text
+                AND ii.source_record_type = 'LabTestPanelRequest'
+                AND ii.deleted_at IS NULL
+              HAVING COUNT(*) > 0
+            ),
+            -- Individual test approval (used if panel returned NULL)
+            (
+              SELECT BOOL_AND(ii.approved)
+              FROM lab_tests lt
+              INNER JOIN invoice_items ii ON ii.source_record_id = lt.id::text
+                AND ii.source_record_type = 'LabTest'
+                AND ii.deleted_at IS NULL
+              WHERE lt.lab_request_id = lab_requests.id
+                AND lt.deleted_at IS NULL
+              HAVING COUNT(*) > 0
+            )
+          ) AS approved
+        ) lab_approval ON true
         ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
@@ -288,6 +312,7 @@ labRequest.get(
       priority: 'priority.name',
       status: 'status',
       publishedDate: 'published_date',
+      approved: 'lab_approval.approved',
     };
 
     const sortKey = sortKeys[orderBy];
@@ -314,7 +339,8 @@ labRequest.get(
           lab_test_panel.id as lab_test_panel_id,
           laboratory.id AS laboratory_id,
           laboratory.name AS laboratory_name,
-          location.facility_id AS facility_id
+          location.facility_id AS facility_id,
+          lab_approval.approved AS approved
         ${from}
 
         ORDER BY ${sortKey} ${sortDirection}${nullPosition ? ` ${nullPosition}` : ''}

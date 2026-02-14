@@ -15,7 +15,7 @@ import {
 } from '@tamanu/ui-components';
 import styled from 'styled-components';
 import { formatTime, TranslatedEnum } from '../components';
-import { STOCK_STATUS_COLORS } from '../constants';
+import { Colors, STOCK_STATUS_COLORS } from '../constants';
 
 /**
  * Transforms selected dispensable medication items into label data for printing.
@@ -141,4 +141,19 @@ export const getStockStatus = ({ prescription }, useStyledTag = true) => {
     );
   }
   return content;
+};
+
+export const getApprovalStatus = approved => {
+  if (approved) {
+    return (
+      <StyledTag $color={Colors.green} noWrap>
+        <TranslatedText
+          stringId="general.action.yes"
+          fallback="Yes"
+        />
+      </StyledTag>
+    );
+  }
+
+  return null;
 };

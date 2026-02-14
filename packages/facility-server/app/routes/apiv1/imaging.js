@@ -322,8 +322,10 @@ globalImagingRequests.get(
     const { order = 'ASC', orderBy, rowsPerPage = 10, page = 0, ...filterParams } = query;
 
     const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    const LITERAL_SORT_KEYS = ['completedAt', 'approved'];
     const nullPosition =
-      orderBy === 'completedAt' && (orderDirection === 'ASC' ? 'NULLS FIRST' : 'NULLS LAST');
+      LITERAL_SORT_KEYS.includes(orderBy) &&
+      (orderDirection === 'ASC' ? 'NULLS FIRST' : 'NULLS LAST');
 
     const patientFilters = mapQueryFilters(filterParams, [
       { key: 'firstName', mapFn: caseInsensitiveStartsWithFilter },
@@ -456,6 +458,34 @@ globalImagingRequests.get(
             WHERE imaging_results.imaging_request_id = "ImagingRequest".id
           )`),
             'completedAt',
+          ],
+          // Check approval status: ImagingRequestArea items take precedence, then ImagingRequest items
+          [
+            literal(`(
+            SELECT COALESCE(
+              -- ImagingRequestArea invoice items take precedence (NULL if none exist)
+              (
+                SELECT BOOL_AND(ii.approved)
+                FROM imaging_request_areas ira
+                INNER JOIN invoice_items ii ON ii.source_record_id = ira.id
+                  AND ii.source_record_type = 'ImagingRequestArea'
+                  AND ii.deleted_at IS NULL
+                WHERE ira.imaging_request_id = "ImagingRequest".id
+                  AND ira.deleted_at IS NULL
+                HAVING COUNT(*) > 0
+              ),
+              -- ImagingRequest invoice items (used if area items returned NULL)
+              (
+                SELECT BOOL_AND(ii.approved)
+                FROM invoice_items ii
+                WHERE ii.source_record_id = "ImagingRequest".id
+                  AND ii.source_record_type = 'ImagingRequest'
+                  AND ii.deleted_at IS NULL
+                HAVING COUNT(*) > 0
+              )
+            )
+          )`),
+            'approved',
           ],
         ],
       },
