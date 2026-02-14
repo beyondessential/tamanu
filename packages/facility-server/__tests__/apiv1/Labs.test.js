@@ -666,7 +666,7 @@ describe('Labs', () => {
       return { labRequest, labTests };
     };
 
-    it('should return null for approved when no invoice items exist', async () => {
+    it('should be empty when no invoice items exist', async () => {
       await models.LabRequest.truncate({ cascade: true, force: true });
       const { labRequest } = await createLabRequestWithoutPanel();
 

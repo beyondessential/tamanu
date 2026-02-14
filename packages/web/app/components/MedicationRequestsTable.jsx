@@ -254,13 +254,8 @@ export const MedicationRequestsTable = () => {
     },
     {
       key: 'prescription.invoiceItem.approved',
-      title: (
-        <TranslatedText
-          stringId="general.label.approved"
-          fallback="Approved"
-        />
-      ),
-      accessor: ({ approved }) => getApprovalStatus(approved),
+      title: <TranslatedText stringId="general.label.approved" fallback="Approved" />,
+      accessor: ({ prescription }) => getApprovalStatus(prescription?.invoiceItem?.approved),
       sortable: true,
     },
     {
