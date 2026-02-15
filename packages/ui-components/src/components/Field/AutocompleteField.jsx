@@ -431,7 +431,6 @@ export class AutocompleteInput extends Component {
           fullWidth
           value={value}
           disabled={disabled}
-          style={{ ...other.style, color: disabled ? TAMANU_COLORS.softText : other.style?.color }}
           {...other}
         />
       </OuterLabelFieldWrapper>
