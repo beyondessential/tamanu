@@ -49,7 +49,7 @@ export const getTranslatedFrequencySynonyms = (frequenciesEnabled, getTranslatio
   const result = {};
   Object.entries(ADMINISTRATION_FREQUENCY_SYNONYMS).forEach(([frequency, synonyms]) => {
     if (!frequenciesEnabled?.[frequency]) return;
-    const labelKey = getTranslation(
+    const translatedLabel = getTranslation(
       `medication.frequency.${camelCase(frequency)}.label`,
       frequency,
     );
@@ -58,7 +58,7 @@ export const getTranslatedFrequencySynonyms = (frequenciesEnabled, getTranslatio
       getTranslation(`medication.frequency.${camelCase(frequency)}.synonym.${index}`, synonym),
     );
 
-    result[labelKey] = translatedSynonyms;
+    result[frequency] = { label: translatedLabel, synonyms: translatedSynonyms };
   });
 
   return result;

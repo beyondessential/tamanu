@@ -7,10 +7,10 @@ import { getTranslatedFrequencySynonyms } from '../../utils/medications';
 import { useSettings } from '../../contexts/Settings';
 
 const getFrequencySuggestions = synonyms => {
-  return Object.entries(synonyms).map(([key, value]) => ({
-    label: `${key} (${value[0]})`,
+  return Object.entries(synonyms).map(([key, { label, synonyms: syn }]) => ({
+    label: `${label} (${syn[0]})`,
     value: key,
-    synonyms: value,
+    synonyms: syn,
   }));
 };
 

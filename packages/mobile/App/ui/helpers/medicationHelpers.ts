@@ -9,8 +9,8 @@ import { addDays, format, isSameDay, set } from 'date-fns';
 export const getTranslatedFrequencySynonyms = (
   frequenciesEnabled: Record<string, boolean> | undefined,
   getTranslation: (key: string, fallback: string) => string,
-): Record<string, string[]> => {
-  const result: Record<string, string[]> = {};
+): Record<string, { label: string; synonyms: string[] }> => {
+  const result: Record<string, { label: string; synonyms: string[] }> = {};
 
   Object.entries(ADMINISTRATION_FREQUENCY_SYNONYMS).forEach(([frequency, synonyms]) => {
     // If frequenciesEnabled is provided, filter out disabled frequencies
@@ -18,30 +18,28 @@ export const getTranslatedFrequencySynonyms = (
       return;
     }
 
-    // Use the frequency itself as the key/label
-    const labelKey = getTranslation(
+    const translatedLabel = getTranslation(
       `medication.frequency.${camelCase(frequency)}.label`,
       frequency,
     );
 
-    // Translate synonyms (for now, just use the synonyms as-is since mobile doesn't have complex translation setup)
     const translatedSynonyms = synonyms.map((synonym, index) =>
       getTranslation(`medication.frequency.${camelCase(frequency)}.synonym.${index}`, synonym),
     );
 
-    result[labelKey] = translatedSynonyms;
+    result[frequency] = { label: translatedLabel, synonyms: translatedSynonyms };
   });
 
   return result;
 };
 
 export const getFrequencySuggestions = (
-  synonyms: Record<string, string[]>,
+  synonyms: Record<string, { label: string; synonyms: string[] }>,
 ): FrequencySuggestion[] => {
-  return Object.entries(synonyms).map(([key, value]) => ({
-    label: `${key} (${value[0]})`,
+  return Object.entries(synonyms).map(([key, { label, synonyms: syn }]) => ({
+    label: `${label} (${syn[0]})`,
     value: key,
-    synonyms: value,
+    synonyms: syn,
   }));
 };
 
