@@ -24,7 +24,7 @@ import {
   LocalisedLocationField,
   SwitchField,
 } from '../../Field';
-import { FormGrid, Form } from '@tamanu/ui-components';
+import { FormGrid, Form, useDateTime } from '@tamanu/ui-components';
 import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import {
@@ -95,6 +95,7 @@ const StyledButton = styled(Button)`
 `;
 
 export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) => {
+  const { getCurrentDate } = useDateTime();
   const { getTranslation } = useTranslation();
   const { updateSelectedCell } = useLocationAssignmentsContext();
   const { getSetting } = useSettings();
@@ -410,7 +411,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
       const { untilDate: initialUntilDate } = initialValues.schedule || {};
       setFieldValue(
         'schedule.untilDate',
-        initialUntilDate || toDateString(add(new Date(), { months: maxFutureMonths })),
+        initialUntilDate || toDateString(add(parseISO(getCurrentDate()), { months: maxFutureMonths })),
       );
     };
 
@@ -520,7 +521,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
               />
             }
             component={DateField}
-            max={toDateString(add(new Date(), { months: 24 }))}
+            max={toDateString(add(parseISO(getCurrentDate()), { months: 24 }))}
             onChange={handleUpdateDate}
             required
             saveDateAsString
@@ -560,7 +561,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
           {values.isRepeatingAssignment && !hideRepeatingFields && (
             <RepeatingFields
               schedule={values.schedule}
-              startTime={values.date || toDateString(new Date())}
+              startTime={values.date || getCurrentDate()}
               setFieldValue={setFieldValue}
               setFieldError={setFieldError}
               handleResetRepeatUntilDate={handleResetRepeatUntilDate}

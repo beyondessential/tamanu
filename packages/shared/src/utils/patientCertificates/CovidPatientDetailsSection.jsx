@@ -3,7 +3,7 @@ import { Col, Row, VDSImage } from './Layout';
 import { P } from './Typography';
 import { getDobWithAge, getNationality, getPassportNumber } from '../patientAccessors';
 import { useLanguageContext } from '../pdf/languageContext';
-import { useDateTimeFormat } from '../pdf/withDateTimeContext';
+import { useDateTime } from '../pdf/withDateTimeContext';
 
 const PATIENT_FIELDS = [
   { key: 'firstName', label: 'First name' },
@@ -27,7 +27,7 @@ export const CovidPatientDetailsSection = ({
   uvci,
 }) => {
   const { getTranslation } = useLanguageContext();
-  const { formatShort } = useDateTimeFormat();
+  const { formatShort } = useDateTime();
   const detailsToDisplay = [...PATIENT_FIELDS, ...extraFields].filter(
     ({ key }) => !getSetting(`fields.${key}.hidden`),
   );

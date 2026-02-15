@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useContext, useState } from 'react';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { useDateTime } from '@tamanu/ui-components';
 import { useApi } from '../api';
 
 const LabRequestContext = createContext({
@@ -36,6 +36,7 @@ export const useLabRequest = (key = LabRequestSearchParamKeys.Other) => {
 };
 
 export const LabRequestProvider = ({ children }) => {
+  const { getCurrentDateTime } = useDateTime();
   const [labRequest, setLabRequest] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [searchParameters, setSearchParameters] = useState({
@@ -62,7 +63,7 @@ export const LabRequestProvider = ({ children }) => {
       update.userId = api.user.id;
     }
     if (data.status === LAB_REQUEST_STATUSES.PUBLISHED) {
-      update.publishedDate = getCurrentDateTimeString();
+      update.publishedDate = getCurrentDateTime();
     }
 
     await api.put(`labRequest/${labRequestId}`, update);

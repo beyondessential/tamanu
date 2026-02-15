@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLanguageContext } from '../pdf/languageContext';
-import { useDateTimeFormat } from '../pdf/withDateTimeContext';
+import { useDateTime } from '../pdf/withDateTimeContext';
 import { Divider } from './Divider';
 import { Col, Row } from '../patientCertificates/Layout';
 import { P } from '../patientCertificates/Typography';
@@ -40,7 +40,7 @@ export const HandoverPatient = ({
   isEdited,
 }) => {
   const { getTranslation } = useLanguageContext();
-  const { formatShort, formatShortest, formatShortDateTime } = useDateTimeFormat();
+  const { formatShort, formatShortest, formatShortDateTime } = useDateTime();
   const detailsToDisplay = PATIENT_FIELDS.filter(({ key }) => !getSetting(`fields.${key}.hidden`));
   return (
     <>

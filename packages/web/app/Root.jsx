@@ -30,33 +30,33 @@ import { createBrowserRouter, RouterProvider } from 'react-router';
 import { MedicationsProvider } from './contexts/Medications';
 
 const StateContextProviders = ({ children, store }) => (
-  <EncounterProvider store={store}>
-    <ImagingRequestsProvider>
-      <MedicationsProvider>
-        <EncounterNotesProvider>
-          <ProgramRegistryProvider>
-            <LabRequestProvider store={store}>
-              <PatientSearchProvider>
-                <SettingsProvider>
-                  <SyncStateProvider>
-                    <TranslationProvider>
-                      <LocalisationProvider store={store}>
-                        <AuthProvider>
-                          <DateTimeProvider>
+  <EncounterNotesProvider>
+    <AuthProvider>
+      <SettingsProvider>
+        <DateTimeProvider>
+          <EncounterProvider store={store}>
+            <ImagingRequestsProvider>
+              <MedicationsProvider>
+                <ProgramRegistryProvider>
+                  <LabRequestProvider store={store}>
+                    <PatientSearchProvider>
+                      <SyncStateProvider>
+                        <TranslationProvider>
+                          <LocalisationProvider store={store}>
                             <NoteModalProvider>{children}</NoteModalProvider>
-                          </DateTimeProvider>
-                        </AuthProvider>
-                      </LocalisationProvider>
-                    </TranslationProvider>
-                  </SyncStateProvider>
-                </SettingsProvider>
-              </PatientSearchProvider>
-            </LabRequestProvider>
-          </ProgramRegistryProvider>
-        </EncounterNotesProvider>
-      </MedicationsProvider>
-    </ImagingRequestsProvider>
-  </EncounterProvider>
+                          </LocalisationProvider>
+                        </TranslationProvider>
+                      </SyncStateProvider>
+                    </PatientSearchProvider>
+                  </LabRequestProvider>
+                </ProgramRegistryProvider>
+              </MedicationsProvider>
+            </ImagingRequestsProvider>
+          </EncounterProvider>
+        </DateTimeProvider>
+      </SettingsProvider>
+    </AuthProvider>
+  </EncounterNotesProvider>
 );
 
 const queryClient = new QueryClient({

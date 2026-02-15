@@ -11,11 +11,11 @@ import { DataSection } from './DataSection';
 import { DataItem } from './DataItem';
 import { Col } from '../Layout';
 import { useLanguageContext } from '../../pdf/languageContext';
-import { useDateTimeFormat } from '../../pdf/withDateTimeContext';
+import { useDateTime } from '../../pdf/withDateTimeContext';
 
 export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsurer }) => {
   const { getTranslation } = useLanguageContext();
-  const { formatShort } = useDateTimeFormat();
+  const { formatShort } = useDateTime();
   const {
     additionalData: { insurer, insurerPolicyNumber },
   } = patient;

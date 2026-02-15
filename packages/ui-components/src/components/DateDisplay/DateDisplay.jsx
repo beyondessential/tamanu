@@ -9,7 +9,7 @@ import {
 
 import { TAMANU_COLORS } from '../../constants';
 import { ThemedTooltip } from '../Tooltip';
-import { useDateTimeFormat } from '../../contexts';
+import { useDateTime } from '../../contexts';
 import { DiagnosticInfo } from './DiagnosticInfo';
 
 const Text = styled(Typography)`
@@ -98,7 +98,7 @@ const WEEKDAY_FORMATS = {
 };
 
 const useFormattedDate = (dateValue, { dateFormat, timeFormat, weekdayFormat }) => {
-  const formatters = useDateTimeFormat();
+  const formatters = useDateTime();
   const parts = [];
 
   if (weekdayFormat) {
@@ -140,7 +140,7 @@ const useFormattedDate = (dateValue, { dateFormat, timeFormat, weekdayFormat }) 
  */
 export const TimeDisplay = React.memo(
   ({ date: dateValue, format: timeFormat = 'default', noTooltip = false, style, ...props }) => {
-    const { countryTimeZone, facilityTimeZone } = useDateTimeFormat();
+    const { countryTimeZone, facilityTimeZone } = useDateTime();
     const displayTime = useFormattedDate(dateValue, { timeFormat });
 
     const content = (
@@ -218,7 +218,7 @@ export const DateDisplay = React.memo(
     timeOnlyTooltip = false,
     ...props
   }) => {
-    const { countryTimeZone, facilityTimeZone } = useDateTimeFormat();
+    const { countryTimeZone, facilityTimeZone } = useDateTime();
 
     const displayDate = useFormattedDate(dateValue, {
       dateFormat,

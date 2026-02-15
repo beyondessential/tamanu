@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { TextField, Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
+import { TextField, Form, FormGrid, FormSubmitCancelRow, useDateTime } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { AutocompleteField, DateField, Field } from '../components/Field';
 import { foreignKey, optionalForeignKey } from '../utils/validation';
@@ -15,8 +14,23 @@ export const FamilyHistoryForm = ({
   practitionerSuggester,
   editedObject,
   onSubmit,
-}) => (
-  <Form
+}) => {
+  const { getCurrentDate } = useDateTime();
+  
+  const getInitialValues = () => {
+    if (editedObject) {
+      // Currently the recordedDate is a dateTime type in the database, so we need to convert it to date type
+      // for now to avoid timezone conversion
+      return {
+        ...editedObject,
+        recordedDate: editedObject.recordedDate?.slice(0, 10),
+      };
+    }
+    return {
+      recordedDate: getCurrentDate(),
+    };
+  };  
+  return (<Form
     onSubmit={onSubmit}
     render={({ submitForm }) => (
       <FormGrid columns={1} data-testid="formgrid-kjns">
@@ -111,10 +125,7 @@ export const FamilyHistoryForm = ({
         </NoteModalActionBlocker>
       </FormGrid>
     )}
-    initialValues={{
-      recordedDate: getCurrentDateTimeString(),
-      ...editedObject,
-    }}
+    initialValues={getInitialValues()}
     formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
     validationSchema={yup.object().shape({
       diagnosisId: foreignKey().translatedLabel(
@@ -137,8 +148,8 @@ export const FamilyHistoryForm = ({
         ),
     })}
     data-testid="form-gxqz"
-  />
-);
+  />);
+};
 
 FamilyHistoryForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,

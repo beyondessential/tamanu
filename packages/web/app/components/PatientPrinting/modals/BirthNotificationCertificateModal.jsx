@@ -7,7 +7,7 @@ import { isErrorUnknownAllow404s, useApi } from '../../../api';
 import { useCertificate } from '../../../utils/useCertificate';
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
 
-import { useDateTimeFormat } from '@tamanu/ui-components';
+import { useDateTime } from '@tamanu/ui-components';
 import { BirthNotificationCertificate } from '@tamanu/shared/utils/patientCertificates';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { useTranslation } from '../../../contexts/Translation';
@@ -84,7 +84,7 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);
   const api = useApi();
   const { facilityId } = useAuth();
-  const { countryTimeZone } = useDateTimeFormat();
+  const { countryTimeZone } = useDateTime();
   const { storedLanguage, translations } = useTranslation();
   const { getSetting } = useSettings();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();

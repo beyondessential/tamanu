@@ -5,9 +5,8 @@ import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import { useQueryClient } from '@tanstack/react-query';
 import { subject } from '@casl/ability';
 import { PROGRAM_DATA_ELEMENT_TYPES, SETTING_KEYS, FORM_TYPES } from '@tamanu/constants';
-import { SurveyQuestion, getValidationSchema, BaseSelectField, Form, FormSubmitCancelRow, FormGrid } from '@tamanu/ui-components';
+import { SurveyQuestion, getValidationSchema, BaseSelectField, Form, FormSubmitCancelRow, FormGrid, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../constants/styles';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { DateDisplay, FormSeparatorLine, TranslatedText } from '../components';
 import { Field, OuterLabelFieldWrapper } from '../components/Field';
 import { useApi } from '../api';
@@ -126,6 +125,7 @@ export const EditVitalCellForm = ({
   isPatientRemoved = false,
 }) => {
   const { getTranslation } = useTranslation();
+  const { getCurrentDateTime } = useDateTime();
   const [isDeleted, setIsDeleted] = useState(false);
   const api = useApi();
   const queryClient = useQueryClient();
@@ -159,7 +159,7 @@ export const EditVitalCellForm = ({
   );
   const handleSubmit = async data => {
     const newShapeData = {
-      date: getCurrentDateTimeString(),
+      date: getCurrentDateTime(),
       surveyId: dataPoint.component.surveyId,
     };
     Object.entries(data).forEach(([key, value]) => {

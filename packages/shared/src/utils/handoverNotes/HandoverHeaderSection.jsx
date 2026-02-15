@@ -2,11 +2,11 @@ import React from 'react';
 import { Box, Logo } from '../patientCertificates/Layout';
 import { H1, H3 } from '../patientCertificates/Typography';
 import { Divider } from './Divider';
-import { useDateTimeFormat } from '../pdf/withDateTimeContext';
+import { useDateTime } from '../pdf/withDateTimeContext';
 
 export const HandoverHeaderSection = ({ letterheadConfig, logoSrc, locationGroupName }) => {
   const { title, subTitle } = letterheadConfig;
-  const { formatShortestDateTime } = useDateTimeFormat();
+  const { formatShortestDateTime } = useDateTime();
   return (
     <>
       {logoSrc && <Logo logoSrc={logoSrc} />}

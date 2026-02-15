@@ -3,8 +3,8 @@ import { startCase } from 'lodash';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { pluralize } from 'inflection';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants/forms';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Form, FormSubmitButton, ButtonRow, FormGrid } from '@tamanu/ui-components';
 
 import { useApi } from '../../../api';

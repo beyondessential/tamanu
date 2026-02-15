@@ -9,7 +9,7 @@ import { LetterheadSection } from './LetterheadSection';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
 import { Footer } from './printComponents/Footer';
-import { withDateTimeContext, useDateTimeFormat } from '../pdf/withDateTimeContext';
+import { withDateTimeContext, useDateTime } from '../pdf/withDateTimeContext';
 import { InvoiceDetails } from './printComponents/InvoiceDetails';
 import {
   getInvoiceItemPriceDisplay,
@@ -646,7 +646,7 @@ const InvoiceRecordPrintoutComponent = ({
   invoice,
   enablePatientInsurer,
 }) => {
-  const { formatShort } = useDateTimeFormat();
+  const { formatShort } = useDateTime();
   const formatters = { formatShort };
   const { watermark, logo, footerImg } = certificateData;
   const patientPayments = getPatientPaymentsWithRemainingBalanceDisplay(invoice);

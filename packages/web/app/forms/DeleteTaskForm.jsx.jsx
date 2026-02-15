@@ -3,7 +3,7 @@ import { Divider } from '@material-ui/core';
 import * as yup from 'yup';
 
 import { TASK_DELETE_BY_SYSTEM_REASON, FORM_TYPES } from '@tamanu/constants';
-import { Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
+import { Form, FormGrid, FormSubmitCancelRow, useDateTime } from '@tamanu/ui-components';
 
 import {
   AutocompleteField,
@@ -13,11 +13,12 @@ import {
 } from '../components';
 import { useSuggester } from '../api';
 import { useDeleteTask } from '../api/mutations/useTaskMutation';
-import { getCurrentDateTimeString } from '../utils/dateTime';
 import { useAuth } from '../contexts/Auth';
 import { useTranslation } from '../contexts/Translation';
 
 export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
+  const { formatForDateTimeInput, getCurrentDateTime } =
+    useDateTime();
   const { getTranslation } = useTranslation();
   const practitionerSuggester = useSuggester('practitioner');
   const taskDeletionReasonSuggester = useSuggester('taskDeletionReason');
@@ -75,7 +76,7 @@ export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
               required
               saveDateAsString
               component={DateTimeField}
-              max={getCurrentDateTimeString()}
+              max={getCurrentDateTime()}
               data-testid="field-bnve"
             />
             <Field
@@ -131,7 +132,7 @@ export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
             />,
           )
           .max(
-            getCurrentDateTimeString(),
+            formatForDateTimeInput(getCurrentDateTime()),
             getTranslation(
               'general.validation.date.cannotInFuture',
               'Date cannot be in the future',
@@ -140,7 +141,7 @@ export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
         deletedReasonId: yup.string(),
       })}
       initialValues={{
-        deletedTime: getCurrentDateTimeString(),
+        deletedTime: getCurrentDateTime(),
         deletedByUserId: currentUser?.id,
       }}
       data-testid="form-nv8b"

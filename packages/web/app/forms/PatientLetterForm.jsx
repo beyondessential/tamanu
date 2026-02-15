@@ -2,7 +2,6 @@ import React, { useCallback, useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 
-import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import {
   MultilineTextField,
   TextField,
@@ -12,6 +11,7 @@ import {
   FormGrid,
   ModalLoader,
   TranslatedText,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { useApi, useSuggester } from '../api';
 import { useAuth } from '../contexts/Auth';
@@ -84,6 +84,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
           suggester={practitionerSuggester}
           data-testid="field-ytix"
         />
+        {/* TODO: this date goes nowhere behind scenes */ }
         <Field
           name="date"
           label={
@@ -176,6 +177,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
 
 export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, patient }) => {
   const { currentUser, facilityId } = useAuth();
+  const { getCurrentDate } = useDateTime();
   const api = useApi();
 
   const handleSubmit = useCallback(
@@ -223,7 +225,8 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, 
       onSubmit={handleSubmit}
       render={renderForm}
       initialValues={{
-        date: getCurrentDateString(),
+        // TODO: this goes nowhere
+        date: getCurrentDate(),
         clinicianId: currentUser.id,
         ...editedObject,
       }}

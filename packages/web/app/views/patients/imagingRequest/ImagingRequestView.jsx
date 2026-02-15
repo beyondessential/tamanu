@@ -11,7 +11,6 @@ import {
   NOTE_TYPES,
   FORM_TYPES,
 } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import {
   TextField,
@@ -22,6 +21,7 @@ import {
   FormGrid,
   Button,
   FormSubmitButton,
+  useDateTime,
 } from '@tamanu/ui-components';
 
 import { ENCOUNTER_TAB_NAMES } from '../../../constants/encounterTabNames';
@@ -345,6 +345,7 @@ const ImagingResultsSection = ({ results }) => {
 const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
   const api = useApi();
   const { facilityId } = useAuth();
+  const { getCurrentDateTime } = useDateTime();
 
   const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
   const getCanAddResult = values => values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
@@ -369,7 +370,7 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
       initialValues={{
         ...imagingRequest,
         newResult: {
-          completedAt: getCurrentDateTimeString(),
+          completedAt: getCurrentDateTime(),
         },
       }}
       validationSchema={yup.object().shape({

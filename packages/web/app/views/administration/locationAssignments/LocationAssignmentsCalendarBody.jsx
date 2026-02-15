@@ -9,7 +9,7 @@ import { SkeletonRows } from '../../scheduling/locationBookings/Skeletons';
 import { generateIdFromCell } from './utils';
 import { Colors } from '../../../constants';
 import { useAuth } from '../../../contexts/Auth';
-import { useDateTimeFormat, TranslatedReferenceData } from '@tamanu/ui-components';
+import { useDateTime, TranslatedReferenceData } from '@tamanu/ui-components';
 
 const AssignmentTile = styled.div`
   background: ${Colors.white};
@@ -38,7 +38,7 @@ const AssignmentUser = styled.div`
 `;
 
 export const LocationAssignmentTile = ({ assignment, onClick }) => {
-  const { formatTimeCompact } = useDateTimeFormat();
+  const { formatTimeCompact } = useDateTime();
   const { user, startTime, endTime } = assignment;
   const { ability } = useAuth();
   const hasReadPermission = ability?.can?.('read', 'LocationSchedule');

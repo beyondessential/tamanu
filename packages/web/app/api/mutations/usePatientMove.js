@@ -1,9 +1,10 @@
 import { useMutation } from '@tanstack/react-query';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { useDateTime } from '@tamanu/ui-components';
 import { useApi } from '../useApi';
 import { useEncounter } from '../../contexts/Encounter';
 
 export const usePatientMove = (encounterId, onClose) => {
+  const { getCurrentDateTime } = useDateTime();
   const api = useApi();
   const { loadEncounter } = useEncounter();
 
@@ -12,7 +13,7 @@ export const usePatientMove = (encounterId, onClose) => {
     mutationFn: async (data) => {
       await api.put(`encounter/${encounterId}`, {
         ...data,
-        submittedTime: getCurrentDateTimeString(),
+        submittedTime: getCurrentDateTime(),
       });
     },
     onSuccess: async () => {

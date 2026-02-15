@@ -1,223 +1,96 @@
-import { format } from 'date-fns';
-import { formatInTimeZone, fromZonedTime } from 'date-fns-tz';
+import { intlFormatDate } from './dateTime';
 
-import { intlFormatDate, parseDate } from './dateTime';
+type DateInput = string | Date | null | undefined;
+
+const createFormatter =
+  (
+    formatOptions: Intl.DateTimeFormatOptions,
+    fallback: string,
+    transform?: (result: string) => string,
+  ) =>
+  (date: DateInput, countryTimeZone?: string, facilityTimeZone?: string | null): string => {
+    const result = intlFormatDate(date, formatOptions, fallback, countryTimeZone, facilityTimeZone);
+    return transform ? transform(result) : result;
+  };
+
+const compactTime = (s: string) => s.replace(' ', '').toLowerCase();
 
 /** "12/04/24" */
-export const formatShortest = (
-  date: string | Date | null | undefined,
-  countryTimeZone?: string,
-  facilityTimeZone?: string | null,
-) =>
-  intlFormatDate(
-    date,
-    { month: '2-digit', day: '2-digit', year: '2-digit' },
-    '--/--',
-    countryTimeZone,
-    facilityTimeZone,
-  );
+export const formatShortest = createFormatter(
+  { month: '2-digit', day: '2-digit', year: '2-digit' },
+  '--/--',
+);
 
 /** "12/04/2020" */
-export const formatShort = (
-  date: string | Date | null | undefined,
-  countryTimeZone?: string,
-  facilityTimeZone?: string | null,
-) =>
-  intlFormatDate(
-    date,
-    { day: '2-digit', month: '2-digit', year: 'numeric' },
-    '--/--/----',
-    countryTimeZone,
-    facilityTimeZone,
-  );
+export const formatShort = createFormatter(
+  { day: '2-digit', month: '2-digit', year: 'numeric' },
+  '--/--/----',
+);
 
 /** "12:30 am" */
-export const formatTime = (
-  date: string | Date | null | undefined,
-  countryTimeZone?: string,
-  facilityTimeZone?: string | null,
-) =>
-  intlFormatDate(
-    date,
-    {
-      timeStyle: 'short',
-      hour12: true,
-    },
-    '__:__',
-    countryTimeZone,
-    facilityTimeZone,
-  );
+export const formatTime = createFormatter({ timeStyle: 'short', hour12: true }, '__:__');
 
 /** "12:30:00 am" */
-export const formatTimeWithSeconds = (
-  date: string | Date | null | undefined,
-  countryTimeZone?: string,
-  facilityTimeZone?: string | null,
-) =>
-  intlFormatDate(
-    date,
-    {
-      timeStyle: 'medium',
-      hour12: true,
-    },
-    '__:__:__',
-    countryTimeZone,
-    facilityTimeZone,
-  );
+export const formatTimeWithSeconds = createFormatter(
+  { timeStyle: 'medium', hour12: true },
+  '__:__:__',
+);
 
 /** "3pm" - hour only, no minutes or seconds */
-export const formatTimeSlot = (
-  date: string | Date | null | undefined,
-  countryTimeZone?: string,
-  facilityTimeZone?: string | null,
-) => {
-  const result = intlFormatDate(
-    date,
-    { hour: 'numeric', hour12: true },
-    '__',
-    countryTimeZone,
-    facilityTimeZone,
-  );
-  return result.replace(' ', '').toLowerCase();
-};
+export const formatTimeSlot = createFormatter({ hour: 'numeric', hour12: true }, '__', compactTime);
 
-/** "3:30pm" - time with minutes and seconds, no space */
-export const formatTimeCompact = (
-  date: string | Date | null | undefined,
-  countryTimeZone?: string,
-  facilityTimeZone?: string | null,
-) => {
-  const result = intlFormatDate(
-    date,
-    { hour: 'numeric', minute: '2-digit', hour12: true },
-    '__:__',
-    countryTimeZone,
-    facilityTimeZone,
-  );
-  return result.replace(' ', '').toLowerCase();
-};
+/** "3:30pm" - time with minutes, no space */
+export const formatTimeCompact = createFormatter(
+  { hour: 'numeric', minute: '2-digit', hour12: true },
+  '__:__',
+  compactTime,
+);
 
 /** "Thursday, 14 July 2022, 03:44 pm" */
-export const formatLong = (
-  date: string | Date | null | undefined,
-  countryTimeZone?: string,
-  facilityTimeZone?: string | null,
-) =>
-  intlFormatDate(
-    date,
-    {
-      timeStyle: 'short',
-      dateStyle: 'full',
-      hour12: true,
-    },
-    'Date information not available',
-    countryTimeZone,
-    facilityTimeZone,
-  );
+export const formatLong = createFormatter(
+  { timeStyle: 'short', dateStyle: 'full', hour12: true },
+  'Date information not available',
+);
 
-/** "Thu" - 3 letter weekday abbreviation */
-export const formatWeekdayShort = (
-  date: string | Date | null | undefined,
-  countryTimeZone?: string,
-  facilityTimeZone?: string | null,
-) => intlFormatDate(date, { weekday: 'short' }, 'Unknown', countryTimeZone, facilityTimeZone);
+/** "Thu" */
+export const formatWeekdayShort = createFormatter({ weekday: 'short' }, 'Unknown');
 
-/** "Thursday" - full weekday name */
-export const formatWeekdayLong = (
-  date: string | Date | null | undefined,
-  countryTimeZone?: string,
-  facilityTimeZone?: string | null,
-) => intlFormatDate(date, { weekday: 'long' }, 'Unknown', countryTimeZone, facilityTimeZone);
+/** "Thursday" */
+export const formatWeekdayLong = createFormatter({ weekday: 'long' }, 'Unknown');
 
-/** "M" - single letter weekday */
-export const formatWeekdayNarrow = (
-  date: string | Date | null | undefined,
-  countryTimeZone?: string,
-  facilityTimeZone?: string | null,
-) => intlFormatDate(date, { weekday: 'narrow' }, 'Unknown', countryTimeZone, facilityTimeZone);
+/** "M" */
+export const formatWeekdayNarrow = createFormatter({ weekday: 'narrow' }, 'Unknown');
 
-/** "15 January 2024" - date with full month and year */
-export const formatFullDate = (
-  date: string | Date | null | undefined,
-  countryTimeZone?: string,
-  facilityTimeZone?: string | null,
-) =>
-  intlFormatDate(
-    date,
-    { day: 'numeric', month: 'long', year: 'numeric' },
-    'Unknown',
-    countryTimeZone,
-    facilityTimeZone,
-  );
+/** "15 January 2024" */
+export const formatFullDate = createFormatter(
+  { day: 'numeric', month: 'long', year: 'numeric' },
+  'Unknown',
+);
 
-/** "Jan 15, 2024" - medium date style with explicit month name (unambiguous across locales) */
-export const formatShortExplicit = (
-  date: string | Date | null | undefined,
-  countryTimeZone?: string,
-  facilityTimeZone?: string | null,
-) => intlFormatDate(date, { dateStyle: 'medium' }, 'Unknown', countryTimeZone, facilityTimeZone);
+/** "Jan 15, 2024" */
+export const formatShortExplicit = createFormatter({ dateStyle: 'medium' }, 'Unknown');
 
-/** "12 Apr 24" - short date with explicit month name (unambiguous across locales) */
-export const formatShortestExplicit = (
-  date: string | Date | null | undefined,
-  countryTimeZone?: string,
-  facilityTimeZone?: string | null,
-) =>
-  intlFormatDate(
-    date,
-    { year: '2-digit', month: 'short', day: 'numeric' },
-    'Unknown',
-    countryTimeZone,
-    facilityTimeZone,
-  );
+/** "12 Apr 24" */
+export const formatShortestExplicit = createFormatter(
+  { year: '2-digit', month: 'short', day: 'numeric' },
+  'Unknown',
+);
 
-/** "15 Mar" - day and short month name (no year) */
-export const formatDayMonth = (
-  date: string | Date | null | undefined,
-  countryTimeZone?: string,
-  facilityTimeZone?: string | null,
-) =>
-  intlFormatDate(
-    date,
-    { month: 'short', day: 'numeric' },
-    'Unknown',
-    countryTimeZone,
-    facilityTimeZone,
-  );
+/** "15 Mar" */
+export const formatDayMonth = createFormatter({ month: 'short', day: 'numeric' }, 'Unknown');
 
-/** "12/04/2024 12:30 am" - short date with time */
+/** "12/04/2024 12:30 am" */
 export const formatShortDateTime = (
-  date: string | Date | null | undefined,
+  date: DateInput,
   countryTimeZone?: string,
   facilityTimeZone?: string | null,
-) => {
-  const dateStr = formatShort(date, countryTimeZone, facilityTimeZone);
-  const timeStr = formatTime(date, countryTimeZone, facilityTimeZone);
-  return `${dateStr} ${timeStr}`;
-};
+) =>
+  `${formatShort(date, countryTimeZone, facilityTimeZone)} ${formatTime(date, countryTimeZone, facilityTimeZone)}`;
 
-/** "12/04/24 12:30 am" - shortest date with time */
+/** "12/04/24 12:30 am" */
 export const formatShortestDateTime = (
-  date: string | Date | null | undefined,
+  date: DateInput,
   countryTimeZone?: string,
   facilityTimeZone?: string | null,
-) => {
-  const dateStr = formatShortest(date, countryTimeZone, facilityTimeZone);
-  const timeStr = formatTime(date, countryTimeZone, facilityTimeZone);
-  return `${dateStr} ${timeStr}`;
-};
-
-/** "2024-01-15T14:30" - for HTML datetime-local input elements */
-export const formatDateTimeLocal = (
-  date: string | Date | null | undefined,
-  countryTimeZone?: string,
-  facilityTimeZone?: string | null,
-) => {
-  if (date == null) return null;
-  const tz = facilityTimeZone ?? countryTimeZone;
-  const dateObj =
-    facilityTimeZone && countryTimeZone ? fromZonedTime(date, countryTimeZone) : parseDate(date);
-  if (!dateObj) return null;
-  if (!tz) return format(dateObj, "yyyy-MM-dd'T'HH:mm");
-  return formatInTimeZone(dateObj, tz, "yyyy-MM-dd'T'HH:mm");
-};
+) =>
+  `${formatShortest(date, countryTimeZone, facilityTimeZone)} ${formatTime(date, countryTimeZone, facilityTimeZone)}`;

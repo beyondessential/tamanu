@@ -23,7 +23,8 @@ import {
   type DurationUnit,
   type Interval,
 } from 'date-fns';
-import { fromZonedTime } from 'date-fns-tz';
+import { has } from 'lodash';
+import { Temporal } from 'temporal-polyfill';
 import { z } from 'zod';
 
 import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
@@ -93,10 +94,6 @@ export const getCurrentDateTimeString = () => formatISO9075(new Date());
 export const getDateTimeSubtractedFromNow = (daysToSubtract: number) => {
   return toDateTimeString(sub(new Date(), { days: daysToSubtract }));
 };
-
-// export const getDateSubtractedFromToday = (daysToSubtract: number) => {
-//   return toDateTimeString(sub(startOfDay(new Date()), { days: daysToSubtract }));
-// };
 
 export const getCurrentDateString = () => formatISO9075(new Date(), { representation: 'date' });
 
@@ -250,6 +247,54 @@ export const differenceInMilliseconds = (a: number | string | Date, b: number | 
 
 export const locale = globalThis.navigator?.language ?? 'default';
 
+const pad = (n: number) => String(n).padStart(2, '0');
+
+const toISO9075DateTime = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) => {
+  const { year, month, day, hour, minute, second } = dt;
+  const yyyy = String(year).padStart(4, '0');
+  return `${yyyy}-${pad(month)}-${pad(day)} ${pad(hour)}:${pad(minute)}:${pad(second)}`;
+};
+
+const toDateTimeLocalFormat = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) => {
+  const { year, month, day, hour, minute, second } = dt;
+  const yyyy = String(year).padStart(4, '0');
+  const base = `${yyyy}-${pad(month)}-${pad(day)}T${pad(hour)}:${pad(minute)}`;
+  return second !== 0 ? `${base}:${pad(second)}` : base;
+};
+
+const parseDateTimeString = (date: string, countryTimeZone?: string): Temporal.PlainDateTime => {
+  const normalized = date.replace(' ', 'T');
+  if (/[Zz]$/.test(normalized)) {
+    const instant = Temporal.Instant.from(normalized);
+    const tz = countryTimeZone ?? Temporal.Now.timeZoneId();
+    return instant.toZonedDateTimeISO(tz).toPlainDateTime();
+  }
+  return Temporal.PlainDateTime.from(normalized);
+};
+
+const getDisplayTimezone = (countryTimeZone?: string, facilityTimeZone?: string | null) =>
+  facilityTimeZone ?? countryTimeZone;
+
+const isTimezoneError = (error: unknown): boolean =>
+  error instanceof RangeError && /time\s*zone/i.test(String(error));
+
+const logDateError = (
+  fnName: string,
+  error: unknown,
+  value: unknown,
+  countryTimeZone?: string,
+  facilityTimeZone?: string | null,
+) => {
+  if (isTimezoneError(error)) {
+    console.error(
+      `[${fnName}] Invalid timezone configuration — countryTimeZone: ${JSON.stringify(countryTimeZone)}, facilityTimeZone: ${JSON.stringify(facilityTimeZone)}. Error:`,
+      error,
+    );
+  } else {
+    console.warn(`[${fnName}] Failed to process date value ${JSON.stringify(value)}:`, error);
+  }
+};
+
 export const intlFormatDate = (
   date: string | Date | null | undefined,
   formatOptions: Intl.DateTimeFormatOptions,
@@ -259,30 +304,37 @@ export const intlFormatDate = (
 ) => {
   if (!date) return fallback;
 
-  // Date objects: display in local time (no timezone conversion)
-  if (date instanceof Date) {
-    if (!isValid(date)) return fallback;
-    return date.toLocaleString(locale, formatOptions);
-  }
+  try {
+    if (date instanceof Date) {
+      if (!isValid(date)) return fallback;
+      return date.toLocaleString(locale, formatOptions);
+    }
 
-  // Date-only strings (e.g. DOB): display as-is, no timezone shift
-  // We use UTC here because the date-only string is not timezone aware and we want to display it with no offset
-  if (isISO9075DateString(date)) {
-    const dateObj = new Date(date);
-    if (!isValid(dateObj)) return fallback;
-    return dateObj.toLocaleString(locale, { ...formatOptions, timeZone: 'UTC' });
-  }
+    if (isISO9075DateString(date)) {
+      const plainDate = Temporal.PlainDate.from(date);
+      const timeKeys = ['hour', 'minute', 'second', 'timeStyle', 'dayPeriod'] as const;
+      const hasTimeOptions = timeKeys.some(key => has(formatOptions, key));
+      if (hasTimeOptions) {
+        return plainDate.toPlainDateTime().toLocaleString(locale, formatOptions);
+      }
+      return plainDate.toLocaleString(locale, formatOptions);
+    }
 
-  // Datetime strings: apply timezone conversion if timezone provided
-  const dateObj =
-    countryTimeZone && facilityTimeZone ? fromZonedTime(date, countryTimeZone) : parseDate(date);
-  if (!dateObj) return fallback;
+    const displayTz = getDisplayTimezone(countryTimeZone, facilityTimeZone);
+    const plain = parseDateTimeString(date, countryTimeZone);
 
-  const timeZone = facilityTimeZone ?? countryTimeZone;
-  if (timeZone) {
-    formatOptions.timeZone = timeZone;
+    if (countryTimeZone && displayTz) {
+      return plain
+        .toZonedDateTime(countryTimeZone)
+        .withTimeZone(displayTz)
+        .toLocaleString(locale, formatOptions);
+    }
+
+    return plain.toLocaleString(locale, formatOptions);
+  } catch (error) {
+    logDateError('intlFormatDate', error, date, countryTimeZone, facilityTimeZone);
+    return fallback;
   }
-  return dateObj.toLocaleString(locale, formatOptions);
 };
 
 export const isStartOfThisWeek = (date: Date | number) => {
@@ -362,3 +414,105 @@ export const eachDayInMonth = (date: Date) =>
     start: startOfMonth(date),
     end: endOfMonth(date),
   });
+
+/** Get current datetime string in a specific timezone */
+export const getCurrentDateTimeStringInTimezone = (timezone?: string) =>
+  toISO9075DateTime(Temporal.Now.zonedDateTimeISO(timezone ?? Temporal.Now.timeZoneId()));
+
+/** Get current date string in a specific timezone */
+export const getCurrentDateStringInTimezone = (timezone?: string) =>
+  Temporal.Now.plainDateISO(timezone ?? Temporal.Now.timeZoneId()).toString();
+
+/**
+ * Convert stored datetime (country timezone) to display format (facility timezone)
+ * Used when populating datetime-local inputs with existing values
+ */
+export const formatForDateTimeInput = (
+  value: string | Date | null | undefined,
+  countryTimeZone?: string,
+  facilityTimeZone?: string | null,
+): string | null => {
+  if (value == null) return null;
+
+  try {
+    const displayTz = getDisplayTimezone(countryTimeZone, facilityTimeZone);
+
+    if (value instanceof Date) {
+      if (!isValid(value)) return null;
+      const instant = Temporal.Instant.fromEpochMilliseconds(value.getTime());
+      return toDateTimeLocalFormat(
+        instant.toZonedDateTimeISO(displayTz ?? Temporal.Now.timeZoneId()),
+      );
+    }
+
+    if (isISO9075DateString(value)) {
+      // Must omit seconds to match toDateTimeLocalFormat and HTML datetime-local input values,
+      return `${value}T00:00`;
+    }
+
+    const plain = parseDateTimeString(value, countryTimeZone);
+    if (countryTimeZone && displayTz) {
+      return toDateTimeLocalFormat(plain.toZonedDateTime(countryTimeZone).withTimeZone(displayTz));
+    }
+
+    return toDateTimeLocalFormat(plain);
+  } catch (error) {
+    logDateError('formatForDateTimeInput', error, value, countryTimeZone, facilityTimeZone);
+    return null;
+  }
+};
+
+/**
+ * Convert input value (facility timezone) to storage format (country timezone)
+ * Used when saving datetime-local input values to the database
+ */
+export const toDateTimeStringForPersistence = (
+  inputValue: string | null | undefined,
+  countryTimeZone?: string,
+  facilityTimeZone?: string | null,
+): string | null => {
+  if (!inputValue) return null;
+
+  try {
+    if (/[Zz]$/.test(inputValue)) {
+      const instant = Temporal.Instant.from(inputValue.replace(' ', 'T'));
+      const tz = countryTimeZone ?? Temporal.Now.timeZoneId();
+      return toISO9075DateTime(instant.toZonedDateTimeISO(tz));
+    }
+
+    const plain = parseDateTimeString(inputValue, countryTimeZone);
+
+    if (!countryTimeZone) {
+      return toISO9075DateTime(plain);
+    }
+    const displayTz = facilityTimeZone ?? countryTimeZone;
+    return toISO9075DateTime(plain.toZonedDateTime(displayTz).withTimeZone(countryTimeZone));
+  } catch (error) {
+    logDateError(
+      'toDateTimeStringForPersistence',
+      error,
+      inputValue,
+      countryTimeZone,
+      facilityTimeZone,
+    );
+    return null;
+  }
+};
+
+export const getDayBoundaries = (
+  date: string,
+  countryTimeZone?: string,
+  facilityTimeZone?: string | null,
+) => {
+  const start = toDateTimeStringForPersistence(
+    `${date}T00:00:00`,
+    countryTimeZone,
+    facilityTimeZone,
+  );
+  const end = toDateTimeStringForPersistence(`${date}T23:59:59`, countryTimeZone, facilityTimeZone);
+  if (!start || !end) return null;
+  return {
+    start,
+    end,
+  };
+};

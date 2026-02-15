@@ -27,27 +27,28 @@ const CUSTOM_DATE = 'Custom Date';
 const DATE_FORMAT = 'yyyy-MM-dd';
 
 const options = [
-  {
-    value: 'Last 24 hours',
-    label: 'Last 24 hours',
-    getDefaultStartDate: () => addDays(new Date(), -1),
-  },
-  {
-    value: 'Last 48 hours',
-    label: 'Last 48 hours',
-    getDefaultStartDate: () => addDays(new Date(), -2),
-  },
-  {
-    value: CUSTOM_DATE,
-    label: 'Custom Date',
-    getDefaultStartDate: () => startOfDay(new Date()),
-    getDefaultEndDate: () => startOfDay(addDays(new Date(), 1)),
-  },
-];
+    {
+      value: 'Last 24 hours',
+      label: 'Last 24 hours',
+      getDefaultStartDate: () => addDays(new Date(), -1),
+    },
+    {
+      value: 'Last 48 hours',
+      label: 'Last 48 hours',
+      getDefaultStartDate: () => addDays(new Date(), -2),
+    },
+    {
+      value: CUSTOM_DATE,
+      label: 'Custom Date',
+      getDefaultStartDate: () => startOfDay(new Date()),
+      getDefaultEndDate: () => addDays(startOfDay(new Date()), 1),
+    },
+  ];
 
 export const DateTimeSelector = (props) => {
   const { dateRange, setDateRange } = props;
   const [startDateString] = dateRange;
+  
   const [value, setValue] = useState(options[0].value);
 
   const formatAndSetDateRange = useCallback(

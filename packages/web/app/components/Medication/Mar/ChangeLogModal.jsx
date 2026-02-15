@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { ConfirmCancelRow, TranslatedText, Modal, useDateTimeFormat } from '@tamanu/ui-components';
+import { ConfirmCancelRow, TranslatedText, Modal, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
@@ -68,7 +68,7 @@ const LABELS = {
 
 export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
   const [changeLogList, setChangeLogList] = useState([]);
-  const { formatTimeSlot, formatShortest } = useDateTimeFormat();
+  const { formatTimeSlot, formatShortest } = useDateTime();
   const { getEnumTranslation } = useTranslation();
 
   const { data } = useMarChangelogQuery(marId);

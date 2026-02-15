@@ -3,7 +3,7 @@ import { Divider } from '@material-ui/core';
 import * as yup from 'yup';
 
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
+import { Form, FormGrid, FormSubmitCancelRow, useDateTime } from '@tamanu/ui-components';
 
 import {
   AutocompleteField,
@@ -13,7 +13,6 @@ import {
 } from '../components';
 import { useSuggester } from '../api';
 import { useMarkTaskNotCompleted } from '../api/mutations/useTaskMutation';
-import { getCurrentDateTimeString } from '../utils/dateTime';
 import { useAuth } from '../contexts/Auth';
 import { useTranslation } from '../contexts/Translation';
 
@@ -23,6 +22,8 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
   const taskNotCompletedReasonSuggester = useSuggester('taskNotCompletedReason');
   const { currentUser, ability } = useAuth();
   const canCreateReferenceData = ability.can('create', 'ReferenceData');
+  const { formatForDateTimeInput, getCurrentDateTime } =
+    useDateTime();
 
   const { mutate: markTaskNotCompleted } = useMarkTaskNotCompleted();
 
@@ -77,7 +78,7 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
               required
               saveDateAsString
               component={DateTimeField}
-              max={getCurrentDateTimeString()}
+              max={getCurrentDateTime()}
               data-testid="field-sgto"
             />
             <Field
@@ -132,7 +133,7 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
             />,
           )
           .max(
-            getCurrentDateTimeString(),
+            formatForDateTimeInput(getCurrentDateTime()),
             getTranslation(
               'general.validation.date.cannotInFuture',
               'Date cannot be in the future',
@@ -141,7 +142,7 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
         notCompletedReasonId: yup.string(),
       })}
       initialValues={{
-        notCompletedTime: getCurrentDateTimeString(),
+        notCompletedTime: getCurrentDateTime(),
         notCompletedByUserId: currentUser?.id,
       }}
       data-testid="form-3cwo"

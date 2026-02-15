@@ -16,7 +16,7 @@ import {
   getTimeOfSwab,
 } from './labRequestAccessors';
 import { withLanguageContext } from '../pdf/languageContext';
-import { withDateTimeContext, useDateTimeFormat } from '../pdf/withDateTimeContext';
+import { withDateTimeContext, useDateTime } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 
 const columns = [
@@ -91,7 +91,7 @@ const CovidLabCertificateComponent = ({
   printedBy,
   certType,
 }) => {
-  const { formatShort, formatShortExplicit, formatTime } = useDateTimeFormat();
+  const { formatShort, formatShortExplicit, formatTime } = useDateTime();
   return (
     <Document>
       <Page size="A4" style={styles.page}>

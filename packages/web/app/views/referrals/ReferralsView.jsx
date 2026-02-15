@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { SURVEY_TYPES } from '@tamanu/constants';
-import { getAnswersFromData, FormGrid } from '@tamanu/ui-components';
+import { getAnswersFromData, FormGrid, useDateTime } from '@tamanu/ui-components';
 
 import { useApi } from '../../api';
 import { reloadPatient } from '../../store/patient';
@@ -20,6 +19,7 @@ import { useAuth } from '../../contexts/Auth';
 import { TranslatedText } from '../../components';
 
 const ReferralFlow = ({ patient, currentUser }) => {
+  const { getCurrentDateTime } = useDateTime();
   const api = useApi();
   const { facilityId } = useAuth();
   const { navigateToPatient } = usePatientNavigation();
@@ -39,7 +39,7 @@ const ReferralFlow = ({ patient, currentUser }) => {
     async id => {
       const response = await api.get(`survey/${encodeURIComponent(id)}`);
       setReferralSurvey(response);
-      setStartTime(getCurrentDateTimeString());
+      setStartTime(getCurrentDateTime());
     },
     [api],
   );
@@ -53,7 +53,7 @@ const ReferralFlow = ({ patient, currentUser }) => {
       surveyId: referralSurvey.id,
       startTime,
       patientId: patient.id,
-      endTime: getCurrentDateTimeString(),
+      endTime: getCurrentDateTime(),
       answers: await getAnswersFromData(data, referralSurvey),
       facilityId,
     });

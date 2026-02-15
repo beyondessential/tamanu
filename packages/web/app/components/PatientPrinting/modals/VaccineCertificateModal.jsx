@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import { ASSET_NAMES, VACCINATION_CERTIFICATE } from '@tamanu/constants';
-import { getCurrentDateString } from '@tamanu/utils/dateTime';
+import { useDateTime } from '@tamanu/ui-components';
 
 import { Modal } from '../../Modal';
 import { useApi } from '../../../api';
@@ -28,6 +28,7 @@ const VACCINE_CERTIFICATE_PDF_ID = 'vaccine-certificate';
 export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
   const { facilityId, countryTimeZone } = useAuth();
+  const { getCurrentDate } = useDateTime();
   const { localisation } = useLocalisation();
   const { translations } = useTranslation();
   const { getSetting, settings } = useSettings();
@@ -68,9 +69,9 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
         forwardAddress: data.email,
         facilityName: facility.name,
         createdBy: printedBy,
-        createdAt: getCurrentDateString(),
+        createdAt: getCurrentDate(),
       }),
-    [api, patient.id, printedBy, facility?.name],
+    [api, patient.id, printedBy, facility?.name, getCurrentDate],
   );
 
   const { data: village, isFetching: isVillageFetching } = useReferenceDataQuery(patient.villageId);
@@ -117,8 +118,8 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
           logoSrc={logo}
           facilityName={facility?.name}
           signingSrc={footerImg}
-          printedBy={printedBy}
-          printedDate={getCurrentDateString()}
+          printedBy={printedBy} 
+          printedDate={getCurrentDate()}
           localisation={localisation}
           settings={settings}
           countryTimeZone={countryTimeZone}

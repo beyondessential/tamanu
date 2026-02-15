@@ -4,15 +4,13 @@ import React from 'react';
 import styled from 'styled-components';
 import { isSameDay, parseISO } from 'date-fns';
 
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-
 import { useLocationBookingsQuery } from '../../api/queries';
 import { Colors } from '../../constants';
 import { LimitedLinesCell } from '../FormattedTableCell';
 import { Modal } from '../Modal';
 import { Table } from '../Table';
 import { useTableSorting } from '../Table/useTableSorting';
-import { DateTimeRangeDisplay } from '@tamanu/ui-components';
+import { DateTimeRangeDisplay, useDateTime } from '@tamanu/ui-components';
 import { ThemedTooltip } from '../Tooltip';
 import { TranslatedText } from '../Translation';
 import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
@@ -244,6 +242,7 @@ const COLUMNS = [
 ];
 
 export const PastBookingsModal = ({ onClose, patient }) => {
+  const { getCurrentDateTime } = useDateTime();
   const { orderBy, order, onChangeOrderBy } = useTableSorting({
     initialSortKey: 'startTime',
     initialSortDirection: 'desc',
@@ -253,7 +252,7 @@ export const PastBookingsModal = ({ onClose, patient }) => {
     {
       all: true,
       patientId: patient?.id,
-      before: getCurrentDateTimeString(),
+      before: getCurrentDateTime(),
       after: '-infinity',
       orderBy,
       order,

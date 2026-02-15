@@ -7,7 +7,7 @@ import {
   usePatientAdditionalDataQuery,
 } from '../../../api/queries';
 import { useCertificate } from '../../../utils/useCertificate';
-import { Modal, useDateTimeFormat } from '@tamanu/ui-components';
+import { Modal, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 
 import { PDFLoader, printPDF } from '../../../components/PatientPrinting/PDFLoader';
@@ -20,7 +20,7 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
   const { getLocalisation } = useLocalisation();
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
-  const { countryTimeZone } = useDateTimeFormat();
+  const { countryTimeZone } = useDateTime();
   const api = useApi();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
 

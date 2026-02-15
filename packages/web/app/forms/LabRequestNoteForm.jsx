@@ -5,8 +5,7 @@ import NotesIcon from '@material-ui/icons/Notes';
 import { Box } from '@material-ui/core';
 
 import { NOTE_TYPES, FORM_TYPES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { TextField, Form, FormCancelButton, FormSubmitButton, Button } from '@tamanu/ui-components';
+import { TextField, Form, FormCancelButton, FormSubmitButton, Button, useDateTime } from '@tamanu/ui-components';
 
 import { useApi } from '../api';
 import {
@@ -93,6 +92,7 @@ const CancelAddNoteButton = styled(FormCancelButton)`
 export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
   const api = useApi();
   const queryClient = useQueryClient();
+  const { getCurrentDateTime } = useDateTime();
   const [active, setActive] = useState(false);
 
   const { data: notes, isSuccess } = useQuery(['labRequest', labRequestId, 'notes'], () =>
@@ -105,7 +105,7 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
         content: values.content?.trim(),
         authorId: api.user.id,
         noteTypeId: NOTE_TYPES.OTHER,
-        date: getCurrentDateTimeString(),
+        date: getCurrentDateTime(),
       }),
     {
       onSuccess: (responseData, { formProps }) => {
@@ -128,6 +128,7 @@ export const LabRequestNoteForm = React.memo(({ labRequestId, isReadOnly }) => {
                 <Caption data-testid={`caption-gjgp-${index}`}>
                   {note.author?.displayName}{' '}
                   <DateDisplay
+                    noTooltip
                     date={note.date}
                     timeFormat="default"
                     data-testid={`datedisplay-ju3f-${index}`}

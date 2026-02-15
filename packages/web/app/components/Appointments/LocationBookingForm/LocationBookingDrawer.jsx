@@ -5,7 +5,7 @@ import * as yup from 'yup';
 import { sub } from 'date-fns';
 
 import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { Form, FormGrid, FormSubmitCancelRow, useDateTimeFormat } from '@tamanu/ui-components';
+import { Form, FormGrid, FormSubmitCancelRow, useDateTime } from '@tamanu/ui-components';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useCheckOnLeaveMutation, useLocationBookingMutation } from '../../../api/mutations';
@@ -127,7 +127,7 @@ const ErrorMessage = ({ isEdit = false, error }) => {
 export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
   const { updateSelectedCell, viewType } = useLocationBookingsContext();
-  const { formatShort } = useDateTimeFormat();
+  const { formatShort } = useDateTime();
   const isEdit = !!initialValues.id;
 
   const { mutateAsync: checkOnLeave } = useCheckOnLeaveMutation();

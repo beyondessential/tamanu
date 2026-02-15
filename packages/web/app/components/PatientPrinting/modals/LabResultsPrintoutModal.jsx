@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-import { Modal, TranslatedText, useTranslation, useDateTimeFormat } from '@tamanu/ui-components';
+import { Modal, TranslatedText, useTranslation, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { useApi } from '../../../api';
 import {
@@ -17,7 +17,7 @@ import { LabResultsPrintout } from '@tamanu/shared/utils/patientCertificates';
 export const LabResultsPrintoutModal = React.memo(({ labRequest, patient, open, onClose }) => {
   const { translations } = useTranslation();
   const { getSetting } = useSettings();
-  const { countryTimeZone } = useDateTimeFormat();
+  const { countryTimeZone } = useDateTime();
   const api = useApi();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
 

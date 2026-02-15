@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import Collapse from '@material-ui/core/Collapse';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
+import { AutocompleteField, CheckField, DateField, Field } from '../components/Field';
 import {
-  AutocompleteField,
-  CheckField,
-  DateField,
-  Field,
-} from '../components/Field';
-import { TextField, Form, FormCancelButton, FormSubmitButton, FormSubmitCancelRow, FormGrid } from '@tamanu/ui-components';
+  TextField,
+  Form,
+  FormCancelButton,
+  FormSubmitButton,
+  FormSubmitCancelRow,
+  FormGrid,
+  useDateTime,
+} from '@tamanu/ui-components';
 import { Colors } from '../constants/styles';
 import { foreignKey } from '../utils/validation';
 import { TranslatedText } from '../components/Translation/TranslatedText';
@@ -56,6 +58,7 @@ export const OngoingConditionForm = ({
   diagnosisSuggester,
   onDelete,
 }) => {
+  const { getCurrentDate } = useDateTime();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const RenderForm = ({ submitForm, values }) => {
@@ -256,16 +259,28 @@ export const OngoingConditionForm = ({
     await onSubmit(fields);
   };
 
+  const getInitialValues = () => {
+    if (editedObject) {
+      // Currently both dates are dateTime type in the database, so we need to convert them to date type
+      // for now to avoid timezone conversion
+      return {
+        ...editedObject,
+        recordedDate: editedObject.recordedDate?.slice(0, 10),
+        resolutionDate: editedObject.resolutionDate?.slice(0, 10),
+      };
+    }
+    return {
+      recordedDate: getCurrentDate(),
+      resolutionDate: getCurrentDate(),
+      resolved: false,
+    };
+  };
+
   return (
     <Form
       onSubmit={onDataSubmit}
       render={RenderForm}
-      initialValues={{
-        recordedDate: getCurrentDateTimeString(),
-        resolutionDate: getCurrentDateTimeString(),
-        resolved: false,
-        ...editedObject,
-      }}
+      initialValues={getInitialValues()}
       formType={editedObject ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
         conditionId: foreignKey().translatedLabel(

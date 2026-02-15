@@ -20,7 +20,6 @@ import {
   getDateFromTimeString,
   getFirstAdministrationDate,
 } from '@tamanu/shared/utils/medication';
-import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { format, subSeconds } from 'date-fns';
 import { useFormikContext } from 'formik';
 import { toast } from 'react-toastify';
@@ -48,7 +47,7 @@ import {
   FormGrid,
   FormSubmitButton,
   Dialog,
-  useDateTimeFormat,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { Colors, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
@@ -329,7 +328,7 @@ const isOneTimeFrequency = frequency =>
 
 const MedicationAdministrationForm = ({ frequencyChanged }) => {
   const { getSetting } = useSettings();
-  const { formatTimeCompact, formatShort } = useDateTimeFormat();
+  const { formatTimeCompact, formatShort } = useDateTime();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
 
   const { values, setValues } = useFormikContext();
@@ -599,6 +598,7 @@ export const MedicationForm = ({
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
   const queryClient = useQueryClient();
   const { loadEncounter } = useEncounter();
+  const { getCurrentDate, getCurrentDateTime } = useDateTime();
   const { data: { data: medications = [] } = {} } = useEncounterMedicationQuery(encounterId);
   const existingDrugIds = medications
     .filter(({ discontinued }) => !discontinued)
@@ -713,10 +713,10 @@ export const MedicationForm = ({
 
   const getInitialValues = () => {
     return {
-      date: getCurrentDateString(),
+      date: getCurrentDate(),
       prescriberId: currentUser.id,
       isVariableDose: false,
-      startDate: getCurrentDateTimeString(),
+      startDate: getCurrentDateTime(),
       isOngoing: isOngoingPrescription,
       repeats: editingMedication?.repeats ?? 0,
       timeSlots: defaultTimeSlots,

@@ -13,7 +13,7 @@ import { Footer } from './printComponents/Footer';
 import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithBarcode';
 import { Page } from '../pdf/Page';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
-import { useDateTimeFormat, withDateTimeContext } from '../pdf/withDateTimeContext';
+import { useDateTime, withDateTimeContext } from '../pdf/withDateTimeContext';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '../medication';
 
 const columns = (getTranslation, getEnumTranslation) => [
@@ -98,7 +98,7 @@ const PrescriptionsSection = ({
   getSetting,
 }) => {
   const { getTranslation, getEnumTranslation } = useLanguageContext();
-  const { formatShort } = useDateTimeFormat();
+  const { formatShort } = useDateTime();
   return (
     <View>
       <DataSection hideBottomRule title="Prescription details">

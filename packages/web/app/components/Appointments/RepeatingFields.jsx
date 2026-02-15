@@ -9,6 +9,7 @@ import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import { add, parseISO } from 'date-fns';
 import { toDateString } from '@tamanu/utils/dateTime';
+import { useDateTime } from '@tamanu/ui-components';
 import { get } from 'lodash';
 
 import {
@@ -143,6 +144,7 @@ export const RepeatingFields = ({
   readonly,
   maxFutureMonths,
 }) => {
+  const { getCurrentDate } = useDateTime();
   const { occurrenceCount: initialOccurrenceCount } = initialValues?.schedule || {};
   const { interval, frequency, occurrenceCount, untilDate } = schedule;
   const [endsMode, setEndsMode] = useState(schedule.untilDate ? ENDS_MODES.ON : ENDS_MODES.AFTER);
@@ -257,10 +259,10 @@ export const RepeatingFields = ({
                 add(startTimeDate, {
                   [`${REPEAT_FREQUENCY_UNIT_PLURAL_LABELS[frequency]}`]: interval,
                 }),
-              )}
+              )}  
               max={
                 maxFutureMonths
-                  ? toDateString(add(new Date(), { months: maxFutureMonths }))
+                  ? toDateString(add(parseISO(getCurrentDate()), { months: maxFutureMonths }))
                   : undefined
               }
               component={StyledDateField}

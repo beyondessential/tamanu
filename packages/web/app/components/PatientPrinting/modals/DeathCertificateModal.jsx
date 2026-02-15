@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Modal, TranslatedText, useDateTimeFormat } from '@tamanu/ui-components';
+import { Button, Modal, TranslatedText, useDateTime } from '@tamanu/ui-components';
 import { useCertificate } from '../../../utils/useCertificate';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { DeathCertificatePrintout } from '@tamanu/shared/utils/patientCertificates';
@@ -11,7 +11,7 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
   const [isOpen, setIsOpen] = useState();
   const { storedLanguage, translations } = useTranslation();
   const { getSetting } = useSettings();
-  const { countryTimeZone } = useDateTimeFormat();
+  const { countryTimeZone } = useDateTime();
 
   const {
     data: additionalData,
