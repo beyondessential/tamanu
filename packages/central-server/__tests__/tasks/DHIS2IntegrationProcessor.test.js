@@ -198,7 +198,7 @@ describe('DHIS2 integration processor', () => {
       expect(pushLogs).toHaveLength(1);
 
       expect(logSpy.warn).toHaveBeenCalledWith(
-        WARNING_LOGS.FAILED_TO_SEND_DATA_VALUE_SET,
+        WARNING_LOGS.DATA_VALUE_SET_REJECTED,
         pick(pushLogs[0], LOG_FIELDS),
       );
       expect(logSpy.warn).toHaveBeenCalledWith('Data element not found: DE123');
