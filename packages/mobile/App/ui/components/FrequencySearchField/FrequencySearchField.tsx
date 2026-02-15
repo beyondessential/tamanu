@@ -51,10 +51,6 @@ const FrequencySearchInput: React.FC<FrequencySearchFieldProps> = ({
   const [displayLabel, setDisplayLabel] = useState<string | null>(null);
   const frequenciesEnabled: any = getSetting(`medications.frequenciesEnabled`);
 
-  // Build suggestion objects for the autocomplete field.
-  // value: the original untranslated frequency string (e.g. 'Daily') stored in the database
-  // label: the translated display name with its first synonym (e.g. 'Daily (D)')
-  // synonyms: translated alternative search terms (e.g. 'mane' for 'Daily in the morning')
   const frequencySuggester = useMemo(() => {
     const suggestions = Object.entries(ADMINISTRATION_FREQUENCY_SYNONYMS)
       .filter(([frequency]) => !frequenciesEnabled || frequenciesEnabled[frequency])
