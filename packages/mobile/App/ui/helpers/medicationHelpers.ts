@@ -1,47 +1,7 @@
 import {
-  ADMINISTRATION_FREQUENCY_SYNONYMS,
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
 } from '~/constants/medications';
-import { FrequencySuggestion } from './frequencySuggester';
-import { camelCase } from 'lodash';
 import { addDays, format, isSameDay, set } from 'date-fns';
-
-export const getTranslatedFrequencySynonyms = (
-  frequenciesEnabled: Record<string, boolean> | undefined,
-  getTranslation: (key: string, fallback: string) => string,
-): Record<string, { label: string; synonyms: string[] }> => {
-  const result: Record<string, { label: string; synonyms: string[] }> = {};
-
-  Object.entries(ADMINISTRATION_FREQUENCY_SYNONYMS).forEach(([frequency, synonyms]) => {
-    // If frequenciesEnabled is provided, filter out disabled frequencies
-    if (frequenciesEnabled && !frequenciesEnabled[frequency]) {
-      return;
-    }
-
-    const translatedLabel = getTranslation(
-      `medication.frequency.${camelCase(frequency)}.label`,
-      frequency,
-    );
-
-    const translatedSynonyms = synonyms.map((synonym, index) =>
-      getTranslation(`medication.frequency.${camelCase(frequency)}.synonym.${index}`, synonym),
-    );
-
-    result[frequency] = { label: translatedLabel, synonyms: translatedSynonyms };
-  });
-
-  return result;
-};
-
-export const getFrequencySuggestions = (
-  synonyms: Record<string, { label: string; synonyms: string[] }>,
-): FrequencySuggestion[] => {
-  return Object.entries(synonyms).map(([key, { label, synonyms: syn }]) => ({
-    label: `${label} (${syn[0]})`,
-    value: key,
-    synonyms: syn,
-  }));
-};
 
 export const getDateFromTimeString = (time: string, initialDate = new Date()) => {
   if (typeof time !== 'string' || !time?.includes?.(':')) {

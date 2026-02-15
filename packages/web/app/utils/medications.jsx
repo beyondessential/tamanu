@@ -45,25 +45,6 @@ export const getMedicationLabelData = ({ items, patient, facility }) => {
   }));
 };
 
-export const getTranslatedFrequencySynonyms = (frequenciesEnabled, getTranslation) => {
-  const result = {};
-  Object.entries(ADMINISTRATION_FREQUENCY_SYNONYMS).forEach(([frequency, synonyms]) => {
-    if (!frequenciesEnabled?.[frequency]) return;
-    const translatedLabel = getTranslation(
-      `medication.frequency.${camelCase(frequency)}.label`,
-      frequency,
-    );
-
-    const translatedSynonyms = synonyms.map((synonym, index) =>
-      getTranslation(`medication.frequency.${camelCase(frequency)}.synonym.${index}`, synonym),
-    );
-
-    result[frequency] = { label: translatedLabel, synonyms: translatedSynonyms };
-  });
-
-  return result;
-};
-
 export const getTranslatedFrequencySynonym = (synonyms, index, getTranslation) => {
   const frequency = synonyms[index];
   return getTranslation(`medication.frequency.${camelCase(frequency)}.synonym.${index}`, frequency);

@@ -2,11 +2,9 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { StyledText, StyledView } from '~/ui/styled/common';
 import { theme } from '../../styled/theme';
+import { ADMINISTRATION_FREQUENCY_SYNONYMS } from '~/constants/medications';
+import { camelCase } from 'lodash';
 import { FrequencySuggester, FrequencySuggestion } from '../../helpers/frequencySuggester';
-import {
-  getTranslatedFrequencySynonyms,
-  getFrequencySuggestions,
-} from '../../helpers/medicationHelpers';
 import { useTranslation } from '../../contexts/TranslationContext';
 import { TranslatedText } from '../Translations/TranslatedText';
 import { Orientation, screenPercentageToDP } from '../../helpers/screen';
@@ -53,9 +51,29 @@ const FrequencySearchInput: React.FC<FrequencySearchFieldProps> = ({
   const [displayLabel, setDisplayLabel] = useState<string | null>(null);
   const frequenciesEnabled: any = getSetting(`medications.frequenciesEnabled`);
 
+  // Build suggestion objects for the autocomplete field.
+  // value: the original untranslated frequency string (e.g. 'Daily') stored in the database
+  // label: the translated display name with its first synonym (e.g. 'Daily (D)')
+  // synonyms: translated alternative search terms (e.g. 'mane' for 'Daily in the morning')
   const frequencySuggester = useMemo(() => {
-    const synonyms = getTranslatedFrequencySynonyms(frequenciesEnabled, getTranslation);
-    const suggestions = getFrequencySuggestions(synonyms);
+    const suggestions = Object.entries(ADMINISTRATION_FREQUENCY_SYNONYMS)
+      .filter(([frequency]) => !frequenciesEnabled || frequenciesEnabled[frequency])
+      .map(([frequency, synonyms]) => {
+        const translatedLabel = getTranslation(
+          `medication.frequency.${camelCase(frequency)}.label`,
+          frequency,
+        );
+
+        const translatedSynonyms = synonyms.map((synonym, index) =>
+          getTranslation(`medication.frequency.${camelCase(frequency)}.synonym.${index}`, synonym),
+        );
+
+        return {
+          value: frequency,
+          label: `${translatedLabel} (${translatedSynonyms[0]})`,
+          synonyms: translatedSynonyms,
+        };
+      });
     return new FrequencySuggester(suggestions);
   }, [frequenciesEnabled, getTranslation]);
 
