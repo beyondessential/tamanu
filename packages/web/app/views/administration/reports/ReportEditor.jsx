@@ -107,7 +107,7 @@ const AdvancedConfigField = ({ field, form }) => {
   };
 
   const fieldError = touched[name] && errors[name];
-  const error = jsonError || (fieldError ? new Error(fieldError) : null);
+  const displayError = jsonError || (fieldError ? new Error(fieldError) : null);
 
   return (
     <JSONEditorWrapper>
@@ -115,7 +115,7 @@ const AdvancedConfigField = ({ field, form }) => {
         value={jsonString}
         onChange={handleChange}
         editMode={true}
-        error={error}
+        error={displayError}
         placeholder="{}"
         height="200px"
         fontSize={14}
