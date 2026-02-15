@@ -1,7 +1,6 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import {
-  ADMINISTRATION_FREQUENCY_SYNONYMS,
   DRUG_STOCK_STATUS_LABELS,
   DRUG_STOCK_STATUSES,
 } from '@tamanu/constants';
