@@ -157,9 +157,10 @@ describe('DHIS2 integration processor', () => {
     it("should log.error if we can't establish a connection to DHIS2", async () => {
       await dhis2IntegrationProcessor.run();
 
-      expect(logSpy.error).toHaveBeenLastCalledWith(ERROR_LOGS.ERROR_PROCESSING_REPORT, {
+      expect(logSpy.error).toHaveBeenLastCalledWith(ERROR_LOGS.ERROR_POSTING_DATA_VALUE_SET, {
         reportId: report.id,
-        error: expect.any(Error),
+        dataValueSet: expect.any(Object),
+        error: expect.any(String),
       });
     });
 

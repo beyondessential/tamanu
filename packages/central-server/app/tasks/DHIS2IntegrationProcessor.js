@@ -46,7 +46,8 @@ const convertToDHIS2DataValueSets = (reportData, dataSet) => {
 export const INFO_LOGS = {
   SENDING_REPORTS: 'DHIS2IntegrationProcessor: Sending reports to DHIS2',
   PROCESSING_REPORT: 'DHIS2IntegrationProcessor: Processing report',
-  SUCCESSFULLY_SENT_DATA_VALUE_SET: 'DHIS2IntegrationProcessor: dataValueSet sent to DHIS2 successfully',
+  SUCCESSFULLY_SENT_DATA_VALUE_SET:
+    'DHIS2IntegrationProcessor: dataValueSet sent to DHIS2 successfully',
 };
 
 export const WARNING_LOGS = {
@@ -56,11 +57,11 @@ export const WARNING_LOGS = {
   REPORT_HAS_NO_PUBLISHED_VERSION:
     'DHIS2IntegrationProcessor: Report has no published version, skipping',
   REPORT_DATA_EMPTY: 'DHIS2IntegrationProcessor: Report returned no data rows, skipping push',
-  FAILED_TO_SEND_DATA_VALUE_SET: 'DHIS2IntegrationProcessor: Failed to send dataValueSet to DHIS2',
+  DATA_VALUE_SET_REJECTED: 'DHIS2IntegrationProcessor: dataValueSet rejected by DHIS2',
 };
 
 export const ERROR_LOGS = {
-  ERROR_PROCESSING_REPORT: 'DHIS2IntegrationProcessor: Error processing report',
+  ERROR_POSTING_DATA_VALUE_SET: 'DHIS2IntegrationProcessor: Error posting dataValueSet to DHIS2',
 };
 
 export const AUDIT_STATUSES = {
@@ -186,32 +187,40 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     }
 
     for (const dataValueSet of dhis2DataValueSets) {
-      const {
-        message,
-        httpStatusCode,
-        response: { importCount, conflicts = [] },
-      } = await this.postToDHIS2({ reportId, dataValueSet });
-
-      if (httpStatusCode === 200) {
-        const successLog = await this.logDHIS2Push({
-          reportId,
-          status: AUDIT_STATUSES.SUCCESS,
+      try {
+        const {
           message,
-          importCount,
-        });
+          httpStatusCode,
+          response: { importCount, conflicts = [] },
+        } = await this.postToDHIS2({ reportId, dataValueSet });
 
-        log.info(INFO_LOGS.SUCCESSFULLY_SENT_DATA_VALUE_SET, successLog);
-      } else {
-        const warningLog = await this.logDHIS2Push({
+        if (httpStatusCode === 200) {
+          const successLog = await this.logDHIS2Push({
+            reportId,
+            status: AUDIT_STATUSES.SUCCESS,
+            message,
+            importCount,
+          });
+
+          log.info(INFO_LOGS.SUCCESSFULLY_SENT_DATA_VALUE_SET, successLog);
+        } else {
+          const warningLog = await this.logDHIS2Push({
+            reportId,
+            status: AUDIT_STATUSES.WARNING,
+            message,
+            importCount,
+            conflicts: conflicts.map(conflict => conflict.value),
+          });
+
+          log.warn(WARNING_LOGS.DATA_VALUE_SET_REJECTED, warningLog);
+          conflicts.forEach(conflict => log.warn(conflict.value));
+        }
+      } catch (error) {
+        log.error(ERROR_LOGS.ERROR_POSTING_DATA_VALUE_SET, {
           reportId,
-          status: AUDIT_STATUSES.WARNING,
-          message,
-          importCount,
-          conflicts: conflicts.map(conflict => conflict.value),
+          dataValueSet,
+          error: error.message,
         });
-
-        log.warn(WARNING_LOGS.FAILED_TO_SEND_DATA_VALUE_SET, warningLog);
-        conflicts.forEach(conflict => log.warn(conflict.value));
       }
     }
   }
@@ -236,14 +245,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     });
 
     for (const reportId of reportIds) {
-      try {
-        await this.processReport(reportId);
-      } catch (error) {
-        log.error(ERROR_LOGS.ERROR_PROCESSING_REPORT, {
-          reportId,
-          error,
-        });
-      }
+      await this.processReport(reportId);
     }
   }
 }
