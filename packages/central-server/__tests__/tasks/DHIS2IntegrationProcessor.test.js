@@ -197,7 +197,7 @@ describe('DHIS2 integration processor', () => {
       expect(pushLogs).toHaveLength(1);
 
       expect(logSpy.warn).toHaveBeenCalledWith(
-        WARNING_LOGS.FAILED_TO_SEND_REPORT,
+        WARNING_LOGS.FAILED_TO_SEND_DATA_VALUE_SET,
         pick(pushLogs[0], LOG_FIELDS),
       );
       expect(logSpy.warn).toHaveBeenCalledWith('Data element not found: DE123');
@@ -218,7 +218,7 @@ describe('DHIS2 integration processor', () => {
         ...importCount,
       });
       expect(logSpy.info).toHaveBeenLastCalledWith(
-        INFO_LOGS.SUCCESSFULLY_SENT_REPORT,
+        INFO_LOGS.SUCCESSFULLY_SENT_DATA_VALUE_SET,
         pick(pushLogs[0], LOG_FIELDS),
       );
     });

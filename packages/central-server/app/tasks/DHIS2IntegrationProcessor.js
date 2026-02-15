@@ -46,7 +46,7 @@ const convertToDHIS2DataValueSets = (reportData, dataSet) => {
 export const INFO_LOGS = {
   SENDING_REPORTS: 'DHIS2IntegrationProcessor: Sending reports to DHIS2',
   PROCESSING_REPORT: 'DHIS2IntegrationProcessor: Processing report',
-  SUCCESSFULLY_SENT_REPORT: 'DHIS2IntegrationProcessor: Report sent to DHIS2 successfully',
+  SUCCESSFULLY_SENT_DATA_VALUE_SET: 'DHIS2IntegrationProcessor: dataValueSet sent to DHIS2 successfully',
 };
 
 export const WARNING_LOGS = {
@@ -56,7 +56,7 @@ export const WARNING_LOGS = {
   REPORT_HAS_NO_PUBLISHED_VERSION:
     'DHIS2IntegrationProcessor: Report has no published version, skipping',
   REPORT_DATA_EMPTY: 'DHIS2IntegrationProcessor: Report returned no data rows, skipping push',
-  FAILED_TO_SEND_REPORT: 'DHIS2IntegrationProcessor: Failed to send report to DHIS2',
+  FAILED_TO_SEND_DATA_VALUE_SET: 'DHIS2IntegrationProcessor: Failed to send dataValueSet to DHIS2',
 };
 
 export const ERROR_LOGS = {
@@ -200,7 +200,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
           importCount,
         });
 
-        log.info(INFO_LOGS.SUCCESSFULLY_SENT_REPORT, successLog);
+        log.info(INFO_LOGS.SUCCESSFULLY_SENT_DATA_VALUE_SET, successLog);
       } else {
         const warningLog = await this.logDHIS2Push({
           reportId,
@@ -210,7 +210,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
           conflicts: conflicts.map(conflict => conflict.value),
         });
 
-        log.warn(WARNING_LOGS.FAILED_TO_SEND_REPORT, warningLog);
+        log.warn(WARNING_LOGS.FAILED_TO_SEND_DATA_VALUE_SET, warningLog);
         conflicts.forEach(conflict => log.warn(conflict.value));
       }
     }
