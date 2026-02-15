@@ -34,8 +34,7 @@ const convertToDHIS2DataValueSets = (reportData, dataSet) => {
 
     // Construct the DHIS2 data value set object
     return {
-      dataSet,
-      completeDate: getCurrentDateString(),
+      ...(dataSet && { dataSet, completeDate: getCurrentDateString() }),
       period,
       orgUnit,
       attributeOptionCombo,
