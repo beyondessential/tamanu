@@ -79,16 +79,16 @@ export const PatientPaymentRefundModal = ({ invoice, isOpen, onClose, selectedPa
               <RefundFormCard>
                 <LabelRow>
                   <Label>
-                    <TranslatedText stringId="general.date.label" fallback="Date" />
+                    <TranslatedText stringId="invoice.modal.date" fallback="Date" />
                   </Label>
                   <Label>
-                    <TranslatedText stringId="general.date.method" fallback="Method" />
+                    <TranslatedText stringId="invoice.modal.method" fallback="Method" />
                   </Label>
                   <Label>
-                    <TranslatedText stringId="general.date.receiptNumber" fallback="Receipt no" />
+                    <TranslatedText stringId="invoice.modal.receiptNumber" fallback="Receipt no" />
                   </Label>
                   <AmountLabel>
-                    <TranslatedText stringId="general.date.amount" fallback="Amount" />
+                    <TranslatedText stringId="invoice.modal.refundAmount" fallback="Refund amount:" />
                   </AmountLabel>
                 </LabelRow>
                 <LabelRow>
@@ -108,16 +108,17 @@ export const PatientPaymentRefundModal = ({ invoice, isOpen, onClose, selectedPa
                     data-testid="field-c2nv"
                     disabled // Cash is the only method for refunds
                   />
-                  <RefundAmount>{`Refund amount: ${formatDisplayPrice(
-                    paymentRecord.amount,
-                  )}`}</RefundAmount>
+                  <RefundAmount>
+                    <TranslatedText stringId="invoice.modal.refundAmount" fallback="Refund amount:" />{' '}
+                    {formatDisplayPrice(paymentRecord.amount)}
+                  </RefundAmount>
                 </RefundRow>
               </RefundFormCard>
 
               <ModalFormActionRow
                 onCancel={onClose}
                 confirmText={
-                  <TranslatedText stringId="general.action.issueRefund" fallback="Issue refund" />
+                  <TranslatedText stringId="invoice.modal.issueRefund" fallback="Issue refund" />
                 }
               />
             </>

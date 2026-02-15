@@ -17,7 +17,6 @@ export class InvoicePayment extends Model {
   declare updatedByUserId?: string;
   declare originalPaymentId?: string;
   declare originalPayment?: InvoicePayment;
-  declare refundPaymentId?: string;
   declare refundPayment?: InvoicePayment;
   
 

@@ -238,13 +238,13 @@ export const PatientPaymentModal = ({
               <PaymentFormCard $isEditMode={isEditMode}>
                 <LabelRow>
                   <Label>
-                    <TranslatedText stringId="general.date.label" fallback="Date" />
+                  <TranslatedText stringId="invoice.modal.date" fallback="Date" />
                   </Label>
                   <Label>
-                    <TranslatedText stringId="general.date.method" fallback="Method" />
+                    <TranslatedText stringId="invoice.modal.method" fallback="Method" />
                   </Label>
                   <Label>
-                    <TranslatedText stringId="general.date.amount" fallback="Amount" />
+                    <TranslatedText stringId="invoice.modal.amount" fallback="Amount" />
                   </Label>
                 </LabelRow>
                 <FormFields>
@@ -271,7 +271,7 @@ export const PatientPaymentModal = ({
                   {!isEditMode && (
                     <PayBalanceButton onClick={handlePayBalance}>
                       <TranslatedText
-                        stringId="invoice.modal.recordPayment.payBalance"
+                        stringId="invoice.modal.payBalance"
                         fallback="Pay balance"
                       />
                     </PayBalanceButton>
