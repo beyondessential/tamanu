@@ -2,13 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { trimToDate } from '@tamanu/utils/dateTime';
-import {
-  TextField,
-  Form,
-  FormGrid,
-  FormSubmitCancelRow,
-  useDateTime,
-} from '@tamanu/ui-components';
+import { TextField, Form, FormGrid, FormSubmitCancelRow, useDateTime } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { AutocompleteField, DateField, Field } from '../components/Field';
 import { foreignKey, optionalForeignKey } from '../utils/validation';
@@ -23,7 +17,7 @@ export const FamilyHistoryForm = ({
   onSubmit,
 }) => {
   const { getCurrentDate } = useDateTime();
-  
+
   const getInitialValues = () => {
     if (editedObject) {
       // Currently the recordedDate is a dateTime type in the database, so we need to convert it to date type

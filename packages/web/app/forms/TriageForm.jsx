@@ -68,9 +68,7 @@ export const TriageForm = ({
   const navigate = useNavigate();
   const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
-  const { getCurrentDateTime, getCurrentDate } = useDateTime();
-
-  const endOfTodayMax = `${getCurrentDate()}T23:59`;
+  const { getCurrentDateTime } = useDateTime();
   const triageCategories = getSetting('triageCategories');
   const practitionerSuggester = useSuggester('practitioner');
   const triageReasonSuggester = useSuggester('triageReason');
@@ -88,7 +86,7 @@ export const TriageForm = ({
             />
           }
           component={DateTimeField}
-          max={endOfTodayMax}
+          max={getCurrentDateTime()}
           helperText="If different from triage time"
           saveDateAsString
           data-testid="field-mhav"
@@ -103,7 +101,7 @@ export const TriageForm = ({
             />
           }
           required
-          max={endOfTodayMax}
+          max={getCurrentDateTime()}
           component={DateTimeField}
           saveDateAsString
           data-testid="field-9hxy"

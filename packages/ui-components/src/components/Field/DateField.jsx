@@ -169,7 +169,7 @@ export const DateInput = ({
   };
 
   const handleBlur = e => {
-    // if the final input is invalid, clear the component value
+      // if the final input is invalid, clear the component value
     if (!e.target.value) {
       clearValue();
       setCurrentText('');

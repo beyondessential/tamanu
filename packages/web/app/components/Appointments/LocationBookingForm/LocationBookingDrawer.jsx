@@ -127,8 +127,7 @@ const ErrorMessage = ({ isEdit = false, error }) => {
 export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
   const { updateSelectedCell, viewType } = useLocationBookingsContext();
-  const { formatShort, toStoredDateTime, toFacilityDateTime } =
-    useDateTime();
+  const { formatShort, toStoredDateTime, toFacilityDateTime } = useDateTime();
   const isEdit = !!initialValues.id;
 
   // Convert startTime/endTime from country timezone to facility timezone for the form,
@@ -139,9 +138,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     const facilityStartStr = toFacilityDateTime(initialValues.startTime);
     if (!facilityStartStr) return initialValues;
 
-    const facilityEndStr = initialValues.endTime
-      ? toFacilityDateTime(initialValues.endTime)
-      : null;
+    const facilityEndStr = initialValues.endTime ? toFacilityDateTime(initialValues.endTime) : null;
 
     const startDate = trimToDate(facilityStartStr);
     const endDate = trimToDate(facilityEndStr);
@@ -338,21 +335,36 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     overnight: yup.boolean(),
     date: yup.string().when('overnight', {
       is: value => !value,
-      then: yup.string().nullable().required(requiredMessage),
+      then: yup
+        .string()
+        .nullable()
+        .required(requiredMessage),
       otherwise: yup.string().nullable(),
     }),
     startDate: yup.string().when('overnight', {
       is: true,
-      then: yup.string().nullable().required(requiredMessage),
+      then: yup
+        .string()
+        .nullable()
+        .required(requiredMessage),
       otherwise: yup.string().nullable(),
     }),
     endDate: yup.string().when('overnight', {
       is: true,
-      then: yup.string().nullable().required(requiredMessage),
+      then: yup
+        .string()
+        .nullable()
+        .required(requiredMessage),
       otherwise: yup.string().nullable(),
     }),
-    startTime: yup.date().nullable().required(requiredMessage),
-    endTime: yup.date().nullable().required(requiredMessage),
+    startTime: yup
+      .date()
+      .nullable()
+      .required(requiredMessage),
+    endTime: yup
+      .date()
+      .nullable()
+      .required(requiredMessage),
     patientId: yup.string().required(requiredMessage),
     bookingTypeId: yup.string().required(requiredMessage),
     clinicianId: yup.string(),

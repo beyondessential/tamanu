@@ -46,6 +46,12 @@ export const formatTimeCompact = createFormatter(
   compactTime,
 );
 
+/** "Thursday, 14 July 2022, 03:44 pm" */
+export const formatLong = createFormatter(
+  { timeStyle: 'short', dateStyle: 'full', hour12: true },
+  'Date information not available',
+);
+
 /** "Thu" */
 export const formatWeekdayShort = createFormatter({ weekday: 'short' }, 'Unknown');
 

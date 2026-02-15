@@ -47,7 +47,6 @@ export const trimToTime = (date: string | null | undefined): string | null | und
   return time?.length === 5 ? `${time}:00` : time;
 };
 
-
 const makeDateObject = (date: string | Date) => {
   if (typeof date !== 'string') return date;
   return isISOString(date) ? parseISO(date) : new Date(date.replace(' ', 'T'));
