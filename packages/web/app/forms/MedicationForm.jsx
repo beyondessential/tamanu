@@ -687,7 +687,6 @@ export const MedicationForm = ({
   }, [awaitingPrint, submittedMedication]);
 
   const onSubmit = async data => {
-    console.log('data', data);
     const defaultIdealTimes = frequenciesAdministrationIdealTimes?.[data.frequency];
     if (!isOneTimeFrequency(data.frequency) && data.timeSlots.length < defaultIdealTimes?.length) {
       setIdealTimesErrorOpen(true);
