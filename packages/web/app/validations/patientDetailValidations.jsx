@@ -788,7 +788,7 @@ export const getPatientDetailsValidation = (patientRegistryType, getSetting, get
       getTranslation,
       'invoiceInsurancePlanId',
       yup.array().of(yup.string()),
-      'Invoice insurance plan',
+      'Insurance plan',
     ),
   });
 

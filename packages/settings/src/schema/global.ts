@@ -783,7 +783,7 @@ export const globalSettings = {
           }),
         },
         invoiceInsurancePlanId: {
-          name: 'Invoice insurance plan',
+          name: 'Insurance plan',
           description: '_',
           properties: generateFieldSchema({
             isPatientDetails: true,
