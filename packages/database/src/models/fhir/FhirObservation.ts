@@ -245,7 +245,7 @@ export class FhirObservation extends FhirResource {
 
     if (!labTest) {
       throw new Invalid(
-        `No LabTest with code: '${labTestCode}' found for LabRequest: '${labRequest.id}'`,
+        `No LabTest with code: '${labTestCode || labTestExternalCode}' found for LabRequest: '${labRequest.id}'`,
         {
           code: FHIR_ISSUE_TYPE.INVALID.VALUE,
         },
