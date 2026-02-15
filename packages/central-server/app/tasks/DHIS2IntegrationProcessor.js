@@ -9,6 +9,23 @@ import { REPORT_STATUSES } from '@tamanu/constants';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { fetchWithRetryBackoff } from '@tamanu/api-client/fetchWithRetryBackoff';
 
+// DHIS2 dataValueSet object format:
+// {
+//   "dataSet": "dataSetID",
+//   "completeDate": "date",
+//   "period": "period",
+//   "orgUnit": "orgUnitID",
+//   "attributeOptionCombo": "aocID",
+//   "dataValues": [
+//     {
+//       "dataElement": "dataElementID",
+//       "categoryOptionCombo": "cocID",
+//       "value": "1",
+//       "comment": "comment1"
+//     },
+//     ...
+//   ]
+// }
 const convertToDHIS2DataValueSets = (reportData, dataSet) => {
   // Convert 2D array report data to JSON format
   const reportJSON = utils.sheet_to_json(utils.aoa_to_sheet(reportData));
