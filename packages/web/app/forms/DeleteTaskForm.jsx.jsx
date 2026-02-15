@@ -17,7 +17,7 @@ import { useAuth } from '../contexts/Auth';
 import { useTranslation } from '../contexts/Translation';
 
 export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
-  const { getCurrentDateTime, getFacilityNowDate } = useDateTime();
+  const { getCurrentDateTime } = useDateTime();
   const { getTranslation } = useTranslation();
   const practitionerSuggester = useSuggester('practitioner');
   const taskDeletionReasonSuggester = useSuggester('taskDeletionReason');
@@ -75,7 +75,7 @@ export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
               required
               saveDateAsString
               component={DateTimeField}
-              max={getFacilityNowDate()}
+              max={getCurrentDateTime()}
               data-testid="field-bnve"
             />
             <Field
@@ -131,7 +131,7 @@ export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
             />,
           )
           .max(
-            getCurrentDateTime(), 
+            getCurrentDateTime(),
             getTranslation(
               'general.validation.date.cannotInFuture',
               'Date cannot be in the future',

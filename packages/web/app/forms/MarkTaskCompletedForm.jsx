@@ -18,7 +18,7 @@ import { useTranslation } from '../contexts/Translation';
 
 export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) => {
   const { getTranslation } = useTranslation();
-  const { getCurrentDateTime, getFacilityNowDate } = useDateTime();
+  const { getCurrentDateTime } = useDateTime();
   const practitionerSuggester = useSuggester('practitioner');
   const { mutate: markTaskCompleted, isLoading } = useMarkTaskCompleted();
   const { currentUser } = useAuth();
@@ -72,7 +72,7 @@ export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) =>
               required
               saveDateAsString
               component={DateTimeField}
-              max={getFacilityNowDate()}
+              max={getCurrentDateTime()}
               data-testid="field-el3t"
             />
             <Field
