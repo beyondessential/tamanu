@@ -27,7 +27,7 @@ export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClos
   const [villageLoading, setVillageLoading] = useState(false);
   const [prescriberLoading, setPrescriberLoading] = useState(false);
   const { facilityId } = useAuth();
-  const { countryTimeZone } = useDateTime();
+  const { primaryTimeZone } = useDateTime();
   const { encounter, isLoadingEncounter } = useEncounter();
 
   useEffect(() => {
@@ -112,7 +112,7 @@ export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClos
             facility={facility}
             prescriber={prescriber}
             getSetting={getSetting}
-            countryTimeZone={countryTimeZone}
+            primaryTimeZone={primaryTimeZone}
             data-testid="prescriptionprintout-95jw"
           />
         </PDFLoader>

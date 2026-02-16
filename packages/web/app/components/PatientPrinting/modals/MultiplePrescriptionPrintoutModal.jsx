@@ -27,7 +27,7 @@ export const MultiplePrescriptionPrintoutModal = ({
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
   const api = useApi();
   const { facilityId } = useAuth();
-  const { countryTimeZone } = useDateTime();
+  const { primaryTimeZone } = useDateTime();
 
   const { data: patient, isLoading: isPatientLoading } = useQuery(
     ['patient', encounter.patientId],
@@ -93,7 +93,7 @@ export const MultiplePrescriptionPrintoutModal = ({
           encounterData={encounter}
           facility={facility}
           getSetting={getSetting}
-          countryTimeZone={countryTimeZone}
+          primaryTimeZone={primaryTimeZone}
           data-testid="prescriptionprintout-on8m"
         />
       </PDFLoader>

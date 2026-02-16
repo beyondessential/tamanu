@@ -3,7 +3,7 @@ import config from 'config';
 
 import { ENCOUNTER_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
-import { formatShort, formatTime } from '@tamanu/utils/dateFormatters';
+import { formatShortDateTime } from '@tamanu/utils/dateFormatters';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { Model } from './Model';
@@ -167,12 +167,12 @@ export class Triage extends Model {
       await onChangeTextColumn({
         columnName: 'arrivalTime',
         noteLabel: 'arrival date & time',
-        formatText: date => (date ? `${formatShort(date, config.countryTimeZone)} ${formatTime(date, config.countryTimeZone)}` : '-'),
+        formatText: date => (date ? formatShortDateTime(date, config.primaryTimeZone) : '-'),
       });
       await onChangeTextColumn({
         columnName: 'triageTime',
         noteLabel: 'triage date & time',
-        formatText: date => (date ? `${formatShort(date, config.countryTimeZone)} ${formatTime(date, config.countryTimeZone)}` : '-'),
+        formatText: date => (date ? formatShortDateTime(date, config.primaryTimeZone) : '-'),
       });
       await onChangeTextColumn({
         columnName: 'score',

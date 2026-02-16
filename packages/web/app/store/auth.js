@@ -50,7 +50,7 @@ const handleLoginSuccess = async (dispatch, loginInfo) => {
     ability,
     role,
     settings,
-    countryTimeZone,
+    primaryTimeZone,
   } = loginInfo;
   if (facilityId) {
     await dispatch(setFacilityId(facilityId));
@@ -74,7 +74,7 @@ const handleLoginSuccess = async (dispatch, loginInfo) => {
   dispatch({
     type: LOGIN_SUCCESS,
     user,
-    countryTimeZone,
+    primaryTimeZone,
     token,
     localisation,
     server,
@@ -174,7 +174,7 @@ const defaultState = {
   role: null,
   server: null,
   settings: null,
-  countryTimeZone: null,
+  primaryTimeZone: null,
   availableFacilities: [],
   facilityId: null,
   resetPassword: {
@@ -200,7 +200,7 @@ const resetState = {
   role: defaultState.role,
   availableFacilities: defaultState.availableFacilities,
   facilityId: defaultState.facilityId,
-  countryTimeZone: defaultState.countryTimeZone,
+  primaryTimeZone: defaultState.primaryTimeZone,
   error: defaultState.error,
   token: null,
 };
@@ -213,7 +213,7 @@ const actionHandlers = {
   [LOGIN_SUCCESS]: action => ({
     loading: false,
     user: action.user,
-    countryTimeZone: action.countryTimeZone,
+    primaryTimeZone: action.primaryTimeZone,
     ability: action.ability,
     availableFacilities: action.availableFacilities,
     error: defaultState.error,

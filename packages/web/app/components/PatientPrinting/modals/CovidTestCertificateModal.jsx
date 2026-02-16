@@ -17,7 +17,7 @@ import { useSettings } from '../../../contexts/Settings';
 export const CovidTestCertificateModal = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);
   const { getSetting } = useSettings();
-  const { countryTimeZone } = useDateTime();
+  const { primaryTimeZone } = useDateTime();
   const api = useApi();
 
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
@@ -69,7 +69,7 @@ export const CovidTestCertificateModal = React.memo(({ patient }) => {
           getSetting={getSetting}
           printedBy={printedBy}
           certType={CertificateTypes.test}
-          countryTimeZone={countryTimeZone}
+          primaryTimeZone={primaryTimeZone}
           data-testid="covidlabcertificate-203o"
         />
       </PDFLoader>

@@ -153,12 +153,12 @@ export const ReportGeneratorForm = () => {
   const [selectedReportId, setSelectedReportId] = useState(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [dataReadyForSaving, setDataReadyForSaving] = useState(null);
-  const { countryTimeZone, facilityTimeZone } = useDateTime();
-  const showTimeZoneSelector = facilityTimeZone && facilityTimeZone !== countryTimeZone;
+  const { primaryTimeZone, facilityTimeZone } = useDateTime();
+  const showTimeZoneSelector = facilityTimeZone && facilityTimeZone !== primaryTimeZone;
   const timezoneOptions = useMemo(
     () => [
       {
-        label: <TimezoneLabel timeZone={countryTimeZone} />,
+        label: <TimezoneLabel timeZone={primaryTimeZone} />,
         description: (
           <TranslatedText
             stringId="report.generate.timezone.option.country"
@@ -166,7 +166,7 @@ export const ReportGeneratorForm = () => {
             data-testid="translatedtext-tz-country"
           />
         ),
-        value: countryTimeZone,
+        value: primaryTimeZone,
       },
       {
         label: <TimezoneLabel timeZone={facilityTimeZone} />,
@@ -180,7 +180,7 @@ export const ReportGeneratorForm = () => {
         value: facilityTimeZone,
       },
     ],
-    [countryTimeZone, facilityTimeZone],
+    [primaryTimeZone, facilityTimeZone],
   );
 
   const reportsById = useMemo(() => keyBy(availableReports, 'id'), [availableReports]);
@@ -335,7 +335,7 @@ export const ReportGeneratorForm = () => {
       initialValues={{
         reportId: '',
         emails: currentUser.email,
-        timezone: countryTimeZone,
+        timezone: primaryTimeZone,
       }}
       formType={FORM_TYPES.CREATE_FORM}
       onSubmit={submitRequestReport}
@@ -375,7 +375,7 @@ export const ReportGeneratorForm = () => {
                   values: {
                     reportId,
                     emails: values.emails || currentUser.email,
-                    timezone: values.timezone || countryTimeZone,
+                    timezone: values.timezone || primaryTimeZone,
                   },
                 });
                 resetDownload();

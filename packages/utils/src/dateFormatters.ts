@@ -8,8 +8,8 @@ const createFormatter =
     fallback: string,
     transform?: (result: string) => string,
   ) =>
-  (date: DateInput, countryTimeZone: string, facilityTimeZone?: string | null): string => {
-    const result = intlFormatDate(date, formatOptions, fallback, countryTimeZone, facilityTimeZone);
+  (date: DateInput, primaryTimeZone: string, facilityTimeZone?: string | null): string => {
+    const result = intlFormatDate(date, formatOptions, fallback, primaryTimeZone, facilityTimeZone);
     return transform ? transform(result) : result;
   };
 
@@ -46,12 +46,6 @@ export const formatTimeCompact = createFormatter(
   compactTime,
 );
 
-/** "Thursday, 14 July 2022, 03:44 pm" */
-export const formatLong = createFormatter(
-  { timeStyle: 'short', dateStyle: 'full', hour12: true },
-  'Date information not available',
-);
-
 /** "Thu" */
 export const formatWeekdayShort = createFormatter({ weekday: 'short' }, 'Unknown');
 
@@ -82,15 +76,15 @@ export const formatDayMonth = createFormatter({ month: 'short', day: 'numeric' }
 /** "12/04/2024 12:30 am" */
 export const formatShortDateTime = (
   date: DateInput,
-  countryTimeZone: string,
+  primaryTimeZone: string,
   facilityTimeZone?: string | null,
 ) =>
-  `${formatShort(date, countryTimeZone, facilityTimeZone)} ${formatTime(date, countryTimeZone, facilityTimeZone)}`;
+  `${formatShort(date, primaryTimeZone, facilityTimeZone)} ${formatTime(date, primaryTimeZone, facilityTimeZone)}`;
 
 /** "12/04/24 12:30 am" */
 export const formatShortestDateTime = (
   date: DateInput,
-  countryTimeZone: string,
+  primaryTimeZone: string,
   facilityTimeZone?: string | null,
 ) =>
-  `${formatShortest(date, countryTimeZone, facilityTimeZone)} ${formatTime(date, countryTimeZone, facilityTimeZone)}`;
+  `${formatShortest(date, primaryTimeZone, facilityTimeZone)} ${formatTime(date, primaryTimeZone, facilityTimeZone)}`;

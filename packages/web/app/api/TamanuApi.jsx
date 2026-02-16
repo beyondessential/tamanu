@@ -13,7 +13,7 @@ const {
   SERVER,
   AVAILABLE_FACILITIES,
   FACILITY_ID,
-  COUNTRY_TIME_ZONE,
+  PRIMARY_TIME_ZONE,
   PERMISSIONS,
   ROLE,
   SETTINGS,
@@ -34,7 +34,7 @@ function restoreFromLocalStorage() {
   const localisation = safeGetStoredJSON(LOCALISATION);
   const server = safeGetStoredJSON(SERVER);
   const availableFacilities = safeGetStoredJSON(AVAILABLE_FACILITIES);
-  const countryTimeZone = localStorage.getItem(COUNTRY_TIME_ZONE);
+  const primaryTimeZone = localStorage.getItem(PRIMARY_TIME_ZONE);
   const permissions = safeGetStoredJSON(PERMISSIONS);
   const role = safeGetStoredJSON(ROLE);
   const settings = safeGetStoredJSON(SETTINGS);
@@ -45,7 +45,7 @@ function restoreFromLocalStorage() {
     server,
     availableFacilities,
     facilityId,
-    countryTimeZone,
+    primaryTimeZone,
     permissions,
     role,
     settings,
@@ -57,7 +57,7 @@ function saveToLocalStorage({
   server,
   availableFacilities,
   facilityId,
-  countryTimeZone,
+  primaryTimeZone,
   permissions,
   role,
   settings,
@@ -77,8 +77,8 @@ function saveToLocalStorage({
   if (availableFacilities) {
     localStorage.setItem(AVAILABLE_FACILITIES, JSON.stringify(availableFacilities));
   }
-  if (countryTimeZone) {
-    localStorage.setItem(COUNTRY_TIME_ZONE, countryTimeZone);
+  if (primaryTimeZone) {
+    localStorage.setItem(PRIMARY_TIME_ZONE, primaryTimeZone);
   }
   if (role) {
     localStorage.setItem(ROLE, JSON.stringify(role));
@@ -94,7 +94,7 @@ function clearLocalStorage() {
   localStorage.removeItem(SERVER);
   localStorage.removeItem(AVAILABLE_FACILITIES);
   localStorage.removeItem(FACILITY_ID);
-  localStorage.removeItem(COUNTRY_TIME_ZONE);
+  localStorage.removeItem(PRIMARY_TIME_ZONE);
   localStorage.removeItem(PERMISSIONS);
   localStorage.removeItem(ROLE);
   localStorage.removeItem(SETTINGS);
@@ -169,7 +169,7 @@ export class TamanuApi extends ApiClient {
       server,
       availableFacilities,
       facilityId,
-      countryTimeZone,
+      primaryTimeZone,
       permissions,
       role,
       settings,
@@ -189,7 +189,7 @@ export class TamanuApi extends ApiClient {
       server,
       availableFacilities,
       facilityId,
-      countryTimeZone,
+      primaryTimeZone,
       ability,
       role,
       settings,
@@ -202,7 +202,7 @@ export class TamanuApi extends ApiClient {
       localisation,
       server,
       availableFacilities,
-      countryTimeZone,
+      primaryTimeZone,
       permissions,
       role,
       settings,
@@ -211,7 +211,7 @@ export class TamanuApi extends ApiClient {
       localisation,
       server,
       availableFacilities,
-      countryTimeZone,
+      primaryTimeZone,
       permissions,
       role,
       settings,

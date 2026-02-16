@@ -130,9 +130,6 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const { formatShort, toStoredDateTime, toFacilityDateTime } = useDateTime();
   const isEdit = !!initialValues.id;
 
-  // Convert startTime/endTime from country timezone to facility timezone for the form,
-  // since the time slot picker operates in facility timezone and handleSubmit converts
-  // back to country timezone via toStoredDateTime on save.
   const processedInitialValues = useMemo(() => {
     if (!initialValues.startTime) return initialValues;
     const facilityStartStr = toFacilityDateTime(initialValues.startTime);
@@ -335,36 +332,21 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     overnight: yup.boolean(),
     date: yup.string().when('overnight', {
       is: value => !value,
-      then: yup
-        .string()
-        .nullable()
-        .required(requiredMessage),
+      then: yup.string().nullable().required(requiredMessage),
       otherwise: yup.string().nullable(),
     }),
     startDate: yup.string().when('overnight', {
       is: true,
-      then: yup
-        .string()
-        .nullable()
-        .required(requiredMessage),
+      then: yup.string().nullable().required(requiredMessage),
       otherwise: yup.string().nullable(),
     }),
     endDate: yup.string().when('overnight', {
       is: true,
-      then: yup
-        .string()
-        .nullable()
-        .required(requiredMessage),
+      then: yup.string().nullable().required(requiredMessage),
       otherwise: yup.string().nullable(),
     }),
-    startTime: yup
-      .date()
-      .nullable()
-      .required(requiredMessage),
-    endTime: yup
-      .date()
-      .nullable()
-      .required(requiredMessage),
+    startTime: yup.date().nullable().required(requiredMessage),
+    endTime: yup.date().nullable().required(requiredMessage),
     patientId: yup.string().required(requiredMessage),
     bookingTypeId: yup.string().required(requiredMessage),
     clinicianId: yup.string(),

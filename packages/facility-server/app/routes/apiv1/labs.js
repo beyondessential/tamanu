@@ -143,7 +143,7 @@ labRequest.get(
       ...filterParams
     } = query;
 
-    const { countryTimeZone } = config;
+    const { primaryTimeZone } = config;
     const { facilityId } = filterParams;
     const facilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
 
@@ -191,7 +191,7 @@ labRequest.get(
         filterParams.requestedDateFrom,
         'lab_requests.requested_date >= :requestedDateFrom',
         ({ requestedDateFrom }) => {
-          const boundaries = getDayBoundaries(requestedDateFrom, countryTimeZone, facilityTimeZone);
+          const boundaries = getDayBoundaries(requestedDateFrom, primaryTimeZone, facilityTimeZone);
           return { requestedDateFrom: boundaries?.start ?? `${requestedDateFrom} 00:00:00` };
         },
       ),
@@ -199,7 +199,7 @@ labRequest.get(
         filterParams.requestedDateTo,
         'lab_requests.requested_date <= :requestedDateTo',
         ({ requestedDateTo }) => {
-          const boundaries = getDayBoundaries(requestedDateTo, countryTimeZone, facilityTimeZone);
+          const boundaries = getDayBoundaries(requestedDateTo, primaryTimeZone, facilityTimeZone);
           return { requestedDateTo: boundaries?.end ?? `${requestedDateTo} 23:59:59` };
         },
       ),

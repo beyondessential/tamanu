@@ -39,7 +39,7 @@ export const DischargeSummaryView = React.memo(() => {
   const { getLocalisation } = useLocalisation();
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
-  const { countryTimeZone } = useDateTime();
+  const { primaryTimeZone } = useDateTime();
   const { encounter } = useEncounter();
   const patient = useSelector(state => state.patient);
   const { data: additionalData, isFetching: isPADLoading } = usePatientAdditionalDataQuery(
@@ -84,7 +84,7 @@ export const DischargeSummaryView = React.memo(() => {
           getLocalisation={getLocalisation}
           getTranslation={getTranslation}
           getSetting={getSetting}
-          countryTimeZone={countryTimeZone}
+          primaryTimeZone={primaryTimeZone}
           data-testid="dischargesummaryprintout-zgjd"
         />
       </PDFLoader>

@@ -16,13 +16,13 @@ import { log } from '@tamanu/shared/services/logging';
 import { createTestContext } from '../../utilities';
 import { allFromUpstream } from '../../../dist/tasks/fhir/refresh/allFromUpstream';
 
-const COUNTRY_TIMEZONE = config?.countryTimeZone;
+const PRIMARY_TIME_ZONE = config?.primaryTimeZone;
 
 const createLocalDateTimeFromUTC = (year, month, day, hour, minute, second, millisecond = 0) => {
   // Interprets inputs AS utc, and "utcTime" is the **local** version of that time
   // ie. 2022-02-03 2:30 -> 2022-02-03 4:30 (+02:00 (implied by local timezone))
   const utcTime = Date.UTC(year, month, day, hour, minute, second, millisecond);
-  return utcToZonedTime(utcTime, COUNTRY_TIMEZONE);
+  return utcToZonedTime(utcTime, PRIMARY_TIME_ZONE);
 };
 
 const createLocalDateTimeStringFromUTC = (

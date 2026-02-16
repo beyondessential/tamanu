@@ -19,7 +19,7 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
   const [isOpen, setIsOpen] = useState();
   const { storedLanguage, translations } = useTranslation();
   const { getSetting } = useSettings();
-  const { countryTimeZone } = useDateTime();
+  const { primaryTimeZone } = useDateTime();
 
   const {
     data: additionalData,
@@ -63,7 +63,7 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
             getSetting={getSetting}
             language={storedLanguage}
             translations={translations}
-            countryTimeZone={countryTimeZone}
+            primaryTimeZone={primaryTimeZone}
             data-testid="deathcertificateprintout-l7w8"
           />
         </PDFLoader>

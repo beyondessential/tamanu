@@ -17,7 +17,7 @@ import { LabResultsPrintout } from '@tamanu/shared/utils/patientCertificates';
 export const LabResultsPrintoutModal = React.memo(({ labRequest, patient, open, onClose }) => {
   const { translations } = useTranslation();
   const { getSetting } = useSettings();
-  const { countryTimeZone } = useDateTime();
+  const { primaryTimeZone } = useDateTime();
   const api = useApi();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
 
@@ -94,7 +94,7 @@ export const LabResultsPrintoutModal = React.memo(({ labRequest, patient, open, 
           labRequest={labRequestWithDetails}
           getSetting={getSetting}
           translations={translations}
-          countryTimeZone={countryTimeZone}
+          primaryTimeZone={primaryTimeZone}
           data-testid="labresultsprintout-component"
         />
       </PDFLoader>

@@ -47,6 +47,7 @@ export const trimToTime = (date: string | null | undefined): string | null | und
   return time?.length === 5 ? `${time}:00` : time;
 };
 
+
 const makeDateObject = (date: string | Date) => {
   if (typeof date !== 'string') return date;
   return isISOString(date) ? parseISO(date) : new Date(date.replace(' ', 'T'));
@@ -253,18 +254,18 @@ const toISO9075DateTime = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) 
 const toDateTimeLocalFormat = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) =>
   formatTemporal(dt, 'T', false);
 
-const parseDateTimeString = (date: string, countryTimeZone: string): Temporal.PlainDateTime => {
+const parseDateTimeString = (date: string, primaryTimeZone: string): Temporal.PlainDateTime => {
   const normalized = date.replace(' ', 'T');
   if (/[Zz]$/.test(normalized)) {
     const instant = Temporal.Instant.from(normalized);
-    const tz = countryTimeZone ?? Temporal.Now.timeZoneId();
+    const tz = primaryTimeZone ?? Temporal.Now.timeZoneId();
     return instant.toZonedDateTimeISO(tz).toPlainDateTime();
   }
   return Temporal.PlainDateTime.from(normalized);
 };
 
-const getDisplayTimezone = (countryTimeZone: string, facilityTimeZone?: string | null) =>
-  facilityTimeZone ?? countryTimeZone;
+const getDisplayTimezone = (primaryTimeZone: string, facilityTimeZone?: string | null) =>
+  facilityTimeZone ?? primaryTimeZone;
 
 const isTimezoneError = (error: unknown): boolean =>
   error instanceof RangeError && /time\s*zone/i.test(String(error));
@@ -273,24 +274,24 @@ const logDateError = (
   fnName: string,
   error: unknown,
   value: unknown,
-  countryTimeZone: string,
+  primaryTimeZone: string,
   facilityTimeZone?: string | null,
 ) => {
   if (isTimezoneError(error)) {
     console.error(
-      `[${fnName}] Invalid timezone configuration — countryTimeZone: ${JSON.stringify(countryTimeZone)}, facilityTimeZone: ${JSON.stringify(facilityTimeZone)}. Error:`,
+      `[${fnName}] Invalid timezone configuration — primaryTimeZone: ${JSON.stringify(primaryTimeZone)}, facilityTimeZone: ${JSON.stringify(facilityTimeZone)}. Error:`,
       error,
     );
   } else {
     console.warn(`[${fnName}] Failed to process date value ${JSON.stringify(value)}:`, error);
   }
-};
+};  
 
 export const intlFormatDate = (
   date: string | Date | null | undefined,
   formatOptions: Intl.DateTimeFormatOptions,
   fallback = 'Unknown',
-  countryTimeZone: string,
+  primaryTimeZone: string,
   facilityTimeZone?: string | null,
 ) => {
   if (!date) return fallback;
@@ -311,19 +312,19 @@ export const intlFormatDate = (
       return plainDate.toLocaleString(locale, formatOptions);
     }
 
-    const displayTz = getDisplayTimezone(countryTimeZone, facilityTimeZone);
-    const plain = parseDateTimeString(date, countryTimeZone);
+    const displayTz = getDisplayTimezone(primaryTimeZone, facilityTimeZone);
+    const plain = parseDateTimeString(date, primaryTimeZone);
 
-    if (countryTimeZone && displayTz) {
+    if (primaryTimeZone && displayTz) {
       return plain
-        .toZonedDateTime(countryTimeZone)
+        .toZonedDateTime(primaryTimeZone)
         .withTimeZone(displayTz)
         .toLocaleString(locale, formatOptions);
     }
 
     return plain.toLocaleString(locale, formatOptions);
   } catch (error) {
-    logDateError('intlFormatDate', error, date, countryTimeZone, facilityTimeZone);
+    logDateError('intlFormatDate', error, date, primaryTimeZone, facilityTimeZone);
     return fallback;
   }
 };
@@ -410,26 +411,26 @@ export const getCurrentDateStringInTimezone = (timezone: string) =>
 
 /** Get current facility date object in facility timezone */
 export const getFacilityNowDate = (
-  countryTimeZone: string,
+  primaryTimeZone: string,
   facilityTimeZone?: string | null,
 ): Date => {
-  const tz = facilityTimeZone ?? countryTimeZone;
+  const tz = facilityTimeZone ?? primaryTimeZone;
   return new Date(getCurrentDateTimeStringInTimezone(tz).replace(' ', 'T'));
 };
 
 /**
- * Convert stored datetime (country timezone) to display format (facility timezone)
+ * Convert stored datetime (primary timezone) to display format (facility timezone)
  * Used when populating datetime-local inputs with existing values
  */
 export const toFacilityDateTime = (
   value: string | Date | null | undefined,
-  countryTimeZone: string,
+  primaryTimeZone: string,
   facilityTimeZone?: string | null,
 ): string | null => {
   if (value == null) return null;
 
   try {
-    const displayTz = getDisplayTimezone(countryTimeZone, facilityTimeZone);
+    const displayTz = getDisplayTimezone(primaryTimeZone, facilityTimeZone);
 
     if (value instanceof Date) {
       if (!isValid(value)) return null;
@@ -444,25 +445,25 @@ export const toFacilityDateTime = (
       return `${value}T00:00`;
     }
 
-    const plain = parseDateTimeString(value, countryTimeZone);
-    if (countryTimeZone && displayTz) {
-      return toDateTimeLocalFormat(plain.toZonedDateTime(countryTimeZone).withTimeZone(displayTz));
+    const plain = parseDateTimeString(value, primaryTimeZone);
+    if (primaryTimeZone && displayTz) {
+      return toDateTimeLocalFormat(plain.toZonedDateTime(primaryTimeZone).withTimeZone(displayTz));
     }
 
     return toDateTimeLocalFormat(plain);
   } catch (error) {
-    logDateError('toFacilityDateTime', error, value, countryTimeZone, facilityTimeZone);
+    logDateError('toFacilityDateTime', error, value, primaryTimeZone, facilityTimeZone);
     return null;
   }
 };
 
 /**
- * Convert input value (facility timezone) to storage format (country timezone)
+ * Convert input value (facility timezone) to storage format (primary timezone)
  * Used when saving datetime-local input values to the database
  */
 export const toStoredDateTime = (
   inputValue: string | null | undefined,
-  countryTimeZone: string,
+  primaryTimeZone: string,
   facilityTimeZone?: string | null,
 ): string | null => {
   if (!inputValue) return null;
@@ -470,30 +471,30 @@ export const toStoredDateTime = (
   try {
     if (/[Zz]$/.test(inputValue)) {
       const instant = Temporal.Instant.from(inputValue.replace(' ', 'T'));
-      const tz = countryTimeZone ?? Temporal.Now.timeZoneId();
+      const tz = primaryTimeZone ?? Temporal.Now.timeZoneId();
       return toISO9075DateTime(instant.toZonedDateTimeISO(tz));
     }
 
-    const plain = parseDateTimeString(inputValue, countryTimeZone);
+    const plain = parseDateTimeString(inputValue, primaryTimeZone);
 
-    if (!countryTimeZone) {
+    if (!primaryTimeZone) {
       return toISO9075DateTime(plain);
     }
-    const inputTz = getDisplayTimezone(countryTimeZone, facilityTimeZone);
-    return toISO9075DateTime(plain.toZonedDateTime(inputTz).withTimeZone(countryTimeZone));
+    const inputTz = getDisplayTimezone(primaryTimeZone, facilityTimeZone);
+    return toISO9075DateTime(plain.toZonedDateTime(inputTz).withTimeZone(primaryTimeZone));
   } catch (error) {
-    logDateError('toStoredDateTime', error, inputValue, countryTimeZone, facilityTimeZone);
+    logDateError('toStoredDateTime', error, inputValue, primaryTimeZone, facilityTimeZone);
     return null;
   }
 };
 
 export const getDayBoundaries = (
   date: string,
-  countryTimeZone: string,
+  primaryTimeZone: string,
   facilityTimeZone?: string | null,
 ) => {
-  const start = toStoredDateTime(`${date}T00:00:00`, countryTimeZone, facilityTimeZone);
-  const end = toStoredDateTime(`${date}T23:59:59`, countryTimeZone, facilityTimeZone);
+  const start = toStoredDateTime(`${date}T00:00:00`, primaryTimeZone, facilityTimeZone);
+  const end = toStoredDateTime(`${date}T23:59:59`, primaryTimeZone, facilityTimeZone);
   if (!start || !end) return null;
   return {
     start,
