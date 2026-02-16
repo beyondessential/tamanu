@@ -30,26 +30,20 @@ export async function up(query: QueryInterface): Promise<void> {
       ADD COLUMN id_new TEXT GENERATED ALWAYS AS (REPLACE("patient_id", ';', ':') || ';' || REPLACE("prescription_id", ';', ':')) STORED;
 
     UPDATE logs.changes
-    SET record_id = pop.id_new
+    SET
+      record_id = pop.id_new,
+      record_data = jsonb_set(record_data, '{id}', to_jsonb(pop.id_new::text))
     FROM patient_ongoing_prescriptions pop
     WHERE logs.changes.record_id = pop.id::text
       AND logs.changes.table_name = 'patient_ongoing_prescriptions';
 
-    UPDATE logs.changes
-    SET record_data = jsonb_set(record_data, '{id}', to_jsonb(record_id::text))
-    WHERE table_name = 'patient_ongoing_prescriptions'
-      AND record_id != record_data->>'id';
-
     UPDATE sync_lookup
-    SET record_id = pop.id_new
+    SET
+      record_id = pop.id_new,
+      data = jsonb_set(data::jsonb, '{id}', to_jsonb(pop.id_new))
     FROM patient_ongoing_prescriptions pop
     WHERE sync_lookup.record_id = pop.id::text
       AND sync_lookup.record_type = 'patient_ongoing_prescriptions';
-
-    UPDATE sync_lookup
-    SET data = jsonb_set(data::jsonb, '{id}', to_jsonb(record_id))
-    WHERE record_type = 'patient_ongoing_prescriptions'
-      AND (data::jsonb->>'id') IS DISTINCT FROM record_id;
 
     ALTER TABLE patient_ongoing_prescriptions DROP CONSTRAINT patient_ongoing_prescriptions_pkey;
     ALTER TABLE patient_ongoing_prescriptions DROP COLUMN id;
