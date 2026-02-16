@@ -331,6 +331,14 @@ const getColumns = (
           onChange={onChange}
           required
           error={hasError}
+          helperText={
+            hasError && (
+              <TranslatedText
+                stringId="validation.required.inline"
+                fallback="Required"
+              />
+            )
+          }
           data-testid="textinput-rxbh"
         />
       ),

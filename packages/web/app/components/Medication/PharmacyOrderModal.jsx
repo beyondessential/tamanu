@@ -381,7 +381,23 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
   ]);
 
   const handleClickSend = useCallback(() => {
-    if (!validateForm()) return;
+    const selectedPrescriptions = prescriptions.filter(p => p.selected);
+    if (selectedPrescriptions.length === 0) {
+      notifyError('Please select at least one medication to send to the pharmacy');
+      return;
+    }
+
+    // Validate quantities on selected rows and show errors
+    const hasInvalidQuantities = selectedPrescriptions.some(p => !p.quantity || p.quantity <= 0);
+    if (hasInvalidQuantities) {
+      setPrescriptions(prev =>
+        prev.map(p => ({
+          ...p,
+          hasError: p.selected && (!p.quantity || p.quantity <= 0),
+        })),
+      );
+      return;
+    }
 
     if (getAlreadyOrderedPrescriptions().length > 0) {
       setShowAlreadyOrderedConfirmation(true);
@@ -389,7 +405,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
     }
 
     handleSendOrder();
-  }, [validateForm, handleSendOrder, getAlreadyOrderedPrescriptions]);
+  }, [prescriptions, orderingClinicianId, handleSendOrder, getAlreadyOrderedPrescriptions]);
 
   const handleClose = useCallback(() => {
     setTimeout(() => {
@@ -399,8 +415,6 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
       onClose();
     }, 200);
   }, [onClose]);
-
-  const isFormValid = validateForm();
 
   // Prepare data with select handlers
   const tableData = useMemo(
@@ -670,7 +684,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
               data-testid="translatedtext-ojsa"
             />
           }
-          confirmDisabled={!isFormValid}
+          confirmDisabled={!prescriptions.some(p => p.selected)}
           onConfirm={handleClickSend}
           onCancel={handleClose}
           data-testid="confirmcancelrow-9lo1"
