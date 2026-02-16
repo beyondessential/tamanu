@@ -127,21 +127,18 @@ const ErrorMessage = ({ isEdit = false, error }) => {
 export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
   const { updateSelectedCell, viewType } = useLocationBookingsContext();
-  const { formatShort, toStoredDateTime, toFacilityDateTime } =
-    useDateTime();
+  const { formatShort, toStoredDateTime, toFacilityDateTime } = useDateTime();
   const isEdit = !!initialValues.id;
 
-  // Convert startTime/endTime from primary timezone to facility timezone for the form,
+  // Convert startTime/endTime from country timezone to facility timezone for the form,
   // since the time slot picker operates in facility timezone and handleSubmit converts
-  // back to primary timezone via toStoredDateTime on save.
+  // back to country timezone via toStoredDateTime on save.
   const processedInitialValues = useMemo(() => {
     if (!initialValues.startTime) return initialValues;
     const facilityStartStr = toFacilityDateTime(initialValues.startTime);
     if (!facilityStartStr) return initialValues;
 
-    const facilityEndStr = initialValues.endTime
-      ? toFacilityDateTime(initialValues.endTime)
-      : null;
+    const facilityEndStr = initialValues.endTime ? toFacilityDateTime(initialValues.endTime) : null;
 
     const startDate = trimToDate(facilityStartStr);
     const endDate = trimToDate(facilityEndStr);

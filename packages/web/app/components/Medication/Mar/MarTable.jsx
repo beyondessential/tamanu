@@ -155,7 +155,7 @@ const LoadingContainer = styled.div`
 // Convert time string to locale-specific time string no timezone conversion is applied
 const formatSlotTime = timeStr =>
   Intl.DateTimeFormat(locale, { hour: 'numeric', hour12: true }).format(
-    new Date(`2000-01-01 ${timeStr === '24:00' ? '00:00' : timeStr}:00`),
+    new Date(`2000-01-01T${timeStr === '24:00' ? '00:00' : timeStr}:00`),
   );
 
 const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate, facilityNow }) => {

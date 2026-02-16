@@ -84,7 +84,7 @@ const PrintContainer = styled.div`
 const PrintDescription = styled(Box)`
   margin-bottom: 16px;
   font-size: 14px;
-  color: Colors.midText;
+  color: ${Colors.midText};
 
   @media print {
     display: none;
@@ -273,7 +273,7 @@ export const DispenseMedicationWorkflowModal = memo(
         });
       setItems(nextItems);
       setItemErrors({});
-    }, [open, dispensableResponse]);
+    }, [open, dispensableResponse, getTranslation, getEnumTranslation]);
 
     const handleClose = () => {
       setItems([]);

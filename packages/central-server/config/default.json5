@@ -366,7 +366,7 @@
       "enabled": false, // the HTTP routes
       "worker": {
         "enabled": true, // the materialisation worker
-        "concurrency": 100,
+        "concurrency": 10,
         "resourceMaterialisationEnabled": {
           "Patient": true,
           "Encounter": false,

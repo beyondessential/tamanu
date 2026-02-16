@@ -248,7 +248,7 @@ export const SampleDetailsField = ({
       removeSample,
       setValue,
       hasPanels,
-      getFacilityNowDate,
+      getCurrentDateTime,
     ],
   );
 

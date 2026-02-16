@@ -109,10 +109,8 @@ const LabelFooterText = styled.div`
 
 export const getMedicationLabel = (quantity, units, getEnumTranslation) => {
   if (!quantity || !units) return;
-  const translatedUnit =
-    quantity > 1
-      ? pluralize(getEnumTranslation(DRUG_UNIT_LABELS, units))
-      : getEnumTranslation(DRUG_UNIT_LABELS, units);
+  const enumTranslation = getEnumTranslation(DRUG_UNIT_LABELS, units);
+  const translatedUnit = quantity > 1 ? pluralize(enumTranslation) : enumTranslation;
   return `${quantity} ${translatedUnit.toLowerCase()}`;
 };
 

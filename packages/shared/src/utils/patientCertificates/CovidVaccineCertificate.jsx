@@ -75,8 +75,6 @@ const CovidVaccineCertificateComponent = ({
   } = getSetting('templates.vaccineCertificate');
   const countryName = getLocalisation('country.name');
 
-  console.log('uvci', uvci);
-
   const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
   const columns = getColumns(formatShort);
 

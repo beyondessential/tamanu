@@ -5,12 +5,7 @@ import * as yup from 'yup';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { Form, FormGrid, FormSubmitCancelRow, useDateTime } from '@tamanu/ui-components';
 
-import {
-  AutocompleteField,
-  DateTimeField,
-  Field,
-  TranslatedText,
-} from '../components';
+import { AutocompleteField, DateTimeField, Field, TranslatedText } from '../components';
 import { useSuggester } from '../api';
 import { useMarkTaskNotCompleted } from '../api/mutations/useTaskMutation';
 import { useAuth } from '../contexts/Auth';
@@ -26,7 +21,7 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
 
   const { mutate: markTaskNotCompleted } = useMarkTaskNotCompleted();
 
-  const onSubmit = async (values) => {
+  const onSubmit = async values => {
     const { notCompletedReasonId, ...others } = values;
     markTaskNotCompleted(
       {

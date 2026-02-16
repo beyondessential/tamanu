@@ -23,7 +23,6 @@ export const FamilyHistoryForm = ({
   onSubmit,
 }) => {
   const { getCurrentDate } = useDateTime();
-  
   const getInitialValues = () => {
     if (editedObject) {
       // Currently the recordedDate is a dateTime type in the database, so we need to convert it to date type

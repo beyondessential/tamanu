@@ -1,4 +1,4 @@
-import { REPORT_DB_SCHEMAS, REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/constants/reports';
+import { REPORT_DB_CONNECTIONS, REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/constants/reports';
 import { createTestContext, withDateUnsafelyFaked } from '../../utilities';
 import { readJSON, sanitizeFilename, verifyQuery } from '../../../dist/admin/reports/utils';
 import { User } from '@tamanu/database';
@@ -18,7 +18,7 @@ describe('reportRoutes', () => {
     baseApp = ctx.baseApp;
     models = ctx.store.models;
     adminApp = await baseApp.asRole('admin');
-    dbSchema = REPORT_DB_SCHEMAS.RAW;
+    dbSchema = REPORT_DB_CONNECTIONS.RAW;
     testReport = await models.ReportDefinition.create({
       name: 'Test Report',
       dbSchema,

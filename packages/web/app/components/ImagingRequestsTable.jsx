@@ -190,8 +190,9 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
       }
       await dispatch(reloadImagingRequest(imagingRequest.id));
       const category = params.category || 'all';
-      const path = `/patients/${category}/${patientId}/encounter/${encounterId ||
-        encounter.id}/imaging-request/${imagingRequest.id}`;
+      const path = `/patients/${category}/${patientId}/encounter/${
+        encounterId || encounter.id
+      }/imaging-request/${imagingRequest.id}`;
       navigate(path);
       setIsRowsDisabled(false);
     },
@@ -206,14 +207,11 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
     ],
   );
 
-  const globalImagingRequestsFetchOptions = useMemo(
-    () => ({
-      ...(statuses.length > 0 ? { status: statuses } : {}),
-      ...searchParameters,
-      facilityId,
-    }),
-    [searchParameters, statuses, facilityId],
-  );
+  const globalImagingRequestsFetchOptions = useMemo(() => ({
+    ...(statuses.length > 0 ? { status: statuses } : {}),
+    ...searchParameters,
+    facilityId,
+  }), [searchParameters, statuses, facilityId]);
 
   return (
     <SearchTableWithPermissionCheck

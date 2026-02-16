@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { DeleteOutlined } from '@material-ui/icons';
-import { toDateString, toWeekdayCode, trimToTime } from '@tamanu/utils/dateTime';
+import { toDateString, toWeekdayCode, trimToDate, trimToTime } from '@tamanu/utils/dateTime';
 
 import { useSuggester } from '../../../api';
 import {
@@ -120,8 +120,10 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
   const [overlappingRepeatingAssignments, setOverlappingRepeatingAssignments] = useState(null);
   const [overlappingLeaves, setOverlappingLeaves] = useState(null);
   const [handleConfirmOverlappingLeaves, setHandleConfirmOverlappingLeaves] = useState(null);
-  const [selectedModifyRepeatingAssignmentMode, setSelectedModifyRepeatingAssignmentMode] =
-    useState();
+  const [
+    selectedModifyRepeatingAssignmentMode,
+    setSelectedModifyRepeatingAssignmentMode,
+  ] = useState();
   const isEditingSingleRepeatingAssignment =
     isEditMode &&
     initialValues.isRepeatingAssignment &&
@@ -144,8 +146,9 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
   const userSuggester = useSuggester('practitioner');
 
   const { mutateAsync: checkOverlappingLeaves } = useOverlappingLeavesQuery();
-  const { mutateAsync: checkOverlappingAssignments } =
-    useLocationAssignmentOverlappingAssignmentsMutation();
+  const {
+    mutateAsync: checkOverlappingAssignments,
+  } = useLocationAssignmentOverlappingAssignmentsMutation();
 
   const { mutateAsync: mutateAssignment } = useLocationAssignmentMutation();
 
@@ -166,20 +169,22 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
     { userId, locationId, date, startTime, endTime, isRepeatingAssignment, schedule },
     { resetForm },
   ) => {
+    const storedStartTime = toStoredDateTime(startTime);
+    const storedEndTime = toStoredDateTime(endTime);
     const payload = {
       id: initialValues.id,
       userId,
       locationId,
-      date,
-      startTime: trimToTime(toStoredDateTime(startTime)),
-      endTime: trimToTime(toStoredDateTime(endTime)),
+      date: trimToDate(storedStartTime) || date,
+      startTime: trimToTime(storedStartTime),
+      endTime: trimToTime(storedEndTime),
     };
     if ((isRepeatingAssignment && !isViewing) || isEditingMultipleRepeatingAssignments) {
       payload.repeatFrequency = schedule.interval;
       payload.repeatUnit = schedule.frequency;
       payload.repeatEndDate = schedule.occurrenceCount
         ? getLastFrequencyDate(
-            date,
+            payload.date,
             schedule.interval,
             schedule.frequency,
             schedule.occurrenceCount,
@@ -287,7 +292,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
     date: yup
       .string()
       .required(requiredMessage)
-      .test('leave-conflict', async function (value) {
+      .test('leave-conflict', async function(value) {
         if (!value || !this.parent.userId || isViewing) return true;
 
         const overlappingLeaves = await checkOverlappingLeaves({
@@ -309,8 +314,14 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
 
         return true;
       }),
-    startTime: yup.date().nullable().required(requiredMessage),
-    endTime: yup.date().nullable().required(requiredMessage),
+    startTime: yup
+      .date()
+      .nullable()
+      .required(requiredMessage),
+    endTime: yup
+      .date()
+      .nullable()
+      .required(requiredMessage),
     schedule: yup.object().when('isRepeatingAssignment', {
       is: true,
       then: yup.object().shape(
@@ -349,7 +360,11 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
             .of(yup.string().oneOf(DAYS_OF_WEEK))
             // Note: currently supports a single day of the week
             .length(1),
-          nthWeekday: yup.number().nullable().min(-1).max(4),
+          nthWeekday: yup
+            .number()
+            .nullable()
+            .min(-1)
+            .max(4),
         },
         ['untilDate', 'occurrenceCount'],
       ),
@@ -403,7 +418,8 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
       const { untilDate: initialUntilDate } = initialValues.schedule || {};
       setFieldValue(
         'schedule.untilDate',
-        initialUntilDate || toDateString(add(parseISO(getCurrentDate()), { months: maxFutureMonths })),
+        initialUntilDate ||
+          toDateString(add(parseISO(getCurrentDate()), { months: maxFutureMonths })),
       );
     };
 
