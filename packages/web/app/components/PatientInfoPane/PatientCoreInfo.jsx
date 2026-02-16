@@ -1,12 +1,12 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
 import { Button, Typography } from '@material-ui/core';
-import { TranslatedSex, TranslatedText, DateDisplay } from '@tamanu/ui-components';
-import { Colors } from '../../constants/styles';
+import { TranslatedSex, TranslatedText, useTranslation, DateDisplay } from '@tamanu/ui-components';
 import { PatientInitialsIcon } from '../PatientInitialsIcon';
 import { useSettings } from '../../contexts/Settings';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { getDisplayAge } from '../../utils/dateTime';
+import { PATIENT_STATUS_COLORS, Colors } from '../../constants';
 
 const PatientButton = styled(Button)`
   display: block;
@@ -81,7 +81,9 @@ const HealthIdContainer = styled.div`
 `;
 
 const HealthId = styled.div`
-  background: ${(props) => props.theme.palette.primary.main};
+  background: ${(props) => (
+    props.isDeceased ? PATIENT_STATUS_COLORS.Deceased : props.theme.palette.primary.main
+  )};
   color: ${Colors.white};
   font-weight: 600;
   display: flex;
@@ -105,9 +107,9 @@ const AgeDisplay = styled.span`
   text-transform: none;
 `;
 
-const HealthIdDisplay = ({ displayId }) => (
+const HealthIdDisplay = ({ displayId, isDeceased }) => (
   <HealthIdContainer data-testid="healthidcontainer-gdlx">
-    <HealthId data-testid="healthid-6qrz">
+    <HealthId isDeceased={isDeceased} data-testid="healthid-6qrz">
       <HealthIdText data-testid="healthidtext-v925">
         <TranslatedText
           stringId="general.localisedField.displayId.label"
@@ -125,7 +127,11 @@ const HealthIdDisplay = ({ displayId }) => (
 export const CoreInfoDisplay = memo(({ patient }) => {
   const { navigateToPatient } = usePatientNavigation();
   const { getSetting } = useSettings();
+  const { getTranslation } = useTranslation();
   const ageDisplayFormat = getSetting('ageDisplayFormat');
+  const ageText = patient.dateOfDeath
+    ? getTranslation('patient.detailsSidebar.deceased', 'deceased')
+    : getDisplayAge(patient.dateOfBirth, ageDisplayFormat);
 
   return (
     <>
@@ -175,10 +181,14 @@ export const CoreInfoDisplay = memo(({ patient }) => {
           data-testid="coreinfocell-0opr"
         >
           <DateDisplay date={patient.dateOfBirth} data-testid="datedisplay-ez8y" />
-          <AgeDisplay data-testid="agedisplay-gpl9">{` (${getDisplayAge(patient.dateOfBirth, ageDisplayFormat)})`}</AgeDisplay>
+          <AgeDisplay data-testid="agedisplay-gpl9">{` (${ageText})`}</AgeDisplay>
         </CoreInfoCell>
       </CoreInfoSection>
-      <HealthIdDisplay displayId={patient.displayId} data-testid="healthiddisplay-su8y" />
+      <HealthIdDisplay
+        displayId={patient.displayId}
+        isDeceased={Boolean(patient.dateOfDeath)}
+        data-testid="healthiddisplay-su8y"
+      />
     </>
   );
 });
