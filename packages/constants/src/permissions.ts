@@ -20,7 +20,6 @@ export const PERMISSION_NOUNS = [
   'Encounter',
   'EncounterDiagnosis',
   'EncounterNote',
-  'Facility',
   'ImagingRequest',
   'ImagingAreaExternalCode',
   'ImagingTypeExternalCode',
