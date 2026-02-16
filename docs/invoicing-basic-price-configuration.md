@@ -55,12 +55,12 @@ invoicePriceList-default	invoicePriceList-default	Default Price List	current
 Create a spreadsheet tab named **"Invoice Product"** with the following structure:
 
 ```
-id	name	category	sourceRecordId	discountable	visibilityStatus
+id	name	category	sourceRecordId	insurable	visibilityStatus
 invoiceProduct-consultation-standard	Standard Consultation			TRUE	current
 invoiceProduct-consultation-extended	Extended Consultation			TRUE	current
 invoiceProduct-consultation-specialist	Specialist Consultation			TRUE	current
-invoiceProduct-emergency-attendance	Emergency Department Attendance			FALSE	current
-invoiceProduct-admission-daily	Daily Ward Admission			FALSE	current
+invoiceProduct-emergency-attendance	Emergency Department Attendance			TRUE	current
+invoiceProduct-admission-daily	Daily Ward Admission			TRUE	current
 invoiceProduct-xray-chest	Chest X-Ray			TRUE	current
 invoiceProduct-xray-limb	Limb X-Ray			TRUE	current
 invoiceProduct-ultrasound-abdomen	Abdominal Ultrasound			TRUE	current
@@ -75,8 +75,8 @@ invoiceProduct-dressing-simple	Simple Wound Dressing			TRUE	current
 invoiceProduct-dressing-complex	Complex Wound Dressing			TRUE	current
 invoiceProduct-suturing	Suturing / Stitches			TRUE	current
 invoiceProduct-casting	Plaster Cast Application			TRUE	current
-invoiceProduct-immunization-tetanus	Tetanus Vaccination			FALSE	current
-invoiceProduct-immunization-hepatitisb	Hepatitis B Vaccination			FALSE	current
+invoiceProduct-immunization-tetanus	Tetanus Vaccination			TRUE	current
+invoiceProduct-immunization-hepatitisb	Hepatitis B Vaccination			TRUE	current
 invoiceProduct-iv-fluids	IV Fluid Administration (per bag)			TRUE	current
 invoiceProduct-medication-paracetamol	Paracetamol 500mg Tablet			TRUE	current
 invoiceProduct-medication-amoxicillin	Amoxicillin 500mg Capsule			TRUE	current
@@ -85,22 +85,22 @@ invoiceProduct-physiotherapy	Physiotherapy Session			TRUE	current
 invoiceProduct-counseling	Patient Counseling Session			TRUE	current
 invoiceProduct-surgical-minor	Minor Surgical Procedure			TRUE	current
 invoiceProduct-surgical-intermediate	Intermediate Surgical Procedure			TRUE	current
-invoiceProduct-anesthesia-local	Local Anesthesia			FALSE	current
+invoiceProduct-anesthesia-local	Local Anesthesia			TRUE	current
 ```
 
 **Column Definitions:**
 
 - `id` - Unique identifier for the product (referenced in Price List Item table)
 - `name` - Display name shown when adding items to invoices
-- `category` - Optional. Valid values: `Drug`, `Procedure`, `Imaging Type`, `Imaging Area`, `Lab Test Type`, `Lab Test Panel`. Leave empty for standalone items.
+- `category` - Optional. Valid values: `Drug`, `ProcedureType`, `ImagingType`, `ImagingArea`, `LabTestType`, `LabTestPanel`. Leave empty for standalone items.
 - `sourceRecordId` - Optional. Links to existing reference data (e.g., `drug-paracetamol500`). Leave empty for standalone items.
-- `discountable` - `TRUE` allows staff to apply discounts; `FALSE` prevents discounting
+- `insurable` - `TRUE` if the item can be claimed through insurance; `FALSE` if not eligible for insurance claims
 - `visibilityStatus` - Must be `current` for active products
 
 **Key Points:**
 
 - Use descriptive, medical-appropriate names
-- Set `discountable` to `FALSE` for items with fixed pricing policies (government fees, accommodation)
+- Set `insurable` to `FALSE` for items not eligible for insurance claims (if applicable to your insurance setup)
 - `category` and `sourceRecordId` are only needed if linking to existing reference data (advanced use case)
 
 ---
@@ -154,7 +154,7 @@ invoiceProduct-anesthesia-local	75.00
 
 - Numeric values (e.g., `45.00`, `0.50`) - Defines the default price for this item
 - Empty cell - Item can be added to invoices, but staff must manually enter the price
-- `HIDDEN` - Item will not appear in the invoice item picker for this price list
+- `hidden` - Item will not appear in the invoice item picker for this price list
 
 **Key Points:**
 
@@ -181,7 +181,8 @@ The import will fail if:
 - `id` is duplicated in the Invoice Product table
 - `invoiceProductId` in the Price List Item table references a non-existent product
 - Price list code column in Price List Item table references a non-existent price list
-- Price values are non-numeric (except for `HIDDEN` or empty)
+- Price values are non-numeric (except for `hidden` or empty)
+- `category` values are not one of the valid constants (must be exact case-sensitive match)
 
 ## Next Steps
 
