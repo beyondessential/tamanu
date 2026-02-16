@@ -159,7 +159,7 @@ describe('DHIS2 integration processor', () => {
 
       expect(logSpy.error).toHaveBeenLastCalledWith(ERROR_LOGS.ERROR_POSTING_DATA_VALUE_SET, {
         reportId: report.id,
-        dataValueSet: expect.any(Object),
+        dataValueSet: expect.any(String),
         error: expect.any(String),
       });
     });
