@@ -56,7 +56,7 @@ e2e_test_setup_setup_central() {
                     "vascularStudy": { "label": "Vascular Study" },
                     "stressTest": { "label": "Treadmill" }
                 },
-                "previewUvciFormat": "tamanu",
+
                 "disabledReports": [
                     "aefi",
                     "india-assistive-technology-device-line-list",
