@@ -40,7 +40,7 @@ export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient
     data =>
       api.post('certificateNotification', {
         type: ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON,
-        requireSigning: false,
+
         patientId: patient.id,
         forwardAddress: data.email,
         createdBy: printedBy,
