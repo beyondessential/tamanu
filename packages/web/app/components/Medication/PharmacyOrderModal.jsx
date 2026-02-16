@@ -335,6 +335,8 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
   }, [prescriptions, orderingClinicianId]);
 
   const handleSendOrder = useCallback(async () => {
+    if (!validateForm()) return;
+
     try {
       const selectedPrescriptions = prescriptions.filter(p => p.selected);
 
@@ -380,6 +382,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
       notifyError(err.message);
     }
   }, [
+    validateForm,
     queryClient,
     isOngoingMode,
     patient?.id,
