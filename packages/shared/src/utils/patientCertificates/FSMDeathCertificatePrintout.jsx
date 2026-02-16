@@ -185,7 +185,7 @@ const getFSMDisplayDate = (date) => {
   return getDisplayDate(date, FSM_DATE_FORMAT);
 };
 
-const getDeathWithin42Days = ({ extraData }) => {
+const getDeathWithin42Days = (extraData) => {
   return extraData?.fsmDeathWithin42Days === 'yes' ? 'Y' : 'N';
 }
 
@@ -228,13 +228,13 @@ export const FSMDeathCertificatePrintout = ({
             <Cell flex={1} label="Under 1 year:" value={getUnder1Year(dob, dod)} />
             <Cell flex={1} label="Under 1 day:" value={getUnder1Day(dob, dod)} />
             <Cell flex={1} label="Date of birth:" value={getFSMDisplayDate(dob)} />
-            <Cell width={250} lastCell label="FSM state of death:" value={extraData?.fsmStateOfDeathId ?? ''} />
+            <Cell width={250} lastCell label="FSM state of death:" value={extraData?.fsmStateOfDeath?.name} />
           </View>
 
           {/* Row 3: Location of Death */}
           <View style={styles.row}>
-            <Cell flex={1} label="Atoll of island group of death:" value={extraData?.fsmAtollOfDeathId ?? ''} />
-            <Cell flex={1} label="Hospital/Dispensary or village & island municipality:" value={extraData?.fsmVillageOfDeathId ?? ''} />
+            <Cell flex={1} label="Atoll of island group of death:" value={extraData?.fsmAtollOfDeath?.name} />
+            <Cell flex={1} label="Hospital/Dispensary or village & island municipality:" value={extraData?.fsmVillageOfDeath?.name} />
             <Cell width={150} lastCell label="Hospital Record No.:" value={patientData?.displayId} />
           </View>
 

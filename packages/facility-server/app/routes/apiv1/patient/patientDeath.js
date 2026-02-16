@@ -87,6 +87,23 @@ patientDeath.get(
       });
     }
 
+    const extra = deathData?.extraData ?? {};
+    const fsmIds = [
+      extra.fsmStateOfDeathId,
+      extra.fsmAtollOfDeathId,
+      extra.fsmVillageOfDeathId,
+    ].filter(Boolean);
+    const fsmRefs = await Promise.all(
+      fsmIds.map(id => ReferenceData.findByPk(id)),
+    );
+    const [fsmStateOfDeath, fsmAtollOfDeath, fsmVillageOfDeath] = fsmRefs;
+    const extraData = {
+      ...extra,
+      ...(fsmStateOfDeath && { fsmStateOfDeath }),
+      ...(fsmAtollOfDeath && { fsmAtollOfDeath }),
+      ...(fsmVillageOfDeath && { fsmVillageOfDeath }),
+    };
+
     res.send({
       patientId: patient.id,
       patientDeathDataId: deathData?.id,
@@ -170,7 +187,7 @@ patientDeath.get(
       externalCauseLocation: deathData?.externalCauseLocation,
       externalCauseDate: deathData?.externalCauseDate,
       externalCauseNotes: deathData?.externalCauseNotes,
-      extraData: deathData?.extraData,
+      extraData,
     });
   }),
 );
