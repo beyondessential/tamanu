@@ -124,7 +124,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     return pick(logEntry.get({ plain: true }), LOG_FIELDS);
   }
 
-  async postToDHIS2({ reportId, dataValueSet }) {
+  async postToDHIS2(dataValueSet) {
     const { idSchemes, host, backoff } = await this.context.settings.get('integrations.dhis2');
     const { username, password } = config.integrations.dhis2;
     const authHeader = Buffer.from(`${username}:${password}`).toString('base64');
@@ -196,7 +196,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
 
     for (const dataValueSet of dhis2DataValueSets) {
       try {
-        const dhis2Response = await this.postToDHIS2({ reportId, dataValueSet });
+        const dhis2Response = await this.postToDHIS2(dataValueSet);
         // TODO: remove! This is to test a difference in behaviour between local and deploy
         console.log('dhis2Response', dhis2Response);
         const {
