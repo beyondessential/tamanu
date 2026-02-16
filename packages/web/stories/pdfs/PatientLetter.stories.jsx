@@ -19,9 +19,7 @@ const patient = {
 };
 
 const getLocalisation = key => {
-  const config = {
-    previewUvciFormat: 'tamanu',
-  };
+  const config = {};
   return config[key];
 };
 

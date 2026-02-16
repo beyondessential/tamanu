@@ -45,10 +45,7 @@ const rootLocalisationSchema = yup
     },
     timeZone: yup.string().nullable(),
     imagingTypes: imagingTypesSchema,
-    previewUvciFormat: yup
-      .string()
-      .required()
-      .oneOf(['tamanu', 'eudcc', 'icao']),
+
     disabledReports: yup.array(yup.string().required()).defined(),
     supportDeskUrl: yup.string().required(),
   })

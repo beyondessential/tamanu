@@ -19,9 +19,7 @@ const patient = {
   ...dummyAdditionalData,
 };
 
-const localisation = {
-  previewUvciFormat: 'tamanu',
-};
+const localisation = {};
 
 const examiner = {
   id: '6b1269ff-2443-4381-a532-ddd48fbd5020',

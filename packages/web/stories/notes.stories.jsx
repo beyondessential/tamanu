@@ -13,9 +13,7 @@ const Container = styled.div`
 `;
 
 const getLocalisation = key => {
-  const config = {
-    previewUvciFormat: 'tamanu',
-  };
+  const config = {};
   return config[key];
 };
 
