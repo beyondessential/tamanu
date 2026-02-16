@@ -218,6 +218,7 @@ const COLUMNS = [
   },
   {
     key: 'patientTotal',
+    sortable: false,
     title: (
       <TranslatedText
         stringId="patient.invoice.table.column.patientTotal"
@@ -228,7 +229,7 @@ const COLUMNS = [
     accessor: getInvoiceTotal,
   },
   {
-    key: 'paymentStatus',
+    key: 'patientPaymentStatus',
     title: (
       <TranslatedText
         stringId="patient.invoice.table.column.paymentStatus"
@@ -240,6 +241,7 @@ const COLUMNS = [
   },
   {
     key: 'balance',
+    sortable: false,
     title: (
       <TranslatedText
         stringId="patient.invoice.table.column.balance"

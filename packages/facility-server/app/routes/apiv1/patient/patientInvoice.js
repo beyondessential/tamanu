@@ -9,7 +9,7 @@ import { invoiceForResponse } from '../invoice/invoiceForResponse';
 export const patientInvoiceRoutes = express.Router();
 
 const encounterOrderByKeys = ['encounterType'];
-const invoiceOrderByKeys = ['date', 'displayId', 'status'];
+const invoiceOrderByKeys = ['date', 'displayId', 'patientPaymentStatus'];
 
 // Shared function to hydrate invoices with price list associations
 async function hydrateInvoices(invoiceRecords, models) {
