@@ -1,4 +1,19 @@
 import { Op } from 'sequelize';
+import { InvalidParameterError } from '@tamanu/errors';
+
+export const parseInvoiceInsurancePlanIds = (rawInsurancePlanIds) => {
+  try {
+    if (Array.isArray(rawInsurancePlanIds)) {
+      return rawInsurancePlanIds;
+    }
+    if (rawInsurancePlanIds) {
+      return JSON.parse(rawInsurancePlanIds);
+    }
+  } catch (error) {
+    throw new InvalidParameterError('Invalid insurance plan id');
+  }
+  return undefined;
+};
 
 export const savePatientInsurancePlans = async (PatientInvoiceInsurancePlanModel, patientId, invoiceInsurancePlanIds) => {
   if (invoiceInsurancePlanIds == null) {
