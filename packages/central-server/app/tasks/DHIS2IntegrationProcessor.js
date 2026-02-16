@@ -131,31 +131,22 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
 
     const params = new URLSearchParams({ ...idSchemes, importStrategy: 'CREATE_AND_UPDATE' });
 
-    try {
-      const response = await fetchWithRetryBackoff(
-        `${host}/api/dataValueSets?${params.toString()}`,
-        {
-          fetch,
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-            Authorization: `Basic ${authHeader}`,
-          },
-          body: JSON.stringify(dataValueSet),
+    const response = await fetchWithRetryBackoff(
+      `${host}/api/dataValueSets?${params.toString()}`,
+      {
+        fetch,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Basic ${authHeader}`,
         },
-        { ...backoff, log },
-      );
+        body: JSON.stringify(dataValueSet),
+      },
+      { ...backoff, log },
+    );
 
-      return await response.json();
-    } catch (error) {
-      await this.logDHIS2Push({
-        reportId,
-        status: AUDIT_STATUSES.FAILURE,
-        message: error.message,
-      });
-      throw error;
-    }
+    return await response.json();
   }
 
   async processReport(reportId) {
@@ -205,11 +196,14 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
 
     for (const dataValueSet of dhis2DataValueSets) {
       try {
+        const dhis2Response = await this.postToDHIS2({ reportId, dataValueSet });
+        // TODO: remove! This is to test a difference in behaviour between local and deploy
+        console.log('dhis2Response', dhis2Response);
         const {
           message,
           httpStatusCode,
           response: { importCount, conflicts = [] },
-        } = await this.postToDHIS2({ reportId, dataValueSet });
+        } = dhis2Response;
 
         if (httpStatusCode === 200) {
           const successLog = await this.logDHIS2Push({
@@ -233,6 +227,11 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
           conflicts.forEach(conflict => log.warn(conflict.value));
         }
       } catch (error) {
+        await this.logDHIS2Push({
+          reportId,
+          status: AUDIT_STATUSES.FAILURE,
+          message: error.message,
+        });
         log.error(ERROR_LOGS.ERROR_POSTING_DATA_VALUE_SET, {
           reportId,
           dataValueSet: JSON.stringify(dataValueSet),
