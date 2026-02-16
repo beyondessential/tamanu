@@ -1,6 +1,4 @@
 import {
-  endOfDay,
-  startOfDay,
   addHours,
   parseISO,
   setHours,
@@ -24,7 +22,7 @@ import { cloneDeep } from 'lodash';
 import { useDrop, useDrag } from 'react-dnd';
 
 import { toDateTimeString, toDateString } from '@tamanu/utils/dateTime';
-import { TimeDisplay, notifyError, notifySuccess } from '@tamanu/ui-components';
+import { TimeDisplay, useDateTime, notifyError, notifySuccess } from '@tamanu/ui-components';
 
 import {
   useLocationBookingsQuery,
@@ -418,6 +416,7 @@ export const LocationBookingsDailyCalendar = ({
   ...props
 }) => {
   const { ability } = useAuth();
+  const { getDayBoundaries, toFacilityDateTime } = useDateTime();
   const {
     filters: { bookingTypeId, clinicianId, patientNameOrId, locationGroupIds },
     selectedCell,
@@ -436,17 +435,18 @@ export const LocationBookingsDailyCalendar = ({
 
   const { data: locations } = locationsQuery;
 
+  const dayBoundaries = getDayBoundaries(toDateString(selectedDate));
   const { data: appointmentsData, isLoading, error } = useLocationBookingsQuery(
     {
-      after: toDateTimeString(startOfDay(selectedDate)),
-      before: toDateTimeString(endOfDay(selectedDate)),
+      after: dayBoundaries?.start,
+      before: dayBoundaries?.end,
       all: true,
       clinicianId,
       bookingTypeId,
       patientNameOrId,
       view: viewType,
     },
-    { keepPreviousData: true },
+    { enabled: !!dayBoundaries, keepPreviousData: true },
   );
 
   const {
@@ -595,8 +595,11 @@ export const LocationBookingsDailyCalendar = ({
   const getAppointmentStyle = appointment => {
     if (!timeSlots || timeSlots.length === 0) return { top: 0, height: 70 };
 
-    const startTime = parseISO(appointment.startTime);
-    const endTime = appointment.endTime ? parseISO(appointment.endTime) : addHours(startTime, 1);
+    const facilityStartStr = toFacilityDateTime(appointment.startTime);
+    if (!facilityStartStr) return { top: 0, height: 70 };
+    const facilityEndStr = appointment.endTime ? toFacilityDateTime(appointment.endTime) : null;
+    const startTime = new Date(facilityStartStr);
+    const endTime = facilityEndStr ? new Date(facilityEndStr) : addHours(startTime, 1);
 
     // Visible window of the daily grid based on generated time slots
     const visibleStart = timeSlots[0].start;
@@ -1028,7 +1031,7 @@ export const LocationBookingsDailyCalendar = ({
               const height = (durationMinutes / 60) * 70; // 70px per hour
               return (
                 <TimeSlot key={index} data-testid={`time-slot-${index}`} height={height}>
-                  <TimeDisplay date={slot.start}/>
+                  <TimeDisplay date={slot.start} />
                 </TimeSlot>
               );
             })}
@@ -1152,12 +1155,7 @@ export const LocationBookingsDailyCalendar = ({
         )}
       </ScrollWrapper>
       <FormModal
-        title={
-          <TranslatedText
-            stringId="patient.email.title"
-            fallback="Enter email address"
-          />
-        }
+        title={<TranslatedText stringId="patient.email.title" fallback="Enter email address" />}
         open={!!emailModalState}
         onClose={() => setEmailModalState(null)}
       >

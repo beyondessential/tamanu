@@ -1,11 +1,10 @@
 //! CountryDateTime functions are server only
 //! Servers require a specific reference to timeZone since most of our servers are in UTC
 
-import { formatISO9075, parseISO } from 'date-fns';
+import { formatISO9075 } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import config from 'config';
 import {
-  ISO8061_WITH_TIMEZONE,
   ISO9075_DATE_FORMAT,
   ISO9075_DATETIME_FORMAT,
 } from '@tamanu/utils/dateTime';
@@ -24,14 +23,6 @@ export function toCountryDateString(date) {
   }
 
   return formatInTimeZone(date, config?.countryTimeZone, ISO9075_DATE_FORMAT);
-}
-
-export function dateTimeStringIntoCountryTimezone(date) {
-  if (date === null || date === undefined) {
-    return null;
-  }
-
-  return parseISO(formatInTimeZone(date, config?.countryTimeZone, ISO8061_WITH_TIMEZONE));
 }
 
 export function getCurrentCountryTimeZoneDateTimeString() {

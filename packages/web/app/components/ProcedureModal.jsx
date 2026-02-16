@@ -16,6 +16,7 @@ import { toast } from 'react-toastify';
 import { FormModal } from './FormModal';
 import { useApi } from '../api';
 import { TranslatedText } from './Translation/TranslatedText';
+import { trimToDate } from '@tamanu/utils/dateTime';
 import { foreignKey, optionalForeignKey } from '../utils/validation';
 import { FORM_TYPES } from '@tamanu/constants';
 import { useAuth } from '../contexts/Auth';
@@ -80,8 +81,8 @@ export const ProcedureModal = ({
   const {
     getCurrentDate,
     getCurrentDateTime,
-    toDateTimeStringForPersistence,
-    formatForDateTimeInput,
+    toStoredDateTime,
+    toFacilityDateTime,
   } = useDateTime();
   const { patientId } = useParams();
   const { data: patient } = usePatientDataQuery(patientId);
@@ -104,13 +105,13 @@ export const ProcedureModal = ({
   );
 
   // Convert countryTimeZone → facilityTimeZone for display
-  const toFacilityTz = val => (val ? formatForDateTimeInput(val) : undefined);
+  const toFacilityTz = val => (val ? toFacilityDateTime(val) : undefined);
 
   // Form values already have correct dates (ProcedureDateSync handles rollover),
   // so submit just needs to convert from facility timezone to country timezone.
   const onSubmit = async data => {
     delete data.date;
-    const toPersisted = val => (val ? toDateTimeStringForPersistence(val) : undefined);
+    const toPersisted = val => (val ? toStoredDateTime(val) : undefined);
     const { startTime, endTime, timeIn, timeOut, ...rest } = data; // eslint-disable-line no-unused-vars
     const startDateTime = toPersisted(startTime);
 
@@ -300,7 +301,7 @@ export const ProcedureModal = ({
           ? {
               // Edit: spread existing data, convert date/time from country timezone to facility timezone
               ...editedProcedure,
-              date: toFacilityTz(editedProcedure.date)?.slice(0, 10),
+              date: trimToDate(toFacilityTz(editedProcedure.date)),
               startTime: toFacilityTz(editedProcedure.startTime),
               endTime: toFacilityTz(editedProcedure.endTime),
               timeIn: toFacilityTz(editedProcedure.timeIn),

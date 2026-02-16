@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { SearchTableWithPermissionCheck } from './Table';
 import { DateDisplay } from './DateDisplay';
@@ -10,7 +10,12 @@ import { MEDICATIONS_SEARCH_KEYS } from '../constants/medication';
 import { Colors } from '../constants';
 import { MenuButton } from './MenuButton';
 import { DispenseMedicationWorkflowModal } from './Medication/DispenseMedicationWorkflowModal';
-import { ThemedTooltip, TranslatedEnum, TranslatedReferenceData, useDateTime } from '@tamanu/ui-components';
+import {
+  ThemedTooltip,
+  TranslatedEnum,
+  TranslatedReferenceData,
+  useDateTime,
+} from '@tamanu/ui-components';
 import { BodyText } from './Typography';
 import { PHARMACY_PRESCRIPTION_TYPE_LABELS, PHARMACY_PRESCRIPTION_TYPES } from '@tamanu/constants';
 import { useApi } from '../api';
@@ -290,7 +295,10 @@ export const MedicationRequestsTable = () => {
       : []),
   ];
 
-  const fetchOptions = { ...searchParameters, facilityId };
+  const fetchOptions = useMemo(() => ({
+    ...searchParameters,
+    facilityId,
+  }), [searchParameters, facilityId]);
 
   const handleRowClick = (_, data) => {
     const patient = data?.pharmacyOrder?.encounter?.patient;

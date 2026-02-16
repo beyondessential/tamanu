@@ -6,8 +6,8 @@ import {
   getDateFromTimeString,
   findAdministrationTimeSlotFromIdealTime,
 } from '@tamanu/shared/utils/medication';
-import { toDateString } from '@tamanu/utils/dateTime';
-import { TimeDisplay } from '@tamanu/ui-components';
+import { toDateString, locale } from '@tamanu/utils/dateTime';
+import { useDateTime } from '@tamanu/ui-components';
 
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../..';
@@ -152,26 +152,25 @@ const LoadingContainer = styled.div`
   height: 42px;
 `;
 
-const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate }) => {
-  const startDate = getDateFromTimeString(startTime).getTime();
-  const endDate = getDateFromTimeString(endTime).getTime();
+// Convert time string to locale-specific time string no timezone conversion is applied
+const formatSlotTime = timeStr =>
+  Intl.DateTimeFormat(locale, { hour: 'numeric', hour12: true }).format(
+    new Date(`2000-01-01T${timeStr === '24:00' ? '00:00' : timeStr}:00`),
+  );
+
+const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate, facilityNow }) => {
+  const now = facilityNow.getTime();
+  const startDate = getDateFromTimeString(startTime, facilityNow).getTime();
+  const endDate = getDateFromTimeString(endTime, facilityNow).getTime();
   const isCurrentTimeSlot =
-    startDate <= Date.now() && Date.now() <= endDate && isSameDay(selectedDate, new Date());
+    startDate <= now && now <= endDate && isSameDay(selectedDate, facilityNow);
 
   return (
     <TimeSlotHeaderContainer isCurrentTimeSlot={isCurrentTimeSlot}>
       <TimeSlotText>
         <TimeSlotLabel>{periodLabel || ''}</TimeSlotLabel>
         <div>
-          <TimeDisplay
-            date={startDate}
-            format="slot"
-          />{' '}
-          -{' '}
-          <TimeDisplay
-            date={endDate}
-            format="slot"
-          />
+          {formatSlotTime(startTime)} - {formatSlotTime(endTime)}
         </div>
       </TimeSlotText>
     </TimeSlotHeaderContainer>
@@ -180,6 +179,8 @@ const TimeSlotHeader = ({ periodLabel, startTime, endTime, selectedDate }) => {
 
 export const MarTable = ({ selectedDate }) => {
   const { encounter } = useEncounter();
+  const { getFacilityNowDate } = useDateTime();
+  const facilityNow = getFacilityNowDate();
   const scheduledSectionRef = useRef(null);
   const scheduledHeaderRef = useRef(null);
   const prnSectionRef = useRef(null);
@@ -303,9 +304,9 @@ export const MarTable = ({ selectedDate }) => {
 
   return (
     <Container>
-      {isSameDay(selectedDate, new Date()) && (
+      {isSameDay(selectedDate, facilityNow) && (
         <CurrentTimeOverlay
-          $index={findAdministrationTimeSlotFromIdealTime(new Date()).index}
+          $index={findAdministrationTimeSlotFromIdealTime(facilityNow).index}
           $length={MEDICATION_ADMINISTRATION_TIME_SLOTS.length}
           $height={overlayHeight}
         />
@@ -322,6 +323,7 @@ export const MarTable = ({ selectedDate }) => {
             endTime={endTime}
             index={index}
             selectedDate={selectedDate}
+            facilityNow={facilityNow}
           />
         ))}
       </HeaderRow>

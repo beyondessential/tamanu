@@ -23,6 +23,7 @@ import { useTranslation } from '../../contexts/Translation';
 import { singularize } from '../../utils';
 import { AutocompleteInput, CheckInput } from '../Field';
 import { TableFormFields } from '../Table/TableFormFields';
+import { trimToDate } from '@tamanu/utils/dateTime';
 import { DateDisplay } from '../DateDisplay';
 import { useDispensableMedicationsQuery } from '../../api/queries/useDispensableMedicationsQuery';
 import { useFacilityQuery } from '../../api/queries/useFacilityQuery';
@@ -287,13 +288,15 @@ export const DispenseMedicationWorkflowModal = memo(
       setItems(prev => prev.map(i => ({ ...i, selected: !isItemDisabled(i) ? checked : false })));
     };
 
-    const handleSelectRow = rowIndex => ({ target: { checked } }) => {
-      setItems(prev => {
-        const next = [...prev];
-        next[rowIndex] = { ...next[rowIndex], selected: checked };
-        return next;
-      });
-    };
+    const handleSelectRow =
+      rowIndex =>
+      ({ target: { checked } }) => {
+        setItems(prev => {
+          const next = [...prev];
+          next[rowIndex] = { ...next[rowIndex], selected: checked };
+          return next;
+        });
+      };
 
     const selectableItems = items.filter(i => !isItemDisabled(i));
     const selectAllChecked =
@@ -456,7 +459,7 @@ export const DispenseMedicationWorkflowModal = memo(
               fallback="Prescription date"
             />
           ),
-          accessor: ({ prescription }) => <Box>{formatShort(prescription?.date)}</Box>,
+          accessor: ({ prescription }) => <Box>{formatShort(trimToDate(prescription?.date))}</Box>,
         },
         {
           key: 'medication',
