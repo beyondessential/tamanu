@@ -58,12 +58,10 @@ export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsur
           <DataItem
             label={getTranslation('invoice.paymentStatus.label', 'Payment status')}
             value={
-              invoice.status === INVOICE_STATUSES.FINALISED
-                ? INVOICE_PATIENT_PAYMENT_STATUSES_LABELS[invoice.patientPaymentStatus] +
-                  (invoice.insurerPaymentStatus === INVOICE_INSURER_PAYMENT_STATUSES.REJECTED
-                    ? `/${INVOICE_INSURER_PAYMENT_STATUS_LABELS[invoice.insurerPaymentStatus]}`
-                    : '')
-                : getTranslation('general.na.label', 'n/a')
+              INVOICE_PATIENT_PAYMENT_STATUSES_LABELS[invoice.patientPaymentStatus] +
+              (invoice.insurerPaymentStatus === INVOICE_INSURER_PAYMENT_STATUSES.REJECTED
+                ? `/${INVOICE_INSURER_PAYMENT_STATUS_LABELS[invoice.insurerPaymentStatus]}`
+                : '')
             }
           />
         </Col>
