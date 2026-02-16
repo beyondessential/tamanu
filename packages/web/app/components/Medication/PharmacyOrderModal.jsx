@@ -684,7 +684,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
               data-testid="translatedtext-ojsa"
             />
           }
-          confirmDisabled={!prescriptions.some(p => p.selected)}
+          confirmDisabled={!prescriptions.some(p => p.selected) || !orderingClinicianId}
           onConfirm={handleClickSend}
           onCancel={handleClose}
           data-testid="confirmcancelrow-9lo1"
