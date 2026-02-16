@@ -183,7 +183,8 @@ const getDischargeInitialValues = ({
     if (!dischargeDraft) {
       if (isFuture(encounterStartDate)) {
         const primaryNow = getCurrentDateTime();
-        return `${trimToDate(encounter.startDate)} ${trimToTime(primaryNow)}`;
+        const time = trimToTime(primaryNow);
+        return time ? `${trimToDate(encounter.startDate)} ${time}` : primaryNow;
       } else {
         return getCurrentDateTime();
       }
