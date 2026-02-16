@@ -388,7 +388,7 @@ export const PatientMedicationPane = ({ patient }) => {
   const { data: facility } = useFacilityQuery(facilityId);
   const patientStatus = getPatientStatus(currentEncounter?.encounterType);
 
-  const { getTranslation, getEnumTranslation } = useTranslation();
+  const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
 
   const [ongoingPrescriptions, setOngoingPrescriptions] = useState([]);
   const [dispensedMedications, setDispensedMedications] = useState([]);
@@ -464,10 +464,16 @@ export const PatientMedicationPane = ({ patient }) => {
       const { pharmacyOrderPrescription, quantity, dispensedAt, id, instructions = '' } = item;
       const prescription = pharmacyOrderPrescription?.prescription;
 
+      const medication = prescription?.medication;
       const labelItems = [
         {
           id,
-          medicationName: prescription?.medication?.name,
+          medicationName: getReferenceDataTranslation({
+            value: medication?.id,
+            category: medication?.type,
+            fallback: medication?.name,
+            placeholder: '-',
+          }),
           instructions,
           quantity,
           units: prescription?.units,
@@ -482,7 +488,7 @@ export const PatientMedicationPane = ({ patient }) => {
       setSelectedLabelData(labelData);
       setPrintModalOpen(true);
     },
-    [patient, facility],
+    [patient, facility, getReferenceDataTranslation],
   );
 
   const handleEdit = useCallback(dispense => {

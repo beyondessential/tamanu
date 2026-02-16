@@ -20,7 +20,7 @@ import { STOCK_STATUS_COLORS } from '../constants';
 /**
  * Transforms selected dispensable medication items into label data for printing.
  * @param {Object} params
- * @param {Array} params.items - The selected medication items to dispense
+ * @param {Array} params.items - The selected medication items to dispense (each includes medicationName, already translated by the caller if needed)
  * @param {Object} params.patient - The patient object
  * @param {Object} params.facility - The facility object
  * @returns {Array} Array of label data objects for printing

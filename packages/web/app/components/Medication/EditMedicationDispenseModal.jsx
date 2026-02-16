@@ -149,7 +149,7 @@ export const EditMedicationDispenseModal = memo(
   ({ open, medicationDispense, onClose, onConfirm, patient }) => {
     const api = useApi();
     const { facilityId } = useAuth();
-    const { getTranslation } = useTranslation();
+    const { getTranslation, getReferenceDataTranslation } = useTranslation();
     const practitionerSuggester = useSuggester('practitioner');
 
     const [step, setStep] = useState(MODAL_STEPS.DISPENSE);
@@ -239,9 +239,15 @@ export const EditMedicationDispenseModal = memo(
       setShowValidationErrors(false);
       setStep(MODAL_STEPS.REVIEW);
       // Prepare labels for printing
+      const medication = item.pharmacyOrderPrescription.prescription?.medication;
       const labelItem = {
         id: item.id,
-        medicationName: item.pharmacyOrderPrescription.prescription?.medication?.name,
+        medicationName: getReferenceDataTranslation({
+          value: medication?.id,
+          category: medication?.type,
+          fallback: medication?.name,
+          placeholder: '-',
+        }),
         instructions: item.instructions,
         quantity: item.quantity,
         units: item.pharmacyOrderPrescription.prescription?.units,

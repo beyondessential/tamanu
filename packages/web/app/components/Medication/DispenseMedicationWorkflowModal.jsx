@@ -204,7 +204,7 @@ export const DispenseMedicationWorkflowModal = memo(
     const api = useApi();
     const queryClient = useQueryClient();
     const { facilityId, currentUser } = useAuth();
-    const { getTranslation, getEnumTranslation } = useTranslation();
+    const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
     const practitionerSuggester = useSuggester('practitioner');
 
     const [step, setStep] = useState(MODAL_STEPS.DISPENSE);
@@ -373,16 +373,24 @@ export const DispenseMedicationWorkflowModal = memo(
       setShowValidationErrors(false);
       setStep(MODAL_STEPS.REVIEW);
       // Prepare labels for printing
-      const labelItems = selectedItems.map(item => ({
-        id: item.id,
-        medicationName: item.prescription?.medication?.name,
-        instructions: item.instructions,
-        quantity: item.quantity,
-        units: item.prescription?.units,
-        remainingRepeats: item.remainingRepeats,
-        prescriberName: item.prescription?.prescriber?.displayName,
-        requestNumber: item.displayId,
-      }));
+      const labelItems = selectedItems.map(item => {
+        const medication = item.prescription?.medication;
+        return {
+          id: item.id,
+          medicationName: getReferenceDataTranslation({
+            value: medication?.id,
+            category: medication?.type,
+            fallback: medication?.name,
+            placeholder: '-',
+          }),
+          instructions: item.instructions,
+          quantity: item.quantity,
+          units: item.prescription?.units,
+          remainingRepeats: item.remainingRepeats,
+          prescriberName: item.prescription?.prescriber?.displayName,
+          requestNumber: item.displayId,
+        };
+      });
       const reviewLabels = getMedicationLabelData({ items: labelItems, patient, facility });
       setLabelsForPrint(reviewLabels);
     };
