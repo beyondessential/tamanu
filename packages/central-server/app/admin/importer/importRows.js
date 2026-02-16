@@ -45,6 +45,10 @@ const existingRecordLoaders = {
     UD.findOne({ where: { userId, designationId }, paranoid: false }),
   UserFacility: (UF, { userId, facilityId }) =>
     UF.findOne({ where: { userId, facilityId }, paranoid: false }),
+  // TODO: COOL-44 - Add existingRecordLoader for LabTestPanelLabTestTypes
+  // Once the ID generation is fixed in loaders.js, add this loader to handle composite key lookups:
+  // LabTestPanelLabTestTypes: (LTPLT, { labTestPanelId, labTestTypeId }) =>
+  //   LTPLT.findOne({ where: { labTestPanelId, labTestTypeId }, paranoid: false }),
   ReferenceDrugFacility: (RDF, { referenceDrugId, facilityId }) =>
     RDF.findOne({ where: { referenceDrugId, facilityId }, paranoid: false }),
   ProcedureTypeSurvey: async (Model, values) => {

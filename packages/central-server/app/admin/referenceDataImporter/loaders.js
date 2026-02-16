@@ -318,6 +318,10 @@ export function labTestPanelLoader(item) {
       rows.push({
         model: 'LabTestPanelLabTestTypes',
         values: {
+          // TODO: COOL-44 - Remove this manually-set ID to let the database generate UUIDv4
+          // The ID should not be set here as the database has a default UUIDv4 generator.
+          // Also need to add an existingRecordLoader in importRows.js for LabTestPanelLabTestTypes
+          // that looks up records by labTestPanelId and labTestTypeId (similar to UserFacility).
           id: `${id};${testType}`,
           labTestPanelId: id,
           labTestTypeId: testType,
@@ -398,6 +402,10 @@ export async function userLoader(item, { models, pushError }) {
       rows.push({
         model: 'UserFacility',
         values: {
+          // TODO: COOL-44 - Remove this manually-set ID to let the database generate UUIDv4
+          // The ID should not be set here as the database has a default UUIDv4 generator.
+          // The existingRecordLoader in importRows.js already handles finding existing records
+          // by userId and facilityId, so this composite key format is unnecessary and incorrect.
           id: `${id};${facilityId}`,
           userId: id,
           facilityId: facilityId,
@@ -411,6 +419,10 @@ export async function userLoader(item, { models, pushError }) {
     rows.push({
       model: 'UserFacility',
       values: {
+        // TODO: COOL-44 - Remove this manually-set ID to let the database generate UUIDv4
+        // The ID should not be set here as the database has a default UUIDv4 generator.
+        // The existingRecordLoader in importRows.js already handles finding existing records
+        // by userId and facilityId, so this composite key format is unnecessary and incorrect.
         id: `${id};${facilityId}`,
         userId: id,
         facilityId: facilityId,
