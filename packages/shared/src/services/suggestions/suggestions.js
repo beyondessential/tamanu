@@ -723,13 +723,23 @@ createNameSuggester('bookableLocationGroup', 'LocationGroup', ({ endpoint, model
       }),
 }));
 
-createNameSuggester('survey', 'Survey', ({ search, query: { programId } }) => ({
-  name: { [Op.iLike]: search },
-  ...(programId ? { programId } : programId),
-  surveyType: {
-    [Op.notIn]: [SURVEY_TYPES.OBSOLETE, SURVEY_TYPES.VITALS],
-  },
-}));
+createNameSuggester('survey', 'Survey', ({ search, query: { programId, surveyType } }) => {
+  const where = {
+    name: { [Op.iLike]: search },
+    ...(programId ? { programId } : {}),
+  };
+
+  // If surveyType is provided, use it; otherwise exclude obsolete and vitals
+  if (surveyType) {
+    where.surveyType = surveyType;
+  } else {
+    where.surveyType = {
+      [Op.notIn]: [SURVEY_TYPES.OBSOLETE, SURVEY_TYPES.VITALS],
+    };
+  }
+
+  return where;
+});
 
 createSuggester(
   'practitioner',

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { SelectInput, Button, TextButton, ButtonRow } from '@tamanu/ui-components';
+import { Button, TextButton, ButtonRow } from '@tamanu/ui-components';
 import { SendFormToPatientPortalModal } from '../patients/components/SendFormToPatientPortalModal';
-import { TranslatedText } from '../../components';
+import { TranslatedText, DynamicSelectField } from '../../components';
 import { SendIcon } from '../../components/Icons/SendIcon';
 import { useSettings } from '../../contexts/Settings';
 import { useAuth } from '../../contexts/Auth.jsx';
@@ -42,41 +42,46 @@ const SendFormToPatientPortalModalButton = ({ setOpen, isDisabled }) => {
   );
 };
 
-export const SurveySelector = React.memo(({ value, onChange, onSubmit, surveys, buttonText }) => {
-  const [open, setOpen] = useState(false);
+export const SurveySelector = React.memo(
+  ({ value, onChange, onSubmit, suggester, buttonText, label }) => {
+    const [open, setOpen] = useState(false);
 
-  const handleChange = event => {
-    const surveyId = event.target.value;
-    onChange(surveyId);
-  };
+    const handleChange = event => {
+      const surveyId = event.target.value;
+      onChange(surveyId);
+    };
 
-  const handleSubmit = () => {
-    onSubmit(value);
-  };
+    const handleSubmit = () => {
+      onSubmit(value);
+    };
 
-  return (
-    <>
-      <SelectInput
-        name="survey"
-        options={surveys}
-        value={value ?? ''}
-        onChange={handleChange}
-        data-testid="selectinput-4g3c"
-      />
-      <StyledButtonRow data-testid="styledbuttonrow-nem0">
-        <SendFormToPatientPortalModalButton setOpen={setOpen} isDisabled={!value} />
-        <Button
-          onClick={handleSubmit}
-          disabled={!value}
-          variant="contained"
-          color="primary"
-          data-testid="button-qsbg"
-          style={{ marginLeft: 'auto' }}
-        >
-          {buttonText}
-        </Button>
-      </StyledButtonRow>
-      <SendFormToPatientPortalModal formId={value} open={open} setOpen={setOpen} />
-    </>
-  );
-});
+    return (
+      <>
+        <DynamicSelectField
+          field={{
+            name: 'survey',
+            value: value ?? '',
+            onChange: handleChange,
+          }}
+          suggester={suggester}
+          label={label}
+          data-testid="selectinput-4g3c"
+        />
+        <StyledButtonRow data-testid="styledbuttonrow-nem0">
+          <SendFormToPatientPortalModalButton setOpen={setOpen} isDisabled={!value} />
+          <Button
+            onClick={handleSubmit}
+            disabled={!value}
+            variant="contained"
+            color="primary"
+            data-testid="button-qsbg"
+            style={{ marginLeft: 'auto' }}
+          >
+            {buttonText}
+          </Button>
+        </StyledButtonRow>
+        <SendFormToPatientPortalModal formId={value} open={open} setOpen={setOpen} />
+      </>
+    );
+  },
+);

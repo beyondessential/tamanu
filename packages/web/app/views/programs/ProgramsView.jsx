@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { getAnswersFromData, SelectInput, FormGrid } from '@tamanu/ui-components';
+import { getAnswersFromData, SelectInput, FormGrid, useSuggester } from '@tamanu/ui-components';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { reloadPatient } from '../../store/patient';
@@ -37,8 +37,16 @@ const SurveyFlow = ({ patient, currentUser }) => {
   const [selectedProgramId, setSelectedProgramId] = useState('');
   const [selectedSurveyId, setSelectedSurveyId] = useState(null);
   const [startTime, setStartTime] = useState(null);
-  const [surveys, setSurveys] = useState(null);
   const { setProgramRegistryIdByProgramId } = useProgramRegistryContext();
+
+  // Create a suggester for surveys filtered by program
+  const surveySuggester = useSuggester('survey', {
+    baseQueryParameters: {
+      programId: selectedProgramId || undefined,
+      surveyType: SURVEY_TYPES.PROGRAMS,
+    },
+    enable: !!selectedProgramId,
+  });
 
   useEffect(() => {
     if (params.encounterId) {
@@ -68,11 +76,10 @@ const SurveyFlow = ({ patient, currentUser }) => {
 
   const clearProgram = useCallback(() => {
     setSelectedSurveyId(null);
-    setSurveys(null);
   }, []);
 
   const selectProgram = useCallback(
-    async event => {
+    event => {
       const programId = event.target.value;
       if (programId === selectedProgramId) {
         return;
@@ -84,18 +91,8 @@ const SurveyFlow = ({ patient, currentUser }) => {
         clearProgram();
         return;
       }
-
-      const { data } = await api.get(`program/${programId}/surveys`);
-      setSurveys(
-        data
-          .filter(s => s.surveyType === SURVEY_TYPES.PROGRAMS)
-          .map(x => ({
-            value: x.id,
-            label: <TranslatedReferenceData category="survey" value={x.id} fallback={x.name} />,
-          })),
-      );
     },
-    [api, selectedProgramId, clearProgram, setProgramRegistryIdByProgramId],
+    [selectedProgramId, clearProgram, setProgramRegistryIdByProgramId],
   );
 
   const submitSurveyResponse = async data => {
@@ -175,7 +172,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
             onSubmit={setSelectedSurvey}
             onChange={setSelectedSurveyId}
             value={selectedSurveyId}
-            surveys={surveys}
+            suggester={surveySuggester}
             buttonText={
               <TranslatedText
                 stringId="program.modal.selectSurvey.action.begin"

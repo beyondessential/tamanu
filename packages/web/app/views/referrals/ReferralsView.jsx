@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { SURVEY_TYPES } from '@tamanu/constants';
-import { getAnswersFromData, FormGrid } from '@tamanu/ui-components';
+import { getAnswersFromData, FormGrid, useSuggester } from '@tamanu/ui-components';
 
 import { useApi } from '../../api';
 import { reloadPatient } from '../../store/patient';
@@ -24,16 +24,15 @@ const ReferralFlow = ({ patient, currentUser }) => {
   const { facilityId } = useAuth();
   const { navigateToPatient } = usePatientNavigation();
   const [referralSurvey, setReferralSurvey] = useState(null);
-  const [referralSurveys, setReferralSurveys] = useState(null);
   const [selectedSurveyId, setSelectedSurveyId] = useState(null);
   const [startTime, setStartTime] = useState(null);
 
-  useEffect(() => {
-    (async () => {
-      const response = await api.get(`survey`, { type: SURVEY_TYPES.REFERRAL });
-      setReferralSurveys(response.surveys.map(x => ({ value: x.id, label: x.name })));
-    })();
-  }, [api]);
+  // Create a suggester for referral surveys
+  const referralSurveySuggester = useSuggester('survey', {
+    baseQueryParameters: {
+      surveyType: SURVEY_TYPES.REFERRAL,
+    },
+  });
 
   const setSelectedReferral = useCallback(
     async id => {
@@ -90,7 +89,7 @@ const ReferralFlow = ({ patient, currentUser }) => {
             onSubmit={setSelectedReferral}
             onChange={setSelectedSurveyId}
             value={selectedSurveyId}
-            surveys={referralSurveys}
+            suggester={referralSurveySuggester}
             buttonText={
               <TranslatedText
                 stringId="referral.action.begin"
