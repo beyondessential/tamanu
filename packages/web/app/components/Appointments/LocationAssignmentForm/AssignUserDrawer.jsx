@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { DeleteOutlined } from '@material-ui/icons';
-import { toDateString, toWeekdayCode, trimToTime } from '@tamanu/utils/dateTime';
+import { toDateString, toWeekdayCode, trimToDate, trimToTime } from '@tamanu/utils/dateTime';
 
 import { useSuggester } from '../../../api';
 import {
@@ -166,20 +166,22 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
     { userId, locationId, date, startTime, endTime, isRepeatingAssignment, schedule },
     { resetForm },
   ) => {
+    const storedStartTime = toStoredDateTime(startTime);
+    const storedEndTime = toStoredDateTime(endTime);
     const payload = {
       id: initialValues.id,
       userId,
       locationId,
-      date,
-      startTime: trimToTime(toStoredDateTime(startTime)),
-      endTime: trimToTime(toStoredDateTime(endTime)),
+      date: trimToDate(storedStartTime) || date,
+      startTime: trimToTime(storedStartTime),
+      endTime: trimToTime(storedEndTime),
     };
     if ((isRepeatingAssignment && !isViewing) || isEditingMultipleRepeatingAssignments) {
       payload.repeatFrequency = schedule.interval;
       payload.repeatUnit = schedule.frequency;
       payload.repeatEndDate = schedule.occurrenceCount
         ? getLastFrequencyDate(
-            date,
+            payload.date,
             schedule.interval,
             schedule.frequency,
             schedule.occurrenceCount,
