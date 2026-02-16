@@ -235,7 +235,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
       } catch (error) {
         log.error(ERROR_LOGS.ERROR_POSTING_DATA_VALUE_SET, {
           reportId,
-          dataValueSet,
+          dataValueSet: JSON.stringify(dataValueSet),
           error: error.message,
         });
       }
