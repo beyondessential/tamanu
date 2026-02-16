@@ -81,10 +81,9 @@ const NoWrapCell = styled(Box)`
   white-space: nowrap;
 `;
 
-const TwoLineHeaderText = styled.span`
-  max-width: 6em;
-  display: inline-block;
-  line-height: 1.2;
+const TwoLineHeaderText = styled.div`
+  width: 85px;
+  white-space: normal;
 `;
 
 export const COLUMN_KEYS = {
