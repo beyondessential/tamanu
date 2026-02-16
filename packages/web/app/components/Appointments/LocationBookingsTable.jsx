@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { trimToDate } from '@tamanu/utils/dateTime';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
-import { DateTimeRangeDisplay } from '@tamanu/ui-components';
+import { DateTimeRangeDisplay, useDateTime } from '@tamanu/ui-components';
 
 import { Table } from '../Table';
 import { Colors } from '../../constants';
@@ -300,6 +300,7 @@ export const LocationBookingsTable = ({ patient }) => {
   const [isViewPastBookingsModalOpen, setIsViewPastBookingsModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const navigate = useNavigate();
+  const { toFacilityDateTime } = useDateTime();
 
   const actions = [
     {
@@ -316,7 +317,7 @@ export const LocationBookingsTable = ({ patient }) => {
 
   const handleRowClick = (_, data) => {
     const { id, startTime } = data;
-    navigate(`/appointments/locations?appointmentId=${id}&date=${trimToDate(startTime)}`);
+    navigate(`/appointments/locations?appointmentId=${id}&date=${trimToDate(toFacilityDateTime(startTime))}`);
   };
 
   const canWriteAppointment = ability.can('write', 'Appointment');

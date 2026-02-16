@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { trimToDate } from '@tamanu/utils/dateTime';
-import { Button, DateDisplay, TimeDisplay } from '@tamanu/ui-components';
+import { Button, DateDisplay, TimeDisplay, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 
 import { Table } from '../Table';
@@ -327,6 +327,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const navigate = useNavigate();
+  const { toFacilityDateTime } = useDateTime();
 
   const actions = [
     {
@@ -343,7 +344,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
 
   const handleRowClick = (_, data) => {
     const { id, startTime } = data;
-    navigate(`/appointments/outpatients?appointmentId=${id}&date=${trimToDate(startTime)}`);
+    navigate(`/appointments/outpatients?appointmentId=${id}&date=${trimToDate(toFacilityDateTime(startTime))}`);
   };
 
   const canWriteAppointment = ability.can('write', 'Appointment');
