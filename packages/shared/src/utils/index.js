@@ -9,7 +9,7 @@ export * from './patientAccessors';
 export * from './handoverNotes';
 export * from './patientLetters';
 export * from './tmpdir';
-export * from './uvci';
+
 export * from './valueIndex';
 export * from './withConfig';
 export * from './dischargeOutpatientEncounters';

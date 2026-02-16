@@ -5,20 +5,15 @@ import { log } from '@tamanu/shared/services/logging';
 
 import * as fijiVrs from './fiji-vrs';
 import * as fijiVps from './fiji-vps';
-import * as signer from './Signer';
 import * as fijiAspenMediciReport from './fijiAspenMediciReport';
 import * as mSupply from './mSupply';
 import * as fhir from './fhir';
 
-import { checkEuDccConfig } from './EuDcc';
-import { checkSignerConfig } from './Signer';
-import { checkVdsNcConfig } from './VdsNc';
 import { checkFhirConfig } from './fhir/config';
 
 const integrations = {
   fijiVrs,
   fijiVps,
-  signer,
   fijiAspenMediciReport,
   mSupply,
   fhir,
@@ -50,19 +45,5 @@ export const initIntegrations = async ctx => {
 };
 
 export function checkIntegrationsConfig() {
-  checkEuDccConfig();
-  checkSignerConfig();
-  checkVdsNcConfig();
   checkFhirConfig();
-
-  if (
-    (config.integrations.euDcc.enabled || config.integrations.vdsNc.enabled) &&
-    !config.integrations.signer.enabled
-  ) {
-    throw new Error('euDcc and vdsNc integrations require the signer integration to be enabled');
-  }
-
-  if (config.integrations.euDcc.enabled && config.integrations.vdsNc.enabled) {
-    throw new Error('Cannot enable both euDcc and vdsNc integrations at the same time');
-  }
 }

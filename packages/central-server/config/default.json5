@@ -210,16 +210,7 @@
       "schedule": "*/30 * * * * *",
       "limit": 10
     },
-    "signerRenewalChecker": {
-      "schedule": "0 0 * * *"
-    },
-    "signerRenewalSender": {
-      // needs to happen after the Renewal Checker, and regularly thereafter as a retry mechanism
-      "schedule": "30 * * * *"
-    },
-    "signerWorkingPeriodChecker": {
-      "schedule": "0 1 * * *"
-    },
+
     "dhis2IntegrationProcessor": {
       "enabled": false,
       "schedule": "0 2 * * *"
@@ -321,10 +312,7 @@
       "enabled": false,
       "requireClientHeaders": true
     },
-    "euDcc": {
-      "enabled": false,
-      "issuer": null // Responsible org for vax cert issuance, e.g. 'Ministry of Health of the Tamanu Republic'. If null defaults to the facility name.
-    },
+
     "ips": {
       "attester": "Ministry of Health",
       "author": "Tamanu is a free and open-source EHR for low resource and remote settings.",
@@ -332,24 +320,6 @@
         "subject": "Your International Patient Summary",
         "bodyText": "Please scan the QR code attached to view your International Patient Summary"
       }
-    },
-    "vdsNc": {
-      "enabled": false
-    },
-    "signer": {
-      "enabled": false,
-      // Encryption key for ICAO Signer key material (stored in DB).
-      // This must be unique per country/installation AND NEVER CHANGED.
-      // It must be at least 32 bytes of random data in Base64.
-      // $ openssl rand -base64 32
-      "keySecret": null,
-      // For VDS-NC: exactly 2 uppercase letters/numbers, must be unique in country, ref 9303-13 §2.2.1(a)
-      // For EU DCC: at least 1 character, must be unique in country, should be descriptive
-      "commonName": "TA",
-      // For EU DCC only: the name of the issuing organisation (provider/O of the DSC)
-      // "provider": "Tamanu",
-      // Email address for CSCA signing contact
-      "sendRequestTo": "admin@tamanu.io"
     },
     "fijiAspenMediciReport": {
       "enabled": false
@@ -433,12 +403,7 @@
       // The time zone setting is currently only used for Vaccine Certificates
       // Todo: remove this timeZone once all date fields have been migrated to date_time_strings
       "timeZone": null,
-      // UVCI format for vaccine certificate *previews* on Web.
-      // This should match whichever of integrations.euDcc or .vdsNc is enabled, and
-      // does *not* affect which format is used for the actual PDF certificate when
-      // generated in the central server. Can be `tamanu` or `icao` or `eudcc`.
-      // `tamanu` implies that the signing integrations are not enabled.
-      "previewUvciFormat": "tamanu",
+
       "disabledReports": [],
       "supportDeskUrl": "https://bes-support.zendesk.com/hc/en-us"
     }
