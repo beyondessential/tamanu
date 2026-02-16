@@ -11,7 +11,6 @@ export const CAMERA_STATUS = {
   GRANTED: 'granted',
   READY: 'ready',
   DENIED: 'denied',
-  UNSUPPORTED: 'unsupported',
 };
 
 const StyledWebcam = styled(Webcam)`
@@ -86,13 +85,6 @@ export const WebcamCaptureModal = ({
 
   useEffect(() => {
     if (!open) return;
-
-    if (requireBarcodeDetector && !('BarcodeDetector' in window)) {
-      setCameraStatus(CAMERA_STATUS.UNSUPPORTED);
-      onCameraStatusChange?.(CAMERA_STATUS.UNSUPPORTED);
-      return;
-    }
-
     setCameraStatus(CAMERA_STATUS.REQUESTING);
     onCameraStatusChange?.(CAMERA_STATUS.REQUESTING);
 
@@ -142,19 +134,6 @@ export const WebcamCaptureModal = ({
   }, [open, requireBarcodeDetector, onCameraStatusChange, webcamRef]);
 
   const renderWebcamView = () => {
-    if (cameraStatus === CAMERA_STATUS.UNSUPPORTED) {
-      return (
-        <ErrorOverlay>
-          <BodyText>
-            <TranslatedText
-              stringId="modal.qrScanner.error.unsupported"
-              fallback="QR code scanning is not supported in this browser. Please use a modern version of Chrome."
-            />
-          </BodyText>
-        </ErrorOverlay>
-      );
-    }
-
     if (cameraStatus === CAMERA_STATUS.DENIED) {
       return (
         <ErrorOverlay>

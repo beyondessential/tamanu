@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect, useMemo } from 'react';
+import { BrowserQRCodeReader } from '@zxing/browser';
 import { Button, TranslatedText, useSettings } from '@tamanu/ui-components';
 import { WebcamCaptureModal, CAMERA_STATUS } from './WebcamCaptureModal';
 import { notifyError } from '../utils/index.js';
@@ -43,7 +44,9 @@ export const QRCodeScannerModal = ({ open, onClose, onScan }) => {
 
   useEffect(() => {
     if (cameraStatus === CAMERA_STATUS.READY && open) {
-      const barcodeDetector = new window.BarcodeDetector({ formats: ['qr_code'] });
+      const barcodeDetector =
+        'BarcodeDetector' in window ? new window.BarcodeDetector({ formats: ['qr_code'] }) : null;
+      const zxingReader = !barcodeDetector ? new BrowserQRCodeReader() : null;
 
       const stopScanning = () => {
         if (scannerTimerRef.current) {
@@ -58,9 +61,22 @@ export const QRCodeScannerModal = ({ open, onClose, onScan }) => {
           // Ensure video is ready to be scanned
           if (video.readyState === 4 && video.videoWidth > 0) {
             try {
-              const barcodes = await barcodeDetector.detect(video);
-              if (barcodes.length > 0) {
-                const rawValue = barcodes[0]?.rawValue;
+              let rawValue;
+              if (barcodeDetector) {
+                const barcodes = await barcodeDetector.detect(video);
+                if (barcodes.length > 0) {
+                  rawValue = barcodes[0]?.rawValue;
+                }
+              } else if (zxingReader) {
+                try {
+                  const result = await zxingReader.decodeOnceFromVideoElement(video);
+                  rawValue = result?.getText();
+                } catch (zxingError) {
+                  // zxing throws when no QR code is found in the frame
+                }
+              }
+
+              if (rawValue) {
                 const normalizedValue = normalizeQrValue(rawValue);
 
                 stopScanning();
@@ -123,7 +139,7 @@ export const QRCodeScannerModal = ({ open, onClose, onScan }) => {
       mirrored={false}
       onCameraStatusChange={setCameraStatus}
       webcamRef={webcamRef}
-      requireBarcodeDetector={true}
+      requireBarcodeDetector={false}
     />
   );
 };
