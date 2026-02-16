@@ -199,7 +199,10 @@ describe('DHIS2 integration processor', () => {
 
       expect(logSpy.warn).toHaveBeenCalledWith(
         WARNING_LOGS.DATA_VALUE_SET_REJECTED,
-        pick(pushLogs[0], LOG_FIELDS),
+        expect.objectContaining({
+          ...pick(pushLogs[0], LOG_FIELDS),
+          httpStatusCode: mockWarningResponse.httpStatusCode,
+        }),
       );
       expect(logSpy.warn).toHaveBeenCalledWith('Data element not found: DE123');
       expect(logSpy.warn).toHaveBeenCalledWith('Organisation unit not found: OU456');

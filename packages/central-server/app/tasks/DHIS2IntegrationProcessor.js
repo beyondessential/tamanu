@@ -197,12 +197,10 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     for (const dataValueSet of dhis2DataValueSets) {
       try {
         const dhis2Response = await this.postToDHIS2(dataValueSet);
-        // TODO: remove! This is to test a difference in behaviour between local and deploy
-        console.log('dhis2Response', dhis2Response);
         const {
           message,
           httpStatusCode,
-          response: { importCount, conflicts = [] },
+          response: { importCount, conflicts = [] } = {},
         } = dhis2Response;
 
         if (httpStatusCode === 200) {
@@ -223,7 +221,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
             conflicts: conflicts.map(conflict => conflict.value),
           });
 
-          log.warn(WARNING_LOGS.DATA_VALUE_SET_REJECTED, warningLog);
+          log.warn(WARNING_LOGS.DATA_VALUE_SET_REJECTED, { ...warningLog, httpStatusCode });
           conflicts.forEach(conflict => log.warn(conflict.value));
         }
       } catch (error) {
