@@ -310,16 +310,31 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
 
   const validateForm = useCallback(() => {
     const selectedPrescriptions = prescriptions.filter(p => p.selected);
-    const hasValidQuantities = selectedPrescriptions.every(p => p.quantity && p.quantity > 0);
-    const hasOrderingClinician = orderingClinicianId;
-    const hasSelectedPrescriptions = selectedPrescriptions.length > 0;
+    if (selectedPrescriptions.length === 0) {
+      notifyError('Please select at least one medication to send to the pharmacy');
+      return false;
+    }
 
-    return hasValidQuantities && hasOrderingClinician && hasSelectedPrescriptions;
+    const hasInvalidQuantities = selectedPrescriptions.some(p => !p.quantity || p.quantity <= 0);
+    if (hasInvalidQuantities) {
+      setPrescriptions(prev =>
+        prev.map(p => ({
+          ...p,
+          hasError: p.selected && (!p.quantity || p.quantity <= 0),
+        })),
+      );
+      return false;
+    }
+
+    if (!orderingClinicianId) {
+      notifyError('Please select an ordering clinician to send the order to the pharmacy');
+      return false;
+    }
+
+    return true;
   }, [prescriptions, orderingClinicianId]);
 
   const handleSendOrder = useCallback(async () => {
-    if (!validateForm()) return;
-
     try {
       const selectedPrescriptions = prescriptions.filter(p => p.selected);
 
@@ -365,7 +380,6 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
       notifyError(err.message);
     }
   }, [
-    validateForm,
     queryClient,
     isOngoingMode,
     patient?.id,
@@ -381,23 +395,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
   ]);
 
   const handleClickSend = useCallback(() => {
-    const selectedPrescriptions = prescriptions.filter(p => p.selected);
-    if (selectedPrescriptions.length === 0) {
-      notifyError('Please select at least one medication to send to the pharmacy');
-      return;
-    }
-
-    // Validate quantities on selected rows and show errors
-    const hasInvalidQuantities = selectedPrescriptions.some(p => !p.quantity || p.quantity <= 0);
-    if (hasInvalidQuantities) {
-      setPrescriptions(prev =>
-        prev.map(p => ({
-          ...p,
-          hasError: p.selected && (!p.quantity || p.quantity <= 0),
-        })),
-      );
-      return;
-    }
+    if (!validateForm()) return;
 
     if (getAlreadyOrderedPrescriptions().length > 0) {
       setShowAlreadyOrderedConfirmation(true);
@@ -405,7 +403,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
     }
 
     handleSendOrder();
-  }, [prescriptions, orderingClinicianId, handleSendOrder, getAlreadyOrderedPrescriptions]);
+  }, [validateForm, handleSendOrder, getAlreadyOrderedPrescriptions]);
 
   const handleClose = useCallback(() => {
     setTimeout(() => {
