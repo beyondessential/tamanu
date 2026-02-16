@@ -64,10 +64,9 @@ export async function down(query: QueryInterface): Promise<void> {
   // DESTRUCTIVE: Cannot restore original UUID ids or logs.changes record_id values
   await query.sequelize.query(`
     ALTER TABLE patient_ongoing_prescriptions DROP CONSTRAINT patient_ongoing_prescriptions_pkey;
-    ALTER TABLE patient_ongoing_prescriptions ADD COLUMN id_old UUID DEFAULT gen_random_uuid();
-    UPDATE patient_ongoing_prescriptions SET id_old = gen_random_uuid();
+    ALTER TABLE patient_ongoing_prescriptions DROP CONSTRAINT patient_ongoing_prescriptions_id_key;
     ALTER TABLE patient_ongoing_prescriptions DROP COLUMN id;
-    ALTER TABLE patient_ongoing_prescriptions RENAME COLUMN id_old TO id;
+    ALTER TABLE patient_ongoing_prescriptions ADD COLUMN id UUID NOT NULL DEFAULT gen_random_uuid();
     ALTER TABLE patient_ongoing_prescriptions ADD PRIMARY KEY (id);
   `);
 }
