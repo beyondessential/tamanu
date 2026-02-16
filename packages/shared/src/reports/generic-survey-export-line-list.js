@@ -1,11 +1,12 @@
 import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
 import { keyBy } from 'lodash';
-import { NON_ANSWERABLE_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import {
+  NON_ANSWERABLE_DATA_ELEMENT_TYPES,
+  PROGRAM_DATA_ELEMENT_TYPES,
+  TEST_PATIENT_UUID,
+} from '@tamanu/constants';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { generateReportFromQueryData, getAnswerBody } from './utilities';
-
-// This is a stable UUID that is used by test patients in production
-const TEST_PATIENT_UUID = 'h1627394-3778-4c31-a510-9fcb88efdbf3';
 
 const COMMON_FIELDS = [
   'Patient ID',
