@@ -335,7 +335,7 @@ const getColumns = (
             hasError && (
               <TranslatedText
                 stringId="validation.required.inline"
-                fallback="Required"
+                fallback="*Required"
               />
             )
           }
