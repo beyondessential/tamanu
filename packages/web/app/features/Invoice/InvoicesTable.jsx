@@ -124,16 +124,6 @@ const getInvoiceTotal = row => {
   );
 };
 const getPaymentStatus = row => {
-  if (row.status !== INVOICE_STATUSES.FINALISED) {
-    return (
-      <TranslatedText
-        stringId="general.fallback.notApplicable"
-        fallback="N/A"
-        casing="lower"
-        data-testid="translatedtext-wjgy"
-      />
-    );
-  }
   return (
     <>
       <TranslatedEnum
