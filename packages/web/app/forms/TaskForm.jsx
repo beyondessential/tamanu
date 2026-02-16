@@ -407,7 +407,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
             .date()
             .required(getTranslation('validation.required.inline', '*Required'))
             .min(
-              new Date(new Date().setHours(0, 0, 0, 0)),
+              new Date(new Date().setHours(0, 0, 0, 0)), 
               getTranslation('general.validation.date.cannotInPast', 'Date cannot be in the past'),
             ),
           requestedByUserId: foreignKey().required(

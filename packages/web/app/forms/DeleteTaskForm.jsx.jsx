@@ -17,8 +17,7 @@ import { useAuth } from '../contexts/Auth';
 import { useTranslation } from '../contexts/Translation';
 
 export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
-  const { formatForDateTimeInput, getCurrentDateTime } =
-    useDateTime();
+  const { getCurrentDateTime } = useDateTime();
   const { getTranslation } = useTranslation();
   const practitionerSuggester = useSuggester('practitioner');
   const taskDeletionReasonSuggester = useSuggester('taskDeletionReason');
@@ -132,7 +131,7 @@ export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
             />,
           )
           .max(
-            formatForDateTimeInput(getCurrentDateTime()),
+            getCurrentDateTime(),
             getTranslation(
               'general.validation.date.cannotInFuture',
               'Date cannot be in the future',

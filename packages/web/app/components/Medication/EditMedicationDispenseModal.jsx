@@ -17,6 +17,7 @@ import { useAuth } from '../../contexts/Auth';
 import { useTranslation } from '../../contexts/Translation';
 import { AutocompleteInput } from '../Field';
 import { TableFormFields } from '../Table/TableFormFields';
+import { trimToDate } from '@tamanu/utils/dateTime';
 import { DateDisplay } from '../DateDisplay';
 import { useFacilityQuery } from '../../api/queries/useFacilityQuery';
 import { Colors } from '../../constants';
@@ -293,7 +294,7 @@ export const EditMedicationDispenseModal = memo(
             />
           ),
           accessor: ({ pharmacyOrderPrescription }) => (
-            <Box>{formatShort(pharmacyOrderPrescription?.prescription?.date)}</Box>
+            <Box>{formatShort(trimToDate(pharmacyOrderPrescription?.prescription?.date))}</Box>
           ),
         },
         {

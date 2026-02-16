@@ -180,7 +180,7 @@ const NoteContent = ({
         <NoteHeaderContainer data-testid="noteheadercontainer-qu50">
           <NoteHeaderText data-testid="noteheadertext-e3kq">
             <TranslatedReferenceData
-              fallback={note.noteTypeReference?.name || ""}
+              fallback={note.noteTypeReference?.name || ''}
               value={note.noteTypeReference?.id}
               category={REFERENCE_TYPES.NOTE_TYPE}
               data-testid="translatedreferencedata-s324"
@@ -263,8 +263,11 @@ const NoteContent = ({
           </NoteFooterTextElement>
         )}
         <DateDisplay
-          date={(note.noteTypeId !== NOTE_TYPES.TREATMENT_PLAN && note.revisedBy?.date) || note.date}
+          date={
+            (note.noteTypeId !== NOTE_TYPES.TREATMENT_PLAN && note.revisedBy?.date) || note.date
+          }
           timeFormat="default"
+          noTooltip
           data-testid="datedisplay-yaha"
         />
         {note.revisedById && (

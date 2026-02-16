@@ -1,9 +1,10 @@
-import { endOfDay, isValid, parseISO, startOfDay } from 'date-fns';
+import { isValid, parseISO } from 'date-fns';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import styled from 'styled-components';
 
-import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { useDateTime } from '@tamanu/ui-components';
+import { trimToDate } from '@tamanu/utils/dateTime';
 
 import { useLocationBookingsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';
@@ -41,20 +42,19 @@ const DateTimePicker = ({
   timePickerName,
 }) => {
   const { values, setFieldValue } = useFormikContext();
+  const { getDayBoundaries } = useDateTime();
   const dateFieldValue = values[datePickerName];
   const isValidDate = isValid(parseISO(dateFieldValue));
 
   /** Keep startDate synchronised with date field for non-overnight bookings */
-  const flushChangeToDateField = (e) => {
+  const flushChangeToDateField = e => {
     if (datePickerName === 'startDate') {
       setFieldValue('date', e.target.value);
     }
   };
 
-  const startDateTimeString =
-    values.startDate && toDateTimeString(endOfDay(parseISO(values.startDate)));
-  const endDateTimeString =
-    values.endDate && toDateTimeString(startOfDay(parseISO(values.endDate)));
+  const startDateTimeString = getDayBoundaries(trimToDate(values.startDate))?.end;
+  const endDateTimeString = getDayBoundaries(trimToDate(values.endDate))?.start;
 
   /**
    * Check for any booked timeslots *between* dates in overnight bookings. {@link TimeSlotPicker}
@@ -72,7 +72,9 @@ const DateTimePicker = ({
         datePickerName === 'endDate' &&
         values.startDate &&
         values.endDate &&
-        values.locationId
+        values.locationId &&
+        startDateTimeString &&
+        endDateTimeString
       ),
     },
   );
@@ -87,7 +89,7 @@ const DateTimePicker = ({
         label={datePickerLabel}
         min={minDate}
         name={datePickerName}
-        onChange={(e) => {
+        onChange={e => {
           flushChangeToDateField(e);
           onChange?.(e);
         }}

@@ -12,6 +12,7 @@ import {
 import { DateField, Field } from '../components/Field';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../components/NoteModalActionBlocker';
+import { trimToDate } from '@tamanu/utils/dateTime';
 
 export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => {
   const { getCurrentDate } = useDateTime();
@@ -21,7 +22,7 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => {
       // for now to avoid timezone conversion
       return {
         ...editedObject,
-        recordedDate: editedObject.recordedDate?.slice(0, 10),
+        recordedDate: trimToDate(editedObject.recordedDate),
       };
     }
     return {

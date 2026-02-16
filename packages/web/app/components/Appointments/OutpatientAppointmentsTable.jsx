@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { toDateString } from '@tamanu/utils/dateTime';
-import { Button, DateDisplay, TimeDisplay } from '@tamanu/ui-components';
+import { trimToDate } from '@tamanu/utils/dateTime';
+import { Button, DateDisplay, TimeDisplay, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 
 import { Table } from '../Table';
@@ -235,8 +235,7 @@ const ActionRow = styled.div`
 
 const getDate = ({ startTime }) => (
   <DateText data-testid="datetext-axl2">
-    <DateDisplay date={startTime} format="shortest" />{' '}
-    <TimeDisplay date={startTime} noTooltip />
+    <DateDisplay date={startTime} format="shortest" /> <TimeDisplay date={startTime} noTooltip />
   </DateText>
 );
 
@@ -318,18 +317,17 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
   // Query to check if there are past appointments
   const { data: hasPastAppointments } = useHasPastOutpatientAppointmentsQuery(patient?.id);
 
-  const {
-    data: upcomingAppointments = [],
-    isLoading: isLoadingUpcomingAppointments,
-  } = useUpcomingOutpatientAppointmentsQuery(
-    patient?.id,
-    { orderBy, order },
-    { keepPreviousData: true, refetchOnMount: true },
-  );
+  const { data: upcomingAppointments = [], isLoading: isLoadingUpcomingAppointments } =
+    useUpcomingOutpatientAppointmentsQuery(
+      patient?.id,
+      { orderBy, order },
+      { keepPreviousData: true, refetchOnMount: true },
+    );
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const navigate = useNavigate();
+  const { toFacilityDateTime } = useDateTime();
 
   const actions = [
     {
@@ -346,7 +344,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
 
   const handleRowClick = (_, data) => {
     const { id, startTime } = data;
-    navigate(`/appointments/outpatients?appointmentId=${id}&date=${toDateString(startTime)}`);
+    navigate(`/appointments/outpatients?appointmentId=${id}&date=${trimToDate(toFacilityDateTime(startTime))}`);
   };
 
   const canWriteAppointment = ability.can('write', 'Appointment');

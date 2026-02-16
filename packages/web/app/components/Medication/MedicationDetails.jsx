@@ -4,6 +4,7 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { CheckSharp } from '@material-ui/icons';
+import { trimToDate } from '@tamanu/utils/dateTime';
 import {
   ADMINISTRATION_FREQUENCIES,
   DRUG_ROUTE_LABELS,
@@ -139,9 +140,7 @@ export const MedicationDetails = ({
       label: (
         <TranslatedText stringId="medication.details.startDate" fallback="Start date & time" />
       ),
-      value: (
-        <DateDisplay date={medication.startDate} format="shortest" timeFormat="compact" />
-      ),
+      value: <DateDisplay date={medication.startDate} format="shortest" timeFormat="compact" />,
     },
     ...(medication.isOngoing || medication.discontinued
       ? []
@@ -192,7 +191,7 @@ export const MedicationDetails = ({
           fallback="Prescription date"
         />
       ),
-      value: <DateDisplay date={medication.date} format="shortest" />,
+      value: <DateDisplay date={trimToDate(medication.date)} format="shortest" />,
     },
     ...(medication.isOngoing || medication.discontinued || !medication.endDate
       ? []
@@ -252,13 +251,7 @@ export const MedicationDetails = ({
   };
 
   const validationSchema = yup.object().shape({
-    repeats: yup
-      .number()
-      .integer()
-      .min(0)
-      .max(MAX_REPEATS)
-      .nullable()
-      .optional(),
+    repeats: yup.number().integer().min(0).max(MAX_REPEATS).nullable().optional(),
   });
 
   return (
@@ -354,7 +347,11 @@ export const MedicationDetails = ({
                           pauseData.pauseDuration,
                         ).toLowerCase()}{' '}
                         - {<TranslatedText stringId="medication.details.until" fallback="until" />}{' '}
-                        <DateDisplay date={pauseData.pauseEndDate} format="shortest" timeFormat="compact" />
+                        <DateDisplay
+                          date={pauseData.pauseEndDate}
+                          format="shortest"
+                          timeFormat="compact"
+                        />
                       </DarkestText>
                     </Box>
                     <Box flex={1} pl={2.5} borderLeft={`1px solid ${Colors.outline}`}>
@@ -497,10 +494,12 @@ export const MedicationDetails = ({
                           const slot = findAdministrationTimeSlotFromIdealTime(time).timeSlot;
                           return (
                             <DarkestText key={time}>
-                                 <TimeRangeDisplay range={{ 
-                              start: getDateFromTimeString(slot.startTime), 
-                              end: getDateFromTimeString(slot.endTime) 
-                            }} />
+                              <TimeRangeDisplay
+                                range={{
+                                  start: getDateFromTimeString(slot.startTime),
+                                  end: getDateFromTimeString(slot.endTime),
+                                }}
+                              />
                             </DarkestText>
                           );
                         })}
@@ -516,7 +515,11 @@ export const MedicationDetails = ({
                         .map(time => {
                           return (
                             <MidText key={time}>
-                      <TimeDisplay date={getDateFromTimeString(time)} format="compact" noTooltip />
+                              <TimeDisplay
+                                date={getDateFromTimeString(time)}
+                                format="compact"
+                                noTooltip
+                              />
                             </MidText>
                           );
                         })}

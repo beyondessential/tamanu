@@ -68,10 +68,7 @@ export const TriageForm = ({
   const navigate = useNavigate();
   const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
-  const { getCurrentDateTime, getCurrentDate, formatForDateTimeInput } = useDateTime();
-  
-  const todayFacility = getCurrentDate();
-  const endOfTodayMax = `${todayFacility}T23:59`;
+  const { getCurrentDateTime } = useDateTime();
   const triageCategories = getSetting('triageCategories');
   const practitionerSuggester = useSuggester('practitioner');
   const triageReasonSuggester = useSuggester('triageReason');
@@ -89,7 +86,7 @@ export const TriageForm = ({
             />
           }
           component={DateTimeField}
-          max={endOfTodayMax}
+          max={getCurrentDateTime()}
           helperText="If different from triage time"
           saveDateAsString
           data-testid="field-mhav"
@@ -104,7 +101,7 @@ export const TriageForm = ({
             />
           }
           required
-          max={endOfTodayMax}
+          max={getCurrentDateTime()}
           component={DateTimeField}
           saveDateAsString
           data-testid="field-9hxy"
@@ -260,7 +257,7 @@ export const TriageForm = ({
         arrivalTime: yup
           .date()
           .max(
-            formatForDateTimeInput(getCurrentDateTime()),
+            getCurrentDateTime(),
             getTranslation(
               'validation.rule.arrivalTimeNotInFuture',
               'Arrival time cannot be in the future',
@@ -270,7 +267,7 @@ export const TriageForm = ({
           .date()
           .required()
           .max(
-            formatForDateTimeInput(getCurrentDateTime()),
+            getCurrentDateTime(),
             getTranslation(
               'validation.rule.triageTimeNotInFuture',
               'Triage time cannot be in the future',

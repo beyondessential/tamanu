@@ -1,8 +1,8 @@
 import React from 'react';
 import { useFormikContext } from 'formik';
-import { endOfDay, parseISO, startOfDay } from 'date-fns';
 
-import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { trimToDate } from '@tamanu/utils/dateTime';
+import { useDateTime } from '@tamanu/ui-components';
 
 import { TranslatedText } from '../../Translation';
 import { useOutpatientAppointmentsQuery } from '../../../api/queries/useAppointmentsQuery';
@@ -10,11 +10,16 @@ import { DateTimeField, Field } from '../../Field';
 
 export const DateTimeFieldWithSameDayWarning = ({ isEdit, onChange }) => {
   const { values, setFieldValue } = useFormikContext();
+  const { toFacilityDateTime, getDayBoundaries } = useDateTime();
+
+  const facilityStartStr = values.startTime ? toFacilityDateTime(values.startTime) : null;
+  const facilityDate = facilityStartStr ? trimToDate(facilityStartStr) : null;
+  const dayBounds = facilityDate ? getDayBoundaries(facilityDate) : null;
 
   const { data: existingAppointments, isFetched } = useOutpatientAppointmentsQuery(
     {
-      after: values.startTime ? toDateTimeString(startOfDay(parseISO(values.startTime))) : null,
-      before: values.startTime ? toDateTimeString(endOfDay(parseISO(values.startTime))) : null,
+      after: dayBounds?.start ?? null,
+      before: dayBounds?.end ?? null,
       all: true,
       patientId: values.patientId,
     },

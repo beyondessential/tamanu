@@ -5,6 +5,7 @@ import { DRUG_ROUTE_LABELS, MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@ta
 import { useLocation, useNavigate } from 'react-router';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { Button, DateDisplay, TimeDisplay } from '@tamanu/ui-components';
+import { trimToDate } from '@tamanu/utils/dateTime';
 import { Colors } from '../../constants/styles';
 
 import { DataFetchingTable } from '../Table';
@@ -236,7 +237,7 @@ const getMedicationColumns = (
               visible={tooltipTitle}
               title={<Box fontWeight={400}>{tooltipTitle}</Box>}
             >
-              <DateDisplay date={date} format="shortest" />
+              <DateDisplay date={trimToDate(date)} format="shortest" />
             </ConditionalTooltip>
           </NoWrapCell>
         );
@@ -272,9 +273,7 @@ const getMedicationColumns = (
           />
         </Box>
       ),
-      title: (
-        <TranslatedText stringId="medication.table.column.lastOrdered" fallback="Last sent" />
-      ),
+      title: <TranslatedText stringId="medication.table.column.lastOrdered" fallback="Last sent" />,
       sortable: false,
       accessor: ({ lastOrderedAt, encounterPrescription, discontinued }) => {
         const pauseData = encounterPrescription?.pausePrescriptions?.[0];
@@ -296,15 +295,16 @@ const getMedicationColumns = (
           );
         }
 
+        const orderDate = new Date(lastOrderedAt);
         return (
           <NoWrapCell
             color={isPausing ? Colors.softText : 'inherit'}
             fontStyle={isPausing ? 'italic' : 'normal'}
           >
             <Box>
-              <DateDisplay date={lastOrderedAt} format="shortest" noTooltip />
+              <DateDisplay date={orderDate} format="shortest" noTooltip />
               <Box fontSize="12px" color={Colors.softText}>
-                <TimeDisplay date={lastOrderedAt} format="compact" noTooltip />
+                <TimeDisplay date={orderDate} format="compact" noTooltip />
               </Box>
             </Box>
           </NoWrapCell>
@@ -361,9 +361,10 @@ export const EncounterMedicationTable = ({
 
   const rowStyle = ({ discontinued, medication }) => `
     ${discontinued ? 'text-decoration: line-through;' : ''}
-    ${medication.referenceDrug.isSensitive && !canViewSensitiveMedications
-      ? 'pointer-events: none;'
-      : ''
+    ${
+      medication.referenceDrug.isSensitive && !canViewSensitiveMedications
+        ? 'pointer-events: none;'
+        : ''
     }
   `;
 

@@ -2,7 +2,14 @@ import React from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 
-import { BaseModal, Button, TranslatedReferenceData, TranslatedText, useDateTime } from '@tamanu/ui-components';
+import {
+  BaseModal,
+  Button,
+  TranslatedReferenceData,
+  TranslatedText,
+  useDateTime,
+} from '@tamanu/ui-components';
+import { trimToDate } from '@tamanu/utils/dateTime';
 import { Colors } from '../../constants/styles';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 
@@ -61,11 +68,15 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
 
   const leftDetails = [
     {
-      label: <TranslatedText stringId="medication.dispenseDetails.patientId" fallback="Patient ID" />,
+      label: (
+        <TranslatedText stringId="medication.dispenseDetails.patientId" fallback="Patient ID" />
+      ),
       value: patient?.displayId || '-',
     },
     {
-      label: <TranslatedText stringId="medication.dispenseDetails.medication" fallback="Medication" />,
+      label: (
+        <TranslatedText stringId="medication.dispenseDetails.medication" fallback="Medication" />
+      ),
       value: (
         <TranslatedReferenceData
           fallback={prescription?.medication?.name}
@@ -76,23 +87,35 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
     },
     {
       label: (
-        <TranslatedText stringId="medication.dispenseDetails.dateDispensed" fallback="Date dispensed" />
+        <TranslatedText
+          stringId="medication.dispenseDetails.dateDispensed"
+          fallback="Date dispensed"
+        />
       ),
       value: dispensedAt ? formatShortest(dispensedAt) : '-',
     },
     {
-      label: <TranslatedText stringId="medication.dispenseDetails.dispensedBy" fallback="Dispensed by" />,
+      label: (
+        <TranslatedText stringId="medication.dispenseDetails.dispensedBy" fallback="Dispensed by" />
+      ),
       value: dispensedBy?.displayName || '-',
     },
     {
-      label: <TranslatedText stringId="medication.dispenseDetails.instructions" fallback="Instructions" />,
+      label: (
+        <TranslatedText
+          stringId="medication.dispenseDetails.instructions"
+          fallback="Instructions"
+        />
+      ),
       value: instructions || '-',
     },
   ];
 
   const rightDetails = [
     {
-      label: <TranslatedText stringId="medication.dispenseDetails.patientName" fallback="Patient name" />,
+      label: (
+        <TranslatedText stringId="medication.dispenseDetails.patientName" fallback="Patient name" />
+      ),
       value: patient ? <PatientNameDisplay patient={patient} /> : '-',
     },
     {
@@ -102,16 +125,21 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
           fallback="Prescription date"
         />
       ),
-      value: prescription?.date ? formatShortest(prescription.date) : '-',
+      value: prescription?.date ? formatShortest(trimToDate(prescription.date)) : '-',
     },
     {
       label: (
-        <TranslatedText stringId="medication.dispenseDetails.qtyDispensed" fallback="Qty dispensed" />
+        <TranslatedText
+          stringId="medication.dispenseDetails.qtyDispensed"
+          fallback="Qty dispensed"
+        />
       ),
       value: quantity ?? '-',
     },
     {
-      label: <TranslatedText stringId="medication.dispenseDetails.requestNo" fallback="Request no." />,
+      label: (
+        <TranslatedText stringId="medication.dispenseDetails.requestNo" fallback="Request no." />
+      ),
       value: displayId || '-',
     },
     {
@@ -129,7 +157,10 @@ export const DispensedMedicationDetailsModal = ({ open, onClose, item }) => {
     <StyledModal
       open={open}
       title={
-        <TranslatedText stringId="medication.dispenseDetails.title" fallback="Dispensed medication" />
+        <TranslatedText
+          stringId="medication.dispenseDetails.title"
+          fallback="Dispensed medication"
+        />
       }
       onClose={onClose}
     >

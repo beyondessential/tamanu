@@ -5,8 +5,7 @@ import { Plus } from 'lucide-react';
 import { FieldArray } from 'formik';
 import { Box, Button as MuiButton } from '@material-ui/core';
 
-import { Form, TranslatedText, FormSubmitButton, FormCancelButton } from '@tamanu/ui-components';
-import { getCurrentDateString } from '@tamanu/utils/dateTime';
+import { Form, TranslatedText, FormSubmitButton, FormCancelButton, useDateTime } from '@tamanu/ui-components';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
 
@@ -45,7 +44,7 @@ const FormFooter = styled.div`
   margin: 5px 0;
 `;
 
-const getDefaultRow = () => ({ id: uuidv4(), quantity: 1, orderDate: getCurrentDateString() });
+const getDefaultRow = (getCurrentDate) => ({ id: uuidv4(), quantity: 1, orderDate: getCurrentDate() });
 
 const EditItemsActions = ({ handleSubmit, handleCancel, isDisabled }) => (
   <Box textAlign="right" mb={1}>
@@ -78,6 +77,7 @@ const AddItemsActions = ({ handleSubmit, handleCancel, isDisabled }) => (
 );
 
 export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
+  const { getCurrentDate } = useDateTime();
   const { ability } = useAuth();
 
   // inProgressItems is used to re-populate the form with in progress items after the form is updated
@@ -170,7 +170,7 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
                       <Box>
                         <AddButton
                           variant="text"
-                          onClick={() => formArrayMethods.push(getDefaultRow())}
+                          onClick={() => formArrayMethods.push(getDefaultRow(getCurrentDate))}
                           startIcon={<Plus />}
                         >
                           <TranslatedText

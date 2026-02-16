@@ -7,7 +7,7 @@ import {
   getTranslatedFrequency,
 } from '@tamanu/shared/utils/medication';
 import { DRUG_ROUTE_LABELS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
-import { TranslatedReferenceData, TranslatedText } from '@tamanu/ui-components';
+import { TranslatedReferenceData, TranslatedText, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 
 import { useTranslation } from '../../../contexts/Translation';
@@ -18,14 +18,14 @@ import { MedicationDetails } from '../MedicationDetails';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../../contexts/Auth';
 
-const mapRecordsToWindows = medicationAdministrationRecords => {
-  // Create an array of 12 nulls (one for each 2-hour window)
+const mapRecordsToWindows = (medicationAdministrationRecords = [], toFacilityDateTime) => {
   const result = Array(12).fill(null);
 
-  // Process each medication administration record
   medicationAdministrationRecords.forEach(record => {
-    const dueAt = new Date(record.dueAt);
-    const windowIndex = findAdministrationTimeSlotFromIdealTime(dueAt).index;
+    const facilityDueAt = toFacilityDateTime(record.dueAt);
+    const facilityTime = facilityDueAt?.split('T')[1]?.substring(0, 5);
+    if (!facilityTime) return;
+    const windowIndex = findAdministrationTimeSlotFromIdealTime(facilityTime).index;
     result[windowIndex] = record;
   });
 
@@ -62,6 +62,7 @@ export const MarTableRow = ({
     displayPharmacyNotesInMar,
     encounterPrescription,
   } = medication;
+  const { toFacilityDateTime } = useDateTime();
   const { ability } = useAuth();
   const canViewSensitiveMedications = ability.can('read', 'SensitiveMedication');
   const isSensitive = medicationRef.referenceDrug.isSensitive;
@@ -133,7 +134,7 @@ export const MarTableRow = ({
           )}
         </Box>
       </MarRowContainer>
-      {mapRecordsToWindows(medicationAdministrationRecords).map((record, index, array) => {
+      {mapRecordsToWindows(medicationAdministrationRecords, toFacilityDateTime).map((record, index, array) => {
         return (
           <MarStatus
             key={record?.id || index}

@@ -31,12 +31,21 @@ import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
 
 export const ISO9075_DATE_FORMAT = 'yyyy-MM-dd';
 export const ISO9075_DATETIME_FORMAT = 'yyyy-MM-dd HH:mm:ss';
-export const ISO8061_WITH_TIMEZONE = "yyyy-MM-dd'T'HH:mm:ssXXX";
 
 export const isISOString = (dateString: string) =>
   isMatch(dateString, ISO9075_DATETIME_FORMAT) || isMatch(dateString, ISO9075_DATE_FORMAT);
 
 export const isISO9075DateString = (dateString: string) => isMatch(dateString, ISO9075_DATE_FORMAT);
+
+/** Extracts the date portion (YYYY-MM-DD) from a datetime string, returning null/undefined as-is. */
+export const trimToDate = (date: string | null | undefined): string | null | undefined =>
+  date?.slice(0, 10);
+
+/** Extracts the time portion (HH:mm:ss) from a datetime string */
+export const trimToTime = (date: string | null | undefined): string | null | undefined => {
+  const time = date?.slice(11, 19);
+  return time?.length === 5 ? `${time}:00` : time;
+};
 
 const makeDateObject = (date: string | Date) => {
   if (typeof date !== 'string') return date;
@@ -62,40 +71,36 @@ export const parseDate = (date: string | Date | null | undefined) => {
 };
 
 export const toDateTimeString = (date: string | Date | null | undefined) => {
-  if (date == null) return null;
-
-  const dateObj = parseDate(date);
-  if (!dateObj) return null;
-
-  return formatISO9075(dateObj, { representation: 'complete' });
+  const parsed = parseDate(date);
+  return parsed ? formatISO9075(parsed, { representation: 'complete' }) : null;
 };
 
 export const toDateString = (date: string | Date | null | undefined) => {
-  if (date == null) return null;
-
-  const dateObj = parseDate(date);
-  if (!dateObj) return null;
-
-  return formatISO9075(dateObj, { representation: 'date' });
+  const parsed = parseDate(date);
+  return parsed ? formatISO9075(parsed, { representation: 'date' }) : null;
 };
 
 /** "MO" - Uppercase 2 letter weekday representation for scheduling */
 export const toWeekdayCode = (date: string | Date | null | undefined) => {
-  if (date == null) return null;
-
-  const dateObj = parseDate(date);
-  if (!dateObj) return null;
-
-  return dateFnsFormat(dateObj, 'iiiiii').toUpperCase();
+  const parsed = parseDate(date);
+  return parsed ? dateFnsFormat(parsed, 'iiiiii').toUpperCase() : null;
 };
 
+/** Get ISO 9075 date string for current date 
+* Note: Do not use this function on client side as is not timezone aware
+* use getCurrentDate from DateTimeContext instead
+*/
+export const getCurrentDateString = () => formatISO9075(new Date(), { representation: 'date' });
+
+/** Get ISO 9075 datetime string for current datetime
+ * Note: Do not use this function on client side as is not timezone aware
+ * use getCurrentDateTime from DateTimeContext instead
+ */
 export const getCurrentDateTimeString = () => formatISO9075(new Date());
 
 export const getDateTimeSubtractedFromNow = (daysToSubtract: number) => {
   return toDateTimeString(sub(new Date(), { days: daysToSubtract }));
 };
-
-export const getCurrentDateString = () => formatISO9075(new Date(), { representation: 'date' });
 
 /**
  *  Don't use this function when using a datestring or datetimestring column
@@ -117,21 +122,6 @@ export const ageInMonths = (dob: string) => {
 
 export const ageInYears = (dob: string) => {
   return differenceInYears(new Date(), parseISO(dob));
-};
-
-export const compareDateStrings = (key: 'asc' | 'desc' | 'ASC' | 'DESC' = 'desc') => {
-  return (a: { date: string }, b: { date: string }) => {
-    switch (key) {
-      case 'asc':
-      case 'ASC':
-        return parseISO(a.date).getTime() - parseISO(b.date).getTime();
-      case 'desc':
-      case 'DESC':
-        return parseISO(b.date).getTime() - parseISO(a.date).getTime();
-      default:
-        return 0;
-    }
-  };
 };
 
 export type AgeRange = {
@@ -235,11 +225,8 @@ export const doAgeRangesOverlap = (rangesArray: AgeRange[]) => {
  * For date-fns docs @see https://date-fns.org
  */
 export const format = (date: string | Date | null | undefined, format: string) => {
-  if (date == null) return null;
-  const dateObj = parseDate(date);
-  if (!dateObj) return null;
-
-  return dateFnsFormat(dateObj, format);
+  const parsed = parseDate(date);
+  return parsed ? dateFnsFormat(parsed, format) : null;
 };
 
 export const differenceInMilliseconds = (a: number | string | Date, b: number | string | Date) =>
@@ -249,20 +236,24 @@ export const locale = globalThis.navigator?.language ?? 'default';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
-const toISO9075DateTime = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) => {
+const formatTemporal = (
+  dt: Temporal.PlainDateTime | Temporal.ZonedDateTime,
+  separator: string,
+  alwaysIncludeSeconds: boolean,
+) => {
   const { year, month, day, hour, minute, second } = dt;
   const yyyy = String(year).padStart(4, '0');
-  return `${yyyy}-${pad(month)}-${pad(day)} ${pad(hour)}:${pad(minute)}:${pad(second)}`;
+  const base = `${yyyy}-${pad(month)}-${pad(day)}${separator}${pad(hour)}:${pad(minute)}`;
+  return alwaysIncludeSeconds || second !== 0 ? `${base}:${pad(second)}` : base;
 };
 
-const toDateTimeLocalFormat = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) => {
-  const { year, month, day, hour, minute, second } = dt;
-  const yyyy = String(year).padStart(4, '0');
-  const base = `${yyyy}-${pad(month)}-${pad(day)}T${pad(hour)}:${pad(minute)}`;
-  return second !== 0 ? `${base}:${pad(second)}` : base;
-};
+const toISO9075DateTime = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) =>
+  formatTemporal(dt, ' ', true);
 
-const parseDateTimeString = (date: string, countryTimeZone?: string): Temporal.PlainDateTime => {
+const toDateTimeLocalFormat = (dt: Temporal.PlainDateTime | Temporal.ZonedDateTime) =>
+  formatTemporal(dt, 'T', false);
+
+const parseDateTimeString = (date: string, countryTimeZone: string): Temporal.PlainDateTime => {
   const normalized = date.replace(' ', 'T');
   if (/[Zz]$/.test(normalized)) {
     const instant = Temporal.Instant.from(normalized);
@@ -272,7 +263,7 @@ const parseDateTimeString = (date: string, countryTimeZone?: string): Temporal.P
   return Temporal.PlainDateTime.from(normalized);
 };
 
-const getDisplayTimezone = (countryTimeZone?: string, facilityTimeZone?: string | null) =>
+const getDisplayTimezone = (countryTimeZone: string, facilityTimeZone?: string | null) =>
   facilityTimeZone ?? countryTimeZone;
 
 const isTimezoneError = (error: unknown): boolean =>
@@ -282,7 +273,7 @@ const logDateError = (
   fnName: string,
   error: unknown,
   value: unknown,
-  countryTimeZone?: string,
+  countryTimeZone: string,
   facilityTimeZone?: string | null,
 ) => {
   if (isTimezoneError(error)) {
@@ -299,7 +290,7 @@ export const intlFormatDate = (
   date: string | Date | null | undefined,
   formatOptions: Intl.DateTimeFormatOptions,
   fallback = 'Unknown',
-  countryTimeZone?: string,
+  countryTimeZone: string,
   facilityTimeZone?: string | null,
 ) => {
   if (!date) return fallback;
@@ -360,14 +351,8 @@ export const dateCustomValidation = z
   .describe('__dateCustomValidation__');
 
 export const timeCustomValidation = z.string().refine(
-  (val: string) => {
-    const regex = /^\d{2}:\d{2}:\d{2}$/;
-    if (!regex.test(val)) return false;
-    return true;
-  },
-  {
-    message: 'Invalid time format, expected HH:MM:SS',
-  },
+  (val: string) => /^\d{2}:\d{2}:\d{2}$/.test(val),
+  { message: 'Invalid time format, expected HH:MM:SS' },
 );
 
 // Custom validator for "YYYY-MM-DD HH:MM:SS" format
@@ -415,21 +400,30 @@ export const eachDayInMonth = (date: Date) =>
     end: endOfMonth(date),
   });
 
-/** Get current datetime string in a specific timezone */
-export const getCurrentDateTimeStringInTimezone = (timezone?: string) =>
+/** Get current datetime string in a specific timezone (ISO 9075 — space-separated, for storage) */
+export const getCurrentDateTimeStringInTimezone = (timezone: string) =>
   toISO9075DateTime(Temporal.Now.zonedDateTimeISO(timezone ?? Temporal.Now.timeZoneId()));
 
 /** Get current date string in a specific timezone */
-export const getCurrentDateStringInTimezone = (timezone?: string) =>
+export const getCurrentDateStringInTimezone = (timezone: string) =>
   Temporal.Now.plainDateISO(timezone ?? Temporal.Now.timeZoneId()).toString();
+
+/** Get current facility date object in facility timezone */
+export const getFacilityNowDate = (
+  countryTimeZone: string,
+  facilityTimeZone?: string | null,
+): Date => {
+  const tz = facilityTimeZone ?? countryTimeZone;
+  return new Date(getCurrentDateTimeStringInTimezone(tz).replace(' ', 'T'));
+};
 
 /**
  * Convert stored datetime (country timezone) to display format (facility timezone)
  * Used when populating datetime-local inputs with existing values
  */
-export const formatForDateTimeInput = (
+export const toFacilityDateTime = (
   value: string | Date | null | undefined,
-  countryTimeZone?: string,
+  countryTimeZone: string,
   facilityTimeZone?: string | null,
 ): string | null => {
   if (value == null) return null;
@@ -457,7 +451,7 @@ export const formatForDateTimeInput = (
 
     return toDateTimeLocalFormat(plain);
   } catch (error) {
-    logDateError('formatForDateTimeInput', error, value, countryTimeZone, facilityTimeZone);
+    logDateError('toFacilityDateTime', error, value, countryTimeZone, facilityTimeZone);
     return null;
   }
 };
@@ -466,9 +460,9 @@ export const formatForDateTimeInput = (
  * Convert input value (facility timezone) to storage format (country timezone)
  * Used when saving datetime-local input values to the database
  */
-export const toDateTimeStringForPersistence = (
+export const toStoredDateTime = (
   inputValue: string | null | undefined,
-  countryTimeZone?: string,
+  countryTimeZone: string,
   facilityTimeZone?: string | null,
 ): string | null => {
   if (!inputValue) return null;
@@ -485,31 +479,21 @@ export const toDateTimeStringForPersistence = (
     if (!countryTimeZone) {
       return toISO9075DateTime(plain);
     }
-    const displayTz = facilityTimeZone ?? countryTimeZone;
-    return toISO9075DateTime(plain.toZonedDateTime(displayTz).withTimeZone(countryTimeZone));
+    const inputTz = getDisplayTimezone(countryTimeZone, facilityTimeZone);
+    return toISO9075DateTime(plain.toZonedDateTime(inputTz).withTimeZone(countryTimeZone));
   } catch (error) {
-    logDateError(
-      'toDateTimeStringForPersistence',
-      error,
-      inputValue,
-      countryTimeZone,
-      facilityTimeZone,
-    );
+    logDateError('toStoredDateTime', error, inputValue, countryTimeZone, facilityTimeZone);
     return null;
   }
 };
 
 export const getDayBoundaries = (
   date: string,
-  countryTimeZone?: string,
+  countryTimeZone: string,
   facilityTimeZone?: string | null,
 ) => {
-  const start = toDateTimeStringForPersistence(
-    `${date}T00:00:00`,
-    countryTimeZone,
-    facilityTimeZone,
-  );
-  const end = toDateTimeStringForPersistence(`${date}T23:59:59`, countryTimeZone, facilityTimeZone);
+  const start = toStoredDateTime(`${date}T00:00:00`, countryTimeZone, facilityTimeZone);
+  const end = toStoredDateTime(`${date}T23:59:59`, countryTimeZone, facilityTimeZone);
   if (!start || !end) return null;
   return {
     start,

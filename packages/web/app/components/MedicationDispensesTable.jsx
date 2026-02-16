@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { SearchTableWithPermissionCheck } from './Table';
 import { DateDisplay } from './DateDisplay';
@@ -273,10 +273,12 @@ export const MedicationDispensesTable = () => {
       : []),
   ];
 
-  const fetchOptions = { ...searchParameters, facilityId };
+  const fetchOptions = useMemo(() => ({
+    ...searchParameters,
+    facilityId,
+  }), [searchParameters, facilityId]);
 
   const handleRowClick = (_, dispenseData) => {
-    // Map the dispense data to the format expected by the detail modal
     const patient = dispenseData.pharmacyOrderPrescription?.pharmacyOrder?.encounter?.patient;
     const mappedItem = {
       id: dispenseData.id,

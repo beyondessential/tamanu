@@ -19,8 +19,8 @@ import { useDateTimeIfAvailable } from '../../contexts';
  * 2. Display value: facilityTimeZone when useTimezone=true, otherwise as-is
  *
  * Timezone flow (useTimezone=true):
- *    Load: countryTimeZone → formatForDateTimeInput → facilityTimeZone
- *    Save: facilityTimeZone → toDateTimeStringForPersistence → countryTimeZone
+ *    Load: countryTimeZone → toFacilityDateTime → facilityTimeZone
+ *    Save: facilityTimeZone → toStoredDateTime → countryTimeZone
  *
  * Note: Native datetime inputs have quirky focus handling between day/month/year segments,
  * so avoid unnecessary value updates that could interfere with user input.
@@ -63,20 +63,17 @@ export const DateInput = ({
 }) => {
   delete props.placeholder;
 
-  const dateTimeFormat = useDateTimeIfAvailable();
-  const shouldUseTimezone = useTimezone && type === 'datetime-local' && dateTimeFormat != null;
-  const { formatForDateTimeInput, toDateTimeStringForPersistence } = dateTimeFormat ?? {};
+  const dateTime = useDateTimeIfAvailable();
+  const shouldUseTimezone = useTimezone && type === 'datetime-local' && dateTime != null;
+  const { toFacilityDateTime, toStoredDateTime } = dateTime ?? {};
 
-  // Normalize max/min to datetime-local format when using timezones so both the
-  // HTML input constraint and the handleBlur check use the same T-separator format.
-  // If formatForDateTimeInput returns null (parse error), let it stay null so the
-  // handleBlur bounds check is skipped rather than comparing mismatched formats.
-  const normalizedMax = shouldUseTimezone ? formatForDateTimeInput(max) : max;
-  const normalizedMin = shouldUseTimezone ? formatForDateTimeInput(min) : min;
+  // Normalize max/min to datetime-local format (T-separated) when using timezones
+  const normalizedMax = shouldUseTimezone ? toFacilityDateTime(max) : max;
+  const normalizedMin = shouldUseTimezone ? toFacilityDateTime(min) : min;
 
   // Convert stored value (countryTimeZone) to display value (facilityTimeZone for datetime-local)
   const getDisplayValue = val => {
-    if (shouldUseTimezone) return formatForDateTimeInput(val) || '';
+    if (shouldUseTimezone) return toFacilityDateTime(val) || '';
     return fromRFC3339(val, format);
   };
 
@@ -119,7 +116,7 @@ export const DateInput = ({
 
       if (shouldUseTimezone) {
         // Convert input value (facilityTimeZone) to storage value (countryTimeZone)
-        outputValue = toDateTimeStringForPersistence(formattedValue);
+        outputValue = toStoredDateTime(formattedValue);
       } else {
         const date = parse(formattedValue, format, new Date());
 
@@ -151,7 +148,7 @@ export const DateInput = ({
       type,
       clearValue,
       shouldUseTimezone,
-      toDateTimeStringForPersistence,
+      toStoredDateTime,
     ],
   );
 
@@ -201,7 +198,7 @@ export const DateInput = ({
       setIsPlaceholder(true);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value, format, shouldUseTimezone, formatForDateTimeInput]);
+  }, [value, format, shouldUseTimezone, toFacilityDateTime]);
 
   // We create two copies of the DateField component, so that we can have a temporary one visible
   // during remount (for more on that, see the remounting description at the top of this component)

@@ -1,4 +1,5 @@
 import { Op, DataTypes } from 'sequelize';
+import config from 'config';
 
 import { ENCOUNTER_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
@@ -166,12 +167,12 @@ export class Triage extends Model {
       await onChangeTextColumn({
         columnName: 'arrivalTime',
         noteLabel: 'arrival date & time',
-        formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
+        formatText: date => (date ? `${formatShort(date, config.countryTimeZone)} ${formatTime(date, config.countryTimeZone)}` : '-'),
       });
       await onChangeTextColumn({
         columnName: 'triageTime',
         noteLabel: 'triage date & time',
-        formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
+        formatText: date => (date ? `${formatShort(date, config.countryTimeZone)} ${formatTime(date, config.countryTimeZone)}` : '-'),
       });
       await onChangeTextColumn({
         columnName: 'score',
