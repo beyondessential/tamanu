@@ -9,11 +9,6 @@ export default {
   component: Component,
 };
 
-const getLocalisation = key => {
-  const config = {};
-  return config[key];
-};
-
 const motherData = {
   id: '51e7e152-7ad9-4c2e-a7f5-6472f1af7fd4',
   displayId: 'VPZQ171731',
@@ -117,7 +112,7 @@ export const BirthNotificationCertificate = {
         motherData={motherData}
         fatherData={fatherData}
         childData={childData}
-        getLocalisation={getLocalisation}
+        getLocalisation={() => undefined}
         facility={facility}
       />
     </PDFViewer>

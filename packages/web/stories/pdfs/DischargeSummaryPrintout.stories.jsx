@@ -9,11 +9,6 @@ export default {
   component: Component,
 };
 
-const getLocalisation = key => {
-  const config = {};
-  return config[key];
-};
-
 const patient = {
   loading: false,
   id: '36534bf8-95b9-40e5-9808-f29e1e11bede',
@@ -473,7 +468,7 @@ export const DischargeSummaryPrintout = {
         certificateData={certificateData}
         patientData={patient}
         encounter={encounter}
-        getLocalisation={getLocalisation}
+        getLocalisation={() => undefined}
       />
     </PDFViewer>
   ),

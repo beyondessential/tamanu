@@ -18,11 +18,6 @@ const patient = {
   ...dummyAdditionalData,
 };
 
-const getLocalisation = key => {
-  const config = {};
-  return config[key];
-};
-
 const examiner = {
   id: '6b1269ff-2443-4381-a532-ddd48fbd5020',
   email: 'admin@tamanu.io',
@@ -51,7 +46,7 @@ export const PatientLetter = () => {
     <PDFViewer width={800} height={1000} showToolbar={false}>
       <Component
         logoSrc={Logo}
-        getLocalisation={getLocalisation}
+        getLocalisation={() => undefined}
         letterheadConfig={certificateData}
         data={patientLetterData}
       />

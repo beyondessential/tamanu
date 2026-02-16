@@ -9,10 +9,6 @@ export default {
   component: Component,
 };
 
-const getLocalisation = key => {
-  const config = {};
-  return config[key];
-};
 const certificateData = {
   title: 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
   subTitle: 'PO Box 12345, Melbourne, Australia',
@@ -179,7 +175,7 @@ export const DeathCertificatePrintout = {
       <Component
         certificateData={certificateData}
         patientData={patientData}
-        getLocalisation={getLocalisation}
+        getLocalisation={() => undefined}
       />
     </PDFViewer>
   ),

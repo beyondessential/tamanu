@@ -12,11 +12,6 @@ const Container = styled.div`
   padding: 1rem;
 `;
 
-const getLocalisation = key => {
-  const config = {};
-  return config[key];
-};
-
 const letterheadConfig = {
   title: 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
   subTitle: 'PO Box 12345, Melbourne, Australia',
@@ -98,7 +93,7 @@ const PDFTemplate = args => (
     <HandoverNotesPDF
       handoverNotes={handoverNotes}
       logoSrc={Logo}
-      getLocalisation={getLocalisation}
+      getLocalisation={() => undefined}
       locationGroupName="A-Emergency Department"
       letterheadConfig={letterheadConfig}
     />

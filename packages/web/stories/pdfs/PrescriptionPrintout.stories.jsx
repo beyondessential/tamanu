@@ -218,11 +218,6 @@ const facility = {
   updatedAt: '2023-11-07T02:15:33.536Z',
 };
 
-const getLocalisation = key => {
-  const config = {};
-  return config[key];
-};
-
 export const PrescriptionPrintout = {
   render: () => (
     <PDFViewer width={800} height={1000} showToolbar={false}>
@@ -232,7 +227,6 @@ export const PrescriptionPrintout = {
         prescriptions={prescriptions}
         prescriber={prescriber}
         facility={facility}
-        getLocalisation={getLocalisation}
       />
     </PDFViewer>
   ),

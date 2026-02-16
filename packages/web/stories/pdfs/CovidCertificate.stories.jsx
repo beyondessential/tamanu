@@ -60,11 +60,6 @@ const labs = [
   },
 ];
 
-const getLocalisation = key => {
-  const config = {};
-  return config[key];
-};
-
 const getSetting = key => {
   const config = {
     'templates.letterhead.title': 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
@@ -83,7 +78,7 @@ export const CovidLabCertificate = () => {
         watermarkSrc={Watermark}
         signingSrc={SigningImage}
         logoSrc={Logo}
-        getLocalisation={getLocalisation}
+        getLocalisation={() => undefined}
         getSetting={getSetting}
         printedBy="Initial Admin"
       />

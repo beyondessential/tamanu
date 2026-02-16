@@ -9,11 +9,6 @@ export default {
   component: Component,
 };
 
-const getLocalisation = key => {
-  const config = {};
-  return config[key];
-};
-
 const encounter = {
   id: '76df3ccd-36c2-4f9f-a516-5d6e1bc9dd1e',
   encounterType: 'admission',
@@ -264,7 +259,7 @@ export const ImagingRequestsPrintout = {
         patient={patient}
         imagingRequests={imagingRequests}
         encounter={encounter}
-        getLocalisation={getLocalisation}
+        getLocalisation={() => undefined}
       />
     </PDFViewer>
   ),
