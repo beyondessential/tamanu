@@ -268,16 +268,19 @@ export const TimeSlotPicker = ({
     () =>
       existingBookings?.data
         .map(booking => {
-          const facilityStart = toFacilityDateTime(booking.startTime);
-          const facilityEnd = toFacilityDateTime(booking.endTime);
-          if (!facilityStart || !facilityEnd) return null;
-          return appointmentToInterval({
-            startTime: facilityStart,
-            endTime: facilityEnd,
-          });
+          if (type === 'bookings') {
+            const facilityStart = toFacilityDateTime(booking.startTime);
+            const facilityEnd = toFacilityDateTime(booking.endTime);
+            if (!facilityStart || !facilityEnd) return null;
+            return appointmentToInterval({
+              startTime: facilityStart,
+              endTime: facilityEnd,
+            });
+          }
+          return appointmentToInterval(booking);
         })
         .filter(interval => interval && !isEqual(interval, initialInterval)) ?? [],
-    [existingBookings?.data, initialInterval, toFacilityDateTime],
+    [existingBookings?.data, initialInterval, toFacilityDateTime, type],
   );
 
   /** A time slot is selectable if it does not create a selection of time slots that collides with another booking */
