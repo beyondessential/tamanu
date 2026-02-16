@@ -14,7 +14,8 @@ import {
   ArrayField,
   AutocompleteField,
   CheckField,
-  DateField,
+  DateField,  
+  useDateTime,
   DateTimeField,
   Field,
   FieldWithTooltip,
@@ -166,6 +167,7 @@ export const DeathForm = React.memo(
     diagnosisSuggester,
     facilitySuggester,
   }) => {
+    const { getCurrentDateTime } = useDateTime();
     const [currentTOD, setCurrentTOD] = useState(patient?.dateOfDeath || getCurrentDateTimeString());
     const { getTranslation } = useTranslation();
     const { currentUser } = useAuth();
