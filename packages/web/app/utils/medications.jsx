@@ -4,7 +4,6 @@ import {
   DRUG_STOCK_STATUS_LABELS,
   DRUG_STOCK_STATUSES,
 } from '@tamanu/constants';
-import { camelCase } from 'lodash';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import {
   getPatientNameAsString,
