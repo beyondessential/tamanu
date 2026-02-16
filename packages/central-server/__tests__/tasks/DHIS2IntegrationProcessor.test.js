@@ -254,7 +254,7 @@ describe('DHIS2 integration processor', () => {
       });
     });
 
-    it('should create a success log when report is successfully sent to DHIS2', async () => {
+    it('should create a success log when dataValueSet is successfully sent to DHIS2', async () => {
       dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue(mockSuccessResponse);
       await dhis2IntegrationProcessor.run();
 
