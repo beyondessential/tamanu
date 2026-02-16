@@ -1,7 +1,6 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import {
-  ADMINISTRATION_FREQUENCY_SYNONYMS,
   DRUG_STOCK_STATUS_LABELS,
   DRUG_STOCK_STATUSES,
 } from '@tamanu/constants';
@@ -60,30 +59,6 @@ export const getTranslatedMedicationName = (medication, getReferenceDataTranslat
     fallback: medication?.name,
     placeholder: '-',
   });
-};
-
-export const getTranslatedFrequencySynonyms = (frequenciesEnabled, getTranslation) => {
-  const result = {};
-  Object.entries(ADMINISTRATION_FREQUENCY_SYNONYMS).forEach(([frequency, synonyms]) => {
-    if (!frequenciesEnabled?.[frequency]) return;
-    const labelKey = getTranslation(
-      `medication.frequency.${camelCase(frequency)}.label`,
-      frequency,
-    );
-
-    const translatedSynonyms = synonyms.map((synonym, index) =>
-      getTranslation(`medication.frequency.${camelCase(frequency)}.synonym.${index}`, synonym),
-    );
-
-    result[labelKey] = translatedSynonyms;
-  });
-
-  return result;
-};
-
-export const getTranslatedFrequencySynonym = (synonyms, index, getTranslation) => {
-  const frequency = synonyms[index];
-  return getTranslation(`medication.frequency.${camelCase(frequency)}.synonym.${index}`, frequency);
 };
 
 export const formatTimeSlot = time => {
