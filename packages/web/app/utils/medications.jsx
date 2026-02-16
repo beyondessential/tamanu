@@ -45,6 +45,23 @@ export const getMedicationLabelData = ({ items, patient, facility }) => {
   }));
 };
 
+/**
+ * Returns the display name for a medication using reference-data translation when available.
+ * Uses the medication's id and type for lookup, with name as fallback and '-' when missing.
+ *
+ * @param {Object} [medication] - Medication record (may have id, type, name)
+ * @param {Function} getReferenceDataTranslation - Translation function from useTranslation()
+ * @returns {string} Translated or fallback medication name, or '-' if none
+ */
+export const getTranslatedMedicationName = (medication, getReferenceDataTranslation) => {
+  return getReferenceDataTranslation({
+    value: medication?.id,
+    category: medication?.type,
+    fallback: medication?.name,
+    placeholder: '-',
+  });
+};
+
 export const getTranslatedFrequencySynonyms = (frequenciesEnabled, getTranslation) => {
   const result = {};
   Object.entries(ADMINISTRATION_FREQUENCY_SYNONYMS).forEach(([frequency, synonyms]) => {

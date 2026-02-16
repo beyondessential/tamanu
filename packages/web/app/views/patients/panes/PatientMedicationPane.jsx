@@ -30,7 +30,7 @@ import { MedicationLabelPrintModal } from '../../../components/PatientPrinting/m
 import { CancelDispensedMedicationModal } from '../../../components/Medication/CancelDispensedMedicationModal';
 import { EditMedicationDispenseModal } from '../../../components/Medication/EditMedicationDispenseModal';
 import { DispensedMedicationDetailsModal } from '../../../components/Medication/DispensedMedicationDetailsModal';
-import { getMedicationLabelData } from '../../../utils/medications';
+import { getMedicationLabelData, getTranslatedMedicationName } from '../../../utils/medications';
 import { useApi } from '../../../api';
 import { SendToPharmacyIcon } from '../../../assets/icons/SendToPharmacyIcon';
 import { useSettings } from '../../../contexts/Settings';
@@ -468,12 +468,7 @@ export const PatientMedicationPane = ({ patient }) => {
       const labelItems = [
         {
           id,
-          medicationName: getReferenceDataTranslation({
-            value: medication?.id,
-            category: medication?.type,
-            fallback: medication?.name,
-            placeholder: '-',
-          }),
+          medicationName: getTranslatedMedicationName(medication, getReferenceDataTranslation),
           instructions,
           quantity,
           units: prescription?.units,

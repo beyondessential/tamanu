@@ -29,7 +29,11 @@ import { useFacilityQuery } from '../../api/queries/useFacilityQuery';
 import { Colors } from '../../constants';
 import { BodyText } from '../Typography';
 import { MedicationLabel } from '../PatientPrinting/printouts/MedicationLabel';
-import { getMedicationLabelData, getStockStatus } from '../../utils/medications';
+import {
+  getMedicationLabelData,
+  getStockStatus,
+  getTranslatedMedicationName,
+} from '../../utils/medications';
 
 const MODAL_STEPS = {
   DISPENSE: 'dispense',
@@ -377,12 +381,7 @@ export const DispenseMedicationWorkflowModal = memo(
         const medication = item.prescription?.medication;
         return {
           id: item.id,
-          medicationName: getReferenceDataTranslation({
-            value: medication?.id,
-            category: medication?.type,
-            fallback: medication?.name,
-            placeholder: '-',
-          }),
+          medicationName: getTranslatedMedicationName(medication, getReferenceDataTranslation),
           instructions: item.instructions,
           quantity: item.quantity,
           units: item.prescription?.units,
