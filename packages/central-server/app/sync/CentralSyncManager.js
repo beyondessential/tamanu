@@ -80,17 +80,23 @@ export class CentralSyncManager {
    * We use this lock to ensure that we can't create multiple sessions at the same time.
    * This avoids situations where we unintentionally exceed the maxConcurrentSessions limit.
    *
-   * Uses a transaction level advisory lock, so ensure that the session is created in the same transaction.
+   * Uses a session level advisory lock, so ensure to manually release the lock when the session is created.
    * @returns {Promise<boolean>} true if lock was acquired, false otherwise
    */
   async takeCreateSessionLock() {
     const [[row]] = await this.store.sequelize.query(
-      'SELECT pg_try_advisory_xact_lock(:lockId) AS acquired;',
+      'SELECT pg_try_advisory_lock(:lockId) AS acquired;',
       {
         replacements: { lockId: CREATE_SESSION_ADVISORY_LOCK },
       },
     );
     return row?.acquired ?? false;
+  }
+
+  async releaseCreateSessionLock() {
+    await this.store.sequelize.query('SELECT pg_advisory_unlock(:lockId);', {
+      replacements: { lockId: CREATE_SESSION_ADVISORY_LOCK },
+    });
   }
 
   async getIsSyncCapacityFull() {

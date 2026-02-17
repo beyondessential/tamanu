@@ -112,15 +112,16 @@ export const buildSyncRoutes = ctx => {
         return;
       }
 
-      const result = await store.sequelize.transaction(async () => {
-        // Grab create-session lock, and startSession in a single transaction so we don't race with other devices
-        const safeToCreateSession = await syncManager.takeCreateSessionLock();
-        if (!safeToCreateSession) {
-          // Another session is already creating, so we're not allowed to create one
-          res.send({ status: 'activeSync' });
-          return;
-        }
+      // Grab create-session lock, and startSession in a single transaction so we don't race with other devices
+      const safeToCreateSession = await syncManager.takeCreateSessionLock();
+      if (!safeToCreateSession) {
+        // Another session is already creating, so we're not allowed to create one
+        res.send({ status: 'activeSync' });
+        return;
+      }
 
+      let result;
+      try {
         // remove our place in the queue before starting sync
         // (if the resulting sync has an error, we'll be knocked to the back of the queue
         // but that's fine. It will leave some room for non-errored devices to sync, and
@@ -128,13 +129,16 @@ export const buildSyncRoutes = ctx => {
         // lastSyncedTick)
         await queueRecord.destroy();
 
-        return await syncManager.startSession({
+        result = await syncManager.startSession({
           userId: user.id,
           deviceId: device.id,
           facilityIds,
           isMobile,
         });
-      });
+      } finally {
+        await syncManager.releaseCreateSessionLock();
+      }
+
       if (result) {
         res.json({ status: 'goodToGo', sessionId: result.sessionId, tick: result.tick });
       }
