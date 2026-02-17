@@ -25,10 +25,6 @@ One of:
 - `published`
   {% enddocs %}
 
-{% docs report_definition_versions__query %}
-The SQL query.
-{% enddocs %}
-
 {% docs report_definition_versions__query_options %}
 JSON config containing additional options for the query.
 
@@ -36,10 +32,6 @@ JSON config containing additional options for the query.
 - Default date range e.g. last 30 days
 - Context for executing query e.g. this facility or all facilities (facility or central server)
   {% enddocs %}
-
-{% docs report_definition_versions__report_definition_id %}
-The [report definition](#!/source/source.tamanu.tamanu.report_definitions).
-{% enddocs %}
 
 {% docs report_definition_versions__user_id %}
 Reference to the [user](#!/source/source.tamanu.tamanu.users) who saved this report version.
@@ -53,4 +45,12 @@ other non-query settings, for example:
 
 - `dhis2DataSet`: DHIS2 data set ID used when pushing this report’s data to DHIS2 (see
   DHIS2 integration processor).
+{% enddocs %}
+
+{% docs report_definition_versions__query %}
+The SQL query.
+{% enddocs %}
+
+{% docs report_definition_versions__report_definition_id %}
+The [report definition](#!/source/source.tamanu.tamanu.report_definitions).
 {% enddocs %}
