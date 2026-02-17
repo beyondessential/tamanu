@@ -174,7 +174,8 @@ async function postReview(prNumber, commitSha, inlineComments) {
     event: 'COMMENT',
     comments: inlineComments.map(c => ({
       path: c.path,
-      line: c.line || 1,
+      line: c.line,
+      side: 'RIGHT',
       body: c.body,
     })),
   };
