@@ -9,6 +9,8 @@ import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { createTestContext } from '../utilities';
 import { DEVICE_SCOPES, SERVER_TYPES } from '@tamanu/constants';
 
+const MAX_CONCURRENT_SESSIONS = 1;
+
 [true, false].map(withDeviceIdInBody =>
   describe(`SyncQueuedDevice${withDeviceIdInBody ? ' (with legacy device ID in sync request body)' : ''}`, () => {
     let ctx;
@@ -82,7 +84,7 @@ import { DEVICE_SCOPES, SERVER_TYPES } from '@tamanu/constants';
       CentralSyncManager.overrideConfig({
         sync: {
           awaitPreparation: true,
-          maxConcurrentSessions: 1,
+          maxConcurrentSessions: MAX_CONCURRENT_SESSIONS,
           maxRecordsPerSnapshotChunk: 1000000000,
           lookupTable: {
             enabled: true,
@@ -210,22 +212,39 @@ import { DEVICE_SCOPES, SERVER_TYPES } from '@tamanu/constants';
     });
 
     it('Should prevent exceeding maxConcurrentSessions when many syncs are requested at once', async () => {
+      const sessions = ['A', 'B', 'C'];
+      let sessionsAttempted = 0;
+      let allSessionsAttemptedPromise;
+      let allSessionsAttemptedResolve;
+      allSessionsAttemptedPromise = new Promise(resolve => {
+        allSessionsAttemptedResolve = resolve;
+      });
+      const flagSessionAttempted = () => {
+        sessionsAttempted++;
+        if (sessionsAttempted === sessions.length) {
+          allSessionsAttemptedResolve();
+        }
+      };
       const originalGenerateDbUuid = models.SyncSession.generateDbUuid.bind(models.SyncSession);
       const generateDbUuidSpy = jest
         .spyOn(models.SyncSession, 'generateDbUuid')
-        .mockImplementationOnce(async () => {
-          await sleepAsync(3000);
+        .mockImplementation(async () => {
+          flagSessionAttempted();
+          await allSessionsAttemptedPromise; // Don't actually create a sync session until all 3 have been attempted
           return originalGenerateDbUuid();
         });
       try {
         const results = await Promise.all(
-          ['A', 'B', 'C'].map(async (device, index) => {
-            await sleepAsync(10 + index * 100);
-            return requestSyncUnchecked(device);
+          sessions.map(async (device, index) => {
+            await sleepAsync(10 + index * 500);
+            const result = await requestSyncUnchecked(device);
+            flagSessionAttempted(); // If request has completed, we need to flag that we've attempted the session
+            return result;
           }),
         );
+
         const goodToGoCount = results.filter(r => r.body?.status === 'goodToGo').length;
-        expect(goodToGoCount).toEqual(1);
+        expect(goodToGoCount).toEqual(MAX_CONCURRENT_SESSIONS);
 
         const activeCount = await models.SyncSession.count({
           where: {
@@ -233,7 +252,7 @@ import { DEVICE_SCOPES, SERVER_TYPES } from '@tamanu/constants';
             errors: { [Op.is]: null },
           },
         });
-        expect(activeCount).toEqual(1);
+        expect(activeCount).toEqual(MAX_CONCURRENT_SESSIONS);
       } finally {
         generateDbUuidSpy.mockRestore();
       }
