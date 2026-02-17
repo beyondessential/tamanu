@@ -224,6 +224,7 @@ export const PrescriptionPrintout = {
       <Component
         certificateData={certificateData}
         patientData={patient}
+        getLocalisation={() => undefined}
         prescriptions={prescriptions}
         prescriber={prescriber}
         facility={facility}
