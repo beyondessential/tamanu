@@ -168,4 +168,69 @@ describe('PatientInvoiceInsurancePlan', () => {
     expect(secondPatientInvoiceInsurancePlans.filter(p => !p.deletedAt).map(p => p.invoiceInsurancePlanId)).toEqual([]);
     expect(secondPatientInvoiceInsurancePlans.filter(p => p.deletedAt).map(p => p.invoiceInsurancePlanId).sort()).toEqual([insurancePlan1.id, insurancePlan2.id, insurancePlan3.id].sort());
   });
+
+  describe('when invoiceInsurancePlanId is sent as a native array (JSON body)', () => {
+    it('should accept an array of insurance plan ids', async () => {
+      const result = await app.put(`/api/patient/${patient.id}`).send({
+        invoiceInsurancePlanId: [insurancePlan1.id, insurancePlan2.id],
+        facilityId,
+      });
+      expect(result).toHaveSucceeded();
+
+      const patientInvoiceInsurancePlans = await models.PatientInvoiceInsurancePlan.findAll({
+        where: { patientId: patient.id },
+      });
+      expect(patientInvoiceInsurancePlans).toHaveLength(2);
+      expect(patientInvoiceInsurancePlans.map(p => p.invoiceInsurancePlanId).sort()).toEqual(
+        [insurancePlan1.id, insurancePlan2.id].sort(),
+      );
+    });
+
+    it('should accept an empty array and delete all existing plans', async () => {
+      // First, create some plans
+      const setupResult = await app.put(`/api/patient/${patient.id}`).send({
+        invoiceInsurancePlanId: [insurancePlan1.id, insurancePlan2.id],
+        facilityId,
+      });
+      expect(setupResult).toHaveSucceeded();
+
+      const initialPlans = await models.PatientInvoiceInsurancePlan.findAll({
+        where: { patientId: patient.id },
+      });
+      expect(initialPlans).toHaveLength(2);
+
+      // Now send an empty array to clear all plans
+      const result = await app.put(`/api/patient/${patient.id}`).send({
+        invoiceInsurancePlanId: [],
+        facilityId,
+      });
+      expect(result).toHaveSucceeded();
+
+      const remainingPlans = await models.PatientInvoiceInsurancePlan.findAll({
+        where: { patientId: patient.id },
+      });
+      expect(remainingPlans).toHaveLength(0);
+    });
+
+    it('should not modify plans when invoiceInsurancePlanId is not provided', async () => {
+      // First, create some plans
+      const setupResult = await app.put(`/api/patient/${patient.id}`).send({
+        invoiceInsurancePlanId: [insurancePlan1.id],
+        facilityId,
+      });
+      expect(setupResult).toHaveSucceeded();
+
+      // Update patient without invoiceInsurancePlanId — plans should remain unchanged
+      const result = await app.put(`/api/patient/${patient.id}`).send({
+        facilityId,
+      });
+      expect(result).toHaveSucceeded();
+
+      const plans = await models.PatientInvoiceInsurancePlan.findAll({
+        where: { patientId: patient.id },
+      });
+      expect(plans).toHaveLength(1);
+      expect(plans[0].invoiceInsurancePlanId).toEqual(insurancePlan1.id);
+    });
+  });
 });
