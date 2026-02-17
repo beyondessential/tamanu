@@ -34,7 +34,6 @@ export class PatientInvoiceInsurancePlan extends Model {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         indexes: [
           { fields: ['patientId'] },
-          { unique: true, fields: ['patientId', 'invoiceInsurancePlanId'] },
         ],
       },
     );
