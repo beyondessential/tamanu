@@ -333,6 +333,13 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
   }, [prescriptions, orderingClinicianId]);
 
   const handleSendOrder = useCallback(async () => {
+    if (!validateForm()) return;
+
+    if (getAlreadyOrderedPrescriptions().length > 0) {
+      setShowAlreadyOrderedConfirmation(true);
+      return;
+    }
+
     try {
       const selectedPrescriptions = prescriptions.filter(p => p.selected);
 
@@ -391,17 +398,6 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
     refetchEncounterMedications,
     onSubmit,
   ]);
-
-  const handleClickSend = useCallback(() => {
-    if (!validateForm()) return;
-
-    if (getAlreadyOrderedPrescriptions().length > 0) {
-      setShowAlreadyOrderedConfirmation(true);
-      return;
-    }
-
-    handleSendOrder();
-  }, [validateForm, handleSendOrder, getAlreadyOrderedPrescriptions]);
 
   const handleClose = useCallback(() => {
     setTimeout(() => {
@@ -693,7 +689,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
             />
           }
           confirmDisabled={!prescriptions.some(p => p.selected)}
-          onConfirm={handleClickSend}
+          onConfirm={handleSendOrder}
           onCancel={handleClose}
           data-testid="confirmcancelrow-9lo1"
         />
