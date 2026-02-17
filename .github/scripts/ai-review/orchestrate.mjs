@@ -75,7 +75,7 @@ function parseAgentResult(filePath, agentKey) {
     }
 
     return findings
-      .filter(f => f.file && VALID_SEVERITIES.has(f.severity) && f.comment && typeof f.line === 'number' && f.line > 0)
+      .filter(f => typeof f.file === 'string' && f.file && VALID_SEVERITIES.has(f.severity) && typeof f.comment === 'string' && f.comment && typeof f.line === 'number' && f.line > 0)
       .map(f => ({
         file: f.file,
         line: f.line,
