@@ -119,7 +119,6 @@ export const buildSyncRoutes = ctx => {
         return;
       }
 
-      let result;
       try {
         // remove our place in the queue before starting sync
         // (if the resulting sync has an error, we'll be knocked to the back of the queue
@@ -128,18 +127,16 @@ export const buildSyncRoutes = ctx => {
         // lastSyncedTick)
         await queueRecord.destroy();
 
-        result = await syncManager.startSession({
+        const { sessionId, tick } = await syncManager.startSession({
           userId: user.id,
           deviceId: device.id,
           facilityIds,
           isMobile,
         });
+
+        res.json({ status: 'goodToGo', sessionId, tick });
       } finally {
         await releaseCreateSessionLock();
-      }
-
-      if (result) {
-        res.json({ status: 'goodToGo', sessionId: result.sessionId, tick: result.tick });
       }
     }),
   );
