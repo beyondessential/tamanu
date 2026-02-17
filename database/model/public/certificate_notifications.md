@@ -20,7 +20,6 @@ One of:
 - `icao.vacc`
 {% enddocs %}
 
-
 {% docs certificate_notifications__patient_id %}
 Reference to a [patient](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}
