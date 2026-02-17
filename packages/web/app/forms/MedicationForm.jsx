@@ -45,7 +45,6 @@ import {
 } from '../components';
 import {
   TextField,
-  SelectField,
   TranslatedSelectField,
   Form,
   FormCancelButton,
@@ -1066,11 +1065,8 @@ export const MedicationForm = ({
               <Field
                 name="durationUnit"
                 label={<Box sx={{ opacity: 0 }}>.</Box>}
-                component={SelectField}
-                options={Object.entries(MEDICATION_DURATION_UNITS_LABELS).map(([value, label]) => ({
-                  value,
-                  label,
-                }))}
+                component={TranslatedSelectField}
+                enumValues={MEDICATION_DURATION_UNITS_LABELS}
                 disabled={
                   values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY || values.isOngoing
                 }

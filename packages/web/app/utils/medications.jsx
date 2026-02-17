@@ -4,7 +4,6 @@ import {
   DRUG_STOCK_STATUS_LABELS,
   DRUG_STOCK_STATUSES,
 } from '@tamanu/constants';
-import { camelCase } from 'lodash';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import {
   getPatientNameAsString,
@@ -19,7 +18,7 @@ import { STOCK_STATUS_COLORS } from '../constants';
 /**
  * Transforms selected dispensable medication items into label data for printing.
  * @param {Object} params
- * @param {Array} params.items - The selected medication items to dispense
+ * @param {Array} params.items - The selected medication items to dispense (each includes medicationName, already translated by the caller if needed)
  * @param {Object} params.patient - The patient object
  * @param {Object} params.facility - The facility object
  * @returns {Array} Array of label data objects for printing
@@ -44,9 +43,21 @@ export const getMedicationLabelData = ({ items, patient, facility }) => {
   }));
 };
 
-export const getTranslatedFrequencySynonym = (synonyms, index, getTranslation) => {
-  const frequency = synonyms[index];
-  return getTranslation(`medication.frequency.${camelCase(frequency)}.synonym.${index}`, frequency);
+/**
+ * Returns the display name for a medication using reference-data translation when available.
+ * Uses the medication's id and type for lookup, with name as fallback and '-' when missing.
+ *
+ * @param {Object} [medication] - Medication record (may have id, type, name)
+ * @param {Function} getReferenceDataTranslation - Translation function from useTranslation()
+ * @returns {string} Translated or fallback medication name, or '-' if none
+ */
+export const getTranslatedMedicationName = (medication, getReferenceDataTranslation) => {
+  return getReferenceDataTranslation({
+    value: medication?.id,
+    category: medication?.type,
+    fallback: medication?.name,
+    placeholder: '-',
+  });
 };
 
 export const formatTimeSlot = time => {
