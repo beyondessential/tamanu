@@ -23,16 +23,6 @@ One of:
 
 - `draft`
 - `published`
-  {% enddocs %}
-
-{% docs report_definition_versions__advanced_config %}
-Optional JSONB metadata for the report version.
-
-Unlike `query_options`, this is not used when running the report query. It holds integration and
-other non-query settings, for example:
-
-- `dhis2DataSet`: DHIS2 data set ID used when pushing this report’s data to DHIS2 (see
-  DHIS2 integration processor).
 {% enddocs %}
 
 {% docs report_definition_versions__query %}
@@ -53,4 +43,14 @@ JSON config containing additional options for the query.
 
 {% docs report_definition_versions__user_id %}
 Reference to the [user](#!/source/source.tamanu.tamanu.users) who saved this report version.
+{% enddocs %}
+
+{% docs report_definition_versions__advanced_config %}
+Optional JSONB metadata for the report version.
+
+Unlike `query_options`, this is not used when running the report query. It holds integration and
+other non-query settings, for example:
+
+- `dhis2DataSet`: DHIS2 data set ID used when pushing this report’s data to DHIS2 (see
+  DHIS2 integration processor).
 {% enddocs %}
