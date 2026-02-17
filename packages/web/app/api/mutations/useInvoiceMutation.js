@@ -37,6 +37,7 @@ export const useCancelInvoice = invoice => {
     mutationFn: async () => {
       await api.put(`invoices/${invoice?.id}/cancel`);
       await queryClient.invalidateQueries([`encounter/${invoice?.encounterId}/invoice`]);
+      await queryClient.invalidateQueries(['insurancePlansInUse', invoice?.encounter?.patientId]);
     },
     onError: error => notifyError(error.message),
   });
@@ -53,6 +54,7 @@ export const useFinaliseInvoice = invoice => {
       await queryClient.invalidateQueries({
         queryKey: [`patient/${invoice.encounter?.patientId}/invoices/totalOutstandingBalance`],
       });
+      await queryClient.invalidateQueries(['insurancePlansInUse', invoice?.encounter?.patientId]);
     },
     onError: error => notifyError(error.message),
   });
@@ -70,11 +72,14 @@ export const useDeleteInvoice = invoice => {
       await queryClient.invalidateQueries([`encounter/${invoice?.encounterId}/invoice`]);
       queryClient.removeQueries([`encounter/${invoice?.encounterId}/invoice`]);
     },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries(['insurancePlansInUse', invoice?.encounter?.patientId]);
+    },
     onError: error => notifyError(error.message),
   });
 };
 
-export const useInvoiceInsurancePlansMutation = (invoiceId, encounterId) => {
+export const useInvoiceInsurancePlansMutation = (invoiceId, encounterId, patientId) => {
   const api = useApi();
   const queryClient = useQueryClient();
 
@@ -84,6 +89,7 @@ export const useInvoiceInsurancePlansMutation = (invoiceId, encounterId) => {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries([`encounter/${encounterId}/invoice`]);
+      await queryClient.invalidateQueries(['insurancePlansInUse', patientId]);
     },
     onError: error => notifyError(error.message),
   });

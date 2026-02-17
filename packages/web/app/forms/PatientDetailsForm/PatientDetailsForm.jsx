@@ -12,6 +12,7 @@ import { NoteModalActionBlocker } from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useLayoutComponents } from './useLayoutComponents';
 import { usePatientFieldDefinitionQuery } from '../../api/queries/usePatientFieldDefinitionQuery';
+import { usePatientInsurancePlansInUseQuery } from '../../api/queries/usePatientInsurancePlansInUseQuery';
 import { useTranslation } from '../../contexts/Translation';
 import { useSettings } from '../../contexts/Settings';
 
@@ -103,6 +104,10 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, insuran
     enabled: Boolean(patient.id),
   });
 
+  const {
+    data: insurancePlansInUse,
+  } = usePatientInsurancePlansInUseQuery({ patientId: patient.id });
+
   const errors = [fieldDefError, fieldValError].filter(e => Boolean(e));
   if (errors.length > 0) {
     return <pre>{errors.map(e => e.stack).join('\n')}</pre>;
@@ -162,7 +167,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, insuran
         patientRegistryType,
         getSetting,
         getTranslation,
-        getSetting,
+        insurancePlansInUse,
       )}
       data-testid="form-9v1j"
     />
