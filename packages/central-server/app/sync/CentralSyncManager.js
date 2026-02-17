@@ -28,7 +28,7 @@ import {
   SYNC_TICK_FLAGS,
 } from '@tamanu/database/sync';
 import { attachChangelogToSnapshotRecords, pauseAudit } from '@tamanu/database/utils/audit';
-import { uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
+import { stringToStableInteger, uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
 
 import { getLookupSourceTickRange } from './getLookupSourceTickRange';
 import { getPatientLinkedModels } from './getPatientLinkedModels';
@@ -40,6 +40,8 @@ import { updateLookupTable, updateSyncLookupPendingRecords } from './updateLooku
 
 const errorMessageFromSession = session =>
   `Sync session '${session.id}' encountered an error: ${session.errors[session.errors.length - 1]}`;
+
+const CREATE_SESSION_ADVISORY_LOCK = stringToStableInteger('createSessionAdvisoryLock');
 
 // about variables lapsedSessionSeconds and lapsedSessionCheckFrequencySeconds:
 // after x minutes of no activity, consider a session lapsed and wipe it to avoid holding invalid
@@ -73,6 +75,23 @@ export class CentralSyncManager {
   }
 
   close = () => clearInterval(this.purgeInterval);
+
+  /**
+   * We use this lock to ensure that we can't create multiple sessions at the same time.
+   * This avoids situations where we unintentionally exceed the maxConcurrentSessions limit.
+   *
+   * Uses a transaction level advisory lock, so ensure that the session is created in the same transaction.
+   * @returns {Promise<boolean>} true if lock was acquired, false otherwise
+   */
+  async takeCreateSessionLock() {
+    const [[row]] = await this.store.sequelize.query(
+      'SELECT pg_try_advisory_xact_lock(:lockId) AS acquired;',
+      {
+        replacements: { lockId: CREATE_SESSION_ADVISORY_LOCK },
+      },
+    );
+    return row?.acquired ?? false;
+  }
 
   async getIsSyncCapacityFull() {
     const { maxConcurrentSessions } = this.constructor.config.sync;
@@ -732,7 +751,7 @@ export class CentralSyncManager {
       this.#modelMap = new Map(
         Object.values(models)
           .filter(m => m.tableName && m.usesPublicSchema)
-          .map(m => [m.tableName, m])
+          .map(m => [m.tableName, m]),
       );
     }
 

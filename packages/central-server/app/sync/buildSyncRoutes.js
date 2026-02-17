@@ -105,30 +105,39 @@ export const buildSyncRoutes = ctx => {
         return;
       }
 
-      // we're at the front of the queue, but if the previous device's sync is still
-      // underway we need to wait for that
+      // we're at the front of the queue; run capacity check
       const isSyncCapacityFull = await syncManager.getIsSyncCapacityFull();
       if (isSyncCapacityFull) {
-        res.send({
-          status: 'activeSync',
-        });
+        res.send({ status: 'activeSync' });
         return;
       }
 
-      // remove our place in the queue before starting sync
-      // (if the resulting sync has an error, we'll be knocked to the back of the queue
-      // but that's fine. It will leave some room for non-errored devices to sync, and
-      // our requests will get priority once our error resolves as we'll have an older
-      // lastSyncedTick)
-      queueRecord.destroy();
+      const result = await store.sequelize.transaction(async () => {
+        // Grab create-session lock, and startSession in a single transaction so we don't race with other devices
+        const safeToCreateSession = await syncManager.takeCreateSessionLock();
+        if (!safeToCreateSession) {
+          // Another session is already creating, so we're not allowed to create one
+          res.send({ status: 'activeSync' });
+          return;
+        }
 
-      const { sessionId, tick } = await syncManager.startSession({
-        userId: user.id,
-        deviceId: device.id,
-        facilityIds,
-        isMobile,
+        // remove our place in the queue before starting sync
+        // (if the resulting sync has an error, we'll be knocked to the back of the queue
+        // but that's fine. It will leave some room for non-errored devices to sync, and
+        // our requests will get priority once our error resolves as we'll have an older
+        // lastSyncedTick)
+        await queueRecord.destroy();
+
+        return await syncManager.startSession({
+          userId: user.id,
+          deviceId: device.id,
+          facilityIds,
+          isMobile,
+        });
       });
-      res.json({ status: 'goodToGo', sessionId, tick });
+      if (result) {
+        res.json({ status: 'goodToGo', sessionId: result.sessionId, tick: result.tick });
+      }
     }),
   );
 

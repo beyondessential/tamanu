@@ -3,6 +3,7 @@ export * from './getMetaServerHosts';
 export * from './getPatientAdditionalData';
 export * from './getPatientSurveyResponseAnswer';
 export * from './getResponseJsonSafely';
+export * from './stringToStableInteger';
 export * from './uuidToFairlyUniqueInteger';
 export * from './patientCertificates';
 export * from './patientAccessors';
