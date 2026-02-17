@@ -1,0 +1,252 @@
+name: AI Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: ai-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  check-ai-review-request:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+    steps:
+      - uses: actions/checkout@v6
+      - id: check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.pull_request?.body;
+            const match = body?.match(/\[(?<checked>[ x])\]\s+\*\*Run AI Review\*\* <!-- #ai-review -->/);
+            core.setOutput('should_run', match?.groups.checked === 'x');
+
+  review-bugs:
+    needs: check-ai-review-request
+    if: needs.check-ai-review-request.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+      - name: Install Claude CLI
+        run: npm install -g @anthropic-ai/claude-code
+      - name: Get PR diff and info
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr diff ${{ github.event.pull_request.number }} > /tmp/pr.diff
+          echo "PR_TITLE=${{ github.event.pull_request.title }}" >> "$GITHUB_ENV"
+      - name: Run bugs agent
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          cat .github/scripts/ai-review/agent-prompt.md \
+              .github/scripts/ai-review/prompts/bugs.md \
+              <(echo -e "\n\n## PR Title\n\n$PR_TITLE\n\n## PR Diff\n\n\`\`\`diff") \
+              /tmp/pr.diff \
+              <(echo '```') \
+            | claude -p \
+              --output-format json \
+              --model claude-sonnet-4-5-20250929 \
+              --max-turns 10 \
+              --allowedTools "Read,Glob,Grep,Bash(git log:*),Bash(git show:*),Bash(git diff:*)" \
+            > /tmp/result.json
+      - name: Upload result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: review-bugs
+          path: /tmp/result.json
+
+  review-performance:
+    needs: check-ai-review-request
+    if: needs.check-ai-review-request.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+      - name: Install Claude CLI
+        run: npm install -g @anthropic-ai/claude-code
+      - name: Get PR diff and info
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr diff ${{ github.event.pull_request.number }} > /tmp/pr.diff
+          echo "PR_TITLE=${{ github.event.pull_request.title }}" >> "$GITHUB_ENV"
+      - name: Run performance agent
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          cat .github/scripts/ai-review/agent-prompt.md \
+              .github/scripts/ai-review/prompts/performance.md \
+              <(echo -e "\n\n## PR Title\n\n$PR_TITLE\n\n## PR Diff\n\n\`\`\`diff") \
+              /tmp/pr.diff \
+              <(echo '```') \
+            | claude -p \
+              --output-format json \
+              --model claude-sonnet-4-5-20250929 \
+              --max-turns 10 \
+              --allowedTools "Read,Glob,Grep,Bash(git log:*),Bash(git show:*),Bash(git diff:*)" \
+            > /tmp/result.json
+      - name: Upload result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: review-performance
+          path: /tmp/result.json
+
+  review-design:
+    needs: check-ai-review-request
+    if: needs.check-ai-review-request.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+      - name: Install Claude CLI
+        run: npm install -g @anthropic-ai/claude-code
+      - name: Get PR diff and info
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr diff ${{ github.event.pull_request.number }} > /tmp/pr.diff
+          echo "PR_TITLE=${{ github.event.pull_request.title }}" >> "$GITHUB_ENV"
+      - name: Run design agent
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          cat .github/scripts/ai-review/agent-prompt.md \
+              .github/scripts/ai-review/prompts/design.md \
+              <(echo -e "\n\n## PR Title\n\n$PR_TITLE\n\n## PR Diff\n\n\`\`\`diff") \
+              /tmp/pr.diff \
+              <(echo '```') \
+            | claude -p \
+              --output-format json \
+              --model claude-sonnet-4-5-20250929 \
+              --max-turns 10 \
+              --allowedTools "Read,Glob,Grep,Bash(git log:*),Bash(git show:*),Bash(git diff:*)" \
+            > /tmp/result.json
+      - name: Upload result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: review-design
+          path: /tmp/result.json
+
+  review-bes:
+    needs: check-ai-review-request
+    if: needs.check-ai-review-request.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+      - name: Install Claude CLI
+        run: npm install -g @anthropic-ai/claude-code
+      - name: Get PR diff and info
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr diff ${{ github.event.pull_request.number }} > /tmp/pr.diff
+          echo "PR_TITLE=${{ github.event.pull_request.title }}" >> "$GITHUB_ENV"
+      - name: Run BES requirements agent
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          cat .github/scripts/ai-review/agent-prompt.md \
+              .github/scripts/ai-review/prompts/bes-requirements.md \
+              <(echo -e "\n\n## PR Title\n\n$PR_TITLE\n\n## PR Diff\n\n\`\`\`diff") \
+              /tmp/pr.diff \
+              <(echo '```') \
+            | claude -p \
+              --output-format json \
+              --model claude-sonnet-4-5-20250929 \
+              --max-turns 10 \
+              --allowedTools "Read,Glob,Grep,Bash(git log:*),Bash(git show:*),Bash(git diff:*)" \
+            > /tmp/result.json
+      - name: Upload result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: review-bes
+          path: /tmp/result.json
+
+  review-security:
+    needs: check-ai-review-request
+    if: needs.check-ai-review-request.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+      - name: Install Claude CLI
+        run: npm install -g @anthropic-ai/claude-code
+      - name: Get PR diff and info
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr diff ${{ github.event.pull_request.number }} > /tmp/pr.diff
+          echo "PR_TITLE=${{ github.event.pull_request.title }}" >> "$GITHUB_ENV"
+      - name: Run security agent
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          cat .github/scripts/ai-review/agent-prompt.md \
+              .github/scripts/ai-review/prompts/security.md \
+              <(echo -e "\n\n## PR Title\n\n$PR_TITLE\n\n## PR Diff\n\n\`\`\`diff") \
+              /tmp/pr.diff \
+              <(echo '```') \
+            | claude -p \
+              --output-format json \
+              --model claude-sonnet-4-5-20250929 \
+              --max-turns 10 \
+              --allowedTools "Read,Glob,Grep,Bash(git log:*),Bash(git show:*),Bash(git diff:*)" \
+            > /tmp/result.json
+      - name: Upload result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: review-security
+          path: /tmp/result.json
+
+  orchestrate-review:
+    needs: [check-ai-review-request, review-bugs, review-performance, review-design, review-bes, review-security]
+    if: always() && needs.check-ai-review-request.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: /tmp/artifacts
+          pattern: review-*
+      - name: Run orchestrator
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          ARTIFACTS_DIR: /tmp/artifacts
+        run: node .github/scripts/ai-review/orchestrate.mjs
