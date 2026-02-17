@@ -11,7 +11,7 @@
  *   ARTIFACTS_DIR       — Directory containing agent result files
  */
 
-import { readFileSync, readdirSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 
 const AGENT_NAMES = {
   bugs: 'Bugs & Correctness',
@@ -60,10 +60,10 @@ function parseAgentResult(filePath, agentKey) {
     if (!Array.isArray(findings)) return [];
 
     return findings
-      .filter(f => f.file && f.severity && f.comment)
+      .filter(f => f.file && f.severity && f.comment && typeof f.line === 'number' && f.line > 0)
       .map(f => ({
         file: f.file,
-        line: f.line ?? 0,
+        line: f.line,
         severity: f.severity,
         comment: f.comment,
         agent: agentKey,
@@ -75,13 +75,19 @@ function parseAgentResult(filePath, agentKey) {
 }
 
 function deduplicateFindings(findings) {
+  // Sort for deterministic grouping across runs
+  const sortedFindings = [...findings].sort((a, b) => {
+    if (a.file !== b.file) return a.file.localeCompare(b.file);
+    return a.line - b.line;
+  });
+
   // Group findings by (file, approximate line) and merge overlapping ones
   const groups = new Map();
 
-  for (const finding of findings) {
+  for (const finding of sortedFindings) {
     // Create a bucket key: same file, lines within ±3 of each other
     let merged = false;
-    for (const [key, group] of groups) {
+    for (const group of groups.values()) {
       if (
         group[0].file === finding.file &&
         Math.abs(group[0].line - finding.line) <= 3
