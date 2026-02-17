@@ -1,7 +1,10 @@
 import { beforeAll, describe, it } from '@jest/globals';
+import { Op } from 'sequelize';
 import { fake } from '@tamanu/fake-data/fake';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { subMinutes } from 'date-fns';
+
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 import { createTestContext } from '../utilities';
 import { DEVICE_SCOPES, SERVER_TYPES } from '@tamanu/constants';
@@ -23,6 +26,12 @@ import { DEVICE_SCOPES, SERVER_TYPES } from '@tamanu/constants';
     };
 
     const requestSync = async (device, lastSyncedTick = 0, urgent = false) => {
+      const result = await requestSyncUnchecked(device, lastSyncedTick, urgent);
+      expect(result).toHaveSucceeded();
+      return result;
+    };
+
+    const requestSyncUnchecked = async (device, lastSyncedTick = 0, urgent = false) => {
       const response = await baseApp
         .post('/api/login')
         .set('X-Tamanu-Client', SERVER_TYPES.MOBILE)
@@ -33,7 +42,7 @@ import { DEVICE_SCOPES, SERVER_TYPES } from '@tamanu/constants';
           scopes: [DEVICE_SCOPES.SYNC_CLIENT],
         });
 
-      const result = await baseApp
+      return baseApp
         .post('/api/sync')
         .set('Authorization', `Bearer ${response.body.token}`)
         .set('X-Tamanu-Client', SERVER_TYPES.MOBILE)
@@ -43,8 +52,6 @@ import { DEVICE_SCOPES, SERVER_TYPES } from '@tamanu/constants';
           lastSyncedTick,
           urgent,
         });
-      expect(result).toHaveSucceeded();
-      return result;
     };
 
     beforeAll(async () => {
@@ -200,6 +207,36 @@ import { DEVICE_SCOPES, SERVER_TYPES } from '@tamanu/constants';
       const started = await requestSync('B', 200);
       expect(started.body).toHaveProperty('status', 'goodToGo');
       expect(started.body).toHaveProperty('sessionId');
+    });
+
+    it('Should prevent exceeding maxConcurrentSessions when many syncs are requested at once', async () => {
+      const originalGenerateDbUuid = models.SyncSession.generateDbUuid.bind(models.SyncSession);
+      const generateDbUuidSpy = jest
+        .spyOn(models.SyncSession, 'generateDbUuid')
+        .mockImplementationOnce(async () => {
+          await sleepAsync(3000);
+          return originalGenerateDbUuid();
+        });
+      try {
+        const results = await Promise.all(
+          ['A', 'B', 'C'].map(async (device, index) => {
+            await sleepAsync(10 + index * 100);
+            return requestSyncUnchecked(device);
+          }),
+        );
+        const goodToGoCount = results.filter(r => r.body?.status === 'goodToGo').length;
+        expect(goodToGoCount).toEqual(1);
+
+        const activeCount = await models.SyncSession.count({
+          where: {
+            completedAt: { [Op.is]: null },
+            errors: { [Op.is]: null },
+          },
+        });
+        expect(activeCount).toEqual(1);
+      } finally {
+        generateDbUuidSpy.mockRestore();
+      }
     });
   }),
 );
