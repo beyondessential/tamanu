@@ -201,12 +201,7 @@ export function fakePrescription(prefix: string = 'test-') {
   return {
     date: formatISO9075(chance.date()),
     endDate: formatISO9075(chance.date()),
-    ...fakeStringFields(`${prefix}prescription${id}_`, [
-      'id',
-      'note',
-      'indication',
-      'route',
-    ]),
+    ...fakeStringFields(`${prefix}prescription${id}_`, ['id', 'note', 'indication', 'route']),
   };
 }
 

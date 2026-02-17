@@ -23,7 +23,6 @@ const optionsValidator = yup.object({
   dataSources: yup.array(),
   dateRangeLabel: yup.string(),
   defaultDateRange: yup.string().oneOf(REPORT_DEFAULT_DATE_RANGES_VALUES).required(),
-  dhis2DataSet: yup.string(),
 });
 
 const generateReportFromQueryData = (queryData: any[]) => {
@@ -40,6 +39,7 @@ export class ReportDefinitionVersion extends Model {
   declare status: string;
   declare query: string;
   declare queryOptions: Record<string, any>;
+  declare advancedConfig: Record<string, any> | null;
   declare reportDefinitionId?: string;
   declare userId?: string;
 
@@ -82,8 +82,7 @@ export class ReportDefinitionVersion extends Model {
            *       "suggesterEndpoint": "nursingZone"
            *     }
            *   ],
-           *   "dataSources": [],
-           *   "dhis2DataSet": "optional-data-set-id-for-dhis2-integration"
+           *   "dataSources": []
            * }
            */
           type: DataTypes.JSON,
@@ -91,6 +90,17 @@ export class ReportDefinitionVersion extends Model {
           validate: {
             matchesSchema: (value: Record<string, any>) => optionsValidator.validate(value),
           },
+        },
+        advancedConfig: {
+          /**
+           * Arbitrary metadata for the report version, not used as query parameters.
+           * e.g.
+           * {
+           *   "dhis2DataSet": "optional-data-set-id-for-dhis2-integration"
+           * }
+           */
+          type: DataTypes.JSONB,
+          allowNull: true,
         },
       },
       {
@@ -120,6 +130,13 @@ export class ReportDefinitionVersion extends Model {
     return typeof this.queryOptions === 'string'
       ? JSON.parse(this.queryOptions)
       : this.queryOptions;
+  }
+
+  getAdvancedConfig() {
+    if (!this.advancedConfig) return {};
+    return typeof this.advancedConfig === 'string'
+      ? JSON.parse(this.advancedConfig)
+      : this.advancedConfig;
   }
 
   getParameters() {

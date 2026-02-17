@@ -24,8 +24,8 @@ const StyledButton = styled(OutlinedButton)`
 `;
 
 const getInitialValues = (version, report) => {
-  const { query, status, queryOptions, notes } = version;
-  const { dataSources, parameters, dateRangeLabel, defaultDateRange, ...advancedConfig } = queryOptions;
+  const { query, status, queryOptions, advancedConfig, notes } = version;
+  const { dataSources, parameters, dateRangeLabel, defaultDateRange } = queryOptions;
   const { name, dbSchema } = report;
   return {
     name,
@@ -37,7 +37,7 @@ const getInitialValues = (version, report) => {
     defaultDateRange,
     dataSources,
     notes,
-    advancedConfig: Object.keys(advancedConfig).length > 0 ? advancedConfig : null,
+    advancedConfig: advancedConfig && Object.keys(advancedConfig).length > 0 ? advancedConfig : null,
   };
 };
 
@@ -76,8 +76,8 @@ export const EditReportView = () => {
         dateRangeLabel,
         defaultDateRange,
         dataSources,
-        ...advancedConfig,
       },
+      advancedConfig,
       query,
       status,
       dbSchema,

@@ -49,8 +49,8 @@ export const CreateReportView = () => {
           dateRangeLabel,
           defaultDateRange,
           dataSources: isRawReport ? dataSources : [REPORT_DATA_SOURCES.ALL_FACILITIES],
-          ...advancedConfig,
         },
+        advancedConfig,
       });
       queryClient.invalidateQueries(['reportList']);
       navigate(`/admin/reports/${reportDefinitionId}/versions/${id}/edit`);
