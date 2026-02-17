@@ -332,14 +332,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
     return isValidFormData;
   }, [prescriptions, orderingClinicianId]);
 
-  const handleSendOrder = useCallback(async () => {
-    if (!validateForm()) return;
-
-    if (getAlreadyOrderedPrescriptions().length > 0) {
-      setShowAlreadyOrderedConfirmation(true);
-      return;
-    }
-
+  const submitOrder = useCallback(async () => {
     try {
       const selectedPrescriptions = prescriptions.filter(p => p.selected);
 
@@ -398,6 +391,17 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
     refetchEncounterMedications,
     onSubmit,
   ]);
+
+  const handleSendOrder = useCallback(() => {
+    if (!validateForm()) return;
+
+    if (getAlreadyOrderedPrescriptions().length > 0) {
+      setShowAlreadyOrderedConfirmation(true);
+      return;
+    }
+
+    submitOrder();
+  }, [validateForm, getAlreadyOrderedPrescriptions, submitOrder]);
 
   const handleClose = useCallback(() => {
     setTimeout(() => {
@@ -528,7 +532,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
           <ConfirmCancelBackRow
             onBack={() => setShowAlreadyOrderedConfirmation(false)}
             onCancel={handleClose}
-            onConfirm={handleSendOrder}
+            onConfirm={submitOrder}
             data-testid="confirmcancelrow-7g3j"
           />
         </SubmitButtonsWrapper>
