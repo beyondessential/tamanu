@@ -1,6 +1,7 @@
 import { Locator, Page, expect } from '@playwright/test';
 import { LabRequestModalBase } from './LabRequestModalBase';
 import { format } from 'date-fns';
+import { formatDateTimeForDisplay } from '@utils/testHelper';
 
 
 export interface ValidateRequestFinalisedPageParams {
@@ -108,7 +109,7 @@ export class IndividualLabRequestModal extends LabRequestModalBase {
       expectedSampleDate &&
       !isNaN(Date.parse(expectedSampleDate)) // valid date string
     ) {
-      formattedSampleDate = format(new Date(expectedSampleDate), 'MM/dd/yyyy h:mm a');
+      formattedSampleDate = formatDateTimeForDisplay(new Date(expectedSampleDate));
     } else {
       formattedSampleDate = expectedSampleDate || 'Sample not collected';
     }
