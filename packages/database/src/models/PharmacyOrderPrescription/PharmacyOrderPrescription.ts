@@ -10,7 +10,14 @@ import {
   buildEncounterLinkedSyncFilter,
   buildEncounterLinkedSyncFilterJoins,
 } from '../../sync';
-import { afterDestroyHook } from './hooks';
+import {
+  afterCreateHook,
+  afterUpdateHook,
+  afterDestroyHook,
+  afterBulkCreateHook,
+  afterBulkUpdateHook,
+  afterBulkDestroyHook,
+} from './hooks';
 
 export class PharmacyOrderPrescription extends Model {
   declare id: string;
@@ -51,7 +58,14 @@ export class PharmacyOrderPrescription extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
-        hooks: { afterDestroy: afterDestroyHook },
+        hooks: {
+          afterCreate: afterCreateHook,
+          afterUpdate: afterUpdateHook,
+          afterDestroy: afterDestroyHook,
+          afterBulkCreate: afterBulkCreateHook,
+          afterBulkUpdate: afterBulkUpdateHook,
+          afterBulkDestroy: afterBulkDestroyHook,
+        },
       },
     );
   }

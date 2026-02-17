@@ -19,13 +19,15 @@ import type { LabTest } from 'models/LabTest';
 import type { ImagingRequestArea } from 'models/ImagingRequestArea';
 import type { ReadSettings } from '@tamanu/settings';
 import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
+import type { Prescription } from 'models/Prescription';
 
 type InvoiceItemSourceRecord =
   | Procedure
   | LabTestPanelRequest
   | LabTest
   | ImagingRequestArea
-  | ImagingRequest;
+  | ImagingRequest
+  | Prescription;
 
 export class Invoice extends Model {
   declare id: string;
@@ -172,12 +174,21 @@ export class Invoice extends Model {
     return invoices[0]!;
   }
 
+  private static normaliseInvoiceItemQuantity(quantity: unknown, fallback: number) {
+    const n = Number(quantity);
+    if (!Number.isFinite(n)) return fallback;
+    return Math.max(0, Math.floor(n));
+  }
+
   static async addItemToInvoice(
     newItem: InvoiceItemSourceRecord,
     encounterId: string,
     invoiceProduct: InvoiceProduct,
     orderedByUserId: string = SYSTEM_USER_UUID,
-    note?: string,
+    options?: {
+      quantity?: number;
+      note?: string;
+    },
   ) {
     const invoice = await this.getInProgressInvoiceForEncounter(encounterId);
 
@@ -202,6 +213,8 @@ export class Invoice extends Model {
       }
     }
 
+    const quantity = this.normaliseInvoiceItemQuantity(options?.quantity, 1);
+
     await this.sequelize.models.InvoiceItem.upsert(
       {
         invoiceId: invoice.id,
@@ -210,8 +223,8 @@ export class Invoice extends Model {
         productId: invoiceProduct.id,
         orderedByUserId,
         orderDate: new Date(),
-        quantity: 1,
-        note,
+        quantity: quantity,
+        note: options?.note,
         deletedAt: null, // Ensure we restore the item if it already exists
       },
       {
