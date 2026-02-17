@@ -38,10 +38,11 @@ export async function up(query: QueryInterface): Promise<void> {
     name: `idx_patient_invoice_insurance_plans_patient_id`,
   });
 
-  await query.addIndex('patient_invoice_insurance_plans', ['patient_id', 'invoice_insurance_plan_id'], {
-    name: `idx_patient_invoice_insurance_plans_patient_id_invoice_insurance_plan_id`,
-    unique: true,
-  });
+  await query.sequelize.query(`
+    CREATE UNIQUE INDEX idx_patient_invoice_insurance_plans_patient_id_invoice_insurance_plan_id
+    ON patient_invoice_insurance_plans (patient_id, invoice_insurance_plan_id)
+    WHERE deleted_at IS NULL;
+  `);
 }
 
 export async function down(query: QueryInterface): Promise<void> {

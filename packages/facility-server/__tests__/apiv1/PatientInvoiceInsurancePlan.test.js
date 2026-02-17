@@ -94,8 +94,8 @@ describe('PatientInvoiceInsurancePlan', () => {
     expect(secondPatientInvoiceInsurancePlans.filter(p => !p.deletedAt).map(p => p.invoiceInsurancePlanId)).toEqual([insurancePlan1.id]);
   });
 
-  it('should restore patient invoice insurance plan if it is in the list of insurance plans and it is previously deleted', async () => {
-    // Create the patient invoice insurance plan
+  it('should create new patient invoice insurance plans when re-adding previously deleted plans', async () => {
+    // Create the patient invoice insurance plans
     const firstUpdateResult = await app.put(`/api/patient/${patient.id}`).send({
       invoiceInsurancePlanId: JSON.stringify([insurancePlan1.id, insurancePlan2.id, insurancePlan3.id]),
       facilityId,
@@ -108,7 +108,7 @@ describe('PatientInvoiceInsurancePlan', () => {
     expect(firstPatientInvoiceInsurancePlans).toHaveLength(3);
     expect(firstPatientInvoiceInsurancePlans.map(p => p.invoiceInsurancePlanId).sort()).toEqual([insurancePlan1.id, insurancePlan2.id, insurancePlan3.id].sort());
 
-    // Soft delete the patient invoice insurance plan
+    // Soft delete two of the plans
     const secondUpdateResult = await app.put(`/api/patient/${patient.id}`).send({
       invoiceInsurancePlanId: JSON.stringify([insurancePlan1.id]),
       facilityId,
@@ -123,19 +123,20 @@ describe('PatientInvoiceInsurancePlan', () => {
     expect(secondPatientInvoiceInsurancePlans.filter(p => p.deletedAt).map(p => p.invoiceInsurancePlanId).sort()).toEqual([insurancePlan2.id, insurancePlan3.id].sort());
     expect(secondPatientInvoiceInsurancePlans.filter(p => !p.deletedAt).map(p => p.invoiceInsurancePlanId)).toEqual([insurancePlan1.id]);
 
-    // Restore the patient invoice insurance plan
+    // Re-add the deleted plans — creates new records instead of restoring
     const thirdUpdateResult = await app.put(`/api/patient/${patient.id}`).send({
       invoiceInsurancePlanId: JSON.stringify([insurancePlan1.id, insurancePlan2.id, insurancePlan3.id]),
       facilityId,
     });
     expect(thirdUpdateResult).toHaveSucceeded();
 
+    // Should have 3 active records and 2 soft-deleted ones (old plan2 and plan3)
     const thirdPatientInvoiceInsurancePlans = await models.PatientInvoiceInsurancePlan.findAll({
       where: { patientId: patient.id },
       paranoid: false,
     });
-    expect(thirdPatientInvoiceInsurancePlans).toHaveLength(3);
-    expect(thirdPatientInvoiceInsurancePlans.filter(p => p.deletedAt).map(p => p.invoiceInsurancePlanId)).toEqual([]);
+    expect(thirdPatientInvoiceInsurancePlans).toHaveLength(5);
+    expect(thirdPatientInvoiceInsurancePlans.filter(p => p.deletedAt)).toHaveLength(2);
     expect(thirdPatientInvoiceInsurancePlans.filter(p => !p.deletedAt).map(p => p.invoiceInsurancePlanId).sort()).toEqual([insurancePlan1.id, insurancePlan2.id, insurancePlan3.id].sort());
   });
 
