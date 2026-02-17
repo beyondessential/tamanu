@@ -25,18 +25,6 @@ One of:
 - `published`
   {% enddocs %}
 
-{% docs report_definition_versions__query_options %}
-JSON config containing additional options for the query.
-
-- Form fields to allow customisation of the query when generating reports (query replacements)
-- Default date range e.g. last 30 days
-- Context for executing query e.g. this facility or all facilities (facility or central server)
-  {% enddocs %}
-
-{% docs report_definition_versions__user_id %}
-Reference to the [user](#!/source/source.tamanu.tamanu.users) who saved this report version.
-{% enddocs %}
-
 {% docs report_definition_versions__advanced_config %}
 Optional JSONB metadata for the report version.
 
@@ -53,4 +41,16 @@ The SQL query.
 
 {% docs report_definition_versions__report_definition_id %}
 The [report definition](#!/source/source.tamanu.tamanu.report_definitions).
+{% enddocs %}
+
+{% docs report_definition_versions__query_options %}
+JSON config containing additional options for the query.
+
+- Form fields to allow customisation of the query when generating reports (query replacements)
+- Default date range e.g. last 30 days
+- Context for executing query e.g. this facility or all facilities (facility or central server)
+{% enddocs %}
+
+{% docs report_definition_versions__user_id %}
+Reference to the [user](#!/source/source.tamanu.tamanu.users) who saved this report version.
 {% enddocs %}
