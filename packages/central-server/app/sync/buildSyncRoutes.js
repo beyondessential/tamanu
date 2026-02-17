@@ -112,10 +112,9 @@ export const buildSyncRoutes = ctx => {
         return;
       }
 
-      // Grab create-session lock, and startSession in a single transaction so we don't race with other devices
-      const safeToCreateSession = await syncManager.takeCreateSessionLock();
-      if (!safeToCreateSession) {
-        // Another session is already creating, so we're not allowed to create one
+      const releaseCreateSessionLock = await syncManager.takeCreateSessionLock();
+      if (!releaseCreateSessionLock) {
+        // Couldn't acquire lock, another session is being created
         res.send({ status: 'activeSync' });
         return;
       }
@@ -136,7 +135,7 @@ export const buildSyncRoutes = ctx => {
           isMobile,
         });
       } finally {
-        await syncManager.releaseCreateSessionLock();
+        await releaseCreateSessionLock();
       }
 
       if (result) {
