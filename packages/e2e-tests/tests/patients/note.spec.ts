@@ -1,7 +1,6 @@
 import { test, expect } from '@fixtures/baseFixture';
 import { getUser } from '@utils/apiHelpers';
 import { testData } from '@utils/testData';
-import { format } from 'date-fns';
 import { formatDateTimeForDisplay } from '@utils/testHelper';
 
 test.describe('Notes Tests', () => {

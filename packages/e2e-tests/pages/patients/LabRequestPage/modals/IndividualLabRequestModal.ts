@@ -1,6 +1,5 @@
 import { Locator, Page, expect } from '@playwright/test';
 import { LabRequestModalBase } from './LabRequestModalBase';
-import { format } from 'date-fns';
 import { formatDateTimeForDisplay } from '@utils/testHelper';
 
 
