@@ -154,6 +154,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
   const isOngoingMode = !encounter && !!patient && !!ongoingPrescriptions;
 
   const [orderingClinicianId, setOrderingClinicianId] = useState('');
+  const [orderingClinicianError, setOrderingClinicianError] = useState(false);
   const [comments, setComments] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
   const [showAlreadyOrderedConfirmation, setShowAlreadyOrderedConfirmation] = useState(false);
@@ -323,15 +324,12 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
           hasError: p.selected && (!p.quantity || p.quantity <= 0),
         })),
       );
-      return false;
     }
 
-    if (!orderingClinicianId) {
-      notifyError('Please select an ordering clinician to send the order to the pharmacy');
-      return false;
-    }
+    if (!orderingClinicianId) setOrderingClinicianError(true);
 
-    return true;
+    const isValidFormData = !hasInvalidQuantities && orderingClinicianId;
+    return isValidFormData;
   }, [prescriptions, orderingClinicianId]);
 
   const handleSendOrder = useCallback(async () => {
@@ -595,8 +593,20 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
               />
             }
             suggester={practitionerSuggester}
-            onChange={event => setOrderingClinicianId(event.target.value)}
+            onChange={event => {
+              setOrderingClinicianId(event.target.value);
+              setOrderingClinicianError(false);
+            }}
             value={orderingClinicianId}
+            error={orderingClinicianError}
+            helperText={
+              orderingClinicianError && (
+                <TranslatedText
+                  stringId="validation.required.inline"
+                  fallback="*Required"
+                />
+              )
+            }
             required
             data-testid="autocompleteinput-ampt"
           />
