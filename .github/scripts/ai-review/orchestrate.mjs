@@ -21,6 +21,7 @@ const AGENT_NAMES = {
   security: 'Security',
 };
 
+const VALID_SEVERITIES = new Set(['critical', 'suggestion', 'nitpick']);
 const SEVERITY_ORDER = { critical: 0, suggestion: 1, nitpick: 2 };
 
 function getEnvOrThrow(name) {
@@ -49,18 +50,32 @@ function parseAgentResult(filePath, agentKey) {
       // Not valid JSON at top level — might be raw text with JSON embedded
     }
 
-    // Extract JSON array from text (agent might output explanation around it)
-    const match = text.match(/\[[\s\S]*\]/);
-    if (!match) {
+    // Extract JSON array from text — try parsing from each '[' to find valid JSON
+    // (a greedy regex like /\[[\s\S]*\]/ would over-match if extra ']' exists in surrounding text)
+    let findings = null;
+    let searchFrom = 0;
+    while (searchFrom < text.length) {
+      const start = text.indexOf('[', searchFrom);
+      if (start === -1) break;
+      try {
+        const parsed = JSON.parse(text.slice(start));
+        if (Array.isArray(parsed)) {
+          findings = parsed;
+          break;
+        }
+      } catch {
+        // Not valid JSON from this position — try next '['
+      }
+      searchFrom = start + 1;
+    }
+
+    if (!findings) {
       console.warn(`No JSON array found in ${filePath}`);
       return [];
     }
 
-    const findings = JSON.parse(match[0]);
-    if (!Array.isArray(findings)) return [];
-
     return findings
-      .filter(f => f.file && f.severity && f.comment && typeof f.line === 'number' && f.line > 0)
+      .filter(f => f.file && VALID_SEVERITIES.has(f.severity) && f.comment && typeof f.line === 'number' && f.line > 0)
       .map(f => ({
         file: f.file,
         line: f.line,
@@ -228,9 +243,10 @@ async function main() {
   // Deduplicate
   const groups = deduplicateFindings(allFindings);
 
-  // Split by severity
+  // Split by severity and count from deduplicated groups
   const inlineComments = [];
   const nitpicks = [];
+  const counts = { critical: 0, suggestion: 0, nitpick: 0 };
 
   for (const [, group] of groups) {
     const highestSeverity = group.reduce(
@@ -240,6 +256,10 @@ async function main() {
           : min,
       'nitpick',
     );
+
+    for (const f of group) {
+      counts[f.severity]++;
+    }
 
     if (highestSeverity === 'nitpick') {
       // All findings in this group are nitpicks — add to summary table
@@ -252,12 +272,6 @@ async function main() {
         body: buildInlineComment(group),
       });
     }
-  }
-
-  // Count by severity
-  const counts = { critical: 0, suggestion: 0, nitpick: 0 };
-  for (const f of allFindings) {
-    counts[f.severity] = (counts[f.severity] ?? 0) + 1;
   }
 
   // Post inline review comments
