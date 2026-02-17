@@ -30,6 +30,19 @@ function getEnvOrThrow(name) {
   return value;
 }
 
+function validateFindings(findings, agentKey) {
+  return findings
+    .filter(f => typeof f.file === 'string' && f.file && VALID_SEVERITIES.has(f.severity) && typeof f.comment === 'string' && f.comment && typeof f.line === 'number' && f.line > 0)
+    .map(f => ({
+      file: f.file,
+      line: f.line,
+      severity: f.severity,
+      comment: f.comment,
+      agent: agentKey,
+    }));
+}
+
+// Returns null on parse failure (distinct from [] which means "parsed OK, no findings")
 function parseAgentResult(filePath, agentKey) {
   try {
     const raw = readFileSync(filePath, 'utf-8');
@@ -43,8 +56,7 @@ function parseAgentResult(filePath, agentKey) {
       if (parsed.result) {
         text = parsed.result;
       } else if (Array.isArray(parsed)) {
-        // Already a parsed array
-        return parsed.map(f => ({ ...f, agent: agentKey }));
+        return validateFindings(parsed, agentKey);
       }
     } catch {
       // Not valid JSON at top level — might be raw text with JSON embedded
@@ -71,21 +83,13 @@ function parseAgentResult(filePath, agentKey) {
 
     if (!findings) {
       console.warn(`No JSON array found in ${filePath}`);
-      return [];
+      return null;
     }
 
-    return findings
-      .filter(f => typeof f.file === 'string' && f.file && VALID_SEVERITIES.has(f.severity) && typeof f.comment === 'string' && f.comment && typeof f.line === 'number' && f.line > 0)
-      .map(f => ({
-        file: f.file,
-        line: f.line,
-        severity: f.severity,
-        comment: f.comment,
-        agent: agentKey,
-      }));
+    return validateFindings(findings, agentKey);
   } catch (err) {
     console.warn(`Failed to parse ${filePath}: ${err.message}`);
-    return [];
+    return null;
   }
 }
 
@@ -228,6 +232,11 @@ async function main() {
     }
 
     const findings = parseAgentResult(filePath, agentKey);
+    if (findings === null) {
+      console.warn(`${AGENT_NAMES[agentKey]}: failed to parse output`);
+      agentsFailed++;
+      continue;
+    }
     console.log(`${AGENT_NAMES[agentKey]}: ${findings.length} findings`);
     allFindings.push(...findings);
     agentsCompleted++;
