@@ -114,6 +114,11 @@ const StyledPopper = styled(({ popperOptions, ...props }) => (
     }
   }
 
+  .MuiMultiSectionDigitalClockSection-root:last-child {
+    max-height: unset;
+    overflow: visible;
+  }
+
   .MuiMultiSectionDigitalClockSection-item {
     font-size: 0.85rem;
     padding: 4px 8px;
