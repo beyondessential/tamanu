@@ -38,7 +38,6 @@ Readability is the highest priority. Every line of code is read many times over 
 
 ### FHIR
 
-- Changes to upstream models that feed FHIR resources need materialisation verification
 - Bulk updates to upstream tables will trigger mass rematerialisation
 
 ## Conventions
