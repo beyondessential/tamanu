@@ -532,7 +532,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, patient, ongoingPresc
           <ConfirmCancelBackRow
             onBack={() => setShowAlreadyOrderedConfirmation(false)}
             onCancel={handleClose}
-            onConfirm={handleSendOrder}
+            onConfirm={submitOrder}
             data-testid="confirmcancelrow-7g3j"
           />
         </SubmitButtonsWrapper>
