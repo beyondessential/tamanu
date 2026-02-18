@@ -7,4 +7,4 @@ import crypto from 'crypto';
  * @returns {number}
  */
 export const stringToStableInteger = text =>
-  Number(`0x${crypto.createHash('sha256').update(text, 'utf8').digest('hex').slice(0, 12)}`);
+  crypto.createHash('sha256').update(text, 'utf8').digest().subarray(-6).readUIntBE(0, 6);
