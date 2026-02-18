@@ -221,8 +221,8 @@ const COLUMNS = [
     sortable: false,
     title: (
       <TranslatedText
-        stringId="patient.invoice.table.column.patientTotal"
-        fallback="Patient total"
+        stringId="patient.invoice.table.column.patientSubtotal"
+        fallback="Patient subtotal"
         data-testid="translatedtext-1brp"
       />
     ),
