@@ -165,8 +165,6 @@ export const DateInput = ({
   saveDateAsString = false,
   arrows = false,
   inputProps = {},
-  placeholder: _placeholder, // eslint-disable-line no-unused-vars
-  keepIncorrectValue: _keepIncorrectValue, // eslint-disable-line no-unused-vars
   useTimezone = false,
   timezone,
   disabled,

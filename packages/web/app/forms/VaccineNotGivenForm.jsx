@@ -99,7 +99,6 @@ export const VaccineNotGivenForm = ({
       }
       min={values?.patientData?.dateOfBirth}
       max={getCurrentDate()}
-      keepIncorrectValue
       data-testid="vaccinedatefield-jzo2"
     />
 

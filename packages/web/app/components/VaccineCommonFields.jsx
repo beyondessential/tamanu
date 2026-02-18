@@ -142,7 +142,7 @@ export const BatchField = () => (
   />
 );
 
-export const VaccineDateField = ({ label, required = true, min, max, keepIncorrectValue }) => (
+export const VaccineDateField = ({ label, required = true, min, max }) => (
   <Field
     name="date"
     label={label}
@@ -151,7 +151,6 @@ export const VaccineDateField = ({ label, required = true, min, max, keepIncorre
     saveDateAsString
     min={min}
     max={max}
-    keepIncorrectValue={keepIncorrectValue}
     data-testid="field-8sou"
   />
 );

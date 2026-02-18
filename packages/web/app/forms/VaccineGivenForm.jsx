@@ -169,7 +169,6 @@ export const VaccineGivenForm = ({
         required={!values.givenElsewhere}
         min={values?.patientData?.dateOfBirth}
         max={getCurrentDate()}
-        keepIncorrectValue
         data-testid="vaccinedatefield-z99f"
       />
       <InjectionSiteField data-testid="injectionsitefield-hu3i" />
