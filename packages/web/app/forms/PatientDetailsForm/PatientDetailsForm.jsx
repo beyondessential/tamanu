@@ -106,9 +106,10 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, insuran
 
   const {
     data: insurancePlansInUse,
+    error: insurancePlansInUseError,
   } = usePatientInsurancePlansInUseQuery({ patientId: patient.id });
 
-  const errors = [fieldDefError, fieldValError].filter(e => Boolean(e));
+  const errors = [fieldDefError, fieldValError, insurancePlansInUseError].filter(e => Boolean(e));
   if (errors.length > 0) {
     return <pre>{errors.map(e => e.stack).join('\n')}</pre>;
   }
