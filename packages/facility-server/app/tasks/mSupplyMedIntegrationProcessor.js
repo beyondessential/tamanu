@@ -104,12 +104,12 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
   }
 
   async postRequest(
-    { bodyJson },
+    inputBody,
     { minMedicationCreatedAt, maxMedicationCreatedAt, minMedicationId, maxMedicationId, facilityId },
   ) {
     const { host, backoff, storeId } = await this.getSettings(facilityId);
     const postQuery = getPostQuery(storeId);
-    const variables = { input: bodyJson };
+    const variables = { input: inputBody };
 
     try {
       const response = await fetchWithRetryBackoff(
@@ -283,7 +283,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
         maxMedicationId,
       });
 
-      const body = {
+      const inputBody = {
         invoiceId: minMedicationId, // Identify batch by the first medication's id
         customerId,
         items: medications.map(medication => ({
@@ -293,9 +293,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
       };
       try {
         await this.postRequest(
-          {
-            bodyJson: JSON.stringify(body),
-          },
+          inputBody,
           {
             minMedicationCreatedAt,
             maxMedicationCreatedAt,
