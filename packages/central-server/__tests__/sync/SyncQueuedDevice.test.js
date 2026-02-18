@@ -236,7 +236,7 @@ const MAX_CONCURRENT_SESSIONS = 1;
       try {
         const results = await Promise.all(
           sessions.map(async (device, index) => {
-            await sleepAsync(10 + index * 500);
+            await sleepAsync((index + 1) * 500);
             const result = await requestSyncUnchecked(device);
             flagSessionAttempted(); // If request has completed, we need to flag that we've attempted the session
             return result;
