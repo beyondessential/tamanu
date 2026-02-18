@@ -31,4 +31,5 @@ export const SUGGESTER_ENDPOINTS = [
   'role',
   'encounter',
   'reportDefinition',
+  'timeZone',
 ];
