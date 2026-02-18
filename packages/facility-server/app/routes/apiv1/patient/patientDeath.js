@@ -88,15 +88,11 @@ patientDeath.get(
     }
 
     const extra = deathData?.extraData ?? {};
-    const fsmIds = [
-      extra.fsmStateOfDeathId,
-      extra.fsmAtollOfDeathId,
-      extra.fsmVillageOfDeathId,
-    ].filter(Boolean);
-    const fsmRefs = await Promise.all(
-      fsmIds.map(id => ReferenceData.findByPk(id)),
+    const [fsmStateOfDeath, fsmAtollOfDeath, fsmVillageOfDeath] = await Promise.all(
+      [extra.fsmStateOfDeathId, extra.fsmAtollOfDeathId, extra.fsmVillageOfDeathId].map(
+        id => (id ? ReferenceData.findByPk(id) : null),
+      ),
     );
-    const [fsmStateOfDeath, fsmAtollOfDeath, fsmVillageOfDeath] = fsmRefs;
     const extraData = {
       ...extra,
       ...(fsmStateOfDeath && { fsmStateOfDeath }),
