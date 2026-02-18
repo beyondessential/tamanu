@@ -3,14 +3,20 @@ import styled from 'styled-components';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import { PickersDay } from '@mui/x-date-pickers/PickersDay';
 import Popper from '@mui/material/Popper';
 import Button from '@mui/material/Button';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import { Box } from '@material-ui/core';
-import { addDays, isValid, parse, format as formatFns, startOfToday } from 'date-fns';
+import { addDays, isValid, isSameDay, parse, startOfToday } from 'date-fns';
 
-import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
+import {
+  toDateString,
+  toDateTimeString,
+  getCurrentDateStringInTimezone,
+  getFacilityNowDate,
+} from '@tamanu/utils/dateTime';
 import { DefaultIconButton } from '../Button';
 import { TextInput } from './TextField';
 import { useDateTimeIfAvailable } from '../../contexts';
@@ -19,24 +25,17 @@ import { useDateTimeIfAvailable } from '../../contexts';
  * DateInput wraps MUI DatePicker/DateTimePicker/TimePicker with timezone support.
  *
  * Timezone flow:
- *   - `timezone` prop (IANA string) controls what "today" means for the Today button
- *     and the calendar's reference date. Falls back to facilityTimeZone → primaryTimeZone
- *     from the DateTimeContext if not supplied.
+ *   - `timezone` prop (IANA string) controls what "today" means for the Today button,
+ *     the calendar's reference date, and the today highlight circle. Falls back to
+ *     facilityTimeZone → primaryTimeZone from the DateTimeContext if not supplied.
  *   - `useTimezone` (datetime-local only) converts stored values between primary and
  *     facility timezones, same as the previous native-input implementation.
  *
  * Value format is unchanged: string in, string out via onChange({ target: { value, name } }).
  */
 
-function getDateInTimezone(tz) {
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: tz,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).formatToParts(new Date());
-  const g = type => parts.find(p => p.type === type).value;
-  return new Date(Number(g('year')), Number(g('month')) - 1, Number(g('day')));
+function getTodayInTimezone(tz) {
+  return parse(getCurrentDateStringInTimezone(tz), 'yyyy-MM-dd', new Date());
 }
 
 const PARSE_FORMATS = [
@@ -63,12 +62,24 @@ function parseValue(value, primaryFormat) {
 
 const StyledPopper = styled(Popper)`
   z-index: 1300;
+
+  .MuiMultiSectionDigitalClockSection-root {
+    scrollbar-width: thin;
+
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 2px;
+    }
+  }
 `;
 
 const ActionBarContainer = styled.div`
   display: flex;
   justify-content: flex-end;
-  padding: 0 8px 8px;
+  padding: 8px 8px;
   gap: 4px;
 `;
 
@@ -88,6 +99,17 @@ const TimezoneActionBar = ({ onClear, onSetTodayAndClose, actions = [], classNam
       )}
     </ActionBarContainer>
   );
+};
+
+const TimezoneDay = ({ todayInTimezone, day, ...other }) => {
+  const isToday = !!(day && todayInTimezone && isSameDay(day, todayInTimezone));
+  return <PickersDay {...other} day={day} today={isToday} />;
+};
+
+const DISPLAY_FORMATS = {
+  date: 'dd/MM/yyyy',
+  'datetime-local': 'dd/MM/yyyy hh:mm a',
+  time: 'HH:mm',
 };
 
 export const DateInput = ({
@@ -119,7 +141,7 @@ export const DateInput = ({
   const effectiveTimezone = timezone ?? dateTime?.facilityTimeZone ?? dateTime?.primaryTimeZone;
 
   const todayDate = useMemo(
-    () => (effectiveTimezone ? getDateInTimezone(effectiveTimezone) : startOfToday()),
+    () => (effectiveTimezone ? getTodayInTimezone(effectiveTimezone) : startOfToday()),
     [effectiveTimezone],
   );
 
@@ -141,7 +163,9 @@ export const DateInput = ({
 
       let outputValue;
       if (shouldUseTimezone && toStoredDateTime) {
-        outputValue = toStoredDateTime(formatFns(date, "yyyy-MM-dd'T'HH:mm"));
+        outputValue = toStoredDateTime(
+          `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`,
+        );
       } else if (saveDateAsString) {
         outputValue = type === 'date' ? toDateString(date) : toDateTimeString(date);
       } else {
@@ -160,21 +184,23 @@ export const DateInput = ({
 
   const [open, setOpen] = useState(false);
 
-  const handleSetTodayAndClose = useCallback(() => {
-    handleChange(todayDate);
-    setOpen(false);
-  }, [handleChange, todayDate]);
+  const handleSetToday = useCallback(() => {
+    if (type === 'datetime-local') {
+      const now = effectiveTimezone
+        ? getFacilityNowDate(effectiveTimezone)
+        : new Date();
+      handleChange(now);
+    } else {
+      handleChange(todayDate);
+      setOpen(false);
+    }
+  }, [handleChange, todayDate, type, effectiveTimezone]);
 
   const handleClear = useCallback(() => {
     onChange({ target: { value: '', name } });
     setOpen(false);
   }, [onChange, name]);
 
-  const DISPLAY_FORMATS = {
-    date: 'dd/MM/yyyy',
-    'datetime-local': 'dd/MM/yyyy hh:mm a',
-    time: 'HH:mm',
-  };
   const displayFormat = DISPLAY_FORMATS[type] || format;
 
   const handleTextBlur = useCallback(
@@ -218,11 +244,12 @@ export const DateInput = ({
       actionBar: TimezoneActionBar,
       textField: TextInput,
       popper: StyledPopper,
+      day: TimezoneDay,
     },
     slotProps: {
       actionBar: {
         actions: ['today', 'clear'],
-        onSetTodayAndClose: handleSetTodayAndClose,
+        onSetTodayAndClose: handleSetToday,
         onClear: handleClear,
       },
       textField: {
@@ -234,16 +261,19 @@ export const DateInput = ({
         onBlur: handleTextBlur,
         ...props,
       },
+      day: {
+        todayInTimezone: todayDate,
+      },
     },
   };
 
   let picker;
   switch (type) {
     case 'time':
-      picker = <TimePicker {...commonProps} />;
+      picker = <TimePicker {...commonProps} timeSteps={{ minutes: 1 }} />;
       break;
     case 'datetime-local':
-      picker = <DateTimePicker {...commonProps} maxDateTime={maxDate} minDateTime={minDate} />;
+      picker = <DateTimePicker {...commonProps} maxDateTime={maxDate} minDateTime={minDate} timeSteps={{ minutes: 1 }} />;
       break;
     default:
       picker = <DatePicker {...commonProps} maxDate={maxDate} minDate={minDate} />;
