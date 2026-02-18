@@ -240,6 +240,14 @@ export const DateInput = ({
     referenceDate: todayDate,
     format: displayFormat,
     disabled,
+    localeText: {
+      fieldDayPlaceholder: () => 'dd',
+      fieldMonthPlaceholder: () => 'mm',
+      fieldYearPlaceholder: () => 'yyyy',
+      fieldHoursPlaceholder: () => '--',
+      fieldMinutesPlaceholder: () => '--',
+      fieldMeridiemPlaceholder: () => '--',
+    },
     slots: {
       actionBar: TimezoneActionBar,
       textField: TextInput,
@@ -263,6 +271,12 @@ export const DateInput = ({
       },
       day: {
         todayInTimezone: todayDate,
+      },
+      openPickerButton: {
+        sx: { padding: '2px', marginRight: '-4px' },
+      },
+      openPickerIcon: {
+        sx: { fontSize: '1rem', color: '#326699' },
       },
     },
   };
