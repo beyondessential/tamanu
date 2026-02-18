@@ -125,7 +125,8 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
         { ...backoff, log },
       );
 
-      const { success, message } = await response.json();
+      const { data } = await response.json();
+      const { success, message } = data?.pluginGraphqlQuery ?? {};
 
       if (success) {
         await this.createLog({
