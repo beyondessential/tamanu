@@ -31,6 +31,15 @@ See `llm/docs/` for project-specific documentation:
 - **Authentication**: See @llm/docs/authentication.md for auth system details
 - **On-Call**: See @llm/docs/on-call-cheatsheet.md for operations and troubleshooting
 
+## Writing Rules and Prompts
+
+When writing or updating LLM rules (`llm/`), prompts (`.github/scripts/ai-review/prompts/`), or similar instructions:
+
+- Keep it concise — don't overexplain things the agent already knows how to do
+- Don't repeat information that exists in other rule files; reference them instead
+- Don't instruct agents to use specific tools (e.g. "use the Read tool") — they know their tools
+- State *what* to check, not *how* to check it
+
 ## Additional Resources
 
 - See @README for project overview
