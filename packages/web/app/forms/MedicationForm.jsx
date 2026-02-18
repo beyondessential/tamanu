@@ -879,12 +879,6 @@ export const MedicationForm = ({
                     }}
                     data-testid="medication-field-medicationId-8k3m"
                   />
-                  {!isOngoingPrescription && !!drugStockStatus && (
-                    <StockLevelContainer>
-                      {getStockLevelIcon()}
-                      {getStockLevelContent()}
-                    </StockLevelContainer>
-                  )}
                   {showExistingDrugWarning && (
                     <SmallBodyText mt="2px" color={Colors.midText}>
                       <TranslatedText
@@ -892,6 +886,12 @@ export const MedicationForm = ({
                         fallback="Please be aware that this medicine has already been prescribed for this encounter. Double check that this is clinically appropriate."
                       />
                     </SmallBodyText>
+                  )}
+                  {!isOngoingPrescription && !!drugStockStatus && (
+                    <StockLevelContainer>
+                      {getStockLevelIcon()}
+                      {getStockLevelContent()}
+                    </StockLevelContainer>
                   )}
                 </FullWidthFieldWrapper>
               </>

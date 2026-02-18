@@ -156,10 +156,14 @@ export const MedicationDetails = ({
     },
     {
       label: (
-        <TranslatedText
-          stringId="medication.details.dischargeQuantity"
-          fallback="Discharge quantity"
-        />
+        isOngoingPrescription ? (
+          <TranslatedText stringId="medication.details.quantity" fallback="Quantity" />
+        ) : (
+          <TranslatedText
+            stringId="medication.details.dischargeQuantity"
+            fallback="Discharge quantity"
+          />
+        )
       ),
       value: medication.quantity ?? '-',
     }
