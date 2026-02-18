@@ -85,7 +85,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ AUTH_QUERY, variables }),
+          body: JSON.stringify({ query: AUTH_QUERY, variables }),
         },
         { ...backoff, log },
       );
@@ -288,7 +288,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
         customerId,
         items: medications.map(medication => ({
           universalCode: medication.pharmacyOrderPrescription.prescription.medication.code,
-          quantity: medication.quantity,
+          numberOfUnits: medication.quantity,
         })),
       };
       try {
