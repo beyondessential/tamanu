@@ -1174,7 +1174,8 @@ createSuggester('reportDefinition', 'ReportDefinition', ({ search }) => ({
   name: { [Op.iLike]: search },
 }));
 
-const timeZoneValues = Intl.supportedValuesOf('timeZone');
+const timeZoneValues =
+  typeof Intl.supportedValuesOf === 'function' ? Intl.supportedValuesOf('timeZone') : ['UTC'];
 const TIME_ZONES = timeZoneValues.map(tz => ({ id: tz, name: tz }));
 const TIME_ZONES_LOWER = timeZoneValues.map(tz => tz.toLowerCase());
 
