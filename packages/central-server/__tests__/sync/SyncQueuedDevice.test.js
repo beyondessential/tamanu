@@ -213,33 +213,18 @@ const MAX_CONCURRENT_SESSIONS = 1;
 
     it('Should prevent exceeding maxConcurrentSessions when many syncs are requested at once', async () => {
       const sessions = ['A', 'B', 'C'];
-      let sessionsAttempted = 0;
-      let allSessionsAttemptedPromise;
-      let allSessionsAttemptedResolve;
-      allSessionsAttemptedPromise = new Promise(resolve => {
-        allSessionsAttemptedResolve = resolve;
-      });
-      const flagSessionAttempted = () => {
-        sessionsAttempted++;
-        if (sessionsAttempted === sessions.length) {
-          allSessionsAttemptedResolve();
-        }
-      };
       const originalGenerateDbUuid = models.SyncSession.generateDbUuid.bind(models.SyncSession);
       const generateDbUuidSpy = jest
         .spyOn(models.SyncSession, 'generateDbUuid')
         .mockImplementation(async () => {
-          flagSessionAttempted();
-          await allSessionsAttemptedPromise; // Don't actually create a sync session until all 3 have been attempted
+          await sleepAsync(2000);
           return originalGenerateDbUuid();
         });
       try {
         const results = await Promise.all(
           sessions.map(async (device, index) => {
-            await sleepAsync((index + 1) * 500);
-            const result = await requestSyncUnchecked(device);
-            flagSessionAttempted(); // If request has completed, we need to flag that we've attempted the session
-            return result;
+            await sleepAsync(index * 500);
+            return requestSyncUnchecked(device);
           }),
         );
 
