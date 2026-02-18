@@ -84,6 +84,7 @@ export const facilitySettings = {
       description: 'Time zone in IANA format',
       type: yup.string().nullable(),
       defaultValue: null,
+      suggesterEndpoint: 'timeZone',
     },
     patientDisplayIdPattern: {
       highRisk: true,

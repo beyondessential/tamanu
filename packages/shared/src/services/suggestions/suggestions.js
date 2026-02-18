@@ -1174,6 +1174,30 @@ createSuggester('reportDefinition', 'ReportDefinition', ({ search }) => ({
   name: { [Op.iLike]: search },
 }));
 
+const TIME_ZONES = Intl.supportedValuesOf('timeZone').map(tz => ({ id: tz, name: tz }));
+
+suggestions.get(
+  '/timeZone$',
+  asyncHandler(async (req, res) => {
+    req.flagPermissionChecked();
+    const searchQuery = (req.query.q || '').trim().toLowerCase();
+    const filtered = searchQuery
+      ? TIME_ZONES.filter(tz => tz.name.toLowerCase().includes(searchQuery))
+      : TIME_ZONES;
+    res.send(filtered.slice(0, DEFAULT_LIMIT));
+  }),
+);
+
+suggestions.get(
+  '/timeZone/:id',
+  asyncHandler(async (req, res) => {
+    req.flagPermissionChecked();
+    const tz = TIME_ZONES.find(t => t.id === req.params.id);
+    if (!tz) throw new NotFoundError();
+    res.send(tz);
+  }),
+);
+
 const routerEndpoints = suggestions.stack.map(layer => {
   const path = layer.route.path.replace('/', '').replaceAll('$', '');
   const root = path.split('/')[0];
