@@ -823,8 +823,7 @@ describe('Labs', () => {
       // Create requests with different approval statuses
       const { labRequest: lrApproved, labTestPanelRequest: panelApproved } =
         await createLabRequestWithPanel();
-      const { labRequest: lrUnapproved, labTestPanelRequest: panelUnapproved } =
-        await createLabRequestWithPanel();
+      const { labTestPanelRequest: panelUnapproved } = await createLabRequestWithPanel();
       const { labRequest: lrNoItems } = await createLabRequestWithPanel();
 
       await models.InvoiceItem.create({
@@ -847,7 +846,9 @@ describe('Labs', () => {
       });
 
       // Sort ASC - nulls first, then false, then true
-      const resultAsc = await app.get(`/api/labRequest?allFacilities=true&orderBy=approved&order=ASC`);
+      const resultAsc = await app.get(
+        `/api/labRequest?allFacilities=true&orderBy=approved&order=ASC`,
+      );
       expect(resultAsc).toHaveSucceeded();
       expect(resultAsc.body.data[0].id).toBe(lrNoItems.id);
       expect(resultAsc.body.data[0].approved).not.toBeDefined();
