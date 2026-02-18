@@ -1,17 +1,16 @@
 # Agent: Design & Architecture
 
-Read `llm/project-rules/coding-rules.md` for the team's design principles — especially the Readability & Naming and Code Design sections.
+Focus on high-level design and architecture decisions.
 
-Primary focus: **readability and human comprehension.** If code is hard to follow, or a name forces the reader to look elsewhere to understand what it means, that's the most important thing to flag.
+Read `llm/project-rules/coding-rules.md` for the team's design principles — especially the Code Design section.
 
-Specific things to look for:
-- Vague or abbreviated names (`count` instead of `numberOfPatients`, `dw` instead of `doorWidth`)
-- Missing conventional hints (`is`/`has`/`can` for booleans, verbs for functions, plurals for arrays)
-- `let` where a computed value or extracted function would be clearer
-- Functions doing too many things (the "and" smell)
-- Early/wrong abstractions — generalisation without evidence it's needed
+Things to look for:
+- Overall structure: does the way concepts are grouped make sense? Single responsibility per class/function/module?
+- Early/wrong abstractions — generalisation without evidence it's needed. Wrong abstractions are worse than duplication.
 - Incidental changes to widely-used components — would a new purpose-built one be better?
-- DRY violations (significant, not trivial)
+- Chesterton's Fence: changes to existing patterns without understanding why they exist
 - Separation of concerns, file organisation, breaking changes to shared interfaces
+- DRY violations (significant, not trivial)
+- Defensive null checks in internal code as a design smell — fix the caller, not the callee
 
-Ignore: performance, correctness, security, BES conventions, linter-caught style.
+Ignore: performance, correctness, security, naming/readability conventions, linter-caught style.
