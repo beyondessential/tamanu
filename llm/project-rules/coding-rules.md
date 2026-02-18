@@ -35,7 +35,6 @@ Readability is the highest priority. Every line of code is read many times over 
 ### Sync
 
 - Never modify `updated_at_sync_tick` manually
-- Changes to sync behaviour need multi-facility testing
 
 ### FHIR
 
