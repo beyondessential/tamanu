@@ -101,8 +101,8 @@ export const facilitySettings = {
               type: yup.string(),
               defaultValue: '',
             },
-            customerId: {
-              description: 'The ID of the Tamanu customer in the open mSupply instance',
+            customerCode: {
+              description: 'The code of the Tamanu customer in the open mSupply instance',
               type: yup.string(),
               defaultValue: '',
             },

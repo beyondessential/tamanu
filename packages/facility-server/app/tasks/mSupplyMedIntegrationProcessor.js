@@ -234,11 +234,11 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     }
 
     const [facilityId] = this.serverFacilityIds;
-    const { host, storeId, customerId } = await this.getSettings(facilityId);
+    const { host, storeId, customerCode } = await this.getSettings(facilityId);
     const { enabled, username, password } = config.integrations.mSupplyMed;
     const { batchSize, batchSleepAsyncDurationInMilliseconds } = this.scheduleConfig;
 
-    if (!enabled || !host || !username || !password || !storeId || !customerId) {
+    if (!enabled || !host || !username || !password || !storeId || !customerCode) {
       log.warn('Integration for mSupplyMedIntegrationProcessor not configured, skipping');
       return;
     }
@@ -284,7 +284,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
 
       const inputBody = {
         invoiceId: minMedicationId, // Identify batch by the first medication's id
-        customerId,
+        customerCode,
         items: medications.map(medication => ({
           universalCode: medication.pharmacyOrderPrescription.prescription.medication.code,
           numberOfUnits: medication.quantity,
