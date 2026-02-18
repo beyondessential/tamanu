@@ -9,7 +9,14 @@ import Button from '@mui/material/Button';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import { Box } from '@material-ui/core';
-import { addDays, format as dateFnsFormat, isValid, isSameDay, parse, startOfToday } from 'date-fns';
+import {
+  addDays,
+  format as dateFnsFormat,
+  isValid,
+  isSameDay,
+  parse,
+  startOfToday,
+} from 'date-fns';
 
 import {
   toDateString,
@@ -19,7 +26,8 @@ import {
 } from '@tamanu/utils/dateTime';
 import { DefaultIconButton } from '../Button';
 import { TextInput } from './TextField';
-import { useDateTimeIfAvailable } from '../../contexts';
+import { useDateTimeIfAvailable } from '../../contexts/DateTimeContext';
+import { useTranslation } from '../../contexts/TranslationContext';
 
 /*
  * DateInput wraps MUI DatePicker/DateTimePicker/TimePicker with timezone support.
@@ -85,11 +93,11 @@ const StyledPopper = styled(({ popperOptions, ...props }) => (
   z-index: 1300;
 
   .MuiPickersLayout-contentWrapper {
-    max-height: 320px;
+    max-height: 300px;
   }
 
   .MuiDateCalendar-root {
-    max-height: 320px;
+    max-height: 300px;
   }
 
   .MuiPickersCalendarHeader-root {
@@ -98,7 +106,7 @@ const StyledPopper = styled(({ popperOptions, ...props }) => (
   }
 
   .MuiDayCalendar-slideTransition {
-    min-height: 230px;
+    min-height: 220px;
   }
 
   .MuiMultiSectionDigitalClockSection-root {
@@ -158,7 +166,13 @@ const ActionBarContainer = styled.div`
   }
 `;
 
-const TimezoneActionBar = ({ onClear, onSetTodayAndClose, todayLabel = 'Today', actions = [], className }) => {
+const TimezoneActionBar = ({
+  onClear,
+  onSetTodayAndClose,
+  todayLabel = 'Today',
+  actions = [],
+  className,
+}) => {
   if (!actions?.length) return null;
   return (
     <ActionBarContainer className={className}>
@@ -207,6 +221,7 @@ export const DateInput = ({
   ...props
 }) => {
   const dateTime = useDateTimeIfAvailable();
+  const { getTranslation } = useTranslation();
   const shouldUseTimezone = useTimezone && type === 'datetime-local' && dateTime != null;
   const { toFacilityDateTime, toStoredDateTime } = dateTime ?? {};
 
@@ -256,14 +271,12 @@ export const DateInput = ({
 
   const handleSetToday = useCallback(() => {
     if (type === 'time' || type === 'datetime-local') {
-      const now = effectiveTimezone
-        ? getFacilityNowDate(effectiveTimezone)
-        : new Date();
+      const now = effectiveTimezone ? getFacilityNowDate(effectiveTimezone) : new Date();
       handleChange(now);
     } else {
       handleChange(todayDate);
+      setOpen(false);
     }
-    setOpen(false);
   }, [handleChange, todayDate, type, effectiveTimezone]);
 
   const handleClear = useCallback(() => {
@@ -311,12 +324,12 @@ export const DateInput = ({
     format: displayFormat,
     disabled,
     localeText: {
-      fieldDayPlaceholder: () => 'dd',
-      fieldMonthPlaceholder: () => 'mm',
-      fieldYearPlaceholder: () => 'yyyy',
+      fieldDayPlaceholder: () => getTranslation('general.date.placeholder.day', 'dd'),
+      fieldMonthPlaceholder: () => getTranslation('general.date.placeholder.month', 'mm'),
+      fieldYearPlaceholder: () => getTranslation('general.date.placeholder.year', 'yyyy'),
       fieldHoursPlaceholder: () => '--',
-      fieldMinutesPlaceholder: () => '--',
-      fieldMeridiemPlaceholder: () => '--',
+      fieldMinutesPlaceholder: () => getTranslation('general.date.placeholder.minutes', '--'),
+      fieldMeridiemPlaceholder: () => getTranslation('general.date.placeholder.meridiem', '--'),
     },
     slots: {
       actionBar: TimezoneActionBar,
@@ -329,7 +342,11 @@ export const DateInput = ({
         actions: ['today', 'clear'],
         onSetTodayAndClose: handleSetToday,
         onClear: handleClear,
-        todayLabel: type === 'time' ? 'Now' : 'Today',
+        todayLabel:
+          type === 'time'
+            ? getTranslation('general.date.now', 'Now')
+            : getTranslation('general.date.today', 'Today'),
+        clearLabel: getTranslation('general.date.clear', 'Clear'),
       },
       textField: {
         name,
@@ -358,7 +375,14 @@ export const DateInput = ({
       picker = <TimePicker {...commonProps} timeSteps={{ minutes: 1 }} />;
       break;
     case 'datetime-local':
-      picker = <DateTimePicker {...commonProps} maxDateTime={maxDate} minDateTime={minDate} timeSteps={{ minutes: 1 }} />;
+      picker = (
+        <DateTimePicker
+          {...commonProps}
+          maxDateTime={maxDate}
+          minDateTime={minDate}
+          timeSteps={{ minutes: 1 }}
+        />
+      );
       break;
     default:
       picker = <DatePicker {...commonProps} maxDate={maxDate} minDate={minDate} />;
@@ -394,6 +418,7 @@ export const DateTimeInput = ({ useTimezone = true, ...props }) => (
   <DateInput
     type="datetime-local"
     format="yyyy-MM-dd'T'HH:mm"
+    // Stop mui rendering 8000 year buttons
     max="2100-12-31T00:00"
     useTimezone={useTimezone}
     {...props}
