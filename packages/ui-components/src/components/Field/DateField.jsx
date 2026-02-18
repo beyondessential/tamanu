@@ -60,7 +60,28 @@ function parseValue(value, primaryFormat) {
   return null;
 }
 
-const StyledPopper = styled(Popper)`
+const StyledPopper = styled(({ popperOptions, ...props }) => (
+  <Popper
+    {...props}
+    placement="top-start"
+    popperOptions={{
+      ...popperOptions,
+      modifiers: [
+        ...(popperOptions?.modifiers || []),
+        {
+          name: 'flip',
+          enabled: true,
+          options: { fallbackPlacements: ['top-start', 'bottom-start'], rootBoundary: 'viewport' },
+        },
+        {
+          name: 'preventOverflow',
+          enabled: true,
+          options: { rootBoundary: 'viewport', altAxis: true, padding: 8 },
+        },
+      ],
+    }}
+  />
+))`
   z-index: 1300;
 
   .MuiMultiSectionDigitalClockSection-root {
@@ -284,7 +305,7 @@ export const DateInput = ({
   let picker;
   switch (type) {
     case 'time':
-      picker = <TimePicker {...commonProps} timeSteps={{ minutes: 1 }} />;
+      picker = <TimePicker {...commonProps} minTime={minDate} maxTime={maxDate} timeSteps={{ minutes: 1 }} />;
       break;
     case 'datetime-local':
       picker = <DateTimePicker {...commonProps} maxDateTime={maxDate} minDateTime={minDate} timeSteps={{ minutes: 1 }} />;
