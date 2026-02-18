@@ -72,7 +72,7 @@ export const getFormattedInvoiceItemCoverageAmount = item => {
 /**
  * Calculate and format the net cost of an invoice item for display in printout
  * @param {InvoiceItem} item - The invoice item object
- * @returns {string|number|null} - The net cost of the item
+ * @returns {string} - The net cost of the item
  */
 export const getFormattedInvoiceItemNetCost = item => {
   const netCost = getInvoiceItemNetCost(item);

@@ -5,7 +5,7 @@ import { getDiscountedPrice } from './discount';
 /**
  * Get the unit price of an invoice item
  * @param {InvoiceItem} invoiceItem
- * @returns {string|number|null}
+ * @returns {number}
  */
 export const getInvoiceItemPrice = invoiceItem => {
   return (
@@ -95,7 +95,7 @@ export const getItemSingleInsuranceCoverageAmount = (discountedPrice, item, insu
 /**
  * Calculate the net cost of an invoice item for display in printout
  * @param {InvoiceItem} item - The invoice item object
- * @returns {string|number|null} - The net cost of the item
+ * @returns {number} - The net cost of the item
  */
 export const getInvoiceItemNetCost = item => {
   const discountedPrice = getInvoiceItemTotalDiscountedPrice(item) || 0;
