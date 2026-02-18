@@ -84,8 +84,12 @@ const StyledPopper = styled(({ popperOptions, ...props }) => (
 ))`
   z-index: 1300;
 
+  .MuiPickersLayout-contentWrapper {
+    max-height: 280px;
+  }
+
   .MuiDateCalendar-root {
-    max-height: 300px;
+    max-height: 280px;
   }
 
   .MuiPickersCalendarHeader-root {
@@ -98,6 +102,7 @@ const StyledPopper = styled(({ popperOptions, ...props }) => (
   }
 
   .MuiMultiSectionDigitalClockSection-root {
+    max-height: 280px;
     scrollbar-width: thin;
 
     &::-webkit-scrollbar {
@@ -107,6 +112,12 @@ const StyledPopper = styled(({ popperOptions, ...props }) => (
       background: rgba(0, 0, 0, 0.2);
       border-radius: 2px;
     }
+  }
+
+  .MuiMultiSectionDigitalClockSection-item {
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    min-height: unset;
   }
 `;
 
