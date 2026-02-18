@@ -53,5 +53,5 @@ Readability is the highest priority. Every line of code is read many times over 
 - No patient identifiable information in error messages or stack traces
 - All API endpoints must have permission checks (`req.ability.can()` + `req.flagPermissionChecked()`)
 - No TODO or placeholder permission checks — raise for discussion instead
-- Clinical data should be soft-deleted or audited, never hard-deleted
+- Clinical data should be soft-deleted, never hard-deleted
 - Status transitions must follow defined state machines
