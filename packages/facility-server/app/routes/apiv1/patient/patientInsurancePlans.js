@@ -29,43 +29,28 @@ patientInsurancePlans.get(
 
     req.checkPermission('read', 'Patient');
 
-    const inUsePlans = await models.InvoicesInvoiceInsurancePlan.findAll({
-      attributes: ['invoiceInsurancePlanId'],
-      include: [
-        {
-          model: models.Invoice,
-          as: 'invoice',
+    const inUsePlans = await models.InvoiceInsurancePlan.findAll({
+      include: [{
+        model: models.Invoice,
+        as: 'relatedInvoices',
+        attributes: [],
+        required: true,
+        where: { status: INVOICE_STATUSES.IN_PROGRESS },
+        include: [{
+          model: models.Encounter,
+          as: 'encounter',
           attributes: [],
-          where: { status: INVOICE_STATUSES.IN_PROGRESS },
           required: true,
-          include: [
-            {
-              model: models.Encounter,
-              as: 'encounter',
-              attributes: [],
-              where: { patientId: params.id },
-              required: true,
-            },
-          ],
-        },
-        {
-          model: models.InvoiceInsurancePlan,
-          as: 'invoiceInsurancePlan',
-          attributes: ['id', 'name'],
-        },
-      ],
+          where: { patientId: params.id },
+        }],
+      }],
     });
 
-    const uniquePlans = new Map();
-    for (const plan of inUsePlans) {
-      if (!uniquePlans.has(plan.invoiceInsurancePlanId)) {
-        uniquePlans.set(plan.invoiceInsurancePlanId, {
-          invoiceInsurancePlanId: plan.invoiceInsurancePlanId,
-          name: plan.invoiceInsurancePlan?.name || plan.invoiceInsurancePlanId,
-        });
-      }
-    }
+    const plans = inUsePlans.map(plan => ({
+      invoiceInsurancePlanId: plan.id,
+      name: plan.name || plan.id,
+    }));
 
-    res.send([...uniquePlans.values()]);
+    res.send(plans);
   }),
 );
