@@ -5,6 +5,7 @@ import {
   getItemSingleInsuranceCoverageAmount,
   getInvoiceItemTotalDiscountedPrice,
   getItemAdjustmentAmount,
+  getInvoiceItemTotalPrice,
 } from './invoiceItem';
 import { getInvoiceLevelDiscountAmount } from './discount';
 
@@ -94,6 +95,11 @@ export const getFormattedCoverageAmountPerInsurancePlanForInvoice = invoice => {
 export const getInvoiceSummary = invoice => {
   invoice = JSON.parse(JSON.stringify(invoice)); // deep clone to convert sequelize entity to plain objects
 
+  const invoiceItemsUndiscountedTotal = invoice.items.reduce(
+    (sum, item) => sum.plus(getInvoiceItemTotalPrice(item) || 0),
+    new Decimal(0),
+  );
+
   const invoiceItemsTotal = invoice.items.reduce(
     (sum, item) => sum.plus(getInvoiceItemTotalDiscountedPrice(item) || 0),
     new Decimal(0),
@@ -134,6 +140,7 @@ export const getInvoiceSummary = invoice => {
     .toNumber();
 
   return {
+    invoiceItemsUndiscountedTotal: invoiceItemsUndiscountedTotal.toNumber(),
     invoiceItemsTotal: invoiceItemsTotal.toNumber(),
     insuranceCoverageTotal: insuranceCoverageTotal.toNumber(),
     patientTotal: patientTotal.toNumber(),
