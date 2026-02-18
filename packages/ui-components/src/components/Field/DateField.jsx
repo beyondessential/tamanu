@@ -85,11 +85,11 @@ const StyledPopper = styled(({ popperOptions, ...props }) => (
   z-index: 1300;
 
   .MuiPickersLayout-contentWrapper {
-    max-height: 280px;
+    max-height: 320px;
   }
 
   .MuiDateCalendar-root {
-    max-height: 280px;
+    max-height: 320px;
   }
 
   .MuiPickersCalendarHeader-root {
@@ -98,11 +98,11 @@ const StyledPopper = styled(({ popperOptions, ...props }) => (
   }
 
   .MuiDayCalendar-slideTransition {
-    min-height: 210px;
+    min-height: 230px;
   }
 
   .MuiMultiSectionDigitalClockSection-root {
-    max-height: 280px;
+    max-height: 310px;
     scrollbar-width: thin;
 
     &::-webkit-scrollbar {
@@ -123,6 +123,23 @@ const StyledPopper = styled(({ popperOptions, ...props }) => (
     font-size: 0.85rem;
     padding: 4px 8px;
     min-height: unset;
+  }
+
+  .MuiYearCalendar-root {
+    max-height: 240px;
+    width: 270px;
+  }
+
+  .MuiPickersYear-yearButton {
+    font-size: 0.8rem;
+    height: 28px;
+    margin: 2px 0;
+  }
+
+  .MuiPickersYear-yearButton.Mui-selected,
+  .MuiPickersDay-root.Mui-selected,
+  .MuiMultiSectionDigitalClockSection-item.Mui-selected {
+    background-color: #326699 !important;
   }
 `;
 
@@ -176,7 +193,7 @@ export const DateInput = ({
   format = 'yyyy-MM-dd',
   onChange,
   name,
-  max = '9999-12-31',
+  max = '2100-12-31',
   min,
   saveDateAsString = false,
   arrows = false,
@@ -312,7 +329,7 @@ export const DateInput = ({
         actions: ['today', 'clear'],
         onSetTodayAndClose: handleSetToday,
         onClear: handleClear,
-        todayLabel: type === 'date' ? 'Today' : 'Now',
+        todayLabel: type === 'time' ? 'Now' : 'Today',
       },
       textField: {
         name,
@@ -377,7 +394,7 @@ export const DateTimeInput = ({ useTimezone = true, ...props }) => (
   <DateInput
     type="datetime-local"
     format="yyyy-MM-dd'T'HH:mm"
-    max="9999-12-31T00:00"
+    max="2100-12-31T00:00"
     useTimezone={useTimezone}
     {...props}
   />
