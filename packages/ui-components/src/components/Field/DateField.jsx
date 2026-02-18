@@ -84,6 +84,19 @@ const StyledPopper = styled(({ popperOptions, ...props }) => (
 ))`
   z-index: 1300;
 
+  .MuiDateCalendar-root {
+    max-height: 300px;
+  }
+
+  .MuiPickersCalendarHeader-root {
+    margin-top: 8px;
+    min-height: unset;
+  }
+
+  .MuiDayCalendar-slideTransition {
+    min-height: 210px;
+  }
+
   .MuiMultiSectionDigitalClockSection-root {
     scrollbar-width: thin;
 
@@ -100,11 +113,19 @@ const StyledPopper = styled(({ popperOptions, ...props }) => (
 const ActionBarContainer = styled.div`
   display: flex;
   justify-content: flex-end;
-  padding: 8px 8px;
+  padding: 4px 8px;
   gap: 4px;
+
+  .MuiButton-root {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    min-width: unset;
+    color: #6fa2d0;
+    text-transform: none;
+  }
 `;
 
-const TimezoneActionBar = ({ onClear, onSetTodayAndClose, actions = [], className }) => {
+const TimezoneActionBar = ({ onClear, onSetTodayAndClose, todayLabel = 'Today', actions = [], className }) => {
   if (!actions?.length) return null;
   return (
     <ActionBarContainer className={className}>
@@ -115,7 +136,7 @@ const TimezoneActionBar = ({ onClear, onSetTodayAndClose, actions = [], classNam
       )}
       {actions.includes('today') && (
         <Button onClick={onSetTodayAndClose} size="small">
-          Today
+          {todayLabel}
         </Button>
       )}
     </ActionBarContainer>
@@ -206,15 +227,15 @@ export const DateInput = ({
   const [open, setOpen] = useState(false);
 
   const handleSetToday = useCallback(() => {
-    if (type === 'datetime-local') {
+    if (type === 'time' || type === 'datetime-local') {
       const now = effectiveTimezone
         ? getFacilityNowDate(effectiveTimezone)
         : new Date();
       handleChange(now);
     } else {
       handleChange(todayDate);
-      setOpen(false);
     }
+    setOpen(false);
   }, [handleChange, todayDate, type, effectiveTimezone]);
 
   const handleClear = useCallback(() => {
@@ -280,6 +301,7 @@ export const DateInput = ({
         actions: ['today', 'clear'],
         onSetTodayAndClose: handleSetToday,
         onClear: handleClear,
+        todayLabel: type === 'date' ? 'Today' : 'Now',
       },
       textField: {
         name,
@@ -294,7 +316,7 @@ export const DateInput = ({
         todayInTimezone: todayDate,
       },
       openPickerButton: {
-        sx: { padding: '2px', marginRight: '-4px' },
+        sx: { padding: '2px', marginRight: '-4px', ...(disabled && { display: 'none' }) },
       },
       openPickerIcon: {
         sx: { fontSize: '1rem', color: '#326699' },
@@ -305,7 +327,7 @@ export const DateInput = ({
   let picker;
   switch (type) {
     case 'time':
-      picker = <TimePicker {...commonProps} minTime={minDate} maxTime={maxDate} timeSteps={{ minutes: 1 }} />;
+      picker = <TimePicker {...commonProps} timeSteps={{ minutes: 1 }} />;
       break;
     case 'datetime-local':
       picker = <DateTimePicker {...commonProps} maxDateTime={maxDate} minDateTime={minDate} timeSteps={{ minutes: 1 }} />;
