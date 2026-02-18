@@ -1,0 +1,259 @@
+
+> tamanu@2.49.0 test
+> npm run build-shared && node scripts/test-all.mjs packages/utils/__test__/invoice.test.ts
+> tamanu@2.49.0 build-shared
+> npm run build -- --shared-only
+> tamanu@2.49.0 build
+> node scripts/build-all.mjs --shared-only
+Checking @tamanu/build-tooling...
+Skipping @tamanu/build-tooling as it doesn't have a build script...
+Checking @tamanu/constants...
+Building @tamanu/constants...
+> @tamanu/constants@2.49.0 build
+> npm run clean && npm run build:esm && npm run build:cjs && npm run build:types:cjs
+> @tamanu/constants@2.49.0 clean
+> rimraf dist *.tsbuildInfo
+> @tamanu/constants@2.49.0 build:esm
+> tsc
+> @tamanu/constants@2.49.0 build:cjs
+> swc --copy-files --source-maps true --out-dir dist/cjs src
+Successfully compiled: 50 files with swc (170.94ms)
+> @tamanu/constants@2.49.0 build:types:cjs
+> tsc --emitDeclarationOnly --outDir dist/cjs
+Checking @tamanu/e2e-tests...
+Skipping @tamanu/e2e-tests as it's not a shared package...
+Checking @tamanu/errors...
+Building @tamanu/errors...
+> @tamanu/errors@2.49.0 build
+> npm run clean && npm run build:esm && npm run build:cjs && npm run build:types:cjs
+> @tamanu/errors@2.49.0 clean
+> rimraf dist *.tsbuildInfo
+> @tamanu/errors@2.49.0 build:esm
+> tsc
+> @tamanu/errors@2.49.0 build:cjs
+> swc --copy-files --source-maps true --out-dir dist/cjs src
+Successfully compiled: 34 files with swc (57.73ms)
+> @tamanu/errors@2.49.0 build:types:cjs
+> tsc --emitDeclarationOnly --outDir dist/cjs
+Checking @tamanu/settings...
+Building @tamanu/settings...
+> @tamanu/settings@2.49.0 build
+> npm run build:src && npm run build:cjs && npm run build:types && dual-pkg dist/mjs dist/cjs
+> @tamanu/settings@2.49.0 build:src
+> swc --delete-dir-on-start --out-dir dist/mjs --copy-files --source-maps true src
+Successfully compiled: 43 files with swc (46.03ms)
+> @tamanu/settings@2.49.0 build:cjs
+> npm run build:src -- --out-dir dist/cjs --config module.type=commonjs
+> @tamanu/settings@2.49.0 build:src
+> swc --delete-dir-on-start --out-dir dist/mjs --copy-files --source-maps true src --out-dir dist/cjs --config module.type=commonjs
+Successfully compiled: 43 files with swc (55.88ms)
+> @tamanu/settings@2.49.0 build:types
+> tsc --declaration --emitDeclarationOnly --noEmit false && move-dts src dist/cjs dist/mjs
+put src/index.d.ts in dist/cjs/index.d.ts
+put src/index.d.ts in dist/mjs/index.d.ts
+put src/types/index.d.ts in dist/cjs/types/index.d.ts
+put src/types/index.d.ts in dist/mjs/types/index.d.ts
+put src/types/SettingsSchema.d.ts in dist/cjs/types/SettingsSchema.d.ts
+put src/types/SettingsSchema.d.ts in dist/mjs/types/SettingsSchema.d.ts
+put src/types/SettingPath.d.ts in dist/cjs/types/SettingPath.d.ts
+put src/types/SettingPath.d.ts in dist/mjs/types/SettingPath.d.ts
+put src/types/Setting.d.ts in dist/cjs/types/Setting.d.ts
+put src/types/Setting.d.ts in dist/mjs/types/Setting.d.ts
+put src/test/index.d.ts in dist/cjs/test/index.d.ts
+put src/test/index.d.ts in dist/mjs/test/index.d.ts
+put src/test/global.d.ts in dist/cjs/test/global.d.ts
+put src/test/global.d.ts in dist/mjs/test/global.d.ts
+put src/test/facillity.d.ts in dist/cjs/test/facillity.d.ts
+put src/test/facillity.d.ts in dist/mjs/test/facillity.d.ts
+put src/test/central.d.ts in dist/cjs/test/central.d.ts
+put src/test/central.d.ts in dist/mjs/test/central.d.ts
+put src/schema/validation.d.ts in dist/cjs/schema/validation.d.ts
+put src/schema/validation.d.ts in dist/mjs/schema/validation.d.ts
+put src/schema/utils.d.ts in dist/cjs/schema/utils.d.ts
+put src/schema/utils.d.ts in dist/mjs/schema/utils.d.ts
+put src/schema/index.d.ts in dist/cjs/schema/index.d.ts
+put src/schema/index.d.ts in dist/mjs/schema/index.d.ts
+put src/schema/global.d.ts in dist/cjs/schema/global.d.ts
+put src/schema/global.d.ts in dist/mjs/schema/global.d.ts
+put src/schema/facility.d.ts in dist/cjs/schema/facility.d.ts
+put src/schema/facility.d.ts in dist/mjs/schema/facility.d.ts
+put src/schema/central.d.ts in dist/cjs/schema/central.d.ts
+put src/schema/central.d.ts in dist/mjs/schema/central.d.ts
+put src/reader/index.d.ts in dist/cjs/reader/index.d.ts
+put src/reader/index.d.ts in dist/mjs/reader/index.d.ts
+put src/reader/buildSettings.d.ts in dist/cjs/reader/buildSettings.d.ts
+put src/reader/buildSettings.d.ts in dist/mjs/reader/buildSettings.d.ts
+put src/reader/ReadSettings.d.ts in dist/cjs/reader/ReadSettings.d.ts
+put src/reader/ReadSettings.d.ts in dist/mjs/reader/ReadSettings.d.ts
+put src/middleware/settingsReaderMiddleware.d.ts in dist/cjs/middleware/settingsReaderMiddleware.d.ts
+put src/middleware/settingsReaderMiddleware.d.ts in dist/mjs/middleware/settingsReaderMiddleware.d.ts
+put src/middleware/index.d.ts in dist/cjs/middleware/index.d.ts
+put src/middleware/index.d.ts in dist/mjs/middleware/index.d.ts
+put src/cache/settingsCache.d.ts in dist/cjs/cache/settingsCache.d.ts
+put src/cache/settingsCache.d.ts in dist/mjs/cache/settingsCache.d.ts
+put src/cache/index.d.ts in dist/cjs/cache/index.d.ts
+put src/cache/index.d.ts in dist/mjs/cache/index.d.ts
+put src/schema/global-settings-properties/layouts.d.ts in dist/cjs/schema/global-settings-properties/layouts.d.ts
+put src/schema/global-settings-properties/layouts.d.ts in dist/mjs/schema/global-settings-properties/layouts.d.ts
+put src/schema/definitions/vitalEditReasons.d.ts in dist/cjs/schema/definitions/vitalEditReasons.d.ts
+put src/schema/definitions/vitalEditReasons.d.ts in dist/mjs/schema/definitions/vitalEditReasons.d.ts
+put src/schema/definitions/vaccinations.d.ts in dist/cjs/schema/definitions/vaccinations.d.ts
+put src/schema/definitions/vaccinations.d.ts in dist/mjs/schema/definitions/vaccinations.d.ts
+put src/schema/definitions/upcomingVaccinations.d.ts in dist/cjs/schema/definitions/upcomingVaccinations.d.ts
+put src/schema/definitions/upcomingVaccinations.d.ts in dist/mjs/schema/definitions/upcomingVaccinations.d.ts
+put src/schema/definitions/triageCategories.d.ts in dist/cjs/schema/definitions/triageCategories.d.ts
+put src/schema/definitions/triageCategories.d.ts in dist/mjs/schema/definitions/triageCategories.d.ts
+put src/schema/definitions/slidingFeeScale.d.ts in dist/cjs/schema/definitions/slidingFeeScale.d.ts
+put src/schema/definitions/slidingFeeScale.d.ts in dist/mjs/schema/definitions/slidingFeeScale.d.ts
+put src/schema/definitions/questionCodeIds.d.ts in dist/cjs/schema/definitions/questionCodeIds.d.ts
+put src/schema/definitions/questionCodeIds.d.ts in dist/mjs/schema/definitions/questionCodeIds.d.ts
+put src/schema/definitions/medicationFrequencySchema.d.ts in dist/cjs/schema/definitions/medicationFrequencySchema.d.ts
+put src/schema/definitions/medicationFrequencySchema.d.ts in dist/mjs/schema/definitions/medicationFrequencySchema.d.ts
+put src/schema/definitions/letterheadTemplate.d.ts in dist/cjs/schema/definitions/letterheadTemplate.d.ts
+put src/schema/definitions/letterheadTemplate.d.ts in dist/mjs/schema/definitions/letterheadTemplate.d.ts
+put src/schema/definitions/labsCancellationReasons.d.ts in dist/cjs/schema/definitions/labsCancellationReasons.d.ts
+put src/schema/definitions/labsCancellationReasons.d.ts in dist/mjs/schema/definitions/labsCancellationReasons.d.ts
+put src/schema/definitions/index.d.ts in dist/cjs/schema/definitions/index.d.ts
+put src/schema/definitions/index.d.ts in dist/mjs/schema/definitions/index.d.ts
+put src/schema/definitions/imagingPriorities.d.ts in dist/cjs/schema/definitions/imagingPriorities.d.ts
+put src/schema/definitions/imagingPriorities.d.ts in dist/mjs/schema/definitions/imagingPriorities.d.ts
+put src/schema/definitions/imagingCancellationReasons.d.ts in dist/cjs/schema/definitions/imagingCancellationReasons.d.ts
+put src/schema/definitions/imagingCancellationReasons.d.ts in dist/mjs/schema/definitions/imagingCancellationReasons.d.ts
+put src/schema/definitions/fields.d.ts in dist/cjs/schema/definitions/fields.d.ts
+put src/schema/definitions/fields.d.ts in dist/mjs/schema/definitions/fields.d.ts
+put src/schema/definitions/durationStringSchema.d.ts in dist/cjs/schema/definitions/durationStringSchema.d.ts
+put src/schema/definitions/durationStringSchema.d.ts in dist/mjs/schema/definitions/durationStringSchema.d.ts
+put src/schema/definitions/dhis2.d.ts in dist/cjs/schema/definitions/dhis2.d.ts
+put src/schema/definitions/dhis2.d.ts in dist/mjs/schema/definitions/dhis2.d.ts
+put src/schema/definitions/bookingSlots.d.ts in dist/cjs/schema/definitions/bookingSlots.d.ts
+put src/schema/definitions/bookingSlots.d.ts in dist/mjs/schema/definitions/bookingSlots.d.ts
+put src/schema/definitions/ageDisplayFormat.d.ts in dist/cjs/schema/definitions/ageDisplayFormat.d.ts
+put src/schema/definitions/ageDisplayFormat.d.ts in dist/mjs/schema/definitions/ageDisplayFormat.d.ts
+put src/reader/readers/SettingsJSONReader.d.ts in dist/cjs/reader/readers/SettingsJSONReader.d.ts
+put src/reader/readers/SettingsJSONReader.d.ts in dist/mjs/reader/readers/SettingsJSONReader.d.ts
+put src/reader/readers/SettingsDBReader.d.ts in dist/cjs/reader/readers/SettingsDBReader.d.ts
+put src/reader/readers/SettingsDBReader.d.ts in dist/mjs/reader/readers/SettingsDBReader.d.ts
+put src/reader/readers/Reader.d.ts in dist/cjs/reader/readers/Reader.d.ts
+put src/reader/readers/Reader.d.ts in dist/mjs/reader/readers/Reader.d.ts
+Checking @tamanu/ui-components...
+Building @tamanu/ui-components...
+> @tamanu/ui-components@2.49.0 build
+> echo 'builds with client frontend'
+builds with client frontend
+Checking @tamanu/utils...
+Building @tamanu/utils...
+> @tamanu/utils@2.49.0 build
+> npm run clean && npm run build:esm && npm run build:cjs && npm run build:types
+> @tamanu/utils@2.49.0 clean
+> rimraf dist *.tsbuildInfo
+> @tamanu/utils@2.49.0 build:esm
+> swc --out-dir dist/esm --copy-files --source-maps true src
+Successfully compiled: 24 files with swc (42.07ms)
+> @tamanu/utils@2.49.0 build:cjs
+> npm run build:esm -- --out-dir dist/cjs --config module.type=commonjs
+> @tamanu/utils@2.49.0 build:esm
+> swc --out-dir dist/esm --copy-files --source-maps true src --out-dir dist/cjs --config module.type=commonjs
+Successfully compiled: 24 files with swc (31.93ms)
+> @tamanu/utils@2.49.0 build:types
+> npm run build:types:esm && npm run build:types:cjs
+> @tamanu/utils@2.49.0 build:types:esm
+> tsc --declaration --declarationMap --emitDeclarationOnly --noEmit false --outDir dist/esm
+src/invoice/discount.ts:3:10 - error TS1484: 'InvoiceDiscount' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+3 import { InvoiceDiscount } from './types';
+           ~~~~~~~~~~~~~~~
+src/invoice/display.ts:10:10 - error TS1484: 'Invoice' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+10 import { Invoice, InvoiceItem } from './types';
+            ~~~~~~~
+src/invoice/display.ts:10:19 - error TS1484: 'InvoiceItem' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+10 import { Invoice, InvoiceItem } from './types';
+                     ~~~~~~~~~~~
+src/invoice/invoice.ts:11:10 - error TS1484: 'Invoice' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+11 import { Invoice, InvoiceItem, InvoiceSummary } from './types';
+            ~~~~~~~
+src/invoice/invoice.ts:11:19 - error TS1484: 'InvoiceItem' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+11 import { Invoice, InvoiceItem, InvoiceSummary } from './types';
+                     ~~~~~~~~~~~
+src/invoice/invoice.ts:11:32 - error TS1484: 'InvoiceSummary' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+11 import { Invoice, InvoiceItem, InvoiceSummary } from './types';
+                                  ~~~~~~~~~~~~~~
+src/invoice/invoiceItem.ts:4:10 - error TS1484: 'InvoiceItem' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+4 import { InvoiceItem, InsurancePlanItem } from './types';
+           ~~~~~~~~~~~
+src/invoice/invoiceItem.ts:4:23 - error TS1484: 'InsurancePlanItem' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+4 import { InvoiceItem, InsurancePlanItem } from './types';
+                        ~~~~~~~~~~~~~~~~~
+src/invoice/payments.ts:8:10 - error TS1484: 'Invoice' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+8 import { Invoice, InsurerPayment, Payment } from './types';
+           ~~~~~~~
+src/invoice/payments.ts:8:19 - error TS1484: 'InsurerPayment' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+8 import { Invoice, InsurerPayment, Payment } from './types';
+                    ~~~~~~~~~~~~~~
+src/invoice/payments.ts:8:35 - error TS1484: 'Payment' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+8 import { Invoice, InsurerPayment, Payment } from './types';
+                                    ~~~~~~~
+src/invoice/payments.ts:60:3 - error TS2322: Type '{ amount: string | undefined; remainingBalance: string | undefined; id?: string | undefined; patientPayment?: PatientPayment | undefined; insurerPayment?: InsurerPayment | undefined; }[]' is not assignable to type '(Payment & { amount: string | undefined; remainingBalance: string | undefined; })[]'.
+  Type '{ amount: string | undefined; remainingBalance: string | undefined; id?: string; patientPayment?: PatientPayment; insurerPayment?: InsurerPayment; }' is not assignable to type 'Payment & { amount: string | undefined; remainingBalance: string | undefined; }'.
+    Type '{ amount: string | undefined; remainingBalance: string | undefined; id?: string; patientPayment?: PatientPayment; insurerPayment?: InsurerPayment; }' is not assignable to type 'Payment'.
+      Types of property 'amount' are incompatible.
+        Type 'string | undefined' is not assignable to type 'number | Decimal'.
+          Type 'undefined' is not assignable to type 'number | Decimal'.
+60   return patientPaymentsWithRemainingBalance;
+     ~~~~~~
+src/invoice/payments.ts:77:3 - error TS2322: Type '{ amount: string | undefined; remainingBalance: string | undefined; id?: string | undefined; patientPayment?: PatientPayment | undefined; insurerPayment?: InsurerPayment | undefined; }[]' is not assignable to type '(Payment & { amount: string | undefined; remainingBalance: string | undefined; })[]'.
+  Type '{ amount: string | undefined; remainingBalance: string | undefined; id?: string; patientPayment?: PatientPayment; insurerPayment?: InsurerPayment; }' is not assignable to type 'Payment & { amount: string | undefined; remainingBalance: string | undefined; }'.
+    Type '{ amount: string | undefined; remainingBalance: string | undefined; id?: string; patientPayment?: PatientPayment; insurerPayment?: InsurerPayment; }' is not assignable to type 'Payment'.
+      Types of property 'amount' are incompatible.
+        Type 'string | undefined' is not assignable to type 'number | Decimal'.
+          Type 'undefined' is not assignable to type 'number | Decimal'.
+77   return insurerPaymentsWithRemainingBalance;
+     ~~~~~~
+Found 13 errors in 5 files.
+Errors  Files
+     1  src/invoice/discount.ts:3
+     2  src/invoice/display.ts:10
+     3  src/invoice/invoice.ts:11
+     2  src/invoice/invoiceItem.ts:4
+     5  src/invoice/payments.ts:8
+npm error Lifecycle script `build:types:esm` failed with error:
+npm error code 2
+npm error path /Users/tomcaiger/Sites/tamanu/packages/utils
+npm error workspace @tamanu/utils@2.49.0
+npm error location /Users/tomcaiger/Sites/tamanu/packages/utils
+npm error command failed
+npm error command sh -c tsc --declaration --declarationMap --emitDeclarationOnly --noEmit false --outDir dist/esm
+npm error Lifecycle script `build:types` failed with error:
+npm error code 2
+npm error path /Users/tomcaiger/Sites/tamanu/packages/utils
+npm error workspace @tamanu/utils@2.49.0
+npm error location /Users/tomcaiger/Sites/tamanu/packages/utils
+npm error command failed
+npm error command sh -c npm run build:types:esm && npm run build:types:cjs
+npm error Lifecycle script `build` failed with error:
+npm error code 2
+npm error path /Users/tomcaiger/Sites/tamanu/packages/utils
+npm error workspace @tamanu/utils@2.49.0
+npm error location /Users/tomcaiger/Sites/tamanu/packages/utils
+npm error command failed
+npm error command sh -c npm run clean && npm run build:esm && npm run build:cjs && npm run build:types
+node:internal/errors:984
+  const err = new Error(message);
+              ^
+Error: Command failed: npm --workspace @tamanu/utils run build
+    at genericNodeError (node:internal/errors:984:15)
+    at wrappedFn (node:internal/errors:538:14)
+    at checkExecSyncError (node:child_process:891:11)
+    at execFileSync (node:child_process:927:15)
+    at file:///Users/tomcaiger/Sites/tamanu/scripts/build-all.mjs:28:3
+    at doWithAllPackages (file:///Users/tomcaiger/Sites/tamanu/scripts/_do-with-all-packages.mjs:72:9)
+    at file:///Users/tomcaiger/Sites/tamanu/scripts/build-all.mjs:10:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  status: 2,
+  signal: null,
+  output: [ null, null, null ],
+  pid: 24365,
+  stdout: null,
+  stderr: null
+}
+Node.js v20.19.4
