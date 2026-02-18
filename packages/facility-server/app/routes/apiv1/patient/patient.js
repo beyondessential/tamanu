@@ -32,6 +32,7 @@ import {
 } from './patientProgramRegistration';
 import {
   dbRecordToResponse,
+  parseInvoiceInsurancePlanIds,
   pickPatientBirthData,
   requestBodyToRecord,
   savePatientInsurancePlans,
@@ -119,14 +120,7 @@ patientRoute.put(
 
     req.checkPermission('write', patient);
 
-    let invoiceInsurancePlanId;
-    try {
-      invoiceInsurancePlanId = body.invoiceInsurancePlanId
-        ? JSON.parse(body.invoiceInsurancePlanId)
-        : undefined;
-    } catch (error) {
-      throw new InvalidParameterError('Invalid invoice insurance plan id');
-    }
+    const invoiceInsurancePlanId = parseInvoiceInsurancePlanIds(body.invoiceInsurancePlanId);
 
     const updatePatientBody = {
       ...body,
@@ -214,14 +208,7 @@ patientRoute.post(
 
     req.checkPermission('create', 'Patient');
 
-    let invoiceInsurancePlanId;
-    try {
-      invoiceInsurancePlanId = body.invoiceInsurancePlanId
-        ? JSON.parse(body.invoiceInsurancePlanId)
-        : undefined;
-    } catch (error) {
-      throw new InvalidParameterError('Invalid invoice insurance plan id');
-    }
+    const invoiceInsurancePlanId = parseInvoiceInsurancePlanIds(body.invoiceInsurancePlanId);
 
     const createPatientBody = {
       ...body,

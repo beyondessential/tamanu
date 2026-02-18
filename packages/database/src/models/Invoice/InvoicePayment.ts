@@ -16,6 +16,9 @@ export class InvoicePayment extends Model {
   declare invoiceId?: string;
   declare updatedByUserId?: string;
   declare originalPaymentId?: string;
+  declare originalPayment?: InvoicePayment;
+  declare refundPayment?: InvoicePayment;
+  
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -101,6 +104,14 @@ export class InvoicePayment extends Model {
         model: models.InvoiceInsurerPayment,
         as: 'insurerPayment',
         include: models.InvoiceInsurerPayment.getListReferenceAssociations(models),
+      },
+      {
+        model: models.InvoicePayment,
+        as: 'refundPayment',
+      },
+      {
+        model: models.InvoicePayment,
+        as: 'originalPayment',
       },
     ];
   }

@@ -31,7 +31,7 @@ export const InvoiceInsuranceModal = ({ open, onClose, invoice }) => {
   const patientId = invoice?.encounter?.patientId;
   const defaultValues = invoice?.insurancePlans?.map(({ id }) => id) || [];
   const [selectedPlans, setSelectedPlans] = useState(defaultValues);
-  const { mutate } = useInvoiceInsurancePlansMutation(invoice.id, invoice.encounterId);
+  const { mutate } = useInvoiceInsurancePlansMutation(invoice.id, invoice.encounterId, patientId);
   const {
     data: insurancePlans = [],
     isLoading: isLoadingInsurancePlans,

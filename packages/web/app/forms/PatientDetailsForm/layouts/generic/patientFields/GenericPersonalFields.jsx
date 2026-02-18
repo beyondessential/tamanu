@@ -193,7 +193,7 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
       label: (
         <TranslatedText
           stringId="general.localisedField.invoiceInsurancePlanId.label"
-          fallback="Invoice insurance plan"
+          fallback="Insurance plan"
           data-testid="translatedtext-73e2"
         />
       ),
