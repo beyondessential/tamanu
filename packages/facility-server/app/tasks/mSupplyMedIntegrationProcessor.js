@@ -269,17 +269,20 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
       // were deleted between batch count and query.
       if (medications.length === 0) break;
 
+      const minMedicationId = medications[0].id;
       const minMedicationCreatedAt = medications[0].createdAt;
       const maxMedicationCreatedAt = medications[medications.length - 1].createdAt;
       const maxMedicationId = medications[medications.length - 1].id;
 
       log.info(`Sending ${medications.length} dispensed medications to mSupply`, {
+        minMedicationId,
         minMedicationCreatedAt,
         maxMedicationCreatedAt,
         maxMedicationId,
       });
 
       const body = {
+        invoiceId: minMedicationId, // Identify batch by the first medication's id
         customerId,
         items: medications.map(medication => ({
           universalCode: medication.pharmacyOrderPrescription.prescription.medication.code,
