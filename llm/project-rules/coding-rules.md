@@ -18,7 +18,7 @@ Readability is the highest priority. Every line of code is read many times over 
 ## Code Design
 
 - **Avoid early abstractions.** Keep it concrete until you have evidence that generalisation is needed. Wrong abstractions are worse than duplication.
-- **Chesterton's Fence:** understand why something exists before changing it. If code looks weird, there may be a valid reason — check git history.
+- **Chesterton's Fence:** understand why something exists before changing it. If code looks weird, there may be a valid reason — check git history or stop coding and ask for clarification.
 - **Be wary of incidental changes to widely-used code.** Ask: why didn't this change need to happen before? Is the caller using the code in a non-standard way? Maybe a new, purpose-built component is better than modifying a shared one.
 - **Defensive null checks in internal code are a smell.** Validation makes sense at system boundaries (API inputs, external data), but excessive null-guarding inside the app usually means the caller is sending invalid data — fix the source.
 - **Don't use unstructured data** (e.g. a JSON blob with no schema) for anything important — it spreads the definition across the codebase and becomes increasingly hard to work with.
