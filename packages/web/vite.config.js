@@ -83,6 +83,13 @@ export default async () => {
           __dirname,
           '../shared/src/utils/invoice/index.js',
         ),
+        // Force web bundle to use its own nested @mui copies (6.1.x) instead of
+        // the hoisted root copies (6.5.x) to keep the MUI dependency tree consistent.
+        '@mui/material': path.resolve(__dirname, 'node_modules/@mui/material'),
+        '@mui/system': path.resolve(__dirname, 'node_modules/@mui/system'),
+        '@mui/icons-material': path.resolve(__dirname, 'node_modules/@mui/icons-material'),
+        '@mui/x-date-pickers': path.resolve(__dirname, 'node_modules/@mui/x-date-pickers'),
+        '@mui/styled-engine': path.resolve(__dirname, 'node_modules/@mui/styled-engine'),
       },
     },
   });
