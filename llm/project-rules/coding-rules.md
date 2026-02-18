@@ -1,6 +1,6 @@
-# BES Code Review Rules
+# Coding Rules - Tamanu
 
-Rules for reviewing Tamanu code. Used by AI review agents and as LLM context.
+Domain-specific rules and antipatterns for Tamanu development. Follow these when writing code and check for them during review.
 
 Also see `llm/project-rules/important-project-rules.md` for coding preferences and
 `packages/database/CLAUDE.md` for migration patterns.

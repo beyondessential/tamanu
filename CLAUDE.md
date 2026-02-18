@@ -11,6 +11,7 @@ See `llm/project-rules/` for detailed Tamanu-specific rules:
 - **Release Branches**: See @llm/project-rules/release-branches.md for finding releases
 - **Configuration Guides**: See @llm/project-rules/write-config-guides.md for creating config and usage documentation
 - **Important Rules**: See @llm/project-rules/important-project-rules.md for coding preferences and conventions
+- **Coding Rules**: See @llm/project-rules/coding-rules.md for domain-specific rules and antipatterns
 - **Copy Changes**: See @llm/project-rules/update-copy.md for TranslatedText system and copy update workflows
 - **Translate Strings**: See @llm/project-rules/translate-hardcoded-strings.md for internationalization
 

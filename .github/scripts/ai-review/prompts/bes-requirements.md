@@ -2,6 +2,6 @@
 
 Check for Tamanu-specific conventions, domain rules, and project antipatterns.
 
-Read `llm/review-rules.md` and `llm/project-rules/important-project-rules.md` for the rules. Also read `packages/database/CLAUDE.md` if the PR touches migrations.
+Read `llm/project-rules/coding-rules.md` and `llm/project-rules/important-project-rules.md` for the rules. Also read `packages/database/CLAUDE.md` if the PR touches migrations.
 
 Ignore: general code quality, performance, generic security, generic bugs.
