@@ -1,5 +1,5 @@
 /**
- * AI Review Orchestrator
+ * Review Hero Orchestrator
  *
  * Reads structured JSON findings from all 5 review agent artifacts,
  * deduplicates them, and posts a consolidated PR review via GitHub API.
@@ -245,7 +245,7 @@ async function main() {
   if (agentsCompleted === 0) {
     await postComment(
       prNumber,
-      '🤖 **AI Review** was requested but could not complete — all agents failed. Check the workflow logs for details.',
+      '🦸 **Review Hero** was requested but could not complete — all agents failed. Check the workflow logs for details.',
     );
     return;
   }
@@ -298,14 +298,14 @@ async function main() {
         .join('\n\n---\n\n');
       await postComment(
         prNumber,
-        `🤖 **AI Review** (could not post inline comments — showing here instead)\n\n${fallbackLines}`,
+        `🦸 **Review Hero** (could not post inline comments — showing here instead)\n\n${fallbackLines}`,
       );
     }
   }
 
   // Build and post summary
   const summaryParts = [
-    `🤖 **AI Review Summary**\n`,
+    `🦸 **Review Hero Summary**\n`,
     `**${agentsCompleted} agent${agentsCompleted === 1 ? '' : 's'}** reviewed this PR`,
     agentsFailed > 0 ? ` | ${agentsFailed} failed` : '',
     ` | ${counts.critical} critical | ${counts.suggestion} suggestion${counts.suggestion === 1 ? '' : 's'} | ${counts.nitpick} nitpick${counts.nitpick === 1 ? '' : 's'}`,

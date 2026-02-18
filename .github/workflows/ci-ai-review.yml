@@ -1,4 +1,4 @@
-name: AI Code Review
+name: Review Hero
 
 on:
   pull_request:
@@ -18,13 +18,13 @@ jobs:
     outputs:
       should_run: ${{ steps.check.outputs.should_run }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v6
       - id: check
         uses: actions/github-script@v7
         with:
           script: |
             const body = context.payload.pull_request?.body;
-            const match = body?.match(/\[(?<checked>[ x])\]\s+\*\*Run AI Review\*\* <!-- #ai-review -->/);
+            const match = body?.match(/\[(?<checked>[ x])\]\s+\*\*Run Review Hero\*\* <!-- #ai-review -->/);
             core.setOutput('should_run', match?.groups.checked === 'x');
 
   review-agent:
@@ -46,7 +46,7 @@ jobs:
           - key: security
             prompt: security.md
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
       - uses: actions/setup-node@v6
@@ -87,7 +87,7 @@ jobs:
     if: always() && needs.check-ai-review-request.outputs.should_run == 'true'
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
           node-version-file: '.node-version'
@@ -97,7 +97,7 @@ jobs:
         with:
           path: /tmp/artifacts
           pattern: review-*
-      - name: Run orchestrator
+      - name: Run Review Hero orchestrator
         env:
           GITHUB_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
