@@ -105,7 +105,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
 
   async postRequest(
     { bodyJson },
-    { minMedicationCreatedAt, maxMedicationCreatedAt, maxMedicationId, facilityId },
+    { minMedicationCreatedAt, maxMedicationCreatedAt, minMedicationId, maxMedicationId, facilityId },
   ) {
     const { host, backoff, storeId } = await this.getSettings(facilityId);
     const postQuery = getPostQuery(storeId);
@@ -132,6 +132,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
         await this.createLog({
           minMedicationCreatedAt,
           maxMedicationCreatedAt,
+          minMedicationId,
           maxMedicationId,
           status: 'success',
           message,
@@ -143,6 +144,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
       await this.createLog({
         minMedicationCreatedAt,
         maxMedicationCreatedAt,
+        minMedicationId,
         maxMedicationId,
         status: 'failed',
         message: error.message,
@@ -297,6 +299,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
           {
             minMedicationCreatedAt,
             maxMedicationCreatedAt,
+            minMedicationId,
             maxMedicationId,
             facilityId,
           },
