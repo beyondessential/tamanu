@@ -49,7 +49,7 @@ describe('PatientInvoiceInsurancePlan', () => {
   afterAll(() => ctx.close());
 
   beforeEach(async () => {
-    await models.PatientInvoiceInsurancePlan.truncate();
+    await models.PatientInvoiceInsurancePlan.truncate({ force: true });
   });
 
   it('should create new patient invoice insurance plan if it is in the list of insurance plans and not exist before', async () => {
