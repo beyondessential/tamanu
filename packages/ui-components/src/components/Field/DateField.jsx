@@ -115,7 +115,7 @@ const StyledPopper = styled(({ popperOptions, ...props }) => (
   }
 
   .MuiMultiSectionDigitalClockSection-item {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     padding: 4px 8px;
     min-height: unset;
   }
