@@ -1174,7 +1174,9 @@ createSuggester('reportDefinition', 'ReportDefinition', ({ search }) => ({
   name: { [Op.iLike]: search },
 }));
 
-const TIME_ZONES = Intl.supportedValuesOf('timeZone').map(tz => ({ id: tz, name: tz }));
+const timeZoneValues = Intl.supportedValuesOf('timeZone');
+const TIME_ZONES = timeZoneValues.map(tz => ({ id: tz, name: tz }));
+const TIME_ZONES_LOWER = timeZoneValues.map(tz => tz.toLowerCase());
 
 suggestions.get(
   '/timeZone$',
@@ -1182,7 +1184,7 @@ suggestions.get(
     req.flagPermissionChecked();
     const searchQuery = (req.query.q || '').trim().toLowerCase();
     const filtered = searchQuery
-      ? TIME_ZONES.filter(tz => tz.name.toLowerCase().includes(searchQuery))
+      ? TIME_ZONES.filter((_tz, i) => TIME_ZONES_LOWER[i].includes(searchQuery))
       : TIME_ZONES;
     res.send(filtered.slice(0, DEFAULT_LIMIT));
   }),
