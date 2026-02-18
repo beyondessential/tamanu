@@ -20,7 +20,7 @@ Readability is the highest priority. Every line of code is read many times over 
 - **Avoid early abstractions.** Keep it concrete until you have evidence that generalisation is needed. Wrong abstractions are worse than duplication.
 - **Chesterton's Fence:** understand why something exists before changing it. If code looks weird, there may be a valid reason — check git history or stop coding and ask for clarification.
 - **Be wary of incidental changes to widely-used code.** Ask: why didn't this change need to happen before? Is the caller using the code in a non-standard way? Maybe a new, purpose-built component is better than modifying a shared one.
-- **Defensive null checks in internal code are a smell.** Validation makes sense at system boundaries (API inputs, external data), but excessive null-guarding inside the app usually means the caller is sending invalid data — fix the source.
+- **Defensive null checks in internal code are a smell.** Validation makes sense at system boundaries (API inputs, external data), but excessive null-guarding inside the app usually means the caller is sending invalid data — an assertion throwing an error is better so it is easily understood and can be fixed at source if it comes up.
 - **Don't use unstructured data** (e.g. a JSON blob with no schema) for anything important — it spreads the definition across the codebase and becomes increasingly hard to work with.
 - **Limit concurrency.** Don't do things in parallel without a good reason, and when you do, cap concurrency (e.g. `async-pool`). We have a finite pool of DB connections and heavy contention can make latency spike or the system unstable.
 
