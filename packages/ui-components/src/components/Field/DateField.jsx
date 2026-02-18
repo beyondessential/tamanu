@@ -9,7 +9,7 @@ import Button from '@mui/material/Button';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import { Box } from '@material-ui/core';
-import { addDays, isValid, isSameDay, parse, startOfToday } from 'date-fns';
+import { addDays, format as dateFnsFormat, isValid, isSameDay, parse, startOfToday } from 'date-fns';
 
 import {
   toDateString,
@@ -25,7 +25,7 @@ import { useDateTimeIfAvailable } from '../../contexts';
  * DateInput wraps MUI DatePicker/DateTimePicker/TimePicker with timezone support.
  *
  * Timezone flow:
- *   - `timezone` prop (IANA string) controls what "today" means for the Today button,
+ *   - `timezone` prop (IANA string) controls what "today" means for the Today/Now button,
  *     the calendar's reference date, and the today highlight circle. Falls back to
  *     facilityTimeZone → primaryTimeZone from the DateTimeContext if not supplied.
  *   - `useTimezone` (datetime-local only) converts stored values between primary and
@@ -151,7 +151,7 @@ const TimezoneDay = ({ todayInTimezone, day, ...other }) => {
 const DISPLAY_FORMATS = {
   date: 'dd/MM/yyyy',
   'datetime-local': 'dd/MM/yyyy hh:mm a',
-  time: 'HH:mm',
+  time: 'hh:mm a',
 };
 
 export const DateInput = ({
@@ -165,7 +165,8 @@ export const DateInput = ({
   saveDateAsString = false,
   arrows = false,
   inputProps = {},
-  keepIncorrectValue, // eslint-disable-line no-unused-vars
+  placeholder: _placeholder, // eslint-disable-line no-unused-vars
+  keepIncorrectValue: _keepIncorrectValue, // eslint-disable-line no-unused-vars
   useTimezone = false,
   timezone,
   disabled,
@@ -174,8 +175,6 @@ export const DateInput = ({
   ['data-testid']: dataTestId,
   ...props
 }) => {
-  delete props.placeholder;
-
   const dateTime = useDateTimeIfAvailable();
   const shouldUseTimezone = useTimezone && type === 'datetime-local' && dateTime != null;
   const { toFacilityDateTime, toStoredDateTime } = dateTime ?? {};
@@ -205,9 +204,7 @@ export const DateInput = ({
 
       let outputValue;
       if (shouldUseTimezone && toStoredDateTime) {
-        outputValue = toStoredDateTime(
-          `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`,
-        );
+        outputValue = toStoredDateTime(dateFnsFormat(date, "yyyy-MM-dd'T'HH:mm"));
       } else if (saveDateAsString) {
         outputValue = type === 'date' ? toDateString(date) : toDateTimeString(date);
       } else {
