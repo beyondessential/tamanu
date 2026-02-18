@@ -1,4 +1,4 @@
-import { TEST_PATIENT_UUID } from '@tamanu/constants';
+import { TEST_PATIENT_ID } from '@tamanu/constants';
 import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 import { getTable } from './utils/queryRunner';
 
@@ -15,21 +15,21 @@ export class updateEncountersTableSetPatientIdNotNull1771277667000 implements Mi
     if (nullCount > 0) {
       const testPatientResult = await queryRunner.query(
         `SELECT id FROM ${PATIENTS_TABLE} WHERE id = ? AND deletedAt IS NULL`,
-        [TEST_PATIENT_UUID],
+        [TEST_PATIENT_ID],
       );
       const testPatientExists = testPatientResult.length === 1;
 
       if (!testPatientExists) {
         throw new Error(
           `Cannot backfill encounters: ${nullCount} encounter(s) have null patientId,
-            but the test patient (id = ${TEST_PATIENT_UUID}) does not exist.
+            but the test patient (id = ${TEST_PATIENT_ID}) does not exist.
             Ensure the test patient exists before running this migration.`,
         );
       }
 
       await queryRunner.query(
         `UPDATE ${ENCOUNTERS_TABLE} SET patientId = ? WHERE patientId IS NULL`,
-        [TEST_PATIENT_UUID],
+        [TEST_PATIENT_ID],
       );
     }
 

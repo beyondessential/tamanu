@@ -1,8 +1,8 @@
-import { TEST_PATIENT_UUID } from '@tamanu/constants';
+import { TEST_PATIENT_ID } from '@tamanu/constants';
 import { QueryInterface, QueryTypes } from 'sequelize';
 
 // Migration 1 of 2: Backfill data (DML)
-// Updates encounters with null patient_id to the test patient (TEST_PATIENT_UUID).
+// Updates encounters with null patient_id to the test patient (TEST_PATIENT_ID).
 // Throws if any null patient_id exists and the test patient is not found.
 
 export async function up(query: QueryInterface): Promise<void> {
@@ -20,7 +20,7 @@ export async function up(query: QueryInterface): Promise<void> {
     `SELECT id FROM patients WHERE id = :testPatientId AND deleted_at IS NULL LIMIT 1;`,
     {
       type: QueryTypes.SELECT,
-      replacements: { testPatientId: TEST_PATIENT_UUID },
+      replacements: { testPatientId: TEST_PATIENT_ID },
     },
   );
   const testPatientExists = testPatientResult.length === 1;
@@ -28,7 +28,7 @@ export async function up(query: QueryInterface): Promise<void> {
   if (!testPatientExists) {
     throw new Error(
       `Cannot backfill encounters: ${nullCount} encounter(s) have null patient_id,
-        but the test patient (id = ${TEST_PATIENT_UUID}) does not exist.
+        but the test patient (id = ${TEST_PATIENT_ID}) does not exist.
         Ensure the test patient exists before running this migration.`,
     );
   }
@@ -36,7 +36,7 @@ export async function up(query: QueryInterface): Promise<void> {
   await query.sequelize.query(
     `UPDATE encounters SET patient_id = :testPatientId WHERE patient_id IS NULL;`,
     {
-      replacements: { testPatientId: TEST_PATIENT_UUID },
+      replacements: { testPatientId: TEST_PATIENT_ID },
     },
   );
 }

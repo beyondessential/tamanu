@@ -13,7 +13,7 @@ export const JWT_KEY_ID = 'eacd2b78-b1ee-4d68-87eb-b2c039d7d18a';
 export const SYSTEM_USER_UUID = '00000000-0000-0000-0000-000000000000';
 
 /** Stable UUID for the test patient */
-export const TEST_PATIENT_UUID = 'h1627394-3778-4c31-a510-9fcb88efdbf3';
+export const TEST_PATIENT_ID = 'h1627394-3778-4c31-a510-9fcb88efdbf3';
 
 export const ADMIN_USER_EMAIL = 'admin@tamanu.io';
 

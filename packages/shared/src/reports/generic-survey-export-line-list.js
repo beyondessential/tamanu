@@ -3,7 +3,7 @@ import { keyBy } from 'lodash';
 import {
   NON_ANSWERABLE_DATA_ELEMENT_TYPES,
   PROGRAM_DATA_ELEMENT_TYPES,
-  TEST_PATIENT_UUID,
+  TEST_PATIENT_ID,
 } from '@tamanu/constants';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { generateReportFromQueryData, getAnswerBody } from './utilities';
@@ -64,7 +64,7 @@ left join encounters e on e.id = sr.encounter_id
 left join patients p on p.id = e.patient_id
 left join reference_data vil on vil.id = p.village_id
 join surveys s on s.id = sr.survey_id
-where p.id != '${TEST_PATIENT_UUID}'
+where p.id != '${TEST_PATIENT_ID}'
 AND sr.survey_id  = :survey_id
 and CASE WHEN :village_id IS NOT NULL THEN p.village_id = :village_id ELSE true end
 and CASE WHEN :from_date IS NOT NULL THEN sr.end_time::date >= :from_date::date ELSE true END
