@@ -5,7 +5,6 @@ import { Op } from 'sequelize';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { fetchWithRetryBackoff } from '@tamanu/api-client/fetchWithRetryBackoff';
-import { InvalidConfigError } from '@tamanu/shared/errors';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
@@ -245,7 +244,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     }
 
     if (!batchSize || !batchSleepAsyncDurationInMilliseconds) {
-      throw new InvalidConfigError(
+      throw new Error(
         'batchSize and batchSleepAsyncDurationInMilliseconds must be set for mSupplyMedIntegrationProcessor',
       );
     }
