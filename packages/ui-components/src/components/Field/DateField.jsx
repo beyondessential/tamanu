@@ -82,9 +82,9 @@ export const DateInput = ({
   const showCalendarIcon = type === 'date' || type === 'datetime-local';
   const handleCalendarClick = useCallback(() => {
     if (disabled) return;
-    try {
-      inputRef.current?.showPicker();
-    } catch {
+    if (inputRef.current?.showPicker) {
+      inputRef.current.showPicker();
+    } else {
       inputRef.current?.focus();
     }
   }, [disabled]);
