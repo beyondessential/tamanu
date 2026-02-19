@@ -40,7 +40,7 @@ const topStyles = StyleSheet.create({
 });
 
 const TopSection = ({ facilityName, childDisplayId }) => {
-  const { formatShort } = useDateTime();
+  const { formatShort, getCurrentDate } = useDateTime();
   return (
     <View style={topStyles.container}>
       <View style={topStyles.cell}>
@@ -51,7 +51,7 @@ const TopSection = ({ facilityName, childDisplayId }) => {
         <P bold style={topStyles.key}>
           Notification date:
         </P>
-        <P style={topStyles.value}>{formatShort(new Date())}</P>
+        <P style={topStyles.value}>{formatShort(getCurrentDate())}</P>
       </View>
       <View style={topStyles.cell}>
         <P style={topStyles.key}>Child ID:</P>
