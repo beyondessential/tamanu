@@ -20,13 +20,19 @@ const StyledField = styled(Field)`
   max-width: 500px;
 `;
 
-const Cell = styled.div`
+const Cell = styled.span`
+  display: inline-flex;
+  max-width: 100%;
+  min-width: 0;
+  padding-right: 10px;
+  font-size: 14px;
+`;
+
+const CellText = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   min-width: 0;
-  font-size: 14px;
-  padding-right: 10px;
 `;
 
 export const DetailsCell = ({
@@ -55,7 +61,9 @@ export const DetailsCell = ({
         </NoteModalActionBlocker>
       ) : (
         <ThemedTooltip title={detailsText}>
-          <Cell>{detailsText}</Cell>
+          <Cell>
+            <CellText>{detailsText}</CellText>
+          </Cell>
         </ThemedTooltip>
       )}
       {!isEditing && isSaved && item.note && (
