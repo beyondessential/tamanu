@@ -4,7 +4,7 @@ import {
   getInvoiceItemTotalDiscountedPrice,
   getInvoiceItemTotalPrice,
   getInvoiceItemCoveragePercentage,
-} from '@tamanu/shared/utils/invoice';
+} from '@tamanu/utils/invoice';
 import Decimal from 'decimal.js';
 import Collapse from '@material-ui/core/Collapse';
 import { Box } from '@mui/material';

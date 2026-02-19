@@ -15,7 +15,7 @@ import {
   TAMANU_COLORS,
   TextButton,
 } from '@tamanu/ui-components';
-import { formatDisplayPrice } from '@tamanu/shared/utils/invoice';
+import { formatDisplayPrice } from '@tamanu/utils/invoice';
 import { Modal } from '../../components/Modal';
 import { TranslatedText } from '../../components/Translation';
 import { ModalFormActionRow } from '../../components/ModalActionRow';

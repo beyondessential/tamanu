@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { formatDisplayPrice } from '@tamanu/shared/utils/invoice';
+import { formatDisplayPrice } from '@tamanu/utils/invoice';
 
 const PriceText = styled.div`
   text-decoration: ${props => (props.$isCrossedOut ? 'line-through' : 'none')};

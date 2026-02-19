@@ -1,11 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import { z } from 'zod';
 import { ForbiddenError, NotFoundError, ValidationError } from '@tamanu/errors';
-import {
-  getInvoicePatientPaymentStatus,
-  round,
-  getInvoiceSummary,
-} from '@tamanu/shared/utils/invoice';
+import { getInvoicePatientPaymentStatus, round, getInvoiceSummary } from '@tamanu/utils/invoice';
 import express from 'express';
 import Decimal from 'decimal.js';
 

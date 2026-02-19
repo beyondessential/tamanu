@@ -44,7 +44,8 @@ export const getInsuranceCoverageTotalAmount = (invoiceItems: InvoiceItem[]): De
   }, new Decimal(0));
 };
 
-/**
+/*
+ * TODO: this is similar to getInsuranceCoverageTotalAmount and could be combined together
  * Calculate and format the total coverage amount for each insurance plan across all invoice items for display in printout
  */
 export const getFormattedCoverageAmountPerInsurancePlanForInvoice = (
