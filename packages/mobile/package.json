@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/mobile",
-  "version": "2.49.0",
+  "version": "2.50.0",
   "private": true,
   "scripts": {
     "android": "npx react-native start --reset-cache",
@@ -41,6 +41,7 @@
     "@tamanu/constants": "*",
     "@tamanu/errors": "*",
     "@tamanu/shared": "*",
+    "@tamanu/utils": "*",
     "@testing-library/react-native": "^12.5.3",
     "axios": "^1.11.0",
     "chance": "^1.1.4",

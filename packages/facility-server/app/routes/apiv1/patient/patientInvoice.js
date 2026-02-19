@@ -1,12 +1,55 @@
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { getInvoiceSummary } from '@tamanu/shared/utils/invoice';
+import { NotFoundError } from '@tamanu/errors';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import Decimal from 'decimal.js';
+import { invoiceForResponse } from '../invoice/invoiceForResponse';
 
 export const patientInvoiceRoutes = express.Router();
 
+// Shared function to hydrate invoices with price list associations
+async function hydrateInvoices(invoiceRecords, models) {
+  return Promise.all(
+    invoiceRecords.map(async invoiceRecord => {
+      const { Invoice, InvoicePriceList } = models;
+      // Determine the price list for the invoice based on its encounter
+      const invoiceId = invoiceRecord.id;
+      const encounterId = invoiceRecord.encounterId;
+      const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(encounterId);
+
+      // Refetch the invoice with associations that depend on the price list
+      const hydratedInvoiceRecord = await Invoice.findOne({
+        where: { id: invoiceId },
+        include: Invoice.getFullReferenceAssociations(invoicePriceListId),
+      });
+
+      if (!hydratedInvoiceRecord) {
+        throw new NotFoundError('Invoice not found');
+      }
+      return invoiceForResponse(hydratedInvoiceRecord);
+    }),
+  );
+}
+
 const encounterOrderByKeys = ['encounterType'];
-const invoiceOrderByKeys = ['date', 'displayId', 'status'];
+const invoiceOrderByKeys = ['date', 'displayId', 'patientPaymentStatus', 'status'];
+
+const buildInvoiceOrderClause = ({ order, orderBy, models }) => {
+  if (!orderBy) return undefined;
+
+  const direction = String(order).toUpperCase();
+
+  if (invoiceOrderByKeys.includes(orderBy)) {
+    return [[orderBy, direction]];
+  }
+
+  if (encounterOrderByKeys.includes(orderBy)) {
+    return [[{ model: models.Encounter, as: 'encounter' }, orderBy, direction]];
+  }
+
+  return undefined;
+};
 
 patientInvoiceRoutes.get(
   '/:id/invoices',
@@ -19,21 +62,13 @@ patientInvoiceRoutes.get(
 
     const data = await models.Invoice.findAll({
       include: [
-        ...models.Invoice.getFullReferenceAssociations(),
         {
           model: models.Encounter,
           as: 'encounter',
           where: { patientId },
-          order:
-            orderBy && encounterOrderByKeys.includes(orderBy)
-              ? [[orderBy, order.toUpperCase()]]
-              : undefined,
         },
       ],
-      order:
-        orderBy && invoiceOrderByKeys.includes(orderBy)
-          ? [[orderBy, order.toUpperCase()]]
-          : undefined,
+      order: buildInvoiceOrderClause({ order, orderBy, models }),
       limit: rowsPerPage,
       offset: page * rowsPerPage,
     });
@@ -48,12 +83,23 @@ patientInvoiceRoutes.get(
       ],
     });
 
+    const dataResponse = await hydrateInvoices(data, models);
+
     res.send({
       count,
-      data,
+      data: dataResponse,
     });
   }),
 );
+
+// Calculate total balance from invoices
+const calculateTotalBalance = invoices => {
+  const balance = invoices.reduce((sum, invoice) => {
+    const invoiceAmount = new Decimal(getInvoiceSummary(invoice).patientPaymentRemainingBalance);
+    return sum.add(invoiceAmount);
+  }, new Decimal(0));
+  return balance.toNumber();
+};
 
 patientInvoiceRoutes.get(
   '/:id/invoices/totalOutstandingBalance',
@@ -68,7 +114,6 @@ patientInvoiceRoutes.get(
         status: INVOICE_STATUSES.FINALISED,
       },
       include: [
-        ...models.Invoice.getFullReferenceAssociations(),
         {
           model: models.Encounter,
           as: 'encounter',
@@ -77,10 +122,8 @@ patientInvoiceRoutes.get(
       ],
     });
 
-    const balance = invoices.reduce(
-      (acc, invoice) => acc + getInvoiceSummary(invoice).patientPaymentRemainingBalance,
-      0,
-    );
+    const dataResponse = await hydrateInvoices(invoices, models);
+    const balance = calculateTotalBalance(dataResponse);
 
     res.send({
       result: balance,

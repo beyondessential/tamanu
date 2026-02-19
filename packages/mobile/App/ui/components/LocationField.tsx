@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useFormikContext } from 'formik';
 import { NavigationProp } from '@react-navigation/native';
 
@@ -20,24 +20,32 @@ export const LocationField: React.FC<LocationFieldProps> = ({ navigation, requir
   const { models } = useBackend();
   const { facilityId } = useFacility();
 
-  const locationGroupSuggester = new Suggester({
-    model: models.LocationGroup,
-    options: {
-      where: {
-        facility: facilityId,
-      },
-    },
-  });
+  const locationGroupSuggester = useMemo(
+    () =>
+      new Suggester({
+        model: models.LocationGroup,
+        options: {
+          where: {
+            facility: facilityId,
+          },
+        },
+      }),
+    [models.LocationGroup, facilityId],
+  );
 
-  const locationSuggester = new Suggester({
-    model: models.Location,
-    options: {
-      where: {
-        facility: facilityId,
-        locationGroup: values.locationGroupId,
-      },
-    },
-  });
+  const locationSuggester = useMemo(
+    () =>
+      new Suggester({
+        model: models.Location,
+        options: {
+          where: {
+            facility: facilityId,
+            locationGroup: values.locationGroupId,
+          },
+        },
+      }),
+    [models.Location, facilityId, values.locationGroupId],
+  );
 
   useEffect(() => {
     if (values.locationId && !values.locationGroupId) {

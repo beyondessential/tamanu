@@ -149,11 +149,6 @@ export const globalSettings = {
           type: yup.boolean(),
           defaultValue: false,
         },
-        enableInvoicing: {
-          description: 'Enable invoice tab/module on encounter view',
-          type: yup.boolean(),
-          defaultValue: false,
-        },
         enableTasking: {
           description: 'Enable tasking tab/module on encounter view',
           type: yup.boolean(),
@@ -363,6 +358,33 @@ export const globalSettings = {
               description: 'Enable device registration quota',
               type: yup.boolean(),
               defaultValue: true,
+            },
+          },
+        },
+        invoicing: {
+          description: 'Invoicing module settings',
+          properties: {
+            enabled: {
+              description: 'Enable invoicing',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            invoicePendingLabRequests: {
+              description:
+                'This setting enables automatically adding lab requests with the status Sample not collected & Reception pending to an invoice.',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            invoicePendingImagingRequests: {
+              description:
+                'This setting enables automatically adding imaging requests with the status pending to an invoice.',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            slidingFeeScale: {
+              description: 'This setting allows sliding fee scale to be applied to invoices.',
+              type: yup.boolean(),
+              defaultValue: false,
             },
           },
         },
@@ -1607,7 +1629,8 @@ export const globalSettings = {
             },
             autoDeleteTimeframeHours: {
               name: 'Autodelete medication request timeframe in hours',
-              description: 'Medication requests not dispensed after this timeframe will be automatically deleted.',
+              description:
+                'Medication requests not dispensed after this timeframe will be automatically deleted.',
               type: yup.number().integer().positive(),
               defaultValue: 72,
               unit: 'hours',

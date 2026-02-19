@@ -28,6 +28,7 @@ import {
 import { add, format, isAfter, isBefore, isEqual } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 import { validate } from '../../utils/validate';
+import { getLastOrderedAtForOngoingPrescriptions } from '../../utils/medication';
 import { mapQueryFilters } from '../../database/utils';
 
 export const medication = express.Router();
@@ -343,13 +344,15 @@ const sendOngoingToPharmacySchema = z
     orderingClinicianId: z.string().uuid({ message: 'Valid ordering clinician ID is required' }),
     comments: z.string().optional().nullable(),
     facilityId: z.string({ message: 'Valid facility ID is required' }),
-    prescriptions: z.array(
-      z.object({
-        prescriptionId: z.string().uuid({ message: 'Valid prescription ID is required' }),
-        quantity: z.number().int().positive({ message: 'Quantity must be a positive integer' }),
-        repeats: z.number().int().min(0).max(MAX_REPEATS).optional().nullable(),
-      }),
-    ),
+    prescriptions: z
+      .array(
+        z.object({
+          prescriptionId: z.string().uuid({ message: 'Valid prescription ID is required' }),
+          quantity: z.number().int().positive({ message: 'Quantity must be a positive integer' }),
+          repeats: z.number().int().min(0).max(MAX_REPEATS).optional().nullable(),
+        }),
+      )
+      .nonempty({ message: 'At least one prescription is required' }),
   })
   .strip();
 
@@ -435,15 +438,25 @@ medication.post(
       'read',
     );
 
+    // Fetch last ordered dates for "first send free" validation - prescriptions with 0 repeats
+    // that have never been ordered still have one remaining send
+    const ongoingPrescriptionIds = ongoingPrescriptions.map(p => p.id);
+    const lastOrderedAts = await getLastOrderedAtForOngoingPrescriptions(
+      db,
+      ongoingPrescriptionIds,
+    );
+
     // Validate repeats for each prescription
     const prescriptionMap = new Map(prescriptions.map(p => [p.prescriptionId, p]));
 
     for (const prescription of ongoingPrescriptions) {
       const requestData = prescriptionMap.get(prescription.id);
       const currentRepeats = prescription.repeats ?? 0;
+      const lastOrderedAt = lastOrderedAts[prescription.id]?.last_ordered_at;
 
       // If user doesn't have write Medication permission, they can't send medications with 0 repeats
-      if (!canEditRepeats && currentRepeats === 0) {
+      // that have already been ordered (first send is "free" - 0 repeats + never ordered = 1 remaining)
+      if (!canEditRepeats && currentRepeats === 0 && lastOrderedAt) {
         throw new InvalidOperationError(
           `Cannot send medication "${prescription.medication?.name || prescription.id}" to pharmacy - no repeats remaining. You do not have permission to modify repeats.`,
         );
@@ -516,6 +529,15 @@ medication.post(
         { transaction },
       );
 
+      // Automatically add an invoice
+      await models.Invoice.automaticallyCreateForEncounter(
+        encounter.id,
+        encounter.encounterType,
+        encounter.startDate,
+        facilitySettings,
+        { transaction },
+      );
+
       // Create new prescriptions for this encounter based on the original ongoing prescriptions
       const newPrescriptions = [];
       for (const originalPrescription of ongoingPrescriptions) {
@@ -561,7 +583,18 @@ medication.post(
         { transaction },
       );
 
-      // Create pharmacy order prescriptions
+      // Decrement repeats on the ongoing prescriptions (repeats = remaining "send to pharmacy" count)
+      // Only decrement if the prescription has been ordered before (has a lastOrderedAt)
+      for (const originalPrescription of ongoingPrescriptions) {
+        const { repeats = 0 } = originalPrescription;
+        const lastOrderedAt = lastOrderedAts[originalPrescription.id]?.last_ordered_at;
+
+        // We only start decrementing repeats after the first send.
+        if (lastOrderedAt && repeats > 0) {
+          await originalPrescription.update({ repeats: repeats - 1 }, { transaction });
+        }
+      }
+
       await PharmacyOrderPrescription.bulkCreate(
         newPrescriptions.map((prescription, index) => {
           const originalPrescription = ongoingPrescriptions[index];
@@ -569,6 +602,7 @@ medication.post(
           return {
             pharmacyOrderId: pharmacyOrder.id,
             prescriptionId: prescription.id,
+            ongoingPrescriptionId: originalPrescription.id,
             quantity: requestData.quantity,
             repeats: requestData.repeats ?? originalPrescription.repeats ?? 0,
           };
@@ -2256,7 +2290,7 @@ medication.get(
           include: [
             {
               association: 'medication',
-              attributes: ['id', 'name'],
+              attributes: ['id', 'name', 'type'],
               include: [
                 {
                   model: models.ReferenceDrug,
@@ -2454,16 +2488,13 @@ medication.post(
         );
       }
 
-      const ineligibleRecords = prescriptionRecords.filter(record => {
-        const remainingRepeats = record.getRemainingRepeats();
-        const hasDispenses = record.medicationDispenses?.length > 0;
-        const isDischargePrescription = record.pharmacyOrder?.isDischargePrescription;
-        return remainingRepeats === 0 && hasDispenses && !!isDischargePrescription;
-      });
-
-      if (ineligibleRecords.length > 0) {
+      // Each pharmacy order prescription may only be dispensed once
+      const alreadyDispensed = prescriptionRecords.filter(
+        record => (record.medicationDispenses?.length ?? 0) > 0,
+      );
+      if (alreadyDispensed.length > 0) {
         throw new InvalidOperationError(
-          `The following prescriptions have no remaining repeats and cannot be dispensed: ${ineligibleRecords.map(r => r.id).join(', ')}`,
+          `The following have already been dispensed and cannot be dispensed again: ${alreadyDispensed.map(r => r.id).join(', ')}`,
         );
       }
 
@@ -2479,15 +2510,9 @@ medication.post(
         { transaction },
       );
 
-      // After dispensing, soft delete all ineligible pharmacy order prescriptions
-      const allCompletedRecords = prescriptionRecords.filter(record => {
-        const remainingRepeats = record.getRemainingRepeats(1);
-        const isDischargePrescription = record.pharmacyOrder?.isDischargePrescription;
-        return remainingRepeats === 0 && !!isDischargePrescription;
-      });
-
-      if (allCompletedRecords.length > 0) {
-        const completedIds = allCompletedRecords.map(r => r.id);
+      // After dispensing, mark all dispensed prescriptions as completed so they disappear from the medication requests list.
+      if (prescriptionRecords.length > 0) {
+        const completedIds = prescriptionRecords.map(r => r.id);
         await PharmacyOrderPrescription.update(
           { isCompleted: true },
           { where: { id: { [Op.in]: completedIds } }, transaction },
