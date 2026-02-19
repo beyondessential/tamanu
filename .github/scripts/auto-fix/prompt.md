@@ -14,7 +14,7 @@ For each CI failure, read the log output to understand the error, then fix the r
 
 Common failures include:
 - **Lint errors**: Run the linter, fix the code, run it again to confirm
-- **Test failures**: Fix the code so the test passes (don't modify the test unless the test itself is wrong)
+- **Test failures**: Fix the code so the test passes (don't modify the test unless the test itself is wrong). If the failure looks flakey (timeouts, race conditions, intermittent assertion failures), skip it — report it as flakey and recommend the developer re-run tests
 - **Migration issues**: Fix the migration code
 - **Build errors**: Fix type errors or import issues
 
