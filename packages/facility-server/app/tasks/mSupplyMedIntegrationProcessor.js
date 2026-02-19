@@ -60,7 +60,10 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
   }
 
   async createLog(values) {
-    await this.models.MSupplyPushLog.create(values);
+    const { items, ...rest } = values;
+    // Ensure items is an array if it exists
+    const payload = { ...rest, ...(Array.isArray(items) && { items }) };
+    await this.models.MSupplyPushLog.create(payload);
   }
 
   async getSettings(facilityId) {
@@ -126,7 +129,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
       );
 
       const { data } = await response.json();
-      const { success, message } = data?.pluginGraphqlQuery ?? {};
+      const { success, message, items } = data?.pluginGraphqlQuery ?? {};
 
       if (success) {
         await this.createLog({
@@ -136,9 +139,13 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
           maxMedicationId,
           status: 'success',
           message,
+          items,
         });
       } else {
-        throw new Error(message);
+        const err = new Error(message);
+        // Add items to the error for debugging
+        err.items = items;
+        throw err;
       }
     } catch (error) {
       await this.createLog({
@@ -148,6 +155,7 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
         maxMedicationId,
         status: 'failed',
         message: error.message,
+        items: error.items,
       });
       throw error;
     }

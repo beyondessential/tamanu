@@ -9,6 +9,7 @@ export class MSupplyPushLog extends Model {
   declare id: string;
   declare status: string;
   declare message?: string;
+  declare items?: unknown[];
   declare minMedicationCreatedAt: Date;
   declare maxMedicationCreatedAt: Date;
   declare minMedicationId: string;
@@ -24,6 +25,10 @@ export class MSupplyPushLog extends Model {
         },
         message: {
           type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        items: {
+          type: DataTypes.JSONB,
           allowNull: true,
         },
         minMedicationCreatedAt: {

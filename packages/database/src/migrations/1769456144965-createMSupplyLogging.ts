@@ -30,6 +30,10 @@ export async function up(query: QueryInterface) {
       type: DataTypes.TEXT,
       allowNull: true,
     },
+    items: {
+      type: DataTypes.JSONB,
+      allowNull: true,
+    },
     min_medication_created_at: {
       type: DataTypes.DATE,
       allowNull: false,
