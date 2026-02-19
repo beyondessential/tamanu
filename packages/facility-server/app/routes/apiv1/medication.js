@@ -583,7 +583,18 @@ medication.post(
         { transaction },
       );
 
-      // Create pharmacy order prescriptions
+      // Decrement repeats on the ongoing prescriptions (repeats = remaining "send to pharmacy" count)
+      // Only decrement if the prescription has been ordered before (has a lastOrderedAt)
+      for (const originalPrescription of ongoingPrescriptions) {
+        const { repeats = 0 } = originalPrescription;
+        const lastOrderedAt = lastOrderedAts[originalPrescription.id]?.last_ordered_at;
+
+        // We only start decrementing repeats after the first send.
+        if (lastOrderedAt && repeats > 0) {
+          await originalPrescription.update({ repeats: repeats - 1 }, { transaction });
+        }
+      }
+
       await PharmacyOrderPrescription.bulkCreate(
         newPrescriptions.map((prescription, index) => {
           const originalPrescription = ongoingPrescriptions[index];
@@ -598,18 +609,6 @@ medication.post(
         }),
         { transaction },
       );
-
-      // Decrement repeats on the ongoing prescriptions (repeats = remaining "send to pharmacy" count)
-      // Only decrement if the prescription has been ordered before (has a lastOrderedAt)
-      for (const originalPrescription of ongoingPrescriptions) {
-        const { repeats = 0 } = originalPrescription;
-        const lastOrderedAt = lastOrderedAts[originalPrescription.id]?.last_ordered_at;
-
-        // We only start decrementing repeats after the first send.
-        if (lastOrderedAt && repeats > 0) {
-          await originalPrescription.update({ repeats: repeats - 1 }, { transaction });
-        }
-      }
 
       return {
         encounter,

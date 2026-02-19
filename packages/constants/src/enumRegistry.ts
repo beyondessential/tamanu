@@ -28,7 +28,7 @@ import {
 import {
   REPORT_DATA_SOURCE_LABELS,
   REPORT_DEFAULT_DATE_RANGES_LABELS,
-  REPORT_DB_SCHEMA_LABELS,
+  REPORT_DB_CONNECTION_LABELS,
   REPORT_STATUS_LABELS,
 } from './reports';
 import { TEMPLATE_TYPE_LABELS } from './templates';
@@ -45,7 +45,7 @@ import {
   DRUG_STOCK_STATUS_LABELS,
   PHARMACY_PRESCRIPTION_TYPE_LABELS,
 } from './medications.js';
-import { PLACE_OF_DEATHS, MANNER_OF_DEATHS } from './deaths';
+import { PLACE_OF_DEATHS, MANNER_OF_DEATHS, PREGNANCY_MOMENTS } from './deaths';
 import { LOCATION_AVAILABILITY_STATUS_LABELS } from './locations';
 import { TASK_FREQUENCY_UNIT_LABELS, TASK_DURATION_UNIT_LABELS } from './tasks';
 import { IMAGING_TYPES } from './imaging';
@@ -95,6 +95,7 @@ export const registeredEnums = {
   PATIENT_ISSUE_LABELS,
   PLACE_OF_BIRTH_LABELS,
   PLACE_OF_DEATHS,
+  PREGNANCY_MOMENTS,
   PROGRAM_REGISTRATION_STATUS_LABELS,
   DEPRECATED_PRCC_LABELS,
   REFERRAL_STATUS_LABELS,
@@ -103,7 +104,7 @@ export const registeredEnums = {
   REPEAT_FREQUENCY_UNIT_LABELS,
   REPEAT_FREQUENCY_UNIT_PLURAL_LABELS,
   REPORT_DATA_SOURCE_LABELS,
-  REPORT_DB_SCHEMA_LABELS,
+  REPORT_DB_CONNECTION_LABELS,
   REPORT_DEFAULT_DATE_RANGES_LABELS,
   REPORT_STATUS_LABELS,
   SEX_LABELS,
@@ -154,6 +155,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   PATIENT_ISSUE_LABELS: 'patient.property.issue',
   PLACE_OF_BIRTH_LABELS: 'birth.property.placeOfBirth',
   PLACE_OF_DEATHS: 'death.property.placeOfDeath',
+  PREGNANCY_MOMENTS: 'death.property.pregnancyMoment',
   PROGRAM_REGISTRATION_STATUS_LABELS: 'programRegistry.property.registrationStatus',
   DEPRECATED_PRCC_LABELS: 'programRegistry.property.conditionCategory',
   REFERRAL_STATUS_LABELS: 'referral.property.status',
@@ -162,7 +164,7 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   REPEAT_FREQUENCY_UNIT_LABELS: 'scheduling.property.repeatFrequencyUnit',
   REPEAT_FREQUENCY_UNIT_PLURAL_LABELS: 'scheduling.property.repeatFrequencyUnitPlural',
   REPORT_DATA_SOURCE_LABELS: 'report.property.dataSource',
-  REPORT_DB_SCHEMA_LABELS: 'report.property.schema',
+  REPORT_DB_CONNECTION_LABELS: 'report.property.schema',
   REPORT_DEFAULT_DATE_RANGES_LABELS: 'report.property.defaultDateRange',
   REPORT_STATUS_LABELS: 'report.property.status',
   SEX_LABELS: 'patient.property.sex',

@@ -386,7 +386,7 @@ const COLUMNS = {
     {
       key: 'status',
       title: 'Status',
-      accessor: () => 'Paid',
+      accessor: ({ refundPayment }) => refundPayment ? 'Refunded' : 'Paid',
       style: { width: '21%' },
     },
   ],

@@ -76,6 +76,25 @@ const getTranslationAttributes = (endpoint, modelName, searchColumn = 'name') =>
   include: [[translationCoalesceLiteral(endpoint, modelName, searchColumn), searchColumn]],
 });
 
+const invoiceInsurancePlanIncludeBuilder = req => {
+  const { patientId } = req.query;
+
+  if (!patientId) {
+    return [];
+  }
+
+  return [
+    {
+      model: req.models.PatientInvoiceInsurancePlan,
+      as: 'patientInvoiceInsurancePlans',
+      required: true,
+      where: {
+        patientId,
+      },
+    },
+  ];
+};
+
 export const suggestions = express.Router();
 
 function createSuggesterRoute(
@@ -192,7 +211,7 @@ function createAllRecordsRoute(
   endpoint,
   modelName,
   whereBuilder,
-  { mapper, searchColumn, extraReplacementsBuilder },
+  { mapper, searchColumn, extraReplacementsBuilder, allRecordsIncludeBuilder },
 ) {
   suggestions.get(
     `/${endpoint}/all$`,
@@ -204,7 +223,10 @@ function createAllRecordsRoute(
       const model = models[modelName];
       const where = whereBuilder({ search: '%', query, req, endpoint, modelName, searchColumn });
 
+      const include = allRecordsIncludeBuilder?.(req);
+
       const results = await model.findAll({
+        include,
         where,
         order: [[translationCoalesceLiteral(endpoint, modelName, searchColumn), 'ASC']],
         attributes: getTranslationAttributes(endpoint, modelName, searchColumn),
@@ -688,8 +710,14 @@ createSuggester(
   },
 );
 
-createSuggester('invoiceInsurancePlan', 'InvoiceInsurancePlan', ({ endpoint, modelName }) =>
-  DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
+createSuggester(
+  'invoiceInsurancePlan',
+  'InvoiceInsurancePlan',
+  ({ endpoint, modelName }) => DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
+  {
+    allRecordsIncludeBuilder: invoiceInsurancePlanIncludeBuilder,
+    includeBuilder: invoiceInsurancePlanIncludeBuilder,
+  },
 );
 
 createNameSuggester('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);

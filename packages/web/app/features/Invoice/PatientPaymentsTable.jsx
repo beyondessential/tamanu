@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import Decimal from 'decimal.js';
+
 import { INVOICE_STATUSES } from '@tamanu/constants';
-import { getInvoiceSummary, round } from '@tamanu/utils/invoice';
+import { getInvoiceSummary, round } from '@tamanu/shared/utils/invoice';
+import { Button } from '@tamanu/ui-components';
+
 import { TranslatedText } from '../../components/Translation';
 import { Table } from '../../components/Table';
 import { Colors, denseTableStyle } from '../../constants';
@@ -11,9 +14,9 @@ import { DateDisplay } from '../../components/DateDisplay';
 import { useAuth } from '../../contexts/Auth';
 import { PatientPaymentModal } from './PatientPaymentModal.jsx';
 import { NoteModalActionBlocker } from '../../components/index.js';
-import { Button } from '@tamanu/ui-components';
 import { ThreeDotMenu } from '../../components/ThreeDotMenu.jsx';
 import { Price } from './Price';
+import { PatientPaymentRefundModal } from './PatientPaymentRefundModal.jsx';
 
 const TableContainer = styled.div`
   padding-left: 16px;
@@ -72,7 +75,16 @@ const Title = styled.div`
   }
 `;
 
+const Value = styled.span`
+  ${props =>
+    props.$strikethrough &&
+    css`
+      text-decoration-line: line-through;
+    `}
+`;
+
 export const PatientPaymentsTable = ({ invoice }) => {
+  const [patientPaymentRefundModalIsOpen, setPatientPaymentRefundModalIsOpen] = useState(false);
   const [paymentModalIsOpen, setPaymentModalIsOpen] = useState(false);
   const [selectedPaymentRecord, setSelectedPaymentRecord] = useState(null);
 
@@ -92,6 +104,16 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const onEditPaymentRecord = row => {
     setSelectedPaymentRecord(row);
     setPaymentModalIsOpen(true);
+  };
+
+  const onRefundPaymentRecord = row => {
+    setSelectedPaymentRecord(row);
+    setPatientPaymentRefundModalIsOpen(true);
+  };
+
+  const onClosePatientPaymentRefundModal = () => {
+    setSelectedPaymentRecord(null);
+    setPatientPaymentRefundModalIsOpen(false);
   };
 
   const onRecordPayment = () => {
@@ -115,7 +137,11 @@ export const PatientPaymentsTable = ({ invoice }) => {
         />
       ),
       sortable: false,
-      accessor: ({ date }) => <DateDisplay date={date} shortYear data-testid="datedisplay-21cc" />,
+      accessor: ({ date, refundPayment }) => (
+        <Value $strikethrough={Boolean(refundPayment)}>
+          <DateDisplay date={date} shortYear data-testid="datedisplay-21cc" />
+        </Value>
+      ),
     },
     {
       key: 'methodName',
@@ -127,7 +153,9 @@ export const PatientPaymentsTable = ({ invoice }) => {
         />
       ),
       sortable: false,
-      accessor: ({ patientPayment }) => patientPayment?.method?.name,
+      accessor: ({ patientPayment, refundPayment }) => (
+        <Value $strikethrough={Boolean(refundPayment)}>{patientPayment?.method?.name}</Value>
+      ),
     },
     {
       key: 'amount',
@@ -139,7 +167,11 @@ export const PatientPaymentsTable = ({ invoice }) => {
         />
       ),
       sortable: false,
-      accessor: ({ amount }) => <Price price={amount} />,
+      accessor: ({ amount, refundPayment }) => (
+        <Value $strikethrough={Boolean(refundPayment)}>
+          <Price price={amount} />
+        </Value>
+      ),
     },
     {
       key: 'receiptNumber',
@@ -151,18 +183,26 @@ export const PatientPaymentsTable = ({ invoice }) => {
         />
       ),
       sortable: false,
+      accessor: ({ receiptNumber, refundPayment }) => (
+        <Value $strikethrough={Boolean(refundPayment)}>{receiptNumber}</Value>
+      ),
     },
     {
       key: 'status',
       title: <TranslatedText stringId="invoice.table.payment.column.status" fallback="Status" />,
-      accessor: () => <TranslatedText stringId="invoice.paymentStatus.paid" fallback="Paid" />,
+      accessor: ({ refundPayment }) =>
+        refundPayment ? (
+          <TranslatedText stringId="invoice.paymentStatus.refunded" fallback="Refunded" />
+        ) : (
+          <TranslatedText stringId="invoice.paymentStatus.paid" fallback="Paid" />
+        ),
       sortable: false,
     },
     {
       key: '',
       sortable: false,
       accessor: row =>
-        canEditPayment && (
+        !canEditPayment || Boolean(row.refundPayment) ? null : (
           <>
             <NoteModalActionBlocker>
               <ThreeDotMenu
@@ -170,6 +210,10 @@ export const PatientPaymentsTable = ({ invoice }) => {
                   {
                     label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,
                     onClick: () => onEditPaymentRecord(row),
+                  },
+                  {
+                    label: <TranslatedText stringId="general.action.refund" fallback="Refund" />,
+                    onClick: () => onRefundPaymentRecord(row),
                   },
                 ]}
                 data-testid="invoice-payment-menu-c4w2"
@@ -225,6 +269,13 @@ export const PatientPaymentsTable = ({ invoice }) => {
         selectedPaymentRecord={selectedPaymentRecord}
         isOpen={paymentModalIsOpen}
         onClose={onClosePaymentModal}
+      />
+      <PatientPaymentRefundModal
+        invoice={invoice}
+        key={patientPaymentRefundModalIsOpen ? 'open' : 'closed'}
+        selectedPaymentRecord={selectedPaymentRecord}
+        isOpen={patientPaymentRefundModalIsOpen}
+        onClose={onClosePatientPaymentRefundModal}
       />
     </>
   );
