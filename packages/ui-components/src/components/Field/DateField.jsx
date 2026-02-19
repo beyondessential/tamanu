@@ -168,7 +168,7 @@ const ActionBarContainer = styled.div`
 
 const TimezoneActionBar = ({
   onClear,
-  onSetTodayAndClose,
+  onSetToday,
   todayLabel = 'Today',
   actions = [],
   className,
@@ -182,7 +182,7 @@ const TimezoneActionBar = ({
         </Button>
       )}
       {actions.includes('today') && (
-        <Button onClick={onSetTodayAndClose} size="small">
+        <Button onClick={onSetToday} size="small">
           {todayLabel}
         </Button>
       )}
@@ -270,14 +270,9 @@ export const DateInput = ({
   const [open, setOpen] = useState(false);
 
   const handleSetToday = useCallback(() => {
-    if (type === 'time' || type === 'datetime-local') {
-      const now = effectiveTimezone ? getFacilityNowDate(effectiveTimezone) : new Date();
-      handleChange(now);
-    } else {
-      handleChange(todayDate);
-      setOpen(false);
-    }
-  }, [handleChange, todayDate, type, effectiveTimezone]);
+    const now = effectiveTimezone ? getFacilityNowDate(effectiveTimezone) : new Date();
+    handleChange(now);
+  }, [handleChange, effectiveTimezone]);
 
   const handleClear = useCallback(() => {
     onChange({ target: { value: '', name } });
@@ -340,7 +335,7 @@ export const DateInput = ({
     slotProps: {
       actionBar: {
         actions: ['today', 'clear'],
-        onSetTodayAndClose: handleSetToday,
+        onSetToday: handleSetToday,
         onClear: handleClear,
         todayLabel:
           type === 'time'
