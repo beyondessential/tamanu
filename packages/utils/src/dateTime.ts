@@ -31,10 +31,6 @@ import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
 
 export type DateInput = string | Date | null | undefined;
 
-// ---------------------------------------------------------------------------
-// Format constants & matchers
-// ---------------------------------------------------------------------------
-
 export const ISO9075_DATE_FORMAT = 'yyyy-MM-dd';
 export const ISO9075_DATETIME_FORMAT = 'yyyy-MM-dd HH:mm:ss';
 
@@ -42,10 +38,6 @@ export const isISOString = (dateString: string) =>
   isMatch(dateString, ISO9075_DATETIME_FORMAT) || isMatch(dateString, ISO9075_DATE_FORMAT);
 
 export const isISO9075DateString = (dateString: string) => isMatch(dateString, ISO9075_DATE_FORMAT);
-
-// ---------------------------------------------------------------------------
-// Parsing & conversion
-// ---------------------------------------------------------------------------
 
 /** Extracts the date portion (YYYY-MM-DD) from a datetime string, returning null/undefined as-is. */
 export const trimToDate = (date: string | null | undefined): string | null | undefined =>
@@ -93,10 +85,6 @@ export const toWeekdayCode = (date: DateInput) => {
   return parsed ? dateFnsFormat(parsed, 'iiiiii').toUpperCase() : null;
 };
 
-// ---------------------------------------------------------------------------
-// "Now" helpers (server-side only — not timezone-aware)
-// ---------------------------------------------------------------------------
-
 /**
  * Get ISO 9075 date string for current date.
  * Note: Not timezone-aware — use getCurrentDate from DateTimeContext on the client.
@@ -119,10 +107,6 @@ export const convertISO9075toRFC3339 = (dateString: string | null | undefined) =
   const parsedDate = dateString == null ? new Date() : parseISO(dateString);
   return dateFnsFormat(parsedDate, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 };
-
-// ---------------------------------------------------------------------------
-// Age helpers
-// ---------------------------------------------------------------------------
 
 const ageIn = (diffFn: (a: Date, b: Date) => number) => (dob: string) =>
   diffFn(new Date(), parseISO(dob));
@@ -208,12 +192,6 @@ export const doAgeRangesOverlap = (rangesArray: AgeRange[]) =>
     }),
   );
 
-// ---------------------------------------------------------------------------
-// date-fns wrappers
-// Wrappers that accept date_string / date_time_string types.
-// For date-fns docs @see https://date-fns.org
-// ---------------------------------------------------------------------------
-
 export const format = (date: DateInput, formatStr: string) => {
   const parsed = parseDate(date);
   return parsed ? dateFnsFormat(parsed, formatStr) : null;
@@ -253,10 +231,6 @@ export const eachDayInMonth = (date: Date) =>
     end: endOfMonth(date),
   });
 
-// ---------------------------------------------------------------------------
-// Zod validators
-// ---------------------------------------------------------------------------
-
 const iso9075Validator = (regex: RegExp, message: string) =>
   z.string().refine((val: string) => regex.test(val) && isValid(parseISO(val.replace(' ', 'T'))), { message });
 
@@ -274,10 +248,6 @@ export const datetimeCustomValidation = iso9075Validator(
   /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/,
   'Invalid datetime format, expected YYYY-MM-DD HH:MM:SS',
 ).describe('__datetimeCustomValidation__');
-
-// ---------------------------------------------------------------------------
-// Temporal / timezone helpers
-// ---------------------------------------------------------------------------
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
