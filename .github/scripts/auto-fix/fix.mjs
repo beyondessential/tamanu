@@ -1,16 +1,18 @@
 /**
  * Review Hero Auto-Fix
  *
- * Fetches unresolved review comments from a PR, pipes them to Claude CLI
- * to apply fixes, then commits and pushes the result.
+ * Fetches unresolved review comments and/or CI failures from a PR,
+ * pipes them to Claude CLI to apply fixes, then commits and pushes the result.
  *
  * Environment variables:
- *   GITHUB_TOKEN        — GitHub token (with contents:write and pull-requests:write)
+ *   GITHUB_TOKEN        — GitHub token (with contents:write, pull-requests:write, actions:read)
  *   GITHUB_REPOSITORY   — owner/repo
  *   PR_NUMBER           — Pull request number
  *   ANTHROPIC_API_KEY   — API key for Claude CLI
  *   REVIEW_HERO_APP_ID  — App ID for git commit identity
  *   AI_FIX_MODEL        — Model to use (default: claude-sonnet-4-5-20250929)
+ *   FIX_REVIEWS         — 'true' to fix unresolved review comments
+ *   FIX_CI              — 'true' to fix CI failures
  */
 
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -27,6 +29,8 @@ const repo = getEnvOrThrow('GITHUB_REPOSITORY');
 const prNumber = getEnvOrThrow('PR_NUMBER');
 const appId = process.env.REVIEW_HERO_APP_ID ?? '';
 const model = process.env.AI_FIX_MODEL ?? 'claude-sonnet-4-5-20250929';
+const fixReviews = process.env.FIX_REVIEWS === 'true';
+const fixCI = process.env.FIX_CI === 'true';
 
 async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -126,9 +130,6 @@ async function fetchUnresolvedComments() {
   );
 
   const threads = data?.repository?.pullRequest?.reviewThreads?.nodes ?? [];
-  if (threads.length === 0) {
-    throw new Error('No review threads found — PR or repository may not exist');
-  }
   const comments = [];
 
   for (const thread of threads) {
@@ -154,14 +155,102 @@ async function fetchUnresolvedComments() {
   return comments;
 }
 
-function buildPrompt(comments) {
+const LOG_LINES_PER_JOB = 500;
+const MAX_CI_LOG_CHARS = 50_000;
+const SELF_WORKFLOW = 'Review Hero Auto-Fix';
+
+function stripAnsiAndTimestamps(log) {
+  return log
+    .replace(/\x1b\[[0-9;]*m/g, '') // ANSI codes
+    .replace(/^\d{4}-\d{2}-\d{2}T[\d:.]+Z /gm, ''); // timestamp prefixes
+}
+
+function truncateLog(log, maxLines) {
+  const lines = log.split('\n');
+  if (lines.length <= maxLines) return log;
+  return `... (${lines.length - maxLines} lines truncated)\n` + lines.slice(-maxLines).join('\n');
+}
+
+async function fetchJobLog(jobId) {
+  const response = await fetch(`https://api.github.com/repos/${repo}/actions/jobs/${jobId}/logs`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/vnd.github+json',
+    },
+    redirect: 'follow',
+  });
+
+  if (!response.ok) {
+    console.warn(`Failed to fetch log for job ${jobId}: ${response.status}`);
+    return null;
+  }
+
+  return response.text();
+}
+
+async function fetchCIFailures() {
+  const pr = await githubApi(`/pulls/${prNumber}`);
+  const headSha = pr.head.sha;
+
+  console.log(`Fetching CI failures for commit ${headSha.slice(0, 7)}`);
+
+  const runsData = await githubApi(`/actions/runs?head_sha=${headSha}&status=completed&per_page=100`);
+  const failedRuns = (runsData.workflow_runs ?? []).filter(
+    r => r.conclusion === 'failure' && r.name !== SELF_WORKFLOW,
+  );
+
+  if (failedRuns.length === 0) return [];
+
+  console.log(`Found ${failedRuns.length} failed workflow run${failedRuns.length === 1 ? '' : 's'}`);
+
+  const failures = [];
+  let totalChars = 0;
+
+  for (const run of failedRuns) {
+    const jobsData = await githubApi(`/actions/runs/${run.id}/jobs?filter=latest&per_page=100`);
+    const failedJobs = (jobsData.jobs ?? []).filter(j => j.conclusion === 'failure');
+
+    for (const job of failedJobs) {
+      if (totalChars >= MAX_CI_LOG_CHARS) break;
+
+      const rawLog = await fetchJobLog(job.id);
+      if (!rawLog) continue;
+
+      const cleaned = stripAnsiAndTimestamps(rawLog);
+      const truncated = truncateLog(cleaned, LOG_LINES_PER_JOB);
+      const capped = truncated.slice(-(MAX_CI_LOG_CHARS - totalChars));
+      totalChars += capped.length;
+
+      failures.push({
+        workflow: run.name,
+        job: job.name,
+        log: capped,
+      });
+    }
+  }
+
+  return failures;
+}
+
+function buildPrompt(comments, ciFailures) {
   const promptMd = readFileSync('.github/scripts/auto-fix/prompt.md', 'utf-8');
+  const sections = [promptMd];
 
-  const commentsList = comments
-    .map((c, i) => `### Comment ${i + 1}: \`${c.file}${c.line ? `:${c.line}` : ''}\`\n\n${c.comment}`)
-    .join('\n\n---\n\n');
+  if (comments.length > 0) {
+    const commentsList = comments
+      .map((c, i) => `### Comment ${i + 1}: \`${c.file}${c.line ? `:${c.line}` : ''}\`\n\n${c.comment}`)
+      .join('\n\n---\n\n');
+    sections.push(`## Review Comments to Fix (${comments.length})\n\n${commentsList}`);
+  }
 
-  return `${promptMd}\n\n## Review Comments to Fix (${comments.length})\n\n${commentsList}`;
+  if (ciFailures.length > 0) {
+    const failuresList = ciFailures
+      .map((f, i) => `### Failure ${i + 1}: ${f.workflow} / ${f.job}\n\n\`\`\`\n${f.log}\n\`\`\``)
+      .join('\n\n---\n\n');
+    sections.push(`## CI Failures to Fix (${ciFailures.length})\n\n${failuresList}`);
+  }
+
+  return sections.join('\n\n');
 }
 
 function runClaude(prompt) {
@@ -230,7 +319,7 @@ function hasChanges() {
   return Boolean(status);
 }
 
-function createCommit(commentCount) {
+function createCommit(commitMessage) {
   // Validate appId to prevent command injection
   if (appId && !/^\d+$/.test(appId)) {
     throw new Error('Invalid app ID');
@@ -246,7 +335,7 @@ function createCommit(commentCount) {
 
   execSync('git add -A');
   execSync(
-    `git commit -m "fix: no-issue: auto-fix ${commentCount} review suggestion${commentCount === 1 ? '' : 's'}\n\nCo-Authored-By: Review Hero <contact@bes.au>"`,
+    `git commit -m "${commitMessage}\n\nCo-Authored-By: Review Hero <contact@bes.au>"`,
   );
 }
 
@@ -255,13 +344,13 @@ function pushChanges() {
   console.log('Pushed auto-fix commit');
 }
 
-function commitAndPush(commentCount) {
+function commitAndPush(commitMessage) {
   if (!hasChanges()) {
-    console.log('No file changes after auto-fix — Claude may have skipped all comments');
+    console.log('No file changes after auto-fix');
     return false;
   }
 
-  createCommit(commentCount);
+  createCommit(commitMessage);
   pushChanges();
   return true;
 }
@@ -288,15 +377,24 @@ async function postComment(body) {
   });
 }
 
-async function uncheckAutoFix() {
+async function uncheckCheckboxes() {
   try {
     const pr = await githubApi(`/pulls/${prNumber}`);
     if (!pr.body) return;
 
-    const updated = pr.body.replace(
-      /\[x\]\s+\*\*Auto-fix review suggestions\*\* <!-- #auto-fix -->/,
-      '[ ] **Auto-fix review suggestions** <!-- #auto-fix -->',
-    );
+    let updated = pr.body;
+    if (fixReviews) {
+      updated = updated.replace(
+        /\[x\]\s+\*\*Auto-fix review suggestions\*\* <!-- #auto-fix -->/,
+        '[ ] **Auto-fix review suggestions** <!-- #auto-fix -->',
+      );
+    }
+    if (fixCI) {
+      updated = updated.replace(
+        /\[x\]\s+\*\*Auto-fix CI failures\*\* <!-- #auto-fix-ci -->/,
+        '[ ] **Auto-fix CI failures** <!-- #auto-fix-ci -->',
+      );
+    }
 
     if (updated === pr.body) return;
 
@@ -304,45 +402,52 @@ async function uncheckAutoFix() {
       method: 'PATCH',
       body: JSON.stringify({ body: updated }),
     });
-    console.log('Unchecked auto-fix checkbox');
+    console.log('Unchecked auto-fix checkbox(es)');
   } catch (err) {
     console.warn(`Failed to uncheck checkbox: ${err.message}`);
   }
 }
 
 async function main() {
-  console.log(`Auto-fixing review comments for PR #${prNumber}`);
+  console.log(`Auto-fixing PR #${prNumber} (reviews: ${fixReviews}, ci: ${fixCI})`);
 
-  const comments = await fetchUnresolvedComments();
-  console.log(`Found ${comments.length} unresolved review comment${comments.length === 1 ? '' : 's'}`);
+  const comments = fixReviews ? await fetchUnresolvedComments() : [];
+  const ciFailures = fixCI ? await fetchCIFailures() : [];
 
-  if (comments.length === 0) {
-    await postComment('🦸 **Review Hero Auto-Fix** — No unresolved review comments to fix.');
-    await uncheckAutoFix();
+  if (fixReviews) {
+    console.log(`Found ${comments.length} unresolved review comment${comments.length === 1 ? '' : 's'}`);
+  }
+  if (fixCI) {
+    console.log(`Found ${ciFailures.length} CI failure${ciFailures.length === 1 ? '' : 's'}`);
+  }
+
+  if (comments.length === 0 && ciFailures.length === 0) {
+    await postComment('🦸 **Review Hero Auto-Fix** — Nothing to fix.');
+    await uncheckCheckboxes();
     return;
   }
 
-  const prompt = buildPrompt(comments);
+  const prompt = buildPrompt(comments, ciFailures);
   console.log('Running Claude to apply fixes...');
   const raw = runClaude(prompt);
 
   const results = parseClaudeResult(raw);
-  const fixed = results.filter(r => r.status === 'fixed');
   const skipped = results.filter(r => r.status === 'skipped');
 
-  const pushed = commitAndPush(fixed.length || comments.length);
+  // Build commit message
+  const parts = [];
+  if (comments.length > 0) parts.push(`${comments.length} review suggestion${comments.length === 1 ? '' : 's'}`);
+  if (ciFailures.length > 0) parts.push(`${ciFailures.length} CI failure${ciFailures.length === 1 ? '' : 's'}`);
+  const commitMessage = `fix: no-issue: auto-fix ${parts.join(' and ')}`;
 
-  // Resolve only threads that were actually fixed
-  if (pushed && fixed.length > 0) {
+  const pushed = commitAndPush(commitMessage);
+
+  // Resolve all review threads we attempted to fix
+  if (pushed && comments.length > 0) {
     let resolved = 0;
-    for (const result of fixed) {
-      const matchingComment = comments.find(
-        c => c.file === result.file && c.line === result.line
-      );
-      if (matchingComment) {
-        await resolveThread(matchingComment.threadId);
-        resolved++;
-      }
+    for (const comment of comments) {
+      await resolveThread(comment.threadId);
+      resolved++;
     }
     console.log(`Resolved ${resolved} review thread${resolved === 1 ? '' : 's'}`);
   }
@@ -350,7 +455,10 @@ async function main() {
   const summaryParts = ['🦸 **Review Hero Auto-Fix**\n'];
 
   if (pushed) {
-    summaryParts.push(`Applied fixes for ${comments.length} review comment${comments.length === 1 ? '' : 's'}.`);
+    const fixedParts = [];
+    if (comments.length > 0) fixedParts.push(`${comments.length} review comment${comments.length === 1 ? '' : 's'}`);
+    if (ciFailures.length > 0) fixedParts.push(`${ciFailures.length} CI failure${ciFailures.length === 1 ? '' : 's'}`);
+    summaryParts.push(`Applied fixes for ${fixedParts.join(' and ')}.`);
   } else {
     summaryParts.push('No file changes were needed.');
   }
@@ -363,7 +471,7 @@ async function main() {
   }
 
   await postComment(summaryParts.join(''));
-  await uncheckAutoFix();
+  await uncheckCheckboxes();
   console.log('Done');
 }
 
@@ -373,7 +481,7 @@ main().catch(async err => {
     await postComment(
       `🦸 **Review Hero Auto-Fix** failed — check the [workflow logs](https://github.com/${repo}/actions) for details.`,
     );
-    await uncheckAutoFix();
+    await uncheckCheckboxes();
   } catch {
     // best effort
   }

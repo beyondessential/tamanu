@@ -1,10 +1,24 @@
 # Auto-Fix Agent
 
-You are fixing review comments on a PR for **Tamanu**, a healthcare management system.
+You are fixing review comments and/or CI failures on a PR for **Tamanu**, a healthcare management system.
 
 ## Task
 
-For each review comment below, read the referenced file, understand what the reviewer is asking for, and apply the fix using the Edit tool. If a comment is unclear or you're unsure how to fix it, skip it — don't guess.
+### Review Comments
+
+For each review comment, read the referenced file, understand what the reviewer is asking for, and apply the fix using the Edit tool. If a comment is unclear or you're unsure how to fix it, skip it — don't guess.
+
+### CI Failures
+
+For each CI failure, read the log output to understand the error, then fix the root cause in the source code. Common failures include:
+- **Lint errors**: Fix the code to satisfy the linter (don't disable rules)
+- **Test failures**: Fix the code so the test passes (don't modify the test unless the test itself is wrong)
+- **Migration issues**: Fix the migration code
+- **Build errors**: Fix type errors or import issues
+
+Don't just suppress errors — fix the underlying problem.
+
+## Output
 
 After applying all fixes, output a JSON array summarising what you did:
 
@@ -17,8 +31,8 @@ After applying all fixes, output a JSON array summarising what you did:
 
 ## Rules
 
-- Make minimal, targeted changes — only fix what the comment asks for
+- Make minimal, targeted changes — only fix what's needed
 - Don't refactor surrounding code or add unrelated improvements
-- If multiple comments affect the same file, apply all fixes to that file
+- If multiple issues affect the same file, apply all fixes to that file
 - Use Australian/NZ English spelling
 - Read `llm/project-rules/coding-rules.md` for project conventions

@@ -5,6 +5,7 @@ on:
     types: [opened, synchronize, reopened, edited]
 
 permissions:
+  actions: read
   contents: write
   pull-requests: write
 
@@ -15,23 +16,27 @@ jobs:
   check-trigger:
     runs-on: ubuntu-slim
     outputs:
-      should_run: ${{ steps.check.outputs.should_run }}
+      fix_reviews: ${{ steps.check.outputs.fix_reviews }}
+      fix_ci: ${{ steps.check.outputs.fix_ci }}
     steps:
       - id: check
         uses: actions/github-script@v7
         with:
           script: |
             if (context.payload.action !== 'edited') {
-              core.setOutput('should_run', 'false');
+              core.setOutput('fix_reviews', 'false');
+              core.setOutput('fix_ci', 'false');
               return;
             }
-            const body = context.payload.pull_request?.body;
-            const match = body?.match(/\[(?<checked>[ x])\]\s+\*\*Auto-fix review suggestions\*\* <!-- #auto-fix -->/);
-            core.setOutput('should_run', match?.groups.checked === 'x');
+            const body = context.payload.pull_request?.body ?? '';
+            const reviewMatch = body.match(/\[(?<checked>[ x])\]\s+\*\*Auto-fix review suggestions\*\* <!-- #auto-fix -->/);
+            const ciMatch = body.match(/\[(?<checked>[ x])\]\s+\*\*Auto-fix CI failures\*\* <!-- #auto-fix-ci -->/);
+            core.setOutput('fix_reviews', reviewMatch?.groups.checked === 'x' ? 'true' : 'false');
+            core.setOutput('fix_ci', ciMatch?.groups.checked === 'x' ? 'true' : 'false');
 
   auto-fix:
     needs: check-trigger
-    if: needs.check-trigger.outputs.should_run == 'true'
+    if: needs.check-trigger.outputs.fix_reviews == 'true' || needs.check-trigger.outputs.fix_ci == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Generate Review Hero token
@@ -57,4 +62,6 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REVIEW_HERO_APP_ID: ${{ secrets.REVIEW_HERO_APP_ID }}
           AI_FIX_MODEL: ${{ vars.AI_FIX_MODEL || 'claude-sonnet-4-5-20250929' }}
+          FIX_REVIEWS: ${{ needs.check-trigger.outputs.fix_reviews }}
+          FIX_CI: ${{ needs.check-trigger.outputs.fix_ci }}
         run: node .github/scripts/auto-fix/fix.mjs
