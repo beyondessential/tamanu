@@ -6,7 +6,7 @@ You are fixing review comments and/or CI failures on a PR for **Tamanu**, a heal
 
 ### Review Comments
 
-For each review comment, read the referenced file, understand what the reviewer is asking for, and apply the fix using the Edit tool. If a comment is unclear or you're unsure how to fix it, skip it — don't guess.
+Each review comment below has an **ID number** (e.g. `#1`, `#2`). For each one, read the referenced file, understand what the reviewer is asking for, and apply the fix using the Edit tool. If a comment is unclear or you're unsure how to fix it, skip it — don't guess.
 
 ### CI Failures
 
@@ -20,14 +20,16 @@ Don't just suppress errors — fix the underlying problem.
 
 ## Output
 
-After applying all fixes, output a JSON array summarising what you did:
+After applying all fixes, output a JSON array. **Use the same ID numbers from the input** to identify each item:
 
 ```json
 [
-  { "file": "path/to/file.ts", "line": 42, "status": "fixed", "summary": "Brief description of fix" },
-  { "file": "path/to/other.ts", "line": 10, "status": "skipped", "reason": "Comment unclear" }
+  { "id": 1, "status": "fixed", "summary": "Brief description of fix" },
+  { "id": 2, "status": "skipped", "reason": "Comment unclear" }
 ]
 ```
+
+You **must** include an entry for every review comment ID. Use status `"fixed"` or `"skipped"`.
 
 ## Rules
 

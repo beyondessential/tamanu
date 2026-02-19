@@ -238,14 +238,14 @@ function buildPrompt(comments, ciFailures) {
 
   if (comments.length > 0) {
     const commentsList = comments
-      .map((c, i) => `### Comment ${i + 1}: \`${c.file}${c.line ? `:${c.line}` : ''}\`\n\n${c.comment}`)
+      .map((c, i) => `### Comment #${i + 1}: \`${c.file}${c.line ? `:${c.line}` : ''}\`\n\n${c.comment}`)
       .join('\n\n---\n\n');
     sections.push(`## Review Comments to Fix (${comments.length})\n\n${commentsList}`);
   }
 
   if (ciFailures.length > 0) {
     const failuresList = ciFailures
-      .map((f, i) => `### Failure ${i + 1}: ${f.workflow} / ${f.job}\n\n\`\`\`\n${f.log}\n\`\`\``)
+      .map((f, i) => `### CI Failure #${comments.length + i + 1}: ${f.workflow} / ${f.job}\n\n\`\`\`\n${f.log}\n\`\`\``)
       .join('\n\n---\n\n');
     sections.push(`## CI Failures to Fix (${ciFailures.length})\n\n${failuresList}`);
   }
@@ -370,6 +370,21 @@ async function resolveThread(threadId) {
   }
 }
 
+async function replyToThread(threadId, body) {
+  try {
+    await githubGraphQL(
+      `mutation($threadId: ID!, $body: String!) {
+        addPullRequestReviewThreadReply(input: { pullRequestReviewThreadId: $threadId, body: $body }) {
+          comment { id }
+        }
+      }`,
+      { threadId, body },
+    );
+  } catch (err) {
+    console.warn(`Failed to reply to thread ${threadId}: ${err.message}`);
+  }
+}
+
 async function postComment(body) {
   await githubApi(`/issues/${prNumber}/comments`, {
     method: 'POST',
@@ -432,42 +447,71 @@ async function main() {
   const raw = runClaude(prompt);
 
   const results = parseClaudeResult(raw);
-  const skipped = results.filter(r => r.status === 'skipped');
 
-  // Build commit message
-  const parts = [];
-  if (comments.length > 0) parts.push(`${comments.length} review suggestion${comments.length === 1 ? '' : 's'}`);
-  if (ciFailures.length > 0) parts.push(`${ciFailures.length} CI failure${ciFailures.length === 1 ? '' : 's'}`);
-  const commitMessage = `fix: no-issue: auto-fix ${parts.join(' and ')}`;
+  // Build a lookup from Claude's result IDs
+  const resultById = new Map(results.map(r => [r.id, r]));
+
+  // Determine which comments were fixed vs skipped
+  const fixedComments = [];
+  const skippedComments = [];
+  for (let i = 0; i < comments.length; i++) {
+    const id = i + 1;
+    const result = resultById.get(id);
+    if (result?.status === 'skipped') {
+      skippedComments.push({ ...comments[i], reason: result.reason ?? 'Unknown' });
+    } else {
+      // Treat as fixed if Claude said "fixed" or didn't report on it
+      fixedComments.push(comments[i]);
+    }
+  }
+
+  // Count CI fixes (IDs after review comments)
+  const fixedCICount = ciFailures.filter((_, i) => {
+    const result = resultById.get(comments.length + i + 1);
+    return result?.status !== 'skipped';
+  }).length;
+
+  // Build commit message from actual fix counts
+  const msgParts = [];
+  if (fixedComments.length > 0) msgParts.push(`${fixedComments.length} review suggestion${fixedComments.length === 1 ? '' : 's'}`);
+  if (fixedCICount > 0) msgParts.push(`${fixedCICount} CI failure${fixedCICount === 1 ? '' : 's'}`);
+  const commitMessage = msgParts.length > 0
+    ? `fix: no-issue: auto-fix ${msgParts.join(' and ')}`
+    : 'fix: no-issue: auto-fix review suggestions';
 
   const pushed = commitAndPush(commitMessage);
 
-  // Resolve all review threads we attempted to fix
-  if (pushed && comments.length > 0) {
+  // Resolve fixed threads and reply on skipped threads
+  if (pushed) {
     let resolved = 0;
-    for (const comment of comments) {
+    for (const comment of fixedComments) {
       await resolveThread(comment.threadId);
       resolved++;
     }
     console.log(`Resolved ${resolved} review thread${resolved === 1 ? '' : 's'}`);
   }
 
+  for (const comment of skippedComments) {
+    await replyToThread(
+      comment.threadId,
+      `🦸 **Review Hero Auto-Fix** skipped this comment: ${comment.reason}`,
+    );
+  }
+
+  // Post summary
   const summaryParts = ['🦸 **Review Hero Auto-Fix**\n'];
 
   if (pushed) {
     const fixedParts = [];
-    if (comments.length > 0) fixedParts.push(`${comments.length} review comment${comments.length === 1 ? '' : 's'}`);
-    if (ciFailures.length > 0) fixedParts.push(`${ciFailures.length} CI failure${ciFailures.length === 1 ? '' : 's'}`);
+    if (fixedComments.length > 0) fixedParts.push(`${fixedComments.length} review comment${fixedComments.length === 1 ? '' : 's'}`);
+    if (fixedCICount > 0) fixedParts.push(`${fixedCICount} CI failure${fixedCICount === 1 ? '' : 's'}`);
     summaryParts.push(`Applied fixes for ${fixedParts.join(' and ')}.`);
   } else {
     summaryParts.push('No file changes were needed.');
   }
 
-  if (skipped.length > 0) {
-    const skippedList = skipped
-      .map(s => `| \`${s.file ?? 'unknown'}:${s.line ?? '?'}\` | ${s.reason ?? 'Unknown'} |`)
-      .join('\n');
-    summaryParts.push(`\n\n### Skipped\n\n| Location | Reason |\n|----------|--------|\n${skippedList}`);
+  if (skippedComments.length > 0) {
+    summaryParts.push(`\n\nSkipped ${skippedComments.length} comment${skippedComments.length === 1 ? '' : 's'} (replied on each thread).`);
   }
 
   await postComment(summaryParts.join(''));
