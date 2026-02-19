@@ -107,3 +107,9 @@ export const updateSnapshotRecords = async (
     snakeKey(where),
   );
 };
+
+export const vacuumAnalyzeSnapshotTable = async (sequelize: Sequelize, sessionId: string) => {
+  const tableName = getSnapshotTableName(sessionId);
+  // VACUUM cannot run inside an open transaction; caller must ensure autocommit context
+  await sequelize.query(`VACUUM (ANALYZE) ${tableName};`);
+};
