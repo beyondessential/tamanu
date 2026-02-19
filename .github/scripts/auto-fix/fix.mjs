@@ -202,19 +202,18 @@ async function fetchCIFailures() {
 
   console.log(`Fetching CI failures for commit ${headSha.slice(0, 7)}`);
 
-  const runsData = await githubApi(`/actions/runs?head_sha=${headSha}&status=completed&per_page=100`);
-  const failedRuns = (runsData.workflow_runs ?? []).filter(
-    r => r.conclusion === 'failure' && r.name !== SELF_WORKFLOW,
-  );
+  // Don't filter by run status — a run can be in progress while some jobs have already failed
+  const runsData = await githubApi(`/actions/runs?head_sha=${headSha}&per_page=100`);
+  const runs = (runsData.workflow_runs ?? []).filter(r => r.name !== SELF_WORKFLOW);
 
-  if (failedRuns.length === 0) return [];
+  if (runs.length === 0) return [];
 
-  console.log(`Found ${failedRuns.length} failed workflow run${failedRuns.length === 1 ? '' : 's'}`);
+  console.log(`Checking ${runs.length} workflow run${runs.length === 1 ? '' : 's'} for failed jobs`);
 
   const failures = [];
   let totalChars = 0;
 
-  for (const run of failedRuns) {
+  for (const run of runs) {
     const jobsData = await githubApi(`/actions/runs/${run.id}/jobs?filter=latest&per_page=100`);
     const failedJobs = (jobsData.jobs ?? []).filter(j => j.conclusion === 'failure');
 
