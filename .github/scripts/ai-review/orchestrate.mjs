@@ -289,7 +289,8 @@ function buildSummaryTable(nitpicks) {
       const agentName = AGENT_NAMES[f.agent] ?? f.agent;
       const shortComment =
         f.comment.length > 300 ? `${f.comment.slice(0, 297)}...` : f.comment;
-      return `| \`${f.file}\` | ${f.line} | ${agentName} | ${shortComment} |`;
+      const escaped = shortComment.replace(/\|/g, '\\|').replace(/\n/g, ' ');
+      return `| \`${f.file}\` | ${f.line} | ${agentName} | ${escaped} |`;
     })
     .join('\n');
 

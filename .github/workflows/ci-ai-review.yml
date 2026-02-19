@@ -79,7 +79,7 @@ jobs:
         run: |
           cat .github/scripts/ai-review/agent-prompt.md \
               .github/scripts/ai-review/prompts/${{ matrix.agent.prompt }} \
-              <(echo -e "\n\n## PR Title\n\n$PR_TITLE\n\n## PR Diff\n\n\`\`\`diff") \
+              <(printf '\n\n## PR Title\n\n%s\n\n## PR Diff\n\n```diff\n' "$PR_TITLE") \
               /tmp/pr.diff \
               <(echo '```') \
             | claude -p \
