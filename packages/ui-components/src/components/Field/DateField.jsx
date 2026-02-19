@@ -19,15 +19,17 @@ import { useDateTimeIfAvailable } from '../../contexts/DateTimeContext';
 import { useTranslation } from '../../contexts/TranslationContext';
 
 /*
- * DateInput wraps MUI DatePicker/DateTimePicker/TimePicker with timezone support.
+ * DateInput wraps MUI DatePicker/DateTimePicker/TimePicker.
  *
- * Timezone flow:
- *   - "Today" highlight, referenceDate, and the Today/Now button use the facility
- *     timezone from DateTimeContext (falls back to primaryTimeZone / country tz).
- *   - `useTimezone` (datetime-local only) converts stored values between primary and
- *     facility timezones via toFacilityDateTime / toStoredDateTime from the context.
+ * Values are strings in, strings out — onChange emits { target: { value, name } }.
+ * Output format depends on `saveDateAsString` (ISO 9075) vs default (ISO 8601).
  *
- * Value format is unchanged: string in, string out via onChange({ target: { value, name } }).
+ * Timezone support (via DateTimeContext):
+ *   - Today highlight, referenceDate and the Today/Now button resolve the current
+ *     date/time in the facility timezone (getFacilityNowDate from context).
+ *   - `useTimezone` (datetime-local only) converts between facility and primary
+ *     timezones on read/write using toFacilityDateTime / toStoredDateTime.
+ *   - Without a DateTimeContext falls back to local time.
  */
 
 const PARSE_FORMATS = [
