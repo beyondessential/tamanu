@@ -135,10 +135,10 @@ async function fetchUnresolvedComments() {
   const comments = [];
 
   for (const thread of threads) {
-    if (thread.isResolved || thread.isOutdated) continue;
+    if (thread.isResolved) continue;
 
     const firstComment = thread.comments?.nodes?.[0];
-    if (!firstComment?.path || !firstComment?.line) continue;
+    if (!firstComment?.path) continue;
 
     // Collect all comment bodies in the thread for full context
     const bodies = (thread.comments?.nodes ?? [])
@@ -160,7 +160,7 @@ function buildPrompt(comments) {
   const promptMd = readFileSync('.github/scripts/auto-fix/prompt.md', 'utf-8');
 
   const commentsList = comments
-    .map((c, i) => `### Comment ${i + 1}: \`${c.file}:${c.line}\`\n\n${c.comment}`)
+    .map((c, i) => `### Comment ${i + 1}: \`${c.file}${c.line ? `:${c.line}` : ''}\`\n\n${c.comment}`)
     .join('\n\n---\n\n');
 
   return `${promptMd}\n\n## Review Comments to Fix (${comments.length})\n\n${commentsList}`;
@@ -193,16 +193,17 @@ function runClaude(prompt) {
 
 function parseClaudeResult(raw) {
   let text = raw;
-
-  // Try to parse as JSON first to extract .result field
   try {
     const parsed = JSON.parse(raw);
-    text = parsed.result ?? raw;
+    if (parsed.result) {
+      text = parsed.result;
+    } else if (Array.isArray(parsed)) {
+      return parsed;
+    }
   } catch {
-    // If top-level parse fails, use raw text directly for extraction
+    // Not valid JSON at top level — search for embedded array below
   }
 
-  // Extract JSON array regardless of whether top-level parse succeeded
   let searchFrom = 0;
   while (searchFrom < text.length) {
     const start = text.indexOf('[', searchFrom);
@@ -321,25 +322,20 @@ async function main() {
 
   const pushed = commitAndPush(fixed.length || comments.length);
 
-  // Resolve threads for fixed comments
-  const fixedFiles = new Set(fixed.map(r => `${r.file}:${r.line}`));
-  for (const comment of comments) {
-    const key = `${comment.file}:${comment.line}`;
-    if (fixedFiles.has(key)) {
-      await resolveThread(comment.threadId);
-    }
-  }
-  // If Claude didn't return structured results but did push changes, resolve all
-  if (pushed && fixed.length === 0 && results.length === 0) {
+  // Resolve all threads we attempted to fix
+  if (pushed) {
+    let resolved = 0;
     for (const comment of comments) {
       await resolveThread(comment.threadId);
+      resolved++;
     }
+    console.log(`Resolved ${resolved} review thread${resolved === 1 ? '' : 's'}`);
   }
 
   const summaryParts = ['🦸 **Review Hero Auto-Fix**\n'];
 
   if (pushed) {
-    summaryParts.push(`Applied fixes for ${fixed.length || comments.length} review comment${(fixed.length || comments.length) === 1 ? '' : 's'}.`);
+    summaryParts.push(`Applied fixes for ${comments.length} review comment${comments.length === 1 ? '' : 's'}.`);
   } else {
     summaryParts.push('No file changes were needed.');
   }
