@@ -59,6 +59,8 @@ const PARSE_FORMATS = [
   'HH:mm',
 ];
 
+const DATETIME_LOCAL_FORMAT = "yyyy-MM-dd'T'HH:mm";
+
 function parseValue(value, primaryFormat) {
   if (!value) return null;
   try {
@@ -244,21 +246,26 @@ export const DateInput = ({
     if (!value) return null;
     if (shouldUseTimezone && toFacilityDateTime) {
       const facilityValue = toFacilityDateTime(value);
-      return facilityValue ? parseValue(facilityValue, "yyyy-MM-dd'T'HH:mm") : null;
+      return facilityValue ? parseValue(facilityValue, DATETIME_LOCAL_FORMAT) : null;
     }
     return parseValue(value, format);
   }, [value, format, shouldUseTimezone, toFacilityDateTime]);
 
+  const emitChange = useCallback(
+    val => onChange({ target: { value: val, name } }),
+    [onChange, name],
+  );
+
   const handleChange = useCallback(
     date => {
       if (!date || !isValid(date)) {
-        onChange({ target: { value: '', name } });
+        emitChange('');
         return;
       }
 
       let outputValue;
       if (shouldUseTimezone && toStoredDateTime) {
-        outputValue = toStoredDateTime(dateFnsFormat(date, "yyyy-MM-dd'T'HH:mm"));
+        outputValue = toStoredDateTime(dateFnsFormat(date, DATETIME_LOCAL_FORMAT));
       } else if (saveDateAsString) {
         outputValue = type === 'date' ? toDateString(date) : toDateTimeString(date);
       } else {
@@ -266,13 +273,13 @@ export const DateInput = ({
       }
 
       if (!outputValue || outputValue === 'Invalid date') {
-        onChange({ target: { value: '', name } });
+        emitChange('');
         return;
       }
 
-      onChange({ target: { value: outputValue, name } });
+      emitChange(outputValue);
     },
-    [onChange, name, saveDateAsString, type, shouldUseTimezone, toStoredDateTime],
+    [emitChange, saveDateAsString, type, shouldUseTimezone, toStoredDateTime],
   );
 
   const [open, setOpen] = useState(false);
@@ -280,19 +287,14 @@ export const DateInput = ({
   const handleClose = useCallback(() => setOpen(false), []);
 
   const handleSetToday = useCallback(() => {
-    const now = effectiveTimezone
-      ? getFacilityNowDate(
-          dateTime?.primaryTimeZone ?? effectiveTimezone,
-          dateTime?.facilityTimeZone,
-        )
-      : new Date();
+    const now = effectiveTimezone ? getFacilityNowDate(effectiveTimezone) : new Date();
     handleChange(now);
-  }, [handleChange, effectiveTimezone, dateTime?.primaryTimeZone, dateTime?.facilityTimeZone]);
+  }, [handleChange, effectiveTimezone]);
 
   const handleClear = useCallback(() => {
-    onChange({ target: { value: '', name } });
+    emitChange('');
     setOpen(false);
-  }, [onChange, name]);
+  }, [emitChange]);
 
   const displayFormat = DISPLAY_FORMATS[type] || format;
 
@@ -311,7 +313,7 @@ export const DateInput = ({
       if (!bound) return undefined;
       if (shouldUseTimezone && toFacilityDateTime) {
         const converted = toFacilityDateTime(bound);
-        if (converted) return parseValue(converted, "yyyy-MM-dd'T'HH:mm");
+        if (converted) return parseValue(converted, DATETIME_LOCAL_FORMAT);
       }
       return parseValue(bound, format);
     },
@@ -424,7 +426,7 @@ export const TimeInput = props => <DateInput type="time" format="HH:mm" {...prop
 export const DateTimeInput = ({ useTimezone = true, ...props }) => (
   <DateInput
     type="datetime-local"
-    format="yyyy-MM-dd'T'HH:mm"
+    format={DATETIME_LOCAL_FORMAT}
     // Stop mui rendering 8000 year buttons
     max="2100-12-31T00:00"
     useTimezone={useTimezone}
