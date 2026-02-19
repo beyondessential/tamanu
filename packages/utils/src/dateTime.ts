@@ -23,7 +23,6 @@ import {
   type DurationUnit,
   type Interval,
 } from 'date-fns';
-import { has } from 'lodash';
 import { Temporal } from 'temporal-polyfill';
 import { z } from 'zod';
 
@@ -46,7 +45,6 @@ export const trimToTime = (date: string | null | undefined): string | null | und
   const time = date?.slice(11, 19);
   return time?.length === 5 ? `${time}:00` : time;
 };
-
 
 const makeDateObject = (date: string | Date) => {
   if (typeof date !== 'string') return date;
@@ -225,9 +223,9 @@ export const doAgeRangesOverlap = (rangesArray: AgeRange[]) => {
  * Wrapper functions around date-fns functions that parse date_string and date_time_string types
  * For date-fns docs @see https://date-fns.org
  */
-export const format = (date: string | Date | null | undefined, format: string) => {
+export const format = (date: string | Date | null | undefined, formatStr: string) => {
   const parsed = parseDate(date);
-  return parsed ? dateFnsFormat(parsed, format) : null;
+  return parsed ? dateFnsFormat(parsed, formatStr) : null;
 };
 
 export const differenceInMilliseconds = (a: number | string | Date, b: number | string | Date) =>
@@ -285,7 +283,7 @@ const logDateError = (
   } else {
     console.warn(`[${fnName}] Failed to process date value ${JSON.stringify(value)}:`, error);
   }
-};  
+};
 
 export const intlFormatDate = (
   date: string | Date | null | undefined,
@@ -305,7 +303,7 @@ export const intlFormatDate = (
     if (isISO9075DateString(date)) {
       const plainDate = Temporal.PlainDate.from(date);
       const timeKeys = ['hour', 'minute', 'second', 'timeStyle', 'dayPeriod'] as const;
-      const hasTimeOptions = timeKeys.some(key => has(formatOptions, key));
+      const hasTimeOptions = timeKeys.some(key => key in formatOptions);
       if (hasTimeOptions) {
         return plainDate.toPlainDateTime().toLocaleString(locale, formatOptions);
       }
