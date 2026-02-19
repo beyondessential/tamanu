@@ -15,6 +15,7 @@ import {
   isValid,
   isSameDay,
   parse,
+  parseISO,
   startOfToday,
 } from 'date-fns';
 
@@ -60,6 +61,10 @@ const PARSE_FORMATS = [
 
 function parseValue(value, primaryFormat) {
   if (!value) return null;
+  if (typeof value === 'string' && /[TZ+\-\d]/.test(value.charAt(10))) {
+    const iso = parseISO(value);
+    if (isValid(iso)) return iso;
+  }
   const formats = primaryFormat ? [primaryFormat, ...PARSE_FORMATS] : PARSE_FORMATS;
   for (const fmt of formats) {
     const date = parse(value, fmt, new Date());
