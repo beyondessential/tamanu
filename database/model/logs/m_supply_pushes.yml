@@ -78,7 +78,6 @@ sources:
                 masking: text
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('logs__generic__updated_at_sync_tick') }} in
-              m_supply_pushes."
+            description: "{{ doc('logs__generic__updated_at_sync_tick') }} in m_supply_pushes."
             data_tests:
               - not_null
