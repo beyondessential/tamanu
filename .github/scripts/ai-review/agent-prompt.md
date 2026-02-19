@@ -26,7 +26,6 @@ You are reviewing a PR for **Tamanu**, a healthcare management system. Find real
 
 ## Rules
 
-- Read `llm/project-rules/coding-rules.md` for project conventions before reviewing
 - Only comment on changed/added code (diff `+` lines) unless a change breaks existing code
 - Don't flag issues ESLint/Prettier/TypeScript would catch
 - Quality over quantity — 3 good findings beat 10 mediocre ones
