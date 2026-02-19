@@ -9,7 +9,7 @@ import {
   LOG_FIELDS,
   AUDIT_STATUSES,
 } from '../../dist/tasks/DHIS2IntegrationProcessor';
-import { REPORT_DB_SCHEMAS, REPORT_STATUSES, SETTINGS_SCOPES } from '@tamanu/constants';
+import { REPORT_DB_CONNECTIONS, REPORT_STATUSES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { fake } from '../../../fake-data/dist/mjs/fake/fake';
 import { log } from '@tamanu/shared/services/logging';
 
@@ -56,7 +56,7 @@ describe('DHIS2 integration processor', () => {
 
     report = await models.ReportDefinition.create({
       name: 'Test Report',
-      dbSchema: REPORT_DB_SCHEMAS.RAW,
+      dbSchema: REPORT_DB_CONNECTIONS.RAW,
     });
     reportVersion = await models.ReportDefinitionVersion.create(
       fake(models.ReportDefinitionVersion, {

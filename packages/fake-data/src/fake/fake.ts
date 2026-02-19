@@ -351,6 +351,9 @@ const MODEL_SPECIFIC_OVERRIDES = {
       pregnancyContributed: chance.pickone(options),
       recentSurgery: chance.pickone(options),
       stillborn: chance.pickone(options),
+      autopsyRequested: chance.pickone(options),
+      autopsyFindingsUsed: chance.pickone(options),
+      multiplePregnancy: chance.pickone(options),
     };
   },
   PatientProgramRegistration: ({ patientId, programRegistryId }) => ({
