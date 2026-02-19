@@ -104,6 +104,41 @@ describe('Medication', () => {
         expect(reloadedPrescription.repeats).toBe(3);
       });
 
+      it('should store the correct amount of repeats on pharmacy order', async () => {
+        const ongoingPrescription = await createOngoingPrescription({
+          patientId: patient.id,
+          prescriberId: app.user.id,
+        });
+
+        const firstResult = await app.post('/api/medication/send-ongoing-to-pharmacy').send({
+          patientId: patient.id,
+          orderingClinicianId: app.user.id,
+          facilityId,
+          prescriptions: [{ prescriptionId: ongoingPrescription.id, quantity: 10 }],
+        });
+        expect(firstResult).toHaveSucceeded();
+
+        const firstOrderPrescriptions = await models.PharmacyOrderPrescription.findAll({
+          where: { pharmacyOrderId: firstResult.body.pharmacyOrderId },
+        });
+        expect(firstOrderPrescriptions).toHaveLength(1);
+        expect(firstOrderPrescriptions[0].repeats).toBe(3);
+
+        const secondResult = await app.post('/api/medication/send-ongoing-to-pharmacy').send({
+          patientId: patient.id,
+          orderingClinicianId: app.user.id,
+          facilityId,
+          prescriptions: [{ prescriptionId: ongoingPrescription.id, quantity: 10 }],
+        });
+        expect(secondResult).toHaveSucceeded();
+
+        const secondOrderPrescriptions = await models.PharmacyOrderPrescription.findAll({
+          where: { pharmacyOrderId: secondResult.body.pharmacyOrderId },
+        });
+        expect(secondOrderPrescriptions).toHaveLength(1);
+        expect(secondOrderPrescriptions[0].repeats).toBe(2);
+      });
+
       it('should decrement on the second send to pharmacy', async () => {
         const ongoingPrescription = await createOngoingPrescription({
           patientId: patient.id,
