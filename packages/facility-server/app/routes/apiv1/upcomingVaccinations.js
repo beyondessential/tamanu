@@ -3,6 +3,7 @@ import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import { VACCINE_STATUS } from '@tamanu/constants/vaccines';
+import { getCurrentDateStringInTimezone } from '@tamanu/utils/dateTime';
 import { makeFilter } from '../../utils/query';
 import {
   MATERIALIZED_VIEWS,
@@ -10,6 +11,21 @@ import {
 } from '@tamanu/constants';
 
 export const upcomingVaccinations = express.Router();
+
+export const buildStatusExpression = (thresholds, dateExpr = 'uv.due_date - :currentDate::date') => {
+  const sorted = [...thresholds]
+    .filter(t => Number(t.threshold) !== -Infinity && t.threshold !== '-Infinity')
+    .sort((a, b) => Number(b.threshold) - Number(a.threshold));
+
+  const whenClauses = sorted
+    .map(({ threshold, status }) => {
+      const safeStatus = String(status).replace(/'/g, "''");
+      return `WHEN ${dateExpr} > ${Number(threshold)} THEN '${safeStatus}'`;
+    })
+    .join(' ');
+
+  return `CASE ${whenClauses} ELSE '${VACCINE_STATUS.MISSED}' END`;
+};
 
 const createUpcomingVaccinationFilters = filterParams => {
   const filters = [
@@ -40,6 +56,14 @@ upcomingVaccinations.get(
   '/$',
   asyncHandler(async (req, res) => {
     req.checkPermission('read', 'PatientVaccine');
+
+    const { settings, facilityId } = req;
+    const { primaryTimeZone } = config;
+    const facilitySettings =  settings[facilityId];
+    const facilityTimeZone = await facilitySettings?.get('facilityTimeZone')
+    const currentDate = getCurrentDateStringInTimezone(facilityTimeZone ?? primaryTimeZone);
+    const thresholds = await facilitySettings?.get('upcomingVaccinations.thresholds');
+    const statusExpr = buildStatusExpression(thresholds);
 
     const sortKeys = {
       displayId: 'display_id',
@@ -76,16 +100,23 @@ upcomingVaccinations.get(
         filterParams,
       );
 
-    // Use the materialized version of the view if the regular refresh task is enabled, otherwise use the regular live view (not recommended for performance reasons)
     const { enabled } = config.schedules.refreshMaterializedView.upcomingVaccinations;
     const tableName =
       enabled === false ? 'upcoming_vaccinations' : 'materialized_upcoming_vaccinations';
 
     const withRowNumber = `
-      WITH upcoming_vaccinations_with_row_number AS (
+      WITH upcoming_vaccinations_with_status AS (
+        SELECT
+          uv.patient_id,
+          uv.scheduled_vaccine_id,
+          uv.due_date,
+          ${statusExpr} AS status
+        FROM ${tableName} uv
+      ),
+      upcoming_vaccinations_with_row_number AS (
         SELECT *,
         ROW_NUMBER() OVER(PARTITION BY patient_id ORDER BY due_date ASC) AS row_number
-        FROM ${tableName} uv
+        FROM upcoming_vaccinations_with_status uv
         WHERE uv.status <> '${VACCINE_STATUS.MISSED}'
       )
     `;
@@ -98,6 +129,11 @@ upcomingVaccinations.get(
       WHERE ${whereClauses}
       AND row_number = 1
     `;
+
+    const commonReplacements = {
+      currentDate,
+      ...filterReplacements,
+    };
 
     const results = await req.db.query(
       `
@@ -126,7 +162,7 @@ upcomingVaccinations.get(
         replacements: {
           limit: rowsPerPage,
           offset: page * rowsPerPage,
-          ...filterReplacements,
+          ...commonReplacements,
         },
         type: QueryTypes.SELECT,
       },
@@ -137,7 +173,7 @@ upcomingVaccinations.get(
       ${withRowNumber}
       SELECT COUNT(1) AS count ${fromUpcomingVaccinations};`,
       {
-        replacements: filterReplacements,
+        replacements: commonReplacements,
         type: QueryTypes.SELECT,
       },
     );

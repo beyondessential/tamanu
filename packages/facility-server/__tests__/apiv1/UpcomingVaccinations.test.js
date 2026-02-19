@@ -1,5 +1,6 @@
 import config from 'config';
-import { subDays } from 'date-fns';
+import { addDays, subDays } from 'date-fns';
+import { QueryTypes } from 'sequelize';
 import { createTestContext } from '../utilities';
 
 import { createScheduledVaccine } from '@tamanu/database/demoData/vaccines';
@@ -8,6 +9,7 @@ import { VACCINE_STATUS, REFERENCE_TYPES, VACCINE_CATEGORIES } from '@tamanu/con
 import { fake } from '@tamanu/fake-data/fake';
 
 import { RefreshUpcomingVaccinations } from '../../dist/tasks/RefreshMaterializedView';
+import { buildStatusExpression } from '../../dist/routes/apiv1/upcomingVaccinations';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 jest.mock('@tamanu/utils/dateTime', () => ({
@@ -204,6 +206,84 @@ describe('Upcoming vaccinations', () => {
         lastRefreshed: '2021-01-01 00:00:00.000Z',
         schedule: '*/50 * * * *',
       });
+    });
+  });
+
+  describe('Facility timezone status recomputation', () => {
+    let statusExpr;
+
+    beforeAll(async () => {
+      const [facilityId] = selectFacilityIds(config);
+      const thresholds = await ctx.settings[facilityId].get('upcomingVaccinations.thresholds');
+      statusExpr = buildStatusExpression(thresholds);
+    });
+
+    const queryWithDate = (currentDate) =>
+      ctx.sequelize.query(
+        `
+        WITH upcoming_vaccinations_with_status AS (
+          SELECT
+            uv.patient_id,
+            uv.scheduled_vaccine_id,
+            uv.due_date,
+            ${statusExpr} AS status
+          FROM materialized_upcoming_vaccinations uv
+        ),
+        upcoming_vaccinations_with_row_number AS (
+          SELECT *,
+          ROW_NUMBER() OVER(PARTITION BY patient_id ORDER BY due_date ASC) AS row_number
+          FROM upcoming_vaccinations_with_status uv
+          WHERE uv.status <> '${VACCINE_STATUS.MISSED}'
+        )
+        SELECT uv.*, p.display_id
+        FROM upcoming_vaccinations_with_row_number uv
+        JOIN patients p ON p.id = uv.patient_id
+        WHERE row_number = 1
+        ORDER BY uv.due_date ASC
+        `,
+        {
+          replacements: { currentDate },
+          type: QueryTypes.SELECT,
+        },
+      );
+
+    it('should match original results when currentDate is today', async () => {
+      const today = toDateString(new Date());
+      const results = await queryWithDate(today);
+      expect(results.length).toBe(6);
+    });
+
+    it('should shift statuses when currentDate moves forward', async () => {
+      // Shift currentDate forward 50 days — crecord/frecord (due today-21, today-14)
+      // get days_till_due of -71 and -64 respectively, both < -55 → MISSED and excluded
+      const futureDate = toDateString(addDays(new Date(), 50));
+      const results = await queryWithDate(futureDate);
+
+      expect(results.length).toBe(4);
+      expect(results.every(r => r.status === VACCINE_STATUS.OVERDUE)).toBe(true);
+    });
+
+    it('should produce different statuses than materialized view for shifted dates', async () => {
+      const today = toDateString(new Date());
+      const futureDate = toDateString(addDays(new Date(), 50));
+
+      const todayResults = await queryWithDate(today);
+      const futureResults = await queryWithDate(futureDate);
+
+      expect(todayResults.length).not.toBe(futureResults.length);
+      expect(todayResults.some(r => r.status === VACCINE_STATUS.DUE)).toBe(true);
+      expect(futureResults.some(r => r.status === VACCINE_STATUS.DUE)).toBe(false);
+    });
+
+    it('should correctly filter by recomputed status', async () => {
+      const futureDate = toDateString(addDays(new Date(), 50));
+      const results = await queryWithDate(futureDate);
+
+      const dueResults = results.filter(r => r.status === VACCINE_STATUS.DUE);
+      const overdueResults = results.filter(r => r.status === VACCINE_STATUS.OVERDUE);
+
+      expect(dueResults.length).toBe(0);
+      expect(overdueResults.length).toBe(4);
     });
   });
 });
