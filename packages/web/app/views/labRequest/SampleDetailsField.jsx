@@ -195,6 +195,7 @@ export const SampleDetailsField = ({
                   removeSample(identifier);
                 }
               }}
+              style={{ width: '220px' }}
               data-testid="styledfield-ratc"
             />
           </Cell>
