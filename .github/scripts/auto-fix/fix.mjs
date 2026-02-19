@@ -466,8 +466,8 @@ async function main() {
 
   const results = parseClaudeResult(raw);
 
-  // Build a lookup from Claude's result IDs
-  const resultById = new Map(results.map(r => [r.id, r]));
+  // Build a lookup from Claude's result IDs (coerce to numbers for type-safe lookups)
+  const resultById = new Map(results.map(r => [Number(r.id), r]));
 
   // Determine which comments were fixed vs skipped
   const fixedComments = [];
@@ -495,9 +495,15 @@ async function main() {
   const msgParts = [];
   if (fixedComments.length > 0) msgParts.push(`${fixedComments.length} review suggestion${fixedComments.length === 1 ? '' : 's'}`);
   if (fixedCICount > 0) msgParts.push(`${fixedCICount} CI failure${fixedCICount === 1 ? '' : 's'}`);
+
+  // Fallback accounts for which type of fix was requested
+  let commitFallback = 'fix: no-issue: auto-fix changes';
+  if (fixReviews && !fixCI) commitFallback = 'fix: no-issue: auto-fix review suggestions';
+  if (fixCI && !fixReviews) commitFallback = 'fix: no-issue: auto-fix CI failures';
+
   const commitMessage = msgParts.length > 0
     ? `fix: no-issue: auto-fix ${msgParts.join(' and ')}`
-    : 'fix: no-issue: auto-fix review suggestions';
+    : commitFallback;
 
   const pushed = commitAndPush(commitMessage);
 
@@ -525,7 +531,8 @@ async function main() {
     const fixedParts = [];
     if (fixedComments.length > 0) fixedParts.push(`${fixedComments.length} review comment${fixedComments.length === 1 ? '' : 's'}`);
     if (fixedCICount > 0) fixedParts.push(`${fixedCICount} CI failure${fixedCICount === 1 ? '' : 's'}`);
-    summaryParts.push(`Applied fixes for ${fixedParts.join(' and ')}.`);
+    const fixDescription = fixedParts.length > 0 ? fixedParts.join(' and ') : 'changes';
+    summaryParts.push(`Applied fixes for ${fixDescription}.`);
   } else {
     summaryParts.push('No file changes were needed.');
   }
