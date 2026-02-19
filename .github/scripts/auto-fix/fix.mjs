@@ -38,7 +38,9 @@ const fixReviews = process.env.FIX_REVIEWS === 'true';
 const fixCI = process.env.FIX_CI === 'true';
 
 async function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise(resolve => {
+    setTimeout(resolve, ms);
+  });
 }
 
 async function withRetry(fn, attempts = 3) {
@@ -169,7 +171,7 @@ const SELF_WORKFLOW = 'Review Hero Auto-Fix';
 
 function stripAnsiAndTimestamps(log) {
   return log
-    .replace(/\x1b\[[0-9;]*m/g, '') // ANSI codes
+    .replace(/\u001b\[[0-9;]*m/g, '') // ANSI codes
     .replace(/^\d{4}-\d{2}-\d{2}T[\d:.]+Z /gm, ''); // timestamp prefixes
 }
 
