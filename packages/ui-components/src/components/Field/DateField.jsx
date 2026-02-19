@@ -273,9 +273,14 @@ export const DateInput = ({
   const handleClose = useCallback(() => setOpen(false), []);
 
   const handleSetToday = useCallback(() => {
-    const now = effectiveTimezone ? getFacilityNowDate(effectiveTimezone) : new Date();
+    const now = effectiveTimezone
+      ? getFacilityNowDate(
+          dateTime?.primaryTimeZone ?? effectiveTimezone,
+          dateTime?.facilityTimeZone,
+        )
+      : new Date();
     handleChange(now);
-  }, [handleChange, effectiveTimezone]);
+  }, [handleChange, effectiveTimezone, dateTime?.primaryTimeZone, dateTime?.facilityTimeZone]);
 
   const handleClear = useCallback(() => {
     onChange({ target: { value: '', name } });
