@@ -16,7 +16,7 @@ jobs:
   check-trigger:
     if: >-
       github.event.issue.pull_request &&
-      contains(github.event.comment.body, '/review-hero')
+      contains(github.event.comment.body, 'review hero run')
     runs-on: ubuntu-slim
     outputs:
       pr_number: ${{ steps.pr.outputs.number }}
