@@ -13,6 +13,7 @@ _Add a brief description of the changes in this PR to help give the reviewer con
 ### Review Hero
 
 - [ ] **Run Review Hero** <!-- #ai-review -->
+- [ ] **Auto-fix review suggestions** <!-- #auto-fix -->
 
 ### Remember to...
 
