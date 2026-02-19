@@ -1437,20 +1437,6 @@ export const globalSettings = {
           description: 'The text at the top of most patient PDFs',
           properties: letterheadProperties,
         },
-        signerRenewalEmail: {
-          description: 'The email sent when the signer runs out',
-          properties: {
-            subject: {
-              type: yup.string().trim().min(1),
-              defaultValue: 'Tamanu ICAO Certificate Signing Request',
-            },
-            body: {
-              type: yup.string().trim().min(1),
-              defaultValue:
-                'Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team.',
-            },
-          },
-        },
         vaccineCertificateEmail: {
           description: 'The email containing patient vaccine certificate',
           properties: {
