@@ -174,6 +174,82 @@ async function githubApi(endpoint, options = {}) {
   return response.json();
 }
 
+async function githubGraphQL(query, variables) {
+  const token = getEnvOrThrow('GITHUB_TOKEN');
+  const response = await fetch('https://api.github.com/graphql', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ query, variables }),
+  });
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`GitHub GraphQL ${response.status}: ${body}`);
+  }
+
+  const result = await response.json();
+  if (result.errors) {
+    throw new Error(`GraphQL errors: ${JSON.stringify(result.errors)}`);
+  }
+  return result.data;
+}
+
+async function resolvePreviousReviewHeroThreads(prNumber) {
+  const repo = getEnvOrThrow('GITHUB_REPOSITORY');
+  const [owner, name] = repo.split('/');
+
+  const data = await githubGraphQL(
+    `query($owner: String!, $repo: String!, $pr: Int!) {
+      repository(owner: $owner, name: $repo) {
+        pullRequest(number: $pr) {
+          reviewThreads(first: 100) {
+            nodes {
+              id
+              isResolved
+              comments(first: 1) {
+                nodes {
+                  author { login }
+                }
+              }
+            }
+          }
+        }
+      }
+    }`,
+    { owner, repo: name, pr: parseInt(prNumber) },
+  );
+
+  const threads = data.repository.pullRequest.reviewThreads.nodes;
+  let resolved = 0;
+
+  for (const thread of threads) {
+    if (thread.isResolved) continue;
+    const author = thread.comments.nodes[0]?.author?.login;
+    if (author !== 'review-hero[bot]') continue;
+
+    try {
+      await githubGraphQL(
+        `mutation($threadId: ID!) {
+          resolveReviewThread(input: { threadId: $threadId }) {
+            thread { id }
+          }
+        }`,
+        { threadId: thread.id },
+      );
+      resolved++;
+    } catch (err) {
+      console.warn(`Failed to resolve thread ${thread.id}: ${err.message}`);
+    }
+  }
+
+  if (resolved > 0) {
+    console.log(`Resolved ${resolved} previous Review Hero thread${resolved === 1 ? '' : 's'}`);
+  }
+}
+
 async function getLatestCommit(prNumber) {
   const pr = await githubApi(`/pulls/${prNumber}`);
   return pr.head.sha;
@@ -225,6 +301,9 @@ async function main() {
   const artifactsDir = getEnvOrThrow('ARTIFACTS_DIR');
 
   console.log(`Orchestrating AI review for PR #${prNumber}`);
+
+  // Resolve previous Review Hero comments so they don't clutter the PR
+  await resolvePreviousReviewHeroThreads(prNumber);
 
   // Collect findings from all agents
   const allFindings = [];
