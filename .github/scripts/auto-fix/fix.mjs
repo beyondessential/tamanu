@@ -128,18 +128,21 @@ async function fetchUnresolvedComments() {
     { owner, repo: name, pr: parseInt(prNumber) },
   );
 
-  const threads = data.repository.pullRequest.reviewThreads.nodes;
+  const threads = data?.repository?.pullRequest?.reviewThreads?.nodes ?? [];
+  if (threads.length === 0) {
+    throw new Error('No review threads found — PR or repository may not exist');
+  }
   const comments = [];
 
   for (const thread of threads) {
     if (thread.isResolved || thread.isOutdated) continue;
 
-    const firstComment = thread.comments.nodes[0];
+    const firstComment = thread.comments?.nodes?.[0];
     if (!firstComment?.path || !firstComment?.line) continue;
 
     // Collect all comment bodies in the thread for full context
-    const bodies = thread.comments.nodes
-      .map(c => `${c.author?.login ?? 'unknown'}: ${c.body}`)
+    const bodies = (thread.comments?.nodes ?? [])
+      .map(c => `${c.author?.login ?? 'unknown'}: ${c.body ?? ''}`)
       .join('\n\n');
 
     comments.push({
@@ -164,6 +167,11 @@ function buildPrompt(comments) {
 }
 
 function runClaude(prompt) {
+  // Validate model to prevent command injection
+  if (!/^[a-z0-9.-]+$/.test(model)) {
+    throw new Error(`Invalid model name: ${model}`);
+  }
+
   writeFileSync('/tmp/auto-fix-prompt.md', prompt);
 
   const result = execSync(
@@ -184,31 +192,36 @@ function runClaude(prompt) {
 }
 
 function parseClaudeResult(raw) {
+  let text = raw;
+
+  // Try to parse as JSON first to extract .result field
   try {
     const parsed = JSON.parse(raw);
-    const text = parsed.result ?? raw;
-
-    let searchFrom = 0;
-    while (searchFrom < text.length) {
-      const start = text.indexOf('[', searchFrom);
-      if (start === -1) break;
-      let searchEnd = text.length;
-      while (searchEnd > start) {
-        const end = text.lastIndexOf(']', searchEnd - 1);
-        if (end <= start) break;
-        try {
-          const arr = JSON.parse(text.slice(start, end + 1));
-          if (Array.isArray(arr)) return arr;
-        } catch {
-          // try shorter span
-        }
-        searchEnd = end;
-      }
-      searchFrom = start + 1;
-    }
+    text = parsed.result ?? raw;
   } catch {
-    // ignore parse errors
+    // If top-level parse fails, use raw text directly for extraction
   }
+
+  // Extract JSON array regardless of whether top-level parse succeeded
+  let searchFrom = 0;
+  while (searchFrom < text.length) {
+    const start = text.indexOf('[', searchFrom);
+    if (start === -1) break;
+    let searchEnd = text.length;
+    while (searchEnd > start) {
+      const end = text.lastIndexOf(']', searchEnd - 1);
+      if (end <= start) break;
+      try {
+        const arr = JSON.parse(text.slice(start, end + 1));
+        if (Array.isArray(arr)) return arr;
+      } catch {
+        // try shorter span
+      }
+      searchEnd = end;
+    }
+    searchFrom = start + 1;
+  }
+
   return [];
 }
 
@@ -217,6 +230,11 @@ function commitAndPush(commentCount) {
   if (!status) {
     console.log('No file changes after auto-fix — Claude may have skipped all comments');
     return false;
+  }
+
+  // Validate appId to prevent command injection
+  if (appId && !/^\d+$/.test(appId)) {
+    throw new Error('Invalid app ID');
   }
 
   const botName = 'review-hero[bot]';
