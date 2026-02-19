@@ -179,7 +179,8 @@ export const InvoiceItemRow = ({
     (priceListPrice !== null && priceListPrice !== undefined) ||
     !invoiceIsEditable ||
     fetchedPrice ||
-    isFetchingPrice;
+    isFetchingPrice ||
+    (!isEditing && isSaved);
 
   return (
     <StyledItemRow>

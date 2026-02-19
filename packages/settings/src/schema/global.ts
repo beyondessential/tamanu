@@ -371,7 +371,7 @@ export const globalSettings = {
             },
             invoicePendingLabRequests: {
               description:
-                'This setting enables automatically adding lab requests with the status Reception Pending to an invoice.',
+                'This setting enables automatically adding lab requests with the status Sample not collected & Reception pending to an invoice.',
               type: yup.boolean(),
               defaultValue: false,
             },
