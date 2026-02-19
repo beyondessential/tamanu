@@ -83,8 +83,9 @@ export default async () => {
           __dirname,
           '../shared/src/utils/invoice/index.js',
         ),
-        // Force web bundle to use its own nested @mui copies (6.1.x) instead of
-        // the hoisted root copies (6.5.x) to keep the MUI dependency tree consistent.
+        // Pin @mui/* to web's nested copies (6.1.x) instead of the hoisted root (6.5.x).
+        // MUI packages share internal context and break when versions are mixed.
+        // TODO: remove once all @mui packages are aligned to the same version.
         '@mui/material': path.resolve(__dirname, 'node_modules/@mui/material'),
         '@mui/system': path.resolve(__dirname, 'node_modules/@mui/system'),
         '@mui/icons-material': path.resolve(__dirname, 'node_modules/@mui/icons-material'),
