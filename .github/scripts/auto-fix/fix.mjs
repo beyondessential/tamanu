@@ -27,6 +27,11 @@ function getEnvOrThrow(name) {
 const token = getEnvOrThrow('GITHUB_TOKEN');
 const repo = getEnvOrThrow('GITHUB_REPOSITORY');
 const prNumber = getEnvOrThrow('PR_NUMBER');
+
+// Validate PR_NUMBER to prevent path traversal attacks
+if (!/^\d+$/.test(prNumber)) {
+  throw new Error('Invalid PR number - must be numeric');
+}
 const appId = process.env.REVIEW_HERO_APP_ID ?? '';
 const model = process.env.AI_FIX_MODEL ?? 'claude-sonnet-4-5-20250929';
 const fixReviews = process.env.FIX_REVIEWS === 'true';
@@ -134,6 +139,9 @@ async function fetchUnresolvedComments() {
 
   for (const thread of threads) {
     if (thread.isResolved) continue;
+    // Note: We intentionally don't skip outdated threads (thread.isOutdated).
+    // Threads can be marked outdated by later commits even when the line itself
+    // hasn't changed, so we still want to attempt fixes on them.
     if (!thread.id) continue;
 
     const firstComment = thread.comments?.nodes?.[0];
@@ -263,7 +271,7 @@ function runClaude(prompt) {
   writeFileSync(promptPath, prompt);
 
   const result = execSync(
-    `cat ${promptPath} | claude -p ` +
+    `cat "${promptPath}" | claude -p ` +
     `--output-format json ` +
     `--model "${model}" ` +
     `--max-turns 30 ` +
@@ -283,7 +291,9 @@ function parseClaudeResult(raw) {
   let text = raw;
   try {
     const parsed = JSON.parse(raw);
-    if (parsed.result) {
+    if (Array.isArray(parsed.result)) {
+      return parsed.result;
+    } else if (parsed.result) {
       text = parsed.result;
     } else if (Array.isArray(parsed)) {
       return parsed;
@@ -334,8 +344,10 @@ function createCommit(commitMessage) {
   execSync(`git config user.email "${botEmail}"`);
 
   execSync('git add -A');
+
+  // Use heredoc to avoid shell interpolation of commit message
   execSync(
-    `git commit -m "${commitMessage}\n\nCo-Authored-By: Review Hero <contact@bes.au>"`,
+    `git commit -m "$(cat <<'EOF'\n${commitMessage}\n\nCo-Authored-By: Review Hero <contact@bes.au>\nEOF\n)"`,
   );
 }
 
@@ -457,11 +469,13 @@ async function main() {
   for (let i = 0; i < comments.length; i++) {
     const id = i + 1;
     const result = resultById.get(id);
-    if (result?.status === 'skipped') {
+    if (result?.status === 'fixed') {
+      fixedComments.push(comments[i]);
+    } else if (result?.status === 'skipped') {
       skippedComments.push({ ...comments[i], reason: result.reason ?? 'Unknown' });
     } else {
-      // Treat as fixed if Claude said "fixed" or didn't report on it
-      fixedComments.push(comments[i]);
+      // No response from Claude for this comment
+      skippedComments.push({ ...comments[i], reason: 'No response from Claude' });
     }
   }
 
