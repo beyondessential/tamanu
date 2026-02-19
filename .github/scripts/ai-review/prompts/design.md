@@ -8,6 +8,6 @@ Things to look for:
 - Incidental changes to widely-used components — would a new purpose-built one be better?
 - Separation of concerns, file organisation, breaking changes to shared interfaces
 - DRY violations (significant, not trivial)
-- Over-engineering: unnecessary abstractions, excessive configuration, feature flags, or error handling for scenarios that can't happen. AI-generated code is especially prone to this — flag anywhere the PR does more than what's needed
+- Over-engineering and verbosity: unnecessary abstractions, excessive configuration, feature flags, error handling for impossible scenarios, or code that's just too wordy. AI-generated code is especially prone to this — flag anywhere the PR does more than what's needed or uses 10 lines where 3 would do
 
 Ignore: performance, correctness, security, naming/readability conventions, project-specific rules, linter-caught style.
