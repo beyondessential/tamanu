@@ -330,6 +330,32 @@ async function main() {
 
   await postComment(prNumber, summaryParts.join(''));
   console.log('Posted summary comment');
+
+  // Uncheck the Review Hero checkbox so subsequent commits don't re-trigger
+  await uncheckReviewHero(prNumber);
+}
+
+async function uncheckReviewHero(prNumber) {
+  try {
+    const pr = await githubApi(`/pulls/${prNumber}`);
+    const body = pr.body;
+    if (!body) return;
+
+    const updated = body.replace(
+      /\[x\]\s+\*\*Run Review Hero\*\* <!-- #ai-review -->/,
+      '[ ] **Run Review Hero** <!-- #ai-review -->',
+    );
+
+    if (updated === body) return; // already unchecked
+
+    await githubApi(`/pulls/${prNumber}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ body: updated }),
+    });
+    console.log('Unchecked Review Hero checkbox');
+  } catch (err) {
+    console.warn(`Failed to uncheck checkbox: ${err.message}`);
+  }
 }
 
 main().catch(err => {
