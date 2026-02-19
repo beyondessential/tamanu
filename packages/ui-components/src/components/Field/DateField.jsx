@@ -11,6 +11,7 @@ import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import { Box } from '@material-ui/core';
 import { addDays, format as dateFnsFormat, isValid, isSameDay, parse } from 'date-fns';
 
+import { TAMANU_COLORS } from '../../constants';
 import { parseDate, toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { DefaultIconButton } from '../Button';
 import { TextInput } from './TextField';
@@ -21,11 +22,10 @@ import { useTranslation } from '../../contexts/TranslationContext';
  * DateInput wraps MUI DatePicker/DateTimePicker/TimePicker with timezone support.
  *
  * Timezone flow:
- *   - `timezone` prop (IANA string) controls what "today" means for the Today/Now button,
- *     the calendar's reference date, and the today highlight circle. Falls back to
- *     facilityTimeZone → primaryTimeZone from the DateTimeContext if not supplied.
+ *   - "Today" highlight, referenceDate, and the Today/Now button use the facility
+ *     timezone from DateTimeContext (falls back to primaryTimeZone / country tz).
  *   - `useTimezone` (datetime-local only) converts stored values between primary and
- *     facility timezones, same as the previous native-input implementation.
+ *     facility timezones via toFacilityDateTime / toStoredDateTime from the context.
  *
  * Value format is unchanged: string in, string out via onChange({ target: { value, name } }).
  */
@@ -150,11 +150,12 @@ const ActionBarContainer = styled.div`
   gap: 4px;
 
   .MuiButton-root {
-    font-size: 0.75rem;
-    padding: 2px 8px;
+    font-size: 0.8rem;
+    padding: 4px 10px;
     min-width: unset;
-    color: #6fa2d0;
+    color: ${props => props.theme.palette.primary.main};  
     text-transform: none;
+    font-weight: 500;
   }
 `;
 
@@ -349,7 +350,7 @@ export const DateInput = ({
         sx: { padding: '2px', marginRight: '-4px', ...(disabled && { display: 'none' }) },
       },
       openPickerIcon: {
-        sx: { fontSize: '1rem', color: '#326699' },
+        sx: { fontSize: '1.15rem', color: TAMANU_COLORS.primary },
       },
     },
   };
