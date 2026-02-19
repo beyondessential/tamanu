@@ -9,20 +9,9 @@ import Button from '@mui/material/Button';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import { Box } from '@material-ui/core';
-import {
-  addDays,
-  format as dateFnsFormat,
-  isValid,
-  isSameDay,
-  parse,
-} from 'date-fns';
+import { addDays, format as dateFnsFormat, isValid, isSameDay, parse } from 'date-fns';
 
-import {
-  parseDate,
-  toDateString,
-  toDateTimeString,
-  getFacilityNowDate,
-} from '@tamanu/utils/dateTime';
+import { parseDate, toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { DefaultIconButton } from '../Button';
 import { TextInput } from './TextField';
 import { useDateTimeIfAvailable } from '../../contexts/DateTimeContext';
@@ -217,7 +206,6 @@ export const DateInput = ({
   arrows = false,
   inputProps = {},
   useTimezone = false,
-  timezone,
   disabled,
   error,
   helperText,
@@ -227,14 +215,9 @@ export const DateInput = ({
   const dateTime = useDateTimeIfAvailable();
   const { getTranslation } = useTranslation();
   const shouldUseTimezone = useTimezone && type === 'datetime-local' && dateTime != null;
-  const { toFacilityDateTime, toStoredDateTime } = dateTime ?? {};
+  const { toFacilityDateTime, toStoredDateTime, getFacilityNowDate } = dateTime ?? {};
 
-  const effectiveTimezone = timezone ?? dateTime?.facilityTimeZone ?? dateTime?.primaryTimeZone;
-
-  const todayDate = useMemo(
-    () => (effectiveTimezone ? getFacilityNowDate(effectiveTimezone) : new Date()),
-    [effectiveTimezone],
-  );
+  const todayDate = useMemo(() => getFacilityNowDate?.() ?? new Date(), [getFacilityNowDate]);
 
   const dateValue = useMemo(() => {
     if (!value) return null;
@@ -281,9 +264,8 @@ export const DateInput = ({
   const handleClose = useCallback(() => setOpen(false), []);
 
   const handleSetToday = useCallback(() => {
-    const now = effectiveTimezone ? getFacilityNowDate(effectiveTimezone) : new Date();
-    handleChange(now);
-  }, [handleChange, effectiveTimezone]);
+    handleChange(getFacilityNowDate?.() ?? new Date());
+  }, [handleChange, getFacilityNowDate]);
 
   const handleClear = useCallback(() => {
     emitChange('');
@@ -421,7 +403,7 @@ export const DateTimeInput = ({ useTimezone = true, ...props }) => (
   <DateInput
     type="datetime-local"
     format={DATETIME_LOCAL_FORMAT}
-    // Stop mui rendering 8000 year buttons
+    // Stop mui rendering ~8000 year buttons
     max="2100-12-31T00:00"
     useTimezone={useTimezone}
     {...props}
