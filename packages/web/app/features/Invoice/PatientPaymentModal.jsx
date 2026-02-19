@@ -298,7 +298,7 @@ export const PatientPaymentModal = ({
                 <FormFields>
                   <Field
                     name="date"
-                    max={getCurrentDateString()}
+                    max={getCurrentDate()}
                     component={DateField}
                     saveDateAsString
                     data-testid="field-cx1w"
