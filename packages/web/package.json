@@ -1,7 +1,7 @@
 {
   "name": "@tamanu/web-frontend",
   "productName": "Tamanu",
-  "version": "2.50.0",
+  "version": "2.51.0",
   "description": "Tamanu Web application",
   "private": true,
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -118,6 +118,7 @@
     "react-router": "^7.9.1",
     "react-select": "^4.2.1",
     "react-toastify": "8.2.0",
+    "@zxing/browser": "^0.1.5",
     "react-webcam": "^7.2.0",
     "recharts": "^2.6.2",
     "redux": "^4.0.2",
