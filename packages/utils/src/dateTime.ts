@@ -29,10 +29,6 @@ import { z } from 'zod';
 
 import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
 
-// ---------------------------------------------------------------------------
-// Common types
-// ---------------------------------------------------------------------------
-
 export type DateInput = string | Date | null | undefined;
 
 // ---------------------------------------------------------------------------
@@ -262,7 +258,7 @@ export const eachDayInMonth = (date: Date) =>
 // ---------------------------------------------------------------------------
 
 const iso9075Validator = (regex: RegExp, message: string) =>
-  z.string().refine((val: string) => regex.test(val) && isValid(new Date(val)), { message });
+  z.string().refine((val: string) => regex.test(val) && isValid(parseISO(val.replace(' ', 'T'))), { message });
 
 export const dateCustomValidation = iso9075Validator(
   /^\d{4}-\d{2}-\d{2}$/,
