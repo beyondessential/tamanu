@@ -39,6 +39,7 @@ import {
 } from './utils';
 import { PATIENT_SORT_KEYS } from './constants';
 import { getWhereClausesAndReplacementsFromFilters } from '../../../utils/query';
+import { getLastOrderedAtForOngoingPrescriptions } from '../../../utils/medication';
 import { validate } from '../../../utils/validate';
 import { patientContact } from './patientContact';
 import { patientPortal } from './patientPortal';
@@ -649,36 +650,14 @@ patientRoute.get(
     if (responseData.length > 0) {
       const ongoingPrescriptionIds = responseData.map(p => p.id);
 
-      // Find the latest pharmacy_order_prescriptions for prescriptions that were cloned from ongoing prescriptions.
-      const [pharmacyOrderPrescriptions] = await db.query(
-        `
-        SELECT
-          p_ongoing.id as ongoing_prescription_id,
-          MAX(pop.created_at) as last_ordered_at
-        FROM prescriptions p_ongoing
-        INNER JOIN prescriptions p_cloned ON p_cloned.medication_id = p_ongoing.medication_id
-          AND p_cloned.deleted_at IS NULL
-        INNER JOIN encounter_prescriptions ep_cloned ON ep_cloned.prescription_id = p_cloned.id
-        INNER JOIN encounters e ON e.id = ep_cloned.encounter_id
-          AND e.patient_id = :patientId
-          AND e.reason_for_encounter = 'Medication dispensing'
-        INNER JOIN pharmacy_order_prescriptions pop ON pop.prescription_id = p_cloned.id
-          AND pop.deleted_at IS NULL
-        WHERE p_ongoing.id IN (:ongoingPrescriptionIds)
-        GROUP BY p_ongoing.id
-      `,
-        {
-          replacements: {
-            patientId,
-            ongoingPrescriptionIds,
-          },
-        },
+      const lastOrderedAts = await getLastOrderedAtForOngoingPrescriptions(
+        db,
+        ongoingPrescriptionIds,
       );
-      const lastOrderedAts = keyBy(pharmacyOrderPrescriptions, 'ongoing_prescription_id');
 
       responseData = responseData.map(p => ({
         ...p,
-        lastOrderedAt: lastOrderedAts[p.id]?.last_ordered_at?.toISOString(),
+        lastOrderedAt: lastOrderedAts[p.id]?.last_ordered_at,
       }));
     }
 

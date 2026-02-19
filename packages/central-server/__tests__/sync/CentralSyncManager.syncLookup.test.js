@@ -6,7 +6,7 @@ import {
   PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
   PATIENT_FIELD_DEFINITION_TYPES,
   NOTE_RECORD_TYPES,
-  REPORT_DB_SCHEMAS,
+  REPORT_DB_CONNECTIONS,
   REPORT_STATUSES,
   SETTINGS_SCOPES,
   FACT_CURRENT_SYNC_TICK,
@@ -438,7 +438,7 @@ describe('Sync Lookup data', () => {
 
     const reportDefinition = await ReportDefinition.create(
       fake(ReportDefinition, {
-        dbSchema: REPORT_DB_SCHEMAS.REPORTING,
+        dbSchema: REPORT_DB_CONNECTIONS.REPORTING,
       }),
     );
     await ReportDefinitionVersion.create(
