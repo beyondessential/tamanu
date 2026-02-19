@@ -169,7 +169,8 @@ const ActionBarContainer = styled.div`
 const TimezoneActionBar = ({
   onClear,
   onSetToday,
-  todayLabel = 'Today',
+  todayLabel,
+  clearLabel,
   actions = [],
   className,
 }) => {
@@ -178,7 +179,7 @@ const TimezoneActionBar = ({
     <ActionBarContainer className={className}>
       {actions.includes('clear') && (
         <Button onClick={onClear} size="small">
-          Clear
+          {clearLabel}
         </Button>
       )}
       {actions.includes('today') && (
@@ -190,10 +191,10 @@ const TimezoneActionBar = ({
   );
 };
 
-const TimezoneDay = ({ todayInTimezone, day, ...other }) => {
+const TimezoneDay = React.memo(({ todayInTimezone, day, ...other }) => {
   const isToday = !!(day && todayInTimezone && isSameDay(day, todayInTimezone));
   return <PickersDay {...other} day={day} today={isToday} />;
-};
+});
 
 const DISPLAY_FORMATS = {
   date: 'dd/MM/yyyy',
@@ -268,6 +269,8 @@ export const DateInput = ({
   );
 
   const [open, setOpen] = useState(false);
+  const handleOpen = useCallback(() => setOpen(true), []);
+  const handleClose = useCallback(() => setOpen(false), []);
 
   const handleSetToday = useCallback(() => {
     const now = effectiveTimezone ? getFacilityNowDate(effectiveTimezone) : new Date();
@@ -291,40 +294,37 @@ export const DateInput = ({
     [displayFormat, handleChange],
   );
 
-  const maxDate = useMemo(() => {
-    if (!max) return undefined;
-    if (shouldUseTimezone && toFacilityDateTime) {
-      const converted = toFacilityDateTime(max);
-      if (converted) return parseValue(converted, "yyyy-MM-dd'T'HH:mm");
-    }
-    return parseValue(max, format);
-  }, [max, format, shouldUseTimezone, toFacilityDateTime]);
+  const parseDateBound = useCallback(
+    bound => {
+      if (!bound) return undefined;
+      if (shouldUseTimezone && toFacilityDateTime) {
+        const converted = toFacilityDateTime(bound);
+        if (converted) return parseValue(converted, "yyyy-MM-dd'T'HH:mm");
+      }
+      return parseValue(bound, format);
+    },
+    [format, shouldUseTimezone, toFacilityDateTime],
+  );
 
-  const minDate = useMemo(() => {
-    if (!min) return undefined;
-    if (shouldUseTimezone && toFacilityDateTime) {
-      const converted = toFacilityDateTime(min);
-      if (converted) return parseValue(converted, "yyyy-MM-dd'T'HH:mm");
-    }
-    return parseValue(min, format);
-  }, [min, format, shouldUseTimezone, toFacilityDateTime]);
+  const maxDate = useMemo(() => parseDateBound(max), [parseDateBound, max]);
+  const minDate = useMemo(() => parseDateBound(min), [parseDateBound, min]);
 
   const commonProps = {
     value: dateValue,
     onChange: handleChange,
     open,
-    onOpen: () => setOpen(true),
-    onClose: () => setOpen(false),
+    onOpen: handleOpen,
+    onClose: handleClose,
     referenceDate: todayDate,
     format: displayFormat,
     disabled,
     localeText: {
-      fieldDayPlaceholder: () => getTranslation('general.date.placeholder.day', 'dd'),
-      fieldMonthPlaceholder: () => getTranslation('general.date.placeholder.month', 'mm'),
-      fieldYearPlaceholder: () => getTranslation('general.date.placeholder.year', 'yyyy'),
-      fieldHoursPlaceholder: () => '--',
-      fieldMinutesPlaceholder: () => getTranslation('general.date.placeholder.minutes', '--'),
-      fieldMeridiemPlaceholder: () => getTranslation('general.date.placeholder.meridiem', '--'),
+      fieldDayPlaceholder: () => getTranslation('date.placeholder.day', 'dd'),
+      fieldMonthPlaceholder: () => getTranslation('date.placeholder.month', 'mm'),
+      fieldYearPlaceholder: () => getTranslation('date.placeholder.year', 'yyyy'),
+      fieldHoursPlaceholder: () => getTranslation('date.placeholder.hours', '--'),
+      fieldMinutesPlaceholder: () => getTranslation('date.placeholder.minutes', '--'),
+      fieldMeridiemPlaceholder: () => getTranslation('date.placeholder.meridiem', '--'),
     },
     slots: {
       actionBar: TimezoneActionBar,
@@ -339,9 +339,9 @@ export const DateInput = ({
         onClear: handleClear,
         todayLabel:
           type === 'time'
-            ? getTranslation('general.date.now', 'Now')
-            : getTranslation('general.date.today', 'Today'),
-        clearLabel: getTranslation('general.date.clear', 'Clear'),
+            ? getTranslation('date.now', 'Now')
+            : getTranslation('date.today', 'Today'),
+        clearLabel: getTranslation('date.clear', 'Clear'),
       },
       textField: {
         name,
