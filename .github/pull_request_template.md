@@ -10,10 +10,6 @@ _Add a brief description of the changes in this PR to help give the reviewer con
 
 - [ ] **Run E2E Tests** <!-- #e2e -->
 
-### Review Hero
-
-- [ ] **Run Review Hero** <!-- #ai-review -->
-
 ### Remember to...
 
 - ...write or update tests
