@@ -204,7 +204,7 @@ function commitAndPush(commentCount) {
 
   execSync('git add -A');
   execSync(
-    `git commit -m "fix: no-issue: auto-fix ${commentCount} review suggestion${commentCount === 1 ? '' : 's'}\n\nCo-Authored-By: Claude <noreply@anthropic.com>"`,
+    `git commit -m "fix: no-issue: auto-fix ${commentCount} review suggestion${commentCount === 1 ? '' : 's'}\n\nCo-Authored-By: Review Hero <contact@bes.au>"`,
   );
 
   // Push to the PR branch
