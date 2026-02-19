@@ -211,7 +211,7 @@ export const DispenseMedicationWorkflowModal = memo(
     const { facilityId, currentUser } = useAuth();
     const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
     const practitionerSuggester = useSuggester('practitioner');
-    const { formatShort } = useDateTime();
+    const { formatShort, getCurrentDateTime } = useDateTime();
     const [step, setStep] = useState(MODAL_STEPS.DISPENSE);
     const [dispensedByUserId, setDispensedByUserId] = useState('');
     const [items, setItems] = useState([]);
@@ -393,7 +393,7 @@ export const DispenseMedicationWorkflowModal = memo(
           requestNumber: item.displayId,
         };
       });
-      const reviewLabels = getMedicationLabelData({ items: labelItems, patient, facility });
+      const reviewLabels = getMedicationLabelData({ items: labelItems, patient, facility, currentDateTime: getCurrentDateTime() });
       setLabelsForPrint(reviewLabels);
     };
 

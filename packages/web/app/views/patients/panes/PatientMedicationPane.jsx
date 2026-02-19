@@ -7,7 +7,8 @@ import {
   TranslatedText,
   TranslatedReferenceData,
   TranslatedEnum,
-  DateDisplay
+  DateDisplay,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { PATIENT_STATUS_COLORS } from '../../../constants';
@@ -389,6 +390,7 @@ export const PatientMedicationPane = ({ patient }) => {
   const patientStatus = getPatientStatus(currentEncounter?.encounterType);
 
   const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
+  const { getCurrentDateTime } = useDateTime();
 
   const [ongoingPrescriptions, setOngoingPrescriptions] = useState([]);
   const [dispensedMedications, setDispensedMedications] = useState([]);
@@ -479,11 +481,11 @@ export const PatientMedicationPane = ({ patient }) => {
         },
       ];
 
-      const labelData = getMedicationLabelData({ items: labelItems, patient, facility });
+      const labelData = getMedicationLabelData({ items: labelItems, patient, facility, currentDateTime: getCurrentDateTime() });
       setSelectedLabelData(labelData);
       setPrintModalOpen(true);
     },
-    [patient, facility, getReferenceDataTranslation],
+    [patient, facility, getReferenceDataTranslation, getCurrentDateTime],
   );
 
   const handleEdit = useCallback(dispense => {

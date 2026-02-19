@@ -155,7 +155,7 @@ export const EditMedicationDispenseModal = memo(
     const { facilityId } = useAuth();
     const { getTranslation, getReferenceDataTranslation } = useTranslation();
     const practitionerSuggester = useSuggester('practitioner');
-    const { formatShort } = useDateTime();
+    const { formatShort, getCurrentDateTime } = useDateTime();
     const [step, setStep] = useState(MODAL_STEPS.DISPENSE);
     const [dispensedByUserId, setDispensedByUserId] = useState('');
     const [item, setItem] = useState(null);
@@ -258,6 +258,7 @@ export const EditMedicationDispenseModal = memo(
         items: [labelItem],
         patient: patient || item.pharmacyOrderPrescription.pharmacyOrder.encounter.patient,
         facility,
+        currentDateTime: getCurrentDateTime(),
       });
       setLabelForPrint(reviewLabels[0]);
     };
