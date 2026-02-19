@@ -13,7 +13,7 @@ _Add a brief description of the changes in this PR to help give the reviewer con
 ### Review Hero
 
 - [ ] **Run Review Hero** <!-- #ai-review -->
-- [ ] **Auto-fix review suggestions** <!-- #auto-fix -->
+- [ ] **Auto-fix review suggestions** <!-- #auto-fix --> _Wait for Review Hero to finish, resolve any comments you disagree with or want to fix manually, then check this to auto-fix the rest._
 
 ### Remember to...
 
