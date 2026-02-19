@@ -62,21 +62,29 @@ function parseAgentResult(filePath, agentKey) {
       // Not valid JSON at top level — might be raw text with JSON embedded
     }
 
-    // Extract JSON array from text — try parsing from each '[' to find valid JSON
-    // (a greedy regex like /\[[\s\S]*\]/ would over-match if extra ']' exists in surrounding text)
+    // Extract JSON array from text by trying [start..end] pairs.
+    // Can't just parse from '[' to end-of-string because trailing markdown
+    // fences or explanation text will cause JSON.parse to fail.
     let findings = null;
     let searchFrom = 0;
-    while (searchFrom < text.length) {
+    outer: while (searchFrom < text.length) {
       const start = text.indexOf('[', searchFrom);
       if (start === -1) break;
-      try {
-        const parsed = JSON.parse(text.slice(start));
-        if (Array.isArray(parsed)) {
-          findings = parsed;
-          break;
+      // Try each ']' from the end backwards to find the matching close
+      let searchEnd = text.length;
+      while (searchEnd > start) {
+        const end = text.lastIndexOf(']', searchEnd - 1);
+        if (end <= start) break;
+        try {
+          const parsed = JSON.parse(text.slice(start, end + 1));
+          if (Array.isArray(parsed)) {
+            findings = parsed;
+            break outer;
+          }
+        } catch {
+          // Not valid JSON for this pair — try a shorter span
         }
-      } catch {
-        // Not valid JSON from this position — try next '['
+        searchEnd = end;
       }
       searchFrom = start + 1;
     }
