@@ -171,6 +171,7 @@ const SELF_WORKFLOW = 'Review Hero Auto-Fix';
 
 function stripAnsiAndTimestamps(log) {
   return log
+    // eslint-disable-next-line no-control-regex
     .replace(/\u001b\[[0-9;]*m/g, '') // ANSI codes
     .replace(/^\d{4}-\d{2}-\d{2}T[\d:.]+Z /gm, ''); // timestamp prefixes
 }
