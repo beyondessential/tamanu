@@ -119,6 +119,7 @@ jobs:
       - name: Run Review Hero orchestrator
         env:
           GITHUB_TOKEN: ${{ steps.review-hero-token.outputs.token }}
+          GITHUB_ACTIONS_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           ARTIFACTS_DIR: /tmp/artifacts

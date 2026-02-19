@@ -150,8 +150,8 @@ function buildInlineComment(group) {
     .join('\n\n---\n\n');
 }
 
-async function githubApi(endpoint, options = {}) {
-  const token = getEnvOrThrow('GITHUB_TOKEN');
+async function githubApi(endpoint, options = {}, { token } = {}) {
+  token ??= getEnvOrThrow('GITHUB_TOKEN');
   const repo = getEnvOrThrow('GITHUB_REPOSITORY');
   const baseUrl = `https://api.github.com/repos/${repo}`;
 
@@ -428,10 +428,13 @@ async function uncheckReviewHero(prNumber) {
 
     if (updated === body) return; // already unchecked
 
+    // Use the built-in Actions token for the PATCH so it doesn't trigger
+    // a pull_request.edited event (app tokens do, built-in tokens don't)
+    const actionsToken = process.env.GITHUB_ACTIONS_TOKEN;
     await githubApi(`/pulls/${prNumber}`, {
       method: 'PATCH',
       body: JSON.stringify({ body: updated }),
-    });
+    }, { token: actionsToken });
     console.log('Unchecked Review Hero checkbox');
   } catch (err) {
     console.warn(`Failed to uncheck checkbox: ${err.message}`);
