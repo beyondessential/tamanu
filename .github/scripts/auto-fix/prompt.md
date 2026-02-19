@@ -31,7 +31,7 @@ After applying all fixes, output a JSON array. **Use the same ID numbers from th
 ]
 ```
 
-You **must** include an entry for every review comment ID. Use status `"fixed"` or `"skipped"`.
+You **must** include an entry for every review comment ID and every CI failure ID. Use status `"fixed"` or `"skipped"`.
 
 ## Rules
 

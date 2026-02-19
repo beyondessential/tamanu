@@ -488,7 +488,7 @@ async function main() {
   // Count CI fixes (IDs after review comments)
   const fixedCICount = ciFailures.filter((_, i) => {
     const result = resultById.get(comments.length + i + 1);
-    return result?.status !== 'skipped';
+    return result?.status === 'fixed';
   }).length;
 
   // Build commit message from actual fix counts
