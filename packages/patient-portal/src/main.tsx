@@ -5,6 +5,8 @@ import { CssBaseline } from '@material-ui/core';
 import MuiLatestThemeProvider from '@mui/material/styles/ThemeProvider';
 import { ThemeProvider } from 'styled-components';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { ApiContext, CustomToastContainer } from '@tamanu/ui-components';
 import '@fontsource/roboto';
 import '@fontsource/roboto/500.css';
@@ -31,13 +33,15 @@ createRoot(document.getElementById('root')!).render(
         <TranslationProvider>
           <StylesProvider injectFirst>
             <MuiLatestThemeProvider theme={theme}>
-              <MuiThemeProvider theme={theme}>
-                <ThemeProvider theme={theme}>
-                  <CustomToastContainer />
-                  <CssBaseline />
-                  <App />
-                </ThemeProvider>
-              </MuiThemeProvider>
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <MuiThemeProvider theme={theme}>
+                  <ThemeProvider theme={theme}>
+                    <CustomToastContainer />
+                    <CssBaseline />
+                    <App />
+                  </ThemeProvider>
+                </MuiThemeProvider>
+              </LocalizationProvider>
             </MuiLatestThemeProvider>
           </StylesProvider>
         </TranslationProvider>
