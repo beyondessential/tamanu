@@ -10,8 +10,10 @@ Each review comment below has an **ID number** (e.g. `#1`, `#2`). For each one, 
 
 ### CI Failures
 
-For each CI failure, read the log output to understand the error, then fix the root cause in the source code. Common failures include:
-- **Lint errors**: Fix the code to satisfy the linter (don't disable rules)
+For each CI failure, read the log output to understand the error, then fix the root cause in the source code. You have Bash access — run the failing command (e.g. `npm run lint-all -- --quiet`) to see the exact errors and verify your fixes work.
+
+Common failures include:
+- **Lint errors**: Run the linter, fix the code, run it again to confirm
 - **Test failures**: Fix the code so the test passes (don't modify the test unless the test itself is wrong)
 - **Migration issues**: Fix the migration code
 - **Build errors**: Fix type errors or import issues

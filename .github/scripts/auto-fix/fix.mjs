@@ -271,12 +271,16 @@ function runClaude(prompt) {
   const promptPath = `/tmp/auto-fix-prompt-${prNumber}-${Date.now()}.md`;
   writeFileSync(promptPath, prompt);
 
+  const tools = fixCI
+    ? 'Read,Edit,Glob,Grep,Bash'
+    : 'Read,Edit,Glob,Grep';
+
   const result = execSync(
     `cat "${promptPath}" | claude -p ` +
     `--output-format json ` +
     `--model "${model}" ` +
     `--max-turns 30 ` +
-    `--allowedTools "Read,Edit,Glob,Grep"`,
+    `--allowedTools "${tools}"`,
     {
       encoding: 'utf-8',
       timeout: 10 * 60 * 1000, // 10 minutes
