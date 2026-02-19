@@ -97,9 +97,15 @@ jobs:
         with:
           path: /tmp/artifacts
           pattern: review-*
+      - name: Generate Review Hero token
+        id: review-hero-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.REVIEW_HERO_APP_ID }}
+          private-key: ${{ secrets.REVIEW_HERO_PRIVATE_KEY }}
       - name: Run Review Hero orchestrator
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ steps.review-hero-token.outputs.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           ARTIFACTS_DIR: /tmp/artifacts
