@@ -15,14 +15,12 @@ import {
   isValid,
   isSameDay,
   parse,
-  startOfToday,
 } from 'date-fns';
 
 import {
   parseDate,
   toDateString,
   toDateTimeString,
-  getCurrentDateStringInTimezone,
   getFacilityNowDate,
 } from '@tamanu/utils/dateTime';
 import { DefaultIconButton } from '../Button';
@@ -42,10 +40,6 @@ import { useTranslation } from '../../contexts/TranslationContext';
  *
  * Value format is unchanged: string in, string out via onChange({ target: { value, name } }).
  */
-
-function getTodayInTimezone(tz) {
-  return parse(getCurrentDateStringInTimezone(tz), 'yyyy-MM-dd', new Date());
-}
 
 const PARSE_FORMATS = [
   "yyyy-MM-dd'T'HH:mm:ss",
@@ -238,7 +232,7 @@ export const DateInput = ({
   const effectiveTimezone = timezone ?? dateTime?.facilityTimeZone ?? dateTime?.primaryTimeZone;
 
   const todayDate = useMemo(
-    () => (effectiveTimezone ? getTodayInTimezone(effectiveTimezone) : startOfToday()),
+    () => (effectiveTimezone ? getFacilityNowDate(effectiveTimezone) : new Date()),
     [effectiveTimezone],
   );
 
