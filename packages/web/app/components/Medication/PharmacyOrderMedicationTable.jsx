@@ -81,6 +81,11 @@ const NoWrapCell = styled(Box)`
   white-space: nowrap;
 `;
 
+const TwoLineHeaderText = styled.div`
+  width: 85px;
+  white-space: normal;
+`;
+
 export const COLUMN_KEYS = {
   SELECT: 'select',
   DATE: 'date',
@@ -278,11 +283,13 @@ const getColumns = (
           </span>
         </ThemedTooltip>
       ) : (
-        <TranslatedText
-          stringId="pharmacyOrder.table.column.repeatsOnDischarge"
-          fallback="Repeats on discharge"
-          data-testid="translatedtext-psdf"
-        />
+        <TwoLineHeaderText>
+          <TranslatedText
+            stringId="pharmacyOrder.table.column.repeatsOnDischarge"
+            fallback="Repeats on discharge"
+            data-testid="translatedtext-psdf"
+          />
+        </TwoLineHeaderText>
       ),
       sortable: false,
       accessor: ({ repeats, lastOrderedAt }) => {
@@ -324,6 +331,14 @@ const getColumns = (
           onChange={onChange}
           required
           error={hasError}
+          helperText={
+            hasError && (
+              <TranslatedText
+                stringId="validation.required.inline"
+                fallback="*Required"
+              />
+            )
+          }
           data-testid="textinput-rxbh"
         />
       ),

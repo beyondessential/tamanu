@@ -8,9 +8,6 @@ import { invoiceForResponse } from '../invoice/invoiceForResponse';
 
 export const patientInvoiceRoutes = express.Router();
 
-const encounterOrderByKeys = ['encounterType'];
-const invoiceOrderByKeys = ['date', 'displayId', 'patientPaymentStatus'];
-
 // Shared function to hydrate invoices with price list associations
 async function hydrateInvoices(invoiceRecords, models) {
   return Promise.all(
@@ -35,14 +32,24 @@ async function hydrateInvoices(invoiceRecords, models) {
   );
 }
 
-// Calculate total balance from invoices
-function calculateTotalBalance(invoices) {
-  const balance = invoices.reduce((sum, invoice) => {
-    const invoiceAmount = new Decimal(getInvoiceSummary(invoice).patientPaymentRemainingBalance);
-    return sum.add(invoiceAmount);
-  }, new Decimal(0));
-  return balance.toNumber();
-}
+const encounterOrderByKeys = ['encounterType'];
+const invoiceOrderByKeys = ['date', 'displayId', 'patientPaymentStatus', 'status'];
+
+const buildInvoiceOrderClause = ({ order, orderBy, models }) => {
+  if (!orderBy) return undefined;
+
+  const direction = String(order).toUpperCase();
+
+  if (invoiceOrderByKeys.includes(orderBy)) {
+    return [[orderBy, direction]];
+  }
+
+  if (encounterOrderByKeys.includes(orderBy)) {
+    return [[{ model: models.Encounter, as: 'encounter' }, orderBy, direction]];
+  }
+
+  return undefined;
+};
 
 patientInvoiceRoutes.get(
   '/:id/invoices',
@@ -59,16 +66,9 @@ patientInvoiceRoutes.get(
           model: models.Encounter,
           as: 'encounter',
           where: { patientId },
-          order:
-            orderBy && encounterOrderByKeys.includes(orderBy)
-              ? [[orderBy, order.toUpperCase()]]
-              : undefined,
         },
       ],
-      order:
-        orderBy && invoiceOrderByKeys.includes(orderBy)
-          ? [[orderBy, order.toUpperCase()]]
-          : undefined,
+      order: buildInvoiceOrderClause({ order, orderBy, models }),
       limit: rowsPerPage,
       offset: page * rowsPerPage,
     });
@@ -91,6 +91,15 @@ patientInvoiceRoutes.get(
     });
   }),
 );
+
+// Calculate total balance from invoices
+const calculateTotalBalance = invoices => {
+  const balance = invoices.reduce((sum, invoice) => {
+    const invoiceAmount = new Decimal(getInvoiceSummary(invoice).patientPaymentRemainingBalance);
+    return sum.add(invoiceAmount);
+  }, new Decimal(0));
+  return balance.toNumber();
+};
 
 patientInvoiceRoutes.get(
   '/:id/invoices/totalOutstandingBalance',

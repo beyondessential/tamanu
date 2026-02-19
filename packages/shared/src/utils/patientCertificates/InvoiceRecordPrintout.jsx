@@ -190,14 +190,33 @@ const OrderedByCellWithAdjustments = ({ children, style, item }) => {
   const showAdjustments = hasItemAdjustment(item);
 
   return (
-    <View style={[baseTableStyles.baseCell, style, { flexDirection: 'column', alignItems: 'flex-start' }]}>
+    <View
+      style={[
+        baseTableStyles.baseCell,
+        style,
+        { flexDirection: 'column', alignItems: 'flex-start' },
+      ]}
+    >
       <P>{children}</P>
       {showAdjustments && (
         <>
-          <View style={{ height: ADJUSTMENT_ROW_HEIGHT, marginTop: ADJUSTMENT_TOP_MARGIN, justifyContent: 'center', alignSelf: 'flex-end' }}>
+          <View
+            style={{
+              height: ADJUSTMENT_ROW_HEIGHT,
+              marginTop: ADJUSTMENT_TOP_MARGIN,
+              justifyContent: 'center',
+              alignSelf: 'flex-end',
+            }}
+          >
             <Text style={subRowStyles.labelText}>Item adjustment</Text>
           </View>
-          <View style={{ height: ADJUSTMENT_ROW_HEIGHT, justifyContent: 'center', alignSelf: 'flex-end' }}>
+          <View
+            style={{
+              height: ADJUSTMENT_ROW_HEIGHT,
+              justifyContent: 'center',
+              alignSelf: 'flex-end',
+            }}
+          >
             <Text style={subRowStyles.labelText}>Cost after adjustment</Text>
           </View>
         </>
@@ -212,14 +231,26 @@ const OrderedByCellWithAdjustments = ({ children, style, item }) => {
 const PriceCellWithAdjustments = ({ children, style, item }) => {
   const showAdjustments = hasItemAdjustment(item);
   const adjustmentAmount = showAdjustments ? getItemAdjustmentAmount(item) : 0;
-  const costAfterAdjustment = showAdjustments ? (getInvoiceItemTotalDiscountedPrice(item) || 0) : 0;
+  const costAfterAdjustment = showAdjustments ? getInvoiceItemTotalDiscountedPrice(item) || 0 : 0;
 
   return (
-    <View style={[baseTableStyles.baseCell, style, { flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'flex-start' }]}>
+    <View
+      style={[
+        baseTableStyles.baseCell,
+        style,
+        { flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'flex-start' },
+      ]}
+    >
       {children}
       {showAdjustments && (
         <>
-          <View style={{ height: ADJUSTMENT_ROW_HEIGHT, marginTop: ADJUSTMENT_TOP_MARGIN, justifyContent: 'center' }}>
+          <View
+            style={{
+              height: ADJUSTMENT_ROW_HEIGHT,
+              marginTop: ADJUSTMENT_TOP_MARGIN,
+              justifyContent: 'center',
+            }}
+          >
             <Text style={subRowStyles.valueText}>{formatDisplayPrice(adjustmentAmount)}</Text>
           </View>
           <View style={{ height: ADJUSTMENT_ROW_HEIGHT, justifyContent: 'center' }}>
@@ -493,12 +524,7 @@ const InvoiceItemTable = ({ data, columns, title }) => (
     <InvoiceItemDataTableHeading columns={columns} title={title} />
     {data.map(row => {
       return (
-        <RowWrapper
-          key={row.id}
-          row={row}
-          columns={columns}
-          style={invoiceItemTableStyles.row}
-        />
+        <RowWrapper key={row.id} row={row} columns={columns} style={invoiceItemTableStyles.row} />
       );
     })}
   </Table>
@@ -540,7 +566,7 @@ const PaymentTableSection = ({ title, data, columns }) => {
 
 const SummaryPane = ({ invoice }) => {
   const {
-    invoiceItemsTotal,
+    invoiceItemsUndiscountedTotal,
     patientPaymentRemainingBalance,
     patientSubtotal,
     patientPaymentsTotal,
@@ -553,7 +579,7 @@ const SummaryPane = ({ invoice }) => {
     <View wrap={false} style={summaryPaneStyles.container}>
       <View style={summaryPaneStyles.item}>
         <P>Invoice total</P>
-        <P>{formatDisplayPrice(invoiceItemsTotal)}</P>
+        <P>{formatDisplayPrice(invoiceItemsUndiscountedTotal)}</P>
       </View>
       <View style={summaryPaneStyles.item}>
         <P>Item adjustments</P>
@@ -578,9 +604,7 @@ const SummaryPane = ({ invoice }) => {
       <HorizontalRule />
       <View style={summaryPaneStyles.item}>
         <P>Patient payments</P>
-        <P>
-          {formatDisplayPrice(patientPaymentsTotalDisplay)}
-        </P>
+        <P>{formatDisplayPrice(patientPaymentsTotalDisplay)}</P>
       </View>
       <HorizontalRule />
       <View style={[summaryPaneStyles.item, { marginVertical: 7.5 }]}>
