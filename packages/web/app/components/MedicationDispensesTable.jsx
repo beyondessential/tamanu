@@ -11,7 +11,8 @@ import { Colors } from '../constants';
 import { MenuButton } from './MenuButton';
 import { TranslatedReferenceData } from '@tamanu/ui-components';
 import { MedicationLabelPrintModal } from './PatientPrinting/modals/MedicationLabelPrintModal';
-import { getMedicationLabelData } from '../utils/medications';
+import { getMedicationLabelData, getTranslatedMedicationName } from '../utils/medications';
+import { useTranslation } from '../contexts/Translation';
 import { useFacilityQuery } from '../api/queries/useFacilityQuery';
 import { useApi } from '../api';
 import { CancelDispensedMedicationModal } from './Medication/CancelDispensedMedicationModal';
@@ -71,6 +72,7 @@ const getRequestNumber = ({ pharmacyOrderPrescription }) => pharmacyOrderPrescri
 export const MedicationDispensesTable = () => {
   const api = useApi();
   const { ability, facilityId } = useAuth();
+  const { getReferenceDataTranslation } = useTranslation();
   const { searchParameters } = useMedicationsContext(MEDICATIONS_SEARCH_KEYS.DISPENSED);
   const { data: facility } = useFacilityQuery(facilityId);
 
@@ -96,10 +98,11 @@ export const MedicationDispensesTable = () => {
     const prescription = pharmacyOrderPrescription?.prescription;
     const patient = pharmacyOrderPrescription?.pharmacyOrder?.encounter?.patient;
 
+    const medication = prescription?.medication;
     const labelItems = [
       {
         id,
-        medicationName: prescription?.medication?.name,
+        medicationName: getTranslatedMedicationName(medication, getReferenceDataTranslation),
         instructions,
         quantity,
         units: prescription?.units,

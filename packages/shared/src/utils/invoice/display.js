@@ -1,10 +1,12 @@
 import { mapValues } from 'lodash';
 import Decimal from 'decimal.js';
+import { getInvoiceSummary } from './invoice';
 import {
-  getInvoiceItemTotalDiscountedPrice,
+  getItemTotalInsuranceCoverageAmount,
   getInvoiceItemTotalPrice,
-  getInvoiceSummary,
-} from './invoice';
+  getInvoiceItemTotalDiscountedPrice,
+  getInvoiceItemNetCost,
+} from './invoiceItem';
 
 export const round = (value, decimals = 2) => {
   return new Decimal(value).toNearest(new Decimal(10).pow(-decimals)).toNumber();
@@ -52,4 +54,27 @@ export const getInvoiceItemDiscountPriceDisplay = invoiceItem => {
       ? undefined
       : getInvoiceItemTotalDiscountedPrice(invoiceItem),
   );
+};
+
+/**
+ * Calculate and format the insurance coverage of an invoice item for display in printout
+ * @param {InvoiceItem} item - The invoice item object
+ * @returns {string} - The formatted insurance coverage of the item (e.g., "0.00")
+ */
+export const getFormattedInvoiceItemCoverageAmount = item => {
+  if (!item?.product?.insurable || !item.insurancePlanItems?.length) {
+    return formatDisplayPrice(0);
+  }
+  const coverage = getItemTotalInsuranceCoverageAmount(item);
+  return formatDisplayPrice(-coverage);
+};
+
+/**
+ * Calculate and format the net cost of an invoice item for display in printout
+ * @param {InvoiceItem} item - The invoice item object
+ * @returns {string} - The net cost of the item
+ */
+export const getFormattedInvoiceItemNetCost = item => {
+  const netCost = getInvoiceItemNetCost(item);
+  return formatDisplayPrice(netCost);
 };
