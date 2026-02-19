@@ -9,7 +9,7 @@ Also see `llm/project-rules/important-project-rules.md` for coding preferences a
 
 Readability is the highest priority. Every line of code is read many times over its life — saving the reader cognitive cycles compounds massively.
 
-- **Be specific with names.** The reader should instantly know what they're looking at without reading surrounding code. `numberOfDoors` not `count`, `doorWidth` not `dw`.
+- **Be specific with names.** The reader should instantly know what they're looking at without reading surrounding code. `numberOfDoors` not `count`, `doorWidth` not `dw`. Single-letter variables are fine in short inline callbacks (e.g. `.map(f => f.name)`) where the collection name provides context.
 - **Avoid abbreviations** unless they're universally known (e.g. `id`, `url`, `html`). Variable names are minified out — there's no reason to abbreviate.
 - **Use conventional hints.** `is`/`has`/`can`/`does` prefix for booleans, verb/action for functions, plural for arrays/sets.
 - **`let` is a smell.** If a variable is being reassigned through conditionals, consider extracting a function that computes the value instead.

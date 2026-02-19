@@ -212,7 +212,7 @@ function buildSummaryTable(nitpicks) {
     .map(f => {
       const agentName = AGENT_NAMES[f.agent] ?? f.agent;
       const shortComment =
-        f.comment.length > 120 ? `${f.comment.slice(0, 117)}...` : f.comment;
+        f.comment.length > 300 ? `${f.comment.slice(0, 297)}...` : f.comment;
       return `| \`${f.file}\` | ${f.line} | ${agentName} | ${shortComment} |`;
     })
     .join('\n');
