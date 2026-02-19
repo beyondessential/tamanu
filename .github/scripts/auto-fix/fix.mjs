@@ -28,47 +28,74 @@ const prNumber = getEnvOrThrow('PR_NUMBER');
 const appId = process.env.REVIEW_HERO_APP_ID ?? '';
 const model = process.env.AI_FIX_MODEL ?? 'claude-sonnet-4-5-20250929';
 
+async function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function githubApi(endpoint, options = {}) {
   const baseUrl = `https://api.github.com/repos/${repo}`;
-  const response = await fetch(`${baseUrl}${endpoint}`, {
-    ...options,
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28',
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-  });
 
-  if (!response.ok) {
-    const body = await response.text();
-    throw new Error(`GitHub API ${response.status}: ${body}`);
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const response = await fetch(`${baseUrl}${endpoint}`, {
+        ...options,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28',
+          'Content-Type': 'application/json',
+          ...options.headers,
+        },
+      });
+
+      if (!response.ok) {
+        const body = await response.text();
+        throw new Error(`GitHub API ${response.status}: ${body}`);
+      }
+
+      return response.json();
+    } catch (err) {
+      if (attempt < 2) {
+        console.warn(`GitHub API attempt ${attempt + 1} failed, retrying: ${err.message}`);
+        await sleep(1000 * (attempt + 1));
+      } else {
+        throw err;
+      }
+    }
   }
-
-  return response.json();
 }
 
 async function githubGraphQL(query, variables) {
-  const response = await fetch('https://api.github.com/graphql', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ query, variables }),
-  });
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const response = await fetch('https://api.github.com/graphql', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query, variables }),
+      });
 
-  if (!response.ok) {
-    const body = await response.text();
-    throw new Error(`GitHub GraphQL ${response.status}: ${body}`);
-  }
+      if (!response.ok) {
+        const body = await response.text();
+        throw new Error(`GitHub GraphQL ${response.status}: ${body}`);
+      }
 
-  const result = await response.json();
-  if (result.errors) {
-    throw new Error(`GraphQL errors: ${JSON.stringify(result.errors)}`);
+      const result = await response.json();
+      if (result.errors) {
+        throw new Error(`GraphQL errors: ${JSON.stringify(result.errors)}`);
+      }
+      return result.data;
+    } catch (err) {
+      if (attempt < 2) {
+        console.warn(`GraphQL attempt ${attempt + 1} failed, retrying: ${err.message}`);
+        await sleep(1000 * (attempt + 1));
+      } else {
+        throw err;
+      }
+    }
   }
-  return result.data;
 }
 
 async function fetchUnresolvedComments() {
@@ -80,6 +107,7 @@ async function fetchUnresolvedComments() {
         pullRequest(number: $pr) {
           reviewThreads(first: 100) {
             nodes {
+              id
               isResolved
               isOutdated
               comments(first: 10) {
@@ -106,7 +134,6 @@ async function fetchUnresolvedComments() {
   for (const thread of threads) {
     if (thread.isResolved || thread.isOutdated) continue;
 
-    // Use the first comment in the thread (the original review comment)
     const firstComment = thread.comments.nodes[0];
     if (!firstComment?.path || !firstComment?.line) continue;
 
@@ -119,6 +146,7 @@ async function fetchUnresolvedComments() {
       file: firstComment.path,
       line: firstComment.line,
       comment: bodies,
+      threadId: thread.id,
     });
   }
 
@@ -160,7 +188,6 @@ function parseClaudeResult(raw) {
     const parsed = JSON.parse(raw);
     const text = parsed.result ?? raw;
 
-    // Extract JSON array from the text
     let searchFrom = 0;
     while (searchFrom < text.length) {
       const start = text.indexOf('[', searchFrom);
@@ -186,14 +213,12 @@ function parseClaudeResult(raw) {
 }
 
 function commitAndPush(commentCount) {
-  // Check if there are any changes to commit
   const status = execSync('git status --porcelain', { encoding: 'utf-8' }).trim();
   if (!status) {
     console.log('No file changes after auto-fix — Claude may have skipped all comments');
     return false;
   }
 
-  // Configure git identity
   const botName = 'review-hero[bot]';
   const botEmail = appId
     ? `${appId}+review-hero[bot]@users.noreply.github.com`
@@ -207,10 +232,24 @@ function commitAndPush(commentCount) {
     `git commit -m "fix: no-issue: auto-fix ${commentCount} review suggestion${commentCount === 1 ? '' : 's'}\n\nCo-Authored-By: Review Hero <contact@bes.au>"`,
   );
 
-  // Push to the PR branch
   execSync('git push');
   console.log('Pushed auto-fix commit');
   return true;
+}
+
+async function resolveThread(threadId) {
+  try {
+    await githubGraphQL(
+      `mutation($threadId: ID!) {
+        resolveReviewThread(input: { threadId: $threadId }) {
+          thread { id }
+        }
+      }`,
+      { threadId },
+    );
+  } catch (err) {
+    console.warn(`Failed to resolve thread ${threadId}: ${err.message}`);
+  }
 }
 
 async function postComment(body) {
@@ -245,7 +284,6 @@ async function uncheckAutoFix() {
 async function main() {
   console.log(`Auto-fixing review comments for PR #${prNumber}`);
 
-  // Fetch unresolved comments
   const comments = await fetchUnresolvedComments();
   console.log(`Found ${comments.length} unresolved review comment${comments.length === 1 ? '' : 's'}`);
 
@@ -255,24 +293,35 @@ async function main() {
     return;
   }
 
-  // Build prompt and run Claude
   const prompt = buildPrompt(comments);
   console.log('Running Claude to apply fixes...');
   const raw = runClaude(prompt);
 
-  // Parse the result summary
   const results = parseClaudeResult(raw);
   const fixed = results.filter(r => r.status === 'fixed');
   const skipped = results.filter(r => r.status === 'skipped');
 
-  // Commit and push
   const pushed = commitAndPush(fixed.length || comments.length);
 
-  // Build summary
+  // Resolve threads for fixed comments
+  const fixedFiles = new Set(fixed.map(r => `${r.file}:${r.line}`));
+  for (const comment of comments) {
+    const key = `${comment.file}:${comment.line}`;
+    if (fixedFiles.has(key)) {
+      await resolveThread(comment.threadId);
+    }
+  }
+  // If Claude didn't return structured results but did push changes, resolve all
+  if (pushed && fixed.length === 0 && results.length === 0) {
+    for (const comment of comments) {
+      await resolveThread(comment.threadId);
+    }
+  }
+
   const summaryParts = ['🦸 **Review Hero Auto-Fix**\n'];
 
   if (pushed) {
-    summaryParts.push(`Applied fixes for ${fixed.length || 'all'} review comment${fixed.length === 1 ? '' : 's'}.`);
+    summaryParts.push(`Applied fixes for ${fixed.length || comments.length} review comment${(fixed.length || comments.length) === 1 ? '' : 's'}.`);
   } else {
     summaryParts.push('No file changes were needed.');
   }

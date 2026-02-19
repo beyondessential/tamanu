@@ -10,7 +10,6 @@ permissions:
 
 concurrency:
   group: auto-fix-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
 
 jobs:
   check-trigger:
