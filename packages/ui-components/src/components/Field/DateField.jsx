@@ -15,11 +15,11 @@ import {
   isValid,
   isSameDay,
   parse,
-  parseISO,
   startOfToday,
 } from 'date-fns';
 
 import {
+  parseDate,
   toDateString,
   toDateTimeString,
   getCurrentDateStringInTimezone,
@@ -61,9 +61,11 @@ const PARSE_FORMATS = [
 
 function parseValue(value, primaryFormat) {
   if (!value) return null;
-  if (typeof value === 'string' && /[TZ+\-\d]/.test(value.charAt(10))) {
-    const iso = parseISO(value);
-    if (isValid(iso)) return iso;
+  try {
+    const parsed = parseDate(value);
+    if (parsed) return parsed;
+  } catch {
+    // parseDate throws on invalid dates; fall through to format-based parsing
   }
   const formats = primaryFormat ? [primaryFormat, ...PARSE_FORMATS] : PARSE_FORMATS;
   for (const fmt of formats) {
