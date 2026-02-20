@@ -127,13 +127,18 @@ export const idleTimeout = () => ({
 export const startImpersonation =
   (role) =>
   async (dispatch, getState, { api }) => {
-    localStorage.setItem(LOCAL_STORAGE_KEYS.IMPERSONATED_ROLE, JSON.stringify(role));
-    const { permissions } = await api.get('user/permissions', {}, {
-      headers: { 'X-Impersonate-Role': role.id },
-    });
-    const { auth } = getState();
-    const ability = buildAbilityForUser({ ...auth.user, role: role.id }, permissions);
-    dispatch({ type: IMPERSONATE_ROLE, role, ability });
+    try {
+      const { permissions } = await api.get('user/permissions', {}, {
+        headers: { 'X-Impersonate-Role': role.id },
+      });
+      const { auth } = getState();
+      const ability = buildAbilityForUser({ ...auth.user, role: role.id }, permissions);
+      localStorage.setItem(LOCAL_STORAGE_KEYS.IMPERSONATED_ROLE, JSON.stringify(role));
+      dispatch({ type: IMPERSONATE_ROLE, role, ability });
+    } catch (e) {
+      localStorage.removeItem(LOCAL_STORAGE_KEYS.IMPERSONATED_ROLE);
+      throw e;
+    }
   };
 
 export const stopImpersonation = () => (dispatch, getState) => {
