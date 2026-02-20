@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Popover } from '@material-ui/core';
 import { Colors } from '../../constants';
@@ -61,22 +61,31 @@ const ActiveLabel = styled.div`
 export const ImpersonationPopover = ({ anchorEl, open, onClose }) => {
   const dispatch = useDispatch();
   const api = useApi();
+  const queryClient = useQueryClient();
   const impersonatingRole = useSelector(state => state.auth.impersonatingRole);
+  const currentUserRole = useSelector(state => state.auth.user?.role);
 
-  const { data: roles = [] } = useQuery(
+  const { data: allRoles = [] } = useQuery(
     ['admin', 'roles'],
     () => api.get('admin/roles'),
     { staleTime: 5 * 60 * 1000, enabled: open },
   );
+  const roles = allRoles.filter(r => r.id !== currentUserRole);
 
-  const handleSelect = (role) => {
-    dispatch(startImpersonation(role));
-    onClose();
+  const refreshUI = () => {
+    queryClient.invalidateQueries();
   };
 
-  const handleStop = () => {
-    dispatch(stopImpersonation());
+  const handleSelect = async (role) => {
+    await dispatch(startImpersonation(role));
     onClose();
+    refreshUI();
+  };
+
+  const handleStop = async () => {
+    await dispatch(stopImpersonation());
+    onClose();
+    refreshUI();
   };
 
   return (
