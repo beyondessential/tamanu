@@ -47,7 +47,7 @@ const CalendarIcon = () => (
   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
       d="M13.125 1.75H11.375V0H8.75V1.75H5.25V0H2.625V1.75H0.875C0.392 1.75 0 2.142 0 2.625V13.125C0 13.608 0.392 14 0.875 14H13.125C13.608 14 14 13.608 14 13.125V2.625C14 2.142 13.608 1.75 13.125 1.75ZM12.25 12.25H1.75V6.125H12.25V12.25Z"
-      fill="#326699"
+      fill={TAMANU_COLORS.primary}
     />
   </svg>
 );
@@ -56,7 +56,7 @@ const ClockIcon = () => (
   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
       d="M7 0C3.136 0 0 3.136 0 7s3.136 7 7 7 7-3.136 7-7-3.136-7-7-7zm0 12.6c-3.094 0-5.6-2.506-5.6-5.6S3.906 1.4 7 1.4s5.6 2.506 5.6 5.6-2.506 5.6-5.6 5.6zm.35-9.1H6.3v4.2l3.675 2.205.525-.861-3.15-1.869V3.5z"
-      fill="#326699"
+      fill={TAMANU_COLORS.primary}
     />
   </svg>
 );
