@@ -93,7 +93,6 @@
     "yaml": "^2.2.1"
   },
   "dependencies": {
-    "@rnx-kit/metro-resolver-symlinks": "^0.1.36",
     "concurrently": "^8.2.2",
     "config": "^3.3.9",
     "jsbarcode": "^3.11.6",
