@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
@@ -80,20 +80,32 @@ export const ImpersonationPopover = ({ anchorEl, open, onClose }) => {
   });
   const roles = allRoles.filter(r => r.id !== currentUserRole);
 
+  const pendingRole = useRef(undefined);
+
   const refreshUI = () => {
     queryClient.invalidateQueries({ predicate: q => q.queryKey[0] !== 'admin' });
   };
 
-  const handleSelect = async role => {
-    await dispatch(startImpersonation(role));
-    onClose();
+  const handleExited = async () => {
+    if (pendingRole.current === undefined) return;
+    const role = pendingRole.current;
+    pendingRole.current = undefined;
+    if (role) {
+      await dispatch(startImpersonation(role));
+    } else {
+      await dispatch(stopImpersonation());
+    }
     refreshUI();
   };
 
-  const handleStop = async () => {
-    await dispatch(stopImpersonation());
+  const handleSelect = role => {
+    pendingRole.current = role;
     onClose();
-    refreshUI();
+  };
+
+  const handleStop = () => {
+    pendingRole.current = null;
+    onClose();
   };
 
   return (
@@ -103,7 +115,7 @@ export const ImpersonationPopover = ({ anchorEl, open, onClose }) => {
       onClose={onClose}
       anchorOrigin={{ vertical: 'center', horizontal: 'right' }}
       transformOrigin={{ vertical: 'center', horizontal: 'left' }}
-      transitionDuration={0}
+      TransitionProps={{ onExited: handleExited }}
     >
       <Header>Impersonate role</Header>
       {impersonatingRole && <ActiveLabel>Viewing as {impersonatingRole.name}</ActiveLabel>}
