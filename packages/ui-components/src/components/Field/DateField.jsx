@@ -52,6 +52,15 @@ const CalendarIcon = () => (
   </svg>
 );
 
+const ClockIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M7 0C3.136 0 0 3.136 0 7s3.136 7 7 7 7-3.136 7-7-3.136-7-7-7zm0 12.6c-3.094 0-5.6-2.506-5.6-5.6S3.906 1.4 7 1.4s5.6 2.506 5.6 5.6-2.506 5.6-5.6 5.6zm.35-9.1H6.3v4.2l3.675 2.205.525-.861-3.15-1.869V3.5z"
+      fill="#326699"
+    />
+  </svg>
+);
+
 function fromRFC3339(rfc3339Date, format) {
   if (!rfc3339Date) return '';
   return formatDate(rfc3339Date, format);
@@ -79,8 +88,8 @@ export const DateInput = ({
   const [currentText, setCurrentText] = useState(fromRFC3339(value, format));
   const [isPlaceholder, setIsPlaceholder] = useState(!value);
 
-  const showCalendarIcon = type === 'date' || type === 'datetime-local';
-  const handleCalendarClick = useCallback(() => {
+  const showPickerIcon = type === 'date' || type === 'datetime-local' || type === 'time';
+  const handlePickerClick = useCallback(() => {
     if (disabled) return;
     try {
       inputRef.current?.showPicker();
@@ -89,10 +98,11 @@ export const DateInput = ({
     }
   }, [disabled]);
 
-  const calendarAdornment = showCalendarIcon ? (
+  const PickerIcon = type === 'time' ? ClockIcon : CalendarIcon;
+  const pickerAdornment = showPickerIcon ? (
     <InputAdornment position="end">
-      <StyledCalendarButton onClick={handleCalendarClick}>
-        <CalendarIcon />
+      <StyledCalendarButton onClick={handlePickerClick}>
+        <PickerIcon />
       </StyledCalendarButton>
     </InputAdornment>
   ) : undefined;
@@ -221,7 +231,7 @@ export const DateInput = ({
       InputProps={{
         inputProps: { max, min, ...inputProps },
         inputRef,
-        endAdornment: calendarAdornment,
+        endAdornment: pickerAdornment,
         'data-testid': `${dataTestId}-input`,
       }}
       style={isPlaceholder ? { color: TAMANU_COLORS.softText } : undefined}
@@ -237,7 +247,7 @@ export const DateInput = ({
       disabled={disabled}
       InputProps={{
         inputProps,
-        endAdornment: calendarAdornment,
+        endAdornment: pickerAdornment,
       }}
       style={{ color: TAMANU_COLORS.softText }}
       data-testid={dataTestId}

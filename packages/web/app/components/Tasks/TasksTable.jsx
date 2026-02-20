@@ -182,6 +182,7 @@ const NoDataContainer = styled.div`
 const ScrollableTableWrapper = styled.div`
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  padding-left: 8px;
 `;
 
 const StyledDivider = styled(Divider)`
