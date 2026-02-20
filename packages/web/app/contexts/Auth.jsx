@@ -26,7 +26,6 @@ export const AuthProvider = ({ children }) => {
 
   const cleanupSession = useCallback(() => {
     localStorage.removeItem(LOCAL_STORAGE_KEYS.TOKEN);
-    localStorage.removeItem(LOCAL_STORAGE_KEYS.IMPERSONATED_ROLE);
     queries.removeQueries({ predicate: ({ queryKey }) => queryKey[0] !== 'serverAlive' });
     resetNoteContext();
     navigate('/');

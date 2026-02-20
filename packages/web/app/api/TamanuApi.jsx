@@ -17,8 +17,17 @@ const {
   ROLE,
   SETTINGS,
   LANGUAGE,
-  IMPERSONATED_ROLE,
 } = LOCAL_STORAGE_KEYS;
+
+function getImpersonateRoleIdFromToken(token) {
+  try {
+    const payload = token.split('.')[1];
+    const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
+    return decoded.impersonateRoleId || null;
+  } catch {
+    return null;
+  }
+}
 
 function safeGetStoredJSON(key) {
   try {
@@ -37,7 +46,6 @@ function restoreFromLocalStorage() {
   const permissions = safeGetStoredJSON(PERMISSIONS);
   const role = safeGetStoredJSON(ROLE);
   const settings = safeGetStoredJSON(SETTINGS);
-  const impersonatedRole = safeGetStoredJSON(IMPERSONATED_ROLE);
 
   return {
     token,
@@ -48,7 +56,6 @@ function restoreFromLocalStorage() {
     permissions,
     role,
     settings,
-    impersonatedRole,
   };
 }
 
@@ -93,7 +100,6 @@ function clearLocalStorage() {
   localStorage.removeItem(PERMISSIONS);
   localStorage.removeItem(ROLE);
   localStorage.removeItem(SETTINGS);
-  localStorage.removeItem(IMPERSONATED_ROLE);
 }
 
 export function isErrorUnknownDefault(error) {
@@ -168,7 +174,6 @@ export class TamanuApi extends ApiClient {
       permissions,
       role,
       settings,
-      impersonatedRole,
     } = restoreFromLocalStorage();
     if (!token) {
       throw new Error('No stored session found.');
@@ -176,21 +181,20 @@ export class TamanuApi extends ApiClient {
 
     this.setToken(token);
 
-    let activePermissions = permissions;
-    if (impersonatedRole) {
+    const config = { showUnknownErrorToast: false };
+    const { user, ability } = await this.fetchUserData(permissions, config);
+
+    let impersonatedRole = null;
+    const impersonateRoleId = getImpersonateRoleIdFromToken(token);
+    if (impersonateRoleId && user.role === 'admin') {
       try {
-        const res = await this.post('admin/impersonate', { roleId: null });
-        this.setToken(res.token);
-        activePermissions = res.permissions;
-        localStorage.removeItem(IMPERSONATED_ROLE);
-        localStorage.setItem(PERMISSIONS, JSON.stringify(res.permissions));
-      } catch (e) {
-        // If cleanup fails, continue with existing session
+        const roles = await this.get('admin/roles', {}, config);
+        const matched = roles.find(r => r.id === impersonateRoleId);
+        impersonatedRole = matched || { id: impersonateRoleId, name: impersonateRoleId };
+      } catch {
+        impersonatedRole = { id: impersonateRoleId, name: impersonateRoleId };
       }
     }
-
-    const config = { showUnknownErrorToast: false };
-    const { user, ability } = await this.fetchUserData(activePermissions, config);
 
     return {
       user,
@@ -200,14 +204,14 @@ export class TamanuApi extends ApiClient {
       availableFacilities,
       facilityId,
       ability,
-      permissions: activePermissions,
+      permissions,
       role,
       settings,
+      impersonatedRole,
     };
   }
 
   async login(email, password) {
-    localStorage.removeItem(IMPERSONATED_ROLE);
     const output = await super.login(email, password);
     const { localisation, server, availableFacilities, permissions, role, settings } = output;
     saveToLocalStorage({

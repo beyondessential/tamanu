@@ -23,33 +23,40 @@ const SET_SETTINGS = 'SET_SETTINGS';
 const IMPERSONATE_ROLE = 'IMPERSONATE_ROLE';
 const STOP_IMPERSONATION = 'STOP_IMPERSONATION';
 
-export const restoreSession =
-  () =>
-  async (dispatch, getState, { api }) => {
-    try {
-      const loginInfo = await api.restoreSession();
-      await handleLoginSuccess(dispatch, loginInfo);
-    } catch (e) {
-      // no action required -- this just means we haven't logged in
-    }
-  };
+export const restoreSession = () => async (dispatch, getState, { api }) => {
+  try {
+    const loginInfo = await api.restoreSession();
+    await handleLoginSuccess(dispatch, loginInfo);
+  } catch (e) {
+    // no action required -- this just means we haven't logged in
+  }
+};
 
-export const login =
-  (email, password) =>
-  async (dispatch, getState, { api }) => {
-    dispatch({ type: LOGIN_START });
-    try {
-      const loginInfo = await api.login(email, password);
-      await handleLoginSuccess(dispatch, loginInfo);
-    } catch (error) {
-      const message = getLoginErrorMessage(error);
-      dispatch({ type: LOGIN_FAILURE, error: message });
-    }
-  };
+export const login = (email, password) => async (dispatch, getState, { api }) => {
+  dispatch({ type: LOGIN_START });
+  try {
+    const loginInfo = await api.login(email, password);
+    await handleLoginSuccess(dispatch, loginInfo);
+  } catch (error) {
+    const message = getLoginErrorMessage(error);
+    dispatch({ type: LOGIN_FAILURE, error: message });
+  }
+};
 
 const handleLoginSuccess = async (dispatch, loginInfo) => {
-  const { user, token, localisation, server, availableFacilities, facilityId, ability, role, settings } =
-    loginInfo;
+  const {
+    user,
+    token,
+    localisation,
+    server,
+    availableFacilities,
+    facilityId,
+    ability,
+    role,
+    settings,
+    permissions,
+    impersonatedRole,
+  } = loginInfo;
   if (facilityId) {
     await dispatch(setFacilityId(facilityId));
   } else {
@@ -76,6 +83,14 @@ const handleLoginSuccess = async (dispatch, loginInfo) => {
     ability,
     role,
   });
+
+  if (impersonatedRole && user.role === 'admin') {
+    const impersonateAbility = buildAbilityForUser(
+      { ...user, role: impersonatedRole.id },
+      permissions,
+    );
+    dispatch({ type: IMPERSONATE_ROLE, role: impersonatedRole, ability: impersonateAbility });
+  }
 };
 
 export const setFacilityId = facilityId => async (dispatch, getState, { api }) => {
@@ -94,14 +109,14 @@ export const setFacilityId = facilityId => async (dispatch, getState, { api }) =
   }
 };
 
-export const authFailure = () => async (dispatch) => {
+export const authFailure = () => async dispatch => {
   dispatch({
     type: LOGOUT_WITH_ERROR,
     error: 'Your session has expired. Please log in again.',
   });
 };
 
-export const versionIncompatible = (message) => async (dispatch) => {
+export const versionIncompatible = message => async dispatch => {
   dispatch({
     type: LOGOUT_WITH_ERROR,
     error: message,
@@ -117,74 +132,62 @@ export const idleTimeout = () => ({
   error: 'You have been logged out due to inactivity',
 });
 
-export const startImpersonation =
-  (role) =>
-  async (dispatch, getState, { api }) => {
-    const { token, permissions } = await api.post('admin/impersonate', { roleId: role.id });
-    api.setToken(token);
-    localStorage.setItem(LOCAL_STORAGE_KEYS.IMPERSONATED_ROLE, JSON.stringify(role));
-    localStorage.setItem(LOCAL_STORAGE_KEYS.PERMISSIONS, JSON.stringify(permissions));
-    const { auth } = getState();
-    const ability = buildAbilityForUser({ ...auth.user, role: role.id }, permissions);
-    dispatch({ type: IMPERSONATE_ROLE, role, ability });
-  };
+export const startImpersonation = role => async (dispatch, getState, { api }) => {
+  const { token, permissions } = await api.post('admin/impersonate', { roleId: role.id });
+  api.setToken(token);
+  localStorage.setItem(LOCAL_STORAGE_KEYS.PERMISSIONS, JSON.stringify(permissions));
+  const { auth } = getState();
+  const ability = buildAbilityForUser({ ...auth.user, role: role.id }, permissions);
+  dispatch({ type: IMPERSONATE_ROLE, role, ability });
+};
 
-export const stopImpersonation =
-  () =>
-  async (dispatch, getState, { api }) => {
-    const { token, permissions } = await api.post('admin/impersonate', { roleId: null });
-    api.setToken(token);
-    localStorage.removeItem(LOCAL_STORAGE_KEYS.IMPERSONATED_ROLE);
-    localStorage.setItem(LOCAL_STORAGE_KEYS.PERMISSIONS, JSON.stringify(permissions));
-    const { auth } = getState();
-    const ability = buildAbilityForUser(auth.user, permissions);
-    dispatch({ type: STOP_IMPERSONATION, ability });
-  };
+export const stopImpersonation = () => async (dispatch, getState, { api }) => {
+  const { token, permissions } = await api.post('admin/impersonate', { roleId: null });
+  api.setToken(token);
+  localStorage.setItem(LOCAL_STORAGE_KEYS.PERMISSIONS, JSON.stringify(permissions));
+  const { auth } = getState();
+  const ability = buildAbilityForUser(auth.user, permissions);
+  dispatch({ type: STOP_IMPERSONATION, ability });
+};
 
-export const requestPasswordReset =
-  (email) =>
-  async (dispatch, getState, { api }) => {
-    dispatch({ type: REQUEST_PASSWORD_RESET_START });
+export const requestPasswordReset = email => async (dispatch, getState, { api }) => {
+  dispatch({ type: REQUEST_PASSWORD_RESET_START });
 
-    try {
-      await api.requestPasswordReset(email);
-      dispatch({ type: REQUEST_PASSWORD_RESET_SUCCESS, email });
-    } catch (error) {
-      const message = getResetPasswordErrorMessage(error);
-      dispatch({ type: REQUEST_PASSWORD_RESET_FAILURE, error: message });
-    }
-  };
+  try {
+    await api.requestPasswordReset(email);
+    dispatch({ type: REQUEST_PASSWORD_RESET_SUCCESS, email });
+  } catch (error) {
+    const message = getResetPasswordErrorMessage(error);
+    dispatch({ type: REQUEST_PASSWORD_RESET_FAILURE, error: message });
+  }
+};
 
-export const restartPasswordResetFlow = () => async (dispatch) => {
+export const restartPasswordResetFlow = () => async dispatch => {
   dispatch({ type: PASSWORD_RESET_RESTART });
 };
 
-export const validateResetCode =
-  (data) =>
-  async (dispatch, getState, { api }) => {
-    dispatch({ type: VALIDATE_RESET_CODE_START });
+export const validateResetCode = data => async (dispatch, getState, { api }) => {
+  dispatch({ type: VALIDATE_RESET_CODE_START });
 
-    await api.post('changePassword/validate-reset-code', data);
-    dispatch({ type: VALIDATE_RESET_CODE_COMPLETE });
-  };
+  await api.post('changePassword/validate-reset-code', data);
+  dispatch({ type: VALIDATE_RESET_CODE_COMPLETE });
+};
 
-export const changePassword =
-  (data) =>
-  async (dispatch, getState, { api }) => {
-    dispatch({ type: CHANGE_PASSWORD_START });
+export const changePassword = data => async (dispatch, getState, { api }) => {
+  dispatch({ type: CHANGE_PASSWORD_START });
 
-    try {
-      await api.changePassword(data);
-      dispatch({ type: CHANGE_PASSWORD_SUCCESS });
-    } catch (error) {
-      dispatch({ type: CHANGE_PASSWORD_FAILURE, error: error.message });
-    }
-  };
+  try {
+    await api.changePassword(data);
+    dispatch({ type: CHANGE_PASSWORD_SUCCESS });
+  } catch (error) {
+    dispatch({ type: CHANGE_PASSWORD_FAILURE, error: error.message });
+  }
+};
 
 // selectors
 export const getCurrentUser = ({ auth }) => auth.user;
 export const getServerType = ({ auth }) => auth?.server?.type;
-export const checkIsLoggedIn = (state) => !!getCurrentUser(state);
+export const checkIsLoggedIn = state => !!getCurrentUser(state);
 export const checkIsFacilitySelected = ({ auth }) => !!auth.facilityId;
 
 // reducer
@@ -234,7 +237,7 @@ const actionHandlers = {
     loading: true,
     ...resetState,
   }),
-  [LOGIN_SUCCESS]: (action) => ({
+  [LOGIN_SUCCESS]: action => ({
     loading: false,
     user: action.user,
     ability: action.ability,
@@ -250,10 +253,10 @@ const actionHandlers = {
   [SET_FACILITY_ID]: action => ({
     facilityId: action.facilityId,
   }),
-  [SET_SETTINGS]: (action) => ({
+  [SET_SETTINGS]: action => ({
     settings: action.settings,
   }),
-  [LOGIN_FAILURE]: (action) => ({
+  [LOGIN_FAILURE]: action => ({
     loading: false,
     error: action.error,
   }),
@@ -285,7 +288,7 @@ const actionHandlers = {
       ...defaultState.resetPassword,
     },
   }),
-  [REQUEST_PASSWORD_RESET_FAILURE]: (action) => ({
+  [REQUEST_PASSWORD_RESET_FAILURE]: action => ({
     resetPassword: {
       ...defaultState.resetPassword,
       error: action.error,
@@ -304,7 +307,7 @@ const actionHandlers = {
       success: true,
     },
   }),
-  [CHANGE_PASSWORD_FAILURE]: (action) => ({
+  [CHANGE_PASSWORD_FAILURE]: action => ({
     changePassword: {
       ...defaultState.changePassword,
       error: action.error,
@@ -322,11 +325,11 @@ const actionHandlers = {
       completed: true,
     },
   }),
-  [IMPERSONATE_ROLE]: (action) => ({
+  [IMPERSONATE_ROLE]: action => ({
     impersonatingRole: action.role,
     ability: action.ability,
   }),
-  [STOP_IMPERSONATION]: (action) => ({
+  [STOP_IMPERSONATION]: action => ({
     impersonatingRole: null,
     ability: action.ability,
   }),
