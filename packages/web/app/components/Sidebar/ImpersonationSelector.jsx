@@ -16,7 +16,15 @@ const StyledPopover = styled(Popover)`
     max-height: 400px;
     margin-left: 8px;
     padding: 4px;
+    display: flex;
+    flex-direction: column;
   }
+`;
+
+const RoleList = styled.div`
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
 `;
 
 const RoleItem = styled.div`
@@ -39,6 +47,7 @@ const StopItem = styled(RoleItem)`
   margin-top: 4px;
   padding-top: 8px;
   border-radius: 0 0 4px 4px;
+  flex-shrink: 0;
 `;
 
 const Header = styled.div`
@@ -65,18 +74,17 @@ export const ImpersonationPopover = ({ anchorEl, open, onClose }) => {
   const impersonatingRole = useSelector(state => state.auth.impersonatingRole);
   const currentUserRole = useSelector(state => state.auth.user?.role);
 
-  const { data: allRoles = [] } = useQuery(
-    ['admin', 'roles'],
-    () => api.get('admin/roles'),
-    { staleTime: 5 * 60 * 1000, enabled: open },
-  );
-  const roles = allRoles.filter(r => r.id !== currentUserRole);
+  const { data: allRoles = [] } = useQuery(['admin', 'roles'], () => api.get('admin/roles'), {
+    staleTime: 5 * 60 * 1000,
+    enabled: open,
+  });
+  const roles = allRoles.filter(r => r.id !== currentUserRole && r.id !== 'superadmin');
 
   const refreshUI = () => {
     queryClient.invalidateQueries();
   };
 
-  const handleSelect = async (role) => {
+  const handleSelect = async role => {
     await dispatch(startImpersonation(role));
     onClose();
     refreshUI();
@@ -97,23 +105,19 @@ export const ImpersonationPopover = ({ anchorEl, open, onClose }) => {
       transformOrigin={{ vertical: 'center', horizontal: 'left' }}
     >
       <Header>Impersonate role</Header>
-      {impersonatingRole && (
-        <ActiveLabel>Viewing as {impersonatingRole.name}</ActiveLabel>
-      )}
-      {roles.map(role => (
-        <RoleItem
-          key={role.id}
-          $active={impersonatingRole?.id === role.id}
-          onClick={() => handleSelect(role)}
-        >
-          {role.name}
-        </RoleItem>
-      ))}
-      {impersonatingRole && (
-        <StopItem onClick={handleStop}>
-          Stop impersonating
-        </StopItem>
-      )}
+      {impersonatingRole && <ActiveLabel>Viewing as {impersonatingRole.name}</ActiveLabel>}
+      <RoleList>
+        {roles.map(role => (
+          <RoleItem
+            key={role.id}
+            $active={impersonatingRole?.id === role.id}
+            onClick={() => handleSelect(role)}
+          >
+            {role.name}
+          </RoleItem>
+        ))}
+      </RoleList>
+      {impersonatingRole && <StopItem onClick={handleStop}>Stop impersonating</StopItem>}
     </StyledPopover>
   );
 };
