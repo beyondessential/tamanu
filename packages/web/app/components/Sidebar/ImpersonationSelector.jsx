@@ -78,10 +78,10 @@ export const ImpersonationPopover = ({ anchorEl, open, onClose }) => {
     staleTime: 5 * 60 * 1000,
     enabled: open,
   });
-  const roles = allRoles.filter(r => r.id !== currentUserRole && r.id !== 'superadmin');
+  const roles = allRoles.filter(r => r.id !== currentUserRole);
 
   const refreshUI = () => {
-    queryClient.invalidateQueries();
+    queryClient.invalidateQueries({ predicate: q => q.queryKey[0] !== 'admin' });
   };
 
   const handleSelect = async role => {

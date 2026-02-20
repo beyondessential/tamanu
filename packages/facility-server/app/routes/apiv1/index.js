@@ -130,7 +130,10 @@ apiv1.delete(
 apiv1.get(
   '/admin/roles',
   asyncHandler(async (req, res) => {
-    req.checkPermission('manage', 'all');
+    if (req.user.role !== 'admin') {
+      throw new ForbiddenError('Only admins can list roles');
+    }
+    req.flagPermissionChecked();
     const { Role } = req.models;
     const roles = await Role.findAll({ attributes: ['id', 'name'], order: [['name', 'ASC']] });
     res.send(roles);

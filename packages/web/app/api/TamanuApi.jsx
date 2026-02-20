@@ -186,6 +186,7 @@ export class TamanuApi extends ApiClient {
       availableFacilities,
       facilityId,
       ability,
+      permissions,
       role,
       settings,
       impersonatedRole,
