@@ -96,8 +96,7 @@
     "config": "^3.3.9",
     "node": "^20.19.4",
     "patch-package": "^8.0.0",
-    "pm2": "^5.4.2",
-    "re-resizable": "^6.11.2"
+    "pm2": "^5.4.2"
   },
   "overrides": {
     "axios": "^1.8.2",
