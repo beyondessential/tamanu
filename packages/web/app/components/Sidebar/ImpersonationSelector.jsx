@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
+import { toast } from 'react-toastify';
 import { Popover } from '@material-ui/core';
 import { Colors } from '../../constants';
 import { useApi } from '../../api';
@@ -90,12 +91,16 @@ export const ImpersonationPopover = ({ anchorEl, open, onClose }) => {
     if (pendingRole.current === undefined) return;
     const role = pendingRole.current;
     pendingRole.current = undefined;
-    if (role) {
-      await dispatch(startImpersonation(role));
-    } else {
-      await dispatch(stopImpersonation());
+    try {
+      if (role) {
+        await dispatch(startImpersonation(role));
+      } else {
+        await dispatch(stopImpersonation());
+      }
+      refreshUI();
+    } catch (e) {
+      toast.error(`Failed to ${role ? 'impersonate role' : 'stop impersonation'}`);
     }
-    refreshUI();
   };
 
   const handleSelect = role => {

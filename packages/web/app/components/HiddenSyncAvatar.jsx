@@ -83,7 +83,7 @@ export const HiddenSyncAvatar = forwardRef(({ children, onClick, onMetaClick, im
   );
 
   const handleClick = async (event) => {
-    if (event.metaKey && onMetaClick) {
+    if ((event.metaKey || event.ctrlKey) && onMetaClick) {
       onMetaClick(event);
       return;
     }
