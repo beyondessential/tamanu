@@ -53,15 +53,12 @@ const handleLoginSuccess = async (dispatch, loginInfo) => {
   if (facilityId) {
     await dispatch(setFacilityId(facilityId));
   } else {
-    // if there's just one facility the user has access to, select it immediately
-    // otherwise they will be prompted to select a facility after login
     const onlyFacilityId = availableFacilities?.length === 1 ? availableFacilities[0].id : null;
     if (onlyFacilityId) {
       await dispatch(setFacilityId(onlyFacilityId));
     }
   }
 
-  // If settings are provided from central server login, dispatch them
   if (settings) {
     dispatch({
       type: SET_SETTINGS,
@@ -81,7 +78,7 @@ const handleLoginSuccess = async (dispatch, loginInfo) => {
   });
 
   if (impersonatedRole && user.role === 'admin') {
-    dispatch(startImpersonation(impersonatedRole));
+    dispatch({ type: IMPERSONATE_ROLE, role: impersonatedRole, ability });
   }
 };
 
@@ -127,26 +124,26 @@ export const idleTimeout = () => ({
 export const startImpersonation =
   (role) =>
   async (dispatch, getState, { api }) => {
-    try {
-      const { permissions } = await api.get('user/permissions', {}, {
-        headers: { 'X-Impersonate-Role': role.id },
-      });
-      const { auth } = getState();
-      const ability = buildAbilityForUser({ ...auth.user, role: role.id }, permissions);
-      localStorage.setItem(LOCAL_STORAGE_KEYS.IMPERSONATED_ROLE, JSON.stringify(role));
-      dispatch({ type: IMPERSONATE_ROLE, role, ability });
-    } catch (e) {
-      localStorage.removeItem(LOCAL_STORAGE_KEYS.IMPERSONATED_ROLE);
-      throw e;
-    }
+    const { token, permissions } = await api.post('admin/impersonate', { roleId: role.id });
+    api.setToken(token);
+    localStorage.setItem(LOCAL_STORAGE_KEYS.IMPERSONATED_ROLE, JSON.stringify(role));
+    localStorage.setItem(LOCAL_STORAGE_KEYS.PERMISSIONS, JSON.stringify(permissions));
+    const { auth } = getState();
+    const ability = buildAbilityForUser({ ...auth.user, role: role.id }, permissions);
+    dispatch({ type: IMPERSONATE_ROLE, role, ability });
   };
 
-export const stopImpersonation = () => (dispatch, getState) => {
-  localStorage.removeItem(LOCAL_STORAGE_KEYS.IMPERSONATED_ROLE);
-  const { auth } = getState();
-  const ability = buildAbilityForUser(auth.user, []);
-  dispatch({ type: STOP_IMPERSONATION, ability });
-};
+export const stopImpersonation =
+  () =>
+  async (dispatch, getState, { api }) => {
+    const { token, permissions } = await api.post('admin/impersonate', { roleId: null });
+    api.setToken(token);
+    localStorage.removeItem(LOCAL_STORAGE_KEYS.IMPERSONATED_ROLE);
+    localStorage.setItem(LOCAL_STORAGE_KEYS.PERMISSIONS, JSON.stringify(permissions));
+    const { auth } = getState();
+    const ability = buildAbilityForUser(auth.user, permissions);
+    dispatch({ type: STOP_IMPERSONATION, ability });
+  };
 
 export const requestPasswordReset =
   (email) =>

@@ -130,13 +130,7 @@ export class TamanuApi extends ApiClient {
 
     this.interceptors.request.use(config => {
       const language = localStorage.getItem(LANGUAGE);
-      config.headers['language'] = language;
-
-      const impersonatedRole = safeGetStoredJSON(IMPERSONATED_ROLE);
-      if (impersonatedRole?.id) {
-        config.headers['X-Impersonate-Role'] = impersonatedRole.id;
-      }
-
+      config.headers.set('language', language);
       return config;
     });
   }
@@ -193,8 +187,8 @@ export class TamanuApi extends ApiClient {
       facilityId,
       ability,
       role,
-      impersonatedRole,
       settings,
+      impersonatedRole,
     };
   }
 

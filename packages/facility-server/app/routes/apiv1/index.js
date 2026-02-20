@@ -7,11 +7,14 @@ import { suggestions } from '@tamanu/shared/services/suggestions';
 
 import {
   authMiddleware,
+  buildToken,
   loginHandler,
   refreshHandler,
   setFacilityHandler,
 } from '../../middleware/auth';
 import asyncHandler from 'express-async-handler';
+import { ForbiddenError } from '@tamanu/errors';
+import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { keyBy, mapValues } from 'lodash';
 
 import { allergy } from './allergy';
@@ -131,6 +134,44 @@ apiv1.get(
     const { Role } = req.models;
     const roles = await Role.findAll({ attributes: ['id', 'name'], order: [['name', 'ASC']] });
     res.send(roles);
+  }),
+);
+
+apiv1.post(
+  '/admin/impersonate',
+  asyncHandler(async (req, res) => {
+    const { user, userDevice: device, facilityId, models } = req;
+
+    if (user.role !== 'admin') {
+      throw new ForbiddenError('Only admins can impersonate roles');
+    }
+    req.flagPermissionChecked();
+
+    const { roleId = null } = req.body;
+
+    let role = null;
+    if (roleId) {
+      role = await models.Role.findByPk(roleId);
+      if (!role) {
+        throw new ForbiddenError('Impersonation role does not exist');
+      }
+    }
+
+    const token = await buildToken({
+      user,
+      deviceId: device.id,
+      facilityId,
+      impersonateRoleId: roleId || undefined,
+    });
+
+    const roleString = roleId || user.role;
+    const permissions = await getPermissionsForRoles(models, roleString);
+
+    res.send({
+      token,
+      role: role?.forResponse() ?? null,
+      permissions,
+    });
   }),
 );
 
