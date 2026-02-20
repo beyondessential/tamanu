@@ -94,7 +94,6 @@
   "dependencies": {
     "concurrently": "^8.2.2",
     "config": "^3.3.9",
-    "jsbarcode": "^3.11.6",
     "node": "^20.19.4",
     "patch-package": "^8.0.0",
     "pm2": "^5.4.2",
