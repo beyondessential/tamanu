@@ -115,6 +115,7 @@ export const ImpersonationPopover = ({ anchorEl, open, onClose }) => {
       onClose={onClose}
       anchorOrigin={{ vertical: 'center', horizontal: 'right' }}
       transformOrigin={{ vertical: 'center', horizontal: 'left' }}
+      transitionDuration={120}
       TransitionProps={{ onExited: handleExited }}
     >
       <Header>Impersonate role</Header>
