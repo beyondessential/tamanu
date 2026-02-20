@@ -9,6 +9,7 @@ export const LOCAL_STORAGE_KEYS = {
   ROLE: 'role',
   LANGUAGE: 'language',
   SETTINGS: 'settings',
+  IMPERSONATED_ROLE: 'impersonatedRole',
 };
 
 export const ALPHABET_FOR_ID =

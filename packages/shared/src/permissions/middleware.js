@@ -16,10 +16,29 @@ export function getSubjectName(subject) {
   return Type.modelName || Type.name;
 }
 
+async function validateImpersonateRole(req) {
+  const raw = req.get('X-Impersonate-Role');
+  if (!raw || !req.user || req.user.role !== 'admin') return undefined;
+
+  const roleId = raw.trim();
+  if (!roleId || roleId.includes(',')) {
+    throw new ForbiddenError('Invalid impersonation role ID');
+  }
+
+  const role = await req.models.Role.findByPk(roleId);
+  if (!role) {
+    throw new ForbiddenError('Impersonation role does not exist');
+  }
+
+  return roleId;
+}
+
 export async function constructPermission(req, res, next) {
   try {
+    const impersonateRoleId = await validateImpersonateRole(req);
     // eslint-disable-next-line require-atomic-updates
-    req.ability = await getAbilityForUser(req.models, req.user);
+    req.ability = await getAbilityForUser(req.models, req.user, { impersonateRoleId });
+    req.impersonatingRole = impersonateRoleId; // eslint-disable-line require-atomic-updates
     next();
   } catch (e) {
     next(e);
@@ -88,8 +107,12 @@ export function ensurePermissionCheck(req, res, next) {
 // eslint-disable-next-line no-unused-vars
 export async function getPermissions(req, res, _next) {
   const { user, models } = req;
+  req.flagPermissionChecked();
 
-  const permissions = await getPermissionsForRoles(models, user.role);
+  const impersonateRoleId = await validateImpersonateRole(req);
+  const roleString = impersonateRoleId || user.role;
+
+  const permissions = await getPermissionsForRoles(models, roleString);
   res.send({
     permissions,
   });

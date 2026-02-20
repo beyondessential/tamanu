@@ -17,6 +17,7 @@ const {
   ROLE,
   SETTINGS,
   LANGUAGE,
+  IMPERSONATED_ROLE,
 } = LOCAL_STORAGE_KEYS;
 
 function safeGetStoredJSON(key) {
@@ -36,6 +37,7 @@ function restoreFromLocalStorage() {
   const permissions = safeGetStoredJSON(PERMISSIONS);
   const role = safeGetStoredJSON(ROLE);
   const settings = safeGetStoredJSON(SETTINGS);
+  const impersonatedRole = safeGetStoredJSON(IMPERSONATED_ROLE);
 
   return {
     token,
@@ -46,6 +48,7 @@ function restoreFromLocalStorage() {
     permissions,
     role,
     settings,
+    impersonatedRole,
   };
 }
 
@@ -90,6 +93,7 @@ function clearLocalStorage() {
   localStorage.removeItem(PERMISSIONS);
   localStorage.removeItem(ROLE);
   localStorage.removeItem(SETTINGS);
+  localStorage.removeItem(IMPERSONATED_ROLE);
 }
 
 export function isErrorUnknownDefault(error) {
@@ -127,6 +131,12 @@ export class TamanuApi extends ApiClient {
     this.interceptors.request.use(config => {
       const language = localStorage.getItem(LANGUAGE);
       config.headers['language'] = language;
+
+      const impersonatedRole = safeGetStoredJSON(IMPERSONATED_ROLE);
+      if (impersonatedRole?.id) {
+        config.headers['X-Impersonate-Role'] = impersonatedRole.id;
+      }
+
       return config;
     });
   }
@@ -164,6 +174,7 @@ export class TamanuApi extends ApiClient {
       permissions,
       role,
       settings,
+      impersonatedRole,
     } = restoreFromLocalStorage();
     if (!token) {
       throw new Error('No stored session found.');
@@ -182,6 +193,7 @@ export class TamanuApi extends ApiClient {
       facilityId,
       ability,
       role,
+      impersonatedRole,
       settings,
     };
   }

@@ -64,9 +64,18 @@ export async function getPermissionsForRoles(models, roleString) {
   return permissions;
 }
 
-export async function getAbilityForUser(models, user) {
+export async function getAbilityForUser(models, user, { impersonateRoleId } = {}) {
   if (!user) {
     return buildAbility([]);
+  }
+
+  if (impersonateRoleId && user.role === 'admin') {
+    const permissions = await getPermissionsForRoles(models, impersonateRoleId);
+    return buildAbility([
+      ...permissions,
+      { verb: 'read', noun: 'User', objectId: user.id },
+      { verb: 'write', noun: 'User', objectId: user.id },
+    ]);
   }
 
   const permissions = await getPermissionsForRoles(models, user.role);

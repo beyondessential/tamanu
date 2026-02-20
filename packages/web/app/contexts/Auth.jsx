@@ -16,11 +16,12 @@ export const AuthProvider = ({ children }) => {
   const { resetNoteContext } = useEncounterNotesQuery();
   const navigate = useNavigate();
 
-  const { currentUser, ability, facilityId, currentRole } = useSelector(state => ({
+  const { currentUser, ability, facilityId, currentRole, impersonatingRole } = useSelector(state => ({
     currentUser: state.auth.user,
     ability: state.auth.ability,
     facilityId: state.auth.facilityId,
     currentRole: state.auth.role,
+    impersonatingRole: state.auth.impersonatingRole,
   }));
 
   const cleanupSession = useCallback(() => {
@@ -43,8 +44,8 @@ export const AuthProvider = ({ children }) => {
   const refreshToken = useCallback(() => api.refreshToken(), [api]);
 
   const value = useMemo(
-    () => ({ currentUser, ability, facilityId, currentRole, onLogout, onTimeout, refreshToken }),
-    [currentUser, ability, facilityId, currentRole, onLogout, onTimeout, refreshToken],
+    () => ({ currentUser, ability, facilityId, currentRole, impersonatingRole, onLogout, onTimeout, refreshToken }),
+    [currentUser, ability, facilityId, currentRole, impersonatingRole, onLogout, onTimeout, refreshToken],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

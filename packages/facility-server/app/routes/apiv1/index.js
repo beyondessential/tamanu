@@ -124,6 +124,16 @@ apiv1.delete(
   }),
 );
 
+apiv1.get(
+  '/admin/roles',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('manage', 'all');
+    const { Role } = req.models;
+    const roles = await Role.findAll({ attributes: ['id', 'name'], order: [['name', 'ASC']] });
+    res.send(roles);
+  }),
+);
+
 apiv1.post('/refresh', refreshHandler);
 apiv1.post('/setFacility', setFacilityHandler);
 apiv1.use(patientDataRoutes); // see below for specifics

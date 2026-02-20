@@ -1,5 +1,7 @@
 import { getLoginErrorMessage, getResetPasswordErrorMessage } from '@tamanu/errors';
+import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 import { createStatePreservingReducer } from '../utils/createStatePreservingReducer';
+import { LOCAL_STORAGE_KEYS } from '../constants';
 
 // actions
 const LOGIN_START = 'LOGIN_START';
@@ -18,6 +20,8 @@ const VALIDATE_RESET_CODE_START = 'VALIDATE_RESET_CODE_START';
 const VALIDATE_RESET_CODE_COMPLETE = 'VALIDATE_RESET_CODE_COMPLETE';
 const SET_FACILITY_ID = 'SET_FACILITY_ID';
 const SET_SETTINGS = 'SET_SETTINGS';
+const IMPERSONATE_ROLE = 'IMPERSONATE_ROLE';
+const STOP_IMPERSONATION = 'STOP_IMPERSONATION';
 
 export const restoreSession =
   () =>
@@ -44,7 +48,7 @@ export const login =
   };
 
 const handleLoginSuccess = async (dispatch, loginInfo) => {
-  const { user, token, localisation, server, availableFacilities, facilityId, ability, role, settings } =
+  const { user, token, localisation, server, availableFacilities, facilityId, ability, role, settings, impersonatedRole } =
     loginInfo;
   if (facilityId) {
     await dispatch(setFacilityId(facilityId));
@@ -75,6 +79,10 @@ const handleLoginSuccess = async (dispatch, loginInfo) => {
     ability,
     role,
   });
+
+  if (impersonatedRole && user.role === 'admin') {
+    dispatch(startImpersonation(impersonatedRole));
+  }
 };
 
 export const setFacilityId = facilityId => async (dispatch, getState, { api }) => {
@@ -115,6 +123,25 @@ export const idleTimeout = () => ({
   type: LOGOUT_WITH_ERROR,
   error: 'You have been logged out due to inactivity',
 });
+
+export const startImpersonation =
+  (role) =>
+  async (dispatch, getState, { api }) => {
+    localStorage.setItem(LOCAL_STORAGE_KEYS.IMPERSONATED_ROLE, JSON.stringify(role));
+    const { permissions } = await api.get('user/permissions', {}, {
+      headers: { 'X-Impersonate-Role': role.id },
+    });
+    const { auth } = getState();
+    const ability = buildAbilityForUser({ ...auth.user, role: role.id }, permissions);
+    dispatch({ type: IMPERSONATE_ROLE, role, ability });
+  };
+
+export const stopImpersonation = () => (dispatch, getState) => {
+  localStorage.removeItem(LOCAL_STORAGE_KEYS.IMPERSONATED_ROLE);
+  const { auth } = getState();
+  const ability = buildAbilityForUser(auth.user, []);
+  dispatch({ type: STOP_IMPERSONATION, ability });
+};
 
 export const requestPasswordReset =
   (email) =>
@@ -175,6 +202,7 @@ const defaultState = {
   settings: null,
   availableFacilities: [],
   facilityId: null,
+  impersonatingRole: null,
   resetPassword: {
     loading: false,
     success: false,
@@ -200,6 +228,7 @@ const resetState = {
   facilityId: defaultState.facilityId,
   error: defaultState.error,
   token: null,
+  impersonatingRole: null,
 };
 
 const actionHandlers = {
@@ -294,6 +323,14 @@ const actionHandlers = {
       ...defaultState.validateResetCode,
       completed: true,
     },
+  }),
+  [IMPERSONATE_ROLE]: (action) => ({
+    impersonatingRole: action.role,
+    ability: action.ability,
+  }),
+  [STOP_IMPERSONATION]: (action) => ({
+    impersonatingRole: null,
+    ability: action.ability,
   }),
 };
 

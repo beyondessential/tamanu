@@ -1,18 +1,29 @@
-import React, { useState, useCallback } from 'react';
-import styled from 'styled-components';
+import React, { useState, useCallback, forwardRef } from 'react';
+import styled, { css, keyframes } from 'styled-components';
 import { toast } from 'react-toastify';
 import { Avatar, CircularProgress } from '@material-ui/core';
 import { useApi } from '../api';
 import { TranslatedText } from './Translation/TranslatedText';
 
+const pulseRing = keyframes`
+  0% { box-shadow: 0 0 0 0 rgba(247, 104, 83, 0.7); }
+  70% { box-shadow: 0 0 0 6px rgba(247, 104, 83, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(247, 104, 83, 0); }
+`;
+
 const StyledAvatar = styled(Avatar)`
-  background: #e7b091;
+  background: ${props => props.$impersonating ? '#f76853' : '#e7b091'};
   font-weight: 500;
   font-size: 16px;
   margin-right: 12px;
   margin-top: 5px;
   text-transform: uppercase;
   position: relative;
+  transition: background 0.3s ease;
+  ${props => props.$impersonating && css`
+    animation: ${pulseRing} 2s ease-out infinite;
+    cursor: pointer;
+  `}
 `;
 
 const ErrorMessage = styled.div`
@@ -51,7 +62,7 @@ function formatDuration(milliseconds) {
   return components.join(' ') || '0s';
 }
 
-export const HiddenSyncAvatar = ({ children, onClick, ...props }) => {
+export const HiddenSyncAvatar = forwardRef(({ children, onClick, onMetaClick, impersonating, ...props }, ref) => {
   const [loading, setLoading] = useState(false);
   const api = useApi();
 
@@ -72,6 +83,11 @@ export const HiddenSyncAvatar = ({ children, onClick, ...props }) => {
   );
 
   const handleClick = async (event) => {
+    if (event.metaKey && onMetaClick) {
+      onMetaClick(event);
+      return;
+    }
+
     if (event.shiftKey) {
       handleEvent(async () => {
         toast.info(
@@ -146,7 +162,7 @@ export const HiddenSyncAvatar = ({ children, onClick, ...props }) => {
   };
 
   return (
-    <StyledAvatar onClick={handleClick} {...props} data-testid="styledavatar-uo6d">
+    <StyledAvatar ref={ref} onClick={handleClick} $impersonating={impersonating} {...props} data-testid="styledavatar-uo6d">
       {loading ? (
         <CustomCircularProgress size={20} data-testid="customcircularprogress-eggw" />
       ) : (
@@ -154,4 +170,4 @@ export const HiddenSyncAvatar = ({ children, onClick, ...props }) => {
       )}
     </StyledAvatar>
   );
-};
+});
