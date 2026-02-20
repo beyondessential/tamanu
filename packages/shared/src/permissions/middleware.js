@@ -109,7 +109,7 @@ export async function getPermissions(req, res, _next) {
   const { user, models } = req;
   req.flagPermissionChecked();
 
-  const impersonateRoleId = await validateImpersonateRole(req);
+  const impersonateRoleId = req.impersonatingRole;
   const roleString = impersonateRoleId || user.role;
 
   const permissions = await getPermissionsForRoles(models, roleString);
