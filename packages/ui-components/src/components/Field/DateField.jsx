@@ -91,9 +91,9 @@ export const DateInput = ({
   const showPickerIcon = type === 'date' || type === 'datetime-local' || type === 'time';
   const handlePickerClick = useCallback(() => {
     if (disabled) return;
-    try {
-      inputRef.current?.showPicker();
-    } catch {
+    if (inputRef.current?.showPicker) {
+      inputRef.current.showPicker();
+    } else {
       inputRef.current?.focus();
     }
   }, [disabled]);

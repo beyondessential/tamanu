@@ -5,14 +5,14 @@ import { Box } from '@material-ui/core';
 import { formatShortest, formatTime } from '@tamanu/utils/dateTime';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 
-import { TextInput, ConditionalTooltip } from '@tamanu/ui-components';
+import { TextInput, ConditionalTooltip, ThemedTooltip } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
-import { OuterLabelFieldWrapper, CheckInput, NumberInput } from '../Field';
+import { OuterLabelFieldWrapper, CheckInput } from '../Field';
 import { Table } from '../Table';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../Translation';
-import { MEDICATION_DURATION_DISPLAY_UNITS_LABELS, MAX_REPEATS } from '@tamanu/constants';
-import { preventInvalidRepeatsInput, singularize } from '../../utils';
+import { MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
+import { singularize } from '../../utils';
 
 const StyledTable = styled(Table)`
   .MuiTableCell-root {
@@ -81,6 +81,11 @@ const NoWrapCell = styled(Box)`
   white-space: nowrap;
 `;
 
+const TwoLineHeaderText = styled.div`
+  width: 85px;
+  white-space: normal;
+`;
+
 export const COLUMN_KEYS = {
   SELECT: 'select',
   DATE: 'date',
@@ -99,7 +104,7 @@ const getColumns = (
   onSelectAll,
   selectAllChecked,
   columnsToInclude = Object.values(COLUMN_KEYS),
-  { isOngoingMode = false, canEditRepeats = true, disabledPrescriptionIds = [] } = {},
+  { isOngoingMode = false, disabledPrescriptionIds = [] } = {},
 ) => {
   const allColumns = [
     {
@@ -258,6 +263,47 @@ const getColumns = (
       },
     },
     {
+      key: COLUMN_KEYS.REPEATS,
+      title: isOngoingMode ? (
+        <ThemedTooltip
+          title={
+            <TranslatedText
+              stringId="pharmacyOrder.table.column.repeats.tooltip"
+              fallback="Remaining prescriptions available to dispense"
+            />
+          }
+          $maxWidth="150px"
+        >
+          <span>
+            <TranslatedText
+              stringId="pharmacyOrder.table.column.repeats"
+              fallback="Remaining"
+              data-testid="translatedtext-psdf"
+            />
+          </span>
+        </ThemedTooltip>
+      ) : (
+        <TwoLineHeaderText>
+          <TranslatedText
+            stringId="pharmacyOrder.table.column.repeatsOnDischarge"
+            fallback="Repeats on discharge"
+            data-testid="translatedtext-psdf"
+          />
+        </TwoLineHeaderText>
+      ),
+      sortable: false,
+      accessor: ({ repeats, lastOrderedAt }) => {
+        // Encounter level: show "Repeats on discharge" — use the raw repeats total.
+        if (!isOngoingMode) return repeats;
+        // Patient level: show "Remaining" (prescriptions available to dispense).
+        // The first send is not counted as a repeat. When never sent (no lastOrderedAt),
+        // remaining = initial + repeats = repeats + 1. Once sent, repeats is decremented
+        // on the backend per send, so it already represents remaining.
+        if (!lastOrderedAt) return Number(repeats) + 1;
+        return repeats;
+      },
+    },
+    {
       key: COLUMN_KEYS.QUANTITY,
       title: (
         <OuterLabelFieldWrapper
@@ -285,39 +331,17 @@ const getColumns = (
           onChange={onChange}
           required
           error={hasError}
+          helperText={
+            hasError && (
+              <TranslatedText
+                stringId="validation.required.inline"
+                fallback="*Required"
+              />
+            )
+          }
           data-testid="textinput-rxbh"
         />
       ),
-    },
-    {
-      key: COLUMN_KEYS.REPEATS,
-      title: (
-        <TranslatedText
-          stringId="pharmacyOrder.table.column.repeats"
-          fallback="Repeats"
-          data-testid="translatedtext-psdf"
-        />
-      ),
-      sortable: false,
-      accessor: ({ repeats, onChange }) => {
-        // In ongoing mode without edit permission, show read-only value
-        if (isOngoingMode && !canEditRepeats) {
-          return <Box width="89px">{repeats ?? 0}</Box>;
-        }
-        return (
-          <Box width="89px">
-            <NumberInput
-              value={repeats ?? 0}
-              onChange={onChange}
-              min={0}
-              max={MAX_REPEATS}
-              data-testid="selectinput-ld3p"
-              step={1}
-              onInput={preventInvalidRepeatsInput}
-            />
-          </Box>
-        );
-      },
     },
   ];
 
@@ -333,7 +357,6 @@ export const PharmacyOrderMedicationTable = ({
   selectAllChecked,
   columnsToInclude,
   isOngoingMode = false,
-  canEditRepeats = true,
   disabledPrescriptionIds = [],
 }) => {
   const { getTranslation, getEnumTranslation } = useTranslation();
@@ -348,7 +371,7 @@ export const PharmacyOrderMedicationTable = ({
         handleSelectAll,
         selectAllChecked,
         columnsToInclude,
-        { isOngoingMode, canEditRepeats, disabledPrescriptionIds },
+        { isOngoingMode, disabledPrescriptionIds },
       ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
@@ -358,7 +381,6 @@ export const PharmacyOrderMedicationTable = ({
       selectAllChecked,
       columnsToInclude,
       isOngoingMode,
-      canEditRepeats,
       disabledIdsKey,
     ],
   );
