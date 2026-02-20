@@ -103,6 +103,7 @@ export const ImpersonationPopover = ({ anchorEl, open, onClose }) => {
       onClose={onClose}
       anchorOrigin={{ vertical: 'center', horizontal: 'right' }}
       transformOrigin={{ vertical: 'center', horizontal: 'left' }}
+      transitionDuration={0}
     >
       <Header>Impersonate role</Header>
       {impersonatingRole && <ActiveLabel>Viewing as {impersonatingRole.name}</ActiveLabel>}
