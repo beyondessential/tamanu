@@ -48,7 +48,7 @@ export const login =
   };
 
 const handleLoginSuccess = async (dispatch, loginInfo) => {
-  const { user, token, localisation, server, availableFacilities, facilityId, ability, role, settings, impersonatedRole, permissions } =
+  const { user, token, localisation, server, availableFacilities, facilityId, ability, role, settings } =
     loginInfo;
   if (facilityId) {
     await dispatch(setFacilityId(facilityId));
@@ -76,11 +76,6 @@ const handleLoginSuccess = async (dispatch, loginInfo) => {
     ability,
     role,
   });
-
-  if (impersonatedRole && user.role === 'admin') {
-    const impersonatedAbility = buildAbilityForUser({ ...user, role: impersonatedRole.id }, permissions);
-    dispatch({ type: IMPERSONATE_ROLE, role: impersonatedRole, ability: impersonatedAbility });
-  }
 };
 
 export const setFacilityId = facilityId => async (dispatch, getState, { api }) => {

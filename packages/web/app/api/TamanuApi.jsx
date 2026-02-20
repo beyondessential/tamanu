@@ -175,8 +175,22 @@ export class TamanuApi extends ApiClient {
     }
 
     this.setToken(token);
+
+    let activePermissions = permissions;
+    if (impersonatedRole) {
+      try {
+        const res = await this.post('admin/impersonate', { roleId: null });
+        this.setToken(res.token);
+        activePermissions = res.permissions;
+        localStorage.removeItem(IMPERSONATED_ROLE);
+        localStorage.setItem(PERMISSIONS, JSON.stringify(res.permissions));
+      } catch (e) {
+        // If cleanup fails, continue with existing session
+      }
+    }
+
     const config = { showUnknownErrorToast: false };
-    const { user, ability } = await this.fetchUserData(permissions, config);
+    const { user, ability } = await this.fetchUserData(activePermissions, config);
 
     return {
       user,
@@ -186,14 +200,14 @@ export class TamanuApi extends ApiClient {
       availableFacilities,
       facilityId,
       ability,
-      permissions,
+      permissions: activePermissions,
       role,
       settings,
-      impersonatedRole,
     };
   }
 
   async login(email, password) {
+    localStorage.removeItem(IMPERSONATED_ROLE);
     const output = await super.login(email, password);
     const { localisation, server, availableFacilities, permissions, role, settings } = output;
     saveToLocalStorage({

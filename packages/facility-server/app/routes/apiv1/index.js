@@ -13,7 +13,9 @@ import {
   setFacilityHandler,
 } from '../../middleware/auth';
 import asyncHandler from 'express-async-handler';
+import * as z from 'zod';
 import { ForbiddenError } from '@tamanu/errors';
+import { log } from '@tamanu/shared/services/logging';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { keyBy, mapValues } from 'lodash';
 
@@ -150,7 +152,13 @@ apiv1.post(
     }
     req.flagPermissionChecked();
 
-    const { roleId = null } = req.body;
+    const { roleId } = z
+      .object({ roleId: z.string().min(1).nullable().default(null) })
+      .parse(req.body);
+
+    if (roleId === user.role) {
+      throw new ForbiddenError('Cannot impersonate your own role');
+    }
 
     let role = null;
     if (roleId) {
@@ -159,6 +167,12 @@ apiv1.post(
         throw new ForbiddenError('Impersonation role does not exist');
       }
     }
+
+    log.info('Role impersonation', {
+      userId: user.id,
+      action: roleId ? 'start' : 'stop',
+      impersonateRoleId: roleId,
+    });
 
     const token = await buildToken({
       user,
