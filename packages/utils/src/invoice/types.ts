@@ -57,6 +57,8 @@ export interface Payment {
   amount: number | Decimal;
   patientPayment?: PatientPayment;
   insurerPayment?: InsurerPayment;
+  refundPayment?: InsurerPayment;
+  originalPayment?: InsurerPayment;
 }
 
 export interface Invoice {
