@@ -10,7 +10,7 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { Op } from 'sequelize';
-import { getInvoiceItemPrice } from '@tamanu/shared/utils';
+import { getInvoiceItemPrice } from '@tamanu/utils/invoice';
 import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
 import { invoiceItemsRoute } from './invoiceItems';
 import { getCurrentCountryTimeZoneDateTimeString } from '@tamanu/shared/utils/countryDateTime';

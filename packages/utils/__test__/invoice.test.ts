@@ -7,9 +7,7 @@ import {
   getInvoiceItemCoveragePercentage,
   getInsuranceCoverageTotalAmount,
   getInvoiceSummary,
-  InvoiceItem,
-  Invoice,
-} from '../src/invoice';
+} from '../src';
 
 describe('Invoice Utils', () => {
   describe('getInvoiceItemPrice', () => {
@@ -113,7 +111,7 @@ describe('Invoice Utils', () => {
         manualEntryPrice: 100,
         quantity: 2,
         discount: {
-          type: INVOICE_ITEMS_DISCOUNT_TYPES.FLAT,
+          type: INVOICE_ITEMS_DISCOUNT_TYPES.AMOUNT,
           amount: 20,
         },
       };
@@ -160,7 +158,7 @@ describe('Invoice Utils', () => {
         manualEntryPrice: 100,
         quantity: 2,
         discount: {
-          type: INVOICE_ITEMS_DISCOUNT_TYPES.FLAT,
+          type: INVOICE_ITEMS_DISCOUNT_TYPES.AMOUNT,
           amount: 200,
         },
       };
