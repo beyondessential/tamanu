@@ -80,7 +80,7 @@ const AddItemsActions = ({ handleSubmit, handleCancel, isDisabled }) => (
   </Box>
 );
 
-export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
+export const InvoiceForm = ({ invoice, isEditing, setIsEditing, onSave }) => {
   const { ability } = useAuth();
 
   // inProgressItems is used to re-populate the form with in progress items after the form is updated
@@ -96,16 +96,25 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
   const handleSubmit = async data => {
     const invoiceItems = data.invoiceItems.filter(item => !!item.productId);
 
-    updateInvoice({
-      ...invoice,
-      items: invoiceItems,
-      insurers: data.insurers.map(insurer => ({
-        ...insurer,
-        percentage: insurer.percentage / 100,
-      })),
-    });
-    setInProgressItems([]);
-    setIsEditing(false);
+    updateInvoice(
+      {
+        ...invoice,
+        items: invoiceItems,
+        insurers: data.insurers.map(insurer => ({
+          ...insurer,
+          percentage: insurer.percentage / 100,
+        })),
+      },
+      {
+        onSuccess: () => {
+          setInProgressItems([]);
+          setIsEditing(false);
+          if (onSave) {
+            onSave();
+          }
+        },
+      },
+    );
   };
 
   // Used for invoice item actions
@@ -115,11 +124,20 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
 
     setInProgressItems(inProgressItems);
 
-    updateInvoice({
-      ...invoice,
-      items: itemsToSave,
-    });
-    setIsEditing(false);
+    updateInvoice(
+      {
+        ...invoice,
+        items: itemsToSave,
+      },
+      {
+        onSuccess: () => {
+          setIsEditing(false);
+          if (onSave) {
+            onSave();
+          }
+        },
+      },
+    );
   };
 
   const handleShowErrorDialog = errors => {

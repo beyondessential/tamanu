@@ -21,6 +21,7 @@ export const INVOICE_MODAL_TYPES = {
   DELETE_INVOICE: 'deleteInvoice',
   INSURANCE: 'insurance',
   PRINT: 'print',
+  EDIT_ITEMS: 'editItems',
 };
 
 export const INVOICE_DISCOUNT_TYPES = {
