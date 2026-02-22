@@ -551,7 +551,7 @@ medication.post(
             date: currentDateTime,
             startDate: currentDateTime,
             quantity: requestData.quantity,
-            repeats: requestData.repeats ?? originalPrescription.repeats ?? 0,
+            repeats: originalPrescription.repeats ?? 0,
             prescriberId: orderingClinicianId,
           },
           { transaction },
