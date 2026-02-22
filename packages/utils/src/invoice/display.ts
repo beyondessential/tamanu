@@ -1,4 +1,4 @@
-import { mapValues } from 'lodash';
+import { mapValues } from 'es-toolkit';
 import Decimal from 'decimal.js';
 import { getInvoiceSummary } from './invoice';
 import {
@@ -7,23 +7,27 @@ import {
   getInvoiceItemTotalDiscountedPrice,
   getInvoiceItemNetCost,
 } from './invoiceItem';
+import type { Invoice, InvoiceItem, InvoiceSummary } from './types';
 
-export const round = (value, decimals = 2) => {
+export const round = (value: number | string | Decimal, decimals = 2): number => {
   return new Decimal(value).toNearest(new Decimal(10).pow(-decimals)).toNumber();
 };
+
 /**
  *
- * @param {number} value
- * @returns
  */
-export const formatDisplayPrice = value => {
-  if (isNaN(parseFloat(value))) {
+export const formatDisplayPrice = (
+  value: number | string | Decimal | undefined,
+): string | undefined => {
+  if (value === undefined) {
+    return undefined;
+  }
+  const floatValue = typeof value === 'number' ? value : parseFloat(value.toString());
+  if (isNaN(floatValue)) {
     return undefined;
   }
 
-  const normalisedValue = parseFloat(value);
-
-  return normalisedValue.toLocaleString('en-US', {
+  return floatValue.toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
@@ -31,26 +35,30 @@ export const formatDisplayPrice = value => {
 
 /**
  * get invoice summary for display
- * @param {Invoice} invoice
  */
-export const getInvoiceSummaryDisplay = invoice => {
+export const getInvoiceSummaryDisplay = (
+  invoice: Invoice,
+): Record<keyof InvoiceSummary, string | undefined> => {
   const summary = getInvoiceSummary(invoice);
-  return mapValues(summary, value => formatDisplayPrice(value));
+  return mapValues(summary, value => formatDisplayPrice(value)) as Record<
+    keyof InvoiceSummary,
+    string | undefined
+  >;
 };
 
-export const getInvoiceItemPriceDisplay = invoiceItem => {
+export const getInvoiceItemPriceDisplay = (invoiceItem: InvoiceItem): string | undefined => {
   const rawPriceValue = getInvoiceItemTotalPrice(invoiceItem);
 
-  const unformattedPrice = isNaN(parseFloat(rawPriceValue))
-    ? undefined
-    : getInvoiceItemTotalPrice(invoiceItem);
+  const unformattedPrice = isNaN(parseFloat(rawPriceValue.toString())) ? undefined : rawPriceValue;
 
   return formatDisplayPrice(unformattedPrice);
 };
 
-export const getInvoiceItemDiscountPriceDisplay = invoiceItem => {
+export const getInvoiceItemDiscountPriceDisplay = (
+  invoiceItem: InvoiceItem,
+): string | undefined => {
   return formatDisplayPrice(
-    isNaN(parseFloat(invoiceItem?.discount?.amount))
+    isNaN(parseFloat(invoiceItem?.discount?.amount?.toString() || ''))
       ? undefined
       : getInvoiceItemTotalDiscountedPrice(invoiceItem),
   );
@@ -61,7 +69,7 @@ export const getInvoiceItemDiscountPriceDisplay = invoiceItem => {
  * @param {InvoiceItem} item - The invoice item object
  * @returns {string} - The formatted insurance coverage of the item (e.g., "0.00")
  */
-export const getFormattedInvoiceItemCoverageAmount = item => {
+export const getFormattedInvoiceItemCoverageAmount = (item: InvoiceItem): string | undefined => {
   if (!item?.product?.insurable || !item.insurancePlanItems?.length) {
     return formatDisplayPrice(0);
   }
@@ -74,7 +82,7 @@ export const getFormattedInvoiceItemCoverageAmount = item => {
  * @param {InvoiceItem} item - The invoice item object
  * @returns {string} - The net cost of the item
  */
-export const getFormattedInvoiceItemNetCost = item => {
+export const getFormattedInvoiceItemNetCost = (item: InvoiceItem): string | undefined => {
   const netCost = getInvoiceItemNetCost(item);
   return formatDisplayPrice(netCost);
 };

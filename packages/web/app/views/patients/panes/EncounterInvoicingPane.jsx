@@ -7,7 +7,7 @@ import { INVOICE_STATUSES } from '@tamanu/constants';
 import PrintIcon from '@material-ui/icons/Print';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
+import { isInvoiceEditable } from '@tamanu/utils/invoice';
 import {
   InvoiceModalGroup,
   InvoiceStatus,

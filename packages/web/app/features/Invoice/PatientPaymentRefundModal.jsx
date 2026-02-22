@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { AutocompleteField, DateDisplay, Field, Form, useSuggester } from '@tamanu/ui-components';
-import { formatDisplayPrice } from '@tamanu/shared/utils/invoice';
+import { formatDisplayPrice } from '@tamanu/utils/invoice';
 
 import { TranslatedText } from '../../components/Translation';
 import { ModalFormActionRow } from '../../components/ModalActionRow';
@@ -88,7 +88,10 @@ export const PatientPaymentRefundModal = ({ invoice, isOpen, onClose, selectedPa
                     <TranslatedText stringId="invoice.modal.receiptNumber" fallback="Receipt no" />
                   </Label>
                   <AmountLabel>
-                    <TranslatedText stringId="invoice.modal.refundAmount" fallback="Refund amount:" />
+                    <TranslatedText
+                      stringId="invoice.modal.refundAmount"
+                      fallback="Refund amount:"
+                    />
                   </AmountLabel>
                 </LabelRow>
                 <LabelRow>
@@ -109,7 +112,10 @@ export const PatientPaymentRefundModal = ({ invoice, isOpen, onClose, selectedPa
                     disabled // Cash is the only method for refunds
                   />
                   <RefundAmount>
-                    <TranslatedText stringId="invoice.modal.refundAmount" fallback="Refund amount:" />{' '}
+                    <TranslatedText
+                      stringId="invoice.modal.refundAmount"
+                      fallback="Refund amount:"
+                    />{' '}
                     {formatDisplayPrice(paymentRecord.amount)}
                   </RefundAmount>
                 </RefundRow>

@@ -4,11 +4,7 @@ import express from 'express';
 import Decimal from 'decimal.js';
 
 import { ForbiddenError, NotFoundError, ValidationError } from '@tamanu/errors';
-import {
-  getInvoicePatientPaymentStatus,
-  round,
-  getInvoiceSummary,
-} from '@tamanu/shared/utils/invoice';
+import { getInvoicePatientPaymentStatus, round, getInvoiceSummary } from '@tamanu/utils/invoice';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 
 const createPatientPaymentSchema = z
