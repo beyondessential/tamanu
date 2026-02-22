@@ -94,7 +94,6 @@
     "@types/node": "^20.9.0",
     "@types/tiny-async-pool": "^2.0.3",
     "rimraf": "^6.0.1",
-    "type-fest": "^4.31.0",
     "vitest": "^2.1.9",
     "winston": "^3.14.2"
   },
