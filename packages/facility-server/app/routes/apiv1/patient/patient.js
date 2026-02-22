@@ -36,7 +36,6 @@ import { getLastOrderedAtForOngoingPrescriptions } from '../../../utils/medicati
 import { validate } from '../../../utils/validate';
 import { patientContact } from './patientContact';
 import { patientPortal } from './patientPortal';
-import { isBefore } from 'date-fns';
 
 const patientRoute = express.Router();
 
@@ -816,33 +815,10 @@ patientRoute.get(
       },
     });
 
-    // Fetch all dispenses for the pharmacy order prescriptions to calculate remaining repeats
-    const pharmacyOrderPrescriptionIds = [
-      ...new Set(data.map(item => item.pharmacyOrderPrescription.id)),
-    ];
-
-    const allDispenses = await MedicationDispense.findAll({
-      where: { pharmacyOrderPrescriptionId: { [Op.in]: pharmacyOrderPrescriptionIds } },
-      attributes: ['id', 'pharmacyOrderPrescriptionId', 'dispensedAt'],
-    });
-
-    const dispensesByPrescriptionId = allDispenses.reduce((acc, dispense) => {
-      const id = dispense.pharmacyOrderPrescriptionId;
-      if (!acc[id]) acc[id] = [];
-      acc[id].push(dispense);
-      return acc;
-    }, {});
-
     const result = data.map(item => {
       const referenceDrug = referenceDrugs.find(
         r => r.referenceDataId === item.pharmacyOrderPrescription.prescription.medication.id,
       );
-
-      // Manually set medicationDispenses for getRemainingRepeats calculation
-      // We only want to include dispenses that were dispensed before the current dispense to get remaining repeats at the time of the dispense
-      item.pharmacyOrderPrescription.medicationDispenses = (
-        dispensesByPrescriptionId[item.pharmacyOrderPrescription.id] || []
-      ).filter(d => isBefore(new Date(d.dispensedAt), new Date(item.dispensedAt)));
 
       return {
         ...item.toJSON(),

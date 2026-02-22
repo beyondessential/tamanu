@@ -25,7 +25,7 @@ import {
   SYSTEM_USER_UUID,
   PHARMACY_PRESCRIPTION_TYPES,
 } from '@tamanu/constants';
-import { add, format, isAfter, isBefore, isEqual } from 'date-fns';
+import { add, format, isAfter, isEqual } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 import { validate } from '../../utils/validate';
 import { getLastOrderedAtForOngoingPrescriptions } from '../../utils/medication';
@@ -2138,24 +2138,6 @@ medication.get(
       },
     });
 
-    // Fetch all dispenses for the pharmacy order prescriptions to calculate remaining repeats
-    const pharmacyOrderPrescriptionIds = [
-      ...new Set(data.map(item => item.pharmacyOrderPrescription.id)),
-    ];
-
-    const allDispenses = await models.MedicationDispense.findAll({
-      where: { pharmacyOrderPrescriptionId: { [Op.in]: pharmacyOrderPrescriptionIds } },
-      attributes: ['id', 'pharmacyOrderPrescriptionId', 'dispensedAt'],
-    });
-
-    // Group dispenses by pharmacyOrderPrescriptionId
-    const dispensesByPrescriptionId = allDispenses.reduce((acc, dispense) => {
-      const id = dispense.pharmacyOrderPrescriptionId;
-      if (!acc[id]) acc[id] = [];
-      acc[id].push(dispense);
-      return acc;
-    }, {});
-
     const result = data.map(item => {
       const patient = patients.find(
         p => p.id === item.pharmacyOrderPrescription.pharmacyOrder.encounter.patient.id,
@@ -2165,12 +2147,6 @@ medication.get(
       const referenceDrug = referenceDrugs.find(
         r => r.referenceDataId === item.pharmacyOrderPrescription.prescription.medication.id,
       );
-
-      // Manually set medicationDispenses for getRemainingRepeats calculation
-      // We only want to include dispenses that were dispensed before the current dispense to get remaining repeats at the time of the dispense
-      item.pharmacyOrderPrescription.medicationDispenses = (
-        dispensesByPrescriptionId[item.pharmacyOrderPrescription.id] || []
-      ).filter(d => isBefore(new Date(d.dispensedAt), new Date(item.dispensedAt)));
 
       return {
         ...item.toJSON(),

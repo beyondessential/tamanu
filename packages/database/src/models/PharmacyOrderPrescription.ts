@@ -99,16 +99,11 @@ export class PharmacyOrderPrescription extends Model {
     });
   }
 
-  getRemainingRepeats(extraDispenses: number = 0): number {
-    // No repeats will be consumed by an INPATIENT medication request.
+  getRemainingRepeats(): number {
     if (!this.pharmacyOrder?.isDischargePrescription) {
       return 0;
     }
-    // The remaining repeats for OUTPATIENT medication requests is the number of repeats minus the number of dispenses.
-    const repeats = this.repeats || 0;
-    const dispenseCount = (this.medicationDispenses || []).length + extraDispenses;
-    // we subtract 1 from the dispense count because the first dispense is not counted as a repeat
-    return Math.max(0, repeats - Math.max(0, dispenseCount - 1));
+    return this.repeats ?? 0;
   }
 
   static getListReferenceAssociations() {
