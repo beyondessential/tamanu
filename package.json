@@ -88,13 +88,10 @@
     "globals": "^13.24.0",
     "prettier": "^3.4.2",
     "rimraf": "^6.0.1",
-    "typescript": "^5.8.0",
-    "yaml": "^2.2.1"
+    "typescript": "^5.8.0"
   },
   "dependencies": {
     "concurrently": "^8.2.2",
-    "config": "^3.3.9",
-    "node": "^20.19.4",
     "patch-package": "^8.0.0",
     "pm2": "^5.4.2"
   },
