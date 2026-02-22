@@ -99,13 +99,6 @@ export class PharmacyOrderPrescription extends Model {
     });
   }
 
-  getRemainingRepeats(): number {
-    if (!this.pharmacyOrder?.isDischargePrescription) {
-      return 0;
-    }
-    return this.repeats ?? 0;
-  }
-
   static getListReferenceAssociations() {
     return ['pharmacyOrder', 'prescription'];
   }

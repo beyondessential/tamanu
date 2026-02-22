@@ -604,7 +604,7 @@ medication.post(
             prescriptionId: prescription.id,
             ongoingPrescriptionId: originalPrescription.id,
             quantity: requestData.quantity,
-            repeats: requestData.repeats ?? originalPrescription.repeats ?? 0,
+            repeats: originalPrescription.repeats ?? 0,
           };
         }),
         { transaction },
@@ -2159,7 +2159,7 @@ medication.get(
               referenceDrug: referenceDrug,
             },
           },
-          remainingRepeats: item.pharmacyOrderPrescription.getRemainingRepeats(),
+          remainingRepeats: item.pharmacyOrderPrescription.repeats ?? 0,
         },
       };
     });
@@ -2329,7 +2329,7 @@ medication.get(
       count: pharmacyOrderPrescriptions.length,
       data: pharmacyOrderPrescriptions.map(pop => ({
         ...pop.toJSON(),
-        remainingRepeats: pop.getRemainingRepeats(),
+        remainingRepeats: pop.repeats ?? 0,
         lastDispensedAt: pop.medicationDispenses?.sort(
           (a, b) => new Date(b.dispensedAt) - new Date(a.dispensedAt),
         )[0]?.dispensedAt,

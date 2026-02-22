@@ -838,7 +838,7 @@ patientRoute.get(
               },
             },
           },
-          remainingRepeats: item.pharmacyOrderPrescription.getRemainingRepeats(),
+          remainingRepeats: item.pharmacyOrderPrescription.repeats ?? 0,
         },
       };
     });
