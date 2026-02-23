@@ -164,8 +164,8 @@ const StyledCheckField = styled(CheckField)`
   width: 100%;
   background-color: ${Colors.white};
   border: 1px solid
-    ${({ $checked, $isLocked }) => {
-    if ($isLocked && $isChecked) return Colors.midText;
+    ${({ $checked, $locked }) => {
+    if ($locked && $checked) return Colors.midText;
     if ($checked) return Colors.primary;
     return Colors.outline;
   }};
@@ -947,7 +947,7 @@ export const MedicationForm = ({
                       }
                       data-testid="medication-field-isOngoing-7j2p"
                       $checked={values.isOngoing || isOngoingPrescription}
-                      $isLocked={isOngoingPrescription}
+                      $locked={isOngoingPrescription}
                     />
                   </ConditionalTooltip>
                 </CheckboxRowItem>
