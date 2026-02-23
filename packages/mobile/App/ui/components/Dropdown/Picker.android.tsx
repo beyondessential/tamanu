@@ -28,7 +28,7 @@ export const AndroidPicker = ({
   open,
   onChange,
   closeModal,
-  label,
+  label = 'Pick a value',
 }: AndroidPickerProps): ReactElement => {
   const onChangeItem = React.useCallback(
     (item) => {
@@ -88,8 +88,4 @@ export const AndroidPicker = ({
       </FullView>
     </Modal>
   );
-};
-
-AndroidPicker.defaultProps = {
-  label: 'Pick a value',
 };

@@ -9,7 +9,7 @@ interface CircleProps {
 
 const circleSize = screenPercentageToDP(0.85, Orientation.Height);
 
-const Circle: FC<any> = ({ currentStep }: CircleProps) => (
+const Circle: FC<any> = ({ currentStep = false }: CircleProps) => (
   <StyledView
     width={circleSize}
     height={circleSize}
@@ -17,10 +17,6 @@ const Circle: FC<any> = ({ currentStep }: CircleProps) => (
     background={currentStep ? theme.colors.SECONDARY_MAIN : theme.colors.WHITE}
   />
 );
-
-Circle.defaultProps = {
-  currentStep: false,
-};
 
 interface StepMarkerProps {
   step: number;

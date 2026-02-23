@@ -668,19 +668,19 @@ export class TamanuApi {
       // message sent from the server is received in one go by the
       // client: the transport could fragment messages at arbitrary
       // boundaries, or could concatenate messages together.
-      let buffer = Buffer.alloc(0);
+      let buffer: Buffer = Buffer.alloc(0);
       reader: while (true) {
         const { done, value } = await reader.read();
 
         if (value) {
-          buffer = Buffer.concat([buffer, value]);
+          buffer = Buffer.concat([buffer, value]) as Buffer;
         }
 
         // while not strictly required, for clarity we label both reader
         // and decoder loops and always use the right label to break out
         decoder: while (true) {
           const { buf, length, kind, message } = decodeOne(buffer);
-          buffer = buf;
+          buffer = buf as Buffer;
           if (length === undefined) {
             // not enough data, wait for more
             break decoder;

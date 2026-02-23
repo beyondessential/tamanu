@@ -1,5 +1,5 @@
 module.exports = {
-  presets: ['module:metro-react-native-babel-preset'],
+  presets: ['module:@react-native/babel-preset'],
   plugins: [
     'babel-plugin-transform-typescript-metadata',
     '@babel/plugin-transform-export-namespace-from',
@@ -28,7 +28,7 @@ module.exports = {
           '/infra': './App/infra',
           '/presentation': './App/presentation',
           '/root': './',
-          'react-native-sqlite-storage': 'react-native-quick-sqlite',
+          'react-native-sqlite-storage': 'react-native-nitro-sqlite',
         },
       },
     ],

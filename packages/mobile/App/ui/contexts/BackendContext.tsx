@@ -1,42 +1,52 @@
 import React, { ReactElement, useEffect, useState } from 'react';
-import RnBgTask from 'react-native-bg-thread';
+
 import { BackendManager } from '../../services/BackendManager';
+import { runOnBackgroundThread } from '../../services/BackgroundThread';
 
 import { LoadingScreen } from '../components/LoadingScreen';
 import { ErrorScreen } from '../components/ErrorScreen';
 
 export const BackendContext = React.createContext<BackendManager>(undefined);
 
-const backendManager = new BackendManager();
+let backendManager: BackendManager | null = null;
+
+const getBackendManager = (): BackendManager => {
+  if (!backendManager) {
+    backendManager = new BackendManager();
+  }
+  return backendManager;
+};
 
 export const BackendProvider = ({ Component }): ReactElement => {
   const [initialised, setInitialised] = useState(false);
 
   useEffect(() => {
-    (async (): Promise<void> => {
-      backendManager.stopSyncService();
-      setInitialised(false);
+    const manager = getBackendManager();
+    
+    manager.stopSyncService();
+    setInitialised(false);
 
-      RnBgTask.runInBackground(async () => {
-        await backendManager.initialise();
-        setInitialised(true);
-      });
-    })();
+    runOnBackgroundThread(async () => {
+      await manager.initialise();
+      setInitialised(true);
+    });
+
     return () => {
-      backendManager.stopSyncService();
+      manager.stopSyncService();
     };
-  }, [backendManager]);
+  }, []);
 
   if (!initialised) {
     return <LoadingScreen />;
   }
 
-  if (backendManager.getSyncError()) {
-    return <ErrorScreen error={backendManager.getSyncError()} />;
+  const manager = getBackendManager();
+  if (manager.getSyncError()) {
+    return <ErrorScreen error={manager.getSyncError()} />;
   }
 
   return (
-    <BackendContext.Provider value={backendManager}>
+    <BackendContext.Provider value={manager}>
       <Component />
     </BackendContext.Provider>
   );

@@ -38,6 +38,10 @@ function sanitiseForImport<T>(repo: Repository<T>, data: { [key: string]: any })
 
 export abstract class BaseModelWithoutId extends BaseEntity {
   static allModels = undefined;
+  static connection: DataSource | undefined = undefined;
+  static useConnection(connection: DataSource): void {
+    this.connection = connection;
+  }
 
   @CreateDateColumn()
   createdAt: Date;
