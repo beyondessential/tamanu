@@ -187,7 +187,7 @@ const getFSMDisplayDate = (date) => {
 
 const getDeathWithin42Days = (extraData) => {
   return extraData?.fsmDeathWithin42Days === 'yes' ? 'Y' : 'N';
-}
+};
 
 export const FSMDeathCertificatePrintout = ({
   patientData,
