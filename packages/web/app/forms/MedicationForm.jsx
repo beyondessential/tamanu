@@ -765,9 +765,9 @@ export const MedicationForm = ({
   };
 
   const getStockLevelIcon = () => {
-    if (drugQuantity > 0) return <CircleHelp size={20} color={Colors.safe} />;
+    if (drugQuantity > 0) return <CircleCheck size={20} color={Colors.safe} />;
     if (drugQuantity === 0) return <CircleAlert size={20} color={Colors.alert} />;
-    return <CircleCheck size={20} color={Colors.blue} />;
+    return <CircleHelp size={20} color={Colors.blue} />;
   };
 
   const getStockLevelContent = () => {
