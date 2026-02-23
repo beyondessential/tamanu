@@ -164,9 +164,9 @@ const StyledCheckField = styled(CheckField)`
   width: 100%;
   background-color: ${Colors.white};
   border: 1px solid
-    ${({ $checked, $locked }) => {
-    if ($locked && $checked) return Colors.midText;
-    if ($checked) return Colors.primary;
+    ${({ $isChecked, $isLocked }) => {
+    if ($isLocked && $isChecked) return Colors.midText;
+    if ($isChecked) return Colors.primary;
     return Colors.outline;
   }};
   border-radius: 3px;
@@ -946,8 +946,8 @@ export const MedicationForm = ({
                         />
                       }
                       data-testid="medication-field-isOngoing-7j2p"
-                      $checked={values.isOngoing || isOngoingPrescription}
-                      $locked={isOngoingPrescription}
+                      $isChecked={values.isOngoing || isOngoingPrescription}
+                      $isLocked={isOngoingPrescription}
                     />
                   </ConditionalTooltip>
                 </CheckboxRowItem>
@@ -959,7 +959,7 @@ export const MedicationForm = ({
                     }
                     component={StyledCheckField}
                     data-testid="medication-field-isPrn-9n4q"
-                    $checked={values.isPrn}
+                    $isChecked={values.isPrn}
                   />
                 </CheckboxRowItem>
               </CheckboxRow>
@@ -983,7 +983,7 @@ export const MedicationForm = ({
                   }
                 }}
                 data-testid="medication-field-isVariableDose-5h8x"
-                $checked={values.isVariableDose}
+                $isChecked={values.isVariableDose}
               />
             </VariableDoseFieldWrapper>
             <Field
