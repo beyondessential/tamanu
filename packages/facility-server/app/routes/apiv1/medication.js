@@ -2351,11 +2351,12 @@ medication.get(
     const lastDispensedRows = await PharmacyOrderPrescription.sequelize.query(
       `SELECT p.medication_id AS "medicationId", MAX(md.dispensed_at) AS "lastDispensedAt"
        FROM medication_dispenses md
-       JOIN pharmacy_order_prescriptions pop ON pop.id = md.pharmacy_order_prescription_id
-       JOIN pharmacy_orders po ON po.id = pop.pharmacy_order_id
-       JOIN encounters e ON e.id = po.encounter_id
-       JOIN prescriptions p ON p.id = pop.prescription_id
+       JOIN pharmacy_order_prescriptions pop ON pop.id = md.pharmacy_order_prescription_id AND pop.deleted_at IS NULL
+       JOIN pharmacy_orders po ON po.id = pop.pharmacy_order_id AND po.deleted_at IS NULL
+       JOIN encounters e ON e.id = po.encounter_id AND e.deleted_at IS NULL
+       JOIN prescriptions p ON p.id = pop.prescription_id AND p.deleted_at IS NULL
        WHERE e.patient_id = :patientId
+         AND md.deleted_at IS NULL
        GROUP BY p.medication_id`,
       {
         type: QueryTypes.SELECT,
