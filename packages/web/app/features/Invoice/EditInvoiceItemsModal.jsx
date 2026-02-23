@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { Modal } from '../../components/Modal';
 import { TranslatedText } from '../../components/Translation';
 import { InvoiceForm } from './InvoiceForm';
+import { Colors } from '../../constants/styles';
 
 const StyledModal = styled(Modal)`
   .MuiPaper-root {
@@ -13,7 +14,20 @@ const StyledModal = styled(Modal)`
 `;
 
 const ModalBody = styled.div`
-  margin: 20px 0;
+  background: ${Colors.background};
+  padding: 40px;
+`;
+
+const Description = styled.p`
+  font-size: 14px;
+  color: ${Colors.darkestText};
+  margin: 0 0 20px 0;
+`;
+
+const TableCard = styled.div`
+  background: ${Colors.white};
+  border-radius: 3px;
+  overflow: hidden;
 `;
 
 export const EditInvoiceItemsModal = ({ open, onClose, invoice }) => {
@@ -25,21 +39,29 @@ export const EditInvoiceItemsModal = ({ open, onClose, invoice }) => {
     <StyledModal
       title={
         <TranslatedText
-          stringId="invoice.modal.editItems.title"
-          fallback="Edit invoice items"
+          stringId="invoice.modal.edit.title"
+          fallback="Edit invoice"
         />
       }
       open={open}
       onClose={handleClose}
     >
       <ModalBody>
-        <InvoiceForm
-          invoice={invoice}
-          isPatientView={false}
-          isEditing={true}
-          setIsEditing={() => {}}
-          onSave={handleClose}
-        />
+        <Description>
+          <TranslatedText
+            stringId="invoice.modal.edit.description"
+            fallback="Edit invoice items below."
+          />
+        </Description>
+        <TableCard>
+          <InvoiceForm
+            invoice={invoice}
+            isPatientView={false}
+            isEditing={true}
+            setIsEditing={() => {}}
+            onSave={handleClose}
+          />
+        </TableCard>
       </ModalBody>
     </StyledModal>
   );

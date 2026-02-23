@@ -5,4 +5,5 @@ export const CELL_WIDTHS = {
   APPROVED: '70px',
   ORDERED_BY: '140px',
   PRICE: '80px',
+  NET_COST: '80px',
 };

@@ -36,7 +36,7 @@ export const InvoiceItemHeader = () => {
         <TranslatedText stringId="invoice.modal.editInvoice.details.label" fallback="Details" />
       </ItemHeadCell>
       <ItemHeadCell $width={CELL_WIDTHS.QUANTITY}>
-        <TranslatedText stringId="invoice.table.column.quantity" fallback="Qty" />
+        <TranslatedText stringId="invoice.modal.editInvoice.quantity.label" fallback="Quantity" />
       </ItemHeadCell>
       <ItemHeadCell $width={CELL_WIDTHS.APPROVED}>
         <TranslatedText
@@ -53,7 +53,10 @@ export const InvoiceItemHeader = () => {
         />
       </ItemHeadCell>
       <ItemHeadCell $width={CELL_WIDTHS.PRICE} style={{ textAlign: 'right' }}>
-        <TranslatedText stringId="invoice.modal.editInvoice.price.label" fallback="Price" />
+        <TranslatedText stringId="invoice.modal.editInvoice.cost.label" fallback="Cost" />
+      </ItemHeadCell>
+      <ItemHeadCell $width={CELL_WIDTHS.NET_COST} style={{ textAlign: 'right' }}>
+        <TranslatedText stringId="invoice.modal.editInvoice.netCost.label" fallback="Net cost" />
       </ItemHeadCell>
     </StyledItemHeader>
   );

@@ -48,21 +48,29 @@ const FormFooter = styled.div`
   margin: 5px 0;
 `;
 
+const EditModalFooter = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 40px;
+  background: ${Colors.background};
+  border-top: 1px solid ${Colors.outline};
+`;
+
 const getDefaultRow = () => ({ id: uuidv4(), quantity: 1, orderDate: getCurrentDateString() });
 
 const EditItemsActions = ({ handleSubmit, handleCancel, isDisabled }) => (
-  <Box textAlign="right" mb={1}>
+  <>
     <FormCancelButton style={{ marginRight: 8 }} onClick={handleCancel}>
       Cancel
     </FormCancelButton>
     <SubmitButton onSubmit={handleSubmit} disabled={isDisabled}>
       <TranslatedText
-        stringId="invoice.form.action.save"
-        fallback="Save item/s"
+        stringId="invoice.form.action.saveChanges"
+        fallback="Save changes"
         data-testid="translatedtext-26ji"
       />
     </SubmitButton>
-  </Box>
+  </>
 );
 
 const AddItemsActions = ({ handleSubmit, handleCancel, isDisabled }) => (
@@ -186,7 +194,7 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing, onSave }) => {
                       );
                     })}
                   </Box>
-                  {editable && canWriteInvoice && (
+                  {editable && canWriteInvoice && !isEditing && (
                     <FormFooter>
                       <Box>
                         <AddButton
@@ -202,25 +210,27 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing, onSave }) => {
                         </AddButton>
                       </Box>
                       <Box>
-                        {!isEditing && (dirty || inProgressItems.length > 0) && (
+                        {(dirty || inProgressItems.length > 0) && (
                           <AddItemsActions
                             handleSubmit={submitForm}
                             handleCancel={resetForm}
                             isDisabled={isUpdatingInvoice}
                           />
                         )}
-                        {isEditing && (
-                          <EditItemsActions
-                            handleSubmit={submitForm}
-                            handleCancel={() => {
-                              setIsEditing(false);
-                              resetForm();
-                            }}
-                            isDisabled={isUpdatingInvoice}
-                          />
-                        )}
                       </Box>
                     </FormFooter>
+                  )}
+                  {editable && canWriteInvoice && isEditing && (
+                    <EditModalFooter>
+                      <EditItemsActions
+                        handleSubmit={submitForm}
+                        handleCancel={() => {
+                          setIsEditing(false);
+                          resetForm();
+                        }}
+                        isDisabled={isUpdatingInvoice}
+                      />
+                    </EditModalFooter>
                   )}
                 </>
               );

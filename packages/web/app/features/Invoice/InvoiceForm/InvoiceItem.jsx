@@ -14,6 +14,7 @@ import {
   QuantityCell,
   OrderedByCell,
   ApprovedCell,
+  NetCostCell,
 } from './InvoiceItemCells';
 import { InvoiceItemActionsMenu } from './InvoiceItemActionsMenu';
 
@@ -218,6 +219,7 @@ export const InvoiceItemRow = ({
         isEditing={isEditing}
         isSaved={isSaved}
       />
+      <NetCostCell item={item} />
 
       {!isCancelled && !isEditing && (
         <InvoiceItemActionsMenu
