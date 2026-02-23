@@ -2347,14 +2347,31 @@ medication.get(
       },
     });
 
+    // Last dispensed per medication for this patient (any prescription/source)
+    const lastDispensedRows = await PharmacyOrderPrescription.sequelize.query(
+      `SELECT p.medication_id AS "medicationId", MAX(md.dispensed_at) AS "lastDispensedAt"
+       FROM medication_dispenses md
+       JOIN pharmacy_order_prescriptions pop ON pop.id = md.pharmacy_order_prescription_id
+       JOIN pharmacy_orders po ON po.id = pop.pharmacy_order_id
+       JOIN encounters e ON e.id = po.encounter_id
+       JOIN prescriptions p ON p.id = pop.prescription_id
+       WHERE e.patient_id = :patientId
+       GROUP BY p.medication_id`,
+      {
+        type: QueryTypes.SELECT,
+        replacements: { patientId },
+      },
+    );
+    const lastDispensedByMedication = Object.fromEntries(
+      lastDispensedRows.map(row => [row.medicationId, row.lastDispensedAt]),
+    );
+
     res.send({
       count: pharmacyOrderPrescriptions.length,
       data: pharmacyOrderPrescriptions.map(pop => ({
         ...pop.toJSON(),
         remainingRepeats: pop.getRemainingRepeats(),
-        lastDispensedAt: pop.medicationDispenses?.sort(
-          (a, b) => new Date(b.dispensedAt) - new Date(a.dispensedAt),
-        )[0]?.dispensedAt,
+        lastDispensedAt: lastDispensedByMedication[pop.prescription.medication.id],
       })),
     });
   }),
