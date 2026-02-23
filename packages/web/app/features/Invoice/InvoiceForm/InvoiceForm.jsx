@@ -98,7 +98,11 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing, onSave, isModal,
 
   // Main submit action for the invoice
   const handleSubmit = async data => {
-    const invoiceItems = data.invoiceItems.filter(item => !!item.productId);
+    const newItems = data.invoiceItems.filter(item => !!item.productId);
+    // In add modal mode, merge new items with existing ones rather than replacing
+    const invoiceItems = startWithBlankRow
+      ? [...(invoice.items ?? []), ...newItems]
+      : newItems;
 
     updateInvoice(
       {
@@ -154,7 +158,7 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing, onSave, isModal,
       onSubmit={handleSubmit}
       enableReinitialize
       initialValues={{
-        invoiceItems: [...(invoice.items ?? []), ...inProgressItems],
+        invoiceItems: startWithBlankRow ? inProgressItems : [...(invoice.items ?? []), ...inProgressItems],
         insurers: invoice.insurers?.length
           ? invoice.insurers.map(insurer => ({
               ...insurer,
