@@ -13,6 +13,7 @@ See `llm/project-rules/` for detailed Tamanu-specific rules:
 - **Important Rules**: See @llm/project-rules/important-project-rules.md for coding preferences and conventions
 - **Copy Changes**: See @llm/project-rules/update-copy.md for TranslatedText system and copy update workflows
 - **Translate Strings**: See @llm/project-rules/translate-hardcoded-strings.md for internationalization
+- **Sequelize Transactions**: See @llm/project-rules/sequelize-transactions.md for managed transactions and CLS (do not pass transaction object)
 
 ## Common Rules (Shared Across Projects)
 
