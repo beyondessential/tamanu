@@ -1,7 +1,7 @@
 {
   "name": "@tamanu/patient-portal",
   "productName": "Tamanu",
-  "version": "2.48.1",
+  "version": "2.48.2",
   "description": "Tamanu Patient Portal",
   "private": true,
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
