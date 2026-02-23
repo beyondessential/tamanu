@@ -24,19 +24,27 @@ export const withDeferredSyncSafeguards = async <ReturnT = unknown>(
    */
   await sequelize.query('SET CONSTRAINTS ALL DEFERRED;');
 
+  let operationFailed = false;
   try {
     return await operation();
+  } catch (e) {
+    operationFailed = true;
+    throw e;
   } finally {
     try {
       await sequelize.query('SET CONSTRAINTS ALL IMMEDIATE;');
     } catch (e) {
-      console.error('Failed to reset constraints to IMMEDIATE:', e);
-      // When the finally block itself throws an error, it replaces the original error from the try block.
-      // If operation() failed with a database error, PostgreSQL puts the transaction
-      // into an aborted state where all subsequent queries fail with a generic
-      // "current transaction is aborted" error. Swallow this secondary error so the
-      // original meaningful error (e.g. unique constraint violation) propagates instead.
-      // The transaction will roll back anyway, restoring constraint checking mode.
+      if (!operationFailed) {
+        // operation() succeeded but a deferred constraint is violated (ie: a foreign key constraint is violated) 
+        // — this is a real error we want to throw this error
+        // eslint-disable-next-line no-unsafe-finally
+        throw e;
+      }
+
+      // operation() already failed — swallow the secondary error so the original propagates
+      // this is because if try block throws an error, then the finally block also throws an error,
+      // and the original error is lost.
+      console.error('Failed to reset constraints to IMMEDIATE (suppressed):', e);
     }
   }
 };
