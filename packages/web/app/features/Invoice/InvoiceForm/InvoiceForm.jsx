@@ -52,8 +52,8 @@ const FormFooter = styled.div`
 const EditModalFooter = styled.div`
   display: flex;
   justify-content: flex-end;
-  padding: 16px 40px;
-  background: ${Colors.background};
+  margin: 40px -40px 0;
+  padding: 20px 40px 0;
   border-top: 1px solid ${Colors.outline};
 `;
 
@@ -85,12 +85,23 @@ const AddItemsActions = ({ handleSubmit, handleCancel, isDisabled }) => (
   </Box>
 );
 
-export const InvoiceForm = ({ invoice, isEditing, setIsEditing, onSave, onCancel, isModal, onAddItem, startWithBlankRow }) => {
+export const InvoiceForm = ({
+  invoice,
+  isEditing,
+  setIsEditing,
+  onSave,
+  onCancel,
+  isModal,
+  onAddItem,
+  startWithBlankRow,
+}) => {
   const { ability } = useAuth();
   const cellWidths = isModal || isEditing ? CELL_WIDTHS_EDITABLE : CELL_WIDTHS;
 
   // inProgressItems is used to re-populate the form with in progress items after the form is updated
-  const [inProgressItems, setInProgressItems] = useState(startWithBlankRow ? [getDefaultRow()] : []);
+  const [inProgressItems, setInProgressItems] = useState(
+    startWithBlankRow ? [getDefaultRow()] : [],
+  );
   const canWriteInvoice = ability.can('write', 'Invoice');
   const editable = isInvoiceEditable(invoice) && canWriteInvoice;
   const isFinalised = invoice.status === INVOICE_STATUSES.FINALISED;
@@ -102,9 +113,7 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing, onSave, onCancel
   const handleSubmit = async data => {
     const newItems = data.invoiceItems.filter(item => !!item.productId);
     // In add modal mode, merge new items with existing ones rather than replacing
-    const invoiceItems = startWithBlankRow
-      ? [...(invoice.items ?? []), ...newItems]
-      : newItems;
+    const invoiceItems = startWithBlankRow ? [...(invoice.items ?? []), ...newItems] : newItems;
 
     updateInvoice(
       {
@@ -160,7 +169,9 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing, onSave, onCancel
       onSubmit={handleSubmit}
       enableReinitialize
       initialValues={{
-        invoiceItems: startWithBlankRow ? inProgressItems : [...(invoice.items ?? []), ...inProgressItems],
+        invoiceItems: startWithBlankRow
+          ? inProgressItems
+          : [...(invoice.items ?? []), ...inProgressItems],
         insurers: invoice.insurers?.length
           ? invoice.insurers.map(insurer => ({
               ...insurer,
@@ -202,7 +213,9 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing, onSave, onCancel
                       <Box>
                         <AddButton
                           variant="text"
-                          onClick={() => onAddItem ? onAddItem() : formArrayMethods.push(getDefaultRow())}
+                          onClick={() =>
+                            onAddItem ? onAddItem() : formArrayMethods.push(getDefaultRow())
+                          }
                           startIcon={<Plus />}
                         >
                           <TranslatedText

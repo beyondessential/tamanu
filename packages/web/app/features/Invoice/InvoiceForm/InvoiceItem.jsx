@@ -202,7 +202,12 @@ export const InvoiceItemRow = ({
         isEditing={isEditing}
         isSaved={isSaved}
       />
-      <QuantityCell index={index} item={item} isItemEditable={isItemEditable} cellWidths={cellWidths} />
+      <QuantityCell
+        index={index}
+        item={item}
+        isItemEditable={isItemEditable}
+        cellWidths={cellWidths}
+      />
       <ApprovedCell item={item} cellWidths={cellWidths} />
       <OrderedByCell
         index={index}
@@ -223,7 +228,6 @@ export const InvoiceItemRow = ({
         cellWidths={cellWidths}
       />
       <NetCostCell item={item} cellWidths={cellWidths} />
-
       {!isCancelled && !isEditing && (
         <InvoiceItemActionsMenu
           index={index}

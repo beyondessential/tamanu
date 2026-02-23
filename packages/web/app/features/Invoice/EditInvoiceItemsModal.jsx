@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-
+import { Typography } from '@mui/material';
 import { Modal } from '../../components/Modal';
 import { TranslatedText } from '../../components/Translation';
 import { InvoiceForm } from './InvoiceForm';
@@ -8,26 +8,21 @@ import { Colors } from '../../constants/styles';
 
 const StyledModal = styled(Modal)`
   .MuiPaper-root {
-    max-width: 1200px;
+    max-width: 1150px;
     width: 90vw;
   }
 `;
 
 const ModalBody = styled.div`
-  background: ${Colors.background};
-  padding: 40px;
+  padding: 20px 8px;
 `;
 
-const Description = styled.p`
-  font-size: 14px;
-  color: ${Colors.darkestText};
-  margin: 0 0 20px 0;
-`;
-
-const TableCard = styled.div`
-  background: ${Colors.white};
-  border-radius: 3px;
-  overflow: hidden;
+const Description = styled(Typography)`
+  &.MuiTypography-root {
+    font-size: 14px;
+    color: ${Colors.darkestText};
+    margin-bottom: 20px;
+  }
 `;
 
 export const EditInvoiceItemsModal = ({ open, onClose, invoice }) => {
@@ -37,12 +32,7 @@ export const EditInvoiceItemsModal = ({ open, onClose, invoice }) => {
 
   return (
     <StyledModal
-      title={
-        <TranslatedText
-          stringId="invoice.modal.edit.title"
-          fallback="Edit invoice"
-        />
-      }
+      title={<TranslatedText stringId="invoice.modal.edit.title" fallback="Edit invoice" />}
       open={open}
       onClose={handleClose}
     >
@@ -53,16 +43,14 @@ export const EditInvoiceItemsModal = ({ open, onClose, invoice }) => {
             fallback="Edit invoice items below."
           />
         </Description>
-        <TableCard>
-          <InvoiceForm
-            invoice={invoice}
-            isPatientView={false}
-            isEditing={true}
-            setIsEditing={() => {}}
-            onSave={handleClose}
-            onCancel={handleClose}
-          />
-        </TableCard>
+        <InvoiceForm
+          invoice={invoice}
+          isPatientView={false}
+          isEditing={true}
+          setIsEditing={() => {}}
+          onSave={handleClose}
+          onCancel={handleClose}
+        />
       </ModalBody>
     </StyledModal>
   );
