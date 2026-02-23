@@ -5,7 +5,11 @@
       "Bash(gh pr:*)",
       "Bash(head:*)",
       "Bash(brew install:*)",
-      "Bash(gh auth:*)"
+      "Bash(gh auth:*)",
+      "mcp__figma-mcp__get_design_context",
+      "mcp__figma-mcp__get_screenshot",
+      "Bash(cat:*)",
+      "Bash(git:*)"
     ]
   }
 }
