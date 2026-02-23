@@ -165,7 +165,7 @@ const StyledCheckField = styled(CheckField)`
   background-color: ${Colors.white};
   border: 1px solid
     ${({ $checked, $isLocked }) => {
-    if ($isLocked) return Colors.midText;
+    if ($isLocked && $isChecked) return Colors.midText;
     if ($checked) return Colors.primary;
     return Colors.outline;
   }};
