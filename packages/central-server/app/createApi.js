@@ -1,6 +1,7 @@
 import bodyParser from 'body-parser';
 import compression from 'compression';
 import config from 'config';
+import cookieParser from 'cookie-parser';
 import defineExpress from 'express';
 import asyncHandler from 'express-async-handler';
 import helmet from 'helmet';
@@ -116,6 +117,7 @@ export async function createApi(ctx) {
   });
 
   // Patient Portal - must go before main API to avoid main authentication
+  express.use('/api/portal', cookieParser());
   express.use('/api/portal', async (req, res, next) => {
     const patientPortalEnabled = await req.settings.get('features.patientPortal');
     return patientPortalEnabled ? patientPortalApi(req, res, next) : res.status(501).end();

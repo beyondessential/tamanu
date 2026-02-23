@@ -1,4 +1,11 @@
 import { PortalOneTimeTokenService } from '../../app/patientPortalApi/auth/PortalOneTimeTokenService';
+import { PATIENT_PORTAL_COOKIE_NAME } from '../../app/patientPortalApi/auth/login';
+
+function getTokenFromSetCookie(setCookie, name) {
+  const cookieHeader = Array.isArray(setCookie) ? setCookie.join('; ') : setCookie;
+  const match = cookieHeader?.match(new RegExp(`${name}=([^;]+)`));
+  return match ? match[1] : undefined;
+}
 
 export const getPatientAuthToken = async (app, models, email) => {
   const portalUser = await models.PortalUser.getForAuthByEmail(email);
@@ -9,5 +16,7 @@ export const getPatientAuthToken = async (app, models, email) => {
     email,
   });
   expect(loginResponse).toHaveSucceeded();
-  return loginResponse.body.token;
+  const jwt = getTokenFromSetCookie(loginResponse.headers['set-cookie'], PATIENT_PORTAL_COOKIE_NAME);
+  expect(jwt).toBeDefined();
+  return jwt;
 };

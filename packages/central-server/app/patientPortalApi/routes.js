@@ -12,7 +12,7 @@ import {
   getUpcomingVaccinations,
   getProcedures,
 } from './patientData';
-import { register, login, requestLoginToken, patientPortalMiddleware } from './auth';
+import { register, login, logout, requestLoginToken, patientPortalMiddleware } from './auth';
 
 export const patientPortalApi = express.Router();
 
@@ -20,6 +20,7 @@ export const patientPortalApi = express.Router();
 patientPortalApi.post('/login', login({ secret: config.auth.secret }));
 patientPortalApi.post('/request-login-token', requestLoginToken);
 patientPortalApi.post('/verify-registration', register);
+patientPortalApi.post('/logout', logout);
 
 // Portal auth middleware
 patientPortalApi.use(patientPortalMiddleware({ secret: config.auth.secret }));

@@ -6,6 +6,7 @@ import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 import { PortalOneTimeTokenService } from '../../app/patientPortalApi/auth/PortalOneTimeTokenService';
+import { PATIENT_PORTAL_COOKIE_NAME } from '../../app/patientPortalApi/auth/login';
 import { getPatientAuthToken } from './patientPortalUtils';
 
 const TEST_PATIENT_EMAIL = 'patient@test.com';
@@ -84,7 +85,7 @@ describe('Patient Portal Auth', () => {
   afterAll(async () => close());
 
   describe('Patient Portal Login', () => {
-    it('Should get a valid access token for correct patient credentials', async () => {
+    it('Should set httpOnly cookie with valid access token for correct patient credentials', async () => {
       const oneTimeTokenService = new PortalOneTimeTokenService(store.models);
       const { token } = await oneTimeTokenService.createLoginToken(testPortalUser.id);
       const response = await baseApp.post('/api/portal/login').send({
@@ -93,9 +94,17 @@ describe('Patient Portal Auth', () => {
       });
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('token');
+      expect(response.body).toEqual({});
 
-      const contents = jose.decodeJwt(response.body.token);
+      const setCookie = response.headers['set-cookie'];
+      expect(setCookie).toBeDefined();
+      const cookieHeader = Array.isArray(setCookie) ? setCookie.join('; ') : setCookie;
+      expect(cookieHeader).toContain(`${PATIENT_PORTAL_COOKIE_NAME}=`);
+      const match = cookieHeader.match(new RegExp(`${PATIENT_PORTAL_COOKIE_NAME}=([^;]+)`));
+      expect(match).not.toBeNull();
+      const jwtFromCookie = match[1];
+
+      const contents = jose.decodeJwt(jwtFromCookie);
 
       expect(contents).toEqual({
         aud: JWT_TOKEN_TYPES.PATIENT_PORTAL_ACCESS,

@@ -11,19 +11,26 @@ import { initAuditActions } from '@tamanu/database/utils/audit';
 
 import { version } from '../../serverInfo';
 import { verifyToken } from '../../auth/utils';
+import { PATIENT_PORTAL_COOKIE_NAME } from './login';
 
 export const patientPortalMiddleware = ({ secret }) =>
   asyncHandler(async (req, res, next) => {
-    const { store, headers } = req;
+    const { store, headers, cookies } = req;
 
     const { canonicalHostName } = config;
 
-    const { authorization } = headers;
-    if (!authorization) {
-      throw new BadAuthenticationError('No authorization header provided');
+    // Prefer httpOnly cookie (not readable by JS); fall back to Authorization header
+    let token = cookies?.[PATIENT_PORTAL_COOKIE_NAME];
+    if (!token && headers.authorization) {
+      const [bearer, authToken] = headers.authorization.split(/\s/);
+      if (bearer?.toLowerCase() === 'bearer') {
+        token = authToken;
+      }
+    }
+    if (!token) {
+      throw new BadAuthenticationError('No authorization header or session cookie provided');
     }
 
-    const [bearer, token] = authorization.split(/\s/);
     const sessionId = createSessionIdentifier(token);
 
     if (bearer.toLowerCase() !== 'bearer') {

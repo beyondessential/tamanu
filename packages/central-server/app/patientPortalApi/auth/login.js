@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import config from 'config';
+import ms from 'ms';
 import { z } from 'zod';
 
 import { COMMUNICATION_STATUSES, PORTAL_USER_STATUSES } from '@tamanu/constants';
@@ -10,6 +11,8 @@ import { BadAuthenticationError } from '@tamanu/errors';
 import { buildToken } from '../../auth/utils';
 import { PortalOneTimeTokenService } from './PortalOneTimeTokenService';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
+
+export const PATIENT_PORTAL_COOKIE_NAME = 'patientPortalApiToken';
 
 const getOneTimeTokenEmail = async ({ email, token, settings }) => {
   const template = await settings.get('templates.patientPortalLoginEmail');
@@ -127,5 +130,26 @@ export const login = ({ secret }) =>
       issuer: canonicalHostName,
     });
 
-    return res.status(200).json({ token });
+    const isSecure = req.secure || req.get('x-forwarded-proto') === 'https';
+    const maxAgeMs = ms(patientPortalTokenDuration);
+
+    res.cookie(PATIENT_PORTAL_COOKIE_NAME, token, {
+      httpOnly: true,
+      secure: isSecure,
+      sameSite: 'lax',
+      maxAge: maxAgeMs,
+      path: '/api/portal',
+    });
+
+    return res.status(200).json({});
   });
+
+export const logout = asyncHandler(async (req, res) => {
+  res.clearCookie(PATIENT_PORTAL_COOKIE_NAME, {
+    httpOnly: true,
+    path: '/api/portal',
+    secure: req.secure || req.get('x-forwarded-proto') === 'https',
+    sameSite: 'lax',
+  });
+  return res.status(200).json({});
+});
