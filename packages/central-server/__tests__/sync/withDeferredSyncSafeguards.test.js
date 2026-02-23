@@ -58,73 +58,38 @@ describe('withDeferredSyncSafeguards', () => {
     const parentId = fakeUUID();
     const childId = fakeUUID();
 
-    await sequelize.transaction(async transaction => {
+    await sequelize.transaction(async () => {
       await withDeferredSyncSafeguards(sequelize, async () => {
-        await sequelize.query(
-          `INSERT INTO invoice_payments
-            (id, invoice_id, date, receipt_number, amount, original_payment_id, created_at, updated_at)
-          VALUES
-            (:id, :invoiceId, CURRENT_DATE, 'RN-001', 100, :originalPaymentId, NOW(), NOW())`,
-          {
-            replacements: {
-              id: childId,
-              invoiceId: invoice.id,
-              originalPaymentId: parentId,
-            },
-            transaction,
-          },
-        );
+        // Insert child first (references parent that doesn't exist yet)
+        await models.InvoicePayment.create(fake(models.InvoicePayment, {
+          id: childId,
+          invoiceId: invoice.id,
+          originalPaymentId: parentId,
+        }));
 
-        await sequelize.query(
-          `INSERT INTO invoice_payments
-            (id, invoice_id, date, receipt_number, amount, created_at, updated_at)
-          VALUES
-            (:id, :invoiceId, CURRENT_DATE, 'RN-002', 200, NOW(), NOW())`,
-          {
-            replacements: {
-              id: parentId,
-              invoiceId: invoice.id,
-            },
-            transaction,
-          },
-        );
+        // Then insert the parent
+        await models.InvoicePayment.create(fake(models.InvoicePayment, {
+          id: parentId,
+          invoiceId: invoice.id,
+        }));
       });
     });
 
-    const [results] = await sequelize.query(
-      `SELECT id, original_payment_id FROM invoice_payments
-       WHERE id IN (:parentId, :childId)
-       ORDER BY id`,
-      { replacements: { parentId, childId } },
-    );
-    expect(results).toHaveLength(2);
-
-    const child = results.find(r => r.id === childId);
-    expect(child.original_payment_id).toBe(parentId);
+    const child = await models.InvoicePayment.findByPk(childId);
+    expect(child.originalPaymentId).toBe(parentId);
   });
 
   it('fails without deferred constraints when child is inserted before parent', async () => {
     const { invoice } = await createInvoicePaymentPrereqs();
 
     const parentId = fakeUUID();
-    const childId = fakeUUID();
 
     await expect(
-      sequelize.transaction(async transaction => {
-        await sequelize.query(
-          `INSERT INTO invoice_payments
-            (id, invoice_id, date, receipt_number, amount, original_payment_id, created_at, updated_at)
-          VALUES
-            (:id, :invoiceId, CURRENT_DATE, 'RN-001', 100, :originalPaymentId, NOW(), NOW())`,
-          {
-            replacements: {
-              id: childId,
-              invoiceId: invoice.id,
-              originalPaymentId: parentId,
-            },
-            transaction,
-          },
-        );
+      sequelize.transaction(async () => {
+        await models.InvoicePayment.create(fake(models.InvoicePayment, {
+          invoiceId: invoice.id,
+          originalPaymentId: parentId,
+        }));
       }),
     ).rejects.toThrow(/foreign key/i);
   });
@@ -139,9 +104,8 @@ describe('withDeferredSyncSafeguards', () => {
     const { invoice } = await createInvoicePaymentPrereqs();
 
     const parentId = fakeUUID();
-    const childId = fakeUUID();
 
-    await sequelize.transaction(async transaction => {
+    await sequelize.transaction(async () => {
       // Call withDeferredSyncSafeguards with a callback that throws a JS error
       await expect(
         withDeferredSyncSafeguards(sequelize, async () => {
@@ -152,20 +116,10 @@ describe('withDeferredSyncSafeguards', () => {
       // Constraints should be back to IMMEDIATE, so inserting a child referencing
       // a non-existent parent should fail right away with a FK violation
       await expect(
-        sequelize.query(
-          `INSERT INTO invoice_payments
-            (id, invoice_id, date, receipt_number, amount, original_payment_id, created_at, updated_at)
-          VALUES
-            (:id, :invoiceId, CURRENT_DATE, 'RN-001', 100, :originalPaymentId, NOW(), NOW())`,
-          {
-            replacements: {
-              id: childId,
-              invoiceId: invoice.id,
-              originalPaymentId: parentId,
-            },
-            transaction,
-          },
-        ),
+        models.InvoicePayment.create(fake(models.InvoicePayment, {
+          invoiceId: invoice.id,
+          originalPaymentId: parentId,
+        })),
       ).rejects.toThrow(/foreign key/i);
     });
   });
