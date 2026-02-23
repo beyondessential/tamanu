@@ -11,6 +11,7 @@ import { INVOICE_STATUSES } from '@tamanu/constants';
 import { isInvoiceEditable } from '@tamanu/utils/invoice';
 
 import { Colors } from '../../../constants/styles';
+import { CELL_WIDTHS, CELL_WIDTHS_EDITABLE } from '../constants';
 import { InvoiceItemRow } from './InvoiceItem';
 import { InvoiceItemHeader } from './InvoiceItemHeader';
 import {
@@ -86,6 +87,7 @@ const AddItemsActions = ({ handleSubmit, handleCancel, isDisabled }) => (
 
 export const InvoiceForm = ({ invoice, isEditing, setIsEditing, onSave, onCancel, isModal, onAddItem, startWithBlankRow }) => {
   const { ability } = useAuth();
+  const cellWidths = isModal || isEditing ? CELL_WIDTHS_EDITABLE : CELL_WIDTHS;
 
   // inProgressItems is used to re-populate the form with in progress items after the form is updated
   const [inProgressItems, setInProgressItems] = useState(startWithBlankRow ? [getDefaultRow()] : []);
@@ -173,7 +175,7 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing, onSave, onCancel
             {formArrayMethods => {
               return (
                 <>
-                  <InvoiceItemHeader />
+                  <InvoiceItemHeader cellWidths={cellWidths} />
                   <Box>
                     {values.invoiceItems?.map((item, index) => {
                       return (
@@ -190,6 +192,7 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing, onSave, onCancel
                           onUpdateApproval={updateItemApproval}
                           isFinalised={isFinalised}
                           isCancelled={isCancelled}
+                          cellWidths={cellWidths}
                         />
                       );
                     })}

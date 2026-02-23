@@ -120,6 +120,7 @@ export const InvoiceItemRow = ({
   onUpdateApproval,
   isFinalised,
   isCancelled,
+  cellWidths,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const isSaved = item.product?.id;
@@ -190,7 +191,7 @@ export const InvoiceItemRow = ({
           <ArrowRight htmlColor={Colors.softText} />
         </Button>
       )}
-      <DateCell index={index} item={item} isItemEditable={isItemEditable} />
+      <DateCell index={index} item={item} isItemEditable={isItemEditable} cellWidths={cellWidths} />
       <DetailsCell
         index={index}
         item={item}
@@ -201,14 +202,15 @@ export const InvoiceItemRow = ({
         isEditing={isEditing}
         isSaved={isSaved}
       />
-      <QuantityCell index={index} item={item} isItemEditable={isItemEditable} />
-      <ApprovedCell item={item} />
+      <QuantityCell index={index} item={item} isItemEditable={isItemEditable} cellWidths={cellWidths} />
+      <ApprovedCell item={item} cellWidths={cellWidths} />
       <OrderedByCell
         index={index}
         item={item}
         isItemEditable={isItemEditable}
         practitionerSuggester={practitionerSuggester}
         handleChangeOrderedBy={handleChangeOrderedBy}
+        cellWidths={cellWidths}
       />
       <PriceCell
         index={index}
@@ -218,8 +220,9 @@ export const InvoiceItemRow = ({
         priceListItemPrice={fetchedPrice}
         isEditing={isEditing}
         isSaved={isSaved}
+        cellWidths={cellWidths}
       />
-      <NetCostCell item={item} />
+      <NetCostCell item={item} cellWidths={cellWidths} />
 
       {!isCancelled && !isEditing && (
         <InvoiceItemActionsMenu

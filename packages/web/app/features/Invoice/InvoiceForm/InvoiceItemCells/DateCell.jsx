@@ -4,8 +4,8 @@ import { ViewOnlyCell } from './ViewOnlyCell';
 import { ItemCell } from './ItemCell';
 import { CELL_WIDTHS } from '../../constants';
 
-export const DateCell = ({ index, item, isItemEditable }) => (
-  <ItemCell $width={CELL_WIDTHS.DATE}>
+export const DateCell = ({ index, item, isItemEditable, cellWidths = CELL_WIDTHS }) => (
+  <ItemCell $width={cellWidths.DATE}>
     {isItemEditable ? (
       <NoteModalActionBlocker>
         <Field

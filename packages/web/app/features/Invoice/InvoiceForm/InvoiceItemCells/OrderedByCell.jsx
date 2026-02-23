@@ -10,8 +10,9 @@ export const OrderedByCell = ({
   isItemEditable,
   practitionerSuggester,
   handleChangeOrderedBy,
+  cellWidths = CELL_WIDTHS,
 }) => (
-  <ItemCell $width={CELL_WIDTHS.ORDERED_BY}>
+  <ItemCell $width={cellWidths.ORDERED_BY}>
     {isItemEditable ? (
       <NoteModalActionBlocker>
         <Field
