@@ -134,4 +134,39 @@ describe('withDeferredSyncSafeguards', () => {
       withDeferredSyncSafeguards(sequelize, async () => {}),
     ).rejects.toThrow('withDeferredSyncSafeguards must be called within a transaction');
   });
+
+  it('resets constraints to immediate after the callback fails', async () => {
+    const { invoice } = await createInvoicePaymentPrereqs();
+
+    const parentId = fakeUUID();
+    const childId = fakeUUID();
+
+    await sequelize.transaction(async transaction => {
+      // Call withDeferredSyncSafeguards with a callback that throws a JS error
+      await expect(
+        withDeferredSyncSafeguards(sequelize, async () => {
+          throw new Error('simulated failure');
+        }),
+      ).rejects.toThrow('simulated failure');
+
+      // Constraints should be back to IMMEDIATE, so inserting a child referencing
+      // a non-existent parent should fail right away with a FK violation
+      await expect(
+        sequelize.query(
+          `INSERT INTO invoice_payments
+            (id, invoice_id, date, receipt_number, amount, original_payment_id, created_at, updated_at)
+          VALUES
+            (:id, :invoiceId, CURRENT_DATE, 'RN-001', 100, :originalPaymentId, NOW(), NOW())`,
+          {
+            replacements: {
+              id: childId,
+              invoiceId: invoice.id,
+              originalPaymentId: parentId,
+            },
+            transaction,
+          },
+        ),
+      ).rejects.toThrow(/foreign key/i);
+    });
+  });
 });
