@@ -58,17 +58,13 @@ const EditModalFooter = styled.div`
 
 const getDefaultRow = () => ({ id: uuidv4(), quantity: 1, orderDate: getCurrentDateString() });
 
-const EditItemsActions = ({ handleSubmit, handleCancel, isDisabled }) => (
+const ModalActions = ({ handleSubmit, handleCancel, isDisabled, saveStringId, saveFallback }) => (
   <>
     <FormCancelButton style={{ marginRight: 8 }} onClick={handleCancel}>
       Cancel
     </FormCancelButton>
     <SubmitButton onSubmit={handleSubmit} disabled={isDisabled}>
-      <TranslatedText
-        stringId="invoice.form.action.saveChanges"
-        fallback="Save changes"
-        data-testid="translatedtext-26ji"
-      />
+      <TranslatedText stringId={saveStringId} fallback={saveFallback} />
     </SubmitButton>
   </>
 );
@@ -88,11 +84,11 @@ const AddItemsActions = ({ handleSubmit, handleCancel, isDisabled }) => (
   </Box>
 );
 
-export const InvoiceForm = ({ invoice, isEditing, setIsEditing, onSave }) => {
+export const InvoiceForm = ({ invoice, isEditing, setIsEditing, onSave, isModal, onAddItem, startWithBlankRow }) => {
   const { ability } = useAuth();
 
   // inProgressItems is used to re-populate the form with in progress items after the form is updated
-  const [inProgressItems, setInProgressItems] = useState([]);
+  const [inProgressItems, setInProgressItems] = useState(startWithBlankRow ? [getDefaultRow()] : []);
   const canWriteInvoice = ability.can('write', 'Invoice');
   const editable = isInvoiceEditable(invoice) && canWriteInvoice;
   const isFinalised = invoice.status === INVOICE_STATUSES.FINALISED;
@@ -158,7 +154,7 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing, onSave }) => {
       onSubmit={handleSubmit}
       enableReinitialize
       initialValues={{
-        invoiceItems: invoice.items?.length ? [...invoice.items, ...inProgressItems] : [],
+        invoiceItems: [...(invoice.items ?? []), ...inProgressItems],
         insurers: invoice.insurers?.length
           ? invoice.insurers.map(insurer => ({
               ...insurer,
@@ -194,12 +190,12 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing, onSave }) => {
                       );
                     })}
                   </Box>
-                  {editable && canWriteInvoice && !isEditing && (
+                  {editable && canWriteInvoice && !isEditing && !isModal && (
                     <FormFooter>
                       <Box>
                         <AddButton
                           variant="text"
-                          onClick={() => formArrayMethods.push(getDefaultRow())}
+                          onClick={() => onAddItem ? onAddItem() : formArrayMethods.push(getDefaultRow())}
                           startIcon={<Plus />}
                         >
                           <TranslatedText
@@ -220,15 +216,46 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing, onSave }) => {
                       </Box>
                     </FormFooter>
                   )}
+                  {editable && canWriteInvoice && !isEditing && isModal && (
+                    <>
+                      <Box px={1} pb={1}>
+                        <AddButton
+                          variant="text"
+                          onClick={() => formArrayMethods.push(getDefaultRow())}
+                          startIcon={<Plus />}
+                        >
+                          <TranslatedText
+                            stringId="invoice.form.action.addItem"
+                            fallback="Add item"
+                            data-testid="translatedtext-9vs0"
+                          />
+                        </AddButton>
+                      </Box>
+                      <EditModalFooter>
+                        <ModalActions
+                          handleSubmit={submitForm}
+                          handleCancel={() => {
+                            setInProgressItems([]);
+                            if (onSave) onSave();
+                          }}
+                          isDisabled={isUpdatingInvoice}
+                          saveStringId="invoice.form.action.save"
+                          saveFallback="Save"
+                        />
+                      </EditModalFooter>
+                    </>
+                  )}
                   {editable && canWriteInvoice && isEditing && (
                     <EditModalFooter>
-                      <EditItemsActions
+                      <ModalActions
                         handleSubmit={submitForm}
                         handleCancel={() => {
                           setIsEditing(false);
                           resetForm();
                         }}
                         isDisabled={isUpdatingInvoice}
+                        saveStringId="invoice.form.action.saveChanges"
+                        saveFallback="Save changes"
                       />
                     </EditModalFooter>
                   )}

@@ -303,6 +303,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
             isPatientView={false}
             isEditing={false}
             setIsEditing={() => {}}
+            onAddItem={() => setInvoiceModalType(INVOICE_MODAL_TYPES.ADD_ITEMS)}
           />
           <PaymentsSection>
             <PatientPaymentsTable invoice={invoice} />

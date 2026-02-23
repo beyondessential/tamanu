@@ -5,6 +5,7 @@ import { FinaliseInvoiceModal } from './FinaliseInvoiceModal';
 import { DeleteInvoiceModal } from './DeleteInvoiceModal';
 import { InvoiceInsuranceModal } from './InvoiceInsuranceModal';
 import { EditInvoiceItemsModal } from './EditInvoiceItemsModal';
+import { AddInvoiceItemsModal } from './AddInvoiceItemsModal';
 import { InvoiceRecordModal } from '../../components/PatientPrinting/modals/InvoiceRecordModal';
 
 export const InvoiceModalGroup = ({ invoice, invoiceModalType, setOpenInvoiceModal }) => {
@@ -58,6 +59,14 @@ export const InvoiceModalGroup = ({ invoice, invoiceModalType, setOpenInvoiceMod
           onClose={() => handleCloseInvoiceModal()}
           invoice={invoice}
           data-testid="editinvoiceitemsmodal-x7zy"
+        />
+      )}
+      {invoiceModalType === INVOICE_MODAL_TYPES.ADD_ITEMS && (
+        <AddInvoiceItemsModal
+          open
+          onClose={() => handleCloseInvoiceModal()}
+          invoice={invoice}
+          data-testid="addinvoiceitemsmodal-x7zy"
         />
       )}
     </>
