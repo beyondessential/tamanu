@@ -46,26 +46,26 @@ const styles = StyleSheet.create({
   value: {
     fontSize: 9,
   },
-  headerRow: {
+  headerTwoColumnWrapper: {
     flexDirection: 'row',
-    minHeight: 50,
+    borderBottom: '1 solid black',
   },
-  governmentBox: {
-    fontSize: 10,
+  governmentSealColumn: {
     width: 110,
-    padding: 5,
-    justifyContent: 'flex-start',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    backgroundColor: '#0000001A',
+    borderRight: '1 solid black',
+    padding: 5,
+    fontSize: 10,
   },
-  sealBox: {
-    fontSize: 10,
-    width: 110,
-    padding: 5,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
+  headerRightColumn: {
+    flex: 1,
+    flexDirection: 'column',
   },
   titleBox: {
-    flex: 1,
+    minHeight: 50,
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
@@ -137,25 +137,22 @@ export const FSMBirthNotificationCertificate = ({
     <Document>
       <Page size="A4" orientation="landscape" style={styles.page}>
         <View style={styles.table}>
-          {/* Header Section */}
-          <View style={styles.headerRow}>
-            <View style={[styles.sectionLabel, styles.governmentBox]}>
+          <View style={styles.headerTwoColumnWrapper}>
+            <View style={styles.governmentSealColumn}>
               <Text bold>GOVERNMENT</Text>
-            </View>
-            <View style={styles.titleBox}>
-              <Text bold style={styles.headerTitle}>CERTIFICATE OF LIVE BIRTH</Text>
-              <Text bold style={styles.headerSubtitle}>FEDERATED STATES OF MICRONESIA</Text>
-            </View>
-          </View>
-
-          {/* Row 2: Court Info */}
-          <View style={styles.row}>
-            <View style={[styles.sectionLabel, styles.sealBox]}>
               <Text bold>SEAL</Text>
             </View>
-            <Cell flex={1} label="State court file no.:" />
-            <Cell flex={1} label="Date:" value={currentDateString} />
-            <Cell flex={1} lastCell label="Medical record no:" value={childData?.displayId} />
+            <View style={styles.headerRightColumn}>
+              <View style={styles.titleBox}>
+                <Text bold style={styles.headerTitle}>CERTIFICATE OF LIVE BIRTH</Text>
+                <Text bold style={styles.headerSubtitle}>FEDERATED STATES OF MICRONESIA</Text>
+              </View>
+              <View style={styles.lastRow}>
+                <Cell flex={1} label="State court file no.:" />
+                <Cell flex={1} label="Date:" value={currentDateString} />
+                <Cell flex={1} lastCell label="Medical record no:" value={childData?.displayId} />
+              </View>
+            </View>
           </View>
 
           {/* Child Section */}
