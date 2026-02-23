@@ -2,7 +2,13 @@
 
 import { promises as fs } from 'fs';
 import { glob } from 'glob';
+import { escapeRegExp } from 'lodash';
 import { ensureDirectoryExists } from './dirs.mjs';
+
+/** Escape $ in replacement string so it is not interpreted as $&, $1, etc. */
+function escapeReplacement(s) {
+  return String(s).replace(/\$/g, '$$');
+}
 
 const src = process.argv[2];
 const dst = process.argv.slice(3).map((d, i) => [
@@ -19,9 +25,10 @@ if (files.length === 0) {
   process.exit(0);
 }
 
+const srcPattern = new RegExp(`^${escapeRegExp(src)}/`);
 for (const file of files) {
   for (const [i, d] of dst) {
-    const dest = file.replace(new RegExp(`^${src}/`), d);
+    const dest = file.replace(srcPattern, escapeReplacement(d));
     ensureDirectoryExists(dest);
     console.error(`put ${file} in ${dest}`);
     if (i === 1) {
