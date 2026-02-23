@@ -11,10 +11,10 @@ export const CELL_WIDTHS = {
 
 // Editable widths (modal views — wider to accommodate form fields and icons)
 export const CELL_WIDTHS_EDITABLE = {
-  DATE: '120px',
+  DATE: '140px',
   QUANTITY: '75px',
   APPROVED: '70px',
   ORDERED_BY: '160px',
-  PRICE: '90px',
-  NET_COST: '90px',
+  PRICE: '100px',
+  NET_COST: '70px',
 };
