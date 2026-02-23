@@ -22,4 +22,4 @@ export * from './bumpSyncTickForRepull';
 export * from './incomingSyncHook';
 export * from './sanitizeRecord';
 export * from './transactions';
-export * from './withDeferredSyncSafeGuards';
+export * from './withDeferredSyncSafeguards';
