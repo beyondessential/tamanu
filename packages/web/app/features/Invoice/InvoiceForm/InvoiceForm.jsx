@@ -84,7 +84,7 @@ const AddItemsActions = ({ handleSubmit, handleCancel, isDisabled }) => (
   </Box>
 );
 
-export const InvoiceForm = ({ invoice, isEditing, setIsEditing, onSave, isModal, onAddItem, startWithBlankRow }) => {
+export const InvoiceForm = ({ invoice, isEditing, setIsEditing, onSave, onCancel, isModal, onAddItem, startWithBlankRow }) => {
   const { ability } = useAuth();
 
   // inProgressItems is used to re-populate the form with in progress items after the form is updated
@@ -168,7 +168,7 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing, onSave, isModal,
       }}
       validationSchema={invoiceFormSchema}
       render={({ submitForm, values, resetForm, dirty }) => (
-        <Box mb={1}>
+        <Box mb={isModal || isEditing ? 0 : 1}>
           <FieldArray name="invoiceItems">
             {formArrayMethods => {
               return (
@@ -254,8 +254,8 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing, onSave, isModal,
                       <ModalActions
                         handleSubmit={submitForm}
                         handleCancel={() => {
-                          setIsEditing(false);
                           resetForm();
+                          if (onCancel) onCancel();
                         }}
                         isDisabled={isUpdatingInvoice}
                         saveStringId="invoice.form.action.saveChanges"

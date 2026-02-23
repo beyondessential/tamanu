@@ -60,6 +60,7 @@ export const EditInvoiceItemsModal = ({ open, onClose, invoice }) => {
             isEditing={true}
             setIsEditing={() => {}}
             onSave={handleClose}
+            onCancel={handleClose}
           />
         </TableCard>
       </ModalBody>
