@@ -2,7 +2,7 @@
 
 import { promises as fs } from 'fs';
 import { glob } from 'glob';
-import { escapeRegExp } from 'lodash';
+import _ from 'lodash';
 import { ensureDirectoryExists } from './dirs.mjs';
 
 /** Escape $ in replacement string so it is not interpreted as $&, $1, etc. */
@@ -25,7 +25,7 @@ if (files.length === 0) {
   process.exit(0);
 }
 
-const srcPattern = new RegExp(`^${escapeRegExp(src)}/`);
+const srcPattern = new RegExp(`^${_.escapeRegExp(src)}/`);
 for (const file of files) {
   for (const [i, d] of dst) {
     const dest = file.replace(srcPattern, escapeReplacement(d));
