@@ -105,13 +105,31 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
     }
   }
 
-  async postRequest(
-    inputBody,
-    { minMedicationCreatedAt, maxMedicationCreatedAt, minMedicationId, maxMedicationId, facilityId },
-  ) {
-    const { host, backoff, storeId } = await this.getSettings(facilityId);
+  async updateMSupplyStock(medications, facilityId) {
+    const minMedicationId = medications[0].id;
+    const minMedicationCreatedAt = medications[0].createdAt;
+    const maxMedicationCreatedAt = medications[medications.length - 1].createdAt;
+    const maxMedicationId = medications[medications.length - 1].id;
+
+    log.info(`Sending ${medications.length} dispensed medications to mSupply`, {
+      minMedicationId,
+      minMedicationCreatedAt,
+      maxMedicationCreatedAt,
+      maxMedicationId,
+    });
+
+    const { host, backoff, storeId, customerCode } = await this.getSettings(facilityId);
     const postQuery = getPostQuery(storeId);
-    const variables = { input: inputBody };
+    const variables = {
+      input: {
+        invoiceId: minMedicationId, // Identify batch by the first medication's id
+        customerCode,
+        items: medications.map(medication => ({
+          universalCode: medication.pharmacyOrderPrescription.prescription.medication.code,
+          numberOfUnits: medication.quantity,
+        })),
+      },
+    };
 
     try {
       const response = await fetchWithRetryBackoff(
@@ -279,37 +297,8 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
       // were deleted between batch count and query.
       if (medications.length === 0) break;
 
-      const minMedicationId = medications[0].id;
-      const minMedicationCreatedAt = medications[0].createdAt;
-      const maxMedicationCreatedAt = medications[medications.length - 1].createdAt;
-      const maxMedicationId = medications[medications.length - 1].id;
-
-      log.info(`Sending ${medications.length} dispensed medications to mSupply`, {
-        minMedicationId,
-        minMedicationCreatedAt,
-        maxMedicationCreatedAt,
-        maxMedicationId,
-      });
-
-      const inputBody = {
-        invoiceId: minMedicationId, // Identify batch by the first medication's id
-        customerCode,
-        items: medications.map(medication => ({
-          universalCode: medication.pharmacyOrderPrescription.prescription.medication.code,
-          numberOfUnits: medication.quantity,
-        })),
-      };
       try {
-        await this.postRequest(
-          inputBody,
-          {
-            minMedicationCreatedAt,
-            maxMedicationCreatedAt,
-            minMedicationId,
-            maxMedicationId,
-            facilityId,
-          },
-        );
+        await this.updateMSupplyStock(medications, facilityId);
       } catch (error) {
         log.error('Error sending dispensed medications to mSupplyMed', {
           error,
