@@ -16,13 +16,20 @@ import {
   TAMANU_COLORS,
   TextButton,
 } from '@tamanu/ui-components';
-import { formatDisplayPrice } from '@tamanu/shared/utils/invoice';
+import { formatDisplayPrice } from '@tamanu/utils/invoice';
 
 import { TranslatedText } from '../../components/Translation';
 import { ModalFormActionRow } from '../../components/ModalActionRow';
 import { useCreatePatientPayment, useUpdatePatientPayment } from '../../api/mutations';
 import { CASH_PAYMENT_METHOD_ID } from '../../constants';
-import { PaymentFormCard, Header, Label, LabelRow, StyledModal, Text } from './PatientPaymentStyledComponents';
+import {
+  PaymentFormCard,
+  Header,
+  Label,
+  LabelRow,
+  StyledModal,
+  Text,
+} from './PatientPaymentStyledComponents';
 
 const RECEIPT_NUMBER_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ123456789';
 const RECEIPT_NUMBER_LENGTH = 8;
@@ -238,7 +245,7 @@ export const PatientPaymentModal = ({
               <PaymentFormCard $isEditMode={isEditMode}>
                 <LabelRow>
                   <Label>
-                  <TranslatedText stringId="invoice.modal.date" fallback="Date" />
+                    <TranslatedText stringId="invoice.modal.date" fallback="Date" />
                   </Label>
                   <Label>
                     <TranslatedText stringId="invoice.modal.method" fallback="Method" />
@@ -250,6 +257,7 @@ export const PatientPaymentModal = ({
                 <FormFields>
                   <Field
                     name="date"
+                    max={getCurrentDateString()}
                     component={DateField}
                     saveDateAsString
                     data-testid="field-cx1w"
@@ -270,10 +278,7 @@ export const PatientPaymentModal = ({
                   />
                   {!isEditMode && (
                     <PayBalanceButton onClick={handlePayBalance}>
-                      <TranslatedText
-                        stringId="invoice.modal.payBalance"
-                        fallback="Pay balance"
-                      />
+                      <TranslatedText stringId="invoice.modal.payBalance" fallback="Pay balance" />
                     </PayBalanceButton>
                   )}
                 </FormFields>

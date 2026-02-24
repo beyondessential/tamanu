@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import styled from 'styled-components';
-import { format } from 'date-fns';
 import { Box } from '@material-ui/core';
 import { DRUG_ROUTE_LABELS, MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
 import { useLocation, useNavigate } from 'react-router';
@@ -9,7 +8,7 @@ import { Button } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 
 import { DataFetchingTable } from '../Table';
-import { formatShortest, formatTime } from '../DateDisplay';
+import { formatShortest, formatTime, getDateDisplay } from '../DateDisplay';
 import { TranslatedText, TranslatedReferenceData, TranslatedEnum } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';
 import { formatTimeSlot } from '../../utils/medications';
@@ -219,7 +218,7 @@ const getMedicationColumns = (
           tooltipTitle = (
             <>
               <TranslatedText stringId="medication.table.endsOn.label" fallback="Ends on" />
-              <div>{format(new Date(endDate), 'dd/MM/yy h:mma').toLowerCase()}</div>
+              <div>{getDateDisplay(endDate, { showDate: true, showTime: true })}</div>
             </>
           );
         } else if (isOngoing) {

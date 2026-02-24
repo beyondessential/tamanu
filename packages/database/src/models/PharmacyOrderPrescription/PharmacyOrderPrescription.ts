@@ -23,6 +23,7 @@ export class PharmacyOrderPrescription extends Model {
   declare id: string;
   declare pharmacyOrderId: string;
   declare prescriptionId: string;
+  declare ongoingPrescriptionId?: string | null;
   declare displayId: string;
   declare quantity?: number;
   declare repeats?: number;
@@ -79,6 +80,11 @@ export class PharmacyOrderPrescription extends Model {
     this.belongsTo(models.Prescription, {
       foreignKey: 'prescriptionId',
       as: 'prescription',
+    });
+
+    this.belongsTo(models.Prescription, {
+      foreignKey: 'ongoingPrescriptionId',
+      as: 'ongoingPrescription',
     });
 
     this.hasMany(models.MedicationDispense, {

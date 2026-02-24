@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components';
 import Decimal from 'decimal.js';
 
 import { INVOICE_STATUSES } from '@tamanu/constants';
-import { getInvoiceSummary, round } from '@tamanu/shared/utils/invoice';
+import { getInvoiceSummary, round } from '@tamanu/utils/invoice';
 import { Button } from '@tamanu/ui-components';
 
 import { TranslatedText } from '../../components/Translation';

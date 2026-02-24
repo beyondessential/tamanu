@@ -19,7 +19,7 @@ import {
   formatDisplayPrice,
   getInvoiceSummary,
   getInvoiceSummaryDisplay,
-} from '@tamanu/shared/utils/invoice';
+} from '@tamanu/utils/invoice';
 import { useInvoiceTotalOutstandingBalanceQuery } from '../../api/queries/useInvoiceQuery';
 import { useAuth } from '../../contexts/Auth';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
@@ -124,16 +124,6 @@ const getInvoiceTotal = row => {
   );
 };
 const getPaymentStatus = row => {
-  if (row.status !== INVOICE_STATUSES.FINALISED) {
-    return (
-      <TranslatedText
-        stringId="general.fallback.notApplicable"
-        fallback="N/A"
-        casing="lower"
-        data-testid="translatedtext-wjgy"
-      />
-    );
-  }
   return (
     <>
       <TranslatedEnum
@@ -228,17 +218,18 @@ const COLUMNS = [
   },
   {
     key: 'patientTotal',
+    sortable: false,
     title: (
       <TranslatedText
-        stringId="patient.invoice.table.column.patientTotal"
-        fallback="Patient total"
+        stringId="patient.invoice.table.column.patientSubtotal"
+        fallback="Patient subtotal"
         data-testid="translatedtext-1brp"
       />
     ),
     accessor: getInvoiceTotal,
   },
   {
-    key: 'paymentStatus',
+    key: 'patientPaymentStatus',
     title: (
       <TranslatedText
         stringId="patient.invoice.table.column.paymentStatus"
@@ -250,6 +241,7 @@ const COLUMNS = [
   },
   {
     key: 'balance',
+    sortable: false,
     title: (
       <TranslatedText
         stringId="patient.invoice.table.column.balance"

@@ -8,12 +8,15 @@ import { Box, Button as MuiButton } from '@material-ui/core';
 import { Form, TranslatedText, FormSubmitButton, FormCancelButton } from '@tamanu/ui-components';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { INVOICE_STATUSES } from '@tamanu/constants';
-import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
+import { isInvoiceEditable } from '@tamanu/utils/invoice';
 
 import { Colors } from '../../../constants/styles';
 import { InvoiceItemRow } from './InvoiceItem';
 import { InvoiceItemHeader } from './InvoiceItemHeader';
-import { useUpdateInvoice, useUpdateInvoiceItemApproval } from '../../../api/mutations/useInvoiceMutation';
+import {
+  useUpdateInvoice,
+  useUpdateInvoiceItemApproval,
+} from '../../../api/mutations/useInvoiceMutation';
 import { useAuth } from '../../../contexts/Auth';
 import { invoiceFormSchema } from './invoiceFormSchema';
 

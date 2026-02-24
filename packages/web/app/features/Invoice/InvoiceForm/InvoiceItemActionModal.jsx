@@ -11,16 +11,20 @@ import {
   TextField,
   SelectField,
   Form,
-  FormGrid,
+  FormGrid as Grid,
   Modal,
   TranslatedText,
   FormSubmitCancelRow,
 } from '@tamanu/ui-components';
 import { INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
-import { getInvoiceItemPriceDisplay } from '@tamanu/shared/utils/invoice';
+import { getInvoiceItemPriceDisplay } from '@tamanu/utils/invoice';
 
 const StyledDivider = styled(Divider)`
   margin: 26px -32px 32px -32px;
+`;
+
+const FormGrid = styled(Grid)`
+  align-items: baseline;
 `;
 
 const discountTypeOptions = [

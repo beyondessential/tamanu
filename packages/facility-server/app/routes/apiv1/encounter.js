@@ -454,19 +454,23 @@ encounterRelations.get(
     let responseData = prescriptions.map(p => p.forResponse());
     if (responseData.length > 0) {
       const prescriptionIds = responseData.map(p => p.id);
-      const [pharmacyOrderPrescriptions] = await db.query(
+      const [lastOrderedRows] = await db.query(
         `
-        SELECT prescription_id, max(created_at) as last_ordered_at
-        FROM pharmacy_order_prescriptions
-        WHERE prescription_id IN (:prescriptionIds) and deleted_at is null GROUP BY prescription_id
+        SELECT pop.prescription_id, max(po.date) AS last_ordered_at
+        FROM pharmacy_order_prescriptions pop
+        INNER JOIN pharmacy_orders po ON po.id = pop.pharmacy_order_id
+        WHERE pop.prescription_id IN (:prescriptionIds)
+          AND pop.deleted_at IS NULL
+          AND po.deleted_at IS NULL
+        GROUP BY pop.prescription_id
       `,
         { replacements: { prescriptionIds } },
       );
-      const lastOrderedAts = keyBy(pharmacyOrderPrescriptions, 'prescription_id');
+      const lastOrderedAts = keyBy(lastOrderedRows, 'prescription_id');
 
       responseData = responseData.map(p => ({
         ...p,
-        lastOrderedAt: lastOrderedAts[p.id]?.last_ordered_at?.toISOString(),
+        lastOrderedAt: lastOrderedAts[p.id]?.last_ordered_at,
       }));
     }
 
