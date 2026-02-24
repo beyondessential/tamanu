@@ -13,11 +13,8 @@ _Add a brief description of the changes in this PR to help give the reviewer con
 ### Review Hero
 
 - [ ] **Run Review Hero** <!-- #ai-review -->
-<<<<<<< feat/auto-fix-review-suggestions
 - [ ] **Auto-fix review suggestions** <!-- #auto-fix --> _Wait for Review Hero to finish, resolve any comments you disagree with or want to fix manually, then check this to auto-fix the rest._
 - [ ] **Auto-fix CI failures** <!-- #auto-fix-ci --> _Check this to auto-fix lint errors, test failures, and other CI issues._
-=======
->>>>>>> main
 
 ### Remember to...
 
