@@ -4,9 +4,10 @@ import { CancelInvoiceModal } from './CancelInvoiceModal';
 import { FinaliseInvoiceModal } from './FinaliseInvoiceModal';
 import { DeleteInvoiceModal } from './DeleteInvoiceModal';
 import { InvoiceInsuranceModal } from './InvoiceInsuranceModal';
-import { EditInvoiceItemsModal } from './EditInvoiceItemsModal';
-import { AddInvoiceItemsModal } from './AddInvoiceItemsModal';
+import { InvoiceItemsModal } from './InvoiceItemsModal';
 import { InvoiceRecordModal } from '../../components/PatientPrinting/modals/InvoiceRecordModal';
+import { TranslatedText } from '@tamanu/ui-components';
+import { INVOICE_FORM_TYPE } from './constants.js';
 
 export const InvoiceModalGroup = ({ invoice, invoiceModalType, setOpenInvoiceModal }) => {
   const handleCloseInvoiceModal = () => setOpenInvoiceModal(null);
@@ -54,16 +55,20 @@ export const InvoiceModalGroup = ({ invoice, invoiceModalType, setOpenInvoiceMod
         />
       )}
       {invoiceModalType === INVOICE_MODAL_TYPES.EDIT_ITEMS && (
-        <EditInvoiceItemsModal
+        <InvoiceItemsModal
           open
           onClose={() => handleCloseInvoiceModal()}
           invoice={invoice}
+          title={<TranslatedText stringId="invoice.modal.edit.title" fallback="Edit invoice" />}
+          invoiceFormType={INVOICE_FORM_TYPE.EDIT_ITEMS}
           data-testid="editinvoiceitemsmodal-x7zy"
         />
       )}
       {invoiceModalType === INVOICE_MODAL_TYPES.ADD_ITEMS && (
-        <AddInvoiceItemsModal
+        <InvoiceItemsModal
           open
+          title={<TranslatedText stringId="invoice.modal.addItems.title" fallback="Add items" />}
+          invoiceFormType={INVOICE_FORM_TYPE.ADD_ITEMS}
           onClose={() => handleCloseInvoiceModal()}
           invoice={invoice}
           data-testid="addinvoiceitemsmodal-x7zy"

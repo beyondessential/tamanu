@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box } from '@material-ui/core';
 import styled from 'styled-components';
+import { useSuggester } from '@tamanu/ui-components';
 import {
   AutocompleteField,
   Field,
@@ -10,7 +11,6 @@ import {
 } from '../../../../components';
 import { Colors } from '../../../../constants';
 import { ItemCell } from './ItemCell';
-import { useSuggester } from '@tamanu/ui-components';
 
 const Container = styled(ItemCell)`
   flex: 1;

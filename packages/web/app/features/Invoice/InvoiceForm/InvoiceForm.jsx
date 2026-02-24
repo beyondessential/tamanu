@@ -18,7 +18,7 @@ import {
 } from '../../../api/mutations/useInvoiceMutation';
 import { useAuth } from '../../../contexts/Auth';
 import { invoiceFormSchema } from './invoiceFormSchema';
-import { INVOICE_MODAL_TYPES } from '../../../constants/index.js';
+import { INVOICE_MODAL_TYPES } from '../../../constants';
 
 const AddButton = styled(MuiButton)`
   font-size: 14px;

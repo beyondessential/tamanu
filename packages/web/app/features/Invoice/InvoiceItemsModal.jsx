@@ -5,7 +5,6 @@ import { Modal } from '../../components/Modal';
 import { TranslatedText } from '../../components/Translation';
 import { InvoiceForm } from './InvoiceForm';
 import { Colors } from '../../constants/styles';
-import { INVOICE_FORM_TYPE } from './constants.js';
 
 const StyledModal = styled(Modal)`
   .MuiPaper-root {
@@ -26,13 +25,9 @@ const Description = styled(Typography)`
   }
 `;
 
-export const AddInvoiceItemsModal = ({ open, onClose, invoice }) => {
+export const InvoiceItemsModal = ({ open, onClose, invoice, title, invoiceFormType }) => {
   return (
-    <StyledModal
-      title={<TranslatedText stringId="invoice.modal.addItems.title" fallback="Add items" />}
-      open={open}
-      onClose={onClose}
-    >
+    <StyledModal title={title} open={open} onClose={onClose}>
       <ModalBody>
         <Description>
           <TranslatedText
@@ -40,11 +35,7 @@ export const AddInvoiceItemsModal = ({ open, onClose, invoice }) => {
             fallback="Edit invoice items below."
           />
         </Description>
-        <InvoiceForm
-          invoice={invoice}
-          invoiceFormType={INVOICE_FORM_TYPE.ADD_ITEMS}
-          onClose={onClose}
-        />
+        <InvoiceForm invoice={invoice} invoiceFormType={invoiceFormType} onClose={onClose} />
       </ModalBody>
     </StyledModal>
   );

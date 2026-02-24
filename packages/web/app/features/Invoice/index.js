@@ -5,5 +5,4 @@ export * from './InvoiceSummaryPanel';
 export * from './InsurerPaymentsTable';
 export * from './PatientPaymentsTable';
 export * from './InvoiceStatus';
-export * from './EditInvoiceItemsModal';
-export * from './AddInvoiceItemsModal';
+export * from './InvoiceItemsModal';
