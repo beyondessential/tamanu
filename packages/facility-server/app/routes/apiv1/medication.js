@@ -543,16 +543,6 @@ medication.post(
       for (const originalPrescription of ongoingPrescriptions) {
         const requestData = prescriptionMap.get(originalPrescription.id);
 
-        // Decrement repeats on the ongoing prescriptions (repeats = remaining "send to pharmacy" count)
-        // Only decrement if the prescription has been ordered before (has a lastOrderedAt)
-        const { repeats = 0 } = originalPrescription;
-        const lastOrderedAt = lastOrderedAts[originalPrescription.id]?.last_ordered_at;
-
-        // We only start decrementing repeats after the first send.
-        if (lastOrderedAt && repeats > 0) {
-          await originalPrescription.update({ repeats: repeats - 1 }, { transaction });
-        }
-
         // Create a new prescription with the original details but updated quantity and repeats
         const newPrescription = await Prescription.create(
           {
@@ -561,7 +551,7 @@ medication.post(
             date: currentDateTime,
             startDate: currentDateTime,
             quantity: requestData.quantity,
-            repeats: originalPrescription.repeats ?? 0,
+            repeats: requestData.repeats ?? originalPrescription.repeats ?? 0,
             prescriberId: orderingClinicianId,
           },
           { transaction },
@@ -593,6 +583,18 @@ medication.post(
         { transaction },
       );
 
+      // Decrement repeats on the ongoing prescriptions (repeats = remaining "send to pharmacy" count)
+      // Only decrement if the prescription has been ordered before (has a lastOrderedAt)
+      for (const originalPrescription of ongoingPrescriptions) {
+        const { repeats = 0 } = originalPrescription;
+        const lastOrderedAt = lastOrderedAts[originalPrescription.id]?.last_ordered_at;
+
+        // We only start decrementing repeats after the first send.
+        if (lastOrderedAt && repeats > 0) {
+          await originalPrescription.update({ repeats: repeats - 1 }, { transaction });
+        }
+      }
+
       await PharmacyOrderPrescription.bulkCreate(
         newPrescriptions.map((prescription, index) => {
           const originalPrescription = ongoingPrescriptions[index];
@@ -602,7 +604,7 @@ medication.post(
             prescriptionId: prescription.id,
             ongoingPrescriptionId: originalPrescription.id,
             quantity: requestData.quantity,
-            repeats: originalPrescription.repeats ?? 0,
+            repeats: requestData.repeats ?? originalPrescription.repeats ?? 0,
           };
         }),
         { transaction },
@@ -1630,7 +1632,7 @@ medication.get(
         case
           when c.table_name = 'medication_administration_records' then 'mar'
           when c.table_name = 'medication_administration_record_doses' then 'dose'
-        end as type,
+          end as type,
         c.record_data->>'id' id,
         c.record_data->>'status' mar_status,
         c.record_data->>'changing_status_reason' mar_changing_status_reason,
@@ -1656,19 +1658,19 @@ medication.get(
         c.record_deleted_at record_deleted_at,
         updated_by_user.display_name as changed_by_user
       from logs.changes c
-      left join public.users updated_by_user on updated_by_user.id = c.updated_by_user_id
-      left join public.reference_data reason_not_given on reason_not_given.type = :medicationNotGivenReason and reason_not_given.id = c.record_data->>'reason_not_given_id'
-      left join public.users recorded_by_user on recorded_by_user.id = c.record_data->>'recorded_by_user_id'
-      left join public.users given_by_user on given_by_user.id = c.record_data->>'given_by_user_id'
+        left join public.users updated_by_user on updated_by_user.id = c.updated_by_user_id
+        left join public.reference_data reason_not_given on reason_not_given.type = :medicationNotGivenReason and reason_not_given.id = c.record_data->>'reason_not_given_id'
+        left join public.users recorded_by_user on recorded_by_user.id = c.record_data->>'recorded_by_user_id'
+        left join public.users given_by_user on given_by_user.id = c.record_data->>'given_by_user_id'
       where c.table_schema = 'public'
-      and c.table_name IN ('medication_administration_records', 'medication_administration_record_doses')
-      and c.migration_context IS NULL
-      and (c.record_data->>'id' = :marId or c.record_data->>'mar_id' = :marId)
+        and c.table_name IN ('medication_administration_records', 'medication_administration_record_doses')
+        and c.migration_context IS NULL
+        and (c.record_data->>'id' = :marId or c.record_data->>'mar_id' = :marId)
       order by c.created_at desc,
         case
-          when c.table_name = 'medication_administration_records' then 1
-          when c.table_name = 'medication_administration_record_doses' then 2
-        end desc,
+        when c.table_name = 'medication_administration_records' then 1
+        when c.table_name = 'medication_administration_record_doses' then 2
+      end desc,
         c.record_data->>'dose_index' desc
     `;
 
@@ -2347,32 +2349,14 @@ medication.get(
       },
     });
 
-    // Last dispensed per medication for this patient (any prescription/source)
-    const lastDispensedRows = await PharmacyOrderPrescription.sequelize.query(
-      `SELECT p.medication_id AS "medicationId", MAX(md.dispensed_at) AS "lastDispensedAt"
-       FROM medication_dispenses md
-       JOIN pharmacy_order_prescriptions pop ON pop.id = md.pharmacy_order_prescription_id AND pop.deleted_at IS NULL
-       JOIN pharmacy_orders po ON po.id = pop.pharmacy_order_id AND po.deleted_at IS NULL
-       JOIN encounters e ON e.id = po.encounter_id AND e.deleted_at IS NULL
-       JOIN prescriptions p ON p.id = pop.prescription_id AND p.deleted_at IS NULL
-       WHERE e.patient_id = :patientId
-         AND md.deleted_at IS NULL
-       GROUP BY p.medication_id`,
-      {
-        type: QueryTypes.SELECT,
-        replacements: { patientId },
-      },
-    );
-    const lastDispensedByMedication = Object.fromEntries(
-      lastDispensedRows.map(row => [row.medicationId, row.lastDispensedAt]),
-    );
-
     res.send({
       count: pharmacyOrderPrescriptions.length,
       data: pharmacyOrderPrescriptions.map(pop => ({
         ...pop.toJSON(),
         remainingRepeats: pop.getRemainingRepeats(),
-        lastDispensedAt: lastDispensedByMedication[pop.prescription.medication.id],
+        lastDispensedAt: pop.medicationDispenses?.sort(
+          (a, b) => new Date(b.dispensedAt) - new Date(a.dispensedAt),
+        )[0]?.dispensedAt,
       })),
     });
   }),

@@ -65,7 +65,11 @@ import { useSettings } from '../contexts/Settings';
 import { ChevronIcon } from '../components/Icons/ChevronIcon';
 import { ConditionalTooltip } from '../components/Tooltip';
 import { capitalize } from 'lodash';
-import { preventInvalidNumber, preventInvalidRepeatsInput, validateDecimalPlaces } from '../utils/utils';
+import {
+  preventInvalidNumber,
+  preventInvalidRepeatsInput,
+  validateDecimalPlaces,
+} from '../utils/utils';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { formatTimeSlot } from '../utils/medications';
 import { useEncounter } from '../contexts/Encounter';
@@ -125,8 +129,8 @@ const validationSchema = yup.object().shape({
     .when('durationValue', (durationValue, schema) =>
       durationValue
         ? schema.required(
-          <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
-        )
+            <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
+          )
         : schema.optional(),
     ),
   prescriberId: foreignKey(
@@ -412,13 +416,13 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
       ...values,
       timeSlots: checked
         ? [
-          ...selectedTimeSlots,
-          {
-            index,
-            value: getDefaultIdealTimeFromTimeSlot(slot, index),
-            timeSlot: slot,
-          },
-        ]
+            ...selectedTimeSlots,
+            {
+              index,
+              value: getDefaultIdealTimeFromTimeSlot(slot, index),
+              timeSlot: slot,
+            },
+          ]
         : selectedTimeSlots.filter(s => s.index !== index),
     });
   };
@@ -490,7 +494,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
             const isDisabled =
               (!checked &&
                 frequenciesAdministrationIdealTimes?.[values.frequency]?.length ===
-                selectedTimeSlots?.length) ||
+                  selectedTimeSlots?.length) ||
               isOneTimeFrequency(values.frequency);
             const selectedTime = selectedTimeSlot
               ? getDateFromTimeString(selectedTimeSlot.value)
@@ -765,9 +769,9 @@ export const MedicationForm = ({
   };
 
   const getStockLevelIcon = () => {
-    if (drugQuantity > 0) return <CircleCheck size={20} color={Colors.safe} />;
+    if (drugQuantity > 0) return <CircleHelp size={20} color={Colors.safe} />;
     if (drugQuantity === 0) return <CircleAlert size={20} color={Colors.alert} />;
-    return <CircleHelp size={20} color={Colors.blue} />;
+    return <CircleCheck size={20} color={Colors.blue} />;
   };
 
   const getStockLevelContent = () => {
@@ -934,7 +938,9 @@ export const MedicationForm = ({
                           setValues({ ...values, durationValue: '', durationUnit: '' });
                         }
                       }}
-                      checkedIcon={<StyledIcon className="far fa-check-square" $color={Colors.midText} />}
+                      checkedIcon={
+                        <StyledIcon className="far fa-check-square" $color={Colors.midText} />
+                      }
                       data-testid="medication-field-isOngoing-7j2p"
                       $checked={values.isOngoing || isOngoingPrescription}
                     />
@@ -1009,7 +1015,12 @@ export const MedicationForm = ({
             />
             <Field
               name="route"
-              label={<TranslatedText stringId="medication.routeOfAdministration.label" fallback="Route of administration" />}
+              label={
+                <TranslatedText
+                  stringId="medication.routeOfAdministration.label"
+                  fallback="Route of administration"
+                />
+              }
               component={TranslatedSelectField}
               enumValues={DRUG_ROUTE_LABELS}
               required
@@ -1145,10 +1156,7 @@ export const MedicationForm = ({
                       fallback="Discharge quantity"
                     />
                   ) : (
-                    <TranslatedText
-                      stringId="medication.quantity.label"
-                      fallback="Quantity"
-                    />
+                    <TranslatedText stringId="medication.quantity.label" fallback="Quantity" />
                   )
                 }
                 min={0}
@@ -1160,7 +1168,10 @@ export const MedicationForm = ({
                 name="repeats"
                 label={
                   encounterId ? (
-                    <TranslatedText stringId="medication.repeats.onDischarge.label" fallback="Repeats on discharge" />
+                    <TranslatedText
+                      stringId="medication.repeats.onDischarge.label"
+                      fallback="Repeats on discharge"
+                    />
                   ) : (
                     <TranslatedText stringId="medication.repeats.label" fallback="Repeats" />
                   )
