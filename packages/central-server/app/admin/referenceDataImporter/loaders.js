@@ -412,6 +412,7 @@ export async function userLoader(item, { models, pushError }) {
       values: {
         userId: id,
         facilityId: facilityId,
+        deletedAt: null,
       },
     });
   });
