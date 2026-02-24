@@ -878,6 +878,14 @@ export const globalSettings = {
             type: LOCALISED_FIELD_TYPES.STRING,
           }),
         },
+        birthOrder: {
+          name: 'Birth order',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
         birthFacilityId: {
           name: 'Birth facility',
           description: '_',
@@ -1034,6 +1042,17 @@ export const globalSettings = {
         'The maximum size in megabytes of files that can be uploaded with the file chooser',
       type: yup.number().min(1),
       defaultValue: 10,
+    },
+    fsmCrvsCertificates: {
+      name: 'FSM CRVS Certificates',
+      description: 'Settings for FSM CRVS certificates',
+      properties: {
+        enableFSMStyle: {
+          description: 'Enable FSM CRVS style certificates',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+      },
     },
     integrations: {
       name: 'Integrations',

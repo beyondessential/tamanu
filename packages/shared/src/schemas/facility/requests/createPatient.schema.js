@@ -84,6 +84,7 @@ export const createPatientSchema = z.object({
   birthType: z.enum(BIRTH_TYPES).optional(),
   birthWeight: z.number().min(0).max(6).optional(),
   birthLength: z.number().min(0).max(100).optional(),
+  birthOrder: z.number().int().min(1).max(10).optional(),
   apgarScoreOneMinute: z.number().int().min(1).max(10).optional(),
   apgarScoreFiveMinutes: z.number().int().min(1).max(10).optional(),
   apgarScoreTenMinutes: z.number().int().min(1).max(10).optional(),
