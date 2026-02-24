@@ -88,7 +88,7 @@ await query.sequelize.query(`
 ```
 
 **Notes:**
-- Use `->>>` operator to extract as text (better for indexing than `->` which returns JSONB)
+- Use `->>` operator to extract as text (better for indexing than `->` which returns JSONB)
 - Double parentheses are required for expression indexes
 - Use btree for equality and sorting operations
 - Consider GIN indexes for more complex JSONB queries
