@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { getAnswersFromData, SelectInput, FormGrid, useTranslation } from '@tamanu/ui-components';
+import { getAnswersFromData, SelectInput, FormGrid } from '@tamanu/ui-components';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { reloadPatient } from '../../store/patient';
@@ -22,59 +22,7 @@ import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useApi } from '../../api';
 import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
 import { useAuth } from '../../contexts/Auth';
-
-const SurveySelectionPane = ({
-  programs,
-  selectedProgramId,
-  selectProgram,
-  surveys,
-  selectedSurveyId,
-  setSelectedSurveyId,
-  setSelectedSurvey,
-  getReferenceDataTranslation,
-}) => (
-  <ProgramsPane data-testid="programspane-me3f">
-    <ProgramsPaneHeader data-testid="programspaneheader-99cy">
-      <ProgramsPaneHeading variant="h6" data-testid="programspaneheading-csfc">
-        <TranslatedText
-          stringId="program.modal.selectSurvey.title"
-          fallback="Select form"
-          data-testid="translatedtext-wbj1"
-        />
-      </ProgramsPaneHeading>
-    </ProgramsPaneHeader>
-    <FormGrid columns={1} data-testid="formgrid-m7yd">
-      <SelectInput
-        name="program"
-        options={programs.map(p => toTranslatedOption(p, 'program', getReferenceDataTranslation))}
-        value={selectedProgramId}
-        onChange={selectProgram}
-        label={
-          <TranslatedText
-            stringId="program.modal.selectSurvey.selectProgram.label"
-            fallback="Select program"
-            data-testid="translatedtext-30u8"
-          />
-        }
-        data-testid="selectinput-5hi2"
-      />
-      <SurveySelector
-        onSubmit={setSelectedSurvey}
-        onChange={setSelectedSurveyId}
-        value={selectedSurveyId}
-        surveys={surveys}
-        buttonText={
-          <TranslatedText
-            stringId="program.modal.selectSurvey.action.begin"
-            fallback="Begin survey"
-            data-testid="translatedtext-htq6"
-          />
-        }
-        data-testid="surveyselector-bn1a"
-      />
-    </FormGrid>
-  </ProgramsPane>
-);
+import { TranslatedReferenceData } from '../../components';
 
 const SurveyFlow = ({ patient, currentUser }) => {
   const api = useApi();
@@ -91,7 +39,6 @@ const SurveyFlow = ({ patient, currentUser }) => {
   const [startTime, setStartTime] = useState(null);
   const [surveys, setSurveys] = useState(null);
   const { setProgramRegistryIdByProgramId } = useProgramRegistryContext();
-  const { getReferenceDataTranslation } = useTranslation();
 
   useEffect(() => {
     if (params.encounterId) {
@@ -115,7 +62,9 @@ const SurveyFlow = ({ patient, currentUser }) => {
     [api],
   );
 
-  const unsetSurvey = useCallback(() => setSurvey(null), []);
+  const unsetSurvey = useCallback(() => {
+    setSurvey(null);
+  }, []);
 
   const clearProgram = useCallback(() => {
     setSelectedSurveyId(null);
@@ -125,7 +74,9 @@ const SurveyFlow = ({ patient, currentUser }) => {
   const selectProgram = useCallback(
     async event => {
       const programId = event.target.value;
-      if (programId === selectedProgramId) return;
+      if (programId === selectedProgramId) {
+        return;
+      }
       setSelectedProgramId(programId);
       setProgramRegistryIdByProgramId(programId);
 
@@ -140,45 +91,31 @@ const SurveyFlow = ({ patient, currentUser }) => {
           .filter(s => s.surveyType === SURVEY_TYPES.PROGRAMS)
           .map(x => ({
             value: x.id,
-            label: getReferenceDataTranslation({ value: x.id, category: 'survey', fallback: x.name }),
+            label: <TranslatedReferenceData category="survey" value={x.id} fallback={x.name} />,
           })),
       );
     },
-    [api, selectedProgramId, clearProgram, setProgramRegistryIdByProgramId, getReferenceDataTranslation],
+    [api, selectedProgramId, clearProgram, setProgramRegistryIdByProgramId],
   );
 
-  const submitSurveyResponse = useCallback(
-    async data => {
-      await api.post('surveyResponse', {
-        surveyId: survey.id,
-        startTime,
-        patientId: patient.id,
-        endTime: getCurrentDateTimeString(),
-        answers: await getAnswersFromData(data, survey),
-        facilityId,
-      });
-      dispatch(reloadPatient(patient.id));
-      if (params?.encounterId && encounter && !encounter.endDate) {
-        navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.FORMS });
-      } else {
-        queryClient.resetQueries(['patientFields', patient.id]);
-        navigateToPatient(patient.id, { tab: PATIENT_TABS.PROGRAMS });
-      }
-    },
-    [
-      api,
-      survey,
+  const submitSurveyResponse = async data => {
+    await api.post('surveyResponse', {
+      surveyId: survey.id,
       startTime,
-      patient.id,
+      patientId: patient.id,
+      endTime: getCurrentDateTimeString(),
+      answers: await getAnswersFromData(data, survey),
       facilityId,
-      dispatch,
-      params?.encounterId,
-      encounter,
-      navigateToEncounter,
-      queryClient,
-      navigateToPatient,
-    ],
-  );
+    });
+    dispatch(reloadPatient(patient.id));
+    if (params?.encounterId && encounter && !encounter.endDate) {
+      navigateToEncounter(params.encounterId, { tab: ENCOUNTER_TAB_NAMES.FORMS });
+    } else {
+      queryClient.resetQueries(['patientFields', patient.id]);
+      await dispatch(reloadPatient(patient.id));
+      navigateToPatient(patient.id, { tab: PATIENT_TABS.PROGRAMS });
+    }
+  };
 
   const { isLoading, data: patientAdditionalData, isError, error } = usePatientAdditionalDataQuery(
     patient.id,
@@ -206,16 +143,50 @@ const SurveyFlow = ({ patient, currentUser }) => {
 
   if (!survey) {
     return (
-      <SurveySelectionPane
-        programs={programs}
-        selectedProgramId={selectedProgramId}
-        selectProgram={selectProgram}
-        surveys={surveys}
-        selectedSurveyId={selectedSurveyId}
-        setSelectedSurveyId={setSelectedSurveyId}
-        setSelectedSurvey={setSelectedSurvey}
-        getReferenceDataTranslation={getReferenceDataTranslation}
-      />
+      <ProgramsPane data-testid="programspane-me3f">
+        <ProgramsPaneHeader data-testid="programspaneheader-99cy">
+          <ProgramsPaneHeading variant="h6" data-testid="programspaneheading-csfc">
+            <TranslatedText
+              stringId="program.modal.selectSurvey.title"
+              fallback="Select form"
+              data-testid="translatedtext-wbj1"
+            />
+          </ProgramsPaneHeading>
+        </ProgramsPaneHeader>
+        <FormGrid columns={1} data-testid="formgrid-m7yd">
+          <SelectInput
+            name="program"
+            options={programs.map(p => ({
+              value: p.id,
+              label: <TranslatedReferenceData category="program" value={p.id} fallback={p.name} />,
+            }))}
+            value={selectedProgramId}
+            onChange={selectProgram}
+            label={
+              <TranslatedText
+                stringId="program.modal.selectSurvey.selectProgram.label"
+                fallback="Select program"
+                data-testid="translatedtext-30u8"
+              />
+            }
+            data-testid="selectinput-5hi2"
+          />
+          <SurveySelector
+            onSubmit={setSelectedSurvey}
+            onChange={setSelectedSurveyId}
+            value={selectedSurveyId}
+            surveys={surveys}
+            buttonText={
+              <TranslatedText
+                stringId="program.modal.selectSurvey.action.begin"
+                fallback="Begin survey"
+                data-testid="translatedtext-htq6"
+              />
+            }
+            data-testid="surveyselector-bn1a"
+          />
+        </FormGrid>
+      </ProgramsPane>
     );
   }
 
