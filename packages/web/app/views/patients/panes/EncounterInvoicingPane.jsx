@@ -28,6 +28,7 @@ import {
   useCreateInvoice,
   useBulkUpdateInvoiceItemApproval,
 } from '../../../api/mutations/useInvoiceMutation';
+import { INVOICE_FORM_TYPE } from '../../../features/Invoice/constants.js';
 
 const EmptyPane = styled(ContentPane)`
   text-align: center;
@@ -300,10 +301,8 @@ export const EncounterInvoicingPane = ({ encounter }) => {
           </InvoiceTopBar>
           <InvoiceForm
             invoice={invoice}
-            isPatientView={false}
-            isEditing={false}
-            setIsEditing={() => {}}
-            onAddItem={() => setInvoiceModalType(INVOICE_MODAL_TYPES.ADD_ITEMS)}
+            setInvoiceModalType={setInvoiceModalType}
+            invoiceFormType={INVOICE_FORM_TYPE.READ_ONLY}
           />
           <PaymentsSection>
             <PatientPaymentsTable invoice={invoice} />

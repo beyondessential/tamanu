@@ -4,9 +4,9 @@ import { ViewOnlyCell } from './ViewOnlyCell';
 import { ItemCell } from './ItemCell';
 import { CELL_WIDTHS } from '../../constants';
 
-export const DateCell = ({ index, item, isItemEditable, cellWidths = CELL_WIDTHS }) => (
+export const DateCell = ({ index, item, isEditing, cellWidths = CELL_WIDTHS }) => (
   <ItemCell $width={cellWidths.DATE}>
-    {isItemEditable ? (
+    {isEditing ? (
       <NoteModalActionBlocker>
         <Field
           name={`invoiceItems.${index}.orderDate`}

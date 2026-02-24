@@ -18,3 +18,9 @@ export const CELL_WIDTHS_EDITABLE = {
   PRICE: '100px',
   NET_COST: '70px',
 };
+
+export const INVOICE_FORM_TYPE = {
+  ADD_ITEMS: 'add_items',
+  READ_ONLY: 'read_only',
+  EDIT_ITEMS: 'edit_items',
+};

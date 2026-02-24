@@ -1,10 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Typography } from '@mui/material';
 import { Modal } from '../../components/Modal';
 import { TranslatedText } from '../../components/Translation';
 import { InvoiceForm } from './InvoiceForm';
 import { Colors } from '../../constants/styles';
-import { Typography } from '@mui/material';
+import { INVOICE_FORM_TYPE } from './constants.js';
 
 const StyledModal = styled(Modal)`
   .MuiPaper-root {
@@ -14,7 +15,7 @@ const StyledModal = styled(Modal)`
 `;
 
 const ModalBody = styled.div`
-  padding: 20px 8px;
+  padding: 20px 8px 0;
 `;
 
 const Description = styled(Typography)`
@@ -26,15 +27,11 @@ const Description = styled(Typography)`
 `;
 
 export const AddInvoiceItemsModal = ({ open, onClose, invoice }) => {
-  const handleClose = () => {
-    onClose();
-  };
-
   return (
     <StyledModal
       title={<TranslatedText stringId="invoice.modal.addItems.title" fallback="Add items" />}
       open={open}
-      onClose={handleClose}
+      onClose={onClose}
     >
       <ModalBody>
         <Description>
@@ -45,12 +42,8 @@ export const AddInvoiceItemsModal = ({ open, onClose, invoice }) => {
         </Description>
         <InvoiceForm
           invoice={invoice}
-          isPatientView={false}
-          isEditing={false}
-          isModal={true}
-          startWithBlankRow={true}
-          setIsEditing={() => {}}
-          onSave={handleClose}
+          invoiceFormType={INVOICE_FORM_TYPE.ADD_ITEMS}
+          onClose={onClose}
         />
       </ModalBody>
     </StyledModal>

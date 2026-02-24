@@ -20,11 +20,6 @@ const ItemHeadCell = styled(Box)`
   min-width: ${props => props.$width};
   width: ${props => props.$width};
   flex-shrink: 0;
-
-  @media (min-width: 2000px) {
-    width: 140px;
-    min-width: 140px;
-  }
 `;
 
 export const InvoiceItemHeader = ({ cellWidths = CELL_WIDTHS }) => {
