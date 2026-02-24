@@ -322,10 +322,17 @@ globalImagingRequests.get(
     const { order = 'ASC', orderBy, rowsPerPage = 10, page = 0, ...filterParams } = query;
 
     const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
-    const LITERAL_SORT_KEYS = ['completedAt', 'approved'];
-    const nullPosition =
-      LITERAL_SORT_KEYS.includes(orderBy) &&
+    const LITERAL_SORT_KEYS = ['completedAt'];
+
+    const getNullPosition = (orderBy) => {
+      if (orderBy === 'approved') {
+        return 'NULLS LAST';
+      }
+     return LITERAL_SORT_KEYS.includes(orderBy) &&
       (orderDirection === 'ASC' ? 'NULLS FIRST' : 'NULLS LAST');
+    };
+
+    const nullPosition = getNullPosition(orderBy);
 
     const patientFilters = mapQueryFilters(filterParams, [
       { key: 'firstName', mapFn: caseInsensitiveStartsWithFilter },

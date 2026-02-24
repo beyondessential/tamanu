@@ -17,7 +17,8 @@ import { useImagingRequestsQuery } from '../contexts/ImagingRequests';
 import { capitaliseFirstLetter } from '../utils/capitalise';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
-import { getApprovalStatus } from '../utils/medications';
+import { ApprovedColumnTitle } from './ApprovedColumnTitle';
+import { getApprovalStatus } from '../utils/invoice';
 
 const StatusDisplay = React.memo(({ status }) => {
   const {
@@ -141,8 +142,8 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
           },
         ]),
     {
-      key: 'invoiceItem.approved',
-      title: <TranslatedText stringId="general.label.approved" fallback="Approved" />,
+      key: 'approved',
+      title: <ApprovedColumnTitle />,
       accessor: ({ approved }) => getApprovalStatus(approved),
       sortable: true,
     },

@@ -1755,6 +1755,8 @@ medication.get(
 
     const canViewSensitiveMedications = req.ability.can('read', 'SensitiveMedication');
 
+    const LITERAL_SORT_KEYS = ['prescription.invoiceItem.approved'];
+
     const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 
     // Patient filters
@@ -1852,6 +1854,12 @@ medication.get(
           ],
           // stable tiebreaker
           ['pharmacyOrder', 'date', 'DESC'],
+        ];
+      }
+
+      if (orderBy === 'prescription.invoiceItem.approved') {
+        return [
+          [Sequelize.col('prescription.invoiceItem.approved'), `${orderDirection} NULLS LAST`],
         ];
       }
 

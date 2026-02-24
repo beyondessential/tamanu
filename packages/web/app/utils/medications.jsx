@@ -1,9 +1,8 @@
 import React from 'react';
+import styled from 'styled-components';
 import { Box } from '@mui/material';
-import {
-  DRUG_STOCK_STATUS_LABELS,
-  DRUG_STOCK_STATUSES,
-} from '@tamanu/constants';
+
+import { DRUG_STOCK_STATUS_LABELS, DRUG_STOCK_STATUSES } from '@tamanu/constants';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import {
   getPatientNameAsString,
@@ -11,9 +10,9 @@ import {
   ThemedTooltip,
   TranslatedText,
 } from '@tamanu/ui-components';
-import styled from 'styled-components';
+
 import { formatTime, TranslatedEnum } from '../components';
-import { Colors, STOCK_STATUS_COLORS } from '../constants';
+import { STOCK_STATUS_COLORS } from '../constants';
 
 /**
  * Transforms selected dispensable medication items into label data for printing.
@@ -61,9 +60,7 @@ export const getTranslatedMedicationName = (medication, getReferenceDataTranslat
 };
 
 export const formatTimeSlot = time => {
-  return formatTime(time)
-    .replaceAll(' ', '')
-    .toLowerCase();
+  return formatTime(time).replaceAll(' ', '').toLowerCase();
 };
 
 export const isWithinTimeSlot = (timeSlot, time, isFuture = false) => {
@@ -132,19 +129,4 @@ export const getStockStatus = ({ prescription }, useStyledTag = true) => {
     );
   }
   return content;
-};
-
-export const getApprovalStatus = approved => {
-  if (approved) {
-    return (
-      <StyledTag $color={Colors.green} noWrap>
-        <TranslatedText
-          stringId="general.action.yes"
-          fallback="Yes"
-        />
-      </StyledTag>
-    );
-  }
-
-  return null;
 };

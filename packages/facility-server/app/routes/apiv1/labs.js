@@ -315,9 +315,16 @@ labRequest.get(
       approved: 'lab_approval.approved',
     };
 
+    const getNullPosition = (orderBy, sortDirection) => {
+      if (orderBy === 'approved') {
+        return 'NULLS LAST';
+      }
+      return sortDirection === 'ASC' ? 'NULLS FIRST' : 'NULLS LAST';
+    };
+
     const sortKey = sortKeys[orderBy];
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
-    const nullPosition = sortDirection === 'ASC' ? 'NULLS FIRST' : 'NULLS LAST';
+    const nullPosition = getNullPosition(orderBy, sortDirection);
 
     const result = await req.db.query(
       `
@@ -469,13 +476,7 @@ labRelations.get(
 labRelations.put(
   '/:id/tests',
   asyncHandler(async (req, res) => {
-    const {
-      models,
-      params,
-      body,
-      db,
-      user,
-    } = req;
+    const { models, params, body, db, user } = req;
     const { id } = params;
     const { resultsInterpretation, labTests = {} } = body;
     req.checkPermission('write', 'LabTest');
@@ -508,7 +509,8 @@ labRelations.put(
     const labTestObj = keyBy(labTestRecords, 'id');
     if (
       Object.entries(labTests).some(
-        ([testId, testBody]) => testBody.result && labTestObj[testId] && testBody.result !== labTestObj[testId].result,
+        ([testId, testBody]) =>
+          testBody.result && labTestObj[testId] && testBody.result !== labTestObj[testId].result,
       )
     ) {
       req.checkPermission('write', 'LabTestResult');
@@ -523,7 +525,10 @@ labRelations.put(
     }
 
     await db.transaction(async () => {
-      if (resultsInterpretation !== undefined && resultsInterpretation !== labRequest.resultsInterpretation) {
+      if (
+        resultsInterpretation !== undefined &&
+        resultsInterpretation !== labRequest.resultsInterpretation
+      ) {
         await labRequest.update({ resultsInterpretation });
       }
 

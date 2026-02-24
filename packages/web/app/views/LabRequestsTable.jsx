@@ -17,7 +17,8 @@ import {
 } from '../utils/lab';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
-import { getApprovalStatus } from '../utils/medications';
+import { ApprovedColumnTitle } from '../components/ApprovedColumnTitle';
+import { getApprovalStatus } from '../utils/invoice';
 
 export const LabRequestsTable = React.memo(
   ({ statuses, loadEncounter, loadLabRequest, searchParameters }) => {
@@ -81,7 +82,7 @@ export const LabRequestsTable = React.memo(
             },
         {
           key: 'approved',
-          title: <TranslatedText stringId="general.label.approved" fallback="Approved" />,
+          title: <ApprovedColumnTitle />,
           accessor: ({ approved }) => getApprovalStatus(approved),
           sortable: true,
         },
