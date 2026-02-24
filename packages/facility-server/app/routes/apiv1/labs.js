@@ -130,6 +130,7 @@ labRequest.get(
     const {
       models: { LabRequest },
       query,
+      settings,
     } = req;
     req.checkPermission('list', 'LabRequest');
     const canListSensitive = req.ability.can('list', 'SensitiveLabRequest');
@@ -219,6 +220,10 @@ labRequest.get(
       filterParams,
     );
 
+    const isInvoicingEnabled = await settings[filterParams.facilityId]?.get(
+      'features.invoicing.enabled',
+    );
+
     const from = `
       FROM lab_requests
         LEFT JOIN encounters AS encounter
@@ -245,6 +250,9 @@ labRequest.get(
           ON (requester.id = lab_requests.requested_by_id)
         LEFT JOIN sensitive_labs
           ON (sensitive_labs.id = lab_requests.id)
+        ${
+          isInvoicingEnabled
+            ? `
         LEFT JOIN LATERAL (
           SELECT COALESCE(
             -- Panel approval takes precedence (NULL if no panel items)
@@ -268,7 +276,9 @@ labRequest.get(
               HAVING COUNT(*) > 0
             )
           ) AS approved
-        ) lab_approval ON true
+        ) lab_approval ON true`
+            : ''
+        }
         ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
@@ -331,6 +341,7 @@ labRequest.get(
         ${queryCte}
         SELECT
           lab_requests.*,
+          ${isInvoicingEnabled ? `lab_approval.approved AS approved,` : ''}
           patient.display_id AS patient_display_id,
           patient.id AS patient_id,
           patient.first_name AS first_name,
@@ -346,8 +357,7 @@ labRequest.get(
           lab_test_panel.id as lab_test_panel_id,
           laboratory.id AS laboratory_id,
           laboratory.name AS laboratory_name,
-          location.facility_id AS facility_id,
-          lab_approval.approved AS approved
+          location.facility_id AS facility_id
         ${from}
 
         ORDER BY ${sortKey} ${sortDirection}${nullPosition ? ` ${nullPosition}` : ''}

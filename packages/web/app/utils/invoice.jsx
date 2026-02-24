@@ -11,18 +11,18 @@ const StyledTag = styled(TableCellTag)`
   line-height: 18px;
 `;
 
+const NotApplicable = styled.span`
+  padding: 5px 12px;
+`;
+
 export const getApprovalStatus = approved => {
   if (isBoolean(approved)) {
-    return (
-      <StyledTag $color={approved ? Colors.green : Colors.alert} noWrap>
-        {approved ? (
-          <TranslatedText stringId="general.action.yes" fallback="Yes" />
-        ) : (
-          <TranslatedText stringId="general.action.no" fallback="No" />
-        )}
+    return approved ? (
+      <StyledTag $color={Colors.green} noWrap>
+        <TranslatedText stringId="general.action.yes" fallback="Yes" />
       </StyledTag>
-    );
+    ) : null;
   }
 
-  return null;
+  return <NotApplicable>n/a</NotApplicable>;
 };

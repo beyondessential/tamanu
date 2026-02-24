@@ -495,6 +495,8 @@ describe('Medication', () => {
     let medication;
 
     beforeEach(async () => {
+      await models.Setting.set('features.invoicing.enabled', true);
+
       user = await models.User.create({
         ...fakeUser(),
         role: 'practitioner',
@@ -570,6 +572,29 @@ describe('Medication', () => {
 
       return { prescription, pharmacyOrder, pharmacyOrderPrescription };
     };
+
+    it('should not include invoiceItem when invoicing is disabled', async () => {
+      await models.Setting.set('features.invoicing.enabled', false);
+
+      const { prescription } = await createMedicationRequest();
+
+      await models.InvoiceItem.create({
+        invoiceId: testInvoice.id,
+        sourceRecordId: prescription.id,
+        sourceRecordType: 'Prescription',
+        approved: true,
+        orderDate: getCurrentDateTimeString(),
+        quantity: 1,
+        orderedByUserId: user.id,
+      });
+
+      const result = await app.get(`/api/medication/medication-requests?facilityId=${facilityId}`);
+      expect(result).toHaveSucceeded();
+
+      const found = result.body.data.find(item => item.prescription?.id === prescription.id);
+      expect(found).toBeDefined();
+      expect(found.prescription.invoiceItem).not.toBeDefined();
+    });
 
     it('should return null for approved when no invoice item exists', async () => {
       const { prescription } = await createMedicationRequest();

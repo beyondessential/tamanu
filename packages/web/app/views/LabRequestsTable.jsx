@@ -19,11 +19,13 @@ import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
 import { ApprovedColumnTitle } from '../components/ApprovedColumnTitle';
 import { getApprovalStatus } from '../utils/invoice';
+import { useSettings } from '../contexts/Settings';
 
 export const LabRequestsTable = React.memo(
   ({ statuses, loadEncounter, loadLabRequest, searchParameters }) => {
     const isPublishedTable = statuses?.includes(LAB_REQUEST_STATUSES.PUBLISHED);
-
+    const { getSetting } = useSettings();
+    const isInvoicingEnabled = getSetting('features.invoicing.enabled');
     const { facilityId } = useAuth();
 
     const columns = useMemo(() => {
@@ -80,12 +82,16 @@ export const LabRequestsTable = React.memo(
               title: <TranslatedText stringId="lab.priority.label" fallback="Priority" />,
               accessor: getPriority,
             },
-        {
-          key: 'approved',
-          title: <ApprovedColumnTitle />,
-          accessor: ({ approved }) => getApprovalStatus(approved),
-          sortable: true,
-        },
+        ...(isInvoicingEnabled
+          ? [
+              {
+                key: 'approved',
+                title: <ApprovedColumnTitle />,
+                accessor: ({ approved }) => getApprovalStatus(approved),
+                sortable: true,
+              },
+            ]
+          : []),
         {
           key: 'status',
           title: <TranslatedText stringId="general.status.label" fallback="Status" />,

@@ -634,6 +634,7 @@ describe('Imaging requests', () => {
     let testInvoice;
 
     beforeAll(async () => {
+      await models.Setting.set('features.invoicing.enabled', true);
       testLocation = await models.Location.create({
         ...fake(models.Location),
         facilityId,
@@ -674,6 +675,32 @@ describe('Imaging requests', () => {
 
       return { imagingRequest, areas };
     };
+
+    it('should not include approved when invoicing is disabled', async () => {
+      await models.Setting.set('features.invoicing.enabled', false);
+      await models.ImagingRequest.truncate({ cascade: true });
+
+      const { imagingRequest, areas } = await createImagingRequestWithAreas(1);
+
+      await models.InvoiceItem.create({
+        invoiceId: testInvoice.id,
+        sourceRecordId: areas[0].id,
+        sourceRecordType: 'ImagingRequestArea',
+        approved: true,
+        orderDate: getCurrentDateTimeString(),
+        quantity: 1,
+        orderedByUserId: user.id,
+      });
+
+      const result = await app.get(`/api/imagingRequest?facilityId=${facilityId}`);
+      expect(result).toHaveSucceeded();
+
+      const found = result.body.data.find((ir) => ir.id === imagingRequest.id);
+      expect(found).toBeDefined();
+      expect(found.approved).not.toBeDefined();
+
+      await models.Setting.set('features.invoicing.enabled', true);
+    });
 
     it('should return null for approved when no invoice items exist', async () => {
       await models.ImagingRequest.truncate({ cascade: true });

@@ -605,6 +605,10 @@ describe('Labs', () => {
       labTestTypes = await createLabTestTypes(models);
     });
 
+    beforeEach(async () => {
+      await models.Setting.set('features.invoicing.enabled', true);
+    });
+
     const createLabRequestWithPanel = async () => {
       const labTestPanel = await models.LabTestPanel.create({
         name: `Test panel ${chance.guid()}`,
@@ -666,11 +670,35 @@ describe('Labs', () => {
       return { labRequest, labTests };
     };
 
+    it('should not include approved when invoicing is disabled', async () => {
+      await models.Setting.set('features.invoicing.enabled', false);
+      await models.LabRequest.truncate({ cascade: true, force: true });
+
+      const { labRequest, labTestPanelRequest } = await createLabRequestWithPanel();
+
+      await models.InvoiceItem.create({
+        invoiceId: testInvoice.id,
+        sourceRecordId: labTestPanelRequest.id,
+        sourceRecordType: 'LabTestPanelRequest',
+        approved: true,
+        orderDate: new Date().toISOString(),
+        quantity: 1,
+        orderedByUserId: app.user.id,
+      });
+
+      const result = await app.get(`/api/labRequest?facilityId=${facilityId}`);
+      expect(result).toHaveSucceeded();
+
+      const found = result.body.data.find(lr => lr.id === labRequest.id);
+      expect(found).toBeDefined();
+      expect(found.approved).not.toBeDefined();
+    });
+
     it('should be empty when no invoice items exist', async () => {
       await models.LabRequest.truncate({ cascade: true, force: true });
       const { labRequest } = await createLabRequestWithoutPanel();
 
-      const result = await app.get(`/api/labRequest?allFacilities=true`);
+      const result = await app.get(`/api/labRequest?facilityId=${facilityId}`);
       expect(result).toHaveSucceeded();
 
       const found = result.body.data.find(lr => lr.id === labRequest.id);
@@ -692,7 +720,7 @@ describe('Labs', () => {
         orderedByUserId: app.user.id,
       });
 
-      const result = await app.get(`/api/labRequest?allFacilities=true`);
+      const result = await app.get(`/api/labRequest?facilityId=${facilityId}`);
       expect(result).toHaveSucceeded();
 
       const found = result.body.data.find(lr => lr.id === labRequest.id);
@@ -714,7 +742,7 @@ describe('Labs', () => {
         orderedByUserId: app.user.id,
       });
 
-      const result = await app.get(`/api/labRequest?allFacilities=true`);
+      const result = await app.get(`/api/labRequest?facilityId=${facilityId}`);
       expect(result).toHaveSucceeded();
 
       const found = result.body.data.find(lr => lr.id === labRequest.id);
@@ -738,7 +766,7 @@ describe('Labs', () => {
         });
       }
 
-      const result = await app.get(`/api/labRequest?allFacilities=true`);
+      const result = await app.get(`/api/labRequest?facilityId=${facilityId}`);
       expect(result).toHaveSucceeded();
 
       const found = result.body.data.find(lr => lr.id === labRequest.id);
@@ -772,7 +800,7 @@ describe('Labs', () => {
         orderedByUserId: app.user.id,
       });
 
-      const result = await app.get(`/api/labRequest?allFacilities=true`);
+      const result = await app.get(`/api/labRequest?facilityId=${facilityId}`);
       expect(result).toHaveSucceeded();
 
       const found = result.body.data.find(lr => lr.id === labRequest.id);
@@ -808,7 +836,7 @@ describe('Labs', () => {
         });
       }
 
-      const result = await app.get(`/api/labRequest?allFacilities=true`);
+      const result = await app.get(`/api/labRequest?facilityId=${facilityId}`);
       expect(result).toHaveSucceeded();
 
       const found = result.body.data.find(lr => lr.id === labRequest.id);
@@ -847,7 +875,7 @@ describe('Labs', () => {
 
       // Sort ASC - false first, then true, then nulls last
       const resultAsc = await app.get(
-        `/api/labRequest?allFacilities=true&orderBy=approved&order=ASC`,
+        `/api/labRequest?facilityId=${facilityId}&orderBy=approved&order=ASC`,
       );
       expect(resultAsc).toHaveSucceeded();
       expect(resultAsc.body.data[0].id).toBe(lrUnapproved.id);
@@ -859,7 +887,7 @@ describe('Labs', () => {
 
       // Sort DESC - true first, then false, then nulls last
       const resultDesc = await app.get(
-        `/api/labRequest?allFacilities=true&orderBy=approved&order=DESC`,
+        `/api/labRequest?facilityId=${facilityId}&orderBy=approved&order=DESC`,
       );
       expect(resultDesc).toHaveSucceeded();
       expect(resultDesc.body.data[0].id).toBe(lrApproved.id);
