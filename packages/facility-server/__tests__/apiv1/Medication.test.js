@@ -1,7 +1,13 @@
 import config from 'config';
 import { v4 as uuidv4 } from 'uuid';
 
-import { DRUG_STOCK_STATUSES, INVOICE_STATUSES, REFERENCE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  DRUG_STOCK_STATUSES,
+  INVOICE_STATUSES,
+  REFERENCE_TYPES,
+  VISIBILITY_STATUSES,
+  SETTINGS_SCOPES,
+} from '@tamanu/constants';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
@@ -481,51 +487,26 @@ describe('Medication', () => {
   });
 
   describe('Approved column', () => {
-    const [facilityId] = selectFacilityIds(config);
-    let app = null;
-    let baseApp = null;
-    let models = null;
-    let ctx;
     let patient;
     let testEncounter;
     let testInvoice;
-    let testLocation;
     let user;
     let referenceDrug;
     let medication;
 
-    beforeAll(async () => {
-      ctx = await createTestContext();
-      baseApp = ctx.baseApp;
-      models = ctx.models;
+    beforeEach(async () => {
       user = await models.User.create({
         ...fakeUser(),
         role: 'practitioner',
       });
-      app = await baseApp.asUser(user);
-
       patient = await models.Patient.create(await createDummyPatient(models));
-
-      // Create location group first
-      const locationGroup = await models.LocationGroup.create({
-        name: 'Test Location Group',
-        code: 'MED-TEST-LG',
-        facilityId,
-      });
-
-      testLocation = await models.Location.create({
-        name: 'Test Location for Medication',
-        code: 'MED-TEST-LOC',
-        facilityId,
-        locationGroupId: locationGroup.id,
-      });
 
       testEncounter = await models.Encounter.create({
         ...(await createDummyEncounter(models)),
         encounterType: 'admission',
         startDate: getCurrentDateTimeString(),
         reasonForEncounter: 'Test medication request',
-        locationId: testLocation.id,
+        locationId: location.id,
         patientId: patient.id,
       });
 
@@ -535,7 +516,7 @@ describe('Medication', () => {
         status: INVOICE_STATUSES.IN_PROGRESS,
         date: getCurrentDateTimeString(),
       });
-      
+
       // Create medication reference data (drug)
       medication = await models.ReferenceData.create({
         name: 'Test Drug for Medication',
@@ -560,8 +541,6 @@ describe('Medication', () => {
         stockStatus: DRUG_STOCK_STATUSES.IN_STOCK,
       });
     });
-
-    afterAll(() => ctx.close());
 
     const createMedicationRequest = async () => {
       const prescription = await models.Prescription.create({
