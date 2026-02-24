@@ -22,7 +22,7 @@
     "migrate-create": "../../scripts/create_mobile_migration.sh"
   },
   "dependencies": {
-    "@casl/ability": "^4.1.0",
+    "@casl/ability": "^6.8.0",
     "@react-native-anywhere/polyfill-base64": "^0.0.1-alpha.0",
     "@react-native-async-storage/async-storage": "^1.13.2",
     "@react-native-camera-roll/camera-roll": "^7.8.3",
