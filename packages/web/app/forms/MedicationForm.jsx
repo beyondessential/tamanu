@@ -81,29 +81,29 @@ const validationSchema = yup.object().shape({
   isOngoing: yup.boolean().optional(),
   isPrn: yup.boolean().optional(),
   doseAmount: yup
-  .number()
-  .positive()
-  .translatedLabel(
-    <TranslatedText stringId="medication.doseAmount.label" fallback="Dose amount" />,
-  )
-  .when('isVariableDose', {
-    is: true,
-    then: schema => schema.optional(),
-    otherwise: schema =>
-      schema.required(
-        <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
-      ),
-  }),
+    .number()
+    .positive()
+    .translatedLabel(
+      <TranslatedText stringId="medication.doseAmount.label" fallback="Dose amount" />,
+    )
+    .when('isVariableDose', {
+      is: true,
+      then: schema => schema.optional(),
+      otherwise: schema =>
+        schema.required(
+          <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
+        ),
+    }),
   units: foreignKey(
     <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
   ).oneOf(DRUG_UNIT_VALUES),
   repeats: yup
-  .number()
-  .integer()
-  .min(0)
-  .max(MAX_REPEATS)
-  .nullable()
-  .optional(),
+    .number()
+    .integer()
+    .min(0)
+    .max(MAX_REPEATS)
+    .nullable()
+    .optional(),
   frequency: foreignKey(
     <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
   ),
@@ -111,24 +111,24 @@ const validationSchema = yup.object().shape({
     <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
   ).oneOf(DRUG_ROUTE_VALUES),
   date: yup
-  .date()
-  .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
+    .date()
+    .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
   startDate: yup
-  .date()
-  .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
+    .date()
+    .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
   durationValue: yup
-  .number()
-  .positive()
-  .translatedLabel(<TranslatedText stringId="medication.duration.label" fallback="Duration" />),
+    .number()
+    .positive()
+    .translatedLabel(<TranslatedText stringId="medication.duration.label" fallback="Duration" />),
   durationUnit: yup
-  .string()
-  .when('durationValue', (durationValue, schema) =>
-    durationValue
-      ? schema.required(
-        <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
-      )
-      : schema.optional(),
-  ),
+    .string()
+    .when('durationValue', (durationValue, schema) =>
+      durationValue
+        ? schema.required(
+          <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
+        )
+        : schema.optional(),
+    ),
   prescriberId: foreignKey(
     <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
   ),
@@ -436,8 +436,8 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
   const getDefaultIdealTimeFromTimeSlot = (slot, index) => {
     const defaultIdealTimes = frequenciesAdministrationIdealTimes?.[values.frequency];
     const correspondingSlot = defaultIdealTimes
-    ?.map(findAdministrationTimeSlotFromIdealTime)
-    .find(it => it.index === index);
+      ?.map(findAdministrationTimeSlotFromIdealTime)
+      .find(it => it.index === index);
     return correspondingSlot?.value || slot.startTime;
   };
 
@@ -616,15 +616,15 @@ const MedicationBox = styled.div`
 `;
 
 export const MedicationForm = ({
-                                 encounterId,
-                                 onCancel,
-                                 onSaved,
-                                 onConfirmEdit,
-                                 onCancelEdit,
-                                 editingMedication,
-                                 isOngoingPrescription,
-                                 onDirtyChange,
-                               }) => {
+  encounterId,
+  onCancel,
+  onSaved,
+  onConfirmEdit,
+  onCancelEdit,
+  editingMedication,
+  isOngoingPrescription,
+  onDirtyChange,
+}) => {
   const isEditing = !!onConfirmEdit;
   const api = useApi();
   const { ability, currentUser } = useAuth();
@@ -635,8 +635,8 @@ export const MedicationForm = ({
   const { loadEncounter } = useEncounter();
   const { data: { data: medications = [] } = {} } = useEncounterMedicationQuery(encounterId);
   const existingDrugIds = medications
-  .filter(({ discontinued }) => !discontinued)
-  .map(({ medication }) => medication?.id);
+    .filter(({ discontinued }) => !discontinued)
+    .map(({ medication }) => medication?.id);
 
   const weightUnit = getTranslation('general.localisedField.weightUnit.label', 'kg');
 

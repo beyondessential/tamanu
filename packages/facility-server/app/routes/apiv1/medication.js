@@ -43,70 +43,70 @@ const checkSensitiveMedicationPermission = async (medicationIds, req, action) =>
 };
 
 const medicationInputSchema = z
-.object({
-  encounterId: z.string().optional().nullable(),
-  patientId: z.string().optional().nullable(),
-  date: dateCustomValidation,
-  notes: z.string().optional().nullable(),
-  indication: z.string().optional().nullable(),
-  route: z.enum(Object.values(DRUG_ROUTES)),
-  medicationId: z.string(),
-  prescriberId: z.string(),
-  quantity: z.coerce.number().int().optional().nullable(),
-  isOngoing: z.boolean().optional().nullable(),
-  isPrn: z.boolean().optional().nullable(),
-  isVariableDose: z.boolean().optional().nullable(),
-  doseAmount: z.coerce.number().positive().optional().nullable(),
-  units: z.enum(Object.values(DRUG_UNITS)),
-  frequency: z.enum(Object.values(ADMINISTRATION_FREQUENCIES)),
-  startDate: datetimeCustomValidation,
-  durationValue: z.coerce.number().positive().optional().nullable(),
-  durationUnit: z.enum(Object.values(MEDICATION_DURATION_UNITS)).optional().nullable(),
-  isPhoneOrder: z.boolean().optional(),
-  idealTimes: z.array(z.string()).optional().nullable(),
-  repeats: z.coerce.number().int().min(0).max(MAX_REPEATS).optional().nullable(),
-})
-.strip()
-.superRefine((val, ctx) => {
-  if (!val.isVariableDose && !val.doseAmount) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'Dose amount is required or isVariableDose must be true',
-    });
-  }
-  if (val.durationValue && !val.durationUnit) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'Duration unit is required when duration value is provided',
-    });
-  }
-  if (val.durationUnit && !val.durationValue) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'Duration value is required when duration unit is provided',
-    });
-  }
-  if (
-    val.frequency !== ADMINISTRATION_FREQUENCIES.IMMEDIATELY &&
-    val.frequency !== ADMINISTRATION_FREQUENCIES.AS_DIRECTED &&
-    !val.idealTimes?.length
-  ) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'Ideal times are required when frequency is not IMMEDIATELY or AS_DIRECTED',
-    });
-  }
-  if (
-    (val.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY || val.isOngoing) &&
-    val.durationValue
-  ) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message:
-        'Duration value and unit are not allowed when frequency is IMMEDIATELY or isOngoing',
-    });
-  }
-});
+  .object({
+    encounterId: z.string().optional().nullable(),
+    patientId: z.string().optional().nullable(),
+    date: dateCustomValidation,
+    notes: z.string().optional().nullable(),
+    indication: z.string().optional().nullable(),
+    route: z.enum(Object.values(DRUG_ROUTES)),
+    medicationId: z.string(),
+    prescriberId: z.string(),
+    quantity: z.coerce.number().int().optional().nullable(),
+    isOngoing: z.boolean().optional().nullable(),
+    isPrn: z.boolean().optional().nullable(),
+    isVariableDose: z.boolean().optional().nullable(),
+    doseAmount: z.coerce.number().positive().optional().nullable(),
+    units: z.enum(Object.values(DRUG_UNITS)),
+    frequency: z.enum(Object.values(ADMINISTRATION_FREQUENCIES)),
+    startDate: datetimeCustomValidation,
+    durationValue: z.coerce.number().positive().optional().nullable(),
+    durationUnit: z.enum(Object.values(MEDICATION_DURATION_UNITS)).optional().nullable(),
+    isPhoneOrder: z.boolean().optional(),
+    idealTimes: z.array(z.string()).optional().nullable(),
+    repeats: z.coerce.number().int().min(0).max(MAX_REPEATS).optional().nullable(),
+  })
+  .strip()
+  .superRefine((val, ctx) => {
+    if (!val.isVariableDose && !val.doseAmount) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Dose amount is required or isVariableDose must be true',
+      });
+    }
+    if (val.durationValue && !val.durationUnit) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Duration unit is required when duration value is provided',
+      });
+    }
+    if (val.durationUnit && !val.durationValue) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Duration value is required when duration unit is provided',
+      });
+    }
+    if (
+      val.frequency !== ADMINISTRATION_FREQUENCIES.IMMEDIATELY &&
+      val.frequency !== ADMINISTRATION_FREQUENCIES.AS_DIRECTED &&
+      !val.idealTimes?.length
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Ideal times are required when frequency is not IMMEDIATELY or AS_DIRECTED',
+      });
+    }
+    if (
+      (val.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY || val.isOngoing) &&
+      val.durationValue
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          'Duration value and unit are not allowed when frequency is IMMEDIATELY or isOngoing',
+      });
+    }
+  });
 
 medication.post(
   '/patientOngoingPrescription/:patientId',
@@ -231,20 +231,20 @@ medication.post(
 );
 
 const importOngoingMedicationsSchema = z
-.object({
-  encounterId: z.uuid({ message: 'Valid encounter ID is required' }),
-  medications: z
-  .array(
-    z.object({
-      prescriptionId: z.uuid({ message: 'Valid prescription ID is required' }),
-      quantity: z.number(),
-      repeats: z.number().optional(),
-    }),
-  )
-  .optional(),
-  prescriberId: z.string(),
-})
-.strip();
+  .object({
+    encounterId: z.uuid({ message: 'Valid encounter ID is required' }),
+    medications: z
+      .array(
+        z.object({
+          prescriptionId: z.uuid({ message: 'Valid prescription ID is required' }),
+          quantity: z.number(),
+          repeats: z.number().optional(),
+        }),
+      )
+      .optional(),
+    prescriberId: z.string(),
+  })
+  .strip();
 
 medication.post(
   '/import-ongoing',
@@ -339,22 +339,22 @@ medication.post(
 );
 
 const sendOngoingToPharmacySchema = z
-.object({
-  patientId: z.string().uuid({ message: 'Valid patient ID is required' }),
-  orderingClinicianId: z.string().uuid({ message: 'Valid ordering clinician ID is required' }),
-  comments: z.string().optional().nullable(),
-  facilityId: z.string({ message: 'Valid facility ID is required' }),
-  prescriptions: z
-  .array(
-    z.object({
-      prescriptionId: z.string().uuid({ message: 'Valid prescription ID is required' }),
-      quantity: z.number().int().positive({ message: 'Quantity must be a positive integer' }),
-      repeats: z.number().int().min(0).max(MAX_REPEATS).optional().nullable(),
-    }),
-  )
-  .nonempty({ message: 'At least one prescription is required' }),
-})
-.strip();
+  .object({
+    patientId: z.string().uuid({ message: 'Valid patient ID is required' }),
+    orderingClinicianId: z.string().uuid({ message: 'Valid ordering clinician ID is required' }),
+    comments: z.string().optional().nullable(),
+    facilityId: z.string({ message: 'Valid facility ID is required' }),
+    prescriptions: z
+      .array(
+        z.object({
+          prescriptionId: z.string().uuid({ message: 'Valid prescription ID is required' }),
+          quantity: z.number().int().positive({ message: 'Quantity must be a positive integer' }),
+          repeats: z.number().int().min(0).max(MAX_REPEATS).optional().nullable(),
+        }),
+      )
+      .nonempty({ message: 'At least one prescription is required' }),
+  })
+  .strip();
 
 /**
  * Send ongoing medications to pharmacy with automatic encounter creation.
@@ -626,16 +626,16 @@ medication.post(
 );
 
 const updatePharmacyNotesInputSchema = z
-.object({
-  pharmacyNotes: z
-  .string()
-  .optional()
-  .nullable()
-  .transform(v => (!v ? null : v)),
-  displayPharmacyNotesInMar: z.boolean().optional(),
-  repeats: z.number().int().min(0).max(MAX_REPEATS).optional().nullable(),
-})
-.strip();
+  .object({
+    pharmacyNotes: z
+      .string()
+      .optional()
+      .nullable()
+      .transform(v => (!v ? null : v)),
+    displayPharmacyNotesInMar: z.boolean().optional(),
+    repeats: z.number().int().min(0).max(MAX_REPEATS).optional().nullable(),
+  })
+  .strip();
 medication.put(
   '/:id/details',
   asyncHandler(async (req, res) => {
@@ -673,12 +673,12 @@ medication.put(
 );
 
 const discontinueInputSchema = z
-.object({
-  discontinuingClinicianId: z.string(),
-  discontinuingReason: z.string().optional(),
-  discontinuingDate: datetimeCustomValidation.optional(),
-})
-.strip();
+  .object({
+    discontinuingClinicianId: z.string(),
+    discontinuingReason: z.string().optional(),
+    discontinuingDate: datetimeCustomValidation.optional(),
+  })
+  .strip();
 medication.post(
   '/:id/discontinue',
   asyncHandler(async (req, res) => {
@@ -751,18 +751,18 @@ medication.post(
 );
 
 const pauseMedicationSchema = z
-.object({
-  encounterId: z.string().uuid({ message: 'Valid encounter ID is required' }),
-  pauseDuration: z.coerce
-  .number()
-  .positive({ message: 'Pause duration must be a positive number' }),
-  pauseTimeUnit: z.enum(Object.keys(MEDICATION_PAUSE_DURATION_UNITS_LABELS), {
-    errorMap: () => ({ message: 'Pause time unit must be either "Hours" or "Days"' }),
-  }),
-  notes: z.string().optional(),
-  pauseStartDate: datetimeCustomValidation.optional(),
-})
-.strip();
+  .object({
+    encounterId: z.string().uuid({ message: 'Valid encounter ID is required' }),
+    pauseDuration: z.coerce
+      .number()
+      .positive({ message: 'Pause duration must be a positive number' }),
+    pauseTimeUnit: z.enum(Object.keys(MEDICATION_PAUSE_DURATION_UNITS_LABELS), {
+      errorMap: () => ({ message: 'Pause time unit must be either "Hours" or "Days"' }),
+    }),
+    notes: z.string().optional(),
+    pauseStartDate: datetimeCustomValidation.optional(),
+  })
+  .strip();
 // Pause a medication
 medication.post(
   '/:id/pause',
@@ -849,10 +849,10 @@ medication.post(
 );
 
 const resumeMedicationSchema = z
-.object({
-  encounterId: z.string().uuid({ message: 'Valid encounter ID is required' }),
-})
-.strip();
+  .object({
+    encounterId: z.string().uuid({ message: 'Valid encounter ID is required' }),
+  })
+  .strip();
 // Resume a paused medication
 medication.post(
   '/:id/resume',
@@ -909,10 +909,10 @@ medication.post(
 );
 
 const getPauseQuerySchema = z
-.object({
-  encounterId: z.string().uuid({ message: 'Valid encounter ID is required' }),
-})
-.strip();
+  .object({
+    encounterId: z.string().uuid({ message: 'Valid encounter ID is required' }),
+  })
+  .strip();
 // Get active pause information for a medication
 medication.get(
   '/:id/pause',
@@ -969,16 +969,16 @@ medication.get(
 );
 
 const getPausesQuerySchema = z
-.object({
-  encounterId: z.string().uuid({ message: 'Valid encounter ID is required' }),
-  marDate: z
-  .string()
-  .optional()
-  .refine(val => !val || !isNaN(new Date(val).getTime()), {
-    message: 'marDate must be a valid date string',
-  }),
-})
-.strip();
+  .object({
+    encounterId: z.string().uuid({ message: 'Valid encounter ID is required' }),
+    marDate: z
+      .string()
+      .optional()
+      .refine(val => !val || !isNaN(new Date(val).getTime()), {
+        message: 'marDate must be a valid date string',
+      }),
+  })
+  .strip();
 medication.get(
   '/:id/pauses',
   asyncHandler(async (req, res) => {
@@ -1038,10 +1038,10 @@ medication.get(
 );
 
 const pauseHistoryQuerySchema = z
-.object({
-  encounterId: z.string().uuid({ message: 'Valid encounter ID is required' }),
-})
-.strip();
+  .object({
+    encounterId: z.string().uuid({ message: 'Valid encounter ID is required' }),
+  })
+  .strip();
 // Get pause history for a medication
 medication.get(
   '/:id/pause-history',
@@ -1089,17 +1089,17 @@ medication.get(
 );
 
 const givenMarUpdateSchema = z
-.object({
-  dose: z.object({
-    doseAmount: z.number(),
-    givenTime: datetimeCustomValidation,
-    givenByUserId: z.string().optional(),
+  .object({
+    dose: z.object({
+      doseAmount: z.number(),
+      givenTime: datetimeCustomValidation,
+      givenByUserId: z.string().optional(),
+      recordedByUserId: z.string().optional(),
+    }),
     recordedByUserId: z.string().optional(),
-  }),
-  recordedByUserId: z.string().optional(),
-  changingStatusReason: z.string().optional().nullable().default(null),
-})
-.strip();
+    changingStatusReason: z.string().optional().nullable().default(null),
+  })
+  .strip();
 medication.put(
   '/medication-administration-record/:id/given',
   asyncHandler(async (req, res) => {
@@ -1170,16 +1170,16 @@ medication.put(
 );
 
 const givenMarCreateSchema = z
-.object({
-  dose: z.object({
-    doseAmount: z.number(),
-    givenTime: datetimeCustomValidation,
-  }),
-  dueAt: datetimeCustomValidation,
-  prescriptionId: z.string(),
-  changingStatusReason: z.string().optional().nullable().default(null),
-})
-.strip();
+  .object({
+    dose: z.object({
+      doseAmount: z.number(),
+      givenTime: datetimeCustomValidation,
+    }),
+    dueAt: datetimeCustomValidation,
+    prescriptionId: z.string(),
+    changingStatusReason: z.string().optional().nullable().default(null),
+  })
+  .strip();
 medication.post(
   '/medication-administration-record/given',
   asyncHandler(async (req, res) => {
@@ -1223,12 +1223,12 @@ medication.post(
 );
 
 const notGivenMarInfoUpdateSchema = z
-.object({
-  reasonNotGivenId: z.string(),
-  recordedByUserId: z.string(),
-  changingNotGivenInfoReason: z.string().optional().nullable().default(null),
-})
-.strip();
+  .object({
+    reasonNotGivenId: z.string(),
+    recordedByUserId: z.string(),
+    changingNotGivenInfoReason: z.string().optional().nullable().default(null),
+  })
+  .strip();
 medication.put(
   '/medication-administration-record/:id/not-given-info',
   asyncHandler(async (req, res) => {
@@ -1274,12 +1274,12 @@ medication.put(
 );
 
 const notGivenMarUpdateSchema = z
-.object({
-  reasonNotGivenId: z.string(),
-  recordedByUserId: z.string().optional(),
-  changingStatusReason: z.string().optional().nullable().default(null),
-})
-.strip();
+  .object({
+    reasonNotGivenId: z.string(),
+    recordedByUserId: z.string().optional(),
+    changingStatusReason: z.string().optional().nullable().default(null),
+  })
+  .strip();
 medication.put(
   '/medication-administration-record/:id/not-given',
   asyncHandler(async (req, res) => {
@@ -1341,13 +1341,13 @@ medication.put(
 );
 
 const notGivenMarCreateSchema = z
-.object({
-  reasonNotGivenId: z.string(),
-  dueAt: datetimeCustomValidation,
-  prescriptionId: z.string(),
-  changingStatusReason: z.string().optional().nullable().default(null),
-})
-.strip();
+  .object({
+    reasonNotGivenId: z.string(),
+    dueAt: datetimeCustomValidation,
+    prescriptionId: z.string(),
+    changingStatusReason: z.string().optional().nullable().default(null),
+  })
+  .strip();
 medication.post(
   '/medication-administration-record/not-given',
   asyncHandler(async (req, res) => {
@@ -1382,23 +1382,23 @@ medication.post(
 );
 
 const updateMarSchema = z
-.object({
-  isError: z.boolean().optional(),
-  errorNotes: z.string().optional(),
-  doses: z
-  .array(
-    z
-    .object({
-      doseAmount: z.number(),
-      givenTime: datetimeCustomValidation,
-      givenByUserId: z.string(),
-      recordedByUserId: z.string(),
-    })
-    .strip(),
-  )
-  .optional(),
-})
-.strip();
+  .object({
+    isError: z.boolean().optional(),
+    errorNotes: z.string().optional(),
+    doses: z
+      .array(
+        z
+          .object({
+            doseAmount: z.number(),
+            givenTime: datetimeCustomValidation,
+            givenByUserId: z.string(),
+            recordedByUserId: z.string(),
+          })
+          .strip(),
+      )
+      .optional(),
+  })
+  .strip();
 medication.put(
   '/medication-administration-record/:id',
   asyncHandler(async (req, res) => {
@@ -1581,10 +1581,10 @@ medication.put(
 );
 
 const deleteDoseInputSchema = z
-.object({
-  reasonForRemoval: z.string().optional().nullable().default(null),
-})
-.strip();
+  .object({
+    reasonForRemoval: z.string().optional().nullable().default(null),
+  })
+  .strip();
 medication.delete(
   '/medication-administration-record/doses/:doseId',
   asyncHandler(async (req, res) => {
@@ -1632,7 +1632,7 @@ medication.get(
         case
           when c.table_name = 'medication_administration_records' then 'mar'
           when c.table_name = 'medication_administration_record_doses' then 'dose'
-          end as type,
+        end as type,
         c.record_data->>'id' id,
         c.record_data->>'status' mar_status,
         c.record_data->>'changing_status_reason' mar_changing_status_reason,
@@ -1658,19 +1658,19 @@ medication.get(
         c.record_deleted_at record_deleted_at,
         updated_by_user.display_name as changed_by_user
       from logs.changes c
-        left join public.users updated_by_user on updated_by_user.id = c.updated_by_user_id
-        left join public.reference_data reason_not_given on reason_not_given.type = :medicationNotGivenReason and reason_not_given.id = c.record_data->>'reason_not_given_id'
-        left join public.users recorded_by_user on recorded_by_user.id = c.record_data->>'recorded_by_user_id'
-        left join public.users given_by_user on given_by_user.id = c.record_data->>'given_by_user_id'
+      left join public.users updated_by_user on updated_by_user.id = c.updated_by_user_id
+      left join public.reference_data reason_not_given on reason_not_given.type = :medicationNotGivenReason and reason_not_given.id = c.record_data->>'reason_not_given_id'
+      left join public.users recorded_by_user on recorded_by_user.id = c.record_data->>'recorded_by_user_id'
+      left join public.users given_by_user on given_by_user.id = c.record_data->>'given_by_user_id'
       where c.table_schema = 'public'
-        and c.table_name IN ('medication_administration_records', 'medication_administration_record_doses')
-        and c.migration_context IS NULL
-        and (c.record_data->>'id' = :marId or c.record_data->>'mar_id' = :marId)
+      and c.table_name IN ('medication_administration_records', 'medication_administration_record_doses')
+      and c.migration_context IS NULL
+      and (c.record_data->>'id' = :marId or c.record_data->>'mar_id' = :marId)
       order by c.created_at desc,
         case
-        when c.table_name = 'medication_administration_records' then 1
-        when c.table_name = 'medication_administration_record_doses' then 2
-      end desc,
+          when c.table_name = 'medication_administration_records' then 1
+          when c.table_name = 'medication_administration_record_doses' then 2
+        end desc,
         c.record_data->>'dose_index' desc
     `;
 
@@ -1909,10 +1909,10 @@ medication.get(
           ...(rootFilter[Op.and] || []),
           ...(!canViewSensitiveMedications
             ? [
-              {
-                '$prescription.medication.referenceDrug.is_sensitive$': false,
-              },
-            ]
+                {
+                  '$prescription.medication.referenceDrug.is_sensitive$': false,
+                },
+              ]
             : []),
           { isCompleted: false },
           Sequelize.where(Sequelize.col('prescription.medication.referenceDrug.id'), {
@@ -2090,10 +2090,10 @@ medication.get(
           ...(rootFilter[Op.and] || []),
           ...(!canViewSensitiveMedications
             ? [
-              {
-                '$pharmacyOrderPrescription.prescription.medication.referenceDrug.is_sensitive$': false,
-              },
-            ]
+                {
+                  '$pharmacyOrderPrescription.prescription.medication.referenceDrug.is_sensitive$': false,
+                },
+              ]
             : []),
         ],
       },
@@ -2235,11 +2235,11 @@ medication.delete(
 );
 
 const dispensableMedicationsQuerySchema = z
-.object({
-  patientId: z.uuid(),
-  facilityId: z.string(),
-})
-.strip();
+  .object({
+    patientId: z.uuid(),
+    facilityId: z.string(),
+  })
+  .strip();
 
 medication.get(
   '/dispensable-medications',
@@ -2326,10 +2326,10 @@ medication.get(
           { isCompleted: false },
           ...(!canViewSensitiveMedications
             ? [
-              {
-                '$prescription.medication.referenceDrug.is_sensitive$': false,
-              },
-            ]
+                {
+                  '$prescription.medication.referenceDrug.is_sensitive$': false,
+                },
+              ]
             : []),
           Sequelize.where(Sequelize.col('prescription.medication.referenceDrug.id'), {
             [Op.notIn]: Sequelize.literal(`(
@@ -2369,12 +2369,12 @@ const dispenseItemSchema = z.object({
 });
 
 const dispenseInputSchema = z
-.object({
-  dispensedByUserId: z.string(),
-  facilityId: z.string(),
-  items: z.array(dispenseItemSchema).min(1).max(100),
-})
-.strip();
+  .object({
+    dispensedByUserId: z.string(),
+    facilityId: z.string(),
+    items: z.array(dispenseItemSchema).min(1).max(100),
+  })
+  .strip();
 
 medication.post(
   '/dispense',
@@ -2481,8 +2481,8 @@ medication.post(
 
       if (unavailableMedications.length > 0) {
         const unavailableNames = unavailableMedications
-        .map(um => um.referenceDrug.referenceData.name)
-        .join(', ');
+          .map(um => um.referenceDrug.referenceData.name)
+          .join(', ');
         throw new InvalidOperationError(
           `Cannot dispense unavailable medications: ${unavailableNames}`,
         );
@@ -2527,12 +2527,12 @@ medication.post(
 );
 
 const editDispenseInputSchema = z
-.object({
-  dispensedByUserId: z.string(),
-  quantity: z.coerce.number().int().positive(),
-  instructions: z.string().min(1),
-})
-.strip();
+  .object({
+    dispensedByUserId: z.string(),
+    quantity: z.coerce.number().int().positive(),
+    instructions: z.string().min(1),
+  })
+  .strip();
 
 medication.put(
   '/dispense/:id',
