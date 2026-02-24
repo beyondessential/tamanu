@@ -163,7 +163,12 @@ const StyledCheckField = styled(CheckField)`
   cursor: pointer;
   width: 100%;
   background-color: ${Colors.white};
-  border: 1px solid ${({ $checked }) => ($checked ? Colors.primary : Colors.outline)};
+  border: 1px solid
+    ${({ $isChecked, $isLocked }) => {
+    if ($isLocked && $isChecked) return Colors.midText;
+    if ($isChecked) return Colors.primary;
+    return Colors.outline;
+  }};
   border-radius: 3px;
   .MuiFormControlLabel-root {
     padding: 10px 2px;
@@ -934,9 +939,15 @@ export const MedicationForm = ({
                           setValues({ ...values, durationValue: '', durationUnit: '' });
                         }
                       }}
-                      checkedIcon={<StyledIcon className="far fa-check-square" $color={Colors.midText} />}
+                      checkedIcon={
+                        <StyledIcon
+                          className="far fa-check-square"
+                          $color={isOngoingPrescription ? Colors.midText : Colors.primary}
+                        />
+                      }
                       data-testid="medication-field-isOngoing-7j2p"
-                      $checked={values.isOngoing || isOngoingPrescription}
+                      $isChecked={values.isOngoing || isOngoingPrescription}
+                      $isLocked={isOngoingPrescription}
                     />
                   </ConditionalTooltip>
                 </CheckboxRowItem>
@@ -948,7 +959,7 @@ export const MedicationForm = ({
                     }
                     component={StyledCheckField}
                     data-testid="medication-field-isPrn-9n4q"
-                    $checked={values.isPrn}
+                    $isChecked={values.isPrn}
                   />
                 </CheckboxRowItem>
               </CheckboxRow>
@@ -972,7 +983,7 @@ export const MedicationForm = ({
                   }
                 }}
                 data-testid="medication-field-isVariableDose-5h8x"
-                $checked={values.isVariableDose}
+                $isChecked={values.isVariableDose}
               />
             </VariableDoseFieldWrapper>
             <Field
