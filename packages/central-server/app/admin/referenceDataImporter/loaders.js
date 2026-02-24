@@ -398,7 +398,6 @@ export async function userLoader(item, { models, pushError }) {
       rows.push({
         model: 'UserFacility',
         values: {
-          id: `${id};${facilityId}`,
           userId: id,
           facilityId: facilityId,
           deletedAt: new Date(),
@@ -411,7 +410,6 @@ export async function userLoader(item, { models, pushError }) {
     rows.push({
       model: 'UserFacility',
       values: {
-        id: `${id};${facilityId}`,
         userId: id,
         facilityId: facilityId,
       },
