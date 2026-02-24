@@ -72,25 +72,3 @@ export async function down(query: QueryInterface): Promise<void> {
 ```
 
 This helps developers understand the consequences of rolling back a migration.
-
-## Index Patterns
-
-### JSONB Expression Indexes
-
-When creating indexes on JSONB fields, use expression indexes with double parentheses:
-
-```typescript
-// Good - indexes the extracted text value
-await query.sequelize.query(`
-  CREATE INDEX index_name ON schema.table_name
-  USING btree ((jsonb_column->>'field_name'))
-`);
-```
-
-**Notes:**
-- Use `->>` operator to extract as text (better for indexing than `->` which returns JSONB)
-- Double parentheses are required for expression indexes
-- Use btree for equality and sorting operations
-- Consider GIN indexes for more complex JSONB queries
-
-**Example:** See migration `1771472857000-addIndexToFhirJobsResourceColumn.ts` for indexing `payload->>'resource'` in the `fhir.jobs` table.
