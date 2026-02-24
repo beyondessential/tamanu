@@ -163,6 +163,7 @@ export default [
       `packages/!(${BROWSER_PACKAGES})/**/*.${JS_EXTS}`,
       `packages/${BROWSER_PACKAGES}/{.storybook,stories}/**/*.${JS_EXTS}`,
       `scripts/**/*.${JS_EXTS}`,
+      `.github/**/*.${JS_EXTS}`,
       `**/*.config.${JS_EXTS}`,
     ],
     languageOptions: {
