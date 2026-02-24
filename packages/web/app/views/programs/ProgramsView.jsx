@@ -46,10 +46,7 @@ const SurveySelectionPane = ({
     <FormGrid columns={1} data-testid="formgrid-m7yd">
       <SelectInput
         name="program"
-        options={programs.map(p => ({
-          value: p.id,
-          label: getReferenceDataTranslation({ value: p.id, category: 'program', fallback: p.name }),
-        }))}
+        options={programs.map(p => toTranslatedOption(p, 'program', getReferenceDataTranslation))}
         value={selectedProgramId}
         onChange={selectProgram}
         label={
