@@ -823,7 +823,7 @@ describe('Labs', () => {
       // Create requests with different approval statuses
       const { labRequest: lrApproved, labTestPanelRequest: panelApproved } =
         await createLabRequestWithPanel();
-      const { labTestPanelRequest: panelUnapproved } = await createLabRequestWithPanel();
+      const { labRequest: lrUnapproved, labTestPanelRequest: panelUnapproved } = await createLabRequestWithPanel();
       const { labRequest: lrNoItems } = await createLabRequestWithPanel();
 
       await models.InvoiceItem.create({
@@ -845,21 +845,29 @@ describe('Labs', () => {
         orderedByUserId: app.user.id,
       });
 
-      // Sort ASC - nulls first, then false, then true
+      // Sort ASC - false first, then true, then nulls last
       const resultAsc = await app.get(
         `/api/labRequest?allFacilities=true&orderBy=approved&order=ASC`,
       );
       expect(resultAsc).toHaveSucceeded();
-      expect(resultAsc.body.data[0].id).toBe(lrNoItems.id);
-      expect(resultAsc.body.data[0].approved).not.toBeDefined();
+      expect(resultAsc.body.data[0].id).toBe(lrUnapproved.id);
+      expect(resultAsc.body.data[0].approved).toBe(false);
+      expect(resultAsc.body.data[1].id).toBe(lrApproved.id);
+      expect(resultAsc.body.data[1].approved).toBe(true);
+      expect(resultAsc.body.data[2].id).toBe(lrNoItems.id);
+      expect(resultAsc.body.data[2].approved).not.toBeDefined();
 
-      // Sort DESC - true first, then false, then nulls
+      // Sort DESC - true first, then false, then nulls last
       const resultDesc = await app.get(
         `/api/labRequest?allFacilities=true&orderBy=approved&order=DESC`,
       );
       expect(resultDesc).toHaveSucceeded();
       expect(resultDesc.body.data[0].id).toBe(lrApproved.id);
       expect(resultDesc.body.data[0].approved).toBe(true);
+      expect(resultDesc.body.data[1].id).toBe(lrUnapproved.id);
+      expect(resultDesc.body.data[1].approved).toBe(false);
+      expect(resultDesc.body.data[2].id).toBe(lrNoItems.id);
+      expect(resultDesc.body.data[2].approved).not.toBeDefined();
     });
   });
 

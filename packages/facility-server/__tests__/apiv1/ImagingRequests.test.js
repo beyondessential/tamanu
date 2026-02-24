@@ -772,7 +772,7 @@ describe('Imaging requests', () => {
       // Create requests with different approval statuses
       const { imagingRequest: irApproved, areas: areasApproved } =
         await createImagingRequestWithAreas(1);
-      const { areas: areasUnapproved } = await createImagingRequestWithAreas(1);
+      const { imagingRequest: irUnapproved, areas: areasUnapproved } = await createImagingRequestWithAreas(1);
       const { imagingRequest: irNoItems } = await createImagingRequestWithAreas(1);
 
       await models.InvoiceItem.create({
@@ -794,21 +794,29 @@ describe('Imaging requests', () => {
         orderedByUserId: user.id,
       });
 
-      // Sort ASC - nulls first, then false, then true
+      // Sort ASC - false first, then true, then nulls last
       const resultAsc = await app.get(
         `/api/imagingRequest?facilityId=${facilityId}&orderBy=approved&order=ASC`,
       );
       expect(resultAsc).toHaveSucceeded();
-      expect(resultAsc.body.data[0].id).toBe(irNoItems.id);
-      expect(resultAsc.body.data[0].approved).toBeNull();
+      expect(resultAsc.body.data[0].id).toBe(irUnapproved.id);
+      expect(resultAsc.body.data[0].approved).toBe(false);
+      expect(resultAsc.body.data[1].id).toBe(irApproved.id);
+      expect(resultAsc.body.data[1].approved).toBe(true);
+      expect(resultAsc.body.data[2].id).toBe(irNoItems.id);
+      expect(resultAsc.body.data[2].approved).toBeNull();
 
-      // Sort DESC - true first, then false, then nulls
+      // Sort DESC - true first, then false, then nulls last
       const resultDesc = await app.get(
         `/api/imagingRequest?facilityId=${facilityId}&orderBy=approved&order=DESC`,
       );
       expect(resultDesc).toHaveSucceeded();
       expect(resultDesc.body.data[0].id).toBe(irApproved.id);
       expect(resultDesc.body.data[0].approved).toBe(true);
+      expect(resultDesc.body.data[1].id).toBe(irUnapproved.id);
+      expect(resultDesc.body.data[1].approved).toBe(false);
+      expect(resultDesc.body.data[2].id).toBe(irNoItems.id);
+      expect(resultDesc.body.data[2].approved).toBeNull();
     });
 
     it('should use ImagingRequest invoice item when no area invoice items exist', async () => {
