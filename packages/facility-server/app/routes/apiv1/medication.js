@@ -1755,8 +1755,6 @@ medication.get(
 
     const canViewSensitiveMedications = req.ability.can('read', 'SensitiveMedication');
 
-    const LITERAL_SORT_KEYS = ['prescription.invoiceItem.approved'];
-
     const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 
     // Patient filters
