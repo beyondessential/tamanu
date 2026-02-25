@@ -54,59 +54,6 @@ export const PatientVitalsList = [
   'avpu',
 ];
 
-const seniorDoctorRole = {
-  value: 'senior-doctor',
-  label: 'Senior Doctor',
-};
-const juniorDoctorRole = {
-  value: 'junior-doctor',
-  label: 'Junior Doctor',
-};
-const seniorNurse = {
-  value: 'senior-nurse',
-  label: 'Senior Nurse',
-};
-const juniorNurse = {
-  value: 'junior-nurse',
-  label: 'Junior Nurse',
-};
-const midWife = {
-  value: 'midwife',
-  label: 'Midwife',
-};
-const appliedHealth = {
-  value: 'applied-health',
-  label: 'Applied Health',
-};
-const finnanceRole = {
-  value: 'finance',
-  label: 'Finance',
-};
-const radiologyRole = {
-  value: 'radiology',
-  label: 'Radiology',
-};
-const labRole = {
-  value: 'lab',
-  label: 'Lab',
-};
-const practitionerRole = {
-  value: 'practitioner',
-  label: 'Practitioner',
-};
-export const userRolesOptions = [
-  seniorDoctorRole,
-  juniorDoctorRole,
-  seniorNurse,
-  juniorNurse,
-  midWife,
-  appliedHealth,
-  finnanceRole,
-  radiologyRole,
-  labRole,
-  practitionerRole,
-];
-
 type VaccineStatusCellsType = {
   [key in VaccineStatus]?: {
     Icon: (props: Record<string, any>) => React.ReactElement;
