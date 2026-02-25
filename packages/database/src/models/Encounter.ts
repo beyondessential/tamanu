@@ -44,7 +44,7 @@ export class Encounter extends Model {
   declare reasonForEncounter?: string;
   declare deviceId?: string;
   declare plannedLocationStartTime?: string;
-  declare patientId?: string;
+  declare patientId: string;
   declare examinerId?: string;
   declare locationId?: string;
   declare plannedLocationId?: string;
@@ -210,7 +210,7 @@ export class Encounter extends Model {
     });
 
     this.belongsTo(models.Patient, {
-      foreignKey: 'patientId',
+      foreignKey: { name: 'patientId', allowNull: false },
       as: 'patient',
     });
 

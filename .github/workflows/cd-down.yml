@@ -22,7 +22,7 @@ on:
         required: true
 
 permissions:
-  contents: write # to update the release notes
+  contents: read
   pull-requests: write
   id-token: write # for Tailscale OIDC authentication
 
