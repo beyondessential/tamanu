@@ -76,18 +76,6 @@ export const IntroScreen: FunctionComponent<any> = ({ navigation, route }: Intro
             fontSize={`${screenPercentageToDP(1.94, Orientation.Height)}px`}
           />
         </RowView>
-        <CenterView marginTop="30px">
-          <Button
-            height="40px"
-            onPress={(): void => console.log('request access..')}
-            width="180px"
-            backgroundColor={theme.colors.WHITE}
-            buttonText="Request Access"
-            textColor={theme.colors.PRIMARY_MAIN}
-            fontWeight={500}
-            fontSize={`${screenPercentageToDP(1.94, Orientation.Height)}px`}
-          />
-        </CenterView>
       </StyledSafeAreaView>
     </FullView>
   );
