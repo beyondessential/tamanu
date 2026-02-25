@@ -3,7 +3,7 @@ import { PropTypes } from 'prop-types';
 import * as yup from 'yup';
 
 import { SETTING_KEYS, VACCINE_CATEGORIES, VACCINE_RECORDING_TYPES, FORM_TYPES } from '@tamanu/constants';
-import { ISO9075_DATE_FORMAT, trimToDate} from '@tamanu/utils/dateTime';
+import { ISO9075_DATE_FORMAT } from '@tamanu/utils/dateTime';
 import { Form, useDateTime } from '@tamanu/ui-components';
 
 import { REQUIRED_INLINE_ERROR_MESSAGE } from '../constants';
@@ -43,7 +43,7 @@ export const VaccineForm = ({
   vaccineRecordingType,
 }) => {
   const { getSetting } = useSettings();
-  const { getCurrentDate } = useDateTime();
+  const { getCurrentDateTime } = useDateTime();
 
   const [vaccineLabel, setVaccineLabel] = useState(existingValues?.vaccineLabel);
   const [category, setCategory] = useState(getInitialCategory(editMode, existingValues));
@@ -205,7 +205,7 @@ export const VaccineForm = ({
         vaccineLabel,
         category,
         scheduledVaccineId: existingValues?.scheduledVaccineId,
-        date: getCurrentDate(),
+        date: getCurrentDateTime(),
         locationGroupId: !currentEncounter
           ? vaccinationDefaults?.locationGroupId
           : currentEncounter.location?.locationGroup?.id,
@@ -225,7 +225,6 @@ export const VaccineForm = ({
         ...(existingValues.circumstanceIds
           ? { circumstanceIds: JSON.stringify(existingValues.circumstanceIds) }
           : {}),
-        date: trimToDate(existingValues.date),
         patientData,
       };
 

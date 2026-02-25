@@ -35,7 +35,7 @@ export const VaccineNotGivenForm = ({
   setVaccineLabel,
   values,
 }) => {
-  const { getCurrentDate } = useDateTime();
+  const { getCurrentDateTime } = useDateTime();
 
   return (
     <TwoTwoGrid data-testid="twotwogrid-ng3x">
@@ -98,7 +98,7 @@ export const VaccineNotGivenForm = ({
         />
       }
       min={values?.patientData?.dateOfBirth}
-      max={getCurrentDate()}
+      max={getCurrentDateTime()}
       keepIncorrectValue
       data-testid="vaccinedatefield-jzo2"
     />
