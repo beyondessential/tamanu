@@ -64,7 +64,9 @@ export const EncounterModal = React.memo(
     const [modalStatus, setModalStatus] = useState(MODAL_STATES.SELECT_OPEN);
     const [encounterType, setEncounterType] = useState(null);
     const [isWarningModalOpen, setIsWarningModalOpen] = useState(false);
-    const { refetch: refetchCurrentEncounter } = usePatientCurrentEncounterQuery(patient.id);
+    const { refetch: refetchCurrentEncounter } = usePatientCurrentEncounterQuery(patient.id, {
+      enabled: false,
+    });
 
     const onCloseWarningModal = useCallback(async () => {
       setIsWarningModalOpen(false);
