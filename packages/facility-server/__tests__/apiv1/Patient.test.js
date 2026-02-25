@@ -11,10 +11,16 @@ import {
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 import { fake } from '@tamanu/fake-data/fake';
 import { randomLabRequest } from '@tamanu/database/demoData/labRequests';
-import { ENCOUNTER_TYPES, LAB_REQUEST_STATUSES, REFERENCE_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
+import {
+  ENCOUNTER_TYPES,
+  LAB_REQUEST_STATUSES,
+  REFERENCE_TYPES,
+  SETTINGS_SCOPES,
+} from '@tamanu/constants';
 import { getCurrentDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { CertificateTypes } from '@tamanu/shared/utils/patientCertificates';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { createTestContext } from '../utilities';
 
 describe('Patient', () => {
@@ -84,12 +90,12 @@ describe('Patient', () => {
     const encounterOne = await models.Encounter.create({
       ...(await createDummyEncounter(models, { current: true })),
       patientId: patient.id,
-      encounterType: ENCOUNTER_TYPES.ADMISSION
+      encounterType: ENCOUNTER_TYPES.ADMISSION,
     });
     const encounterTwo = await models.Encounter.create({
       ...(await createDummyEncounter(models, { current: true })),
       patientId: patient.id,
-      encounterType: ENCOUNTER_TYPES.ADMISSION
+      encounterType: ENCOUNTER_TYPES.ADMISSION,
     });
     await models.Encounter.create({
       ...(await createDummyEncounter(models, { current: true })),
@@ -359,6 +365,251 @@ describe('Patient', () => {
         where: { value: oldDisplayId },
       });
       expect(secondaryId.typeId).toBe('secondaryIdType-nhn');
+    });
+  });
+
+  describe('Get patient medications', () => {
+    describe('GET /patient/:id/ongoing-prescriptions', () => {
+      it('should return ongoing prescriptions when patient has ongoing prescriptions', async () => {
+        const prescription = await models.Prescription.create(
+          await createDummyPrescription(models),
+        );
+        await models.PatientOngoingPrescription.create({
+          patientId: patient.id,
+          prescriptionId: prescription.id,
+        });
+
+        const result = await app.get(`/api/patient/${patient.id}/ongoing-prescriptions`);
+        expect(result).toHaveSucceeded();
+        expect(result.body.data).toHaveLength(1);
+        expect(result.body.data[0]).toMatchObject({
+          id: prescription.id,
+          medication: expect.any(Object),
+        });
+        expect(result.body.count).toBe(1);
+      });
+
+      it('should reject when user lacks list Medication permission', async () => {
+        const noPermsApp = await baseApp.asRole('base');
+        const result = await noPermsApp.get(`/api/patient/${patient.id}/ongoing-prescriptions`);
+        expect(result).toBeForbidden();
+      });
+
+      describe('when user lacks list SensitiveMedication permission', () => {
+        disableHardcodedPermissionsForSuite();
+
+        it('should not return sensitive medications', async () => {
+          const sensitiveMedication = await models.ReferenceData.create({
+            type: REFERENCE_TYPES.DRUG,
+            name: 'Sensitive Test Drug',
+            code: 'SENSITIVE_TEST_DRUG',
+          });
+          await models.ReferenceDrug.create({
+            referenceDataId: sensitiveMedication.id,
+            isSensitive: true,
+          });
+
+          const nonSensitiveMedication = await models.ReferenceData.create({
+            type: REFERENCE_TYPES.DRUG,
+            name: 'Non-Sensitive Test Drug',
+            code: 'NONSENSITIVE_TEST_DRUG',
+          });
+          await models.ReferenceDrug.create({
+            referenceDataId: nonSensitiveMedication.id,
+            isSensitive: false,
+          });
+
+          const sensitivePrescription = await models.Prescription.create(
+            await createDummyPrescription(models, { medicationId: sensitiveMedication.id }),
+          );
+          const nonSensitivePrescription = await models.Prescription.create(
+            await createDummyPrescription(models, { medicationId: nonSensitiveMedication.id }),
+          );
+
+          await models.PatientOngoingPrescription.create({
+            patientId: patient.id,
+            prescriptionId: sensitivePrescription.id,
+          });
+          await models.PatientOngoingPrescription.create({
+            patientId: patient.id,
+            prescriptionId: nonSensitivePrescription.id,
+          });
+
+          const appWithMedicationOnly = await baseApp.asNewRole([['list', 'Medication']]);
+          const result = await appWithMedicationOnly.get(
+            `/api/patient/${patient.id}/ongoing-prescriptions?page=0&rowsPerPage=10&facilityId=${facilityId}`,
+          );
+
+          expect(result).toHaveSucceeded();
+          expect(result.body.data).toHaveLength(2); // 2 medications, one from previous test and one non-sensitive
+          const sensitiveResult = result.body.data.find(
+            m => m.medication.id === sensitiveMedication.id,
+          );
+          expect(sensitiveResult).toBeUndefined();
+          const nonSensitiveResult = result.body.data.find(
+            m => m.medication.id === nonSensitiveMedication.id,
+          );
+          expect(nonSensitiveResult).toBeDefined();
+        });
+      });
+    });
+
+    describe('GET /patient/:id/dispensed-medications', () => {
+      it('should reject when user lacks read MedicationDispense permission', async () => {
+        const noPermsApp = await baseApp.asRole('base');
+        const result = await noPermsApp.get(`/api/patient/${patient.id}/dispensed-medications`);
+        expect(result).toBeForbidden();
+      });
+
+      describe('when user lacks list SensitiveMedication permission', () => {
+        disableHardcodedPermissionsForSuite();
+
+        it('should not return sensitive medications', async () => {
+          const dispenseUser = await models.User.create({
+            displayName: 'Dispense Test User',
+            email: 'dispense-test@test.test',
+          });
+          const dispensePatient = await models.Patient.create(await createDummyPatient(models));
+          const sensitiveMedication = await models.ReferenceData.create({
+            type: REFERENCE_TYPES.DRUG,
+            name: 'Sensitive Dispensed Drug',
+            code: 'SENSITIVE_DISPENSED_DRUG',
+          });
+          await models.ReferenceDrug.create({
+            referenceDataId: sensitiveMedication.id,
+            isSensitive: true,
+          });
+          const nonSensitiveMedication = await models.ReferenceData.create({
+            type: REFERENCE_TYPES.DRUG,
+            name: 'Non-Sensitive Dispensed Drug',
+            code: 'NONSENSITIVE_DISPENSED_DRUG',
+          });
+          await models.ReferenceDrug.create({
+            referenceDataId: nonSensitiveMedication.id,
+            isSensitive: false,
+          });
+
+          const encounter = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            patientId: dispensePatient.id,
+          });
+          const pharmacyOrder = await models.PharmacyOrder.create({
+            encounterId: encounter.id,
+            facilityId,
+            orderingClinicianId: dispenseUser.id,
+            date: new Date().toISOString(),
+            isDischargePrescription: false,
+          });
+          const sensitivePrescription = await models.Prescription.create(
+            await createDummyPrescription(models, { medicationId: sensitiveMedication.id }),
+          );
+          const nonSensitivePrescription = await models.Prescription.create(
+            await createDummyPrescription(models, { medicationId: nonSensitiveMedication.id }),
+          );
+          const sensitivePop = await models.PharmacyOrderPrescription.create({
+            pharmacyOrderId: pharmacyOrder.id,
+            prescriptionId: sensitivePrescription.id,
+            quantity: 1,
+          });
+          const nonSensitivePop = await models.PharmacyOrderPrescription.create({
+            pharmacyOrderId: pharmacyOrder.id,
+            prescriptionId: nonSensitivePrescription.id,
+            quantity: 1,
+          });
+          await models.MedicationDispense.create({
+            pharmacyOrderPrescriptionId: sensitivePop.id,
+            quantity: 1,
+            dispensedByUserId: dispenseUser.id,
+          });
+          await models.MedicationDispense.create({
+            pharmacyOrderPrescriptionId: nonSensitivePop.id,
+            quantity: 1,
+            dispensedByUserId: dispenseUser.id,
+          });
+
+          const appWithDispenseOnly = await baseApp.asNewRole([['read', 'MedicationDispense']]);
+          const result = await appWithDispenseOnly.get(
+            `/api/patient/${dispensePatient.id}/dispensed-medications`,
+          );
+
+          expect(result).toHaveSucceeded();
+          expect(result.body.data).toHaveLength(1);
+          expect(result.body.data[0].pharmacyOrderPrescription.prescription.id).toBe(
+            nonSensitivePrescription.id,
+          );
+        });
+      });
+    });
+
+    describe('GET /patient/:id/last-inpatient-discharge-medications', () => {
+      it('should reject when user lacks list Medication permission', async () => {
+        const noPermsApp = await baseApp.asRole('base');
+        const result = await noPermsApp.get(
+          `/api/patient/${patient.id}/last-inpatient-discharge-medications`,
+        );
+        expect(result).toBeForbidden();
+      });
+
+      describe('when user lacks list SensitiveMedication permission', () => {
+        disableHardcodedPermissionsForSuite();
+
+        it('should not return sensitive medications', async () => {
+          const dischargePatient = await models.Patient.create(await createDummyPatient(models));
+          const sensitiveMedication = await models.ReferenceData.create({
+            type: REFERENCE_TYPES.DRUG,
+            name: 'Sensitive Discharge Drug',
+            code: 'SENSITIVE_DISCHARGE_DRUG',
+          });
+          await models.ReferenceDrug.create({
+            referenceDataId: sensitiveMedication.id,
+            isSensitive: true,
+          });
+          const nonSensitiveMedication = await models.ReferenceData.create({
+            type: REFERENCE_TYPES.DRUG,
+            name: 'Non-Sensitive Discharge Drug',
+            code: 'NONSENSITIVE_DISCHARGE_DRUG',
+          });
+          await models.ReferenceDrug.create({
+            referenceDataId: nonSensitiveMedication.id,
+            isSensitive: false,
+          });
+
+          const encounter = await models.Encounter.create({
+            ...(await createDummyEncounter(models, { current: true })),
+            patientId: dischargePatient.id,
+            encounterType: ENCOUNTER_TYPES.ADMISSION,
+          });
+          await encounter.update({
+            endDate: new Date().toISOString(),
+          });
+
+          const sensitivePrescription = await models.Prescription.create(
+            await createDummyPrescription(models, { medicationId: sensitiveMedication.id }),
+          );
+          const nonSensitivePrescription = await models.Prescription.create(
+            await createDummyPrescription(models, { medicationId: nonSensitiveMedication.id }),
+          );
+          await models.EncounterPrescription.create({
+            encounterId: encounter.id,
+            prescriptionId: sensitivePrescription.id,
+            isSelectedForDischarge: true,
+          });
+          await models.EncounterPrescription.create({
+            encounterId: encounter.id,
+            prescriptionId: nonSensitivePrescription.id,
+            isSelectedForDischarge: true,
+          });
+
+          const appWithMedicationOnly = await baseApp.asNewRole([['list', 'Medication']]);
+          const result = await appWithMedicationOnly.get(
+            `/api/patient/${dischargePatient.id}/last-inpatient-discharge-medications`,
+          );
+
+          expect(result).toHaveSucceeded();
+          expect(result.body.data).toHaveLength(1);
+          expect(result.body.data[0].id).toBe(nonSensitivePrescription.id);
+        });
+      });
     });
   });
 
