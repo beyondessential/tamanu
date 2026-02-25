@@ -322,7 +322,7 @@ labRequest.get(
       priority: 'priority.name',
       status: 'status',
       publishedDate: 'published_date',
-      approved: 'lab_approval.approved',
+      ...(isInvoicingEnabled ? { approved: 'lab_approval.approved' } : {}),
     };
 
     const getNullPosition = (orderBy, sortDirection) => {

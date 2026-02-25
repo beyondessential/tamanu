@@ -100,7 +100,7 @@ export const LabRequestsTable = React.memo(
           sortable: !isPublishedTable,
         },
       ];
-    }, [isPublishedTable]);
+    }, [isPublishedTable, isInvoicingEnabled]);
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
