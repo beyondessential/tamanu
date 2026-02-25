@@ -12,6 +12,7 @@ import { DateDisplay } from './DateDisplay';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 
 import { useTranslation } from '../contexts/Translation.jsx';
+import { trimToDate } from '@tamanu/utils/dateTime';
 
 const Container = styled.div`
   display: flex;
@@ -183,7 +184,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
           data-testid="translatedtext-r2gm"
         />
       ),
-      value: <DateDisplay date={date} data-testid="datedisplay-dd06" />,
+      value: <DateDisplay date={trimToDate(date)} data-testid="datedisplay-dd06" />,
     },
     dateGiven: {
       label: (
@@ -193,7 +194,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
           data-testid="translatedtext-t6f2"
         />
       ),
-      value: <DateDisplay date={date} data-testid="datedisplay-vjag" />,
+      value: <DateDisplay date={trimToDate(date)} data-testid="datedisplay-vjag" />,
     },
     injectionSite: {
       label: (
