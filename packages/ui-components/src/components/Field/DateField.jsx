@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
-import { Box, InputAdornment } from '@material-ui/core';
+import { Box } from '@material-ui/core';
 import { addDays, isAfter, isBefore, parse } from 'date-fns';
 import { format as formatDate, toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { TextInput } from './TextField';
@@ -26,40 +26,19 @@ import { DefaultIconButton } from '../Button';
 // has some unusual input handling (switching focus between day/month/year etc) that
 // a value change will interfere with.
 
+// Here I have made a data URL for the new calendar icon. The existing calendar icon was a pseudo element
+// in the user agent shadow DOM. In order to add a new icon I had to make the pseudo element invisible
+// a new icon I had to make the pseudo element invisible and render a replacement on top using svg data url.
 const CustomIconTextInput = styled(TextInput)`
   input::-webkit-calendar-picker-indicator {
-    display: none;
-    -webkit-appearance: none;
-  }
-  input::-webkit-date-and-time-value {
-    text-align: left;
+    color: rgba(0, 0, 0, 0);
+    opacity: 1;
+    background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg' %3E%3Cpath d='M13.125 1.75H11.375V0H8.75V1.75H5.25V0H2.625V1.75H0.875C0.392 1.75 0 2.142 0 2.625V13.125C0 13.608 0.392 14 0.875 14H13.125C13.608 14 14 13.608 14 13.125V2.625C14 2.142 13.608 1.75 13.125 1.75ZM12.25 12.25H1.75V6.125H12.25V12.25Z' fill='%23326699' /%3E%3C/svg%3E");
+    cursor: pointer;
+    border-radius: 50%;
+    margin-left: 0.5rem;
   }
 `;
-
-const StyledCalendarButton = styled.div`
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  padding: 2px;
-`;
-
-const CalendarIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path
-      d="M13.125 1.75H11.375V0H8.75V1.75H5.25V0H2.625V1.75H0.875C0.392 1.75 0 2.142 0 2.625V13.125C0 13.608 0.392 14 0.875 14H13.125C13.608 14 14 13.608 14 13.125V2.625C14 2.142 13.608 1.75 13.125 1.75ZM12.25 12.25H1.75V6.125H12.25V12.25Z"
-      fill={TAMANU_COLORS.primary}
-    />
-  </svg>
-);
-
-const ClockIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path
-      d="M7 0C3.136 0 0 3.136 0 7s3.136 7 7 7 7-3.136 7-7-3.136-7-7-7zm0 12.6c-3.094 0-5.6-2.506-5.6-5.6S3.906 1.4 7 1.4s5.6 2.506 5.6 5.6-2.506 5.6-5.6 5.6zm.35-9.1H6.3v4.2l3.675 2.205.525-.861-3.15-1.869V3.5z"
-      fill={TAMANU_COLORS.primary}
-    />
-  </svg>
-);
 
 function fromRFC3339(rfc3339Date, format) {
   if (!rfc3339Date) return '';
@@ -78,34 +57,13 @@ export const DateInput = ({
   arrows = false,
   inputProps = {},
   keepIncorrectValue,
-  disabled,
   ['data-testid']: dataTestId,
   ...props
 }) => {
   delete props.placeholder;
 
-  const inputRef = useRef(null);
   const [currentText, setCurrentText] = useState(fromRFC3339(value, format));
   const [isPlaceholder, setIsPlaceholder] = useState(!value);
-
-  const showPickerIcon = type === 'date' || type === 'datetime-local' || type === 'time';
-  const handlePickerClick = useCallback(() => {
-    if (disabled) return;
-    if (inputRef.current?.showPicker) {
-      inputRef.current.showPicker();
-    } else {
-      inputRef.current?.focus();
-    }
-  }, [disabled]);
-
-  const PickerIcon = type === 'time' ? ClockIcon : CalendarIcon;
-  const pickerAdornment = showPickerIcon ? (
-    <InputAdornment position="end">
-      <StyledCalendarButton onClick={handlePickerClick}>
-        <PickerIcon />
-      </StyledCalendarButton>
-    </InputAdornment>
-  ) : undefined;
 
   // Weird thing alert:
   // If the value is cleared, we need to remount the component to reset the input field
@@ -227,11 +185,9 @@ export const DateInput = ({
       onChange={onValueChange}
       onKeyDown={onKeyDown}
       onBlur={handleBlur}
-      disabled={disabled}
       InputProps={{
+        // Set max property on HTML input element to force 4-digit year value (max year being 9999)
         inputProps: { max, min, ...inputProps },
-        inputRef,
-        endAdornment: pickerAdornment,
         'data-testid': `${dataTestId}-input`,
       }}
       style={isPlaceholder ? { color: TAMANU_COLORS.softText } : undefined}
@@ -244,10 +200,8 @@ export const DateInput = ({
     <CustomIconTextInput
       key="remounting"
       type={type}
-      disabled={disabled}
       InputProps={{
         inputProps,
-        endAdornment: pickerAdornment,
       }}
       style={{ color: TAMANU_COLORS.softText }}
       data-testid={dataTestId}
