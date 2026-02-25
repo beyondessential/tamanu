@@ -1,6 +1,4 @@
-import { intlFormatDate } from './dateTime';
-
-type DateInput = string | Date | null | undefined;
+import { intlFormatDate, type DateInput } from './dateTime';
 
 const createFormatter =
   (

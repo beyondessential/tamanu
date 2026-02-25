@@ -91,7 +91,7 @@ const CovidLabCertificateComponent = ({
   printedBy,
   certType,
 }) => {
-  const { formatShort, formatShortExplicit, formatTime } = useDateTime();
+  const { formatShort, formatShortExplicit, formatTime, getCurrentDate } = useDateTime();
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -121,7 +121,7 @@ const CovidLabCertificateComponent = ({
               <P>Printed by: {printedBy}</P>
             </Col>
             <Col>
-              <P>Printing date: {formatShort(new Date())}</P>
+              <P>Printing date: {formatShort(getCurrentDate())}</P>
             </Col>
           </Row>
         </Box>

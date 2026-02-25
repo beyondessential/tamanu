@@ -9,6 +9,7 @@ import {
   Field,
   LocalisedField,
   SearchField,
+  QRCodeSearchField,
   TranslatedSelectField,
 } from '../Field';
 import { useSuggester } from '../../api';
@@ -75,8 +76,8 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
                 />
               }
               component={TranslatedSelectField}
-              transformOptions={(options) =>
-                hideOtherSex ? options.filter((o) => o.value !== SEX_VALUES.OTHER) : options
+              transformOptions={options =>
+                hideOtherSex ? options.filter(o => o.value !== SEX_VALUES.OTHER) : options
               }
               enumValues={SEX_LABELS}
               size="small"
@@ -113,7 +114,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
       data-testid="customisablesearchbarwithpermissioncheck-al75"
     >
       <LocalisedField
-        component={SearchField}
+        component={QRCodeSearchField}
         name="displayId"
         label={
           <TranslatedText

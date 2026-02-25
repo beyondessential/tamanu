@@ -145,36 +145,36 @@ export const MedicationDetails = ({
     ...(medication.isOngoing || medication.discontinued
       ? []
       : [
-          {
-            label: <TranslatedText stringId="medication.details.duration" fallback="Duration" />,
-            value: medication.durationValue
-              ? `${medication.durationValue} ${singularize(
-                  getEnumTranslation(
-                    MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
-                    medication.durationUnit,
-                  ),
-                  medication.durationValue,
-                ).toLowerCase()}`
-              : '-',
-          },
-        ]),
+        {
+          label: <TranslatedText stringId="medication.details.duration" fallback="Duration" />,
+          value: medication.durationValue
+            ? `${medication.durationValue} ${singularize(
+              getEnumTranslation(
+                MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
+                medication.durationUnit,
+              ),
+              medication.durationValue,
+            ).toLowerCase()}`
+            : '-',
+        },
+      ]),
     {
       label: <TranslatedText stringId="medication.details.indication" fallback="Indication" />,
       value: medication.indication || '-',
     },
     {
       label: (
-        <TranslatedText
-          stringId="medication.details.dischargeQuantity"
-          fallback="Discharge quantity"
-        />
+        isOngoingPrescription ? (
+          <TranslatedText stringId="medication.details.quantity" fallback="Quantity" />
+        ) : (
+          <TranslatedText
+            stringId="medication.details.dischargeQuantity"
+            fallback="Discharge quantity"
+          />
+        )
       ),
       value: medication.quantity ?? '-',
-    },
-    {
-      label: <TranslatedText stringId="medication.details.repeats" fallback="Repeats" />,
-      value: medication.repeats ?? 0,
-    },
+    }
   ];
 
   const rightDetails = [
@@ -196,18 +196,13 @@ export const MedicationDetails = ({
     ...(medication.isOngoing || medication.discontinued || !medication.endDate
       ? []
       : [
-          {
-            label: (
-              <TranslatedText stringId="medication.details.endDate" fallback="End date & time" />
-            ),
-            value: (
-              <>
-                {' '}
-                <DateDisplay date={medication.endDate} format="shortest" timeFormat="compact" />
-              </>
-            ),
-          },
-        ]),
+        {
+          label: (
+            <TranslatedText stringId="medication.details.endDate" fallback="End date & time" />
+          ),
+          value: <DateDisplay date={medication.endDate} format="shortest" timeFormat="compact" />,
+        },
+      ]),
     {
       label: <TranslatedText stringId="medication.details.prescriber" fallback="Prescriber" />,
       value: medication.prescriber?.displayName || '-',
@@ -528,7 +523,11 @@ export const MedicationDetails = ({
                 </Box>
                 <Box flex={1}>
                   <DarkestText color={`${Colors.darkText} !important`} mb={0.5}>
-                    <TranslatedText stringId="medication.details.repeats" fallback="Repeats" />
+                    {encounter && !isOngoingPrescription ? (
+                      <TranslatedText stringId="medication.details.repeatsOnDischarge" fallback="Repeats on discharge" />
+                    ) : (
+                      <TranslatedText stringId="medication.details.repeats" fallback="Repeats" />
+                    )}
                   </DarkestText>
                   <NoteModalActionBlocker>
                     <Field

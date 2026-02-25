@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { log } from '@tamanu/shared/services/logging';
 import { Model } from '../Model';
 import type { InitOptions, Models } from '../../types/model';
 import {
@@ -111,7 +112,7 @@ export class InvoicePriceList extends Model {
     }
 
     if (matches.length > 1) {
-      throw new Error(
+      log.warn(
         `Multiple price lists match the provided inputs: ${matches.map(match => match.name).join(', ')}`,
       );
     }

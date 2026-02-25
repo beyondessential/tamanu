@@ -7,7 +7,8 @@ import {
   TranslatedText,
   TranslatedReferenceData,
   TranslatedEnum,
-  DateDisplay
+  DateDisplay,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { PATIENT_STATUS_COLORS } from '../../../constants';
@@ -30,7 +31,7 @@ import { MedicationLabelPrintModal } from '../../../components/PatientPrinting/m
 import { CancelDispensedMedicationModal } from '../../../components/Medication/CancelDispensedMedicationModal';
 import { EditMedicationDispenseModal } from '../../../components/Medication/EditMedicationDispenseModal';
 import { DispensedMedicationDetailsModal } from '../../../components/Medication/DispensedMedicationDetailsModal';
-import { getMedicationLabelData } from '../../../utils/medications';
+import { getMedicationLabelData, getTranslatedMedicationName } from '../../../utils/medications';
 import { useApi } from '../../../api';
 import { SendToPharmacyIcon } from '../../../assets/icons/SendToPharmacyIcon';
 import { useSettings } from '../../../contexts/Settings';
@@ -388,7 +389,8 @@ export const PatientMedicationPane = ({ patient }) => {
   const { data: facility } = useFacilityQuery(facilityId);
   const patientStatus = getPatientStatus(currentEncounter?.encounterType);
 
-  const { getTranslation, getEnumTranslation } = useTranslation();
+  const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
+  const { getCurrentDateTime } = useDateTime();
 
   const [ongoingPrescriptions, setOngoingPrescriptions] = useState([]);
   const [dispensedMedications, setDispensedMedications] = useState([]);
@@ -464,10 +466,11 @@ export const PatientMedicationPane = ({ patient }) => {
       const { pharmacyOrderPrescription, quantity, dispensedAt, id, instructions = '' } = item;
       const prescription = pharmacyOrderPrescription?.prescription;
 
+      const medication = prescription?.medication;
       const labelItems = [
         {
           id,
-          medicationName: prescription?.medication?.name,
+          medicationName: getTranslatedMedicationName(medication, getReferenceDataTranslation),
           instructions,
           quantity,
           units: prescription?.units,
@@ -478,11 +481,11 @@ export const PatientMedicationPane = ({ patient }) => {
         },
       ];
 
-      const labelData = getMedicationLabelData({ items: labelItems, patient, facility });
+      const labelData = getMedicationLabelData({ items: labelItems, patient, facility, currentDateTime: getCurrentDateTime() });
       setSelectedLabelData(labelData);
       setPrintModalOpen(true);
     },
-    [patient, facility],
+    [patient, facility, getReferenceDataTranslation, getCurrentDateTime],
   );
 
   const handleEdit = useCallback(dispense => {
@@ -638,8 +641,8 @@ export const PatientMedicationPane = ({ patient }) => {
                 visible={!!currentEncounter}
                 title={
                   <TranslatedText
-                    stringId="patient.medication.ongoing.add"
-                    fallback="Add ongoing medication"
+                    stringId="patient.medication.ongoing.add.activeEncounter.tooltip"
+                    fallback="Please add any medications via the patient active encounter"
                   />
                 }
                 PopperProps={{

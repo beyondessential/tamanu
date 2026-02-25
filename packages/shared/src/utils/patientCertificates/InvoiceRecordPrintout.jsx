@@ -587,7 +587,7 @@ const PaymentTableSection = ({ title, data, columns, formatters }) => {
 
 const SummaryPane = ({ invoice }) => {
   const {
-    invoiceItemsTotal,
+    invoiceItemsUndiscountedTotal,
     patientPaymentRemainingBalance,
     patientSubtotal,
     patientPaymentsTotal,
@@ -600,7 +600,7 @@ const SummaryPane = ({ invoice }) => {
     <View wrap={false} style={summaryPaneStyles.container}>
       <View style={summaryPaneStyles.item}>
         <P>Invoice total</P>
-        <P>{formatDisplayPrice(invoiceItemsTotal)}</P>
+        <P>{formatDisplayPrice(invoiceItemsUndiscountedTotal)}</P>
       </View>
       <View style={summaryPaneStyles.item}>
         <P>Item adjustments</P>

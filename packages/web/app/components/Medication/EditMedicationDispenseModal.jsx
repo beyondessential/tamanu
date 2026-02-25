@@ -23,7 +23,11 @@ import { useFacilityQuery } from '../../api/queries/useFacilityQuery';
 import { Colors } from '../../constants';
 import { BodyText } from '../Typography';
 import { MedicationLabel } from '../PatientPrinting/printouts/MedicationLabel';
-import { getMedicationLabelData, getStockStatus } from '../../utils/medications';
+import {
+  getMedicationLabelData,
+  getStockStatus,
+  getTranslatedMedicationName,
+} from '../../utils/medications';
 
 const MODAL_STEPS = {
   DISPENSE: 'dispense',
@@ -149,9 +153,9 @@ export const EditMedicationDispenseModal = memo(
   ({ open, medicationDispense, onClose, onConfirm, patient }) => {
     const api = useApi();
     const { facilityId } = useAuth();
-    const { getTranslation } = useTranslation();
+    const { getTranslation, getReferenceDataTranslation } = useTranslation();
     const practitionerSuggester = useSuggester('practitioner');
-    const { formatShort } = useDateTime();
+    const { formatShort, getCurrentDateTime } = useDateTime();
     const [step, setStep] = useState(MODAL_STEPS.DISPENSE);
     const [dispensedByUserId, setDispensedByUserId] = useState('');
     const [item, setItem] = useState(null);
@@ -239,9 +243,10 @@ export const EditMedicationDispenseModal = memo(
       setShowValidationErrors(false);
       setStep(MODAL_STEPS.REVIEW);
       // Prepare labels for printing
+      const medication = item.pharmacyOrderPrescription.prescription?.medication;
       const labelItem = {
         id: item.id,
-        medicationName: item.pharmacyOrderPrescription.prescription?.medication?.name,
+        medicationName: getTranslatedMedicationName(medication, getReferenceDataTranslation),
         instructions: item.instructions,
         quantity: item.quantity,
         units: item.pharmacyOrderPrescription.prescription?.units,
@@ -253,6 +258,7 @@ export const EditMedicationDispenseModal = memo(
         items: [labelItem],
         patient: patient || item.pharmacyOrderPrescription.pharmacyOrder.encounter.patient,
         facility,
+        currentDateTime: getCurrentDateTime(),
       });
       setLabelForPrint(reviewLabels[0]);
     };

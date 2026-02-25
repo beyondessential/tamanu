@@ -9,7 +9,6 @@ import {
   PREGNANCY_MOMENTS,
 } from '@tamanu/constants';
 import { differenceInYears, differenceInMonths, parseISO } from 'date-fns';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   ArrayField,
   AutocompleteField,
@@ -166,7 +165,7 @@ export const DeathForm = React.memo(
   }) => {
     const { getCurrentDateTime } = useDateTime();
     const [currentTOD, setCurrentTOD] = useState(
-      patient?.dateOfDeath || getCurrentDateTimeString(),
+      patient?.dateOfDeath || getCurrentDateTime(),
     );
     const { getTranslation } = useTranslation();
     const { currentUser } = useAuth();

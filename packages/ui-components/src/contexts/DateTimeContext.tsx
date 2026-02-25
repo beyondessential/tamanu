@@ -8,13 +8,12 @@ import {
   getCurrentDateTimeStringInTimezone,
   getDayBoundaries,
   getFacilityNowDate,
+  type DateInput,
 } from '@tamanu/utils/dateTime';
 import * as dateTimeFormatters from '@tamanu/utils/dateFormatters';
 
 import { useAuth } from './AuthContext';
 import { useSettings } from './SettingsContext';
-
-type DateInput = string | Date | null | undefined;
 
 type WrappedFormatter = (date?: DateInput) => string | null;
 

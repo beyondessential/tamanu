@@ -1,6 +1,10 @@
 import React, { createContext, useContext, useMemo } from 'react';
 import { get, mapValues } from 'lodash';
 import * as dateTimeFormatters from '@tamanu/utils/dateFormatters';
+import {
+  getCurrentDateStringInTimezone,
+  getCurrentDateTimeStringInTimezone,
+} from '@tamanu/utils/dateTime';
 
 const DateTimeContext = createContext(null);
 
@@ -17,14 +21,17 @@ export const withDateTimeContext = Component => props => {
   const getSetting = getSettingProp ?? (key => get(settings, key));
 
   const facilityTimeZone = getSetting('facilityTimeZone');
+  const effectiveTimeZone = facilityTimeZone ?? primaryTimeZone;
 
   const value = useMemo(
     () => ({
       primaryTimeZone,
       facilityTimeZone,
+      getCurrentDate: () => getCurrentDateStringInTimezone(effectiveTimeZone),
+      getCurrentDateTime: () => getCurrentDateTimeStringInTimezone(primaryTimeZone),
       ...mapValues(dateTimeFormatters, fn => date => fn(date, primaryTimeZone, facilityTimeZone)),
     }),
-    [primaryTimeZone, facilityTimeZone],
+    [primaryTimeZone, facilityTimeZone, effectiveTimeZone],
   );
 
   return (
