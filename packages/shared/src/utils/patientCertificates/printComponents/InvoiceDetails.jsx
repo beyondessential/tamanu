@@ -29,6 +29,22 @@ const getInvoicePaymentStatus = invoice => {
   );
 };
 
+const getInvoicePaymentStatus = invoice => {
+  const patientPaymentStatus =
+    invoice?.patientPaymentStatus ?? INVOICE_PATIENT_PAYMENT_STATUSES.UNPAID;
+
+  const insurerPaymentStatus =
+    invoice?.insurerPaymentStatus ?? INVOICE_INSURER_PAYMENT_STATUSES.UNPAID;
+
+  const patientLabel = INVOICE_PATIENT_PAYMENT_STATUSES_LABELS[patientPaymentStatus];
+  const insurerLabel = INVOICE_INSURER_PAYMENT_STATUS_LABELS[insurerPaymentStatus];
+
+  return (
+    patientLabel +
+    (insurerPaymentStatus === INVOICE_INSURER_PAYMENT_STATUSES.REJECTED ? `/${insurerLabel}` : '')
+  );
+};
+
 export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsurer }) => {
   const { getTranslation } = useLanguageContext();
   const { formatShort } = useDateTime();
