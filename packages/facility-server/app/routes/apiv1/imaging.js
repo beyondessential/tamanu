@@ -482,7 +482,7 @@ globalImagingRequests.get(
                       (
                         SELECT BOOL_AND(ii.approved)
                         FROM imaging_request_areas ira
-                        INNER JOIN invoice_items ii ON ii.source_record_id = ira.id
+                        INNER JOIN invoice_items ii ON ii.source_record_id = ira.id::text
                           AND ii.source_record_type = 'ImagingRequestArea'
                           AND ii.deleted_at IS NULL
                         WHERE ira.imaging_request_id = "ImagingRequest".id
@@ -493,7 +493,7 @@ globalImagingRequests.get(
                       (
                         SELECT BOOL_AND(ii.approved)
                         FROM invoice_items ii
-                        WHERE ii.source_record_id = "ImagingRequest".id
+                        WHERE ii.source_record_id = "ImagingRequest".id::text
                           AND ii.source_record_type = 'ImagingRequest'
                           AND ii.deleted_at IS NULL
                         HAVING COUNT(*) > 0
