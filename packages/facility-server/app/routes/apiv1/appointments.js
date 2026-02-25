@@ -291,6 +291,7 @@ appointments.put(
       } else {
         await appointment.update(appointmentData);
       }
+      await appointment.reload();
       return appointment;
     });
     res.status(200).send(result);
