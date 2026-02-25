@@ -63,10 +63,7 @@ export const IntroScreen: FunctionComponent<any> = ({ navigation, route }: Intro
         >
           For Hospitals, Health Centres and clinics around the world
         </StyledText>
-        <RowView
-          justifyContent="center"
-          marginTop={screenPercentageToDP(13, Orientation.Height)}
-        >
+        <RowView justifyContent="center" marginTop={screenPercentageToDP(13, Orientation.Height)}>
           <Button
             id="intro-sign-in-button"
             onPress={onNavigateToSignIn}
@@ -78,22 +75,6 @@ export const IntroScreen: FunctionComponent<any> = ({ navigation, route }: Intro
             fontWeight={500}
             fontSize={`${screenPercentageToDP(1.94, Orientation.Height)}px`}
           />
-          {/* UNIMPLEMENTED <Button
-            id="intro-new-account-button"
-            backgroundColor={theme.colors.SECONDARY_MAIN}
-            onPress={onNavigateToNewAccount}
-            width={`${140}px`}
-          >
-            <StyledText
-              fontWeight={500}
-              fontSize={`${screenPercentageToDP(
-                '1.94',
-                Orientation.Height,
-              )}px`}
-            >
-              New Account
-            </StyledText>
-          </Button> */}
         </RowView>
         <CenterView marginTop="30px">
           <Button

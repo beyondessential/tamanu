@@ -167,8 +167,6 @@ export const VaccineStatusCells: VaccineStatusCellsType = {
   },
 };
 
-export const PhoneMask = { mask: '9999 9999 999' };
-
 export const Gender = {
   Male: 'male',
   Female: 'female',
