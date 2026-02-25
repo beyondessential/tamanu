@@ -102,17 +102,6 @@ export class Location extends Model {
     return locationGroup ? `${locationGroup.name}, ${name}` : name;
   }
 
-  // Parses "group, location" or "location". Uses a non-backtracking regex to avoid ReDoS.
-  static parseFullLocationName(text: string) {
-    const match = text.match(/^(?:(?<group>[^,]*)(,\s))?(?<location>.*)$/);
-    const group = match?.groups?.group;
-    const location = match?.groups?.location;
-    return {
-      group: group !== undefined && group !== '' ? group : undefined,
-      location: location ?? '',
-    };
-  }
-
   async getAvailability() {
     const { Encounter } = this.sequelize.models;
     /**
