@@ -64,7 +64,7 @@ export const MarTableRow = ({
   } = medication;
   const { ability } = useAuth();
   const canViewSensitiveMedications = ability.can('read', 'SensitiveMedication');
-  const isSensitive = medicationRef.referenceDrug.isSensitive;
+  const isSensitive = medicationRef.referenceDrug?.isSensitive;
 
   const queryClient = useQueryClient();
   const { getTranslation, getEnumTranslation } = useTranslation();
