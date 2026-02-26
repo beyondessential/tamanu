@@ -835,9 +835,9 @@ export const LocationBookingsDailyCalendar = ({
         const startTime = toFacilityDate(appointment.startTime);
         const endTime = toFacilityDate(appointment.endTime);
         const appointmentDuration = differenceInMilliseconds(endTime, startTime);
-        
+
         const middleTime = addMilliseconds(startTime, appointmentDuration / 2);
-           // if the selected appointment's start time is before or equal to the current appointment's start time, move the current appointment down
+        // if the selected appointment's start time is before or equal to the current appointment's start time, move the current appointment down
         if (!isAfter(itemNewStartTime, startTime)) {
           shouldMoveDownAppointments.push(appointment);
           return;
