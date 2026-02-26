@@ -35,6 +35,7 @@ export default async () =>
         '@components': path.resolve(__dirname, 'src/components'),
         '@routes': path.resolve(__dirname, 'src/routes'),
       },
+      dedupe: ['@mui/x-date-pickers'],
     },
     server: {
       host: 'localhost',
