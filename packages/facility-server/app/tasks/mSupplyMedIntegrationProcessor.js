@@ -62,8 +62,8 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
 
   async createLog(values) {
     const { items, ...rest } = values;
-    // Ensure items is an array if it exists
-    const payload = { ...rest, ...(Array.isArray(items) && { items }) };
+    const hasItems = items && Array.isArray(items) && items.length > 0;
+    const payload = { ...rest, ...(hasItems && { items }) };
     await this.models.MSupplyPushLog.create(payload);
   }
 
@@ -158,7 +158,6 @@ export class mSupplyMedIntegrationProcessor extends ScheduledTask {
           maxMedicationId,
           status: 'success',
           message,
-          items,
         });
       } else {
         const err = new Error(message);
