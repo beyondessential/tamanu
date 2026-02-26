@@ -894,7 +894,6 @@ export const DischargeForm = ({
             component={DateTimeField}
             min={encounter.startDate}
             required
-            saveDateAsString
             data-testid="field-20tt"
           />
           <Field

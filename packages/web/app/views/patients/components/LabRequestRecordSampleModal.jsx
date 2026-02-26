@@ -108,7 +108,6 @@ const LabRequestRecordSampleForm = ({ submitForm, values, onClose }) => {
               />
             }
             required
-            saveDateAsString
             component={StyledDateTimeField}
             data-testid="styledfield-dmjl"
           />

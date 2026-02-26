@@ -104,7 +104,6 @@ const PrimaryFields = ({ practitionerSuggester }) => {
           />
         }
         component={props => <DateTimeField {...props} data-testid="datetimefield-8fsq" />}
-        saveDateAsString
         required
         data-testid="field-o3sc"
       />
@@ -466,7 +465,6 @@ export const DeathForm = React.memo(
               />
             }
             component={DateField}
-            saveDateAsString
             visibilityCriteria={{ surgeryInLast4Weeks: 'yes' }}
             data-testid="field-lnqy"
           />
@@ -537,7 +535,6 @@ export const DeathForm = React.memo(
               />
             }
             component={DateField}
-            saveDateAsString
             visibilityCriteria={mannerOfDeathVisibilityCriteria}
             data-testid="field-ezni"
           />

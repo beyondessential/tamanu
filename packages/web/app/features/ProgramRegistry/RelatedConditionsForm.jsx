@@ -325,7 +325,6 @@ export const RelatedConditionsForm = ({
               return (
                 <Field
                   name={`conditions[${groupName}][${index}].date`}
-                  saveDateAsString
                   required
                   component={DateField}
                   aria-labelledby="date-added-label"

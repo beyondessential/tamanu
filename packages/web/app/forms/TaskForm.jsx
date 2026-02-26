@@ -215,7 +215,6 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                       data-testid="translatedtext-as4z"
                     />
                   }
-                  saveDateAsString
                   required
                   component={DateTimeField}
                   min={getCurrentDateTime()}
@@ -246,7 +245,6 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                       data-testid="translatedtext-342j"
                     />
                   }
-                  saveDateAsString
                   required
                   component={DateTimeField}
                   data-testid="field-yduo"
