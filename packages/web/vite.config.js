@@ -25,6 +25,9 @@ export default async () => {
       include: ['buffer'],
     },
     plugins: [react(), json5Plugin(), svgr()],
+    resolve: {
+      dedupe: ['@mui/x-date-pickers'],
+    },
 
     define: {
       __VERSION__: JSON.stringify(
