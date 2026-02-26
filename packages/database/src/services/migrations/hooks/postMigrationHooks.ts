@@ -93,7 +93,7 @@ const addRecordChangeTriggerV1: MigrationHook = {
   name: 'addRecordChangeTriggerV1',
   prerequisites: [
     requireFunction('record_change'),
-    requireMigrationNotApplied('1765226354430-convertChangelogToConstraintTriggers'),
+    requireMigrationNotApplied('1765226354430-convertChangelogToConstraintTriggers.js'),
   ],
   async run({ log, sequelize }) {
     for (const { schema, table } of await tablesWithoutTrigger(sequelize, 'record_', '_changelog', [
@@ -121,7 +121,7 @@ const addRecordChangeTriggerV2: MigrationHook = {
   name: 'addRecordChangeTriggerV2',
   prerequisites: [
     requireFunction('record_change'),
-    requireMigration('1765226354430-convertChangelogToConstraintTriggers'),
+    requireMigration('1765226354430-convertChangelogToConstraintTriggers.js'),
   ],
   async run({ log, sequelize }) {
     for (const { schema, table } of await tablesWithoutTrigger(sequelize, 'record_', '_changelog', [
