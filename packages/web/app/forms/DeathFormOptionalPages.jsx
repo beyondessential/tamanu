@@ -25,6 +25,14 @@ const StyledFormGrid = styled(FormGrid)`
   padding-left: 10px;
 `;
 
+const FormRow = styled.div`
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 0.7rem;
+  align-items: end;
+`;
+
 const Subheading = styled.div`
   font-weight: 500;
   font-size: 16px;
@@ -177,56 +185,60 @@ export const FSMSpecificQuestions = () => {
         style={{ gridColumn: '1/-1' }}
         data-testid="field-fsm-informant-address"
       />
-      <Field
-        name="fsmInformantRelationship"
-        label={
-          <TranslatedText
-            stringId="death.fsm.informantRelationship.label"
-            fallback="Informant relationship (to deceased)"
-            data-testid="translatedtext-fsm-informant-relationship"
-          />
-        }
-        component={TextField}
-        data-testid="field-fsm-informant-relationship"
-      />
-      <Field
-        name="fsmDateInfoGiven"
-        label={
-          <TranslatedText
-            stringId="death.fsm.dateInfoGiven.label"
-            fallback="Date on which information was provided"
-            data-testid="translatedtext-fsm-date-info-given"
-          />
-        }
-        component={DateField}
-        saveDateAsString
-        data-testid="field-fsm-date-info-given"
-      />
+      <FormRow>
+        <Field
+          name="fsmInformantRelationship"
+          label={
+            <TranslatedText
+              stringId="death.fsm.informantRelationship.label"
+              fallback="Informant relationship (to deceased)"
+              data-testid="translatedtext-fsm-informant-relationship"
+            />
+          }
+          component={TextField}
+          data-testid="field-fsm-informant-relationship"
+        />
+        <Field
+          name="fsmDateInfoGiven"
+          label={
+            <TranslatedText
+              stringId="death.fsm.dateInfoGiven.label"
+              fallback="Date on which information was provided"
+              data-testid="translatedtext-fsm-date-info-given"
+            />
+          }
+          component={DateField}
+          saveDateAsString
+          data-testid="field-fsm-date-info-given"
+        />
+      </FormRow>
       <FormSeparatorLine data-testid="formseparatorline-fsm-3" />
-      <Field
-        name="fsmCertifiedByPhysician"
-        label={
-          <TranslatedText
-            stringId="death.fsm.certifiedByPhysician.label"
-            fallback="Certified by (name of physician):"
-            data-testid="translatedtext-fsm-certified-by"
-          />
-        }
-        component={TextField}
-        data-testid="field-fsm-certified-by"
-      />
-      <Field
-        name="fsmReviewedByPhysician"
-        label={
-          <TranslatedText
-            stringId="death.fsm.reviewedByPhysician.label"
-            fallback="Report reviewed by (name of physician):"
-            data-testid="translatedtext-fsm-reviewed-by"
-          />
-        }
-        component={TextField}
-        data-testid="field-fsm-reviewed-by"
-      />
+      <FormRow>
+        <Field
+          name="fsmCertifiedByPhysician"
+          label={
+            <TranslatedText
+              stringId="death.fsm.certifiedByPhysician.label"
+              fallback="Certified by (name of physician):"
+              data-testid="translatedtext-fsm-certified-by"
+            />
+          }
+          component={TextField}
+          data-testid="field-fsm-certified-by"
+        />
+        <Field
+          name="fsmReviewedByPhysician"
+          label={
+            <TranslatedText
+              stringId="death.fsm.reviewedByPhysician.label"
+              fallback="Report reviewed by (name of physician):"
+              data-testid="translatedtext-fsm-reviewed-by"
+            />
+          }
+          component={TextField}
+          data-testid="field-fsm-reviewed-by"
+        />
+      </FormRow>
     </StyledFormGrid>
   );
 };
