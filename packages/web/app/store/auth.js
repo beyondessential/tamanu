@@ -1,5 +1,5 @@
 import { getLoginErrorMessage, getResetPasswordErrorMessage } from '@tamanu/errors';
-import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
+import { buildAbility, buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 import { createStatePreservingReducer } from '../utils/createStatePreservingReducer';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 
@@ -85,10 +85,12 @@ const handleLoginSuccess = async (dispatch, loginInfo) => {
   });
 
   if (impersonatedRole && user.role === 'admin') {
-    const impersonateAbility = buildAbilityForUser(
-      { ...user, role: impersonatedRole.id },
-      permissions,
-    );
+    // Match backend logic: when impersonating, retain ability to read/write own User record
+    const impersonateAbility = buildAbility([
+      ...permissions,
+      { verb: 'read', noun: 'User', objectId: user.id },
+      { verb: 'write', noun: 'User', objectId: user.id },
+    ]);
     dispatch({ type: IMPERSONATE_ROLE, role: impersonatedRole, ability: impersonateAbility });
   }
 };
@@ -135,16 +137,19 @@ export const idleTimeout = () => ({
 export const startImpersonation = role => async (dispatch, getState, { api }) => {
   const { token, permissions } = await api.post('admin/impersonate', { roleId: role.id });
   api.setToken(token);
-  localStorage.setItem(LOCAL_STORAGE_KEYS.PERMISSIONS, JSON.stringify(permissions));
   const { auth } = getState();
-  const ability = buildAbilityForUser({ ...auth.user, role: role.id }, permissions);
+  // Match backend logic: when impersonating, retain ability to read/write own User record
+  const ability = buildAbility([
+    ...permissions,
+    { verb: 'read', noun: 'User', objectId: auth.user.id },
+    { verb: 'write', noun: 'User', objectId: auth.user.id },
+  ]);
   dispatch({ type: IMPERSONATE_ROLE, role, ability });
 };
 
 export const stopImpersonation = () => async (dispatch, getState, { api }) => {
   const { token, permissions } = await api.post('admin/impersonate', { roleId: null });
   api.setToken(token);
-  localStorage.setItem(LOCAL_STORAGE_KEYS.PERMISSIONS, JSON.stringify(permissions));
   const { auth } = getState();
   const ability = buildAbilityForUser(auth.user, permissions);
   dispatch({ type: STOP_IMPERSONATION, ability });

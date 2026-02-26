@@ -23,7 +23,7 @@ function getImpersonateRoleIdFromToken(token) {
   try {
     const payload = token.split('.')[1];
     const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
-    return decoded.impersonateRoleId || null;
+    return decoded.impersonateRoleId ?? null;
   } catch {
     return null;
   }
@@ -164,6 +164,16 @@ export class TamanuApi extends ApiClient {
     this.setToken(token);
   }
 
+  async fetchImpersonatedRole(impersonateRoleId, config) {
+    try {
+      const roles = await this.get('admin/roles', {}, config);
+      const matched = roles.find(r => r.id === impersonateRoleId);
+      return matched ?? { id: impersonateRoleId, name: impersonateRoleId };
+    } catch {
+      return { id: impersonateRoleId, name: impersonateRoleId };
+    }
+  }
+
   async restoreSession() {
     const {
       token,
@@ -184,17 +194,11 @@ export class TamanuApi extends ApiClient {
     const config = { showUnknownErrorToast: false };
     const { user, ability } = await this.fetchUserData(permissions, config);
 
-    let impersonatedRole = null;
     const impersonateRoleId = getImpersonateRoleIdFromToken(token);
-    if (impersonateRoleId && user.role === 'admin') {
-      try {
-        const roles = await this.get('admin/roles', {}, config);
-        const matched = roles.find(r => r.id === impersonateRoleId);
-        impersonatedRole = matched || { id: impersonateRoleId, name: impersonateRoleId };
-      } catch {
-        impersonatedRole = { id: impersonateRoleId, name: impersonateRoleId };
-      }
-    }
+    const impersonatedRole =
+      impersonateRoleId && user.role === 'admin'
+        ? await this.fetchImpersonatedRole(impersonateRoleId, config)
+        : null;
 
     return {
       user,

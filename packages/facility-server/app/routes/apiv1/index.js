@@ -160,12 +160,9 @@ apiv1.post(
       throw new ForbiddenError('Cannot impersonate your own role');
     }
 
-    let role = null;
-    if (roleId) {
-      role = await models.Role.findByPk(roleId);
-      if (!role) {
-        throw new ForbiddenError('Impersonation role does not exist');
-      }
+    const role = roleId ? await models.Role.findByPk(roleId) : null;
+    if (roleId && !role) {
+      throw new ForbiddenError('Impersonation role does not exist');
     }
 
     log.info('Role impersonation', {
@@ -176,9 +173,9 @@ apiv1.post(
 
     const token = await buildToken({
       user,
-      deviceId: device.id,
+      deviceId: device?.id,
       facilityId,
-      impersonateRoleId: roleId || undefined,
+      impersonateRoleId: roleId ?? undefined,
     });
 
     const roleString = roleId || user.role;

@@ -71,6 +71,8 @@ export async function getAbilityForUser(models, user, { impersonateRoleId } = {}
 
   if (impersonateRoleId && user.role === 'admin') {
     const permissions = await getPermissionsForRoles(models, impersonateRoleId);
+    // When impersonating, admins retain ability to read/write their own User record
+    // so they can access user settings and stop impersonation
     return buildAbility([
       ...permissions,
       { verb: 'read', noun: 'User', objectId: user.id },
