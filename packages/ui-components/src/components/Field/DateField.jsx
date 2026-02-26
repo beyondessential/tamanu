@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
@@ -208,6 +208,20 @@ const PICKER_SLOTS = {
 const OPEN_PICKER_BUTTON_SX = { padding: '2px', marginRight: '-4px' };
 const OPEN_PICKER_BUTTON_SX_DISABLED = { ...OPEN_PICKER_BUTTON_SX, display: 'none' };
 const OPEN_PICKER_ICON_SX = { fontSize: '1.15rem', color: TAMANU_COLORS.primary };
+const EMPTY_INPUT_PROPS = {};
+
+// Returns a shallowly-stable reference: only changes identity when the object's
+// shallow content changes, preventing useMemo from recomputing when the caller
+// passes a rest-spread object that is always a new reference.
+function useShallowStableValue(value) {
+  const ref = useRef(value);
+  const prev = ref.current;
+  const keys = Object.keys(value);
+  if (keys.length !== Object.keys(prev).length || keys.some(k => value[k] !== prev[k])) {
+    ref.current = value;
+  }
+  return ref.current;
+}
 
 export const DateInput = ({
   type = 'date',
@@ -218,7 +232,7 @@ export const DateInput = ({
   max = '2100-12-31',
   min,
   arrows = false,
-  inputProps = {},
+  inputProps = EMPTY_INPUT_PROPS,
   useTimezone = false,
   disabled,
   error,
@@ -226,6 +240,7 @@ export const DateInput = ({
   ['data-testid']: dataTestId,
   ...props
 }) => {
+  const stableExtraProps = useShallowStableValue(props);
   const dateTime = useDateTimeIfAvailable();
   const { getTranslation } = useTranslation();
   const shouldUseTimezone = useTimezone && type === 'datetime-local' && dateTime != null;
@@ -342,7 +357,7 @@ export const DateInput = ({
         helperText,
         inputProps,
         onBlur: handleTextBlur,
-        ...props,
+        ...stableExtraProps,
       },
       day: {
         todayInTimezone: todayDate,
@@ -365,7 +380,7 @@ export const DateInput = ({
       helperText,
       inputProps,
       handleTextBlur,
-      props,
+      stableExtraProps,
       todayDate,
       disabled,
     ],
