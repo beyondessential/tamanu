@@ -1,0 +1,126 @@
+name: Review Hero
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: ai-review-${{ github.event.pull_request.number }}
+
+jobs:
+  triage:
+    runs-on: ubuntu-slim
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+      matrix: ${{ steps.triage.outputs.matrix }}
+      max_turns: ${{ steps.triage.outputs.max_turns }}
+    steps:
+      - id: check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            if (context.payload.action !== 'edited') {
+              core.setOutput('should_run', 'false');
+              return;
+            }
+            const body = context.payload.pull_request?.body;
+            const match = body?.match(/\[(?<checked>[ x])\]\s+\*\*Run Review Hero\*\* <!-- #ai-review -->/);
+            core.setOutput('should_run', match?.groups.checked === 'x');
+      - if: steps.check.outputs.should_run == 'true'
+        uses: actions/checkout@v6
+      - if: steps.check.outputs.should_run == 'true'
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: '.node-version'
+      - name: Get PR diff
+        if: steps.check.outputs.should_run == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr diff ${{ github.event.pull_request.number }} > /tmp/pr.diff
+      - name: Triage
+        if: steps.check.outputs.should_run == 'true'
+        id: triage
+        env:
+          DIFF_PATH: /tmp/pr.diff
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node .github/scripts/ai-review/triage.mjs
+
+  review-agent:
+    needs: triage
+    if: needs.triage.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        agent: ${{ fromJson(needs.triage.outputs.matrix).agents }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.node-version'
+      - name: Install Claude CLI
+        run: npm install -g @anthropic-ai/claude-code
+      - name: Get PR diff
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr diff ${{ github.event.pull_request.number }} > /tmp/pr.diff
+      - name: Run ${{ matrix.agent.key }} agent
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          cat .github/scripts/ai-review/agent-prompt.md \
+              .github/scripts/ai-review/prompts/${{ matrix.agent.prompt }} \
+              <(printf '\n\n## PR Title\n\n%s\n\n## PR Diff\n\n```diff\n' "$PR_TITLE") \
+              /tmp/pr.diff \
+              <(echo '```') \
+            | claude -p \
+              --output-format json \
+              --model "${{ vars.AI_REVIEW_MODEL || 'claude-sonnet-4-5-20250929' }}" \
+              --max-turns ${{ needs.triage.outputs.max_turns }} \
+              --allowedTools "Read,Glob,Grep,Bash(git log:*),Bash(git show:*),Bash(git diff:*)" \
+            > /tmp/result.json
+      - name: Upload result
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: review-${{ matrix.agent.key }}
+          path: /tmp/result.json
+
+  orchestrate-review:
+    needs: [triage, review-agent]
+    if: always() && needs.triage.outputs.should_run == 'true'
+    runs-on: ubuntu-slim
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.node-version'
+      - name: Download all artifacts
+        continue-on-error: true
+        uses: actions/download-artifact@v6
+        with:
+          path: /tmp/artifacts
+          pattern: review-*
+      - name: Generate Review Hero token
+        id: review-hero-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.REVIEW_HERO_APP_ID }}
+          private-key: ${{ secrets.REVIEW_HERO_PRIVATE_KEY }}
+      - name: Run Review Hero orchestrator
+        env:
+          GITHUB_TOKEN: ${{ steps.review-hero-token.outputs.token }}
+          GITHUB_ACTIONS_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          ARTIFACTS_DIR: /tmp/artifacts
+        run: node .github/scripts/ai-review/orchestrate.mjs
