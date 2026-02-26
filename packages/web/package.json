@@ -18,30 +18,21 @@
     "admin-start-dev": "TAMANU_VITE_TARGET=http://localhost:3000 DISABLE_SINGLE_TAB=true npm run start-dev",
     "client-start-dev": "TAMANU_VITE_TARGET=http://localhost:4000 DISABLE_SINGLE_TAB=true npm run start-dev",
     "test": "NODE_ENV=test vitest run",
-    "test-watch": "NODE_ENV=test vitest watch",
-    "storybook": "storybook dev",
-    "test-storybook": "npm run build-storybook -- --test",
-    "build-storybook": "NODE_ENV=development STORYBOOK=true storybook build"
+    "test-watch": "NODE_ENV=test vitest watch"
   },
   "devDependencies": {
-    "@storybook/addon-actions": "^7.6.6",
-    "@storybook/addon-essentials": "^7.6.6",
-    "@storybook/addon-links": "^7.6.6",
-    "@storybook/addons": "^7.6.6",
-    "@storybook/react-vite": "^7.6.6",
     "@testing-library/dom": "^10.2.0",
     "@testing-library/react": "^16.0.0",
     "@testing-library/user-event": "^14.5.2",
     "jsdom": "^24.1.0",
     "rimraf": "^6.0.1",
-    "storybook": "^7.6.20",
     "vite-plugin-svgr": "^4.3.0",
     "vitest": "^2.1.8"
   },
   "dependencies": {
     "@bugsnag/js": "^8.0.0",
     "@bugsnag/plugin-react": "^8.0.0",
-    "@casl/ability": "^6.7.1",
+    "@casl/ability": "^6.8.0",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@fortawesome/fontawesome-free": "^5.11.2",

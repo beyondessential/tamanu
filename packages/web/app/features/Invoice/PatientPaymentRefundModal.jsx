@@ -39,6 +39,10 @@ const RefundAmount = styled.div`
   color: ${props => props.theme.palette.text.primary};
 `;
 
+const RefundAmountValue = styled.span`
+  margin-left: 20px;
+`;
+
 export const PatientPaymentRefundModal = ({ invoice, isOpen, onClose, selectedPaymentRecord }) => {
   const paymentRecord = selectedPaymentRecord ?? {};
   const paymentMethodSuggester = useSuggester('paymentMethod');
@@ -85,13 +89,10 @@ export const PatientPaymentRefundModal = ({ invoice, isOpen, onClose, selectedPa
                     <TranslatedText stringId="invoice.modal.method" fallback="Method" />
                   </Label>
                   <Label>
-                    <TranslatedText stringId="invoice.modal.receiptNumber" fallback="Receipt no" />
+                    <TranslatedText stringId="invoice.modal.receiptNumber" fallback="Receipt no." />
                   </Label>
                   <AmountLabel>
-                    <TranslatedText
-                      stringId="invoice.modal.refundAmount"
-                      fallback="Refund amount:"
-                    />
+                    <TranslatedText stringId="invoice.modal.amount" fallback="Amount" />
                   </AmountLabel>
                 </LabelRow>
                 <LabelRow>
@@ -116,7 +117,9 @@ export const PatientPaymentRefundModal = ({ invoice, isOpen, onClose, selectedPa
                       stringId="invoice.modal.refundAmount"
                       fallback="Refund amount:"
                     />{' '}
-                    {formatDisplayPrice(paymentRecord.amount)}
+                    <RefundAmountValue>
+                      {formatDisplayPrice(paymentRecord.amount)}
+                    </RefundAmountValue>
                   </RefundAmount>
                 </RefundRow>
               </RefundFormCard>

@@ -192,7 +192,7 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper, searchColumn,
       const include = includeBuilder?.(req);
 
       const record = await models[modelName].findOne({
-        where: { id: params.id },
+        where: { id: { [Op.iLike]: params.id } },
         include,
         bind: {
           language,
