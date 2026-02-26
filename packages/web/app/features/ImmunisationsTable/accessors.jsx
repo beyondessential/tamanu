@@ -12,7 +12,6 @@ import {
   TranslatedText,
 } from '../../components';
 import { Colors } from '../../constants';
-import { trimToDate } from '@tamanu/utils/dateTime';
 
 export const getVaccineName = record =>
   record.vaccineName || (
@@ -24,7 +23,7 @@ export const getVaccineName = record =>
   ) || <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />;
 export const getDate = ({ date }) =>
   date ? (
-    <DateDisplay date={trimToDate(date)} />
+    <DateDisplay date={date} />
   ) : (
     <TranslatedText stringId="general.fallback.unknown" fallback="Unknown" />
   );

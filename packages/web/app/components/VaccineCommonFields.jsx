@@ -9,7 +9,6 @@ import { OuterLabelFieldWrapper } from './Field/OuterLabelFieldWrapper';
 import {
   AutocompleteField,
   CheckField,
-  DateField,
   Field,
   LocalisedLocationField,
   RadioField,
@@ -20,6 +19,7 @@ import {
   TextField,
   BaseSelectField,
   FormSubmitCancelRow,
+  DateTimeField,
 } from '@tamanu/ui-components';
 import { useSuggester } from '../api';
 import { useAuth } from '../contexts/Auth';
@@ -146,7 +146,7 @@ export const VaccineDateField = ({ label, required = true, min, max, keepIncorre
   <Field
     name="date"
     label={label}
-    component={DateField}
+    component={DateTimeField}
     required={required}
     saveDateAsString
     min={min}
