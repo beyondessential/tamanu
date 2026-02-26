@@ -394,8 +394,8 @@ const DraggableAppointment = ({ appointment, children, onDragEnd }) => {
     typeof children === 'function'
       ? children({ isDragging })
       : React.isValidElement(children)
-      ? React.cloneElement(children, { isDragging })
-      : children;
+        ? React.cloneElement(children, { isDragging })
+        : children;
 
   return isDragging ? (
     <div ref={preview} style={{ height: '100%', width: '100%', display: 'flex' }}>
@@ -436,7 +436,11 @@ export const LocationBookingsDailyCalendar = ({
   const { data: locations } = locationsQuery;
 
   const dayBoundaries = getDayBoundaries(toDateString(selectedDate));
-  const { data: appointmentsData, isLoading, error } = useLocationBookingsQuery(
+  const {
+    data: appointmentsData,
+    isLoading,
+    error,
+  } = useLocationBookingsQuery(
     {
       after: dayBoundaries?.start,
       before: dayBoundaries?.end,
@@ -449,25 +453,22 @@ export const LocationBookingsDailyCalendar = ({
     { enabled: !!dayBoundaries, keepPreviousData: true },
   );
 
-  const {
-    data: assignmentsData,
-    isLoading: isAssignmentsLoading,
-  } = useFacilityLocationAssignmentsQuery(
-    {
-      after: toDateString(selectedDate),
-      before: toDateString(selectedDate),
-      all: true,
-    },
-    { keepPreviousData: true },
-  );
+  const { data: assignmentsData, isLoading: isAssignmentsLoading } =
+    useFacilityLocationAssignmentsQuery(
+      {
+        after: toDateString(selectedDate),
+        before: toDateString(selectedDate),
+        all: true,
+      },
+      { keepPreviousData: true },
+    );
 
   const scheduleRefs = useRef({});
   const dragData = useRef(null);
   const [triggerReorder, setTriggerReorder] = useState(0);
   const [isInDragDropProcess, setIsInDragDropProcess] = useState(false);
-  const [clinicianAssignmentDiscrepancyModal, setClinicianAssignmentDiscrepancyModal] = useState(
-    null,
-  );
+  const [clinicianAssignmentDiscrepancyModal, setClinicianAssignmentDiscrepancyModal] =
+    useState(null);
 
   const { mutate: reorderMutation } = useReorderLocationBookingMutation({
     onError: () => setTriggerReorder(0),
@@ -496,9 +497,11 @@ export const LocationBookingsDailyCalendar = ({
 
   const canCreateAppointment = ability.can('create', 'Appointment');
 
-  const { slots: bookingSlots, slotDuration, isPending: isBookingSlotsLoading } = useBookingSlots(
-    selectedDate,
-  );
+  const {
+    slots: bookingSlots,
+    slotDuration,
+    isPending: isBookingSlotsLoading,
+  } = useBookingSlots(selectedDate);
 
   const { mutateAsync: sendAppointmentEmail } = useSendAppointmentEmail(
     emailModalState?.appointmentId,
@@ -674,12 +677,18 @@ export const LocationBookingsDailyCalendar = ({
     return partitionAppointmentsByLocation(appointmentsData?.data ?? []);
   }, [appointmentsData]);
 
-  const toFacilityDate = storedStr => {
-    const dateString = toFacilityDateTime(storedStr);
-    return dateString ? new Date(dateString) : new Date(storedStr);
-  };
+  const toFacilityDate = useCallback(
+    storedStr => {
+      const dateString = toFacilityDateTime(storedStr);
+      return dateString ? new Date(dateString) : new Date(storedStr);
+    },
+    [toFacilityDateTime],
+  );
 
-  const toStoredStr = facilityDate => toStoredDateTime(toDateTimeString(facilityDate));
+  const toStoredStr = useCallback(
+    facilityDate => toStoredDateTime(toDateTimeString(facilityDate)),
+    [toStoredDateTime],
+  );
 
   const checkIfAbleToMoveUp = (newStartTime, appointments, minStartTime) => {
     const maxDuration = differenceInMilliseconds(newStartTime, minStartTime);
@@ -899,8 +908,7 @@ export const LocationBookingsDailyCalendar = ({
       );
       if (isAbleToMoveDown) {
         moveDownAppointments(shouldMoveDownAppointments, itemNewEndTime);
-      }
-      else {
+      } else {
         itemNewEndTime = toFacilityDate(shouldMoveDownAppointments[0].startTime);
         itemNewStartTime = subMilliseconds(itemNewEndTime, itemDuration);
       }
