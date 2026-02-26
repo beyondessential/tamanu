@@ -91,7 +91,7 @@ export async function getPermissions(req, res, _next) {
   const { user, models } = req;
   req.flagPermissionChecked();
 
-  const roleString = req.impersonateRoleId || user.role;
+  const roleString = (req.impersonateRoleId && user.role === 'admin') ? req.impersonateRoleId : user.role;
 
   const permissions = await getPermissionsForRoles(models, roleString);
   res.send({
