@@ -675,8 +675,8 @@ export const LocationBookingsDailyCalendar = ({
   }, [appointmentsData]);
 
   const toFacilityDate = storedStr => {
-    const f = toFacilityDateTime(storedStr);
-    return f ? new Date(f) : new Date(storedStr);
+    const dateString = toFacilityDateTime(storedStr);
+    return dateString ? new Date(dateString) : new Date(storedStr);
   };
 
   const toStoredStr = facilityDate => toStoredDateTime(toDateTimeString(facilityDate));
