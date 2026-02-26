@@ -254,7 +254,7 @@ const ONGOING_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
     key: 'date',
     title: <TranslatedText stringId="patient.medication.table.column.date" fallback="Date" />,
     accessor: data => (
-      <CellText discontinued={data?.discontinued}><DateDisplay date={trimToDate(data.date)} format="shortest" /></CellText>
+      <CellText discontinued={data?.discontinued}><DateDisplay date={data.date} format="shortest" /></CellText>
     ),
     sortable: true,
   },
