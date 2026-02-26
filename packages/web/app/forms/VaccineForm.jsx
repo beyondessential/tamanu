@@ -3,7 +3,7 @@ import { PropTypes } from 'prop-types';
 import * as yup from 'yup';
 
 import { SETTING_KEYS, VACCINE_CATEGORIES, VACCINE_RECORDING_TYPES, FORM_TYPES } from '@tamanu/constants';
-import { ISO9075_DATE_FORMAT } from '@tamanu/utils/dateTime';
+import { parseDate } from '@tamanu/utils/dateTime';
 import { Form, useDateTime } from '@tamanu/ui-components';
 
 import { REQUIRED_INLINE_ERROR_MESSAGE } from '../constants';
@@ -20,7 +20,7 @@ import { useAuth } from '../contexts/Auth';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useSettings } from '../contexts/Settings';
 import { usePatientDataQuery } from '../api/queries/usePatientDataQuery';
-import { isAfter, isBefore, parse } from 'date-fns';
+import { isAfter, isBefore } from 'date-fns';
 import { TranslatedReferenceData } from '../components/Translation';
 
 const validateGivenElsewhereRequiredField = (status, givenElsewhere) =>
@@ -135,16 +135,11 @@ export const VaccineForm = ({
         />,
         (value, context) => {
           if (!value) return true;
-          const minDate = parse(
-            context.parent?.patientData?.dateOfBirth,
-            ISO9075_DATE_FORMAT,
-            new Date(),
-          );
-          const date = parse(value, ISO9075_DATE_FORMAT, new Date());
-          if (isBefore(date, minDate)) {
-            return false;
-          }
-          return true;
+          const minDate = parseDate(context.parent?.patientData?.dateOfBirth);
+          if (!minDate) return true;
+          const date = parseDate(value);
+          if (!date) return true;
+          return !isBefore(date, minDate);
         },
       )
       .test(
@@ -156,12 +151,9 @@ export const VaccineForm = ({
         />,
         (value) => {
           if (!value) return true;
-          const maxDate = new Date();
-          const date = parse(value, ISO9075_DATE_FORMAT, new Date());
-          if (isAfter(date, maxDate)) {
-            return false;
-          }
-          return true;
+          const date = parseDate(value);
+          if (!date) return true;
+          return !isAfter(date, new Date());
         },
       ),
     locationId: yup.string().when(['status', 'givenElsewhere'], {
