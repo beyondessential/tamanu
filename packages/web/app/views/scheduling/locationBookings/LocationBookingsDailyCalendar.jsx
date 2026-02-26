@@ -728,6 +728,7 @@ export const LocationBookingsDailyCalendar = ({
       const appointmentDuration = differenceInMilliseconds(currentEndTime, currentStartTime);
 
       if (!isAfter(currentEndTime, minNextEndTime)) {
+        // no need to shift any further if the next appointment doesn't conflict with the previous appointment
         break;
       }
 
@@ -748,6 +749,7 @@ export const LocationBookingsDailyCalendar = ({
       const appointmentDuration = differenceInMilliseconds(currentEndTime, currentStartTime);
 
       if (!isBefore(currentStartTime, minNextStartTime)) {
+        // no need to shift any further if the next appointment doesn't conflict with the previous appointment
         break;
       }
 
@@ -833,7 +835,9 @@ export const LocationBookingsDailyCalendar = ({
         const startTime = toFacilityDate(appointment.startTime);
         const endTime = toFacilityDate(appointment.endTime);
         const appointmentDuration = differenceInMilliseconds(endTime, startTime);
+        
         const middleTime = addMilliseconds(startTime, appointmentDuration / 2);
+           // if the selected appointment's start time is before or equal to the current appointment's start time, move the current appointment down
         if (!isAfter(itemNewStartTime, startTime)) {
           shouldMoveDownAppointments.push(appointment);
           return;
@@ -864,6 +868,7 @@ export const LocationBookingsDailyCalendar = ({
       if (isAbleToMoveUp) {
         moveUpAppointments(shouldMoveUpAppointments.reverse(), itemNewStartTime);
       } else {
+        // if not able to move up, move the selected appointment to the end time of the last appointment that can be moved up
         itemNewStartTime = toFacilityDate(shouldMoveUpAppointments[0].endTime);
         itemNewEndTime = addMilliseconds(itemNewStartTime, itemDuration);
       }
@@ -884,6 +889,7 @@ export const LocationBookingsDailyCalendar = ({
         const endTime = toFacilityDate(appointment.endTime);
         const appointmentDuration = differenceInMilliseconds(endTime, startTime);
         const middleTime = addMilliseconds(startTime, appointmentDuration / 2);
+        // if the selected appointment's end time is after the current appointment's end time, move the current appointment up
         if (!isBefore(itemNewEndTime, endTime)) {
           shouldMoveUpAppointments.push(appointment);
           return;
@@ -914,6 +920,7 @@ export const LocationBookingsDailyCalendar = ({
       if (isAbleToMoveDown) {
         moveDownAppointments(shouldMoveDownAppointments, itemNewEndTime);
       } else {
+        // if not able to move down, move the selected appointment to the start time of the first appointment that can be moved down
         itemNewEndTime = toFacilityDate(shouldMoveDownAppointments[0].startTime);
         itemNewStartTime = subMilliseconds(itemNewEndTime, itemDuration);
       }
