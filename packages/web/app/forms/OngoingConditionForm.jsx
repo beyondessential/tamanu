@@ -116,7 +116,6 @@ export const OngoingConditionForm = ({
                 data-testid="translatedtext-hd0f"
               />
             }
-            saveDateAsString
             component={DateField}
             disabled={resolving}
             data-testid="field-2775"
@@ -164,7 +163,6 @@ export const OngoingConditionForm = ({
             <FormGrid columns={1} data-testid="formgrid-to6o">
               <Field
                 name="resolutionDate"
-                saveDateAsString
                 label={
                   <TranslatedText
                     stringId="conditions.resolutionDate.label"

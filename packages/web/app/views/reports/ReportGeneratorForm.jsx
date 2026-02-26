@@ -203,7 +203,6 @@ export const ReportGeneratorForm = () => {
       />
     ),
     dataSourceOptions = REPORT_DATA_SOURCE_VALUES,
-    filterDateRangeAsStrings = true,
   } = reportsById[selectedReportId] || {};
 
   const isDataSourceFieldDisabled = dataSourceOptions.length === 1;
@@ -493,7 +492,6 @@ export const ReportGeneratorForm = () => {
               }
               onChange={() => resetDownload()}
               component={DateField}
-              saveDateAsString={filterDateRangeAsStrings}
               data-testid="field-nozf"
             />
             <Field
@@ -507,7 +505,6 @@ export const ReportGeneratorForm = () => {
               }
               onChange={() => resetDownload()}
               component={DateField}
-              saveDateAsString={filterDateRangeAsStrings}
               data-testid="field-2d95"
             />
           </FormGrid>

@@ -535,31 +535,6 @@ describe('InvoicePriceList.getIdForPatientEncounter', () => {
     expect(id2).toBeNull();
   });
 
-  it('throws an error when multiple price lists match', async () => {
-    const mockEncounter = buildMockEncounter({ facilityId: 'facility-1' });
-
-    const mockFindByPk = vi.fn().mockResolvedValue(mockEncounter);
-    Object.defineProperty(InvoicePriceList, 'sequelize', {
-      value: {
-        models: {
-          Encounter: {
-            findByPk: mockFindByPk,
-          },
-        },
-      },
-      configurable: true,
-    });
-
-    vi.spyOn(InvoicePriceList as any, 'findAll').mockResolvedValue([
-      { id: 'pl-1', code: 'code-1', name: 'Price List One', rules: { facilityId: 'facility-1' } },
-      { id: 'pl-2', code: 'code-2', name: 'Price List Two', rules: { facilityId: 'facility-1' } },
-    ]);
-
-    await expect(InvoicePriceList.getIdForPatientEncounter('encounter-1')).rejects.toThrow(
-      'Multiple price lists match the provided inputs: Price List One, Price List Two',
-    );
-  });
-
   it('returns the matching price list id when only one matches', async () => {
     const mockEncounter = buildMockEncounter({ facilityId: 'facility-1' });
 

@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/mobile",
-  "version": "2.50.0",
+  "version": "2.51.0",
   "private": true,
   "scripts": {
     "android": "npx react-native start --reset-cache",
@@ -22,7 +22,7 @@
     "migrate-create": "../../scripts/create_mobile_migration.sh"
   },
   "dependencies": {
-    "@casl/ability": "^4.1.0",
+    "@casl/ability": "^6.8.0",
     "@react-native-anywhere/polyfill-base64": "^0.0.1-alpha.0",
     "@react-native-async-storage/async-storage": "^1.13.2",
     "@react-native-camera-roll/camera-roll": "^7.8.3",
@@ -44,8 +44,8 @@
     "@tamanu/utils": "*",
     "@testing-library/react-native": "^12.5.3",
     "axios": "^1.11.0",
-    "chance": "^1.1.4",
-    "date-fns": "^2.7.0",
+    "chance": "^1.1.8",
+    "date-fns": "^2.25.0",
     "deprecated-react-native-prop-types": "^5.0.0",
     "formik": "^2.1.2",
     "get-yarn-workspaces": "^1.0.2",
@@ -55,7 +55,7 @@
     "mathjs": "^12.1.0",
     "metro-minify-terser": "^0.64.0",
     "mitt": "^2.1.0",
-    "nanoid": "^3.1.23",
+    "nanoid": "^3.3.8",
     "patch-package": "^8.0.0",
     "popup-ui": "^1.2.2",
     "prop-types": "^15.7.2",
@@ -76,7 +76,6 @@
     "react-native-image-picker": "^7.1.2",
     "react-native-image-resizer": "^1.4.4",
     "react-native-keyboard-aware-scroll-view": "^0.9.1",
-    "react-native-masked-text": "^1.13.0",
     "react-native-modal": "^13.0.1",
     "react-native-orientation-locker": "^1.7.0",
     "react-native-paper": "^4.6.0",
@@ -105,11 +104,13 @@
     "styled-components": "^5.1.0",
     "styled-system": "^5.1.2",
     "typeorm": "^0.3.27",
+    "uuid": "^11.0.3",
     "validator": "^13.15.23",
     "yup": "^0.28.5"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "@swc/cli": "^0.1.63",
     "@babel/plugin-proposal-decorators": "^7.8.3",
     "@babel/plugin-transform-export-namespace-from": "^7.27.1",
     "@babel/plugin-transform-modules-commonjs": "^7.7.0",
@@ -143,8 +144,7 @@
     "react-test-renderer": "^18.3.1",
     "rimraf": "^6.0.1",
     "sqlite3": "^5.1.6",
-    "ts-jest": "^29.1.2",
-    "uuid": "^11.0.3"
+    "ts-jest": "^29.1.2"
   },
   "detox": {
     "test-runner": "jest"

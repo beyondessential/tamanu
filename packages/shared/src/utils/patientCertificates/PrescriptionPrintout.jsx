@@ -98,12 +98,12 @@ const PrescriptionsSection = ({
   getSetting,
 }) => {
   const { getTranslation, getEnumTranslation } = useLanguageContext();
-  const { formatShort } = useDateTime();
+  const { formatShort, getCurrentDate } = useDateTime();
   return (
     <View>
       <DataSection hideBottomRule title="Prescription details">
         <Col>
-          <DataItem label="Date" value={formatShort(new Date())} />
+          <DataItem label="Date" value={formatShort(getCurrentDate())} />
           <DataItem label="Prescriber" value={prescriber?.displayName} />
         </Col>
         <Col>

@@ -85,7 +85,6 @@ export const AllergyForm = ({
                 />
               }
               component={DateField}
-              saveDateAsString
               required
               data-testid="field-gmf8"
             />

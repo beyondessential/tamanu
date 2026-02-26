@@ -7,6 +7,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
   cancel-in-progress: true
@@ -71,22 +74,27 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { package: "@tamanu/facility-server", shard: 1/6, postgres: 16 }
-          - { package: "@tamanu/facility-server", shard: 2/6, postgres: 16 }
-          - { package: "@tamanu/facility-server", shard: 3/6, postgres: 16 }
-          - { package: "@tamanu/facility-server", shard: 4/6, postgres: 16 }
-          - { package: "@tamanu/facility-server", shard: 5/6, postgres: 16 }
-          - { package: "@tamanu/facility-server", shard: 6/6, postgres: 16 }
-          - { package: "@tamanu/central-server",  shard: 1/6, postgres: 16 }
-          - { package: "@tamanu/central-server",  shard: 2/6, postgres: 16 }
-          - { package: "@tamanu/central-server",  shard: 3/6, postgres: 16 }
-          - { package: "@tamanu/central-server",  shard: 4/6, postgres: 16 }
-          - { package: "@tamanu/central-server",  shard: 5/6, postgres: 16 }
-          - { package: "@tamanu/central-server",  shard: 6/6, postgres: 16 }
+          - { package: "@tamanu/facility-server", shard: 1/8, postgres: 17 }
+          - { package: "@tamanu/facility-server", shard: 2/8, postgres: 17 }
+          - { package: "@tamanu/facility-server", shard: 3/8, postgres: 17 }
+          - { package: "@tamanu/facility-server", shard: 4/8, postgres: 17 }
+          - { package: "@tamanu/facility-server", shard: 5/8, postgres: 17 }
+          - { package: "@tamanu/facility-server", shard: 6/8, postgres: 17 }
+          - { package: "@tamanu/facility-server", shard: 7/8, postgres: 17 }
+          - { package: "@tamanu/facility-server", shard: 8/8, postgres: 17 }
+          - { package: "@tamanu/central-server",  shard: 1/8, postgres: 17 }
+          - { package: "@tamanu/central-server",  shard: 2/8, postgres: 17 }
+          - { package: "@tamanu/central-server",  shard: 3/8, postgres: 17 }
+          - { package: "@tamanu/central-server",  shard: 4/8, postgres: 17 }
+          - { package: "@tamanu/central-server",  shard: 5/8, postgres: 17 }
+          - { package: "@tamanu/central-server",  shard: 6/8, postgres: 17 }
+          - { package: "@tamanu/central-server",  shard: 7/8, postgres: 17 }
+          - { package: "@tamanu/central-server",  shard: 8/8, postgres: 17 }
           - { package: "@tamanu/database",                    postgres: 12 }
           - { package: "@tamanu/database",                    postgres: 14 }
           - { package: "@tamanu/database",                    postgres: 16 }
           - { package: "@tamanu/database",                    postgres: 17 }
+          - { package: "@tamanu/database",                    postgres: 18 }
           - { package: "@tamanu/settings"                                  }
           - { package: "@tamanu/shared"                                    }
           - { package: "@tamanu/upgrade"                                   }

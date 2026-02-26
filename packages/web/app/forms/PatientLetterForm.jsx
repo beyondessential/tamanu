@@ -96,7 +96,6 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
           }
           required
           component={DateField}
-          saveDateAsString
           data-testid="field-idv4"
         />
       </FormGrid>

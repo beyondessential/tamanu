@@ -187,7 +187,6 @@ export const SampleDetailsField = ({
               name={`${SAMPLE_DETAILS_FIELD_PREFIX}sampleTime-${identifier}`}
               component={DateTimeField}
               max={getCurrentDateTime()}
-              saveDateAsString
               onChange={({ target: { value } }) => {
                 if (value) {
                   setValue(identifier, 'sampleTime', value);

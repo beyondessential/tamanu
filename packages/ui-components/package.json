@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/ui-components",
-  "version": "2.50.0",
+  "version": "2.51.0",
   "description": "Tamanu UI components",
   "private": true,
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -16,6 +16,7 @@
     "build": "echo 'builds with client frontend'"
   },
   "peerDependencies": {
+    "react-autosuggest": "^10.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "styled-components": "^5.3.3",

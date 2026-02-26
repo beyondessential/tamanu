@@ -17,6 +17,7 @@ import { useLanguageContext, withLanguageContext } from '../pdf/languageContext'
 import { withDateTimeContext, useDateTime } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
+import { FSMBirthNotificationCertificate } from './FSMBirthNotificationCertificate';
 
 const borderStyle = '1 solid black';
 
@@ -40,7 +41,7 @@ const topStyles = StyleSheet.create({
 });
 
 const TopSection = ({ facilityName, childDisplayId }) => {
-  const { formatShort } = useDateTime();
+  const { formatShort, getCurrentDate } = useDateTime();
   return (
     <View style={topStyles.container}>
       <View style={topStyles.cell}>
@@ -51,7 +52,7 @@ const TopSection = ({ facilityName, childDisplayId }) => {
         <P bold style={topStyles.key}>
           Notification date:
         </P>
-        <P style={topStyles.value}>{formatShort(new Date())}</P>
+        <P style={topStyles.value}>{formatShort(getCurrentDate())}</P>
       </View>
       <View style={topStyles.cell}>
         <P style={topStyles.key}>Child ID:</P>
@@ -382,10 +383,24 @@ const BirthNotificationCertificateComponent = ({
   fatherData,
   childData,
   facility,
+  printedBy,
   certificateData,
+  getSetting,
 }) => {
   const { logo, watermark } = certificateData;
   const { getTranslation } = useLanguageContext();
+  const enableFSMStyle = getSetting('fsmCrvsCertificates.enableFSMStyle');
+
+  if (enableFSMStyle) {
+    return (
+      <FSMBirthNotificationCertificate
+        motherData={motherData}
+        fatherData={fatherData}
+        childData={childData}
+        printedBy={printedBy}
+      />
+    );
+  }
 
   return (
     <Document>

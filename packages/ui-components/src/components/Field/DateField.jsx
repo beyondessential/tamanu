@@ -11,7 +11,7 @@ import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import { Box } from '@material-ui/core';
 import { addDays, format as dateFnsFormat, isValid, isSameDay, parse } from 'date-fns';
 
-import { parseDate, toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
+import { parseDate } from '@tamanu/utils/dateTime';
 import { TAMANU_COLORS } from '../../constants';
 import { DefaultIconButton } from '../Button';
 import { TextInput } from './TextField';
@@ -22,7 +22,6 @@ import { useTranslation } from '../../contexts/TranslationContext';
  * DateInput wraps MUI DatePicker/DateTimePicker/TimePicker.
  *
  * Values are strings in, strings out — onChange emits { target: { value, name } }.
- * Output format depends on `saveDateAsString` (ISO 9075) vs default (ISO 8601).
  *
  * Timezone support (via DateTimeContext):
  *   - Today highlight, referenceDate and the Today/Now button resolve the current
@@ -205,7 +204,6 @@ export const DateInput = ({
   name,
   max = '2100-12-31',
   min,
-  saveDateAsString = false,
   arrows = false,
   inputProps = {},
   useTimezone = false,
@@ -246,8 +244,6 @@ export const DateInput = ({
       let outputValue;
       if (shouldUseTimezone && toStoredDateTime) {
         outputValue = toStoredDateTime(dateFnsFormat(date, DATETIME_LOCAL_FORMAT));
-      } else if (saveDateAsString) {
-        outputValue = type === 'date' ? toDateString(date) : toDateTimeString(date);
       } else {
         outputValue = date.toISOString();
       }
@@ -259,7 +255,7 @@ export const DateInput = ({
 
       emitChange(outputValue);
     },
-    [emitChange, saveDateAsString, type, shouldUseTimezone, toStoredDateTime],
+    [emitChange, shouldUseTimezone, toStoredDateTime],
   );
 
   const [open, setOpen] = useState(false);

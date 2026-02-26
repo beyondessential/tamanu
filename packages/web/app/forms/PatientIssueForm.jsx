@@ -74,7 +74,6 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => {
                 />
               }
               component={DateField}
-              saveDateAsString
               required
               data-testid="field-urg2"
             />

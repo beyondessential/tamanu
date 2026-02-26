@@ -48,7 +48,6 @@ export const PatientCarePlanForm = ({
                 />
               }
               component={DateTimeField}
-              saveDateAsString
               data-testid="field-764k"
             />
             <Field

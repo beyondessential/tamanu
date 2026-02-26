@@ -9,7 +9,6 @@ import {
   PREGNANCY_MOMENTS,
 } from '@tamanu/constants';
 import { differenceInYears, differenceInMonths, parseISO } from 'date-fns';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   ArrayField,
   AutocompleteField,
@@ -105,7 +104,6 @@ const PrimaryFields = ({ practitionerSuggester }) => {
           />
         }
         component={props => <DateTimeField {...props} data-testid="datetimefield-8fsq" />}
-        saveDateAsString
         required
         data-testid="field-o3sc"
       />
@@ -166,7 +164,7 @@ export const DeathForm = React.memo(
   }) => {
     const { getCurrentDateTime } = useDateTime();
     const [currentTOD, setCurrentTOD] = useState(
-      patient?.dateOfDeath || getCurrentDateTimeString(),
+      patient?.dateOfDeath || getCurrentDateTime(),
     );
     const { getTranslation } = useTranslation();
     const { currentUser } = useAuth();
@@ -467,7 +465,6 @@ export const DeathForm = React.memo(
               />
             }
             component={DateField}
-            saveDateAsString
             visibilityCriteria={{ surgeryInLast4Weeks: 'yes' }}
             data-testid="field-lnqy"
           />
@@ -538,7 +535,6 @@ export const DeathForm = React.memo(
               />
             }
             component={DateField}
-            saveDateAsString
             visibilityCriteria={mannerOfDeathVisibilityCriteria}
             data-testid="field-ezni"
           />

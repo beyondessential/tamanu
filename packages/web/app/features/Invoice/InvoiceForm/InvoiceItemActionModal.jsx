@@ -11,7 +11,7 @@ import {
   TextField,
   SelectField,
   Form,
-  FormGrid,
+  FormGrid as Grid,
   Modal,
   TranslatedText,
   FormSubmitCancelRow,
@@ -21,6 +21,10 @@ import { getInvoiceItemPriceDisplay } from '@tamanu/shared/utils/invoice';
 
 const StyledDivider = styled(Divider)`
   margin: 26px -32px 32px -32px;
+`;
+
+const FormGrid = styled(Grid)`
+  align-items: baseline;
 `;
 
 const discountTypeOptions = [
