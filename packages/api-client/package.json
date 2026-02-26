@@ -37,6 +37,7 @@
     "@tamanu/errors": "*",
     "@tamanu/shared": "*",
     "jose": "^5.1.1",
+    "lodash": "^4.17.21",
     "qs": "^6.10.2"
   }
 }
