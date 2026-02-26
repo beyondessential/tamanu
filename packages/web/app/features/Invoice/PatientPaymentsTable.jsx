@@ -12,11 +12,11 @@ import { Colors, denseTableStyle } from '../../constants';
 import { Heading4 } from '../../components/Typography';
 import { DateDisplay } from '../../components/DateDisplay';
 import { useAuth } from '../../contexts/Auth';
-import { PatientPaymentModal } from './PatientPaymentModal.jsx';
-import { NoteModalActionBlocker } from '../../components/index.js';
-import { ThreeDotMenu } from '../../components/ThreeDotMenu.jsx';
+import { PatientPaymentModal } from './PatientPaymentModal';
+import { NoteModalActionBlocker } from '../../components';
+import { ThreeDotMenu } from '../../components/ThreeDotMenu';
 import { Price } from './Price';
-import { PatientPaymentRefundModal } from './PatientPaymentRefundModal.jsx';
+import { PatientPaymentRefundModal } from './PatientPaymentRefundModal';
 
 const TableContainer = styled.div`
   padding-left: 16px;

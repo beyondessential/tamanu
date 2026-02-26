@@ -3,28 +3,33 @@ import { AutocompleteField, Field, NoteModalActionBlocker } from '../../../../co
 import { ViewOnlyCell } from './ViewOnlyCell';
 import { ItemCell } from './ItemCell';
 import { CELL_WIDTHS } from '../../constants';
+import { useSuggester } from '../../../../api';
 
 export const OrderedByCell = ({
   index,
   item,
-  isItemEditable,
-  practitionerSuggester,
+  isEditing,
   handleChangeOrderedBy,
-}) => (
-  <ItemCell $width={CELL_WIDTHS.ORDERED_BY}>
-    {isItemEditable ? (
-      <NoteModalActionBlocker>
-        <Field
-          name={`invoiceItems.${index}.orderedByUserId`}
-          required
-          component={AutocompleteField}
-          suggester={practitionerSuggester}
-          onChange={handleChangeOrderedBy}
-          data-testid="field-xin4"
-        />
-      </NoteModalActionBlocker>
-    ) : (
-      <ViewOnlyCell>{item?.orderedByUser?.displayName}</ViewOnlyCell>
-    )}
-  </ItemCell>
-);
+  cellWidths = CELL_WIDTHS,
+}) => {
+  const practitionerSuggester = useSuggester('practitioner');
+
+  return (
+    <ItemCell $width={cellWidths.ORDERED_BY}>
+      {isEditing ? (
+        <NoteModalActionBlocker>
+          <Field
+            name={`invoiceItems.${index}.orderedByUserId`}
+            required
+            component={AutocompleteField}
+            suggester={practitionerSuggester}
+            onChange={handleChangeOrderedBy}
+            data-testid="field-xin4"
+          />
+        </NoteModalActionBlocker>
+      ) : (
+        <ViewOnlyCell>{item?.orderedByUser?.displayName}</ViewOnlyCell>
+      )}
+    </ItemCell>
+  );
+};

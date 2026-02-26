@@ -113,7 +113,15 @@ const StyledField = styled(Field)`
   }
 `;
 
-export const PriceCell = ({ index, item, isExpanded, hidePriceInput, isEditing, isSaved }) => {
+export const PriceCell = ({
+  index,
+  item,
+  isExpanded,
+  hidePriceInput,
+  isEditing,
+  isSaved,
+  cellWidths = CELL_WIDTHS,
+}) => {
   const price = getInvoiceItemTotalPrice(item);
   const discountedPrice = getInvoiceItemTotalDiscountedPrice(item);
   const hasDiscount = price !== discountedPrice;
@@ -121,7 +129,7 @@ export const PriceCell = ({ index, item, isExpanded, hidePriceInput, isEditing, 
 
   return (
     <>
-      <StyledItemCell $width={CELL_WIDTHS.PRICE}>
+      <StyledItemCell $width={cellWidths.PRICE}>
         <Container>
           <MainContent>
             {hidePriceInput ? (
