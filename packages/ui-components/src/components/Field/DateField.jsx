@@ -196,6 +196,12 @@ const DISPLAY_FORMATS = {
   time: 'hh:mm a',
 };
 
+const OUTPUT_FORMATS = {
+  date: 'yyyy-MM-dd',
+  'datetime-local': 'yyyy-MM-dd HH:mm:ss',
+  time: 'HH:mm:ss',
+};
+
 export const DateInput = ({
   type = 'date',
   value,
@@ -245,7 +251,7 @@ export const DateInput = ({
       if (shouldUseTimezone && toStoredDateTime) {
         outputValue = toStoredDateTime(dateFnsFormat(date, DATETIME_LOCAL_FORMAT));
       } else {
-        outputValue = date.toISOString();
+        outputValue = dateFnsFormat(date, OUTPUT_FORMATS[type] || OUTPUT_FORMATS.date);
       }
 
       if (!outputValue || outputValue === 'Invalid date') {
@@ -255,7 +261,7 @@ export const DateInput = ({
 
       emitChange(outputValue);
     },
-    [emitChange, shouldUseTimezone, toStoredDateTime],
+    [emitChange, type, shouldUseTimezone, toStoredDateTime],
   );
 
   const [open, setOpen] = useState(false);
