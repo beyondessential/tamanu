@@ -6,6 +6,7 @@ import {
   MARITAL_STATUS_OPTIONS,
   SEX_OPTIONS,
   BINARY_UNKNOWN_OPTIONS,
+  TIME_UNIT_OPTIONS,
 } from '@tamanu/constants';
 import { getDisplayDate } from './getDisplayDate';
 import { Page } from '../pdf/Page';
@@ -137,9 +138,24 @@ const getLabelFromValue = (mapping, v) => {
 
 const FSM_DATE_FORMAT = 'MM/dd/yyyy';
 
+// Time after onset is stored in minutes; display with the most appropriate unit (e.g. "2 hours", "30 minutes")
+const formatTimeAfterOnset = (totalMinutes) => {
+  if (totalMinutes == null || totalMinutes === 0) return '';
+  const minutes = Number(totalMinutes);
+  if (Number.isNaN(minutes)) return '';
+  // Use largest unit that divides evenly (same logic as TimeWithUnitField display)
+  const sortedByLargest = [...TIME_UNIT_OPTIONS].sort((a, b) => b.minutes - a.minutes);
+  const option = sortedByLargest.find(o => minutes % o.minutes === 0) || TIME_UNIT_OPTIONS[0];
+  const value = Math.round(minutes / option.minutes);
+  const unit = option.unit;
+  const singular = unit.replace(/s$/, ''); // minutes -> minute, hours -> hour, etc.
+  const label = value === 1 ? singular : unit;
+  return `${value} ${label}`;
+};
+
 // Accessor helpers
 const getCauseText = (cause) => cause?.condition?.name || '';
-const getCauseInterval = (cause) => cause?.timeAfterOnset || '';
+const getCauseInterval = (cause) => formatTimeAfterOnset(cause?.timeAfterOnset);
 
 const getAgeAtDeath = (dateOfBirth, dateOfDeath) => {
   if (!dateOfBirth || !dateOfDeath) return '';
