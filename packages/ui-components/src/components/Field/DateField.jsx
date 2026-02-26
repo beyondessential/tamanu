@@ -31,29 +31,23 @@ import { useTranslation } from '../../contexts/TranslationContext';
  *   - Without a DateTimeContext falls back to local time.
  */
 
-const PARSE_FORMATS = [
-  "yyyy-MM-dd'T'HH:mm:ss",
-  "yyyy-MM-dd'T'HH:mm",
-  'yyyy-MM-dd HH:mm:ss',
-  'yyyy-MM-dd HH:mm',
+const DATETIME_LOCAL_FORMAT = "yyyy-MM-dd'T'HH:mm";
+
+const USER_INPUT_FORMATS = [
   'dd/MM/yyyy hh:mm a',
   'dd/MM/yyyy HH:mm',
   'dd/MM/yyyy',
-  'yyyy-MM-dd',
   'HH:mm',
 ];
-
-const DATETIME_LOCAL_FORMAT = "yyyy-MM-dd'T'HH:mm";
 
 function parseValue(value, primaryFormat) {
   if (!value) return null;
   try {
-    const parsed = parseDate(value);
-    if (parsed) return parsed;
+    return parseDate(value);
   } catch {
-    // parseDate throws on invalid dates; fall through to format-based parsing
+    // Not an ISO/storage format — try user-input display formats below
   }
-  const formats = primaryFormat ? [primaryFormat, ...PARSE_FORMATS] : PARSE_FORMATS;
+  const formats = primaryFormat ? [primaryFormat, ...USER_INPUT_FORMATS] : USER_INPUT_FORMATS;
   for (const fmt of formats) {
     const date = parse(value, fmt, new Date());
     if (isValid(date)) return date;
@@ -202,6 +196,19 @@ const OUTPUT_FORMATS = {
   time: 'HH:mm:ss',
 };
 
+const ACTION_BAR_ACTIONS = ['today', 'clear'];
+
+const PICKER_SLOTS = {
+  actionBar: TimezoneActionBar,
+  textField: TextInput,
+  popper: StyledPopper,
+  day: TimezoneDay,
+};
+
+const OPEN_PICKER_BUTTON_SX = { padding: '2px', marginRight: '-4px' };
+const OPEN_PICKER_BUTTON_SX_DISABLED = { ...OPEN_PICKER_BUTTON_SX, display: 'none' };
+const OPEN_PICKER_ICON_SX = { fontSize: '1.15rem', color: TAMANU_COLORS.primary };
+
 export const DateInput = ({
   type = 'date',
   value,
@@ -304,32 +311,22 @@ export const DateInput = ({
   const maxDate = useMemo(() => parseDateBound(max), [parseDateBound, max]);
   const minDate = useMemo(() => parseDateBound(min), [parseDateBound, min]);
 
-  const commonProps = {
-    value: dateValue,
-    onChange: handleChange,
-    open,
-    onOpen: handleOpen,
-    onClose: handleClose,
-    referenceDate: todayDate,
-    format: displayFormat,
-    disabled,
-    localeText: {
+  const localeText = useMemo(
+    () => ({
       fieldDayPlaceholder: () => getTranslation('date.placeholder.day', 'dd'),
       fieldMonthPlaceholder: () => getTranslation('date.placeholder.month', 'mm'),
       fieldYearPlaceholder: () => getTranslation('date.placeholder.year', 'yyyy'),
       fieldHoursPlaceholder: () => getTranslation('date.placeholder.hours', '--'),
       fieldMinutesPlaceholder: () => getTranslation('date.placeholder.minutes', '--'),
       fieldMeridiemPlaceholder: () => getTranslation('date.placeholder.meridiem', '--'),
-    },
-    slots: {
-      actionBar: TimezoneActionBar,
-      textField: TextInput,
-      popper: StyledPopper,
-      day: TimezoneDay,
-    },
-    slotProps: {
+    }),
+    [getTranslation],
+  );
+
+  const slotProps = useMemo(
+    () => ({
       actionBar: {
-        actions: ['today', 'clear'],
+        actions: ACTION_BAR_ACTIONS,
         onSetToday: handleSetToday,
         onClear: handleClear,
         todayLabel:
@@ -351,12 +348,41 @@ export const DateInput = ({
         todayInTimezone: todayDate,
       },
       openPickerButton: {
-        sx: { padding: '2px', marginRight: '-4px', ...(disabled && { display: 'none' }) },
+        sx: disabled ? OPEN_PICKER_BUTTON_SX_DISABLED : OPEN_PICKER_BUTTON_SX,
       },
       openPickerIcon: {
-        sx: { fontSize: '1.15rem', color: TAMANU_COLORS.primary },
+        sx: OPEN_PICKER_ICON_SX,
       },
-    },
+    }),
+    [
+      handleSetToday,
+      handleClear,
+      type,
+      getTranslation,
+      name,
+      dataTestId,
+      error,
+      helperText,
+      inputProps,
+      handleTextBlur,
+      props,
+      todayDate,
+      disabled,
+    ],
+  );
+
+  const commonProps = {
+    value: dateValue,
+    onChange: handleChange,
+    open,
+    onOpen: handleOpen,
+    onClose: handleClose,
+    referenceDate: todayDate,
+    format: displayFormat,
+    disabled,
+    localeText,
+    slots: PICKER_SLOTS,
+    slotProps,
   };
 
   let picker;
