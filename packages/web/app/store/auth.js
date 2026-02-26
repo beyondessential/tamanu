@@ -1,7 +1,6 @@
 import { getLoginErrorMessage, getResetPasswordErrorMessage } from '@tamanu/errors';
 import { buildAbility, buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 import { createStatePreservingReducer } from '../utils/createStatePreservingReducer';
-import { LOCAL_STORAGE_KEYS } from '../constants';
 
 // actions
 const LOGIN_START = 'LOGIN_START';
