@@ -178,29 +178,6 @@ jobs:
       - name: Lint warnings
         run: npm run lint-all
 
-  storybook:
-    needs: node_modules_cache
-    # Workaround for define plugin conflict warning
-    env:
-      NODE_ENV: development
-    continue-on-error: true
-    name: Test storybook
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version-file: '.node-version'
-          cache: npm
-      - uses: actions/cache/restore@v3
-        with:
-          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
-          path: ${{ env.NODE_MODULES_PATHS }}
-
-      - run: npm i
-      - run: npm run build-shared
-      - run: npm run --workspace @tamanu/web-frontend test-storybook
-
   migrations:
     needs: node_modules_cache
     strategy:

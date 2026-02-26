@@ -22,7 +22,6 @@
     "admin-panel-start-dev": "npm run admin-start-dev --workspace @tamanu/web-frontend",
     "web-start-dev": "npm run client-start-dev --workspace @tamanu/web-frontend",
     "patient-portal-start-dev": "npm run start-dev --workspace @tamanu/patient-portal",
-    "storybook": "npm run watch-shared-and @tamanu/web-frontend storybook",
     "watch-shared-and": "node scripts/watch-shared-and.js",
     "web-unit-test": "npm run build-shared && npm run --workspace @tamanu/web-frontend test",
     "web-unit-test-watch": "npm run build-shared && npm run --workspace @tamanu/web-frontend test-watch",
