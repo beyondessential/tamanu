@@ -124,8 +124,8 @@ const ClinicFields = () => {
         component={DateTimeField}
         label={
           <TranslatedText
-          stringId="encounter.checkInDateTime.label"
-          fallback="Check-in date & time"
+            stringId="encounter.checkInDateTime.label"
+            fallback="Check-in date & time"
           />
         }
         required
@@ -381,7 +381,9 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
       <Form
         initialValues={getFormInitialValues({ encounter, triage })}
         formType={FORM_TYPES.EDIT_FORM}
-        onSubmit={isEmergencyPatient(encounter.encounterType) ? onSubmitTriageForm : onSubmitEncounterForm}
+        onSubmit={
+          isEmergencyPatient(encounter.encounterType) ? onSubmitTriageForm : onSubmitEncounterForm
+        }
         render={({ submitForm }) => (
           <>
             <StyledFormGrid>
