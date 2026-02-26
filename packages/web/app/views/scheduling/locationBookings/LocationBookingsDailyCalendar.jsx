@@ -699,8 +699,8 @@ export const LocationBookingsDailyCalendar = ({
     return (
       appointments.reduce((acc, appointment) => {
         const duration = differenceInMilliseconds(
-          new Date(appointment.endTime),
-          new Date(appointment.startTime),
+          toFacilityDate(appointment.endTime),
+          toFacilityDate(appointment.startTime),
         );
         return acc + duration;
       }, 0) <= maxDuration
@@ -712,8 +712,8 @@ export const LocationBookingsDailyCalendar = ({
     return (
       appointments.reduce((acc, appointment) => {
         const duration = differenceInMilliseconds(
-          new Date(appointment.endTime),
-          new Date(appointment.startTime),
+          toFacilityDate(appointment.endTime),
+          toFacilityDate(appointment.startTime),
         );
         return acc + duration;
       }, 0) <= maxDuration
