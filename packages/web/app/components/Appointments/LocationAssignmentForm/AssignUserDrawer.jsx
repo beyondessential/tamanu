@@ -532,7 +532,6 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
             max={toDateString(add(parseISO(getCurrentDate()), { months: 24 }))}
             onChange={handleUpdateDate}
             required
-            saveDateAsString
             disabled={isViewing && !isEditMode}
             data-testid="field-date"
           />

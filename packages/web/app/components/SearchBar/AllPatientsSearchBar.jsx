@@ -152,7 +152,6 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
       <Field
         name="dateOfBirthExact"
         component={DateField}
-        saveDateAsString
         label={
           <TranslatedText
             stringId="general.dateOfBirth.label.short"

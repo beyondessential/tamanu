@@ -29,7 +29,6 @@ export const DOBFields = ({ showExactBirth = true }) => {
         <Field
           name="dateOfBirthExact"
           component={DateField}
-          saveDateAsString
           label={
             <TranslatedText
               stringId="general.localisedField.dateOfBirth.label.short"
@@ -44,7 +43,6 @@ export const DOBFields = ({ showExactBirth = true }) => {
       <JoinedField
         name="dateOfBirthFrom"
         component={DateField}
-        saveDateAsString
         label={
           <TranslatedText
             stringId="general.localisedField.dateOfBirthFrom.label.short"
@@ -58,7 +56,6 @@ export const DOBFields = ({ showExactBirth = true }) => {
       <Field
         name="dateOfBirthTo"
         component={DateField}
-        saveDateAsString
         label={
           <TranslatedText
             stringId="general.localisedField.dateOfBirthTo.label.short"

@@ -95,7 +95,6 @@ export const ProcedureFormFields = React.memo(({ values }) => {
           <Field
             name="date"
             label={<TranslatedText stringId="procedure.date.label" fallback="Procedure date" />}
-            saveDateAsString
             required
             component={DateField}
             data-testid="field-3a5v"
@@ -184,28 +183,24 @@ export const ProcedureFormFields = React.memo(({ values }) => {
             name="timeIn"
             label={<TranslatedText stringId="procedure.timeIn.label" fallback="Time in" />}
             component={TimeField}
-            saveDateAsString
             data-testid="field-khml1"
           />
           <Field
             name="timeOut"
             label={<TranslatedText stringId="procedure.timeOut.label" fallback="Time out" />}
             component={TimeField}
-            saveDateAsString
             data-testid="field-hgzz1"
           />
           <Field
             name="startTime"
             label={<TranslatedText stringId="procedure.startTime.label" fallback="Time started" />}
             component={TimeField}
-            saveDateAsString
             data-testid="field-khml"
           />
           <Field
             name="endTime"
             label={<TranslatedText stringId="procedure.endTime.label" fallback="Time ended" />}
             component={TimeField}
-            saveDateAsString
             data-testid="field-hgzz"
           />
         </NoteModalActionBlocker>

@@ -70,7 +70,6 @@ export const MarkTaskCompletedForm = ({ onClose, refreshTaskTable, taskIds }) =>
                 />
               }
               required
-              saveDateAsString
               component={DateTimeField}
               max={getCurrentDateTime()}
               data-testid="field-el3t"

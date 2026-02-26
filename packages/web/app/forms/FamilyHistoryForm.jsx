@@ -67,7 +67,6 @@ export const FamilyHistoryForm = ({
               }
               required
               component={DateField}
-              saveDateAsString
               data-testid="field-wrp3"
             />
             <Field

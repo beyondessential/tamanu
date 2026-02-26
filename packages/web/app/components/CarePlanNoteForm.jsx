@@ -97,7 +97,6 @@ export function CarePlanNoteForm({
                   />
                 }
                 component={DateTimeField}
-                saveDateAsString
                 data-testid="field-qouz"
               />
             </NoteModalActionBlocker>

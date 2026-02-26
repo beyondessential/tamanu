@@ -327,7 +327,6 @@ const HospitalAdmissionFields = () => {
         <Field
           name="estimatedEndDate"
           component={DateField}
-          saveDateAsString
           label={
             <TranslatedText
               stringId="encounter.estimatedDischargeDate.label"

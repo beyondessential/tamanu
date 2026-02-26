@@ -151,7 +151,6 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                       fallback="Date of registration"
                     />
                   }
-                  saveDateAsString
                   required
                   component={DateField}
                 />

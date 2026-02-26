@@ -160,7 +160,6 @@ export const ImagingRequestForm = React.memo(
                 }
                 required
                 component={DateTimeField}
-                saveDateAsString
                 data-testid="field-xsta"
               />
               <TextInput
