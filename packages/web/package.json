@@ -34,7 +34,7 @@
     "@testing-library/user-event": "^14.5.2",
     "jsdom": "^24.1.0",
     "rimraf": "^6.0.1",
-    "storybook": "^7.6.20",
+    "storybook": "^7.6.21",
     "vite-plugin-svgr": "^4.3.0",
     "vitest": "^2.1.8"
   },
