@@ -10,7 +10,6 @@ import {
   DateDisplay,
   useDateTime,
 } from '@tamanu/ui-components';
-import { trimToDate } from '@tamanu/utils/dateTime';
 import { Colors } from '../../../constants/styles';
 import { PATIENT_STATUS_COLORS } from '../../../constants';
 import { DataFetchingTable } from '../../../components/Table';
