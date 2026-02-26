@@ -57,6 +57,10 @@ const StyledField = styled(Field)`
   }
 `;
 
+const DateTimeFieldWithWidth = styled(Field)`
+  width: 220px;
+`;
+
 export const SAMPLE_DETAILS_FIELD_PREFIX = 'sample-details-field-';
 
 export const SampleDetailsField = ({
@@ -183,7 +187,7 @@ export const SampleDetailsField = ({
             </Typography>
           </Cell>
           <Cell data-testid="cell-o2z5">
-            <StyledField
+            <DateTimeFieldWithWidth
               name={`${SAMPLE_DETAILS_FIELD_PREFIX}sampleTime-${identifier}`}
               component={DateTimeField}
               max={getCurrentDateTime()}
@@ -194,7 +198,6 @@ export const SampleDetailsField = ({
                   removeSample(identifier);
                 }
               }}
-              style={{ width: '220px' }}
               data-testid="styledfield-ratc"
             />
           </Cell>

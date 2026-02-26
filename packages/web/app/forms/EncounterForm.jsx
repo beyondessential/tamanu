@@ -85,7 +85,7 @@ export const EncounterForm = React.memo(
               )
             }
             required
-            min="1970-01-01"
+            min="1970-01-01T00:00"
             component={DateTimeField}
             data-testid="field-vol8"
           />

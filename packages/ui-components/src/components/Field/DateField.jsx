@@ -54,8 +54,8 @@ function parseValue(value, primaryFormat) {
     // parseDate throws on invalid dates; fall through to format-based parsing
   }
   const formats = primaryFormat ? [primaryFormat, ...PARSE_FORMATS] : PARSE_FORMATS;
-  for (const fmt of formats) {
-    const date = parse(value, fmt, new Date());
+  for (const format of formats) {
+    const date = parse(value, format, new Date());
     if (isValid(date)) return date;
   }
   return null;
@@ -384,6 +384,7 @@ export const DateInput = ({
       <Box display="flex" alignContent="center" data-testid="box-13xp">
         <DefaultIconButton
           onClick={() => handleChange(addDays(dateValue || todayDate, -1))}
+          disabled={disabled}
           data-testid="defaulticonbutton-1fiy"
         >
           <KeyboardArrowLeftIcon data-testid="keyboardarrowlefticon-fn4i" />
@@ -391,6 +392,7 @@ export const DateInput = ({
         {picker}
         <DefaultIconButton
           onClick={() => handleChange(addDays(dateValue || todayDate, 1))}
+          disabled={disabled}
           data-testid="defaulticonbutton-rmeh"
         >
           <KeyboardArrowRightIcon data-testid="keyboardarrowrighticon-9tyl" />
