@@ -19,7 +19,7 @@ export const DateCell = ({ index, item, isItemEditable }) => {
       </NoteModalActionBlocker>
     ) : (
       <ViewOnlyCell>
-        <DateDisplay date={item?.orderDate} />
+        <DateDisplay date={item?.orderDate} format="shortest" />
       </ViewOnlyCell>
     )}
   </ItemCell>
