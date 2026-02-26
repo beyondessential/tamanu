@@ -3,10 +3,9 @@ import { Field, DateField, NoteModalActionBlocker } from '../../../../components
 import { ViewOnlyCell } from './ViewOnlyCell';
 import { ItemCell } from './ItemCell';
 import { CELL_WIDTHS } from '../../constants';
-import { useDateTime } from '@tamanu/ui-components';  
+import { DateDisplay } from '@tamanu/ui-components';  
 
 export const DateCell = ({ index, item, isItemEditable }) => {
-  const { formatShortest } = useDateTime();
   return (<ItemCell $width={CELL_WIDTHS.DATE}>
     {isItemEditable ? (
       <NoteModalActionBlocker>
@@ -21,7 +20,7 @@ export const DateCell = ({ index, item, isItemEditable }) => {
       </NoteModalActionBlocker>
     ) : (
       <ViewOnlyCell>
-        {item?.orderDate ? formatShortest(item?.orderDate) : ''}
+        <DateDisplay date={item?.orderDate} />
       </ViewOnlyCell>
     )}
   </ItemCell>
