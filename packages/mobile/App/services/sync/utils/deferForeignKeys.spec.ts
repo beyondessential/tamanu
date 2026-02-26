@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Database } from '~/infra/db';
 import { Task } from '~/models/Task';
 import { fakeUser, fakePatient, fakeEncounter, fakeTask } from '/root/tests/helpers/fake';
-import { deferForeignKeys } from './utils/deferForeignKeys';
+import { deferForeignKeys } from './deferForeignKeys';
 import { IPatient, IUser } from '~/types';
 
 describe('deferForeignKeys', () => {
