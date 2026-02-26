@@ -4,7 +4,6 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import svgr from 'vite-plugin-svgr';
 import json5Plugin from 'vite-plugin-json5';
-import path from 'path';
 
 /** @see https://vitejs.dev/config */
 export default async () => {
@@ -76,22 +75,6 @@ export default async () => {
       clearMocks: true,
       globals: true,
       environment: 'jsdom',
-    },
-    resolve: {
-      alias: {
-        '@tamanu/shared/utils/invoice': path.resolve(
-          __dirname,
-          '../shared/src/utils/invoice/index.js',
-        ),
-        // Pin @mui/* to web's nested copies (6.1.x) instead of the hoisted root (6.5.x).
-        // MUI packages share internal context and break when versions are mixed.
-        // TODO: remove once all @mui packages are aligned to the same version.
-        '@mui/material': path.resolve(__dirname, 'node_modules/@mui/material'),
-        '@mui/system': path.resolve(__dirname, 'node_modules/@mui/system'),
-        '@mui/icons-material': path.resolve(__dirname, 'node_modules/@mui/icons-material'),
-        '@mui/x-date-pickers': path.resolve(__dirname, 'node_modules/@mui/x-date-pickers'),
-        '@mui/styled-engine': path.resolve(__dirname, 'node_modules/@mui/styled-engine'),
-      },
     },
   });
 };

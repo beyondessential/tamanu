@@ -34,14 +34,6 @@ export default async () =>
         '@utils': path.resolve(__dirname, 'src/utils'),
         '@components': path.resolve(__dirname, 'src/components'),
         '@routes': path.resolve(__dirname, 'src/routes'),
-        // Pin @mui/* to web's nested copies (6.1.x) — patient-portal has no nested @mui/system
-        // so without this, Vite can't resolve subpath imports like @mui/system/RtlProvider.
-        // TODO: remove once all @mui packages are aligned to the same version.
-        '@mui/material': path.resolve(__dirname, '../web/node_modules/@mui/material'),
-        '@mui/system': path.resolve(__dirname, '../web/node_modules/@mui/system'),
-        '@mui/icons-material': path.resolve(__dirname, '../web/node_modules/@mui/icons-material'),
-        '@mui/x-date-pickers': path.resolve(__dirname, '../web/node_modules/@mui/x-date-pickers'),
-        '@mui/styled-engine': path.resolve(__dirname, '../web/node_modules/@mui/styled-engine'),
       },
     },
     server: {
