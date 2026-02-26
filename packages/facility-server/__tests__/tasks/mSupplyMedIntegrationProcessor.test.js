@@ -7,6 +7,7 @@ import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { createDummyPatient, createDummyEncounter, createDummyPrescription } from '@tamanu/database/demoData/patients';
 import { chance, fake, fakeUser } from '@tamanu/fake-data/fake';
 import { REFERENCE_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
+import { FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT } from '@tamanu/constants/facts';
 import { settingsCache } from '@tamanu/settings';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
@@ -150,6 +151,11 @@ describe('mSupplyMedIntegrationProcessor', () => {
       name: 'Test medication',
     });
     medicationId = drug.id;
+
+    await models.LocalSystemFact.set(
+      FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT,
+      new Date(Date.now()).toISOString(),
+    );
   });
 
   afterAll(() => context?.close());
@@ -195,17 +201,23 @@ describe('mSupplyMedIntegrationProcessor', () => {
   });
 
   describe('when integration config is invalid', () => {
-    afterAll(() => {
+    afterAll(async () => {
       config.integrations.mSupplyMed = INTEGRATION_CONFIG;
+      await models.LocalSystemFact.set(
+        FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT,
+        new Date(Date.now()).toISOString(),
+      );
     });
 
-    it('skips run when enabled is false', async () => {
+    it('skips run when enabled is false and removes enabled-at fact', async () => {
       config.integrations.mSupplyMed = { ...INTEGRATION_CONFIG, enabled: false };
 
       const task = new mSupplyMedIntegrationProcessor(context);
       await task.run();
 
       expect(fetchWithRetryBackoff).not.toHaveBeenCalled();
+      const enabledAt = await models.LocalSystemFact.get(FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT);
+      expect(enabledAt).toBeNull();
     });
 
     it('skips run when username or password is missing', async () => {
@@ -247,8 +259,44 @@ describe('mSupplyMedIntegrationProcessor', () => {
     });
   });
 
+  describe('enabled-at fact behaviour when integration is enabled', () => {
+    it('sets enabled-at fact to current date if it is not set', async () => {
+      await models.LocalSystemFact.destroy({
+        where: { key: FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT },
+        force: true,
+      });
+      const task = new mSupplyMedIntegrationProcessor(context);
+      await task.run();
+      const enabledAt = await models.LocalSystemFact.get(FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT);
+      expect(enabledAt).toBeTruthy();
+    });
+
+    it('does not update enabled-at fact if it is already set', async () => {
+      const previousEnabledAt = await models.LocalSystemFact.get(FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT);
+      const task = new mSupplyMedIntegrationProcessor(context);
+      await task.run();
+      const enabledAt = await models.LocalSystemFact.get(FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT);
+      expect(enabledAt).toBe(previousEnabledAt);
+    });
+  });
+
   describe('when there is nothing to process', () => {
     it('returns without calling auth or post', async () => {
+      await models.LocalSystemFact.destroy({
+        where: { key: FACT_MSUPPLY_MED_INTEGRATION_ENABLED_AT },
+        force: true,
+      });
+
+      // These will be considered historical data, so should not be processed
+      await createMedicationDispenses(models, {
+        facilityId,
+        encounterId,
+        orderingClinicianId: clinicianId,
+        dispensedByUserId,
+        medicationId,
+        count: 2,
+      });
+
       const task = new mSupplyMedIntegrationProcessor(context);
       await task.run();
 
