@@ -35,8 +35,8 @@ const isPatientsChangelogConstraintTrigger = async sequelize => {
 
 // Migration that runs just before addAuditTrigger (which creates record_change)
 const BEFORE_RECORD_CHANGE = '1739970132204-ensureSystemUserPresent';
-// Migration that runs just before convertChangelogToConstraintTriggers
-const BEFORE_CONSTRAINT_TRIGGERS = '1764620401759-addInvoiceProductInsurable';
+// Migration that adds the record_change function
+const AFTER_RECORD_CHANGE = '1739970132205-addAuditTrigger';
 
 describe('migrateUpTo', () => {
   let database;
@@ -51,11 +51,12 @@ describe('migrateUpTo', () => {
     await closeDatabase();
   });
 
-  it('does not install record_change triggers when migrated up to before addAuditTrigger', async () => {
-    const pending = await migrations.pending();
+  it('applies post-migration hooks correctly at each migration stage', async () => {
+    let pending = await migrations.pending();
     expect(pending.length).toBeGreaterThan(0);
-    const beforeRecordChangeMigration = pending.find(mig => mig.testFileName(BEFORE_RECORD_CHANGE));
 
+    // Stop 1: before addAuditTrigger — no record_change triggers yet
+    const beforeRecordChangeMigration = pending.find(mig => mig.testFileName(BEFORE_RECORD_CHANGE));
     await migrateUpTo({
       log,
       sequelize: database.sequelize,
@@ -63,64 +64,34 @@ describe('migrateUpTo', () => {
       migrations,
       upOpts: { to: beforeRecordChangeMigration.file },
     });
-
-    const tablesWithRecordChangelog = await tablesWithTrigger(
+    const tablesWithChangelogBeforeTriggerIsInstalled = await tablesWithTrigger(
       database.sequelize,
       'record_',
       '_changelog',
       RECORD_CHANGELOG_EXCLUDES,
     );
-    expect(tablesWithRecordChangelog).toHaveLength(0);
-  }, 30000);
+    expect(tablesWithChangelogBeforeTriggerIsInstalled).toHaveLength(0);
 
-  it('installs old (non-constraint) record_change triggers when migrated up to before convertChangelogToConstraintTriggers', async () => {
-    let pending = await migrations.pending();
-    const beforeRecordChangeMigration = pending.find(mig => mig.testFileName(BEFORE_RECORD_CHANGE));
-    await migrateUpTo({
-      log,
-      sequelize: database.sequelize,
-      pending,
-      migrations,
-      upOpts: { to: beforeRecordChangeMigration.file },
-    });
-
+    // Stop 2: after addAuditTrigger — old (non-constraint) triggers installed
     pending = await migrations.pending();
-    const beforeConstraintTriggersMigration = pending.find(mig =>
-      mig.testFileName(BEFORE_CONSTRAINT_TRIGGERS),
-    );
+    const afterRecordChangeMigration = pending.find(mig => mig.testFileName(AFTER_RECORD_CHANGE));
     await migrateUpTo({
       log,
       sequelize: database.sequelize,
       pending,
       migrations,
-      upOpts: { to: beforeConstraintTriggersMigration.file },
+      upOpts: { to: afterRecordChangeMigration.file },
     });
-
-    const tablesWithoutRecordChangelog = await tablesWithoutTrigger(
+    const tablesWithoutChangelogAfterTriggerIsInstalled = await tablesWithoutTrigger(
       database.sequelize,
       'record_',
       '_changelog',
       RECORD_CHANGELOG_EXCLUDES,
     );
-    expect(tablesWithoutRecordChangelog).toHaveLength(0);
+    expect(tablesWithoutChangelogAfterTriggerIsInstalled).toHaveLength(0);
+    expect(await isPatientsChangelogConstraintTrigger(database.sequelize)).toBe(false);
 
-    const isConstraint = await isPatientsChangelogConstraintTrigger(database.sequelize);
-    expect(isConstraint).toBe(false);
-  }, 30000);
-
-  it('installs constraint record_change triggers after full migration', async () => {
-    let pending = await migrations.pending();
-    const beforeConstraintTriggersMigration = pending.find(mig =>
-      mig.testFileName(BEFORE_CONSTRAINT_TRIGGERS),
-    );
-    await migrateUpTo({
-      log,
-      sequelize: database.sequelize,
-      pending,
-      migrations,
-      upOpts: { to: beforeConstraintTriggersMigration.file },
-    });
-
+    // Stop 3: run all remaining — constraint triggers installed
     pending = await migrations.pending();
     await migrateUpTo({
       log,
@@ -129,16 +100,13 @@ describe('migrateUpTo', () => {
       migrations,
       upOpts: undefined,
     });
-
-    const tablesWithoutRecordChangelog = await tablesWithoutTrigger(
+    const tablesWithoutChangelogAfterAllMigrations = await tablesWithoutTrigger(
       database.sequelize,
       'record_',
       '_changelog',
       RECORD_CHANGELOG_EXCLUDES,
     );
-    expect(tablesWithoutRecordChangelog).toHaveLength(0);
-
-    const isConstraint = await isPatientsChangelogConstraintTrigger(database.sequelize);
-    expect(isConstraint).toBe(true);
-  }, 30000);
+    expect(tablesWithoutChangelogAfterAllMigrations).toHaveLength(0);
+    expect(await isPatientsChangelogConstraintTrigger(database.sequelize)).toBe(true);
+  }, 60000);
 });
