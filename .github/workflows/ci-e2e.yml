@@ -93,7 +93,7 @@ jobs:
       - name: Start servers
         run: .github/scripts/e2e-test-setup.sh start-servers
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        run: npm run e2e-install-browsers
       - name: Run Playwright tests
         run: npm run e2e-test
       - name: Upload test results
