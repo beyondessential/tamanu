@@ -1,10 +1,7 @@
 import { describe, expect, it, beforeEach, afterEach } from 'vitest';
 import { QueryTypes } from 'sequelize';
 import { closeDatabase, initDatabase } from '../../utilities';
-import {
-  createMigrationInterface,
-  migrateUpTo,
-} from '../../../dist/cjs/services/migrations/migrations';
+import { createMigrationInterface, migrateUpTo } from '@tamanu/database/services/migrations';
 import { tablesWithTrigger, tablesWithoutTrigger } from '../../../src/utils';
 import {
   GLOBAL_EXCLUDE_TABLES,
