@@ -48,9 +48,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null, // intentionally null
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: ChartInstanceNameField,
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: props => (
-    <DateTimeField {...props} />
-  ),
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: DateTimeField,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_TYPE]: props => (
     <BaseSelectField {...props} clearValue="" />
   ),

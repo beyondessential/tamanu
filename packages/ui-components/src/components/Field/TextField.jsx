@@ -106,7 +106,6 @@ export const TextInput = ({
 }) => {
   const { getSetting } = useSettings();
   const disableInputPasting = getSetting('features.disableInputPasting');
-  
   const onPaste = e => {
     if (!enablePasting && disableInputPasting) {
       e.preventDefault();
