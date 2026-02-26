@@ -46,6 +46,7 @@ const HospitalAdmissionFields = () => {
           />
         }
         required
+        saveDateAsString
         data-testid="field-admission-time"
       />
       <Field
@@ -123,11 +124,12 @@ const ClinicFields = () => {
         component={DateTimeField}
         label={
           <TranslatedText
-            stringId="encounter.checkInDateTime.label"
-            fallback="Check-in date & time"
+          stringId="encounter.checkInDateTime.label"
+          fallback="Check-in date & time"
           />
         }
         required
+        saveDateAsString
         data-testid="field-check-in-time"
       />
       <PatientTypeField
@@ -183,6 +185,7 @@ const TriageFields = () => {
         label={
           <TranslatedText stringId="triage.arrivalDateTime.label" fallback="Arrival date & time" />
         }
+        saveDateAsString
         data-testid="field-admission-time"
       />
       <Field
@@ -192,6 +195,7 @@ const TriageFields = () => {
           <TranslatedText stringId="triage.triageDateTime.label" fallback="Triage date & time" />
         }
         required
+        saveDateAsString
         data-testid="field-admission-time"
       />
       <LocalisedField
