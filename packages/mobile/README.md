@@ -14,7 +14,6 @@ The rest of the Tamanu system is in [a separate monorepo](https://github.com/bey
     - [Android Studio](#Android-Studio)
 - [Running](#Running)
   - [Run metro bundler](#Run-metro-bundler)
-  - [Run storybook](#Run-storybook)
 - [Emulator Command Hints](#Emulator-Command-Hints)
   - [Android](#Android)
 - [Generate apk](#Generate-apk-and-ipa)
@@ -60,18 +59,6 @@ First start the metro bundler with the command:
 ```
 npm run start
 ```
-
-### Run storybook
-
-Storybook is our default component library which helps us checking the behavior and styles of components in an isolated environment.
-
-To run storybook:
-
-1. Have your emulator running
-1. Have your app running (metro bundler)
-1. Open the dev menu and press `Toggle Storybook`
-
-You can also run `npm run storybook-web-ui` for a little nicer experience.
 
 ## Emulator Command Hints
 
@@ -193,7 +180,6 @@ App folder structure:
 |           |                                                       |
 | --------- | ----------------------------------------------------- |
 | App       | user interface components, navigation and ddd folders |
-| storybook | Storybook folder with configuration files.            |
 | e2e       | End to end testing with detox                         |
 | android   | Gradle configuration, debug signing key               |
 | _mocks_   | fixed mocks for jest test runner                      |
