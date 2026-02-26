@@ -182,7 +182,7 @@ const BookingsTimelineItem = ({ appointment }) => {
       </StyledTimelineSeparator>
       <StyledTimelineContent data-testid="styledtimelinecontent-ptdu">
         <TimeText data-testid="timetext-4k7e">
-          `${formatTimeCompact(startTime)} - ${formatTimeCompact(endTime)}`
+          {formatTimeCompact(startTime)} - {formatTimeCompact(endTime)}
         </TimeText>
         <Box width={0} flex={1} data-testid="box-i72x">
           <ConditionalTooltip
@@ -216,7 +216,7 @@ export const TodayBookingsPane = ({ showTasks }) => {
   const { currentUser, facilityId } = useAuth();
   const { getCurrentDate, getDayBoundaries } = useDateTime();
   const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
-  
+
   // Get today's date boundaries in facility timezone, converted to primary timezone for query
   const todayFacility = getCurrentDate();
   const { start, end } = getDayBoundaries(todayFacility);
