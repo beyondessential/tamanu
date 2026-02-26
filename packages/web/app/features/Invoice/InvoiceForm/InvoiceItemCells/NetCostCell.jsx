@@ -11,8 +11,9 @@ const Cell = styled(ItemCell)`
 `;
 
 export const NetCostCell = ({ item, cellWidths = CELL_WIDTHS }) => {
-  const netCost = getInvoiceItemNetCost(item);
-  const showValue = Boolean(item.productId);
-
-  return <Cell $width={cellWidths.NET_COST}>{showValue && <Price price={netCost} />}</Cell>;
+  return (
+    <Cell $width={cellWidths.NET_COST}>
+      {item.productId ? <Price price={getInvoiceItemNetCost(item)} /> : null}
+    </Cell>
+  );
 };
