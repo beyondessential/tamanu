@@ -378,12 +378,16 @@ const DroppableSchedule = forwardRef(({ locationId, onDragging, children }, ref)
 });
 
 const DraggableAppointment = ({ appointment, children, onDragEnd }) => {
+  const { toFacilityDateTime } = useDateTime();
   const [{ isDragging }, dragRef, preview] = useDrag(
     () => ({
       type: 'APPOINTMENT',
       item: { ...appointment },
       collect: monitor => ({ isDragging: monitor.isDragging() }),
-      canDrag: isSameDay(new Date(appointment.startTime), new Date(appointment.endTime)),
+      canDrag: isSameDay(
+        new Date(toFacilityDateTime(appointment.startTime)),
+        new Date(toFacilityDateTime(appointment.endTime)),
+      ),
       end: () => {
         onDragEnd();
       },
@@ -774,6 +778,7 @@ export const LocationBookingsDailyCalendar = ({
     );
     const overnightAppointments = (data[locationId] || []).filter(
       appointment =>
+        appointment.id !== item.id &&
         !isSameDay(toFacilityDate(appointment.startTime), toFacilityDate(appointment.endTime)),
     );
     const overnightAppointmentEnd = overnightAppointments.find(appointment =>
@@ -967,7 +972,7 @@ export const LocationBookingsDailyCalendar = ({
       dragData.current = null;
       const appointments =
         appointmentsByLocation[locationId]?.filter(appointment =>
-          isSameDay(new Date(appointment.startTime), new Date(appointment.endTime)),
+          isSameDay(toFacilityDate(appointment.startTime), toFacilityDate(appointment.endTime)),
         ) || [];
       reorderMutation({ appointments });
       setClinicianAssignmentDiscrepancyModal(null);
