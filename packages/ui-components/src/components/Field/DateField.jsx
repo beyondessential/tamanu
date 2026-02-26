@@ -410,6 +410,7 @@ export const DateInput = ({
       <Box display="flex" alignContent="center" data-testid="box-13xp">
         <DefaultIconButton
           onClick={() => handleChange(addDays(dateValue || todayDate, -1))}
+          disabled={disabled}
           data-testid="defaulticonbutton-1fiy"
         >
           <KeyboardArrowLeftIcon data-testid="keyboardarrowlefticon-fn4i" />
@@ -417,6 +418,7 @@ export const DateInput = ({
         {picker}
         <DefaultIconButton
           onClick={() => handleChange(addDays(dateValue || todayDate, 1))}
+          disabled={disabled}
           data-testid="defaulticonbutton-rmeh"
         >
           <KeyboardArrowRightIcon data-testid="keyboardarrowrighticon-9tyl" />
