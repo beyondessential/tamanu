@@ -106,9 +106,7 @@ export const TextInput = ({
 }) => {
   const { getSetting } = useSettings();
   const disableInputPasting = getSetting('features.disableInputPasting');
-  // eslint-disable-next-line no-unused-vars
-  const { saveDateAsString, ...rest } = props;
-
+  
   const onPaste = e => {
     if (!enablePasting && disableInputPasting) {
       e.preventDefault();
@@ -150,7 +148,7 @@ export const TextInput = ({
           ...props.inputProps,
           'data-testid': `${dataTestId}-input`,
         }}
-        {...rest}
+        {...props}
       />
     </OuterLabelFieldWrapper>
   );

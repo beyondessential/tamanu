@@ -74,7 +74,6 @@ export const DateInput = ({
   name,
   max = '9999-12-31',
   min,
-  saveDateAsString = true,
   arrows = false,
   inputProps = {},
   keepIncorrectValue,
@@ -162,14 +161,10 @@ export const DateInput = ({
       } else {
         const date = parse(formattedValue, format, new Date());
 
-        if (saveDateAsString) {
-          if (type === 'date') {
-            outputValue = toDateString(date);
-          } else if (['time', 'datetime-local'].includes(type)) {
-            outputValue = toDateTimeString(date);
-          }
-        } else {
-          outputValue = date.toISOString();
+        if (type === 'date') {
+          outputValue = toDateString(date);
+        } else if (['time', 'datetime-local'].includes(type)) {
+          outputValue = toDateTimeString(date);
         }
       }
 
@@ -186,7 +181,6 @@ export const DateInput = ({
       onChange,
       format,
       name,
-      saveDateAsString,
       type,
       clearValue,
       shouldUseTimezone,
