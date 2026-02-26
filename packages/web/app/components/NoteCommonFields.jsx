@@ -134,7 +134,6 @@ export const NoteDateTimeField = ({ required, disabled, size }) => {
       component={DateTimeField}
       required={required}
       disabled={!getSetting('features.enableNoteBackdating') || disabled}
-      saveDateAsString
       size={size}
       data-testid="field-nwwl"
     />

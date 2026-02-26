@@ -148,7 +148,6 @@ export const VaccineDateField = ({ label, required = true, min, max, keepIncorre
     label={label}
     component={DateTimeField}
     required={required}
-    saveDateAsString
     min={min}
     max={max}
     keepIncorrectValue={keepIncorrectValue}

@@ -12,6 +12,7 @@ import { Table } from '../Table';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../Translation';
 import { singularize } from '../../utils';
+import { trimToDate } from '@tamanu/utils/dateTime';
 
 const StyledTable = styled(Table)`
   .MuiTableCell-root {
@@ -229,7 +230,7 @@ const getColumns = (
         />
       ),
       sortable: false,
-      accessor: ({ date }) => <DateDisplay date={date} format="shortest" />,
+      accessor: ({ date }) => <DateDisplay date={trimToDate(date)} format="shortest" />,
     },
     {
       key: COLUMN_KEYS.LAST_SENT,

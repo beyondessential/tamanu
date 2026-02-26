@@ -85,7 +85,6 @@ export const DateTimeSelector = (props) => {
       {value === CUSTOM_DATE && (
         <DateInput
           size="small"
-          saveDateAsString
           // set format so we can safely use parseISO
           format={DATE_FORMAT}
           value={startDateString}

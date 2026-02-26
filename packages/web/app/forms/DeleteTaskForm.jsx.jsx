@@ -73,7 +73,6 @@ export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
                 />
               }
               required
-              saveDateAsString
               component={DateTimeField}
               max={getCurrentDateTime()}
               data-testid="field-bnve"

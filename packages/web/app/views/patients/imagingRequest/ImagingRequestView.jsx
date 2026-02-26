@@ -240,7 +240,6 @@ const NewResultSection = ({ disabled = false }) => {
             />
           }
           name="newResult.completedAt"
-          saveDateAsString
           component={DateTimeField}
           disabled={disabled}
           data-testid="field-wxo5"

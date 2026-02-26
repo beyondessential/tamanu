@@ -45,7 +45,6 @@ export const DateTimeFieldWithSameDayWarning = ({ isEdit, onChange }) => {
         />
       }
       component={DateTimeField}
-      saveDateAsString
       required
       onChange={(e) => {
         onChange(e);

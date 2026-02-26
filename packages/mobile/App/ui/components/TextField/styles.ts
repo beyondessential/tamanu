@@ -1,13 +1,7 @@
 import styled from 'styled-components/native';
-import {
-  TextInputMaskOptionProp,
-  TextInputMaskProps,
-  TextInputMaskTypeProp,
-} from 'react-native-masked-text';
 import { theme } from '/styled/theme';
 import { StyledView, StyledViewProps } from '/styled/common';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { TextFieldProps } from './TextField';
 
 export interface StyledTextInputProps {
   error?: string;
@@ -46,12 +40,3 @@ export const StyledTextInput = styled.TextInput<StyledViewProps>`
   }};
   padding-left: ${screenPercentageToDP(3, Orientation.Width)};
 `;
-
-export interface MaskedInputProps extends TextFieldProps {
-  masked?: boolean;
-  maskType: TextInputMaskTypeProp;
-  options?: TextInputMaskOptionProp;
-  width?: string | number;
-}
-
-export const StyledMaskedInput = styled(StyledTextInput)<TextInputMaskProps>``;
