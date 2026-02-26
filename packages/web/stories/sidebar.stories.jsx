@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { storiesOf } from '@storybook/react';
-import { action } from '@storybook/addon-actions';
+import { action } from 'storybook/actions';
 import { FACILITY_MENU_ITEMS } from '../app/components/Sidebar/FacilityMenuItems';
 import { Sidebar } from '../app/components/Sidebar';
 
@@ -12,7 +11,11 @@ const Container = styled.div`
   grid-template-columns: 1fr 4fr;
 `;
 
-storiesOf('Sidebar', module).add('Sidebar', () => (
+export default {
+  title: 'Sidebar',
+};
+
+export const SidebarStory = () => (
   <Container>
     <Sidebar
       currentPath="/test/abc"
@@ -23,4 +26,8 @@ storiesOf('Sidebar', module).add('Sidebar', () => (
       currentUser={{ displayName: 'Catherine Jennings' }}
     />
   </Container>
-));
+);
+
+SidebarStory.story = {
+  name: 'Default',
+};

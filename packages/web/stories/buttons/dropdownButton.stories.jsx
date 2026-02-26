@@ -1,5 +1,4 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import styled from 'styled-components';
 import { DropdownButton } from '../../app/components/DropdownButton';
 import { Button, ButtonRow } from '@tamanu/ui-components';
@@ -23,28 +22,46 @@ const Container = styled.div`
   }
 `;
 
-storiesOf('Buttons/DropdownButton', module)
-  .add('Default', () => (
-    <div>
-      <Container>
-        <DropdownButton actions={actions} size="large" />
-        <DropdownButton actions={actions} />
-        <DropdownButton actions={actions} size="small" />
-      </Container>
-      <Container>
-        <DropdownButton actions={actions} variant="outlined" size="large" />
-        <DropdownButton actions={actions} variant="outlined" />
-        <DropdownButton actions={actions} variant="outlined" size="small" />
-      </Container>
-    </div>
-  ))
-  .add('Only one action', () => (
-    <DropdownButton actions={[{ label: 'Plier', onClick: () => {} }]} />
-  ))
-  .add('No actions', () => <DropdownButton actions={[]} />)
-  .add('In button row', () => (
-    <ButtonRow>
-      <Button onClick={() => {}}>Other</Button>
+export default {
+  title: 'Buttons/DropdownButton',
+};
+
+export const Default = () => (
+  <div>
+    <Container>
+      <DropdownButton actions={actions} size="large" />
       <DropdownButton actions={actions} />
-    </ButtonRow>
-  ));
+      <DropdownButton actions={actions} size="small" />
+    </Container>
+    <Container>
+      <DropdownButton actions={actions} variant="outlined" size="large" />
+      <DropdownButton actions={actions} variant="outlined" />
+      <DropdownButton actions={actions} variant="outlined" size="small" />
+    </Container>
+  </div>
+);
+
+export const OnlyOneAction = () => (
+  <DropdownButton actions={[{ label: 'Plier', onClick: () => {} }]} />
+);
+
+OnlyOneAction.story = {
+  name: 'Only one action',
+};
+
+export const NoActions = () => <DropdownButton actions={[]} />;
+
+NoActions.story = {
+  name: 'No actions',
+};
+
+export const InButtonRow = () => (
+  <ButtonRow>
+    <Button onClick={() => {}}>Other</Button>
+    <DropdownButton actions={actions} />
+  </ButtonRow>
+);
+
+InButtonRow.story = {
+  name: 'In button row',
+};

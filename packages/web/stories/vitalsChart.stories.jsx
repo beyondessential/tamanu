@@ -1,5 +1,4 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import { addDays, addHours, format } from 'date-fns';
 import { Modal } from '@tamanu/ui-components';
 import { LineChart } from '../app/components/Charts/LineChart';
@@ -75,47 +74,51 @@ const chartProps = getVitalChartProps({
   dateRange,
 });
 
-storiesOf('Vitals', module)
-  .addDecorator(Story => (
-    <EncounterContext.Provider
-      value={{
-        encounter: { id: 'encounter_id' },
-      }}
-    >
-      <Story />
-    </EncounterContext.Provider>
-  ))
-  .add('Vital Chart', () => {
-    return (
-      <Modal title="Vital Chart" open width="xl">
-        <LineChart
-          chartData={data}
-          visualisationConfig={visualisationConfig}
-          chartProps={chartProps}
-        />
-      </Modal>
-    );
-  })
-  .add('Empty Vital Chart', () => {
-    return (
-      <Modal title="Empty Vital Chart" open width="xl">
-        <LineChart
-          chartData={[]}
-          visualisationConfig={visualisationConfig}
-          chartProps={chartProps}
-        />
-      </Modal>
-    );
-  })
-  .add('Inward Arrow Vital Chart', () => {
-    return (
-      <Modal title="Inward Arrow Vital Chart" open width="xl">
-        <LineChart
-          chartData={inwardArrowData}
-          visualisationConfig={visualisationConfig}
-          chartProps={chartProps}
-          useInwardArrowVector
-        />
-      </Modal>
-    );
-  });
+export default {
+  title: 'Vitals',
+
+  decorators: [
+    Story => (
+      <EncounterContext.Provider
+        value={{
+          encounter: { id: 'encounter_id' },
+        }}
+      >
+        <Story />
+      </EncounterContext.Provider>
+    ),
+  ],
+};
+
+export const VitalChart = () => {
+  return (
+    <Modal title="Vital Chart" open width="xl">
+      <LineChart
+        chartData={data}
+        visualisationConfig={visualisationConfig}
+        chartProps={chartProps}
+      />
+    </Modal>
+  );
+};
+
+export const EmptyVitalChart = () => {
+  return (
+    <Modal title="Empty Vital Chart" open width="xl">
+      <LineChart chartData={[]} visualisationConfig={visualisationConfig} chartProps={chartProps} />
+    </Modal>
+  );
+};
+
+export const InwardArrowVitalChart = () => {
+  return (
+    <Modal title="Inward Arrow Vital Chart" open width="xl">
+      <LineChart
+        chartData={inwardArrowData}
+        visualisationConfig={visualisationConfig}
+        chartProps={chartProps}
+        useInwardArrowVector
+      />
+    </Modal>
+  );
+};

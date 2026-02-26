@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { storiesOf } from '@storybook/react';
 import { Colors } from '../app/constants/styles';
 import {
   InwardArrowVectorTooltipContent,
@@ -23,7 +22,11 @@ const TooltipWrapper = styled.div`
   width: 250px;
 `;
 
-storiesOf('Vitals', module).add('Vital Tooltip', () => {
+export default {
+  title: 'Vitals',
+};
+
+export const VitalTooltip = () => {
   const name = '2023-05-30 10:04:52';
   return (
     <Wrapper>
@@ -78,4 +81,4 @@ storiesOf('Vitals', module).add('Vital Tooltip', () => {
       </TooltipWrapper>
     </Wrapper>
   );
-});
+};

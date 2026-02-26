@@ -1,6 +1,5 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
-import { action } from '@storybook/addon-actions';
+import { action } from 'storybook/actions';
 import styled from 'styled-components';
 import { TextField, Form, Button, FormGrid } from '@tamanu/ui-components';
 import { Field } from '../../app/components';
@@ -23,7 +22,11 @@ const StyledButton = styled(Button)`
   padding: 14px 20px;
 `;
 
-storiesOf('Forms', module).add('Async submission form', () => (
+export default {
+  title: 'Forms',
+};
+
+export const AsyncSubmissionForm = () => (
   <Form
     onSubmit={asyncSubmit}
     render={({ submitForm, isSubmitting }) => (
@@ -40,7 +43,11 @@ storiesOf('Forms', module).add('Async submission form', () => (
       </StyledFormGrid>
     )}
   />
-));
+);
+
+AsyncSubmissionForm.story = {
+  name: 'Async submission form',
+};
 
 async function asyncSubmitWithError(data, { setErrors }) {
   action('submitStart')(data);
@@ -56,7 +63,7 @@ async function asyncSubmitWithError(data, { setErrors }) {
   action('submitEnd')(data);
 }
 
-storiesOf('Forms', module).add('With async error', () => (
+export const WithAsyncError = () => (
   <Form
     onSubmit={asyncSubmitWithError}
     render={({ submitForm, isSubmitting }) => (
@@ -73,4 +80,8 @@ storiesOf('Forms', module).add('With async error', () => (
       </StyledFormGrid>
     )}
   />
-));
+);
+
+WithAsyncError.story = {
+  name: 'With async error',
+};

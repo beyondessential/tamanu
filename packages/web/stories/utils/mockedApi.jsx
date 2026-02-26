@@ -1,5 +1,5 @@
 import React from 'react';
-import { parse, tokensToRegExp } from 'path-to-regexp';
+import pathToRegexp from 'path-to-regexp';
 import { ApiContext } from '@tamanu/ui-components';
 
 const wait = duration =>
@@ -9,7 +9,9 @@ const wait = duration =>
 
 function createMockedApi(endpoints) {
   const matchers = Object.entries(endpoints).map(([endpoint, callback]) => {
-    return { matcher: tokensToRegExp(parse(endpoint)), callback };
+    const keys = [];
+    const matcher = pathToRegexp(endpoint, keys, { end: true });
+    return { matcher, callback };
   });
 
   const getHandler = url => {

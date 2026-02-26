@@ -1,7 +1,6 @@
 import React from 'react';
 
-import { storiesOf } from '@storybook/react';
-import { action } from '@storybook/addon-actions';
+import { action } from 'storybook/actions';
 
 import { ImportErrorsTable } from '../app/views/administration/components/ImportErrorsTable';
 import { ImportStatsDisplay } from '../app/views/administration/components/ImportStatsDisplay';
@@ -76,7 +75,11 @@ const dummySubmit = overrides => async formData => {
   };
 };
 
-storiesOf('Admin/ImportExportView', module).add('Whole view', () => (
+export default {
+  title: 'Admin',
+};
+
+export const ImportExportWholeView = () => (
   <ImportExportView
     onSubmit={dummySubmit()}
     onReceiveResult={action('result')}
@@ -84,14 +87,36 @@ storiesOf('Admin/ImportExportView', module).add('Whole view', () => (
     dataTypes={['referenceData', 'user', 'patient']}
     dataTypesSelectable
   />
-));
+);
 
-storiesOf('Admin/ImportStats', module).add('Default', () => (
+ImportExportWholeView.story = {
+  name: 'ImportExportView - Whole view',
+};
+
+export const ImportStatsDefault = () => (
   <ImportStatsDisplay stats={sampleResponse.stats} />
-));
+);
 
-storiesOf('Admin/ErrorTable', module)
-  .add('Default', () => <ImportErrorsTable errors={sampleResponse.errors} />)
-  .add('No errors', () => <ImportErrorsTable errors={[]} />);
+ImportStatsDefault.story = {
+  name: 'ImportStats - Default',
+};
 
-storiesOf('Admin/AssetUploaderView', module).add('Default', () => <AssetUploaderView />);
+export const ErrorTableDefault = () => (
+  <ImportErrorsTable errors={sampleResponse.errors} />
+);
+
+ErrorTableDefault.story = {
+  name: 'ErrorTable - Default',
+};
+
+export const ErrorTableNoErrors = () => <ImportErrorsTable errors={[]} />;
+
+ErrorTableNoErrors.story = {
+  name: 'ErrorTable - No errors',
+};
+
+export const AssetUploaderDefault = () => <AssetUploaderView />;
+
+AssetUploaderDefault.story = {
+  name: 'AssetUploaderView - Default',
+};

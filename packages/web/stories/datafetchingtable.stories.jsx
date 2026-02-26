@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
-import { storiesOf } from '@storybook/react';
 import { ApiContext } from '@tamanu/ui-components';
 import Chance from 'chance';
 import { DataFetchingTable } from '../app/components/Table';
@@ -94,29 +93,52 @@ const TableWithDynamicData = () => {
   );
 };
 
-storiesOf('DataFetchingTable', module)
-  .add('Plain', () => (
-    <ApiContext.Provider value={dummyApi}>
-      <DataFetchingTable endpoint="ages" columns={dummyColumns} />
-    </ApiContext.Provider>
-  ))
-  .add('With optionRow', () => (
-    <ApiContext.Provider value={dummyApi}>
-      <DataFetchingTable
-        endpoint="ages"
-        columns={dummyColumns}
-        optionRow={<CheckInput label={<small>Dummy checkbox</small>} />}
-      />
-    </ApiContext.Provider>
-  ))
-  .add('With pagination error', () => (
-    <ApiContext.Provider value={paginationErrorApi}>
-      <DataFetchingTable endpoint="ages" columns={dummyColumns} />
-    </ApiContext.Provider>
-  ))
-  .add('With autorefresh enabled', () => TableWithDynamicData())
-  .add('With lazy loading', () => (
-    <ApiContext.Provider value={dummyApi}>
-      <DataFetchingTable lazyLoading endpoint="ages" columns={dummyColumns} />
-    </ApiContext.Provider>
-  ));
+export default {
+  title: 'DataFetchingTable',
+};
+
+export const Plain = () => (
+  <ApiContext.Provider value={dummyApi}>
+    <DataFetchingTable endpoint="ages" columns={dummyColumns} />
+  </ApiContext.Provider>
+);
+
+export const WithOptionRow = () => (
+  <ApiContext.Provider value={dummyApi}>
+    <DataFetchingTable
+      endpoint="ages"
+      columns={dummyColumns}
+      optionRow={<CheckInput label={<small>Dummy checkbox</small>} />}
+    />
+  </ApiContext.Provider>
+);
+
+WithOptionRow.story = {
+  name: 'With optionRow',
+};
+
+export const WithPaginationError = () => (
+  <ApiContext.Provider value={paginationErrorApi}>
+    <DataFetchingTable endpoint="ages" columns={dummyColumns} />
+  </ApiContext.Provider>
+);
+
+WithPaginationError.story = {
+  name: 'With pagination error',
+};
+
+export const WithAutorefreshEnabled = () => TableWithDynamicData();
+
+WithAutorefreshEnabled.story = {
+  name: 'With autorefresh enabled',
+};
+
+export const WithLazyLoading = () => (
+  <ApiContext.Provider value={dummyApi}>
+    <DataFetchingTable lazyLoading endpoint="ages" columns={dummyColumns} />
+  </ApiContext.Provider>
+);
+
+WithLazyLoading.story = {
+  name: 'With lazy loading',
+};

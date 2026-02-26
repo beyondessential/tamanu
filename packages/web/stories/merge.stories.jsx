@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
 
-import { storiesOf } from '@storybook/react';
-import { action } from '@storybook/addon-actions';
+import { action } from 'storybook/actions';
 import { MockedApi } from './utils/mockedApi';
 
-import { 
+import {
   ConfirmationModal,
   KeepPatientDecisionForm,
   MergeErrorModal,
   MergeResultModal,
   PatientMergeSearch,
   PatientMergeView,
-  PatientSummary,
+  PatientSummary as PatientSummaryComponent,
 } from '../app/views/administration/patientMerge';
 
 const baseDetails = {
@@ -31,7 +30,7 @@ const secondPatient = {
   ...baseDetails,
   id: '000002',
   displayId: 'TEMP002',
-}
+};
 
 const fakeGetPatient = displayId => ({
   ...baseDetails,
@@ -43,10 +42,10 @@ const endpoints = {
   'admin/lookup/patient/:id': (data, id) => {
     return fakeGetPatient(id);
   },
-  'admin/mergePatient': (data) => {
+  'admin/mergePatient': data => {
     action('call admin/mergePatient')(data);
     return {
-      updates: { 
+      updates: {
         Patient: 1,
         PatientEncounter: (1 + Math.random() * 3).toFixed(0),
         PatientAllergy: (1 + Math.random() * 3).toFixed(0),
@@ -54,74 +53,113 @@ const endpoints = {
         PatientIssue: (1 + Math.random() * 3).toFixed(0),
       },
     };
-  }
+  },
 };
 
-storiesOf('Admin/PatientMerge', module)
-  .addDecorator(Story => <MockedApi endpoints={endpoints}><Story /></MockedApi>)
-  .add('Patient search', () => (
-    <PatientMergeSearch 
-      onBeginMerge={action('beginMerge')}
+export default {
+  title: 'Admin/PatientMerge',
+  decorators: [
+    Story => (
+      <MockedApi endpoints={endpoints}>
+        <Story />
+      </MockedApi>
+    ),
+  ],
+};
+
+export const PatientSearch = () => <PatientMergeSearch onBeginMerge={action('beginMerge')} />;
+
+PatientSearch.story = {
+  name: 'Patient search',
+};
+
+export const PatientSearchWithError = () => (
+  <MockedApi
+    endpoints={{
+      'admin/lookup/patient/:id': () => {
+        throw new Error('Not found');
+      },
+    }}
+  >
+    <PatientMergeSearch onBeginMerge={action('beginMerge')} />
+  </MockedApi>
+);
+
+PatientSearchWithError.story = {
+  name: 'Patient search with error',
+};
+
+export const PatientSummary = () => {
+  const [selected, setSelected] = useState(false);
+  return (
+    <PatientSummaryComponent
+      patient={firstPatient}
+      onSelect={() => setSelected(!selected)}
+      selected={selected}
     />
-  ))
-  .add('Patient search with error', () => (
-    <MockedApi endpoints={{ 
-      'admin/lookup/patient/:id': () => { throw new Error('Not found') }
-    }} >
-      <PatientMergeSearch 
-        onBeginMerge={action('beginMerge')}
-      />
-    </MockedApi>
-  ))
-  .add('Patient summary', () => {
-    const [selected, setSelected] = useState(false);
-    return (
-      <PatientSummary
-        patient={firstPatient}
-        onSelect={() => setSelected(!selected)}
-        selected={selected}
-      />
-    );
-  })
-  .add('Decision form', () => (
-    <KeepPatientDecisionForm
-      firstPatient={firstPatient}
-      secondPatient={secondPatient}
-      onCancel={action('cancel')}
-      onSelectPlan={action('selectPlan')}
-    />
-  ))
-  .add('Confirmation form', () => (
-    <ConfirmationModal
-      mergePlan={{
-        keepPatient: firstPatient,
-        removePatient: secondPatient,
-      }}
-      onCancel={action('cancel')}
-      onConfirm={action('confirm')}
-    />
-  ))
-  .add('Result modal', () => (
-    <MergeResultModal
-      result={{
-        updates: {
-          Patient: 1,
-          PatientEncounter: 3,
-          PatientAdditionalData: 1,
-          PatientIssue: 3,
-        }
-      }}
-      onClose={action('close')}
-    />
-  ))
-  .add('Error modal', () => (
-    <MergeErrorModal
-      error={new Error("A test error occurred.")}
-      onClose={action('close')}
-    />
-  ))
-  .add('Entire flow', () => (
-    <PatientMergeView
-      onMergePatients={action('merge')}
-    />
-  ));
+  );
+};
+
+PatientSummary.story = {
+  name: 'Patient summary',
+};
+
+export const DecisionForm = () => (
+  <KeepPatientDecisionForm
+    firstPatient={firstPatient}
+    secondPatient={secondPatient}
+    onCancel={action('cancel')}
+    onSelectPlan={action('selectPlan')}
+  />
+);
+
+DecisionForm.story = {
+  name: 'Decision form',
+};
+
+export const ConfirmationForm = () => (
+  <ConfirmationModal
+    mergePlan={{
+      keepPatient: firstPatient,
+      removePatient: secondPatient,
+    }}
+    onCancel={action('cancel')}
+    onConfirm={action('confirm')}
+  />
+);
+
+ConfirmationForm.story = {
+  name: 'Confirmation form',
+};
+
+export const ResultModal = () => (
+  <MergeResultModal
+    result={{
+      updates: {
+        Patient: 1,
+        PatientEncounter: 3,
+        PatientAdditionalData: 1,
+        PatientIssue: 3,
+      },
+    }}
+    onClose={action('close')}
+  />
+);
+
+ResultModal.story = {
+  name: 'Result modal',
+};
+
+export const ErrorModal = () => (
+  <MergeErrorModal error={new Error('A test error occurred.')} onClose={action('close')} />
+);
+
+ErrorModal.story = {
+  name: 'Error modal',
+};
+
+export const EntireFlow = () => <PatientMergeView onMergePatients={action('merge')} />;
+
+EntireFlow.story = {
+  name: 'Entire flow',
+};

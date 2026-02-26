@@ -1,9 +1,12 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 
 import { DumbVitalMultiChartFilter } from '../app/components/VitalMultiChartFilter';
 
-storiesOf('Vitals', module).add('Vital Filter', () => {
+export default {
+  title: 'Vitals',
+};
+
+export const VitalFilter = () => {
   const [values, setValues] = React.useState([]);
   const handleChange = newValue => {
     setValues(newValue.target.value);
@@ -24,4 +27,4 @@ storiesOf('Vitals', module).add('Vital Filter', () => {
   };
 
   return <DumbVitalMultiChartFilter options={options} field={field} />;
-});
+};
