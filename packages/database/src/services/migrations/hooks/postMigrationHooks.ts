@@ -3,7 +3,7 @@ import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { SYNC_TICK_FLAGS } from '../../../sync/constants';
 import { GLOBAL_EXCLUDE_TABLES, NON_LOGGED_TABLES, NON_SYNCING_TABLES } from '../constants';
 import { tablesWithoutColumn, tablesWithoutTrigger } from '../../../utils';
-import { requireFunction } from './prerequisites';
+import { requireFunction, requireMigration, requireMigrationNotApplied } from './prerequisites';
 import type { MigrationHook } from './types';
 
 const addUpdatedAtSyncTickColumn: MigrationHook = {
@@ -86,9 +86,43 @@ const addNotifyTableChangedTrigger: MigrationHook = {
   },
 };
 
-const addRecordChangeTrigger: MigrationHook = {
-  name: 'addRecordChangeTrigger',
-  prerequisites: [requireFunction('record_change')],
+/**
+ * The old record_change trigger, which was used prior to converting to a constraint trigger.
+ */
+const addRecordChangeTriggerV1: MigrationHook = {
+  name: 'addRecordChangeTriggerV1',
+  prerequisites: [
+    requireFunction('record_change'),
+    requireMigrationNotApplied('1765226354430-convertChangelogToConstraintTriggers'),
+  ],
+  async run({ log, sequelize }) {
+    for (const { schema, table } of await tablesWithoutTrigger(sequelize, 'record_', '_changelog', [
+      ...GLOBAL_EXCLUDE_TABLES,
+      ...NON_LOGGED_TABLES,
+    ])) {
+      log.info(`Adding old changelog trigger to ${schema}.${table}`);
+      await sequelize.query(`
+      CREATE TRIGGER record_${table}_changelog
+      AFTER INSERT OR UPDATE ON "${schema}"."${table}"
+      FOR EACH ROW
+      EXECUTE FUNCTION logs.record_change();
+    `);
+    }
+  },
+};
+
+/**
+ * The new record_change constraint trigger. This trigger is not backwards compatible with earlier migrations
+ * as they maybe have been written to contain data and schema changes in the same transaction (causes pending constraints error).
+ *
+ * So we only run this hook after the convertChangelogToConstraintTriggers migration has been run.
+ */
+const addRecordChangeTriggerV2: MigrationHook = {
+  name: 'addRecordChangeTriggerV2',
+  prerequisites: [
+    requireFunction('record_change'),
+    requireMigration('1765226354430-convertChangelogToConstraintTriggers'),
+  ],
   async run({ log, sequelize }) {
     for (const { schema, table } of await tablesWithoutTrigger(sequelize, 'record_', '_changelog', [
       ...GLOBAL_EXCLUDE_TABLES,
@@ -111,5 +145,6 @@ export const POST_MIGRATION_HOOKS: MigrationHook[] = [
   addUpdatedAtTrigger,
   addUpdatedAtSyncTickTrigger,
   addNotifyTableChangedTrigger,
-  addRecordChangeTrigger,
+  addRecordChangeTriggerV1,
+  addRecordChangeTriggerV2,
 ];
