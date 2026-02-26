@@ -154,7 +154,7 @@ const ActionBarContainer = styled.div`
     font-size: 0.8rem;
     padding: 4px 10px;
     min-width: unset;
-    color: ${props => props.theme.palette.primary.main};  
+    color: ${props => props.theme.palette.primary.main};
     text-transform: none;
     font-weight: 500;
   }
