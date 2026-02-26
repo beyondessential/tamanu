@@ -74,7 +74,7 @@ export const DateInput = ({
   name,
   max = '9999-12-31',
   min,
-  saveDateAsString = false,
+  saveDateAsString = true,
   arrows = false,
   inputProps = {},
   keepIncorrectValue,

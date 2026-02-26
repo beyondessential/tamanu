@@ -105,7 +105,6 @@ const DateTimePicker = ({
             </ErrorSpan>
           )
         }
-        saveDateAsString
         data-testid="field-84i5"
       />
       <TimeSlotPicker

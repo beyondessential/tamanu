@@ -147,7 +147,6 @@ export const DiagnosisForm = React.memo(
               }
               component={DateField}
               required
-              saveDateAsString
               data-testid="field-fszu"
             />
             <Field

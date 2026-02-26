@@ -185,7 +185,6 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
           component={DateTimeField}
           name={LAB_TEST_PROPERTIES.COMPLETED_DATE}
           tabIndex={tabIndex(3, i)}
-          saveDateAsString
           data-testid="accessorfield-k5ef"
         />
       ),

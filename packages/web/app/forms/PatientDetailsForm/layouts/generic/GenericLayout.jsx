@@ -121,7 +121,6 @@ export const GenericPrimaryDetailsLayout = ({
             max={getCurrentDate()}  
             component={DateField}
             required
-            saveDateAsString
             data-testid="localisedfield-oafl"
           />
 

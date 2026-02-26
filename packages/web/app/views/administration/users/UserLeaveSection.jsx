@@ -262,7 +262,6 @@ export const UserLeaveSection = ({ user }) => {
                       />
                     }
                     component={DateField}
-                    saveDateAsString
                     required
                   />
                   <Field
@@ -274,7 +273,6 @@ export const UserLeaveSection = ({ user }) => {
                       />
                     }
                     component={DateField}
-                    saveDateAsString
                     min={values.startDate}
                     required
                   />

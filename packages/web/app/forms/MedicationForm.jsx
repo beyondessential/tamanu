@@ -1020,7 +1020,6 @@ export const MedicationForm = ({
               label={
                 <TranslatedText stringId="medication.date.label" fallback="Prescription date" />
               }
-              saveDateAsString
               component={DateField}
               required
               data-testid="medication-field-date-8m5k"
@@ -1033,7 +1032,6 @@ export const MedicationForm = ({
                   fallback="Start date & time"
                 />
               }
-              saveDateAsString
               component={DateTimeField}
               required
               data-testid="medication-field-startDate-1a9s"

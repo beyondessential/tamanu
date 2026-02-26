@@ -13,7 +13,6 @@ export const DateCell = ({ index, item, isItemEditable }) => {
           name={`invoiceItems.${index}.orderDate`}
           required
           component={DateField}
-          saveDateAsString
           shortYear
           data-testid="field-e3dv"
           />

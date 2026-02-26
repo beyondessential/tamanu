@@ -196,7 +196,6 @@ export const ProgramRegistrySearchBar = ({ searchParameters, setSearchParameters
             data-testid="translatedtext-g5q2"
           />
         }
-        saveDateAsString
         component={DateField}
         max={getCurrentDate()}
         data-testid="localisedfield-b6xj"

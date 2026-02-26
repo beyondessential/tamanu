@@ -88,7 +88,6 @@ export const TriageForm = ({
           component={DateTimeField}
           max={getCurrentDateTime()}
           helperText="If different from triage time"
-          saveDateAsString
           data-testid="field-mhav"
         />
         <Field
@@ -103,7 +102,6 @@ export const TriageForm = ({
           required
           max={getCurrentDateTime()}
           component={DateTimeField}
-          saveDateAsString
           data-testid="field-9hxy"
         />
         <Field
