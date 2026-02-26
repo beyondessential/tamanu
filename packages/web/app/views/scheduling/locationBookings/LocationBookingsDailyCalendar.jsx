@@ -930,7 +930,7 @@ export const LocationBookingsDailyCalendar = ({
         endTime: toStoredStr(itemNewEndTime),
       },
       ...overnightAppointments,
-    ].sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+    ].sort((a, b) => toFacilityDate(a.startTime).getTime() - toFacilityDate(b.startTime).getTime());
     return data;
   }, [partitionAppointmentsByLocationData, triggerReorder, timeSlots]);
 
