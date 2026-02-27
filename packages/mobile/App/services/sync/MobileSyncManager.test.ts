@@ -65,7 +65,7 @@ describe('MobileSyncManager', () => {
 
       mobileSyncManager.triggerSync();
 
-      expect(mobileSyncManager.runSync).toHaveBeenCalledTimes(1);
+      expect(mobileSyncManager.runSync).toBeCalledTimes(1);
     });
 
     it('should only run one sync at a time', async () => {
@@ -76,7 +76,7 @@ describe('MobileSyncManager', () => {
 
       await Promise.all([firstSyncPromise, secondSyncPromise]);
 
-      expect(mobileSyncManager.runSync).toHaveBeenCalledTimes(1);
+      expect(mobileSyncManager.runSync).toBeCalledTimes(1);
     });
 
     it('should throw an error when calling runSync() while sync is still running', async () => {
@@ -145,8 +145,8 @@ describe('MobileSyncManager', () => {
 
       await mobileSyncManager.runSync();
 
-      expect(mobileSyncManager.pushOutgoingChanges).toHaveBeenCalledTimes(1);
-      expect(mobileSyncManager.pushOutgoingChanges).toHaveBeenCalledWith(mockSessionId, mockSyncTick);
+      expect(mobileSyncManager.pushOutgoingChanges).toBeCalledTimes(1);
+      expect(mobileSyncManager.pushOutgoingChanges).toBeCalledWith(mockSessionId, mockSyncTick);
     });
 
     it("should call pullIncomingChanges() with the correct 'sessionId'", async () => {
@@ -163,8 +163,8 @@ describe('MobileSyncManager', () => {
 
       await mobileSyncManager.runSync();
 
-      expect(mobileSyncManager.pullIncomingChanges).toHaveBeenCalledTimes(1);
-      expect(mobileSyncManager.pullIncomingChanges).toHaveBeenCalledWith(mockSessionId);
+      expect(mobileSyncManager.pullIncomingChanges).toBeCalledTimes(1);
+      expect(mobileSyncManager.pullIncomingChanges).toBeCalledWith(mockSessionId);
     });
   });
 
@@ -183,7 +183,7 @@ describe('MobileSyncManager', () => {
 
       await mobileSyncManager.pushOutgoingChanges(sessionId, newSyncClockTime);
 
-      expect(snapshotOutgoingChanges).toHaveBeenCalledWith(modelsToPush, pushSince);
+      expect(snapshotOutgoingChanges).toBeCalledWith(modelsToPush, pushSince);
     });
 
     it('should not push outgoing changes if there are no changes', async () => {
@@ -196,7 +196,7 @@ describe('MobileSyncManager', () => {
 
       await mobileSyncManager.pushOutgoingChanges(sessionId, newSyncClockTime);
 
-      expect(pushOutgoingChanges).not.toHaveBeenCalled();
+      expect(pushOutgoingChanges).not.toBeCalled();
     });
   });
 });

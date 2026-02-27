@@ -71,15 +71,15 @@ describe('saveChangesForModel', () => {
       // act
       await saveChangesForModel(Model, changes, mobileSyncSettings, progressCallback);
       // assertions
-      expect(preparedQueryModules.executePreparedInsert).toHaveBeenCalledTimes(1);
-      expect(preparedQueryModules.executePreparedInsert).toHaveBeenCalledWith(
+      expect(preparedQueryModules.executePreparedInsert).toBeCalledTimes(1);
+      expect(preparedQueryModules.executePreparedInsert).toBeCalledWith(
         repository,
         [expect.objectContaining({ ...newRecord, deletedAt: null })],
         500,
         progressCallback,
       );
-      expect(preparedQueryModules.executePreparedUpdate).toHaveBeenCalledTimes(1);
-      expect(preparedQueryModules.executePreparedUpdate).toHaveBeenCalledWith(
+      expect(preparedQueryModules.executePreparedUpdate).toBeCalledTimes(1);
+      expect(preparedQueryModules.executePreparedUpdate).toBeCalledWith(
         repository,
         [],
         500,
@@ -107,15 +107,15 @@ describe('saveChangesForModel', () => {
       // act
       await saveChangesForModel(Model, changes, mobileSyncSettings, progressCallback);
       // assertions
-      expect(preparedQueryModules.executePreparedInsert).toHaveBeenCalledTimes(1);
-      expect(preparedQueryModules.executePreparedInsert).toHaveBeenCalledWith(
+      expect(preparedQueryModules.executePreparedInsert).toBeCalledTimes(1);
+      expect(preparedQueryModules.executePreparedInsert).toBeCalledWith(
         repository,
         [expect.objectContaining({ ...newRecord, deletedAt: 'now' })],
         500,
         progressCallback,
       );
-      expect(preparedQueryModules.executePreparedUpdate).toHaveBeenCalledTimes(1);
-      expect(preparedQueryModules.executePreparedUpdate).toHaveBeenCalledWith(
+      expect(preparedQueryModules.executePreparedUpdate).toBeCalledTimes(1);
+      expect(preparedQueryModules.executePreparedUpdate).toBeCalledWith(
         repository,
         [],
         500,
@@ -148,15 +148,15 @@ describe('saveChangesForModel', () => {
       // act
       await saveChangesForModel(Model, changes, mobileSyncSettings, progressCallback);
       // assertions
-      expect(preparedQueryModules.executePreparedInsert).toHaveBeenCalledTimes(1);
-      expect(preparedQueryModules.executePreparedInsert).toHaveBeenCalledWith(
+      expect(preparedQueryModules.executePreparedInsert).toBeCalledTimes(1);
+      expect(preparedQueryModules.executePreparedInsert).toBeCalledWith(
         repository,
         [],
         500,
         progressCallback,
       );
-      expect(preparedQueryModules.executePreparedUpdate).toHaveBeenCalledTimes(1);
-      expect(preparedQueryModules.executePreparedUpdate).toHaveBeenCalledWith(
+      expect(preparedQueryModules.executePreparedUpdate).toBeCalledTimes(1);
+      expect(preparedQueryModules.executePreparedUpdate).toBeCalledWith(
         repository,
         [expect.objectContaining({ ...newRecord, deletedAt: null })],
         500,
@@ -190,14 +190,14 @@ describe('saveChangesForModel', () => {
       // act
       await saveChangesForModel(Model, changes, mobileSyncSettings, progressCallback);
       // assertions
-      expect(preparedQueryModules.executePreparedInsert).toHaveBeenCalledTimes(1);
-      expect(preparedQueryModules.executePreparedInsert).toHaveBeenCalledWith(
+      expect(preparedQueryModules.executePreparedInsert).toBeCalledTimes(1);
+      expect(preparedQueryModules.executePreparedInsert).toBeCalledWith(
         repository,
         [],
         500,
         progressCallback,
       );
-      expect(preparedQueryModules.executePreparedUpdate).toHaveBeenCalledTimes(1);
+      expect(preparedQueryModules.executePreparedUpdate).toBeCalledTimes(1);
     });
   });
 
@@ -222,15 +222,15 @@ describe('saveChangesForModel', () => {
       // act
       await saveChangesForModel(Model, changes, mobileSyncSettings, progressCallback);
       // assertions
-      expect(preparedQueryModules.executePreparedInsert).toHaveBeenCalledTimes(1);
-      expect(preparedQueryModules.executePreparedInsert).toHaveBeenCalledWith(
+      expect(preparedQueryModules.executePreparedInsert).toBeCalledTimes(1);
+      expect(preparedQueryModules.executePreparedInsert).toBeCalledWith(
         repository,
         [],
         500,
         progressCallback,
       );
-      expect(preparedQueryModules.executePreparedUpdate).toHaveBeenCalledTimes(1);
-      expect(preparedQueryModules.executePreparedUpdate).toHaveBeenCalledWith(
+      expect(preparedQueryModules.executePreparedUpdate).toBeCalledTimes(1);
+      expect(preparedQueryModules.executePreparedUpdate).toBeCalledWith(
         repository,
         [expect.objectContaining({ ...newRecord, deletedAt: 'now' })],
         500,
@@ -262,15 +262,15 @@ describe('saveChangesForModel', () => {
       // act
       await saveChangesForModel(Model, changes, mobileSyncSettings, progressCallback);
       // assertions
-      expect(preparedQueryModules.executePreparedInsert).toHaveBeenCalledTimes(1);
-      expect(preparedQueryModules.executePreparedInsert).toHaveBeenCalledWith(
+      expect(preparedQueryModules.executePreparedInsert).toBeCalledTimes(1);
+      expect(preparedQueryModules.executePreparedInsert).toBeCalledWith(
         repository,
         [],
         500,
         progressCallback,
       );
-      expect(preparedQueryModules.executePreparedUpdate).toHaveBeenCalledTimes(1);
-      expect(preparedQueryModules.executePreparedUpdate).toHaveBeenCalledWith(
+      expect(preparedQueryModules.executePreparedUpdate).toBeCalledTimes(1);
+      expect(preparedQueryModules.executePreparedUpdate).toBeCalledWith(
         repository,
         [expect.objectContaining({ ...newRecord, deletedAt: null })],
         500,
