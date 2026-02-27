@@ -13,3 +13,7 @@ Foreign key reference to the invoice products/services that can be priced. Ident
 {% docs invoice_price_list_items__price %}
 The price amount for this product in the context of this price list. Stored as a numeric value representing the cost in the system's base currency.
 {% enddocs %}
+
+{% docs invoice_price_list_items__is_hidden %}
+Determines whether the related invoice product should be hidden from searches on the frontend and also whether it should be automatically added to the invoice.
+{% enddocs %}

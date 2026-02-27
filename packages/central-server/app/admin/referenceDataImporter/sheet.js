@@ -1,6 +1,6 @@
 import { utils } from 'xlsx';
 
-import { REFERENCE_TYPE_VALUES } from '@tamanu/constants';
+import { REFERENCE_TYPE_VALUES, REFERENCE_TYPES } from '@tamanu/constants';
 import { DataLoaderError, ValidationError, WorkSheetError } from '../errors';
 import { statkey, updateStat } from '../stats';
 import { importRows } from '../importer/importRows';
@@ -104,7 +104,10 @@ export async function importSheet(
   let sheetRows;
   try {
     sheetHeader = extractHeader(sheet);
-    sheetRows = utils.sheet_to_json(sheet);
+    // For drug sheets, include empty cells so facility columns with empty values are preserved
+    sheetRows = sheetName === REFERENCE_TYPES.DRUG
+      ? utils.sheet_to_json(sheet, { defval: '' })
+      : utils.sheet_to_json(sheet);
   } catch (err) {
     errors.push(new WorkSheetError(sheetName, 0, err));
     return stats;
@@ -128,7 +131,12 @@ export async function importSheet(
         models,
         foreignKeySchemata: FOREIGN_KEY_SCHEMATA,
         header: sheetHeader,
-        pushError: message => errors.push(new ValidationError(sheetName, sheetRow, message)),
+        pushError: (message, errModel) => {
+          errors.push(new ValidationError(sheetName, sheetRow, message));
+          if (errModel) {
+            updateStat(stats, statkey(errModel, sheetName), 'errored');
+          }
+        },
       })) {
         if (!models[model]) throw new Error(`No such type of data: ${model}`);
 
