@@ -192,7 +192,7 @@ describe('HL7 Labs', () => {
       { status: LAB_REQUEST_STATUSES.PUBLISHED },
     );
 
-    expect(() => labTestToHL7Observation(labTest)).toThrowError(/^Test coding was not one of/);
+    expect(() => labTestToHL7Observation(labTest)).toThrow(/^Test coding was not one of/);
   });
 
   describe('labTestToHL7Device', () => {

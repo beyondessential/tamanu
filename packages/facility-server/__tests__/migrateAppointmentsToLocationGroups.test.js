@@ -67,7 +67,7 @@ describe('migrateAppointmentsToLocationGroups', () => {
     const { location } = appointment;
 
     expect(appointment.locationGroupId).toBe(location.locationGroupId);
-    expect(exitSpy).toBeCalledWith(0);
+    expect(exitSpy).toHaveBeenCalledWith(0);
   });
 
   it('skips appointments that have locations with no parent ', async () => {
@@ -81,6 +81,6 @@ describe('migrateAppointmentsToLocationGroups', () => {
     const appointment = appointments[1];
 
     expect(appointment.locationGroupId).toBe(null);
-    expect(exitSpy).toBeCalledWith(0);
+    expect(exitSpy).toHaveBeenCalledWith(0);
   });
 });

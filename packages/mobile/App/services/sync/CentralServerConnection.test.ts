@@ -390,7 +390,7 @@ describe('CentralServerConnection', () => {
           },
         },
       });
-      await expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toThrowError(
+      await expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toThrow(
         new OutdatedVersionError(mockUpdateUrl),
       );
     });

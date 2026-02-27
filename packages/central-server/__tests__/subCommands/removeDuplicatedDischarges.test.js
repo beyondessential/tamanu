@@ -144,7 +144,7 @@ describe('removeDuplicatedDischarges', () => {
 
     await removeDuplicatedDischarges(SUB_COMMAND_OPTIONS);
 
-    expect(exitSpy).toBeCalledWith(0);
+    expect(exitSpy).toHaveBeenCalledWith(0);
 
     const dischargesAfterMigration = await models.Discharge.findAll({
       order: [['updatedAt', 'ASC']],
@@ -226,7 +226,7 @@ describe('removeDuplicatedDischarges', () => {
 
     await removeDuplicatedDischarges(SUB_COMMAND_OPTIONS);
 
-    expect(exitSpy).toBeCalledWith(0);
+    expect(exitSpy).toHaveBeenCalledWith(0);
 
     const dischargesAfterMigration = await models.Discharge.findAll({
       order: [['updatedAt', 'ASC']],

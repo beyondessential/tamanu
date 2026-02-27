@@ -62,7 +62,7 @@ describe('FacilitySyncManager', () => {
       await sleepAsync(100);
 
       // assert that after 2 syncs, only 1 sync is actually run
-      expect(syncManager.runSync).toBeCalledTimes(1);
+      expect(syncManager.runSync).toHaveBeenCalledTimes(1);
 
       // resolve the promise of first sync
       await resolveSyncPromise();
@@ -70,7 +70,7 @@ describe('FacilitySyncManager', () => {
       await sleepAsync(100);
 
       // assert that right after the 1st sync is finished, 2nd sync is then run
-      expect(syncManager.runSync).toBeCalledTimes(2);
+      expect(syncManager.runSync).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -100,10 +100,10 @@ describe('FacilitySyncManager', () => {
 
       await syncManager.runSync();
 
-      expect(dropSchema).toBeCalledTimes(1);
-      expect(dropSchema).toBeCalledWith('sync_snapshots');
-      expect(createSchema).toBeCalledTimes(1);
-      expect(createSchema).toBeCalledWith('sync_snapshots', {});
+      expect(dropSchema).toHaveBeenCalledTimes(1);
+      expect(dropSchema).toHaveBeenCalledWith('sync_snapshots');
+      expect(createSchema).toHaveBeenCalledTimes(1);
+      expect(createSchema).toHaveBeenCalledWith('sync_snapshots', {});
     });
   });
 
@@ -138,8 +138,8 @@ describe('FacilitySyncManager', () => {
 
       await syncManager.pushChanges(TEST_SESSION_ID, 10);
 
-      expect(snapshotOutgoingChanges).toBeCalledTimes(1);
-      expect(snapshotOutgoingChanges).toBeCalledWith(ctx.sequelize, expect.any(Object), '10');
+      expect(snapshotOutgoingChanges).toHaveBeenCalledTimes(1);
+      expect(snapshotOutgoingChanges).toHaveBeenCalledWith(ctx.sequelize, expect.any(Object), '10');
     });
 
     it('pushes outgoing changes with current sessionId', async () => {
@@ -179,8 +179,8 @@ describe('FacilitySyncManager', () => {
 
       await syncManager.pushChanges(TEST_SESSION_ID, 1);
 
-      expect(attachChangelogToSnapshotRecords).toBeCalledTimes(1);
-      expect(attachChangelogToSnapshotRecords).toBeCalledWith(
+      expect(attachChangelogToSnapshotRecords).toHaveBeenCalledTimes(1);
+      expect(attachChangelogToSnapshotRecords).toHaveBeenCalledWith(
         {
           models,
           sequelize: ctx.sequelize,
@@ -189,8 +189,8 @@ describe('FacilitySyncManager', () => {
         { minSourceTick: '1' },
       );
 
-      expect(pushOutgoingChanges).toBeCalledTimes(1);
-      expect(pushOutgoingChanges).toBeCalledWith(
+      expect(pushOutgoingChanges).toHaveBeenCalledTimes(1);
+      expect(pushOutgoingChanges).toHaveBeenCalledWith(
         syncManager.centralServer,
         TEST_SESSION_ID,
         outgoingChanges,
@@ -238,8 +238,8 @@ describe('FacilitySyncManager', () => {
 
       await syncManager.pullChanges(TEST_SESSION_ID);
 
-      expect(createSnapshotTable).toBeCalledTimes(1);
-      expect(createSnapshotTable).toBeCalledWith(ctx.sequelize, TEST_SESSION_ID);
+      expect(createSnapshotTable).toHaveBeenCalledTimes(1);
+      expect(createSnapshotTable).toHaveBeenCalledWith(ctx.sequelize, TEST_SESSION_ID);
     });
 
     it('save changes with current sessionId', async () => {
@@ -278,8 +278,8 @@ describe('FacilitySyncManager', () => {
 
       await syncManager.pullChanges(TEST_SESSION_ID);
 
-      expect(saveIncomingChanges).toBeCalledTimes(1);
-      expect(saveIncomingChanges).toBeCalledWith(
+      expect(saveIncomingChanges).toHaveBeenCalledTimes(1);
+      expect(saveIncomingChanges).toHaveBeenCalledWith(
         ctx.sequelize,
         expect.any(Object),
         TEST_SESSION_ID,

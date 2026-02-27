@@ -57,7 +57,7 @@ describe('Permissions', () => {
         verb: 'run',
         objectId: 'different-report',
       }),
-    ).resolves.not.toThrowError();
+    ).resolves.not.toThrow();
   });
 
   describe('Creating permission definition from database', () => {

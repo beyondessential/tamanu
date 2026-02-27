@@ -40,7 +40,7 @@ describe('snapshotOutgoingChanges', () => {
       const { LocalSystemFact } = models;
       const tick = await LocalSystemFact.incrementValue(FACT_CURRENT_SYNC_TICK);
 
-      await expect(snapshotOutgoingChanges(ctx.sequelize, models, tick - 1)).rejects.toThrowError();
+      await expect(snapshotOutgoingChanges(ctx.sequelize, models, tick - 1)).rejects.toThrow();
     }),
   );
 

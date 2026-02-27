@@ -216,8 +216,8 @@ describe('CentralSyncManager.addIncomingChanges', () => {
       updatedAtByFieldSum: null,
     }));
 
-    expect(insertSnapshotRecords).toBeCalledTimes(1);
-    expect(insertSnapshotRecords).toBeCalledWith(
+    expect(insertSnapshotRecords).toHaveBeenCalledTimes(1);
+    expect(insertSnapshotRecords).toHaveBeenCalledWith(
       ctx.store.sequelize,
       sessionId,
       expect.arrayContaining(incomingChanges),

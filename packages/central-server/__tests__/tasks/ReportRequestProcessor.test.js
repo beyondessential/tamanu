@@ -64,6 +64,6 @@ describe('ReportRequestProcessor', () => {
     await processor.runReports();
     expect(processor.childProcesses.size).toBe(1);
     process.kill(process.pid, 'SIGINT');
-    expect(mockChildProcess.kill).toBeCalledWith(childProcessId, 'SIGINT');
+    expect(mockChildProcess.kill).toHaveBeenCalledWith(childProcessId, 'SIGINT');
   });
 });

@@ -89,11 +89,11 @@ describe('importReport actions', () => {
         ...mockVersions,
       ];
       await listVersions(mockDefinition, mockVersionsWithActive);
-      expect(Table).toBeCalled();
-      expect(mockPush).nthCalledWith(1, [3, `published ${ACTIVE_TEXT}`, mockFormattedUpdatedAt]);
-      expect(mockPush).nthCalledWith(2, [2, 'draft', mockFormattedUpdatedAt]);
-      expect(mockPush).nthCalledWith(3, [1, 'draft', mockFormattedUpdatedAt]);
-      expect(mockToString).toBeCalled();
+      expect(Table).toHaveBeenCalled();
+      expect(mockPush).toHaveBeenNthCalledWith(1, [3, `published ${ACTIVE_TEXT}`, mockFormattedUpdatedAt]);
+      expect(mockPush).toHaveBeenNthCalledWith(2, [2, 'draft', mockFormattedUpdatedAt]);
+      expect(mockPush).toHaveBeenNthCalledWith(3, [1, 'draft', mockFormattedUpdatedAt]);
+      expect(mockToString).toHaveBeenCalled();
     });
   });
 
@@ -130,8 +130,8 @@ describe('importReport actions', () => {
         versionNumber: 1,
       };
       await createVersion(data, mockDefinition, [{ versionNumber: 1 }], mockStore);
-      expect(log.warn).nthCalledWith(1, `Version 1 already exists, ${OVERWRITING_TEXT}`);
-      expect(mockStore.models.ReportDefinitionVersion.upsert).toBeCalledWith({
+      expect(log.warn).toHaveBeenNthCalledWith(1, `Version 1 already exists, ${OVERWRITING_TEXT}`);
+      expect(mockStore.models.ReportDefinitionVersion.upsert).toHaveBeenCalledWith({
         reportDefinitionId: 'test-definition-id',
         query: 'test-query',
         queryOptions: {

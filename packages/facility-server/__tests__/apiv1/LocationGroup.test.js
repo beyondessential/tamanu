@@ -45,7 +45,7 @@ describe('Location groups', () => {
         code: 'test-location-group',
         facilityId: facility.id,
       }),
-    ).rejects.toThrowError('A location group name cannot include a comma.');
+    ).rejects.toThrow('A location group name cannot include a comma.');
   });
 
   describe('Handover notes', () => {

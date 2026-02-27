@@ -66,7 +66,7 @@ describe('migrateAppointmentsToLocationGroups', () => {
     const { location } = record;
 
     expect(record.locationGroupId).toBe(location.locationGroupId);
-    expect(exitSpy).toBeCalledWith(0);
+    expect(exitSpy).toHaveBeenCalledWith(0);
   });
 
   it('skips imaging requests that have locations with no parent ', async () => {
@@ -80,6 +80,6 @@ describe('migrateAppointmentsToLocationGroups', () => {
     const record = imagingRequests[1];
 
     expect(record.locationGroupId).toBe(null);
-    expect(exitSpy).toBeCalledWith(0);
+    expect(exitSpy).toHaveBeenCalledWith(0);
   });
 });

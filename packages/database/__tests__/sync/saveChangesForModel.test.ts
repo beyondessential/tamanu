@@ -40,13 +40,13 @@ describe('saveChangesForModel', () => {
       // act
       await saveChangesForModel(models.SurveyScreenComponent, changes, true, log);
       // assertions
-      expect(saveChangeModules.saveCreates).toBeCalledTimes(1);
-      expect(saveChangeModules.saveCreates).toBeCalledWith(models.SurveyScreenComponent, [
+      expect(saveChangeModules.saveCreates).toHaveBeenCalledTimes(1);
+      expect(saveChangeModules.saveCreates).toHaveBeenCalledWith(models.SurveyScreenComponent, [
         { ...newRecord, isDeleted }, // isDeleted flag for soft deleting record after creation
       ]);
-      expect(saveChangeModules.saveUpdates).toBeCalledTimes(0);
-      expect(saveChangeModules.saveDeletes).toBeCalledTimes(0);
-      expect(saveChangeModules.saveRestores).toBeCalledTimes(0);
+      expect(saveChangeModules.saveUpdates).toHaveBeenCalledTimes(0);
+      expect(saveChangeModules.saveDeletes).toHaveBeenCalledTimes(0);
+      expect(saveChangeModules.saveRestores).toHaveBeenCalledTimes(0);
 
       const newRecordInDb = await models.SurveyScreenComponent.findByPk('new_record_id');
       expect(newRecordInDb).toBeDefined();
@@ -61,13 +61,13 @@ describe('saveChangesForModel', () => {
       // act
       await saveChangesForModel(models.SurveyScreenComponent, changes, true, log);
       // assertions
-      expect(saveChangeModules.saveCreates).toBeCalledTimes(1);
-      expect(saveChangeModules.saveCreates).toBeCalledWith(models.SurveyScreenComponent, [
+      expect(saveChangeModules.saveCreates).toHaveBeenCalledTimes(1);
+      expect(saveChangeModules.saveCreates).toHaveBeenCalledWith(models.SurveyScreenComponent, [
         { ...newRecord, isDeleted }, // isDeleted flag for soft deleting record after creation
       ]);
-      expect(saveChangeModules.saveUpdates).toBeCalledTimes(0);
-      expect(saveChangeModules.saveDeletes).toBeCalledTimes(0);
-      expect(saveChangeModules.saveRestores).toBeCalledTimes(0);
+      expect(saveChangeModules.saveUpdates).toHaveBeenCalledTimes(0);
+      expect(saveChangeModules.saveDeletes).toHaveBeenCalledTimes(0);
+      expect(saveChangeModules.saveRestores).toHaveBeenCalledTimes(0);
 
       const newRecordInDb = await models.SurveyScreenComponent.findByPk(newRecord.id, {
         paranoid: false,
@@ -87,16 +87,16 @@ describe('saveChangesForModel', () => {
       // act
       await saveChangesForModel(models.SurveyScreenComponent, changes, true, log);
       // assertions
-      expect(saveChangeModules.saveCreates).toBeCalledTimes(0);
-      expect(saveChangeModules.saveUpdates).toBeCalledTimes(1);
-      expect(saveChangeModules.saveUpdates).toBeCalledWith(
+      expect(saveChangeModules.saveCreates).toHaveBeenCalledTimes(0);
+      expect(saveChangeModules.saveUpdates).toHaveBeenCalledTimes(1);
+      expect(saveChangeModules.saveUpdates).toHaveBeenCalledWith(
         models.SurveyScreenComponent,
         [newRecord],
         expect.anything(),
         true,
       );
-      expect(saveChangeModules.saveDeletes).toBeCalledTimes(0);
-      expect(saveChangeModules.saveRestores).toBeCalledTimes(0);
+      expect(saveChangeModules.saveDeletes).toHaveBeenCalledTimes(0);
+      expect(saveChangeModules.saveRestores).toHaveBeenCalledTimes(0);
       const updatedRecordInDb = await models.SurveyScreenComponent.findByPk(existingRecord.id);
       expect(updatedRecordInDb).toBeDefined();
       expect(updatedRecordInDb.text).toEqual(newRecord.text);
@@ -114,10 +114,10 @@ describe('saveChangesForModel', () => {
       // act
       await saveChangesForModel(models.SurveyScreenComponent, changes, true, log);
       // assertions
-      expect(saveChangeModules.saveCreates).toBeCalledTimes(0);
-      expect(saveChangeModules.saveUpdates).toBeCalledTimes(1);
-      expect(saveChangeModules.saveDeletes).toBeCalledTimes(0);
-      expect(saveChangeModules.saveRestores).toBeCalledTimes(0);
+      expect(saveChangeModules.saveCreates).toHaveBeenCalledTimes(0);
+      expect(saveChangeModules.saveUpdates).toHaveBeenCalledTimes(1);
+      expect(saveChangeModules.saveDeletes).toHaveBeenCalledTimes(0);
+      expect(saveChangeModules.saveRestores).toHaveBeenCalledTimes(0);
       const updatedRecordInDb = await models.SurveyScreenComponent.findByPk(existingRecord.id, {
         paranoid: false,
       });
@@ -138,13 +138,13 @@ describe('saveChangesForModel', () => {
       // act
       await saveChangesForModel(models.SurveyScreenComponent, changes, true, log);
       // assertions
-      expect(saveChangeModules.saveCreates).toBeCalledTimes(0);
-      expect(saveChangeModules.saveUpdates).toBeCalledTimes(1);
-      expect(saveChangeModules.saveDeletes).toBeCalledTimes(1);
-      expect(saveChangeModules.saveDeletes).toBeCalledWith(models.SurveyScreenComponent, [
+      expect(saveChangeModules.saveCreates).toHaveBeenCalledTimes(0);
+      expect(saveChangeModules.saveUpdates).toHaveBeenCalledTimes(1);
+      expect(saveChangeModules.saveDeletes).toHaveBeenCalledTimes(1);
+      expect(saveChangeModules.saveDeletes).toHaveBeenCalledWith(models.SurveyScreenComponent, [
         newRecord,
       ]);
-      expect(saveChangeModules.saveRestores).toBeCalledTimes(0);
+      expect(saveChangeModules.saveRestores).toHaveBeenCalledTimes(0);
       const updatedRecordInDb = await models.SurveyScreenComponent.findByPk(existingRecord.id, {
         paranoid: false,
       });
@@ -166,11 +166,11 @@ describe('saveChangesForModel', () => {
       // act
       await saveChangesForModel(models.SurveyScreenComponent, changes, false, log);
       // assertions
-      expect(saveChangeModules.saveCreates).toBeCalledTimes(0);
-      expect(saveChangeModules.saveUpdates).toBeCalledTimes(1);
-      expect(saveChangeModules.saveDeletes).toBeCalledTimes(0);
-      expect(saveChangeModules.saveRestores).toBeCalledTimes(1);
-      expect(saveChangeModules.saveRestores).toBeCalledWith(models.SurveyScreenComponent, [
+      expect(saveChangeModules.saveCreates).toHaveBeenCalledTimes(0);
+      expect(saveChangeModules.saveUpdates).toHaveBeenCalledTimes(1);
+      expect(saveChangeModules.saveDeletes).toHaveBeenCalledTimes(0);
+      expect(saveChangeModules.saveRestores).toHaveBeenCalledTimes(1);
+      expect(saveChangeModules.saveRestores).toHaveBeenCalledWith(models.SurveyScreenComponent, [
         newRecord,
       ]);
       const updatedRecordInDb = await models.SurveyScreenComponent.findByPk(existingRecord.id);
@@ -190,10 +190,10 @@ describe('saveChangesForModel', () => {
       // act
       await saveChangesForModel(models.SurveyScreenComponent, changes, true, log);
       // assertions
-      expect(saveChangeModules.saveCreates).toBeCalledTimes(0);
-      expect(saveChangeModules.saveUpdates).toBeCalledTimes(1);
-      expect(saveChangeModules.saveDeletes).toBeCalledTimes(0);
-      expect(saveChangeModules.saveRestores).toBeCalledTimes(0);
+      expect(saveChangeModules.saveCreates).toHaveBeenCalledTimes(0);
+      expect(saveChangeModules.saveUpdates).toHaveBeenCalledTimes(1);
+      expect(saveChangeModules.saveDeletes).toHaveBeenCalledTimes(0);
+      expect(saveChangeModules.saveRestores).toHaveBeenCalledTimes(0);
       const updatedRecordInDb = await models.SurveyScreenComponent.findByPk(existingRecord.id, {
         paranoid: false,
       });
