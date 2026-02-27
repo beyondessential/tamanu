@@ -27,29 +27,32 @@ import { SettingsProvider } from './contexts/Settings';
 import { ClearIcon } from './components/Icons/ClearIcon';
 import { NoteModalProvider } from './contexts/NoteModal';
 import { createBrowserRouter, RouterProvider } from 'react-router';
+import { MedicationsProvider } from './contexts/Medications';
 
 const StateContextProviders = ({ children, store }) => (
   <EncounterProvider store={store}>
     <ImagingRequestsProvider>
-      <EncounterNotesProvider>
-        <ProgramRegistryProvider>
-          <LabRequestProvider store={store}>
-            <PatientSearchProvider>
-              <SettingsProvider>
-                <SyncStateProvider>
-                  <TranslationProvider>
-                    <LocalisationProvider store={store}>
-                      <AuthProvider>
-                        <NoteModalProvider>{children}</NoteModalProvider>
-                      </AuthProvider>
-                    </LocalisationProvider>
-                  </TranslationProvider>
-                </SyncStateProvider>
-              </SettingsProvider>
-            </PatientSearchProvider>
-          </LabRequestProvider>
-        </ProgramRegistryProvider>
-      </EncounterNotesProvider>
+      <MedicationsProvider>
+        <EncounterNotesProvider>
+          <ProgramRegistryProvider>
+            <LabRequestProvider store={store}>
+              <PatientSearchProvider>
+                <SettingsProvider>
+                  <SyncStateProvider>
+                    <TranslationProvider>
+                      <LocalisationProvider store={store}>
+                        <AuthProvider>
+                          <NoteModalProvider>{children}</NoteModalProvider>
+                        </AuthProvider>
+                      </LocalisationProvider>
+                    </TranslationProvider>
+                  </SyncStateProvider>
+                </SettingsProvider>
+              </PatientSearchProvider>
+            </LabRequestProvider>
+          </ProgramRegistryProvider>
+        </EncounterNotesProvider>
+      </MedicationsProvider>
     </ImagingRequestsProvider>
   </EncounterProvider>
 );

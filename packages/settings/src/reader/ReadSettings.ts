@@ -11,6 +11,7 @@ export const KEYS_EXPOSED_TO_FRONT_END = [
   'customisations',
   'features',
   'fields',
+  'fsmCrvsCertificates',
   'imagingCancellationReasons',
   'imagingPriorities',
   'insurer',
@@ -29,6 +30,7 @@ export const KEYS_EXPOSED_TO_FRONT_END = [
   'medications',
   'sync',
   'mobileSync',
+  'patientDisplayIdPattern',
 ] as const;
 
 export const KEYS_EXPOSED_TO_PATIENT_PORTAL = ['features', 'fileChooserMbSizeLimit'] as const;

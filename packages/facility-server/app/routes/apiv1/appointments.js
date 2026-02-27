@@ -21,7 +21,6 @@ import { escapePatternWildcard } from '../../utils/query';
 
 export const appointments = express.Router();
 
-
 const reorderAppointmentSchema = z.object({
   appointments: z
     .array(
@@ -292,7 +291,8 @@ appointments.put(
       } else {
         await appointment.update(appointmentData);
       }
-      return { ok: 'ok' };
+      await appointment.reload();
+      return appointment;
     });
     res.status(200).send(result);
   }),

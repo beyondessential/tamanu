@@ -1,17 +1,33 @@
 import React from 'react';
 import {
   ENCOUNTER_TYPE_LABELS,
-  INVOICE_STATUSES,
   INVOICE_INSURER_PAYMENT_STATUSES,
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
   INVOICE_STATUS_LABELS,
   INVOICE_INSURER_PAYMENT_STATUS_LABELS,
+  INVOICE_PATIENT_PAYMENT_STATUSES,
 } from '@tamanu/constants';
 import { DataSection } from './DataSection';
 import { DataItem } from './DataItem';
 import { Col } from '../Layout';
 import { formatShort } from '@tamanu/utils/dateTime';
 import { useLanguageContext } from '../../pdf/languageContext';
+
+const getInvoicePaymentStatus = invoice => {
+  const patientPaymentStatus =
+    invoice?.patientPaymentStatus ?? INVOICE_PATIENT_PAYMENT_STATUSES.UNPAID;
+
+  const insurerPaymentStatus =
+    invoice?.insurerPaymentStatus ?? INVOICE_INSURER_PAYMENT_STATUSES.UNPAID;
+
+  const patientLabel = INVOICE_PATIENT_PAYMENT_STATUSES_LABELS[patientPaymentStatus];
+  const insurerLabel = INVOICE_INSURER_PAYMENT_STATUS_LABELS[insurerPaymentStatus];
+
+  return (
+    patientLabel +
+    (insurerPaymentStatus === INVOICE_INSURER_PAYMENT_STATUSES.REJECTED ? `/${insurerLabel}` : '')
+  );
+};
 
 export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsurer }) => {
   const { getTranslation } = useLanguageContext();
@@ -39,6 +55,10 @@ export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsur
             label={getTranslation('invoice.invoiceStatus.label', 'Invoice status')}
             value={INVOICE_STATUS_LABELS[invoice.status]}
           />
+          <DataItem
+            label={getTranslation('invoice.priceList.label', 'Price list')}
+            value={invoice.priceList?.name}
+          />
         </Col>
         <Col>
           <DataItem
@@ -53,14 +73,7 @@ export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsur
           )}
           <DataItem
             label={getTranslation('invoice.paymentStatus.label', 'Payment status')}
-            value={
-              invoice.status === INVOICE_STATUSES.FINALISED
-                ? INVOICE_PATIENT_PAYMENT_STATUSES_LABELS[invoice.patientPaymentStatus] +
-                  (invoice.insurerPaymentStatus === INVOICE_INSURER_PAYMENT_STATUSES.REJECTED
-                    ? `/${INVOICE_INSURER_PAYMENT_STATUS_LABELS[invoice.insurerPaymentStatus]}`
-                    : '')
-                : getTranslation('general.na.label', 'n/a')
-            }
+            value={getInvoicePaymentStatus(invoice)}
           />
         </Col>
       </DataSection>

@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/shared",
-  "version": "2.48.0",
+  "version": "2.51.0",
   "description": "Common code across Tamanu packages",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -70,6 +70,10 @@
       "require": "./dist/cjs/utils/translation/index.js",
       "import": "./dist/esm/utils/translation/index.js"
     },
+    "./utils/invoice": {
+      "require": "./dist/cjs/utils/invoice/index.js",
+      "import": "./dist/esm/utils/invoice/index.js"
+    },
     "./utils/*": {
       "require": "./dist/cjs/utils/*.js",
       "import": "./dist/esm/utils/*.js"
@@ -132,29 +136,25 @@
   "private": true,
   "devDependencies": {
     "@swc/jest": "^0.2.24",
-    "@tamanu/build-tooling": "*",
     "jest": "^29.3.1",
-    "rimraf": "^6.0.1",
-    "sinon": "^11.1.2"
+    "rimraf": "^6.0.1"
   },
   "dependencies": {
-    "@casl/ability": "^6.7.1",
+    "@casl/ability": "^6.8.0",
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/semantic-conventions": "^1.28.0",
     "@react-pdf/renderer": "^3.4.4",
     "@tamanu/constants": "*",
     "@tamanu/errors": "*",
-    "@tamanu/settings": "*",
     "@tamanu/utils": "*",
-    "bcrypt": "^5.1.1",
     "calculate-luhn-mod-n": "^2.0.12",
     "chance": "^1.1.8",
     "config": "^3.3.9",
-    "date-fns": "^2.19.0",
+    "date-fns": "^2.25.0",
     "date-fns-tz": "^1.3.6",
     "decimal.js": "^10.4.3",
     "hookable": "^5.5.3",
-    "json5": "^2.2.3",
+    "jsbarcode": "^3.12.3",
     "khmer-unicode-converter": "^0.0.6",
     "lodash": "^4.17.21",
     "mathjs": "^9.3.0",
