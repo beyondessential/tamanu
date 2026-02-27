@@ -2,7 +2,7 @@ import React from 'react';
 import { NumberInput } from './NumberField';
 
 export const PriceField = ({ field, ...props }) => {
-  const handleInput = (e) => {
+  const handleInput = e => {
     const value = e.target.value;
     // If value is negative just return empty
     if (/^[−-]/.test(value)) {
@@ -26,7 +26,6 @@ export const PriceField = ({ field, ...props }) => {
       step="0.01"
       min={0}
       max={999999}
-      size="small"
       {...props}
       data-testid="numberinput-qwug"
     />

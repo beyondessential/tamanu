@@ -6,6 +6,7 @@ import { inspect } from 'util';
 import { formatISO9075 } from 'date-fns';
 
 import {
+  ADMINISTRATION_FREQUENCIES,
   CURRENTLY_AT_TYPES,
   DAYS_OF_WEEK,
   DIAGNOSIS_CERTAINTY_VALUES,
@@ -201,12 +202,7 @@ export function fakePrescription(prefix: string = 'test-') {
   return {
     date: formatISO9075(chance.date()),
     endDate: formatISO9075(chance.date()),
-    ...fakeStringFields(`${prefix}prescription${id}_`, [
-      'id',
-      'note',
-      'indication',
-      'route',
-    ]),
+    ...fakeStringFields(`${prefix}prescription${id}_`, ['id', 'note', 'indication', 'route']),
   };
 }
 
@@ -355,11 +351,20 @@ const MODEL_SPECIFIC_OVERRIDES = {
       pregnancyContributed: chance.pickone(options),
       recentSurgery: chance.pickone(options),
       stillborn: chance.pickone(options),
+      autopsyRequested: chance.pickone(options),
+      autopsyFindingsUsed: chance.pickone(options),
+      multiplePregnancy: chance.pickone(options),
     };
   },
   PatientProgramRegistration: ({ patientId, programRegistryId }) => ({
     id: `${patientId.replaceAll(';', ':')};${programRegistryId.replaceAll(';', ':')}`,
     registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+  }),
+  Prescription: () => ({
+    frequency: chance.pickone(Object.values(ADMINISTRATION_FREQUENCIES)),
+    discontinued: false,
+    endDate: null,
+    idealTimes: null,
   }),
   User: () => ({
     email: chance.email({ length: 20 }),

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import styled from 'styled-components';
 import CheckIcon from '@material-ui/icons/Check';
 import { Box, IconButton } from '@material-ui/core';
@@ -19,9 +19,9 @@ const ListContainer = styled(Box)`
   padding: 6px 0px;
   border-radius: 3px;
   background-color: ${Colors.white};
-  height: calc(100vh - 444px);
   border: 1px solid ${Colors.outline};
   overflow-y: auto;
+  flex-grow: 1;
 `;
 
 const ListItem = styled.div`
@@ -93,45 +93,43 @@ const CheckedLabel = styled(BodyText)`
   }
 `;
 
-export const MedicationSetList = ({
-  medicationSets,
-  isLoading,
-  onSelect,
-  selectedMedicationSet,
-}) => {
-  if (isLoading)
+export const MedicationSetList = forwardRef(
+  ({ medicationSets, isLoading, onSelect, selectedMedicationSet }, ref) => {
+    if (isLoading)
+      return (
+        <ListContainer ref={ref}>
+          <BodyText pl="16px">
+            <TranslatedText stringId="general.table.loading" fallback="Loading..." />
+          </BodyText>
+        </ListContainer>
+      );
     return (
-      <ListContainer>
-        <BodyText pl="16px">
-          <TranslatedText stringId="general.table.loading" fallback="Loading..." />
-        </BodyText>
+      <ListContainer ref={ref}>
+        {medicationSets?.map(medicationSet => (
+          <ListItem
+            key={medicationSet.id}
+            onClick={() => onSelect(medicationSet)}
+            selected={selectedMedicationSet?.id === medicationSet.id}
+          >
+            {selectedMedicationSet?.id === medicationSet.id && (
+              <SelectOverlay>
+                <CheckIcon color="primary" />
+              </SelectOverlay>
+            )}
+            <BodyText>{medicationSet.name}</BodyText>
+          </ListItem>
+        ))}
       </ListContainer>
     );
-  return (
-    <ListContainer>
-      {medicationSets?.map(medicationSet => (
-        <ListItem
-          key={medicationSet.id}
-          onClick={() => onSelect(medicationSet)}
-          selected={selectedMedicationSet?.id === medicationSet.id}
-        >
-          {selectedMedicationSet?.id === medicationSet.id && (
-            <SelectOverlay>
-              <CheckIcon color="primary" />
-            </SelectOverlay>
-          )}
-          <BodyText>{medicationSet.name}</BodyText>
-        </ListItem>
-      ))}
-    </ListContainer>
-  );
-};
+  },
+);
 
 export const MedicationSetMedicationsList = ({
   medicationSet,
   editable = false,
   onEdit,
   onRemove,
+  height,
 }) => {
   const { getTranslation, getEnumTranslation } = useTranslation();
   const { encounter } = useEncounter();
@@ -141,7 +139,7 @@ export const MedicationSetMedicationsList = ({
     .map(({ medication }) => medication?.id);
 
   return (
-    <ListContainer width="420px">
+    <ListContainer width="420px" height={height}>
       <Heading4 textAlign="center" mt="6px" mb="2px">
         {medicationSet.name}
       </Heading4>

@@ -146,8 +146,8 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
 
 function transliterate(name) {
   return tr(name.toUpperCase()) // transliterate to ASCII
-    .replace("'", '') // apostrophes shall be omitted
-    .replace('-', '<') // hyphens as single filler
+    .replace(/'/g, '') // apostrophes shall be omitted
+    .replace(/-/g, '<') // hyphens as single filler
     .replace(/(\s+|,\s*)/g, '<') // commas as single filler (name parts are separated here)
     .replace(/<+/g, '<') // collapse multiple fillers
     .replace(/[^A-Z<]+/g, '') // all punctuation shall be omitted
