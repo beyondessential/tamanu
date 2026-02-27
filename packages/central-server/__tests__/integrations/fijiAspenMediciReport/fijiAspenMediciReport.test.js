@@ -140,10 +140,11 @@ const fakeAllData = async (models, ctx) => {
     }),
   );
   // open encounter
-  const { id: openEncounterId } = await models.Encounter.create(
+  await models.Encounter.create(
     fake(models.Encounter, {
       patientId: patient.id,
       startDate: createLocalDateTimeStringFromUTC(2022, 6 - 1, 15, 0, 2, 54, 225),
+      endDate: null,
       encounterType: ENCOUNTER_TYPES.ADMISSION,
       reasonForEncounter: 'Severe Migrane',
       patientBillingTypeId,
@@ -332,13 +333,13 @@ const fakeAllData = async (models, ctx) => {
   );
 
   await models.MediciReport.materialiseFromUpstream(encounterId);
-  await models.MediciReport.materialiseFromUpstream(openEncounterId);
 
-  const medici = await models.MediciReport.findOne();
+  const medici = await models.MediciReport.findOne({ where: { upstreamId: encounterId } });
 
-  await medici.update({
-    lastUpdated: new Date(Date.UTC(2022, 6 - 1, 12, 0, 2, 54, 225)),
-  });
+  const utcInstant = new Date(Date.UTC(2022, 6 - 1, 12, 0, 2, 54, 224));
+
+  medici.setDataValue('lastUpdated', utcInstant);
+  await medici.save();
 
   return { patient, encounterId, encounterNote, imagingRequestNote, labRequestNote };
 };
