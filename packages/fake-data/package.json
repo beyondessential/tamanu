@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/fake-data",
-  "version": "2.49.0",
+  "version": "2.51.0",
   "private": true,
   "description": "TODO",
   "main": "dist/cjs/index.js",
@@ -47,10 +47,13 @@
   },
   "dependencies": {
     "@faker-js/faker": "^9.8.0",
+    "@tamanu/constants": "*",
     "@tamanu/database": "*",
     "@tamanu/shared": "*",
-    "chance": "^1.1.12",
-    "lodash": "^4.17.10",
+    "@tamanu/utils": "*",
+    "chance": "^1.1.8",
+    "date-fns": "^2.25.0",
+    "lodash": "^4.17.21",
     "p-limit": "^6.2.0",
     "zod": "^4.0.17",
     "zocker": "^2.2.2"

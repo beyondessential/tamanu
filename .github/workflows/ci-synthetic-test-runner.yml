@@ -29,6 +29,12 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: read
+  statuses: write
+  pull-requests: read
+  actions: write
+
 jobs:
   validate-and-run:
     name: synthetic-test-run-${{ inputs.pr_number }}-${{ github.run_id }}
