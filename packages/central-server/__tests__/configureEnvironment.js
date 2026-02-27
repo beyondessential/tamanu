@@ -3,7 +3,6 @@
 const { Problem } = require('@tamanu/errors');
 
 require('jest-expect-message');
-const jestExtendedMatchers = require('jest-extended');
 
 globalThis.crypto = require('crypto');
 
@@ -30,8 +29,6 @@ ${JSON.stringify(response.body.error, null, 2)}
 `;
 };
 
-// Needs to be added explicitly because of the jest-expect-message import
-expect.extend(jestExtendedMatchers);
 expect.extend({
   toBeForbidden(response) {
     const { statusCode } = response;

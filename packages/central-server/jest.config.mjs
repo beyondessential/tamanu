@@ -7,7 +7,7 @@ export default config(
     testPathIgnorePatterns: ['<rootDir>/app/', '<rootDir>/__tests__/', '/node_modules/'],
     globalTeardown: '<rootDir>/__disttests__/teardown.js',
     setupFiles: ['<rootDir>/__disttests__/setup.js'],
-    setupFilesAfterEnv: ['<rootDir>/__disttests__/configureEnvironment.js', 'jest-expect-message'],
+    setupFilesAfterEnv: ['jest-extended/all', '<rootDir>/__disttests__/configureEnvironment.js', 'jest-expect-message'],
   },
   { transformNodeModules: ['sequelize', '@smithy/middleware-retry', '@aws-sdk/client-s3'] },
 );
