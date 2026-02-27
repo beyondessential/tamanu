@@ -22,3 +22,9 @@ export const MANNER_OF_DEATHS = {
   War: 'War',
   'Unknown/Could not be determined': 'Unknown/Could not be determined',
 };
+
+export const PREGNANCY_MOMENTS = {
+  'At time of death': 'Pregnant at the time of death',
+  'Within 42 days': 'Not pregnant, but pregnant within 42 days (6 weeks) of death',
+  'Within 1 year': 'Not pregnant, but pregnant 43 days to 1 year before death',
+};

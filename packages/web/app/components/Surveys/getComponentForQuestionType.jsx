@@ -10,7 +10,7 @@ import {
   PhotoField as BasePhotoField,
   PatientDataDisplayField,
 } from '@tamanu/ui-components';
-import { WebcamCaptureModal } from '../WebcamCaptureModal';
+import { PhotoCaptureModal } from '../PhotoCaptureModal';
 import {
   DateField,
   DateTimeField,
@@ -43,7 +43,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.USER_DATA]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: props => (
-    <BasePhotoField {...props} WebcamCaptureModalComponent={WebcamCaptureModal} />
+    <BasePhotoField {...props} WebcamCaptureModalComponent={PhotoCaptureModal} />
   ),
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null, // intentionally null
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: InstructionField,

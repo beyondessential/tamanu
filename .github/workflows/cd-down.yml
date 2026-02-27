@@ -18,27 +18,27 @@ on:
     secrets:
       PULUMI_ACCESS_TOKEN:
         required: true
-      TAILSCALE_OAUTH:
-        required: true
       TAMANU_OPS_SSH:
         required: true
 
 permissions:
-  contents: write # to update the release notes
+  contents: read
   pull-requests: write
+  id-token: write # for Tailscale OIDC authentication
 
 jobs:
   down:
     name: Bring down ${{ inputs.deploy-name }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - id: setup
         uses: ./.github/actions/setup-cd
         with:
           ops-ssh-key: ${{ secrets.TAMANU_OPS_SSH }}
-          tailscale-oauth: ${{ secrets.TAILSCALE_OAUTH }}
-          k8s-core: ${{ fromJson(inputs.options).k8score }}
+          tailscale-oauth-client-id: ${{ vars.TS_OAUTH_CLIENT_ID }}
+          tailscale-tags: ${{ vars.TS_TAGS }}
+          tailscale-k8s-operator-hostname: ${{ vars.TS_K8S_OPERATOR_HOSTNAME }}
 
       - name: Check namespace
         id: check
