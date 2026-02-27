@@ -6,7 +6,7 @@ import {
   PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
   PATIENT_FIELD_DEFINITION_TYPES,
   NOTE_RECORD_TYPES,
-  REPORT_DB_SCHEMAS,
+  REPORT_DB_CONNECTIONS,
   REPORT_STATUSES,
   SETTINGS_SCOPES,
   FACT_CURRENT_SYNC_TICK,
@@ -26,6 +26,7 @@ import { createTestContext } from '../utilities';
 import { getPatientLinkedModels } from '../../dist/sync/getPatientLinkedModels';
 import { createMarkedForSyncPatientsTable } from '../../dist/sync/createMarkedForSyncPatientsTable';
 import { snapshotOutgoingChanges } from '../../dist/sync/snapshotOutgoingChanges';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 describe('Sync Lookup data', () => {
   let ctx;
@@ -128,16 +129,19 @@ describe('Sync Lookup data', () => {
       PatientOngoingPrescription,
       PharmacyOrder,
       PharmacyOrderPrescription,
+      MedicationDispense,
       Prescription,
       ImagingRequest,
       ImagingRequestArea,
       ImagingResult,
       Invoice,
       InvoiceDiscount,
-      InvoiceInsurer,
+      InvoiceInsurancePlan,
+      InvoicesInvoiceInsurancePlan,
       InvoiceItem,
       InvoiceItemDiscount,
       InvoicePayment,
+      InvoiceItemFinalisedInsurance,
       LabTestPanelRequest,
       Procedure,
       ProcedureAssistantClinician,
@@ -347,13 +351,22 @@ describe('Sync Lookup data', () => {
       fake(PharmacyOrder, {
         encounterId: encounter1.id,
         orderingClinicianId: examiner.id,
+        facilityId: facility.id,
+        date: getCurrentDateTimeString(),
       }),
     );
 
-    await PharmacyOrderPrescription.create(
+    const pharmacyOrderPrescription = await PharmacyOrderPrescription.create(
       fake(PharmacyOrderPrescription, {
         pharmacyOrderId: pharmacyOrder.id,
         prescriptionId: prescription.id,
+      }),
+    );
+
+    await MedicationDispense.create(
+      fake(MedicationDispense, {
+        pharmacyOrderPrescriptionId: pharmacyOrderPrescription.id,
+        dispensedByUserId: examiner.id,
       }),
     );
 
@@ -424,7 +437,7 @@ describe('Sync Lookup data', () => {
 
     const reportDefinition = await ReportDefinition.create(
       fake(ReportDefinition, {
-        dbSchema: REPORT_DB_SCHEMAS.REPORTING,
+        dbSchema: REPORT_DB_CONNECTIONS.REPORTING,
       }),
     );
     await ReportDefinitionVersion.create(
@@ -619,10 +632,11 @@ describe('Sync Lookup data', () => {
         appliedByUserId: examiner.id,
       }),
     );
-    await InvoiceInsurer.create(
-      fake(InvoiceInsurer, {
+    const contract = await InvoiceInsurancePlan.create(fake(InvoiceInsurancePlan));
+    await InvoicesInvoiceInsurancePlan.create(
+      fake(InvoicesInvoiceInsurancePlan, {
         invoiceId: invoice.id,
-        insurerId: referenceData.id,
+        invoiceInsurancePlanId: contract.id,
       }),
     );
     const invoicePayment = await InvoicePayment.create(
@@ -657,6 +671,12 @@ describe('Sync Lookup data', () => {
     await InvoiceItemDiscount.create(
       fake(InvoiceItemDiscount, {
         invoiceItemId: invoiceItem.id,
+      }),
+    );
+    await InvoiceItemFinalisedInsurance.create(
+      fake(InvoiceItemFinalisedInsurance, {
+        invoiceItemId: invoiceItem.id,
+        invoiceInsurancePlanId: contract.id,
       }),
     );
 

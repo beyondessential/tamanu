@@ -1,6 +1,6 @@
 {
   "name": "scripts",
-  "version": "2.48.0",
+  "version": "2.51.0",
   "license": "GPL-3.0-or-later",
   "scripts": {
     "build": "swc --out-dir dist --copy-files --source-maps true src",
@@ -10,14 +10,14 @@
     "test-determinism": "npm run build && node dist/testDeterminism.js"
   },
   "dependencies": {
+    "@tamanu/constants": "*",
     "@tamanu/database": "*",
     "@tamanu/fake-data": "*",
+    "@tamanu/upgrade": "*",
     "commander": "^9.0.0",
     "config": "^3.3.9",
-    "inflection": "^1.13.4",
     "lodash": "^4.17.21",
     "pg": "^8.5.1",
-    "pgsql-ast-parser": "^11.1.0",
     "rimraf": "^6.0.1",
     "yaml": "^2.2.1"
   },
