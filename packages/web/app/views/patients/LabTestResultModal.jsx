@@ -93,7 +93,7 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
       onClose={onClose}
       data-testid="modal-zwic"
     >
-      {labTest?.labRequest?.id && (
+      {labTest?.labRequest?.encounter?.id && (
         <ButtonContainer data-testid="buttoncontainer-viewlabrequest">
           <Button
             variant="outlined"
