@@ -1,11 +1,12 @@
 import config from 'config';
 import { omit } from 'lodash';
 
+import { initReporting } from '@tamanu/database/services/reporting';
 import { initBugsnag } from '@tamanu/shared/services/logging';
 import { ReadSettings } from '@tamanu/settings/reader';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
-import { closeDatabase, initDatabase, initReporting } from './database';
+import { closeDatabase, initDatabase } from './database';
 import { VERSION } from './middleware/versionCompatibility.js';
 
 /**
@@ -43,9 +44,9 @@ export class ApplicationContext {
     }
 
     const facilityIds = selectFacilityIds(config);
-    const database = await initDatabase(databaseOverrides);
-    this.sequelize = database.sequelize;
-    this.models = database.models;
+    this.store = await initDatabase(databaseOverrides);
+    this.sequelize = this.store.sequelize;
+    this.models = this.store.models;
 
     this.settings = facilityIds.reduce((acc, facilityId) => {
       acc[facilityId] = new ReadSettings(this.models, facilityId);
@@ -53,7 +54,7 @@ export class ApplicationContext {
     }, {});
     this.settings.global = new ReadSettings(this.models);
     if (config.db.reportSchemas?.enabled) {
-      this.reportSchemaStores = await initReporting();
+      this.reportSchemaStores = await initReporting(this.store);
     }
     return this;
   }

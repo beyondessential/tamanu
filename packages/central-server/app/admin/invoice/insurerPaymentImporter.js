@@ -91,10 +91,6 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
       errors.push(new ValidationError(sheetName, index, 'Invoice is not finalised'));
       continue;
     }
-    if (!invoice.insurers.map(insurer => insurer.insurerId).includes(data.insurerId)) {
-      errors.push(new ValidationError(sheetName, index, 'Insurer not found for this invoice'));
-      continue;
-    }
 
     const {
       itemsSubtotal,

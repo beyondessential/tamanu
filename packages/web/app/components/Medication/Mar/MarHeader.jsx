@@ -98,13 +98,20 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
             },
           }}
         >
-          <StepperButton onClick={goToPreviousDay} disabled={isPreviousDayDisabled}>
+          <StepperButton 
+            onClick={goToPreviousDay} 
+            disabled={isPreviousDayDisabled}
+            data-testid="iconbutton-previousdate-abc123"
+          >
             <ChevronLeft />
           </StepperButton>
         </ConditionalTooltip>
         <DateDisplay>{format(selectedDate, 'd MMMM yyyy')}</DateDisplay>
         {!isNextDayHidden && (
-          <StepperButton onClick={goToNextDay}>
+          <StepperButton 
+            onClick={goToNextDay}
+            data-testid="iconbutton-nextdate-xyz789"
+          >
             <ChevronRight />
           </StepperButton>
         )}

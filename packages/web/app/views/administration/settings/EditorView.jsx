@@ -127,6 +127,7 @@ export const EditorView = memo(
     handleShowWarningModal,
     scope,
   }) => {
+    const { facilityId } = values;
     const [category, setCategory] = useState(null);
     const [subCategory, setSubCategory] = useState(null);
 
@@ -258,6 +259,7 @@ export const EditorView = memo(
                 schema={schemaForCategory}
                 getSettingValue={getSettingValue}
                 handleChangeSetting={handleChangeSetting}
+                facilityId={facilityId}
                 data-testid="category-cbjk"
               />
             </CategoriesWrapper>

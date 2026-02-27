@@ -5,7 +5,6 @@ import { MoreVert } from '@material-ui/icons';
 import { Colors } from '../constants';
 
 const ThreeDotMenuItem = styled(MenuItem)`
-  width: 124px;
   font-size: 11px;
   line-height: 15px;
   border-radius: 4px;
@@ -30,7 +29,7 @@ const StyledIconButton = styled(IconButton)`
   padding: 7px;
 `;
 
-export const ThreeDotMenu = ({ items, disabled }) => {
+export const ThreeDotMenu = ({ items, disabled, className }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
@@ -52,6 +51,7 @@ export const ThreeDotMenu = ({ items, disabled }) => {
       <StyledIconButton
         onClick={onOpenKebabMenu}
         disabled={disabled}
+        className={className}
         data-testid="stylediconbutton-szh8"
       >
         <MoreVert data-testid="morevert-kusc" />
