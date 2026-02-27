@@ -1,5 +1,22 @@
-import { test } from '../../fixtures/baseFixture';
+import { test, expect } from '../../fixtures/baseFixture';
 
-test.describe('Medication', () => {
-  test('View medication requests', async () => {});
+test.describe('Medication Requests', () => {
+  test('should navigate to active medication requests page', async ({
+    medicationRequestsPage,
+  }) => {
+    await medicationRequestsPage.goto();
+    await medicationRequestsPage.waitForPageToLoad();
+
+    await expect(medicationRequestsPage.pageContainer).toBeVisible();
+  });
+
+  test('should display search section on medication requests page', async ({
+    medicationRequestsPage,
+  }) => {
+    await medicationRequestsPage.goto();
+    await medicationRequestsPage.waitForPageToLoad();
+
+    await expect(medicationRequestsPage.contentPane).toBeVisible();
+    await expect(medicationRequestsPage.searchTitle).toBeVisible();
+  });
 });
