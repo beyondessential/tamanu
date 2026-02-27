@@ -77,7 +77,7 @@ const StyledPopper = styled(({ popperOptions, ...props }) => (
     }}
   />
 ))`
-  z-index: 1300;
+  z-index: 1500;
 
   .MuiPickersLayout-contentWrapper {
     max-height: 300px;
