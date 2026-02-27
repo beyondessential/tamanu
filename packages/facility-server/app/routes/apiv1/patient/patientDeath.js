@@ -137,6 +137,16 @@ patientDeath.get(
             : null,
       },
 
+      /*
+      TBD on upcoming card - check if these are needed for the new certificate:
+        autopsyRequested
+        autopsyFindingsUsed
+        mannerOfDeathDescription
+        pregnancyMoment
+        multiplePregnancy
+        motherConditionDescription
+      */
+
       recentSurgery:
         deathData?.recentSurgery === 'yes'
           ? {
@@ -157,7 +167,6 @@ patientDeath.get(
             birthWeight: deathData?.birthWeight,
             carrier: {
               age: deathData?.carrierAge,
-              existingConditionId: deathData?.carrierExistingConditionId,
               weeksPregnant: deathData?.carrierPregnancyWeeks,
             },
             hoursSurvivedSinceBirth: deathData?.hoursSurvivedSinceBirth,
@@ -210,7 +219,6 @@ patientDeath.post(
         antecedentCause3TimeAfterOnset: body.antecedentCause3Interval,
         birthWeight: body.birthWeight,
         carrierAge: body.ageOfMother,
-        carrierExistingConditionId: body.motherExistingCondition,
         carrierPregnancyWeeks: body.numberOfCompletedPregnancyWeeks,
         clinicianId: doc.id,
         externalCauseDate: body.mannerOfDeathDate,
@@ -230,6 +238,12 @@ patientDeath.post(
         recentSurgery: body.surgeryInLast4Weeks,
         stillborn: body.stillborn,
         wasPregnant: body.pregnant,
+        autopsyRequested: body.autopsyRequested,
+        autopsyFindingsUsed: body.autopsyFindingsUsed,
+        mannerOfDeathDescription: body.mannerOfDeathDescription,
+        pregnancyMoment: body.pregnancyMoment,
+        multiplePregnancy: body.multiplePregnancy,
+        motherConditionDescription: body.motherConditionDescription,
         withinDayOfBirth: body.deathWithin24HoursOfBirth
           ? body.deathWithin24HoursOfBirth === 'yes'
           : null,

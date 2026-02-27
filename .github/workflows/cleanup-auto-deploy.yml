@@ -17,9 +17,9 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: write # to checkout the repo
-  pull-requests: write # to parse PRs for config and update them
-  issues: write # to parse special deploy issues and update them
+  contents: read
+  pull-requests: write # needed by downstream cd-down.yml for Pulumi PR comments
+  issues: read
   id-token: write # for Tailscale OIDC authentication
 
 jobs:

@@ -33,7 +33,6 @@ export const DataFetchingTable = memo(
     disablePagination = false,
     autoRefresh,
     lazyLoading = false,
-    overrideLocalisationForStorybook = false,
     hasPermission = true,
     defaultRowsPerPage = ROWS_PER_PAGE_OPTIONS[0],
     'data-testid': dataTestId,
@@ -56,8 +55,7 @@ export const DataFetchingTable = memo(
     const api = useApi();
 
     const { getSetting } = useSettings();
-    const autoRefreshConfig =
-      overrideLocalisationForStorybook || getSetting('features.tableAutoRefresh');
+    const autoRefreshConfig = getSetting('features.tableAutoRefresh');
     const enableAutoRefresh = autoRefreshConfig && autoRefreshConfig.enabled && autoRefresh;
 
     // This callback will be passed to table cell accessors so they can force a table refresh

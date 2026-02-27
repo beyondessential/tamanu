@@ -78,6 +78,7 @@ sources:
             data_type: character varying(255)
             description: "{{ doc('encounters__patient_id') }}"
             data_tests:
+              - not_null
               - relationships:
                   arguments:
                     to: source('tamanu', 'patients')

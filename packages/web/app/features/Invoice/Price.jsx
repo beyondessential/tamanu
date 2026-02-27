@@ -6,14 +6,16 @@ const PriceText = styled.div`
   text-decoration: ${props => (props.$isCrossedOut ? 'line-through' : 'none')};
 `;
 
-export const Price = ({ price, $isCrossedOut, ...props }) => {
+export const Price = ({ price, $isCrossedOut, displayAsNegative = false, ...props }) => {
   if (price === null || price === undefined) {
     return <span>-</span>;
   }
 
+  const displayPrice = displayAsNegative && price !== 0 ? -price : price;
+
   return (
     <PriceText $isCrossedOut={$isCrossedOut} {...props}>
-      {formatDisplayPrice(price)}
+      {formatDisplayPrice(displayPrice)}
     </PriceText>
   );
 };
