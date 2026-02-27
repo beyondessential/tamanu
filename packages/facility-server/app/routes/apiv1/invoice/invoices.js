@@ -1,53 +1,148 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { customAlphabet } from 'nanoid';
+import { keyBy, round } from 'lodash';
 import { ValidationError, NotFoundError, InvalidOperationError } from '@tamanu/errors';
-import { INVOICE_ITEMS_DISCOUNT_TYPES, INVOICE_STATUSES, SETTING_KEYS } from '@tamanu/constants';
+import {
+  INVOICE_ITEMS_DISCOUNT_TYPES,
+  INVOICE_STATUSES,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { Op } from 'sequelize';
+import { getInvoiceItemPrice } from '@tamanu/shared/utils';
+import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
 import { invoiceItemsRoute } from './invoiceItems';
 import { getCurrentCountryTimeZoneDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 import { patientPaymentRoute } from './patientPayment';
-import { round } from 'lodash';
-
-const invoiceNumberGenerator = customAlphabet('123456789ABCDEFGHIJKLMNPQRSTUVWXYZ', 10);
+import { insurancePlansRoute } from './insurancePlans';
 
 const invoiceRoute = express.Router();
 export { invoiceRoute as invoices };
+
+invoiceRoute.get(
+  '/price-list-item',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Invoice');
+
+    const { encounterId, productId } = req.query;
+
+    if (!encounterId || !productId) {
+      throw new ValidationError('encounterId and productId are required');
+    }
+
+    const { InvoicePriceList, InvoicePriceListItem } = req.models;
+
+    const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(encounterId);
+
+    if (!invoicePriceListId) {
+      throw new NotFoundError('Invoice Price List not found');
+    }
+
+    const item = await InvoicePriceListItem.findOne({
+      where: {
+        invoicePriceListId,
+        invoiceProductId: productId,
+        isHidden: false,
+      },
+      attributes: ['price'],
+    });
+
+    res.json(item);
+  }),
+);
+
+// Return insurance plan items for a given encounter and product
+invoiceRoute.get(
+  '/insurance-plan-items',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Invoice');
+
+    const { encounterId, productId } = req.query;
+
+    if (!encounterId || !productId) {
+      throw new ValidationError('encounterId and productId are required');
+    }
+
+    const { Invoice, InvoiceInsurancePlanItem, InvoiceInsurancePlan, InvoiceProduct } = req.models;
+
+    // If the product is not insurable, there are no insurance plan items to return
+    const product = await InvoiceProduct.findByPk(productId, { attributes: ['id', 'insurable'] });
+    if (!product || product.insurable !== true) {
+      return res.json([]);
+    }
+
+    // Find the invoice for the encounter (there should be at most one per encounter)
+    const invoice = await Invoice.findOne({
+      where: { encounterId },
+      attributes: ['id'],
+      include: [
+        {
+          model: InvoiceInsurancePlan,
+          as: 'insurancePlans',
+          attributes: ['name', 'id', 'defaultCoverage'],
+          where: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+        },
+      ],
+    });
+
+    if (!invoice) {
+      // If no invoice yet, there will be no linked plans
+      return res.json([]);
+    }
+
+    // Get the plan items for this product and the linked plans
+    const items = await InvoiceInsurancePlanItem.findAll({
+      where: {
+        invoiceProductId: productId,
+      },
+      attributes: ['invoiceInsurancePlanId', 'coverageValue'],
+      include: [
+        {
+          model: InvoiceInsurancePlan,
+          as: 'invoiceInsurancePlan',
+          required: true,
+          attributes: ['name', 'id'],
+        },
+      ],
+    });
+
+    const itemsById = keyBy(items, 'invoiceInsurancePlanId');
+
+    // Normalise to the shape expected by the client UI
+    const response = invoice.insurancePlans.map(insurancePlan => {
+      const planItem = itemsById[insurancePlan.id];
+      const coverageValue = planItem?.coverageValue ?? insurancePlan.defaultCoverage;
+      return {
+        id: insurancePlan.id,
+        label: insurancePlan.name,
+        coverageValue,
+      };
+    });
+
+    res.json(response);
+  }),
+);
 
 //* Create invoice
 const createInvoiceSchema = z
   .object({
     encounterId: z.string().uuid(),
-    discount: z
-      .object({
-        percentage: z.coerce
-          .number()
-          .min(0)
-          .max(1)
-          .transform(amount => round(amount, 2)),
-        reason: z.string().optional(),
-        isManual: z.boolean(),
-      })
-      .strip()
-      .optional(),
     date: z.string(),
   })
   .strip()
   .transform(data => ({
     ...data,
     id: uuidv4(),
-    displayId: invoiceNumberGenerator(),
+    displayId: generateInvoiceDisplayId(),
     status: INVOICE_STATUSES.IN_PROGRESS,
   }));
+
 invoiceRoute.post(
   '/',
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'Invoice');
-    const {
-      body: { facilityId, ...body },
-    } = req;
+    const { body, models } = req;
 
     const { data, error } = await createInvoiceSchema.safeParseAsync(body);
     if (error) throw new ValidationError(error.message);
@@ -58,48 +153,17 @@ invoiceRoute.post(
     });
     if (!encounter) throw new ValidationError(`encounter ${data.encounterId} not found`);
 
-    const insurerId = await req.models.PatientAdditionalData.findOne({
-      where: { patientId: encounter.patientId },
-      attributes: ['insurerId'],
-    }).then(patientData => patientData?.insurerId);
-    const insurerPercentage = await req.settings[facilityId].get(
-      SETTING_KEYS.INSURER_DEFAUlT_CONTRIBUTION,
-    );
-    const defaultInsurer =
-      insurerId && insurerPercentage ? { insurerId, percentage: insurerPercentage } : null;
+    // Ensure no other invoice exists for the same encounter
+    const existingInvoice = await req.models.Invoice.findOne({
+      where: {
+        encounterId: data.encounterId,
+      },
+    });
+    if (existingInvoice)
+      throw new InvalidOperationError('An invoice already exists for this encounter');
 
-    // create invoice transaction
-    const transaction = await req.db.transaction();
-
-    try {
-      //create invoice
-      const invoice = await req.models.Invoice.create(data, { transaction });
-
-      // insert default insurer
-      if (defaultInsurer)
-        await req.models.InvoiceInsurer.create(
-          { invoiceId: data.id, ...defaultInsurer },
-          { transaction },
-        );
-
-      // create invoice discount
-      if (data.discount)
-        await req.models.InvoiceDiscount.create(
-          {
-            ...data.discount,
-            invoiceId: data.id,
-            appliedByUserId: req.user.id,
-            appliedTime: getCurrentCountryTimeZoneDateTimeString(),
-          },
-          { transaction },
-        );
-
-      await transaction.commit();
-      res.json(invoice);
-    } catch (error) {
-      await transaction.rollback();
-      throw error;
-    }
+    const invoice = await models.Invoice.create(data);
+    res.json(invoice);
   }),
 );
 
@@ -114,61 +178,43 @@ const updateInvoiceSchema = z
           .min(0)
           .max(1)
           .transform(amount => round(amount, 2)),
-        reason: z.string().optional(),
+        reason: z.string().nullish(),
         isManual: z.boolean(),
       })
       .strip()
-      .optional(),
-    insurers: z
-      .object({
-        id: z.string().uuid().default(uuidv4),
-        percentage: z.coerce
-          .number()
-          .min(0)
-          .max(1)
-          .transform(amount => round(amount, 2)),
-        insurerId: z.string(),
-      })
-      .strip()
-      .array()
-      .refine(
-        insurers => insurers.reduce((sum, insurer) => (sum += insurer.percentage), 0) <= 1,
-        'Total insurer percentage should not exceed 100%',
-      ),
+      .nullish(),
     items: z
       .object({
         id: z.string().uuid().default(uuidv4),
         orderDate: z.string().date(),
         orderedByUserId: z.string(),
         productId: z.string(),
-        productName: z.string(),
-        productPrice: z.coerce
+        manualEntryPrice: z.coerce
           .number()
           .transform(amount => round(amount, 2))
-          .optional(),
-        productCode: z.string().default(''),
-        productDiscountable: z.boolean().default(true),
+          .nullish(),
         quantity: z.coerce.number().default(1),
-        note: z.string().optional(),
-        sourceId: z.string().uuid().optional(),
+        note: z.string().nullish(),
+        sourceId: z.string().uuid().nullish(),
         discount: z
           .object({
             id: z.string().uuid().default(uuidv4),
             type: z.enum(Object.values(INVOICE_ITEMS_DISCOUNT_TYPES)),
             amount: z.coerce.number().transform(amount => round(amount, 2)),
-            reason: z.string().optional(),
+            reason: z.string().nullish(),
           })
           .strip()
-          .optional(),
+          .nullish(),
+        approved: z.boolean().default(false),
       })
       .strip()
       .refine(item => {
         if (!item.discount) return true;
         if (item.discount.type === INVOICE_ITEMS_DISCOUNT_TYPES.PERCENTAGE) {
-          return item.discount.amount < 0
-            ? true
-            : item.discount.amount <= 1 && item.discount.amount > 0;
+          return item.discount.amount >= -1 && item.discount.amount <= 1;
         }
+        // If productPrice is not provided, we can't validate against total price
+        if (item.productPrice === undefined) return true;
         return item.discount.amount <= item.productPrice * item.quantity;
       }, 'Invalid discount amount')
       .array(),
@@ -189,9 +235,11 @@ invoiceRoute.put(
     const foundInvoice = await req.models.Invoice.findByPk(invoiceId);
     if (!foundInvoice) throw new NotFoundError(`Unable to find invoice ${invoiceId}`);
 
-    //* Only in progress invoices can be updated
-    if (foundInvoice.status !== INVOICE_STATUSES.IN_PROGRESS)
-      throw new InvalidOperationError('Only in progress invoices can be updated');
+    // Only in-progress invoices can be updated via this endpoint
+    // For approval changes on finalised invoices, use PUT /:id/items/:itemId/approval
+    if (foundInvoice.status !== INVOICE_STATUSES.IN_PROGRESS) {
+      throw new InvalidOperationError('Only in progress invoices can be updated.');
+    }
 
     const { data, error } = await updateInvoiceSchema.safeParseAsync(req.body);
     if (error) throw new ValidationError(error.message);
@@ -222,16 +270,6 @@ invoiceRoute.put(
         );
       }
 
-      //remove any existing insurer if insurer ids are not matching
-      await req.models.InvoiceInsurer.destroy(
-        { where: { invoiceId, id: { [Op.notIn]: data.insurers.map(insurer => insurer.id) } } },
-        { transaction },
-      );
-      //update or create insurers
-      for (const insurer of data.insurers) {
-        await req.models.InvoiceInsurer.upsert({ ...insurer, invoiceId }, { transaction });
-      }
-
       //remove any existing item if item ids are not matching
       await req.models.InvoiceItem.destroy(
         { where: { invoiceId, id: { [Op.notIn]: data.items.map(item => item.id) } } },
@@ -240,7 +278,6 @@ invoiceRoute.put(
 
       for (const item of data.items) {
         const { discount: itemDiscount, ...itemData } = item;
-
         //update or create item
         await req.models.InvoiceItem.upsert({ ...itemData, invoiceId }, { transaction });
 
@@ -305,48 +342,185 @@ invoiceRoute.put(
 );
 
 /**
- * Finalize invoice
- * - An invoice cannot be finalised until the Encounter has been closed
+ * Finalise invoice
+ * - An invoice cannot be finalised until the encounter has been discharged
  * - Only in progress invoices can be finalised
  * - Invoice items data will be frozen
  */
 invoiceRoute.put(
-  '/:id/finalize',
+  '/:id/finalise',
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Invoice');
-    const invoiceId = req.params.id;
-    const invoice = await req.models.Invoice.findByPk(invoiceId, {
-      attributes: ['id', 'status'],
-    });
-    if (!invoice) throw new NotFoundError('Invoice not found');
+    const { models, params } = req;
+    const invoiceId = params.id;
+    const { Invoice, InvoicePriceList, InvoiceItem, InvoiceItemFinalisedInsurance } = models;
 
-    //only in progress invoices can be finalised
+    const invoice = await Invoice.findByPk(invoiceId, {
+      attributes: ['id', 'status', 'encounterId'],
+    });
+
+    if (!invoice) {
+      throw new NotFoundError('Invoice not found');
+    }
+
     if (invoice.status !== INVOICE_STATUSES.IN_PROGRESS) {
       throw new InvalidOperationError('Only in progress invoices can be finalised');
     }
 
-    //An invoice cannot be finalised until the Encounter has been closed
-    //an encounter is considered closed if it has an end date
-    const encounterClosed = await req.models.Encounter.findByPk(invoice.encounterId, {
+    // An encounter is considered closed if it has an end date
+    const encounter = await req.models.Encounter.findByPk(invoice.encounterId, {
       attributes: ['endDate'],
-    }).then(encounter => !!encounter?.endDate);
+    });
 
-    if (encounterClosed) {
+    if (!encounter) {
+      throw new NotFoundError('Encounter not found for this invoice.');
+    }
+
+    if (!encounter.endDate) {
       throw new InvalidOperationError(
-        'Ivnvoice cannot be finalised until the Encounter has been closed',
+        'Invoice cannot be finalised until the encounter has been discharged',
       );
     }
 
-    invoice.status = INVOICE_STATUSES.FINALISED;
-    await invoice.save();
+    const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(invoice.encounterId);
+
+    const associations = InvoiceItem.getListReferenceAssociations(models, invoicePriceListId);
+    const invoiceItems = await InvoiceItem.findAll({
+      where: { invoiceId },
+      include: associations,
+    });
+
+    const transaction = await req.db.transaction();
+
+    try {
+      // Copy product details to the invoice item final fields
+      for (const item of invoiceItems) {
+        if (item.product) {
+          item.productNameFinal = item.product.name;
+          item.productCodeFinal = item.product.getProductCode();
+
+          item.priceFinal = getInvoiceItemPrice(item);
+
+          // Save insurance plan coverage values
+          if (item.product.invoiceInsurancePlanItems?.length > 0) {
+            for (const insurancePlanItem of item.product.invoiceInsurancePlanItems) {
+              await InvoiceItemFinalisedInsurance.create(
+                {
+                  id: uuidv4(),
+                  invoiceItemId: item.id,
+                  coverageValueFinal: insurancePlanItem.coverageValue,
+                  invoiceInsurancePlanId: insurancePlanItem.invoiceInsurancePlanId,
+                },
+                { transaction },
+              );
+            }
+          }
+
+          await item.save({ transaction });
+        }
+      }
+
+      invoice.status = INVOICE_STATUSES.FINALISED;
+      await invoice.save({ transaction });
+
+      await transaction.commit();
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+
     res.json(invoice);
   }),
 );
+
 /**
- * Finalize invoice
- * You cannot delete a Finalised invoice
- * You can delete a cancelled or in progress invoice
+ * Update invoice item approval status
+ * - Can be used on both in-progress and finalised invoices
  */
+invoiceRoute.put(
+  '/:id/items/:itemId/approval',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'Invoice');
+
+    const { id: invoiceId, itemId } = req.params;
+    const { approved } = req.body;
+
+    if (typeof approved !== 'boolean') {
+      throw new ValidationError('approved must be a boolean');
+    }
+
+    const invoice = await req.models.Invoice.findByPk(invoiceId, {
+      attributes: ['id', 'status'],
+    });
+
+    if (!invoice) {
+      throw new NotFoundError('Invoice not found');
+    }
+
+    // Allow approval changes on both IN_PROGRESS and FINALISED invoices
+    if (![INVOICE_STATUSES.IN_PROGRESS, INVOICE_STATUSES.FINALISED].includes(invoice.status)) {
+      throw new InvalidOperationError(
+        'Approval can only be changed on in-progress or finalised invoices',
+      );
+    }
+
+    const invoiceItem = await req.models.InvoiceItem.findOne({
+      where: { id: itemId, invoiceId },
+    });
+
+    if (!invoiceItem) {
+      throw new NotFoundError('Invoice item not found');
+    }
+
+    invoiceItem.approved = approved;
+    await invoiceItem.save();
+
+    res.json({ id: invoiceItem.id, approved: invoiceItem.approved });
+  }),
+);
+
+/**
+ * Bulk update invoice item approval status
+ * - Can be used on both in-progress and finalised invoices
+ */
+invoiceRoute.put(
+  '/:id/items/approval',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'Invoice');
+
+    const { id: invoiceId } = req.params;
+    const { approved } = req.body;
+
+    if (typeof approved !== 'boolean') {
+      throw new ValidationError('approved must be a boolean');
+    }
+
+    const invoice = await req.models.Invoice.findByPk(invoiceId, {
+      attributes: ['id', 'status'],
+    });
+
+    if (!invoice) {
+      throw new NotFoundError('Invoice not found');
+    }
+
+    // Allow approval changes on both IN_PROGRESS and FINALISED invoices
+    if (![INVOICE_STATUSES.IN_PROGRESS, INVOICE_STATUSES.FINALISED].includes(invoice.status)) {
+      throw new InvalidOperationError(
+        'Approval can only be changed on in-progress or finalised invoices',
+      );
+    }
+
+    await req.models.InvoiceItem.update({ approved }, { where: { invoiceId } });
+
+    const updatedItems = await req.models.InvoiceItem.findAll({
+      where: { invoiceId },
+      attributes: ['id', 'approved'],
+    });
+
+    res.json(updatedItems);
+  }),
+);
+
 invoiceRoute.delete(
   '/:id',
   asyncHandler(async (req, res) => {
@@ -358,9 +532,9 @@ invoiceRoute.delete(
     });
     if (!invoice) throw new NotFoundError('Invoice not found');
 
-    //Finalised invoices cannot be deleted
+    // Finalised invoices cannot be deleted
     if (invoice.status === INVOICE_STATUSES.FINALISED) {
-      throw new InvalidOperationError('Only in progress invoices can be finalised');
+      throw new InvalidOperationError('Finalised invoices cannot be deleted');
     }
 
     await invoice.destroy();
@@ -371,3 +545,4 @@ invoiceRoute.delete(
 
 invoiceRoute.use(invoiceItemsRoute);
 invoiceRoute.use(patientPaymentRoute);
+invoiceRoute.use(insurancePlansRoute);

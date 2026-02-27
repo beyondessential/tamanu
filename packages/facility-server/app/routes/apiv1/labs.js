@@ -416,14 +416,7 @@ labRelations.get(
             ],
           },
         ],
-        order: [
-          [
-            'labTestType',
-            'panelRelations',
-            'order',
-            'ASC',
-          ],
-        ],
+        order: [['labTestType', 'panelRelations', 'order', 'ASC']],
       };
 
       const { count, rows: objects } = await LabTest.findAndCountAll({
@@ -450,53 +443,77 @@ labRelations.get(
 labRelations.put(
   '/:id/tests',
   asyncHandler(async (req, res) => {
-    const { models, params, body, db, user } = req;
+    const {
+      models,
+      params,
+      body,
+      db,
+      user,
+    } = req;
     const { id } = params;
+    const { resultsInterpretation, labTests = {} } = body;
     req.checkPermission('write', 'LabTest');
 
-    const testIds = Object.keys(body);
+    const testIds = Object.keys(labTests);
 
-    const labTests = await models.LabTest.findAll({
-      where: {
-        labRequestId: id,
-        id: testIds,
-      },
-      include: ['labTestType'],
+    const labRequest = await models.LabRequest.findByPk(id, {
+      include: [
+        {
+          model: models.LabTest,
+          as: 'tests',
+          include: [
+            {
+              model: models.LabTestType,
+              as: 'labTestType',
+            },
+          ],
+        },
+      ],
     });
+    const labTestRecords = labRequest.tests; // LabTest records
 
     // Reject all updates if it includes sensitive tests and user lacks permission
-    const areSensitiveTests = labTests.some(test => test.labTestType.isSensitive);
+    const areSensitiveTests = labTestRecords.some(test => test.labTestType.isSensitive);
     if (areSensitiveTests) {
       req.checkPermission('write', 'SensitiveLabRequest');
     }
 
     // If any of the tests have a different result, check for LabTestResult permission
-    const labTestObj = keyBy(labTests, 'id');
+    const labTestObj = keyBy(labTestRecords, 'id');
     if (
-      Object.entries(body).some(
-        ([testId, testBody]) => testBody.result && testBody.result !== labTestObj[testId].result,
+      Object.entries(labTests).some(
+        ([testId, testBody]) => testBody.result && labTestObj[testId] && testBody.result !== labTestObj[testId].result,
       )
     ) {
       req.checkPermission('write', 'LabTestResult');
     }
 
-    if (labTests.length !== testIds.length) {
-      // Not all lab tests exist on specified lab request
-      throw new NotFoundError();
+    // Check if all test IDs in the body actually belong to this lab request
+    if (testIds.length > 0) {
+      const invalidTestIds = testIds.filter(testId => !labTestObj[testId]);
+      if (invalidTestIds.length > 0) {
+        throw new NotFoundError();
+      }
     }
 
-    db.transaction(async () => {
+    await db.transaction(async () => {
+      if (resultsInterpretation !== undefined && resultsInterpretation !== labRequest.resultsInterpretation) {
+        await labRequest.update({ resultsInterpretation });
+      }
+
       const promises = [];
 
-      labTests.forEach(labTest => {
-        req.checkPermission('write', labTest);
-        const labTestBody = body[labTest.id];
-        const updated = labTest.set(labTestBody);
-        if (updated.changed()) {
-          // Temporary solution for lab test officer string field
-          // using displayName of current user
-          labTest.set('laboratoryOfficer', user.displayName);
-          promises.push(updated.save());
+      labTestRecords.forEach(labTestRecord => {
+        const testData = labTests[labTestRecord.id];
+        if (testData) {
+          req.checkPermission('write', labTestRecord);
+          const updated = labTestRecord.set(testData);
+          if (updated.changed()) {
+            // Temporary solution for lab test officer string field
+            // using displayName of current user
+            labTestRecord.set('laboratoryOfficer', user.displayName);
+            promises.push(updated.save());
+          }
         }
       });
 
@@ -559,7 +576,7 @@ labTestType.get(
           as: 'category',
         },
       ],
-      // We dont include lab tests with a visibility status of panels only in this route as it is only used for the individual lab workflow
+      // We don't include lab tests with a visibility status of panels only in this route as it is only used for the individual lab workflow
       where: {
         visibilityStatus: {
           [Op.notIn]: [
