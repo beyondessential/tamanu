@@ -439,7 +439,42 @@
       // generated in the central server. Can be `tamanu` or `icao` or `eudcc`.
       // `tamanu` implies that the signing integrations are not enabled.
       "previewUvciFormat": "tamanu",
-      "disabledReports": [],
+      "disabledReports": [
+        // All legacy code-based reports are disabled by default for new deployments
+        // These can be re-enabled by removing them from this list in deployment-specific config
+        "aefi",
+        "appointments-line-list",
+        "covid-swab-lab-tests-summary",
+        "covid-vaccine-list",
+        "covid-vaccine-summary-dose1",
+        "covid-vaccine-summary-dose2",
+        "deceased-patients-line-list",
+        "fiji-aspen-hospital-admissions-summary",
+        "fiji-covid-swab-lab-test-list",
+        "fiji-ncd-primary-screening-line-list",
+        "fiji-ncd-primary-screening-pending-referrals-line-list",
+        "fiji-ncd-primary-screening-summary",
+        "fiji-recent-attendance-list",
+        "fiji-statistical-report-for-phis-summary",
+        "fiji-traveller-covid-lab-test-list",
+        "imaging-requests-line-list",
+        "incomplete-referrals",
+        "india-assistive-technology-device-line-list",
+        "iraq-assistive-technology-device-line-list",
+        "kiribati-covid-swab-lab-test-list",
+        "nauru-covid-swab-lab-test-list",
+        "number-patients-registered-by-date",
+        "palau-covid-case-report-line-list",
+        "palau-covid-swab-lab-test-list",
+        "png-assistive-technology-device-line-list",
+        "recent-diagnoses",
+        "registered-births-line-list",
+        "registered-patients",
+        "samoa-aefi",
+        "samoa-covid-swab-lab-test-list",
+        "tuvalu-vaccine-list",
+        "vaccine-list"
+      ],
       "supportDeskUrl": "https://bes-support.zendesk.com/hc/en-us"
     }
   },
