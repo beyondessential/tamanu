@@ -111,7 +111,9 @@ const getMedication = ({ prescription }) => {
 const getPrescriber = ({ prescription }) => {
   return prescription?.prescriber?.displayName;
 };
-const getDateSent = ({ pharmacyOrder }, formatTime) => (
+const getDateSent = ({ pharmacyOrder }, formatTime) => {
+  console.log(pharmacyOrder.date)
+  return (
   <div>
     <DateDisplay
       date={pharmacyOrder?.date}
@@ -123,7 +125,7 @@ const getDateSent = ({ pharmacyOrder }, formatTime) => (
       {formatTime(pharmacyOrder?.date)}
     </BodyText>
   </div>
-);
+)};
 
 export const MedicationRequestsTable = () => {
   const { formatTime } = useDateTime();
