@@ -66,7 +66,6 @@
     "express": "^4.16.2",
     "express-async-handler": "^1.2.0",
     "express-session": "^1.18.1",
-    "express-validator": "^6.5.0",
     "helmet": "^8.1.0",
     "jose": "^5.9.6",
     "lodash": "^4.17.21",
