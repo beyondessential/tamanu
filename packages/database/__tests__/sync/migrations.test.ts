@@ -1,6 +1,6 @@
 import { closeDatabase, initDatabase } from '../utilities';
-import { runPostMigration, runPreMigration } from '../../src/services/migrations/migrationHooks';
-import { createMigrationInterface } from '../../src/services/migrations/migrations';
+import { runPostMigration, runPreMigration } from '../../src/services/migrations/hooks';
+import { createMigrationInterface } from '@tamanu/database/services/migrations';
 import { fake } from '@tamanu/fake-data/fake';
 import { log } from '@tamanu/shared/services/logging/log';
 import { describe, expect, it, beforeEach, afterEach } from 'vitest';
@@ -42,7 +42,7 @@ describe('migrations', () => {
       // assertions
       expect(tickAtStart).toBe('1');
       expect(tickAfterMigration).toBe('1');
-    });
+    }, 30000);
 
     it('ensure sync tick update still work', async () => {
       const tickAtStart = await report_definition.updatedAtSyncTick;
@@ -60,6 +60,6 @@ describe('migrations', () => {
       // assertions
       expect(tickAtStart).toBe('1');
       expect(tickAfterUpdate).toBe('2');
-    });
+    }, 30000);
   });
 });

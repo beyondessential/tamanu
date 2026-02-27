@@ -11,10 +11,11 @@ const getOrCreateConnection = async (configOverrides, key = 'main') => {
   });
 };
 
-export async function initDatabase() {
+export async function initDatabase(configOverrides = {}) {
   const testMode = process.env.NODE_ENV === 'test';
   return getOrCreateConnection({
     primaryKeyDefault: testMode ? fakeUUID : undefined,
+    ...configOverrides,
   });
 }
 
