@@ -92,7 +92,7 @@
   "dependencies": {
     "concurrently": "^8.2.2",
     "node": "^20.19.4",
-    "patch-package": "^8.0.0"
+    "patch-package": "^8.0.1"
   },
   "overrides": {
     "axios": "^1.8.2",
