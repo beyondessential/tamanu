@@ -79,7 +79,7 @@ export class InvoicePriceList extends Model {
       throw new Error(`Encounter not found: ${encounterId}`);
     }
 
-    const patientType =
+    const patientBillingType =
       encounter.patientBillingTypeId ||
       encounter?.patient?.additionalData?.[0]?.patientBillingTypeId;
     const patientDOB = encounter?.patient?.dateOfBirth;
@@ -87,10 +87,7 @@ export class InvoicePriceList extends Model {
 
     const priceLists = await this.findAll({
       where: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
-      order: [
-        ['createdAt', 'ASC'],
-        ['code', 'ASC'],
-      ],
+      order: [['code', 'ASC']],
     });
 
     // Collect all rules for exclusionary logic
@@ -103,7 +100,7 @@ export class InvoicePriceList extends Model {
 
       const match =
         matchesFacilityWithExclusionaryLogic(rules.facilityId, facilityId, allRules) &&
-        equalsIfPresent(rules.patientType, patientType) &&
+        equalsIfPresent(rules.patientBillingType, patientBillingType) &&
         matchesAgeIfPresent(rules.patientAge, patientDOB);
 
       if (match) {
