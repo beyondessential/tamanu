@@ -180,7 +180,6 @@ App folder structure:
 |           |                                                       |
 | --------- | ----------------------------------------------------- |
 | App       | user interface components, navigation and ddd folders |
-| e2e       | End to end testing with detox                         |
 | android   | Gradle configuration, debug signing key               |
 | _mocks_   | fixed mocks for jest test runner                      |
 
