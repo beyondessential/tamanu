@@ -258,10 +258,8 @@ const handleRefundPatientPayment = asyncHandler(async (req, res) => {
     throw new ValidationError(error.message);
   }
 
-  const transaction = await req.db.transaction();
-
-  try {
-    const refundPayment = await req.models.InvoicePayment.create(
+  const refundPayment = await req.db.transaction(async () => {
+    const refund = await req.models.InvoicePayment.create(
       {
         invoiceId,
         date: getCurrentDateString(),
@@ -270,22 +268,38 @@ const handleRefundPatientPayment = asyncHandler(async (req, res) => {
         updatedByUserId: req.user.id ?? null,
         originalPaymentId: paymentId,
       },
-      { returning: true, transaction },
+      { returning: true },
     );
-    await req.models.InvoicePatientPayment.create(
+    await req.models.InvoicePatientPayment.create({
+      invoicePaymentId: refund.id,
+      methodId: data.methodId,
+    });
+
+    const encounterId = await getEncounterIdFromInvoiceId(req, invoiceId);
+    const invoice = await getInvoiceWithDetails(req, encounterId);
+
+    if (!invoice) {
+      throw new NotFoundError('Invoice not found');
+    }
+
+    const { patientTotal, patientPaymentRemainingBalance } = getInvoiceSummary(invoice);
+
+    await req.models.Invoice.update(
       {
-        invoicePaymentId: refundPayment.id,
-        methodId: data.methodId,
+        patientPaymentStatus: getInvoicePatientPaymentStatus(
+          new Decimal(patientTotal)
+            .minus(patientPaymentRemainingBalance)
+            .toNumber(),
+          patientTotal,
+        ),
       },
-      { transaction },
+      { where: { id: invoiceId } },
     );
 
-    await transaction.commit();
-    res.json(refundPayment);
-  } catch (error) {
-    await transaction.rollback();
-    throw error;
-  }
+    return refund;
+  });
+
+  res.json(refundPayment);
 });
 
 export const patientPaymentRoute = express.Router();

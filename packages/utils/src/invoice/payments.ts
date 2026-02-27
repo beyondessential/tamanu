@@ -1,4 +1,5 @@
 import Decimal from 'decimal.js';
+import { customAlphabet } from 'nanoid';
 import {
   INVOICE_INSURER_PAYMENT_STATUSES,
   INVOICE_PATIENT_PAYMENT_STATUSES,
@@ -6,6 +7,12 @@ import {
 import { getInvoiceSummary } from './invoice';
 import { formatDisplayPrice, round } from './display';
 import type { Invoice, Payment } from './types';
+
+const RECEIPT_NUMBER_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ123456789';
+const RECEIPT_NUMBER_LENGTH = 8;
+
+export const generateReceiptNumber = (): string =>
+  customAlphabet(RECEIPT_NUMBER_ALPHABET, RECEIPT_NUMBER_LENGTH)();
 
 export const getInvoicePatientPaymentStatus = (paidAmount: number, owingAmount: number): string => {
   const roundedPaidAmount = round(paidAmount, 2);

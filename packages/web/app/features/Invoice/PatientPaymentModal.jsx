@@ -2,8 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import Decimal from 'decimal.js';
-import { customAlphabet } from 'nanoid';
-
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants';
 import {
@@ -16,7 +14,7 @@ import {
   TAMANU_COLORS,
   TextButton,
 } from '@tamanu/ui-components';
-import { formatDisplayPrice } from '@tamanu/utils/invoice';
+import { formatDisplayPrice, generateReceiptNumber } from '@tamanu/utils/invoice';
 
 import { TranslatedText } from '../../components/Translation';
 import { ModalFormActionRow } from '../../components/ModalActionRow';
@@ -31,8 +29,6 @@ import {
   Text,
 } from './PatientPaymentStyledComponents';
 
-const RECEIPT_NUMBER_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ123456789';
-const RECEIPT_NUMBER_LENGTH = 8;
 const DECIMAL_PLACES = 2;
 
 const Total = styled.div`
@@ -58,9 +54,6 @@ const PayBalanceButton = styled(TextButton)`
     text-decoration: underline;
   }
 `;
-
-const generateReceiptNumber = () =>
-  customAlphabet(RECEIPT_NUMBER_ALPHABET, RECEIPT_NUMBER_LENGTH)();
 
 const calculateMaxAllowedAmount = (editingPayment, patientPaymentRemainingBalance) => {
   const editingAmount = editingPayment?.amount
