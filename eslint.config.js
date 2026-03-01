@@ -108,19 +108,12 @@ export default [
   {
     files: [
       `packages/*/__{mocks,tests}__/**/*.${EXTS}`,
-      `packages/mobile/e2e/**/*.${EXTS}`,
       `packages/shared/src/test-helpers/**/*.${EXTS}`,
       `**/jest.*.${EXTS}`,
       `**/*.{spec,test}.${EXTS}`,
     ],
     languageOptions: {
       globals: globals.jest,
-    },
-  },
-  {
-    files: [`packages/mobile/e2e/**/*.${JS_EXTS}`],
-    languageOptions: {
-      globals: globals.jasmine,
     },
   },
   {
