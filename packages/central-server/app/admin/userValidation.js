@@ -1,9 +1,9 @@
 import { Op } from 'sequelize';
 
-export async function checkUserUniqueness(User, { email, displayName, excludeId }) {
+export async function checkUserUniqueness(User, { email, displayName, excludeId, caseInsensitiveEmail = false }) {
   const duplicates = {};
   if (email) {
-    const where = { email: { [Op.iLike]: email } };
+    const where = { email: caseInsensitiveEmail ? { [Op.iLike]: email } : email };
     if (excludeId) where.id = { [Op.ne]: excludeId };
     duplicates.email = Boolean(await User.findOne({ where }));
   }
