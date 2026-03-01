@@ -39,109 +39,108 @@ export const VaccineNotGivenForm = ({
 
   return (
     <TwoTwoGrid data-testid="twotwogrid-ng3x">
-    {!editMode && (
-      <CategoryField
-        category={category}
-        setCategory={setCategory}
-        setVaccineLabel={setVaccineLabel}
-        resetForm={resetForm}
-        data-testid="categoryfield-z56o"
-      />
-    )}
-    {category === VACCINE_CATEGORIES.OTHER ? (
-      <>
-        {!editMode && <VaccineNameField data-testid="vaccinenamefield-6dpr" />}
-
-        <DiseaseField data-testid="diseasefield-xxrx" />
-      </>
-    ) : (
-      !editMode && (
+      {!editMode && (
+        <CategoryField
+          category={category}
+          setCategory={setCategory}
+          setVaccineLabel={setVaccineLabel}
+          resetForm={resetForm}
+          data-testid="categoryfield-z56o"
+        />
+      )}
+      {category === VACCINE_CATEGORIES.OTHER ? (
         <>
-          <VaccineLabelField
-            vaccineLabel={vaccineLabel}
-            vaccineOptions={vaccineOptions}
-            setVaccineLabel={setVaccineLabel}
-            data-testid="vaccinelabelfield-tv4u"
-          />
-          <br />
+          {!editMode && <VaccineNameField data-testid="vaccinenamefield-6dpr" />}
+
+          <DiseaseField data-testid="diseasefield-xxrx" />
         </>
-      )
-    )}
+      ) : (
+        !editMode && (
+          <>
+            <VaccineLabelField
+              vaccineLabel={vaccineLabel}
+              vaccineOptions={vaccineOptions}
+              setVaccineLabel={setVaccineLabel}
+              data-testid="vaccinelabelfield-tv4u"
+            />
+            <br />
+          </>
+        )
+      )}
 
-    {!editMode && schedules?.length ? (
-      <AdministeredVaccineScheduleField
-        schedules={schedules}
-        data-testid="administeredvaccineschedulefield-6a3r"
+      {!editMode && schedules?.length ? (
+        <AdministeredVaccineScheduleField
+          schedules={schedules}
+          data-testid="administeredvaccineschedulefield-6a3r"
+        />
+      ) : null}
+
+      <LocalisedField
+        name="notGivenReasonId"
+        label={
+          <TranslatedText
+            stringId="vaccine.notGivenReason.label"
+            fallback="Reason"
+            data-testid="translatedtext-u1dv"
+          />
+        }
+        component={SuggesterSelectField}
+        endpoint="vaccineNotGivenReason"
+        data-testid="localisedfield-olx5"
       />
-    ) : null}
 
-    <LocalisedField
-      name="notGivenReasonId"
-      label={
-        <TranslatedText
-          stringId="vaccine.notGivenReason.label"
-          fallback="Reason"
-          data-testid="translatedtext-u1dv"
-        />
-      }
-      component={SuggesterSelectField}
-      endpoint="vaccineNotGivenReason"
-      data-testid="localisedfield-olx5"
-    />
+      <VaccineDateField
+        label={
+          <TranslatedText
+            stringId="vaccine.dateRecorded.label"
+            fallback="Date recorded"
+            data-testid="translatedtext-0c0a"
+          />
+        }
+        min={values?.patientData?.dateOfBirth}
+        max={getCurrentDateTime()}
+        data-testid="vaccinedatefield-jzo2"
+      />
 
-    <VaccineDateField
-      label={
-        <TranslatedText
-          stringId="vaccine.dateRecorded.label"
-          fallback="Date recorded"
-          data-testid="translatedtext-0c0a"
-        />
-      }
-      min={values?.patientData?.dateOfBirth}
-      max={getCurrentDateTime()}
-      keepIncorrectValue
-      data-testid="vaccinedatefield-jzo2"
-    />
+      <StyledDivider data-testid="styleddivider-j5dz" />
 
-    <StyledDivider data-testid="styleddivider-j5dz" />
+      <LocationField data-testid="locationfield-cycj" />
+      <DepartmentField data-testid="departmentfield-seg3" />
 
-    <LocationField data-testid="locationfield-cycj" />
-    <DepartmentField data-testid="departmentfield-seg3" />
+      <StyledDivider data-testid="styleddivider-iprr" />
 
-    <StyledDivider data-testid="styleddivider-iprr" />
+      <GivenByField
+        label={
+          <TranslatedText
+            stringId="general.supervisingClinician.label"
+            fallback="Supervising :clinician"
+            replacements={{
+              clinician: (
+                <TranslatedText
+                  stringId="general.localisedField.clinician.label.short"
+                  fallback="Clinician"
+                  casing="lower"
+                  data-testid="translatedtext-vzip"
+                />
+              ),
+            }}
+            data-testid="translatedtext-0pgo"
+          />
+        }
+        data-testid="givenbyfield-m30g"
+      />
 
-    <GivenByField
-      label={
-        <TranslatedText
-          stringId="general.supervisingClinician.label"
-          fallback="Supervising :clinician"
-          replacements={{
-            clinician: (
-              <TranslatedText
-                stringId="general.localisedField.clinician.label.short"
-                fallback="Clinician"
-                casing="lower"
-                data-testid="translatedtext-vzip"
-              />
-            ),
-          }}
-          data-testid="translatedtext-0pgo"
-        />
-      }
-      data-testid="givenbyfield-m30g"
-    />
+      {!editMode && <RecordedByField data-testid="recordedbyfield-79v5" />}
 
-    {!editMode && <RecordedByField data-testid="recordedbyfield-79v5" />}
+      <StyledDivider data-testid="styleddivider-930m" />
 
-    <StyledDivider data-testid="styleddivider-930m" />
-
-    <ConfirmCancelRowField
-      onConfirm={submitForm}
-      editMode={editMode}
-      onCancel={onCancel}
-      data-testid="confirmcancelrowfield-8qv4"
-    />
-  </TwoTwoGrid>
+      <ConfirmCancelRowField
+        onConfirm={submitForm}
+        editMode={editMode}
+        onCancel={onCancel}
+        data-testid="confirmcancelrowfield-8qv4"
+      />
+    </TwoTwoGrid>
   );
 };
 

@@ -23,7 +23,6 @@ import {
   type DurationUnit,
   type Interval,
 } from 'date-fns';
-import { has } from 'lodash';
 import { Temporal } from 'temporal-polyfill';
 import { z } from 'zod';
 
@@ -48,7 +47,6 @@ export const trimToTime = (date: string | null | undefined): string | null | und
   const time = date?.slice(11, 19);
   return time?.length === 5 ? `${time}:00` : time;
 };
-
 
 const makeDateObject = (date: string | Date) => {
   if (typeof date !== 'string') return date;
@@ -299,7 +297,7 @@ const logDateError = (
   } else {
     console.warn(`[${fnName}] Failed to process date value ${JSON.stringify(value)}:`, error);
   }
-};  
+};
 
 export const intlFormatDate = (
   date: DateInput,
@@ -319,7 +317,7 @@ export const intlFormatDate = (
     if (isISO9075DateString(date)) {
       const plainDate = Temporal.PlainDate.from(date);
       const timeKeys = ['hour', 'minute', 'second', 'timeStyle', 'dayPeriod'] as const;
-      const hasTimeOptions = timeKeys.some(key => has(formatOptions, key));
+      const hasTimeOptions = timeKeys.some(key => key in formatOptions);
       if (hasTimeOptions) {
         return plainDate.toPlainDateTime().toLocaleString(locale, formatOptions);
       }
