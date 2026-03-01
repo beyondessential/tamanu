@@ -112,20 +112,20 @@ const getPrescriber = ({ prescription }) => {
   return prescription?.prescriber?.displayName;
 };
 const getDateSent = ({ pharmacyOrder }, formatTime) => {
-  console.log(pharmacyOrder.date)
   return (
-  <div>
-    <DateDisplay
-      date={pharmacyOrder?.date}
-      timeOnlyTooltip
-      shortYear
-      data-testid="datedisplay-date-sent"
-    />
-    <BodyText fontSize="11px !important" color={Colors.midText}>
-      {formatTime(pharmacyOrder?.date)}
-    </BodyText>
-  </div>
-)};
+    <div>
+      <DateDisplay
+        date={pharmacyOrder?.date}
+        timeOnlyTooltip
+        shortYear
+        data-testid="datedisplay-date-sent"
+      />
+      <BodyText fontSize="11px !important" color={Colors.midText}>
+        {formatTime(pharmacyOrder?.date)}
+      </BodyText>
+    </div>
+  );
+};
 
 export const MedicationRequestsTable = () => {
   const { formatTime } = useDateTime();
@@ -297,10 +297,13 @@ export const MedicationRequestsTable = () => {
       : []),
   ];
 
-  const fetchOptions = useMemo(() => ({
-    ...searchParameters,
-    facilityId,
-  }), [searchParameters, facilityId]);
+  const fetchOptions = useMemo(
+    () => ({
+      ...searchParameters,
+      facilityId,
+    }),
+    [searchParameters, facilityId],
+  );
 
   const handleRowClick = (_, data) => {
     const patient = data?.pharmacyOrder?.encounter?.patient;

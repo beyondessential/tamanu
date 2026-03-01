@@ -33,12 +33,7 @@ import { useTranslation } from '../../contexts/TranslationContext';
 
 const DATETIME_LOCAL_FORMAT = "yyyy-MM-dd'T'HH:mm";
 
-const USER_INPUT_FORMATS = [
-  'dd/MM/yyyy hh:mm a',
-  'dd/MM/yyyy HH:mm',
-  'dd/MM/yyyy',
-  'HH:mm',
-];
+const USER_INPUT_FORMATS = ['dd/MM/yyyy hh:mm a', 'dd/MM/yyyy HH:mm', 'dd/MM/yyyy', 'HH:mm'];
 
 function parseValue(value, primaryFormat) {
   if (!value) return null;
@@ -451,8 +446,9 @@ export const DateTimeInput = ({ useTimezone = true, ...props }) => (
   <DateInput
     type="datetime-local"
     format={DATETIME_LOCAL_FORMAT}
-    // Stop mui rendering ~8000 year buttons
-    max="2100-12-31T00:00"
+    // Stop mui rendering ~8000 year buttons if the user clicks the year picker, the user can still enter a date beyond that
+    maxDate="2100-12-31T00:00"
+    max="9999-12-31T00:00"
     useTimezone={useTimezone}
     {...props}
   />
