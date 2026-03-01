@@ -35,6 +35,8 @@ const DATETIME_LOCAL_FORMAT = "yyyy-MM-dd'T'HH:mm";
 
 const USER_INPUT_FORMATS = ['dd/MM/yyyy hh:mm a', 'dd/MM/yyyy HH:mm', 'dd/MM/yyyy', 'HH:mm'];
 
+// Parses a string value to Date, trying storage formats first (ISO 9075),
+// then user-input display formats (dd/MM/yyyy etc) as a fallback for typed input.
 function parseValue(value, primaryFormat) {
   if (!value) return null;
   try {
@@ -174,17 +176,21 @@ const TimezoneActionBar = ({
   );
 };
 
+// Overrides the MUI "today" dot indicator to highlight the facility timezone's
+// today instead of the browser's local date.
 const TimezoneDay = React.memo(({ todayInTimezone, day, ...other }) => {
   const isToday = !!(day && todayInTimezone && isSameDay(day, todayInTimezone));
   return <PickersDay {...other} day={day} today={isToday} />;
 });
 
+// What the user sees in the text field
 const DISPLAY_FORMATS = {
   date: 'dd/MM/yyyy',
   'datetime-local': 'dd/MM/yyyy hh:mm a',
   time: 'hh:mm a',
 };
 
+// What gets emitted via onChange (ISO 9075 compatible for DB storage)
 const OUTPUT_FORMATS = {
   date: 'yyyy-MM-dd',
   'datetime-local': 'yyyy-MM-dd HH:mm:ss',
@@ -241,8 +247,12 @@ export const DateInput = ({
   const shouldUseTimezone = useTimezone && type === 'datetime-local' && dateTime != null;
   const { toFacilityDateTime, toStoredDateTime, getFacilityNowDate } = dateTime ?? {};
 
+  // Facility "now" used for today highlight, referenceDate, and the Today/Now button
   const todayDate = useMemo(() => getFacilityNowDate?.() ?? new Date(), [getFacilityNowDate]);
 
+  // Convert stored string value → Date for the picker.
+  // With timezone: stored primary TZ → facility TZ → Date.
+  // Without: parse the storage-format string directly.
   const dateValue = useMemo(() => {
     if (!value) return null;
     if (shouldUseTimezone && toFacilityDateTime) {
@@ -257,6 +267,8 @@ export const DateInput = ({
     [onChange, name],
   );
 
+  // Reverse of dateValue: Date → storage string.
+  // With timezone: Date → facility TZ string → primary TZ for DB.
   const handleChange = useCallback(
     date => {
       if (!date || !isValid(date)) {
@@ -296,6 +308,8 @@ export const DateInput = ({
 
   const displayFormat = DISPLAY_FORMATS[type] || format;
 
+  // MUI pickers don't always fire onChange for manually typed text, so we
+  // parse + commit on blur to ensure typed values are captured.
   const handleTextBlur = useCallback(
     e => {
       const text = e.target.value?.trim();
@@ -306,6 +320,7 @@ export const DateInput = ({
     [displayFormat, handleChange],
   );
 
+  // min/max bounds need the same timezone conversion as the value itself
   const parseDateBound = useCallback(
     bound => {
       if (!bound) return undefined;
