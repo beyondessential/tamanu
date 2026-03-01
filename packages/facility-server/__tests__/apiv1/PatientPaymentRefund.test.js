@@ -1,6 +1,12 @@
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
-import { INVOICE_INSURER_PAYMENT_STATUSES, INVOICE_STATUSES, REFERENCE_TYPES } from '@tamanu/constants';
+import {
+  INVOICE_INSURER_PAYMENT_STATUSES,
+  INVOICE_PATIENT_PAYMENT_STATUSES,
+  INVOICE_STATUSES,
+  REFERENCE_TYPES,
+} from '@tamanu/constants';
+import { generateReceiptNumber } from '@tamanu/utils/invoice';
 
 import { createTestContext } from '../utilities';
 
@@ -34,7 +40,7 @@ describe('Patient Payment Refund', () => {
     const payment = await models.InvoicePayment.create({
       invoiceId,
       date: '2024-01-15',
-      receiptNumber: `REC-${Date.now()}`,
+      receiptNumber: generateReceiptNumber(),
       amount: 100,
       updatedByUserId: user.id,
       ...overrides,
@@ -50,7 +56,7 @@ describe('Patient Payment Refund', () => {
     const payment = await models.InvoicePayment.create({
       invoiceId,
       date: '2024-01-15',
-      receiptNumber: `REC-${Date.now()}`,
+      receiptNumber: generateReceiptNumber(),
       amount: 100,
       updatedByUserId: user.id,
       ...overrides,
@@ -128,17 +134,18 @@ describe('Patient Payment Refund', () => {
     expect(refundPatientPayment.methodId).toBe(refundMethod.id);
   });
 
-
   it('should reject refunding a payment that is not a patient payment', async () => {
     const encounter = await createEncounter();
     const invoice = await createInvoice(encounter.id);
     const insurerPayment = await createInsurerPayment(invoice.id, insurer.id);
 
-    const result = await app.post(refundUrl(invoice.id, insurerPayment.id)).send({ methodId: refundMethod.id });
+    const result = await app
+      .post(refundUrl(invoice.id, insurerPayment.id))
+      .send({ methodId: refundMethod.id });
     expect(result).toBeForbidden();
     expect(result.body.error.message).toBe('Payment is not a patient payment');
   });
-  
+
   it('should reject refund without methodId', async () => {
     const encounter = await createEncounter();
     const invoice = await createInvoice(encounter.id);
@@ -209,5 +216,88 @@ describe('Patient Payment Refund', () => {
       .send({ methodId: refundMethod.id });
     expect(refundOfRefund).toBeForbidden();
     expect(refundOfRefund.body.error.message).toBe('This payment is a refund of another payment');
+  });
+
+  describe('patientPaymentStatus update on refund', () => {
+    const createPaymentUrl = invoiceId => `/api/invoices/${invoiceId}/patientPayments`;
+
+    const createInvoiceWithItem = async (encounterId, itemPrice) => {
+      const invoice = await createInvoice(encounterId, {
+        status: INVOICE_STATUSES.FINALISED,
+      });
+      await models.InvoiceItem.create(
+        fake(models.InvoiceItem, {
+          invoiceId: invoice.id,
+          quantity: 1,
+          priceFinal: itemPrice,
+          orderedByUserId: user.id,
+        }),
+      );
+      return invoice;
+    };
+
+    const createPaymentViaApi = async (invoiceId, amount) => {
+      const result = await app.post(createPaymentUrl(invoiceId)).send({
+        date: '2024-01-15',
+        amount,
+        receiptNumber: generateReceiptNumber(),
+        methodId: paymentMethod.id,
+      });
+      expect(result).toHaveSucceeded();
+      return result.body;
+    };
+
+    const getInvoiceStatus = async invoiceId => {
+      const invoice = await models.Invoice.findByPk(invoiceId);
+      return invoice.patientPaymentStatus;
+    };
+
+    it('should set status to unpaid when fully paid invoice is fully refunded', async () => {
+      const encounter = await createEncounter();
+      const invoice = await createInvoiceWithItem(encounter.id, 100);
+
+      const payment = await createPaymentViaApi(invoice.id, 100);
+      expect(await getInvoiceStatus(invoice.id)).toBe(INVOICE_PATIENT_PAYMENT_STATUSES.PAID);
+
+      const refund = await app
+        .post(refundUrl(invoice.id, payment.id))
+        .send({ methodId: refundMethod.id });
+      expect(refund).toHaveSucceeded();
+
+      expect(await getInvoiceStatus(invoice.id)).toBe(INVOICE_PATIENT_PAYMENT_STATUSES.UNPAID);
+    });
+
+    it('should set status to partial when one of two payments is refunded', async () => {
+      const encounter = await createEncounter();
+      const invoice = await createInvoiceWithItem(encounter.id, 200);
+
+      const payment1 = await createPaymentViaApi(invoice.id, 100);
+      expect(await getInvoiceStatus(invoice.id)).toBe(INVOICE_PATIENT_PAYMENT_STATUSES.PARTIAL);
+
+      await createPaymentViaApi(invoice.id, 100);
+      expect(await getInvoiceStatus(invoice.id)).toBe(INVOICE_PATIENT_PAYMENT_STATUSES.PAID);
+
+      const refund = await app
+        .post(refundUrl(invoice.id, payment1.id))
+        .send({ methodId: refundMethod.id });
+      expect(refund).toHaveSucceeded();
+
+      expect(await getInvoiceStatus(invoice.id)).toBe(INVOICE_PATIENT_PAYMENT_STATUSES.PARTIAL);
+    });
+
+    it('should set status to unpaid when partial payment is refunded', async () => {
+      const encounter = await createEncounter();
+      const invoice = await createInvoiceWithItem(encounter.id, 200);
+
+      const payment = await createPaymentViaApi(invoice.id, 100);
+      expect(await getInvoiceStatus(invoice.id)).toBe(INVOICE_PATIENT_PAYMENT_STATUSES.PARTIAL);
+
+      const refund = await app
+        .post(refundUrl(invoice.id, payment.id))
+        .send({ methodId: refundMethod.id });
+      expect(refund).toHaveSucceeded();
+
+      expect(await getInvoiceStatus(invoice.id)).toBe(INVOICE_PATIENT_PAYMENT_STATUSES.UNPAID);
+    });
   });
 });
