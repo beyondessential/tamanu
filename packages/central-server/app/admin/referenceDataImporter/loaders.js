@@ -3,12 +3,15 @@ import { getJsDateFromExcel } from 'excel-date-to-js';
 import { Op } from 'sequelize';
 import {
   ENCOUNTER_TYPES,
+  DRUG_STOCK_STATUSES,
   VISIBILITY_STATUSES,
   PATIENT_FIELD_DEFINITION_TYPES,
   REFERENCE_DATA_RELATION_TYPES,
   REFERENCE_TYPES,
   NOUNS_WITH_OBJECT_ID,
   DEFAULT_LANGUAGE_CODE,
+  INVOICE_ITEMS_CATEGORIES,
+  INVOICE_ITEMS_CATEGORIES_MODELS,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { pluralize } from 'inflection';
@@ -312,13 +315,14 @@ export function labTestPanelLoader(item) {
   (testTypesInPanel || '')
     .split(',')
     .map(t => t.trim())
-    .forEach(testType => {
+    .forEach((testType, index) => {
       rows.push({
         model: 'LabTestPanelLabTestTypes',
         values: {
           id: `${id};${testType}`,
           labTestPanelId: id,
           labTestTypeId: testType,
+          order: index,
         },
       });
     });
@@ -403,7 +407,6 @@ export async function userLoader(item, { models, pushError }) {
       rows.push({
         model: 'UserFacility',
         values: {
-          id: `${id};${facilityId}`,
           userId: id,
           facilityId: facilityId,
           deletedAt: new Date(),
@@ -416,9 +419,9 @@ export async function userLoader(item, { models, pushError }) {
     rows.push({
       model: 'UserFacility',
       values: {
-        id: `${id};${facilityId}`,
         userId: id,
         facilityId: facilityId,
+        deletedAt: null,
       },
     });
   });
@@ -510,8 +513,21 @@ export async function taskTemplateLoader(item, { models, pushError }) {
   return rows;
 }
 
-export async function drugLoader(item, { models }) {
-  const { id: drugId, route, units, notes, isSensitive = false } = item;
+export async function drugLoader(item, { models, pushError }) {
+  /* eslint-disable no-unused-vars */
+  const {
+    id: drugId,
+    route,
+    units,
+    notes,
+    isSensitive = false,
+    name,
+    visibilityStatus,
+    code,
+    systemRequired,
+    ...rest
+  } = item;
+  /* eslint-enable no-unused-vars */
   const rows = [];
 
   let existingDrug;
@@ -521,18 +537,69 @@ export async function drugLoader(item, { models }) {
     });
   }
 
+  const referenceDrugId = existingDrug?.id || uuidv4();
   const newDrug = {
-    id: existingDrug?.id || uuidv4(),
+    id: referenceDrugId,
     referenceDataId: drugId,
     route,
     units,
     notes,
-    isSensitive,
+    isSensitive: !!isSensitive,
   };
   rows.push({
     model: 'ReferenceDrug',
     values: newDrug,
   });
+
+  const facilitiesData = Object.fromEntries(
+    Object.entries(rest).map(([key, value]) => [key.trim(), value]),
+  );
+  const facilityIdsToImport = Object.keys(facilitiesData);
+  const facilitiesToImport = await models.Facility.findAll({
+    attributes: ['id'],
+    where: { deletedAt: null, id: { [Op.in]: facilityIdsToImport } },
+  });
+
+  if (!facilitiesToImport.length) {
+    return rows;
+  }
+
+  if (facilitiesToImport.length !== facilityIdsToImport.length) {
+    const validFacilityIds = new Set(facilitiesToImport.map(f => f.id));
+    const unavailableFacilityIds = facilityIdsToImport.filter(id => !validFacilityIds.has(id));
+    pushError(
+      `Drug "${drugId}": Some facilities do not exist or have been deleted: ${unavailableFacilityIds.join(', ')}.`,
+    );
+    return rows;
+  }
+
+  for (const [key, value] of Object.entries(facilitiesData)) {
+    const facilityId = key;
+    const parsedQuantity = parseInt(value, 10);
+
+    let quantity = null;
+    let stockStatus;
+
+    if (Number.isNaN(parsedQuantity)) {
+      stockStatus =
+        value === DRUG_STOCK_STATUSES.UNAVAILABLE
+          ? DRUG_STOCK_STATUSES.UNAVAILABLE
+          : DRUG_STOCK_STATUSES.UNKNOWN;
+    } else {
+      quantity = parsedQuantity;
+      stockStatus = quantity > 0 ? DRUG_STOCK_STATUSES.IN_STOCK : DRUG_STOCK_STATUSES.OUT_OF_STOCK;
+    }
+
+    rows.push({
+      model: 'ReferenceDrugFacility',
+      values: {
+        referenceDrugId,
+        facilityId,
+        quantity,
+        stockStatus,
+      },
+    });
+  }
 
   return rows;
 }
@@ -722,6 +789,72 @@ export async function procedureTypeLoader(item, { models, pushError }) {
         surveyId: surveyId,
       },
     });
+  });
+
+  return rows;
+}
+
+export async function invoiceProductLoader(item, { models, pushError }) {
+  const { category, sourceRecordId } = item;
+  const rows = [];
+
+  if (!category && sourceRecordId) {
+    pushError(`Must provide a category if providing a sourceRecordId.`);
+    return [];
+  }
+
+  if (category && !sourceRecordId) {
+    pushError(`Must provide a sourceRecordId if providing a category.`);
+    return [];
+  }
+
+  if (!category && !sourceRecordId) {
+    return [
+      {
+        model: 'InvoiceProduct',
+        values: {
+          id: uuidv4(),
+          ...item,
+        },
+      },
+    ];
+  }
+
+  const validCategories = Object.values(INVOICE_ITEMS_CATEGORIES);
+  if (!validCategories.includes(category)) {
+    pushError(`Invalid category: "${category}". Must be one of: ${validCategories.join(', ')}.`);
+    return [];
+  }
+
+  const modelName = INVOICE_ITEMS_CATEGORIES_MODELS[category];
+  if (!modelName) {
+    pushError(`No model mapped to category: "${category}".`);
+    return [];
+  }
+
+  const model = models[modelName];
+  if (!model) {
+    pushError(`Model not found: "${modelName}".`);
+    return [];
+  }
+
+  const existingRecord = await model.findOne({
+    where: { id: sourceRecordId },
+  });
+  if (!existingRecord) {
+    pushError(`Source record with ID "${sourceRecordId}" and category "${category}" does not exist.`);
+    return [];
+  }
+
+  const newInvoiceProduct = {
+    id: uuidv4(),
+    ...item,
+    category,
+    sourceRecordId,
+  };
+  rows.push({
+    model: 'InvoiceProduct',
+    values: newInvoiceProduct,
   });
 
   return rows;
