@@ -373,13 +373,13 @@ export async function userLoader(item, { models, pushError }) {
   const { id, allowedFacilities, designations, ...otherFields } = item;
   const rows = [];
 
-  const dupes = await checkUserUniqueness(models.User, {
+  const duplicates = await checkUserUniqueness(models.User, {
     email: otherFields.email,
     displayName: otherFields.displayName,
     excludeId: id,
   });
-  if (dupes.email) pushError(`Email "${otherFields.email}" is already in use by another user`);
-  if (dupes.displayName) pushError(`Display name "${otherFields.displayName}" is already in use by another user`);
+  if (duplicates.email) pushError(`Email "${otherFields.email}" is already in use by another user`);
+  if (duplicates.displayName) pushError(`Display name "${otherFields.displayName}" is already in use by another user`);
 
   const allowedFacilityIds = allowedFacilities
     ? allowedFacilities.split(',').map(t => t.trim())

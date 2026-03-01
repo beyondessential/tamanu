@@ -1,16 +1,16 @@
 import { Op } from 'sequelize';
 
 export async function checkUserUniqueness(User, { email, displayName, excludeId }) {
-  const dupes = {};
+  const duplicates = {};
   if (email) {
-    const where = { email };
+    const where = { email: { [Op.iLike]: email } };
     if (excludeId) where.id = { [Op.ne]: excludeId };
-    dupes.email = !!(await User.findOne({ where }));
+    duplicates.email = Boolean(await User.findOne({ where }));
   }
   if (displayName) {
     const where = { displayName: { [Op.iLike]: displayName } };
     if (excludeId) where.id = { [Op.ne]: excludeId };
-    dupes.displayName = !!(await User.findOne({ where }));
+    duplicates.displayName = Boolean(await User.findOne({ where }));
   }
-  return dupes;
+  return duplicates;
 }
