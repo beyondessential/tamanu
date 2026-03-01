@@ -270,7 +270,7 @@ export async function permissionLoader(item, { models, pushError }) {
   await validateObjectId(
     { ...item, noun: normalizedNoun, objectId: normalizedObjectId },
     models,
-    pushError,
+    message => pushError(message, 'Permission'),
   );
 
   // Any non-empty value in the role cell would mean the role
@@ -342,7 +342,7 @@ export const taskSetLoader = async (item, { models, pushError }) => {
   }).then(tasks => tasks.map(({ id }) => id));
   const nonExistentTaskIds = taskIds.filter(taskId => !existingTaskIds.includes(taskId));
   if (nonExistentTaskIds.length > 0) {
-    pushError(`Tasks ${nonExistentTaskIds.join(', ')} not found`);
+    pushError(`Tasks ${nonExistentTaskIds.join(', ')} not found`, 'TaskSet');
   }
 
   if (!existingTaskIds.length) return [];
@@ -378,8 +378,8 @@ export async function userLoader(item, { models, pushError }) {
     displayName: otherFields.displayName,
     excludeId: id,
   });
-  if (duplicates.email) pushError(`Email "${otherFields.email}" is already in use by another user`);
-  if (duplicates.displayName) pushError(`Display name "${otherFields.displayName}" is already in use by another user`);
+  if (duplicates.email) pushError(`Email "${otherFields.email}" is already in use by another user`, 'User');
+  if (duplicates.displayName) pushError(`Display name "${otherFields.displayName}" is already in use by another user`, 'User');
 
   const allowedFacilityIds = allowedFacilities
     ? allowedFacilities.split(',').map(t => t.trim())
@@ -440,11 +440,11 @@ export async function userLoader(item, { models, pushError }) {
   for (const designation of designationIds) {
     const existingData = await models.ReferenceData.findByPk(designation);
     if (!existingData) {
-      pushError(`Designation "${designation}" does not exist`);
+      pushError(`Designation "${designation}" does not exist`, 'User');
       continue;
     }
     if (existingData.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
-      pushError(`Designation "${designation}" doesn't have visibilityStatus of current`);
+      pushError(`Designation "${designation}" doesn't have visibilityStatus of current`, 'User');
       continue;
     }
     rows.push({
@@ -498,7 +498,7 @@ export async function taskTemplateLoader(item, { models, pushError }) {
   );
   for (const designationId of designationIds) {
     if (!existingDesignationIds.includes(designationId)) {
-      pushError(`Designation "${designationId}" does not exist`);
+      pushError(`Designation "${designationId}" does not exist`, 'TaskTemplate');
       continue;
     }
     rows.push({
@@ -625,11 +625,17 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     where: { id: drugReferenceDataId, type: REFERENCE_TYPES.DRUG },
   });
   if (!drug) {
-    pushError(`Drug with ID "${drugReferenceDataId}" does not exist.`);
+    pushError(
+      `Drug with ID "${drugReferenceDataId}" does not exist.`,
+      'ReferenceMedicationTemplate',
+    );
   }
 
   if (isNaN(doseAmount) && doseAmount?.toString().toLowerCase() !== 'variable') {
-    pushError(`Dose amount must be a number or the string "variable".`);
+    pushError(
+      `Dose amount must be a number or the string "variable".`,
+      'ReferenceMedicationTemplate',
+    );
   }
 
   const existingTemplate = await models.ReferenceMedicationTemplate.findOne({
@@ -746,6 +752,7 @@ export async function procedureTypeLoader(item, { models, pushError }) {
     if (nonExistentSurveyIds.length > 0) {
       pushError(
         `Linked survey${nonExistentSurveyIds.length > 1 ? 's' : ''} "${nonExistentSurveyIds.join(', ')}" for procedure type "${id}" not found.`,
+        'ProcedureTypeSurvey',
       );
     }
 
@@ -754,6 +761,7 @@ export async function procedureTypeLoader(item, { models, pushError }) {
     if (nonProgramSurveys.length > 0) {
       pushError(
         `Survey${nonProgramSurveys.length > 1 ? 's' : ''} "${nonProgramSurveys.map(s => s.id).join(', ')}" for procedure type "${id}" must have survey_type of 'programs'.`,
+        'ProcedureTypeSurvey',
       );
     }
   }
@@ -799,12 +807,12 @@ export async function invoiceProductLoader(item, { models, pushError }) {
   const rows = [];
 
   if (!category && sourceRecordId) {
-    pushError(`Must provide a category if providing a sourceRecordId.`);
+    pushError(`Must provide a category if providing a sourceRecordId.`, 'InvoiceProduct');
     return [];
   }
 
   if (category && !sourceRecordId) {
-    pushError(`Must provide a sourceRecordId if providing a category.`);
+    pushError(`Must provide a sourceRecordId if providing a category.`, 'InvoiceProduct');
     return [];
   }
 
@@ -822,19 +830,22 @@ export async function invoiceProductLoader(item, { models, pushError }) {
 
   const validCategories = Object.values(INVOICE_ITEMS_CATEGORIES);
   if (!validCategories.includes(category)) {
-    pushError(`Invalid category: "${category}". Must be one of: ${validCategories.join(', ')}.`);
+    pushError(
+      `Invalid category: "${category}". Must be one of: ${validCategories.join(', ')}.`,
+      'InvoiceProduct',
+    );
     return [];
   }
 
   const modelName = INVOICE_ITEMS_CATEGORIES_MODELS[category];
   if (!modelName) {
-    pushError(`No model mapped to category: "${category}".`);
+    pushError(`No model mapped to category: "${category}".`, 'InvoiceProduct');
     return [];
   }
 
   const model = models[modelName];
   if (!model) {
-    pushError(`Model not found: "${modelName}".`);
+    pushError(`Model not found: "${modelName}".`, 'InvoiceProduct');
     return [];
   }
 
@@ -842,7 +853,10 @@ export async function invoiceProductLoader(item, { models, pushError }) {
     where: { id: sourceRecordId },
   });
   if (!existingRecord) {
-    pushError(`Source record with ID "${sourceRecordId}" and category "${category}" does not exist.`);
+    pushError(
+      `Source record with ID "${sourceRecordId}" and category "${category}" does not exist.`,
+      'InvoiceProduct',
+    );
     return [];
   }
 
