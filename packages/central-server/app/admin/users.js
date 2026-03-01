@@ -22,6 +22,8 @@ import { isBcryptHash } from '@tamanu/utils/password';
 import { subject } from '@casl/ability';
 import z from 'zod';
 
+import { checkUserUniqueness } from './userValidation';
+
 export const usersRouter = express.Router();
 
 const createUserFilters = (filterParams, models) => {
@@ -218,23 +220,9 @@ usersRouter.post(
       throw new NotFoundError('Role not found');
     }
 
-    const existingUserWithSameEmail = await User.findOne({
-      where: {
-        email: fields.email,
-      },
-    });
-    if (existingUserWithSameEmail) {
-      throw new DatabaseDuplicateError('Email must be unique across all users');
-    }
-
-    const existingUserWithSameDisplayName = await User.findOne({
-      where: {
-        displayName: { [Op.iLike]: fields.displayName },
-      },
-    });
-    if (existingUserWithSameDisplayName) {
-      throw new DatabaseDuplicateError('Display name must be unique across all users');
-    }
+    const dupes = await checkUserUniqueness(User, { email: fields.email, displayName: fields.displayName });
+    if (dupes.email) throw new DatabaseDuplicateError('Email must be unique across all users');
+    if (dupes.displayName) throw new DatabaseDuplicateError('Display name must be unique across all users');
 
     if (fields.designations && fields.designations.length > 0) {
       // Check if all designation IDs exist and are of type 'designation'
@@ -327,17 +315,7 @@ usersRouter.post(
 
     const fields = await VALIDATION.validate(req.body);
 
-    const existingUserWithSameEmail = await User.findOne({
-      where: {
-        email: fields.email,
-      },
-    });
-
-    const existingUserWithSameDisplayName = await User.findOne({
-      where: {
-        displayName: { [Op.iLike]: fields.displayName },
-      },
-    });
+    const dupes = await checkUserUniqueness(User, { email: fields.email, displayName: fields.displayName });
 
     const writeUserPermission = await Permission.findOne({
       where: {
@@ -348,8 +326,8 @@ usersRouter.post(
     });
 
     res.send({
-      isEmailUnique: !existingUserWithSameEmail,
-      isDisplayNameUnique: !existingUserWithSameDisplayName,
+      isEmailUnique: !dupes.email,
+      isDisplayNameUnique: !dupes.displayName,
       hasWriteUserPermission: !!writeUserPermission,
     });
   }),
@@ -409,25 +387,9 @@ usersRouter.put(
       throw new NotFoundError('Role not found');
     }
 
-    const existingUserWithSameEmail = await User.findOne({
-      where: {
-        email: fields.email,
-        id: { [Op.ne]: id },
-      },
-    });
-    if (existingUserWithSameEmail) {
-      throw new EditConflictError('Email must be unique across all users');
-    }
-
-    const existingUserWithSameDisplayName = await User.findOne({
-      where: {
-        displayName: { [Op.iLike]: fields.displayName },
-        id: { [Op.ne]: id },
-      },
-    });
-    if (existingUserWithSameDisplayName) {
-      throw new EditConflictError('Display name must be unique across all users');
-    }
+    const dupes = await checkUserUniqueness(User, { email: fields.email, displayName: fields.displayName, excludeId: id });
+    if (dupes.email) throw new EditConflictError('Email must be unique across all users');
+    if (dupes.displayName) throw new EditConflictError('Display name must be unique across all users');
 
     // Validate designations if provided
     if (fields.designations && fields.designations.length > 0) {
