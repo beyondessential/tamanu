@@ -9,6 +9,7 @@ import { usePatientAdditionalDataQuery, useReferenceDataQuery } from '../../../a
 import { useTranslation } from '../../../contexts/Translation';
 import { useSettings } from '../../../contexts/Settings';
 import { Colors } from '../../../constants/styles';
+import { useAuth } from '../../../contexts/Auth';
 
 const StyledButton = styled(Button)`
   &&.MuiButton-containedPrimary.Mui-disabled {
@@ -21,6 +22,7 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
   const { getLocalisation } = useLocalisation();
   const { storedLanguage, translations } = useTranslation();
   const { getSetting } = useSettings();
+  const { currentUser } = useAuth();
 
   const {
     data: additionalData,
@@ -65,6 +67,7 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
             getSetting={getSetting}
             language={storedLanguage}
             translations={translations}
+            printedBy={currentUser?.displayName}
             data-testid="deathcertificateprintout-l7w8"
           />
         </PDFLoader>
