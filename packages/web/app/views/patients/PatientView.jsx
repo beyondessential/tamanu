@@ -29,7 +29,7 @@ import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useSyncState } from '../../contexts/SyncState';
 import { useAuth } from '../../contexts/Auth';
 import { useSettings } from '../../contexts/Settings';
-import { usePatientAdditionalDataQuery } from '../../api/queries';
+import { usePatientAdditionalDataQuery, usePatientInsurancePlansQuery } from '../../api/queries';
 import { NAVIGATION_CONTAINER_HEIGHT } from '../../features/Breadcrumbs';
 
 const StyledDisplayTabs = styled(TabDisplay)`
@@ -198,6 +198,10 @@ export const PatientView = () => {
     ['birthData', patient.id],
     () => api.get(`patient/${patient.id}/birthData`),
   );
+  const {
+    data: insurancePlans = [],
+    isLoading: isLoadingInsurancePlans,
+  } = usePatientInsurancePlansQuery({ patientId: patient?.id });
 
   useEffect(() => {
     if (patientId && (!patient?.id || patient?.id !== patientId)) {
@@ -234,7 +238,7 @@ export const PatientView = () => {
 
   const visibleTabs = usePatientTabs();
 
-  if (patient.loading || isLoadingAdditionalData || isLoadingBirthData) {
+  if (patient.loading || isLoadingAdditionalData || isLoadingBirthData || isLoadingInsurancePlans) {
     return <LoadingIndicator data-testid="patient-view-loading" />;
   }
 
@@ -248,6 +252,7 @@ export const PatientView = () => {
         patient={patient}
         additionalData={additionalData}
         birthData={birthData}
+        insurancePlans={insurancePlans}
         disabled={disabled}
         data-testid="styleddisplaytabs-6gds"
       />

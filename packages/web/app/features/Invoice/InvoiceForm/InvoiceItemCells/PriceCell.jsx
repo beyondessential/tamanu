@@ -4,7 +4,7 @@ import {
   getInvoiceItemTotalDiscountedPrice,
   getInvoiceItemTotalPrice,
   getInvoiceItemCoveragePercentage,
-} from '@tamanu/shared/utils/invoice';
+} from '@tamanu/utils/invoice';
 import Decimal from 'decimal.js';
 import Collapse from '@material-ui/core/Collapse';
 import { Box } from '@mui/material';
@@ -113,7 +113,15 @@ const StyledField = styled(Field)`
   }
 `;
 
-export const PriceCell = ({ index, item, isExpanded, hidePriceInput, isEditing, isSaved }) => {
+export const PriceCell = ({
+  index,
+  item,
+  isExpanded,
+  hidePriceInput,
+  isEditing,
+  isSaved,
+  cellWidths = CELL_WIDTHS,
+}) => {
   const price = getInvoiceItemTotalPrice(item);
   const discountedPrice = getInvoiceItemTotalDiscountedPrice(item);
   const hasDiscount = price !== discountedPrice;
@@ -121,7 +129,7 @@ export const PriceCell = ({ index, item, isExpanded, hidePriceInput, isEditing, 
 
   return (
     <>
-      <StyledItemCell $width={CELL_WIDTHS.PRICE}>
+      <StyledItemCell $width={cellWidths.PRICE}>
         <Container>
           <MainContent>
             {hidePriceInput ? (

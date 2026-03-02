@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import Decimal from 'decimal.js';
-import { customAlphabet } from 'nanoid';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants';
 import {
@@ -15,36 +14,22 @@ import {
   TAMANU_COLORS,
   TextButton,
 } from '@tamanu/ui-components';
-import { formatDisplayPrice } from '@tamanu/shared/utils/invoice';
-import { Modal } from '../../components/Modal';
+import { formatDisplayPrice, generateReceiptNumber } from '@tamanu/utils/invoice';
+
 import { TranslatedText } from '../../components/Translation';
 import { ModalFormActionRow } from '../../components/ModalActionRow';
 import { useCreatePatientPayment, useUpdatePatientPayment } from '../../api/mutations';
 import { CASH_PAYMENT_METHOD_ID } from '../../constants';
+import {
+  PaymentFormCard,
+  Header,
+  Label,
+  LabelRow,
+  StyledModal,
+  Text,
+} from './PatientPaymentStyledComponents';
 
-const RECEIPT_NUMBER_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ123456789';
-const RECEIPT_NUMBER_LENGTH = 8;
 const DECIMAL_PLACES = 2;
-
-const StyledModal = styled(Modal)`
-  .MuiPaper-root {
-    max-width: 680px;
-  }
-`;
-
-const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-top: 16px;
-  margin-bottom: 16px;
-  gap: 20px;
-`;
-
-const Text = styled.div`
-  color: ${props => props.theme.palette.text.primary};
-  font-size: 14px;
-  font-weight: 400;
-`;
 
 const Total = styled.div`
   color: ${props => props.theme.palette.text.primary};
@@ -52,39 +37,10 @@ const Total = styled.div`
   font-weight: 500;
 `;
 
-const FormCard = styled.div`
-  margin-bottom: 36px;
-  background-color: ${TAMANU_COLORS.white};
-  border: 1px solid ${TAMANU_COLORS.outline};
-  border-radius: 5px;
-  padding: 16px 20px;
-
-  > div {
-    display: grid;
-    align-items: start;
-    grid-template-columns: ${props =>
-      props.$isEditMode ? '150px 1fr 150px' : '140px 1fr 120px 80px'};
-    gap: 20px;
-  }
-`;
-
 const FormFields = styled.div`
   .label-field {
     display: none;
   }
-`;
-
-const LabelRow = styled.div`
-  border-bottom: 1px solid ${TAMANU_COLORS.outline};
-  padding: 0 10px;
-  margin: 0 -10px 10px;
-`;
-
-const Label = styled.div`
-  padding-bottom: 8px;
-  font-weight: 400;
-  color: ${props => props.theme.palette.text.tertiary};
-  font-size: 14px;
 `;
 
 const PayBalanceButton = styled(TextButton)`
@@ -98,9 +54,6 @@ const PayBalanceButton = styled(TextButton)`
     text-decoration: underline;
   }
 `;
-
-const generateReceiptNumber = () =>
-  customAlphabet(RECEIPT_NUMBER_ALPHABET, RECEIPT_NUMBER_LENGTH)();
 
 const calculateMaxAllowedAmount = (editingPayment, patientPaymentRemainingBalance) => {
   const editingAmount = editingPayment?.amount
@@ -282,16 +235,16 @@ export const PatientPaymentModal = ({
                   </span>
                 </Total>
               </Header>
-              <FormCard $isEditMode={isEditMode}>
+              <PaymentFormCard $isEditMode={isEditMode}>
                 <LabelRow>
                   <Label>
-                    <TranslatedText stringId="general.date.label" fallback="Date" />
+                    <TranslatedText stringId="invoice.modal.date" fallback="Date" />
                   </Label>
                   <Label>
-                    <TranslatedText stringId="general.date.method" fallback="Method" />
+                    <TranslatedText stringId="invoice.modal.method" fallback="Method" />
                   </Label>
                   <Label>
-                    <TranslatedText stringId="general.date.amount" fallback="Amount" />
+                    <TranslatedText stringId="invoice.modal.amount" fallback="Amount" />
                   </Label>
                 </LabelRow>
                 <FormFields>
@@ -318,14 +271,11 @@ export const PatientPaymentModal = ({
                   />
                   {!isEditMode && (
                     <PayBalanceButton onClick={handlePayBalance}>
-                      <TranslatedText
-                        stringId="invoice.modal.recordPayment.payBalance"
-                        fallback="Pay balance"
-                      />
+                      <TranslatedText stringId="invoice.modal.payBalance" fallback="Pay balance" />
                     </PayBalanceButton>
                   )}
                 </FormFields>
-              </FormCard>
+              </PaymentFormCard>
               <ModalFormActionRow
                 onCancel={onClose}
                 confirmText={

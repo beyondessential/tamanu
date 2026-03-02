@@ -4,18 +4,21 @@ import { v4 as uuidv4 } from 'uuid';
 import { Plus } from 'lucide-react';
 import { FieldArray } from 'formik';
 import { Box, Button as MuiButton } from '@material-ui/core';
-
 import { Form, TranslatedText, FormSubmitButton, FormCancelButton } from '@tamanu/ui-components';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { INVOICE_STATUSES } from '@tamanu/constants';
-import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
-
+import { isInvoiceEditable } from '@tamanu/utils/invoice';
 import { Colors } from '../../../constants/styles';
+import { CELL_WIDTHS, CELL_WIDTHS_EDITABLE, INVOICE_FORM_TYPE } from '../constants';
 import { InvoiceItemRow } from './InvoiceItem';
 import { InvoiceItemHeader } from './InvoiceItemHeader';
-import { useUpdateInvoice, useUpdateInvoiceItemApproval } from '../../../api/mutations/useInvoiceMutation';
+import {
+  useUpdateInvoice,
+  useUpdateInvoiceItemApproval,
+} from '../../../api/mutations/useInvoiceMutation';
 import { useAuth } from '../../../contexts/Auth';
 import { invoiceFormSchema } from './invoiceFormSchema';
+import { INVOICE_MODAL_TYPES } from '../../../constants';
 
 const AddButton = styled(MuiButton)`
   font-size: 14px;
@@ -39,49 +42,32 @@ const SubmitButton = styled(FormSubmitButton)`
   }
 `;
 
-const FormFooter = styled.div`
+const EditModalFooter = styled.div`
   display: flex;
-  justify-content: space-between;
-  margin: 5px 0;
+  justify-content: flex-end;
+  margin: 40px -40px 0;
+  padding: 30px 40px 0;
+  border-top: 1px solid ${Colors.outline};
+`;
+
+const FormFooter = styled.div`
+  background: white;
+  padding: 8px 4px 2px;
+  border-radius: 3px;
 `;
 
 const getDefaultRow = () => ({ id: uuidv4(), quantity: 1, orderDate: getCurrentDateString() });
 
-const EditItemsActions = ({ handleSubmit, handleCancel, isDisabled }) => (
-  <Box textAlign="right" mb={1}>
-    <FormCancelButton style={{ marginRight: 8 }} onClick={handleCancel}>
-      Cancel
-    </FormCancelButton>
-    <SubmitButton onSubmit={handleSubmit} disabled={isDisabled}>
-      <TranslatedText
-        stringId="invoice.form.action.save"
-        fallback="Save item/s"
-        data-testid="translatedtext-26ji"
-      />
-    </SubmitButton>
-  </Box>
-);
-
-const AddItemsActions = ({ handleSubmit, handleCancel, isDisabled }) => (
-  <Box textAlign="right" mb={1}>
-    <FormCancelButton style={{ marginRight: 8 }} onClick={handleCancel}>
-      Cancel
-    </FormCancelButton>
-    <SubmitButton onSubmit={handleSubmit} disabled={isDisabled}>
-      <TranslatedText
-        stringId="invoice.form.action.save"
-        fallback="Save item/s"
-        data-testid="translatedtext-26ji"
-      />
-    </SubmitButton>
-  </Box>
-);
-
-export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
+export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModalType }) => {
   const { ability } = useAuth();
+  const isEditForm = invoiceFormType === INVOICE_FORM_TYPE.EDIT_ITEMS;
+  const isReadOnlyForm = invoiceFormType === INVOICE_FORM_TYPE.READ_ONLY;
+  const isAddForm = invoiceFormType === INVOICE_FORM_TYPE.ADD_ITEMS;
+
+  const cellWidths = isReadOnlyForm ? CELL_WIDTHS : CELL_WIDTHS_EDITABLE;
 
   // inProgressItems is used to re-populate the form with in progress items after the form is updated
-  const [inProgressItems, setInProgressItems] = useState([]);
+  const [inProgressItems, setInProgressItems] = useState(isAddForm ? [getDefaultRow()] : []);
   const canWriteInvoice = ability.can('write', 'Invoice');
   const editable = isInvoiceEditable(invoice) && canWriteInvoice;
   const isFinalised = invoice.status === INVOICE_STATUSES.FINALISED;
@@ -91,18 +77,28 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
 
   // Main submit action for the invoice
   const handleSubmit = async data => {
-    const invoiceItems = data.invoiceItems.filter(item => !!item.productId);
+    const newItems = data.invoiceItems.filter(item => !!item.productId);
+    // In add modal mode, merge new items with existing ones rather than replacing
+    const invoiceItems = isAddForm ? [...(invoice.items ?? []), ...newItems] : newItems;
 
-    updateInvoice({
-      ...invoice,
-      items: invoiceItems,
-      insurers: data.insurers.map(insurer => ({
-        ...insurer,
-        percentage: insurer.percentage / 100,
-      })),
-    });
-    setInProgressItems([]);
-    setIsEditing(false);
+    updateInvoice(
+      {
+        ...invoice,
+        items: invoiceItems,
+        insurers: data.insurers.map(insurer => ({
+          ...insurer,
+          percentage: insurer.percentage / 100,
+        })),
+      },
+      {
+        onSuccess: () => {
+          setInProgressItems([]);
+          if (onClose) {
+            onClose();
+          }
+        },
+      },
+    );
   };
 
   // Used for invoice item actions
@@ -112,11 +108,19 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
 
     setInProgressItems(inProgressItems);
 
-    updateInvoice({
-      ...invoice,
-      items: itemsToSave,
-    });
-    setIsEditing(false);
+    updateInvoice(
+      {
+        ...invoice,
+        items: itemsToSave,
+      },
+      {
+        onSuccess: () => {
+          if (onClose) {
+            onClose();
+          }
+        },
+      },
+    );
   };
 
   const handleShowErrorDialog = errors => {
@@ -129,7 +133,7 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
       onSubmit={handleSubmit}
       enableReinitialize
       initialValues={{
-        invoiceItems: invoice.items?.length ? [...invoice.items, ...inProgressItems] : [],
+        invoiceItems: isAddForm ? inProgressItems : [...(invoice.items ?? []), ...inProgressItems],
         insurers: invoice.insurers?.length
           ? invoice.insurers.map(insurer => ({
               ...insurer,
@@ -138,74 +142,80 @@ export const InvoiceForm = ({ invoice, isEditing, setIsEditing }) => {
           : [],
       }}
       validationSchema={invoiceFormSchema}
-      render={({ submitForm, values, resetForm, dirty }) => (
-        <Box mb={1}>
-          <FieldArray name="invoiceItems">
-            {formArrayMethods => {
-              return (
-                <>
-                  <InvoiceItemHeader />
-                  <Box>
-                    {values.invoiceItems?.map((item, index) => {
-                      return (
-                        <InvoiceItemRow
-                          key={item.id}
-                          index={index}
-                          item={item}
-                          encounterId={invoice.encounterId}
-                          priceListId={invoice.priceList?.id}
-                          formArrayMethods={formArrayMethods}
-                          invoiceIsEditable={editable && canWriteInvoice}
-                          isEditing={isEditing}
-                          onUpdateInvoice={handleUpdateItem}
-                          onUpdateApproval={updateItemApproval}
-                          isFinalised={isFinalised}
-                          isCancelled={isCancelled}
+      render={({ submitForm, values }) => (
+        <FieldArray name="invoiceItems">
+          {formArrayMethods => {
+            return (
+              <>
+                <InvoiceItemHeader cellWidths={cellWidths} />
+                <Box>
+                  {values.invoiceItems?.map((item, index) => {
+                    return (
+                      <InvoiceItemRow
+                        key={item.id}
+                        index={index}
+                        item={item}
+                        encounterId={invoice.encounterId}
+                        priceListId={invoice.priceList?.id}
+                        formArrayMethods={formArrayMethods}
+                        onUpdateInvoice={handleUpdateItem}
+                        onUpdateApproval={updateItemApproval}
+                        isFinalised={isFinalised}
+                        isCancelled={isCancelled}
+                        cellWidths={cellWidths}
+                        isEditing={isAddForm || isEditForm}
+                      />
+                    );
+                  })}
+                </Box>
+                {editable && (isReadOnlyForm || isAddForm) && (
+                  <FormFooter>
+                    <AddButton
+                      variant="text"
+                      onClick={() => {
+                        if (isReadOnlyForm) {
+                          setInvoiceModalType(INVOICE_MODAL_TYPES.ADD_ITEMS);
+                        } else {
+                          formArrayMethods.push(getDefaultRow());
+                        }
+                      }}
+                      startIcon={<Plus />}
+                    >
+                      <TranslatedText
+                        stringId="invoice.form.action.addItem"
+                        fallback="Add item"
+                        data-testid="translatedtext-9vs0"
+                      />
+                    </AddButton>
+                  </FormFooter>
+                )}
+                {editable && (isEditForm || isAddForm) && (
+                  <EditModalFooter>
+                    <FormCancelButton
+                      style={{ marginRight: 8 }}
+                      onClick={() => {
+                        setInProgressItems([]);
+                        if (onClose) onClose();
+                      }}
+                    >
+                      Cancel
+                    </FormCancelButton>
+                    <SubmitButton onSubmit={submitForm} disabled={isUpdatingInvoice}>
+                      {isAddForm ? (
+                        <TranslatedText stringId="invoice.form.action.save" fallback="Save" />
+                      ) : (
+                        <TranslatedText
+                          stringId="invoice.form.action.saveChanges"
+                          fallback="Save changes"
                         />
-                      );
-                    })}
-                  </Box>
-                  {editable && canWriteInvoice && (
-                    <FormFooter>
-                      <Box>
-                        <AddButton
-                          variant="text"
-                          onClick={() => formArrayMethods.push(getDefaultRow())}
-                          startIcon={<Plus />}
-                        >
-                          <TranslatedText
-                            stringId="invoice.form.action.addItem"
-                            fallback="Add item"
-                            data-testid="translatedtext-9vs0"
-                          />
-                        </AddButton>
-                      </Box>
-                      <Box>
-                        {!isEditing && (dirty || inProgressItems.length > 0) && (
-                          <AddItemsActions
-                            handleSubmit={submitForm}
-                            handleCancel={resetForm}
-                            isDisabled={isUpdatingInvoice}
-                          />
-                        )}
-                        {isEditing && (
-                          <EditItemsActions
-                            handleSubmit={submitForm}
-                            handleCancel={() => {
-                              setIsEditing(false);
-                              resetForm();
-                            }}
-                            isDisabled={isUpdatingInvoice}
-                          />
-                        )}
-                      </Box>
-                    </FormFooter>
-                  )}
-                </>
-              );
-            }}
-          </FieldArray>
-        </Box>
+                      )}
+                    </SubmitButton>
+                  </EditModalFooter>
+                )}
+              </>
+            );
+          }}
+        </FieldArray>
       )}
     />
   );

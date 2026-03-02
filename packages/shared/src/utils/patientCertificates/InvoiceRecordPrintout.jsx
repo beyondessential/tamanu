@@ -23,7 +23,7 @@ import {
   getFormattedInvoiceItemNetCost,
   getFormattedCoverageAmountPerInsurancePlanForInvoice,
   getInvoiceSummary,
-} from '../invoice';
+} from '@tamanu/utils/invoice';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
@@ -386,7 +386,7 @@ const COLUMNS = {
     {
       key: 'status',
       title: 'Status',
-      accessor: () => 'Paid',
+      accessor: ({ refundPayment }) => refundPayment ? 'Refunded' : 'Paid',
       style: { width: '21%' },
     },
   ],

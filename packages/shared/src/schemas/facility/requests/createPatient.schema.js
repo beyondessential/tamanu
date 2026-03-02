@@ -61,6 +61,7 @@ export const createPatientSchema = z.object({
   patientBillingTypeId: foreignKey.optional(),
   motherId: foreignKey.optional(),
   fatherId: foreignKey.optional(),
+  invoiceInsurancePlanId: foreignKey.array().optional(),
 
   // Location Information (from GenericLocationFields)
   cityTown: stringWithMaxLength.optional(),

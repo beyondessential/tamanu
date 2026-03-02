@@ -2,6 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, QueryTypes, Op } from 'sequelize';
 import { snakeCase } from 'lodash';
+import { isBefore } from 'date-fns';
 
 import {
   createPatientSchema,
@@ -29,14 +30,20 @@ import {
   patientProgramRegistration,
   patientProgramRegistrationConditions,
 } from './patientProgramRegistration';
-import { dbRecordToResponse, pickPatientBirthData, requestBodyToRecord } from './utils';
+import {
+  dbRecordToResponse,
+  parseInvoiceInsurancePlanIds,
+  pickPatientBirthData,
+  requestBodyToRecord,
+  savePatientInsurancePlans,
+} from './utils';
 import { PATIENT_SORT_KEYS } from './constants';
 import { getWhereClausesAndReplacementsFromFilters } from '../../../utils/query';
 import { getLastOrderedAtForOngoingPrescriptions } from '../../../utils/medication';
 import { validate } from '../../../utils/validate';
 import { patientContact } from './patientContact';
 import { patientPortal } from './patientPortal';
-import { isBefore } from 'date-fns';
+import { patientInsurancePlans } from './patientInsurancePlans';
 
 const patientRoute = express.Router();
 
@@ -94,7 +101,13 @@ patientRoute.put(
   asyncHandler(async (req, res) => {
     const {
       db,
-      models: { Patient, PatientAdditionalData, PatientBirthData, PatientSecondaryId },
+      models: {
+        Patient,
+        PatientAdditionalData,
+        PatientBirthData,
+        PatientSecondaryId,
+        PatientInvoiceInsurancePlan,
+      },
       settings,
       params,
       body: { facilityId, ...body },
@@ -108,7 +121,14 @@ patientRoute.put(
 
     req.checkPermission('write', patient);
 
-    const validatedBody = validate(updatePatientSchema, { ...body, facilityId });
+    const invoiceInsurancePlanId = parseInvoiceInsurancePlanIds(body.invoiceInsurancePlanId);
+
+    const updatePatientBody = {
+      ...body,
+      facilityId,
+      invoiceInsurancePlanId,
+    };
+    const validatedBody = validate(updatePatientSchema, updatePatientBody);
 
     const patientDisplayIdPattern = await settings[facilityId].get('patientDisplayIdPattern');
 
@@ -163,6 +183,12 @@ patientRoute.put(
       }
 
       await patient.writeFieldValues(validatedBody.patientFields);
+
+      await savePatientInsurancePlans(
+        PatientInvoiceInsurancePlan,
+        patient.id,
+        validatedBody.invoiceInsurancePlanId,
+      );
     });
 
     res.send(dbRecordToResponse(patient, facilityId));
@@ -173,10 +199,23 @@ patientRoute.post(
   '/$',
   asyncHandler(async (req, res) => {
     const { db, models, body } = req;
-    const { Patient, PatientAdditionalData, PatientBirthData, PatientFacility } = models;
+    const {
+      Patient,
+      PatientAdditionalData,
+      PatientBirthData,
+      PatientFacility,
+      PatientInvoiceInsurancePlan,
+    } = models;
+
     req.checkPermission('create', 'Patient');
 
-    const validatedBody = validate(createPatientSchema, body);
+    const invoiceInsurancePlanId = parseInvoiceInsurancePlanIds(body.invoiceInsurancePlanId);
+
+    const createPatientBody = {
+      ...body,
+      invoiceInsurancePlanId,
+    };
+    const validatedBody = validate(createPatientSchema, createPatientBody);
 
     const requestData = requestBodyToRecord(validatedBody);
     const { patientRegistryType, facilityId, ...patientData } = requestData;
@@ -204,6 +243,12 @@ patientRoute.post(
 
       // mark for sync in this facility
       await PatientFacility.create({ facilityId, patientId: createdPatient.id });
+
+      await savePatientInsurancePlans(
+        PatientInvoiceInsurancePlan,
+        createdPatient.id,
+        validatedBody.invoiceInsurancePlanId,
+      );
 
       return createdPatient;
     });
@@ -884,5 +929,6 @@ patientRoute.use(patientProgramRegistration);
 patientRoute.use('/programRegistration', patientProgramRegistrationConditions);
 patientRoute.use(patientContact);
 patientRoute.use(patientPortal);
+patientRoute.use(patientInsurancePlans);
 
 export { patientRoute as patient };
