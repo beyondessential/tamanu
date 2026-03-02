@@ -30,9 +30,9 @@ const StyledTable = styled(Table)`
     }
 
     ${props =>
-      COLUMN_WIDTHS.slice(0, props.$stickyColumns)
-        .map(
-          (width, index) => `
+    COLUMN_WIDTHS.slice(0, props.$stickyColumns)
+      .map(
+        (width, index) => `
       thead tr th:nth-child(${index + 1}),
       tbody tr td:nth-child(${index + 1}) {
         width: ${width}px;
@@ -41,8 +41,8 @@ const StyledTable = styled(Table)`
         left: ${COLUMN_WIDTHS.slice(0, index).reduce((acc, n) => acc + n, 0)}px;
       }
     `,
-        )
-        .join('\n')}
+      )
+      .join('\n')}
 
     tfoot {
       inset-inline-end: 0;
@@ -95,8 +95,6 @@ const StyledButton = styled(Button)`
   border-radius: 10px;
   padding: 8px 4px;
   justify-content: left;
-  position: relative;
-  left: -14px;
   & > span > div {
     margin: -8px -4px;
   }
@@ -130,21 +128,21 @@ export const PatientLabTestsTable = React.memo(
       // Only include category column if not filtering by category
       ...(!searchParameters.categoryId
         ? [
-            {
-              key: 'testCategory.id',
-              title: (
-                <TranslatedText
-                  stringId="lab.testCategory.label"
-                  fallback="Test category"
-                  data-testid="translatedtext-0dpy"
-                />
-              ),
-              accessor: row => (
-                <CategoryCell data-testid="categorycell-8dsz">{row.testCategory}</CategoryCell>
-              ),
-              sortable: false,
-            },
-          ]
+          {
+            key: 'testCategory.id',
+            title: (
+              <TranslatedText
+                stringId="lab.testCategory.label"
+                fallback="Test category"
+                data-testid="translatedtext-0dpy"
+              />
+            ),
+            accessor: row => (
+              <CategoryCell data-testid="categorycell-8dsz">{row.testCategory}</CategoryCell>
+            ),
+            sortable: false,
+          },
+        ]
         : []),
       {
         key: 'testType',
@@ -157,12 +155,12 @@ export const PatientLabTestsTable = React.memo(
         ),
         accessor: row => (
           <CategoryCell data-testid="categorycell-7aet">
-         <TranslatedReferenceData
-        fallback={row.testType}
-        value={row.testTypeId}
-        category="labTestType"
-        data-testid="translatedreferencedata-kplb"
-      />
+            <TranslatedReferenceData
+              fallback={row.testType}
+              value={row.testTypeId}
+              category="labTestType"
+              data-testid="translatedreferencedata-kplb"
+            />
             <br />
             <BodyText color="textTertiary" data-testid="bodytext-zxuk">
               {row.unit ? `(${row.unit})` : null}
@@ -228,13 +226,16 @@ export const PatientLabTestsTable = React.memo(
 
             return (
               <StyledButton disabled data-testid={`styledbutton-l8dl-${index}`}>
-                &mdash;
+                <TranslatedText
+                  stringId="general.fallback.notApplicable"
+                  fallback="N/A"
+                  data-testid="translatedtext-n987"
+                />
               </StyledButton>
             );
           },
           exportOverrides: {
-            title: `${getTitle(date)}`,
-            accessor: row => row.results[date]?.result || '—', // em dash
+            title: getTitle(date),
           },
         })),
     ];
