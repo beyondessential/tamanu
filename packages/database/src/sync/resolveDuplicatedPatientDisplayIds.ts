@@ -48,10 +48,14 @@ export const resolveDuplicatedPatientDisplayIds = async (
     // Update the to-be-synced patient's display ID to append '_duplicate_2'
     const updatedIncomingPatientSnapshotRecords = changes
       .filter((c) => !c.isDeleted && duplicatedDisplayIds.includes(c.data.displayId))
-      .map((c) => ({
-        ...c,
-        data: { ...c.data, displayId: `${c.data.displayId}_duplicate_2` },
-      }));
+      .map((c) => {
+        const updated = {
+          ...c,
+          data: { ...c.data, displayId: `${c.data.displayId}_duplicate_2` },
+        };
+        delete (updated as any).changelogRecords;
+        return updated;
+      });
 
     return {
       inserts: updatedExistingPatientSnapshotRecords,
