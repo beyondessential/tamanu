@@ -46,9 +46,16 @@ function round(float, { rounding } = {}) {
   return floatNumber.toFixed(rounding);
 }
 
-function getTooltip(float, config = {}, visibilityCriteria = {}) {
+function getValidationState(float, config = {}, visibilityCriteria = {}) {
   const { unit = '' } = config;
   const { normalRange } = visibilityCriteria;
+
+  if (!float && float !== 0) {
+    return {
+      severity: INFO,
+    };
+  }
+
   if (normalRange && float < normalRange.min) {
     return {
       tooltip: `Outside normal range\n <${normalRange.min}${unit}`,
@@ -221,11 +228,10 @@ export const RangeValidatedCell = React.memo(
     const float = round(value, config);
     const isEditedSuffix = isEdited ? '*' : '';
     const formattedValue = `${formatValue(value, config)}${isEditedSuffix}`;
-    const { tooltip, severity } = useMemo(() => getTooltip(float, config, validationCriteria), [
-      float,
-      config,
-      validationCriteria,
-    ]);
+    const { tooltip, severity } = useMemo(
+      () => getValidationState(float, config, validationCriteria),
+      [float, config, validationCriteria],
+    );
 
     const cell = (
       <CellContainer
