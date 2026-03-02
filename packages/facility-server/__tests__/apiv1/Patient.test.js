@@ -12,6 +12,7 @@ import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields'
 import { fake } from '@tamanu/fake-data/fake';
 import { randomLabRequest } from '@tamanu/database/demoData/labRequests';
 import {
+  DRUG_STOCK_STATUSES,
   ENCOUNTER_TYPES,
   LAB_REQUEST_STATUSES,
   REFERENCE_TYPES,
@@ -450,6 +451,120 @@ describe('Patient', () => {
             m => m.medication.id === nonSensitiveMedication.id,
           );
           expect(nonSensitiveResult).toBeDefined();
+        });
+      });
+
+      describe('referenceDrugFacility', () => {
+        it('should not include referenceDrugFacility when facilityId is not provided', async () => {
+          const medication = await models.ReferenceData.create({
+            type: REFERENCE_TYPES.DRUG,
+            name: 'Drug With Facility',
+            code: 'DRUG_WITH_FACILITY',
+          });
+          const referenceDrug = await models.ReferenceDrug.create({
+            referenceDataId: medication.id,
+            isSensitive: false,
+          });
+          await models.ReferenceDrugFacility.create({
+            referenceDrugId: referenceDrug.id,
+            facilityId,
+            stockStatus: DRUG_STOCK_STATUSES.IN_STOCK,
+          });
+          const prescription = await models.Prescription.create(
+            await createDummyPrescription(models, { medicationId: medication.id }),
+          );
+          await models.PatientOngoingPrescription.create({
+            patientId: patient.id,
+            prescriptionId: prescription.id,
+          });
+
+          const result = await app.get(`/api/patient/${patient.id}/ongoing-prescriptions`);
+          expect(result).toHaveSucceeded();
+          const item = result.body.data.find(p => p.id === prescription.id);
+          expect(item).toBeDefined();
+          expect(item).not.toHaveProperty('referenceDrugFacility');
+        });
+
+        it('should include referenceDrugFacility only when facilityId is provided and matches', async () => {
+          const otherFacilityId = 'other-facility-id';
+          await models.Facility.upsert({
+            id: otherFacilityId,
+            name: 'Other Facility',
+            code: 'OTHER_FACILITY',
+          });
+
+          const medicationForThisFacility = await models.ReferenceData.create({
+            type: REFERENCE_TYPES.DRUG,
+            name: 'Drug For This Facility',
+            code: 'DRUG_FOR_THIS_FACILITY',
+          });
+          const referenceDrugThis = await models.ReferenceDrug.create({
+            referenceDataId: medicationForThisFacility.id,
+            isSensitive: false,
+          });
+          await models.ReferenceDrugFacility.create({
+            referenceDrugId: referenceDrugThis.id,
+            facilityId,
+            quantity: 100,
+            stockStatus: DRUG_STOCK_STATUSES.IN_STOCK,
+          });
+          const prescriptionThisFacility = await models.Prescription.create(
+            await createDummyPrescription(models, {
+              medicationId: medicationForThisFacility.id,
+            }),
+          );
+          await models.PatientOngoingPrescription.create({
+            patientId: patient.id,
+            prescriptionId: prescriptionThisFacility.id,
+          });
+
+          const medicationOtherFacility = await models.ReferenceData.create({
+            type: REFERENCE_TYPES.DRUG,
+            name: 'Drug Only At Other Facility',
+            code: 'DRUG_OTHER_FACILITY',
+          });
+          const referenceDrugOther = await models.ReferenceDrug.create({
+            referenceDataId: medicationOtherFacility.id,
+            isSensitive: false,
+          });
+          await models.ReferenceDrugFacility.create({
+            referenceDrugId: referenceDrugOther.id,
+            facilityId: otherFacilityId,
+            stockStatus: DRUG_STOCK_STATUSES.OUT_OF_STOCK,
+          });
+          const prescriptionOtherFacility = await models.Prescription.create(
+            await createDummyPrescription(models, {
+              medicationId: medicationOtherFacility.id,
+            }),
+          );
+          await models.PatientOngoingPrescription.create({
+            patientId: patient.id,
+            prescriptionId: prescriptionOtherFacility.id,
+          });
+
+          const result = await app.get(
+            `/api/patient/${patient.id}/ongoing-prescriptions?facilityId=${facilityId}`,
+          );
+          expect(result).toHaveSucceeded();
+
+          const itemThisFacility = result.body.data.find(
+            p => p.id === prescriptionThisFacility.id,
+          );
+          expect(itemThisFacility).toBeDefined();
+          expect(itemThisFacility.referenceDrugFacility).toBeDefined();
+          expect(itemThisFacility.referenceDrugFacility.facilityId).toBe(facilityId);
+          expect(itemThisFacility.referenceDrugFacility.referenceDrugId).toBe(
+            referenceDrugThis.id,
+          );
+          expect(itemThisFacility.referenceDrugFacility.stockStatus).toBe(
+            DRUG_STOCK_STATUSES.IN_STOCK,
+          );
+
+          const itemOtherFacility = result.body.data.find(
+            p => p.id === prescriptionOtherFacility.id,
+          );
+          expect(itemOtherFacility).toBeDefined();
+          expect(itemOtherFacility.referenceDrugFacility).toBeUndefined();
         });
       });
     });
