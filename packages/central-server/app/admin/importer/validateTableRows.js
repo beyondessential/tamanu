@@ -74,9 +74,36 @@ async function validateLabTestPanels(models, rows, pushErrorFn) {
   }
 }
 
+async function validateUsers(_models, rows, pushErrorFn) {
+  const seenEmails = new Map();
+  const seenDisplayNames = new Map();
+  for (const { model, values, sheetRow } of rows) {
+    if (model !== 'User') continue;
+
+    if (values.email) {
+      const emailKey = values.email.toLowerCase();
+      if (seenEmails.has(emailKey)) {
+        pushErrorFn(model, sheetRow, `Duplicate email "${values.email}" within import`);
+      } else {
+        seenEmails.set(emailKey, sheetRow);
+      }
+    }
+
+    if (values.displayName) {
+      const nameKey = values.displayName.toLowerCase();
+      if (seenDisplayNames.has(nameKey)) {
+        pushErrorFn(model, sheetRow, `Duplicate display name "${values.displayName}" within import`);
+      } else {
+        seenDisplayNames.set(nameKey, sheetRow);
+      }
+    }
+  }
+}
+
 const MODEL_VALIDATION = {
   'LabTestType': validateLabTestTypes,
   'LabTestPanel': validateLabTestPanels,
+  'User': validateUsers,
 };
 
 export async function validateTableRows(models, rows, pushErrorFn) {

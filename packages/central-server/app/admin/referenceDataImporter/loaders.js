@@ -17,6 +17,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { pluralize } from 'inflection';
 import { isEmpty, isNil } from 'lodash';
 import { GENERIC_SURVEY_EXPORT_REPORT_ID, REPORT_DEFINITIONS } from '@tamanu/shared/reports';
+import { checkUserUniqueness } from '../userValidation';
 
 function stripNotes(fields) {
   const values = { ...fields };
@@ -371,6 +372,14 @@ export const taskSetLoader = async (item, { models, pushError }) => {
 export async function userLoader(item, { models, pushError }) {
   const { id, allowedFacilities, designations, ...otherFields } = item;
   const rows = [];
+
+  const duplicates = await checkUserUniqueness(models.User, {
+    email: otherFields.email,
+    displayName: otherFields.displayName,
+    excludeId: id,
+  });
+  if (duplicates.email) pushError(`Email "${otherFields.email}" is already in use by another user`, 'User');
+  if (duplicates.displayName) pushError(`Display name "${otherFields.displayName}" is already in use by another user`, 'User');
 
   const allowedFacilityIds = allowedFacilities
     ? allowedFacilities.split(',').map(t => t.trim())
