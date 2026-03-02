@@ -1,8 +1,17 @@
 import { SURVEY_TYPES, VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { getConfigObject, getGraphRangeByAge, getNormalRangeByAge } from '@tamanu/ui-components';
 import { BLOOD_PRESSURE, bloodPressureChartKeys, LINE } from '../components/Charts/constants';
 
-export const getVisualisationConfig = (patientData, surveyData, restOfQuery) => {
+const hasHistoricalData = (chartDataArray, dataElementId) => {
+  const answer = chartDataArray?.find(item => item.dataElementId === dataElementId);
+  if (!answer?.records) {
+    return false;
+  }
+  return Object.values(answer.records).some(record => record?.body);
+}
+
+export const getVisualisationConfig = (patientData, surveyData, restOfQuery, chartDataArray = []) => {
   const { isSuccess } = restOfQuery;
   let visualisationConfigs = [];
 
@@ -12,7 +21,16 @@ export const getVisualisationConfig = (patientData, surveyData, restOfQuery) => 
   }
 
   if (isSuccess) {
-    visualisationConfigs = surveyData.components.map(
+    visualisationConfigs = surveyData.components
+      // Filter out historical components without data
+      .filter(({ dataElement, visibilityStatus }) => {
+        if (visibilityStatus === VISIBILITY_STATUSES.CURRENT) {
+          return true;
+        }
+        // For historical components, only include if they have recorded data
+        return hasHistoricalData(chartDataArray, dataElement.id);
+      })
+      .map(
       ({ id, dataElement, config, validationCriteria: validationCriteriaString }) => {
         const hasVitalChart = !!dataElement.visualisationConfig;
         const isBloodPressureChart = bloodPressureChartKeys.includes(dataElement.id);
