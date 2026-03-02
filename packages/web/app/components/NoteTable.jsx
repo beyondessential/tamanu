@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState, useRef, useEffect } from 'react'
 import styled from 'styled-components';
 import EditIcon from '@material-ui/icons/Edit';
 
-import { NOTE_PERMISSION_TYPES, NOTE_TYPES, NOTE_TYPE_LABELS } from '@tamanu/constants';
+import { NOTE_PERMISSION_TYPES, NOTE_TYPES, NOTE_TYPE_LABELS, NON_EDITABLE_NOTE_TYPES } from '@tamanu/constants';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
@@ -203,7 +203,7 @@ const NoteContent = ({
         </NoteContentContainer>
         {hasIndividualNotePermission &&
           hasEncounterNoteWritePermission &&
-          note.noteType !== NOTE_TYPES.SYSTEM && (
+          !NON_EDITABLE_NOTE_TYPES.includes(note.noteType) && (
             <NoteModalActionBlocker>
               <StyledEditIcon
                 onClick={() => handleEditNote(note)}

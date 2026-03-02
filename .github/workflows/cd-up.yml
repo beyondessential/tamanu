@@ -46,25 +46,41 @@ jobs:
 
       - name: Create or check namespace
         run: |
-          if kubectl get namespace tamanu-${{ inputs.deploy-name }} 2>/dev/null; then
+          NS_NAME="tamanu-${{ inputs.deploy-name }}"
+
+          # Check if subnamespace anchor exists
+          if kubectl -n tamanu-super get subnamespaceanchor "$NS_NAME" 2>/dev/null; then
             echo "Namespace exists, checking it's matched to this branch"
-            kubectl -n tamanu-${{ inputs.deploy-name }} \
+            kubectl -n "$NS_NAME" \
               get configmap auto-deploy -o json \
               | tee -a /dev/stderr \
               | jq -e '.data | [.repo == "${{ github.repository }}", .ref == "${{ inputs.ref }}"] | all'
           else
-            kubectl create namespace tamanu-${{ inputs.deploy-name }}
-            kubectl -n tamanu-${{ inputs.deploy-name }} \
+            # Create SubnamespaceAnchor - HNC will create the namespace
+            kubectl apply -f - <<EOF
+          apiVersion: hnc.x-k8s.io/v1alpha2
+          kind: SubnamespaceAnchor
+          metadata:
+            name: $NS_NAME
+            namespace: tamanu-super
+          EOF
+
+            # Wait for namespace to be created by HNC
+            kubectl wait --for=condition=Ready subnamespaceanchor/"$NS_NAME" \
+              -n tamanu-super --timeout=30s || true
+
+            # Create tracking configmap
+            kubectl -n "$NS_NAME" \
               create configmap auto-deploy \
               --from-literal=repo=${{ github.repository }} \
               --from-literal=ref=${{ inputs.ref }}
           fi
 
-          kubectl -n tamanu-${{ inputs.deploy-name }} \
+          kubectl -n "$NS_NAME" \
             patch configmap auto-deploy \
             -p '{"data":{"control":"${{ inputs.control }}"}}'
 
-          kubectl -n tamanu-${{ inputs.deploy-name }} \
+          kubectl -n "$NS_NAME" \
             patch configmap auto-deploy \
             -p '{"data":{"imageTag":"${{ inputs.image-tag }}"}}'
 

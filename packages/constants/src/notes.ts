@@ -27,6 +27,12 @@ export const NOTE_TYPES = {
   HANDOVER: 'handover',
 };
 
+// Note types that should not be user-editable or creatable via UI
+export const NON_EDITABLE_NOTE_TYPES = [
+  NOTE_TYPES.SYSTEM,
+  NOTE_TYPES.CLINICAL_MOBILE,
+];
+
 export const NOTE_TYPE_LABELS = {
   [NOTE_TYPES.TREATMENT_PLAN]: 'Treatment plan',
   [NOTE_TYPES.ADMISSION]: 'Admission',

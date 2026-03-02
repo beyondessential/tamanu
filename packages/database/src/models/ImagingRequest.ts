@@ -201,6 +201,12 @@ export class ImagingRequest extends Model {
       foreignKey: 'imagingRequestId',
     });
 
+    this.hasOne(models.ImagingTypeExternalCode, {
+      sourceKey: 'imagingType',
+      foreignKey: 'imagingTypeCode',
+      as: 'imagingTypeExternalCode',
+    });
+
     this.hasMany(models.Note, {
       foreignKey: 'recordId',
       as: 'notes',
