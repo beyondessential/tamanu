@@ -26,6 +26,7 @@ import {
   repeatableReadTransaction,
   SYNC_SESSION_DIRECTION,
   SYNC_TICK_FLAGS,
+  withDeferredSyncSafeguards,
 } from '@tamanu/database/sync';
 import { attachChangelogToSnapshotRecords, pauseAudit } from '@tamanu/database/utils/audit';
 import { uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
@@ -682,7 +683,10 @@ export class CentralSyncManager {
         // eg: resolving duplicated patient display IDs
         await incomingSyncHook(sequelize, modelsToInclude, sessionId);
 
-        await saveIncomingChanges(sequelize, modelsToInclude, sessionId, true);
+        await withDeferredSyncSafeguards(sequelize, async () =>
+          saveIncomingChanges(sequelize, modelsToInclude, sessionId, true),
+        );
+
         // store the sync tick on save with the incoming changes, so they can be compared for
         // edits with the outgoing changes
         await updateSnapshotRecords(
