@@ -10,12 +10,12 @@ export async function up(query) {
   const isFacilityServer = !!selectFacilityIds(config);
   if (isFacilityServer) return;
 
-  const COUNTRY_TIMEZONE = config?.countryTimeZone;
-  if (!COUNTRY_TIMEZONE) {
-    throw Error('A countryTimeZone must be configured in local.json5 for this migration to run.');
+  const PRIMARY_TIME_ZONE = config?.primaryTimeZone;
+  if (!PRIMARY_TIME_ZONE) {
+    throw Error('A primaryTimeZone must be configured in local.json5 for this migration to run.');
   }
 
-  await query.sequelize.query(`SET TIME ZONE '${COUNTRY_TIMEZONE}'`);
+  await query.sequelize.query(`SET TIME ZONE '${PRIMARY_TIME_ZONE}'`);
 
   for (const tableName of TABLES) {
     await query.changeColumn({ schema: SCHEMA, tableName }, 'last_updated', {
@@ -31,12 +31,12 @@ export async function down(query) {
   const isFacilityServer = !!selectFacilityIds(config);
   if (isFacilityServer) return;
 
-  const COUNTRY_TIMEZONE = config?.countryTimeZone;
-  if (!COUNTRY_TIMEZONE) {
-    throw Error('A countryTimeZone must be configured in local.json5 for this migration to run.');
+  const PRIMARY_TIME_ZONE = config?.primaryTimeZone;
+  if (!PRIMARY_TIME_ZONE) {
+    throw Error('A primaryTimeZone must be configured in local.json5 for this migration to run.');
   }
 
-  await query.sequelize.query(`SET TIME ZONE '${COUNTRY_TIMEZONE}'`);
+  await query.sequelize.query(`SET TIME ZONE '${PRIMARY_TIME_ZONE}'`);
 
   for (const tableName of TABLES) {
     await query.changeColumn({ schema: SCHEMA, tableName }, 'last_updated', {

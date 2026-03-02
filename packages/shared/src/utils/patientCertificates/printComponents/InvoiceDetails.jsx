@@ -10,8 +10,8 @@ import {
 import { DataSection } from './DataSection';
 import { DataItem } from './DataItem';
 import { Col } from '../Layout';
-import { formatShort } from '@tamanu/utils/dateTime';
 import { useLanguageContext } from '../../pdf/languageContext';
+import { useDateTime } from '../../pdf/withDateTimeContext';
 
 const getInvoicePaymentStatus = invoice => {
   const patientPaymentStatus =
@@ -31,6 +31,7 @@ const getInvoicePaymentStatus = invoice => {
 
 export const InvoiceDetails = ({ encounter, invoice, patient, enablePatientInsurer }) => {
   const { getTranslation } = useLanguageContext();
+  const { formatShort } = useDateTime();
   const {
     additionalData: { insurer, insurerPolicyNumber },
   } = patient;

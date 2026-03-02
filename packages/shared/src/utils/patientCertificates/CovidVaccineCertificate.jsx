@@ -7,11 +7,11 @@ import { CovidPatientDetailsSection } from './CovidPatientDetailsSection';
 import { SigningSection } from './SigningSection';
 import { H3, P } from './Typography';
 import { CovidLetterheadSection } from './CovidLetterheadSection';
-import { getDisplayDate } from './getDisplayDate';
 import { withLanguageContext } from '../pdf/languageContext';
+import { withDateTimeContext, useDateTime } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 
-const columns = [
+const getColumns = formatShort => [
   {
     key: 'vaccine',
     title: 'Vaccine',
@@ -43,8 +43,7 @@ const columns = [
   {
     key: 'date',
     title: 'Date',
-    accessor: ({ date }, getLocalisation) =>
-      date ? getDisplayDate(date, undefined, getLocalisation) : 'Unknown',
+    accessor: ({ date }) => date ? formatShort(date) : 'Unknown',
   },
   {
     key: 'batch',
@@ -68,6 +67,7 @@ const CovidVaccineCertificateComponent = ({
   extraPatientFields,
   printedDate,
 }) => {
+  const { formatShort } = useDateTime();
   const {
     emailAddress: contactEmail,
     contactNumber,
@@ -75,9 +75,8 @@ const CovidVaccineCertificateComponent = ({
   } = getSetting('templates.vaccineCertificate');
   const countryName = getLocalisation('country.name');
 
-  console.log('uvci', uvci);
-
   const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
+  const columns = getColumns(formatShort);
 
   return (
     <Document>
@@ -88,7 +87,6 @@ const CovidVaccineCertificateComponent = ({
         <CovidPatientDetailsSection
           patient={patient}
           vdsSrc={vdsSrc}
-          getLocalisation={getLocalisation}
           getSetting={getSetting}
           certificateId={certificateId}
           extraFields={extraPatientFields}
@@ -98,7 +96,6 @@ const CovidVaccineCertificateComponent = ({
           <Table
             data={data}
             columns={columns}
-            getLocalisation={getLocalisation}
             getSetting={getSetting}
           />
         </Box>
@@ -108,7 +105,7 @@ const CovidVaccineCertificateComponent = ({
               <P>Printed by: {printedBy}</P>
             </Col>
             <Col>
-              <P>Printing date: {getDisplayDate(printedDate)}</P>
+              <P>Printing date: {formatShort(printedDate)}</P>
             </Col>
           </Row>
         </Box>
@@ -122,4 +119,6 @@ const CovidVaccineCertificateComponent = ({
   );
 };
 
-export const CovidVaccineCertificate = withLanguageContext(CovidVaccineCertificateComponent);
+export const CovidVaccineCertificate = withLanguageContext(
+  withDateTimeContext(CovidVaccineCertificateComponent),
+);

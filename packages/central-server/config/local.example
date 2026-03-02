@@ -8,7 +8,7 @@
     "password": "postgres",
     "migrateOnStartup": true
   },
-  "countryTimeZone": "Australia/Sydney",
+  "primaryTimeZone": "Australia/Sydney",
   "localisation": {
     "data": {
       "imagingTypes": {

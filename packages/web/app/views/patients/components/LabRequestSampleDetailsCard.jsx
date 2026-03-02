@@ -14,7 +14,7 @@ export const LabRequestSampleDetailsCard = ({ labRequest }) => (
           data-testid="translatedtext-cmmd"
         />
       }
-      value={<DateDisplay date={labRequest.sampleTime} showTime data-testid="datedisplay-bx65" />}
+      value={<DateDisplay date={labRequest.sampleTime} timeFormat="default" data-testid="datedisplay-bx65" />}
       data-testid="infocarditem-cdrs"
     />
     <InfoCardItem

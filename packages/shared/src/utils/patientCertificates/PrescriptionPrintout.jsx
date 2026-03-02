@@ -1,19 +1,20 @@
-import { Document, StyleSheet, Text, View } from '@react-pdf/renderer';
 import React from 'react';
+
+import { Document, StyleSheet, Text, View } from '@react-pdf/renderer';
+
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 
 import { CertificateContent, CertificateHeader, Col, Signature, styles } from './Layout';
-import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithBarcode';
-import { Table } from './Table';
-import { DataSection } from './printComponents/DataSection';
-import { DataItem } from './printComponents/DataItem';
-import { getDisplayDate } from './getDisplayDate';
-import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { LetterheadSection } from './LetterheadSection';
-import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
-import { Page } from '../pdf/Page';
-import { getMedicationDoseDisplay, getTranslatedFrequency } from '../medication';
+import { Table } from './Table';
+import { DataItem } from './printComponents/DataItem';
+import { DataSection } from './printComponents/DataSection';
 import { Footer } from './printComponents/Footer';
+import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithBarcode';
+import { Page } from '../pdf/Page';
+import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
+import { useDateTime, withDateTimeContext } from '../pdf/withDateTimeContext';
+import { getMedicationDoseDisplay, getTranslatedFrequency } from '../medication';
 
 const columns = (getTranslation, getEnumTranslation) => [
   {
@@ -94,15 +95,15 @@ const PrescriptionsSection = ({
   prescriptions,
   prescriber,
   facility,
-  getLocalisation,
   getSetting,
 }) => {
   const { getTranslation, getEnumTranslation } = useLanguageContext();
+  const { formatShort, getCurrentDate } = useDateTime();
   return (
     <View>
       <DataSection hideBottomRule title="Prescription details">
         <Col>
-          <DataItem label="Date" value={getDisplayDate(getCurrentDateString())} />
+          <DataItem label="Date" value={formatShort(getCurrentDate())} />
           <DataItem label="Prescriber" value={prescriber?.displayName} />
         </Col>
         <Col>
@@ -114,7 +115,6 @@ const PrescriptionsSection = ({
         <Table
           columns={columns(getTranslation, getEnumTranslation)}
           data={prescriptions}
-          getLocalisation={getLocalisation}
           getSetting={getSetting}
           columnStyle={{ padding: '8px 7px' }}
         />
@@ -136,7 +136,6 @@ const PrescriptionPrintoutComponent = ({
   prescriber,
   certificateData,
   facility,
-  getLocalisation,
   getSetting,
 }) => {
   return (
@@ -149,7 +148,7 @@ const PrescriptionPrintoutComponent = ({
             certificateTitle="Prescription"
           />
           <SectionContainer>
-            <PatientDetailsWithBarcode patient={patientData} getLocalisation={getLocalisation} getSetting={getSetting} />
+            <PatientDetailsWithBarcode patient={patientData} getSetting={getSetting} />
           </SectionContainer>
         </CertificateHeader>
         <CertificateContent style={{ margin: 0 }}>
@@ -158,7 +157,6 @@ const PrescriptionPrintoutComponent = ({
               prescriptions={prescriptions}
               prescriber={prescriber}
               facility={facility}
-              getLocalisation={getLocalisation}
               getSetting={getSetting}
             />
           </SectionContainer>
@@ -172,4 +170,6 @@ const PrescriptionPrintoutComponent = ({
   );
 };
 
-export const PrescriptionPrintout = withLanguageContext(PrescriptionPrintoutComponent);
+export const PrescriptionPrintout = withLanguageContext(
+  withDateTimeContext(PrescriptionPrintoutComponent),
+);

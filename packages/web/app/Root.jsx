@@ -9,7 +9,7 @@ import MuiLatestThemeProvider from '@mui/material/styles/ThemeProvider';
 import { LocalizationProvider as MuiLocalisationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Slide } from 'react-toastify';
-import { ApiContext, CustomToastContainer } from '@tamanu/ui-components';
+import { ApiContext, CustomToastContainer, DateTimeProvider } from '@tamanu/ui-components';
 import { RoutingApp } from './RoutingApp';
 import { theme } from './theme';
 import { GlobalStyles } from './constants';
@@ -30,31 +30,33 @@ import { createBrowserRouter, RouterProvider } from 'react-router';
 import { MedicationsProvider } from './contexts/Medications';
 
 const StateContextProviders = ({ children, store }) => (
-  <EncounterProvider store={store}>
-    <ImagingRequestsProvider>
-      <MedicationsProvider>
-        <EncounterNotesProvider>
-          <ProgramRegistryProvider>
-            <LabRequestProvider store={store}>
-              <PatientSearchProvider>
-                <SettingsProvider>
-                  <SyncStateProvider>
-                    <TranslationProvider>
-                      <LocalisationProvider store={store}>
-                        <AuthProvider>
-                          <NoteModalProvider>{children}</NoteModalProvider>
-                        </AuthProvider>
-                      </LocalisationProvider>
-                    </TranslationProvider>
-                  </SyncStateProvider>
-                </SettingsProvider>
-              </PatientSearchProvider>
-            </LabRequestProvider>
-          </ProgramRegistryProvider>
-        </EncounterNotesProvider>
-      </MedicationsProvider>
-    </ImagingRequestsProvider>
-  </EncounterProvider>
+  <EncounterNotesProvider>
+    <AuthProvider>
+      <SettingsProvider>
+        <DateTimeProvider>
+          <EncounterProvider store={store}>
+            <ImagingRequestsProvider>
+              <MedicationsProvider>
+                <ProgramRegistryProvider>
+                  <LabRequestProvider store={store}>
+                    <PatientSearchProvider>
+                      <SyncStateProvider>
+                        <TranslationProvider>
+                          <LocalisationProvider store={store}>
+                            <NoteModalProvider>{children}</NoteModalProvider>
+                          </LocalisationProvider>
+                        </TranslationProvider>
+                      </SyncStateProvider>
+                    </PatientSearchProvider>
+                  </LabRequestProvider>
+                </ProgramRegistryProvider>
+              </MedicationsProvider>
+            </ImagingRequestsProvider>
+          </EncounterProvider>
+        </DateTimeProvider>
+      </SettingsProvider>
+    </AuthProvider>
+  </EncounterNotesProvider>
 );
 
 const queryClient = new QueryClient({

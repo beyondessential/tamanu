@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import MuiDivider from '@material-ui/core/Divider';
-import { getAnswersFromData, SelectInput } from '@tamanu/ui-components';
+import { getAnswersFromData, SelectInput, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { TranslatedText } from '../../components';
 import { useApi } from '../../api';
@@ -68,8 +67,9 @@ export const ProcedureAdditionalData = ({
 }) => {
   const api = useApi();
   const { currentUser, facilityId } = useAuth();
+  const { getCurrentDateTime } = useDateTime();
   const [cancelFormModalOpen, setCancelFormModalOpen] = useState(false);
-  const [startTime] = useState(getCurrentDateTimeString());
+  const [startTime] = useState(getCurrentDateTime());
   const [pendingSelectedSurveyId, setPendingSelectedSurveyId] = useState(null);
 
   const surveys = useProcedureSurveys(procedureTypeId);
@@ -83,7 +83,7 @@ export const ProcedureAdditionalData = ({
         startTime,
         patientId: patient.id,
         facilityId,
-        endTime: getCurrentDateTimeString(),
+        endTime: getCurrentDateTime(),
         answers: await getAnswersFromData(body, survey),
         procedureId,
         procedureTypeId,

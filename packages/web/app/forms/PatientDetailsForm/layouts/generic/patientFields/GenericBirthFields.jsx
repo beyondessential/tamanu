@@ -22,7 +22,6 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
   const BIRTH_FIELDS = {
     timeOfBirth: {
       component: TimeField,
-      saveDateAsString: true,
       label: (
         <TranslatedText
           stringId="general.localisedField.timeOfBirth.label"
@@ -33,7 +32,6 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
     },
     gestationalAgeEstimate: {
       component: TextField,
-      saveDateAsString: true,
       type: 'number',
       label: (
         <TranslatedText

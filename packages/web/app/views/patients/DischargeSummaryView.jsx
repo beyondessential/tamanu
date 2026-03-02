@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
 
-import { Button } from '@tamanu/ui-components';
+import { Button, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { DischargeSummaryPrintout } from '@tamanu/shared/utils/patientCertificates';
 
@@ -35,10 +35,11 @@ const NavContainer = styled.div`
 `;
 
 export const DischargeSummaryView = React.memo(() => {
-  const { data: certiciateData, isFetching: isCertificateFetching } = useCertificate();
+  const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
   const { getLocalisation } = useLocalisation();
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
+  const { primaryTimeZone } = useDateTime();
   const { encounter } = useEncounter();
   const patient = useSelector(state => state.patient);
   const { data: additionalData, isFetching: isPADLoading } = usePatientAdditionalDataQuery(
@@ -79,10 +80,11 @@ export const DischargeSummaryView = React.memo(() => {
           encounter={encounter}
           discharge={discharge}
           patientConditions={patientConditions}
-          certificateData={certiciateData}
+          certificateData={certificateData}
           getLocalisation={getLocalisation}
           getTranslation={getTranslation}
           getSetting={getSetting}
+          primaryTimeZone={primaryTimeZone}
           data-testid="dischargesummaryprintout-zgjd"
         />
       </PDFLoader>

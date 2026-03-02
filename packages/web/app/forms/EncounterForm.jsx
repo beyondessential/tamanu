@@ -1,13 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   TextField,
   TranslatedSelectField,
   Form,
   FormGrid,
   FormSubmitButton,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { foreignKey } from '../utils/validation';
 import {
@@ -34,6 +34,7 @@ export const EncounterForm = React.memo(
     });
     const referralSourceSuggester = useSuggester('referralSource');
     const { getTranslation } = useTranslation();
+    const { getCurrentDateTime } = useDateTime();
 
     const renderForm = ({ submitForm, values }) => {
       const buttonText = editedObject ? (
@@ -86,7 +87,6 @@ export const EncounterForm = React.memo(
             required
             min="1970-01-01T00:00"
             component={DateTimeField}
-            saveDateAsString
             data-testid="field-vol8"
           />
           <Field
@@ -209,7 +209,7 @@ export const EncounterForm = React.memo(
         onSubmit={onSubmit}
         render={renderForm}
         initialValues={{
-          startDate: getCurrentDateTimeString(),
+          startDate: getCurrentDateTime(), 
           encounterType,
           patientBillingTypeId,
           ...editedObject,

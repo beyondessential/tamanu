@@ -1,7 +1,8 @@
-import { isSameMonth, isThisMonth, startOfToday, startOfDay } from 'date-fns';
+import { isSameMonth, isThisMonth, parseISO } from 'date-fns';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 import { VIEW_TYPES } from '@tamanu/constants';
+import { useDateTime } from '@tamanu/ui-components';
 import {
   scrollToBeginning,
   scrollToCell,
@@ -20,6 +21,7 @@ export const LOCATION_BOOKINGS_EMPTY_FILTER_STATE = {
 };
 
 export const LocationBookingsContextProvider = ({ children }) => {
+  const { getCurrentDate } = useDateTime();
   const queryParams = useUrlSearchParams();
   const clinicianId = queryParams.get('clinicianId');
   const { data: userPreferences } = useUserPreferencesQuery();
@@ -45,11 +47,11 @@ export const LocationBookingsContextProvider = ({ children }) => {
     date: null,
   });
 
-  const [monthOf, setMonthOf] = useState(startOfToday());
+  const [monthOf, setMonthOf] = useState(() => parseISO(getCurrentDate()));
   const [viewType, setViewType] = useState(
     userPreferences?.locationBookingViewType || VIEW_TYPES.DAILY,
   );
-  const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
+  const [selectedDate, setSelectedDate] = useState(() => parseISO(getCurrentDate()));
   useEffect(
     () => {
       if (isSameMonth(selectedCell.date, monthOf)) {

@@ -2,10 +2,10 @@ import React, { useCallback, useState } from 'react';
 
 import { CertificateTypes, CovidLabCertificate } from '@tamanu/shared/utils/patientCertificates';
 import { ASSET_NAMES, COVID_19_CLEARANCE_CERTIFICATE } from '@tamanu/constants';
+import { useDateTime } from '@tamanu/ui-components';
 
 import { Modal } from '../../Modal';
 import { useApi } from '../../../api';
-import { useLocalisation } from '../../../contexts/Localisation';
 import { EmailButton } from '../../Email/EmailButton';
 import { useCertificate } from '../../../utils/useCertificate';
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
@@ -16,8 +16,8 @@ import { useSettings } from '../../../contexts/Settings';
 
 export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);
-  const { getLocalisation } = useLocalisation();
   const { getSetting } = useSettings();
+  const { primaryTimeZone } = useDateTime();
   const api = useApi();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
     footerAssetName: ASSET_NAMES.COVID_CLEARANCE_CERTIFICATE_FOOTER,
@@ -65,10 +65,10 @@ export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
           watermarkSrc={watermark}
           signingSrc={footerImg}
           logoSrc={logo}
-          getLocalisation={getLocalisation}
           getSetting={getSetting}
           printedBy={printedBy}
           certType={CertificateTypes.clearance}
+          primaryTimeZone={primaryTimeZone}
           data-testid="covidlabcertificate-au78"
         />
       </PDFLoader>

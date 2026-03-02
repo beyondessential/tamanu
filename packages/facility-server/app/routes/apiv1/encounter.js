@@ -2,9 +2,9 @@ import asyncHandler from 'express-async-handler';
 import { Op, literal } from 'sequelize';
 import { subject } from '@casl/ability';
 import { NotFoundError, InvalidParameterError, InvalidOperationError } from '@tamanu/errors';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { getCurrentDateTimeString, getDayBoundaries } from '@tamanu/utils/dateTime';
 import config from 'config';
-import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
+import { toPrimaryDateTimeString } from '@tamanu/shared/utils/primaryDateTime';
 import {
   LAB_REQUEST_STATUSES,
   DOCUMENT_SIZE_LIMIT,
@@ -334,9 +334,9 @@ encounterRelations.get('/:id/diagnoses', simpleGetList('EncounterDiagnosis', 'en
 encounterRelations.get(
   '/:id/medications',
   asyncHandler(async (req, res) => {
-    const { models, params, query, db } = req;
+    const { models, params, query, db, settings } = req;
     const { Prescription } = models;
-    const { order = 'ASC', orderBy = 'medication.name', rowsPerPage, page, marDate } = query;
+    const { order = 'ASC', orderBy = 'medication.name', rowsPerPage, page, marDate, facilityId } = query;
 
     req.checkPermission('list', 'Medication');
 
@@ -396,8 +396,11 @@ encounterRelations.get(
     if (marDate) {
       req.checkPermission('list', 'MedicationAdministration');
 
-      const startOfMarDate = `${marDate} 00:00:00`;
-      const endOfMarDate = `${marDate} 23:59:59`;
+      const facilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
+      const { primaryTimeZone } = config;
+      const boundaries = getDayBoundaries(marDate, primaryTimeZone, facilityTimeZone);
+      const startOfMarDate = boundaries?.start ?? `${marDate} 00:00:00`;
+      const endOfMarDate = boundaries?.end ?? `${marDate} 23:59:59`;
       baseQueryOptions.include.push({
         model: models.MedicationAdministrationRecord,
         as: 'medicationAdministrationRecords',
@@ -806,7 +809,7 @@ encounterRelations.get(
         encounterId,
         status: { [Op.in]: statuses },
         dueTime: {
-          [Op.lte]: toCountryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
+          [Op.lte]: toPrimaryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
         },
         taskType: {
           [Op.notIn]: DASHBOARD_ONLY_TASK_TYPES,

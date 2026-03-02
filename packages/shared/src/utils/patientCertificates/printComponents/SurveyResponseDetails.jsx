@@ -2,11 +2,12 @@ import React from 'react';
 import { DataSection } from './DataSection';
 import { DataItem } from './DataItem';
 import { Col } from '../Layout';
-import { formatShort } from '@tamanu/utils/dateTime';
 import { useLanguageContext } from '../../pdf/languageContext';
+import { useDateTime } from '../../pdf/withDateTimeContext';
 
 export const SurveyResponseDetails = ({ surveyResponse }) => {
   const { getTranslation } = useLanguageContext();
+  const { formatShort } = useDateTime();
   return (
     <DataSection hideTopRule hideBottomRule>
       <Col>

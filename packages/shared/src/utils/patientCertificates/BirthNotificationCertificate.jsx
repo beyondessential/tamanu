@@ -1,7 +1,7 @@
 import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import { CertificateHeader, styles, Watermark } from './Layout';
-import { ageInYears, getCurrentDateString } from '@tamanu/utils/dateTime';
+import { ageInYears } from '@tamanu/utils/dateTime';
 import { LetterheadSection } from './LetterheadSection';
 import {
   ATTENDANT_OF_BIRTH_OPTIONS,
@@ -12,9 +12,9 @@ import {
   SEX_OPTIONS,
 } from '@tamanu/constants';
 import { Footer } from './printComponents/Footer';
-import { getDisplayDate } from './getDisplayDate';
 import { getEthnicity } from '../patientAccessors';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
+import { withDateTimeContext, useDateTime } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 import { FSMBirthNotificationCertificate } from './FSMBirthNotificationCertificate';
@@ -41,7 +41,7 @@ const topStyles = StyleSheet.create({
 });
 
 const TopSection = ({ facilityName, childDisplayId }) => {
-  const date = getCurrentDateString();
+  const { formatShort, getCurrentDate } = useDateTime();
   return (
     <View style={topStyles.container}>
       <View style={topStyles.cell}>
@@ -52,7 +52,7 @@ const TopSection = ({ facilityName, childDisplayId }) => {
         <P bold style={topStyles.key}>
           Notification date:
         </P>
-        <P style={topStyles.value}>{getDisplayDate(date)}</P>
+        <P style={topStyles.value}>{formatShort(getCurrentDate())}</P>
       </View>
       <View style={topStyles.cell}>
         <P style={topStyles.key}>Child ID:</P>
@@ -127,6 +127,7 @@ const getFullName = patient => `${patient?.firstName ?? ''} ${patient?.lastName 
 
 const ChildSection = ({ data }) => {
   const { getTranslation } = useLanguageContext();
+  const { formatShort, formatTime } = useDateTime();
   const causeOfDeath =
     data?.deathData?.causes?.primary?.condition?.name ??
     getTranslation('general.fallback.notApplicable', 'N/A');
@@ -166,14 +167,14 @@ const ChildSection = ({ data }) => {
           {getTranslation('pdf.birthNotification.birthDate.label', 'Birth date')}
         </Cell>
         <Cell style={{ width: 70 }}>
-          {data?.dateOfBirth ? getDisplayDate(data?.dateOfBirth) : ''}
+          {data?.dateOfBirth ? formatShort(data?.dateOfBirth) : ''}
         </Cell>
         <Cell style={{ width: 100 }} bold>
           {getTranslation('pdf.birthNotification.birthTime.label', 'Birth time')}
         </Cell>
         <FlexCell>
           {data?.birthData?.timeOfBirth
-            ? getDisplayDate(data?.birthData?.timeOfBirth, 'hh:mm a')
+            ? formatTime(data?.birthData?.timeOfBirth)
             : ''}
         </FlexCell>
       </Row>
@@ -223,6 +224,7 @@ const ChildSection = ({ data }) => {
 
 const ParentSection = ({ parentType, data = {} }) => {
   const { getTranslation } = useLanguageContext();
+  const { formatShort } = useDateTime();
   return (
     <Table>
       <Row>
@@ -247,7 +249,7 @@ const ParentSection = ({ parentType, data = {} }) => {
           {getTranslation('general.localisedField.dateOfBirth.label', 'Date of birth')}
         </LeftCell>
         <Cell style={{ width: 150 }}>
-          {data?.dateOfBirth ? getDisplayDate(data?.dateOfBirth) : ''}
+          {data?.dateOfBirth ? formatShort(data?.dateOfBirth) : ''}
         </Cell>
         <Cell style={{ width: 90 }} bold>
           {getTranslation('general.localisedField.maritalStatus.label', 'Marital status')}
@@ -429,5 +431,5 @@ const BirthNotificationCertificateComponent = ({
 };
 
 export const BirthNotificationCertificate = withLanguageContext(
-  BirthNotificationCertificateComponent,
+  withDateTimeContext(BirthNotificationCertificateComponent),
 );

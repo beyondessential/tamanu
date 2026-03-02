@@ -7,7 +7,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { FormModal } from '../../../components/FormModal';
 import { BodyText, Heading4, SmallBodyText } from '../../../components/Typography';
-import { TextField, Form, ConfirmCancelRow, Field } from '@tamanu/ui-components';
+import { TextField, Form, ConfirmCancelRow, Field, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { DateTimeField, SuggesterSelectField } from '../../../components/Field';
@@ -18,7 +18,6 @@ import { useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
 import { useLabRequest } from '../../../contexts/LabRequest';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 const TableContainer = styled.div`
   overflow-y: auto;
@@ -186,7 +185,6 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
           component={DateTimeField}
           name={LAB_TEST_PROPERTIES.COMPLETED_DATE}
           tabIndex={tabIndex(3, i)}
-          saveDateAsString
           data-testid="accessorfield-k5ef"
         />
       ),
@@ -241,6 +239,7 @@ const ResultsForm = ({
   setFieldValue,
   areLabTestResultsReadOnly,
 }) => {
+  const { getCurrentDateTime } = useDateTime();
   const { count, data } = labTestResults;
   /**
    * On entering lab result field for a test some other fields are auto-filled optimistically
@@ -263,13 +262,13 @@ const ResultsForm = ({
         const uniqueValues = [...new Set(otherRowsValues)];
         const fieldName = `labTests.${labTestId}.${name}`;
         if (name === LAB_TEST_PROPERTIES.COMPLETED_DATE) {
-          setFieldValue(fieldName, getCurrentDateTimeString());
+          setFieldValue(fieldName, getCurrentDateTime());
         } else if (uniqueValues.length === 1) {
           setFieldValue(fieldName, uniqueValues[0]);
         }
       });
     },
-    [values, setFieldValue],
+    [values.labTests, setFieldValue, getCurrentDateTime],
   );
 
   const columns = useMemo(() => getColumns(count, onChangeResult, areLabTestResultsReadOnly), [

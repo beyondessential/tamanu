@@ -4,14 +4,13 @@ import { Box } from '@material-ui/core';
 import { DRUG_ROUTE_LABELS, MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
 import { useLocation, useNavigate } from 'react-router';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
-import { Button } from '@tamanu/ui-components';
+import { trimToDate } from '@tamanu/utils/dateTime';
+import { Button, DateDisplay, TimeDisplay } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 
 import { DataFetchingTable } from '../Table';
-import { formatShortest, formatTime, getDateDisplay } from '../DateDisplay';
 import { TranslatedText, TranslatedReferenceData, TranslatedEnum } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';
-import { formatTimeSlot } from '../../utils/medications';
 import { LimitedLinesCell } from '../FormattedTableCell';
 import { ConditionalTooltip } from '../Tooltip';
 import { MedicationDetails } from './MedicationDetails';
@@ -125,7 +124,7 @@ const getMedicationName = (
             pauseData.pauseDuration,
           ).toLowerCase()}{' '}
           - <TranslatedText stringId="medication.table.until" fallback="until" />{' '}
-          {`${formatShortest(pauseData.pauseEndDate)} ${formatTimeSlot(pauseData.pauseEndDate)}`})
+          <DateDisplay date={pauseData.pauseEndDate} format="shortest" timeFormat="compact" />
         </Box>
       )}
     </Box>
@@ -218,7 +217,7 @@ const getMedicationColumns = (
           tooltipTitle = (
             <>
               <TranslatedText stringId="medication.table.endsOn.label" fallback="Ends on" />
-              <div>{getDateDisplay(endDate, { showDate: true, showTime: true })}</div>
+              <DateDisplay date={endDate} format="shortest" timeFormat="compact" noTooltip />
             </>
           );
         } else if (isOngoing) {
@@ -238,7 +237,7 @@ const getMedicationColumns = (
               visible={tooltipTitle}
               title={<Box fontWeight={400}>{tooltipTitle}</Box>}
             >
-              {formatShortest(date)}
+              <DateDisplay date={trimToDate(date)} format="shortest" />
             </ConditionalTooltip>
           </NoWrapCell>
         );
@@ -274,9 +273,7 @@ const getMedicationColumns = (
           />
         </Box>
       ),
-      title: (
-        <TranslatedText stringId="medication.table.column.lastOrdered" fallback="Last sent" />
-      ),
+      title: <TranslatedText stringId="medication.table.column.lastOrdered" fallback="Last sent" />,
       sortable: false,
       accessor: ({ lastOrderedAt, encounterPrescription, discontinued }) => {
         const pauseData = encounterPrescription?.pausePrescriptions?.[0];
@@ -304,9 +301,9 @@ const getMedicationColumns = (
             fontStyle={isPausing ? 'italic' : 'normal'}
           >
             <Box>
-              {formatShortest(lastOrderedAt)}
+              <DateDisplay date={lastOrderedAt} format="shortest" noTooltip />
               <Box fontSize="12px" color={Colors.softText}>
-                {formatTime(lastOrderedAt).toLowerCase()}
+                <TimeDisplay date={lastOrderedAt} format="compact" noTooltip />
               </Box>
             </Box>
           </NoWrapCell>
@@ -363,9 +360,10 @@ export const EncounterMedicationTable = ({
 
   const rowStyle = ({ discontinued, medication }) => `
     ${discontinued ? 'text-decoration: line-through;' : ''}
-    ${medication.referenceDrug.isSensitive && !canViewSensitiveMedications
-      ? 'pointer-events: none;'
-      : ''
+    ${
+      medication.referenceDrug.isSensitive && !canViewSensitiveMedications
+        ? 'pointer-events: none;'
+        : ''
     }
   `;
 

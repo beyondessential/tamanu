@@ -207,7 +207,7 @@ const Card = ({ patient, handleClick, patientPerPage, isDashboard, index }) => {
           :{' '}
           <DateDisplay
             date={patient.dateOfBirth}
-            shortYear
+            format="shortest"
             data-testid={`datedisplay-tw5s-${index}`}
           />
         </CardText>

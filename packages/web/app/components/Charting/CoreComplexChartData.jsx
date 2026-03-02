@@ -103,7 +103,7 @@ export const CoreComplexChartData = ({
               />
               {dateDataElement ? ':' : null}
             </CoreComplexChartInfoHeader>
-            <DateDisplay date={date} showTime data-testid="datedisplay-hnbz" />
+            <DateDisplay date={date} timeFormat="default" data-testid="datedisplay-hnbz" />
           </CoreComplexChartSingleInfoWrapper>
 
           {isTypeVisible ? (

@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux';
 import { Link, generatePath, useNavigate } from 'react-router';
 import { Colors } from '../../../constants';
 import { PATIENT_PATHS, PATIENT_CATEGORIES } from '../../../constants/patientPaths';
-import { formatDateTimeRange, formatShort } from '../../../utils/dateTime';
+import { DateTimeRangeDisplay, useDateTime } from '@tamanu/ui-components';
 import { TranslatedReferenceData, TranslatedText } from '../../Translation';
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 import { DetailsDisplay } from './SharedComponents';
@@ -56,6 +56,7 @@ const ClinicianContainer = styled('div')`
 `;
 
 const LinkedEncounter = ({ encounter, isOvernight }) => {
+  const { formatShort } = useDateTime();
   const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -294,7 +295,13 @@ export const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
             data-testid="translatedtext-cljh"
           />
         }
-        value={formatDateTimeRange(startTime, endTime)}
+        value={
+          <DateTimeRangeDisplay
+            start={startTime}
+            end={endTime}
+            data-testid="datetimerangedisplay-diun"
+          />
+        }
         data-testid="detailsdisplay-diun"
       />
       <ClinicianContainer>

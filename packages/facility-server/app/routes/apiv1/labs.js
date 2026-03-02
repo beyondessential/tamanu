@@ -1,10 +1,10 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { endOfDay, startOfDay } from 'date-fns';
+import config from 'config';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 
 import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
-import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { getDayBoundaries } from '@tamanu/utils/dateTime';
 import {
   LAB_REQUEST_STATUSES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
@@ -130,6 +130,7 @@ labRequest.get(
     const {
       models: { LabRequest },
       query,
+      settings
     } = req;
     req.checkPermission('list', 'LabRequest');
     const canListSensitive = req.ability.can('list', 'SensitiveLabRequest');
@@ -141,6 +142,10 @@ labRequest.get(
       page = 0,
       ...filterParams
     } = query;
+
+    const { primaryTimeZone } = config;
+    const { facilityId } = filterParams;
+    const facilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
 
     const makeSimpleTextFilter = makeSimpleTextFilterFactory(filterParams);
     const makePartialTextFilter = makeSubstringTextFilterFactory(filterParams);
@@ -185,16 +190,18 @@ labRequest.get(
       makeFilter(
         filterParams.requestedDateFrom,
         'lab_requests.requested_date >= :requestedDateFrom',
-        ({ requestedDateFrom }) => ({
-          requestedDateFrom: toDateTimeString(startOfDay(new Date(requestedDateFrom))),
-        }),
+        ({ requestedDateFrom }) => {
+          const boundaries = getDayBoundaries(requestedDateFrom, primaryTimeZone, facilityTimeZone);
+          return { requestedDateFrom: boundaries?.start ?? `${requestedDateFrom} 00:00:00` };
+        },
       ),
       makeFilter(
         filterParams.requestedDateTo,
         'lab_requests.requested_date <= :requestedDateTo',
-        ({ requestedDateTo }) => ({
-          requestedDateTo: toDateTimeString(endOfDay(new Date(requestedDateTo))),
-        }),
+        ({ requestedDateTo }) => {
+          const boundaries = getDayBoundaries(requestedDateTo, primaryTimeZone, facilityTimeZone);
+          return { requestedDateTo: boundaries?.end ?? `${requestedDateTo} 23:59:59` };
+        },
       ),
       makeFilter(
         !JSON.parse(filterParams.allFacilities || false),
@@ -443,13 +450,7 @@ labRelations.get(
 labRelations.put(
   '/:id/tests',
   asyncHandler(async (req, res) => {
-    const {
-      models,
-      params,
-      body,
-      db,
-      user,
-    } = req;
+    const { models, params, body, db, user } = req;
     const { id } = params;
     const { resultsInterpretation, labTests = {} } = body;
     req.checkPermission('write', 'LabTest');
@@ -482,7 +483,8 @@ labRelations.put(
     const labTestObj = keyBy(labTestRecords, 'id');
     if (
       Object.entries(labTests).some(
-        ([testId, testBody]) => testBody.result && labTestObj[testId] && testBody.result !== labTestObj[testId].result,
+        ([testId, testBody]) =>
+          testBody.result && labTestObj[testId] && testBody.result !== labTestObj[testId].result,
       )
     ) {
       req.checkPermission('write', 'LabTestResult');
@@ -497,7 +499,10 @@ labRelations.put(
     }
 
     await db.transaction(async () => {
-      if (resultsInterpretation !== undefined && resultsInterpretation !== labRequest.resultsInterpretation) {
+      if (
+        resultsInterpretation !== undefined &&
+        resultsInterpretation !== labRequest.resultsInterpretation
+      ) {
         await labRequest.update({ resultsInterpretation });
       }
 

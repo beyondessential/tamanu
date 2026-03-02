@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { formatShortest } from '@tamanu/utils/dateTime';
-import { useSettings, useTranslation } from '@tamanu/ui-components';
+import { useSettings, useTranslation, useDateTime } from '@tamanu/ui-components';
 import { DRUG_UNIT_LABELS } from '@tamanu/constants';
 import { pluralize } from 'inflection';
 import { Colors } from '../../../constants';
@@ -31,7 +30,7 @@ const Label = styled.div`
 
 const LabelTitle = styled.div`
   font-weight: 700;
-  line-height: ${props => props.$fontSize*1.875}mm;
+  line-height: ${props => props.$fontSize * 1.875}mm;
   text-align: center;
 `;
 
@@ -61,7 +60,7 @@ const LabelInstructions = styled.div`
 const LabelBottomSection = styled.div`
   display: flex;
   justify-content: space-between;
-  line-height: ${props => props.$fontSize*1.125}mm;
+  line-height: ${props => props.$fontSize * 1.125}mm;
 `;
 
 const LabelLeftColumn = styled.div`
@@ -75,7 +74,7 @@ const LabelRightColumn = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.708mm;
-  width: ${props => props.$width*0.478}mm;
+  width: ${props => props.$width * 0.478}mm;
 `;
 
 const LabelPatientName = styled.div`
@@ -116,6 +115,7 @@ export const getMedicationLabel = (quantity, units, getEnumTranslation) => {
 };
 
 export const MedicationLabel = React.memo(({ data }) => {
+  const { formatShortest } = useDateTime();
   const { getEnumTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const labelWidth = getSetting('medications.dispensing.prescriptionLabelSize.width') || 80;
@@ -135,7 +135,7 @@ export const MedicationLabel = React.memo(({ data }) => {
     facilityContactNumber,
   } = data;
 
-  const fontSize = labelHeight*0.071;
+  const fontSize = labelHeight * 0.071;
 
   return (
     <Label $width={labelWidth} $height={labelHeight} $fontSize={fontSize}>
@@ -153,9 +153,7 @@ export const MedicationLabel = React.memo(({ data }) => {
         <LabelBottomSection $fontSize={fontSize}>
           <LabelLeftColumn>
             <LabelPatientName>{patientName}</LabelPatientName>
-            <LabelRow>
-              {getMedicationLabel(quantity, units, getEnumTranslation)}
-            </LabelRow>
+            <LabelRow>{getMedicationLabel(quantity, units, getEnumTranslation)}</LabelRow>
             <LabelRow>
               <TranslatedText
                 stringId="medication.dispense.numberOfRepeats"

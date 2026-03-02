@@ -9,7 +9,6 @@ import {
   PREGNANCY_MOMENTS,
 } from '@tamanu/constants';
 import { differenceInYears, differenceInMonths, parseISO } from 'date-fns';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   ArrayField,
   AutocompleteField,
@@ -24,7 +23,7 @@ import {
   RadioField,
   TimeWithUnitField,
 } from '../components';
-import { TextField, TranslatedSelectField, FormGrid } from '@tamanu/ui-components';
+import { TextField, TranslatedSelectField, FormGrid, useDateTime } from '@tamanu/ui-components';
 import { useAuth } from '../contexts/Auth';
 import { DeathFormScreen } from './DeathFormScreen';
 import { SummaryScreenThree, SummaryScreenTwo } from './DeathFormSummaryScreens';
@@ -104,10 +103,7 @@ const PrimaryFields = ({ practitionerSuggester }) => {
             data-testid="translatedtext-x1yy"
           />
         }
-        component={props => (
-          <DateTimeField {...props} data-testid="datetimefield-8fsq" />
-        )}
-        saveDateAsString
+        component={props => <DateTimeField {...props} data-testid="datetimefield-8fsq" />}
         required
         data-testid="field-o3sc"
       />
@@ -166,12 +162,15 @@ export const DeathForm = React.memo(
     diagnosisSuggester,
     facilitySuggester,
   }) => {
-    const [currentTOD, setCurrentTOD] = useState(patient?.dateOfDeath || getCurrentDateTimeString());
+    const { getCurrentDateTime } = useDateTime();
+    const [currentTOD, setCurrentTOD] = useState(
+      patient?.dateOfDeath || getCurrentDateTime(),
+    );
     const { getTranslation } = useTranslation();
     const { currentUser } = useAuth();
     const showPregnantQuestions = canBePregnant(currentTOD, patient);
     const showInfantQuestions = isInfant(currentTOD, patient);
-    const handleSubmit = (data) => {
+    const handleSubmit = data => {
       onSubmit({
         ...data,
         fetalOrInfant: showInfantQuestions ? 'yes' : 'no',
@@ -254,7 +253,7 @@ export const DeathForm = React.memo(
         })}
         initialValues={{
           outsideHealthFacility: false,
-          timeOfDeath: patient?.dateOfDeath || getCurrentDateTimeString(),
+          timeOfDeath: patient?.dateOfDeath || getCurrentDateTime(),
           clinicianId: deathData?.clinicianId || currentUser.id,
         }}
         formType={FORM_TYPES.CREATE_FORM}
@@ -466,7 +465,6 @@ export const DeathForm = React.memo(
               />
             }
             component={DateField}
-            saveDateAsString
             visibilityCriteria={{ surgeryInLast4Weeks: 'yes' }}
             data-testid="field-lnqy"
           />
@@ -537,7 +535,6 @@ export const DeathForm = React.memo(
               />
             }
             component={DateField}
-            saveDateAsString
             visibilityCriteria={mannerOfDeathVisibilityCriteria}
             data-testid="field-ezni"
           />

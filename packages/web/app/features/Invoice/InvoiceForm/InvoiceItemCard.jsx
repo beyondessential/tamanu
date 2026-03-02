@@ -1,13 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
+import { DateDisplay, TranslatedText } from '@tamanu/ui-components';
 import {
   getInvoiceItemDiscountPriceDisplay,
   getInvoiceItemPriceDisplay,
 } from '@tamanu/shared/utils/invoice';
 import { Colors } from '../../../constants';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { getDateDisplay } from '../../../components/DateDisplay';
 
 const Card = styled(Box)`
   background: white;
@@ -75,7 +74,7 @@ export const InvoiceItemCard = ({ item }) => {
               data-testid="translatedtext-dz71"
             />
           }
-          value={item?.orderDate ? getDateDisplay(item?.orderDate, 'dd/MM/yyyy') : ''}
+          value={item?.orderDate ? <DateDisplay date={item?.orderDate} /> : ''}
           data-testid="carditem-v4wj"
         />
         <CardItem

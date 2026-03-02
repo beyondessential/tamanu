@@ -13,8 +13,8 @@ import { Text } from '../pdf/Text';
 import { PatientDetails } from './printComponents/PatientDetails';
 import { getResultName, getSurveyAnswerRows, separateColorText } from './surveyAnswers';
 import { SurveyResponseDetails } from './printComponents/SurveyResponseDetails';
-import { formatShort } from '@tamanu/utils/dateTime';
 import { getReferenceDataCategoryFromRowConfig } from '../translation/getReferenceDataCategoryFromRowConfig';
+import { withDateTimeContext, useDateTime } from '../pdf/withDateTimeContext';
 import { getReferenceDataOptionStringId, getReferenceDataStringId } from '../translation';
 
 const pageStyles = StyleSheet.create({
@@ -72,7 +72,7 @@ const ResultBox = ({ resultText, resultName }) => (
   </View>
 );
 
-const getAnswers = ({ answer, type, getTranslation, dataElementId, config, originalBody }) => {
+const getAnswers = ({ answer, type, getTranslation, dataElementId, config, originalBody, formatShort }) => {
   const translateOption = option => {
     return getTranslation(
       getReferenceDataOptionStringId(dataElementId, 'programDataElement', option),
@@ -111,7 +111,7 @@ const getAnswers = ({ answer, type, getTranslation, dataElementId, config, origi
   }
 };
 
-const ResponseItem = ({ row, getTranslation }) => {
+const ResponseItem = ({ row, getTranslation, formatShort }) => {
   const { name, answer, type, dataElementId, config, originalBody } = row;
   return (
     <View style={pageStyles.item} wrap={false}>
@@ -126,17 +126,18 @@ const ResponseItem = ({ row, getTranslation }) => {
           dataElementId,
           config,
           originalBody,
+          formatShort,
         })}
       </Text>
     </View>
   );
 };
 
-const ResponsesGroup = ({ rows, getTranslation }) => {
+const ResponsesGroup = ({ rows, getTranslation, formatShort }) => {
   return (
     <View style={pageStyles.groupContainer}>
       {rows.map(row => (
-        <ResponseItem getTranslation={getTranslation} key={row.id} row={row} />
+        <ResponseItem getTranslation={getTranslation} formatShort={formatShort} key={row.id} row={row} />
       ))}
       <View style={pageStyles.boldDivider} />
     </View>
@@ -146,7 +147,6 @@ const ResponsesGroup = ({ rows, getTranslation }) => {
 const SurveyResponsesPrintoutComponent = ({
   patientData,
   certificateData,
-  getLocalisation,
   getTranslation,
   surveyResponse,
   isReferral,
@@ -154,6 +154,7 @@ const SurveyResponsesPrintoutComponent = ({
   currentUser,
   getSetting,
 }) => {
+  const { formatShort } = useDateTime();
   const { watermark, logo } = certificateData;
 
   const surveyAnswerRows = getSurveyAnswerRows(surveyResponse).filter(({ answer }) => answer);
@@ -186,7 +187,6 @@ const SurveyResponsesPrintoutComponent = ({
         />
         <CertificateHeader>
           <LetterheadSection
-            getLocalisation={getLocalisation}
             logoSrc={logo}
             certificateTitle={title}
             certificateSubtitle={surveyResponse.title}
@@ -195,7 +195,6 @@ const SurveyResponsesPrintoutComponent = ({
         </CertificateHeader>
         <SectionSpacing />
         <PatientDetails
-          getLocalisation={getLocalisation}
           patient={patientData}
           getSetting={getSetting}
         />
@@ -211,7 +210,7 @@ const SurveyResponsesPrintoutComponent = ({
         )}
 
         {groupedAnswerRows.map((group, index) => (
-          <ResponsesGroup getTranslation={getTranslation} key={index} rows={group} />
+          <ResponsesGroup getTranslation={getTranslation} formatShort={formatShort} key={index} rows={group} />
         ))}
 
         <Footer printFacility={facility?.name} printedBy={currentUser?.displayName} />
@@ -220,4 +219,6 @@ const SurveyResponsesPrintoutComponent = ({
   );
 };
 
-export const SurveyResponsesPrintout = withLanguageContext(SurveyResponsesPrintoutComponent);
+export const SurveyResponsesPrintout = withLanguageContext(
+  withDateTimeContext(SurveyResponsesPrintoutComponent),
+);

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { DeleteOutlined } from '@material-ui/icons';
-import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
+import { toDateString, toWeekdayCode, trimToDate, trimToTime } from '@tamanu/utils/dateTime';
 
 import { useSuggester } from '../../../api';
 import {
@@ -24,7 +24,7 @@ import {
   LocalisedLocationField,
   SwitchField,
 } from '../../Field';
-import { FormGrid, Form } from '@tamanu/ui-components';
+import { FormGrid, Form, useDateTime } from '@tamanu/ui-components';
 import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import {
@@ -36,12 +36,17 @@ import { TimeSlotPicker } from '../LocationBookingForm/DateTimeRangeField/TimeSl
 import { TIME_SLOT_PICKER_VARIANTS } from '../LocationBookingForm/DateTimeRangeField/constants';
 import { DeleteLocationAssignmentModal } from './DeleteLocationAssignmentModal';
 import { RepeatingFields } from '../RepeatingFields';
-import { add, format, parseISO } from 'date-fns';
+import { add, parseISO } from 'date-fns';
 import {
   getLastFrequencyDate,
   getWeekdayOrdinalPosition,
 } from '@tamanu/utils/appointmentScheduling';
-import { DAYS_OF_WEEK, REPEAT_FREQUENCY, FORM_TYPES, SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants';
+import {
+  DAYS_OF_WEEK,
+  REPEAT_FREQUENCY,
+  FORM_TYPES,
+  SUBMIT_ATTEMPTED_STATUS,
+} from '@tamanu/constants';
 import { isNumber } from 'lodash';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../../contexts/Auth';
@@ -95,6 +100,7 @@ const StyledButton = styled(Button)`
 `;
 
 export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) => {
+  const { getCurrentDate, toStoredDateTime } = useDateTime();
   const { getTranslation } = useTranslation();
   const { updateSelectedCell } = useLocationAssignmentsContext();
   const { getSetting } = useSettings();
@@ -163,20 +169,22 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
     { userId, locationId, date, startTime, endTime, isRepeatingAssignment, schedule },
     { resetForm },
   ) => {
+    const storedStartTime = toStoredDateTime(startTime);
+    const storedEndTime = toStoredDateTime(endTime);
     const payload = {
       id: initialValues.id,
       userId,
       locationId,
-      date,
-      startTime: toDateTimeString(startTime).split(' ')[1],
-      endTime: toDateTimeString(endTime).split(' ')[1],
+      date: trimToDate(storedStartTime) || date,
+      startTime: trimToTime(storedStartTime),
+      endTime: trimToTime(storedEndTime),
     };
     if ((isRepeatingAssignment && !isViewing) || isEditingMultipleRepeatingAssignments) {
       payload.repeatFrequency = schedule.interval;
       payload.repeatUnit = schedule.frequency;
       payload.repeatEndDate = schedule.occurrenceCount
         ? getLastFrequencyDate(
-            date,
+            payload.date,
             schedule.interval,
             schedule.frequency,
             schedule.occurrenceCount,
@@ -398,7 +406,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
         frequency === REPEAT_FREQUENCY.MONTHLY ? getWeekdayOrdinalPosition(startTimeDate) : null,
       );
       // Note: currently supports a single day of the week
-      setFieldValue('schedule.daysOfWeek', [format(startTimeDate, 'iiiiii').toUpperCase()]);
+      setFieldValue('schedule.daysOfWeek', [toWeekdayCode(startTimeDate)]);
 
       // Don't update the until date if occurrence count is set
       if (!values.schedule.occurrenceCount) {
@@ -410,7 +418,8 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
       const { untilDate: initialUntilDate } = initialValues.schedule || {};
       setFieldValue(
         'schedule.untilDate',
-        initialUntilDate || toDateString(add(new Date(), { months: maxFutureMonths })),
+        initialUntilDate ||
+          toDateString(add(parseISO(getCurrentDate()), { months: maxFutureMonths })),
       );
     };
 
@@ -520,10 +529,9 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
               />
             }
             component={DateField}
-            max={format(add(new Date(), { months: 24 }), 'yyyy-MM-dd')}
+            max={toDateString(add(parseISO(getCurrentDate()), { months: 24 }))}
             onChange={handleUpdateDate}
             required
-            saveDateAsString
             disabled={isViewing && !isEditMode}
             data-testid="field-date"
           />
@@ -560,7 +568,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
           {values.isRepeatingAssignment && !hideRepeatingFields && (
             <RepeatingFields
               schedule={values.schedule}
-              startTime={values.date || toDateString(new Date())}
+              startTime={values.date || getCurrentDate()}
               setFieldValue={setFieldValue}
               setFieldError={setFieldError}
               handleResetRepeatUntilDate={handleResetRepeatUntilDate}

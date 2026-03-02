@@ -1,11 +1,9 @@
 import React from 'react';
 import * as yup from 'yup';
-import { endOfDay, format } from 'date-fns';
 import { ENCOUNTER_TYPES, FORM_TYPES } from '@tamanu/constants';
 import { useNavigate } from 'react-router';
 import { Box } from '@material-ui/core';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { getAnswersFromData, Form, FormGrid } from '@tamanu/ui-components';
+import { getAnswersFromData, Form, FormGrid, useDateTime } from '@tamanu/ui-components';
 import { foreignKey } from '../utils/validation';
 import {
   AutocompleteField,
@@ -70,6 +68,7 @@ export const TriageForm = ({
   const navigate = useNavigate();
   const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
+  const { getCurrentDateTime } = useDateTime();
   const triageCategories = getSetting('triageCategories');
   const practitionerSuggester = useSuggester('practitioner');
   const triageReasonSuggester = useSuggester('triageReason');
@@ -87,10 +86,8 @@ export const TriageForm = ({
             />
           }
           component={DateTimeField}
-          // Weird time picker behaviour with date.now(), so using end of day. It will be also validated on submit.
-          max={format(endOfDay(new Date()), `yyyy-MM-dd'T'HH:mm`)}
+          max={getCurrentDateTime()}
           helperText="If different from triage time"
-          saveDateAsString
           data-testid="field-mhav"
         />
         <Field
@@ -103,10 +100,8 @@ export const TriageForm = ({
             />
           }
           required
-          // Weird time picker behaviour with date.now(), so using end of day. It will be also validated on submit.
-          max={format(endOfDay(new Date()), `yyyy-MM-dd'T'HH:mm`)}
+          max={getCurrentDateTime()}
           component={DateTimeField}
-          saveDateAsString
           data-testid="field-9hxy"
         />
         <Field
@@ -216,8 +211,8 @@ export const TriageForm = ({
       const { survey, ...data } = values.vitals;
       updatedVitals = {
         surveyId: survey.id,
-        startTime: getCurrentDateTimeString(),
-        endTime: getCurrentDateTimeString(),
+        startTime: getCurrentDateTime(),
+        endTime: getCurrentDateTime(),
         patientId: patient.id,
         answers: await getAnswersFromData(data, survey),
       };
@@ -230,7 +225,7 @@ export const TriageForm = ({
 
     const newTriage = {
       ...updatedValues,
-      startDate: getCurrentDateTimeString(),
+      startDate: getCurrentDateTime(),
       patientId: patient.id,
       facilityId,
     };
@@ -251,7 +246,7 @@ export const TriageForm = ({
       onSubmit={async data => withExistingEncounterCheck(async () => await onSubmit(data))}
       render={renderForm}
       initialValues={{
-        triageTime: getCurrentDateTimeString(),
+        triageTime: getCurrentDateTime(),
         practitionerId: currentUser.id,
         ...initialValues,
       }}
@@ -260,7 +255,7 @@ export const TriageForm = ({
         arrivalTime: yup
           .date()
           .max(
-            new Date(),
+            getCurrentDateTime(),
             getTranslation(
               'validation.rule.arrivalTimeNotInFuture',
               'Arrival time cannot be in the future',
@@ -270,7 +265,7 @@ export const TriageForm = ({
           .date()
           .required()
           .max(
-            new Date(),
+            getCurrentDateTime(),
             getTranslation(
               'validation.rule.triageTimeNotInFuture',
               'Triage time cannot be in the future',

@@ -1,69 +1,227 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import { PickersDay } from '@mui/x-date-pickers/PickersDay';
+import Popper from '@mui/material/Popper';
+import Button from '@mui/material/Button';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
-import { Box, InputAdornment } from '@material-ui/core';
-import { addDays, isAfter, isBefore, parse } from 'date-fns';
-import { format as formatDate, toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
-import { TextInput } from './TextField';
+import { Box } from '@material-ui/core';
+import { addDays, format as dateFnsFormat, isValid, isSameDay, parse } from 'date-fns';
+
+import { parseDate } from '@tamanu/utils/dateTime';
 import { TAMANU_COLORS } from '../../constants';
 import { DefaultIconButton } from '../Button';
+import { TextInput } from './TextField';
+import { useDateTimeIfAvailable } from '../../contexts/DateTimeContext';
+import { useTranslation } from '../../contexts/TranslationContext';
 
-// This component is pretty tricky! It has to keep track of two layers of state:
-//
-//  - actual date, received from `value` and emitted through `onChange`
-//    this is always in RFC3339 format (which looks like "1996-12-19T16:39:57")
-//
-//  - currently entered date, which might be only partially entered
-//    this is a string in whatever format that has been given to the
-//    component through the `format` prop.
-//
-// As the string formats don't contain timezone information, the RFC3339 dates are
-// always in UTC - leaving it up to the local timezone can introduce some wacky
-// behaviour as the dates get converted back and forth.
-//
-// Care has to be taken with setting the string value, as the native date control
-// has some unusual input handling (switching focus between day/month/year etc) that
-// a value change will interfere with.
+/*
+ * DateInput wraps MUI DatePicker/DateTimePicker/TimePicker.
+ *
+ * Values are strings in, strings out — onChange emits { target: { value, name } }.
+ *
+ * Timezone support (via DateTimeContext):
+ *   - Today highlight, referenceDate and the Today/Now button resolve the current
+ *     date/time in the facility timezone (getFacilityNowDate from context).
+ *   - `useTimezone` (datetime-local only) converts between facility and primary
+ *     timezones on read/write using toFacilityDateTime / toStoredDateTime.
+ *   - Without a DateTimeContext falls back to local time.
+ */
 
-const CustomIconTextInput = styled(TextInput)`
-  input::-webkit-calendar-picker-indicator {
-    display: none;
-    -webkit-appearance: none;
+const DATETIME_LOCAL_FORMAT = "yyyy-MM-dd'T'HH:mm";
+
+const USER_INPUT_FORMATS = ['dd/MM/yyyy hh:mm a', 'dd/MM/yyyy HH:mm', 'dd/MM/yyyy', 'HH:mm'];
+
+// Parses a string value to Date, trying storage formats first (ISO 9075),
+// then user-input display formats (dd/MM/yyyy etc) as a fallback for typed input.
+function parseValue(value, primaryFormat) {
+  if (!value) return null;
+  try {
+    return parseDate(value);
+  } catch {
+    // Not an ISO/storage format — try user-input display formats below
   }
-  input::-webkit-date-and-time-value {
-    text-align: left;
+  const formats = primaryFormat ? [primaryFormat, ...USER_INPUT_FORMATS] : USER_INPUT_FORMATS;
+  for (const fmt of formats) {
+    const date = parse(value, fmt, new Date());
+    if (isValid(date)) return date;
+  }
+  return null;
+}
+
+const StyledPopper = styled(({ popperOptions, ...props }) => (
+  <Popper
+    {...props}
+    placement="top-start"
+    popperOptions={{
+      ...popperOptions,
+      modifiers: [
+        ...(popperOptions?.modifiers || []),
+        {
+          name: 'flip',
+          enabled: true,
+          options: { fallbackPlacements: ['top-start', 'bottom-start'], rootBoundary: 'viewport' },
+        },
+        {
+          name: 'preventOverflow',
+          enabled: true,
+          options: { rootBoundary: 'viewport', altAxis: true, padding: 8 },
+        },
+      ],
+    }}
+  />
+))`
+  z-index: 1500;
+
+  .MuiPickersLayout-contentWrapper {
+    max-height: 300px;
+  }
+
+  .MuiDateCalendar-root {
+    max-height: 300px;
+  }
+
+  .MuiPickersCalendarHeader-root {
+    margin-top: 8px;
+    min-height: unset;
+  }
+
+  .MuiDayCalendar-slideTransition {
+    min-height: 220px;
+  }
+
+  .MuiMultiSectionDigitalClockSection-root {
+    max-height: 310px;
+    scrollbar-width: thin;
+
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 2px;
+    }
+  }
+
+  .MuiMultiSectionDigitalClockSection-root:last-child {
+    max-height: unset;
+    overflow: visible;
+  }
+
+  .MuiMultiSectionDigitalClockSection-item {
+    font-size: 0.85rem;
+    padding: 4px 8px;
+    min-height: unset;
+  }
+
+  .MuiYearCalendar-root {
+    max-height: 240px;
+    width: 270px;
+  }
+
+  .MuiPickersYear-yearButton {
+    font-size: 0.8rem;
+    height: 28px;
+    margin: 2px 0;
+  }
+
+  .MuiPickersYear-yearButton.Mui-selected,
+  .MuiPickersDay-root.Mui-selected,
+  .MuiMultiSectionDigitalClockSection-item.Mui-selected {
+    background-color: #326699 !important;
   }
 `;
 
-const StyledCalendarButton = styled.div`
+const ActionBarContainer = styled.div`
   display: flex;
-  align-items: center;
-  cursor: pointer;
-  padding: 2px;
+  justify-content: flex-end;
+  padding: 4px 8px;
+  gap: 4px;
+
+  .MuiButton-root {
+    font-size: 0.8rem;
+    padding: 4px 10px;
+    min-width: unset;
+    color: ${props => props.theme.palette.primary.main};
+    text-transform: none;
+    font-weight: 500;
+  }
 `;
 
-const CalendarIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path
-      d="M13.125 1.75H11.375V0H8.75V1.75H5.25V0H2.625V1.75H0.875C0.392 1.75 0 2.142 0 2.625V13.125C0 13.608 0.392 14 0.875 14H13.125C13.608 14 14 13.608 14 13.125V2.625C14 2.142 13.608 1.75 13.125 1.75ZM12.25 12.25H1.75V6.125H12.25V12.25Z"
-      fill={TAMANU_COLORS.primary}
-    />
-  </svg>
-);
+const TimezoneActionBar = ({
+  onClear,
+  onSetToday,
+  todayLabel,
+  clearLabel,
+  actions = [],
+  className,
+}) => {
+  if (!actions?.length) return null;
+  return (
+    <ActionBarContainer className={className}>
+      {actions.includes('clear') && (
+        <Button onClick={onClear} size="small">
+          {clearLabel}
+        </Button>
+      )}
+      {actions.includes('today') && (
+        <Button onClick={onSetToday} size="small">
+          {todayLabel}
+        </Button>
+      )}
+    </ActionBarContainer>
+  );
+};
 
-const ClockIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path
-      d="M7 0C3.136 0 0 3.136 0 7s3.136 7 7 7 7-3.136 7-7-3.136-7-7-7zm0 12.6c-3.094 0-5.6-2.506-5.6-5.6S3.906 1.4 7 1.4s5.6 2.506 5.6 5.6-2.506 5.6-5.6 5.6zm.35-9.1H6.3v4.2l3.675 2.205.525-.861-3.15-1.869V3.5z"
-      fill={TAMANU_COLORS.primary}
-    />
-  </svg>
-);
+// Overrides the MUI "today" dot indicator to highlight the facility timezone's
+// today instead of the browser's local date.
+const TimezoneDay = React.memo(({ todayInTimezone, day, ...other }) => {
+  const isToday = !!(day && todayInTimezone && isSameDay(day, todayInTimezone));
+  return <PickersDay {...other} day={day} today={isToday} />;
+});
 
-function fromRFC3339(rfc3339Date, format) {
-  if (!rfc3339Date) return '';
-  return formatDate(rfc3339Date, format);
+// What the user sees in the text field
+const DISPLAY_FORMATS = {
+  date: 'dd/MM/yyyy',
+  'datetime-local': 'dd/MM/yyyy hh:mm a',
+  time: 'hh:mm a',
+};
+
+// What gets emitted via onChange (ISO 9075 compatible for DB storage)
+const OUTPUT_FORMATS = {
+  date: 'yyyy-MM-dd',
+  'datetime-local': 'yyyy-MM-dd HH:mm:ss',
+  time: 'HH:mm:ss',
+};
+
+const ACTION_BAR_ACTIONS = ['today', 'clear'];
+
+const PICKER_SLOTS = {
+  actionBar: TimezoneActionBar,
+  textField: TextInput,
+  popper: StyledPopper,
+  day: TimezoneDay,
+};
+
+const OPEN_PICKER_BUTTON_SX = { padding: '2px', marginRight: '-4px' };
+const OPEN_PICKER_BUTTON_SX_DISABLED = { ...OPEN_PICKER_BUTTON_SX, display: 'none' };
+const OPEN_PICKER_ICON_SX = { fontSize: '1.15rem', color: TAMANU_COLORS.primary };
+const EMPTY_INPUT_PROPS = {};
+
+// Returns a shallowly-stable reference: only changes identity when the object's
+// shallow content changes, preventing useMemo from recomputing when the caller
+// passes a rest-spread object that is always a new reference.
+function useShallowStableValue(value) {
+  const ref = useRef(value);
+  const prev = ref.current;
+  const keys = Object.keys(value);
+  if (keys.length !== Object.keys(prev).length || keys.some(k => value[k] !== prev[k])) {
+    ref.current = value;
+  }
+  return ref.current;
 }
 
 export const DateInput = ({
@@ -72,216 +230,243 @@ export const DateInput = ({
   format = 'yyyy-MM-dd',
   onChange,
   name,
-  max = '9999-12-31',
+  max = '2100-12-31',
   min,
-  saveDateAsString = false,
   arrows = false,
-  inputProps = {},
-  keepIncorrectValue,
+  inputProps = EMPTY_INPUT_PROPS,
+  useTimezone = false,
   disabled,
+  error,
+  helperText,
   ['data-testid']: dataTestId,
   ...props
 }) => {
-  delete props.placeholder;
+  const stableExtraProps = useShallowStableValue(props);
+  const dateTime = useDateTimeIfAvailable();
+  const { getTranslation } = useTranslation();
+  const shouldUseTimezone = useTimezone && type === 'datetime-local' && dateTime != null;
+  const { toFacilityDateTime, toStoredDateTime, getFacilityNowDate } = dateTime ?? {};
 
-  const inputRef = useRef(null);
-  const [currentText, setCurrentText] = useState(fromRFC3339(value, format));
-  const [isPlaceholder, setIsPlaceholder] = useState(!value);
+  // Facility "now" used for today highlight, referenceDate, and the Today/Now button
+  const todayDate = useMemo(() => getFacilityNowDate?.() ?? new Date(), [getFacilityNowDate]);
 
-  const showPickerIcon = type === 'date' || type === 'datetime-local' || type === 'time';
-  const handlePickerClick = useCallback(() => {
-    if (disabled) return;
-    if (inputRef.current?.showPicker) {
-      inputRef.current.showPicker();
-    } else {
-      inputRef.current?.focus();
+  // Convert stored string value → Date for the picker.
+  // With timezone: stored primary TZ → facility TZ → Date.
+  // Without: parse the storage-format string directly.
+  const dateValue = useMemo(() => {
+    if (!value) return null;
+    if (shouldUseTimezone && toFacilityDateTime) {
+      const facilityValue = toFacilityDateTime(value);
+      return facilityValue ? parseValue(facilityValue, DATETIME_LOCAL_FORMAT) : null;
     }
-  }, [disabled]);
+    return parseValue(value, format);
+  }, [value, format, shouldUseTimezone, toFacilityDateTime]);
 
-  const PickerIcon = type === 'time' ? ClockIcon : CalendarIcon;
-  const pickerAdornment = showPickerIcon ? (
-    <InputAdornment position="end">
-      <StyledCalendarButton onClick={handlePickerClick}>
-        <PickerIcon />
-      </StyledCalendarButton>
-    </InputAdornment>
-  ) : undefined;
+  const emitChange = useCallback(
+    val => onChange({ target: { value: val, name } }),
+    [onChange, name],
+  );
 
-  // Weird thing alert:
-  // If the value is cleared, we need to remount the component to reset the input field
-  // because the html date input doesn't know the difference between an empty string and an invalid
-  // date, so if the value is cleared while the user has partially typed a date, the input will
-  // still show the partially typed date
-  const [isRemounting, setIsRemounting] = useState(false);
-  const clearValue = useCallback(() => {
-    onChange({ target: { value: '', name } });
-    setIsRemounting(true);
-    setTimeout(() => setIsRemounting(false), 0);
-    setIsPlaceholder(true);
-  }, [onChange, name]);
-
-  const onValueChange = useCallback(
-    event => {
-      if (event.target.validity?.badInput) {
-        // if the user starts editing the field by typing e.g. a '0' in the month field, until they
-        // type another digit the resulting string is an invalid date
-        // in this case we don't want to save the value to the form, as it would clear the whole
-        // field and interrupt their edit
-        // instead, simply return early, which will mean the last valid date will be kept
-        // (conveniently, this is also what the html date input will display)
-        // however, we -do- still want to change the text colour from the placeholder colour
+  // Reverse of dateValue: Date → storage string.
+  // With timezone: Date → facility TZ string → primary TZ for DB.
+  const handleChange = useCallback(
+    date => {
+      if (!date || !isValid(date)) {
+        emitChange('');
         return;
       }
-
-      const formattedValue = event.target.value;
-      if (!formattedValue) {
-        clearValue();
-        return;
-      }
-      const date = parse(formattedValue, format, new Date());
 
       let outputValue;
-      if (saveDateAsString) {
-        if (type === 'date') {
-          outputValue = toDateString(date);
-        } else if (['time', 'datetime-local'].includes(type)) {
-          outputValue = toDateTimeString(date);
-        }
+      if (shouldUseTimezone && toStoredDateTime) {
+        outputValue = toStoredDateTime(dateFnsFormat(date, DATETIME_LOCAL_FORMAT));
       } else {
-        outputValue = date.toISOString();
+        outputValue = dateFnsFormat(date, OUTPUT_FORMATS[type] || OUTPUT_FORMATS.date);
       }
-      setIsPlaceholder(false);
-      setCurrentText(formattedValue);
-      if (outputValue === 'Invalid date') {
-        clearValue();
+
+      if (!outputValue || outputValue === 'Invalid date') {
+        emitChange('');
         return;
       }
 
-      onChange({ target: { value: outputValue, name } });
+      emitChange(outputValue);
     },
-    [onChange, format, name, saveDateAsString, type, clearValue],
+    [emitChange, type, shouldUseTimezone, toStoredDateTime],
   );
 
-  const onKeyDown = event => {
-    if (event.key === 'Backspace') {
-      clearValue();
-    }
-    // if the user has started typing a date, turn off placeholder styling
-    if (event.key.length === 1 && isPlaceholder) {
-      setIsPlaceholder(false);
-    }
-  };
+  const [open, setOpen] = useState(false);
+  const handleOpen = useCallback(() => setOpen(true), []);
+  const handleClose = useCallback(() => setOpen(false), []);
 
-  const onArrowChange = addDaysAmount => {
-    const date = parse(currentText, format, new Date());
-    const newDate = formatDate(addDays(date, addDaysAmount), format);
+  const handleSetToday = useCallback(() => {
+    handleChange(getFacilityNowDate?.() ?? new Date());
+  }, [handleChange, getFacilityNowDate]);
 
-    onValueChange({ target: { value: newDate } });
-  };
+  const handleClear = useCallback(() => {
+    emitChange('');
+    setOpen(false);
+  }, [emitChange]);
 
-  const handleBlur = e => {
-    // if the final input is invalid, clear the component value
-    if (!e.target.value) {
-      clearValue();
-      setCurrentText('');
-      return;
-    }
+  const displayFormat = DISPLAY_FORMATS[type] || format;
 
-    const date = parse(currentText, format, new Date());
-
-    if (max && !keepIncorrectValue) {
-      const maxDate = parse(max, format, new Date());
-      if (isAfter(date, maxDate)) {
-        clearValue();
-        return;
-      }
-    }
-
-    if (min && !keepIncorrectValue) {
-      const minDate = parse(min, format, new Date());
-      if (isBefore(date, minDate)) {
-        clearValue();
-        return;
-      }
-    }
-  };
-
-  useEffect(() => {
-    const formattedValue = fromRFC3339(value, format);
-    if (value && formattedValue) {
-      setCurrentText(formattedValue);
-      setIsPlaceholder(false);
-    }
-    return () => {
-      setCurrentText('');
-      setIsPlaceholder(true);
-    };
-  }, [value, format]);
-
-  // We create two copies of the DateField component, so that we can have a temporary one visible
-  // during remount (for more on that, see the remounting description at the top of this component)
-  const normalDateField = (
-    <CustomIconTextInput
-      type={type}
-      value={currentText}
-      onChange={onValueChange}
-      onKeyDown={onKeyDown}
-      onBlur={handleBlur}
-      disabled={disabled}
-      InputProps={{
-        inputProps: { max, min, ...inputProps },
-        inputRef,
-        endAdornment: pickerAdornment,
-        'data-testid': `${dataTestId}-input`,
-      }}
-      style={isPlaceholder ? { color: TAMANU_COLORS.softText } : undefined}
-      data-testid={dataTestId}
-      {...props}
-    />
+  // MUI pickers don't always fire onChange for manually typed text, so we
+  // parse + commit on blur to ensure typed values are captured.
+  const handleTextBlur = useCallback(
+    e => {
+      const text = e.target.value?.trim();
+      if (!text) return;
+      const parsed = parseValue(text, displayFormat);
+      if (parsed) handleChange(parsed);
+    },
+    [displayFormat, handleChange],
   );
 
-  const remountingDateField = (
-    <CustomIconTextInput
-      key="remounting"
-      type={type}
-      disabled={disabled}
-      InputProps={{
+  // min/max bounds need the same timezone conversion as the value itself
+  const parseDateBound = useCallback(
+    bound => {
+      if (!bound) return undefined;
+      if (shouldUseTimezone && toFacilityDateTime) {
+        const converted = toFacilityDateTime(bound);
+        if (converted) return parseValue(converted, DATETIME_LOCAL_FORMAT);
+      }
+      return parseValue(bound, format);
+    },
+    [format, shouldUseTimezone, toFacilityDateTime],
+  );
+
+  const maxDate = useMemo(() => parseDateBound(max), [parseDateBound, max]);
+  const minDate = useMemo(() => parseDateBound(min), [parseDateBound, min]);
+
+  const localeText = useMemo(
+    () => ({
+      fieldDayPlaceholder: () => getTranslation('date.placeholder.day', 'dd'),
+      fieldMonthPlaceholder: () => getTranslation('date.placeholder.month', 'mm'),
+      fieldYearPlaceholder: () => getTranslation('date.placeholder.year', 'yyyy'),
+      fieldHoursPlaceholder: () => getTranslation('date.placeholder.hours', '--'),
+      fieldMinutesPlaceholder: () => getTranslation('date.placeholder.minutes', '--'),
+      fieldMeridiemPlaceholder: () => getTranslation('date.placeholder.meridiem', '--'),
+    }),
+    [getTranslation],
+  );
+
+  const slotProps = useMemo(
+    () => ({
+      actionBar: {
+        actions: ACTION_BAR_ACTIONS,
+        onSetToday: handleSetToday,
+        onClear: handleClear,
+        todayLabel:
+          type === 'time'
+            ? getTranslation('date.now', 'Now')
+            : getTranslation('date.today', 'Today'),
+        clearLabel: getTranslation('date.clear', 'Clear'),
+      },
+      textField: {
+        name,
+        'data-testid': dataTestId,
+        error,
+        helperText,
         inputProps,
-        endAdornment: pickerAdornment,
-      }}
-      style={{ color: TAMANU_COLORS.softText }}
-      data-testid={dataTestId}
-      {...props}
-    />
+        onBlur: handleTextBlur,
+        ...stableExtraProps,
+      },
+      day: {
+        todayInTimezone: todayDate,
+      },
+      openPickerButton: {
+        sx: disabled ? OPEN_PICKER_BUTTON_SX_DISABLED : OPEN_PICKER_BUTTON_SX,
+      },
+      openPickerIcon: {
+        sx: OPEN_PICKER_ICON_SX,
+      },
+    }),
+    [
+      handleSetToday,
+      handleClear,
+      type,
+      getTranslation,
+      name,
+      dataTestId,
+      error,
+      helperText,
+      inputProps,
+      handleTextBlur,
+      stableExtraProps,
+      todayDate,
+      disabled,
+    ],
   );
 
-  const activeDateField = isRemounting ? remountingDateField : normalDateField;
+  const commonProps = {
+    value: dateValue,
+    onChange: handleChange,
+    open,
+    onOpen: handleOpen,
+    onClose: handleClose,
+    referenceDate: todayDate,
+    format: displayFormat,
+    disabled,
+    localeText,
+    slots: PICKER_SLOTS,
+    slotProps,
+  };
 
-  const ContainerWithArrows = ({ children }) => (
-    <Box display="flex" alignContent="center" data-testid="box-13xp">
-      <DefaultIconButton onClick={() => onArrowChange(-1)} data-testid="defaulticonbutton-1fiy">
-        <KeyboardArrowLeftIcon data-testid="keyboardarrowlefticon-fn4i" />
-      </DefaultIconButton>
-      {children}
-      <DefaultIconButton onClick={() => onArrowChange(1)} data-testid="defaulticonbutton-rmeh">
-        <KeyboardArrowRightIcon data-testid="keyboardarrowrighticon-9tyl" />
-      </DefaultIconButton>
-    </Box>
-  );
+  let picker;
+  switch (type) {
+    case 'time':
+      picker = <TimePicker {...commonProps} timeSteps={{ minutes: 1 }} />;
+      break;
+    case 'datetime-local':
+      picker = (
+        <DateTimePicker
+          {...commonProps}
+          maxDateTime={maxDate}
+          minDateTime={minDate}
+          timeSteps={{ minutes: 1 }}
+        />
+      );
+      break;
+    default:
+      picker = <DatePicker {...commonProps} maxDate={maxDate} minDate={minDate} />;
+      break;
+  }
 
-  return arrows ? (
-    <ContainerWithArrows data-testid="containerwitharrows-nuzt">
-      {activeDateField}
-    </ContainerWithArrows>
-  ) : (
-    activeDateField
-  );
+  if (arrows) {
+    return (
+      <Box display="flex" alignContent="center" data-testid="box-13xp">
+        <DefaultIconButton
+          onClick={() => handleChange(addDays(dateValue || todayDate, -1))}
+          disabled={disabled}
+          data-testid="defaulticonbutton-1fiy"
+        >
+          <KeyboardArrowLeftIcon data-testid="keyboardarrowlefticon-fn4i" />
+        </DefaultIconButton>
+        {picker}
+        <DefaultIconButton
+          onClick={() => handleChange(addDays(dateValue || todayDate, 1))}
+          disabled={disabled}
+          data-testid="defaulticonbutton-rmeh"
+        >
+          <KeyboardArrowRightIcon data-testid="keyboardarrowrighticon-9tyl" />
+        </DefaultIconButton>
+      </Box>
+    );
+  }
+
+  return picker;
 };
 
 export const TimeInput = props => <DateInput type="time" format="HH:mm" {...props} />;
 
-export const DateTimeInput = props => (
-  <DateInput type="datetime-local" format="yyyy-MM-dd'T'HH:mm" max="9999-12-31T00:00" {...props} />
+export const DateTimeInput = ({ useTimezone = true, ...props }) => (
+  <DateInput
+    type="datetime-local"
+    format={DATETIME_LOCAL_FORMAT}
+    // Stop mui rendering ~8000 year buttons if the user clicks the year picker, the user can still enter a date beyond that
+    maxDate="2100-12-31T00:00"
+    max="9999-12-31T00:00"
+    useTimezone={useTimezone}
+    {...props}
+  />
 );
 
 export const DateField = ({ field, ...props }) => (

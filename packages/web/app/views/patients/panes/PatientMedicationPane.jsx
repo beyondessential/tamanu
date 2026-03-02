@@ -7,10 +7,11 @@ import {
   TranslatedText,
   TranslatedReferenceData,
   TranslatedEnum,
+  DateDisplay,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { PATIENT_STATUS_COLORS } from '../../../constants';
-import { DateDisplay, formatShortest } from '../../../components/DateDisplay';
 import { DataFetchingTable } from '../../../components/Table';
 
 import { usePatientCurrentEncounterQuery, useFacilityQuery } from '../../../api/queries';
@@ -34,6 +35,7 @@ import { getMedicationLabelData, getTranslatedMedicationName } from '../../../ut
 import { useApi } from '../../../api';
 import { SendToPharmacyIcon } from '../../../assets/icons/SendToPharmacyIcon';
 import { useSettings } from '../../../contexts/Settings';
+import { trimToDate } from '@tamanu/utils/dateTime';
 
 const NotifyBanner = styled(Box)`
   padding: 13px 22px;
@@ -252,7 +254,9 @@ const ONGOING_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
     key: 'date',
     title: <TranslatedText stringId="patient.medication.table.column.date" fallback="Date" />,
     accessor: data => (
-      <CellText discontinued={data?.discontinued}>{`${formatShortest(data.date)}`}</CellText>
+      <CellText discontinued={data?.discontinued}>
+        <DateDisplay date={trimToDate(data.date)} format="shortest" />
+      </CellText>
     ),
     sortable: true,
   },
@@ -389,6 +393,7 @@ export const PatientMedicationPane = ({ patient }) => {
   const patientStatus = getPatientStatus(currentEncounter?.encounterType);
 
   const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
+  const { getCurrentDateTime } = useDateTime();
 
   const [ongoingPrescriptions, setOngoingPrescriptions] = useState([]);
   const [dispensedMedications, setDispensedMedications] = useState([]);
@@ -479,11 +484,16 @@ export const PatientMedicationPane = ({ patient }) => {
         },
       ];
 
-      const labelData = getMedicationLabelData({ items: labelItems, patient, facility });
+      const labelData = getMedicationLabelData({
+        items: labelItems,
+        patient,
+        facility,
+        currentDateTime: getCurrentDateTime(),
+      });
       setSelectedLabelData(labelData);
       setPrintModalOpen(true);
     },
-    [patient, facility, getReferenceDataTranslation],
+    [patient, facility, getReferenceDataTranslation, getCurrentDateTime],
   );
 
   const handleEdit = useCallback(dispense => {
@@ -523,14 +533,8 @@ export const PatientMedicationPane = ({ patient }) => {
 
   const handleDispensedMedicationClick = useCallback(
     (_, dispenseData) => {
-      const {
-        id,
-        pharmacyOrderPrescription,
-        quantity,
-        instructions,
-        dispensedAt,
-        dispensedBy,
-      } = dispenseData;
+      const { id, pharmacyOrderPrescription, quantity, instructions, dispensedAt, dispensedBy } =
+        dispenseData;
       const mappedItem = {
         id,
         displayId: pharmacyOrderPrescription?.displayId,
