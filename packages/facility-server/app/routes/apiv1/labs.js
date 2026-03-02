@@ -478,11 +478,17 @@ labRelations.put(
       req.checkPermission('write', 'SensitiveLabRequest');
     }
 
-    // If any of the tests have a different result, check for LabTestResult permission
+    // If any of the tests have a different result or secondaryResult, check for LabTestResult permission
     const labTestObj = keyBy(labTestRecords, 'id');
     if (
       Object.entries(labTests).some(
-        ([testId, testBody]) => testBody.result && labTestObj[testId] && testBody.result !== labTestObj[testId].result,
+        ([testId, testBody]) => {
+          const existingTest = labTestObj[testId];
+          if (!existingTest) return false;
+          const resultChanged = testBody.result && testBody.result !== existingTest.result;
+          const secondaryResultChanged = testBody.secondaryResult && testBody.secondaryResult !== existingTest.secondaryResult;
+          return resultChanged || secondaryResultChanged;
+        },
       )
     ) {
       req.checkPermission('write', 'LabTestResult');

@@ -16,7 +16,7 @@ const ModalBody = styled.div`
   background-color: ${Colors.white};
   border: 1px solid ${Colors.outline};
   border-radius: 5px;
-  padding: 20px 30px 0px;
+  padding: 20px 30px;
   margin: 20px 0px 40px;
 `;
 const ModalHeader = styled.div`
@@ -27,11 +27,12 @@ const ModalHeader = styled.div`
 
 const VerticalDivider = styled.div`
   border-left: 1px solid ${Colors.outline};
-  height: 60%;
 `;
 
-const ValueContainer = styled.div`
-  margin-bottom: 20px;
+const Column = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 `;
 const TitleLabel = styled(BodyText)`
   color: ${Colors.midText};
@@ -41,10 +42,10 @@ const ValueLabel = styled(BodyText)`
 `;
 
 const ValueDisplay = ({ title, value }) => (
-  <ValueContainer data-testid="valuecontainer-re0h">
+  <div>
     <TitleLabel data-testid="titlelabel-j7eo">{title}</TitleLabel>
     <ValueLabel data-testid="valuelabel-mwpw">{value || '-'}</ValueLabel>
-  </ValueContainer>
+  </div>
 );
 
 export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
@@ -69,7 +70,7 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
       data-testid="modal-zwic"
     >
       <ModalBody data-testid="modalbody-bzy6">
-        <div>
+        <Column>
           <ValueDisplay
             title={
               <TranslatedText
@@ -103,9 +104,22 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
             value={labTest?.verification}
             data-testid="valuedisplay-9a0t"
           />
-        </div>
+        </Column>
         <VerticalDivider data-testid="verticaldivider-n6md" />
-        <div>
+        <Column>
+          {labTest?.labTestType?.supportsSecondaryResults && (
+            <ValueDisplay
+              title={
+                <TranslatedText
+                  stringId="lab.modal.testResult.value.secondaryResult"
+                  fallback="Secondary result"
+                  data-testid="translatedtext-secondary-result"
+                />
+              }
+              value={labTest?.secondaryResult}
+              data-testid="valuedisplay-secondary-result"
+            />
+          )}
           <ValueDisplay
             title={
               <TranslatedText
@@ -137,7 +151,7 @@ export const LabTestResultModal = React.memo(({ open, onClose, labTestId }) => {
             }
             data-testid="valuedisplay-op8r"
           />
-        </div>
+        </Column>
       </ModalBody>
       <ModalActionRow
         confirmText={
