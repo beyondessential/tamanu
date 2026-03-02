@@ -1,10 +1,15 @@
 import { beforeAll, describe, it } from '@jest/globals';
+import { Op } from 'sequelize';
 import { fake } from '@tamanu/fake-data/fake';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { subMinutes } from 'date-fns';
 
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
+
 import { createTestContext } from '../utilities';
 import { DEVICE_SCOPES, SERVER_TYPES } from '@tamanu/constants';
+
+const MAX_CONCURRENT_SESSIONS = 1;
 
 [true, false].map(withDeviceIdInBody =>
   describe(`SyncQueuedDevice${withDeviceIdInBody ? ' (with legacy device ID in sync request body)' : ''}`, () => {
@@ -23,6 +28,12 @@ import { DEVICE_SCOPES, SERVER_TYPES } from '@tamanu/constants';
     };
 
     const requestSync = async (device, lastSyncedTick = 0, urgent = false) => {
+      const result = await requestSyncUnchecked(device, lastSyncedTick, urgent);
+      expect(result).toHaveSucceeded();
+      return result;
+    };
+
+    const requestSyncUnchecked = async (device, lastSyncedTick = 0, urgent = false) => {
       const response = await baseApp
         .post('/api/login')
         .set('X-Tamanu-Client', SERVER_TYPES.MOBILE)
@@ -33,7 +44,7 @@ import { DEVICE_SCOPES, SERVER_TYPES } from '@tamanu/constants';
           scopes: [DEVICE_SCOPES.SYNC_CLIENT],
         });
 
-      const result = await baseApp
+      return baseApp
         .post('/api/sync')
         .set('Authorization', `Bearer ${response.body.token}`)
         .set('X-Tamanu-Client', SERVER_TYPES.MOBILE)
@@ -43,8 +54,6 @@ import { DEVICE_SCOPES, SERVER_TYPES } from '@tamanu/constants';
           lastSyncedTick,
           urgent,
         });
-      expect(result).toHaveSucceeded();
-      return result;
     };
 
     beforeAll(async () => {
@@ -75,7 +84,7 @@ import { DEVICE_SCOPES, SERVER_TYPES } from '@tamanu/constants';
       CentralSyncManager.overrideConfig({
         sync: {
           awaitPreparation: true,
-          maxConcurrentSessions: 1,
+          maxConcurrentSessions: MAX_CONCURRENT_SESSIONS,
           maxRecordsPerSnapshotChunk: 1000000000,
           lookupTable: {
             enabled: true,
@@ -200,6 +209,38 @@ import { DEVICE_SCOPES, SERVER_TYPES } from '@tamanu/constants';
       const started = await requestSync('B', 200);
       expect(started.body).toHaveProperty('status', 'goodToGo');
       expect(started.body).toHaveProperty('sessionId');
+    });
+
+    it('Should prevent exceeding maxConcurrentSessions when many syncs are requested at once', async () => {
+      const sessions = ['A', 'B', 'C'];
+      const originalGenerateDbUuid = models.SyncSession.generateDbUuid.bind(models.SyncSession);
+      const generateDbUuidSpy = jest
+        .spyOn(models.SyncSession, 'generateDbUuid')
+        .mockImplementation(async () => {
+          await sleepAsync(2000);
+          return originalGenerateDbUuid();
+        });
+      try {
+        const results = await Promise.all(
+          sessions.map(async (device, index) => {
+            await sleepAsync(index * 500);
+            return requestSyncUnchecked(device);
+          }),
+        );
+
+        const goodToGoCount = results.filter(r => r.body?.status === 'goodToGo').length;
+        expect(goodToGoCount).toEqual(MAX_CONCURRENT_SESSIONS);
+
+        const activeCount = await models.SyncSession.count({
+          where: {
+            completedAt: { [Op.is]: null },
+            errors: { [Op.is]: null },
+          },
+        });
+        expect(activeCount).toEqual(MAX_CONCURRENT_SESSIONS);
+      } finally {
+        generateDbUuidSpy.mockRestore();
+      }
     });
   }),
 );
