@@ -154,7 +154,7 @@ describe('Create DiagnosticReport', () => {
         } else if (body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.FINAL) {
           expectedLabRequestStatus = LAB_REQUEST_STATUSES.VERIFIED;
         } else if (body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.CANCELLED) {
-          expectedLabRequestStatus = LAB_REQUEST_STATUSES.CANCELLED;
+          expectedLabRequestStatus = LAB_REQUEST_STATUSES.REJECTED;
         } else if (body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.AMENDED._) {
           expectedLabRequestStatus = LAB_REQUEST_STATUSES.INVALIDATED;
         } else if (body.status === FHIR_DIAGNOSTIC_REPORT_STATUS.ENTERED_IN_ERROR) {
