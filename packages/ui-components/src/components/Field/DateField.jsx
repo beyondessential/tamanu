@@ -166,6 +166,20 @@ export const DateInput = ({
     if (event.key === 'Backspace') {
       clearValue();
     }
+    // Handle 'c' key to populate current date/time
+    // Only trigger if no modifier keys are pressed (to avoid conflicts with Ctrl+C/Cmd+C for copy)
+    if (
+      (event.key === 'c' || event.key === 'C') &&
+      !event.ctrlKey &&
+      !event.metaKey &&
+      !event.altKey
+    ) {
+      event.preventDefault();
+      const now = new Date();
+      const formattedValue = formatDate(now, format);
+      onValueChange({ target: { value: formattedValue, name } });
+      return;
+    }
     // if the user has started typing a date, turn off placeholder styling
     if (event.key.length === 1 && isPlaceholder) {
       setIsPlaceholder(false);
