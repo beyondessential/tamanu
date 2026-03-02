@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useMemo } from 'react';
 import { useNavigation } from '@react-navigation/core';
 import { subject } from '@casl/ability';
 
@@ -25,15 +25,19 @@ export const ProgramRegistrySection = (): ReactElement => {
   const { ability } = useAuth();
   const { getTranslation } = useTranslation();
 
-  const ProgramRegistrySuggester = new Suggester({
-    model: models.ProgramRegistry,
-    options: {
-      where: {
-        visibilityStatus: VisibilityStatus.Current,
-      },
-    },
-    filter: ({ entity_id }) => ability.can('read', subject('ProgramRegistry', { id: entity_id })),
-  });
+  const ProgramRegistrySuggester = useMemo(
+    () =>
+      new Suggester({
+        model: models.ProgramRegistry,
+        options: {
+          where: {
+            visibilityStatus: VisibilityStatus.Current,
+          },
+        },
+        filter: ({ entity_id }) => ability.can('read', subject('ProgramRegistry', { id: entity_id })),
+      }),
+    [models.ProgramRegistry, ability],
+  );
 
   const [programRegistries, programRegistryError, isProgramRegistryLoading] = useBackendEffect(
     async ({ models }) => {
