@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, QueryTypes, Op } from 'sequelize';
-import { snakeCase, keyBy } from 'lodash';
+import { snakeCase, keyBy, isNil } from 'lodash';
 
 import {
   createPatientSchema,
@@ -516,19 +516,43 @@ patientRoute.get(
 
     const { models, params, query, db } = req;
     const patientId = params.id;
-    const { PatientOngoingPrescription, Prescription } = models;
+    const { PatientOngoingPrescription, Prescription, User } = models;
     const { order = 'ASC', orderBy = 'medication.name', page, rowsPerPage, facilityId } = query;
+    const parsedPage = isNil(page) ? undefined : parseInt(page) || 0;
+    const parsedRowsPerPage = isNil(rowsPerPage) ? undefined : parseInt(rowsPerPage) || 10;
 
-    const medicationFilter = {};
     const canListSensitiveMedication = req.ability.can('list', 'SensitiveMedication');
-    if (!canListSensitiveMedication) {
-      medicationFilter['$medication.referenceDrug.is_sensitive$'] = false;
-    }
+
+    // When filtering by sensitive we LEFT JOIN referenceDrug and only exclude prescriptions that
+    // have a referenceDrug record with is_sensitive = true (include when null or false).
+    const filterSensitiveByInclude = !canListSensitiveMedication;
+    const referenceDrugInclude = {
+      model: models.ReferenceDrug,
+      as: 'referenceDrug',
+      attributes: ['referenceDataId', 'isSensitive'],
+      required: false,
+      include: facilityId
+        ? [
+            {
+              model: models.ReferenceDrugFacility,
+              as: 'facilities',
+              where: { facilityId },
+              required: false,
+            },
+          ]
+        : [],
+    };
 
     const baseQuery = {
-      where: medicationFilter,
       include: [
-        ...Prescription.getListReferenceAssociations(),
+        {
+          model: User,
+          as: 'prescriber',
+        },
+        {
+          model: User,
+          as: 'discontinuingClinician',
+        },
         {
           model: PatientOngoingPrescription,
           as: 'patientOngoingPrescription',
@@ -537,47 +561,51 @@ patientRoute.get(
         {
           model: models.ReferenceData,
           as: 'medication',
-          include: {
-            model: models.ReferenceDrug,
-            as: 'referenceDrug',
-            attributes: ['referenceDataId', 'isSensitive'],
-            include: facilityId
-              ? [
-                  {
-                    model: models.ReferenceDrugFacility,
-                    as: 'facilities',
-                    where: { facilityId },
-                    required: false,
-                  },
-                ]
-              : [],
-          },
+          required: true,
+          include: referenceDrugInclude,
         },
       ],
     };
 
+    if (filterSensitiveByInclude) {
+      baseQuery.where = {
+        [Op.or]: [
+          { '$medication.referenceDrug.id$': null },
+          { '$medication.referenceDrug.is_sensitive$': false },
+        ],
+      };
+    }
+
+    const orderClause = [
+      [
+        literal('CASE WHEN "discontinued" IS NULL OR "discontinued" = false THEN 1 ELSE 0 END'),
+        'DESC',
+      ],
+      orderBy === 'route'
+        ? [
+            literal(
+              `CASE "Prescription"."route" ${Object.entries(DRUG_ROUTE_LABELS)
+                .map(([value, label]) => `WHEN '${value}' THEN '${label.replace(/'/g, "''")}'`)
+                .join(' ')} ELSE "Prescription"."route" END`,
+            ),
+            order.toUpperCase(),
+          ]
+        : [...orderBy.split('.'), order.toUpperCase()],
+    ];
+
+    const hasLimitOffset = !isNil(parsedPage) && !isNil(parsedRowsPerPage);
+
+    // When we have both limit/offset and a sensitive filter, use subQuery: false so the filter and
+    // joins stay in the same query instead of being pushed into a subquery where those tables
+    // aren't in the FROM clause.
     const ongoingPrescriptions = await Prescription.findAll({
       ...baseQuery,
-      order: [
-        [
-          literal('CASE WHEN "discontinued" IS NULL OR "discontinued" = false THEN 1 ELSE 0 END'),
-          'DESC',
-        ],
-        orderBy === 'route'
-          ? [
-              literal(
-                `CASE "Prescription"."route" ${Object.entries(DRUG_ROUTE_LABELS)
-                  .map(([value, label]) => `WHEN '${value}' THEN '${label.replace(/'/g, "''")}'`)
-                  .join(' ')} ELSE "Prescription"."route" END`,
-              ),
-              order.toUpperCase(),
-            ]
-          : [...orderBy.split('.'), order.toUpperCase()],
-      ],
-      ...(page && rowsPerPage
+      order: orderClause,
+      ...(hasLimitOffset
         ? {
-            limit: rowsPerPage,
-            offset: page * rowsPerPage,
+            limit: parsedRowsPerPage,
+            offset: parsedPage * parsedRowsPerPage,
+            ...(filterSensitiveByInclude && { subQuery: false }),
           }
         : {}),
     });
@@ -586,7 +614,19 @@ patientRoute.get(
       ...baseQuery,
     });
 
-    let responseData = ongoingPrescriptions.map(p => p.forResponse());
+    let responseData = ongoingPrescriptions.map(p => {
+      const item = p.forResponse();
+      if (facilityId) {
+        const facilityRecord = p.medication?.referenceDrug?.facilities?.[0];
+        if (facilityRecord) {
+          item.referenceDrugFacility =
+            typeof facilityRecord.forResponse === 'function'
+              ? facilityRecord.forResponse()
+              : facilityRecord.dataValues;
+        }
+      }
+      return item;
+    });
     if (responseData.length > 0) {
       const ongoingPrescriptionIds = responseData.map(p => p.id);
 
