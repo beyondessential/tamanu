@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { omit } from 'lodash';
+import { isNil } from 'lodash';
 import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
 
 import { Colors } from '../../constants';
@@ -59,35 +59,36 @@ const FilterGrid = styled.div`
 export const DashboardTaskPane = React.memo(() => {
   const { facilityId } = useAuth();
   const userPreferencesMutation = useUserPreferencesMutation(facilityId);
-  const { data: userPreferences } = useUserPreferencesQuery();
+  const { data: userPreferences, isLoading: isLoadingUserPreferences } = useUserPreferencesQuery();
   const clinicianDashboardTaskingTableFilter =
     userPreferences?.clinicianDashboardTaskingTableFilter || {};
 
-  const onLocationIdChange = (e) => {
-    const { value } = e.target;
-
-    const newParams = value
-      ? { ...clinicianDashboardTaskingTableFilter, locationId: value }
-      : omit(clinicianDashboardTaskingTableFilter, 'locationId');
-
+  const updatePreferences = updates => {
     userPreferencesMutation.mutate({
       key: USER_PREFERENCES_KEYS.CLINICIAN_DASHBOARD_TASKING_TABLE_FILTER,
-      value: newParams,
+      value: { ...clinicianDashboardTaskingTableFilter, ...updates },
     });
   };
 
-  const onHighPriorityOnlyChange = (e) => {
+  const onLocationGroupChange = groupId => {
+    updatePreferences({ locationGroupId: groupId || undefined });
+  };
+
+  const onLocationIdChange = e => {
+    const { value, groupValue } = e.target;
+    const updates = { locationId: value || undefined };
+    if (!isNil(groupValue)) {
+      updates.locationGroupId = groupValue;
+    }
+    updatePreferences(updates);
+  };
+
+  const onHighPriorityOnlyChange = e => {
     const { checked } = e.target;
-
-    const newParams = checked
-      ? { ...clinicianDashboardTaskingTableFilter, highPriority: checked }
-      : omit(clinicianDashboardTaskingTableFilter, 'highPriority');
-
-    userPreferencesMutation.mutate({
-      key: USER_PREFERENCES_KEYS.CLINICIAN_DASHBOARD_TASKING_TABLE_FILTER,
-      value: newParams,
-    });
+    updatePreferences({ highPriority: checked ? true : undefined });
   };
+
+  if (isLoadingUserPreferences) return null;
 
   return (
     <TabPane data-testid="tabpane-s00l">
@@ -103,6 +104,7 @@ export const DashboardTaskPane = React.memo(() => {
           <FilterGrid data-testid="filtergrid-t0gc">
             <LocationInput
               name="locationId"
+              onGroupChange={onLocationGroupChange}
               onChange={onLocationIdChange}
               size="small"
               label={
@@ -120,6 +122,7 @@ export const DashboardTaskPane = React.memo(() => {
                 />
               }
               value={clinicianDashboardTaskingTableFilter.locationId}
+              groupValue={clinicianDashboardTaskingTableFilter.locationGroupId}
               autofill={false}
               isMulti={true}
               data-testid="locationinput-aabz"
