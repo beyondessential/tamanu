@@ -1,4 +1,4 @@
-import { Op, DataTypes } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
 import { Model } from './Model';
@@ -143,32 +143,4 @@ export class AdministeredVaccine extends Model {
     return buildEncounterLinkedLookupFilter(this);
   }
 
-  static async lastVaccinationForPatient(patientId: string, vaccineIds: string[] = []) {
-    const query: Record<string, any> = {
-      where: {
-        '$encounter.patient_id$': patientId,
-        status: 'GIVEN',
-      },
-      order: [['date', 'DESC']],
-      include: [
-        {
-          model: Encounter,
-          as: 'encounter',
-        },
-      ],
-    };
-
-    if (vaccineIds.length) {
-      query.where['$scheduledVaccine.vaccine_id$'] = {
-        [Op.in]: vaccineIds,
-      };
-
-      query.include.push({
-        model: ScheduledVaccine,
-        as: 'scheduledVaccine',
-      });
-    }
-
-    return AdministeredVaccine.findOne(query);
-  }
 }

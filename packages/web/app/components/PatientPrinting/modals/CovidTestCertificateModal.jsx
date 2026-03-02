@@ -36,7 +36,6 @@ export const CovidTestCertificateModal = React.memo(({ patient }) => {
     (data) =>
       api.post('certificateNotification', {
         type: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON,
-        requireSigning: false,
         patientId: patient.id,
         forwardAddress: data.email,
         createdBy: printedBy,

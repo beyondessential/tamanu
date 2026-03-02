@@ -63,7 +63,6 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
     data =>
       api.post('certificateNotification', {
         type: VACCINATION_CERTIFICATE,
-        requireSigning: false,
         patientId: patient.id,
         forwardAddress: data.email,
         facilityName: facility.name,
