@@ -879,6 +879,184 @@ describe('Suggestions', () => {
       ];
       expect(returnedIds).toEqual(expectedIds);
     });
+
+    it('should sort results alphabetically when filtering by parentId', async () => {
+      const parentDivision = await models.ReferenceData.create({
+        id: 'sort-test-parent-division',
+        code: 'SORT_PARENT_DIV',
+        type: 'division',
+        name: 'Sort Test Parent Division',
+        visibilityStatus: 'current',
+      });
+
+      // Create subdivisions with names that would be out of order if not sorted
+      const subdivisionNames = ['Zebra District', 'Alpha District', 'Mike District', 'Charlie District'];
+      for (const name of subdivisionNames) {
+        const subdivision = await models.ReferenceData.create({
+          id: `sort-test-${name.toLowerCase().replace(' ', '-')}`,
+          code: `SORT_${name.toUpperCase().replace(' ', '_')}`,
+          type: 'subdivision',
+          name,
+          visibilityStatus: 'current',
+        });
+
+        await models.ReferenceDataRelation.create({
+          referenceDataId: subdivision.id,
+          referenceDataParentId: parentDivision.id,
+          type: 'address_hierarchy',
+        });
+      }
+
+      const result = await userApp.get(
+        `/api/suggestions/subdivision?parentId=${parentDivision.id}&language=en`,
+      );
+      expect(result).toHaveSucceeded();
+
+      const { body } = result;
+      expect(body).toBeInstanceOf(Array);
+      expect(body.length).toBe(4);
+
+      // Results should be sorted alphabetically
+      const returnedNames = body.map(item => item.name);
+      const expectedOrder = ['Alpha District', 'Charlie District', 'Mike District', 'Zebra District'];
+      expect(returnedNames).toEqual(expectedOrder);
+    });
+
+    it('should sort translated results alphabetically when filtering by parentId', async () => {
+      const { TranslatedString } = models;
+
+      const parentDivision = await models.ReferenceData.create({
+        id: 'trans-sort-parent-division',
+        code: 'TRANS_SORT_PARENT_DIV',
+        type: 'division',
+        name: 'Trans Sort Parent Division',
+        visibilityStatus: 'current',
+      });
+
+      // Create subdivisions with original names, then translate them out of order
+      const subdivisions = [
+        { id: 'trans-sub-1', name: 'Original AAA', translation: 'Zulu Translation' },
+        { id: 'trans-sub-2', name: 'Original BBB', translation: 'Alpha Translation' },
+        { id: 'trans-sub-3', name: 'Original CCC', translation: 'Mike Translation' },
+      ];
+
+      for (const sub of subdivisions) {
+        const subdivision = await models.ReferenceData.create({
+          id: sub.id,
+          code: sub.id.toUpperCase(),
+          type: 'subdivision',
+          name: sub.name,
+          visibilityStatus: 'current',
+        });
+
+        await models.ReferenceDataRelation.create({
+          referenceDataId: subdivision.id,
+          referenceDataParentId: parentDivision.id,
+          type: 'address_hierarchy',
+        });
+
+        await TranslatedString.create({
+          stringId: `refData.subdivision.${sub.id}`,
+          text: sub.translation,
+          language: 'en',
+        });
+      }
+
+      const result = await userApp.get(
+        `/api/suggestions/subdivision?parentId=${parentDivision.id}&language=en`,
+      );
+      expect(result).toHaveSucceeded();
+
+      const { body } = result;
+      expect(body).toBeInstanceOf(Array);
+      expect(body.length).toBe(3);
+
+      // Results should be sorted by translated name
+      const returnedNames = body.map(item => item.name);
+      const expectedOrder = ['Alpha Translation', 'Mike Translation', 'Zulu Translation'];
+      expect(returnedNames).toEqual(expectedOrder);
+    });
+  });
+
+  describe('Medication sets', () => {
+    it('should return medication sets sorted alphabetically with complex includes', async () => {
+      const { ReferenceData, ReferenceDataRelation, ReferenceMedicationTemplate } = models;
+
+      // Create medication set reference data
+      const medicationSet1 = await ReferenceData.create({
+        id: 'test-med-set-zebra',
+        code: 'MED_SET_ZEBRA',
+        type: 'medicationSet',
+        name: 'Zebra Medication Set',
+        visibilityStatus: 'current',
+      });
+
+      const medicationSet2 = await ReferenceData.create({
+        id: 'test-med-set-alpha',
+        code: 'MED_SET_ALPHA',
+        type: 'medicationSet',
+        name: 'Alpha Medication Set',
+        visibilityStatus: 'current',
+      });
+
+      const medicationSet3 = await ReferenceData.create({
+        id: 'test-med-set-mike',
+        code: 'MED_SET_MIKE',
+        type: 'medicationSet',
+        name: 'Mike Medication Set',
+        visibilityStatus: 'current',
+      });
+
+      // Create a drug for the medication templates
+      const drug = await ReferenceData.create({
+        id: 'test-drug-for-set',
+        code: 'DRUG_FOR_SET',
+        type: 'drug',
+        name: 'Test Drug',
+        visibilityStatus: 'current',
+      });
+
+      // Create medication templates and relations for each set
+      for (const medSet of [medicationSet1, medicationSet2, medicationSet3]) {
+        const templateRef = await ReferenceData.create({
+          id: `template-ref-${medSet.id}`,
+          code: `TEMPLATE_${medSet.code}`,
+          type: 'medicationTemplate',
+          name: `Template for ${medSet.name}`,
+          visibilityStatus: 'current',
+        });
+
+        await ReferenceMedicationTemplate.create({
+          referenceDataId: templateRef.id,
+          medicationId: drug.id,
+          units: 'mg',
+          frequency: 'daily',
+          route: 'oral',
+        });
+
+        await ReferenceDataRelation.create({
+          referenceDataId: templateRef.id,
+          referenceDataParentId: medSet.id,
+          type: 'medication',
+        });
+      }
+
+      const result = await userApp.get('/api/suggestions/medicationSet?language=en');
+      expect(result).toHaveSucceeded();
+
+      const { body } = result;
+      const testSetResults = body.filter(item => item.id.startsWith('test-med-set-'));
+
+      expect(testSetResults.length).toBe(3);
+
+      // Results should be sorted alphabetically despite complex joins
+      const returnedNames = testSetResults.map(item => item.name);
+      expect(returnedNames).toEqual([
+        'Alpha Medication Set',
+        'Mike Medication Set',
+        'Zebra Medication Set',
+      ]);
+    });
   });
 
   it('should respect visibility status', async () => {
