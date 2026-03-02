@@ -419,7 +419,9 @@ patientRelations.get(
     JSONB_OBJECT_AGG(
       lab_requests.sample_time, JSONB_BUILD_OBJECT(
         'result', lab_tests.result,
-        'id', lab_tests.id
+        'id', lab_tests.id,
+        'referenceRangeMin', lab_tests.reference_range_min,
+        'referenceRangeMax', lab_tests.reference_range_max
       )
     ) AS results
     ${panelId ? ', panel_join."order" AS panel_order' : ''}
