@@ -55,12 +55,18 @@ export async function up(query: QueryInterface): Promise<void> {
 }
 
 export async function down(query: QueryInterface): Promise<void> {
-  // DESTRUCTIVE: Cannot restore original UUID ids or logs.changes record_id values
+  // Revert to primary key on id. Id stays TEXT (existing deterministic values unchanged); default gen_random_uuid() for new rows.
+  // logs.changes and sync_lookup are unchanged.
   await query.sequelize.query(`
+    ALTER TABLE patient_ongoing_prescriptions
+      ADD COLUMN id_new TEXT NOT NULL DEFAULT gen_random_uuid()::text;
+
+    UPDATE patient_ongoing_prescriptions SET id_new = id;
+
     ALTER TABLE patient_ongoing_prescriptions DROP CONSTRAINT patient_ongoing_prescriptions_pkey;
     ALTER TABLE patient_ongoing_prescriptions DROP CONSTRAINT patient_ongoing_prescriptions_id_key;
     ALTER TABLE patient_ongoing_prescriptions DROP COLUMN id;
-    ALTER TABLE patient_ongoing_prescriptions ADD COLUMN id UUID NOT NULL DEFAULT gen_random_uuid();
+    ALTER TABLE patient_ongoing_prescriptions RENAME COLUMN id_new TO id;
     ALTER TABLE patient_ongoing_prescriptions ADD PRIMARY KEY (id);
   `);
 }
