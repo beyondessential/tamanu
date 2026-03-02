@@ -2,10 +2,13 @@
 Devices that are authorised to login.
 
 Devices not in the table can only connect if the user they're
-**first** logging in as has enough quota (`device_registration_quota`
-on the [`users`](#!/source/source.tamanu.tamanu.users) table.)
+**first** logging in as has the appropriate permission (`device_registration_permission`
+on the [`users`](#!/source/source.tamanu.tamanu.users) table). The permission can be:
+- `none`: User cannot register any new devices
+- `single`: User can register one device
+- `unlimited`: User can register unlimited devices
 
-This check is not performed when `features.deviceRegistrationQuota` is disabled.
+This check is not performed when `features.deviceRegistration` is disabled.
 {% enddocs %}
 
 {% docs devices__last_seen_at %}

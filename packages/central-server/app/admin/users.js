@@ -5,6 +5,7 @@ import { dateCustomValidation, getCurrentDateString } from '@tamanu/utils/dateTi
 import { pick } from 'lodash';
 import * as yup from 'yup';
 import {
+  DEVICE_REGISTRATION_PERMISSION,
   REFERENCE_TYPES,
   VISIBILITY_STATUSES,
   SYSTEM_USER_UUID,
@@ -172,6 +173,7 @@ usersRouter.get(
               'role',
               'visibilityStatus',
               'facilities',
+              'deviceRegistrationPermission',
             ]),
             roleName,
             allowedFacilities,
@@ -371,6 +373,10 @@ const UPDATE_VALIDATION = yup
     newPassword: yup.string().nullable().optional(),
     confirmPassword: yup.string().nullable().optional(),
     allowedFacilityIds: yup.array().of(yup.string()).nullable().optional(),
+    deviceRegistrationPermission: yup
+      .string()
+      .optional()
+      .oneOf(Object.values(DEVICE_REGISTRATION_PERMISSION)),
   })
   .test('passwords-match', 'Passwords must match', function (value) {
     const { newPassword, confirmPassword } = value;
@@ -458,6 +464,9 @@ usersRouter.put(
       visibilityStatus: fields.visibilityStatus,
       displayId: fields.displayId,
       phoneNumber: fields.phoneNumber,
+      ...(fields.deviceRegistrationPermission && {
+        deviceRegistrationPermission: fields.deviceRegistrationPermission,
+      }),
     };
 
     // Add password to update fields if provided
@@ -682,3 +691,63 @@ async function updateUserFacilities(UserFacility, user, allowedFacilityIds) {
     },
   });
 }
+
+// GET /users/:id/devices - List devices registered by a user
+usersRouter.get(
+  '/:id/devices',
+  asyncHandler(async (req, res) => {
+    const {
+      store: {
+        models: { User, Device },
+      },
+      params: { id },
+    } = req;
+
+    const user = await User.findByPk(id);
+    if (!user) {
+      throw new NotFoundError('User not found');
+    }
+
+    req.checkPermission('read', user);
+
+    const devices = await Device.findAll({
+      where: { registeredById: id },
+      order: [['lastSeenAt', 'DESC']],
+    });
+
+    res.send({ data: devices });
+  }),
+);
+
+// DELETE /users/:id/devices/:deviceId - Unregister a device
+usersRouter.delete(
+  '/:id/devices/:deviceId',
+  asyncHandler(async (req, res) => {
+    const {
+      store: {
+        models: { User, Device },
+      },
+      params: { id, deviceId },
+    } = req;
+
+    const user = await User.findByPk(id);
+    if (!user) {
+      throw new NotFoundError('User not found');
+    }
+
+    // only allow updating the user if the user has the write permission for the all users
+    req.checkPermission('write', subject('User', { id: String(Date.now()) }));
+
+    const device = await Device.findOne({
+      where: { id: deviceId, registeredById: id },
+    });
+
+    if (!device) {
+      throw new NotFoundError('Device not found');
+    }
+
+    await device.destroy();
+
+    res.send({ ok: true });
+  }),
+);
