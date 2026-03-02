@@ -85,7 +85,6 @@ const CovidLabCertificateComponent = ({
   labs,
   signingSrc,
   watermarkSrc,
-  vdsSrc,
   logoSrc,
   getLocalisation,
   getSetting,
@@ -100,7 +99,6 @@ const CovidLabCertificateComponent = ({
         <H3>{CertificateTitle[certType] || ''}</H3>
         <CovidPatientDetailsSection
           patient={patient}
-          vdsSrc={vdsSrc}
           getLocalisation={getLocalisation}
           getSetting={getSetting}
         />
