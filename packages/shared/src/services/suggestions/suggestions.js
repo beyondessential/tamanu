@@ -469,7 +469,7 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
         };
       }
 
-      if (typeName === REFERENCE_TYPES.PROCEDURE_TYPE) {
+      if (typeName === REFERENCE_TYPES.PROCEDURE_TYPE || typeName === REFERENCE_TYPES.IMAGING_TYPE) {
         const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId, req.db);
         if (facilityFilter) {
           baseWhere[Op.and] = [...(baseWhere[Op.and] || []), facilityFilter];
