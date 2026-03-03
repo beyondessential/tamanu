@@ -363,6 +363,14 @@ describe('fijiAspenMediciReport', () => {
     const basePeriod = '2022-06-12T00:02:53Z';
     const basePeriodEnd = '2022-06-12T00:59:00Z';
     const encounterEndTimestamp = '2022-06-12T00:02:54Z';
+    const encounterEndLocalNoZ = createLocalDateTimeStringFromUTC(
+      2022,
+      6 - 1,
+      12,
+      0,
+      2,
+      54,
+    ).replace(' ', 'T');
 
     it.each([
       // [ expectedResults, period.start, period.end, description, discharge_date param(s) ]
@@ -374,13 +382,7 @@ describe('fijiAspenMediciReport', () => {
         undefined,
       ],
       [1, basePeriod, basePeriodEnd, ' (period includes last_updated)', undefined],
-      [
-        0,
-        '2022-06-12T00:02:55Z',
-        basePeriodEnd,
-        ' (period start after last_updated)',
-        undefined,
-      ],
+      [0, '2022-06-12T00:02:55Z', basePeriodEnd, ' (period start after last_updated)', undefined],
       [
         1,
         '2022-06-12T00:02:55+01:00',
@@ -420,7 +422,13 @@ describe('fijiAspenMediciReport', () => {
       [0, basePeriod, basePeriodEnd, ' (discharge_date le excludes)', 'le2022-06-12T00:02:53Z'],
       [1, basePeriod, basePeriodEnd, ' (discharge_date eq includes)', `eq${encounterEndTimestamp}`],
       [0, basePeriod, basePeriodEnd, ' (discharge_date eq excludes)', 'eq2022-06-12T00:02:55Z'],
-      [1, basePeriod, basePeriodEnd, ' (discharge_date without prefix = eq)', encounterEndTimestamp],
+      [
+        1,
+        basePeriod,
+        basePeriodEnd,
+        ' (discharge_date without prefix = eq)',
+        encounterEndTimestamp,
+      ],
       [
         1,
         basePeriod,
@@ -435,13 +443,22 @@ describe('fijiAspenMediciReport', () => {
         ' (discharge_date range excludes)',
         ['gt2022-06-12T00:02:53Z', 'lt2022-06-12T00:02:54Z'],
       ],
+      [
+        1,
+        basePeriod,
+        basePeriodEnd,
+        ' (discharge_date without Z = local equivalent of encounter end)',
+        `eq${encounterEndLocalNoZ}`,
+      ],
     ])(
       'Should return %p result(s) between %p and %s%s',
       async (expectedResults, start, end, _description, dischargeDateParam) => {
         let query = `period.start=${encodeURIComponent(start)}&period.end=${encodeURIComponent(end)}`;
         if (dischargeDateParam !== undefined) {
-          const params = Array.isArray(dischargeDateParam) ? dischargeDateParam : [dischargeDateParam];
-          params.forEach((p) => {
+          const params = Array.isArray(dischargeDateParam)
+            ? dischargeDateParam
+            : [dischargeDateParam];
+          params.forEach(p => {
             query += `&discharge_date=${encodeURIComponent(p)}`;
           });
         }
