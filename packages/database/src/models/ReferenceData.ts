@@ -11,6 +11,7 @@ export class ReferenceData extends Model {
   declare name: string;
   declare visibilityStatus: string;
   declare systemRequired: boolean;
+  declare availableFacilities: string[] | null;
   declare parent?: ReferenceData;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -37,6 +38,11 @@ export class ReferenceData extends Model {
           type: DataTypes.BOOLEAN,
           allowNull: false,
           defaultValue: false,
+        },
+        availableFacilities: {
+          type: DataTypes.JSONB,
+          allowNull: true,
+          defaultValue: null,
         },
       },
       {
