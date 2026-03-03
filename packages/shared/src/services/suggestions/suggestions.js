@@ -293,6 +293,16 @@ const VISIBILITY_CRITERIA = {
   visibilityStatus: VISIBILITY_STATUSES.CURRENT,
 };
 
+// Reusable filter: if available_facilities is set on a reference data row,
+// only show it when the requesting facility is in the list. NULL means visible everywhere.
+// Returns a Sequelize.literal suitable for use inside an [Op.and] array.
+const buildAvailableFacilitiesFilter = (facilityId, db, modelName = 'ReferenceData') => {
+  if (!facilityId) return null;
+  return Sequelize.literal(
+    `("${modelName}"."available_facilities" IS NULL OR "${modelName}"."available_facilities" @> ${db.escape(JSON.stringify([facilityId]))}::jsonb)`,
+  );
+};
+
 const afterCreatedReferenceData = async (req, newRecord) => {
   const { models } = req;
 
@@ -457,6 +467,13 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
         baseWhere.id = {
           [Op.notIn]: [NOTE_TYPES.AREA_TO_BE_IMAGED, NOTE_TYPES.RESULT_DESCRIPTION],
         };
+      }
+
+      if (typeName === REFERENCE_TYPES.PROCEDURE_TYPE) {
+        const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId, req.db);
+        if (facilityFilter) {
+          baseWhere[Op.and] = [...(baseWhere[Op.and] || []), facilityFilter];
+        }
       }
 
       return baseWhere;
