@@ -26,6 +26,7 @@ export async function buildToken({
   expiresIn = tokenDuration ?? '1h',
   deviceId = undefined,
   facilityId = undefined,
+  impersonateRoleId = undefined,
 }) {
   const secretKey = crypto.createSecretKey(new TextEncoder().encode(jwtSecretKey));
   const { canonicalHostName = 'localhost' } = config;
@@ -48,6 +49,7 @@ export async function buildToken({
     userId: user.id,
     deviceId,
     facilityId,
+    impersonateRoleId,
   })
     .setProtectedHeader({ alg: JWT_KEY_ALG, kid: JWT_KEY_ID })
     .setJti(crypto.randomBytes(32).toString('base64url'))
@@ -234,7 +236,7 @@ export async function loginHandler(req, res, next) {
 }
 
 export async function setFacilityHandler(req, res, next) {
-  const { user, body, userDevice: device } = req;
+  const { user, body, userDevice: device, impersonateRoleId } = req;
 
   try {
     // Run after auth middleware, requires valid token but no other permission
@@ -248,7 +250,7 @@ export async function setFacilityHandler(req, res, next) {
       throw new AuthPermissionError('User does not have access to this facility');
     }
 
-    const token = await buildToken({ user, deviceId: device.id, facilityId });
+    const token = await buildToken({ user, deviceId: device.id, facilityId, impersonateRoleId });
     const settings = await req.settings[facilityId]?.getFrontEndSettings();
     res.send({ token, settings });
   } catch (e) {
@@ -257,12 +259,12 @@ export async function setFacilityHandler(req, res, next) {
 }
 
 export async function refreshHandler(req, res) {
-  const { user, userDevice, facilityId } = req;
+  const { user, userDevice, facilityId, impersonateRoleId } = req;
 
   // Run after auth middleware, requires valid token but no other permission
   req.flagPermissionChecked();
 
-  const token = await buildToken({ user, facilityId, deviceId: userDevice.id });
+  const token = await buildToken({ user, facilityId, deviceId: userDevice.id, impersonateRoleId });
   res.send({ token });
 }
 
@@ -270,7 +272,7 @@ export const authMiddleware = async (req, res, next) => {
   const { canonicalHostName = 'localhost' } = config;
   const { models, settings } = req;
   try {
-    const { token, user, facility, device } = await models.User.loginFromAuthorizationHeader(
+    const { token, user, facility, device, impersonateRoleId } = await models.User.loginFromAuthorizationHeader(
       req.get('authorization'),
       {
         log,
@@ -294,6 +296,7 @@ export const authMiddleware = async (req, res, next) => {
     req.user = user; // eslint-disable-line require-atomic-updates
     req.userDevice = device; // eslint-disable-line require-atomic-updates
     req.sessionId = sessionId; // eslint-disable-line require-atomic-updates
+    req.impersonateRoleId = impersonateRoleId; // eslint-disable-line require-atomic-updates
     req.getLocalisation = async () =>
       req.models.UserLocalisationCache.getLocalisation({
         where: { userId: req.user.id },

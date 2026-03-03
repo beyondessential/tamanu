@@ -530,9 +530,10 @@ export class User extends Model {
       userId: z.string().min(1),
       deviceId: z.string().min(1).optional(),
       facilityId: z.string().min(1).optional(),
+      impersonateRoleId: z.string().min(1).optional(),
     });
 
-    const { userId, deviceId, facilityId } = await TokenPayload.parseAsync(contents.payload).catch(
+    const { userId, deviceId, facilityId, impersonateRoleId } = await TokenPayload.parseAsync(contents.payload).catch(
       error => {
         throw new InvalidTokenError('Invalid token payload').withCause(error);
       },
@@ -572,6 +573,7 @@ export class User extends Model {
       user: plainUser,
       device,
       facility,
+      impersonateRoleId,
     };
   }
 
@@ -610,6 +612,7 @@ export interface LoginReturn {
   user: User;
   device?: Device;
   facility?: Facility;
+  impersonateRoleId?: string;
   internalClient?: boolean;
   settings?: {
     [key: string]: string | number | object;

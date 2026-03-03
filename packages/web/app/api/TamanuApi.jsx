@@ -19,6 +19,16 @@ const {
   LANGUAGE,
 } = LOCAL_STORAGE_KEYS;
 
+function getImpersonateRoleIdFromToken(token) {
+  try {
+    const payload = token.split('.')[1];
+    const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
+    return decoded.impersonateRoleId ?? null;
+  } catch {
+    return null;
+  }
+}
+
 function safeGetStoredJSON(key) {
   try {
     return JSON.parse(localStorage.getItem(key));
@@ -126,7 +136,7 @@ export class TamanuApi extends ApiClient {
 
     this.interceptors.request.use(config => {
       const language = localStorage.getItem(LANGUAGE);
-      config.headers['language'] = language;
+      config.headers.set('language', language);
       return config;
     });
   }
@@ -154,6 +164,16 @@ export class TamanuApi extends ApiClient {
     this.setToken(token);
   }
 
+  async fetchImpersonatedRole(impersonateRoleId, config) {
+    try {
+      const roles = await this.get('admin/roles', {}, config);
+      const matched = roles.find(r => r.id === impersonateRoleId);
+      return matched ?? { id: impersonateRoleId, name: impersonateRoleId };
+    } catch {
+      return { id: impersonateRoleId, name: impersonateRoleId };
+    }
+  }
+
   async restoreSession() {
     const {
       token,
@@ -170,8 +190,15 @@ export class TamanuApi extends ApiClient {
     }
 
     this.setToken(token);
+
     const config = { showUnknownErrorToast: false };
     const { user, ability } = await this.fetchUserData(permissions, config);
+
+    const impersonateRoleId = getImpersonateRoleIdFromToken(token);
+    const impersonatedRole =
+      impersonateRoleId && user.role === 'admin'
+        ? await this.fetchImpersonatedRole(impersonateRoleId, config)
+        : null;
 
     return {
       user,
@@ -181,8 +208,10 @@ export class TamanuApi extends ApiClient {
       availableFacilities,
       facilityId,
       ability,
+      permissions,
       role,
       settings,
+      impersonatedRole,
     };
   }
 
