@@ -60,9 +60,7 @@ const CovidVaccineCertificateComponent = ({
   certificateId,
   signingSrc,
   watermarkSrc,
-  vdsSrc,
   logoSrc,
-  uvci,
   getLocalisation,
   getSetting,
   extraPatientFields,
@@ -75,8 +73,6 @@ const CovidVaccineCertificateComponent = ({
   } = getSetting('templates.vaccineCertificate');
   const countryName = getLocalisation('country.name');
 
-  console.log('uvci', uvci);
-
   const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
 
   return (
@@ -87,12 +83,10 @@ const CovidVaccineCertificateComponent = ({
         <H3>COVID-19 Vaccine Certificate</H3>
         <CovidPatientDetailsSection
           patient={patient}
-          vdsSrc={vdsSrc}
           getLocalisation={getLocalisation}
           getSetting={getSetting}
           certificateId={certificateId}
           extraFields={extraPatientFields}
-          uvci={uvci}
         />
         <Box mb={20}>
           <Table
