@@ -1,0 +1,4326 @@
+{
+  "sheetName": "Invoice Price List Item",
+  "columns": [
+    "invoiceProductId",
+    "invoicePriceList-1"
+  ],
+  "data": [
+    {
+      "invoiceProductId": "invoiceProduct-accommodation",
+      "invoicePriceList-1": 240
+    },
+    {
+      "invoiceProductId": "invoiceProduct-bandage",
+      "invoicePriceList-1": 225
+    },
+    {
+      "invoiceProductId": "invoiceProduct-crutches",
+      "invoicePriceList-1": 179
+    },
+    {
+      "invoiceProductId": "invoiceProduct-dinner",
+      "invoicePriceList-1": 425
+    },
+    {
+      "invoiceProductId": "invoiceProduct-extendedconsult",
+      "invoicePriceList-1": 137
+    },
+    {
+      "invoiceProductId": "invoiceProduct-lunch",
+      "invoicePriceList-1": 500
+    },
+    {
+      "invoiceProductId": "invoiceProduct-standardconsult",
+      "invoicePriceList-1": 120
+    },
+    {
+      "invoiceProductId": "invoiceProduct-wheelchair",
+      "invoicePriceList-1": 91
+    },
+    {
+      "invoiceProductId": "invoiceProduct-angiogram",
+      "invoicePriceList-1": 312
+    },
+    {
+      "invoiceProductId": "invoiceProduct-colonoscopy",
+      "invoicePriceList-1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-ctScan",
+      "invoicePriceList-1": 105
+    },
+    {
+      "invoiceProductId": "invoiceProduct-drug-acetazolamide250",
+      "invoicePriceList-1": 400
+    },
+    {
+      "invoiceProductId": "invoiceProduct-ecg",
+      "invoicePriceList-1": 55
+    },
+    {
+      "invoiceProductId": "invoiceProduct-echocardiogram",
+      "invoicePriceList-1": 465
+    },
+    {
+      "invoiceProductId": "invoiceProduct-endoscopy",
+      "invoicePriceList-1": 188
+    },
+    {
+      "invoiceProductId": "invoiceProduct-fluroscopy",
+      "invoicePriceList-1": 108
+    },
+    {
+      "invoiceProductId": "invoiceProduct-holterMonitor",
+      "invoicePriceList-1": 319
+    },
+    {
+      "invoiceProductId": "invoiceProduct-imagingType-MRI",
+      "invoicePriceList-1": 368
+    },
+    {
+      "invoiceProductId": "invoiceProduct-imagingType-XRay",
+      "invoicePriceList-1": 139
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Albumin",
+      "invoicePriceList-1": 227
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-ALP",
+      "invoicePriceList-1": 258
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-ALT",
+      "invoicePriceList-1": 300
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-AST",
+      "invoicePriceList-1": 327
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Basophils",
+      "invoicePriceList-1": 433
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Bicarbonate",
+      "invoicePriceList-1": 370
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Bilibubin",
+      "invoicePriceList-1": 290
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-BloodGlucose",
+      "invoicePriceList-1": 118
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Calcium",
+      "invoicePriceList-1": 14
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-CD4",
+      "invoicePriceList-1": 342
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Chloride",
+      "invoicePriceList-1": 23
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Cholesterol",
+      "invoicePriceList-1": 77
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-COVID",
+      "invoicePriceList-1": 68
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-COVID19NasalSwab",
+      "invoicePriceList-1": 494
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-COVIDEndotrachealaspirate",
+      "invoicePriceList-1": 248
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-COVIDNasalSwab",
+      "invoicePriceList-1": 199
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-COVIDNasopharyngealSwab",
+      "invoicePriceList-1": 456
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-COVIDOropharyngealSwab",
+      "invoicePriceList-1": 111
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Creatinine",
+      "invoicePriceList-1": 241
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-eGFR",
+      "invoicePriceList-1": 20
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Eosinophils",
+      "invoicePriceList-1": 331
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-GGT",
+      "invoicePriceList-1": 190
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-HbA1C",
+      "invoicePriceList-1": 115
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-HBsAG",
+      "invoicePriceList-1": 414
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-HGB",
+      "invoicePriceList-1": 152
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-HIV",
+      "invoicePriceList-1": 286
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-HIVViralload",
+      "invoicePriceList-1": 459
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-INR",
+      "invoicePriceList-1": 24
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Lymphocytes",
+      "invoicePriceList-1": 142
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Magnesium",
+      "invoicePriceList-1": 472
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Malariatype",
+      "invoicePriceList-1": 10
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-MCH",
+      "invoicePriceList-1": 437
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-MCHC",
+      "invoicePriceList-1": 252
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-MCV",
+      "invoicePriceList-1": 497
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Monocytes",
+      "invoicePriceList-1": 299
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Neutrophils",
+      "invoicePriceList-1": 76
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Papsmear",
+      "invoicePriceList-1": 216
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Parasitecount",
+      "invoicePriceList-1": 185
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-PCV",
+      "invoicePriceList-1": 313
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Phosphate",
+      "invoicePriceList-1": 64
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-PLT",
+      "invoicePriceList-1": 386
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Potassium",
+      "invoicePriceList-1": 415
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Prothrombin",
+      "invoicePriceList-1": 16
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-RapidHIVTest",
+      "invoicePriceList-1": 317
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-RBC",
+      "invoicePriceList-1": 454
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-RDTNegativenofurthertestingneeded",
+      "invoicePriceList-1": 455
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-RDTPositive",
+      "invoicePriceList-1": 424
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-RDWCV",
+      "invoicePriceList-1": 139
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Sodium",
+      "invoicePriceList-1": 315
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Urea",
+      "invoicePriceList-1": 445
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-WBC",
+      "invoicePriceList-1": 39
+    },
+    {
+      "invoiceProductId": "invoiceProduct-labTestType-Woundswab",
+      "invoicePriceList-1": 94
+    },
+    {
+      "invoiceProductId": "invoiceProduct-mammogram",
+      "invoicePriceList-1": 175
+    },
+    {
+      "invoiceProductId": "invoiceProduct-mri",
+      "invoicePriceList-1": 190
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-0202T",
+      "invoicePriceList-1": 42
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-0219T",
+      "invoicePriceList-1": 375
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-0220T",
+      "invoicePriceList-1": 407
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-0221T",
+      "invoicePriceList-1": 60
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-0375T",
+      "invoicePriceList-1": 433
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-11008",
+      "invoicePriceList-1": 77
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-11970",
+      "invoicePriceList-1": 75
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19101",
+      "invoicePriceList-1": 320
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19105",
+      "invoicePriceList-1": 218
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19110",
+      "invoicePriceList-1": 464
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19112",
+      "invoicePriceList-1": 311
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19120",
+      "invoicePriceList-1": 101
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19125",
+      "invoicePriceList-1": 264
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19126",
+      "invoicePriceList-1": 265
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19272",
+      "invoicePriceList-1": 78
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19300",
+      "invoicePriceList-1": 464
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19301",
+      "invoicePriceList-1": 398
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19302",
+      "invoicePriceList-1": 418
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19303",
+      "invoicePriceList-1": 486
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19304",
+      "invoicePriceList-1": 490
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19305",
+      "invoicePriceList-1": 494
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19306",
+      "invoicePriceList-1": 399
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19307",
+      "invoicePriceList-1": 462
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19316",
+      "invoicePriceList-1": 487
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19318",
+      "invoicePriceList-1": 465
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19324",
+      "invoicePriceList-1": 191
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19325",
+      "invoicePriceList-1": 64
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19328",
+      "invoicePriceList-1": 99
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19330",
+      "invoicePriceList-1": 463
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19340",
+      "invoicePriceList-1": 138
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19342",
+      "invoicePriceList-1": 32
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19350",
+      "invoicePriceList-1": 89
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19355",
+      "invoicePriceList-1": 359
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19357",
+      "invoicePriceList-1": 321
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19361",
+      "invoicePriceList-1": 97
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19364",
+      "invoicePriceList-1": 339
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19366",
+      "invoicePriceList-1": 448
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19367",
+      "invoicePriceList-1": 89
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19368",
+      "invoicePriceList-1": 255
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19369",
+      "invoicePriceList-1": 37
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19370",
+      "invoicePriceList-1": 54
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19371",
+      "invoicePriceList-1": 37
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-19380",
+      "invoicePriceList-1": 278
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-20101",
+      "invoicePriceList-1": 144
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22220",
+      "invoicePriceList-1": 415
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22222",
+      "invoicePriceList-1": 45
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22224",
+      "invoicePriceList-1": 404
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22532",
+      "invoicePriceList-1": 495
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22533",
+      "invoicePriceList-1": 203
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22548",
+      "invoicePriceList-1": 354
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22551",
+      "invoicePriceList-1": 369
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22554",
+      "invoicePriceList-1": 13
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22556",
+      "invoicePriceList-1": 228
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22558",
+      "invoicePriceList-1": 98
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22586",
+      "invoicePriceList-1": 440
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22590",
+      "invoicePriceList-1": 435
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22595",
+      "invoicePriceList-1": 265
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22600",
+      "invoicePriceList-1": 487
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22610",
+      "invoicePriceList-1": 464
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22612",
+      "invoicePriceList-1": 101
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22630",
+      "invoicePriceList-1": 19
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22633",
+      "invoicePriceList-1": 367
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22800",
+      "invoicePriceList-1": 190
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22802",
+      "invoicePriceList-1": 302
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22804",
+      "invoicePriceList-1": 468
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22808",
+      "invoicePriceList-1": 337
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22810",
+      "invoicePriceList-1": 15
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22812",
+      "invoicePriceList-1": 254
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22856",
+      "invoicePriceList-1": 358
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22857",
+      "invoicePriceList-1": 337
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22861",
+      "invoicePriceList-1": 17
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22862",
+      "invoicePriceList-1": 341
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-22867",
+      "invoicePriceList-1": 269
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-23615",
+      "invoicePriceList-1": 371
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-23616",
+      "invoicePriceList-1": 164
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-23630",
+      "invoicePriceList-1": 151
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-23670",
+      "invoicePriceList-1": 379
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-23680",
+      "invoicePriceList-1": 90
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-23900",
+      "invoicePriceList-1": 97
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-23920",
+      "invoicePriceList-1": 225
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24515",
+      "invoicePriceList-1": 238
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24516",
+      "invoicePriceList-1": 393
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24545",
+      "invoicePriceList-1": 132
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24546",
+      "invoicePriceList-1": 485
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24575",
+      "invoicePriceList-1": 198
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24579",
+      "invoicePriceList-1": 441
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24586",
+      "invoicePriceList-1": 213
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24587",
+      "invoicePriceList-1": 36
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24635",
+      "invoicePriceList-1": 21
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24665",
+      "invoicePriceList-1": 110
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24666",
+      "invoicePriceList-1": 92
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24685",
+      "invoicePriceList-1": 18
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24900",
+      "invoicePriceList-1": 45
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24920",
+      "invoicePriceList-1": 207
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24930",
+      "invoicePriceList-1": 57
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-24931",
+      "invoicePriceList-1": 123
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25337",
+      "invoicePriceList-1": 275
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25515",
+      "invoicePriceList-1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25525",
+      "invoicePriceList-1": 211
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25526",
+      "invoicePriceList-1": 269
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25545",
+      "invoicePriceList-1": 271
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25574",
+      "invoicePriceList-1": 233
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25575",
+      "invoicePriceList-1": 246
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25607",
+      "invoicePriceList-1": 51
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25608",
+      "invoicePriceList-1": 12
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25609",
+      "invoicePriceList-1": 125
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25652",
+      "invoicePriceList-1": 75
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25900",
+      "invoicePriceList-1": 332
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25905",
+      "invoicePriceList-1": 342
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25909",
+      "invoicePriceList-1": 292
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25920",
+      "invoicePriceList-1": 366
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25922",
+      "invoicePriceList-1": 332
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25924",
+      "invoicePriceList-1": 418
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25927",
+      "invoicePriceList-1": 472
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25929",
+      "invoicePriceList-1": 489
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-25931",
+      "invoicePriceList-1": 13
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-26235",
+      "invoicePriceList-1": 208
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-26236",
+      "invoicePriceList-1": 196
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-26551",
+      "invoicePriceList-1": 36
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-26910",
+      "invoicePriceList-1": 117
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-26951",
+      "invoicePriceList-1": 424
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-26952",
+      "invoicePriceList-1": 105
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27125",
+      "invoicePriceList-1": 484
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27130",
+      "invoicePriceList-1": 429
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27132",
+      "invoicePriceList-1": 239
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27134",
+      "invoicePriceList-1": 468
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27137",
+      "invoicePriceList-1": 46
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27138",
+      "invoicePriceList-1": 438
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27177",
+      "invoicePriceList-1": 84
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27178",
+      "invoicePriceList-1": 379
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27179",
+      "invoicePriceList-1": 250
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27181",
+      "invoicePriceList-1": 392
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27236",
+      "invoicePriceList-1": 203
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27244",
+      "invoicePriceList-1": 19
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27245",
+      "invoicePriceList-1": 93
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27248",
+      "invoicePriceList-1": 294
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27254",
+      "invoicePriceList-1": 490
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27269",
+      "invoicePriceList-1": 455
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27280",
+      "invoicePriceList-1": 467
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27290",
+      "invoicePriceList-1": 332
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27295",
+      "invoicePriceList-1": 271
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27438",
+      "invoicePriceList-1": 259
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27440",
+      "invoicePriceList-1": 15
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27441",
+      "invoicePriceList-1": 273
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27442",
+      "invoicePriceList-1": 455
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27443",
+      "invoicePriceList-1": 26
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27445",
+      "invoicePriceList-1": 86
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27446",
+      "invoicePriceList-1": 109
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27447",
+      "invoicePriceList-1": 36
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27486",
+      "invoicePriceList-1": 432
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27487",
+      "invoicePriceList-1": 253
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27506",
+      "invoicePriceList-1": 247
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27507",
+      "invoicePriceList-1": 112
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27511",
+      "invoicePriceList-1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27513",
+      "invoicePriceList-1": 451
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27514",
+      "invoicePriceList-1": 22
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27519",
+      "invoicePriceList-1": 331
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27535",
+      "invoicePriceList-1": 215
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27536",
+      "invoicePriceList-1": 255
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27540",
+      "invoicePriceList-1": 331
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27590",
+      "invoicePriceList-1": 459
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27591",
+      "invoicePriceList-1": 387
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27592",
+      "invoicePriceList-1": 479
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27598",
+      "invoicePriceList-1": 209
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27758",
+      "invoicePriceList-1": 229
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27759",
+      "invoicePriceList-1": 367
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27766",
+      "invoicePriceList-1": 76
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27769",
+      "invoicePriceList-1": 13
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27784",
+      "invoicePriceList-1": 121
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27792",
+      "invoicePriceList-1": 365
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27814",
+      "invoicePriceList-1": 46
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27822",
+      "invoicePriceList-1": 391
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27823",
+      "invoicePriceList-1": 307
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27826",
+      "invoicePriceList-1": 319
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27827",
+      "invoicePriceList-1": 139
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27828",
+      "invoicePriceList-1": 271
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27829",
+      "invoicePriceList-1": 114
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27880",
+      "invoicePriceList-1": 389
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27882",
+      "invoicePriceList-1": 215
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27884",
+      "invoicePriceList-1": 361
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27886",
+      "invoicePriceList-1": 265
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27888",
+      "invoicePriceList-1": 325
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-27889",
+      "invoicePriceList-1": 174
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-28124",
+      "invoicePriceList-1": 321
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-28126",
+      "invoicePriceList-1": 144
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-28160",
+      "invoicePriceList-1": 278
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-28800",
+      "invoicePriceList-1": 359
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-28805",
+      "invoicePriceList-1": 280
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-28810",
+      "invoicePriceList-1": 34
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-28820",
+      "invoicePriceList-1": 314
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-28825",
+      "invoicePriceList-1": 486
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31300",
+      "invoicePriceList-1": 414
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31360",
+      "invoicePriceList-1": 494
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31365",
+      "invoicePriceList-1": 111
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31367",
+      "invoicePriceList-1": 313
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31368",
+      "invoicePriceList-1": 433
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31370",
+      "invoicePriceList-1": 360
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31375",
+      "invoicePriceList-1": 373
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31380",
+      "invoicePriceList-1": 422
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31382",
+      "invoicePriceList-1": 331
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31390",
+      "invoicePriceList-1": 237
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31395",
+      "invoicePriceList-1": 191
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31400",
+      "invoicePriceList-1": 413
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31420",
+      "invoicePriceList-1": 445
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31551",
+      "invoicePriceList-1": 423
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31552",
+      "invoicePriceList-1": 325
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31553",
+      "invoicePriceList-1": 162
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31554",
+      "invoicePriceList-1": 10
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31560",
+      "invoicePriceList-1": 389
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31561",
+      "invoicePriceList-1": 428
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31580",
+      "invoicePriceList-1": 77
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31584",
+      "invoicePriceList-1": 59
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31587",
+      "invoicePriceList-1": 95
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31590",
+      "invoicePriceList-1": 367
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31591",
+      "invoicePriceList-1": 170
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31592",
+      "invoicePriceList-1": 281
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31599",
+      "invoicePriceList-1": 469
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31770",
+      "invoicePriceList-1": 47
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-31775",
+      "invoicePriceList-1": 49
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32096",
+      "invoicePriceList-1": 303
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32097",
+      "invoicePriceList-1": 184
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32100",
+      "invoicePriceList-1": 311
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32110",
+      "invoicePriceList-1": 390
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32120",
+      "invoicePriceList-1": 107
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32124",
+      "invoicePriceList-1": 92
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32140",
+      "invoicePriceList-1": 281
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32141",
+      "invoicePriceList-1": 465
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32151",
+      "invoicePriceList-1": 330
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32200",
+      "invoicePriceList-1": 432
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32215",
+      "invoicePriceList-1": 461
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32220",
+      "invoicePriceList-1": 438
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32225",
+      "invoicePriceList-1": 152
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32310",
+      "invoicePriceList-1": 478
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32320",
+      "invoicePriceList-1": 381
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32440",
+      "invoicePriceList-1": 285
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32442",
+      "invoicePriceList-1": 80
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32445",
+      "invoicePriceList-1": 203
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32480",
+      "invoicePriceList-1": 78
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32482",
+      "invoicePriceList-1": 81
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32484",
+      "invoicePriceList-1": 321
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32486",
+      "invoicePriceList-1": 20
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32488",
+      "invoicePriceList-1": 338
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32491",
+      "invoicePriceList-1": 403
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32658",
+      "invoicePriceList-1": 186
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32659",
+      "invoicePriceList-1": 73
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-32661",
+      "invoicePriceList-1": 42
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33020",
+      "invoicePriceList-1": 443
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33025",
+      "invoicePriceList-1": 150
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33030",
+      "invoicePriceList-1": 295
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33031",
+      "invoicePriceList-1": 54
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33050",
+      "invoicePriceList-1": 302
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33120",
+      "invoicePriceList-1": 478
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33130",
+      "invoicePriceList-1": 94
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33202",
+      "invoicePriceList-1": 183
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33203",
+      "invoicePriceList-1": 219
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33206",
+      "invoicePriceList-1": 271
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33207",
+      "invoicePriceList-1": 306
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33208",
+      "invoicePriceList-1": 440
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33212",
+      "invoicePriceList-1": 162
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33213",
+      "invoicePriceList-1": 340
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33214",
+      "invoicePriceList-1": 243
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33215",
+      "invoicePriceList-1": 463
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33216",
+      "invoicePriceList-1": 75
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33217",
+      "invoicePriceList-1": 328
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33218",
+      "invoicePriceList-1": 177
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33220",
+      "invoicePriceList-1": 127
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33221",
+      "invoicePriceList-1": 13
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33222",
+      "invoicePriceList-1": 491
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33223",
+      "invoicePriceList-1": 323
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33224",
+      "invoicePriceList-1": 278
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33225",
+      "invoicePriceList-1": 228
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33226",
+      "invoicePriceList-1": 62
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33227",
+      "invoicePriceList-1": 180
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33228",
+      "invoicePriceList-1": 371
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33229",
+      "invoicePriceList-1": 308
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33230",
+      "invoicePriceList-1": 444
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33231",
+      "invoicePriceList-1": 265
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33233",
+      "invoicePriceList-1": 319
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33234",
+      "invoicePriceList-1": 165
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33235",
+      "invoicePriceList-1": 161
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33236",
+      "invoicePriceList-1": 141
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33237",
+      "invoicePriceList-1": 386
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33238",
+      "invoicePriceList-1": 192
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33240",
+      "invoicePriceList-1": 102
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33241",
+      "invoicePriceList-1": 497
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33243",
+      "invoicePriceList-1": 189
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33244",
+      "invoicePriceList-1": 315
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33249",
+      "invoicePriceList-1": 82
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33250",
+      "invoicePriceList-1": 458
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33251",
+      "invoicePriceList-1": 31
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33254",
+      "invoicePriceList-1": 339
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33255",
+      "invoicePriceList-1": 449
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33256",
+      "invoicePriceList-1": 176
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33257",
+      "invoicePriceList-1": 455
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33258",
+      "invoicePriceList-1": 390
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33259",
+      "invoicePriceList-1": 485
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33261",
+      "invoicePriceList-1": 373
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33262",
+      "invoicePriceList-1": 207
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33263",
+      "invoicePriceList-1": 68
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33264",
+      "invoicePriceList-1": 394
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33265",
+      "invoicePriceList-1": 329
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33266",
+      "invoicePriceList-1": 71
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33270",
+      "invoicePriceList-1": 373
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33271",
+      "invoicePriceList-1": 333
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33272",
+      "invoicePriceList-1": 18
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33273",
+      "invoicePriceList-1": 128
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33300",
+      "invoicePriceList-1": 27
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33305",
+      "invoicePriceList-1": 492
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33310",
+      "invoicePriceList-1": 468
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33315",
+      "invoicePriceList-1": 63
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33365",
+      "invoicePriceList-1": 227
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33366",
+      "invoicePriceList-1": 392
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33390",
+      "invoicePriceList-1": 496
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33391",
+      "invoicePriceList-1": 421
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33404",
+      "invoicePriceList-1": 195
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33405",
+      "invoicePriceList-1": 241
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33406",
+      "invoicePriceList-1": 166
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33410",
+      "invoicePriceList-1": 341
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33411",
+      "invoicePriceList-1": 41
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33412",
+      "invoicePriceList-1": 357
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33413",
+      "invoicePriceList-1": 325
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33414",
+      "invoicePriceList-1": 334
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33415",
+      "invoicePriceList-1": 246
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33416",
+      "invoicePriceList-1": 478
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33417",
+      "invoicePriceList-1": 142
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33420",
+      "invoicePriceList-1": 332
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33422",
+      "invoicePriceList-1": 278
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33425",
+      "invoicePriceList-1": 105
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33426",
+      "invoicePriceList-1": 377
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33427",
+      "invoicePriceList-1": 68
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33430",
+      "invoicePriceList-1": 173
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33440",
+      "invoicePriceList-1": 76
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33460",
+      "invoicePriceList-1": 391
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33463",
+      "invoicePriceList-1": 356
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33464",
+      "invoicePriceList-1": 288
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33465",
+      "invoicePriceList-1": 307
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33468",
+      "invoicePriceList-1": 480
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33470",
+      "invoicePriceList-1": 368
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33471",
+      "invoicePriceList-1": 169
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33474",
+      "invoicePriceList-1": 410
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33475",
+      "invoicePriceList-1": 369
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33476",
+      "invoicePriceList-1": 345
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33478",
+      "invoicePriceList-1": 452
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33496",
+      "invoicePriceList-1": 297
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33510",
+      "invoicePriceList-1": 478
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33511",
+      "invoicePriceList-1": 108
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33512",
+      "invoicePriceList-1": 316
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33513",
+      "invoicePriceList-1": 414
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33514",
+      "invoicePriceList-1": 154
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33516",
+      "invoicePriceList-1": 138
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33533",
+      "invoicePriceList-1": 178
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33534",
+      "invoicePriceList-1": 322
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33535",
+      "invoicePriceList-1": 96
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33536",
+      "invoicePriceList-1": 484
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33542",
+      "invoicePriceList-1": 434
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33545",
+      "invoicePriceList-1": 23
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33548",
+      "invoicePriceList-1": 388
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33600",
+      "invoicePriceList-1": 279
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33602",
+      "invoicePriceList-1": 165
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33608",
+      "invoicePriceList-1": 55
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33610",
+      "invoicePriceList-1": 33
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33611",
+      "invoicePriceList-1": 376
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33612",
+      "invoicePriceList-1": 85
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33615",
+      "invoicePriceList-1": 244
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33617",
+      "invoicePriceList-1": 105
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33619",
+      "invoicePriceList-1": 111
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33641",
+      "invoicePriceList-1": 129
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33645",
+      "invoicePriceList-1": 454
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33647",
+      "invoicePriceList-1": 64
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33660",
+      "invoicePriceList-1": 136
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33665",
+      "invoicePriceList-1": 376
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33670",
+      "invoicePriceList-1": 275
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33675",
+      "invoicePriceList-1": 64
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33676",
+      "invoicePriceList-1": 304
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33677",
+      "invoicePriceList-1": 75
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33681",
+      "invoicePriceList-1": 254
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33684",
+      "invoicePriceList-1": 424
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33688",
+      "invoicePriceList-1": 476
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33692",
+      "invoicePriceList-1": 24
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33694",
+      "invoicePriceList-1": 68
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33697",
+      "invoicePriceList-1": 244
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33702",
+      "invoicePriceList-1": 314
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33710",
+      "invoicePriceList-1": 264
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33720",
+      "invoicePriceList-1": 136
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33722",
+      "invoicePriceList-1": 397
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33732",
+      "invoicePriceList-1": 23
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33735",
+      "invoicePriceList-1": 316
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33736",
+      "invoicePriceList-1": 185
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33737",
+      "invoicePriceList-1": 194
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33770",
+      "invoicePriceList-1": 236
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33774",
+      "invoicePriceList-1": 382
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33776",
+      "invoicePriceList-1": 228
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33780",
+      "invoicePriceList-1": 344
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33782",
+      "invoicePriceList-1": 449
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33783",
+      "invoicePriceList-1": 11
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33786",
+      "invoicePriceList-1": 26
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33813",
+      "invoicePriceList-1": 375
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33814",
+      "invoicePriceList-1": 434
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33889",
+      "invoicePriceList-1": 182
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33920",
+      "invoicePriceList-1": 134
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33935",
+      "invoicePriceList-1": 94
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-33945",
+      "invoicePriceList-1": 21
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-34830",
+      "invoicePriceList-1": 110
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-34831",
+      "invoicePriceList-1": 126
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-34832",
+      "invoicePriceList-1": 250
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35081",
+      "invoicePriceList-1": 492
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35082",
+      "invoicePriceList-1": 302
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35091",
+      "invoicePriceList-1": 52
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35092",
+      "invoicePriceList-1": 447
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35102",
+      "invoicePriceList-1": 203
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35103",
+      "invoicePriceList-1": 129
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35301",
+      "invoicePriceList-1": 351
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35390",
+      "invoicePriceList-1": 291
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35501",
+      "invoicePriceList-1": 125
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35506",
+      "invoicePriceList-1": 185
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35508",
+      "invoicePriceList-1": 23
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35509",
+      "invoicePriceList-1": 409
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35510",
+      "invoicePriceList-1": 144
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35511",
+      "invoicePriceList-1": 166
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35512",
+      "invoicePriceList-1": 102
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35515",
+      "invoicePriceList-1": 145
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35516",
+      "invoicePriceList-1": 471
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35518",
+      "invoicePriceList-1": 229
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35521",
+      "invoicePriceList-1": 417
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35522",
+      "invoicePriceList-1": 374
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35523",
+      "invoicePriceList-1": 168
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35525",
+      "invoicePriceList-1": 351
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35533",
+      "invoicePriceList-1": 33
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35556",
+      "invoicePriceList-1": 52
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35558",
+      "invoicePriceList-1": 369
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35566",
+      "invoicePriceList-1": 323
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35570",
+      "invoicePriceList-1": 151
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35571",
+      "invoicePriceList-1": 151
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35583",
+      "invoicePriceList-1": 385
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35585",
+      "invoicePriceList-1": 306
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35587",
+      "invoicePriceList-1": 216
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35616",
+      "invoicePriceList-1": 328
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35621",
+      "invoicePriceList-1": 352
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35623",
+      "invoicePriceList-1": 180
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35650",
+      "invoicePriceList-1": 268
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35654",
+      "invoicePriceList-1": 483
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35656",
+      "invoicePriceList-1": 385
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35661",
+      "invoicePriceList-1": 388
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35666",
+      "invoicePriceList-1": 252
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35671",
+      "invoicePriceList-1": 319
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-35686",
+      "invoicePriceList-1": 116
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-36800",
+      "invoicePriceList-1": 330
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-36810",
+      "invoicePriceList-1": 207
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-36815",
+      "invoicePriceList-1": 165
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-36818",
+      "invoicePriceList-1": 61
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-36819",
+      "invoicePriceList-1": 465
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-36820",
+      "invoicePriceList-1": 152
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-36821",
+      "invoicePriceList-1": 315
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-36825",
+      "invoicePriceList-1": 287
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-36830",
+      "invoicePriceList-1": 317
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-36832",
+      "invoicePriceList-1": 136
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-36833",
+      "invoicePriceList-1": 409
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-36838",
+      "invoicePriceList-1": 26
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-38100",
+      "invoicePriceList-1": 271
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-38101",
+      "invoicePriceList-1": 148
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-38102",
+      "invoicePriceList-1": 82
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-38115",
+      "invoicePriceList-1": 472
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-38120",
+      "invoicePriceList-1": 303
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-38308",
+      "invoicePriceList-1": 223
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-38542",
+      "invoicePriceList-1": 93
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-38720",
+      "invoicePriceList-1": 475
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-38724",
+      "invoicePriceList-1": 180
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-41135",
+      "invoicePriceList-1": 304
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-41140",
+      "invoicePriceList-1": 27
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-41145",
+      "invoicePriceList-1": 21
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-41155",
+      "invoicePriceList-1": 123
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-42420",
+      "invoicePriceList-1": 269
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-42425",
+      "invoicePriceList-1": 380
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-42426",
+      "invoicePriceList-1": 131
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43117",
+      "invoicePriceList-1": 407
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43118",
+      "invoicePriceList-1": 95
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43121",
+      "invoicePriceList-1": 61
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43122",
+      "invoicePriceList-1": 240
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43286",
+      "invoicePriceList-1": 410
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43287",
+      "invoicePriceList-1": 125
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43288",
+      "invoicePriceList-1": 130
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43320",
+      "invoicePriceList-1": 142
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43360",
+      "invoicePriceList-1": 364
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43496",
+      "invoicePriceList-1": 323
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43500",
+      "invoicePriceList-1": 172
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43501",
+      "invoicePriceList-1": 359
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43502",
+      "invoicePriceList-1": 500
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43520",
+      "invoicePriceList-1": 61
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43605",
+      "invoicePriceList-1": 233
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43610",
+      "invoicePriceList-1": 393
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43611",
+      "invoicePriceList-1": 366
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43620",
+      "invoicePriceList-1": 381
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43621",
+      "invoicePriceList-1": 321
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43622",
+      "invoicePriceList-1": 32
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43631",
+      "invoicePriceList-1": 324
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43632",
+      "invoicePriceList-1": 73
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43633",
+      "invoicePriceList-1": 420
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43634",
+      "invoicePriceList-1": 11
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43640",
+      "invoicePriceList-1": 58
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43641",
+      "invoicePriceList-1": 155
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43644",
+      "invoicePriceList-1": 473
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43645",
+      "invoicePriceList-1": 155
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43770",
+      "invoicePriceList-1": 156
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43771",
+      "invoicePriceList-1": 413
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43772",
+      "invoicePriceList-1": 320
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43773",
+      "invoicePriceList-1": 69
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43774",
+      "invoicePriceList-1": 394
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43775",
+      "invoicePriceList-1": 101
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43800",
+      "invoicePriceList-1": 438
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43810",
+      "invoicePriceList-1": 196
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43820",
+      "invoicePriceList-1": 494
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43825",
+      "invoicePriceList-1": 352
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43840",
+      "invoicePriceList-1": 102
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43842",
+      "invoicePriceList-1": 351
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43843",
+      "invoicePriceList-1": 125
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43845",
+      "invoicePriceList-1": 364
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43846",
+      "invoicePriceList-1": 52
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43847",
+      "invoicePriceList-1": 390
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43848",
+      "invoicePriceList-1": 454
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43850",
+      "invoicePriceList-1": 56
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43855",
+      "invoicePriceList-1": 63
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43860",
+      "invoicePriceList-1": 283
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43865",
+      "invoicePriceList-1": 66
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43870",
+      "invoicePriceList-1": 467
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43880",
+      "invoicePriceList-1": 476
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43886",
+      "invoicePriceList-1": 55
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43887",
+      "invoicePriceList-1": 332
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-43888",
+      "invoicePriceList-1": 442
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44010",
+      "invoicePriceList-1": 445
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44020",
+      "invoicePriceList-1": 88
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44021",
+      "invoicePriceList-1": 58
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44025",
+      "invoicePriceList-1": 78
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44110",
+      "invoicePriceList-1": 39
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44111",
+      "invoicePriceList-1": 186
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44120",
+      "invoicePriceList-1": 132
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44125",
+      "invoicePriceList-1": 304
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44126",
+      "invoicePriceList-1": 81
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44127",
+      "invoicePriceList-1": 478
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44130",
+      "invoicePriceList-1": 146
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44137",
+      "invoicePriceList-1": 194
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44140",
+      "invoicePriceList-1": 66
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44141",
+      "invoicePriceList-1": 407
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44143",
+      "invoicePriceList-1": 182
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44144",
+      "invoicePriceList-1": 271
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44145",
+      "invoicePriceList-1": 432
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44146",
+      "invoicePriceList-1": 305
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44147",
+      "invoicePriceList-1": 457
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44150",
+      "invoicePriceList-1": 466
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44151",
+      "invoicePriceList-1": 474
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44155",
+      "invoicePriceList-1": 129
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44156",
+      "invoicePriceList-1": 289
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44157",
+      "invoicePriceList-1": 194
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44158",
+      "invoicePriceList-1": 359
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44160",
+      "invoicePriceList-1": 318
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44186",
+      "invoicePriceList-1": 74
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44187",
+      "invoicePriceList-1": 189
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44188",
+      "invoicePriceList-1": 344
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44202",
+      "invoicePriceList-1": 256
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44204",
+      "invoicePriceList-1": 209
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44205",
+      "invoicePriceList-1": 211
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44206",
+      "invoicePriceList-1": 141
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44207",
+      "invoicePriceList-1": 28
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44208",
+      "invoicePriceList-1": 44
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44210",
+      "invoicePriceList-1": 393
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44211",
+      "invoicePriceList-1": 435
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44212",
+      "invoicePriceList-1": 134
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44213",
+      "invoicePriceList-1": 258
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44227",
+      "invoicePriceList-1": 430
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44300",
+      "invoicePriceList-1": 408
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44310",
+      "invoicePriceList-1": 420
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44312",
+      "invoicePriceList-1": 344
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44314",
+      "invoicePriceList-1": 289
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44316",
+      "invoicePriceList-1": 454
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44320",
+      "invoicePriceList-1": 370
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44322",
+      "invoicePriceList-1": 25
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44340",
+      "invoicePriceList-1": 473
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44345",
+      "invoicePriceList-1": 348
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44346",
+      "invoicePriceList-1": 43
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44602",
+      "invoicePriceList-1": 153
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44603",
+      "invoicePriceList-1": 257
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44604",
+      "invoicePriceList-1": 59
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44605",
+      "invoicePriceList-1": 197
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44615",
+      "invoicePriceList-1": 410
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44620",
+      "invoicePriceList-1": 490
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44625",
+      "invoicePriceList-1": 440
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44626",
+      "invoicePriceList-1": 271
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44640",
+      "invoicePriceList-1": 411
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44650",
+      "invoicePriceList-1": 282
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44800",
+      "invoicePriceList-1": 205
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44900",
+      "invoicePriceList-1": 272
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44950",
+      "invoicePriceList-1": 209
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44955",
+      "invoicePriceList-1": 369
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44960",
+      "invoicePriceList-1": 45
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44970",
+      "invoicePriceList-1": 292
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-44979",
+      "invoicePriceList-1": 89
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-45110",
+      "invoicePriceList-1": 304
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-45111",
+      "invoicePriceList-1": 183
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-45112",
+      "invoicePriceList-1": 426
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-45113",
+      "invoicePriceList-1": 139
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-45114",
+      "invoicePriceList-1": 401
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-45116",
+      "invoicePriceList-1": 177
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-45119",
+      "invoicePriceList-1": 212
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-45120",
+      "invoicePriceList-1": 53
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-45121",
+      "invoicePriceList-1": 415
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-45126",
+      "invoicePriceList-1": 333
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-45136",
+      "invoicePriceList-1": 174
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-45395",
+      "invoicePriceList-1": 279
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-45397",
+      "invoicePriceList-1": 354
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-45562",
+      "invoicePriceList-1": 134
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-45563",
+      "invoicePriceList-1": 147
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47010",
+      "invoicePriceList-1": 495
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47015",
+      "invoicePriceList-1": 290
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47100",
+      "invoicePriceList-1": 470
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47120",
+      "invoicePriceList-1": 427
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47122",
+      "invoicePriceList-1": 280
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47125",
+      "invoicePriceList-1": 412
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47130",
+      "invoicePriceList-1": 354
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47135",
+      "invoicePriceList-1": 36
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47140",
+      "invoicePriceList-1": 55
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47141",
+      "invoicePriceList-1": 113
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47142",
+      "invoicePriceList-1": 61
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47300",
+      "invoicePriceList-1": 369
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47350",
+      "invoicePriceList-1": 180
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47360",
+      "invoicePriceList-1": 259
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47361",
+      "invoicePriceList-1": 341
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47362",
+      "invoicePriceList-1": 122
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47370",
+      "invoicePriceList-1": 263
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47371",
+      "invoicePriceList-1": 270
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47379",
+      "invoicePriceList-1": 418
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47380",
+      "invoicePriceList-1": 446
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47381",
+      "invoicePriceList-1": 411
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47399",
+      "invoicePriceList-1": 195
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47400",
+      "invoicePriceList-1": 208
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47420",
+      "invoicePriceList-1": 310
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47425",
+      "invoicePriceList-1": 343
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47460",
+      "invoicePriceList-1": 275
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47480",
+      "invoicePriceList-1": 211
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47562",
+      "invoicePriceList-1": 422
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47563",
+      "invoicePriceList-1": 251
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47564",
+      "invoicePriceList-1": 108
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47570",
+      "invoicePriceList-1": 431
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47600",
+      "invoicePriceList-1": 493
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47605",
+      "invoicePriceList-1": 236
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47610",
+      "invoicePriceList-1": 239
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47612",
+      "invoicePriceList-1": 113
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47620",
+      "invoicePriceList-1": 36
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47700",
+      "invoicePriceList-1": 134
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47701",
+      "invoicePriceList-1": 310
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47711",
+      "invoicePriceList-1": 382
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47712",
+      "invoicePriceList-1": 402
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47715",
+      "invoicePriceList-1": 221
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47720",
+      "invoicePriceList-1": 483
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47721",
+      "invoicePriceList-1": 313
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47740",
+      "invoicePriceList-1": 357
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47741",
+      "invoicePriceList-1": 123
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47760",
+      "invoicePriceList-1": 393
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47765",
+      "invoicePriceList-1": 194
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47780",
+      "invoicePriceList-1": 485
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47785",
+      "invoicePriceList-1": 49
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47800",
+      "invoicePriceList-1": 446
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47802",
+      "invoicePriceList-1": 147
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-47900",
+      "invoicePriceList-1": 303
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48000",
+      "invoicePriceList-1": 330
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48001",
+      "invoicePriceList-1": 12
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48020",
+      "invoicePriceList-1": 194
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48100",
+      "invoicePriceList-1": 250
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48105",
+      "invoicePriceList-1": 429
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48120",
+      "invoicePriceList-1": 301
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48140",
+      "invoicePriceList-1": 99
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48145",
+      "invoicePriceList-1": 287
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48146",
+      "invoicePriceList-1": 373
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48148",
+      "invoicePriceList-1": 166
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48150",
+      "invoicePriceList-1": 157
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48152",
+      "invoicePriceList-1": 422
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48153",
+      "invoicePriceList-1": 26
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48154",
+      "invoicePriceList-1": 498
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48155",
+      "invoicePriceList-1": 357
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48160",
+      "invoicePriceList-1": 89
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48500",
+      "invoicePriceList-1": 319
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48510",
+      "invoicePriceList-1": 406
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48520",
+      "invoicePriceList-1": 35
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48540",
+      "invoicePriceList-1": 297
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48545",
+      "invoicePriceList-1": 458
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-48548",
+      "invoicePriceList-1": 335
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49491",
+      "invoicePriceList-1": 216
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49492",
+      "invoicePriceList-1": 152
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49495",
+      "invoicePriceList-1": 235
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49496",
+      "invoicePriceList-1": 350
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49500",
+      "invoicePriceList-1": 163
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49501",
+      "invoicePriceList-1": 442
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49505",
+      "invoicePriceList-1": 279
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49507",
+      "invoicePriceList-1": 323
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49520",
+      "invoicePriceList-1": 375
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49521",
+      "invoicePriceList-1": 303
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49525",
+      "invoicePriceList-1": 446
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49550",
+      "invoicePriceList-1": 306
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49553",
+      "invoicePriceList-1": 252
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49555",
+      "invoicePriceList-1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49557",
+      "invoicePriceList-1": 371
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49560",
+      "invoicePriceList-1": 32
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49561",
+      "invoicePriceList-1": 356
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49565",
+      "invoicePriceList-1": 232
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49566",
+      "invoicePriceList-1": 297
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49570",
+      "invoicePriceList-1": 287
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49572",
+      "invoicePriceList-1": 493
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49580",
+      "invoicePriceList-1": 434
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49582",
+      "invoicePriceList-1": 284
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49585",
+      "invoicePriceList-1": 17
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49587",
+      "invoicePriceList-1": 82
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49590",
+      "invoicePriceList-1": 90
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49600",
+      "invoicePriceList-1": 225
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49605",
+      "invoicePriceList-1": 412
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49606",
+      "invoicePriceList-1": 312
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49610",
+      "invoicePriceList-1": 66
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49611",
+      "invoicePriceList-1": 33
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49650",
+      "invoicePriceList-1": 345
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49651",
+      "invoicePriceList-1": 415
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49652",
+      "invoicePriceList-1": 51
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49653",
+      "invoicePriceList-1": 35
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49654",
+      "invoicePriceList-1": 462
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49655",
+      "invoicePriceList-1": 236
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49656",
+      "invoicePriceList-1": 31
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49657",
+      "invoicePriceList-1": 323
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-49659",
+      "invoicePriceList-1": 409
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50010",
+      "invoicePriceList-1": 241
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50020",
+      "invoicePriceList-1": 458
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50040",
+      "invoicePriceList-1": 395
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50045",
+      "invoicePriceList-1": 296
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50060",
+      "invoicePriceList-1": 285
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50065",
+      "invoicePriceList-1": 394
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50070",
+      "invoicePriceList-1": 248
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50075",
+      "invoicePriceList-1": 100
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50120",
+      "invoicePriceList-1": 221
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50125",
+      "invoicePriceList-1": 377
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50130",
+      "invoicePriceList-1": 22
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50135",
+      "invoicePriceList-1": 289
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50205",
+      "invoicePriceList-1": 493
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50220",
+      "invoicePriceList-1": 122
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50225",
+      "invoicePriceList-1": 405
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50230",
+      "invoicePriceList-1": 465
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50234",
+      "invoicePriceList-1": 347
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50236",
+      "invoicePriceList-1": 440
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50240",
+      "invoicePriceList-1": 183
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50250",
+      "invoicePriceList-1": 73
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50280",
+      "invoicePriceList-1": 267
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50290",
+      "invoicePriceList-1": 477
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50320",
+      "invoicePriceList-1": 483
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50340",
+      "invoicePriceList-1": 499
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50360",
+      "invoicePriceList-1": 26
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50365",
+      "invoicePriceList-1": 271
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50380",
+      "invoicePriceList-1": 112
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50400",
+      "invoicePriceList-1": 338
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50405",
+      "invoicePriceList-1": 160
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50541",
+      "invoicePriceList-1": 459
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50542",
+      "invoicePriceList-1": 241
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50543",
+      "invoicePriceList-1": 256
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50545",
+      "invoicePriceList-1": 36
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50546",
+      "invoicePriceList-1": 223
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50547",
+      "invoicePriceList-1": 46
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50548",
+      "invoicePriceList-1": 467
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-50549",
+      "invoicePriceList-1": 193
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-55705",
+      "invoicePriceList-1": 136
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-55810",
+      "invoicePriceList-1": 151
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-55812",
+      "invoicePriceList-1": 61
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-55815",
+      "invoicePriceList-1": 382
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-55821",
+      "invoicePriceList-1": 365
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-55831",
+      "invoicePriceList-1": 169
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-55840",
+      "invoicePriceList-1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-55842",
+      "invoicePriceList-1": 123
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-55845",
+      "invoicePriceList-1": 340
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-55866",
+      "invoicePriceList-1": 349
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-57307",
+      "invoicePriceList-1": 187
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58150",
+      "invoicePriceList-1": 71
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58152",
+      "invoicePriceList-1": 310
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58180",
+      "invoicePriceList-1": 297
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58200",
+      "invoicePriceList-1": 179
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58210",
+      "invoicePriceList-1": 51
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58240",
+      "invoicePriceList-1": 371
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58541",
+      "invoicePriceList-1": 160
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58542",
+      "invoicePriceList-1": 157
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58543",
+      "invoicePriceList-1": 188
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58544",
+      "invoicePriceList-1": 469
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58548",
+      "invoicePriceList-1": 106
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58550",
+      "invoicePriceList-1": 339
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58552",
+      "invoicePriceList-1": 74
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58553",
+      "invoicePriceList-1": 166
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58554",
+      "invoicePriceList-1": 461
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58570",
+      "invoicePriceList-1": 453
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58571",
+      "invoicePriceList-1": 472
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58572",
+      "invoicePriceList-1": 217
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58573",
+      "invoicePriceList-1": 215
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58575",
+      "invoicePriceList-1": 35
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58660",
+      "invoicePriceList-1": 10
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58661",
+      "invoicePriceList-1": 138
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58662",
+      "invoicePriceList-1": 329
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58679",
+      "invoicePriceList-1": 103
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58720",
+      "invoicePriceList-1": 432
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58740",
+      "invoicePriceList-1": 122
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58800",
+      "invoicePriceList-1": 286
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58805",
+      "invoicePriceList-1": 150
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58820",
+      "invoicePriceList-1": 354
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58822",
+      "invoicePriceList-1": 395
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58825",
+      "invoicePriceList-1": 411
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58900",
+      "invoicePriceList-1": 351
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58920",
+      "invoicePriceList-1": 405
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58925",
+      "invoicePriceList-1": 418
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58940",
+      "invoicePriceList-1": 334
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58943",
+      "invoicePriceList-1": 266
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58950",
+      "invoicePriceList-1": 338
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58951",
+      "invoicePriceList-1": 108
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58952",
+      "invoicePriceList-1": 268
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58953",
+      "invoicePriceList-1": 382
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58954",
+      "invoicePriceList-1": 290
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58956",
+      "invoicePriceList-1": 402
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-58970",
+      "invoicePriceList-1": 55
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-59100",
+      "invoicePriceList-1": 172
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-59510",
+      "invoicePriceList-1": 238
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-59514",
+      "invoicePriceList-1": 85
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-59515",
+      "invoicePriceList-1": 154
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-59525",
+      "invoicePriceList-1": 128
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-59618",
+      "invoicePriceList-1": 395
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-59620",
+      "invoicePriceList-1": 16
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-59622",
+      "invoicePriceList-1": 224
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-59857",
+      "invoicePriceList-1": 110
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61105",
+      "invoicePriceList-1": 237
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61107",
+      "invoicePriceList-1": 319
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61108",
+      "invoicePriceList-1": 189
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61120",
+      "invoicePriceList-1": 67
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61140",
+      "invoicePriceList-1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61150",
+      "invoicePriceList-1": 318
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61151",
+      "invoicePriceList-1": 252
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61154",
+      "invoicePriceList-1": 56
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61156",
+      "invoicePriceList-1": 436
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61210",
+      "invoicePriceList-1": 390
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61250",
+      "invoicePriceList-1": 481
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61253",
+      "invoicePriceList-1": 221
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61304",
+      "invoicePriceList-1": 210
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61305",
+      "invoicePriceList-1": 99
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61312",
+      "invoicePriceList-1": 205
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61313",
+      "invoicePriceList-1": 427
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61314",
+      "invoicePriceList-1": 311
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61315",
+      "invoicePriceList-1": 282
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61320",
+      "invoicePriceList-1": 223
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61321",
+      "invoicePriceList-1": 296
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61322",
+      "invoicePriceList-1": 373
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61323",
+      "invoicePriceList-1": 278
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61330",
+      "invoicePriceList-1": 420
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61333",
+      "invoicePriceList-1": 115
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61340",
+      "invoicePriceList-1": 432
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61343",
+      "invoicePriceList-1": 462
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61345",
+      "invoicePriceList-1": 363
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61458",
+      "invoicePriceList-1": 84
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61460",
+      "invoicePriceList-1": 111
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61510",
+      "invoicePriceList-1": 206
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61512",
+      "invoicePriceList-1": 143
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61514",
+      "invoicePriceList-1": 390
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61516",
+      "invoicePriceList-1": 187
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61518",
+      "invoicePriceList-1": 139
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61519",
+      "invoicePriceList-1": 416
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61520",
+      "invoicePriceList-1": 186
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61521",
+      "invoicePriceList-1": 380
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61522",
+      "invoicePriceList-1": 165
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61524",
+      "invoicePriceList-1": 349
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61526",
+      "invoicePriceList-1": 245
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61530",
+      "invoicePriceList-1": 404
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61531",
+      "invoicePriceList-1": 387
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61533",
+      "invoicePriceList-1": 442
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61534",
+      "invoicePriceList-1": 428
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61535",
+      "invoicePriceList-1": 340
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61536",
+      "invoicePriceList-1": 203
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61537",
+      "invoicePriceList-1": 104
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61538",
+      "invoicePriceList-1": 456
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61539",
+      "invoicePriceList-1": 217
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61540",
+      "invoicePriceList-1": 122
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61541",
+      "invoicePriceList-1": 159
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61543",
+      "invoicePriceList-1": 110
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61544",
+      "invoicePriceList-1": 301
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61545",
+      "invoicePriceList-1": 163
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61546",
+      "invoicePriceList-1": 220
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61548",
+      "invoicePriceList-1": 465
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61566",
+      "invoicePriceList-1": 167
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61567",
+      "invoicePriceList-1": 123
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61570",
+      "invoicePriceList-1": 273
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61571",
+      "invoicePriceList-1": 18
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61575",
+      "invoicePriceList-1": 293
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61576",
+      "invoicePriceList-1": 423
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61580",
+      "invoicePriceList-1": 146
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61581",
+      "invoicePriceList-1": 271
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61582",
+      "invoicePriceList-1": 206
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61583",
+      "invoicePriceList-1": 256
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61584",
+      "invoicePriceList-1": 320
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61585",
+      "invoicePriceList-1": 85
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61586",
+      "invoicePriceList-1": 209
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61590",
+      "invoicePriceList-1": 269
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61591",
+      "invoicePriceList-1": 307
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61592",
+      "invoicePriceList-1": 338
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61595",
+      "invoicePriceList-1": 258
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61598",
+      "invoicePriceList-1": 275
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61600",
+      "invoicePriceList-1": 280
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61601",
+      "invoicePriceList-1": 484
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61605",
+      "invoicePriceList-1": 212
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61606",
+      "invoicePriceList-1": 212
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61607",
+      "invoicePriceList-1": 404
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61608",
+      "invoicePriceList-1": 172
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61615",
+      "invoicePriceList-1": 382
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61616",
+      "invoicePriceList-1": 314
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61618",
+      "invoicePriceList-1": 83
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61619",
+      "invoicePriceList-1": 360
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61680",
+      "invoicePriceList-1": 380
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61682",
+      "invoicePriceList-1": 109
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61684",
+      "invoicePriceList-1": 252
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61686",
+      "invoicePriceList-1": 341
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61690",
+      "invoicePriceList-1": 406
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61692",
+      "invoicePriceList-1": 48
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61697",
+      "invoicePriceList-1": 185
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61698",
+      "invoicePriceList-1": 106
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61700",
+      "invoicePriceList-1": 357
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61702",
+      "invoicePriceList-1": 404
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61703",
+      "invoicePriceList-1": 249
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61705",
+      "invoicePriceList-1": 14
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61708",
+      "invoicePriceList-1": 113
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61710",
+      "invoicePriceList-1": 299
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61711",
+      "invoicePriceList-1": 228
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61720",
+      "invoicePriceList-1": 120
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61735",
+      "invoicePriceList-1": 90
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61750",
+      "invoicePriceList-1": 160
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61751",
+      "invoicePriceList-1": 139
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61760",
+      "invoicePriceList-1": 73
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61770",
+      "invoicePriceList-1": 274
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61850",
+      "invoicePriceList-1": 104
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61860",
+      "invoicePriceList-1": 443
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61863",
+      "invoicePriceList-1": 239
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61867",
+      "invoicePriceList-1": 455
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61870",
+      "invoicePriceList-1": 277
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-61880",
+      "invoicePriceList-1": 450
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-62000",
+      "invoicePriceList-1": 464
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-62005",
+      "invoicePriceList-1": 181
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-62010",
+      "invoicePriceList-1": 431
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-62100",
+      "invoicePriceList-1": 177
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-62120",
+      "invoicePriceList-1": 292
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-62121",
+      "invoicePriceList-1": 270
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-62161",
+      "invoicePriceList-1": 350
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-62163",
+      "invoicePriceList-1": 432
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-62164",
+      "invoicePriceList-1": 430
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-62165",
+      "invoicePriceList-1": 81
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-62287",
+      "invoicePriceList-1": 36
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-62351",
+      "invoicePriceList-1": 163
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-62380",
+      "invoicePriceList-1": 128
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63001",
+      "invoicePriceList-1": 81
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63003",
+      "invoicePriceList-1": 86
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63005",
+      "invoicePriceList-1": 357
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63011",
+      "invoicePriceList-1": 329
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63012",
+      "invoicePriceList-1": 317
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63015",
+      "invoicePriceList-1": 474
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63016",
+      "invoicePriceList-1": 384
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63017",
+      "invoicePriceList-1": 128
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63020",
+      "invoicePriceList-1": 23
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63030",
+      "invoicePriceList-1": 148
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63035",
+      "invoicePriceList-1": 228
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63040",
+      "invoicePriceList-1": 384
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63042",
+      "invoicePriceList-1": 55
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63045",
+      "invoicePriceList-1": 485
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63046",
+      "invoicePriceList-1": 156
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63047",
+      "invoicePriceList-1": 229
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63048",
+      "invoicePriceList-1": 315
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63050",
+      "invoicePriceList-1": 249
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63051",
+      "invoicePriceList-1": 100
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63055",
+      "invoicePriceList-1": 409
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63056",
+      "invoicePriceList-1": 393
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63064",
+      "invoicePriceList-1": 206
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63075",
+      "invoicePriceList-1": 364
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63077",
+      "invoicePriceList-1": 495
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63081",
+      "invoicePriceList-1": 40
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63082",
+      "invoicePriceList-1": 159
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63085",
+      "invoicePriceList-1": 405
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63086",
+      "invoicePriceList-1": 460
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63087",
+      "invoicePriceList-1": 311
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63088",
+      "invoicePriceList-1": 429
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63090",
+      "invoicePriceList-1": 30
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63091",
+      "invoicePriceList-1": 32
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63101",
+      "invoicePriceList-1": 215
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63102",
+      "invoicePriceList-1": 60
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63103",
+      "invoicePriceList-1": 28
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63170",
+      "invoicePriceList-1": 314
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63172",
+      "invoicePriceList-1": 344
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63173",
+      "invoicePriceList-1": 327
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63180",
+      "invoicePriceList-1": 229
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63182",
+      "invoicePriceList-1": 290
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63185",
+      "invoicePriceList-1": 109
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63190",
+      "invoicePriceList-1": 152
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63191",
+      "invoicePriceList-1": 100
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63194",
+      "invoicePriceList-1": 359
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63195",
+      "invoicePriceList-1": 462
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63196",
+      "invoicePriceList-1": 99
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63197",
+      "invoicePriceList-1": 266
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63198",
+      "invoicePriceList-1": 245
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63199",
+      "invoicePriceList-1": 324
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-63200",
+      "invoicePriceList-1": 404
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-69150",
+      "invoicePriceList-1": 79
+    },
+    {
+      "invoiceProductId": "invoiceProduct-procedure-69155",
+      "invoicePriceList-1": 50
+    },
+    {
+      "invoiceProductId": "invoiceProduct-stressTest",
+      "invoicePriceList-1": 38
+    },
+    {
+      "invoiceProductId": "invoiceProduct-ultrasound"
+    },
+    {
+      "invoiceProductId": "invoiceProduct-vascularStudy",
+      "invoicePriceList-1": 418
+    },
+    {
+      "invoiceProductId": "invoiceProduct-xRay",
+      "invoicePriceList-1": 483
+    },
+    {
+      "invoiceProductId": "invoiceProduct-xRayImagingArea-AbdomenPlain"
+    },
+    {
+      "invoiceProductId": "invoiceProduct-xRayImagingArea-Chest"
+    },
+    {
+      "invoiceProductId": "invoiceProduct-xRayImagingArea-FacialBones",
+      "invoicePriceList-1": 98
+    }
+  ]
+}

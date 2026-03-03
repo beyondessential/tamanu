@@ -53,7 +53,15 @@ describe('CentralSyncManager Sensitive Facilities', () => {
         type: REFERENCE_TYPES.NOTE_TYPE,
         visibilityStatus: 'current',
         systemRequired: true,
-      }
+      },
+      {
+        id: NOTE_TYPES.SYSTEM,
+        code: 'system',
+        name: 'System',
+        type: REFERENCE_TYPES.NOTE_TYPE,
+        visibilityStatus: 'current',
+        systemRequired: true,
+      },
     ]);
   });
 
@@ -287,14 +295,14 @@ describe('CentralSyncManager Sensitive Facilities', () => {
         fake(models.Note, {
           recordId: sensitiveEncounter.id,
           recordType: 'Encounter',
-          noteTypeId: NOTE_TYPES.OTHER
+          noteTypeId: NOTE_TYPES.OTHER,
         }),
       );
       const nonSensitiveNote = await models.Note.create(
         fake(models.Note, {
           recordId: nonSensitiveEncounter.id,
           recordType: 'Encounter',
-          noteTypeId: NOTE_TYPES.OTHER
+          noteTypeId: NOTE_TYPES.OTHER,
         }),
       );
 
@@ -871,24 +879,30 @@ describe('CentralSyncManager Sensitive Facilities', () => {
         });
       });
 
-      it("won't sync sensitive encounter invoice insurers", async () => {
-        const sensitiveInvoiceInsurer = await models.InvoiceInsurer.create(
-          fake(models.InvoiceInsurer, {
+      it("won't sync sensitive encounter invoice insurance contracts", async () => {
+        const contractA = await models.InvoiceInsurancePlan.create(
+          fake(models.InvoiceInsurancePlan),
+        );
+        const contractB = await models.InvoiceInsurancePlan.create(
+          fake(models.InvoiceInsurancePlan),
+        );
+        const sensitiveLink = await models.InvoicesInvoiceInsurancePlan.create(
+          fake(models.InvoicesInvoiceInsurancePlan, {
             invoiceId: sensitiveInvoice.id,
-            insurerId: (await models.ReferenceData.create(fake(models.ReferenceData))).id,
+            invoiceInsurancePlanId: contractA.id,
           }),
         );
-        const nonSensitiveInvoiceInsurer = await models.InvoiceInsurer.create(
-          fake(models.InvoiceInsurer, {
+        const nonSensitiveLink = await models.InvoicesInvoiceInsurancePlan.create(
+          fake(models.InvoicesInvoiceInsurancePlan, {
             invoiceId: nonSensitiveInvoice.id,
-            insurerId: (await models.ReferenceData.create(fake(models.ReferenceData))).id,
+            invoiceInsurancePlanId: contractB.id,
           }),
         );
 
         await checkSensitiveRecordFiltering({
-          model: models.InvoiceInsurer,
-          sensitiveId: sensitiveInvoiceInsurer.id,
-          nonSensitiveId: nonSensitiveInvoiceInsurer.id,
+          model: models.InvoicesInvoiceInsurancePlan,
+          sensitiveId: sensitiveLink.id,
+          nonSensitiveId: nonSensitiveLink.id,
         });
       });
     });
@@ -1225,9 +1239,7 @@ describe('CentralSyncManager Sensitive Facilities', () => {
 
       // Create prescriptions that are only linked through patient_ongoing_prescriptions (no encounters)
       const sensitivePrescription = await models.Prescription.create(fake(models.Prescription));
-      const nonSensitivePrescription = await models.Prescription.create(
-        fake(models.Prescription),
-      );
+      const nonSensitivePrescription = await models.Prescription.create(fake(models.Prescription));
 
       const sensitiveEncounterPrescription = await models.EncounterPrescription.create(
         fake(models.EncounterPrescription, {
@@ -1250,13 +1262,12 @@ describe('CentralSyncManager Sensitive Facilities', () => {
         }),
       );
 
-      const nonSensitivePatientOngoingPrescription =
-        await models.PatientOngoingPrescription.create(
-          fake(models.PatientOngoingPrescription, {
-            patientId: testPatient.id,
-            prescriptionId: nonSensitivePrescription.id,
-          }),
-        );
+      const nonSensitivePatientOngoingPrescription = await models.PatientOngoingPrescription.create(
+        fake(models.PatientOngoingPrescription, {
+          patientId: testPatient.id,
+          prescriptionId: nonSensitivePrescription.id,
+        }),
+      );
 
       const centralSyncManager = initializeCentralSyncManager(lookupEnabledConfig);
       await centralSyncManager.updateLookupTable();

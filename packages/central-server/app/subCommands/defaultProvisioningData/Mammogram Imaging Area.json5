@@ -1,0 +1,61 @@
+{
+  "sheetName": "Mammogram Imaging Area",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
+  "data": [
+    {
+      "id": "MGImagingArea-Breast-Both-Diagnostic",
+      "code": "MGBreast-Both-Diagnostic",
+      "name": "Breast - Both - Diagnostic"
+    },
+    {
+      "id": "MGImagingArea-Breast-Both-Hookwire",
+      "code": "MGBreast-Both-Hookwire",
+      "name": "Breast - Both - Hookwire"
+    },
+    {
+      "id": "MGImagingArea-Breast-ExcisedTissue",
+      "code": "MGBreast-ExcisedTissue",
+      "name": "Breast - Excised Tissue"
+    },
+    {
+      "id": "MGImagingArea-Breast-Left-Diagnostic",
+      "code": "MGBreast-Left-Diagnostic",
+      "name": "Breast - Left - Diagnostic"
+    },
+    {
+      "id": "MGImagingArea-Breast-Left-Hookwire",
+      "code": "MGBreast-Left-Hookwire",
+      "name": "Breast - Left - Hookwire"
+    },
+    {
+      "id": "MGImagingArea-Breast-MammowithTomosynthesis-Left",
+      "code": "MGBreast-MammowithTomosynthesis-Left",
+      "name": "Breast - Mammo with Tomosynthesis - Left"
+    },
+    {
+      "id": "MGImagingArea-Breast-MammowithTomosynthesis-Right",
+      "code": "MGBreast-MammowithTomosynthesis-Right",
+      "name": "Breast - Mammo with Tomosynthesis - Right"
+    },
+    {
+      "id": "MGImagingArea-Breast-Right-Diagnostic",
+      "code": "MGBreast-Right-Diagnostic",
+      "name": "Breast - Right - Diagnostic"
+    },
+    {
+      "id": "MGImagingArea-Breast-Right-Hookwire",
+      "code": "MGBreast-Right-Hookwire",
+      "name": "Breast - Right - Hookwire"
+    },
+    {
+      "id": "MGImagingArea-FluoroscopyWithGA",
+      "code": "MGFluoroscopyWithGA",
+      "name": "Fluoroscopy With G.A."
+    }
+  ]
+}

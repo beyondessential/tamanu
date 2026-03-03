@@ -78,7 +78,17 @@ export const ChartInstanceInfoSection = ({
     };
 
     await api.put(`surveyResponse/complexChartInstance/${chartInstanceId}`, responseData);
-    queryClient.invalidateQueries(['encounterComplexChartInstances', encounter.id, chartSurveyId]);
+
+    if (encounter?.id) {
+      queryClient.invalidateQueries(['encounterComplexChartInstances', encounter.id, chartSurveyId]);
+    }
+    else {
+      queryClient.invalidateQueries([
+        'programRegistryPatientComplexChartInstances',
+        patient.id,
+        chartSurveyId,
+      ]);
+    }
     setIsEditModalOpen(false);
   };
 

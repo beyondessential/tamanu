@@ -1,0 +1,20 @@
+{
+  "sheetName": "Catchment",
+  "columns": [
+    "id",
+    "code",
+    "name"
+  ],
+  "data": [
+    {
+      "id": "catchment-healthCenter1",
+      "code": "health-center-1",
+      "name": "Health center 1"
+    },
+    {
+      "id": "catchment-healthCenter2",
+      "code": "health-center-2",
+      "name": "Health center 2"
+    }
+  ]
+}

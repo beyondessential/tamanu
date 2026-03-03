@@ -8,7 +8,7 @@ import { selectFieldOption } from '@utils/fieldHelpers';
 import { format } from 'date-fns';
 import { LabRequestDetailsPage, LAB_REQUEST_STATUS } from '@pages/patients/LabRequestPage/LabRequestDetailsPage';
 import { testData } from '@utils/testData';
-import { getTableItems, selectFirstFromDropdown } from '@utils/testHelper';
+import { getTableItems, selectFirstFromDropdown, formatDateTimeForDisplay } from '@utils/testHelper';
 test.setTimeout(80000);
 
 test.describe('Lab Request Tests', () => {
@@ -157,7 +157,7 @@ test.describe('Lab Request Tests', () => {
         distinctCategories,
       );
       await labRequestModal.finaliseButton.click();
-      const formattedDate = format(new Date(requestedDateTime), 'MM/dd/yyyy h:mm a');
+      const formattedDate = formatDateTimeForDisplay(new Date(requestedDateTime));
       await labRequestModal.individualModal.validateRequestFinalisedPage({
         requestingClinician,
         requestedDateTime: formattedDate,
@@ -217,7 +217,7 @@ test.describe('Lab Request Tests', () => {
         distinctCategories,
       );
       await labRequestModal.finaliseButton.click();
-      const formattedDate = format(new Date(requestedDateTime), 'MM/dd/yyyy h:mm a');
+      const formattedDate = formatDateTimeForDisplay(new Date(requestedDateTime));
       await labRequestModal.individualModal.validateRequestFinalisedPage({
         requestingClinician,
         requestedDateTime: formattedDate,
@@ -465,7 +465,7 @@ test.describe('Lab Request Tests', () => {
       await labRequestDetailsPage.recordSampleModal.waitForModalToLoad();
       const date = new Date();
       const currentDateTime = format(date, "yyyy-MM-dd'T'HH:mm").toString();
-      const expectedDateTime = format(date, 'MM/dd/yyyy h:mm a');
+      const expectedDateTime = formatDateTimeForDisplay(date);
       await labRequestDetailsPage.recordSampleModal.dateTimeCollectedInput.fill(currentDateTime);
       await labRequestDetailsPage.recordSampleModal.selectFirstFromAllDropdowns();
       await labRequestDetailsPage.recordSampleModal.recordSampleConfirmButton.click();

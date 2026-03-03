@@ -203,3 +203,6 @@ sources:
                   arguments:
                     to: source('tamanu', 'users')
                     field: id
+          - name: results_interpretation
+            data_type: text
+            description: "{{ doc('lab_requests__results_interpretation') }}"

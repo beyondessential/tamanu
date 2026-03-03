@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import styled from 'styled-components';
-import { format } from 'date-fns';
 import { Box } from '@material-ui/core';
 import { DRUG_ROUTE_LABELS, MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
 import { useLocation, useNavigate } from 'react-router';
@@ -9,7 +8,7 @@ import { Button } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 
 import { DataFetchingTable } from '../Table';
-import { formatShortest } from '../DateDisplay';
+import { formatShortest, formatTime, getDateDisplay } from '../DateDisplay';
 import { TranslatedText, TranslatedReferenceData, TranslatedEnum } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';
 import { formatTimeSlot } from '../../utils/medications';
@@ -219,7 +218,7 @@ const getMedicationColumns = (
           tooltipTitle = (
             <>
               <TranslatedText stringId="medication.table.endsOn.label" fallback="Ends on" />
-              <div>{format(new Date(endDate), 'dd/MM/yy h:mma').toLowerCase()}</div>
+              <div>{getDateDisplay(endDate, { showDate: true, showTime: true })}</div>
             </>
           );
         } else if (isOngoing) {
@@ -271,12 +270,12 @@ const getMedicationColumns = (
         <Box width="60px" fontWeight={400}>
           <TranslatedText
             stringId="medication.table.lastOrdered.tooltip"
-            fallback="Date item was last ordered from pharmacy"
+            fallback="Date item was last sent to pharmacy"
           />
         </Box>
       ),
       title: (
-        <TranslatedText stringId="medication.table.column.lastOrdered" fallback="Last ordered" />
+        <TranslatedText stringId="medication.table.column.lastOrdered" fallback="Last sent" />
       ),
       sortable: false,
       accessor: ({ lastOrderedAt, encounterPrescription, discontinued }) => {
@@ -299,16 +298,15 @@ const getMedicationColumns = (
           );
         }
 
-        const orderDate = new Date(lastOrderedAt);
         return (
           <NoWrapCell
             color={isPausing ? Colors.softText : 'inherit'}
             fontStyle={isPausing ? 'italic' : 'normal'}
           >
             <Box>
-              {formatShortest(orderDate)}
+              {formatShortest(lastOrderedAt)}
               <Box fontSize="12px" color={Colors.softText}>
-                {format(orderDate, 'h:mma').toLowerCase()}
+                {formatTime(lastOrderedAt).toLowerCase()}
               </Box>
             </Box>
           </NoWrapCell>
@@ -365,10 +363,9 @@ export const EncounterMedicationTable = ({
 
   const rowStyle = ({ discontinued, medication }) => `
     ${discontinued ? 'text-decoration: line-through;' : ''}
-    ${
-      medication.referenceDrug.isSensitive && !canViewSensitiveMedications
-        ? 'pointer-events: none;'
-        : ''
+    ${medication.referenceDrug.isSensitive && !canViewSensitiveMedications
+      ? 'pointer-events: none;'
+      : ''
     }
   `;
 

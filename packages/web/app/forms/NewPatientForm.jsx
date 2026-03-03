@@ -15,7 +15,6 @@ import { IdBanner } from '../components/IdBanner';
 import { getPatientDetailsValidation } from '../validations';
 
 import { LoadingIndicator } from '../components/LoadingIndicator';
-
 import plusCircle from '../assets/images/plus_circle.svg';
 import minusCircle from '../assets/images/minus_circle.svg';
 import { RandomPatientButton } from '../views/patients/components/RandomPatientButton';

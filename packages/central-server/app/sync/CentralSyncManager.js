@@ -3,7 +3,7 @@ import { Op, QueryTypes } from 'sequelize';
 import _config from 'config';
 import { isNil } from 'lodash';
 
-import { DEBUG_LOG_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
+import { DEBUG_LOG_TYPES, SETTINGS_SCOPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { log } from '@tamanu/shared/services/logging';
 import {
@@ -28,7 +28,7 @@ import {
   SYNC_TICK_FLAGS,
 } from '@tamanu/database/sync';
 import { attachChangelogToSnapshotRecords, pauseAudit } from '@tamanu/database/utils/audit';
-import { uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
+import { stringToStableInteger, uuidToFairlyUniqueInteger } from '@tamanu/shared/utils';
 
 import { getLookupSourceTickRange } from './getLookupSourceTickRange';
 import { getPatientLinkedModels } from './getPatientLinkedModels';
@@ -40,6 +40,8 @@ import { updateLookupTable, updateSyncLookupPendingRecords } from './updateLooku
 
 const errorMessageFromSession = session =>
   `Sync session '${session.id}' encountered an error: ${session.errors[session.errors.length - 1]}`;
+
+const CREATE_SESSION_ADVISORY_LOCK = stringToStableInteger('createSessionAdvisoryLock');
 
 // about variables lapsedSessionSeconds and lapsedSessionCheckFrequencySeconds:
 // after x minutes of no activity, consider a session lapsed and wipe it to avoid holding invalid
@@ -73,6 +75,37 @@ export class CentralSyncManager {
   }
 
   close = () => clearInterval(this.purgeInterval);
+
+  /**
+   * Attempt to take the create-session advisory lock.
+   * If acquired, returns a function that releases the lock (by committing the lock's transaction).
+   * Call that function when done creating the session. If the lock is not available, returns null.
+   * @returns {Promise<(() => Promise<void>) | null>}
+   */
+  async takeCreateSessionLock() {
+    const transaction = await this.store.sequelize.transaction();
+    try {
+      const [[row]] = await this.store.sequelize.query(
+        'SELECT pg_try_advisory_xact_lock(:lockId) AS acquired;',
+        {
+          replacements: { lockId: CREATE_SESSION_ADVISORY_LOCK },
+          transaction,
+        },
+      );
+      if (!row?.acquired) {
+        await transaction.rollback();
+        return null;
+      }
+
+      // Releases the lock
+      return async () => {
+        await transaction.commit();
+      };
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  }
 
   async getIsSyncCapacityFull() {
     const { maxConcurrentSessions } = this.constructor.config.sync;
@@ -723,9 +756,63 @@ export class CentralSyncManager {
     }
   }
 
+  #modelMap = null;
   async addIncomingChanges(sessionId, changes) {
-    const { sequelize } = this.store;
+    const { sequelize, models } = this.store;
     await this.connectToSession(sessionId);
+
+    if (!this.#modelMap) {
+      this.#modelMap = new Map(
+        Object.values(models)
+          .filter(m => m.tableName && m.usesPublicSchema)
+          .map(m => [m.tableName, m]),
+      );
+    }
+
+    for (const change of changes) {
+      const model = this.#modelMap.get(change.recordType);
+      if (!model) {
+        const errorMessage = `Sync security violation: Attempted to push record with unknown model`;
+        log.error(errorMessage, {
+          recordType: change.recordType,
+          recordId: change.recordId,
+          reason: 'Model not found',
+          sessionId,
+        });
+
+        await models.SyncSession.addDebugInfo(sessionId, {
+          rejectedRecord: { type: change.recordType, id: change.recordId },
+        });
+
+        await models.SyncSession.markSessionErrored(sessionId, errorMessage);
+        throw new Error(errorMessage);
+      }
+
+      if (
+        ![
+          SYNC_DIRECTIONS.PUSH_TO_CENTRAL,
+          SYNC_DIRECTIONS.PUSH_TO_CENTRAL_THEN_DELETE,
+          SYNC_DIRECTIONS.BIDIRECTIONAL,
+        ].includes(model.syncDirection)
+      ) {
+        const errorMessage = `Sync security violation: Attempted to push record that is not allowed to be pushed`;
+        log.error(errorMessage, {
+          recordType: change.recordType,
+          recordId: change.recordId,
+          syncDirection: model.syncDirection,
+          reason: `Model has syncDirection '${model.syncDirection}' which is not allowed for push operations`,
+          sessionId,
+        });
+
+        await models.SyncSession.addDebugInfo(sessionId, {
+          rejectedRecord: { type: change.recordType, id: change.recordId },
+        });
+
+        await models.SyncSession.markSessionErrored(sessionId, errorMessage);
+        throw new Error(errorMessage);
+      }
+    }
+
     const incomingSnapshotRecords = changes.map(c => ({
       ...c,
       direction: SYNC_SESSION_DIRECTION.INCOMING,

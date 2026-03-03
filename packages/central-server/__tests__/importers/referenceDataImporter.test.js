@@ -67,8 +67,9 @@ describe('Data definition import', () => {
 
       const result = await app
         .post('/v1/admin/import/referenceData')
-        .attach(`./__tests__/importers/refdata-valid.xlsx`)
-        .field('includedDataTypes', 'allergy');
+        .attach('file', './__tests__/importers/refdata-valid.xlsx')
+        .field('includedDataTypes', 'allergy')
+        .field('dryRun', true);
 
       const { didntSendReason, errors } = result.body;
 
@@ -653,9 +654,12 @@ describe('Data definition import', () => {
     });
 
     it('should not import an invoice product when the source record does not exist', async () => {
-      const { didntSendReason, errors } = await doImport({
+      const { stats, didntSendReason, errors } = await doImport({
         file: 'invalid-invoice-product-missing-source',
         dryRun: true,
+      });
+      expect(stats).toMatchObject({
+        InvoiceProduct: { created: 1, updated: 0, errored: 1 },
       });
       expect(didntSendReason).toEqual('validationFailed');
       expect(errors).toContainValidationError(

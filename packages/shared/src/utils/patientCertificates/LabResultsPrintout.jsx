@@ -52,6 +52,11 @@ const generalStyles = StyleSheet.create({
   detailsContainer: {
     marginBottom: 5,
   },
+  resultsInterpretationContainer: {
+    border: '1px solid black',
+    padding: 10,
+    marginBottom: 10,
+  },
 });
 
 const SectionContainer = props => <View style={generalStyles.container} {...props} />;
@@ -175,6 +180,19 @@ const LabResultsPrintoutComponent = React.memo(
                   headerStyle={generalStyles.tableHeaderStyles}
                   columnStyle={generalStyles.tableColumnStyles}
                 />
+              </View>
+            </SectionContainer>
+          )}
+          {labRequest.resultsInterpretation && (
+            <SectionContainer>
+              <P bold fontSize={11} mb={3}>
+                {getTranslation(
+                  'pdf.labResults.resultsInterpretationTitle',
+                  'Results interpretation',
+                )}
+              </P>
+              <View style={generalStyles.resultsInterpretationContainer}>
+                <P fontSize={11}>{labRequest.resultsInterpretation}</P>
               </View>
             </SectionContainer>
           )}

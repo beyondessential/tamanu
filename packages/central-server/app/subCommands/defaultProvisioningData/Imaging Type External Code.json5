@@ -1,0 +1,13 @@
+{
+  sheetName: 'Imaging Type External Code',
+  columns: ['id', 'visibilityStatus', 'code', 'description', 'imagingTypeCode'],
+  data: [
+    {
+      id: 'imagingTypeExt-MRI',
+      visibilityStatus: 'current',
+      code: 'MR',
+      description: 'MRI',
+      imagingTypeCode: 'mri',
+    },
+  ],
+}

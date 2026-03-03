@@ -93,7 +93,7 @@ export async function allFromUpstream({ payload }, { log, sequelize, models }) {
         throw new Error(`Failed to insert jobs: ${JSON.stringify(results)}`);
       }
 
-      log.debug('FhirWorker: submitted refresh jobs', {
+      log.debug('FhirQueueManager: submitted refresh jobs', {
         resource: Resource.fhirName,
         count: results[1],
       });
