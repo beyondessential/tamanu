@@ -36,7 +36,6 @@ export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
     (data) =>
       api.post('certificateNotification', {
         type: COVID_19_CLEARANCE_CERTIFICATE,
-        requireSigning: false,
         patientId: patient.id,
         forwardAddress: data.email,
         createdBy: printedBy,

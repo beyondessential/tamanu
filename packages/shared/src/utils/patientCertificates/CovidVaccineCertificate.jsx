@@ -59,9 +59,7 @@ const CovidVaccineCertificateComponent = ({
   certificateId,
   signingSrc,
   watermarkSrc,
-  vdsSrc,
   logoSrc,
-  uvci,
   getLocalisation,
   getSetting,
   extraPatientFields,
@@ -86,11 +84,9 @@ const CovidVaccineCertificateComponent = ({
         <H3>COVID-19 Vaccine Certificate</H3>
         <CovidPatientDetailsSection
           patient={patient}
-          vdsSrc={vdsSrc}
           getSetting={getSetting}
           certificateId={certificateId}
           extraFields={extraPatientFields}
-          uvci={uvci}
         />
         <Box mb={20}>
           <Table

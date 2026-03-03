@@ -88,13 +88,7 @@
     "fijiVps": {
       "enabled": true
     },
-    "vdsNc": {
-      "enabled": true
-    },
-    "signer": {
-      "enabled": true,
-      "keySecret": "2hcp3wizGFFnGgsgZZDqFZDmUjaFCIppN8HnyBABqck="
-    },
+
     "fijiAspenMediciReport": {
       "enabled": true
     },
