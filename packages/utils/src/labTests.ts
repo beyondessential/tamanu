@@ -11,6 +11,11 @@ export type LabTestTypeLike = {
   unit?: string;
 };
 
+export type LabTestReferenceRangeOverride = {
+  referenceRangeMin?: number;
+  referenceRangeMax?: number;
+};
+
 type getTranslation = (
   stringId: string,
   fallback: string,
@@ -24,15 +29,31 @@ const hasValue = (value?: number | string) => value || value === 0;
 
 interface GetReferenceRangeProps<T extends LabTestTypeLike = LabTestTypeLike> {
   labTestType?: T;
-  sex?: keyof typeof SEX_VALUES | null,
+  labTest?: LabTestReferenceRangeOverride | null;
+  sex?: keyof typeof SEX_VALUES | null;
   getTranslation: getTranslation;
 }
 
-export const getReferenceRange = ({ labTestType, sex, getTranslation }: GetReferenceRangeProps) => {
+export const getReferenceRange = ({
+  labTestType,
+  labTest,
+  sex,
+  getTranslation,
+}: GetReferenceRangeProps) => {
   if (!labTestType) return '';
 
-  const max = sex === SEX_VALUES.MALE ? labTestType.maleMax : labTestType.femaleMax;
-  const min = sex === SEX_VALUES.MALE ? labTestType.maleMin : labTestType.femaleMin;
+  const hasOverride =
+    labTest && (hasValue(labTest.referenceRangeMin) || hasValue(labTest.referenceRangeMax));
+  const max = hasOverride
+    ? labTest.referenceRangeMax
+    : sex === SEX_VALUES.MALE
+      ? labTestType.maleMax
+      : labTestType.femaleMax;
+  const min = hasOverride
+    ? labTest.referenceRangeMin
+    : sex === SEX_VALUES.MALE
+      ? labTestType.maleMin
+      : labTestType.femaleMin;
   const hasMax = hasValue(max);
   const hasMin = hasValue(min);
 
@@ -53,12 +74,13 @@ export const getReferenceRange = ({ labTestType, sex, getTranslation }: GetRefer
 
 export const getReferenceRangeWithUnit = ({
   labTestType,
+  labTest,
   sex,
   getTranslation,
 }: GetReferenceRangeProps) => {
   if (!labTestType) return '';
 
-  const referenceRange = getReferenceRange({ labTestType, sex, getTranslation });
+  const referenceRange = getReferenceRange({ labTestType, labTest, sex, getTranslation });
   const { unit } = labTestType;
   if (!unit) return referenceRange;
   if (

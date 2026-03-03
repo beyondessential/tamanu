@@ -39,3 +39,11 @@ May be a verifying or supervising officer's name, a department, lab notes...
 {% docs lab_tests__completed_date_legacy %}
 [Deprecated] Timestamp at which the test was completed.
 {% enddocs %}
+
+{% docs lab_tests__reference_range_min %}
+Custom reference range for this individual lab test, minimum value.
+{% enddocs %}
+
+{% docs lab_tests__reference_range_max %}
+Custom reference range for this individual lab test, maximum value.
+{% enddocs %}
