@@ -1,0 +1,305 @@
+{
+  "sheetName": "Fluroscopy Imaging Area",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
+  "data": [
+    {
+      "id": "fluroscopyScanImagingArea-AbscessDrainageTubeChangeeximaging",
+      "code": "AbscessDrainageTubeChangeeximaging",
+      "name": "Abscess Drainage Tube Change (ex. imaging)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-AbscessDrainageTubeInsertioneximaging",
+      "code": "AbscessDrainageTubeInsertioneximaging",
+      "name": "Abscess Drainage Tube Insertion (ex. imaging)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-AnaesCervicalMyelogram",
+      "code": "AnaesCervicalMyelogram",
+      "name": "Anaes.Cervical Myelogram",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-AnaesHysterosalpingogram",
+      "code": "AnaesHysterosalpingogram",
+      "name": "Anaes. Hysterosalpingogram",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-AnaesThoracicorLumbarMyelogram",
+      "code": "AnaesThoracicorLumbarMyelogram",
+      "name": "Anaes.Thoracic or Lumbar Myelogram",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-AntegradePyelogramLeft",
+      "code": "AntegradePyelogramLeft",
+      "name": "Antegrade Pyelogram (Left)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-AntegradePyelogramRight",
+      "code": "AntegradePyelogramRight",
+      "name": "Antegrade Pyelogram (Right)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-AntegradeUretericStentInsertioneximaging",
+      "code": "AntegradeUretericStentInsertioneximaging",
+      "name": "Antegrade Ureteric Stent Insertion (ex imaging)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-Arthrogram",
+      "code": "Arthrogram",
+      "name": "Arthrogram",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-BiopsyofDeepOrganeximaging",
+      "code": "BiopsyofDeepOrganeximaging",
+      "name": "Biopsy of Deep Organ (ex. imaging)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-BiopsyofLungeximaging",
+      "code": "BiopsyofLungeximaging",
+      "name": "Biopsy of Lung (ex. imaging)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-BiopsyThoracicMediastinumeximaging",
+      "code": "BiopsyThoracicMediastinumeximaging",
+      "name": "Biopsy Thoracic Mediastinum (ex. imaging)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-ChestwithFluoroscopy",
+      "code": "ChestwithFluoroscopy",
+      "name": "Chest with Fluoroscopy",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-Cystogram",
+      "code": "Cystogram",
+      "name": "Cystogram",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-EmbolisationofArterovenousMalformation",
+      "code": "EmbolisationofArterovenousMalformation",
+      "name": "Embolisation of Arterovenous Malformation",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-EmbolisationofArtery",
+      "code": "EmbolisationofArtery",
+      "name": "Embolisation of Artery",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-EmbolisationofVein",
+      "code": "EmbolisationofVein",
+      "name": "Embolisation of Vein",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-ExcisedBreastTissue",
+      "code": "ExcisedBreastTissue",
+      "name": "Excised Breast Tissue",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-ExtractionBiliaryCalculuseximaging",
+      "code": "ExtractionBiliaryCalculuseximaging",
+      "name": "Extraction Biliary Calculus (ex. imaging)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-ExtractionRenalCalculuseximaging",
+      "code": "ExtractionRenalCalculuseximaging",
+      "name": "Extraction Renal Calculus (ex. imaging)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-FineNeedleBiopsyofVertebraeximaging",
+      "code": "FineNeedleBiopsyofVertebraeximaging",
+      "name": "Fine Needle Biopsy of Vertebra (ex. imaging)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-Fistulogram",
+      "code": "Fistulogram",
+      "name": "Fistulogram",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-FluoroscopyforInterventionalProcedureinDSASuite",
+      "code": "FluoroscopyforInterventionalProcedureinDSASuite",
+      "name": "Fluoroscopy for Interventional Procedure in DSA Suite",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-FluoroscopyWithGA",
+      "code": "FluoroscopyWithGA",
+      "name": "Fluoroscopy With G.A.",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-FluoroscopywithInterventionalProceedure",
+      "code": "FluoroscopywithInterventionalProceedure",
+      "name": "Fluoroscopy with Interventional Proceedure",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-FluoroscopywithoutGA",
+      "code": "FluoroscopywithoutGA",
+      "name": "Fluoroscopy without G.A.",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-GastricBandAdjustmentexImaging",
+      "code": "GastricBandAdjustmentexImaging",
+      "name": "Gastric Band Adjustment (ex. Imaging)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-Herniagram",
+      "code": "Herniagram",
+      "name": "Herniagram",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-InsertionBiliaryDrainageTubeeximaging",
+      "code": "InsertionBiliaryDrainageTubeeximaging",
+      "name": "Insertion - Biliary Drainage Tube (ex. imaging)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-InsertionOesophagealStent",
+      "code": "InsertionOesophagealStent",
+      "name": "Insertion - Oesophageal Stent",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-JointInjectionaspirationeximaging",
+      "code": "JointInjectionaspirationeximaging",
+      "name": "Joint Injection / aspiration (ex. imaging)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-LumbarPunctureeximaging",
+      "code": "LumbarPunctureeximaging",
+      "name": "Lumbar Puncture  (ex. imaging)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-MicturatingCystoUrethrogram",
+      "code": "MicturatingCystoUrethrogram",
+      "name": "Micturating Cysto-Urethrogram",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-MRBraininflammation",
+      "code": "MRBraininflammation",
+      "name": "MR Brain (inflammation)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-MRBraintumourofskullbaseorbit",
+      "code": "MRBraintumourofskullbaseorbit",
+      "name": "MR Brain (tumour of skull base/orbit)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-Myelogramoneormoreregions",
+      "code": "Myelogramoneormoreregions",
+      "name": "Myelogram - one or more regions",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-NephrostogramLeft",
+      "code": "NephrostogramLeft",
+      "name": "Nephrostogram (Left)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-NephrostogramRight",
+      "code": "NephrostogramRight",
+      "name": "Nephrostogram (Right)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-NephrostomyTubeChangeeximaging",
+      "code": "NephrostomyTubeChangeeximaging",
+      "name": "Nephrostomy Tube Change  (ex. imaging)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-NephrostomyTubeInsertioneximaging",
+      "code": "NephrostomyTubeInsertioneximaging",
+      "name": "Nephrostomy Tube Insertion (ex. imaging)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-RetrogradeCystoUrethrogram",
+      "code": "RetrogradeCystoUrethrogram",
+      "name": "Retrograde Cysto-Urethrogram",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-Sinogram",
+      "code": "Sinogram",
+      "name": "Sinogram",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-SmallBowelIntubationeximaging",
+      "code": "SmallBowelIntubationeximaging",
+      "name": "Small Bowel Intubation (ex. imaging)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-SniffTest",
+      "code": "SniffTest",
+      "name": "Sniff Test",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-TubeChangeBiliaryDrainageeximaging",
+      "code": "TubeChangeBiliaryDrainageeximaging",
+      "name": "Tube Change - Biliary Drainage (ex. imaging)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-VenaCavaFilterInsertion",
+      "code": "VenaCavaFilterInsertion",
+      "name": "Vena Cava Filter Insertion",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-VenogramLeft",
+      "code": "VenogramLeft",
+      "name": "Venogram (Left)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-VenogramRight",
+      "code": "VenogramRight",
+      "name": "Venogram (Right)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "fluroscopyScanImagingArea-ZygoapophysealJointInjectionincludesimaging",
+      "code": "ZygoapophysealJointInjectionincludesimaging",
+      "name": "Zygo-apophyseal Joint Injection (includes imaging)",
+      "visibilityStatus": "current"
+    }
+  ]
+}

@@ -2,13 +2,14 @@ import OvernightIcon from '@material-ui/icons/Brightness2';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
+import { sub } from 'date-fns';
 
 import { formatShort, toDateTimeString } from '@tamanu/utils/dateTime';
+import { Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useCheckOnLeaveMutation, useLocationBookingMutation } from '../../../api/mutations';
 import { Colors } from '../../../constants';
-import { Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { useTranslation } from '../../../contexts/Translation';
 import { notifyError, notifySuccess } from '../../../utils';
@@ -26,8 +27,8 @@ import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeRangeField } from './DateTimeRangeField';
 import { BodyText } from '../../Typography';
+import { EmailSection } from '../EmailSection';
 import { ENCOUNTER_TYPE_LABELS, ENCOUNTER_TYPES, FORM_TYPES } from '@tamanu/constants';
-import { sub } from 'date-fns';
 
 const formStyles = {
   zIndex: 1000,
@@ -275,6 +276,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
       additionalClinicianId,
       procedureTypeIds,
       linkEncounterId,
+      email,
     },
     { resetForm },
   ) => {
@@ -290,6 +292,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
         additionalClinicianId,
         procedureTypeIds,
         linkEncounterId,
+        email,
       },
       {
         onSuccess: () => {
@@ -343,6 +346,24 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     additionalClinicianId: yup.string(),
     procedureTypeIds: yup.array().of(yup.string()),
     linkEncounterId: yup.string(),
+    shouldEmailAppointment: yup.boolean(),
+    email: yup.string().when('shouldEmailAppointment', {
+      is: true,
+      then: yup
+        .string()
+        .required(requiredMessage)
+        .email(getTranslation('validation.rule.validEmail', 'Must be a valid email address')),
+    }),
+    confirmEmail: yup.string().when('shouldEmailAppointment', {
+      is: true,
+      then: yup
+        .string()
+        .required(requiredMessage)
+        .oneOf(
+          [yup.ref('email')],
+          getTranslation('validation.rule.emailsMatch', 'Emails must match'),
+        ),
+    }),
   });
 
   const renderForm = ({ values, resetForm, setFieldValue, dirty, errors }) => {
@@ -564,6 +585,11 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
             suggester={encounterSuggester}
             data-testid="field-encounter"
             disabled={!values.patientId}
+          />
+          <EmailSection
+            label={
+              <TranslatedText stringId="appointment.emailBooking.label" fallback="Email booking" />
+            }
           />
           <FormSubmitCancelRow onCancel={warnAndResetForm} data-testid="formsubmitcancelrow-bj5z" />
         </FormGrid>

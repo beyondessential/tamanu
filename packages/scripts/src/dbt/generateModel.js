@@ -5,7 +5,6 @@ const path = require('node:path');
 const YAML = require('yaml');
 const { compact, differenceBy, intersectionBy, remove } = require('lodash');
 const { spawnSync } = require('child_process');
-const { dbConfig } = require('./dbConfig.js');
 
 const KNOWN_TABLE_MASKING_KINDS = ['truncate'];
 const KNOWN_COLUMN_MASKING_KINDS = [
@@ -640,10 +639,28 @@ async function handleSchema(client, schemaName) {
 
 async function run(opts) {
   console.log('-+');
+
+  const { default: config } = await import('config');
+  const serverConfig = config.util.loadFileConfigs(
+    path.join('packages', 'central-server', 'config'),
+  );
+  const dbConfig = config.util.extendDeep(serverConfig.db, config.db);
+
+  const { initDatabase } = require('@tamanu/database/services/database');
   let client;
+  const dbName = 'tamanu-generate-model';
   try {
     console.log(' | connecting to database');
-    ({ client } = await dbConfig('central-server'));
+    console.log('Create new database', dbName);
+    const db = await initDatabase({
+      ...dbConfig,
+      testMode: true,
+      recreateDatabase: true,
+      name: dbName,
+    });
+    await db.sequelize.drop({ cascade: true });
+    await db.sequelize.migrate('up');
+    client = await db.sequelize.connectionManager.getConnection();
   } catch (err) {
     console.error(err);
     if (opts.failOnMissingConfig) {

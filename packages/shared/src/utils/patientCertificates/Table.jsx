@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from '@react-pdf/renderer';
+
 import { Text } from '../pdf/Text';
 
 const basicBorder = '1 solid black';
@@ -29,7 +30,19 @@ const tableStyles = StyleSheet.create({
   },
 });
 
-const TR = props => <View {...props} style={tableStyles.tr} />;
+const getHiddenRowDividerStyle = (index, rowCount) => {
+  if (index === rowCount - 1) return { borderTopWidth: 0 };
+  return { borderTopWidth: 0, borderBottomWidth: 0 };
+};
+
+const getSectionConfig = (index, data, getRowSectionLabel) => {
+  const sectionLabel = getRowSectionLabel?.(data[index]);
+  if (!sectionLabel) return { sectionLabel: null, shouldRenderSection: false };
+  const lastSectionLabel = index > 0 ? getRowSectionLabel?.(data[index - 1]) : null;
+  return { sectionLabel, shouldRenderSection: sectionLabel !== lastSectionLabel };
+};
+
+const TR = ({ style, ...props }) => <View {...props} style={[tableStyles.tr, style]} />;
 const TH = ({ customStyles, ...props }) => (
   <Text bold {...props} style={[tableStyles.th, customStyles]} />
 );
@@ -37,37 +50,71 @@ const TD = ({ customStyles, ...props }) => (
   <Text wrap={false} {...props} style={[tableStyles.td, customStyles]} />
 );
 
-export const Table = ({ data, columns, getLocalisation, getSetting, columnStyle }) => {
-  const leftColumnStyle = {
-    ...columnStyle,
-    borderLeft: basicBorder,
-  };
+const SectionRow = ({ label, columnStyle }) => (
+  <TR style={{ borderTopWidth: 0 }}>
+    <TD customStyles={[columnStyle, { borderLeft: basicBorder }]} bold>
+      {label}
+    </TD>
+  </TR>
+);
+
+export const Table = ({
+  data,
+  columns,
+  getLocalisation,
+  getSetting,
+  columnStyle,
+  headerStyle,
+  hideRowDividers = false,
+  getRowSectionLabel,
+}) => {
   const visibleColumns = columns.filter(({ key }) => getSetting(`fields.${key}.hidden`) !== true);
   return (
     <View style={tableStyles.table}>
       <TR fixed>
-        {visibleColumns.map(({ title, key, customStyles }, columnIndex) => (
+        {visibleColumns.map(({ title, key, customStyles }, index) => (
           <TH
             key={key}
-            customStyles={[customStyles, columnIndex === 0 ? leftColumnStyle : columnStyle]}
+            customStyles={[
+              columnStyle,
+              headerStyle,
+              customStyles,
+              index === 0 && { borderLeft: basicBorder },
+            ]}
           >
             {title}
           </TH>
         ))}
       </TR>
-      {data.map((row, rowIndex) => (
-        // eslint-disable-next-line react/no-array-index-key
-        <TR key={rowIndex}>
-          {visibleColumns.map(({ accessor, key, customStyles }, columnIndex) => (
-            <TD
-              key={key}
-              customStyles={[customStyles, columnIndex === 0 ? leftColumnStyle : columnStyle]}
+      {data.map((row, rowIndex) => {
+        const { sectionLabel, shouldRenderSection } = getSectionConfig(rowIndex, data, getRowSectionLabel);
+        return (
+          <React.Fragment key={rowIndex}>
+            {shouldRenderSection && <SectionRow label={sectionLabel} columnStyle={columnStyle} />}
+            <TR
+              style={hideRowDividers && getHiddenRowDividerStyle(rowIndex, data.length)}
             >
-              {accessor ? accessor(row, getLocalisation, getSetting) : row[key]}
-            </TD>
-          ))}
-        </TR>
-      ))}
+              {visibleColumns.map(({ accessor, key, customStyles = {} }, index) => {
+                const isFirstColumn = index === 0;
+                return (
+                  <TD
+                    key={key}
+                    customStyles={[
+                      columnStyle,
+                      customStyles,
+                      isFirstColumn && { borderLeft: basicBorder },
+                      // Indent the first column if belongs to a section
+                      isFirstColumn && sectionLabel && { textIndent: 6 },
+                    ]}
+                  >
+                    {accessor ? accessor(row, getLocalisation, getSetting) : row[key]}
+                  </TD>
+                );
+              })}
+            </TR>
+          </React.Fragment>
+        );
+      })}
     </View>
   );
 };

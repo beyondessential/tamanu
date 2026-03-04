@@ -38,6 +38,10 @@ const EncounterLink = styled(Link)`
   &:hover {
     color: ${Colors.primary};
   }
+  ${({ $isOvernight }) => $isOvernight && `
+    display: block;
+    max-width: calc(100% - 68px);
+  `}
 `;
 
 const ClinicianContainer = styled('div')`
@@ -51,7 +55,7 @@ const ClinicianContainer = styled('div')`
   }
 `;
 
-const LinkedEncounter = ({ encounter }) => {
+const LinkedEncounter = ({ encounter, isOvernight }) => {
   const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -87,11 +91,12 @@ const LinkedEncounter = ({ encounter }) => {
     <EncounterLink
       to={encounterPath}
       onClick={handleClick}
+      $isOvernight={isOvernight}
     >
       <LimitedLinesCell
         value={encounterLabel}
-        maxLines={1}
-        isOneLine
+        maxLines={isOvernight ? undefined : 1}
+        isOneLine={!isOvernight}
         PopperProps={{ style: { maxWidth: '200px' } }}
       />
     </EncounterLink>
@@ -200,7 +205,7 @@ const LocationBookingDetails = ({
             data-testid="translatedtext-linkedencounter"
           />
         }
-        value={linkEncounter && <LinkedEncounter encounter={linkEncounter} />}
+        value={linkEncounter && <LinkedEncounter encounter={linkEncounter} isOvernight={isOvernight} />}
         data-testid="detailsdisplay-linkedencounter"
       />
       {isOvernight && (

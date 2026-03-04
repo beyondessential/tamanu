@@ -1,6 +1,7 @@
 import { CENTRAL_MENU_ITEMS } from './CentralMenuItems';
 import { FACILITY_MENU_ITEMS } from './FacilityMenuItems';
 import { useSettings } from '../../contexts/Settings';
+import { useAuth } from '@tamanu/ui-components';
 
 const sortTopLevelItems = (a, b) => {
   // Always show dashboard first
@@ -22,6 +23,12 @@ const sortChildItems = (a, b) => {
 // sortPriority values from  sidebar config and merges them with the *_MENU_ITEMS constant
 const useSidebarFactory = (ITEMS, configKey) => {
   const { getSetting } = useSettings();
+  const { ability } = useAuth();
+
+  const checkAbility = ({ action, subject }) => {
+    return ability?.can?.(action, subject);
+  };
+
   const sidebarConfig = getSetting(configKey);
 
   if (!sidebarConfig) {
@@ -45,6 +52,15 @@ const useSidebarFactory = (ITEMS, configKey) => {
           return [...childItems, { ...child, sortPriority: localisedChild.sortPriority }];
         }, [])
         .sort(sortChildItems);
+    }
+
+    if (item.abilities?.length > 0) {
+      const hasAtLeastOneAbility = item.abilities.some(ability => checkAbility(ability));
+      if (!hasAtLeastOneAbility) return topLevelItems;
+
+      children = children.filter(child =>
+        child.abilities?.length > 0 ? child.abilities.some(ability => checkAbility(ability)) : true,
+      );
     }
 
     return [

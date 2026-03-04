@@ -9,7 +9,7 @@ const StyledConfirmModal = styled(ConfirmModal)`
   }
 `;
 
-export const UnSavedChangesModal = ({ open, onCancel, onConfirm }) => (
+export const UnsavedChangesModal = ({ open, onCancel, onConfirm }) => (
   <StyledConfirmModal
     title={
       <TranslatedText stringId="procedure.modal.unsavedChanges.title" fallback="Unsaved changes" />
@@ -42,11 +42,46 @@ export const UnSavedChangesModal = ({ open, onCancel, onConfirm }) => (
   />
 );
 
-export const UnSavedProcedureProgramModal = ({ open, onCancel, onConfirm }) => (
+export const CloseWithoutAdditionalDataModal = ({ open, onCancel, onConfirm }) => (
   <StyledConfirmModal
     title={
       <TranslatedText
-        stringId="procedure.modal.unsavedAdditionalData.title"
+        stringId="procedure.modal.closeWithoutAdditionalData.title"
+        fallback="Unsaved additional data"
+      />
+    }
+    onCancel={onCancel}
+    onConfirm={onConfirm}
+    open={open}
+    width="sm"
+    cancelButtonText={
+      <TranslatedText
+        stringId="procedure.modal.closeWithoutAdditionalData.cancel"
+        fallback="Continue editing"
+      />
+    }
+    confirmButtonText={
+      <TranslatedText
+        stringId="procedure.modal.closeWithoutAdditionalData.confirm"
+        fallback="Close without saving"
+      />
+    }
+    customContent={
+      <p>
+        <TranslatedText
+          stringId="procedure.modal.closeWithoutAdditionalData.content"
+          fallback="Additional data has not been saved. Are you sure you would like to close the modal without submitting the additional data? Any additional data entered will be lost."
+        />
+      </p>
+    }
+  />
+);
+
+export const SaveWithoutAdditionalDataModal = ({ open, onCancel, onConfirm }) => (
+  <StyledConfirmModal
+    title={
+      <TranslatedText
+        stringId="procedure.modal.saveWithoutAdditionalData.title"
         fallback="Unsaved additional data"
       />
     }
@@ -56,21 +91,21 @@ export const UnSavedProcedureProgramModal = ({ open, onCancel, onConfirm }) => (
     onConfirm={onConfirm}
     confirmButtonText={
       <TranslatedText
-        stringId="procedure.modal.unsavedAdditionalData.confirm"
+        stringId="procedure.modal.saveWithoutAdditionalData.confirm"
         fallback="Save procedure"
       />
     }
     cancelButtonText={
       <TranslatedText
-        stringId="procedure.modal.unsavedAdditionalData.cancel"
+        stringId="procedure.modal.saveWithoutAdditionalData.cancel"
         fallback="Continue editing"
       />
     }
     customContent={
       <p>
         <TranslatedText
-          stringId="procedure.modal.unsavedAdditionalData.content"
-          fallback="Additional data has not been saved. Are you sure you would like save the procedure without submitting the additional data? Any additional data entered will be lost."
+          stringId="procedure.modal.saveWithoutAdditionalData.content"
+          fallback="Additional data has not been saved. Are you sure you would like to save the procedure without submitting the additional data? Any additional data entered will be lost."
         />
       </p>
     }

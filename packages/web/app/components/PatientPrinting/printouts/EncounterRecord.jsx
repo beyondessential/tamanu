@@ -5,9 +5,9 @@ import { startCase } from 'lodash';
 
 import {
   NOTE_TYPES,
-  NOTE_TYPE_LABELS,
   DRUG_ROUTE_LABELS,
   ENCOUNTER_TYPE_LABELS,
+  REFERENCE_TYPES,
 } from '@tamanu/constants';
 
 import { PrintLetterhead } from './reusable/PrintLetterhead';
@@ -558,12 +558,16 @@ export const EncounterRecord = React.memo(
                 <Row key={note.id} data-testid={`row-6q5a-${index}`}>
                   <RowContent data-testid={`rowcontent-yeda-${index}`}>
                     <BoldText data-testid={`boldtext-wzyl-${index}`}>
-                      {NOTE_TYPE_LABELS[note.noteType]}
+                      <TranslatedReferenceData
+                        value={note.noteTypeReference?.id}
+                        fallback={note.noteTypeReference?.name}
+                        category={REFERENCE_TYPES.NOTE_TYPE}
+                      />
                     </BoldText>
                     <ChildNote data-testid={`childnote-wtgf-${index}`}>{note.content}</ChildNote>
                     <NoteMeta data-testid={`notemeta-q7d7-${index}`}>
                       <span>
-                        {note.noteType === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated: ' : ''}
+                        {note.noteTypeId === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated: ' : ''}
                       </span>
                       <span>{note.author?.displayName || ''} </span>
                       {note.onBehalfOf ? (

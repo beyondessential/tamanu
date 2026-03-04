@@ -18,6 +18,8 @@ import {
   DEFAULT_LANGUAGE_CODE,
   LOCATION_BOOKABLE_VIEW,
   ENCOUNTER_TYPE_LABELS,
+  NOTE_TYPES,
+  DRUG_STOCK_STATUSES,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { customAlphabet } from 'nanoid';
@@ -99,6 +101,7 @@ function createSuggesterRoute(
       delete query.language;
       const model = models[modelName];
       const noLimit = query.noLimit === 'true';
+      delete query.noLimit;
 
       const searchQuery = (query.q || '').trim().toLowerCase();
       const positionQuery = literal(
@@ -170,7 +173,7 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper, searchColumn,
       const include = includeBuilder?.(req);
 
       const record = await models[modelName].findOne({
-        where: { id: params.id },
+        where: { id: { [Op.iLike]: params.id } },
         include,
         bind: {
           language,
@@ -423,12 +426,50 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
         baseWhere['$referenceDrug.is_sensitive$'] = false;
       }
 
+      if (typeName === REFERENCE_TYPES.DRUG) {
+        const facilityId = req.query.facilityId;
+        const includeUnavailable = req.query.includeUnavailable;
+        if (facilityId && !includeUnavailable) {
+          baseWhere[Op.and] = [
+            { [Op.or]: baseWhere[Op.or] },
+            {
+              [Op.or]: [
+                {
+                  '$referenceDrug.id$': {
+                    [Op.notIn]: Sequelize.literal(`(
+                      SELECT reference_drug_id FROM reference_drug_facilities
+                      WHERE facility_id = ${req.db.escape(facilityId)}
+                      AND stock_status = '${DRUG_STOCK_STATUSES.UNAVAILABLE}'
+                    )`),
+                  },
+                },
+                {
+                  '$referenceDrug.facilities.facility_id$': null,
+                },
+              ],
+            },
+          ];
+          delete baseWhere[Op.or];
+        }
+      }
+
+      if (typeName === REFERENCE_TYPES.NOTE_TYPE) {
+        baseWhere.id = {
+          [Op.notIn]: [NOTE_TYPES.AREA_TO_BE_IMAGED, NOTE_TYPES.RESULT_DESCRIPTION],
+        };
+      }
+
       return baseWhere;
     },
     {
       includeBuilder: req => {
         const {
-          models: { ReferenceData, ReferenceMedicationTemplate, ReferenceDrug },
+          models: {
+            ReferenceData,
+            ReferenceMedicationTemplate,
+            ReferenceDrug,
+            ReferenceDrugFacility,
+          },
           query: { parentId, relationType = DEFAULT_HIERARCHY_TYPE },
         } = req;
 
@@ -448,6 +489,19 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
           typeName === REFERENCE_TYPES.DRUG && {
             model: ReferenceDrug,
             as: 'referenceDrug',
+            include: [
+              {
+                model: ReferenceDrugFacility,
+                ...(req.query.facilityId && {
+                  where: {
+                    facilityId: req.query.facilityId,
+                  },
+                }),
+                as: 'facilities',
+                attributes: ['referenceDrugId', 'facilityId', 'quantity', 'stockStatus'],
+                required: false,
+              },
+            ],
           },
           typeName === REFERENCE_TYPES.MEDICATION_SET && {
             model: ReferenceData,
@@ -474,10 +528,23 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
 
         return result.length > 0 ? result : null;
       },
-      queryOptions: typeName === REFERENCE_TYPES.MEDICATION_SET ? { subQuery: false } : {},
+      queryOptions:
+        typeName === REFERENCE_TYPES.MEDICATION_SET || typeName === REFERENCE_TYPES.DRUG
+          ? { subQuery: false }
+          : {},
       creatingBodyBuilder: req => referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
       afterCreated: afterCreatedReferenceData,
       mapper: item => item,
+      orderBuilder: () => {
+        if (typeName === REFERENCE_TYPES.NOTE_TYPE) {
+          return [
+            // Prioritize treatment plan at the top
+            Sequelize.literal(`
+              CASE "ReferenceData"."id" WHEN '${NOTE_TYPES.TREATMENT_PLAN}' THEN 0 ELSE 1 END
+            `),
+          ];
+        }
+      },
       shouldSkipDefaultOrder: req =>
         req.query.parentId || typeName === REFERENCE_TYPES.MEDICATION_SET,
     },
@@ -583,7 +650,45 @@ createSuggester(
   },
 );
 
-createSuggester('invoiceProduct', 'InvoiceProduct', ({ endpoint, modelName }) =>
+createSuggester(
+  'invoiceProduct',
+  'InvoiceProduct',
+  ({ endpoint, modelName, query }) => {
+    if (!query.priceListId) {
+      return DEFAULT_WHERE_BUILDER({ endpoint, modelName });
+    }
+
+    return {
+      [Op.and]: [getTranslationWhereLiteral(endpoint, modelName, 'name')],
+      [Op.or]: [
+        Sequelize.where(Sequelize.col('invoicePriceListItems.is_hidden'), Op.eq, false),
+        Sequelize.where(Sequelize.col('invoicePriceListItems.id'), Op.is, null),
+      ],
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+    };
+  },
+  {
+    includeBuilder: req => {
+      const { priceListId } = req.query;
+
+      if (!priceListId) return [];
+
+      return [
+        {
+          model: req.models.InvoicePriceListItem,
+          as: 'invoicePriceListItems',
+          required: false,
+          where: {
+            invoicePriceListId: priceListId,
+          },
+        },
+      ];
+    },
+    queryOptions: { subQuery: false },
+  },
+);
+
+createSuggester('invoiceInsurancePlan', 'InvoiceInsurancePlan', ({ endpoint, modelName }) =>
   DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
 );
 

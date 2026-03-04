@@ -43,6 +43,10 @@ const existingRecordLoaders = {
     TTD.findOne({ where: { taskTemplateId, designationId }, paranoid: false }),
   UserDesignation: (UD, { userId, designationId }) =>
     UD.findOne({ where: { userId, designationId }, paranoid: false }),
+  UserFacility: (UF, { userId, facilityId }) =>
+    UF.findOne({ where: { userId, facilityId }, paranoid: false }),
+  ReferenceDrugFacility: (RDF, { referenceDrugId, facilityId }) =>
+    RDF.findOne({ where: { referenceDrugId, facilityId }, paranoid: false }),
   ProcedureTypeSurvey: async (Model, values) => {
     const { procedureTypeId, surveyId } = values;
     if (!procedureTypeId || !surveyId) {
@@ -268,6 +272,7 @@ export async function importRows(
               'UserFacility',
               'ProcedureTypeSurvey',
               'TranslatedString',
+              'ReferenceDataRelation',
             ].includes(model)
           ) {
             throw new Error(`Deleting ${model} via the importer is not supported`);

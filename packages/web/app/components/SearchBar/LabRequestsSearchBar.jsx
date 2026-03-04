@@ -189,7 +189,7 @@ export const LabRequestsSearchBar = ({ statuses }) => {
           name="requestId"
           label={
             <TranslatedText
-              stringId="lab.requestId.label"
+              stringId="lab.requestId.label.short"
               fallback="Test ID"
               data-testid="translatedtext-8b9r"
             />

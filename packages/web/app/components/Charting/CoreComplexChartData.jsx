@@ -11,6 +11,7 @@ import { CHARTING_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constant
 import { useEncounter } from '../../contexts/Encounter';
 import { useEncounterChartsQuery } from '../../api/queries';
 import { DateDisplay } from '../DateDisplay';
+import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 
 const CoreComplexChartDataRow = styled.div`
   margin-bottom: 10px;
@@ -45,11 +46,13 @@ export const CoreComplexChartData = ({
   subtype,
   fieldVisibility,
   coreComplexDataElements,
+  canDeleteInstance,
+  isPatientRemoved = false,
 }) => {
   const { ability } = useAuth();
   const [open, setModalOpen] = useState(false);
   const { encounter } = useEncounter();
-  const { data } = useEncounterChartsQuery(encounter.id, selectedSurveyId, currentInstanceId);
+  const { data } = useEncounterChartsQuery(encounter?.id, selectedSurveyId, currentInstanceId);
   const actions = [
     {
       label: (
@@ -61,8 +64,9 @@ export const CoreComplexChartData = ({
       ),
       action: () => setModalOpen(true),
       permissionCheck: () => {
-        return ability?.can('delete', subject('Charting', { id: coreComplexChartSurveyId }));
+        return !isPatientRemoved && ability?.can('delete', subject('Charting', { id: coreComplexChartSurveyId }));
       },
+      wrapper: action => <NoteModalActionBlocker>{action}</NoteModalActionBlocker>,
     },
   ].filter(({ permissionCheck }) => {
     return permissionCheck ? permissionCheck() : true;
@@ -73,7 +77,9 @@ export const CoreComplexChartData = ({
 
   const isTypeVisible = isFieldVisible(type, CHARTING_DATA_ELEMENT_IDS.complexChartType);
   const isSubtypeVisible = isFieldVisible(subtype, CHARTING_DATA_ELEMENT_IDS.complexChartSubtype);
-  const showMenuButton = data.length === 0 && actions.length > 0;
+  const showMenuButton =
+    (typeof canDeleteInstance === 'boolean' ? canDeleteInstance : data.length === 0) &&
+    actions.length > 0;
 
   const { dateDataElement, typeDataElement, subtypeDataElement } = coreComplexDataElements;
 
@@ -94,7 +100,8 @@ export const CoreComplexChartData = ({
                 value={dateDataElement?.id}
                 fallback={dateDataElement?.name}
                 data-testid="translatedreferencedata-moh0"
-              />{dateDataElement ? ':' : null}
+              />
+              {dateDataElement ? ':' : null}
             </CoreComplexChartInfoHeader>
             <DateDisplay date={date} showTime data-testid="datedisplay-hnbz" />
           </CoreComplexChartSingleInfoWrapper>
@@ -107,7 +114,8 @@ export const CoreComplexChartData = ({
                   value={typeDataElement?.id}
                   fallback={typeDataElement?.name}
                   data-testid="translatedreferencedata-4z04"
-                />{typeDataElement ? ':' : null}
+                />
+                {typeDataElement ? ':' : null}
               </CoreComplexChartInfoHeader>
 
               <>{type || '-'}</>
@@ -122,7 +130,8 @@ export const CoreComplexChartData = ({
                   value={subtypeDataElement?.id}
                   fallback={subtypeDataElement?.name}
                   data-testid="translatedreferencedata-9x05"
-                />{subtypeDataElement ? ':' : null}
+                />
+                {subtypeDataElement ? ':' : null}
               </CoreComplexChartInfoHeader>
               <>{subtype || '-'}</>
             </CoreComplexChartSingleInfoWrapper>

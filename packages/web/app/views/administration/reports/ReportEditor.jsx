@@ -15,8 +15,8 @@ import {
   REPORT_DATA_SOURCE_VALUES,
   REPORT_DATA_SOURCE_LABELS,
   REPORT_DEFAULT_DATE_RANGES_LABELS,
-  REPORT_DB_SCHEMA_LABELS,
-  REPORT_DB_SCHEMA_VALUES,
+  REPORT_DB_CONNECTION_LABELS,
+  REPORT_DB_CONNECTION_VALUES,
   REPORT_DEFAULT_DATE_RANGES_VALUES,
   REPORT_STATUSES_VALUES,
   REPORT_STATUS_LABELS,
@@ -109,7 +109,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
               }
               name="dbSchema"
               component={TranslatedSelectField}
-              enumValues={REPORT_DB_SCHEMA_LABELS}
+              enumValues={REPORT_DB_CONNECTION_LABELS}
               disabled={isEdit}
               isClearable={false}
               data-testid="styledfield-36lu"
@@ -268,7 +268,7 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
         dbSchema: yup
           .string()
           .nullable()
-          .oneOf([...REPORT_DB_SCHEMA_VALUES, null]),
+          .oneOf([...REPORT_DB_CONNECTION_VALUES, null]),
         parameters: yup.array().of(
           yup.object().shape({
             name: yup

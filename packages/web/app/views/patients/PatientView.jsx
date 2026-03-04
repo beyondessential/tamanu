@@ -23,7 +23,6 @@ import {
 import { Colors } from '../../constants';
 import { PATIENT_TABS } from '../../constants/patientPaths';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
-import { PatientSearchParametersProvider } from '../../contexts/PatientViewSearchParameters';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { invalidatePatientDataQueries } from '../../utils';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
@@ -240,7 +239,7 @@ export const PatientView = () => {
   }
 
   return (
-    <PatientSearchParametersProvider data-testid="patientsearchparametersprovider-q6i8">
+    <>
       <PatientAlert alerts={patient.alerts} data-testid="patientalert-5sl7" />
       <StyledDisplayTabs
         tabs={visibleTabs}
@@ -252,6 +251,6 @@ export const PatientView = () => {
         disabled={disabled}
         data-testid="styleddisplaytabs-6gds"
       />
-    </PatientSearchParametersProvider>
+    </>
   );
 };

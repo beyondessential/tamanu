@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import {
   REPORT_DATA_SOURCES,
-  REPORT_DB_SCHEMAS,
+  REPORT_DB_CONNECTIONS,
   REPORT_DEFAULT_DATE_RANGES,
   REPORT_STATUSES,
 } from '@tamanu/constants/reports';
@@ -26,7 +26,7 @@ export const CreateReportView = () => {
 
   const onSubmit = async ({ name, query, status, dbSchema, notes, ...queryOptions }) => {
     const { dataSources } = queryOptions;
-    const isRawReport = dbSchema === REPORT_DB_SCHEMAS.RAW;
+    const isRawReport = dbSchema === REPORT_DB_CONNECTIONS.RAW;
     try {
       const { reportDefinitionId, id } = await api.post('admin/reports', {
         name,
@@ -70,7 +70,7 @@ export const CreateReportView = () => {
           status: REPORT_STATUSES.PUBLISHED,
           dataSources: [REPORT_DATA_SOURCES.ALL_FACILITIES],
           defaultDateRange: REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS,
-          dbSchema: canEditSchema ? REPORT_DB_SCHEMAS.RAW : null,
+          dbSchema: canEditSchema ? REPORT_DB_CONNECTIONS.RAW : null,
           parameters: [],
         }}
         onSubmit={onSubmit}

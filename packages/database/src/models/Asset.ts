@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
-import type { InitOptions } from '../types/model';
+import type { InitOptions, Models } from '../types/model';
 import type { ModelSanitizeArgs } from '../types/sync';
 
 export class Asset extends Model {
@@ -9,6 +9,7 @@ export class Asset extends Model {
   declare name?: string;
   declare type?: string;
   declare data?: Buffer;
+  declare facilityId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -23,6 +24,13 @@ export class Asset extends Model {
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
       },
     );
+  }
+
+  static initRelations(models: Models) {
+    this.belongsTo(models.Facility, {
+      foreignKey: 'facilityId',
+      as: 'facility',
+    });
   }
 
   /**

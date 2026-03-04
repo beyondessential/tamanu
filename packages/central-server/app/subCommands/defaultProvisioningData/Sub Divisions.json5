@@ -1,0 +1,145 @@
+{
+  "sheetName": "Sub Divisions",
+  "columns": [
+    "id",
+    "code",
+    "name"
+  ],
+  "data": [
+    {
+      "id": "subdivision-Ba",
+      "code": "Ba",
+      "name": "Ba"
+    },
+    {
+      "id": "subdivision-Bua",
+      "code": "Bua",
+      "name": "Bua"
+    },
+    {
+      "id": "subdivision-Cakaudrove",
+      "code": "Cakaudrove",
+      "name": "Cakaudrove"
+    },
+    {
+      "id": "subdivision-Kadavu",
+      "code": "Kadavu",
+      "name": "Kadavu"
+    },
+    {
+      "id": "subdivision-Korovou",
+      "code": "Korovou",
+      "name": "Korovou"
+    },
+    {
+      "id": "subdivision-Lakeba",
+      "code": "Lakeba",
+      "name": "Lakeba"
+    },
+    {
+      "id": "subdivision-Lau",
+      "code": "Lau",
+      "name": "Lau"
+    },
+    {
+      "id": "subdivision-LautokaYasawa",
+      "code": "LautokaYasawa",
+      "name": "Lautoka/Yasawa"
+    },
+    {
+      "id": "subdivision-Lomaiviti",
+      "code": "Lomaiviti",
+      "name": "Lomaiviti"
+    },
+    {
+      "id": "subdivision-Lomaloma",
+      "code": "Lomaloma",
+      "name": "Lomaloma"
+    },
+    {
+      "id": "subdivision-Macuata",
+      "code": "Macuata",
+      "name": "Macuata"
+    },
+    {
+      "id": "subdivision-Nadi",
+      "code": "Nadi",
+      "name": "Nadi"
+    },
+    {
+      "id": "subdivision-NadrogaNavosa",
+      "code": "NadrogaNavosa",
+      "name": "Nadroga/Navosa"
+    },
+    {
+      "id": "subdivision-Naitasiri",
+      "code": "Naitasiri",
+      "name": "Naitasiri"
+    },
+    {
+      "id": "subdivision-Navua",
+      "code": "Navua",
+      "name": "Navua"
+    },
+    {
+      "id": "subdivision-Overseas",
+      "code": "Overseas",
+      "name": "Overseas"
+    },
+    {
+      "id": "subdivision-Ra",
+      "code": "Ra",
+      "name": "Ra"
+    },
+    {
+      "id": "subdivision-Rewa",
+      "code": "Rewa",
+      "name": "Rewa"
+    },
+    {
+      "id": "subdivision-Rotuma",
+      "code": "Rotuma",
+      "name": "Rotuma"
+    },
+    {
+      "id": "subdivision-Serua",
+      "code": "Serua",
+      "name": "Serua"
+    },
+    {
+      "id": "subdivision-Serua Island",
+      "code": "Serua Island",
+      "name": "Serua Island"
+    },
+    {
+      "id": "subdivision-SeruaNamosi",
+      "code": "SeruaNamosi",
+      "name": "Serua/Namosi"
+    },
+    {
+      "id": "subdivision-Sigatoka",
+      "code": "Sigatoka",
+      "name": "Sigatoka"
+    },
+    {
+      "id": "subdivision-Suva",
+      "code": "Suva",
+      "name": "Suva"
+    },
+    {
+      "id": "subdivision-Tailevu",
+      "code": "Tailevu",
+      "name": "Tailevu"
+    },
+    {
+      "id": "subdivision-Taveuni",
+      "code": "Taveuni",
+      "name": "Taveuni"
+    },
+    {
+      "id": "subdivision-Tabua",
+      "code": "Tabua",
+      "name": "Tabua"
+    }
+  ]
+}

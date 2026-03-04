@@ -220,11 +220,27 @@ export const SelectInput = ({
             options={options.filter(option => option.value !== '')}
             menuPlacement="auto"
             menuPosition="fixed"
-            styles={customStyleObject || defaultStyles}
+            styles={
+              customStyleObject || {
+                ...defaultStyles,
+                control: (provided, state) => {
+                  const baseControl = defaultStyles.control(provided, state);
+                  return {
+                    ...baseControl,
+                    paddingTop: '4.3px',
+                    paddingBottom: '5px',
+                  };
+                },
+              }
+            }
             menuShouldBlockScroll="true"
-            placeholder={getTranslation('general.placeholder.select', 'Select')}
+            placeholder={
+              options.filter(option => option.value !== '').length > 7
+                ? getTranslation('general.placeholder.search...', 'Search...')
+                : getTranslation('general.placeholder.select', 'Select')
+            }
             isClearable={value !== '' && isClearable && !disabled}
-            isSearchable={false}
+            isSearchable
             tabIndex={inputProps.tabIndex}
             components={{
               Option: optionProps => <Option {...optionProps} data-testid={dataTestId} />,

@@ -17,7 +17,10 @@ send:
       - Alert: {{ filename }}
 
       {% for row in rows | slice(end=5) %}
-      - **{{row.resource}}** {{ row.id }} for {{ row.duration_minutes }} minutes
+      - **{{ row.resource }}** {{ row.id }} for {{ row.duration_minutes }} minutes
       {% endfor %}
-      - ... and {{ rows | length - 5 }} more
+
+      {% set remaining = rows | length - 5 %}
+      {% if remaining > 0 %}
+      - ... and {{ remaining }} more
       {% endif %}

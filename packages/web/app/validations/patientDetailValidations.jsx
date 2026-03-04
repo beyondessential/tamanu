@@ -300,6 +300,23 @@ export const getPatientDetailsValidation = (patientRegistryType, getSetting, get
         ),
       'Single/Plural birth',
     ),
+    birthOrder: yup.number().when('birthType', {
+      is: value => value === BIRTH_TYPES.PLURAL,
+      then: requiredBirthFieldWhenConfiguredMandatory(
+        getSetting,
+        getTranslation,
+        patientRegistryType,
+        'birthOrder',
+        yup.number().min(1).max(10).translatedLabel(
+          <TranslatedText
+            stringId="general.localisedField.birthOrder.label"
+            fallback="Birth order"
+          />,
+        ),
+        'Birth order',
+      ),
+      otherwise: yup.number().min(1).max(10),
+    }),
     timeOfBirth: requiredBirthFieldWhenConfiguredMandatory(
       getSetting,
       getTranslation,

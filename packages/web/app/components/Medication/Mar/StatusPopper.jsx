@@ -365,7 +365,6 @@ const GivenScreen = ({
               error={errors.timeGiven}
               slotProps={{
                 textField: {
-                  readOnly: true,
                   InputProps: {
                     placeholder: '--:-- --',
                   },

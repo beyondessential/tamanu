@@ -1,5 +1,6 @@
 import { QueryTypes, Sequelize } from 'sequelize';
 import config from 'config';
+import { NOTE_TYPES } from '@tamanu/constants';
 
 const REPORT_QUERY = `
 with
@@ -10,13 +11,13 @@ notes_info as (
     json_agg(
       json_build_object(
         'revisedById', id,
-        'noteType', note_type,
+        'noteTypeId', note_type_id,
         'content', "content",
         'noteDate', "date"::timestamp at time zone $timezone_string
       )
     ) aggregated_notes
   from notes
-  where note_type <> 'system'
+  where note_type_id <> '${NOTE_TYPES.SYSTEM}'
     and record_type in ('LabRequest','ImagingRequest')
     and deleted_at isnull
   group by record_id
@@ -178,7 +179,7 @@ latest_encounter_notes_info as (
     json_agg(
       json_build_object(
         'revisedById', edit_chain,
-        'noteType', note_type,
+        'noteTypeId', note_type_id,
         'content', "content",
         'noteDate', "date"::timestamp at time zone $timezone_string
       ) order by n.date desc
@@ -189,7 +190,7 @@ latest_encounter_notes_info as (
     FROM encounter_notes n
     ORDER BY edit_chain, date DESC
   ) n
-  where note_type != 'system'
+  where note_type_id <> '${NOTE_TYPES.SYSTEM}'
   and record_id = $encounter_id
   and n.deleted_at isnull
   group by n.record_id
@@ -209,7 +210,7 @@ department_info as (
     join encounter_history eh on eh.encounter_id = e.id
       and eh.deleted_at is null
     left join departments d on d.id = eh.department_id
-    where change_type isnull or change_type = 'department'
+    where change_type isnull or 'department' = ANY(change_type)
     and e.id = $encounter_id
     and e.deleted_at isnull
     group by eh.encounter_id
@@ -232,7 +233,7 @@ location_info as (
   left join locations l on eh.location_id = l.id
   left join location_groups lg on l.location_group_id = lg.id
   left join facilities f on l.facility_id = f.id
-  where change_type isnull or change_type = 'location'
+  where change_type isnull or 'location' = ANY(change_type)
   and e.id = $encounter_id
   and e.deleted_at isnull
   group by eh.encounter_id

@@ -35,7 +35,7 @@ procedure.post(
   asyncHandler(async (req, res) => {
     const {
       models,
-      body: { procedureId },
+      body: { procedureId, procedureTypeId },
     } = req;
     req.checkPermission('create', 'Procedure');
 
@@ -53,6 +53,8 @@ procedure.post(
         procedure = await models.Procedure.create({
           completed: false,
           date: getCurrentDateTimeString(),
+          encounterId: newSurveyResponse.encounterId,
+          procedureTypeId,
         });
       }
 

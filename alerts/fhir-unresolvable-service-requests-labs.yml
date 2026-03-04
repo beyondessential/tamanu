@@ -1,9 +1,9 @@
 sql: |
   SELECT
-    lr.display_id as lab_request_id,
+    lr.display_id AS lab_request_id,
     ROUND(EXTRACT(EPOCH FROM (NOW() - fsr.last_updated)) / 60)::text AS duration_minutes
   FROM fhir.service_requests fsr
-  JOIN lab_requests lr on fsr.upstream_id = lr.id
+  JOIN lab_requests lr ON fsr.upstream_id = lr.id
   WHERE fsr.resolved = FALSE
     AND NOW() - fsr.last_updated > INTERVAL '1 hours';
 
@@ -17,9 +17,15 @@ send:
       <h1>Unresolvable FHIR Service Requests (Lab Requests) detected</h1>
       <ul>
         {% for row in rows | slice(end=5) %}
-        <li><b>{{row.resource}}</> Lab Request ID: <b>{{ row.lab_request_id }}</b> - Unresolved for: <i>{{ row.duration_minutes }} minutes</i></li>
+        <li>
+          Lab Request ID: <b>{{ row.lab_request_id }}</b>
+          – Unresolved for: <i>{{ row.duration_minutes }} minutes</i>
+        </li>
         {% endfor %}
-         <li>... and {{ rows | length - 5 }} more</li>
+
+        {% set remaining = rows | length - 5 %}
+        {% if remaining > 0 %}
+        <li>... and {{ remaining }} more</li>
         {% endif %}
       </ul>
       <p>For more information, please check the logs.</p>

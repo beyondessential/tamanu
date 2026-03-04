@@ -1,0 +1,71 @@
+{
+  "sheetName": "Arrival Mode",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
+  "data": [
+    {
+      "id": "arrivalMode-ambulance",
+      "code": "ambulance",
+      "name": "Ambulance",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "arrivalMode-walking",
+      "code": "walking",
+      "name": "Walking",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "arrivalMode-wheelchair",
+      "code": "wheelchair",
+      "name": "Wheelchair",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "arrivalMode-trolley",
+      "code": "trolley",
+      "name": "Trolley",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "arrivalMode-crutches",
+      "code": "crutches",
+      "name": "Crutches",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "arrivalMode-governmentvehicle",
+      "code": "governmentvehicle",
+      "name": "Government Vehicle",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "arrivalMode-privatevehicle",
+      "code": "privatevehicle",
+      "name": "Private Vehicle",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "arrivalMode-publictransport",
+      "code": "publictransport",
+      "name": "Public Transport",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "arrivalMode-helicopter",
+      "code": "helicopter",
+      "name": "Helicopter",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "arrivalMode-police",
+      "code": "police",
+      "name": "Police",
+      "visibilityStatus": "current"
+    }
+  ]
+}
