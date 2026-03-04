@@ -34,7 +34,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
         title: (
           <TranslatedText
             stringId="lab.testType.label"
-            fallback="Test type"
+            fallback="Test"
             data-testid="translatedtext-bk9k"
           />
         ),
