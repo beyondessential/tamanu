@@ -213,6 +213,7 @@ export const FSMDeathCertificatePrintout = ({
 }) => {
   const currentDateString = getCurrentDateString();
   const additionalData = patientData?.additionalData;
+  const { motherData, fatherData } = patientData;
   const extraData = patientData?.extraData;
   const dob = patientData?.dateOfBirth;
   const dod = patientData?.dateOfDeath;
@@ -280,12 +281,12 @@ export const FSMDeathCertificatePrintout = ({
 
           {/* Row 7: Parents */}
           <View style={styles.row}>
-            <Cell flex={1} label="Father first name:" value={additionalData?.father?.firstName} />
-            <Cell flex={1} label="Father middle name:" value={additionalData?.father?.middleName} />
-            <Cell flex={1} label="Father last name:" value={additionalData?.father?.lastName} />
-            <Cell flex={1} label="Mother first name:" value={additionalData?.mother?.firstName} />
-            <Cell flex={1} label="Mother middle name:" value={additionalData?.mother?.middleName} />
-            <Cell width={140} lastCell label="Mother last name:" value={additionalData?.mother?.lastName} />
+            <Cell flex={1} label="Father first name:" value={fatherData?.firstName} />
+            <Cell flex={1} label="Father middle name:" value={fatherData?.middleName} />
+            <Cell flex={1} label="Father last name:" value={fatherData?.lastName} />
+            <Cell flex={1} label="Mother first name:" value={motherData?.firstName} />
+            <Cell flex={1} label="Mother middle name:" value={motherData?.middleName} />
+            <Cell width={140} lastCell label="Mother last name:" value={motherData?.lastName} />
           </View>
 
           {/* Row 8: Informant */}

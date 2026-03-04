@@ -1,15 +1,26 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { useQuery } from '@tanstack/react-query';
 import { Button, Modal, TranslatedText } from '@tamanu/ui-components';
 import { useCertificate } from '../../../utils/useCertificate';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { DeathCertificatePrintout } from '@tamanu/shared/utils/patientCertificates';
 import { useLocalisation } from '../../../contexts/Localisation';
+import { useApi } from '../../../api';
 import { usePatientAdditionalDataQuery, useReferenceDataQuery } from '../../../api/queries';
 import { useTranslation } from '../../../contexts/Translation';
 import { useSettings } from '../../../contexts/Settings';
 import { Colors } from '../../../constants/styles';
 import { useAuth } from '../../../contexts/Auth';
+
+const useParentQuery = (enabled, parentId) => {
+  const api = useApi();
+  return useQuery(
+    ['parentData', parentId],
+    async () => (parentId ? api.get(`patient/${encodeURIComponent(parentId)}`) : null),
+    { enabled },
+  );
+};
 
 const StyledButton = styled(Button)`
   &&.MuiButton-containedPrimary.Mui-disabled {
@@ -28,15 +39,31 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
     data: additionalData,
     isFetching: isAdditionalDataFetching,
   } = usePatientAdditionalDataQuery(patient.id);
-
+  const { data: motherData, isLoading: isMotherDataLoading } = useParentQuery(
+    !!additionalData,
+    additionalData?.motherId,
+  );
+  const { data: fatherData, isLoading: isFatherDataLoading } = useParentQuery(
+    !!additionalData,
+    additionalData?.fatherId,
+  );
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
+  const { data: village, isLoading: isVillageLoading } = useReferenceDataQuery(patient?.villageId);
 
-  const villageQuery = useReferenceDataQuery(patient?.villageId);
-  const village = villageQuery.data;
+  const patientData = {
+    ...patient,
+    ...deathData,
+    additionalData,
+    motherData,
+    fatherData,
+    village,
+  };
 
-  const patientData = { ...patient, ...deathData, additionalData, village };
-
-  const isLoading = isAdditionalDataFetching || isCertificateFetching;
+  const isLoading = isAdditionalDataFetching
+    || isCertificateFetching
+    || isMotherDataLoading
+    || isFatherDataLoading
+    || isVillageLoading;
 
   return (
     <>
