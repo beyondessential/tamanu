@@ -44,6 +44,7 @@ export class PatientDeathData extends Model {
   declare pregnancyMoment?: string;
   declare multiplePregnancy?: string;
   declare motherConditionDescription?: string;
+  declare extraData?: Record<string, any>;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -76,6 +77,7 @@ export class PatientDeathData extends Model {
         multiplePregnancy: DataTypes.STRING, // yes/no/unknown/null
         motherConditionDescription: DataTypes.TEXT,
         isFinal: DataTypes.BOOLEAN,
+        extraData: DataTypes.JSONB,
         visibilityStatus: {
           type: DataTypes.TEXT,
           defaultValue: VISIBILITY_STATUSES.CURRENT,

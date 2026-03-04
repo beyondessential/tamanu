@@ -261,6 +261,9 @@ sources:
             config:
               meta:
                 masking: text
+          - name: extra_data
+            data_type: jsonb
+            description: "{{ doc('patient_death_data__extra_data') }}"
           - name: antecedent_cause3_condition_id
             data_type: character varying(255)
             description: "{{ doc('patient_death_data__antecedent_cause3_condition_id') }}"

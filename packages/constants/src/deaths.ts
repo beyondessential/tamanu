@@ -28,3 +28,25 @@ export const PREGNANCY_MOMENTS = {
   'Within 42 days': 'Not pregnant, but pregnant within 42 days (6 weeks) of death',
   'Within 1 year': 'Not pregnant, but pregnant 43 days to 1 year before death',
 };
+
+export const FSM_FIELDS = [
+  'fsmStateOfDeathId',
+  'fsmAtollOfDeathId',
+  'fsmVillageOfDeathId',
+  'fsmSocialSecurityNumber',
+  'fsmMaritalStatus',
+  'fsmSurvivingSpouse',
+  'fsmUsualOccupation',
+  'fsmKindOfBusiness',
+  'fsmInformantName',
+  'fsmInformantAddress',
+  'fsmInformantRelationship',
+  'fsmDateInfoGiven',
+  'fsmCertifiedByPhysician',
+  'fsmReviewedByPhysician',
+  'fsmInjuryAtWork',
+  'fsmPregnantNow',
+  'fsmNumberOfWeeks',
+  'fsmDeathWithin42Days',
+  'fsmDateOfDeliveryAbortion',
+];
