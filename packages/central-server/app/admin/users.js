@@ -29,7 +29,7 @@ function throwIfUserUniqueConstraintError(e) {
   if (fields.some(f => f === 'email' || f === 'users_email_key')) {
     throw new DatabaseDuplicateError('Email must be unique across all users');
   }
-  if (fields.some(f => f === 'display_name' || f === 'users_display_name_unique')) {
+  if (fields.some(f => f === 'display_name' || f === 'lower(display_name)' || f === 'users_display_name_unique')) {
     throw new DatabaseDuplicateError('Display name must be unique across all users');
   }
   throw new DatabaseDuplicateError(e.message);

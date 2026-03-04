@@ -140,7 +140,6 @@ export class User extends Model {
         displayName: {
           type: DataTypes.STRING,
           allowNull: false,
-          unique: true,
         },
         role: {
           type: DataTypes.STRING,
@@ -170,7 +169,14 @@ export class User extends Model {
             attributes: { include: ['password'] },
           },
         },
-        indexes: [{ fields: ['email'] }],
+        indexes: [
+          { fields: ['email'] },
+          {
+            name: 'users_display_name_unique',
+            unique: true,
+            fields: [Sequelize.fn('LOWER', Sequelize.col('display_name'))],
+          },
+        ],
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         hooks: {
           async beforeUpdate(user: User) {
