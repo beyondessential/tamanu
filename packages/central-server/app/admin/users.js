@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { Op } from 'sequelize';
+import { Op, UniqueConstraintError } from 'sequelize';
 import { dateCustomValidation, getCurrentDateString } from '@tamanu/utils/dateTime';
 import { pick } from 'lodash';
 import * as yup from 'yup';
@@ -15,7 +15,6 @@ import {
   NotFoundError,
   ValidationError,
   InvalidOperationError,
-  EditConflictError,
 } from '@tamanu/errors';
 import { isBefore, startOfDay } from 'date-fns';
 import { isBcryptHash } from '@tamanu/utils/password';
@@ -23,6 +22,18 @@ import { subject } from '@casl/ability';
 import z from 'zod';
 
 export const usersRouter = express.Router();
+
+function throwIfUserUniqueConstraintError(e) {
+  if (!(e instanceof UniqueConstraintError)) throw e;
+  const fields = Object.keys(e.fields || {});
+  if (fields.some(f => f === 'email' || f === 'users_email_key')) {
+    throw new DatabaseDuplicateError('Email must be unique across all users');
+  }
+  if (fields.some(f => f === 'display_name' || f === 'lower(display_name)' || f === 'users_display_name_unique')) {
+    throw new DatabaseDuplicateError('Display name must be unique across all users');
+  }
+  throw new DatabaseDuplicateError(e.message);
+}
 
 const createUserFilters = (filterParams, models) => {
   const includeDeactivated = filterParams.includeDeactivated !== 'false';
@@ -218,24 +229,6 @@ usersRouter.post(
       throw new NotFoundError('Role not found');
     }
 
-    const existingUserWithSameEmail = await User.findOne({
-      where: {
-        email: fields.email,
-      },
-    });
-    if (existingUserWithSameEmail) {
-      throw new DatabaseDuplicateError('Email must be unique across all users');
-    }
-
-    const existingUserWithSameDisplayName = await User.findOne({
-      where: {
-        displayName: { [Op.iLike]: fields.displayName },
-      },
-    });
-    if (existingUserWithSameDisplayName) {
-      throw new DatabaseDuplicateError('Display name must be unique across all users');
-    }
-
     if (fields.designations && fields.designations.length > 0) {
       // Check if all designation IDs exist and are of type 'designation'
       const existingDesignations = await ReferenceData.findAll({
@@ -276,29 +269,33 @@ usersRouter.post(
       }
     }
 
-    await db.transaction(async () => {
-      const user = await User.create(fields);
+    try {
+      await db.transaction(async () => {
+        const user = await User.create(fields);
 
-      // Add new designations
-      if (fields.designations && fields.designations.length > 0) {
-        const designationRecords = fields.designations.map(designationId => ({
-          userId: user.id,
-          designationId,
-        }));
-        await UserDesignation.bulkCreate(designationRecords);
-      }
+        // Add designations
+        if (fields.designations && fields.designations.length > 0) {
+          const designationRecords = fields.designations.map(designationId => ({
+            userId: user.id,
+            designationId,
+          }));
+          await UserDesignation.bulkCreate(designationRecords);
+        }
 
-      const uniqueFacilityIds = [...new Set(fields.allowedFacilityIds || [])];
-      await UserFacility.bulkCreate(
-        uniqueFacilityIds.map(facilityId => ({
-          userId: user.id,
-          facilityId,
-        })),
-        {
-          ignoreDuplicates: true,
-        },
-      );
-    });
+        const uniqueFacilityIds = [...new Set(fields.allowedFacilityIds || [])];
+        await UserFacility.bulkCreate(
+          uniqueFacilityIds.map(facilityId => ({
+            userId: user.id,
+            facilityId,
+          })),
+          {
+            ignoreDuplicates: true,
+          },
+        );
+      });
+    } catch (e) {
+      throwIfUserUniqueConstraintError(e);
+    }
 
     res.send({ ok: true });
   }),
@@ -409,26 +406,6 @@ usersRouter.put(
       throw new NotFoundError('Role not found');
     }
 
-    const existingUserWithSameEmail = await User.findOne({
-      where: {
-        email: fields.email,
-        id: { [Op.ne]: id },
-      },
-    });
-    if (existingUserWithSameEmail) {
-      throw new EditConflictError('Email must be unique across all users');
-    }
-
-    const existingUserWithSameDisplayName = await User.findOne({
-      where: {
-        displayName: { [Op.iLike]: fields.displayName },
-        id: { [Op.ne]: id },
-      },
-    });
-    if (existingUserWithSameDisplayName) {
-      throw new EditConflictError('Display name must be unique across all users');
-    }
-
     // Validate designations if provided
     if (fields.designations && fields.designations.length > 0) {
       // Check if all designation IDs exist and are of type 'designation'
@@ -465,25 +442,29 @@ usersRouter.put(
       updateFields.password = fields.newPassword;
     }
 
-    await db.transaction(async () => {
-      await user.update(updateFields);
-      // Remove existing designations
-      await UserDesignation.destroy({
-        where: { userId: id },
+    try {
+      await db.transaction(async () => {
+        await user.update(updateFields);
+        // Remove existing designations
+        await UserDesignation.destroy({
+          where: { userId: id },
+        });
+
+        // Add new designations
+        if (fields.designations && fields.designations.length > 0) {
+          const designationRecords = fields.designations.map(designationId => ({
+            userId: id,
+            designationId,
+          }));
+          await UserDesignation.bulkCreate(designationRecords);
+        }
+
+        const uniqueFacilityIds = [...new Set(fields.allowedFacilityIds || [])];
+        await updateUserFacilities(UserFacility, user, uniqueFacilityIds);
       });
-
-      // Add new designations
-      if (fields.designations && fields.designations.length > 0) {
-        const designationRecords = fields.designations.map(designationId => ({
-          userId: id,
-          designationId,
-        }));
-        await UserDesignation.bulkCreate(designationRecords);
-      }
-
-      const uniqueFacilityIds = [...new Set(fields.allowedFacilityIds || [])];
-      await updateUserFacilities(UserFacility, user, uniqueFacilityIds);
-    });
+    } catch (e) {
+      throwIfUserUniqueConstraintError(e);
+    }
 
     res.send({ ok: true });
   }),
