@@ -149,19 +149,11 @@ const getValidationSchema = getTranslation =>
     resultsInterpretation: yup.string().nullable(),
   });
 
-const getColumns = (
-  {
-    labTestResults,
-    onChangeResult,
-    areLabTestResultsReadOnly
-  }
-) => {
+const getColumns = ({ labTestResults, onChangeResult, areLabTestResultsReadOnly }) => {
   const { count, data } = labTestResults || {};
   // Generate tab index for vertical tabbing through the table
   const tabIndex = (col, row) => count * col + row + 1;
-  const showSecondaryResultColumn = data?.some(
-    row => row.labTestType?.supportsSecondaryResults,
-  );
+  const showSecondaryResultColumn = data?.some(row => row.labTestType?.supportsSecondaryResults);
   return [
     {
       key: 'labTestType',
@@ -226,42 +218,42 @@ const getColumns = (
     },
     ...(showSecondaryResultColumn
       ? [
-        {
-          key: LAB_TEST_PROPERTIES.SECONDARY_RESULT,
-          title: (
-            <TranslatedText
-              stringId="lab.results.table.column.secondaryResult"
-              fallback="Secondary result"
-              data-testid="translatedtext-secondary-result"
-            />
-          ),
-          accessor: (row, i) => {
-            const { supportsSecondaryResults } = row.labTestType;
-            return (
-              <ConditionalTooltip
-                visible={!supportsSecondaryResults}
-                maxWidth="140px"
-                title={
-                  <TranslatedText
-                    stringId="lab.results.tooltip.secondaryResultNotSupported"
-                    fallback="Secondary result is not supported for this test."
-                    data-testid="translatedtext-secondary-not-supported"
+          {
+            key: LAB_TEST_PROPERTIES.SECONDARY_RESULT,
+            title: (
+              <TranslatedText
+                stringId="lab.results.table.column.secondaryResult"
+                fallback="Secondary result"
+                data-testid="translatedtext-secondary-result"
+              />
+            ),
+            accessor: (row, i) => {
+              const { supportsSecondaryResults } = row.labTestType;
+              return (
+                <ConditionalTooltip
+                  visible={!supportsSecondaryResults}
+                  maxWidth="140px"
+                  title={
+                    <TranslatedText
+                      stringId="lab.results.tooltip.secondaryResultNotSupported"
+                      fallback="Secondary result is not supported for this test."
+                      data-testid="translatedtext-secondary-not-supported"
+                    />
+                  }
+                >
+                  <AccessorField
+                    id={row.id}
+                    component={TextField}
+                    name={LAB_TEST_PROPERTIES.SECONDARY_RESULT}
+                    disabled={areLabTestResultsReadOnly || !supportsSecondaryResults}
+                    tabIndex={tabIndex(1, i)}
+                    data-testid="accessorfield-secondary-result"
                   />
-                }
-              >
-                <AccessorField
-                  id={row.id}
-                  component={TextField}
-                  name={LAB_TEST_PROPERTIES.SECONDARY_RESULT}
-                  disabled={areLabTestResultsReadOnly || !supportsSecondaryResults}
-                  tabIndex={tabIndex(1, i)}
-                  data-testid="accessorfield-secondary-result"
-                />
-              </ConditionalTooltip>
-            );
+                </ConditionalTooltip>
+              );
+            },
           },
-        },
-      ]
+        ]
       : []),
     {
       key: LAB_TEST_PROPERTIES.LAB_TEST_METHOD_ID,
@@ -331,23 +323,11 @@ const ResultsFormSkeleton = () => (
     <SkeletonContainer data-testid="box-40fc">
       <SkeletonSection data-testid="box-ccfc">
         <div>
-          <SkeletonTitle
-            variant="text"
-            width={124}
-            data-testid="skeleton-um2y"
-          />
-          <SkeletonSubtitle
-            variant="text"
-            width={270}
-            data-testid="skeleton-llaz"
-          />
+          <SkeletonTitle variant="text" width={124} data-testid="skeleton-um2y" />
+          <SkeletonSubtitle variant="text" width={270} data-testid="skeleton-llaz" />
         </div>
       </SkeletonSection>
-      <SkeletonRect
-        variant="rect"
-        height={254}
-        data-testid="skeleton-dl86"
-      />
+      <SkeletonRect variant="rect" height={254} data-testid="skeleton-dl86" />
     </SkeletonContainer>
   </>
 );
@@ -509,6 +489,8 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
     [labTestResults, labRequest.resultsInterpretation],
   );
 
+  const validationSchema = useMemo(() => getValidationSchema(getTranslation), [getTranslation]);
+
   return (
     <StyledModal
       width="lg"
@@ -529,7 +511,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
         initialValues={initialData}
         formType={labTestResults ? FORM_TYPES.EDIT : FORM_TYPES.CREATE}
         enableReinitialize
-        validationSchema={getValidationSchema(getTranslation)}
+        validationSchema={validationSchema}
         onSubmit={updateTests}
         render={({ submitForm, isSubmitting, dirty, ...props }) => {
           const confirmDisabled = isLoading || isError || isSavingTests || isSubmitting || !dirty;
