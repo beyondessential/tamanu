@@ -140,6 +140,7 @@ export class User extends Model {
         displayName: {
           type: DataTypes.STRING,
           allowNull: false,
+          unique: true,
         },
         role: {
           type: DataTypes.STRING,
