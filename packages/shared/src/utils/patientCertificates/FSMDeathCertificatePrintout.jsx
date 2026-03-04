@@ -4,7 +4,6 @@ import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { differenceInYears, differenceInMonths, differenceInDays, differenceInHours } from 'date-fns';
 import {
   MARITAL_STATUS_OPTIONS,
-  SEX_OPTIONS,
   BINARY_UNKNOWN_OPTIONS,
   TIME_UNIT_OPTIONS,
 } from '@tamanu/constants';
@@ -136,6 +135,9 @@ const getLabelFromValue = (mapping, v) => {
   return entry ? entry.label : '';
 };
 
+const SEX_ABBREVIATIONS = { male: 'M', female: 'F', other: 'O' };
+const getSexAbbreviation = (sex) => SEX_ABBREVIATIONS[sex] || '';
+
 const FSM_DATE_FORMAT = 'MM/dd/yyyy';
 
 // Time after onset is stored in minutes; display with the most appropriate unit (e.g. "2 hours", "30 minutes")
@@ -234,7 +236,7 @@ export const FSMDeathCertificatePrintout = ({
             <Cell flex={1} label="First name:" value={patientData?.firstName} />
             <Cell flex={1} label="Middle name:" value={patientData?.middleName} />
             <Cell flex={1} label="Last name:" value={patientData?.lastName} />
-            <Cell width={60} label="Sex:" value={getLabelFromValue(SEX_OPTIONS, patientData?.sex)} />
+            <Cell width={60} label="Sex:" value={getSexAbbreviation(patientData?.sex)} />
             <Cell width={140} lastCell label="Date of death:" value={getFSMDisplayDate(dod)} />
           </View>
 
