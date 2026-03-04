@@ -35,7 +35,7 @@ translationRouter.put(
       models: { TranslatedString },
       sequelize,
     } = store;
-    req.checkPermission('translation', 'write');
+    req.checkPermission('write', 'Translation');
     const upsertTranslation = async ({ stringId, language, text }) => {
       if (language === DEFAULT_LANGUAGE_CODE) return []; // Ignore default translations
 
