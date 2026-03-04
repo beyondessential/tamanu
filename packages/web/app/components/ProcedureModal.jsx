@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { addDays, parseISO } from 'date-fns';
 import styled from 'styled-components';
+import { Form, ButtonRow, FormCancelButton, FormSubmitButton } from '@tamanu/ui-components';
 import Typography from '@material-ui/core/Typography';
 import MuiDivider from '@material-ui/core/Divider';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import * as yup from 'yup';
 import { toast } from 'react-toastify';
@@ -11,21 +12,19 @@ import { FormModal } from './FormModal';
 import { useApi } from '../api';
 import { TranslatedText } from './Translation/TranslatedText';
 import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { Form } from '../components/Field';
-import { ButtonRow } from '../components/ButtonRow';
 import { foreignKey, optionalForeignKey } from '../utils/validation';
-import { FORM_TYPES } from '../constants/index.js';
+import { FORM_TYPES } from '@tamanu/constants';
 import { useAuth } from '../contexts/Auth';
 import { ProcedureAdditionalData } from '../forms/ProcedureForm/ProcedureAdditionalData';
 import { DataFetchingProgramsTable } from '../components/ProgramResponsesTable';
 import { usePatientDataQuery } from '../api/queries/usePatientDataQuery';
 import { useRefreshCount } from '../hooks/useRefreshCount';
 import {
-  UnSavedChangesModal,
-  UnSavedProcedureProgramModal,
+  UnsavedChangesModal,
+  SaveWithoutAdditionalDataModal,
+  CloseWithoutAdditionalDataModal,
 } from '../forms/ProcedureForm/ProcedureFormModals';
 import { ProcedureFormFields } from '../forms/ProcedureForm';
-import { FormCancelButton, FormSubmitButton } from './Button';
 
 const Heading = styled(Typography)`
   margin-bottom: 10px;
@@ -97,9 +96,11 @@ export const ProcedureModal = ({
   const { data: patient } = usePatientDataQuery(patientId);
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const [selectedSurveyId, setSelectedSurveyId] = useState(null);
-  const [unsavedChangesModalOpen, setUnSavedChangesModalOpen] = useState(false);
-  const [unsavedProgramFormOpen, setUnsavedProgramFormOpen] = useState(false);
-  const [pendingFormData, setPendingFormData] = useState(null); // Add this line
+  const [unsavedChangesModalOpen, setUnsavedChangesModalOpen] = useState(false);
+  const [saveWithoutAdditionalDataModalOpen, setSaveWithoutAdditionalDataModalOpen] = useState(false);
+  const [closeWithoutAdditionalDataModalOpen, setCloseWithoutAdditionalDataModalOpen] = useState(false);
+  const [pendingFormData, setPendingFormData] = useState(null);
+  const [surveyFormDirty, setSurveyFormDirty] = useState(false);
   const procedureId = editedProcedure?.id;
   const { data: programResponses } = useProcedureProgramResponsesQuery(
     patientId,
@@ -131,7 +132,7 @@ export const ProcedureModal = ({
       onSubmit={async data => {
         if (selectedSurveyId) {
           setPendingFormData(data); // Store the form data
-          setUnsavedProgramFormOpen(true);
+          setSaveWithoutAdditionalDataModalOpen(true);
         } else {
           await onSubmit(data);
         }
@@ -139,7 +140,9 @@ export const ProcedureModal = ({
       render={({ submitForm, values, dirty, setFieldValue }) => {
         const handleCancel = () => {
           if (dirty) {
-            setUnSavedChangesModalOpen(true);
+            setUnsavedChangesModalOpen(true);
+          } else if (surveyFormDirty) {
+            setCloseWithoutAdditionalDataModalOpen(true);
           } else {
             onClose();
           }
@@ -206,6 +209,8 @@ export const ProcedureModal = ({
                     />,
                   );
                 }}
+                surveyFormDirty={surveyFormDirty}
+                setSurveyFormDirty={setSurveyFormDirty}
               />
               {programResponses?.data?.length > 0 && (
                 <>
@@ -252,27 +257,38 @@ export const ProcedureModal = ({
                 ) : null}
               </ButtonRow>
             </FormModal>
-            <UnSavedProcedureProgramModal
-              open={unsavedProgramFormOpen}
+            <CloseWithoutAdditionalDataModal
+              open={closeWithoutAdditionalDataModalOpen}
               onCancel={() => {
-                setUnsavedProgramFormOpen(false);
+                setCloseWithoutAdditionalDataModalOpen(false);
+              }}
+              onConfirm={() => {
+                setCloseWithoutAdditionalDataModalOpen(false);
+                onClose();
+              }}
+            />
+            <SaveWithoutAdditionalDataModal
+              open={saveWithoutAdditionalDataModalOpen}
+              onCancel={() => {
+                setSaveWithoutAdditionalDataModalOpen(false);
                 setPendingFormData(null);
               }}
               onConfirm={async () => {
-                setUnsavedProgramFormOpen(false);
+                setSaveWithoutAdditionalDataModalOpen(false);
                 if (pendingFormData) {
                   await onSubmit(pendingFormData);
                   setPendingFormData(null);
                 }
               }}
             />
-            <UnSavedChangesModal
+            <UnsavedChangesModal
               open={unsavedChangesModalOpen}
               onCancel={() => {
-                setUnSavedChangesModalOpen(false);
+                setUnsavedChangesModalOpen(false);
               }}
               onConfirm={() => {
-                setUnSavedChangesModalOpen(false);
+                setUnsavedChangesModalOpen(false);
+                setSurveyFormDirty(false);
                 onClose();
               }}
             />

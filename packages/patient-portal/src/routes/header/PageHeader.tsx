@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import MenuIcon from '@mui/icons-material/Menu';
 import { IconButton } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { Link } from 'react-router';
 import { useCurrentUser } from '@routes/PrivateRoute';
 import { MainMenu } from './MainMenu';
 import tamanuLogoBlue from '../../assets/images/tamanu_logo_blue.svg';
@@ -13,6 +14,11 @@ const HeaderContainer = styled('div')(({ theme }) => ({
   display: 'flex',
   justifyContent: 'space-between',
 }));
+
+const LogoImage = styled('img')({
+  position: 'relative',
+  top: 2,
+});
 
 export const PageHeader = () => {
   const [open, setOpen] = useState(false);
@@ -30,7 +36,9 @@ export const PageHeader = () => {
 
   return (
     <HeaderContainer>
-      <img src={tamanuLogoBlue} alt="Tamanu Logo" />
+      <Link to="/">
+        <LogoImage src={tamanuLogoBlue} alt="Tamanu Logo" />
+      </Link>
       <IconButton aria-label="open drawer" edge="end" onClick={onOpen} color="primary">
         <MenuIcon />
       </IconButton>

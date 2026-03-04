@@ -4,8 +4,9 @@ import { useFormikContext } from 'formik';
 import styled from '@mui/system/styled';
 
 import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
+import { Form, TextButton, TranslatedText } from '@tamanu/ui-components';
 
-import { Field, Form, SearchField, TextButton, TranslatedText } from '../../../components';
+import { Field, SearchField} from '../../../components';
 import { useTranslation } from '../../../contexts/Translation';
 import { FilterField } from '../../../components/Field/FilterField';
 import { useUserPreferencesMutation } from '../../../api/mutations';
@@ -17,7 +18,7 @@ import {
 
 const SearchBar = styled('search')`
   display: flex;
-  gap: 0.625rem;
+  gap: 0.5rem;
 `;
 
 const FormListener = () => {
@@ -27,7 +28,7 @@ const FormListener = () => {
 };
 
 export const LocationBookingsFilter = () => {
-  const { filters, setFilters } = useLocationBookingsContext();
+  const { filters, setFilters, viewType } = useLocationBookingsContext();
   const { getTranslation } = useTranslation();
   const { facilityId } = useAuth();
 
@@ -65,6 +66,7 @@ export const LocationBookingsFilter = () => {
               label={getTranslation('general.area.label', 'Area')}
               component={FilterField}
               endpoint="bookableLocationGroup"
+              baseQueryParameters={{ isBookable: viewType }}
               onChange={(e) =>
                 updateUserPreferences({ ...filters, locationGroupIds: e.target.value })
               }

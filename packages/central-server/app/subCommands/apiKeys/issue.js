@@ -2,27 +2,10 @@ import { Command } from 'commander';
 import config from 'config';
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
-import { DEFAULT_JWT_SECRET } from '../../auth';
 import { buildToken } from '../../auth/utils';
 import { closeDatabase, initDatabase } from '../../database';
 
-const keyTypeToSecret = {
-  default: DEFAULT_JWT_SECRET,
-  omniLab: config.integrations.omniLab.secret,
-};
-
-export const genToken = async (keyType, email, { expiresIn }) => {
-  // find secret
-  if (keyType && !Object.prototype.hasOwnProperty.call(keyTypeToSecret, keyType)) {
-    throw new Error('Unknown keyType');
-  }
-  const secret = keyTypeToSecret[keyType];
-  if (!secret) {
-    throw new Error(
-      'Secret not defined but keyType is known (you may need to set a secret in the config)',
-    );
-  }
-
+export const genToken = async (email, { expiresIn }) => {
   // find user
   const store = await initDatabase({ testMode: false });
   const user = await store.sequelize.models.User.findOne({
@@ -37,7 +20,7 @@ export const genToken = async (keyType, email, { expiresIn }) => {
     {
       userId: user.id,
     },
-    secret,
+    null,
     { expiresIn, audience: JWT_TOKEN_TYPES.ACCESS, issuer: config.canonicalHostName },
   );
 
@@ -49,19 +32,15 @@ export const genToken = async (keyType, email, { expiresIn }) => {
   return token;
 };
 
-const issue = async (keyType, email, options) => {
+const issue = async (email, options) => {
   // issue() and genToken() are split up to make testing easier
-  const token = await genToken(keyType, email, options);
+  const token = await genToken(email, options);
   process.stderr.write(`Expires in ${options.expiresIn} (see -e option, in --help output)\n`);
   process.stdout.write(`${token}\n`);
 };
 
 export const issueCommand = new Command('issue')
   .description('Issue a new API key')
-  .argument(
-    '<keyType>',
-    `Type of API key to issue (one of ${Object.keys(keyTypeToSecret).join(',')})`,
-  )
   .argument('<email>', 'Email of the user the key should authenticate as')
   .option(
     '-e, --expiresIn <expiresIn>',

@@ -6,39 +6,15 @@ import {
 } from '@pages/patients/LabRequestPage/panes/LabRequestPane';
 import { selectFieldOption } from '@utils/fieldHelpers';
 import { format } from 'date-fns';
-import { LabRequestDetailsPage } from '@pages/patients/LabRequestPage/LabRequestDetailsPage';
+import { LabRequestDetailsPage, LAB_REQUEST_STATUS } from '@pages/patients/LabRequestPage/LabRequestDetailsPage';
 import { testData } from '@utils/testData';
-import { getTableItems, selectFirstFromDropdown } from '@utils/testHelper';
+import { getTableItems, selectFirstFromDropdown, formatDateTimeForDisplay } from '@utils/testHelper';
 test.setTimeout(80000);
 
 test.describe('Lab Request Tests', () => {
   let labRequestModal: LabRequestModal;
   let labRequestPane: LabRequestPane;
 
-  // Lab Request Status Constants
-  const LAB_REQUEST_STATUS = {
-    RECEPTION_PENDING: 'Reception pending',
-    SAMPLE_NOT_COLLECTED: 'Sample not collected',
-  } as const;
-
-  // Helper function to create a basic individual lab request
-  async function createBasicIndividualLabRequest(testsToSelect?: string[]) {
-    const selectedTests = testsToSelect || [
-      'AgRDT Negative, no further testing needed',
-      'AgRDT Positive, no further testing needed',
-    ];
-    await labRequestPane.newLabRequestButton.click();
-    await labRequestModal.waitForModalToLoad();
-    await labRequestModal.individualRadioButton.click();
-    await labRequestModal.nextButton.click();
-    await labRequestModal.selectItemsByText(selectedTests);
-    await labRequestModal.nextButton.click();
-    await labRequestModal.finaliseButton.click();
-    await labRequestModal.closeButton.click();
-    await labRequestPane.waitForTableToLoad();
-    await labRequestPane.sortTableByCategory();
-    return selectedTests;
-  }
   test.beforeEach(async ({ page, newPatientWithHospitalAdmission, patientDetailsPage }) => {
     await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
     await patientDetailsPage.navigateToLabsTab();
@@ -104,41 +80,13 @@ test.describe('Lab Request Tests', () => {
 
     test('[T-0207][AT-0056]Create a panel lab request with all fields filled', async () => {
       await labRequestPane.newLabRequestButton.click();
-      await labRequestModal.waitForModalToLoad();
-      await selectFieldOption(labRequestModal.page, labRequestModal.prioritySelect, {
-        selectFirst: true,
-      });
-      const priority = await labRequestModal.prioritySelect
-        .locator('div')
-        .locator('div')
-        .first()
-        .textContent();
-      await labRequestModal.nextButton.click();
       const panelsToSelect = ['Demo Test Panel'];
-      const panelCategories = await labRequestModal.selectItemsByText(panelsToSelect);
-      await labRequestModal.validateSelectedItemsAndCategoriesInTable(
-        panelsToSelect,
-        panelCategories,
-      );
-      const noteToAdd = 'This is a test note';
-      await labRequestModal.addNotes(noteToAdd);
-      await labRequestModal.nextButton.click();
-      const currentDateTime = labRequestModal.getCurrentDateTime();
-      await labRequestModal.setDateTimeCollected(currentDateTime);
-      await labRequestModal.selectFirstCollectedBy(0);
-      await labRequestModal.selectFirstSpecimenType(0);
-      await labRequestModal.selectFirstSite(0);
-      await labRequestModal.panelModal.validateSelectedPanelsAndCategoriesInSampleDetailsPage(
-        panelsToSelect,
-        panelCategories,
-      );
-      await labRequestModal.finaliseButton.click();
-      await labRequestModal.closeButton.click();
+      const { requestedDateTime, priority, panelCategories } = await labRequestModal.panelModal.createPanelLabRequestWithAllFields(panelsToSelect);
       await labRequestPane.waitForTableToLoad();
       await labRequestPane.sortTableByCategory();
       await labRequestPane.validateLabRequestTableContent(
         panelCategories,
-        currentDateTime,
+        requestedDateTime,
         (await labRequestModal.getCurrentUser()).displayName,
         priority!,
         LAB_REQUEST_STATUS.RECEPTION_PENDING,
@@ -209,7 +157,7 @@ test.describe('Lab Request Tests', () => {
         distinctCategories,
       );
       await labRequestModal.finaliseButton.click();
-      const formattedDate = format(new Date(requestedDateTime), 'MM/dd/yyyy h:mm a');
+      const formattedDate = formatDateTimeForDisplay(new Date(requestedDateTime));
       await labRequestModal.individualModal.validateRequestFinalisedPage({
         requestingClinician,
         requestedDateTime: formattedDate,
@@ -269,7 +217,7 @@ test.describe('Lab Request Tests', () => {
         distinctCategories,
       );
       await labRequestModal.finaliseButton.click();
-      const formattedDate = format(new Date(requestedDateTime), 'MM/dd/yyyy h:mm a');
+      const formattedDate = formatDateTimeForDisplay(new Date(requestedDateTime));
       await labRequestModal.individualModal.validateRequestFinalisedPage({
         requestingClinician,
         requestedDateTime: formattedDate,
@@ -355,7 +303,10 @@ test.describe('Lab Request Tests', () => {
   });
   test.describe('Lab request details page', () => {
     test('[AT-0066]Clicking on a  basic individual lab request opens the details page', async ({ page }) => {
-      const testsToSelect = await createBasicIndividualLabRequest();
+      await labRequestPane.newLabRequestButton.click();
+      const testsToSelect = await labRequestModal.individualModal.createBasicIndividualLabRequest();
+      await labRequestPane.waitForTableToLoad();
+      await labRequestPane.sortTableByCategory();
       const testDetails: LabRequestTestDetails = await labRequestPane.getFirstRowTestDetails();
       await labRequestPane.tableRows.first().click();
 
@@ -461,7 +412,10 @@ test.describe('Lab Request Tests', () => {
       );
     });
     test('[T-0208][AT-0069]Cancel lab request', async ({ page, patientDetailsPage }) => {
-      await createBasicIndividualLabRequest();
+      await labRequestPane.newLabRequestButton.click();
+      await labRequestModal.individualModal.createBasicIndividualLabRequest();
+      await labRequestPane.waitForTableToLoad();
+      await labRequestPane.sortTableByCategory();
       await labRequestPane.tableRows.first().click();
       const labRequestDetailsPage = new LabRequestDetailsPage(page);
       await labRequestDetailsPage.waitForPageToLoad();
@@ -485,7 +439,10 @@ test.describe('Lab Request Tests', () => {
     test('[T-0220][AT-0070]You should not being able to change status of lab request without entering sample details', async ({
       page,
     }) => {
-      await createBasicIndividualLabRequest();
+      await labRequestPane.newLabRequestButton.click();
+      await labRequestModal.individualModal.createBasicIndividualLabRequest();
+      await labRequestPane.waitForTableToLoad();
+      await labRequestPane.sortTableByCategory();
       await labRequestPane.tableRows.first().click();
       const labRequestDetailsPage = new LabRequestDetailsPage(page);
       await labRequestDetailsPage.statusThreeDotsbutton.click();
@@ -497,7 +454,10 @@ test.describe('Lab Request Tests', () => {
       ).toBeVisible();
     });
     test('[AT-0071]Record sample and validate status and status log', async ({ page }) => {
-      await createBasicIndividualLabRequest();
+      await labRequestPane.newLabRequestButton.click();
+      await labRequestModal.individualModal.createBasicIndividualLabRequest();
+      await labRequestPane.waitForTableToLoad();
+      await labRequestPane.sortTableByCategory();
       await labRequestPane.tableRows.first().click();
       const labRequestDetailsPage = new LabRequestDetailsPage(page);
       await labRequestDetailsPage.sampleCollectedThreeDotsbutton.click();
@@ -505,7 +465,7 @@ test.describe('Lab Request Tests', () => {
       await labRequestDetailsPage.recordSampleModal.waitForModalToLoad();
       const date = new Date();
       const currentDateTime = format(date, "yyyy-MM-dd'T'HH:mm").toString();
-      const expectedDateTime = format(date, 'MM/dd/yyyy h:mm a');
+      const expectedDateTime = formatDateTimeForDisplay(date);
       await labRequestDetailsPage.recordSampleModal.dateTimeCollectedInput.fill(currentDateTime);
       await labRequestDetailsPage.recordSampleModal.selectFirstFromAllDropdowns();
       await labRequestDetailsPage.recordSampleModal.recordSampleConfirmButton.click();
@@ -535,7 +495,10 @@ test.describe('Lab Request Tests', () => {
       );
     });
     test('[T-0217][AT-0072]Changing laboratory', async ({ page }) => {
-      await createBasicIndividualLabRequest();
+      await labRequestPane.newLabRequestButton.click();
+      await labRequestModal.individualModal.createBasicIndividualLabRequest();
+      await labRequestPane.waitForTableToLoad();
+      await labRequestPane.sortTableByCategory();
       await labRequestPane.tableRows.first().click();
       const labRequestDetailsPage = new LabRequestDetailsPage(page);
       await labRequestDetailsPage.laboratoryThreeDotsbutton.click();
@@ -548,7 +511,10 @@ test.describe('Lab Request Tests', () => {
       await expect(labRequestDetailsPage.laboratoryValue).toHaveText(laboratory);
     });
     test('[AT-0073]Changing priority', async ({ page }) => {
-      await createBasicIndividualLabRequest();
+      await labRequestPane.newLabRequestButton.click();
+      await labRequestModal.individualModal.createBasicIndividualLabRequest();
+      await labRequestPane.waitForTableToLoad();
+      await labRequestPane.sortTableByCategory();
       await labRequestPane.tableRows.first().click();
       const labRequestDetailsPage = new LabRequestDetailsPage(page);
       await labRequestDetailsPage.priorityThreeDotsbutton.click();
@@ -561,28 +527,30 @@ test.describe('Lab Request Tests', () => {
       await expect(labRequestDetailsPage.priorityValue).toHaveText(priority);
     });
     test('[T-0213][AT-0074]Entering results', async ({ page }) => {
-      await createBasicIndividualLabRequest();
+      await labRequestPane.newLabRequestButton.click();
+      await labRequestModal.individualModal.createBasicIndividualLabRequest();
+      await labRequestPane.waitForTableToLoad();
+      await labRequestPane.sortTableByCategory();
       await labRequestPane.tableRows.first().click();
       const labRequestDetailsPage = new LabRequestDetailsPage(page);
-      await labRequestDetailsPage.enterResultsButton.click();
-      await labRequestDetailsPage.enterResultsModal.waitForModalToLoad();
       const result = 'Positive';
-      await labRequestDetailsPage.enterResultsModal.selectResult(result);
       const labTestMethod = 'GeneXpert';
-      await labRequestDetailsPage.enterResultsModal.selectLabTestMethod(labTestMethod);
       const verification = 'test';
-      await labRequestDetailsPage.enterResultsModal.verificationFirstRow.fill(verification);
       const currentDateTime = new Date().toISOString().slice(0, 16);
-      await labRequestDetailsPage.enterResultsModal.completedDateFirstRow.fill(currentDateTime);
-      await labRequestDetailsPage.enterResultsModal.confirmButton.click();
+      await labRequestDetailsPage.enterResultForFirstRow(
+        result,
+        labTestMethod,
+        verification,
+        currentDateTime
+      );
       await labRequestDetailsPage.waitForResultsTableToLoad();
       //validate result table
       const tableResultItems = await getTableItems(page, 1, 'result')
       await expect(tableResultItems[0]).toBe(result);  
       const tableUnitItems = await getTableItems(page, 1, 'labTestType.unit')
-      await expect(tableUnitItems[0]).toBe('N/A');  
+      await expect(tableUnitItems[0]).toBe('n/a');  
       const tableReferenceItems = await getTableItems(page, 1, 'reference')
-      await expect(tableReferenceItems[0]).toBe('N/A');  
+      await expect(tableReferenceItems[0]).toBe('n/a');  
       const tableLabTestMethodItems = await getTableItems(page, 1, 'labTestMethod')
       await expect(tableLabTestMethodItems[0]).toBe(labTestMethod); 
       const tableLaboratoryOfficerItems = await getTableItems(page, 1, 'laboratoryOfficer')

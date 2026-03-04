@@ -1,6 +1,6 @@
 import { test as base, APIRequestContext, Page } from '@playwright/test';
 
-import { createPatient, createApiContext, createHospitalAdmissionEncounterViaAPI, createClinicEncounterViaApi } from '../utils/apiHelpers';
+import { createPatient, createApiContext, createHospitalAdmissionEncounterViaAPI, createClinicEncounterViaApi, createTriageEncounterViaApi } from '../utils/apiHelpers';
 import {
   DashboardPage,
   LoginPage,
@@ -29,6 +29,7 @@ type BaseFixtures = {
   newPatient: Awaited<ReturnType<typeof createPatient>>;
   newPatientWithHospitalAdmission: Awaited<ReturnType<typeof createPatient>>;
   newPatientWithClinicAdmission: Awaited<ReturnType<typeof createPatient>>;
+  newPatientWithTriageAdmission: Awaited<ReturnType<typeof createPatient>>;
   dashboardPage: DashboardPage;
   loginPage: LoginPage;
   sidebarPage: SidebarPage;
@@ -80,6 +81,15 @@ export const test = base.extend<BaseFixtures>({
   ) => {
     const patient = await createPatient(api, page);
     await createClinicEncounterViaApi(api, patient.id);
+    await use(patient);
+  },
+
+  newPatientWithTriageAdmission: async (
+    { page, api }: { page: Page; api: APIRequestContext },
+    use: (arg: Awaited<ReturnType<typeof createPatient>>) => Promise<void>,
+  ) => {
+    const patient = await createPatient(api, page);
+    await createTriageEncounterViaApi(api, page, patient.id);
     await use(patient);
   },
 

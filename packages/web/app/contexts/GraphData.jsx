@@ -4,6 +4,7 @@ import { DATE_TIME_FORMAT } from '../components/Charts/components/DateTimeSelect
 
 export const GraphDataProviderFactory = ({
   visualisationConfigQueryFn,
+  visualisationConfigQueryArgs = [],
   Context,
   isVital = false,
   children,
@@ -16,7 +17,7 @@ export const GraphDataProviderFactory = ({
     format(new Date(), DATE_TIME_FORMAT),
   ]);
   const [vitalChartModalOpen, setVitalChartModalOpen] = useState(false);
-  const { data } = visualisationConfigQueryFn();
+  const { data } = visualisationConfigQueryFn(...visualisationConfigQueryArgs);
   const { visualisationConfigs, allGraphedChartKeys } = data;
 
   const contextValue = useMemo(() => ({

@@ -1,6 +1,5 @@
 import React from 'react';
-import { Redirect, Route, Switch } from 'react-router-dom';
-import { PATIENT_PATHS } from '../constants/patientPaths';
+import { Routes, Route, Navigate, useParams } from 'react-router';
 import {
   AdmittedPatientsView,
   OutpatientsView,
@@ -9,21 +8,33 @@ import {
 } from '../views';
 import { PatientRoutes } from './PatientRoutes';
 
-export const PatientsRoutes = React.memo(({ match }) => (
-  <Switch>
-    <Route path={PATIENT_PATHS.PATIENT} component={PatientRoutes} />
-    <Route
-      path={PATIENT_PATHS.CATEGORY}
-      render={(props) => {
-        const { category } = props.match.params;
-        return {
-          all: <PatientListingView />,
-          emergency: <TriageListingView />,
-          inpatient: <AdmittedPatientsView />,
-          outpatient: <OutpatientsView />,
-        }[category];
-      }}
-    />
-    <Redirect to={`${match.path}/all`} />
-  </Switch>
-));
+const CategoryComponent = () => {
+  const { category } = useParams();
+
+  switch (category) {
+    case 'all':
+      return <PatientListingView />;
+    case 'emergency':
+      return <TriageListingView />;
+    case 'inpatient':
+      return <AdmittedPatientsView />;
+    case 'outpatient':
+      return <OutpatientsView />;
+    default:
+      return <Navigate to="/patients/all" replace />;
+  }
+};
+
+export const PatientsRoutes = () => (
+  <Routes>
+    {/* Parameterized route for category listings */}
+    <Route path=":category" element={<CategoryComponent />} />
+
+    {/* Individual patient routes */}
+    <Route path=":category/:patientId/*" element={<PatientRoutes />} />
+
+    {/* Fallbacks */}
+    <Route path="" element={<Navigate to="all" replace />} />
+    <Route path="*" element={<Navigate to="all" replace />} />
+  </Routes>
+);

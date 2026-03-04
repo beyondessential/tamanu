@@ -13,7 +13,7 @@ import { useSettings } from '../../../contexts/Settings';
 import { OutpatientAppointmentsTable } from '../../../components/Appointments/OutpatientAppointmentsTable';
 
 export const SummaryPane = React.memo(({ patient, additionalData, disabled }) => {
-  const [isModalOpen, setModalOpen] = useState(false);
+  const [isCheckInModalOpen, setIsCheckInModalOpen] = useState(false);
   const { navigateToEncounter } = usePatientNavigation();
   const { loadEncounter } = useEncounter();
   const { ability } = useAuth();
@@ -29,7 +29,7 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
   const showOutpatientAppointments = showOutpatientAppointmentsSetting && canViewAppointments;
 
   const onViewEncounter = useCallback(
-    (id) => {
+    id => {
       (async () => {
         await loadEncounter(id);
         navigateToEncounter(id);
@@ -38,7 +38,7 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
     [loadEncounter, navigateToEncounter],
   );
 
-  const onCloseModal = useCallback(() => setModalOpen(false), []);
+  const onCloseCheckInModal = useCallback(() => setIsCheckInModalOpen(false), []);
 
   return (
     <>
@@ -46,7 +46,7 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
       <ContentPane data-testid="contentpane-3jxx">
         <PatientEncounterSummary
           viewEncounter={onViewEncounter}
-          openCheckin={() => setModalOpen(true)}
+          openCheckIn={() => setIsCheckInModalOpen(true)}
           patient={patient}
           disabled={disabled}
           data-testid="patientencountersummary-z703"
@@ -73,8 +73,8 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
         />
       </ContentPane>
       <EncounterModal
-        open={isModalOpen}
-        onClose={onCloseModal}
+        open={isCheckInModalOpen}
+        onClose={onCloseCheckInModal}
         patient={patient}
         patientBillingTypeId={additionalData?.patientBillingTypeId}
         data-testid="encountermodal-pnpe"

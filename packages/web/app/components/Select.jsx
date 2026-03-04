@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactSelect, { components } from 'react-select';
 import styled from 'styled-components';
-import { Colors } from '../constants';
+
+import { Colors } from '../constants/styles';
 
 export const Select = styled(ReactSelect)`
   .react-select__clear-indicator {

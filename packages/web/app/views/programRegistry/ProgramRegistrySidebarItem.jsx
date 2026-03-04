@@ -1,12 +1,10 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { push } from 'connected-react-router';
 import { useListOfProgramRegistryQuery } from '../../api/queries/useProgramRegistryQuery';
 import { PrimarySidebarItem } from '../../components/Sidebar/PrimarySidebarItem';
 import { SecondarySidebarItem } from '../../components/Sidebar/SecondarySidebarItem';
-import { getCurrentRoute } from '../../store/router';
 import { TranslatedReferenceData } from '../../components/Translation/TranslatedReferenceData';
 import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
+import { useLocation, useNavigate } from 'react-router';
 
 export const ProgramRegistrySidebarItem = ({
   icon,
@@ -19,9 +17,9 @@ export const ProgramRegistrySidebarItem = ({
   retracted,
   path,
 }) => {
-  const dispatch = useDispatch();
-  const onPathChanged = newPath => dispatch(push(newPath));
-  const currentPath = useSelector(getCurrentRoute);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const currentPath = location.pathname;
 
   const { data: programRegistries, isLoading, isError } = useListOfProgramRegistryQuery();
 
@@ -36,9 +34,8 @@ export const ProgramRegistrySidebarItem = ({
         const baseSecondaryPath = `${path}/${id}`;
         const secondaryPath = `${baseSecondaryPath}?name=${name}`;
         return !retracted ? (
-          <NoteModalActionBlocker>
+          <NoteModalActionBlocker key={id}>
             <SecondarySidebarItem
-              key={id}
               path={secondaryPath}
               isCurrent={currentPath.includes(baseSecondaryPath)}
               color=""
@@ -51,7 +48,7 @@ export const ProgramRegistrySidebarItem = ({
                 />
               }
               disabled={false}
-              onClick={() => onPathChanged(secondaryPath)}
+              onClick={() => navigate(secondaryPath)}
               data-testid={`secondarysidebaritem-3uo3-${index}`}
             />
           </NoteModalActionBlocker>

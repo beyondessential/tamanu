@@ -1,16 +1,15 @@
 import React, { Fragment } from 'react';
 import {
   Field,
-  FormGrid,
   NumberField,
-  TextField,
   TranslatedReferenceData,
   TranslatedText,
 } from '../../components';
+import { TextField, FormGrid } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants';
 import { groupBy } from 'lodash';
 import styled from 'styled-components';
-import { Colors } from '../../constants';
 import { TranslatedOptionSelectField } from '../../components/Translation/TranslatedOptions';
 
 const StyledHeading = styled.div`

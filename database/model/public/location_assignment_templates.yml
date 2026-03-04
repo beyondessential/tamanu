@@ -1,0 +1,81 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: location_assignment_templates
+        description: "{{ doc('table__location_assignment_templates') }}"
+        config:
+          tags: []
+          meta:
+            triggers:
+              - notify_location_assignment_templates_changed
+              - record_location_assignment_templates_changelog
+              - set_location_assignment_templates_updated_at
+              - set_location_assignment_templates_updated_at_sync_tick
+        columns:
+          - name: id
+            data_type: uuid
+            description: "{{ doc('generic__id') }} in location_assignment_templates."
+            data_tests:
+              - unique
+              - not_null
+          - name: user_id
+            data_type: character varying(255)
+            description: "{{ doc('location_assignment_templates__user_id') }}"
+            data_tests:
+              - not_null
+          - name: location_id
+            data_type: character varying(255)
+            description: "{{ doc('location_assignment_templates__location_id') }}"
+            data_tests:
+              - not_null
+          - name: date
+            data_type: character(10)
+            description: "{{ doc('generic__date') }} in location_assignment_templates."
+            data_tests:
+              - not_null
+          - name: start_time
+            data_type: time without time zone
+            description: "{{ doc('location_assignment_templates__start_time') }}"
+            data_tests:
+              - not_null
+          - name: end_time
+            data_type: time without time zone
+            description: "{{ doc('location_assignment_templates__end_time') }}"
+            data_tests:
+              - not_null
+          - name: repeat_end_date
+            data_type: character(10)
+            description: "{{ doc('location_assignment_templates__repeat_end_date') }}"
+            data_tests:
+              - not_null
+          - name: repeat_frequency
+            data_type: smallint
+            description: "{{ doc('location_assignment_templates__repeat_frequency') }}"
+            data_tests:
+              - not_null
+          - name: repeat_unit
+            data_type: character varying(255)
+            description: "{{ doc('location_assignment_templates__repeat_unit') }}"
+            data_tests:
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in location_assignment_templates."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in location_assignment_templates."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in location_assignment_templates."
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in location_assignment_templates."
+            data_tests:
+              - not_null

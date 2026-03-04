@@ -2,11 +2,17 @@ import React from 'react';
 import { Box, Divider } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { Field, Form, TextField } from '../../Field';
-import { FormGrid } from '../../FormGrid';
-import { ConfirmCancelRow, FormModal, TranslatedText } from '../..';
+import {
+  TextField,
+  Form,
+  FormGrid,
+  ConfirmCancelRow,
+  TranslatedText,
+} from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
+import { Field } from '../../Field';
+import { FormModal } from '../..';
 import { useDeleteDoseMutation } from '../../../api/mutations/useMarMutation';
-import { Colors } from '../../../constants';
 import { formatTimeSlot } from '../../../utils/medications';
 import { useTranslation } from '../../../contexts/Translation';
 import { getMarDoseDisplay } from '@tamanu/shared/utils/medication';

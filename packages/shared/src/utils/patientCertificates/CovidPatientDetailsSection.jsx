@@ -1,5 +1,5 @@
 import React from 'react';
-import { Col, Row, VDSImage } from './Layout';
+import { Col, Row } from './Layout';
 import { P } from './Typography';
 import { getDobWithAge, getNationality, getPassportNumber } from '../patientAccessors';
 import { useLanguageContext } from '../pdf/languageContext';
@@ -22,21 +22,16 @@ export const CovidPatientDetailsSection = ({
   patient,
   getLocalisation,
   getSetting,
-  vdsSrc,
   extraFields = [],
-  uvci,
 }) => {
   const { getTranslation } = useLanguageContext();
   const detailsToDisplay = [...PATIENT_FIELDS, ...extraFields].filter(
     ({ key }) => !getSetting(`fields.${key}.hidden`),
   );
 
-  const leftWidth = vdsSrc ? 66 : 88;
-  const rightWidth = 100 - leftWidth;
-
   return (
     <Row>
-      <Col style={{ width: `${leftWidth}%` }}>
+      <Col style={{ width: '88%' }}>
         <Row>
           {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
             const value =
@@ -55,15 +50,7 @@ export const CovidPatientDetailsSection = ({
             );
           })}
         </Row>
-        {uvci && (
-          <Row>
-            <P>
-              <P bold>UVCI:</P> {uvci}
-            </P>
-          </Row>
-        )}
       </Col>
-      <Col style={{ width: `${rightWidth}%` }}>{vdsSrc && <VDSImage src={vdsSrc} />}</Col>
     </Row>
   );
 };

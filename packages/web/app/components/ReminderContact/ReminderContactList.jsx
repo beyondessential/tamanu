@@ -1,10 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { Button } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
+
 import { PlusIcon } from '../../assets/icons/PlusIcon';
-import { Colors } from '../../constants';
 import { useAuth } from '../../contexts/Auth';
-import { Button } from '../Button';
 import { ModalCancelRow } from '../ModalActionRow';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { ContactDetails } from './ContactDetails';

@@ -1,19 +1,20 @@
 import React from 'react';
-import { Box, Card, CardActionArea, CardContent, Chip, Stack, Typography } from '@mui/material';
+import { Box, Card, CardActionArea, CardContent, Stack, Typography } from '@mui/material';
 import { ChevronRight } from 'lucide-react';
 import { PORTAL_SURVEY_ASSIGNMENTS_STATUSES } from '@tamanu/constants';
-
-import type { PortalSurveyAssignment } from '@tamanu/shared/schemas/patientPortal/responses/portalSurveyAssignment.schema';
+import { Link as RouterLink } from 'react-router';
+import type { PortalSurveyAssignment } from '@tamanu/shared/schemas/patientPortal';
+import { Chip } from '@components/Chip';
 
 interface OutstandingFormCardProps {
   form: PortalSurveyAssignment;
   onClick?: () => void;
 }
 
-export const OutstandingFormCard: React.FC<OutstandingFormCardProps> = ({ form, onClick }) => {
+export const OutstandingFormCard: React.FC<OutstandingFormCardProps> = ({ form }) => {
   return (
     <Card variant="outlined">
-      <CardActionArea onClick={onClick} disabled={!onClick}>
+      <CardActionArea component={RouterLink} to={`/survey/${form.survey.id}`}>
         <CardContent>
           <Stack direction="row" spacing={2} alignItems="center">
             <Stack spacing={1} sx={{ flex: 1 }}>
@@ -22,8 +23,14 @@ export const OutstandingFormCard: React.FC<OutstandingFormCardProps> = ({ form, 
               </Typography>
               <Box>
                 <Chip
-                  label={form.status === PORTAL_SURVEY_ASSIGNMENTS_STATUSES.COMPLETED ? 'Completed' : 'Outstanding'}
-                  color={form.status === PORTAL_SURVEY_ASSIGNMENTS_STATUSES.COMPLETED ? 'success' : 'warning'}
+                  label={
+                    form.status === PORTAL_SURVEY_ASSIGNMENTS_STATUSES.COMPLETED
+                      ? 'Completed'
+                      : 'To be completed'
+                  }
+                  color={
+                    form.status === PORTAL_SURVEY_ASSIGNMENTS_STATUSES.COMPLETED ? 'green' : 'red'
+                  }
                   size="small"
                 />
               </Box>

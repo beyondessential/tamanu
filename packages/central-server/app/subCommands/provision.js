@@ -1,8 +1,10 @@
-import { resolve } from 'node:path';
+import { resolve, join, parse } from 'node:path';
 import { Command } from 'commander';
 import { defaultsDeep, keyBy } from 'lodash';
 import { Op } from 'sequelize';
-import { readFile, utils } from 'xlsx';
+import { utils } from 'xlsx';
+import fs from 'node:fs';
+import JSON5 from 'json5';
 
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
@@ -21,15 +23,47 @@ import { getRandomBase64String } from '../auth/utils';
 import { programImporter } from '../admin/programImporter/programImporter';
 
 /**
+ * Converts the json files in the defaultProvisioningData directory into an XLSX workbook
+ * @returns {WorkBook}
+ */
+const parseDefaultProvisioningJsonSheets = dir => {
+  const entries = fs
+    .readdirSync(dir)
+    .filter(f => f.endsWith('.json5'))
+    .sort()
+    .map(f => ({
+      sheetName: parse(f).name,
+      filePath: join(dir, f),
+    }));
+
+  const wb = utils.book_new();
+
+  entries.forEach(({ sheetName, filePath }) => {
+    const payload = JSON5.parse(fs.readFileSync(filePath, 'utf8'));
+    const name = payload.sheetName || sheetName;
+    if (!Array.isArray(payload.columns) || payload.columns.length === 0) {
+      throw new Error(`Invalid sheet JSON (missing non-empty "columns") in ${filePath}`);
+    }
+    if (!Array.isArray(payload.data)) {
+      throw new Error(`Invalid sheet JSON (missing "data" array) in ${filePath}`);
+    }
+    const data = payload.data;
+    const ws = utils.json_to_sheet(data, { header: payload.columns });
+
+    utils.book_append_sheet(wb, ws, name);
+  });
+
+  return wb;
+};
+
+/**
  * Validates that a reference data file contains all sheets importable through the reference data importer
  * @param {string} file - File path
  */
-function validateFullReferenceDataImport(file) {
+function validateFullReferenceDataImport(workbook) {
   // These are two very unique cases. 'user' has special logic and 'administeredVaccine' is a special case used for existing deployments.
   const EXCLUDED_FROM_FULL_IMPORT_CHECK = ['user', 'administeredVaccine'];
 
-  log.debug('Parse XLSX workbook for validation');
-  const workbook = readFile(file);
   const sheetNameDictionary = keyBy(Object.keys(workbook.Sheets), normaliseSheetName);
 
   // Check all required data types are present and have data
@@ -101,14 +135,19 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
     ...rest
   } of referenceData ?? []) {
     if (isUsingDefaultSpreadsheet) {
-      const defaultReferenceDataFile = resolve(__dirname, 'default-provisioning.xlsx');
-      log.info('Using reference data spreadsheet from this branch', {
-        file: defaultReferenceDataFile,
+      const defaultProvisioningDataDirectory = resolve(__dirname, 'defaultProvisioningData');
+      log.info('Using reference data json files from this branch', {
+        directory: defaultProvisioningDataDirectory,
       });
+
+      const defaultReferenceDataWorkbook = parseDefaultProvisioningJsonSheets(
+        defaultProvisioningDataDirectory,
+      );
+
       // We only validate the default import to ensure it stays complete. It is fine to allow partial imports through the other options.
-      validateFullReferenceDataImport(defaultReferenceDataFile);
+      validateFullReferenceDataImport(defaultReferenceDataWorkbook);
       await referenceDataImporter({
-        file: defaultReferenceDataFile,
+        workbook: defaultReferenceDataWorkbook,
         ...importerOptions,
       });
     }

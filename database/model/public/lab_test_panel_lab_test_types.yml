@@ -47,6 +47,11 @@ sources:
                   arguments:
                     to: source('tamanu', 'lab_test_types')
                     field: id
+          - name: order
+            data_type: integer
+            description: "{{ doc('lab_test_panel_lab_test_types__order') }}"
+            data_tests:
+              - not_null
           - name: id
             data_type: text
             description: "{{ doc('generic__id') }} in lab_test_panel_lab_test_types."

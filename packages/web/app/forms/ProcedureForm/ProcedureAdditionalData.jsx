@@ -4,13 +4,13 @@ import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import MuiDivider from '@material-ui/core/Divider';
-import { SelectInput, TranslatedText } from '../../components';
+import { getAnswersFromData, SelectInput } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
+import { TranslatedText } from '../../components';
 import { useApi } from '../../api';
 import { SurveyViewForm } from '../../views/programs/SurveyView';
 import { useAuth } from '../../contexts/Auth';
 import { usePatientAdditionalDataQuery, useSurveyQuery } from '../../api/queries';
-import { getAnswersFromData } from '../../utils';
-import { Colors } from '../../constants';
 import { CancelAdditionalDataModal } from './ProcedureFormModals';
 
 const Container = styled.div`
@@ -63,12 +63,13 @@ export const ProcedureAdditionalData = ({
   selectedSurveyId,
   setSelectedSurveyId,
   onSuccess,
+  surveyFormDirty,
+  setSurveyFormDirty,
 }) => {
   const api = useApi();
   const { currentUser, facilityId } = useAuth();
   const [cancelFormModalOpen, setCancelFormModalOpen] = useState(false);
   const [startTime] = useState(getCurrentDateTimeString());
-  const [surveyFormDirty, setSurveyFormDirty] = useState(false);
   const [pendingSelectedSurveyId, setPendingSelectedSurveyId] = useState(null);
 
   const surveys = useProcedureSurveys(procedureTypeId);
@@ -85,6 +86,7 @@ export const ProcedureAdditionalData = ({
         endTime: getCurrentDateTimeString(),
         answers: await getAnswersFromData(body, survey),
         procedureId,
+        procedureTypeId,
       });
     },
     {
@@ -159,7 +161,7 @@ export const ProcedureAdditionalData = ({
               patientAdditionalData={patientAdditionalData}
               currentUser={currentUser}
               showCancelButton
-              onFormDirtyChange={setSurveyFormDirty}
+              setSurveyFormDirty={setSurveyFormDirty}
             />
           </SurveyBox>
         )}

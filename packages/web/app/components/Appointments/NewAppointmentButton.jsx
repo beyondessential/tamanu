@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
+import { ButtonWithPermissionCheck } from '@tamanu/ui-components';
 import { AppointmentModal } from './AppointmentModal';
-import { ButtonWithPermissionCheck } from '..';
 import { TranslatedText } from '../Translation/TranslatedText';
 
 export const NewAppointmentButton = ({ onSuccess }) => {

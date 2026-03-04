@@ -30,6 +30,7 @@ export class NewProcedureModal extends BasePage {
   readonly dialogActions!: Locator;
   readonly modalTitle!: Locator;
   readonly assistantCliniciansInput!: Locator;
+  readonly procedureModalHeader!: Locator;
 
   readonly saveProcedureButton: Locator;
   
@@ -57,7 +58,8 @@ export class NewProcedureModal extends BasePage {
       assistantCliniciansInput: 'styledformcontrol-td30', 
      completedCheckbox: 'field-uaz4-controlcheck',
      completedNotesCollapse: 'collapse-e9ow',
-     dialogActions: 'dialogactions-jkc6'
+     dialogActions: 'dialogactions-jkc6',
+     procedureModalHeader: 'verticalcenteredtext-ni4s'
     } as const;
    
 
@@ -147,8 +149,7 @@ export class NewProcedureModal extends BasePage {
   }
 
   async waitForModalToLoad(): Promise<void> {
-    await this.procedureDateInput.waitFor({ state: 'visible' });
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
+   await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   getLocatorInput(locator: Locator): Locator {

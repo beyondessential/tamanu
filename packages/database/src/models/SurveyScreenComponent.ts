@@ -82,7 +82,7 @@ export class SurveyScreenComponent extends Model {
       paranoid: !includeAllVitals,
     });
 
-    return components.map((c) => c.forResponse());
+    return components.map(c => c.forResponse());
   }
 
   static getComponentsForSurvey(surveyId: string, options = {}) {

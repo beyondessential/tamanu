@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Button, TextInput } from '../../../components';
+import { TextInput, Button, TranslatedText } from '@tamanu/ui-components';
 import { PatientSummary } from './PatientSummary';
 
 import { useApi } from '../../../api';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const Row = styled.div`
   display: flex;

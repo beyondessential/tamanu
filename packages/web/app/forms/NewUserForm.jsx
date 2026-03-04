@@ -1,10 +1,10 @@
 import React, { memo } from 'react';
 import * as yup from 'yup';
 
-import { Field, Form, TextField } from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
+import { TextField, Form, FormGrid } from '@tamanu/ui-components';
+import { FORM_TYPES } from '@tamanu/constants/forms';
+import { Field } from '../components/Field';
 import { ModalFormActionRow } from '../components/ModalActionRow';
-import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const NewUserForm = memo(({ onSubmit, onCancel }) => {

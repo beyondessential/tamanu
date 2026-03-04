@@ -2,27 +2,29 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import {
+  TextField,
+  TranslatedSelectField,
+  Form,
+  FormGrid,
+  FormSubmitButton,
+} from '@tamanu/ui-components';
 import { foreignKey } from '../utils/validation';
 import {
   AutocompleteField,
   DateTimeField,
   Field,
-  Form,
-  FormGrid,
-  FormSubmitButton,
   LocalisedField,
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,
   SuggesterSelectField,
-  TextField,
-  TranslatedSelectField,
 } from '../components';
-import { ENCOUNTER_OPTIONS, FORM_TYPES, REASON_FOR_ENCOUNTER_MAX_CHARACTERS } from '../constants';
+import { ENCOUNTER_OPTIONS, REASON_FOR_ENCOUNTER_MAX_CHARACTERS } from '../constants';
 import { useSuggester } from '../api';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { isInpatient } from '../utils/isInpatient';
 import { useTranslation } from '../contexts/Translation';
-import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
+import { ENCOUNTER_TYPE_LABELS, FORM_TYPES } from '@tamanu/constants';
 
 export const EncounterForm = React.memo(
   ({ editedObject, onSubmit, patientBillingTypeId, encounterType, initialValues }) => {
@@ -67,11 +69,19 @@ export const EncounterForm = React.memo(
           <Field
             name="startDate"
             label={
-              <TranslatedText
-                stringId="patient.modal.checkIn.checkInDate.label"
-                fallback="Check-in date"
-                data-testid="translatedtext-laie"
-              />
+              isInpatient(encounterType) ? (
+                <TranslatedText
+                  stringId="patient.modal.checkIn.admissionDateTime.label"
+                  fallback="Admission date & time"
+                  data-testid="translatedtext-q4a8"
+                />
+              ) : (
+                <TranslatedText
+                  stringId="patient.modal.checkIn.checkInDateTime.label"
+                  fallback="Check-in date & time"
+                  data-testid="translatedtext-laie"
+                />
+              )
             }
             required
             min="1970-01-01T00:00"
@@ -232,15 +242,23 @@ export const EncounterForm = React.memo(
             .date()
             .required()
             .translatedLabel(
-              <TranslatedText
-                stringId="patient.modal.checkIn.checkInDate.label"
-                fallback="Check-in date"
-                data-testid="translatedtext-s4yn"
-              />,
+              isInpatient(encounterType) ? (
+                <TranslatedText
+                  stringId="patient.modal.checkIn.admissionDateTime.label"
+                  fallback="Admission date & time"
+                  data-testid="translatedtext-s4yn"
+                />
+              ) : (
+                <TranslatedText
+                  stringId="patient.modal.checkIn.checkInDateTime.label"
+                  fallback="Check-in date & time"
+                  data-testid="translatedtext-s4yn"
+                />
+              ),
             ),
           encounterType: yup
             .string()
-            .oneOf(ENCOUNTER_OPTIONS.map((x) => x.value))
+            .oneOf(ENCOUNTER_OPTIONS.map(x => x.value))
             .required()
             .translatedLabel(
               <TranslatedText

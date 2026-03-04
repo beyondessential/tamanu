@@ -1,14 +1,19 @@
 import React, { useMemo, useEffect } from 'react';
 import styled from 'styled-components';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-
-import { Form } from '../../components/Field';
-import { checkVisibility, getFormInitialValues, getValidationSchema } from '../../utils';
+import {
+  checkVisibility,
+  Form,
+  getFormInitialValues,
+  getValidationSchema,
+  SurveyScreenPaginator,
+  TranslatedReferenceData,
+} from '@tamanu/ui-components';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
-import { Colors } from '../../constants';
-import { SurveyScreenPaginator } from '../../components/Surveys';
+import { getComponentForQuestionType } from '../../components/Surveys';
 import { useTranslation } from '../../contexts/Translation';
-import { TranslatedReferenceData } from '../../components';
+import { useEncounter } from '../../contexts/Encounter';
+import { Colors } from '../../constants';
 
 export const SurveyPaneHeader = styled(ProgramsPaneHeader)`
   background: ${props => props.theme.palette.primary.main};
@@ -21,12 +26,12 @@ export const SurveyPaneHeading = styled(ProgramsPaneHeading)`
   color: ${Colors.white};
 `;
 
-const DirtyStateTracker = ({ dirty, onFormDirtyChange }) => {
+const DirtyStateTracker = ({ dirty, setDirty }) => {
   useEffect(() => {
-    if (onFormDirtyChange) {
-      onFormDirtyChange(dirty);
+    if (setDirty) {
+      setDirty(dirty);
     }
-  }, [dirty, onFormDirtyChange]);
+  }, [dirty, setDirty]);
 
   return null;
 };
@@ -40,9 +45,10 @@ export const SurveyViewForm = ({
   currentUser,
   patientProgramRegistration,
   showCancelButton,
-  onFormDirtyChange,
+  setSurveyFormDirty,
 }) => {
   const { getTranslation } = useTranslation();
+  const { encounter } = useEncounter();
   const { components } = survey;
   const currentComponents = components.filter(
     c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
@@ -94,7 +100,7 @@ export const SurveyViewForm = ({
 
     return (
       <>
-        <DirtyStateTracker dirty={dirty} onFormDirtyChange={onFormDirtyChange} />
+        <DirtyStateTracker dirty={dirty} setDirty={setSurveyFormDirty} />
         <SurveyScreenPaginator
           survey={survey}
           patient={patient}
@@ -108,6 +114,8 @@ export const SurveyViewForm = ({
           setStatus={setStatus}
           status={status}
           showCancelButton={showCancelButton}
+          getComponentForQuestionType={getComponentForQuestionType}
+          encounterType={encounter?.type}
           data-testid="surveyscreenpaginator-8wns"
         />
       </>

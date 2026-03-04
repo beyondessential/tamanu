@@ -1,9 +1,16 @@
 import { Page, Locator, expect } from '@playwright/test';
+import { format } from 'date-fns';
 import { RecordSampleModal } from './modals/RecordSampleModal';
 import { StatusLogModal } from './modals/StatusLogModal';
 import { ChangeLaboratoryModal } from './modals/ChangeLaboratoryModal';
 import { ChangePriorityModal } from './modals/ChangePriorityModal';
 import { EnterResultsModal } from './modals/EnterResultsModal';
+
+// Lab Request Status Constants
+export const LAB_REQUEST_STATUS = {
+  RECEPTION_PENDING: 'Reception pending',
+  SAMPLE_NOT_COLLECTED: 'Sample not collected',
+} as const;
 
 export class LabRequestDetailsPage {
   readonly page: Page;
@@ -265,5 +272,28 @@ export class LabRequestDetailsPage {
     await this.enterResultsModal.waitForModalToClose();
     await this.resultsTable.waitFor({ state: 'visible' });
     await this.page.waitForLoadState('networkidle', { timeout: 10000 });
-   }
+  }
+
+  /**
+   * Enter result for the first row in the results table
+   * @param result - The result value to select
+   * @param labTestMethod - The lab test method to select
+   * @param verification - The verification text to fill
+   * @param completedDate - Optional completed date. If not provided, uses current date/time
+   */
+  async enterResultForFirstRow(
+    result: string,
+    labTestMethod: string,
+    verification: string,
+    completedDate?: string
+  ): Promise<void> {
+    await this.enterResultsButton.click();
+    await this.enterResultsModal.waitForModalToLoad();
+    await this.enterResultsModal.selectResult(result);
+    await this.enterResultsModal.selectLabTestMethod(labTestMethod);
+    await this.enterResultsModal.verificationFirstRow.fill(verification);
+    const dateToUse = completedDate || format(new Date(), "yyyy-MM-dd'T'HH:mm");
+    await this.enterResultsModal.completedDateFirstRow.fill(dateToUse);
+    await this.enterResultsModal.confirmButton.click();
+  }
 }

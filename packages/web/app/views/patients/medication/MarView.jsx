@@ -13,7 +13,7 @@ const MarContainer = styled.div`
 
 export const MarView = () => {
   const { encounter } = useEncounter();
-  
+
   const defaultSelectedDate =
     new Date(encounter?.endDate) < new Date() ? new Date(encounter?.endDate) : new Date();
   const [selectedDate, setSelectedDate] = useState(defaultSelectedDate);

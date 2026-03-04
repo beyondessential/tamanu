@@ -20,6 +20,7 @@ import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 import { add } from 'date-fns';
 import { getOrderClause } from '../../database/utils';
 import { ForbiddenError } from '@tamanu/errors';
+import { dateCustomValidation } from '@tamanu/utils/dateTime';
 
 export const user = express.Router();
 
@@ -163,6 +164,41 @@ user.post(
     });
 
     res.send(userPreferences);
+  }),
+);
+
+const checkOnLeaveSchema = z.object({
+  startDate: dateCustomValidation,
+  endDate: dateCustomValidation,
+});
+
+user.post(
+  '/:userId/check-on-leave',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { UserLeave },
+      params,
+      body,
+    } = req;
+
+    const { userId } = params;
+    const { startDate, endDate } = await checkOnLeaveSchema.parseAsync(body);
+
+    req.checkPermission('read', 'User');
+
+    const leave = await UserLeave.findOne({
+      where: {
+        userId,
+        startDate: {
+          [Op.lte]: endDate,
+        },
+        endDate: {
+          [Op.gte]: startDate,
+        },
+      },
+    });
+
+    res.send({ isOnLeave: !!leave });
   }),
 );
 

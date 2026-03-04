@@ -1,6 +1,6 @@
 import { SURVEY_TYPES, VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
+import { getConfigObject, getGraphRangeByAge, getNormalRangeByAge } from '@tamanu/ui-components';
 import { BLOOD_PRESSURE, bloodPressureChartKeys, LINE } from '../components/Charts/constants';
-import { getConfigObject, getGraphRangeByAge, getNormalRangeByAge } from './survey';
 
 export const getVisualisationConfig = (patientData, surveyData, restOfQuery) => {
   const { isSuccess } = restOfQuery;

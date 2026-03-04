@@ -5,7 +5,7 @@ import Bowser from 'bowser';
 import 'typeface-roboto';
 import { Colors } from './constants';
 import { checkIsLoggedIn, checkIsFacilitySelected, getServerType } from './store/auth';
-import { getCurrentRoute } from './store/router';
+import { useLocation } from 'react-router';
 import { LoginView, FacilitySelectionView } from './views';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { PromiseErrorBoundary } from './components/PromiseErrorBoundary';
@@ -37,7 +37,7 @@ export function App({ sidebar, children }) {
   const { data: isServerAlive, isLoading } = useCheckServerAliveQuery();
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const isFacilitySelected = useSelector(checkIsFacilitySelected);
-  const currentRoute = useSelector(getCurrentRoute);
+  const location = useLocation();
   const serverType = useSelector(getServerType);
   const isPrimaryTab = useSingleTab();
   const disableSingleTab =
@@ -51,12 +51,12 @@ export function App({ sidebar, children }) {
     edge: '>=100',
   });
   const platformType = browser.getPlatformType();
-  const isDesktop = platformType === 'desktop';
+  const isMobile = platformType === 'mobile';
   const isDebugMode = localStorage.getItem('DEBUG_PROD');
 
   if (!isDebugMode) {
     // Skip browser/platform check in debug mode
-    if (!isDesktop) return <MobileStatusPage platformType={platformType} />;
+    if (isMobile) return <MobileStatusPage platformType={platformType} />;
     if (!isChromish) return <UnsupportedBrowserStatusPage />;
   }
   if (!isPrimaryTab && !disableSingleTab) return <SingleTabStatusPage />;
@@ -69,7 +69,7 @@ export function App({ sidebar, children }) {
     <AppContainer>
       {sidebar}
       <PromiseErrorBoundary>
-        <ErrorBoundary errorKey={currentRoute}>
+        <ErrorBoundary errorKey={location.pathname}>
           <AppContentsContainer>
             {children}
             <ForbiddenErrorModal />

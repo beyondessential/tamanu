@@ -1,20 +1,19 @@
 import React from 'react';
 import * as yup from 'yup';
-import { LAB_REQUEST_STATUSES, SETTING_KEYS } from '@tamanu/constants';
+import { LAB_REQUEST_STATUSES, SETTING_KEYS, FORM_TYPES } from '@tamanu/constants';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import styled from 'styled-components';
+import { Form, FormGrid, TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import {
   AutocompleteField,
   DateTimeField,
   Field,
-  Form,
-  FormGrid,
   FormModal,
   SuggesterSelectField,
 } from '../../../components';
-import { Colors, FORM_TYPES } from '../../../constants';
 import { useSuggester } from '../../../api';
 import { ModalFormActionRow } from '../../../components/ModalActionRow';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useSettings } from '../../../contexts/Settings';
 
 const validationSchema = yup.object().shape({
@@ -35,7 +34,7 @@ const validationSchema = yup.object().shape({
       schema
         .translatedLabel(
           <TranslatedText
-            stringId="lab.modal.recordSample.specimenType.label"
+            stringId="lab.specimenType.label"
             fallback="Specimen type"
             data-testid="translatedtext-nd1u"
           />,
@@ -206,7 +205,7 @@ export const LabRequestRecordSampleModal = React.memo(
           showInlineErrorsOnly
           formType={FORM_TYPES.EDIT_FORM}
           initialValues={{
-            sampleTime: labRequest.sampleTime,
+            sampleTime: labRequest.sampleTime || getCurrentDateTimeString(),
             labSampleSiteId: labRequest.labSampleSiteId,
             specimenTypeId: labRequest.specimenTypeId,
             collectedById: labRequest.collectedById,

@@ -6,18 +6,15 @@ import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithB
 import { styles, CertificateContent, CertificateHeader, Col, Row, Signature } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { P } from './Typography';
-import { DataItem } from './printComponents/DataItem';
-import { PrintableBarcode } from './printComponents/PrintableBarcode';
-import { HorizontalRule } from './printComponents/HorizontalRule';
 import { EncounterDetails } from './printComponents/EncounterDetails';
-import { getDisplayDate } from './getDisplayDate';
-import { DoubleHorizontalRule } from './printComponents/DoubleHorizontalRule';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
+import { FullLabRequestDetailsSection, SampleDetailsRow } from './LabRequestDetailsSection';
+import { HorizontalRule } from './printComponents/HorizontalRule';
+import { DoubleHorizontalRule } from './printComponents/DoubleHorizontalRule';
+import { Footer } from './printComponents/Footer';
 
-const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
-const headingFontSize = 11;
 const textFontSize = 9;
 
 const signingSectionStyles = StyleSheet.create({
@@ -34,9 +31,6 @@ const signingSectionStyles = StyleSheet.create({
 });
 
 const labDetailsSectionStyles = StyleSheet.create({
-  barcodeLabelText: {
-    marginTop: 9,
-  },
   divider: {
     borderBottom: '2px solid black',
     marginVertical: '10px',
@@ -47,12 +41,33 @@ const labDetailsSectionStyles = StyleSheet.create({
 });
 
 const generalStyles = StyleSheet.create({
+  page: {
+    paddingBottom: 50,
+  },
   container: {
     marginVertical: 6,
   },
 });
 
 const SectionContainer = props => <View style={generalStyles.container} {...props} />;
+
+const LabRequestDetailsSection = ({ labRequests }) => (
+  <View>
+    <P bold fontSize={11} mb={3}>
+      Lab request details
+    </P>
+    <HorizontalRule />
+    {labRequests.map((request, index) => (
+      <View key={request.id} style={labDetailsSectionStyles.detailsContainer}>
+        <FullLabRequestDetailsSection request={request} />
+        <HorizontalRule />
+        <SampleDetailsRow request={request} />
+        {index < labRequests.length - 1 && <View style={labDetailsSectionStyles.divider} />}
+      </View>
+    ))}
+    <DoubleHorizontalRule />
+  </View>
+);
 
 const LabRequestSigningSection = ({ getTranslation }) => {
   const BaseSigningSection = ({ title }) => (
@@ -86,93 +101,33 @@ const LabRequestSigningSection = ({ getTranslation }) => {
   );
 };
 
-const LabRequestDetailsView = ({ labRequests }) => {
-  const labTestTypeAccessor = ({ labTestPanelRequest, tests }) => {
-    if (labTestPanelRequest) {
-      return labTestPanelRequest.labTestPanel.name;
-    }
-    return tests?.map(test => test.labTestType?.name).join(', ') || '';
-  };
-
-  const notesAccessor = ({ notes }) => {
-    return (
-      notes
-        ?.map(note => note?.content || '')
-        .filter(Boolean)
-        .join(',\n') || ''
-    );
-  };
-
-  return (
-    <View>
-      <P bold fontSize={headingFontSize} mb={3}>
-        Lab request details
-      </P>
-      <HorizontalRule />
-      {labRequests.map((request, index) => {
-        return (
-          <View key={request.id} style={labDetailsSectionStyles.detailsContainer}>
-            <Row>
-              <Col>
-                <DataItem label="Request ID" value={request.displayId} />
-                <DataItem label="Priority" value={request.priority?.name} />
-                <DataItem
-                  label="Requested date & time"
-                  value={getDisplayDate(request.requestedDate, DATE_TIME_FORMAT)}
-                />
-                <DataItem label="Requested by" value={request.requestedBy?.displayName} />
-                <DataItem label="Test category" value={request.category?.name} />
-                <DataItem label="Tests" value={labTestTypeAccessor(request)} />
-              </Col>
-              <Col>
-                <Row>
-                  <P style={labDetailsSectionStyles.barcodeLabelText} fontSize={textFontSize} bold>
-                    Request ID barcode:
-                  </P>
-                  <PrintableBarcode id={request.displayId} />
-                </Row>
-              </Col>
-            </Row>
-            <Row>
-              <DataItem label="Notes" value={notesAccessor(request)} />
-            </Row>
-            <HorizontalRule />
-            <Row>
-              <Col>
-                <DataItem
-                  label="Sample date & time"
-                  value={getDisplayDate(request.sampleTime, DATE_TIME_FORMAT)}
-                />
-                <DataItem label="Collected by" value={request.collectedBy?.displayName} />
-              </Col>
-              <Col>
-                <DataItem label="Site" value={request.site?.name} />
-                <DataItem label="Specimen type" value={request.specimenType?.name} />
-              </Col>
-            </Row>
-            {index < labRequests.length - 1 && <View style={labDetailsSectionStyles.divider} />}
-          </View>
-        );
-      })}
-      <DoubleHorizontalRule />
-    </View>
-  );
-};
-
 const MultipleLabRequestsPrintoutComponent = React.memo(
-  ({ patientData, labRequests, encounter, certificateData, getLocalisation, getTranslation, getSetting }) => {
+  ({
+    patientData,
+    labRequests,
+    encounter,
+    certificateData,
+    getLocalisation,
+    getTranslation,
+    getSetting,
+  }) => {
     const { logo } = certificateData;
     return (
       <Document>
-        <Page size="A4" style={styles.page}>
+        <Page size="A4" style={[styles.page, generalStyles.page]}>
           <CertificateHeader>
             <LetterheadSection
               logoSrc={logo}
               letterheadConfig={certificateData}
+              lts
               certificateTitle="Lab request"
             />
             <SectionContainer>
-              <PatientDetailsWithBarcode patient={patientData} getLocalisation={getLocalisation} getSetting={getSetting} />
+              <PatientDetailsWithBarcode
+                patient={patientData}
+                getLocalisation={getLocalisation}
+                getSetting={getSetting}
+              />
             </SectionContainer>
             <SectionContainer>
               <EncounterDetails encounter={encounter} />
@@ -180,12 +135,13 @@ const MultipleLabRequestsPrintoutComponent = React.memo(
           </CertificateHeader>
           <CertificateContent>
             <SectionContainer>
-              <LabRequestDetailsView labRequests={labRequests} />
+              <LabRequestDetailsSection labRequests={labRequests} />
             </SectionContainer>
             <SectionContainer>
               <LabRequestSigningSection getTranslation={getTranslation} labRequests={labRequests} />
             </SectionContainer>
           </CertificateContent>
+          <Footer />
         </Page>
       </Document>
     );

@@ -1,50 +1,53 @@
 type Cache = Record<string, string | number | object>;
-export class SettingsCache {
-  allSettingsCache: Cache | null = null;
-  frontEndSettingsCache: Cache | null = null;
 
-  expirationTimestamp: number | null = null;
+export class SettingsCache {
+  // Map of facilityId (or 'central' for no facility) to cache objects
+  allSettingsCache: Map<string, Cache | null> = new Map();
+
+  // Map of facilityId to expiration timestamps
+  expirationTimestamps: Map<string, number> = new Map();
 
   // TTL in milliseconds
   ttl = 60000;
 
-  getAllSettings() {
+  private getCacheKey(facilityId?: string): string {
+    return facilityId ?? 'central';
+  }
+
+  getAllSettings(facilityId: string) {
+    const key = this.getCacheKey(facilityId);
+
     // If cache is expired, reset it.
-    if (!this.isValid()) {
-      this.reset();
+    if (!this.isValid(facilityId)) {
+      this.reset(facilityId);
     }
 
-    return this.allSettingsCache;
+    return this.allSettingsCache.get(key) || null;
   }
 
-  getFrontEndSettings() {
-    if (!this.isValid()) {
-      this.reset();
-    }
-
-    return this.frontEndSettingsCache;
-  }
-
-  setAllSettings(value: Cache) {
-    this.allSettingsCache = value;
+  setAllSettings(value: Cache, facilityId?: string) {
+    const key = this.getCacheKey(facilityId);
+    this.allSettingsCache.set(key, value);
     // Calculate expiration timestamp based on ttl
-    this.expirationTimestamp = Date.now() + this.ttl;
+    this.expirationTimestamps.set(key, Date.now() + this.ttl);
   }
 
-  setFrontEndSettings(value: Cache) {
-    this.frontEndSettingsCache = value;
-    this.expirationTimestamp = Date.now() + this.ttl;
+  reset(facilityId?: string) {
+    if (facilityId === undefined) {
+      this.allSettingsCache.clear();
+      this.expirationTimestamps.clear();
+    } else {
+      // Clear specific facility cache
+      const key = this.getCacheKey(facilityId);
+      this.allSettingsCache.delete(key);
+      this.expirationTimestamps.delete(key);
+    }
   }
 
-
-  reset() {
-    this.allSettingsCache = null;
-    this.frontEndSettingsCache = null;
-    this.expirationTimestamp = null;
-  }
-
-  isValid() {
-    return this.expirationTimestamp && Date.now() < this.expirationTimestamp;
+  isValid(facilityId?: string) {
+    const key = this.getCacheKey(facilityId);
+    const expirationTimestamp = this.expirationTimestamps.get(key);
+    return expirationTimestamp && Date.now() < expirationTimestamp;
   }
 }
 

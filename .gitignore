@@ -24,7 +24,6 @@ build
 packages/*/dist
 *.tsbuildinfo
 packages/*/{src,app}/**/*.d.ts
-storybook-static
 database/docs
 
 # Test artefacts

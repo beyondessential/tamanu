@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Box, Divider, Typography, styled } from '@mui/material';
-import { useLocation, useHistory } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
 import ShieldIcon from '@mui/icons-material/ShieldOutlined';
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailReadOutlined';
 import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
@@ -57,14 +57,10 @@ const EmailSection = ({ email }: { email: string }) => {
   );
 };
 
-interface LocationState {
-  email?: string;
-}
-
 export const LoginView = () => {
   const { mutate: login, error: loginError, reset: resetLogin } = useLogin();
-  const location = useLocation<LocationState>();
-  const history = useHistory();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const storedEmail = location.state?.email;
 
@@ -129,7 +125,7 @@ export const LoginView = () => {
         </Button>
       </form>
       <Divider sx={{ my: 2 }} />
-      <Button onClick={() => history.push('/login')} variant="text">
+      <Button onClick={() => navigate('/login')} variant="text">
         Back to login
       </Button>
     </Card>

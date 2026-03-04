@@ -23,6 +23,7 @@ export const PERMISSION_NOUNS = [
   'Facility',
   'ImagingRequest',
   'ImagingAreaExternalCode',
+  'ImagingTypeExternalCode',
   'Invoice',
   'InvoicePayment',
   'InvoiceProduct',
@@ -39,6 +40,8 @@ export const PERMISSION_NOUNS = [
   'Medication',
   'MedicationAdministration',
   'MedicationPharmacyNote',
+  'MedicationRequest',
+  'MedicationDispense',
   'OtherPractitionerEncounterNote',
   'Patient',
   'PatientAllergy',
@@ -50,7 +53,7 @@ export const PERMISSION_NOUNS = [
   'PatientFamilyHistory',
   'PatientIssue',
   'PatientLetterTemplate',
-  'PatientPortal',
+  'PatientPortalRegistration',
   'PatientPortalForm',
   'PatientProgramRegistration',
   'PatientProgramRegistrationCondition',
@@ -86,6 +89,7 @@ export const PERMISSION_NOUNS = [
   'User',
   'Vitals',
   'SensitiveMedication',
+  'LocationSchedule',
 ];
 
 export const NOUNS_WITH_OBJECT_ID = [

@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Box, Typography } from '@material-ui/core';
-import { Button, FormGrid, OutlinedButton } from '../components';
+import { Button, FormGrid, OutlinedButton } from '@tamanu/ui-components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const Actions = styled(Box)`
@@ -15,14 +15,14 @@ const Actions = styled(Box)`
 `;
 
 const RedHeading = styled(Typography)`
-  font-size: 18px;
+  font-size: 16px;
   line-height: 21px;
   font-weight: 500;
   color: ${(props) => props.theme.palette.error.main};
 `;
 
 const Text = styled(Typography)`
-  font-size: 15px;
+  font-size: 14px;
   line-height: 21px;
   font-weight: 400;
   color: ${(props) => props.theme.palette.text.secondary};

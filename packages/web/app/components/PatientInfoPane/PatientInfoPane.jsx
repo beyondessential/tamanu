@@ -2,7 +2,8 @@ import React, { memo, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { OutlinedButton } from '../Button';
+import { Button } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import { InfoPaneList } from './InfoPaneList';
 import { CoreInfoDisplay } from './PatientCoreInfo';
 import { PrintPatientDetailsModal } from '../PatientPrinting';
@@ -16,7 +17,6 @@ import {
 import { PatientProgramRegistryForm } from '../../views/programRegistry/PatientProgramRegistryForm';
 import { ProgramRegistryListItem } from '../../views/programRegistry/ProgramRegistryListItem';
 import { DeathModal } from '../DeathModal';
-import { Colors } from '../../constants';
 import { PatientCarePlanDetails } from './PatientCarePlanNotes';
 import { useApi } from '../../api';
 import { PANE_SECTION_IDS } from './paneSections';
@@ -209,9 +209,13 @@ const ProgramRegistryDisplay = memo(({ patient, readonly }) => (
 ));
 const CauseOfDeathButton = memo(({ openModal }) => {
   return (
-    <OutlinedButton size="small" onClick={openModal} data-testid="outlinedbutton-m6uu">
-      Cause of death
-    </OutlinedButton>
+    <Button size="small" onClick={openModal} data-testid="cause-of-death-button">
+      <TranslatedText
+        stringId="death.causeOfDeath.label"
+        fallback="Cause of death"
+        data-testid="translatedtext-h80z"
+      />
+    </Button>
   );
 });
 
@@ -239,8 +243,7 @@ const ListsSection = styled.div`
 const Buttons = styled.div`
   display: flex;
   flex-direction: column;
-  margin-top: 20px;
-  gap: 5px;
+  gap: 16px;
 `;
 
 export const PatientInfoPane = () => {

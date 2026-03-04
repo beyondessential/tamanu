@@ -11,6 +11,8 @@ import {
   MEDICATION_DURATION_UNITS_LABELS,
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
   ADMINISTRATION_FREQUENCIES,
+  FORM_TYPES,
+  MAX_REPEATS,
 } from '@tamanu/constants';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import {
@@ -26,6 +28,8 @@ import {
 import { format, subSeconds } from 'date-fns';
 import { useFormikContext } from 'formik';
 import { toast } from 'react-toastify';
+
+import { WarningOutlineIcon } from '../assets/icons/WarningOutlineIcon';
 import { foreignKey } from '../utils/validation';
 import { PrintPrescriptionModal } from '../components/PatientPrinting';
 import {
@@ -35,19 +39,20 @@ import {
   CheckInput,
   DateField,
   DateTimeField,
-  Dialog,
   Field,
+  NumberField,
+  SmallBodyText,
+} from '../components';
+import {
+  TextField,
+  TranslatedSelectField,
   Form,
   FormCancelButton,
   FormGrid,
   FormSubmitButton,
-  NumberField,
-  SelectField,
-  SmallBodyText,
-  TextField,
-  TranslatedSelectField,
-} from '../components';
-import { Colors, FORM_TYPES, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
+  Dialog,
+} from '@tamanu/ui-components';
+import { Colors, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 import { getAgeDurationFromDate } from '@tamanu/utils/date';
@@ -58,15 +63,16 @@ import { FrequencySearchField } from '../components/Medication/FrequencySearchIn
 import { useAuth } from '../contexts/Auth';
 import { useSettings } from '../contexts/Settings';
 import { ChevronIcon } from '../components/Icons/ChevronIcon';
-import { ConditionalTooltip, ThemedTooltip } from '../components/Tooltip';
+import { ConditionalTooltip } from '../components/Tooltip';
 import { capitalize } from 'lodash';
-import { preventInvalidNumber, validateDecimalPlaces } from '../utils/utils';
+import { preventInvalidNumber, preventInvalidRepeatsInput, validateDecimalPlaces } from '../utils/utils';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { formatTimeSlot } from '../utils/medications';
 import { useEncounter } from '../contexts/Encounter';
 import { usePatientAllergiesQuery } from '../api/queries/usePatientAllergiesQuery';
 import { useMedicationIdealTimes } from '../hooks/useMedicationIdealTimes';
 import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
+import { CircleAlert, CircleCheck, CircleHelp } from 'lucide-react';
 
 const validationSchema = yup.object().shape({
   medicationId: foreignKey(
@@ -91,6 +97,13 @@ const validationSchema = yup.object().shape({
   units: foreignKey(
     <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
   ).oneOf(DRUG_UNIT_VALUES),
+  repeats: yup
+    .number()
+    .integer()
+    .min(0)
+    .max(MAX_REPEATS)
+    .nullable()
+    .optional(),
   frequency: foreignKey(
     <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
   ),
@@ -112,8 +125,8 @@ const validationSchema = yup.object().shape({
     .when('durationValue', (durationValue, schema) =>
       durationValue
         ? schema.required(
-            <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
-          )
+          <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
+        )
         : schema.optional(),
     ),
   prescriberId: foreignKey(
@@ -123,20 +136,59 @@ const validationSchema = yup.object().shape({
   patientWeight: yup.number().positive(),
 });
 
+const FullWidthFieldWrapper = styled.div`
+  position: relative;
+  grid-column: 1 / -1;
+  width: 100%;
+`;
+
 const CheckboxGroup = styled.div`
   position: relative;
+  width: 100%;
+  grid-column: 1 / -1;
   .MuiTypography-body1 {
     font-size: 14px;
   }
-  grid-column: 1 / -1;
   display: flex;
   flex-direction: column;
   gap: 20px;
   padding-bottom: 1.2rem;
   border-bottom: 1px solid ${Colors.outline};
-  > div {
+  > div:nth-of-type(2) {
     max-width: fit-content;
   }
+`;
+
+const StyledCheckField = styled(CheckField)`
+  cursor: pointer;
+  width: 100%;
+  background-color: ${Colors.white};
+  border: 1px solid
+    ${({ $isChecked, $isLocked }) => {
+    if ($isLocked && $isChecked) return Colors.midText;
+    if ($isChecked) return Colors.primary;
+    return Colors.outline;
+  }};
+  border-radius: 3px;
+  .MuiFormControlLabel-root {
+    padding: 10px 2px;
+    margin: 0;
+    height: 44px;
+  }
+`;
+
+const CheckboxRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  align-items: stretch;
+  border: 1px solid ${Colors.outline};
+  padding: 12px 16px;
+  border-radius: 3px;
+`;
+
+const CheckboxRowItem = styled.div`
+  flex: 1;
 `;
 
 const ButtonRow = styled.div`
@@ -218,12 +270,10 @@ const StyledConditionalTooltip = styled(ConditionalTooltip)`
   }
 `;
 
-const StyledOngoingTooltip = styled(ThemedTooltip)`
-  .MuiTooltip-tooltip {
-    font-weight: 400;
-    width: 180px;
-    padding: 8px 16px;
-  }
+const VariableDoseFieldWrapper = styled.div`
+  margin-bottom: -12px;
+  grid-column: 1 / -1;
+  width: 290px;
 `;
 
 const StyledTimePicker = styled(TimePicker)`
@@ -255,6 +305,61 @@ const StyledTimePicker = styled(TimePicker)`
       border-color: ${Colors.softText};
     }
   }
+`;
+
+const AllergiesWarningBox = styled(Box)`
+  grid-column: 1 / -1;
+  border: 1px solid ${Colors.alert};
+  border-radius: 3px;
+  padding: 10px 26px;
+  background-color: ${Colors.lightAlert};
+  margin-bottom: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const AllergiesWarningHeader = styled(Box)`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const AllergiesWarningTitle = styled(BodyText)`
+  color: ${Colors.darkestText};
+  font-weight: 500;
+  font-size: 14px;
+`;
+
+const AllergiesList = styled.ul`
+  margin: 0;
+  padding-left: 41px;
+  list-style-type: disc;
+`;
+
+const AllergyItem = styled.li`
+  color: ${Colors.darkestText};
+  font-size: 14px;
+  line-height: 20px;
+`;
+
+const StockLevelContainer = styled.div`
+  padding: 12px 10px;
+  margin-top: 4px;
+  border: 1px solid ${Colors.outline};
+  border-radius: 3px;
+  background-color: ${Colors.white};
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: ${Colors.darkestText};
+`;
+
+const StockLevelValue = styled.span`
+  font-weight: 500;
+  font-size: 14px;
+  margin-left: -8px;
 `;
 
 const isOneTimeFrequency = frequency =>
@@ -312,13 +417,13 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
       ...values,
       timeSlots: checked
         ? [
-            ...selectedTimeSlots,
-            {
-              index,
-              value: getDefaultIdealTimeFromTimeSlot(slot, index),
-              timeSlot: slot,
-            },
-          ]
+          ...selectedTimeSlots,
+          {
+            index,
+            value: getDefaultIdealTimeFromTimeSlot(slot, index),
+            timeSlot: slot,
+          },
+        ]
         : selectedTimeSlots.filter(s => s.index !== index),
     });
   };
@@ -342,7 +447,10 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
   };
 
   return (
-    <StyledAccordion defaultExpanded={!isOneTimeFrequency(values.frequency)}>
+    <StyledAccordion
+      defaultExpanded={!isOneTimeFrequency(values.frequency)}
+      data-testid="medication-accordion-medicationAdministration-5m2w"
+    >
       <StyledAccordionSummary>
         <FieldLabel>
           <TranslatedText
@@ -370,7 +478,10 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
             </FieldLabel>
             <FieldContent>&nbsp;{firstAdministrationTime}</FieldContent>
           </Box>
-          <ResetToDefaultButton onClick={handleResetToDefault}>
+          <ResetToDefaultButton
+            onClick={handleResetToDefault}
+            data-testid="medication-button-resetToDefault-9h6k"
+          >
             <TranslatedText stringId="general.action.resetToDefault" fallback="Reset to default" />
           </ResetToDefaultButton>
         </Box>
@@ -384,7 +495,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
             const isDisabled =
               (!checked &&
                 frequenciesAdministrationIdealTimes?.[values.frequency]?.length ===
-                  selectedTimeSlots?.length) ||
+                selectedTimeSlots?.length) ||
               isOneTimeFrequency(values.frequency);
             const selectedTime = selectedTimeSlot
               ? getDateFromTimeString(selectedTimeSlot.value)
@@ -451,6 +562,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
                         value={checked}
                         onChange={(_, value) => handleSelectTimeSlot(value, slot, index)}
                         disabled={isDisabled}
+                        data-testid={`medication-checkbox-asfd${index}`}
                         {...(isDisabled && { icon: <StyledIcon className="far fa-square" /> })}
                       />
                     </Box>
@@ -484,6 +596,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
                       timeSteps={{ minutes: 1 }}
                       minTime={startTime}
                       maxTime={subSeconds(endTime, 1)}
+                      data-testid={`medication-time-picker-asfd${index}`}
                     />
                   </Box>
                 </Box>
@@ -545,6 +658,9 @@ export const MedicationForm = ({
   const [showExistingDrugWarning, setShowExistingDrugWarning] = useState(false);
   const [isFinalizingMedication, setIsFinalizingMedication] = useState(false);
   const [frequencyChanged, setFrequencyChanged] = useState(0);
+  const [selectedDrug, setSelectedDrug] = useState(null);
+  const drugQuantity = selectedDrug?.facilities?.[0]?.quantity;
+  const drugStockStatus = selectedDrug?.facilities?.[0]?.stockStatus;
 
   const { defaultTimeSlots } = useMedicationIdealTimes({
     frequency: editingMedication?.frequency,
@@ -553,17 +669,17 @@ export const MedicationForm = ({
   const practitionerSuggester = useSuggester('practitioner');
   const drugSuggester = useSuggester('drug', {
     formatter: ({ name, id, ...rest }) => ({ ...rest, label: name, value: id }),
+    baseQueryParameters: isOngoingPrescription ? { includeUnavailable: true } : {},
   });
 
   const { data: allergies, isLoading: isLoadingAllergies } = usePatientAllergiesQuery(patient?.id);
-  const allergiesList = allergies?.data
-    ?.map(allergyDetail =>
+  const allergiesList =
+    allergies?.data?.map(allergyDetail =>
       getTranslation(
         getReferenceDataStringId(allergyDetail?.allergy.id, allergyDetail?.allergy.type),
         allergyDetail?.allergy.name,
       ),
-    )
-    .join(', ');
+    ) || [];
 
   // Transition to print page as soon as we have the generated id
   useEffect(() => {
@@ -641,14 +757,68 @@ export const MedicationForm = ({
       isVariableDose: false,
       startDate: getCurrentDateTimeString(),
       isOngoing: isOngoingPrescription,
+      repeats: editingMedication?.repeats ?? 0,
       timeSlots: defaultTimeSlots,
       ...editingMedication,
     };
   };
 
-  const handleChangeMedication = drugId => {
-    const isExistingDrug = existingDrugIds.includes(drugId);
+  const handleChangeMedication = e => {
+    const isExistingDrug = existingDrugIds.includes(e.target.value);
     setShowExistingDrugWarning(isExistingDrug);
+    setSelectedDrug(e.target?.referenceDrug);
+  };
+
+  const getStockLevelIcon = () => {
+    if (drugQuantity > 0) return <CircleCheck size={20} color={Colors.safe} />;
+    if (drugQuantity === 0) return <CircleAlert size={20} color={Colors.alert} />;
+    return <CircleHelp size={20} color={Colors.blue} />;
+  };
+
+  const getStockLevelContent = () => {
+    const MAX_DISPLAYABLE_STOCK_LEVEL = 1000000;
+
+    if (isNaN(parseInt(drugQuantity))) {
+      return (
+        <TranslatedText
+          stringId="medication.stockLevel.unknown"
+          fallback="The stock status of this medication is currently unknown."
+        />
+      );
+    }
+
+    if (drugQuantity === 0) {
+      return (
+        <TranslatedText
+          stringId="medication.stockLevel.outOfStock"
+          fallback="Medication is currently marked as out of stock."
+        />
+      );
+    }
+
+    const stockLevelValue =
+      drugQuantity <= MAX_DISPLAYABLE_STOCK_LEVEL ? (
+        <TranslatedText
+          stringId="medication.stockLevel.inStock.approxUnits"
+          fallback="Approx :quantity units"
+          replacements={{ quantity: Number(drugQuantity).toLocaleString() }}
+        />
+      ) : (
+        <TranslatedText
+          stringId="medication.stockLevel.inStock.moreThanOneMillionUnits"
+          fallback="More than 1 million units"
+        />
+      );
+
+    return (
+      <>
+        <TranslatedText
+          stringId="medication.stockLevel.inStock"
+          fallback="Medication is currently in stock. Stock level: "
+        />
+        <StockLevelValue>{stockLevelValue}</StockLevelValue>
+      </>
+    );
   };
 
   return (
@@ -672,19 +842,25 @@ export const MedicationForm = ({
           <StyledFormGrid>
             {!isEditing ? (
               <>
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <TranslatedText stringId="medication.allergies.title" fallback="Allergies" />:{' '}
-                  <span style={{ fontWeight: 500 }}>
-                    {!isLoadingAllergies &&
-                      (allergiesList || (
+                {!isLoadingAllergies && allergiesList.length > 0 && (
+                  <AllergiesWarningBox>
+                    <AllergiesWarningHeader>
+                      <WarningOutlineIcon />
+                      <AllergiesWarningTitle>
                         <TranslatedText
-                          stringId="medication.allergies.noRecord"
-                          fallback="None recorded"
+                          stringId="medication.allergies.title"
+                          fallback="Patient allergies"
                         />
+                      </AllergiesWarningTitle>
+                    </AllergiesWarningHeader>
+                    <AllergiesList>
+                      {allergiesList.map((allergy, index) => (
+                        <AllergyItem key={index}>{allergy}</AllergyItem>
                       ))}
-                  </span>
-                </div>
-                <div style={{ gridColumn: '1 / -1' }}>
+                    </AllergiesList>
+                  </AllergiesWarningBox>
+                )}
+                <FullWidthFieldWrapper>
                   <Field
                     name="medicationId"
                     label={
@@ -704,8 +880,9 @@ export const MedicationForm = ({
                         units: referenceDrug?.units || '',
                         notes: referenceDrug?.notes || '',
                       });
-                      handleChangeMedication(e.target.value);
+                      handleChangeMedication(e);
                     }}
+                    data-testid="medication-field-medicationId-8k3m"
                   />
                   {showExistingDrugWarning && (
                     <SmallBodyText mt="2px" color={Colors.midText}>
@@ -715,7 +892,13 @@ export const MedicationForm = ({
                       />
                     </SmallBodyText>
                   )}
-                </div>
+                  {!isOngoingPrescription && !!drugStockStatus && (
+                    <StockLevelContainer>
+                      {getStockLevelIcon()}
+                      {getStockLevelContent()}
+                    </StockLevelContainer>
+                  )}
+                </FullWidthFieldWrapper>
               </>
             ) : (
               <MedicationBox>
@@ -728,54 +911,60 @@ export const MedicationForm = ({
               </MedicationBox>
             )}
             <CheckboxGroup>
-              {isOngoingPrescription && (
-                <StyledOngoingTooltip
-                  title={
-                    <TranslatedText
-                      stringId="medication.isOngoing.tooltip"
-                      fallback="Medications recorded outside of an encounter must be recorded as ongoing"
+              <CheckboxRow>
+                <CheckboxRowItem>
+                  <ConditionalTooltip
+                    visible={isOngoingPrescription}
+                    $maxWidth="220px"
+                    title={
+                      <TranslatedText
+                        stringId="medication.isOngoing.tooltip"
+                        fallback="Medications recorded outside of an encounter must be recorded as ongoing"
+                      />
+                    }
+                  >
+                    <Field
+                      name="isOngoing"
+                      label={
+                        <TranslatedText
+                          stringId="medication.isOngoing.label"
+                          fallback="Ongoing medication"
+                        />
+                      }
+                      component={StyledCheckField}
+                      style={{ ...(isOngoingPrescription && { pointerEvents: 'none' }) }}
+                      {...(isOngoingPrescription && { value: true })}
+                      onChange={(_, value) => {
+                        if (value) {
+                          setValues({ ...values, durationValue: '', durationUnit: '' });
+                        }
+                      }}
+                      checkedIcon={
+                        <StyledIcon
+                          className="far fa-check-square"
+                          $color={isOngoingPrescription ? Colors.midText : Colors.primary}
+                        />
+                      }
+                      data-testid="medication-field-isOngoing-7j2p"
+                      $isChecked={values.isOngoing || isOngoingPrescription}
+                      $isLocked={isOngoingPrescription}
                     />
-                  }
-                >
-                  <Box
-                    component={'span'}
-                    width={32}
-                    height={16}
-                    position={'absolute'}
-                    zIndex={1}
-                    top={2.5}
-                    left={-9}
+                  </ConditionalTooltip>
+                </CheckboxRowItem>
+                <CheckboxRowItem>
+                  <Field
+                    name="isPrn"
+                    label={
+                      <TranslatedText stringId="medication.isPrn.label" fallback="PRN medication" />
+                    }
+                    component={StyledCheckField}
+                    data-testid="medication-field-isPrn-9n4q"
+                    $isChecked={values.isPrn}
                   />
-                </StyledOngoingTooltip>
-              )}
-
-              <Field
-                name="isOngoing"
-                label={
-                  <TranslatedText
-                    stringId="medication.isOngoing.label"
-                    fallback="Ongoing medication"
-                  />
-                }
-                component={CheckField}
-                style={{ ...(isOngoingPrescription && { pointerEvents: 'none' }) }}
-                {...(isOngoingPrescription && { value: true })}
-                onChange={(_, value) => {
-                  if (value) {
-                    setValues({ ...values, durationValue: '', durationUnit: '' });
-                  }
-                }}
-                checkedIcon={<StyledIcon className="far fa-check-square" $color={Colors.midText} />}
-              />
-              <Field
-                name="isPrn"
-                label={
-                  <TranslatedText stringId="medication.isPrn.label" fallback="PRN medication" />
-                }
-                component={CheckField}
-              />
+                </CheckboxRowItem>
+              </CheckboxRow>
             </CheckboxGroup>
-            <div style={{ gridColumn: '1/-1', marginBottom: '-12px' }}>
+            <VariableDoseFieldWrapper>
               <Field
                 name="isVariableDose"
                 label={
@@ -786,15 +975,17 @@ export const MedicationForm = ({
                     />
                   </BodyText>
                 }
-                component={CheckField}
+                component={StyledCheckField}
                 onChange={(_, value) => {
                   if (value) {
                     setValues({ ...values, doseAmount: '' });
                     setFieldError('doseAmount', null);
                   }
                 }}
+                data-testid="medication-field-isVariableDose-5h8x"
+                $isChecked={values.isVariableDose}
               />
-            </div>
+            </VariableDoseFieldWrapper>
             <Field
               name="doseAmount"
               label={
@@ -805,6 +996,7 @@ export const MedicationForm = ({
               onInput={validateDecimalPlaces}
               required={!values.isVariableDose}
               disabled={values.isVariableDose}
+              data-testid="medication-field-doseAmount-3t6w"
             />
             <Field
               name="units"
@@ -812,6 +1004,7 @@ export const MedicationForm = ({
               component={TranslatedSelectField}
               enumValues={DRUG_UNIT_LABELS}
               required
+              data-testid="medication-field-units-2r9v"
             />
             <Field
               name="frequency"
@@ -823,13 +1016,15 @@ export const MedicationForm = ({
                 }
                 setFrequencyChanged(prev => prev + 1);
               }}
+              data-testid="medication-field-frequency-4c7z"
             />
             <Field
               name="route"
-              label={<TranslatedText stringId="medication.route.label" fallback="Route" />}
+              label={<TranslatedText stringId="medication.routeOfAdministration.label" fallback="Route of administration" />}
               component={TranslatedSelectField}
               enumValues={DRUG_ROUTE_LABELS}
               required
+              data-testid="medication-field-route-6d1b"
             />
             <Field
               name="date"
@@ -839,6 +1034,7 @@ export const MedicationForm = ({
               saveDateAsString
               component={DateField}
               required
+              data-testid="medication-field-date-8m5k"
             />
             <Field
               name="startDate"
@@ -851,6 +1047,7 @@ export const MedicationForm = ({
               saveDateAsString
               component={DateTimeField}
               required
+              data-testid="medication-field-startDate-1a9s"
             />
             <FormGrid nested>
               <StyledConditionalTooltip
@@ -873,19 +1070,18 @@ export const MedicationForm = ({
                   disabled={
                     values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY || values.isOngoing
                   }
+                  data-testid="medication-field-durationValue-7p2n"
                 />
               </StyledConditionalTooltip>
               <Field
                 name="durationUnit"
                 label={<Box sx={{ opacity: 0 }}>.</Box>}
-                component={SelectField}
-                options={Object.entries(MEDICATION_DURATION_UNITS_LABELS).map(([value, label]) => ({
-                  value,
-                  label,
-                }))}
+                component={TranslatedSelectField}
+                enumValues={MEDICATION_DURATION_UNITS_LABELS}
                 disabled={
                   values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY || values.isOngoing
                 }
+                data-testid="medication-field-durationUnit-4q8f"
               />
             </FormGrid>
             <div />
@@ -897,6 +1093,7 @@ export const MedicationForm = ({
               component={AutocompleteField}
               suggester={practitionerSuggester}
               required
+              data-testid="medication-field-prescriberId-3x5h"
             />
             <Field
               name="indication"
@@ -904,6 +1101,7 @@ export const MedicationForm = ({
                 <TranslatedText stringId="medication.indication.label" fallback="Indication" />
               }
               component={TextField}
+              data-testid="medication-field-indication-9w6y"
             />
             <div style={{ gridColumn: '1/-1' }}>
               <Field
@@ -914,6 +1112,7 @@ export const MedicationForm = ({
                   </BodyText>
                 }
                 component={CheckField}
+                data-testid="medication-field-isPhoneOrder-2e4r"
               />
             </div>
             <Field
@@ -921,6 +1120,7 @@ export const MedicationForm = ({
               label={<TranslatedText stringId="general.notes.label" fallback="Notes" />}
               component={TextField}
               style={{ gridColumn: '1/-1' }}
+              data-testid="medication-field-notes-5b3t"
             />
             <div style={{ gridColumn: '1 / -1' }}>
               <Divider />
@@ -943,25 +1143,47 @@ export const MedicationForm = ({
                 </FieldContent>
               </div>
             )}
-            {!isOngoingPrescription && (
-              <>
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <Divider />
-                </div>
-                <Field
-                  name="quantity"
-                  label={
+            <>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <Divider />
+              </div>
+              <Field
+                name="quantity"
+                label={
+                  encounterId ? (
                     <TranslatedText
-                      stringId="medication.dischargeQuantity.label"
+                      stringId="medication.details.dischargeQuantity"
                       fallback="Discharge quantity"
                     />
-                  }
-                  min={0}
-                  component={NumberField}
-                  onInput={preventInvalidNumber}
-                />
-              </>
-            )}
+                  ) : (
+                    <TranslatedText
+                      stringId="medication.quantity.label"
+                      fallback="Quantity"
+                    />
+                  )
+                }
+                min={0}
+                component={NumberField}
+                onInput={preventInvalidNumber}
+                data-testid="medication-field-quantity-6j9m"
+              />
+              <Field
+                name="repeats"
+                label={
+                  encounterId ? (
+                    <TranslatedText stringId="medication.repeats.onDischarge.label" fallback="Repeats on discharge" />
+                  ) : (
+                    <TranslatedText stringId="medication.repeats.label" fallback="Repeats" />
+                  )
+                }
+                component={NumberField}
+                min={0}
+                max={MAX_REPEATS}
+                step={1}
+                onInput={preventInvalidRepeatsInput}
+              />
+            </>
+
             {showPatientWeight && (
               <>
                 <div style={{ gridColumn: '1 / -1' }}>
@@ -980,7 +1202,7 @@ export const MedicationForm = ({
                   component={TextField}
                   placeholder={getTranslation('medication.patientWeight.placeholder', 'e.g 2.4')}
                   type="number"
-                  data-testid="field-2hh7"
+                  data-testid="medication-field-patientWeight-1k7c"
                 />
               </>
             )}
@@ -998,6 +1220,7 @@ export const MedicationForm = ({
                   startIcon={<PrintIcon />}
                   disabled={isFinalizingMedication}
                   showLoadingIndicator={isFinalizingMedication}
+                  data-testid="medication-button-finaliseAndPrint-8v2q"
                 >
                   <TranslatedText
                     stringId="medication.action.finaliseAndPrint"
@@ -1007,7 +1230,10 @@ export const MedicationForm = ({
               )}
               <Box display="flex" ml="auto" sx={{ gap: '16px' }}>
                 {(!isEditing || dirty) && (
-                  <FormCancelButton onClick={onCancelEdit || onCancel}>
+                  <FormCancelButton
+                    onClick={onCancelEdit || onCancel}
+                    data-testid="medication-button-cancel-4n8p"
+                  >
                     {isEditing ? (
                       <TranslatedText
                         stringId="general.action.cancelChanges"
@@ -1023,6 +1249,7 @@ export const MedicationForm = ({
                   onClick={async data => onFinalise({ data, isPrinting: false, submitForm, dirty })}
                   disabled={isFinalizingMedication}
                   showLoadingIndicator={isFinalizingMedication}
+                  data-testid="medication-button-finalise-7x3d"
                 >
                   {isEditing ? (
                     <TranslatedText stringId="general.action.confirm" fallback="Confirm" />

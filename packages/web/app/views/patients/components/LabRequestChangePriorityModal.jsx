@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useSuggester } from '../../../api';
-import { AutocompleteInput, FormGrid, FormModal, ModalActionRow } from '../../../components';
+import { FormGrid } from '@tamanu/ui-components';
+import { AutocompleteInput, FormModal, ModalActionRow } from '../../../components';
 import { TranslatedText } from '../../../components/Translation';
 
 export const LabRequestChangePriorityModal = React.memo(

@@ -1,0 +1,69 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: user_login_attempts
+        description: "{{ doc('table__user_login_attempts') }}"
+        config:
+          tags: []
+          meta:
+            triggers:
+              - notify_user_login_attempts_changed
+              - record_user_login_attempts_changelog
+              - set_user_login_attempts_updated_at
+              - set_user_login_attempts_updated_at_sync_tick
+        columns:
+          - name: id
+            data_type: uuid
+            description: "{{ doc('generic__id') }} in user_login_attempts."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in user_login_attempts."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in user_login_attempts."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in user_login_attempts."
+          - name: outcome
+            data_type: text
+            description: "{{ doc('user_login_attempts__outcome') }}"
+            data_tests:
+              - not_null
+            config:
+              meta:
+                masking: text
+          - name: device_id
+            data_type: text
+            description: "{{ doc('user_login_attempts__device_id') }}"
+            data_tests:
+              - relationships:
+                  arguments:
+                    to: source('tamanu', 'devices')
+                    field: id
+            config:
+              meta:
+                masking: text
+          - name: user_id
+            data_type: character varying(255)
+            description: "{{ doc('user_login_attempts__user_id') }}"
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in user_login_attempts."
+            data_tests:
+              - not_null

@@ -41,6 +41,8 @@ async function populateRegistrationIds(query: QueryInterface): Promise<void> {
       },
     );
 
+    if (registrations.length === 0) { continue; }
+
     // Get the registration ID to use
     let registrationId: string;
 

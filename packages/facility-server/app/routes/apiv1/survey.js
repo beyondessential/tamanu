@@ -39,6 +39,15 @@ survey.get(
 survey.get(
   '/charts',
   asyncHandler(async (req, res) => {
+    const encounterId = req.query?.encounterId;
+
+    if (encounterId) {
+      const encounter = await req.models.Encounter.findByPk(encounterId);
+        if (!encounter) {
+          throw new NotFoundError('Encounter not found');
+        }
+    }
+
     req.flagPermissionChecked();
     const {
       models: { Survey },
@@ -64,7 +73,15 @@ survey.get(
                 visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
               },
               literal(
-                `EXISTS (SELECT 1 FROM survey_responses WHERE survey_responses.survey_id = "Survey".id AND survey_responses.deleted_at IS NULL)`,
+                `
+                  EXISTS (
+                  SELECT 1 FROM survey_responses sr
+                  JOIN survey_response_answers sra ON sra.response_id = sr.id
+                  WHERE sr.survey_id = "Survey".id 
+                    ${encounterId ? `AND sr.encounter_id = :encounterId` : ''}
+                    AND sr.deleted_at IS NULL
+                  )
+                `,
               ),
             ],
           },
@@ -75,6 +92,7 @@ survey.get(
         ],
       },
       order: [['name', 'ASC']],
+      ...(encounterId && { replacements: { encounterId } }),
     });
     const permittedChartSurveys = chartSurveys.filter((survey) =>
       req.ability.can('list', subject('Charting', { id: survey.id })),

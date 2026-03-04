@@ -1,0 +1,57 @@
+{
+  "sheetName": "Lab Test Panel",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus",
+    "externalCode",
+    "categoryId",
+    "testTypesInPanel"
+  ],
+  "data": [
+    {
+      "id": "labTestPanel-bloods",
+      "code": "bloods",
+      "name": "Bloods",
+      "visibilityStatus": "current",
+      "categoryId": "labTestCategory-Serology",
+      "testTypesInPanel": "labTestType-Sodium,labTestType-Potassium,labTestType-BloodGlucose,labTestType-Cholesterol,labTestType-Magnesium"
+    },
+    {
+      "id": "labTestPanel-cmp",
+      "code": "cmp",
+      "name": "Comprehensive Metabolic Panel (CMP)",
+      "visibilityStatus": "current",
+      "categoryId": "labTestCategory-Other",
+      "testTypesInPanel": "labTestType-Bilibubin,labTestType-ALP,labTestType-AST,labTestType-Potassium,labTestType-BloodGlucose,labTestType-Chloride,labTestType-Urea,labTestType-Calcium,labTestType-Creatinine,labTestType-ALT,labTestType-Albumin"
+    },
+    {
+      "id": "cfff2b48-45ca-4405-9ba5-10c180ff3307",
+      "code": "bloods",
+      "name": "Bloods",
+      "visibilityStatus": "current",
+      "externalCode": "external-testPanel-Bloods",
+      "categoryId": "labTestCategory-LFT",
+      "testTypesInPanel": "labTestType-ALP,labTestType-AST"
+    },
+    {
+      "id": "b7a10af7-7b58-46a9-8282-5f5db9bf7478",
+      "code": "Demo Test Panel",
+      "name": "Demo Test Panel",
+      "visibilityStatus": "current",
+      "externalCode": "external-Demo-Test-Panel",
+      "categoryId": "labTestCategory-UE",
+      "testTypesInPanel": "labTestType-Sodium,labTestType-Potassium"
+    },
+    {
+      "id": "8cb3dec3-c88f-4abf-a50e-314c1230cc6a",
+      "code": "others",
+      "name": "Others",
+      "visibilityStatus": "current",
+      "externalCode": "external-testPanel-Others",
+      "categoryId": "labTestCategory-Other",
+      "testTypesInPanel": "labTestType-Woundswab,labTestType-INR"
+    }
+  ]
+}

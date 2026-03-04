@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
+import { TranslatedText, FormSubmitCancelRow } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { Typography } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
-import { TranslatedText } from '../../Translation';
 import { FormModal } from '../../FormModal';
 import { ModalGenericButtonRow } from '../../ModalActionRow';
-import { FormSubmitCancelRow } from '../../ButtonRow';
 import { useRegisterPatientPortal } from '../../../api/mutations';
-import { Colors } from '../../../constants';
 
 const Text = styled(Typography)`
   font-size: 14px;

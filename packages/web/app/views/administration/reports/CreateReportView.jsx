@@ -4,12 +4,11 @@ import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import {
   REPORT_DATA_SOURCES,
-  REPORT_DB_SCHEMAS,
+  REPORT_DB_CONNECTIONS,
   REPORT_DEFAULT_DATE_RANGES,
   REPORT_STATUSES,
 } from '@tamanu/constants/reports';
-import { useDispatch } from 'react-redux';
-import { push } from 'connected-react-router';
+import { useNavigate } from 'react-router';
 import { useApi } from '../../../api';
 import { ReportEditor } from './ReportEditor';
 import { useAuth } from '../../../contexts/Auth';
@@ -21,13 +20,13 @@ const Container = styled.div`
 
 export const CreateReportView = () => {
   const api = useApi();
-  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { ability } = useAuth();
 
   const onSubmit = async ({ name, query, status, dbSchema, notes, ...queryOptions }) => {
     const { dataSources } = queryOptions;
-    const isRawReport = dbSchema === REPORT_DB_SCHEMAS.RAW;
+    const isRawReport = dbSchema === REPORT_DB_CONNECTIONS.RAW;
     try {
       const { reportDefinitionId, id } = await api.post('admin/reports', {
         name,
@@ -41,7 +40,7 @@ export const CreateReportView = () => {
         },
       });
       queryClient.invalidateQueries(['reportList']);
-      dispatch(push(`/admin/reports/${reportDefinitionId}/versions/${id}/edit`));
+      navigate(`/admin/reports/${reportDefinitionId}/versions/${id}/edit`);
       toast.success(
         <TranslatedText
           stringId="admin.report.notification.importedReport"
@@ -71,7 +70,7 @@ export const CreateReportView = () => {
           status: REPORT_STATUSES.PUBLISHED,
           dataSources: [REPORT_DATA_SOURCES.ALL_FACILITIES],
           defaultDateRange: REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS,
-          dbSchema: canEditSchema ? REPORT_DB_SCHEMAS.RAW : null,
+          dbSchema: canEditSchema ? REPORT_DB_CONNECTIONS.RAW : null,
           parameters: [],
         }}
         onSubmit={onSubmit}

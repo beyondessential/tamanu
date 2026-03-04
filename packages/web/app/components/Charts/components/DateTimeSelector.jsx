@@ -3,7 +3,8 @@ import styled from 'styled-components';
 import { debounce } from 'lodash';
 import { addDays, format, parseISO, startOfDay } from 'date-fns';
 
-import { DateInput as DateInputComponent, SelectInput as SelectInputComponent } from '../../Field';
+import { DateInput as DateInputComponent } from '../../Field';
+import { SelectInput as SelectInputComponent } from '@tamanu/ui-components';
 import { Y_AXIS_WIDTH } from '../constants';
 
 const Wrapper = styled.div`

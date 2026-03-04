@@ -1,13 +1,50 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
-import { toggleButtonClasses } from '@mui/material/ToggleButton';
+import ToggleButton, { toggleButtonClasses } from '@mui/material/ToggleButton';
 import { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
 
-import { Colors } from '../../constants';
+import { Colors } from '../../constants/styles';
 import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
-import { ToggleButton } from '../Button';
 
 const Toggle = styled(ToggleButton)`
+.${toggleButtonGroupClasses.root} &.${toggleButtonClasses.root}.${
+  toggleButtonGroupClasses.grouped
+}:is(
+    .${toggleButtonGroupClasses.firstButton},
+    .${toggleButtonGroupClasses.middleButton},
+    .${toggleButtonGroupClasses.lastButton}
+  ) {
+    appearance: none;
+    background-color: ${Colors.white};
+    border-color: ${Colors.softText};
+    border-radius: calc(infinity * 1px);
+    border-style: solid;
+    border-width: max(0.0625rem, 1px);
+    color: ${Colors.softText};
+    cursor: pointer;
+    display: initial;
+    font-family: inherit;
+    font-size: inherit;
+    font-style: inherit;
+    font-weight: inherit;
+    inline-size: fit-content;
+    line-height: inherit;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    text-decoration-thickness: from-font;
+    text-transform: none;
+    touch-action: manipulation;
+
+    &:disabled,
+    &.${toggleButtonClasses.disabled} {
+      background-color: ${Colors.softOutline};
+      border-color: ${Colors.softText};
+      color: ${Colors.softText};
+      cursor: not-allowed;
+    }
+  }
+
   &&&&&& {
     line-height: 1.35;
     min-inline-size: 4.625rem;

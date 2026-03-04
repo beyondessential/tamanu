@@ -72,6 +72,10 @@ export class Survey extends Model {
       as: 'procedureTypes',
       foreignKey: 'surveyId',
     });
+    this.hasMany(models.PortalSurveyAssignment, {
+      as: 'portalSurveyAssignments',
+      foreignKey: 'surveyId',
+    });
   }
 
   static getAllReferrals() {

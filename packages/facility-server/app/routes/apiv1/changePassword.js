@@ -39,15 +39,16 @@ changePassword.post(
 );
 
 const updatePasswordOnFacilityServer = async (models, { email, newPassword }) => {
-  await models.User.update(
-    {
-      password: newPassword,
-    },
-    {
-      where: Sequelize.where(
-        Sequelize.fn('lower', Sequelize.col('email')),
-        Sequelize.fn('lower', email),
-      ),
-    },
-  );
+  const user = await models.User.scope('withPassword').findOne({
+    where: Sequelize.where(
+      Sequelize.fn('lower', Sequelize.col('email')),
+      Sequelize.fn('lower', email),
+    ),
+  });
+
+  if (user) {
+    // Set password directly - the beforeUpdate hook will handle hashing
+    user.password = newPassword;
+    await user.save();
+  }
 };

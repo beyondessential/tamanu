@@ -2,16 +2,11 @@
 
 import { describe, expect, it, beforeEach, afterEach } from 'vitest';
 import { closeDatabase, initDatabase } from '../../utilities';
-import {
-  runPostMigration,
-  runPreMigration,
-  tablesWithTrigger,
-  tablesWithoutTrigger,
-} from '../../../src/services/migrations/migrationHooks';
+import { runPostMigration, runPreMigration } from '../../../src/services/migrations/migrationHooks';
+import { tablesWithTrigger, tablesWithoutTrigger } from '../../../src/utils';
 import { createMigrationInterface } from '../../../src/services/migrations/migrations';
 import { log } from '@tamanu/shared/services/logging/log';
 import { Umzug } from 'umzug';
-import { GLOBAL_EXCLUDE_TABLES } from '../../../src/services/migrations/constants';
 
 const randomSelection = <T>(array: T[]) => array.filter(() => Math.random() > 0.5);
 
@@ -30,7 +25,7 @@ const addTrigger = async (
 ) => {
   await removeTrigger(sequelize, table, prefix, suffix);
   return sequelize.query(
-    `CREATE TRIGGER ${prefix}${table.table}${suffix} BEFORE INSERT OR UPDATE ON ${table.schema}.${table.table} FOR EACH ROW EXECUTE FUNCTION fake_trigger_function();`,
+    `CREATE TRIGGER ${prefix}${table.table}${suffix} BEFORE INSERT OR UPDATE ON "${table.schema}"."${table.table}" FOR EACH ROW EXECUTE FUNCTION fake_trigger_function();`,
   );
 };
 
@@ -41,7 +36,7 @@ const removeTrigger = (
   suffix: string,
 ) => {
   return sequelize.query(
-    `DROP TRIGGER IF EXISTS ${prefix}${table.table}${suffix} ON ${table.schema}.${table.table};`,
+    `DROP TRIGGER IF EXISTS ${prefix}${table.table}${suffix} ON "${table.schema}"."${table.table}";`,
   );
 };
 
@@ -71,7 +66,7 @@ describe('migrationHooks', () => {
       await database.sequelize.query(
         "SELECT table_schema as schema, table_name as table FROM information_schema.tables where table_schema IN ('public', 'logs') and table_type != 'VIEW'",
       )
-    )[0].filter(({ schema, table }) => !GLOBAL_EXCLUDE_TABLES.includes(`${schema}.${table}`));
+    )[0];
   });
 
   afterEach(async () => {
@@ -81,7 +76,7 @@ describe('migrationHooks', () => {
 
   describe('tablesWithTrigger', () => {
     it('should return no tables for non-existing trigger', async () => {
-      const tables = await tablesWithTrigger(database.sequelize, 'banana_', '_chocolate', []);
+      const tables = await tablesWithTrigger(database.sequelize, 'banana_', '_chocolate');
       expect(tables).toEqual([]);
     });
 
@@ -93,7 +88,7 @@ describe('migrationHooks', () => {
         await addTrigger(database.sequelize, table, prefix, suffix);
       }
 
-      const tables = await tablesWithTrigger(database.sequelize, prefix, suffix, []);
+      const tables = await tablesWithTrigger(database.sequelize, prefix, suffix);
 
       for (const table of triggeredTables) {
         await removeTrigger(database.sequelize, table, prefix, suffix);
@@ -110,7 +105,7 @@ describe('migrationHooks', () => {
         await addTrigger(database.sequelize, table, prefix, suffix);
       }
 
-      const tables = await tablesWithTrigger(database.sequelize, prefix, suffix, []);
+      const tables = await tablesWithTrigger(database.sequelize, prefix, suffix);
 
       for (const table of triggeredTables) {
         await removeTrigger(database.sequelize, table, prefix, suffix);
@@ -147,7 +142,7 @@ describe('migrationHooks', () => {
 
   describe('tablesWithoutTrigger', () => {
     it('should return all tables for non-existing trigger', async () => {
-      const tables = await tablesWithoutTrigger(database.sequelize, 'banana_', '_chocolate', []);
+      const tables = await tablesWithoutTrigger(database.sequelize, 'banana_', '_chocolate');
       expect(tables.sort(sortTables)).toEqual(allTables.sort(sortTables));
     });
 
@@ -159,7 +154,7 @@ describe('migrationHooks', () => {
         await addTrigger(database.sequelize, table, prefix, suffix);
       }
 
-      const tables = await tablesWithoutTrigger(database.sequelize, prefix, suffix, []);
+      const tables = await tablesWithoutTrigger(database.sequelize, prefix, suffix);
 
       for (const table of triggeredTables) {
         await removeTrigger(database.sequelize, table, prefix, suffix);
@@ -177,7 +172,7 @@ describe('migrationHooks', () => {
         await addTrigger(database.sequelize, table, prefix, suffix);
       }
 
-      const tables = await tablesWithoutTrigger(database.sequelize, prefix, suffix, []);
+      const tables = await tablesWithoutTrigger(database.sequelize, prefix, suffix);
 
       for (const table of triggeredTables) {
         await removeTrigger(database.sequelize, table, prefix, suffix);

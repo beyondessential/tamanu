@@ -1,20 +1,20 @@
 /*
-Returns the first Note (Sequelize model instance) with the specified noteType, or undefined.
+Returns the first Note (Sequelize model instance) with the specified noteTypeId, or undefined.
 
 notes: Array<SequelizeModel>
-noteType: string
+noteTypeId: string (note type ID, e.g., 'notetype-other', 'notetype-system')
 */
-export const getNoteWithType = (notes, noteType) => {
-  return getNotesWithType(notes, noteType)[0];
+export const getNoteWithType = (notes, noteTypeId) => {
+  return getNotesWithType(notes, noteTypeId)[0];
 };
 
 /*
-Returns all Notes (Sequelize model instances) with the specified noteType, which may be an empty
+Returns all Notes (Sequelize model instances) with the specified noteTypeId, which may be an empty
 array.
 
 notes: Array<SequelizeModel>
-noteType: string
+noteTypeId: string (note type ID, e.g., 'notetype-other', 'notetype-system')
 */
-export const getNotesWithType = (notes, noteType) => {
-  return notes.filter(note => note.noteType === noteType);
+export const getNotesWithType = (notes, noteTypeId) => {
+  return notes.filter(note => note.noteTypeId === noteTypeId);
 };

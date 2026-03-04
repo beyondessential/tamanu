@@ -5,7 +5,7 @@ import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CancelIcon from '@material-ui/icons/Cancel';
 import { TASK_STATUSES, TASK_TYPES, WS_EVENTS } from '@tamanu/constants';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 
 import { BodyText, SmallBodyText, formatShortest, formatTime, TranslatedText, Table } from '../.';
@@ -329,7 +329,7 @@ const COLUMNS = [
 
 export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
   const { currentUser, facilityId } = useAuth();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { loadEncounter } = useEncounter();
   const dispatch = useDispatch();
 
@@ -367,11 +367,11 @@ export const DashboardTasksTable = ({ searchParameters, refreshCount }) => {
     await loadEncounter(encounter?.id);
     if (encounter?.patientId) await dispatch(reloadPatient(encounter.patientId));
     if (taskType === TASK_TYPES.MEDICATION_DUE_TASK) {
-      history.push(`/patients/all/${encounter?.patientId}/encounter/${encounter?.id}/mar/view`);
+      navigate(`/patients/all/${encounter?.patientId}/encounter/${encounter?.id}/mar/view`);
       return;
     }
 
-    history.push(
+    navigate(
       `/patients/all/${encounter?.patientId}/encounter/${encounter?.id}?tab=${ENCOUNTER_TAB_NAMES.TASKS}`,
     );
   };

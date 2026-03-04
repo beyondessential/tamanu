@@ -1,7 +1,6 @@
 import { DataTypes } from 'sequelize';
 import {
   NOTE_RECORD_TYPE_VALUES,
-  NOTE_TYPE_VALUES,
   SYNC_DIRECTIONS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
@@ -18,7 +17,7 @@ import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLo
 
 export class Note extends Model {
   declare id: string;
-  declare noteType: string;
+  declare noteTypeId: string;
   declare recordType: string;
   declare date: string;
   declare content: string;
@@ -34,9 +33,13 @@ export class Note extends Model {
           ...primaryKey,
           type: DataTypes.UUID,
         },
-        noteType: {
-          type: DataTypes.STRING,
+        noteTypeId: {
+          type: DataTypes.STRING(255),
           allowNull: false,
+          references: {
+            model: 'ReferenceData',
+            key: 'id',
+          },
         },
         recordType: {
           type: DataTypes.STRING,
@@ -63,11 +66,6 @@ export class Note extends Model {
           mustHaveValidRelationType() {
             if (!NOTE_RECORD_TYPE_VALUES.includes(this.recordType as string)) {
               throw new Error(`Note: Must have a valid record type (got ${this.recordType})`);
-            }
-          },
-          mustHaveValidType() {
-            if (!NOTE_TYPE_VALUES.includes(this.noteType as string)) {
-              throw new Error(`Note: Must have a valid note type (got ${this.noteType})`);
             }
           },
         },
@@ -99,19 +97,24 @@ export class Note extends Model {
       as: 'revisedBy',
       constraints: false,
     });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'noteTypeId',
+      as: 'noteTypeReference',
+    });
   }
 
   static async createForRecord(
     recordId: string,
     recordType: string,
-    noteType: string,
+    noteTypeId: string,
     content: string,
     authorId: string,
   ) {
     return Note.create({
       recordId,
       recordType,
-      noteType,
+      noteTypeId,
       date: getCurrentDateTimeString(),
       content,
       authorId,

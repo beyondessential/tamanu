@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { VISIBILITY_STATUSES, LOCATION_BOOKABLE_VIEW } from '@tamanu/constants';
 import { simpleGet, simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { Op } from 'sequelize';
 
@@ -15,9 +15,21 @@ location.get(
     req.checkPermission('list', 'Location');
     const {
       models: { LocationGroup },
-      query: { bookableOnly = false, locationGroupIds },
+      query: { isBookable, locationGroupIds },
     } = req;
     const { facilityId } = req.query;
+
+    const bookableWhereClause = [
+      LOCATION_BOOKABLE_VIEW.DAILY,
+      LOCATION_BOOKABLE_VIEW.WEEKLY,
+    ].includes(isBookable)
+      ? {
+          isBookable: {
+            [Op.in]: [LOCATION_BOOKABLE_VIEW.ALL, isBookable],
+          },
+        }
+      : null;
+
     const locations = await req.models.Location.findAll({
       where: {
         facilityId,
@@ -30,7 +42,7 @@ location.get(
           as: 'locationGroup',
           where: {
             visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-            ...(bookableOnly ? { isBookable: true } : null),
+            ...bookableWhereClause,
             ...(locationGroupIds ? { id: { [Op.in]: locationGroupIds } } : null),
           },
         },

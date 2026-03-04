@@ -15,5 +15,9 @@ Reference to the [facility](#!/source/source.tamanu.tamanu.facilities) this loca
 {% enddocs %}
 
 {% docs location_groups__is_bookable %}
-Whether or not this will show up in the Book Location workflow
+Controls whether and where this location group appears in the booking calendar:  
+- `all`: shown on both views  
+- `weekly`: shown only on weekly view
+- `daily`: shown only on daily view
+- `no`: hidden from calendar (default)
 {% enddocs %}

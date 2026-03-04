@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { Button, OutlinedButton } from '../components';
+import { Button, OutlinedButton } from '@tamanu/ui-components';
 import { getVisibleQuestions } from '../utils';
 import { SummaryScreenOne } from './DeathFormSummaryScreens';
 
@@ -22,6 +22,7 @@ export const DeathFormScreen = ({
   values,
   setValues,
   submitForm,
+  setParentState,
   onStepForward,
   onStepBack,
   isLast,
@@ -92,7 +93,10 @@ export const DeathFormScreen = ({
           <Button
             color="primary"
             variant="contained"
-            onClick={onStepForward}
+            onClick={() => {
+              onStepForward();
+              setParentState(values.timeOfDeath);
+            }}
             data-testid="button-ok5z"
           >
             {isLast ? 'Submit' : 'Continue'}

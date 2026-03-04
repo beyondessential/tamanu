@@ -67,8 +67,9 @@ describe('Data definition import', () => {
 
       const result = await app
         .post('/v1/admin/import/referenceData')
-        .attach(`./__tests__/importers/refdata-valid.xlsx`)
-        .field('includedDataTypes', 'allergy');
+        .attach('file', './__tests__/importers/refdata-valid.xlsx')
+        .field('includedDataTypes', 'allergy')
+        .field('dryRun', true);
 
       const { didntSendReason, errors } = result.body;
 
@@ -417,6 +418,38 @@ describe('Data definition import', () => {
     });
   });
 
+  describe('ReferenceDataRelations', () => {
+    it('should allow deleting reference data relations', async () => {
+      const { errors: createErrors, stats: createStats } = await doImport({
+        file: 'valid-reference-data-relations',
+        dryRun: false,
+      });
+
+      expect(createErrors).toBeEmpty();
+      expect(createStats).toMatchObject({
+        'ReferenceData/division': { created: 2, updated: 0, errored: 0 },
+        'ReferenceData/subdivision': { created: 4, updated: 0, errored: 0 },
+        ReferenceDataRelation: { created: 4, updated: 0, errored: 0 },
+      });
+
+      const relationsAfterCreate = await models.ReferenceDataRelation.findAll();
+      expect(relationsAfterCreate).toHaveLength(4);
+
+      const { errors: deleteErrors, stats: deleteStats } = await doImport({
+        file: 'valid-reference-data-relations-deletes',
+        dryRun: false,
+      });
+
+      expect(deleteErrors).toBeEmpty();
+      expect(deleteStats).toMatchObject({
+        ReferenceDataRelation: { deleted: 2, updated: 2, errored: 0 },
+      });
+
+      const relationsAfterDelete = await models.ReferenceDataRelation.findAll();
+      expect(relationsAfterDelete).toHaveLength(2);
+    });
+  });
+
   it('should allow importing sensitive lab test types within the same lab test category', async () => {
     const { didntSendReason, errors, stats } = await doImport({
       file: 'valid-sensitive-lab-test-types',
@@ -598,6 +631,43 @@ describe('Data definition import', () => {
       -1,
       'Lab test panels cannot contain sensitive lab test types',
     );
+  });
+
+  describe('Invoice Product', () => {
+    it('should import an invoice product', async () => {
+      const { errors, stats } = await doImport({ file: 'valid-invoice-product', dryRun: true });
+      expect(errors).toBeEmpty();
+      expect(stats).toMatchObject({
+        InvoiceProduct: { created: 1, updated: 0, errored: 0 },
+      });
+    });
+
+    it('should import an invoice product which has a source record', async () => {
+      const { errors, stats } = await doImport({
+        file: 'valid-invoice-product-and-sources',
+        dryRun: true,
+      });
+      expect(errors).toBeEmpty();
+      expect(stats).toMatchObject({
+        InvoiceProduct: { created: 6, updated: 0, errored: 0 },
+      });
+    });
+
+    it('should not import an invoice product when the source record does not exist', async () => {
+      const { stats, didntSendReason, errors } = await doImport({
+        file: 'invalid-invoice-product-missing-source',
+        dryRun: true,
+      });
+      expect(stats).toMatchObject({
+        InvoiceProduct: { created: 1, updated: 0, errored: 1 },
+      });
+      expect(didntSendReason).toEqual('validationFailed');
+      expect(errors).toContainValidationError(
+        'invoiceProduct',
+        2,
+        'Source record with ID "Drug-love" and category "Drug" does not exist.',
+      );
+    });
   });
 
   describe('Procedure Type Survey', () => {

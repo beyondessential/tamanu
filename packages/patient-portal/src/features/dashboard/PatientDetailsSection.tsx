@@ -9,7 +9,7 @@ export const PatientDetailsSection = () => {
   const patient = useCurrentUser();
 
   return (
-    <AccordionSection header="Patient Details" icon={<User />}>
+    <AccordionSection header="Patient details" icon={<User />}>
       <LabelValueList>
         <LabelValueList.ListItem label="First Name" value={formatName(patient.firstName)} />
         <LabelValueList.ListItem label="Last Name" value={formatName(patient.lastName)} />

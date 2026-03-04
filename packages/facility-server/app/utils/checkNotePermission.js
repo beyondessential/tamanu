@@ -17,7 +17,7 @@ function getParentRecordVerb(verb) {
 // of note should simply check permissions against their parent record.
 export async function checkNotePermission(req, note, verb) {
   const { models, user } = req;
-  const { noteType, recordType, recordId } = note;
+  const { noteTypeId, recordType, recordId } = note;
   const parentRecordVerb = getParentRecordVerb(verb);
 
   if (recordType === NOTE_RECORD_TYPES.ENCOUNTER) {
@@ -35,7 +35,7 @@ export async function checkNotePermission(req, note, verb) {
     // Check if user has permission to edit other people's treatment plan notes
     if (
       isCurrentUserEditingOtherPeopleNote && // check if current user is not the person who created the note originally
-      noteType === NOTE_TYPES.TREATMENT_PLAN &&
+      noteTypeId === NOTE_TYPES.TREATMENT_PLAN &&
       parentRecordVerb === 'write'
     ) {
       req.checkPermission(parentRecordVerb, NOTE_PERMISSION_TYPES.TREATMENT_PLAN_NOTE);

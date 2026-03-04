@@ -1,20 +1,18 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router';
 import styled from 'styled-components';
-import { useDispatch } from 'react-redux';
-import { push } from 'connected-react-router';
 import {
-  Button,
   ContentPane,
   Heading4,
   NoteModalActionBlocker,
   TableButtonRow,
 } from '../../../components';
+import { Button, TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { DataFetchingProgramsTable } from '../../../components/ProgramResponsesTable';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { PortalSurveyAssignmentsTable } from '../../../components/PortalSurveyAssignmentsTable';
-import { Colors } from '../../../constants/index';
 import { useSettings } from '../../../contexts/Settings';
+import { useAuth } from '../../../contexts/Auth';
 
 const TableWrapper = styled.div`
   margin-bottom: 1.5rem;
@@ -37,13 +35,15 @@ const TableHeader = () => (
 );
 
 export const PatientProgramsPane = React.memo(({ endpoint, patient }) => {
-  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const params = useParams();
+  const { ability } = useAuth();
   const { getSetting } = useSettings();
   const isPatientPortalEnabled = getSetting('features.patientPortal');
+  const canListPortalForms = ability?.can('list', 'PatientPortalForm');
 
   const handleNewSurvey = () =>
-    dispatch(push(`/patients/${params.category}/${params.patientId}/programs/new`));
+    navigate(`/patients/${params.category}/${params.patientId}/programs/new`);
 
   return (
     <ContentPane data-testid="contentpane-8dfj">
@@ -67,7 +67,9 @@ export const PatientProgramsPane = React.memo(({ endpoint, patient }) => {
           data-testid="datafetchingprogramstable-uytn"
         />
       </TableWrapper>
-      {isPatientPortalEnabled && <PortalSurveyAssignmentsTable patient={patient} />}
+      {isPatientPortalEnabled && canListPortalForms && (
+        <PortalSurveyAssignmentsTable patient={patient} />
+      )}
     </ContentPane>
   );
 });

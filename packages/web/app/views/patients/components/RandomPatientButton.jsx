@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Chance } from 'chance';
-import { Button } from '../../../components';
+import { Button } from '@tamanu/ui-components';
 import { useSettings } from '../../../contexts/Settings';
 
 const makeRandomPatient = (generateId) => {

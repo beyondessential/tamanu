@@ -1,18 +1,19 @@
 import React from 'react';
 import styled from 'styled-components';
-import { ENCOUNTER_OPTIONS } from '../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { ENCOUNTER_TYPE_LABELS, ENCOUNTER_TYPES } from '@tamanu/constants';
+import { ENCOUNTER_OPTIONS } from '../constants';
 import { Modal } from './Modal';
 import { TranslatedText } from './Translation/TranslatedText';
 import { TranslatedEnum } from './Translation/TranslatedEnum';
 import { BodyText, LargeBodyText } from './Typography';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 const StyledModal = styled(Modal)`
   .MuiPaper-root {
     max-width: 750px;
   }
 `;
+
 
 const SelectorGrid = styled.div`
   display: flex;

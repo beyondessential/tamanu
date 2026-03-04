@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
+import { Button } from '@tamanu/ui-components';
 import {
-  Button,
   DataFetchingTable,
   LocationSearchBar,
   PageContainer,

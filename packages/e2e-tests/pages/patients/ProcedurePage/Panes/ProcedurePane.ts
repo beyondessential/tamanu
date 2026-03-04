@@ -81,6 +81,13 @@ export class ProcedurePane extends BasePatientPane {
     }
     return this.newProcedureModal;
   }
+  /**
+   * Alias for the view procedure modal; the view dialog shares
+   * the same structure and locators as the new procedure modal.
+   */
+  getViewProcedureModal(): NewProcedureModal {
+    return this.getNewProcedureModal();
+  }
   getRecordedProcedureCount(): Promise<number> {
 
     return this.tableBody.locator('tr').count();
@@ -103,7 +110,7 @@ export class ProcedurePane extends BasePatientPane {
   }
 
   async waitForTableToLoad(){
-     await this.tableBody.waitFor({ state: 'visible' });
+     await this.page1Button.waitFor({ state: 'visible' });
      await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 

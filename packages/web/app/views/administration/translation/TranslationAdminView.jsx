@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { TranslationForm } from './TranslationForm';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { ImportExportView } from '../components/ImportExportView';
 import { useTranslation } from '../../../contexts/Translation';
-import { Button, FormSubmitButton, OutlinedButton } from '../../../components/Button';
-import { ButtonRow } from '../../../components/ButtonRow';
-import { Modal, makeModalRow } from '../../../components';
+import {
+  Button,
+  FormSubmitButton,
+  OutlinedButton,
+  ButtonRow,
+  Modal,
+  TranslatedText,
+} from '@tamanu/ui-components';
+import { makeModalRow } from '../../../components';
 import { Field } from '../../../components/Field';
 import { ReferenceDataSwitchField } from './ReferenceDataSwitch';
 
@@ -67,7 +72,7 @@ const PreSubmitModal = ({ open, onClose, onConfirm }) => {
           </OutlinedButton>
           <div>
             <OutlinedButton
-              onClick={(e) => onConfirm(e, { skipExisting: true })}
+              onClick={e => onConfirm(e, { skipExisting: true })}
               data-testid="outlinedbutton-0fwr"
             >
               <TranslatedText
@@ -116,7 +121,7 @@ const ImportButton = ({ onSubmit, ...props }) => {
   );
 };
 
-const ExportButton = (props) => {
+const ExportButton = props => {
   return (
     <ExportButtonRow data-testid="exportbuttonrow-agc8">
       <FormSubmitButton {...props} data-testid="formsubmitbutton-glr7" />

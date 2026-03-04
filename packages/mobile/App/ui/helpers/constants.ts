@@ -54,59 +54,6 @@ export const PatientVitalsList = [
   'avpu',
 ];
 
-const seniorDoctorRole = {
-  value: 'senior-doctor',
-  label: 'Senior Doctor',
-};
-const juniorDoctorRole = {
-  value: 'junior-doctor',
-  label: 'Junior Doctor',
-};
-const seniorNurse = {
-  value: 'senior-nurse',
-  label: 'Senior Nurse',
-};
-const juniorNurse = {
-  value: 'junior-nurse',
-  label: 'Junior Nurse',
-};
-const midWife = {
-  value: 'midwife',
-  label: 'Midwife',
-};
-const appliedHealth = {
-  value: 'applied-health',
-  label: 'Applied Health',
-};
-const finnanceRole = {
-  value: 'finance',
-  label: 'Finance',
-};
-const radiologyRole = {
-  value: 'radiology',
-  label: 'Radiology',
-};
-const labRole = {
-  value: 'lab',
-  label: 'Lab',
-};
-const practitionerRole = {
-  value: 'practitioner',
-  label: 'Practitioner',
-};
-export const userRolesOptions = [
-  seniorDoctorRole,
-  juniorDoctorRole,
-  seniorNurse,
-  juniorNurse,
-  midWife,
-  appliedHealth,
-  finnanceRole,
-  radiologyRole,
-  labRole,
-  practitionerRole,
-];
-
 type VaccineStatusCellsType = {
   [key in VaccineStatus]?: {
     Icon: (props: Record<string, any>) => React.ReactElement;
@@ -167,8 +114,6 @@ export const VaccineStatusCells: VaccineStatusCellsType = {
   },
 };
 
-export const PhoneMask = { mask: '9999 9999 999' };
-
 export const Gender = {
   Male: 'male',
   Female: 'female',
@@ -227,23 +172,12 @@ export const NOTE_RECORD_TYPES = {
 };
 
 export const NOTE_TYPES = {
-  TREATMENT_PLAN: 'treatmentPlan',
-  MEDICAL: 'medical',
-  SURGICAL: 'surgical',
-  NURSING: 'nursing',
-  DIETARY: 'dietary',
-  PHARMACY: 'pharmacy',
-  PHYSIOTHERAPY: 'physiotherapy',
-  SOCIAL: 'social',
-  DISCHARGE: 'discharge',
-  AREA_TO_BE_IMAGED: 'areaToBeImaged',
-  RESULT_DESCRIPTION: 'resultDescription',
-  SYSTEM: 'system',
-  OTHER: 'other',
-  CLINICAL_MOBILE: 'clinicalMobile',
-  HANDOVER: 'handover',
-};
-
-export const FORM_STATUSES = {
-  SUBMIT_SCREEN_ATTEMPTED: 'SUBMIT_SCREEN_ATTEMPTED',
+  TREATMENT_PLAN: 'notetype-treatmentPlan',
+  DISCHARGE: 'notetype-discharge',
+  AREA_TO_BE_IMAGED: 'notetype-areaToBeImaged',
+  RESULT_DESCRIPTION: 'notetype-resultDescription',
+  SYSTEM: 'notetype-system',
+  OTHER: 'notetype-other',
+  CLINICAL_MOBILE: 'notetype-clinicalMobile',
+  HANDOVER: 'notetype-handover',
 };

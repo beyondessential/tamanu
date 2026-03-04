@@ -1,8 +1,7 @@
 import React, { useCallback } from 'react';
 import * as yup from 'yup';
-import { useDispatch, useSelector } from 'react-redux';
-import { push } from 'connected-react-router';
-import { useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { useParams, useNavigate } from 'react-router';
 import { pick } from 'lodash';
 import styled from 'styled-components';
 
@@ -10,31 +9,29 @@ import {
   IMAGING_REQUEST_STATUS_LABELS,
   IMAGING_REQUEST_STATUS_TYPES,
   NOTE_TYPES,
+  FORM_TYPES,
 } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
+import {
+  TextField,
+  TranslatedSelectField,
+  TextInput,
+  Form,
+  ButtonRow,
+  FormGrid,
+  Button,
+  FormSubmitButton,
+} from '@tamanu/ui-components';
 
-import { FORM_TYPES } from '../../../constants';
 import { ENCOUNTER_TAB_NAMES } from '../../../constants/encounterTabNames';
 
 import { useLocalisation } from '../../../contexts/Localisation';
 import { useApi, useSuggester } from '../../../api';
 
-import { Button, FormSubmitButton } from '../../../components/Button';
 import { ContentPane } from '../../../components/ContentPane';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
-import { ButtonRow } from '../../../components/ButtonRow';
-import { FormGrid } from '../../../components/FormGrid';
-import {
-  AutocompleteField,
-  DateTimeField,
-  DateTimeInput,
-  Field,
-  Form,
-  TextField,
-  TextInput,
-  TranslatedSelectField,
-} from '../../../components/Field';
+import { AutocompleteField, DateTimeField, DateTimeInput, Field } from '../../../components/Field';
 import { SimpleTopBar } from '../../../components';
 import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';
@@ -42,7 +39,7 @@ import { TranslatedText } from '../../../components/Translation';
 import { useTranslation } from '../../../contexts/Translation';
 import { useSettings } from '../../../contexts/Settings';
 import { useAuth } from '../../../contexts/Auth';
-
+import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 
 const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
   const { getLocalisation } = useLocalisation();
@@ -86,7 +83,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
         data-testid="textinput-wgcp"
       />
       <TextInput
-        value={imagingPriorities.find((p) => p.value === imagingRequest.priority)?.label || ''}
+        value={imagingPriorities.find(p => p.value === imagingRequest.priority)?.label || ''}
         label={
           <TranslatedText
             stringId="imaging.priority.label"
@@ -97,39 +94,41 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
         disabled
         data-testid="textinput-z6l1"
       />
-      <Field
-        name="status"
-        label={
-          <TranslatedText
-            stringId="general.status.label"
-            fallback="Status"
-            data-testid="translatedtext-jnts"
-          />
-        }
-        component={TranslatedSelectField}
-        enumValues={IMAGING_REQUEST_STATUS_LABELS}
-        transformOptions={(options) => {
-          return isCancelled
-            ? [
-                {
-                  label: IMAGING_REQUEST_STATUS_LABELS[IMAGING_REQUEST_STATUS_TYPES.CANCELLED],
-                  value: IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
-                },
-              ]
-            : options.filter(
-                (option) =>
-                  ![
-                    IMAGING_REQUEST_STATUS_TYPES.DELETED,
-                    IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
-                    IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
-                  ].includes(option.value),
-              );
-        }}
-        disabled={isCancelled}
-        isClearable={false}
-        required
-        data-testid="field-mfc2"
-      />
+      <NoteModalActionBlocker>
+        <Field
+          name="status"
+          label={
+            <TranslatedText
+              stringId="general.status.label"
+              fallback="Status"
+              data-testid="translatedtext-jnts"
+            />
+          }
+          component={TranslatedSelectField}
+          enumValues={IMAGING_REQUEST_STATUS_LABELS}
+          transformOptions={options => {
+            return isCancelled
+              ? [
+                  {
+                    label: IMAGING_REQUEST_STATUS_LABELS[IMAGING_REQUEST_STATUS_TYPES.CANCELLED],
+                    value: IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+                  },
+                ]
+              : options.filter(
+                  option =>
+                    ![
+                      IMAGING_REQUEST_STATUS_TYPES.DELETED,
+                      IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
+                      IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+                    ].includes(option.value),
+                );
+          }}
+          disabled={isCancelled}
+          isClearable={false}
+          required
+          data-testid="field-mfc2"
+        />
+      </NoteModalActionBlocker>
       <DateTimeInput
         value={imagingRequest.requestedDate}
         label={
@@ -163,7 +162,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
           // Either use free text area or multi-select areas data
           imagingRequest.areas?.length
             ? imagingRequest.areas
-                .map((area) =>
+                .map(area =>
                   getTranslation(getReferenceDataStringId(area.id, area.type), area.name),
                 )
                 .join(', ')
@@ -183,7 +182,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
       <TextInput
         multiline
         value={imagingRequest.notes
-          ?.filter((note) => note.noteType === NOTE_TYPES.OTHER)
+          ?.filter((note) => note.noteTypeId === NOTE_TYPES.OTHER)
           .map((note) => note.content)
           .join('\n')}
         label={
@@ -212,54 +211,57 @@ const BottomAlignFormGrid = styled(FormGrid)`
 const NewResultSection = ({ disabled = false }) => {
   const practitionerSuggester = useSuggester('practitioner');
   const { getTranslation } = useTranslation();
+  const Wrapper = !disabled ? NoteModalActionBlocker : React.Fragment;
 
   return (
     <FormGrid columns={2} data-testid="formgrid-j2u1">
-      <Field
-        label={
-          <TranslatedText
-            stringId="imaging.completedBy.label"
-            fallback="Completed by"
-            data-testid="translatedtext-wjkc"
-          />
-        }
-        name="newResult.completedById"
-        placeholder={getTranslation('imaging.completedBy.placeholder', 'Search')}
-        component={AutocompleteField}
-        suggester={practitionerSuggester}
-        disabled={disabled}
-        data-testid="field-ta7y"
-      />
-      <Field
-        label={
-          <TranslatedText
-            stringId="imaging.completedDate.label"
-            fallback="Completed"
-            data-testid="translatedtext-iiin"
-          />
-        }
-        name="newResult.completedAt"
-        saveDateAsString
-        component={DateTimeField}
-        disabled={disabled}
-        data-testid="field-wxo5"
-      />
-      <Field
-        label={
-          <TranslatedText
-            stringId="imaging.description.label"
-            fallback="Result description"
-            data-testid="translatedtext-3ezd"
-          />
-        }
-        name="newResult.description"
-        placeholder={getTranslation('imaging.description.placeholder', 'Result description...')}
-        multiline
-        component={TextField}
-        style={{ gridColumn: '1 / -1', minHeight: '3em' }}
-        disabled={disabled}
-        data-testid="field-2pjt"
-      />
+      <Wrapper>
+        <Field
+          label={
+            <TranslatedText
+              stringId="imaging.completedBy.label"
+              fallback="Completed by"
+              data-testid="translatedtext-wjkc"
+            />
+          }
+          name="newResult.completedById"
+          placeholder={getTranslation('imaging.completedBy.placeholder', 'Search')}
+          component={AutocompleteField}
+          suggester={practitionerSuggester}
+          disabled={disabled}
+          data-testid="field-ta7y"
+        />
+        <Field
+          label={
+            <TranslatedText
+              stringId="imaging.completedDate.label"
+              fallback="Completed"
+              data-testid="translatedtext-iiin"
+            />
+          }
+          name="newResult.completedAt"
+          saveDateAsString
+          component={DateTimeField}
+          disabled={disabled}
+          data-testid="field-wxo5"
+        />
+        <Field
+          label={
+            <TranslatedText
+              stringId="imaging.description.label"
+              fallback="Result description"
+              data-testid="translatedtext-3ezd"
+            />
+          }
+          name="newResult.description"
+          placeholder={getTranslation('imaging.description.placeholder', 'Result description...')}
+          multiline
+          component={TextField}
+          style={{ gridColumn: '1 / -1', minHeight: '3em' }}
+          disabled={disabled}
+          data-testid="field-2pjt"
+        />
+      </Wrapper>
     </FormGrid>
   );
 };
@@ -345,12 +347,12 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
   const { facilityId } = useAuth();
 
   const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
-  const getCanAddResult = (values) => values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
+  const getCanAddResult = values => values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
 
   return (
     <Form
       // Only submit specific fields for update
-      onSubmit={async (values) => {
+      onSubmit={async values => {
         const updatedValues = pick(values, 'status', 'completedById', 'locationGroupId');
         if (getCanAddResult(values)) {
           updatedValues.newResult = values.newResult;
@@ -413,16 +415,18 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
             <NewResultSection disabled={!canAddResult} data-testid="newresultsection-poyy" />
             <ButtonRow style={{ marginTop: 20 }} data-testid="buttonrow-52n1">
               {!isCancelled && (
-                <FormSubmitButton
-                  text={
-                    <TranslatedText
-                      stringId="general.action.save"
-                      fallback="Save"
-                      data-testid="translatedtext-wp3m"
-                    />
-                  }
-                  data-testid="formsubmitbutton-nisz"
-                />
+                <NoteModalActionBlocker>
+                  <FormSubmitButton
+                    text={
+                      <TranslatedText
+                        stringId="general.action.save"
+                        fallback="Save"
+                        data-testid="translatedtext-wp3m"
+                      />
+                    }
+                    data-testid="formsubmitbutton-nisz"
+                  />
+                </NoteModalActionBlocker>
               )}
             </ButtonRow>
           </>
@@ -434,16 +438,14 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
 });
 
 export const ImagingRequestView = () => {
-  const imagingRequest = useSelector((state) => state.imagingRequest);
-  const patient = useSelector((state) => state.patient);
+  const imagingRequest = useSelector(state => state.imagingRequest);
+  const patient = useSelector(state => state.patient);
 
-  const dispatch = useDispatch();
   const params = useParams();
+  const navigate = useNavigate();
   const onNavigateBackToImaging = () => {
-    dispatch(
-      push(
-        `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}?tab=${ENCOUNTER_TAB_NAMES.IMAGING}`,
-      ),
+    navigate(
+      `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}?tab=${ENCOUNTER_TAB_NAMES.IMAGING}`,
     );
   };
 

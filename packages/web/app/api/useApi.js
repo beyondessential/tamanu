@@ -1,4 +1,3 @@
-import { useContext } from 'react';
-import { ApiContext } from './ApiContext';
+import { useApi } from '@tamanu/ui-components';
 
-export const useApi = () => useContext(ApiContext);
+export { useApi };

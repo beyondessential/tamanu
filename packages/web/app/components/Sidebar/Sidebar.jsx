@@ -3,10 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Box, Button, Divider, IconButton, List, Typography } from '@material-ui/core';
 import { NavigateBefore, NavigateNext } from '@material-ui/icons';
-import { useDispatch, useSelector } from 'react-redux';
-import { push } from 'connected-react-router';
-import { getCurrentRoute } from '../../store/router';
-
+import { useNavigate, useLocation } from 'react-router';
+import { TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
 import { LogoLight, LogoLightNoText } from '../Logo';
 import { Colors } from '../../constants';
 import { HiddenSyncAvatar } from '../HiddenSyncAvatar';
@@ -17,7 +15,6 @@ import { checkAbility } from '../../utils/ability';
 import { FULL_VERSION } from '../../utils/env';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
-import { TranslatedText, TranslatedReferenceData } from '../Translation';
 import { KebabMenu } from './KebabMenu';
 import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 
@@ -169,11 +166,12 @@ export const Sidebar = React.memo(({ items }) => {
   const [isRetracted, setIsRetracted] = useState(false);
   const api = useApi();
   const { facilityId, currentUser, onLogout, currentRole } = useAuth();
-  const currentPath = useSelector(getCurrentRoute);
-  const dispatch = useDispatch();
+  const location = useLocation();
+  const currentPath = location.pathname;
+  const navigate = useNavigate();
   const extendSidebar = () => setIsRetracted(false);
 
-  const onPathChanged = newPath => dispatch(push(newPath));
+  const onPathChanged = newPath => navigate(newPath);
 
   const clickedParentItem = ({ key }) => {
     if (isRetracted) {

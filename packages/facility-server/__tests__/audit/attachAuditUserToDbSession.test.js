@@ -15,7 +15,7 @@ import { SYSTEM_USER_UUID } from '@tamanu/constants';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 const runWithDelay = async (callbacks, delay = 50) => {
-  return Promise.all(
+  return await Promise.all(
     callbacks.map(async (callback, index) => {
       await sleepAsync(delay * index);
       return await callback();
@@ -60,6 +60,7 @@ describe('Attach audit user to DB session', () => {
       (req, _res, next) => {
         req.models = models;
         req.db = ctx.sequelize;
+        req.settings = ctx.settings;
         next();
       },
       authMiddleware,
@@ -78,6 +79,7 @@ describe('Attach audit user to DB session', () => {
       (req, _res, next) => {
         req.models = models;
         req.db = ctx.sequelize;
+        req.settings = ctx.settings;
         next();
       },
       authMiddleware,
@@ -100,6 +102,7 @@ describe('Attach audit user to DB session', () => {
       (req, _res, next) => {
         req.models = models;
         req.db = ctx.sequelize;
+        req.settings = ctx.settings;
         next();
       },
       authMiddleware,
@@ -123,7 +126,12 @@ describe('Attach audit user to DB session', () => {
 
     const asUser = async user => {
       const agent = _agent(mockApp);
-      const token = await buildToken(user, facilityIds[0], '1d');
+      const token = await buildToken({
+        user,
+        deviceId: ctx.deviceId,
+        facilityId: facilityIds[0],
+        expiresIn: '1d',
+      });
       agent.set('authorization', `Bearer ${token}`);
       agent.user = user;
       return agent;
@@ -195,6 +203,7 @@ describe('Attach audit user to DB session', () => {
     );
     expect(changes).toHaveLength(changeRequests.length);
 
+    // Each user should be shown to have updated their own record in the audit log
     changes.forEach(change => {
       expect(`changed-by-${change.updated_by_user_id}`).toEqual(change.record_data.display_name);
     });

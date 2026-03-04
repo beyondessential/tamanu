@@ -16,6 +16,7 @@ const dayAfter = (dateStr) => {
 export const DateTimeRangeField = ({
   disabled,
   onChangeStartDate,
+  onChangeEndDate,
   required,
   separate = false,
   ...props
@@ -38,6 +39,7 @@ export const DateTimeRangeField = ({
           disabled={isEndPickerDisabled}
           minDate={isEndPickerDisabled ? null : toDateString(dayAfter(startDate))}
           required={required}
+          onChange={onChangeEndDate}
           data-testid="enddatetimepicker-9ofp"
         />
       </>

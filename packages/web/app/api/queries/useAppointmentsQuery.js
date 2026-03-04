@@ -62,12 +62,12 @@ const useUpcomingAppointmentsQuery = (patientId, fetchOptions = {}, useQueryOpti
   );
 }
 
-export const useUpcomingOutpatientAppointmentsQuery = (patientId, useQueryOptions = {}) => {
+export const useUpcomingOutpatientAppointmentsQuery = (patientId, fetchOptions = {}, useQueryOptions = {}) => {
   const { facilityId } = useAuth();
-  return useUpcomingAppointmentsQuery(patientId, { facilityId, type: 'outpatient' }, useQueryOptions);
+  return useUpcomingAppointmentsQuery(patientId, { facilityId, type: 'outpatient', ...fetchOptions }, useQueryOptions);
 }
 
-export const useUpcomingLocationBookingsQuery = (patientId, useQueryOptions = {}) => {
+export const useUpcomingLocationBookingsQuery = (patientId, fetchOptions = {}, useQueryOptions = {}) => {
   const { facilityId } = useAuth();
-  return useUpcomingAppointmentsQuery(patientId, { facilityId, type: 'locationBooking' }, useQueryOptions);
+  return useUpcomingAppointmentsQuery(patientId, { facilityId, type: 'locationBooking', ...fetchOptions }, useQueryOptions);
 }

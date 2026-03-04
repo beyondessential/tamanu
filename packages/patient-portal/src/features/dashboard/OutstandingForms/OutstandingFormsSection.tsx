@@ -41,14 +41,7 @@ export const OutstandingFormsSection = () => {
         <CardContent>
           <Stack spacing={2}>
             {forms.map(form => (
-              <OutstandingFormCard
-                key={form.id}
-                form={form}
-                onClick={() => {
-                  // TODO: Open form modal when implemented
-                  console.log('Opening form:', form.survey.name);
-                }}
-              />
+              <OutstandingFormCard key={form.id} form={form} />
             ))}
           </Stack>
         </CardContent>

@@ -26,6 +26,7 @@ export const ReferenceDataType = {
   Vaccine: 'vaccine',
   VaccineNotGivenReason: 'vaccineNotGivenReason',
   Village: 'village',
+  NoteType: 'noteType',
 } as const;
 
 export type ReferenceDataType = (typeof ReferenceDataType)[keyof typeof ReferenceDataType];

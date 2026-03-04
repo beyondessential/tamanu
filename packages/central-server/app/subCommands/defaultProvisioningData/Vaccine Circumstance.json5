@@ -1,0 +1,47 @@
+{
+  "sheetName": "Vaccine Circumstance",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
+  "data": [
+    {
+      "id": "vaccineCircumstance-AntibodiesDetected",
+      "code": "AntibodiesDetected",
+      "name": "Antibodies detected",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "vaccineCircumstance-CaregiverReported",
+      "code": "CaregiverReported",
+      "name": "Caregiver reported (no evidence)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "vaccineCircumstance-GivenInPrivateSector",
+      "code": "GivenInPrivateSector",
+      "name": "Given in private sector",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "vaccineCircumstance-GivenOverseas",
+      "code": "GivenOverseas",
+      "name": "Given overseas",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "vaccineCircumstance-PatientReported",
+      "code": "PatientReported",
+      "name": "Patient reported (no evidence)",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "vaccineCircumstance-ScarSighted",
+      "code": "ScarSighted",
+      "name": "Scar sighted",
+      "visibilityStatus": "current"
+    }
+  ]
+}

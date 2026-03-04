@@ -11,7 +11,6 @@ sources:
             - clinical
           meta:
             triggers:
-              - fhir_refresh
               - notify_notes_changed
               - record_notes_changelog
               - set_notes_updated_at
@@ -36,30 +35,6 @@ sources:
           - name: deleted_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__deleted_at') }} in notes."
-          - name: note_type
-            data_type: character varying(255)
-            description: "{{ doc('notes__note_type') }}"
-            data_tests:
-              - not_null
-              - accepted_values:
-                  arguments:
-                    values:
-                      - admission
-                      - areaToBeImaged
-                      - clinicalMobile
-                      - dietary
-                      - handover
-                      - discharge
-                      - medical
-                      - nursing
-                      - other
-                      - pharmacy
-                      - physiotherapy
-                      - resultDescription
-                      - social
-                      - surgical
-                      - system
-                      - treatmentPlan
           - name: record_id
             data_type: character varying(255)
             description: "{{ doc('notes__record_id') }}"
@@ -133,3 +108,8 @@ sources:
                   arguments:
                     to: source('tamanu', 'notes')
                     field: id
+          - name: note_type_id
+            data_type: character varying(255)
+            description: "{{ doc('notes__note_type_id') }}"
+            data_tests:
+              - not_null

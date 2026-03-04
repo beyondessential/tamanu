@@ -13,7 +13,7 @@ import {
   TopBar,
 } from '../../components';
 import { RecentlyViewedPatientsList } from '../../components/RecentlyViewedPatientsList';
-import { ButtonWithPermissionCheck } from '../../components/Button';
+import { ButtonWithPermissionCheck } from '@tamanu/ui-components';
 import { NewPatientModal } from './components';
 import {
   clinician,

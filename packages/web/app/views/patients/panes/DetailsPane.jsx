@@ -36,11 +36,11 @@ export const PatientDetailsPane = React.memo(
     const api = useApi();
     const queryClient = useQueryClient();
     const dispatch = useDispatch();
-    const { ability } = useAuth();
+    const { ability, facilityId } = useAuth();
 
     const handleSubmit = async (data) => {
       try {
-        await api.put(`patient/${patient.id}`, data);
+        await api.put(`patient/${patient.id}`, { ...data, facilityId });
       } catch (e) {
         notifyError(e.message);
         return;

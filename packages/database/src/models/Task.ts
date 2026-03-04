@@ -290,7 +290,8 @@ export class Task extends Model {
       const upcomingTasksShouldBeGeneratedTimeFrame =
         config.tasking?.upcomingTasksShouldBeGeneratedTimeFrame || 72;
       const { frequencyValue, frequencyUnit, durationValue, durationUnit } = task;
-      const frequency = ms(`${frequencyValue} ${frequencyUnit}`);
+      const frequencyString = `${frequencyValue} ${frequencyUnit}`;
+      const frequency = ms(frequencyString as any) as unknown as number;
 
       const maxDueTime = addMilliseconds(
         new Date(),
@@ -312,7 +313,8 @@ export class Task extends Model {
             ).getTime();
             break;
           default: {
-            const duration = ms(`${durationValue} ${durationUnit}`);
+            const durationString = `${durationValue} ${durationUnit}`;
+            const duration = ms(durationString as any) as unknown as number;
             endDate = addMilliseconds(new Date(task.dueTime), duration).getTime();
             break;
           }

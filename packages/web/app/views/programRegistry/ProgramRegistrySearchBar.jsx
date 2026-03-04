@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { Field } from 'formik';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
@@ -12,8 +12,8 @@ import {
   DateField,
   LocalisedField,
   SearchField,
-  BaseSelectField,
 } from '../../components';
+import { BaseSelectField } from '@tamanu/ui-components';
 import { useProgramRegistryQuery } from '../../api/queries/useProgramRegistryQuery';
 import { useSexOptions } from '../../hooks';
 import { TranslatedText } from '../../components/Translation/TranslatedText';

@@ -39,6 +39,7 @@ const StyledTable = styled(DataFetchingTable)`
   border-bottom: none;
   border-radius: 0px;
   overflow: visible;
+  min-width: 700px;
   .MuiTableCell-head {
     background-color: ${Colors.white};
     padding-top: 8px !important;
@@ -176,6 +177,12 @@ const NoDataContainer = styled.div`
   white-space: normal;
   background: ${Colors.hoverGrey};
   color: ${Colors.primary};
+`;
+
+const ScrollableTableWrapper = styled.div`
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-left: 8px;
 `;
 
 const StyledDivider = styled(Divider)`
@@ -693,22 +700,24 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
           />
         </div>
       )}
-      <StyledTable
-        endpoint={`encounter/${encounterId}/tasks`}
-        columns={[...(canDoAction ? [selectableColumn] : []), ...COLUMNS]}
-        noDataMessage={<NoDataMessage data-testid="nodatamessage-cyqv" />}
-        allowExport={false}
-        onMouseEnterRow={handleMouseEnterRow}
-        onMouseLeaveRow={handleMouseLeaveRow}
-        hideHeader={data.length === 0}
-        fetchOptions={searchParameters}
-        onDataFetched={onDataFetched}
-        refreshCount={refreshCount}
-        defaultRowsPerPage={25}
-        disableHoverEffect={!canDoAction}
-        $canDoAction={canDoAction}
-        data-testid="styledtable-3pst"
-      />
+      <ScrollableTableWrapper data-testid="scrollabletablewrapper-t4sk">
+        <StyledTable
+          endpoint={`encounter/${encounterId}/tasks`}
+          columns={[...(canDoAction ? [selectableColumn] : []), ...COLUMNS]}
+          noDataMessage={<NoDataMessage data-testid="nodatamessage-cyqv" />}
+          allowExport={false}
+          onMouseEnterRow={handleMouseEnterRow}
+          onMouseLeaveRow={handleMouseLeaveRow}
+          hideHeader={data.length === 0}
+          fetchOptions={searchParameters}
+          onDataFetched={onDataFetched}
+          refreshCount={refreshCount}
+          defaultRowsPerPage={25}
+          disableHoverEffect={!canDoAction}
+          $canDoAction={canDoAction}
+          data-testid="styledtable-3pst"
+        />
+      </ScrollableTableWrapper>
     </div>
   );
 };

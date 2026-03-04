@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { z } from 'zod';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { Divider, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
@@ -16,11 +16,11 @@ const LoginButton = styled(Button)(({ theme }) => ({
 
 export const RequestLoginTokenView = () => {
   const [error, setError] = useState<string | null>(null);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const { mutate: submit } = useRequestLoginToken({
     onSuccess: ({ email }) => {
-      history.push('/login-submit', { email });
+      navigate('/login-submit', { state: { email } });
     },
     onError: error => {
       setError(error.message);

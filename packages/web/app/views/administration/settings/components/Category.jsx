@@ -97,7 +97,7 @@ const sortProperties = ([a0, a1], [b0, b1]) => {
   return aName.localeCompare(bName);
 };
 
-export const Category = ({ schema, path = '', getSettingValue, handleChangeSetting }) => {
+export const Category = ({ schema, path = '', getSettingValue, handleChangeSetting, facilityId }) => {
   const { ability } = useAuth();
   const canWriteHighRisk = ability.can('manage', 'all');
   if (!schema) return null;
@@ -145,6 +145,7 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
               handleChangeSetting={handleChangeSetting}
               unit={unit}
               disabled={disabled}
+              facilityId={facilityId}
               data-testid={`settinginput-2wuw-${testIdSuffix}`}
             />
           </SettingLine>
@@ -156,6 +157,7 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
             schema={{ ...propertySchema, highRisk: isHighRisk }}
             getSettingValue={getSettingValue}
             handleChangeSetting={handleChangeSetting}
+            facilityId={facilityId}
             data-testid={`category-9y74-${testIdSuffix}`}
           />
         );

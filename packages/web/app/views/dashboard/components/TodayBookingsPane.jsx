@@ -8,13 +8,14 @@ import TimelineConnector from '@material-ui/lab/TimelineConnector';
 import TimelineContent from '@material-ui/lab/TimelineContent';
 import TimelineDot from '@material-ui/lab/TimelineDot';
 import { USER_PREFERENCES_KEYS, WS_EVENTS } from '@tamanu/constants';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { endOfDay, startOfDay } from 'date-fns';
-import { formatTime, toDateTimeString } from '@tamanu/utils/dateTime';
 import { Box } from '@material-ui/core';
+import { formatTime, toDateTimeString } from '@tamanu/utils/dateTime';
+import { TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 
-import { Heading4, TranslatedText } from '../../../components';
-import { Colors } from '../../../constants';
+import { Heading4 } from '../../../components';
 import {
   APPOINTMENT_STATUS_COLORS,
   AppointmentStatusIndicator,
@@ -231,10 +232,10 @@ export const TodayBookingsPane = ({ showTasks }) => {
       },
       `${WS_EVENTS.CLINICIAN_BOOKINGS_UPDATE}:${currentUser?.id}`,
     ).data?.data ?? [];
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const onViewAll = () => {
-    history.push(`/appointments/locations?clinicianId=${currentUser?.id}`);
+    navigate(`/appointments/locations?clinicianId=${currentUser?.id}`);
   };
 
   const onLocationBookingsClick = async () => {
@@ -242,7 +243,7 @@ export const TodayBookingsPane = ({ showTasks }) => {
       key: USER_PREFERENCES_KEYS.LOCATION_BOOKING_FILTERS,
       value: omit(LOCATION_BOOKINGS_EMPTY_FILTER_STATE, ['patientNameOrId']),
     });
-    history.push(`/appointments/locations`);
+    navigate(`/appointments/locations`);
   };
 
   return (

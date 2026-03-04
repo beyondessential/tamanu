@@ -2,6 +2,7 @@ import Collapse, { collapseClasses } from '@mui/material/Collapse';
 import IconButton from '@mui/material/IconButton';
 import React from 'react';
 import styled from 'styled-components';
+import EditIcon from '@material-ui/icons/Edit';
 
 import { Colors } from '../constants';
 import { ClearIcon as CloseDrawerIcon } from './Icons';
@@ -64,6 +65,18 @@ const Description = styled(BodyText)`
   color: ${Colors.midText};
   font-size: 0.75rem;
   margin-block-end: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: space-between;
+`;
+
+const StyledIconButton = styled(IconButton)`
+  svg {
+    color: ${Colors.primary};
+    width: 1rem;
+    height: 1rem;
+  }
 `;
 
 export const Drawer = ({
@@ -72,6 +85,7 @@ export const Drawer = ({
   title,
   description,
   children,
+  onEdit,
   orientation = 'horizontal',
   ...props
 }) => {
@@ -90,7 +104,20 @@ export const Drawer = ({
           </IconButton>
         </Header>
         <DrawerBody data-testid="drawerbody-9l6q">
-          {description && <Description data-testid="description-eo9s">{description}</Description>}
+          {description && (
+            <Description data-testid="description-eo9s">
+              {description}
+              {onEdit && (
+                <StyledIconButton 
+                  aria-label="Edit"
+                  data-testid="iconbutton-edit"
+                  onClick={onEdit}
+                >
+                  <EditIcon />
+                </StyledIconButton>
+              )}
+            </Description>
+          )}
           {children}
         </DrawerBody>
       </Wrapper>

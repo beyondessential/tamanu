@@ -11,7 +11,6 @@ import { BUGSNAG_API_KEY, NODE_ENV, FULL_VERSION } from './utils/env';
 import { authFailure, initStore, restoreSession, versionIncompatible } from './store';
 
 import '@fortawesome/fontawesome-free/css/all.css';
-import 'react-toastify/dist/ReactToastify.css';
 import './fonts.css';
 
 function initPersistor(api, store) {
@@ -50,7 +49,7 @@ async function start() {
 
   // TODO: Switch to use api when we get rid of API singleton
   // const api = new TamanuApi(version);
-  const { store, history } = initStore(API);
+  const { store } = initStore(API);
 
   const persistor = initPersistor(API, store);
 
@@ -72,7 +71,6 @@ async function start() {
     api: API,
     persistor,
     store,
-    history,
   });
 }
 

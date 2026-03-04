@@ -1,6 +1,6 @@
 import { Locator, Page, expect } from '@playwright/test';
 import { LabRequestModalBase } from './LabRequestModalBase';
-import { format } from 'date-fns';
+import { formatDateTimeForDisplay } from '@utils/testHelper';
 
 
 export interface ValidateRequestFinalisedPageParams {
@@ -108,13 +108,33 @@ export class IndividualLabRequestModal extends LabRequestModalBase {
       expectedSampleDate &&
       !isNaN(Date.parse(expectedSampleDate)) // valid date string
     ) {
-      formattedSampleDate = format(new Date(expectedSampleDate), 'MM/dd/yyyy h:mm a');
+      formattedSampleDate = formatDateTimeForDisplay(new Date(expectedSampleDate));
     } else {
       formattedSampleDate = expectedSampleDate || 'Sample not collected';
     }
     for (let i = 0; i < expectedCategories.length; i++) {
       expect(requestFinalisedSampleDateItems[i]).toEqual(formattedSampleDate);
     }
+  }
+
+  /**
+   * Helper method to create a basic individual lab request
+   * @param testsToSelect - Optional array of test names to select. Defaults to common AgRDT tests.
+   * @returns The array of selected test names
+   */
+  async createBasicIndividualLabRequest(testsToSelect?: string[]): Promise<string[]> {
+    const selectedTests = testsToSelect || [
+      'AgRDT Negative, no further testing needed',
+      'AgRDT Positive, no further testing needed',
+    ];
+    await this.waitForModalToLoad();
+    await this.individualRadioButton.click();
+    await this.nextButton.click();
+    await this.selectItemsByText(selectedTests);
+    await this.nextButton.click();
+    await this.finaliseButton.click();
+    await this.closeButton.click();
+    return selectedTests;
   }
 
 } 

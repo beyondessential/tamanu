@@ -2,7 +2,7 @@ import * as React from 'react';
 import { render } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from 'styled-components';
-import { TranslationContext } from '../../app/contexts/Translation';
+import { TranslationProvider } from '../../app/contexts/Translation';
 import { createTheme } from '@material-ui/core/styles';
 import { vi } from 'vitest';
 
@@ -36,9 +36,9 @@ const CompositeTranslationProvider = ({
 }) => (
   <QueryClientProvider client={createQueryClient()}>
     <ThemeProvider theme={createStubTheme()}>
-      <TranslationContext.Provider value={translationContext}>
+      <TranslationProvider value={translationContext}>
         {children}
-      </TranslationContext.Provider>
+      </TranslationProvider>
     </ThemeProvider>
   </QueryClientProvider>
 );
