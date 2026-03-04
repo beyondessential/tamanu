@@ -115,8 +115,9 @@ export async function runPostMigration(log: Logger, sequelize: Sequelize) {
     ])) {
       log.info(`Adding changelog trigger to ${schema}.${table}`);
       await sequelize.query(`
-      CREATE TRIGGER record_${table}_changelog
+      CREATE CONSTRAINT TRIGGER record_${table}_changelog
       AFTER INSERT OR UPDATE ON "${schema}"."${table}"
+      DEFERRABLE INITIALLY DEFERRED
       FOR EACH ROW
       EXECUTE FUNCTION logs.record_change();
     `);

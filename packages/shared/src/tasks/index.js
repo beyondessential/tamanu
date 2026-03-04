@@ -1,3 +1,3 @@
 export { ScheduledTask } from './ScheduledTask';
-export { FhirWorker } from './FhirWorker';
-export { SendStatusToMetaServer } from './SendStatusToMetaServer'
+export { FhirQueueManager } from './FhirQueueManager';
+export { SendStatusToMetaServer } from './SendStatusToMetaServer';

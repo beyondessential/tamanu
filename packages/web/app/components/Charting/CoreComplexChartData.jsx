@@ -11,6 +11,7 @@ import { CHARTING_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constant
 import { useEncounter } from '../../contexts/Encounter';
 import { useEncounterChartsQuery } from '../../api/queries';
 import { DateDisplay } from '../DateDisplay';
+import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 
 const CoreComplexChartDataRow = styled.div`
   margin-bottom: 10px;
@@ -65,6 +66,7 @@ export const CoreComplexChartData = ({
       permissionCheck: () => {
         return !isPatientRemoved && ability?.can('delete', subject('Charting', { id: coreComplexChartSurveyId }));
       },
+      wrapper: action => <NoteModalActionBlocker>{action}</NoteModalActionBlocker>,
     },
   ].filter(({ permissionCheck }) => {
     return permissionCheck ? permissionCheck() : true;

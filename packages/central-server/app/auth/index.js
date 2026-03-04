@@ -8,6 +8,7 @@ import { changePassword } from './changePassword';
 import { resetPassword } from './resetPassword';
 import { login } from './login';
 import { refresh } from './refresh';
+import { setFacility } from './setFacility';
 import { userInfo, userMiddleware } from './userMiddleware';
 
 export const authModule = express.Router();
@@ -19,6 +20,7 @@ authModule.post('/refresh', refresh);
 
 authModule.use(userMiddleware);
 authModule.get('/user/me', userInfo);
+authModule.post('/setFacility', setFacility);
 
 authModule.get('/permissions', asyncHandler(getPermissions));
 authModule.get(

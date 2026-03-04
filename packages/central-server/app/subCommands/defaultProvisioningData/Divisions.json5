@@ -1,0 +1,35 @@
+{
+  "sheetName": "Divisions",
+  "columns": [
+    "id",
+    "code",
+    "name"
+  ],
+  "data": [
+    {
+      "id": "division-CentralEastern",
+      "code": "CentralEastern",
+      "name": "Central"
+    },
+    {
+      "id": "division-Eastern",
+      "code": "Eastern",
+      "name": "Eastern"
+    },
+    {
+      "id": "division-Western",
+      "code": "Western",
+      "name": "Western"
+    },
+    {
+      "id": "division-Northern",
+      "code": "Northern",
+      "name": "Northern"
+    },
+    {
+      "id": "division-Overseas",
+      "code": "Overseas",
+      "name": "Overseas"
+    }
+  ]
+}

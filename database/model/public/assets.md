@@ -17,3 +17,7 @@ This is the type of asset stored.
 {% docs assets__data %}
 Contains a binary version of image data uploaded by user.
 {% enddocs %}
+
+{% docs assets__facility_id %}
+Reference to the [facilities](#!/source/source.tamanu.tamanu.facilities) this asset is associated with.
+{% enddocs %}

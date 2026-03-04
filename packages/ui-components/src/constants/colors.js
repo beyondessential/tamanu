@@ -5,6 +5,7 @@ export const TAMANU_COLORS = {
   primaryDark: '#2f4358',
   secondary: '#ffcc24',
   alert: '#f76853',
+  lightAlert: '#fff0ee',
   orange: '#f17f16',
   darkOrange: '#CB6100',
   safe: '#47ca80',

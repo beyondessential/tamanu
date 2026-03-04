@@ -149,11 +149,6 @@ export const globalSettings = {
           type: yup.boolean(),
           defaultValue: false,
         },
-        enableInvoicing: {
-          description: 'Enable invoice tab/module on encounter view',
-          type: yup.boolean(),
-          defaultValue: false,
-        },
         enableTasking: {
           description: 'Enable tasking tab/module on encounter view',
           type: yup.boolean(),
@@ -184,11 +179,6 @@ export const globalSettings = {
             'Allow notes to have date explicitly recorded, allowing notes to be recorded in the past',
           type: yup.boolean(),
           defaultValue: true,
-        },
-        enableCovidClearanceCertificate: {
-          description: 'Enable COVID certificate printout',
-          type: yup.boolean(),
-          defaultValue: false,
         },
         editPatientDisplayId: {
           description: 'Allow the editing of an existing patients display id',
@@ -340,7 +330,7 @@ export const globalSettings = {
             enabled: {
               description: 'Enable pharmacy orders',
               type: yup.boolean(),
-              defaultValue: false,
+              defaultValue: true,
             },
             medicationAlreadyOrderedConfirmationTimeout: {
               description:
@@ -348,6 +338,11 @@ export const globalSettings = {
               type: yup.number().positive(),
               defaultValue: 24,
               unit: 'hours',
+            },
+            sendViaMSupply: {
+              description: 'Send pharmacy orders to mSupply (when an integration is configured)',
+              type: yup.boolean(),
+              defaultValue: false,
             },
           },
         },
@@ -366,14 +361,52 @@ export const globalSettings = {
             },
           },
         },
+        invoicing: {
+          description: 'Invoicing module settings',
+          properties: {
+            enabled: {
+              description: 'Enable invoicing',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            invoicePendingLabRequests: {
+              description:
+                'This setting enables automatically adding lab requests with the status Sample not collected & Reception pending to an invoice.',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            invoicePendingImagingRequests: {
+              description:
+                'This setting enables automatically adding imaging requests with the status pending to an invoice.',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            slidingFeeScale: {
+              description: 'This setting allows sliding fee scale to be applied to invoices.',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+          },
+        },
         labRequest: {
           description: 'Lab request settings',
           properties: {
             enableLabResultsPrintout: {
-              name: "Lab results printout",
-              description: 'Enable lab results printout (print results button and interim report option)',
+              name: 'Lab results printout',
+              description:
+                'Enable lab results printout (print results button and interim report option)',
               type: yup.boolean(),
               defaultValue: true,
+            },
+          },
+        },
+        covidCertificates: {
+          description: 'COVID certificate settings',
+          properties: {
+            enableCovidClearanceCertificate: {
+              description: 'Enable COVID certificate printout',
+              type: yup.boolean(),
+              defaultValue: false,
             },
           },
         },
@@ -832,6 +865,14 @@ export const globalSettings = {
             type: LOCALISED_FIELD_TYPES.STRING,
           }),
         },
+        birthOrder: {
+          name: 'Birth order',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
         birthFacilityId: {
           name: 'Birth facility',
           description: '_',
@@ -988,6 +1029,17 @@ export const globalSettings = {
         'The maximum size in megabytes of files that can be uploaded with the file chooser',
       type: yup.number().min(1),
       defaultValue: 10,
+    },
+    fsmCrvsCertificates: {
+      name: 'FSM CRVS Certificates',
+      description: 'Settings for FSM CRVS certificates',
+      properties: {
+        enableFSMStyle: {
+          description: 'Enable FSM CRVS style certificates',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+      },
     },
     integrations: {
       name: 'Integrations',
@@ -1210,6 +1262,13 @@ export const globalSettings = {
                 schedulingLocations: { properties: layoutModuleProperties },
               },
             },
+            medication: {
+              description: '_',
+              properties: {
+                medicationActive: { properties: layoutModuleProperties },
+                medicationDispensed: { properties: layoutModuleProperties },
+              },
+            },
             imaging: {
               description: '_',
               properties: {
@@ -1397,20 +1456,6 @@ export const globalSettings = {
           description: 'The text at the top of most patient PDFs',
           properties: letterheadProperties,
         },
-        signerRenewalEmail: {
-          description: 'The email sent when the signer runs out',
-          properties: {
-            subject: {
-              type: yup.string().trim().min(1),
-              defaultValue: 'Tamanu ICAO Certificate Signing Request',
-            },
-            body: {
-              type: yup.string().trim().min(1),
-              defaultValue:
-                'Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team.',
-            },
-          },
-        },
         vaccineCertificateEmail: {
           description: 'The email containing patient vaccine certificate',
           properties: {
@@ -1549,9 +1594,49 @@ export const globalSettings = {
         },
       },
     },
+    patientPortal: {
+      description: 'Patient portal settings',
+      properties: {
+        baseUrl: {
+          description: 'The base URL of the patient portal',
+          type: yup.string().trim().url().nullable(),
+          defaultValue: null,
+        },
+      },
+    },
     medications: {
       description: 'Medication settings',
       properties: {
+        dispensing: {
+          description: 'Medication dispensing settings',
+          properties: {
+            prescriptionLabelSize: {
+              description: 'Prescription label size.',
+              properties: {
+                width: {
+                  description: 'Prescription label width.',
+                  type: yup.number().min(1),
+                  defaultValue: 80,
+                  unit: 'mm',
+                },
+                height: {
+                  description: 'Prescription label height.',
+                  type: yup.number().min(1),
+                  defaultValue: 40,
+                  unit: 'mm',
+                },
+              },
+            },
+            autoDeleteTimeframeHours: {
+              name: 'Autodelete medication request timeframe in hours',
+              description:
+                'Medication requests not dispensed after this timeframe will be automatically deleted.',
+              type: yup.number().integer().positive(),
+              defaultValue: 72,
+              unit: 'hours',
+            },
+          },
+        },
         frequenciesEnabled: {
           description: 'Enable medication frequencies',
           properties: {

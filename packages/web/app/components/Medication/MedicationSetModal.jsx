@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ConfirmCancelBackRow, TranslatedText, Modal } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { Box, Divider, IconButton } from '@material-ui/core';
@@ -17,6 +17,7 @@ import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/utils/da
 import { useAuth } from '../../contexts/Auth';
 import { MultiplePrescriptionPrintoutModal } from '../PatientPrinting/modals/MultiplePrescriptionPrintoutModal';
 import { toast } from 'react-toastify';
+import { WarningOutlineIcon } from '../../assets/icons/WarningOutlineIcon';
 
 const StyledDivider = styled(Divider)`
   margin: 36px -32px 20px -32px;
@@ -32,6 +33,43 @@ const SetContainer = styled.div`
   display: flex;
   gap: 10px;
   align-items: flex-end;
+  height: calc(100vh - 370px);
+`;
+
+const AllergiesWarningBox = styled(Box)`
+  border: 1px solid ${Colors.alert};
+  border-radius: 3px;
+  padding: 10px 26px;
+  background-color: ${Colors.lightAlert};
+  margin-bottom: 10px;
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const AllergiesWarningHeader = styled(Box)`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const AllergiesWarningTitle = styled(BodyText)`
+  color: ${Colors.darkestText};
+  font-weight: 500;
+  font-size: 14px;
+`;
+
+const AllergiesList = styled.ul`
+  margin: 0;
+  padding-left: 41px;
+  list-style-type: disc;
+`;
+
+const AllergyItem = styled.li`
+  color: ${Colors.darkestText};
+  font-size: 14px;
+  line-height: 20px;
 `;
 
 const MODAL_SCREENS = {
@@ -90,21 +128,43 @@ const SelectScreen = ({
   onSelect,
   selectedMedicationSet,
 }) => {
+  const medicationSetListRef = useRef(null);
+  const [listHeight, setListHeight] = useState(null);
+
+  useEffect(() => {
+    const updateHeight = () => {
+      if (medicationSetListRef.current) {
+        setListHeight(medicationSetListRef.current.offsetHeight);
+      }
+    };
+
+    updateHeight();
+    window.addEventListener('resize', updateHeight);
+    return () => window.removeEventListener('resize', updateHeight);
+  }, [medicationSets, medicationSetsLoading]);
+
   return (
     <>
-      <Box mb="10px" mt="22px">
-        <BodyText component="span" color={Colors.midText}>
-          <TranslatedText
-            stringId="medication.modal.medicationSet.allergies"
-            fallback="Allergies:"
-          />
-        </BodyText>{' '}
-        <BodyText component="span" color={Colors.darkText} fontWeight="500">
-          {allergies?.data?.map(allergy => allergy.allergy.name).join(', ')}
-        </BodyText>
-      </Box>
       <SetContainer>
-        <Box flex={1}>
+        <Box flex={1} display='flex' flexDirection='column' height='100%'>
+          {allergies?.data && allergies.data.length > 0 && (
+            <AllergiesWarningBox>
+              <AllergiesWarningHeader>
+                <WarningOutlineIcon />
+                <AllergiesWarningTitle>
+                  <TranslatedText
+                    stringId="medication.allergies.title"
+                    fallback="Patient allergies"
+                  />
+                </AllergiesWarningTitle>
+              </AllergiesWarningHeader>
+              <AllergiesList>
+                {allergies.data.map((allergyDetail, index) => (
+                  <AllergyItem key={index}>{allergyDetail.allergy.name}</AllergyItem>
+                ))}
+              </AllergiesList>
+            </AllergiesWarningBox>
+          )}
           <BodyText color={Colors.darkText}>
             <TranslatedText
               stringId="medication.modal.medicationSet.question"
@@ -118,6 +178,7 @@ const SelectScreen = ({
             />
           </Heading5>
           <MedicationSetList
+            ref={medicationSetListRef}
             medicationSets={medicationSets}
             isLoading={medicationSetsLoading}
             onSelect={onSelect}
@@ -132,7 +193,7 @@ const SelectScreen = ({
                 fallback="Medication set medications"
               />
             </Heading5>
-            <MedicationSetMedicationsList medicationSet={selectedMedicationSet} />
+            <MedicationSetMedicationsList medicationSet={selectedMedicationSet} height={listHeight} />
           </Box>
         )}
       </SetContainer>

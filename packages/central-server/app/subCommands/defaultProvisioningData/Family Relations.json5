@@ -1,0 +1,77 @@
+{
+  "sheetName": "Family Relations",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "facility",
+    "contactNumber"
+  ],
+  "data": [
+    {
+      "id": "family-Maternalgrandmother",
+      "code": "Maternalgrandmother",
+      "name": "Maternal grandmother"
+    },
+    {
+      "id": "family-Maternalgrandfather",
+      "code": "Maternalgrandfather",
+      "name": "Maternal grandfather"
+    },
+    {
+      "id": "family-Paternalgrandmother",
+      "code": "Paternalgrandmother",
+      "name": "Paternal grandmother"
+    },
+    {
+      "id": "family-Paternalgrandfather",
+      "code": "Paternalgrandfather",
+      "name": "Paternal grandfather"
+    },
+    {
+      "id": "family-Mother",
+      "code": "Mother",
+      "name": "Mother"
+    },
+    {
+      "id": "family-Father",
+      "code": "Father",
+      "name": "Father"
+    },
+    {
+      "id": "family-Sister",
+      "code": "Sister",
+      "name": "Sister"
+    },
+    {
+      "id": "family-Brother",
+      "code": "Brother",
+      "name": "Brother"
+    },
+    {
+      "id": "family-Daughter",
+      "code": "Daughter",
+      "name": "Daughter"
+    },
+    {
+      "id": "family-Son",
+      "code": "Son",
+      "name": "Son"
+    },
+    {
+      "id": "family-Aunt",
+      "code": "Aunt",
+      "name": "Aunt"
+    },
+    {
+      "id": "family-Uncle",
+      "code": "Uncle",
+      "name": "Uncle"
+    },
+    {
+      "id": "family-Cousin",
+      "code": "Cousin",
+      "name": "Cousin"
+    }
+  ]
+}

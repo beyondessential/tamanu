@@ -22,6 +22,7 @@ import {
   INVOICE_ITEMS_CATEGORIES,
   LOCATION_BOOKABLE_VIEW_VALUES,
   LOCATION_BOOKABLE_VIEW,
+  DRUG_STOCK_STATUSES,
 } from '@tamanu/constants';
 import config from 'config';
 import {
@@ -351,7 +352,7 @@ export const InvoiceProduct = yup.object().shape({
     .string()
     .oneOf(Array.from(new Set(Object.values(INVOICE_ITEMS_CATEGORIES_MODELS)))),
   sourceRecordId: yup.string(),
-  discountable: yup.boolean().required(),
+  insurable: yup.boolean(),
   visibilityStatus,
 });
 
@@ -460,3 +461,10 @@ export const ReferenceMedicationTemplate = yup
       return true;
     },
   );
+
+export const ReferenceDrugFacility = yup.object().shape({
+  referenceDrugId: yup.string().required(),
+  facilityId: yup.string().required(),
+  quantity: yup.number().integer().nullable(),
+  stockStatus: yup.string().oneOf(Object.values(DRUG_STOCK_STATUSES)),
+});

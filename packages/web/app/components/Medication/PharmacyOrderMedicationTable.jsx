@@ -1,17 +1,18 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 
-import { formatShortest } from '@tamanu/utils/dateTime';
+import { formatShortest, formatTime } from '@tamanu/utils/dateTime';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 
-import { TextInput } from '@tamanu/ui-components';
+import { TextInput, ConditionalTooltip, ThemedTooltip } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
-import { NumberInput, OuterLabelFieldWrapper, CheckInput } from '../Field';
+import { OuterLabelFieldWrapper, CheckInput } from '../Field';
 import { Table } from '../Table';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../Translation';
-import { format } from 'date-fns';
+import { MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
+import { singularize } from '../../utils';
 
 const StyledTable = styled(Table)`
   .MuiTableCell-root {
@@ -80,15 +81,21 @@ const NoWrapCell = styled(Box)`
   white-space: nowrap;
 `;
 
+const TwoLineHeaderText = styled.div`
+  width: 85px;
+  white-space: normal;
+`;
+
 export const COLUMN_KEYS = {
   SELECT: 'select',
   DATE: 'date',
   MEDICATION: 'medication',
   DOSE: 'dose',
   FREQUENCY: 'frequency',
+  DURATION: 'duration',
   QUANTITY: 'quantity',
   REPEATS: 'repeats',
-  LAST_ORDERED: 'lastOrdered',
+  LAST_SENT: 'lastSent',
 };
 
 const getColumns = (
@@ -97,6 +104,7 @@ const getColumns = (
   onSelectAll,
   selectAllChecked,
   columnsToInclude = Object.values(COLUMN_KEYS),
+  { isOngoingMode = false, disabledPrescriptionIds = [] } = {},
 ) => {
   const allColumns = [
     {
@@ -111,14 +119,32 @@ const getColumns = (
       ),
       sortable: false,
       maxWidth: 50,
-      accessor: ({ selected, onSelect }) => (
-        <CheckInput
-          value={selected}
-          onChange={onSelect}
-          style={{ margin: 'auto' }}
-          data-testid="prescription-checkbox"
-        />
-      ),
+      accessor: ({ selected, onSelect, id }) => {
+        const isDisabled = isOngoingMode && disabledPrescriptionIds.includes(id);
+        return (
+          <ConditionalTooltip
+            visible={isDisabled}
+            title={
+              <Box width="122px">
+                <TranslatedText
+                  stringId="medication.sendToPharmacy.noRepeatsRemaining"
+                  fallback="Only medications with repeats greater than 0 can be sent to pharmacy"
+                />
+              </Box>
+            }
+          >
+            <span>
+              <CheckInput
+                value={selected}
+                onChange={onSelect}
+                disabled={isDisabled}
+                style={{ margin: 'auto' }}
+                data-testid="prescription-checkbox"
+              />
+            </span>
+          </ConditionalTooltip>
+        );
+      },
     },
 
     {
@@ -172,6 +198,29 @@ const getColumns = (
         frequency ? getTranslatedFrequency(frequency, getTranslation) : '',
     },
     {
+      key: COLUMN_KEYS.DURATION,
+      title: (
+        <TranslatedText
+          stringId="medication.details.duration"
+          fallback="Duration"
+          data-testid="translatedtext-duration"
+        />
+      ),
+      sortable: false,
+      accessor: ({ durationValue, durationUnit }) => {
+        if (!durationValue || !durationUnit) {
+          return '-';
+        }
+
+        const unitLabel = getEnumTranslation(
+          MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
+          durationUnit,
+        );
+
+        return `${durationValue} ${singularize(unitLabel, durationValue).toLowerCase()}`;
+      },
+    },
+    {
       key: COLUMN_KEYS.DATE,
       title: (
         <TranslatedText
@@ -184,10 +233,8 @@ const getColumns = (
       accessor: ({ date }) => formatShortest(date),
     },
     {
-      key: COLUMN_KEYS.LAST_ORDERED,
-      title: (
-        <TranslatedText stringId="medication.table.column.lastOrdered" fallback="Last ordered" />
-      ),
+      key: COLUMN_KEYS.LAST_SENT,
+      title: <TranslatedText stringId="medication.table.column.lastSent" fallback="Last sent" />,
       sortable: false,
       accessor: ({ lastOrderedAt }) => {
         if (!lastOrderedAt) {
@@ -203,17 +250,57 @@ const getColumns = (
           );
         }
 
-        const orderDate = new Date(lastOrderedAt);
         return (
           <NoWrapCell color={'inherit'} fontStyle={'normal'}>
             <Box>
-              {formatShortest(orderDate)}
+              {formatShortest(lastOrderedAt)}
               <Box fontSize="12px" color={Colors.softText}>
-                {format(orderDate, 'h:mma').toLowerCase()}
+                {formatTime(lastOrderedAt).toLowerCase()}
               </Box>
             </Box>
           </NoWrapCell>
         );
+      },
+    },
+    {
+      key: COLUMN_KEYS.REPEATS,
+      title: isOngoingMode ? (
+        <ThemedTooltip
+          title={
+            <TranslatedText
+              stringId="pharmacyOrder.table.column.repeats.tooltip"
+              fallback="Remaining prescriptions available to dispense"
+            />
+          }
+          $maxWidth="150px"
+        >
+          <span>
+            <TranslatedText
+              stringId="pharmacyOrder.table.column.repeats"
+              fallback="Remaining"
+              data-testid="translatedtext-psdf"
+            />
+          </span>
+        </ThemedTooltip>
+      ) : (
+        <TwoLineHeaderText>
+          <TranslatedText
+            stringId="pharmacyOrder.table.column.repeatsOnDischarge"
+            fallback="Repeats on discharge"
+            data-testid="translatedtext-psdf"
+          />
+        </TwoLineHeaderText>
+      ),
+      sortable: false,
+      accessor: ({ repeats, lastOrderedAt }) => {
+        // Encounter level: show "Repeats on discharge" — use the raw repeats total.
+        if (!isOngoingMode) return repeats;
+        // Patient level: show "Remaining" (prescriptions available to dispense).
+        // The first send is not counted as a repeat. When never sent (no lastOrderedAt),
+        // remaining = initial + repeats = repeats + 1. Once sent, repeats is decremented
+        // on the backend per send, so it already represents remaining.
+        if (!lastOrderedAt) return Number(repeats) + 1;
+        return repeats;
       },
     },
     {
@@ -232,7 +319,7 @@ const getColumns = (
       ),
       sortable: false,
       maxWidth: 100,
-      accessor: ({ quantity, onChange, hasError, selected }) => (
+      accessor: ({ quantity, onChange, hasError }) => (
         <TextInput
           type="number"
           InputProps={{
@@ -244,35 +331,16 @@ const getColumns = (
           onChange={onChange}
           required
           error={hasError}
-          disabled={!selected}
+          helperText={
+            hasError && (
+              <TranslatedText
+                stringId="validation.required.inline"
+                fallback="*Required"
+              />
+            )
+          }
           data-testid="textinput-rxbh"
         />
-      ),
-    },
-    {
-      key: COLUMN_KEYS.REPEATS,
-      title: (
-        <TranslatedText
-          stringId="pharmacyOrder.table.column.repeats"
-          fallback="Repeats"
-          data-testid="translatedtext-psdf"
-        />
-      ),
-      sortable: false,
-      accessor: ({ repeats, onChange, selected }) => (
-        <Box width="89px">
-          <NumberInput
-            value={repeats || ''}
-            onChange={onChange}
-            InputProps={{
-              inputProps: {
-                min: 0,
-              },
-            }}
-            disabled={!selected}
-            data-testid="selectinput-ld3p"
-          />
-        </Box>
       ),
     },
   ];
@@ -288,18 +356,39 @@ export const PharmacyOrderMedicationTable = ({
   handleSelectAll,
   selectAllChecked,
   columnsToInclude,
+  isOngoingMode = false,
+  disabledPrescriptionIds = [],
 }) => {
   const { getTranslation, getEnumTranslation } = useTranslation();
-  return (
-    <StyledTable
-      headerColor={Colors.white}
-      columns={getColumns(
+
+  const disabledIdsKey = disabledPrescriptionIds.join(',');
+
+  const columns = useMemo(
+    () =>
+      getColumns(
         getTranslation,
         getEnumTranslation,
         handleSelectAll,
         selectAllChecked,
         columnsToInclude,
-      )}
+        { isOngoingMode, disabledPrescriptionIds },
+      ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      getTranslation,
+      getEnumTranslation,
+      handleSelectAll,
+      selectAllChecked,
+      columnsToInclude,
+      isOngoingMode,
+      disabledIdsKey,
+    ],
+  );
+
+  return (
+    <StyledTable
+      headerColor={Colors.white}
+      columns={columns}
       data={data || []}
       elevated={false}
       isLoading={isLoading}

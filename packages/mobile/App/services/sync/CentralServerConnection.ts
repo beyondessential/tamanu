@@ -357,4 +357,8 @@ export class CentralServerConnection {
       this.throwError(err);
     }
   }
+
+  async setFacility(facilityId: string): Promise<{ settings: object }> {
+    return this.post<{ settings: object }>('setFacility', {}, { facilityId });
+  }
 }

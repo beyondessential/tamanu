@@ -155,6 +155,7 @@ export const PaginatedForm = ({
   FormScreen = DefaultFormScreen,
   SummaryScreen = DefaultSummaryScreen,
   SuccessScreen = DefaultSuccessScreen,
+  setParentState = null,
   validationSchema,
   initialValues,
   formType,
@@ -207,6 +208,7 @@ export const PaginatedForm = ({
                 allQuestionReactElements={allQuestionReactElements}
                 values={values}
                 setValues={setValues}
+                setParentState={setParentState}
                 submitForm={submitForm}
                 onStepForward={onStepForward}
                 isLast={isLast}

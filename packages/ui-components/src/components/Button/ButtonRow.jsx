@@ -1,4 +1,4 @@
-import React, { Children } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import { Button, FormCancelButton, FormSubmitButton, OutlinedButton } from './Button';
@@ -29,9 +29,11 @@ const ConfirmButton = styled(Button)`
   min-width: 90px;
 `;
 
-export const ButtonRow = React.memo(({ children, ...props }) => (
-  <Row items={Children.toArray(children).length || 1} {...props} data-testid="row-atzb">
-    {children}
+export const ButtonRow = React.memo(({ children, ButtonWrapper = React.Fragment, ...props }) => (
+  <Row {...props} data-testid="row-atzb">
+    <ButtonWrapper>
+      {children}
+    </ButtonWrapper>
   </Row>
 ));
 
@@ -146,9 +148,10 @@ export const FormConfirmCancelBackRow = ({
       data-testid="translatedtext-ypnp"
     />
   ),
+  className,
   ...props
 }) => (
-  <FlexSpaceBetween data-testid="flexspacebetween-p9lh">
+  <FlexSpaceBetween className={className} data-testid="flexspacebetween-p9lh">
     {onBack && (
       <GoBackButtonContainer data-testid="gobackbuttoncontainer-pfqw">
         <OutlinedButton onClick={onBack} data-testid="outlinedbutton-fa5a">
@@ -173,9 +176,10 @@ export const ConfirmCancelBackRow = ({
   onFinalise,
   finaliseText,
   finaliseDisabled = false,
+  className,
   ...props
 }) => (
-  <FlexSpaceBetween data-testid="flexspacebetween-f194">
+  <FlexSpaceBetween className={className} data-testid="flexspacebetween-f194">
     {onBack && (
       <GoBackButtonContainer data-testid="gobackbuttoncontainer-79x5">
         <OutlinedButton onClick={onBack} disabled={backDisabled} data-testid="outlinedbutton-1xr6">

@@ -111,6 +111,17 @@ export const GenericBirthFields = ({ filterByMandatory, registeredBirthPlace }) 
       ),
       prefix: 'localisedField.property.birthType',
     },
+    birthOrder: {
+      component: TextField,
+      type: 'number',
+      label: (
+        <TranslatedText
+          stringId="general.localisedField.birthOrder.label"
+          fallback="Birth order"
+          data-testid="translatedtext-f37p"
+        />
+      ),
+    },
     birthWeight: {
       component: TextField,
       type: 'number',

@@ -1,0 +1,35 @@
+{
+  "sheetName": "Booking Type",
+  "columns": [
+    "id",
+    "code",
+    "name",
+    "visibilityStatus"
+  ],
+  "data": [
+    {
+      "id": "bookingtype-Surgical",
+      "code": "Surgical",
+      "name": "Surgical",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "bookingtype-Chemotherapy",
+      "code": "Chemotherapy",
+      "name": "Chemotherapy",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "bookingtype-Dialysis",
+      "code": "Dialysis",
+      "name": "Dialysis",
+      "visibilityStatus": "current"
+    },
+    {
+      "id": "Bookingtype-Inpatientstay",
+      "code": "Inpatientstay",
+      "name": "Inpatient stay",
+      "visibilityStatus": "current"
+    }
+  ]
+}

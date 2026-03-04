@@ -13,6 +13,10 @@ This file contains essential Tamanu-specific information for LLM agents.
 - `packages/web/app/constants/styles.js` - web styling constants and colours
 - `packages/web/app/theme/theme.js` - Material-UI theme configuration
 
+## Sequelize Transactions
+
+We use **managed transactions** with `sequelize.transaction(async () => { ... })` and **Sequelize.useCLS()**, so the transaction object is not passed to inner calls. See `llm/project-rules/sequelize-transactions.md` for details.
+
 ## Copy Change Detection
 
 **Load `llm/project-rules/update-copy.md` when the user mentions:**

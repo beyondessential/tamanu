@@ -46,3 +46,37 @@ export const matchesAgeIfPresent = (
   const meetsMax = max === undefined || ageYears <= max;
   return meetsMin && meetsMax;
 };
+
+/**
+ * Matches facility with exclusionary logic:
+ * - If any price list specifies a facilityId, then price lists without a facilityId
+ *   match all facilities EXCEPT those explicitly specified by other price lists
+ * - If no price lists specify a facilityId, then all price lists match any facility
+ */
+export const matchesFacilityWithExclusionaryLogic = (
+  ruleFacilityId: string | undefined,
+  inputFacilityId: string | undefined,
+  allRules: Array<Record<string, any>>,
+): boolean => {
+  // If input facility not provided, match anything
+  if (!inputFacilityId) {
+    return true;
+  }
+
+  // If this rule specifies a facility, do direct comparison
+  if (ruleFacilityId) {
+    return ruleFacilityId === inputFacilityId;
+  }
+
+  // Rule has no facilityId - apply exclusionary logic
+  const specifiedFacilityIds = new Set(
+    allRules.map(rule => rule?.facilityId).filter((id): id is string => id != null),
+  );
+
+  // If no rules specify facilityId, match anything
+  if (specifiedFacilityIds.size === 0) {
+    return true;
+  }
+  // Otherwise, match all facilities EXCEPT those explicitly specified
+  return !specifiedFacilityIds.has(inputFacilityId);
+};

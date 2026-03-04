@@ -219,6 +219,7 @@ describe('Patient', () => {
         villageId: newVillage,
         middleName: 'MiddleName',
         bloodType: 'AB+',
+        facilityId,
       });
 
       expect(updateResult).toHaveSucceeded();
@@ -258,6 +259,7 @@ describe('Patient', () => {
         patientFields: {
           [definition.id]: 'Test Field Value 2',
         },
+        facilityId
       });
 
       // Assert
@@ -331,6 +333,7 @@ describe('Patient', () => {
       const newDisplayId = '123456789';
       const updateResult = await app.put(`/api/patient/${newPatient.id}`).send({
         displayId: newDisplayId,
+        facilityId,
       });
       expect(updateResult).toHaveSucceeded();
       expect(updateResult.body.displayId).toEqual(newDisplayId);
@@ -351,6 +354,7 @@ describe('Patient', () => {
       const newDisplayId = '555666777';
       const updateResult = await app.put(`/api/patient/${newPatient.id}`).send({
         displayId: newDisplayId,
+        facilityId,
       });
       expect(updateResult).toHaveSucceeded();
       expect(updateResult.body.displayId).toEqual(newDisplayId);

@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
+import InfoIcon from '@material-ui/icons/Info';
 import { TAMANU_COLORS } from '../../constants';
-import { InfoIcon } from '../Icons';
 import { ThemedTooltip } from '../Tooltip';
 
 const OuterLabel = styled.div`
@@ -24,6 +24,12 @@ const IconWrapper = styled.div`
   padding-top: 3px;
 `;
 
+const StyledInfoIcon = styled(InfoIcon)`
+  width: 20px;
+  height: 20px;
+  color: ${TAMANU_COLORS.midText};
+`;
+
 export const OuterLabelFieldWrapper = React.memo(
   React.forwardRef(
     (
@@ -40,7 +46,7 @@ export const OuterLabelFieldWrapper = React.memo(
         {infoTooltip && (
           <ThemedTooltip arrow placement="top" title={infoTooltip} data-testid="styledtooltip-pmvq">
             <IconWrapper>
-              <InfoIcon />
+              <StyledInfoIcon />
             </IconWrapper>
           </ThemedTooltip>
         )}

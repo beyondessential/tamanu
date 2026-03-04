@@ -48,7 +48,6 @@ export const PATIENT_DEATH_FULL_SCHEMA = yup.object().shape({
   mannerOfDeathDate: yup.date().nullable(),
   mannerOfDeathLocation: yup.string().nullable(), // actually "external cause"
   mannerOfDeathOther: yup.string().nullable(),
-  motherExistingCondition: yup.string().nullable(),
   numberOfCompletedPregnancyWeeks: yup.number().nullable(),
   numberOfHoursSurvivedSinceBirth: yup.number().nullable(),
   otherContributingConditions: yup
@@ -64,4 +63,10 @@ export const PATIENT_DEATH_FULL_SCHEMA = yup.object().shape({
   stillborn: yesNoUnknown,
   surgeryInLast4Weeks: yesNoUnknown,
   timeOfDeath: yup.date().required(),
+  autopsyRequested: yesNoUnknown,
+  autopsyFindingsUsed: yesNoUnknown,
+  mannerOfDeathDescription: yup.string().nullable(),
+  pregnancyMoment: yup.string().nullable(),
+  multiplePregnancy: yesNoUnknown,
+  motherConditionDescription: yup.string().nullable(),
 });

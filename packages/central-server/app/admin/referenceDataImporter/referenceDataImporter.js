@@ -18,11 +18,24 @@ export async function referenceDataImporter({
   stats,
   file,
   data = null,
+  workbook: providedWorkbook = null,
   includedDataTypes = [],
   checkPermission,
   skipExisting,
 }) {
-  log.info('Importing data definitions from file', { file });
+  let workbook;
+  if (providedWorkbook) {
+    workbook = providedWorkbook;
+    log.info('Importing data definitions from workbook');
+  } else if (data) {
+    workbook = read(data, { type: 'buffer' });
+    log.info('Importing data definitions from data');
+  } else if (file) {
+    workbook = readFile(file);
+    log.info('Importing data definitions from file', { file });
+  } else {
+    throw new Error('Must provide either workbook, data, or file');
+  }
 
   if (checkPermission) {
     for (const dataType of includedDataTypes) {
@@ -37,9 +50,6 @@ export async function referenceDataImporter({
       checkPermission('write', nonReferenceDataModalName);
     }
   }
-
-  log.debug('Parse XLSX workbook');
-  const workbook = data ? read(data, { type: 'buffer' }) : readFile(file);
 
   log.debug('Normalise all sheet names for lookup');
   const sheets = new Map();
@@ -111,10 +121,8 @@ export async function referenceDataImporter({
   while (nonRefDataTypes.length > 0 && loopProtection > 0) {
     loopProtection -= 1;
 
-    const [
-      dataType,
-      { model = upperFirst(dataType), loader = loaderFactory(model), needs = [] },
-    ] = nonRefDataTypes.shift();
+    const [dataType, { model = upperFirst(dataType), loader = loaderFactory(model), needs = [] }] =
+      nonRefDataTypes.shift();
 
     log.debug('Look for data type in sheets', { dataType });
     const sheet = sheets.get(dataType);

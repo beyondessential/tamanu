@@ -90,17 +90,19 @@ export class EncounterHistoryPane {
       (this as any)[key] = page.getByTestId(id);
     }
   }
-  getLatestEncounter(): Locator {
+  async getLatestEncounter(): Promise<Locator> {
     return this.tableBody.locator('tr').first();
   }
 
   async waitForPageToLoad(): Promise<void> {
     await this.tableBody.waitFor({ state: 'visible' });
+    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
   async waitForSectionToLoad(): Promise<void> {
     await this.waitForPageToLoad();
   }
+
   async getLatestEncounterValues(): Promise<Record<string, string>> {
     const encounterValues: Record<string, string> = {};
     // Normalize the start date to remove non-breaking spaces and multiple spaces

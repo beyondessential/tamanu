@@ -41,6 +41,7 @@ export class Suggester {
     try {
       const data = await this.fetch(`/${encodeURIComponent(value)}`, {
         language: getCurrentLanguageCode(),
+        facilityId: this.baseQueryParameters?.facilityId,
       });
       return this.formatter(data);
     } catch (e) {

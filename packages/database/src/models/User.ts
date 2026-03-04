@@ -484,17 +484,19 @@ export class User extends Model {
       .setExpirationTime(tokenDuration)
       .sign(secret);
 
+    const shouldReturnSettings =
+      clientHeader &&
+      ([SERVER_TYPES.WEBAPP, SERVER_TYPES.FACILITY, SERVER_TYPES.MOBILE] as string[]).includes(clientHeader) &&
+      !facilityIds;
+
+    const frontEndSettings = shouldReturnSettings ? await settings.getFrontEndSettings() : undefined;
+
     return {
       token,
       user,
       device,
       internalClient,
-      settings:
-        clientHeader &&
-        ([SERVER_TYPES.WEBAPP, SERVER_TYPES.FACILITY, SERVER_TYPES.MOBILE] as string[]).includes(clientHeader) &&
-        !facilityIds
-          ? await settings.getFrontEndSettings()
-          : undefined,
+      settings: frontEndSettings,
     };
   }
 

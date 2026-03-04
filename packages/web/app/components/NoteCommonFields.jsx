@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
-import { NOTE_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
+import { NOTE_TYPES, REFERENCE_TYPES, NON_EDITABLE_NOTE_TYPES } from '@tamanu/constants';
 import { Box } from '@material-ui/core';
 import { InfoCard, InfoCardItem } from './InfoCard';
 import {
@@ -284,7 +284,7 @@ export const NoteTypeField = ({
 
   const noteTypeOptions = useMemo(() => {
     return noteTypes
-      .filter(noteType => noteType.id !== NOTE_TYPES.SYSTEM)
+      .filter(noteType => !NON_EDITABLE_NOTE_TYPES.includes(noteType.id))
       .map(noteType => ({
         value: noteType.id,
         label: (
