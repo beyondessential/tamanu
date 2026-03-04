@@ -180,7 +180,7 @@ const getColumns = (
       key: 'labTestType',
       title: (
         <TranslatedText
-          stringId="lab.testType.label"
+          stringId="lab.test.label"
           fallback="Test"
           data-testid="translatedtext-8oo7"
         />
