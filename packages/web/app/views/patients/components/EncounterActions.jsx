@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Button, TranslatedText } from '@tamanu/ui-components';
+import { Button, ButtonWithPermissionCheck, TranslatedText } from '@tamanu/ui-components';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { DischargeModal } from '../../../components/DischargeModal';
 import { MoveModal } from './MoveModal';
@@ -25,7 +25,12 @@ const StyledButton = styled(Button)`
   max-height: 40px;
 `;
 
-const MoveButton = styled(StyledButton)`
+const StyledButtonWithPermissionCheck = styled(ButtonWithPermissionCheck)`
+  white-space: nowrap;
+  max-height: 40px;
+`;
+
+const MoveButtonWithPermissionCheck = styled(StyledButtonWithPermissionCheck)`
   margin-right: -7px;
 `;
 
@@ -196,28 +201,30 @@ export const EncounterActions = React.memo(({ encounter }) => {
           </>
         ) : (
           <>
-            <StyledButton
+            <StyledButtonWithPermissionCheck
               size="small"
               variant="outlined"
+              verb="write"
+              noun="Encounter"
               onClick={() => setOpenModal(ENCOUNTER_MODALS.DISCHARGE)}
-              disabled={!canWriteEncounter}
             >
               <TranslatedText
                 stringId="encounter.action.prepareDischarge"
                 fallback="Prepare discharge"
               />
-            </StyledButton>
-            <MoveButton
+            </StyledButtonWithPermissionCheck>
+            <MoveButtonWithPermissionCheck
               size="small"
               color="primary"
-              disabled={!canWriteEncounter}
+              verb="write"
+              noun="Encounter"
               onClick={() => {
                 setNewEncounterType(null);
                 setOpenModal(ENCOUNTER_MODALS.MOVE);
               }}
             >
               <TranslatedText stringId="encounter.action.movePatient" fallback="Move patient" />
-            </MoveButton>
+            </MoveButtonWithPermissionCheck>
           </>
         )}
         <ThreeDotMenu items={actions} data-testid="threedotmenu-5t9u" />
