@@ -42,11 +42,19 @@ const StyledTableFormFields = styled(TableFormFields)`
     font-size: 14px;
     font-weight: 500;
     color: ${Colors.midText};
+    vertical-align: middle;
+    padding: 10px;
   }
 
   tbody tr td {
     font-size: 14px;
-    vertical-align: top;
+    vertical-align: middle;
+    padding: 8px;
+  }
+
+  thead tr th:first-child,
+  tbody tr td:first-child {
+    padding-left: 20px;
   }
 `;
 
@@ -371,7 +379,7 @@ const ResultsForm = ({
               data-testid="translatedtext-8n3h"
             />
           </Heading4>
-          <SmallBodyText color="textTertiary" data-testid="smallbodytext-4j32">
+          <SmallBodyText marginBottom="10px" color="textTertiary" data-testid="smallbodytext-4j32">
             <TranslatedText
               stringId="patient.lab.modal.enterResults.subHeading"
               fallback="Please record test results, other test result details and any relevant notes."
