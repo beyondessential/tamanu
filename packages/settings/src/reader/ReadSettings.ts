@@ -26,7 +26,7 @@ const extractExposedKeys = (schema: SettingsSchema, flag: ExposedFlag, prefix = 
   return keys;
 };
 
-const getKeysByFlag = (flag: ExposedFlag): string[] =>
+export const getKeysByFlag = (flag: ExposedFlag): string[] =>
   allSchemas.flatMap(schema => extractExposedKeys(schema, flag));
 
 export class ReadSettings<Path = SettingPath> {
