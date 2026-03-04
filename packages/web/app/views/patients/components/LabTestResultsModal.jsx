@@ -117,7 +117,7 @@ const getColumns = (
       title: (
         <TranslatedText
           stringId="lab.testType.label"
-          fallback="Test type"
+          fallback="Test"
           data-testid="translatedtext-8oo7"
         />
       ),
@@ -156,6 +156,22 @@ const getColumns = (
           />
         );
       },
+    },
+    {
+      key: 'unit',
+      title: (
+        <TranslatedText
+          stringId="lab.results.table.column.unit"
+          fallback="Units"
+          data-testid="translatedtext-9rpw"
+        />
+      ),
+      width: '80px',
+      accessor: row => (
+        <BodyText color="textTertiary" data-testid="bodytext-uq3u">
+          {row.labTestType.unit || 'N/A'}
+        </BodyText>
+      ),
     },
     ...(showSecondaryResultColumn
       ? [
@@ -196,22 +212,6 @@ const getColumns = (
         },
       ]
       : []),
-    {
-      key: 'unit',
-      title: (
-        <TranslatedText
-          stringId="lab.results.table.column.unit"
-          fallback="Units"
-          data-testid="translatedtext-9rpw"
-        />
-      ),
-      width: '80px',
-      accessor: row => (
-        <BodyText color="textTertiary" data-testid="bodytext-uq3u">
-          {row.labTestType.unit || 'N/A'}
-        </BodyText>
-      ),
-    },
     {
       key: LAB_TEST_PROPERTIES.LAB_TEST_METHOD_ID,
       title: (
@@ -374,7 +374,7 @@ const ResultsForm = ({
           <SmallBodyText color="textTertiary" data-testid="smallbodytext-4j32">
             <TranslatedText
               stringId="patient.lab.modal.enterResults.subHeading"
-              fallback="Please record test results and other test result details."
+              fallback="Please record test results, other test result details and any relevant notes."
               data-testid="translatedtext-3nvu"
             />
           </SmallBodyText>
@@ -467,7 +467,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
       title={
         <TranslatedText
           stringId="patient.lab.modal.enterResults.title"
-          fallback="Enter results | Test ID :testId"
+          fallback="Enter results | Request ID :testId"
           replacements={{ testId: displayId }}
           data-testid="translatedtext-r9ex"
         />
