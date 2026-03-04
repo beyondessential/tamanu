@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/ui-components",
-  "version": "2.50.0",
+  "version": "2.51.0",
   "description": "Tamanu UI components",
   "private": true,
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -17,6 +17,7 @@
     "build": "echo 'builds with client frontend'"
   },
   "peerDependencies": {
+    "react-autosuggest": "^10.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "styled-components": "^5.3.3",
@@ -24,7 +25,7 @@
     "@material-ui/lab": "^4.0.0-alpha.61",
     "@material-ui/icons": "^4.11.3",
     "@mui/material": "^6.1.1",
-    "react-router": "^7.9.1",
+    "react-router": "^7.13.1",
     "react-toastify": "^8.2.0",
     "yup": "^0.32.9",
     "formik": "^2.2.9"

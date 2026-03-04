@@ -408,11 +408,6 @@ export const globalSettings = {
               type: yup.boolean(),
               defaultValue: false,
             },
-            enableCovidVaccinationCertificateSigning: {
-              description: 'Enable signing of COVID vaccination certificate',
-              type: yup.boolean(),
-              defaultValue: false,
-            },
           },
         },
       },
@@ -870,6 +865,14 @@ export const globalSettings = {
             type: LOCALISED_FIELD_TYPES.STRING,
           }),
         },
+        birthOrder: {
+          name: 'Birth order',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
         birthFacilityId: {
           name: 'Birth facility',
           description: '_',
@@ -1026,6 +1029,17 @@ export const globalSettings = {
         'The maximum size in megabytes of files that can be uploaded with the file chooser',
       type: yup.number().min(1),
       defaultValue: 10,
+    },
+    fsmCrvsCertificates: {
+      name: 'FSM CRVS Certificates',
+      description: 'Settings for FSM CRVS certificates',
+      properties: {
+        enableFSMStyle: {
+          description: 'Enable FSM CRVS style certificates',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+      },
     },
     integrations: {
       name: 'Integrations',
@@ -1441,20 +1455,6 @@ export const globalSettings = {
         letterhead: {
           description: 'The text at the top of most patient PDFs',
           properties: letterheadProperties,
-        },
-        signerRenewalEmail: {
-          description: 'The email sent when the signer runs out',
-          properties: {
-            subject: {
-              type: yup.string().trim().min(1),
-              defaultValue: 'Tamanu ICAO Certificate Signing Request',
-            },
-            body: {
-              type: yup.string().trim().min(1),
-              defaultValue:
-                'Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team.',
-            },
-          },
         },
         vaccineCertificateEmail: {
           description: 'The email containing patient vaccine certificate',

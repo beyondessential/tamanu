@@ -83,7 +83,7 @@ const useParent = (api, enabled, parentId) => {
 export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);
   const api = useApi();
-  const { facilityId } = useAuth();
+  const { facilityId, currentUser } = useAuth();
   const { getLocalisation } = useLocalisation();
   const { storedLanguage, translations } = useTranslation();
   const { getSetting } = useSettings();
@@ -146,6 +146,7 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
           fatherData={fatherData}
           childData={{ ...patient, birthData, additionalData, deathData }}
           facility={facility}
+          printedBy={currentUser?.displayName}
           certificateData={certificateData}
           getLocalisation={getLocalisation}
           getSetting={getSetting}

@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/utils",
-  "version": "2.50.0",
+  "version": "2.51.0",
   "private": true,
   "description": "Common code across Tamanu packages",
   "main": "dist/cjs/index.js",
@@ -41,8 +41,10 @@
     "vitest": "^2.1.9"
   },
   "dependencies": {
+    "@tamanu/constants": "*",
     "date-fns": "^4.1.0",
     "es-toolkit": "^1.31.0",
+    "lodash": "^4.17.21",
     "nanoid": "^3.3.8",
     "uuid": "^11.0.3",
     "zod": "^4.0.17"
