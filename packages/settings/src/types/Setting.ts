@@ -9,4 +9,5 @@ export interface Setting<T = any> {
   defaultValue: T;
   deprecated?: boolean;
   exposedToWeb?: boolean;
+  exposedToPatientPortal?: boolean;
 }

@@ -1,56 +1,33 @@
 import { get as lodashGet, pick } from 'lodash';
-import { SettingPath, SettingsSchema } from '../types';
+import { ExposedFlag, SettingPath, SettingsSchema } from '../types';
 import { buildSettings } from '..';
 import { settingsCache } from '../cache';
 import { Models } from './readers/SettingsDBReader';
 import { globalSettings } from '../schema/global';
 import { facilitySettings } from '../schema/facility';
+import { centralSettings } from '../schema/central';
 
-// Extract top-level keys from settings schema that have exposedToWeb: true
-const extractExposedKeys = (schema: SettingsSchema): string[] => {
+const allSchemas = [globalSettings, facilitySettings, centralSettings];
+
+// Recursively walks the schema tree collecting keys that have the given flag set.
+// When a node has the flag, its full dot-notated path is included and children are
+// skipped (the whole subtree is exposed). When a node is a nested schema without the
+// flag, we recurse into it to check its children (e.g. security.mobile).
+const extractExposedKeys = (schema: SettingsSchema, flag: ExposedFlag, prefix = ''): string[] => {
   const keys: string[] = [];
   for (const [key, value] of Object.entries(schema.properties)) {
-    if (value.exposedToWeb) keys.push(key);
+    const fullKey = prefix ? `${prefix}.${key}` : key;
+    if (value[flag]) {
+      keys.push(fullKey);
+    } else if ('properties' in value) {
+      keys.push(...extractExposedKeys(value as SettingsSchema, flag, fullKey));
+    }
   }
   return keys;
 };
 
-const getExposedKeys = (): string[] => {
-  const globalKeys = extractExposedKeys(globalSettings);
-  const facilityKeys = extractExposedKeys(facilitySettings);
-  return [...globalKeys, ...facilityKeys];
-};
-
-export const KEYS_EXPOSED_TO_FRONT_END = [
-  'audit',
-  'appointments',
-  'ageDisplayFormat',
-  'customisations',
-  'features',
-  'fields',
-  'fsmCrvsCertificates',
-  'imagingCancellationReasons',
-  'imagingPriorities',
-  'insurer',
-  'customisations',
-  'locationAssignments',
-  'printMeasures',
-  'invoice',
-  'labsCancellationReasons',
-  'templates',
-  'layouts',
-  'security.mobile',
-  'triageCategories',
-  'upcomingVaccinations',
-  'vaccinations',
-  'vitalEditReasons',
-  'medications',
-  'sync',
-  'mobileSync',
-  'patientDisplayIdPattern',
-] as const;
-
-export const KEYS_EXPOSED_TO_PATIENT_PORTAL = ['features', 'fileChooserMbSizeLimit'] as const;
+const getKeysByFlag = (flag: ExposedFlag): string[] =>
+  allSchemas.flatMap(schema => extractExposedKeys(schema, flag));
 
 export class ReadSettings<Path = SettingPath> {
   models: Models;
@@ -70,13 +47,12 @@ export class ReadSettings<Path = SettingPath> {
   // Settings are automatically extracted based on exposedToWeb: true in the schema
   async getFrontEndSettings() {
     const allSettings = await this.getAll();
-    const exposedKeys = getExposedKeys();
-    return pick(allSettings, exposedKeys);
+    return pick(allSettings, getKeysByFlag('exposedToWeb'));
   }
 
   async getPatientPortalSettings() {
     const allSettings = await this.getAll();
-    return pick(allSettings, KEYS_EXPOSED_TO_PATIENT_PORTAL);
+    return pick(allSettings, getKeysByFlag('exposedToPatientPortal'));
   }
 
   async getAll() {

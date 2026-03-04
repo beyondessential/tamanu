@@ -110,6 +110,7 @@ export const globalSettings = {
     },
     locationAssignments: {
       description: 'Location assignment settings',
+      exposedToWeb: true,
       properties: {
         assignmentMaxFutureMonths: {
           description: 'The maximum number of months allowed when creating location assignments',
@@ -121,6 +122,7 @@ export const globalSettings = {
     features: {
       description: 'Toggle features on/off',
       exposedToWeb: true,
+      exposedToPatientPortal: true,
       properties: {
         mandateSpecimenType: {
           description: 'Make specimen type a required field when creating a new lab request',
@@ -1033,12 +1035,14 @@ export const globalSettings = {
     fileChooserMbSizeLimit: {
       description:
         'The maximum size in megabytes of files that can be uploaded with the file chooser',
+      exposedToPatientPortal: true,
       type: yup.number().min(1),
       defaultValue: 10,
     },
     fsmCrvsCertificates: {
       name: 'FSM CRVS Certificates',
       description: 'Settings for FSM CRVS certificates',
+      exposedToWeb: true,
       properties: {
         enableFSMStyle: {
           description: 'Enable FSM CRVS style certificates',
@@ -1357,6 +1361,7 @@ export const globalSettings = {
         },
         mobile: {
           description: 'Mobile security settings',
+          exposedToWeb: true,
           properties: {
             allowUnencryptedStorage: {
               description: 'Allow unencrypted storage on mobile devices',
