@@ -42,14 +42,27 @@ const StyledTableFormFields = styled(TableFormFields)`
     font-size: 14px;
     font-weight: 500;
     color: ${Colors.midText};
-    vertical-align: middle;
     padding: 10px;
   }
 
   tbody tr td {
     font-size: 14px;
-    vertical-align: middle;
+    vertical-align: top;
     padding: 8px;
+    overflow: visible;
+  }
+
+  tbody tr td .MuiFormHelperText-root {
+    white-space: nowrap;
+    overflow: visible;
+  }
+
+  thead tr th:first-child,
+  thead tr th:nth-child(3),
+  tbody tr td:first-child,
+  tbody tr td:nth-child(3) {
+    padding-top: 20px;
+    vertical-align: top;
   }
 
   thead tr th:first-child,
