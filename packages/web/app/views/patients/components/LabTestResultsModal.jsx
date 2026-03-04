@@ -65,6 +65,49 @@ const StyledConfirmCancelRow = styled(ConfirmCancelRow)`
   border-top: 1px solid ${Colors.outline};
 `;
 
+const SkeletonContainer = styled(Box)`
+  padding: 0 30px;
+`;
+
+const SkeletonSection = styled(Box)`
+  margin-bottom: 20px;
+`;
+
+const SkeletonTitle = styled(Skeleton)`
+  font-size: 20px;
+  margin-bottom: 4px;
+`;
+
+const SkeletonSubtitle = styled(Skeleton)`
+  font-size: 12px;
+`;
+
+const SkeletonRect = styled(Skeleton)`
+  border-radius: 4px;
+`;
+
+const ErrorContainer = styled(Box)`
+  padding: 8px 30px 25px 30px;
+`;
+
+const FormHeaderSection = styled(Box)`
+  margin: 0 30px;
+  padding-bottom: 20px;
+`;
+
+const InterpretationFieldSection = styled(Box)`
+  margin: 20px 30px;
+`;
+
+const StyledHeading4 = styled(Heading4)`
+  margin-bottom: 10px;
+`;
+
+const StyledSmallBodyText = styled(SmallBodyText)`
+  margin-bottom: 10px;
+  color: ${Colors.midText};
+`;
+
 const LAB_TEST_PROPERTIES = {
   COMPLETED_DATE: 'completedDate',
   ID: 'id',
@@ -285,40 +328,37 @@ const getColumns = (
 
 const ResultsFormSkeleton = () => (
   <>
-    <Box padding="0 30px" data-testid="box-40fc">
-      <Box marginBottom="20px" data-testid="box-ccfc">
+    <SkeletonContainer data-testid="box-40fc">
+      <SkeletonSection data-testid="box-ccfc">
         <div>
-          <Skeleton
+          <SkeletonTitle
             variant="text"
             width={124}
-            style={{ fontSize: 20, marginBottom: 4 }}
             data-testid="skeleton-um2y"
           />
-          <Skeleton
+          <SkeletonSubtitle
             variant="text"
             width={270}
-            style={{ fontSize: 12 }}
             data-testid="skeleton-llaz"
           />
         </div>
-      </Box>
-      <Skeleton
+      </SkeletonSection>
+      <SkeletonRect
         variant="rect"
         height={254}
-        style={{ borderRadius: 4 }}
         data-testid="skeleton-dl86"
       />
-    </Box>
+    </SkeletonContainer>
   </>
 );
 
 const ResultsFormError = ({ error }) => (
-  <Box padding="8px 30px 25px 30px" data-testid="box-ta1e">
+  <ErrorContainer data-testid="box-ta1e">
     <Alert severity="error" data-testid="alert-m6oy">
       <AlertTitle data-testid="alerttitle-kpbw">Error</AlertTitle>
       <b>Failed to load result with error:</b> {error.message}
     </Alert>
-  </Box>
+  </ErrorContainer>
 );
 
 const ResultsForm = ({
@@ -370,24 +410,24 @@ const ResultsForm = ({
 
   return (
     <Box data-testid="box-miwv">
-      <Box margin="0px 30px" paddingBottom="20px" data-testid="box-jcm4">
+      <FormHeaderSection data-testid="box-jcm4">
         <div>
-          <Heading4 marginBottom="10px" data-testid="heading4-5541">
+          <StyledHeading4 data-testid="heading4-5541">
             <TranslatedText
               stringId="patient.lab.modal.enterResults.heading"
               fallback="Enter test results"
               data-testid="translatedtext-8n3h"
             />
-          </Heading4>
-          <SmallBodyText marginBottom="10px" color="textTertiary" data-testid="smallbodytext-4j32">
+          </StyledHeading4>
+          <StyledSmallBodyText data-testid="smallbodytext-4j32">
             <TranslatedText
               stringId="patient.lab.modal.enterResults.subHeading"
               fallback="Please record test results, other test result details and any relevant notes."
               data-testid="translatedtext-3nvu"
             />
-          </SmallBodyText>
+          </StyledSmallBodyText>
         </div>
-      </Box>
+      </FormHeaderSection>
       <TableContainer data-testid="tablecontainer-dyto">
         <StyledTableFormFields
           columns={columns}
@@ -395,7 +435,7 @@ const ResultsForm = ({
           data-testid="styledtableformfields-5s0u"
         />
       </TableContainer>
-      <Box margin="20px 30px">
+      <InterpretationFieldSection>
         <Field
           component={TextField}
           multiline
@@ -405,7 +445,7 @@ const ResultsForm = ({
           label="Results Interpretation"
           data-testid="field-resultsinterpretation"
         />
-      </Box>
+      </InterpretationFieldSection>
     </Box>
   );
 };
