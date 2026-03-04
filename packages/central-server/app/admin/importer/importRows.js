@@ -1,5 +1,5 @@
 import { camelCase, lowerCase, lowerFirst, startCase, upperFirst } from 'lodash';
-import { AggregateError, Op } from 'sequelize';
+import { AggregateError, DataTypes, Op } from 'sequelize';
 import { ValidationError as YupValidationError } from 'yup';
 import config from 'config';
 
@@ -78,14 +78,21 @@ function checkForChanges(existing, normalizedValues, model) {
   return Object.keys(normalizedValues)
     .filter(key => !ignoredFields?.includes(key))
     .some(key => {
-      // At this point, we already updated the existing row with the normalized values
-      // so we need to check the previous data values to see if there was a change
       const existingValue = existing._previousDataValues[key];
       const normalizedValue = normalizedValues[key];
 
-      if (typeof existingValue === 'number') {
-        return isNaN(normalizedValue) ? false : Number(normalizedValue) !== existingValue;
+      const attrType = existing.constructor.rawAttributes[key]?.type;
+      if (attrType instanceof DataTypes.NUMBER) {
+        if (existingValue == null || normalizedValue == null) {
+          return (existingValue == null) !== (normalizedValue == null);
+        }
+        const existingNum = Number(existingValue);
+        const normalizedNum = Number(normalizedValue);
+        if (Number.isNaN(normalizedNum)) return false;
+        if (Number.isNaN(existingNum)) return true;
+        return existingNum !== normalizedNum;
       }
+
       return existing.changed(key);
     });
 }
