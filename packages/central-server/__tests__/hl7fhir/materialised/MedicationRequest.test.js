@@ -115,6 +115,7 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
       const { FhirMedicationRequest, PharmacyOrder, PharmacyOrderPrescription, Prescription } =
         ctx.store.models;
 
+      const prescriptionStartDate = new Date('2026-01-01T00:00:00.000Z').toISOString();
       const prescription = await Prescription.create(
         fake(Prescription, {
           medicationId: resources.drug1.id,
@@ -125,8 +126,12 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
           route: DRUG_ROUTES.oral,
           prescriberId: resources.practitioner.id,
           isVariableDose: false,
+          startDate: prescriptionStartDate,
+          durationValue: 165,
+          durationUnit: 'days',
         }),
       );
+      await prescription.reload();
       const pharmacyOrder = await PharmacyOrder.create(
         fake(PharmacyOrder, {
           encounterId: resources.encounter.id,
@@ -250,6 +255,10 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
         dispenseRequest: {
           quantity: pharmacyOrderPrescription.quantity,
           numberOfRepeatsAllowed: pharmacyOrderPrescription.repeats,
+          validityPeriod: {
+            start: formatFhirDate(prescription.startDate),
+            end: formatFhirDate(prescription.endDate),
+          },
         },
         authoredOn: pharmacyOrder.createdAt.toISOString(),
         note: [

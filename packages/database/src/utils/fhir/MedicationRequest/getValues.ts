@@ -10,7 +10,9 @@ import {
   FhirDosageInstruction,
   FhirTiming,
   FhirDoseAndRate,
+  FhirPeriod,
 } from '@tamanu/shared/services/fhirTypes';
+import { formatFhirDate } from '@tamanu/shared/utils/fhir';
 import type { Models } from '../../../types/model';
 import type { PharmacyOrder, PharmacyOrderPrescription, Prescription } from '../../../models';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
@@ -28,6 +30,10 @@ export async function getValues(upstream: PharmacyOrderPrescription, models: Mod
   const requester = await requesterRef(pharmacyOrder, models);
   const subject = await subjectRef(pharmacyOrder, models);
   const encounter = await FhirReference.to(models.FhirEncounter, pharmacyOrder.encounterId);
+  const prescription = await models.Prescription.findOne({
+    where: { id: upstream.prescriptionId },
+  });
+
   return {
     lastUpdated: new Date(),
     identifier: [
@@ -51,6 +57,12 @@ export async function getValues(upstream: PharmacyOrderPrescription, models: Mod
     dispenseRequest: {
       quantity: upstream.quantity,
       numberOfRepeatsAllowed: upstream.repeats,
+      ...(prescription?.endDate && {
+        validityPeriod: new FhirPeriod({
+          start: formatFhirDate(prescription.startDate),
+          end: formatFhirDate(prescription.endDate),
+        }),
+      }),
     },
     recorder,
     requester,
