@@ -1,10 +1,10 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { endOfDay, startOfDay } from 'date-fns';
+import config from 'config';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 
 import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
-import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { getDayBoundaries } from '@tamanu/utils/dateTime';
 import {
   LAB_REQUEST_STATUSES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
@@ -143,6 +143,10 @@ labRequest.get(
       ...filterParams
     } = query;
 
+    const { primaryTimeZone } = config;
+    const { facilityId } = filterParams;
+    const facilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
+
     const makeSimpleTextFilter = makeSimpleTextFilterFactory(filterParams);
     const makePartialTextFilter = makeSubstringTextFilterFactory(filterParams);
     const filters = [
@@ -186,16 +190,18 @@ labRequest.get(
       makeFilter(
         filterParams.requestedDateFrom,
         'lab_requests.requested_date >= :requestedDateFrom',
-        ({ requestedDateFrom }) => ({
-          requestedDateFrom: toDateTimeString(startOfDay(new Date(requestedDateFrom))),
-        }),
+        ({ requestedDateFrom }) => {
+          const boundaries = getDayBoundaries(requestedDateFrom, primaryTimeZone, facilityTimeZone);
+          return { requestedDateFrom: boundaries?.start ?? `${requestedDateFrom} 00:00:00` };
+        },
       ),
       makeFilter(
         filterParams.requestedDateTo,
         'lab_requests.requested_date <= :requestedDateTo',
-        ({ requestedDateTo }) => ({
-          requestedDateTo: toDateTimeString(endOfDay(new Date(requestedDateTo))),
-        }),
+        ({ requestedDateTo }) => {
+          const boundaries = getDayBoundaries(requestedDateTo, primaryTimeZone, facilityTimeZone);
+          return { requestedDateTo: boundaries?.end ?? `${requestedDateTo} 23:59:59` };
+        },
       ),
       makeFilter(
         !JSON.parse(filterParams.allFacilities || false),

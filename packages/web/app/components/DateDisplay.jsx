@@ -1,7 +1,7 @@
 export {
-  getDateDisplay,
   DateDisplay,
+  TimeDisplay,
   MultilineDatetimeDisplay,
   TimeRangeDisplay,
+  DateTimeRangeDisplay,
 } from '@tamanu/ui-components';
-export { formatShortest, formatTime } from '@tamanu/utils/dateTime';

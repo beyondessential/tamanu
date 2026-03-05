@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import Decimal from 'decimal.js';
-import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants';
 import {
   AutocompleteField,
@@ -11,6 +10,7 @@ import {
   Form,
   NumberField,
   useSuggester,
+  useDateTime,
   TAMANU_COLORS,
   TextButton,
 } from '@tamanu/ui-components';
@@ -81,7 +81,7 @@ const getValidationSchema = (editingPayment, patientPaymentRemainingBalance) =>
           fallback="Amount cannot be above patient total due"
           data-testid="translatedtext-dzh7"
         />,
-        function(value) {
+        function (value) {
           try {
             const inputAmount = new Decimal(value);
             const maxAllowed = calculateMaxAllowedAmount(
@@ -109,9 +109,9 @@ const calculateDisplayedBalance = ({
 
   return isEditMode
     ? decimalRemaining
-        .plus(paymentRecord.amount || 0)
-        .minus(amount)
-        .toNumber()
+      .plus(paymentRecord.amount || 0)
+      .minus(amount)
+      .toNumber()
     : decimalRemaining.minus(amount).toNumber();
 };
 
@@ -122,6 +122,7 @@ export const PatientPaymentModal = ({
   patientPaymentRemainingBalance,
   selectedPaymentRecord,
 }) => {
+  const { getCurrentDate } = useDateTime();
   const paymentRecord = selectedPaymentRecord ?? {};
 
   const isEditMode = !!paymentRecord.id;
@@ -166,7 +167,7 @@ export const PatientPaymentModal = ({
         onSubmit={handleSubmit}
         validationSchema={validationSchema}
         initialValues={{
-          date: paymentRecord.date || getCurrentDateString(),
+          date: paymentRecord.date || getCurrentDate(),
           methodId: paymentRecord.patientPayment?.methodId || CASH_PAYMENT_METHOD_ID,
           amount: paymentRecord.amount != null ? paymentRecord.amount : '',
           receiptNumber: paymentRecord.receiptNumber,
@@ -250,9 +251,8 @@ export const PatientPaymentModal = ({
                 <FormFields>
                   <Field
                     name="date"
-                    max={getCurrentDateString()}
+                    max={getCurrentDate()}
                     component={DateField}
-                    saveDateAsString
                     data-testid="field-cx1w"
                   />
                   <Field

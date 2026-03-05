@@ -10,8 +10,7 @@ import {
   ThemedTooltip,
   TranslatedText,
 } from '@tamanu/ui-components';
-
-import { formatTime, TranslatedEnum } from '../components';
+import { TranslatedEnum } from '../components';
 import { STOCK_STATUS_COLORS } from '../constants';
 
 /**
@@ -22,7 +21,7 @@ import { STOCK_STATUS_COLORS } from '../constants';
  * @param {Object} params.facility - The facility object
  * @returns {Array} Array of label data objects for printing
  */
-export const getMedicationLabelData = ({ items, patient, facility }) => {
+export const getMedicationLabelData = ({ items, patient, facility, currentDateTime }) => {
   const facilityAddress = [facility?.streetAddress, facility?.cityTown].filter(Boolean).join(', ');
 
   return items.map(item => ({
@@ -30,7 +29,7 @@ export const getMedicationLabelData = ({ items, patient, facility }) => {
     medicationName: item.medicationName || '-',
     instructions: item.instructions || '',
     patientName: patient ? getPatientNameAsString(patient) : '-',
-    dispensedAt: item.dispensedAt || new Date().toISOString(),
+    dispensedAt: item.dispensedAt || currentDateTime,
     quantity: item.quantity,
     units: item.units || '',
     remainingRepeats: item.remainingRepeats,
@@ -57,10 +56,6 @@ export const getTranslatedMedicationName = (medication, getReferenceDataTranslat
     fallback: medication?.name,
     placeholder: '-',
   });
-};
-
-export const formatTimeSlot = time => {
-  return formatTime(time).replaceAll(' ', '').toLowerCase();
 };
 
 export const isWithinTimeSlot = (timeSlot, time, isFuture = false) => {

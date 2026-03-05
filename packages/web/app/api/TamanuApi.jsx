@@ -13,6 +13,7 @@ const {
   SERVER,
   AVAILABLE_FACILITIES,
   FACILITY_ID,
+  PRIMARY_TIME_ZONE,
   PERMISSIONS,
   ROLE,
   SETTINGS,
@@ -33,6 +34,7 @@ function restoreFromLocalStorage() {
   const localisation = safeGetStoredJSON(LOCALISATION);
   const server = safeGetStoredJSON(SERVER);
   const availableFacilities = safeGetStoredJSON(AVAILABLE_FACILITIES);
+  const primaryTimeZone = localStorage.getItem(PRIMARY_TIME_ZONE);
   const permissions = safeGetStoredJSON(PERMISSIONS);
   const role = safeGetStoredJSON(ROLE);
   const settings = safeGetStoredJSON(SETTINGS);
@@ -43,6 +45,7 @@ function restoreFromLocalStorage() {
     server,
     availableFacilities,
     facilityId,
+    primaryTimeZone,
     permissions,
     role,
     settings,
@@ -54,6 +57,7 @@ function saveToLocalStorage({
   server,
   availableFacilities,
   facilityId,
+  primaryTimeZone,
   permissions,
   role,
   settings,
@@ -73,6 +77,9 @@ function saveToLocalStorage({
   if (availableFacilities) {
     localStorage.setItem(AVAILABLE_FACILITIES, JSON.stringify(availableFacilities));
   }
+  if (primaryTimeZone) {
+    localStorage.setItem(PRIMARY_TIME_ZONE, primaryTimeZone);
+  }
   if (role) {
     localStorage.setItem(ROLE, JSON.stringify(role));
   }
@@ -87,6 +94,7 @@ function clearLocalStorage() {
   localStorage.removeItem(SERVER);
   localStorage.removeItem(AVAILABLE_FACILITIES);
   localStorage.removeItem(FACILITY_ID);
+  localStorage.removeItem(PRIMARY_TIME_ZONE);
   localStorage.removeItem(PERMISSIONS);
   localStorage.removeItem(ROLE);
   localStorage.removeItem(SETTINGS);
@@ -161,6 +169,7 @@ export class TamanuApi extends ApiClient {
       server,
       availableFacilities,
       facilityId,
+      primaryTimeZone,
       permissions,
       role,
       settings,
@@ -180,6 +189,7 @@ export class TamanuApi extends ApiClient {
       server,
       availableFacilities,
       facilityId,
+      primaryTimeZone,
       ability,
       role,
       settings,
@@ -188,11 +198,20 @@ export class TamanuApi extends ApiClient {
 
   async login(email, password) {
     const output = await super.login(email, password);
-    const { localisation, server, availableFacilities, permissions, role, settings } = output;
+    const {
+      localisation,
+      server,
+      availableFacilities,
+      primaryTimeZone,
+      permissions,
+      role,
+      settings,
+    } = output;
     saveToLocalStorage({
       localisation,
       server,
       availableFacilities,
+      primaryTimeZone,
       permissions,
       role,
       settings,

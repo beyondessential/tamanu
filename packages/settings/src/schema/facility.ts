@@ -80,6 +80,13 @@ export const facilitySettings = {
         },
       },
     },
+    facilityTimeZone: {
+      exposedToWeb: true,
+      description: 'Time zone in IANA format',
+      type: yup.string().nullable(),
+      defaultValue: null,
+      suggesterEndpoint: 'timeZone',
+    },
     patientDisplayIdPattern: {
       exposedToWeb: true,
       highRisk: true,

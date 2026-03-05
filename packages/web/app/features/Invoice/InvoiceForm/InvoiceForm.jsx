@@ -4,8 +4,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { Plus } from 'lucide-react';
 import { FieldArray } from 'formik';
 import { Box, Button as MuiButton } from '@material-ui/core';
+
 import { Form, TranslatedText, FormSubmitButton, FormCancelButton } from '@tamanu/ui-components';
-import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { isInvoiceEditable } from '@tamanu/utils/invoice';
 import { Colors } from '../../../constants/styles';
@@ -56,7 +56,11 @@ const FormFooter = styled.div`
   border-radius: 3px;
 `;
 
-const getDefaultRow = () => ({ id: uuidv4(), quantity: 1, orderDate: getCurrentDateString() });
+const getDefaultRow = getCurrentDate => ({
+  id: uuidv4(),
+  quantity: 1,
+  orderDate: getCurrentDate(),
+});
 
 export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModalType }) => {
   const { ability } = useAuth();

@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { endOfDay, parseISO, startOfDay } from 'date-fns';
+import config from 'config';
+import { parseISO } from 'date-fns';
 import { literal, Op } from 'sequelize';
 import {
   AREA_TYPE_TO_IMAGING_TYPE,
@@ -11,7 +12,7 @@ import {
 } from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/errors';
 import { permissionCheckingRouter } from '@tamanu/shared/utils/crudHelpers';
-import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
+import { toDateString, getDayBoundaries } from '@tamanu/utils/dateTime';
 import { getNoteWithType } from '@tamanu/shared/utils/notes';
 import { mapQueryFilters } from '../../database/utils';
 import { getImagingProvider } from '../../integrations/imaging';
@@ -319,7 +320,14 @@ globalImagingRequests.get(
   '/$',
   asyncHandler(async (req, res) => {
     const { models, query, settings } = req;
-    const { order = 'ASC', orderBy, rowsPerPage = 10, page = 0, ...filterParams } = query;
+    const {
+      order = 'ASC',
+      orderBy,
+      rowsPerPage = 10,
+      page = 0,
+      facilityId,
+      ...filterParams
+    } = query;
 
     const orderDirection = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
     const LITERAL_SORT_KEYS = ['completedAt'];
@@ -345,6 +353,9 @@ globalImagingRequests.get(
     const encounterFilters = mapQueryFilters(filterParams, [
       { key: 'departmentId', operator: Op.eq },
     ]);
+    const facilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
+    const { primaryTimeZone } = config;
+
     const imagingRequestFilters = mapQueryFilters(filterParams, [
       {
         key: 'requestId',
@@ -367,21 +378,19 @@ globalImagingRequests.get(
         key: 'requestedDateFrom',
         alias: 'requestedDate',
         operator: Op.gte,
-        mapFn: (fieldName, operator, value) => ({
-          [fieldName]: {
-            [operator]: toDateTimeString(startOfDay(new Date(value))),
-          },
-        }),
+        mapFn: (fieldName, operator, value) => {
+          const boundaries = getDayBoundaries(value, primaryTimeZone, facilityTimeZone);
+          return { [fieldName]: { [operator]: boundaries?.start ?? `${value} 00:00:00` } };
+        },
       },
       {
         key: 'requestedDateTo',
         alias: 'requestedDate',
         operator: Op.lte,
-        mapFn: (fieldName, operator, value) => ({
-          [fieldName]: {
-            [operator]: toDateTimeString(endOfDay(new Date(value))),
-          },
-        }),
+        mapFn: (fieldName, operator, value) => {
+          const boundaries = getDayBoundaries(value, primaryTimeZone, facilityTimeZone);
+          return { [fieldName]: { [operator]: boundaries?.end ?? `${value} 23:59:59` } };
+        },
       },
       { key: 'requestedById', operator: Op.eq },
     ]);
@@ -400,7 +409,7 @@ globalImagingRequests.get(
       where:
         filterParams?.allFacilities && JSON.parse(filterParams.allFacilities)
           ? {}
-          : { facilityId: { [Op.eq]: filterParams.facilityId } },
+          : { facilityId: { [Op.eq]: facilityId } },
     };
 
     const location = {
@@ -416,9 +425,7 @@ globalImagingRequests.get(
       required: true,
     };
 
-    const isInvoicingEnabled = await settings[filterParams.facilityId]?.get(
-      'features.invoicing.enabled',
-    );
+    const isInvoicingEnabled = await settings[facilityId]?.get('features.invoicing.enabled');
 
     const imagingResultFilters = {};
     const replacements = {};
