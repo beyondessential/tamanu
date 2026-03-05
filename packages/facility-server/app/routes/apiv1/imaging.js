@@ -425,9 +425,7 @@ globalImagingRequests.get(
       required: true,
     };
 
-    const isInvoicingEnabled = await settings[filterParams.facilityId]?.get(
-      'features.invoicing.enabled',
-    );
+    const isInvoicingEnabled = await settings[facilityId]?.get('features.invoicing.enabled');
 
     const imagingResultFilters = {};
     const replacements = {};
