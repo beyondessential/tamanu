@@ -81,12 +81,14 @@ export const facilitySettings = {
       },
     },
     facilityTimeZone: {
+      exposedToWeb: true,
       description: 'Time zone in IANA format',
       type: yup.string().nullable(),
       defaultValue: null,
       suggesterEndpoint: 'timeZone',
     },
     patientDisplayIdPattern: {
+      exposedToWeb: true,
       highRisk: true,
       description: `The pattern to use for generating patient display IDs.
         'A' will be replaced with a random letter and '0' will be replaced with a random number.
@@ -115,6 +117,7 @@ export const facilitySettings = {
     },
     sync: {
       description: 'Facility sync settings',
+      exposedToWeb: true,
       highRisk: true,
       properties: {
         syncAllLabRequests: {
