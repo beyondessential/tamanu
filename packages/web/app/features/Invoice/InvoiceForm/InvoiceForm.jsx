@@ -5,7 +5,7 @@ import { Plus } from 'lucide-react';
 import { FieldArray } from 'formik';
 import { Box, Button as MuiButton } from '@material-ui/core';
 
-import { Form, TranslatedText, FormSubmitButton, FormCancelButton, useDateTime } from '@tamanu/ui-components';
+import { Form, TranslatedText, FormSubmitButton, FormCancelButton } from '@tamanu/ui-components';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { isInvoiceEditable } from '@tamanu/utils/invoice';
 import { Colors } from '../../../constants/styles';
@@ -56,7 +56,11 @@ const FormFooter = styled.div`
   border-radius: 3px;
 `;
 
-const getDefaultRow = (getCurrentDate) => ({ id: uuidv4(), quantity: 1, orderDate: getCurrentDate() });
+const getDefaultRow = getCurrentDate => ({
+  id: uuidv4(),
+  quantity: 1,
+  orderDate: getCurrentDate(),
+});
 
 export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModalType }) => {
   const { ability } = useAuth();
@@ -136,9 +140,9 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
         invoiceItems: isAddForm ? inProgressItems : [...(invoice.items ?? []), ...inProgressItems],
         insurers: invoice.insurers?.length
           ? invoice.insurers.map(insurer => ({
-            ...insurer,
-            percentage: insurer.percentage * 100,
-          }))
+              ...insurer,
+              percentage: insurer.percentage * 100,
+            }))
           : [],
       }}
       validationSchema={invoiceFormSchema}

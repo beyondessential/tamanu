@@ -24,5 +24,3 @@ export const DateCell = ({ index, item, isEditing, cellWidths = CELL_WIDTHS }) =
     )}
   </ItemCell>
 );
-
-}

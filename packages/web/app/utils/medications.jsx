@@ -10,7 +10,6 @@ import {
   ThemedTooltip,
   TranslatedText,
 } from '@tamanu/ui-components';
-import styled from 'styled-components';
 import { TranslatedEnum } from '../components';
 import { STOCK_STATUS_COLORS } from '../constants';
 
