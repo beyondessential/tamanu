@@ -296,7 +296,6 @@ export const DateInput = ({
   const [open, setOpen] = useState(false);
   const handleOpen = useCallback(() => setOpen(true), []);
   const handleClose = useCallback(() => setOpen(false), []);
-
   const handleSetToday = useCallback(() => {
     handleChange(getFacilityNowDate?.() ?? new Date());
   }, [handleChange, getFacilityNowDate]);
@@ -305,6 +304,16 @@ export const DateInput = ({
     emitChange('');
     setOpen(false);
   }, [emitChange]);
+
+  const handleKeyDown = useCallback(
+    e => {
+      if (e.key === 'c' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        handleSetToday();
+      }
+    },
+    [handleSetToday],
+  );
 
   const displayFormat = DISPLAY_FORMATS[type] || format;
 
@@ -367,6 +376,7 @@ export const DateInput = ({
         helperText,
         inputProps,
         onBlur: handleTextBlur,
+        onKeyDown: handleKeyDown,
         ...stableExtraProps,
       },
       day: {
@@ -390,6 +400,7 @@ export const DateInput = ({
       helperText,
       inputProps,
       handleTextBlur,
+      handleKeyDown,
       stableExtraProps,
       todayDate,
       disabled,

@@ -46,6 +46,7 @@ const HospitalAdmissionFields = () => {
           />
         }
         required
+        saveDateAsString
         data-testid="field-admission-time"
       />
       <Field
@@ -127,6 +128,7 @@ const ClinicFields = () => {
           />
         }
         required
+        saveDateAsString
         data-testid="field-check-in-time"
       />
       <PatientTypeField
@@ -182,6 +184,7 @@ const TriageFields = () => {
         label={
           <TranslatedText stringId="triage.arrivalDateTime.label" fallback="Arrival date & time" />
         }
+        saveDateAsString
         data-testid="field-admission-time"
       />
       <Field
@@ -191,6 +194,7 @@ const TriageFields = () => {
           <TranslatedText stringId="triage.triageDateTime.label" fallback="Triage date & time" />
         }
         required
+        saveDateAsString
         data-testid="field-admission-time"
       />
       <LocalisedField
@@ -377,7 +381,9 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
       <Form
         initialValues={getFormInitialValues({ encounter, triage })}
         formType={FORM_TYPES.EDIT_FORM}
-        onSubmit={isEmergencyPatient(encounter.encounterType) ? onSubmitTriageForm : onSubmitEncounterForm}
+        onSubmit={
+          isEmergencyPatient(encounter.encounterType) ? onSubmitTriageForm : onSubmitEncounterForm
+        }
         render={({ submitForm }) => (
           <>
             <StyledFormGrid>
