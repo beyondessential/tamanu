@@ -360,15 +360,14 @@ export const EncounterMedicationTable = ({
 
   const rowStyle = ({ discontinued, medication }) => `
     ${discontinued ? 'text-decoration: line-through;' : ''}
-    ${
-      medication.referenceDrug.isSensitive && !canViewSensitiveMedications
-        ? 'pointer-events: none;'
-        : ''
+    ${medication.referenceDrug.isSensitive && !canViewSensitiveMedications
+      ? 'pointer-events: none;'
+      : ''
     }
   `;
 
   const handleRowClick = row => {
-    const isSensitive = row.medication.referenceDrug.isSensitive;
+    const isSensitive = row.medication?.referenceDrug?.isSensitive;
     if (isSensitive && !canViewSensitiveMedications) {
       return;
     }

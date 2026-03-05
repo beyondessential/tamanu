@@ -3,11 +3,11 @@ import { Field, DateField, NoteModalActionBlocker } from '../../../../components
 import { ViewOnlyCell } from './ViewOnlyCell';
 import { ItemCell } from './ItemCell';
 import { CELL_WIDTHS } from '../../constants';
-import { DateDisplay } from '@tamanu/ui-components';  
+import { DateDisplay } from '@tamanu/ui-components';
 
-export const DateCell = ({ index, item, isItemEditable }) => {
-  return (<ItemCell $width={CELL_WIDTHS.DATE}>
-    {isItemEditable ? (
+export const DateCell = ({ index, item, isEditing, cellWidths = CELL_WIDTHS }) => (
+  <ItemCell $width={cellWidths.DATE}>
+    {isEditing ? (
       <NoteModalActionBlocker>
         <Field
           name={`invoiceItems.${index}.orderDate`}
@@ -15,7 +15,7 @@ export const DateCell = ({ index, item, isItemEditable }) => {
           component={DateField}
           shortYear
           data-testid="field-e3dv"
-          />
+        />
       </NoteModalActionBlocker>
     ) : (
       <ViewOnlyCell>

@@ -256,6 +256,7 @@ encounter.post(
       isDischargePrescription,
       pharmacyOrderPrescriptions,
       facilityId,
+      date,
     } = body;
 
     const prescriptionRecords = await models.Prescription.findAll({
@@ -277,7 +278,7 @@ encounter.post(
         encounterId: id,
         comments,
         isDischargePrescription,
-        date: getCurrentDateTimeString(),
+        date: date || getCurrentDateTimeString(),
         facilityId,
       });
 

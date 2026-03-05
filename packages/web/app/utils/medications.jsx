@@ -1,9 +1,8 @@
 import React from 'react';
+import styled from 'styled-components';
 import { Box } from '@mui/material';
-import {
-  DRUG_STOCK_STATUS_LABELS,
-  DRUG_STOCK_STATUSES,
-} from '@tamanu/constants';
+
+import { DRUG_STOCK_STATUS_LABELS, DRUG_STOCK_STATUSES } from '@tamanu/constants';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import {
   getPatientNameAsString,

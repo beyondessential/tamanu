@@ -268,7 +268,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
       medication =>
         (encounter.endDate
           ? medication.encounterPrescription?.isSelectedForDischarge
-          : !medication.discontinued) && !medication.medication.referenceDrug.isSensitive,
+          : !medication.discontinued) && !medication.medication?.referenceDrug?.isSensitive,
     )
     .sort((a, b) => a.medication.name.localeCompare(b.medication.name));
 

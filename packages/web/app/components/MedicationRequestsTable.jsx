@@ -22,6 +22,9 @@ import { useApi } from '../api';
 import { DeleteMedicationRequestModal } from './Medication/DeleteMedicationRequestModal';
 import { Box } from '@mui/material';
 import { getStockStatus } from '../utils/medications';
+import { getApprovalStatus } from '../utils/invoice';
+import { ApprovedColumnTitle } from './ApprovedColumnTitle';
+import { useSettings } from '../contexts/Settings';
 
 const NoDataContainer = styled.div`
   height: 500px;
@@ -132,7 +135,7 @@ export const MedicationRequestsTable = () => {
   const api = useApi();
   const { ability, facilityId } = useAuth();
   const { searchParameters } = useMedicationsContext(MEDICATIONS_SEARCH_KEYS.ACTIVE);
-
+  const { getSetting } = useSettings();
   const [medicationRequests, setMedicationRequests] = useState([]);
   const [isDispenseOpen, setIsDispenseOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
@@ -141,6 +144,7 @@ export const MedicationRequestsTable = () => {
   const [refreshCount, setRefreshCount] = useState(0);
   const [hoveredRow, setHoveredRow] = useState(null);
 
+  const isInvoicingEnabled = getSetting('features.invoicing.enabled');
   const canDeleteMedicationRequest = ability.can('delete', 'MedicationRequest');
   const canDispenseMedication = ability.can('create', 'MedicationDispense');
   const canDeleteMedicationDispense = ability.can('delete', 'MedicationDispense');
@@ -260,6 +264,16 @@ export const MedicationRequestsTable = () => {
       accessor: row => getDateSent(row, formatTime),
       sortable: true,
     },
+    ...(isInvoicingEnabled
+      ? [
+          {
+            key: 'prescription.invoiceItem.approved',
+            title: <ApprovedColumnTitle />,
+            accessor: ({ prescription }) => getApprovalStatus(prescription?.invoiceItem?.approved),
+            sortable: true,
+          },
+        ]
+      : []),
     {
       key: 'stockStatus',
       title: (

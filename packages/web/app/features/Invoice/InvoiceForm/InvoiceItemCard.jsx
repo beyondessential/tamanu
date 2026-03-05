@@ -5,7 +5,7 @@ import { DateDisplay, TranslatedText } from '@tamanu/ui-components';
 import {
   getInvoiceItemDiscountPriceDisplay,
   getInvoiceItemPriceDisplay,
-} from '@tamanu/shared/utils/invoice';
+} from '@tamanu/utils/invoice';
 import { Colors } from '../../../constants';
 
 const Card = styled(Box)`
