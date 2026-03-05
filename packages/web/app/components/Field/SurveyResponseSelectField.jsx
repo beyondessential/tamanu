@@ -1,36 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { compareDesc } from 'date-fns';
-import { formatTime } from '@tamanu/utils/dateTime';
 
-import { DateDisplay } from '../DateDisplay';
-import { SelectInput } from '@tamanu/ui-components';
+import { SelectInput, useDateTime } from '@tamanu/ui-components';
+
 import { useApi } from '../../api';
-
-const getDataLabel = (endTime, surveyName) => {
-  const shortDate = DateDisplay.stringFormat(endTime);
-  const time = DateDisplay.stringFormat(endTime, formatTime);
-  return `${shortDate} ${time} ${surveyName}`;
-};
 
 export const SurveyResponseSelectField = ({ field, patient, config, ...props }) => {
   delete props.options;
-
+  const { formatShortDateTime } = useDateTime();
   const api = useApi();
   const [options, setOptions] = useState([]);
   const { source } = config;
 
   useEffect(() => {
-    api.get(`/patient/${patient.id}/programResponses`, { surveyId: source }).then((resultData) => {
+    api.get(`/patient/${patient.id}/programResponses`, { surveyId: source }).then(resultData => {
       setOptions(
         resultData.data
           .sort((a, b) => compareDesc(new Date(a.endTime), new Date(b.endTime)))
           .map(({ id, endTime, surveyName }) => ({
             value: id,
-            label: getDataLabel(endTime, surveyName),
+            label: `${formatShortDateTime(endTime)} ${surveyName}`,
           })),
       );
     });
-  }, [api, patient.id, source]);
+  }, [api, formatShortDateTime, patient.id, source]);
   return (
     <SelectInput
       {...props}

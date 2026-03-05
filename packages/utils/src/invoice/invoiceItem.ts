@@ -1,13 +1,12 @@
 import Decimal from 'decimal.js';
 import { INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
 import { getDiscountedPrice } from './discount';
+import type { InvoiceItem, InsurancePlanItem } from './types';
 
 /**
  * Get the unit price of an invoice item
- * @param {InvoiceItem} invoiceItem
- * @returns {number}
  */
-export const getInvoiceItemPrice = invoiceItem => {
+export const getInvoiceItemPrice = (invoiceItem: InvoiceItem): number => {
   return (
     invoiceItem.priceFinal ??
     invoiceItem.manualEntryPrice ??
@@ -18,9 +17,8 @@ export const getInvoiceItemPrice = invoiceItem => {
 
 /**
  * Get the price of an invoice item row
- * @param {InvoiceItem} invoiceItem
  */
-export const getInvoiceItemTotalPrice = invoiceItem => {
+export const getInvoiceItemTotalPrice = (invoiceItem: InvoiceItem): number => {
   const price = getInvoiceItemPrice(invoiceItem) || 0;
   const quantity = invoiceItem.quantity || 0;
   return new Decimal(price).times(quantity).toNumber();
@@ -28,9 +26,8 @@ export const getInvoiceItemTotalPrice = invoiceItem => {
 
 /**
  * Get the price of an invoice item after applying the discount
- * @param {InvoiceItem} invoiceItem
  */
-export const getInvoiceItemTotalDiscountedPrice = invoiceItem => {
+export const getInvoiceItemTotalDiscountedPrice = (invoiceItem: InvoiceItem): number => {
   const invoiceItemTotalPrice = getInvoiceItemTotalPrice(invoiceItem);
   if (!invoiceItem.discount) return invoiceItemTotalPrice;
   if (invoiceItem.discount.type === INVOICE_ITEMS_DISCOUNT_TYPES.PERCENTAGE) {
@@ -43,7 +40,7 @@ export const getInvoiceItemTotalDiscountedPrice = invoiceItem => {
  * Calculate the item adjustment amount (difference between original and discounted price)
  * Returns a negative number for discounts, positive for markups
  */
-export const getItemAdjustmentAmount = item => {
+export const getItemAdjustmentAmount = (item: InvoiceItem): number => {
   const originalPrice = getInvoiceItemTotalPrice(item) || 0;
   const discountedPrice = getInvoiceItemTotalDiscountedPrice(item) || 0;
   return new Decimal(discountedPrice).minus(originalPrice).toNumber();
@@ -52,16 +49,15 @@ export const getItemAdjustmentAmount = item => {
 /**
  * Check if an item has any adjustment (markup or discount)
  */
-export const hasItemAdjustment = item => {
+export const hasItemAdjustment = (item: InvoiceItem): boolean => {
   return getItemAdjustmentAmount(item) !== 0;
 };
 
 /**
  * Calculate the total insurance coverage amount (from all insurance plans) for an invoice item
- * @param {InvoiceItem} item
  * @returns {number} - The total insurance coverage amount for the item
  */
-export const getItemTotalInsuranceCoverageAmount = item => {
+export const getItemTotalInsuranceCoverageAmount = (item: InvoiceItem): number => {
   if (!item?.product?.insurable || !item.insurancePlanItems?.length) {
     return 0;
   }
@@ -77,7 +73,7 @@ export const getItemTotalInsuranceCoverageAmount = item => {
   }, new Decimal(0));
 
   // Cap coverage at the discounted price
-  return Math.min(totalCoverage, discountedPrice);
+  return Math.min(totalCoverage.toNumber(), discountedPrice);
 };
 
 /**
@@ -87,7 +83,11 @@ export const getItemTotalInsuranceCoverageAmount = item => {
  * @param {InsurancePlanItem} insurancePlanItem - The insurance plan item object
  * @returns {number} - The insurance coverage amount for the item
  */
-export const getItemSingleInsuranceCoverageAmount = (discountedPrice, item, insurancePlanItem) => {
+export const getItemSingleInsuranceCoverageAmount = (
+  discountedPrice: number,
+  item: InvoiceItem,
+  insurancePlanItem: InsurancePlanItem,
+): number => {
   const appliedCoverage = getInvoiceItemCoveragePercentage(item, insurancePlanItem);
   return new Decimal(discountedPrice).times(appliedCoverage / 100).toNumber();
 };
@@ -97,7 +97,7 @@ export const getItemSingleInsuranceCoverageAmount = (discountedPrice, item, insu
  * @param {InvoiceItem} item - The invoice item object
  * @returns {number} - The net cost of the item
  */
-export const getInvoiceItemNetCost = item => {
+export const getInvoiceItemNetCost = (item: InvoiceItem): number => {
   const discountedPrice = getInvoiceItemTotalDiscountedPrice(item) || 0;
   const insuranceCoverage = getItemTotalInsuranceCoverageAmount(item);
   return new Decimal(discountedPrice).minus(insuranceCoverage).toNumber();
@@ -109,7 +109,10 @@ export const getInvoiceItemNetCost = item => {
  * @param {InsurancePlanItem} insurancePlanItem - The insurance plan item
  * @returns {number} - The coverage value to display (either finalised or default)
  */
-export const getInvoiceItemCoveragePercentage = (item, insurancePlanItem) => {
+export const getInvoiceItemCoveragePercentage = (
+  item: InvoiceItem,
+  insurancePlanItem: InsurancePlanItem,
+): number => {
   const planCoverageValue = insurancePlanItem.coverageValue ?? 0;
 
   if (!item.finalisedInsurances || item.finalisedInsurances.length === 0) {

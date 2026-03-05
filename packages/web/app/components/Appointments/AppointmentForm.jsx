@@ -150,7 +150,6 @@ export const AppointmentForm = (props) => {
                 }
                 name="startTime"
                 component={DateTimeField}
-                saveDateAsString
                 required
                 data-testid="field-g827"
               />
@@ -163,7 +162,6 @@ export const AppointmentForm = (props) => {
                   />
                 }
                 name="endTime"
-                saveDateAsString
                 component={DateTimeField}
                 data-testid="field-niam"
               />

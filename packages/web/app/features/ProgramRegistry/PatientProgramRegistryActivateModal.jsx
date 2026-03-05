@@ -83,7 +83,6 @@ export const PatientProgramRegistryActivateModal = ({
                 fallback="Date of registration"
               />
             }
-            saveDateAsString
             component={DateField}
             required
           />

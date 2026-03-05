@@ -1,7 +1,4 @@
 import {
-  endOfDay,
-  startOfDay,
-  format,
   addHours,
   parseISO,
   setHours,
@@ -25,7 +22,7 @@ import { cloneDeep } from 'lodash';
 import { useDrop, useDrag } from 'react-dnd';
 
 import { toDateTimeString, toDateString } from '@tamanu/utils/dateTime';
-import { notifyError, notifySuccess } from '@tamanu/ui-components';
+import { TimeDisplay, useDateTime, notifyError, notifySuccess } from '@tamanu/ui-components';
 
 import {
   useLocationBookingsQuery,
@@ -260,10 +257,6 @@ const LoadingSkeleton = styled(Skeleton).attrs({
 
 const pixelsPerMinute = 70 / 60; // 70px per hour
 
-const formatTime = time => {
-  return format(new Date(time), 'h:mma').toLowerCase();
-};
-
 const LocationHeaderContent = ({ location, assignments = [] }) => {
   const [locationGroupRef, isLocationGroupOverflowing] = useOverflow();
   const [locationRef, isLocationOverflowing] = useOverflow();
@@ -288,9 +281,9 @@ const LocationHeaderContent = ({ location, assignments = [] }) => {
           assignments.map((assignment, index) => (
             <AssignmentItem key={assignment.id || index} data-testid="assignment-item">
               <AssignmentTime data-testid="assignment-time">
-                {formatTime(assignment.startTime)}-
+                <TimeDisplay date={assignment.startTime} format="compact" />-
                 <br />
-                {formatTime(assignment.endTime)}
+                <TimeDisplay date={assignment.endTime} format="compact" />
               </AssignmentTime>
               <AssignmentDivider data-testid="assignment-divider" />
               <AssignmentName data-testid="assignment-name">
@@ -385,12 +378,16 @@ const DroppableSchedule = forwardRef(({ locationId, onDragging, children }, ref)
 });
 
 const DraggableAppointment = ({ appointment, children, onDragEnd }) => {
+  const { toFacilityDateTime } = useDateTime();
   const [{ isDragging }, dragRef, preview] = useDrag(
     () => ({
       type: 'APPOINTMENT',
       item: { ...appointment },
       collect: monitor => ({ isDragging: monitor.isDragging() }),
-      canDrag: isSameDay(new Date(appointment.startTime), new Date(appointment.endTime)),
+      canDrag: isSameDay(
+        new Date(toFacilityDateTime(appointment.startTime)),
+        new Date(toFacilityDateTime(appointment.endTime)),
+      ),
       end: () => {
         onDragEnd();
       },
@@ -401,8 +398,8 @@ const DraggableAppointment = ({ appointment, children, onDragEnd }) => {
     typeof children === 'function'
       ? children({ isDragging })
       : React.isValidElement(children)
-      ? React.cloneElement(children, { isDragging })
-      : children;
+        ? React.cloneElement(children, { isDragging })
+        : children;
 
   return isDragging ? (
     <div ref={preview} style={{ height: '100%', width: '100%', display: 'flex' }}>
@@ -423,6 +420,7 @@ export const LocationBookingsDailyCalendar = ({
   ...props
 }) => {
   const { ability } = useAuth();
+  const { getDayBoundaries, toFacilityDateTime, toStoredDateTime } = useDateTime();
   const {
     filters: { bookingTypeId, clinicianId, patientNameOrId, locationGroupIds },
     selectedCell,
@@ -441,38 +439,40 @@ export const LocationBookingsDailyCalendar = ({
 
   const { data: locations } = locationsQuery;
 
-  const { data: appointmentsData, isLoading, error } = useLocationBookingsQuery(
+  const dayBoundaries = getDayBoundaries(toDateString(selectedDate));
+  const {
+    data: appointmentsData,
+    isLoading,
+    error,
+  } = useLocationBookingsQuery(
     {
-      after: toDateTimeString(startOfDay(selectedDate)),
-      before: toDateTimeString(endOfDay(selectedDate)),
+      after: dayBoundaries?.start,
+      before: dayBoundaries?.end,
       all: true,
       clinicianId,
       bookingTypeId,
       patientNameOrId,
       view: viewType,
     },
-    { keepPreviousData: true },
+    { enabled: !!dayBoundaries, keepPreviousData: true },
   );
 
-  const {
-    data: assignmentsData,
-    isLoading: isAssignmentsLoading,
-  } = useFacilityLocationAssignmentsQuery(
-    {
-      after: toDateString(selectedDate),
-      before: toDateString(selectedDate),
-      all: true,
-    },
-    { keepPreviousData: true },
-  );
+  const { data: assignmentsData, isLoading: isAssignmentsLoading } =
+    useFacilityLocationAssignmentsQuery(
+      {
+        after: toDateString(selectedDate),
+        before: toDateString(selectedDate),
+        all: true,
+      },
+      { keepPreviousData: true },
+    );
 
   const scheduleRefs = useRef({});
   const dragData = useRef(null);
   const [triggerReorder, setTriggerReorder] = useState(0);
   const [isInDragDropProcess, setIsInDragDropProcess] = useState(false);
-  const [clinicianAssignmentDiscrepancyModal, setClinicianAssignmentDiscrepancyModal] = useState(
-    null,
-  );
+  const [clinicianAssignmentDiscrepancyModal, setClinicianAssignmentDiscrepancyModal] =
+    useState(null);
 
   const { mutate: reorderMutation } = useReorderLocationBookingMutation({
     onError: () => setTriggerReorder(0),
@@ -501,9 +501,11 @@ export const LocationBookingsDailyCalendar = ({
 
   const canCreateAppointment = ability.can('create', 'Appointment');
 
-  const { slots: bookingSlots, slotDuration, isPending: isBookingSlotsLoading } = useBookingSlots(
-    selectedDate,
-  );
+  const {
+    slots: bookingSlots,
+    slotDuration,
+    isPending: isBookingSlotsLoading,
+  } = useBookingSlots(selectedDate);
 
   const { mutateAsync: sendAppointmentEmail } = useSendAppointmentEmail(
     emailModalState?.appointmentId,
@@ -600,8 +602,11 @@ export const LocationBookingsDailyCalendar = ({
   const getAppointmentStyle = appointment => {
     if (!timeSlots || timeSlots.length === 0) return { top: 0, height: 70 };
 
-    const startTime = parseISO(appointment.startTime);
-    const endTime = appointment.endTime ? parseISO(appointment.endTime) : addHours(startTime, 1);
+    const facilityStartStr = toFacilityDateTime(appointment.startTime);
+    if (!facilityStartStr) return { top: 0, height: 70 };
+    const facilityEndStr = appointment.endTime ? toFacilityDateTime(appointment.endTime) : null;
+    const startTime = new Date(facilityStartStr);
+    const endTime = facilityEndStr ? new Date(facilityEndStr) : addHours(startTime, 1);
 
     // Visible window of the daily grid based on generated time slots
     const visibleStart = timeSlots[0].start;
@@ -676,13 +681,26 @@ export const LocationBookingsDailyCalendar = ({
     return partitionAppointmentsByLocation(appointmentsData?.data ?? []);
   }, [appointmentsData]);
 
+  const toFacilityDate = useCallback(
+    storedStr => {
+      const dateString = toFacilityDateTime(storedStr);
+      return dateString ? new Date(dateString) : new Date(storedStr);
+    },
+    [toFacilityDateTime],
+  );
+
+  const toStoredStr = useCallback(
+    facilityDate => toStoredDateTime(toDateTimeString(facilityDate)),
+    [toStoredDateTime],
+  );
+
   const checkIfAbleToMoveUp = (newStartTime, appointments, minStartTime) => {
     const maxDuration = differenceInMilliseconds(newStartTime, minStartTime);
     return (
       appointments.reduce((acc, appointment) => {
         const duration = differenceInMilliseconds(
-          new Date(appointment.endTime),
-          new Date(appointment.startTime),
+          toFacilityDate(appointment.endTime),
+          toFacilityDate(appointment.startTime),
         );
         return acc + duration;
       }, 0) <= maxDuration
@@ -694,8 +712,8 @@ export const LocationBookingsDailyCalendar = ({
     return (
       appointments.reduce((acc, appointment) => {
         const duration = differenceInMilliseconds(
-          new Date(appointment.endTime),
-          new Date(appointment.startTime),
+          toFacilityDate(appointment.endTime),
+          toFacilityDate(appointment.startTime),
         );
         return acc + duration;
       }, 0) <= maxDuration
@@ -705,8 +723,8 @@ export const LocationBookingsDailyCalendar = ({
   const moveUpAppointments = (appointments, itemNewStartTime) => {
     let minNextEndTime = itemNewStartTime;
     for (const appointment of appointments.reverse()) {
-      const currentStartTime = new Date(appointment.startTime);
-      const currentEndTime = new Date(appointment.endTime);
+      const currentStartTime = toFacilityDate(appointment.startTime);
+      const currentEndTime = toFacilityDate(appointment.endTime);
       const appointmentDuration = differenceInMilliseconds(currentEndTime, currentStartTime);
 
       if (!isAfter(currentEndTime, minNextEndTime)) {
@@ -718,16 +736,16 @@ export const LocationBookingsDailyCalendar = ({
       const newStartTime = subMilliseconds(newEndTime, appointmentDuration);
       minNextEndTime = newStartTime;
 
-      appointment.startTime = toDateTimeString(newStartTime);
-      appointment.endTime = toDateTimeString(newEndTime);
+      appointment.startTime = toStoredStr(newStartTime);
+      appointment.endTime = toStoredStr(newEndTime);
     }
   };
 
   const moveDownAppointments = (appointments, itemNewEndTime) => {
     let minNextStartTime = itemNewEndTime;
     for (const appointment of appointments) {
-      const currentStartTime = new Date(appointment.startTime);
-      const currentEndTime = new Date(appointment.endTime);
+      const currentStartTime = toFacilityDate(appointment.startTime);
+      const currentEndTime = toFacilityDate(appointment.endTime);
       const appointmentDuration = differenceInMilliseconds(currentEndTime, currentStartTime);
 
       if (!isBefore(currentStartTime, minNextStartTime)) {
@@ -739,8 +757,8 @@ export const LocationBookingsDailyCalendar = ({
       const newEndTime = addMilliseconds(newStartTime, appointmentDuration);
       minNextStartTime = newEndTime;
 
-      appointment.startTime = toDateTimeString(newStartTime);
-      appointment.endTime = toDateTimeString(newEndTime);
+      appointment.startTime = toStoredStr(newStartTime);
+      appointment.endTime = toStoredStr(newEndTime);
     }
   };
 
@@ -751,23 +769,25 @@ export const LocationBookingsDailyCalendar = ({
     const { client, initialClient, initialSource, canDrop, item } = dragData.current;
     if (!canDrop || !client) return data;
 
-    const itemOldStartTime = new Date(item.startTime);
-    const itemOldEndTime = new Date(item.endTime);
+    const itemOldStartTime = toFacilityDate(item.startTime);
+    const itemOldEndTime = toFacilityDate(item.endTime);
     const itemDuration = differenceInMilliseconds(itemOldEndTime, itemOldStartTime);
     const locationId = item.locationId;
     const affectedAppointments = (data[locationId] || []).filter(
       appointment =>
         appointment.id !== item.id &&
-        isSameDay(new Date(appointment.startTime), new Date(appointment.endTime)),
+        isSameDay(toFacilityDate(appointment.startTime), toFacilityDate(appointment.endTime)),
     );
     const overnightAppointments = (data[locationId] || []).filter(
-      appointment => !isSameDay(new Date(appointment.startTime), new Date(appointment.endTime)),
+      appointment =>
+        appointment.id !== item.id &&
+        !isSameDay(toFacilityDate(appointment.startTime), toFacilityDate(appointment.endTime)),
     );
     const overnightAppointmentEnd = overnightAppointments.find(appointment =>
-      isSameDay(new Date(appointment.endTime), new Date(item.startTime)),
+      isSameDay(toFacilityDate(appointment.endTime), toFacilityDate(item.startTime)),
     );
     const overnightAppointmentStart = overnightAppointments.find(appointment =>
-      isSameDay(new Date(appointment.startTime), new Date(item.endTime)),
+      isSameDay(toFacilityDate(appointment.startTime), toFacilityDate(item.endTime)),
     );
 
     const isMovingToEarly = client.y < initialClient.y;
@@ -789,10 +809,10 @@ export const LocationBookingsDailyCalendar = ({
     const newStart = snapToNearestSlot(rawStart, isMovingToEarly);
 
     const minStartTime = overnightAppointmentEnd
-      ? new Date(overnightAppointmentEnd.endTime)
+      ? toFacilityDate(overnightAppointmentEnd.endTime)
       : timeSlots[0].start;
     const maxEndTime = overnightAppointmentStart
-      ? new Date(overnightAppointmentStart.startTime)
+      ? toFacilityDate(overnightAppointmentStart.startTime)
       : timeSlots[timeSlots.length - 1].end;
 
     let itemNewStartTime = new Date(newStart);
@@ -812,9 +832,10 @@ export const LocationBookingsDailyCalendar = ({
       }
 
       affectedAppointments.reverse().forEach(appointment => {
-        const startTime = new Date(appointment.startTime);
-        const endTime = new Date(appointment.endTime);
+        const startTime = toFacilityDate(appointment.startTime);
+        const endTime = toFacilityDate(appointment.endTime);
         const appointmentDuration = differenceInMilliseconds(endTime, startTime);
+
         const middleTime = addMilliseconds(startTime, appointmentDuration / 2);
         // if the selected appointment's start time is before or equal to the current appointment's start time, move the current appointment down
         if (!isAfter(itemNewStartTime, startTime)) {
@@ -848,7 +869,7 @@ export const LocationBookingsDailyCalendar = ({
         moveUpAppointments(shouldMoveUpAppointments.reverse(), itemNewStartTime);
       } else {
         // if not able to move up, move the selected appointment to the end time of the last appointment that can be moved up
-        itemNewStartTime = new Date(shouldMoveUpAppointments[0].endTime);
+        itemNewStartTime = toFacilityDate(shouldMoveUpAppointments[0].endTime);
         itemNewEndTime = addMilliseconds(itemNewStartTime, itemDuration);
       }
 
@@ -864,8 +885,8 @@ export const LocationBookingsDailyCalendar = ({
       }
 
       affectedAppointments.forEach(appointment => {
-        const startTime = new Date(appointment.startTime);
-        const endTime = new Date(appointment.endTime);
+        const startTime = toFacilityDate(appointment.startTime);
+        const endTime = toFacilityDate(appointment.endTime);
         const appointmentDuration = differenceInMilliseconds(endTime, startTime);
         const middleTime = addMilliseconds(startTime, appointmentDuration / 2);
         // if the selected appointment's end time is after the current appointment's end time, move the current appointment up
@@ -898,10 +919,9 @@ export const LocationBookingsDailyCalendar = ({
       );
       if (isAbleToMoveDown) {
         moveDownAppointments(shouldMoveDownAppointments, itemNewEndTime);
-      }
-      // if not able to move down, move the selected appointment to the start time of the first appointment that can be moved down
-      else {
-        itemNewEndTime = new Date(shouldMoveDownAppointments[0].startTime);
+      } else {
+        // if not able to move down, move the selected appointment to the start time of the first appointment that can be moved down
+        itemNewEndTime = toFacilityDate(shouldMoveDownAppointments[0].startTime);
         itemNewStartTime = subMilliseconds(itemNewEndTime, itemDuration);
       }
 
@@ -913,11 +933,11 @@ export const LocationBookingsDailyCalendar = ({
       ...affectedAppointments,
       {
         ...item,
-        startTime: toDateTimeString(itemNewStartTime),
-        endTime: toDateTimeString(itemNewEndTime),
+        startTime: toStoredStr(itemNewStartTime),
+        endTime: toStoredStr(itemNewEndTime),
       },
       ...overnightAppointments,
-    ].sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+    ].sort((a, b) => toFacilityDate(a.startTime).getTime() - toFacilityDate(b.startTime).getTime());
     return data;
   }, [partitionAppointmentsByLocationData, triggerReorder, timeSlots]);
 
@@ -959,7 +979,7 @@ export const LocationBookingsDailyCalendar = ({
       dragData.current = null;
       const appointments =
         appointmentsByLocation[locationId]?.filter(appointment =>
-          isSameDay(new Date(appointment.startTime), new Date(appointment.endTime)),
+          isSameDay(toFacilityDate(appointment.startTime), toFacilityDate(appointment.endTime)),
         ) || [];
       reorderMutation({ appointments });
       setClinicianAssignmentDiscrepancyModal(null);
@@ -1033,7 +1053,7 @@ export const LocationBookingsDailyCalendar = ({
               const height = (durationMinutes / 60) * 70; // 70px per hour
               return (
                 <TimeSlot key={index} data-testid={`time-slot-${index}`} height={height}>
-                  {format(slot.start, 'h:mm a')}
+                  <TimeDisplay date={slot.start} />
                 </TimeSlot>
               );
             })}
@@ -1157,12 +1177,7 @@ export const LocationBookingsDailyCalendar = ({
         )}
       </ScrollWrapper>
       <FormModal
-        title={
-          <TranslatedText
-            stringId="patient.email.title"
-            fallback="Enter email address"
-          />
-        }
+        title={<TranslatedText stringId="patient.email.title" fallback="Enter email address" />}
         open={!!emailModalState}
         onClose={() => setEmailModalState(null)}
       >

@@ -103,7 +103,6 @@ export const LabRequestChangeStatusModal = React.memo(
                         }
                         required
                         component={DateTimeField}
-                        saveDateAsString
                         data-testid="field-81ia"
                       />
                       <Field

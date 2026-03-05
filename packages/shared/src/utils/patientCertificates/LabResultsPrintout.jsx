@@ -11,6 +11,7 @@ import { EncounterDetails } from './printComponents/EncounterDetails';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { Footer } from './printComponents/Footer';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
+import { withDateTimeContext } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 import {
   MinimalLabRequestDetailsSection,
@@ -92,7 +93,7 @@ const InterimBanner = () => {
 };
 
 const LabResultsPrintoutComponent = React.memo(
-  ({ patientData, encounter, labRequest, certificateData, getLocalisation, getSetting }) => {
+  ({ patientData, encounter, labRequest, certificateData, getSetting }) => {
     const { getTranslation } = useLanguageContext();
     const { logo } = certificateData;
     const { tests, labTestPanelRequest } = labRequest;
@@ -153,7 +154,6 @@ const LabResultsPrintoutComponent = React.memo(
             <SectionContainer>
               <PatientDetails
                 patient={patientData}
-                getLocalisation={getLocalisation}
                 getSetting={getSetting}
               />
             </SectionContainer>
@@ -174,7 +174,6 @@ const LabResultsPrintoutComponent = React.memo(
                   hideRowDividers
                   data={tests}
                   columns={labResultsColumns}
-                  getLocalisation={getLocalisation}
                   getSetting={getSetting}
                   getRowSectionLabel={getRowSectionLabel}
                   headerStyle={generalStyles.tableHeaderStyles}
@@ -203,4 +202,6 @@ const LabResultsPrintoutComponent = React.memo(
   },
 );
 
-export const LabResultsPrintout = withLanguageContext(LabResultsPrintoutComponent);
+export const LabResultsPrintout = withLanguageContext(
+  withDateTimeContext(LabResultsPrintoutComponent),
+);

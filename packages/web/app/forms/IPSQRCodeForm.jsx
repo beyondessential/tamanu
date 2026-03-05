@@ -8,13 +8,13 @@ import {
   Form,
   FormGrid,
   FormSubmitCancelRow,
+  DateDisplay,
+  TranslatedText,
 } from '@tamanu/ui-components';
 import { Field } from '../components/Field';
-import { DateDisplay } from '../components';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { PATIENT_TABS } from '../constants/patientPaths';
 import { useTranslation } from '../contexts/Translation';
-import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const StyledPatientDetailsLink = styled.span`
   cursor: pointer;

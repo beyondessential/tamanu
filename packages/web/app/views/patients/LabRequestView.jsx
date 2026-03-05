@@ -460,7 +460,7 @@ export const LabRequestView = () => {
                 <DateDisplay
                   color={labRequest.sampleTime ? 'unset' : Colors.softText}
                   date={labRequest.sampleTime}
-                  showTime
+                  timeFormat="default"
                   data-testid="datedisplay-h6el"
                 />
               </>

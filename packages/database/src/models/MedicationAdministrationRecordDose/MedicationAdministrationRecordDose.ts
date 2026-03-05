@@ -1,8 +1,16 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from './Model';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
-import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
+import { Model } from '../Model';
+import { dateTimeType, type InitOptions, type Models } from '../../types/model';
+import { buildEncounterLinkedLookupSelect } from '../../sync/buildEncounterLinkedLookupFilter';
+import {
+  afterCreateHook,
+  afterUpdateHook,
+  afterDestroyHook,
+  afterBulkDestroyHook,
+  afterBulkCreateHook,
+  afterBulkUpdateHook,
+} from './hooks';
 
 export class MedicationAdministrationRecordDose extends Model {
   declare id: string;
@@ -59,6 +67,14 @@ export class MedicationAdministrationRecordDose extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        hooks: {
+          afterCreate: afterCreateHook,
+          afterBulkCreate: afterBulkCreateHook,
+          afterUpdate: afterUpdateHook,
+          afterBulkUpdate: afterBulkUpdateHook,
+          afterDestroy: afterDestroyHook,
+          afterBulkDestroy: afterBulkDestroyHook,
+        },
       },
     );
   }
@@ -89,7 +105,7 @@ export class MedicationAdministrationRecordDose extends Model {
       LEFT JOIN patient_ongoing_prescriptions ON medication_administration_records.prescription_id = patient_ongoing_prescriptions.prescription_id
       WHERE (
         (encounters.patient_id IS NOT NULL AND encounters.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}))
-        OR 
+        OR
         (patient_ongoing_prescriptions.patient_id IS NOT NULL AND patient_ongoing_prescriptions.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}))
       )
       AND medication_administration_record_doses.updated_at_sync_tick > :since
