@@ -146,6 +146,7 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
           endpoint="labTestMethod"
           name={LAB_TEST_PROPERTIES.LAB_TEST_METHOD_ID}
           component={SuggesterSelectField}
+          clearValue={null}
           tabIndex={tabIndex(1, i)}
           data-testid="accessorfield-ik1h"
         />
