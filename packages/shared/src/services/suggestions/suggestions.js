@@ -485,22 +485,29 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
         const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId, req.db);
         if (facilityFilter) {
           const escapedFacilityArray = req.db.escape(JSON.stringify([req.query.facilityId]));
-          // Exclude sets where any medication set member is not visible in this facility
-          const medicationMemberFilter = Sequelize.literal(`
+          // Exclude sets where any member template or its underlying drug is not visible in this facility
+          const memberMedicationFilter = Sequelize.literal(`
             "ReferenceData"."id" NOT IN (
               SELECT DISTINCT rdr.reference_data_parent_id
               FROM reference_data_relations rdr
-              INNER JOIN reference_medication_templates rmt
+              INNER JOIN reference_data rd_template
+                ON rdr.reference_data_id = rd_template.id
+              LEFT JOIN reference_medication_templates rmt
                 ON rdr.reference_data_id = rmt.reference_data_id
-              INNER JOIN reference_data rd_drug
+              LEFT JOIN reference_data rd_drug
                 ON rd_drug.id = rmt.medication_id
               WHERE rdr.type = '${REFERENCE_DATA_RELATION_TYPES.MEDICATION}'
                 AND rdr.deleted_at IS NULL
-                AND rd_drug.available_facilities IS NOT NULL
-                AND NOT (rd_drug.available_facilities @> ${escapedFacilityArray}::jsonb)
+                AND (
+                  (rd_template.available_facilities IS NOT NULL
+                    AND NOT (rd_template.available_facilities @> ${escapedFacilityArray}::jsonb))
+                  OR
+                  (rd_drug.available_facilities IS NOT NULL
+                    AND NOT (rd_drug.available_facilities @> ${escapedFacilityArray}::jsonb))
+                )
             )
           `);
-          baseWhere[Op.and] = [...(baseWhere[Op.and] || []), facilityFilter, medicationMemberFilter];
+          baseWhere[Op.and] = [...(baseWhere[Op.and] || []), facilityFilter, memberMedicationFilter];
         }
       }
 
