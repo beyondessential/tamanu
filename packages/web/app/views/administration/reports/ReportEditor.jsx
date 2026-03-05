@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import * as yup from 'yup';
@@ -71,8 +71,15 @@ const AdvancedConfigField = ({ field, form }) => {
   const { setFieldValue, errors, touched } = form;
   const [jsonString, setJsonString] = useState('');
   const [jsonError, setJsonError] = useState(null);
+  const isInternalChangeRef = useRef(false);
 
   useEffect(() => {
+    // Skip reformatting if this change came from user input
+    if (isInternalChangeRef.current) {
+      isInternalChangeRef.current = false;
+      return;
+    }
+
     // Convert object to JSON string for display
     if (value && typeof value === 'object') {
       try {
@@ -87,18 +94,20 @@ const AdvancedConfigField = ({ field, form }) => {
     }
   }, [value]);
 
-  const handleChange = (newValue) => {
+  const handleChange = newValue => {
     setJsonString(newValue);
     setJsonError(null);
 
     // Try to parse and update the form value
     if (!newValue || newValue.trim() === '') {
+      isInternalChangeRef.current = true;
       setFieldValue(name, null);
       return;
     }
 
     try {
       const parsed = JSON.parse(newValue);
+      isInternalChangeRef.current = true;
       setFieldValue(name, parsed);
     } catch (err) {
       // Invalid JSON - store the error but don't update the form value
@@ -364,10 +373,7 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
             },
           )
           .required(),
-        defaultDateRange: yup
-          .string()
-          .oneOf(REPORT_DEFAULT_DATE_RANGES_VALUES)
-          .required(),
+        defaultDateRange: yup.string().oneOf(REPORT_DEFAULT_DATE_RANGES_VALUES).required(),
         dbSchema: yup
           .string()
           .nullable()
