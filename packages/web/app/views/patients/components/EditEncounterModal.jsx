@@ -11,6 +11,7 @@ import {
   useApi,
   useSettings,
   useSuggester,
+  useDateTime,
 } from '@tamanu/ui-components';
 import {
   DynamicSelectField,
@@ -24,7 +25,6 @@ import {
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useEncounter } from '../../../contexts/Encounter';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { isEmergencyPatient } from '../../../utils/isEmergencyPatient';
 
 const StyledFormGrid = styled(FormGrid)`
@@ -46,12 +46,12 @@ const HospitalAdmissionFields = () => {
           />
         }
         required
+        saveDateAsString
         data-testid="field-admission-time"
       />
       <Field
         name="estimatedEndDate"
         component={DateField}
-        saveDateAsString
         label={
           <TranslatedText
             stringId="patient.encounter.movePatient.estimatedDischargeDate.label"
@@ -128,6 +128,7 @@ const ClinicFields = () => {
           />
         }
         required
+        saveDateAsString
         data-testid="field-check-in-time"
       />
       <PatientTypeField
@@ -183,6 +184,7 @@ const TriageFields = () => {
         label={
           <TranslatedText stringId="triage.arrivalDateTime.label" fallback="Arrival date & time" />
         }
+        saveDateAsString
         data-testid="field-admission-time"
       />
       <Field
@@ -192,6 +194,7 @@ const TriageFields = () => {
           <TranslatedText stringId="triage.triageDateTime.label" fallback="Triage date & time" />
         }
         required
+        saveDateAsString
         data-testid="field-admission-time"
       />
       <LocalisedField
@@ -321,6 +324,7 @@ const getFormInitialValues = ({ encounter, triage = {} }) => {
 export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
   const api = useApi();
   const { writeAndViewEncounter } = useEncounter();
+  const {getCurrentDateTime} = useDateTime();
 
   const triage = encounter.triages?.[0];
 
@@ -333,13 +337,13 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
     secondaryComplaintId,
   }) => {
     await api.put(`triage/${triage?.id}`, {
-      submittedTime: getCurrentDateTimeString(),
+      submittedTime: getCurrentDateTime(),
       encounterId: encounter.id,
       arrivalTime,
       triageTime: startDate,
       arrivalModeId,
       score,
-      chiefComplaintId,
+      chiefComplaintId, 
       secondaryComplaintId,
     });
 
@@ -356,7 +360,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
     estimatedEndDate,
   }) => {
     await writeAndViewEncounter(encounter.id, {
-      submittedTime: getCurrentDateTimeString(),
+      submittedTime: getCurrentDateTime(),
       startDate,
       referralSourceId,
       patientBillingTypeId,
@@ -377,7 +381,9 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
       <Form
         initialValues={getFormInitialValues({ encounter, triage })}
         formType={FORM_TYPES.EDIT_FORM}
-        onSubmit={isEmergencyPatient(encounter.encounterType) ? onSubmitTriageForm : onSubmitEncounterForm}
+        onSubmit={
+          isEmergencyPatient(encounter.encounterType) ? onSubmitTriageForm : onSubmitEncounterForm
+        }
         render={({ submitForm }) => (
           <>
             <StyledFormGrid>

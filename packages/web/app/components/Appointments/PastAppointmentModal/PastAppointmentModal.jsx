@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { getCurrentDateTimeString, formatShortest, formatTime } from '@tamanu/utils/dateTime';
+import { DateDisplay, TimeDisplay, useDateTime } from '@tamanu/ui-components';
 
 import { useOutpatientAppointmentsQuery } from '../../../api/queries';
 import { Colors } from '../../../constants';
@@ -109,7 +109,7 @@ const StatusBadge = styled.div`
 
 const getDate = ({ startTime }) => (
   <LowercaseText data-testid="lowercasetext-gcnv">
-    {`${formatShortest(startTime)} ${formatTime(startTime).replace(' ', '')}`}
+    <DateDisplay date={startTime} format="shortest" /> <TimeDisplay date={startTime} noTooltip />
   </LowercaseText>
 );
 
@@ -190,6 +190,7 @@ const COLUMNS = [
 ];
 
 export const PastAppointmentModal = ({ open, onClose, patient }) => {
+  const { getCurrentDateTime } = useDateTime();
   const { orderBy, order, onChangeOrderBy } = useTableSorting({
     initialSortKey: 'startTime',
     initialSortDirection: 'desc',
@@ -199,7 +200,7 @@ export const PastAppointmentModal = ({ open, onClose, patient }) => {
     {
       all: true,
       patientId: patient?.id,
-      before: getCurrentDateTimeString(),
+      before: getCurrentDateTime(),
       after: '-infinity',
       orderBy,
       order,

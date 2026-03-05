@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
-import { getInvoiceSummary } from '@tamanu/shared/utils/invoice';
+import { getInvoiceSummary } from '@tamanu/utils/invoice';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../../components';
 import { Price } from './Price';

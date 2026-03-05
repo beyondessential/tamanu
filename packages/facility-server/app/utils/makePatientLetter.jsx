@@ -1,15 +1,19 @@
 import React from 'react';
-import ReactPDF from '@react-pdf/renderer';
-import path from 'path';
-import { get } from 'lodash';
-import { PatientLetter, tmpdir } from '@tamanu/shared/utils';
 import crypto from 'crypto';
+import path from 'path';
+import ReactPDF from '@react-pdf/renderer';
+import config from 'config';
+import { get } from 'lodash';
+
 import { SETTING_KEYS } from '@tamanu/constants';
+import { PatientLetter, tmpdir } from '@tamanu/shared/utils';
 
 export const makePatientLetter = async (req, { id, facilityId, ...data }) => {
   const { getLocalisation, models, language, settings } = req;
   const localisation = await getLocalisation();
   const getLocalisationData = key => get(localisation, key);
+  const settingsObj = await settings[facilityId].getAll();
+  const getSettingData = key => get(settingsObj, key);
   const letterheadConfig = await settings[facilityId].get(
     SETTING_KEYS.TEMPLATES_LETTERHEAD,
     facilityId,
@@ -33,7 +37,8 @@ export const makePatientLetter = async (req, { id, facilityId, ...data }) => {
       logoSrc={logo?.data}
       letterheadConfig={letterheadConfig}
       language={language}
-      settings={settings}
+      getSetting={getSettingData}
+      primaryTimeZone={config.primaryTimeZone}
     />,
     filePath,
   );

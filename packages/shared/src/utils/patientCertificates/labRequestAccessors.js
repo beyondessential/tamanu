@@ -1,16 +1,13 @@
-import { getDisplayDate } from './getDisplayDate';
+export const getCompletedDate = ({ completedDate }, getSetting, { formatShortExplicit }) =>
+  completedDate ? formatShortExplicit(completedDate) : 'Unknown';
 
-export const getCompletedDate = ({ completedDate }, getLocalisation) =>
-  completedDate ? getDisplayDate(completedDate, 'do MMM yyyy', getLocalisation) : 'Unknown';
+export const getDateOfSwab = ({ sampleTime }, getSetting, { formatShortExplicit }) =>
+  sampleTime ? formatShortExplicit(sampleTime) : 'Unknown';
 
-export const getDateOfSwab = ({ sampleTime }) =>
-  sampleTime ? getDisplayDate(sampleTime, 'do MMM yyyy') : 'Unknown';
+export const getTimeOfSwab = ({ sampleTime }, getSetting, { formatTime }) =>
+  sampleTime ? formatTime(sampleTime) : 'Unknown';
 
-export const getTimeOfSwab = ({ sampleTime }) => {
-  return sampleTime ? getDisplayDate(sampleTime, 'hh:mm a') : 'Unknown';
-};
-
-export const getLaboratory = ({ laboratory }, _, getSetting) =>
+export const getLaboratory = ({ laboratory }, getSetting) =>
   laboratory?.name || getSetting('templates.covidTestCertificate.laboratoryName');
 
 export const getLabMethod = ({ labTestMethod }) => (labTestMethod || {}).name || 'Unknown';

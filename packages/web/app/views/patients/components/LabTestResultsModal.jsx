@@ -8,7 +8,7 @@ import { toast } from 'react-toastify';
 import * as yup from 'yup';
 import { FormModal } from '../../../components/FormModal';
 import { BodyText, Heading4, SmallBodyText } from '../../../components/Typography';
-import { TextField, Form, ConfirmCancelRow, Field } from '@tamanu/ui-components';
+import { TextField, Form, ConfirmCancelRow, Field, useDateTime } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { DateTimeField, SuggesterSelectField } from '../../../components/Field';
@@ -293,6 +293,7 @@ const getColumns = (
           name={LAB_TEST_PROPERTIES.LAB_TEST_METHOD_ID}
           component={SuggesterSelectField}
           tabIndex={tabIndex(2, i)}
+          clearValue={null}
           data-testid="accessorfield-ik1h"
         />
       ),
@@ -332,7 +333,6 @@ const getColumns = (
           component={DateTimeField}
           name={LAB_TEST_PROPERTIES.COMPLETED_DATE}
           tabIndex={tabIndex(4, i)}
-          saveDateAsString
           data-testid="accessorfield-k5ef"
         />
       ),
@@ -384,6 +384,8 @@ const ResultsForm = ({
   setFieldValue,
   areLabTestResultsReadOnly,
 }) => {
+  const { getCurrentDateTime } = useDateTime();
+  const { count, data } = labTestResults;
   /**
    * On entering lab result field for a test some other fields are auto-filled optimistically
    * In the case of labTestMethod this occurs in the case that:
@@ -405,13 +407,13 @@ const ResultsForm = ({
         const uniqueValues = [...new Set(otherRowsValues)];
         const fieldName = `labTests.${labTestId}.${name}`;
         if (name === LAB_TEST_PROPERTIES.COMPLETED_DATE) {
-          setFieldValue(fieldName, getCurrentDateTimeString());
+          setFieldValue(fieldName, getCurrentDateTime());
         } else if (uniqueValues.length === 1) {
           setFieldValue(fieldName, uniqueValues[0]);
         }
       });
     },
-    [values, setFieldValue],
+    [values.labTests, setFieldValue, getCurrentDateTime],
   );
 
   const columns = useMemo(

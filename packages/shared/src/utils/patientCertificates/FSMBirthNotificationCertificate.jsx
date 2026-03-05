@@ -1,6 +1,5 @@
 import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
-import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import {
   EDUCATIONAL_ATTAINMENT_LABELS,
   BIRTH_TYPE_OPTIONS,
@@ -8,8 +7,8 @@ import {
   PLACE_OF_BIRTH_OPTIONS,
   SEX_OPTIONS,
 } from '@tamanu/constants';
-import { getDisplayDate } from './getDisplayDate';
 import { getEthnicity } from '../patientAccessors';
+import { useDateTime } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 
@@ -131,7 +130,8 @@ export const FSMBirthNotificationCertificate = ({
   childData,
   printedBy,
 }) => {
-  const currentDateString = getCurrentDateString();
+  const { formatShort, getCurrentDate } = useDateTime();
+  const currentDateString = formatShort(getCurrentDate());
 
   return (
     <Document>
@@ -172,7 +172,7 @@ export const FSMBirthNotificationCertificate = ({
 
               {/* Child Row 2 */}
               <View style={styles.lastRow}>
-                <Cell width={146} label="Date of birth:" value={childData?.dateOfBirth ? getDisplayDate(childData?.dateOfBirth) : ''} />
+                <Cell width={146} label="Date of birth:" value={childData?.dateOfBirth ? formatShort(childData?.dateOfBirth) : ''} />
                 <Cell width={110} label="Sex:" value={getLabelFromValue(SEX_OPTIONS, childData?.sex)} />
                 <Cell width={146} label="Delivery site:" value={getLabelFromValue(PLACE_OF_BIRTH_OPTIONS, childData?.birthData?.registeredBirthPlace)} />
                 <Cell width={146} label="Attendant:" value={childData?.birthData?.nameOfAttendantAtBirth} />
@@ -193,7 +193,7 @@ export const FSMBirthNotificationCertificate = ({
                 <Cell flex={1} label="Maiden name (First):" value={motherData?.firstName} />
                 <Cell flex={1} label="Middle name:" value={motherData?.middleName} />
                 <Cell flex={1} label="Last name:" value={motherData?.lastName} />
-                <Cell width={183} lastCell label="Birthdate:" value={motherData?.dateOfBirth ? getDisplayDate(motherData?.dateOfBirth) : ''} />
+                <Cell width={183} lastCell label="Birthdate:" value={motherData?.dateOfBirth ? formatShort(motherData?.dateOfBirth) : ''} />
               </View>
 
               {/* Mother Row 2 */}
@@ -227,7 +227,7 @@ export const FSMBirthNotificationCertificate = ({
                 <Cell flex={1} label="First name:" value={fatherData?.firstName} />
                 <Cell flex={1} label="Middle name:" value={fatherData?.middleName} />
                 <Cell flex={1} label="Last name:" value={fatherData?.lastName} />
-                <Cell width={183} lastCell label="Birthdate:" value={fatherData?.dateOfBirth ? getDisplayDate(fatherData?.dateOfBirth) : ''} />
+                <Cell width={183} lastCell label="Birthdate:" value={fatherData?.dateOfBirth ? formatShort(fatherData?.dateOfBirth) : ''} />
               </View>
 
               {/* Father Row 2 */}
