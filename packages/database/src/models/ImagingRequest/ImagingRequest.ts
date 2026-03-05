@@ -207,6 +207,13 @@ export class ImagingRequest extends Model {
       foreignKey: 'imagingRequestId',
       as: 'results',
     });
+
+    this.hasOne(models.InvoiceItem, {
+      foreignKey: 'sourceRecordId',
+      as: 'invoiceItem',
+      constraints: false,
+      scope: { source_record_type: this.name },
+    });
   }
 
   static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {

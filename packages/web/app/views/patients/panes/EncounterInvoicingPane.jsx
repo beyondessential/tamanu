@@ -7,7 +7,7 @@ import { INVOICE_STATUSES } from '@tamanu/constants';
 import PrintIcon from '@material-ui/icons/Print';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
+import { isInvoiceEditable } from '@tamanu/utils/invoice';
 import {
   InvoiceModalGroup,
   InvoiceStatus,
@@ -28,6 +28,7 @@ import {
   useCreateInvoice,
   useBulkUpdateInvoiceItemApproval,
 } from '../../../api/mutations/useInvoiceMutation';
+import { INVOICE_FORM_TYPE } from '../../../features/Invoice/constants.js';
 
 const EmptyPane = styled(ContentPane)`
   text-align: center;
@@ -96,7 +97,7 @@ const PaymentsSection = styled.div`
   }
 `;
 
-const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEditing }) => {
+const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType }) => {
   const { ability } = useAuth();
   const canCreateInvoice = ability.can('create', 'Invoice');
   const canWriteInvoice = ability.can('write', 'Invoice');
@@ -176,7 +177,7 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEd
     },
   ];
 
-  if (!isEditing && !zeroItems) {
+  if (!zeroItems) {
     ACTIONS.unshift({
       label: (
         <TranslatedText
@@ -185,7 +186,7 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEd
           data-testid="edit-invoice-items-n7tk"
         />
       ),
-      onClick: () => setEditing(true),
+      onClick: () => setInvoiceModalType(INVOICE_MODAL_TYPES.EDIT_ITEMS),
       hidden: !isInvoiceEditable(invoice),
     });
   }
@@ -234,7 +235,6 @@ const InvoiceMenu = ({ encounter, invoice, setInvoiceModalType, setEditing, isEd
 
 export const EncounterInvoicingPane = ({ encounter }) => {
   const { ability } = useAuth();
-  const [isEditing, setEditing] = useState(false);
   const [invoiceModalType, setInvoiceModalType] = useState(null);
   const { data: invoice, isLoading } = useEncounterInvoiceQuery(encounter.id);
   const { mutate: createInvoice, isLoading: isSubmitting } = useCreateInvoice();
@@ -297,15 +297,12 @@ export const EncounterInvoicingPane = ({ encounter }) => {
               encounter={encounter}
               invoice={invoice}
               setInvoiceModalType={setInvoiceModalType}
-              setEditing={setEditing}
-              isEditing={isEditing}
             />
           </InvoiceTopBar>
           <InvoiceForm
             invoice={invoice}
-            isPatientView={false}
-            isEditing={isEditing}
-            setIsEditing={setEditing}
+            setInvoiceModalType={setInvoiceModalType}
+            invoiceFormType={INVOICE_FORM_TYPE.READ_ONLY}
           />
           <PaymentsSection>
             <PatientPaymentsTable invoice={invoice} />

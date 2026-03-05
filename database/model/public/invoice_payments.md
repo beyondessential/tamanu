@@ -19,3 +19,7 @@ Amount paid.
 {% docs invoice_payments__updated_by_user_id %}
 Reference to the [user](#!/source/source.tamanu.tamanu.users) who updated this invoice payment.
 {% enddocs %}
+
+{% docs invoice_payments__original_payment_id %}
+Foreign key to the payment that this refund is reversing (null for non-refund transactions)
+{% enddocs %}

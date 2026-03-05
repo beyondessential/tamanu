@@ -1739,7 +1739,7 @@ const caseInsensitiveFilter = (fieldName, _operator, value) => ({
 medication.get(
   '/medication-requests',
   asyncHandler(async (req, res) => {
-    const { models, query } = req;
+    const { models, query, settings } = req;
     const {
       order = 'DESC',
       orderBy = 'pharmacyOrder.date',
@@ -1750,6 +1750,8 @@ medication.get(
     } = query;
 
     req.checkPermission('read', 'MedicationRequest');
+
+    const isInvoicingEnabled = await settings[facilityId]?.get('features.invoicing.enabled');
 
     const canViewSensitiveMedications = req.ability.can('read', 'SensitiveMedication');
 
@@ -1853,6 +1855,12 @@ medication.get(
         ];
       }
 
+      if (orderBy === 'prescription.invoiceItem.approved') {
+        return [
+          [Sequelize.col('prescription.invoiceItem.approved'), `${orderDirection} NULLS LAST`],
+        ];
+      }
+
       return [
         [...orderBy.split('.'), orderDirection],
         ['pharmacyOrder', 'date', 'DESC'],
@@ -1898,6 +1906,15 @@ medication.get(
               association: 'prescriber',
               attributes: ['id', 'displayName'],
             },
+            ...(isInvoicingEnabled
+              ? [
+                  {
+                    association: 'invoiceItem',
+                    attributes: ['id', 'approved'],
+                    required: false,
+                  },
+                ]
+              : []),
           ],
           required: true,
         },

@@ -70,10 +70,6 @@
       "require": "./dist/cjs/utils/translation/index.js",
       "import": "./dist/esm/utils/translation/index.js"
     },
-    "./utils/invoice": {
-      "require": "./dist/cjs/utils/invoice/index.js",
-      "import": "./dist/esm/utils/invoice/index.js"
-    },
     "./utils/*": {
       "require": "./dist/cjs/utils/*.js",
       "import": "./dist/esm/utils/*.js"

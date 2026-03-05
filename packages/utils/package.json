@@ -11,6 +11,11 @@
       "require": "./dist/cjs/index.js",
       "types": "./dist/esm/index.d.ts"
     },
+    "./invoice": {
+      "import": "./dist/esm/invoice/index.js",
+      "require": "./dist/cjs/invoice/index.js",
+      "types": "./dist/esm/invoice/index.d.ts"
+    },
     "./*": {
       "import": "./dist/esm/*.js",
       "require": "./dist/cjs/*.js",

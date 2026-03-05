@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
 import {
   getInvoiceItemPrice,
@@ -6,7 +7,7 @@ import {
   getInvoiceItemCoveragePercentage,
   getInsuranceCoverageTotalAmount,
   getInvoiceSummary,
-} from '../../src/utils';
+} from '../src';
 
 describe('Invoice Utils', () => {
   describe('getInvoiceItemPrice', () => {
@@ -110,7 +111,7 @@ describe('Invoice Utils', () => {
         manualEntryPrice: 100,
         quantity: 2,
         discount: {
-          type: INVOICE_ITEMS_DISCOUNT_TYPES.FLAT,
+          type: INVOICE_ITEMS_DISCOUNT_TYPES.AMOUNT,
           amount: 20,
         },
       };
@@ -157,7 +158,7 @@ describe('Invoice Utils', () => {
         manualEntryPrice: 100,
         quantity: 2,
         discount: {
-          type: INVOICE_ITEMS_DISCOUNT_TYPES.FLAT,
+          type: INVOICE_ITEMS_DISCOUNT_TYPES.AMOUNT,
           amount: 200,
         },
       };

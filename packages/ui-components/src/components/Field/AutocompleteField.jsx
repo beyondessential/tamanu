@@ -127,6 +127,12 @@ const SectionTitle = styled.div`
   padding-left: 14px;
 `;
 
+const StyledAutocompleteInput = styled(StyledTextField)`
+  .MuiInputBase-root {
+    background: ${props => (props.disabled ? TAMANU_COLORS.background : TAMANU_COLORS.white)};
+  }
+`;
+
 export class AutocompleteInput extends Component {
   static contextType = TranslationContext;
 
@@ -434,7 +440,7 @@ export class AutocompleteInput extends Component {
         size={size}
         data-testid={`${dataTestId}-outerlabelfieldwrapper`}
       >
-        <StyledTextField
+        <StyledAutocompleteInput
           variant="outlined"
           size={size}
           InputProps={{
@@ -467,9 +473,9 @@ export class AutocompleteInput extends Component {
                   }}
                 >
                   {suggestions.length > 0 ? (
-                    <ExpandLessIcon data-testid={`${dataTestId}-expandlessicon`} />
+                    <ExpandLessIcon data-testid={`${dataTestId}-expandlessicon` } htmlColor={disabled ? TAMANU_COLORS.softText : undefined} />
                   ) : (
-                    <ExpandMoreIcon data-testid={`${dataTestId}-expandmoreicon`} />
+                    <ExpandMoreIcon data-testid={`${dataTestId}-expandmoreicon`} htmlColor={disabled ? TAMANU_COLORS.softText : undefined} />
                   )}
                 </Icon>
               </>

@@ -19,7 +19,7 @@ import {
   formatDisplayPrice,
   getInvoiceSummary,
   getInvoiceSummaryDisplay,
-} from '@tamanu/shared/utils/invoice';
+} from '@tamanu/utils/invoice';
 import { useInvoiceTotalOutstandingBalanceQuery } from '../../api/queries/useInvoiceQuery';
 import { useAuth } from '../../contexts/Auth';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';

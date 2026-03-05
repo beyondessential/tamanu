@@ -1,7 +1,9 @@
 import React, { useCallback, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams, useNavigate } from 'react-router';
+
 import { IMAGING_REQUEST_STATUS_CONFIG, IMAGING_TABLE_VERSIONS } from '@tamanu/constants';
+
 import { SearchTableWithPermissionCheck } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { PatientNameDisplay } from './PatientNameDisplay';
@@ -15,6 +17,9 @@ import { useImagingRequestsQuery } from '../contexts/ImagingRequests';
 import { capitaliseFirstLetter } from '../utils/capitalise';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
+import { ApprovedColumnTitle } from './ApprovedColumnTitle';
+import { getApprovalStatus } from '../utils/invoice';
+import { useSettings } from '../contexts/Settings';
 
 const StatusDisplay = React.memo(({ status }) => {
   const {
@@ -56,13 +61,14 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
   const dispatch = useDispatch();
   const params = useParams();
   const { facilityId } = useAuth();
+  const { getSetting } = useSettings();
   const { loadEncounter } = useEncounter();
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
   const { searchParameters } = useImagingRequestsQuery(memoryKey);
   const isCompletedTable = memoryKey === IMAGING_TABLE_VERSIONS.COMPLETED.memoryKey;
   const [isRowsDisabled, setIsRowsDisabled] = useState(false);
-
+  const isInvoicingEnabled = getSetting('features.invoicing.enabled');
   const statusFilter = statuses.length > 0 ? { status: statuses } : {};
 
   const encounterColumns = [
@@ -137,6 +143,16 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
             accessor: getPriority,
           },
         ]),
+    ...(isInvoicingEnabled
+      ? [
+          {
+            key: 'approved',
+            title: <ApprovedColumnTitle />,
+            accessor: ({ approved }) => getApprovalStatus(approved),
+            sortable: true,
+          },
+        ]
+      : []),
     {
       key: 'status',
       title: (
@@ -192,8 +208,9 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
       }
       await dispatch(reloadImagingRequest(imagingRequest.id));
       const category = params.category || 'all';
-      const path = `/patients/${category}/${patientId}/encounter/${encounterId ||
-        encounter.id}/imaging-request/${imagingRequest.id}`;
+      const path = `/patients/${category}/${patientId}/encounter/${
+        encounterId || encounter.id
+      }/imaging-request/${imagingRequest.id}`;
       navigate(path);
       setIsRowsDisabled(false);
     },
