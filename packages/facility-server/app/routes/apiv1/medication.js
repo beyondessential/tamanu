@@ -543,6 +543,16 @@ medication.post(
       for (const originalPrescription of ongoingPrescriptions) {
         const requestData = prescriptionMap.get(originalPrescription.id);
 
+        // Decrement repeats on the ongoing prescriptions (repeats = remaining "send to pharmacy" count)
+        // Only decrement if the prescription has been ordered before (has a lastOrderedAt)
+        const { repeats = 0 } = originalPrescription;
+        const lastOrderedAt = lastOrderedAts[originalPrescription.id]?.last_ordered_at;
+
+        // We only start decrementing repeats after the first send.
+        if (lastOrderedAt && repeats > 0) {
+          await originalPrescription.update({ repeats: repeats - 1 }, { transaction });
+        }
+
         // Create a new prescription with the original details but updated quantity and repeats
         const newPrescription = await Prescription.create(
           {
@@ -551,7 +561,7 @@ medication.post(
             date: currentDateTime,
             startDate: currentDateTime,
             quantity: requestData.quantity,
-            repeats: requestData.repeats ?? originalPrescription.repeats ?? 0,
+            repeats: originalPrescription.repeats ?? 0,
             prescriberId: orderingClinicianId,
           },
           { transaction },
@@ -583,18 +593,6 @@ medication.post(
         { transaction },
       );
 
-      // Decrement repeats on the ongoing prescriptions (repeats = remaining "send to pharmacy" count)
-      // Only decrement if the prescription has been ordered before (has a lastOrderedAt)
-      for (const originalPrescription of ongoingPrescriptions) {
-        const { repeats = 0 } = originalPrescription;
-        const lastOrderedAt = lastOrderedAts[originalPrescription.id]?.last_ordered_at;
-
-        // We only start decrementing repeats after the first send.
-        if (lastOrderedAt && repeats > 0) {
-          await originalPrescription.update({ repeats: repeats - 1 }, { transaction });
-        }
-      }
-
       await PharmacyOrderPrescription.bulkCreate(
         newPrescriptions.map((prescription, index) => {
           const originalPrescription = ongoingPrescriptions[index];
@@ -604,7 +602,7 @@ medication.post(
             prescriptionId: prescription.id,
             ongoingPrescriptionId: originalPrescription.id,
             quantity: requestData.quantity,
-            repeats: requestData.repeats ?? originalPrescription.repeats ?? 0,
+            repeats: originalPrescription.repeats ?? 0,
           };
         }),
         { transaction },
@@ -2349,14 +2347,32 @@ medication.get(
       },
     });
 
+    // Last dispensed per medication for this patient (any prescription/source)
+    const lastDispensedRows = await PharmacyOrderPrescription.sequelize.query(
+      `SELECT p.medication_id AS "medicationId", MAX(md.dispensed_at) AS "lastDispensedAt"
+       FROM medication_dispenses md
+       JOIN pharmacy_order_prescriptions pop ON pop.id = md.pharmacy_order_prescription_id AND pop.deleted_at IS NULL
+       JOIN pharmacy_orders po ON po.id = pop.pharmacy_order_id AND po.deleted_at IS NULL
+       JOIN encounters e ON e.id = po.encounter_id AND e.deleted_at IS NULL
+       JOIN prescriptions p ON p.id = pop.prescription_id AND p.deleted_at IS NULL
+       WHERE e.patient_id = :patientId
+         AND md.deleted_at IS NULL
+       GROUP BY p.medication_id`,
+      {
+        type: QueryTypes.SELECT,
+        replacements: { patientId },
+      },
+    );
+    const lastDispensedByMedication = Object.fromEntries(
+      lastDispensedRows.map(row => [row.medicationId, row.lastDispensedAt]),
+    );
+
     res.send({
       count: pharmacyOrderPrescriptions.length,
       data: pharmacyOrderPrescriptions.map(pop => ({
         ...pop.toJSON(),
         remainingRepeats: pop.getRemainingRepeats(),
-        lastDispensedAt: pop.medicationDispenses?.sort(
-          (a, b) => new Date(b.dispensedAt) - new Date(a.dispensedAt),
-        )[0]?.dispensedAt,
+        lastDispensedAt: lastDispensedByMedication[pop.prescription.medication.id],
       })),
     });
   }),

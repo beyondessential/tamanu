@@ -3,13 +3,14 @@ export * from './getMetaServerHosts';
 export * from './getPatientAdditionalData';
 export * from './getPatientSurveyResponseAnswer';
 export * from './getResponseJsonSafely';
+export * from './stringToStableInteger';
 export * from './uuidToFairlyUniqueInteger';
 export * from './patientCertificates';
 export * from './patientAccessors';
 export * from './handoverNotes';
 export * from './patientLetters';
 export * from './tmpdir';
-export * from './uvci';
+
 export * from './valueIndex';
 export * from './withConfig';
 export * from './dischargeOutpatientEncounters';
