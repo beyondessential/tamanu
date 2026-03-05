@@ -81,9 +81,9 @@ export const facilitySettings = {
       },
     },
     patientDisplayIdPattern: {
+      exposedToWeb: true,
       highRisk: true,
-      description:
-        `The pattern to use for generating patient display IDs.
+      description: `The pattern to use for generating patient display IDs.
         'A' will be replaced with a random letter and '0' will be replaced with a random number.
         Wrapping characters in [] will allow static characters to be used. For example,
         '[B]AAAA000000' will generate an 11 character ID with a static B followed by 4 letter and 6 numbers.`,
@@ -110,6 +110,7 @@ export const facilitySettings = {
     },
     sync: {
       description: 'Facility sync settings',
+      exposedToWeb: true,
       highRisk: true,
       properties: {
         syncAllLabRequests: {
