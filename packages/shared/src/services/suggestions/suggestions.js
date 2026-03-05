@@ -469,10 +469,38 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
         };
       }
 
-      if (typeName === REFERENCE_TYPES.PROCEDURE_TYPE || typeName === REFERENCE_TYPES.IMAGING_TYPE) {
+      if (
+        typeName === REFERENCE_TYPES.PROCEDURE_TYPE ||
+        typeName === REFERENCE_TYPES.IMAGING_TYPE ||
+        typeName === REFERENCE_TYPES.DRUG ||
+        typeName === REFERENCE_TYPES.MEDICATION_TEMPLATE
+      ) {
         const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId, req.db);
         if (facilityFilter) {
           baseWhere[Op.and] = [...(baseWhere[Op.and] || []), facilityFilter];
+        }
+      }
+
+      if (typeName === REFERENCE_TYPES.MEDICATION_SET) {
+        const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId, req.db);
+        if (facilityFilter) {
+          const escapedFacilityArray = req.db.escape(JSON.stringify([req.query.facilityId]));
+          // Exclude sets where any medication set member is not visible in this facility
+          const medicationMemberFilter = Sequelize.literal(`
+            "ReferenceData"."id" NOT IN (
+              SELECT DISTINCT rdr.reference_data_parent_id
+              FROM reference_data_relations rdr
+              INNER JOIN reference_medication_templates rmt
+                ON rdr.reference_data_id = rmt.reference_data_id
+              INNER JOIN reference_data rd_drug
+                ON rd_drug.id = rmt.medication_id
+              WHERE rdr.type = '${REFERENCE_DATA_RELATION_TYPES.MEDICATION}'
+                AND rdr.deleted_at IS NULL
+                AND rd_drug.available_facilities IS NOT NULL
+                AND NOT (rd_drug.available_facilities @> ${escapedFacilityArray}::jsonb)
+            )
+          `);
+          baseWhere[Op.and] = [...(baseWhere[Op.and] || []), facilityFilter, medicationMemberFilter];
         }
       }
 
