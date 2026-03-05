@@ -21,7 +21,6 @@ import { useLabRequest } from '../../../contexts/LabRequest';
 import { useTranslation } from '../../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 import { ConditionalTooltip } from '../../../components/Tooltip';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 const TableContainer = styled.div`
   overflow-y: auto;
@@ -385,7 +384,6 @@ const ResultsForm = ({
   areLabTestResultsReadOnly,
 }) => {
   const { getCurrentDateTime } = useDateTime();
-  const { count, data } = labTestResults;
   /**
    * On entering lab result field for a test some other fields are auto-filled optimistically
    * In the case of labTestMethod this occurs in the case that:
