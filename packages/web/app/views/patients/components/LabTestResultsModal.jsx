@@ -113,11 +113,12 @@ const InterpretationFieldSection = styled(Box)`
 `;
 
 const StyledHeading4 = styled(Heading4)`
+  margin-top: 8px;
   margin-bottom: 10px;
 `;
 
 const StyledSmallBodyText = styled(SmallBodyText)`
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   color: ${Colors.midText};
 `;
 
