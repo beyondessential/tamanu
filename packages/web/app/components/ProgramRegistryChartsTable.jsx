@@ -9,7 +9,7 @@ import { Colors } from '../constants';
 import { DynamicColumnTable, Table } from './Table';
 import { useProgramRegistryPatientChartsQuery } from '../api/queries/useProgramRegistryPatientChartsQuery';
 import { EditVitalCellModal } from './EditVitalCellModal';
-import { getChartsTableColumns } from './VitalsAndChartsTableColumns';
+import { useChartsTableColumns } from './VitalsAndChartsTableColumns';
 import { LoadingIndicator } from './LoadingIndicator';
 import { useSettings } from '../contexts/Settings';
 import { SETTING_KEYS } from '@tamanu/constants';
@@ -66,7 +66,7 @@ export const ProgramRegistryChartsTable = React.memo(({
   }, []);
 
   // create a column for each reading
-  const columns = getChartsTableColumns(
+  const columns = useChartsTableColumns(
     selectedChartSurveyName,
     patient,
     recordedDates,

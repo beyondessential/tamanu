@@ -36,7 +36,7 @@ export interface IEncounter {
   diagnoses?: IDiagnosis[];
 
   patient?: IPatient | string;
-  patientId?: string;
+  patientId: string;
 
   examiner?: IUser | string;
   examinerId?: string;

@@ -1,9 +1,11 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import config from 'config';
 import {
   dateCustomValidation,
   datetimeCustomValidation,
   getCurrentDateTimeString,
+  getDayBoundaries,
   toDateTimeString,
 } from '@tamanu/utils/dateTime';
 import { z } from 'zod';
@@ -28,6 +30,7 @@ import {
 import { add, format, isAfter, isBefore, isEqual } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 import { validate } from '../../utils/validate';
+import { getLastOrderedAtForOngoingPrescriptions } from '../../utils/medication';
 import { mapQueryFilters } from '../../database/utils';
 
 export const medication = express.Router();
@@ -343,13 +346,15 @@ const sendOngoingToPharmacySchema = z
     orderingClinicianId: z.string().uuid({ message: 'Valid ordering clinician ID is required' }),
     comments: z.string().optional().nullable(),
     facilityId: z.string({ message: 'Valid facility ID is required' }),
-    prescriptions: z.array(
-      z.object({
-        prescriptionId: z.string().uuid({ message: 'Valid prescription ID is required' }),
-        quantity: z.number().int().positive({ message: 'Quantity must be a positive integer' }),
-        repeats: z.number().int().min(0).max(MAX_REPEATS).optional().nullable(),
-      }),
-    ),
+    prescriptions: z
+      .array(
+        z.object({
+          prescriptionId: z.string().uuid({ message: 'Valid prescription ID is required' }),
+          quantity: z.number().int().positive({ message: 'Quantity must be a positive integer' }),
+          repeats: z.number().int().min(0).max(MAX_REPEATS).optional().nullable(),
+        }),
+      )
+      .nonempty({ message: 'At least one prescription is required' }),
   })
   .strip();
 
@@ -435,15 +440,25 @@ medication.post(
       'read',
     );
 
+    // Fetch last ordered dates for "first send free" validation - prescriptions with 0 repeats
+    // that have never been ordered still have one remaining send
+    const ongoingPrescriptionIds = ongoingPrescriptions.map(p => p.id);
+    const lastOrderedAts = await getLastOrderedAtForOngoingPrescriptions(
+      db,
+      ongoingPrescriptionIds,
+    );
+
     // Validate repeats for each prescription
     const prescriptionMap = new Map(prescriptions.map(p => [p.prescriptionId, p]));
 
     for (const prescription of ongoingPrescriptions) {
       const requestData = prescriptionMap.get(prescription.id);
       const currentRepeats = prescription.repeats ?? 0;
+      const lastOrderedAt = lastOrderedAts[prescription.id]?.last_ordered_at;
 
       // If user doesn't have write Medication permission, they can't send medications with 0 repeats
-      if (!canEditRepeats && currentRepeats === 0) {
+      // that have already been ordered (first send is "free" - 0 repeats + never ordered = 1 remaining)
+      if (!canEditRepeats && currentRepeats === 0 && lastOrderedAt) {
         throw new InvalidOperationError(
           `Cannot send medication "${prescription.medication?.name || prescription.id}" to pharmacy - no repeats remaining. You do not have permission to modify repeats.`,
         );
@@ -530,6 +545,16 @@ medication.post(
       for (const originalPrescription of ongoingPrescriptions) {
         const requestData = prescriptionMap.get(originalPrescription.id);
 
+        // Decrement repeats on the ongoing prescriptions (repeats = remaining "send to pharmacy" count)
+        // Only decrement if the prescription has been ordered before (has a lastOrderedAt)
+        const { repeats = 0 } = originalPrescription;
+        const lastOrderedAt = lastOrderedAts[originalPrescription.id]?.last_ordered_at;
+
+        // We only start decrementing repeats after the first send.
+        if (lastOrderedAt && repeats > 0) {
+          await originalPrescription.update({ repeats: repeats - 1 }, { transaction });
+        }
+
         // Create a new prescription with the original details but updated quantity and repeats
         const newPrescription = await Prescription.create(
           {
@@ -538,7 +563,7 @@ medication.post(
             date: currentDateTime,
             startDate: currentDateTime,
             quantity: requestData.quantity,
-            repeats: requestData.repeats ?? originalPrescription.repeats ?? 0,
+            repeats: originalPrescription.repeats ?? 0,
             prescriberId: orderingClinicianId,
           },
           { transaction },
@@ -570,7 +595,6 @@ medication.post(
         { transaction },
       );
 
-      // Create pharmacy order prescriptions
       await PharmacyOrderPrescription.bulkCreate(
         newPrescriptions.map((prescription, index) => {
           const originalPrescription = ongoingPrescriptions[index];
@@ -578,8 +602,9 @@ medication.post(
           return {
             pharmacyOrderId: pharmacyOrder.id,
             prescriptionId: prescription.id,
+            ongoingPrescriptionId: originalPrescription.id,
             quantity: requestData.quantity,
-            repeats: requestData.repeats ?? originalPrescription.repeats ?? 0,
+            repeats: originalPrescription.repeats ?? 0,
           };
         }),
         { transaction },
@@ -1716,7 +1741,7 @@ const caseInsensitiveFilter = (fieldName, _operator, value) => ({
 medication.get(
   '/medication-requests',
   asyncHandler(async (req, res) => {
-    const { models, query } = req;
+    const { models, query, settings } = req;
     const {
       order = 'DESC',
       orderBy = 'pharmacyOrder.date',
@@ -1727,6 +1752,8 @@ medication.get(
     } = query;
 
     req.checkPermission('read', 'MedicationRequest');
+
+    const isInvoicingEnabled = await settings[facilityId]?.get('features.invoicing.enabled');
 
     const canViewSensitiveMedications = req.ability.can('read', 'SensitiveMedication');
 
@@ -1774,13 +1801,17 @@ medication.get(
       required: true,
     };
 
+    const { primaryTimeZone } = config;
+    const facilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
+
     // PharmacyOrder filters
     const pharmacyOrderFilters = mapQueryFilters(filterParams, [
       {
         key: 'date',
         mapFn: (fieldName, _operator, value) => {
-          const startOfDay = `${value} 00:00:00`;
-          const endOfDay = `${value} 23:59:59`;
+          const boundaries = getDayBoundaries(value, primaryTimeZone, facilityTimeZone);
+          const startOfDay = boundaries?.start ?? `${value} 00:00:00`;
+          const endOfDay = boundaries?.end ?? `${value} 23:59:59`;
           return { [fieldName]: { [Op.between]: [startOfDay, endOfDay] } };
         },
       },
@@ -1830,6 +1861,12 @@ medication.get(
         ];
       }
 
+      if (orderBy === 'prescription.invoiceItem.approved') {
+        return [
+          [Sequelize.col('prescription.invoiceItem.approved'), `${orderDirection} NULLS LAST`],
+        ];
+      }
+
       return [
         [...orderBy.split('.'), orderDirection],
         ['pharmacyOrder', 'date', 'DESC'],
@@ -1875,6 +1912,15 @@ medication.get(
               association: 'prescriber',
               attributes: ['id', 'displayName'],
             },
+            ...(isInvoicingEnabled
+              ? [
+                  {
+                    association: 'invoiceItem',
+                    attributes: ['id', 'approved'],
+                    required: false,
+                  },
+                ]
+              : []),
           ],
           required: true,
         },
@@ -1952,7 +1998,7 @@ medication.delete(
 medication.get(
   '/medication-dispenses',
   asyncHandler(async (req, res) => {
-    const { models, query } = req;
+    const { models, query, settings } = req;
     const {
       order = 'DESC',
       orderBy = 'dispensedAt',
@@ -2001,12 +2047,16 @@ medication.get(
       },
     ]);
 
+    const { primaryTimeZone: dispenseTz } = config;
+    const dispenseFacilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
+
     const rootFilter = mapQueryFilters(filterParams, [
       {
         key: 'dispensedAt',
         mapFn: (fieldName, _operator, value) => {
-          const startOfDay = `${value} 00:00:00`;
-          const endOfDay = `${value} 23:59:59`;
+          const boundaries = getDayBoundaries(value, dispenseTz, dispenseFacilityTimeZone);
+          const startOfDay = boundaries?.start ?? `${value} 00:00:00`;
+          const endOfDay = boundaries?.end ?? `${value} 23:59:59`;
           return { [fieldName]: { [Op.between]: [startOfDay, endOfDay] } };
         },
       },
@@ -2324,14 +2374,32 @@ medication.get(
       },
     });
 
+    // Last dispensed per medication for this patient (any prescription/source)
+    const lastDispensedRows = await PharmacyOrderPrescription.sequelize.query(
+      `SELECT p.medication_id AS "medicationId", MAX(md.dispensed_at) AS "lastDispensedAt"
+       FROM medication_dispenses md
+       JOIN pharmacy_order_prescriptions pop ON pop.id = md.pharmacy_order_prescription_id AND pop.deleted_at IS NULL
+       JOIN pharmacy_orders po ON po.id = pop.pharmacy_order_id AND po.deleted_at IS NULL
+       JOIN encounters e ON e.id = po.encounter_id AND e.deleted_at IS NULL
+       JOIN prescriptions p ON p.id = pop.prescription_id AND p.deleted_at IS NULL
+       WHERE e.patient_id = :patientId
+         AND md.deleted_at IS NULL
+       GROUP BY p.medication_id`,
+      {
+        type: QueryTypes.SELECT,
+        replacements: { patientId },
+      },
+    );
+    const lastDispensedByMedication = Object.fromEntries(
+      lastDispensedRows.map(row => [row.medicationId, row.lastDispensedAt]),
+    );
+
     res.send({
       count: pharmacyOrderPrescriptions.length,
       data: pharmacyOrderPrescriptions.map(pop => ({
         ...pop.toJSON(),
         remainingRepeats: pop.getRemainingRepeats(),
-        lastDispensedAt: pop.medicationDispenses?.sort(
-          (a, b) => new Date(b.dispensedAt) - new Date(a.dispensedAt),
-        )[0]?.dispensedAt,
+        lastDispensedAt: lastDispensedByMedication[pop.prescription.medication.id],
       })),
     });
   }),
@@ -2463,16 +2531,13 @@ medication.post(
         );
       }
 
-      const ineligibleRecords = prescriptionRecords.filter(record => {
-        const remainingRepeats = record.getRemainingRepeats();
-        const hasDispenses = record.medicationDispenses?.length > 0;
-        const isDischargePrescription = record.pharmacyOrder?.isDischargePrescription;
-        return remainingRepeats === 0 && hasDispenses && !!isDischargePrescription;
-      });
-
-      if (ineligibleRecords.length > 0) {
+      // Each pharmacy order prescription may only be dispensed once
+      const alreadyDispensed = prescriptionRecords.filter(
+        record => (record.medicationDispenses?.length ?? 0) > 0,
+      );
+      if (alreadyDispensed.length > 0) {
         throw new InvalidOperationError(
-          `The following prescriptions have no remaining repeats and cannot be dispensed: ${ineligibleRecords.map(r => r.id).join(', ')}`,
+          `The following have already been dispensed and cannot be dispensed again: ${alreadyDispensed.map(r => r.id).join(', ')}`,
         );
       }
 
@@ -2488,15 +2553,9 @@ medication.post(
         { transaction },
       );
 
-      // After dispensing, soft delete all ineligible pharmacy order prescriptions
-      const allCompletedRecords = prescriptionRecords.filter(record => {
-        const remainingRepeats = record.getRemainingRepeats(1);
-        const isDischargePrescription = record.pharmacyOrder?.isDischargePrescription;
-        return remainingRepeats === 0 && !!isDischargePrescription;
-      });
-
-      if (allCompletedRecords.length > 0) {
-        const completedIds = allCompletedRecords.map(r => r.id);
+      // After dispensing, mark all dispensed prescriptions as completed so they disappear from the medication requests list.
+      if (prescriptionRecords.length > 0) {
+        const completedIds = prescriptionRecords.map(r => r.id);
         await PharmacyOrderPrescription.update(
           { isCompleted: true },
           { where: { id: { [Op.in]: completedIds } }, transaction },

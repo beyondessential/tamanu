@@ -68,7 +68,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
   const { ability } = useAuth();
   const user = useSelector(authUserSelector);
   const [patientAllergies, setPatientAllergies] = useState<PatientAllergy[]>([]);
-  const { getTranslation } = useTranslation();
+  const { getTranslation, getEnumTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
 
@@ -197,12 +197,10 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
     label,
   }));
 
-  const durationUnitOptions = Object.entries(MEDICATION_DURATION_UNITS_LABELS).map(
-    ([value, label]) => ({
-      value,
-      label,
-    }),
-  );
+  const durationUnitOptions = Object.keys(MEDICATION_DURATION_UNITS_LABELS).map(value => ({
+    value,
+    label: getEnumTranslation(MEDICATION_DURATION_UNITS_LABELS, value),
+  }));
 
   const getInitialValues = () => ({
     date: new Date(),

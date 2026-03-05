@@ -3,13 +3,13 @@ import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import { capitalize } from 'lodash';
 
 import { INVOICE_INSURER_PAYMENT_STATUSES } from '@tamanu/constants';
-import { formatShort } from '@tamanu/utils/dateTime';
 
 import { CertificateHeader, SigningImage, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { getName } from '../patientAccessors';
 import { Footer } from './printComponents/Footer';
+import { withDateTimeContext, useDateTime } from '../pdf/withDateTimeContext';
 import { InvoiceDetails } from './printComponents/InvoiceDetails';
 import {
   getInvoiceItemPriceDisplay,
@@ -23,7 +23,7 @@ import {
   getFormattedInvoiceItemNetCost,
   getFormattedCoverageAmountPerInsurancePlanForInvoice,
   getInvoiceSummary,
-} from '../invoice';
+} from '@tamanu/utils/invoice';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
@@ -190,14 +190,33 @@ const OrderedByCellWithAdjustments = ({ children, style, item }) => {
   const showAdjustments = hasItemAdjustment(item);
 
   return (
-    <View style={[baseTableStyles.baseCell, style, { flexDirection: 'column', alignItems: 'flex-start' }]}>
+    <View
+      style={[
+        baseTableStyles.baseCell,
+        style,
+        { flexDirection: 'column', alignItems: 'flex-start' },
+      ]}
+    >
       <P>{children}</P>
       {showAdjustments && (
         <>
-          <View style={{ height: ADJUSTMENT_ROW_HEIGHT, marginTop: ADJUSTMENT_TOP_MARGIN, justifyContent: 'center', alignSelf: 'flex-end' }}>
+          <View
+            style={{
+              height: ADJUSTMENT_ROW_HEIGHT,
+              marginTop: ADJUSTMENT_TOP_MARGIN,
+              justifyContent: 'center',
+              alignSelf: 'flex-end',
+            }}
+          >
             <Text style={subRowStyles.labelText}>Item adjustment</Text>
           </View>
-          <View style={{ height: ADJUSTMENT_ROW_HEIGHT, justifyContent: 'center', alignSelf: 'flex-end' }}>
+          <View
+            style={{
+              height: ADJUSTMENT_ROW_HEIGHT,
+              justifyContent: 'center',
+              alignSelf: 'flex-end',
+            }}
+          >
             <Text style={subRowStyles.labelText}>Cost after adjustment</Text>
           </View>
         </>
@@ -212,14 +231,26 @@ const OrderedByCellWithAdjustments = ({ children, style, item }) => {
 const PriceCellWithAdjustments = ({ children, style, item }) => {
   const showAdjustments = hasItemAdjustment(item);
   const adjustmentAmount = showAdjustments ? getItemAdjustmentAmount(item) : 0;
-  const costAfterAdjustment = showAdjustments ? (getInvoiceItemTotalDiscountedPrice(item) || 0) : 0;
+  const costAfterAdjustment = showAdjustments ? getInvoiceItemTotalDiscountedPrice(item) || 0 : 0;
 
   return (
-    <View style={[baseTableStyles.baseCell, style, { flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'flex-start' }]}>
+    <View
+      style={[
+        baseTableStyles.baseCell,
+        style,
+        { flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'flex-start' },
+      ]}
+    >
       {children}
       {showAdjustments && (
         <>
-          <View style={{ height: ADJUSTMENT_ROW_HEIGHT, marginTop: ADJUSTMENT_TOP_MARGIN, justifyContent: 'center' }}>
+          <View
+            style={{
+              height: ADJUSTMENT_ROW_HEIGHT,
+              marginTop: ADJUSTMENT_TOP_MARGIN,
+              justifyContent: 'center',
+            }}
+          >
             <Text style={subRowStyles.valueText}>{formatDisplayPrice(adjustmentAmount)}</Text>
           </View>
           <View style={{ height: ADJUSTMENT_ROW_HEIGHT, justifyContent: 'center' }}>
@@ -279,7 +310,7 @@ const COLUMNS = {
       key: 'orderDate',
       title: 'Date',
       style: { width: '14%' },
-      accessor: ({ orderDate }) => (orderDate ? formatShort(orderDate) : '--/--/----'),
+      accessor: ({ orderDate }, { formatShort }) => formatShort(orderDate),
     },
     {
       key: 'productName',
@@ -332,7 +363,7 @@ const COLUMNS = {
       key: 'date',
       title: 'Date',
       style: { width: '14%', paddingLeft: 13 },
-      accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
+      accessor: ({ date }, { formatShort }) => formatShort(date),
     },
     {
       key: 'methodName',
@@ -355,7 +386,7 @@ const COLUMNS = {
     {
       key: 'status',
       title: 'Status',
-      accessor: () => 'Paid',
+      accessor: ({ refundPayment }) => refundPayment ? 'Refunded' : 'Paid',
       style: { width: '21%' },
     },
   ],
@@ -364,7 +395,7 @@ const COLUMNS = {
       key: 'date',
       title: 'Date',
       style: { width: '15%', paddingLeft: 13 },
-      accessor: ({ date }) => (date ? formatShort(date) : '--/--/----'),
+      accessor: ({ date }, { formatShort }) => formatShort(date),
     },
     {
       key: 'insurerName',
@@ -463,16 +494,23 @@ const InvoiceItemDataTableHeading = ({ columns, title }) => {
   );
 };
 
-const RowWrapper = ({ row, columns, style, SubRowsComponent }) => (
+const RowWrapper = ({ row, columns, style, formatters, SubRowsComponent }) => (
   <React.Fragment>
     <Row wrap={false} style={style}>
       {columns.map(({ key, accessor, style, CellComponent }, colIndex) => {
-        const displayValue = accessor ? accessor(row) : row[key] || '';
+        const displayValue = accessor ? accessor(row, formatters) : row[key] || '';
         const isFirst = colIndex === 0;
         const isLast = colIndex === columns.length - 1;
         if (CellComponent) {
           return (
-            <CellComponent key={key} style={style} isFirst={isFirst} isLast={isLast} item={row}>
+            <CellComponent
+              key={key}
+              style={style}
+              isFirst={isFirst}
+              isLast={isLast}
+              item={row}
+              formatters={formatters}
+            >
               {displayValue}
             </CellComponent>
           );
@@ -488,7 +526,7 @@ const RowWrapper = ({ row, columns, style, SubRowsComponent }) => (
   </React.Fragment>
 );
 
-const InvoiceItemTable = ({ data, columns, title }) => (
+const InvoiceItemTable = ({ data, columns, title, formatters }) => (
   <Table>
     <InvoiceItemDataTableHeading columns={columns} title={title} />
     {data.map(row => {
@@ -498,13 +536,14 @@ const InvoiceItemTable = ({ data, columns, title }) => (
           row={row}
           columns={columns}
           style={invoiceItemTableStyles.row}
+          formatters={formatters}
         />
       );
     })}
   </Table>
 );
 
-const PaymentTable = ({ data, columns, title }) => (
+const PaymentTable = ({ data, columns, title, formatters }) => (
   <Table>
     <PaymentDataTableHeading columns={columns} title={title} />
     {data.map((row, rowIndex) => {
@@ -513,26 +552,34 @@ const PaymentTable = ({ data, columns, title }) => (
         borderTop: 'none',
         borderBottom: isLastRow ? borderStyle : 'none',
       };
-      return <RowWrapper key={row.id} row={row} columns={columns} style={rowStyle} />;
+      return (
+        <RowWrapper
+          key={row.id}
+          row={row}
+          columns={columns}
+          style={rowStyle}
+          formatters={formatters}
+        />
+      );
     })}
   </Table>
 );
 
-const InvoiceItemTableSection = ({ title, data, columns }) => {
+const InvoiceItemTableSection = ({ title, data, columns, formatters }) => {
   return (
     <View>
       <View minPresenceAhead={70} />
-      <InvoiceItemTable data={data} columns={columns} title={title} />
+      <InvoiceItemTable data={data} columns={columns} title={title} formatters={formatters} />
       <SectionSpacing />
     </View>
   );
 };
 
-const PaymentTableSection = ({ title, data, columns }) => {
+const PaymentTableSection = ({ title, data, columns, formatters }) => {
   return (
     <View>
       <View minPresenceAhead={70} />
-      <PaymentTable data={data} columns={columns} title={title} />
+      <PaymentTable data={data} columns={columns} title={title} formatters={formatters} />
       <SectionSpacing />
     </View>
   );
@@ -540,7 +587,7 @@ const PaymentTableSection = ({ title, data, columns }) => {
 
 const SummaryPane = ({ invoice }) => {
   const {
-    invoiceItemsTotal,
+    invoiceItemsUndiscountedTotal,
     patientPaymentRemainingBalance,
     patientSubtotal,
     patientPaymentsTotal,
@@ -553,7 +600,7 @@ const SummaryPane = ({ invoice }) => {
     <View wrap={false} style={summaryPaneStyles.container}>
       <View style={summaryPaneStyles.item}>
         <P>Invoice total</P>
-        <P>{formatDisplayPrice(invoiceItemsTotal)}</P>
+        <P>{formatDisplayPrice(invoiceItemsUndiscountedTotal)}</P>
       </View>
       <View style={summaryPaneStyles.item}>
         <P>Item adjustments</P>
@@ -578,9 +625,7 @@ const SummaryPane = ({ invoice }) => {
       <HorizontalRule />
       <View style={summaryPaneStyles.item}>
         <P>Patient payments</P>
-        <P>
-          {formatDisplayPrice(patientPaymentsTotalDisplay)}
-        </P>
+        <P>{formatDisplayPrice(patientPaymentsTotalDisplay)}</P>
       </View>
       <HorizontalRule />
       <View style={[summaryPaneStyles.item, { marginVertical: 7.5 }]}>
@@ -596,12 +641,13 @@ const InvoiceRecordPrintoutComponent = ({
   encounter,
   certificateData,
   discharge,
-  getLocalisation,
   getSetting,
   clinicianText,
   invoice,
   enablePatientInsurer,
 }) => {
+  const { formatShort } = useDateTime();
+  const formatters = { formatShort };
   const { watermark, logo, footerImg } = certificateData;
   const patientPayments = getPatientPaymentsWithRemainingBalanceDisplay(invoice);
   const insurerPayments = getInsurerPaymentsWithRemainingBalanceDisplay(invoice);
@@ -623,11 +669,7 @@ const InvoiceRecordPrintoutComponent = ({
           />
         </CertificateHeader>
         <SectionSpacing />
-        <PatientDetails
-          getLocalisation={getLocalisation}
-          getSetting={getSetting}
-          patient={patientData}
-        />
+        <PatientDetails getSetting={getSetting} patient={patientData} />
         <SectionSpacing />
         <InvoiceEncounterDetails
           encounter={encounter}
@@ -647,6 +689,7 @@ const InvoiceRecordPrintoutComponent = ({
             data={invoice?.items}
             columns={COLUMNS.invoiceItems}
             showAdjustmentRows
+            formatters={formatters}
           />
         )}
         <SummaryPane invoice={invoice} />
@@ -656,6 +699,7 @@ const InvoiceRecordPrintoutComponent = ({
             title="Patient payment"
             data={patientPayments}
             columns={COLUMNS.patientPayments}
+            formatters={formatters}
           />
         )}
         {insurerPayments?.length && (
@@ -663,6 +707,7 @@ const InvoiceRecordPrintoutComponent = ({
             title="Insurer payment"
             data={insurerPayments}
             columns={COLUMNS.insurerPayments}
+            formatters={formatters}
           />
         )}
         {footerImg && <SigningImage src={footerImg} />}
@@ -672,4 +717,6 @@ const InvoiceRecordPrintoutComponent = ({
   );
 };
 
-export const InvoiceRecordPrintout = withLanguageContext(InvoiceRecordPrintoutComponent);
+export const InvoiceRecordPrintout = withLanguageContext(
+  withDateTimeContext(InvoiceRecordPrintoutComponent),
+);

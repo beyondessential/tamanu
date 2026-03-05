@@ -4,6 +4,7 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { CheckSharp } from '@material-ui/icons';
+import { trimToDate } from '@tamanu/utils/dateTime';
 import {
   ADMINISTRATION_FREQUENCIES,
   DRUG_ROUTE_LABELS,
@@ -11,7 +12,6 @@ import {
   FORM_TYPES,
   MAX_REPEATS,
 } from '@tamanu/constants';
-import { formatShortest } from '@tamanu/utils/dateTime';
 import {
   findAdministrationTimeSlotFromIdealTime,
   getDateFromTimeString,
@@ -20,7 +20,16 @@ import {
 } from '@tamanu/shared/utils/medication';
 
 import { TranslatedText } from '../Translation/TranslatedText';
-import { TextField, Form, Button, OutlinedButton, FormGrid } from '@tamanu/ui-components';
+import {
+  TextField,
+  Form,
+  Button,
+  OutlinedButton,
+  FormGrid,
+  DateDisplay,
+  TimeDisplay,
+  TimeRangeDisplay,
+} from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { CheckField, Field, NumberField } from '../Field';
 import { FormModal } from '../FormModal';
@@ -29,7 +38,6 @@ import { useApi } from '../../api';
 import { MedicationDiscontinueModal } from './MedicationDiscontinueModal';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedEnum, TranslatedReferenceData } from '../Translation';
-import { formatTimeSlot } from '../../utils/medications';
 import { MedicationPauseModal } from './MedicationPauseModal';
 import { usePausePrescriptionQuery } from '../../api/queries/usePausePrescriptionQuery';
 import { useEncounter } from '../../contexts/Encounter';
@@ -132,41 +140,41 @@ export const MedicationDetails = ({
       label: (
         <TranslatedText stringId="medication.details.startDate" fallback="Start date & time" />
       ),
-      value: `${formatShortest(medication.startDate)} ${formatTimeSlot(medication.startDate)}`,
+      value: <DateDisplay date={medication.startDate} format="shortest" timeFormat="compact" />,
     },
     ...(medication.isOngoing || medication.discontinued
       ? []
       : [
-          {
-            label: <TranslatedText stringId="medication.details.duration" fallback="Duration" />,
-            value: medication.durationValue
-              ? `${medication.durationValue} ${singularize(
-                  getEnumTranslation(
-                    MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
-                    medication.durationUnit,
-                  ),
-                  medication.durationValue,
-                ).toLowerCase()}`
-              : '-',
-          },
-        ]),
+        {
+          label: <TranslatedText stringId="medication.details.duration" fallback="Duration" />,
+          value: medication.durationValue
+            ? `${medication.durationValue} ${singularize(
+              getEnumTranslation(
+                MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
+                medication.durationUnit,
+              ),
+              medication.durationValue,
+            ).toLowerCase()}`
+            : '-',
+        },
+      ]),
     {
       label: <TranslatedText stringId="medication.details.indication" fallback="Indication" />,
       value: medication.indication || '-',
     },
     {
       label: (
-        <TranslatedText
-          stringId="medication.details.dischargeQuantity"
-          fallback="Discharge quantity"
-        />
+        isOngoingPrescription ? (
+          <TranslatedText stringId="medication.details.quantity" fallback="Quantity" />
+        ) : (
+          <TranslatedText
+            stringId="medication.details.dischargeQuantity"
+            fallback="Discharge quantity"
+          />
+        )
       ),
       value: medication.quantity ?? '-',
-    },
-    {
-      label: <TranslatedText stringId="medication.details.repeats" fallback="Repeats" />,
-      value: medication.repeats ?? 0,
-    },
+    }
   ];
 
   const rightDetails = [
@@ -183,18 +191,18 @@ export const MedicationDetails = ({
           fallback="Prescription date"
         />
       ),
-      value: `${formatShortest(medication.date)}`,
+      value: <DateDisplay date={trimToDate(medication.date)} format="shortest" />,
     },
     ...(medication.isOngoing || medication.discontinued || !medication.endDate
       ? []
       : [
-          {
-            label: (
-              <TranslatedText stringId="medication.details.endDate" fallback="End date & time" />
-            ),
-            value: `${formatShortest(medication.endDate)} ${formatTimeSlot(medication.endDate)}`,
-          },
-        ]),
+        {
+          label: (
+            <TranslatedText stringId="medication.details.endDate" fallback="End date & time" />
+          ),
+          value: <DateDisplay date={medication.endDate} format="shortest" timeFormat="compact" />,
+        },
+      ]),
     {
       label: <TranslatedText stringId="medication.details.prescriber" fallback="Prescriber" />,
       value: medication.prescriber?.displayName || '-',
@@ -238,13 +246,7 @@ export const MedicationDetails = ({
   };
 
   const validationSchema = yup.object().shape({
-    repeats: yup
-      .number()
-      .integer()
-      .min(0)
-      .max(MAX_REPEATS)
-      .nullable()
-      .optional(),
+    repeats: yup.number().integer().min(0).max(MAX_REPEATS).nullable().optional(),
   });
 
   return (
@@ -301,9 +303,14 @@ export const MedicationDetails = ({
                           fallback="Discontinue date & time"
                         />
                       </MidText>
-                      <DarkestText mt={0.5}>{`${formatShortest(
-                        medication.discontinuedDate,
-                      )} ${formatTimeSlot(medication.discontinuedDate)}`}</DarkestText>
+                      <DarkestText mt={0.5}>
+                        <DateDisplay date={medication.discontinuedDate} format="shortest" />{' '}
+                        <TimeDisplay
+                          date={medication.discontinuedDate}
+                          timeFormat="compact"
+                          noTooltip
+                        />
+                      </DarkestText>
                     </Box>
                   </DetailsContainer>
                   <Box my={2.5} height={'1px'} bgcolor={Colors.outline} />
@@ -335,9 +342,11 @@ export const MedicationDetails = ({
                           pauseData.pauseDuration,
                         ).toLowerCase()}{' '}
                         - {<TranslatedText stringId="medication.details.until" fallback="until" />}{' '}
-                        {`${formatShortest(pauseData.pauseEndDate)} ${formatTimeSlot(
-                          pauseData.pauseEndDate,
-                        )}`}
+                        <DateDisplay
+                          date={pauseData.pauseEndDate}
+                          format="shortest"
+                          timeFormat="compact"
+                        />
                       </DarkestText>
                     </Box>
                     <Box flex={1} pl={2.5} borderLeft={`1px solid ${Colors.outline}`}>
@@ -480,9 +489,12 @@ export const MedicationDetails = ({
                           const slot = findAdministrationTimeSlotFromIdealTime(time).timeSlot;
                           return (
                             <DarkestText key={time}>
-                              {`${formatTimeSlot(
-                                getDateFromTimeString(slot.startTime),
-                              )} - ${formatTimeSlot(getDateFromTimeString(slot.endTime))} `}
+                              <TimeRangeDisplay
+                                range={{
+                                  start: getDateFromTimeString(slot.startTime),
+                                  end: getDateFromTimeString(slot.endTime),
+                                }}
+                              />
                             </DarkestText>
                           );
                         })}
@@ -498,7 +510,11 @@ export const MedicationDetails = ({
                         .map(time => {
                           return (
                             <MidText key={time}>
-                              {formatTimeSlot(getDateFromTimeString(time))}
+                              <TimeDisplay
+                                date={getDateFromTimeString(time)}
+                                format="compact"
+                                noTooltip
+                              />
                             </MidText>
                           );
                         })}
@@ -507,7 +523,11 @@ export const MedicationDetails = ({
                 </Box>
                 <Box flex={1}>
                   <DarkestText color={`${Colors.darkText} !important`} mb={0.5}>
-                    <TranslatedText stringId="medication.details.repeats" fallback="Repeats" />
+                    {encounter && !isOngoingPrescription ? (
+                      <TranslatedText stringId="medication.details.repeatsOnDischarge" fallback="Repeats on discharge" />
+                    ) : (
+                      <TranslatedText stringId="medication.details.repeats" fallback="Repeats" />
+                    )}
                   </DarkestText>
                   <NoteModalActionBlocker>
                     <Field

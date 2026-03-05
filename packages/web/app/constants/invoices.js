@@ -21,6 +21,8 @@ export const INVOICE_MODAL_TYPES = {
   DELETE_INVOICE: 'deleteInvoice',
   INSURANCE: 'insurance',
   PRINT: 'print',
+  EDIT_ITEMS: 'editItems',
+  ADD_ITEMS: 'addItems',
 };
 
 export const INVOICE_DISCOUNT_TYPES = {
@@ -28,4 +30,4 @@ export const INVOICE_DISCOUNT_TYPES = {
   ASSESSMENT: 'assessment',
 };
 
-export const CASH_PAYMENT_METHOD_ID = 'paymentmethod-cash';
+export const CASH_PAYMENT_METHOD_ID = 'paymentMethod-cash';

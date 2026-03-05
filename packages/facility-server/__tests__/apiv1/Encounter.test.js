@@ -995,9 +995,7 @@ describe('Encounter', () => {
 
         const result = await app.post('/api/medication/import-ongoing').send({
           encounterId: medicationEncounter.id,
-          medications: [
-            { prescriptionId: ongoingPrescription.id, quantity: 10, repeats: 1 },
-          ],
+          medications: [{ prescriptionId: ongoingPrescription.id, quantity: 10, repeats: 1 }],
           prescriberId: app.user.id,
         });
         expect(result).toHaveRequestError();
@@ -1074,14 +1072,14 @@ describe('Encounter', () => {
         expect(pharmacyOrderPrescriptions[0].repeats).toBe(1);
       });
 
-      it('should return the last ordered timestamp of the medication has been ordered', async () => {
-        const fakeCreatedAt = new Date('2020-01-01T00:00:00.000Z');
-        const pharmacyOrder = await app
+      it('should return the last ordered date time string of the medication has been ordered', async () => {
+        const firstOrderedAt = '2020-01-01 09:00:00';
+        const lastOrderedAt = '2020-01-15 14:30:00';
+
+        const firstOrder = await app
           .post(`/api/encounter/${pharmacyOrderEncounter.id}/pharmacyOrder`)
           .send({
             orderingClinicianId: app.user.id,
-            comments: 'comments',
-            date: getCurrentDateTimeString(),
             facilityId: facilityId,
             pharmacyOrderPrescriptions: [
               {
@@ -1091,16 +1089,37 @@ describe('Encounter', () => {
               },
             ],
           });
+        expect(firstOrder).toHaveSucceeded();
 
-        await models.PharmacyOrderPrescription.update(
-          { createdAt: fakeCreatedAt },
-          { where: { pharmacyOrderId: pharmacyOrder.body.id } },
+        const secondOrder = await app
+          .post(`/api/encounter/${pharmacyOrderEncounter.id}/pharmacyOrder`)
+          .send({
+            orderingClinicianId: app.user.id,
+            facilityId: facilityId,
+            pharmacyOrderPrescriptions: [
+              {
+                prescriptionId: testPrescription.id,
+                quantity: 2,
+                repeats: 1,
+              },
+            ],
+          });
+        expect(secondOrder).toHaveSucceeded();
+
+        await models.PharmacyOrder.update(
+          { date: firstOrderedAt },
+          { where: { id: firstOrder.body.id } },
+        );
+        await models.PharmacyOrder.update(
+          { date: lastOrderedAt },
+          { where: { id: secondOrder.body.id } },
         );
 
         const result = await app.get(`/api/encounter/${pharmacyOrderEncounter.id}/medications`);
         expect(result).toHaveSucceeded();
         const { body } = result;
-        expect(body.data[0].lastOrderedAt).toEqual(fakeCreatedAt.toISOString());
+        expect(body.data).toHaveLength(1);
+        expect(body.data[0].lastOrderedAt).toEqual(lastOrderedAt);
       });
     });
 

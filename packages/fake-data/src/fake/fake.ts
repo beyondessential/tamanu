@@ -6,6 +6,7 @@ import { inspect } from 'util';
 import { formatISO9075 } from 'date-fns';
 
 import {
+  ADMINISTRATION_FREQUENCIES,
   CURRENTLY_AT_TYPES,
   DAYS_OF_WEEK,
   DIAGNOSIS_CERTAINTY_VALUES,
@@ -358,6 +359,12 @@ const MODEL_SPECIFIC_OVERRIDES = {
   PatientProgramRegistration: ({ patientId, programRegistryId }) => ({
     id: `${patientId.replaceAll(';', ':')};${programRegistryId.replaceAll(';', ':')}`,
     registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+  }),
+  Prescription: () => ({
+    frequency: chance.pickone(Object.values(ADMINISTRATION_FREQUENCIES)),
+    discontinued: false,
+    endDate: null,
+    idealTimes: null,
   }),
   User: () => ({
     email: chance.email({ length: 20 }),

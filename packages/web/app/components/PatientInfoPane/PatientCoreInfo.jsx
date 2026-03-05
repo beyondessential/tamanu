@@ -1,8 +1,7 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
 import { Button, Typography } from '@material-ui/core';
-import { TranslatedSex, TranslatedText, useTranslation } from '@tamanu/ui-components';
-import { DateDisplay } from '../DateDisplay';
+import { TranslatedSex, TranslatedText, useTranslation, DateDisplay } from '@tamanu/ui-components';
 import { PatientInitialsIcon } from '../PatientInitialsIcon';
 import { useSettings } from '../../contexts/Settings';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
