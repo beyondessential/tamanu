@@ -30,8 +30,8 @@ export const Checkbox = ({
   text,
   error,
   required = false,
-  background,
-  color,
+  background = theme.colors.WHITE,
+  color = theme.colors.PRIMARY_MAIN ,
   label,
   fieldFontSize,
   fieldColor,
@@ -91,9 +91,4 @@ export const Checkbox = ({
       {error && <TextFieldErrorMessage>{error}</TextFieldErrorMessage>}
     </StyledView>
   );
-};
-
-Checkbox.defaultProps = {
-  background: theme.colors.WHITE,
-  color: theme.colors.PRIMARY_MAIN,
 };

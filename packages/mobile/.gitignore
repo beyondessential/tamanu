@@ -74,3 +74,5 @@ coverage/
 dockercfg
 
 metro-cache
+
+/android/app/.cxx

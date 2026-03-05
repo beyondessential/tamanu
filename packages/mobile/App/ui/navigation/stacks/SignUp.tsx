@@ -19,18 +19,17 @@ const TransitionStyle = TransitionPresets.SlideFromRightIOS;
 export const SignUpStack = ({ route }: IndexStackProps): ReactElement => {
   const { signedOutFromInactivity } = route.params;
   return (
-    <Stack.Navigator headerMode="none" initialRouteName={Routes.SignUpStack.SignIn}>
+    <Stack.Navigator
+      screenOptions={{ headerShown: false }}
+      initialRouteName={Routes.SignUpStack.SignIn}
+    >
       <Stack.Screen
         name={Routes.SignUpStack.Intro}
         component={IntroScreen}
         initialParams={{ signedOutFromInactivity }}
         options={TransitionStyle}
       />
-      <Stack.Screen
-        name={Routes.SignUpStack.SignIn}
-        component={SignIn}
-        options={TransitionStyle}
-      />
+      <Stack.Screen name={Routes.SignUpStack.SignIn} component={SignIn} options={TransitionStyle} />
       <Stack.Screen
         name={Routes.SignUpStack.ResetPassword}
         component={ResetPassword}
