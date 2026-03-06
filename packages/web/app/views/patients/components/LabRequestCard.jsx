@@ -30,7 +30,7 @@ const CardItem = styled.div`
   grid-row-gap: 2px;
   font-size: 14px;
   line-height: 18px;
-  color: ${(props) => props.theme.palette.text.tertiary};
+  color: ${props => props.theme.palette.text.tertiary};
 `;
 
 const BorderSection = styled(CardItem)`
@@ -45,7 +45,7 @@ const CardLabel = styled.span`
 
 const CardValue = styled(CardLabel)`
   font-weight: 500;
-  color: ${(props) => props.theme.palette.text.secondary};
+  color: ${props => props.theme.palette.text.secondary};
 `;
 
 export const LabRequestCard = ({ labRequest, actions }) => {
@@ -56,7 +56,7 @@ export const LabRequestCard = ({ labRequest, actions }) => {
         <CardItem data-testid="carditem-urbq">
           <CardLabel data-testid="cardlabel-9yw2">
             <TranslatedText
-              stringId="imaging.requestId.label"
+              stringId="general.requestId.label"
               fallback="Request ID"
               data-testid="translatedtext-scz2"
             />
