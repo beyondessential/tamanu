@@ -28,4 +28,3 @@ export const INVOICE_DISCOUNT_TYPES = {
   ASSESSMENT: 'assessment',
 };
 
-export const CASH_PAYMENT_METHOD_ID = 'paymentmethod-cash';
