@@ -20,7 +20,7 @@ import { Modal } from '../../components/Modal';
 import { TranslatedText } from '../../components/Translation';
 import { ModalFormActionRow } from '../../components/ModalActionRow';
 import { useCreatePatientPayment, useUpdatePatientPayment } from '../../api/mutations';
-import { CASH_PAYMENT_METHOD_ID } from '../../constants';
+import { useDefaultPaymentMethodId } from './useDefaultPaymentMethodId';
 
 const RECEIPT_NUMBER_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ123456789';
 const RECEIPT_NUMBER_LENGTH = 8;
@@ -175,6 +175,7 @@ export const PatientPaymentModal = ({
   const validationSchema = getValidationSchema(paymentRecord, patientPaymentRemainingBalance);
 
   const paymentMethodSuggester = useSuggester('paymentMethod');
+  const { defaultMethodId, loading: loadingDefaultMethod } = useDefaultPaymentMethodId(paymentMethodSuggester);
   const { mutate: createPatientPayment } = useCreatePatientPayment(invoice);
   const { mutate: updatePatientPayment } = useUpdatePatientPayment(invoice, paymentRecord.id);
 
@@ -207,14 +208,14 @@ export const PatientPaymentModal = ({
       onClose={onClose}
       data-testid="modal-j1bi"
     >
-      <Form
+      {loadingDefaultMethod ? null : <Form
         enableReinitialize
         suppressErrorDialog
         onSubmit={handleSubmit}
         validationSchema={validationSchema}
         initialValues={{
           date: paymentRecord.date || getCurrentDateString(),
-          methodId: paymentRecord.patientPayment?.methodId || CASH_PAYMENT_METHOD_ID,
+          methodId: paymentRecord.patientPayment?.methodId ?? defaultMethodId ?? '',
           amount: paymentRecord.amount != null ? paymentRecord.amount : '',
           receiptNumber: paymentRecord.receiptNumber,
         }}
@@ -342,7 +343,7 @@ export const PatientPaymentModal = ({
             </>
           );
         }}
-      />
+      />}
     </StyledModal>
   );
 };
