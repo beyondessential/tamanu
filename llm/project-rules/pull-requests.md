@@ -29,32 +29,40 @@ type(scope): no-issue: description
 **Examples**:
 ```bash
 # Correct - with ticket
-gh pr create --title "feat(invoicing): SAV-1234: add sliding fee scale" --fill
-gh pr create --title "fix(labs): COOL-567: correct status transition" --fill
+gh pr create --title "feat(invoicing): SAV-1234: add sliding fee scale" --body "$(cat .github/pull_request_template.md)"
+gh pr create --title "fix(labs): COOL-567: correct status transition" --body "$(cat .github/pull_request_template.md)"
 
 # Correct - without ticket
-gh pr create --title "chore: no-issue: update llm documentation" --fill
-gh pr create --title "refactor(auth): no-issue: simplify token validation" --fill
+gh pr create --title "chore: no-issue: update llm documentation" --body "$(cat .github/pull_request_template.md)"
+gh pr create --title "refactor(auth): no-issue: simplify token validation" --body "$(cat .github/pull_request_template.md)"
 
 # Wrong - missing ticket/no-issue
-gh pr create --title "feat(invoicing): add sliding fee scale" --fill
+gh pr create --title "feat(invoicing): add sliding fee scale" --body "$(cat .github/pull_request_template.md)"
 
 # Wrong - missing second colon
-gh pr create --title "feat(invoicing): SAV-1234 add sliding fee scale" --fill
+gh pr create --title "feat(invoicing): SAV-1234 add sliding fee scale" --body "$(cat .github/pull_request_template.md)"
 
 # Wrong - docs not allowed
-gh pr create --title "docs: no-issue: update README" --fill
+gh pr create --title "docs: no-issue: update README" --body "$(cat .github/pull_request_template.md)"
 ```
 
 ## Always Use the PR Template
 
-When creating pull requests with `gh pr create`, always use the repository's PR template. Do NOT provide a custom `--body` flag. Instead, let the template populate and fill in the sections:
+When creating pull requests with `gh pr create`, always include the repository's PR template in the body. **Do NOT use `--fill`** — it auto-fills from commit messages and skips the template entirely.
+
+Read `.github/pull_request_template.md` **from the target branch** (templates may differ between branches) and pass its contents as the PR body:
 
 ```bash
-# Correct - uses template
-gh pr create --title "feat(scope): description" --fill
+# Correct - includes the PR template from the target branch
+gh pr create --title "feat(scope): TICKET-123: description" --body "$(git show origin/<base-branch>:.github/pull_request_template.md)"
 
-# Wrong - overwrites template
+# Also correct - if already on the target branch, can use local file
+gh pr create --title "feat(scope): TICKET-123: description" --body "$(cat .github/pull_request_template.md)"
+
+# Wrong - skips the template, fills from commits
+gh pr create --title "..." --fill
+
+# Wrong - overwrites template with custom body
 gh pr create --title "..." --body "custom body"
 ```
 
