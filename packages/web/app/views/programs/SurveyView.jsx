@@ -8,6 +8,7 @@ import {
   getValidationSchema,
   SurveyScreenPaginator,
   TranslatedReferenceData,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { getComponentForQuestionType } from '../../components/Surveys';
@@ -48,18 +49,20 @@ export const SurveyViewForm = ({
   setSurveyFormDirty,
 }) => {
   const { getTranslation } = useTranslation();
+  const { getCurrentDateTime } = useDateTime();
   const { encounter } = useEncounter();
   const { components } = survey;
   const currentComponents = components.filter(
     c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
   );
-  const initialValues = getFormInitialValues(
-    currentComponents,
+  const initialValues = getFormInitialValues({
+    components: currentComponents,
+    additionalData: patientAdditionalData,
     patient,
-    patientAdditionalData,
     currentUser,
     patientProgramRegistration,
-  );
+    getCurrentDateTime,
+  });
   const validationSchema = useMemo(() => getValidationSchema(survey, getTranslation), [
     survey,
     getTranslation,

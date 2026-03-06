@@ -10,7 +10,7 @@ export class CertificateNotification extends Model {
   declare type?: string;
   declare facilityName?: string;
   declare forwardAddress?: string;
-  declare requireSigning?: boolean;
+
   declare status?: string;
   declare error?: string;
   declare language?: string;
@@ -27,7 +27,7 @@ export class CertificateNotification extends Model {
         type: DataTypes.STRING,
         facilityName: DataTypes.STRING,
         forwardAddress: DataTypes.STRING,
-        requireSigning: DataTypes.BOOLEAN,
+
         status: DataTypes.STRING,
         error: DataTypes.TEXT,
         language: DataTypes.STRING,

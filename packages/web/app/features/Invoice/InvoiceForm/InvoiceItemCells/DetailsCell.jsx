@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box } from '@material-ui/core';
 import styled from 'styled-components';
+import { useSuggester } from '@tamanu/ui-components';
 import {
   AutocompleteField,
   Field,
@@ -38,17 +39,22 @@ const CellText = styled.span`
 export const DetailsCell = ({
   index,
   item,
-  isItemEditable,
-  invoiceProductsSuggester,
   handleChangeProduct,
-  invoiceIsEditable,
   isEditing,
   isSaved,
+  priceListId,
 }) => {
+  const invoiceProductsSuggester = useSuggester('invoiceProduct', {
+    formatter: ({ name, id }) => ({
+      label: name,
+      value: id,
+    }),
+    baseQueryParameters: { priceListId },
+  });
   const detailsText = item.productNameFinal || item.product?.name;
   return (
     <Container>
-      {isItemEditable ? (
+      {isEditing ? (
         <NoteModalActionBlocker>
           <StyledField
             name={`invoiceItems.${index}.productId`}
@@ -67,7 +73,7 @@ export const DetailsCell = ({
         </ThemedTooltip>
       )}
       {!isEditing && isSaved && item.note && (
-        <Box marginTop={invoiceIsEditable ? '4px' : '-8px'} color={Colors.darkText}>
+        <Box color={Colors.darkText}>
           <TranslatedText
             stringId="invoice.modal.editInvoice.note.label"
             fallback="Note"

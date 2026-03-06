@@ -20,11 +20,6 @@ import {
   getDateFromTimeString,
   getFirstAdministrationDate,
 } from '@tamanu/shared/utils/medication';
-import {
-  formatShort,
-  getCurrentDateString,
-  getCurrentDateTimeString,
-} from '@tamanu/utils/dateTime';
 import { format, subSeconds } from 'date-fns';
 import { useFormikContext } from 'formik';
 import { toast } from 'react-toastify';
@@ -51,6 +46,7 @@ import {
   FormGrid,
   FormSubmitButton,
   Dialog,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { Colors, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
@@ -65,9 +61,12 @@ import { useSettings } from '../contexts/Settings';
 import { ChevronIcon } from '../components/Icons/ChevronIcon';
 import { ConditionalTooltip } from '../components/Tooltip';
 import { capitalize } from 'lodash';
-import { preventInvalidNumber, preventInvalidRepeatsInput, validateDecimalPlaces } from '../utils/utils';
+import {
+  preventInvalidNumber,
+  preventInvalidRepeatsInput,
+  validateDecimalPlaces,
+} from '../utils/utils';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
-import { formatTimeSlot } from '../utils/medications';
 import { useEncounter } from '../contexts/Encounter';
 import { usePatientAllergiesQuery } from '../api/queries/usePatientAllergiesQuery';
 import { useMedicationIdealTimes } from '../hooks/useMedicationIdealTimes';
@@ -97,13 +96,7 @@ const validationSchema = yup.object().shape({
   units: foreignKey(
     <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
   ).oneOf(DRUG_UNIT_VALUES),
-  repeats: yup
-    .number()
-    .integer()
-    .min(0)
-    .max(MAX_REPEATS)
-    .nullable()
-    .optional(),
+  repeats: yup.number().integer().min(0).max(MAX_REPEATS).nullable().optional(),
   frequency: foreignKey(
     <TranslatedText stringId="validation.required.inline" fallback="*Required" />,
   ),
@@ -163,7 +156,12 @@ const StyledCheckField = styled(CheckField)`
   cursor: pointer;
   width: 100%;
   background-color: ${Colors.white};
-  border: 1px solid ${({ $checked }) => ($checked ? Colors.primary : Colors.outline)};
+  border: 1px solid
+    ${({ $isChecked, $isLocked }) => {
+    if ($isLocked && $isChecked) return Colors.midText;
+    if ($isChecked) return Colors.primary;
+    return Colors.outline;
+  }};
   border-radius: 3px;
   .MuiFormControlLabel-root {
     padding: 10px 2px;
@@ -364,6 +362,7 @@ const isOneTimeFrequency = frequency =>
 
 const MedicationAdministrationForm = ({ frequencyChanged }) => {
   const { getSetting } = useSettings();
+  const { formatTimeCompact, formatShort } = useDateTime();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
 
   const { values, setValues } = useFormikContext();
@@ -387,10 +386,10 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
 
     const firstSlot = findAdministrationTimeSlotFromIdealTime(firstStartTime).timeSlot;
 
-    return `${formatTimeSlot(getDateFromTimeString(firstSlot.startTime))} - ${formatTimeSlot(
+    return `${formatTimeCompact(getDateFromTimeString(firstSlot.startTime))} - ${formatTimeCompact(
       getDateFromTimeString(firstSlot.endTime),
     )} ${formatShort(new Date(firstStartTime))}`;
-  }, [values.startDate, selectedTimeSlots]);
+  }, [values.startDate, values.frequency, selectedTimeSlots, formatTimeCompact, formatShort]);
 
   useEffect(() => {
     if (frequencyChanged) {
@@ -550,9 +549,9 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
                     >
                       <CheckInput
                         label={
-                          <FieldContent>{`${formatTimeSlot(startTime)} - ${formatTimeSlot(
-                            endTime,
-                          )}`}</FieldContent>
+                          <FieldContent>
+                            {`${formatTimeCompact(startTime)} - ${formatTimeCompact(endTime)}`}
+                          </FieldContent>
                         }
                         value={checked}
                         onChange={(_, value) => handleSelectTimeSlot(value, slot, index)}
@@ -633,6 +632,7 @@ export const MedicationForm = ({
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
   const queryClient = useQueryClient();
   const { loadEncounter } = useEncounter();
+  const { getCurrentDate, getCurrentDateTime } = useDateTime();
   const { data: { data: medications = [] } = {} } = useEncounterMedicationQuery(encounterId);
   const existingDrugIds = medications
     .filter(({ discontinued }) => !discontinued)
@@ -747,10 +747,10 @@ export const MedicationForm = ({
 
   const getInitialValues = () => {
     return {
-      date: getCurrentDateString(),
+      date: getCurrentDate(),
       prescriberId: currentUser.id,
       isVariableDose: false,
-      startDate: getCurrentDateTimeString(),
+      startDate: getCurrentDateTime(),
       isOngoing: isOngoingPrescription,
       repeats: editingMedication?.repeats ?? 0,
       timeSlots: defaultTimeSlots,
@@ -765,9 +765,9 @@ export const MedicationForm = ({
   };
 
   const getStockLevelIcon = () => {
-    if (drugQuantity > 0) return <CircleHelp size={20} color={Colors.safe} />;
+    if (drugQuantity > 0) return <CircleCheck size={20} color={Colors.safe} />;
     if (drugQuantity === 0) return <CircleAlert size={20} color={Colors.alert} />;
-    return <CircleCheck size={20} color={Colors.blue} />;
+    return <CircleHelp size={20} color={Colors.blue} />;
   };
 
   const getStockLevelContent = () => {
@@ -934,9 +934,15 @@ export const MedicationForm = ({
                           setValues({ ...values, durationValue: '', durationUnit: '' });
                         }
                       }}
-                      checkedIcon={<StyledIcon className="far fa-check-square" $color={Colors.midText} />}
+                      checkedIcon={
+                        <StyledIcon
+                          className="far fa-check-square"
+                          $color={isOngoingPrescription ? Colors.midText : Colors.primary}
+                        />
+                      }
                       data-testid="medication-field-isOngoing-7j2p"
-                      $checked={values.isOngoing || isOngoingPrescription}
+                      $isChecked={values.isOngoing || isOngoingPrescription}
+                      $isLocked={isOngoingPrescription}
                     />
                   </ConditionalTooltip>
                 </CheckboxRowItem>
@@ -948,7 +954,7 @@ export const MedicationForm = ({
                     }
                     component={StyledCheckField}
                     data-testid="medication-field-isPrn-9n4q"
-                    $checked={values.isPrn}
+                    $isChecked={values.isPrn}
                   />
                 </CheckboxRowItem>
               </CheckboxRow>
@@ -972,7 +978,7 @@ export const MedicationForm = ({
                   }
                 }}
                 data-testid="medication-field-isVariableDose-5h8x"
-                $checked={values.isVariableDose}
+                $isChecked={values.isVariableDose}
               />
             </VariableDoseFieldWrapper>
             <Field
@@ -1009,7 +1015,12 @@ export const MedicationForm = ({
             />
             <Field
               name="route"
-              label={<TranslatedText stringId="medication.routeOfAdministration.label" fallback="Route of administration" />}
+              label={
+                <TranslatedText
+                  stringId="medication.routeOfAdministration.label"
+                  fallback="Route of administration"
+                />
+              }
               component={TranslatedSelectField}
               enumValues={DRUG_ROUTE_LABELS}
               required
@@ -1020,7 +1031,6 @@ export const MedicationForm = ({
               label={
                 <TranslatedText stringId="medication.date.label" fallback="Prescription date" />
               }
-              saveDateAsString
               component={DateField}
               required
               data-testid="medication-field-date-8m5k"
@@ -1033,7 +1043,6 @@ export const MedicationForm = ({
                   fallback="Start date & time"
                 />
               }
-              saveDateAsString
               component={DateTimeField}
               required
               data-testid="medication-field-startDate-1a9s"

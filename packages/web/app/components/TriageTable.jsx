@@ -1,9 +1,9 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams, useNavigate } from 'react-router';
+import { DateDisplay } from '@tamanu/ui-components';
 import { useEncounter } from '../contexts/Encounter';
 import { useAuth } from '../contexts/Auth';
-import { DateDisplay } from './DateDisplay';
 import { LocationCell, LocationGroupCell } from './LocationCell';
 import { TriageWaitTimeCell } from './TriageWaitTimeCell';
 import { reloadPatient } from '../store';
