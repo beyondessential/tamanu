@@ -56,7 +56,7 @@ export const LabRequestCard = ({ labRequest, actions }) => {
         <CardItem data-testid="carditem-urbq">
           <CardLabel data-testid="cardlabel-9yw2">
             <TranslatedText
-              stringId="imaging.requestId.label"
+              stringId="general.requestId.label"
               fallback="Request ID"
               data-testid="translatedtext-scz2"
             />
