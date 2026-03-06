@@ -1,5 +1,5 @@
 project: Tamanu
-description: a healthcare management system for Pacific Island nations
+description: a healthcare management system
 
 agents:
   bes-requirements:
