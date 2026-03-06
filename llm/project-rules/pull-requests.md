@@ -68,11 +68,16 @@ gh pr create --title "..." --body "custom body"
 
 The PR template (`.github/pull_request_template.md`) contains important elements:
 
+- **Changes section**: Brief description of the PR for reviewer context
 - **Deploy checkbox**: `<!-- #deploy -->` triggers deployment to Tamanu Internal
 - **E2E checkbox**: `<!-- #e2e -->` triggers end-to-end tests
 - **Reminder checklist**: Important steps like updating docs, adding tests, etc.
 
-After creating the PR, edit it on GitHub to fill in the "Changes" section with a description.
+## Fill in the Changes Section
+
+When creating the PR, replace the placeholder text in the "Changes" section with a brief summary of what the PR does. Do this at PR creation time by modifying the template content before passing it to `--body`, not as a separate edit step.
+
+The summary should give reviewers context — what changed, why, and any notable details. Keep it concise (a short paragraph is fine).
 
 ## Always Fix Linting Issues Before Pushing
 
