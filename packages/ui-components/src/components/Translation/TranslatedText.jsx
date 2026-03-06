@@ -17,8 +17,7 @@ export const TranslatedText = ({ stringId, fallback, replacements, casing }) => 
   const { getTranslation } = useTranslation();
 
   const translation = useMemo(
-    () =>
-      getTranslation(stringId, fallback, { replacements, casing })?.replace(/\\n/g, '\n') ?? '',
+    () => getTranslation(stringId, fallback, { replacements, casing })?.replace(/\\n/g, '\n'),
     [getTranslation, stringId, fallback, replacements, casing],
   );
 
