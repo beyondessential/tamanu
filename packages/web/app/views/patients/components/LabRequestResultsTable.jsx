@@ -80,7 +80,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
                   { replacements: { secondaryResult } },
                 )}
               >
-                {resultText || '-'}
+                {resultText || '–'}
               </ConditionalTooltip>
             </ResultCell>
           );
