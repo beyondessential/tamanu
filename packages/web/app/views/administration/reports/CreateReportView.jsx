@@ -24,10 +24,20 @@ export const CreateReportView = () => {
   const queryClient = useQueryClient();
   const { ability } = useAuth();
 
-  const onSubmit = async ({ name, query, status, dbSchema, notes, ...queryOptions }) => {
-    const { dataSources } = queryOptions;
-    const isRawReport = dbSchema === REPORT_DB_CONNECTIONS.RAW;
+  const onSubmit = async ({
+    name,
+    query,
+    status,
+    dbSchema,
+    notes,
+    parameters,
+    dateRangeLabel,
+    defaultDateRange,
+    dataSources,
+    advancedConfig = {},
+  }) => {
     try {
+      const isRawReport = dbSchema === REPORT_DB_CONNECTIONS.RAW;
       const { reportDefinitionId, id } = await api.post('admin/reports', {
         name,
         query,
@@ -35,9 +45,12 @@ export const CreateReportView = () => {
         dbSchema,
         notes,
         queryOptions: {
-          ...queryOptions,
+          parameters,
+          dateRangeLabel,
+          defaultDateRange,
           dataSources: isRawReport ? dataSources : [REPORT_DATA_SOURCES.ALL_FACILITIES],
         },
+        advancedConfig,
       });
       queryClient.invalidateQueries(['reportList']);
       navigate(`/admin/reports/${reportDefinitionId}/versions/${id}/edit`);
@@ -72,6 +85,9 @@ export const CreateReportView = () => {
           defaultDateRange: REPORT_DEFAULT_DATE_RANGES.TWENTY_FOUR_HOURS,
           dbSchema: canEditSchema ? REPORT_DB_CONNECTIONS.RAW : null,
           parameters: [],
+          advancedConfig: {
+            dhis2DataSet: '',
+          },
         }}
         onSubmit={onSubmit}
         data-testid="reporteditor-kh3x"

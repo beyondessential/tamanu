@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import * as yup from 'yup';
@@ -10,6 +10,7 @@ import {
   Form,
   ButtonRow,
   Button,
+  JSONEditor,
 } from '@tamanu/ui-components';
 import {
   REPORT_DATA_SOURCE_VALUES,
@@ -32,6 +33,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { useApi } from '../../../api';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useTranslation } from '../../../contexts/Translation';
+import { Colors } from '../../../constants';
 
 const StyledField = styled(Field)`
   flex-grow: 1;
@@ -40,6 +42,87 @@ const StyledField = styled(Field)`
 const StatusField = styled(Field)`
   width: 130px;
 `;
+
+const JSONEditorWrapper = styled.div`
+  margin-top: 8px;
+  margin-bottom: 8px;
+`;
+
+const StyledAccordion = styled(Accordion)`
+  margin-top: 20px;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: none;
+  border: 1px solid ${Colors.outline};
+`;
+
+const StyledAccordionSummary = styled(AccordionSummary)`
+  .MuiAccordionSummary-content {
+    color: ${Colors.darkText};
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 16px;
+    letter-spacing: 0;
+  }
+`;
+
+const AdvancedConfigField = ({ field, form }) => {
+  const { name, value } = field;
+  const { setFieldValue, errors, touched } = form;
+  const [jsonString, setJsonString] = useState('');
+  const [jsonError, setJsonError] = useState(null);
+
+  useEffect(() => {
+    // Convert object to JSON string for display
+    if (value && typeof value === 'object') {
+      try {
+        setJsonString(JSON.stringify(value, null, 2));
+      } catch (err) {
+        setJsonString('');
+      }
+    } else if (typeof value === 'string') {
+      setJsonString(value || '');
+    } else {
+      setJsonString('');
+    }
+  }, [value]);
+
+  const handleChange = (newValue) => {
+    setJsonString(newValue);
+    setJsonError(null);
+
+    // Try to parse and update the form value
+    if (!newValue || newValue.trim() === '') {
+      setFieldValue(name, null);
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(newValue);
+      setFieldValue(name, parsed);
+    } catch (err) {
+      // Invalid JSON - store the error but don't update the form value
+      setJsonError(err);
+    }
+  };
+
+  const fieldError = touched[name] && errors[name];
+  const displayError = jsonError || (fieldError ? new Error(fieldError) : null);
+
+  return (
+    <JSONEditorWrapper>
+      <JSONEditor
+        value={jsonString}
+        onChange={handleChange}
+        editMode={true}
+        error={displayError}
+        placeholder="{}"
+        height="200px"
+        fontSize={14}
+      />
+    </JSONEditorWrapper>
+  );
+};
 
 const generateDefaultParameter = () => ({
   id: Math.random(),
@@ -146,8 +229,8 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
           />
         </Grid>
       </Grid>
-      <Accordion defaultExpanded data-testid="accordion-5sik">
-        <AccordionSummary data-testid="accordionsummary-peqh">
+      <StyledAccordion defaultExpanded data-testid="accordion-5sik">
+        <StyledAccordionSummary data-testid="accordionsummary-peqh">
           <Grid container spacing={1} data-testid="grid-t6ch">
             <Grid item xs={8} data-testid="grid-a375">
               <TranslatedText
@@ -164,7 +247,7 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
               />
             </Grid>
           </Grid>
-        </AccordionSummary>
+        </StyledAccordionSummary>
         <AccordionDetails data-testid="accordiondetails-uvr4">
           <Grid container spacing={2} data-testid="grid-z7ao">
             <Grid item xs={8} data-testid="grid-52vl">
@@ -194,7 +277,27 @@ const ReportEditorForm = ({ isSubmitting, values, setValues, dirty, isEdit, setF
             </Grid>
           </Grid>
         </AccordionDetails>
-      </Accordion>
+      </StyledAccordion>
+      <StyledAccordion data-testid="accordion-advanced-config">
+        <StyledAccordionSummary data-testid="accordionsummary-advanced-config">
+          <TranslatedText
+            stringId="admin.report.advancedConfig.label"
+            fallback="Advanced Config"
+            data-testid="translatedtext-advanced-config"
+          />
+        </StyledAccordionSummary>
+        <AccordionDetails data-testid="accordiondetails-advanced-config">
+          <Grid container spacing={2} data-testid="grid-advanced-config">
+            <Grid item xs={12} data-testid="grid-advanced-config-field">
+              <Field
+                name="advancedConfig"
+                component={AdvancedConfigField}
+                data-testid="field-advanced-config"
+              />
+            </Grid>
+          </Grid>
+        </AccordionDetails>
+      </StyledAccordion>
       <ButtonRow data-testid="buttonrow-on12">
         <StatusField
           name="status"
@@ -350,6 +453,16 @@ export const ReportEditor = ({ initialValues, onSubmit, isEdit }) => {
               stringId="general.status.label"
               fallback="Status"
               data-testid="translatedtext-gj6l"
+            />,
+          ),
+        advancedConfig: yup
+          .object()
+          .nullable()
+          .translatedLabel(
+            <TranslatedText
+              stringId="admin.report.validation.rule.invalidJson"
+              fallback="Invalid JSON format"
+              data-testid="translatedtext-invalid-json"
             />,
           ),
       })}

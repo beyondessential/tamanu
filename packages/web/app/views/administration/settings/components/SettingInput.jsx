@@ -12,7 +12,7 @@ import {
   TranslatedText,
 } from '../../../../components';
 import { Colors } from '../../../../constants/styles';
-import { JSONEditor } from './JSONEditor';
+import { JSONEditor } from '@tamanu/ui-components';
 import { ConditionalTooltip } from '../../../../components/Tooltip';
 import { MultiAutocompleteInput } from '../../../../components/Field/MultiAutocompleteField';
 import { useSuggester } from '../../../../api';
