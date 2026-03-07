@@ -136,6 +136,128 @@ jobs:
             fi
           done
           echo exist=no | tee -a $GITHUB_OUTPUT
+
+      # Check if changes only affect files that don't impact Docker images
+      # If so, we can reuse images from a previous commit instead of rebuilding
+      # Note: We never skip image builds for release tags as they need versioned image tags
+      - name: Check if changes affect images
+        id: check-image-changes
+        if: steps.check-images-exist.outputs.exist == 'no' && steps.ref.outputs.result != '' && !(github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v'))
+        run: |
+          # Define patterns for files that DON'T affect images
+          # These files can change without requiring a new image build
+          declare -a IGNORE_PATTERNS=(
+            '.github/*'
+            '.github/**/*'
+            'llm/*'
+            'llm/**/*'
+            'docs/*'
+            'docs/**/*'
+            '.vscode/*'
+            '.vscode/**/*'
+            '*.md'
+            '*/*.md'
+            '*/**/*.md'
+            '.editorconfig'
+            '.gitignore'
+            '.gitattributes'
+            'LICENSE*'
+            'NOTICE*'
+            'CHANGELOG*'
+            '.nvmrc'
+            '.node-version'
+            'renovate.json'
+            '.eslintignore'
+            '.prettierignore'
+            'CLAUDE.md'
+          )
+
+          # Get changed files based on event type
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            # Fetch the base branch with enough history to find merge base
+            # Use --deepen to extend the shallow clone
+            git fetch origin ${{ github.base_ref }}:refs/remotes/origin/${{ github.base_ref }} --deepen=100 || \
+              git fetch origin ${{ github.base_ref }}:refs/remotes/origin/${{ github.base_ref }}
+
+            # Find the merge base between HEAD and the base branch
+            MERGE_BASE=$(git merge-base origin/${{ github.base_ref }} HEAD 2>/dev/null || echo "")
+
+            if [ -z "$MERGE_BASE" ]; then
+              # If we can't find merge base, try fetching more history
+              git fetch --deepen=200
+              MERGE_BASE=$(git merge-base origin/${{ github.base_ref }} HEAD 2>/dev/null || echo "")
+            fi
+
+            if [ -z "$MERGE_BASE" ]; then
+              echo "Could not find merge base, forcing build"
+              CHANGED_FILES="FORCE_BUILD"
+            else
+              echo "Merge base: $MERGE_BASE"
+              # Use two-dot diff from merge base to HEAD
+              CHANGED_FILES=$(git diff --name-only "$MERGE_BASE"..HEAD)
+            fi
+          else
+            # For push events, compare to parent commit
+            CHANGED_FILES=$(git diff --name-only HEAD^..HEAD 2>/dev/null || echo "FORCE_BUILD")
+          fi
+
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          # Check if all changed files match ignore patterns
+          ONLY_IGNORED=true
+          while IFS= read -r file; do
+            [ -z "$file" ] && continue
+            MATCHES_IGNORE=false
+            for pattern in "${IGNORE_PATTERNS[@]}"; do
+              # Use bash pattern matching
+              if [[ "$file" == $pattern ]]; then
+                MATCHES_IGNORE=true
+                break
+              fi
+            done
+            if [ "$MATCHES_IGNORE" == "false" ]; then
+              echo "File affects images: $file"
+              ONLY_IGNORED=false
+              break
+            else
+              echo "File ignored: $file"
+            fi
+          done <<< "$CHANGED_FILES"
+
+          echo "only-ignored=$ONLY_IGNORED" >> $GITHUB_OUTPUT
+
+      # If changes don't affect images, find an existing image from a previous commit
+      - name: Find existing image from previous commits
+        id: find-existing-image
+        if: steps.check-image-changes.outputs.only-ignored == 'true'
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+
+          # Ensure we have enough commit history for rev-list
+          # The previous step may have already deepened, but ensure we have parent commits
+          git fetch --deepen=50 2>/dev/null || true
+
+          # Walk back through recent commits to find one with existing images
+          # Limit to 50 commits to avoid excessive API calls
+          COMMITS=$(git rev-list --max-count=50 HEAD^ 2>/dev/null || echo "")
+          if [ -z "$COMMITS" ]; then
+            echo "No parent commits available (shallow clone), cannot find existing images"
+            echo "existing-sha=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          for sha in $COMMITS; do
+            echo "Checking for images at sha-$sha..."
+            if skopeo inspect docker://ghcr.io/beyondessential/tamanu-central:sha-$sha 2>&1 >/dev/null; then
+              echo "Found existing image at sha-$sha"
+              echo "existing-sha=$sha" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+          done
+
+          echo "No existing image found in recent commits"
+          echo "existing-sha=" >> $GITHUB_OUTPUT
     outputs:
       ref: ${{ steps.ref.outputs.result }}
       sha: ${{ steps.sha.outputs.sha }}
@@ -146,11 +268,19 @@ jobs:
       go-down: ${{ steps.config.outputs.go-down == 'true' }}
       go-mobile: ${{ steps.config.outputs.go-mobile == 'true' }}
 
+      # The effective SHA to use for image tags - either current commit or a previous commit with existing images
+      # This allows reusing images when only non-image-affecting files changed
+      effective-sha: ${{ steps.find-existing-image.outputs.existing-sha || steps.sha.outputs.sha }}
+
+      # Whether we're reusing images from a previous commit
+      reusing-images: ${{ steps.find-existing-image.outputs.existing-sha != '' }}
+
       # we need to build images when:
       # - we want to bring deploys up, AND the images for this commit don't yet exist, or
       # - we want to build images only, AND the images for this commit don't yet exist, or
       # - we're doing a release, because images are both a product and how we make other artifacts.
-      build-images: ${{ ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || steps.config.outputs.images == 'true') && steps.check-images-exist.outputs.exist != 'yes' }}
+      # - AND we're not reusing images from a previous commit (only non-image files changed)
+      build-images: ${{ ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || steps.config.outputs.images == 'true') && steps.check-images-exist.outputs.exist != 'yes' && steps.find-existing-image.outputs.existing-sha == '' }}
 
   images:
     needs: config
@@ -282,7 +412,7 @@ jobs:
             || true
           }
 
-          retag sha-${{ needs.config.outputs.sha }}
+          retag sha-${{ needs.config.outputs.effective-sha }}
 
           # quit now if we're not releasing
           # we can't have an empty string in the continue case because that's interpreted as falsy and writes 'exit'
@@ -298,7 +428,8 @@ jobs:
       - multi-arch
     # If we're deploying (go-up):
     # - and we're building images (build-images), we need them (multi-arch) to succeed
-    # - or if we're not building images, we need to ignore that multi-arch was skipped
+    # - or if we're not building images (either images exist for this SHA, or we're reusing from a previous commit),
+    #   we need to ignore that multi-arch was skipped
     #
     # always() is how github actions knows to run this job even if a `needs` job failed/didn't run
     if: always() && needs.config.outputs.go-up == 'true' && (needs.config.outputs.build-images == 'false' || needs.multi-arch.result == 'success')
@@ -313,7 +444,7 @@ jobs:
       deploy-name: ${{ matrix.name }}
       options: ${{ matrix.options }}
       control: ${{ matrix.control }}
-      image-tag: sha-${{ needs.config.outputs.sha }}
+      image-tag: sha-${{ needs.config.outputs.effective-sha }}
       ref: ${{ needs.config.outputs.ref }}
     secrets:
       PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
