@@ -91,7 +91,7 @@ const PrintDescription = styled(Box)`
 const PrintStyles = createGlobalStyle`
   @media print {
     @page {
-      margin: 3mm;
+      margin: 0;
       size: auto;
     }
 

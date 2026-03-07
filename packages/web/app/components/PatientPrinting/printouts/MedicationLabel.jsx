@@ -28,15 +28,9 @@ const Label = styled.div`
   }
 `;
 
-const LabelTitle = styled.div`
-  font-weight: 700;
-  line-height: ${props => props.$fontSize * 1.875}mm;
-  text-align: center;
-`;
-
 const LabelContent = styled.div`
-  padding-left: 4.25mm;
-  padding-right: 4.25mm;
+  padding-left: 2mm;
+  padding-right: 2mm;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -93,20 +87,6 @@ const LabelRow = styled.div`
   font-weight: 400;
 `;
 
-const LabelFooter = styled.div`
-  border-top: 0.177mm solid ${Colors.black};
-  padding: 1.416mm 0;
-  margin-top: 0.708mm;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-const LabelFooterText = styled.div`
-  font-weight: 400;
-  text-align: center;
-`;
-
 export const getMedicationLabel = (quantity, units, getEnumTranslation) => {
   if (!quantity || !units) return;
   const enumTranslation = getEnumTranslation(DRUG_UNIT_LABELS, units);
@@ -131,20 +111,12 @@ export const MedicationLabel = React.memo(({ data }) => {
     remainingRepeats,
     prescriberName,
     requestNumber,
-    facilityAddress,
-    facilityContactNumber,
   } = data;
 
-  const fontSize = labelHeight * 0.071;
+  const fontSize = labelHeight * 0.09;
 
   return (
     <Label $width={labelWidth} $height={labelHeight} $fontSize={fontSize}>
-      <LabelTitle $fontSize={fontSize}>
-        <TranslatedText
-          stringId="modal.medication.dispense.label.title"
-          fallback="Keep out of reach of children"
-        />
-      </LabelTitle>
       <LabelContent>
         <LabelTopSection>
           <LabelMedicationName>{medicationName}</LabelMedicationName>
@@ -175,13 +147,6 @@ export const MedicationLabel = React.memo(({ data }) => {
           </LabelRightColumn>
         </LabelBottomSection>
       </LabelContent>
-      <LabelFooter>
-        <LabelFooterText>
-          {[facilityAddress, facilityContactNumber && `Ph: ${facilityContactNumber}`]
-            .filter(Boolean)
-            .join(', ')}
-        </LabelFooterText>
-      </LabelFooter>
     </Label>
   );
 });
@@ -197,7 +162,5 @@ MedicationLabel.propTypes = {
     remainingRepeats: PropTypes.number.isRequired,
     prescriberName: PropTypes.string.isRequired,
     requestNumber: PropTypes.string.isRequired,
-    facilityAddress: PropTypes.string,
-    facilityContactNumber: PropTypes.string,
   }).isRequired,
 };

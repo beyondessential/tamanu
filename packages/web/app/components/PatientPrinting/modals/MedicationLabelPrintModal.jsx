@@ -48,6 +48,14 @@ const PrintStyles = createGlobalStyle`
     .MuiDialogActions-root {
       display: none;
     }
+
+    .MuiDialog-container,
+    .MuiDialog-paper,
+    .MuiPaper-root,
+    .MuiDialogContent-root {
+      margin: 0;
+      padding: 0;
+    }
   }
 `;
 
@@ -96,11 +104,10 @@ MedicationLabelPrintModal.propTypes = {
       patientName: PropTypes.string.isRequired,
       dispensedAt: PropTypes.string.isRequired,
       quantity: PropTypes.number.isRequired,
+      units: PropTypes.string.isRequired,
       remainingRepeats: PropTypes.number.isRequired,
       prescriberName: PropTypes.string.isRequired,
       requestNumber: PropTypes.string.isRequired,
-      facilityAddress: PropTypes.string,
-      facilityContactNumber: PropTypes.string,
     }),
   ).isRequired,
 };
