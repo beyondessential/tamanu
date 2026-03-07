@@ -1,7 +1,7 @@
 import { readdirSync } from 'node:fs';
 import path from 'node:path';
 import Umzug from 'umzug';
-import { runPostMigration, runPreMigration } from './migrationHooks';
+import { runPostMigration, runPreMigration } from './hooks';
 import { createMigrationAuditLog } from '../../utils/audit';
 import { AUDIT_MIGRATION_CONTEXT_KEY } from '@tamanu/constants';
 import { checkIsMigrationContextAvailable } from '../../utils/audit/checkIsMigrationContextAvailable';
@@ -53,39 +53,45 @@ export function createMigrationInterface(log, sequelize) {
     migrations: {
       path: migrationsDir,
       params: [sequelize.getQueryInterface()],
-      wrap: (updown) => (...args) => sequelize.transaction(async () => {
-        const isMigrationContextAvailable = await checkIsMigrationContextAvailable(
-          sequelize,
-          wrapContext.migrationName,
-        );
-        if (!isMigrationContextAvailable) {
-          try {
-            return await updown(...args);
-          } catch (error) {
-            throw enhancePendingTriggerError(error, wrapContext.migrationName);
-          }
-        }
+      wrap:
+        updown =>
+        (...args) =>
+          sequelize.transaction(async () => {
+            const isMigrationContextAvailable = await checkIsMigrationContextAvailable(
+              sequelize,
+              wrapContext.migrationName,
+            );
+            if (!isMigrationContextAvailable) {
+              try {
+                return await updown(...args);
+              } catch (error) {
+                throw enhancePendingTriggerError(error, wrapContext.migrationName);
+              }
+            }
 
-        // Create migration context object
-        const migrationContext = {
-          direction: wrapContext.direction,
-          migrationName: wrapContext.migrationName,
-          serverType: global?.serverInfo?.serverType || 'unknown',
-        };
+            // Create migration context object
+            const migrationContext = {
+              direction: wrapContext.direction,
+              migrationName: wrapContext.migrationName,
+              serverType: global?.serverInfo?.serverType || 'unknown',
+            };
 
-        // Set the migration context as a transaction variable
-        await sequelize.setTransactionVar(AUDIT_MIGRATION_CONTEXT_KEY, JSON.stringify(migrationContext));
+            // Set the migration context as a transaction variable
+            await sequelize.setTransactionVar(
+              AUDIT_MIGRATION_CONTEXT_KEY,
+              JSON.stringify(migrationContext),
+            );
 
-        try {
-          return await updown(...args);
-        } catch (error) {
-          throw enhancePendingTriggerError(error, wrapContext.migrationName);
-        } finally {
-          await sequelize.setTransactionVar(AUDIT_MIGRATION_CONTEXT_KEY, null);
-        }
-      }),
+            try {
+              return await updown(...args);
+            } catch (error) {
+              throw enhancePendingTriggerError(error, wrapContext.migrationName);
+            } finally {
+              await sequelize.setTransactionVar(AUDIT_MIGRATION_CONTEXT_KEY, null);
+            }
+          }),
 
-      customResolver: async (sqlPath) => {
+      customResolver: async sqlPath => {
         const migrationImport = await import(sqlPath);
         const migration = 'default' in migrationImport ? migrationImport.default : migrationImport;
 
@@ -106,12 +112,12 @@ export function createMigrationInterface(log, sequelize) {
     },
   });
 
-  umzug.on('migrating', (name) => {
+  umzug.on('migrating', name => {
     wrapContext.direction = 'up';
     wrapContext.migrationName = name;
     log.info(`Applying migration: ${name}`);
   });
-  umzug.on('reverting', (name) => {
+  umzug.on('reverting', name => {
     wrapContext.direction = 'down';
     wrapContext.migrationName = name;
     log.info(`Reverting migration: ${name}`);
