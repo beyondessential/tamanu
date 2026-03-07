@@ -108,6 +108,7 @@ MedicationLabelPrintModal.propTypes = {
       remainingRepeats: PropTypes.number.isRequired,
       prescriberName: PropTypes.string.isRequired,
       requestNumber: PropTypes.string.isRequired,
+      facilityName: PropTypes.string,
     }),
   ).isRequired,
 };

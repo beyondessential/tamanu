@@ -87,6 +87,20 @@ const LabelRow = styled.div`
   font-weight: 400;
 `;
 
+const LabelFooter = styled.div`
+  border-top: 0.177mm solid ${Colors.black};
+  padding: 1.416mm 0;
+  margin-top: 0.708mm;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const LabelFooterText = styled.div`
+  font-weight: 400;
+  text-align: center;
+`;
+
 export const getMedicationLabel = (quantity, units, getEnumTranslation) => {
   if (!quantity || !units) return;
   const enumTranslation = getEnumTranslation(DRUG_UNIT_LABELS, units);
@@ -111,6 +125,7 @@ export const MedicationLabel = React.memo(({ data }) => {
     remainingRepeats,
     prescriberName,
     requestNumber,
+    facilityName,
   } = data;
 
   const fontSize = labelHeight * 0.09;
@@ -147,6 +162,9 @@ export const MedicationLabel = React.memo(({ data }) => {
           </LabelRightColumn>
         </LabelBottomSection>
       </LabelContent>
+      <LabelFooter>
+        <LabelFooterText>{facilityName}</LabelFooterText>
+      </LabelFooter>
     </Label>
   );
 });
@@ -162,5 +180,6 @@ MedicationLabel.propTypes = {
     remainingRepeats: PropTypes.number.isRequired,
     prescriberName: PropTypes.string.isRequired,
     requestNumber: PropTypes.string.isRequired,
+    facilityName: PropTypes.string,
   }).isRequired,
 };
