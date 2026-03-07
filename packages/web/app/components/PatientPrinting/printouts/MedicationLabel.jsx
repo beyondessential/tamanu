@@ -45,10 +45,14 @@ const LabelTopSection = styled.div`
 
 const LabelMedicationName = styled.div`
   font-weight: 500;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 `;
 
 const LabelInstructions = styled.div`
   font-weight: 400;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 `;
 
 const LabelBottomSection = styled.div`
@@ -108,6 +112,28 @@ export const getMedicationLabel = (quantity, units, getEnumTranslation) => {
   return `${quantity} ${translatedUnit.toLowerCase()}`;
 };
 
+const calculateDynamicFontSize = (data, labelHeight) => {
+  const instructionsLength = data.instructions?.length || 0;
+  const medicationNameLength = data.medicationName?.length || 0;
+  
+  // Base font size (larger than before)
+  let fontSize = labelHeight * 0.09;
+  
+  // Reduce font size for long content to ensure it fits
+  if (instructionsLength > 150 || medicationNameLength > 50) {
+    fontSize = labelHeight * 0.075;
+  } else if (instructionsLength > 100 || medicationNameLength > 35) {
+    fontSize = labelHeight * 0.08;
+  } else if (instructionsLength < 50 && medicationNameLength < 25) {
+    // Increase font size for short content to maximize readability
+    fontSize = labelHeight * 0.11;
+  } else if (instructionsLength < 80 && medicationNameLength < 30) {
+    fontSize = labelHeight * 0.095;
+  }
+  
+  return fontSize;
+};
+
 export const MedicationLabel = React.memo(({ data }) => {
   const { formatShortest } = useDateTime();
   const { getEnumTranslation } = useTranslation();
@@ -128,7 +154,7 @@ export const MedicationLabel = React.memo(({ data }) => {
     facilityName,
   } = data;
 
-  const fontSize = labelHeight * 0.09;
+  const fontSize = calculateDynamicFontSize(data, labelHeight);
 
   return (
     <Label $width={labelWidth} $height={labelHeight} $fontSize={fontSize}>
@@ -176,7 +202,7 @@ MedicationLabel.propTypes = {
     patientName: PropTypes.string.isRequired,
     dispensedAt: PropTypes.string.isRequired,
     quantity: PropTypes.number.isRequired,
-    units: PropTypes.string.isRequired,
+    units: PropTypes.string,
     remainingRepeats: PropTypes.number.isRequired,
     prescriberName: PropTypes.string.isRequired,
     requestNumber: PropTypes.string.isRequired,
