@@ -9,6 +9,7 @@ export const LAB_REQUEST_STATUSES = {
   VERIFIED: 'verified',
   PUBLISHED: 'published',
   CANCELLED: 'cancelled',
+  REJECTED: 'rejected',
   INVALIDATED: 'invalidated',
   DELETED: 'deleted',
   SAMPLE_NOT_COLLECTED: 'sample-not-collected',
@@ -31,6 +32,7 @@ export const LAB_REQUEST_STATUS_LABELS = {
   [LAB_REQUEST_STATUSES.PUBLISHED]: 'Published',
   [LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED]: 'Sample not collected',
   [LAB_REQUEST_STATUSES.CANCELLED]: 'Cancelled',
+  [LAB_REQUEST_STATUSES.REJECTED]: 'Rejected',
   [LAB_REQUEST_STATUSES.INVALIDATED]: 'Invalidated',
   [LAB_REQUEST_STATUSES.DELETED]: 'Deleted',
   [LAB_REQUEST_STATUSES.ENTERED_IN_ERROR]: 'Entered in error',
@@ -60,6 +62,9 @@ export const LAB_REQUEST_STATUS_CONFIG = {
   },
   [LAB_REQUEST_STATUSES.CANCELLED]: {
     color: COLORS.grey,
+  },
+  [LAB_REQUEST_STATUSES.REJECTED]: {
+    color: COLORS.red,
   },
   [LAB_REQUEST_STATUSES.INVALIDATED]: {
     color: COLORS.grey,
