@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled, { createGlobalStyle } from 'styled-components';
-import { Box } from '@material-ui/core';
 import { Modal, TranslatedText, ConfirmCancelRow } from '@tamanu/ui-components';
 import { MedicationLabel } from '../printouts/MedicationLabel';
 import { Colors } from '../../../constants';
@@ -84,9 +83,7 @@ export const MedicationLabelPrintModal = ({ open, onClose, labels }) => {
       <PrintStyles />
       <Container>
         {labels.map((label, index) => (
-          <Box key={label.id || index} mb={0}>
-            <MedicationLabel data={label} />
-          </Box>
+          <MedicationLabel key={label.id || index} data={label} />
         ))}
       </Container>
     </StyledModal>
