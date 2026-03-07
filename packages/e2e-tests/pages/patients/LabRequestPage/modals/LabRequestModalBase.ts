@@ -116,7 +116,7 @@ export class LabRequestModalBase {
       printRequestButton: 'outlinedbutton-01eu',
       closeButton: 'button-9vga',
       notesTextarea: 'field-3t0x-input',
-      searchInput: 'styledsearchfield-92y3-input',
+      searchInput: 'styledsearchinput-92y3-input',
     } as const;
 
     // Create locators using the testId mapping
