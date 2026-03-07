@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { subject } from '@casl/ability';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import { FORM_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { DEVICE_REGISTRATION_PERMISSION, FORM_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import {
   Field,
   TextField,
@@ -20,6 +20,7 @@ import { useUpdateUserMutation, useValidateUserMutation } from '../../../api/mut
 import { toast } from 'react-toastify';
 import { useTranslation } from '../../../contexts/Translation';
 import { UserLeaveSection } from './UserLeaveSection';
+import { UserDevicesSection } from './UserDevicesSection';
 import { useAuth } from '../../../contexts/Auth';
 import { isBcryptHash } from '@tamanu/utils/password';
 
@@ -219,6 +220,21 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
     setShowRoleChangeConfirmation({ open: false, onConfirm: () => {} });
   };
 
+  const deviceRegistrationPermissionOptions = [
+    {
+      value: DEVICE_REGISTRATION_PERMISSION.NONE,
+      label: <TranslatedText stringId="admin.users.devicePermission.none" fallback="None" />,
+    },
+    {
+      value: DEVICE_REGISTRATION_PERMISSION.SINGLE,
+      label: <TranslatedText stringId="admin.users.devicePermission.single" fallback="Single device" />,
+    },
+    {
+      value: DEVICE_REGISTRATION_PERMISSION.UNLIMITED,
+      label: <TranslatedText stringId="admin.users.devicePermission.unlimited" fallback="Unlimited" />,
+    },
+  ];
+
   const initialValues = useMemo(() => {
     return {
       visibilityStatus: user?.visibilityStatus,
@@ -231,6 +247,7 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
       newPassword: '',
       confirmPassword: '',
       allowedFacilityIds: user?.facilities?.map(f => f.id) || [],
+      deviceRegistrationPermission: user?.deviceRegistrationPermission || DEVICE_REGISTRATION_PERMISSION.NONE,
     };
   }, [user]);
 
@@ -349,6 +366,19 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
                       style={{ gridColumn: 'span 2' }}
                       disabled={!canUpdateUser}
                     />
+                    <Field
+                      name="deviceRegistrationPermission"
+                      label={
+                        <TranslatedText
+                          stringId="admin.users.deviceRegistrationPermission.label"
+                          fallback="Device registration"
+                        />
+                      }
+                      component={SelectField}
+                      options={deviceRegistrationPermissionOptions}
+                      isClearable={false}
+                      disabled={!canUpdateUser}
+                    />
                   </FormGrid>
                   {canUpdateUser && (
                     <>
@@ -409,6 +439,8 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
 
                 <Divider sx={{ borderColor: Colors.outline }} />
                 <UserLeaveSection user={user} />
+                <Divider sx={{ borderColor: Colors.outline, margin: '20px 0' }} />
+                <UserDevicesSection user={user} canUpdateUser={canUpdateUser} />
                 <Box mt="34px">
                   <Divider sx={{ borderColor: Colors.outline }} />
                 </Box>
