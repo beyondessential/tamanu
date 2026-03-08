@@ -45,12 +45,16 @@ const LabelTopSection = styled.div`
 
 const LabelMedicationName = styled.div`
   font-weight: 500;
+  font-size: ${props => props.$fontSize}mm;
+  line-height: ${props => props.$fontSize * 1.2}mm;
   word-wrap: break-word;
   overflow-wrap: break-word;
 `;
 
 const LabelInstructions = styled.div`
   font-weight: 400;
+  font-size: ${props => props.$fontSize}mm;
+  line-height: ${props => props.$fontSize * 1.2}mm;
   word-wrap: break-word;
   overflow-wrap: break-word;
 `;
@@ -72,9 +76,11 @@ const LabelPatientName = styled.div`
   font-weight: 700;
   font-size: ${props => props.$fontSize}mm;
   line-height: ${props => props.$fontSize * 1.125}mm;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  flex: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
 `;
 
 const LabelDate = styled.div`
@@ -83,21 +89,24 @@ const LabelDate = styled.div`
   line-height: ${props => props.$fontSize * 1.125}mm;
   text-align: right;
   white-space: nowrap;
+  flex-shrink: 0;
 `;
 
 const LabelLeftColumn = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.708mm;
-  flex: 1.4;
+  flex: 1;
+  min-width: 0;
 `;
 
 const LabelRightColumn = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.708mm;
-  flex: 1;
+  flex-shrink: 0;
   text-align: right;
+  white-space: nowrap;
 `;
 
 const LabelDetailRow = styled.div`
@@ -219,10 +228,10 @@ export const MedicationLabel = React.memo(({ data }) => {
     <Label $width={labelWidth} $height={labelHeight} $fontSize={instructionsFontSize}>
       <LabelContent>
         <LabelTopSection>
-          <LabelMedicationName style={{ fontSize: `${medicationNameFontSize}mm`, lineHeight: `${medicationNameFontSize * 1.2}mm` }}>
+          <LabelMedicationName $fontSize={medicationNameFontSize}>
             {medicationName}
           </LabelMedicationName>
-          <LabelInstructions style={{ fontSize: `${instructionsFontSize}mm`, lineHeight: `${instructionsFontSize * 1.2}mm` }}>
+          <LabelInstructions $fontSize={instructionsFontSize}>
             {instructions}
           </LabelInstructions>
         </LabelTopSection>
