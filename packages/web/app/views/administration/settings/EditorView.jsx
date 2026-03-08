@@ -196,12 +196,6 @@ const getCategoryOptions = schema =>
 
 const SEARCH_RESULTS_LIMIT = 20;
 
-/** Classify a schema node for display: 'category' (top-level), 'subcategory', or 'setting' (leaf). */
-const getEntryType = (path, isLeaf) => {
-  if (isLeaf) return 'setting';
-  return path.split('.').length === 1 ? 'category' : 'subcategory';
-};
-
 /** Turn a dot path into a readable breadcrumb, e.g. "audit.changes.enabled" → "Audit › Changes › Enabled". */
 const formatPathBreadcrumb = path =>
   path
@@ -217,16 +211,13 @@ const buildSearchIndex = schema => {
   const walk = (properties, pathPrefix = '') => {
     Object.entries(properties).forEach(([key, value]) => {
       const path = pathPrefix ? `${pathPrefix}.${key}` : key;
-      const isLeaf = isSetting(value);
-      const entry = {
-        path,
-        label: formatSettingName(value.name, key),
-        description: value?.description ?? '',
-        type: getEntryType(path, isLeaf),
-        pathBreadcrumb: formatPathBreadcrumb(path),
-      };
-      entries.push(entry);
-      if (!isLeaf && value?.properties) {
+
+      if (isSetting(value)) {
+        const label = formatSettingName(value.name, key);
+        const description = value?.description ?? '';
+        const pathBreadcrumb = formatPathBreadcrumb(path);
+        entries.push({ path, label, description, type: 'setting', pathBreadcrumb });
+      } else if (value?.properties) {
         walk(value.properties, path);
       }
     });
@@ -343,8 +334,7 @@ export const EditorView = memo(
     };
 
     const getSettingPath = path =>
-      `${category === UNCATEGORISED_KEY ? '' : `${category}.`}${
-        subCategory ? `${subCategory}.` : ''
+      `${category === UNCATEGORISED_KEY ? '' : `${category}.`}${subCategory ? `${subCategory}.` : ''
       }${path}`;
 
     const handleChangeSetting = (path, value) => {
