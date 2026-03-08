@@ -103,9 +103,9 @@ const LabelDetailRow = styled.div`
   font-weight: 400;
   font-size: ${props => props.$fontSize}mm;
   line-height: ${props => props.$fontSize * 1.125}mm;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
+  overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const LabelFooter = styled.div`
@@ -131,25 +131,6 @@ export const getMedicationLabel = (quantity, units, getEnumTranslation) => {
   const enumTranslation = getEnumTranslation(DRUG_UNIT_LABELS, units);
   const translatedUnit = quantity > 1 ? pluralize(enumTranslation) : enumTranslation;
   return `${quantity} ${translatedUnit.toLowerCase()}`;
-};
-
-const truncateWithEllipsis = (text, maxLength) => {
-  if (!text || text.length <= maxLength) return text;
-  return `${text.substring(0, maxLength - 1)}…`;
-};
-
-const calculateMaxPrescriberChars = (totalPrescribedText) => {
-  // Total prescribed text length affects how much space is available for prescriber
-  // Longer total prescribed = less space for prescriber
-  const totalPrescribedLength = totalPrescribedText?.length || 0;
-  
-  // Base max is 50 chars, reduce by 1 char for every 2 chars in total prescribed beyond 10
-  let maxChars = 50;
-  if (totalPrescribedLength > 10) {
-    maxChars = Math.max(35, 50 - Math.floor((totalPrescribedLength - 10) / 2));
-  }
-  
-  return maxChars;
 };
 
 const calculateDynamicFontSizes = (data, labelHeight) => {
@@ -232,11 +213,6 @@ export const MedicationLabel = React.memo(({ data }) => {
     footerFontSize,
   } = calculateDynamicFontSizes(data, labelHeight);
 
-  // Calculate max prescriber chars based on total prescribed text length
-  const totalPrescribedText = getMedicationLabel(quantity, units, getEnumTranslation);
-  const maxPrescriberChars = calculateMaxPrescriberChars(totalPrescribedText);
-  const displayPrescriberName = truncateWithEllipsis(prescriberName, maxPrescriberChars);
-
   return (
     <Label $width={labelWidth} $height={labelHeight} $fontSize={instructionsFontSize}>
       <LabelContent>
@@ -256,7 +232,7 @@ export const MedicationLabel = React.memo(({ data }) => {
           <LabelLeftColumn>
             <LabelDetailRow $fontSize={detailFontSize}>
               <TranslatedText stringId="medication.prescriber.abbrev" fallback="Pres." />:{' '}
-              {displayPrescriberName}
+              {prescriberName}
             </LabelDetailRow>
             <LabelDetailRow $fontSize={detailFontSize}>
               <TranslatedText stringId="medication.dispense.request" fallback="Request" />:{' '}
