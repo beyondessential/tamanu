@@ -30,6 +30,7 @@ export class LabTestType extends Model {
   declare options?: string;
   declare isSensitive: boolean;
   declare visibilityStatus: string;
+  declare availableFacilities: string[] | null;
   declare externalCode?: string;
   declare labTestCategoryId?: string;
 
@@ -73,6 +74,11 @@ export class LabTestType extends Model {
         visibilityStatus: {
           type: DataTypes.TEXT,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
+        },
+        availableFacilities: {
+          type: DataTypes.JSONB,
+          allowNull: true,
+          defaultValue: null,
         },
         externalCode: DataTypes.TEXT,
       },

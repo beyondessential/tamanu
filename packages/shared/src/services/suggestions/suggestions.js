@@ -473,7 +473,12 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
         typeName === REFERENCE_TYPES.PROCEDURE_TYPE ||
         typeName === REFERENCE_TYPES.IMAGING_TYPE ||
         typeName === REFERENCE_TYPES.DRUG ||
-        typeName === REFERENCE_TYPES.MEDICATION_TEMPLATE
+        typeName === REFERENCE_TYPES.MEDICATION_TEMPLATE ||
+        typeName === REFERENCE_TYPES.LAB_TEST_CATEGORY ||
+        typeName === REFERENCE_TYPES.LAB_TEST_PRIORITY ||
+        typeName === REFERENCE_TYPES.LAB_TEST_LABORATORY ||
+        typeName === REFERENCE_TYPES.LAB_TEST_METHOD ||
+        typeName === REFERENCE_TYPES.LAB_SAMPLE_SITE
       ) {
         const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId, req.db);
         if (facilityFilter) {
@@ -615,7 +620,14 @@ createSuggester(
   },
 );
 
-createSuggester('labTestType', 'LabTestType', () => VISIBILITY_CRITERIA, {
+createSuggester('labTestType', 'LabTestType', ({ req }) => {
+  const baseWhere = { ...VISIBILITY_CRITERIA };
+  const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId, req.db, 'LabTestType');
+  if (facilityFilter) {
+    baseWhere[Op.and] = [facilityFilter];
+  }
+  return baseWhere;
+}, {
   mapper: ({ name, code, id, labTestCategoryId }) => ({
     name,
     code,
@@ -1073,7 +1085,27 @@ createNameSuggester(
 );
 
 // TODO: Use generic LabTest permissions for this suggester
-createNameSuggester('labTestPanel', 'LabTestPanel');
+createNameSuggester('labTestPanel', 'LabTestPanel', ({ endpoint, modelName, req }) => {
+  const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
+  const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId, req.db, 'LabTestPanel');
+  if (facilityFilter) {
+    const escapedFacilityArray = req.db.escape(JSON.stringify([req.query.facilityId]));
+    // Exclude panels where any member lab test type is not visible in this facility
+    const memberTestFilter = Sequelize.literal(`
+      "LabTestPanel"."id" NOT IN (
+        SELECT DISTINCT lptlt.lab_test_panel_id
+        FROM lab_test_panel_lab_test_types lptlt
+        INNER JOIN lab_test_types ltt
+          ON ltt.id = lptlt.lab_test_type_id
+        WHERE lptlt.deleted_at IS NULL
+          AND ltt.available_facilities IS NOT NULL
+          AND NOT (ltt.available_facilities @> ${escapedFacilityArray}::jsonb)
+      )
+    `);
+    baseWhere[Op.and] = [facilityFilter, memberTestFilter];
+  }
+  return baseWhere;
+});
 
 createNameSuggester('template', 'Template', ({ endpoint, modelName, query }) => {
   const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
