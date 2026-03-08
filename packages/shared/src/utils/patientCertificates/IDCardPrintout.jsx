@@ -3,6 +3,7 @@ import { Document, Image, StyleSheet, View } from '@react-pdf/renderer';
 import { getDob, getSex } from '../patientAccessors';
 import JsBarcode from 'jsbarcode';
 import { withLanguageContext } from '../pdf/languageContext';
+import { useDateTime, withDateTimeContext } from '../pdf/withDateTimeContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 
@@ -101,6 +102,7 @@ const IDCardPrintoutComponent = ({
   measures,
   getTranslation,
 }) => {
+  const { formatShort } = useDateTime();
   const pageStyles = StyleSheet.create({
     card: {
       width: cardDimensions.width,
@@ -134,7 +136,7 @@ const IDCardPrintoutComponent = ({
                 label={getTranslation('general.localisedField.firstName.label', 'First name')}
               />
               <DetailsRow
-                value={getDob(patient, { getTranslation })}
+                value={getDob(patient, { getTranslation, formatShort })}
                 label={getTranslation('general.localisedField.dateOfBirth.label.short', 'DOB')}
               />
               <DetailsRow
@@ -152,4 +154,6 @@ const IDCardPrintoutComponent = ({
   );
 };
 
-export const IDCardPrintout = withLanguageContext(IDCardPrintoutComponent);
+export const IDCardPrintout = withLanguageContext(
+  withDateTimeContext(IDCardPrintoutComponent),
+);

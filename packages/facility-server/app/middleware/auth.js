@@ -92,7 +92,7 @@ export async function centralServerLogin({
   });
 
   // we've logged in as a valid central user - update local database to match
-  const { user, localisation, allowedFacilities } = response;
+  const { user, localisation, allowedFacilities, primaryTimeZone } = response;
   const { id, ...userDetails } = user;
 
   const userModel = await models.User.sequelize.transaction(async () => {
@@ -111,13 +111,14 @@ export async function centralServerLogin({
 
   await models.Device.ensureRegistration({ settings, user: userModel, deviceId, scopes: [] });
 
-  return { central: true, user, localisation, allowedFacilities };
+  return { central: true, user, localisation, allowedFacilities, primaryTimeZone };
 }
 
 async function localLogin({ models, settings, email, password, deviceId }) {
   const {
     auth: { secret, tokenDuration },
     canonicalHostName,
+    primaryTimeZone,
   } = config;
   const { user } = await models.User.loginFromCredential(
     {
@@ -140,6 +141,7 @@ async function localLogin({ models, settings, email, password, deviceId }) {
     user: user.get({ plain: true }),
     allowedFacilities,
     localisation,
+    primaryTimeZone,
   };
 }
 
@@ -168,7 +170,11 @@ async function centralServerLoginWithLocalFallback({
   } catch (e) {
     // if we get an authentication or forbidden error when login to central server,
     // throw the error instead of proceeding to local login
-    if (e.type && (e.type.startsWith(ERROR_TYPE.AUTH) || [ERROR_TYPE.FORBIDDEN, ERROR_TYPE.RATE_LIMITED].includes(e.type))) {
+    if (
+      e.type &&
+      (e.type.startsWith(ERROR_TYPE.AUTH) ||
+        [ERROR_TYPE.FORBIDDEN, ERROR_TYPE.RATE_LIMITED].includes(e.type))
+    ) {
       throw e;
     }
 
@@ -196,7 +202,7 @@ export async function loginHandler(req, res, next) {
     const globalSettings =
       settings.global ?? (typeof settings.get === 'function' ? settings : new ReadSettings(models));
 
-    const { central, user, localisation, allowedFacilities } =
+    const { central, user, localisation, allowedFacilities, primaryTimeZone } =
       await centralServerLoginWithLocalFallback({
         models,
         settings: globalSettings,
@@ -228,6 +234,7 @@ export async function loginHandler(req, res, next) {
       permissions,
       role: role?.forResponse() ?? null,
       serverType: SERVER_TYPES.FACILITY,
+      primaryTimeZone,
       availableFacilities,
     });
   } catch (e) {

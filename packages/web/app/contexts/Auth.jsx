@@ -16,13 +16,15 @@ export const AuthProvider = ({ children }) => {
   const { resetNoteContext } = useEncounterNotesQuery();
   const navigate = useNavigate();
 
-  const { currentUser, ability, facilityId, currentRole, impersonatingRole } = useSelector(state => ({
-    currentUser: state.auth.user,
-    ability: state.auth.ability,
-    facilityId: state.auth.facilityId,
-    currentRole: state.auth.role,
-    impersonatingRole: state.auth.impersonatingRole,
-  }));
+  const { currentUser, ability, facilityId, currentRole, impersonatingRole, primaryTimeZone } =
+    useSelector(state => ({
+      currentUser: state.auth.user,
+      ability: state.auth.ability,
+      facilityId: state.auth.facilityId,
+      currentRole: state.auth.role,
+      impersonatingRole: state.auth.impersonatingRole,
+      primaryTimeZone: state.auth.primaryTimeZone,
+    }));
 
   const cleanupSession = useCallback(() => {
     localStorage.removeItem(LOCAL_STORAGE_KEYS.TOKEN);
@@ -44,8 +46,28 @@ export const AuthProvider = ({ children }) => {
   const refreshToken = useCallback(() => api.refreshToken(), [api]);
 
   const value = useMemo(
-    () => ({ currentUser, ability, facilityId, currentRole, impersonatingRole, onLogout, onTimeout, refreshToken }),
-    [currentUser, ability, facilityId, currentRole, impersonatingRole, onLogout, onTimeout, refreshToken],
+    () => ({
+      currentUser,
+      ability,
+      facilityId,
+      currentRole,
+      primaryTimeZone,
+      onLogout,
+      onTimeout,
+      refreshToken,
+      impersonatingRole,
+    }),
+    [
+      currentUser,
+      ability,
+      facilityId,
+      currentRole,
+      primaryTimeZone,
+      onLogout,
+      onTimeout,
+      refreshToken,
+      impersonatingRole,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -51,6 +51,7 @@ export const globalSettings = {
     audit: {
       description: 'Audit settings',
       highRisk: true,
+      exposedToWeb: true,
       properties: {
         accesses: {
           description: 'Audit accesses',
@@ -92,11 +93,13 @@ export const globalSettings = {
     },
     ageDisplayFormat: {
       description: 'Defines the unit with which to display patient ages, depending on their age',
+      exposedToWeb: true,
       type: ageDisplayFormatSchema,
       defaultValue: ageDisplayFormatDefault,
     },
     appointments: {
       description: 'Appointment settings',
+      exposedToWeb: true,
       properties: {
         maxRepeatingAppointmentsPerGeneration: {
           description: 'The maximum number of appointments that can be generated at once',
@@ -107,6 +110,7 @@ export const globalSettings = {
     },
     locationAssignments: {
       description: 'Location assignment settings',
+      exposedToWeb: true,
       properties: {
         assignmentMaxFutureMonths: {
           description: 'The maximum number of months allowed when creating location assignments',
@@ -117,6 +121,8 @@ export const globalSettings = {
     },
     features: {
       description: 'Toggle features on/off',
+      exposedToWeb: true,
+      exposedToPatientPortal: true,
       properties: {
         mandateSpecimenType: {
           description: 'Make specimen type a required field when creating a new lab request',
@@ -408,11 +414,6 @@ export const globalSettings = {
               type: yup.boolean(),
               defaultValue: false,
             },
-            enableCovidVaccinationCertificateSigning: {
-              description: 'Enable signing of COVID vaccination certificate',
-              type: yup.boolean(),
-              defaultValue: false,
-            },
           },
         },
       },
@@ -420,6 +421,7 @@ export const globalSettings = {
     customisations: {
       name: 'Customisations',
       description: 'Customisation of the application',
+      exposedToWeb: true,
       properties: {
         componentVersions: {
           description: '_',
@@ -454,6 +456,7 @@ export const globalSettings = {
     fields: {
       name: 'Fields (Previously localised fields)',
       description: 'Customise form fields behavior across the application',
+      exposedToWeb: true,
       properties: {
         emergencyContactName: {
           name: 'Emergency contact name',
@@ -782,6 +785,14 @@ export const globalSettings = {
             type: LOCALISED_FIELD_TYPES.STRING,
           }),
         },
+        invoiceInsurancePlanId: {
+          name: 'Insurance plan',
+          description: '_',
+          properties: generateFieldSchema({
+            isPatientDetails: true,
+            type: LOCALISED_FIELD_TYPES.STRING,
+          }),
+        },
         birthWeight: {
           name: 'Birth weight',
           description: '_',
@@ -1032,12 +1043,14 @@ export const globalSettings = {
     fileChooserMbSizeLimit: {
       description:
         'The maximum size in megabytes of files that can be uploaded with the file chooser',
+      exposedToPatientPortal: true,
       type: yup.number().min(1),
       defaultValue: 10,
     },
     fsmCrvsCertificates: {
       name: 'FSM CRVS Certificates',
       description: 'Settings for FSM CRVS certificates',
+      exposedToWeb: true,
       properties: {
         enableFSMStyle: {
           description: 'Enable FSM CRVS style certificates',
@@ -1069,6 +1082,7 @@ export const globalSettings = {
       },
     },
     invoice: {
+      exposedToWeb: true,
       properties: {
         slidingFeeScale: {
           name: 'Sliding fee scale',
@@ -1080,22 +1094,26 @@ export const globalSettings = {
     },
     imagingCancellationReasons: {
       description: 'Customise the options available for imaging request cancellation reason',
+      exposedToWeb: true,
       type: imagingCancellationReasonsSchema,
       defaultValue: imagingCancellationReasonsDefault,
     },
     imagingPriorities: {
       name: 'Imaging priorities',
       description: 'List with each entry being an available imaging priority option',
+      exposedToWeb: true,
       type: imagingPrioritiesSchema,
       defaultValue: imagingPrioritiesDefault,
     },
     labsCancellationReasons: {
       description: 'Customise the options available for lab request cancellation reasons',
+      exposedToWeb: true,
       type: labsCancellationReasonsSchema,
       defaultValue: labsCancellationReasonsDefault,
     },
     printMeasures: {
       description: 'Custom dimensions for PDFs',
+      exposedToWeb: true,
       properties: {
         labRequestPrintLabel: {
           description: 'Lab request label with basic info + barcode',
@@ -1170,6 +1188,7 @@ export const globalSettings = {
     },
     layouts: {
       description: 'Customise the layout of modules',
+      exposedToWeb: true,
       properties: {
         mobilePatientModules: {
           description: 'The homepage modules on mobile',
@@ -1350,6 +1369,7 @@ export const globalSettings = {
         },
         mobile: {
           description: 'Mobile security settings',
+          exposedToWeb: true,
           properties: {
             allowUnencryptedStorage: {
               description: 'Allow unencrypted storage on mobile devices',
@@ -1367,6 +1387,7 @@ export const globalSettings = {
     },
     templates: {
       description: 'Strings to be inserted into emails/PDFs',
+      exposedToWeb: true,
       properties: {
         patientPortalLoginEmail: {
           description: 'The email sent to the patient with their login code',
@@ -1460,20 +1481,6 @@ export const globalSettings = {
         letterhead: {
           description: 'The text at the top of most patient PDFs',
           properties: letterheadProperties,
-        },
-        signerRenewalEmail: {
-          description: 'The email sent when the signer runs out',
-          properties: {
-            subject: {
-              type: yup.string().trim().min(1),
-              defaultValue: 'Tamanu ICAO Certificate Signing Request',
-            },
-            body: {
-              type: yup.string().trim().min(1),
-              defaultValue:
-                'Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team.',
-            },
-          },
         },
         vaccineCertificateEmail: {
           description: 'The email containing patient vaccine certificate',
@@ -1579,12 +1586,14 @@ export const globalSettings = {
     triageCategories: {
       name: 'Triage categories',
       description: 'Customise triage scale',
+      exposedToWeb: true,
       type: triageCategoriesSchema,
       defaultValue: triageCategoriesDefault,
     },
     upcomingVaccinations: {
       name: 'Upcoming vaccinations',
       description: 'Settings related to upcoming vaccinations',
+      exposedToWeb: true,
       properties: {
         ageLimit: {
           description: '_',
@@ -1600,6 +1609,7 @@ export const globalSettings = {
     },
     vitalEditReasons: {
       description: 'Customise the options available for vital reason for edit',
+      exposedToWeb: true,
       type: vitalEditReasonsSchema,
       defaultValue: vitalEditReasonsDefault,
     },
@@ -1625,6 +1635,7 @@ export const globalSettings = {
     },
     medications: {
       description: 'Medication settings',
+      exposedToWeb: true,
       properties: {
         dispensing: {
           description: 'Medication dispensing settings',
