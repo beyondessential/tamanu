@@ -58,45 +58,56 @@ const LabelInstructions = styled.div`
 const LabelBottomSection = styled.div`
   display: flex;
   justify-content: space-between;
-  line-height: ${props => props.$detailFontSize * 1.125}mm;
+  gap: 2mm;
+`;
+
+const LabelPatientDateRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 0.354mm solid ${Colors.black};
+  padding-bottom: 0.708mm;
+  margin-bottom: 0.708mm;
+`;
+
+const LabelPatientName = styled.div`
+  font-weight: 700;
+  font-size: ${props => props.$fontSize}mm;
+  line-height: ${props => props.$fontSize * 1.125}mm;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  flex: 1;
+`;
+
+const LabelDate = styled.div`
+  font-weight: 400;
+  font-size: ${props => props.$fontSize}mm;
+  line-height: ${props => props.$fontSize * 1.125}mm;
+  text-align: right;
+  white-space: nowrap;
 `;
 
 const LabelLeftColumn = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.708mm;
-  flex: 1;
+  flex: 1.4;
 `;
 
 const LabelRightColumn = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.708mm;
-  width: ${props => props.$width * 0.478}mm;
-`;
-
-const LabelPatientName = styled.div`
-  font-weight: 700;
-  border-bottom: 0.354mm solid ${Colors.black};
-  padding-bottom: 0.708mm;
-  font-size: ${props => props.$fontSize}mm;
-  line-height: ${props => props.$fontSize * 1.125}mm;
-`;
-
-const LabelDate = styled.div`
-  font-weight: 400;
-  border-bottom: 0.354mm solid ${Colors.black};
-  padding-bottom: 0.708mm;
-  font-size: ${props => props.$detailFontSize}mm;
-  line-height: ${props => props.$detailFontSize * 1.125}mm;
+  flex: 1;
 `;
 
 const LabelDetailRow = styled.div`
   font-weight: 400;
-  font-size: ${props => props.$detailFontSize}mm;
-  line-height: ${props => props.$detailFontSize * 1.125}mm;
+  font-size: ${props => props.$fontSize}mm;
+  line-height: ${props => props.$fontSize * 1.125}mm;
   word-wrap: break-word;
   overflow-wrap: break-word;
+  text-overflow: ellipsis;
 `;
 
 const LabelFooter = styled.div`
@@ -106,14 +117,13 @@ const LabelFooter = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: ${props => props.$fontSize * 1.5}mm;
 `;
 
 const LabelFooterText = styled.div`
   font-weight: 400;
   text-align: center;
-  font-size: ${props => props.$fontSize * 0.85}mm;
-  line-height: ${props => props.$fontSize * 0.95}mm;
+  font-size: ${props => props.$fontSize}mm;
+  line-height: ${props => props.$fontSize * 1.125}mm;
   word-wrap: break-word;
   overflow-wrap: break-word;
 `;
@@ -125,35 +135,60 @@ export const getMedicationLabel = (quantity, units, getEnumTranslation) => {
   return `${quantity} ${translatedUnit.toLowerCase()}`;
 };
 
+const truncateWithEllipsis = (text, maxLength) => {
+  if (!text || text.length <= maxLength) return text;
+  return `${text.substring(0, maxLength - 1)}…`;
+};
+
 const calculateDynamicFontSizes = (data, labelHeight) => {
-  const instructionsLength = data.instructions?.length || 0;
   const medicationNameLength = data.medicationName?.length || 0;
+  const patientNameLength = data.patientName?.length || 0;
+  const prescriberNameLength = data.prescriberName?.length || 0;
   
-  // Instructions (directions) are most important - maintain minimum readable size
-  const minInstructionsFontSize = labelHeight * 0.08; // Minimum 3.2mm for 40mm height
-  let instructionsFontSize = labelHeight * 0.09;
-  
-  // Adjust instructions font based on content length
-  if (instructionsLength > 150 || medicationNameLength > 50) {
-    instructionsFontSize = labelHeight * 0.08; // Still readable minimum
-  } else if (instructionsLength > 100 || medicationNameLength > 35) {
-    instructionsFontSize = labelHeight * 0.085;
-  } else if (instructionsLength < 50 && medicationNameLength < 25) {
-    instructionsFontSize = labelHeight * 0.11; // Larger for short content
-  } else if (instructionsLength < 80 && medicationNameLength < 30) {
-    instructionsFontSize = labelHeight * 0.095;
+  // 1. Medication name: scale based on length
+  let medicationNameFontSize = labelHeight * 0.09;
+  if (medicationNameLength > 50) {
+    medicationNameFontSize = labelHeight * 0.075;
+  } else if (medicationNameLength > 35) {
+    medicationNameFontSize = labelHeight * 0.08;
+  } else if (medicationNameLength < 25) {
+    medicationNameFontSize = labelHeight * 0.11;
   }
   
-  // Ensure minimum size for instructions
-  instructionsFontSize = Math.max(instructionsFontSize, minInstructionsFontSize);
+  // 2. Instructions: never scale - fixed readable size
+  const instructionsFontSize = labelHeight * 0.09; // Fixed 3.6mm for 40mm height
   
-  // Detail rows (Repeats, Prescriber, Request, Date) use smaller size
-  // Scale with instructions font but always smaller
-  const detailFontSize = instructionsFontSize * 0.85;
+  // 3. Patient name and date: scale based on patient name length to stay on one line
+  let patientDateFontSize = labelHeight * 0.09;
+  if (patientNameLength > 30) {
+    patientDateFontSize = labelHeight * 0.075;
+  } else if (patientNameLength > 25) {
+    patientDateFontSize = labelHeight * 0.08;
+  } else if (patientNameLength < 15) {
+    patientDateFontSize = labelHeight * 0.095;
+  }
+  
+  // 4. Details (Total prescribed, Repeats, Pres., Request): scale based on prescriber name
+  // Prescriber name is the longest, so scale to fit it on one line
+  let detailFontSize = labelHeight * 0.08; // Base detail size
+  
+  if (prescriberNameLength > 35) {
+    detailFontSize = labelHeight * 0.06; // Smallest: 2.4mm
+  } else if (prescriberNameLength > 28) {
+    detailFontSize = labelHeight * 0.07; // 2.8mm
+  } else if (prescriberNameLength < 20) {
+    detailFontSize = labelHeight * 0.085; // 3.4mm
+  }
+  
+  // 5. Footer: never scale - fixed readable size
+  const footerFontSize = labelHeight * 0.075; // Fixed 3mm for 40mm height
   
   return {
+    medicationNameFontSize,
     instructionsFontSize,
+    patientDateFontSize,
     detailFontSize,
+    footerFontSize,
   };
 };
 
@@ -177,42 +212,58 @@ export const MedicationLabel = React.memo(({ data }) => {
     facilityName,
   } = data;
 
-  const { instructionsFontSize, detailFontSize } = calculateDynamicFontSizes(data, labelHeight);
+  const {
+    medicationNameFontSize,
+    instructionsFontSize,
+    patientDateFontSize,
+    detailFontSize,
+    footerFontSize,
+  } = calculateDynamicFontSizes(data, labelHeight);
+
+  // Truncate prescriber name if too long for smallest font
+  const maxPrescriberChars = 45;
+  const displayPrescriberName = truncateWithEllipsis(prescriberName, maxPrescriberChars);
 
   return (
     <Label $width={labelWidth} $height={labelHeight} $fontSize={instructionsFontSize}>
       <LabelContent>
         <LabelTopSection>
-          <LabelMedicationName>{medicationName}</LabelMedicationName>
-          <LabelInstructions>{instructions}</LabelInstructions>
+          <LabelMedicationName style={{ fontSize: `${medicationNameFontSize}mm`, lineHeight: `${medicationNameFontSize}mm` }}>
+            {medicationName}
+          </LabelMedicationName>
+          <LabelInstructions style={{ fontSize: `${instructionsFontSize}mm`, lineHeight: `${instructionsFontSize}mm` }}>
+            {instructions}
+          </LabelInstructions>
         </LabelTopSection>
-        <LabelBottomSection $detailFontSize={detailFontSize}>
+        <LabelPatientDateRow>
+          <LabelPatientName $fontSize={patientDateFontSize}>{patientName}</LabelPatientName>
+          <LabelDate $fontSize={patientDateFontSize}>{formatShortest(dispensedAt)}</LabelDate>
+        </LabelPatientDateRow>
+        <LabelBottomSection>
           <LabelLeftColumn>
-            <LabelPatientName $fontSize={instructionsFontSize}>{patientName}</LabelPatientName>
-            <LabelDetailRow $detailFontSize={detailFontSize}>{getMedicationLabel(quantity, units, getEnumTranslation)}</LabelDetailRow>
-            <LabelDetailRow $detailFontSize={detailFontSize}>
+            <LabelDetailRow $fontSize={detailFontSize}>
+              <TranslatedText stringId="medication.prescriber.abbrev" fallback="Pres." />:{' '}
+              {displayPrescriberName}
+            </LabelDetailRow>
+            <LabelDetailRow $fontSize={detailFontSize}>
+              <TranslatedText stringId="medication.dispense.request" fallback="Request" />:{' '}
+              {requestNumber}
+            </LabelDetailRow>
+          </LabelLeftColumn>
+          <LabelRightColumn>
+            <LabelDetailRow $fontSize={detailFontSize}>{getMedicationLabel(quantity, units, getEnumTranslation)}</LabelDetailRow>
+            <LabelDetailRow $fontSize={detailFontSize}>
               <TranslatedText
                 stringId="medication.dispense.repeats"
                 fallback="Repeats"
               />
               : {remainingRepeats}
             </LabelDetailRow>
-          </LabelLeftColumn>
-          <LabelRightColumn $width={labelWidth}>
-            <LabelDate $detailFontSize={detailFontSize}>{formatShortest(dispensedAt)}</LabelDate>
-            <LabelDetailRow $detailFontSize={detailFontSize}>
-              <TranslatedText stringId="medication.prescriber.abbrev" fallback="Pres." />:{' '}
-              {prescriberName}
-            </LabelDetailRow>
-            <LabelDetailRow $detailFontSize={detailFontSize}>
-              <TranslatedText stringId="medication.dispense.request" fallback="Request" />:{' '}
-              {requestNumber}
-            </LabelDetailRow>
           </LabelRightColumn>
         </LabelBottomSection>
       </LabelContent>
-      <LabelFooter $fontSize={detailFontSize}>
-        <LabelFooterText $fontSize={detailFontSize}>{facilityName}</LabelFooterText>
+      <LabelFooter>
+        <LabelFooterText $fontSize={footerFontSize}>{facilityName}</LabelFooterText>
       </LabelFooter>
     </Label>
   );
