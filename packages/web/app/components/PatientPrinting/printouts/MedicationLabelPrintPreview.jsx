@@ -70,8 +70,8 @@ export const MedicationLabelPrintPreview = ({ labels, showDescription = true }) 
         </PrintDescription>
       )}
       <PrintContainer>
-        {labels.map(label => (
-          <MedicationLabel key={label.id} data={label} />
+        {labels.map((label, index) => (
+          <MedicationLabel key={label.id || index} data={label} />
         ))}
       </PrintContainer>
     </>

@@ -127,7 +127,8 @@ const LabelFooterText = styled.div`
 `;
 
 export const getMedicationLabel = (quantity, units, getEnumTranslation) => {
-  if (!quantity || !units) return;
+  if (!quantity) return '';
+  if (!units) return `${quantity}`;
   const enumTranslation = getEnumTranslation(DRUG_UNIT_LABELS, units);
   const translatedUnit = quantity > 1 ? pluralize(enumTranslation) : enumTranslation;
   return `${quantity} ${translatedUnit.toLowerCase()}`;
@@ -217,10 +218,10 @@ export const MedicationLabel = React.memo(({ data }) => {
     <Label $width={labelWidth} $height={labelHeight} $fontSize={instructionsFontSize}>
       <LabelContent>
         <LabelTopSection>
-          <LabelMedicationName style={{ fontSize: `${medicationNameFontSize}mm`, lineHeight: `${medicationNameFontSize}mm` }}>
+          <LabelMedicationName style={{ fontSize: `${medicationNameFontSize}mm`, lineHeight: `${medicationNameFontSize * 1.2}mm` }}>
             {medicationName}
           </LabelMedicationName>
-          <LabelInstructions style={{ fontSize: `${instructionsFontSize}mm`, lineHeight: `${instructionsFontSize}mm` }}>
+          <LabelInstructions style={{ fontSize: `${instructionsFontSize}mm`, lineHeight: `${instructionsFontSize * 1.2}mm` }}>
             {instructions}
           </LabelInstructions>
         </LabelTopSection>
