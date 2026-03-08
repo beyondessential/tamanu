@@ -137,22 +137,21 @@ export const idleTimeout = () => ({
 
 export const startImpersonation = role => async (dispatch, getState, { api }) => {
   const { token, permissions } = await api.post('admin/impersonate', { roleId: role.id });
-  api.setToken(token);
   const { auth } = getState();
-  // Match backend logic: when impersonating, retain ability to read/write own User record
   const ability = buildAbility([
     ...permissions,
     { verb: 'read', noun: 'User', objectId: auth.user.id },
     { verb: 'write', noun: 'User', objectId: auth.user.id },
   ]);
+  api.setToken(token);
   dispatch({ type: IMPERSONATE_ROLE, role, ability });
 };
 
 export const stopImpersonation = () => async (dispatch, getState, { api }) => {
   const { token, permissions } = await api.post('admin/impersonate', { roleId: null });
-  api.setToken(token);
   const { auth } = getState();
   const ability = buildAbilityForUser(auth.user, permissions);
+  api.setToken(token);
   dispatch({ type: STOP_IMPERSONATION, ability });
 };
 
