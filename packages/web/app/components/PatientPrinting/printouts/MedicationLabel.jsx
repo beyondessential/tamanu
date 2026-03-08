@@ -29,8 +29,7 @@ const Label = styled.div`
 `;
 
 const LabelContent = styled.div`
-  padding-left: 2mm;
-  padding-right: 2mm;
+  padding: 1.5mm 2mm 0 2mm;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -41,6 +40,7 @@ const LabelTopSection = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.708mm;
+  margin-bottom: 0.708mm;
 `;
 
 const LabelMedicationName = styled.div`
@@ -63,11 +63,8 @@ const LabelBottomSection = styled.div`
 
 const LabelPatientDateRow = styled.div`
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
   border-bottom: 0.354mm solid ${Colors.black};
   padding-bottom: 0.708mm;
-  margin-bottom: 0.708mm;
 `;
 
 const LabelPatientName = styled.div`
@@ -76,7 +73,7 @@ const LabelPatientName = styled.div`
   line-height: ${props => props.$fontSize * 1.125}mm;
   word-wrap: break-word;
   overflow-wrap: break-word;
-  flex: 1;
+  flex: 1.4;
 `;
 
 const LabelDate = styled.div`
@@ -85,6 +82,7 @@ const LabelDate = styled.div`
   line-height: ${props => props.$fontSize * 1.125}mm;
   text-align: right;
   white-space: nowrap;
+  flex: 1;
 `;
 
 const LabelLeftColumn = styled.div`
@@ -99,6 +97,7 @@ const LabelRightColumn = styled.div`
   flex-direction: column;
   gap: 0.708mm;
   flex: 1;
+  text-align: right;
 `;
 
 const LabelDetailRow = styled.div`
