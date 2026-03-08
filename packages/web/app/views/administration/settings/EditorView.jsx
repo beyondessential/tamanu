@@ -123,7 +123,7 @@ const UNCATEGORISED_KEY = 'uncategorised';
 
 export const formatSettingName = (name, path) => name || capitalize(startCase(path));
 
-const recursiveJsonParse = (obj) => {
+const recursiveJsonParse = obj => {
   if (typeof obj !== 'object') return obj;
   if (Array.isArray(obj)) return obj.map(recursiveJsonParse);
   return Object.entries(obj).reduce((acc, [key, value]) => {
@@ -141,7 +141,7 @@ const recursiveJsonParse = (obj) => {
   }, {});
 };
 
-const prepareSchema = (scope) => {
+const prepareSchema = scope => {
   const schema = getScopedSchema(scope);
   const uncategorised = pickBy(schema.properties, isSetting);
   // If there are any top-level settings, move them to an uncategorised category
@@ -180,7 +180,7 @@ const getSubCategoryOptions = (schema, category) => {
   return keys.length >= 1 ? getCategoryOptions({ properties: subCategories }) : null;
 };
 
-const getCategoryOptions = (schema) =>
+const getCategoryOptions = schema =>
   Object.entries(schema.properties)
     .map(([key, value]) => ({
       value: key,
@@ -203,14 +203,14 @@ const getEntryType = (path, isLeaf) => {
 };
 
 /** Turn a dot path into a readable breadcrumb, e.g. "audit.changes.enabled" → "Audit › Changes › Enabled". */
-const formatPathBreadcrumb = (path) =>
+const formatPathBreadcrumb = path =>
   path
     .split('.')
-    .map((segment) => capitalize(startCase(segment)))
+    .map(segment => capitalize(startCase(segment)))
     .join(' › ');
 
 /** Recursively walk the schema and build a flat list of entries with path, label, description, type, pathBreadcrumb. */
-const buildSearchIndex = (schema) => {
+const buildSearchIndex = schema => {
   if (!schema?.properties) return [];
   const entries = [];
 
@@ -241,7 +241,7 @@ const filterSearchIndex = (index, query) => {
   const q = query?.trim();
   if (!q || q.length < 2) return [];
   const lower = q.toLowerCase();
-  const matches = (entry) =>
+  const matches = entry =>
     entry.type === 'setting' &&
     (entry.label?.toLowerCase().includes(lower) ||
       entry.description?.toLowerCase().includes(lower) ||
@@ -310,14 +310,12 @@ export const EditorView = memo(
     useEffect(handleChangeScope, [scope]);
 
     /** Navigate to the category/subcategory that contains the selected setting; prompt to discard changes if form is dirty. */
-    const handleSelectResult = async (entry) => {
-      const { category: newCategory, subCategory: newSubCategory } = getCategoryAndSubCategoryFromPath(
-        entry.path,
-        scopedSchema,
-      );
+    const handleSelectResult = async entry => {
+      const { category: newCategory, subCategory: newSubCategory } =
+        getCategoryAndSubCategoryFromPath(entry.path, scopedSchema);
 
       if (newCategory !== category || newSubCategory !== subCategory) {
-        if (dirty) {
+        if (newCategory !== category && dirty) {
           const dismissChanges = await handleShowWarningModal();
           if (!dismissChanges) return;
           await resetForm();
@@ -329,7 +327,7 @@ export const EditorView = memo(
       setSearchQuery('');
     };
 
-    const handleChangeCategory = async (e) => {
+    const handleChangeCategory = async e => {
       const newCategory = e.target.value;
       if (newCategory !== category && dirty) {
         const dismissChanges = await handleShowWarningModal();
@@ -340,12 +338,13 @@ export const EditorView = memo(
       setCategory(newCategory);
     };
 
-    const handleChangeSubcategory = (e) => {
+    const handleChangeSubcategory = e => {
       setSubCategory(e.target.value);
     };
 
-    const getSettingPath = (path) =>
-      `${category === UNCATEGORISED_KEY ? '' : `${category}.`}${subCategory ? `${subCategory}.` : ''
+    const getSettingPath = path =>
+      `${category === UNCATEGORISED_KEY ? '' : `${category}.`}${
+        subCategory ? `${subCategory}.` : ''
       }${path}`;
 
     const handleChangeSetting = (path, value) => {
@@ -354,9 +353,9 @@ export const EditorView = memo(
       setFieldValue('settings', updatedSettings);
     };
 
-    const getSettingValue = (path) => get(values.settings, getSettingPath(path));
+    const getSettingValue = path => get(values.settings, getSettingPath(path));
 
-    const saveSettings = async (event) => {
+    const saveSettings = async event => {
       // Need to parse json string objects stored in keys
       const parsedSettings = recursiveJsonParse(values.settings);
       delete parsedSettings.uncategorised;
@@ -386,36 +385,36 @@ export const EditorView = memo(
                 >
                   <SearchInput
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={e => setSearchQuery(e.target.value)}
                     onClear={() => setSearchQuery('')}
                     data-testid="settings-search-input"
                   />
-                {searchResults.length > 0 && (
-                  <SearchResultsDropdown data-testid="settings-search-results">
-                    {searchResults.map((entry) => (
-                      <SearchResultItem
-                        key={entry.path}
-                        type="button"
-                        onClick={() => handleSelectResult(entry)}
-                        data-testid={`settings-search-result-${entry.path.replace(/\./g, '-')}`}
-                      >
-                        <SearchResultLabel>{entry.label}</SearchResultLabel>
-                        <SearchResultMeta>
-                          <SearchResultTypeBadge>
-                            {getTranslation(
-                              `admin.settings.search.type.${entry.type}`,
-                              capitalize(entry.type),
-                            )}
-                          </SearchResultTypeBadge>
-                          <SearchResultBreadcrumb>{entry.pathBreadcrumb}</SearchResultBreadcrumb>
-                        </SearchResultMeta>
-                        {entry.description ? (
-                          <SearchResultDescription>{entry.description}</SearchResultDescription>
-                        ) : null}
-                      </SearchResultItem>
-                    ))}
-                  </SearchResultsDropdown>
-                )}
+                  {searchResults.length > 0 && (
+                    <SearchResultsDropdown data-testid="settings-search-results">
+                      {searchResults.map(entry => (
+                        <SearchResultItem
+                          key={entry.path}
+                          type="button"
+                          onClick={() => handleSelectResult(entry)}
+                          data-testid={`settings-search-result-${entry.path.replace(/\./g, '-')}`}
+                        >
+                          <SearchResultLabel>{entry.label}</SearchResultLabel>
+                          <SearchResultMeta>
+                            <SearchResultTypeBadge>
+                              {getTranslation(
+                                `admin.settings.search.type.${entry.type}`,
+                                capitalize(entry.type),
+                              )}
+                            </SearchResultTypeBadge>
+                            <SearchResultBreadcrumb>{entry.pathBreadcrumb}</SearchResultBreadcrumb>
+                          </SearchResultMeta>
+                          {entry.description ? (
+                            <SearchResultDescription>{entry.description}</SearchResultDescription>
+                          ) : null}
+                        </SearchResultItem>
+                      ))}
+                    </SearchResultsDropdown>
+                  )}
                 </OuterLabelFieldWrapper>
               </SearchWrapper>
               <StyledSelectInput
