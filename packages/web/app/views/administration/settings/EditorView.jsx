@@ -188,20 +188,28 @@ const getCategoryOptions = (schema) =>
     }))
     .sort((a, b) => a.label.localeCompare(b.label));
 
+// --- Settings search: index and filter ---
+// We build a flat list of all schema nodes (categories, subcategories, settings) so we can
+// search by label/description/path. Only leaf settings are shown in results; type and
+// breadcrumb are still displayed for context. Selecting a result sets category/subcategory
+// so the editor shows the right section.
+
 const SEARCH_RESULTS_LIMIT = 20;
 
+/** Classify a schema node for display: 'category' (top-level), 'subcategory', or 'setting' (leaf). */
 const getEntryType = (path, isLeaf) => {
   if (isLeaf) return 'setting';
-  const segmentCount = path.split('.').length;
-  return segmentCount === 1 ? 'category' : 'subcategory';
+  return path.split('.').length === 1 ? 'category' : 'subcategory';
 };
 
+/** Turn a dot path into a readable breadcrumb, e.g. "audit.changes.enabled" → "Audit › Changes › Enabled". */
 const formatPathBreadcrumb = (path) =>
   path
     .split('.')
     .map((segment) => capitalize(startCase(segment)))
     .join(' › ');
 
+/** Recursively walk the schema and build a flat list of entries with path, label, description, type, pathBreadcrumb. */
 const buildSearchIndex = (schema) => {
   if (!schema?.properties) return [];
   const entries = [];
@@ -209,19 +217,17 @@ const buildSearchIndex = (schema) => {
   const walk = (properties, pathPrefix = '') => {
     Object.entries(properties).forEach(([key, value]) => {
       const path = pathPrefix ? `${pathPrefix}.${key}` : key;
-      const label = formatSettingName(value.name, key);
-      const description = value?.description ?? '';
       const isLeaf = isSetting(value);
-      const type = getEntryType(path, isLeaf);
-      const pathBreadcrumb = formatPathBreadcrumb(path);
-
-      if (isLeaf) {
-        entries.push({ path, label, description, type, pathBreadcrumb });
-      } else {
-        entries.push({ path, label, description, type, pathBreadcrumb });
-        if (value?.properties) {
-          walk(value.properties, path);
-        }
+      const entry = {
+        path,
+        label: formatSettingName(value.name, key),
+        description: value?.description ?? '',
+        type: getEntryType(path, isLeaf),
+        pathBreadcrumb: formatPathBreadcrumb(path),
+      };
+      entries.push(entry);
+      if (!isLeaf && value?.properties) {
+        walk(value.properties, path);
       }
     });
   };
@@ -230,18 +236,33 @@ const buildSearchIndex = (schema) => {
   return entries;
 };
 
+/** Return settings that match the query (label, description, or path). Only leaf settings are included. */
 const filterSearchIndex = (index, query) => {
-  if (!query || query.trim().length < 2) return [];
-  const q = query.trim().toLowerCase();
-  return index
-    .filter(
-      (entry) =>
-        entry.type === 'setting' &&
-        (entry.label?.toLowerCase().includes(q) ||
-          entry.description?.toLowerCase().includes(q) ||
-          entry.path?.toLowerCase().includes(q)),
-    )
-    .slice(0, SEARCH_RESULTS_LIMIT);
+  const q = query?.trim();
+  if (!q || q.length < 2) return [];
+  const lower = q.toLowerCase();
+  const matches = (entry) =>
+    entry.type === 'setting' &&
+    (entry.label?.toLowerCase().includes(lower) ||
+      entry.description?.toLowerCase().includes(lower) ||
+      entry.path?.toLowerCase().includes(lower));
+  return index.filter(matches).slice(0, SEARCH_RESULTS_LIMIT);
+};
+
+/**
+ * Derive category and subcategory from a setting path and schema.
+ * Path like "audit.changes.enabled" → category "audit", subcategory "changes".
+ * The second segment is only used as subcategory if it's a nested category (has properties), not a leaf.
+ */
+const getCategoryAndSubCategoryFromPath = (path, schema) => {
+  const parts = path.split('.');
+  const category = parts[0];
+  const categorySchema = schema?.properties?.[category];
+  const secondSegment = parts.length >= 2 ? parts[1] : null;
+  const secondSegmentSchema = secondSegment && categorySchema?.properties?.[secondSegment];
+  const isSubCategory = secondSegmentSchema && !isSetting(secondSegmentSchema);
+  const subCategory = isSubCategory ? secondSegment : null;
+  return { category, subCategory };
 };
 
 export const EditorView = memo(
@@ -263,6 +284,8 @@ export const EditorView = memo(
     const [searchQuery, setSearchQuery] = useState('');
 
     const scopedSchema = useMemo(() => prepareSchema(scope), [scope]);
+
+    // Search: flat index of schema nodes, filtered to matching settings only
     const searchIndex = useMemo(() => buildSearchIndex(scopedSchema), [scopedSchema]);
     const searchResults = useMemo(
       () => filterSearchIndex(searchIndex, searchQuery),
@@ -281,21 +304,17 @@ export const EditorView = memo(
     const handleChangeScope = () => {
       setSubCategory(null);
       setCategory(null);
-      setSearchQuery('');
+      setSearchQuery(''); // Clear search when scope changes so results stay relevant
     };
 
     useEffect(handleChangeScope, [scope]);
 
+    /** Navigate to the category/subcategory that contains the selected setting; prompt to discard changes if form is dirty. */
     const handleSelectResult = async (entry) => {
-      const pathParts = entry.path.split('.');
-      const newCategory = pathParts[0];
-      const categorySchema = scopedSchema?.properties?.[newCategory];
-      const secondSegment = pathParts.length >= 2 ? pathParts[1] : null;
-      const isSecondSegmentSubCategory =
-        secondSegment &&
-        categorySchema?.properties?.[secondSegment] &&
-        !isSetting(categorySchema.properties[secondSegment]);
-      const newSubCategory = secondSegment && isSecondSegmentSubCategory ? secondSegment : null;
+      const { category: newCategory, subCategory: newSubCategory } = getCategoryAndSubCategoryFromPath(
+        entry.path,
+        scopedSchema,
+      );
 
       if (newCategory !== category || newSubCategory !== subCategory) {
         if (dirty) {
@@ -353,6 +372,7 @@ export const EditorView = memo(
         <SettingsWrapper data-testid="settingswrapper-bfnb">
           <CategoryOptions p={2} data-testid="categoryoptions-0h2x">
             <Box display="flex" alignItems="center" gap={2} data-testid="box-e25e">
+              {/* Search settings by name/description; results show type + breadcrumb, only settings are selectable */}
               <SearchWrapper data-testid="search-wrapper">
                 <OuterLabelFieldWrapper
                   label={
@@ -384,7 +404,7 @@ export const EditorView = memo(
                           <SearchResultTypeBadge>
                             {getTranslation(
                               `admin.settings.search.type.${entry.type}`,
-                              entry.type.charAt(0).toUpperCase() + entry.type.slice(1),
+                              capitalize(entry.type),
                             )}
                           </SearchResultTypeBadge>
                           <SearchResultBreadcrumb>{entry.pathBreadcrumb}</SearchResultBreadcrumb>
