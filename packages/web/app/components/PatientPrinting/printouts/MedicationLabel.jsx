@@ -82,8 +82,6 @@ const LabelDate = styled.div`
   line-height: ${props => props.$fontSize * 1.125}mm;
   text-align: right;
   white-space: nowrap;
-  flex: 1;
-  padding-left: 2mm;
 `;
 
 const LabelLeftColumn = styled.div`
