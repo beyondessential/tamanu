@@ -24,6 +24,7 @@ import { AutocompleteField, DateTimeField, Field, ImagingPriorityField } from '.
 import { TranslatedReferenceData, TranslatedText } from '../components/Translation';
 import { useEncounter } from '../contexts/Encounter';
 import { useLocalisation } from '../contexts/Localisation';
+import { useSettings } from '../contexts/Settings';
 import { useTranslation } from '../contexts/Translation';
 import { reloadImagingRequest } from '../store';
 import { useImagingRequestAreas } from '../utils/useImagingRequestAreas';
@@ -88,9 +89,11 @@ export const ImagingRequestForm = React.memo(
     const { formatShort, getCurrentDateTime } = useDateTime();
     const { getTranslation, getEnumTranslation } = useTranslation();
     const { getLocalisation } = useLocalisation();
+    const { getSetting } = useSettings();
     const { currentUser } = useAuth();
 
     const imagingTypes = getLocalisation('imagingTypes') || {};
+    const imagingAreasRequired = getSetting('imagingAreasRequired') !== false;
 
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
@@ -115,20 +118,21 @@ export const ImagingRequestForm = React.memo(
               const imagingAreas = getAreasForImagingType(imagingType);
               return imagingAreas.length > 0;
             },
-            then: yup
-              .string()
-              .min(3, requiredValidationMessage) // Empty input is '[]', so validating that it's got at least one value in the array
-              .required(requiredValidationMessage),
+            then: imagingAreasRequired
+              ? yup
+                  .string()
+                  .min(3, requiredValidationMessage) // Empty input is '[]', so validating that it's got at least one value in the array
+                  .required(requiredValidationMessage)
+              : yup.string(),
           }),
           areaNote: yup.string().when('imagingType', {
             is: imagingType => {
               const imagingAreas = getAreasForImagingType(imagingType);
               return imagingAreas.length === 0;
             },
-            then: yup
-              .string()
-              .trim()
-              .required(requiredValidationMessage),
+            then: imagingAreasRequired
+              ? yup.string().trim().required(requiredValidationMessage)
+              : yup.string().trim(),
           }),
         })}
         showInlineErrorsOnly
@@ -283,7 +287,7 @@ export const ImagingRequestForm = React.memo(
                   }
                   component={MultiselectField}
                   prefix="imaging.property.area"
-                  required
+                  required={imagingAreasRequired}
                   data-testid="field-bsn4"
                 />
               ) : (
@@ -300,7 +304,7 @@ export const ImagingRequestForm = React.memo(
                   multiline
                   style={{ gridColumn: '1 / -1' }}
                   minRows={3}
-                  required
+                  required={imagingAreasRequired}
                   data-testid="field-r8tf"
                 />
               )}

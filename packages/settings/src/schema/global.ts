@@ -1105,6 +1105,14 @@ export const globalSettings = {
       type: imagingPrioritiesSchema,
       defaultValue: imagingPrioritiesDefault,
     },
+    imagingAreasRequired: {
+      name: 'Areas to be imaged required',
+      description:
+        'When enabled, the "Areas to be imaged" field is required when creating an imaging request. When disabled, the field is optional.',
+      exposedToWeb: true,
+      type: yup.boolean(),
+      defaultValue: true,
+    },
     labsCancellationReasons: {
       description: 'Customise the options available for lab request cancellation reasons',
       exposedToWeb: true,
