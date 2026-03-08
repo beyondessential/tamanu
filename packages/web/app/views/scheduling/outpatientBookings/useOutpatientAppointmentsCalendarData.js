@@ -47,10 +47,11 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
   const combinedQuery = combineQueries([locationGroupsQuery, usersQuery, appointmentsQuery]);
 
   combinedQuery.data = useMemo(() => {
-    if (!appointmentsData?.data || appointmentsData.data.length === 0) return {};
+    if (!appointmentsData?.data || !usersData || !locationGroupData) return {};
+    if (appointmentsData.data.length === 0) return {};
 
     const cellData = lodashGroupBy(
-      appointmentsData?.data,
+      appointmentsData.data,
       (appointment) => appointment[groupBy] || 'unknown',
     );
 
@@ -63,7 +64,7 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
     if (groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP) {
       return {
         cellData,
-        headData: locationGroupData?.filter((group) => !!cellData[group.id]),
+        headData: locationGroupData.filter((group) => !!cellData[group.id]),
       };
     }
     if (!groupBy) {
