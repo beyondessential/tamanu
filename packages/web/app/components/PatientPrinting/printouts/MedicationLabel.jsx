@@ -59,12 +59,13 @@ const LabelBottomSection = styled.div`
   display: flex;
   justify-content: space-between;
   gap: 2mm;
+  margin-top: 0.354mm;
 `;
 
 const LabelPatientDateRow = styled.div`
   display: flex;
   border-bottom: 0.354mm solid ${Colors.black};
-  padding-bottom: 0.708mm;
+  padding-bottom: 0.354mm;
 `;
 
 const LabelPatientName = styled.div`
