@@ -209,6 +209,16 @@ export class TamanuApi extends ApiClient {
         ? await this.fetchImpersonatedRole(impersonateRoleId, config)
         : null;
 
+    let activePermissions = permissions;
+    if (impersonatedRole) {
+      try {
+        const resp = await this.get('user/permissions', {}, config);
+        activePermissions = resp.permissions;
+      } catch {
+        // fall back to localStorage permissions
+      }
+    }
+
     return {
       user,
       token,
@@ -218,7 +228,7 @@ export class TamanuApi extends ApiClient {
       facilityId,
       primaryTimeZone,
       ability,
-      permissions,
+      permissions: activePermissions,
       role,
       settings,
       impersonatedRole,
