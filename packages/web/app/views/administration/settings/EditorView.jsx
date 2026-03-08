@@ -7,10 +7,13 @@ import { getScopedSchema, isSetting } from '@tamanu/settings';
 
 import {
   DynamicSelectField,
+  OuterLabelFieldWrapper,
   TranslatedText,
+  SearchInput,
 } from '../../../components';
 import { SelectInput, OutlinedButton, Button } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
+import { useTranslation } from '../../../contexts/Translation';
 import { Category } from './components/Category';
 
 const SettingsWrapper = styled.div`
@@ -43,6 +46,77 @@ const CategoriesWrapper = styled.div`
 const ButtonGroup = styled.div`
   display: flex;
   gap: 1rem;
+`;
+
+const SearchWrapper = styled.div`
+  position: relative;
+  width: 18.75rem;
+  padding-right: 1rem;
+`;
+
+const SearchResultsDropdown = styled.div`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 0.25rem;
+  max-height: 20rem;
+  overflow-y: auto;
+  background: ${Colors.white};
+  border: 1px solid ${Colors.outline};
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1;
+`;
+
+const SearchResultItem = styled.button`
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 14px;
+  &:hover {
+    background: ${Colors.background};
+  }
+  &:not(:last-child) {
+    border-bottom: 1px solid ${Colors.outline};
+  }
+`;
+
+const SearchResultLabel = styled.div`
+  font-weight: 500;
+`;
+
+const SearchResultMeta = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  flex-wrap: wrap;
+`;
+
+const SearchResultTypeBadge = styled.span`
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: ${Colors.softText};
+  padding: 0.125rem 0.375rem;
+  background: ${Colors.background};
+  border-radius: 3px;
+`;
+
+const SearchResultBreadcrumb = styled.span`
+  font-size: 11px;
+  color: ${Colors.softText};
+`;
+
+const SearchResultDescription = styled.div`
+  font-size: 12px;
+  color: ${Colors.softText};
+  margin-top: 0.25rem;
 `;
 
 const UNCATEGORISED_KEY = 'uncategorised';
@@ -100,11 +174,10 @@ const getSchemaForCategory = (schema, category, subCategory) => {
 
 const getSubCategoryOptions = (schema, category) => {
   const categorySchema = schema.properties[category];
-  if (!categorySchema) return null;
+  if (!categorySchema?.properties) return null;
   const subCategories = omitBy(categorySchema.properties, isSetting);
-  return Object.keys(subCategories).length > 1
-    ? getCategoryOptions({ properties: subCategories })
-    : null;
+  const keys = Object.keys(subCategories);
+  return keys.length >= 1 ? getCategoryOptions({ properties: subCategories }) : null;
 };
 
 const getCategoryOptions = (schema) =>
@@ -114,6 +187,62 @@ const getCategoryOptions = (schema) =>
       label: formatSettingName(value.name, key),
     }))
     .sort((a, b) => a.label.localeCompare(b.label));
+
+const SEARCH_RESULTS_LIMIT = 20;
+
+const getEntryType = (path, isLeaf) => {
+  if (isLeaf) return 'setting';
+  const segmentCount = path.split('.').length;
+  return segmentCount === 1 ? 'category' : 'subcategory';
+};
+
+const formatPathBreadcrumb = (path) =>
+  path
+    .split('.')
+    .map((segment) => capitalize(startCase(segment)))
+    .join(' › ');
+
+const buildSearchIndex = (schema) => {
+  if (!schema?.properties) return [];
+  const entries = [];
+
+  const walk = (properties, pathPrefix = '') => {
+    Object.entries(properties).forEach(([key, value]) => {
+      const path = pathPrefix ? `${pathPrefix}.${key}` : key;
+      const label = formatSettingName(value.name, key);
+      const description = value?.description ?? '';
+      const isLeaf = isSetting(value);
+      const type = getEntryType(path, isLeaf);
+      const pathBreadcrumb = formatPathBreadcrumb(path);
+
+      if (isLeaf) {
+        entries.push({ path, label, description, type, pathBreadcrumb });
+      } else {
+        entries.push({ path, label, description, type, pathBreadcrumb });
+        if (value?.properties) {
+          walk(value.properties, path);
+        }
+      }
+    });
+  };
+
+  walk(schema.properties);
+  return entries;
+};
+
+const filterSearchIndex = (index, query) => {
+  if (!query || query.trim().length < 2) return [];
+  const q = query.trim().toLowerCase();
+  return index
+    .filter(
+      (entry) =>
+        entry.type === 'setting' &&
+        (entry.label?.toLowerCase().includes(q) ||
+          entry.description?.toLowerCase().includes(q) ||
+          entry.path?.toLowerCase().includes(q)),
+    )
+    .slice(0, SEARCH_RESULTS_LIMIT);
+};
 
 export const EditorView = memo(
   ({
@@ -128,10 +257,17 @@ export const EditorView = memo(
     scope,
   }) => {
     const { facilityId } = values;
+    const { getTranslation } = useTranslation();
     const [category, setCategory] = useState(null);
     const [subCategory, setSubCategory] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
 
     const scopedSchema = useMemo(() => prepareSchema(scope), [scope]);
+    const searchIndex = useMemo(() => buildSearchIndex(scopedSchema), [scopedSchema]);
+    const searchResults = useMemo(
+      () => filterSearchIndex(searchIndex, searchQuery),
+      [searchIndex, searchQuery],
+    );
     const categoryOptions = useMemo(() => getCategoryOptions(scopedSchema), [scopedSchema]);
     const subCategoryOptions = useMemo(
       () => getSubCategoryOptions(scopedSchema, category),
@@ -145,9 +281,34 @@ export const EditorView = memo(
     const handleChangeScope = () => {
       setSubCategory(null);
       setCategory(null);
+      setSearchQuery('');
     };
 
     useEffect(handleChangeScope, [scope]);
+
+    const handleSelectResult = async (entry) => {
+      const pathParts = entry.path.split('.');
+      const newCategory = pathParts[0];
+      const categorySchema = scopedSchema?.properties?.[newCategory];
+      const secondSegment = pathParts.length >= 2 ? pathParts[1] : null;
+      const isSecondSegmentSubCategory =
+        secondSegment &&
+        categorySchema?.properties?.[secondSegment] &&
+        !isSetting(categorySchema.properties[secondSegment]);
+      const newSubCategory = secondSegment && isSecondSegmentSubCategory ? secondSegment : null;
+
+      if (newCategory !== category || newSubCategory !== subCategory) {
+        if (dirty) {
+          const dismissChanges = await handleShowWarningModal();
+          if (!dismissChanges) return;
+          await resetForm();
+        }
+        setCategory(newCategory);
+        setSubCategory(newSubCategory);
+      }
+
+      setSearchQuery('');
+    };
 
     const handleChangeCategory = async (e) => {
       const newCategory = e.target.value;
@@ -165,8 +326,7 @@ export const EditorView = memo(
     };
 
     const getSettingPath = (path) =>
-      `${category === UNCATEGORISED_KEY ? '' : `${category}.`}${
-        subCategory ? `${subCategory}.` : ''
+      `${category === UNCATEGORISED_KEY ? '' : `${category}.`}${subCategory ? `${subCategory}.` : ''
       }${path}`;
 
     const handleChangeSetting = (path, value) => {
@@ -192,7 +352,52 @@ export const EditorView = memo(
       <>
         <SettingsWrapper data-testid="settingswrapper-bfnb">
           <CategoryOptions p={2} data-testid="categoryoptions-0h2x">
-            <Box display="flex" alignItems="center" data-testid="box-e25e">
+            <Box display="flex" alignItems="center" gap={2} data-testid="box-e25e">
+              <SearchWrapper data-testid="search-wrapper">
+                <OuterLabelFieldWrapper
+                  label={
+                    <TranslatedText
+                      stringId="admin.settings.search.placeholder"
+                      fallback="Search settings"
+                      data-testid="translatedtext-search-label"
+                    />
+                  }
+                  data-testid="settings-search-label-wrapper"
+                >
+                  <SearchInput
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onClear={() => setSearchQuery('')}
+                    data-testid="settings-search-input"
+                  />
+                {searchResults.length > 0 && (
+                  <SearchResultsDropdown data-testid="settings-search-results">
+                    {searchResults.map((entry) => (
+                      <SearchResultItem
+                        key={entry.path}
+                        type="button"
+                        onClick={() => handleSelectResult(entry)}
+                        data-testid={`settings-search-result-${entry.path.replace(/\./g, '-')}`}
+                      >
+                        <SearchResultLabel>{entry.label}</SearchResultLabel>
+                        <SearchResultMeta>
+                          <SearchResultTypeBadge>
+                            {getTranslation(
+                              `admin.settings.search.type.${entry.type}`,
+                              entry.type.charAt(0).toUpperCase() + entry.type.slice(1),
+                            )}
+                          </SearchResultTypeBadge>
+                          <SearchResultBreadcrumb>{entry.pathBreadcrumb}</SearchResultBreadcrumb>
+                        </SearchResultMeta>
+                        {entry.description ? (
+                          <SearchResultDescription>{entry.description}</SearchResultDescription>
+                        ) : null}
+                      </SearchResultItem>
+                    ))}
+                  </SearchResultsDropdown>
+                )}
+                </OuterLabelFieldWrapper>
+              </SearchWrapper>
               <StyledSelectInput
                 required
                 placeholder=""
@@ -209,22 +414,20 @@ export const EditorView = memo(
                 data-testid="styledselectinput-kvyx"
               />
               {subCategoryOptions && (
-                <Box ml={2} data-testid="box-o82k">
-                  <StyledDynamicSelectField
-                    label={
-                      <TranslatedText
-                        stringId="admin.settings.subCategory.label"
-                        fallback="Select sub-category"
-                        data-testid="translatedtext-i0zl"
-                      />
-                    }
-                    placeholder=""
-                    value={subCategory}
-                    onChange={handleChangeSubcategory}
-                    options={subCategoryOptions}
-                    data-testid="styleddynamicselectfield-d62r"
-                  />
-                </Box>
+                <StyledDynamicSelectField
+                  label={
+                    <TranslatedText
+                      stringId="admin.settings.subCategory.label"
+                      fallback="Select sub-category"
+                      data-testid="translatedtext-i0zl"
+                    />
+                  }
+                  placeholder=""
+                  value={subCategory}
+                  onChange={handleChangeSubcategory}
+                  options={subCategoryOptions}
+                  data-testid="styleddynamicselectfield-d62r"
+                />
               )}
             </Box>
             <ButtonGroup data-testid="buttongroup-oe3l">
