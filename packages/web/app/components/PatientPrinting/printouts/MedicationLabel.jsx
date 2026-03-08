@@ -83,6 +83,7 @@ const LabelDate = styled.div`
   text-align: right;
   white-space: nowrap;
   flex: 1;
+  padding-left: 2mm;
 `;
 
 const LabelLeftColumn = styled.div`
@@ -139,6 +140,20 @@ const truncateWithEllipsis = (text, maxLength) => {
   return `${text.substring(0, maxLength - 1)}…`;
 };
 
+const calculateMaxPrescriberChars = (totalPrescribedText) => {
+  // Total prescribed text length affects how much space is available for prescriber
+  // Longer total prescribed = less space for prescriber
+  const totalPrescribedLength = totalPrescribedText?.length || 0;
+  
+  // Base max is 50 chars, reduce by 1 char for every 2 chars in total prescribed beyond 10
+  let maxChars = 50;
+  if (totalPrescribedLength > 10) {
+    maxChars = Math.max(35, 50 - Math.floor((totalPrescribedLength - 10) / 2));
+  }
+  
+  return maxChars;
+};
+
 const calculateDynamicFontSizes = (data, labelHeight) => {
   const medicationNameLength = data.medicationName?.length || 0;
   const patientNameLength = data.patientName?.length || 0;
@@ -154,8 +169,8 @@ const calculateDynamicFontSizes = (data, labelHeight) => {
     medicationNameFontSize = labelHeight * 0.11;
   }
   
-  // 2. Instructions: never scale - fixed readable size
-  const instructionsFontSize = labelHeight * 0.09; // Fixed 3.6mm for 40mm height
+  // 2. Instructions: never scale - fixed readable size (20% larger)
+  const instructionsFontSize = labelHeight * 0.108; // Fixed 4.32mm for 40mm height
   
   // 3. Patient name and date: scale based on patient name length to stay on one line
   let patientDateFontSize = labelHeight * 0.09;
@@ -219,8 +234,9 @@ export const MedicationLabel = React.memo(({ data }) => {
     footerFontSize,
   } = calculateDynamicFontSizes(data, labelHeight);
 
-  // Truncate prescriber name if too long for smallest font
-  const maxPrescriberChars = 45;
+  // Calculate max prescriber chars based on total prescribed text length
+  const totalPrescribedText = getMedicationLabel(quantity, units, getEnumTranslation);
+  const maxPrescriberChars = calculateMaxPrescriberChars(totalPrescribedText);
   const displayPrescriberName = truncateWithEllipsis(prescriberName, maxPrescriberChars);
 
   return (
