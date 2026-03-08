@@ -1106,7 +1106,6 @@ createNameSuggester(
   },
 );
 
-// TODO: Use generic LabTest permissions for this suggester
 createNameSuggester('labTestPanel', 'LabTestPanel', ({ endpoint, modelName, req }) => {
   const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
   const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId, req.db, 'LabTestPanel');
