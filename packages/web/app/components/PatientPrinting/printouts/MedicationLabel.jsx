@@ -28,15 +28,9 @@ const Label = styled.div`
   }
 `;
 
-const LabelTitle = styled.div`
-  font-weight: 700;
-  line-height: ${props => props.$fontSize * 1.875}mm;
-  text-align: center;
-`;
-
 const LabelContent = styled.div`
-  padding-left: 4.25mm;
-  padding-right: 4.25mm;
+  padding-left: 2mm;
+  padding-right: 2mm;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -51,10 +45,14 @@ const LabelTopSection = styled.div`
 
 const LabelMedicationName = styled.div`
   font-weight: 500;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 `;
 
 const LabelInstructions = styled.div`
   font-weight: 400;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 `;
 
 const LabelBottomSection = styled.div`
@@ -91,6 +89,16 @@ const LabelDate = styled.div`
 
 const LabelRow = styled.div`
   font-weight: 400;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+`;
+
+const LabelPrescriberRow = styled.div`
+  font-weight: 400;
+  font-size: ${props => props.$fontSize * 0.85}mm;
+  line-height: ${props => props.$fontSize * 0.95}mm;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 `;
 
 const LabelFooter = styled.div`
@@ -100,11 +108,16 @@ const LabelFooter = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  min-height: ${props => props.$fontSize * 1.5}mm;
 `;
 
 const LabelFooterText = styled.div`
   font-weight: 400;
   text-align: center;
+  font-size: ${props => props.$fontSize * 0.85}mm;
+  line-height: ${props => props.$fontSize * 0.95}mm;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 `;
 
 export const getMedicationLabel = (quantity, units, getEnumTranslation) => {
@@ -112,6 +125,28 @@ export const getMedicationLabel = (quantity, units, getEnumTranslation) => {
   const enumTranslation = getEnumTranslation(DRUG_UNIT_LABELS, units);
   const translatedUnit = quantity > 1 ? pluralize(enumTranslation) : enumTranslation;
   return `${quantity} ${translatedUnit.toLowerCase()}`;
+};
+
+const calculateDynamicFontSize = (data, labelHeight) => {
+  const instructionsLength = data.instructions?.length || 0;
+  const medicationNameLength = data.medicationName?.length || 0;
+  
+  // Base font size (larger than before)
+  let fontSize = labelHeight * 0.09;
+  
+  // Reduce font size for long content to ensure it fits
+  if (instructionsLength > 150 || medicationNameLength > 50) {
+    fontSize = labelHeight * 0.075;
+  } else if (instructionsLength > 100 || medicationNameLength > 35) {
+    fontSize = labelHeight * 0.08;
+  } else if (instructionsLength < 50 && medicationNameLength < 25) {
+    // Increase font size for short content to maximize readability
+    fontSize = labelHeight * 0.11;
+  } else if (instructionsLength < 80 && medicationNameLength < 30) {
+    fontSize = labelHeight * 0.095;
+  }
+  
+  return fontSize;
 };
 
 export const MedicationLabel = React.memo(({ data }) => {
@@ -131,20 +166,13 @@ export const MedicationLabel = React.memo(({ data }) => {
     remainingRepeats,
     prescriberName,
     requestNumber,
-    facilityAddress,
-    facilityContactNumber,
+    facilityName,
   } = data;
 
-  const fontSize = labelHeight * 0.071;
+  const fontSize = calculateDynamicFontSize(data, labelHeight);
 
   return (
     <Label $width={labelWidth} $height={labelHeight} $fontSize={fontSize}>
-      <LabelTitle $fontSize={fontSize}>
-        <TranslatedText
-          stringId="modal.medication.dispense.label.title"
-          fallback="Keep out of reach of children"
-        />
-      </LabelTitle>
       <LabelContent>
         <LabelTopSection>
           <LabelMedicationName>{medicationName}</LabelMedicationName>
@@ -156,31 +184,27 @@ export const MedicationLabel = React.memo(({ data }) => {
             <LabelRow>{getMedicationLabel(quantity, units, getEnumTranslation)}</LabelRow>
             <LabelRow>
               <TranslatedText
-                stringId="medication.dispense.numberOfRepeats"
-                fallback="Number of repeats"
+                stringId="medication.dispense.repeats"
+                fallback="Repeats"
               />
               : {remainingRepeats}
             </LabelRow>
           </LabelLeftColumn>
           <LabelRightColumn $width={labelWidth}>
             <LabelDate>{formatShortest(dispensedAt)}</LabelDate>
-            <LabelRow>
-              <TranslatedText stringId="medication.prescriber.label" fallback="Prescriber" />:{' '}
+            <LabelPrescriberRow $fontSize={fontSize}>
+              <TranslatedText stringId="medication.prescriber.abbrev" fallback="Pres." />:{' '}
               {prescriberName}
-            </LabelRow>
+            </LabelPrescriberRow>
             <LabelRow>
-              <TranslatedText stringId="medication.dispense.requestNo" fallback="Request no" />:{' '}
+              <TranslatedText stringId="medication.dispense.request" fallback="Request" />:{' '}
               {requestNumber}
             </LabelRow>
           </LabelRightColumn>
         </LabelBottomSection>
       </LabelContent>
-      <LabelFooter>
-        <LabelFooterText>
-          {[facilityAddress, facilityContactNumber && `Ph: ${facilityContactNumber}`]
-            .filter(Boolean)
-            .join(', ')}
-        </LabelFooterText>
+      <LabelFooter $fontSize={fontSize}>
+        <LabelFooterText $fontSize={fontSize}>{facilityName}</LabelFooterText>
       </LabelFooter>
     </Label>
   );
@@ -193,11 +217,10 @@ MedicationLabel.propTypes = {
     patientName: PropTypes.string.isRequired,
     dispensedAt: PropTypes.string.isRequired,
     quantity: PropTypes.number.isRequired,
-    units: PropTypes.string.isRequired,
+    units: PropTypes.string,
     remainingRepeats: PropTypes.number.isRequired,
     prescriberName: PropTypes.string.isRequired,
     requestNumber: PropTypes.string.isRequired,
-    facilityAddress: PropTypes.string,
-    facilityContactNumber: PropTypes.string,
+    facilityName: PropTypes.string,
   }).isRequired,
 };
