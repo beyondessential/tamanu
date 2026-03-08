@@ -567,8 +567,7 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
           ];
         }
       },
-      shouldSkipDefaultOrder: req =>
-        req.query.parentId || typeName === REFERENCE_TYPES.MEDICATION_SET,
+      shouldSkipDefaultOrder: req => typeName === REFERENCE_TYPES.MEDICATION_SET,
     },
     true,
   );
