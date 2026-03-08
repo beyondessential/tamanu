@@ -306,7 +306,7 @@ export const EditorView = memo(
         getCategoryAndSubCategoryFromPath(entry.path, scopedSchema);
 
       if (newCategory !== category || newSubCategory !== subCategory) {
-        if (newCategory !== category && dirty) {
+        if ((newCategory !== category || newSubCategory !== subCategory) && dirty) {
           const dismissChanges = await handleShowWarningModal();
           if (!dismissChanges) return;
           await resetForm();
@@ -334,7 +334,8 @@ export const EditorView = memo(
     };
 
     const getSettingPath = path =>
-      `${category === UNCATEGORISED_KEY ? '' : `${category}.`}${subCategory ? `${subCategory}.` : ''
+      `${category === UNCATEGORISED_KEY ? '' : `${category}.`}${
+        subCategory ? `${subCategory}.` : ''
       }${path}`;
 
     const handleChangeSetting = (path, value) => {
