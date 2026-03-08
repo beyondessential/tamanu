@@ -89,6 +89,16 @@ const LabelDate = styled.div`
 
 const LabelRow = styled.div`
   font-weight: 400;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+`;
+
+const LabelPrescriberRow = styled.div`
+  font-weight: 400;
+  font-size: ${props => props.$fontSize * 0.85}mm;
+  line-height: ${props => props.$fontSize * 0.95}mm;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 `;
 
 const LabelFooter = styled.div`
@@ -98,11 +108,16 @@ const LabelFooter = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  min-height: ${props => props.$fontSize * 1.5}mm;
 `;
 
 const LabelFooterText = styled.div`
   font-weight: 400;
   text-align: center;
+  font-size: ${props => props.$fontSize * 0.85}mm;
+  line-height: ${props => props.$fontSize * 0.95}mm;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 `;
 
 export const getMedicationLabel = (quantity, units, getEnumTranslation) => {
@@ -169,27 +184,27 @@ export const MedicationLabel = React.memo(({ data }) => {
             <LabelRow>{getMedicationLabel(quantity, units, getEnumTranslation)}</LabelRow>
             <LabelRow>
               <TranslatedText
-                stringId="medication.dispense.numberOfRepeats"
-                fallback="Number of repeats"
+                stringId="medication.dispense.repeats"
+                fallback="Repeats"
               />
               : {remainingRepeats}
             </LabelRow>
           </LabelLeftColumn>
           <LabelRightColumn $width={labelWidth}>
             <LabelDate>{formatShortest(dispensedAt)}</LabelDate>
-            <LabelRow>
-              <TranslatedText stringId="medication.prescriber.label" fallback="Prescriber" />:{' '}
+            <LabelPrescriberRow $fontSize={fontSize}>
+              <TranslatedText stringId="medication.prescriber.abbrev" fallback="Pres." />:{' '}
               {prescriberName}
-            </LabelRow>
+            </LabelPrescriberRow>
             <LabelRow>
-              <TranslatedText stringId="medication.dispense.requestNo" fallback="Request no" />:{' '}
+              <TranslatedText stringId="medication.dispense.request" fallback="Request" />:{' '}
               {requestNumber}
             </LabelRow>
           </LabelRightColumn>
         </LabelBottomSection>
       </LabelContent>
-      <LabelFooter>
-        <LabelFooterText>{facilityName}</LabelFooterText>
+      <LabelFooter $fontSize={fontSize}>
+        <LabelFooterText $fontSize={fontSize}>{facilityName}</LabelFooterText>
       </LabelFooter>
     </Label>
   );
