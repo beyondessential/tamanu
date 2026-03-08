@@ -478,7 +478,8 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
         typeName === REFERENCE_TYPES.LAB_TEST_PRIORITY ||
         typeName === REFERENCE_TYPES.LAB_TEST_LABORATORY ||
         typeName === REFERENCE_TYPES.LAB_TEST_METHOD ||
-        typeName === REFERENCE_TYPES.LAB_SAMPLE_SITE
+        typeName === REFERENCE_TYPES.LAB_SAMPLE_SITE ||
+        typeName === REFERENCE_TYPES.TASK_TEMPLATE
       ) {
         const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId, req.db);
         if (facilityFilter) {
@@ -513,6 +514,27 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
             )
           `);
           baseWhere[Op.and] = [...(baseWhere[Op.and] || []), facilityFilter, memberMedicationFilter];
+        }
+      }
+
+      if (typeName === REFERENCE_TYPES.TASK_SET) {
+        const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId, req.db);
+        if (facilityFilter) {
+          const escapedFacilityArray = req.db.escape(JSON.stringify([req.query.facilityId]));
+          // Exclude sets where any member task is not visible in this facility
+          const memberTaskFilter = Sequelize.literal(`
+            "ReferenceData"."id" NOT IN (
+              SELECT DISTINCT rdr.reference_data_parent_id
+              FROM reference_data_relations rdr
+              INNER JOIN reference_data rd_task
+                ON rdr.reference_data_id = rd_task.id
+              WHERE rdr.type = '${REFERENCE_DATA_RELATION_TYPES.TASK}'
+                AND rdr.deleted_at IS NULL
+                AND rd_task.available_facilities IS NOT NULL
+                AND NOT (rd_task.available_facilities @> ${escapedFacilityArray}::jsonb)
+            )
+          `);
+          baseWhere[Op.and] = [...(baseWhere[Op.and] || []), facilityFilter, memberTaskFilter];
         }
       }
 
