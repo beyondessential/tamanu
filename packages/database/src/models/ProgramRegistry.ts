@@ -1,5 +1,10 @@
 import { DataTypes } from 'sequelize';
-import { CURRENTLY_AT_TYPES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  CURRENTLY_AT_TYPES,
+  POTENTIAL_LOSS_TO_FOLLOW_UP,
+  SYNC_DIRECTIONS,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
@@ -11,6 +16,8 @@ export class ProgramRegistry extends Model {
   declare currentlyAtType: string;
   declare visibilityStatus: string;
   declare programId?: string;
+  declare lossToFollowUpEnabled: boolean;
+  declare lossToFollowUpThresholdDays: number;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -32,6 +39,16 @@ export class ProgramRegistry extends Model {
         visibilityStatus: {
           type: DataTypes.TEXT,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
+        },
+        lossToFollowUpEnabled: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
+        lossToFollowUpThresholdDays: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          defaultValue: POTENTIAL_LOSS_TO_FOLLOW_UP.DEFAULT_THRESHOLD_DAYS,
         },
       },
       {
