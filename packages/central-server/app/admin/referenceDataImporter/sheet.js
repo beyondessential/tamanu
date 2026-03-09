@@ -114,17 +114,19 @@ export async function importSheet(
     return stats;
   }
 
-  const normalized = s => (s || '').trim().toLowerCase().replace(/\s/g, '');
-  const disallowedColumns = sheetHeader.filter(h => {
-    const key = normalized(h);
-    return METADATA_COLUMNS.some(col => normalized(col) === key);
-  });
+  const normalized = s =>
+    String(s ?? '')
+      .trim()
+      .toLowerCase()
+      .replace(/\s/g, '');
+  const normalizedMetadata = new Set(METADATA_COLUMNS.map(normalized));
+  const disallowedColumns = sheetHeader.filter(h => normalizedMetadata.has(normalized(h)));
   for (const col of disallowedColumns) {
     errors.push(
       new ValidationError(
         sheetName,
         0,
-        `Sheet contains disallowed column "${(col || '').trim()}". Metadata columns (e.g. createdAt, updatedAt) are not allowed in import files.`,
+        `Sheet contains disallowed column "${String(col ?? '').trim()}". Metadata columns (e.g. createdAt, updatedAt) are not allowed in import files.`,
       ),
     );
   }
