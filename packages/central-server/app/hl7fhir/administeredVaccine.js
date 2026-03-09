@@ -4,7 +4,8 @@ import { format } from '@tamanu/utils/dateTime';
 import { INJECTION_SITE_VALUES } from '@tamanu/constants';
 import { parseHL7Reference } from './utils';
 
-export { administeredVaccineStatusToHL7Status } from '@tamanu/shared/routes/fhir/patientSummary/utils';
+import { administeredVaccineStatusToHL7Status } from '@tamanu/shared/routes/fhir/patientSummary/utils';
+export { administeredVaccineStatusToHL7Status };
 
 // These are the only ones that we support at the moment,
 // so OK to hardcode them for now.
