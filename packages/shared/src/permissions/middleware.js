@@ -1,4 +1,5 @@
 import { AuthPermissionError, ForbiddenError, UnimplementedError } from '@tamanu/errors';
+import { PERMISSION_SCHEMA } from '@tamanu/constants';
 import { getAbilityForUser, getPermissionsForRoles } from './rolesToPermissions';
 
 // copied from casl source as it's not exported directly
@@ -9,6 +10,10 @@ import { getAbilityForUser, getPermissionsForRoles } from './rolesToPermissions'
 export function getSubjectName(subject) {
   if (!subject || typeof subject === 'string') {
     return subject;
+  }
+
+  if (typeof subject === 'object' && Object.hasOwn(subject, '__caslSubjectType__')) {
+    return subject.__caslSubjectType__;
   }
 
   const Type = typeof subject === 'object' ? subject.constructor : subject;
@@ -37,6 +42,14 @@ const checkIfHasPermission = (req, action, subject, field = '') => {
     return;
   }
 
+  const noun = getSubjectName(subject);
+  if (noun) {
+    const allowedVerbs = PERMISSION_SCHEMA[noun];
+    if (allowedVerbs && !allowedVerbs.includes(action)) {
+      throw new ForbiddenError(`Verb "${action}" is not valid for noun "${noun}"`);
+    }
+  }
+
   const { ability } = req;
   if (!ability) {
     throw new AuthPermissionError(`${action} ${subject}`);
@@ -61,7 +74,7 @@ export function ensurePermissionCheck(req, res, next) {
   };
 
   req.checkForOneOfPermissions = (actions, subject) => {
-    const permissionChecks = actions.map((action) => checkIfHasPermission(req, action, subject));
+    const permissionChecks = actions.map(action => checkIfHasPermission(req, action, subject));
     const hasPermission = permissionChecks.some(Boolean);
     if (!hasPermission) {
       const reason = `No permission to perform any of actions "${actions.join(', ')}" on "${getSubjectName(subject)}"`;
@@ -69,7 +82,7 @@ export function ensurePermissionCheck(req, res, next) {
     }
   };
 
-  req.checkListOrReadPermission = (subject) => {
+  req.checkListOrReadPermission = subject => {
     req.checkForOneOfPermissions(['list', 'read'], subject);
   };
 
