@@ -62,6 +62,9 @@ sources:
                     to: source('tamanu', 'reference_data')
                     field: id
                     to_condition: type = 'labTestCategory'
+          - name: available_facilities
+            data_type: jsonb
+            description: "{{ doc('lab_test_panels__available_facilities') }}"
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in lab_test_panels."
