@@ -125,6 +125,15 @@ export const GENERAL_IMPORTABLE_DATA_TYPES = [
 
 export const PERMISSION_IMPORTABLE_DATA_TYPES = ['permission', 'role'];
 
+/** Column names that are system metadata and must not appear in import/export data. */
+export const METADATA_COLUMNS = [
+  'createdAt',
+  'updatedAt',
+  'deletedAt',
+  'updatedAtSyncTick',
+  'updatedAtByField',
+];
+
 export const VISIBILITY_STATUSES = {
   CURRENT: 'current',
   HISTORICAL: 'historical',

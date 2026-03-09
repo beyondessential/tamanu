@@ -1,7 +1,6 @@
 import { utils } from 'xlsx';
 
-import { REFERENCE_TYPE_VALUES, REFERENCE_TYPES } from '@tamanu/constants';
-import { METADATA_COLUMNS } from '../exporter/modelExporters/ModelExporter';
+import { METADATA_COLUMNS, REFERENCE_TYPE_VALUES, REFERENCE_TYPES } from '@tamanu/constants';
 import { DataLoaderError, ValidationError, WorkSheetError } from '../errors';
 import { statkey, updateStat } from '../stats';
 import { importRows } from '../importer/importRows';
