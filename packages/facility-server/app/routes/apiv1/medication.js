@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import config from 'config';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import {
   dateCustomValidation,
   datetimeCustomValidation,
@@ -1801,7 +1802,7 @@ medication.get(
       required: true,
     };
 
-    const { primaryTimeZone } = config;
+    const primaryTimeZone = getPrimaryTimeZone(config);
     const facilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
 
     // PharmacyOrder filters
@@ -2047,7 +2048,7 @@ medication.get(
       },
     ]);
 
-    const { primaryTimeZone: dispenseTz } = config;
+    const dispenseTz = getPrimaryTimeZone(config);
     const dispenseFacilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
 
     const rootFilter = mapQueryFilters(filterParams, [
