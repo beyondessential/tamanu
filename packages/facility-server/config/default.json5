@@ -154,4 +154,10 @@
   "medicationAdministrationRecord": {
     "upcomingRecordsShouldBeGeneratedTimeFrame": 72, // hours
   },
+  "canonicalHostName": "http://localhost:4000",
+  "integrations": {
+    "fhir": {
+      "enabled": false,
+    },
+  },
 }
