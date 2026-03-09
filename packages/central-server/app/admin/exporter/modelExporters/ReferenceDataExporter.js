@@ -13,6 +13,6 @@ export class ReferenceDataExporter extends ModelExporter {
   }
 
   customHiddenColumns() {
-    return ['type', 'systemRequired'];
+    return ['type', 'systemRequired', 'availableFacilities'];
   }
 }
