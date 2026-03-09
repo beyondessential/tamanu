@@ -177,7 +177,7 @@ describe('Data definition import', () => {
     expect(errors).toContainValidationError('triageReason', 5, BAD_ID_ERROR_MESSAGE);
   });
 
-  it.only('should reject sheets that include metadata columns in headers', async () => {
+  it('should reject sheets that include metadata columns in headers', async () => {
     const { didntSendReason, errors } = await doImport({
       file: 'invalid-metadata',
       dryRun: true,
