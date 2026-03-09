@@ -1,5 +1,8 @@
 import { DataTypes, Op } from 'sequelize';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+
+import { PERMISSION_SCHEMA, PermissionVerb, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { ValidationError } from '@tamanu/errors';
+
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
@@ -68,6 +71,16 @@ export class Permission extends Model {
       noun,
       ...(objectId ? { objectId } : undefined),
     };
+  }
+
+  static async validatePermissionSchema(verb: PermissionVerb, noun: string) {
+    const allowedVerbs = PERMISSION_SCHEMA[noun];
+    if (!allowedVerbs) {
+      throw new ValidationError(`Permissions for noun "${noun}" are not defined in the schema.`);
+    }
+    if (!allowedVerbs.includes(verb)) {
+      throw new ValidationError(`Verb "${verb}" is not valid for noun "${noun}"`);
+    }
   }
 
   static buildSyncFilter() {
