@@ -177,6 +177,20 @@ describe('Data definition import', () => {
     expect(errors).toContainValidationError('triageReason', 5, BAD_ID_ERROR_MESSAGE);
   });
 
+  it.only('should reject sheets that include metadata columns in headers', async () => {
+    const { didntSendReason, errors } = await doImport({
+      file: 'invalid-metadata',
+      dryRun: true,
+    });
+
+    expect(didntSendReason).toEqual('validationFailed');
+    expect(errors).toContainValidationError(
+      'user',
+      2,
+      'Sheet contains disallowed column "createdAt". Metadata columns (e.g. createdAt, updatedAt) are not allowed in import files.',
+    );
+  });
+
   it('should validate locations', async () => {
     const { didntSendReason, errors } = await doImport({
       file: 'invalid-locations',

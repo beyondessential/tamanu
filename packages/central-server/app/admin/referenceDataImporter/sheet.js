@@ -1,6 +1,7 @@
 import { utils } from 'xlsx';
 
 import { REFERENCE_TYPE_VALUES, REFERENCE_TYPES } from '@tamanu/constants';
+import { METADATA_COLUMNS } from '../exporter/modelExporters/ModelExporter';
 import { DataLoaderError, ValidationError, WorkSheetError } from '../errors';
 import { statkey, updateStat } from '../stats';
 import { importRows } from '../importer/importRows';
@@ -105,11 +106,30 @@ export async function importSheet(
   try {
     sheetHeader = extractHeader(sheet);
     // For drug sheets, include empty cells so facility columns with empty values are preserved
-    sheetRows = sheetName === REFERENCE_TYPES.DRUG
-      ? utils.sheet_to_json(sheet, { defval: '' })
-      : utils.sheet_to_json(sheet);
+    sheetRows =
+      sheetName === REFERENCE_TYPES.DRUG
+        ? utils.sheet_to_json(sheet, { defval: '' })
+        : utils.sheet_to_json(sheet);
   } catch (err) {
     errors.push(new WorkSheetError(sheetName, 0, err));
+    return stats;
+  }
+
+  const normalized = s => (s || '').trim().toLowerCase().replace(/\s/g, '');
+  const disallowedColumns = sheetHeader.filter(h => {
+    const key = normalized(h);
+    return METADATA_COLUMNS.some(col => normalized(col) === key);
+  });
+  for (const col of disallowedColumns) {
+    errors.push(
+      new ValidationError(
+        sheetName,
+        0,
+        `Sheet contains disallowed column "${(col || '').trim()}". Metadata columns (e.g. createdAt, updatedAt) are not allowed in import files.`,
+      ),
+    );
+  }
+  if (disallowedColumns.length > 0) {
     return stats;
   }
 

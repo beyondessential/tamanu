@@ -1,7 +1,7 @@
 import { startCase } from 'lodash';
 import { Model } from 'sequelize';
 
-const METADATA_COLUMNS = [
+export const METADATA_COLUMNS = [
   'createdAt',
   'updatedAt',
   'deletedAt',
