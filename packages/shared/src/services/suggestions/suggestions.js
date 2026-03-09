@@ -495,18 +495,19 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
         };
       }
 
-      if (
-        typeName === REFERENCE_TYPES.PROCEDURE_TYPE ||
-        typeName === REFERENCE_TYPES.IMAGING_TYPE ||
-        typeName === REFERENCE_TYPES.DRUG ||
-        typeName === REFERENCE_TYPES.MEDICATION_TEMPLATE ||
-        typeName === REFERENCE_TYPES.LAB_TEST_CATEGORY ||
-        typeName === REFERENCE_TYPES.LAB_TEST_PRIORITY ||
-        typeName === REFERENCE_TYPES.LAB_TEST_LABORATORY ||
-        typeName === REFERENCE_TYPES.LAB_TEST_METHOD ||
-        typeName === REFERENCE_TYPES.LAB_SAMPLE_SITE ||
-        typeName === REFERENCE_TYPES.TASK_TEMPLATE
-      ) {
+      const simpleFacilityFilterTypes = [
+        REFERENCE_TYPES.PROCEDURE_TYPE,
+        REFERENCE_TYPES.IMAGING_TYPE,
+        REFERENCE_TYPES.DRUG,
+        REFERENCE_TYPES.MEDICATION_TEMPLATE,
+        REFERENCE_TYPES.LAB_TEST_CATEGORY,
+        REFERENCE_TYPES.LAB_TEST_PRIORITY,
+        REFERENCE_TYPES.LAB_TEST_LABORATORY,
+        REFERENCE_TYPES.LAB_TEST_METHOD,
+        REFERENCE_TYPES.LAB_SAMPLE_SITE,
+        REFERENCE_TYPES.TASK_TEMPLATE,
+      ];
+      if (simpleFacilityFilterTypes.includes(typeName)) {
         const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId, req.db);
         if (facilityFilter) {
           baseWhere[Op.and] = [...(baseWhere[Op.and] || []), facilityFilter];
