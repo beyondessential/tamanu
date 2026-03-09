@@ -19,6 +19,7 @@ import { translationRouter } from './translation';
 import { usersRouter } from './users';
 import { userPreferencesRouter } from './userPreferences';
 import { locationAssignmentsRouter } from './locationAssignments';
+import { permissionsRouter } from './permissions';
 
 export const adminRoutes = express.Router();
 adminRoutes.use(ensurePermissionCheck);
@@ -72,6 +73,7 @@ adminRoutes.use('/asset', assetRoutes);
 adminRoutes.use('/users', usersRouter);
 adminRoutes.use('/user', userPreferencesRouter);
 adminRoutes.use('/location-assignments', locationAssignmentsRouter);
+adminRoutes.use('/permissions', permissionsRouter);
 
 // These settings endpoints are setup for viewing and saving the settings in the JSON editor in the admin panel
 adminRoutes.get(
