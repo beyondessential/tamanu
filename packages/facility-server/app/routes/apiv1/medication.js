@@ -343,7 +343,7 @@ medication.post(
 
 const sendOngoingToPharmacySchema = z
   .object({
-    patientId: z.string().uuid({ message: 'Valid patient ID is required' }),
+    patientId: z.string().min(1, { message: 'Patient ID is required' }),
     orderingClinicianId: z.string().uuid({ message: 'Valid ordering clinician ID is required' }),
     comments: z.string().optional().nullable(),
     facilityId: z.string({ message: 'Valid facility ID is required' }),
@@ -2262,7 +2262,7 @@ medication.delete(
 
 const dispensableMedicationsQuerySchema = z
   .object({
-    patientId: z.uuid(),
+    patientId: z.string().min(1),
     facilityId: z.string(),
   })
   .strip();
