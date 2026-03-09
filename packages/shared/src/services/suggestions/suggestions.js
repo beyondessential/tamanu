@@ -303,6 +303,30 @@ const buildAvailableFacilitiesFilter = (facilityId, db, modelName = 'ReferenceDa
   );
 };
 
+/**
+ * Generates a Sequelize literal condition to filter out TASK_SET reference data
+ * where any member task is not visible in the specified facility.
+ *
+ * @param facilityId - The facility ID to check visibility against
+ * @param db - The database instance for escaping values
+ * @returns A Sequelize.literal condition for filtering task sets
+ */
+const buildTaskSetMemberVisibilityFilter = (facilityId, db) => {
+  const escapedFacilityArray = db.escape(JSON.stringify([facilityId]));
+  return Sequelize.literal(`
+    ("ReferenceData"."type" != '${REFERENCE_TYPES.TASK_SET}' OR "ReferenceData"."id" NOT IN (
+      SELECT DISTINCT rdr.reference_data_parent_id
+      FROM reference_data_relations rdr
+      INNER JOIN reference_data rd_task
+        ON rdr.reference_data_id = rd_task.id
+      WHERE rdr.type = '${REFERENCE_DATA_RELATION_TYPES.TASK}'
+        AND rdr.deleted_at IS NULL
+        AND rd_task.available_facilities IS NOT NULL
+        AND NOT (rd_task.available_facilities @> ${escapedFacilityArray}::jsonb)
+    ))
+  `);
+};
+
 const afterCreatedReferenceData = async (req, newRecord) => {
   const { models } = req;
 
@@ -343,21 +367,7 @@ createSuggester(
       const andConditions = [facilityFilter];
       // If task sets are included, exclude sets where any member task is not visible
       if (types?.includes(REFERENCE_TYPES.TASK_SET)) {
-        const escapedFacilityArray = req.db.escape(JSON.stringify([req.query.facilityId]));
-        andConditions.push(
-          Sequelize.literal(`
-            ("ReferenceData"."type" != '${REFERENCE_TYPES.TASK_SET}' OR "ReferenceData"."id" NOT IN (
-              SELECT DISTINCT rdr.reference_data_parent_id
-              FROM reference_data_relations rdr
-              INNER JOIN reference_data rd_task
-                ON rdr.reference_data_id = rd_task.id
-              WHERE rdr.type = '${REFERENCE_DATA_RELATION_TYPES.TASK}'
-                AND rdr.deleted_at IS NULL
-                AND rd_task.available_facilities IS NOT NULL
-                AND NOT (rd_task.available_facilities @> ${escapedFacilityArray}::jsonb)
-            ))
-          `),
-        );
+        andConditions.push(buildTaskSetMemberVisibilityFilter(req.query.facilityId, req.db));
       }
       baseWhere[Op.and] = andConditions;
     }
@@ -547,20 +557,8 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
       if (typeName === REFERENCE_TYPES.TASK_SET) {
         const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId, req.db);
         if (facilityFilter) {
-          const escapedFacilityArray = req.db.escape(JSON.stringify([req.query.facilityId]));
           // Exclude sets where any member task is not visible in this facility
-          const memberTaskFilter = Sequelize.literal(`
-            "ReferenceData"."id" NOT IN (
-              SELECT DISTINCT rdr.reference_data_parent_id
-              FROM reference_data_relations rdr
-              INNER JOIN reference_data rd_task
-                ON rdr.reference_data_id = rd_task.id
-              WHERE rdr.type = '${REFERENCE_DATA_RELATION_TYPES.TASK}'
-                AND rdr.deleted_at IS NULL
-                AND rd_task.available_facilities IS NOT NULL
-                AND NOT (rd_task.available_facilities @> ${escapedFacilityArray}::jsonb)
-            )
-          `);
+          const memberTaskFilter = buildTaskSetMemberVisibilityFilter(req.query.facilityId, req.db);
           baseWhere[Op.and] = [...(baseWhere[Op.and] || []), facilityFilter, memberTaskFilter];
         }
       }
@@ -1137,19 +1135,8 @@ createNameSuggester('labTestPanel', 'LabTestPanel', ({ endpoint, modelName, req 
   const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
   const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId, req.db, 'LabTestPanel');
   if (facilityFilter) {
-    const escapedFacilityArray = req.db.escape(JSON.stringify([req.query.facilityId]));
-    // Exclude panels where any member lab test type is not visible in this facility
-    const memberTestFilter = Sequelize.literal(`
-      "LabTestPanel"."id" NOT IN (
-        SELECT DISTINCT lptlt.lab_test_panel_id
-        FROM lab_test_panel_lab_test_types lptlt
-        INNER JOIN lab_test_types ltt
-          ON ltt.id = lptlt.lab_test_type_id
-        WHERE lptlt.deleted_at IS NULL
-          AND ltt.available_facilities IS NOT NULL
-          AND NOT (ltt.available_facilities @> ${escapedFacilityArray}::jsonb)
-      )
-    `);
+    const { LabTestPanel } = req.models;
+    const memberTestFilter = LabTestPanel.getMemberVisibilityFilter(req.query.facilityId, req.db);
     baseWhere[Op.and] = [facilityFilter, memberTestFilter];
   }
   return baseWhere;

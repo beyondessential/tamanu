@@ -612,18 +612,7 @@ labTestPanel.get('/', async (req, res) => {
       Sequelize.literal(
         `("LabTestPanel"."available_facilities" IS NULL OR "LabTestPanel"."available_facilities" @> ${escapedFacilityArray}::jsonb)`,
       ),
-      // Exclude panels where any member lab test type is not visible in this facility
-      Sequelize.literal(`
-        "LabTestPanel"."id" NOT IN (
-          SELECT DISTINCT lptlt.lab_test_panel_id
-          FROM lab_test_panel_lab_test_types lptlt
-          INNER JOIN lab_test_types ltt
-            ON ltt.id = lptlt.lab_test_type_id
-          WHERE lptlt.deleted_at IS NULL
-            AND ltt.available_facilities IS NOT NULL
-            AND NOT (ltt.available_facilities @> ${escapedFacilityArray}::jsonb)
-        )
-      `),
+      models.LabTestPanel.getMemberVisibilityFilter(query.facilityId, req.db),
     ];
   }
   const response = await models.LabTestPanel.findAll({
