@@ -28,6 +28,6 @@ export function administeredVaccineStatusToHL7Status(status) {
     case VACCINE_STATUS.UNKNOWN:
       return 'not-done';
     default:
-      throw new Error(`Administered vaccine status is not one of []: ${status}`);
+      throw new Error(`Unknown administered vaccine status: ${status}`);
   }
 }

@@ -1,1 +1,0 @@
-export { searchHandler } from './search';
