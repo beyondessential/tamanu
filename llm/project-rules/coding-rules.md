@@ -40,6 +40,13 @@ Readability is the highest priority. Every line of code is read many times over 
 
 - Bulk updates to upstream tables will trigger mass rematerialisation
 
+## Multiple Timezone Support
+
+- Datetimes stored as ISO 9075 (`yyyy-MM-dd HH:mm:ss`), no suffix, always in the **primary timezone**
+- Display timezone = `facilityTimeZone ?? primaryTimeZone`; date-only strings are never converted
+- **Frontend:** use `useDateTime()` for all formatting and `getCurrentDateTime()`/`getCurrentDate()` for form defaults; `toStoredDateTime` on submit
+- **Backend:** use `getDayBoundaries(date)` for date-range queries
+
 ## Conventions
 
 - Australian/NZ English in all text: "finalise", "colour", "centre", "cancelled"
