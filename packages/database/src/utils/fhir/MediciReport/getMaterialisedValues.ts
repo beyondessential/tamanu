@@ -1,6 +1,7 @@
 import { QueryTypes, Sequelize } from 'sequelize';
 import config from 'config';
 import { NOTE_TYPES } from '@tamanu/constants';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
 const REPORT_QUERY = `
 with
@@ -366,7 +367,7 @@ WHERE e.id = $encounter_id
 `;
 
 export const getMaterialisedValues = async (sequelize: Sequelize, upstreamId: string) => {
-  const PRIMARY_TIME_ZONE = config?.primaryTimeZone;
+  const PRIMARY_TIME_ZONE = getPrimaryTimeZone(config);
 
   const [upstream] = await sequelize.query(REPORT_QUERY, {
     type: QueryTypes.SELECT,
