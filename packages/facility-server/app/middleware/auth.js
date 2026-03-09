@@ -9,6 +9,7 @@ import { context, propagation, trace } from '@opentelemetry/api';
 import { AuthPermissionError, ERROR_TYPE, MissingCredentialError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { ReadSettings } from '@tamanu/settings';
@@ -116,8 +117,8 @@ async function localLogin({ models, settings, email, password, deviceId }) {
   const {
     auth: { secret, tokenDuration },
     canonicalHostName,
-    primaryTimeZone,
   } = config;
+  const primaryTimeZone = getPrimaryTimeZone(config);
   const { user } = await models.User.loginFromCredential(
     {
       email,
