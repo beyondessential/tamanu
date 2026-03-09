@@ -216,6 +216,12 @@ export class TamanuApi extends ApiClient {
         const resp = await this.get('user/permissions', {}, config);
         activePermissions = resp.permissions;
       } catch {
+        try {
+          const { token: cleanToken } = await this.post('admin/impersonate', { roleId: null }, config);
+          this.setToken(cleanToken);
+        } catch {
+          // If we can't clear impersonation either, the token is stale — let it fall through to re-auth
+        }
         restoredImpersonatedRole = null;
       }
     }
