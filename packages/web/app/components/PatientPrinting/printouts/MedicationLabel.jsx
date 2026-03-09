@@ -243,7 +243,7 @@ export const MedicationLabel = React.memo(({ data }) => {
         <LabelBottomSection>
           <LabelLeftColumn>
             <LabelDetailRow $fontSize={detailFontSize}>
-              <TranslatedText stringId="medication.prescriber.abbrev" fallback="Pres." />:{' '}
+              <TranslatedText stringId="medication.prescriber.abbrev" fallback="Pres" />:{' '}
               {prescriberName}
             </LabelDetailRow>
             <LabelDetailRow $fontSize={detailFontSize}>
