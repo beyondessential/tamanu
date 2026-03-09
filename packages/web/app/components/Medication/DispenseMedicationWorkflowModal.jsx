@@ -1,6 +1,6 @@
 import React, { useEffect, useState, memo } from 'react';
 import PropTypes from 'prop-types';
-import styled, { createGlobalStyle } from 'styled-components';
+import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -29,7 +29,7 @@ import { useDispensableMedicationsQuery } from '../../api/queries/useDispensable
 import { useFacilityQuery } from '../../api/queries/useFacilityQuery';
 import { Colors } from '../../constants';
 import { BodyText } from '../Typography';
-import { MedicationLabel } from '../PatientPrinting/printouts/MedicationLabel';
+import { MedicationLabelPrintPreview } from '../PatientPrinting/printouts/MedicationLabelPrintPreview';
 import {
   getMedicationLabelData,
   getStockStatus,
@@ -74,57 +74,6 @@ const StyledTableFormFields = styled(TableFormFields)`
     &.MuiTableCell-head {
       background-color: ${Colors.white};
       color: ${Colors.midText};
-    }
-  }
-`;
-
-const PrintContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  align-items: center;
-`;
-
-const PrintDescription = styled(Box)`
-  margin-bottom: 16px;
-  font-size: 14px;
-  color: ${Colors.midText};
-
-  @media print {
-    display: none;
-  }
-`;
-
-const PrintStyles = createGlobalStyle`
-  @media print {
-    @page {
-      margin: 3mm;
-      size: auto;
-    }
-
-    html, body {
-      margin: 0;
-      padding: 0;
-    }
-
-    .MuiDialogTitle-root,
-    .MuiDialogActions-root {
-      display: none;
-    }
-
-    .MuiDialog-container,
-    .MuiDialog-paper,
-    .MuiPaper-root,
-    .MuiDialogContent-root {
-      margin: 0;
-      padding: 0;
-    }
-
-    /* Target ModalContainer and ModalContent BaseModal */
-    .MuiDialog-paper > div,
-    .MuiDialog-paper > div > div:first-child {
-      margin: 0;
-      padding: 0;
     }
   }
 `;
@@ -676,20 +625,7 @@ export const DispenseMedicationWorkflowModal = memo(
           )}
 
           {step === MODAL_STEPS.REVIEW && (
-            <>
-              <PrintStyles />
-              <PrintDescription>
-                <TranslatedText
-                  stringId="medication.dispenseAndPrint.description"
-                  fallback="Please review the medication label/s below. Select Back to make changes, or Dispense & print to complete."
-                />
-              </PrintDescription>
-              <PrintContainer>
-                {labelsForPrint.map(label => (
-                  <MedicationLabel key={label.id} data={label} />
-                ))}
-              </PrintContainer>
-            </>
+            <MedicationLabelPrintPreview labels={labelsForPrint} />
           )}
         </StyledModal>
       </>
