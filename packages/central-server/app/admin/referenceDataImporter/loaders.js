@@ -29,16 +29,17 @@ export const loaderFactory = model => fields => [{ model, values: stripNotes(fie
 function parseAvailableFacilities(value) {
   if (!value) return null;
   if (Array.isArray(value)) return value;
-  let parsed;
+
   try {
-    parsed = JSON.parse(value);
-  } catch {
-    throw new Error('availableFacilities must be null or a JSON array of facility IDs');
+    const parsed = JSON.parse(value);
+    if (Array.isArray(parsed)) {
+      return parsed;
+    }
+  } catch (e) {
+    // Fall through to throw an error below.
   }
-  if (!Array.isArray(parsed)) {
-    throw new Error('availableFacilities must be null or a JSON array of facility IDs');
-  }
-  return parsed;
+
+  throw new Error('availableFacilities must be null or a JSON array of facility IDs');
 }
 
 export function referenceDataLoaderFactory(type) {
