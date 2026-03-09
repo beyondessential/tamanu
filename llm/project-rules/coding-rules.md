@@ -44,7 +44,7 @@ Readability is the highest priority. Every line of code is read many times over 
 
 - Datetimes stored as ISO 9075 (`yyyy-MM-dd HH:mm:ss`), no suffix, always in the **primary timezone**
 - Display timezone = `facilityTimeZone ?? primaryTimeZone`; date-only strings are never converted
-- **Frontend:** use `useDateTime()` for all formatting and `getCurrentDateTime()`/`getCurrentDate()` for form defaults; `toStoredDateTime` on submit
+- **Frontend:** Use helpers from `useDateTime()` for formatting, `getCurrentDateTime()`/`getCurrentDate()` for defaults, and `toStoredDateTime()` on submit.
 - **Backend:** use `getDayBoundaries(date, primaryTimeZone, facilityTimeZone)` for date-range queries
 
 ## Conventions
