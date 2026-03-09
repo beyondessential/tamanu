@@ -11,7 +11,7 @@ import {
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { InvalidOperationError } from '@tamanu/errors';
 import { FhirCodeableConcept, FhirReference } from '@tamanu/shared/services/fhirTypes';
-import { Invalid } from '@tamanu/shared/utils/fhir';
+import { Invalid, parseFhirReference } from '@tamanu/shared/utils/fhir';
 import { FhirResource } from './Resource';
 import type { InitOptions, Models } from '../../types/model';
 import type { LabRequest } from '../../models/LabRequest';
@@ -81,14 +81,13 @@ export class FhirDiagnosticReport extends FhirResource {
       });
     }
     const { type, reference } = this.basedOn[0]!;
+    const { resourceType, id: serviceRequestFhirId } = parseFhirReference(reference);
 
-    const ref = reference.split('/');
-    if (type !== 'ServiceRequest' || ref.length < 2 || ref[0] !== 'ServiceRequest') {
+    if (type !== 'ServiceRequest' || resourceType !== 'ServiceRequest') {
       throw new Invalid(`DiagnosticReport requires must be results for ServiceRequest'`, {
         code: FHIR_ISSUE_TYPE.INVALID.VALUE,
       });
     }
-    const serviceRequestFhirId = ref[1];
 
     const serviceRequest = await FhirServiceRequest.findOne({
       where: { id: serviceRequestFhirId },
