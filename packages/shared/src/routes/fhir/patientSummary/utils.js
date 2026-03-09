@@ -1,5 +1,16 @@
 import { VACCINE_STATUS } from '@tamanu/constants';
 
+const ESCAPE_MAP = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+};
+const ESCAPE_RE = /[&<>"']/g;
+
+export const escapeHtml = str => (str ? String(str).replace(ESCAPE_RE, c => ESCAPE_MAP[c]) : '');
+
 export const getPatientDisplayName = patient =>
   [patient.firstName, patient.lastName].filter(x => x).join(' ');
 
