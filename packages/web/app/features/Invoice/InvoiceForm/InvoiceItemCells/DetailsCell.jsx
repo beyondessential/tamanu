@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box } from '@material-ui/core';
 import styled from 'styled-components';
+import { useSuggester } from '@tamanu/ui-components';
 import {
   AutocompleteField,
   Field,
@@ -20,29 +21,40 @@ const StyledField = styled(Field)`
   max-width: 500px;
 `;
 
-const Cell = styled.div`
+const Cell = styled.span`
+  display: inline-flex;
+  max-width: 100%;
+  min-width: 0;
+  padding-right: 10px;
+  font-size: 14px;
+`;
+
+const CellText = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   min-width: 0;
-  font-size: 14px;
-  padding-right: 10px;
 `;
 
 export const DetailsCell = ({
   index,
   item,
-  isItemEditable,
-  invoiceProductsSuggester,
   handleChangeProduct,
-  invoiceIsEditable,
   isEditing,
   isSaved,
+  priceListId,
 }) => {
+  const invoiceProductsSuggester = useSuggester('invoiceProduct', {
+    formatter: ({ name, id }) => ({
+      label: name,
+      value: id,
+    }),
+    baseQueryParameters: { priceListId },
+  });
   const detailsText = item.productNameFinal || item.product?.name;
   return (
     <Container>
-      {isItemEditable ? (
+      {isEditing ? (
         <NoteModalActionBlocker>
           <StyledField
             name={`invoiceItems.${index}.productId`}
@@ -55,11 +67,13 @@ export const DetailsCell = ({
         </NoteModalActionBlocker>
       ) : (
         <ThemedTooltip title={detailsText}>
-          <Cell>{detailsText}</Cell>
+          <Cell>
+            <CellText>{detailsText}</CellText>
+          </Cell>
         </ThemedTooltip>
       )}
       {!isEditing && isSaved && item.note && (
-        <Box marginTop={invoiceIsEditable ? '4px' : '-8px'} color={Colors.darkText}>
+        <Box color={Colors.darkText}>
           <TranslatedText
             stringId="invoice.modal.editInvoice.note.label"
             fallback="Note"

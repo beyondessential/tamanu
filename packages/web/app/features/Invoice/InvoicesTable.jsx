@@ -8,10 +8,10 @@ import {
   ENCOUNTER_TYPE_LABELS,
   ENCOUNTER_TYPE_ABBREVIATION_LABELS,
 } from '@tamanu/constants';
-import { formatShortest } from '@tamanu/utils/dateTime';
+import { DateDisplay, TranslatedEnum, TranslatedText } from '@tamanu/ui-components';
+
 import { Colors } from '../../constants';
 import { DataFetchingTable } from '../../components/Table';
-import { TranslatedEnum, TranslatedText } from '../../components/Translation';
 import { Typography } from '@material-ui/core';
 import { ThemedTooltip } from '../../components/Tooltip';
 import { InvoiceStatus } from './InvoiceStatus';
@@ -19,7 +19,7 @@ import {
   formatDisplayPrice,
   getInvoiceSummary,
   getInvoiceSummaryDisplay,
-} from '@tamanu/shared/utils/invoice';
+} from '@tamanu/utils/invoice';
 import { useInvoiceTotalOutstandingBalanceQuery } from '../../api/queries/useInvoiceQuery';
 import { useAuth } from '../../contexts/Auth';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
@@ -109,7 +109,7 @@ const Table = styled(DataFetchingTable)`
   }
 `;
 
-const getDate = ({ date }) => formatShortest(date);
+const getDate = ({ date }) => <DateDisplay date={date} format="shortest" />;
 const getInvoiceTotal = row => {
   const { patientTotal } = getInvoiceSummaryDisplay(row);
   return patientTotal === undefined ? (
@@ -124,16 +124,6 @@ const getInvoiceTotal = row => {
   );
 };
 const getPaymentStatus = row => {
-  if (row.status !== INVOICE_STATUSES.FINALISED) {
-    return (
-      <TranslatedText
-        stringId="general.fallback.notApplicable"
-        fallback="N/A"
-        casing="lower"
-        data-testid="translatedtext-wjgy"
-      />
-    );
-  }
   return (
     <>
       <TranslatedEnum
@@ -228,17 +218,18 @@ const COLUMNS = [
   },
   {
     key: 'patientTotal',
+    sortable: false,
     title: (
       <TranslatedText
-        stringId="patient.invoice.table.column.patientTotal"
-        fallback="Patient total"
+        stringId="patient.invoice.table.column.patientSubtotal"
+        fallback="Patient subtotal"
         data-testid="translatedtext-1brp"
       />
     ),
     accessor: getInvoiceTotal,
   },
   {
-    key: 'paymentStatus',
+    key: 'patientPaymentStatus',
     title: (
       <TranslatedText
         stringId="patient.invoice.table.column.paymentStatus"
@@ -250,6 +241,7 @@ const COLUMNS = [
   },
   {
     key: 'balance',
+    sortable: false,
     title: (
       <TranslatedText
         stringId="patient.invoice.table.column.balance"

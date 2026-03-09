@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Button, TranslatedText } from '@tamanu/ui-components';
+import { Button, ButtonWithPermissionCheck, TranslatedText } from '@tamanu/ui-components';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { DischargeModal } from '../../../components/DischargeModal';
 import { MoveModal } from './MoveModal';
@@ -10,6 +10,7 @@ import { NoteModalActionBlocker } from '../../../components';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { useAuth } from '../../../contexts/Auth';
+import { useEncounterDischargeQuery } from '../../../api/queries/useEncounterDischargeQuery';
 
 const ENCOUNTER_MODALS = {
   NONE: 'none',
@@ -24,7 +25,12 @@ const StyledButton = styled(Button)`
   max-height: 40px;
 `;
 
-const MoveButton = styled(StyledButton)`
+const StyledButtonWithPermissionCheck = styled(ButtonWithPermissionCheck)`
+  white-space: nowrap;
+  max-height: 40px;
+`;
+
+const MoveButtonWithPermissionCheck = styled(StyledButtonWithPermissionCheck)`
   margin-right: -7px;
 `;
 
@@ -51,6 +57,8 @@ export const EncounterActions = React.memo(({ encounter }) => {
   const onClose = () => setOpenModal(ENCOUNTER_MODALS.NONE);
   const onViewSummary = () => navigateToSummary();
 
+  const { data: discharge } = useEncounterDischargeQuery(encounter)
+
   const canWriteEncounter = ability.can('write', 'Encounter');
 
   if (encounter.endDate) {
@@ -59,33 +67,41 @@ export const EncounterActions = React.memo(({ encounter }) => {
     // need this extra check here to only show encounter/discharge summary actions when
     // the encounter is actually discharged (discharge record exists).
     return (
-      <ActionsContainer data-testid="actionscontainer-w92z">
-        <StyledButton
-          size="small"
-          variant="outlined"
-          onClick={() => setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD)}
-          data-testid="styledbutton-00iz"
-        >
-          <TranslatedText
-            stringId="patient.encounter.action.encounterSummary"
-            fallback="Encounter summary"
-            data-testid="translatedtext-ftbh"
-          />
-        </StyledButton>
-        <br />
-        <StyledButton
-          size="small"
-          color="primary"
-          onClick={onViewSummary}
-          data-testid="styledbutton-0m1p"
-        >
-          <TranslatedText
-            stringId="patient.encounter.action.dischargeSummary"
-            fallback="Discharge summary"
-            data-testid="translatedtext-0hzq"
-          />
-        </StyledButton>
-      </ActionsContainer>
+      discharge && <>
+        <ActionsContainer data-testid="actionscontainer-w92z">
+          <StyledButton
+            size="small"
+            variant="outlined"
+            onClick={() => setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD)}
+            data-testid="styledbutton-00iz"
+          >
+            <TranslatedText
+              stringId="patient.encounter.action.encounterSummary"
+              fallback="Encounter summary"
+              data-testid="translatedtext-ftbh"
+            />
+          </StyledButton>
+          <br />
+          <StyledButton
+            size="small"
+            color="primary"
+            onClick={onViewSummary}
+            data-testid="styledbutton-0m1p"
+          >
+            <TranslatedText
+              stringId="patient.encounter.action.dischargeSummary"
+              fallback="Discharge summary"
+              data-testid="translatedtext-0hzq"
+            />
+          </StyledButton>
+        </ActionsContainer>
+        <EncounterRecordModal
+          encounter={encounter}
+          open={openModal === ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD}
+          onClose={onClose}
+          data-testid="encounterrecordmodal-discharged"
+        />
+      </>
     );
   }
 
@@ -185,28 +201,30 @@ export const EncounterActions = React.memo(({ encounter }) => {
           </>
         ) : (
           <>
-            <StyledButton
+            <StyledButtonWithPermissionCheck
               size="small"
               variant="outlined"
+              verb="write"
+              noun="Encounter"
               onClick={() => setOpenModal(ENCOUNTER_MODALS.DISCHARGE)}
-              disabled={!canWriteEncounter}
             >
               <TranslatedText
                 stringId="encounter.action.prepareDischarge"
                 fallback="Prepare discharge"
               />
-            </StyledButton>
-            <MoveButton
+            </StyledButtonWithPermissionCheck>
+            <MoveButtonWithPermissionCheck
               size="small"
               color="primary"
-              disabled={!canWriteEncounter}
+              verb="write"
+              noun="Encounter"
               onClick={() => {
                 setNewEncounterType(null);
                 setOpenModal(ENCOUNTER_MODALS.MOVE);
               }}
             >
               <TranslatedText stringId="encounter.action.movePatient" fallback="Move patient" />
-            </MoveButton>
+            </MoveButtonWithPermissionCheck>
           </>
         )}
         <ThreeDotMenu items={actions} data-testid="threedotmenu-5t9u" />

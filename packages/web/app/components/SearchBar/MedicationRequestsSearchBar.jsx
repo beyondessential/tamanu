@@ -196,7 +196,6 @@ export const MedicationRequestsSearchBar = () => {
                 data-testid="translatedtext-date"
               />
             }
-            saveDateAsString
             component={DateField}
             data-testid="field-date"
           />

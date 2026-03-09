@@ -1,11 +1,8 @@
 import React from 'react';
+import styled from 'styled-components';
 import { Box } from '@mui/material';
-import {
-  ADMINISTRATION_FREQUENCY_SYNONYMS,
-  DRUG_STOCK_STATUS_LABELS,
-  DRUG_STOCK_STATUSES,
-} from '@tamanu/constants';
-import { camelCase } from 'lodash';
+
+import { DRUG_STOCK_STATUS_LABELS, DRUG_STOCK_STATUSES } from '@tamanu/constants';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import {
   getPatientNameAsString,
@@ -13,19 +10,18 @@ import {
   ThemedTooltip,
   TranslatedText,
 } from '@tamanu/ui-components';
-import styled from 'styled-components';
-import { formatTime, TranslatedEnum } from '../components';
+import { TranslatedEnum } from '../components';
 import { STOCK_STATUS_COLORS } from '../constants';
 
 /**
  * Transforms selected dispensable medication items into label data for printing.
  * @param {Object} params
- * @param {Array} params.items - The selected medication items to dispense
+ * @param {Array} params.items - The selected medication items to dispense (each includes medicationName, already translated by the caller if needed)
  * @param {Object} params.patient - The patient object
  * @param {Object} params.facility - The facility object
  * @returns {Array} Array of label data objects for printing
  */
-export const getMedicationLabelData = ({ items, patient, facility }) => {
+export const getMedicationLabelData = ({ items, patient, facility, currentDateTime }) => {
   const facilityAddress = [facility?.streetAddress, facility?.cityTown].filter(Boolean).join(', ');
 
   return items.map(item => ({
@@ -33,7 +29,7 @@ export const getMedicationLabelData = ({ items, patient, facility }) => {
     medicationName: item.medicationName || '-',
     instructions: item.instructions || '',
     patientName: patient ? getPatientNameAsString(patient) : '-',
-    dispensedAt: item.dispensedAt || new Date().toISOString(),
+    dispensedAt: item.dispensedAt || currentDateTime,
     quantity: item.quantity,
     units: item.units || '',
     remainingRepeats: item.remainingRepeats,
@@ -45,34 +41,21 @@ export const getMedicationLabelData = ({ items, patient, facility }) => {
   }));
 };
 
-export const getTranslatedFrequencySynonyms = (frequenciesEnabled, getTranslation) => {
-  const result = {};
-  Object.entries(ADMINISTRATION_FREQUENCY_SYNONYMS).forEach(([frequency, synonyms]) => {
-    if (!frequenciesEnabled?.[frequency]) return;
-    const labelKey = getTranslation(
-      `medication.frequency.${camelCase(frequency)}.label`,
-      frequency,
-    );
-
-    const translatedSynonyms = synonyms.map((synonym, index) =>
-      getTranslation(`medication.frequency.${camelCase(frequency)}.synonym.${index}`, synonym),
-    );
-
-    result[labelKey] = translatedSynonyms;
+/**
+ * Returns the display name for a medication using reference-data translation when available.
+ * Uses the medication's id and type for lookup, with name as fallback and '-' when missing.
+ *
+ * @param {Object} [medication] - Medication record (may have id, type, name)
+ * @param {Function} getReferenceDataTranslation - Translation function from useTranslation()
+ * @returns {string} Translated or fallback medication name, or '-' if none
+ */
+export const getTranslatedMedicationName = (medication, getReferenceDataTranslation) => {
+  return getReferenceDataTranslation({
+    value: medication?.id,
+    category: medication?.type,
+    fallback: medication?.name,
+    placeholder: '-',
   });
-
-  return result;
-};
-
-export const getTranslatedFrequencySynonym = (synonyms, index, getTranslation) => {
-  const frequency = synonyms[index];
-  return getTranslation(`medication.frequency.${camelCase(frequency)}.synonym.${index}`, frequency);
-};
-
-export const formatTimeSlot = time => {
-  return formatTime(time)
-    .replaceAll(' ', '')
-    .toLowerCase();
 };
 
 export const isWithinTimeSlot = (timeSlot, time, isFuture = false) => {

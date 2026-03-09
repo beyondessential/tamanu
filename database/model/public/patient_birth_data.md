@@ -91,3 +91,7 @@ One of:
 {% docs patient_birth_data__time_of_birth_legacy %}
 [Deprecated] Time of birth.
 {% enddocs %}
+
+{% docs patient_birth_data__birth_order %}
+An integer that represents the birth order of the patient.
+{% enddocs %}

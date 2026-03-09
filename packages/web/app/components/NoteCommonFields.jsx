@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
-import { NOTE_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
+import { NOTE_TYPES, REFERENCE_TYPES, NON_EDITABLE_NOTE_TYPES } from '@tamanu/constants';
 import { Box } from '@material-ui/core';
 import { InfoCard, InfoCardItem } from './InfoCard';
 import {
@@ -134,7 +134,6 @@ export const NoteDateTimeField = ({ required, disabled, size }) => {
       component={DateTimeField}
       required={required}
       disabled={!getSetting('features.enableNoteBackdating') || disabled}
-      saveDateAsString
       size={size}
       data-testid="field-nwwl"
     />
@@ -264,7 +263,7 @@ export const NoteInfoSection = ({
         numberOfColumns={numberOfColumns}
         fontSize={14}
         label={dateLabel}
-        value={<DateDisplay date={date} showTime data-testid="datedisplay-cfwj" />}
+        value={<DateDisplay date={date} timeFormat="default" data-testid="datedisplay-cfwj" />}
         borderHeight={50}
         data-testid="infocarditem-0my5"
       />
@@ -284,7 +283,7 @@ export const NoteTypeField = ({
 
   const noteTypeOptions = useMemo(() => {
     return noteTypes
-      .filter(noteType => noteType.id !== NOTE_TYPES.SYSTEM)
+      .filter(noteType => !NON_EDITABLE_NOTE_TYPES.includes(noteType.id))
       .map(noteType => ({
         value: noteType.id,
         label: (

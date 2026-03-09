@@ -17,8 +17,13 @@ export const shouldAddLabRequestToInvoice = async (labRequest: LabRequest) => {
     'features.invoicing.invoicePendingLabRequests',
   );
 
-  if (invoicePendingLabRequests && labRequest.status === LAB_REQUEST_STATUSES.RECEPTION_PENDING) {
-    return true; // RECEPTION_PENDING requests are invoiceable if setting is enabled
+  if (
+    invoicePendingLabRequests &&
+    [LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED, LAB_REQUEST_STATUSES.RECEPTION_PENDING].includes(
+      labRequest.status,
+    )
+  ) {
+    return true; // reception_pending and sample-not-collected are auto invoiced if setting is enabled
   }
 
   return INVOICEABLE_LAB_REQUEST_STATUSES.includes(labRequest.status);

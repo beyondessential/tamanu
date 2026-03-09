@@ -1,7 +1,12 @@
 import React from 'react';
 import * as yup from 'yup';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { TranslatedSelectField, Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
+import {
+  TranslatedSelectField,
+  Form,
+  FormGrid,
+  FormSubmitCancelRow,
+  useDateTime,
+} from '@tamanu/ui-components';
 import {
   DIAGNOSIS_CERTAINTY,
   DIAGNOSIS_CERTAINTY_VALUES,
@@ -35,6 +40,7 @@ export const DiagnosisForm = React.memo(
     const defaultCertainty = certaintyOptions[0].value;
     const hasDiagnosis = Boolean(diagnosis?.id);
     const { currentUser } = useAuth();
+    const { getCurrentDate } = useDateTime();
 
     const diagnosisSuggester = useSuggester('diagnosis', {
       filterer: icd => !excludeDiagnoses.some(d => d.diagnosisId === icd.id),
@@ -45,7 +51,7 @@ export const DiagnosisForm = React.memo(
       <Form
         onSubmit={onSave}
         initialValues={{
-          date: getCurrentDateTimeString(),
+          date: getCurrentDate(),
           isPrimary: true,
           certainty: defaultCertainty,
           ...diagnosis,
@@ -141,7 +147,6 @@ export const DiagnosisForm = React.memo(
               }
               component={DateField}
               required
-              saveDateAsString
               data-testid="field-fszu"
             />
             <Field

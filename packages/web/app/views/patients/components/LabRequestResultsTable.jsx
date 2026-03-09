@@ -63,7 +63,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
               />
             );
           }
-          return result ?? '';
+          return result || '–';
         },
         sortable: false,
       },
@@ -108,7 +108,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
           />
         ),
         key: 'labTestMethod',
-        accessor: getMethod,
+        accessor: row => (row.labTestMethod ? getMethod(row) : '–'),
         sortable: false,
       },
       {
@@ -120,6 +120,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
           />
         ),
         key: 'laboratoryOfficer',
+        accessor: row => row.laboratoryOfficer || '–',
         sortable: false,
       },
       {
@@ -131,6 +132,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
           />
         ),
         key: 'verification',
+        accessor: row => row.verification || '–',
         sortable: false,
       },
       {
@@ -142,7 +144,7 @@ export const LabRequestResultsTable = React.memo(({ labRequest, patient, refresh
           />
         ),
         key: 'completedDate',
-        accessor: getCompletedDate,
+        accessor: row => (row.completedDate ? getCompletedDate(row) : '–'),
         sortable: false,
       },
     ],

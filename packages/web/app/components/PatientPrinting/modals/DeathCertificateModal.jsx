@@ -1,18 +1,25 @@
 import React, { useState } from 'react';
-import { Button, Modal, TranslatedText } from '@tamanu/ui-components';
+import styled from 'styled-components';
+import { Button, Modal, TranslatedText, useDateTime } from '@tamanu/ui-components';
 import { useCertificate } from '../../../utils/useCertificate';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { DeathCertificatePrintout } from '@tamanu/shared/utils/patientCertificates';
-import { useLocalisation } from '../../../contexts/Localisation';
 import { usePatientAdditionalDataQuery, useReferenceDataQuery } from '../../../api/queries';
 import { useTranslation } from '../../../contexts/Translation';
 import { useSettings } from '../../../contexts/Settings';
+import { Colors } from '../../../constants/styles';
+
+const StyledButton = styled(Button)`
+  &&.MuiButton-containedPrimary.Mui-disabled {
+    background-color: ${Colors.softText};
+  }
+`;
 
 export const DeathCertificateModal = ({ patient, deathData }) => {
   const [isOpen, setIsOpen] = useState();
-  const { getLocalisation } = useLocalisation();
   const { storedLanguage, translations } = useTranslation();
   const { getSetting } = useSettings();
+  const { primaryTimeZone } = useDateTime();
 
   const {
     data: additionalData,
@@ -53,26 +60,35 @@ export const DeathCertificateModal = ({ patient, deathData }) => {
           <DeathCertificatePrintout
             patientData={patientData}
             certificateData={certificateData}
-            getLocalisation={getLocalisation}
             getSetting={getSetting}
             language={storedLanguage}
             translations={translations}
+            primaryTimeZone={primaryTimeZone}
             data-testid="deathcertificateprintout-l7w8"
           />
         </PDFLoader>
       </Modal>
-      <Button
+      <StyledButton
         variant="contained"
         color="primary"
         onClick={() => setIsOpen(true)}
+        disabled={!deathData.isFinal}
         data-testid="button-9v7x"
       >
-        <TranslatedText
-          stringId="death.action.viewDeathCertificate"
-          fallback="View death certificate"
-          data-testid="translatedtext-gawt"
-        />
-      </Button>
+        {deathData.isFinal ? (
+          <TranslatedText
+            stringId="death.action.viewDeathCertificate"
+            fallback="View death certificate"
+            data-testid="translatedtext-gawt"
+          />
+        ) : (
+          <TranslatedText
+            stringId="death.action.deathCertificatePending"
+            fallback="Death certificate pending"
+            data-testid="translatedtext-twag"
+          />
+        )}
+      </StyledButton>
     </>
   );
 };

@@ -1,7 +1,8 @@
-import { formatISO, isEqual, isSameDay, parseISO } from 'date-fns';
+import { isEqual } from 'date-fns';
 import React from 'react';
 
-import { toDateString } from '@tamanu/utils/dateTime';
+import { toDateString, trimToDate } from '@tamanu/utils/dateTime';
+import { useDateTime } from '@tamanu/ui-components';
 
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
@@ -21,13 +22,14 @@ export const BookingsCell = ({
 }) => {
   const { ability } = useAuth();
   const { selectedCell, updateSelectedCell } = useLocationBookingsContext();
+  const { toFacilityDateTime } = useDateTime();
   const isSelected = selectedCell.locationId === locationId && isEqual(date, selectedCell.date);
   const canCreateBooking = ability.can('create', 'Appointment');
 
   return (
     <CarouselGrid.Cell
       id={generateIdFromCell({ locationId, date })}
-      onClick={(e) => {
+      onClick={e => {
         if (e.target.closest('.appointment-tile') || !canCreateBooking) return;
         openBookingForm({ startDate: toDateString(date), locationId });
         updateSelectedCell({ date, locationId });
@@ -36,33 +38,37 @@ export const BookingsCell = ({
       $clickable={canCreateBooking}
       data-testid="cell-dp5l"
     >
-      {appointments?.map((a, index) => (
-        <AppointmentTile
-          appointment={a}
-          className="appointment-tile"
-          hideTime={!isSameDay(date, parseISO(a.startTime))}
-          key={a.id}
-          onCancel={() => openCancelModal(a)}
-          onEdit={() => openBookingForm(a)}
-          actions={
-            canCreateBooking && onEmailBooking
-              ? [
-                  {
-                    label: (
-                      <TranslatedText
-                        stringId="locationBooking.action.emailBooking"
-                        fallback="Email booking"
-                        data-testid={`translatedtext-email-booking-${locationId}-${index}`}
-                      />
-                    ),
-                    action: () => onEmailBooking(a),
-                  },
-                ]
-              : []
-          }
-          data-testid={`appointmenttile-b6vn-${index}`}
-        />
-      ))}
+      {appointments?.map((a, index) => {
+        const facilityStartDate = trimToDate(toFacilityDateTime(a.startTime));
+        const cellDateStr = toDateString(date);
+        return (
+          <AppointmentTile
+            appointment={a}
+            className="appointment-tile"
+            hideTime={!facilityStartDate || facilityStartDate !== cellDateStr}
+            key={a.id}
+            onCancel={() => openCancelModal(a)}
+            onEdit={() => openBookingForm(a)}
+            actions={
+              canCreateBooking && onEmailBooking
+                ? [
+                    {
+                      label: (
+                        <TranslatedText
+                          stringId="locationBooking.action.emailBooking"
+                          fallback="Email booking"
+                          data-testid={`translatedtext-email-booking-${locationId}-${index}`}
+                        />
+                      ),
+                      action: () => onEmailBooking(a),
+                    },
+                  ]
+                : []
+            }
+            data-testid={`appointmenttile-b6vn-${index}`}
+          />
+        );
+      })}
     </CarouselGrid.Cell>
   );
 };
@@ -75,8 +81,9 @@ export const BookingsRow = ({
   openCancelModal,
   onEmailBooking,
 }) => {
+  const { toFacilityDateTime } = useDateTime();
   const { locationGroup } = location;
-  const appointmentsByDate = partitionAppointmentsByDate(appointments);
+  const appointmentsByDate = partitionAppointmentsByDate(appointments, toFacilityDateTime);
 
   return (
     <CarouselGrid.Row data-testid="row-m8yc">
@@ -94,9 +101,9 @@ export const BookingsRow = ({
           data-testid="translatedreferencedata-1gpj"
         />
       </CarouselGrid.RowHeaderCell>
-      {dates.map((d) => (
+      {dates.map(d => (
         <BookingsCell
-          appointments={appointmentsByDate[formatISO(d, { representation: 'date' })]}
+          appointments={appointmentsByDate[toDateString(d)]}
           date={d}
           key={d.valueOf()}
           location={location}
@@ -124,7 +131,7 @@ export const LocationBookingsCalendarBody = ({
 
   if (filteredLocations?.length === 0) return null;
 
-  return filteredLocations?.map((location) => (
+  return filteredLocations?.map(location => (
     <BookingsRow
       appointments={appointmentsByLocation[location.id] ?? []}
       dates={displayedDates}
