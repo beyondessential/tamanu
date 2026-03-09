@@ -30,7 +30,10 @@ import { reloadImagingRequest } from '../store';
 import { useImagingRequestAreas } from '../utils/useImagingRequestAreas';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { foreignKey } from '../utils/validation';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../contexts/Auth';
+import { useApi } from '../api';
+import { useSuggestionsQuery } from '../api/queries/useSuggestionsQuery';
 
 function getEncounterTypeLabel(type) {
   return ENCOUNTER_OPTIONS.find(x => x.value === type).label;
@@ -99,8 +102,14 @@ export const ImagingRequestForm = React.memo(
     const { getTranslation } = useTranslation();
     const { getLocalisation } = useLocalisation();
     const { currentUser } = useAuth();
+    const api = useApi();
 
     const imagingTypes = getLocalisation('imagingTypes') || {};
+    const { data: allImagingRefData } = useQuery(
+      ['suggestions', 'imagingType', 'all'],
+      () => api.get('suggestions/imagingType', { noLimit: 'true' }),
+    );
+    const { data: visibleImagingTypes } = useSuggestionsQuery('imagingType');
 
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
@@ -250,8 +259,15 @@ export const ImagingRequestForm = React.memo(
                 component={TranslatedSelectField}
                 transformOptions={options => {
                   const availableTypes = Object.keys(imagingTypes);
+                  const allRefCodes = allImagingRefData && new Set(allImagingRefData.map(t => t.code));
+                  const visibleCodes = visibleImagingTypes && new Set(visibleImagingTypes.map(t => t.code));
                   return options
-                    .filter(option => availableTypes.includes(camelCase(option.value)))
+                    .filter(option => {
+                      const key = camelCase(option.value);
+                      if (!availableTypes.includes(key)) return false;
+                      if (allRefCodes && visibleCodes && allRefCodes.has(key) && !visibleCodes.has(key)) return false;
+                      return true;
+                    })
                     .map(option => {
                       const imagingTypeKey = camelCase(option.value);
                       const { label } = imagingTypes[imagingTypeKey];
