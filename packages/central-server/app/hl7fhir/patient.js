@@ -4,10 +4,9 @@ import { Op } from 'sequelize';
 import { groupBy, keyBy } from 'lodash';
 import { FHIR_PATIENT_LINK_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 
+import { getBaseUrl, getHL7Link } from '@tamanu/shared/routes/fhir/utils';
 import {
-  getBaseUrl,
   getDefaultOperator,
-  getHL7Link,
   getParamAndModifier,
   getQueryObject,
 } from './utils';
