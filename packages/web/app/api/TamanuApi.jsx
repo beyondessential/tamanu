@@ -209,6 +209,7 @@ export class TamanuApi extends ApiClient {
         ? await this.fetchImpersonatedRole(impersonateRoleId, config)
         : null;
 
+    let activeToken = token;
     let activePermissions = permissions;
     let restoredImpersonatedRole = impersonatedRole;
     if (impersonatedRole) {
@@ -219,6 +220,7 @@ export class TamanuApi extends ApiClient {
         try {
           const { token: cleanToken } = await this.post('admin/impersonate', { roleId: null }, config);
           this.setToken(cleanToken);
+          activeToken = cleanToken;
         } catch {
           // If we can't clear impersonation either, the token is stale — let it fall through to re-auth
         }
@@ -228,7 +230,7 @@ export class TamanuApi extends ApiClient {
 
     return {
       user,
-      token,
+      token: activeToken,
       localisation,
       server,
       availableFacilities,
