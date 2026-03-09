@@ -28,3 +28,7 @@ External code, such as for interfacing with LIMS.
 {% docs lab_test_panels__category_id %}
 Reference to the category ([Reference Data](#!/source/source.tamanu.tamanu.reference_data)) of this test panel.
 {% enddocs %}
+
+{% docs lab_test_panels__available_facilities %}
+JSON array of facility IDs where this lab test panel is available. If null, the panel is available at all facilities.
+{% enddocs %}
