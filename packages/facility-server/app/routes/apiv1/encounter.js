@@ -5,6 +5,7 @@ import { NotFoundError, InvalidParameterError, InvalidOperationError } from '@ta
 import { getCurrentDateTimeString, getDayBoundaries } from '@tamanu/utils/dateTime';
 import config from 'config';
 import { toPrimaryDateTimeString } from '@tamanu/shared/utils/primaryDateTime';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import {
   LAB_REQUEST_STATUSES,
   DOCUMENT_SIZE_LIMIT,
@@ -398,7 +399,7 @@ encounterRelations.get(
       req.checkPermission('list', 'MedicationAdministration');
 
       const facilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
-      const { primaryTimeZone } = config;
+      const primaryTimeZone = getPrimaryTimeZone(config);
       const boundaries = getDayBoundaries(marDate, primaryTimeZone, facilityTimeZone);
       const startOfMarDate = boundaries?.start ?? `${marDate} 00:00:00`;
       const endOfMarDate = boundaries?.end ?? `${marDate} 23:59:59`;
