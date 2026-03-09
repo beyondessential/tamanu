@@ -79,8 +79,6 @@ export async function createApiApp({
     });
   });
 
-  express.use('/', routes);
-
   if (config.integrations?.fhir?.enabled) {
     const ctx = { store };
     const fhir = fhirRoutes(ctx);
@@ -88,6 +86,8 @@ export async function createApiApp({
     express.use('/api/integration/fhir', authMiddleware, fhir);
     express.use('/v1/integration/fhir', authMiddleware, fhir);
   }
+
+  express.use('/', routes);
 
   // Dis-allow all other routes
   express.get('*', (req, res) => {
