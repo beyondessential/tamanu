@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { useSettings, useTranslation, useDateTime } from '@tamanu/ui-components';
+import { formatShortest } from '@tamanu/utils/dateTime';
+import { useSettings, useTranslation } from '@tamanu/ui-components';
 import { DRUG_UNIT_LABELS } from '@tamanu/constants';
 import { pluralize } from 'inflection';
 import { Colors } from '../../../constants';
@@ -198,7 +199,6 @@ const calculateDynamicFontSizes = (data, labelHeight) => {
 };
 
 export const MedicationLabel = React.memo(({ data }) => {
-  const { formatShortest } = useDateTime();
   const { getEnumTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const labelWidth = getSetting('medications.dispensing.prescriptionLabelSize.width') || 80;
