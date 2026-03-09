@@ -144,7 +144,8 @@
   // IANA tzdata timezone for all stored datetimes.
   // Either "primaryTimeZone" or "countryTimeZone" may be used; primaryTimeZone takes precedence.
   // @see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-  "primaryTimeZone": "Australia/Melbourne",
+  "primaryTimeZone": null,
+  "countryTimeZone": "Australia/Melbourne",
   "allowMismatchedTimeZones": false,
   "tasking": {
     "upcomingTasksTimeFrame": 8, // hours,
