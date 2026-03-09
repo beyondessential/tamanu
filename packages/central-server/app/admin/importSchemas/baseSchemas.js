@@ -288,6 +288,8 @@ export const ProgramRegistry = Base.shape({
   code: fieldTypes.code.required(),
   name: yup.string().required(),
   visibilityStatus,
+  lossToFollowUpEnabled: yup.boolean().default(false),
+  lossToFollowUpThresholdDays: yup.number().integer().positive().default(90),
 });
 
 export const ProgramRegistryClinicalStatus = Base.shape({
