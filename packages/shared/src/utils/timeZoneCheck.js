@@ -38,8 +38,7 @@ async function getRemoteTimeZone(remote) {
         preserveBackoffForAuthAttempt: true,
       },
     );
-    const { primaryTimeZone } = health.config;
-    return primaryTimeZone;
+    return getPrimaryTimeZone(health.config);
   } catch (error) {
     log.warn('Unable to grab primaryTimeZone from central server.');
   }
