@@ -2,7 +2,6 @@ export * from './addPaginationToWhere';
 export * from './identifier';
 export * from './search';
 export * from './sort';
-export * from './getHL7Link';
-export * from './getBaseUrl';
+export { getHL7Link, getBaseUrl } from '@tamanu/shared/routes/fhir/utils';
 export * from './parseQuery';
 export * from './createBundledResource';

@@ -58,6 +58,10 @@
       "require": "./dist/cjs/routes/fhir/*.js",
       "import": "./dist/esm/routes/fhir/*.js"
     },
+    "./routes/fhir/utils": {
+      "require": "./dist/cjs/routes/fhir/utils/index.js",
+      "import": "./dist/esm/routes/fhir/utils/index.js"
+    },
     "./routes/fhir/patientSummary/*": {
       "require": "./dist/cjs/routes/fhir/patientSummary/*.js",
       "import": "./dist/esm/routes/fhir/patientSummary/*.js"

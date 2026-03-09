@@ -1,17 +1,16 @@
 export function getHL7Link(baseUrl, params = {}) {
-  const query = Object.entries(params)
-    .filter(([, v]) => v !== null && v !== undefined)
-    .map(([k, v]) => {
-      const encodedKey = encodeURIComponent(k);
-      const toPair = val => `${encodedKey}=${encodeURIComponent(val)}`;
-      if (Array.isArray(v)) {
-        return v.map(toPair);
-      }
-      return [toPair(v)];
-    })
-    .flat()
-    .join('&');
   const url = new URL(baseUrl);
-  url.search = new URLSearchParams(query);
+  const searchParams = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) {
+    if (v === null || v === undefined) continue;
+    if (Array.isArray(v)) {
+      for (const val of v) {
+        searchParams.append(k, val);
+      }
+    } else {
+      searchParams.append(k, v);
+    }
+  }
+  url.search = searchParams;
   return url.toString();
 }
