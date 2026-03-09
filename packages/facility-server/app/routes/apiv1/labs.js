@@ -566,9 +566,25 @@ labTestType.get('/:id', simpleGetList('LabTestType', 'labTestCategoryId'));
 labTestType.get(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models } = req;
+    const { models, query } = req;
     req.checkPermission('list', 'LabTestType');
     const canCreateSensitive = req.ability.can('create', 'SensitiveLabRequest');
+    const where = {
+      visibilityStatus: {
+        [Op.notIn]: [
+          LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY,
+          LAB_TEST_TYPE_VISIBILITY_STATUSES.HISTORICAL,
+        ],
+      },
+      ...(!canCreateSensitive && { isSensitive: false }),
+    };
+    if (query.facilityId) {
+      where[Op.and] = [
+        Sequelize.literal(
+          `("LabTestType"."available_facilities" IS NULL OR "LabTestType"."available_facilities" @> ${req.db.escape(JSON.stringify([query.facilityId]))}::jsonb)`,
+        ),
+      ];
+    }
     const labTests = await models.LabTestType.findAll({
       include: [
         {
@@ -576,16 +592,7 @@ labTestType.get(
           as: 'category',
         },
       ],
-      // We don't include lab tests with a visibility status of panels only in this route as it is only used for the individual lab workflow
-      where: {
-        visibilityStatus: {
-          [Op.notIn]: [
-            LAB_TEST_TYPE_VISIBILITY_STATUSES.PANEL_ONLY,
-            LAB_TEST_TYPE_VISIBILITY_STATUSES.HISTORICAL,
-          ],
-        },
-        ...(!canCreateSensitive && { isSensitive: false }),
-      },
+      where,
     });
     res.send(labTests);
   }),
@@ -595,7 +602,30 @@ export const labTestPanel = express.Router();
 
 labTestPanel.get('/', async (req, res) => {
   req.checkPermission('list', 'LabTestPanel');
-  const { models } = req;
+  const { models, query } = req;
+  const where = {
+    visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+  };
+  if (query.facilityId) {
+    const escapedFacilityArray = req.db.escape(JSON.stringify([query.facilityId]));
+    where[Op.and] = [
+      Sequelize.literal(
+        `("LabTestPanel"."available_facilities" IS NULL OR "LabTestPanel"."available_facilities" @> ${escapedFacilityArray}::jsonb)`,
+      ),
+      // Exclude panels where any member lab test type is not visible in this facility
+      Sequelize.literal(`
+        "LabTestPanel"."id" NOT IN (
+          SELECT DISTINCT lptlt.lab_test_panel_id
+          FROM lab_test_panel_lab_test_types lptlt
+          INNER JOIN lab_test_types ltt
+            ON ltt.id = lptlt.lab_test_type_id
+          WHERE lptlt.deleted_at IS NULL
+            AND ltt.available_facilities IS NOT NULL
+            AND NOT (ltt.available_facilities @> ${escapedFacilityArray}::jsonb)
+        )
+      `),
+    ];
+  }
   const response = await models.LabTestPanel.findAll({
     include: [
       {
@@ -603,9 +633,7 @@ labTestPanel.get('/', async (req, res) => {
         as: 'category',
       },
     ],
-    where: {
-      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-    },
+    where,
   });
   res.send(response);
 });

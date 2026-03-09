@@ -333,10 +333,36 @@ const referenceDataBodyBuilder = ({ type, name }) => {
 createSuggester(
   'multiReferenceData',
   'ReferenceData',
-  ({ endpoint, modelName, query: { types } }) => ({
-    ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
-    type: { [Op.in]: types },
-  }),
+  ({ endpoint, modelName, query: { types }, req }) => {
+    const baseWhere = {
+      ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
+      type: { [Op.in]: types },
+    };
+    const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId, req.db);
+    if (facilityFilter) {
+      const andConditions = [facilityFilter];
+      // If task sets are included, exclude sets where any member task is not visible
+      if (types?.includes(REFERENCE_TYPES.TASK_SET)) {
+        const escapedFacilityArray = req.db.escape(JSON.stringify([req.query.facilityId]));
+        andConditions.push(
+          Sequelize.literal(`
+            ("ReferenceData"."type" != '${REFERENCE_TYPES.TASK_SET}' OR "ReferenceData"."id" NOT IN (
+              SELECT DISTINCT rdr.reference_data_parent_id
+              FROM reference_data_relations rdr
+              INNER JOIN reference_data rd_task
+                ON rdr.reference_data_id = rd_task.id
+              WHERE rdr.type = '${REFERENCE_DATA_RELATION_TYPES.TASK}'
+                AND rdr.deleted_at IS NULL
+                AND rd_task.available_facilities IS NOT NULL
+                AND NOT (rd_task.available_facilities @> ${escapedFacilityArray}::jsonb)
+            ))
+          `),
+        );
+      }
+      baseWhere[Op.and] = andConditions;
+    }
+    return baseWhere;
+  },
   {
     includeBuilder: req => {
       const {
