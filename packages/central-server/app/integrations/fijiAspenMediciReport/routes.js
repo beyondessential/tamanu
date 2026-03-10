@@ -11,10 +11,11 @@ import { parseDateTime, formatFhirDate } from '@tamanu/shared/utils/fhir/datetim
 
 import { requireClientHeaders } from '../../middleware/requireClientHeaders';
 import { InvalidOperationError } from '@tamanu/errors';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
 export const routes = express.Router();
 
-const PRIMARY_TIME_ZONE = config?.primaryTimeZone;
+const PRIMARY_TIME_ZONE = getPrimaryTimeZone(config);
 
 // Workaround for this test changing from a hotfix, see EPI-483/484
 function formatDate(date) {
