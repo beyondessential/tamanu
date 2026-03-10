@@ -1,12 +1,13 @@
 import { tablesWithoutTrigger, tablesWithTrigger } from '@tamanu/database';
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
+import { getFhirWorkerConfig } from '@tamanu/shared/utils/fhir/fhirSettingsCache';
 import { log } from '@tamanu/shared/services/logging';
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
 import config from 'config';
 
 export const setFhirRefreshTriggers = async sequelize => {
   const fhirEnabled = !!config?.integrations?.fhir?.enabled;
-  const fhirWorkerEnabled = !!config?.integrations?.fhir?.worker?.enabled;
+  const fhirWorkerEnabled = !!getFhirWorkerConfig()?.enabled;
 
   const triggersEnabled = fhirEnabled && fhirWorkerEnabled;
 

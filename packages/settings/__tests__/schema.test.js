@@ -97,6 +97,24 @@ describe('Schemas', () => {
           worker: {
             heartbeat: '1 minute',
             assumeDroppedAfter: '10 minutes',
+            resourceMaterialisationEnabled: {
+              Patient: true,
+              Encounter: false,
+              Immunization: false,
+              MediciReport: false,
+              Organization: false,
+              Practitioner: false,
+              ServiceRequest: false,
+              Specimen: false,
+              MedicationRequest: false,
+              DiagnosticReport: false,
+            },
+          },
+          parameters: {
+            _count: {
+              default: 100,
+              max: 1000,
+            },
           },
         },
         integrations: {

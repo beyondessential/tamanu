@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
 import LockIcon from '@material-ui/icons/Lock';
+import RefreshIcon from '@material-ui/icons/Refresh';
 
 import { isSetting } from '@tamanu/settings';
 
@@ -14,6 +15,12 @@ import { formatSettingName } from '../EditorView';
 const StyledLockIcon = styled(LockIcon)`
   font-size: 1.125rem;
   margin-inline-start: 0.25rem;
+`;
+
+const StyledRestartIcon = styled(RefreshIcon)`
+  font-size: 1.125rem;
+  margin-inline-start: 0.25rem;
+  color: ${Colors.orange};
 `;
 
 const Wrapper = styled.div`
@@ -62,7 +69,7 @@ const CategoryTitle = memo(({ name, path, description }) => {
   );
 });
 
-const SettingName = memo(({ name, path, description, disabled }) => (
+const SettingName = memo(({ name, path, description, disabled, requiresRestart }) => (
   <ThemedTooltip
     disableHoverListener={!description && !disabled}
     title={
@@ -81,6 +88,20 @@ const SettingName = memo(({ name, path, description, disabled }) => (
     <SettingNameLabel color={disabled && 'textTertiary'} data-testid="settingnamelabel-xr19">
       {formatSettingName(name, path.split('.').pop())}
       {disabled && <StyledLockIcon data-testid="styledlockicon-x3w0" />}
+      {requiresRestart && (
+        <ThemedTooltip
+          title={
+            <TranslatedText
+              stringId="admin.settings.requiresRestartTooltip"
+              fallback="Requires server restart to take effect"
+              data-testid="translatedtext-rr01"
+            />
+          }
+          data-testid="themedtooltip-rr01"
+        >
+          <StyledRestartIcon data-testid="styledrestarticon-rr01" />
+        </ThemedTooltip>
+      )}
     </SettingNameLabel>
   </ThemedTooltip>
 ));
@@ -97,7 +118,7 @@ const sortProperties = ([a0, a1], [b0, b1]) => {
   return aName.localeCompare(bName);
 };
 
-export const Category = ({ schema, path = '', getSettingValue, handleChangeSetting, facilityId }) => {
+export const Category = ({ schema, path = '', getSettingValue, getGlobalSettingValue, handleChangeSetting, facilityId }) => {
   const { ability } = useAuth();
   const canWriteHighRisk = ability.can('manage', 'all');
   if (!schema) return null;
@@ -121,16 +142,19 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
           defaultValue,
           unit,
           highRisk,
+          requiresRestart,
           suggesterEndpoint,
         } = propertySchema;
 
         const isHighRisk = schema.highRisk || highRisk;
+        const needsRestart = schema.requiresRestart || requiresRestart;
         const disabled = !canWriteHighRisk && isHighRisk;
 
         return type ? (
           <SettingLine key={newPath} data-testid={`settingline-55rw-${testIdSuffix}`}>
             <SettingName
               disabled={disabled}
+              requiresRestart={needsRestart}
               path={newPath}
               name={name}
               description={description}
@@ -141,6 +165,7 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
               suggesterEndpoint={suggesterEndpoint}
               value={getSettingValue(newPath)}
               defaultValue={defaultValue}
+              globalValue={getGlobalSettingValue?.(newPath)}
               path={newPath}
               handleChangeSetting={handleChangeSetting}
               unit={unit}
@@ -153,9 +178,10 @@ export const Category = ({ schema, path = '', getSettingValue, handleChangeSetti
           <Category
             key={newPath}
             path={newPath}
-            // Pass down highRisk from parent category to now top level subcategory
-            schema={{ ...propertySchema, highRisk: isHighRisk }}
+            // Pass down highRisk and requiresRestart from parent category
+            schema={{ ...propertySchema, highRisk: isHighRisk, requiresRestart: needsRestart }}
             getSettingValue={getSettingValue}
+            getGlobalSettingValue={getGlobalSettingValue}
             handleChangeSetting={handleChangeSetting}
             facilityId={facilityId}
             data-testid={`category-9y74-${testIdSuffix}`}

@@ -8,7 +8,7 @@ import {
   FHIR_SEARCH_PREFIXES,
   FHIR_SEARCH_TOKEN_TYPES,
 } from '@tamanu/constants';
-import { Invalid, RESULT_PARAMETER_NAMES, Unsupported } from '../../../utils/fhir';
+import { Invalid, getResultParameterNames, Unsupported } from '../../../utils/fhir';
 
 import { findField } from './common';
 import { getJsonbPath, getJsonbQueryFn } from './jsonb';
@@ -16,7 +16,7 @@ import { getJsonbPath, getJsonbQueryFn } from './jsonb';
 export function generateWhereClause(query, parameters, FhirResource) {
   const andWhere = [];
   for (const [name, paramQueries] of query.entries()) {
-    if (RESULT_PARAMETER_NAMES.includes(name)) continue;
+    if (getResultParameterNames().includes(name)) continue;
 
     const def = parameters.get(name);
     if (def.path.length === 0) continue;

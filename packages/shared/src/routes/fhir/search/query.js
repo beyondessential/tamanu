@@ -1,6 +1,6 @@
 import { last } from 'lodash';
 
-import { FHIR_COUNT_CONFIG_DEFAULT } from '../../../utils/fhir/parameters';
+import { getFhirCountConfigDefault } from '../../../utils/fhir/parameters';
 
 import { pushToQuery } from './common';
 import { generateWhereClause } from './where';
@@ -13,7 +13,7 @@ import { generateOrderClause } from './order';
  */
 export function buildSearchQuery(query, parameters, FhirResource) {
   const sql = {
-    limit: FHIR_COUNT_CONFIG_DEFAULT,
+    limit: getFhirCountConfigDefault(),
   };
 
   if (query.has('_sort')) {

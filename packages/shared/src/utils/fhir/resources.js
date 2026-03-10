@@ -1,6 +1,6 @@
-import config from 'config';
-
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
+
+import { getFhirWorkerConfig } from './fhirSettingsCache';
 
 /**
  * @param {Model[]} models
@@ -8,7 +8,7 @@ import { FHIR_INTERACTIONS } from '@tamanu/constants';
  * @returns {FhirResource[]}
  */
 export function resourcesThatCanDo(models, ...interactions) {
-  const workerConfig = config.integrations?.fhir?.worker;
+  const workerConfig = getFhirWorkerConfig();
 
   return Object.values(models).filter((Resource) =>
     interactions.every((interaction) => {

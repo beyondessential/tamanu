@@ -20,6 +20,8 @@ import {
   triageCategoriesSchema,
   vitalEditReasonsDefault,
   vitalEditReasonsSchema,
+  fhirResourceMaterialisationSchema,
+  fhirCountParametersSchema,
 } from './definitions';
 import {
   layoutModuleProperties,
@@ -433,6 +435,7 @@ export const globalSettings = {
     fhir: {
       name: 'FHIR',
       description: 'FHIR integration settings',
+      highRisk: true,
       properties: {
         worker: {
           name: 'FHIR worker',
@@ -449,8 +452,10 @@ export const globalSettings = {
               type: yup.string(),
               defaultValue: '10 minutes',
             },
+            resourceMaterialisationEnabled: fhirResourceMaterialisationSchema,
           },
         },
+        parameters: fhirCountParametersSchema,
       },
     },
     fields: {
