@@ -162,8 +162,21 @@ export const SettingInput = ({
   const handleChangeNumber = e => handleChangeSetting(path, Number(e.target.value));
   const handleChangeJSON = e => handleChangeSetting(path, e);
 
-  const displayValue = isUndefined(value) ? defaultValue : value;
+  const effectiveDefault = hasGlobalValue ? globalValue : defaultValue;
+  const displayValue = isUndefined(value) ? effectiveDefault : value;
   const suggesterDisplayValue = displayValue === null ? '' : displayValue;
+
+  const isOverridden = hasGlobalValue && !isEqual(normalize(displayValue), normalize(globalValue));
+  const overrideHint = isOverridden && (
+    <GlobalOverrideHint data-testid="globaloverridehint-go01">
+      <TranslatedText
+        stringId="admin.settings.globalOverrideHint"
+        fallback="Global: :globalValue"
+        replacements={{ globalValue: formatDisplayValue(globalValue) }}
+        data-testid="translatedtext-go01"
+      />
+    </GlobalOverrideHint>
+  );
 
   const key = path.split('.').pop();
   const typeKey = TYPE_OVERRIDES_BY_KEY[key] || type;
@@ -181,6 +194,7 @@ export const SettingInput = ({
               helperText={error?.message}
             />
             <DefaultButton data-testid="defaultbutton-qsdq" />
+            {overrideHint}
           </Flexbox>
         );
       case SETTING_TYPES.STRING:
@@ -195,6 +209,7 @@ export const SettingInput = ({
               helperText={error?.message}
             />
             <DefaultButton data-testid="defaultbutton-qsdq" />
+            {overrideHint}
           </Flexbox>
         );
       default:
@@ -223,6 +238,7 @@ export const SettingInput = ({
             data-testid="switch-b88q"
           />
           <DefaultButton data-testid="defaultbutton-urt3" />
+          {overrideHint}
         </Flexbox>
       );
     case SETTING_TYPES.STRING:
@@ -238,6 +254,7 @@ export const SettingInput = ({
             data-testid="styledtextinput-fpam"
           />
           <DefaultButton data-testid="defaultbutton-iw4g" />
+          {overrideHint}
         </Flexbox>
       );
     case SETTING_TYPES.NUMBER:
@@ -254,6 +271,7 @@ export const SettingInput = ({
           />
           <Unit data-testid="unit-ip4s">{unit}</Unit>
           <DefaultButton data-testid="defaultbutton-wbg5" />
+          {overrideHint}
         </Flexbox>
       );
     case SETTING_TYPES.LONG_TEXT:
@@ -270,6 +288,7 @@ export const SettingInput = ({
             data-testid="styledtextinput-9fw2"
           />
           <DefaultButton data-testid="defaultbutton-5efq" />
+          {overrideHint}
         </Flexbox>
       );
     case SETTING_TYPES.OBJECT:
@@ -286,6 +305,7 @@ export const SettingInput = ({
             data-testid="jsoneditor-6t9w"
           />
           <DefaultButton data-testid="defaultbutton-qsdq" />
+          {overrideHint}
         </Flexbox>
       );
     default:
