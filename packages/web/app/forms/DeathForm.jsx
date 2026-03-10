@@ -136,11 +136,23 @@ const PrimaryFields = ({ practitionerSuggester }) => {
   );
 };
 
+const TwoThirdsFormGrid = styled(StyledFormGrid)`
+  > * {
+    grid-column: span 2;
+  }
+`;
+
+const SurgeryFormGrid = styled(StyledFormGrid)`
+  > * {
+    grid-column: span 3;
+  }
+`;
+
 const PartialWorkflowPage = ({ practitionerSuggester }) => {
   return (
-    <StyledFormGrid columns={1} data-testid="styledformgrid-o83r">
+    <TwoThirdsFormGrid columns={3} data-testid="styledformgrid-o83r">
       <PrimaryFields practitionerSuggester={practitionerSuggester} />
-    </StyledFormGrid>
+    </TwoThirdsFormGrid>
   );
 };
 
@@ -474,7 +486,7 @@ export const DeathForm = React.memo(
             data-testid="field-oj7z"
           />
         </StyledFormGrid>
-        <StyledFormGrid columns={1} data-testid="styledformgrid-pd77">
+        <SurgeryFormGrid columns={4} data-testid="styledformgrid-pd77">
           <Field
             name="surgeryInLast4Weeks"
             label={
@@ -499,6 +511,7 @@ export const DeathForm = React.memo(
             }
             component={DateField}
             saveDateAsString
+            style={{ gridColumn: 'span 2' }}
             visibilityCriteria={{ surgeryInLast4Weeks: 'yes' }}
             data-testid="field-lnqy"
           />
@@ -543,7 +556,7 @@ export const DeathForm = React.memo(
             visibilityCriteria={{ autopsyRequested: 'yes' }}
             data-testid="field-333j"
           />
-        </StyledFormGrid>
+        </SurgeryFormGrid>
         {isFSMStyleEnabled ? (
           <FSMMannerOfDeathPage>{fsmMannerOfDeathPageFields}</FSMMannerOfDeathPage>
         ) : (
