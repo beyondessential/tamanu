@@ -41,9 +41,17 @@ export const createResource = async (store, FhirResource, data, requesterId, set
   }
 };
 
+function resolveSettings(req) {
+  const { settings, facilityId } = req;
+  if (!settings) return undefined;
+  if (typeof settings.get === 'function') return settings;
+  if (facilityId && settings[facilityId]) return settings[facilityId];
+  return undefined;
+}
+
 export function createHandler(FhirResource) {
   return asyncHandler(async (req, res) => {
-    await createResource(req.store, FhirResource, req.body, req.user?.id, req.settings);
+    await createResource(req.store, FhirResource, req.body, req.user?.id, resolveSettings(req));
 
     // in spec, we should Location: to the resource, but we don't have it yet
     // TODO: generate ID here, and return it (if resource can be materialised)
