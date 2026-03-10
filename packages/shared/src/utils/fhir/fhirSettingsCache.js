@@ -1,54 +1,67 @@
 import config from 'config';
+import { resetParametersCache } from './parameters';
 
-let _cache = null;
+const DEFAULTS = {
+  resourceMaterialisationEnabled: {
+    Patient: true,
+    Encounter: false,
+    Immunization: false,
+    MediciReport: false,
+    Organization: false,
+    Practitioner: false,
+    ServiceRequest: false,
+    Specimen: false,
+    MedicationRequest: false,
+    DiagnosticReport: false,
+  },
+  countDefault: 100,
+  countMax: 1000,
+};
 
-/**
- * Initialise the FHIR settings cache from the database via ReadSettings.
- * Must be called during server startup before any FHIR code runs.
- */
+let cache = null;
+
 export async function initFhirSettingsFromDb(models) {
-  const { ReadSettings } = await import('@tamanu/settings');
-  const reader = new ReadSettings(models);
+  try {
+    const { ReadSettings } = await import('@tamanu/settings');
+    const reader = new ReadSettings(models);
 
-  const [resourceMaterialisationEnabled, countDefault, countMax] = await Promise.all([
-    reader.get('fhir.worker.resourceMaterialisationEnabled'),
-    reader.get('fhir.parameters._count.default'),
-    reader.get('fhir.parameters._count.max'),
-  ]);
+    const [resourceMaterialisationEnabled, countDefault, countMax] = await Promise.all([
+      reader.get('fhir.worker.resourceMaterialisationEnabled'),
+      reader.get('fhir.parameters._count.default'),
+      reader.get('fhir.parameters._count.max'),
+    ]);
 
-  _cache = {
-    resourceMaterialisationEnabled: resourceMaterialisationEnabled ?? {},
-    countDefault: countDefault ?? null,
-    countMax: countMax ?? null,
-  };
+    cache = {
+      resourceMaterialisationEnabled: resourceMaterialisationEnabled ?? DEFAULTS.resourceMaterialisationEnabled,
+      countDefault: countDefault ?? DEFAULTS.countDefault,
+      countMax: countMax ?? DEFAULTS.countMax,
+    };
+  } catch {
+    // Settings table may not exist yet (e.g. during upgrade before migrations)
+    cache = null;
+  }
 }
 
-function getConfigFallback() {
-  return {
-    resourceMaterialisationEnabled:
-      config?.integrations?.fhir?.worker?.resourceMaterialisationEnabled ?? {},
-    countDefault: config?.integrations?.fhir?.parameters?._count?.default ?? null,
-    countMax: config?.integrations?.fhir?.parameters?._count?.max ?? null,
-  };
+function resolve() {
+  return cache ?? DEFAULTS;
 }
 
 export function getFhirWorkerConfig() {
-  const source = _cache ?? getConfigFallback();
   return {
     enabled: config?.integrations?.fhir?.worker?.enabled ?? false,
-    resourceMaterialisationEnabled: source.resourceMaterialisationEnabled,
+    resourceMaterialisationEnabled: resolve().resourceMaterialisationEnabled,
   };
 }
 
 export function getFhirCountConfig() {
-  const source = _cache ?? getConfigFallback();
+  const source = resolve();
   return {
     default: source.countDefault,
     max: source.countMax,
   };
 }
 
-/** Visible for testing */
 export function resetFhirSettingsCache() {
-  _cache = null;
+  cache = null;
+  resetParametersCache();
 }
