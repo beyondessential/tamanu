@@ -83,7 +83,9 @@ function getResultParameters() {
   };
 }
 
-export const RESULT_PARAMETER_NAMES = ['_sort', '_total', '_summary', '_count', '_page', '_include', '_revinclude'];
+export function getResultParameterNames() {
+  return ['_sort', ...Object.keys(getResultParameters())];
+}
 
 function sortParameter(sortableParameters) {
   return {
