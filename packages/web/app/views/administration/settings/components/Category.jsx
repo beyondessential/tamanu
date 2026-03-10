@@ -20,7 +20,7 @@ const StyledLockIcon = styled(LockIcon)`
 const StyledRestartIcon = styled(RefreshIcon)`
   font-size: 1.125rem;
   margin-inline-start: 0.25rem;
-  color: ${Colors.alert};
+  color: ${Colors.orange};
 `;
 
 const Wrapper = styled.div`
@@ -71,7 +71,7 @@ const CategoryTitle = memo(({ name, path, description }) => {
 
 const SettingName = memo(({ name, path, description, disabled, requiresRestart }) => (
   <ThemedTooltip
-    disableHoverListener={!description && !disabled && !requiresRestart}
+    disableHoverListener={!description && !disabled}
     title={
       disabled ? (
         <TranslatedText
@@ -79,15 +79,6 @@ const SettingName = memo(({ name, path, description, disabled, requiresRestart }
           fallback="User does not required permissions to update this setting"
           data-testid="translatedtext-2xq4"
         />
-      ) : requiresRestart ? (
-        <>
-          {description && <>{description} &mdash; </>}
-          <TranslatedText
-            stringId="admin.settings.requiresRestartTooltip"
-            fallback="Requires server restart to take effect"
-            data-testid="translatedtext-rr01"
-          />
-        </>
       ) : (
         description
       )
@@ -103,7 +94,7 @@ const SettingName = memo(({ name, path, description, disabled, requiresRestart }
             <TranslatedText
               stringId="admin.settings.requiresRestartTooltip"
               fallback="Requires server restart to take effect"
-              data-testid="translatedtext-rr02"
+              data-testid="translatedtext-rr01"
             />
           }
           data-testid="themedtooltip-rr01"
