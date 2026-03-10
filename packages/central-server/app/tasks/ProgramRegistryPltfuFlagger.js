@@ -101,7 +101,6 @@ export class ProgramRegistryPltfuFlagger extends ScheduledTask {
       );
 
       if (registrationIds.length === 0) {
-        hasMore = false;
         break;
       }
 
