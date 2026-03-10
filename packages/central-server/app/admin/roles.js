@@ -1,12 +1,13 @@
-import { DatabaseDuplicateError, InvalidOperationError, NotFoundError } from '@tamanu/errors';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import * as yup from 'yup';
+import { z } from 'zod';
+
+import { DatabaseDuplicateError, InvalidOperationError, NotFoundError } from '@tamanu/errors';
 
 export const rolesRouter = express.Router();
 
-const CREATE_VALIDATION = yup.object().shape({
-  name: yup.string().trim().required(),
+const createRoleSchema = z.object({
+  name: z.string().trim().min(1),
 });
 
 rolesRouter.post(
@@ -20,7 +21,7 @@ rolesRouter.post(
 
     req.checkPermission('create', 'Role');
 
-    const { name } = await CREATE_VALIDATION.validate(req.body);
+    const { name } = await createRoleSchema.parseAsync(req.body);
 
     const existingRoleWithSameName = await Role.findOne({
       where: { name },

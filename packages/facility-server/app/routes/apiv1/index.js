@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { keyBy, mapValues } from 'lodash';
-import * as yup from 'yup';
+import { z } from 'zod';
 
 import { attachAuditUserToDbSession } from '@tamanu/database/utils/audit';
 import { DatabaseDuplicateError, InvalidOperationError, NotFoundError } from '@tamanu/errors';
@@ -124,17 +124,17 @@ apiv1.delete(
   }),
 );
 
-const createRoleValidation = yup.object().shape({
-  name: yup.string().trim().required(),
+const createRoleSchema = z.object({
+  name: z.string().trim().min(1),
 });
 
 apiv1.post(
   '/admin/role',
   asyncHandler(async (req, res) => {
-    const { Role, User } = req.models;
+    const { Role } = req.models;
     req.checkPermission('create', 'Role');
 
-    const { name } = await createRoleValidation.validate(req.body);
+    const { name } = await createRoleSchema.parseAsync(req.body);
 
     const existingRoleWithSameName = await Role.findOne({
       where: { name },
