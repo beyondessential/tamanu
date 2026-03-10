@@ -13,13 +13,13 @@ const createRoleSchema = z.object({
 rolesRouter.post(
   '/',
   asyncHandler(async (req, res) => {
+    req.checkPermission('create', 'Role');
+
     const {
       store: {
         models: { Role },
       },
     } = req;
-
-    req.checkPermission('create', 'Role');
 
     const { name } = await createRoleSchema.parseAsync(req.body);
 
@@ -36,14 +36,14 @@ rolesRouter.post(
 rolesRouter.delete(
   '/:id',
   asyncHandler(async (req, res) => {
+    req.checkPermission('delete', 'Role');
+
     const {
       store: {
         models: { Role },
       },
       params: { id },
     } = req;
-
-    req.checkPermission('delete', 'Role');
 
     const role = await Role.findByPk(id);
     if (!role) {
