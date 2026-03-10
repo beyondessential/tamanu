@@ -17,8 +17,15 @@ import {
 import { getBundleEntryFromResource, getPatientDisplayName } from './utils';
 
 export const generateIPSBundle = async (fhirPatientId, user, models) => {
-  const dataDictionariesIps = config.hl7.dataDictionaries.ips;
-  const integrationsIps = config.integrations.ips;
+  const dataDictionariesIps = config.hl7?.dataDictionaries?.ips;
+  const integrationsIps = config.integrations?.ips;
+
+  if (!dataDictionariesIps) {
+    throw new Error('Missing config: hl7.dataDictionaries.ips is required for IPS bundle generation');
+  }
+  if (!integrationsIps) {
+    throw new Error('Missing config: integrations.ips is required for IPS bundle generation');
+  }
 
   const fhirPatient = await models.FhirPatient.findByPk(fhirPatientId);
   if (!fhirPatient) throw new NotFound(`No FHIR patient with id ${fhirPatientId}`);
