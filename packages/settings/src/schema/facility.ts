@@ -200,6 +200,7 @@ export const facilitySettings = {
     fhir: {
       name: 'FHIR',
       description: 'FHIR integration settings (facility-level overrides)',
+      highRisk: true,
       properties: {
         worker: {
           name: 'FHIR worker',
