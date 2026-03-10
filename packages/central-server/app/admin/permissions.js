@@ -7,7 +7,6 @@ import {
   HIDDEN_PERMISSION_NOUNS,
   NOUNS_WITH_OBJECT_ID,
   PERMISSION_SCHEMA,
-  SETTING_KEYS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 
@@ -150,13 +149,7 @@ permissionsRouter.post(
     }
 
     const { Permission } = req.store.models;
-
-    const permissionSchemaValidationEnabled = await req.settings.get(
-      SETTING_KEYS.FEATURES_ENABLE_PERMISSION_SCHEMA_VALIDATION,
-    );
-    if (permissionSchemaValidationEnabled) {
-      await Permission.validatePermissionSchema(verb, noun);
-    }
+    Permission.validatePermissionSchema(verb, noun);
 
     const where = { verb, noun, roleId, objectId: objectId || null };
     const existing = await Permission.findOne({ where, paranoid: false });
@@ -183,13 +176,7 @@ permissionsRouter.delete(
     }
 
     const { Permission } = req.store.models;
-
-    const permissionSchemaValidationEnabled = await req.settings.get(
-      SETTING_KEYS.FEATURES_ENABLE_PERMISSION_SCHEMA_VALIDATION,
-    );
-    if (permissionSchemaValidationEnabled) {
-      await Permission.validatePermissionSchema(verb, noun);
-    }
+    Permission.validatePermissionSchema(verb, noun);
 
     const deleted = await Permission.destroy({
       where: { verb, noun, roleId, objectId: objectId || null },

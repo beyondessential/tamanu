@@ -9,7 +9,7 @@ import { canUploadAttachment } from './utils/getFreeDiskSpace';
 export const attachmentRoutes = express.Router();
 
 //TODO: Remove when permission check are implemented in all central server routes
-attachmentRoutes.use(asyncHandler(ensurePermissionCheck));
+attachmentRoutes.use(ensurePermissionCheck);
 
 attachmentRoutes.get(
   '/:id',

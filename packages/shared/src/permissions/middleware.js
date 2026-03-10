@@ -4,7 +4,7 @@ import {
   InvalidOperationError,
   UnimplementedError,
 } from '@tamanu/errors';
-import { PERMISSION_SCHEMA, SETTING_KEYS } from '@tamanu/constants';
+import { PERMISSION_SCHEMA } from '@tamanu/constants';
 import { getAbilityForUser, getPermissionsForRoles } from './rolesToPermissions';
 
 // copied from casl source as it's not exported directly
@@ -51,7 +51,7 @@ export async function constructPermission(req, res, next) {
   }
 }
 
-const checkIfHasPermission = (req, action, subject, permissionSchemaValidationEnabled = false) => {
+const checkIfHasPermission = (req, action, subject) => {
   if (req.flagPermissionChecked) {
     req.flagPermissionChecked();
   }
@@ -62,7 +62,10 @@ const checkIfHasPermission = (req, action, subject, permissionSchemaValidationEn
     return;
   }
 
-  if (permissionSchemaValidationEnabled) {
+  // Validate noun/verb against PERMISSION_SCHEMA in dev/test so devs are forced
+  // to register new combinations. Skipped in production to avoid blocking real
+  // actions as there is a risk that the schema is incomplete.
+  if (process.env.NODE_ENV !== 'production') {
     assertValidPermissionSchema(subject, action);
   }
 
@@ -75,15 +78,11 @@ const checkIfHasPermission = (req, action, subject, permissionSchemaValidationEn
 };
 
 // this middleware goes at the top of the middleware stack
-export async function ensurePermissionCheck(req, res, next) {
+export function ensurePermissionCheck(req, res, next) {
   const originalResSend = res.send;
 
-  const permissionSchemaValidationEnabled = await req.settings?.get(
-    SETTING_KEYS.FEATURES_ENABLE_PERMISSION_SCHEMA_VALIDATION,
-  );
-
   req.checkPermission = (action, subject) => {
-    const hasPermission = checkIfHasPermission(req, action, subject, permissionSchemaValidationEnabled);
+    const hasPermission = checkIfHasPermission(req, action, subject);
     if (!hasPermission) {
       const rule = req.ability.relevantRuleFor(action, subject);
       const reason =
@@ -94,7 +93,7 @@ export async function ensurePermissionCheck(req, res, next) {
   };
 
   req.checkForOneOfPermissions = (actions, subject) => {
-    const permissionChecks = actions.map(action => checkIfHasPermission(req, action, subject, permissionSchemaValidationEnabled));
+    const permissionChecks = actions.map(action => checkIfHasPermission(req, action, subject));
     const hasPermission = permissionChecks.some(Boolean);
     if (!hasPermission) {
       const reason = `No permission to perform any of actions "${actions.join(', ')}" on "${getSubjectName(subject)}"`;

@@ -250,12 +250,6 @@ export const globalSettings = {
           type: yup.boolean(),
           defaultValue: false,
         },
-        enablePermissionSchemaValidation: {
-          description:
-            'Validate that permission checks use noun/verb combinations defined in PERMISSION_SCHEMA. When disabled, invalid combinations are silently allowed through.',
-          type: yup.boolean(),
-          defaultValue: false,
-        },
         desktopCharting: {
           description: 'Enable desktop charting module',
           properties: {

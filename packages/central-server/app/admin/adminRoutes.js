@@ -22,7 +22,7 @@ import { locationAssignmentsRouter } from './locationAssignments';
 import { permissionsRouter } from './permissions';
 
 export const adminRoutes = express.Router();
-adminRoutes.use(asyncHandler(ensurePermissionCheck));
+adminRoutes.use(ensurePermissionCheck);
 adminRoutes.use('/reports', reportsRouter);
 adminRoutes.use('/translation', translationRouter);
 adminRoutes.post('/mergePatient', mergePatientHandler);
