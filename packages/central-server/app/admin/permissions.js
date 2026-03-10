@@ -64,7 +64,7 @@ permissionsRouter.get(
 permissionsRouter.get(
   '/',
   asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'Role');
+    req.checkPermission('read', 'Permission');
 
     const rolesQuery = req.query.roles;
     if (typeof rolesQuery !== 'string') {
