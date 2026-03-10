@@ -51,7 +51,7 @@ export class ProgramRegistryPltfuFlagger extends ScheduledTask {
   async processRegistry(registry) {
     const pltfuStatus = await this.models.ProgramRegistryClinicalStatus.findOne({
       where: {
-        code: { [Op.like]: `%${POTENTIAL_LOSS_TO_FOLLOW_UP.CODE_SUFFIX}%` },
+        code: `${registry.code}-${POTENTIAL_LOSS_TO_FOLLOW_UP.CODE_SUFFIX}`,
         programRegistryId: registry.id,
       },
     });
