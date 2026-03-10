@@ -10,6 +10,8 @@ import {
   vaccinationsSchema,
   datelessTimeStringSchema,
   durationStringSchema,
+  fhirResourceMaterialisationSchema,
+  fhirCountParametersSchema,
 } from './definitions';
 
 export const facilitySettings = {
@@ -193,6 +195,20 @@ export const facilitySettings = {
           description: 'The text at the top of most patient PDFs',
           properties: letterheadProperties,
         },
+      },
+    },
+    fhir: {
+      name: 'FHIR',
+      description: 'FHIR integration settings (facility-level overrides)',
+      properties: {
+        worker: {
+          name: 'FHIR worker',
+          description: 'FHIR worker settings',
+          properties: {
+            resourceMaterialisationEnabled: fhirResourceMaterialisationSchema,
+          },
+        },
+        parameters: fhirCountParametersSchema,
       },
     },
   },
