@@ -1,13 +1,15 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+
 import { ForbiddenError, InsufficientStorageError } from '@tamanu/errors';
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
+
 import { canUploadAttachment } from './utils/getFreeDiskSpace';
 
 export const attachmentRoutes = express.Router();
 
 //TODO: Remove when permission check are implemented in all central server routes
-attachmentRoutes.use(ensurePermissionCheck);
+attachmentRoutes.use(asyncHandler(ensurePermissionCheck));
 
 attachmentRoutes.get(
   '/:id',
