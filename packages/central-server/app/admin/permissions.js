@@ -158,8 +158,10 @@ permissionsRouter.post(
       throw new ValidationError('Role not found');
     }
 
-    // Validate that the object exists if objectId is provided for nouns that support it
-    if (objectId && NOUNS_WITH_OBJECT_ID.includes(noun)) {
+    if (objectId) {
+      if (!NOUNS_WITH_OBJECT_ID.includes(noun)) {
+        throw new ValidationError(`objectId is not supported for noun "${noun}"`);
+      }
       const model = req.store.models[noun];
       if (model) {
         const object = await model.findByPk(objectId);
