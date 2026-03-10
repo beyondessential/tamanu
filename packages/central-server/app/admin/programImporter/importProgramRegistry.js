@@ -93,9 +93,10 @@ const ensureCurrentlyAtUpdateIsAllowed = async (context, currentlyAtType, regist
 };
 
 async function createFollowUpClinicalStatus(context, registryId, registryCode, stats) {
+  const pltfuCode = `${registryCode}-${POTENTIAL_LOSS_TO_FOLLOW_UP.CODE_SUFFIX}`;
   const existingStatus = await context.models.ProgramRegistryClinicalStatus.findOne({
     where: {
-      code: { [Op.like]: `%${POTENTIAL_LOSS_TO_FOLLOW_UP.CODE_SUFFIX}%` },
+      code: pltfuCode,
       programRegistryId: registryId,
     },
   });
@@ -103,7 +104,6 @@ async function createFollowUpClinicalStatus(context, registryId, registryCode, s
   // Only create the clinical status if it doesn't already exist
   if (existingStatus) return stats;
 
-  const pltfuCode = `${registryCode}-${POTENTIAL_LOSS_TO_FOLLOW_UP.CODE_SUFFIX}`;
   log.debug('Auto-creating Potential Loss To Follow-Up clinical status');
   return importRows(context, {
     sheetName: 'Registry',
