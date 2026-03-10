@@ -1,0 +1,32 @@
+{
+    users: {
+        "admin@tamanu.io": {
+            role: "admin",
+            password: "admin",
+            displayName: "Initial Admin",
+        },
+    },
+
+    facilities: {
+        "facility-BaHealthCentre": {
+            name: "Ba Health Centre",
+            code: "facility-BaHealthCentre",
+            user: "facility@tamanu.io",
+            password: "facility",
+        },
+    },
+
+    settings: {
+        global: {
+            features: {
+                deviceRegistrationQuota: {
+                    enabled: false,
+                },
+                desktopCharting: {
+                    enabled: true,
+                },
+                enableTasking: true,
+            },
+        },
+    },
+}
