@@ -6,6 +6,7 @@ export interface SettingsSchema {
   name?: string;
   description?: string;
   highRisk?: boolean;
+  requiresRestart?: boolean;
   properties: Record<string, Setting | SettingsSchema>;
   exposedToWeb?: boolean;
   exposedToPatientPortal?: boolean;

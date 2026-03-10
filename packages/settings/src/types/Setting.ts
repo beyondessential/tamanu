@@ -8,6 +8,7 @@ export interface Setting<T = any> {
   highRisk?: boolean;
   defaultValue: T;
   deprecated?: boolean;
+  requiresRestart?: boolean;
   exposedToWeb?: boolean;
   exposedToPatientPortal?: boolean;
 }
