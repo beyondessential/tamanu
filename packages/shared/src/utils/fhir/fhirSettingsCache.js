@@ -45,18 +45,16 @@ export async function initFhirSettingsDefaults() {
 }
 
 export function getFhirWorkerConfig() {
-  const source = _cache ?? getConfigFallback();
   return {
     enabled: config?.integrations?.fhir?.worker?.enabled ?? false,
-    resourceMaterialisationEnabled: source.resourceMaterialisationEnabled,
+    resourceMaterialisationEnabled: _cache?.resourceMaterialisationEnabled ?? {},
   };
 }
 
 export function getFhirCountConfig() {
-  const source = _cache ?? getConfigFallback();
   return {
-    default: source.countDefault,
-    max: source.countMax,
+    default: _cache?.countDefault ?? null,
+    max: _cache?.countMax ?? null,
   };
 }
 

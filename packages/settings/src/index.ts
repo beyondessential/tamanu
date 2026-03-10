@@ -10,6 +10,9 @@ export {
   getScopedSchema,
   isSetting,
   applyDefaults,
+  extractDefaults,
+  fhirResourceMaterialisationSchema,
+  fhirCountParametersSchema,
 } from './schema';
 export { ReadSettings, buildSettings, getKeysByFlag } from './reader';
 export { facilityTestSettings, centralTestSettings, globalTestSettings } from './test';
