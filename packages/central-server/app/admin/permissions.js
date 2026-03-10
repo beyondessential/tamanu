@@ -12,8 +12,7 @@ import {
 } from '@tamanu/constants';
 
 async function getObjectIdsAndNamesByNoun(models) {
-  const entries = {};
-  for (const noun of NOUNS_WITH_OBJECT_ID) {
+  const promises = NOUNS_WITH_OBJECT_ID.map(async noun => {
     if (models[noun]) {
       const where = {};
 
@@ -26,10 +25,13 @@ async function getObjectIdsAndNamesByNoun(models) {
         where,
         raw: true,
       });
-      entries[noun] = records.map(r => ({ id: r.id, name: r.name }));
+      return [noun, records.map(r => ({ id: r.id, name: r.name }))];
     }
-  }
-  return entries;
+    return null;
+  });
+
+  const results = await Promise.all(promises);
+  return Object.fromEntries(results.filter(Boolean));
 }
 
 export const permissionsRouter = express.Router();

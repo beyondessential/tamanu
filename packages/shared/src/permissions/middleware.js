@@ -1,4 +1,9 @@
-import { AuthPermissionError, ForbiddenError, UnimplementedError } from '@tamanu/errors';
+import {
+  AuthPermissionError,
+  ForbiddenError,
+  InvalidOperationError,
+  UnimplementedError,
+} from '@tamanu/errors';
 import { PERMISSION_SCHEMA, SETTING_KEYS } from '@tamanu/constants';
 import { getAbilityForUser, getPermissionsForRoles } from './rolesToPermissions';
 
@@ -26,10 +31,12 @@ function assertValidPermissionSchema(subject, action) {
   if (noun) {
     const allowedVerbs = PERMISSION_SCHEMA[noun];
     if (!allowedVerbs) {
-      throw new ForbiddenError(`Permissions for noun "${noun}" are not defined in the schema.`);
+      throw new InvalidOperationError(
+        `Permissions for noun "${noun}" are not defined in the schema.`,
+      );
     }
     if (!allowedVerbs.includes(action)) {
-      throw new ForbiddenError(`Verb "${action}" is not valid for noun "${noun}"`);
+      throw new InvalidOperationError(`Verb "${action}" is not valid for noun "${noun}"`);
     }
   }
 }

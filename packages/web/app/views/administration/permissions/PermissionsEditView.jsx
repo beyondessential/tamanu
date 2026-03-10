@@ -111,7 +111,7 @@ export const PermissionsEditView = () => {
   );
 
   const allRoles = useMemo(() => {
-    const roles = rolesData?.roles || rolesData?.data?.roles || [];
+    const roles = rolesData?.roles ?? rolesData?.data?.roles ?? [];
     return roles;
   }, [rolesData]);
 
@@ -133,11 +133,11 @@ export const PermissionsEditView = () => {
   );
 
   const permissions = useMemo(() => {
-    return permData?.permissions || permData?.data?.permissions || [];
+    return permData?.permissions ?? permData?.data?.permissions ?? [];
   }, [permData]);
 
   const objectNames = useMemo(() => {
-    return permData?.objectNames || permData?.data?.objectNames || {};
+    return permData?.objectNames ?? permData?.data?.objectNames ?? {};
   }, [permData]);
 
   const nounGroups = useMemo(
