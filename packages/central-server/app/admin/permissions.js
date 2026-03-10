@@ -3,7 +3,13 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
 import { ValidationError } from '@tamanu/errors';
-import { HIDDEN_PERMISSION_NOUNS, NOUNS_WITH_OBJECT_ID, PERMISSION_SCHEMA, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  HIDDEN_PERMISSION_NOUNS,
+  NOUNS_WITH_OBJECT_ID,
+  PERMISSION_SCHEMA,
+  SETTING_KEYS,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 
 async function getObjectIdsAndNamesByNoun(models) {
   const entries = {};
@@ -135,7 +141,7 @@ permissionsRouter.get(
 permissionsRouter.post(
   '/',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'Role');
+    req.checkPermission('create', 'Permission');
     const { verb, noun, objectId, roleId } = req.body;
     if (!verb || !noun || !roleId) {
       throw new ValidationError('verb, noun, and roleId are required');
@@ -143,7 +149,12 @@ permissionsRouter.post(
 
     const { Permission } = req.store.models;
 
-    await Permission.validatePermissionSchema(verb, noun);
+    const permissionSchemaValidationEnabled = await req.settings.get(
+      SETTING_KEYS.FEATURES_ENABLE_PERMISSION_SCHEMA_VALIDATION,
+    );
+    if (permissionSchemaValidationEnabled) {
+      await Permission.validatePermissionSchema(verb, noun);
+    }
 
     const where = { verb, noun, roleId, objectId: objectId || null };
     const existing = await Permission.findOne({ where, paranoid: false });
@@ -163,7 +174,7 @@ permissionsRouter.post(
 permissionsRouter.delete(
   '/',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'Role');
+    req.checkPermission('delete', 'Permission');
     const { verb, noun, objectId, roleId } = req.query;
     if (!verb || !noun || !roleId) {
       throw new ValidationError('verb, noun, and roleId are required');
@@ -171,7 +182,12 @@ permissionsRouter.delete(
 
     const { Permission } = req.store.models;
 
-    await Permission.validatePermissionSchema(verb, noun);
+    const permissionSchemaValidationEnabled = await req.settings.get(
+      SETTING_KEYS.FEATURES_ENABLE_PERMISSION_SCHEMA_VALIDATION,
+    );
+    if (permissionSchemaValidationEnabled) {
+      await Permission.validatePermissionSchema(verb, noun);
+    }
 
     const deleted = await Permission.destroy({
       where: { verb, noun, roleId, objectId: objectId || null },

@@ -8,14 +8,16 @@ export const useTogglePermissionMutation = (rolesQueryParam, options = {}) => {
   return useMutation({
     mutationFn: async toggles => {
       const items = Array.isArray(toggles) ? toggles : [toggles];
-      await Promise.all(
-        items.map(({ verb, noun, objectId, roleId, hasPermission }) => {
-          const params = { verb, noun, roleId, ...(objectId ? { objectId } : {}) };
-          return hasPermission
-            ? api.delete('admin/permissions', params)
-            : api.post('admin/permissions', params);
-        }),
-      );
+
+      // Do not use Promise.all here to avoid partial failures when some permissions fail to delete/create.
+      for (const { verb, noun, objectId, roleId, hasPermission } of items) {
+        const params = { verb, noun, roleId, ...(objectId ? { objectId } : {}) };
+        if (hasPermission) {
+          await api.delete('admin/permissions', params);
+        } else {
+          await api.post('admin/permissions', params);
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['adminPermissions', rolesQueryParam]);
