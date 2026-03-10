@@ -131,8 +131,8 @@ const createRoleSchema = z.object({
 apiv1.post(
   '/admin/role',
   asyncHandler(async (req, res) => {
-    const { Role } = req.models;
     req.checkPermission('create', 'Role');
+    const { Role } = req.models;
 
     const { name } = await createRoleSchema.parseAsync(req.body);
 
@@ -151,20 +151,29 @@ apiv1.post(
 apiv1.delete(
   '/admin/role/:id',
   asyncHandler(async (req, res) => {
-    const { Role, User } = req.models;
-    const { id } = req.params;
     req.checkPermission('delete', 'Role');
+    const {
+      models: { Role, User },
+      params: { id },
+    } = req;
 
     const role = await Role.findByPk(id);
     if (!role) {
-      throw new NotFoundError('Role not found');
+      throw new NotFoundError(`No role found with ID ${id}`);
     }
 
-    const usersWithRole = await User.count({
-      where: { role: id },
+    const usersWithRole = await User.findAll({
+      attributes: ['display_name'],
+      where: { role: role.name },
     });
-    if (usersWithRole > 0) {
-      throw new InvalidOperationError('Cannot delete role: one or more users are assigned to it');
+    const count = usersWithRole.length;
+    if (count > 0) {
+      const listFormatter = new Intl.ListFormat('en-AU');
+      const displayNames = usersWithRole.map(u => u.display_name);
+      const unit = count === 1 ? 'user' : 'users';
+      throw new InvalidOperationError(
+        `Cannot delete ’${role.name}’ role. ${count} ${unit} are assigned to it: ${listFormatter.format(displayNames)}.`,
+      );
     }
 
     await role.destroy();

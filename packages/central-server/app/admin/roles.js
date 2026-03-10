@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { literal } from 'sequelize';
 import { z } from 'zod';
 
-import { DatabaseDuplicateError, NotFoundError } from '@tamanu/errors';
+import { DatabaseDuplicateError, InvalidOperationError, NotFoundError } from '@tamanu/errors';
 
 export const rolesRouter = express.Router();
 
@@ -41,14 +41,28 @@ rolesRouter.delete(
 
     const {
       store: {
-        models: { Role },
+        models: { Role, User },
       },
       params: { id },
     } = req;
 
     const role = await Role.findByPk(id);
     if (!role) {
-      throw new NotFoundError('Role not found');
+      throw new NotFoundError(`No role found with ID ${id}`);
+    }
+
+    const usersWithRole = await User.findAll({
+      attributes: ['display_name'],
+      where: { role: role.name },
+    });
+    const count = usersWithRole.length;
+    if (count > 0) {
+      const listFormatter = new Intl.ListFormat('en-AU');
+      const displayNames = usersWithRole.map(u => u.display_name);
+      const unit = count === 1 ? 'user' : 'users';
+      throw new InvalidOperationError(
+        `Cannot delete ’${role.name}’ role. ${count} ${unit} are assigned to it: ${listFormatter.format(displayNames)}.`,
+      );
     }
 
     await role.destroy();
