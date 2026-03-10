@@ -603,6 +603,7 @@ export const getFSMPregnancyPageFields = () => [
     }
     component={RadioField}
     options={BINARY_UNKNOWN_OPTIONS}
+    fullWidth
     data-testid="field-fsm-pregnant-now"
   />,
   <Field
@@ -632,6 +633,7 @@ export const getFSMPregnancyPageFields = () => [
     }
     component={RadioField}
     options={BINARY_UNKNOWN_OPTIONS}
+    fullWidth
     visibilityCriteria={{ fsmPregnantNow: 'yes' }}
     data-testid="field-f1kx"
   />,
@@ -647,6 +649,7 @@ export const getFSMPregnancyPageFields = () => [
     }
     component={RadioField}
     options={BINARY_UNKNOWN_OPTIONS}
+    fullWidth
     visibilityCriteria={{ fsmPregnantNow: 'no' }}
     data-testid="field-fsm-death-within-42-days"
   />,
@@ -667,8 +670,14 @@ export const getFSMPregnancyPageFields = () => [
   />,
 ];
 
+const PregnancyFormGrid = styled(StyledFormGrid)`
+  > * {
+    grid-column: span 2;
+  }
+`;
+
 export const FSMPregnancyPage = ({ children }) => (
-  <StyledFormGrid columns={1} data-testid="styledformgrid-fsm-pregnancy">
+  <PregnancyFormGrid columns={3} data-testid="styledformgrid-fsm-pregnancy">
     {children}
-  </StyledFormGrid>
+  </PregnancyFormGrid>
 );
