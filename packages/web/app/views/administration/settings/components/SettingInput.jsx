@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { isEqual, isString, isUndefined } from 'lodash';
+import { isEqual, isObject, isString, isUndefined } from 'lodash';
 import styled from 'styled-components';
 import { Switch } from '@material-ui/core';
 
@@ -65,6 +65,19 @@ const Flexbox = styled.div`
   gap: 0.5rem;
 `;
 
+const GlobalOverrideHint = styled.span`
+  color: ${Colors.midText};
+  font-size: 13px;
+  white-space: nowrap;
+`;
+
+const formatDisplayValue = val => {
+  if (typeof val === 'boolean') return String(val);
+  if (isObject(val)) return '(custom)';
+  if (val === null || val === undefined) return 'none';
+  return String(val);
+};
+
 const SETTING_TYPES = {
   BOOLEAN: 'boolean',
   STRING: 'string',
@@ -84,6 +97,7 @@ export const SettingInput = ({
   path,
   value,
   defaultValue,
+  globalValue,
   handleChangeSetting,
   unit,
   typeSchema,
@@ -95,9 +109,10 @@ export const SettingInput = ({
   const [error, setError] = useState(null);
   const suggesterOptions = facilityId ? { baseQueryParameters: { facilityId } } : undefined;
   const suggester = useSuggester(suggesterEndpoint, suggesterOptions);
-  const isUnchangedFromDefault = useMemo(() => isEqual(normalize(value), normalize(defaultValue)), [
+  const resetValue = !isUndefined(globalValue) ? globalValue : defaultValue;
+  const isUnchangedFromDefault = useMemo(() => isEqual(normalize(value), normalize(resetValue)), [
     value,
-    defaultValue,
+    resetValue,
   ]);
 
   useEffect(() => {
@@ -113,33 +128,29 @@ export const SettingInput = ({
     }
   }, [value, typeSchema, type]);
 
+  const hasGlobalValue = !isUndefined(globalValue);
+  const resetLabel = hasGlobalValue
+    ? <TranslatedText stringId="admin.settings.action.resetToGlobal" fallback="Reset to global" data-testid="translatedtext-8elp" />
+    : <TranslatedText stringId="admin.settings.action.resetToDefault" fallback="Reset to default" data-testid="translatedtext-8elp" />;
+  const unchangedTooltip = hasGlobalValue
+    ? <TranslatedText stringId="admin.settings.action.resetToGlobal.unchangedTooltip" fallback="This setting matches the global value" data-testid="translatedtext-1kr8" />
+    : <TranslatedText stringId="admin.settings.action.resetToDefault.unchangedTooltip" fallback="This setting is already at its default value" data-testid="translatedtext-1kr8" />;
+
   const DefaultButton = () => {
     if (disabled) return null;
     return (
       <ConditionalTooltip
         visible={isUnchangedFromDefault}
-        title={
-          isUnchangedFromDefault && (
-            <TranslatedText
-              stringId="admin.settings.action.resetToDefault.unchangedTooltip"
-              fallback="This setting is already at its default value"
-              data-testid="translatedtext-1kr8"
-            />
-          )
-        }
+        title={isUnchangedFromDefault && unchangedTooltip}
         data-testid="conditionaltooltip-qp1v"
       >
         <div>
           <DefaultSettingButton
             disabled={isUnchangedFromDefault}
-            onClick={() => handleChangeSetting(path, defaultValue)}
+            onClick={() => handleChangeSetting(path, resetValue)}
             data-testid="defaultsettingbutton-4vbq"
           >
-            <TranslatedText
-              stringId="admin.settings.action.resetToDefault"
-              fallback="Reset to default"
-              data-testid="translatedtext-8elp"
-            />
+            {resetLabel}
           </DefaultSettingButton>
         </div>
       </ConditionalTooltip>

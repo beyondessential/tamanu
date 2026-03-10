@@ -126,6 +126,7 @@ export const EditorView = memo(
     dirty,
     handleShowWarningModal,
     scope,
+    globalSettings,
   }) => {
     const { facilityId } = values;
     const [category, setCategory] = useState(null);
@@ -176,6 +177,10 @@ export const EditorView = memo(
     };
 
     const getSettingValue = (path) => get(values.settings, getSettingPath(path));
+
+    const getGlobalSettingValue = globalSettings
+      ? (path) => get(globalSettings, getSettingPath(path))
+      : undefined;
 
     const saveSettings = async (event) => {
       // Need to parse json string objects stored in keys
@@ -258,6 +263,7 @@ export const EditorView = memo(
               <Category
                 schema={schemaForCategory}
                 getSettingValue={getSettingValue}
+                getGlobalSettingValue={getGlobalSettingValue}
                 handleChangeSetting={handleChangeSetting}
                 facilityId={facilityId}
                 data-testid="category-cbjk"
