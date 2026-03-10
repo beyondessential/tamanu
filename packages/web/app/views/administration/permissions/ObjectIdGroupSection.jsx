@@ -1,101 +1,88 @@
 import React, { useState, useMemo } from 'react';
 import styled from 'styled-components';
-import Checkbox from '@material-ui/core/Checkbox';
 import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUp from '@material-ui/icons/KeyboardArrowUp';
 
-import { PERMISSION_SCHEMA, VERB_ABBREVIATIONS, VERB_HIERARCHY } from '@tamanu/constants';
+import { VERB_HIERARCHY } from '@tamanu/constants';
 
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { Colors } from '../../../constants';
 import { CheckboxIconChecked, CheckboxIconUnchecked } from '../../../components/Icons/CheckboxIcon';
+import {
+  CHEVRON_WIDTH,
+  ChevronCell,
+  NounRow,
+  SummaryCell,
+  VerbRow,
+  VerbLabelCell,
+  VerbCheckCell,
+  StyledCheckbox,
+  EmptyChevronCell,
+  getImpliedVerbs,
+  getVerbAbbreviation,
+  stickyLeft,
+} from './NounSection';
 
-export const CHEVRON_WIDTH = 32;
-
-export const stickyLeft = (left, bg = Colors.white) => `
-  position: sticky;
-  left: ${left}px;
-  background-color: ${bg};
-  z-index: 1;
-`;
-
-export const NounRow = styled.tr`
+const GroupHeaderRow = styled.tr`
   cursor: pointer;
+  background-color: ${Colors.background};
   &:hover {
     background-color: ${Colors.hoverGrey};
   }
 `;
 
-export const ChevronCell = styled.td`
-  width: ${CHEVRON_WIDTH}px;
-  padding: 6px 4px 6px 12px;
-  border-bottom: 1px solid ${Colors.outline};
+const GroupHeaderCell = styled.td`
+  padding: 10px 12px 10px 10px;
   color: ${Colors.midText};
-  vertical-align: middle;
+  font-weight: 500;
+  border-bottom: 1px solid ${Colors.outline};
   text-align: left;
-  ${stickyLeft(0)}
+  ${stickyLeft(CHEVRON_WIDTH)}
 `;
 
-const NounCell = styled.td`
-  padding: 10px 12px 10px 10px;
+const GroupDashCell = styled.td`
+  text-align: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid ${Colors.outline};
+  color: ${Colors.midText};
+`;
+
+const ChildNounCell = styled.td`
+  padding: 10px 12px 10px 0px;
   color: ${Colors.darkestText};
   border-bottom: 1px solid ${Colors.outline};
   text-align: left;
   ${stickyLeft(CHEVRON_WIDTH)}
 `;
 
-export const SummaryCell = styled.td`
-  text-align: center;
-  padding: 10px 12px;
-  border-bottom: 1px solid ${Colors.outline};
-  color: ${Colors.darkestText};
-  letter-spacing: 2px;
-  font-size: 12px;
+const ChildNounContent = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
 `;
 
-export const VerbRow = styled.tr`
-  background-color: ${Colors.white};
+const TruncatedName = styled.span`
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
 `;
 
-export const VerbLabelCell = styled.td`
-  padding: 4px 12px 4px 20px;
-  color: ${Colors.darkestText};
-  border-bottom: 1px solid ${Colors.outline};
-  ${stickyLeft(CHEVRON_WIDTH, Colors.white)}
+const ChildChevron = styled.span`
+  color: ${Colors.midText};
+  display: inline-flex;
+  flex-shrink: 0;
 `;
 
-export const VerbCheckCell = styled.td`
-  text-align: center;
-  padding: 2px 12px;
-  border-bottom: 1px solid ${Colors.outline};
+const ChildVerbLabelCell = styled(VerbLabelCell)`
+  padding-left: 55px;
 `;
 
-export const StyledCheckbox = styled(Checkbox)`
-  padding: 4px;
-  &.Mui-checked {
-    color: ${Colors.primary};
-  }
-`;
-
-export const EmptyChevronCell = styled.td`
-  width: ${CHEVRON_WIDTH}px;
-  border-bottom: 1px solid ${Colors.outline};
-  text-align: left;
-  ${stickyLeft(0, Colors.white)}
-`;
-
-export function getImpliedVerbs(verb) {
-  const idx = VERB_HIERARCHY.indexOf(verb);
-  if (idx < 0 || idx >= VERB_HIERARCHY.length - 1) return [];
-  return VERB_HIERARCHY.slice(idx + 1);
-}
-
-export function getVerbAbbreviation(verb) {
-  return VERB_ABBREVIATIONS[verb] || verb.charAt(0).toUpperCase();
-}
-
-export const NounSection = ({ nounGroup, selectedRoles, onToggle, objectNames }) => {
+const ObjectIdChildSection = ({ nounGroup, selectedRoles, onToggle, objectNames }) => {
   const [expanded, setExpanded] = useState(false);
+  const displayName =
+    objectNames[`${nounGroup.noun}#${nounGroup.objectId}`] || nounGroup.objectId;
 
   const isChecked = (verb, roleId) => !!nounGroup.verbs.find(v => v.verb === verb)?.roles[roleId];
 
@@ -117,7 +104,6 @@ export const NounSection = ({ nounGroup, selectedRoles, onToggle, objectNames })
     ];
 
     if (!currentValue) {
-      // Granting permission: also grant implied lower-level verbs
       for (const implied of getImpliedVerbs(verb)) {
         if (availableVerbs.has(implied) && !isChecked(implied, role.id)) {
           toggles.push({
@@ -130,7 +116,6 @@ export const NounSection = ({ nounGroup, selectedRoles, onToggle, objectNames })
         }
       }
     } else {
-      // Revoking permission: also revoke superior verbs that imply this one
       const superiorVerbs = VERB_HIERARCHY.slice(0, VERB_HIERARCHY.indexOf(verb));
       for (const superior of superiorVerbs) {
         if (availableVerbs.has(superior) && isChecked(superior, role.id)) {
@@ -139,7 +124,7 @@ export const NounSection = ({ nounGroup, selectedRoles, onToggle, objectNames })
             noun: nounGroup.noun,
             objectId: nounGroup.objectId,
             roleId: role.id,
-            hasPermission: true, // true means revoke
+            hasPermission: true,
           });
         }
       }
@@ -157,32 +142,17 @@ export const NounSection = ({ nounGroup, selectedRoles, onToggle, objectNames })
   return (
     <>
       <NounRow onClick={() => setExpanded(prev => !prev)}>
-        <ChevronCell>
-          {expanded ? <KeyboardArrowUp fontSize="small" /> : <KeyboardArrowDown fontSize="small" />}
-        </ChevronCell>
-        <NounCell>
-          <ThemedTooltip
-            title={
-              PERMISSION_SCHEMA[nounGroup.noun] ? (
-                <>
-                  {nounGroup.objectId && objectNames[`${nounGroup.noun}#${nounGroup.objectId}`] && (
-                    <>
-                      {objectNames[`${nounGroup.noun}#${nounGroup.objectId}`]}
-                      <br />
-                    </>
-                  )}
-                  Permissions available:
-                  <br />
-                  {PERMISSION_SCHEMA[nounGroup.noun].map(v => getVerbAbbreviation(v)).join(' ')}
-                </>
-              ) : (
-                nounGroup.nounKey
-              )
-            }
-          >
-            <span>{nounGroup.nounKey}</span>
-          </ThemedTooltip>
-        </NounCell>
+        <EmptyChevronCell />
+        <ChildNounCell>
+          <ChildNounContent>
+            <ChildChevron>
+              {expanded ? <KeyboardArrowUp fontSize="small" /> : <KeyboardArrowDown fontSize="small" />}
+            </ChildChevron>
+            <ThemedTooltip title={`${displayName} (${nounGroup.objectId})`}>
+              <TruncatedName>{displayName}</TruncatedName>
+            </ThemedTooltip>
+          </ChildNounContent>
+        </ChildNounCell>
         {selectedRoles.map(role => (
           <SummaryCell key={role.id}>{getSummary(role.id)}</SummaryCell>
         ))}
@@ -191,7 +161,7 @@ export const NounSection = ({ nounGroup, selectedRoles, onToggle, objectNames })
         nounGroup.verbs.map(({ verb }) => (
           <VerbRow key={verb}>
             <EmptyChevronCell />
-            <VerbLabelCell>{verb.charAt(0).toUpperCase() + verb.slice(1)}</VerbLabelCell>
+            <ChildVerbLabelCell>{verb.charAt(0).toUpperCase() + verb.slice(1)}</ChildVerbLabelCell>
             {selectedRoles.map(role => (
               <VerbCheckCell key={role.id}>
                 <StyledCheckbox
@@ -207,6 +177,34 @@ export const NounSection = ({ nounGroup, selectedRoles, onToggle, objectNames })
               </VerbCheckCell>
             ))}
           </VerbRow>
+        ))}
+    </>
+  );
+};
+
+export const ObjectIdGroupSection = ({ noun, entries, selectedRoles, onToggle, objectNames }) => {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <>
+      <GroupHeaderRow onClick={() => setExpanded(prev => !prev)}>
+        <ChevronCell>
+          {expanded ? <KeyboardArrowUp fontSize="small" /> : <KeyboardArrowDown fontSize="small" />}
+        </ChevronCell>
+        <GroupHeaderCell>{noun} (Object ID)</GroupHeaderCell>
+        {selectedRoles.map(role => (
+          <GroupDashCell key={role.id}>-</GroupDashCell>
+        ))}
+      </GroupHeaderRow>
+      {expanded &&
+        entries.map(entry => (
+          <ObjectIdChildSection
+            key={entry.objectId}
+            nounGroup={entry}
+            selectedRoles={selectedRoles}
+            onToggle={onToggle}
+            objectNames={objectNames}
+          />
         ))}
     </>
   );
