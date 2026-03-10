@@ -232,7 +232,7 @@ describe('ProgramRegistryPltfuFlagger', () => {
       lossToFollowUpThresholdDays: 60,
     });
     const pltfuShort = await createPltfuClinicalStatus(shortThreshold);
-    const pltfuLong = await createPltfuClinicalStatus(longThreshold);
+    await createPltfuClinicalStatus(longThreshold);
 
     await createRegistration(shortThreshold.id, patient2);
     await createRegistration(longThreshold.id, patient2);
