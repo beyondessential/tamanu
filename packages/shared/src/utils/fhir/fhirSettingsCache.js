@@ -2,6 +2,18 @@ import config from 'config';
 
 let _cache = null;
 
+async function loadSchemaDefaults() {
+  const { extractDefaults, fhirResourceMaterialisationSchema, fhirCountParametersSchema } =
+    await import('@tamanu/settings');
+  const resourceDefaults = extractDefaults(fhirResourceMaterialisationSchema);
+  const countDefaults = extractDefaults(fhirCountParametersSchema);
+  return {
+    resourceMaterialisationEnabled: resourceDefaults,
+    countDefault: countDefaults._count.default,
+    countMax: countDefaults._count.max,
+  };
+}
+
 /**
  * Initialise the FHIR settings cache from the database via ReadSettings.
  * Must be called during server startup before any FHIR code runs.
@@ -9,6 +21,7 @@ let _cache = null;
 export async function initFhirSettingsFromDb(models) {
   const { ReadSettings } = await import('@tamanu/settings');
   const reader = new ReadSettings(models);
+  const defaults = await loadSchemaDefaults();
 
   const [resourceMaterialisationEnabled, countDefault, countMax] = await Promise.all([
     reader.get('fhir.worker.resourceMaterialisationEnabled'),
@@ -17,19 +30,18 @@ export async function initFhirSettingsFromDb(models) {
   ]);
 
   _cache = {
-    resourceMaterialisationEnabled: resourceMaterialisationEnabled ?? {},
-    countDefault: countDefault ?? null,
-    countMax: countMax ?? null,
+    resourceMaterialisationEnabled: resourceMaterialisationEnabled ?? defaults.resourceMaterialisationEnabled,
+    countDefault: countDefault ?? defaults.countDefault,
+    countMax: countMax ?? defaults.countMax,
   };
 }
 
-function getConfigFallback() {
-  return {
-    resourceMaterialisationEnabled:
-      config?.integrations?.fhir?.worker?.resourceMaterialisationEnabled ?? {},
-    countDefault: config?.integrations?.fhir?.parameters?._count?.default ?? null,
-    countMax: config?.integrations?.fhir?.parameters?._count?.max ?? null,
-  };
+/**
+ * Initialise the cache with schema defaults only (no database).
+ * Used in test mode where the settings DB is not available at init time.
+ */
+export async function initFhirSettingsDefaults() {
+  _cache = await loadSchemaDefaults();
 }
 
 export function getFhirWorkerConfig() {
