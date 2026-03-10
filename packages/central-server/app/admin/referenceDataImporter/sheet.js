@@ -1,6 +1,7 @@
 import { utils } from 'xlsx';
 
 import { REFERENCE_TYPE_VALUES, REFERENCE_TYPES } from '@tamanu/constants';
+import { METADATA_COLUMNS } from '../metadataColumns';
 import { DataLoaderError, ValidationError, WorkSheetError } from '../errors';
 import { statkey, updateStat } from '../stats';
 import { importRows } from '../importer/importRows';
@@ -105,11 +106,24 @@ export async function importSheet(
   try {
     sheetHeader = extractHeader(sheet);
     // For drug sheets, include empty cells so facility columns with empty values are preserved
-    sheetRows = sheetName === REFERENCE_TYPES.DRUG
-      ? utils.sheet_to_json(sheet, { defval: '' })
-      : utils.sheet_to_json(sheet);
+    sheetRows =
+      sheetName === REFERENCE_TYPES.DRUG
+        ? utils.sheet_to_json(sheet, { defval: '' })
+        : utils.sheet_to_json(sheet);
   } catch (err) {
     errors.push(new WorkSheetError(sheetName, 0, err));
+    return stats;
+  }
+
+  const invalidHeaders = sheetHeader.filter(h => METADATA_COLUMNS.includes(String(h).trim()));
+  if (invalidHeaders.length > 0) {
+    errors.push(
+      new ValidationError(
+        sheetName,
+        0,
+        `Sheet contains invalid columns: ${invalidHeaders.join(', ')}. Metadata columns (${METADATA_COLUMNS.join(', ')}) cannot be imported.`,
+      ),
+    );
     return stats;
   }
 

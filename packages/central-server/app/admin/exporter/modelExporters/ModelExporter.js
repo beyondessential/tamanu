@@ -1,13 +1,7 @@
 import { startCase } from 'lodash';
 import { Model } from 'sequelize';
 
-const METADATA_COLUMNS = [
-  'createdAt',
-  'updatedAt',
-  'deletedAt',
-  'updatedAtSyncTick',
-  'updatedAtByField',
-];
+import { METADATA_COLUMNS } from '../../metadataColumns';
 
 export class ModelExporter {
   constructor({ models, sequelize }, dataType) {
