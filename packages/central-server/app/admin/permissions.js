@@ -66,7 +66,7 @@ permissionsRouter.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Role');
 
-    const rolesQuery = req.query.roles ?? req.query.roleIds ?? req.query.role;
+    const rolesQuery = req.query.roles;
     if (typeof rolesQuery !== 'string') {
       throw new ValidationError('Query parameter "roles" is required');
     }
@@ -126,9 +126,10 @@ permissionsRouter.get(
 
     // Layer actual permission data on top (including objectId-specific entries)
     for (const { verb, noun, objectId, roleId } of rows) {
-      const key = `${verb}#${noun}#${objectId || ''}`;
+      if (HIDDEN_PERMISSION_NOUNS.has(noun)) continue;
+      const key = `${verb}#${noun}#${objectId ?? ''}`;
       if (!permissionMap[key]) {
-        permissionMap[key] = { verb, noun, objectId: objectId || null };
+        permissionMap[key] = { verb, noun, objectId: objectId ?? null };
       }
       permissionMap[key][roleId] = 'y';
     }
@@ -148,10 +149,27 @@ permissionsRouter.post(
       throw new ValidationError('verb, noun, and roleId are required');
     }
 
-    const { Permission } = req.store.models;
+    const { Permission, Role } = req.store.models;
     Permission.validatePermissionSchema(verb, noun);
 
-    const where = { verb, noun, roleId, objectId: objectId || null };
+    // Validate that the role exists
+    const role = await Role.findByPk(roleId);
+    if (!role) {
+      throw new ValidationError('Role not found');
+    }
+
+    // Validate that the object exists if objectId is provided for nouns that support it
+    if (objectId && NOUNS_WITH_OBJECT_ID.includes(noun)) {
+      const model = req.store.models[noun];
+      if (model) {
+        const object = await model.findByPk(objectId);
+        if (!object) {
+          throw new ValidationError('Object not found');
+        }
+      }
+    }
+
+    const where = { verb, noun, roleId, objectId: objectId ?? null };
     const existing = await Permission.findOne({ where, paranoid: false });
     let permission;
     if (existing && existing.deletedAt) {
@@ -162,7 +180,15 @@ permissionsRouter.post(
     } else {
       throw new ValidationError('Permission already exists');
     }
-    res.send({ permission: { id: permission.id, verb, noun, objectId: objectId || null, roleId } });
+    res.send({
+      permission: {
+        id: permission.id,
+        verb: permission.verb,
+        noun: permission.noun,
+        objectId: permission.objectId,
+        roleId: permission.roleId,
+      },
+    });
   }),
 );
 
@@ -179,7 +205,7 @@ permissionsRouter.delete(
     Permission.validatePermissionSchema(verb, noun);
 
     const deleted = await Permission.destroy({
-      where: { verb, noun, roleId, objectId: objectId || null },
+      where: { verb, noun, roleId, objectId: objectId ?? null },
     });
     res.send({ deleted });
   }),
