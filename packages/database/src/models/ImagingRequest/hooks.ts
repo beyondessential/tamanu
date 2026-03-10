@@ -130,7 +130,7 @@ const addToInvoice = async (instance: ImagingRequest) => {
         encounterId,
         product,
         instance.requestedById,
-        note,
+        { note },
       ),
     ),
   );

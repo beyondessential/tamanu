@@ -208,7 +208,6 @@ export const FSMSpecificQuestions = () => {
             />
           }
           component={DateField}
-          saveDateAsString
           data-testid="field-fsm-date-info-given"
         />
       </FormRow>
@@ -270,7 +269,6 @@ export const getMannerOfDeathPageFields = () => [
       />
     }
     component={DateField}
-    saveDateAsString
     visibilityCriteria={mannerOfDeathVisibilityCriteria}
     data-testid="field-ezni"
   />,
@@ -533,7 +531,6 @@ export const getFSMMannerOfDeathPageFields = () => [
       />
     }
     component={DateField}
-    saveDateAsString
     visibilityCriteria={mannerOfDeathVisibilityCriteria}
     data-testid="field-fsm-date-of-external-cause"
   />,
@@ -664,7 +661,6 @@ export const getFSMPregnancyPageFields = () => [
       />
     }
     component={DateField}
-    saveDateAsString
     visibilityCriteria={{ fsmDeathWithin42Days: 'yes' }}
     data-testid="field-fsm-date-delivery-abortion"
   />,

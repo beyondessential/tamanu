@@ -32,7 +32,7 @@ const ForbiddenMessage = () => (
 );
 
 export const PatientDetailsPane = React.memo(
-  ({ patient, additionalData, birthData, patientFields }) => {
+  ({ patient, additionalData, birthData, patientFields, insurancePlans}) => {
     const api = useApi();
     const queryClient = useQueryClient();
     const dispatch = useDispatch();
@@ -66,6 +66,7 @@ export const PatientDetailsPane = React.memo(
           additionalData={additionalData}
           birthData={birthData}
           patientFields={patientFields}
+          insurancePlans={insurancePlans}
           onSubmit={handleSubmit}
           data-testid="patientdetailsform-qx47"
         />

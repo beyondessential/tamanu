@@ -43,11 +43,6 @@ sources:
                       - vaccination_certificate
                       - icao.test
                       - icao.vacc
-          - name: require_signing
-            data_type: boolean
-            description: "{{ doc('certificate_notifications__require_signing') }}"
-            data_tests:
-              - not_null
           - name: patient_id
             data_type: character varying(255)
             description: "{{ doc('certificate_notifications__patient_id') }}"

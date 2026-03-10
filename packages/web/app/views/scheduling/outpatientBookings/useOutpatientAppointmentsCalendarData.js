@@ -1,8 +1,8 @@
-import { endOfDay, startOfDay } from 'date-fns';
 import { groupBy as lodashGroupBy } from 'lodash';
 import { useMemo } from 'react';
 
-import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { toDateString } from '@tamanu/utils/dateTime';
+import { useDateTime } from '@tamanu/ui-components';
 
 import { combineQueries } from '../../../api';
 import { useOutpatientAppointmentsQuery } from '../../../api/queries/useAppointmentsQuery';
@@ -12,6 +12,7 @@ import { useOutpatientAppointmentsContext } from '../../../contexts/OutpatientAp
 import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
 
 export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate }) => {
+  const { getDayBoundaries } = useDateTime();
   const locationGroupsQuery = useLocationGroupsQuery(null, { keepPreviousData: true });
   const { data: locationGroupData } = locationGroupsQuery;
 
@@ -26,10 +27,12 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
   const { data: usersData } = usersQuery;
 
   const { filters } = useOutpatientAppointmentsContext();
+  const dateString = toDateString(selectedDate);
+  const { start, end } = getDayBoundaries(dateString);
   const appointmentsQuery = useOutpatientAppointmentsQuery(
     {
-      after: toDateTimeString(startOfDay(selectedDate)),
-      before: toDateTimeString(endOfDay(selectedDate)),
+      after: start,
+      before: end,
       all: true,
       ...filters,
     },
@@ -44,10 +47,11 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
   const combinedQuery = combineQueries([locationGroupsQuery, usersQuery, appointmentsQuery]);
 
   combinedQuery.data = useMemo(() => {
-    if (!appointmentsData?.data || appointmentsData.data.length === 0) return {};
+    if (!appointmentsData?.data || !usersData || !locationGroupData) return {};
+    if (appointmentsData.data.length === 0) return {};
 
     const cellData = lodashGroupBy(
-      appointmentsData?.data,
+      appointmentsData.data,
       (appointment) => appointment[groupBy] || 'unknown',
     );
 
@@ -60,7 +64,7 @@ export const useOutpatientAppointmentsCalendarData = ({ groupBy, selectedDate })
     if (groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP) {
       return {
         cellData,
-        headData: locationGroupData?.filter((group) => !!cellData[group.id]),
+        headData: locationGroupData.filter((group) => !!cellData[group.id]),
       };
     }
     if (!groupBy) {
