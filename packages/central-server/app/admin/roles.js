@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { z } from 'zod';
 
-import { DatabaseDuplicateError, InvalidOperationError, NotFoundError } from '@tamanu/errors';
+import { DatabaseDuplicateError, NotFoundError } from '@tamanu/errors';
 
 export const rolesRouter = express.Router();
 
@@ -23,11 +23,9 @@ rolesRouter.post(
 
     const { name } = await createRoleSchema.parseAsync(req.body);
 
-    const existingRoleWithSameName = await Role.findOne({
-      where: { name },
-    });
-    if (existingRoleWithSameName) {
-      throw new DatabaseDuplicateError('Role name must be unique');
+    const exists = Boolean(await Role.findOne({ where: { name } }));
+    if (exists) {
+      throw new DatabaseDuplicateError(`A role already exists with name ‘${name}’`);
     }
 
     const role = await Role.create({ name });
@@ -40,7 +38,7 @@ rolesRouter.delete(
   asyncHandler(async (req, res) => {
     const {
       store: {
-        models: { Role, User },
+        models: { Role },
       },
       params: { id },
     } = req;
@@ -50,13 +48,6 @@ rolesRouter.delete(
     const role = await Role.findByPk(id);
     if (!role) {
       throw new NotFoundError('Role not found');
-    }
-
-    const usersWithRole = await User.count({
-      where: { role: id },
-    });
-    if (usersWithRole > 0) {
-      throw new InvalidOperationError('Cannot delete role: one or more users are assigned to it');
     }
 
     await role.destroy();
