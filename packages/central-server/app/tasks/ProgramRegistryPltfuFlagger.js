@@ -5,6 +5,7 @@ import { subDays } from 'date-fns';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { POTENTIAL_LOSS_TO_FOLLOW_UP, REGISTRATION_STATUSES } from '@tamanu/constants';
 
 import { InvalidConfigError } from '.';
@@ -64,7 +65,7 @@ export class ProgramRegistryPltfuFlagger extends ScheduledTask {
     }
 
     const thresholdDays = registry.lossToFollowUpThresholdDays;
-    const cutoffDate = subDays(new Date(), thresholdDays);
+    const cutoffDate = toDateTimeString(subDays(new Date(), thresholdDays));
     const { batchSize, batchSleepAsyncDurationInMilliseconds } = this.config;
 
     let totalUpdated = 0;
@@ -83,7 +84,7 @@ export class ProgramRegistryPltfuFlagger extends ScheduledTask {
           AND NOT EXISTS (
             SELECT 1 FROM encounters e
             WHERE e.patient_id = ppr.patient_id
-              AND (e.created_at >= :cutoffDate OR e.updated_at >= :cutoffDate)
+              AND e.start_date >= :cutoffDate
           )
         LIMIT :batchSize
         `,
@@ -92,7 +93,7 @@ export class ProgramRegistryPltfuFlagger extends ScheduledTask {
             registryId: registry.id,
             activeStatus: REGISTRATION_STATUSES.ACTIVE,
             pltfuStatusId: pltfuStatus.id,
-            cutoffDate: cutoffDate.toISOString(),
+            cutoffDate,
             batchSize,
           },
           type: QueryTypes.SELECT,
