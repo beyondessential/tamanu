@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import Checkbox from '@material-ui/core/Checkbox';
 import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
@@ -9,6 +9,7 @@ import { PERMISSION_SCHEMA, VERB_ABBREVIATIONS, VERB_HIERARCHY } from '@tamanu/c
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { Colors } from '../../../constants';
 import { CheckboxIconChecked, CheckboxIconUnchecked } from '../../../components/Icons/CheckboxIcon';
+import { usePermissionToggles } from './usePermissionToggles';
 
 export const CHEVRON_WIDTH = 32;
 
@@ -96,63 +97,7 @@ export function getVerbAbbreviation(verb) {
 
 export const NounSection = ({ nounGroup, selectedRoles, onToggle, objectNames }) => {
   const [expanded, setExpanded] = useState(false);
-
-  const isChecked = (verb, roleId) => !!nounGroup.verbs.find(v => v.verb === verb)?.roles[roleId];
-
-  const availableVerbs = useMemo(
-    () => new Set(nounGroup.verbs.map(v => v.verb)),
-    [nounGroup.verbs],
-  );
-
-  const handleToggle = (verb, role) => {
-    const currentValue = isChecked(verb, role.id);
-    const toggles = [
-      {
-        verb,
-        noun: nounGroup.noun,
-        objectId: nounGroup.objectId,
-        roleId: role.id,
-        hasPermission: currentValue,
-      },
-    ];
-
-    if (!currentValue) {
-      // Granting permission: also grant implied lower-level verbs
-      for (const implied of getImpliedVerbs(verb)) {
-        if (availableVerbs.has(implied) && !isChecked(implied, role.id)) {
-          toggles.push({
-            verb: implied,
-            noun: nounGroup.noun,
-            objectId: nounGroup.objectId,
-            roleId: role.id,
-            hasPermission: false,
-          });
-        }
-      }
-    } else {
-      // Revoking permission: also revoke superior verbs that imply this one
-      const superiorVerbs = VERB_HIERARCHY.slice(0, VERB_HIERARCHY.indexOf(verb));
-      for (const superior of superiorVerbs) {
-        if (availableVerbs.has(superior) && isChecked(superior, role.id)) {
-          toggles.push({
-            verb: superior,
-            noun: nounGroup.noun,
-            objectId: nounGroup.objectId,
-            roleId: role.id,
-            hasPermission: true, // true means revoke
-          });
-        }
-      }
-    }
-
-    onToggle(toggles);
-  };
-
-  const getSummary = roleId =>
-    nounGroup.verbs
-      .filter(v => isChecked(v.verb, roleId))
-      .map(v => getVerbAbbreviation(v.verb))
-      .join(' ');
+  const { isChecked, handleToggle, getSummary } = usePermissionToggles(nounGroup, onToggle);
 
   return (
     <>
