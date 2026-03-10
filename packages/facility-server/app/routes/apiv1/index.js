@@ -1,19 +1,19 @@
 import express from 'express';
+import asyncHandler from 'express-async-handler';
+import { keyBy, mapValues } from 'lodash';
+import * as yup from 'yup';
 
-import { constructPermission } from '@tamanu/shared/permissions/middleware';
-import { settingsCache } from '@tamanu/settings';
 import { attachAuditUserToDbSession } from '@tamanu/database/utils/audit';
+import { DatabaseDuplicateError, InvalidOperationError, NotFoundError } from '@tamanu/errors';
+import { settingsCache } from '@tamanu/settings';
+import { constructPermission } from '@tamanu/shared/permissions/middleware';
 import { suggestions } from '@tamanu/shared/services/suggestions';
-
 import {
   authMiddleware,
   loginHandler,
   refreshHandler,
   setFacilityHandler,
 } from '../../middleware/auth';
-import asyncHandler from 'express-async-handler';
-import { keyBy, mapValues } from 'lodash';
-
 import { allergy } from './allergy';
 import { appointments } from './appointments';
 import { asset } from './asset';
@@ -27,17 +27,17 @@ import { facility } from './facility';
 import { familyHistory } from './familyHistory';
 import { imagingRequest } from './imaging';
 import { invoices } from './invoice';
-import { labRequest, labTest, labTestPanel, labTestType } from './labs';
 import { labRequestLog } from './labRequestLog';
+import { labRequest, labTest, labTestPanel, labTestType } from './labs';
 import { location } from './location';
 import { locationAssignments } from './locationAssignments';
 import { locationGroup } from './locationGroup';
 import { medication } from './medication';
 import { notes } from './note';
+import { notifications } from './notifications';
 import { ongoingCondition } from './ongoingCondition';
 import { patient, patientCarePlan, patientFieldDefinition, patientIssue } from './patient';
 import { patientFacility } from './patientFacility';
-import { template } from './template';
 import { procedure } from './procedure';
 import { program } from './program';
 import { programRegistry } from './programRegistry';
@@ -52,14 +52,14 @@ import { surveyResponse } from './surveyResponse';
 import { surveyResponseAnswer } from './surveyResponseAnswer';
 import { sync } from './sync';
 import { syncHealth } from './syncHealth';
+import { tasks } from './task/tasks';
+import { telegramRoutes } from './telegram/telegramRoutes';
+import { template } from './template';
+import { translation } from './translation';
 import { triage } from './triage';
+import { upcomingVaccinations } from './upcomingVaccinations';
 import { user } from './user';
 import { vitals } from './vitals';
-import { translation } from './translation';
-import { upcomingVaccinations } from './upcomingVaccinations';
-import { telegramRoutes } from './telegram/telegramRoutes';
-import { tasks } from './task/tasks';
-import { notifications } from './notifications';
 
 export const apiv1 = express.Router();
 const patientDataRoutes = express.Router();
@@ -120,6 +120,54 @@ apiv1.delete(
   asyncHandler(async (req, res) => {
     req.checkPermission('manage', 'all');
     settingsCache.reset();
+    res.status(204).send();
+  }),
+);
+
+const createRoleValidation = yup.object().shape({
+  name: yup.string().trim().required(),
+});
+
+apiv1.post(
+  '/admin/role',
+  asyncHandler(async (req, res) => {
+    const { Role, User } = req.models;
+    req.checkPermission('create', 'Role');
+
+    const { name } = await createRoleValidation.validate(req.body);
+
+    const existingRoleWithSameName = await Role.findOne({
+      where: { name },
+    });
+    if (existingRoleWithSameName) {
+      throw new DatabaseDuplicateError('Role name must be unique');
+    }
+
+    const role = await Role.create({ name });
+    res.status(201).send(role);
+  }),
+);
+
+apiv1.delete(
+  '/admin/role/:id',
+  asyncHandler(async (req, res) => {
+    const { Role, User } = req.models;
+    const { id } = req.params;
+    req.checkPermission('delete', 'Role');
+
+    const role = await Role.findByPk(id);
+    if (!role) {
+      throw new NotFoundError('Role not found');
+    }
+
+    const usersWithRole = await User.count({
+      where: { role: id },
+    });
+    if (usersWithRole > 0) {
+      throw new InvalidOperationError('Cannot delete role: one or more users are assigned to it');
+    }
+
+    await role.destroy();
     res.status(204).send();
   }),
 );
