@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { literal } from 'sequelize';
 import { z } from 'zod';
 
 import { DatabaseDuplicateError, NotFoundError } from '@tamanu/errors';
@@ -23,7 +24,7 @@ rolesRouter.post(
 
     const { name } = await createRoleSchema.parseAsync(req.body);
 
-    const exists = Boolean(await Role.findOne({ where: { name } }));
+    const exists = Boolean(await Role.findOne({ attributes: literal('1'), where: { name } }));
     if (exists) {
       throw new DatabaseDuplicateError(`A role already exists with name ‘${name}’`);
     }
