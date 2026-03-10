@@ -180,10 +180,9 @@ describe('PatientDocumentMetadata', () => {
     expect(result.body.count).toBe(2);
   });
 
-  it('should get a list of documents filtered by department name', async () => {
+  it('should get a list of documents filtered by department id', async () => {
     const patient = await models.Patient.create(await createDummyPatient(models));
     const department = await models.Department.findOne();
-    const slicedDepartmentName = department.name.slice(0, 3);
 
     await models.DocumentMetadata.bulkCreate([
       {
@@ -209,7 +208,7 @@ describe('PatientDocumentMetadata', () => {
     ]);
 
     const result = await app.get(
-      `/api/patient/${patient.id}/documentMetadata?departmentName=${slicedDepartmentName}`,
+      `/api/patient/${patient.id}/documentMetadata?departmentId=${department.id}`,
     );
     expect(result).toHaveSucceeded();
     expect(result.body.count).toBe(2);
@@ -218,7 +217,6 @@ describe('PatientDocumentMetadata', () => {
   it('should get a list of documents with combined filters', async () => {
     const patient = await models.Patient.create(await createDummyPatient(models));
     const department = await models.Department.findOne();
-    const slicedDepartmentName = department.name.slice(0, 3);
 
     await models.DocumentMetadata.bulkCreate([
       {
@@ -254,7 +252,7 @@ describe('PatientDocumentMetadata', () => {
     ]);
 
     const result = await app.get(
-      `/api/patient/${patient.id}/documentMetadata?departmentName=${slicedDepartmentName}&type=pdf&documentOwner=ownerB`,
+      `/api/patient/${patient.id}/documentMetadata?departmentId=${department.id}&type=pdf&documentOwner=ownerB`,
     );
     expect(result).toHaveSucceeded();
     expect(result.body.count).toBe(1);
