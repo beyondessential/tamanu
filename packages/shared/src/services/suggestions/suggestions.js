@@ -303,30 +303,6 @@ const buildAvailableFacilitiesFilter = (facilityId, db, modelName = 'ReferenceDa
   );
 };
 
-/**
- * Generates a Sequelize literal condition to filter out TASK_SET reference data
- * where any member task is not visible in the specified facility.
- *
- * @param facilityId - The facility ID to check visibility against
- * @param db - The database instance for escaping values
- * @returns A Sequelize.literal condition for filtering task sets
- */
-const buildTaskSetMemberVisibilityFilter = (facilityId, db) => {
-  const escapedFacilityArray = db.escape(JSON.stringify([facilityId]));
-  return Sequelize.literal(`
-    ("ReferenceData"."type" != '${REFERENCE_TYPES.TASK_SET}' OR "ReferenceData"."id" NOT IN (
-      SELECT DISTINCT rdr.reference_data_parent_id
-      FROM reference_data_relations rdr
-      INNER JOIN reference_data rd_task
-        ON rdr.reference_data_id = rd_task.id
-      WHERE rdr.type = '${REFERENCE_DATA_RELATION_TYPES.TASK}'
-        AND rdr.deleted_at IS NULL
-        AND rd_task.available_facilities IS NOT NULL
-        AND NOT (rd_task.available_facilities @> ${escapedFacilityArray}::jsonb)
-    ))
-  `);
-};
-
 const afterCreatedReferenceData = async (req, newRecord) => {
   const { models } = req;
 
@@ -364,12 +340,7 @@ createSuggester(
     };
     const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId, req.db);
     if (facilityFilter) {
-      const andConditions = [facilityFilter];
-      // If task sets are included, exclude sets where any member task is not visible
-      if (types?.includes(REFERENCE_TYPES.TASK_SET)) {
-        andConditions.push(buildTaskSetMemberVisibilityFilter(req.query.facilityId, req.db));
-      }
-      baseWhere[Op.and] = andConditions;
+      baseWhere[Op.and] = [facilityFilter];
     }
     return baseWhere;
   },
@@ -505,61 +476,24 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
         };
       }
 
-      const simpleFacilityFilterTypes = [
+      const facilityFilterTypes = [
         REFERENCE_TYPES.PROCEDURE_TYPE,
         REFERENCE_TYPES.IMAGING_TYPE,
         REFERENCE_TYPES.DRUG,
         REFERENCE_TYPES.MEDICATION_TEMPLATE,
+        REFERENCE_TYPES.MEDICATION_SET,
         REFERENCE_TYPES.LAB_TEST_CATEGORY,
         REFERENCE_TYPES.LAB_TEST_PRIORITY,
         REFERENCE_TYPES.LAB_TEST_LABORATORY,
         REFERENCE_TYPES.LAB_TEST_METHOD,
         REFERENCE_TYPES.LAB_SAMPLE_SITE,
         REFERENCE_TYPES.TASK_TEMPLATE,
+        REFERENCE_TYPES.TASK_SET,
       ];
-      if (simpleFacilityFilterTypes.includes(typeName)) {
+      if (facilityFilterTypes.includes(typeName)) {
         const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId, req.db);
         if (facilityFilter) {
           baseWhere[Op.and] = [...(baseWhere[Op.and] || []), facilityFilter];
-        }
-      }
-
-      if (typeName === REFERENCE_TYPES.MEDICATION_SET) {
-        const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId, req.db);
-        if (facilityFilter) {
-          const escapedFacilityArray = req.db.escape(JSON.stringify([req.query.facilityId]));
-          // Exclude sets where any member template or its underlying drug is not visible in this facility
-          const memberMedicationFilter = Sequelize.literal(`
-            "ReferenceData"."id" NOT IN (
-              SELECT DISTINCT rdr.reference_data_parent_id
-              FROM reference_data_relations rdr
-              INNER JOIN reference_data rd_template
-                ON rdr.reference_data_id = rd_template.id
-              LEFT JOIN reference_medication_templates rmt
-                ON rdr.reference_data_id = rmt.reference_data_id
-              LEFT JOIN reference_data rd_drug
-                ON rd_drug.id = rmt.medication_id
-              WHERE rdr.type = '${REFERENCE_DATA_RELATION_TYPES.MEDICATION}'
-                AND rdr.deleted_at IS NULL
-                AND (
-                  (rd_template.available_facilities IS NOT NULL
-                    AND NOT (rd_template.available_facilities @> ${escapedFacilityArray}::jsonb))
-                  OR
-                  (rd_drug.available_facilities IS NOT NULL
-                    AND NOT (rd_drug.available_facilities @> ${escapedFacilityArray}::jsonb))
-                )
-            )
-          `);
-          baseWhere[Op.and] = [...(baseWhere[Op.and] || []), facilityFilter, memberMedicationFilter];
-        }
-      }
-
-      if (typeName === REFERENCE_TYPES.TASK_SET) {
-        const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId, req.db);
-        if (facilityFilter) {
-          // Exclude sets where any member task is not visible in this facility
-          const memberTaskFilter = buildTaskSetMemberVisibilityFilter(req.query.facilityId, req.db);
-          baseWhere[Op.and] = [...(baseWhere[Op.and] || []), facilityFilter, memberTaskFilter];
         }
       }
 
@@ -1135,9 +1069,7 @@ createNameSuggester('labTestPanel', 'LabTestPanel', ({ endpoint, modelName, req 
   const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
   const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId, req.db, 'LabTestPanel');
   if (facilityFilter) {
-    const { LabTestPanel } = req.models;
-    const memberTestFilter = LabTestPanel.getMemberVisibilityFilter(req.query.facilityId, req.db);
-    baseWhere[Op.and] = [facilityFilter, memberTestFilter];
+    baseWhere[Op.and] = [facilityFilter];
   }
   return baseWhere;
 });

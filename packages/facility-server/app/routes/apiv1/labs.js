@@ -612,7 +612,6 @@ labTestPanel.get('/', async (req, res) => {
       Sequelize.literal(
         `("LabTestPanel"."available_facilities" IS NULL OR "LabTestPanel"."available_facilities" @> ${escapedFacilityArray}::jsonb)`,
       ),
-      models.LabTestPanel.getMemberVisibilityFilter(query.facilityId, req.db),
     ];
   }
   const response = await models.LabTestPanel.findAll({
