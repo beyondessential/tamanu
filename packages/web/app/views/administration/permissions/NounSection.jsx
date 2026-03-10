@@ -97,8 +97,7 @@ function getVerbAbbreviation(verb) {
 export const NounSection = ({ nounGroup, selectedRoles, onToggle, objectNames }) => {
   const [expanded, setExpanded] = useState(false);
 
-  const isChecked = (verb, roleId) =>
-    !!nounGroup.verbs.find(v => v.verb === verb)?.roles[roleId];
+  const isChecked = (verb, roleId) => !!nounGroup.verbs.find(v => v.verb === verb)?.roles[roleId];
 
   const availableVerbs = useMemo(
     () => new Set(nounGroup.verbs.map(v => v.verb)),
@@ -118,6 +117,7 @@ export const NounSection = ({ nounGroup, selectedRoles, onToggle, objectNames })
     ];
 
     if (!currentValue) {
+      // Granting permission: also grant implied lower-level verbs
       for (const implied of getImpliedVerbs(verb)) {
         if (availableVerbs.has(implied) && !isChecked(implied, role.id)) {
           toggles.push({
@@ -126,6 +126,20 @@ export const NounSection = ({ nounGroup, selectedRoles, onToggle, objectNames })
             objectId: nounGroup.objectId,
             roleId: role.id,
             hasPermission: false,
+          });
+        }
+      }
+    } else {
+      // Revoking permission: also revoke superior verbs that imply this one
+      const superiorVerbs = VERB_HIERARCHY.slice(0, VERB_HIERARCHY.indexOf(verb));
+      for (const superior of superiorVerbs) {
+        if (availableVerbs.has(superior) && isChecked(superior, role.id)) {
+          toggles.push({
+            verb: superior,
+            noun: nounGroup.noun,
+            objectId: nounGroup.objectId,
+            roleId: role.id,
+            hasPermission: true, // true means revoke
           });
         }
       }
@@ -149,15 +163,21 @@ export const NounSection = ({ nounGroup, selectedRoles, onToggle, objectNames })
         <NounCell>
           <ThemedTooltip
             title={
-              PERMISSION_SCHEMA[nounGroup.noun]
-                ? <>
-                    {nounGroup.objectId && objectNames[`${nounGroup.noun}#${nounGroup.objectId}`] && (
-                      <>{objectNames[`${nounGroup.noun}#${nounGroup.objectId}`]}<br /></>
-                    )}
-                    Permissions available:<br />
-                    {PERMISSION_SCHEMA[nounGroup.noun].map(v => getVerbAbbreviation(v)).join(' ')}
-                  </>
-                : nounGroup.nounKey
+              PERMISSION_SCHEMA[nounGroup.noun] ? (
+                <>
+                  {nounGroup.objectId && objectNames[`${nounGroup.noun}#${nounGroup.objectId}`] && (
+                    <>
+                      {objectNames[`${nounGroup.noun}#${nounGroup.objectId}`]}
+                      <br />
+                    </>
+                  )}
+                  Permissions available:
+                  <br />
+                  {PERMISSION_SCHEMA[nounGroup.noun].map(v => getVerbAbbreviation(v)).join(' ')}
+                </>
+              ) : (
+                nounGroup.nounKey
+              )
             }
           >
             <span>{nounGroup.nounKey}</span>
