@@ -79,7 +79,7 @@ export class ProgramRegistryPltfuFlagger extends ScheduledTask {
         FROM patient_program_registrations ppr
         WHERE ppr.program_registry_id = :registryId
           AND ppr.registration_status = :activeStatus
-          AND (ppr.clinical_status_id IS NULL OR ppr.clinical_status_id != :ltfuStatusId)
+          AND (ppr.clinical_status_id IS NULL OR ppr.clinical_status_id != :pltfuStatusId)
           AND NOT EXISTS (
             SELECT 1 FROM encounters e
             WHERE e.patient_id = ppr.patient_id
@@ -91,7 +91,7 @@ export class ProgramRegistryPltfuFlagger extends ScheduledTask {
           replacements: {
             registryId: registry.id,
             activeStatus: REGISTRATION_STATUSES.ACTIVE,
-            ltfuStatusId: ltfuStatus.id,
+            pltfuStatusId: pltfuStatus.id,
             cutoffDate: cutoffDate.toISOString(),
             batchSize,
           },
@@ -105,7 +105,7 @@ export class ProgramRegistryPltfuFlagger extends ScheduledTask {
       }
 
       await this.models.PatientProgramRegistration.update(
-        { clinicalStatusId: ltfuStatus.id },
+        { clinicalStatusId: pltfuStatus.id },
         {
           where: {
             [Op.or]: registrationIds.map(({ patient_id, program_registry_id }) => ({
