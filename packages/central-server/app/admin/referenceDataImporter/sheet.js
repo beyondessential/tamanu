@@ -121,7 +121,7 @@ export async function importSheet(
       new ValidationError(
         sheetName,
         0,
-        `Sheet contains invalid columns: ${invalidHeaders.join(', ')}. Metadata columns (${METADATA_COLUMNS.join(', ')}) cannot be imported.`,
+        `Sheet contains invalid columns: ${invalidHeaders.join(', ')}. Metadata columns cannot be imported.`,
       ),
     );
     return stats;
