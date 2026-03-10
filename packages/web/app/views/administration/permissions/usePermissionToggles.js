@@ -41,16 +41,19 @@ export const usePermissionToggles = (nounGroup, onToggle) => {
           }
         }
       } else {
-        const superiorVerbs = VERB_HIERARCHY.slice(0, VERB_HIERARCHY.indexOf(verb));
-        for (const superior of superiorVerbs) {
-          if (availableVerbs.has(superior) && isChecked(superior, role.id)) {
-            toggles.push({
-              verb: superior,
-              noun: nounGroup.noun,
-              objectId: nounGroup.objectId,
-              roleId: role.id,
-              hasPermission: true,
-            });
+        const idx = VERB_HIERARCHY.indexOf(verb);
+        if (idx > 0) {
+          const superiorVerbs = VERB_HIERARCHY.slice(0, idx);
+          for (const superior of superiorVerbs) {
+            if (availableVerbs.has(superior) && isChecked(superior, role.id)) {
+              toggles.push({
+                verb: superior,
+                noun: nounGroup.noun,
+                objectId: nounGroup.objectId,
+                roleId: role.id,
+                hasPermission: true,
+              });
+            }
           }
         }
       }

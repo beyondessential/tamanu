@@ -10,7 +10,7 @@ const EDIT_TAB = {
   ),
   key: 'edit',
   icon: 'fa fa-edit',
-  render: PermissionsEditView,
+  render: props => <PermissionsEditView {...props} />,
 };
 
 export const PermissionsAdminView = () => (
