@@ -1,13 +1,12 @@
 import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
-import { getCurrentDateString } from '@tamanu/utils/dateTime';
+import { getCurrentDateString, format as formatDate } from '@tamanu/utils/dateTime';
 import { differenceInYears, differenceInMonths, differenceInDays, differenceInHours } from 'date-fns';
 import {
   MARITAL_STATUS_OPTIONS,
   BINARY_UNKNOWN_OPTIONS,
   TIME_UNIT_OPTIONS,
 } from '@tamanu/constants';
-import { getDisplayDate } from './getDisplayDate';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 
@@ -200,7 +199,7 @@ const getMannerOfDeath = ({ manner, mannerOfDeathDescription }) => {
 
 const getFSMDisplayDate = (date) => {
   if (!date) return '';
-  return getDisplayDate(date, FSM_DATE_FORMAT);
+  return formatDate(date, FSM_DATE_FORMAT);
 };
 
 const getDeathWithin42Days = (extraData) => {
