@@ -205,9 +205,9 @@ describe('Reference data exporter', () => {
       [
         {
           data: [
-            ['id', 'code', 'name', 'visibilityStatus'],
-            ['diagnosis-M79-7', 'M79.7', 'Myofibrosis', 'current'],
-            ['diagnosis-S79-9', 'S79.9', 'Thigh injury', 'current'],
+            ['id', 'code', 'name', 'visibilityStatus', 'availableFacilities'],
+            ['diagnosis-M79-7', 'M79.7', 'Myofibrosis', 'current', null],
+            ['diagnosis-S79-9', 'S79.9', 'Thigh injury', 'current', null],
           ],
           name: 'Diagnosis',
         },
@@ -238,9 +238,9 @@ describe('Reference data exporter', () => {
       [
         {
           data: [
-            ['id', 'code', 'name', 'visibilityStatus'],
-            ['allergy-Sesame', 'Sesame', 'Sesame', 'current'],
-            ['allergy-Wheat', 'Wheat', 'Wheat', 'current'],
+            ['id', 'code', 'name', 'visibilityStatus', 'availableFacilities'],
+            ['allergy-Sesame', 'Sesame', 'Sesame', 'current', null],
+            ['allergy-Wheat', 'Wheat', 'Wheat', 'current', null],
           ],
           name: 'Allergy',
         },
@@ -316,17 +316,17 @@ describe('Reference data exporter', () => {
       [
         {
           data: [
-            ['id', 'code', 'name', 'visibilityStatus'],
-            ['allergy-Sesame', 'Sesame', 'Sesame', 'current'],
-            ['allergy-Wheat', 'Wheat', 'Wheat', 'current'],
+            ['id', 'code', 'name', 'visibilityStatus', 'availableFacilities'],
+            ['allergy-Sesame', 'Sesame', 'Sesame', 'current', null],
+            ['allergy-Wheat', 'Wheat', 'Wheat', 'current', null],
           ],
           name: 'Allergy',
         },
         {
           data: [
-            ['id', 'code', 'name', 'visibilityStatus'],
-            ['diagnosis-M79-7', 'M79.7', 'Myofibrosis', 'current'],
-            ['diagnosis-S79-9', 'S79.9', 'Thigh injury', 'current'],
+            ['id', 'code', 'name', 'visibilityStatus', 'availableFacilities'],
+            ['diagnosis-M79-7', 'M79.7', 'Myofibrosis', 'current', null],
+            ['diagnosis-S79-9', 'S79.9', 'Thigh injury', 'current', null],
           ],
           name: 'Diagnosis',
         },
@@ -430,17 +430,17 @@ describe('Reference data exporter', () => {
         },
         {
           data: [
-            ['id', 'code', 'name', 'visibilityStatus'],
-            ['allergy-Sesame', 'Sesame', 'Sesame', 'current'],
-            ['allergy-Wheat', 'Wheat', 'Wheat', 'current'],
+            ['id', 'code', 'name', 'visibilityStatus', 'availableFacilities'],
+            ['allergy-Sesame', 'Sesame', 'Sesame', 'current', null],
+            ['allergy-Wheat', 'Wheat', 'Wheat', 'current', null],
           ],
           name: 'Allergy',
         },
         {
           data: [
-            ['id', 'code', 'name', 'visibilityStatus'],
-            ['diagnosis-M79-7', 'M79.7', 'Myofibrosis', 'current'],
-            ['diagnosis-S79-9', 'S79.9', 'Thigh injury', 'current'],
+            ['id', 'code', 'name', 'visibilityStatus', 'availableFacilities'],
+            ['diagnosis-M79-7', 'M79.7', 'Myofibrosis', 'current', null],
+            ['diagnosis-S79-9', 'S79.9', 'Thigh injury', 'current', null],
           ],
           name: 'Diagnosis',
         },
