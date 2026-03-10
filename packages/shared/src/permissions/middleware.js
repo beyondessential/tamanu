@@ -1,4 +1,5 @@
 import { AuthPermissionError, ForbiddenError, UnimplementedError } from '@tamanu/errors';
+import { PERMISSION_SCHEMA, SETTING_KEYS } from '@tamanu/constants';
 import { getAbilityForUser, getPermissionsForRoles } from './rolesToPermissions';
 
 // copied from casl source as it's not exported directly
@@ -11,9 +12,26 @@ export function getSubjectName(subject) {
     return subject;
   }
 
+  if (typeof subject === 'object' && Object.hasOwn(subject, '__caslSubjectType__')) {
+    return subject.__caslSubjectType__;
+  }
+
   const Type = typeof subject === 'object' ? subject.constructor : subject;
 
   return Type.modelName || Type.name;
+}
+
+function assertValidPermissionSchema(subject, action) {
+  const noun = getSubjectName(subject);
+  if (noun) {
+    const allowedVerbs = PERMISSION_SCHEMA[noun];
+    if (!allowedVerbs) {
+      throw new ForbiddenError(`Permissions for noun "${noun}" are not defined in the schema.`);
+    }
+    if (!allowedVerbs.includes(action)) {
+      throw new ForbiddenError(`Verb "${action}" is not valid for noun "${noun}"`);
+    }
+  }
 }
 
 export async function constructPermission(req, res, next) {
@@ -26,7 +44,7 @@ export async function constructPermission(req, res, next) {
   }
 }
 
-const checkIfHasPermission = (req, action, subject, field = '') => {
+const checkIfHasPermission = (req, action, subject, field = '', permissionSchemaValidationEnabled = false) => {
   if (req.flagPermissionChecked) {
     req.flagPermissionChecked();
   }
@@ -35,6 +53,10 @@ const checkIfHasPermission = (req, action, subject, field = '') => {
   // still need an explicit permission check, even if it's a null one!
   if (!action) {
     return;
+  }
+
+  if (permissionSchemaValidationEnabled) {
+    assertValidPermissionSchema(subject, action);
   }
 
   const { ability } = req;
@@ -46,11 +68,15 @@ const checkIfHasPermission = (req, action, subject, field = '') => {
 };
 
 // this middleware goes at the top of the middleware stack
-export function ensurePermissionCheck(req, res, next) {
+export async function ensurePermissionCheck(req, res, next) {
   const originalResSend = res.send;
 
+  const permissionSchemaValidationEnabled = await req.settings?.get(
+    SETTING_KEYS.FEATURES_ENABLE_PERMISSION_SCHEMA_VALIDATION,
+  );
+
   req.checkPermission = (action, subject) => {
-    const hasPermission = checkIfHasPermission(req, action, subject);
+    const hasPermission = checkIfHasPermission(req, action, subject, permissionSchemaValidationEnabled);
     if (!hasPermission) {
       const rule = req.ability.relevantRuleFor(action, subject);
       const reason =
@@ -61,7 +87,7 @@ export function ensurePermissionCheck(req, res, next) {
   };
 
   req.checkForOneOfPermissions = (actions, subject) => {
-    const permissionChecks = actions.map((action) => checkIfHasPermission(req, action, subject));
+    const permissionChecks = actions.map(action => checkIfHasPermission(req, action, subject));
     const hasPermission = permissionChecks.some(Boolean);
     if (!hasPermission) {
       const reason = `No permission to perform any of actions "${actions.join(', ')}" on "${getSubjectName(subject)}"`;
@@ -69,7 +95,7 @@ export function ensurePermissionCheck(req, res, next) {
     }
   };
 
-  req.checkListOrReadPermission = (subject) => {
+  req.checkListOrReadPermission = subject => {
     req.checkForOneOfPermissions(['list', 'read'], subject);
   };
 

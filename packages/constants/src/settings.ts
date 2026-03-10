@@ -16,6 +16,7 @@ export const SETTING_KEYS = {
   FEATURES_ENABLE_CHARTING_EDIT: 'features.enableChartingEdit',
   FEATURES_MANDATORY_VITAL_EDIT_REASON: 'features.mandatoryVitalEditReason',
   FEATURES_ENABLE_VITAL_EDIT: 'features.enableVitalEdit',
+  FEATURES_ENABLE_PERMISSION_SCHEMA_VALIDATION: 'features.enablePermissionSchemaValidation',
   VITAL_EDIT_REASONS: 'vitalEditReasons',
   FILE_CHOOSER_MB_SIZE_LIMIT: 'fileChooserMbSizeLimit',
   SECURITY_LOGIN_ATTEMPTS: 'security.loginAttempts',
