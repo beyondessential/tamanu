@@ -1,5 +1,7 @@
 import config from 'config';
 
+import { resetParametersCache } from './parameters';
+
 let _cache = null;
 
 async function loadSchemaDefaults() {
@@ -61,4 +63,5 @@ export function getFhirCountConfig() {
 /** Visible for testing */
 export function resetFhirSettingsCache() {
   _cache = null;
+  resetParametersCache();
 }

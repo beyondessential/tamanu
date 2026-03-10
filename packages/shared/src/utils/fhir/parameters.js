@@ -128,6 +128,10 @@ function sortParameter(sortableParameters) {
 
 const cache = new Map();
 
+export function resetParametersCache() {
+  cache.clear();
+}
+
 export function normaliseParameters(FhirResource) {
   const cacheKey = FhirResource.fhirName;
   if (!cacheKey) {
