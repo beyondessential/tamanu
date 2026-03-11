@@ -337,7 +337,6 @@
       "worker": {
         "enabled": true, // the materialisation worker
         "concurrency": 10
-        // resourceMaterialisationEnabled and parameters._count are now managed via settings
       },
       "extensions": {
         "Patient": {

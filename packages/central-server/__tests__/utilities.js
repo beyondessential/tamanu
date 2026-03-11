@@ -8,6 +8,7 @@ import { fake } from '@tamanu/fake-data/fake';
 import { asNewRole } from '@tamanu/shared/test-helpers';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { initReporting } from '@tamanu/database/services/reporting';
+import { initFhirSettingsFromDb } from '@tamanu/shared/utils/fhir/fhirSettings';
 
 import { buildToken } from '../dist/auth/utils';
 import { createApp } from '../dist/createApp';
@@ -22,6 +23,7 @@ class MockApplicationContext {
     this.store = await initDatabase({ testMode: true });
     this.settings = new ReadSettings(this.store.models);
     await seedSettings(this.store.models);
+    await initFhirSettingsFromDb(this.store.models);
     await setFhirRefreshTriggers(this.store.sequelize);
 
     if (config.db.reportSchemas?.enabled) {

@@ -8,17 +8,17 @@ import {
 } from '@tamanu/constants';
 
 import { DEFAULT_SCHEMA_FOR_TYPE, INCLUDE_SCHEMA } from './schemata';
-import { getFhirCountConfig } from './fhirSettings';
+import { getFhirCountSettings } from './fhirSettings';
 
-export function getFhirCountConfigDefault() {
-  const countConfig = getFhirCountConfig();
-  return countConfig?.default || FHIR_MAX_RESOURCES_PER_PAGE;
+export function getFhirCountSettingsDefault() {
+  const countSettings = getFhirCountSettings();
+  return countSettings?.default || FHIR_MAX_RESOURCES_PER_PAGE;
 }
 
-function getFhirCountConfigMax() {
-  const countConfig = getFhirCountConfig();
-  const defaultVal = getFhirCountConfigDefault();
-  return Math.max(countConfig?.max || 0, defaultVal);
+function getFhirCountSettingsMax() {
+  const countSettings = getFhirCountSettings();
+  const defaultVal = getFhirCountSettingsDefault();
+  return Math.max(countSettings?.max || 0, defaultVal);
 }
 
 export function normaliseParameter([key, param], overrides = {}) {
@@ -65,8 +65,8 @@ function getResultParameters() {
         .number()
         .integer()
         .min(0) // equivalent to _summary=count
-        .max(getFhirCountConfigMax())
-        .default(getFhirCountConfigDefault()),
+        .max(getFhirCountSettingsMax())
+        .default(getFhirCountSettingsDefault()),
     },
     _page: {
       type: FHIR_SEARCH_PARAMETERS.SPECIAL,

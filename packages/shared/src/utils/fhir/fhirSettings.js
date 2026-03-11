@@ -74,7 +74,7 @@ export async function initFhirSettingsFromDb(models, facilityIds = []) {
   }
 }
 
-export function getFhirWorkerConfig() {
+export function getFhirWorkerSettings() {
   const s = settings ?? DEFAULTS;
   return {
     enabled: config?.integrations?.fhir?.worker?.enabled ?? false,
