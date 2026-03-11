@@ -126,7 +126,14 @@ const sortProperties = ([a0, a1], [b0, b1]) => {
   return aName.localeCompare(bName);
 };
 
-export const Category = ({ schema, path = '', getSettingValue, getGlobalSettingValue, handleChangeSetting, facilityId }) => {
+export const Category = ({
+  schema,
+  path = '',
+  getSettingValue,
+  getGlobalSettingValue,
+  handleChangeSetting,
+  facilityId,
+}) => {
   const { ability } = useAuth();
   const canWriteHighRisk = ability.can('manage', 'all');
   if (!schema) return null;
@@ -140,7 +147,7 @@ export const Category = ({ schema, path = '', getSettingValue, getGlobalSettingV
         description={schema.description}
         data-testid="categorytitle-0pic"
       />
-      {schema.serverWide && !path && (
+      {schema.serverWide && Boolean(facilityId) && !path && (
         <ServerWideAlert severity="info" data-testid="serverwidealert-fw01">
           <TranslatedText
             stringId="admin.settings.serverWideAlert"
@@ -197,7 +204,12 @@ export const Category = ({ schema, path = '', getSettingValue, getGlobalSettingV
           <Category
             key={newPath}
             path={newPath}
-            schema={{ ...propertySchema, highRisk: isHighRisk, requiresRestart: needsRestart, serverWide: isServerWide }}
+            schema={{
+              ...propertySchema,
+              highRisk: isHighRisk,
+              requiresRestart: needsRestart,
+              serverWide: isServerWide,
+            }}
             getSettingValue={getSettingValue}
             getGlobalSettingValue={getGlobalSettingValue}
             handleChangeSetting={handleChangeSetting}
