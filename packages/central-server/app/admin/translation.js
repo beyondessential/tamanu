@@ -51,10 +51,9 @@ translationRouter.put(
       return;
     }
 
-    const toCreate = [];
-    const toUpsert = [];
-    const toRestore = []; // soft-deleted rows we are restoring (return in 201 body like creates)
-    const toDestroy = [];
+    const created = [];
+    const updated = [];
+    const destroyed = [];
 
     await sequelize.transaction(async () => {
       const pairs = entries.map(({ stringId, language }) => ({ stringId, language }));
@@ -62,46 +61,40 @@ translationRouter.put(
         where: { [Op.or]: pairs },
         paranoid: false,
       });
-      const existingMap = new Map(
-        existing.map(r => [`${r.stringId};${r.language}`, r]),
-      );
+      const existingMap = new Map(existing.map(r => [`${r.stringId};${r.language}`, r]));
 
       for (const { stringId, language, text } of entries) {
         const key = `${stringId};${language}`;
         const record = existingMap.get(key);
 
         if (isEmpty(text)) {
-          if (record) toDestroy.push({ stringId, language });
+          if (record) destroyed.push({ stringId, language });
           continue;
         }
-        if (record) {
-          if (record.text === text && !record.deletedAt) continue;
-          toUpsert.push({ stringId, language, text, deletedAt: null });
-          if (record.deletedAt) {
-            toRestore.push({ stringId, language, text });
-          }
+        if (record && !record.deletedAt) {
+          if (record.text === text) continue;
+          updated.push({ stringId, language, text, deletedAt: null });
         } else {
-          toCreate.push({ stringId, language, text });
+          created.push({ stringId, language, text });
         }
       }
 
-      const toBulkCreate = [...toCreate, ...toUpsert];
+      const toBulkCreate = [...created, ...updated];
       if (toBulkCreate.length > 0) {
         await TranslatedString.bulkCreate(toBulkCreate, {
           validate: true,
           updateOnDuplicate: ['text', 'deletedAt'],
         });
       }
-      if (toDestroy.length > 0) {
+      if (destroyed.length > 0) {
         await TranslatedString.destroy({
-          where: { [Op.or]: toDestroy },
+          where: { [Op.or]: destroyed },
         });
       }
     });
 
-    const newlyCreated = [...toCreate, ...toRestore];
-    if (newlyCreated.length > 0) {
-      res.status(201).send({ data: newlyCreated });
+    if (created.length > 0) {
+      res.status(201).send({ data: created });
       return;
     }
     res.send({ ok: 'ok' });
