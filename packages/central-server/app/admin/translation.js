@@ -62,9 +62,7 @@ translationRouter.put(
         where: { [Op.or]: pairs },
         paranoid: false,
       });
-      const existingMap = new Map(
-        existing.map(r => [`${r.stringId};${r.language}`, r]),
-      );
+      const existingMap = new Map(existing.map(r => [`${r.stringId};${r.language}`, r]));
 
       for (const { stringId, language, text } of entries) {
         const key = `${stringId};${language}`;
@@ -89,7 +87,7 @@ translationRouter.put(
       if (toBulkCreate.length > 0) {
         await TranslatedString.bulkCreate(toBulkCreate, {
           validate: true,
-          updateOnDuplicate: ['text', 'deletedAt'],
+          updateOnDuplicate: ['text', 'deletedAt', 'updatedAtSyncTick'],
         });
       }
       if (toDestroy.length > 0) {
