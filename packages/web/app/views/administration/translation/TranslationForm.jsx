@@ -351,8 +351,8 @@ export const TranslationForm = () => {
     // but absent from current, the column was not shown for this string so we must not treat it as a deletion.
     const submitData = {};
     for (const [stringId, languages] of Object.entries(fullSubmitData)) {
-      const initial = initialValues[stringId] || {};
-      const current = languages || {};
+      const initial = initialValues[stringId] ?? {};
+      const current = languages ?? {};
       const changedLangs = {};
       for (const lang of Object.keys(current)) {
         if (current[lang] !== initial[lang]) {
