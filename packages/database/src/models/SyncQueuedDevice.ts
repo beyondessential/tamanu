@@ -15,6 +15,7 @@ export class SyncQueuedDevice extends Model {
   declare lastSeenTime?: Date;
   declare lastSyncedTick?: number;
   declare urgent?: boolean;
+  declare consecutiveFailures: number;
 
   static initModel(options: InitOptions) {
     super.init(
@@ -32,6 +33,7 @@ export class SyncQueuedDevice extends Model {
         lastSeenTime: { type: DataTypes.DATE },
         lastSyncedTick: { type: DataTypes.BIGINT },
         urgent: { type: DataTypes.BOOLEAN },
+        consecutiveFailures: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
       },
       {
         ...options,
@@ -53,6 +55,7 @@ export class SyncQueuedDevice extends Model {
       where: this.getReadyDevicesWhereClause(),
       order: [
         ['urgent', 'DESC'], // trues first
+        ['consecutiveFailures', 'ASC'], // healthy devices first
         ['lastSyncedTick', 'ASC'], // oldest sync first
       ],
     });
@@ -64,10 +67,12 @@ export class SyncQueuedDevice extends Model {
       facilityIds,
       urgent,
       lastSyncedTick,
+      consecutiveFailures = 0,
     }: {
       facilityIds: string[];
       urgent: boolean;
       lastSyncedTick: number;
+      consecutiveFailures?: number;
     },
   ) {
     // first, update our own entry in the sync queue
@@ -81,6 +86,7 @@ export class SyncQueuedDevice extends Model {
         lastSeenTime: getCurrentDateTimeString(),
         urgent,
         lastSyncedTick,
+        consecutiveFailures,
       });
     } else {
       // update with most recent info
@@ -90,6 +96,7 @@ export class SyncQueuedDevice extends Model {
         lastSeenTime: getCurrentDateTimeString(),
         urgent: urgent || queueRecord.urgent,
         lastSyncedTick,
+        consecutiveFailures,
       });
     }
 

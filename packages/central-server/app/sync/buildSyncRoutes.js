@@ -87,11 +87,31 @@ export const buildSyncRoutes = ctx => {
         });
       }
 
+      // count how many of this device's recent sync sessions failed consecutively,
+      // so we can deprioritize it in the queue if it keeps failing
+      const recentSessions = await SyncSession.findAll({
+        where: {
+          parameters: { deviceId: device.id },
+          completedAt: { [Op.not]: null },
+        },
+        order: [['completedAt', 'DESC']],
+        limit: 10,
+      });
+      let consecutiveFailures = 0;
+      for (const session of recentSessions) {
+        if (session.errors?.length > 0) {
+          consecutiveFailures++;
+        } else {
+          break;
+        }
+      }
+
       // now update our position in the queue and check if we're at the front of it
       const queueRecord = await SyncQueuedDevice.checkSyncRequest(device.id, {
         lastSyncedTick,
         urgent,
         facilityIds,
+        consecutiveFailures,
       });
       log.warn(`DEBUG device=${device.id} queueRecord=${queueRecord.id}`);
       log.info('Queue position', queueRecord.get({ plain: true }));
@@ -121,10 +141,8 @@ export const buildSyncRoutes = ctx => {
 
       try {
         // remove our place in the queue before starting sync
-        // (if the resulting sync has an error, we'll be knocked to the back of the queue
-        // but that's fine. It will leave some room for non-errored devices to sync, and
-        // our requests will get priority once our error resolves as we'll have an older
-        // lastSyncedTick)
+        // (if the resulting sync has an error, the device will be deprioritized via
+        // consecutiveFailures when it re-queues, leaving room for healthy devices)
         await queueRecord.destroy();
 
         const { sessionId, tick } = await syncManager.startSession({
