@@ -81,8 +81,8 @@ export async function initFhirSettingsFromDb(models, facilityIds = []) {
 
 export async function refreshFhirSettingsIfInitialized() {
   if (!_models) return;
-  resetParametersCache();
   await loadFromDb();
+  resetParametersCache();
   log.debug('FHIR settings cache refreshed from database');
 }
 
