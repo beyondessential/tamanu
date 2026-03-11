@@ -113,7 +113,7 @@ const useTranslationMutation = () => {
   const queryClient = useQueryClient();
   return useMutation(payload => api.put('admin/translation', payload), {
     onSuccess: response => {
-      const newStringIds = response?.data?.length;
+      const newStringIds = response?.createdCount;
       toast.success(
         <span>
           <TranslatedText

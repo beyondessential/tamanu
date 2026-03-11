@@ -47,14 +47,11 @@ translationRouter.put(
     }
 
     if (entries.length === 0) {
-      res.send({ ok: 'ok' });
+      res.status(200).send({ createdCount: 0, updatedCount: 0, deletedCount: 0 });
       return;
     }
 
-    const { created } = await sequelize.transaction(async () => {
-      const toCreate = [];
-      const toUpdate = [];
-      const toDestroy = [];
+    const { createdCount, updatedCount, deletedCount } = await sequelize.transaction(async () => {
       const pairs = entries.map(({ stringId, language }) => ({ stringId, language }));
       const existing = await TranslatedString.findAll({
         where: { [Op.or]: pairs },
@@ -62,20 +59,20 @@ translationRouter.put(
       });
       const existingMap = new Map(existing.map(r => [`${r.stringId};${r.language}`, r]));
 
+      const toCreate = [];
+      const toUpdate = [];
+      const toDestroy = [];
       for (const { stringId, language, text } of entries) {
         const key = `${stringId};${language}`;
         const record = existingMap.get(key);
-
         if (isEmpty(text)) {
           if (record) toDestroy.push({ stringId, language });
           continue;
         }
-
         if (!record) {
           toCreate.push({ stringId, language, text });
           continue;
         }
-
         if (record.deletedAt || record.text !== text) {
           toUpdate.push({ stringId, language, text, deletedAt: null });
         }
@@ -94,13 +91,17 @@ translationRouter.put(
         });
       }
 
-      return { created: toCreate };
+      return {
+        createdCount: toCreate.length,
+        updatedCount: toUpdate.length,
+        deletedCount: toDestroy.length,
+      };
     });
 
-    if (created.length > 0) {
-      res.status(201).send({ data: created });
+    if (createdCount > 0) {
+      res.status(201).send({ createdCount, updatedCount, deletedCount });
       return;
     }
-    res.send({ ok: 'ok' });
+    res.send({ createdCount, updatedCount, deletedCount });
   }),
 );
