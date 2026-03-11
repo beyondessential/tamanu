@@ -1,6 +1,6 @@
 export const NOUN_TYPES = {
-  // Regular noun (e.g. Survey)
-  REGULAR: 'regular',
+  // Noun-level permission (e.g. Patient, Encounter)
+  NOUN: 'noun',
 
   // Expandable group containing per-object permission rows
   // (e.g. Survey (objectID) which would expand to show all the individual Surveys)

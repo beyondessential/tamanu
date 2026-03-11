@@ -15,6 +15,7 @@ import { ObjectIdGroupSection } from './ObjectIdGroupSection';
 import { buildNouns } from './utils';
 import { useNounOptions } from './useNounOptions';
 import { useFilteredNouns } from './useFilteredNouns';
+import { NOUN_TYPES } from './constants';
 
 const EditContainer = styled.div`
   margin: 20px;
@@ -201,7 +202,7 @@ export const PermissionsEditView = () => {
           </thead>
           <tbody>
             {filteredNouns.map(group =>
-              group.type === 'noun' ? (
+              group.type === NOUN_TYPES.NOUN ? (
                 <NounSection
                   key={group.data.nounKey}
                   nounGroup={group.data}

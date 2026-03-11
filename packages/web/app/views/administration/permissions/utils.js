@@ -39,7 +39,7 @@ export function buildNouns(permissions, selectedRoleIds) {
   // Regular nouns (e.g. Survey)
   const regularGroups = Object.values(regularMap)
     .map(finalise)
-    .map(g => ({ type: NOUN_TYPES.REGULAR, noun: g.nounKey, data: g }));
+    .map(g => ({ type: NOUN_TYPES.NOUN, noun: g.nounKey, data: g }));
 
   // Object ID groups (e.g. Survey (objectID) which would expand to show all the individual Surveys)
   const objectIdGroups = Object.entries(objectIdMap).map(([noun, entries]) => ({
