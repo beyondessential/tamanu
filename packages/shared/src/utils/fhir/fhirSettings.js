@@ -1,6 +1,5 @@
 import config from 'config';
 import {
-  ReadSettings,
   extractDefaults,
   fhirResourceMaterialisationSchema,
   fhirCountParametersSchema,
@@ -33,24 +32,20 @@ export function resetFhirSettings() {
  * Load FHIR settings from the database at server startup.
  * Cached for the process lifetime (requiresRestart: true). Subsequent calls are no-ops.
  *
- * @param {object} models - Sequelize models
- * @param {string[]} [facilityIds] - facility IDs served by this central server.
+ * @param {ReadSettings} globalSettings - global-scoped settings reader
+ * @param {ReadSettings[]} [facilitySettings] - facility-scoped settings readers.
  *   resourceMaterialisationEnabled is union-merged across facilities so a single
- *   worker pool materialises everything needed. Count params are global-scoped.
+ *   worker pool materialises everything needed.
  */
-export async function initFhirSettingsFromDb(models, facilityIds = []) {
+export async function initFhirSettingsFromDb(globalSettings, facilitySettings = []) {
   if (settings !== null) return;
 
   try {
-    const globalReader = new ReadSettings(models);
-
-    if (facilityIds.length > 0) {
+    if (facilitySettings.length > 0) {
       const [globalCountDefault, globalCountMax, ...perFacility] = await Promise.all([
-        globalReader.get('fhir.parameters._count.default'),
-        globalReader.get('fhir.parameters._count.max'),
-        ...facilityIds.map(id =>
-          new ReadSettings(models, id).get('fhir.worker.resourceMaterialisationEnabled'),
-        ),
+        globalSettings.get('fhir.parameters._count.default'),
+        globalSettings.get('fhir.parameters._count.max'),
+        ...facilitySettings.map(fs => fs.get('fhir.worker.resourceMaterialisationEnabled')),
       ]);
 
       const mergedMatEnabled = Object.fromEntries(
@@ -70,9 +65,9 @@ export async function initFhirSettingsFromDb(models, facilityIds = []) {
       };
     } else {
       const [globalCountDefault, globalCountMax, globalMatEnabled] = await Promise.all([
-        globalReader.get('fhir.parameters._count.default'),
-        globalReader.get('fhir.parameters._count.max'),
-        globalReader.get('fhir.worker.resourceMaterialisationEnabled'),
+        globalSettings.get('fhir.parameters._count.default'),
+        globalSettings.get('fhir.parameters._count.max'),
+        globalSettings.get('fhir.worker.resourceMaterialisationEnabled'),
       ]);
 
       settings = { // eslint-disable-line require-atomic-updates

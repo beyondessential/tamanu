@@ -27,7 +27,7 @@ class MockApplicationContext {
     this.settings = new ReadSettings(this.store.models);
     await seedSettings(this.store.models);
     resetFhirSettings();
-    await initFhirSettingsFromDb(this.store.models);
+    await initFhirSettingsFromDb(this.settings);
     await setFhirRefreshTriggers(this.store.sequelize);
 
     if (config.db.reportSchemas?.enabled) {
