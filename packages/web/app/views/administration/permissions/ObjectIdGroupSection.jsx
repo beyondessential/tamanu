@@ -20,6 +20,9 @@ import {
 } from './NounSection';
 import { usePermissionToggles } from './usePermissionToggles';
 
+// Additional indentation for nested items to account for the child chevron icon and spacing
+const CHILD_INDENT = 35;
+
 const GroupHeaderRow = styled.tr`
   cursor: pointer;
   background-color: ${Colors.background};
@@ -73,7 +76,7 @@ const ChildChevron = styled.span`
 `;
 
 const ChildVerbLabelCell = styled(VerbLabelCell)`
-  padding-left: 55px;
+  padding-left: ${20 + CHILD_INDENT}px;
 `;
 
 const ObjectIdChildSection = ({ nounGroup, selectedRoles, onToggle, objectNames }) => {

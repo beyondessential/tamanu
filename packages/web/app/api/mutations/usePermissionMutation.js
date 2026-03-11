@@ -18,12 +18,14 @@ export const useTogglePermissionMutation = (rolesQueryParam, options = {}) => {
           toCreate.push(params);
         }
       }
+      const promises = [];
       if (toCreate.length) {
-        await api.post('admin/permissions/create-batch', { permissions: toCreate });
+        promises.push(api.post('admin/permissions/create-batch', { permissions: toCreate }));
       }
       if (toDelete.length) {
-        await api.post('admin/permissions/delete-batch', { permissions: toDelete });
+        promises.push(api.post('admin/permissions/delete-batch', { permissions: toDelete }));
       }
+      await Promise.all(promises);
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['adminPermissions', rolesQueryParam]);
