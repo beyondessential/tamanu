@@ -79,7 +79,7 @@ const ChildVerbLabelCell = styled(VerbLabelCell)`
 const ObjectIdChildSection = ({ nounGroup, selectedRoles, onToggle, objectNames }) => {
   const [expanded, setExpanded] = useState(false);
   const displayName =
-    objectNames[`${nounGroup.noun}#${nounGroup.objectId}`] || nounGroup.objectId;
+    objectNames[`${nounGroup.noun}#${nounGroup.objectId}`] ?? nounGroup.objectId;
   const { isChecked, handleToggle, getSummary } = usePermissionToggles(nounGroup, onToggle);
 
   return (

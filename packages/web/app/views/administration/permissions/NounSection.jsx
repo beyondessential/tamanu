@@ -9,6 +9,7 @@ import { PERMISSION_SCHEMA, VERB_ABBREVIATIONS, VERB_HIERARCHY } from '@tamanu/c
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { Colors } from '../../../constants';
 import { CheckboxIconChecked, CheckboxIconUnchecked } from '../../../components/Icons/CheckboxIcon';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { usePermissionToggles } from './usePermissionToggles';
 
 export const CHEVRON_WIDTH = 32;
@@ -99,6 +100,10 @@ export const NounSection = ({ nounGroup, selectedRoles, onToggle, objectNames })
   const [expanded, setExpanded] = useState(false);
   const { isChecked, handleToggle, getSummary } = usePermissionToggles(nounGroup, onToggle);
 
+  const objectName = nounGroup.objectId
+    ? objectNames[`${nounGroup.noun}#${nounGroup.objectId}`]
+    : null;
+
   return (
     <>
       <NounRow onClick={() => setExpanded(prev => !prev)}>
@@ -110,13 +115,17 @@ export const NounSection = ({ nounGroup, selectedRoles, onToggle, objectNames })
             title={
               PERMISSION_SCHEMA[nounGroup.noun] ? (
                 <>
-                  {nounGroup.objectId && objectNames[`${nounGroup.noun}#${nounGroup.objectId}`] && (
+                  {objectName && (
                     <>
-                      {objectNames[`${nounGroup.noun}#${nounGroup.objectId}`]}
+                      {objectName}
                       <br />
                     </>
                   )}
-                  Permissions available:
+                  <TranslatedText
+                    stringId="admin.permissions.available"
+                    fallback="Permissions available:"
+                    data-testid="translatedtext-permissions-available"
+                  />
                   <br />
                   {PERMISSION_SCHEMA[nounGroup.noun].map(v => getVerbAbbreviation(v)).join(' ')}
                 </>

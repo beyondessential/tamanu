@@ -6,7 +6,7 @@ import { getImpliedVerbs, getVerbAbbreviation } from './NounSection';
 
 export const usePermissionToggles = (nounGroup, onToggle) => {
   const isChecked = useCallback(
-    (verb, roleId) => !!nounGroup.verbs.find(v => v.verb === verb)?.roles[roleId],
+    (verb, roleId) => Boolean(nounGroup.verbs.find(v => v.verb === verb)?.roles[roleId]),
     [nounGroup.verbs],
   );
 

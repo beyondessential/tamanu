@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 
@@ -199,12 +199,14 @@ export const PermissionsEditView = () => {
   const nounOptions = useMemo(() => {
     const objectIdGroupNouns = new Set();
     const childEntries = [];
+    const seenKeys = new Set();
     for (const perm of permissions) {
       if (perm.objectId) {
         objectIdGroupNouns.add(perm.noun);
         const key = `${perm.noun}#${perm.objectId}`;
-        if (!childEntries.some(e => e.key === key)) {
-          const displayName = objectNames[key] || perm.objectId;
+        if (!seenKeys.has(key)) {
+          seenKeys.add(key);
+          const displayName = objectNames[key] ?? perm.objectId;
           childEntries.push({
             key,
             value: `child:${perm.noun}:${perm.objectId}`,
@@ -227,7 +229,8 @@ export const PermissionsEditView = () => {
   const filteredGroups = useMemo(() => {
     if (!selectedNoun) return allGroups;
     if (selectedNoun.startsWith('child:')) {
-      const [, noun, objectId] = selectedNoun.split(':');
+      const [, noun, ...objectIdParts] = selectedNoun.split(':');
+      const objectId = objectIdParts.join(':');
       return allGroups
         .filter(g => g.type === 'objectId' && g.noun === noun)
         .map(g => ({
@@ -255,9 +258,11 @@ export const PermissionsEditView = () => {
 
   const handleToggle = useCallback(params => togglePermission.mutate(params), [togglePermission]);
 
+  const hasInitialized = useRef(false);
   useEffect(() => {
-    if (allRoles.length > 0 && selectedRoleIds.length === 0) {
+    if (!hasInitialized.current && allRoles.length > 0 && selectedRoleIds.length === 0) {
       setSelectedRoleIds(allRoles.map(r => r.id));
+      hasInitialized.current = true;
     }
     // we only want to select all roles on initial load
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -277,7 +282,7 @@ export const PermissionsEditView = () => {
         </FilterFieldContainer>
         <FilterFieldContainer>
           <FilterField
-            label="Role"
+            label={getTranslation('admin.permissions.role.label', 'Role')}
             field={{ name: 'roles', value: selectedRoleIds, onChange: handleRoleChange }}
             endpoint="role"
             data-testid="permissions-role-select"

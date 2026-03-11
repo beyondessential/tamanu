@@ -11,7 +11,7 @@ export const useTogglePermissionMutation = (rolesQueryParam, options = {}) => {
 
       // Do not use Promise.all here to avoid partial failures when some permissions fail to delete/create.
       for (const { verb, noun, objectId, roleId, hasPermission } of items) {
-        const params = { verb, noun, roleId, ...(objectId ? { objectId } : {}) };
+        const params = { verb, noun, roleId, ...(objectId && { objectId }) };
         if (hasPermission) {
           await api.delete('admin/permissions', params);
         } else {
