@@ -1,17 +1,33 @@
 import { tablesWithoutTrigger, tablesWithTrigger } from '@tamanu/database';
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
-import { getFhirWorkerConfig } from '@tamanu/shared/utils/fhir/fhirSettings';
+import { getFhirWorkerSettings } from '@tamanu/shared/utils/fhir/fhirSettings';
 import { log } from '@tamanu/shared/services/logging';
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
 import config from 'config';
 
 export const setFhirRefreshTriggers = async sequelize => {
   const fhirEnabled = !!config?.integrations?.fhir?.enabled;
-  const fhirWorkerEnabled = !!getFhirWorkerConfig()?.enabled;
+  const fhirWorkerEnabled = !!getFhirWorkerSettings()?.enabled;
 
   const triggersEnabled = fhirEnabled && fhirWorkerEnabled;
 
-  // add fhir_refresh trigger to upstream tables of enabled fhir resources
+  if (!triggersEnabled) {
+    // Still need to clean up stale triggers from a previous config, but skip
+    // the full resource scan / transaction if there are none.
+    const existing = await tablesWithTrigger(sequelize, 'fhir_refresh_', '');
+    if (existing.length === 0) return;
+
+    await sequelize.transaction(async () => {
+      for (const { schema, table } of existing) {
+        log.info(`Removing fhir_refresh trigger from ${schema}.${table}`);
+        await sequelize.query(`
+          DROP TRIGGER IF EXISTS fhir_refresh_${table} ON "${schema}"."${table}";
+        `);
+      }
+    });
+    return;
+  }
+
   const materialisableResources = resourcesThatCanDo(
     Object.values(sequelize.models),
     FHIR_INTERACTIONS.INTERNAL.MATERIALISE,
@@ -26,7 +42,7 @@ export const setFhirRefreshTriggers = async sequelize => {
 
   await sequelize.transaction(async () => {
     for (const { schema, table } of await tablesWithoutTrigger(sequelize, 'fhir_refresh_', '')) {
-      if (!triggersEnabled || schema !== 'public' || !allUpstreams.includes(table)) {
+      if (schema !== 'public' || !allUpstreams.includes(table)) {
         continue;
       }
 
@@ -39,11 +55,11 @@ export const setFhirRefreshTriggers = async sequelize => {
     }
 
     for (const { schema, table } of await tablesWithTrigger(sequelize, 'fhir_refresh_', '')) {
-      if (!triggersEnabled || (schema === 'public' && !allUpstreams.includes(table))) {
+      if (schema === 'public' && !allUpstreams.includes(table)) {
         log.info(`Removing fhir_refresh trigger from ${schema}.${table}`);
         await sequelize.query(`
           DROP TRIGGER IF EXISTS fhir_refresh_${table} ON "${schema}"."${table}";
-      `);
+        `);
       }
     }
   });
