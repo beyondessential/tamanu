@@ -8,7 +8,7 @@ import {
 } from '@tamanu/constants';
 
 import { DEFAULT_SCHEMA_FOR_TYPE, INCLUDE_SCHEMA } from './schemata';
-import { getFhirCountConfig } from './fhirSettingsCache';
+import { getFhirCountConfig } from './fhirSettings';
 
 export function getFhirCountConfigDefault() {
   const countConfig = getFhirCountConfig();
@@ -66,11 +66,7 @@ function getResultParameters() {
     },
     _page: {
       type: FHIR_SEARCH_PARAMETERS.SPECIAL,
-      parameterSchema: yup
-        .number()
-        .integer()
-        .min(0)
-        .default(0),
+      parameterSchema: yup.number().integer().min(0).default(0),
     },
     _include: {
       type: FHIR_SEARCH_PARAMETERS.SPECIAL,
@@ -109,10 +105,7 @@ function sortParameter(sortableParameters) {
           };
         })
         .shape({
-          order: yup
-            .string()
-            .oneOf(['ASC', 'DESC'])
-            .required(),
+          order: yup.string().oneOf(['ASC', 'DESC']).required(),
           by: yup
             .string()
             .oneOf(
@@ -127,10 +120,6 @@ function sortParameter(sortableParameters) {
 }
 
 const cache = new Map();
-
-export function resetParametersCache() {
-  cache.clear();
-}
 
 export function normaliseParameters(FhirResource) {
   const cacheKey = FhirResource.fhirName;

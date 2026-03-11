@@ -1,6 +1,6 @@
 import { tablesWithoutTrigger, tablesWithTrigger } from '@tamanu/database';
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
-import { getFhirWorkerConfig } from '@tamanu/shared/utils/fhir/fhirSettingsCache';
+import { getFhirWorkerConfig } from '@tamanu/shared/utils/fhir/fhirSettings';
 import { log } from '@tamanu/shared/services/logging';
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
 import config from 'config';
