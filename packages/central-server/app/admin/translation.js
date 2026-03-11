@@ -74,7 +74,7 @@ translationRouter.put(
           if (record.text === text) continue;
           toUpdate.push({ stringId, language, text, deletedAt: null });
         } else {
-          toCreate.push({ stringId, language, text });
+          toCreate.push({ stringId, language, text, deletedAt: null });
         }
       }
 
