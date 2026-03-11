@@ -22,7 +22,6 @@ const DEFAULTS = {
 let cache = null;
 let _models = null;
 let _facilityIds = [];
-
 async function loadFromDb() {
   if (!_models) return;
   try {
@@ -44,7 +43,9 @@ async function loadFromDb() {
         _facilityIds.map(id => new ReadSettings(_models, id).get('fhir.worker.resourceMaterialisationEnabled')),
       );
 
-      mergedMatEnabled = { ...DEFAULTS.resourceMaterialisationEnabled };
+      mergedMatEnabled = Object.fromEntries(
+        Object.keys(DEFAULTS.resourceMaterialisationEnabled).map(k => [k, false]),
+      );
       for (const fs of perFacility) {
         if (!fs) continue;
         for (const [key, val] of Object.entries(fs)) {

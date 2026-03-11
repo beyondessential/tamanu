@@ -76,40 +76,42 @@ const CategoryTitle = memo(({ name, path, description }) => {
 });
 
 const SettingName = memo(({ name, path, description, disabled, requiresRestart }) => (
-  <ThemedTooltip
-    disableHoverListener={!description && !disabled}
-    title={
-      disabled ? (
-        <TranslatedText
-          stringId="admin.settings.highRiskSettingTooltip"
-          fallback="User does not required permissions to update this setting"
-          data-testid="translatedtext-2xq4"
-        />
-      ) : (
-        description
-      )
-    }
-    data-testid="themedtooltip-2qoa"
-  >
-    <SettingNameLabel color={disabled && 'textTertiary'} data-testid="settingnamelabel-xr19">
-      {formatSettingName(name, path.split('.').pop())}
-      {disabled && <StyledLockIcon data-testid="styledlockicon-x3w0" />}
-      {requiresRestart && (
-        <ThemedTooltip
-          title={
-            <TranslatedText
-              stringId="admin.settings.requiresRestartTooltip"
-              fallback="Requires server restart to take effect"
-              data-testid="translatedtext-rr01"
-            />
-          }
-          data-testid="themedtooltip-rr01"
-        >
-          <StyledRestartIcon data-testid="styledrestarticon-rr01" />
-        </ThemedTooltip>
-      )}
-    </SettingNameLabel>
-  </ThemedTooltip>
+  <SettingNameLabel color={disabled && 'textTertiary'} data-testid="settingnamelabel-xr19">
+    <ThemedTooltip
+      disableHoverListener={!description && !disabled}
+      title={
+        disabled ? (
+          <TranslatedText
+            stringId="admin.settings.highRiskSettingTooltip"
+            fallback="User does not required permissions to update this setting"
+            data-testid="translatedtext-2xq4"
+          />
+        ) : (
+          description
+        )
+      }
+      data-testid="themedtooltip-2qoa"
+    >
+      <span>
+        {formatSettingName(name, path.split('.').pop())}
+        {disabled && <StyledLockIcon data-testid="styledlockicon-x3w0" />}
+      </span>
+    </ThemedTooltip>
+    {requiresRestart && (
+      <ThemedTooltip
+        title={
+          <TranslatedText
+            stringId="admin.settings.requiresRestartTooltip"
+            fallback="Requires server restart to take effect"
+            data-testid="translatedtext-rr01"
+          />
+        }
+        data-testid="themedtooltip-rr01"
+      >
+        <StyledRestartIcon data-testid="styledrestarticon-rr01" />
+      </ThemedTooltip>
+    )}
+  </SettingNameLabel>
 ));
 
 const sortProperties = ([a0, a1], [b0, b1]) => {
