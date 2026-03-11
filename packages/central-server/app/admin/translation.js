@@ -70,11 +70,14 @@ translationRouter.put(
           if (record) toDestroy.push({ stringId, language });
           continue;
         }
-        if (record && !record.deletedAt) {
-          if (record.text === text) continue;
-          toUpdate.push({ stringId, language, text, deletedAt: null });
-        } else {
+
+        if (!record) {
           toCreate.push({ stringId, language, text });
+          continue;
+        }
+
+        if (record.deletedAt || record.text !== text) {
+          toUpdate.push({ stringId, language, text, deletedAt: null });
         }
       }
 
