@@ -1,4 +1,5 @@
 import config from 'config';
+import { ReadSettings } from '@tamanu/settings';
 
 const DEFAULTS = {
   resourceMaterialisationEnabled: {
@@ -30,7 +31,6 @@ let settings = null;
  */
 export async function initFhirSettingsFromDb(models, facilityIds = []) {
   try {
-    const { ReadSettings } = await import('@tamanu/settings');
     const globalReader = new ReadSettings(models);
 
     const [globalCountDefault, globalCountMax] = await Promise.all([
