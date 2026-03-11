@@ -2,9 +2,10 @@ import asyncHandler from 'express-async-handler';
 import { Op, literal } from 'sequelize';
 import { subject } from '@casl/ability';
 import { NotFoundError, InvalidParameterError, InvalidOperationError } from '@tamanu/errors';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { getCurrentDateTimeString, getDayBoundaries } from '@tamanu/utils/dateTime';
 import config from 'config';
-import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
+import { toPrimaryDateTimeString } from '@tamanu/shared/utils/primaryDateTime';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import {
   LAB_REQUEST_STATUSES,
   DOCUMENT_SIZE_LIMIT,
@@ -27,14 +28,17 @@ import {
 } from '@tamanu/shared/utils/crudHelpers';
 import { add } from 'date-fns';
 import { z } from 'zod';
-import { deleteChartInstance, fetchAnswersWithHistory, fetchGraphData, fetchChartInstances } from '../../routeHandlers/charts';
+import {
+  deleteChartInstance,
+  fetchAnswersWithHistory,
+  fetchGraphData,
+  fetchChartInstances,
+} from '../../routeHandlers/charts';
 import { keyBy } from 'lodash';
-
 import { createEncounterSchema } from '@tamanu/shared/schemas/facility/requests/createEncounter.schema';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
 import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
-
 import { getLabRequestList } from '../../routeHandlers/labs';
 import {
   deleteDocumentMetadata,
@@ -43,6 +47,7 @@ import {
 } from '../../routeHandlers/deleteModel';
 import { getPermittedSurveyIds } from '../../utils/getPermittedSurveyIds';
 import { validate } from '../../utils/validate';
+import { invoiceForResponse } from './invoice/invoiceForResponse';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
@@ -50,13 +55,42 @@ encounter.get('/:id', simpleGet('Encounter', { auditAccess: true }));
 encounter.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models, body, user } = req;
+    const {
+      models,
+      body: { facilityId, ...data },
+      user,
+    } = req;
     req.checkPermission('create', 'Encounter');
-    const validatedBody = validate(createEncounterSchema, body);
+
+    const validatedBody = validate(createEncounterSchema, data);
+
+    if (!validatedBody.endDate) {
+      const existingOpenEncounterCount = await models.Encounter.count({
+        where: {
+          patientId: validatedBody.patientId,
+          endDate: null,
+          deletedAt: null,
+        },
+      });
+
+      if (existingOpenEncounterCount > 0) {
+        throw new InvalidOperationError(
+          'This patient already has an active encounter. The active encounter must be discharged before a new active encounter can be created.',
+        );
+      }
+    }
+
     const encounterObject = await models.Encounter.create({ ...validatedBody, actorId: user.id });
 
-    if (body.dietIds) {
-      const dietIds = JSON.parse(body.dietIds);
+    await models.Invoice.automaticallyCreateForEncounter(
+      encounterObject.id,
+      encounterObject.encounterType,
+      encounterObject.startDate,
+      req.settings[facilityId],
+    );
+
+    if (data.dietIds) {
+      const dietIds = JSON.parse(data.dietIds);
       await encounterObject.addDiets(dietIds);
     }
     res.send(encounterObject);
@@ -141,11 +175,18 @@ encounter.put(
         await referral.update({ encounterId: id });
       }
 
+      if (req.body.locationId != null) {
+        const location = await models.Location.findByPk(req.body.locationId);
+        if (!location) {
+          throw new InvalidOperationError('Invalid location specified');
+        }
+      }
+
+      await encounterObject.update({ ...req.body, systemNote }, user);
       if (req.body.dietIds) {
         const dietIds = JSON.parse(req.body.dietIds);
         await encounterObject.setDiets(dietIds);
       }
-      await encounterObject.update({ ...req.body, systemNote }, user);
     });
     res.send(encounterObject);
   }),
@@ -206,11 +247,31 @@ encounter.post(
     const { id } = params;
     req.checkPermission('write', 'Encounter');
     req.checkPermission('read', 'Medication');
+    req.checkPermission('create', 'MedicationRequest');
     const encounterObject = await models.Encounter.findByPk(id);
     if (!encounterObject) throw new NotFoundError();
 
-    const { orderingClinicianId, comments, isDischargePrescription, pharmacyOrderPrescriptions } =
-      body;
+    const {
+      orderingClinicianId,
+      comments,
+      isDischargePrescription,
+      pharmacyOrderPrescriptions,
+      facilityId,
+      date,
+    } = body;
+
+    const prescriptionRecords = await models.Prescription.findAll({
+      where: { id: pharmacyOrderPrescriptions.map(p => p.prescriptionId) },
+      attributes: ['id', 'medicationId', 'quantity'],
+    });
+
+    const hasSensitive = await models.ReferenceDrug.hasSensitiveMedication(
+      prescriptionRecords.map(p => p.medicationId),
+    );
+
+    if (hasSensitive) {
+      req.checkPermission('read', 'SensitiveMedication');
+    }
 
     const result = await db.transaction(async () => {
       const pharmacyOrder = await models.PharmacyOrder.create({
@@ -218,6 +279,8 @@ encounter.post(
         encounterId: id,
         comments,
         isDischargePrescription,
+        date: date || getCurrentDateTimeString(),
+        facilityId,
       });
 
       await models.PharmacyOrderPrescription.bulkCreate(
@@ -273,9 +336,9 @@ encounterRelations.get('/:id/diagnoses', simpleGetList('EncounterDiagnosis', 'en
 encounterRelations.get(
   '/:id/medications',
   asyncHandler(async (req, res) => {
-    const { models, params, query, db } = req;
+    const { models, params, query, db, settings } = req;
     const { Prescription } = models;
-    const { order = 'ASC', orderBy = 'medication.name', rowsPerPage, page, marDate } = query;
+    const { order = 'ASC', orderBy = 'medication.name', rowsPerPage, page, marDate, facilityId } = query;
 
     req.checkPermission('list', 'Medication');
 
@@ -335,8 +398,11 @@ encounterRelations.get(
     if (marDate) {
       req.checkPermission('list', 'MedicationAdministration');
 
-      const startOfMarDate = `${marDate} 00:00:00`;
-      const endOfMarDate = `${marDate} 23:59:59`;
+      const facilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
+      const primaryTimeZone = getPrimaryTimeZone(config);
+      const boundaries = getDayBoundaries(marDate, primaryTimeZone, facilityTimeZone);
+      const startOfMarDate = boundaries?.start ?? `${marDate} 00:00:00`;
+      const endOfMarDate = boundaries?.end ?? `${marDate} 23:59:59`;
       baseQueryOptions.include.push({
         model: models.MedicationAdministrationRecord,
         as: 'medicationAdministrationRecords',
@@ -392,19 +458,23 @@ encounterRelations.get(
     let responseData = prescriptions.map(p => p.forResponse());
     if (responseData.length > 0) {
       const prescriptionIds = responseData.map(p => p.id);
-      const [pharmacyOrderPrescriptions] = await db.query(
+      const [lastOrderedRows] = await db.query(
         `
-        SELECT prescription_id, max(created_at) as last_ordered_at
-        FROM pharmacy_order_prescriptions
-        WHERE prescription_id IN (:prescriptionIds) and deleted_at is null GROUP BY prescription_id
+        SELECT pop.prescription_id, max(po.date) AS last_ordered_at
+        FROM pharmacy_order_prescriptions pop
+        INNER JOIN pharmacy_orders po ON po.id = pop.pharmacy_order_id
+        WHERE pop.prescription_id IN (:prescriptionIds)
+          AND pop.deleted_at IS NULL
+          AND po.deleted_at IS NULL
+        GROUP BY pop.prescription_id
       `,
         { replacements: { prescriptionIds } },
       );
-      const lastOrderedAts = keyBy(pharmacyOrderPrescriptions, 'prescription_id');
+      const lastOrderedAts = keyBy(lastOrderedRows, 'prescription_id');
 
       responseData = responseData.map(p => ({
         ...p,
-        lastOrderedAt: lastOrderedAts[p.id]?.last_ordered_at?.toISOString(),
+        lastOrderedAt: lastOrderedAts[p.id]?.last_ordered_at,
       }));
     }
 
@@ -525,9 +595,15 @@ encounterRelations.get(
     const invoiceRecord = await Invoice.findOne({
       where: { encounterId },
       include: Invoice.getFullReferenceAssociations(invoicePriceListId),
+      order: [
+        [{ model: models.InvoiceItem, as: 'items' }, 'orderDate', 'ASC'],
+        [{ model: models.InvoiceItem, as: 'items' }, 'createdAt', 'ASC'],
+        [{ model: models.InvoicePayment, as: 'payments' }, 'date', 'ASC'],
+      ],
     });
     if (!invoiceRecord) {
-      throw new NotFoundError('Invoice not found');
+      // Return null rather than a 404 as it is a valid scenario for there not to be an invoice
+      return res.send(null);
     }
 
     await req.audit.access({
@@ -536,7 +612,9 @@ encounterRelations.get(
       model: Invoice,
     });
 
-    res.send(invoiceRecord);
+    const responseRecord = invoiceForResponse(invoiceRecord);
+    const priceList = await InvoicePriceList.findByPk(invoicePriceListId, { raw: true });
+    res.send({ ...responseRecord, priceList });
   }),
 );
 
@@ -689,7 +767,7 @@ encounterRelations.get(
   fetchGraphData({
     permissionAction: 'read',
     permissionNoun: 'Charting',
-    dateDataElementId: CHARTING_DATA_ELEMENT_IDS.dateRecorded
+    dateDataElementId: CHARTING_DATA_ELEMENT_IDS.dateRecorded,
   }),
 );
 
@@ -733,7 +811,7 @@ encounterRelations.get(
         encounterId,
         status: { [Op.in]: statuses },
         dueTime: {
-          [Op.lte]: toCountryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
+          [Op.lte]: toPrimaryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
         },
         taskType: {
           [Op.notIn]: DASHBOARD_ONLY_TASK_TYPES,
@@ -777,9 +855,6 @@ encounterRelations.get(
   }),
 );
 
-encounterRelations.delete(
-  '/:id/chartInstances/:chartInstanceResponseId',
-  deleteChartInstance(),
-);
+encounterRelations.delete('/:id/chartInstances/:chartInstanceResponseId', deleteChartInstance());
 
 encounter.use(encounterRelations);

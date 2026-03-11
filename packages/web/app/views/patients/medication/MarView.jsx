@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { set } from 'date-fns';
+import { useDateTime } from '@tamanu/ui-components';
+
 import { MarHeader } from '../../../components/Medication/Mar/MarHeader';
 import { MarTable } from '../../../components/Medication/Mar/MarTable';
 import { Colors } from '../../../constants';
-import { set } from 'date-fns';
 import { useEncounter } from '../../../contexts/Encounter';
 
 const MarContainer = styled.div`
@@ -11,26 +13,41 @@ const MarContainer = styled.div`
   border-right: 1px solid ${Colors.outline};
 `;
 
-export const MarView = () => {
+const useFacilityDate = () => {
   const { encounter } = useEncounter();
+  const { getFacilityNowDate, toFacilityDateTime } = useDateTime();
+  const getFacilityNowDateRef = useRef(getFacilityNowDate);
+  getFacilityNowDateRef.current = getFacilityNowDate;
 
-  const defaultSelectedDate =
-    new Date(encounter?.endDate) < new Date() ? new Date(encounter?.endDate) : new Date();
-  const [selectedDate, setSelectedDate] = useState(defaultSelectedDate);
-  const handleDateChange = date => setSelectedDate(date);
+  const toFacilityDate = dateStr => {
+    if (!dateStr) return null;
+    const converted = toFacilityDateTime(dateStr);
+    return converted ? new Date(converted) : null;
+  };
+
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const facilityNow = getFacilityNowDate();
+    const encounterEnd = toFacilityDate(encounter?.endDate);
+    return encounterEnd && encounterEnd < facilityNow ? encounterEnd : facilityNow;
+  });
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setSelectedDate(prev =>
-        set(prev, { hours: new Date().getHours(), minutes: new Date().getMinutes() }),
-      );
-    }, 60000); // Update every minute
+      const now = getFacilityNowDateRef.current();
+      setSelectedDate(prev => set(prev, { hours: now.getHours(), minutes: now.getMinutes() }));
+    }, 60000);
     return () => clearInterval(timer);
   }, []);
 
+  return [selectedDate, setSelectedDate];
+};
+
+export const MarView = () => {
+  const [selectedDate, setSelectedDate] = useFacilityDate();
+
   return (
     <MarContainer>
-      <MarHeader selectedDate={selectedDate} onDateChange={handleDateChange} />
+      <MarHeader selectedDate={selectedDate} onDateChange={setSelectedDate} />
       <MarTable selectedDate={selectedDate} />
     </MarContainer>
   );

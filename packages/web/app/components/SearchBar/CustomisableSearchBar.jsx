@@ -77,6 +77,7 @@ export const CustomisableSearchBar = ({
   initialValues = {},
   hiddenFields,
   hasPermission = true,
+  className,
 }) => {
   const switchExpandValue = useCallback(() => {
     setIsExpanded((previous) => !previous);
@@ -90,10 +91,10 @@ export const CustomisableSearchBar = ({
     <Form
       onSubmit={handleSubmit}
       render={({ clearForm, values }) => (
-        <Container data-testid="container-ntc5">
+        <Container data-testid="container-ntc5" className={className}>
           <CustomisableSearchBarGrid data-testid="customisablesearchbargrid-c6rk">
             {children}
-            <ActionsContainer data-testid="actionscontainer-3pm7">
+            <ActionsContainer data-testid="actionscontainer-3pm7" className='actions-container'>
               {showExpandButton && (
                 <ThemedTooltip
                   title={isExpanded ? 'Hide advanced search' : 'Advanced search'}

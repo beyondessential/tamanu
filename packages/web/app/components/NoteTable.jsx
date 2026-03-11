@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState, useRef, useEffect } from 'react'
 import styled from 'styled-components';
 import EditIcon from '@material-ui/icons/Edit';
 
-import { NOTE_PERMISSION_TYPES, NOTE_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
+import { NOTE_PERMISSION_TYPES, NOTE_TYPES, REFERENCE_TYPES, NON_EDITABLE_NOTE_TYPES } from '@tamanu/constants';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
@@ -180,7 +180,7 @@ const NoteContent = ({
         <NoteHeaderContainer data-testid="noteheadercontainer-qu50">
           <NoteHeaderText data-testid="noteheadertext-e3kq">
             <TranslatedReferenceData
-              fallback={note.noteTypeReference?.name || ""}
+              fallback={note.noteTypeReference?.name || ''}
               value={note.noteTypeReference?.id}
               category={REFERENCE_TYPES.NOTE_TYPE}
               data-testid="translatedreferencedata-s324"
@@ -205,7 +205,7 @@ const NoteContent = ({
         </NoteContentContainer>
         {hasIndividualNotePermission &&
           hasEncounterNoteWritePermission &&
-          note.noteTypeId !== NOTE_TYPES.SYSTEM && (
+          !NON_EDITABLE_NOTE_TYPES.includes(note.noteTypeId) && (
             <NoteModalActionBlocker>
               <StyledEditIcon
                 onClick={() => handleEditNote(note)}
@@ -263,8 +263,11 @@ const NoteContent = ({
           </NoteFooterTextElement>
         )}
         <DateDisplay
-          date={(note.noteTypeId !== NOTE_TYPES.TREATMENT_PLAN && note.revisedBy?.date) || note.date}
-          showTime
+          date={
+            (note.noteTypeId !== NOTE_TYPES.TREATMENT_PLAN && note.revisedBy?.date) || note.date
+          }
+          timeFormat="default"
+          noTooltip
           data-testid="datedisplay-yaha"
         />
         {note.revisedById && (

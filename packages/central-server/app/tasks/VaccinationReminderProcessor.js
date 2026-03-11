@@ -6,6 +6,7 @@ import {
 } from '@tamanu/constants';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { QueryTypes } from 'sequelize';
 
 export class VaccinationReminderProcessor extends ScheduledTask {
@@ -40,7 +41,7 @@ export class VaccinationReminderProcessor extends ScheduledTask {
       });
 
       await this.context.store.sequelize.query('SET TIMEZONE TO :timezone', {
-        replacements: { timezone: config.countryTimeZone },
+        replacements: { timezone: getPrimaryTimeZone(config) },
         transaction,
       });
 

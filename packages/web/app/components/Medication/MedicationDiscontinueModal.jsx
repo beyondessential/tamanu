@@ -3,7 +3,6 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { Box } from '@mui/material';
 
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   TextField,
   Form,
@@ -12,6 +11,7 @@ import {
   FormSubmitButton,
   BaseModal,
   TranslatedText,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants';
 import { Colors } from '../../constants';
@@ -43,6 +43,7 @@ const validationSchema = yup.object().shape({
 });
 
 export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose }) => {
+  const { getCurrentDateTime } = useDateTime();
   const api = useApi();
   const practitionerSuggester = useSuggester('practitioner');
   const { encounter, loadEncounter } = useEncounter();
@@ -50,7 +51,7 @@ export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose 
   const onSubmit = async data => {
     const updatedMedication = await api.post(`medication/${medication.id}/discontinue`, {
       ...data,
-      discontinuingDate: getCurrentDateTimeString(),
+      discontinuingDate: getCurrentDateTime(),
     });
     onDiscontinue(updatedMedication);
     if (loadEncounter && encounter) {
@@ -69,6 +70,7 @@ export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose 
           fallback="Discontinue medication"
         />
       }
+      data-testid="medicationdiscontinuemodal-abc123"
     >
       <Form
         suppressErrorDialog
@@ -81,7 +83,7 @@ export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose 
           <>
             <Box px={1} pt={2.75} pb={5}>
               {medication.isOngoing ? (
-                <Box>
+                <Box data-testid="box-ongoingmedication-warning-xyz789">
                   <DarkText fontWeight={700} display={'inline-block'}>
                     <TranslatedText
                       stringId="medication.discontinueModal.description1"
@@ -96,7 +98,7 @@ export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose 
                   </DarkText>
                 </Box>
               ) : (
-                <DarkText>
+                <DarkText data-testid="darktext-discontinue-description-abc123">
                   <TranslatedText
                     stringId="medication.discontinueModal.description"
                     fallback="Are you sure you would like to discontinue the below medication?"
@@ -104,7 +106,7 @@ export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose 
                 </DarkText>
               )}
               <MedicationSummary medication={medication} />
-              <FormGrid>
+              <FormGrid data-testid="formgrid-discontinuemedication-xyz789">
                 <Field
                   name="discontinuingClinicianId"
                   label={
@@ -116,6 +118,7 @@ export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose 
                   component={AutocompleteField}
                   suggester={practitionerSuggester}
                   required
+                  data-testid="field-discontinuingclinicianid-input"
                 />
                 <Field
                   name="discontinuingReason"
@@ -127,6 +130,7 @@ export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose 
                   }
                   component={TextField}
                   required
+                  data-testid="field-discontinuingreason-input"
                 />
               </FormGrid>
             </Box>
@@ -139,8 +143,12 @@ export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose 
               display={'flex'}
               justifyContent={'flex-end'}
               gap={2}
+              data-testid="box-formactions-discontinue-def456"
             >
-              <FormCancelButton onClick={onClose}>
+              <FormCancelButton 
+                onClick={onClose}
+                data-testid="formcancelbutton-cancel-xyz789"
+              >
                 <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
               </FormCancelButton>
               <FormSubmitButton
@@ -148,6 +156,7 @@ export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose 
                 onClick={data => {
                   submitForm(data);
                 }}
+                data-testid="formsubmitbutton-discontinue-def456"
               >
                 <TranslatedText stringId="medication.details.discontinue" fallback="Discontinue" />
               </FormSubmitButton>

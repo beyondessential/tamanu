@@ -25,7 +25,7 @@ export class EncounterHistory extends BaseModel {
   @DateTimeStringColumn({ nullable: false })
   date?: string;
 
-  @ManyToOne(() => Encounter, encounter => encounter.encounterHistory)
+  @ManyToOne(() => Encounter, encounter => encounter.encounterHistories)
   encounter: Encounter;
   @RelationId(({ encounter }) => encounter)
   encounterId: string;
@@ -57,8 +57,38 @@ export class EncounterHistory extends BaseModel {
   @Column({ type: 'varchar', nullable: false })
   encounterType: EncounterType;
 
-  @Column({ type: 'varchar' })
-  changeType: EncounterChangeType;
+  @Column({ nullable: true })
+  changeType?: string;
+
+  static sanitizeRecordDataForPush(rows) {
+    return rows.map(row => {
+      const sanitizedRow = {
+        ...row,
+      };
+      // Convert changeType to ARRAY because central server expects it to be ARRAY
+      if (typeof row.data?.changeType === 'string') {
+        // Handle empty string (from empty array) by converting to empty array
+        sanitizedRow.data.changeType =
+          row.data.changeType === '' ? [] : row.data.changeType.split(',');
+      }
+
+      return sanitizedRow;
+    });
+  }
+
+  static sanitizePulledRecordData(rows) {
+    return rows.map(row => {
+      const sanitizedRow = {
+        ...row,
+      };
+      // Convert changeType to string because Sqlite does not support ARRAY type
+      if (row.data?.changeType && Array.isArray(row.data.changeType)) {
+        sanitizedRow.data.changeType = row.data.changeType.join(',');
+      }
+
+      return sanitizedRow;
+    });
+  }
 
   static async createSnapshot(encounter, { date }) {
     return EncounterHistory.createAndSaveOne({

@@ -22,6 +22,7 @@ import { DocumentsPane } from './panes/DocumentsPane';
 import { TasksPane } from '../TaskPage/panes/TasksPane';
 import { ChartsPane } from '../ChartsPage/panes/ChartsPane';
 import { ReferralPane } from './panes/ReferralPane';
+import { EditEncounterModal } from './modals/EditEncounterModal';
 
 export class PatientDetailsPage extends BasePatientPage {
   readonly prepareDischargeButton: Locator;
@@ -41,7 +42,11 @@ export class PatientDetailsPage extends BasePatientPage {
   tasksPane?: TasksPane;
   chartsPane?: ChartsPane;
   referralPane?: ReferralPane;
+  editEncounterModal?: EditEncounterModal;
   arrowDownIconMenuButton: Locator;
+  threeDotMenuButton: Locator;
+  editEncounterMenuItem: Locator;
+  movePatientButton: Locator;
 
   private _encounterHistoryPane?: EncounterHistoryPane;
   private _changeEncounterDetailsMenu?: ChangeEncounterDetailsMenu;
@@ -117,7 +122,7 @@ export class PatientDetailsPage extends BasePatientPage {
   labRequestPane?: LabRequestPane;
   constructor(page: Page) {
     super(page);
-    this.prepareDischargeButton = this.page.getByTestId('mainbuttoncomponent-06gp');
+    this.prepareDischargeButton = this.page.getByRole('button', { name: 'Prepare discharge', exact: true });
     this.vaccineTab = this.page.getByTestId('tab-vaccines');
     this.procedureTab = this.page.getByTestId('styledtab-ccs8-procedures');
     this.healthIdText = this.page.getByTestId('healthidtext-fqvn');
@@ -271,6 +276,9 @@ export class PatientDetailsPage extends BasePatientPage {
     this.admitOrCheckinButton=this.page.getByTestId('component-enxe').filter({ hasText: 'Admit or check-in' });
     this.patientDetailsTab=this.page.getByTestId('tab-details');
     this.arrowDownIconMenuButton=this.page.getByTestId('menubutton-dc8o');
+    this.threeDotMenuButton=this.page.getByTestId('stylediconbutton-szh8');
+    this.editEncounterMenuItem=this.page.getByTestId('menuitem-0');
+    this.movePatientButton=this.page.getByRole('button', { name: 'Move patient' });
     this.addDiagnosisButton=this.page.getByTestId('adddiagnosisbutton-2ij9');
     this.diagnosisContainer=this.page.getByTestId('diagnosislistcontainer-dqkk');
     this.diagnosisCategory=this.page.getByTestId('category-vwwx');
@@ -591,6 +599,22 @@ export class PatientDetailsPage extends BasePatientPage {
       this._addDiagnosisModal = new AddDiagnosisModal(this.page);
     }
     return this._addDiagnosisModal;
+  }
+
+  getEditEncounterModal(): EditEncounterModal {
+    if (!this.editEncounterModal) {
+      this.editEncounterModal = new EditEncounterModal(this.page);
+    }
+    return this.editEncounterModal;
+  }
+
+  async openEditEncounterModal(): Promise<EditEncounterModal> {
+    await this.threeDotMenuButton.click();
+    await this.editEncounterMenuItem.waitFor({ state: 'visible' });
+    await this.editEncounterMenuItem.click();
+    const modal = this.getEditEncounterModal();
+    await modal.waitForModalToLoad();
+    return modal;
   }
 
   get encounterHistoryPane(): EncounterHistoryPane {

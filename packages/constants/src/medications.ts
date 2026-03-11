@@ -1,3 +1,5 @@
+import { ENCOUNTER_TYPES } from './encounters';
+
 export const DRUG_ROUTES = {
   dermal: 'dermal',
   ear: 'ear',
@@ -109,7 +111,7 @@ export const DRUG_UNIT_SHORT_LABELS = {
   [DRUG_UNITS.wafer]: 'Wafer',
 };
 
-const MAX_REPEATS = 12;
+export const MAX_REPEATS = 12;
 export const REPEATS_LABELS = Array.from({ length: MAX_REPEATS + 1 }, (_, i) => i);
 
 export const ADMINISTRATION_FREQUENCIES = {
@@ -291,4 +293,34 @@ export const MEDICATION_ADMINISTRATION_TIME_SLOTS = [
   { startTime: '18:00', endTime: '20:00', periodLabel: 'dinner' },
   { startTime: '20:00', endTime: '22:00' },
   { startTime: '22:00', endTime: '24:00', periodLabel: 'night' },
+];
+
+export const PHARMACY_PRESCRIPTION_TYPES = {
+  DISCHARGE_OR_OUTPATIENT: 'DISCHARGE_OR_OUTPATIENT',
+  INPATIENT: 'INPATIENT',
+};
+
+export const PHARMACY_PRESCRIPTION_TYPE_LABELS = {
+  [PHARMACY_PRESCRIPTION_TYPES.INPATIENT]: 'Inpatient',
+  [PHARMACY_PRESCRIPTION_TYPES.DISCHARGE_OR_OUTPATIENT]: 'Outpatient/Discharge',
+};
+
+export const DRUG_STOCK_STATUSES = {
+  IN_STOCK: 'in_stock',
+  OUT_OF_STOCK: 'out_of_stock',
+  UNAVAILABLE: 'unavailable',
+  UNKNOWN: 'unknown',
+};
+
+export const DRUG_STOCK_STATUS_LABELS = {
+  [DRUG_STOCK_STATUSES.IN_STOCK]: 'Yes',
+  [DRUG_STOCK_STATUSES.OUT_OF_STOCK]: 'No',
+  [DRUG_STOCK_STATUSES.UNKNOWN]: 'Unknown',
+};
+
+export const INVOICEABLE_MEDICATION_ENCOUNTER_TYPES = [
+  ENCOUNTER_TYPES.ADMISSION,
+  ENCOUNTER_TYPES.TRIAGE,
+  ENCOUNTER_TYPES.OBSERVATION,
+  ENCOUNTER_TYPES.EMERGENCY,
 ];

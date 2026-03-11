@@ -1,4 +1,4 @@
-import { REPORT_DB_SCHEMAS, REPORT_STATUSES } from '@tamanu/constants';
+import { REPORT_DB_CONNECTIONS, REPORT_STATUSES } from '@tamanu/constants';
 import { randomRecordId } from '@tamanu/database/demoData/utilities';
 
 import { fake } from '../../fake/index.js';
@@ -13,7 +13,7 @@ export const createDbReport = async ({
 }: CreateDbReportParams): Promise<void> => {
   const reportDefinition = await ReportDefinition.create(
     fake(ReportDefinition, {
-      dbSchema: REPORT_DB_SCHEMAS.REPORTING,
+      dbSchema: REPORT_DB_CONNECTIONS.REPORTING,
     }),
   );
   await ReportDefinitionVersion.create(

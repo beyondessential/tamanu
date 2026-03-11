@@ -1,14 +1,14 @@
 import React, { isValidElement, useEffect } from 'react';
-import { Formik, useFormikContext } from 'formik'; 
-import { ValidationError } from 'yup'; 
+import { Formik, useFormikContext } from 'formik';
+import { ValidationError } from 'yup';
 import { Typography } from '@material-ui/core';
 import { Alert, AlertTitle } from '@material-ui/lab';
-import styled from 'styled-components'; 
+import styled from 'styled-components';
 
 import { flattenObject } from './flattenObject';
-import { Dialog } from '../Dialog'; 
+import { Dialog } from '../Dialog';
 import { FORM_TYPES, SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants/forms';
-import { useFormSubmission } from '../../contexts/FormSubmissionContext'; 
+import { useFormSubmission } from '../../contexts/FormSubmissionContext';
 import { IS_DEVELOPMENT } from '../../utils/env';
 import { TranslatedText } from '../Translation';
 
@@ -212,13 +212,14 @@ export class Form extends React.PureComponent {
       originalSetValues(newValues);
     };
 
-    const { render, style } = this.props;
+    const { render, style, className } = this.props;
     const { showWarningForNonAsyncSubmitHandler } = this.state;
 
     return (
       <>
         {/* do not allow editing fields when form is being submitted */}
         <StyledForm
+          className={className}
           style={style}
           onSubmit={submitForm}
           noValidate

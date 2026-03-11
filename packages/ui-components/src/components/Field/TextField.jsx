@@ -48,7 +48,7 @@ export const StyledTextField = styled(MuiTextField)`
   // helper text
   .MuiFormHelperText-root {
     font-weight: 500;
-    font-size: 12px;
+    font-size: 11px;
     line-height: 15px;
     margin: 4px 2px 2px;
   }
@@ -106,9 +106,6 @@ export const TextInput = ({
 }) => {
   const { getSetting } = useSettings();
   const disableInputPasting = getSetting('features.disableInputPasting');
-  // eslint-disable-next-line no-unused-vars
-  const { saveDateAsString, ...rest } = props;
-
   const onPaste = e => {
     if (!enablePasting && disableInputPasting) {
       e.preventDefault();
@@ -150,7 +147,7 @@ export const TextInput = ({
           ...props.inputProps,
           'data-testid': `${dataTestId}-input`,
         }}
-        {...rest}
+        {...props}
       />
     </OuterLabelFieldWrapper>
   );

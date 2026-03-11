@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback } from 'react';
+import React, { ReactElement, useCallback, useMemo } from 'react';
 import { compose } from 'redux';
 import { useSelector } from 'react-redux';
 import { Formik } from 'formik';
@@ -78,14 +78,18 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
     [],
   );
 
-  const diagnosisSuggester = new Suggester({
-    model: models.ReferenceData,
-    options: {
-      where: {
-        type: ReferenceDataType.Diagnosis,
-      },
-    },
-  });
+  const diagnosisSuggester = useMemo(
+    () =>
+      new Suggester({
+        model: models.ReferenceData,
+        options: {
+          where: {
+            type: ReferenceDataType.Diagnosis,
+          },
+        },
+      }),
+    [models.ReferenceData],
+  );
 
   return (
     <FullView background={theme.colors.BACKGROUND_GREY}>
@@ -128,16 +132,19 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                 <StyledView justifyContent="space-between">
                   <Field
                     component={AutocompleteModalField}
-                    label={<TranslatedText stringId="general.action.select" fallback="Select" />}
-                    placeholder={
+                    label={
                       <TranslatedText
                         stringId="general.form.diagnosis.label"
                         fallback="Diagnosis"
                       />
                     }
+                    placeholder={
+                      <TranslatedText stringId="general.action.search" fallback="Search" />
+                    }
                     navigation={navigation}
                     suggester={diagnosisSuggester}
                     name="diagnosis"
+                    labelFontSize="14"
                   />
                   <Spacer height="24px" />
                   <Field
@@ -150,6 +157,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                         fallback="Certainty"
                       />
                     }
+                    labelFontSize="14"
                     disabled={!values?.diagnosis}
                   />
                   <Spacer height="24px" />
@@ -157,12 +165,13 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                     component={TextField}
                     name="clinicalNote"
                     multiline
-                    placeholder={
+                    label={
                       <TranslatedText
                         stringId="diagnosis.form.clinicalNote.label"
                         fallback="Clinical Note"
                       />
                     }
+                    labelFontSize="14"
                   />
                   <Spacer height="24px" />
                   <CurrentUserField
@@ -173,6 +182,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
                         fallback="Recorded By"
                       />
                     }
+                    labelFontSize="14"
                   />
                   <Button
                     marginTop={screenPercentageToDP(1.22, Orientation.Height)}

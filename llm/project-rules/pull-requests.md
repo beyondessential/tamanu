@@ -65,3 +65,17 @@ The PR template (`.github/pull_request_template.md`) contains important elements
 - **Reminder checklist**: Important steps like updating docs, adding tests, etc.
 
 After creating the PR, edit it on GitHub to fill in the "Changes" section with a description.
+
+## Always Fix Linting Issues Before Pushing
+
+Before pushing commits or creating a PR, always run the linter on changed files and fix any errors:
+
+```bash
+# Lint specific changed files
+npx eslint path/to/changed/file.mjs
+
+# Or lint all changed files at once
+npx eslint $(git diff --name-only --diff-filter=d HEAD | grep -E '\.(js|jsx|mjs|cjs|ts|tsx)$')
+```
+
+Do not push code with lint errors. Fix all issues before committing.

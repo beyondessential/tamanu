@@ -6,6 +6,8 @@ export * from './modals/PrintPrescriptionModal';
 export * from './modals/CovidVaccineCertificateModal';
 export * from './modals/VaccineCertificateModal';
 export * from './modals/DeathCertificateModal';
+export * from './modals/MedicationLabelPrintModal';
+export { MedicationLabelPrintPreview } from './printouts/MedicationLabelPrintPreview';
 
 export { PrintLetterhead } from './printouts/reusable/PrintLetterhead';
 export { PrintPortal } from './PrintPortal';
