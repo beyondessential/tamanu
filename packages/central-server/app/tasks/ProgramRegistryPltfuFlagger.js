@@ -1,5 +1,5 @@
 import config from 'config';
-import { Op, QueryTypes } from 'sequelize';
+import { QueryTypes } from 'sequelize';
 import { subDays } from 'date-fns';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
@@ -31,7 +31,7 @@ export class ProgramRegistryPltfuFlagger extends ScheduledTask {
   async run() {
     const { batchSize, batchSleepAsyncDurationInMilliseconds } = this.config;
 
-    if (!batchSize || !batchSleepAsyncDurationInMilliseconds) {
+    if (!batchSize || batchSleepAsyncDurationInMilliseconds == null) {
       throw new InvalidConfigError(
         'batchSize and batchSleepAsyncDurationInMilliseconds must be set for ProgramRegistryPltfuFlagger',
       );
@@ -73,52 +73,54 @@ export class ProgramRegistryPltfuFlagger extends ScheduledTask {
 
     while (hasMore) {
       // Find active registrations where the patient has had no encounter activity
-      // within the threshold period and is not already flagged as PLTFU
-      const registrationIds = await this.sequelize.query(
-        `
-        SELECT ppr.patient_id, ppr.program_registry_id
-        FROM patient_program_registrations ppr
-        WHERE ppr.program_registry_id = :registryId
-          AND ppr.registration_status = :activeStatus
-          AND (ppr.clinical_status_id IS NULL OR ppr.clinical_status_id != :pltfuStatusId)
-          AND NOT EXISTS (
-            SELECT 1 FROM encounters e
-            WHERE e.patient_id = ppr.patient_id
-              AND e.start_date >= :cutoffDate
+      // within the threshold period and is not already flagged as PLTFU,
+      // then update them to the PLTFU status in a single atomic operation.
+      const updatedRegistrations = await this.sequelize.transaction(async () => {
+        return this.sequelize.query(
+          `
+          WITH registrations_to_flag AS (
+            SELECT ppr.patient_id, ppr.program_registry_id
+            FROM patient_program_registrations ppr
+            WHERE ppr.program_registry_id = :registryId
+              AND ppr.registration_status = :activeStatus
+              AND (ppr.clinical_status_id IS NULL OR ppr.clinical_status_id != :pltfuStatusId)
+              AND NOT EXISTS (
+                SELECT 1 FROM encounters e
+                WHERE e.patient_id = ppr.patient_id
+                  AND e.start_date >= :cutoffDate
+                  AND e.deleted_at IS NULL
+              )
+            LIMIT :batchSize
           )
-        LIMIT :batchSize
-        `,
-        {
-          replacements: {
-            registryId: registry.id,
-            activeStatus: REGISTRATION_STATUSES.ACTIVE,
-            pltfuStatusId: pltfuStatus.id,
-            cutoffDate,
-            batchSize,
+          UPDATE patient_program_registrations ppr
+          SET clinical_status_id = :pltfuStatusId
+          FROM registrations_to_flag rtf
+          WHERE ppr.patient_id = rtf.patient_id
+            AND ppr.program_registry_id = rtf.program_registry_id
+          RETURNING ppr.patient_id
+          `,
+          {
+            replacements: {
+              registryId: registry.id,
+              activeStatus: REGISTRATION_STATUSES.ACTIVE,
+              pltfuStatusId: pltfuStatus.id,
+              cutoffDate,
+              batchSize,
+            },
+            type: QueryTypes.SELECT,
           },
-          type: QueryTypes.SELECT,
-        },
-      );
+        );
+      });
 
-      if (registrationIds.length === 0) {
+      const batchCount = updatedRegistrations.length;
+
+      if (batchCount === 0) {
         break;
       }
 
-      await this.models.PatientProgramRegistration.update(
-        { clinicalStatusId: pltfuStatus.id },
-        {
-          where: {
-            [Op.or]: registrationIds.map(({ patient_id, program_registry_id }) => ({
-              patientId: patient_id,
-              programRegistryId: program_registry_id,
-            })),
-          },
-        },
-      );
+      totalUpdated += batchCount;
 
-      totalUpdated += registrationIds.length;
-
-      if (registrationIds.length < batchSize) {
+      if (batchCount < batchSize) {
         hasMore = false;
       } else {
         await sleepAsync(batchSleepAsyncDurationInMilliseconds);
