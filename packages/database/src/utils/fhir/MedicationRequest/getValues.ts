@@ -68,7 +68,7 @@ export async function getValues(upstream: PharmacyOrderPrescription, models: Mod
     requester,
     subject,
     encounter,
-    note: note(pharmacyOrder, recorder),
+    note: note(pharmacyOrder, prescription, recorder),
     resolved:
       requester.isResolved() &&
       recorder.isResolved() &&
@@ -233,15 +233,29 @@ function category(pharmacyOrder: PharmacyOrder) {
   return null;
 }
 
-function note(pharmacyOrder: PharmacyOrder, recorder: FhirReference) {
+function note(
+  pharmacyOrder: PharmacyOrder,
+  prescription: Prescription | null,
+  recorder: FhirReference,
+) {
+  const annotations: FhirAnnotation[] = [];
+
   if (pharmacyOrder.comments) {
-    return [
+    annotations.push(
       new FhirAnnotation({
         author: recorder,
         text: pharmacyOrder.comments,
       }),
-    ];
+    );
   }
 
-  return null;
+  if (prescription?.notes?.trim()) {
+    annotations.push(
+      new FhirAnnotation({
+        text: prescription.notes.trim(),
+      }),
+    );
+  }
+
+  return annotations.length > 0 ? annotations : null;
 }

@@ -116,6 +116,7 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
         ctx.store.models;
 
       const prescriptionStartDate = new Date('2026-01-01T00:00:00.000Z').toISOString();
+      const prescriptionNote = 'Take with food';
       const prescription = await Prescription.create(
         fake(Prescription, {
           medicationId: resources.drug1.id,
@@ -129,6 +130,7 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
           startDate: prescriptionStartDate,
           durationValue: 165,
           durationUnit: 'days',
+          notes: prescriptionNote,
         }),
       );
       await prescription.reload();
@@ -265,8 +267,14 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
           {
             text: pharmacyOrder.comments,
           },
+          {
+            text: prescriptionNote,
+          },
         ],
       });
+      expect(response.body.note).toHaveLength(2);
+      expect(response.body.note[0].text).toBe(pharmacyOrder.comments);
+      expect(response.body.note[1].text).toBe(prescriptionNote);
       expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(mat.lastUpdated)));
       expect(response).toHaveSucceeded();
     });
