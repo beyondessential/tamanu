@@ -5,6 +5,7 @@ import { initReporting } from '@tamanu/database/services/reporting';
 import { initBugsnag } from '@tamanu/shared/services/logging';
 import { ReadSettings } from '@tamanu/settings/reader';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { initFhirSettingsFromDb } from '@tamanu/shared/utils/fhir/fhirSettingsCache';
 
 import { closeDatabase, initDatabase } from './database';
 import { VERSION } from './middleware/versionCompatibility.js';
@@ -47,6 +48,10 @@ export class ApplicationContext {
     this.store = await initDatabase(databaseOverrides);
     this.sequelize = this.store.sequelize;
     this.models = this.store.models;
+
+    if (config.integrations?.fhir?.enabled) {
+      await initFhirSettingsFromDb(this.models, facilityIds);
+    }
 
     this.settings = facilityIds.reduce((acc, facilityId) => {
       acc[facilityId] = new ReadSettings(this.models, facilityId);

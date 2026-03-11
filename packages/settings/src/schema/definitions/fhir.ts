@@ -4,6 +4,7 @@ export const fhirResourceMaterialisationSchema = {
   name: 'Resource materialisation',
   description: 'Enable or disable materialisation for each FHIR resource type',
   requiresRestart: true,
+  serverWide: true,
   properties: {
     Patient: {
       name: 'Patient',
@@ -71,7 +72,7 @@ export const fhirResourceMaterialisationSchema = {
 export const fhirCountParametersSchema = {
   name: 'Parameters',
   description: 'FHIR search parameter configuration',
-  requiresRestart: true,
+  serverWide: true,
   properties: {
     _count: {
       name: 'Count',
