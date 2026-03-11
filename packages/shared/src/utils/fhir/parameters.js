@@ -8,7 +8,7 @@ import {
 } from '@tamanu/constants';
 
 import { DEFAULT_SCHEMA_FOR_TYPE, INCLUDE_SCHEMA } from './schemata';
-import { getFhirCountSettings } from './fhirSettings';
+import { getFhirCountSettings, getFhirSettingsGeneration } from './fhirSettings';
 
 export function getFhirCountSettingsDefault() {
   const countSettings = getFhirCountSettings();
@@ -45,12 +45,8 @@ export function normaliseParameter([key, param], overrides = {}) {
   return [key, norm];
 }
 
-let cachedResultParameters = null;
-
 function getResultParameters() {
-  if (cachedResultParameters) return cachedResultParameters;
-
-  cachedResultParameters = {
+  return {
     _total: {
       type: FHIR_SEARCH_PARAMETERS.SPECIAL,
       parameterSchema: yup.string().oneOf(['none', 'estimate', 'accurate']),
@@ -81,7 +77,6 @@ function getResultParameters() {
       parameterSchema: INCLUDE_SCHEMA,
     },
   };
-  return cachedResultParameters;
 }
 
 export function getResultParameterNames() {
@@ -125,8 +120,15 @@ function sortParameter(sortableParameters) {
 }
 
 const cache = new Map();
+let cacheGeneration = -1;
 
 export function normaliseParameters(FhirResource) {
+  const gen = getFhirSettingsGeneration();
+  if (gen !== cacheGeneration) {
+    cache.clear();
+    cacheGeneration = gen;
+  }
+
   const cacheKey = FhirResource.fhirName;
   if (!cacheKey) {
     throw new Error('DEV: not a proper Resource');

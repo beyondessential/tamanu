@@ -17,10 +17,16 @@ const DEFAULTS = {
 };
 
 let settings = null;
+let generation = 0;
+
+export function getFhirSettingsGeneration() {
+  return generation;
+}
 
 /** Reset cached settings so the next call to initFhirSettingsFromDb reloads from DB. */
 export function resetFhirSettings() {
   settings = null;
+  generation++;
 }
 
 /**
