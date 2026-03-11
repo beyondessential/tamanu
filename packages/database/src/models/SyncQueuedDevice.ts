@@ -102,7 +102,7 @@ export class SyncQueuedDevice extends Model {
           type: 'SELECT',
         },
       );
-      const rows = queryResult[0] as Array<{ consecutive_failures: number }>;
+      const rows = queryResult as Array<{ consecutive_failures: number }>;
       const consecutiveFailures = rows[0]?.consecutive_failures ?? 0;
       await this.create({
         id,
