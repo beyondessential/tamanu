@@ -350,12 +350,14 @@ export const TranslationForm = () => {
     // Only consider languages the form rendered (keys in current); if a language is in initial
     // but absent from current, the column was not shown for this string so we must not treat it as a deletion.
     const submitData = {};
+    const normalizeEmpty = val =>
+      val === '' || val === null || val === undefined ? undefined : val;
     for (const [stringId, languages] of Object.entries(fullSubmitData)) {
       const initial = initialValues[stringId] || {};
       const current = languages || {};
       const changedLangs = {};
       for (const lang of Object.keys(current)) {
-        if (current[lang] !== initial[lang]) {
+        if (normalizeEmpty(current[lang]) !== normalizeEmpty(initial[lang])) {
           changedLangs[lang] = current[lang];
         }
       }
