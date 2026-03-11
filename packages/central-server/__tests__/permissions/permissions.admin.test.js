@@ -143,38 +143,51 @@ describe('Permissions Admin', () => {
   });
 
   describe('POST /', () => {
-    it('should create a new permission', async () => {
+    it('should create multiple permissions in a single request', async () => {
       const res = await adminApp.post('/v1/admin/permissions').send({
-        verb: 'read',
-        noun: 'Patient',
-        roleId: 'role-a',
+        permissions: [
+          { verb: 'write', noun: 'Patient', roleId: 'role-a' },
+          { verb: 'list', noun: 'Patient', roleId: 'role-a' },
+        ],
       });
       expect(res).toHaveSucceeded();
-      expect(res.body.permission).toMatchObject({
-        verb: 'read',
-        noun: 'Patient',
-        objectId: null,
-        roleId: 'role-a',
+      expect(res.body).toEqual({ created: 2 });
+
+      const write = await models.Permission.findOne({
+        where: { verb: 'write', noun: 'Patient', roleId: 'role-a' },
       });
+      const list = await models.Permission.findOne({
+        where: { verb: 'list', noun: 'Patient', roleId: 'role-a' },
+      });
+      expect(write).not.toBeNull();
+      expect(list).not.toBeNull();
     });
 
-    it('should create a permission with objectId', async () => {
+    it('should create a permission with objectId for supported nouns', async () => {
       const res = await adminApp.post('/v1/admin/permissions').send({
-        verb: 'read',
-        noun: 'Survey',
-        objectId: 'survey-123',
-        roleId: 'role-a',
+        permissions: [
+          { verb: 'read', noun: 'Survey', objectId: 'survey-123', roleId: 'role-a' },
+        ],
       });
       expect(res).toHaveSucceeded();
-      expect(res.body.permission).toMatchObject({
-        verb: 'read',
-        noun: 'Survey',
-        objectId: 'survey-123',
-        roleId: 'role-a',
+      expect(res.body).toEqual({ created: 1 });
+
+      const perm = await models.Permission.findOne({
+        where: { verb: 'read', noun: 'Survey', objectId: 'survey-123', roleId: 'role-a' },
       });
+      expect(perm).not.toBeNull();
     });
 
-    it('should restore a soft-deleted permission instead of creating a duplicate', async () => {
+    it('should reject objectId for nouns that do not support it', async () => {
+      const res = await adminApp.post('/v1/admin/permissions').send({
+        permissions: [
+          { verb: 'read', noun: 'Patient', objectId: 'patient-123', roleId: 'role-a' },
+        ],
+      });
+      expect(res.status).toBe(422);
+    });
+
+    it('should restore soft-deleted permissions', async () => {
       const permission = await models.Permission.create({
         verb: 'read',
         noun: 'Patient',
@@ -183,19 +196,19 @@ describe('Permissions Admin', () => {
       await permission.destroy();
 
       const res = await adminApp.post('/v1/admin/permissions').send({
-        verb: 'read',
-        noun: 'Patient',
-        roleId: 'role-a',
+        permissions: [
+          { verb: 'read', noun: 'Patient', roleId: 'role-a' },
+        ],
       });
       expect(res).toHaveSucceeded();
-      expect(res.body.permission.id).toBe(permission.id);
+      expect(res.body).toEqual({ created: 1 });
 
       const restored = await models.Permission.findByPk(permission.id);
       expect(restored).not.toBeNull();
       expect(restored.deletedAt).toBeNull();
     });
 
-    it('should return 422 if the permission already exists', async () => {
+    it('should skip already-existing permissions', async () => {
       await models.Permission.create({
         verb: 'read',
         noun: 'Patient',
@@ -203,87 +216,118 @@ describe('Permissions Admin', () => {
       });
 
       const res = await adminApp.post('/v1/admin/permissions').send({
-        verb: 'read',
-        noun: 'Patient',
-        roleId: 'role-a',
+        permissions: [
+          { verb: 'read', noun: 'Patient', roleId: 'role-a' },
+        ],
+      });
+      expect(res).toHaveSucceeded();
+      expect(res.body).toEqual({ created: 0 });
+    });
+
+    it('should roll back all changes on validation error', async () => {
+      const res = await adminApp.post('/v1/admin/permissions').send({
+        permissions: [
+          { verb: 'read', noun: 'Patient', roleId: 'role-a' },
+          { verb: 'badverb', noun: 'Patient', roleId: 'role-a' },
+        ],
+      });
+      expect(res.status).toBe(422);
+
+      const created = await models.Permission.findOne({
+        where: { verb: 'read', noun: 'Patient', roleId: 'role-a' },
+      });
+      expect(created).toBeNull();
+    });
+
+    it('should return 422 when permissions array is empty', async () => {
+      const res = await adminApp.post('/v1/admin/permissions').send({
+        permissions: [],
       });
       expect(res.status).toBe(422);
     });
 
     it('should return 422 when required fields are missing', async () => {
       const res = await adminApp.post('/v1/admin/permissions').send({
-        verb: 'read',
+        permissions: [
+          { verb: 'read' },
+        ],
       });
       expect(res.status).toBe(422);
     });
   });
 
   describe('DELETE /', () => {
-    it('should soft-delete a permission', async () => {
+    it('should delete multiple permissions in a single request', async () => {
+      await models.Permission.create({
+        verb: 'read',
+        noun: 'Patient',
+        roleId: 'role-a',
+      });
+      await models.Permission.create({
+        verb: 'write',
+        noun: 'Patient',
+        roleId: 'role-a',
+      });
+
+      const res = await adminApp.delete('/v1/admin/permissions').send({
+        permissions: [
+          { verb: 'read', noun: 'Patient', roleId: 'role-a' },
+          { verb: 'write', noun: 'Patient', roleId: 'role-a' },
+        ],
+      });
+      expect(res).toHaveSucceeded();
+      expect(res.body).toEqual({ deleted: 2 });
+
+      const remaining = await models.Permission.findAll({
+        where: { noun: 'Patient', roleId: 'role-a' },
+      });
+      expect(remaining).toHaveLength(0);
+    });
+
+    it('should return deleted: 0 when permissions do not exist', async () => {
+      const res = await adminApp.delete('/v1/admin/permissions').send({
+        permissions: [
+          { verb: 'read', noun: 'Patient', roleId: 'role-a' },
+        ],
+      });
+      expect(res).toHaveSucceeded();
+      expect(res.body).toEqual({ deleted: 0 });
+    });
+
+    it('should roll back all changes on validation error', async () => {
       await models.Permission.create({
         verb: 'read',
         noun: 'Patient',
         roleId: 'role-a',
       });
 
-      const res = await adminApp
-        .delete('/v1/admin/permissions')
-        .query({ verb: 'read', noun: 'Patient', roleId: 'role-a' });
-      expect(res).toHaveSucceeded();
-      expect(res.body.deleted).toBe(1);
+      const res = await adminApp.delete('/v1/admin/permissions').send({
+        permissions: [
+          { verb: 'read', noun: 'Patient', roleId: 'role-a' },
+          { verb: 'badverb', noun: 'Patient', roleId: 'role-a' },
+        ],
+      });
+      expect(res.status).toBe(422);
 
-      const found = await models.Permission.findOne({
+      const stillExists = await models.Permission.findOne({
         where: { verb: 'read', noun: 'Patient', roleId: 'role-a' },
       });
-      expect(found).toBeNull();
+      expect(stillExists).not.toBeNull();
     });
 
-    it('should only delete the global permission, not objectId-scoped ones', async () => {
-      await models.Permission.create({
-        verb: 'read',
-        noun: 'Survey',
-        roleId: 'role-a',
+    it('should return 422 when permissions array is empty', async () => {
+      const res = await adminApp.delete('/v1/admin/permissions').send({
+        permissions: [],
       });
-      await models.Permission.create({
-        verb: 'read',
-        noun: 'Survey',
-        objectId: 'survey-123',
-        roleId: 'role-a',
-      });
-
-      await adminApp
-        .delete('/v1/admin/permissions')
-        .query({ verb: 'read', noun: 'Survey', roleId: 'role-a' });
-
-      const global = await models.Permission.findOne({
-        where: { verb: 'read', noun: 'Survey', roleId: 'role-a', objectId: null },
-      });
-      const scoped = await models.Permission.findOne({
-        where: { verb: 'read', noun: 'Survey', roleId: 'role-a', objectId: 'survey-123' },
-      });
-      expect(global).toBeNull();
-      expect(scoped).not.toBeNull();
-    });
-
-    it('should delete an objectId-scoped permission when objectId is provided', async () => {
-      await models.Permission.create({
-        verb: 'read',
-        noun: 'Survey',
-        objectId: 'survey-123',
-        roleId: 'role-a',
-      });
-
-      const res = await adminApp
-        .delete('/v1/admin/permissions')
-        .query({ verb: 'read', noun: 'Survey', objectId: 'survey-123', roleId: 'role-a' });
-      expect(res).toHaveSucceeded();
-      expect(res.body.deleted).toBe(1);
+      expect(res.status).toBe(422);
     });
 
     it('should return 422 when required fields are missing', async () => {
-      const res = await adminApp
-        .delete('/v1/admin/permissions')
-        .query({ verb: 'read' });
+      const res = await adminApp.delete('/v1/admin/permissions').send({
+        permissions: [
+          { verb: 'read' },
+        ],
+      });
       expect(res.status).toBe(422);
     });
   });

@@ -93,7 +93,18 @@ export function ensurePermissionCheck(req, res, next) {
   };
 
   req.checkForOneOfPermissions = (actions, subject) => {
-    const permissionChecks = actions.map(action => checkIfHasPermission(req, action, subject));
+    const permissionChecks = actions.map(action => {
+      try {
+        return checkIfHasPermission(req, action, subject);
+      } catch (error) {
+        // If the verb is invalid for this noun, treat it as "no permission"
+        // rather than throwing, so we can check the remaining verbs
+        if (error instanceof InvalidOperationError) {
+          return false;
+        }
+        throw error;
+      }
+    });
     const hasPermission = permissionChecks.some(Boolean);
     if (!hasPermission) {
       const reason = `No permission to perform any of actions "${actions.join(', ')}" on "${getSubjectName(subject)}"`;

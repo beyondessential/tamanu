@@ -64,9 +64,9 @@ permissionsRouter.get(
 permissionsRouter.get(
   '/',
   asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'Role');
+    req.checkPermission('read', 'Permission');
 
-    const rolesQuery = req.query.roles ?? req.query.roleIds ?? req.query.role;
+    const rolesQuery = req.query.roles;
     if (typeof rolesQuery !== 'string') {
       throw new ValidationError('Query parameter "roles" is required');
     }
@@ -126,9 +126,10 @@ permissionsRouter.get(
 
     // Layer actual permission data on top (including objectId-specific entries)
     for (const { verb, noun, objectId, roleId } of rows) {
-      const key = `${verb}#${noun}#${objectId || ''}`;
+      if (HIDDEN_PERMISSION_NOUNS.has(noun)) continue;
+      const key = `${verb}#${noun}#${objectId ?? ''}`;
       if (!permissionMap[key]) {
-        permissionMap[key] = { verb, noun, objectId: objectId || null };
+        permissionMap[key] = { verb, noun, objectId: objectId ?? null };
       }
       permissionMap[key][roleId] = 'y';
     }
@@ -143,26 +144,33 @@ permissionsRouter.post(
   '/',
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'Permission');
-    const { verb, noun, objectId, roleId } = req.body;
-    if (!verb || !noun || !roleId) {
-      throw new ValidationError('verb, noun, and roleId are required');
+    const { permissions } = req.body;
+    if (!Array.isArray(permissions) || !permissions.length) {
+      throw new ValidationError('permissions array is required and must not be empty');
     }
 
     const { Permission } = req.store.models;
-    Permission.validatePermissionSchema(verb, noun);
+    const results = await Permission.sequelize.transaction(async () => {
+      let created = 0;
 
-    const where = { verb, noun, roleId, objectId: objectId || null };
-    const existing = await Permission.findOne({ where, paranoid: false });
-    let permission;
-    if (existing && existing.deletedAt) {
-      await existing.restore();
-      permission = existing;
-    } else if (!existing) {
-      permission = await Permission.create(where);
-    } else {
-      throw new ValidationError('Permission already exists');
-    }
-    res.send({ permission: { id: permission.id, verb, noun, objectId: objectId || null, roleId } });
+      for (const { verb, noun, objectId, roleId } of permissions) {
+        Permission.validatePermissionSchema(verb, noun, roleId, objectId);
+
+        const where = { verb, noun, roleId, objectId: objectId ?? null };
+        const existing = await Permission.findOne({ where, paranoid: false });
+        if (existing && existing.deletedAt) {
+          await existing.restore();
+          created++;
+        } else if (!existing) {
+          await Permission.create(where);
+          created++;
+        }
+      }
+
+      return { created };
+    });
+
+    res.send(results);
   }),
 );
 
@@ -170,17 +178,27 @@ permissionsRouter.delete(
   '/',
   asyncHandler(async (req, res) => {
     req.checkPermission('delete', 'Permission');
-    const { verb, noun, objectId, roleId } = req.query;
-    if (!verb || !noun || !roleId) {
-      throw new ValidationError('verb, noun, and roleId are required');
+    const { permissions } = req.body;
+    if (!Array.isArray(permissions) || !permissions.length) {
+      throw new ValidationError('permissions array is required and must not be empty');
     }
 
     const { Permission } = req.store.models;
-    Permission.validatePermissionSchema(verb, noun);
+    const results = await Permission.sequelize.transaction(async () => {
+      let deleted = 0;
 
-    const deleted = await Permission.destroy({
-      where: { verb, noun, roleId, objectId: objectId || null },
+      for (const { verb, noun, objectId, roleId } of permissions) {
+        Permission.validatePermissionSchema(verb, noun, roleId, objectId);
+
+        const count = await Permission.destroy({
+          where: { verb, noun, roleId, objectId: objectId ?? null },
+        });
+        deleted += count;
+      }
+
+      return { deleted };
     });
-    res.send({ deleted });
+
+    res.send(results);
   }),
 );
