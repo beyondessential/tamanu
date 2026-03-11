@@ -1,11 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { useQuery } from '@tanstack/react-query';
-
-import { PERMISSION_SCHEMA } from '@tamanu/constants';
 import { useTranslation } from '@tamanu/ui-components';
-
-import { useApi } from '../../../api';
 import { ErrorMessage } from '../../../components/ErrorMessage';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
@@ -13,13 +8,13 @@ import { FilterField } from '../../../components/Field/FilterField';
 import { AutocompleteField } from '../../../components/Field/AutocompleteField';
 import { Colors } from '../../../constants';
 import { useTogglePermissionMutation } from '../../../api/mutations';
+import { useAdminPermissionRolesQuery } from '../../../api/queries/useAdminPermissionRolesQuery';
+import { useAdminPermissionsQuery } from '../../../api/queries/useAdminPermissionsQuery';
 import { NounSection, CHEVRON_WIDTH } from './NounSection';
 import { ObjectIdGroupSection } from './ObjectIdGroupSection';
-
-const BASE_NOUN_OPTIONS = Object.keys(PERMISSION_SCHEMA)
-  .filter(n => n !== 'all')
-  .sort()
-  .map(noun => ({ value: noun, label: noun }));
+import { buildNouns } from './utils';
+import { useNounOptions } from './useNounOptions';
+import { useFilteredNouns } from './useFilteredNouns';
 
 const EditContainer = styled.div`
   margin: 20px;
@@ -97,75 +92,14 @@ const EmptyMessage = styled.div`
   color: ${Colors.midText};
 `;
 
-function buildNounGroups(permissions, selectedRoleIds) {
-  const regularMap = {};
-  const objectIdMap = {};
-
-  for (const perm of permissions) {
-    const { verb, noun, objectId } = perm;
-    if (objectId) {
-      const nounKey = `${noun} (${objectId})`;
-      if (!objectIdMap[noun]) objectIdMap[noun] = {};
-      if (!objectIdMap[noun][objectId]) {
-        objectIdMap[noun][objectId] = { nounKey, noun, objectId, verbs: {} };
-      }
-      if (!objectIdMap[noun][objectId].verbs[verb]) {
-        objectIdMap[noun][objectId].verbs[verb] = {};
-      }
-      for (const roleId of selectedRoleIds) {
-        objectIdMap[noun][objectId].verbs[verb][roleId] = perm[roleId] === 'y';
-      }
-    } else {
-      if (!regularMap[noun]) {
-        regularMap[noun] = { nounKey: noun, noun, objectId: null, verbs: {} };
-      }
-      if (!regularMap[noun].verbs[verb]) {
-        regularMap[noun].verbs[verb] = {};
-      }
-      for (const roleId of selectedRoleIds) {
-        regularMap[noun].verbs[verb][roleId] = perm[roleId] === 'y';
-      }
-    }
-  }
-
-  const finalise = group => ({
-    ...group,
-    verbs: Object.entries(group.verbs).map(([verb, roles]) => ({ verb, roles })),
-  });
-
-  const regularGroups = Object.values(regularMap)
-    .map(finalise)
-    .map(g => ({ type: 'noun', noun: g.nounKey, data: g }));
-
-  const objectIdGroups = Object.entries(objectIdMap).map(([noun, entries]) => ({
-    type: 'objectId',
-    noun,
-    data: {
-      noun,
-      children: Object.values(entries)
-        .map(finalise)
-        .sort((a, b) => a.objectId.localeCompare(b.objectId)),
-    },
-  }));
-
-  return [...regularGroups, ...objectIdGroups].sort((a, b) => a.noun.localeCompare(b.noun));
-}
-
 export const PermissionsEditView = () => {
-  const api = useApi();
   const { getTranslation } = useTranslation();
   const [selectedRoleIds, setSelectedRoleIds] = useState([]);
   const [selectedNoun, setSelectedNoun] = useState(null);
 
-  const { data: rolesData } = useQuery(['adminPermissionRoles'], () =>
-    api.get('admin/permissions/roles'),
-  );
+  const { data: rolesData = [] } = useAdminPermissionRolesQuery();
 
-  const allRoles = useMemo(() => {
-    const roles = rolesData?.roles ?? rolesData?.data?.roles ?? [];
-    return roles;
-  }, [rolesData]);
-
+  const allRoles = useMemo(() => rolesData.roles ?? [], [rolesData]);
   const selectedRoles = useMemo(
     () => allRoles.filter(r => selectedRoleIds.includes(r.id)),
     [allRoles, selectedRoleIds],
@@ -174,77 +108,22 @@ export const PermissionsEditView = () => {
   const rolesQueryParam = useMemo(() => selectedRoleIds.join(','), [selectedRoleIds]);
 
   const {
-    data: permData,
+    data: permissionsData = {},
     isLoading,
     error,
-  } = useQuery(
-    ['adminPermissions', rolesQueryParam],
-    () => api.get('admin/permissions', { roles: rolesQueryParam }),
-    { enabled: selectedRoleIds.length > 0 },
-  );
+  } = useAdminPermissionsQuery(rolesQueryParam, { enabled: selectedRoleIds.length > 0 });
 
-  const permissions = useMemo(() => {
-    return permData?.permissions ?? permData?.data?.permissions ?? [];
-  }, [permData]);
+  const permissions = useMemo(() => permissionsData.permissions ?? [], [permissionsData]);
+  const objectNames = useMemo(() => permissionsData.objectNames ?? {}, [permissionsData]);
 
-  const objectNames = useMemo(() => {
-    return permData?.objectNames ?? permData?.data?.objectNames ?? {};
-  }, [permData]);
-
-  const allGroups = useMemo(
-    () => buildNounGroups(permissions, selectedRoleIds),
+  const allNouns = useMemo(
+    () => buildNouns(permissions, selectedRoleIds),
     [permissions, selectedRoleIds],
   );
 
-  const nounOptions = useMemo(() => {
-    const objectIdGroupNouns = new Set();
-    const childEntries = [];
-    const seenKeys = new Set();
-    for (const perm of permissions) {
-      if (perm.objectId) {
-        objectIdGroupNouns.add(perm.noun);
-        const key = `${perm.noun}#${perm.objectId}`;
-        if (!seenKeys.has(key)) {
-          seenKeys.add(key);
-          const displayName = objectNames[key] ?? perm.objectId;
-          childEntries.push({
-            key,
-            value: `child:${perm.noun}:${perm.objectId}`,
-            label: `${perm.noun} — ${displayName}`,
-          });
-        }
-      }
-    }
-    const groupOptions = [...objectIdGroupNouns]
-      .sort()
-      .map(noun => ({ value: `objectId:${noun}`, label: `${noun} (objectID)` }));
-    const childOptions = childEntries
-      .sort((a, b) => a.label.localeCompare(b.label))
-      .map(({ value, label }) => ({ value, label }));
-    return [...BASE_NOUN_OPTIONS, ...groupOptions, ...childOptions].sort((a, b) =>
-      a.label.localeCompare(b.label),
-    );
-  }, [permissions, objectNames]);
+  const nounOptions = useNounOptions(permissions, objectNames);
 
-  const filteredGroups = useMemo(() => {
-    if (!selectedNoun) return allGroups;
-    if (selectedNoun.startsWith('child:')) {
-      const [, noun, ...objectIdParts] = selectedNoun.split(':');
-      const objectId = objectIdParts.join(':');
-      return allGroups
-        .filter(g => g.type === 'objectId' && g.noun === noun)
-        .map(g => ({
-          ...g,
-          data: { ...g.data, children: g.data.children.filter(c => c.objectId === objectId) },
-        }))
-        .filter(g => g.data.children.length > 0);
-    }
-    if (selectedNoun.startsWith('objectId:')) {
-      const noun = selectedNoun.replace('objectId:', '');
-      return allGroups.filter(g => g.type === 'objectId' && g.noun === noun);
-    }
-    return allGroups.filter(g => g.noun === selectedNoun);
-  }, [allGroups, selectedNoun]);
+  const filteredNouns = useFilteredNouns(allNouns, selectedNoun);
 
   const handleRoleChange = useCallback(event => {
     setSelectedRoleIds(event.target.value || []);
@@ -258,11 +137,9 @@ export const PermissionsEditView = () => {
 
   const handleToggle = useCallback(params => togglePermission.mutate(params), [togglePermission]);
 
-  const hasInitialized = useRef(false);
   useEffect(() => {
-    if (!hasInitialized.current && allRoles.length > 0 && selectedRoleIds.length === 0) {
+    if (allRoles.length > 0 && selectedRoleIds.length === 0) {
       setSelectedRoleIds(allRoles.map(r => r.id));
-      hasInitialized.current = true;
     }
     // we only want to select all roles on initial load
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -303,7 +180,7 @@ export const PermissionsEditView = () => {
           data-testid="permissions-error-message"
         />
       )}
-      {!isLoading && !error && selectedRoles.length > 0 && filteredGroups.length > 0 && (
+      {!isLoading && !error && selectedRoles.length > 0 && filteredNouns.length > 0 && (
         <MatrixTable>
           <thead>
             <tr>
@@ -321,7 +198,7 @@ export const PermissionsEditView = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredGroups.map(group =>
+            {filteredNouns.map(group =>
               group.type === 'noun' ? (
                 <NounSection
                   key={group.data.nounKey}
@@ -344,7 +221,7 @@ export const PermissionsEditView = () => {
           </tbody>
         </MatrixTable>
       )}
-      {!isLoading && !error && selectedRoles.length > 0 && filteredGroups.length === 0 && (
+      {!isLoading && !error && selectedRoles.length > 0 && filteredNouns.length === 0 && (
         <EmptyMessage>
           <TranslatedText
             stringId="admin.permissions.noPermissions"
