@@ -296,6 +296,13 @@ const MAX_CONCURRENT_SESSIONS = 1;
         parameters: { deviceId: 'queue-B', facilityIds: ['facilityB'] },
       });
 
+      // Start B's sync to remove it from the queue
+      const resultB = await requestSync('B', 10);
+      expect(resultB.body).toHaveProperty('status', 'goodToGo');
+
+      // Complete B's sync and have both B and C re-queue
+      await closeActiveSyncSessions();
+
       // B should be at the front because it has 0 consecutive failures and the oldest tick
       const waiting = await requestSync('C', 200);
       expect(waiting.body).toHaveProperty('status', 'waitingInQueue');
