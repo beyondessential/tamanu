@@ -55,7 +55,7 @@ export class ApplicationContext {
     }, {});
     this.settings.global = new ReadSettings(this.models);
 
-    if (config.integrations?.fhir?.enabled) {
+    if (config.integrations?.fhir?.enabled || config.integrations?.fhir?.worker?.enabled) {
       const facilityReaders = facilityIds.map(id => this.settings[id]);
       await initFhirSettingsFromDb(this.settings.global, facilityReaders);
     }
