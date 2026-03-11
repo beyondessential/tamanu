@@ -20,23 +20,12 @@ let settings = null;
 
 /**
  * Load FHIR settings from the database at server startup.
- * The result is held for the lifetime of the process; changes require a restart
- * (hence requiresRestart: true on the schemas).
- *
- * Called once from initDatabase (production) or MockApplicationContext.init (tests).
- * Subsequent calls are no-ops — restart the process to pick up changes.
- *
- * resourceMaterialisationEnabled is marked serverWide in the schema because the
- * central server materialises resources globally, not per-facility. The setting
- * appears in both global and facility scopes so that multi-facility deployments
- * can toggle it per facility in the UI, but the union merge here collapses those
- * into a single server-wide flag (enabled if ANY facility enables it). Count
- * parameters are always read from the global scope.
+ * Cached for the process lifetime (requiresRestart: true). Subsequent calls are no-ops.
  *
  * @param {object} models - Sequelize models
- * @param {string[]} [facilityIds] - Facility IDs for omni-facility servers.
- *   When provided, resourceMaterialisationEnabled is the union across all facilities
- *   (enabled if ANY facility enables it). Count params stay global.
+ * @param {string[]} [facilityIds] - facility IDs served by this central server.
+ *   resourceMaterialisationEnabled is union-merged across facilities so a single
+ *   worker pool materialises everything needed. Count params are global-scoped.
  */
 export async function initFhirSettingsFromDb(models, facilityIds = []) {
   if (settings !== null) return;
