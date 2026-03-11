@@ -45,8 +45,12 @@ export function normaliseParameter([key, param], overrides = {}) {
   return [key, norm];
 }
 
+let cachedResultParameters = null;
+
 function getResultParameters() {
-  return {
+  if (cachedResultParameters) return cachedResultParameters;
+
+  cachedResultParameters = {
     _total: {
       type: FHIR_SEARCH_PARAMETERS.SPECIAL,
       parameterSchema: yup.string().oneOf(['none', 'estimate', 'accurate']),
@@ -77,6 +81,7 @@ function getResultParameters() {
       parameterSchema: INCLUDE_SCHEMA,
     },
   };
+  return cachedResultParameters;
 }
 
 export function getResultParameterNames() {

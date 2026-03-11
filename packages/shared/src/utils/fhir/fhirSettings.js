@@ -1,28 +1,37 @@
 import config from 'config';
-import { ReadSettings } from '@tamanu/settings';
+import {
+  ReadSettings,
+  extractDefaults,
+  fhirResourceMaterialisationSchema,
+  fhirCountParametersSchema,
+} from '@tamanu/settings';
+import { log } from '../../services/logging';
+
+const matDefaults = extractDefaults(fhirResourceMaterialisationSchema);
+const countDefaults = extractDefaults(fhirCountParametersSchema);
 
 const DEFAULTS = {
-  resourceMaterialisationEnabled: {
-    Patient: true,
-    Encounter: false,
-    Immunization: false,
-    MediciReport: false,
-    Organization: false,
-    Practitioner: false,
-    ServiceRequest: false,
-    Specimen: false,
-    MedicationRequest: false,
-    DiagnosticReport: false,
-  },
-  countDefault: 100,
-  countMax: 1000,
+  resourceMaterialisationEnabled: matDefaults,
+  countDefault: countDefaults._count.default,
+  countMax: countDefaults._count.max,
 };
 
 let settings = null;
 
 /**
  * Load FHIR settings from the database at server startup.
- * The result is held for the lifetime of the process; changes require a restart.
+ * The result is held for the lifetime of the process; changes require a restart
+ * (hence requiresRestart: true on the schemas).
+ *
+ * Called once from initDatabase (production) or MockApplicationContext.init (tests).
+ * Subsequent calls are no-ops — restart the process to pick up changes.
+ *
+ * resourceMaterialisationEnabled is marked serverWide in the schema because the
+ * central server materialises resources globally, not per-facility. The setting
+ * appears in both global and facility scopes so that multi-facility deployments
+ * can toggle it per facility in the UI, but the union merge here collapses those
+ * into a single server-wide flag (enabled if ANY facility enables it). Count
+ * parameters are always read from the global scope.
  *
  * @param {object} models - Sequelize models
  * @param {string[]} [facilityIds] - Facility IDs for omni-facility servers.
@@ -30,6 +39,8 @@ let settings = null;
  *   (enabled if ANY facility enables it). Count params stay global.
  */
 export async function initFhirSettingsFromDb(models, facilityIds = []) {
+  if (settings !== null) return;
+
   try {
     const globalReader = new ReadSettings(models);
 
@@ -63,14 +74,14 @@ export async function initFhirSettingsFromDb(models, facilityIds = []) {
       mergedMatEnabled = globalMatEnabled ?? DEFAULTS.resourceMaterialisationEnabled;
     }
 
-    settings = {
+    settings = { // eslint-disable-line require-atomic-updates
       resourceMaterialisationEnabled: mergedMatEnabled,
       countDefault: globalCountDefault ?? DEFAULTS.countDefault,
       countMax: globalCountMax ?? DEFAULTS.countMax,
     };
-  } catch {
-    // Settings table may not exist yet (e.g. during upgrade before migrations)
-    settings = null;
+  } catch (error) {
+    log.warn('Failed to load FHIR settings from DB, using defaults', error.message);
+    settings = null; // eslint-disable-line require-atomic-updates
   }
 }
 
