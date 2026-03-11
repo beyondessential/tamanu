@@ -87,12 +87,13 @@ const getSchemaForCategory = (schema, category, subCategory) => {
   const categorySchema = schema.properties[category];
   if (!categorySchema) return null;
   if (subCategory) {
-    // Pass down highRisk from parent category to now top level subcategory
     const subCategorySchema = categorySchema.properties[subCategory];
     const isHighRisk = categorySchema.highRisk || subCategorySchema.highRisk;
+    const isServerWide = categorySchema.serverWide || subCategorySchema.serverWide;
     return {
       ...subCategorySchema,
       highRisk: isHighRisk,
+      serverWide: isServerWide,
     };
   }
   return categorySchema;

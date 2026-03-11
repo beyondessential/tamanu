@@ -1,5 +1,6 @@
 export * from './datetime';
 export * from './errors';
+export * from './fhirSettingsCache';
 export * from './parameters';
 export * from './references';
 export * from './schemata';

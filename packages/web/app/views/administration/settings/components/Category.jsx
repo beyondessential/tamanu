@@ -2,6 +2,7 @@ import React, { memo } from 'react';
 import styled from 'styled-components';
 import LockIcon from '@material-ui/icons/Lock';
 import RefreshIcon from '@material-ui/icons/Refresh';
+import { Alert } from '@material-ui/lab';
 
 import { isSetting } from '@tamanu/settings';
 
@@ -53,6 +54,11 @@ const StyledHeading = styled(Heading4)`
   grid-column: 1 / -1;
   margin-block: 1rem;
   inline-size: fit-content;
+`;
+
+const ServerWideAlert = styled(Alert)`
+  grid-column: 1 / -1;
+  margin-block-end: 0.5rem;
 `;
 
 const CategoryTitle = memo(({ name, path, description }) => {
@@ -132,6 +138,15 @@ export const Category = ({ schema, path = '', getSettingValue, getGlobalSettingV
         description={schema.description}
         data-testid="categorytitle-0pic"
       />
+      {schema.serverWide && !path && (
+        <ServerWideAlert severity="info" data-testid="serverwidealert-fw01">
+          <TranslatedText
+            stringId="admin.settings.serverWideAlert"
+            fallback="These settings apply to all facilities on this server instance. Changes will take effect across all connected facilities."
+            data-testid="translatedtext-fw01"
+          />
+        </ServerWideAlert>
+      )}
       {sortedProperties.map(([key, propertySchema]) => {
         const newPath = path ? `${path}.${key}` : key;
         const testIdSuffix = newPath.replace(/\./g, '-');
@@ -149,6 +164,8 @@ export const Category = ({ schema, path = '', getSettingValue, getGlobalSettingV
         const isHighRisk = schema.highRisk || highRisk;
         const needsRestart = schema.requiresRestart || requiresRestart;
         const disabled = !canWriteHighRisk && isHighRisk;
+
+        const isServerWide = schema.serverWide || propertySchema.serverWide;
 
         return type ? (
           <SettingLine key={newPath} data-testid={`settingline-55rw-${testIdSuffix}`}>
@@ -178,8 +195,7 @@ export const Category = ({ schema, path = '', getSettingValue, getGlobalSettingV
           <Category
             key={newPath}
             path={newPath}
-            // Pass down highRisk and requiresRestart from parent category
-            schema={{ ...propertySchema, highRisk: isHighRisk, requiresRestart: needsRestart }}
+            schema={{ ...propertySchema, highRisk: isHighRisk, requiresRestart: needsRestart, serverWide: isServerWide }}
             getSettingValue={getSettingValue}
             getGlobalSettingValue={getGlobalSettingValue}
             handleChangeSetting={handleChangeSetting}

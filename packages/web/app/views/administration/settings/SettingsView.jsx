@@ -153,7 +153,7 @@ export const SettingsView = () => {
               setScope={setScope}
               facilityId={facilityId}
               setFacilityId={setFacilityId}
-              globalSettings={globalSettings}
+              globalSettings={scope === SETTINGS_SCOPES.FACILITY ? globalSettings : undefined}
               data-testid="settingsform-lqhf"
             />
           )}

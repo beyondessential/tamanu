@@ -3,6 +3,7 @@ import { isPlainObject, get as getAtPath, set as setAtPath, isEqual, keyBy } fro
 import { settingsCache } from '@tamanu/settings/cache';
 import { SYNC_DIRECTIONS, SETTINGS_SCOPES } from '@tamanu/constants';
 import { extractDefaults, getScopedSchema } from '@tamanu/settings/schema';
+import { refreshFhirSettingsIfInitialized } from '@tamanu/shared/utils/fhir';
 import { Model } from './Model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { InitOptions, Models } from '../types/model';
@@ -57,17 +58,23 @@ export class Setting extends Model {
         ...options,
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         hooks: {
-          afterSave() {
+          async afterSave(instance: Setting) {
             settingsCache.reset();
+            if (instance.key?.startsWith('fhir.')) {
+              await refreshFhirSettingsIfInitialized();
+            }
           },
-          afterBulkCreate() {
+          async afterBulkCreate() {
             settingsCache.reset();
+            await refreshFhirSettingsIfInitialized();
           },
-          afterBulkUpdate() {
+          async afterBulkUpdate() {
             settingsCache.reset();
+            await refreshFhirSettingsIfInitialized();
           },
-          afterBulkDestroy() {
+          async afterBulkDestroy() {
             settingsCache.reset();
+            await refreshFhirSettingsIfInitialized();
           },
         },
         indexes: [

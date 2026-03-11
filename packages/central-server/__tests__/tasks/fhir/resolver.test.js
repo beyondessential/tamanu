@@ -30,6 +30,7 @@ describe('sortResourcesInDependencyOrder', () => {
       'FhirEncounter',
       'FhirImmunization',
       'FhirServiceRequest',
+      'FhirMedicationRequest',
     ]);
   });
 });

@@ -50,7 +50,7 @@ export class ApplicationContext {
     this.models = this.store.models;
 
     if (config.integrations?.fhir?.enabled) {
-      await initFhirSettingsFromDb(this.models);
+      await initFhirSettingsFromDb(this.models, facilityIds);
     }
 
     this.settings = facilityIds.reduce((acc, facilityId) => {
