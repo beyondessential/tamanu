@@ -243,7 +243,7 @@ const MAX_CONCURRENT_SESSIONS = 1;
       }
     });
 
-    it('Should deprioritize a device with consecutive sync failures', async () => {
+    it('Should deprioritise a device with consecutive sync failures', async () => {
       const resultA = await requestSync('A'); // start active sync
       expect(resultA.body).toHaveProperty('status', 'goodToGo');
 
