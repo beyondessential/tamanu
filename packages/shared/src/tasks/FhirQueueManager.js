@@ -4,6 +4,7 @@ import ms from 'ms';
 import { hostname } from 'os';
 
 import { getTracer } from '../services/logging';
+import { getFhirWorkerSettings } from '../utils/fhir/fhirSettings';
 import { FhirTopicQueueProcessor } from './FhirTopicQueueProcessor';
 
 export class FhirQueueManager {
@@ -113,7 +114,7 @@ export class FhirQueueManager {
    * @returns {number} Total capacity of the queue manager.
    */
   totalCapacity() {
-    return Math.max(0, this.config.concurrency);
+    return Math.max(0, this._concurrency ?? getFhirWorkerSettings().concurrency);
   }
 
   /**

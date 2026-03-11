@@ -115,11 +115,11 @@ export const SettingInput = ({
     }
   }, [value, typeSchema, type]);
 
-  const hasGlobalValue = !isUndefined(globalValue);
-  const resetLabel = hasGlobalValue
+  const hasGlobalOverride = !isUndefined(globalValue) && !isEqual(normalize(globalValue), normalize(defaultValue));
+  const resetLabel = hasGlobalOverride
     ? <TranslatedText stringId="admin.settings.action.resetToGlobal" fallback="Reset to global" data-testid="translatedtext-8elp" />
     : <TranslatedText stringId="admin.settings.action.resetToDefault" fallback="Reset to default" data-testid="translatedtext-8elp" />;
-  const unchangedTooltip = hasGlobalValue
+  const unchangedTooltip = hasGlobalOverride
     ? <TranslatedText stringId="admin.settings.action.resetToGlobal.unchangedTooltip" fallback="This setting matches the global value" data-testid="translatedtext-1kr8" />
     : <TranslatedText stringId="admin.settings.action.resetToDefault.unchangedTooltip" fallback="This setting is already at its default value" data-testid="translatedtext-1kr8" />;
 
@@ -149,7 +149,7 @@ export const SettingInput = ({
   const handleChangeNumber = e => handleChangeSetting(path, Number(e.target.value));
   const handleChangeJSON = e => handleChangeSetting(path, e);
 
-  const effectiveDefault = hasGlobalValue ? globalValue : defaultValue;
+  const effectiveDefault = hasGlobalOverride ? globalValue : defaultValue;
   const displayValue = isUndefined(value) ? effectiveDefault : value;
   const suggesterDisplayValue = displayValue === null ? '' : displayValue;
 

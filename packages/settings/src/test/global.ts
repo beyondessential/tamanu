@@ -21,5 +21,10 @@ export const globalTestSettings = {
         DiagnosticReport: true,
       },
     },
+    extensions: {
+      Patient: {
+        newZealandEthnicity: false,
+      },
+    },
   },
 };

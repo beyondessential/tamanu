@@ -3,16 +3,20 @@ import {
   extractDefaults,
   fhirResourceMaterialisationSchema,
   fhirCountParametersSchema,
+  fhirExtensionsSchema,
 } from '@tamanu/settings';
 import { log } from '../../services/logging';
 
 const matDefaults = extractDefaults(fhirResourceMaterialisationSchema);
 const countDefaults = extractDefaults(fhirCountParametersSchema);
+const extensionsDefaults = extractDefaults(fhirExtensionsSchema);
 
 const DEFAULTS = {
   resourceMaterialisationEnabled: matDefaults,
   countDefault: countDefaults._count.default,
   countMax: countDefaults._count.max,
+  concurrency: 10,
+  extensions: extensionsDefaults,
 };
 
 let settings = null;
@@ -41,12 +45,19 @@ export async function initFhirSettingsFromDb(globalSettings, facilitySettings = 
   if (settings !== null) return;
 
   try {
+    const globalPromises = [
+      globalSettings.get('fhir.parameters._count.default'),
+      globalSettings.get('fhir.parameters._count.max'),
+      globalSettings.get('fhir.worker.concurrency'),
+      globalSettings.get('fhir.extensions'),
+    ];
+
     if (facilitySettings.length > 0) {
-      const [globalCountDefault, globalCountMax, ...perFacility] = await Promise.all([
-        globalSettings.get('fhir.parameters._count.default'),
-        globalSettings.get('fhir.parameters._count.max'),
-        ...facilitySettings.map(fs => fs.get('fhir.worker.resourceMaterialisationEnabled')),
-      ]);
+      const [globalCountDefault, globalCountMax, concurrency, extensions, ...perFacility] =
+        await Promise.all([
+          ...globalPromises,
+          ...facilitySettings.map(fs => fs.get('fhir.worker.resourceMaterialisationEnabled')),
+        ]);
 
       const mergedMatEnabled = Object.fromEntries(
         Object.keys(DEFAULTS.resourceMaterialisationEnabled).map(k => [k, false]),
@@ -62,18 +73,22 @@ export async function initFhirSettingsFromDb(globalSettings, facilitySettings = 
         resourceMaterialisationEnabled: mergedMatEnabled,
         countDefault: globalCountDefault ?? DEFAULTS.countDefault,
         countMax: globalCountMax ?? DEFAULTS.countMax,
+        concurrency: concurrency ?? DEFAULTS.concurrency,
+        extensions: extensions ?? DEFAULTS.extensions,
       };
     } else {
-      const [globalCountDefault, globalCountMax, globalMatEnabled] = await Promise.all([
-        globalSettings.get('fhir.parameters._count.default'),
-        globalSettings.get('fhir.parameters._count.max'),
-        globalSettings.get('fhir.worker.resourceMaterialisationEnabled'),
-      ]);
+      const [globalCountDefault, globalCountMax, concurrency, extensions, globalMatEnabled] =
+        await Promise.all([
+          ...globalPromises,
+          globalSettings.get('fhir.worker.resourceMaterialisationEnabled'),
+        ]);
 
       settings = { // eslint-disable-line require-atomic-updates
         resourceMaterialisationEnabled: globalMatEnabled ?? DEFAULTS.resourceMaterialisationEnabled,
         countDefault: globalCountDefault ?? DEFAULTS.countDefault,
         countMax: globalCountMax ?? DEFAULTS.countMax,
+        concurrency: concurrency ?? DEFAULTS.concurrency,
+        extensions: extensions ?? DEFAULTS.extensions,
       };
     }
   } catch (error) {
@@ -86,6 +101,7 @@ export function getFhirWorkerSettings() {
   const s = settings ?? DEFAULTS;
   return {
     enabled: config?.integrations?.fhir?.worker?.enabled ?? false,
+    concurrency: s.concurrency,
     resourceMaterialisationEnabled: s.resourceMaterialisationEnabled,
   };
 }
@@ -96,4 +112,9 @@ export function getFhirCountSettings() {
     default: s.countDefault,
     max: s.countMax,
   };
+}
+
+export function getFhirExtensionSettings() {
+  const s = settings ?? DEFAULTS;
+  return s.extensions;
 }

@@ -11,7 +11,6 @@ import {
   datelessTimeStringSchema,
   durationStringSchema,
   fhirResourceMaterialisationSchema,
-  fhirCountParametersSchema,
 } from './definitions';
 
 export const facilitySettings = {
@@ -210,7 +209,6 @@ export const facilitySettings = {
             resourceMaterialisationEnabled: fhirResourceMaterialisationSchema,
           },
         },
-        parameters: fhirCountParametersSchema,
       },
     },
   },

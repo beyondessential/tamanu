@@ -13,6 +13,7 @@ export {
   extractDefaults,
   fhirResourceMaterialisationSchema,
   fhirCountParametersSchema,
+  fhirExtensionsSchema,
 } from './schema';
 export { ReadSettings, buildSettings, getKeysByFlag } from './reader';
 export { facilityTestSettings, centralTestSettings, globalTestSettings } from './test';
