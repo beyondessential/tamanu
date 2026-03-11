@@ -51,11 +51,10 @@ translationRouter.put(
       return;
     }
 
-    const created = [];
-    const updated = [];
-    const destroyed = [];
-
-    await sequelize.transaction(async () => {
+    const { created } = await sequelize.transaction(async () => {
+      const toCreate = [];
+      const toUpdate = [];
+      const toDestroy = [];
       const pairs = entries.map(({ stringId, language }) => ({ stringId, language }));
       const existing = await TranslatedString.findAll({
         where: { [Op.or]: pairs },
@@ -68,29 +67,31 @@ translationRouter.put(
         const record = existingMap.get(key);
 
         if (isEmpty(text)) {
-          if (record) destroyed.push({ stringId, language });
+          if (record) toDestroy.push({ stringId, language });
           continue;
         }
         if (record && !record.deletedAt) {
           if (record.text === text) continue;
-          updated.push({ stringId, language, text, deletedAt: null });
+          toUpdate.push({ stringId, language, text, deletedAt: null });
         } else {
-          created.push({ stringId, language, text });
+          toCreate.push({ stringId, language, text });
         }
       }
 
-      const toBulkCreate = [...created, ...updated];
+      const toBulkCreate = [...toCreate, ...toUpdate];
       if (toBulkCreate.length > 0) {
         await TranslatedString.bulkCreate(toBulkCreate, {
           validate: true,
           updateOnDuplicate: ['text', 'deletedAt'],
         });
       }
-      if (destroyed.length > 0) {
+      if (toDestroy.length > 0) {
         await TranslatedString.destroy({
-          where: { [Op.or]: destroyed },
+          where: { [Op.or]: toDestroy },
         });
       }
+
+      return { created: toCreate };
     });
 
     if (created.length > 0) {
