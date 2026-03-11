@@ -122,8 +122,10 @@ export const PermissionsEditView = () => {
     [permissions, selectedRoleIds],
   );
 
+  // Builds the noun options for the Noun Autocomplete Field to filter the nouns
   const nounOptions = useNounOptions(permissions, objectNames);
 
+  // Filters the nouns for permission matrix based on the selected noun
   const filteredNouns = useFilteredNouns(allNouns, selectedNoun);
 
   const handleRoleChange = useCallback(event => {

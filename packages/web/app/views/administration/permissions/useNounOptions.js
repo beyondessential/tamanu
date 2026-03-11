@@ -8,6 +8,9 @@ const BASE_NOUN_OPTIONS = Object.keys(PERMISSION_SCHEMA)
   .sort()
   .map(noun => ({ value: noun, label: noun }));
 
+/**
+ * Builds the noun options for the Autocomplete Field to filter the nouns
+ */
 export const useNounOptions = (permissions, objectNames) =>
   useMemo(() => {
     const childEntries = [];
@@ -15,6 +18,9 @@ export const useNounOptions = (permissions, objectNames) =>
     for (const permission of permissions) {
       if (permission.objectId) {
         const key = `${permission.noun}#${permission.objectId}`;
+        // Multiple permissions can share the same noun + objectId combination:
+        // one for each verb (e.g. read Survey#survey-123, write Survey#survey-123, list Survey#survey-123).
+        // Without seenKeys, the loop would push a duplicate dropdown entry
         if (!seenKeys.has(key)) {
           seenKeys.add(key);
           const displayName = objectNames[key] ?? permission.objectId;
@@ -29,7 +35,5 @@ export const useNounOptions = (permissions, objectNames) =>
       }
     }
     const childOptions = childEntries.sort((a, b) => a.label.localeCompare(b.label));
-    return [...BASE_NOUN_OPTIONS, ...childOptions].sort((a, b) =>
-      a.label.localeCompare(b.label),
-    );
+    return [...BASE_NOUN_OPTIONS, ...childOptions].sort((a, b) => a.label.localeCompare(b.label));
   }, [permissions, objectNames]);

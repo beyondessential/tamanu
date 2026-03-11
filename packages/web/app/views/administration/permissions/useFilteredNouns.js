@@ -1,12 +1,16 @@
 import { useMemo } from 'react';
 import { NOUN_TYPES } from './constants';
 
+/**
+ * Filters the nouns for permission matrix based on the selected noun
+ */
 export const useFilteredNouns = (allNouns, selectedNoun) =>
   useMemo(() => {
     if (!selectedNoun) {
       return allNouns;
     }
 
+    // If the selected noun is an Object ID, filter the Object ID group to the selected Object ID
     if (selectedNoun.startsWith(NOUN_TYPES.OBJECT_ID + ':')) {
       const [, noun, ...objectIdParts] = selectedNoun.split(':');
       const objectId = objectIdParts.join(':');
