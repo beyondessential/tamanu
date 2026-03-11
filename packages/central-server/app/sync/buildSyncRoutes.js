@@ -12,6 +12,9 @@ import { CentralSyncManager } from './CentralSyncManager';
 import { startStream, StreamMessage } from './StreamMessage';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
+/** Max completed sessions to scan when counting consecutive failures for queue deprioritization */
+const CONSECUTIVE_FAILURES_LOOKBACK_LIMIT = 99;
+
 /**
  * @typedef {import('../ApplicationContext').ApplicationContext} ApplicationContext
  */
@@ -95,7 +98,7 @@ export const buildSyncRoutes = ctx => {
           completedAt: { [Op.not]: null },
         },
         order: [['completedAt', 'DESC']],
-        limit: 10,
+        limit: CONSECUTIVE_FAILURES_LOOKBACK_LIMIT,
       });
       let consecutiveFailures = 0;
       for (const session of recentSessions) {
