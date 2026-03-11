@@ -12,7 +12,6 @@ sources:
             triggers:
               - notify_m_supply_pushes_changed
               - set_m_supply_pushes_updated_at
-              - set_m_supply_pushes_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid
@@ -76,8 +75,3 @@ sources:
             config:
               meta:
                 masking: text
-          - name: updated_at_sync_tick
-            data_type: bigint
-            description: "{{ doc('logs__generic__updated_at_sync_tick') }} in m_supply_pushes."
-            data_tests:
-              - not_null

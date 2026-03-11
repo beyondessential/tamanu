@@ -52,7 +52,7 @@ export class MSupplyPushLog extends Model {
       {
         ...options,
         tableName: 'm_supply_pushes',
-        syncDirection: SYNC_DIRECTIONS.PUSH_TO_CENTRAL,
+        syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
         schema: 'logs',
       },
     );
