@@ -142,9 +142,9 @@ describe('Permissions Admin', () => {
     });
   });
 
-  describe('POST /', () => {
+  describe('POST /create-batch', () => {
     it('should create multiple permissions in a single request', async () => {
-      const res = await adminApp.post('/v1/admin/permissions').send({
+      const res = await adminApp.post('/v1/admin/permissions/create-batch').send({
         permissions: [
           { verb: 'write', noun: 'Patient', roleId: 'role-a' },
           { verb: 'list', noun: 'Patient', roleId: 'role-a' },
@@ -164,7 +164,7 @@ describe('Permissions Admin', () => {
     });
 
     it('should create a permission with objectId for supported nouns', async () => {
-      const res = await adminApp.post('/v1/admin/permissions').send({
+      const res = await adminApp.post('/v1/admin/permissions/create-batch').send({
         permissions: [
           { verb: 'read', noun: 'Survey', objectId: 'survey-123', roleId: 'role-a' },
         ],
@@ -179,7 +179,7 @@ describe('Permissions Admin', () => {
     });
 
     it('should reject objectId for nouns that do not support it', async () => {
-      const res = await adminApp.post('/v1/admin/permissions').send({
+      const res = await adminApp.post('/v1/admin/permissions/create-batch').send({
         permissions: [
           { verb: 'read', noun: 'Patient', objectId: 'patient-123', roleId: 'role-a' },
         ],
@@ -195,7 +195,7 @@ describe('Permissions Admin', () => {
       });
       await permission.destroy();
 
-      const res = await adminApp.post('/v1/admin/permissions').send({
+      const res = await adminApp.post('/v1/admin/permissions/create-batch').send({
         permissions: [
           { verb: 'read', noun: 'Patient', roleId: 'role-a' },
         ],
@@ -215,7 +215,7 @@ describe('Permissions Admin', () => {
         roleId: 'role-a',
       });
 
-      const res = await adminApp.post('/v1/admin/permissions').send({
+      const res = await adminApp.post('/v1/admin/permissions/create-batch').send({
         permissions: [
           { verb: 'read', noun: 'Patient', roleId: 'role-a' },
         ],
@@ -225,7 +225,7 @@ describe('Permissions Admin', () => {
     });
 
     it('should roll back all changes on validation error', async () => {
-      const res = await adminApp.post('/v1/admin/permissions').send({
+      const res = await adminApp.post('/v1/admin/permissions/create-batch').send({
         permissions: [
           { verb: 'read', noun: 'Patient', roleId: 'role-a' },
           { verb: 'badverb', noun: 'Patient', roleId: 'role-a' },
@@ -240,14 +240,14 @@ describe('Permissions Admin', () => {
     });
 
     it('should return 422 when permissions array is empty', async () => {
-      const res = await adminApp.post('/v1/admin/permissions').send({
+      const res = await adminApp.post('/v1/admin/permissions/create-batch').send({
         permissions: [],
       });
       expect(res.status).toBe(422);
     });
 
     it('should return 422 when required fields are missing', async () => {
-      const res = await adminApp.post('/v1/admin/permissions').send({
+      const res = await adminApp.post('/v1/admin/permissions/create-batch').send({
         permissions: [
           { verb: 'read' },
         ],
@@ -256,7 +256,7 @@ describe('Permissions Admin', () => {
     });
   });
 
-  describe('DELETE /', () => {
+  describe('POST /delete-batch', () => {
     it('should delete multiple permissions in a single request', async () => {
       await models.Permission.create({
         verb: 'read',
@@ -269,7 +269,7 @@ describe('Permissions Admin', () => {
         roleId: 'role-a',
       });
 
-      const res = await adminApp.delete('/v1/admin/permissions').send({
+      const res = await adminApp.post('/v1/admin/permissions/delete-batch').send({
         permissions: [
           { verb: 'read', noun: 'Patient', roleId: 'role-a' },
           { verb: 'write', noun: 'Patient', roleId: 'role-a' },
@@ -285,7 +285,7 @@ describe('Permissions Admin', () => {
     });
 
     it('should return deleted: 0 when permissions do not exist', async () => {
-      const res = await adminApp.delete('/v1/admin/permissions').send({
+      const res = await adminApp.post('/v1/admin/permissions/delete-batch').send({
         permissions: [
           { verb: 'read', noun: 'Patient', roleId: 'role-a' },
         ],
@@ -301,7 +301,7 @@ describe('Permissions Admin', () => {
         roleId: 'role-a',
       });
 
-      const res = await adminApp.delete('/v1/admin/permissions').send({
+      const res = await adminApp.post('/v1/admin/permissions/delete-batch').send({
         permissions: [
           { verb: 'read', noun: 'Patient', roleId: 'role-a' },
           { verb: 'badverb', noun: 'Patient', roleId: 'role-a' },
@@ -316,14 +316,14 @@ describe('Permissions Admin', () => {
     });
 
     it('should return 422 when permissions array is empty', async () => {
-      const res = await adminApp.delete('/v1/admin/permissions').send({
+      const res = await adminApp.post('/v1/admin/permissions/delete-batch').send({
         permissions: [],
       });
       expect(res.status).toBe(422);
     });
 
     it('should return 422 when required fields are missing', async () => {
-      const res = await adminApp.delete('/v1/admin/permissions').send({
+      const res = await adminApp.post('/v1/admin/permissions/delete-batch').send({
         permissions: [
           { verb: 'read' },
         ],

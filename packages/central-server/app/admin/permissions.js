@@ -141,7 +141,7 @@ permissionsRouter.get(
 );
 
 permissionsRouter.post(
-  '/',
+  '/create-batch',
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'Permission');
     const { permissions } = req.body;
@@ -174,8 +174,11 @@ permissionsRouter.post(
   }),
 );
 
-permissionsRouter.delete(
-  '/',
+// Delete multiple permissions in a single request
+// so we can roll back all changes if one fails.
+// So have to use post instead of delete to send data in the body.
+permissionsRouter.post(
+  '/delete-batch',
   asyncHandler(async (req, res) => {
     req.checkPermission('delete', 'Permission');
     const { permissions } = req.body;
