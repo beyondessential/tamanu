@@ -27,7 +27,7 @@ jobs:
     name: Build and deploy docs
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
          ref: ${{ github.head_ref || github.ref }}
 
@@ -41,7 +41,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install dbt-core dbt-postgres
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version-file: '.node-version'
           cache: npm

@@ -77,14 +77,51 @@ WHERE true
   ELSE
     true
   END
+  AND CASE WHEN coalesce($discharge_date_gt, 'not_a_date') != 'not_a_date'
+    THEN encounter_end_date::timestamptz > $discharge_date_gt::timestamptz
+    ELSE true
+  END
+  AND CASE WHEN coalesce($discharge_date_lt, 'not_a_date') != 'not_a_date'
+    THEN encounter_end_date::timestamptz < $discharge_date_lt::timestamptz
+    ELSE true
+  END
+  AND CASE WHEN coalesce($discharge_date_ge, 'not_a_date') != 'not_a_date'
+    THEN encounter_end_date::timestamptz >= $discharge_date_ge::timestamptz
+    ELSE true
+  END
+  AND CASE WHEN coalesce($discharge_date_le, 'not_a_date') != 'not_a_date'
+    THEN encounter_end_date::timestamptz <= $discharge_date_le::timestamptz
+    ELSE true
+  END
+  AND CASE WHEN coalesce($discharge_date_eq, 'not_a_date') != 'not_a_date'
+    THEN encounter_end_date::timestamptz = $discharge_date_eq::timestamptz
+    ELSE true
+  END
 
 ORDER BY last_updated DESC
 LIMIT $limit OFFSET $offset;
 `;
 
-const parseDateParam = (date) => {
+const DISCHARGE_DATE_PREFIXES = ['gt', 'lt', 'ge', 'le', 'eq'];
+
+const parseDateParam = date => {
   const { plain: parsedDate } = parseDateTime(date, { withTz: COUNTRY_TIMEZONE });
   return parsedDate || null;
+};
+
+/**
+ * Parse a discharge_date query value that may include a FHIR-style prefix (gt, lt, ge, le).
+ * Uses the same parsing as period.start/period.end (parseDateParam), so timestamps without
+ * an explicit timezone are interpreted in COUNTRY_TIMEZONE.
+ */
+const parseDischargeDateParam = param => {
+  if (!param || typeof param !== 'string') return null;
+  const trimmed = param.trim();
+  const prefixMatch = DISCHARGE_DATE_PREFIXES.find(p => trimmed.startsWith(p));
+  const prefix = prefixMatch || 'eq';
+  const valueStr = prefixMatch ? trimmed.slice(prefixMatch.length) : trimmed;
+  const parsed = parseDateParam(valueStr);
+  return parsed ? { prefix, value: parsed } : null;
 };
 
 const checkTimePeriod = (fromDate, toDate) => {
@@ -106,6 +143,7 @@ routes.get(
       limit = 100,
       encounters,
       offset = 0,
+      discharge_date: dischargeDateParam,
     } = req.query;
     if (!COUNTRY_TIMEZONE) {
       throw new Error('A countryTimeZone must be configured in local.json5 for this report to run');
@@ -133,6 +171,24 @@ routes.get(
       throw new InvalidOperationError('The time period must be within 1 hour');
     }
 
+    const dischargeDateBind = {
+      discharge_date_gt: null,
+      discharge_date_lt: null,
+      discharge_date_ge: null,
+      discharge_date_le: null,
+      discharge_date_eq: null,
+    };
+    const dischargeDateParams = [].concat(dischargeDateParam ?? []);
+    for (const param of dischargeDateParams) {
+      const parsed = parseDischargeDateParam(param);
+      if (parsed) {
+        const bindKey = `discharge_date_${parsed.prefix}`;
+        if (Object.prototype.hasOwnProperty.call(dischargeDateBind, bindKey)) {
+          dischargeDateBind[bindKey] = parsed.value;
+        }
+      }
+    }
+
     const data = await sequelize.query(reportQuery, {
       type: QueryTypes.SELECT,
       bind: {
@@ -143,15 +199,16 @@ routes.get(
         limit: parseInt(limit, 10),
         offset, // Should still be able to offset even with no limit
         timezone_string: COUNTRY_TIMEZONE,
+        ...dischargeDateBind,
       },
     });
 
-    const mapNotes = (notes) =>
-      notes?.map((note) => ({
+    const mapNotes = notes =>
+      notes?.map(note => ({
         ...note,
         noteDate: formatDate(note.noteDate),
       }));
-    const mappedData = data.map((encounterData) => {
+    const mappedData = data.map(encounterData => {
       const encounter = mapKeys(encounterData, (_v, k) => camelCase(k));
       return {
         ...encounter,
@@ -160,28 +217,28 @@ routes.get(
         encounterEndDate: formatDate(new Date(encounter.encounterEndDate)),
         dischargeDate: formatDate(new Date(encounter.dischargeDate)),
         sex: upperFirst(encounter.sex),
-        departments: encounter.departments?.map((department) => ({
+        departments: encounter.departments?.map(department => ({
           ...department,
           assignedTime: formatDate(department.assignedTime),
         })),
-        locations: encounter.locations?.map((location) => ({
+        locations: encounter.locations?.map(location => ({
           ...location,
           assignedTime: formatDate(location.assignedTime),
         })),
-        imagingRequests: encounter.imagingRequests?.map((ir) => ({
+        imagingRequests: encounter.imagingRequests?.map(ir => ({
           ...ir,
           notes: mapNotes(ir.notes),
         })),
-        labRequests: encounter.labRequests?.map((lr) => ({
+        labRequests: encounter.labRequests?.map(lr => ({
           ...lr,
           notes: mapNotes(lr.notes),
         })),
-        procedures: encounter.procedures?.map((procedure) => ({
+        procedures: encounter.procedures?.map(procedure => ({
           ...procedure,
           date: formatDate(procedure.date),
         })),
         notes: mapNotes(encounter.notes),
-        encounterType: encounter.encounterType?.map((encounterType) => ({
+        encounterType: encounter.encounterType?.map(encounterType => ({
           ...encounterType,
           startDate: formatDate(encounterType.startDate),
         })),
