@@ -79,23 +79,33 @@ export class SyncQueuedDevice extends Model {
     if (!queueRecord) {
       // New entry: compute consecutive failures from sync_sessions (only needed on create;
       // once in the queue we keep the cached value to avoid a heavy query on every poll)
-      const { SyncSession } = this.sequelize.models;
-      const recentSessions = await SyncSession.findAll({
-        where: {
-          parameters: { deviceId: id },
-          completedAt: { [Op.not]: null },
+      const [result] = await this.sequelize.query<{ consecutive_failures: number }>(
+        `
+        WITH ranked_sessions AS (
+          SELECT 
+            ROW_NUMBER() OVER (ORDER BY completed_at DESC) as rn,
+            CASE WHEN errors IS NOT NULL AND array_length(errors, 1) > 0 
+              THEN TRUE ELSE FALSE 
+            END as has_error
+          FROM sync_sessions
+          WHERE parameters @> jsonb_build_object('deviceId', :deviceId)
+            AND completed_at IS NOT NULL
+          ORDER BY completed_at DESC
+          LIMIT :limit
+        )
+        SELECT COUNT(*)::INTEGER as consecutive_failures
+        FROM ranked_sessions
+        WHERE has_error = TRUE 
+          AND rn < COALESCE(
+            (SELECT MIN(rn) FROM ranked_sessions WHERE has_error = FALSE), 
+            :limit + 1
+          )
+        `,
+        {
+          replacements: { deviceId: id, limit: CONSECUTIVE_FAILURES_LOOKBACK_LIMIT },
         },
-        order: [['completedAt', 'DESC']],
-        limit: CONSECUTIVE_FAILURES_LOOKBACK_LIMIT,
-      });
-      let consecutiveFailures = 0;
-      for (const session of recentSessions) {
-        if (session.errors?.length) {
-          consecutiveFailures++;
-        } else {
-          break;
-        }
-      }
+      );
+      const consecutiveFailures = result[0]?.consecutive_failures || 0;
       await this.create({
         id,
         facilityIds: JSON.stringify(facilityIds),
