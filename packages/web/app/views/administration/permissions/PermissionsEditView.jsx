@@ -99,7 +99,7 @@ export const PermissionsEditView = () => {
   const [selectedRoleIds, setSelectedRoleIds] = useState([]);
   const [selectedNoun, setSelectedNoun] = useState(null);
 
-  const { data: rolesData = [] } = useAdminPermissionRolesQuery();
+  const { data: rolesData = {} } = useAdminPermissionRolesQuery();
 
   const allRoles = useMemo(() => rolesData.roles ?? [], [rolesData]);
   const selectedRoles = useMemo(
