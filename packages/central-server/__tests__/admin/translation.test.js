@@ -131,7 +131,7 @@ describe('Translation', () => {
       expect(result.status).toEqual(200);
       expect(result.body).toMatchObject({
         createdCount: 0,
-        updatedCount: 2,
+        updatedCount: 1,
         deletedCount: 0,
       });
       const updatedTranslatedStrings = await models.TranslatedString.findAll({
