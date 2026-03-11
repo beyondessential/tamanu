@@ -77,25 +77,33 @@ export class SyncQueuedDevice extends Model {
     const queueRecord = await this.findByPk(id);
 
     if (!queueRecord) {
-      // New entry: compute consecutive failures from sync_sessions (only needed on create;
-      // once in the queue we keep the cached value to avoid a heavy query on every poll)
-      const { SyncSession } = this.sequelize.models;
-      const recentSessions = await SyncSession.findAll({
-        where: {
-          parameters: { deviceId: id },
-          completedAt: { [Op.not]: null },
+      // New entry: compute consecutive failures from sync_sessions (only needed on create)
+      const queryResult = await this.sequelize.query(
+        `
+        WITH recent AS (
+          SELECT
+            errors,
+            ROW_NUMBER() OVER (ORDER BY completed_at DESC) AS rn
+          FROM sync_sessions
+          WHERE parameters->>'deviceId' = :id
+            AND completed_at IS NOT NULL
+          ORDER BY completed_at DESC
+          LIMIT :lookback_limit
+        )
+        SELECT count(*)::int AS consecutive_failures
+        FROM recent
+        WHERE rn < COALESCE(
+          (SELECT MIN(rn) FROM recent WHERE errors IS NULL OR array_length(errors, 1) IS NULL),
+          (SELECT count(*) FROM recent) + 1
+        )
+        `,
+        {
+          replacements: { id, lookback_limit: CONSECUTIVE_FAILURES_LOOKBACK_LIMIT },
+          type: 'SELECT',
         },
-        order: [['completedAt', 'DESC']],
-        limit: CONSECUTIVE_FAILURES_LOOKBACK_LIMIT,
-      });
-      let consecutiveFailures = 0;
-      for (const session of recentSessions) {
-        if (session.errors?.length) {
-          consecutiveFailures++;
-        } else {
-          break;
-        }
-      }
+      );
+      const rows = queryResult[0] as Array<{ consecutive_failures: number }>;
+      const consecutiveFailures = rows[0]?.consecutive_failures ?? 0;
       await this.create({
         id,
         facilityIds: JSON.stringify(facilityIds),
