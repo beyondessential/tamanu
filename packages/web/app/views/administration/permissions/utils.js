@@ -1,9 +1,9 @@
 export function buildNouns(permissions, selectedRoleIds) {
     const regularMap = {};
     const objectIdMap = {};
-  
-    for (const perm of permissions) {
-      const { verb, noun, objectId } = perm;
+
+    for (const permission of permissions) {
+      const { verb, noun, objectId } = permission;
       if (objectId) {
         const nounKey = `${noun} (${objectId})`;
         if (!objectIdMap[noun]) objectIdMap[noun] = {};
@@ -14,7 +14,7 @@ export function buildNouns(permissions, selectedRoleIds) {
           objectIdMap[noun][objectId].verbs[verb] = {};
         }
         for (const roleId of selectedRoleIds) {
-          objectIdMap[noun][objectId].verbs[verb][roleId] = perm[roleId] === 'y';
+          objectIdMap[noun][objectId].verbs[verb][roleId] = permission[roleId] === 'y';
         }
       } else {
         if (!regularMap[noun]) {
@@ -24,7 +24,7 @@ export function buildNouns(permissions, selectedRoleIds) {
           regularMap[noun].verbs[verb] = {};
         }
         for (const roleId of selectedRoleIds) {
-          regularMap[noun].verbs[verb][roleId] = perm[roleId] === 'y';
+          regularMap[noun].verbs[verb][roleId] = permission[roleId] === 'y';
         }
       }
     }

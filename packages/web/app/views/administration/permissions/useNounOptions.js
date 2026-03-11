@@ -12,17 +12,17 @@ export const useNounOptions = (permissions, objectNames) =>
     const objectIdGroupNouns = new Set();
     const childEntries = [];
     const seenKeys = new Set();
-    for (const perm of permissions) {
-      if (perm.objectId) {
-        objectIdGroupNouns.add(perm.noun);
-        const key = `${perm.noun}#${perm.objectId}`;
+    for (const permission of permissions) {
+      if (permission.objectId) {
+        objectIdGroupNouns.add(permission.noun);
+        const key = `${permission.noun}#${permission.objectId}`;
         if (!seenKeys.has(key)) {
           seenKeys.add(key);
-          const displayName = objectNames[key] ?? perm.objectId;
+          const displayName = objectNames[key] ?? permission.objectId;
           childEntries.push({
             key,
-            value: `child:${perm.noun}:${perm.objectId}`,
-            label: `${perm.noun} — ${displayName}`,
+            value: `child:${permission.noun}:${permission.objectId}`,
+            label: `${permission.noun} — ${displayName}`,
           });
         }
       }

@@ -10,9 +10,9 @@ export const useTogglePermissionMutation = (rolesQueryParam, options = {}) => {
       const items = Array.isArray(toggles) ? toggles : [toggles];
       const toCreate = [];
       const toDelete = [];
-      for (const { verb, noun, objectId, roleId, hasPermission } of items) {
+      for (const { verb, noun, objectId, roleId, currentlyHasPermission } of items) {
         const params = { verb, noun, roleId, ...(objectId ? { objectId } : {}) };
-        if (hasPermission) {
+        if (currentlyHasPermission) {
           toDelete.push(params);
         } else {
           toCreate.push(params);

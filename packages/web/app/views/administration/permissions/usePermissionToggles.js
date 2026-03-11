@@ -9,7 +9,7 @@ export function getImpliedVerbs(verb) {
 }
 
 export function getVerbAbbreviation(verb) {
-  return VERB_ABBREVIATIONS[verb] || verb.charAt(0).toUpperCase();
+  return VERB_ABBREVIATIONS[verb] ?? verb.charAt(0).toUpperCase();
 }
 
 export const usePermissionToggles = (nounGroup, onToggle) => {
@@ -32,7 +32,7 @@ export const usePermissionToggles = (nounGroup, onToggle) => {
           noun: nounGroup.noun,
           objectId: nounGroup.objectId,
           roleId: role.id,
-          hasPermission: currentValue,
+          currentlyHasPermission: currentValue,
         },
       ];
 
@@ -44,7 +44,7 @@ export const usePermissionToggles = (nounGroup, onToggle) => {
               noun: nounGroup.noun,
               objectId: nounGroup.objectId,
               roleId: role.id,
-              hasPermission: false,
+              currentlyHasPermission: false,
             });
           }
         }
@@ -59,7 +59,7 @@ export const usePermissionToggles = (nounGroup, onToggle) => {
                 noun: nounGroup.noun,
                 objectId: nounGroup.objectId,
                 roleId: role.id,
-                hasPermission: true,
+                currentlyHasPermission: true,
               });
             }
           }

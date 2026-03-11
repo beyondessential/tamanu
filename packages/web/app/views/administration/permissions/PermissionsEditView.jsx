@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from '@tamanu/ui-components';
 import { ErrorMessage } from '../../../components/ErrorMessage';
@@ -94,6 +94,7 @@ const EmptyMessage = styled.div`
 
 export const PermissionsEditView = () => {
   const { getTranslation } = useTranslation();
+  const hasInitialized = useRef(false);
   const [selectedRoleIds, setSelectedRoleIds] = useState([]);
   const [selectedNoun, setSelectedNoun] = useState(null);
 
@@ -126,11 +127,11 @@ export const PermissionsEditView = () => {
   const filteredNouns = useFilteredNouns(allNouns, selectedNoun);
 
   const handleRoleChange = useCallback(event => {
-    setSelectedRoleIds(event.target.value || []);
+    setSelectedRoleIds(event.target.value ?? []);
   }, []);
 
   const handleNounChange = useCallback(event => {
-    setSelectedNoun(event.target.value || null);
+    setSelectedNoun(event.target.value ?? null);
   }, []);
 
   const togglePermission = useTogglePermissionMutation(rolesQueryParam);
@@ -138,11 +139,10 @@ export const PermissionsEditView = () => {
   const handleToggle = useCallback(params => togglePermission.mutate(params), [togglePermission]);
 
   useEffect(() => {
-    if (allRoles.length > 0 && selectedRoleIds.length === 0) {
+    if (allRoles.length > 0 && !hasInitialized.current) {
+      hasInitialized.current = true;
       setSelectedRoleIds(allRoles.map(r => r.id));
     }
-    // we only want to select all roles on initial load
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allRoles]);
 
   return (
