@@ -22,13 +22,15 @@ import { initIntegrations } from '../dist/integrations';
 class MockApplicationContext {
   closeHooks = [];
 
-  async init() {
+  async init({ initFhir = false } = {}) {
     this.store = await initDatabase({ testMode: true });
     this.settings = new ReadSettings(this.store.models);
     await seedSettings(this.store.models);
-    resetFhirSettings();
-    await initFhirSettingsFromDb(this.settings);
-    await setFhirRefreshTriggers(this.store.sequelize);
+    if (initFhir) {
+      resetFhirSettings();
+      await initFhirSettingsFromDb(this.settings);
+      await setFhirRefreshTriggers(this.store.sequelize);
+    }
 
     if (config.db.reportSchemas?.enabled) {
       await createMockReportingSchemaAndRoles({ sequelize: this.store.sequelize });
@@ -58,8 +60,8 @@ class MockApplicationContext {
   };
 }
 
-export async function createTestContext() {
-  const ctx = await new MockApplicationContext().init();
+export async function createTestContext({ initFhir = false } = {}) {
+  const ctx = await new MockApplicationContext().init({ initFhir });
   const { models } = ctx.store;
   const { express: expressApp, server: appServer } = await createApp(ctx);
   const baseApp = supertest.agent(appServer);

@@ -16,7 +16,7 @@ describe('FHIR refresh handler', () => {
   let imagingRequest;
 
   beforeAll(async () => {
-    ctx = await createTestContext();
+    ctx = await createTestContext({ initFhir: true });
     const { FhirEncounter } = ctx.store.models;
 
     resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);

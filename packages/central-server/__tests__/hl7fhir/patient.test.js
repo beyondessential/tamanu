@@ -20,7 +20,7 @@ describe('HL7 Patient', () => {
   let req;
 
   beforeAll(async () => {
-    ctx = await createTestContext();
+    ctx = await createTestContext({ initFhir: true });
     models = ctx.store.models;
     req = {
       baseUrl: 'Patient',

@@ -15,7 +15,7 @@ describe('FhirMissingResources task', () => {
   let fhirMissingResourcesWorker;
 
   beforeAll(async () => {
-    ctx = await createTestContext();
+    ctx = await createTestContext({ initFhir: true });
     const { FhirEncounter, FhirPractitioner, MediciReport, FhirOrganization } = ctx.store.models;
 
     fhirMissingResourcesWorker = new FhirMissingResources(ctx);

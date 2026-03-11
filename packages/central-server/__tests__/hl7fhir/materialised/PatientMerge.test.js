@@ -9,7 +9,7 @@ describe(`Materialised FHIR - Patient Merge`, () => {
   let ctx;
   let app;
   beforeAll(async () => {
-    ctx = await createTestContext();
+    ctx = await createTestContext({ initFhir: true });
     app = await ctx.baseApp.asRole('practitioner');
   });
   afterAll(() => ctx.close());

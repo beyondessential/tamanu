@@ -11,7 +11,7 @@ describe('HL7FHIR module utils', () => {
   let models;
   let ctx;
   beforeAll(async () => {
-    ctx = await createTestContext();
+    ctx = await createTestContext({ initFhir: true });
     models = ctx.store.models;
   });
 

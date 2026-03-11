@@ -20,7 +20,7 @@ describe('fhir sub commands', () => {
   let labRequest;
 
   beforeAll(async () => {
-    ctx = await createTestContext();
+    ctx = await createTestContext({ initFhir: true });
     const { FhirEncounter, FhirServiceRequest } = ctx.store.models;
     resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
 
