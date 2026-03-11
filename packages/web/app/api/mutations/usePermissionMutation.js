@@ -19,10 +19,10 @@ export const useTogglePermissionMutation = (rolesQueryParam, options = {}) => {
         }
       }
       if (toCreate.length) {
-        await api.post('admin/permissions', { permissions: toCreate });
+        await api.post('admin/permissions/create-batch', { permissions: toCreate });
       }
       if (toDelete.length) {
-        await api.delete('admin/permissions', { permissions: toDelete });
+        await api.post('admin/permissions/delete-batch', { permissions: toDelete });
       }
     },
     onSuccess: () => {
