@@ -72,6 +72,7 @@ export const fhirResourceMaterialisationSchema = {
 export const fhirCountParametersSchema = {
   name: 'Parameters',
   description: 'FHIR search parameter configuration',
+  requiresRestart: true,
   serverWide: true,
   properties: {
     _count: {

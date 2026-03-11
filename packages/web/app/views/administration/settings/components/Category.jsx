@@ -83,7 +83,7 @@ const SettingName = memo(({ name, path, description, disabled, requiresRestart }
         disabled ? (
           <TranslatedText
             stringId="admin.settings.highRiskSettingTooltip"
-            fallback="User does not required permissions to update this setting"
+            fallback="User does not have required permissions to update this setting"
             data-testid="translatedtext-2xq4"
           />
         ) : (
