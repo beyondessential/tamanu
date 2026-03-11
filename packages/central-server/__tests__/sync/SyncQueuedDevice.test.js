@@ -244,22 +244,26 @@ const MAX_CONCURRENT_SESSIONS = 1;
     });
 
     it('Should deprioritize a device with consecutive sync failures', async () => {
-      // Seed a completed+errored session for device B so it looks like it recently failed
-      await models.SyncSession.create({
-        startTime: new Date(),
-        lastConnectionTime: new Date(),
-        completedAt: new Date(),
-        errors: ['something broke'],
-        parameters: { deviceId: 'queue-B', facilityIds: ['facilityB'] },
-      });
-
       const resultA = await requestSync('A'); // start active sync
       expect(resultA.body).toHaveProperty('status', 'goodToGo');
 
-      // B has older lastSyncedTick but consecutive failures
-      await requestSync('B', 10);
-      // C has newer lastSyncedTick and no failures
-      await requestSync('C', 200);
+      const now = toDateTimeString(new Date());
+      await models.SyncQueuedDevice.create({
+        id: 'queue-B',
+        facilityIds: ['facilityB'],
+        lastSeenTime: now,
+        lastSyncedTick: 10,
+        urgent: false,
+        consecutiveFailures: 1,
+      });
+      await models.SyncQueuedDevice.create({
+        id: 'queue-C',
+        facilityIds: ['facilityC'],
+        lastSeenTime: now,
+        lastSyncedTick: 200,
+        urgent: false,
+        consecutiveFailures: 0,
+      });
 
       await closeActiveSyncSessions();
 
