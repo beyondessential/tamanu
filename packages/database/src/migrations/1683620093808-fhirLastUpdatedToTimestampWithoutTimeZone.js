@@ -1,4 +1,5 @@
 import config from 'config';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { Sequelize } from 'sequelize';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
@@ -10,7 +11,7 @@ export async function up(query) {
   const isFacilityServer = !!selectFacilityIds(config);
   if (isFacilityServer) return;
 
-  const PRIMARY_TIME_ZONE = config?.primaryTimeZone;
+  const PRIMARY_TIME_ZONE = getPrimaryTimeZone(config);
   if (!PRIMARY_TIME_ZONE) {
     throw Error('A primaryTimeZone must be configured in local.json5 for this migration to run.');
   }
@@ -31,7 +32,7 @@ export async function down(query) {
   const isFacilityServer = !!selectFacilityIds(config);
   if (isFacilityServer) return;
 
-  const PRIMARY_TIME_ZONE = config?.primaryTimeZone;
+  const PRIMARY_TIME_ZONE = getPrimaryTimeZone(config);
   if (!PRIMARY_TIME_ZONE) {
     throw Error('A primaryTimeZone must be configured in local.json5 for this migration to run.');
   }

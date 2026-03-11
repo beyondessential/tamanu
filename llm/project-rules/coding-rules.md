@@ -40,6 +40,17 @@ Readability is the highest priority. Every line of code is read many times over 
 
 - Bulk updates to upstream tables will trigger mass rematerialisation
 
+## Multiple Timezone Support
+
+Tamanu operates across facilities in different timezones while maintaining a single source of truth for datetime storage. All datetime values (timestamps representing specific moments in time) are stored in a server-wide **primary timezone** and displayed using the **facility timezone** where staff are located. This approach ensures consistent storage and querying while allowing correct local display. These rules apply to all datetime handling throughout the application.
+
+**Date-only strings** (format `yyyy-MM-dd`, e.g. birth dates, appointment dates) represent calendar dates rather than specific moments in time. They are stored as-is and never converted between timezones — a birth date of `1990-05-15` means "15 May 1990" regardless of which facility views it. When these need to be used in datetime range queries (e.g. "appointments on 2024-03-15"), use `getDayBoundaries()` to convert them to the appropriate start/end timestamps in the correct timezone.
+
+- Datetimes stored as ISO 9075 (`yyyy-MM-dd HH:mm:ss`), no suffix, always in the **primary timezone**
+- Display timezone = `facilityTimeZone ?? primaryTimeZone`
+- **Frontend:** Use helpers from `useDateTime()` for formatting, `getCurrentDateTime()`/`getCurrentDate()` for defaults, and `toStoredDateTime()` on submit.
+- **Backend:** use `getDayBoundaries(date, primaryTimeZone, facilityTimeZone)` for date-range queries
+
 ## Conventions
 
 - Australian/NZ English in all text: "finalise", "colour", "centre", "cancelled"
