@@ -23,16 +23,40 @@ import {
 
 export const CENTRAL_MENU_ITEMS = [
   {
-    key: 'referenceData',
+    key: 'data',
     label: (
       <TranslatedText
-        stringId="adminSidebar.referenceData"
-        fallback="Reference data"
-        data-testid="translatedtext-m2nm"
+        stringId="adminSidebar.data"
+        fallback="Data"
+        data-testid="translatedtext-data-group"
       />
     ),
     path: '/admin/referenceData',
-    icon: <LanguageIcon color="secondary" data-testid="languageicon-zkee" />,
+    icon: <LanguageIcon color="secondary" data-testid="languageicon-data" />,
+    children: [
+      {
+        key: 'referenceData',
+        label: (
+          <TranslatedText
+            stringId="adminSidebar.referenceData"
+            fallback="Reference data"
+            data-testid="translatedtext-m2nm"
+          />
+        ),
+        path: '/admin/referenceData',
+      },
+      {
+        key: 'patientAdditionalData',
+        label: (
+          <TranslatedText
+            stringId="adminSidebar.patientAdditionalData"
+            fallback="Patient additional data"
+            data-testid="translatedtext-patientadditionaldata"
+          />
+        ),
+        path: '/admin/patientAdditionalData',
+      },
+    ],
   },
   {
     key: 'permissions',

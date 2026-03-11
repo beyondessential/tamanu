@@ -162,7 +162,13 @@ const isHighlighted = (currentPath, menuItemPath, sectionIsOpen, isRetracted) =>
 };
 
 export const Sidebar = React.memo(({ items }) => {
-  const [selectedParentItem, setSelectedParentItem] = useState('');
+  const [selectedParentItem, setSelectedParentItem] = useState(() => {
+    const path = window.location.pathname;
+    const found = items.find(item =>
+      item.children?.some(child => path.includes(child.path)),
+    );
+    return found?.key ?? '';
+  });
   const [isRetracted, setIsRetracted] = useState(false);
   const api = useApi();
   const { facilityId, currentUser, onLogout, currentRole } = useAuth();

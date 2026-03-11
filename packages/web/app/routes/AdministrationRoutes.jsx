@@ -8,6 +8,7 @@ import {
   AssetUploaderView,
   InsurerPaymentsAdminView,
   LocationAssignmentsAdminView,
+  PatientAdditionalDataView,
   PatientMergeView,
   PermissionsAdminView,
   ProgramsAdminView,
@@ -30,6 +31,7 @@ export const AdministrationRoutes = React.memo(() => (
     <Route path="patientMerge" element={<PatientMergeView />} />
     <Route path="permissions" element={<PermissionsAdminView />} />
     <Route path="programs" element={<ProgramsAdminView />} />
+    <Route path="patientAdditionalData" element={<PatientAdditionalDataView />} />
     <Route path="referenceData" element={<ReferenceDataAdminView />} />
     <Route path="reports/*" element={<ReportAdminRoutes />} />
     <Route path="settings" element={<SettingsView />} />
