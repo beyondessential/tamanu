@@ -76,11 +76,7 @@ export const buildSyncRoutes = ctx => {
       // ... and close them out if so
       // (highly likely 0 or 1, but still loop as multiples are still theoretically possible)
       for (const session of staleSessions) {
-        await completeSyncSession(
-          store,
-          session.id,
-          'Session marked as completed due to its device reconnecting',
-        );
+        await completeSyncSession(store, session.id, null);
         const durationMs = Date.now() - session.startTime;
         log.info('StaleSyncSessionCleaner.closedReconnectedSession', {
           sessionId: session.id,
