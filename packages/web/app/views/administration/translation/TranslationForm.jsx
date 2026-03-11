@@ -343,9 +343,25 @@ export const TranslationForm = () => {
   }, [translations]);
 
   const handleSubmit = async payload => {
-    const submitData = Object.fromEntries(
+    const fullSubmitData = Object.fromEntries(
       Object.entries(payload).map(([key, { stringId, ...rest }]) => [stringId || key, rest]),
     );
+    // Send only changed values to reduce payload size and backend work
+    const submitData = {};
+    for (const [stringId, languages] of Object.entries(fullSubmitData)) {
+      const initial = initialValues[stringId] || {};
+      const current = languages || {};
+      const allLangs = new Set([...Object.keys(initial), ...Object.keys(current)]);
+      const changedLangs = {};
+      for (const lang of allLangs) {
+        if (current[lang] !== initial[lang]) {
+          changedLangs[lang] = current[lang];
+        }
+      }
+      if (Object.keys(changedLangs).length > 0) {
+        submitData[stringId] = changedLangs;
+      }
+    }
     saveTranslations(submitData);
   };
 
