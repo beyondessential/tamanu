@@ -151,48 +151,6 @@ const useTranslationMutation = () => {
   });
 };
 
-/**
- * Builds the payload to send to PUT /admin/translation by diffing form values
- * against initial values. Only includes (stringId, language) pairs that changed
- * or are new, to avoid sending the full dataset on every save.
- *
- * @param {Object} payload - Current form values keyed by stringId (or temp key for new rows)
- * @param {Object} initialValues - Initial values when the form was loaded
- * @returns {Object} Submit payload: { [stringId]: { [languageCode]: text } }
- */
-const buildDirtyTranslationPayload = (payload, initialValues) => {
-  const submitData = {};
-
-  for (const [key, value] of Object.entries(payload)) {
-    // New entries have stringId on the value; include them in full so the backend can create them
-    if (value.stringId) {
-      const { stringId, ...rest } = value;
-      submitData[stringId] = rest;
-      continue;
-    }
-
-    // Existing entries: only send language keys that actually changed vs initialValues
-    const initial = initialValues[key] || {};
-    const changedLangs = {};
-    let hasChanges = false;
-
-    for (const [lang, text] of Object.entries(value)) {
-      const normalizedText = text ?? '';
-      const normalizedInitial = initial[lang] ?? '';
-      if (normalizedText !== normalizedInitial) {
-        changedLangs[lang] = text;
-        hasChanges = true;
-      }
-    }
-
-    if (hasChanges) {
-      submitData[key] = changedLangs;
-    }
-  }
-
-  return submitData;
-};
-
 const TranslationField = ({ stringId, code }) => (
   <Field
     name={`['${stringId}'].${code}`}
@@ -385,7 +343,9 @@ export const TranslationForm = () => {
   }, [translations]);
 
   const handleSubmit = async payload => {
-    const submitData = buildDirtyTranslationPayload(payload, initialValues);
+    const submitData = Object.fromEntries(
+      Object.entries(payload).map(([key, { stringId, ...rest }]) => [stringId || key, rest]),
+    );
     saveTranslations(submitData);
   };
 
