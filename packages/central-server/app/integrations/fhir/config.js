@@ -1,6 +1,6 @@
 import config from 'config';
 import { log } from '@tamanu/shared/services/logging';
-import { getFhirCountConfig } from '@tamanu/shared/utils/fhir/fhirSettingsCache';
+import { getFhirCountConfig } from '@tamanu/shared/utils/fhir/fhirSettings';
 
 export function checkFhirConfig() {
   const fhirEnabled = config?.integrations?.fhir?.enabled;

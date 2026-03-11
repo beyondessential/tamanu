@@ -1,6 +1,6 @@
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
 
-import { getFhirWorkerConfig } from './fhirSettingsCache';
+import { getFhirWorkerConfig } from './fhirSettings';
 
 /**
  * @param {Model[]} models
