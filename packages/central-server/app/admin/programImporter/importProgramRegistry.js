@@ -92,7 +92,7 @@ const ensureCurrentlyAtUpdateIsAllowed = async (context, currentlyAtType, regist
   }
 };
 
-async function createFollowUpClinicalStatus(context, registryId, registryCode, stats) {
+async function createFollowUpClinicalStatus(context, registryId, registryCode) {
   const pltfuCode = `${registryCode}-${POTENTIAL_LOSS_TO_FOLLOW_UP.CODE_SUFFIX}`;
   const existingStatus = await context.models.ProgramRegistryClinicalStatus.findOne({
     where: {
@@ -102,26 +102,16 @@ async function createFollowUpClinicalStatus(context, registryId, registryCode, s
   });
 
   // Only create the clinical status if it doesn't already exist
-  if (existingStatus) return stats;
+  if (existingStatus) return;
 
   log.debug('Auto-creating Potential Loss To Follow-Up clinical status');
-  return importRows(context, {
-    sheetName: 'Registry',
-    rows: [
-      {
-        model: 'ProgramRegistryClinicalStatus',
-        sheetRow: -1,
-        values: {
-          id: `prClinicalStatus-${pltfuCode}`,
-          programRegistryId: registryId,
-          code: pltfuCode,
-          name: POTENTIAL_LOSS_TO_FOLLOW_UP.NAME,
-          color: POTENTIAL_LOSS_TO_FOLLOW_UP.DEFAULT_COLOR,
-          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-        },
-      },
-    ],
-    stats,
+  await context.models.ProgramRegistryClinicalStatus.create({
+    id: `prClinicalStatus-${pltfuCode}`,
+    programRegistryId: registryId,
+    code: pltfuCode,
+    name: POTENTIAL_LOSS_TO_FOLLOW_UP.NAME,
+    color: POTENTIAL_LOSS_TO_FOLLOW_UP.DEFAULT_COLOR,
+    visibilityStatus: VISIBILITY_STATUSES.CURRENT,
   });
 }
 
@@ -134,7 +124,9 @@ export async function importProgramRegistry(context, workbook, programId) {
   const { registryName, currentlyAtType } = registryRecord;
   const registryCode = registryRecord.registryCode;
   const registryId = `programRegistry-${registryCode}`;
-  const lossToFollowUpEnabled = String(registryRecord.lossToFollowUpEnabled).toLowerCase() === 'true';
+  const lossToFollowUpEnabled = ['true', '1'].includes(
+    String(registryRecord.lossToFollowUpEnabled).toLowerCase(),
+  );
 
   await ensureUniqueName(context, registryName, registryId);
   await ensureCurrentlyAtUpdateIsAllowed(context, currentlyAtType, registryId);
@@ -163,7 +155,7 @@ export async function importProgramRegistry(context, workbook, programId) {
   });
 
   if (lossToFollowUpEnabled) {
-    stats = await createFollowUpClinicalStatus(context, registryId, registryCode, stats);
+    await createFollowUpClinicalStatus(context, registryId, registryCode);
   }
 
   log.debug('Importing Patient Registry Clinical statuses');
