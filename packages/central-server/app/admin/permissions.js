@@ -144,53 +144,33 @@ permissionsRouter.post(
   '/',
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'Permission');
-    const { verb, noun, objectId, roleId } = req.body;
-    if (!verb || !noun || !roleId) {
-      throw new ValidationError('verb, noun, and roleId are required');
+    const { permissions } = req.body;
+    if (!Array.isArray(permissions) || !permissions.length) {
+      throw new ValidationError('permissions array is required and must not be empty');
     }
 
-    const { Permission, Role } = req.store.models;
-    Permission.validatePermissionSchema(verb, noun);
+    const { Permission } = req.store.models;
+    const results = await Permission.sequelize.transaction(async () => {
+      let created = 0;
 
-    // Validate that the role exists
-    const role = await Role.findByPk(roleId);
-    if (!role) {
-      throw new ValidationError('Role not found');
-    }
+      for (const { verb, noun, objectId, roleId } of permissions) {
+        Permission.validatePermissionSchema(verb, noun, roleId, objectId);
 
-    if (objectId) {
-      if (!NOUNS_WITH_OBJECT_ID.includes(noun)) {
-        throw new ValidationError(`objectId is not supported for noun "${noun}"`);
-      }
-      const model = req.store.models[noun];
-      if (model) {
-        const object = await model.findByPk(objectId);
-        if (!object) {
-          throw new ValidationError('Object not found');
+        const where = { verb, noun, roleId, objectId: objectId ?? null };
+        const existing = await Permission.findOne({ where, paranoid: false });
+        if (existing && existing.deletedAt) {
+          await existing.restore();
+          created++;
+        } else if (!existing) {
+          await Permission.create(where);
+          created++;
         }
       }
-    }
 
-    const where = { verb, noun, roleId, objectId: objectId ?? null };
-    const existing = await Permission.findOne({ where, paranoid: false });
-    let permission;
-    if (existing && existing.deletedAt) {
-      await existing.restore();
-      permission = existing;
-    } else if (!existing) {
-      permission = await Permission.create(where);
-    } else {
-      throw new ValidationError('Permission already exists');
-    }
-    res.send({
-      permission: {
-        id: permission.id,
-        verb: permission.verb,
-        noun: permission.noun,
-        objectId: permission.objectId,
-        roleId: permission.roleId,
-      },
+      return { created };
     });
+
+    res.send(results);
   }),
 );
 
@@ -198,17 +178,27 @@ permissionsRouter.delete(
   '/',
   asyncHandler(async (req, res) => {
     req.checkPermission('delete', 'Permission');
-    const { verb, noun, objectId, roleId } = req.query;
-    if (!verb || !noun || !roleId) {
-      throw new ValidationError('verb, noun, and roleId are required');
+    const { permissions } = req.body;
+    if (!Array.isArray(permissions) || !permissions.length) {
+      throw new ValidationError('permissions array is required and must not be empty');
     }
 
     const { Permission } = req.store.models;
-    Permission.validatePermissionSchema(verb, noun);
+    const results = await Permission.sequelize.transaction(async () => {
+      let deleted = 0;
 
-    const deleted = await Permission.destroy({
-      where: { verb, noun, roleId, objectId: objectId ?? null },
+      for (const { verb, noun, objectId, roleId } of permissions) {
+        Permission.validatePermissionSchema(verb, noun, roleId, objectId);
+
+        const count = await Permission.destroy({
+          where: { verb, noun, roleId, objectId: objectId ?? null },
+        });
+        deleted += count;
+      }
+
+      return { deleted };
     });
-    res.send({ deleted });
+
+    res.send(results);
   }),
 );
