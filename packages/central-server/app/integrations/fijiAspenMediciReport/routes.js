@@ -178,7 +178,7 @@ routes.get(
       discharge_date_le: null,
       discharge_date_eq: null,
     };
-    const dischargeDateParams = [].concat(dischargeDateParam ?? []).filter(Boolean);
+    const dischargeDateParams = [].concat(dischargeDateParam ?? []);
     for (const param of dischargeDateParams) {
       const parsed = parseDischargeDateParam(param);
       if (parsed) {
