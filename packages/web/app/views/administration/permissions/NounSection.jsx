@@ -4,13 +4,13 @@ import Checkbox from '@material-ui/core/Checkbox';
 import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUp from '@material-ui/icons/KeyboardArrowUp';
 
-import { PERMISSION_SCHEMA, VERB_ABBREVIATIONS, VERB_HIERARCHY } from '@tamanu/constants';
+import { PERMISSION_SCHEMA } from '@tamanu/constants';
 
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { Colors } from '../../../constants';
 import { CheckboxIconChecked, CheckboxIconUnchecked } from '../../../components/Icons/CheckboxIcon';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { usePermissionToggles } from './usePermissionToggles';
+import { getVerbAbbreviation, usePermissionToggles } from './usePermissionToggles';
 
 export const CHEVRON_WIDTH = 32;
 
@@ -85,16 +85,6 @@ export const EmptyChevronCell = styled.td`
   text-align: left;
   ${stickyLeft(0, Colors.white)}
 `;
-
-export function getImpliedVerbs(verb) {
-  const idx = VERB_HIERARCHY.indexOf(verb);
-  if (idx < 0 || idx >= VERB_HIERARCHY.length - 1) return [];
-  return VERB_HIERARCHY.slice(idx + 1);
-}
-
-export function getVerbAbbreviation(verb) {
-  return VERB_ABBREVIATIONS[verb] || verb.charAt(0).toUpperCase();
-}
 
 export const NounSection = ({ nounGroup, selectedRoles, onToggle, objectNames }) => {
   const [expanded, setExpanded] = useState(false);

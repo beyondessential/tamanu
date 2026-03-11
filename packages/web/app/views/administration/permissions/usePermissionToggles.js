@@ -1,8 +1,16 @@
 import { useMemo, useCallback } from 'react';
 
-import { VERB_HIERARCHY } from '@tamanu/constants';
+import { VERB_ABBREVIATIONS, VERB_HIERARCHY } from '@tamanu/constants';
 
-import { getImpliedVerbs, getVerbAbbreviation } from './NounSection';
+export function getImpliedVerbs(verb) {
+  const idx = VERB_HIERARCHY.indexOf(verb);
+  if (idx < 0 || idx >= VERB_HIERARCHY.length - 1) return [];
+  return VERB_HIERARCHY.slice(idx + 1);
+}
+
+export function getVerbAbbreviation(verb) {
+  return VERB_ABBREVIATIONS[verb] || verb.charAt(0).toUpperCase();
+}
 
 export const usePermissionToggles = (nounGroup, onToggle) => {
   const isChecked = useCallback(
