@@ -11,6 +11,7 @@ import {
   PatientMergeView,
   PermissionsAdminView,
   ProgramsAdminView,
+  RolesAndDesignationsAdminView,
   SurveyResponsesAdminView,
   ReferenceDataAdminView,
   SyncView,
@@ -38,6 +39,7 @@ export const AdministrationRoutes = React.memo(() => (
     <Route path="templates" element={<TemplateView />} />
     <Route path="translation" element={<TranslationAdminView />} />
     <Route path="users" element={<UserAdminView />} />
+    <Route path="roles" element={<RolesAndDesignationsAdminView />} />
     <Route path="insurerPayments" element={<InsurerPaymentsAdminView />} />
     <Route path="*" element={<Navigate to="referenceData" replace />} />
   </Routes>

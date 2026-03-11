@@ -21,7 +21,7 @@ import {
   workspacesIcon,
 } from '../../constants/images';
 
-export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
+export const CENTRAL_MENU_ITEMS = [
   {
     key: 'referenceData',
     label: (
@@ -32,7 +32,7 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
       />
     ),
     path: '/admin/referenceData',
-    icon: <LanguageIcon aria-hidden color="secondary" data-testid="languageicon-zkee" />,
+    icon: <LanguageIcon color="secondary" data-testid="languageicon-zkee" />,
   },
   {
     key: 'permissions',
@@ -45,7 +45,7 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
     ),
     path: '/admin/permissions',
     ability: { action: 'read', subject: 'userRole' },
-    icon: <GroupIcon aria-hidden color="secondary" data-testid="groupicon-xmqw" />,
+    icon: <GroupIcon color="secondary" data-testid="groupicon-xmqw" />,
   },
   {
     key: 'programs',
@@ -63,7 +63,7 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
     key: 'surveyResponses',
     label: 'Survey Responses',
     path: '/admin/surveyResponses',
-    icon: <AssignmentIcon aria-hidden color="secondary" data-testid="assignmenticon-retb" />,
+    icon: <AssignmentIcon color="secondary" data-testid="assignmenticon-retb" />,
   },
   {
     key: 'locationAssignments',
@@ -75,7 +75,7 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
       />
     ),
     path: '/admin/locationAssignments',
-    icon: <BedIcon aria-hidden color="secondary" data-testid="bedicon-locationassignments" />,
+    icon: <BedIcon color="secondary" data-testid="bedicon-locationassignments" />,
   },
   {
     key: 'users',
@@ -87,7 +87,31 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
       />
     ),
     path: '/admin/users',
-    icon: <PersonIcon aria-hidden color="secondary" data-testid="peopleicon-users" />,
+    icon: <PersonIcon color="secondary" data-testid="peopleicon-users" />,
+    children: [
+      {
+        label: (
+          <TranslatedText
+            stringId="adminSidebar.userProfiles"
+            fallback="User profiles"
+            data-testid="translatedtext-user-profiles"
+          />
+        ),
+        path: '/admin/users',
+        key: 'userProfiles',
+      },
+      {
+        label: (
+          <TranslatedText
+            stringId="adminSidebar.rolesAndDesignations"
+            fallback="Roles & designations"
+            data-testid="translatedtext-roles-designations"
+          />
+        ),
+        path: '/admin/roles',
+        key: 'rolesAndDesignations',
+      },
+    ],
   },
   {
     key: 'patientMerge',
@@ -99,7 +123,7 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
       />
     ),
     path: '/admin/patientMerge',
-    icon: <CallMergeIcon aria-hidden color="secondary" data-testid="callmergeicon-ywnt" />,
+    icon: <CallMergeIcon color="secondary" data-testid="callmergeicon-ywnt" />,
   },
   {
     key: 'templates',
@@ -124,7 +148,7 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
     ),
     path: '/admin/translation',
     ability: { action: 'write', subject: 'translation' },
-    icon: <TranslateIcon aria-hidden color="secondary" data-testid="translateicon-49q7" />,
+    icon: <TranslateIcon color="secondary" data-testid="translateicon-49q7" />,
   },
   {
     key: 'assets',
@@ -148,7 +172,7 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
       />
     ),
     path: '/admin/sync',
-    icon: <CloudIcon aria-hidden color="secondary" data-testid="cloudicon-755w" />,
+    icon: <CloudIcon color="secondary" data-testid="cloudicon-755w" />,
   },
   {
     key: 'settings',
@@ -161,7 +185,7 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
     ),
     path: '/admin/settings',
     ability: { action: 'write', subject: 'settings' },
-    icon: <SettingsIcon aria-hidden color="secondary" data-testid="settingsicon-h7ys" />,
+    icon: <SettingsIcon color="secondary" data-testid="settingsicon-h7ys" />,
   },
   {
     key: 'fhirJobStats',
@@ -173,7 +197,7 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
       />
     ),
     path: '/admin/fhir/jobStats',
-    icon: <BarChartIcon aria-hidden color="secondary" data-testid="barcharticon-f74k" />,
+    icon: <BarChartIcon color="secondary" data-testid="barcharticon-f74k" />,
   },
   {
     key: 'reports',
@@ -197,6 +221,6 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
       />
     ),
     path: '/admin/insurerPayments',
-    icon: <AttachMoneyIcon aria-hidden color="secondary" data-testid="attachmoneyicon-w0gr" />,
+    icon: <AttachMoneyIcon color="secondary" data-testid="attachmoneyicon-w0gr" />,
   },
-]);
+];
