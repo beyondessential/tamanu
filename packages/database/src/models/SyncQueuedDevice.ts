@@ -105,6 +105,9 @@ export class SyncQueuedDevice extends Model {
         consecutiveFailures,
       });
     } else {
+      // update with most recent info
+      // (always go with most urgent request - this way a user-requested urgent
+      // sync won't be overwritten to non-urgent by a scheduled sync)
       await queueRecord.update({
         lastSeenTime: getCurrentDateTimeString(),
         urgent: urgent || queueRecord.urgent,
@@ -112,6 +115,8 @@ export class SyncQueuedDevice extends Model {
       });
     }
 
+    // now check the queue and return the top device - if it's us, the handler will
+    // start a sync (otherwise it'll get used in a "waiting behind device X" response
     return await this.getNextReadyDevice();
   }
 }
