@@ -54,3 +54,8 @@ sources:
             description: "{{ doc('sync_queued_devices__facility_ids') }}"
             data_tests:
               - not_null
+          - name: consecutive_failures
+            data_type: integer
+            description: "{{ doc('sync_queued_devices__consecutive_failures') }}"
+            data_tests:
+              - not_null
