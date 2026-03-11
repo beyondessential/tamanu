@@ -120,7 +120,7 @@ export const buildSyncRoutes = ctx => {
 
       try {
         // remove our place in the queue before starting sync
-        // (if the resulting sync has an error, the device will be deprioritized via
+        // (if the resulting sync has an error, the device will be deprioritised via
         // consecutiveFailures when it re-queues, leaving room for healthy devices)
         await queueRecord.destroy();
 
