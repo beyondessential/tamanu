@@ -8,6 +8,7 @@ import { Model } from './Model';
 import type { InitOptions } from '../types/model';
 
 const SYNC_READY_WINDOW_MINUTES = 5;
+const CONSECUTIVE_FAILURES_LOOKBACK_LIMIT = 100;
 
 export class SyncQueuedDevice extends Model {
   declare id: string;
@@ -67,19 +68,34 @@ export class SyncQueuedDevice extends Model {
       facilityIds,
       urgent,
       lastSyncedTick,
-      consecutiveFailures = 0,
     }: {
       facilityIds: string[];
       urgent: boolean;
       lastSyncedTick: number;
-      consecutiveFailures?: number;
     },
   ) {
-    // first, update our own entry in the sync queue
     const queueRecord = await this.findByPk(id);
 
     if (!queueRecord) {
-      // new entry in sync queue
+      // New entry: compute consecutive failures from sync_sessions (only needed on create;
+      // once in the queue we keep the cached value to avoid a heavy query on every poll)
+      const { SyncSession } = this.sequelize.models;
+      const recentSessions = await SyncSession.findAll({
+        where: {
+          parameters: { deviceId: id },
+          completedAt: { [Op.not]: null },
+        },
+        order: [['completedAt', 'DESC']],
+        limit: CONSECUTIVE_FAILURES_LOOKBACK_LIMIT,
+      });
+      let consecutiveFailures = 0;
+      for (const session of recentSessions) {
+        if (session.errors?.length) {
+          consecutiveFailures++;
+        } else {
+          break;
+        }
+      }
       await this.create({
         id,
         facilityIds: JSON.stringify(facilityIds),
@@ -89,19 +105,13 @@ export class SyncQueuedDevice extends Model {
         consecutiveFailures,
       });
     } else {
-      // update with most recent info
-      // (always go with most urgent request - this way a user-requested urgent
-      // sync won't be overwritten to non-urgent by a scheduled sync)
       await queueRecord.update({
         lastSeenTime: getCurrentDateTimeString(),
         urgent: urgent || queueRecord.urgent,
         lastSyncedTick,
-        consecutiveFailures,
       });
     }
 
-    // now check the queue and return the top device - if it's us, the handler will
-    // start a sync (otherwise it'll get used in a "waiting behind device X" response
     return await this.getNextReadyDevice();
   }
 }

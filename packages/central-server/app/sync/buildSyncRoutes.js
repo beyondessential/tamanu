@@ -12,9 +12,6 @@ import { CentralSyncManager } from './CentralSyncManager';
 import { startStream, StreamMessage } from './StreamMessage';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
-/** Max completed sessions to scan when counting consecutive failures for queue deprioritization */
-const CONSECUTIVE_FAILURES_LOOKBACK_LIMIT = 99;
-
 /**
  * @typedef {import('../ApplicationContext').ApplicationContext} ApplicationContext
  */
@@ -90,31 +87,10 @@ export const buildSyncRoutes = ctx => {
         });
       }
 
-      // count how many of this device's recent sync sessions failed consecutively,
-      // so we can deprioritize it in the queue if it keeps failing
-      const recentSessions = await SyncSession.findAll({
-        where: {
-          parameters: { deviceId: device.id },
-          completedAt: { [Op.not]: null },
-        },
-        order: [['completedAt', 'DESC']],
-        limit: CONSECUTIVE_FAILURES_LOOKBACK_LIMIT,
-      });
-      let consecutiveFailures = 0;
-      for (const session of recentSessions) {
-        if (session.errors?.length > 0) {
-          consecutiveFailures++;
-        } else {
-          break;
-        }
-      }
-
-      // now update our position in the queue and check if we're at the front of it
       const queueRecord = await SyncQueuedDevice.checkSyncRequest(device.id, {
         lastSyncedTick,
         urgent,
         facilityIds,
-        consecutiveFailures,
       });
       log.warn(`DEBUG device=${device.id} queueRecord=${queueRecord.id}`);
       log.info('Queue position', queueRecord.get({ plain: true }));
