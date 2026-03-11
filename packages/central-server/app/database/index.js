@@ -42,41 +42,6 @@ export async function initDatabase({ testMode = false, dbKey = 'main' }) {
   );
 }
 
-async function initReportStore(schemaName, credentials) {
-  const { username, password, pool } = credentials;
-  const overrides = {
-    alwaysCreateConnection: false,
-    migrateOnStartup: false,
-    pool,
-    username,
-    password,
-  };
-  if (!Object.values(REPORT_DB_SCHEMAS).includes(schemaName)) {
-    log.warn(`Unknown reporting schema ${schemaName}, skipping...`);
-    return null;
-  }
-  if (!username || !password) {
-    log.warn(`No credentials provided for ${schemaName} reporting schema, skipping...`);
-    return null;
-  }
-  return getOrCreateConnection(overrides, `reporting-${schemaName}`);
-}
-
-export async function initReporting() {
-  const { connections } = config.db.reportSchemas;
-  return Object.entries(connections).reduce(
-    async (accPromise, [schemaName, { username, password }]) => {
-      const instance = await initReportStore(schemaName, {
-        username,
-        password,
-      });
-      if (!instance) return accPromise;
-      return { ...(await accPromise), [schemaName]: instance };
-    },
-    Promise.resolve({}),
-  );
-}
-
 export async function closeDatabase() {
   return closeAllDatabases();
 }

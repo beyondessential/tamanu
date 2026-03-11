@@ -141,15 +141,6 @@ sources:
                 masking:
                   kind: integer
                   range: 0-40
-          - name: carrier_existing_condition_id
-            data_type: character varying(255)
-            description: "{{ doc('patient_death_data__carrier_existing_condition_id') }}"
-            data_tests:
-              - dbt_utils.relationships_where:
-                  arguments:
-                    to: source('tamanu', 'reference_data')
-                    field: id
-                    to_condition: type = 'diagnosis'
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in patient_death_data."
@@ -246,6 +237,30 @@ sources:
                 masking:
                   kind: integer
                   range: 0-40000
+          - name: autopsy_requested
+            data_type: character varying(255)
+            description: "{{ doc('patient_death_data__autopsy_requested') }}"
+          - name: autopsy_findings_used
+            data_type: character varying(255)
+            description: "{{ doc('patient_death_data__autopsy_findings_used') }}"
+          - name: manner_of_death_description
+            data_type: text
+            description: "{{ doc('patient_death_data__manner_of_death_description') }}"
+            config:
+              meta:
+                masking: text
+          - name: pregnancy_moment
+            data_type: character varying(255)
+            description: "{{ doc('patient_death_data__pregnancy_moment') }}"
+          - name: multiple_pregnancy
+            data_type: character varying(255)
+            description: "{{ doc('patient_death_data__multiple_pregnancy') }}"
+          - name: mother_condition_description
+            data_type: text
+            description: "{{ doc('patient_death_data__mother_condition_description') }}"
+            config:
+              meta:
+                masking: text
           - name: antecedent_cause3_condition_id
             data_type: character varying(255)
             description: "{{ doc('patient_death_data__antecedent_cause3_condition_id') }}"

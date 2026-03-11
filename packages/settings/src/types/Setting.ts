@@ -13,4 +13,6 @@ export interface Setting<T = any> {
    * cannot be retrieved via the admin UI - only set to new values.
    */
   secret?: boolean;
+  exposedToWeb?: boolean;
+  exposedToPatientPortal?: boolean;
 }

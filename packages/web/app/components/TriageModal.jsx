@@ -1,10 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { DateDisplay } from '@tamanu/ui-components';
+
 import { FormModal } from './FormModal';
 import { Colors } from '../constants';
 import { TriageForm } from '../forms/TriageForm';
-import { DateDisplay } from './DateDisplay';
 import { TranslatedSex, TranslatedText } from './Translation';
 import { useSettings } from '../contexts/Settings';
 
@@ -36,15 +37,15 @@ const DisplayIdLabel = styled.span`
   font-size: 16px;
   line-height: 21px;
   font-weight: 500;
-  color: ${(props) => props.theme.palette.primary.main};
+  color: ${props => props.theme.palette.primary.main};
 `;
 
 const DetailLabel = styled.span`
-  color: ${(props) => props.theme.palette.text.secondary};
+  color: ${props => props.theme.palette.text.secondary};
 `;
 
 const DetailValue = styled.span`
-  color: ${(props) => props.theme.palette.text.primary};
+  color: ${props => props.theme.palette.text.primary};
   text-transform: capitalize;
 `;
 
@@ -60,7 +61,15 @@ const DETAILS_FIELD_DEFINITIONS = [
 ];
 
 export const TriageModal = React.memo(
-  ({ open, patient, onClose, onSubmitEncounter, noRedirectOnSubmit, initialValues }) => {
+  ({
+    open,
+    patient,
+    onClose,
+    onSubmitEncounter,
+    noRedirectOnSubmit,
+    initialValues,
+    withExistingEncounterCheck,
+  }) => {
     const { displayId } = patient;
     const { getSetting } = useSettings();
 
@@ -114,6 +123,7 @@ export const TriageModal = React.memo(
           patient={patient}
           initialValues={initialValues}
           data-testid="triageform-ldgl"
+          withExistingEncounterCheck={withExistingEncounterCheck}
         />
       </FormModal>
     );

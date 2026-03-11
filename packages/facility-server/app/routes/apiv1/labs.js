@@ -1,10 +1,11 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { endOfDay, startOfDay } from 'date-fns';
+import config from 'config';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 
 import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
-import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { getDayBoundaries } from '@tamanu/utils/dateTime';
 import {
   LAB_REQUEST_STATUSES,
   LAB_TEST_TYPE_VISIBILITY_STATUSES,
@@ -130,6 +131,7 @@ labRequest.get(
     const {
       models: { LabRequest },
       query,
+      settings,
     } = req;
     req.checkPermission('list', 'LabRequest');
     const canListSensitive = req.ability.can('list', 'SensitiveLabRequest');
@@ -141,6 +143,10 @@ labRequest.get(
       page = 0,
       ...filterParams
     } = query;
+
+    const primaryTimeZone = getPrimaryTimeZone(config);
+    const { facilityId } = filterParams;
+    const facilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
 
     const makeSimpleTextFilter = makeSimpleTextFilterFactory(filterParams);
     const makePartialTextFilter = makeSubstringTextFilterFactory(filterParams);
@@ -185,16 +191,18 @@ labRequest.get(
       makeFilter(
         filterParams.requestedDateFrom,
         'lab_requests.requested_date >= :requestedDateFrom',
-        ({ requestedDateFrom }) => ({
-          requestedDateFrom: toDateTimeString(startOfDay(new Date(requestedDateFrom))),
-        }),
+        ({ requestedDateFrom }) => {
+          const boundaries = getDayBoundaries(requestedDateFrom, primaryTimeZone, facilityTimeZone);
+          return { requestedDateFrom: boundaries?.start ?? `${requestedDateFrom} 00:00:00` };
+        },
       ),
       makeFilter(
         filterParams.requestedDateTo,
         'lab_requests.requested_date <= :requestedDateTo',
-        ({ requestedDateTo }) => ({
-          requestedDateTo: toDateTimeString(endOfDay(new Date(requestedDateTo))),
-        }),
+        ({ requestedDateTo }) => {
+          const boundaries = getDayBoundaries(requestedDateTo, primaryTimeZone, facilityTimeZone);
+          return { requestedDateTo: boundaries?.end ?? `${requestedDateTo} 23:59:59` };
+        },
       ),
       makeFilter(
         !JSON.parse(filterParams.allFacilities || false),
@@ -217,6 +225,10 @@ labRequest.get(
     const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(
       filters,
       filterParams,
+    );
+
+    const isInvoicingEnabled = await settings[filterParams.facilityId]?.get(
+      'features.invoicing.enabled',
     );
 
     const from = `
@@ -245,6 +257,35 @@ labRequest.get(
           ON (requester.id = lab_requests.requested_by_id)
         LEFT JOIN sensitive_labs
           ON (sensitive_labs.id = lab_requests.id)
+        ${
+          isInvoicingEnabled
+            ? `
+        LEFT JOIN LATERAL (
+          SELECT COALESCE(
+            -- Panel approval takes precedence (NULL if no panel items)
+            (
+              SELECT BOOL_AND(ii.approved)
+              FROM invoice_items ii
+              WHERE ii.source_record_id = lab_test_panel_requests.id::text
+                AND ii.source_record_type = 'LabTestPanelRequest'
+                AND ii.deleted_at IS NULL
+              HAVING COUNT(*) > 0
+            ),
+            -- Individual test approval (used if panel returned NULL)
+            (
+              SELECT BOOL_AND(ii.approved)
+              FROM lab_tests lt
+              INNER JOIN invoice_items ii ON ii.source_record_id = lt.id::text
+                AND ii.source_record_type = 'LabTest'
+                AND ii.deleted_at IS NULL
+              WHERE lt.lab_request_id = lab_requests.id
+                AND lt.deleted_at IS NULL
+              HAVING COUNT(*) > 0
+            )
+          ) AS approved
+        ) lab_approval ON true`
+            : ''
+        }
         ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
@@ -288,17 +329,26 @@ labRequest.get(
       priority: 'priority.name',
       status: 'status',
       publishedDate: 'published_date',
+      ...(isInvoicingEnabled ? { approved: 'lab_approval.approved' } : {}),
+    };
+
+    const getNullPosition = (orderBy, sortDirection) => {
+      if (orderBy === 'approved') {
+        return 'NULLS LAST';
+      }
+      return sortDirection === 'ASC' ? 'NULLS FIRST' : 'NULLS LAST';
     };
 
     const sortKey = sortKeys[orderBy];
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
-    const nullPosition = sortDirection === 'ASC' ? 'NULLS FIRST' : 'NULLS LAST';
+    const nullPosition = getNullPosition(orderBy, sortDirection);
 
     const result = await req.db.query(
       `
         ${queryCte}
         SELECT
           lab_requests.*,
+          ${isInvoicingEnabled ? `lab_approval.approved AS approved,` : ''}
           patient.display_id AS patient_display_id,
           patient.id AS patient_id,
           patient.first_name AS first_name,
@@ -443,13 +493,7 @@ labRelations.get(
 labRelations.put(
   '/:id/tests',
   asyncHandler(async (req, res) => {
-    const {
-      models,
-      params,
-      body,
-      db,
-      user,
-    } = req;
+    const { models, params, body, db, user } = req;
     const { id } = params;
     const { resultsInterpretation, labTests = {} } = body;
     req.checkPermission('write', 'LabTest');
@@ -482,7 +526,8 @@ labRelations.put(
     const labTestObj = keyBy(labTestRecords, 'id');
     if (
       Object.entries(labTests).some(
-        ([testId, testBody]) => testBody.result && labTestObj[testId] && testBody.result !== labTestObj[testId].result,
+        ([testId, testBody]) =>
+          testBody.result && labTestObj[testId] && testBody.result !== labTestObj[testId].result,
       )
     ) {
       req.checkPermission('write', 'LabTestResult');
@@ -497,7 +542,10 @@ labRelations.put(
     }
 
     await db.transaction(async () => {
-      if (resultsInterpretation !== undefined && resultsInterpretation !== labRequest.resultsInterpretation) {
+      if (
+        resultsInterpretation !== undefined &&
+        resultsInterpretation !== labRequest.resultsInterpretation
+      ) {
         await labRequest.update({ resultsInterpretation });
       }
 
@@ -540,7 +588,17 @@ labTest.get(
 
     const response = await models.LabTest.findByPk(labTestId, {
       include: [
-        { model: models.LabRequest, as: 'labRequest' },
+        {
+          model: models.LabRequest,
+          as: 'labRequest',
+          include: [
+            {
+              model: models.Encounter,
+              as: 'encounter',
+              attributes: ['id', 'patientId'],
+            },
+          ],
+        },
         { model: models.LabTestType, as: 'labTestType' },
         { model: models.ReferenceData, as: 'labTestMethod' },
       ],

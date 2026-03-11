@@ -17,9 +17,10 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: write # to checkout the repo
-  pull-requests: write # to parse PRs for config and update them
-  issues: write # to parse special deploy issues and update them
+  contents: read
+  pull-requests: write # needed by downstream cd-down.yml for Pulumi PR comments
+  issues: read
+  id-token: write # for Tailscale OIDC authentication
 
 jobs:
   config:
@@ -29,12 +30,14 @@ jobs:
       down: ${{ steps.config.outputs.down }}
       go-down: ${{ steps.config.outputs.go-down == 'true' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - id: setup
         uses: ./.github/actions/setup-cd
         with:
           ops-ssh-key: ${{ secrets.TAMANU_OPS_SSH }}
-          tailscale-oauth: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
+          tailscale-oauth-client-id: ${{ vars.TS_OAUTH_CLIENT_ID }}
+          tailscale-tags: ${{ vars.TS_TAGS }}
+          tailscale-k8s-operator-hostname: ${{ vars.TS_K8S_OPERATOR_HOSTNAME }}
 
       - name: List all controlled deploys from K8s
         id: list
@@ -82,5 +85,4 @@ jobs:
       ref: not needed as check branch is false
     secrets:
       PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-      TAILSCALE_OAUTH: ${{ secrets.TAILSCALE_DBPROXY_ACCESS_OAUTH }}
       TAMANU_OPS_SSH: ${{ secrets.TAMANU_OPS_SSH }}

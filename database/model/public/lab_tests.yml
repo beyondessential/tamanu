@@ -44,7 +44,7 @@ sources:
               meta:
                 masking: date
           - name: result
-            data_type: character varying(255)
+            data_type: text
             description: "{{ doc('lab_tests__result') }}"
             data_tests:
               - not_null

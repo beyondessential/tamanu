@@ -1,10 +1,11 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, Transaction } from 'sequelize';
 import {
   INVOICE_INSURER_PAYMENT_STATUSES,
   INVOICE_PATIENT_PAYMENT_STATUSES,
   INVOICE_STATUSES,
   SYNC_DIRECTIONS,
   SYSTEM_USER_UUID,
+  AUTOMATIC_INVOICE_CREATION_EXCLUDED_ENCOUNTER_TYPES,
 } from '@tamanu/constants';
 import { Model } from '../Model';
 import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter';
@@ -12,6 +13,21 @@ import { buildEncounterLinkedLookupFilter } from '../../sync/buildEncounterLinke
 import { dateTimeType, type InitOptions, type Models } from '../../types/model';
 import type { Procedure } from '../Procedure';
 import type { InvoiceProduct } from './InvoiceProduct';
+import type { ImagingRequest } from 'models/ImagingRequest';
+import type { LabTestPanelRequest } from 'models/LabTestPanelRequest';
+import type { LabTest } from 'models/LabTest';
+import type { ImagingRequestArea } from 'models/ImagingRequestArea';
+import type { ReadSettings } from '@tamanu/settings';
+import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
+import type { Prescription } from 'models/Prescription';
+
+type InvoiceItemSourceRecord =
+  | Procedure
+  | LabTestPanelRequest
+  | LabTest
+  | ImagingRequestArea
+  | ImagingRequest
+  | Prescription;
 
 export class Invoice extends Model {
   declare id: string;
@@ -63,9 +79,16 @@ export class Invoice extends Model {
       as: 'discount',
     });
 
-    this.hasMany(models.InvoiceInsurer, {
+    this.hasMany(models.InvoicesInvoiceInsurancePlan, {
       foreignKey: 'invoiceId',
-      as: 'insurers',
+      as: 'invoiceInsurancePlans',
+    });
+
+    this.belongsToMany(models.InvoiceInsurancePlan, {
+      through: models.InvoicesInvoiceInsurancePlan,
+      foreignKey: 'invoiceId',
+      otherKey: 'invoiceInsurancePlanId',
+      as: 'insurancePlans',
     });
 
     this.hasMany(models.InvoiceItem, {
@@ -93,7 +116,7 @@ export class Invoice extends Model {
     return buildEncounterLinkedLookupFilter(this);
   }
 
-  static getFullReferenceAssociations(invoicePriceListId?: string) {
+  static getFullReferenceAssociations(invoicePriceListId?: string, includeRefundingPayments?: boolean) {
     const { models } = this.sequelize;
 
     return [
@@ -104,29 +127,33 @@ export class Invoice extends Model {
         include: [{ model: models.User, as: 'appliedByUser', attributes: ['displayName'] }],
       },
       {
-        model: models.InvoiceInsurer,
-        as: 'insurers',
-        include: [
-          {
-            model: models.ReferenceData,
-            as: 'insurer',
-          },
-        ],
-      },
-      {
         model: models.InvoiceItem,
         as: 'items',
-        include: models.InvoiceItem.getListReferenceAssociations(models, invoicePriceListId),
+        include: models.InvoiceItem.getListReferenceAssociations(
+          models,
+          invoicePriceListId,
+          'items',
+        ),
       },
       {
         model: models.InvoicePayment,
         as: 'payments',
+        required: false,
         include: models.InvoicePayment.getListReferenceAssociations(models),
+        ...(!includeRefundingPayments ? {
+          where: {
+            'original_payment_id': null,
+          }
+        } : {}),
+      },
+      {
+        model: models.InvoiceInsurancePlan,
+        as: 'insurancePlans',
       },
     ];
   }
 
-  private static async getInProgressInvoiceForEncounter(
+  public static async getInProgressInvoiceForEncounter(
     encounterId: string,
   ): Promise<Invoice | null> {
     const invoices = await this.findAll({
@@ -147,11 +174,21 @@ export class Invoice extends Model {
     return invoices[0]!;
   }
 
+  private static normaliseInvoiceItemQuantity(quantity: unknown, fallback: number) {
+    const n = Number(quantity);
+    if (!Number.isFinite(n)) return fallback;
+    return Math.max(0, Math.floor(n));
+  }
+
   static async addItemToInvoice(
-    newItem: Procedure,
+    newItem: InvoiceItemSourceRecord,
     encounterId: string,
     invoiceProduct: InvoiceProduct,
     orderedByUserId: string = SYSTEM_USER_UUID,
+    options?: {
+      quantity?: number;
+      note?: string;
+    },
   ) {
     const invoice = await this.getInProgressInvoiceForEncounter(encounterId);
 
@@ -159,19 +196,47 @@ export class Invoice extends Model {
       return;
     }
 
-    await this.sequelize.models.InvoiceItem.create({
-      invoiceId: invoice.id,
-      sourceRecordType: newItem.getModelName(),
-      sourceRecordId: newItem.id,
-      productId: invoiceProduct.id,
-      orderedByUserId,
-      orderDate: new Date(),
-      quantity: 1,
-      productDiscountable: invoiceProduct.discountable,
-    });
+    const invoicePriceListId =
+      await this.sequelize.models.InvoicePriceList.getIdForPatientEncounter(encounterId);
+
+    if (invoicePriceListId) {
+      // Confirm invoice product is not configured to be hidden for this price list
+      const hiddenInvoicePriceListItem = await this.sequelize.models.InvoicePriceListItem.findOne({
+        where: {
+          invoicePriceListId,
+          invoiceProductId: invoiceProduct.id,
+          isHidden: true,
+        },
+      });
+      if (hiddenInvoicePriceListItem) {
+        return;
+      }
+    }
+
+    const quantity = this.normaliseInvoiceItemQuantity(options?.quantity, 1);
+
+    await this.sequelize.models.InvoiceItem.upsert(
+      {
+        invoiceId: invoice.id,
+        sourceRecordType: newItem.getModelName(),
+        sourceRecordId: newItem.id,
+        productId: invoiceProduct.id,
+        orderedByUserId,
+        orderDate: new Date(),
+        quantity: quantity,
+        note: options?.note,
+        deletedAt: null, // Ensure we restore the item if it already exists
+      },
+      {
+        conflictFields: ['invoice_id', 'source_record_type', 'source_record_id'],
+      },
+    );
   }
 
-  static async removeItemFromInvoice(removedItem: Procedure, encounterId: string) {
+  static async removeItemFromInvoice(
+    removedItemSource: InvoiceItemSourceRecord,
+    encounterId: string,
+  ) {
     const invoice = await this.getInProgressInvoiceForEncounter(encounterId);
 
     if (!invoice) {
@@ -181,9 +246,34 @@ export class Invoice extends Model {
     await this.sequelize.models.InvoiceItem.destroy({
       where: {
         invoiceId: invoice.id,
-        sourceRecordType: removedItem.getModelName(),
-        sourceRecordId: removedItem.id,
+        sourceRecordType: removedItemSource.getModelName(),
+        sourceRecordId: removedItemSource.id,
       },
     });
+  }
+
+  static async automaticallyCreateForEncounter(
+    encounterId: string,
+    encounterType: string,
+    date: string,
+    settings: ReadSettings,
+    options?: { transaction?: Transaction },
+  ) {
+    const isInvoicingEnabled = await settings?.get('features.invoicing.enabled');
+    const isValidEncounterType =
+      !AUTOMATIC_INVOICE_CREATION_EXCLUDED_ENCOUNTER_TYPES.includes(encounterType);
+    if (!isInvoicingEnabled || !isValidEncounterType) {
+      return null;
+    }
+
+    return await this.create(
+      {
+        displayId: generateInvoiceDisplayId(),
+        status: INVOICE_STATUSES.IN_PROGRESS,
+        date,
+        encounterId,
+      },
+      options,
+    );
   }
 }

@@ -1,12 +1,13 @@
 import { DataTypes } from 'sequelize';
 import config from 'config';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
 const ISO9075_DATE_TIME_FMT = 'YYYY-MM-DD HH24:MI:SS';
 export async function up(query) {
-  const COUNTRY_TIMEZONE = config?.countryTimeZone;
+  const PRIMARY_TIME_ZONE = getPrimaryTimeZone(config);
 
-  if (!COUNTRY_TIMEZONE) {
-    throw Error('A countryTimeZone must be configured in local.json for this migration to run.');
+  if (!PRIMARY_TIME_ZONE) {
+    throw Error('A primaryTimeZone must be configured in local.json for this migration to run.');
   }
 
   await query.addColumn('lab_requests', 'published_date', {
@@ -15,7 +16,7 @@ export async function up(query) {
   });
   await query.sequelize.query(`
   UPDATE lab_requests
-    SET published_date = TO_CHAR(lrl.created_at::TIMESTAMPTZ AT TIME ZONE '${COUNTRY_TIMEZONE}', '${ISO9075_DATE_TIME_FMT}')
+    SET published_date = TO_CHAR(lrl.created_at::TIMESTAMPTZ AT TIME ZONE '${PRIMARY_TIME_ZONE}', '${ISO9075_DATE_TIME_FMT}')
     FROM lab_request_logs lrl
     WHERE lrl.lab_request_id = lab_requests.id AND lrl.status = 'published';
   `);

@@ -1,13 +1,14 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, QueryTypes, Op } from 'sequelize';
-import { snakeCase, keyBy } from 'lodash';
+import { snakeCase } from 'lodash';
+import { isBefore } from 'date-fns';
 
 import {
   createPatientSchema,
   updatePatientSchema,
 } from '@tamanu/shared/schemas/facility/requests/createPatient.schema';
-import { NotFoundError, InvalidParameterError } from '@tamanu/errors';
+import { NotFoundError, InvalidParameterError, ValidationError } from '@tamanu/errors';
 import {
   PATIENT_REGISTRY_TYPES,
   VISIBILITY_STATUSES,
@@ -15,7 +16,7 @@ import {
   ENCOUNTER_TYPES,
   DRUG_ROUTE_LABELS,
 } from '@tamanu/constants';
-import { isGeneratedDisplayId } from '@tamanu/utils/generateId';
+import { isGeneratedDisplayId, isGeneratedIdFromPattern } from '@tamanu/utils/generateId';
 
 import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 import { createPatientFilters } from '../../../utils/patientFilters';
@@ -29,13 +30,20 @@ import {
   patientProgramRegistration,
   patientProgramRegistrationConditions,
 } from './patientProgramRegistration';
-import { dbRecordToResponse, pickPatientBirthData, requestBodyToRecord } from './utils';
+import {
+  dbRecordToResponse,
+  parseInvoiceInsurancePlanIds,
+  pickPatientBirthData,
+  requestBodyToRecord,
+  savePatientInsurancePlans,
+} from './utils';
 import { PATIENT_SORT_KEYS } from './constants';
 import { getWhereClausesAndReplacementsFromFilters } from '../../../utils/query';
+import { getLastOrderedAtForOngoingPrescriptions } from '../../../utils/medication';
 import { validate } from '../../../utils/validate';
 import { patientContact } from './patientContact';
 import { patientPortal } from './patientPortal';
-import { isBefore } from 'date-fns';
+import { patientInsurancePlans } from './patientInsurancePlans';
 
 const patientRoute = express.Router();
 
@@ -93,7 +101,14 @@ patientRoute.put(
   asyncHandler(async (req, res) => {
     const {
       db,
-      models: { Patient, PatientAdditionalData, PatientBirthData, PatientSecondaryId },
+      models: {
+        Patient,
+        PatientAdditionalData,
+        PatientBirthData,
+        PatientSecondaryId,
+        PatientInvoiceInsurancePlan,
+      },
+      settings,
       params,
       body: { facilityId, ...body },
     } = req;
@@ -106,14 +121,34 @@ patientRoute.put(
 
     req.checkPermission('write', patient);
 
-    const validatedBody = validate(updatePatientSchema, { ...body, facilityId });
+    const invoiceInsurancePlanId = parseInvoiceInsurancePlanIds(body.invoiceInsurancePlanId);
+
+    const updatePatientBody = {
+      ...body,
+      facilityId,
+      invoiceInsurancePlanId,
+    };
+    const validatedBody = validate(updatePatientSchema, updatePatientBody);
+
+    const patientDisplayIdPattern = await settings[facilityId].get('patientDisplayIdPattern');
 
     await db.transaction(async () => {
       // First check if displayId changed to create a secondaryId record
       if (validatedBody.displayId && validatedBody.displayId !== patient.displayId) {
-        const oldDisplayIdType = isGeneratedDisplayId(patient.displayId)
-          ? 'secondaryIdType-tamanu-display-id'
-          : 'secondaryIdType-nhn';
+        const existingPatients = await Patient.count({
+          where: { displayId: validatedBody.displayId },
+        });
+        if (existingPatients > 0) {
+          throw new ValidationError(
+            `Display ID ${validatedBody.displayId} is already in use by another patient`,
+          );
+        }
+
+        const oldDisplayIdType =
+          isGeneratedDisplayId(patient.displayId) ||
+          isGeneratedIdFromPattern(patient.displayId, patientDisplayIdPattern)
+            ? 'secondaryIdType-tamanu-display-id'
+            : 'secondaryIdType-nhn';
         await PatientSecondaryId.create({
           value: patient.displayId,
           visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
@@ -148,6 +183,12 @@ patientRoute.put(
       }
 
       await patient.writeFieldValues(validatedBody.patientFields);
+
+      await savePatientInsurancePlans(
+        PatientInvoiceInsurancePlan,
+        patient.id,
+        validatedBody.invoiceInsurancePlanId,
+      );
     });
 
     res.send(dbRecordToResponse(patient, facilityId));
@@ -158,10 +199,23 @@ patientRoute.post(
   '/$',
   asyncHandler(async (req, res) => {
     const { db, models, body } = req;
-    const { Patient, PatientAdditionalData, PatientBirthData, PatientFacility } = models;
+    const {
+      Patient,
+      PatientAdditionalData,
+      PatientBirthData,
+      PatientFacility,
+      PatientInvoiceInsurancePlan,
+    } = models;
+
     req.checkPermission('create', 'Patient');
 
-    const validatedBody = validate(createPatientSchema, body);
+    const invoiceInsurancePlanId = parseInvoiceInsurancePlanIds(body.invoiceInsurancePlanId);
+
+    const createPatientBody = {
+      ...body,
+      invoiceInsurancePlanId,
+    };
+    const validatedBody = validate(createPatientSchema, createPatientBody);
 
     const requestData = requestBodyToRecord(validatedBody);
     const { patientRegistryType, facilityId, ...patientData } = requestData;
@@ -189,6 +243,12 @@ patientRoute.post(
 
       // mark for sync in this facility
       await PatientFacility.create({ facilityId, patientId: createdPatient.id });
+
+      await savePatientInsurancePlans(
+        PatientInvoiceInsurancePlan,
+        createdPatient.id,
+        validatedBody.invoiceInsurancePlanId,
+      );
 
       return createdPatient;
     });
@@ -590,36 +650,14 @@ patientRoute.get(
     if (responseData.length > 0) {
       const ongoingPrescriptionIds = responseData.map(p => p.id);
 
-      // Find the latest pharmacy_order_prescriptions for prescriptions that were cloned from ongoing prescriptions.
-      const [pharmacyOrderPrescriptions] = await db.query(
-        `
-        SELECT
-          p_ongoing.id as ongoing_prescription_id,
-          MAX(pop.created_at) as last_ordered_at
-        FROM prescriptions p_ongoing
-        INNER JOIN prescriptions p_cloned ON p_cloned.medication_id = p_ongoing.medication_id
-          AND p_cloned.deleted_at IS NULL
-        INNER JOIN encounter_prescriptions ep_cloned ON ep_cloned.prescription_id = p_cloned.id
-        INNER JOIN encounters e ON e.id = ep_cloned.encounter_id
-          AND e.patient_id = :patientId
-          AND e.reason_for_encounter = 'Medication dispensing'
-        INNER JOIN pharmacy_order_prescriptions pop ON pop.prescription_id = p_cloned.id
-          AND pop.deleted_at IS NULL
-        WHERE p_ongoing.id IN (:ongoingPrescriptionIds)
-        GROUP BY p_ongoing.id
-      `,
-        {
-          replacements: {
-            patientId,
-            ongoingPrescriptionIds,
-          },
-        },
+      const lastOrderedAts = await getLastOrderedAtForOngoingPrescriptions(
+        db,
+        ongoingPrescriptionIds,
       );
-      const lastOrderedAts = keyBy(pharmacyOrderPrescriptions, 'ongoing_prescription_id');
 
       responseData = responseData.map(p => ({
         ...p,
-        lastOrderedAt: lastOrderedAts[p.id]?.last_ordered_at?.toISOString(),
+        lastOrderedAt: lastOrderedAts[p.id]?.last_ordered_at,
       }));
     }
 
@@ -891,5 +929,6 @@ patientRoute.use(patientProgramRegistration);
 patientRoute.use('/programRegistration', patientProgramRegistrationConditions);
 patientRoute.use(patientContact);
 patientRoute.use(patientPortal);
+patientRoute.use(patientInsurancePlans);
 
 export { patientRoute as patient };

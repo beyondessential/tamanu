@@ -1,4 +1,10 @@
-import { validateSettings, globalDefaults, centralDefaults, facilityDefaults } from '../dist/mjs';
+import {
+  validateSettings,
+  globalDefaults,
+  centralDefaults,
+  facilityDefaults,
+  getKeysByFlag,
+} from '../dist/mjs';
 import { extractDefaults } from '../dist/cjs/schema/utils';
 import * as yup from 'yup';
 import { fail } from 'assert';
@@ -316,5 +322,78 @@ describe('Schemas', () => {
     };
 
     await expect(validateSettings({ settings, schema })).resolves.not.toThrow();
+  });
+});
+
+describe('Exposed keys', () => {
+  describe('exposedToWeb', () => {
+    const keys = getKeysByFlag('exposedToWeb');
+
+    it('should include expected top-level keys', () => {
+      const expected = [
+        'audit',
+        'ageDisplayFormat',
+        'appointments',
+        'customisations',
+        'features',
+        'fields',
+        'fsmCrvsCertificates',
+        'imagingCancellationReasons',
+        'imagingPriorities',
+        'invoice',
+        'labsCancellationReasons',
+        'layouts',
+        'locationAssignments',
+        'medications',
+        'printMeasures',
+        'templates',
+        'triageCategories',
+        'upcomingVaccinations',
+        'vitalEditReasons',
+      ];
+      for (const key of expected) {
+        expect(keys).toContain(key);
+      }
+    });
+
+    it('should include facility keys', () => {
+      expect(keys).toContain('patientDisplayIdPattern');
+      expect(keys).toContain('sync');
+      expect(keys).toContain('vaccinations');
+    });
+
+    it('should include central keys', () => {
+      expect(keys).toContain('mobileSync');
+    });
+
+    it('should include nested paths', () => {
+      expect(keys).toContain('security.mobile');
+    });
+
+    it('should not expose sensitive settings', () => {
+      expect(keys).not.toContain('auth');
+      expect(keys).not.toContain('fhir');
+      expect(keys).not.toContain('integrations');
+      expect(keys).not.toContain('security');
+      expect(keys).not.toContain('security.loginAttempts');
+      expect(keys).not.toContain('security.reportNoUserError');
+    });
+  });
+
+  describe('exposedToPatientPortal', () => {
+    const keys = getKeysByFlag('exposedToPatientPortal');
+
+    it('should include expected keys', () => {
+      expect(keys).toContain('features');
+      expect(keys).toContain('fileChooserMbSizeLimit');
+    });
+
+    it('should not expose sensitive settings', () => {
+      expect(keys).not.toContain('auth');
+      expect(keys).not.toContain('fhir');
+      expect(keys).not.toContain('security');
+      expect(keys).not.toContain('sync');
+      expect(keys).not.toContain('integrations');
+    });
   });
 });

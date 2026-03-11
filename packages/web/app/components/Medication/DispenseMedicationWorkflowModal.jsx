@@ -1,10 +1,9 @@
 import React, { useEffect, useState, memo } from 'react';
 import PropTypes from 'prop-types';
-import styled, { createGlobalStyle } from 'styled-components';
+import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { formatShort } from '@tamanu/utils/dateTime';
 import { DRUG_ROUTE_LABELS, MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 
@@ -15,6 +14,7 @@ import {
   TextInput,
   TranslatedReferenceData,
   TranslatedText,
+  useDateTime,
 } from '@tamanu/ui-components';
 
 import { useApi, useSuggester } from '../../api';
@@ -23,13 +23,18 @@ import { useTranslation } from '../../contexts/Translation';
 import { singularize } from '../../utils';
 import { AutocompleteInput, CheckInput } from '../Field';
 import { TableFormFields } from '../Table/TableFormFields';
+import { trimToDate } from '@tamanu/utils/dateTime';
 import { DateDisplay } from '../DateDisplay';
 import { useDispensableMedicationsQuery } from '../../api/queries/useDispensableMedicationsQuery';
 import { useFacilityQuery } from '../../api/queries/useFacilityQuery';
 import { Colors } from '../../constants';
 import { BodyText } from '../Typography';
-import { MedicationLabel } from '../PatientPrinting/printouts/MedicationLabel';
-import { getMedicationLabelData, getStockStatus } from '../../utils/medications';
+import { MedicationLabelPrintPreview } from '../PatientPrinting/printouts/MedicationLabelPrintPreview';
+import {
+  getMedicationLabelData,
+  getStockStatus,
+  getTranslatedMedicationName,
+} from '../../utils/medications';
 
 const MODAL_STEPS = {
   DISPENSE: 'dispense',
@@ -69,57 +74,6 @@ const StyledTableFormFields = styled(TableFormFields)`
     &.MuiTableCell-head {
       background-color: ${Colors.white};
       color: ${Colors.midText};
-    }
-  }
-`;
-
-const PrintContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  align-items: center;
-`;
-
-const PrintDescription = styled(Box)`
-  margin-bottom: 16px;
-  font-size: 14px;
-  color: Colors.midText;
-
-  @media print {
-    display: none;
-  }
-`;
-
-const PrintStyles = createGlobalStyle`
-  @media print {
-    @page {
-      margin: 3mm;
-      size: auto;
-    }
-
-    html, body {
-      margin: 0;
-      padding: 0;
-    }
-
-    .MuiDialogTitle-root,
-    .MuiDialogActions-root {
-      display: none;
-    }
-
-    .MuiDialog-container,
-    .MuiDialog-paper,
-    .MuiPaper-root,
-    .MuiDialogContent-root {
-      margin: 0;
-      padding: 0;
-    }
-
-    /* Target ModalContainer and ModalContent BaseModal */
-    .MuiDialog-paper > div,
-    .MuiDialog-paper > div > div:first-child {
-      margin: 0;
-      padding: 0;
     }
   }
 `;
@@ -179,10 +133,6 @@ const buildInstructionText = (prescription, getTranslation, getEnumTranslation) 
   return output.trim();
 };
 
-const isItemDisabled = item => {
-  return item.pharmacyOrder?.isDischargePrescription && (item.remainingRepeats ?? 0) === 0;
-};
-
 const InstructionsInput = memo(({ value: defaultValue, onChange, ...props }) => {
   const [value, setValue] = useState(defaultValue);
   const handleChange = e => {
@@ -208,9 +158,9 @@ export const DispenseMedicationWorkflowModal = memo(
     const api = useApi();
     const queryClient = useQueryClient();
     const { facilityId, currentUser } = useAuth();
-    const { getTranslation, getEnumTranslation } = useTranslation();
+    const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
     const practitionerSuggester = useSuggester('practitioner');
-
+    const { formatShort, getCurrentDateTime } = useDateTime();
     const [step, setStep] = useState(MODAL_STEPS.DISPENSE);
     const [dispensedByUserId, setDispensedByUserId] = useState('');
     const [items, setItems] = useState([]);
@@ -256,7 +206,7 @@ export const DispenseMedicationWorkflowModal = memo(
           const { quantity, prescription, instructions } = d;
           return {
             ...d,
-            selected: !isItemDisabled(d), // Don't auto-select disabled items
+            selected: true,
             quantity: quantity ?? 1,
             instructions:
               buildInstructionText(prescription, getTranslation, getEnumTranslation) ||
@@ -272,7 +222,7 @@ export const DispenseMedicationWorkflowModal = memo(
         });
       setItems(nextItems);
       setItemErrors({});
-    }, [open, dispensableResponse]);
+    }, [open, dispensableResponse, getTranslation, getEnumTranslation]);
 
     const handleClose = () => {
       setItems([]);
@@ -284,20 +234,20 @@ export const DispenseMedicationWorkflowModal = memo(
     };
 
     const handleSelectAll = ({ target: { checked } }) => {
-      setItems(prev => prev.map(i => ({ ...i, selected: !isItemDisabled(i) ? checked : false })));
+      setItems(prev => prev.map(i => ({ ...i, selected: checked })));
     };
 
-    const handleSelectRow = rowIndex => ({ target: { checked } }) => {
-      setItems(prev => {
-        const next = [...prev];
-        next[rowIndex] = { ...next[rowIndex], selected: checked };
-        return next;
-      });
-    };
+    const handleSelectRow =
+      rowIndex =>
+      ({ target: { checked } }) => {
+        setItems(prev => {
+          const next = [...prev];
+          next[rowIndex] = { ...next[rowIndex], selected: checked };
+          return next;
+        });
+      };
 
-    const selectableItems = items.filter(i => !isItemDisabled(i));
-    const selectAllChecked =
-      selectableItems.length > 0 && selectableItems.every(({ selected }) => selected);
+    const selectAllChecked = items.length > 0 && items.every(({ selected }) => selected);
 
     const handleQuantityChange = (rowIndex, { target: { value: rawValue } }) => {
       setItems(prev => {
@@ -379,17 +329,20 @@ export const DispenseMedicationWorkflowModal = memo(
       setShowValidationErrors(false);
       setStep(MODAL_STEPS.REVIEW);
       // Prepare labels for printing
-      const labelItems = selectedItems.map(item => ({
-        id: item.id,
-        medicationName: item.prescription?.medication?.name,
-        instructions: item.instructions,
-        quantity: item.quantity,
-        units: item.prescription?.units,
-        remainingRepeats: item.remainingRepeats,
-        prescriberName: item.prescription?.prescriber?.displayName,
-        requestNumber: item.displayId,
-      }));
-      const reviewLabels = getMedicationLabelData({ items: labelItems, patient, facility });
+      const labelItems = selectedItems.map(item => {
+        const medication = item.prescription?.medication;
+        return {
+          id: item.id,
+          medicationName: getTranslatedMedicationName(medication, getReferenceDataTranslation),
+          instructions: item.instructions,
+          quantity: item.quantity,
+          units: item.prescription?.units,
+          remainingRepeats: item.remainingRepeats,
+          prescriberName: item.prescription?.prescriber?.displayName,
+          requestNumber: item.displayId,
+        };
+      });
+      const reviewLabels = getMedicationLabelData({ items: labelItems, patient, facility, currentDateTime: getCurrentDateTime() });
       setLabelsForPrint(reviewLabels);
     };
 
@@ -442,7 +395,6 @@ export const DispenseMedicationWorkflowModal = memo(
                 onChange={handleSelectRow(rowIndex)}
                 style={{ margin: 'auto' }}
                 data-testid={`dispense-row-checkbox-${rowIndex}`}
-                disabled={isItemDisabled(item)}
               />
             );
           },
@@ -456,7 +408,7 @@ export const DispenseMedicationWorkflowModal = memo(
               fallback="Prescription date"
             />
           ),
-          accessor: ({ prescription }) => <Box>{formatShort(prescription?.date)}</Box>,
+          accessor: ({ prescription }) => <Box>{formatShort(trimToDate(prescription?.date))}</Box>,
         },
         {
           key: 'medication',
@@ -485,13 +437,12 @@ export const DispenseMedicationWorkflowModal = memo(
           accessor: (item, rowIndex) => {
             const { id, quantity, selected } = item;
             const hasQuantityError = itemErrors[id]?.hasQuantityError || false;
-            const disabled = isItemDisabled(item) || !selected;
             return (
               <QuantityInput
                 value={quantity}
                 onChange={e => handleQuantityChange(rowIndex, e)}
                 error={showValidationErrors && hasQuantityError}
-                disabled={disabled}
+                disabled={!selected}
                 InputProps={{ inputProps: { min: 1 } }}
                 data-testid="dispense-quantity"
                 required={selected}
@@ -529,14 +480,13 @@ export const DispenseMedicationWorkflowModal = memo(
           accessor: (item, rowIndex) => {
             const { id, instructions, selected } = item;
             const hasInstructionsError = itemErrors[id]?.hasInstructionsError || false;
-            const disabled = isItemDisabled(item) || !selected;
             return (
               <InstructionsInput
                 value={instructions}
                 onChange={e => handleInstructionsChange(rowIndex, e)}
                 error={showValidationErrors && hasInstructionsError}
                 required={selected}
-                disabled={disabled}
+                disabled={!selected}
                 testId="dispense-instructions"
                 helperText={
                   showValidationErrors && hasInstructionsError
@@ -675,20 +625,7 @@ export const DispenseMedicationWorkflowModal = memo(
           )}
 
           {step === MODAL_STEPS.REVIEW && (
-            <>
-              <PrintStyles />
-              <PrintDescription>
-                <TranslatedText
-                  stringId="medication.dispenseAndPrint.description"
-                  fallback="Please review the medication label/s below. Select Back to make changes, or Dispense & print to complete."
-                />
-              </PrintDescription>
-              <PrintContainer>
-                {labelsForPrint.map(label => (
-                  <MedicationLabel key={label.id} data={label} />
-                ))}
-              </PrintContainer>
-            </>
+            <MedicationLabelPrintPreview labels={labelsForPrint} />
           )}
         </StyledModal>
       </>

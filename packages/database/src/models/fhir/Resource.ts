@@ -12,6 +12,7 @@ import {
 import { formatFhirDate } from '@tamanu/shared/utils/fhir';
 import { objectAsFhir } from '../../utils/fhir/utils';
 import { Model } from '../Model';
+import type { FhirTransactionBundle } from '@tamanu/shared/services/fhirTypes/bundle';
 
 export class FhirResource extends Model {
   declare id: string;
@@ -99,6 +100,15 @@ export class FhirResource extends Model {
   // yup schema for validating incoming resource
   // TODO: derive from the sequelize attributes by default
   static INTAKE_SCHEMA: unknown;
+
+  // Resource specific logic to find referenced resources in the bundle
+  // and using them to hydrate any missing fields in the raw resource
+  static hydrateRawResourceFromBundle(
+    _bundle: FhirTransactionBundle,
+    rawResource: Record<string, any>,
+  ) {
+    return rawResource;
+  }
 
   // set upstream_id, call updateMaterialisation
   // do not set relatedToId when calling this, it's for internal use only.

@@ -5,10 +5,9 @@ import { useDispatch } from 'react-redux';
 import shortid from 'shortid';
 import * as yup from 'yup';
 
-import { IMAGING_TYPES, FORM_TYPES } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { IMAGING_TYPES, FORM_TYPES, ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
-import { DateDisplay, FormSeparatorLine } from '../components';
+import { FormSeparatorLine } from '../components';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
 import {
   MultiselectField,
@@ -19,10 +18,10 @@ import {
   FormCancelButton,
   ButtonRow,
   FormGrid,
+  useDateTime,
 } from '@tamanu/ui-components';
 import { AutocompleteField, DateTimeField, Field, ImagingPriorityField } from '../components/Field';
 import { TranslatedReferenceData, TranslatedText } from '../components/Translation';
-import { ENCOUNTER_OPTIONS } from '../constants';
 import { useEncounter } from '../contexts/Encounter';
 import { useLocalisation } from '../contexts/Localisation';
 import { useTranslation } from '../contexts/Translation';
@@ -31,16 +30,6 @@ import { useImagingRequestAreas } from '../utils/useImagingRequestAreas';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { foreignKey } from '../utils/validation';
 import { useAuth } from '../contexts/Auth';
-
-function getEncounterTypeLabel(type) {
-  return ENCOUNTER_OPTIONS.find(x => x.value === type).label;
-}
-
-function getEncounterLabel(encounter) {
-  const encounterDate = DateDisplay.stringFormat(encounter.startDate);
-  const encounterTypeLabel = getEncounterTypeLabel(encounter.encounterType);
-  return `${encounterDate} (${encounterTypeLabel})`;
-}
 
 const FormSubmitActionDropdown = React.memo(({ encounter, setOnSuccess, submitForm }) => {
   const { loadEncounter } = useEncounter();
@@ -96,7 +85,8 @@ export const ImagingRequestForm = React.memo(
     generateId = shortid.generate,
     setOnSuccess,
   }) => {
-    const { getTranslation } = useTranslation();
+    const { formatShort, getCurrentDateTime } = useDateTime();
+    const { getTranslation, getEnumTranslation } = useTranslation();
     const { getLocalisation } = useLocalisation();
     const { currentUser } = useAuth();
 
@@ -104,7 +94,6 @@ export const ImagingRequestForm = React.memo(
 
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
-    const encounterLabel = getEncounterLabel(encounter);
     const { getAreasForImagingType } = useImagingRequestAreas();
     const requiredValidationMessage = getTranslation('validation.required.inline', '*Required');
     return (
@@ -112,7 +101,7 @@ export const ImagingRequestForm = React.memo(
         onSubmit={onSubmit}
         initialValues={{
           displayId: generateId(),
-          requestedDate: getCurrentDateTimeString(),
+          requestedDate: getCurrentDateTime(),
           requestedById: currentUser.id,
           ...editedObject,
         }}
@@ -171,7 +160,6 @@ export const ImagingRequestForm = React.memo(
                 }
                 required
                 component={DateTimeField}
-                saveDateAsString
                 data-testid="field-xsta"
               />
               <TextInput
@@ -233,7 +221,10 @@ export const ImagingRequestForm = React.memo(
                   />
                 }
                 disabled
-                value={encounterLabel}
+                value={`${formatShort(encounter.startDate)} - ${getEnumTranslation(
+                  ENCOUNTER_TYPE_LABELS,
+                  encounter.encounterType,
+                )}`}
                 data-testid="textinput-tyem"
               />
               <Field

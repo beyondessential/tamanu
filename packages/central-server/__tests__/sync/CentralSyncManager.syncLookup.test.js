@@ -6,7 +6,7 @@ import {
   PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS,
   PATIENT_FIELD_DEFINITION_TYPES,
   NOTE_RECORD_TYPES,
-  REPORT_DB_SCHEMAS,
+  REPORT_DB_CONNECTIONS,
   REPORT_STATUSES,
   SETTINGS_SCOPES,
   FACT_CURRENT_SYNC_TICK,
@@ -107,6 +107,7 @@ describe('Sync Lookup data', () => {
       PatientProgramRegistration,
       PatientProgramRegistrationCondition,
       PatientSecondaryId,
+      PatientInvoiceInsurancePlan,
       PortalSurveyAssignment,
       Permission,
       ReportDefinitionVersion,
@@ -136,10 +137,12 @@ describe('Sync Lookup data', () => {
       ImagingResult,
       Invoice,
       InvoiceDiscount,
-      InvoiceInsurer,
+      InvoiceInsurancePlan,
+      InvoicesInvoiceInsurancePlan,
       InvoiceItem,
       InvoiceItemDiscount,
       InvoicePayment,
+      InvoiceItemFinalisedInsurance,
       LabTestPanelRequest,
       Procedure,
       ProcedureAssistantClinician,
@@ -435,7 +438,7 @@ describe('Sync Lookup data', () => {
 
     const reportDefinition = await ReportDefinition.create(
       fake(ReportDefinition, {
-        dbSchema: REPORT_DB_SCHEMAS.REPORTING,
+        dbSchema: REPORT_DB_CONNECTIONS.REPORTING,
       }),
     );
     await ReportDefinitionVersion.create(
@@ -630,10 +633,11 @@ describe('Sync Lookup data', () => {
         appliedByUserId: examiner.id,
       }),
     );
-    await InvoiceInsurer.create(
-      fake(InvoiceInsurer, {
+    const contract = await InvoiceInsurancePlan.create(fake(InvoiceInsurancePlan));
+    await InvoicesInvoiceInsurancePlan.create(
+      fake(InvoicesInvoiceInsurancePlan, {
         invoiceId: invoice.id,
-        insurerId: referenceData.id,
+        invoiceInsurancePlanId: contract.id,
       }),
     );
     const invoicePayment = await InvoicePayment.create(
@@ -668,6 +672,12 @@ describe('Sync Lookup data', () => {
     await InvoiceItemDiscount.create(
       fake(InvoiceItemDiscount, {
         invoiceItemId: invoiceItem.id,
+      }),
+    );
+    await InvoiceItemFinalisedInsurance.create(
+      fake(InvoiceItemFinalisedInsurance, {
+        invoiceItemId: invoiceItem.id,
+        invoiceInsurancePlanId: contract.id,
       }),
     );
 
@@ -708,6 +718,12 @@ describe('Sync Lookup data', () => {
       fake(Notification, {
         userId: examiner.id,
         patientId: patient.id,
+      }),
+    );
+    await PatientInvoiceInsurancePlan.create(
+      fake(PatientInvoiceInsurancePlan, {
+        patientId: patient.id,
+        invoiceInsurancePlanId: contract.id,
       }),
     );
   };

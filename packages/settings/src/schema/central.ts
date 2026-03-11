@@ -61,6 +61,7 @@ export const centralSettings = {
     },
     mobileSync: {
       description: 'Settings related to mobile sync',
+      exposedToWeb: true,
       highRisk: true,
       properties: {
         useUnsafeSchemaForInitialSync: {

@@ -935,7 +935,6 @@ describe('Suggestions', () => {
       category: INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE,
       sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE],
       sourceRecordId: labTestType.id,
-      discountable: true,
       visibilityStatus: 'current',
     });
 
@@ -946,6 +945,54 @@ describe('Suggestions', () => {
     expect(body).toBeInstanceOf(Array);
     expect(body.length).toBeGreaterThan(0);
     expect(body[0]).toHaveProperty('id', invoiceProduct.id);
+  });
+
+  it('should only return non-hidden invoice products', async () => {
+    await models.InvoiceProduct.truncate({ cascade: true });
+
+    const { InvoicePriceList, InvoiceProduct, InvoicePriceListItem } = models;
+
+    const priceList = await InvoicePriceList.create({
+      name: 'Test Price List For Hidden Items Suggester Test',
+      code: 'TEST_PRICE_LIST_FOR_HIDDEN_ITEMS_SUGGESTER_TEST',
+      id: 'test-price-list-hidden-suggester',
+    });
+
+    const visibleProduct = await InvoiceProduct.create({
+      name: 'Test Invoice Product Visible',
+      category: INVOICE_ITEMS_CATEGORIES.OTHER,
+      visibilityStatus: 'current',
+    });
+
+    const hiddenProduct = await InvoiceProduct.create({
+      name: 'Test Invoice Product Hidden',
+      category: INVOICE_ITEMS_CATEGORIES.OTHER,
+      visibilityStatus: 'current',
+    });
+
+    await InvoicePriceListItem.create({
+      invoicePriceListId: priceList.id,
+      invoiceProductId: visibleProduct.id,
+      price: 100,
+      isHidden: false,
+    });
+
+    await InvoicePriceListItem.create({
+      invoicePriceListId: priceList.id,
+      invoiceProductId: hiddenProduct.id,
+      price: 200,
+      isHidden: true,
+    });
+
+    const result = await userApp.get(
+      `/api/suggestions/invoiceProduct?q=Test Invoice Product&priceListId=${priceList.id}`,
+    );
+
+    expect(result).toHaveSucceeded();
+    const { body } = result;
+    expect(body).toHaveLength(1);
+    expect(body[0].id).toBe(visibleProduct.id);
+    expect(body[0].name).toBe('Test Invoice Product Visible');
   });
 
   it('should handle complex includes in multiReferenceData suggester', async () => {
