@@ -44,7 +44,11 @@ class MockApplicationContext {
 
   close = async () => {
     for (const hook of this.closeHooks) {
-      await hook();
+      try {
+        await hook();
+      } catch {
+        // Best-effort cleanup; always proceed to closeDatabase
+      }
     }
     await closeDatabase();
   };

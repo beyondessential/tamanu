@@ -50,6 +50,10 @@ const unsafeRecreatePgDb = async ({ name, username, password, host, port }) => {
   });
   try {
     await client.connect();
+    await client.query(
+      `SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = $1 AND pid <> pg_backend_pid()`,
+      [name],
+    );
     await client.query(`DROP DATABASE IF EXISTS "${name}"`);
     await client.query(`CREATE DATABASE "${name}"`);
   } catch (e) {
