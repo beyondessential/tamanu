@@ -4,8 +4,11 @@ import { literal } from 'sequelize';
 import { z } from 'zod';
 
 import { DatabaseDuplicateError, InvalidOperationError, NotFoundError } from '@tamanu/errors';
+import { simpleGetList } from '@tamanu/shared/utils/crudHelpers';
 
 export const rolesRouter = express.Router();
+
+rolesRouter.get('/', simpleGetList('Role'));
 
 const createRoleSchema = z.object({
   name: z.string().trim().min(1),
