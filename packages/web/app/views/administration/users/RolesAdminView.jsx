@@ -1,14 +1,19 @@
-import React from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
+import { toast } from 'react-toastify';
 import styled from 'styled-components';
 
+import { Typography } from '@mui/material';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { Form, FormSubmitButton, TextButton, TextField } from '@tamanu/ui-components';
 import { DataFetchingTable, TranslatedText } from '../../../components';
+import { ConfirmModal } from '../../../components/ConfirmModal';
 import { Field } from '../../../components/Field';
+import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { Colors } from '../../../constants';
 import { ROLES_ENDPOINT } from '../constants';
 import { Article } from './RolesAndDesignationsAdminView';
+import { useRoleDeleteMutation } from './useRoleDeleteMutation';
 
 const StyledForm = styled(Form)`
   align-items: flex-end;
@@ -49,7 +54,7 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
   }
 `;
 
-const COLUMNS = /** @type {const} */ ([
+const STATIC_COLUMNS = /** @type {const} */ ([
   {
     key: 'name',
     title: <TranslatedText stringId="admin.roles.name.column" fallback="Name" />,
@@ -62,10 +67,69 @@ const COLUMNS = /** @type {const} */ ([
   },
 ]);
 
+const DeleteConfirmationModal = styled(ConfirmModal).attrs({
+  title: (
+    <TranslatedText
+      stringId="admin.roles.delete.title"
+      fallback="Delete role"
+      data-testid="translatedtext-delete-role-title"
+    />
+  ),
+})``;
+
+const DeleteConfirmationModalContent = styled(Typography).attrs({
+  variant: 'body2',
+})`
+  min-block-size: 8rem;
+  display: grid;
+  place-items: center stretch;
+`;
+
 export const RolesAdminView = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [roleToDelete, setRoleToDelete] = useState(null);
+  const [refreshCount, setRefreshCount] = useState(0);
   const nameFromUrl = searchParams.get('name') ?? '';
   const idFromUrl = searchParams.get('id') ?? '';
+
+  const { mutate: deleteRole } = useRoleDeleteMutation({
+    onSuccess: () => {
+      // Imperatively refetch because DataFetchingTable isn’t build on useQuery
+      setRefreshCount(c => c + 1);
+      setRoleToDelete(null);
+      toast.success('Role deleted');
+    },
+    onError: error => {
+      toast.error(error.message ?? 'Couldn’t delete role');
+    },
+  });
+
+  const columns = useMemo(
+    () => [
+      ...STATIC_COLUMNS,
+      {
+        key: 'actions',
+        title: '',
+        sortable: false,
+        dontCallRowInput: true,
+        CellComponent: ({ data }) => (
+          <ThreeDotMenu
+            items={[
+              {
+                label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
+                onClick: () => setRoleToDelete(data),
+              },
+            ]}
+          />
+        ),
+      },
+    ],
+    [],
+  );
+
+  const handleConfirmDelete = useCallback(() => {
+    if (roleToDelete) deleteRole(roleToDelete.id);
+  }, [deleteRole, roleToDelete]);
 
   const onSubmit = values => {
     const name = values.name?.trim();
@@ -100,6 +164,24 @@ export const RolesAdminView = () => {
 
   return (
     <Article>
+      <DeleteConfirmationModal
+        open={Boolean(roleToDelete)}
+        onCancel={() => setRoleToDelete(null)}
+        onConfirm={handleConfirmDelete}
+        customContent={
+          <DeleteConfirmationModalContent>
+            <TranslatedText
+              stringId="admin.roles.delete.confirmation"
+              fallback="Are you sure you would like to delete this role?"
+              data-testid="translatedtext-delete-role-text"
+            />
+          </DeleteConfirmationModalContent>
+        }
+        confirmButtonText={
+          <TranslatedText stringId="general.action.delete-role" fallback="Delete role" />
+        }
+        data-testid="confirm-modal-delete-role"
+      />
       <search>
         <StyledForm
           formType={FORM_TYPES.SEARCH_FORM}
@@ -142,7 +224,7 @@ export const RolesAdminView = () => {
       </search>
       <StyledDataFetchingTable
         allowExport={false}
-        columns={COLUMNS}
+        columns={columns}
         data-testid="roles-table"
         defaultRowsPerPage={10}
         endpoint={ROLES_ENDPOINT}
@@ -151,6 +233,7 @@ export const RolesAdminView = () => {
         noDataMessage={
           <TranslatedText stringId="admin.roles.noData.message" fallback="No roles found" />
         }
+        refreshCount={refreshCount}
       />
     </Article>
   );
