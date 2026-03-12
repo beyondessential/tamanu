@@ -100,7 +100,7 @@ export class ProgramRegistryPltfuFlagger extends ScheduledTask {
             LIMIT :batchSize
           )
           UPDATE patient_program_registrations ppr
-          SET clinical_status_id = :pltfuStatusId
+          SET clinical_status_id = :pltfuStatusId, updated_at = CURRENT_TIMESTAMP
           FROM registrations_to_flag rtf
           WHERE ppr.patient_id = rtf.patient_id
             AND ppr.program_registry_id = rtf.program_registry_id
