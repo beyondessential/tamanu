@@ -98,10 +98,6 @@ translationRouter.put(
       };
     });
 
-    if (createdCount > 0) {
-      res.status(201).send({ createdCount, updatedCount, deletedCount });
-      return;
-    }
-    res.send({ createdCount, updatedCount, deletedCount });
+    res.status(200).send({ createdCount, updatedCount, deletedCount });
   }),
 );

@@ -89,7 +89,7 @@ describe('Translation', () => {
         'login.register': { en: 'Register' },
       });
       expect(result).toHaveSucceeded();
-      expect(result.status).toEqual(201);
+      expect(result.status).toEqual(200);
       expect(result.body).toMatchObject({
         createdCount: 2,
         updatedCount: 0,
