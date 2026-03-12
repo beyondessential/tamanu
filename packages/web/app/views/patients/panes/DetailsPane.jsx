@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { Typography } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
@@ -9,6 +9,8 @@ import { PatientDetailsForm } from '../../../forms/PatientDetailsForm/PatientDet
 import { reloadPatient } from '../../../store/patient';
 import { invalidatePatientDataQueries, notifyError } from '../../../utils';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { usePatientNavigation } from '../../../utils/usePatientNavigation';
+import { PATIENT_TABS } from '../../../constants/patientPaths';
 
 // Momentary component to just display a message, will need design and
 // refactor later.
@@ -32,11 +34,22 @@ const ForbiddenMessage = () => (
 );
 
 export const PatientDetailsPane = React.memo(
-  ({ patient, additionalData, birthData, patientFields, insurancePlans}) => {
+  ({ patient, additionalData, birthData, patientFields, insurancePlans, focusField }) => {
     const api = useApi();
     const queryClient = useQueryClient();
     const dispatch = useDispatch();
     const { ability, facilityId } = useAuth();
+    const { navigateToPatient } = usePatientNavigation();
+    const hasClearedFocusParam = useRef(false);
+
+    useEffect(() => {
+      if (!focusField || hasClearedFocusParam.current) return;
+      const timer = setTimeout(() => {
+        hasClearedFocusParam.current = true;
+        navigateToPatient(patient.id, { tab: PATIENT_TABS.DETAILS }, { replace: true });
+      }, 500);
+      return () => clearTimeout(timer);
+    }, [focusField, patient.id, navigateToPatient]);
 
     const handleSubmit = async (data) => {
       try {
@@ -67,6 +80,7 @@ export const PatientDetailsPane = React.memo(
           birthData={birthData}
           patientFields={patientFields}
           insurancePlans={insurancePlans}
+          focusField={focusField}
           onSubmit={handleSubmit}
           data-testid="patientdetailsform-qx47"
         />

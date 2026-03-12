@@ -212,8 +212,9 @@ export const PatientView = () => {
   useEffect(() => {
     if (queryTab && queryTab !== currentTab) {
       setCurrentTab(queryTab);
-      // remove the query parameter 'tab' after the tab has already been selected
-      navigateToPatient(patient.id);
+      // remove the query parameter 'tab' after the tab has already been selected (preserve focus if present)
+      const focus = query.get('focus');
+      navigateToPatient(patient.id, focus ? { focus } : undefined);
     }
 
     // only fire when queryTab is changed
@@ -254,6 +255,7 @@ export const PatientView = () => {
         birthData={birthData}
         insurancePlans={insurancePlans}
         disabled={disabled}
+        focusField={query.get('focus')}
         data-testid="styleddisplaytabs-6gds"
       />
     </>

@@ -68,7 +68,14 @@ function stripPatientData(patient, additionalData, birthData) {
   };
 }
 
-export const PatientDetailsForm = ({ patient, additionalData, birthData, insurancePlans, onSubmit }) => {
+export const PatientDetailsForm = ({
+  patient,
+  additionalData,
+  birthData,
+  insurancePlans,
+  focusField,
+  onSubmit,
+}) => {
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const patientRegistryType = !isEmpty(birthData)
@@ -135,6 +142,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, insuran
               registeredBirthPlace={values.registeredBirthPlace}
               patientRegistryType={patientRegistryType}
               isEdit
+              focusField={focusField}
               data-testid="secondarydetails-2fpb"
             />
           </StyledPatientDetailSecondaryDetailsGroupWrapper>

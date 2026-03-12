@@ -19,7 +19,12 @@ import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPa
 import { usePatientSuggester, useSuggester } from '../../../../../api';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
 
-export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, isEdit }) => {
+export const GenericPersonalFields = ({
+  patientRegistryType,
+  filterByMandatory,
+  isEdit,
+  focusField,
+}) => {
   const countrySuggester = useSuggester('country');
   const ethnicitySuggester = useSuggester('ethnicity');
   const nationalitySuggester = useSuggester('nationality');
@@ -204,6 +209,7 @@ export const GenericPersonalFields = ({ patientRegistryType, filterByMandatory, 
     <ConfiguredMandatoryPatientFields
       fields={PERSONAL_FIELDS}
       filterByMandatory={filterByMandatory}
+      focusField={focusField}
       data-testid="configuredmandatorypatientfields-vhzu"
     />
   );

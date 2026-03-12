@@ -210,6 +210,7 @@ export const GenericSecondaryDetailsLayout = ({
   registeredBirthPlace,
   patientRegistryType,
   isEdit = false,
+  focusField,
 }) => (
   <SecondaryDetailsGroup data-testid="secondarydetailsgroup-s246">
     {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
@@ -270,6 +271,7 @@ export const GenericSecondaryDetailsLayout = ({
         patientRegistryType={patientRegistryType}
         filterByMandatory={false}
         isEdit={isEdit}
+        focusField={focusField}
         data-testid="genericpersonalfields-hmrm"
       />
     </SecondaryDetailsFormGrid>
