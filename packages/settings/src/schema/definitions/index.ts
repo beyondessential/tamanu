@@ -26,6 +26,7 @@ export { thresholdsDefault, thresholdsSchema } from './upcomingVaccinations';
 export { vitalEditReasonsDefault, vitalEditReasonsSchema } from './vitalEditReasons';
 export {
   fhirResourceMaterialisationSchema,
+  fhirWorkerConcurrencySchema,
   fhirCountParametersSchema,
   fhirExtensionsSchema,
 } from './fhir';

@@ -12,6 +12,7 @@ export {
   applyDefaults,
   extractDefaults,
   fhirResourceMaterialisationSchema,
+  fhirWorkerConcurrencySchema,
   fhirCountParametersSchema,
   fhirExtensionsSchema,
 } from './schema';

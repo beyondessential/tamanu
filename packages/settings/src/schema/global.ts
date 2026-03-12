@@ -21,6 +21,7 @@ import {
   vitalEditReasonsDefault,
   vitalEditReasonsSchema,
   fhirResourceMaterialisationSchema,
+  fhirWorkerConcurrencySchema,
   fhirCountParametersSchema,
   fhirExtensionsSchema,
 } from './definitions';
@@ -454,13 +455,7 @@ export const globalSettings = {
               type: yup.string(),
               defaultValue: '10 minutes',
             },
-            concurrency: {
-              name: 'Concurrency',
-              description: 'Maximum number of FHIR jobs processed simultaneously by the worker',
-              requiresRestart: true,
-              type: yup.number().integer().positive(),
-              defaultValue: 10,
-            },
+            concurrency: fhirWorkerConcurrencySchema,
             resourceMaterialisationEnabled: fhirResourceMaterialisationSchema,
           },
         },

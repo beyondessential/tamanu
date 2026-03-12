@@ -2,6 +2,7 @@ import config from 'config';
 import {
   extractDefaults,
   fhirResourceMaterialisationSchema,
+  fhirWorkerConcurrencySchema,
   fhirCountParametersSchema,
   fhirExtensionsSchema,
 } from '@tamanu/settings';
@@ -15,7 +16,7 @@ const DEFAULTS = {
   resourceMaterialisationEnabled: matDefaults,
   countDefault: countDefaults._count.default,
   countMax: countDefaults._count.max,
-  concurrency: 10,
+  concurrency: fhirWorkerConcurrencySchema.defaultValue,
   extensions: extensionsDefaults,
 };
 
