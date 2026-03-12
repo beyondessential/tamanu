@@ -6,9 +6,10 @@ import styled from 'styled-components';
 import { Typography } from '@mui/material';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { Form, FormSubmitButton, TextButton, TextField } from '@tamanu/ui-components';
+import { useSuggester } from '../../../api';
 import { DataFetchingTable, TranslatedText } from '../../../components';
 import { ConfirmModal } from '../../../components/ConfirmModal';
-import { Field } from '../../../components/Field';
+import { AutocompleteField, Field } from '../../../components/Field';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { Colors } from '../../../constants';
 import { ROLES_ENDPOINT } from '../constants';
@@ -110,6 +111,10 @@ export const RolesAdminView = () => {
     },
   });
 
+  const roleSuggester = useSuggester('role', {
+    formatter: ({ id }) => ({ label: id, value: id }),
+  });
+
   const columns = useMemo(
     () => [
       ...STATIC_COLUMNS,
@@ -203,10 +208,11 @@ export const RolesAdminView = () => {
                 name="name"
               />
               <StyledField
-                component={TextField}
-                inputProps={{ 'data-testid': 'roles-search-id-input' }}
+                component={AutocompleteField}
+                data-testid="roles-search-id"
                 label={<TranslatedText stringId="admin.roles.id.label" fallback="ID" />}
                 name="id"
+                suggester={roleSuggester}
               />
               <ButtonGroup>
                 <FormSubmitButton
