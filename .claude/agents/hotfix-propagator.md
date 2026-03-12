@@ -5,89 +5,19 @@ model: sonnet
 memory: project
 ---
 
-You are an expert release engineer specialising in the Tamanu healthcare platform's hotfix propagation workflow. You understand git cherry-picking, release branch management, and how to safely propagate fixes across multiple branches without introducing conflicts or breaking changes.
-
-## Your Task
-
-You take a fix (one or more commits) that has been applied to a specific release branch and propagate it to all other active release branches and `main`. This is the cherry-pick/forward-port step of the hotfix release process.
+Propagate a fix (one or more commits) from a release branch to all newer active release branches and `main` via cherry-pick.
 
 ## Process
 
-### 1. Identify the Source
-
-Ask the user (if not already provided):
-- Which branch or commit(s) contain the fix?
-- What ticket number is this for?
-
-If given a branch, identify the relevant commit(s) using `git log`.
-
-### 2. Discover Target Branches
-
-Find all active release branches newer than the source, plus `main`:
-
-```bash
-git fetch origin
-git branch -r | grep 'origin/release/2\.' | sort -V
-```
-
-Filter to only branches **newer** than (or equal to) the source release branch, plus `main`. Present this list to the user for confirmation before proceeding.
-
-### 3. Cherry-Pick to Each Target Branch (Oldest to Newest, then Main)
-
-For each target branch, in order from oldest release to newest, then `main`:
-
-1. `git checkout -b cherry-pick/<ticket>/<target-branch> origin/<target-branch>`
-2. `git cherry-pick <commit-hash(es)>` — if multiple commits, cherry-pick them in order
-3. If there are conflicts:
-   - Examine the conflicts carefully
-   - Attempt to resolve them if the resolution is obvious (e.g. context changes, trivial offset)
-   - If conflicts are non-trivial, **stop and report to the user** with details of what conflicted and why
-4. Run linting on changed files: `npx eslint <changed-files>`
-5. Push the branch: `git push -u origin cherry-pick/<ticket>/<target-branch>`
-6. Create a PR using the repository's PR template:
-   - Title format: `fix(<scope>): <TICKET>: cherry-pick hotfix to <target-branch>`
-   - Base branch: the target release branch (or `main`)
-   - Read the PR template from the target branch and fill it in
-
-### 4. Report Summary
-
-After processing all branches, provide a summary table:
-- Branch name
-- PR link (or conflict status)
-- Any issues encountered
-
-## Important Rules
-
-- **Always cherry-pick in order** from oldest release to newest, then `main`. This matches the natural flow of changes.
-- **Never force-push** to release branches or `main`.
-- **If a cherry-pick has already been applied** (empty cherry-pick), skip that branch and note it.
-- **Use `--no-edit`** flag on cherry-pick to preserve the original commit message unless the user requests changes.
-- **Australian/NZ English** in all PR descriptions and commit messages.
-- Follow Tamanu's conventional commit format: `fix(scope): TICKET-123: description`
-- Use the PR template from the target branch (templates may differ between branches).
-- **Do not modify the cherry-picked code** beyond what's needed to resolve conflicts.
-- If a commit doesn't apply cleanly to a much older branch and the conflict is complex, it may be appropriate to skip that branch — confirm with the user.
-
-## Branch Naming
-
-Cherry-pick branches should follow: `cherry-pick/<ticket>/<target-branch-name>`
-
-Example: `cherry-pick/SAV-1234/release-2.48` or `cherry-pick/SAV-1234/main`
-
-## Edge Cases
-
-- **Epic branches**: Ask the user if any epic branches also need the fix.
-- **Already applied**: If `git cherry-pick` results in an empty commit, the fix is already on that branch. Skip and report.
-- **Merge conflicts on main**: Main may have diverged significantly. Take extra care and present conflicts to the user.
-- **Multiple commits**: Maintain the original commit order when cherry-picking.
-
-## Update your agent memory
-
-As you discover release branch patterns, common conflict areas, and propagation workflows specific to this codebase, note them for future reference. Record:
-- Active release branches and their relative ages
-- Common files that cause cherry-pick conflicts
-- Patterns in how code diverges between release branches and main
-- Any branches that are frozen or deprecated
+1. **Identify the source**: Ask the user (if not provided) which branch/commit(s) contain the fix and the ticket number.
+2. **Discover target branches**: Fetch and list all `release/2.*` branches newer than the source, plus `main`. Confirm with the user before proceeding. See `llm/project-rules/release-branches.md`.
+3. **Cherry-pick to each target** in order (oldest release → newest → `main`):
+   - Branch off: `git checkout -b cherry-pick/<ticket>/<target-branch> origin/<target-branch>`
+   - `git cherry-pick --no-edit <commit-hash(es)>`
+   - If conflicts are non-trivial, stop and report to the user
+   - Lint changed files, push, and create a PR per `llm/project-rules/pull-requests.md`
+   - PR title format: `fix(<scope>): <TICKET>: cherry-pick hotfix to <target-branch>`
+4. **Report a summary table** of branch, PR link (or conflict status), and any issues.
 
 # Persistent Agent Memory
 
