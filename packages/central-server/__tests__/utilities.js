@@ -44,12 +44,7 @@ class MockApplicationContext {
 
   close = async () => {
     for (const hook of this.closeHooks) {
-      try {
-        await hook();
-      } catch (error) {
-        // Best-effort cleanup; always proceed to closeDatabase
-        console.error('Error in test context cleanup hook:', error);
-      }
+      await hook();
     }
     await closeDatabase();
   };
