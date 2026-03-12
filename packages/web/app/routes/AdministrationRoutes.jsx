@@ -40,6 +40,7 @@ export const AdministrationRoutes = React.memo(() => (
     <Route path="translation" element={<TranslationAdminView />} />
     <Route path="users" element={<UserAdminView />} />
     <Route path="roles" element={<RolesAndDesignationsAdminView />} />
+    <Route path="designations" element={<RolesAndDesignationsAdminView />} />
     <Route path="insurerPayments" element={<InsurerPaymentsAdminView />} />
     <Route path="*" element={<Navigate to="referenceData" replace />} />
   </Routes>

@@ -1,9 +1,10 @@
 import React from 'react';
-import { useSearchParams } from 'react-router';
+import { useLocation, useNavigate, useSearchParams } from 'react-router';
 import styled from 'styled-components';
 
 import { Form, FormSubmitButton, TextButton, TextField } from '@tamanu/ui-components';
 import { DataFetchingTable, TranslatedText } from '../../components';
+import { TabDisplay } from '../../components/TabDisplay';
 import { Field } from '../../components/Field';
 import { Colors } from '../../constants';
 import { AdminViewContainer, ContentContainer } from './components/AdminViewContainer';
@@ -51,6 +52,21 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
   }
 `;
 
+const StyledTabDisplay = styled(TabDisplay)`
+  /* flex: 1; */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  .MuiTabs-root {
+    flex-shrink: 0;
+  }
+`;
+
+const TAB = /** @type {const} */ ({
+  ROLES: 'roles',
+  DESIGNATIONS: 'designations',
+});
+
 const COLUMNS = /** @type {const} */ ([
   {
     key: 'name',
@@ -64,12 +80,10 @@ const COLUMNS = /** @type {const} */ ([
   },
 ]);
 
-export const RolesAndDesignationsAdminView = () => {
+const RolesView = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-
   const nameFromUrl = searchParams.get('name') ?? '';
   const idFromUrl = searchParams.get('id') ?? '';
-  const fetchOptions = { id: idFromUrl, name: nameFromUrl };
 
   const onSubmit = values => {
     const name = values.name?.trim();
@@ -103,6 +117,94 @@ export const RolesAndDesignationsAdminView = () => {
   };
 
   return (
+    <Article>
+      <search>
+        <StyledForm
+          initialValues={{ id: idFromUrl, name: nameFromUrl }}
+          key={`id=${idFromUrl}&name=${nameFromUrl}`}
+          onSubmit={onSubmit}
+          render={({ submitForm }) => (
+            <>
+              <Field
+                component={TextField}
+                inputProps={{ 'data-testid': 'roles-search-name-input' }}
+                label={<TranslatedText stringId="admin.roles.name.label" fallback="Name" />}
+                name="name"
+                placeholder="Search…"
+                size="small"
+                style={{ inlineSize: '25.625rem' }}
+              />
+              <Field
+                component={TextField}
+                inputProps={{ 'data-testid': 'roles-search-id-input' }}
+                label={<TranslatedText stringId="admin.roles.id.label" fallback="ID" />}
+                name="id"
+                placeholder="Search…"
+                size="small"
+                style={{ inlineSize: '25.625rem' }}
+              />
+              <ButtonGroup>
+                <FormSubmitButton
+                  color="primary"
+                  data-testid="roles-search-button"
+                  onClick={submitForm}
+                >
+                  <TranslatedText stringId="general.action.search" fallback="Search" />
+                </FormSubmitButton>
+                <TextButton
+                  data-testid="roles-clear-button"
+                  onClick={onClear}
+                  style={{ paddingInline: '1em' }}
+                >
+                  <TranslatedText stringId="general.action.clear" fallback="Clear" />
+                </TextButton>
+              </ButtonGroup>
+            </>
+          )}
+        />
+      </search>
+      <StyledDataFetchingTable
+        allowExport={false}
+        columns={COLUMNS}
+        data-testid="roles-table"
+        defaultRowsPerPage={10}
+        endpoint={ROLES_ENDPOINT}
+        fetchOptions={{ id: idFromUrl, name: nameFromUrl }}
+        initialSort={{ orderBy: 'name', order: 'asc' }}
+        noDataMessage={
+          <TranslatedText stringId="admin.roles.noData.message" fallback="No roles found" />
+        }
+      />
+    </Article>
+  );
+};
+
+export const RolesAndDesignationsAdminView = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  /** @type {(typeof TAB)[keyof typeof TAB]} */
+  const currentTab = location.pathname.split('/').at(-1);
+
+  const onTabSelect = tabKey => {
+    navigate(tabKey === TAB.DESIGNATIONS ? '/admin/designations' : '/admin/roles');
+  };
+
+  const tabs = /** @type {const} */ ([
+    {
+      key: TAB.ROLES,
+      label: <TranslatedText stringId="admin.roles.tab" fallback="Roles" />,
+      render: () => <RolesView />,
+    },
+    /* NASS-1909 */
+    // {
+    //   key: TAB.DESIGNATIONS,
+    //   label: <TranslatedText stringId="admin.designations.tab" fallback="Designations" />,
+    //   render: () => <Article />,
+    // },
+  ]);
+
+  return (
     <AdminViewContainer
       title={
         <TranslatedText
@@ -112,65 +214,12 @@ export const RolesAndDesignationsAdminView = () => {
         />
       }
     >
-      <Article>
-        <search>
-          <StyledForm
-            initialValues={{ id: idFromUrl, name: nameFromUrl }}
-            key={`id=${idFromUrl}&name=${nameFromUrl}`}
-            onSubmit={onSubmit}
-            render={({ submitForm }) => (
-              <>
-                <Field
-                  component={TextField}
-                  inputProps={{ 'data-testid': 'roles-search-name-input' }}
-                  label={<TranslatedText stringId="admin.roles.name.label" fallback="Name" />}
-                  name="name"
-                  placeholder="Search…"
-                  size="small"
-                  style={{ inlineSize: '25.625rem' }}
-                />
-                <Field
-                  component={TextField}
-                  inputProps={{ 'data-testid': 'roles-search-id-input' }}
-                  label={<TranslatedText stringId="admin.roles.id.label" fallback="ID" />}
-                  name="id"
-                  placeholder="Search…"
-                  size="small"
-                  style={{ inlineSize: '25.625rem' }}
-                />
-                <ButtonGroup>
-                  <FormSubmitButton
-                    color="primary"
-                    data-testid="roles-search-button"
-                    onClick={submitForm}
-                  >
-                    <TranslatedText stringId="general.action.search" fallback="Search" />
-                  </FormSubmitButton>
-                  <TextButton
-                    data-testid="roles-clear-button"
-                    onClick={onClear}
-                    style={{ paddingInline: '1em' }}
-                  >
-                    <TranslatedText stringId="general.action.clear" fallback="Clear" />
-                  </TextButton>
-                </ButtonGroup>
-              </>
-            )}
-          />
-        </search>
-        <StyledDataFetchingTable
-          allowExport={false}
-          columns={COLUMNS}
-          data-testid="roles-table"
-          defaultRowsPerPage={10}
-          endpoint={ROLES_ENDPOINT}
-          fetchOptions={fetchOptions}
-          initialSort={{ orderBy: 'name', order: 'asc' }}
-          noDataMessage={
-            <TranslatedText stringId="admin.roles.noData.message" fallback="No roles found" />
-          }
-        />
-      </Article>
+      <StyledTabDisplay
+        currentTab={currentTab}
+        onTabSelect={onTabSelect}
+        scrollable={false}
+        tabs={tabs}
+      />
     </AdminViewContainer>
   );
 };
