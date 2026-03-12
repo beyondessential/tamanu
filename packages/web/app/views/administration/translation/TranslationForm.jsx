@@ -343,28 +343,9 @@ export const TranslationForm = () => {
   }, [translations]);
 
   const handleSubmit = async payload => {
-    const fullSubmitData = Object.fromEntries(
+    const submitData = Object.fromEntries(
       Object.entries(payload).map(([key, { stringId, ...rest }]) => [stringId || key, rest]),
     );
-    // Send only changed values to reduce payload size and backend work.
-    // Only consider languages the form rendered (keys in current); if a language is in initial
-    // but absent from current, the column was not shown for this string so we must not treat it as a deletion.
-    const submitData = {};
-    for (const [stringId, languages] of Object.entries(fullSubmitData)) {
-      const initial = initialValues[stringId] ?? {};
-      const current = languages ?? {};
-      const changedLangs = {};
-      for (const lang of Object.keys(current)) {
-        const currentValue = current[lang] ?? '';
-        const initialValue = initial[lang] ?? '';
-        if (currentValue !== initialValue) {
-          changedLangs[lang] = currentValue;
-        }
-      }
-      if (Object.keys(changedLangs).length > 0) {
-        submitData[stringId] = changedLangs;
-      }
-    }
     saveTranslations(submitData);
   };
 
