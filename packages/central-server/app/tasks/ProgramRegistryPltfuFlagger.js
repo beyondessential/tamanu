@@ -69,9 +69,9 @@ export class ProgramRegistryPltfuFlagger extends ScheduledTask {
     const { batchSize, batchSleepAsyncDurationInMilliseconds } = this.config;
 
     let totalUpdated = 0;
-    let hasMore = true;
 
-    while (hasMore) {
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
       // Find active registrations where the patient has had no encounter activity
       // within the threshold period and is not already flagged as PLTFU,
       // then update them to the PLTFU status in a single atomic operation.
@@ -121,10 +121,9 @@ export class ProgramRegistryPltfuFlagger extends ScheduledTask {
       totalUpdated += batchCount;
 
       if (batchCount < batchSize) {
-        hasMore = false;
-      } else {
-        await sleepAsync(batchSleepAsyncDurationInMilliseconds);
+        break;
       }
+      await sleepAsync(batchSleepAsyncDurationInMilliseconds);
     }
 
     if (totalUpdated > 0) {
