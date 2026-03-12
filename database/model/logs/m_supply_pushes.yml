@@ -9,9 +9,7 @@ sources:
         config:
           tags: []
           meta:
-            triggers:
-              - notify_m_supply_pushes_changed
-              - set_m_supply_pushes_updated_at
+            triggers: []
         columns:
           - name: id
             data_type: uuid
