@@ -78,9 +78,9 @@ translationRouter.put(
         }
       }
 
-      const toBulkCreate = [...toCreate, ...toUpdate];
-      if (toBulkCreate.length > 0) {
-        await TranslatedString.bulkCreate(toBulkCreate, {
+      const toUpsert = [...toCreate, ...toUpdate];
+      if (toUpsert.length > 0) {
+        await TranslatedString.bulkCreate(toUpsert, {
           validate: true,
           updateOnDuplicate: ['text', 'deletedAt'],
         });
