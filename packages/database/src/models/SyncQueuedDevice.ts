@@ -80,15 +80,19 @@ export class SyncQueuedDevice extends Model {
       // New entry: compute consecutive failures from sync_sessions (only needed on create)
       const queryResult = await this.sequelize.query(
         `
-        WITH recent AS (
+        WITH latest_sessions AS (
+          SELECT parameters, errors, completed_at
+          FROM sync_sessions
+          WHERE completed_at IS NOT NULL
+          ORDER BY completed_at DESC
+          LIMIT :lookback_limit
+        ),
+        recent AS (
           SELECT
             errors,
             ROW_NUMBER() OVER (ORDER BY completed_at DESC) AS rn
-          FROM sync_sessions
+          FROM latest_sessions
           WHERE parameters->>'deviceId' = :id
-            AND completed_at IS NOT NULL
-          ORDER BY completed_at DESC
-          LIMIT :lookback_limit
         )
         SELECT count(*)::int AS consecutive_failures
         FROM recent
