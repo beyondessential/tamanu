@@ -14,6 +14,7 @@ export async function up(query: QueryInterface): Promise<void> {
 }
 
 export async function down(query: QueryInterface): Promise<void> {
+  // DESTRUCTIVE: removes loss_to_follow_up_enabled and loss_to_follow_up_threshold_days values for all registries
   await query.removeColumn('program_registries', 'loss_to_follow_up_threshold_days');
   await query.removeColumn('program_registries', 'loss_to_follow_up_enabled');
 }
