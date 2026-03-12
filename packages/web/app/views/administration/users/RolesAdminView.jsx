@@ -2,6 +2,7 @@ import React from 'react';
 import { useSearchParams } from 'react-router';
 import styled from 'styled-components';
 
+import { FORM_TYPES } from '@tamanu/constants/forms';
 import { Form, FormSubmitButton, TextButton, TextField } from '@tamanu/ui-components';
 import { DataFetchingTable, TranslatedText } from '../../../components';
 import { Field } from '../../../components/Field';
@@ -101,6 +102,7 @@ export const RolesAdminView = () => {
     <Article>
       <search>
         <StyledForm
+          formType={FORM_TYPES.SEARCH_FORM}
           initialValues={{ id: idFromUrl, name: nameFromUrl }}
           key={`id=${idFromUrl}&name=${nameFromUrl}`}
           onSubmit={onSubmit}
