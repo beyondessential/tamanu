@@ -90,14 +90,14 @@ export class SyncQueuedDevice extends Model {
         recent AS (
           SELECT
             errors,
-            ROW_NUMBER() OVER (ORDER BY completed_at DESC) AS rn
+            ROW_NUMBER() OVER (ORDER BY completed_at DESC) AS row_number
           FROM latest_sessions
           WHERE parameters->>'deviceId' = :id
         )
         SELECT count(*)::int AS consecutive_failures
         FROM recent
-        WHERE rn < COALESCE(
-          (SELECT MIN(rn) FROM recent WHERE errors IS NULL OR array_length(errors, 1) IS NULL),
+        WHERE row_number < COALESCE(
+          (SELECT MIN(row_number) FROM recent WHERE errors IS NULL OR array_length(errors, 1) IS NULL),
           (SELECT count(*) FROM recent) + 1
         )
         `,
