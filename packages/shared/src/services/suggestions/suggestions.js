@@ -211,14 +211,7 @@ function createAllRecordsRoute(
   endpoint,
   modelName,
   whereBuilder,
-  {
-    mapper,
-    searchColumn,
-    extraReplacementsBuilder,
-    allRecordsIncludeBuilder,
-    includeBuilder,
-    queryOptions,
-  },
+  { mapper, searchColumn, extraReplacementsBuilder, allRecordsIncludeBuilder },
 ) {
   suggestions.get(
     `/${endpoint}/all$`,
@@ -230,7 +223,7 @@ function createAllRecordsRoute(
       const model = models[modelName];
       const where = whereBuilder({ search: '%', query, req, endpoint, modelName, searchColumn });
 
-      const include = allRecordsIncludeBuilder?.(req) ?? includeBuilder?.(req);
+      const include = allRecordsIncludeBuilder?.(req);
 
       const results = await model.findAll({
         include,
@@ -242,7 +235,6 @@ function createAllRecordsRoute(
           searchQuery: '%',
           ...extraReplacementsBuilder(query),
         },
-        ...queryOptions,
       });
       // Allow for async mapping functions (currently only used by location suggester)
       res.send(await Promise.all(results.map(mapper)));
