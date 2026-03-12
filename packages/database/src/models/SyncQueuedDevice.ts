@@ -106,8 +106,8 @@ export class SyncQueuedDevice extends Model {
           type: 'SELECT',
         },
       );
-      const rows = queryResult as Array<{ consecutive_failures: number }>;
-      const consecutiveFailures = rows[0]?.consecutive_failures ?? 0;
+      const failureCountResult = queryResult as Array<{ consecutive_failures: number }>;
+      const consecutiveFailures = failureCountResult[0]?.consecutive_failures ?? 0;
       await this.create({
         id,
         facilityIds: JSON.stringify(facilityIds),
