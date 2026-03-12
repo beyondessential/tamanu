@@ -8,10 +8,10 @@ Propagate a fix (one or more commits) from a release branch to all newer active 
 
 ## Process
 
-1. **Identify the source**: Ask the user (if not provided) which branch/commit(s) contain the fix and the ticket number.
+1. **Identify the source**: Ask the user (if not provided) which branch/commit(s) contain the fix. Extract the ticket number and scope from the commit message — if there's no ticket, use `no-issue`.
 2. **Discover target branches**: Fetch and list all `release/2.*` branches newer than the source, plus `main`. Confirm with the user before proceeding. See `llm/project-rules/release-branches.md`.
 3. **Cherry-pick to each target** in order (oldest release → newest → `main`):
-   - Branch off: `git checkout -b cherry-pick/<ticket>/<target-branch-slugified> origin/<target-branch>` (e.g. `cherry-pick/SAV-1234/release-2.48`)
+   - Branch off using `fix` type per `llm/common-rules/create-branch.md` (e.g. `fix/SAV-1234/cherry-pick-to-release-2.48`)
    - `git cherry-pick --no-edit <commit-hash(es)>`
    - If conflicts are non-trivial, stop and report to the user
    - Lint changed files, push, and create a PR per `llm/project-rules/pull-requests.md`
