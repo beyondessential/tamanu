@@ -12,13 +12,14 @@ import {
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { fake } from '@tamanu/fake-data/fake';
 import { log } from '@tamanu/shared/services/logging';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
 import { createTestContext } from '../../utilities';
 import { allFromUpstream } from '../../../dist/tasks/fhir/refresh/allFromUpstream';
 
-jest.setTimeout(50000);
+jest.setTimeout(50000); 
 
-const PRIMARY_TIME_ZONE = config?.primaryTimeZone;
+const PRIMARY_TIME_ZONE = getPrimaryTimeZone(config);
 
 const createLocalDateTimeFromUTC = (year, month, day, hour, minute, second, millisecond = 0) => {
   // Interprets inputs AS utc, and "utcTime" is the **local** version of that time
@@ -336,7 +337,7 @@ const fakeAllData = async (models, ctx) => {
   await models.MediciReport.materialiseFromUpstream(encounterId);
   await models.MediciReport.materialiseFromUpstream(openEncounterId);
 
-  const medici = await models.MediciReport.findOne({ where: { encounterId } });
+  const medici = await models.MediciReport.findOne();
 
   await medici.update({
     lastUpdated: new Date(Date.UTC(2022, 6 - 1, 12, 0, 2, 54, 225)),
