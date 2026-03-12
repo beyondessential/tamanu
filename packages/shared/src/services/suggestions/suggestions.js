@@ -211,7 +211,7 @@ function createAllRecordsRoute(
   endpoint,
   modelName,
   whereBuilder,
-  { mapper, searchColumn, extraReplacementsBuilder, allRecordsIncludeBuilder },
+  { mapper, searchColumn, extraReplacementsBuilder, includeBuilder },
 ) {
   suggestions.get(
     `/${endpoint}/all$`,
@@ -223,7 +223,7 @@ function createAllRecordsRoute(
       const model = models[modelName];
       const where = whereBuilder({ search: '%', query, req, endpoint, modelName, searchColumn });
 
-      const include = allRecordsIncludeBuilder?.(req);
+      const include = includeBuilder?.(req);
 
       const results = await model.findAll({
         include,
@@ -483,8 +483,8 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
 
       return baseWhere;
     },
-    {
-      includeBuilder: req => {
+    (() => {
+      const includeBuilderFn = req => {
         const {
           models: {
             ReferenceData,
@@ -549,27 +549,31 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
         ].filter(Boolean);
 
         return result.length > 0 ? result : null;
-      },
-      queryOptions:
-        typeName === REFERENCE_TYPES.MEDICATION_SET || typeName === REFERENCE_TYPES.DRUG
-          ? { subQuery: false }
-          : {},
-      creatingBodyBuilder: req => referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
-      afterCreated: afterCreatedReferenceData,
-      mapper: item => item,
-      orderBuilder: () => {
-        if (typeName === REFERENCE_TYPES.NOTE_TYPE) {
-          return [
-            // Prioritize treatment plan at the top
-            Sequelize.literal(`
+      };
+
+      return {
+        includeBuilder: includeBuilderFn,
+        queryOptions:
+          typeName === REFERENCE_TYPES.MEDICATION_SET || typeName === REFERENCE_TYPES.DRUG
+            ? { subQuery: false }
+            : {},
+        creatingBodyBuilder: req => referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
+        afterCreated: afterCreatedReferenceData,
+        mapper: item => item,
+        orderBuilder: () => {
+          if (typeName === REFERENCE_TYPES.NOTE_TYPE) {
+            return [
+              // Prioritize treatment plan at the top
+              Sequelize.literal(`
               CASE "ReferenceData"."id" WHEN '${NOTE_TYPES.TREATMENT_PLAN}' THEN 0 ELSE 1 END
-            `),
-          ];
-        }
-      },
-      shouldSkipDefaultOrder: req =>
-        req.query.parentId || typeName === REFERENCE_TYPES.MEDICATION_SET,
-    },
+              `),
+            ];
+          }
+        },
+        shouldSkipDefaultOrder: req =>
+          req.query.parentId || typeName === REFERENCE_TYPES.MEDICATION_SET,
+      };
+    })(),
     true,
   );
 });
@@ -715,7 +719,6 @@ createSuggester(
   'InvoiceInsurancePlan',
   ({ endpoint, modelName }) => DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
   {
-    allRecordsIncludeBuilder: invoiceInsurancePlanIncludeBuilder,
     includeBuilder: invoiceInsurancePlanIncludeBuilder,
   },
 );
