@@ -2,17 +2,20 @@ import React from 'react';
 import { useSearchParams } from 'react-router';
 import styled from 'styled-components';
 
-import { Button, Form, FormSubmitButton, TextField } from '@tamanu/ui-components';
+import { Form, FormSubmitButton, TextButton, TextField } from '@tamanu/ui-components';
 import { DataFetchingTable, TranslatedText } from '../../components';
 import { Field } from '../../components/Field';
 import { Colors } from '../../constants';
-import { AdminViewContainer } from './components/AdminViewContainer';
+import { AdminViewContainer, ContentContainer } from './components/AdminViewContainer';
 import { ROLES_ENDPOINT } from './constants';
 
 const Article = styled.article`
-  padding: 24px 30px;
-  background-color: ${Colors.background};
-  border-top: 1px solid ${Colors.outline};
+  border-block-start: 1px solid ${Colors.outline};
+  padding-block: 26px;
+  padding-inline: 30px;
+  ${ContentContainer}:has(&) {
+    background-color: #f7f9fb;
+  }
 `;
 
 const StyledForm = styled(Form)`
@@ -20,6 +23,8 @@ const StyledForm = styled(Form)`
   background-color: ${Colors.white};
   border-block-start: 1px solid ${Colors.outline};
   border-inline: 1px solid ${Colors.outline};
+  border-start-end-radius: 0.3125rem;
+  border-start-start-radius: 0.3125rem;
   display: flex;
   flex-direction: row;
   gap: 0.625rem;
@@ -29,11 +34,17 @@ const StyledForm = styled(Form)`
 
 const ButtonGroup = styled.div`
   display: flex;
+  font-size: 0.875rem;
   gap: inherit;
   margin-inline-start: auto;
+  button {
+    font-size: inherit;
+  }
 `;
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
+  border-start-end-radius: 0;
+  border-start-start-radius: 0;
   box-shadow: unset;
   tbody tr:hover {
     background-color: ${Colors.veryLightBlue};
@@ -135,9 +146,13 @@ export const RolesAndDesignationsAdminView = () => {
                   >
                     <TranslatedText stringId="general.action.search" fallback="Search" />
                   </FormSubmitButton>
-                  <Button data-testid="roles-clear-button" onClick={onClear} variant="outlined">
+                  <TextButton
+                    data-testid="roles-clear-button"
+                    onClick={onClear}
+                    style={{ paddingInline: '1em' }}
+                  >
                     <TranslatedText stringId="general.action.clear" fallback="Clear" />
-                  </Button>
+                  </TextButton>
                 </ButtonGroup>
               </>
             )}

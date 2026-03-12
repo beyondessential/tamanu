@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
+import { Colors } from '../../../constants';
 
 const OuterContainer = styled.div`
   position: relative;
@@ -15,7 +16,7 @@ const OuterContainer = styled.div`
   }
 `;
 
-const ContentContainer = styled.div`
+export const ContentContainer = styled.div`
   min-height: 100%;
   overflow: auto;
 `;
@@ -27,9 +28,10 @@ const LoadingContainer = styled.div`
 `;
 
 const TitleContainer = styled.div`
+  align-items: center;
+  background-color: ${Colors.white};
   display: flex;
   justify-content: space-between;
-  align-items: center;
   padding: 20px;
 `;
 
@@ -43,7 +45,13 @@ const TitleActions = styled.div`
   gap: 16px;
 `;
 
-export const AdminViewContainer = ({ title, titleActions, showLoadingIndicator, children, className }) => (
+export const AdminViewContainer = ({
+  children,
+  className,
+  showLoadingIndicator,
+  title,
+  titleActions,
+}) => (
   <OuterContainer className={className} data-testid="outercontainer-ueni">
     {showLoadingIndicator && (
       <LoadingContainer data-testid="loadingcontainer-0uay">
