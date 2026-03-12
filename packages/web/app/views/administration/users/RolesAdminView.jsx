@@ -52,6 +52,12 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
   tbody tr:hover {
     background-color: ${Colors.veryLightBlue};
   }
+
+  /* Fit to meatball menu button width; let browser distribute remaining columns */
+  th:last-child,
+  td:last-child {
+    inline-size: 0;
+  }
 `;
 
 const STATIC_COLUMNS = /** @type {const} */ ([
