@@ -215,6 +215,7 @@ function createAllRecordsRoute(
     mapper,
     searchColumn,
     extraReplacementsBuilder,
+    allRecordsIncludeBuilder,
     includeBuilder,
     queryOptions = {},
   },
@@ -229,7 +230,7 @@ function createAllRecordsRoute(
       const model = models[modelName];
       const where = whereBuilder({ search: '%', query, req, endpoint, modelName, searchColumn });
 
-      const include = includeBuilder?.(req);
+      const include = allRecordsIncludeBuilder?.(req) ?? includeBuilder?.(req);
 
       const results = await model.findAll({
         include,
@@ -722,6 +723,7 @@ createSuggester(
   'InvoiceInsurancePlan',
   ({ endpoint, modelName }) => DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
   {
+    allRecordsIncludeBuilder: invoiceInsurancePlanIncludeBuilder,
     includeBuilder: invoiceInsurancePlanIncludeBuilder,
   },
 );
