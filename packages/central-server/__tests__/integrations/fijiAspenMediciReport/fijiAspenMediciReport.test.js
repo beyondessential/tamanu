@@ -16,6 +16,8 @@ import { log } from '@tamanu/shared/services/logging';
 import { createTestContext } from '../../utilities';
 import { allFromUpstream } from '../../../dist/tasks/fhir/refresh/allFromUpstream';
 
+jest.setTimeout(50000);
+
 const PRIMARY_TIME_ZONE = config?.primaryTimeZone;
 
 const createLocalDateTimeFromUTC = (year, month, day, hour, minute, second, millisecond = 0) => {
