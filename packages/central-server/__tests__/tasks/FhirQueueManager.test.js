@@ -157,10 +157,10 @@ describe('FhirQueueManager', () => {
         logger = jest.fn();
         queueManager = new FhirQueueManager(ctx.store, makeLogger(logger));
         queueManager.testMode = true;
+        queueManager._concurrency = 1;
         await queueManager.setHandler('test1', testHandler);
         await queueManager.setHandler('test2', testHandler);
         await queueManager.start();
-        queueManager._concurrency = 1; // eslint-disable-line require-atomic-updates
       }),
     );
 

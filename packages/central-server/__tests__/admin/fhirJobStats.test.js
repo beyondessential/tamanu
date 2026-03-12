@@ -30,12 +30,12 @@ describe('FHIR job stats', () => {
 
     // assert
     expect(response.status).toBe(200);
+    // Filter out non-deterministic refresh jobs
     const customJobs = response.body.data.filter(d => d.topic.startsWith('topic'));
     expect(customJobs).toEqual([
       { id: 'topic2,Queued', topic: 'topic2', status: 'Queued', count: '3' },
       { id: 'topic3,Queued', topic: 'topic3', status: 'Queued', count: '2' },
       { id: 'topic1,Queued', topic: 'topic1', status: 'Queued', count: '1' },
     ]);
-    console.log(response.body.data);
   });
 });
