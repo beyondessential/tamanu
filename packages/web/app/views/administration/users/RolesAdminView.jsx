@@ -1,23 +1,13 @@
 import React from 'react';
-import { useLocation, useNavigate, useSearchParams } from 'react-router';
+import { useSearchParams } from 'react-router';
 import styled from 'styled-components';
 
 import { Form, FormSubmitButton, TextButton, TextField } from '@tamanu/ui-components';
-import { DataFetchingTable, TranslatedText } from '../../components';
-import { TabDisplay } from '../../components/TabDisplay';
-import { Field } from '../../components/Field';
-import { Colors } from '../../constants';
-import { AdminViewContainer, ContentContainer } from './components/AdminViewContainer';
-import { ROLES_ENDPOINT } from './constants';
-
-const Article = styled.article`
-  border-block-start: 1px solid ${Colors.outline};
-  padding-block: 26px;
-  padding-inline: 30px;
-  ${ContentContainer}:has(&) {
-    background-color: #f7f9fb;
-  }
-`;
+import { DataFetchingTable, TranslatedText } from '../../../components';
+import { Field } from '../../../components/Field';
+import { Colors } from '../../../constants';
+import { ROLES_ENDPOINT } from '../constants';
+import { Article } from './RolesAndDesignationsAdminView';
 
 const StyledForm = styled(Form)`
   align-items: flex-end;
@@ -26,18 +16,24 @@ const StyledForm = styled(Form)`
   border-inline: 1px solid ${Colors.outline};
   border-start-end-radius: 0.3125rem;
   border-start-start-radius: 0.3125rem;
-  display: flex;
-  flex-direction: row;
+  display: grid;
   gap: 0.625rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(19.375rem, 100%), 1fr));
   padding-block: 0.625rem;
   padding-inline: 1.25rem;
 `;
+
+const StyledField = styled(Field).attrs({
+  placeholder: 'Search…',
+  size: 'small',
+})``;
 
 const ButtonGroup = styled.div`
   display: flex;
   font-size: 0.875rem;
   gap: inherit;
-  margin-inline-start: auto;
+  justify-self: end;
+  grid-column: -2 / -1;
   button {
     font-size: inherit;
   }
@@ -52,21 +48,6 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
   }
 `;
 
-const StyledTabDisplay = styled(TabDisplay)`
-  /* flex: 1; */
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  .MuiTabs-root {
-    flex-shrink: 0;
-  }
-`;
-
-const TAB = /** @type {const} */ ({
-  ROLES: 'roles',
-  DESIGNATIONS: 'designations',
-});
-
 const COLUMNS = /** @type {const} */ ([
   {
     key: 'name',
@@ -80,7 +61,7 @@ const COLUMNS = /** @type {const} */ ([
   },
 ]);
 
-const RolesView = () => {
+export const RolesAdminView = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const nameFromUrl = searchParams.get('name') ?? '';
   const idFromUrl = searchParams.get('id') ?? '';
@@ -125,23 +106,17 @@ const RolesView = () => {
           onSubmit={onSubmit}
           render={({ submitForm }) => (
             <>
-              <Field
+              <StyledField
                 component={TextField}
                 inputProps={{ 'data-testid': 'roles-search-name-input' }}
                 label={<TranslatedText stringId="admin.roles.name.label" fallback="Name" />}
                 name="name"
-                placeholder="Search…"
-                size="small"
-                style={{ inlineSize: '25.625rem' }}
               />
-              <Field
+              <StyledField
                 component={TextField}
                 inputProps={{ 'data-testid': 'roles-search-id-input' }}
                 label={<TranslatedText stringId="admin.roles.id.label" fallback="ID" />}
                 name="id"
-                placeholder="Search…"
-                size="small"
-                style={{ inlineSize: '25.625rem' }}
               />
               <ButtonGroup>
                 <FormSubmitButton
@@ -176,50 +151,5 @@ const RolesView = () => {
         }
       />
     </Article>
-  );
-};
-
-export const RolesAndDesignationsAdminView = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  /** @type {(typeof TAB)[keyof typeof TAB]} */
-  const currentTab = location.pathname.split('/').at(-1);
-
-  const onTabSelect = tabKey => {
-    navigate(tabKey === TAB.DESIGNATIONS ? '/admin/designations' : '/admin/roles');
-  };
-
-  const tabs = /** @type {const} */ ([
-    {
-      key: TAB.ROLES,
-      label: <TranslatedText stringId="admin.roles.tab" fallback="Roles" />,
-      render: () => <RolesView />,
-    },
-    /* NASS-1909 */
-    // {
-    //   key: TAB.DESIGNATIONS,
-    //   label: <TranslatedText stringId="admin.designations.tab" fallback="Designations" />,
-    //   render: () => <Article />,
-    // },
-  ]);
-
-  return (
-    <AdminViewContainer
-      title={
-        <TranslatedText
-          stringId="adminSidebar.rolesAndDesignations"
-          fallback="Roles & designations"
-          data-testid="translatedtext-roles-designations-title"
-        />
-      }
-    >
-      <StyledTabDisplay
-        currentTab={currentTab}
-        onTabSelect={onTabSelect}
-        scrollable={false}
-        tabs={tabs}
-      />
-    </AdminViewContainer>
   );
 };

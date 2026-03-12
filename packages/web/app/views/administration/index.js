@@ -8,7 +8,6 @@ export { SurveyResponsesAdminView } from './SurveyResponsesAdminView';
 export { PermissionsAdminView } from './permissions/PermissionsAdminView';
 export { ReferenceDataAdminView } from './ReferenceDataAdminView';
 export { PatientMergeView } from './patientMerge';
-export { RolesAndDesignationsAdminView } from './RolesAndDesignationsAdminView';
 export { SyncView } from './SyncView';
 export { FhirJobStatsView } from './FhirJobStatsView';
 export { ReportsAdminView } from './reports/ReportsAdminView';
