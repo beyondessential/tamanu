@@ -44,7 +44,8 @@ interface DateTimeProviderProps {
   facilityTimeZone?: string | null;
 }
 
-const DateTimeProviderContext = createContext<DateTimeContextValue | null>(null);
+/** Exported so consumers can inject a datetime value (e.g. when rendering in an isolated root for export). */
+export const DateTimeProviderContext = createContext<DateTimeContextValue | null>(null);
 
 export const useDateTime = (): DateTimeContextValue => {
   const context = useContext(DateTimeProviderContext);

@@ -4,6 +4,7 @@ import * as XLSX from 'xlsx';
 import { QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import {
   ApiContext,
+  DateTimeProviderContext,
   TranslationContext,
   useTranslation,
   GreyOutlinedButton,
@@ -16,7 +17,8 @@ import { TranslatedText } from '../Translation';
 import { ExportProvider } from '../../contexts/ExportContext';
 
 export function DownloadDataButton({ exportName, columns, data, ExportButton }) {
-  const { getCurrentDate } = useDateTime();
+  const dateTimeContext = useDateTime();
+  const { getCurrentDate } = dateTimeContext;
   const queryClient = useQueryClient();
   const api = useApi();
   const translationContext = useTranslation();
@@ -28,7 +30,9 @@ export function DownloadDataButton({ exportName, columns, data, ExportButton }) 
         <QueryClientProvider client={queryClient} data-testid="queryclientprovider-k086">
           <ApiContext.Provider value={api} data-testid="provider-72ic">
             <TranslationContext.Provider value={translationContext} data-testid="provider-c9xv">
-              {element}
+              <DateTimeProviderContext.Provider value={dateTimeContext}>
+                {element}
+              </DateTimeProviderContext.Provider>
             </TranslationContext.Provider>
           </ApiContext.Provider>
         </QueryClientProvider>
