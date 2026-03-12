@@ -189,7 +189,7 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
                         if (isReadOnlyForm) {
                           setInvoiceModalType(INVOICE_MODAL_TYPES.ADD_ITEMS);
                         } else {
-                          formArrayMethods.push(getDefaultRow());
+                          formArrayMethods.push(getDefaultRow(getCurrentDate));
                         }
                       }}
                       startIcon={<Plus />}
