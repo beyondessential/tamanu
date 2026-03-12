@@ -1,5 +1,5 @@
 import config from 'config';
-import { QueryTypes } from 'sequelize';
+import { Op, QueryTypes } from 'sequelize';
 import { subDays } from 'date-fns';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
@@ -43,19 +43,26 @@ export class ProgramRegistryPltfuFlagger extends ScheduledTask {
 
     if (registries.length === 0) return;
 
+    const registryIds = registries.map(r => r.id);
+    const pltfuCodes = registries.map(
+      r => `${r.code}-${POTENTIAL_LOSS_TO_FOLLOW_UP.CODE_SUFFIX}`,
+    );
+    const pltfuStatuses = await this.models.ProgramRegistryClinicalStatus.findAll({
+      where: {
+        programRegistryId: { [Op.in]: registryIds },
+        code: { [Op.in]: pltfuCodes },
+      },
+    });
+    const pltfuByRegistryId = new Map(
+      pltfuStatuses.map(s => [s.programRegistryId, s]),
+    );
+
     for (const registry of registries) {
-      await this.processRegistry(registry);
+      await this.processRegistry(registry, pltfuByRegistryId.get(registry.id));
     }
   }
 
-  async processRegistry(registry) {
-    const pltfuStatus = await this.models.ProgramRegistryClinicalStatus.findOne({
-      where: {
-        code: `${registry.code}-${POTENTIAL_LOSS_TO_FOLLOW_UP.CODE_SUFFIX}`,
-        programRegistryId: registry.id,
-      },
-    });
-
+  async processRegistry(registry, pltfuStatus) {
     if (!pltfuStatus) {
       log.warn(
         `ProgramRegistryPltfuFlagger: No LTFU clinical status found for registry ${registry.code}. ` +
