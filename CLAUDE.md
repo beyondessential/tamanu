@@ -35,7 +35,7 @@ See `llm/docs/` for project-specific documentation:
 
 ## Writing Rules and Prompts
 
-When writing or updating LLM rules (`llm/`), prompts (`.github/scripts/ai-review/prompts/`), or similar instructions:
+When writing or updating LLM rules (`llm/`), prompts (`.github/review-hero/prompts/`), or similar instructions:
 
 - Keep it concise — don't overexplain things the agent already knows how to do
 - Don't repeat information that exists in other rule files; reference them instead
