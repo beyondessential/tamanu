@@ -355,8 +355,10 @@ export const TranslationForm = () => {
       const current = languages ?? {};
       const changedLangs = {};
       for (const lang of Object.keys(current)) {
-        if (current[lang] !== initial[lang]) {
-          changedLangs[lang] = current[lang];
+        const currentValue = current[lang] ?? '';
+        const initialValue = initial[lang] ?? '';
+        if (currentValue !== initialValue) {
+          changedLangs[lang] = currentValue;
         }
       }
       if (Object.keys(changedLangs).length > 0) {
