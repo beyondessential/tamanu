@@ -217,7 +217,7 @@ function createAllRecordsRoute(
     extraReplacementsBuilder,
     allRecordsIncludeBuilder,
     includeBuilder,
-    queryOptions = {},
+    queryOptions,
   },
 ) {
   suggestions.get(
