@@ -124,9 +124,6 @@ export async function importProgramRegistry(context, workbook, programId) {
   const { registryName, currentlyAtType } = registryRecord;
   const registryCode = registryRecord.registryCode;
   const registryId = `programRegistry-${registryCode}`;
-  const lossToFollowUpEnabled = ['true', '1'].includes(
-    String(registryRecord.lossToFollowUpEnabled).toLowerCase(),
-  );
 
   await ensureUniqueName(context, registryName, registryId);
   await ensureCurrentlyAtUpdateIsAllowed(context, currentlyAtType, registryId);
@@ -145,16 +142,17 @@ export async function importProgramRegistry(context, workbook, programId) {
           code: registryCode,
           visibilityStatus: registryRecord.visibilityStatus,
           currentlyAtType: registryRecord.currentlyAtType,
-          lossToFollowUpEnabled,
-          ...(registryRecord.lossToFollowUpThresholdDays && {
-            lossToFollowUpThresholdDays: parseInt(registryRecord.lossToFollowUpThresholdDays, 10),
-          }),
+          lossToFollowUpEnabled: registryRecord.lossToFollowUpEnabled,
+          lossToFollowUpThresholdDays: registryRecord.lossToFollowUpThresholdDays,
         },
       },
     ],
   });
 
-  if (lossToFollowUpEnabled) {
+  const isPLTFUEnabled = ['true', '1'].includes(
+    String(registryRecord.lossToFollowUpEnabled).toLowerCase(),
+  );
+  if (isPLTFUEnabled) {
     await createFollowUpClinicalStatus(context, registryId, registryCode);
   }
 
