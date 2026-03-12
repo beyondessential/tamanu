@@ -49,15 +49,16 @@ export class ApplicationContext {
     this.sequelize = this.store.sequelize;
     this.models = this.store.models;
 
-    if (config.integrations?.fhir?.enabled) {
-      await initFhirSettingsFromDb(this.models, facilityIds);
-    }
-
     this.settings = facilityIds.reduce((acc, facilityId) => {
       acc[facilityId] = new ReadSettings(this.models, facilityId);
       return acc;
     }, {});
     this.settings.global = new ReadSettings(this.models);
+
+    if (config.integrations?.fhir?.enabled || config.integrations?.fhir?.worker?.enabled) {
+      const facilityReaders = facilityIds.map(id => this.settings[id]);
+      await initFhirSettingsFromDb(this.settings.global, facilityReaders);
+    }
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting(this.store);
     }

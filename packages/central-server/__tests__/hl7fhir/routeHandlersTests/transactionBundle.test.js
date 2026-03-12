@@ -19,7 +19,7 @@ describe(`FHIR API - Transaction Bundle`, () => {
   let resources;
 
   beforeAll(async () => {
-    ctx = await createTestContext();
+    ctx = await createTestContext({ initFhir: true });
     app = await ctx.baseApp.asRole('practitioner');
 
     const {

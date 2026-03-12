@@ -2,6 +2,7 @@ import config from 'config';
 
 import { addHooks } from './hooks';
 import { closeAllDatabases, openDatabase } from '@tamanu/database/services/database';
+import { ReadSettings } from '@tamanu/settings';
 import { initFhirSettingsFromDb } from '@tamanu/shared/utils/fhir/fhirSettings';
 import { setFhirRefreshTriggers } from './setFhirRefreshTriggers';
 
@@ -22,7 +23,7 @@ const getOrCreateConnection = async ({ testMode, ...configOverrides }, key = 'ma
   }
 
   if (!testMode) {
-    await initFhirSettingsFromDb(store.models);
+    await initFhirSettingsFromDb(new ReadSettings(store.models));
     await setFhirRefreshTriggers(store.sequelize);
   }
 

@@ -151,7 +151,7 @@ export const Category = ({
         <ServerWideAlert severity="info" data-testid="serverwidealert-fw01">
           <TranslatedText
             stringId="admin.settings.serverWideAlert"
-            fallback="These settings apply to all facilities on this server instance. Changes will take effect across all connected facilities."
+            fallback="If this facility shares a server instance with other facilities, changes will take effect for all connected facilities."
             data-testid="translatedtext-fw01"
           />
         </ServerWideAlert>

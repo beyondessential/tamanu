@@ -69,6 +69,35 @@ export const fhirResourceMaterialisationSchema = {
   },
 };
 
+export const fhirExtensionsSchema = {
+  name: 'Extensions',
+  description: 'FHIR resource extension configuration',
+  requiresRestart: true,
+  serverWide: true,
+  properties: {
+    Patient: {
+      name: 'Patient extensions',
+      description: 'Extensions applied to FHIR Patient resources during materialisation',
+      properties: {
+        newZealandEthnicity: {
+          name: 'New Zealand ethnicity',
+          description: 'Include NZ ethnicity extension on materialised Patient resources',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+      },
+    },
+  },
+};
+
+export const fhirWorkerConcurrencySchema = {
+  name: 'Concurrency',
+  description: 'Maximum number of FHIR jobs processed simultaneously by the worker',
+  requiresRestart: true,
+  type: yup.number().integer().positive(),
+  defaultValue: 10,
+};
+
 export const fhirCountParametersSchema = {
   name: 'Parameters',
   description: 'FHIR search parameter configuration',

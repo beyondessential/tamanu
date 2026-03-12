@@ -38,7 +38,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
   };
 
   beforeAll(async () => {
-    ctx = await createTestContext();
+    ctx = await createTestContext({ initFhir: true });
     app = await ctx.baseApp.asRole('practitioner');
     resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
     const { FhirPractitioner, FhirOrganization } = ctx.store.models;

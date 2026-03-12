@@ -10,7 +10,9 @@ import {
   FhirDosageInstruction,
   FhirTiming,
   FhirDoseAndRate,
+  FhirPeriod,
 } from '@tamanu/shared/services/fhirTypes';
+import { formatFhirDate } from '@tamanu/shared/utils/fhir';
 import type { Models } from '../../../types/model';
 import type { PharmacyOrder, PharmacyOrderPrescription, Prescription } from '../../../models';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
@@ -28,6 +30,10 @@ export async function getValues(upstream: PharmacyOrderPrescription, models: Mod
   const requester = await requesterRef(pharmacyOrder, models);
   const subject = await subjectRef(pharmacyOrder, models);
   const encounter = await FhirReference.to(models.FhirEncounter, pharmacyOrder.encounterId);
+  const prescription = await models.Prescription.findOne({
+    where: { id: upstream.prescriptionId },
+  });
+
   return {
     lastUpdated: new Date(),
     identifier: [
@@ -51,12 +57,18 @@ export async function getValues(upstream: PharmacyOrderPrescription, models: Mod
     dispenseRequest: {
       quantity: upstream.quantity,
       numberOfRepeatsAllowed: upstream.repeats,
+      ...(prescription?.endDate && {
+        validityPeriod: new FhirPeriod({
+          start: formatFhirDate(prescription.startDate),
+          end: formatFhirDate(prescription.endDate),
+        }),
+      }),
     },
     recorder,
     requester,
     subject,
     encounter,
-    note: note(pharmacyOrder, recorder),
+    note: note(pharmacyOrder, prescription, recorder),
     resolved:
       requester.isResolved() &&
       recorder.isResolved() &&
@@ -221,15 +233,29 @@ function category(pharmacyOrder: PharmacyOrder) {
   return null;
 }
 
-function note(pharmacyOrder: PharmacyOrder, recorder: FhirReference) {
+function note(
+  pharmacyOrder: PharmacyOrder,
+  prescription: Prescription | null,
+  recorder: FhirReference,
+) {
+  const annotations: FhirAnnotation[] = [];
+
   if (pharmacyOrder.comments) {
-    return [
+    annotations.push(
       new FhirAnnotation({
         author: recorder,
         text: pharmacyOrder.comments,
       }),
-    ];
+    );
   }
 
-  return null;
+  if (prescription?.notes?.trim()) {
+    annotations.push(
+      new FhirAnnotation({
+        text: prescription.notes.trim(),
+      }),
+    );
+  }
+
+  return annotations.length > 0 ? annotations : null;
 }

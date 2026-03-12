@@ -21,7 +21,9 @@ import {
   vitalEditReasonsDefault,
   vitalEditReasonsSchema,
   fhirResourceMaterialisationSchema,
+  fhirWorkerConcurrencySchema,
   fhirCountParametersSchema,
+  fhirExtensionsSchema,
 } from './definitions';
 import {
   layoutModuleProperties,
@@ -453,10 +455,12 @@ export const globalSettings = {
               type: yup.string(),
               defaultValue: '10 minutes',
             },
+            concurrency: fhirWorkerConcurrencySchema,
             resourceMaterialisationEnabled: fhirResourceMaterialisationSchema,
           },
         },
         parameters: fhirCountParametersSchema,
+        extensions: fhirExtensionsSchema,
       },
     },
     fields: {

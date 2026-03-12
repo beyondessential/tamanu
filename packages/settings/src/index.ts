@@ -12,7 +12,9 @@ export {
   applyDefaults,
   extractDefaults,
   fhirResourceMaterialisationSchema,
+  fhirWorkerConcurrencySchema,
   fhirCountParametersSchema,
+  fhirExtensionsSchema,
 } from './schema';
 export { ReadSettings, buildSettings, getKeysByFlag } from './reader';
 export { facilityTestSettings, centralTestSettings, globalTestSettings } from './test';

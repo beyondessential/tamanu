@@ -97,6 +97,7 @@ describe('Schemas', () => {
           worker: {
             heartbeat: '1 minute',
             assumeDroppedAfter: '10 minutes',
+            concurrency: 10,
             resourceMaterialisationEnabled: {
               Patient: true,
               Encounter: false,
@@ -114,6 +115,11 @@ describe('Schemas', () => {
             _count: {
               default: 100,
               max: 1000,
+            },
+          },
+          extensions: {
+            Patient: {
+              newZealandEthnicity: false,
             },
           },
         },
