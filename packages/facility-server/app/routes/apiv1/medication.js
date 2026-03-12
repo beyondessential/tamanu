@@ -1,9 +1,12 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import config from 'config';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import {
   dateCustomValidation,
   datetimeCustomValidation,
   getCurrentDateTimeString,
+  getDayBoundaries,
   toDateTimeString,
 } from '@tamanu/utils/dateTime';
 import { z } from 'zod';
@@ -340,7 +343,7 @@ medication.post(
 
 const sendOngoingToPharmacySchema = z
   .object({
-    patientId: z.string().uuid({ message: 'Valid patient ID is required' }),
+    patientId: z.string().min(1, { message: 'Patient ID is required' }),
     orderingClinicianId: z.string().uuid({ message: 'Valid ordering clinician ID is required' }),
     comments: z.string().optional().nullable(),
     facilityId: z.string({ message: 'Valid facility ID is required' }),
@@ -543,6 +546,16 @@ medication.post(
       for (const originalPrescription of ongoingPrescriptions) {
         const requestData = prescriptionMap.get(originalPrescription.id);
 
+        // Decrement repeats on the ongoing prescriptions (repeats = remaining "send to pharmacy" count)
+        // Only decrement if the prescription has been ordered before (has a lastOrderedAt)
+        const { repeats = 0 } = originalPrescription;
+        const lastOrderedAt = lastOrderedAts[originalPrescription.id]?.last_ordered_at;
+
+        // We only start decrementing repeats after the first send.
+        if (lastOrderedAt && repeats > 0) {
+          await originalPrescription.update({ repeats: repeats - 1 }, { transaction });
+        }
+
         // Create a new prescription with the original details but updated quantity and repeats
         const newPrescription = await Prescription.create(
           {
@@ -551,7 +564,7 @@ medication.post(
             date: currentDateTime,
             startDate: currentDateTime,
             quantity: requestData.quantity,
-            repeats: requestData.repeats ?? originalPrescription.repeats ?? 0,
+            repeats: originalPrescription.repeats ?? 0,
             prescriberId: orderingClinicianId,
           },
           { transaction },
@@ -583,18 +596,6 @@ medication.post(
         { transaction },
       );
 
-      // Decrement repeats on the ongoing prescriptions (repeats = remaining "send to pharmacy" count)
-      // Only decrement if the prescription has been ordered before (has a lastOrderedAt)
-      for (const originalPrescription of ongoingPrescriptions) {
-        const { repeats = 0 } = originalPrescription;
-        const lastOrderedAt = lastOrderedAts[originalPrescription.id]?.last_ordered_at;
-
-        // We only start decrementing repeats after the first send.
-        if (lastOrderedAt && repeats > 0) {
-          await originalPrescription.update({ repeats: repeats - 1 }, { transaction });
-        }
-      }
-
       await PharmacyOrderPrescription.bulkCreate(
         newPrescriptions.map((prescription, index) => {
           const originalPrescription = ongoingPrescriptions[index];
@@ -604,7 +605,7 @@ medication.post(
             prescriptionId: prescription.id,
             ongoingPrescriptionId: originalPrescription.id,
             quantity: requestData.quantity,
-            repeats: requestData.repeats ?? originalPrescription.repeats ?? 0,
+            repeats: originalPrescription.repeats ?? 0,
           };
         }),
         { transaction },
@@ -1741,7 +1742,7 @@ const caseInsensitiveFilter = (fieldName, _operator, value) => ({
 medication.get(
   '/medication-requests',
   asyncHandler(async (req, res) => {
-    const { models, query } = req;
+    const { models, query, settings } = req;
     const {
       order = 'DESC',
       orderBy = 'pharmacyOrder.date',
@@ -1752,6 +1753,8 @@ medication.get(
     } = query;
 
     req.checkPermission('read', 'MedicationRequest');
+
+    const isInvoicingEnabled = await settings[facilityId]?.get('features.invoicing.enabled');
 
     const canViewSensitiveMedications = req.ability.can('read', 'SensitiveMedication');
 
@@ -1799,13 +1802,17 @@ medication.get(
       required: true,
     };
 
+    const primaryTimeZone = getPrimaryTimeZone(config);
+    const facilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
+
     // PharmacyOrder filters
     const pharmacyOrderFilters = mapQueryFilters(filterParams, [
       {
         key: 'date',
         mapFn: (fieldName, _operator, value) => {
-          const startOfDay = `${value} 00:00:00`;
-          const endOfDay = `${value} 23:59:59`;
+          const boundaries = getDayBoundaries(value, primaryTimeZone, facilityTimeZone);
+          const startOfDay = boundaries?.start ?? `${value} 00:00:00`;
+          const endOfDay = boundaries?.end ?? `${value} 23:59:59`;
           return { [fieldName]: { [Op.between]: [startOfDay, endOfDay] } };
         },
       },
@@ -1855,6 +1862,12 @@ medication.get(
         ];
       }
 
+      if (orderBy === 'prescription.invoiceItem.approved') {
+        return [
+          [Sequelize.col('prescription.invoiceItem.approved'), `${orderDirection} NULLS LAST`],
+        ];
+      }
+
       return [
         [...orderBy.split('.'), orderDirection],
         ['pharmacyOrder', 'date', 'DESC'],
@@ -1900,6 +1913,15 @@ medication.get(
               association: 'prescriber',
               attributes: ['id', 'displayName'],
             },
+            ...(isInvoicingEnabled
+              ? [
+                  {
+                    association: 'invoiceItem',
+                    attributes: ['id', 'approved'],
+                    required: false,
+                  },
+                ]
+              : []),
           ],
           required: true,
         },
@@ -1977,7 +1999,7 @@ medication.delete(
 medication.get(
   '/medication-dispenses',
   asyncHandler(async (req, res) => {
-    const { models, query } = req;
+    const { models, query, settings } = req;
     const {
       order = 'DESC',
       orderBy = 'dispensedAt',
@@ -2026,12 +2048,16 @@ medication.get(
       },
     ]);
 
+    const dispenseTz = getPrimaryTimeZone(config);
+    const dispenseFacilityTimeZone = await settings[facilityId]?.get('facilityTimeZone');
+
     const rootFilter = mapQueryFilters(filterParams, [
       {
         key: 'dispensedAt',
         mapFn: (fieldName, _operator, value) => {
-          const startOfDay = `${value} 00:00:00`;
-          const endOfDay = `${value} 23:59:59`;
+          const boundaries = getDayBoundaries(value, dispenseTz, dispenseFacilityTimeZone);
+          const startOfDay = boundaries?.start ?? `${value} 00:00:00`;
+          const endOfDay = boundaries?.end ?? `${value} 23:59:59`;
           return { [fieldName]: { [Op.between]: [startOfDay, endOfDay] } };
         },
       },
@@ -2236,7 +2262,7 @@ medication.delete(
 
 const dispensableMedicationsQuerySchema = z
   .object({
-    patientId: z.uuid(),
+    patientId: z.string().min(1),
     facilityId: z.string(),
   })
   .strip();
@@ -2349,14 +2375,32 @@ medication.get(
       },
     });
 
+    // Last dispensed per medication for this patient (any prescription/source)
+    const lastDispensedRows = await PharmacyOrderPrescription.sequelize.query(
+      `SELECT p.medication_id AS "medicationId", MAX(md.dispensed_at) AS "lastDispensedAt"
+       FROM medication_dispenses md
+       JOIN pharmacy_order_prescriptions pop ON pop.id = md.pharmacy_order_prescription_id AND pop.deleted_at IS NULL
+       JOIN pharmacy_orders po ON po.id = pop.pharmacy_order_id AND po.deleted_at IS NULL
+       JOIN encounters e ON e.id = po.encounter_id AND e.deleted_at IS NULL
+       JOIN prescriptions p ON p.id = pop.prescription_id AND p.deleted_at IS NULL
+       WHERE e.patient_id = :patientId
+         AND md.deleted_at IS NULL
+       GROUP BY p.medication_id`,
+      {
+        type: QueryTypes.SELECT,
+        replacements: { patientId },
+      },
+    );
+    const lastDispensedByMedication = Object.fromEntries(
+      lastDispensedRows.map(row => [row.medicationId, row.lastDispensedAt]),
+    );
+
     res.send({
       count: pharmacyOrderPrescriptions.length,
       data: pharmacyOrderPrescriptions.map(pop => ({
         ...pop.toJSON(),
         remainingRepeats: pop.getRemainingRepeats(),
-        lastDispensedAt: pop.medicationDispenses?.sort(
-          (a, b) => new Date(b.dispensedAt) - new Date(a.dispensedAt),
-        )[0]?.dispensedAt,
+        lastDispensedAt: lastDispensedByMedication[pop.prescription.medication.id],
       })),
     });
   }),

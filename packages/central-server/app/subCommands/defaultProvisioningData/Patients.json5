@@ -14,6 +14,14 @@
   ],
   "data": [
     {
+      "id": "h1627394-3778-4c31-a510-9fcb88efdbf3",
+      "displayId": "WXYZ1234567",
+      "firstName": "Test",
+      "lastName": "Patient",
+      "dateOfBirth": 30382,
+      "sex": "male"
+    },
+    {
       "id": "3aa63a3c-bb1e-4f3c-a185-ad18b5218256",
       "displayId": "PHAB254362",
       "firstName": "Esther",

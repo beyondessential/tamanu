@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
-import { addDays, parseISO } from 'date-fns';
 import styled from 'styled-components';
-import { Form, ButtonRow, FormCancelButton, FormSubmitButton } from '@tamanu/ui-components';
+import {
+  Form,
+  ButtonRow,
+  FormCancelButton,
+  FormSubmitButton,
+  useDateTime,
+} from '@tamanu/ui-components';
 import Typography from '@material-ui/core/Typography';
 import MuiDivider from '@material-ui/core/Divider';
 import { useParams } from 'react-router';
@@ -11,7 +16,7 @@ import { toast } from 'react-toastify';
 import { FormModal } from './FormModal';
 import { useApi } from '../api';
 import { TranslatedText } from './Translation/TranslatedText';
-import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { trimToDate } from '@tamanu/utils/dateTime';
 import { foreignKey, optionalForeignKey } from '../utils/validation';
 import { FORM_TYPES } from '@tamanu/constants';
 import { useAuth } from '../contexts/Auth';
@@ -55,25 +60,6 @@ const Divider = styled(MuiDivider)`
   margin: 10px 0 20px;
 `;
 
-// Both date and startTime only keep track of either date or time, accordingly.
-// This grabs both relevant parts for the table.
-const getActualDateTime = (date, time) => {
-  return `${date.slice(0, 10)} ${time.slice(-8)}`;
-};
-
-// endTime has the same caveat as startTime, this will fix it and
-// make an educated guess if the procedure ended the next day.
-const getEndDateTime = ({ date, startTime, endTime }) => {
-  if (!endTime) return undefined;
-  const actualEndDateTime = getActualDateTime(date, endTime);
-  const startTimeString = startTime.slice(-8);
-  const endTimeString = endTime.slice(-8);
-  const isEndTimeEarlier = endTimeString < startTimeString;
-
-  if (isEndTimeEarlier === false) return actualEndDateTime;
-  return toDateTimeString(addDays(parseISO(actualEndDateTime), 1));
-};
-
 const useProcedureProgramResponsesQuery = (patientId, procedureId, refreshCount) => {
   const api = useApi();
   return useQuery(
@@ -92,13 +78,23 @@ export const ProcedureModal = ({
 }) => {
   const api = useApi();
   const { currentUser } = useAuth();
+  const {
+    getCurrentDate,
+    getCurrentDateTime,
+    toStoredDateTime,
+    toFacilityDateTime,
+  } = useDateTime();
   const { patientId } = useParams();
   const { data: patient } = usePatientDataQuery(patientId);
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const [selectedSurveyId, setSelectedSurveyId] = useState(null);
   const [unsavedChangesModalOpen, setUnsavedChangesModalOpen] = useState(false);
-  const [saveWithoutAdditionalDataModalOpen, setSaveWithoutAdditionalDataModalOpen] = useState(false);
-  const [closeWithoutAdditionalDataModalOpen, setCloseWithoutAdditionalDataModalOpen] = useState(false);
+  const [saveWithoutAdditionalDataModalOpen, setSaveWithoutAdditionalDataModalOpen] = useState(
+    false,
+  );
+  const [closeWithoutAdditionalDataModalOpen, setCloseWithoutAdditionalDataModalOpen] = useState(
+    false,
+  );
   const [pendingFormData, setPendingFormData] = useState(null);
   const [surveyFormDirty, setSurveyFormDirty] = useState(false);
   const procedureId = editedProcedure?.id;
@@ -108,21 +104,26 @@ export const ProcedureModal = ({
     refreshCount,
   );
 
-  const onSubmit = async data => {
-    const actualDateTime = getActualDateTime(data.date, data.startTime);
-    const updatedData = {
-      ...data,
-      date: actualDateTime,
-      startTime: actualDateTime,
-      endTime: getEndDateTime(data),
-      encounterId,
-    };
+  // Convert primaryTimeZone → facilityTimeZone for display
+  const toFacilityTz = val => (val ? toFacilityDateTime(val) : undefined);
 
-    if (updatedData.id) {
-      await api.put(`procedure/${updatedData.id}`, updatedData);
-    } else {
-      await api.post('procedure', updatedData);
-    }
+  // Form values already have correct dates (ProcedureDateSync handles rollover),
+  // so submit just needs to convert from facility timezone to primary timezone.
+  const onSubmit = async data => {
+    delete data.date;
+    const toPersisted = val => (val ? toStoredDateTime(val) : undefined);
+    const { startTime, endTime, timeIn, timeOut, ...rest } = data; // eslint-disable-line no-unused-vars
+    const startDateTime = toPersisted(startTime);
+
+    await api[rest.id ? 'put' : 'post'](rest.id ? `procedure/${rest.id}` : 'procedure', {
+      ...rest,
+      date: startDateTime,
+      startTime: startDateTime,
+      endTime: toPersisted(endTime),
+      timeIn: toPersisted(timeIn),
+      timeOut: toPersisted(timeOut),
+      encounterId,
+    });
 
     onSaved();
   };
@@ -295,14 +296,25 @@ export const ProcedureModal = ({
           </>
         );
       }}
-      initialValues={{
-        date: getCurrentDateTimeString(),
-        startTime: getCurrentDateTimeString(),
-        physicianId: currentUser.id,
-        assistantClinicianIds:
-          editedProcedure?.assistantClinicians?.map(clinician => clinician.id) || [],
-        ...editedProcedure,
-      }}
+      initialValues={
+        editedProcedure?.id
+          ? {
+              // Edit: spread existing data, convert date/time from primary timezone to facility timezone
+              ...editedProcedure,
+              date: trimToDate(toFacilityTz(editedProcedure.date)),
+              startTime: toFacilityTz(editedProcedure.startTime),
+              endTime: toFacilityTz(editedProcedure.endTime),
+              timeIn: toFacilityTz(editedProcedure.timeIn),
+              timeOut: toFacilityTz(editedProcedure.timeOut),
+              assistantClinicianIds: editedProcedure.assistantClinicians?.map(c => c.id) || [],
+            }
+          : {
+              date: getCurrentDate(),
+              startTime: toFacilityTz(getCurrentDateTime()),
+              physicianId: currentUser.id,
+              assistantClinicianIds: [],
+            }
+      }
       formType={procedureId ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
         procedureTypeId: foreignKey().translatedLabel(

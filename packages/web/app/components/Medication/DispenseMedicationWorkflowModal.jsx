@@ -1,10 +1,9 @@
 import React, { useEffect, useState, memo } from 'react';
 import PropTypes from 'prop-types';
-import styled, { createGlobalStyle } from 'styled-components';
+import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { formatShort } from '@tamanu/utils/dateTime';
 import { DRUG_ROUTE_LABELS, MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 
@@ -15,6 +14,7 @@ import {
   TextInput,
   TranslatedReferenceData,
   TranslatedText,
+  useDateTime,
 } from '@tamanu/ui-components';
 
 import { useApi, useSuggester } from '../../api';
@@ -23,12 +23,13 @@ import { useTranslation } from '../../contexts/Translation';
 import { singularize } from '../../utils';
 import { AutocompleteInput, CheckInput } from '../Field';
 import { TableFormFields } from '../Table/TableFormFields';
+import { trimToDate } from '@tamanu/utils/dateTime';
 import { DateDisplay } from '../DateDisplay';
 import { useDispensableMedicationsQuery } from '../../api/queries/useDispensableMedicationsQuery';
 import { useFacilityQuery } from '../../api/queries/useFacilityQuery';
 import { Colors } from '../../constants';
 import { BodyText } from '../Typography';
-import { MedicationLabel } from '../PatientPrinting/printouts/MedicationLabel';
+import { MedicationLabelPrintPreview } from '../PatientPrinting/printouts/MedicationLabelPrintPreview';
 import {
   getMedicationLabelData,
   getStockStatus,
@@ -73,57 +74,6 @@ const StyledTableFormFields = styled(TableFormFields)`
     &.MuiTableCell-head {
       background-color: ${Colors.white};
       color: ${Colors.midText};
-    }
-  }
-`;
-
-const PrintContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  align-items: center;
-`;
-
-const PrintDescription = styled(Box)`
-  margin-bottom: 16px;
-  font-size: 14px;
-  color: ${Colors.midText};
-
-  @media print {
-    display: none;
-  }
-`;
-
-const PrintStyles = createGlobalStyle`
-  @media print {
-    @page {
-      margin: 3mm;
-      size: auto;
-    }
-
-    html, body {
-      margin: 0;
-      padding: 0;
-    }
-
-    .MuiDialogTitle-root,
-    .MuiDialogActions-root {
-      display: none;
-    }
-
-    .MuiDialog-container,
-    .MuiDialog-paper,
-    .MuiPaper-root,
-    .MuiDialogContent-root {
-      margin: 0;
-      padding: 0;
-    }
-
-    /* Target ModalContainer and ModalContent BaseModal */
-    .MuiDialog-paper > div,
-    .MuiDialog-paper > div > div:first-child {
-      margin: 0;
-      padding: 0;
     }
   }
 `;
@@ -210,7 +160,7 @@ export const DispenseMedicationWorkflowModal = memo(
     const { facilityId, currentUser } = useAuth();
     const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
     const practitionerSuggester = useSuggester('practitioner');
-
+    const { formatShort, getCurrentDateTime } = useDateTime();
     const [step, setStep] = useState(MODAL_STEPS.DISPENSE);
     const [dispensedByUserId, setDispensedByUserId] = useState('');
     const [items, setItems] = useState([]);
@@ -287,13 +237,15 @@ export const DispenseMedicationWorkflowModal = memo(
       setItems(prev => prev.map(i => ({ ...i, selected: checked })));
     };
 
-    const handleSelectRow = rowIndex => ({ target: { checked } }) => {
-      setItems(prev => {
-        const next = [...prev];
-        next[rowIndex] = { ...next[rowIndex], selected: checked };
-        return next;
-      });
-    };
+    const handleSelectRow =
+      rowIndex =>
+      ({ target: { checked } }) => {
+        setItems(prev => {
+          const next = [...prev];
+          next[rowIndex] = { ...next[rowIndex], selected: checked };
+          return next;
+        });
+      };
 
     const selectAllChecked = items.length > 0 && items.every(({ selected }) => selected);
 
@@ -390,7 +342,7 @@ export const DispenseMedicationWorkflowModal = memo(
           requestNumber: item.displayId,
         };
       });
-      const reviewLabels = getMedicationLabelData({ items: labelItems, patient, facility });
+      const reviewLabels = getMedicationLabelData({ items: labelItems, patient, facility, currentDateTime: getCurrentDateTime() });
       setLabelsForPrint(reviewLabels);
     };
 
@@ -456,7 +408,7 @@ export const DispenseMedicationWorkflowModal = memo(
               fallback="Prescription date"
             />
           ),
-          accessor: ({ prescription }) => <Box>{formatShort(prescription?.date)}</Box>,
+          accessor: ({ prescription }) => <Box>{formatShort(trimToDate(prescription?.date))}</Box>,
         },
         {
           key: 'medication',
@@ -673,20 +625,7 @@ export const DispenseMedicationWorkflowModal = memo(
           )}
 
           {step === MODAL_STEPS.REVIEW && (
-            <>
-              <PrintStyles />
-              <PrintDescription>
-                <TranslatedText
-                  stringId="medication.dispenseAndPrint.description"
-                  fallback="Please review the medication label/s below. Select Back to make changes, or Dispense & print to complete."
-                />
-              </PrintDescription>
-              <PrintContainer>
-                {labelsForPrint.map(label => (
-                  <MedicationLabel key={label.id} data={label} />
-                ))}
-              </PrintContainer>
-            </>
+            <MedicationLabelPrintPreview labels={labelsForPrint} />
           )}
         </StyledModal>
       </>

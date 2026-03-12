@@ -17,5 +17,5 @@
     "persistUpdateWorkerPoolSize": 5,
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50
   },
-  "countryTimeZone": "Australia/Melbourne"
+  "primaryTimeZone": "Australia/Melbourne"
 }

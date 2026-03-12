@@ -44,6 +44,7 @@ jest.mock('../../infra/db', () => ({
         const entityManager = {
           queryRunner: { isTransactionActive: true },
           getRepository: jest.fn(() => repo),
+          query: jest.fn().mockResolvedValue(undefined),
         } as any;
         await cb(entityManager);
       }),

@@ -20,6 +20,7 @@ export * from './PatientContact';
 export * from './PatientFieldDefinitionCategory';
 export * from './PatientFieldDefinition';
 export * from './PatientFieldValue';
+export * from './PatientInvoiceInsurancePlan';
 
 export * from './PatientDeathData';
 export * from './PatientBirthData';
@@ -125,7 +126,6 @@ export * from './MedicationDispense';
 
 export * from './Notification';
 
-export * from './Signer';
 
 export * from './CertificateNotification';
 

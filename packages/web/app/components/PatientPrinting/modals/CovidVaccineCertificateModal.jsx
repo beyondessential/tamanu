@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 
 import { ASSET_NAMES, ICAO_DOCUMENT_TYPES } from '@tamanu/constants';
 import { CovidVaccineCertificate } from '@tamanu/shared/utils/patientCertificates';
-import { getCurrentDateString } from '@tamanu/utils/dateTime';
+import { useDateTime } from '@tamanu/ui-components';
 
 import { Modal } from '../../Modal';
 import { useApi } from '../../../api';
@@ -14,19 +14,17 @@ import { useAdministeredVaccinesQuery, usePatientAdditionalDataQuery } from '../
 import { TranslatedText } from '../../Translation/TranslatedText';
 
 import { PDFLoader, printPDF } from '../PDFLoader';
-import { generateUVCI } from '@tamanu/shared/utils/uvci';
 
 export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient }) => {
   const api = useApi();
-  const { getLocalisation } = useLocalisation();
+  const { localisation } = useLocalisation();
+  const { getCurrentDate, primaryTimeZone } = useDateTime();
   const { getSetting } = useSettings();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
     footerAssetName: ASSET_NAMES.COVID_VACCINATION_CERTIFICATE_FOOTER,
   });
   const { watermark, logo, footerImg, printedBy } = certificateData;
   const { data: additionalData } = usePatientAdditionalDataQuery(patient.id);
-  const uvciFormat = getLocalisation('previewUvciFormat');
-  const countryCode = getLocalisation('country.alpha-2');
 
   const { data: vaccineData, isFetching: isVaccineFetching } = useAdministeredVaccinesQuery(
     patient.id,
@@ -38,32 +36,23 @@ export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient
     },
   );
   const vaccinations = vaccineData?.data.filter(vaccine => vaccine.certifiable) || [];
-  const requireSigning = getSetting(
-    'features.covidCertificates.enableCovidVaccinationCertificateSigning',
-  );
 
   const createCovidVaccineCertificateNotification = useCallback(
     data =>
       api.post('certificateNotification', {
         type: ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON,
-        requireSigning,
+
         patientId: patient.id,
         forwardAddress: data.email,
         createdBy: printedBy,
-        printedDate: getCurrentDateString(),
+        printedDate: getCurrentDate(),
       }),
-    [api, patient.id, printedBy, requireSigning],
+    [api, patient.id, printedBy, getCurrentDate],
   );
 
   const patientData = { ...patient, additionalData };
 
   const isLoading = isVaccineFetching || isCertificateFetching;
-
-  let uvci;
-  if (requireSigning && vaccinations.length) {
-    const mostRecentVaccination = vaccinations.filter(date => date).reverse()[0];
-    uvci = generateUVCI(mostRecentVaccination.id, { format: uvciFormat, countryCode });
-  }
 
   return (
     <Modal
@@ -93,13 +82,13 @@ export const CovidVaccineCertificateModal = React.memo(({ open, onClose, patient
           vaccinations={vaccinations}
           watermarkSrc={watermark}
           logoSrc={logo}
-          signingSrc={requireSigning ? footerImg : null}
+          signingSrc={footerImg}
           printedBy={printedBy}
-          printedDate={getCurrentDateString()}
-          getLocalisation={getLocalisation}
+          printedDate={getCurrentDate()}
+          localisation={localisation}
           getSetting={getSetting}
+          primaryTimeZone={primaryTimeZone}
           data-testid="covidvaccinecertificate-s2dc"
-          uvci={uvci}
         />
       </PDFLoader>
     </Modal>

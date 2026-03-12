@@ -15,6 +15,9 @@ export const isGeneratedDisplayId = (displayId: string) => {
   return /^[A-Z]{4}\d{6}$/.test(displayId);
 };
 
+// Max pattern length to avoid ReDoS with PATTERN_TOKEN_REGEX on long input
+const MAX_PATTERN_LENGTH = 255;
+
 /*
  * This regex is used to match each token in the pattern.
  * It will match groups of characters wrapped in [] or single A or 0.
@@ -47,13 +50,17 @@ const tokenAsRegex = (token: string) => {
  * generateIdFromPattern('[B]000000') // 'B675432'
  * generateIdFromPattern('[B]AA[A]000') // 'BGHA675'
  */
-export const generateIdFromPattern = (pattern: string) =>
-  pattern.replace(PATTERN_TOKEN_REGEX, token => {
+export const generateIdFromPattern = (pattern: string) => {
+  if (pattern.length > MAX_PATTERN_LENGTH) {
+    throw new Error(`Pattern length exceeds maximum of ${MAX_PATTERN_LENGTH}`);
+  }
+  return pattern.replace(PATTERN_TOKEN_REGEX, token => {
     if (token.startsWith('[') && token.endsWith(']')) {
       return token.slice(1, -1);
     }
     return generators[token]?.() ?? '';
   });
+};
 
 export const generateId = () => generateIdFromPattern(DISPLAY_ID_FORMAT);
 
@@ -68,6 +75,7 @@ export const generateId = () => generateIdFromPattern(DISPLAY_ID_FORMAT);
  * isGeneratedIdFromPattern('B350031', '[B]AA[A]000') // false
  */
 export const isGeneratedIdFromPattern = (displayId: string, pattern: string) => {
+  if (pattern.length > MAX_PATTERN_LENGTH) return false;
   const patternTokens = pattern.match(PATTERN_TOKEN_REGEX);
   if (!patternTokens) return false;
   const expression = patternTokens.reduce((acc, token) => acc + tokenAsRegex(token), '');

@@ -65,15 +65,24 @@ export async function getTableItems(page: Page, tableRowCount: number, columnNam
 }
 
 /**
- * Converts a dateTime string (format: "2025-12-01T06:11") to table format (format: "6:11 AM12/01/25")
+ * Formats a date to 'MM/dd/yyyy h:mmam' style (lowercase am/pm, no space) to match the app's display format.
+ * @param date - The Date object to format
+ * @returns Formatted string (e.g., "02/12/2026 9:31am")
+ */
+export function formatDateTimeForDisplay(date: Date): string {
+  return format(date, 'MM/dd/yyyy h:mm a').replace(' AM', 'am').replace(' PM', 'pm');
+}
+
+/**
+ * Converts a dateTime string (format: "2025-12-01T06:11") to table format (format: "6:11am12/01/25")
  * @param dateTimeString - ISO format dateTime string (e.g., "2025-12-01T06:11")
- * @returns Formatted string matching table display format (e.g., "6:11 AM12/01/25")
+ * @returns Formatted string matching table display format (e.g., "6:11am12/01/25")
  */
 export function formatDateTimeForTable(dateTimeString: string): string {
   const dateFromForm = new Date(dateTimeString);
-  const formattedTime = format(dateFromForm, 'h:mm a'); // "6:11 AM"
+  const formattedTime = format(dateFromForm, 'h:mm a').replace(' ', '').toLowerCase(); // "6:11am"
   const formattedDate = format(dateFromForm, 'MM/dd/yy'); // "12/01/25"
-  return `${formattedTime}${formattedDate}`; // "6:11 AM12/01/25"
+  return `${formattedTime}${formattedDate}`; // "6:11am12/01/25"
 }
 
 /**
