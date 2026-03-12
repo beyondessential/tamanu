@@ -66,7 +66,7 @@ translationRouter.put(
         const key = `${stringId};${language}`;
         const record = existingMap.get(key);
         if (isEmpty(text)) {
-          if (record) toDestroy.push({ stringId, language });
+          if (record && !record.deletedAt) toDestroy.push({ stringId, language });
           continue;
         }
         if (!record) {
