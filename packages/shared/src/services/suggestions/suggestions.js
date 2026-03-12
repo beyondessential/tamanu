@@ -216,7 +216,7 @@ function createAllRecordsRoute(
     searchColumn,
     extraReplacementsBuilder,
     includeBuilder,
-    queryOptions,
+    queryOptions = {},
   },
 ) {
   suggestions.get(
