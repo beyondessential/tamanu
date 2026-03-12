@@ -53,15 +53,17 @@ export async function initFhirSettingsFromDb(globalSettings, facilitySettings = 
     ];
 
     if (facilitySettings.length > 0) {
-      const [globalCountDefault, globalCountMax, concurrency, extensions, ...perFacility] =
-        await Promise.all([
+      const [
+        globalCountDefault, globalCountMax, concurrency, extensions,
+        globalMatEnabled, ...perFacility
+      ] = await Promise.all([
           ...globalPromises,
+          globalSettings.get('fhir.worker.resourceMaterialisationEnabled'),
           ...facilitySettings.map(fs => fs.get('fhir.worker.resourceMaterialisationEnabled')),
         ]);
 
-      const mergedMatEnabled = Object.fromEntries(
-        Object.keys(DEFAULTS.resourceMaterialisationEnabled).map(k => [k, false]),
-      );
+      const baseMatEnabled = globalMatEnabled ?? DEFAULTS.resourceMaterialisationEnabled;
+      const mergedMatEnabled = { ...baseMatEnabled };
       for (const fs of perFacility) {
         if (!fs) continue;
         for (const [key, val] of Object.entries(fs)) {

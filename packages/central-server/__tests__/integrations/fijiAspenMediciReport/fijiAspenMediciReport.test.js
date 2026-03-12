@@ -334,7 +334,7 @@ const fakeAllData = async (models, ctx) => {
   await models.MediciReport.materialiseFromUpstream(encounterId);
   await models.MediciReport.materialiseFromUpstream(openEncounterId);
 
-  const medici = await models.MediciReport.findOne();
+  const medici = await models.MediciReport.findOne({ where: { encounterId } });
 
   await medici.update({
     lastUpdated: new Date(Date.UTC(2022, 6 - 1, 12, 0, 2, 54, 225)),
