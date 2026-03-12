@@ -9,14 +9,15 @@ import { getFhirWorkerSettings } from './fhirSettings';
  */
 export function resourcesThatCanDo(models, ...interactions) {
   const workerSettings = getFhirWorkerSettings();
-
   return Object.values(models).filter((Resource) =>
     interactions.every((interaction) => {
-      // Materialisation requires the worker to be running and the resource to be enabled
-      if (interaction === FHIR_INTERACTIONS.INTERNAL.MATERIALISE) {
-        if (!workerSettings?.enabled || !workerSettings.resourceMaterialisationEnabled?.[Resource.fhirName]) {
-          return false;
-        }
+      // Check if materialisation of resource is enabled
+      if (
+        !workerSettings.enabled ||
+        (interaction === FHIR_INTERACTIONS.INTERNAL.MATERIALISE &&
+          !workerSettings.resourceMaterialisationEnabled[Resource.fhirName])
+      ) {
+        return false;
       }
 
       return Resource.CAN_DO?.has(interaction);
