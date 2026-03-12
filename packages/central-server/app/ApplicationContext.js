@@ -78,7 +78,7 @@ export class ApplicationContext {
       return this;
     }
 
-    if (config.integrations?.fhir?.enabled) {
+    if (config.integrations?.fhir?.enabled || config.integrations?.fhir?.worker?.enabled) {
       await initFhirSettingsFromDb(this.settings);
       await setFhirRefreshTriggers(this.store.sequelize);
     }
