@@ -72,7 +72,7 @@ export const createInvoice = async ({
   await InvoiceInsurerPayment.create(
     fake(InvoiceInsurerPayment, {
       invoicePaymentId: invoicePayment.id,
-      insurerId: referenceDataId || (await randomRecordId(models, 'ReferenceData')),
+      insurerId: await randomRecordId(models, 'InvoiceInsurancePlan'),
     }),
   );
   await InvoicePatientPayment.create(

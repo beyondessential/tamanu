@@ -92,9 +92,8 @@ describe('Patient Payment Refund', () => {
         code: 'BANK-TRANSFER',
       }),
     );
-    insurer = await models.ReferenceData.create(
-      fake(models.ReferenceData, {
-        type: REFERENCE_TYPES.INSURER,
+    insurer = await models.InvoiceInsurancePlan.create(
+      fake(models.InvoiceInsurancePlan, {
         name: 'Insurer',
         code: 'INSURER',
       }),

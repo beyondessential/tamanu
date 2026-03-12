@@ -42,7 +42,7 @@ export class InvoiceInsurerPayment extends Model {
       foreignKey: 'invoicePaymentId',
       as: 'detail',
     });
-    this.belongsTo(models.ReferenceData, {
+    this.belongsTo(models.InvoiceInsurancePlan, {
       foreignKey: 'insurerId',
       as: 'insurer',
       constraints: false,
@@ -78,7 +78,7 @@ export class InvoiceInsurerPayment extends Model {
   static getListReferenceAssociations(models: Models) {
     return [
       {
-        model: models.ReferenceData,
+        model: models.InvoiceInsurancePlan,
         as: 'insurer',
       },
     ];

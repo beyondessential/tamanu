@@ -93,16 +93,19 @@ export async function insurerPaymentImporter({ errors, models, stats, file, chec
     }
 
     const {
-      itemsSubtotal,
+      invoiceItemsTotal,
       insurerPaymentsTotal: allInsurerPaymentsTotal,
-      insurerDiscountTotal: allInsurerDiscountTotal,
+      insuranceCoverageTotal: allInsurerDiscountTotal,
     } = getInvoiceSummary(invoice);
     const { insurerDiscountTotal, insurerPaymentRemainingBalance } =
       getSpecificInsurerPaymentRemainingBalance(
-        invoice?.insurers ?? [],
+        (invoice?.insurancePlans ?? []).map(plan => ({
+          insurerId: plan.id,
+          percentage: (plan.defaultCoverage ?? 0) / 100,
+        })),
         invoice?.payments ?? [],
         data.insurerId,
-        itemsSubtotal,
+        invoiceItemsTotal,
       );
 
     try {
