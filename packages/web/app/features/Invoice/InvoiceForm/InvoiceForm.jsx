@@ -5,7 +5,13 @@ import { Plus } from 'lucide-react';
 import { FieldArray } from 'formik';
 import { Box, Button as MuiButton } from '@material-ui/core';
 
-import { Form, TranslatedText, FormSubmitButton, FormCancelButton } from '@tamanu/ui-components';
+import {
+  Form,
+  TranslatedText,
+  FormSubmitButton,
+  FormCancelButton,
+  useDateTime,
+} from '@tamanu/ui-components';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { isInvoiceEditable } from '@tamanu/utils/invoice';
 import { Colors } from '../../../constants/styles';
@@ -64,6 +70,7 @@ const getDefaultRow = getCurrentDate => ({
 
 export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModalType }) => {
   const { ability } = useAuth();
+  const { getCurrentDate } = useDateTime();
   const isEditForm = invoiceFormType === INVOICE_FORM_TYPE.EDIT_ITEMS;
   const isReadOnlyForm = invoiceFormType === INVOICE_FORM_TYPE.READ_ONLY;
   const isAddForm = invoiceFormType === INVOICE_FORM_TYPE.ADD_ITEMS;
@@ -71,7 +78,9 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
   const cellWidths = isReadOnlyForm ? CELL_WIDTHS : CELL_WIDTHS_EDITABLE;
 
   // inProgressItems is used to re-populate the form with in progress items after the form is updated
-  const [inProgressItems, setInProgressItems] = useState(isAddForm ? [getDefaultRow()] : []);
+  const [inProgressItems, setInProgressItems] = useState(
+    isAddForm ? [getDefaultRow(getCurrentDate)] : [],
+  );
   const canWriteInvoice = ability.can('write', 'Invoice');
   const editable = isInvoiceEditable(invoice) && canWriteInvoice;
   const isFinalised = invoice.status === INVOICE_STATUSES.FINALISED;
@@ -180,7 +189,7 @@ export const InvoiceForm = ({ invoice, invoiceFormType, onClose, setInvoiceModal
                         if (isReadOnlyForm) {
                           setInvoiceModalType(INVOICE_MODAL_TYPES.ADD_ITEMS);
                         } else {
-                          formArrayMethods.push(getDefaultRow());
+                          formArrayMethods.push(getDefaultRow(getCurrentDate));
                         }
                       }}
                       startIcon={<Plus />}
