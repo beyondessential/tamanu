@@ -353,7 +353,7 @@ describe('fijiAspenMediciReport', () => {
   let fakedata;
 
   beforeAll(async () => {
-    ctx = await createTestContext({ initFhir: true, initFhirTriggers: true });
+    ctx = await createTestContext();
     models = ctx.store.models;
 
     app = await ctx.baseApp.asRole('practitioner');
