@@ -80,11 +80,9 @@ export class ProgramRegistryPltfuFlagger extends ScheduledTask {
     // eslint-disable-next-line no-constant-condition
     while (true) {
       // Find active registrations where the patient has had no encounter activity
-      // within the threshold period and is not already flagged as PLTFU,
-      // then update them to the PLTFU status in a single atomic operation.
-      const updatedRegistrations = await this.sequelize.transaction(async () => {
-        return this.sequelize.query(
-          `
+      // within the threshold period and is not already flagged as PLTFU, then update them to PLTFU.
+      const updatedRegistrations = await this.sequelize.query(
+        `
           WITH registrations_to_flag AS (
             SELECT ppr.patient_id, ppr.program_registry_id
             FROM patient_program_registrations ppr
@@ -106,18 +104,17 @@ export class ProgramRegistryPltfuFlagger extends ScheduledTask {
             AND ppr.program_registry_id = rtf.program_registry_id
           RETURNING ppr.patient_id
           `,
-          {
-            replacements: {
-              registryId: registry.id,
-              activeStatus: REGISTRATION_STATUSES.ACTIVE,
-              pltfuStatusId: pltfuStatus.id,
-              cutoffDate,
-              batchSize,
-            },
-            type: QueryTypes.SELECT,
+        {
+          replacements: {
+            registryId: registry.id,
+            activeStatus: REGISTRATION_STATUSES.ACTIVE,
+            pltfuStatusId: pltfuStatus.id,
+            cutoffDate,
+            batchSize,
           },
-        );
-      });
+          type: QueryTypes.SELECT,
+        },
+      );
 
       const batchCount = updatedRegistrations.length;
 
