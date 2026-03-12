@@ -6,6 +6,7 @@ export const GLOBAL_EXCLUDE_TABLES = [
 export const NON_SYNCING_TABLES = [
   'logs.debug_logs',
   'logs.dhis2_pushes',
+  'logs.m_supply_pushes',
   'logs.fhir_writes',
   'public.devices',
   'public.fhir_materialise_jobs',
