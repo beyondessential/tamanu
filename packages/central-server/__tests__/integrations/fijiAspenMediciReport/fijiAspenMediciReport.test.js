@@ -13,11 +13,12 @@ import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { fake } from '@tamanu/fake-data/fake';
 import { log } from '@tamanu/shared/services/logging';
 import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
+import { getFhirWorkerSettings } from '@tamanu/shared/utils/fhir/fhirSettings';
 
 import { createTestContext } from '../../utilities';
 import { allFromUpstream } from '../../../dist/tasks/fhir/refresh/allFromUpstream';
 
-jest.setTimeout(50000); 
+jest.setTimeout(50000);
 
 const PRIMARY_TIME_ZONE = getPrimaryTimeZone(config);
 
@@ -206,36 +207,36 @@ const fakeAllData = async (models, ctx) => {
       date: '2022-06-09T11:10:54.225+00:00',
     }),
   );
-  const prescription = await models.Prescription.create(
-    fake(models.Prescription, {
-      medicationId: medication5Id,
-      discontinued: true,
-      date: '2022-06-10T01:10:54.225+00:00',
-      discontinuedDate: '2022-06-10T01:19:54.225+00:00',
-      discontinuingReason: 'It was not enough',
-    }),
-  );
-  await models.EncounterPrescription.create(
-    fake(models.EncounterPrescription, {
-      encounterId,
-      prescriptionId: prescription.id,
-    }),
-  );
-  const prescription1 = await models.Prescription.create(
-    fake(models.Prescription, {
-      medicationId: medication10Id,
-      discontinued: null,
-      date: '2022-06-10T01:20:54.225+00:00',
-      discontinuedDate: null,
-      discontinuingReason: null,
-    }),
-  );
-  await models.EncounterPrescription.create(
-    fake(models.EncounterPrescription, {
-      encounterId,
-      prescriptionId: prescription1.id,
-    }),
-  );
+    const prescription = await models.Prescription.create(
+      fake(models.Prescription, {
+        medicationId: medication5Id,
+        discontinued: true,
+        date: '2022-06-10T01:10:54.225+00:00',
+        discontinuedDate: '2022-06-10T01:19:54.225+00:00',
+        discontinuingReason: 'It was not enough',
+      }),
+    );
+    await models.EncounterPrescription.create(
+      fake(models.EncounterPrescription, {
+        encounterId,
+        prescriptionId: prescription.id,
+      }),
+    );
+    const prescription1 = await models.Prescription.create(
+      fake(models.Prescription, {
+        medicationId: medication10Id,
+        discontinued: null,
+        date: '2022-06-10T01:20:54.225+00:00',
+        discontinuedDate: null,
+        discontinuingReason: null,
+      }),
+    );
+    await models.EncounterPrescription.create(
+      fake(models.EncounterPrescription, {
+        encounterId,
+        prescriptionId: prescription1.id,
+      }),
+    );
   await models.AdministeredVaccine.create(
     fake(models.AdministeredVaccine, { encounterId, scheduledVaccineId }),
   );
@@ -337,11 +338,29 @@ const fakeAllData = async (models, ctx) => {
   await models.MediciReport.materialiseFromUpstream(encounterId);
   await models.MediciReport.materialiseFromUpstream(openEncounterId);
 
-  const medici = await models.MediciReport.findOne();
+  const allReports = await models.MediciReport.findAll();
+  console.log('[DEBUG] MediciReport count after materialisation:', allReports.length);
+  for (const r of allReports) {
+    console.log(`[DEBUG] MediciReport id=${r.id} upstreamId=${r.upstreamId} encounterId=${r.encounterId} encounterEndDate=${r.encounterEndDate} lastUpdated=${r.getDataValue('lastUpdated')}`);
+  }
+
+  const medici = await models.MediciReport.findOne({ where: { upstreamId: encounterId } });
+  console.log('[DEBUG] findOne result:', medici ? `id=${medici.id} upstreamId=${medici.upstreamId}` : 'NULL');
+
+  if (!medici) {
+    console.log('[DEBUG] CRITICAL: findOne returned null for upstreamId =', encounterId);
+    console.log('[DEBUG] All upstreamIds:', allReports.map(r => r.upstreamId));
+  }
 
   await medici.update({
     lastUpdated: new Date(Date.UTC(2022, 6 - 1, 12, 0, 2, 54, 225)),
   });
+
+  const [rawRow] = await ctx.store.sequelize.query(
+    `SELECT last_updated, encounter_end_date, encounter_id FROM fhir.non_fhir_medici_report WHERE upstream_id = :id`,
+    { replacements: { id: encounterId }, type: ctx.store.sequelize.constructor.QueryTypes.SELECT },
+  );
+  console.log('[DEBUG] Raw DB row for closed encounter:', JSON.stringify(rawRow));
 
   return { patient, encounterId, encounterNote, imagingRequestNote, labRequestNote };
 };
@@ -353,8 +372,13 @@ describe('fijiAspenMediciReport', () => {
   let fakedata;
 
   beforeAll(async () => {
-    ctx = await createTestContext({ initFhir: true });
+    ctx = await createTestContext({ initFhir: true, initFhirTriggers: true });
     models = ctx.store.models;
+
+    const workerSettings = getFhirWorkerSettings();
+    console.log('[DEBUG] FHIR worker settings:', JSON.stringify(workerSettings, null, 2));
+    console.log('[DEBUG] config.integrations.fhir:', JSON.stringify(config?.integrations?.fhir, null, 2));
+
     app = await ctx.baseApp.asRole('practitioner');
     fakedata = await fakeAllData(models, ctx);
   });
@@ -389,6 +413,11 @@ describe('fijiAspenMediciReport', () => {
         const response = await app
           .get(`/api/integration/fijiAspenMediciReport?${query}`)
           .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
+
+        if (response.body.data.length !== expectedResults) {
+          console.log(`[DEBUG] Date filter mismatch: expected=${expectedResults} actual=${response.body.data.length} start=${start} end=${end}`);
+          console.log('[DEBUG] Response body:', JSON.stringify(response.body, null, 2));
+        }
 
         expect(response).toHaveSucceeded();
         expect(response.body.data.length).toEqual(expectedResults);
@@ -484,6 +513,21 @@ describe('fijiAspenMediciReport', () => {
         '/api/integration/fijiAspenMediciReport?period.start=2022-06-12T00:00:00Z&period.end=2022-06-12T00:59:00Z',
       )
       .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
+
+    if (response.body.data.length === 0) {
+      console.log('[DEBUG] Report returned empty data. Response status:', response.status);
+      console.log('[DEBUG] Response body:', JSON.stringify(response.body, null, 2));
+
+      const allReports = await models.MediciReport.findAll();
+      for (const r of allReports) {
+        console.log(`[DEBUG] Report row: id=${r.id} upstreamId=${r.upstreamId} lastUpdated=${r.getDataValue('lastUpdated')} encounterEndDate=${r.encounterEndDate}`);
+      }
+
+      const [rawRows] = await ctx.store.sequelize.query(
+        `SELECT id, upstream_id, last_updated, encounter_end_date FROM fhir.non_fhir_medici_report`,
+      );
+      console.log('[DEBUG] Raw DB rows:', JSON.stringify(rawRows, null, 2));
+    }
 
     // assert
     expect(response).toHaveSucceeded();
