@@ -631,27 +631,42 @@ labTestPanel.get('/:id', simpleGet('LabTestPanel'));
 labTestPanel.get(
   '/:id/labTestTypes',
   asyncHandler(async (req, res) => {
-    const { models, params } = req;
+    const { models, params, query } = req;
     const panelId = params.id;
     req.checkPermission('list', 'LabTest');
     const panel = await models.LabTestPanel.findByPk(panelId);
     if (!panel) {
       throw new NotFoundError();
     }
-    const response = await panel.getLabTestTypes({
+    const options = {
       include: [
         {
           model: models.ReferenceData,
           as: 'category',
         },
       ],
-    });
+    };
+    if (query.facilityId) {
+      options.where = {
+        [Op.and]: [
+          Sequelize.literal(
+            `("LabTestType"."available_facilities" IS NULL OR "LabTestType"."available_facilities" @> ${req.db.escape(JSON.stringify([query.facilityId]))}::jsonb)`,
+          ),
+        ],
+      };
+    }
+    const response = await panel.getLabTestTypes(options);
     res.send(response);
   }),
 );
 
 async function createPanelLabRequests(models, body, note, user) {
   const { panelIds, sampleDetails = {}, ...labRequestBody } = body;
+  const encounter = await models.Encounter.findByPk(labRequestBody.encounterId, {
+    include: [{ model: models.Location, as: 'location', attributes: ['facilityId'] }],
+  });
+  const facilityId = encounter?.location?.facilityId;
+
   const panels = await models.LabTestPanel.findAll({
     where: {
       id: panelIds,
@@ -660,7 +675,7 @@ async function createPanelLabRequests(models, body, note, user) {
       {
         model: models.LabTestType,
         as: 'labTestTypes',
-        attributes: ['id'],
+        attributes: ['id', 'availableFacilities'],
       },
     ],
   });
@@ -675,7 +690,15 @@ async function createPanelLabRequests(models, body, note, user) {
       const innerLabRequestBody = { ...labRequestBody, labTestPanelRequestId: testPanelRequest.id };
 
       const requestSampleDetails = sampleDetails[panelId] || {};
-      const labTestTypeIds = panel.labTestTypes?.map(testType => testType.id) || [];
+      let labTestTypeIds = panel.labTestTypes?.map(testType => testType.id) || [];
+      if (facilityId) {
+        labTestTypeIds = panel.labTestTypes
+          ?.filter(
+            tt =>
+              !tt.availableFacilities || tt.availableFacilities.includes(facilityId),
+          )
+          .map(tt => tt.id) || [];
+      }
       const labTestCategoryId = panel.categoryId;
       const newLabRequest = await createLabRequest(
         innerLabRequestBody,

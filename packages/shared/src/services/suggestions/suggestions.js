@@ -353,6 +353,12 @@ createSuggester(
 
       if (!relationType) return undefined;
 
+      const childrenWhere = { ...VISIBILITY_CRITERIA };
+      const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId, req.db);
+      if (facilityFilter) {
+        childrenWhere[Op.and] = [facilityFilter];
+      }
+
       return [
         {
           model: TaskTemplate,
@@ -375,7 +381,7 @@ createSuggester(
             as: 'taskTemplate',
             include: TaskTemplate.getFullReferenceAssociations(),
           },
-          where: VISIBILITY_CRITERIA,
+          where: childrenWhere,
         },
       ];
     },
@@ -541,27 +547,37 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
               },
             ],
           },
-          typeName === REFERENCE_TYPES.MEDICATION_SET && {
-            model: ReferenceData,
-            as: 'children',
-            where: VISIBILITY_CRITERIA,
-            through: {
-              attributes: [],
-              where: {
-                type: REFERENCE_DATA_RELATION_TYPES.MEDICATION,
-                deleted_at: null,
+          typeName === REFERENCE_TYPES.MEDICATION_SET && (() => {
+            const childrenWhere = { ...VISIBILITY_CRITERIA };
+            const medicationWhere = { ...VISIBILITY_CRITERIA };
+            const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId, req.db);
+            if (facilityFilter) {
+              childrenWhere[Op.and] = [facilityFilter];
+              medicationWhere[Op.and] = [facilityFilter];
+            }
+            return {
+              model: ReferenceData,
+              as: 'children',
+              where: childrenWhere,
+              through: {
+                attributes: [],
+                where: {
+                  type: REFERENCE_DATA_RELATION_TYPES.MEDICATION,
+                  deleted_at: null,
+                },
               },
-            },
-            include: {
-              model: ReferenceMedicationTemplate,
-              as: 'medicationTemplate',
               include: {
-                model: ReferenceData,
-                as: 'medication',
-                where: VISIBILITY_CRITERIA,
+                model: ReferenceMedicationTemplate,
+                as: 'medicationTemplate',
+                include: {
+                  model: ReferenceData,
+                  as: 'medication',
+                  where: medicationWhere,
+                  required: !!facilityFilter,
+                },
               },
-            },
-          },
+            };
+          })(),
         ].filter(Boolean);
 
         return result.length > 0 ? result : null;
