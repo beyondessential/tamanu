@@ -16,13 +16,13 @@ const compactTime = (s: string) => s.replace(' ', '').toLowerCase();
 /** "12/04/24" */
 export const formatShortest = createFormatter(
   { month: '2-digit', day: '2-digit', year: '2-digit' },
-  '--/--',
+  '‒‒/‒‒', // Figure dashes U+2012
 );
 
 /** "12/04/2020" */
 export const formatShort = createFormatter(
   { day: '2-digit', month: '2-digit', year: 'numeric' },
-  '--/--/----',
+  '‒‒/‒‒/‒‒‒‒', // Figure dashes U+2012
 );
 
 /** "12:30 am" */
