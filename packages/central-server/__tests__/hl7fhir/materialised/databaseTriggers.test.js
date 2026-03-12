@@ -52,7 +52,7 @@ describe('databaseTriggers', () => {
   let materialisableResources;
 
   beforeAll(async () => {
-    ctx = await createTestContext({ initFhir: true });
+    ctx = await createTestContext({ initFhir: true, initFhirTriggers: true });
     materialisableResources = resourcesThatCanDo(
       ctx.store.models,
       FHIR_INTERACTIONS.INTERNAL.MATERIALISE,

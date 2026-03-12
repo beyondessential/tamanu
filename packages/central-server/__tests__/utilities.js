@@ -22,13 +22,15 @@ import { initIntegrations } from '../dist/integrations';
 class MockApplicationContext {
   closeHooks = [];
 
-  async init({ initFhir = false } = {}) {
+  async init({ initFhir = false, initFhirTriggers = false } = {}) {
     this.store = await initDatabase({ testMode: true });
     this.settings = new ReadSettings(this.store.models);
     await seedSettings(this.store.models);
     if (initFhir) {
       resetFhirSettings();
       await initFhirSettingsFromDb(this.settings);
+    }
+    if (initFhirTriggers) {
       await setFhirRefreshTriggers(this.store.sequelize);
     }
 
@@ -60,8 +62,8 @@ class MockApplicationContext {
   };
 }
 
-export async function createTestContext({ initFhir = false } = {}) {
-  const ctx = await new MockApplicationContext().init({ initFhir });
+export async function createTestContext({ initFhir = false, initFhirTriggers = false } = {}) {
+  const ctx = await new MockApplicationContext().init({ initFhir, initFhirTriggers });
   const { models } = ctx.store;
   const { express: expressApp, server: appServer } = await createApp(ctx);
   const baseApp = supertest.agent(appServer);
