@@ -30,7 +30,7 @@ function enhancePendingTriggerError(error, migrationName) {
 }
 
 // before this, we just cut our losses and accept irreversible migrations
-const LAST_REVERSIBLE_MIGRATION = '1685403132663-systemUser.js';
+const LAST_REVERSIBLE_MIGRATION = '1733366147318-schemaCheckpoint.js';
 
 export function createMigrationInterface(log, sequelize) {
   // ie, database/dist/cjs/migrations
