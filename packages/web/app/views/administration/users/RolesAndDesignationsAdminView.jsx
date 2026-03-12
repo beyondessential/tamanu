@@ -46,11 +46,11 @@ export const RolesAndDesignationsAdminView = () => {
       render: () => <RolesAdminView />,
     },
     /* NASS-1909 */
-    {
-      key: TAB.DESIGNATIONS,
-      label: <TranslatedText stringId="admin.designations.tab" fallback="Designations" />,
-      render: () => <Article />,
-    },
+    // {
+    //   key: TAB.DESIGNATIONS,
+    //   label: <TranslatedText stringId="admin.designations.tab" fallback="Designations" />,
+    //   render: () => <Article />,
+    // },
   ]);
 
   return (
