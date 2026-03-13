@@ -203,7 +203,7 @@ export const UserAdminView = React.memo(() => {
 
   const titleActions = canCreateUser && (
     <AddUserButton onClick={handleAddUserClick} data-testid="add-user-button">
-      <PlusIcon fill={Colors.white} className="plus-icon" />
+      <PlusIcon aria-hidden fill={Colors.white} className="plus-icon" />
       <TranslatedText stringId="admin.users.addUser.button" fallback="Add user" />
     </AddUserButton>
   );

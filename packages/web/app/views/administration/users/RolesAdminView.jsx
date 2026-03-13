@@ -1,13 +1,14 @@
+import { Typography } from '@mui/material';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 
-import { Typography } from '@mui/material';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { Form, FormSubmitButton, TextButton, TextField } from '@tamanu/ui-components';
 import { useSuggester } from '../../../api';
-import { DataFetchingTable, TranslatedText } from '../../../components';
+import { PlusIcon } from '../../../assets/icons/PlusIcon';
+import { Button, DataFetchingTable, TranslatedText } from '../../../components';
 import { ConfirmModal } from '../../../components/ConfirmModal';
 import { AutocompleteField, Field } from '../../../components/Field';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
@@ -16,7 +17,7 @@ import { ROLES_ENDPOINT } from '../constants';
 import { Article } from './RolesAndDesignationsAdminView';
 import { useRoleDeleteMutation } from './useRoleDeleteMutation';
 
-const StyledForm = styled(Form)`
+const Header = styled.header`
   align-items: flex-end;
   background-color: ${Colors.white};
   border-block-start: 1px solid ${Colors.outline};
@@ -25,9 +26,20 @@ const StyledForm = styled(Form)`
   border-start-start-radius: 0.3125rem;
   display: grid;
   gap: 0.625rem;
-  grid-template-columns: repeat(auto-fill, minmax(min(19.375rem, 100%), 1fr));
   padding-block: 0.625rem;
   padding-inline: 1.25rem;
+  grid-template-columns: auto minmax(min-content, max-content);
+`;
+
+const Search = styled('search')`
+  display: contents;
+  gap: inherit;
+`;
+
+const StyledForm = styled(Form)`
+  display: grid;
+  gap: inherit;
+  grid-template-columns: repeat(auto-fill, minmax(min(19.375rem, 100%), 1fr));
 `;
 
 const StyledField = styled(Field).attrs({
@@ -36,15 +48,27 @@ const StyledField = styled(Field).attrs({
 })``;
 
 const ButtonGroup = styled.div`
+  align-items: flex-end;
   display: flex;
   font-size: 0.875rem;
   gap: inherit;
-  justify-self: end;
-  grid-column: -2 / -1;
   button {
     font-size: inherit;
   }
 `;
+
+const AddButton = styled(Button)`
+  align-self: flex-end;
+`;
+
+const plusIcon = (
+  <PlusIcon
+    aria-hidden
+    width={18}
+    height={18}
+    style={{ color: 'oklch(from currentColor l c h / 96%', marginInlineEnd: '0.5em' }}
+  />
+);
 
 const StyledDataFetchingTable = styled(DataFetchingTable)`
   border-start-end-radius: 0;
@@ -185,47 +209,49 @@ export const RolesAdminView = () => {
 
   return (
     <Article>
-      <search>
-        <StyledForm
-          formType={FORM_TYPES.SEARCH_FORM}
-          initialValues={{ id: idFromUrl, name: nameFromUrl }}
-          key={`id=${idFromUrl}&name=${nameFromUrl}`}
-          onSubmit={onSubmit}
-          render={({ submitForm }) => (
-            <>
-              <StyledField
-                component={TextField}
-                inputProps={{ 'data-testid': 'roles-search-name-input' }}
-                label={<TranslatedText stringId="admin.roles.name.label" fallback="Name" />}
-                name="name"
-              />
-              <StyledField
-                component={AutocompleteField}
-                data-testid="roles-search-id"
-                label={<TranslatedText stringId="admin.roles.id.label" fallback="ID" />}
-                name="id"
-                suggester={roleSuggester}
-              />
-              <ButtonGroup>
-                <FormSubmitButton
-                  color="primary"
-                  data-testid="roles-search-button"
-                  onClick={submitForm}
-                >
-                  <TranslatedText stringId="general.action.search" fallback="Search" />
-                </FormSubmitButton>
-                <TextButton
-                  data-testid="roles-clear-button"
-                  onClick={onClear}
-                  style={{ paddingInline: '1em' }}
-                >
-                  <TranslatedText stringId="general.action.clear" fallback="Clear" />
-                </TextButton>
-              </ButtonGroup>
-            </>
-          )}
-        />
-      </search>
+      <Header>
+        <Search>
+          <StyledForm
+            formType={FORM_TYPES.SEARCH_FORM}
+            initialValues={{ id: idFromUrl, name: nameFromUrl }}
+            key={`id=${idFromUrl}&name=${nameFromUrl}`}
+            onSubmit={onSubmit}
+            render={({ submitForm }) => (
+              <>
+                <StyledField
+                  component={TextField}
+                  inputProps={{ 'data-testid': 'roles-search-name-input' }}
+                  label={<TranslatedText stringId="admin.roles.name.label" fallback="Name" />}
+                  name="name"
+                />
+                <StyledField
+                  component={AutocompleteField}
+                  data-testid="roles-search-id"
+                  label={<TranslatedText stringId="admin.roles.id.label" fallback="ID" />}
+                  name="id"
+                  suggester={roleSuggester}
+                />
+                <ButtonGroup>
+                  <FormSubmitButton
+                    color="primary"
+                    data-testid="roles-search-button"
+                    onClick={submitForm}
+                  >
+                    <TranslatedText stringId="general.action.search" fallback="Search" />
+                  </FormSubmitButton>
+                  <Button data-testid="roles-clear-button" onClick={onClear} variant="text">
+                    <TranslatedText stringId="general.action.clear" fallback="Clear" />
+                  </Button>
+                </ButtonGroup>
+              </>
+            )}
+          />
+        </Search>
+        <AddButton color="primary" data-testid="roles-add-role-button">
+          {plusIcon}
+          <TranslatedText stringId="general.action.add-role" fallback="Add role" />
+        </AddButton>
+      </Header>
       <StyledDataFetchingTable
         allowExport={false}
         columns={columns}
@@ -239,6 +265,7 @@ export const RolesAdminView = () => {
         }
         refreshCount={refreshCount}
       />
+
       <DeleteConfirmationModal
         open={Boolean(roleToDelete)}
         onCancel={() => setRoleToDelete(null)}
