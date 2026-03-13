@@ -38,6 +38,7 @@ rolesRouter.get(
 );
 
 const createRoleSchema = z.object({
+  id: z.string().trim().min(1),
   name: z.string().trim().min(1),
 });
 
@@ -46,20 +47,18 @@ rolesRouter.post(
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'Role');
 
-    const {
-      store: {
-        models: { Role },
-      },
-    } = req;
+    const { Role } = req.store.models;
+    const { id, name } = await createRoleSchema.parseAsync(req.body);
 
-    const { name } = await createRoleSchema.parseAsync(req.body);
+    const role = await req.store.sequelize.transaction(async () => {
+      const exists = Boolean(await Role.findOne({ attributes: [literal('1')], where: { id } }));
+      if (exists) {
+        throw new DatabaseDuplicateError(`A role already exists with ID ‘${id}’`);
+      }
 
-    const exists = Boolean(await Role.findOne({ attributes: literal('1'), where: { name } }));
-    if (exists) {
-      throw new DatabaseDuplicateError(`A role already exists with name ‘${name}’`);
-    }
+      return Role.create({ id, name });
+    });
 
-    const role = await Role.create({ name });
     res.status(201).send(role);
   }),
 );
