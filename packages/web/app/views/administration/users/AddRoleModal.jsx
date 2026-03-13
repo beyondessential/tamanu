@@ -1,5 +1,6 @@
 import React from 'react';
 import { toast } from 'react-toastify';
+import styled from 'styled-components';
 import * as yup from 'yup';
 
 import { FORM_TYPES } from '@tamanu/constants/forms';
@@ -16,6 +17,16 @@ const CREATE_ROLE_VALIDATION = yup.object().shape({
     .string()
     .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />),
 });
+
+const RequiredTextField = styled(Field).attrs({
+  component: TextField,
+  required: true,
+})``;
+
+const Footer = styled.footer`
+  display: flex;
+  flex-direction: row-reverse;
+`;
 
 export const AddRoleModal = ({ open, onClose, onSuccess }) => {
   const { mutate: createRole, isPending } = useRoleCreateMutation({
@@ -37,6 +48,29 @@ export const AddRoleModal = ({ open, onClose, onSuccess }) => {
     createRole({ id: values.id.trim(), name: values.name.trim() });
   };
 
+  const renderForm = ({ submitForm }) => (
+    <>
+      <fieldset disabled={isPending}>
+        <RequiredTextField
+          label={<TranslatedText stringId="admin.roles.name.label" fallback="Name" />}
+          name="name"
+        />
+        <RequiredTextField
+          label={<TranslatedText stringId="admin.roles.id.label" fallback="ID" />}
+          name="id"
+        />
+      </fieldset>
+      <Footer>
+        <Button onClick={submitForm} isSubmitting={isPending}>
+          <TranslatedText stringId="general.action.add-role" fallback="Add role" />
+        </Button>
+        <OutlinedButton onClick={onClose} disabled={isPending}>
+          <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+        </OutlinedButton>
+      </Footer>
+    </>
+  );
+
   return (
     <FormModal
       title={<TranslatedText stringId="admin.roles.add.title" fallback="Add role" />}
@@ -46,32 +80,7 @@ export const AddRoleModal = ({ open, onClose, onSuccess }) => {
       <Form
         formType={FORM_TYPES.CREATE_FORM}
         onSubmit={onSubmit}
-        render={({ submitForm }) => (
-          <>
-            <fieldset>
-              <Field
-                name="name"
-                label={<TranslatedText stringId="admin.roles.name.label" fallback="Name" />}
-                component={TextField}
-                required
-              />
-              <Field
-                name="id"
-                label={<TranslatedText stringId="admin.roles.id.label" fallback="ID" />}
-                component={TextField}
-                required
-              />
-            </fieldset>
-            <footer>
-              <OutlinedButton onClick={onClose} disabled={isPending}>
-                <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
-              </OutlinedButton>
-              <Button onClick={submitForm} isSubmitting={isPending}>
-                <TranslatedText stringId="general.action.add-role" fallback="Add role" />
-              </Button>
-            </footer>
-          </>
-        )}
+        render={renderForm}
         validationSchema={CREATE_ROLE_VALIDATION}
       />
     </FormModal>
