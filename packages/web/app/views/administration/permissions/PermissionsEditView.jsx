@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from '@tamanu/ui-components';
 import { ErrorMessage } from '../../../components/ErrorMessage';
@@ -101,7 +101,6 @@ const EmptyMessage = styled.div`
 
 export const PermissionsEditView = () => {
   const { getTranslation } = useTranslation();
-  const hasInitialized = useRef(false);
   const [selectedRoleIds, setSelectedRoleIds] = useState([]);
   const [selectedNoun, setSelectedNoun] = useState(null);
 
@@ -118,6 +117,8 @@ export const PermissionsEditView = () => {
   const {
     data: permissionsData = {},
     isLoading,
+    isFetching,
+    isSuccess,
     error,
   } = useAdminPermissionsQuery(rolesQueryParam, { enabled: selectedRoleIds.length > 0 });
 
@@ -147,13 +148,8 @@ export const PermissionsEditView = () => {
 
   const handleToggle = useCallback(params => togglePermission.mutate(params), [togglePermission]);
 
-  useEffect(() => {
-    if (allRoles.length > 0 && !hasInitialized.current) {
-      hasInitialized.current = true;
-      setSelectedRoleIds(allRoles.map(r => r.id));
-    }
-  }, [allRoles]);
-
+  const isActuallyLoading = isLoading && isFetching;
+  
   return (
     <EditContainer data-testid="permissions-edit-container">
       <FiltersRow data-testid="permissions-edit-filters-row">
@@ -175,7 +171,7 @@ export const PermissionsEditView = () => {
           />
         </FilterFieldContainer>
       </FiltersRow>
-      {isLoading && <LoadingIndicator data-testid="permissions-loading-indicator" />}
+      {isActuallyLoading && <LoadingIndicator data-testid="permissions-loading-indicator" />}
       {error && (
         <ErrorMessage
           title={
@@ -189,7 +185,7 @@ export const PermissionsEditView = () => {
           data-testid="permissions-error-message"
         />
       )}
-      {!isLoading && !error && selectedRoles.length > 0 && filteredNouns.length > 0 && (
+      {isSuccess && selectedRoles.length > 0 && filteredNouns.length > 0 && (
         <MatrixTable>
           <thead>
             <tr>
@@ -230,7 +226,7 @@ export const PermissionsEditView = () => {
           </tbody>
         </MatrixTable>
       )}
-      {!isLoading && !error && selectedRoles.length > 0 && filteredNouns.length === 0 && (
+      {isSuccess && selectedRoles.length > 0 && filteredNouns.length === 0 && (
         <EmptyMessage>
           <TranslatedText
             stringId="admin.permissions.noPermissions"
@@ -239,7 +235,7 @@ export const PermissionsEditView = () => {
           />
         </EmptyMessage>
       )}
-      {!isLoading && selectedRoleIds.length === 0 && (
+      {!isActuallyLoading && selectedRoleIds.length === 0 && (
         <EmptyMessage>
           <TranslatedText
             stringId="admin.permissions.selectRoles"
