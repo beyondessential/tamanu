@@ -3,8 +3,11 @@ import styled from 'styled-components';
 import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 
+import { PERMISSION_SCHEMA } from '@tamanu/constants';
+
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { Colors } from '../../../constants';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { CheckboxIconChecked, CheckboxIconUnchecked } from '../../../components/Icons/CheckboxIcon';
 import {
   CHEVRON_WIDTH,
@@ -18,7 +21,7 @@ import {
   EmptyChevronCell,
   stickyLeft,
 } from './NounSection';
-import { usePermissionToggles } from './usePermissionToggles';
+import { getVerbAbbreviation, usePermissionToggles } from './usePermissionToggles';
 
 // Additional indentation for nested items to account for the child chevron icon and spacing
 const CHILD_INDENT = 35;
@@ -98,7 +101,25 @@ const ObjectIdChildSection = ({ nounGroup, selectedRoles, onToggle, objectNames 
                 <KeyboardArrowRight fontSize="small" />
               )}
             </ChildChevron>
-            <ThemedTooltip title={`${displayName} (${nounGroup.objectId})`}>
+            <ThemedTooltip
+              title={
+                <>
+                  {displayName} ({nounGroup.objectId})
+                  {PERMISSION_SCHEMA[nounGroup.noun] && (
+                    <>
+                      <br />
+                      <TranslatedText
+                        stringId="admin.permissions.available"
+                        fallback="Permissions available:"
+                        data-testid="translatedtext-permissions-available-objectid"
+                      />
+                      <br />
+                      {PERMISSION_SCHEMA[nounGroup.noun].map(v => getVerbAbbreviation(v)).join(' ')}
+                    </>
+                  )}
+                </>
+              }
+            >
               <TruncatedName>{displayName}</TruncatedName>
             </ThemedTooltip>
           </ChildNounContent>
