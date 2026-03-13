@@ -89,12 +89,12 @@ const getSchemaForCategory = (schema, category, subCategory) => {
   if (subCategory) {
     const subCategorySchema = categorySchema.properties[subCategory];
     const isHighRisk = categorySchema.highRisk || subCategorySchema.highRisk;
-    const isServerWide = categorySchema.serverWide || subCategorySchema.serverWide;
+    const infoBanner = categorySchema.infoBanner || subCategorySchema.infoBanner;
     const needsRestart = categorySchema.requiresRestart || subCategorySchema.requiresRestart;
     return {
       ...subCategorySchema,
       highRisk: isHighRisk,
-      serverWide: isServerWide,
+      infoBanner,
       requiresRestart: needsRestart,
     };
   }

@@ -7,7 +7,7 @@ export interface SettingsSchema {
   description?: string;
   highRisk?: boolean;
   requiresRestart?: boolean;
-  serverWide?: boolean;
+  infoBanner?: string;
   properties: Record<string, Setting | SettingsSchema>;
   exposedToWeb?: boolean;
   exposedToPatientPortal?: boolean;

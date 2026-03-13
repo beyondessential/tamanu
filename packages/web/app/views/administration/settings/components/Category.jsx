@@ -56,7 +56,7 @@ const StyledHeading = styled(Heading4)`
   inline-size: fit-content;
 `;
 
-const ServerWideAlert = styled(Alert)`
+const InfoBannerAlert = styled(Alert)`
   grid-column: 1 / -1;
   margin-block-end: 0.5rem;
 `;
@@ -147,14 +147,10 @@ export const Category = ({
         description={schema.description}
         data-testid="categorytitle-0pic"
       />
-      {schema.serverWide && Boolean(facilityId) && !path && (
-        <ServerWideAlert severity="info" data-testid="serverwidealert-fw01">
-          <TranslatedText
-            stringId="admin.settings.serverWideAlert"
-            fallback="If this facility shares a server instance with other facilities, changes will take effect for all connected facilities."
-            data-testid="translatedtext-fw01"
-          />
-        </ServerWideAlert>
+      {schema.infoBanner && Boolean(facilityId) && !path && (
+        <InfoBannerAlert severity="info" data-testid="infobanneralert-fw01">
+          {schema.infoBanner}
+        </InfoBannerAlert>
       )}
       {sortedProperties.map(([key, propertySchema]) => {
         const newPath = path ? `${path}.${key}` : key;
@@ -174,7 +170,7 @@ export const Category = ({
         const needsRestart = schema.requiresRestart || requiresRestart;
         const disabled = !canWriteHighRisk && isHighRisk;
 
-        const isServerWide = schema.serverWide || propertySchema.serverWide;
+        const infoBanner = schema.infoBanner || propertySchema.infoBanner;
 
         return type ? (
           <SettingLine key={newPath} data-testid={`settingline-55rw-${testIdSuffix}`}>
@@ -208,7 +204,7 @@ export const Category = ({
               ...propertySchema,
               highRisk: isHighRisk,
               requiresRestart: needsRestart,
-              serverWide: isServerWide,
+              infoBanner,
             }}
             getSettingValue={getSettingValue}
             getGlobalSettingValue={getGlobalSettingValue}
