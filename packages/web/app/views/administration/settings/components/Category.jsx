@@ -147,7 +147,7 @@ export const Category = ({
         description={schema.description}
         data-testid="categorytitle-0pic"
       />
-      {schema.infoBanner && Boolean(facilityId) && !path && (
+      {schema.infoBanner && (
         <InfoBannerAlert severity="info" data-testid="infobanneralert-fw01">
           {schema.infoBanner}
         </InfoBannerAlert>
