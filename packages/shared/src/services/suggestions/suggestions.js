@@ -293,14 +293,17 @@ const VISIBILITY_CRITERIA = {
   visibilityStatus: VISIBILITY_STATUSES.CURRENT,
 };
 
-// Reusable filter: if available_facilities is set on a reference data row,
+// Reusable filter: if availableFacilities is set on a reference data row,
 // only show it when the requesting facility is in the list. NULL means visible everywhere.
-// Returns a Sequelize.literal suitable for use inside an [Op.and] array.
-const buildAvailableFacilitiesFilter = (facilityId, db, modelName = 'ReferenceData') => {
+// Uses the model's attribute so the DB column name comes from the model (field option), not from a literal.
+const buildAvailableFacilitiesFilter = facilityId => {
   if (!facilityId) return null;
-  return Sequelize.literal(
-    `("${modelName}"."available_facilities" IS NULL OR "${modelName}"."available_facilities" @> ${db.escape(JSON.stringify([facilityId]))}::jsonb)`,
-  );
+  return {
+    [Op.or]: [
+      { availableFacilities: null },
+      { availableFacilities: { [Op.contains]: [facilityId] } },
+    ],
+  };
 };
 
 const afterCreatedReferenceData = async (req, newRecord) => {
@@ -338,7 +341,7 @@ createSuggester(
       ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
       type: { [Op.in]: types },
     };
-    const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId, req.db);
+    const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
     if (facilityFilter) {
       baseWhere[Op.and] = [facilityFilter];
     }
@@ -354,7 +357,7 @@ createSuggester(
       if (!relationType) return undefined;
 
       const childrenWhere = { ...VISIBILITY_CRITERIA };
-      const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId, req.db);
+      const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
       if (facilityFilter) {
         childrenWhere[Op.and] = [facilityFilter];
       }
@@ -497,7 +500,7 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
         REFERENCE_TYPES.TASK_SET,
       ];
       if (facilityFilterTypes.includes(typeName)) {
-        const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId, req.db);
+        const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
         if (facilityFilter) {
           baseWhere[Op.and] = [...(baseWhere[Op.and] || []), facilityFilter];
         }
@@ -550,7 +553,7 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
           typeName === REFERENCE_TYPES.MEDICATION_SET && (() => {
             const childrenWhere = { ...VISIBILITY_CRITERIA };
             const medicationWhere = { ...VISIBILITY_CRITERIA };
-            const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId, req.db);
+            const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
             if (facilityFilter) {
               childrenWhere[Op.and] = [facilityFilter];
               medicationWhere[Op.and] = [facilityFilter];
@@ -619,7 +622,7 @@ createSuggester(
 
 createSuggester('labTestType', 'LabTestType', ({ req }) => {
   const baseWhere = { ...VISIBILITY_CRITERIA };
-  const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId, req.db, 'LabTestType');
+  const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
   if (facilityFilter) {
     baseWhere[Op.and] = [facilityFilter];
   }
@@ -1083,7 +1086,7 @@ createNameSuggester(
 
 createNameSuggester('labTestPanel', 'LabTestPanel', ({ endpoint, modelName, req }) => {
   const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
-  const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId, req.db, 'LabTestPanel');
+  const facilityFilter = buildAvailableFacilitiesFilter(req.query.facilityId);
   if (facilityFilter) {
     baseWhere[Op.and] = [facilityFilter];
   }
