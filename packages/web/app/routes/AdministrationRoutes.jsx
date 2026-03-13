@@ -11,6 +11,7 @@ import {
   PatientMergeView,
   PermissionsAdminView,
   ProgramsAdminView,
+  RolesAdminView,
   RolesAndDesignationsAdminView,
   SurveyResponsesAdminView,
   ReferenceDataAdminView,
@@ -20,16 +21,20 @@ import {
   SettingsView,
   UserAdminView,
 } from '../views';
-import { RolesAdminView } from '../views/administration/users/RolesAdminView';
 import { Article } from '../views/administration/users/RolesAndDesignationsAdminView';
 
 export const AdministrationRoutes = React.memo(() => (
   <Routes>
     <Route path="assets" element={<AssetUploaderView />} />
     <Route path="fhir/*" element={<FhirAdminRoutes />} />
-    <Route path='locationAssignments' element={<LocationAssignmentsContextProvider>
-      <LocationAssignmentsAdminView />
-    </LocationAssignmentsContextProvider>} />
+    <Route
+      path="locationAssignments"
+      element={
+        <LocationAssignmentsContextProvider>
+          <LocationAssignmentsAdminView />
+        </LocationAssignmentsContextProvider>
+      }
+    />
     <Route path="patientMerge" element={<PatientMergeView />} />
     <Route path="permissions" element={<PermissionsAdminView />} />
     <Route path="programs" element={<ProgramsAdminView />} />
