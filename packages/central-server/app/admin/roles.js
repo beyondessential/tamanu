@@ -71,30 +71,33 @@ rolesRouter.delete(
     const {
       store: {
         models: { Role, User },
+        sequelize,
       },
       params: { id },
     } = req;
 
-    const role = await Role.findByPk(id);
-    if (!role) {
-      throw new NotFoundError(`No role found with ID ${id}`);
-    }
+    await sequelize.transaction(async () => {
+      const role = await Role.findByPk(id);
+      if (!role) {
+        throw new NotFoundError(`No role found with ID ${id}`);
+      }
 
-    const usersWithRole = await User.findAll({
-      attributes: ['display_name'],
-      where: { role: role.name },
+      const usersWithRole = await User.findAll({
+        attributes: ['display_name'],
+        where: { role: role.name },
+      });
+      const count = usersWithRole.length;
+      if (count > 0) {
+        const listFormatter = new Intl.ListFormat('en-AU');
+        const displayNames = usersWithRole.map(u => u.display_name);
+        const unit = count === 1 ? 'user' : 'users';
+        throw new InvalidOperationError(
+          `Cannot delete ’${role.name}’ role. ${count} ${unit} are assigned to it: ${listFormatter.format(displayNames)}.`,
+        );
+      }
+
+      await role.destroy();
     });
-    const count = usersWithRole.length;
-    if (count > 0) {
-      const listFormatter = new Intl.ListFormat('en-AU');
-      const displayNames = usersWithRole.map(u => u.display_name);
-      const unit = count === 1 ? 'user' : 'users';
-      throw new InvalidOperationError(
-        `Cannot delete ’${role.name}’ role. ${count} ${unit} are assigned to it: ${listFormatter.format(displayNames)}.`,
-      );
-    }
-
-    await role.destroy();
     res.status(204).send();
   }),
 );
