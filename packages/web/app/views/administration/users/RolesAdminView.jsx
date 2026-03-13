@@ -185,20 +185,6 @@ export const RolesAdminView = () => {
 
   return (
     <Article>
-      <DeleteConfirmationModal
-        open={Boolean(roleToDelete)}
-        onCancel={() => setRoleToDelete(null)}
-        onConfirm={handleConfirmDelete}
-        customContent={
-          <DeleteConfirmationModalContent>
-            <TranslatedText
-              stringId="admin.roles.delete.confirmation"
-              fallback="Are you sure you would like to delete this role?"
-              data-testid="translatedtext-delete-role-text"
-            />
-          </DeleteConfirmationModalContent>
-        }
-      />
       <search>
         <StyledForm
           formType={FORM_TYPES.SEARCH_FORM}
@@ -252,6 +238,20 @@ export const RolesAdminView = () => {
           <TranslatedText stringId="admin.roles.noData.message" fallback="No roles found" />
         }
         refreshCount={refreshCount}
+      />
+      <DeleteConfirmationModal
+        open={Boolean(roleToDelete)}
+        onCancel={() => setRoleToDelete(null)}
+        onConfirm={handleConfirmDelete}
+        customContent={
+          <DeleteConfirmationModalContent>
+            <TranslatedText
+              stringId="admin.roles.delete.confirmation"
+              fallback="Are you sure you would like to delete this role?"
+              data-testid="translatedtext-delete-role-text"
+            />
+          </DeleteConfirmationModalContent>
+        }
       />
     </Article>
   );
