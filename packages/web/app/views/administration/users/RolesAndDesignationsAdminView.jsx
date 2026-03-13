@@ -43,7 +43,6 @@ export const RolesAndDesignationsAdminView = () => {
       label: <TranslatedText stringId="admin.roles.tab" fallback="Roles" />,
       render: Outlet,
     },
-    /* NASS-1909 */
     {
       key: TAB.DESIGNATIONS,
       label: <TranslatedText stringId="admin.designations.tab" fallback="Designations" />,
