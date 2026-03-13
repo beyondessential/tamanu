@@ -77,9 +77,9 @@ EOF
     # specify ports for consistency
     npm run --workspace @tamanu/central-server start upgrade
     npm run --workspace @tamanu/central-server start provision provisioning.json5
-    nohup npm run --workspace @tamanu/central-server start > central-server.out &
+    nohup npm run --workspace @tamanu/central-server start > central-server.out 2>&1 &
     echo "CENTRAL_SERVER_PID=$!" >> $GITHUB_ENV
-    curl --retry 8 --retry-all-errors localhost:3000
+    curl --retry 8 --retry-all-errors localhost:3000 || { echo "--- central-server.out ---"; cat central-server.out; exit 1; }
 }
 
 # Start the facility server, to initialise it.
@@ -110,9 +110,9 @@ test_facility_offline_facility_start() {
 	}
 	EOF
 	npm run --workspace @tamanu/facility-server start upgrade
-	nohup npm run --workspace @tamanu/facility-server start > facility-server.out &
+	nohup npm run --workspace @tamanu/facility-server start > facility-server.out 2>&1 &
 	echo "FACILITY_SERVER_PID=$!" >> $GITHUB_ENV
-	curl --retry 8 --retry-all-errors localhost:4000
+	curl --retry 8 --retry-all-errors localhost:4000 || { echo "--- facility-server.out ---"; cat facility-server.out; exit 1; }
 }
 
 test_facility_offline_stop_and_print() {
