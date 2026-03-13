@@ -200,16 +200,14 @@ export const facilitySettings = {
       name: 'FHIR',
       description: 'FHIR integration settings (facility-level overrides)',
       highRisk: true,
+      infoBanner:
+        'Resource materialisation settings are merged across all facilities on this server. Enabling a resource type here will enable it server-wide, even if other facilities have it disabled.',
       properties: {
         worker: {
           name: 'FHIR worker',
           description: 'FHIR worker settings',
           properties: {
-            resourceMaterialisationEnabled: {
-              ...fhirResourceMaterialisationSchema,
-              infoBanner:
-                'Resource materialisation settings are merged across all facilities on this server. Enabling a resource type here will enable it server-wide, even if other facilities have it disabled.',
-            },
+            resourceMaterialisationEnabled: fhirResourceMaterialisationSchema,
           },
         },
       },
