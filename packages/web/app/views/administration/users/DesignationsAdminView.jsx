@@ -1,3 +1,4 @@
+import React from 'react';
 import { Article } from './RolesAndDesignationsAdminView';
 
 export const DesignationsAdminView = () => {
