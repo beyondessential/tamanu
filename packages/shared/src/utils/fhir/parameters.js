@@ -8,17 +8,15 @@ import {
 } from '@tamanu/constants';
 
 import { DEFAULT_SCHEMA_FOR_TYPE, INCLUDE_SCHEMA } from './schemata';
-import { getFhirCountSettings, getFhirSettingsGeneration } from './fhirSettings';
+import { getFhirCountSettings } from './fhirSettings';
 
 export function getFhirCountSettingsDefault() {
-  const countSettings = getFhirCountSettings();
-  return countSettings?.default || FHIR_MAX_RESOURCES_PER_PAGE;
+  return getFhirCountSettings().default || FHIR_MAX_RESOURCES_PER_PAGE;
 }
 
 function getFhirCountSettingsMax() {
-  const countSettings = getFhirCountSettings();
-  const defaultVal = getFhirCountSettingsDefault();
-  return Math.max(countSettings?.max || 0, defaultVal);
+  const { max } = getFhirCountSettings();
+  return Math.max(max || 0, getFhirCountSettingsDefault());
 }
 
 export function normaliseParameter([key, param], overrides = {}) {
@@ -120,15 +118,8 @@ function sortParameter(sortableParameters) {
 }
 
 const cache = new Map();
-let cacheGeneration = -1;
 
 export function normaliseParameters(FhirResource) {
-  const gen = getFhirSettingsGeneration();
-  if (gen !== cacheGeneration) {
-    cache.clear();
-    cacheGeneration = gen;
-  }
-
   const cacheKey = FhirResource.fhirName;
   if (!cacheKey) {
     throw new Error('DEV: not a proper Resource');

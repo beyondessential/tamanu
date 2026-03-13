@@ -1,17 +1,32 @@
 import config from 'config';
 import { log } from '../../services/logging';
 
-let settings = null;
-let generation = 0;
+const DEFAULTS = {
+  resourceMaterialisationEnabled: {
+    Patient: true,
+    Encounter: false,
+    Immunization: false,
+    MediciReport: false,
+    Organization: false,
+    Practitioner: false,
+    ServiceRequest: false,
+    Specimen: false,
+    MedicationRequest: false,
+    DiagnosticReport: false,
+  },
+  countDefault: 100,
+  countMax: 1000,
+  concurrency: 10,
+  extensions: { Patient: { newZealandEthnicity: false } },
+};
 
-export function getFhirSettingsGeneration() {
-  return generation;
-}
+let settings = { ...DEFAULTS };
+let initialised = false;
 
 /** Reset cached settings so the next call to initFhirSettingsFromDb reloads from DB. */
 export function resetFhirSettings() {
-  settings = null;
-  generation++;
+  settings = { ...DEFAULTS };
+  initialised = false;
 }
 
 /**
@@ -24,7 +39,7 @@ export function resetFhirSettings() {
  *   worker pool materialises everything needed.
  */
 export async function initFhirSettingsFromDb(globalSettings, facilitySettings = []) {
-  if (settings !== null) return;
+  if (initialised) return;
 
   try {
     const fhir = await globalSettings.get('fhir');
@@ -49,6 +64,7 @@ export async function initFhirSettingsFromDb(globalSettings, facilitySettings = 
       concurrency: fhir.worker.concurrency,
       extensions: fhir.extensions,
     };
+    initialised = true; // eslint-disable-line require-atomic-updates
   } catch (error) {
     log.error('Failed to load FHIR settings from DB:', error.message);
     throw error;
@@ -58,18 +74,18 @@ export async function initFhirSettingsFromDb(globalSettings, facilitySettings = 
 export function getFhirWorkerSettings() {
   return {
     enabled: config?.integrations?.fhir?.worker?.enabled ?? false,
-    concurrency: settings?.concurrency ?? 0,
-    resourceMaterialisationEnabled: settings?.resourceMaterialisationEnabled ?? {},
+    concurrency: settings.concurrency,
+    resourceMaterialisationEnabled: settings.resourceMaterialisationEnabled,
   };
 }
 
 export function getFhirCountSettings() {
   return {
-    default: settings?.countDefault,
-    max: settings?.countMax,
+    default: settings.countDefault,
+    max: settings.countMax,
   };
 }
 
 export function getFhirExtensionSettings() {
-  return settings?.extensions;
+  return settings.extensions;
 }
