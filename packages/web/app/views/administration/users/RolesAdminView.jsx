@@ -75,6 +75,10 @@ const STATIC_COLUMNS = /** @type {const} */ ([
 ]);
 
 const DeleteConfirmationModal = styled(ConfirmModal).attrs({
+  confirmButtonText: (
+    <TranslatedText stringId="general.action.delete-role" fallback="Delete role" />
+  ),
+  'data-testid': 'confirm-modal-delete-role',
   title: (
     <TranslatedText
       stringId="admin.roles.delete.title"
@@ -188,10 +192,6 @@ export const RolesAdminView = () => {
             />
           </DeleteConfirmationModalContent>
         }
-        confirmButtonText={
-          <TranslatedText stringId="general.action.delete-role" fallback="Delete role" />
-        }
-        data-testid="confirm-modal-delete-role"
       />
       <search>
         <StyledForm
