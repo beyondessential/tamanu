@@ -108,10 +108,16 @@ export const RolesAdminView = () => {
       // Imperatively refetch because DataFetchingTable isn’t build on useQuery
       setRefreshCount(c => c + 1);
       setRoleToDelete(null);
-      toast.success('Role deleted');
+      toast.success(
+        <TranslatedText stringId="admin.roles.delete.success" fallback="Role deleted" />,
+      );
     },
     onError: error => {
-      toast.error(error.message ?? 'Couldn’t delete role');
+      toast.error(
+        error.message ?? (
+          <TranslatedText stringId="admin.roles.delete.error" fallback="Couldn’t delete role" />
+        ),
+      );
     },
   });
 
