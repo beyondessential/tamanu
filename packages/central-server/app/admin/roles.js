@@ -82,17 +82,13 @@ rolesRouter.delete(
         throw new NotFoundError(`No role found with ID ${id}`);
       }
 
-      const usersWithRole = await User.findAll({
-        attributes: ['display_name'],
+      const count = await User.count({
         where: { role: role.name },
       });
-      const count = usersWithRole.length;
       if (count > 0) {
-        const listFormatter = new Intl.ListFormat('en-AU');
-        const displayNames = usersWithRole.map(u => u.display_name);
         const unit = count === 1 ? 'user' : 'users';
         throw new InvalidOperationError(
-          `Cannot delete ’${role.name}’ role. ${count} ${unit} are assigned to it: ${listFormatter.format(displayNames)}.`,
+          `Cannot delete ’${role.name}’ role. ${count} ${unit} are assigned to it.`,
         );
       }
 
