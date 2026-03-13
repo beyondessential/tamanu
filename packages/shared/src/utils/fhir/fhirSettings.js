@@ -46,54 +46,29 @@ export async function initFhirSettingsFromDb(globalSettings, facilitySettings = 
   if (settings !== null) return;
 
   try {
-    const globalPromises = [
-      globalSettings.get('fhir.parameters._count.default'),
-      globalSettings.get('fhir.parameters._count.max'),
-      globalSettings.get('fhir.worker.concurrency'),
-      globalSettings.get('fhir.extensions'),
-    ];
+    const fhir = await globalSettings.get('fhir');
 
-    if (facilitySettings.length > 0) {
-      const [
-        globalCountDefault, globalCountMax, concurrency, extensions,
-        globalMatEnabled, ...perFacility
-      ] = await Promise.all([
-          ...globalPromises,
-          globalSettings.get('fhir.worker.resourceMaterialisationEnabled'),
-          ...facilitySettings.map(fs => fs.get('fhir.worker.resourceMaterialisationEnabled')),
-        ]);
+    const globalMatEnabled =
+      fhir?.worker?.resourceMaterialisationEnabled ?? DEFAULTS.resourceMaterialisationEnabled;
 
-      const baseMatEnabled = globalMatEnabled ?? DEFAULTS.resourceMaterialisationEnabled;
-      const mergedMatEnabled = { ...baseMatEnabled };
-      for (const fs of perFacility) {
-        if (!fs) continue;
-        for (const [key, val] of Object.entries(fs)) {
-          if (val) mergedMatEnabled[key] = true;
-        }
+    const perFacilityResults = await Promise.all(
+      facilitySettings.map(fs => fs.get('fhir.worker.resourceMaterialisationEnabled')),
+    );
+    let mergedMatEnabled = { ...globalMatEnabled };
+    for (const perFacility of perFacilityResults) {
+      if (!perFacility) continue;
+      for (const [key, val] of Object.entries(perFacility)) {
+        if (val) mergedMatEnabled[key] = true;
       }
-
-      settings = { // eslint-disable-line require-atomic-updates
-        resourceMaterialisationEnabled: mergedMatEnabled,
-        countDefault: globalCountDefault ?? DEFAULTS.countDefault,
-        countMax: globalCountMax ?? DEFAULTS.countMax,
-        concurrency: concurrency ?? DEFAULTS.concurrency,
-        extensions: extensions ?? DEFAULTS.extensions,
-      };
-    } else {
-      const [globalCountDefault, globalCountMax, concurrency, extensions, globalMatEnabled] =
-        await Promise.all([
-          ...globalPromises,
-          globalSettings.get('fhir.worker.resourceMaterialisationEnabled'),
-        ]);
-
-      settings = { // eslint-disable-line require-atomic-updates
-        resourceMaterialisationEnabled: globalMatEnabled ?? DEFAULTS.resourceMaterialisationEnabled,
-        countDefault: globalCountDefault ?? DEFAULTS.countDefault,
-        countMax: globalCountMax ?? DEFAULTS.countMax,
-        concurrency: concurrency ?? DEFAULTS.concurrency,
-        extensions: extensions ?? DEFAULTS.extensions,
-      };
     }
+
+    settings = { // eslint-disable-line require-atomic-updates
+      resourceMaterialisationEnabled: mergedMatEnabled,
+      countDefault: fhir?.parameters?._count?.default ?? DEFAULTS.countDefault,
+      countMax: fhir?.parameters?._count?.max ?? DEFAULTS.countMax,
+      concurrency: fhir?.worker?.concurrency ?? DEFAULTS.concurrency,
+      extensions: fhir?.extensions ?? DEFAULTS.extensions,
+    };
   } catch (error) {
     log.warn('Failed to load FHIR settings from DB, using defaults', error.message);
     settings = null; // eslint-disable-line require-atomic-updates
