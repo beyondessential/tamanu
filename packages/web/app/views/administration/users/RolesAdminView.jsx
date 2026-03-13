@@ -79,8 +79,8 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
   }
 
   /* Fit to meatball menu button width; let browser distribute remaining columns */
-  th:last-child,
-  td:last-child {
+  th:last-of-type,
+  td:last-of-type {
     inline-size: 0;
   }
 `;
