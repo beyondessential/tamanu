@@ -124,63 +124,6 @@ apiv1.delete(
   }),
 );
 
-const createRoleSchema = z.object({
-  name: z.string().trim().min(1),
-});
-
-apiv1.post(
-  '/admin/role',
-  asyncHandler(async (req, res) => {
-    req.checkPermission('create', 'Role');
-    const { Role } = req.models;
-
-    const { name } = await createRoleSchema.parseAsync(req.body);
-
-    const existingRoleWithSameName = await Role.findOne({
-      where: { name },
-    });
-    if (existingRoleWithSameName) {
-      throw new DatabaseDuplicateError('Role name must be unique');
-    }
-
-    const role = await Role.create({ name });
-    res.status(201).send(role);
-  }),
-);
-
-apiv1.delete(
-  '/admin/role/:id',
-  asyncHandler(async (req, res) => {
-    req.checkPermission('delete', 'Role');
-    const {
-      models: { Role, User },
-      params: { id },
-    } = req;
-
-    const role = await Role.findByPk(id);
-    if (!role) {
-      throw new NotFoundError(`No role found with ID ${id}`);
-    }
-
-    const usersWithRole = await User.findAll({
-      attributes: ['display_name'],
-      where: { role: role.name },
-    });
-    const count = usersWithRole.length;
-    if (count > 0) {
-      const listFormatter = new Intl.ListFormat('en-AU');
-      const displayNames = usersWithRole.map(u => u.display_name);
-      const unit = count === 1 ? 'user' : 'users';
-      throw new InvalidOperationError(
-        `Cannot delete ’${role.name}’ role. ${count} ${unit} are assigned to it: ${listFormatter.format(displayNames)}.`,
-      );
-    }
-
-    await role.destroy();
-    res.status(204).send();
-  }),
-);
-
 apiv1.post('/refresh', refreshHandler);
 apiv1.post('/setFacility', setFacilityHandler);
 apiv1.use(patientDataRoutes); // see below for specifics
