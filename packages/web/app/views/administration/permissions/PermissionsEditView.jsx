@@ -19,7 +19,6 @@ import { useFilteredNouns } from './useFilteredNouns';
 import { NOUN_TYPES } from './constants';
 
 const OuterContainer = styled.div`
-  overflow-x: auto;
   display: grid;
   background-color: ${Colors.background};
   min-height: 0;
