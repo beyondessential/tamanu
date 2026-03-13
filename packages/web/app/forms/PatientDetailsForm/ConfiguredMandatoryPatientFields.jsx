@@ -5,7 +5,6 @@ import { useFilterPatientFields } from './useFilterPatientFields';
 import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
 export const ConfiguredMandatoryPatientFields = props => {
   const { fieldsToShow } = useFilterPatientFields(props);
-  const { focusField } = props;
 
   return fieldsToShow.length ? (
     <>
@@ -15,7 +14,6 @@ export const ConfiguredMandatoryPatientFields = props => {
             key={field.name}
             enablePasting
             {...field}
-            autoFocus={focusField === field.name}
             data-testid={`localisedfield-0jtf-${field.name}`}
           />
         </NoteModalActionBlocker>

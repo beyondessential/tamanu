@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { useDispatch } from 'react-redux';
 import { Typography } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
@@ -9,8 +9,6 @@ import { PatientDetailsForm } from '../../../forms/PatientDetailsForm/PatientDet
 import { reloadPatient } from '../../../store/patient';
 import { invalidatePatientDataQueries, notifyError } from '../../../utils';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { usePatientNavigation } from '../../../utils/usePatientNavigation';
-import { PATIENT_TABS } from '../../../constants/patientPaths';
 
 // Momentary component to just display a message, will need design and
 // refactor later.
@@ -34,24 +32,13 @@ const ForbiddenMessage = () => (
 );
 
 export const PatientDetailsPane = React.memo(
-  ({ patient, additionalData, birthData, patientFields, insurancePlans, focusField }) => {
+  ({ patient, additionalData, birthData, patientFields, insurancePlans }) => {
     const api = useApi();
     const queryClient = useQueryClient();
     const dispatch = useDispatch();
     const { ability, facilityId } = useAuth();
-    const { navigateToPatient } = usePatientNavigation();
-    const hasClearedFocusParam = useRef(false);
 
-    useEffect(() => {
-      if (!focusField || hasClearedFocusParam.current) return;
-      const timer = setTimeout(() => {
-        hasClearedFocusParam.current = true;
-        navigateToPatient(patient.id, { tab: PATIENT_TABS.DETAILS }, { replace: true });
-      }, 500);
-      return () => clearTimeout(timer);
-    }, [focusField, patient.id, navigateToPatient]);
-
-    const handleSubmit = async (data) => {
+    const handleSubmit = async data => {
       try {
         await api.put(`patient/${patient.id}`, { ...data, facilityId });
       } catch (e) {
@@ -66,7 +53,7 @@ export const PatientDetailsPane = React.memo(
 
     // Display form if user can read, write or create patient additional data.
     // It's assumed that if a user got this far, they can read a patient.
-    const canViewForm = ['read', 'write', 'create'].some((verb) => ability.can(verb, 'Patient'));
+    const canViewForm = ['read', 'write', 'create'].some(verb => ability.can(verb, 'Patient'));
 
     if (canViewForm === false) {
       return <ForbiddenMessage data-testid="forbiddenmessage-sklx" />;
@@ -80,7 +67,6 @@ export const PatientDetailsPane = React.memo(
           birthData={birthData}
           patientFields={patientFields}
           insurancePlans={insurancePlans}
-          focusField={focusField}
           onSubmit={handleSubmit}
           data-testid="patientdetailsform-qx47"
         />

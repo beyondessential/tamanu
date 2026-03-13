@@ -54,7 +54,7 @@ export const InvoiceInsuranceModal = ({ open, onClose, invoice }) => {
 
   const handleGoToPatientDetails = () => {
     onClose();
-    navigateToPatient(patientId, { tab: PATIENT_TABS.DETAILS, focus: 'invoiceInsurancePlanId' });
+    navigateToPatient(patientId, { tab: PATIENT_TABS.DETAILS });
   };
 
   if (isLoadingInsurancePlans) {

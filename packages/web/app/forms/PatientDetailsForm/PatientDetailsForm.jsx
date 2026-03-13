@@ -73,7 +73,6 @@ export const PatientDetailsForm = ({
   additionalData,
   birthData,
   insurancePlans,
-  focusField,
   onSubmit,
 }) => {
   const { getTranslation } = useTranslation();
@@ -142,7 +141,6 @@ export const PatientDetailsForm = ({
               registeredBirthPlace={values.registeredBirthPlace}
               patientRegistryType={patientRegistryType}
               isEdit
-              focusField={focusField}
               data-testid="secondarydetails-2fpb"
             />
           </StyledPatientDetailSecondaryDetailsGroupWrapper>

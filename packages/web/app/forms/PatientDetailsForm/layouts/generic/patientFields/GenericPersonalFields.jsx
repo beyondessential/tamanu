@@ -23,7 +23,6 @@ export const GenericPersonalFields = ({
   patientRegistryType,
   filterByMandatory,
   isEdit,
-  focusField,
 }) => {
   const countrySuggester = useSuggester('country');
   const ethnicitySuggester = useSuggester('ethnicity');
@@ -209,7 +208,6 @@ export const GenericPersonalFields = ({
     <ConfiguredMandatoryPatientFields
       fields={PERSONAL_FIELDS}
       filterByMandatory={filterByMandatory}
-      focusField={focusField}
       data-testid="configuredmandatorypatientfields-vhzu"
     />
   );
