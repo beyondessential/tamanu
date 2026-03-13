@@ -1,6 +1,6 @@
 import { useMemo, useCallback } from 'react';
 
-import { VERB_ABBREVIATIONS, VERB_HIERARCHY } from '@tamanu/constants';
+import { VERB_ABBREVIATIONS, VERB_DISPLAY_ORDER, VERB_HIERARCHY } from '@tamanu/constants';
 
 export function getImpliedVerbs(verb) {
   const idx = VERB_HIERARCHY.indexOf(verb);
@@ -59,21 +59,12 @@ export const usePermissionToggles = (nounGroup, onToggle) => {
   // Row 1: L R W C
   // Row 2: L   W C
   // Row 3:       C
-  // Use a consistent verb order across all nouns so columns align, eg:
-  // Row 1: L R W C
-  // Row 2: L   W C
-  // Row 3:       C
-  const displayOrder = useMemo(
-    () => [...VERB_HIERARCHY].reverse(),
-    [],
-  );
-
   const getSummary = useCallback(
     roleId =>
-      displayOrder
+      VERB_DISPLAY_ORDER
         .map(verb => (isChecked(verb, roleId) ? getVerbAbbreviation(verb) : '\u00A0'))
         .join(' '),
-    [displayOrder, isChecked],
+    [isChecked],
   );
 
   return { isChecked, handleToggle, getSummary };
