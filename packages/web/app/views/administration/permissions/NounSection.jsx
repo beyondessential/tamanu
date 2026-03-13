@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import Checkbox from '@material-ui/core/Checkbox';
 import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
-import KeyboardArrowUp from '@material-ui/icons/KeyboardArrowUp';
+import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 
 import { PERMISSION_SCHEMA } from '@tamanu/constants';
 
@@ -14,17 +14,20 @@ import { getVerbAbbreviation, usePermissionToggles } from './usePermissionToggle
 
 export const CHEVRON_WIDTH = 32;
 
-export const stickyLeft = (left, bg = Colors.white) => `
+export const stickyLeft = (left, bg = Colors.white) => css`
   position: sticky;
   left: ${left}px;
   background-color: ${bg};
   z-index: 1;
+  tr:hover > & {
+    background-color: ${Colors.veryLightBlue};
+  }
 `;
 
 export const NounRow = styled.tr`
   cursor: pointer;
   &:hover {
-    background-color: ${Colors.hoverGrey};
+    background-color: ${Colors.veryLightBlue};
   }
 `;
 
@@ -47,7 +50,7 @@ const NounCell = styled.td`
 `;
 
 export const SummaryCell = styled.td`
-  text-align: center;
+  text-align: left;
   padding: 10px 12px;
   border-bottom: 1px solid ${Colors.outline};
   color: ${Colors.darkestText};
@@ -67,8 +70,8 @@ export const VerbLabelCell = styled.td`
 `;
 
 export const VerbCheckCell = styled.td`
-  text-align: center;
-  padding: 2px 12px;
+  text-align: left;
+  padding: 10px 8px;
   border-bottom: 1px solid ${Colors.outline};
 `;
 
@@ -96,9 +99,9 @@ export const NounSection = ({ nounGroup, selectedRoles, onToggle, objectNames })
 
   return (
     <>
-      <NounRow onClick={() => setExpanded(prev => !prev)}>
+      <NounRow aria-expanded={expanded} onClick={() => setExpanded(prev => !prev)}>
         <ChevronCell>
-          {expanded ? <KeyboardArrowUp fontSize="small" /> : <KeyboardArrowDown fontSize="small" />}
+          {expanded ? <KeyboardArrowDown fontSize="small" /> : <KeyboardArrowRight fontSize="small" />}
         </ChevronCell>
         <NounCell>
           <ThemedTooltip

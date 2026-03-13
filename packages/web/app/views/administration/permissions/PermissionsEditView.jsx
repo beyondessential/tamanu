@@ -20,17 +20,23 @@ import { NOUN_TYPES } from './constants';
 const EditContainer = styled.div`
   margin: 20px;
   overflow-x: auto;
+  display: grid;
 `;
 
 const FiltersRow = styled.div`
   display: flex;
-  gap: 8px;
   align-items: flex-end;
   margin-bottom: 20px;
+  width: 100%;
+  padding-left: 40px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border: 1px solid ${Colors.outline};
+  background-color: ${Colors.white};
 `;
 
 const FilterFieldContainer = styled.div`
-  min-width: 280px;
+  min-width: 260px;
 
   .MuiButton-root {
     height: 40px;

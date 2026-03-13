@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
-import KeyboardArrowUp from '@material-ui/icons/KeyboardArrowUp';
+import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { Colors } from '../../../constants';
@@ -25,9 +25,8 @@ const CHILD_INDENT = 35;
 
 const GroupHeaderRow = styled.tr`
   cursor: pointer;
-  background-color: ${Colors.background};
   &:hover {
-    background-color: ${Colors.hoverGrey};
+    background-color: ${Colors.veryLightBlue};
   }
 `;
 
@@ -87,12 +86,12 @@ const ObjectIdChildSection = ({ nounGroup, selectedRoles, onToggle, objectNames 
 
   return (
     <>
-      <NounRow onClick={() => setExpanded(prev => !prev)}>
+      <NounRow aria-expanded={expanded} onClick={() => setExpanded(prev => !prev)}>
         <EmptyChevronCell />
         <ChildNounCell>
           <ChildNounContent>
             <ChildChevron>
-              {expanded ? <KeyboardArrowUp fontSize="small" /> : <KeyboardArrowDown fontSize="small" />}
+              {expanded ? <KeyboardArrowDown fontSize="small" /> : <KeyboardArrowRight fontSize="small" />}
             </ChildChevron>
             <ThemedTooltip title={`${displayName} (${nounGroup.objectId})`}>
               <TruncatedName>{displayName}</TruncatedName>
@@ -135,7 +134,7 @@ export const ObjectIdGroupSection = ({ noun, entries, selectedRoles, onToggle, o
     <>
       <GroupHeaderRow onClick={() => setExpanded(prev => !prev)}>
         <ChevronCell>
-          {expanded ? <KeyboardArrowUp fontSize="small" /> : <KeyboardArrowDown fontSize="small" />}
+          {expanded ? <KeyboardArrowDown fontSize="small" /> : <KeyboardArrowRight fontSize="small" />}
         </ChevronCell>
         <GroupHeaderCell>{noun} (Object ID)</GroupHeaderCell>
         {selectedRoles.map(role => (

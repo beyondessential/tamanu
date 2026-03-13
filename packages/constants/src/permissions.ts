@@ -224,4 +224,5 @@ export const VERB_ABBREVIATIONS: Record<PermissionVerb, string> = {
 export const HIDDEN_PERMISSION_NOUNS = new Set(['all']);
 
 // Verbs ordered high → low; selecting a verb auto-selects all verbs after it
+// If a verb is not in the hierarchy (eg: Run), it will not be auto-selected when another verb is selected
 export const VERB_HIERARCHY = ['delete', 'create', 'write', 'read', 'list'];

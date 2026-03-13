@@ -9,6 +9,7 @@ import {
   PERMISSION_SCHEMA,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
+import { REPORT_DEFINITIONS } from '@tamanu/shared/reports';
 
 async function getObjectIdsAndNamesByNoun(models) {
   const promises = NOUNS_WITH_OBJECT_ID.map(async noun => {
@@ -110,6 +111,10 @@ permissionsRouter.get(
 
     // Pre-populate rows for all objectIds of nouns that support them
     const objectIdEntries = await getObjectIdsAndNamesByNoun(req.store.models);
+
+    // Add static reports (not backed by a model)
+    objectIdEntries.StaticReport = REPORT_DEFINITIONS.map(r => ({ id: r.id, name: r.name }));
+
     const objectNameLookup = {};
     for (const [noun, entries] of Object.entries(objectIdEntries)) {
       const verbs = PERMISSION_SCHEMA[noun] || [];
