@@ -10,9 +10,12 @@ const REQUIRED_MESSAGE = (
   />
 );
 
-// Returns true if the user has entered data into any field beyond the autofilled ones (date & qty)
+// Invoice item rows are autofilled with date & quantity only. If the user starts filling in any
+// other field (productId, orderedByUserId, or manualEntryPrice), treat the row as intentionally
+// edited and require productId and orderedByUserId to be completed before submission.
+// Uses != null so that legitimate falsy values like manualEntryPrice=0 are treated as user input.
 const hasUserEnteredData = ({ productId, orderedByUserId, manualEntryPrice }) =>
-  Boolean(productId) || Boolean(orderedByUserId) || Boolean(manualEntryPrice);
+  productId != null || orderedByUserId != null || manualEntryPrice != null;
 
 export const invoiceFormSchema = yup.object({
   invoiceItems: yup.array(
