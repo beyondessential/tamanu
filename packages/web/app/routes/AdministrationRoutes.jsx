@@ -20,6 +20,8 @@ import {
   SettingsView,
   UserAdminView,
 } from '../views';
+import { RolesAdminView } from '../views/administration/users/RolesAdminView';
+import { Article } from '../views/administration/users/RolesAndDesignationsAdminView';
 
 export const AdministrationRoutes = React.memo(() => (
   <Routes>
@@ -38,9 +40,16 @@ export const AdministrationRoutes = React.memo(() => (
     <Route path="sync" element={<SyncView />} />
     <Route path="templates" element={<TemplateView />} />
     <Route path="translation" element={<TranslationAdminView />} />
-    <Route path="users" element={<UserAdminView />} />
-    <Route path="roles" element={<RolesAndDesignationsAdminView />} />
-    <Route path="designations" element={<RolesAndDesignationsAdminView />} />
+    <Route path="users">
+      <Route index element={<Navigate to="profiles" replace />} />
+      <Route path="profiles" element={<UserAdminView />} />
+      <Route path="roles" element={<RolesAndDesignationsAdminView />}>
+        <Route index element={<RolesAdminView />} />
+      </Route>
+      <Route path="designations" element={<RolesAndDesignationsAdminView />}>
+        <Route index element={<Article />} />
+      </Route>
+    </Route>
     <Route path="insurerPayments" element={<InsurerPaymentsAdminView />} />
     <Route path="*" element={<Navigate to="referenceData" replace />} />
   </Routes>

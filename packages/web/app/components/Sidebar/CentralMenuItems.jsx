@@ -97,7 +97,7 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
             data-testid="translatedtext-user-profiles"
           />
         ),
-        path: '/admin/users',
+        path: '/admin/users/profiles',
         key: 'userProfiles',
       },
       {
@@ -108,7 +108,7 @@ export const CENTRAL_MENU_ITEMS = /** @type {const} */ ([
             data-testid="translatedtext-roles-designations"
           />
         ),
-        path: '/admin/roles',
+        path: '/admin/users/roles',
         key: 'rolesAndDesignations',
       },
     ],

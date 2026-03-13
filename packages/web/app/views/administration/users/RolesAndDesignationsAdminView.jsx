@@ -1,12 +1,11 @@
 import React from 'react';
-import { useLocation, useNavigate } from 'react-router';
+import { Outlet, useMatch, useNavigate } from 'react-router';
 import styled from 'styled-components';
 
 import { TranslatedText } from '../../../components';
 import { TabDisplay } from '../../../components/TabDisplay';
-import { AdminViewContainer, ContentContainer } from '../components/AdminViewContainer';
-import { RolesAdminView } from './RolesAdminView';
 import { Colors } from '../../../constants';
+import { AdminViewContainer, ContentContainer } from '../components/AdminViewContainer';
 
 const StyledTabDisplay = styled(TabDisplay)`
   .MuiTab-root:first-of-type {
@@ -29,28 +28,27 @@ const TAB = /** @type {const} */ ({
 });
 
 export const RolesAndDesignationsAdminView = () => {
-  const location = useLocation();
   const navigate = useNavigate();
-
-  /** @type {(typeof TAB)[keyof typeof TAB]} */
-  const currentTab = location.pathname.split('/').at(-1);
+  const isDesignationsRoute = Boolean(useMatch('/admin/users/designations'));
+  const currentTab = isDesignationsRoute ? TAB.DESIGNATIONS : TAB.ROLES;
 
   const onTabSelect = tabKey => {
-    navigate(tabKey === TAB.DESIGNATIONS ? '/admin/designations' : '/admin/roles');
+    navigate(tabKey === TAB.DESIGNATIONS ? '/admin/users/designations' : '/admin/users/roles');
   };
 
+  /** @see ./routes/AdministrationRoutes.jsx re <Outlet /> */
   const tabs = /** @type {const} */ ([
     {
       key: TAB.ROLES,
       label: <TranslatedText stringId="admin.roles.tab" fallback="Roles" />,
-      render: () => <RolesAdminView />,
+      render: Outlet,
     },
     /* NASS-1909 */
-    // {
-    //   key: TAB.DESIGNATIONS,
-    //   label: <TranslatedText stringId="admin.designations.tab" fallback="Designations" />,
-    //   render: () => <Article />,
-    // },
+    {
+      key: TAB.DESIGNATIONS,
+      label: <TranslatedText stringId="admin.designations.tab" fallback="Designations" />,
+      render: Outlet,
+    },
   ]);
 
   return (
