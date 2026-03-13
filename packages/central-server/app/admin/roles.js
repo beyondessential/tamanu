@@ -83,12 +83,12 @@ rolesRouter.delete(
       }
 
       const count = await User.count({
-        where: { role: role.name },
+        where: { role: role.id },
       });
       if (count > 0) {
         const objectVerb = count === 1 ? 'user is' : 'users are';
         throw new InvalidOperationError(
-          `Cannot delete ’${role.name}’ role. ${count} ${objectVerb} assigned to it.`,
+          `Cannot delete role with ID ’${id}’. ${count} ${objectVerb} assigned to it.`,
         );
       }
 
