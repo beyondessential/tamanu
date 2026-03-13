@@ -70,8 +70,8 @@ export async function initFhirSettingsFromDb(globalSettings, facilitySettings = 
       extensions: fhir?.extensions ?? DEFAULTS.extensions,
     };
   } catch (error) {
-    log.warn('Failed to load FHIR settings from DB, using defaults', error.message);
-    settings = null; // eslint-disable-line require-atomic-updates
+    log.error('Failed to load FHIR settings from DB:', error.message);
+    throw error;
   }
 }
 

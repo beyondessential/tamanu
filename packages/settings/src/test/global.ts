@@ -21,6 +21,12 @@ export const globalTestSettings = {
         DiagnosticReport: true,
       },
     },
+    parameters: {
+      _count: {
+        default: 100,
+        max: 1000,
+      },
+    },
     extensions: {
       Patient: {
         newZealandEthnicity: false,

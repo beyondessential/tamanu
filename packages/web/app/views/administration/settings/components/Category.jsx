@@ -170,8 +170,6 @@ export const Category = ({
         const needsRestart = schema.requiresRestart || requiresRestart;
         const disabled = !canWriteHighRisk && isHighRisk;
 
-        const infoBanner = schema.infoBanner || propertySchema.infoBanner;
-
         return type ? (
           <SettingLine key={newPath} data-testid={`settingline-55rw-${testIdSuffix}`}>
             <SettingName
@@ -202,9 +200,9 @@ export const Category = ({
             path={newPath}
             schema={{
               ...propertySchema,
+              // Pass down inherited properties to the child category
               highRisk: isHighRisk,
               requiresRestart: needsRestart,
-              infoBanner,
             }}
             getSettingValue={getSettingValue}
             getGlobalSettingValue={getGlobalSettingValue}
