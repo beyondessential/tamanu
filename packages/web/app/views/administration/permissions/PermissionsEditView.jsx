@@ -76,7 +76,7 @@ const ChevronTh = styled.th`
 
 const NounTh = styled.th`
   text-align: left;
-  padding: 10px 12px 10px 40px;
+  padding: 10px 12px 10px 10px;
   border-bottom: 1px solid ${Colors.outline};
   font-weight: 400;
   color: ${Colors.midText};
