@@ -129,7 +129,7 @@ export const RolesAdminView = () => {
 
   const { mutate: deleteRole } = useRoleDeleteMutation({
     onSuccess: () => {
-      // Imperatively refetch because DataFetchingTable isn’t build on useQuery
+      // Imperatively refetch because DataFetchingTable isn’t built on useQuery
       setRefreshCount(c => c + 1);
       setRoleToDelete(null);
       toast.success(
