@@ -11,6 +11,8 @@ export const rolesRouter = express.Router();
 rolesRouter.get(
   '/',
   asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'Role');
+
     const filters = [];
     const idQuery = req.query.id?.trim();
     if (idQuery) {
