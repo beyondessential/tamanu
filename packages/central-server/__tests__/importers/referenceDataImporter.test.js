@@ -1,4 +1,5 @@
 import { Op } from 'sequelize';
+import { write, utils } from 'xlsx';
 
 import { fake } from '@tamanu/fake-data/fake';
 import {
@@ -155,6 +156,30 @@ describe('Data definition import', () => {
     expect(errors[0]).toHaveProperty(
       'message',
       `ENOENT: no such file or directory, open './__tests__/importers/refdata-nofile.xlsx'`,
+    );
+  });
+
+  it('should reject sheets containing metadata columns (except deletedAt)', async () => {
+    const headers = ['id', 'code', 'name', 'createdAt'];
+    const rows = [{ id: 'allergy-1', code: 'a1', name: 'Allergy 1', createdAt: null }];
+    const ws = utils.aoa_to_sheet([headers, rows.map(r => headers.map(h => r[h]))]);
+    const wb = { SheetNames: ['Allergy'], Sheets: { Allergy: ws } };
+    const buffer = write(wb, { type: 'buffer', bookType: 'xlsx' });
+
+    const { didntSendReason, errors } = await importerTransaction({
+      importer: referenceDataImporter,
+      data: buffer,
+      models: ctx.store.models,
+      includedDataTypes: ['allergy'],
+      checkPermission: () => true,
+      dryRun: true,
+    });
+
+    expect(didntSendReason).toEqual('validationFailed');
+    expect(errors).toContainValidationError(
+      'allergy',
+      2,
+      'Sheet must not contain metadata columns: createdAt',
     );
   });
 

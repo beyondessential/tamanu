@@ -5,6 +5,14 @@ import { DataLoaderError, ValidationError, WorkSheetError } from '../errors';
 import { statkey, updateStat } from '../stats';
 import { importRows } from '../importer/importRows';
 
+// Metadata columns that must not appear in reference data import sheets (deletedAt is allowed for soft-delete)
+const METADATA_COLUMNS_FORBIDDEN_ON_IMPORT = [
+  'createdAt',
+  'updatedAt',
+  'updatedAtSyncTick',
+  'updatedAtByField',
+];
+
 const FOREIGN_KEY_SCHEMATA = {
   CertifiableVaccine: [
     {
@@ -105,9 +113,10 @@ export async function importSheet(
   try {
     sheetHeader = extractHeader(sheet);
     // For drug sheets, include empty cells so facility columns with empty values are preserved
-    sheetRows = sheetName === REFERENCE_TYPES.DRUG
-      ? utils.sheet_to_json(sheet, { defval: '' })
-      : utils.sheet_to_json(sheet);
+    sheetRows =
+      sheetName === REFERENCE_TYPES.DRUG
+        ? utils.sheet_to_json(sheet, { defval: '' })
+        : utils.sheet_to_json(sheet);
   } catch (err) {
     errors.push(new WorkSheetError(sheetName, 0, err));
     return stats;
@@ -115,6 +124,20 @@ export async function importSheet(
 
   if (sheetRows.length === 0) {
     log.debug('Nothing in this sheet, skipping');
+    return stats;
+  }
+
+  const forbiddenColumns = sheetHeader
+    .map(h => String(h).trim())
+    .filter(h => METADATA_COLUMNS_FORBIDDEN_ON_IMPORT.includes(h));
+  if (forbiddenColumns.length > 0) {
+    errors.push(
+      new ValidationError(
+        sheetName,
+        0,
+        `Sheet must not contain metadata columns: ${forbiddenColumns.join(', ')}`,
+      ),
+    );
     return stats;
   }
 
