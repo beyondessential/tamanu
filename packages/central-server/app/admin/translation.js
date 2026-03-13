@@ -55,7 +55,7 @@ translationRouter.put(
       const pairs = entries.map(({ stringId, language }) => ({ stringId, language }));
       const existing = await TranslatedString.findAll({
         where: { [Op.or]: pairs },
-        paranoid: false,
+        paranoid: false, // Find soft deleted translations so that we can restore them instead of creating a new one
       });
       const existingMap = new Map(existing.map(r => [`${r.stringId};${r.language}`, r]));
 
