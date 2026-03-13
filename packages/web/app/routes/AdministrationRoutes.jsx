@@ -20,8 +20,8 @@ import {
   TranslationAdminView,
   SettingsView,
   UserAdminView,
+  DesignationsAdminView,
 } from '../views';
-import { Article } from '../views/administration/users/RolesAndDesignationsAdminView';
 
 export const AdministrationRoutes = React.memo(() => (
   <Routes>
@@ -52,7 +52,7 @@ export const AdministrationRoutes = React.memo(() => (
         <Route index element={<RolesAdminView />} />
       </Route>
       <Route path="designations" element={<RolesAndDesignationsAdminView />}>
-        <Route index element={<Article />} />
+        <Route index element={<DesignationsAdminView />} />
       </Route>
     </Route>
     <Route path="insurerPayments" element={<InsurerPaymentsAdminView />} />
