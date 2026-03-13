@@ -71,13 +71,25 @@ export const usePermissionToggles = (nounGroup, onToggle) => {
     [nounGroup.noun, nounGroup.objectId, isChecked, availableVerbs, onToggle],
   );
 
+  // Use a consistent verb order across all nouns so columns align, eg:
+  // Row 1: L R W C
+  // Row 2: L   W C
+  // Row 3:       C
+  // Use a consistent verb order across all nouns so columns align, eg:
+  // Row 1: L R W C
+  // Row 2: L   W C
+  // Row 3:       C
+  const displayOrder = useMemo(
+    () => [...VERB_HIERARCHY].reverse(),
+    [],
+  );
+
   const getSummary = useCallback(
     roleId =>
-      nounGroup.verbs
-        .filter(v => isChecked(v.verb, roleId))
-        .map(v => getVerbAbbreviation(v.verb))
+      displayOrder
+        .map(verb => (isChecked(verb, roleId) ? getVerbAbbreviation(verb) : '\u00A0'))
         .join(' '),
-    [nounGroup.verbs, isChecked],
+    [displayOrder, isChecked],
   );
 
   return { isChecked, handleToggle, getSummary };

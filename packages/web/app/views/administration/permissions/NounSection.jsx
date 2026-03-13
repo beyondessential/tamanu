@@ -55,8 +55,10 @@ export const SummaryCell = styled.td`
   border-bottom: 1px solid ${Colors.outline};
   color: ${Colors.darkestText};
   background-color: ${Colors.white};
-  letter-spacing: 2px;
   font-size: 12px;
+  font-family: monospace;
+  letter-spacing: 1px;
+  white-space: pre;
   tr:hover > & {
     background-color: ${Colors.veryLightBlue};
   }
@@ -69,14 +71,12 @@ export const VerbRow = styled.tr`
 export const VerbLabelCell = styled.td`
   padding: 4px 12px 4px 20px;
   color: ${Colors.darkestText};
-  border-bottom: 1px solid ${Colors.outline};
   ${stickyLeft(CHEVRON_WIDTH, Colors.white)}
 `;
 
 export const VerbCheckCell = styled.td`
   text-align: left;
   padding: 10px 8px;
-  border-bottom: 1px solid ${Colors.outline};
 `;
 
 export const StyledCheckbox = styled(Checkbox)`
@@ -88,7 +88,6 @@ export const StyledCheckbox = styled(Checkbox)`
 
 export const EmptyChevronCell = styled.td`
   width: ${CHEVRON_WIDTH}px;
-  border-bottom: 1px solid ${Colors.outline};
   text-align: left;
   ${stickyLeft(0, Colors.white)}
 `;
@@ -105,7 +104,11 @@ export const NounSection = ({ nounGroup, selectedRoles, onToggle, objectNames })
     <>
       <NounRow aria-expanded={expanded} onClick={() => setExpanded(prev => !prev)}>
         <ChevronCell>
-          {expanded ? <KeyboardArrowDown fontSize="small" /> : <KeyboardArrowRight fontSize="small" />}
+          {expanded ? (
+            <KeyboardArrowDown fontSize="small" />
+          ) : (
+            <KeyboardArrowRight fontSize="small" />
+          )}
         </ChevronCell>
         <NounCell>
           <ThemedTooltip

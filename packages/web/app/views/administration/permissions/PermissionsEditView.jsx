@@ -7,6 +7,7 @@ import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { FilterField } from '../../../components/Field/FilterField';
 import { AutocompleteField } from '../../../components/Field/AutocompleteField';
 import { Colors } from '../../../constants';
+import { ThemedTooltip } from '../../../components/Tooltip';
 import { useTogglePermissionMutation } from '../../../api/mutations';
 import { useAdminPermissionRolesQuery } from '../../../api/queries/useAdminPermissionRolesQuery';
 import { useAdminPermissionsQuery } from '../../../api/queries/useAdminPermissionsQuery';
@@ -21,11 +22,14 @@ const OuterContainer = styled.div`
   overflow-x: auto;
   display: grid;
   background-color: ${Colors.background};
+  min-height: 0;
+  padding: 20px;
+  gap: 0;
 `;
 
 const EditContainer = styled.div`
-  margin: 20px;
   overflow-x: auto;
+  overflow-y: auto;
   display: grid;
 `;
 
@@ -54,7 +58,7 @@ const FilterFieldContainer = styled.div`
 `;
 
 const MatrixTable = styled.table`
-  width: 100%;
+  min-width: 100%;
   border-collapse: collapse;
   font-size: 13px;
 `;
@@ -62,7 +66,7 @@ const MatrixTable = styled.table`
 const ChevronTh = styled.th`
   width: ${CHEVRON_WIDTH}px;
   padding: 0;
-  border-bottom: 2px solid ${Colors.outline};
+  border-bottom: 1px solid ${Colors.outline};
   text-align: left;
   position: sticky;
   top: 0;
@@ -74,7 +78,7 @@ const ChevronTh = styled.th`
 const NounTh = styled.th`
   text-align: left;
   padding: 10px 12px 10px 40px;
-  border-bottom: 2px solid ${Colors.outline};
+  border-bottom: 1px solid ${Colors.outline};
   font-weight: 400;
   color: ${Colors.midText};
   position: sticky;
@@ -82,20 +86,25 @@ const NounTh = styled.th`
   left: ${CHEVRON_WIDTH}px;
   background-color: ${Colors.white};
   z-index: 2;
+  width: 0;
+  white-space: nowrap;
 `;
 
 const RoleTh = styled.th`
-  text-align: center;
+  text-align: left;
   padding: 10px 12px;
-  border-bottom: 2px solid ${Colors.outline};
+  border-bottom: 1px solid ${Colors.outline};
   font-weight: 400;
   color: ${Colors.midText};
-  white-space: nowrap;
-  min-width: 100px;
+  max-width: 120px;
+  min-width: 120px;
   position: sticky;
   top: 0;
   background-color: ${Colors.white};
   z-index: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const EmptyMessage = styled.div`
@@ -117,7 +126,10 @@ export const PermissionsEditView = () => {
     [allRoles, selectedRoleIds],
   );
 
-  const rolesQueryParam = useMemo(() => selectedRoleIds.join(','), [selectedRoleIds]);
+  const rolesQueryParam = useMemo(
+    () => (selectedRoleIds.length > 0 ? selectedRoleIds.join(',') : undefined),
+    [selectedRoleIds],
+  );
 
   const {
     data: permissionsData = {},
@@ -125,14 +137,21 @@ export const PermissionsEditView = () => {
     isFetching,
     isSuccess,
     error,
-  } = useAdminPermissionsQuery(rolesQueryParam, { enabled: selectedRoleIds.length > 0 });
+  } = useAdminPermissionsQuery(rolesQueryParam);
 
   const permissions = useMemo(() => permissionsData.permissions ?? [], [permissionsData]);
   const objectNames = useMemo(() => permissionsData.objectNames ?? {}, [permissionsData]);
 
+  // If no roles are selected, display all roles
+  const rolesToDisplay = useMemo(
+    () => (selectedRoles.length > 0 ? selectedRoles : allRoles),
+    [selectedRoles, allRoles],
+  );
+  const rolesIdsToDisplay = useMemo(() => rolesToDisplay.map(r => r.id), [rolesToDisplay]);
+
   const allNouns = useMemo(
-    () => buildNouns(permissions, selectedRoleIds),
-    [permissions, selectedRoleIds],
+    () => buildNouns(permissions, rolesIdsToDisplay),
+    [permissions, rolesIdsToDisplay],
   );
 
   // Builds the noun options for the Noun Autocomplete Field to filter the nouns
@@ -157,26 +176,26 @@ export const PermissionsEditView = () => {
 
   return (
     <OuterContainer>
+      <FiltersRow data-testid="permissions-edit-filters-row">
+        <FilterFieldContainer>
+          <AutocompleteField
+            placeholder={getTranslation('admin.permissions.searchNounPlaceholder', 'Search noun')}
+            field={{ name: 'noun', value: selectedNoun, onChange: handleNounChange }}
+            options={nounOptions}
+            allowFreeTextForExistingValue
+            data-testid="permissions-noun-select"
+          />
+        </FilterFieldContainer>
+        <FilterFieldContainer>
+          <FilterField
+            label={getTranslation('admin.permissions.role.label', 'Role')}
+            field={{ name: 'roles', value: selectedRoleIds, onChange: handleRoleChange }}
+            endpoint="role"
+            data-testid="permissions-role-select"
+          />
+        </FilterFieldContainer>
+      </FiltersRow>
       <EditContainer data-testid="permissions-edit-container">
-        <FiltersRow data-testid="permissions-edit-filters-row">
-          <FilterFieldContainer>
-            <AutocompleteField
-              placeholder={getTranslation('admin.permissions.searchNounPlaceholder', 'Search noun')}
-              field={{ name: 'noun', value: selectedNoun, onChange: handleNounChange }}
-              options={nounOptions}
-              allowFreeTextForExistingValue
-              data-testid="permissions-noun-select"
-            />
-          </FilterFieldContainer>
-          <FilterFieldContainer>
-            <FilterField
-              label={getTranslation('admin.permissions.role.label', 'Role')}
-              field={{ name: 'roles', value: selectedRoleIds, onChange: handleRoleChange }}
-              endpoint="role"
-              data-testid="permissions-role-select"
-            />
-          </FilterFieldContainer>
-        </FiltersRow>
         {isActuallyLoading && <LoadingIndicator data-testid="permissions-loading-indicator" />}
         {error && (
           <ErrorMessage
@@ -191,7 +210,7 @@ export const PermissionsEditView = () => {
             data-testid="permissions-error-message"
           />
         )}
-        {isSuccess && selectedRoles.length > 0 && filteredNouns.length > 0 && (
+        {isSuccess && rolesToDisplay.length > 0 && filteredNouns.length > 0 && (
           <MatrixTable>
             <thead>
               <tr>
@@ -203,8 +222,12 @@ export const PermissionsEditView = () => {
                     data-testid="translatedtext-noun-header"
                   />
                 </NounTh>
-                {selectedRoles.map(role => (
-                  <RoleTh key={role.id}>{role.name}</RoleTh>
+                {rolesToDisplay.map(role => (
+                  <RoleTh key={role.id}>
+                    <ThemedTooltip title={role.name}>
+                      <span>{role.name}</span>
+                    </ThemedTooltip>
+                  </RoleTh>
                 ))}
               </tr>
             </thead>
@@ -214,7 +237,7 @@ export const PermissionsEditView = () => {
                   <NounSection
                     key={group.data.nounKey}
                     nounGroup={group.data}
-                    selectedRoles={selectedRoles}
+                    selectedRoles={rolesToDisplay}
                     onToggle={handleToggle}
                     objectNames={objectNames}
                   />
@@ -223,7 +246,7 @@ export const PermissionsEditView = () => {
                     key={`objectId-${group.data.noun}`}
                     noun={group.data.noun}
                     entries={group.data.children}
-                    selectedRoles={selectedRoles}
+                    selectedRoles={rolesToDisplay}
                     onToggle={handleToggle}
                     objectNames={objectNames}
                   />
@@ -238,15 +261,6 @@ export const PermissionsEditView = () => {
               stringId="admin.permissions.noPermissions"
               fallback="No permissions found for the selected roles"
               data-testid="translatedtext-no-perms"
-            />
-          </EmptyMessage>
-        )}
-        {!isActuallyLoading && selectedRoleIds.length === 0 && (
-          <EmptyMessage>
-            <TranslatedText
-              stringId="admin.permissions.selectRoles"
-              fallback="Select roles to view permissions"
-              data-testid="translatedtext-select-roles"
             />
           </EmptyMessage>
         )}

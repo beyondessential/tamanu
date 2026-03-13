@@ -67,7 +67,7 @@ permissionsRouter.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('read', 'Permission');
 
-    const rolesQuery = req.query.roles;
+    const rolesQuery = req.query.roles || '';
     if (typeof rolesQuery !== 'string') {
       throw new ValidationError('Query parameter "roles" is required');
     }
@@ -76,28 +76,18 @@ permissionsRouter.get(
       .split(',')
       .map(roleId => roleId.trim())
       .filter(Boolean);
-    if (!roleIds.length) {
-      throw new ValidationError('At least one role ID is required');
-    }
 
     const { Permission } = req.store.models;
-    const rows = await Permission.sequelize.query(
-      `
-      SELECT
-        verb,
-        noun,
-        object_id AS "objectId",
-        role_id AS "roleId"
-      FROM permissions
-      WHERE role_id IN (:roleIds)
-      AND deleted_at IS NULL
-      ORDER BY noun, verb, object_id
-      `,
-      {
-        replacements: { roleIds },
-        type: QueryTypes.SELECT,
-      },
-    );
+
+    const rows = await Permission.findAll({
+      where: roleIds.length > 0 ? { roleId: roleIds } : undefined,
+      attributes: ['verb', 'noun', 'objectId', 'roleId'],
+      order: [
+        ['noun', 'ASC'],
+        ['verb', 'ASC'],
+        ['objectId', 'ASC'],
+      ],
+    });
 
     // Build full matrix from the permission schema (valid noun/verb combinations)
     const permissionMap = {};
