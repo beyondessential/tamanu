@@ -1,11 +1,11 @@
 import { Typography } from '@mui/material';
 import React, { useCallback, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router';
+import { useMatch, useNavigate, useSearchParams } from 'react-router';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { Form, FormSubmitButton, TextButton, TextField } from '@tamanu/ui-components';
+import { Form, FormSubmitButton, TextField } from '@tamanu/ui-components';
 import { useSuggester } from '../../../api';
 import { PlusIcon } from '../../../assets/icons/PlusIcon';
 import { Button, DataFetchingTable, TranslatedText } from '../../../components';
@@ -14,6 +14,7 @@ import { AutocompleteField, Field } from '../../../components/Field';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { Colors } from '../../../constants';
 import { ROLES_ENDPOINT } from '../constants';
+import { AddRoleModal } from './AddRoleModal';
 import { Article } from './RolesAndDesignationsAdminView';
 import { useRoleDeleteMutation } from './useRoleDeleteMutation';
 
@@ -26,9 +27,9 @@ const Header = styled.header`
   border-start-start-radius: 0.3125rem;
   display: grid;
   gap: 0.625rem;
+  grid-template-columns: auto minmax(min-content, max-content);
   padding-block: 0.625rem;
   padding-inline: 1.25rem;
-  grid-template-columns: auto minmax(min-content, max-content);
 `;
 
 const Search = styled('search')`
@@ -66,7 +67,7 @@ const plusIcon = (
     aria-hidden
     width={18}
     height={18}
-    style={{ color: 'oklch(from currentColor l c h / 96%', marginInlineEnd: '0.5em' }}
+    style={{ color: 'oklch(from currentColor l c h / 96%)', marginInlineEnd: '0.5em' }}
   />
 );
 
@@ -121,11 +122,18 @@ const DeleteConfirmationModalContent = styled(Typography).attrs({
 `;
 
 export const RolesAdminView = () => {
+  // Search state
   const [searchParams, setSearchParams] = useSearchParams();
+  const nameQuery = searchParams.get('name') ?? '';
+  const idQuery = searchParams.get('id') ?? '';
+
+  // ‘Add role’ modal state
+  const isAddRoute = Boolean(useMatch('/admin/users/roles/add'));
+  const navigate = useNavigate();
+
+  // DataFetchingTable state
   const [roleToDelete, setRoleToDelete] = useState(null);
   const [refreshCount, setRefreshCount] = useState(0);
-  const nameFromUrl = searchParams.get('name') ?? '';
-  const idFromUrl = searchParams.get('id') ?? '';
 
   const { mutate: deleteRole } = useRoleDeleteMutation({
     onSuccess: () => {
@@ -213,8 +221,8 @@ export const RolesAdminView = () => {
         <Search>
           <StyledForm
             formType={FORM_TYPES.SEARCH_FORM}
-            initialValues={{ id: idFromUrl, name: nameFromUrl }}
-            key={`id=${idFromUrl}&name=${nameFromUrl}`}
+            initialValues={{ id: idQuery, name: nameQuery }}
+            key={`id=${idQuery}&name=${nameQuery}`}
             onSubmit={onSubmit}
             render={({ submitForm }) => (
               <>
@@ -247,7 +255,7 @@ export const RolesAdminView = () => {
             )}
           />
         </Search>
-        <AddButton color="primary" data-testid="roles-add-role-button">
+        <AddButton data-testid="roles-add-role-button" onClick={() => navigate('add')}>
           {plusIcon}
           <TranslatedText stringId="general.action.add-role" fallback="Add role" />
         </AddButton>
@@ -258,12 +266,18 @@ export const RolesAdminView = () => {
         data-testid="roles-table"
         defaultRowsPerPage={10}
         endpoint={ROLES_ENDPOINT}
-        fetchOptions={{ id: idFromUrl, name: nameFromUrl }}
+        fetchOptions={{ id: idQuery, name: nameQuery }}
         initialSort={{ orderBy: 'name', order: 'asc' }}
         noDataMessage={
           <TranslatedText stringId="admin.roles.noData.message" fallback="No roles found" />
         }
         refreshCount={refreshCount}
+      />
+
+      <AddRoleModal
+        open={isAddRoute}
+        onClose={() => navigate('..')}
+        onSuccess={() => setRefreshCount(c => c + 1)}
       />
 
       <DeleteConfirmationModal
