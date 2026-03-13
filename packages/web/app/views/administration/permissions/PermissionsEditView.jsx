@@ -17,6 +17,12 @@ import { useNounOptions } from './useNounOptions';
 import { useFilteredNouns } from './useFilteredNouns';
 import { NOUN_TYPES } from './constants';
 
+const OuterContainer = styled.div`
+  overflow-x: auto;
+  display: grid;
+  background-color: ${Colors.background};
+`;
+
 const EditContainer = styled.div`
   margin: 20px;
   overflow-x: auto;
@@ -26,7 +32,6 @@ const EditContainer = styled.div`
 const FiltersRow = styled.div`
   display: flex;
   align-items: flex-end;
-  margin-bottom: 20px;
   width: 100%;
   padding-left: 40px;
   padding-top: 10px;
@@ -149,101 +154,103 @@ export const PermissionsEditView = () => {
   const handleToggle = useCallback(params => togglePermission.mutate(params), [togglePermission]);
 
   const isActuallyLoading = isLoading && isFetching;
-  
+
   return (
-    <EditContainer data-testid="permissions-edit-container">
-      <FiltersRow data-testid="permissions-edit-filters-row">
-        <FilterFieldContainer>
-          <AutocompleteField
-            placeholder={getTranslation('admin.permissions.searchNounPlaceholder', 'Search noun')}
-            field={{ name: 'noun', value: selectedNoun, onChange: handleNounChange }}
-            options={nounOptions}
-            allowFreeTextForExistingValue
-            data-testid="permissions-noun-select"
-          />
-        </FilterFieldContainer>
-        <FilterFieldContainer>
-          <FilterField
-            label={getTranslation('admin.permissions.role.label', 'Role')}
-            field={{ name: 'roles', value: selectedRoleIds, onChange: handleRoleChange }}
-            endpoint="role"
-            data-testid="permissions-role-select"
-          />
-        </FilterFieldContainer>
-      </FiltersRow>
-      {isActuallyLoading && <LoadingIndicator data-testid="permissions-loading-indicator" />}
-      {error && (
-        <ErrorMessage
-          title={
-            <TranslatedText
-              stringId="admin.permissions.error.load"
-              fallback="Error loading permissions"
-              data-testid="translatedtext-lr7h"
+    <OuterContainer>
+      <EditContainer data-testid="permissions-edit-container">
+        <FiltersRow data-testid="permissions-edit-filters-row">
+          <FilterFieldContainer>
+            <AutocompleteField
+              placeholder={getTranslation('admin.permissions.searchNounPlaceholder', 'Search noun')}
+              field={{ name: 'noun', value: selectedNoun, onChange: handleNounChange }}
+              options={nounOptions}
+              allowFreeTextForExistingValue
+              data-testid="permissions-noun-select"
             />
-          }
-          error={error}
-          data-testid="permissions-error-message"
-        />
-      )}
-      {isSuccess && selectedRoles.length > 0 && filteredNouns.length > 0 && (
-        <MatrixTable>
-          <thead>
-            <tr>
-              <ChevronTh />
-              <NounTh>
-                <TranslatedText
-                  stringId="admin.permissions.noun.label"
-                  fallback="Noun"
-                  data-testid="translatedtext-noun-header"
-                />
-              </NounTh>
-              {selectedRoles.map(role => (
-                <RoleTh key={role.id}>{role.name}</RoleTh>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {filteredNouns.map(group =>
-              group.type === NOUN_TYPES.NOUN ? (
-                <NounSection
-                  key={group.data.nounKey}
-                  nounGroup={group.data}
-                  selectedRoles={selectedRoles}
-                  onToggle={handleToggle}
-                  objectNames={objectNames}
-                />
-              ) : (
-                <ObjectIdGroupSection
-                  key={`objectId-${group.data.noun}`}
-                  noun={group.data.noun}
-                  entries={group.data.children}
-                  selectedRoles={selectedRoles}
-                  onToggle={handleToggle}
-                  objectNames={objectNames}
-                />
-              ),
-            )}
-          </tbody>
-        </MatrixTable>
-      )}
-      {isSuccess && selectedRoles.length > 0 && filteredNouns.length === 0 && (
-        <EmptyMessage>
-          <TranslatedText
-            stringId="admin.permissions.noPermissions"
-            fallback="No permissions found for the selected roles"
-            data-testid="translatedtext-no-perms"
+          </FilterFieldContainer>
+          <FilterFieldContainer>
+            <FilterField
+              label={getTranslation('admin.permissions.role.label', 'Role')}
+              field={{ name: 'roles', value: selectedRoleIds, onChange: handleRoleChange }}
+              endpoint="role"
+              data-testid="permissions-role-select"
+            />
+          </FilterFieldContainer>
+        </FiltersRow>
+        {isActuallyLoading && <LoadingIndicator data-testid="permissions-loading-indicator" />}
+        {error && (
+          <ErrorMessage
+            title={
+              <TranslatedText
+                stringId="admin.permissions.error.load"
+                fallback="Error loading permissions"
+                data-testid="translatedtext-lr7h"
+              />
+            }
+            error={error}
+            data-testid="permissions-error-message"
           />
-        </EmptyMessage>
-      )}
-      {!isActuallyLoading && selectedRoleIds.length === 0 && (
-        <EmptyMessage>
-          <TranslatedText
-            stringId="admin.permissions.selectRoles"
-            fallback="Select roles to view permissions"
-            data-testid="translatedtext-select-roles"
-          />
-        </EmptyMessage>
-      )}
-    </EditContainer>
+        )}
+        {isSuccess && selectedRoles.length > 0 && filteredNouns.length > 0 && (
+          <MatrixTable>
+            <thead>
+              <tr>
+                <ChevronTh />
+                <NounTh>
+                  <TranslatedText
+                    stringId="admin.permissions.noun.label"
+                    fallback="Noun"
+                    data-testid="translatedtext-noun-header"
+                  />
+                </NounTh>
+                {selectedRoles.map(role => (
+                  <RoleTh key={role.id}>{role.name}</RoleTh>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filteredNouns.map(group =>
+                group.type === NOUN_TYPES.NOUN ? (
+                  <NounSection
+                    key={group.data.nounKey}
+                    nounGroup={group.data}
+                    selectedRoles={selectedRoles}
+                    onToggle={handleToggle}
+                    objectNames={objectNames}
+                  />
+                ) : (
+                  <ObjectIdGroupSection
+                    key={`objectId-${group.data.noun}`}
+                    noun={group.data.noun}
+                    entries={group.data.children}
+                    selectedRoles={selectedRoles}
+                    onToggle={handleToggle}
+                    objectNames={objectNames}
+                  />
+                ),
+              )}
+            </tbody>
+          </MatrixTable>
+        )}
+        {isSuccess && selectedRoles.length > 0 && filteredNouns.length === 0 && (
+          <EmptyMessage>
+            <TranslatedText
+              stringId="admin.permissions.noPermissions"
+              fallback="No permissions found for the selected roles"
+              data-testid="translatedtext-no-perms"
+            />
+          </EmptyMessage>
+        )}
+        {!isActuallyLoading && selectedRoleIds.length === 0 && (
+          <EmptyMessage>
+            <TranslatedText
+              stringId="admin.permissions.selectRoles"
+              fallback="Select roles to view permissions"
+              data-testid="translatedtext-select-roles"
+            />
+          </EmptyMessage>
+        )}
+      </EditContainer>
+    </OuterContainer>
   );
 };

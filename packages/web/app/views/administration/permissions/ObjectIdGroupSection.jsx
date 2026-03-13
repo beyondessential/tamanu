@@ -32,8 +32,7 @@ const GroupHeaderRow = styled.tr`
 
 const GroupHeaderCell = styled.td`
   padding: 10px 12px 10px 10px;
-  color: ${Colors.midText};
-  font-weight: 500;
+  color: ${Colors.darkestText};
   border-bottom: 1px solid ${Colors.outline};
   text-align: left;
   ${stickyLeft(CHEVRON_WIDTH)}
@@ -42,8 +41,11 @@ const GroupHeaderCell = styled.td`
 const GroupDashCell = styled.td`
   text-align: center;
   padding: 10px 12px;
+  background-color: ${Colors.white};
   border-bottom: 1px solid ${Colors.outline};
-  color: ${Colors.midText};
+  tr:hover > & {
+    background-color: ${Colors.veryLightBlue};
+  }
 `;
 
 const ChildNounCell = styled.td`
@@ -80,8 +82,7 @@ const ChildVerbLabelCell = styled(VerbLabelCell)`
 
 const ObjectIdChildSection = ({ nounGroup, selectedRoles, onToggle, objectNames }) => {
   const [expanded, setExpanded] = useState(false);
-  const displayName =
-    objectNames[`${nounGroup.noun}#${nounGroup.objectId}`] ?? nounGroup.objectId;
+  const displayName = objectNames[`${nounGroup.noun}#${nounGroup.objectId}`] ?? nounGroup.objectId;
   const { isChecked, handleToggle, getSummary } = usePermissionToggles(nounGroup, onToggle);
 
   return (
@@ -91,7 +92,11 @@ const ObjectIdChildSection = ({ nounGroup, selectedRoles, onToggle, objectNames 
         <ChildNounCell>
           <ChildNounContent>
             <ChildChevron>
-              {expanded ? <KeyboardArrowDown fontSize="small" /> : <KeyboardArrowRight fontSize="small" />}
+              {expanded ? (
+                <KeyboardArrowDown fontSize="small" />
+              ) : (
+                <KeyboardArrowRight fontSize="small" />
+              )}
             </ChildChevron>
             <ThemedTooltip title={`${displayName} (${nounGroup.objectId})`}>
               <TruncatedName>{displayName}</TruncatedName>
@@ -134,7 +139,11 @@ export const ObjectIdGroupSection = ({ noun, entries, selectedRoles, onToggle, o
     <>
       <GroupHeaderRow onClick={() => setExpanded(prev => !prev)}>
         <ChevronCell>
-          {expanded ? <KeyboardArrowDown fontSize="small" /> : <KeyboardArrowRight fontSize="small" />}
+          {expanded ? (
+            <KeyboardArrowDown fontSize="small" />
+          ) : (
+            <KeyboardArrowRight fontSize="small" />
+          )}
         </ChevronCell>
         <GroupHeaderCell>{noun} (Object ID)</GroupHeaderCell>
         {selectedRoles.map(role => (

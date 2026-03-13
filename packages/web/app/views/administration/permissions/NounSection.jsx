@@ -54,8 +54,12 @@ export const SummaryCell = styled.td`
   padding: 10px 12px;
   border-bottom: 1px solid ${Colors.outline};
   color: ${Colors.darkestText};
+  background-color: ${Colors.white};
   letter-spacing: 2px;
   font-size: 12px;
+  tr:hover > & {
+    background-color: ${Colors.veryLightBlue};
+  }
 `;
 
 export const VerbRow = styled.tr`
