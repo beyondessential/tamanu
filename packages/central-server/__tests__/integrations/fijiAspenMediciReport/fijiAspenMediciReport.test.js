@@ -12,14 +12,13 @@ import {
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { fake } from '@tamanu/fake-data/fake';
 import { log } from '@tamanu/shared/services/logging';
-import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
 import { createTestContext } from '../../utilities';
 import { allFromUpstream } from '../../../dist/tasks/fhir/refresh/allFromUpstream';
 
 jest.setTimeout(50000);
 
-const PRIMARY_TIME_ZONE = getPrimaryTimeZone(config);
+const PRIMARY_TIME_ZONE = config?.primaryTimeZone;
 
 const createLocalDateTimeFromUTC = (year, month, day, hour, minute, second, millisecond = 0) => {
   // Interprets inputs AS utc, and "utcTime" is the **local** version of that time
@@ -353,9 +352,20 @@ describe('fijiAspenMediciReport', () => {
   let fakedata;
 
   beforeAll(async () => {
-    ctx = await createTestContext({ initFhir: true, initFhirTriggers: true });
-    models = ctx.store.models;
+    ctx = await createTestContext();
 
+    // The report SQL compares a timestamptz column against a bare timestamp
+    // (result of AT TIME ZONE), so PG implicitly casts back using the session
+    // timezone. Ensure every pool connection has it set correctly.
+    const { sequelize } = ctx.store;
+    const poolMax = sequelize.options.pool?.max || 5;
+    await Promise.all(
+      Array.from({ length: poolMax }, () =>
+        sequelize.query(`SET timezone TO '${PRIMARY_TIME_ZONE}'`),
+      ),
+    );
+
+    models = ctx.store.models;
     app = await ctx.baseApp.asRole('practitioner');
     fakedata = await fakeAllData(models, ctx);
   });

@@ -13,7 +13,7 @@ describe('Patients import', () => {
     await ctx.store.models.ReferenceData.upsert({
       id: 'village-test',
       code: 'village-test',
-      type: 'village',
+      type: 'village',  
       name: 'Village test',
     });
   });
