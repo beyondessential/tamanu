@@ -379,7 +379,7 @@ export const FHIR_INTEGRATION_PERMISSIONS: Record<
     write: ['FhirImagingStudy'],
     serviceRequestCategories: [SERVICE_REQUEST_CATEGORY_CODES.IMAGING],
   },
-  PRESCRIPTIONS: {
+  Prescriptions: {
     read: [
       'FhirPatient',
       'FhirPractitioner',
@@ -389,7 +389,17 @@ export const FHIR_INTEGRATION_PERMISSIONS: Record<
     ],
     write: [],
   },
-  MEDICI: {
+  Immunization: {
+    read: [
+      'FhirPatient',
+      'FhirPractitioner',
+      'FhirEncounter',
+      'FhirOrganization',
+      'FhirImmunization',
+    ],
+    write: [],
+  },
+  Medici: {
     read: ['MediciReport'],
     write: [],
   },
