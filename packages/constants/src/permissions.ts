@@ -105,14 +105,19 @@ export const PermissionVerb = {
 
 export type PermissionVerb = (typeof PermissionVerb)[keyof typeof PermissionVerb];
 
-export const NOUNS_WITH_OBJECT_ID = [
-  'Survey',
-  'StaticReport',
-  'ReportDefinition',
-  'ProgramRegistry',
-];
-
 const { Manage, Delete, Create, Write, List, Read, Run, Submit } = PermissionVerb;
+
+// Verbs allowed at the per-object level for nouns that support objectId.
+// These are typically a subset of PERMISSION_SCHEMA[noun] — noun-level-only
+// verbs like List and Create are excluded.
+export const OBJECT_ID_PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
+  Survey: [Read, Write, Submit],
+  StaticReport: [Run],
+  ReportDefinition: [Read, Write, Run],
+  ProgramRegistry: [Read],
+};
+
+export const NOUNS_WITH_OBJECT_ID = Object.keys(OBJECT_ID_PERMISSION_SCHEMA);
 
 export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
   all: [Manage],

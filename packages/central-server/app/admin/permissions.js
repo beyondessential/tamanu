@@ -1,11 +1,10 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { QueryTypes } from 'sequelize';
-
 import { ValidationError } from '@tamanu/errors';
 import {
   HIDDEN_PERMISSION_NOUNS,
   NOUNS_WITH_OBJECT_ID,
+  OBJECT_ID_PERMISSION_SCHEMA,
   PERMISSION_SCHEMA,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
@@ -107,7 +106,7 @@ permissionsRouter.get(
 
     const objectNameLookup = {};
     for (const [noun, entries] of Object.entries(objectIdEntries)) {
-      const verbs = PERMISSION_SCHEMA[noun] || [];
+      const verbs = OBJECT_ID_PERMISSION_SCHEMA[noun] || [];
       for (const { id: objectId, name } of entries) {
         objectNameLookup[`${noun}#${objectId}`] = name;
         for (const verb of verbs) {
@@ -122,6 +121,13 @@ permissionsRouter.get(
     // Layer actual permission data on top (including objectId-specific entries)
     for (const { verb, noun, objectId, roleId } of rows) {
       if (HIDDEN_PERMISSION_NOUNS.has(noun)) continue;
+
+      // Skip object-ID rows whose verb isn't allowed at the object level
+      if (objectId) {
+        const allowedVerbs = OBJECT_ID_PERMISSION_SCHEMA[noun];
+        if (!allowedVerbs || !allowedVerbs.includes(verb)) continue;
+      }
+
       const key = `${verb}#${noun}#${objectId ?? ''}`;
       if (!permissionMap[key]) {
         permissionMap[key] = { verb, noun, objectId: objectId ?? null };

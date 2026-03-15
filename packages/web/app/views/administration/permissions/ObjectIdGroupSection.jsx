@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import KeyboardArrowDown from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 
-import { PERMISSION_SCHEMA } from '@tamanu/constants';
+import { OBJECT_ID_PERMISSION_SCHEMA } from '@tamanu/constants';
 
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { Colors } from '../../../constants';
@@ -105,7 +105,7 @@ const ObjectIdChildSection = ({ nounGroup, selectedRoles, onToggle, objectNames 
               title={
                 <>
                   {displayName} ({nounGroup.objectId})
-                  {PERMISSION_SCHEMA[nounGroup.noun] && (
+                  {OBJECT_ID_PERMISSION_SCHEMA[nounGroup.noun] && (
                     <>
                       <br />
                       <TranslatedText
@@ -114,7 +114,7 @@ const ObjectIdChildSection = ({ nounGroup, selectedRoles, onToggle, objectNames 
                         data-testid="translatedtext-permissions-available-objectid"
                       />
                       <br />
-                      {PERMISSION_SCHEMA[nounGroup.noun].map(v => getVerbAbbreviation(v)).join(' ')}
+                      {OBJECT_ID_PERMISSION_SCHEMA[nounGroup.noun].map(v => getVerbAbbreviation(v)).join(' ')}
                     </>
                   )}
                 </>

@@ -1,6 +1,6 @@
 import { DataTypes, Op } from 'sequelize';
 
-import { NOUNS_WITH_OBJECT_ID, PERMISSION_SCHEMA, PermissionVerb, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { OBJECT_ID_PERMISSION_SCHEMA, PERMISSION_SCHEMA, PermissionVerb, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { ValidationError } from '@tamanu/errors';
 
 import { Model } from './Model';
@@ -78,16 +78,19 @@ export class Permission extends Model {
       throw new ValidationError('Each permission requires verb, noun, and roleId');
     }
 
-    const allowedVerbs = PERMISSION_SCHEMA[noun];
+    const allowedVerbs = objectId
+      ? OBJECT_ID_PERMISSION_SCHEMA[noun]
+      : PERMISSION_SCHEMA[noun];
+
     if (!allowedVerbs) {
-      throw new ValidationError(`Permissions for noun "${noun}" are not defined in the schema.`);
+      throw new ValidationError(
+        objectId
+          ? `objectId is not supported for noun "${noun}"`
+          : `Permissions for noun "${noun}" are not defined in the schema.`,
+      );
     }
     if (!allowedVerbs.includes(verb)) {
-      throw new ValidationError(`Verb "${verb}" is not valid for noun "${noun}"`);
-    }
-
-    if (objectId && !NOUNS_WITH_OBJECT_ID.includes(noun)) {
-      throw new ValidationError(`objectId is not supported for noun "${noun}"`);
+      throw new ValidationError(`Verb "${verb}" is not valid for noun "${noun}"${objectId ? ' with objectId' : ''}`);
     }
   }
 
