@@ -389,5 +389,39 @@ describe('FHIR Permissions', () => {
         });
       expect(drResponse.status).toBe(403);
     });
+
+    it('read-only LABS user can read Patient but not write DiagnosticReport', async () => {
+      const app = await ctx.baseApp.asNewRole([['read', 'LABS']]);
+
+      const patientResponse = await app.get(
+        `/api/integration/${INTEGRATION_ROUTE}/Patient/${fhirPatient.id}`,
+      );
+      expect(patientResponse.status).toBe(200);
+
+      const drResponse = await app
+        .post(`/api/integration/${INTEGRATION_ROUTE}/DiagnosticReport`)
+        .send({
+          resourceType: 'DiagnosticReport',
+          status: 'final',
+        });
+      expect(drResponse.status).toBe(403);
+    });
+
+    it('write-only LABS user can write DiagnosticReport but not read Patient', async () => {
+      const app = await ctx.baseApp.asNewRole([['write', 'LABS']]);
+
+      const patientResponse = await app.get(
+        `/api/integration/${INTEGRATION_ROUTE}/Patient/${fhirPatient.id}`,
+      );
+      expect(patientResponse.status).toBe(403);
+
+      const drResponse = await app
+        .post(`/api/integration/${INTEGRATION_ROUTE}/DiagnosticReport`)
+        .send({
+          resourceType: 'DiagnosticReport',
+          status: 'final',
+        });
+      expect(drResponse.status).toBe(403);
+    });
   });
 });
