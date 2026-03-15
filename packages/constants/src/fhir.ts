@@ -323,3 +323,81 @@ export const SUPPORTED_CONTENT_TYPES = {
   PDF: 'application/pdf',
 };
 export const DEFAULT_REASON_CANCELLED_BY_API = 'cancelled externally via api';
+
+export const FHIR_INTEGRATION_TYPES = {
+  PMI: 'PMI',
+  LABS: 'LABS',
+  RISPACS: 'RISPACS',
+  PRESCRIPTIONS: 'PRESCRIPTIONS',
+  MEDICI: 'MEDICI',
+} as const;
+
+export const SERVICE_REQUEST_CATEGORY_CODES = {
+  LAB: '108252007',
+  IMAGING: '363679005',
+} as const;
+
+export const FHIR_RESOURCE_TO_PERMISSION_NOUN: Record<string, string> = {
+  Patient: 'FhirPatient',
+  Practitioner: 'FhirPractitioner',
+  Encounter: 'FhirEncounter',
+  Organization: 'FhirOrganization',
+  Specimen: 'FhirSpecimen',
+  DiagnosticReport: 'FhirDiagnosticReport',
+  Observation: 'FhirObservation',
+  ImagingStudy: 'FhirImagingStudy',
+  MedicationRequest: 'FhirMedicationRequest',
+  Immunization: 'FhirImmunization',
+};
+
+export const SERVICE_REQUEST_PERMISSION_NOUNS = {
+  LAB: 'FhirLabServiceRequest',
+  IMAGING: 'FhirImagingServiceRequest',
+} as const;
+
+export const FHIR_INTEGRATION_PERMISSIONS: Record<
+  string,
+  { read: string[]; write: string[]; serviceRequestCategories?: string[] }
+> = {
+  [FHIR_INTEGRATION_TYPES.PMI]: {
+    read: ['FhirPatient'],
+    write: [],
+  },
+  [FHIR_INTEGRATION_TYPES.LABS]: {
+    read: [
+      'FhirPatient',
+      'FhirPractitioner',
+      'FhirEncounter',
+      'FhirOrganization',
+      'FhirLabServiceRequest',
+      'FhirSpecimen',
+    ],
+    write: ['FhirDiagnosticReport', 'FhirObservation'],
+    serviceRequestCategories: [SERVICE_REQUEST_CATEGORY_CODES.LAB],
+  },
+  [FHIR_INTEGRATION_TYPES.RISPACS]: {
+    read: [
+      'FhirPatient',
+      'FhirPractitioner',
+      'FhirEncounter',
+      'FhirOrganization',
+      'FhirImagingServiceRequest',
+    ],
+    write: ['FhirImagingStudy'],
+    serviceRequestCategories: [SERVICE_REQUEST_CATEGORY_CODES.IMAGING],
+  },
+  [FHIR_INTEGRATION_TYPES.PRESCRIPTIONS]: {
+    read: [
+      'FhirPatient',
+      'FhirPractitioner',
+      'FhirEncounter',
+      'FhirOrganization',
+      'FhirMedicationRequest',
+    ],
+    write: [],
+  },
+  [FHIR_INTEGRATION_TYPES.MEDICI]: {
+    read: ['MediciReport'],
+    write: [],
+  },
+};

@@ -5,6 +5,8 @@ import { NotFound } from '@tamanu/shared/utils/fhir';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { ValidationError } from '@tamanu/errors';
 
+import { checkServiceRequestRecordAccess } from './fhirPermissions';
+
 const UNRESOLVED_RESOURCE_AWAIT_TIMEOUT = 20 * 1000; // 20 seconds
 const UNRESOLVED_RESOURCE_AWAIT_BACKOFF = 0.5 * 1000; // 0.5 seconds
 
@@ -22,6 +24,10 @@ export function readHandler(FhirResource) {
     // const query = await parseRequest(req, parameters);
     const record = await FhirResource.findByPk(id);
     if (!record) throw new NotFound(`no ${FhirResource.fhirName} with id ${id}`);
+
+    if (FhirResource.fhirName === 'ServiceRequest') {
+      checkServiceRequestRecordAccess(req.ability, record);
+    }
 
     let totalAwaitedTime = 0;
     while (!record.resolved && totalAwaitedTime < UNRESOLVED_RESOURCE_AWAIT_TIMEOUT) {

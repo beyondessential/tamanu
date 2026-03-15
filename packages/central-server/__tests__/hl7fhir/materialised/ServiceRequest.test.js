@@ -20,6 +20,7 @@ import { formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 
 import { createTestContext } from '../../utilities';
 import {
+  ALL_FHIR_PERMISSIONS,
   fakeResourcesOfFhirServiceRequest,
   fakeResourcesOfFhirServiceRequestWithLabRequest,
   fakeResourcesOfFhirSpecimen,
@@ -39,7 +40,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    app = await ctx.baseApp.asRole('practitioner');
+    app = await ctx.baseApp.asNewRole(ALL_FHIR_PERMISSIONS);
     resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
     const { FhirPractitioner, FhirOrganization } = ctx.store.models;
     const fhirPractitioner = await FhirPractitioner.materialiseFromUpstream(

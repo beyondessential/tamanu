@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import { ValidationError } from 'yup';
+import { Op, Sequelize } from 'sequelize';
 import {
   Invalid,
   normaliseParameters,
@@ -12,6 +13,30 @@ import { pushToQuery } from './common';
 import { resolveIncludes, retrieveIncludes } from './include';
 import { buildSearchQuery } from './query';
 
+function applyServiceRequestCategoryFilter(sqlQuery, allowedCategories) {
+  if (!allowedCategories) return sqlQuery;
+
+  const categoryConditions = allowedCategories.map(code =>
+    Sequelize.literal(`category @> '[{"coding": [{"code": "${code}"}]}]'::jsonb`),
+  );
+
+  const categoryWhere =
+    categoryConditions.length === 1
+      ? categoryConditions[0]
+      : { [Op.or]: categoryConditions };
+
+  return {
+    ...sqlQuery,
+    where: {
+      ...sqlQuery.where,
+      [Op.and]: [
+        ...(sqlQuery.where?.[Op.and] ?? []),
+        categoryWhere,
+      ],
+    },
+  };
+}
+
 export function searchHandler(FhirResource) {
   return asyncHandler(async (req, res) => {
     const parameters = normaliseParameters(FhirResource);
@@ -22,7 +47,15 @@ export function searchHandler(FhirResource) {
       includes = resolveIncludes(req.store.models, query, parameters, FhirResource);
     }
 
-    const sqlQuery = buildSearchQuery(query, parameters, FhirResource);
+    let sqlQuery = buildSearchQuery(query, parameters, FhirResource);
+
+    if (FhirResource.fhirName === 'ServiceRequest') {
+      sqlQuery = applyServiceRequestCategoryFilter(
+        sqlQuery,
+        req.fhirAllowedServiceRequestCategories,
+      );
+    }
+
     const total = await FhirResource.count(sqlQuery);
     const records = await FhirResource.findAll(sqlQuery);
     const { included, errors } = await retrieveIncludes(

@@ -8,6 +8,7 @@ import { OperationOutcome } from '@tamanu/shared/utils/fhir';
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
 import { createResource } from '../create';
 import { InvalidOperationError } from '@tamanu/errors';
+import { checkFhirWritePermissionForResource } from '../fhirPermissions';
 
 export const transactionBundleHandler = () => {
   return asyncHandler(async (req, res) => {
@@ -26,6 +27,8 @@ export const transactionBundleHandler = () => {
     try {
       await store.sequelize.transaction(async () => {
         for (const { resource: rawResource } of validatedBundle.entry) {
+          checkFhirWritePermissionForResource(req.ability, rawResource.resourceType);
+
           const FhirResource = creatableResources.find(
             r => r.fhirName === rawResource.resourceType,
           );
@@ -46,7 +49,8 @@ export const transactionBundleHandler = () => {
         }
       });
     } catch (err) {
-      return res.status(400).send(new OperationOutcome([err]).asFhir());
+      const oo = new OperationOutcome([err]);
+      return res.status(oo.status()).send(oo.asFhir());
     }
 
     const responseBundle = new FhirTransactionResponseBundle({

@@ -2,6 +2,7 @@ import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 
 import { createTestContext } from '../../utilities';
+import { ALL_FHIR_PERMISSIONS } from '../../fake/fhir';
 
 const INTEGRATION_ROUTE = 'fhir/mat';
 
@@ -10,7 +11,7 @@ describe(`Materialised FHIR - Patient Merge`, () => {
   let app;
   beforeAll(async () => {
     ctx = await createTestContext();
-    app = await ctx.baseApp.asRole('practitioner');
+    app = await ctx.baseApp.asNewRole(ALL_FHIR_PERMISSIONS);
   });
   afterAll(() => ctx.close());
 

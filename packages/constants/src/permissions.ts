@@ -90,6 +90,19 @@ export const PERMISSION_NOUNS = [
   'Vitals',
   'SensitiveMedication',
   'LocationSchedule',
+  'FhirPatient',
+  'FhirPractitioner',
+  'FhirEncounter',
+  'FhirOrganization',
+  'FhirLabServiceRequest',
+  'FhirImagingServiceRequest',
+  'FhirSpecimen',
+  'FhirDiagnosticReport',
+  'FhirObservation',
+  'FhirImagingStudy',
+  'FhirMedicationRequest',
+  'FhirImmunization',
+  'MediciReport',
 ];
 
 export const NOUNS_WITH_OBJECT_ID = [

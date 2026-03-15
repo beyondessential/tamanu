@@ -7,6 +7,22 @@ import {
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 
+export const ALL_FHIR_PERMISSIONS = [
+  ['read', 'FhirPatient'],
+  ['read', 'FhirPractitioner'],
+  ['read', 'FhirEncounter'],
+  ['read', 'FhirOrganization'],
+  ['read', 'FhirLabServiceRequest'],
+  ['read', 'FhirImagingServiceRequest'],
+  ['read', 'FhirSpecimen'],
+  ['write', 'FhirDiagnosticReport'],
+  ['write', 'FhirObservation'],
+  ['write', 'FhirImagingStudy'],
+  ['read', 'FhirMedicationRequest'],
+  ['read', 'FhirImmunization'],
+  ['read', 'MediciReport'],
+];
+
 export const fakeResourcesOfFhirServiceRequest = async models => {
   const {
     Department,
