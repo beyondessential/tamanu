@@ -20,9 +20,7 @@ const getOrCreateConnection = async ({ testMode, ...configOverrides }, key = 'ma
     await addHooks(store);
   }
 
-  if (!testMode) {
-    await setFhirRefreshTriggers(store.sequelize);
-  }
+  await setFhirRefreshTriggers(store.sequelize);
 
   return store;
 };
