@@ -4,6 +4,7 @@ a migration that registers a trigger for database tables.
 */
 
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
+import { setFhirRefreshTriggers } from '@tamanu/database';
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
 import { createTestContext } from '../../utilities';
 
