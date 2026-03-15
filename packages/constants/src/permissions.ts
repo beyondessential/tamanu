@@ -103,6 +103,12 @@ export const PERMISSION_NOUNS = [
   'FhirMedicationRequest',
   'FhirImmunization',
   'MediciReport',
+  'PMI',
+  'LABS',
+  'RISPACS',
+  'Prescriptions',
+  'Immunization',
+  'Medici',
 ];
 
 export const NOUNS_WITH_OBJECT_ID = [
