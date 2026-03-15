@@ -128,7 +128,7 @@ export const RolesAdminView = () => {
   const idQuery = searchParams.get('id') ?? '';
 
   // ‘Add role’ modal state
-  const isAddRoute = Boolean(useMatch('/admin/users/roles/add'));
+  const isAddRoute = Boolean(useMatch('/admin/users/roles/new'));
   const navigate = useNavigate();
 
   // DataFetchingTable state
@@ -255,7 +255,7 @@ export const RolesAdminView = () => {
             )}
           />
         </Search>
-        <AddButton data-testid="roles-add-role-button" onClick={() => navigate('add')}>
+        <AddButton data-testid="roles-add-role-button" onClick={() => navigate('new')}>
           {plusIcon}
           <TranslatedText stringId="general.action.add-role" fallback="Add role" />
         </AddButton>
