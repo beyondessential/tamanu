@@ -20,12 +20,12 @@ const DEFAULTS = {
   extensions: { Patient: { newZealandEthnicity: false } },
 };
 
-let settings = { ...DEFAULTS };
+let settings = structuredClone(DEFAULTS);
 let initialised = false;
 
 /** Reset cached settings so the next call to initFhirSettingsFromDb reloads from DB. */
 export function resetFhirSettings() {
-  settings = { ...DEFAULTS };
+  settings = structuredClone(DEFAULTS);
   initialised = false;
 }
 
