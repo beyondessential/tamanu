@@ -142,13 +142,14 @@ describe('FHIR Permissions', () => {
     let imagingServiceRequest;
 
     beforeAll(async () => {
-      const { FhirServiceRequest, FhirEncounter, FhirPatient, FhirPractitioner } =
+      const { FhirServiceRequest, FhirEncounter, FhirPatient, FhirPractitioner, FhirOrganization } =
         ctx.store.models;
       await FhirServiceRequest.destroy({ where: {} });
       await FhirEncounter.destroy({ where: {} });
 
       await FhirPatient.materialiseFromUpstream(resources.patient.id);
       await FhirPractitioner.materialiseFromUpstream(resources.practitioner.id);
+      await FhirOrganization.materialiseFromUpstream(resources.facility.id);
       await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
 
       const labResources = await fakeResourcesOfFhirServiceRequestWithLabRequest(
