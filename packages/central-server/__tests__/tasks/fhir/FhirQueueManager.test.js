@@ -1,3 +1,7 @@
+/**
+ * Tests for FhirQueueManager (source: @tamanu/shared/tasks).
+ * Run here in central-server so we avoid a circular devDependency between shared and database.
+ */
 import { describe, expect, it, jest } from '@jest/globals';
 import { withErrorShown } from '@tamanu/shared/test-helpers';
 import { FhirQueueManager } from '@tamanu/shared/tasks';

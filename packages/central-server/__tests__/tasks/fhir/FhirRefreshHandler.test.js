@@ -1,3 +1,7 @@
+/**
+ * Tests for FHIR refresh handler / allFromUpstream (source: @tamanu/shared/tasks).
+ * Run here in central-server so we avoid a circular devDependency between shared and database.
+ */
 import { Op } from 'sequelize';
 import { fake } from '@tamanu/fake-data/fake';
 import { log } from '@tamanu/shared/services/logging';
