@@ -4,10 +4,9 @@ import {
   FhirTransactionBundle,
   FhirTransactionResponseBundle,
 } from '@tamanu/shared/services/fhirTypes';
-import { OperationOutcome } from '@tamanu/shared/utils/fhir';
+import { OperationOutcome, Invalid } from '@tamanu/shared/utils/fhir';
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
 import { createResource } from '../create';
-import { InvalidOperationError } from '@tamanu/errors';
 import { checkFhirWritePermissionForResource } from '../fhirPermissions';
 
 export const transactionBundleHandler = () => {
@@ -33,7 +32,7 @@ export const transactionBundleHandler = () => {
             r => r.fhirName === rawResource.resourceType,
           );
           if (!FhirResource) {
-            throw new InvalidOperationError(`Resource type ${rawResource.resourceType} not found`);
+            throw new Invalid(`Resource type ${rawResource.resourceType} not found`);
           }
 
           const hydratedResource = FhirResource.hydrateRawResourceFromBundle(
