@@ -4,24 +4,24 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   LAB_REQUEST_STATUSES,
   FHIR_REQUEST_PRIORITY,
+  FHIR_INTEGRATION_PERMISSIONS,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 
-export const ALL_FHIR_PERMISSIONS = [
-  ['read', 'FhirPatient'],
-  ['read', 'FhirPractitioner'],
-  ['read', 'FhirEncounter'],
-  ['read', 'FhirOrganization'],
-  ['read', 'FhirLabServiceRequest'],
-  ['read', 'FhirImagingServiceRequest'],
-  ['read', 'FhirSpecimen'],
-  ['write', 'FhirDiagnosticReport'],
-  ['write', 'FhirObservation'],
-  ['write', 'FhirImagingStudy'],
-  ['read', 'FhirMedicationRequest'],
-  ['read', 'FhirImmunization'],
-  ['read', 'MediciReport'],
-];
+export function integrationPermissionsToTuples({ read = [], write = [] }) {
+  return [
+    ...read.map(noun => ['read', noun]),
+    ...write.map(noun => ['write', noun]),
+  ];
+}
+
+const allPermsMap = new Map();
+for (const perms of Object.values(FHIR_INTEGRATION_PERMISSIONS)) {
+  for (const tuple of integrationPermissionsToTuples(perms)) {
+    allPermsMap.set(`${tuple[0]}:${tuple[1]}`, tuple);
+  }
+}
+export const ALL_FHIR_PERMISSIONS = [...allPermsMap.values()];
 
 export const fakeResourcesOfFhirServiceRequest = async models => {
   const {

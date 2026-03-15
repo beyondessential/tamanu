@@ -7,18 +7,24 @@ import {
   OperationOutcome,
   Unsupported,
 } from '@tamanu/shared/utils/fhir';
+import { SERVICE_REQUEST_CATEGORY_CODES } from '@tamanu/constants';
 
 import { SearchBundleResponse } from './SearchBundleResponse';
 import { pushToQuery } from './common';
 import { resolveIncludes, retrieveIncludes } from './include';
 import { buildSearchQuery } from './query';
 
+const VALID_CATEGORY_CODES = new Set(Object.values(SERVICE_REQUEST_CATEGORY_CODES));
+
 function applyServiceRequestCategoryFilter(sqlQuery, allowedCategories) {
   if (!allowedCategories) return sqlQuery;
 
-  const categoryConditions = allowedCategories.map(code =>
-    Sequelize.literal(`category @> '[{"coding": [{"code": "${code}"}]}]'::jsonb`),
-  );
+  const categoryConditions = allowedCategories.map(code => {
+    if (!VALID_CATEGORY_CODES.has(code)) {
+      throw new Error(`Invalid ServiceRequest category code: ${code}`);
+    }
+    return Sequelize.literal(`category @> '[{"coding": [{"code": "${code}"}]}]'::jsonb`);
+  });
 
   const categoryWhere =
     categoryConditions.length === 1

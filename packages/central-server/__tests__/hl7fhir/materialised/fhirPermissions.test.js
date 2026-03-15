@@ -1,10 +1,12 @@
 import {
   FHIR_DIAGNOSTIC_REPORT_STATUS,
   FHIR_OBSERVATION_STATUS,
+  FHIR_INTEGRATION_PERMISSIONS,
 } from '@tamanu/constants';
 
 import { createTestContext } from '../../utilities';
 import {
+  integrationPermissionsToTuples,
   fakeResourcesOfFhirServiceRequest,
   fakeResourcesOfFhirServiceRequestWithLabRequest,
   fakeResourcesOfFhirServiceRequestWithImagingRequest,
@@ -342,7 +344,7 @@ describe('FHIR Permissions', () => {
     });
 
     it('PMI user can read Patient but not Encounter', async () => {
-      const app = await ctx.baseApp.asNewRole([['read', 'FhirPatient']]);
+      const app = await ctx.baseApp.asNewRole(integrationPermissionsToTuples(FHIR_INTEGRATION_PERMISSIONS.PMI));
 
       const patientResponse = await app.get(
         `/api/integration/${INTEGRATION_ROUTE}/Patient/${fhirPatient.id}`,
@@ -356,17 +358,7 @@ describe('FHIR Permissions', () => {
     });
 
     it('LABS user can read Patient and write DiagnosticReport but not ImagingStudy', async () => {
-      const labPermissions = [
-        ['read', 'FhirPatient'],
-        ['read', 'FhirPractitioner'],
-        ['read', 'FhirEncounter'],
-        ['read', 'FhirOrganization'],
-        ['read', 'FhirLabServiceRequest'],
-        ['read', 'FhirSpecimen'],
-        ['write', 'FhirDiagnosticReport'],
-        ['write', 'FhirObservation'],
-      ];
-      const app = await ctx.baseApp.asNewRole(labPermissions);
+      const app = await ctx.baseApp.asNewRole(integrationPermissionsToTuples(FHIR_INTEGRATION_PERMISSIONS.LABS));
 
       const patientResponse = await app.get(
         `/api/integration/${INTEGRATION_ROUTE}/Patient/${fhirPatient.id}`,
@@ -383,15 +375,7 @@ describe('FHIR Permissions', () => {
     });
 
     it('RISPACS user can read Patient and write ImagingStudy but not DiagnosticReport', async () => {
-      const rispacsPermissions = [
-        ['read', 'FhirPatient'],
-        ['read', 'FhirPractitioner'],
-        ['read', 'FhirEncounter'],
-        ['read', 'FhirOrganization'],
-        ['read', 'FhirImagingServiceRequest'],
-        ['write', 'FhirImagingStudy'],
-      ];
-      const app = await ctx.baseApp.asNewRole(rispacsPermissions);
+      const app = await ctx.baseApp.asNewRole(integrationPermissionsToTuples(FHIR_INTEGRATION_PERMISSIONS.RISPACS));
 
       const patientResponse = await app.get(
         `/api/integration/${INTEGRATION_ROUTE}/Patient/${fhirPatient.id}`,
