@@ -166,7 +166,7 @@ const COLUMNS = [
   },
 ];
 
-export const UserAdminView = React.memo(() => {
+export const UserProfilesAdminView = React.memo(() => {
   const [searchParameters, setSearchParameters] = useState({});
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);

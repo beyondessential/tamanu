@@ -6,6 +6,7 @@ import { ReportAdminRoutes } from './ReportAdminRoutes';
 import { FhirAdminRoutes } from './FhirAdminRoutes';
 import {
   AssetUploaderView,
+  DesignationsAdminView,
   InsurerPaymentsAdminView,
   LocationAssignmentsAdminView,
   PatientMergeView,
@@ -19,8 +20,7 @@ import {
   TemplateView,
   TranslationAdminView,
   SettingsView,
-  UserAdminView,
-  DesignationsAdminView,
+  UserProfilesAdminView,
 } from '../views';
 
 export const AdministrationRoutes = React.memo(() => (
@@ -47,7 +47,7 @@ export const AdministrationRoutes = React.memo(() => (
     <Route path="translation" element={<TranslationAdminView />} />
     <Route path="users">
       <Route index element={<Navigate to="profiles" replace />} />
-      <Route path="profiles" element={<UserAdminView />} />
+      <Route path="profiles" element={<UserProfilesAdminView />} />
       <Route path="roles" element={<RolesAndDesignationsAdminView />}>
         <Route index element={<RolesAdminView />} />
         {/* Modal route. Its state (opened/closed) is managed internally by RolesAdminView */}
