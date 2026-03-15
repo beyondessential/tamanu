@@ -1,7 +1,4 @@
-import { fake } from '@tamanu/fake-data/fake';
 import {
-  IMAGING_REQUEST_STATUS_TYPES,
-  LAB_REQUEST_STATUSES,
   FHIR_DIAGNOSTIC_REPORT_STATUS,
   FHIR_OBSERVATION_STATUS,
 } from '@tamanu/constants';
@@ -144,7 +141,7 @@ describe('FHIR Permissions', () => {
     let imagingServiceRequest;
 
     beforeAll(async () => {
-      const { FhirServiceRequest, FhirEncounter, ImagingRequest } = ctx.store.models;
+      const { FhirServiceRequest, FhirEncounter } = ctx.store.models;
       await FhirServiceRequest.destroy({ where: {} });
       await FhirEncounter.destroy({ where: {} });
       await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
