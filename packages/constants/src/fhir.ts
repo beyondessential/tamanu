@@ -350,7 +350,7 @@ export const FHIR_INTEGRATION_VERB = 'fhirIntegration';
 
 export const FHIR_INTEGRATION_PERMISSIONS: Record<
   string,
-  { read: string[]; write: string[]; serviceRequestCategories?: string[] }
+  { read: string[]; write: string[] }
 > = {
   PMI: {
     read: ['FhirPatient'],
@@ -366,7 +366,6 @@ export const FHIR_INTEGRATION_PERMISSIONS: Record<
       'FhirSpecimen',
     ],
     write: ['FhirDiagnosticReport', 'FhirObservation'],
-    serviceRequestCategories: [SERVICE_REQUEST_CATEGORY_CODES.LAB],
   },
   RISPACS: {
     read: [
@@ -377,7 +376,6 @@ export const FHIR_INTEGRATION_PERMISSIONS: Record<
       'FhirImagingServiceRequest',
     ],
     write: ['FhirImagingStudy'],
-    serviceRequestCategories: [SERVICE_REQUEST_CATEGORY_CODES.IMAGING],
   },
   Prescriptions: {
     read: [

@@ -13,7 +13,7 @@ import { readHandler } from './read';
 import { searchHandler } from './search';
 import { createHandler } from './create';
 import { transactionBundleHandler } from './bundle';
-import { checkFhirReadPermission, checkFhirWritePermission } from './fhirPermissions';
+import { checkFhirReadPermission, checkFhirWritePermission, checkFhirBundleWritePermission } from './fhirPermissions';
 
 export function fhirRoutes(ctx, { requireClientHeaders } = {}) {
   const routes = Router();
@@ -53,7 +53,7 @@ export function fhirRoutes(ctx, { requireClientHeaders } = {}) {
     routes.post(`/${Resource.fhirName}`, checkFhirWritePermission(Resource), createHandler(Resource));
   }
 
-  routes.post(`/Bundle`, transactionBundleHandler());
+  routes.post(`/Bundle`, checkFhirBundleWritePermission(), transactionBundleHandler());
 
   routes.use((err, _req, res, next) => {
     if (res.headersSent) {

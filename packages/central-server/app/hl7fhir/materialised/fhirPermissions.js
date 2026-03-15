@@ -80,6 +80,19 @@ export function checkFhirWritePermission(FhirResource) {
   });
 }
 
+export function checkFhirBundleWritePermission() {
+  return asyncHandler(async (req, _res, next) => {
+    const { ability } = req;
+    const hasAnyWrite = Object.values(FHIR_RESOURCE_TO_PERMISSION_NOUN).some(noun =>
+      hasFhirPermission(ability, 'write', noun),
+    );
+    if (!hasAnyWrite) {
+      throw new FhirForbiddenError('No write permissions for any FHIR resource');
+    }
+    next();
+  });
+}
+
 export function checkFhirWritePermissionForResource(ability, fhirResourceName) {
   const noun = getPermissionNoun(fhirResourceName);
   if (!noun || !hasFhirPermission(ability, 'write', noun)) {
