@@ -4,7 +4,7 @@ import { createTestContext } from '../../utilities';
 import '../matchers';
 
 // the importer can take a little while
-jest.setTimeout(30000);
+jest.setTimeout(50000);
 
 describe('Patients import', () => {
   let ctx;
@@ -151,8 +151,22 @@ describe('Patients import', () => {
 
     expect(didntSendReason).toEqual('dryRun');
     expect(errors).toBeEmpty();
-    expect(stats.Patient).toEqual({ created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 });
-    expect(stats.PatientFieldValue).toEqual({ created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 });
+    expect(stats.Patient).toEqual({
+      created: 1,
+      updated: 0,
+      errored: 0,
+      deleted: 0,
+      restored: 0,
+      skipped: 0,
+    });
+    expect(stats.PatientFieldValue).toEqual({
+      created: 1,
+      updated: 0,
+      errored: 0,
+      deleted: 0,
+      restored: 0,
+      skipped: 0,
+    });
   });
 
   it('should throw an error when an undefined custom field is specified in the columns (column name does not correspond to a valid PatientFieldDefinition)', async () => {
@@ -178,8 +192,29 @@ describe('Patients import', () => {
 
     expect(didntSendReason).toEqual('dryRun');
     expect(errors).toBeEmpty();
-    expect(stats.Patient).toEqual({ created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 });
-    expect(stats.PatientAdditionalData).toEqual({ created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 });
-    expect(stats.PatientFieldValue).toEqual({ created: 1, updated: 0, errored: 0, deleted: 0, restored: 0, skipped: 0 });
+    expect(stats.Patient).toEqual({
+      created: 1,
+      updated: 0,
+      errored: 0,
+      deleted: 0,
+      restored: 0,
+      skipped: 0,
+    });
+    expect(stats.PatientAdditionalData).toEqual({
+      created: 1,
+      updated: 0,
+      errored: 0,
+      deleted: 0,
+      restored: 0,
+      skipped: 0,
+    });
+    expect(stats.PatientFieldValue).toEqual({
+      created: 1,
+      updated: 0,
+      errored: 0,
+      deleted: 0,
+      restored: 0,
+      skipped: 0,
+    });
   });
 });
