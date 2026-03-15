@@ -10,10 +10,10 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { Op } from 'sequelize';
-import { getInvoiceItemPrice } from '@tamanu/shared/utils';
+import { getInvoiceItemPrice } from '@tamanu/utils/invoice';
 import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
 import { invoiceItemsRoute } from './invoiceItems';
-import { getCurrentCountryTimeZoneDateTimeString } from '@tamanu/shared/utils/countryDateTime';
+import { getCurrentPrimaryTimeZoneDateTimeString } from '@tamanu/shared/utils/primaryDateTime';
 import { patientPaymentRoute } from './patientPayment';
 import { insurancePlansRoute } from './insurancePlans';
 
@@ -264,7 +264,7 @@ invoiceRoute.put(
             ...data.discount,
             invoiceId,
             appliedByUserId: req.user.id,
-            appliedTime: getCurrentCountryTimeZoneDateTimeString(),
+            appliedTime: getCurrentPrimaryTimeZoneDateTimeString(),
           },
           { transaction },
         );

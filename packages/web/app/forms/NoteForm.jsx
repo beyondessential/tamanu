@@ -1,10 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { NOTE_TYPES, FORM_TYPES } from '@tamanu/constants';
-import { Form } from '@tamanu/ui-components';
+import { Form, useDateTime } from '@tamanu/ui-components';
 import { useAuth } from '../contexts/Auth';
 import { foreignKey } from '../utils/validation';
 
@@ -21,6 +20,7 @@ export const NoteForm = ({
   onSubmit,
 }) => {
   const { currentUser } = useAuth();
+  const { getCurrentDateTime } = useDateTime();
 
   const renderForm = ({ submitForm, values, setValues }) => {
     const isTreatmentPlan = note?.noteTypeId === NOTE_TYPES.TREATMENT_PLAN;
@@ -55,7 +55,7 @@ export const NoteForm = ({
       render={renderForm}
       showInlineErrorsOnly
       initialValues={{
-        date: getCurrentDateTimeString(),
+        date: getCurrentDateTime(),
         noteTypeId: note?.noteTypeId,
         writtenById: currentUser.id,
         content: note?.content,
