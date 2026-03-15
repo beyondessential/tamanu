@@ -1,5 +1,5 @@
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
-import { sortResourcesInDependencyOrder } from '../../../dist/tasks/fhir/resolver';
+import { sortResourcesInDependencyOrder } from '@tamanu/shared/tasks';
 import { createTestContext } from '../../utilities';
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
 

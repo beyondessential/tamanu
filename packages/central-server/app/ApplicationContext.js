@@ -7,11 +7,11 @@ import { isSyncTriggerDisabled } from '@tamanu/database/dataMigrations';
 import { initBugsnag, log } from '@tamanu/shared/services/logging';
 import { initReporting } from '@tamanu/database/services/reporting';
 import { initFhirSettingsFromDb } from '@tamanu/shared/utils/fhir/fhirSettings';
+import { setFhirRefreshTriggers } from '@tamanu/database';
 
 import { EmailService } from './services/EmailService';
 
 import { closeDatabase, initDatabase } from './database';
-import { setFhirRefreshTriggers } from './database/setFhirRefreshTriggers';
 import { initIntegrations } from './integrations';
 import { defineSingletonTelegramBotService } from './services/TelegramBotService';
 import { VERSION } from './middleware/versionCompatibility';
@@ -78,10 +78,10 @@ export class ApplicationContext {
       return this;
     }
 
-    if (config.integrations?.fhir?.enabled || config.integrations?.fhir?.worker?.enabled) {
-      await initFhirSettingsFromDb(this.settings);
-      await setFhirRefreshTriggers(this.store.sequelize);
-    }
+    const triggersEnabled =
+      !!config?.integrations?.fhir?.enabled && !!config?.integrations?.fhir?.worker?.enabled;
+    await initFhirSettingsFromDb(this.settings);
+    await setFhirRefreshTriggers(this.store.sequelize, { triggersEnabled });
 
     await initDeviceId({ context: this, deviceType: DEVICE_TYPES.CENTRAL_SERVER });
 

@@ -3,7 +3,7 @@ import theConfig from 'config';
 import ms from 'ms';
 import { hostname } from 'os';
 
-import { getTracer } from '../services/logging';
+import { getTracer } from '../../services/logging';
 import { FhirTopicQueueProcessor } from './FhirTopicQueueProcessor';
 
 export class FhirQueueManager {

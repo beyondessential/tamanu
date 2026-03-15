@@ -18,7 +18,7 @@ import { AutomaticLabTestResultPublisher } from './AutomaticLabTestResultPublish
 import { CovidClearanceCertificatePublisher } from './CovidClearanceCertificatePublisher';
 import { PlannedMoveTimeout } from './PlannedMoveTimeout';
 import { StaleSyncSessionCleaner } from './StaleSyncSessionCleaner';
-import { FhirMissingResources } from './FhirMissingResources';
+import { FhirMissingResources } from '@tamanu/shared/tasks';
 import { PatientTelegramCommunicationProcessor } from './PatientTelegramCommunicationProcessor';
 import { VaccinationReminderProcessor } from './VaccinationReminderProcessor';
 import { SurveyCompletionNotifierProcessor } from './SurveyCompletionNotifierProcessor';
@@ -30,7 +30,7 @@ import { GenerateMedicationAdministrationRecords } from './GenerateMedicationAdm
 import { MedicationDiscontinuer } from './MedicationDiscontinuer';
 import { DHIS2IntegrationProcessor } from './DHIS2IntegrationProcessor';
 
-export { startFhirWorkerTasks } from './fhir';
+export { startFhirWorkerTasks } from '@tamanu/shared/tasks';
 
 export class InvalidConfigError extends Error {}
 

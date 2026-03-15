@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { FHIR_INTERACTIONS, JOB_TOPICS } from '@tamanu/constants';
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
-import { prepareQuery } from '../../../utils/prepareQuery';
+import { prepareQuery } from '../prepareQuery';
 
 export async function allFromUpstream({ payload }, { log, sequelize, models }) {
   const { table, op, id, deletedRow = null } = payload;

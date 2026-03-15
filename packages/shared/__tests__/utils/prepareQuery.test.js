@@ -1,4 +1,4 @@
-import { prepareQuery } from '../../dist/utils/prepareQuery';
+import { prepareQuery } from '@tamanu/shared/tasks';
 import { createTestContext } from '../utilities';
 
 describe('prepareQuery()', () => {

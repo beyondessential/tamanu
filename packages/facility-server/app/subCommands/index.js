@@ -4,6 +4,8 @@ export { syncCommand } from './sync';
 export { startAllCommand } from './startAll';
 export { startApiCommand, startSyncCommand } from './startApp';
 export { startTasksCommand } from './startTasks';
+export { startFhirWorkerCommand } from './startFhirWorker';
+export { fhirCommand } from './fhir';
 export { shellCommand } from './shell';
 export { upgradeCommand } from './upgrade';
 export * from './migrateAppointmentsToLocationGroups';

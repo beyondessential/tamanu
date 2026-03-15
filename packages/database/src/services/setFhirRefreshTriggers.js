@@ -1,15 +1,14 @@
-import { tablesWithoutTrigger, tablesWithTrigger } from '@tamanu/database';
+import { tablesWithoutTrigger, tablesWithTrigger } from '../utils';
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
 import { log } from '@tamanu/shared/services/logging';
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
-import config from 'config';
 
-export const setFhirRefreshTriggers = async sequelize => {
-  const fhirEnabled = !!config?.integrations?.fhir?.enabled;
-  const fhirWorkerEnabled = !!config?.integrations?.fhir?.worker?.enabled;
-
-  const triggersEnabled = fhirEnabled && fhirWorkerEnabled;
-
+/**
+ * Add or remove fhir_refresh triggers on upstream tables of materialisable FHIR resources.
+ * @param {import('sequelize').Sequelize} sequelize
+ * @param {{ triggersEnabled: boolean }} options - triggersEnabled: when true, add triggers; when false, remove them
+ */
+export const setFhirRefreshTriggers = async (sequelize, { triggersEnabled }) => {
   // add fhir_refresh trigger to upstream tables of enabled fhir resources
   const materialisableResources = resourcesThatCanDo(
     Object.values(sequelize.models),
