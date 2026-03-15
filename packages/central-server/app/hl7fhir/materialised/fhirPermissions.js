@@ -22,7 +22,7 @@ function getPermissionNoun(fhirResourceName) {
   return FHIR_RESOURCE_TO_PERMISSION_NOUN[fhirResourceName];
 }
 
-function hasFhirPermission(ability, verb, noun) {
+export function hasFhirPermission(ability, verb, noun) {
   if (ability.can(verb, noun)) return true;
 
   for (const [type, config] of Object.entries(FHIR_INTEGRATION_PERMISSIONS)) {
