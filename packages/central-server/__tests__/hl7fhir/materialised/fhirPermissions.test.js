@@ -1,4 +1,3 @@
-import { fake } from '@tamanu/fake-data/fake';
 import {
   IMAGING_REQUEST_STATUS_TYPES,
   LAB_REQUEST_STATUSES,
