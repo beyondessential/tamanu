@@ -1,12 +1,11 @@
 import {
   FHIR_DIAGNOSTIC_REPORT_STATUS,
   FHIR_OBSERVATION_STATUS,
-  FHIR_INTEGRATION_PERMISSIONS,
+  FHIR_INTEGRATION_VERB,
 } from '@tamanu/constants';
 
 import { createTestContext } from '../../utilities';
 import {
-  integrationPermissionsToTuples,
   fakeResourcesOfFhirServiceRequest,
   fakeResourcesOfFhirServiceRequestWithLabRequest,
   fakeResourcesOfFhirServiceRequestWithImagingRequest,
@@ -344,7 +343,7 @@ describe('FHIR Permissions', () => {
     });
 
     it('PMI user can read Patient but not Encounter', async () => {
-      const app = await ctx.baseApp.asNewRole(integrationPermissionsToTuples(FHIR_INTEGRATION_PERMISSIONS.PMI));
+      const app = await ctx.baseApp.asNewRole([[FHIR_INTEGRATION_VERB, 'PMI']]);
 
       const patientResponse = await app.get(
         `/api/integration/${INTEGRATION_ROUTE}/Patient/${fhirPatient.id}`,
@@ -358,7 +357,7 @@ describe('FHIR Permissions', () => {
     });
 
     it('LABS user can read Patient and write DiagnosticReport but not ImagingStudy', async () => {
-      const app = await ctx.baseApp.asNewRole(integrationPermissionsToTuples(FHIR_INTEGRATION_PERMISSIONS.LABS));
+      const app = await ctx.baseApp.asNewRole([[FHIR_INTEGRATION_VERB, 'LABS']]);
 
       const patientResponse = await app.get(
         `/api/integration/${INTEGRATION_ROUTE}/Patient/${fhirPatient.id}`,
@@ -375,7 +374,7 @@ describe('FHIR Permissions', () => {
     });
 
     it('RISPACS user can read Patient and write ImagingStudy but not DiagnosticReport', async () => {
-      const app = await ctx.baseApp.asNewRole(integrationPermissionsToTuples(FHIR_INTEGRATION_PERMISSIONS.RISPACS));
+      const app = await ctx.baseApp.asNewRole([[FHIR_INTEGRATION_VERB, 'RISPACS']]);
 
       const patientResponse = await app.get(
         `/api/integration/${INTEGRATION_ROUTE}/Patient/${fhirPatient.id}`,

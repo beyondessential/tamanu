@@ -8,7 +8,7 @@ import {
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 
-export function integrationPermissionsToTuples({ read = [], write = [] }) {
+function integrationPermissionsToTuples({ read = [], write = [] }) {
   return [
     ...read.map(noun => ['read', noun]),
     ...write.map(noun => ['write', noun]),

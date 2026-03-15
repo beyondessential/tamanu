@@ -346,6 +346,8 @@ export const SERVICE_REQUEST_PERMISSION_NOUNS = {
   IMAGING: 'FhirImagingServiceRequest',
 } as const;
 
+export const FHIR_INTEGRATION_VERB = 'fhirIntegration';
+
 export const FHIR_INTEGRATION_PERMISSIONS: Record<
   string,
   { read: string[]; write: string[]; serviceRequestCategories?: string[] }

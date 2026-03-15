@@ -2,6 +2,8 @@ import asyncHandler from 'express-async-handler';
 import {
   FHIR_ISSUE_TYPE,
   FHIR_RESOURCE_TO_PERMISSION_NOUN,
+  FHIR_INTEGRATION_PERMISSIONS,
+  FHIR_INTEGRATION_VERB,
   SERVICE_REQUEST_PERMISSION_NOUNS,
   SERVICE_REQUEST_CATEGORY_CODES,
 } from '@tamanu/constants';
@@ -20,12 +22,23 @@ function getPermissionNoun(fhirResourceName) {
   return FHIR_RESOURCE_TO_PERMISSION_NOUN[fhirResourceName];
 }
 
+function hasFhirPermission(ability, verb, noun) {
+  if (ability.can(verb, noun)) return true;
+
+  for (const [type, config] of Object.entries(FHIR_INTEGRATION_PERMISSIONS)) {
+    if (!ability.can(FHIR_INTEGRATION_VERB, type)) continue;
+    if (verb === 'read' && config.read.includes(noun)) return true;
+    if (verb === 'write' && config.write.includes(noun)) return true;
+  }
+  return false;
+}
+
 function getServiceRequestAllowedCategories(ability) {
   const categories = [];
-  if (ability.can('read', SERVICE_REQUEST_PERMISSION_NOUNS.LAB)) {
+  if (hasFhirPermission(ability, 'read', SERVICE_REQUEST_PERMISSION_NOUNS.LAB)) {
     categories.push(SERVICE_REQUEST_CATEGORY_CODES.LAB);
   }
-  if (ability.can('read', SERVICE_REQUEST_PERMISSION_NOUNS.IMAGING)) {
+  if (hasFhirPermission(ability, 'read', SERVICE_REQUEST_PERMISSION_NOUNS.IMAGING)) {
     categories.push(SERVICE_REQUEST_CATEGORY_CODES.IMAGING);
   }
   return categories;
@@ -43,7 +56,7 @@ export function checkFhirReadPermission(FhirResource) {
       req.fhirAllowedServiceRequestCategories = allowedCategories;
     } else {
       const noun = getPermissionNoun(FhirResource.fhirName);
-      if (!noun || !ability.can('read', noun)) {
+      if (!noun || !hasFhirPermission(ability, 'read', noun)) {
         throw new FhirForbiddenError(`No permission to read ${FhirResource.fhirName}`);
       }
     }
@@ -57,7 +70,7 @@ export function checkFhirWritePermission(FhirResource) {
     const { ability } = req;
     const noun = getPermissionNoun(FhirResource.fhirName);
 
-    if (!noun || !ability.can('write', noun)) {
+    if (!noun || !hasFhirPermission(ability, 'write', noun)) {
       throw new FhirForbiddenError(`No permission to write ${FhirResource.fhirName}`);
     }
 
@@ -67,7 +80,7 @@ export function checkFhirWritePermission(FhirResource) {
 
 export function checkFhirWritePermissionForResource(ability, fhirResourceName) {
   const noun = getPermissionNoun(fhirResourceName);
-  if (!noun || !ability.can('write', noun)) {
+  if (!noun || !hasFhirPermission(ability, 'write', noun)) {
     throw new FhirForbiddenError(`No permission to write ${fhirResourceName}`);
   }
 }
