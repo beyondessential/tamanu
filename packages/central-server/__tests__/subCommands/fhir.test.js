@@ -5,7 +5,7 @@ import {
   LAB_REQUEST_STATUSES,
 } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
-import { fhir } from '../../dist/subCommands/fhir';
+import { fhirCommand } from '../../dist/subCommands/fhir';
 import { ApplicationContext } from '../../dist/ApplicationContext';
 import {
   fakeResourcesOfFhirServiceRequest,
@@ -58,7 +58,7 @@ describe('fhir sub commands', () => {
     });
     await imagingRequest.update({ status: IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS });
 
-    await fhir({ refresh: 'ServiceRequest' });
+    await fhirCommand({ refresh: 'ServiceRequest' });
 
     await fhirServiceRequest.reload();
     // See mapping at packages/database/src/models/fhir/ServiceRequest/getValues.js
@@ -81,7 +81,7 @@ describe('fhir sub commands', () => {
     await imagingRequest.update({ status: IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS });
     await labRequest.update({ status: LAB_REQUEST_STATUSES.TO_BE_VERIFIED });
 
-    await fhir({ refresh: 'ServiceRequest' });
+    await fhirCommand({ refresh: 'ServiceRequest' });
 
     await fhirImagingServiceRequest.reload();
     await fhirLabServiceRequest.reload();
@@ -103,7 +103,7 @@ describe('fhir sub commands', () => {
       }),
     );
 
-    await fhir({ refresh: 'Encounter' });
+    await fhirCommand({ refresh: 'Encounter' });
     const fhirEncounter = await FhirEncounter.findAndCountAll({
       where: {},
     });
