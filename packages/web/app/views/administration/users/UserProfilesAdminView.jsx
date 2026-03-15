@@ -199,7 +199,7 @@ export const UserAdminView = React.memo(() => {
     setIsAddUserModalOpen(false);
   };
 
-  const title = <TranslatedText stringId="adminSidebar.users" fallback="Users" />;
+  const title = <TranslatedText stringId="adminSidebar.user-profiles" fallback="User profiles" />;
 
   const titleActions = canCreateUser && (
     <AddUserButton onClick={handleAddUserClick} data-testid="add-user-button">
