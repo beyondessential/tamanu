@@ -1,20 +1,8 @@
 import { type DestroyOptions, type UpdateOptions } from 'sequelize';
 import { PharmacyOrderPrescription } from './PharmacyOrderPrescription';
 
-const PHARMACY_ORDER_INCLUDE = {
-  association: 'pharmacyOrder',
-  attributes: ['isDischargePrescription'],
-};
-
 const updateInvoiceQuantityForPrescription = async (instance: PharmacyOrderPrescription) => {
   const { models } = instance.sequelize;
-
-  // Use eagerly loaded association if available (bulk hooks), otherwise fetch
-  const pharmacyOrder =
-    (instance as any).pharmacyOrder ??
-    (await models.PharmacyOrder.findByPk(instance.pharmacyOrderId));
-  if (!pharmacyOrder?.isDischargePrescription) return;
-
   const prescription = await models.Prescription.findByPk(instance.prescriptionId, {
     include: [
       {
@@ -73,7 +61,6 @@ export const afterBulkUpdateHook = async (options: UpdateOptions) => {
   const { where } = options;
   const instances = await PharmacyOrderPrescription.findAll({
     where,
-    include: [PHARMACY_ORDER_INCLUDE],
   });
   for (const instance of instances) {
     await updateInvoiceQuantityForPrescription(instance as PharmacyOrderPrescription);
@@ -85,7 +72,6 @@ export const afterBulkDestroyHook = async (options: DestroyOptions) => {
   const instances = await PharmacyOrderPrescription.findAll({
     where,
     paranoid: false, // include deleted records to find what was just destroyed
-    include: [PHARMACY_ORDER_INCLUDE],
   });
   for (const instance of instances) {
     await updateInvoiceQuantityForPrescription(instance as PharmacyOrderPrescription);
