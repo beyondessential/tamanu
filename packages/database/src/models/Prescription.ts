@@ -233,7 +233,13 @@ export class Prescription extends Model {
     const pharmacyOrderPrescriptions = await PharmacyOrderPrescription.findAll({
       where: { prescriptionId: prescription.id },
       include: [
-        { model: PharmacyOrder, as: 'pharmacyOrder', attributes: ['date', 'orderingClinicianId'] },
+        {
+          model: PharmacyOrder,
+          as: 'pharmacyOrder',
+          attributes: ['date', 'orderingClinicianId', 'isDischargePrescription'],
+          where: { isDischargePrescription: true },
+          required: true,
+        },
       ],
     });
 
