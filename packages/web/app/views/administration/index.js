@@ -5,7 +5,7 @@ export { AssetUploaderView } from './AssetUploaderView';
 export * from './users';
 export { ProgramsAdminView } from './ProgramsAdminView';
 export { SurveyResponsesAdminView } from './SurveyResponsesAdminView';
-export { PermissionsAdminView } from './PermissionsAdminView';
+export { PermissionsAdminView } from './permissions/PermissionsAdminView';
 export { ReferenceDataAdminView } from './ReferenceDataAdminView';
 export { PatientMergeView } from './patientMerge';
 export { SyncView } from './SyncView';

@@ -1,14 +1,14 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { QueryTypes } from 'sequelize';
-
 import { ValidationError } from '@tamanu/errors';
 import {
   HIDDEN_PERMISSION_NOUNS,
   NOUNS_WITH_OBJECT_ID,
+  OBJECT_ID_PERMISSION_SCHEMA,
   PERMISSION_SCHEMA,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
+import { REPORT_DEFINITIONS } from '@tamanu/shared/reports';
 
 async function getObjectIdsAndNamesByNoun(models) {
   const promises = NOUNS_WITH_OBJECT_ID.map(async noun => {
@@ -66,7 +66,7 @@ permissionsRouter.get(
   asyncHandler(async (req, res) => {
     req.checkPermission('read', 'Permission');
 
-    const rolesQuery = req.query.roles;
+    const rolesQuery = req.query.roles || '';
     if (typeof rolesQuery !== 'string') {
       throw new ValidationError('Query parameter "roles" is required');
     }
@@ -75,28 +75,18 @@ permissionsRouter.get(
       .split(',')
       .map(roleId => roleId.trim())
       .filter(Boolean);
-    if (!roleIds.length) {
-      throw new ValidationError('At least one role ID is required');
-    }
 
     const { Permission } = req.store.models;
-    const rows = await Permission.sequelize.query(
-      `
-      SELECT
-        verb,
-        noun,
-        object_id AS "objectId",
-        role_id AS "roleId"
-      FROM permissions
-      WHERE role_id IN (:roleIds)
-      AND deleted_at IS NULL
-      ORDER BY noun, verb, object_id
-      `,
-      {
-        replacements: { roleIds },
-        type: QueryTypes.SELECT,
-      },
-    );
+
+    const rows = await Permission.findAll({
+      where: roleIds.length > 0 ? { roleId: roleIds } : undefined,
+      attributes: ['verb', 'noun', 'objectId', 'roleId'],
+      order: [
+        ['noun', 'ASC'],
+        ['verb', 'ASC'],
+        ['objectId', 'ASC'],
+      ],
+    });
 
     // Build full matrix from the permission schema (valid noun/verb combinations)
     const permissionMap = {};
@@ -110,9 +100,13 @@ permissionsRouter.get(
 
     // Pre-populate rows for all objectIds of nouns that support them
     const objectIdEntries = await getObjectIdsAndNamesByNoun(req.store.models);
+
+    // Add static reports (not backed by a model)
+    objectIdEntries.StaticReport = REPORT_DEFINITIONS.map(r => ({ id: r.id, name: r.name }));
+
     const objectNameLookup = {};
     for (const [noun, entries] of Object.entries(objectIdEntries)) {
-      const verbs = PERMISSION_SCHEMA[noun] || [];
+      const verbs = OBJECT_ID_PERMISSION_SCHEMA[noun] || [];
       for (const { id: objectId, name } of entries) {
         objectNameLookup[`${noun}#${objectId}`] = name;
         for (const verb of verbs) {
@@ -127,6 +121,13 @@ permissionsRouter.get(
     // Layer actual permission data on top (including objectId-specific entries)
     for (const { verb, noun, objectId, roleId } of rows) {
       if (HIDDEN_PERMISSION_NOUNS.has(noun)) continue;
+
+      // Skip object-ID rows whose verb isn't allowed at the object level
+      if (objectId) {
+        const allowedVerbs = OBJECT_ID_PERMISSION_SCHEMA[noun];
+        if (!allowedVerbs || !allowedVerbs.includes(verb)) continue;
+      }
+
       const key = `${verb}#${noun}#${objectId ?? ''}`;
       if (!permissionMap[key]) {
         permissionMap[key] = { verb, noun, objectId: objectId ?? null };

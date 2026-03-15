@@ -128,18 +128,6 @@ describe('Permissions Admin', () => {
       expect(surveyObjectRow).toBeDefined();
       expect(objectNames[`Survey#${survey.id}`]).toBe('Test Survey');
     });
-
-    it('should return 422 when roles query param is missing', async () => {
-      const res = await adminApp.get('/v1/admin/permissions');
-      expect(res.status).toBe(422);
-    });
-
-    it('should return 422 when roles query param is empty', async () => {
-      const res = await adminApp
-        .get('/v1/admin/permissions')
-        .query({ roles: '' });
-      expect(res.status).toBe(422);
-    });
   });
 
   describe('POST /create-batch', () => {

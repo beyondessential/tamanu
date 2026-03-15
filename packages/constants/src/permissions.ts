@@ -105,14 +105,19 @@ export const PermissionVerb = {
 
 export type PermissionVerb = (typeof PermissionVerb)[keyof typeof PermissionVerb];
 
-export const NOUNS_WITH_OBJECT_ID = [
-  'Survey',
-  'StaticReport',
-  'ReportDefinition',
-  'ProgramRegistry',
-];
-
 const { Manage, Delete, Create, Write, List, Read, Run, Submit } = PermissionVerb;
+
+// Verbs allowed at the per-object level for nouns that support objectId.
+// These are typically a subset of PERMISSION_SCHEMA[noun] — noun-level-only
+// verbs like List and Create are excluded.
+export const OBJECT_ID_PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
+  Survey: [Read, Write, Submit],
+  StaticReport: [Run],
+  ReportDefinition: [Read, Write, Run],
+  ProgramRegistry: [Read],
+};
+
+export const NOUNS_WITH_OBJECT_ID = Object.keys(OBJECT_ID_PERMISSION_SCHEMA);
 
 export const PERMISSION_SCHEMA: Record<string, readonly PermissionVerb[]> = {
   all: [Manage],
@@ -223,5 +228,11 @@ export const VERB_ABBREVIATIONS: Record<PermissionVerb, string> = {
 
 export const HIDDEN_PERMISSION_NOUNS = new Set(['all']);
 
-// Verbs ordered high → low; selecting a verb auto-selects all verbs after it
+// Verbs ordered high → low; selecting a verb auto-selects all verbs after it.
+// If a verb is not in the hierarchy (eg: Run), it will not be auto-selected when another verb is selected.
 export const VERB_HIERARCHY = ['delete', 'create', 'write', 'read', 'list'];
+
+// Canonical left-to-right column order for summary display (L R W C D X S).
+// Every noun gets the same number of columns so summaries stay aligned.
+// `manage` is excluded because its only noun (`all`) is hidden.
+export const VERB_DISPLAY_ORDER = ['list', 'read', 'write', 'create', 'delete', 'run', 'submit'];
