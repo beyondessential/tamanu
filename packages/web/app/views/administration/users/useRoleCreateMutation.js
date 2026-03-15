@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { useApi } from '../../../api';
-import { ROLES_ENDPOINT } from '../constants';
+import { ROLE_ENDPOINT } from '../constants';
 
 export const useRoleCreateMutation = useMutationOptions => {
   const api = useApi();
@@ -8,7 +8,7 @@ export const useRoleCreateMutation = useMutationOptions => {
   return useMutation({
     mutationKey: ['roles', 'create'],
     mutationFn: async ({ id, name }) =>
-      await api.post(ROLES_ENDPOINT, { id: id.trim(), name: name.trim() }),
+      await api.post(ROLE_ENDPOINT, { id: id.trim(), name: name.trim() }),
     ...useMutationOptions,
   });
 };

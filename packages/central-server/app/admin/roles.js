@@ -6,6 +6,10 @@ import { z } from 'zod';
 import { DatabaseDuplicateError, InvalidOperationError, NotFoundError } from '@tamanu/errors';
 import { getResourceList } from '@tamanu/shared/utils/crudHelpers';
 
+/** `/admin/role` endpoint for CRUD-ing a single role */
+export const roleRouter = express.Router();
+
+/** `/admin/roles` endpoint for CRUD-ing multiple roles at once */
 export const rolesRouter = express.Router();
 
 rolesRouter.get(
@@ -42,7 +46,7 @@ const createRoleSchema = z.object({
   name: z.string().trim().min(1),
 });
 
-rolesRouter.post(
+roleRouter.post(
   '/',
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'Role');
@@ -63,7 +67,7 @@ rolesRouter.post(
   }),
 );
 
-rolesRouter.delete(
+roleRouter.delete(
   '/:id',
   asyncHandler(async (req, res) => {
     req.checkPermission('delete', 'Role');
