@@ -44,6 +44,7 @@ async function startApiSyncAndTasks({ skipMigrationCheck }) {
   context.centralServer = new CentralServerConnection(context);
   context.syncManager = new FacilitySyncManager(context);
   context.syncConnection = new FacilitySyncConnection();
+  // eslint-disable-next-line require-atomic-updates
   context.timesync = await initTimesync({
     models: context.models,
     url: `${config.sync.host.trim().replace(/\/*$/, '')}/api/timesync`,
