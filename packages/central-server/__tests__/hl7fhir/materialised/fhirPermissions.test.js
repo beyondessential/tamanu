@@ -79,6 +79,8 @@ describe('FHIR Permissions', () => {
 
     beforeAll(async () => {
       const { FhirServiceRequest, FhirEncounter } = ctx.store.models;
+      await FhirServiceRequest.destroy({ where: {} });
+      await FhirEncounter.destroy({ where: {} });
       await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
 
       const labResources = await fakeResourcesOfFhirServiceRequestWithLabRequest(
