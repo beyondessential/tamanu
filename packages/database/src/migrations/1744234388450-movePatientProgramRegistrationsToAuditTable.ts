@@ -1,6 +1,7 @@
 import { FACT_CURRENT_SYNC_TICK, SYSTEM_USER_UUID } from '@tamanu/constants';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import config from 'config';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 import { DataTypes, QueryInterface, QueryTypes } from 'sequelize';
 import { pauseAudit } from '../utils/audit/pauseAudit';
 
@@ -9,7 +10,7 @@ interface tableOid {
 }
 
 export async function up(query: QueryInterface): Promise<void> {
-  const PRIMARY_TIME_ZONE = config?.primaryTimeZone;
+  const PRIMARY_TIME_ZONE = getPrimaryTimeZone(config);
 
   if (!PRIMARY_TIME_ZONE) {
     throw Error('A primaryTimeZone must be configured in local.json5 for this migration to run.');

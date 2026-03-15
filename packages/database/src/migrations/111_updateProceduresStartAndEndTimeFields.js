@@ -1,5 +1,6 @@
 import { DataTypes, QueryTypes } from 'sequelize';
 import config from 'config';
+import { getPrimaryTimeZone } from '@tamanu/shared/utils/timeZoneCheck';
 
 const ISO9075_DATE_TIME_FMT = 'YYYY-MM-DD HH24:MI:SS';
 const MIGRATIONS = [
@@ -20,7 +21,7 @@ const alterSchemaOnly = async (query, table, field) => {
 };
 
 const alterSchemaAndBackUpLegacyData = async (query, table, field) => {
-  const PRIMARY_TIME_ZONE = config?.primaryTimeZone;
+  const PRIMARY_TIME_ZONE = getPrimaryTimeZone(config);
 
   if (!PRIMARY_TIME_ZONE) {
     throw Error('A primaryTimeZone must be configured in local.json for this migration to run.');
