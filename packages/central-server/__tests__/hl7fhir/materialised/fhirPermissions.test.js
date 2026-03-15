@@ -139,7 +139,7 @@ describe('FHIR Permissions', () => {
     let imagingServiceRequest;
 
     beforeAll(async () => {
-      const { FhirServiceRequest, FhirEncounter, ImagingRequest } = ctx.store.models;
+      const { FhirServiceRequest, FhirEncounter } = ctx.store.models;
       await FhirServiceRequest.destroy({ where: {} });
       await FhirEncounter.destroy({ where: {} });
       await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
