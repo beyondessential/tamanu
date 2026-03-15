@@ -1,7 +1,6 @@
 import config from 'config';
 
 import { closeAllDatabases, openDatabase } from '@tamanu/database/services/database';
-import { setFhirRefreshTriggers } from '@tamanu/database';
 import { fakeUUID } from '@tamanu/utils/generateId';
 
 const getOrCreateConnection = async (configOverrides, key = 'main') => {
@@ -11,12 +10,6 @@ const getOrCreateConnection = async (configOverrides, key = 'main') => {
     ...configOverrides,
     testMode,
   });
-
-  if (!testMode) {
-    const triggersEnabled =
-      !!config?.integrations?.fhir?.enabled && !!config?.integrations?.fhir?.worker?.enabled;
-    await setFhirRefreshTriggers(store.sequelize, { triggersEnabled });
-  }
 
   return store;
 };

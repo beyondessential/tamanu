@@ -78,10 +78,10 @@ export class ApplicationContext {
       return this;
     }
 
-    const triggersEnabled =
+    const fhirWorkerEnabled =
       !!config?.integrations?.fhir?.enabled && !!config?.integrations?.fhir?.worker?.enabled;
     await initFhirSettingsFromDb(this.settings);
-    await setFhirRefreshTriggers(this.store.sequelize, { triggersEnabled });
+    await setFhirRefreshTriggers(this.store.sequelize, { fhirWorkerEnabled });
 
     await initDeviceId({ context: this, deviceType: DEVICE_TYPES.CENTRAL_SERVER });
 

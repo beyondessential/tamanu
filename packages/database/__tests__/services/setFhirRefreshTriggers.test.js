@@ -14,10 +14,10 @@ describe('setFhirRefreshTriggers', () => {
     await closeDatabase();
   });
 
-  it('adds fhir_refresh triggers when triggersEnabled is true', async () => {
+  it('adds fhir_refresh triggers when fhirWorkerEnabled is true', async () => {
     const { sequelize } = database;
 
-    await setFhirRefreshTriggers(sequelize, { triggersEnabled: true });
+    await setFhirRefreshTriggers(sequelize, { fhirWorkerEnabled: true });
 
     const [rows] = await sequelize.query(`
       SELECT event_object_schema, event_object_table
@@ -30,10 +30,10 @@ describe('setFhirRefreshTriggers', () => {
     expect(rows.every(r => r.event_object_schema === 'public')).toBe(true);
   });
 
-  it('removes fhir_refresh triggers when triggersEnabled is false', async () => {
+  it('removes fhir_refresh triggers when fhirWorkerEnabled is false', async () => {
     const { sequelize } = database;
 
-    await setFhirRefreshTriggers(sequelize, { triggersEnabled: false });
+    await setFhirRefreshTriggers(sequelize, { fhirWorkerEnabled: false });
 
     const [rows] = await sequelize.query(`
       SELECT 1

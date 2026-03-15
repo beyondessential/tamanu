@@ -63,12 +63,12 @@ export class ApplicationContext {
     }, {});
     this.settings.global = new ReadSettings(this.models);
 
-    const triggersEnabled =
+    const fhirWorkerEnabled =
       !!config?.integrations?.fhir?.enabled && !!config?.integrations?.fhir?.worker?.enabled;
 
     const facilityReaders = facilityIds.map(id => this.settings[id]);
     await initFhirSettingsFromDb(this.settings.global, facilityReaders);
-    await setFhirRefreshTriggers(this.sequelize, { triggersEnabled });
+    await setFhirRefreshTriggers(this.sequelize, { fhirWorkerEnabled });
 
     if (config.db.reportSchemas?.enabled) {
       this.reportSchemaStores = await initReporting(this.store);
