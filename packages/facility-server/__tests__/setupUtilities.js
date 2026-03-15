@@ -11,7 +11,7 @@ export function deleteAllTestIds({ models }) {
   );
   const deleteTasks = existingInDb.map((Model) => {
     const where = [
-      Sequelize.where(Sequelize.cast(Sequelize.col('id'), 'text'), {
+      Sequelize.where(Sequelize.cast(Sequelize.col(`${Model.name}.id`), 'text'), {
         [Op.like]: FAKE_UUID_PATTERN,
       }),
     ]
