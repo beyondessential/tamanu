@@ -72,11 +72,10 @@ export async function startFhirWorkerTasks({ store, settings, topics }) {
   await setHandler(JOB_TOPICS.FHIR.REFRESH.FROM_UPSTREAM, fromUpstream);
   await setHandler(JOB_TOPICS.FHIR.RESOLVER, resolver);
 
-  if (topics?.length) {
-    for (const topic of topics) {
-      queueManager.processQueueNow(topic);
-    }
+  for (const topic of queueManager.topics()) {
+    queueManager.processQueueNow(topic);
   }
+
   return queueManager;
 }
 

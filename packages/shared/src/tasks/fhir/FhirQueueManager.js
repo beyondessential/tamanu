@@ -137,6 +137,15 @@ export class FhirQueueManager {
     );
   }
 
+  /**
+   * Get the list of topics that are being processed.
+   *
+   * @returns {string[]} List of topics.
+   */
+  topics() {
+    return Array.from(this.queueProcessors.keys());
+  }
+
   processQueueNow(topic) {
     if (this.testMode) return;
 

@@ -44,10 +44,9 @@ export function createFhirCommand(ApplicationContext) {
       }
 
       log.info(
-        `${
-          Resource.name
-        }: ${count}/${upstreamCount} records/upstream, last updated ${latest}/${upstreamLatest ||
-          'never'}`,
+        `${Resource.name}: ${count}/${upstreamCount} records/upstream, last updated ${latest}/${
+          upstreamLatest || 'never'
+        }`,
       );
     }
 
@@ -62,6 +61,7 @@ export function createFhirCommand(ApplicationContext) {
     );
 
     if (resource.toLowerCase() === 'all') {
+      await app.close(); // Close the app as we don't want to keep the database connection open for the entire duration of the refresh
       for (const Resource of materialisableResources) {
         if (!Resource?.UpstreamModels || Resource.UpstreamModels.length === 0) continue;
         await doRefresh(Resource.fhirName, { existing, missing, since });
@@ -77,7 +77,9 @@ export function createFhirCommand(ApplicationContext) {
     const sql = (
       await Promise.all(
         Resource.UpstreamModels.map(async upstreamModel => {
-          const queryToFilterUpstream = await Resource.queryToFilterUpstream(upstreamModel.tableName);
+          const queryToFilterUpstream = await Resource.queryToFilterUpstream(
+            upstreamModel.tableName,
+          );
           const sqlToFilterUpstream = await prepareQuery(upstreamModel, {
             attributes: ['id', 'deleted_at', 'updated_at'],
             ...queryToFilterUpstream,
@@ -129,10 +131,7 @@ export function createFhirCommand(ApplicationContext) {
         .object({
           existing: yup.boolean().default(false),
           missing: yup.boolean().default(false),
-          since: yup
-            .date()
-            .nullable()
-            .default(null),
+          since: yup.date().nullable().default(null),
         })
         .validateSync({ existing, missing, since }),
     );
@@ -141,7 +140,10 @@ export function createFhirCommand(ApplicationContext) {
   return new Command('fhir')
     .description('FHIR integration utilities')
     .option('--status', 'show status (default)')
-    .option('--refresh <Resource>', 'refresh a FHIR Resource (use `all` to do refresh all resources)')
+    .option(
+      '--refresh <Resource>',
+      'refresh a FHIR Resource (use `all` to do refresh all resources)',
+    )
     .option('--existing', 'only refresh already-materialised resources, not missing ones')
     .option('--missing', 'only materialise missing resources, leave existing ones alone')
     .option('--since <date>', 'filter to source tables that have been updated since that date only')
