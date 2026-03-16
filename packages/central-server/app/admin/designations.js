@@ -55,6 +55,44 @@ designationsRouter.get(
   }),
 );
 
+const createDesignationSchema = z.object({
+  id: z.string().trim().min(1),
+  name: z.string().trim().min(1),
+});
+
+designationsRouter.post(
+  '/',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('create', 'ReferenceData');
+
+    const {
+      store: {
+        models: { ReferenceData },
+        sequelize,
+      },
+    } = req;
+    const { id, name } = await createDesignationSchema.parseAsync(req.body);
+
+    const designation = await sequelize.transaction(async () => {
+      const exists = await ReferenceData.findOne({
+        where: { id, type: REFERENCE_TYPES.DESIGNATION },
+      });
+      if (exists) {
+        throw new DatabaseDuplicateError(`A designation already exists with ID ‘${id}’.`);
+      }
+
+      return ReferenceData.create({
+        id: id.trim(),
+        code: id.trim(),
+        type: REFERENCE_TYPES.DESIGNATION,
+        name: name.trim(),
+      });
+    });
+
+    res.status(201).send(designation);
+  }),
+);
+
 const createUserDesignationSchema = z.object({
   userId: z.string().trim().min(1),
   designationId: z.string().trim().min(1),

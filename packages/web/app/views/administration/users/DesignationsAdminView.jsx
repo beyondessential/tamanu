@@ -1,6 +1,6 @@
 import { Typography } from '@mui/material';
 import React, { useCallback, useMemo, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router';
+import { useMatch, useNavigate, useSearchParams } from 'react-router';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 
@@ -8,6 +8,7 @@ import { TranslatedText } from '../../../components';
 import { ConfirmModal } from '../../../components/ConfirmModal';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { DESIGNATIONS_ENDPOINT } from '../constants';
+import { AddDesignationModal } from './AddDesignationModal';
 import { DesignationsSearchForm } from './DesignationsSearchForm';
 import {
   AddButton,
@@ -53,6 +54,7 @@ export const DesignationsAdminView = () => {
   const idQuery = searchParams.get('id');
   const nameQuery = searchParams.get('name');
 
+  const isAddRoute = Boolean(useMatch('/admin/users/designations/new'));
   const navigate = useNavigate();
   const [designationToDelete, setDesignationToDelete] = useState(null);
   const [refreshCount, setRefreshCount] = useState(0);
@@ -135,6 +137,12 @@ export const DesignationsAdminView = () => {
           />
         }
         refreshCount={refreshCount}
+      />
+
+      <AddDesignationModal
+        open={isAddRoute}
+        onClose={() => navigate('..')}
+        onSuccess={() => setRefreshCount(c => c + 1)}
       />
 
       <DeleteConfirmationModal
