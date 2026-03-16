@@ -18,6 +18,44 @@ const DEFAULTS = {
   countMax: 1000,
   concurrency: 10,
   extensions: { Patient: { newZealandEthnicity: false } },
+  nullLastNameValue: 'NoLastName',
+  assigners: {
+    patientDisplayId: 'Tamanu',
+    patientDrivingLicense: 'RTA',
+    patientPassport: 'Fiji Passport Office',
+  },
+  dataDictionaries: {
+    testMethod: 'http://tamanu.io/data-dictionary/covid-test-methods',
+    patientDisplayId: 'http://tamanu.io/data-dictionary/application-reference-number.html',
+    labRequestDisplayId: 'http://tamanu.io/data-dictionary/labrequest-reference-number.html',
+    areaExternalCode: 'http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html',
+    encounterClass: 'http://terminology.hl7.org/CodeSystem/v3-ActCode',
+    pharmacyOrderPrescriptionId: 'http://data-dictionary.tamanu.org/tamanu-mrid-pharmacyorderprescription.html',
+    pharmacyOrderId: 'http://data-dictionary.tamanu.org/tamanu-mrid-pharmacyorder.html',
+    medicationCodeSystem: 'http://data-dictionary.tamanu.org/tamanu-msupplyuniveralcodes.html',
+    medicationRouteCodeSystem: 'http://data-dictionary.tamanu.org/tamanu-medicationroutecodes.html',
+    serviceRequestImagingDisplayId: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
+    serviceRequestImagingId: 'http://data-dictionary.tamanu-fiji.org/tamanu-id-imagingrequest.html',
+    serviceRequestImagingTypeCodeSystem: 'http://tamanu.io/data-dictionary/imaging-type-code.html',
+    serviceRequestLabDisplayId: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-labrequest.html',
+    serviceRequestLabId: 'http://data-dictionary.tamanu-fiji.org/tamanu-id-labrequest.html',
+    serviceRequestLabPanelCodeSystem: 'https://www.senaite.com/profileCodes.html',
+    serviceRequestLabPanelExternalCodeSystem: 'http://loinc.org',
+    serviceRequestLabTestCodeSystem: 'https://www.senaite.com/testCodes.html',
+    serviceRequestLabTestExternalCodeSystem: 'http://loinc.org',
+    imagingStudyAccessionId: 'http://data-dictionary.tamanu-fiji.org/ris-accession-number.html',
+    ethnicityId: 'http://data-dictionary.tamanu-fiji.org/extensions/ethnic-group-code.html',
+    locationPhysicalType: 'http://terminology.hl7.org/CodeSystem/location-physical-type',
+    specimenType: 'http://www.senaite.com/data/sample_types',
+    sampleBodySite: 'http://bodySITE.NEW',
+    ips: {
+      medicationEncoding: 'http://nzmt.org.nz',
+      allergyIntoleranceEncoding: 'http://snomed.info/sct',
+      conditionEncoding: 'http://snomed.info/sct',
+      immunizationEncoding: 'http://nzmt.org.nz',
+      absentUnknown: 'http://hl7.org/fhir/uv/ips/CodeSystem/absent-unknown-uv-ips',
+    },
+  },
 };
 
 let settings = structuredClone(DEFAULTS);
@@ -63,6 +101,9 @@ export async function initFhirSettingsFromDb(globalSettings, facilitySettings = 
       countMax: fhir.parameters._count.max,
       concurrency: fhir.worker.concurrency,
       extensions: fhir.extensions,
+      nullLastNameValue: fhir.nullLastNameValue,
+      assigners: fhir.assigners,
+      dataDictionaries: fhir.dataDictionaries,
     };
     initialised = true; // eslint-disable-line require-atomic-updates
   } catch (error) {
@@ -88,4 +129,16 @@ export function getFhirCountSettings() {
 
 export function getFhirExtensionSettings() {
   return settings.extensions;
+}
+
+export function getFhirNullLastNameValue() {
+  return settings.nullLastNameValue;
+}
+
+export function getFhirAssigners() {
+  return settings.assigners;
+}
+
+export function getFhirDataDictionaries() {
+  return settings.dataDictionaries;
 }

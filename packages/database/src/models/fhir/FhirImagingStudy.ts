@@ -1,4 +1,3 @@
-import config from 'config';
 import { DataTypes, type Attributes, type WhereOptions } from 'sequelize';
 import * as yup from 'yup';
 
@@ -11,7 +10,7 @@ import {
 } from '@tamanu/constants';
 
 import { FhirAnnotation, FhirIdentifier, FhirReference } from '@tamanu/shared/services/fhirTypes';
-import { Deleted, Invalid } from '@tamanu/shared/utils/fhir';
+import { Deleted, getFhirDataDictionaries, Invalid } from '@tamanu/shared/utils/fhir';
 import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { FhirResource } from './Resource';
 import { FHIR_ENDPOINT_SCHEMA, type FhirEndpointType } from './fhirEndpoint';

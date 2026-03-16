@@ -1,7 +1,5 @@
-import config from 'config';
-
 import { FhirReference, FhirCoding, FhirCodeableConcept } from '@tamanu/shared/services/fhirTypes';
-import { formatFhirDate } from '@tamanu/shared/utils/fhir';
+import { formatFhirDate, getFhirDataDictionaries } from '@tamanu/shared/utils/fhir';
 import type { Models } from '../../../types/model';
 import type { LabRequest } from '../../../models';
 import type { Model } from '../../../models/Model';

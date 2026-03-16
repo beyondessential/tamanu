@@ -19,7 +19,7 @@ import {
   FhirIdentifier,
   FhirReference,
 } from '@tamanu/shared/services/fhirTypes';
-import { Exception, formatFhirDate } from '@tamanu/shared/utils/fhir';
+import { Exception, formatFhirDate, getFhirDataDictionaries } from '@tamanu/shared/utils/fhir';
 import type { Models } from '../../../types/model';
 import type { Model } from '../../../models/Model';
 import type { ImagingRequest, LabRequest, Note } from '../../../models';
@@ -60,11 +60,11 @@ async function getValuesFromImagingRequest(upstream: ImagingRequest, models: Mod
     lastUpdated: new Date(),
     identifier: [
       new FhirIdentifier({
-        system: config.hl7.dataDictionaries.serviceRequestImagingId,
+        system: getFhirDataDictionaries().serviceRequestImagingId,
         value: upstream.id,
       }),
       new FhirIdentifier({
-        system: config.hl7.dataDictionaries.serviceRequestImagingDisplayId,
+        system: getFhirDataDictionaries().serviceRequestImagingDisplayId,
         value: upstream.displayId,
       }),
     ],
@@ -90,7 +90,7 @@ async function getValuesFromImagingRequest(upstream: ImagingRequest, models: Mod
               coding: [
                 new FhirCoding({
                   code: areaExtCodes.get(id)?.code,
-                  system: config.hl7.dataDictionaries.areaExternalCode,
+                  system: getFhirDataDictionaries().areaExternalCode,
                 }),
               ],
             }),
@@ -121,11 +121,11 @@ async function getValuesFromLabRequest(upstream: LabRequest, models: Models) {
     lastUpdated: new Date(),
     identifier: [
       new FhirIdentifier({
-        system: config.hl7.dataDictionaries.serviceRequestLabId,
+        system: getFhirDataDictionaries().serviceRequestLabId,
         value: upstream.id,
       }),
       new FhirIdentifier({
-        system: config.hl7.dataDictionaries.serviceRequestLabDisplayId,
+        system: getFhirDataDictionaries().serviceRequestLabDisplayId,
         value: upstream.displayId,
       }),
     ],

@@ -1,4 +1,3 @@
-import config from 'config';
 import { addSeconds, parseISO } from 'date-fns';
 
 import {
@@ -17,7 +16,7 @@ import {
   FhirPeriod,
   FhirReference,
 } from '@tamanu/shared/services/fhirTypes';
-import { formatFhirDate } from '@tamanu/shared/utils/fhir';
+import { formatFhirDate, getFhirDataDictionaries } from '@tamanu/shared/utils/fhir';
 import type { Model } from '../../../models/Model';
 import type { Models } from '../../../types/model';
 import type { Encounter } from '../../../models';

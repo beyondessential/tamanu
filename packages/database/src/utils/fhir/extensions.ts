@@ -1,6 +1,5 @@
-import config from 'config';
 import { FhirCodeableConcept, FhirCoding, FhirExtension } from '@tamanu/shared/services/fhirTypes';
-import { getFhirExtensionSettings } from '@tamanu/shared/utils/fhir';
+import { getFhirDataDictionaries, getFhirExtensionSettings } from '@tamanu/shared/utils/fhir';
 import type { Patient } from '../../models';
 
 function getEthnicity(ethnicityId?: string) {

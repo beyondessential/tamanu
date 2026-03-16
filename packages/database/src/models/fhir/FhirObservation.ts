@@ -1,5 +1,3 @@
-import config from 'config';
-
 import { DataTypes } from 'sequelize';
 import * as yup from 'yup';
 
@@ -11,7 +9,7 @@ import {
   FhirReference,
   FhirTransactionBundle,
 } from '@tamanu/shared/services/fhirTypes';
-import { Invalid } from '@tamanu/shared/utils/fhir';
+import { getFhirDataDictionaries, Invalid } from '@tamanu/shared/utils/fhir';
 import { FhirResource } from './Resource';
 import type { InitOptions, Models } from '../../types/model';
 import type { LabRequest } from '../../models/LabRequest';
