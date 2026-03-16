@@ -29,16 +29,17 @@ export async function getValues(upstream: Model, models: Models) {
 }
 
 async function getValuesFromEncounter(upstream: Encounter, models: Models) {
+  const dataDicts = getFhirDataDictionaries();
   const subject = await subjectRef(upstream, models);
   const serviceProvider = await serviceProviderRef(upstream, models);
 
   return {
     lastUpdated: new Date(),
     status: status(upstream),
-    class: classification(upstream),
+    class: classification(upstream, dataDicts),
     actualPeriod: period(upstream),
     subject,
-    location: await locationRef(upstream, models),
+    location: await locationRef(upstream, models, dataDicts),
     serviceProvider,
     resolved: subject.isResolved() && (serviceProvider ? serviceProvider.isResolved() : true),
   };
@@ -52,7 +53,7 @@ function status(encounter: Encounter) {
   return FHIR_ENCOUNTER_STATUS.IN_PROGRESS;
 }
 
-function classification(encounter: Encounter) {
+function classification(encounter: Encounter, dataDicts: ReturnType<typeof getFhirDataDictionaries>) {
   const code = classificationCode(encounter);
   if (!code) return [];
 
@@ -60,7 +61,7 @@ function classification(encounter: Encounter) {
     new FhirCodeableConcept({
       coding: [
         new FhirCoding({
-          system: getFhirDataDictionaries().encounterClass,
+          system: dataDicts.encounterClass,
           code,
           display:
             FHIR_ENCOUNTER_CLASS_DISPLAY[code as keyof typeof FHIR_ENCOUNTER_CLASS_DISPLAY] ?? null,
@@ -117,7 +118,7 @@ function subjectRef(encounter: Encounter, models: Models) {
 
 const { BED, WARD, JURISDICTION } = FHIR_LOCATION_PHYSICAL_TYPE_CODE;
 
-async function locationRef(encounter: Encounter, models: Models) {
+async function locationRef(encounter: Encounter, models: Models, dataDicts: ReturnType<typeof getFhirDataDictionaries>) {
   const department = await models.Department.findOne({ where: { id: encounter.departmentId } });
   return [
     new FhirEncounterLocation({
@@ -129,7 +130,7 @@ async function locationRef(encounter: Encounter, models: Models) {
       physicalType: new FhirCodeableConcept({
         coding: [
           {
-            system: getFhirDataDictionaries().locationPhysicalType,
+            system: dataDicts.locationPhysicalType,
             code: JURISDICTION,
             display: FHIR_LOCATION_PHYSICAL_TYPE_DISPLAY[JURISDICTION],
           },
@@ -145,7 +146,7 @@ async function locationRef(encounter: Encounter, models: Models) {
       physicalType: new FhirCodeableConcept({
         coding: [
           {
-            system: getFhirDataDictionaries().locationPhysicalType,
+            system: dataDicts.locationPhysicalType,
             code: WARD,
             display: FHIR_LOCATION_PHYSICAL_TYPE_DISPLAY[WARD],
           },
@@ -161,7 +162,7 @@ async function locationRef(encounter: Encounter, models: Models) {
       physicalType: new FhirCodeableConcept({
         coding: [
           {
-            system: getFhirDataDictionaries().locationPhysicalType,
+            system: dataDicts.locationPhysicalType,
             code: BED,
             display: FHIR_LOCATION_PHYSICAL_TYPE_DISPLAY[BED],
           },
