@@ -51,13 +51,6 @@ const ExpandIcon = styled(ExpandMore)`
   }
 `;
 
-const ExpandIcon = styled(ExpandMore)`
-  transition: ${props => props.theme.transitions.create('rotate')};
-  .Mui-selected & {
-    rotate: x 0.5turn;
-  }
-`;
-
 const StyledList = styled(List)`
   padding: 0 0 4px 0;
 `;
