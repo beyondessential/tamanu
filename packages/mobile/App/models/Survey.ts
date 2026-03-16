@@ -36,6 +36,10 @@ export class Survey extends BaseModel implements ISurvey {
 
   @Column({ nullable: false, default: false })
   notifiable: boolean;
+
+  @Column({ type: 'varchar', nullable: true })
+  visibilityCriteria?: string;
+
   getComponents(options: { includeAllVitals?: boolean } = {}): Promise<ISurveyScreenComponent[]> {
     const where = {
       survey: {

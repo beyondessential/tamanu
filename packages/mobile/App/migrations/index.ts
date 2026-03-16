@@ -81,6 +81,7 @@ import { ensureSystemUserPresent1758183012000 } from './1758183012000-ensureSyst
 import { addNoteTypeIdColumn1761474536816 } from './1761474536816-addNoteTypeIdColumn';
 import { addLabRequestResultsInterpretation1763435712934 } from './1763435712934-addLabRequestResultsInterpretation';
 import { updateEncountersTableSetPatientIdNotNull1771277667000 } from './1771277667000-updateEncountersTableSetPatientIdNotNull';
+import { addSurveyFormVisibilityCriteria1773618699809 } from './1773618699809-addSurveyFormVisibilityCriteria';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -165,4 +166,5 @@ export const migrationList = [
   addNoteTypeIdColumn1761474536816,
   addLabRequestResultsInterpretation1763435712934,
   updateEncountersTableSetPatientIdNotNull1771277667000,
+  addSurveyFormVisibilityCriteria1773618699809,
 ];

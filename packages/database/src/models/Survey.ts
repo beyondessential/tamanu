@@ -18,6 +18,7 @@ export class Survey extends Model {
   declare notifiable: boolean;
   declare notifyEmailAddresses: string[];
   declare programId?: string;
+  declare visibilityCriteria?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -48,6 +49,10 @@ export class Survey extends Model {
           type: DataTypes.ARRAY(DataTypes.STRING),
           allowNull: false,
           defaultValue: [],
+        },
+        visibilityCriteria: {
+          type: DataTypes.TEXT,
+          allowNull: true,
         },
       },
       {
