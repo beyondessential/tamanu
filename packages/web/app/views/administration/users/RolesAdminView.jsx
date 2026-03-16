@@ -124,8 +124,8 @@ const DeleteConfirmationModalContent = styled(Typography).attrs({
 export const RolesAdminView = () => {
   // Search state
   const [searchParams, setSearchParams] = useSearchParams();
-  const nameQuery = searchParams.get('name') ?? '';
-  const idQuery = searchParams.get('id') ?? '';
+  const nameQuery = searchParams.get('name');
+  const idQuery = searchParams.get('id');
 
   // ‘Add role’ modal state
   const isAddRoute = Boolean(useMatch('/admin/users/roles/new'));
@@ -222,7 +222,7 @@ export const RolesAdminView = () => {
           <StyledForm
             formType={FORM_TYPES.SEARCH_FORM}
             initialValues={{ id: idQuery, name: nameQuery }}
-            key={`id=${idQuery}&name=${nameQuery}`}
+            key={`id=${idQuery ?? ''}&name=${nameQuery ?? ''}`}
             onSubmit={onSubmit}
             render={({ submitForm }) => (
               <>
