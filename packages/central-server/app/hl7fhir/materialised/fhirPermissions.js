@@ -80,10 +80,17 @@ export function checkFhirWritePermission(FhirResource) {
   });
 }
 
+const ALL_WRITE_NOUNS = [
+  ...new Set([
+    ...Object.values(FHIR_RESOURCE_TO_PERMISSION_NOUN),
+    ...Object.values(FHIR_INTEGRATION_PERMISSIONS).flatMap(c => c.write),
+  ]),
+];
+
 export function checkFhirBundleWritePermission() {
   return asyncHandler(async (req, _res, next) => {
     const { ability } = req;
-    const hasAnyWrite = Object.values(FHIR_RESOURCE_TO_PERMISSION_NOUN).some(noun =>
+    const hasAnyWrite = ALL_WRITE_NOUNS.some(noun =>
       hasFhirPermission(ability, 'write', noun),
     );
     if (!hasAnyWrite) {
