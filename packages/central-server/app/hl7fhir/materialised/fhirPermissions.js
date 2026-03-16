@@ -81,7 +81,10 @@ export function checkFhirWritePermission(FhirResource) {
 }
 
 const ALL_WRITE_NOUNS = [
-  ...new Set(Object.values(FHIR_INTEGRATION_PERMISSIONS).flatMap(c => c.write)),
+  ...new Set([
+    ...Object.values(FHIR_RESOURCE_TO_PERMISSION_NOUN),
+    ...Object.values(FHIR_INTEGRATION_PERMISSIONS).flatMap(c => c.write),
+  ]),
 ];
 
 export function checkFhirBundleWritePermission() {
