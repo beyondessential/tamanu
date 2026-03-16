@@ -58,21 +58,21 @@ function identifiers(patient: Patient) {
         use: 'usual',
         value: patient.displayId,
         assigner: new FhirReference({
-          display: config.hl7.assigners.patientDisplayId,
+          display: getFhirAssigners().patientDisplayId,
         }),
-        system: config.hl7.dataDictionaries.patientDisplayId,
+        system: getFhirDataDictionaries().patientDisplayId,
       },
       {
         use: 'secondary',
         assigner: new FhirReference({
-          display: config.hl7.assigners.patientPassport,
+          display: getFhirAssigners().patientPassport,
         }),
         value: additionalData?.passportNumber,
       },
       {
         use: 'secondary',
         assigner: new FhirReference({
-          display: config.hl7.assigners.patientDrivingLicense,
+          display: getFhirAssigners().patientDrivingLicense,
         }),
         value: additionalData?.drivingLicense,
       },

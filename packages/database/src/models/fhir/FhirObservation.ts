@@ -178,20 +178,21 @@ export class FhirObservation extends FhirResource {
       FhirCoding.asYup().validateSync(coding),
     );
 
+    const dd = getFhirDataDictionaries();
     const labTestCode = validatedCodings.find(
-      coding => coding.system === config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
+      coding => coding.system === dd.serviceRequestLabTestCodeSystem,
     )?.code;
 
     const labTestExternalCode = validatedCodings.find(
       coding =>
-        coding.system === config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem,
+        coding.system === dd.serviceRequestLabTestExternalCodeSystem,
     )?.code;
 
     if (!labTestCode && !labTestExternalCode) {
       throw new Invalid('Invalid code, must provide a code of one of the configured systems:', {
         systems: [
-          config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
-          config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem,
+          dd.serviceRequestLabTestCodeSystem,
+          dd.serviceRequestLabTestExternalCodeSystem,
         ],
       });
     }

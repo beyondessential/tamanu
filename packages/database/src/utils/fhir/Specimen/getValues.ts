@@ -76,7 +76,7 @@ async function resolveBodySite(upstream: LabRequest, models: Models) {
   return new FhirCodeableConcept({
     coding: [
       new FhirCoding({
-        system: config.hl7.dataDictionaries.sampleBodySite,
+        system: getFhirDataDictionaries().sampleBodySite,
         code: bodySite.code,
         display: bodySite.name,
       }),
@@ -97,7 +97,7 @@ async function resolveSpecimenType(upstream: LabRequest, models: Models) {
   return new FhirCodeableConcept({
     coding: [
       new FhirCoding({
-        system: config.hl7.dataDictionaries.specimenType,
+        system: getFhirDataDictionaries().specimenType,
         code: specimenType.code,
         display: specimenType.name,
       }),

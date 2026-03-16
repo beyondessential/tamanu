@@ -38,7 +38,7 @@ export async function getValues(upstream: PharmacyOrderPrescription, models: Mod
     lastUpdated: new Date(),
     identifier: [
       new FhirIdentifier({
-        system: config.hl7.dataDictionaries.pharmacyOrderPrescriptionId,
+        system: getFhirDataDictionaries().pharmacyOrderPrescriptionId,
         value: upstream.id,
       }),
     ],
@@ -47,7 +47,7 @@ export async function getValues(upstream: PharmacyOrderPrescription, models: Mod
     category: category(pharmacyOrder),
     groupIdentifier: [
       new FhirIdentifier({
-        system: config.hl7.dataDictionaries.pharmacyOrderId,
+        system: getFhirDataDictionaries().pharmacyOrderId,
         value: pharmacyOrder.id,
       }),
     ],
@@ -125,7 +125,7 @@ async function medication(pharmacyOrderPrescription: PharmacyOrderPrescription, 
   return new FhirCodeableConcept({
     coding: [
       new FhirCoding({
-        system: config.hl7.dataDictionaries.medicationCodeSystem,
+        system: getFhirDataDictionaries().medicationCodeSystem,
         code: medication?.code,
         display: medication?.name,
       }),
@@ -176,7 +176,7 @@ async function dosageInstruction(
     route: new FhirCodeableConcept({
       coding: [
         new FhirCoding({
-          system: config.hl7.dataDictionaries.medicationRouteCodeSystem,
+          system: getFhirDataDictionaries().medicationRouteCodeSystem,
           code: prescription.route,
         }),
       ],

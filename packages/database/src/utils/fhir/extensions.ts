@@ -27,7 +27,7 @@ export function nzEthnicity(patient: Patient, extensionSettingsOverride?: Record
       valueCodeableConcept: new FhirCodeableConcept({
         coding: [
           new FhirCoding({
-            system: config.hl7.dataDictionaries.ethnicityId,
+            system: getFhirDataDictionaries().ethnicityId,
             code,
             display,
           }),

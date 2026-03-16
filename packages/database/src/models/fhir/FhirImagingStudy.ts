@@ -75,12 +75,12 @@ export class FhirImagingStudy extends FhirResource {
     const serviceRequestId = this.basedOn?.find(
       (b) =>
         b?.type === 'ServiceRequest' &&
-        b?.identifier?.system === config.hl7.dataDictionaries.serviceRequestImagingId,
+        b?.identifier?.system === getFhirDataDictionaries().serviceRequestImagingId,
     )?.identifier.value;
     const serviceRequestDisplayId = this.basedOn?.find(
       (b) =>
         b?.type === 'ServiceRequest' &&
-        b?.identifier?.system === config.hl7.dataDictionaries.serviceRequestImagingDisplayId,
+        b?.identifier?.system === getFhirDataDictionaries().serviceRequestImagingDisplayId,
     )?.identifier.value;
 
     let upstreamRequest;
@@ -184,7 +184,7 @@ export class FhirImagingStudy extends FhirResource {
 
   async attachResults(imagingRequest: ImagingRequest) {
     const imagingAccessCode = this.identifier?.find(
-      (i) => i?.system === config.hl7.dataDictionaries.imagingStudyAccessionId,
+      (i) => i?.system === getFhirDataDictionaries().imagingStudyAccessionId,
     )?.value;
     const resultImageUrl = this.contained?.[0]?.address;
     if (!imagingAccessCode && !resultImageUrl) {
