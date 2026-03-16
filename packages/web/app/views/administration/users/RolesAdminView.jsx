@@ -4,18 +4,15 @@ import { useMatch, useNavigate, useSearchParams } from 'react-router';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 
-import { FORM_TYPES } from '@tamanu/constants/forms';
-import { Form, FormSubmitButton, getTranslatedOptions, TextField } from '@tamanu/ui-components';
-import { useSuggester } from '../../../api';
 import { PlusIcon } from '../../../assets/icons/PlusIcon';
 import { Button, DataFetchingTable, TranslatedText } from '../../../components';
 import { ConfirmModal } from '../../../components/ConfirmModal';
-import { AutocompleteField, Field } from '../../../components/Field';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { Colors } from '../../../constants';
 import { ROLES_ENDPOINT } from '../constants';
 import { AddRoleModal } from './AddRoleModal';
 import { Article } from './RolesAndDesignationsAdminView';
+import { RolesSearchForm } from './RolesSearchForm';
 import { useRoleDeleteMutation } from './useRoleDeleteMutation';
 
 const Header = styled.header`
@@ -30,31 +27,6 @@ const Header = styled.header`
   grid-template-columns: auto minmax(min-content, max-content);
   padding-block: 0.625rem;
   padding-inline: 1.25rem;
-`;
-
-const Search = styled('search')`
-  display: contents;
-  gap: inherit;
-`;
-
-const StyledForm = styled(Form)`
-  display: grid;
-  gap: inherit;
-  grid-template-columns: repeat(auto-fill, minmax(min(19.375rem, 100%), 1fr));
-`;
-
-const StyledField = styled(Field).attrs({
-  size: 'small',
-})``;
-
-const ButtonGroup = styled.div`
-  align-items: flex-end;
-  display: flex;
-  font-size: 0.875rem;
-  gap: inherit;
-  button {
-    font-size: inherit;
-  }
 `;
 
 const AddButton = styled(Button)`
@@ -122,7 +94,7 @@ const DeleteConfirmationModalContent = styled(Typography).attrs({
 
 export const RolesAdminView = () => {
   // Search state
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const nameQuery = searchParams.get('name');
   const idQuery = searchParams.get('id');
 
@@ -133,8 +105,6 @@ export const RolesAdminView = () => {
   // DataFetchingTable state
   const [roleToDelete, setRoleToDelete] = useState(null);
   const [refreshCount, setRefreshCount] = useState(0);
-
-  const { getTranslation } = useTranslation();
 
   const { mutate: deleteRole } = useRoleDeleteMutation({
     onSuccess: () => {
@@ -152,10 +122,6 @@ export const RolesAdminView = () => {
         ),
       );
     },
-  });
-
-  const roleSuggester = useSuggester('role', {
-    formatter: ({ id }) => ({ label: id, value: id }),
   });
 
   const columns = useMemo(
@@ -185,79 +151,10 @@ export const RolesAdminView = () => {
     if (roleToDelete) deleteRole(roleToDelete.id);
   }, [deleteRole, roleToDelete]);
 
-  const onSubmit = values => {
-    const name = values.name?.trim();
-    const id = values.id?.trim();
-    setSearchParams(
-      prev => {
-        const next = new URLSearchParams(prev);
-
-        if (id) next.set('id', id);
-        else next.delete('id');
-
-        if (name) next.set('name', name);
-        else next.delete('name');
-
-        return next;
-      },
-      { replace: true },
-    );
-  };
-
-  const onClear = () => {
-    setSearchParams(
-      prev => {
-        const next = new URLSearchParams(prev);
-        next.delete('id');
-        next.delete('name');
-        return next;
-      },
-      { replace: true },
-    );
-  };
-
   return (
     <Article>
       <Header>
-        <Search>
-          <StyledForm
-            formType={FORM_TYPES.SEARCH_FORM}
-            initialValues={{ id: idQuery, name: nameQuery }}
-            key={`id=${idQuery ?? ''}&name=${nameQuery ?? ''}`}
-            onSubmit={onSubmit}
-            render={({ submitForm }) => (
-              <>
-                <StyledField
-                  component={TextField}
-                  inputProps={{ 'data-testid': 'roles-search-name-input' }}
-                  label={<TranslatedText stringId="admin.roles.name.label" fallback="Name" />}
-                  name="name"
-                  placeholder={getTranslation('general.action.search...', 'Search…')}
-                />
-                <StyledField
-                  component={AutocompleteField}
-                  data-testid="roles-search-id"
-                  label={<TranslatedText stringId="admin.roles.id.label" fallback="ID" />}
-                  name="id"
-                  placeholder={getTranslation('general.action.search...', 'Search…')}
-                  suggester={roleSuggester}
-                />
-                <ButtonGroup>
-                  <FormSubmitButton
-                    color="primary"
-                    data-testid="roles-search-button"
-                    onClick={submitForm}
-                  >
-                    <TranslatedText stringId="general.action.search" fallback="Search" />
-                  </FormSubmitButton>
-                  <Button data-testid="roles-clear-button" onClick={onClear} variant="text">
-                    <TranslatedText stringId="general.action.clear" fallback="Clear" />
-                  </Button>
-                </ButtonGroup>
-              </>
-            )}
-          />
-        </Search>
+        <RolesSearchForm />
         <AddButton data-testid="roles-add-role-button" onClick={() => navigate('new')}>
           {plusIcon}
           <TranslatedText stringId="general.action.add-role" fallback="Add role" />
