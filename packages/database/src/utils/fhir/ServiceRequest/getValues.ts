@@ -184,7 +184,7 @@ async function imagingCode(upstream: ImagingRequest, models: Models) {
     code,
     undefined,
     label,
-    config.hl7.dataDictionaries.serviceRequestImagingTypeCodeSystem,
+    getFhirDataDictionaries().serviceRequestImagingTypeCodeSystem,
   );
 }
 
@@ -289,8 +289,8 @@ function labCode(upstream: LabRequest) {
     code,
     externalCode,
     name,
-    config.hl7.dataDictionaries.serviceRequestLabPanelCodeSystem,
-    config.hl7.dataDictionaries.serviceRequestLabPanelExternalCodeSystem,
+    getFhirDataDictionaries().serviceRequestLabPanelCodeSystem,
+    getFhirDataDictionaries().serviceRequestLabPanelExternalCodeSystem,
   );
 }
 
@@ -305,8 +305,8 @@ function labOrderDetails({ tests }: LabRequest) {
         code,
         externalCode,
         name,
-        config.hl7.dataDictionaries.serviceRequestLabTestCodeSystem,
-        config.hl7.dataDictionaries.serviceRequestLabTestExternalCodeSystem,
+        getFhirDataDictionaries().serviceRequestLabTestCodeSystem,
+        getFhirDataDictionaries().serviceRequestLabTestExternalCodeSystem,
       );
     });
   }

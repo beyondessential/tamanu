@@ -60,7 +60,7 @@ function classification(encounter: Encounter) {
     new FhirCodeableConcept({
       coding: [
         new FhirCoding({
-          system: config.hl7.dataDictionaries.encounterClass,
+          system: getFhirDataDictionaries().encounterClass,
           code,
           display:
             FHIR_ENCOUNTER_CLASS_DISPLAY[code as keyof typeof FHIR_ENCOUNTER_CLASS_DISPLAY] ?? null,
@@ -129,7 +129,7 @@ async function locationRef(encounter: Encounter, models: Models) {
       physicalType: new FhirCodeableConcept({
         coding: [
           {
-            system: config.hl7.dataDictionaries.locationPhysicalType,
+            system: getFhirDataDictionaries().locationPhysicalType,
             code: JURISDICTION,
             display: FHIR_LOCATION_PHYSICAL_TYPE_DISPLAY[JURISDICTION],
           },
@@ -145,7 +145,7 @@ async function locationRef(encounter: Encounter, models: Models) {
       physicalType: new FhirCodeableConcept({
         coding: [
           {
-            system: config.hl7.dataDictionaries.locationPhysicalType,
+            system: getFhirDataDictionaries().locationPhysicalType,
             code: WARD,
             display: FHIR_LOCATION_PHYSICAL_TYPE_DISPLAY[WARD],
           },
@@ -161,7 +161,7 @@ async function locationRef(encounter: Encounter, models: Models) {
       physicalType: new FhirCodeableConcept({
         coding: [
           {
-            system: config.hl7.dataDictionaries.locationPhysicalType,
+            system: getFhirDataDictionaries().locationPhysicalType,
             code: BED,
             display: FHIR_LOCATION_PHYSICAL_TYPE_DISPLAY[BED],
           },
