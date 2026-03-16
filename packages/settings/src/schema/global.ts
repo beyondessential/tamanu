@@ -69,7 +69,7 @@ export const globalSettings = {
             enabled: {
               description: 'Enable audit changes',
               type: yup.boolean(),
-              defaultValue: false,
+              defaultValue: true,
             },
           },
         },
