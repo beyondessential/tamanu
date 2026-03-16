@@ -6,8 +6,7 @@ import { REGISTRATION_STATUSES, SURVEY_TYPES, FORM_TYPES } from '@tamanu/constan
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { useApi } from '../../api';
 import { Heading5 } from '../../components/Typography';
-import { Field } from '../../components/Field';
-import { BaseSelectField, Form, Button, FormGrid } from '@tamanu/ui-components';
+import { Form, Button, FormGrid } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 import { foreignKey } from '../../utils/validation';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
@@ -16,6 +15,7 @@ import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
+import { ProgramSurveyList } from '../../components/ProgramSurveyList';
 
 const DisplayContainer = styled.div`
   border: 1px solid ${Colors.outline};
@@ -47,16 +47,23 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
   const { navigateToProgramRegistrySurvey } = usePatientNavigation();
   const { getTranslation } = useTranslation();
   const { setProgramRegistryId } = useProgramRegistryContext();
+  const patientId = patientProgramRegistration?.patientId;
 
   const { data: surveys } = useQuery(
-    ['programSurveys', patientProgramRegistration.programRegistry.programId],
+    ['programSurveys', patientProgramRegistration.programRegistry.programId, patientId],
     () =>
       api
-        .get(`program/${patientProgramRegistration.programRegistry.programId}/surveys`)
+        .get(`program/${patientProgramRegistration.programRegistry.programId}/surveys`, {
+          params: patientId ? { patientId } : {},
+        })
         .then(response => {
           return response.data
             .filter(s => s.surveyType === SURVEY_TYPES.PROGRAMS)
-            .map(x => ({ value: x.id, label: x.name }));
+            .map(x => ({
+              value: x.id,
+              label: x.name,
+              passesFormVisibility: x.passesFormVisibility,
+            }));
         }),
   );
 
@@ -75,34 +82,42 @@ export const PatientProgramRegistrationSelectSurvey = ({ patientProgramRegistrat
           );
         }}
         formType={FORM_TYPES.CREATE_FORM}
-        render={({ values, submitForm }) => {
+        render={({ values, setFieldValue, submitForm }) => {
           const isRemoved =
             patientProgramRegistration.registrationStatus === REGISTRATION_STATUSES.INACTIVE;
+          const items = (surveys || []).map(survey => {
+            const disabled = isRemoved || !survey.passesFormVisibility;
+            return {
+              value: survey.value,
+              label: survey.label,
+              disabled,
+              showVisibilityTooltip: disabled && !isRemoved,
+            };
+          });
           return (
             <StyledFormGrid>
-              <ConditionalTooltip visible={isRemoved} title="Patient must be active">
-                <Field
-                  name="surveyId"
-                  label={
-                    <Heading5 mt={1} mb={1}>
-                      <TranslatedText
-                        stringId="programRegistry.selectSurveyForm.heading"
-                        fallback="Select a :programRegistry form below to complete"
-                        replacements={{
-                          programRegistry: getTranslation(
-                            getReferenceDataStringId(programRegistry?.id, 'programRegistry'),
-                            programRegistry?.name,
-                          ),
-                        }}
-                      />
-                    </Heading5>
-                  }
-                  component={BaseSelectField}
-                  placeholder={getTranslation('general.placeholder.select', 'Select')}
-                  options={surveys}
-                  disabled={isRemoved}
-                />
-              </ConditionalTooltip>
+              <div>
+                <Heading5 mt={1} mb={1}>
+                  <TranslatedText
+                    stringId="programRegistry.selectSurveyForm.heading"
+                    fallback="Select a :programRegistry form below to complete"
+                    replacements={{
+                      programRegistry: getTranslation(
+                        getReferenceDataStringId(programRegistry?.id, 'programRegistry'),
+                        programRegistry?.name,
+                      ),
+                    }}
+                  />
+                </Heading5>
+                <ConditionalTooltip visible={isRemoved} title="Patient must be active">
+                  <ProgramSurveyList
+                    items={items}
+                    selectedValue={values.surveyId}
+                    onSelect={id => setFieldValue('surveyId', id)}
+                    listMarginBottom={8}
+                  />
+                </ConditionalTooltip>
+              </div>
               <ConditionalTooltip
                 title={
                   isRemoved ? (

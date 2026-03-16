@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { SelectInput, Button, TextButton, ButtonRow } from '@tamanu/ui-components';
+import { Button, TextButton, ButtonRow } from '@tamanu/ui-components';
 import { SendFormToPatientPortalModal } from '../patients/components/SendFormToPatientPortalModal';
 import { TranslatedText } from '../../components';
 import { SendIcon } from '../../components/Icons/SendIcon';
 import { useSettings } from '../../contexts/Settings';
 import { useAuth } from '../../contexts/Auth.jsx';
+import { ProgramSurveyList } from '../../components/ProgramSurveyList';
 
 const StyledButtonRow = styled(ButtonRow)`
   margin-top: 24px;
@@ -45,8 +46,7 @@ const SendFormToPatientPortalModalButton = ({ setOpen, isDisabled }) => {
 export const SurveySelector = React.memo(({ value, onChange, onSubmit, surveys, buttonText }) => {
   const [open, setOpen] = useState(false);
 
-  const handleChange = event => {
-    const surveyId = event.target.value;
+  const handleSelectSurvey = surveyId => {
     onChange(surveyId);
   };
 
@@ -54,14 +54,22 @@ export const SurveySelector = React.memo(({ value, onChange, onSubmit, surveys, 
     onSubmit(value);
   };
 
+  const items = (surveys || []).map(survey => {
+    const disabled = survey.passesFormVisibility === false;
+    return {
+      value: survey.value,
+      label: survey.label,
+      disabled,
+      showVisibilityTooltip: disabled,
+    };
+  });
+
   return (
     <>
-      <SelectInput
-        name="survey"
-        options={surveys}
-        value={value ?? ''}
-        onChange={handleChange}
-        data-testid="selectinput-4g3c"
+      <ProgramSurveyList
+        items={items}
+        selectedValue={value}
+        onSelect={handleSelectSurvey}
       />
       <StyledButtonRow data-testid="styledbuttonrow-nem0">
         <SendFormToPatientPortalModalButton setOpen={setOpen} isDisabled={!value} />
